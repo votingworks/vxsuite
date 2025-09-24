@@ -1,10 +1,4 @@
-import {
-  assert,
-  assertDefined,
-  find,
-  iter,
-  uniqueBy,
-} from '@votingworks/basics';
+import { assert, assertDefined, find, uniqueBy } from '@votingworks/basics';
 import {
   Admin,
   BallotStyleId,
@@ -64,31 +58,24 @@ export async function createPrecinctTestDeck({
   if (ballotSpecs.length === 0) {
     return undefined;
   }
-  const markedBallots = await iter(
-    rendererPool.runTasks(
-      ballotSpecs.map((ballotSpec) => async (renderer) => {
-        const { props, contents } = find(
-          ballots,
-          (ballot) =>
-            ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
-            ballot.props.precinctId === ballotSpec.precinctId
-        );
-        const document = await renderer.loadDocumentFromContent(contents);
-        const markedBallot = await markBallotDocument(
-          document,
-          ballotSpec.votes
-        );
-        const ballotPdf = await renderBallotPdfWithMetadataQrCode(
-          props,
-          markedBallot,
-          electionDefinition
-        );
-        return ballotPdf;
-      })
-    )
-  )
-    .async()
-    .toArray();
+  const markedBallots = await rendererPool.runTasks(
+    ballotSpecs.map((ballotSpec) => async (renderer) => {
+      const { props, contents } = find(
+        ballots,
+        (ballot) =>
+          ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
+          ballot.props.precinctId === ballotSpec.precinctId
+      );
+      const document = await renderer.loadDocumentFromContent(contents);
+      const markedBallot = await markBallotDocument(document, ballotSpec.votes);
+      const ballotPdf = await renderBallotPdfWithMetadataQrCode(
+        props,
+        markedBallot,
+        electionDefinition
+      );
+      return ballotPdf;
+    })
+  );
   return await concatenatePdfs(markedBallots);
 }
 

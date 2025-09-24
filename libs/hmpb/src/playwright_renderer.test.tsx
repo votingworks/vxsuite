@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest';
-import { iter, range } from '@votingworks/basics';
+import { range } from '@votingworks/basics';
 import { chromium } from 'playwright';
 import { createPlaywrightRendererPool } from './playwright_renderer';
 
@@ -29,11 +29,7 @@ test('RendererPool can only run one set of tasks at a time', async () => {
   const rendererPool = await createPlaywrightRendererPool();
   await expect(() =>
     Promise.all(
-      range(0, 2).map(() =>
-        iter(rendererPool.runTasks([() => Promise.resolve()]))
-          .async()
-          .toArray()
-      )
+      range(0, 2).map(() => rendererPool.runTasks([() => Promise.resolve()]))
     )
   ).rejects.toThrow('Cannot run multiple sets of tasks concurrently');
   // For some reason, this throws an error claiming the browser is already closed.
@@ -55,16 +51,12 @@ test('RendererPool runs tasks and returns results in order, reusing pages up to 
   const numTasks = 50;
   const rendererPool = await createPlaywrightRendererPool(poolSize);
   expect(
-    await iter(
-      rendererPool.runTasks(
-        range(0, numTasks).map((i) => async (renderer) => {
-          const document = await renderer.loadDocumentFromContent(String(i));
-          return document.getContent();
-        })
-      )
+    await rendererPool.runTasks(
+      range(0, numTasks).map((i) => async (renderer) => {
+        const document = await renderer.loadDocumentFromContent(String(i));
+        return document.getContent();
+      })
     )
-      .async()
-      .toArray()
   ).toEqual(
     range(0, numTasks).map((i) => `<html><head></head><body>${i}</body></html>`)
   );

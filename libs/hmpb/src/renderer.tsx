@@ -217,7 +217,7 @@ export interface SingletonRenderer extends Renderer {
 export type Task<T> = (renderer: Renderer) => Promise<T>;
 
 export interface RendererPool {
-  runTasks<T>(tasks: Array<Task<T>>): AsyncGenerator<T>;
+  runTasks<T>(tasks: Array<Task<T>>): Promise<T[]>;
   runTask<T>(task: Task<T>): Promise<T>;
   close(): Promise<void>;
 }

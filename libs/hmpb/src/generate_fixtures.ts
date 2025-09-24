@@ -274,36 +274,24 @@ export async function main(): Promise<number> {
   }
 
   if (fixtures.size === 0 || fixtures.has('timing-mark-paper')) {
-    await iter(
-      rendererPool.runTasks(
-        ALL_PAPER_SIZES.map((paperSize) => async (renderer) => {
-          await generateTimingMarkPaperFixtures(
-            renderer,
-            paperSize,
-            'standard'
-          );
-          await generateTimingMarkPaperFixtures(
-            renderer,
-            paperSize,
-            'qa-overlay'
-          );
-        })
-      )
-    )
-      .async()
-      .count(); // Drain iterator
+    await rendererPool.runTasks(
+      ALL_PAPER_SIZES.map((paperSize) => async (renderer) => {
+        await generateTimingMarkPaperFixtures(renderer, paperSize, 'standard');
+        await generateTimingMarkPaperFixtures(
+          renderer,
+          paperSize,
+          'qa-overlay'
+        );
+      })
+    );
   }
 
   if (fixtures.size === 0 || fixtures.has('calibration-sheet')) {
-    await iter(
-      rendererPool.runTasks(
-        ALL_PAPER_SIZES.map((paperSize) => async (renderer) => {
-          await generateCalibrationSheetFixtures(renderer, paperSize);
-        })
-      )
-    )
-      .async()
-      .count(); // Drain iterator
+    await rendererPool.runTasks(
+      ALL_PAPER_SIZES.map((paperSize) => async (renderer) => {
+        await generateCalibrationSheetFixtures(renderer, paperSize);
+      })
+    );
   }
 
   await rendererPool.close();

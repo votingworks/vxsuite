@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDomServer from 'react-dom/server';
 import { chromium } from 'playwright';
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { cpus } from 'node:os';
 import {
   Page,
@@ -102,29 +102,51 @@ export async function createPlaywrightRenderer(): Promise<SingletonRenderer> {
   };
 }
 
+type ExecutingTask<T> = Promise<{
+  result: T;
+  taskIndex: number;
+  self: ExecutingTask<T>;
+}>;
+
 /**
- * Runs tasks with a concurrency limit, yielding results in the order the
- * tasks were provided.
+ * Runs tasks with a concurrency limit, returning an array of results in the
+ * order the tasks were provided.
  */
-async function* runTasksConcurrently<T>({
+async function runTasksConcurrently<T>({
   tasks,
   concurrencyLimit,
 }: {
   tasks: Array<() => Promise<T>>;
   concurrencyLimit: number;
-}): AsyncGenerator<T> {
-  let nextTaskIndex = 0;
-  const executing: Array<Promise<T>> = [];
+}): Promise<T[]> {
+  const executing = new Set<ExecutingTask<T>>();
+  const results: T[] = [];
 
-  while (nextTaskIndex < tasks.length || executing.length > 0) {
-    if (executing.length < concurrencyLimit && nextTaskIndex < tasks.length) {
-      const task = tasks[nextTaskIndex];
-      executing.push(task());
-      nextTaskIndex += 1;
-    } else {
-      yield await assertDefined(executing.shift());
+  async function waitForNextCompletedTask(): Promise<void> {
+    const completed = await Promise.race(executing);
+    results[completed.taskIndex] = completed.result;
+    executing.delete(completed.self);
+  }
+
+  for (const [taskIndex, task] of tasks.entries()) {
+    const executingTask: ExecutingTask<T> = task().then((result) => ({
+      result,
+      taskIndex,
+      // Return a self-reference so we can remove this promise from the
+      // executing set when it completes.
+      self: executingTask,
+    }));
+    executing.add(executingTask);
+    if (executing.size >= concurrencyLimit) {
+      await waitForNextCompletedTask();
     }
   }
+
+  while (executing.size > 0) {
+    await waitForNextCompletedTask();
+  }
+
+  return results;
 }
 
 /**
@@ -142,10 +164,10 @@ export async function createPlaywrightRendererPool(
   const pages: Page[] = [];
   let isRunningTasks = false;
 
-  async function* runTasks<T>(tasks: Array<Task<T>>): AsyncGenerator<T> {
+  async function runTasks<T>(tasks: Array<Task<T>>): Promise<T[]> {
     assert(!isRunningTasks, 'Cannot run multiple sets of tasks concurrently');
     isRunningTasks = true;
-    yield* runTasksConcurrently({
+    const results = await runTasksConcurrently({
       tasks: tasks.map((task) => async () => {
         const page = pages.pop() ?? (await context.newPage());
         const pageHandle = makePageHandle(page);
@@ -159,6 +181,7 @@ export async function createPlaywrightRendererPool(
       concurrencyLimit: size,
     });
     isRunningTasks = false;
+    return results;
   }
 
   return {
@@ -173,9 +196,7 @@ export async function createPlaywrightRendererPool(
      * with other tasks.
      */
     async runTask<T>(task: Task<T>): Promise<T> {
-      const [result] = await iter(runTasks([task]))
-        .async()
-        .toArray();
+      const [result] = await runTasks([task]);
       return result;
     },
 
