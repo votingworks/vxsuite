@@ -109,7 +109,26 @@ export interface SystemSettings {
    * contest seat limit.
    */
   readonly bmdAllowOvervotes?: boolean;
+
+  /**
+   * The BMD print mode for the election.
+   * See {@link BmdPrintMode}.
+   */
+  readonly bmdPrintMode?: BmdPrintMode;
 }
+
+const PRINT_MODES = [
+  'bubble_ballot',
+  'marks_on_preprinted_ballot',
+  'summary',
+] as const;
+
+/**
+ * - `bubble_ballot`: Full HMPBs, printed on blank sheets, with votes marked.
+ * - `marks_on_preprinted_ballot`: Bubble marks only, on preprinted HMPB sheets.
+ * - `summary`: Summary ballot, printed on blank sheets, with QR-encoded votes.
+ */
+export type BmdPrintMode = (typeof PRINT_MODES)[number];
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   allowOfficialBallotsInTestMode: z.boolean().optional(),
@@ -132,6 +151,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   precinctScanEnableBmdBallotScanning: z.boolean().optional(),
   minimumDetectedBallotScaleOverride: z.number().min(0.0).max(1.0).optional(),
   bmdAllowOvervotes: z.boolean().optional(),
+  bmdPrintMode: z.enum(PRINT_MODES).optional(),
 });
 
 /**
