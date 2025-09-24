@@ -47,20 +47,18 @@ async function main(): Promise<number> {
   const { store } = workspace;
 
   const auth0 = authEnabled() ? Auth0Client.init() : Auth0Client.dev();
-  if (authEnabled()) {
-    try {
-      await store.syncOrganizationsCache(await auth0.allOrgs());
-    } catch (error) {
-      if (NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.warn(
-          'Error syncing the auth organizations to the local database.',
-          'Are you using a production database backup in development?',
-          'If so, set AUTH_ENABLED=false and ORG_ID_VOTINGWORKS=<prod_Auth0_VX_org_id>.'
-        );
-      }
-      throw error;
+  try {
+    await store.syncOrganizationsCache(await auth0.allOrgs());
+  } catch (error) {
+    if (NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.warn(
+        'Error syncing the auth organizations to the local database.',
+        'Are you using a production database backup in development?',
+        'If so, set AUTH_ENABLED=false and ORG_ID_VOTINGWORKS=<prod_Auth0_VX_org_id>.'
+      );
     }
+    throw error;
   }
 
   // We reuse the VxSuite logging library, but it doesn't matter if we meet VVSG
