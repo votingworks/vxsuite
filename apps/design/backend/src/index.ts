@@ -61,6 +61,8 @@ async function main(): Promise<number> {
       }
       throw error;
     }
+  } else {
+    await store.syncOrganizationsCache(await auth0.allOrgs());
   }
 
   // We reuse the VxSuite logging library, but it doesn't matter if we meet VVSG
