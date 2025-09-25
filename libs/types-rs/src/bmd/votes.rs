@@ -4,7 +4,7 @@ use super::error::Error;
 use super::write_in_name::WriteInName;
 use crate::{
     coding::BitSize,
-    election::{Contest, ContestId, OptionId},
+    election::{Contest, OptionId},
 };
 
 #[derive(Debug, PartialEq)]
@@ -31,14 +31,8 @@ pub type YesNoVote = OptionId;
 
 #[derive(Debug, PartialEq)]
 pub enum ContestVote {
-    Candidate {
-        contest_id: ContestId,
-        votes: Vec<CandidateVote>,
-    },
-    YesNo {
-        contest_id: ContestId,
-        vote: YesNoVote,
-    },
+    Candidate(Vec<CandidateVote>),
+    YesNo(YesNoVote),
 }
 
 impl ToBitStreamWith<'_> for ContestVote {
@@ -54,12 +48,7 @@ impl ToBitStreamWith<'_> for ContestVote {
         Self: Sized,
     {
         match (contest, self) {
-            (
-                Contest::Candidate(candidate_contest),
-                ContestVote::Candidate { contest_id, votes },
-            ) => {
-                assert_eq!(contest_id, &candidate_contest.id);
-
+            (Contest::Candidate(candidate_contest), Self::Candidate(votes)) => {
                 // candidate choices get one bit per candidate
                 for candidate in &candidate_contest.candidates {
                     w.write_bit(
@@ -92,17 +81,19 @@ impl ToBitStreamWith<'_> for ContestVote {
                 }
             }
 
-            (Contest::YesNo(yesno_contest), ContestVote::YesNo { contest_id, vote }) => {
-                assert_eq!(&yesno_contest.id, contest_id);
+            (Contest::YesNo(yesno_contest), Self::YesNo(vote)) => {
                 if vote == &yesno_contest.yes_option.id {
                     w.write_bit(true)?;
                 } else if vote == &yesno_contest.no_option.id {
                     w.write_bit(false)?;
                 } else {
-                    return Err(Error::InvalidVotes { message: format!("Contest '{contest_id}' has a vote for option '{vote}', but that is not one of the options for that contest (yes={}, no={})",
+                    return Err(Error::InvalidVotes {
+                        message: format!("Contest '{}' has a vote for option '{vote}', but that is not one of the options for that contest (yes={}, no={})",
+                            yesno_contest.id,
                             yesno_contest.yes_option.id,
                             yesno_contest.no_option.id,
-                        ) });
+                        )
+                    });
                 }
             }
 
@@ -164,30 +155,26 @@ impl FromBitStreamWith<'_> for ContestVote {
                     }
                 }
 
-                Ok(ContestVote::Candidate {
-                    contest_id: candidate_contest.id.clone(),
-                    votes,
-                })
+                Ok(Self::Candidate(votes))
             }
             Contest::YesNo(yesno_contest) => {
                 // yesno votes get a single bit
-                Ok(ContestVote::YesNo {
-                    contest_id: yesno_contest.id.clone(),
-                    vote: if r.read_bit()? {
-                        yesno_contest.yes_option.id.clone()
-                    } else {
-                        yesno_contest.no_option.id.clone()
-                    },
-                })
+                Ok(Self::YesNo(if r.read_bit()? {
+                    yesno_contest.yes_option.id.clone()
+                } else {
+                    yesno_contest.no_option.id.clone()
+                }))
             }
         }
     }
 }
 
 impl ContestVote {
-    pub fn contest_id(&self) -> &ContestId {
+    #[must_use]
+    pub fn has_votes(&self) -> bool {
         match self {
-            Self::Candidate { contest_id, .. } | Self::YesNo { contest_id, .. } => contest_id,
+            Self::Candidate(votes) => !votes.is_empty(),
+            Self::YesNo(_) => true,
         }
     }
 }

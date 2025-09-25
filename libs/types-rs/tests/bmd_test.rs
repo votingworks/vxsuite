@@ -1,5 +1,7 @@
 #![allow(clippy::unwrap_used)]
 
+use std::collections::HashMap;
+
 use proptest::proptest;
 use types_rs::ballot_card::BallotType;
 use types_rs::bmd::cvr::CastVoteRecord;
@@ -20,7 +22,7 @@ fn test_cast_vote_record_round_trip_no_votes() {
         ballot_hash: [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
-        votes: Vec::new(),
+        votes: HashMap::new(),
         is_test_mode: true,
         ballot_type: BallotType::Precinct,
         ballot_audit_id: None,
@@ -46,13 +48,13 @@ fn test_cast_vote_record_round_trip_write_in_vote() {
         ballot_hash: [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
-        votes: vec![ContestVote::Candidate {
-            contest_id: candidate_contest.id.clone(),
-            votes: vec![CandidateVote::WriteInCandidate {
+        votes: HashMap::from([(
+            candidate_contest.id.clone(),
+            ContestVote::Candidate(vec![CandidateVote::WriteInCandidate {
                 candidate_id: OptionId::from("write-in-BOB".to_owned()),
                 name: WriteInName::new("BOB").unwrap(),
-            }],
-        }],
+            }]),
+        )]),
         is_test_mode: true,
         ballot_type: BallotType::Precinct,
         ballot_audit_id: None,
@@ -78,9 +80,8 @@ proptest! {
             ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
             precinct_id: election.precincts.first().unwrap().id.clone(),
             votes: election.contests.iter().map(|contest| match contest {
-                Contest::Candidate(candidate_contest) => ContestVote::Candidate {
-                    contest_id: candidate_contest.id.clone(),
-                    votes: candidate_contest
+                Contest::Candidate(candidate_contest) => (candidate_contest.id.clone(), ContestVote::Candidate(
+                    candidate_contest
                         .candidates
                         .iter()
                         .filter_map(|candidate| match candidate {
@@ -91,12 +92,11 @@ proptest! {
                             candidate_id: candidate.id.clone(),
                         })
                         .take(candidate_contest.seats as usize)
-                        .collect(),
-                },
-                Contest::YesNo(yesno_contest) => ContestVote::YesNo {
-                    contest_id: yesno_contest.id.clone(),
-                    vote: yesno_contest.yes_option.id.clone(),
-                },
+                        .collect()
+                )),
+                Contest::YesNo(yesno_contest) => (yesno_contest.id.clone(), ContestVote::YesNo(
+                    yesno_contest.yes_option.id.clone()
+                ))
             }).collect(),
             is_test_mode,
             ballot_type,
@@ -120,10 +120,7 @@ fn test_yesno_contest_vote_round_trip() {
             Contest::YesNo(yesno_contest) => Some((contest, yesno_contest)),
         })
         .unwrap();
-    let contest_vote = ContestVote::YesNo {
-        contest_id: yesno_contest.id.clone(),
-        vote: yesno_contest.yes_option.id.clone(),
-    };
+    let contest_vote = ContestVote::YesNo(yesno_contest.yes_option.id.clone());
     let encoded_contest_vote = coding::encode_with(&contest_vote, contest).unwrap();
     let decoded_contest_vote: ContestVote =
         coding::decode_with(&encoded_contest_vote, contest).unwrap();
@@ -141,12 +138,9 @@ fn test_candidate_contest_vote_round_trip() {
             Contest::YesNo(_) => None,
         })
         .unwrap();
-    let contest_vote = ContestVote::Candidate {
-        contest_id: candidate_contest.id.clone(),
-        votes: vec![CandidateVote::NamedCandidate {
-            candidate_id: candidate_contest.candidates.first().unwrap().id().clone(),
-        }],
-    };
+    let contest_vote = ContestVote::Candidate(vec![CandidateVote::NamedCandidate {
+        candidate_id: candidate_contest.candidates.first().unwrap().id().clone(),
+    }]);
     let encoded_contest_vote = coding::encode_with(&contest_vote, contest).unwrap();
     let decoded_contest_vote: ContestVote =
         coding::decode_with(&encoded_contest_vote, contest).unwrap();

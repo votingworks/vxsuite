@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
 
 use crate::{
     ballot_card::{BallotAuditIdLength, BallotStyleByIndex, BallotType, PrecinctByIndex},
     bmd::{error::Error, votes::ContestVote, PartialBallotHash, PRELUDE},
-    election::{BallotStyleId, Election, PrecinctId},
+    election::{BallotStyleId, ContestId, Election, PrecinctId},
 };
 
 /// A cast vote record as encoded on a BMD summary ballot's QR code.
@@ -12,7 +14,7 @@ pub struct CastVoteRecord {
     pub ballot_hash: PartialBallotHash,
     pub ballot_style_id: BallotStyleId,
     pub precinct_id: PrecinctId,
-    pub votes: Vec<ContestVote>,
+    pub votes: HashMap<ContestId, ContestVote>,
     pub is_test_mode: bool,
     pub ballot_type: BallotType,
     // Not currently used in BMD ballots, but we do try to read them.
@@ -76,34 +78,17 @@ impl ToBitStreamWith<'_> for CastVoteRecord {
 
         // write roll call
         for contest in &contests {
-            w.write_bit(self.votes.iter().any(|contest_vote| match contest_vote {
-                ContestVote::Candidate { contest_id, votes } if contest_id == contest.id() => {
-                    !votes.is_empty()
-                }
-                ContestVote::YesNo { contest_id, .. } if contest_id == contest.id() => true,
-                _ => false,
-            }))?;
+            let contest_vote = self.votes.get(contest.id());
+            w.write_bit(contest_vote.is_some_and(ContestVote::has_votes))?;
         }
 
         // write vote data
         for contest in &contests {
-            let contest_votes = self
-                .votes
-                .iter()
-                .filter(|contest_vote| contest_vote.contest_id() == contest.id())
-                .collect::<Vec<_>>();
-
-            let contest_vote = match contest_votes[..] {
-                [] => continue,
-                [_, _, ..] => {
-                    return Err(Error::InvalidVotes {
-                        message: "Too many ContestVote records for contest".to_owned(),
-                    })
+            if let Some(contest_vote) = self.votes.get(contest.id()) {
+                if contest_vote.has_votes() {
+                    w.build_with(contest_vote, contest)?;
                 }
-                [contest_vote] => contest_vote,
-            };
-
-            w.build_with(contest_vote, contest)?;
+            }
         }
 
         Ok(())
@@ -157,10 +142,12 @@ impl FromBitStreamWith<'_> for CastVoteRecord {
         }
 
         // read vote data
-        let votes: Vec<ContestVote> = contests_with_votes
-            .into_iter()
-            .map(|contest| r.parse_with(&contest))
-            .collect::<Result<_, Error>>()?;
+        let mut votes = HashMap::new();
+
+        for contest in contests_with_votes {
+            let vote = r.parse_with(&contest)?;
+            votes.insert(contest.id().clone(), vote);
+        }
 
         Ok(CastVoteRecord {
             ballot_hash,
