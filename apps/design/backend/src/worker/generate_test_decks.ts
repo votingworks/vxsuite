@@ -1,7 +1,9 @@
 import {
   BallotType,
   ElectionId,
+  ElectionIdSchema,
   ElectionSerializationFormat,
+  ElectionSerializationFormatSchema,
   formatBallotHash,
 } from '@votingworks/types';
 import { translateBallotStrings } from '@votingworks/backend';
@@ -14,6 +16,7 @@ import {
 import { iter } from '@votingworks/basics';
 import JsZip from 'jszip';
 import path from 'node:path';
+import z from 'zod/v4';
 import { WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -25,15 +28,20 @@ import {
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
 } from '../test_decks';
 
+interface GenerateTestDecksPayload {
+  electionId: ElectionId;
+  electionSerializationFormat: ElectionSerializationFormat;
+}
+
+export const GenerateTestDecksPayloadSchema: z.ZodType<GenerateTestDecksPayload> =
+  z.object({
+    electionId: ElectionIdSchema,
+    electionSerializationFormat: ElectionSerializationFormatSchema,
+  });
+
 export async function generateTestDecks(
   { translator, workspace, fileStorageClient }: WorkerContext,
-  {
-    electionId,
-    electionSerializationFormat,
-  }: {
-    electionId: ElectionId;
-    electionSerializationFormat: ElectionSerializationFormat;
-  }
+  { electionId, electionSerializationFormat }: GenerateTestDecksPayload
 ): Promise<void> {
   const { store } = workspace;
   const {

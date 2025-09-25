@@ -14,6 +14,8 @@ import {
   getPrecinctById,
   formatBallotHash,
   BallotType,
+  ElectionIdSchema,
+  ElectionSerializationFormatSchema,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
@@ -28,6 +30,7 @@ import {
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import { assertDefined, find, iter, range } from '@votingworks/basics';
+import z from 'zod/v4';
 import { WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -48,6 +51,23 @@ export interface V3SystemSettings {
   readonly precinctScanDisallowCastingOvervotes: boolean;
 }
 
+interface GenerateElectionPackageAndBallotsPayload {
+  electionId: ElectionId;
+  electionSerializationFormat: ElectionSerializationFormat;
+  shouldExportAudio: boolean;
+  shouldExportSampleBallots: boolean;
+  numAuditIdBallots?: number;
+}
+
+export const GenerateElectionPackageAndBallotsPayloadSchema: z.ZodType<GenerateElectionPackageAndBallotsPayload> =
+  z.object({
+    electionId: ElectionIdSchema,
+    electionSerializationFormat: ElectionSerializationFormatSchema,
+    shouldExportAudio: z.boolean(),
+    shouldExportSampleBallots: z.boolean(),
+    numAuditIdBallots: z.number().optional(),
+  });
+
 export async function generateElectionPackageAndBallots(
   {
     fileStorageClient,
@@ -61,13 +81,7 @@ export async function generateElectionPackageAndBallots(
     shouldExportAudio,
     shouldExportSampleBallots,
     numAuditIdBallots,
-  }: {
-    electionId: ElectionId;
-    electionSerializationFormat: ElectionSerializationFormat;
-    shouldExportAudio: boolean;
-    shouldExportSampleBallots?: boolean;
-    numAuditIdBallots?: number;
-  }
+  }: GenerateElectionPackageAndBallotsPayload
 ): Promise<void> {
   const { store } = workspace;
 
