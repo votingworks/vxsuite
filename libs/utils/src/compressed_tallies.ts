@@ -26,7 +26,7 @@ export function encodeCompressedTally(
 /**
  * Compresses election results
  */
-export function compressTally(
+export function compressAndEncodeTally(
   election: Election,
   results: Tabulation.ElectionResults
 ): string {
@@ -186,7 +186,7 @@ export function decodeCompressedTally(
  * `partyId` is provided, only includes contests associated with that party.
  * If `partyId` is undefined, only includes nonpartisan races.
  */
-export function readCompressedTally(
+export function decodeAndReadCompressedTally(
   election: Election,
   serializedTally: string
 ): Record<ContestId, ContestResults> {

@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import {
   buildElectionResultsFixture,
-  compressTally,
+  compressAndEncodeTally,
   ContestResultsSummary,
   encodeCompressedTally,
   getFeatureFlagMock,
@@ -234,7 +234,7 @@ test('processQRCodeReport processes a valid quick results report successfully', 
     contestResultsSummaries: {},
     includeGenericWriteIn: true,
   });
-  const encodedTally = compressTally(
+  const encodedTally = compressAndEncodeTally(
     sampleElectionDefinition.election,
     mockResults
   );
@@ -318,7 +318,7 @@ test('processQRCodeReport processes a valid quick results report successfully', 
     contestResultsSummaries: sampleContestResults,
     includeGenericWriteIn: true,
   });
-  const encodedTally2 = compressTally(
+  const encodedTally2 = compressAndEncodeTally(
     sampleElectionDefinition.election,
     mockResults2
   );

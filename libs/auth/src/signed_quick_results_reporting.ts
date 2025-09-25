@@ -7,7 +7,7 @@ import {
   safeParseInt,
 } from '@votingworks/types';
 import { assert, err, ok, Result } from '@votingworks/basics';
-import { compressTally } from '@votingworks/utils';
+import { compressAndEncodeTally } from '@votingworks/utils';
 import {
   constructPrefixedMessage,
   deconstructPrefixedMessage,
@@ -162,7 +162,7 @@ export async function generateSignedQuickResultsReportingUrl(
     /* istanbul ignore next - @preserve */ constructSignedQuickResultsReportingConfig();
 
   const { ballotHash, election } = electionDefinition;
-  const compressedTally = compressTally(election, results);
+  const compressedTally = compressAndEncodeTally(election, results);
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
 
   const messagePayload = encodeQuickResultsMessage({

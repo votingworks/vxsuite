@@ -110,22 +110,12 @@ export interface ResultsReportInfo {
   precinctId?: PrecinctOrSplitId;
 }
 
-export interface QuickResultsReportingTally {
-  electionId: ElectionId;
-  encodedCompressedTally: string;
-  machineId: string;
-  isLive: boolean;
-  signedTimestamp: Date;
+export interface AggregatedReportedResults {
+  ballotHash: string;
+  contestResults: Record<ContestId, ContestResults>;
+  election: Election;
+  machinesReporting: string[];
   precinctId?: PrecinctOrSplitId;
-}
-
-export interface QuickResultsReportingTallyRow {
-  electionId: string;
-  encodedCompressedTally: string;
-  machineId: string;
-  isLive: boolean;
-  signedAt: string; // ISO string
-  precinctId: string | null;
 }
 
 export type ResultsReportingError =

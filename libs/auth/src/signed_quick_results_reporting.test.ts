@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, Tabulation } from '@votingworks/types';
-import { compressTally } from '@votingworks/utils';
+import { compressAndEncodeTally } from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
 
 import { getTestFilePath } from '../test/utils';
@@ -19,7 +19,7 @@ vi.mock(
   '@votingworks/utils',
   async (importActual): Promise<typeof import('@votingworks/utils')> => ({
     ...(await importActual<typeof import('@votingworks/utils')>()),
-    compressTally: vi.fn<typeof compressTally>().mockReturnValue(''),
+    compressTally: vi.fn<typeof compressAndEncodeTally>().mockReturnValue(''),
   })
 );
 
@@ -52,7 +52,7 @@ test.each<{ isLiveMode: boolean }>([
         vxScanTestConfig
       );
 
-    expect(compressTally).toHaveBeenCalledTimes(1);
+    expect(compressAndEncodeTally).toHaveBeenCalledTimes(1);
     expect(signedQuickResultsReportingUrl).toMatch(
       /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
     );

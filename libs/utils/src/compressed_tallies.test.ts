@@ -14,10 +14,10 @@ import {
 } from '@votingworks/fixtures';
 import { find, assert, throwIllegalValue } from '@votingworks/basics';
 import {
-  compressTally,
+  compressAndEncodeTally,
   decodeCompressedTally,
   encodeCompressedTally,
-  readCompressedTally,
+  decodeAndReadCompressedTally,
 } from './compressed_tallies';
 import {
   buildElectionResultsFixture,
@@ -57,7 +57,7 @@ describe('compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
-    const compressedTally = compressTally(
+    const compressedTally = compressAndEncodeTally(
       electionEitherNeither,
       getEmptyElectionResults(electionEitherNeither)
     );
@@ -115,7 +115,7 @@ describe('compressTally', () => {
       },
       includeGenericWriteIn: true,
     });
-    const compressedTally = compressTally(
+    const compressedTally = compressAndEncodeTally(
       electionEitherNeither,
       resultsWithPresidentTallies
     );
@@ -158,7 +158,7 @@ describe('compressTally', () => {
       },
     });
 
-    const compressedTally = compressTally(
+    const compressedTally = compressAndEncodeTally(
       electionEitherNeither,
       resultsWithYesNoTallies
     );
@@ -183,7 +183,7 @@ describe('readCompressTally', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
     const zeroTally = getZeroCompressedTally(electionEitherNeither);
-    const tally = readCompressedTally(
+    const tally = decodeAndReadCompressedTally(
       electionEitherNeither,
       encodeCompressedTally(zeroTally)
     );
@@ -216,7 +216,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === '775020876'
     );
     assert(presidentContest?.type === 'candidate');
-    const tally = readCompressedTally(
+    const tally = decodeAndReadCompressedTally(
       electionEitherNeither,
       encodeCompressedTally(compressedTally)
     );
@@ -260,7 +260,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === 'president'
     );
     assert(presidentContest?.type === 'candidate');
-    const tally = readCompressedTally(
+    const tally = decodeAndReadCompressedTally(
       election,
       encodeCompressedTally(compressedTally)
     );
@@ -333,7 +333,7 @@ describe('readCompressTally', () => {
     compressedTally[yesNoContestIdx] = [6, 4, 20, 3, 7];
     const yesNoContest = electionEitherNeither.contests[yesNoContestIdx];
     assert(yesNoContest?.type === 'yesno');
-    const tally = readCompressedTally(
+    const tally = decodeAndReadCompressedTally(
       electionEitherNeither,
       encodeCompressedTally(compressedTally)
     );
@@ -368,8 +368,11 @@ test('primary tally can compress and be read back and end with the original tall
     includeGenericWriteIn: true,
   });
 
-  const compressedTally = compressTally(election, expectedTally);
-  const decompressedTally = readCompressedTally(election, compressedTally);
+  const compressedTally = compressAndEncodeTally(election, expectedTally);
+  const decompressedTally = decodeAndReadCompressedTally(
+    election,
+    compressedTally
+  );
 
   // using toMatchObject because decompressed contains extra attributes
   expect(decompressedTally).toMatchObject(expectedTally.contestResults);
