@@ -1542,6 +1542,7 @@ export class Store {
     electionId: ElectionId,
     electionSerializationFormat: ElectionSerializationFormat,
     shouldExportAudio: boolean,
+    shouldExportSampleBallots: boolean,
     numAuditIdBallots?: number
   ): Promise<void> {
     await this.db.withClient(async (client) =>
@@ -1558,6 +1559,7 @@ export class Store {
             electionId,
             electionSerializationFormat,
             shouldExportAudio,
+            shouldExportSampleBallots,
             numAuditIdBallots,
           }
         );

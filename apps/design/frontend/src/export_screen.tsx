@@ -46,6 +46,8 @@ const ballotTemplateOptions = {
 export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const [shouldExportAudio, setShouldExportAudio] = useState(false);
+  const [shouldExportSampleBallots, setShouldExportSampleBallots] =
+    useState(false);
   useTitle(routes.election(electionId).export.title);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
@@ -114,6 +116,7 @@ export function ExportScreen(): JSX.Element | null {
       electionId,
       electionSerializationFormat,
       shouldExportAudio,
+      shouldExportSampleBallots,
       numAuditIdBallots,
     });
   }
@@ -261,6 +264,14 @@ export function ExportScreen(): JSX.Element | null {
             An unexpected error occurred while exporting. Please try again.
           </Callout>
         )}
+
+        <P>
+          <CheckboxButton
+            label="Include sample ballots"
+            isChecked={shouldExportSampleBallots}
+            onChange={(isChecked) => setShouldExportSampleBallots(isChecked)}
+          />
+        </P>
 
         <P style={{ width: 'max-content' }}>
           <CheckboxButton

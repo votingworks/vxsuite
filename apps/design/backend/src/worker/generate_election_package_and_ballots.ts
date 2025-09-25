@@ -59,11 +59,13 @@ export async function generateElectionPackageAndBallots(
     electionId,
     electionSerializationFormat,
     shouldExportAudio,
+    shouldExportSampleBallots,
     numAuditIdBallots,
   }: {
     electionId: ElectionId;
     electionSerializationFormat: ElectionSerializationFormat;
     shouldExportAudio: boolean;
+    shouldExportSampleBallots?: boolean;
     numAuditIdBallots?: number;
   }
 ): Promise<void> {
@@ -115,6 +117,11 @@ export async function generateElectionPackageAndBallots(
     ballotStyles,
     compact
   );
+  if (!shouldExportSampleBallots) {
+    allBallotProps = allBallotProps.filter(
+      (props) => props.ballotMode !== 'sample'
+    );
+  }
 
   // If we're exporting ballots with ballot audit IDs...
   if (numAuditIdBallots) {
