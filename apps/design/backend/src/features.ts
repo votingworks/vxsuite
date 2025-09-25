@@ -55,6 +55,10 @@ enum UserFeature {
    * Allow selection of additional BMD print modes beyond summary ballots.
    */
   BMD_EXTRA_PRINT_MODES = 'BMD_EXTRA_PRINT_MODES',
+  /**
+   * Allow for configuring the Quick Results Reporting system setting on elections.
+   */
+  QUICK_RESULTS_REPORTING = 'QUICK_RESULTS_REPORTING',
 }
 
 /**
@@ -100,6 +104,7 @@ export const userFeatureConfigs = {
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
     EXPORT_TEST_DECKS: true,
+    QUICK_RESULTS_REPORTING: true,
   },
 
   sli: {
@@ -116,6 +121,7 @@ export const userFeatureConfigs = {
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: false,
     EXPORT_TEST_DECKS: false,
+    QUICK_RESULTS_REPORTING: false,
   },
 
   demos: {
@@ -132,6 +138,7 @@ export const userFeatureConfigs = {
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
     EXPORT_TEST_DECKS: true,
+    QUICK_RESULTS_REPORTING: false,
   },
 
   nh: {
@@ -148,6 +155,7 @@ export const userFeatureConfigs = {
     EXPORT_SCREEN: false,
     CHOOSE_BALLOT_TEMPLATE: false,
     EXPORT_TEST_DECKS: false,
+    QUICK_RESULTS_REPORTING: false,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
