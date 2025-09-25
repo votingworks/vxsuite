@@ -9,7 +9,6 @@ import {
   CheckboxButton,
   SearchSelect,
   H2,
-  SegmentedButton,
   FileInputButton,
   Callout,
 } from '@votingworks/ui';
@@ -221,19 +220,6 @@ export function ExportScreen(): JSX.Element | null {
               <div>Ballots not finalized</div>
             )}
           </div>
-
-          <div>
-            <SegmentedButton
-              label="Export Audio"
-              selectedOptionId={shouldExportAudio ? 1 : 0}
-              options={[
-                { id: 1, label: 'On' },
-                { id: 0, label: 'Off' },
-              ]}
-              onChange={(value) => setShouldExportAudio(value === 1)}
-              disabled={isElectionPackageExportInProgress}
-            />
-          </div>
         </Column>
 
         <H2>Export</H2>
@@ -267,13 +253,21 @@ export function ExportScreen(): JSX.Element | null {
 
         <P>
           <CheckboxButton
+            label="Include audio"
+            isChecked={shouldExportAudio}
+            onChange={(isChecked) => setShouldExportAudio(isChecked)}
+          />
+        </P>
+
+        <P>
+          <CheckboxButton
             label="Include sample ballots"
             isChecked={shouldExportSampleBallots}
             onChange={(isChecked) => setShouldExportSampleBallots(isChecked)}
           />
         </P>
 
-        <P style={{ width: 'max-content' }}>
+        <P>
           <CheckboxButton
             label="Format election using CDF"
             isChecked={electionSerializationFormat === 'cdf'}
