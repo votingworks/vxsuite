@@ -1,5 +1,5 @@
 import type { UserFeaturesConfig } from '@votingworks/design-backend';
-import { ElectionId } from '@votingworks/types';
+import { ElectionId, SystemSettings } from '@votingworks/types';
 import { Route } from '@votingworks/ui';
 
 export const resultsRoutes = {
@@ -119,6 +119,10 @@ export const routes = {
         title: 'Export',
         path: `${root}/export`,
       },
+      results: {
+        title: 'Results',
+        path: `${root}/results`,
+      },
     };
   },
 } as const;
@@ -131,7 +135,8 @@ export const electionParamRoutes = routes.election(':electionId');
 export const rootNavRoutes: Route[] = [];
 export function electionNavRoutes(
   electionId: ElectionId,
-  features: UserFeaturesConfig
+  features: UserFeaturesConfig,
+  electionSystemSettings: SystemSettings
 ): Route[] {
   const electionRoutes = routes.election(electionId);
   return [
@@ -141,5 +146,8 @@ export function electionNavRoutes(
     electionRoutes.ballots.root,
     ...(features.SYSTEM_SETTINGS_SCREEN ? [electionRoutes.systemSettings] : []),
     ...(features.EXPORT_SCREEN ? [electionRoutes.export] : []),
+    ...(electionSystemSettings.quickResultsReportingUrl
+      ? [electionRoutes.results]
+      : []),
   ];
 }
