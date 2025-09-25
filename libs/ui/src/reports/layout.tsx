@@ -9,6 +9,10 @@ export const TallyReportColumns = styled.div`
   & > div {
     margin-top: 0;
   }
+
+  @media (max-width: 600px) {
+    columns: 1;
+  }
 `;
 
 export const PrintedReport = styled.section`
