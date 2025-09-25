@@ -1,15 +1,16 @@
-import { z } from 'zod/v4';
 import { throwIllegalValue } from '@votingworks/basics';
-import {
-  ElectionIdSchema,
-  ElectionSerializationFormatSchema,
-  safeParseJson,
-} from '@votingworks/types';
+import { safeParseJson } from '@votingworks/types';
 
 import { BackgroundTask } from '../store';
 import { WorkerContext } from './context';
-import { generateElectionPackageAndBallots } from './generate_election_package_and_ballots';
-import { generateTestDecks } from './generate_test_decks';
+import {
+  generateElectionPackageAndBallots,
+  GenerateElectionPackageAndBallotsPayloadSchema,
+} from './generate_election_package_and_ballots';
+import {
+  generateTestDecks,
+  GenerateTestDecksPayloadSchema,
+} from './generate_test_decks';
 
 export async function processBackgroundTask(
   context: WorkerContext,
@@ -21,12 +22,7 @@ export async function processBackgroundTask(
     case 'generate_election_package': {
       const parsedPayload = safeParseJson(
         payload,
-        z.object({
-          electionId: ElectionIdSchema,
-          electionSerializationFormat: ElectionSerializationFormatSchema,
-          shouldExportAudio: z.boolean(),
-          numAuditIdBallots: z.number().optional(),
-        })
+        GenerateElectionPackageAndBallotsPayloadSchema
       ).unsafeUnwrap();
       await generateElectionPackageAndBallots(context, parsedPayload);
       break;
@@ -34,10 +30,7 @@ export async function processBackgroundTask(
     case 'generate_test_decks': {
       const parsedPayload = safeParseJson(
         payload,
-        z.object({
-          electionId: ElectionIdSchema,
-          electionSerializationFormat: ElectionSerializationFormatSchema,
-        })
+        GenerateTestDecksPayloadSchema
       ).unsafeUnwrap();
       await generateTestDecks(context, parsedPayload);
       break;

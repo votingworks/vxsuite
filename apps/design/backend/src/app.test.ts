@@ -2304,11 +2304,13 @@ test('Election package management', async () => {
     electionId,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
+    shouldExportSampleBallots: true,
   });
   const expectedPayload = JSON.stringify({
     electionId,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
+    shouldExportSampleBallots: true,
   });
   const electionPackageAfterInitiatingExport =
     await apiClient.getElectionPackage({ electionId });
@@ -2328,6 +2330,7 @@ test('Election package management', async () => {
     electionId,
     electionSerializationFormat: 'cdf',
     shouldExportAudio: false,
+    shouldExportSampleBallots: true,
   });
   const electionPackageAfterInitiatingRedundantExport =
     await apiClient.getElectionPackage({ electionId });
@@ -2389,6 +2392,7 @@ test('Election package management', async () => {
     electionId,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
+    shouldExportSampleBallots: true,
   });
   const electionPackageAfterInitiatingSecondExport =
     await apiClient.getElectionPackage({ electionId });
@@ -2419,6 +2423,7 @@ test('Election package management', async () => {
         electionId,
         electionSerializationFormat: 'vxf',
         shouldExportAudio: false,
+        shouldExportSampleBallots: true,
       })
     ).rejects.toThrow('auth:forbidden');
   });
@@ -2468,6 +2473,7 @@ test('Election package and ballots export', async () => {
     workspace,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: true,
+    shouldExportSampleBallots: true,
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
@@ -2790,6 +2796,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
     workspace,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
+    shouldExportSampleBallots: false,
   });
 
   const contents = assertDefined(
@@ -2917,6 +2924,7 @@ test('Consistency of ballot hash across exports', async () => {
     workspace,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
+    shouldExportSampleBallots: true,
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(
@@ -2976,6 +2984,7 @@ test('CDF exports', async () => {
     workspace,
     electionSerializationFormat: 'cdf',
     shouldExportAudio: false,
+    shouldExportSampleBallots: false,
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(
@@ -3022,7 +3031,8 @@ test('export ballots with audit IDs', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'vxf',
-    shouldExportAudio: true,
+    shouldExportAudio: false,
+    shouldExportSampleBallots: false,
     numAuditIdBallots,
   });
   const contents = assertDefined(
@@ -3301,6 +3311,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     workspace,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
+    shouldExportSampleBallots: true,
   });
   expect(renderAllBallotPdfsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer

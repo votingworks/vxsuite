@@ -691,17 +691,20 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       electionId,
       electionSerializationFormat,
       shouldExportAudio,
+      shouldExportSampleBallots,
       numAuditIdBallots,
     }: {
       electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
       shouldExportAudio: boolean;
+      shouldExportSampleBallots: boolean;
       numAuditIdBallots?: number;
     }): Promise<void> {
       return store.createElectionPackageBackgroundTask(
         electionId,
         electionSerializationFormat,
         shouldExportAudio,
+        shouldExportSampleBallots,
         numAuditIdBallots
       );
     },

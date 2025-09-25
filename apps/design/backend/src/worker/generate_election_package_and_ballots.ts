@@ -7,13 +7,12 @@ import {
   mergeUiStrings,
   formatElectionHashes,
   LATEST_METADATA,
-  SystemSettings,
-  MarkThresholds,
-  AdjudicationReason,
   ElectionId,
   getPrecinctById,
   formatBallotHash,
   BallotType,
+  ElectionIdSchema,
+  ElectionSerializationFormatSchema,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
@@ -28,6 +27,7 @@ import {
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import { assertDefined, find, iter, range } from '@votingworks/basics';
+import z from 'zod/v4';
 import { WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -39,14 +39,22 @@ import {
   renderCalibrationSheetPdf,
 } from './ballot_pdfs';
 
-export interface V3SystemSettings {
-  readonly auth: SystemSettings['auth'];
-  readonly markThresholds: MarkThresholds;
-  readonly adminAdjudicationReasons: readonly AdjudicationReason[];
-  readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
-  readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
-  readonly precinctScanDisallowCastingOvervotes: boolean;
+interface GenerateElectionPackageAndBallotsPayload {
+  electionId: ElectionId;
+  electionSerializationFormat: ElectionSerializationFormat;
+  shouldExportAudio: boolean;
+  shouldExportSampleBallots: boolean;
+  numAuditIdBallots?: number;
 }
+
+export const GenerateElectionPackageAndBallotsPayloadSchema: z.ZodType<GenerateElectionPackageAndBallotsPayload> =
+  z.object({
+    electionId: ElectionIdSchema,
+    electionSerializationFormat: ElectionSerializationFormatSchema,
+    shouldExportAudio: z.boolean(),
+    shouldExportSampleBallots: z.boolean(),
+    numAuditIdBallots: z.number().optional(),
+  });
 
 export async function generateElectionPackageAndBallots(
   {
@@ -59,13 +67,9 @@ export async function generateElectionPackageAndBallots(
     electionId,
     electionSerializationFormat,
     shouldExportAudio,
+    shouldExportSampleBallots,
     numAuditIdBallots,
-  }: {
-    electionId: ElectionId;
-    electionSerializationFormat: ElectionSerializationFormat;
-    shouldExportAudio: boolean;
-    numAuditIdBallots?: number;
-  }
+  }: GenerateElectionPackageAndBallotsPayload
 ): Promise<void> {
   const { store } = workspace;
 
@@ -115,6 +119,11 @@ export async function generateElectionPackageAndBallots(
     ballotStyles,
     compact
   );
+  if (!shouldExportSampleBallots) {
+    allBallotProps = allBallotProps.filter(
+      (props) => props.ballotMode !== 'sample'
+    );
+  }
 
   // If we're exporting ballots with ballot audit IDs...
   if (numAuditIdBallots) {
