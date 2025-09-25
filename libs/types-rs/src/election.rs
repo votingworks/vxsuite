@@ -45,7 +45,7 @@ impl Election {
             .iter()
             .enumerate()
             .find(|(_, precinct)| &precinct.id == precinct_id)
-            .and_then(|(index, _)| u32::try_from(index).ok())
+            .and_then(|(index, _)| index.try_into().ok())
             .and_then(PrecinctIndex::new)
     }
 
@@ -58,7 +58,7 @@ impl Election {
             .iter()
             .enumerate()
             .find(|(_, ballot_style)| &ballot_style.id == ballot_style_id)
-            .and_then(|(index, _)| u32::try_from(index).ok())
+            .and_then(|(index, _)| index.try_into().ok())
             .and_then(BallotStyleIndex::new)
     }
 
