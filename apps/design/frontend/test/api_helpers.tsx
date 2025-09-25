@@ -28,6 +28,7 @@ const allUserFeaturesOnConfig: UserFeaturesConfig = {
   ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
   BALLOT_LANGUAGE_CONFIG: true,
   BMD_EXTRA_PRINT_MODES: true,
+  QUICK_RESULTS_REPORTING: true,
 };
 
 const allElectionFeaturesOffConfig: ElectionFeaturesConfig = {

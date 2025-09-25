@@ -669,6 +669,16 @@ export const getUserFeatures = {
   },
 } as const;
 
+export const getBaseUrl = {
+  queryKey(): QueryKey {
+    return ['getBaseUrl'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getBaseUrl());
+  },
+} as const;
+
 export const getElectionFeatures = {
   queryKey(electionId: ElectionId): QueryKey {
     return ['getElectionFeatures', electionId];
