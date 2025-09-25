@@ -181,7 +181,7 @@ impl ToBitStreamWith<'_> for Metadata {
     fn to_writer<W: bitstream_io::BitWrite + ?Sized>(
         &self,
         w: &mut W,
-        context: &Self::Context,
+        election: &Self::Context,
     ) -> Result<(), Self::Error>
     where
         Self: Sized,
@@ -189,12 +189,12 @@ impl ToBitStreamWith<'_> for Metadata {
         w.write_bytes(PRELUDE)?;
         w.write_bytes(&self.ballot_hash)?;
 
-        let precinct_index = context
+        let precinct_index = election
             .precinct_index(&self.precinct_id)
             .ok_or_else(|| Error::InvalidPrecinctId(self.precinct_id.clone()))?;
         precinct_index.to_writer(w)?;
 
-        let ballot_style_index = context
+        let ballot_style_index = election
             .ballot_style_index(&self.ballot_style_id)
             .ok_or_else(|| Error::InvalidBallotStyleId(self.ballot_style_id.clone()))?;
         ballot_style_index.to_writer(w)?;
