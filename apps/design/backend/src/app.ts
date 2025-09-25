@@ -225,6 +225,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           'listElections',
           'getUser',
           'getUserFeatures',
+          'getBaseUrl',
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
         ];
         assert(methodsThatHandleAuthThemselves.includes(methodName));
@@ -751,6 +752,10 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       context: ApiContext
     ): UserFeaturesConfig {
       return getUserFeaturesConfig(context.user);
+    },
+
+    getBaseUrl(): string {
+      return baseUrl();
     },
 
     async getElectionFeatures(input: {
