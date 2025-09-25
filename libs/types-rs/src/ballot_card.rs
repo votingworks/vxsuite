@@ -1,10 +1,11 @@
 use std::num::NonZeroU8;
 use std::{fmt::Debug, io};
 
-use bitstream_io::{FromBitStream, ToBitStream};
+use bitstream_io::{FromBitStream, FromBitStreamWith, ToBitStream};
 use serde::{Deserialize, Serialize};
 use static_assertions::const_assert;
 
+use crate::election::{BallotStyle, Election, Precinct};
 use crate::geometry::{Inch, Size};
 use crate::{codable, coding};
 
@@ -95,6 +96,110 @@ impl PageNumber {
             _ => unreachable!(),
         }
     }
+}
+
+impl PrecinctIndex {
+    #[must_use]
+    pub fn get_from(self, election: &Election) -> Option<&Precinct> {
+        election.precincts.get(self.0 as usize)
+    }
+}
+
+impl BallotStyleIndex {
+    #[must_use]
+    pub fn get_from(self, election: &Election) -> Option<&BallotStyle> {
+        election.ballot_styles.get(self.0 as usize)
+    }
+}
+
+pub struct PrecinctByIndex {
+    precinct: Precinct,
+    index: PrecinctIndex,
+}
+
+impl PrecinctByIndex {
+    #[must_use]
+    pub fn precinct(&self) -> &Precinct {
+        &self.precinct
+    }
+
+    pub fn index(&self) -> PrecinctIndex {
+        self.index
+    }
+}
+
+impl FromBitStreamWith<'_> for PrecinctByIndex {
+    type Error = IndexError;
+    type Context = Election;
+
+    fn from_reader<R: bitstream_io::BitRead + ?Sized>(
+        r: &mut R,
+        election: &Self::Context,
+    ) -> Result<Self, Self::Error>
+    where
+        Self: Sized,
+    {
+        let index: PrecinctIndex = r.parse()?;
+
+        match index.get_from(election) {
+            Some(precinct) => Ok(PrecinctByIndex {
+                precinct: precinct.clone(),
+                index,
+            }),
+            None => Err(IndexError::Precinct(index)),
+        }
+    }
+}
+
+pub struct BallotStyleByIndex {
+    ballot_style: BallotStyle,
+    index: BallotStyleIndex,
+}
+
+impl BallotStyleByIndex {
+    #[must_use]
+    pub fn ballot_style(&self) -> &BallotStyle {
+        &self.ballot_style
+    }
+
+    pub fn index(&self) -> BallotStyleIndex {
+        self.index
+    }
+}
+
+impl FromBitStreamWith<'_> for BallotStyleByIndex {
+    type Error = IndexError;
+    type Context = Election;
+
+    fn from_reader<R: bitstream_io::BitRead + ?Sized>(
+        r: &mut R,
+        election: &Self::Context,
+    ) -> Result<Self, Self::Error>
+    where
+        Self: Sized,
+    {
+        let index: BallotStyleIndex = r.parse()?;
+
+        match index.get_from(election) {
+            Some(ballot_style) => Ok(BallotStyleByIndex {
+                ballot_style: ballot_style.clone(),
+                index,
+            }),
+            None => Err(IndexError::BallotStyle(index)),
+        }
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum IndexError {
+    #[error("Invalid precinct index: {0}")]
+    Precinct(PrecinctIndex),
+
+    #[error("Invalid ballot style index: {0}")]
+    BallotStyle(BallotStyleIndex),
+
+    #[error("Coding error: {0}")]
+    Coding(#[from] coding::Error),
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

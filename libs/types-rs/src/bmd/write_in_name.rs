@@ -98,16 +98,16 @@ impl FromBitStream for WriteInName {
 }
 
 #[cfg(test)]
-proptest::prop_compose! {
-    pub fn arbitrary_write_in_name()(name in "[ABCDEFGHIJKLMNOPQRSTUVWXYZ '\"\\-.,]{0,40}") -> WriteInName {
-        WriteInName::new(name).unwrap()
-    }
-}
-
-#[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
-    use proptest::proptest;
+    use proptest::{prop_compose, proptest};
+
+    prop_compose! {
+        pub fn arbitrary_write_in_name()(name in "[ABCDEFGHIJKLMNOPQRSTUVWXYZ '\"\\-.,]{0,40}") -> WriteInName {
+            WriteInName::new(name).unwrap()
+        }
+    }
 
     proptest! {
         #[test]

@@ -1,13 +1,14 @@
 use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
 
 use crate::{
-    ballot_card::{BallotAuditIdLength, BallotStyleIndex, BallotType, PrecinctIndex},
+    ballot_card::{BallotAuditIdLength, BallotStyleByIndex, BallotType, PrecinctByIndex},
     bmd::{error::Error, votes::ContestVote, BallotHash, PRELUDE},
     election::{BallotStyleId, Election, PrecinctId},
 };
 
+/// A cast vote record as encoded on a BMD summary ballot's QR code.
 #[derive(Debug, PartialEq)]
-pub struct CompletedBallot {
+pub struct CastVoteRecord {
     pub ballot_hash: BallotHash,
     pub ballot_style_id: BallotStyleId,
     pub precinct_id: PrecinctId,
@@ -18,7 +19,7 @@ pub struct CompletedBallot {
     pub ballot_audit_id: Option<String>,
 }
 
-impl ToBitStreamWith<'_> for CompletedBallot {
+impl ToBitStreamWith<'_> for CastVoteRecord {
     type Context = Election;
     type Error = Error;
 
@@ -109,7 +110,7 @@ impl ToBitStreamWith<'_> for CompletedBallot {
     }
 }
 
-impl FromBitStreamWith<'_> for CompletedBallot {
+impl FromBitStreamWith<'_> for CastVoteRecord {
     type Error = Error;
     type Context = Election;
 
@@ -126,8 +127,8 @@ impl FromBitStreamWith<'_> for CompletedBallot {
         }
 
         let ballot_hash: BallotHash = r.read_to()?;
-        let precinct_index: PrecinctIndex = r.parse()?;
-        let ballot_style_index: BallotStyleIndex = r.parse()?;
+        let precinct_index: PrecinctByIndex = r.parse_with(election)?;
+        let ballot_style_index: BallotStyleByIndex = r.parse_with(election)?;
         let is_test_mode = r.read_bit()?;
         let ballot_type: BallotType = r.parse()?;
 
@@ -142,20 +143,8 @@ impl FromBitStreamWith<'_> for CompletedBallot {
             None
         };
 
-        let precinct = election
-            .precincts
-            .get(precinct_index.get() as usize)
-            .ok_or_else(|| Error::InvalidPrecinctIndex {
-                index: precinct_index.get() as usize,
-                count: election.precincts.len(),
-            })?;
-        let ballot_style = election
-            .ballot_styles
-            .get(ballot_style_index.get() as usize)
-            .ok_or_else(|| Error::InvalidBallotStyleIndex {
-                index: ballot_style_index.get() as usize,
-                count: election.ballot_styles.len(),
-            })?;
+        let precinct = precinct_index.precinct();
+        let ballot_style = ballot_style_index.ballot_style();
 
         // read roll call
         let contests = election.contests_in(ballot_style);
@@ -173,7 +162,7 @@ impl FromBitStreamWith<'_> for CompletedBallot {
             .map(|contest| r.parse_with(&contest))
             .collect::<Result<_, Error>>()?;
 
-        Ok(CompletedBallot {
+        Ok(CastVoteRecord {
             ballot_hash,
             ballot_style_id: ballot_style.id.clone(),
             precinct_id: precinct.id.clone(),

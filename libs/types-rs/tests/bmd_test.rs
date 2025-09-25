@@ -2,7 +2,7 @@
 
 use proptest::proptest;
 use types_rs::ballot_card::BallotType;
-use types_rs::bmd::completed_ballot::CompletedBallot;
+use types_rs::bmd::cvr::CastVoteRecord;
 use types_rs::bmd::votes::{CandidateVote, ContestVote};
 use types_rs::bmd::write_in_name::WriteInName;
 use types_rs::bmd::BallotHash;
@@ -14,9 +14,9 @@ use crate::common::{arbitrary_ballot_type, arbitrary_contests, simple_election};
 mod common;
 
 #[test]
-fn test_completed_ballot_round_trip_no_votes() {
+fn test_cast_vote_record_round_trip_no_votes() {
     let election = simple_election();
-    let ballot = CompletedBallot {
+    let ballot = CastVoteRecord {
         ballot_hash: [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -27,12 +27,12 @@ fn test_completed_ballot_round_trip_no_votes() {
     };
 
     let encoded_ballot = coding::encode_with(&ballot, &election).unwrap();
-    let decoded_ballot: CompletedBallot = coding::decode_with(&encoded_ballot, &election).unwrap();
+    let decoded_ballot: CastVoteRecord = coding::decode_with(&encoded_ballot, &election).unwrap();
     assert_eq!(decoded_ballot, ballot);
 }
 
 #[test]
-fn test_completed_ballot_round_trip_write_in_vote() {
+fn test_cast_vote_record_round_trip_write_in_vote() {
     let election = simple_election();
     let candidate_contest = election
         .contests
@@ -42,7 +42,7 @@ fn test_completed_ballot_round_trip_write_in_vote() {
             Contest::YesNo(_) => None,
         })
         .unwrap();
-    let ballot = CompletedBallot {
+    let ballot = CastVoteRecord {
         ballot_hash: [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09],
         ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
         precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -59,13 +59,13 @@ fn test_completed_ballot_round_trip_write_in_vote() {
     };
 
     let encoded_ballot = coding::encode_with(&ballot, &election).unwrap();
-    let decoded_ballot: CompletedBallot = coding::decode_with(&encoded_ballot, &election).unwrap();
+    let decoded_ballot: CastVoteRecord = coding::decode_with(&encoded_ballot, &election).unwrap();
     assert_eq!(decoded_ballot, ballot);
 }
 
 proptest! {
     #[test]
-    fn test_completed_ballot_round_trip_max_votes(
+    fn test_cast_vote_record_round_trip_max_votes(
         ballot_hash: BallotHash,
         is_test_mode: bool,
         ballot_type in arbitrary_ballot_type(),
@@ -73,7 +73,7 @@ proptest! {
     ) {
         let election = simple_election();
         let election = Election { contests, ..election };
-        let ballot = CompletedBallot {
+        let ballot = CastVoteRecord {
             ballot_hash,
             ballot_style_id: election.ballot_styles.first().unwrap().id.clone(),
             precinct_id: election.precincts.first().unwrap().id.clone(),
@@ -85,7 +85,7 @@ proptest! {
                         .iter()
                         .filter_map(|candidate| match candidate {
                             Candidate::Named(candidate) => Some(candidate),
-                            _ => None,
+                            Candidate::WriteIn(_) => None,
                         })
                         .map(|candidate| CandidateVote::NamedCandidate {
                             candidate_id: candidate.id.clone(),
@@ -104,7 +104,7 @@ proptest! {
         };
 
         let encoded_ballot = coding::encode_with(&ballot, &election).unwrap();
-        let decoded_ballot: CompletedBallot = coding::decode_with(&encoded_ballot, &election).unwrap();
+        let decoded_ballot: CastVoteRecord = coding::decode_with(&encoded_ballot, &election).unwrap();
         assert_eq!(decoded_ballot, ballot);
     }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    ballot_card::BallotTypeCodingError,
+    ballot_card::{BallotTypeCodingError, IndexError},
     coding,
     election::{BallotStyleId, PrecinctId},
 };
@@ -29,6 +29,9 @@ pub enum Error {
 
     #[error("Invalid votes: {message}")]
     InvalidVotes { message: String },
+
+    #[error("Index error: {0}")]
+    Index(#[from] IndexError),
 
     #[error("Coding error: {0}")]
     Coding(#[from] coding::Error),

@@ -9,6 +9,7 @@ use types_rs::{
     },
 };
 
+#[must_use]
 pub fn simple_election() -> Election {
     Election {
         title: "Test Election".to_owned(),

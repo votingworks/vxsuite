@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     ballot_card::{
-        BallotAuditIdLength, BallotStyleIndex, BallotType, BallotTypeCodingError, PageNumber,
-        PrecinctIndex,
+        BallotAuditIdLength, BallotStyleByIndex, BallotType, BallotTypeCodingError, IndexError,
+        PageNumber, PrecinctByIndex,
     },
     coding,
     election::{BallotStyleId, Election, PrecinctId},
@@ -62,14 +62,11 @@ pub enum Error {
     #[error("Invalid ballot type: {0}")]
     InvalidBallotType(#[from] BallotTypeCodingError),
 
-    #[error("Invalid precinct index: {index} (count: {count})")]
-    InvalidPrecinctIndex { index: usize, count: usize },
+    #[error("Index error: {0}")]
+    Index(#[from] IndexError),
 
     #[error("Invalid precinct ID: {0}")]
     InvalidPrecinctId(PrecinctId),
-
-    #[error("Invalid ballot style index: {index} (count: {count})")]
-    InvalidBallotStyleIndex { index: usize, count: usize },
 
     #[error("Invalid ballot style ID: {0}")]
     InvalidBallotStyleId(BallotStyleId),
@@ -111,8 +108,8 @@ impl FromBitStreamWith<'_> for Metadata {
         }
 
         let ballot_hash: BallotHash = r.read_to()?;
-        let precinct_index: PrecinctIndex = r.parse()?;
-        let ballot_style_index: BallotStyleIndex = r.parse()?;
+        let precinct_index: PrecinctByIndex = r.parse_with(election)?;
+        let ballot_style_index: BallotStyleByIndex = r.parse_with(election)?;
         let page_number: PageNumber = r.parse()?;
         let is_test_mode = r.read_bit()?;
         let ballot_type: BallotType = r.parse()?;
@@ -127,20 +124,8 @@ impl FromBitStreamWith<'_> for Metadata {
             None
         };
 
-        let precinct = election
-            .precincts
-            .get(precinct_index.get() as usize)
-            .ok_or_else(|| Error::InvalidPrecinctIndex {
-                index: precinct_index.get() as usize,
-                count: election.precincts.len(),
-            })?;
-        let ballot_style = election
-            .ballot_styles
-            .get(ballot_style_index.get() as usize)
-            .ok_or_else(|| Error::InvalidBallotStyleIndex {
-                index: ballot_style_index.get() as usize,
-                count: election.ballot_styles.len(),
-            })?;
+        let precinct = precinct_index.precinct();
+        let ballot_style = ballot_style_index.ballot_style();
 
         Ok(Metadata {
             ballot_hash,
@@ -379,13 +364,7 @@ mod test {
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
         let result = reader.parse_with::<Metadata>(&election);
         assert!(
-            matches!(
-                result,
-                Err(Error::InvalidPrecinctIndex {
-                    index: 17,
-                    count: 2
-                })
-            ),
+            matches!(result, Err(Error::Index(IndexError::Precinct(index))) if index.get() == 17),
             "Result is wrong: {result:?}"
         );
     }
@@ -434,10 +413,7 @@ mod test {
         assert!(
             matches!(
                 result,
-                Err(Error::InvalidBallotStyleIndex {
-                    index: 513,
-                    count: 6
-                })
+                Err(Error::Index(IndexError::BallotStyle(index))) if index.get() == 513
             ),
             "Result is wrong: {result:?}"
         );

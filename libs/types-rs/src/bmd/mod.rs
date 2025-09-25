@@ -1,4 +1,4 @@
-pub mod completed_ballot;
+pub mod cvr;
 pub mod error;
 pub mod votes;
 pub mod write_in_name;

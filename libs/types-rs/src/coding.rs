@@ -79,6 +79,12 @@ macro_rules! codable {
         }
 
         impl Eq for $name {}
+
+        impl ::std::fmt::Display for $name {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> Result<(), ::std::fmt::Error> {
+                write!(f, "{}", self.0)
+            }
+        }
     };
 }
 
