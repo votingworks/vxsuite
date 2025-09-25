@@ -50,6 +50,6 @@ export function deconstructPrefixedMessage(prefixedMessage: string): {
 
   return {
     messageType: parts[1] as string,
-    messagePayload: parts[2] as string,
+    messagePayload: parts.slice(2, parts.length).join(MESSAGE_SEPARATOR),
   };
 }
