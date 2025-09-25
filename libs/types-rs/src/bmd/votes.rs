@@ -2,7 +2,10 @@ use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
 
 use super::error::Error;
 use super::write_in_name::WriteInName;
-use crate::election::{Contest, ContestId, OptionId};
+use crate::{
+    coding::BitSize,
+    election::{Contest, ContestId, OptionId},
+};
 
 #[derive(Debug, PartialEq)]
 pub enum CandidateVote {
@@ -78,10 +81,7 @@ impl ToBitStreamWith<'_> for ContestVote {
                         .saturating_sub(non_write_in_count as u32);
 
                     if maximum_write_ins > 0 {
-                        w.write_unsigned_var(
-                            u32::BITS - u32::leading_zeros(maximum_write_ins),
-                            write_in_count as u32,
-                        )?;
+                        w.write_unsigned_var(maximum_write_ins.bit_size(), write_in_count as u32)?;
 
                         for vote in votes {
                             if let CandidateVote::WriteInCandidate { name, .. } = vote {
@@ -151,7 +151,7 @@ impl FromBitStreamWith<'_> for ContestVote {
 
                     if maximum_write_ins > 0 {
                         let write_in_count: u32 =
-                            r.read_unsigned_var(u32::BITS - u32::leading_zeros(maximum_write_ins))?;
+                            r.read_unsigned_var(maximum_write_ins.bit_size())?;
 
                         for _ in 0..write_in_count {
                             let name: WriteInName = r.parse()?;

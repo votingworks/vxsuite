@@ -6,6 +6,9 @@ use crate::coding;
 
 use super::error::Error;
 
+/// Represents the name of a write-in candidate as entered by a voter on a BMD.
+/// The name can only contain certain characters and has a maximum length, and
+/// the constructor ensures that the name is valid.
 #[derive(Debug, PartialEq)]
 #[must_use]
 pub struct WriteInName(String);
@@ -13,6 +16,7 @@ pub struct WriteInName(String);
 impl WriteInName {
     pub const CHARS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ '\"-.,";
     pub const MAX_LENGTH: usize = 40;
+    pub const BITS: u32 = coding::const_bit_size(Self::MAX_LENGTH as u64);
 
     /// Constructs a new [`WriteInName`] if the characters are all allowed in a
     /// write-in name. If not, returns [`None`].
@@ -48,10 +52,7 @@ impl ToBitStream for WriteInName {
         Self: Sized,
     {
         // write length
-        w.write_unsigned_var(
-            usize::BITS - Self::MAX_LENGTH.leading_zeros(),
-            self.0.len() as u32,
-        )?;
+        w.write_unsigned_var(Self::BITS, self.0.len() as u32)?;
 
         // write character indexes
         for ch in self.0.chars() {
@@ -59,10 +60,7 @@ impl ToBitStream for WriteInName {
                 .char_indices()
                 .find(|(_, c)| *c == ch)
                 .expect("character must be in CHARS");
-            w.write_unsigned_var(
-                usize::BITS - Self::CHARS.len().leading_zeros(),
-                index as u32,
-            )?;
+            w.write_unsigned_var(Self::BITS, index as u32)?;
         }
 
         Ok(())
@@ -76,14 +74,12 @@ impl FromBitStream for WriteInName {
     where
         Self: Sized,
     {
-        let write_in_length: u32 =
-            r.read_unsigned_var(usize::BITS - Self::MAX_LENGTH.leading_zeros())?;
+        let write_in_length: u32 = r.read_unsigned_var(Self::BITS)?;
 
         let mut name = String::with_capacity(write_in_length as usize);
 
         for _ in 0..write_in_length {
-            let index: u32 =
-                r.read_unsigned_var(usize::BITS - Self::CHARS.len().leading_zeros())?;
+            let index: u32 = r.read_unsigned_var(Self::BITS)?;
             let Some(ch) = Self::CHARS.chars().nth(index as usize) else {
                 return Err(Error::Coding(coding::Error::InvalidValue(format!(
                     "write-in character code {index} is invalid"

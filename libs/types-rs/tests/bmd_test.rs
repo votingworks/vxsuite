@@ -5,7 +5,7 @@ use types_rs::ballot_card::BallotType;
 use types_rs::bmd::cvr::CastVoteRecord;
 use types_rs::bmd::votes::{CandidateVote, ContestVote};
 use types_rs::bmd::write_in_name::WriteInName;
-use types_rs::bmd::BallotHash;
+use types_rs::bmd::PartialBallotHash;
 use types_rs::coding;
 use types_rs::election::{Candidate, Contest, DistrictId, Election, OptionId};
 
@@ -66,7 +66,7 @@ fn test_cast_vote_record_round_trip_write_in_vote() {
 proptest! {
     #[test]
     fn test_cast_vote_record_round_trip_max_votes(
-        ballot_hash: BallotHash,
+        ballot_hash: PartialBallotHash,
         is_test_mode: bool,
         ballot_type in arbitrary_ballot_type(),
         contests in arbitrary_contests(DistrictId::from("d-1".to_owned())),

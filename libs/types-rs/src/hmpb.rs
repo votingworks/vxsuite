@@ -10,11 +10,16 @@ use crate::{
     election::{BallotStyleId, Election, PrecinctId},
 };
 
+/// Contains metadata about a particular ballot configuration, and is
+/// encoded into the QR code for ballots using that configuration.
+///
+/// Use [`coding::encode_with`] and [`coding::decode_with`] to encode and decode
+/// this struct for use in QR codes, using an [`Election`] as the context.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Metadata {
     #[serde(with = "ballot_hash_serde")]
-    pub ballot_hash: BallotHash,
+    pub ballot_hash: PartialBallotHash,
     pub precinct_id: PrecinctId,
     pub ballot_style_id: BallotStyleId,
     pub page_number: PageNumber,
@@ -25,27 +30,45 @@ pub struct Metadata {
     pub ballot_audit_id: Option<String>,
 }
 
-mod ballot_hash_serde {
+/// Provides serialization and deserialization for [`PartialBallotHash`],
+/// primarily for serializing to JSON as a hex string.
+///
+/// ```
+/// # use types_rs::hmpb::PartialBallotHash;
+/// # use serde::{Serialize, Deserialize};
+/// #[derive(Debug, Serialize, Deserialize)]
+/// struct MyContainer {
+///     #[serde(with = "types_rs::hmpb::ballot_hash_serde")]
+///     hash: PartialBallotHash,
+/// }
+/// let value = MyContainer { hash: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] };
+/// let json = serde_json::to_string(&value).unwrap();
+/// assert_eq!(json, "{\"hash\":\"00010203040506070809\"}");
+///
+/// let deserialized_value: MyContainer = serde_json::from_str(&json).unwrap();
+/// assert_eq!(deserialized_value.hash, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+/// ```
+pub mod ballot_hash_serde {
     use serde::{Deserialize, Deserializer, Serializer};
 
-    use super::{BallotHash, BALLOT_HASH_BYTE_LENGTH};
+    use super::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
 
-    pub(crate) fn serialize<S>(ballot_hash: &BallotHash, serializer: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(ballot_hash: &PartialBallotHash, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         serializer.serialize_str(&hex::encode(ballot_hash))
     }
 
-    pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<BallotHash, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<PartialBallotHash, D::Error>
     where
         D: Deserializer<'de>,
     {
         let ballot_hash = String::deserialize(deserializer)?;
         match hex::decode(&ballot_hash) {
             Ok(mut ballot_hash_bytes) => {
-                ballot_hash_bytes.truncate(BALLOT_HASH_BYTE_LENGTH);
-                BallotHash::try_from(ballot_hash_bytes).map_err(|_| {
+                ballot_hash_bytes.truncate(PARTIAL_BALLOT_HASH_BYTE_LENGTH);
+                PartialBallotHash::try_from(ballot_hash_bytes).map_err(|_| {
                     serde::de::Error::custom(format!("invalid hex string: {ballot_hash}"))
                 })
             }
@@ -107,7 +130,7 @@ impl FromBitStreamWith<'_> for Metadata {
             return Err(Error::InvalidPrelude(prelude));
         }
 
-        let ballot_hash: BallotHash = r.read_to()?;
+        let ballot_hash: PartialBallotHash = r.read_to()?;
         let precinct_index: PrecinctByIndex = r.parse_with(election)?;
         let ballot_style_index: BallotStyleByIndex = r.parse_with(election)?;
         let page_number: PageNumber = r.parse()?;
@@ -189,9 +212,14 @@ impl ToBitStreamWith<'_> for Metadata {
     }
 }
 
-type BallotHash = [u8; BALLOT_HASH_BYTE_LENGTH];
-const BALLOT_HASH_BYTE_LENGTH: usize = 10;
-const PRELUDE: &[u8; 3] = b"VP\x02";
+/// The number of bytes of the full ballot hash to use in an encoded [`Metadata`].
+pub const PARTIAL_BALLOT_HASH_BYTE_LENGTH: usize = 10;
+
+/// The partial ballot hash used in an encoded [`Metadata`].
+pub type PartialBallotHash = [u8; PARTIAL_BALLOT_HASH_BYTE_LENGTH];
+
+/// The first bytes of an encoded [`Metadata`].
+pub const PRELUDE: &[u8; 3] = b"VP\x02";
 
 #[must_use]
 pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metadata {
@@ -594,7 +622,7 @@ mod test {
         #[test]
         fn test_infer_missing_page_metadata(
             page_number in arbitrary_page_number(),
-            ballot_hash: BallotHash,
+            ballot_hash: PartialBallotHash,
             precinct_id in "[0-9a-z-]{1,100}",
             ballot_style_id in "[0-9a-z-]{1,100}",
             is_test_mode in proptest::bool::ANY,

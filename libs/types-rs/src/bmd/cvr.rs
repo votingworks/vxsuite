@@ -2,14 +2,14 @@ use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
 
 use crate::{
     ballot_card::{BallotAuditIdLength, BallotStyleByIndex, BallotType, PrecinctByIndex},
-    bmd::{error::Error, votes::ContestVote, BallotHash, PRELUDE},
+    bmd::{error::Error, votes::ContestVote, PartialBallotHash, PRELUDE},
     election::{BallotStyleId, Election, PrecinctId},
 };
 
 /// A cast vote record as encoded on a BMD summary ballot's QR code.
 #[derive(Debug, PartialEq)]
 pub struct CastVoteRecord {
-    pub ballot_hash: BallotHash,
+    pub ballot_hash: PartialBallotHash,
     pub ballot_style_id: BallotStyleId,
     pub precinct_id: PrecinctId,
     pub votes: Vec<ContestVote>,
@@ -126,7 +126,7 @@ impl FromBitStreamWith<'_> for CastVoteRecord {
             return Err(Error::InvalidPrelude(prelude));
         }
 
-        let ballot_hash: BallotHash = r.read_to()?;
+        let ballot_hash: PartialBallotHash = r.read_to()?;
         let precinct_index: PrecinctByIndex = r.parse_with(election)?;
         let ballot_style_index: BallotStyleByIndex = r.parse_with(election)?;
         let is_test_mode = r.read_bit()?;
