@@ -43,6 +43,7 @@ import {
   combineCandidateContestResults,
   buildContestResultsFixture,
   areContestResultsValid,
+  combineAndDecodeCompressedElectionResults,
 } from './tabulation';
 import {
   convertCastVoteRecordMarkMetricsToMarkScores,
@@ -52,6 +53,7 @@ import {
   getExportedCastVoteRecordIds,
   getOriginalSnapshot,
 } from '../cast_vote_records';
+import { compressAndEncodeTally } from '../compressed_tallies';
 
 function castVoteRecordToTabulationCastVoteRecord(
   castVoteRecord: CVR.CVR
@@ -1354,6 +1356,150 @@ test('combinedCandidateContestResults - does not alter original tallies', () => 
 
   expect(JSON.stringify(contestResultsA)).toEqual(aString);
   expect(JSON.stringify(contestResultsB)).toEqual(bString);
+});
+
+test('combineCompressedElectionResults', () => {
+  const contestResultsSummaries1: ContestResultsSummaries = {
+    'zoo-council-mammal': {
+      type: 'candidate',
+      ballots: 10,
+      overvotes: 1,
+      undervotes: 0,
+      officialOptionTallies: {
+        elephant: 2,
+        kangaroo: 3,
+        lion: 4,
+      },
+    },
+    'aquarium-council-fish': {
+      type: 'candidate',
+      ballots: 10,
+      officialOptionTallies: {
+        'write-in': 10,
+      },
+    },
+    fishing: {
+      type: 'yesno',
+      ballots: 10,
+      yesTally: 4,
+      noTally: 6,
+    },
+    'new-zoo-pick': {
+      type: 'yesno',
+      ballots: 0,
+      overvotes: 10,
+    },
+  };
+  const contestResultsSummaries2: ContestResultsSummaries = {
+    'zoo-council-mammal': {
+      type: 'candidate',
+      ballots: 15,
+      overvotes: 1,
+      undervotes: 4,
+      officialOptionTallies: {
+        elephant: 3,
+        kangaroo: 2,
+        lion: 5,
+      },
+    },
+    'aquarium-council-fish': {
+      type: 'candidate',
+      ballots: 15,
+      officialOptionTallies: {
+        pufferfish: 5,
+        'manta-ray': 5,
+        'write-in': 5,
+      },
+    },
+    fishing: {
+      type: 'yesno',
+      ballots: 15,
+      overvotes: 3,
+      undervotes: 2,
+      yesTally: 6,
+      noTally: 4,
+    },
+    'new-zoo-pick': {
+      type: 'yesno',
+      ballots: 15,
+      overvotes: 3,
+      undervotes: 2,
+      yesTally: 6,
+      noTally: 4,
+    },
+  };
+  const election = electionTwoPartyPrimaryFixtures.readElection();
+
+  const encoded1 = compressAndEncodeTally(
+    election,
+    buildElectionResultsFixture({
+      election,
+      contestResultsSummaries: contestResultsSummaries1,
+      includeGenericWriteIn: true,
+      cardCounts: { bmd: 0, hmpb: [] },
+    })
+  );
+  const encoded2 = compressAndEncodeTally(
+    election,
+    buildElectionResultsFixture({
+      election,
+      contestResultsSummaries: contestResultsSummaries2,
+      includeGenericWriteIn: true,
+      cardCounts: { bmd: 0, hmpb: [] },
+    })
+  );
+
+  const combined = combineAndDecodeCompressedElectionResults({
+    election,
+    encodedCompressedTallies: [encoded1, encoded2],
+  });
+  expect(combined).toEqual(
+    buildElectionResultsFixture({
+      election,
+      contestResultsSummaries: {
+        'zoo-council-mammal': {
+          type: 'candidate',
+          ballots: 25,
+          overvotes: 2,
+          undervotes: 4,
+          officialOptionTallies: {
+            elephant: 5,
+            kangaroo: 5,
+            lion: 9,
+          },
+        },
+        'aquarium-council-fish': {
+          type: 'candidate',
+          ballots: 25,
+          overvotes: 0,
+          undervotes: 0,
+          officialOptionTallies: {
+            pufferfish: 5,
+            'manta-ray': 5,
+            'write-in': 15,
+          },
+        },
+        fishing: {
+          type: 'yesno',
+          ballots: 25,
+          overvotes: 3,
+          undervotes: 2,
+          yesTally: 10,
+          noTally: 10,
+        },
+        'new-zoo-pick': {
+          type: 'yesno',
+          ballots: 15,
+          overvotes: 13,
+          undervotes: 2,
+          yesTally: 6,
+          noTally: 4,
+        },
+      },
+      includeGenericWriteIn: true,
+      cardCounts: { bmd: 0, hmpb: [] },
+    }).contestResults
+  );
 });
 
 test('areContestResultsValid', () => {
