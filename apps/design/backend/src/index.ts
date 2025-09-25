@@ -22,6 +22,7 @@ export type {
   ElectionStatus,
   ElectionListing,
   ElectionInfo,
+  AggregatedReportedResults,
 } from './types';
 export type { ElectionFeaturesConfig, UserFeaturesConfig } from './features';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app';
