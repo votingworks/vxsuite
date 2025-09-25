@@ -195,8 +195,25 @@ export async function generateElectionPackageAndBallots(
 
   combinedZip.file(electionPackageFileName, electionPackageZipContents);
 
+  // Normalizing the ballot PDF colors is not very memory intensive, so it's safe
+  // to do them all at once rather than using a worker pool like we do when
+  // rendering ballots.
+  const normalizedBallotPdfs = await Promise.all(
+    iter(allBallotProps)
+      .zip(ballotPdfs)
+      .map(async ([props, ballotPdf]) => ({
+        props,
+        ballotPdf: await normalizeBallotColorModeForPrinting(
+          ballotPdf,
+          props,
+          ballotTemplateId
+        ),
+      }))
+      .toArray()
+  );
+
   // Make ballot zip
-  for (const [props, ballotPdf] of iter(allBallotProps).zip(ballotPdfs)) {
+  for (const { props, ballotPdf } of normalizedBallotPdfs) {
     const { precinctId, ballotStyleId, ballotType, ballotMode, ballotAuditId } =
       props;
     const precinct = assertDefined(getPrecinctById({ election, precinctId }));
@@ -207,11 +224,7 @@ export async function generateElectionPackageAndBallots(
       ballotMode,
       ballotAuditId
     );
-    const normalizedColorPdf = await normalizeBallotColorModeForPrinting(
-      ballotPdf,
-      props
-    );
-    ballotsZip.file(fileName, normalizedColorPdf);
+    ballotsZip.file(fileName, ballotPdf);
   }
   const calibrationSheetPdf = await rendererPool.runTask((renderer) =>
     renderCalibrationSheetPdf(renderer, election.ballotLayout.paperSize)
