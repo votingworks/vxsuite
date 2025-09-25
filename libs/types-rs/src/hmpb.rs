@@ -53,6 +53,11 @@ pub mod ballot_hash_serde {
 
     use super::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
 
+    /// Serialize a `PartialBallotHash` as a hexadecimal string.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if serialization of the hexadecimal string fails.
     pub fn serialize<S>(ballot_hash: &PartialBallotHash, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -60,6 +65,13 @@ pub mod ballot_hash_serde {
         serializer.serialize_str(&hex::encode(ballot_hash))
     }
 
+    /// Deserialize a `PartialBallotHash` from a hexadecimal string, truncating
+    /// it if necessary.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if deserialization of the string fails, or if the
+    /// string is not a valid hexadecimal string.
     pub fn deserialize<'de, D>(deserializer: D) -> Result<PartialBallotHash, D::Error>
     where
         D: Deserializer<'de>,

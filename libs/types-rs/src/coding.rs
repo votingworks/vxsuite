@@ -116,6 +116,7 @@ pub enum Error {
 /// assert_eq!(const_bit_size(1u64), 1);
 /// assert_eq!(const_bit_size(12345u64), 14);
 /// ```
+#[must_use]
 pub const fn const_bit_size(value: u64) -> u32 {
     u64::BITS - value.leading_zeros()
 }
