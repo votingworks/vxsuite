@@ -201,36 +201,42 @@
   "ballotStyles": [
     {
       "id": "ballot-style-1-p1",
+      "groupId": "ballot-style-1-p1",
       "districts": ["district-1"],
       "precincts": ["precinct-1"],
       "partyId": "party-1"
     },
     {
       "id": "ballot-style-1-p2",
+      "groupId": "ballot-style-1-p2",
       "districts": ["district-1"],
       "precincts": ["precinct-1"],
       "partyId": "party-2"
     },
     {
       "id": "ballot-style-2-p1",
+      "groupId": "ballot-style-2-p1",
       "districts": ["district-1"],
       "precincts": ["precinct-2"],
       "partyId": "party-1"
     },
     {
       "id": "ballot-style-2-p2",
+      "groupId": "ballot-style-2-p2",
       "districts": ["district-1"],
       "precincts": ["precinct-2"],
       "partyId": "party-2"
     },
     {
       "id": "ballot-style-3-p1",
+      "groupId": "ballot-style-3-p1",
       "districts": ["district-1"],
       "precincts": ["precinct-2"],
       "partyId": "party-1"
     },
     {
       "id": "ballot-style-3-p2",
+      "groupId": "ballot-style-3-p2",
       "districts": ["district-1"],
       "precincts": ["precinct-2"],
       "partyId": "party-2"

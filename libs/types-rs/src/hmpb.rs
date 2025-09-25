@@ -1,19 +1,25 @@
-use bitstream_io::read::{FromBitStream, FromBitStreamWith};
-use serde::Serialize;
+use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
+use serde::{Deserialize, Serialize};
 
 use crate::{
     ballot_card::{
-        BallotAuditIdLength, BallotStyleIndex, BallotType, PageNumber, ParseBallotTypeError,
-        PrecinctIndex,
+        BallotAuditIdLength, BallotStyleByIndex, BallotType, BallotTypeCodingError, IndexError,
+        PageNumber, PrecinctByIndex,
     },
     coding,
     election::{BallotStyleId, Election, PrecinctId},
 };
 
-#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
+/// Contains metadata about a particular ballot configuration, and is
+/// encoded into the QR code for ballots using that configuration.
+///
+/// Use [`coding::encode_with`] and [`coding::decode_with`] to encode and decode
+/// this struct for use in QR codes, using an [`Election`] as the context.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Metadata {
-    pub ballot_hash: String, // Hex string, first BALLOT_HASH_LENGTH characters of the hash
+    #[serde(with = "ballot_hash_serde")]
+    pub ballot_hash: PartialBallotHash,
     pub precinct_id: PrecinctId,
     pub ballot_style_id: BallotStyleId,
     pub page_number: PageNumber,
@@ -24,22 +30,84 @@ pub struct Metadata {
     pub ballot_audit_id: Option<String>,
 }
 
+/// Provides serialization and deserialization for [`PartialBallotHash`],
+/// primarily for serializing to JSON as a hex string.
+///
+/// ```
+/// # use types_rs::hmpb::PartialBallotHash;
+/// # use serde::{Serialize, Deserialize};
+/// #[derive(Debug, Serialize, Deserialize)]
+/// struct MyContainer {
+///     #[serde(with = "types_rs::hmpb::ballot_hash_serde")]
+///     hash: PartialBallotHash,
+/// }
+/// let value = MyContainer { hash: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] };
+/// let json = serde_json::to_string(&value).unwrap();
+/// assert_eq!(json, "{\"hash\":\"00010203040506070809\"}");
+///
+/// let deserialized_value: MyContainer = serde_json::from_str(&json).unwrap();
+/// assert_eq!(deserialized_value.hash, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+/// ```
+pub mod ballot_hash_serde {
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    use super::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
+
+    /// Serialize a `PartialBallotHash` as a hexadecimal string.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if serialization of the hexadecimal string fails.
+    pub fn serialize<S>(ballot_hash: &PartialBallotHash, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&hex::encode(ballot_hash))
+    }
+
+    /// Deserialize a `PartialBallotHash` from a hexadecimal string, truncating
+    /// it if necessary.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if deserialization of the string fails, or if the
+    /// string is not a valid hexadecimal string.
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<PartialBallotHash, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let ballot_hash = String::deserialize(deserializer)?;
+        match hex::decode(&ballot_hash) {
+            Ok(mut ballot_hash_bytes) => {
+                ballot_hash_bytes.truncate(PARTIAL_BALLOT_HASH_BYTE_LENGTH);
+                PartialBallotHash::try_from(ballot_hash_bytes).map_err(|_| {
+                    serde::de::Error::custom(format!("invalid hex string: {ballot_hash}"))
+                })
+            }
+            Err(err) => Err(serde::de::Error::custom(err)),
+        }
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("Invalid prelude: {0:?}")]
     InvalidPrelude([u8; 3]),
 
     #[error("Invalid ballot type: {0}")]
-    InvalidBallotType(#[from] ParseBallotTypeError),
+    InvalidBallotType(#[from] BallotTypeCodingError),
 
-    #[error("Invalid precinct index: {index} (count: {count})")]
-    InvalidPrecinctIndex { index: usize, count: usize },
+    #[error("Index error: {0}")]
+    Index(#[from] IndexError),
 
-    #[error("Invalid ballot style index: {index} (count: {count})")]
-    InvalidBallotStyleIndex { index: usize, count: usize },
+    #[error("Invalid precinct ID: {0}")]
+    InvalidPrecinctId(PrecinctId),
+
+    #[error("Invalid ballot style ID: {0}")]
+    InvalidBallotStyleId(BallotStyleId),
 
     #[error("Invalid ballot audit ID: {0}")]
-    InvalidBallotAuditId(#[from] std::string::FromUtf8Error),
+    InvalidBallotAuditId(String),
 
     #[error("Coding error: {0}")]
     Coding(coding::Error),
@@ -70,41 +138,29 @@ impl FromBitStreamWith<'_> for Metadata {
         Self: Sized,
     {
         let prelude: [u8; 3] = r.read_to()?;
-        if &prelude != HMPB_PRELUDE {
+        if &prelude != PRELUDE {
             return Err(Error::InvalidPrelude(prelude));
         }
 
-        let ballot_hash_bytes: [u8; (BALLOT_HASH_LENGTH / HEX_BYTES_PER_CHAR) as usize] =
-            r.read_to()?;
-        let ballot_hash = hex::encode(ballot_hash_bytes);
-
-        let precinct_index = PrecinctIndex::from_reader(r)?;
-        let ballot_style_index = BallotStyleIndex::from_reader(r)?;
-        let page_number = PageNumber::from_reader(r)?;
+        let ballot_hash: PartialBallotHash = r.read_to()?;
+        let precinct_index: PrecinctByIndex = r.parse_with(election)?;
+        let ballot_style_index: BallotStyleByIndex = r.parse_with(election)?;
+        let page_number: PageNumber = r.parse()?;
         let is_test_mode = r.read_bit()?;
-        let ballot_type = BallotType::from_reader(r)?;
+        let ballot_type: BallotType = r.parse()?;
         let ballot_audit_id = if r.read_bit()? {
-            let ballot_audit_id_length = BallotAuditIdLength::from_reader(r)?;
+            let ballot_audit_id_length: BallotAuditIdLength = r.parse()?;
             let ballot_audit_id_bytes = r.read_to_vec(ballot_audit_id_length.get().into())?;
-            Some(String::from_utf8(ballot_audit_id_bytes)?)
+            Some(
+                String::from_utf8(ballot_audit_id_bytes)
+                    .map_err(|err| Error::InvalidBallotAuditId(err.to_string()))?,
+            )
         } else {
             None
         };
 
-        let precinct = election
-            .precincts
-            .get(precinct_index.get() as usize)
-            .ok_or_else(|| Error::InvalidPrecinctIndex {
-                index: precinct_index.get() as usize,
-                count: election.precincts.len(),
-            })?;
-        let ballot_style = election
-            .ballot_styles
-            .get(ballot_style_index.get() as usize)
-            .ok_or_else(|| Error::InvalidBallotStyleIndex {
-                index: ballot_style_index.get() as usize,
-                count: election.ballot_styles.len(),
-            })?;
+        let precinct = precinct_index.precinct();
+        let ballot_style = ballot_style_index.ballot_style();
 
         Ok(Metadata {
             ballot_hash,
@@ -118,14 +174,69 @@ impl FromBitStreamWith<'_> for Metadata {
     }
 }
 
-const BALLOT_HASH_LENGTH: u32 = 20;
-const HEX_BYTES_PER_CHAR: u32 = 2;
-const HMPB_PRELUDE: &[u8; 3] = b"VP\x02";
+impl ToBitStreamWith<'_> for Metadata {
+    type Context = Election;
+    type Error = Error;
+
+    fn to_writer<W: bitstream_io::BitWrite + ?Sized>(
+        &self,
+        w: &mut W,
+        election: &Self::Context,
+    ) -> Result<(), Self::Error>
+    where
+        Self: Sized,
+    {
+        w.write_bytes(PRELUDE)?;
+        w.write_bytes(&self.ballot_hash)?;
+
+        let precinct_index = election
+            .precinct_index(&self.precinct_id)
+            .ok_or_else(|| Error::InvalidPrecinctId(self.precinct_id.clone()))?;
+        w.build(&precinct_index)?;
+
+        let ballot_style_index = election
+            .ballot_style_index(&self.ballot_style_id)
+            .ok_or_else(|| Error::InvalidBallotStyleId(self.ballot_style_id.clone()))?;
+        w.build(&ballot_style_index)?;
+
+        w.build(&self.page_number)?;
+        w.write_bit(self.is_test_mode)?;
+        w.build(&self.ballot_type)?;
+
+        match self.ballot_audit_id {
+            Some(ref ballot_audit_id) => {
+                w.write_bit(true)?;
+                let Ok(ballot_audit_id_length) = u8::try_from(ballot_audit_id.len()) else {
+                    return Err(Error::InvalidBallotAuditId(ballot_audit_id.clone()));
+                };
+                let Some(ballot_audit_id_length) = BallotAuditIdLength::new(ballot_audit_id_length)
+                else {
+                    return Err(Error::InvalidBallotAuditId(ballot_audit_id.clone()));
+                };
+                w.build(&ballot_audit_id_length)?;
+                w.write_bytes(ballot_audit_id.as_bytes())?;
+            }
+
+            None => w.write_bit(false)?,
+        }
+
+        Ok(())
+    }
+}
+
+/// The number of bytes of the full ballot hash to use in an encoded [`Metadata`].
+pub const PARTIAL_BALLOT_HASH_BYTE_LENGTH: usize = 10;
+
+/// The partial ballot hash used in an encoded [`Metadata`].
+pub type PartialBallotHash = [u8; PARTIAL_BALLOT_HASH_BYTE_LENGTH];
+
+/// The first bytes of an encoded [`Metadata`].
+pub const PRELUDE: &[u8; 3] = b"VP\x02";
 
 #[must_use]
 pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metadata {
     Metadata {
-        ballot_hash: detected_ballot_metadata.ballot_hash.clone(),
+        ballot_hash: detected_ballot_metadata.ballot_hash,
         ballot_style_id: detected_ballot_metadata.ballot_style_id.clone(),
         precinct_id: detected_ballot_metadata.precinct_id.clone(),
         ballot_type: detected_ballot_metadata.ballot_type,
@@ -144,11 +255,13 @@ mod test {
         path::PathBuf,
     };
 
-    use bitstream_io::{BigEndian, BitReader};
+    use bitstream_io::{BigEndian, BitRead, BitReader, BitWrite};
     use proptest::{
         prop_oneof, proptest,
         strategy::{Just, Strategy},
     };
+
+    use crate::coding::{collect_writes, encode_with};
 
     use super::*;
 
@@ -171,7 +284,7 @@ mod test {
             b'V', b'P', 2,
 
             // 10-byte ballot hash
-            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
 
             // 8 bits for precinct index
             0b0000_0000,
@@ -202,18 +315,21 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
+        let metadata: Metadata = reader.parse_with(&election).unwrap();
         assert_eq!(
-            Metadata::from_reader(&mut reader, &election).unwrap(),
+            metadata,
             Metadata {
-                ballot_hash: "d27ab6588b1869544cde".to_string(),
-                precinct_id: PrecinctId::from("precinct-1".to_string()),
-                ballot_style_id: BallotStyleId::from("ballot-style-1-p1".to_string()),
+                ballot_hash: [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f],
+                precinct_id: PrecinctId::from("precinct-1".to_owned()),
+                ballot_style_id: BallotStyleId::from("ballot-style-1-p1".to_owned()),
                 page_number: PageNumber::new_unchecked(1),
                 is_test_mode: false,
                 ballot_type: BallotType::Precinct,
-                ballot_audit_id: Some(ballot_audit_id.to_string()),
+                ballot_audit_id: Some(ballot_audit_id.to_owned()),
             }
         );
+        let reencoded_bytes = encode_with(&metadata, &election).unwrap();
+        assert_eq!(reencoded_bytes, bytes);
     }
 
     #[test]
@@ -227,7 +343,7 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(
-            Metadata::from_reader(&mut reader, &election),
+            reader.parse_with::<Metadata>(&election),
             Err(Error::Io(_))
         ));
     }
@@ -243,7 +359,7 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(
-            Metadata::from_reader(&mut reader, &election),
+            reader.parse_with::<Metadata>(&election),
             Err(Error::InvalidPrelude([b'N', b'O', b'T']))
         ));
     }
@@ -262,7 +378,7 @@ mod test {
             b'V', b'P', 2,
 
             // 10-byte ballot hash
-            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
 
             // 8 bits for precinct index
             0b0000_0000,
@@ -286,15 +402,9 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
         assert!(
-            matches!(
-                result,
-                Err(Error::InvalidPrecinctIndex {
-                    index: 17,
-                    count: 2
-                })
-            ),
+            matches!(result, Err(Error::Index(IndexError::Precinct(index))) if index.get() == 17),
             "Result is wrong: {result:?}"
         );
     }
@@ -313,7 +423,7 @@ mod test {
             b'V', b'P', 2,
 
             // 10-byte ballot hash
-            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
 
             // 8 bits for precinct index
             0b0000_0000,
@@ -337,16 +447,13 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(
             matches!(
                 result,
-                Err(Error::InvalidBallotStyleIndex {
-                    index: 513,
-                    count: 6
-                })
+                Err(Error::Index(IndexError::BallotStyle(index))) if index.get() == 513
             ),
             "Result is wrong: {result:?}"
         );
@@ -366,7 +473,7 @@ mod test {
             b'V', b'P', 2,
 
             // 10-byte ballot hash
-            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
 
             // 8 bits for precinct index
             0b0000_0000,
@@ -390,14 +497,14 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(
             matches!(
                 result,
                 Err(Error::InvalidBallotType(
-                    ParseBallotTypeError::InvalidNumericValue(0b1111)
+                    BallotTypeCodingError::InvalidNumericValue(0b1111)
                 ))
             ),
             "Result is wrong: {result:?}"
@@ -418,7 +525,7 @@ mod test {
             b'V', b'P', 2,
 
             // 10-byte ballot hash
-            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
 
             // 8 bits for precinct index
             0b0000_0000,
@@ -442,7 +549,7 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(result, Err(Error::Coding(coding::Error::InvalidValue(v))) if v == "31"));
@@ -462,7 +569,7 @@ mod test {
             b'V', b'P', 2,
 
             // 10-byte ballot hash
-            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+            0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
 
             // 8 bits for precinct index
             0b0000_0000,
@@ -493,7 +600,7 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(result, Err(Error::InvalidBallotAuditId(_))));
@@ -509,9 +616,25 @@ mod test {
 
     proptest! {
         #[test]
+        fn test_ballot_audit_id_coding(ballot_audit_id in "[0-9a-z-]{1,100}") {
+            let ballot_audit_id_length = BallotAuditIdLength::new(ballot_audit_id.len() as u8).unwrap();
+            let bytes = collect_writes::<coding::Error>(|writer| {
+                writer.build(&ballot_audit_id_length)?;
+                Ok(writer.write_bytes(ballot_audit_id.as_bytes())?)
+            }).unwrap();
+
+            let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
+            let decoded_ballot_audit_id_length: BallotAuditIdLength = reader.parse().unwrap();
+            assert_eq!(decoded_ballot_audit_id_length, ballot_audit_id_length);
+
+            let decoded_ballot_audit_id = String::from_utf8(reader.read_to_vec(decoded_ballot_audit_id_length.get() as usize).unwrap()).unwrap();
+            assert_eq!(decoded_ballot_audit_id, ballot_audit_id);
+        }
+
+        #[test]
         fn test_infer_missing_page_metadata(
             page_number in arbitrary_page_number(),
-            ballot_hash in "[0-9a-f]{20}",
+            ballot_hash: PartialBallotHash,
             precinct_id in "[0-9a-z-]{1,100}",
             ballot_style_id in "[0-9a-z-]{1,100}",
             is_test_mode in proptest::bool::ANY,

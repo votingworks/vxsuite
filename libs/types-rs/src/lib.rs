@@ -4,6 +4,7 @@
 #![allow(clippy::cast_possible_wrap)]
 
 pub mod ballot_card;
+pub mod bmd;
 pub mod coding;
 pub mod election;
 mod f32_newtype;
