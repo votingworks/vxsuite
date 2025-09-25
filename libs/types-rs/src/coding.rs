@@ -1,6 +1,9 @@
 use std::io;
 
-use bitstream_io::{BigEndian, BitWrite, BitWriter, ToBitStream, ToBitStreamWith};
+use bitstream_io::{
+    BigEndian, BitRead, BitReader, BitWrite, BitWriter, FromBitStream, FromBitStreamWith,
+    ToBitStream, ToBitStreamWith,
+};
 
 #[macro_export]
 macro_rules! codable {
@@ -145,4 +148,64 @@ where
     f(&mut writer)?;
     writer.byte_align()?;
     Ok(writer.into_writer())
+}
+
+/// Decode a codable value from an array of bytes using big-endian byte order.
+/// Ensures that there is no extra data at the end beyond the padding required
+/// to end byte-aligned.
+///
+/// # Errors
+///
+/// Fails when constructing a value from the bytes fails or there is an I/O
+/// error.
+pub fn decode<T>(bytes: &[u8]) -> Result<T, T::Error>
+where
+    T: FromBitStream,
+    T::Error: From<io::Error>,
+{
+    let mut reader = BitReader::<_, BigEndian>::new(bytes);
+    let value = T::from_reader(&mut reader)?;
+
+    // read the padding at the end
+    while !reader.byte_aligned() {
+        let padding = reader.read_bit()?;
+        if padding {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "Encountered non-zero bit while reading padding",
+            ))?;
+        }
+    }
+
+    Ok(value)
+}
+
+/// Decode a codable value, with a context, from an array of bytes using
+/// big-endian byte order. Ensures that there is no extra data at the end beyond
+/// the padding required to end byte-aligned.
+///
+/// # Errors
+///
+/// Fails when constructing a value from the bytes fails or there is an I/O
+/// error.
+pub fn decode_with<'a, T>(bytes: &[u8], context: &'a T::Context) -> Result<T, T::Error>
+where
+    T: FromBitStreamWith<'a>,
+    T::Error: From<io::Error>,
+{
+    let mut reader = BitReader::<_, BigEndian>::new(bytes);
+    let value = T::from_reader(&mut reader, context)?;
+
+    // read the padding at the end
+    while !reader.byte_aligned() {
+        let padding = reader.read_bit()?;
+        if padding {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "Encountered non-zero bit while reading padding",
+            ))?;
+        }
+    }
+
+    Ok(value)
 }

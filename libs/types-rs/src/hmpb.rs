@@ -1,4 +1,4 @@
-use bitstream_io::{FromBitStream, FromBitStreamWith, ToBitStream, ToBitStreamWith};
+use bitstream_io::{FromBitStreamWith, ToBitStream, ToBitStreamWith};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -77,9 +77,6 @@ pub enum Error {
     #[error("Invalid ballot audit ID: {0}")]
     InvalidBallotAuditId(String),
 
-    #[error("Invalid ballot hash: {0:?}")]
-    InvalidBallotHash(Vec<u8>),
-
     #[error("Coding error: {0}")]
     Coding(coding::Error),
 
@@ -109,18 +106,18 @@ impl FromBitStreamWith<'_> for Metadata {
         Self: Sized,
     {
         let prelude: [u8; 3] = r.read_to()?;
-        if &prelude != HMPB_PRELUDE {
+        if &prelude != PRELUDE {
             return Err(Error::InvalidPrelude(prelude));
         }
 
         let ballot_hash: BallotHash = r.read_to()?;
-        let precinct_index = PrecinctIndex::from_reader(r)?;
-        let ballot_style_index = BallotStyleIndex::from_reader(r)?;
-        let page_number = PageNumber::from_reader(r)?;
+        let precinct_index: PrecinctIndex = r.parse()?;
+        let ballot_style_index: BallotStyleIndex = r.parse()?;
+        let page_number: PageNumber = r.parse()?;
         let is_test_mode = r.read_bit()?;
-        let ballot_type = BallotType::from_reader(r)?;
+        let ballot_type: BallotType = r.parse()?;
         let ballot_audit_id = if r.read_bit()? {
-            let ballot_audit_id_length = BallotAuditIdLength::from_reader(r)?;
+            let ballot_audit_id_length: BallotAuditIdLength = r.parse()?;
             let ballot_audit_id_bytes = r.read_to_vec(ballot_audit_id_length.get().into())?;
             Some(
                 String::from_utf8(ballot_audit_id_bytes)
@@ -169,7 +166,7 @@ impl ToBitStreamWith<'_> for Metadata {
     where
         Self: Sized,
     {
-        w.write_bytes(HMPB_PRELUDE)?;
+        w.write_bytes(PRELUDE)?;
         w.write_bytes(&self.ballot_hash)?;
 
         let precinct_index = context
@@ -196,7 +193,6 @@ impl ToBitStreamWith<'_> for Metadata {
                 else {
                     return Err(Error::InvalidBallotAuditId(ballot_audit_id.clone()));
                 };
-                dbg!(&ballot_audit_id, &ballot_audit_id_length);
                 ballot_audit_id_length.to_writer(w)?;
                 w.write_bytes(ballot_audit_id.as_bytes())?;
             }
@@ -210,7 +206,7 @@ impl ToBitStreamWith<'_> for Metadata {
 
 type BallotHash = [u8; BALLOT_HASH_BYTE_LENGTH];
 const BALLOT_HASH_BYTE_LENGTH: usize = 10;
-const HMPB_PRELUDE: &[u8; 3] = b"VP\x02";
+const PRELUDE: &[u8; 3] = b"VP\x02";
 
 #[must_use]
 pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metadata {
@@ -294,7 +290,7 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let metadata = Metadata::from_reader(&mut reader, &election).unwrap();
+        let metadata: Metadata = reader.parse_with(&election).unwrap();
         assert_eq!(
             metadata,
             Metadata {
@@ -322,7 +318,7 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(
-            Metadata::from_reader(&mut reader, &election),
+            reader.parse_with::<Metadata>(&election),
             Err(Error::Io(_))
         ));
     }
@@ -338,7 +334,7 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(
-            Metadata::from_reader(&mut reader, &election),
+            reader.parse_with::<Metadata>(&election),
             Err(Error::InvalidPrelude([b'N', b'O', b'T']))
         ));
     }
@@ -381,7 +377,7 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
         assert!(
             matches!(
                 result,
@@ -432,7 +428,7 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(
@@ -485,7 +481,7 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(
@@ -537,7 +533,7 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(result, Err(Error::Coding(coding::Error::InvalidValue(v))) if v == "31"));
@@ -588,7 +584,7 @@ mod test {
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-        let result = Metadata::from_reader(&mut reader, &election);
+        let result = reader.parse_with::<Metadata>(&election);
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(result, Err(Error::InvalidBallotAuditId(_))));
@@ -612,7 +608,7 @@ mod test {
             }).unwrap();
 
             let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
-            let decoded_ballot_audit_id_length = BallotAuditIdLength::from_reader(&mut reader).unwrap();
+            let decoded_ballot_audit_id_length: BallotAuditIdLength = reader.parse().unwrap();
             assert_eq!(decoded_ballot_audit_id_length, ballot_audit_id_length);
 
             let decoded_ballot_audit_id = String::from_utf8(reader.read_to_vec(decoded_ballot_audit_id_length.get() as usize).unwrap()).unwrap();
