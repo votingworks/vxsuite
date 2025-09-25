@@ -164,7 +164,7 @@ where
     T: ToBitStream,
     T::Error: From<io::Error>,
 {
-    collect_writes(|writer| value.to_writer(writer))
+    collect_writes(|writer| writer.build(value))
 }
 
 /// Encode a codable value, with a context, to an array of bytes using
@@ -209,7 +209,7 @@ where
     T: ToBitStreamWith<'a>,
     T::Error: From<io::Error>,
 {
-    collect_writes(|writer| value.to_writer(writer, context))
+    collect_writes(|writer| writer.build_with(value, context))
 }
 
 /// Call a callback with a [`BitWriter`], then collect all the data written

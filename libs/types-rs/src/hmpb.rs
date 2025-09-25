@@ -1,4 +1,4 @@
-use bitstream_io::{FromBitStreamWith, ToBitStream, ToBitStreamWith};
+use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -192,16 +192,16 @@ impl ToBitStreamWith<'_> for Metadata {
         let precinct_index = election
             .precinct_index(&self.precinct_id)
             .ok_or_else(|| Error::InvalidPrecinctId(self.precinct_id.clone()))?;
-        precinct_index.to_writer(w)?;
+        w.build(&precinct_index)?;
 
         let ballot_style_index = election
             .ballot_style_index(&self.ballot_style_id)
             .ok_or_else(|| Error::InvalidBallotStyleId(self.ballot_style_id.clone()))?;
-        ballot_style_index.to_writer(w)?;
+        w.build(&ballot_style_index)?;
 
-        self.page_number.to_writer(w)?;
+        w.build(&self.page_number)?;
         w.write_bit(self.is_test_mode)?;
-        self.ballot_type.to_writer(w)?;
+        w.build(&self.ballot_type)?;
 
         match self.ballot_audit_id {
             Some(ref ballot_audit_id) => {
@@ -213,7 +213,7 @@ impl ToBitStreamWith<'_> for Metadata {
                 else {
                     return Err(Error::InvalidBallotAuditId(ballot_audit_id.clone()));
                 };
-                ballot_audit_id_length.to_writer(w)?;
+                w.build(&ballot_audit_id_length)?;
                 w.write_bytes(ballot_audit_id.as_bytes())?;
             }
 
@@ -618,8 +618,8 @@ mod test {
         #[test]
         fn test_ballot_audit_id_coding(ballot_audit_id in "[0-9a-z-]{1,100}") {
             let ballot_audit_id_length = BallotAuditIdLength::new(ballot_audit_id.len() as u8).unwrap();
-            let bytes = collect_writes::<coding::Error>(|mut writer| {
-                ballot_audit_id_length.to_writer(&mut writer)?;
+            let bytes = collect_writes::<coding::Error>(|writer| {
+                writer.build(&ballot_audit_id_length)?;
                 Ok(writer.write_bytes(ballot_audit_id.as_bytes())?)
             }).unwrap();
 
