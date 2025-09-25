@@ -34,6 +34,9 @@ export function encodeCompressedTally(
   return Buffer.from(uint16Array.buffer).toString('base64url');
 }
 
+/**
+ * Compresses election results
+ */
 export function compressTally(
   election: Election,
   results: Tabulation.ElectionResults
@@ -239,7 +242,7 @@ export function decodeCompressedTally(
  * `partyId` is provided, only includes contests associated with that party.
  * If `partyId` is undefined, only includes nonpartisan races.
  */
-export function readCompressedTally(
+export function decodeAndReadCompressedTally(
   election: Election,
   serializedTally: string
 ): Record<ContestId, ContestResults> {

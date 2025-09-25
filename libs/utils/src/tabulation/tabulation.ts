@@ -19,6 +19,7 @@ import {
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
+import { decodeAndReadCompressedTally } from '../compressed_tallies';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -695,6 +696,23 @@ export function combineElectionResults({
     cardCounts: combinedCardCounts,
     contestResults: electionContestResults,
   };
+}
+
+/**
+ * Combines a list of compressed election results into a single
+ * compressed election result representing the aggregation of all inputted results.
+ */
+export function combineAndDecodeCompressedElectionResults({
+  election,
+  encodedCompressedTallies,
+}: {
+  election: Election;
+  encodedCompressedTallies: string[];
+}): Tabulation.ElectionResults['contestResults'] {
+  const allElectionContestResults = encodedCompressedTallies.map((encoded) =>
+    decodeAndReadCompressedTally(election, encoded)
+  );
+  return combineElectionContestResults({ election, allElectionContestResults });
 }
 
 /**

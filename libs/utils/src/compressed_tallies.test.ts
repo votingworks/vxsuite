@@ -17,7 +17,7 @@ import {
   compressTally,
   decodeCompressedTally,
   encodeCompressedTally,
-  readCompressedTally,
+  decodeAndReadCompressedTally,
 } from './compressed_tallies';
 import {
   buildElectionResultsFixture,
@@ -167,7 +167,7 @@ describe('readCompressTally', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
     const zeroTally = getZeroCompressedTally(electionEitherNeither);
-    const tally = readCompressedTally(
+    const tally = decodeAndReadCompressedTally(
       electionEitherNeither,
       encodeCompressedTally(zeroTally)
     );
@@ -200,7 +200,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === '775020876'
     );
     assert(presidentContest?.type === 'candidate');
-    const tally = readCompressedTally(
+    const tally = decodeAndReadCompressedTally(
       electionEitherNeither,
       encodeCompressedTally(compressedTally)
     );
@@ -244,7 +244,7 @@ describe('readCompressTally', () => {
       (contest) => contest.id === 'president'
     );
     assert(presidentContest?.type === 'candidate');
-    const tally = readCompressedTally(
+    const tally = decodeAndReadCompressedTally(
       election,
       encodeCompressedTally(compressedTally)
     );
@@ -317,7 +317,7 @@ describe('readCompressTally', () => {
     compressedTally[yesNoContestIdx] = [6, 4, 20, 3, 7];
     const yesNoContest = electionEitherNeither.contests[yesNoContestIdx];
     assert(yesNoContest?.type === 'yesno');
-    const tally = readCompressedTally(
+    const tally = decodeAndReadCompressedTally(
       electionEitherNeither,
       encodeCompressedTally(compressedTally)
     );
@@ -353,7 +353,10 @@ test('primary tally can compress and be read back and end with the original tall
   });
 
   const compressedTally = compressAndEncodeTally(election, expectedTally);
-  const decompressedTally = readCompressedTally(election, compressedTally);
+  const decompressedTally = decodeAndReadCompressedTally(
+    election,
+    compressedTally
+  );
 
   // using toMatchObject because decompressed contains extra attributes
   expect(decompressedTally).toMatchObject(expectedTally.contestResults);

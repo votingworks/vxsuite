@@ -59,7 +59,8 @@ import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
 import {
   getExportedCastVoteRecordIds,
-  readCompressedTally,
+  decodeAndReadCompressedTally,
+  combineAndDecodeCompressedElectionResults,
 } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
@@ -77,6 +78,7 @@ import {
   DuplicatePrecinctError,
 } from './store';
 import {
+  AggregatedReportedResults,
   BallotStyle,
   ElectionInfo,
   ElectionListing,
@@ -758,6 +760,31 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       return baseUrl();
     },
 
+    async getQuickReportedResults(input: {
+      electionId: ElectionId;
+      isLive: boolean;
+    }): Promise<Result<AggregatedReportedResults, 'election-not-exported'>> {
+      const electionRecord = await store.getElection(input.electionId);
+      if (!electionRecord.lastExportedBallotHash) {
+        return err('election-not-exported');
+      }
+      const { encodedCompressedTallies, machinesReporting } =
+        await store.getQuickResultsReportingTalliesForElection(
+          electionRecord,
+          input.isLive
+        );
+      const contestResults = combineAndDecodeCompressedElectionResults({
+        election: electionRecord.election,
+        encodedCompressedTallies,
+      });
+      return ok({
+        ballotHash: electionRecord.lastExportedBallotHash,
+        contestResults,
+        election: electionRecord.election,
+        machinesReporting,
+      });
+    },
+
     async getElectionFeatures(input: {
       electionId: ElectionId;
     }): Promise<ElectionFeaturesConfig> {
@@ -909,7 +936,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           return err('no-election-found');
         }
 
-        const contestResults = readCompressedTally(
+        const contestResults = decodeAndReadCompressedTally(
           electionRecord.election,
           encodedCompressedTally
         );
