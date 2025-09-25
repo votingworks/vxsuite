@@ -112,6 +112,18 @@ export const getElectionInfo = {
   },
 } as const;
 
+export const getQuickReportedResults = {
+  queryKey(id: ElectionId, isLive: boolean): QueryKey {
+    return ['getQuickReportedResults', id, isLive];
+  },
+  useQuery(id: ElectionId, isLive: boolean) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id, isLive), () =>
+      apiClient.getQuickReportedResults({ electionId: id, isLive })
+    );
+  },
+} as const;
+
 export const listDistricts = {
   queryKey(id: ElectionId): QueryKey {
     return ['listDistricts', id];

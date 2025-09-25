@@ -17,7 +17,7 @@ import {
 import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { electionNavRoutes } from './routes';
-import { getUser, getUserFeatures } from './api';
+import { getSystemSettings, getUser, getUserFeatures } from './api';
 import { Row } from './layout';
 
 const UserInfo = styled.div`
@@ -100,21 +100,25 @@ export function ElectionNavScreen({
 }): JSX.Element | null {
   const currentRoute = useRouteMatch();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
-  if (!getUserFeaturesQuery.isSuccess) {
+  const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
+  if (!getUserFeaturesQuery.isSuccess || !getSystemSettingsQuery.isSuccess) {
     return null;
   }
   const features = getUserFeaturesQuery.data;
+  const systemSettings = getSystemSettingsQuery.data;
   return (
     <NavScreen
       navContent={
         <NavList>
-          {electionNavRoutes(electionId, features).map(({ title, path }) => (
-            <NavListItem key={path}>
-              <NavLink to={path} isActive={path === currentRoute.url}>
-                {title}
-              </NavLink>
-            </NavListItem>
-          ))}
+          {electionNavRoutes(electionId, features, systemSettings).map(
+            ({ title, path }) => (
+              <NavListItem key={path}>
+                <NavLink to={path} isActive={path === currentRoute.url}>
+                  {title}
+                </NavLink>
+              </NavListItem>
+            )
+          )}
           <NavDivider />
           <NavListItem>
             <LinkButton
