@@ -27,6 +27,7 @@ let apiMock: MockApiClient;
 beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getBaseUrl.expectCallWith().resolves('http://test-results-url.com');
   mockUserFeatures(apiMock);
 });
 
@@ -519,7 +520,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(27);
+  expect(allControls).toHaveLength(28);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -690,5 +691,63 @@ describe('BMD print mode', () => {
       'VxMark Print Mode',
       `QR Code Summary Ballots`
     );
+  });
+});
+
+describe('Quick Results Reporting SS', () => {
+  test('omitted when feature flag is off', async () => {
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(electionRecord.systemSettings);
+
+    mockUserFeatures(apiMock, { QUICK_RESULTS_REPORTING: false });
+
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    expect(
+      screen.queryByText(/Configure Quick Results Reporting/i)
+    ).not.toBeInTheDocument();
+  });
+
+  test('included when feature flag is on', async () => {
+    const mockSettingsInitial: SystemSettings = {
+      ...electionRecord.systemSettings,
+      quickResultsReportingUrl: '',
+    };
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsInitial);
+
+    mockUserFeatures(apiMock, { QUICK_RESULTS_REPORTING: true });
+
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    screen.getByText(/Configure Quick Results Reporting/i);
+
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+    userEvent.click(
+      screen.getByRole('checkbox', {
+        name: 'Quick Results Reporting',
+        checked: false,
+      })
+    );
+
+    const mockSettingsFinal: SystemSettings = {
+      ...mockSettingsInitial,
+      quickResultsReportingUrl: 'http://test-results-url.com/report',
+    };
+    apiMock.updateSystemSettings
+      .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
+      .resolves();
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsFinal);
+
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
   });
 });

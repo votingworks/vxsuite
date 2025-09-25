@@ -3,6 +3,7 @@ import { ElectionRecord } from '@votingworks/design-backend';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
 import {
+  DEFAULT_SYSTEM_SETTINGS,
   District,
   ElectionId,
   Precinct,
@@ -65,6 +66,9 @@ describe('Districts tab', () => {
   const electionId = election.id;
   beforeEach(() => {
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(DEFAULT_SYSTEM_SETTINGS);
   });
 
   test('adding a district', async () => {
@@ -306,6 +310,9 @@ describe('Precincts tab', () => {
 
   beforeEach(() => {
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(DEFAULT_SYSTEM_SETTINGS);
   });
 
   test('adding a precinct', async () => {

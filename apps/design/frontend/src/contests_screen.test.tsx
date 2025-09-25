@@ -5,6 +5,7 @@ import {
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
   CandidateContest,
+  DEFAULT_SYSTEM_SETTINGS,
   DistrictIdSchema,
   Election,
   ElectionId,
@@ -176,6 +177,9 @@ describe('Contests tab', () => {
     apiMock.getElectionInfo
       .expectCallWith({ electionId })
       .resolves(electionInfoFromElection(election));
+    apiMock.getSystemSettings
+      .expectOptionalRepeatedCallsWith({ electionId })
+      .resolves(DEFAULT_SYSTEM_SETTINGS);
     apiMock.listDistricts
       .expectCallWith({ electionId })
       .resolves(election.districts);
@@ -1315,6 +1319,9 @@ describe('Parties tab', () => {
     apiMock.getElectionInfo
       .expectCallWith({ electionId })
       .resolves(electionInfoFromElection(election));
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(DEFAULT_SYSTEM_SETTINGS);
     apiMock.listContests.expectCallWith({ electionId }).resolves([]);
     apiMock.listDistricts.expectCallWith({ electionId }).resolves([]);
   });
