@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { HmpbBallotPaperSize, ElectionId } from '@votingworks/types';
+import {
+  HmpbBallotPaperSize,
+  ElectionId,
+  DEFAULT_SYSTEM_SETTINGS,
+} from '@votingworks/types';
 import type { ElectionRecord } from '@votingworks/design-backend';
 import {
   provideApi,
@@ -54,6 +58,9 @@ function expectElectionApiCalls(electionRecord: ElectionRecord) {
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
   apiMock.listParties
     .expectCallWith({ electionId })
     .resolves(electionRecord.election.parties);
