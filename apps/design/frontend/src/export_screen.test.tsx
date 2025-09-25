@@ -9,7 +9,7 @@ import {
   mockUserFeatures,
   user,
 } from '../test/api_helpers';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, waitFor } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ExportScreen } from './export_screen';
 import { routes } from './routes';
@@ -125,6 +125,7 @@ test('export election package and ballots', async () => {
       electionId,
       electionSerializationFormat: 'vxf',
       shouldExportAudio: false,
+      shouldExportSampleBallots: false,
       numAuditIdBallots: undefined,
     })
     .resolves();
@@ -168,47 +169,44 @@ test('export election package and ballots', async () => {
   });
 });
 
-test.each([
-  { shouldExportAudio: true, buttonText: 'On' },
-  { shouldExportAudio: false, buttonText: 'Off' },
-])(
-  'when export audio toggle is $shouldExportAudio',
-  async ({ shouldExportAudio, buttonText }) => {
-    renderScreen();
-    await screen.findAllByRole('heading', { name: 'Export' });
+test('with audio export checked', async () => {
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
 
-    const toggleParent = screen.getByRole('listbox', { name: 'Export Audio' });
-    expect(toggleParent).toBeDefined();
-    const button = within(toggleParent).getByRole('option', {
-      name: buttonText,
-    });
-    userEvent.click(button);
+  userEvent.click(
+    screen.getByRole('checkbox', {
+      name: 'Include audio',
+      checked: false,
+    })
+  );
+  screen.getByRole('checkbox', {
+    name: 'Include audio',
+    checked: true,
+  });
 
-    const taskCreatedAt = new Date();
-    apiMock.exportElectionPackage
-      .expectCallWith({
-        electionId,
-        electionSerializationFormat: 'vxf',
-        shouldExportAudio,
-        numAuditIdBallots: undefined,
-      })
-      .resolves();
-    apiMock.getElectionPackage
-      .expectRepeatedCallsWith({ electionId })
-      .resolves({
-        task: {
-          createdAt: taskCreatedAt,
-          id: '1',
-          payload: JSON.stringify({ electionId, shouldExportAudio }),
-          taskName: 'generate_election_package',
-        },
-      });
-    userEvent.click(screen.getButton('Export Election Package and Ballots'));
+  const taskCreatedAt = new Date();
+  apiMock.exportElectionPackage
+    .expectCallWith({
+      electionId,
+      electionSerializationFormat: 'vxf',
+      shouldExportAudio: true,
+      shouldExportSampleBallots: false,
+      numAuditIdBallots: undefined,
+    })
+    .resolves();
+  apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
+    task: {
+      createdAt: taskCreatedAt,
+      id: '1',
+      payload: JSON.stringify({ electionId, shouldExportAudio: true }),
+      taskName: 'generate_election_package',
+    },
+  });
+  userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
-    await screen.findByText('Exporting Election Package and Ballots...');
-    // 'export election package and ballots' fully covers export flow
-  }
-);
+  await screen.findByText('Exporting Election Package and Ballots...');
+  // 'export election package and ballots' fully covers export flow
+});
 
 test('export election package error handling', async () => {
   renderScreen();
@@ -220,6 +218,7 @@ test('export election package error handling', async () => {
       electionId,
       electionSerializationFormat: 'vxf',
       shouldExportAudio: false,
+      shouldExportSampleBallots: false,
       numAuditIdBallots: undefined,
     })
     .resolves();
@@ -263,6 +262,45 @@ test('export election package error handling', async () => {
   expect(vi.mocked(downloadFile)).not.toHaveBeenCalled();
 });
 
+test('with sample ballots export checked', async () => {
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  userEvent.click(
+    screen.getByRole('checkbox', {
+      name: 'Include sample ballots',
+      checked: false,
+    })
+  );
+  screen.getByRole('checkbox', {
+    name: 'Include sample ballots',
+    checked: true,
+  });
+
+  const taskCreatedAt = new Date();
+  apiMock.exportElectionPackage
+    .expectCallWith({
+      electionId,
+      electionSerializationFormat: 'vxf',
+      shouldExportAudio: false,
+      shouldExportSampleBallots: true,
+      numAuditIdBallots: undefined,
+    })
+    .resolves();
+  apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
+    task: {
+      createdAt: taskCreatedAt,
+      id: '1',
+      payload: JSON.stringify({ electionId, shouldExportSampleBallots: true }),
+      taskName: 'generate_election_package',
+    },
+  });
+  userEvent.click(screen.getButton('Export Election Package and Ballots'));
+
+  await screen.findByText('Exporting Election Package and Ballots...');
+  // 'export election package and ballots' fully covers export flow
+});
+
 test('using CDF', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
@@ -286,6 +324,7 @@ test('using CDF', async () => {
       electionId,
       electionSerializationFormat: 'cdf',
       shouldExportAudio: false,
+      shouldExportSampleBallots: false,
       numAuditIdBallots: undefined,
     })
     .resolves();
@@ -324,6 +363,7 @@ test('export ballots with audit ballot IDs', async () => {
       electionId,
       electionSerializationFormat: 'vxf',
       shouldExportAudio: false,
+      shouldExportSampleBallots: false,
       numAuditIdBallots: 10,
     })
     .resolves();
