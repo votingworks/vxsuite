@@ -93,6 +93,10 @@
       "path": "apps/pollbook/barcode-scanner-daemon"
     },
     {
+      "name": "apps/backend-integration-testing",
+      "path": "apps/backend-integration-testing"
+    }
+    {
       "name": "libs/api",
       "path": "libs/api"
     },
