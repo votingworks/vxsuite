@@ -1,15 +1,22 @@
-import { afterAll, beforeEach, expect, test, vi } from 'vitest';
+import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 
-import { LanguageCode } from '@votingworks/types';
-import { mockBaseLogger } from '@votingworks/logging';
-import { TaskName } from './store';
+import {
+  ElectionStringKey,
+  LanguageCode,
+  PhoneticWord,
+  TtsStringKey,
+} from '@votingworks/types';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
+import { Store, TaskName } from './store';
 import { TestStore } from '../test/test_store';
+import { createBlankElection } from './app';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
 
 beforeEach(async () => {
+  vi.resetAllMocks();
   await testStore.init();
 });
 
@@ -311,4 +318,83 @@ test('Background task processing - requeuing interrupted tasks', async () => {
   await expectTaskToBeQueued(task2Id);
   await expectTaskToBeQueued(task3Id);
   await expectTaskToBeQueued(task4Id);
+});
+
+describe('tts_strings', () => {
+  const key: TtsStringKey = {
+    electionId: '5678',
+    key: ElectionStringKey.CONTEST_TITLE,
+    languageCode: 'en',
+    subkey: '1234',
+  };
+
+  async function setUpElection(store: Store) {
+    const election = createBlankElection(key.electionId);
+    await store.syncOrganizationsCache([{ id: 'vx', name: 'VotingWorks' }]);
+    await store.createElection('vx', election, 'VxDefaultBallot');
+  }
+
+  test('ttsStringsGet returns null if absent', async () => {
+    const store = testStore.getStore();
+    await setUpElection(store);
+    await expect(store.ttsStringsGet(key)).resolves.toBeNull();
+  });
+
+  test('ttsStringsSet inserts if absent, updates if present', async () => {
+    const store = testStore.getStore();
+    await setUpElection(store);
+
+    await store.ttsStringsSet(key, {
+      exportSource: 'phonetic',
+      phonetic: [{ text: 'one' }, { text: 'two' }],
+      text: 'one two',
+    });
+
+    await expect(store.ttsStringsGet(key)).resolves.toEqual({
+      exportSource: 'phonetic',
+      phonetic: [{ text: 'one' }, { text: 'two' }],
+      text: 'one two',
+    });
+
+    await store.ttsStringsSet(key, {
+      exportSource: 'phonetic',
+      phonetic: [
+        { text: 'one' },
+        { syllables: [{ ipaPhonemes: ['t', 'uː'] }], text: 'two' },
+      ],
+      text: 'one two',
+    });
+
+    await expect(store.ttsStringsGet(key)).resolves.toEqual({
+      exportSource: 'phonetic',
+      phonetic: [
+        { text: 'one' },
+        { syllables: [{ ipaPhonemes: ['t', 'uː'] }], text: 'two' },
+      ],
+      text: 'one two',
+    });
+  });
+
+  test('ttsStringsGet discards malformed/outdated phonetic JSON', async () => {
+    const store = testStore.getStore();
+    await setUpElection(store);
+
+    await store.ttsStringsSet(key, {
+      exportSource: 'phonetic',
+      phonetic: [{ text: 1 }, { text: 2 }] as unknown as PhoneticWord[],
+      text: 'one two',
+    });
+
+    await expect(store.ttsStringsGet(key)).resolves.toEqual({
+      exportSource: 'phonetic',
+      phonetic: [{ text: 'one' }, { text: 'two' }],
+      text: 'one two',
+    });
+
+    expect(logger.log).toHaveBeenCalledWith(LogEventId.ParseError, 'system', {
+      message: 'discarding invalid TTS phonetic edit',
+      ...key,
+      error: expect.any(String),
+    });
+  });
 });
