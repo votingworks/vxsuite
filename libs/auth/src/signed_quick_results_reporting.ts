@@ -1,10 +1,17 @@
 import { Readable } from 'node:stream';
 import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
-import { ElectionDefinition, Tabulation } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  Tabulation,
+  safeParseInt,
+} from '@votingworks/types';
 import { assert, err, ok, Result } from '@votingworks/basics';
-import { compressTally } from '@votingworks/utils';
-import { constructPrefixedMessage } from './signatures';
+import { compressAndEncodeTally } from '@votingworks/utils';
+import {
+  constructPrefixedMessage,
+  deconstructPrefixedMessage,
+} from './signatures';
 import {
   extractPublicKeyFromCert,
   signMessage,
@@ -30,9 +37,111 @@ const CERT_PEM_HEADER = '-----BEGIN CERTIFICATE-----';
 const CERT_PEM_FOOTER = '-----END CERTIFICATE-----';
 
 /**
- * The separator between parts of the signed quick results reporting message payload
+ * The separator between parts of the signed quick results reporting message payload.
+ * Using a null byte (0x00) as it's guaranteed to not appear in base64url encoded data
+ * and provides a safe delimiter for URL-safe payloads.
  */
-const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '.';
+const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '\x00';
+
+/**
+ * The message format identifier for signed quick results reporting QR codes.
+ */
+export const QR_MESSAGE_FORMAT = 'qr1';
+
+/**
+ * Safely encodes a string for use in URLs by URL-encoding any characters that
+ * could conflict with our message separator or URL structure.
+ */
+function safeEncodeForUrl(input: string): string {
+  return encodeURIComponent(input);
+}
+
+/**
+ * Decodes a URL-encoded string back to its original form.
+ */
+function safeDecodeFromUrl(encoded: string): string {
+  return decodeURIComponent(encoded);
+}
+
+/**
+ * Encodes the message payload components into a single string.
+ * Exported for testing purposes.
+ */
+export function encodeQuickResultsMessage(components: {
+  ballotHash: string;
+  signingMachineId: string;
+  isLiveMode: boolean;
+  timestamp: number;
+  compressedTally: string;
+}): string {
+  const messagePayloadParts = [
+    safeEncodeForUrl(components.ballotHash),
+    safeEncodeForUrl(components.signingMachineId),
+    components.isLiveMode ? '1' : '0',
+    components.timestamp.toString(),
+    components.compressedTally,
+  ];
+
+  return messagePayloadParts.join(
+    SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
+  );
+}
+
+/**
+ * Decodes a message payload string back into its components.
+ * Exported for testing purposes.
+ */
+export function decodeQuickResultsMessage(payload: string): {
+  ballotHash: string;
+  machineId: string;
+  isLive: boolean;
+  signedTimestamp: Date;
+  encodedCompressedTally: string;
+} {
+  const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
+
+  assert(messageType === QR_MESSAGE_FORMAT);
+
+  const parts = messagePayload.split(
+    SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
+  );
+
+  if (parts.length !== 5) {
+    throw new Error('Invalid message payload format');
+  }
+
+  const [
+    ballotHashEncoded,
+    signingMachineIdEncoded,
+    isLiveModeStr,
+    timestampStr,
+    encodedCompressedTally,
+  ] = parts;
+
+  if (
+    !ballotHashEncoded ||
+    !signingMachineIdEncoded ||
+    !isLiveModeStr ||
+    !timestampStr ||
+    !encodedCompressedTally
+  ) {
+    throw new Error('Missing required message payload components');
+  }
+
+  const timestampResult = safeParseInt(timestampStr);
+  if (timestampResult.isErr()) {
+    throw new Error('Invalid timestamp format');
+  }
+  const timestampNumber = timestampResult.ok();
+
+  return {
+    ballotHash: safeDecodeFromUrl(ballotHashEncoded),
+    machineId: safeDecodeFromUrl(signingMachineIdEncoded),
+    isLive: isLiveModeStr === '1',
+    signedTimestamp: new Date(timestampNumber * 1000),
+    encodedCompressedTally,
+  };
+}
 
 /**
  * Returns the URL to encode as a QR code for quick results reporting, including a signed payload
@@ -53,20 +162,17 @@ export async function generateSignedQuickResultsReportingUrl(
     /* istanbul ignore next - @preserve */ constructSignedQuickResultsReportingConfig();
 
   const { ballotHash, election } = electionDefinition;
-  const compressedTally = compressTally(election, results);
+  const compressedTally = compressAndEncodeTally(election, results);
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
 
-  const messagePayloadParts = [
+  const messagePayload = encodeQuickResultsMessage({
     ballotHash,
     signingMachineId,
-    isLiveMode ? '1' : '0',
-    secondsSince1970.toString(),
-    Buffer.from(JSON.stringify(compressedTally)).toString('base64'),
-  ];
-  const messagePayload = messagePayloadParts.join(
-    SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
-  );
-  const message = constructPrefixedMessage('qr1', messagePayload);
+    isLiveMode,
+    timestamp: secondsSince1970,
+    compressedTally,
+  });
+  const message = constructPrefixedMessage(QR_MESSAGE_FORMAT, messagePayload);
   const messageSignature = await signMessage({
     message: Readable.from(message),
     signingPrivateKey: config.machinePrivateKey,

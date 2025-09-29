@@ -51,6 +51,10 @@ class MockAuth0Client implements Auth0ClientInterface {
     this.loggedInUser = user;
   }
 
+  logOut() {
+    this.loggedInUser = undefined;
+  }
+
   setOrgs(orgs: readonly Org[]) {
     this.orgs = orgs;
   }
@@ -64,7 +68,7 @@ class MockAuth0Client implements Auth0ClientInterface {
   }
 }
 
-class MockFileStorageClient implements FileStorageClient {
+export class MockFileStorageClient implements FileStorageClient {
   private mockFiles: Record<string, Buffer> = {};
 
   getRawFile(filePath: string): Buffer | undefined {

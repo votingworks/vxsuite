@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, Tabulation } from '@votingworks/types';
-import { compressTally } from '@votingworks/utils';
+import { compressAndEncodeTally } from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
 
 import { getTestFilePath } from '../test/utils';
@@ -9,13 +9,19 @@ import { SignedQuickResultsReportingConfig } from './config';
 import {
   generateSignedQuickResultsReportingUrl,
   authenticateSignedQuickResultsReportingUrl,
+  decodeQuickResultsMessage,
+  encodeQuickResultsMessage,
+  QR_MESSAGE_FORMAT,
 } from './signed_quick_results_reporting';
+import { constructPrefixedMessage } from './signatures';
 
 vi.mock(
   '@votingworks/utils',
   async (importActual): Promise<typeof import('@votingworks/utils')> => ({
     ...(await importActual<typeof import('@votingworks/utils')>()),
-    compressTally: vi.fn<typeof compressTally>().mockReturnValue([]),
+    compressAndEncodeTally: vi
+      .fn<typeof compressAndEncodeTally>()
+      .mockReturnValue(''),
   })
 );
 
@@ -48,7 +54,7 @@ test.each<{ isLiveMode: boolean }>([
         vxScanTestConfig
       );
 
-    expect(compressTally).toHaveBeenCalledTimes(1);
+    expect(compressAndEncodeTally).toHaveBeenCalledTimes(1);
     expect(signedQuickResultsReportingUrl).toMatch(
       /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
     );
@@ -172,4 +178,92 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
   );
 
   expect(result).toEqual(err('invalid-signature'));
+});
+
+test('decodeQuickResultsMessage throws error when given invalid payload', () => {
+  expect(() => {
+    decodeQuickResultsMessage('invalidPayload');
+  }).toThrow('Invalid prefixed message format');
+
+  expect(() => {
+    decodeQuickResultsMessage(
+      constructPrefixedMessage('invalidFormat', 'data')
+    );
+  }).toThrow();
+
+  expect(() => {
+    decodeQuickResultsMessage(
+      constructPrefixedMessage(QR_MESSAGE_FORMAT, 'data')
+    );
+  }).toThrow('Invalid message payload format');
+
+  const timeInSeconds = new Date('2024-01-01T00:00:00Z').getTime() / 1000;
+  const encodedMessage = encodeQuickResultsMessage({
+    ballotHash: 'mockBallotHash',
+    signingMachineId: 'machineId',
+    isLiveMode: false,
+    timestamp: timeInSeconds,
+    compressedTally: 'sampleCompressedTally',
+  });
+  expect(() => {
+    decodeQuickResultsMessage(
+      constructPrefixedMessage(
+        QR_MESSAGE_FORMAT,
+        // mimic extra data appended after the valid payload
+        `${encodedMessage}\x00extraData`
+      )
+    );
+  }).toThrow('Invalid message payload format');
+
+  expect(() => {
+    decodeQuickResultsMessage(
+      constructPrefixedMessage(
+        QR_MESSAGE_FORMAT,
+        // remove the final field
+        encodedMessage.replace('\x00sampleCompressedTally', '')
+      )
+    );
+  }).toThrow('Invalid message payload format');
+  expect(() => {
+    decodeQuickResultsMessage(
+      constructPrefixedMessage(
+        QR_MESSAGE_FORMAT,
+        // make the final field empty
+        encodedMessage.replace('sampleCompressedTally', '')
+      )
+    );
+  }).toThrow('Missing required message payload components');
+  expect(() => {
+    decodeQuickResultsMessage(
+      constructPrefixedMessage(
+        QR_MESSAGE_FORMAT,
+        // make the final field empty
+        encodedMessage.replace(timeInSeconds.toString(), 'notATimestamp')
+      )
+    );
+  }).toThrow('Invalid timestamp format');
+});
+
+test('decodeQuickResultsMessage decodes proper payloads', () => {
+  const decoded = decodeQuickResultsMessage(
+    constructPrefixedMessage(
+      QR_MESSAGE_FORMAT,
+      encodeQuickResultsMessage({
+        ballotHash: 'mockBallotHash',
+        signingMachineId: 'machineId',
+        isLiveMode: false,
+        timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
+        compressedTally: 'sampleCompressedTally',
+      })
+    )
+  );
+  expect(decoded).toMatchInlineSnapshot(`
+    {
+      "ballotHash": "mockBallotHash",
+      "encodedCompressedTally": "sampleCompressedTally",
+      "isLive": false,
+      "machineId": "machineId",
+      "signedTimestamp": 2024-01-01T00:00:00.000Z,
+    }
+  `);
 });
