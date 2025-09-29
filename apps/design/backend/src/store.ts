@@ -1,4 +1,3 @@
-import util from 'node:util';
 import {
   DateWithoutTime,
   Optional,
@@ -44,7 +43,7 @@ import {
   PhoneticWordsSchema,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
 import {
@@ -1971,17 +1970,7 @@ export class Store {
         phonetic: safeParse(
           PhoneticWordsSchema,
           res.rows[0]['phonetic']
-        ).okOrElse((error) => {
-          this.logger.log(LogEventId.ParseError, 'system', {
-            message: 'discarding invalid TTS phonetic edit',
-            ...key,
-            error: util.inspect(error),
-          });
-
-          return (res.rows[0].text as string)
-            .split(' ')
-            .map((word) => ({ text: word }));
-        }),
+        ).unsafeUnwrap(),
 
         text: res.rows[0].text as string,
       };

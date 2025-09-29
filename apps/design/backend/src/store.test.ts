@@ -4,10 +4,9 @@ import { assertDefined } from '@votingworks/basics';
 import {
   ElectionStringKey,
   LanguageCode,
-  PhoneticWord,
   TtsStringKey,
 } from '@votingworks/types';
-import { LogEventId, mockBaseLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import { Store, TaskName } from './store';
 import { TestStore } from '../test/test_store';
 import { createBlankElection } from './app';
@@ -372,29 +371,6 @@ describe('tts_strings', () => {
         { syllables: [{ ipaPhonemes: ['t', 'uː'] }], text: 'two' },
       ],
       text: 'one two',
-    });
-  });
-
-  test('ttsStringsGet discards malformed/outdated phonetic JSON', async () => {
-    const store = testStore.getStore();
-    await setUpElection(store);
-
-    await store.ttsStringsSet(key, {
-      exportSource: 'phonetic',
-      phonetic: [{ text: 1 }, { text: 2 }] as unknown as PhoneticWord[],
-      text: 'one two',
-    });
-
-    await expect(store.ttsStringsGet(key)).resolves.toEqual({
-      exportSource: 'phonetic',
-      phonetic: [{ text: 'one' }, { text: 'two' }],
-      text: 'one two',
-    });
-
-    expect(logger.log).toHaveBeenCalledWith(LogEventId.ParseError, 'system', {
-      message: 'discarding invalid TTS phonetic edit',
-      ...key,
-      error: expect.any(String),
     });
   });
 });
