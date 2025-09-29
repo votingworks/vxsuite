@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import {
   buildElectionResultsFixture,
-  compressTally,
+  compressAndEncodeTally,
   ContestResultsSummary,
   encodeCompressedTally,
   getFeatureFlagMock,
@@ -98,12 +98,13 @@ async function setUpElectionInSystem(
   ).unsafeUnwrap();
 
   const electionPackageFilePath = await exportElectionPackage({
-    fileStorageClient,
-    apiClient,
     electionId,
-    workspace,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
+    shouldExportSampleBallots: false,
+    fileStorageClient,
+    apiClient,
+    workspace,
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
@@ -234,7 +235,7 @@ test('processQRCodeReport processes a valid quick results report successfully', 
     contestResultsSummaries: {},
     includeGenericWriteIn: true,
   });
-  const encodedTally = compressTally(
+  const encodedTally = compressAndEncodeTally(
     sampleElectionDefinition.election,
     mockResults
   );
@@ -318,7 +319,7 @@ test('processQRCodeReport processes a valid quick results report successfully', 
     contestResultsSummaries: sampleContestResults,
     includeGenericWriteIn: true,
   });
-  const encodedTally2 = compressTally(
+  const encodedTally2 = compressAndEncodeTally(
     sampleElectionDefinition.election,
     mockResults2
   );

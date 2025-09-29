@@ -19,7 +19,9 @@ vi.mock(
   '@votingworks/utils',
   async (importActual): Promise<typeof import('@votingworks/utils')> => ({
     ...(await importActual<typeof import('@votingworks/utils')>()),
-    compressTally: vi.fn<typeof compressAndEncodeTally>().mockReturnValue(''),
+    compressAndEncodeTally: vi
+      .fn<typeof compressAndEncodeTally>()
+      .mockReturnValue(''),
   })
 );
 

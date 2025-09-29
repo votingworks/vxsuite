@@ -15,10 +15,21 @@ import { Buffer } from 'node:buffer';
 import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 
+const MAX_UINT16 = 0xffff;
+
+// TODO(CARO) Set to 1 for first stable version after initial VxQR development is complete.
+const COMPRESSED_TALLY_VERSION = 0; // Increment this if the format changes and make sure the reading code can handle multiple versions.
+
 export function encodeCompressedTally(
   compressedTally: CompressedTally
 ): string {
-  const flatArray = compressedTally.flat();
+  const flatArray = [COMPRESSED_TALLY_VERSION, ...compressedTally.flat()];
+  for (const value of flatArray) {
+    assert(
+      Number.isInteger(value) && value >= 0 && value <= MAX_UINT16,
+      `Value ${value} is too large to be encoded in compressed tally`
+    );
+  }
   const uint16Array = new Uint16Array(flatArray);
   return Buffer.from(uint16Array.buffer).toString('base64url');
 }
@@ -151,6 +162,27 @@ function getContestTalliesForCompressedContest(
   }
 }
 
+// The length of a yes/no contest compressed tally is always 5: undervotes, overvotes, ballots, yes, no
+const yesNoContestCompressedTallyLength: YesNoContestCompressedTally['length'] = 5;
+
+function getNumberOfEntriesInContest(contest: AnyContest): number {
+  switch (contest.type) {
+    case 'yesno':
+      return yesNoContestCompressedTallyLength;
+    case 'candidate':
+      return (
+        1 /* number of ballots */ +
+        1 /* overvotes */ +
+        1 /* undervotes */ +
+        contest.candidates.length +
+        (contest.allowWriteIns ? 1 : 0)
+      );
+    /* istanbul ignore next */
+    default:
+      throwIllegalValue(contest, 'type');
+  }
+}
+
 export function decodeCompressedTally(
   encodedCompressedTally: string,
   election: Election
@@ -159,21 +191,35 @@ export function decodeCompressedTally(
   const uint16Array = new Uint16Array(
     buffer.buffer,
     buffer.byteOffset,
-    buffer.byteLength / 2
+    buffer.byteLength / Uint16Array.BYTES_PER_ELEMENT
   );
   const compressedTally: CompressedTally = [];
-  let offset = 0;
+  const encodedVersion = uint16Array[0];
+  // Currently we only support one version, so this is just a check that the version is correct. As breaking changes occur after
+  // initial VxQR development is complete, this function will need to handle reading multiple versions for backwards compatibility.
+  assert(
+    encodedVersion === COMPRESSED_TALLY_VERSION,
+    `Unsupported compressed tally version ${encodedVersion}`
+  );
+  let offset = 1;
+  const totalNumberOfEntries = election.contests.reduce(
+    (sum, contest) => sum + getNumberOfEntriesInContest(contest),
+    0
+  );
+  assert(
+    uint16Array.length === 1 /* version number */ + totalNumberOfEntries,
+    `Expected compressed tally to have ${totalNumberOfEntries} entries, got ${uint16Array.length}`
+  );
   for (const contest of election.contests) {
+    const tallyLength = getNumberOfEntriesInContest(contest);
     if (contest.type === 'yesno') {
       compressedTally.push(
         Array.from(
-          uint16Array.slice(offset, offset + 5)
+          uint16Array.slice(offset, offset + tallyLength)
         ) as YesNoContestCompressedTally
       );
-      offset += 5;
+      offset += tallyLength;
     } else if (contest.type === 'candidate') {
-      const numCandidates = contest.candidates.length;
-      const tallyLength = 3 + numCandidates + (contest.allowWriteIns ? 1 : 0); // 3 metadata + candidates + write-in
       compressedTally.push(
         Array.from(
           uint16Array.slice(offset, offset + tallyLength)
