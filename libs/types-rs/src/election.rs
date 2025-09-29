@@ -127,6 +127,20 @@ pub struct Outset<T> {
     pub left: T,
 }
 
+impl<T> Default for Outset<T>
+where
+    T: Default,
+{
+    fn default() -> Self {
+        Self {
+            top: T::default(),
+            right: T::default(),
+            bottom: T::default(),
+            left: T::default(),
+        }
+    }
+}
+
 /// A position on the ballot grid defined by timing marks and the contest/option
 /// for which a mark at this position is a vote for.
 #[derive(Debug, Clone, Serialize, Deserialize)]

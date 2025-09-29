@@ -69,6 +69,7 @@ fn interpret(
             debug_side_a_base: options.debug_base_path_side_a.map(PathBuf::from),
             debug_side_b_base: options.debug_base_path_side_b.map(PathBuf::from),
             score_write_ins: options.score_write_ins.unwrap_or(false),
+            expand_write_in_areas_by: None,
             disable_vertical_streak_detection: options
                 .disable_vertical_streak_detection
                 .unwrap_or(false),

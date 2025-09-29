@@ -46,6 +46,7 @@ impl InterpretFixture {
             true,
             self.timing_mark_algorithm,
             None,
+            None,
         )?;
         let side_a_path = fixture_path
             .join(self.election)

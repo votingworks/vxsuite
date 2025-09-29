@@ -2,7 +2,10 @@ use std::{path::PathBuf, process, time::Instant};
 
 use ballot_interpreter::interpret::{ScanInterpreter, TimingMarkAlgorithm};
 use clap::Parser;
-use types_rs::election::Election;
+use types_rs::{
+    election::{Election, Outset},
+    geometry::SubGridUnit,
+};
 
 #[derive(Debug, clap::Parser)]
 #[allow(clippy::struct_excessive_bools)]
@@ -39,6 +42,22 @@ struct Options {
     /// Detect and reject timing mark grid scales less than this value.
     #[clap(long)]
     minimum_detected_scale: Option<f32>,
+
+    /// How many grid units to expand write-in search areas to the left.
+    #[clap(long, default_value_t)]
+    expand_write_in_areas_left: SubGridUnit,
+
+    /// How many grid units to expand write-in search areas to the right.
+    #[clap(long, default_value_t)]
+    expand_write_in_areas_right: SubGridUnit,
+
+    /// How many grid units to expand write-in search areas up.
+    #[clap(long, default_value_t)]
+    expand_write_in_areas_up: SubGridUnit,
+
+    /// How many grid units to expand write-in search areas down.
+    #[clap(long, default_value_t)]
+    expand_write_in_areas_down: SubGridUnit,
 }
 
 impl Options {
@@ -67,6 +86,12 @@ fn main() -> color_eyre::Result<()> {
         !options.disable_timing_mark_inference,
         options.timing_mark_algorithm,
         options.minimum_detected_scale,
+        Some(Outset {
+            top: options.expand_write_in_areas_up,
+            right: options.expand_write_in_areas_right,
+            bottom: options.expand_write_in_areas_down,
+            left: options.expand_write_in_areas_left,
+        }),
     )?;
 
     let start = Instant::now();

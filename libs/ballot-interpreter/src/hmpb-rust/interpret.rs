@@ -16,8 +16,10 @@ use rayon::iter::ParallelIterator;
 use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
+use types_rs::election::Outset;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
 use types_rs::geometry::PixelPosition;
+use types_rs::geometry::SubGridUnit;
 use types_rs::geometry::{PixelUnit, Size};
 use types_rs::hmpb;
 
@@ -55,6 +57,7 @@ pub struct Options {
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
     pub score_write_ins: bool,
+    pub expand_write_in_areas_by: Option<Outset<SubGridUnit>>,
     pub disable_vertical_streak_detection: bool,
     pub infer_timing_marks: bool,
     pub timing_mark_algorithm: TimingMarkAlgorithm,
@@ -213,6 +216,7 @@ pub struct ScanInterpreter {
     bubble_template_image: GrayImage,
     timing_mark_algorithm: TimingMarkAlgorithm,
     minimum_detected_scale: Option<f32>,
+    expand_write_in_areas_by: Option<Outset<SubGridUnit>>,
 }
 
 impl ScanInterpreter {
@@ -228,6 +232,7 @@ impl ScanInterpreter {
         infer_timing_marks: bool,
         timing_mark_algorithm: TimingMarkAlgorithm,
         minimum_detected_scale: Option<f32>,
+        expand_write_in_areas_by: Option<Outset<SubGridUnit>>,
     ) -> Result<Self, image::ImageError> {
         let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
@@ -238,6 +243,7 @@ impl ScanInterpreter {
             bubble_template_image,
             timing_mark_algorithm,
             minimum_detected_scale,
+            expand_write_in_areas_by,
         })
     }
 
@@ -260,6 +266,7 @@ impl ScanInterpreter {
             debug_side_a_base: debug_side_a_base.into(),
             debug_side_b_base: debug_side_b_base.into(),
             score_write_ins: self.score_write_ins,
+            expand_write_in_areas_by: self.expand_write_in_areas_by.clone(),
             disable_vertical_streak_detection: self.disable_vertical_streak_detection,
             infer_timing_marks: self.infer_timing_marks,
             timing_mark_algorithm: self.timing_mark_algorithm,
@@ -724,6 +731,7 @@ pub fn ballot_card(
                         threshold,
                         grid,
                         grid_layout,
+                        options.expand_write_in_areas_by.as_ref(),
                         sheet_number,
                         side,
                         debug,
@@ -824,6 +832,7 @@ mod test {
             bubble_template,
             election,
             score_write_ins: true,
+            expand_write_in_areas_by: None,
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
@@ -854,6 +863,7 @@ mod test {
             bubble_template,
             election,
             score_write_ins: true,
+            expand_write_in_areas_by: None,
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),

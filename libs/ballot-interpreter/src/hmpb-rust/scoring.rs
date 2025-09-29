@@ -5,7 +5,7 @@ use image::{GenericImageView, GrayImage};
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 use types_rs::ballot_card::BallotSide;
-use types_rs::election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue};
+use types_rs::election::{GridLayout, GridLocation, GridPosition, Outset, UnitIntervalValue};
 use types_rs::geometry::{
     PixelPosition, PixelUnit, Point, Quadrilateral, Rect, SubGridUnit, SubPixelUnit,
 };
@@ -258,11 +258,13 @@ pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
 /// Computes scores for all the write-in areas in a scanned ballot image. This could
 /// be used to determine which write-in areas are most likely to contain a write-in
 /// vote even if the bubble is not filled in.
+#[allow(clippy::too_many_arguments)]
 pub fn score_write_in_areas(
     image: &GrayImage,
     threshold: u8,
     timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
+    expand_write_in_areas_by: Option<&Outset<SubGridUnit>>,
     sheet_number: u32,
     side: BallotSide,
     debug: &debug::ImageDebugWriter,
@@ -274,7 +276,13 @@ pub fn score_write_in_areas(
             grid_position.sheet_number() == sheet_number && location.side == side
         })
         .filter_map(|grid_position| {
-            score_write_in_area(image, timing_marks, grid_position, threshold)
+            score_write_in_area(
+                image,
+                timing_marks,
+                grid_position,
+                expand_write_in_areas_by,
+                threshold,
+            )
         })
         .collect();
 
@@ -289,20 +297,29 @@ fn score_write_in_area(
     img: &GrayImage,
     timing_marks: &TimingMarks,
     grid_position: &GridPosition,
+    expand_write_in_areas_by: Option<&Outset<SubGridUnit>>,
     threshold: u8,
 ) -> Option<ScoredPositionArea> {
     let GridPosition::WriteIn { write_in_area, .. } = *grid_position else {
         return None;
     };
 
-    let top_left_corner = timing_marks.point_for_location(write_in_area.x, write_in_area.y)?;
-    let top_right_corner =
-        timing_marks.point_for_location(write_in_area.x + write_in_area.width, write_in_area.y)?;
-    let bottom_left_corner =
-        timing_marks.point_for_location(write_in_area.x, write_in_area.y + write_in_area.height)?;
+    let expansion = expand_write_in_areas_by.cloned().unwrap_or_default();
+    let top_left_corner = timing_marks.point_for_location(
+        write_in_area.x - expansion.left,
+        write_in_area.y - expansion.top,
+    )?;
+    let top_right_corner = timing_marks.point_for_location(
+        write_in_area.x + write_in_area.width + expansion.right,
+        write_in_area.y - expansion.top,
+    )?;
+    let bottom_left_corner = timing_marks.point_for_location(
+        write_in_area.x - expansion.left,
+        write_in_area.y + write_in_area.height + expansion.bottom,
+    )?;
     let bottom_right_corner = timing_marks.point_for_location(
-        write_in_area.x + write_in_area.width,
-        write_in_area.y + write_in_area.height,
+        write_in_area.x + write_in_area.width + expansion.right,
+        write_in_area.y + write_in_area.height + expansion.bottom,
     )?;
     let shape = Quadrilateral {
         top_left: top_left_corner,
