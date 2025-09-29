@@ -42,7 +42,7 @@ impl InterpretFixture {
         let interpreter = ScanInterpreter::new(
             election,
             true,
-            false,
+            VerticalStreakDetection::Enabled,
             true,
             self.timing_mark_algorithm,
             None,

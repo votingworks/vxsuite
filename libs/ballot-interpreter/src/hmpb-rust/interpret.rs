@@ -55,7 +55,7 @@ pub struct Options {
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
     pub score_write_ins: bool,
-    pub disable_vertical_streak_detection: bool,
+    pub vertical_streak_detection: VerticalStreakDetection,
     pub infer_timing_marks: bool,
     pub timing_mark_algorithm: TimingMarkAlgorithm,
     pub minimum_detected_scale: Option<UnitIntervalScore>,
@@ -90,6 +90,39 @@ impl FromStr for TimingMarkAlgorithm {
             "contours" => Ok(Self::Contours),
             "corners" => Ok(Self::Corners),
             _ => Err(format!("Unexpected algorithm: {s}")),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq)]
+pub enum VerticalStreakDetection {
+    Enabled,
+    Disabled,
+}
+
+impl Default for VerticalStreakDetection {
+    fn default() -> Self {
+        Self::Enabled
+    }
+}
+
+impl Display for VerticalStreakDetection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Enabled => write!(f, "enabled"),
+            Self::Disabled => write!(f, "disabled"),
+        }
+    }
+}
+
+impl FromStr for VerticalStreakDetection {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "enabled" => Ok(Self::Enabled),
+            "disabled" => Ok(Self::Disabled),
+            _ => Err(format!("Unexpected vertical streak detection setting: {s}")),
         }
     }
 }
@@ -208,7 +241,7 @@ pub const SIDE_B_LABEL: &str = "side B";
 pub struct ScanInterpreter {
     election: Election,
     score_write_ins: bool,
-    disable_vertical_streak_detection: bool,
+    vertical_streak_detection: VerticalStreakDetection,
     infer_timing_marks: bool,
     bubble_template_image: GrayImage,
     timing_mark_algorithm: TimingMarkAlgorithm,
@@ -224,7 +257,7 @@ impl ScanInterpreter {
     pub fn new(
         election: Election,
         score_write_ins: bool,
-        disable_vertical_streak_detection: bool,
+        vertical_streak_detection: VerticalStreakDetection,
         infer_timing_marks: bool,
         timing_mark_algorithm: TimingMarkAlgorithm,
         minimum_detected_scale: Option<f32>,
@@ -233,7 +266,7 @@ impl ScanInterpreter {
         Ok(Self {
             election,
             score_write_ins,
-            disable_vertical_streak_detection,
+            vertical_streak_detection,
             infer_timing_marks,
             bubble_template_image,
             timing_mark_algorithm,
@@ -260,7 +293,7 @@ impl ScanInterpreter {
             debug_side_a_base: debug_side_a_base.into(),
             debug_side_b_base: debug_side_b_base.into(),
             score_write_ins: self.score_write_ins,
-            disable_vertical_streak_detection: self.disable_vertical_streak_detection,
+            vertical_streak_detection: self.vertical_streak_detection,
             infer_timing_marks: self.infer_timing_marks,
             timing_mark_algorithm: self.timing_mark_algorithm,
             minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
@@ -439,7 +472,7 @@ pub fn ballot_card(
         None => ImageDebugWriter::disabled(),
     };
 
-    if !options.disable_vertical_streak_detection {
+    if options.vertical_streak_detection == VerticalStreakDetection::Enabled {
         [
             (SIDE_A_LABEL, &side_a, &side_a_debug),
             (SIDE_B_LABEL, &side_b, &side_b_debug),
@@ -824,7 +857,7 @@ mod test {
             bubble_template,
             election,
             score_write_ins: true,
-            disable_vertical_streak_detection: false,
+            vertical_streak_detection: VerticalStreakDetection::Enabled,
             infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
@@ -854,7 +887,7 @@ mod test {
             bubble_template,
             election,
             score_write_ins: true,
-            disable_vertical_streak_detection: false,
+            vertical_streak_detection: VerticalStreakDetection::Enabled,
             infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
@@ -973,7 +1006,7 @@ mod test {
             side_a_image,
             side_b_image,
             &Options {
-                disable_vertical_streak_detection: true,
+                vertical_streak_detection: VerticalStreakDetection::Disabled,
                 ..options
             },
         )

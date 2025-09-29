@@ -1,6 +1,8 @@
 use std::{path::PathBuf, process, time::Instant};
 
-use ballot_interpreter::interpret::{ScanInterpreter, TimingMarkAlgorithm};
+use ballot_interpreter::interpret::{
+    ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection,
+};
 use clap::Parser;
 use types_rs::election::Election;
 
@@ -24,9 +26,9 @@ struct Options {
     #[clap(long, default_value = "false")]
     score_write_ins: bool,
 
-    /// Determines whether to disable vertical streak detection.
-    #[clap(long, default_value = "false")]
-    disable_vertical_streak_detection: bool,
+    /// Vertical streak detection setting.
+    #[clap(long, short = 'v', default_value_t = Default::default())]
+    vertical_streak_detection: VerticalStreakDetection,
 
     /// Determines whether to disable timing mark inference.
     #[clap(long, default_value = "false")]
@@ -63,7 +65,7 @@ fn main() -> color_eyre::Result<()> {
     let interpreter = ScanInterpreter::new(
         options.load_election()?,
         options.score_write_ins,
-        options.disable_vertical_streak_detection,
+        options.vertical_streak_detection,
         !options.disable_timing_mark_inference,
         options.timing_mark_algorithm,
         options.minimum_detected_scale,
