@@ -1,5 +1,17 @@
 # Scripts
 
+## Cancel Background Task
+
+If the worker is stuck while processing a background task, you can cancel it
+with:
+
+```sh
+pnpm cancel-background-task
+```
+
+This will mark the currently running background task as canceled in the
+database. Then, restart the worker. It won't pick up the canceled task again.
+
 ## User/Org Management
 
 Until we build out our support tooling, auth scripts for user and org management
