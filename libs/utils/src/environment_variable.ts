@@ -87,6 +87,10 @@ export enum BooleanEnvironmentVariableName {
    * ballots and printing bubble marks on pre-printed HMPBs
    */
   MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE = 'REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE',
+  /**
+   * Use Rust implementation for summary ballot interpretation instead of TypeScript.
+   */
+  USE_RUST_SUMMARY_BALLOT_INTERPRETATION = 'REACT_APP_VX_USE_RUST_SUMMARY_BALLOT_INTERPRETATION',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -160,6 +164,8 @@ export function getEnvironmentVariable(
         .REACT_APP_VX_ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS;
     case BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE:
       return process.env.REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE;
+    case BooleanEnvironmentVariableName.USE_RUST_SUMMARY_BALLOT_INTERPRETATION:
+      return process.env['REACT_APP_VX_USE_RUST_SUMMARY_BALLOT_INTERPRETATION'];
     /* istanbul ignore next */
     default:
       throwIllegalValue(name);
@@ -290,6 +296,12 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: false,
         autoEnableInDevelopment: true,
+      };
+    case BooleanEnvironmentVariableName.USE_RUST_SUMMARY_BALLOT_INTERPRETATION:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
       };
     /* istanbul ignore next */
     default:
