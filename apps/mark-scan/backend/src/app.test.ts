@@ -30,6 +30,7 @@ import {
   DEV_MACHINE_ID,
   Election,
   ElectionDefinition,
+  ElectionStringKey,
   HmpbBallotPaperSize,
   UiStringsPackage,
   VotesDict,
@@ -570,21 +571,39 @@ test.each([
       readElectionGeneralDefinition(),
       ['en', 'zh-Hans']
     ).election;
+
+    let idContestWithTermDescription: string | undefined;
     const election: Election = {
       ...baseElection,
       ballotLayout: {
         ...baseElection.ballotLayout,
         paperSize: hmpbPaperSize,
       },
+      contests: baseElection.contests.map((c) => {
+        if (c.type === 'yesno' || !c.title.includes('President')) return c;
+
+        idContestWithTermDescription = c.id;
+        return {
+          ...c,
+          termDescription: '4 years',
+        };
+      }),
     };
+
     const electionDefinition = safeParseElectionDefinition(
       JSON.stringify(election)
     ).unsafeUnwrap();
 
-    await configureForTestElection(
-      electionDefinition,
-      electionGeneralFixtures.uiStrings
-    );
+    assert(!!idContestWithTermDescription);
+    await configureForTestElection(electionDefinition, {
+      ...electionGeneralFixtures.uiStrings,
+      'zh-Hans': {
+        ...electionGeneralFixtures.uiStrings['zh-Hans'],
+        [ElectionStringKey.CONTEST_TERM]: {
+          [idContestWithTermDescription]: '4年',
+        },
+      },
+    });
 
     await expectElectionState({ ballotsPrintedCount: 0 });
 

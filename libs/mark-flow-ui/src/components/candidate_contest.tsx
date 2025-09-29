@@ -307,6 +307,9 @@ export function CandidateContest({
           contest={contest}
           district={district}
         >
+          {contest.termDescription && (
+            <P weight="bold">{electionStrings.contestTerm(contest)}</P>
+          )}
           <Caption>
             {appStrings.labelNumVotesRemaining()}{' '}
             <NumberString value={contest.seats - vote.length} weight="bold" />

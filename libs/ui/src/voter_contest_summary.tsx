@@ -7,6 +7,7 @@ import { Caption, Font, H5, HeadingProps, P } from './typography';
 
 export interface VoterContestSummaryProps {
   districtName: React.ReactNode;
+  subtitle?: React.ReactNode;
   title: React.ReactNode;
   titleType: HeadingProps['as'];
   undervoteWarning?: React.ReactNode;
@@ -49,6 +50,7 @@ export function VoterContestSummary(
 ): JSX.Element {
   const {
     districtName,
+    subtitle,
     title,
     titleType,
     undervoteWarning,
@@ -62,6 +64,7 @@ export function VoterContestSummary(
         <DistrictName weight="regular">{districtName}</DistrictName>
         {title}
       </H5>
+      {subtitle && <P>{subtitle}</P>}
       {undervoteWarning && (
         <P>
           <Caption>
