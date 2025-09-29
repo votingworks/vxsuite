@@ -3,7 +3,7 @@
 use std::{fmt::Display, fs::File, io::BufReader, path::PathBuf};
 
 use ballot_interpreter::interpret::{
-    Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection,
+    Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
 };
 use divan::{black_box, Bencher};
 use image::GrayImage;
@@ -43,7 +43,7 @@ impl InterpretFixture {
             serde_json::from_reader(BufReader::new(File::open(election_path)?))?;
         let interpreter = ScanInterpreter::new(
             election,
-            true,
+            WriteInScoring::Enabled,
             VerticalStreakDetection::Enabled,
             self.timing_mark_algorithm,
             None,

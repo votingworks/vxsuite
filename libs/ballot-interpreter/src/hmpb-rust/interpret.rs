@@ -54,7 +54,7 @@ pub struct Options {
     pub bubble_template: GrayImage,
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
-    pub score_write_ins: bool,
+    pub write_in_scoring: WriteInScoring,
     pub vertical_streak_detection: VerticalStreakDetection,
     pub timing_mark_algorithm: TimingMarkAlgorithm,
     pub minimum_detected_scale: Option<UnitIntervalScore>,
@@ -148,6 +148,33 @@ impl FromStr for VerticalStreakDetection {
             "enabled" => Ok(Self::Enabled),
             "disabled" => Ok(Self::Disabled),
             _ => Err(format!("Unexpected vertical streak detection setting: {s}")),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq)]
+pub enum WriteInScoring {
+    Enabled,
+    Disabled,
+}
+
+impl Display for WriteInScoring {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Enabled => write!(f, "enabled"),
+            Self::Disabled => write!(f, "disabled"),
+        }
+    }
+}
+
+impl FromStr for WriteInScoring {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "enabled" => Ok(Self::Enabled),
+            "disabled" => Ok(Self::Disabled),
+            _ => Err(format!("Unexpected write-in scoring setting: {s}")),
         }
     }
 }
@@ -265,7 +292,7 @@ pub const SIDE_B_LABEL: &str = "side B";
 
 pub struct ScanInterpreter {
     election: Election,
-    score_write_ins: bool,
+    write_in_scoring: WriteInScoring,
     vertical_streak_detection: VerticalStreakDetection,
     bubble_template_image: GrayImage,
     timing_mark_algorithm: TimingMarkAlgorithm,
@@ -280,7 +307,7 @@ impl ScanInterpreter {
     /// Returns an error if the bubble template image could not be loaded.
     pub fn new(
         election: Election,
-        score_write_ins: bool,
+        write_in_scoring: WriteInScoring,
         vertical_streak_detection: VerticalStreakDetection,
         timing_mark_algorithm: TimingMarkAlgorithm,
         minimum_detected_scale: Option<f32>,
@@ -288,7 +315,7 @@ impl ScanInterpreter {
         let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
             election,
-            score_write_ins,
+            write_in_scoring,
             vertical_streak_detection,
             bubble_template_image,
             timing_mark_algorithm,
@@ -314,7 +341,7 @@ impl ScanInterpreter {
             bubble_template: self.bubble_template_image.clone(),
             debug_side_a_base: debug_side_a_base.into(),
             debug_side_b_base: debug_side_b_base.into(),
-            score_write_ins: self.score_write_ins,
+            write_in_scoring: self.write_in_scoring,
             vertical_streak_detection: self.vertical_streak_detection,
             timing_mark_algorithm: self.timing_mark_algorithm,
             minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
@@ -754,38 +781,36 @@ pub fn ballot_card(
     let front_contest_layouts = front_contest_layouts?;
     let back_contest_layouts = back_contest_layouts?;
 
-    let (front_write_in_area_scores, back_write_in_area_scores) = options
-        .score_write_ins
-        .then(|| {
-            par_map_pair(
-                (
-                    &front_image,
-                    front_threshold,
-                    &front_timing_marks,
-                    BallotSide::Front,
-                    &front_debug,
-                ),
-                (
-                    &back_image,
-                    back_threshold,
-                    &back_timing_marks,
-                    BallotSide::Back,
-                    &back_debug,
-                ),
-                |(image, threshold, grid, side, debug)| {
-                    score_write_in_areas(
-                        image,
-                        threshold,
-                        grid,
-                        grid_layout,
-                        sheet_number,
-                        side,
-                        debug,
-                    )
-                },
-            )
-        })
-        .unwrap_or_default();
+    let (front_write_in_area_scores, back_write_in_area_scores) = match options.write_in_scoring {
+        WriteInScoring::Enabled => par_map_pair(
+            (
+                &front_image,
+                front_threshold,
+                &front_timing_marks,
+                BallotSide::Front,
+                &front_debug,
+            ),
+            (
+                &back_image,
+                back_threshold,
+                &back_timing_marks,
+                BallotSide::Back,
+                &back_debug,
+            ),
+            |(image, threshold, grid, side, debug)| {
+                score_write_in_areas(
+                    image,
+                    threshold,
+                    grid,
+                    grid_layout,
+                    sheet_number,
+                    side,
+                    debug,
+                )
+            },
+        ),
+        WriteInScoring::Disabled => Default::default(),
+    };
 
     let normalized_front_image = imageproc::contrast::threshold(&front_image, front_threshold);
     let normalized_back_image = imageproc::contrast::threshold(&back_image, back_threshold);
@@ -877,7 +902,7 @@ mod test {
             debug_side_b_base: None,
             bubble_template,
             election,
-            score_write_ins: true,
+            write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::Enabled,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
@@ -906,7 +931,7 @@ mod test {
             debug_side_b_base: None,
             bubble_template,
             election,
-            score_write_ins: true,
+            write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::Enabled,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,

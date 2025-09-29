@@ -1,7 +1,7 @@
 use std::{path::PathBuf, process, time::Instant};
 
 use ballot_interpreter::interpret::{
-    Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection,
+    Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
 };
 use clap::Parser;
 use types_rs::election::Election;
@@ -76,7 +76,11 @@ fn main() -> color_eyre::Result<()> {
 
     let interpreter = ScanInterpreter::new(
         options.load_election()?,
-        options.score_write_ins,
+        if options.score_write_ins {
+            WriteInScoring::Enabled
+        } else {
+            WriteInScoring::Disabled
+        },
         options.vertical_streak_detection,
         timing_mark_algorithm,
         options.minimum_detected_scale,
