@@ -706,7 +706,7 @@ describe('Quick Results Reporting SS', () => {
 
     await screen.findByRole('heading', { name: 'System Settings' });
     expect(
-      screen.queryByText(/Configure Quick Results Reporting/i)
+      screen.queryByText(/Enable Quick Results Reporting/i)
     ).not.toBeInTheDocument();
   });
 
@@ -725,7 +725,7 @@ describe('Quick Results Reporting SS', () => {
     renderScreen();
 
     await screen.findByRole('heading', { name: 'System Settings' });
-    screen.getByText(/Configure Quick Results Reporting/i);
+    screen.getByText(/Enable Quick Results Reporting/i);
 
     userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
