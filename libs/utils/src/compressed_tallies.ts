@@ -23,15 +23,12 @@ export function encodeCompressedTally(
   return Buffer.from(uint16Array.buffer).toString('base64url');
 }
 
-/**
- * Compresses election results
- */
 export function compressTally(
   election: Election,
   results: Tabulation.ElectionResults
-): string {
+): CompressedTally {
   // eslint-disable-next-line array-callback-return
-  const compressedTally = election.contests.map((contest) => {
+  return election.contests.map((contest) => {
     switch (contest.type) {
       case 'yesno': {
         const contestResults = results.contestResults[contest.id];
@@ -71,6 +68,16 @@ export function compressTally(
         throwIllegalValue(contest, 'type');
     }
   });
+}
+
+/**
+ * Compresses and encodes election results
+ */
+export function compressAndEncodeTally(
+  election: Election,
+  results: Tabulation.ElectionResults
+): string {
+  const compressedTally = compressTally(election, results);
   return encodeCompressedTally(compressedTally);
 }
 

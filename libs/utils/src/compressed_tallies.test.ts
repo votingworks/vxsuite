@@ -5,15 +5,15 @@ import {
   CompressedTally,
   Election,
   Tabulation,
-  YesNoContestCompressedTally,
 } from '@votingworks/types';
 import {
   electionWithMsEitherNeitherFixtures,
   readElectionGeneral,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
-import { find, assert, throwIllegalValue } from '@votingworks/basics';
+import { find, assert } from '@votingworks/basics';
 import {
+  compressAndEncodeTally,
   compressTally,
   decodeCompressedTally,
   encodeCompressedTally,
@@ -25,39 +25,23 @@ import {
 } from './tabulation/index';
 
 function getZeroCompressedTally(election: Election): CompressedTally {
-  // eslint-disable-next-line array-callback-return
-  const compressedTally = election.contests.map((contest) => {
-    if (contest.type === 'yesno') {
-      return [0, 0, 0, 0, 0] as YesNoContestCompressedTally;
-    }
-    if (contest.type === 'candidate') {
-      if (contest.allowWriteIns) {
-        return [
-          0,
-          0,
-          0,
-          0,
-          ...contest.candidates.map(() => 0),
-        ] as CandidateContestCompressedTally;
-      }
-      return [
-        0,
-        0,
-        0,
-        ...contest.candidates.map(() => 0),
-      ] as CandidateContestCompressedTally;
-    }
-    /* istanbul ignore next - compile time check for completeness */
-    throwIllegalValue(contest);
+  const mockResults = buildElectionResultsFixture({
+    election,
+    cardCounts: {
+      bmd: 0,
+      hmpb: [],
+    },
+    contestResultsSummaries: {},
+    includeGenericWriteIn: true,
   });
-  return compressedTally;
+  return compressTally(election, mockResults);
 }
 
 describe('compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
-    const compressedTally = compressTally(
+    const compressedTally = compressAndEncodeTally(
       electionEitherNeither,
       getEmptyElectionResults(electionEitherNeither)
     );
@@ -115,7 +99,7 @@ describe('compressTally', () => {
       },
       includeGenericWriteIn: true,
     });
-    const compressedTally = compressTally(
+    const compressedTally = compressAndEncodeTally(
       electionEitherNeither,
       resultsWithPresidentTallies
     );
@@ -158,7 +142,7 @@ describe('compressTally', () => {
       },
     });
 
-    const compressedTally = compressTally(
+    const compressedTally = compressAndEncodeTally(
       electionEitherNeither,
       resultsWithYesNoTallies
     );
@@ -368,7 +352,7 @@ test('primary tally can compress and be read back and end with the original tall
     includeGenericWriteIn: true,
   });
 
-  const compressedTally = compressTally(election, expectedTally);
+  const compressedTally = compressAndEncodeTally(election, expectedTally);
   const decompressedTally = readCompressedTally(election, compressedTally);
 
   // using toMatchObject because decompressed contains extra attributes
