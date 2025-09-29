@@ -1,7 +1,7 @@
 use std::{path::PathBuf, process, time::Instant};
 
 use ballot_interpreter::interpret::{
-    ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection,
+    Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection,
 };
 use clap::Parser;
 use types_rs::election::Election;
@@ -30,7 +30,7 @@ struct Options {
     #[clap(long, short = 'v', default_value_t = Default::default())]
     vertical_streak_detection: VerticalStreakDetection,
 
-    /// Determines whether to disable timing mark inference.
+    /// Determines whether to disable timing mark inference (only applicable to contours algorithm).
     #[clap(long, default_value = "false")]
     disable_timing_mark_inference: bool,
 
@@ -62,12 +62,23 @@ impl Options {
 fn main() -> color_eyre::Result<()> {
     let options = Options::parse();
 
+    // Apply timing mark inference setting to the algorithm if it's Contours
+    let timing_mark_algorithm = match options.timing_mark_algorithm {
+        TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
+            inference: if options.disable_timing_mark_inference {
+                Inference::Disabled
+            } else {
+                Inference::Enabled
+            },
+        },
+        TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
+    };
+
     let interpreter = ScanInterpreter::new(
         options.load_election()?,
         options.score_write_ins,
         options.vertical_streak_detection,
-        !options.disable_timing_mark_inference,
-        options.timing_mark_algorithm,
+        timing_mark_algorithm,
         options.minimum_detected_scale,
     )?;
 

@@ -56,14 +56,13 @@ pub struct Options {
     pub debug_side_b_base: Option<PathBuf>,
     pub score_write_ins: bool,
     pub vertical_streak_detection: VerticalStreakDetection,
-    pub infer_timing_marks: bool,
     pub timing_mark_algorithm: TimingMarkAlgorithm,
     pub minimum_detected_scale: Option<UnitIntervalScore>,
 }
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr)]
 pub enum TimingMarkAlgorithm {
-    Contours,
+    Contours { inference: Inference },
     Corners,
 }
 
@@ -76,7 +75,7 @@ impl Default for TimingMarkAlgorithm {
 impl Display for TimingMarkAlgorithm {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Contours => write!(f, "contours"),
+            Self::Contours { .. } => write!(f, "contours"),
             Self::Corners => write!(f, "corners"),
         }
     }
@@ -87,10 +86,36 @@ impl FromStr for TimingMarkAlgorithm {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "contours" => Ok(Self::Contours),
+            "contours" => Ok(Self::Contours {
+                inference: Inference::Enabled,
+            }),
             "corners" => Ok(Self::Corners),
             _ => Err(format!("Unexpected algorithm: {s}")),
         }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Inference {
+    Enabled,
+    Disabled,
+}
+
+impl FromStr for Inference {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "yes" | "enabled" | "infer" => Ok(Self::Enabled),
+            "no" | "disabled" | "noinfer" | "no-infer" => Ok(Self::Disabled),
+            _ => Err(format!("Unexpected inference: {s}")),
+        }
+    }
+}
+
+impl Default for Inference {
+    fn default() -> Self {
+        Self::Enabled
     }
 }
 
@@ -242,7 +267,6 @@ pub struct ScanInterpreter {
     election: Election,
     score_write_ins: bool,
     vertical_streak_detection: VerticalStreakDetection,
-    infer_timing_marks: bool,
     bubble_template_image: GrayImage,
     timing_mark_algorithm: TimingMarkAlgorithm,
     minimum_detected_scale: Option<f32>,
@@ -258,7 +282,6 @@ impl ScanInterpreter {
         election: Election,
         score_write_ins: bool,
         vertical_streak_detection: VerticalStreakDetection,
-        infer_timing_marks: bool,
         timing_mark_algorithm: TimingMarkAlgorithm,
         minimum_detected_scale: Option<f32>,
     ) -> Result<Self, image::ImageError> {
@@ -267,7 +290,6 @@ impl ScanInterpreter {
             election,
             score_write_ins,
             vertical_streak_detection,
-            infer_timing_marks,
             bubble_template_image,
             timing_mark_algorithm,
             minimum_detected_scale,
@@ -294,7 +316,6 @@ impl ScanInterpreter {
             debug_side_b_base: debug_side_b_base.into(),
             score_write_ins: self.score_write_ins,
             vertical_streak_detection: self.vertical_streak_detection,
-            infer_timing_marks: self.infer_timing_marks,
             timing_mark_algorithm: self.timing_mark_algorithm,
             minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
         };
@@ -496,13 +517,13 @@ pub fn ballot_card(
         (&side_a, &mut side_a_debug),
         (&side_b, &mut side_b_debug),
         |(ballot_image, debug)| match options.timing_mark_algorithm {
-            TimingMarkAlgorithm::Contours => contours::find_timing_mark_grid(
+            TimingMarkAlgorithm::Contours { inference } => contours::find_timing_mark_grid(
                 &geometry,
                 ballot_image,
                 contours::FindTimingMarkGridOptions {
                     allowed_timing_mark_inset_percentage_of_width:
                         contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
-                    infer_timing_marks: options.infer_timing_marks,
+                    inference,
                     debug,
                 },
             ),
@@ -858,7 +879,6 @@ mod test {
             election,
             score_write_ins: true,
             vertical_streak_detection: VerticalStreakDetection::Enabled,
-            infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
         };
@@ -888,7 +908,6 @@ mod test {
             election,
             score_write_ins: true,
             vertical_streak_detection: VerticalStreakDetection::Enabled,
-            infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
         };
