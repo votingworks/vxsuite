@@ -37,6 +37,10 @@ import {
   CandidateContest,
   ElectionType,
   Signature,
+  TtsString,
+  TtsStringKey,
+  safeParse,
+  PhoneticWordsSchema,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -351,8 +355,8 @@ async function insertContest(
       if (ballotOrder === undefined) {
         // Get all current contests in order
         const { rows: allContests } = await client.query(
-          `select id, type from contests 
-           where election_id = $1 
+          `select id, type from contests
+           where election_id = $1
            order by ballot_order`,
           electionId
         );
@@ -423,10 +427,13 @@ async function insertContest(
 }
 
 export class Store {
-  constructor(private readonly db: Db) {}
+  constructor(
+    private readonly db: Db,
+    private readonly logger: BaseLogger
+  ) {}
 
   static new(logger: BaseLogger): Store {
-    return new Store(new Db(logger));
+    return new Store(new Db(logger), logger);
   }
 
   /**
@@ -1932,5 +1939,71 @@ export class Store {
         where started_at is not null and completed_at is null
       `)
     );
+  }
+
+  async ttsStringsGet(key: TtsStringKey): Promise<TtsString | null> {
+    return this.db.withClient(async (client) => {
+      const res = await client.query(
+        `
+          select
+            export_source as "exportSource",
+            phonetic,
+            text
+          from tts_strings
+          where
+            election_id = $1 and
+            key = $2 and
+            subkey = $3 and
+            language_code = $4
+        `,
+        key.electionId,
+        key.key,
+        key.subkey,
+        key.languageCode
+      );
+
+      if (res.rows.length === 0) return null;
+
+      return {
+        exportSource: res.rows[0].exportSource,
+
+        phonetic: safeParse(
+          PhoneticWordsSchema,
+          res.rows[0]['phonetic']
+        ).unsafeUnwrap(),
+
+        text: res.rows[0].text as string,
+      };
+    });
+  }
+
+  async ttsStringsSet(key: TtsStringKey, data: TtsString): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+            insert into tts_strings (
+              election_id,
+              key,
+              subkey,
+              language_code,
+              export_source,
+              phonetic,
+              text
+            )
+            values ($1, $2, $3, $4, $5, $6, $7)
+            on conflict (election_id, key, subkey, language_code) do update set
+              export_source = EXCLUDED.export_source,
+              phonetic = EXCLUDED.phonetic,
+              text = EXCLUDED.text
+          `,
+        key.electionId,
+        key.key,
+        key.subkey,
+        key.languageCode,
+        data.exportSource,
+        JSON.stringify(data.phonetic),
+        data.text
+      );
+    });
   }
 }
