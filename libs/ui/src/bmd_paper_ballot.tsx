@@ -739,6 +739,13 @@ export function BmdPaperBallot({
                   >
                     <InlineBlockSpan>
                       {electionStrings.contestTitle(contest)}
+                      {contest.type === 'candidate' &&
+                        contest.termDescription && (
+                          <React.Fragment>
+                            {' '}
+                            | {electionStrings.contestTerm(contest)}
+                          </React.Fragment>
+                        )}
                     </InlineBlockSpan>
                   </DualLanguageText>
                 </ContestTitle>

@@ -5,6 +5,8 @@ import {
   CandidateVote,
   getCandidateParties,
   Candidate,
+  CandidateContest as CandidateContestData,
+  Election,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
@@ -20,6 +22,7 @@ import {
   virtualKeyboardCommon,
   VirtualKeyboardProps,
 } from '@votingworks/ui';
+import { assert } from '@votingworks/basics';
 import { screen, within, render, act } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
 import { UpdateVoteFunction } from '../config/types';
@@ -703,4 +706,33 @@ describe('audio cues', () => {
       selected: false,
     });
   });
+});
+
+test('shows term description, if available', () => {
+  let contest: CandidateContestData | undefined;
+
+  const election: Election = {
+    ...electionDefinition.election,
+    contests: electionDefinition.election.contests.map((c) => {
+      if (c.type !== 'candidate' || !c.title.includes('President')) {
+        return c;
+      }
+
+      contest = { ...c, termDescription: '4 Years' };
+      return contest;
+    }),
+  };
+
+  assert(contest);
+
+  render(
+    <CandidateContest
+      election={election}
+      contest={contest}
+      vote={[]}
+      updateVote={vi.fn()}
+    />
+  );
+
+  screen.getByText(hasTextAcrossElements('4 Years'));
 });

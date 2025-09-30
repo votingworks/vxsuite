@@ -69,6 +69,7 @@ function CandidateContestResult({
   return (
     <VoterContestSummary
       districtName={electionStrings.districtName(district)}
+      subtitle={contest.termDescription && electionStrings.contestTerm(contest)}
       title={electionStrings.contestTitle(contest)}
       titleType="h2"
       undervoteWarning={

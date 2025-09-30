@@ -307,6 +307,11 @@ export function CandidateContest({
           contest={contest}
           district={district}
         >
+          {contest.termDescription && (
+            <Font style={{ display: 'block' }} weight="bold">
+              {electionStrings.contestTerm(contest)}
+            </Font>
+          )}
           <Caption>
             {appStrings.labelNumVotesRemaining()}{' '}
             <NumberString value={contest.seats - vote.length} weight="bold" />

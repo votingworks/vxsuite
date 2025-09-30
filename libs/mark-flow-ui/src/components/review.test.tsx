@@ -3,7 +3,7 @@ import {
   readElectionGeneral,
   readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
-import { CandidateContest, YesNoContest } from '@votingworks/types';
+import { CandidateContest, Election, YesNoContest } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -147,6 +147,35 @@ test('candidate contest - write-in', () => {
   );
 
   expect(screen.getByTestId('MockWriteInAudio')).toHaveTextContent('HON. FOO');
+});
+
+test('candidate contest with term description', () => {
+  let contest: CandidateContest | undefined;
+  const election: Election = {
+    ...electionGeneral,
+    contests: electionGeneral.contests.map((c) => {
+      if (c.type !== 'candidate' || !c.title.includes('President')) {
+        return c;
+      }
+
+      contest = { ...c, termDescription: '4 Years' };
+      return contest;
+    }),
+  };
+
+  assert(contest);
+
+  render(
+    <Review
+      election={election}
+      contests={[contest]}
+      precinctId={election.precincts[0].id}
+      votes={{}}
+      returnToContest={vi.fn()}
+    />
+  );
+
+  screen.getByText('4 Years');
 });
 
 describe('yesno contest', () => {
