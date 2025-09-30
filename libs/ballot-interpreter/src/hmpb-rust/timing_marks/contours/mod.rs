@@ -10,6 +10,7 @@ use types_rs::geometry::{
 };
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
+use crate::interpret::Inference;
 use crate::timing_marks::scoring::{CandidateTimingMark, TimingMarkScore};
 use crate::timing_marks::{rect_could_be_timing_mark, Border, Corner, TimingMarks};
 use crate::{
@@ -191,7 +192,7 @@ impl From<TimingMarks> for Partial {
 pub struct FindTimingMarkGridOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
     pub debug: &'a mut debug::ImageDebugWriter,
-    pub infer_timing_marks: bool,
+    pub inference: Inference,
 }
 
 /// Finds the timing marks in the given image and computes the grid of timing
@@ -228,7 +229,7 @@ pub fn find_timing_mark_grid(
         &FindCompleteTimingMarksFromPartialTimingMarksOptions {
             allowed_timing_mark_inset_percentage_of_width: options
                 .allowed_timing_mark_inset_percentage_of_width,
-            infer_timing_marks: options.infer_timing_marks,
+            inference: options.inference,
             debug,
         },
     ) {
@@ -832,7 +833,7 @@ pub const MAX_ALLOWED_TIMING_MARK_DISTANCE_ERROR: UnitIntervalValue = 0.2;
 pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
     pub debug: &'a debug::ImageDebugWriter,
-    pub infer_timing_marks: bool,
+    pub inference: Inference,
 }
 
 /// Finds complete timing marks from partial timing marks.
@@ -958,7 +959,7 @@ pub fn find_complete_from_partial(
     let median_horizontal_distance = horizontal_distances[horizontal_distances.len() / 2];
     let median_vertical_distance = vertical_distances[vertical_distances.len() / 2];
 
-    let should_infer_timing_marks = options.infer_timing_marks;
+    let should_infer_timing_marks = matches!(options.inference, Inference::Enabled);
 
     let complete_top_line_marks = if should_infer_timing_marks {
         infer_missing_timing_marks_on_segment(

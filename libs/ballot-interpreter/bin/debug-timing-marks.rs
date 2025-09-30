@@ -8,37 +8,18 @@ use std::{
     io::{BufRead, BufReader, BufWriter, Write},
     path::{Path, PathBuf},
     process,
-    str::FromStr,
     time::{Duration, Instant},
 };
 
 use ballot_interpreter::{
     ballot_card::PaperInfo,
     debug,
-    interpret::{prepare_ballot_page_image, Error, TimingMarkAlgorithm},
+    interpret::{prepare_ballot_page_image, Error, Inference, TimingMarkAlgorithm},
     timing_marks::{contours, corners, Border, BorderAxis, DefaultForGeometry, TimingMarks},
 };
 use clap::Parser;
 use color_eyre::{eyre::bail, owo_colors::OwoColorize};
 use itertools::Itertools;
-
-#[derive(Debug, Clone, Copy)]
-enum Inference {
-    Infer,
-    NoInfer,
-}
-
-impl FromStr for Inference {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "yes" | "infer" => Ok(Self::Infer),
-            "no" | "noinfer" | "no-infer" => Ok(Self::NoInfer),
-            _ => Err(format!("Unexpected inference: {s}")),
-        }
-    }
-}
 
 #[derive(Debug, clap::Parser)]
 struct Options {
@@ -133,13 +114,13 @@ fn process_path<W: Write>(
 
     let start = Instant::now();
     let find_result = match options.timing_mark_algorithm {
-        TimingMarkAlgorithm::Contours => contours::find_timing_mark_grid(
+        TimingMarkAlgorithm::Contours { inference } => contours::find_timing_mark_grid(
             &ballot_page.geometry,
             &ballot_page.ballot_image,
             contours::FindTimingMarkGridOptions {
                 allowed_timing_mark_inset_percentage_of_width:
                     contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
-                infer_timing_marks: matches!(options.inference, Inference::Infer),
+                inference,
                 debug: &mut debug::ImageDebugWriter::disabled(),
             },
         ),

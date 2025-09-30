@@ -2,7 +2,9 @@
 
 use std::{fmt::Display, fs::File, io::BufReader, path::PathBuf};
 
-use ballot_interpreter::interpret::{ScanInterpreter, TimingMarkAlgorithm};
+use ballot_interpreter::interpret::{
+    Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
+};
 use divan::{black_box, Bencher};
 use image::GrayImage;
 
@@ -41,9 +43,8 @@ impl InterpretFixture {
             serde_json::from_reader(BufReader::new(File::open(election_path)?))?;
         let interpreter = ScanInterpreter::new(
             election,
-            true,
-            false,
-            true,
+            WriteInScoring::Enabled,
+            VerticalStreakDetection::Enabled,
             self.timing_mark_algorithm,
             None,
         )?;
@@ -72,8 +73,8 @@ impl Display for InterpretFixture {
 }
 
 #[divan::bench(args = [
-    InterpretFixture::new("all-bubble-ballot", "blank", ".jpg", TimingMarkAlgorithm::Contours),
-    InterpretFixture::new("vxqa-2024-10", "skew", ".png", TimingMarkAlgorithm::Contours),
+    InterpretFixture::new("all-bubble-ballot", "blank", ".jpg", TimingMarkAlgorithm::Contours { inference: Inference::Enabled }),
+    InterpretFixture::new("vxqa-2024-10", "skew", ".png", TimingMarkAlgorithm::Contours { inference: Inference::Enabled }),
     InterpretFixture::new("all-bubble-ballot", "blank", ".jpg", TimingMarkAlgorithm::Corners),
     InterpretFixture::new("vxqa-2024-10", "skew", ".png", TimingMarkAlgorithm::Corners),
 ])]

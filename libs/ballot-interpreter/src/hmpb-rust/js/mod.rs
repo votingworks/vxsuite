@@ -12,8 +12,8 @@ use types_rs::election::Election;
 use crate::ballot_card::{load_ballot_scan_bubble_image, PaperInfo};
 use crate::debug::ImageDebugWriter;
 use crate::interpret::{
-    self, ballot_card, prepare_ballot_page_image, InterpretedBallotCard, Options,
-    TimingMarkAlgorithm,
+    self, ballot_card, prepare_ballot_page_image, Inference, InterpretedBallotCard, Options,
+    TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::contours::FindTimingMarkGridOptions;
@@ -68,12 +68,32 @@ fn interpret(
             bubble_template,
             debug_side_a_base: options.debug_base_path_side_a.map(PathBuf::from),
             debug_side_b_base: options.debug_base_path_side_b.map(PathBuf::from),
-            score_write_ins: options.score_write_ins.unwrap_or(false),
-            disable_vertical_streak_detection: options
-                .disable_vertical_streak_detection
-                .unwrap_or(false),
-            infer_timing_marks: options.infer_timing_marks.unwrap_or(true),
-            timing_mark_algorithm: options.timing_mark_algorithm.unwrap_or_default(),
+            write_in_scoring: if options.score_write_ins.unwrap_or(false) {
+                WriteInScoring::Enabled
+            } else {
+                WriteInScoring::Disabled
+            },
+            vertical_streak_detection: if options.disable_vertical_streak_detection.unwrap_or(false)
+            {
+                VerticalStreakDetection::Disabled
+            } else {
+                VerticalStreakDetection::Enabled
+            },
+            timing_mark_algorithm: match options.timing_mark_algorithm.unwrap_or_default() {
+                TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
+                    inference: options
+                        .infer_timing_marks
+                        .map(|infer| {
+                            if infer {
+                                Inference::Enabled
+                            } else {
+                                Inference::Disabled
+                            }
+                        })
+                        .unwrap_or_default(),
+                },
+                TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
+            },
             minimum_detected_scale,
         },
     );
@@ -201,16 +221,18 @@ fn find_timing_mark_grid(
             &debug,
             &timing_marks::corners::Options::default_for_geometry(&ballot_page.geometry),
         ),
-        TimingMarkAlgorithm::Contours => timing_marks::contours::find_timing_mark_grid(
-            &ballot_page.geometry,
-            &ballot_page.ballot_image,
-            FindTimingMarkGridOptions {
-                allowed_timing_mark_inset_percentage_of_width:
-                    timing_marks::contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
-                infer_timing_marks: false,
-                debug: &mut debug,
-            },
-        ),
+        TimingMarkAlgorithm::Contours { inference } => {
+            timing_marks::contours::find_timing_mark_grid(
+                &ballot_page.geometry,
+                &ballot_page.ballot_image,
+                FindTimingMarkGridOptions {
+                    allowed_timing_mark_inset_percentage_of_width:
+                        timing_marks::contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                    inference,
+                    debug: &mut debug,
+                },
+            )
+        }
     };
 
     let timing_marks = find_timing_marks_result
