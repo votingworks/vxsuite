@@ -51,11 +51,57 @@ use crate::timing_marks::TimingMarks;
 #[derive(Debug, Clone)]
 pub struct Options {
     pub election: Election,
-    pub bubble_template: GrayImage,
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
-    pub write_in_scoring: WriteInScoring,
     pub vertical_streak_detection: VerticalStreakDetection,
+    pub enabled_interpreter_config: EnabledInterpreterConfig,
+}
+
+#[derive(Debug, Clone)]
+pub enum EnabledInterpreterConfig {
+    All {
+        summary_ballot_config: SummaryBallotConfig,
+        hand_marked_paper_ballot_config: HandMarkedPaperBallotConfig,
+    },
+    SummaryBallotOnly(SummaryBallotConfig),
+    HandMarkedPaperBallotOnly(HandMarkedPaperBallotConfig),
+}
+
+impl EnabledInterpreterConfig {
+    #[must_use]
+    pub fn summary_ballot_config(&self) -> Option<&SummaryBallotConfig> {
+        match self {
+            Self::All {
+                summary_ballot_config,
+                ..
+            }
+            | Self::SummaryBallotOnly(summary_ballot_config) => Some(summary_ballot_config),
+            Self::HandMarkedPaperBallotOnly(_) => None,
+        }
+    }
+
+    #[must_use]
+    pub fn hand_marked_paper_ballot_config(&self) -> Option<&HandMarkedPaperBallotConfig> {
+        match self {
+            Self::All {
+                hand_marked_paper_ballot_config,
+                ..
+            }
+            | Self::HandMarkedPaperBallotOnly(hand_marked_paper_ballot_config) => {
+                Some(hand_marked_paper_ballot_config)
+            }
+            Self::SummaryBallotOnly(_) => None,
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct SummaryBallotConfig;
+
+#[derive(Debug, Clone)]
+pub struct HandMarkedPaperBallotConfig {
+    pub bubble_template: GrayImage,
+    pub write_in_scoring: WriteInScoring,
     pub timing_mark_algorithm: TimingMarkAlgorithm,
     pub minimum_detected_scale: Option<UnitIntervalScore>,
 }
@@ -338,13 +384,17 @@ impl ScanInterpreter {
     ) -> Result<InterpretedBallotCard> {
         let options = Options {
             election: self.election.clone(),
-            bubble_template: self.bubble_template_image.clone(),
             debug_side_a_base: debug_side_a_base.into(),
             debug_side_b_base: debug_side_b_base.into(),
-            write_in_scoring: self.write_in_scoring,
             vertical_streak_detection: self.vertical_streak_detection,
-            timing_mark_algorithm: self.timing_mark_algorithm,
-            minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
+            enabled_interpreter_config: EnabledInterpreterConfig::HandMarkedPaperBallotOnly(
+                HandMarkedPaperBallotConfig {
+                    bubble_template: self.bubble_template_image.clone(),
+                    write_in_scoring: self.write_in_scoring,
+                    timing_mark_algorithm: self.timing_mark_algorithm,
+                    minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
+                },
+            ),
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -540,10 +590,17 @@ pub fn ballot_card(
         .collect::<Result<(), _>>()?;
     }
 
+    let Some(hand_marked_paper_ballot_config) = options
+        .enabled_interpreter_config
+        .hand_marked_paper_ballot_config()
+    else {
+        todo!()
+    };
+
     let (side_a_timing_marks_result, side_b_timing_marks_result) = par_map_pair(
         (&side_a, &mut side_a_debug),
         (&side_b, &mut side_b_debug),
-        |(ballot_image, debug)| match options.timing_mark_algorithm {
+        |(ballot_image, debug)| match hand_marked_paper_ballot_config.timing_mark_algorithm {
             TimingMarkAlgorithm::Contours { inference } => contours::find_timing_mark_grid(
                 &geometry,
                 ballot_image,
@@ -569,7 +626,7 @@ pub fn ballot_card(
     let side_a_timing_marks = side_a_timing_marks_result?;
     let side_b_timing_marks = side_b_timing_marks_result?;
 
-    if let Some(minimum_detected_scale) = options.minimum_detected_scale {
+    if let Some(minimum_detected_scale) = hand_marked_paper_ballot_config.minimum_detected_scale {
         for (label, timing_marks) in [
             (SIDE_A_LABEL, &side_a_timing_marks),
             (SIDE_B_LABEL, &side_b_timing_marks),
@@ -760,7 +817,7 @@ pub fn ballot_card(
             score_bubble_marks_from_grid_layout(
                 image,
                 threshold,
-                &options.bubble_template,
+                &hand_marked_paper_ballot_config.bubble_template,
                 timing_marks,
                 grid_layout,
                 sheet_number,
@@ -781,36 +838,37 @@ pub fn ballot_card(
     let front_contest_layouts = front_contest_layouts?;
     let back_contest_layouts = back_contest_layouts?;
 
-    let (front_write_in_area_scores, back_write_in_area_scores) = match options.write_in_scoring {
-        WriteInScoring::Enabled => par_map_pair(
-            (
-                &front_image,
-                front_threshold,
-                &front_timing_marks,
-                BallotSide::Front,
-                &front_debug,
+    let (front_write_in_area_scores, back_write_in_area_scores) =
+        match hand_marked_paper_ballot_config.write_in_scoring {
+            WriteInScoring::Enabled => par_map_pair(
+                (
+                    &front_image,
+                    front_threshold,
+                    &front_timing_marks,
+                    BallotSide::Front,
+                    &front_debug,
+                ),
+                (
+                    &back_image,
+                    back_threshold,
+                    &back_timing_marks,
+                    BallotSide::Back,
+                    &back_debug,
+                ),
+                |(image, threshold, grid, side, debug)| {
+                    score_write_in_areas(
+                        image,
+                        threshold,
+                        grid,
+                        grid_layout,
+                        sheet_number,
+                        side,
+                        debug,
+                    )
+                },
             ),
-            (
-                &back_image,
-                back_threshold,
-                &back_timing_marks,
-                BallotSide::Back,
-                &back_debug,
-            ),
-            |(image, threshold, grid, side, debug)| {
-                score_write_in_areas(
-                    image,
-                    threshold,
-                    grid,
-                    grid_layout,
-                    sheet_number,
-                    side,
-                    debug,
-                )
-            },
-        ),
-        WriteInScoring::Disabled => Default::default(),
-    };
+            WriteInScoring::Disabled => Default::default(),
+        };
 
     let normalized_front_image = imageproc::contrast::threshold(&front_image, front_threshold);
     let normalized_back_image = imageproc::contrast::threshold(&back_image, back_threshold);
@@ -900,12 +958,16 @@ mod test {
         let options = Options {
             debug_side_a_base: None,
             debug_side_b_base: None,
-            bubble_template,
             election,
-            write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::Enabled,
-            timing_mark_algorithm: TimingMarkAlgorithm::default(),
-            minimum_detected_scale: None,
+            enabled_interpreter_config: EnabledInterpreterConfig::HandMarkedPaperBallotOnly(
+                HandMarkedPaperBallotConfig {
+                    bubble_template,
+                    write_in_scoring: WriteInScoring::Enabled,
+                    timing_mark_algorithm: TimingMarkAlgorithm::default(),
+                    minimum_detected_scale: None,
+                },
+            ),
         };
         (side_a_image, side_b_image, options)
     }
@@ -929,12 +991,16 @@ mod test {
         let options = Options {
             debug_side_a_base: None,
             debug_side_b_base: None,
-            bubble_template,
             election,
-            write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::Enabled,
-            timing_mark_algorithm: TimingMarkAlgorithm::default(),
-            minimum_detected_scale: None,
+            enabled_interpreter_config: EnabledInterpreterConfig::HandMarkedPaperBallotOnly(
+                HandMarkedPaperBallotConfig {
+                    bubble_template,
+                    write_in_scoring: WriteInScoring::Enabled,
+                    timing_mark_algorithm: TimingMarkAlgorithm::default(),
+                    minimum_detected_scale: None,
+                },
+            ),
         };
         (side_a_image, side_b_image, options)
     }
@@ -1189,11 +1255,27 @@ mod test {
             "104h-2025-04",
             ("imprinter-front.png", "imprinter-back.png"),
         );
+        let EnabledInterpreterConfig::HandMarkedPaperBallotOnly(HandMarkedPaperBallotConfig {
+            bubble_template,
+            write_in_scoring,
+            minimum_detected_scale,
+            ..
+        }) = options.enabled_interpreter_config.clone()
+        else {
+            panic!("expected hand marked paper ballot config only!");
+        };
         let interpretation = ballot_card(
             side_a_image.clone(),
             side_b_image.clone(),
             &Options {
-                timing_mark_algorithm: TimingMarkAlgorithm::Corners,
+                enabled_interpreter_config: EnabledInterpreterConfig::HandMarkedPaperBallotOnly(
+                    HandMarkedPaperBallotConfig {
+                        bubble_template,
+                        write_in_scoring,
+                        minimum_detected_scale,
+                        timing_mark_algorithm: TimingMarkAlgorithm::Corners,
+                    },
+                ),
                 ..options
             },
         )
@@ -1267,10 +1349,26 @@ mod test {
     fn test_reject_scaled_down_ballots() {
         let (side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 3);
+        let EnabledInterpreterConfig::HandMarkedPaperBallotOnly(HandMarkedPaperBallotConfig {
+            bubble_template,
+            write_in_scoring,
+            timing_mark_algorithm,
+            ..
+        }) = options.enabled_interpreter_config.clone()
+        else {
+            panic!("expected hand marked paper ballot config only!");
+        };
         // Set a minimum scale of 98.5%.
         let minimum_detected_scale = UnitIntervalScore(0.985);
         let options = Options {
-            minimum_detected_scale: Some(minimum_detected_scale),
+            enabled_interpreter_config: EnabledInterpreterConfig::HandMarkedPaperBallotOnly(
+                HandMarkedPaperBallotConfig {
+                    bubble_template,
+                    write_in_scoring,
+                    timing_mark_algorithm,
+                    minimum_detected_scale: Some(minimum_detected_scale),
+                },
+            ),
             ..options
         };
 

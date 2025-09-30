@@ -12,8 +12,9 @@ use types_rs::election::Election;
 use crate::ballot_card::{load_ballot_scan_bubble_image, PaperInfo};
 use crate::debug::ImageDebugWriter;
 use crate::interpret::{
-    self, ballot_card, prepare_ballot_page_image, Inference, InterpretedBallotCard, Options,
-    TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
+    self, ballot_card, prepare_ballot_page_image, EnabledInterpreterConfig,
+    HandMarkedPaperBallotConfig, Inference, InterpretedBallotCard, Options, TimingMarkAlgorithm,
+    VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::contours::FindTimingMarkGridOptions;
@@ -65,36 +66,40 @@ fn interpret(
         side_b_image,
         &Options {
             election,
-            bubble_template,
             debug_side_a_base: options.debug_base_path_side_a.map(PathBuf::from),
             debug_side_b_base: options.debug_base_path_side_b.map(PathBuf::from),
-            write_in_scoring: if options.score_write_ins.unwrap_or(false) {
-                WriteInScoring::Enabled
-            } else {
-                WriteInScoring::Disabled
-            },
             vertical_streak_detection: if options.disable_vertical_streak_detection.unwrap_or(false)
             {
                 VerticalStreakDetection::Disabled
             } else {
                 VerticalStreakDetection::Enabled
             },
-            timing_mark_algorithm: match options.timing_mark_algorithm.unwrap_or_default() {
-                TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
-                    inference: options
-                        .infer_timing_marks
-                        .map(|infer| {
-                            if infer {
-                                Inference::Enabled
-                            } else {
-                                Inference::Disabled
-                            }
-                        })
-                        .unwrap_or_default(),
+            enabled_interpreter_config: EnabledInterpreterConfig::HandMarkedPaperBallotOnly(
+                HandMarkedPaperBallotConfig {
+                    bubble_template,
+                    write_in_scoring: if options.score_write_ins.unwrap_or(false) {
+                        WriteInScoring::Enabled
+                    } else {
+                        WriteInScoring::Disabled
+                    },
+                    timing_mark_algorithm: match options.timing_mark_algorithm.unwrap_or_default() {
+                        TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
+                            inference: options
+                                .infer_timing_marks
+                                .map(|infer| {
+                                    if infer {
+                                        Inference::Enabled
+                                    } else {
+                                        Inference::Disabled
+                                    }
+                                })
+                                .unwrap_or_default(),
+                        },
+                        TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
+                    },
+                    minimum_detected_scale,
                 },
-                TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
-            },
-            minimum_detected_scale,
+            ),
         },
     );
 
