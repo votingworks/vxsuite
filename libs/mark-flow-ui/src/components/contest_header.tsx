@@ -35,6 +35,10 @@ const Container = styled.div`
   }
 `;
 
+const Title = styled(H2)`
+  margin-bottom: 0.125rem;
+`;
+
 export function Breadcrumbs(props: BreadcrumbMetadata): React.ReactNode {
   const { ballotContestCount, contestNumber } = props;
 
@@ -75,7 +79,7 @@ export function ContestHeader(props: ContestHeaderProps): JSX.Element {
           </Caption>
         </div>
         <div>
-          <H2 as="h1">{electionStrings.contestTitle(contest)}</H2>
+          <Title>{electionStrings.contestTitle(contest)}</Title>
         </div>
         {children}
       </ReadOnLoad>
