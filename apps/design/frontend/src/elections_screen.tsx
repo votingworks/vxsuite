@@ -41,7 +41,7 @@ const ElectionRow = styled.tr`
   }
 `;
 
-const CloneButtonCell = styled.td`
+const ActionIconButtonCell = styled.td`
   text-align: center;
 `;
 
@@ -287,9 +287,9 @@ function AllOrgsElectionsList({
                 )}
             </LinkCell>
 
-            <CloneButtonCell>
+            <ActionIconButtonCell>
               <CloneElectionButton election={election} />
-            </CloneButtonCell>
+            </ActionIconButtonCell>
           </ElectionRow>
         ))}
       </tbody>
@@ -331,9 +331,9 @@ function SingleOrgElectionsList({
 
             <LinkCell election={election}>{election.state}</LinkCell>
 
-            <CloneButtonCell>
+            <ActionIconButtonCell>
               <CloneElectionButton election={election} />
-            </CloneButtonCell>
+            </ActionIconButtonCell>
           </ElectionRow>
         ))}
       </tbody>

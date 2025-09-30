@@ -41,20 +41,20 @@ import {
   TtsStringKey,
   safeParse,
   PhoneticWordsSchema,
-  PrecinctOrSplitId,
+  ContestId,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
+import { combineAndDecodeCompressedElectionResults } from '@votingworks/utils';
+import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
   BallotStyle,
   convertToVxfBallotStyle,
   ElectionInfo,
   ElectionListing,
   Org,
-  QuickResultsReportingTally,
-  QuickResultsReportingTallyRow,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
@@ -2017,21 +2017,20 @@ export class Store {
   async getQuickResultsReportingTalliesForElection(
     election: ElectionRecord,
     isLive: boolean
-  ): Promise<QuickResultsReportingTally[]> {
+  ): Promise<{
+    contestResults: Record<ContestId, ContestResults>;
+    machinesReporting: string[];
+  }> {
     assert(
       election.lastExportedBallotHash !== undefined,
       'Election has not yet been exported.'
     );
-    const row = (
+    const rows = (
       await this.db.withClient((client) =>
         client.query(
           `
             select
-              election_id as "electionId",
               encoded_compressed_tally as "encodedCompressedTally",
-              is_live_mode as "isLive",
-              signed_at as "signedAt",
-              precinct_id as "precinctId",
               machine_id as "machineId"
             from results_reports
             where
@@ -2045,17 +2044,18 @@ export class Store {
           isLive
         )
       )
-    ).rows as QuickResultsReportingTallyRow[];
-    return row.map(
-      (r): QuickResultsReportingTally => ({
-        electionId: r.electionId,
-        encodedCompressedTally: r.encodedCompressedTally,
-        machineId: r.machineId,
-        isLive: r.isLive,
-        signedTimestamp: new Date(r.signedAt),
-        precinctId: (r.precinctId as unknown as PrecinctOrSplitId) || undefined,
-      })
-    );
+    ).rows as Array<{
+      encodedCompressedTally: string;
+      machineId: string;
+    }>;
+    const contestResults = combineAndDecodeCompressedElectionResults({
+      election: election.election,
+      encodedCompressedTallies: rows.map((r) => r.encodedCompressedTally),
+    });
+    return {
+      contestResults,
+      machinesReporting: rows.map((r) => r.machineId),
+    };
   }
 
   // Save the provided quick results report, overwriting one for the given election ballot hash, machine and isLive toggle if one already exists.

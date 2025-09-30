@@ -97,6 +97,13 @@ async function setUpElectionInSystem(
     })
   ).unsafeUnwrap();
 
+  // Before the election is exported we can not view quick results.
+  const storedResults = await apiClient.getQuickReportedResults({
+    electionId,
+    isLive: true,
+  });
+  expect(storedResults).toEqual(err('election-not-exported'));
+
   const electionPackageFilePath = await exportElectionPackage({
     electionId,
     electionSerializationFormat: 'vxf',
@@ -264,27 +271,22 @@ test('processQRCodeReport processes a valid quick results report successfully', 
     })
   );
 
+  auth0.setLoggedInUser(nonVxUser);
   // Test that the results were actually stored in the database
-  // TODO (#7158) - Change this to call the apiClient method to get results when that is implemented
-  const electionRecord = await workspace.store.getElection(
-    sampleElectionDefinition.election.id
+  const storedResults = await apiClient.getQuickReportedResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: true,
+  });
+  expect(storedResults).toEqual(
+    ok({
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      ballotHash: sampleElectionDefinition.ballotHash,
+      contestResults: mockResults.contestResults,
+      machinesReporting: ['machineId'],
+    })
   );
-  assertDefined(electionRecord);
-  const storedResults =
-    await workspace.store.getQuickResultsReportingTalliesForElection(
-      electionRecord,
-      true
-    );
-  expect(storedResults).toEqual([
-    {
-      electionId: sampleElectionDefinition.election.id,
-      encodedCompressedTally: encodedTally,
-      machineId: 'machineId',
-      isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:00Z'),
-      precinctId: undefined,
-    },
-  ]);
 
   // Calling with the same data multiple times should return the same result.
   const result2 = await unauthenticatedApiClient.processQrCodeReport({
@@ -310,6 +312,16 @@ test('processQRCodeReport processes a valid quick results report successfully', 
       officialOptionTallies: {},
     },
   };
+  const sampleContestResultsDoubled: Record<ContestId, ContestResultsSummary> =
+    {
+      [sampleContest.id]: {
+        type: 'candidate',
+        ballots: 20,
+        undervotes: 10,
+        overvotes: 4,
+        officialOptionTallies: {},
+      },
+    };
   const mockResults2 = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
@@ -317,6 +329,15 @@ test('processQRCodeReport processes a valid quick results report successfully', 
       hmpb: [],
     },
     contestResultsSummaries: sampleContestResults,
+    includeGenericWriteIn: true,
+  });
+  const mockResults2Doubled = buildElectionResultsFixture({
+    election: sampleElectionDefinition.election,
+    cardCounts: {
+      bmd: 0,
+      hmpb: [],
+    },
+    contestResultsSummaries: sampleContestResultsDoubled,
     includeGenericWriteIn: true,
   });
   const encodedTally2 = compressAndEncodeTally(
@@ -348,19 +369,46 @@ test('processQRCodeReport processes a valid quick results report successfully', 
       contestResults: mockResults2.contestResults,
     })
   );
-  const storedResults2 =
-    await workspace.store.getQuickResultsReportingTalliesForElection(
-      electionRecord,
-      true
-    );
-  expect(storedResults2).toEqual([
-    {
-      electionId: sampleElectionDefinition.election.id,
-      encodedCompressedTally: encodedTally2,
-      machineId: 'machineId',
-      isLive: true,
-      signedTimestamp: new Date('2024-01-02T12:00:00Z'),
-      precinctId: undefined,
-    },
-  ]);
+  const storedResults2 = await apiClient.getQuickReportedResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: true,
+  });
+  expect(storedResults2).toEqual(
+    ok({
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      ballotHash: sampleElectionDefinition.ballotHash,
+      contestResults: mockResults2.contestResults,
+      machinesReporting: ['machineId'],
+    })
+  );
+
+  // Report from a different machine should be added to the list of machines reporting
+  const result4 = await unauthenticatedApiClient.processQrCodeReport({
+    payload: `1//qr1//${encodeQuickResultsMessage({
+      ballotHash: sampleElectionDefinition.ballotHash,
+      signingMachineId: 'machineId-2',
+      timestamp: new Date('2024-01-02T12:00:00Z').getTime() / 1000,
+      isLiveMode: true,
+      compressedTally: encodedTally2,
+    })}`,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  expect(result4).toEqual(ok(expect.anything()));
+  const storedResults3 = await apiClient.getQuickReportedResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: true,
+  });
+  expect(storedResults3).toEqual(
+    ok({
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      ballotHash: sampleElectionDefinition.ballotHash,
+      contestResults: mockResults2Doubled.contestResults,
+      machinesReporting: ['machineId', 'machineId-2'],
+    })
+  );
 });

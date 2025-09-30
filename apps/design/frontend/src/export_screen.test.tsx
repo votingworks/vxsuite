@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { ElectionSerializationFormat } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionSerializationFormat,
+} from '@votingworks/types';
 import { Buffer, File as NodeFile } from 'node:buffer';
 import {
   provideApi,
@@ -32,6 +35,9 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
   apiMock.getTestDecks.expectCallWith({ electionId }).resolves({});
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   apiMock.getBallotTemplate
     .expectCallWith({ electionId })

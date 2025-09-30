@@ -3417,6 +3417,22 @@ test('feature configs', async () => {
   ).toEqual(electionFeatureConfigs.vx);
 });
 
+test('getBaseUrl', async () => {
+  process.env = {
+    ...process.env,
+    BASE_URL: 'https://test-base-url.com',
+  };
+  const { apiClient, auth0, baseUrl } = await setupApp(orgs);
+  auth0.setLoggedInUser(vxUser);
+  expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
+  auth0.setLoggedInUser(nonVxUser);
+  expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
+  auth0.setLoggedInUser(sliUser);
+  expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
+  auth0.setLoggedInUser(vxDemosUser);
+  expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
+});
+
 test('api call logging', async () => {
   const { apiClient, logger, auth0 } = await setupApp(orgs);
   await expect(apiClient.getUser()).rejects.toThrow('auth:unauthorized');

@@ -59,7 +59,7 @@ import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
 import {
   getExportedCastVoteRecordIds,
-  readCompressedTally,
+  decodeAndReadCompressedTally,
 } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
@@ -77,6 +77,7 @@ import {
   DuplicatePrecinctError,
 } from './store';
 import {
+  AggregatedReportedResults,
   BallotStyle,
   ElectionInfo,
   ElectionListing,
@@ -225,6 +226,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           'listElections',
           'getUser',
           'getUserFeatures',
+          'getBaseUrl',
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
         ];
         assert(methodsThatHandleAuthThemselves.includes(methodName));
@@ -753,6 +755,31 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       return getUserFeaturesConfig(context.user);
     },
 
+    getBaseUrl(): string {
+      return baseUrl();
+    },
+
+    async getQuickReportedResults(input: {
+      electionId: ElectionId;
+      isLive: boolean;
+    }): Promise<Result<AggregatedReportedResults, 'election-not-exported'>> {
+      const electionRecord = await store.getElection(input.electionId);
+      if (!electionRecord.lastExportedBallotHash) {
+        return err('election-not-exported');
+      }
+      const { contestResults, machinesReporting } =
+        await store.getQuickResultsReportingTalliesForElection(
+          electionRecord,
+          input.isLive
+        );
+      return ok({
+        ballotHash: electionRecord.lastExportedBallotHash,
+        contestResults,
+        election: electionRecord.election,
+        machinesReporting,
+      });
+    },
+
     async getElectionFeatures(input: {
       electionId: ElectionId;
     }): Promise<ElectionFeaturesConfig> {
@@ -904,7 +931,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           return err('no-election-found');
         }
 
-        const contestResults = readCompressedTally(
+        const contestResults = decodeAndReadCompressedTally(
           electionRecord.election,
           encodedCompressedTally
         );
