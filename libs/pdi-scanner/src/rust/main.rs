@@ -196,8 +196,8 @@ enum Message {
 }
 
 fn send_to_stdout(message: Message) -> color_eyre::Result<()> {
-    serde_json::to_writer(io::stdout(), &message)?;
     let mut stdout = io::stdout().lock();
+    serde_json::to_writer(&mut stdout, &message)?;
     stdout.write_all(b"\n")?;
     Ok(())
 }
