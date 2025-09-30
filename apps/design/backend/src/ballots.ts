@@ -140,6 +140,7 @@ export function createBallotPropsForTemplate(
     };
   }
 
+  assert(election.ballotStyles.length > 0, 'Election has no ballot styles');
   const baseBallotProps = allBaseBallotProps(election).map((props) => ({
     ...props,
     compact,
