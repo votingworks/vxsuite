@@ -34,13 +34,14 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { ImageData } from 'canvas';
+import { createCanvas, ImageData } from 'canvas';
 import { assert } from 'node:console';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
+import { rotateImageData180 } from './bmd/utils/rotate';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
@@ -565,4 +566,65 @@ describe('VX BMD interpretation', () => {
     const interpretationResult = await interpretSheet(options, validBmdSheet);
     expect(interpretationResult[0]).toEqual(blankPageInterpretation);
   });
+
+  test.each([
+    { ballotPlacement: 'top', rotation: 'none' },
+    { ballotPlacement: 'middle', rotation: 'none' },
+    { ballotPlacement: 'bottom', rotation: 'none' },
+    { ballotPlacement: 'top', rotation: 'inverted' },
+    { ballotPlacement: 'middle', rotation: 'inverted' },
+    { ballotPlacement: 'bottom', rotation: 'inverted' },
+  ] as const)(
+    'handles a ballot with placement $ballotPlacement and rotation $rotation',
+    async ({ ballotPlacement, rotation }) => {
+      const canvas = createCanvas(
+        bmdSummaryBallotPage.width,
+        Math.round(bmdSummaryBallotPage.height * 1.4)
+      );
+      const context = canvas.getContext('2d');
+      context.putImageData(
+        bmdSummaryBallotPage,
+        0,
+        ballotPlacement === 'top'
+          ? 0
+          : ballotPlacement === 'bottom'
+          ? canvas.height - bmdSummaryBallotPage.height
+          : ballotPlacement === 'middle'
+          ? Math.round((canvas.height - bmdSummaryBallotPage.height) / 2)
+          : throwIllegalValue(ballotPlacement)
+      );
+      const bmdSummaryBallotPageWithLargeBlackArea = context.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      switch (rotation) {
+        case 'inverted': {
+          rotateImageData180(bmdSummaryBallotPageWithLargeBlackArea);
+          break;
+        }
+        case 'none': {
+          break;
+        }
+        default: {
+          throwIllegalValue(rotation);
+          break;
+        }
+      }
+
+      const result = await interpretSimplexBmdBallot(
+        bmdSummaryBallotPageWithLargeBlackArea,
+        {
+          electionDefinition,
+          precinctSelection: ALL_PRECINCTS_SELECTION,
+          testMode: true,
+          markThresholds: DEFAULT_MARK_THRESHOLDS,
+          adjudicationReasons: [],
+        }
+      );
+      expect(result).toMatchSnapshot();
+    }
+  );
 });
