@@ -60,7 +60,6 @@ import { LogEventId } from '@votingworks/logging';
 import {
   getExportedCastVoteRecordIds,
   decodeAndReadCompressedTally,
-  combineAndDecodeCompressedElectionResults,
 } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
@@ -768,15 +767,11 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       if (!electionRecord.lastExportedBallotHash) {
         return err('election-not-exported');
       }
-      const { encodedCompressedTallies, machinesReporting } =
+      const { contestResults, machinesReporting } =
         await store.getQuickResultsReportingTalliesForElection(
           electionRecord,
           input.isLive
         );
-      const contestResults = combineAndDecodeCompressedElectionResults({
-        election: electionRecord.election,
-        encodedCompressedTallies,
-      });
       return ok({
         ballotHash: electionRecord.lastExportedBallotHash,
         contestResults,

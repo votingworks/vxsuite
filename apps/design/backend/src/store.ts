@@ -41,11 +41,14 @@ import {
   TtsStringKey,
   safeParse,
   PhoneticWordsSchema,
+  ContestId,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
+import { combineAndDecodeCompressedElectionResults } from '@votingworks/utils';
+import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
   BallotStyle,
   convertToVxfBallotStyle,
@@ -2015,7 +2018,7 @@ export class Store {
     election: ElectionRecord,
     isLive: boolean
   ): Promise<{
-    encodedCompressedTallies: string[];
+    contestResults: Record<ContestId, ContestResults>;
     machinesReporting: string[];
   }> {
     assert(
@@ -2045,9 +2048,13 @@ export class Store {
       encodedCompressedTally: string;
       machineId: string;
     }>;
-    return {
+    const contestResults = combineAndDecodeCompressedElectionResults({
+      election: election.election,
       encodedCompressedTallies: rows.map((r) => r.encodedCompressedTally),
-      machinesReporting: Array.from(new Set(rows.map((r) => r.machineId))),
+    });
+    return {
+      contestResults,
+      machinesReporting: rows.map((r) => r.machineId),
     };
   }
 
