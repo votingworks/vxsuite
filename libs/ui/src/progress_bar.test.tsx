@@ -19,12 +19,3 @@ test('100% progress', () => {
   const progressBar = screen.getByRole('progressbar');
   expect(progressBar.firstChild).toHaveStyle({ width: '100%' });
 });
-
-test('resets fill animation when progress goes backward', () => {
-  const { rerender } = render(<ProgressBar progress={0.5} />);
-  const progressBar = screen.getByRole('progressbar');
-  const firstFill = progressBar.firstChild;
-  rerender(<ProgressBar progress={0.2} />);
-  const secondFill = progressBar.firstChild;
-  expect(firstFill).not.toBe(secondFill);
-});

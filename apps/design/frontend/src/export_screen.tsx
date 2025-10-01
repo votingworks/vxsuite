@@ -56,6 +56,8 @@ function TaskProgressCard({
       <H4>{title}</H4>
       <P>{task.progress?.label ?? 'Starting'}</P>
       <ProgressBar
+        // Recreate progress bar for each phase so that it doesn't animate backwards
+        key={task.progress?.label}
         progress={
           task.progress ? task.progress.progress / task.progress.total : 0
         }
