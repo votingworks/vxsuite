@@ -520,6 +520,34 @@ test('if ballot removed during scan, returns to waiting for ballots', async () =
   );
 });
 
+test('if ballot teased and jam error code occurs, tries to reject ballot', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanning' });
+      mockScanner.setScannerStatus({
+        ...mockScannerStatus.documentInFront,
+        documentJam: true,
+      });
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.blankSheet(),
+      });
+
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, {
+        state: 'rejected',
+        error: 'scanning_failed',
+      });
+    }
+  );
+});
+
 test('if interpretation throws an exception, show unrecoverable error', async () => {
   await withApp(
     async ({

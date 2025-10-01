@@ -726,6 +726,11 @@ function buildMachine({
                   {
                     cond: (_, { status }) => status.documentJam,
                     target: '#rejecting',
+                    actions: assign({
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      error: (_context) =>
+                        new PrecinctScannerError('scanning_failed'),
+                    }),
                   },
                   // If you pull the ballot out before it can be fully scanned,
                   // we either get a scanFailed event (handled above) or a
