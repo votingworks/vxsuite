@@ -403,6 +403,12 @@ interface ScreenshotToSaveProps {
   fileName: string;
 }
 
+const ScreenshotModal = styled(Modal)`
+  background-color: ${Colors.BACKGROUND};
+  border-color: ${Colors.BORDER} !important;
+  color: ${Colors} !important;
+`;
+
 function ScreenshotControls({
   containerRef,
 }: {
@@ -466,7 +472,7 @@ function ScreenshotControls({
         <FontAwesomeIcon icon={faCamera} size="2x" />
       </ScreenshotButton>
       {screenshotToSave && (
-        <Modal
+        <ScreenshotModal
           title="Screenshot Taken"
           content={
             <>
@@ -487,16 +493,26 @@ function ScreenshotControls({
                   })
                 }
                 autoComplete="off"
-                required
               />
             </>
           }
           actions={
             <>
-              <Button onPress={onSaveScreenshot} variant="primary">
+              <Button
+                onPress={onSaveScreenshot}
+                style={{
+                  backgroundColor: Colors.ACTIVE,
+                  color: Colors.BACKGROUND,
+                }}
+              >
                 Save
               </Button>
-              <Button onPress={() => setScreenshotToSave(undefined)}>
+              <Button
+                onPress={() => setScreenshotToSave(undefined)}
+                style={{
+                  backgroundColor: 'white',
+                }}
+              >
                 Cancel
               </Button>
             </>
