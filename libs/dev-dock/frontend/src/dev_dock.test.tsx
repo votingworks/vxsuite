@@ -325,6 +325,26 @@ test('screenshot button', async () => {
   });
 });
 
+test('Ctrl+K triggers screenshot', async () => {
+  render(<DevDock apiClient={mockApiClient} />);
+  await screen.findByRole('button', { name: 'Capture Screenshot' });
+
+  vi.spyOn(window, 'alert').mockImplementation(() => {});
+  document.title = 'VotingWorks VxAdmin';
+  mockApiClient.saveScreenshotForApp
+    .expectCallWith({ appName: 'VxAdmin', screenshot: Uint8Array.of() })
+    .resolves('Screenshot-VxAdmin-2024-11-25-00:00:00.000Z.png');
+
+  userEvent.keyboard('{Control>}k{/Control}');
+
+  await waitFor(() => {
+    mockApiClient.assertComplete();
+    expect(window.alert).toHaveBeenCalledWith(
+      'Screenshot saved as Screenshot-VxAdmin-2024-11-25-00:00:00.000Z.png in the Downloads folder.'
+    );
+  });
+});
+
 test('printer mock control', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_PRINTER

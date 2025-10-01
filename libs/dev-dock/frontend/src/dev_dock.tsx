@@ -434,6 +434,17 @@ function ScreenshotControls({
     }
   }
 
+  async function onKeyDown(event: KeyboardEvent): Promise<void> {
+    if (event.key === 'k' && event.metaKey) {
+      await captureScreenshot();
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   return (
     <ScreenshotButton
       onClick={captureScreenshot}
