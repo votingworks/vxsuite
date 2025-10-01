@@ -1,7 +1,7 @@
 use std::{cmp::Ordering, io, ops::Range};
 
 use image::GrayImage;
-use imageproc::contrast::{otsu_level, threshold};
+use imageproc::contrast::{otsu_level, threshold, threshold_mut};
 use serde::Serialize;
 
 use crate::image_utils::{bleed, Inset, BLACK};
@@ -15,6 +15,12 @@ pub struct BallotImage {
     pub image: GrayImage,
     pub threshold: u8,
     pub border_inset: Inset,
+}
+
+impl BallotImage {
+    pub fn binarize(&mut self) {
+        threshold_mut(&mut self.image, self.threshold);
+    }
 }
 
 pub struct BallotPage {

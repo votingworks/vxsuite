@@ -91,7 +91,7 @@ pub fn draw_qr_code_debug_image_mut(
             );
             draw_text_with_background_mut(
                 canvas,
-                &format!("Orientation: {:?}", qr_code.orientation()),
+                &format!("Position: {:?}", qr_code.position()),
                 0,
                 40,
                 scale,

@@ -20,7 +20,7 @@ pub fn detect(img: &GrayImage) -> Result {
                             detection_area_rects,
                             qr_code.data,
                             bounds,
-                            area.orientation(),
+                            area.position(),
                         ));
                     }
                 }

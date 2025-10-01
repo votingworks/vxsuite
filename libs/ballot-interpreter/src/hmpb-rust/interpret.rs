@@ -1,13 +1,9 @@
 #![allow(clippy::similar_names)]
 
 use std::fmt::Display;
-use std::io::Cursor;
 use std::path::PathBuf;
 use std::str::FromStr;
 
-use bitstream_io::BigEndian;
-use bitstream_io::BitReader;
-use bitstream_io::FromBitStreamWith;
 use image::GenericImageView;
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
@@ -16,6 +12,8 @@ use rayon::iter::ParallelIterator;
 use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
+use types_rs::bmd::cvr::CastVoteRecord;
+use types_rs::coding;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
 use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
@@ -58,6 +56,7 @@ pub struct Options {
 }
 
 #[derive(Debug, Clone)]
+#[must_use]
 pub enum EnabledInterpreterConfig {
     All {
         summary_ballot_config: SummaryBallotConfig,
@@ -68,6 +67,59 @@ pub enum EnabledInterpreterConfig {
 }
 
 impl EnabledInterpreterConfig {
+    /// Creates an interpretation configuration with all interpretation types
+    /// enabled.
+    ///
+    /// # Panics
+    ///
+    /// If the bubble reference image cannot be loaded.
+    pub fn all(
+        write_in_scoring: WriteInScoring,
+        timing_mark_algorithm: TimingMarkAlgorithm,
+        minimum_detected_scale: Option<UnitIntervalScore>,
+    ) -> Self {
+        let bubble_template =
+            load_ballot_scan_bubble_image().expect("unable to load ballot scan bubble image");
+        Self::All {
+            summary_ballot_config: SummaryBallotConfig,
+            hand_marked_paper_ballot_config: HandMarkedPaperBallotConfig {
+                bubble_template,
+                write_in_scoring,
+                timing_mark_algorithm,
+                minimum_detected_scale,
+            },
+        }
+    }
+
+    /// Creates an interpretation configuration with only summary ballot
+    /// interpretation enabled.
+    pub fn summary_ballot_only() -> Self {
+        Self::SummaryBallotOnly(SummaryBallotConfig)
+    }
+
+    /// Creates an interpretation configuration with only hand-marked paper
+    /// ballot interpretation enabled.
+    ///
+    /// # Panics
+    ///
+    /// If the bubble reference image cannot be loaded.
+    pub fn hand_marked_only(
+        write_in_scoring: WriteInScoring,
+        timing_mark_algorithm: TimingMarkAlgorithm,
+        minimum_detected_scale: Option<UnitIntervalScore>,
+    ) -> Self {
+        let bubble_template =
+            load_ballot_scan_bubble_image().expect("unable to load ballot scan bubble image");
+        Self::HandMarkedPaperBallotOnly(HandMarkedPaperBallotConfig {
+            bubble_template,
+            write_in_scoring,
+            timing_mark_algorithm,
+            minimum_detected_scale,
+        })
+    }
+
+    /// If this configuration allows for summary ballots, returns a [`Some`]
+    /// with the configuration for summary ballots.
     #[must_use]
     pub fn summary_ballot_config(&self) -> Option<&SummaryBallotConfig> {
         match self {
@@ -80,6 +132,8 @@ impl EnabledInterpreterConfig {
         }
     }
 
+    /// If this configuration allows for hand-marked paper ballots, returns
+    /// a [`Some`] with the configuration for hand-marked paper ballots.
     #[must_use]
     pub fn hand_marked_paper_ballot_config(&self) -> Option<&HandMarkedPaperBallotConfig> {
         match self {
@@ -145,6 +199,15 @@ impl FromStr for TimingMarkAlgorithm {
 pub enum Inference {
     Enabled,
     Disabled,
+}
+
+impl Display for Inference {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Enabled => write!(f, "enabled"),
+            Self::Disabled => write!(f, "disabled"),
+        }
+    }
 }
 
 impl FromStr for Inference {
@@ -238,9 +301,28 @@ pub struct InterpretedBallotPage {
 }
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct InterpretedBallotCard {
-    pub front: InterpretedBallotPage,
-    pub back: InterpretedBallotPage,
+#[must_use]
+pub enum InterpretedBallotCard {
+    #[serde(rename = "hmpb")]
+    HandMarkedPaperBallot {
+        front: Box<InterpretedBallotPage>,
+        back: Box<InterpretedBallotPage>,
+    },
+    #[serde(rename = "bmd-summary")]
+    SummaryBallot {
+        cvr: CastVoteRecord,
+        #[serde(skip_serializing)] // `normalized_image` is returned separately.
+        normalized_image: GrayImage,
+    },
+}
+
+impl InterpretedBallotCard {
+    pub fn hmpb(front: InterpretedBallotPage, back: InterpretedBallotPage) -> Self {
+        Self::HandMarkedPaperBallot {
+            front: Box::new(front),
+            back: Box::new(back),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -329,6 +411,18 @@ pub enum Error {
 
     #[error("invalid election: {message}")]
     InvalidElection { message: String },
+
+    #[error("multiple QR codes found")]
+    MultipleSummaryBallotQrCodes,
+
+    #[error("invalid summary ballot QR code: {0}")]
+    InvalidSummaryBallotQrCode(String),
+
+    #[error("found a hand-marked paper ballot but not configured to interpret them")]
+    UnhandledHandMarkedPaperBallot,
+
+    #[error("found a summary ballot but not configured to interpret them")]
+    UnhandledSummaryBallot,
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
@@ -338,11 +432,8 @@ pub const SIDE_B_LABEL: &str = "side B";
 
 pub struct ScanInterpreter {
     election: Election,
-    write_in_scoring: WriteInScoring,
     vertical_streak_detection: VerticalStreakDetection,
-    bubble_template_image: GrayImage,
-    timing_mark_algorithm: TimingMarkAlgorithm,
-    minimum_detected_scale: Option<f32>,
+    enabled_interpreter_config: EnabledInterpreterConfig,
 }
 
 impl ScanInterpreter {
@@ -353,19 +444,13 @@ impl ScanInterpreter {
     /// Returns an error if the bubble template image could not be loaded.
     pub fn new(
         election: Election,
-        write_in_scoring: WriteInScoring,
         vertical_streak_detection: VerticalStreakDetection,
-        timing_mark_algorithm: TimingMarkAlgorithm,
-        minimum_detected_scale: Option<f32>,
+        enabled_interpreter_config: EnabledInterpreterConfig,
     ) -> Result<Self, image::ImageError> {
-        let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
             election,
-            write_in_scoring,
             vertical_streak_detection,
-            bubble_template_image,
-            timing_mark_algorithm,
-            minimum_detected_scale,
+            enabled_interpreter_config,
         })
     }
 
@@ -387,14 +472,7 @@ impl ScanInterpreter {
             debug_side_a_base: debug_side_a_base.into(),
             debug_side_b_base: debug_side_b_base.into(),
             vertical_streak_detection: self.vertical_streak_detection,
-            enabled_interpreter_config: EnabledInterpreterConfig::HandMarkedPaperBallotOnly(
-                HandMarkedPaperBallotConfig {
-                    bubble_template: self.bubble_template_image.clone(),
-                    write_in_scoring: self.write_in_scoring,
-                    timing_mark_algorithm: self.timing_mark_algorithm,
-                    minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
-                },
-            ),
+            enabled_interpreter_config: self.enabled_interpreter_config.clone(),
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -556,8 +634,8 @@ pub fn ballot_card(
         });
     };
     let BallotCard {
-        side_a,
-        side_b,
+        mut side_a,
+        mut side_b,
         geometry,
     } = prepare_ballot_card_images(side_a_image, side_b_image, &PaperInfo::scanned())?;
 
@@ -569,6 +647,11 @@ pub fn ballot_card(
         Some(base) => ImageDebugWriter::new(base.clone(), side_b.image.clone()),
         None => ImageDebugWriter::disabled(),
     };
+
+    // Binarize the ballot images after creating the `ImageDebugWriter` so they
+    // can be grayscale, but the rest of the pipeline and image saving is B&W.
+    side_a.binarize();
+    side_b.binarize();
 
     if options.vertical_streak_detection == VerticalStreakDetection::Enabled {
         [
@@ -590,11 +673,66 @@ pub fn ballot_card(
         .collect::<Result<(), _>>()?;
     }
 
+    let (side_a_qr_code_detection, side_b_qr_code_detection) =
+        match options.election.ballot_layout.metadata_encoding {
+            MetadataEncoding::QrCode => par_map_pair(
+                (&side_a.image, &side_a_debug, SIDE_A_LABEL),
+                (&side_b.image, &side_b_debug, SIDE_B_LABEL),
+                |(image, debug, label)| {
+                    qr_code::detect(image, debug).map_err(|e| Error::InvalidQrCodeMetadata {
+                        label: label.to_owned(),
+                        message: e.to_string(),
+                    })
+                },
+            ),
+        };
+
+    let (side_a, side_b) = if options
+        .enabled_interpreter_config
+        .summary_ballot_config()
+        .is_some()
+    {
+        match (
+            (&side_a_qr_code_detection, side_a),
+            (&side_b_qr_code_detection, side_b),
+        ) {
+            ((Ok(_), _), (Ok(_), _)) => return Err(Error::MultipleSummaryBallotQrCodes),
+            ((Ok(detected), front), (_, back)) | ((_, back), (Ok(detected), front)) => {
+                if let Ok(cvr) =
+                    coding::decode_with::<CastVoteRecord>(detected.bytes(), &options.election)
+                {
+                    return Ok(InterpretedBallotCard::SummaryBallot {
+                        cvr,
+                        normalized_image: front.image,
+                    });
+                }
+
+                (front, back)
+            }
+            ((Err(e), _), _) => {
+                return Err(e.clone());
+            }
+        }
+    } else {
+        (side_a, side_b)
+    };
+
     let Some(hand_marked_paper_ballot_config) = options
         .enabled_interpreter_config
         .hand_marked_paper_ballot_config()
     else {
-        todo!()
+        match (
+            (side_a_qr_code_detection, SIDE_A_LABEL),
+            (side_b_qr_code_detection, SIDE_B_LABEL),
+        ) {
+            ((Ok(_), label), _) | (_, (Ok(_), label)) => {
+                return Err(Error::InvalidQrCodeMetadata {
+                    label: label.to_owned(),
+                    message: "data not valid for configured ballot types".to_owned(),
+                })
+            }
+            ((Err(e), _), _) => return Err(e)?,
+        }
     };
 
     let (side_a_timing_marks_result, side_b_timing_marks_result) = par_map_pair(
@@ -652,133 +790,127 @@ pub fn ballot_card(
         (front_timing_marks, front_image, front_threshold, front_metadata, front_debug),
         (back_timing_marks, back_image, back_threshold, back_metadata, back_debug),
         ballot_style_id,
-    ) = match options.election.ballot_layout.metadata_encoding {
-        MetadataEncoding::QrCode => {
-            let (side_a_qr_code_result, side_b_qr_code_result) = par_map_pair(
-                (&side_a.image, &side_a_debug, SIDE_A_LABEL),
-                (&side_b.image, &side_b_debug, SIDE_B_LABEL),
-                |(image, debug, label)| {
-                    let qr_code = qr_code::detect(image, debug).map_err(|e| {
-                        Error::InvalidQrCodeMetadata {
-                            label: label.to_owned(),
-                            message: e.to_string(),
-                        }
+    ) = {
+        let (side_a_qr_code_result, side_b_qr_code_result) =
+            par_map_pair(
+                (side_a_qr_code_detection, SIDE_A_LABEL),
+                (side_b_qr_code_detection, SIDE_B_LABEL),
+                |(detection, label)| {
+                    let qr_code = detection.map_err(|e| Error::InvalidQrCodeMetadata {
+                        label: label.to_owned(),
+                        message: e.to_string(),
                     })?;
-                    let metadata = hmpb::Metadata::from_reader(
-                        &mut BitReader::endian(Cursor::new(qr_code.bytes()), BigEndian),
-                        &options.election,
+                    let metadata = coding::decode_with(qr_code.bytes(), &options.election)
+                        .map_err(|e| Error::InvalidQrCodeMetadata {
+                            label: label.to_string(),
+                            message: format!(
+                                "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
+                                bytes = qr_code.bytes()
+                            ),
+                        })?;
+                    Ok((metadata, qr_code.position()))
+                },
+            );
+
+        // If one side has a detected QR code and the other doesn't, we can
+        // infer the missing metadata from the detected metadata.
+        let (side_a_qr_code_result, side_b_qr_code_result) =
+            match (side_a_qr_code_result, side_b_qr_code_result) {
+                (
+                    Err(Error::InvalidQrCodeMetadata { .. }),
+                    Ok((side_b_metadata, side_b_position)),
+                ) => {
+                    let side_a_metadata = hmpb::infer_missing_page_metadata(&side_b_metadata);
+                    let side_a_position = side_b_position;
+
+                    (
+                        Ok((side_a_metadata, side_a_position)),
+                        Ok((side_b_metadata, side_b_position)),
                     )
-                    .map_err(|e| Error::InvalidQrCodeMetadata {
-                        label: label.to_string(),
-                        message: format!(
-                            "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
-                            bytes = qr_code.bytes()
-                        ),
-                    })?;
-                    Ok((metadata, qr_code.orientation()))
-                },
-            );
+                }
+                (
+                    Ok((side_a_metadata, side_a_position)),
+                    Err(Error::InvalidQrCodeMetadata { .. }),
+                ) => {
+                    let side_b_metadata = hmpb::infer_missing_page_metadata(&side_a_metadata);
+                    let side_b_position = side_a_position;
 
-            // If one side has a detected QR code and the other doesn't, we can
-            // infer the missing metadata from the detected metadata.
-            let (side_a_qr_code_result, side_b_qr_code_result) =
-                match (side_a_qr_code_result, side_b_qr_code_result) {
                     (
-                        Err(Error::InvalidQrCodeMetadata { .. }),
-                        Ok((side_b_metadata, side_b_orientation)),
-                    ) => {
-                        let side_a_metadata = hmpb::infer_missing_page_metadata(&side_b_metadata);
-                        let side_a_orientation = side_b_orientation;
+                        Ok((side_a_metadata, side_a_position)),
+                        Ok((side_b_metadata, side_b_position)),
+                    )
+                }
+                (side_a_qr_code_result, side_b_qr_code_result) => {
+                    (side_a_qr_code_result, side_b_qr_code_result)
+                }
+            };
 
-                        (
-                            Ok((side_a_metadata, side_a_orientation)),
-                            Ok((side_b_metadata, side_b_orientation)),
-                        )
-                    }
-                    (
-                        Ok((side_a_metadata, side_a_orientation)),
-                        Err(Error::InvalidQrCodeMetadata { .. }),
-                    ) => {
-                        let side_b_metadata = hmpb::infer_missing_page_metadata(&side_a_metadata);
-                        let side_b_orientation = side_a_orientation;
+        let (side_a_metadata, side_a_position) = side_a_qr_code_result?;
+        let (side_b_metadata, side_b_position) = side_b_qr_code_result?;
 
-                        (
-                            Ok((side_a_metadata, side_a_orientation)),
-                            Ok((side_b_metadata, side_b_orientation)),
-                        )
-                    }
-                    (side_a_qr_code_result, side_b_qr_code_result) => {
-                        (side_a_qr_code_result, side_b_qr_code_result)
-                    }
-                };
+        let (
+            (side_a_normalized_grid, side_a_normalized_image),
+            (side_b_normalized_grid, side_b_normalized_image),
+        ) = par_map_pair(
+            (
+                side_a_timing_marks,
+                &side_a.image,
+                side_a_position,
+                &mut side_a_debug,
+            ),
+            (
+                side_b_timing_marks,
+                &side_b.image,
+                side_b_position,
+                &mut side_b_debug,
+            ),
+            |(grid, image, position, debug)| {
+                normalize_orientation(&geometry, grid, image, position, debug)
+            },
+        );
 
-            let (side_a_metadata, side_a_orientation) = side_a_qr_code_result?;
-            let (side_b_metadata, side_b_orientation) = side_b_qr_code_result?;
+        if side_a_metadata.precinct_id != side_b_metadata.precinct_id {
+            return Err(Error::MismatchedPrecincts {
+                side_a: side_a_metadata.precinct_id,
+                side_b: side_b_metadata.precinct_id,
+            });
+        }
+        if side_a_metadata.ballot_style_id != side_b_metadata.ballot_style_id {
+            return Err(Error::MismatchedBallotStyles {
+                side_a: side_a_metadata.ballot_style_id,
+                side_b: side_b_metadata.ballot_style_id,
+            });
+        }
+        if side_a_metadata.page_number.opposite() != side_b_metadata.page_number {
+            return Err(Error::NonConsecutivePageNumbers {
+                side_a: side_a_metadata.page_number.get(),
+                side_b: side_b_metadata.page_number.get(),
+            });
+        }
 
-            let (
-                (side_a_normalized_grid, side_a_normalized_image),
-                (side_b_normalized_grid, side_b_normalized_image),
-            ) = par_map_pair(
-                (
-                    side_a_timing_marks,
-                    &side_a.image,
-                    side_a_orientation,
-                    &mut side_a_debug,
-                ),
-                (
-                    side_b_timing_marks,
-                    &side_b.image,
-                    side_b_orientation,
-                    &mut side_b_debug,
-                ),
-                |(grid, image, orientation, debug)| {
-                    normalize_orientation(&geometry, grid, image, orientation, debug)
-                },
-            );
+        let (side_a, side_b) = (
+            (
+                side_a_normalized_grid,
+                side_a_normalized_image,
+                side_a.threshold,
+                BallotPageMetadata::QrCode(side_a_metadata.clone()),
+                side_a_debug,
+            ),
+            (
+                side_b_normalized_grid,
+                side_b_normalized_image,
+                side_b.threshold,
+                BallotPageMetadata::QrCode(side_b_metadata),
+                side_b_debug,
+            ),
+        );
 
-            if side_a_metadata.precinct_id != side_b_metadata.precinct_id {
-                return Err(Error::MismatchedPrecincts {
-                    side_a: side_a_metadata.precinct_id,
-                    side_b: side_b_metadata.precinct_id,
-                });
-            }
-            if side_a_metadata.ballot_style_id != side_b_metadata.ballot_style_id {
-                return Err(Error::MismatchedBallotStyles {
-                    side_a: side_a_metadata.ballot_style_id,
-                    side_b: side_b_metadata.ballot_style_id,
-                });
-            }
-            if side_a_metadata.page_number.opposite() != side_b_metadata.page_number {
-                return Err(Error::NonConsecutivePageNumbers {
-                    side_a: side_a_metadata.page_number.get(),
-                    side_b: side_b_metadata.page_number.get(),
-                });
-            }
+        let ballot_style_id = side_a_metadata.ballot_style_id.clone();
 
-            let (side_a, side_b) = (
-                (
-                    side_a_normalized_grid,
-                    side_a_normalized_image,
-                    side_a.threshold,
-                    BallotPageMetadata::QrCode(side_a_metadata.clone()),
-                    side_a_debug,
-                ),
-                (
-                    side_b_normalized_grid,
-                    side_b_normalized_image,
-                    side_b.threshold,
-                    BallotPageMetadata::QrCode(side_b_metadata),
-                    side_b_debug,
-                ),
-            );
-
-            let ballot_style_id = side_a_metadata.ballot_style_id.clone();
-
-            if side_a_metadata.page_number.is_front() {
-                (side_a, side_b, ballot_style_id)
-            } else {
-                (side_b, side_a, ballot_style_id)
-            }
+        if side_a_metadata.page_number.is_front() {
+            (side_a, side_b, ballot_style_id)
+        } else {
+            (side_b, side_a, ballot_style_id)
         }
     };
 
@@ -870,27 +1002,24 @@ pub fn ballot_card(
             WriteInScoring::Disabled => Default::default(),
         };
 
-    let normalized_front_image = imageproc::contrast::threshold(&front_image, front_threshold);
-    let normalized_back_image = imageproc::contrast::threshold(&back_image, back_threshold);
-
-    Ok(InterpretedBallotCard {
-        front: InterpretedBallotPage {
+    Ok(InterpretedBallotCard::hmpb(
+        InterpretedBallotPage {
             timing_marks: front_timing_marks,
             metadata: front_metadata,
             marks: front_scored_bubble_marks,
             write_ins: front_write_in_area_scores,
-            normalized_image: normalized_front_image,
+            normalized_image: front_image,
             contest_layouts: front_contest_layouts,
         },
-        back: InterpretedBallotPage {
+        InterpretedBallotPage {
             timing_marks: back_timing_marks,
             metadata: back_metadata,
             marks: back_scored_bubble_marks,
             write_ins: back_write_in_area_scores,
-            normalized_image: normalized_back_image,
+            normalized_image: back_image,
             contest_layouts: back_contest_layouts,
         },
-    })
+    ))
 }
 
 pub fn par_map_pair<T, F, R>(left: T, right: T, mapper: F) -> (R, R)
@@ -1045,9 +1174,13 @@ mod test {
     fn test_interpret_returns_binarized_images() {
         let (side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
-        let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
-        assert!(is_binary_image(&card.front.normalized_image));
-        assert!(is_binary_image(&card.back.normalized_image));
+        let InterpretedBallotCard::HandMarkedPaperBallot { front, back } =
+            ballot_card(side_a_image, side_b_image, &options).unwrap()
+        else {
+            panic!("expected HMPB");
+        };
+        assert!(is_binary_image(&front.normalized_image));
+        assert!(is_binary_image(&back.normalized_image));
     }
 
     #[test]
@@ -1064,7 +1197,7 @@ mod test {
             }
         }
 
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
+        let _ = ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
@@ -1112,7 +1245,7 @@ mod test {
         );
 
         // ensure that we do NOT detect streaks when the option is disabled
-        ballot_card(
+        let _ = ballot_card(
             side_a_image,
             side_b_image,
             &Options {
@@ -1178,11 +1311,11 @@ mod test {
             })
             .into();
 
-        let interpretation =
-            ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
-
-        let front = interpretation.front;
-        let back = interpretation.back;
+        let InterpretedBallotCard::HandMarkedPaperBallot { front, back } =
+            ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap()
+        else {
+            panic!("not HMPB!");
+        };
 
         // front has write-in contests, back doesn't
         assert!(!front.write_ins.is_empty());
@@ -1198,14 +1331,14 @@ mod test {
     fn test_high_rotation_is_rejected() {
         let (mut side_a_image, side_b_image, options) =
             load_ballot_card_fixture("vxqa-2024-10", ("rotation-front.png", "rotation-back.png"));
-        let interpretation =
-            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+        let InterpretedBallotCard::HandMarkedPaperBallot { front, .. } =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap()
+        else {
+            panic!("not HMPB!");
+        };
 
         // remove timing marks to trigger rotation limiting
-        deface_ballot_by_removing_side_timing_marks(
-            &mut side_a_image,
-            &interpretation.front.timing_marks,
-        );
+        deface_ballot_by_removing_side_timing_marks(&mut side_a_image, &front.timing_marks);
 
         let _debug_image =
             DebugImage::write("debug__test_high_rotation_is_rejected.png", &side_a_image);
@@ -1228,13 +1361,13 @@ mod test {
     fn test_high_skew_is_rejected() {
         let (mut side_a_image, side_b_image, options) =
             load_ballot_card_fixture("vxqa-2024-10", ("skew-front.png", "skew-back.png"));
-        let interpretation =
-            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+        let InterpretedBallotCard::HandMarkedPaperBallot { front, .. } =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap()
+        else {
+            panic!("not HMPB!");
+        };
 
-        deface_ballot_by_removing_side_timing_marks(
-            &mut side_a_image,
-            &interpretation.front.timing_marks,
-        );
+        deface_ballot_by_removing_side_timing_marks(&mut side_a_image, &front.timing_marks);
 
         let _debug_image =
             DebugImage::write("debug__test_high_skew_is_rejected.png", &side_a_image);
@@ -1264,7 +1397,7 @@ mod test {
         else {
             panic!("expected hand marked paper ballot config only!");
         };
-        let interpretation = ballot_card(
+        let InterpretedBallotCard::HandMarkedPaperBallot { front, .. } = ballot_card(
             side_a_image.clone(),
             side_b_image.clone(),
             &Options {
@@ -1279,10 +1412,11 @@ mod test {
                 ..options
             },
         )
-        .unwrap();
+        .unwrap() else {
+            panic!("not HMPB!");
+        };
 
-        let marked_grid_positions = interpretation
-            .front
+        let marked_grid_positions = front
             .marks
             .iter()
             .filter_map(|(grid_position, scored_bubble)| {
@@ -1342,7 +1476,7 @@ mod test {
                 "best-fit-line-regression-test-back.png",
             ),
         );
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
+        let _ = ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
@@ -1373,7 +1507,7 @@ mod test {
         };
 
         // Ensure it's not rejected before we scale it.
-        ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+        let _ = ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
         // Scale side A down and ensure it gets rejected.
         let artificial_scale = minimum_detected_scale.0 - 0.01;
@@ -1409,6 +1543,25 @@ mod test {
         };
 
         assert!((detected_scale.0 - artificial_scale).abs() < 0.01, "Detected scale was not close to artificial scale: detected={detected_scale}, artificial={artificial_scale}");
+    }
+
+    #[test]
+    fn test_bmd_interpret() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "famous-names",
+            ("bmd-summary-ballot-front.png", "blank-page.png"),
+        );
+        let _ = ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                enabled_interpreter_config: EnabledInterpreterConfig::SummaryBallotOnly(
+                    SummaryBallotConfig,
+                ),
+                ..options
+            },
+        )
+        .unwrap();
     }
 
     /// Wraps a debug image file that is automatically deleted when the struct

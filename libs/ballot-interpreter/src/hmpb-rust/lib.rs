@@ -11,7 +11,7 @@ pub mod interpret;
 mod js;
 mod layout;
 mod qr_code;
-mod scoring;
+pub mod scoring;
 pub mod timing_marks;
 
 // Anything marked with `#[neon::export]` is exported to JavaScript.

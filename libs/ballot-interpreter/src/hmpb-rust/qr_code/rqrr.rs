@@ -19,7 +19,7 @@ pub fn detect(img: &GrayImage) -> Result {
                     detection_area_rects,
                     bytes,
                     get_original_bounds_rqrr(area.origin(), grid),
-                    area.orientation(),
+                    area.position(),
                 )),
                 Err(e) => Err(Error::DecodeFailed {
                     detection_areas: detection_area_rects,

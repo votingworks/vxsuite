@@ -124,24 +124,29 @@ fn interpret(
             }
         };
 
-    match rayon::join(
-        || {
-            maybe_save_normalized_image(
-                options
-                    .front_normalized_image_output_path
-                    .map(PathBuf::from),
-                &card.front.normalized_image,
-            )
-        },
-        || {
-            maybe_save_normalized_image(
-                options.back_normalized_image_output_path.map(PathBuf::from),
-                &card.back.normalized_image,
-            )
-        },
-    ) {
-        (Err(err), _) | (_, Err(err)) => Err(err)?,
-        (Ok(()), Ok(())) => {}
+    match &card {
+        InterpretedBallotCard::HandMarkedPaperBallot { front, back } => {
+            match rayon::join(
+                || {
+                    maybe_save_normalized_image(
+                        options
+                            .front_normalized_image_output_path
+                            .map(PathBuf::from),
+                        &front.normalized_image,
+                    )
+                },
+                || {
+                    maybe_save_normalized_image(
+                        options.back_normalized_image_output_path.map(PathBuf::from),
+                        &back.normalized_image,
+                    )
+                },
+            ) {
+                (Err(err), _) | (_, Err(err)) => Err(err)?,
+                (Ok(()), Ok(())) => {}
+            }
+        }
+        InterpretedBallotCard::SummaryBallot { .. } => todo!(),
     }
 
     Ok(JsInterpretResult::Ok(Box::new(card)))

@@ -3,17 +3,20 @@ use image::{DynamicImage, GenericImageView, GrayImage};
 use serde::Serialize;
 use types_rs::geometry::{PixelUnit, Point, Rect, Size};
 
-use crate::{
-    ballot_card::Orientation,
-    debug::{self, ImageDebugWriter},
-};
+use crate::debug::{self, ImageDebugWriter};
 
 use super::{rqrr, zbar};
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Position {
+    TopRight,
+    BottomLeft,
+}
 
 /// An area in a ballot image to be searched for QR codes.
 pub struct DetectionArea {
     origin: Point<PixelUnit>,
-    orientation: Orientation,
+    position: Position,
     image: GrayImage,
 }
 
@@ -25,7 +28,7 @@ impl DetectionArea {
         img: &GrayImage,
         origin: Point<PixelUnit>,
         size: Size<PixelUnit>,
-        orientation: Orientation,
+        position: Position,
     ) -> Self {
         let cropped_img = DynamicImage::from(
             img.view(origin.x, origin.y, size.width, size.height)
@@ -35,7 +38,7 @@ impl DetectionArea {
         Self {
             origin,
             image: cropped_img,
-            orientation,
+            position,
         }
     }
 
@@ -52,8 +55,8 @@ impl DetectionArea {
         )
     }
 
-    pub const fn orientation(&self) -> Orientation {
-        self.orientation
+    pub const fn position(&self) -> Position {
+        self.position
     }
 
     pub const fn image(&self) -> &GrayImage {
@@ -76,13 +79,8 @@ pub fn get_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
     let top_right_origin = Point::new(width - crop_size.width, 0);
 
     vec![
-        DetectionArea::with_crop(img, bottom_left_origin, crop_size, Orientation::Portrait),
-        DetectionArea::with_crop(
-            img,
-            top_right_origin,
-            crop_size,
-            Orientation::PortraitReversed,
-        ),
+        DetectionArea::with_crop(img, bottom_left_origin, crop_size, Position::BottomLeft),
+        DetectionArea::with_crop(img, top_right_origin, crop_size, Position::TopRight),
     ]
 }
 
@@ -99,7 +97,7 @@ pub struct Detected {
     detection_areas: Vec<Rect>,
     bytes: Vec<u8>,
     bounds: Rect,
-    orientation: Orientation,
+    position: Position,
 }
 
 impl Detected {
@@ -108,14 +106,14 @@ impl Detected {
         detection_areas: Vec<Rect>,
         bytes: Vec<u8>,
         bounds: Rect,
-        orientation: Orientation,
+        position: Position,
     ) -> Self {
         Self {
             detector,
             detection_areas,
             bytes,
             bounds,
-            orientation,
+            position,
         }
     }
 
@@ -134,9 +132,9 @@ impl Detected {
         self.bounds
     }
 
-    /// The orientation of the ballot as determined by the QR code position.
-    pub const fn orientation(&self) -> Orientation {
-        self.orientation
+    /// The position of the QR code.
+    pub const fn position(&self) -> Position {
+        self.position
     }
 
     /// The areas of the image that were searched for QR codes.
@@ -205,7 +203,7 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
             qr_code.detection_areas().to_vec(),
             bytes,
             qr_code.bounds(),
-            qr_code.orientation(),
+            qr_code.position(),
         )
     })
 }
@@ -215,8 +213,6 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
 mod test {
     use std::path::PathBuf;
     use types_rs::geometry::Rect;
-
-    use crate::ballot_card::Orientation;
 
     use super::*;
 
@@ -234,7 +230,7 @@ mod test {
             ]
         );
         assert_eq!(qr_code.bounds(), Rect::new(88, 1996, 123, 125));
-        assert_eq!(qr_code.orientation(), Orientation::Portrait);
+        assert_eq!(qr_code.position(), Position::BottomLeft);
     }
 
     #[test]

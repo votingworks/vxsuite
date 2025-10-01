@@ -96,6 +96,7 @@ pub const DEFAULT_MAXIMUM_SEARCH_DISTANCE: u32 = 7;
 pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
 #[allow(clippy::too_many_arguments)]
+#[must_use]
 pub fn score_bubble_marks_from_grid_layout(
     img: &GrayImage,
     threshold: u8,
@@ -156,6 +157,7 @@ pub fn score_bubble_marks_from_grid_layout(
 /// We look for the highest match score in the vicinity of where we expect
 /// because the bubble mark may not be exactly where we expect in the scanned
 /// image due to stretching or other distortions.
+#[must_use]
 pub fn score_bubble_mark(
     img: &GrayImage,
     bubble_template: &GrayImage,
@@ -258,6 +260,7 @@ pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
 /// Computes scores for all the write-in areas in a scanned ballot image. This could
 /// be used to determine which write-in areas are most likely to contain a write-in
 /// vote even if the bubble is not filled in.
+#[must_use]
 pub fn score_write_in_areas(
     image: &GrayImage,
     threshold: u8,

@@ -101,6 +101,7 @@ pub struct BallotStyle {
 #[serde(rename_all = "camelCase")]
 pub struct Precinct {
     pub id: PrecinctId,
+    pub name: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -326,6 +327,15 @@ impl Candidate {
     }
 }
 
+impl Display for Candidate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Named(candidate) => candidate.fmt(f),
+            Self::WriteIn(candidate) => candidate.fmt(f),
+        }
+    }
+}
+
 /// Provides an intermediate representation closer to the JSON serialization
 /// of `Candidate` in TypeScript, where it is not represented as tagged union.
 #[derive(Debug, Serialize, Deserialize)]
@@ -421,6 +431,12 @@ pub struct NamedCandidate {
     pub party_ids: Option<Vec<PartyId>>,
 }
 
+impl Display for NamedCandidate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.name)
+    }
+}
+
 #[derive(Debug, Clone)]
 #[must_use]
 pub struct WriteInCandidate {
@@ -430,6 +446,12 @@ pub struct WriteInCandidate {
     /// The index of this write-in candidate in the list, up to
     /// [`Contest::seats`] minus one.
     pub write_in_index: u32,
+}
+
+impl Display for WriteInCandidate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Write-In #{}", self.write_in_index + 1)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

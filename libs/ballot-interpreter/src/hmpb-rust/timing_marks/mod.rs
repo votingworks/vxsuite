@@ -10,12 +10,12 @@ use types_rs::{
     hmpb,
 };
 
-use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::scoring::CandidateTimingMark;
 use crate::{
-    ballot_card::{Geometry, Orientation},
+    ballot_card::Geometry,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
 };
+use crate::{qr_code::Position, scoring::UnitIntervalScore};
 
 pub mod contours;
 pub mod corners;
@@ -434,11 +434,11 @@ pub fn normalize_orientation(
     geometry: &Geometry,
     timing_marks: TimingMarks,
     image: &GrayImage,
-    orientation: Orientation,
+    position: Position,
     debug: &mut ImageDebugWriter,
 ) -> (TimingMarks, GrayImage) {
     // Handle rotating the image and our timing marks if necessary.
-    let (timing_marks, normalized_image) = if orientation == Orientation::Portrait {
+    let (timing_marks, normalized_image) = if position == Position::BottomLeft {
         (timing_marks, image.clone())
     } else {
         let (width, height) = image.dimensions();

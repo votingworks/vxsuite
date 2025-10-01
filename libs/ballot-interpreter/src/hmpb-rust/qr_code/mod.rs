@@ -2,4 +2,4 @@ mod detect;
 mod rqrr;
 mod zbar;
 
-pub use detect::{detect, Detected};
+pub use detect::{detect, Detected, Position};

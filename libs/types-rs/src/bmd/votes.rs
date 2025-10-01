@@ -1,4 +1,5 @@
 use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
+use serde::Serialize;
 
 use super::error::Error;
 use super::write_in_name::WriteInName;
@@ -7,7 +8,7 @@ use crate::{
     election::{Contest, OptionId},
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Serialize, PartialEq)]
 pub enum CandidateVote {
     NamedCandidate {
         candidate_id: OptionId,
@@ -29,7 +30,7 @@ impl CandidateVote {
 }
 pub type YesNoVote = OptionId;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Serialize, PartialEq)]
 pub enum ContestVote {
     Candidate(Vec<CandidateVote>),
     YesNo(YesNoVote),

@@ -3,7 +3,8 @@
 use std::{fmt::Display, fs::File, io::BufReader, path::PathBuf};
 
 use ballot_interpreter::interpret::{
-    Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
+    EnabledInterpreterConfig, Inference, ScanInterpreter, TimingMarkAlgorithm,
+    VerticalStreakDetection, WriteInScoring,
 };
 use divan::{black_box, Bencher};
 use image::GrayImage;
@@ -43,10 +44,12 @@ impl InterpretFixture {
             serde_json::from_reader(BufReader::new(File::open(election_path)?))?;
         let interpreter = ScanInterpreter::new(
             election,
-            WriteInScoring::Enabled,
             VerticalStreakDetection::Enabled,
-            self.timing_mark_algorithm,
-            None,
+            EnabledInterpreterConfig::hand_marked_only(
+                WriteInScoring::Enabled,
+                self.timing_mark_algorithm,
+                None,
+            ),
         )?;
         let side_a_path = fixture_path
             .join(self.election)
@@ -82,7 +85,7 @@ fn interpret(bencher: Bencher, fixture: InterpretFixture) {
     let (side_a_image, side_b_image, interpreter) = fixture.load().unwrap();
 
     bencher.bench_local(move || {
-        black_box(
+        let _ = black_box(
             interpreter
                 .interpret(side_a_image.clone(), side_b_image.clone(), None, None)
                 .unwrap(),
