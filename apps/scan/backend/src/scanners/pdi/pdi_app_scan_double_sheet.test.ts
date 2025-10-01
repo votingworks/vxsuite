@@ -315,7 +315,10 @@ test('insert two sheets back-to-back as if they were one long sheet', async () =
         event: 'scanComplete',
         images: await ballotImages.completeBmd(),
       });
-      await waitForStatus(apiClient, { state: 'jammed' });
+      await waitForStatus(apiClient, {
+        state: 'jammed',
+        error: 'scanning_failed',
+      });
 
       mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
