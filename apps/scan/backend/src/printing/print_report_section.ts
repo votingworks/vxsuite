@@ -19,7 +19,6 @@ import {
   FujitsuThermalPrinterInterface,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
-import { generateSignedQuickResultsReportingUrl } from '@votingworks/auth';
 import {
   Contests,
   Election,
@@ -60,7 +59,6 @@ async function getReportSection(
     store.getElectionRecord()
   );
   const { election } = electionDefinition;
-  const systemSettings = assertDefined(store.getSystemSettings());
   const precinctSelection = store.getPrecinctSelection();
   assert(precinctSelection);
   const isLiveMode = !store.getTestMode();
@@ -93,18 +91,6 @@ async function getReportSection(
     allElectionResults: scannerResultsByParty,
   });
 
-  const signedQuickResultsReportingUrl =
-    (pollsTransition.type === 'close_polls' &&
-      systemSettings.quickResultsReportingUrl &&
-      (await generateSignedQuickResultsReportingUrl({
-        electionDefinition,
-        quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
-        signingMachineId: machineId,
-        isLiveMode,
-        results: scannerResultsCombined,
-      }))) ||
-    undefined;
-
   const fullReportContests = getContestsForPrecinct(
     electionDefinition,
     precinctSelection
@@ -132,7 +118,6 @@ async function getReportSection(
     reportPrintedTime: getCurrentTime(),
     precinctScannerMachineId: machineId,
     scannedElectionResults,
-    signedQuickResultsReportingUrl,
   });
 }
 
