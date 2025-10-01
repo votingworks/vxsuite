@@ -480,6 +480,7 @@ function ScreenshotControls({
               <input
                 type="text"
                 value={screenshotToSave.fileName}
+                aria-label="Screenshot File Name"
                 onChange={(e) =>
                   setScreenshotToSave({
                     ...screenshotToSave,
