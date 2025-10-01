@@ -11,6 +11,7 @@ import {
   getContestIdsForBallotStyle,
   getContestIdsForPrecinct,
   getContestsForPrecinct,
+  getContestsForPrecinctAndElection,
 } from './contest_filtering';
 import { singlePrecinctSelectionFor } from '../precinct_selection';
 
@@ -92,6 +93,23 @@ test('getContestsForPrecinct', () => {
   expect(
     getContestsForPrecinct(
       electionDefinition,
+      singlePrecinctSelectionFor('precinct-c1-w2')
+    ).map((c) => c.id)
+  ).toEqual([
+    'county-leader-mammal',
+    'congressional-1-mammal',
+    'water-2-fishing',
+    'county-leader-fish',
+    'congressional-1-fish',
+  ]);
+});
+
+test('getContestsForPrecinctAndElection', () => {
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  expect(
+    getContestsForPrecinctAndElection(
+      electionDefinition.election,
       singlePrecinctSelectionFor('precinct-c1-w2')
     ).map((c) => c.id)
   ).toEqual([

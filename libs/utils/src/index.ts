@@ -4,7 +4,6 @@ export * from './ballot_styles';
 export * from './bmd_votes_mock';
 export * from './pins';
 export * from './cast_vote_records';
-export * from './compressed_tallies';
 export * from './date';
 export * from './elections';
 export * from './environment_variable';

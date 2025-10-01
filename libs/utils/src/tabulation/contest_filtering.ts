@@ -8,7 +8,7 @@ import {
   Contests,
   PrecinctSelection,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   createElectionMetadataLookupFunction,
   getContestById,
@@ -106,4 +106,29 @@ export function getContestsForPrecinct(
     precinctSelection.precinctId
   );
   return mapContestIdsToContests(electionDefinition, contestIds);
+}
+
+/**
+ * An alternative to getContestsForPrecinct that takes an Election instead of an ElectionDefinition.
+ * This is useful in contexts where we don't have an ElectionDefinition, such as the VxDesign app.
+ */
+export function getContestsForPrecinctAndElection(
+  election: Election,
+  precinctSelection: PrecinctSelection
+): Contests {
+  if (precinctSelection.kind === 'AllPrecincts') {
+    return election.contests;
+  }
+
+  const lookupPrecinctToContestId = buildPrecinctContestIdsLookup(election);
+  const contestIds = lookupPrecinctToContestId[precinctSelection.precinctId];
+
+  const lookupContestIdToContest: Record<ContestId, AnyContest> = {};
+  for (const contest of election.contests) {
+    lookupContestIdToContest[contest.id] = contest;
+  }
+
+  return Array.from(assertDefined(contestIds))
+    .map((id) => lookupContestIdToContest[id])
+    .filter((c): c is AnyContest => c !== undefined);
 }

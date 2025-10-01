@@ -6,6 +6,7 @@ import {
   CompressedTallyEntry,
   ContestId,
   Election,
+  PrecinctSelection,
   Tabulation,
   unsafeParse,
   YesNoContestCompressedTally,
@@ -14,6 +15,7 @@ import {
 import { Buffer } from 'node:buffer';
 import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
+import { getContestsForPrecinctAndElection } from './contest_filtering';
 
 const MAX_UINT16 = 0xffff;
 
@@ -39,10 +41,15 @@ export function encodeCompressedTally(
  */
 export function compressTally(
   election: Election,
-  results: Tabulation.ElectionResults
+  results: Tabulation.ElectionResults,
+  precinctSelection: PrecinctSelection
 ): CompressedTally {
+  const contests = getContestsForPrecinctAndElection(
+    election,
+    precinctSelection
+  );
   // eslint-disable-next-line array-callback-return
-  return election.contests.map((contest) => {
+  return contests.map((contest) => {
     switch (contest.type) {
       case 'yesno': {
         const contestResults = results.contestResults[contest.id];
@@ -87,11 +94,16 @@ export function compressTally(
 /**
  * Compresses and encodes election results
  */
-export function compressAndEncodeTally(
-  election: Election,
-  results: Tabulation.ElectionResults
-): string {
-  const compressedTally = compressTally(election, results);
+export function compressAndEncodeTally({
+  election,
+  results,
+  precinctSelection,
+}: {
+  election: Election;
+  results: Tabulation.ElectionResults;
+  precinctSelection: PrecinctSelection;
+}): string {
+  const compressedTally = compressTally(election, results, precinctSelection);
   return encodeCompressedTally(compressedTally);
 }
 
@@ -188,6 +200,7 @@ function getNumberOfEntriesInContest(contest: AnyContest): number {
 
 export function decodeCompressedTally(
   encodedCompressedTally: string,
+  precinctSelection: PrecinctSelection,
   election: Election
 ): CompressedTally {
   const buffer = Buffer.from(encodedCompressedTally, 'base64url');
@@ -205,7 +218,11 @@ export function decodeCompressedTally(
     `Unsupported compressed tally version ${encodedVersion}`
   );
   let offset = 1;
-  const totalNumberOfEntries = election.contests.reduce(
+  const contests = getContestsForPrecinctAndElection(
+    election,
+    precinctSelection
+  );
+  const totalNumberOfEntries = contests.reduce(
     (sum, contest) => sum + getNumberOfEntriesInContest(contest),
     0
   );
@@ -213,7 +230,7 @@ export function decodeCompressedTally(
     uint16Array.length === 1 /* version number */ + totalNumberOfEntries,
     `Expected compressed tally to have ${totalNumberOfEntries} entries, got ${uint16Array.length}`
   );
-  for (const contest of election.contests) {
+  for (const contest of contests) {
     const tallyLength = getNumberOfEntriesInContest(contest);
     if (contest.type === 'yesno') {
       compressedTally.push(
@@ -242,13 +259,26 @@ export function decodeCompressedTally(
  * `partyId` is provided, only includes contests associated with that party.
  * If `partyId` is undefined, only includes nonpartisan races.
  */
-export function decodeAndReadCompressedTally(
-  election: Election,
-  serializedTally: string
-): Record<ContestId, ContestResults> {
-  const compressedTally = decodeCompressedTally(serializedTally, election);
+export function decodeAndReadCompressedTally({
+  election,
+  precinctSelection,
+  encodedTally,
+}: {
+  election: Election;
+  precinctSelection: PrecinctSelection;
+  encodedTally: string;
+}): Record<ContestId, ContestResults> {
+  const compressedTally = decodeCompressedTally(
+    encodedTally,
+    precinctSelection,
+    election
+  );
+  const contests = getContestsForPrecinctAndElection(
+    election,
+    precinctSelection
+  );
   const allContestResults: Tabulation.ElectionResults['contestResults'] = {};
-  for (const [contestIdx, contest] of election.contests.entries()) {
+  for (const [contestIdx, contest] of contests.entries()) {
     const serializedContestTally = compressedTally[contestIdx];
     assert(serializedContestTally);
     const contestResults = getContestTalliesForCompressedContest(

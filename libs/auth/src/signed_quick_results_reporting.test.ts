@@ -50,6 +50,7 @@ test.each<{ isLiveMode: boolean }>([
           quickResultsReportingUrl: 'https://example.com',
           results: mockedResults,
           signingMachineId: DEV_MACHINE_ID,
+          precinctSelection: { kind: 'AllPrecincts' },
         },
         vxScanTestConfig
       );
@@ -70,6 +71,7 @@ test('authenticateSignedQuickResultsReportingUrl - success case with real certif
       quickResultsReportingUrl: 'https://example.com',
       results: mockedResults,
       signingMachineId: DEV_MACHINE_ID,
+      precinctSelection: { kind: 'AllPrecincts' },
     },
     vxScanTestConfig
   );
@@ -104,6 +106,7 @@ test('authenticateSignedQuickResultsReportingUrl - invalid signature', async () 
       quickResultsReportingUrl: 'https://example.com',
       results: mockedResults,
       signingMachineId: DEV_MACHINE_ID,
+      precinctSelection: { kind: 'AllPrecincts' },
     },
     vxScanTestConfig
   );
@@ -154,6 +157,7 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
       quickResultsReportingUrl: 'https://example.com',
       results: mockedResults,
       signingMachineId: DEV_MACHINE_ID,
+      precinctSelection: { kind: 'AllPrecincts' },
     },
     vxScanTestConfig
   );
@@ -204,6 +208,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     isLiveMode: false,
     timestamp: timeInSeconds,
     compressedTally: 'sampleCompressedTally',
+    precinctSelection: { kind: 'AllPrecincts' },
   });
   expect(() => {
     decodeQuickResultsMessage(
@@ -244,7 +249,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   }).toThrow('Invalid timestamp format');
 });
 
-test('decodeQuickResultsMessage decodes proper payloads', () => {
+test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads no precinct id', () => {
   const decoded = decodeQuickResultsMessage(
     constructPrefixedMessage(
       QR_MESSAGE_FORMAT,
@@ -254,6 +259,7 @@ test('decodeQuickResultsMessage decodes proper payloads', () => {
         isLiveMode: false,
         timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
         compressedTally: 'sampleCompressedTally',
+        precinctSelection: { kind: 'AllPrecincts' },
       })
     )
   );
@@ -263,6 +269,41 @@ test('decodeQuickResultsMessage decodes proper payloads', () => {
       "encodedCompressedTally": "sampleCompressedTally",
       "isLive": false,
       "machineId": "machineId",
+      "precinctSelection": {
+        "kind": "AllPrecincts",
+      },
+      "signedTimestamp": 2024-01-01T00:00:00.000Z,
+    }
+  `);
+});
+
+test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads with single precinct selection', () => {
+  const decoded = decodeQuickResultsMessage(
+    constructPrefixedMessage(
+      QR_MESSAGE_FORMAT,
+      encodeQuickResultsMessage({
+        ballotHash: 'mockBallotHash',
+        signingMachineId: 'machineId',
+        isLiveMode: false,
+        timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
+        compressedTally: 'sampleCompressedTally',
+        precinctSelection: {
+          kind: 'SinglePrecinct',
+          precinctId: 'mockPrecinctId',
+        },
+      })
+    )
+  );
+  expect(decoded).toMatchInlineSnapshot(`
+    {
+      "ballotHash": "mockBallotHash",
+      "encodedCompressedTally": "sampleCompressedTally",
+      "isLive": false,
+      "machineId": "machineId",
+      "precinctSelection": {
+        "kind": "SinglePrecinct",
+        "precinctId": "mockPrecinctId",
+      },
       "signedTimestamp": 2024-01-01T00:00:00.000Z,
     }
   `);
