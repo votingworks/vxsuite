@@ -764,6 +764,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async getQuickReportedResults(input: {
       electionId: ElectionId;
       isLive: boolean;
+      precinctSelection: PrecinctSelection;
     }): Promise<Result<AggregatedReportedResults, 'election-not-exported'>> {
       const electionRecord = await store.getElection(input.electionId);
       if (!electionRecord.lastExportedBallotHash) {
@@ -772,6 +773,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       const { contestResults, machinesReporting } =
         await store.getQuickResultsReportingTalliesForElection(
           electionRecord,
+          input.precinctSelection,
           input.isLive
         );
       return ok({

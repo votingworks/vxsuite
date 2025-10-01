@@ -116,7 +116,6 @@ export interface AggregatedReportedResults {
   contestResults: Record<ContestId, ContestResults>;
   election: Election;
   machinesReporting: string[];
-  precinctId?: PrecinctOrSplitId;
 }
 
 export type ResultsReportingError =
