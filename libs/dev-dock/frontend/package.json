@@ -29,6 +29,7 @@
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*"
   },
   "devDependencies": {

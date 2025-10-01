@@ -29,6 +29,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
+import { Button, Modal, P } from '@votingworks/ui';
 import { UsbDriveIcon } from './usb_drive_icon';
 import { Colors } from './colors';
 import { FujitsuPrinterMockControl } from './fujitsu_printer_mock';
@@ -397,6 +398,11 @@ const ScreenshotButton = styled.button`
   }
 `;
 
+interface ScreenshotToSaveProps {
+  screenshot: Uint8Array<ArrayBufferLike>;
+  fileName: string;
+}
+
 function ScreenshotControls({
   containerRef,
 }: {
@@ -406,6 +412,9 @@ function ScreenshotControls({
   const saveScreenshotForAppMutation = useMutation(
     apiClient.saveScreenshotForApp
   );
+
+  const [screenshotToSave, setScreenshotToSave] =
+    useState<ScreenshotToSaveProps>();
 
   async function captureScreenshot() {
     // Use a ref to the dock container to momentarily hide it during the
@@ -420,18 +429,18 @@ function ScreenshotControls({
 
     // "VotingWorks VxAdmin" -> "VxAdmin"
     const appName = document.title.replace('VotingWorks', '').trim();
-    const fileName = await saveScreenshotForAppMutation.mutateAsync({
-      appName,
-      screenshot,
-    });
+    assert(/^[a-z0-9]+$/i.test(appName));
+    const defaultFileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
 
+    setScreenshotToSave({ screenshot, fileName: defaultFileName });
     // eslint-disable-next-line no-param-reassign
     containerRef.current.style.visibility = 'visible';
+  }
 
-    if (fileName) {
-      // eslint-disable-next-line no-alert
-      alert(`Screenshot saved as ${fileName} in the Downloads folder.`);
-    }
+  async function onSaveScreenshot() {
+    assert(screenshotToSave);
+    await saveScreenshotForAppMutation.mutateAsync(screenshotToSave);
+    setScreenshotToSave(undefined);
   }
 
   async function onKeyDown(event: KeyboardEvent): Promise<void> {
@@ -446,13 +455,53 @@ function ScreenshotControls({
   }, []);
 
   return (
-    <ScreenshotButton
-      onClick={captureScreenshot}
-      disabled={!window.kiosk}
-      aria-label="Capture Screenshot"
-    >
-      <FontAwesomeIcon icon={faCamera} size="2x" />
-    </ScreenshotButton>
+    <>
+      <ScreenshotButton
+        onClick={captureScreenshot}
+        disabled={!window.kiosk}
+        aria-label="Capture Screenshot"
+      >
+        <FontAwesomeIcon icon={faCamera} size="2x" />
+      </ScreenshotButton>
+      {screenshotToSave && (
+        <Modal
+          title="Screenshot Taken"
+          content={
+            <>
+              <P>The image will be saved to the Downloads folder as:</P>
+              <input
+                type="text"
+                value={screenshotToSave.fileName}
+                onChange={(e) =>
+                  setScreenshotToSave({
+                    ...screenshotToSave,
+                    fileName: e.target.value,
+                  })
+                }
+                onBlur={(e) =>
+                  setScreenshotToSave({
+                    ...screenshotToSave,
+                    fileName: e.target.value.trim(),
+                  })
+                }
+                autoComplete="off"
+                required
+              />
+            </>
+          }
+          actions={
+            <>
+              <Button onPress={onSaveScreenshot} variant="primary">
+                Save
+              </Button>
+              <Button onPress={() => setScreenshotToSave(undefined)}>
+                Cancel
+              </Button>
+            </>
+          }
+        />
+      )}
+    </>
   );
 }
 
