@@ -217,7 +217,10 @@ export interface SingletonRenderer extends Renderer {
 export type Task<T> = (renderer: Renderer) => Promise<T>;
 
 export interface RendererPool {
-  runTasks<T>(tasks: Array<Task<T>>): Promise<T[]>;
+  runTasks<T>(
+    tasks: Array<Task<T>>,
+    emitProgress?: (progress: number, total: number) => void
+  ): Promise<T[]>;
   runTask<T>(task: Task<T>): Promise<T>;
   close(): Promise<void>;
 }

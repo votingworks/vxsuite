@@ -15,7 +15,7 @@ import {
   S3FileStorageClient,
 } from './file_storage_client';
 
-export type { ElectionRecord } from './store';
+export type { ElectionRecord, BackgroundTask } from './store';
 export type {
   BallotStyle,
   User,

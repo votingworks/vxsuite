@@ -5,18 +5,23 @@ import {
   Button,
   MainContent,
   useQueryChangeListener,
-  LoadingButton,
   CheckboxButton,
   SearchSelect,
   H2,
   FileInputButton,
   Callout,
+  Card,
+  H4,
+  ProgressBar,
 } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { useParams } from 'react-router-dom';
 import { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import type { BallotTemplateId } from '@votingworks/design-backend';
+import type {
+  BallotTemplateId,
+  BackgroundTask,
+} from '@votingworks/design-backend';
 import { format } from '@votingworks/utils';
 import {
   exportElectionPackage,
@@ -36,6 +41,30 @@ import { ElectionIdParams, routes } from './routes';
 import { downloadFile } from './utils';
 import { Column, FieldName, InputGroup } from './layout';
 import { useTitle } from './hooks/use_title';
+
+function TaskProgressCard({
+  title,
+  task,
+  style,
+}: {
+  title: string;
+  task: BackgroundTask;
+  style?: React.CSSProperties;
+}): JSX.Element {
+  return (
+    <Card color="primary" style={style}>
+      <H4>{title}</H4>
+      <P>{task.progress?.label ?? 'Starting'}</P>
+      <ProgressBar
+        // Recreate progress bar for each phase so that it doesn't animate backwards
+        key={task.progress?.label}
+        progress={
+          task.progress ? task.progress.progress / task.progress.total : 0
+        }
+      />
+    </Card>
+  );
+}
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
@@ -132,14 +161,7 @@ export function ExportScreen(): JSX.Element | null {
     return null;
   }
   const electionPackage = electionPackageQuery.data;
-  const isElectionPackageExportInProgress =
-    exportElectionPackageMutation.isLoading ||
-    (electionPackage.task && !electionPackage.task.completedAt);
-
   const testDecks = testDecksQuery.data;
-  const isTestDecksExportInProgress =
-    exportTestDecksMutation.isLoading ||
-    (testDecks.task && !testDecks.task.completedAt);
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotTemplateId = getBallotTemplateQuery.data;
@@ -223,51 +245,62 @@ export function ExportScreen(): JSX.Element | null {
         </Column>
 
         <H2>Export</H2>
-        {features.EXPORT_TEST_DECKS && (
-          <P>
-            {isTestDecksExportInProgress ? (
-              <LoadingButton>Exporting Test Decks...</LoadingButton>
+        <Column
+          style={{ gap: '0.5rem', alignItems: 'flex-start', maxWidth: '30rem' }}
+        >
+          {features.EXPORT_TEST_DECKS &&
+            (testDecks.task && !testDecks.task.completedAt ? (
+              <TaskProgressCard
+                style={{ alignSelf: 'stretch' }}
+                title="Exporting Test Decks"
+                task={testDecks.task}
+              />
             ) : (
-              <Button variant="primary" onPress={onPressExportTestDecks}>
+              <Button
+                variant="primary"
+                onPress={onPressExportTestDecks}
+                disabled={exportTestDecksMutation.isLoading}
+              >
                 Export Test Decks
               </Button>
-            )}
-          </P>
-        )}
-        <P>
-          {isElectionPackageExportInProgress ? (
-            <LoadingButton>
-              Exporting Election Package and Ballots...
-            </LoadingButton>
+            ))}
+          {electionPackage.task && !electionPackage.task.completedAt ? (
+            <TaskProgressCard
+              style={{ alignSelf: 'stretch' }}
+              title="Exporting Election Package and Ballots"
+              task={electionPackage.task}
+            />
           ) : (
-            <Button onPress={onPressExportElectionPackage} variant="primary">
+            <Button
+              onPress={onPressExportElectionPackage}
+              variant="primary"
+              disabled={exportElectionPackageMutation.isLoading}
+            >
               Export Election Package and Ballots
             </Button>
           )}
-        </P>
-        {exportError && (
-          <Callout color="danger" icon="Danger" style={{ margin: '0.5rem 0' }}>
-            An unexpected error occurred while exporting. Please try again.
-          </Callout>
-        )}
+          {exportError && (
+            <Callout
+              color="danger"
+              icon="Danger"
+              style={{ margin: '0.5rem 0' }}
+            >
+              An unexpected error occurred while exporting. Please try again.
+            </Callout>
+          )}
 
-        <P>
           <CheckboxButton
             label="Include audio"
             isChecked={shouldExportAudio}
             onChange={(isChecked) => setShouldExportAudio(isChecked)}
           />
-        </P>
 
-        <P>
           <CheckboxButton
             label="Include sample ballots"
             isChecked={shouldExportSampleBallots}
             onChange={(isChecked) => setShouldExportSampleBallots(isChecked)}
           />
-        </P>
 
-        <P>
           <CheckboxButton
             label="Format election using CDF"
             isChecked={electionSerializationFormat === 'cdf'}
@@ -275,8 +308,7 @@ export function ExportScreen(): JSX.Element | null {
               setElectionSerializationFormat(isChecked ? 'cdf' : 'vxf')
             }
           />
-        </P>
-        <P>
+
           <CheckboxButton
             label="Generate audit IDs for ballots"
             isChecked={numAuditIdBallots !== undefined}
@@ -284,17 +316,18 @@ export function ExportScreen(): JSX.Element | null {
               setNumAuditIdBallots(isChecked ? 1 : undefined)
             }
           />
-        </P>
-        <InputGroup label="Number of Audit IDs to Generate">
-          <input
-            type="number"
-            min={1}
-            max={100}
-            value={numAuditIdBallots ?? ''}
-            onChange={(e) => setNumAuditIdBallots(e.target.valueAsNumber)}
-            disabled={numAuditIdBallots === undefined}
-          />
-        </InputGroup>
+
+          <InputGroup label="Number of Audit IDs to Generate">
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={numAuditIdBallots ?? ''}
+              onChange={(e) => setNumAuditIdBallots(e.target.valueAsNumber)}
+              disabled={numAuditIdBallots === undefined}
+            />
+          </InputGroup>
+        </Column>
 
         <H2>Decrypt CVR Ballot Audit IDs</H2>
         <InputGroup label="Secret Key">

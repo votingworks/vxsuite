@@ -62,4 +62,23 @@ test('RendererPool runs tasks and returns results in order, reusing pages up to 
   );
   expect(newPageSpy).toHaveBeenCalledTimes(poolSize);
   await browser.close();
+  vi.restoreAllMocks();
+});
+
+test('RendererPool emits progress', async () => {
+  const rendererPool = await createPlaywrightRendererPool();
+  const emitProgress = vi.fn();
+  const numTasks = 10;
+  await rendererPool.runTasks(
+    range(0, numTasks).map((i) => async (renderer) => {
+      const document = await renderer.loadDocumentFromContent(String(i));
+      return document.getContent();
+    }),
+    emitProgress
+  );
+  await rendererPool.close();
+  expect(emitProgress).toHaveBeenCalledTimes(numTasks + 1);
+  for (let i = 0; i <= numTasks; i += 1) {
+    expect(emitProgress).toHaveBeenNthCalledWith(i + 1, i, numTasks);
+  }
 });

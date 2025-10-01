@@ -6,6 +6,7 @@ import {
   DateWithoutTime,
   assert,
   assertDefined,
+  deferred,
   err,
   find,
   ok,
@@ -64,6 +65,7 @@ import {
   readElectionPackageFromBuffer,
 } from '@votingworks/backend';
 import {
+  backendWaitFor,
   countObjectLeaves,
   getObjectLeaves,
   suppressingConsoleOutput,
@@ -2285,15 +2287,6 @@ test('Election package management', async () => {
     })
   ).unsafeUnwrap();
 
-  // Mock the ballot documents and election definition to speed up this test,
-  // since we are just testing the export task flows in this test. The next test
-  // checks the actual exported data.
-  const props = allBaseBallotProps(baseElectionDefinition.election);
-  vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockResolvedValue({
-    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
-    electionDefinition: baseElectionDefinition,
-  });
-
   const electionPackageBeforeExport = await apiClient.getElectionPackage({
     electionId,
   });
@@ -2306,6 +2299,7 @@ test('Election package management', async () => {
     shouldExportAudio: false,
     shouldExportSampleBallots: true,
   });
+
   const expectedPayload = JSON.stringify({
     electionId,
     electionSerializationFormat: 'vxf',
@@ -2338,8 +2332,51 @@ test('Election package management', async () => {
     electionPackageAfterInitiatingExport
   );
 
-  // Complete an export
-  await processNextBackgroundTaskIfAny({ fileStorageClient, workspace });
+  // Mock the ballot documents and election definition to speed up this test,
+  // since we are just testing the export task flows in this test. The next test
+  // checks the actual exported data.
+  const props = allBaseBallotProps(baseElectionDefinition.election);
+  const deferredRenderResult =
+    deferred<
+      Awaited<ReturnType<typeof renderAllBallotPdfsAndCreateElectionDefinition>>
+    >();
+  vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockReturnValue(
+    deferredRenderResult.promise
+  );
+
+  // Run the background task, emitting progress updates along the way
+  const taskPromise = processNextBackgroundTaskIfAny({
+    fileStorageClient,
+    workspace,
+  });
+  await backendWaitFor(
+    () =>
+      expect(
+        vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition)
+      ).toHaveBeenCalled(),
+    { interval: 500, retries: 3 }
+  );
+  const emitProgress = vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition)
+    .mock.lastCall![4]!;
+  emitProgress('Test progress message', 2, 10);
+
+  const electionPackageDuringExport = await apiClient.getElectionPackage({
+    electionId,
+  });
+  expect(electionPackageDuringExport.task?.progress).toEqual({
+    label: 'Test progress message',
+    progress: 2,
+    total: 10,
+  });
+
+  // Complete the task
+  emitProgress('Test progress message', 10, 10);
+  deferredRenderResult.resolve({
+    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
+    electionDefinition: baseElectionDefinition,
+  });
+  await taskPromise;
+
   const electionPackageAfterExport = await apiClient.getElectionPackage({
     electionId,
   });
@@ -2351,6 +2388,11 @@ test('Election package management', async () => {
       payload: expectedPayload,
       startedAt: expect.any(Date),
       taskName: 'generate_election_package',
+      progress: {
+        label: 'Test progress message',
+        progress: 10,
+        total: 10,
+      },
     },
     url: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
   });
@@ -2750,7 +2792,8 @@ test('Election package and ballots export', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
-    'vxf'
+    'vxf',
+    expect.any(Function) // emitProgress callback
   );
 });
 
@@ -2876,8 +2919,16 @@ test('Export test decks', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
-    'vxf'
+    'vxf',
+    expect.any(Function) // emitProgress callback
   );
+
+  const testDecksTask = await apiClient.getTestDecks({ electionId });
+  expect(testDecksTask.task!.progress).toEqual({
+    label: 'Rendering test decks',
+    progress: expect.any(Number),
+    total: testDecksTask.task!.progress!.progress,
+  });
 
   await suppressingConsoleOutput(async () => {
     // Check permissions
@@ -3066,7 +3117,8 @@ test('export ballots with audit IDs', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
-    'vxf'
+    'vxf',
+    expect.any(Function) // emitProgress callback
   );
 });
 
@@ -3317,7 +3369,8 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     expect.any(Object), // Renderer
     ballotTemplates.NhBallot,
     expect.any(Array), // Ballot props
-    'vxf'
+    'vxf',
+    expect.any(Function) // emitProgress callback
   );
   expect(
     vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mock.calls[0][2]

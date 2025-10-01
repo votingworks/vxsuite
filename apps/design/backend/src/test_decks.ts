@@ -6,7 +6,6 @@ import {
   Election,
   ElectionDefinition,
   GridLayout,
-  PrecinctId,
   Tabulation,
   getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
@@ -42,19 +41,16 @@ import {
 export async function createPrecinctTestDeck({
   rendererPool,
   electionDefinition,
-  precinctId,
+  ballotSpecs,
   ballots,
+  emitProgress,
 }: {
   rendererPool: RendererPool;
   electionDefinition: ElectionDefinition;
-  precinctId: PrecinctId;
+  ballotSpecs: TestDeckBallotSpec[];
   ballots: Array<{ props: BaseBallotProps; contents: string }>;
+  emitProgress?: (ballotsRendered: number) => void;
 }): Promise<Uint8Array | undefined> {
-  const ballotSpecs = generateTestDeckBallots({
-    election: electionDefinition.election,
-    precinctId,
-    markingMethod: 'hand',
-  });
   if (ballotSpecs.length === 0) {
     return undefined;
   }
@@ -74,7 +70,8 @@ export async function createPrecinctTestDeck({
         electionDefinition
       );
       return ballotPdf;
-    })
+    }),
+    emitProgress
   );
   return await concatenatePdfs(markedBallots);
 }

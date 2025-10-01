@@ -591,7 +591,8 @@ export async function layOutBallotsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
-  electionSerializationFormat: ElectionSerializationFormat
+  electionSerializationFormat: ElectionSerializationFormat,
+  emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
   ballotContents: string[];
   electionDefinition: ElectionDefinition;
@@ -618,7 +619,9 @@ export async function layOutBallotsAndCreateElectionDefinition<
         gridLayout,
         ballotContent,
       };
-    })
+    }),
+    emitProgress &&
+      ((progress, total) => emitProgress('Laying out ballots', progress, total))
   );
 
   // All ballots of a given ballot style must have the same grid layout.
@@ -721,7 +724,8 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
-  electionSerializationFormat: ElectionSerializationFormat
+  electionSerializationFormat: ElectionSerializationFormat,
+  emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
   ballotPdfs: Uint8Array[];
   electionDefinition: ElectionDefinition;
@@ -731,7 +735,8 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
       rendererPool,
       template,
       ballotProps,
-      electionSerializationFormat
+      electionSerializationFormat,
+      emitProgress
     );
 
   const ballotPdfs = await rendererPool.runTasks(
@@ -746,7 +751,10 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
         );
         return ballotPdf;
       })
-      .toArray()
+      .toArray(),
+    emitProgress &&
+      ((progress, total) =>
+        emitProgress('Rendering ballot PDFs', progress, total))
   );
   return { ballotPdfs, electionDefinition };
 }

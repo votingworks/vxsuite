@@ -28,7 +28,7 @@ import {
 } from '@votingworks/backend';
 import { assertDefined, find, iter, range } from '@votingworks/basics';
 import z from 'zod/v4';
-import { WorkerContext } from './context';
+import { EmitProgressFunction, WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
@@ -69,7 +69,8 @@ export async function generateElectionPackageAndBallots(
     shouldExportAudio,
     shouldExportSampleBallots,
     numAuditIdBallots,
-  }: GenerateElectionPackageAndBallotsPayload
+  }: GenerateElectionPackageAndBallotsPayload,
+  emitProgress: EmitProgressFunction
 ): Promise<void> {
   const { store } = workspace;
 
@@ -157,7 +158,8 @@ export async function generateElectionPackageAndBallots(
       rendererPool,
       ballotTemplates[ballotTemplateId],
       allBallotProps,
-      electionSerializationFormat
+      electionSerializationFormat,
+      emitProgress
     );
   electionPackageZip.file(
     ElectionPackageFileName.ELECTION,
@@ -174,6 +176,8 @@ export async function generateElectionPackageAndBallots(
       appStrings,
       electionStrings,
       speechSynthesizer,
+      emitProgress: (progress, total) =>
+        emitProgress('Generating audio', progress, total),
     });
     electionPackageZip.file(
       ElectionPackageFileName.AUDIO_IDS,

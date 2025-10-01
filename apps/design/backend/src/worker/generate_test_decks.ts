@@ -5,6 +5,7 @@ import {
   ElectionSerializationFormat,
   ElectionSerializationFormatSchema,
   formatBallotHash,
+  Precinct,
 } from '@votingworks/types';
 import { translateBallotStrings } from '@votingworks/backend';
 import {
@@ -17,7 +18,8 @@ import { iter } from '@votingworks/basics';
 import JsZip from 'jszip';
 import path from 'node:path';
 import z from 'zod/v4';
-import { WorkerContext } from './context';
+import { generateTestDeckBallots, TestDeckBallot } from '@votingworks/utils';
+import { EmitProgressFunction, WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
@@ -41,7 +43,8 @@ export const GenerateTestDecksPayloadSchema: z.ZodType<GenerateTestDecksPayload>
 
 export async function generateTestDecks(
   { translator, workspace, fileStorageClient }: WorkerContext,
-  { electionId, electionSerializationFormat }: GenerateTestDecksPayload
+  { electionId, electionSerializationFormat }: GenerateTestDecksPayload,
+  emitProgress: EmitProgressFunction
 ): Promise<void> {
   const { store } = workspace;
   const {
@@ -76,7 +79,8 @@ export async function generateTestDecks(
       rendererPool,
       ballotTemplates[ballotTemplateId],
       testBallotProps,
-      electionSerializationFormat
+      electionSerializationFormat,
+      emitProgress
     );
   const ballots = iter(testBallotProps)
     .zip(ballotContents)
@@ -88,14 +92,37 @@ export async function generateTestDecks(
 
   const zip = new JsZip();
 
-  for (const precinct of election.precincts) {
+  const precinctBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
+    election.precincts.map((precinct) => [
+      precinct,
+      generateTestDeckBallots({
+        election,
+        precinctId: precinct.id,
+        markingMethod: 'hand',
+      }),
+    ]);
+
+  const totalTestDeckBallots = iter(precinctBallotSpecs)
+    .map(([, specs]) => specs.length)
+    .sum();
+  emitProgress('Rendering test decks', 0, totalTestDeckBallots);
+  let renderedBallots = 0;
+  for (const [precinct, ballotSpecs] of precinctBallotSpecs) {
     const testDeckPdf = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition,
-      precinctId: precinct.id,
+      ballotSpecs,
       ballots,
+      // eslint-disable-next-line no-loop-func
+      emitProgress: (ballotsRendered) => {
+        emitProgress(
+          `Rendering test decks`,
+          renderedBallots + ballotsRendered,
+          totalTestDeckBallots
+        );
+      },
     });
-
+    renderedBallots += ballotSpecs.length;
     if (!testDeckPdf) continue;
     const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
     zip.file(fileName, testDeckPdf);

@@ -14,8 +14,24 @@ import {
 
 export async function processBackgroundTask(
   context: WorkerContext,
-  { taskName, payload }: BackgroundTask
+  { id: taskId, taskName, payload }: BackgroundTask
 ): Promise<void> {
+  function emitProgress(label: string, progress: number, total: number): void {
+    context.workspace.store
+      .updateBackgroundTaskProgress(taskId, {
+        label,
+        progress,
+        total,
+      })
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error(
+          `Error updating progress for background task ${taskId}:`,
+          error
+        );
+      });
+  }
+
   switch (taskName) {
     // Misnomer; actually generates election and ballot packages, but
     // task name is unchanged until can migrate db
@@ -24,7 +40,11 @@ export async function processBackgroundTask(
         payload,
         GenerateElectionPackageAndBallotsPayloadSchema
       ).unsafeUnwrap();
-      await generateElectionPackageAndBallots(context, parsedPayload);
+      await generateElectionPackageAndBallots(
+        context,
+        parsedPayload,
+        emitProgress
+      );
       break;
     }
     case 'generate_test_decks': {
@@ -32,7 +52,7 @@ export async function processBackgroundTask(
         payload,
         GenerateTestDecksPayloadSchema
       ).unsafeUnwrap();
-      await generateTestDecks(context, parsedPayload);
+      await generateTestDecks(context, parsedPayload, emitProgress);
       break;
     }
     default: {
