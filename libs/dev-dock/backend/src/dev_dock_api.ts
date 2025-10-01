@@ -190,10 +190,9 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
     }: {
       fileName: string;
       screenshot: Uint8Array;
-    }): Promise<string> {
+    }): Promise<void> {
       const downloadsPath = join(homedir(), 'Downloads');
       await writeFile(join(downloadsPath, fileName), screenshot);
-      return fileName;
     },
 
     getPrinterStatus(): PrinterStatus {
