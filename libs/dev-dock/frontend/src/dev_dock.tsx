@@ -444,7 +444,9 @@ function ScreenshotControls({
   }
 
   async function onKeyDown(event: KeyboardEvent): Promise<void> {
-    if (event.key === 'k' && event.metaKey) {
+    if (event.key.toLowerCase() === 'k' && event.metaKey) {
+      event.preventDefault();
+      event.stopPropagation();
       await captureScreenshot();
     }
   }
@@ -745,7 +747,9 @@ function DevDock() {
   );
 
   function onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'd' && event.metaKey) {
+    if (event.key.toLowerCase() === 'd' && event.metaKey) {
+      event.preventDefault();
+      event.stopPropagation();
       setIsOpen((previousIsOpen) => !previousIsOpen);
     }
     if (isOpen) {
