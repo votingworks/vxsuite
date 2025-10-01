@@ -10,6 +10,10 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { formatBallotHash } from '@votingworks/types';
+import {
+  getContestsForPrecinctAndElection,
+  maybeGetPrecinctIdFromSelection,
+} from '@votingworks/utils';
 import { processQrCodeReport } from './public_api';
 
 export function ResultsScreen({
@@ -100,6 +104,18 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
   const reportData = reportResult.ok();
   const { election, contestResults } = reportData;
 
+  const precinctId = maybeGetPrecinctIdFromSelection(
+    reportData.precinctSelection
+  );
+  const precinct = precinctId
+    ? election.precincts.find((p) => p.id === precinctId)
+    : undefined;
+
+  const contestsForPrecinct = getContestsForPrecinctAndElection(
+    election,
+    reportData.precinctSelection
+  );
+
   return (
     <ResultsScreen>
       <MainContent>
@@ -124,13 +140,11 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
             </p>
             <p>
               <strong>Precinct:</strong>{' '}
-              {reportData.precinctId
-                ? String(reportData.precinctId)
-                : 'Not specified'}
+              {precinct ? precinct.name : 'All Precincts'}
             </p>
             <h2>Results Reported</h2>
             <TallyReportColumns>
-              {election.contests.map((contest) => {
+              {contestsForPrecinct.map((contest) => {
                 const currentContestResults = contestResults[contest.id];
                 assert(
                   currentContestResults,

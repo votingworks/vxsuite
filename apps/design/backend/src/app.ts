@@ -32,6 +32,7 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
+  PrecinctSelection,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -60,6 +61,7 @@ import { LogEventId } from '@votingworks/logging';
 import {
   getExportedCastVoteRecordIds,
   decodeAndReadCompressedTally,
+  maybeGetPrecinctIdFromSelection,
 } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
@@ -923,6 +925,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           isLive,
           signedTimestamp,
           encodedCompressedTally,
+          precinctSelection,
         } = decodeQuickResultsMessage(payload);
 
         const electionRecord =
@@ -931,12 +934,14 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           return err('no-election-found');
         }
 
-        const contestResults = decodeAndReadCompressedTally(
-          electionRecord.election,
-          encodedCompressedTally
-        );
+        const contestResults = decodeAndReadCompressedTally({
+          election: electionRecord.election,
+          precinctSelection,
+          encodedTally: encodedCompressedTally,
+        });
         await store.saveQuickResultsReportingTally({
           electionId: electionRecord.election.id,
+          precinctId: maybeGetPrecinctIdFromSelection(precinctSelection),
           ballotHash,
           encodedCompressedTally,
           machineId,
@@ -950,6 +955,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           isLive,
           signedTimestamp,
           contestResults,
+          precinctSelection,
           election: electionRecord.election,
         });
       } catch (e) {

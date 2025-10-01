@@ -42,6 +42,7 @@ import {
   safeParse,
   PhoneticWordsSchema,
   ContestId,
+  PrecinctSelection,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
