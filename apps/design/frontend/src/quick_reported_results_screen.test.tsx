@@ -8,8 +8,10 @@ import {
   ElectionId,
 } from '@votingworks/types';
 import {
+  ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
   ContestResultsSummaries,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import type { AggregatedReportedResults } from '@votingworks/design-backend';
 import { err, ok } from '@votingworks/basics';
@@ -135,7 +137,11 @@ describe('Navigation tab visibility', () => {
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithUrl);
     apiMock.getQuickReportedResults
-      .expectCallWith({ electionId, isLive: true })
+      .expectCallWith({
+        electionId,
+        isLive: true,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+      })
       .resolves(ok(mockAggregatedResults));
 
     renderScreen();
@@ -157,7 +163,11 @@ describe('Navigation tab visibility', () => {
       .resolves(mockSystemSettingsWithoutUrl);
     // Component still calls getQuickReportedResults even when URL is not configured
     apiMock.getQuickReportedResults
-      .expectCallWith({ electionId, isLive: true })
+      .expectCallWith({
+        electionId,
+        isLive: true,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+      })
       .resolves(ok(mockAggregatedResults));
 
     renderScreen();
@@ -185,7 +195,11 @@ test('shows error message when election is not exported', async () => {
     .expectRepeatedCallsWith({ electionId })
     .resolves(mockSystemSettingsWithUrl);
   apiMock.getQuickReportedResults
-    .expectRepeatedCallsWith({ electionId, isLive: true })
+    .expectRepeatedCallsWith({
+      electionId,
+      isLive: true,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+    })
     .resolves(err('election-not-exported'));
 
   renderScreen();
@@ -209,14 +223,18 @@ test('Live/Test toggle works correctly', async () => {
 
   // Initial load with isLive: true
   apiMock.getQuickReportedResults
-    .expectCallWith({ electionId, isLive: true })
+    .expectCallWith({
+      electionId,
+      isLive: true,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+    })
     .resolves(ok(mockAggregatedResults));
 
   renderScreen();
 
   // Wait for the component to fully load with results and the SegmentedButton
   await waitFor(() => {
-    expect(screen.getByText('Report Information')).toBeInTheDocument();
+    expect(screen.getByText('Quick Reported Results')).toBeInTheDocument();
   });
 
   // Verify SegmentedButton options are present (handle multiple instances)
@@ -224,7 +242,7 @@ test('Live/Test toggle works correctly', async () => {
     screen.getAllByRole('option', { name: 'Live' }).length
   ).toBeGreaterThanOrEqual(1);
   expect(
-    screen.getAllByRole('option', { name: 'Test (L&A)' }).length
+    screen.getAllByRole('option', { name: 'Test' }).length
   ).toBeGreaterThanOrEqual(1);
 
   // Mock the API call for Test mode
@@ -232,20 +250,52 @@ test('Live/Test toggle works correctly', async () => {
     ...mockAggregatedResults,
   };
   apiMock.getQuickReportedResults
-    .expectCallWith({ electionId, isLive: false })
+    .expectCallWith({
+      electionId,
+      isLive: false,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+    })
     .resolves(ok(testModeResults));
 
   // Click Test mode
-  userEvent.click(screen.getByRole('option', { name: 'Test (L&A)' }));
+  userEvent.click(screen.getByRole('option', { name: 'Test' }));
 
   await waitFor(() => {
     expect(
-      screen.getByRole('option', { name: 'Test (L&A)', selected: true })
+      screen.getByRole('option', { name: 'Test', selected: true })
     ).toBeInTheDocument();
     expect(
       screen.getByRole('option', { name: 'Live', selected: false })
     ).toBeInTheDocument();
   });
+});
+
+test('Precinct button', async () => {
+  apiMock.getSystemSettings
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(mockSystemSettingsWithUrl);
+
+  // Initial load with isLive: true
+  apiMock.getQuickReportedResults
+    .expectCallWith({
+      electionId,
+      isLive: true,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+    })
+    .resolves(ok(mockAggregatedResults));
+
+  renderScreen();
+
+  apiMock.getQuickReportedResults
+    .expectCallWith({
+      electionId,
+      isLive: true,
+      precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+    })
+    .resolves(ok(mockAggregatedResults));
+  // Verify ChangePrecinctButton is present
+  userEvent.click(await screen.findByLabelText('Select a precinct…'));
+  userEvent.click(screen.getByText(election.precincts[0].name));
 });
 
 describe('Results display', () => {
@@ -254,20 +304,22 @@ describe('Results display', () => {
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithUrl);
     apiMock.getQuickReportedResults
-      .expectRepeatedCallsWith({ electionId, isLive: true })
+      .expectRepeatedCallsWith({
+        electionId,
+        isLive: true,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+      })
       .resolves(ok(mockAggregatedResults));
   });
 
   test('displays report information correctly', async () => {
     renderScreen();
 
+    // Wait for the component to fully load with results and the SegmentedButton
     await waitFor(() => {
-      expect(screen.getByText('Report Information')).toBeInTheDocument();
+      expect(screen.getByText('Quick Reported Results')).toBeInTheDocument();
     });
-    // Check report information section
-    expect(screen.getByText('Ballot Hash:')).toBeInTheDocument();
-    // Check for formatted ballot hash (formatBallotHash truncates to 7 chars)
-    expect(screen.getByText('abc123d')).toBeInTheDocument();
+
     expect(screen.getByText('Machine Ids Reporting:')).toBeInTheDocument();
     expect(screen.getByText('VxScan-001, VxScan-002')).toBeInTheDocument();
 
@@ -288,14 +340,18 @@ describe('Results display', () => {
     };
     apiMock.getQuickReportedResults.reset();
     apiMock.getQuickReportedResults
-      .expectRepeatedCallsWith({ electionId, isLive: true })
+      .expectRepeatedCallsWith({
+        electionId,
+        isLive: true,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+      })
       .resolves(ok(noResultsData));
 
     renderScreen();
 
     // Wait for the component to fully load first
     await waitFor(() => {
-      expect(screen.getByText('Report Information')).toBeInTheDocument();
+      expect(screen.getByText('Quick Reported Results')).toBeInTheDocument();
     });
 
     // Look for the "No results reported." text
