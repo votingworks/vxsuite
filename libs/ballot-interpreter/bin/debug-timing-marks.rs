@@ -15,7 +15,7 @@ use ballot_interpreter::{
     ballot_card::{BallotPage, PaperInfo},
     debug,
     interpret::{Error, Inference, TimingMarkAlgorithm},
-    timing_marks::{contours, corners, Border, BorderAxis, DefaultForGeometry, TimingMarks},
+    timing_marks::{Border, BorderAxis, TimingMarks},
 };
 use clap::Parser;
 use color_eyre::{eyre::bail, owo_colors::OwoColorize};
@@ -120,7 +120,7 @@ fn process_path<W: Write>(
     *find_timing_marks_duration += start.elapsed();
 
     let timing_marks = find_result?;
-    if let Some(debug) = debug {
+    if let Some(debug) = ballot_page.debug() {
         debug.write("timing_marks", |canvas| {
             debug::draw_timing_mark_debug_image_mut(
                 canvas,
