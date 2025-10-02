@@ -121,10 +121,12 @@ impl BallotImage {
         self.threshold
     }
 
+    #[must_use]
     pub fn debug(&self) -> Option<&ImageDebugWriter> {
         self.debug.as_ref()
     }
 
+    #[must_use]
     pub fn get_pixel(&self, x: u32, y: u32) -> BallotPixel {
         if self.image.get_pixel(x, y).0[0] < self.threshold {
             BallotPixel::Foreground
@@ -133,6 +135,7 @@ impl BallotImage {
         }
     }
 
+    #[must_use]
     pub fn image(&self) -> &GrayImage {
         &self.image
     }
@@ -155,10 +158,12 @@ pub enum BallotPixel {
 }
 
 impl BallotPixel {
+    #[must_use]
     pub fn is_foreground(self) -> bool {
         matches!(self, Self::Foreground)
     }
 
+    #[must_use]
     pub fn is_background(self) -> bool {
         matches!(self, Self::Background)
     }
@@ -210,6 +215,7 @@ impl BallotPage {
         &self.geometry
     }
 
+    #[must_use]
     pub fn border_inset(&self) -> Inset {
         self.ballot_image.border_inset
     }
@@ -218,6 +224,7 @@ impl BallotPage {
         &self.ballot_image
     }
 
+    #[must_use]
     pub fn debug(&self) -> Option<&ImageDebugWriter> {
         self.ballot_image.debug()
     }
@@ -225,12 +232,12 @@ impl BallotPage {
     pub fn find_timing_marks(
         &self,
         timing_mark_algorithm: TimingMarkAlgorithm,
-    ) -> Result<TimingMarks, Error> {
+    ) -> Result<TimingMarks> {
         let geometry = self.geometry();
         match timing_mark_algorithm {
             TimingMarkAlgorithm::Contours { inference } => contours::find_timing_mark_grid(
                 self,
-                contours::FindTimingMarkGridOptions {
+                &contours::FindTimingMarkGridOptions {
                     allowed_timing_mark_inset_percentage_of_width:
                         contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
                     inference,
@@ -243,16 +250,18 @@ impl BallotPage {
         }
     }
 
+    #[must_use]
     pub fn width(&self) -> PixelUnit {
         self.ballot_image.width()
     }
 
+    #[must_use]
     pub fn height(&self) -> PixelUnit {
         self.ballot_image.height()
     }
 
     pub fn rotate180(&mut self) {
-        self.ballot_image.rotate180()
+        self.ballot_image.rotate180();
     }
 }
 
@@ -266,14 +275,17 @@ impl BallotCard {
         &self.page_a.geometry
     }
 
+    #[must_use]
     pub fn page_a(&self) -> &BallotPage {
         &self.page_a
     }
 
+    #[must_use]
     pub fn page_b(&self) -> &BallotPage {
         &self.page_b
     }
 
+    #[must_use]
     pub fn as_pair(&self) -> Pair<&BallotPage> {
         (&self.page_a, &self.page_b).into()
     }
@@ -282,10 +294,12 @@ impl BallotCard {
         (&mut self.page_a, &mut self.page_b).into()
     }
 
+    #[must_use]
     pub fn into_pair(self) -> Pair<BallotPage> {
         (self.page_a, self.page_b).into()
     }
 
+    #[must_use]
     pub fn as_labeled_pair(&self) -> Pair<(&'static str, &BallotPage)> {
         ((SIDE_A_LABEL, &self.page_a), (SIDE_B_LABEL, &self.page_b)).into()
     }
@@ -293,12 +307,13 @@ impl BallotCard {
     pub fn find_timing_marks(
         &self,
         timing_mark_algorithm: TimingMarkAlgorithm,
-    ) -> Result<Pair<TimingMarks>, Error> {
+    ) -> Result<Pair<TimingMarks>> {
         self.as_pair()
             .par_map(|page| page.find_timing_marks(timing_mark_algorithm))
             .into_result()
     }
 
+    #[must_use]
     pub fn detect_qr_codes(&self) -> Pair<Result<Detected>> {
         self.as_labeled_pair().map(|(label, page)| {
             qr_code::detect(page.ballot_image()).map_err(|err| Error::InvalidQrCodeMetadata {
@@ -318,7 +333,7 @@ impl BallotCard {
             .map(|(result, label)| {
                 let qr_code = result?;
                 Ok((
-                    coding::decode_with::<hmpb::Metadata>(&qr_code.bytes(), election).map_err(
+                    coding::decode_with::<hmpb::Metadata>(qr_code.bytes(), election).map_err(
                         |e| Error::InvalidQrCodeMetadata {
                             label: label.to_owned(),
                             message: format!(
@@ -377,7 +392,7 @@ impl BallotCard {
         &'_ self,
         minimum_scale: UnitIntervalScore,
         timing_marks: impl Into<Pair<&'a TimingMarks>>,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         self.as_labeled_pair()
             .zip(timing_marks)
             .map(|((label, _), timing_marks)| {
@@ -386,12 +401,10 @@ impl BallotCard {
                 //
                 // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
                 match timing_marks.compute_scale_based_on_axis(BorderAxis::Horizontal) {
-                    Some(scale) if scale < minimum_scale => {
-                        return Err(Error::InvalidScale {
-                            label: label.to_owned(),
-                            scale,
-                        });
-                    }
+                    Some(scale) if scale < minimum_scale => Err(Error::InvalidScale {
+                        label: label.to_owned(),
+                        scale,
+                    }),
                     _ => Ok(()),
                 }
             })
@@ -401,7 +414,6 @@ impl BallotCard {
 }
 
 pub struct ProcessedBubbleBallotCard {
-    election: Election,
     front_page: BallotPage,
     back_page: BallotPage,
     front_timing_marks: TimingMarks,
@@ -493,7 +505,6 @@ impl ProcessedBubbleBallotCard {
         };
 
         Ok(Self {
-            election,
             front_page,
             back_page,
             front_timing_marks,
@@ -524,7 +535,6 @@ impl ProcessedBubbleBallotCard {
         &self.back_metadata
     }
 
-    #[must_use]
     pub fn ballot_style_id(&self) -> &BallotStyleId {
         &self.front_metadata.ballot_style_id
     }
@@ -634,7 +644,7 @@ impl ProcessedBubbleBallotCard {
                         .iter()
                         .map(|grid_position| {
                             build_option_layout(timing_marks, grid_layout, grid_position)
-                                .ok_or_else(|| Error::CouldNotComputeLayout { side })
+                                .ok_or(Error::CouldNotComputeLayout { side })
                         })
                         .collect::<Result<Vec<_>>>()?;
 
@@ -667,6 +677,7 @@ impl ProcessedBubbleBallotCard {
     /// Computes scores for all the write-in areas in a scanned ballot image. This could
     /// be used to determine which write-in areas are most likely to contain a write-in
     /// vote even if the bubble is not filled in.
+    #[must_use]
     pub fn score_write_in_areas(&self) -> Pair<ScoredPositionAreas> {
         let grid_layout = self.grid_layout();
         let sheet_number = self.sheet_number();
@@ -701,6 +712,7 @@ impl ProcessedBubbleBallotCard {
         })
     }
 
+    #[must_use]
     pub fn into_parts(self) -> Pair<ProcessedBubbleBallotPageParts> {
         Pair::new(
             (
@@ -819,6 +831,7 @@ pub struct RawBallotCard {
 }
 
 impl RawBallotCard {
+    #[must_use]
     pub fn new(side_a: GrayImage, side_b: GrayImage) -> Self {
         Self {
             image_a: side_a,

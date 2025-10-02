@@ -203,12 +203,10 @@ fn find_timing_mark_grid(
     debug_path: Option<PathBuf>,
     timing_mark_algorithm: Option<TimingMarkAlgorithm>,
 ) -> Result<TimingMarks, Error> {
-    Ok(
-        BallotPage::from_image(image, label, &PaperInfo::scanned(), debug_path)
+    BallotPage::from_image(image, label, &PaperInfo::scanned(), debug_path)
             .map_err(|err| Error::new(format!("Unable to prepare ballot page image: {err}")))?
             .find_timing_marks(timing_mark_algorithm.unwrap_or_default())
-            .map_err(|err| Error::new(format!("failed to detect timing mark grid: {err}")))?,
-    )
+            .map_err(|err| Error::new(format!("failed to detect timing mark grid: {err}")))
 }
 
 #[neon::export]

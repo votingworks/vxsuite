@@ -1,10 +1,7 @@
-use itertools::Itertools;
 use serde::Serialize;
-use types_rs::ballot_card::BallotSide;
 use types_rs::election::{ContestId, GridLayout, GridLocation, GridPosition, OptionId};
 use types_rs::geometry::{Point, Rect, SubGridUnit};
 
-use crate::debug;
 use crate::timing_marks::TimingMarks;
 
 #[derive(Debug, Serialize)]
@@ -94,58 +91,4 @@ pub fn build_option_layout(
         bounds: Rect::from_points(furthest_top_left_point, furthest_bottom_right_point),
         grid_location: bubble_location,
     })
-}
-
-#[allow(clippy::module_name_repetitions)]
-pub fn build_interpreted_page_layout(
-    timing_marks: &TimingMarks,
-    grid_layout: &GridLayout,
-    sheet_number: u32,
-    side: BallotSide,
-    debug: &debug::ImageDebugWriter,
-) -> Option<Vec<InterpretedContestLayout>> {
-    let contest_ids_in_grid_layout_order = grid_layout
-        .grid_positions
-        .iter()
-        .filter(|grid_position| {
-            grid_position.sheet_number() == sheet_number && grid_position.location().side == side
-        })
-        .map(GridPosition::contest_id)
-        .unique()
-        .collect::<Vec<_>>();
-
-    let layouts = contest_ids_in_grid_layout_order
-        .iter()
-        .map(|contest_id| {
-            let grid_positions = grid_layout
-                .grid_positions
-                .iter()
-                .filter(|grid_position| grid_position.contest_id() == *contest_id)
-                .collect::<Vec<_>>();
-
-            let options = grid_positions
-                .iter()
-                .map(|grid_position| build_option_layout(timing_marks, grid_layout, grid_position))
-                .collect::<Option<Vec<_>>>()?;
-
-            // Use the union of the option bounds as an approximation of the contest bounds
-            let bounds = options
-                .iter()
-                .map(|option| option.bounds)
-                .reduce(|a, b| a.union(&b))
-                .expect("Contest must have options");
-
-            Some(InterpretedContestLayout {
-                contest_id: contest_id.clone(),
-                bounds,
-                options,
-            })
-        })
-        .collect::<Option<Vec<_>>>()?;
-
-    debug.write("contest_layouts", |canvas| {
-        debug::draw_contest_layouts_debug_image_mut(canvas, &layouts);
-    });
-
-    Some(layouts)
 }

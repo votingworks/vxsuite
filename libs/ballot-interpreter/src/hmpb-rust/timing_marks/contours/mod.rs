@@ -204,7 +204,7 @@ pub struct FindTimingMarkGridOptions {
 #[allow(clippy::result_large_err)]
 pub fn find_timing_mark_grid(
     ballot_page: &BallotPage,
-    options: FindTimingMarkGridOptions,
+    options: &FindTimingMarkGridOptions,
 ) -> Result<TimingMarks> {
     // Find shapes that look like timing marks but may not be.
     let candidate_timing_marks = find_timing_mark_shapes(ballot_page);
