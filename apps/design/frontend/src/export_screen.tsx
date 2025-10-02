@@ -11,6 +11,9 @@ import {
   H2,
   FileInputButton,
   Callout,
+  Card,
+  H4,
+  ProgressBar,
 } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { useParams } from 'react-router-dom';
@@ -132,10 +135,6 @@ export function ExportScreen(): JSX.Element | null {
     return null;
   }
   const electionPackage = electionPackageQuery.data;
-  const isElectionPackageExportInProgress =
-    exportElectionPackageMutation.isLoading ||
-    (electionPackage.task && !electionPackage.task.completedAt);
-
   const testDecks = testDecksQuery.data;
   const isTestDecksExportInProgress =
     exportTestDecksMutation.isLoading ||
@@ -235,12 +234,25 @@ export function ExportScreen(): JSX.Element | null {
           </P>
         )}
         <P>
-          {isElectionPackageExportInProgress ? (
-            <LoadingButton>
-              Exporting Election Package and Ballots...
-            </LoadingButton>
+          {electionPackage.task && !electionPackage.task.completedAt ? (
+            <Card color="primary" style={{ maxWidth: '30rem' }}>
+              <H4>Exporting Election Package and Ballots</H4>
+              <P>{electionPackage.task.progress?.label ?? 'Starting'}</P>
+              <ProgressBar
+                progress={
+                  electionPackage.task.progress
+                    ? electionPackage.task.progress.progress /
+                      electionPackage.task.progress.total
+                    : 0
+                }
+              />
+            </Card>
           ) : (
-            <Button onPress={onPressExportElectionPackage} variant="primary">
+            <Button
+              onPress={onPressExportElectionPackage}
+              variant="primary"
+              disabled={exportElectionPackageMutation.isLoading}
+            >
               Export Election Package and Ballots
             </Button>
           )}
