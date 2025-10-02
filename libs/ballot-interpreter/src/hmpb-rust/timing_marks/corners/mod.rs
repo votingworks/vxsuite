@@ -1,6 +1,5 @@
 use crate::{
-    ballot_card::{BallotImage, Geometry},
-    debug::ImageDebugWriter,
+    ballot_card::{BallotPage, Geometry},
     interpret::Error,
     timing_marks::{
         corners::{mark_finding::BallotGridCandidateMarks, util::CornerWise},
@@ -37,49 +36,53 @@ impl DefaultForGeometry for Options {
 /// Returns an error if the timing mark grid cannot be found.
 #[allow(clippy::result_large_err)]
 pub fn find_timing_mark_grid(
-    ballot_image: &BallotImage,
-    geometry: &Geometry,
-    debug: &ImageDebugWriter,
+    ballot_page: &BallotPage,
     options: &Options,
 ) -> Result<TimingMarks, Error> {
-    let shapes = shape_finding::BallotGridBorderShapes::from_ballot_image(
-        ballot_image,
-        geometry,
+    let shapes = shape_finding::BallotGridBorderShapes::from_ballot_page(
+        ballot_page,
         &options.shape_finding_options,
     );
 
-    debug.write("01-shapes", |canvas| {
-        shapes.debug_draw(canvas);
-    });
+    if let Some(debug) = ballot_page.debug() {
+        debug.write("01-shapes", |canvas| {
+            shapes.debug_draw(canvas);
+        });
+    }
 
-    let candidates =
-        mark_finding::BallotGridCandidateMarks::from_shapes(ballot_image, geometry, shapes);
+    let candidates = mark_finding::BallotGridCandidateMarks::from_shapes(ballot_page, shapes);
 
-    debug.write("02-candidate_marks", |canvas| {
-        candidates.debug_draw(canvas);
-    });
+    if let Some(debug) = ballot_page.debug() {
+        debug.write("02-candidate_marks", |canvas| {
+            candidates.debug_draw(canvas);
+        });
+    }
 
     let corners = corner_finding::BallotGridCorners::find_all(
-        ballot_image.image.dimensions().into(),
-        geometry,
+        ballot_page.ballot_image().dimensions().into(),
+        ballot_page.geometry(),
         &candidates,
         &options.corner_finding_options,
     )?;
 
-    debug.write("03-corners", |canvas| {
-        corners.debug_draw(canvas);
-    });
+    if let Some(debug) = ballot_page.debug() {
+        debug.write("03-corners", |canvas| {
+            corners.debug_draw(canvas);
+        });
+    }
 
     let borders = border_finding::BallotGridBorders::find_all(
-        geometry,
+        ballot_page.geometry(),
         &corners,
         &candidates,
         &options.border_finding_options,
     )?;
 
-    debug.write("04-borders", |canvas| {
-        borders.debug_draw(canvas);
-    });
+    if let Some(debug) = ballot_page.debug() {
+        debug.write("04-borders", |canvas| {
+            borders.debug_draw(canvas);
+        });
+    }
 
     let [top_left_mark, top_right_mark, bottom_left_mark, bottom_right_mark] = [
         corners.top_left(),
@@ -98,7 +101,7 @@ pub fn find_timing_mark_grid(
     .map_cornerwise(|mark| mark.rect().center());
 
     let timing_marks = TimingMarks {
-        geometry: geometry.clone(),
+        geometry: ballot_page.geometry().clone(),
         top_left_corner,
         top_right_corner,
         bottom_left_corner,

@@ -4,7 +4,8 @@ use std::ops::Range;
 use std::path::{Path, PathBuf};
 
 use ab_glyph::{FontRef, PxScale};
-use image::{imageops::rotate180, DynamicImage, GrayImage, Rgb, RgbImage};
+use image::imageops::rotate180_in_place;
+use image::{DynamicImage, GrayImage, Rgb, RgbImage};
 use imageproc::drawing::{
     draw_cross_mut, draw_filled_rect_mut, draw_hollow_rect_mut, draw_line_segment_mut,
     draw_text_mut, text_size,
@@ -1347,7 +1348,7 @@ pub fn draw_diagnostic_cells(canvas: &mut RgbImage, passed_cells: &[Rect], faile
 #[must_use]
 pub struct ImageDebugWriter {
     input_path: PathBuf,
-    input_image: Option<GrayImage>,
+    input_image: GrayImage,
 }
 
 /// Creates a path for a debug image.
@@ -1365,23 +1366,11 @@ fn output_path_from_original(base: &Path, label: &str) -> PathBuf {
 }
 
 impl ImageDebugWriter {
-    pub const fn new(input_path: PathBuf, input_image: GrayImage) -> Self {
+    pub fn new(input_path: impl Into<PathBuf>, input_image: GrayImage) -> Self {
         Self {
-            input_path,
-            input_image: Some(input_image),
+            input_path: input_path.into(),
+            input_image,
         }
-    }
-
-    pub fn disabled() -> Self {
-        Self {
-            input_path: PathBuf::new(),
-            input_image: None,
-        }
-    }
-
-    #[must_use]
-    pub const fn is_disabled(&self) -> bool {
-        self.input_image.is_none()
     }
 
     /// Calls the provided function to draw on the debug image, then writes the
@@ -1390,24 +1379,18 @@ impl ImageDebugWriter {
     /// # Panics
     ///
     /// Panics if the image cannot be saved.
-    pub fn write(
-        &self,
-        label: impl AsRef<str>,
-        draw: impl FnOnce(&mut RgbImage),
-    ) -> Option<PathBuf> {
-        self.input_image.as_ref().map(|input_image| {
-            let mut output_image = DynamicImage::ImageLuma8(input_image.clone()).into_rgb8();
-            draw(&mut output_image);
+    pub fn write(&self, label: impl AsRef<str>, draw: impl FnOnce(&mut RgbImage)) -> PathBuf {
+        let mut output_image = DynamicImage::ImageLuma8(self.input_image.clone()).into_rgb8();
+        draw(&mut output_image);
 
-            let output_path = output_path_from_original(&self.input_path, label.as_ref());
-            output_image.save(&output_path).expect("image is saved");
-            debug!("{}", output_path.display());
-            output_path
-        })
+        let output_path = output_path_from_original(&self.input_path, label.as_ref());
+        output_image.save(&output_path).expect("image is saved");
+        debug!("{}", output_path.display());
+        output_path
     }
 
     pub fn rotate180(&mut self) {
-        self.input_image = self.input_image.as_ref().map(rotate180);
+        rotate180_in_place(&mut self.input_image);
     }
 }
 
@@ -1443,30 +1426,16 @@ mod tests {
         let debug_writer = ImageDebugWriter::new(file.path().to_path_buf(), input_image);
 
         let mut called = false;
-        let output_path = debug_writer
-            .write("test", |image| {
-                called = true;
-                assert_eq!(image.width(), 10);
-                assert_eq!(image.height(), 10);
-            })
-            .unwrap();
+        let output_path = debug_writer.write("test", |image| {
+            called = true;
+            assert_eq!(image.width(), 10);
+            assert_eq!(image.height(), 10);
+        });
         assert!(called);
         assert!(output_path.as_os_str().to_str().unwrap().contains("test"));
         assert_eq!(
             image::open(output_path).unwrap().to_luma8().dimensions(),
             (10, 10)
         );
-    }
-
-    #[test]
-    fn test_debug_writer_disabled() {
-        let debug_writer = ImageDebugWriter::disabled();
-
-        let mut called = false;
-        let output_path = debug_writer.write("test", |_| {
-            called = true;
-        });
-        assert!(!called);
-        assert!(output_path.is_none());
     }
 }

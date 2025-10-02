@@ -12,9 +12,9 @@ use std::{
 };
 
 use ballot_interpreter::{
-    ballot_card::PaperInfo,
+    ballot_card::{BallotPage, PaperInfo},
     debug,
-    interpret::{prepare_ballot_page_image, Error, Inference, TimingMarkAlgorithm},
+    interpret::{Error, Inference, TimingMarkAlgorithm},
     timing_marks::{contours, corners, Border, BorderAxis, DefaultForGeometry, TimingMarks},
 };
 use clap::Parser;
@@ -103,44 +103,32 @@ fn process_path<W: Write>(
     *load_image_duration += start.elapsed();
 
     let start = Instant::now();
-    let ballot_page = prepare_ballot_page_image("image", image, &PaperInfo::scanned())?;
+    let ballot_page = BallotPage::from_image(
+        image,
+        "image",
+        &PaperInfo::scanned(),
+        if options.debug {
+            Some(path.to_path_buf())
+        } else {
+            None
+        },
+    )?;
     *prepare_image_duration += start.elapsed();
 
-    let debug = if options.debug {
-        debug::ImageDebugWriter::new(path.to_path_buf(), ballot_page.ballot_image.image.clone())
-    } else {
-        debug::ImageDebugWriter::disabled()
-    };
-
     let start = Instant::now();
-    let find_result = match options.timing_mark_algorithm {
-        TimingMarkAlgorithm::Contours { inference } => contours::find_timing_mark_grid(
-            &ballot_page.geometry,
-            &ballot_page.ballot_image,
-            contours::FindTimingMarkGridOptions {
-                allowed_timing_mark_inset_percentage_of_width:
-                    contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
-                inference,
-                debug: &mut debug::ImageDebugWriter::disabled(),
-            },
-        ),
-        TimingMarkAlgorithm::Corners => corners::find_timing_mark_grid(
-            &ballot_page.ballot_image,
-            &ballot_page.geometry,
-            &debug,
-            &corners::Options::default_for_geometry(&ballot_page.geometry),
-        ),
-    };
+    let find_result = ballot_page.find_timing_marks(options.timing_mark_algorithm);
     *find_timing_marks_duration += start.elapsed();
 
     let timing_marks = find_result?;
-    debug.write("timing_marks", |canvas| {
-        debug::draw_timing_mark_debug_image_mut(
-            canvas,
-            &ballot_page.geometry,
-            &timing_marks.clone().into(),
-        );
-    });
+    if let Some(debug) = debug {
+        debug.write("timing_marks", |canvas| {
+            debug::draw_timing_mark_debug_image_mut(
+                canvas,
+                ballot_page.geometry(),
+                &timing_marks.clone().into(),
+            );
+        });
+    }
 
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {
         if let Some(detected_scale) = match (options.scale_axis, options.scale_border) {

@@ -4,8 +4,8 @@ use serde::Serialize;
 use types_rs::geometry::{PixelUnit, Point, Rect, Size};
 
 use crate::{
-    ballot_card::Orientation,
-    debug::{self, ImageDebugWriter},
+    ballot_card::{BallotImage, Orientation},
+    debug,
 };
 
 use super::{rqrr, zbar};
@@ -183,17 +183,23 @@ pub type Result = std::result::Result<Detected, Error>;
 ///
 /// If the data read from the QR code can be read as base64, then the decoded data will
 /// be returned instead of the original base64 data.
-pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
-    let rqrr_result = rqrr::detect(img);
-    let detect_result = rqrr_result.or_else(|_| zbar::detect(img));
+pub fn detect(ballot_image: &BallotImage) -> Result {
+    let rqrr_result = rqrr::detect(ballot_image.image());
+    let detect_result = rqrr_result.or_else(|_| zbar::detect(ballot_image.image()));
     let detection_areas = match detect_result {
         Ok(ref qr_code) => qr_code.detection_areas().to_vec(),
         Err(ref e) => e.detection_areas().to_vec(),
     };
 
-    debug.write("qr_code", |canvas| {
-        debug::draw_qr_code_debug_image_mut(canvas, detect_result.as_ref().ok(), &detection_areas);
-    });
+    if let Some(debug) = ballot_image.debug() {
+        debug.write("qr_code", |canvas| {
+            debug::draw_qr_code_debug_image_mut(
+                canvas,
+                detect_result.as_ref().ok(),
+                &detection_areas,
+            );
+        });
+    }
 
     detect_result.map(|qr_code| {
         // attempt to base64 decode the data
@@ -224,8 +230,10 @@ mod test {
     fn test_detect_qr_code() {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
         let scan_side_a_path = fixture_path.join("all-bubble-ballot/blank-front.jpg");
-        let scan_side_a = image::open(scan_side_a_path).unwrap().into_luma8();
-        let qr_code = detect(&scan_side_a, &ImageDebugWriter::disabled()).unwrap();
+        let scan_side_a =
+            BallotImage::from_image(image::open(scan_side_a_path).unwrap().into_luma8(), None)
+                .unwrap();
+        let qr_code = detect(&scan_side_a).unwrap();
         assert_eq!(
             qr_code.bytes().clone(),
             vec![
@@ -244,13 +252,13 @@ mod test {
         let scan_side_a_path = fixture_path.join("scan-skewed-side-a.jpeg");
         let scan_side_b_path = fixture_path.join("scan-skewed-side-b.jpeg");
         detect(
-            &image::open(scan_side_a_path).unwrap().into_luma8(),
-            &ImageDebugWriter::disabled(),
+            &BallotImage::from_image(image::open(scan_side_a_path).unwrap().into_luma8(), None)
+                .unwrap(),
         )
         .expect("side A QR code should be detected");
         detect(
-            &image::open(scan_side_b_path).unwrap().into_luma8(),
-            &ImageDebugWriter::disabled(),
+            &BallotImage::from_image(image::open(scan_side_b_path).unwrap().into_luma8(), None)
+                .unwrap(),
         )
         .expect("side B QR code should be detected");
     }

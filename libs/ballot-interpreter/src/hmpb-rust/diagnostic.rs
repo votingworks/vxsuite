@@ -1,14 +1,12 @@
 use std::path::PathBuf;
 
-use image::{GenericImageView, GrayImage};
+use image::GrayImage;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use types_rs::geometry::Rect;
 
 use crate::{
     ballot_card::{load_ballot_scan_bubble_image, BallotImage},
-    debug::{draw_diagnostic_cells, ImageDebugWriter},
-    image_utils::{count_pixels, BLACK},
-    interpret::crop_ballot_page_image_borders,
+    debug::draw_diagnostic_cells,
 };
 
 const FAIL_SCORE: f32 = 0.05;
@@ -56,30 +54,35 @@ fn generate_cells(
     cells
 }
 
-fn inspect_cells(
-    img: &GrayImage,
-    cells: &[Rect],
-    foreground_threshold: u8,
-) -> (Vec<Rect>, Vec<Rect>) {
-    let (failed_cells, passed_cells) = cells.par_iter().partition(|cell| {
-        let cropped = img
-            .view(
-                cell.left() as u32,
-                cell.top() as u32,
-                cell.width(),
-                cell.height(),
-            )
-            .to_image();
-        let cropped_and_thresholded =
-            imageproc::contrast::threshold(&cropped, foreground_threshold);
-        let match_score = count_pixels(&cropped_and_thresholded, BLACK).ratio();
+struct InspectedCells {
+    passed: Vec<Rect>,
+    failed: Vec<Rect>,
+}
+
+impl InspectedCells {
+    fn is_success(&self) -> bool {
+        self.failed.is_empty()
+    }
+}
+
+fn inspect_cells(image: &BallotImage, cells: &[Rect]) -> InspectedCells {
+    let (failed, passed) = cells.par_iter().partition(|cell| {
+        let foreground_pixel_count = cell
+            .points()
+            .filter(|point| {
+                image
+                    .get_pixel(point.x as u32, point.y as u32)
+                    .is_foreground()
+            })
+            .count();
+        let match_score = (foreground_pixel_count as f32) / ((cell.width() * cell.height()) as f32);
         match_score > FAIL_SCORE
     });
 
-    (passed_cells, failed_cells)
+    InspectedCells { passed, failed }
 }
 
-pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
+pub fn blank_paper(image: GrayImage, debug_path: Option<PathBuf>) -> bool {
     let bubble_img = load_ballot_scan_bubble_image().expect("loaded bubble image");
     let cell_width = bubble_img.width();
     let cell_height = bubble_img.height();
@@ -93,9 +96,8 @@ pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
             CROP_BORDER_PIXELS + cell_height / 2,
         ),
     ];
-    let Some(BallotImage {
-        image, threshold, ..
-    }) = crop_ballot_page_image_borders(img)
+    let Some(ballot_image) = BallotImage::from_image(image, debug_path)
+        .map(|image| image.with_maximum_threshold(MAX_WHITE_THRESHOLD))
     else {
         return false;
     };
@@ -106,25 +108,23 @@ pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
             generate_cells(
                 left_start,
                 top_start,
-                image.width() - CROP_BORDER_PIXELS,
-                image.height() - CROP_BORDER_PIXELS,
+                ballot_image.width() - CROP_BORDER_PIXELS,
+                ballot_image.height() - CROP_BORDER_PIXELS,
                 cell_width,
                 cell_height,
             )
         })
         .collect::<Vec<_>>();
 
-    let (passed_cells, failed_cells) =
-        inspect_cells(&image, &cells, threshold.min(MAX_WHITE_THRESHOLD));
+    let inspected = inspect_cells(&ballot_image, &cells);
 
-    let debug = debug_path.map_or_else(ImageDebugWriter::disabled, |base| {
-        ImageDebugWriter::new(base, image)
-    });
-    debug.write("diagnostic", |canvas| {
-        draw_diagnostic_cells(canvas, &passed_cells, &failed_cells);
-    });
+    if let Some(debug) = ballot_image.debug() {
+        debug.write("diagnostic", |canvas| {
+            draw_diagnostic_cells(canvas, &inspected.passed, &inspected.failed);
+        });
+    }
 
-    failed_cells.is_empty()
+    inspected.is_success()
 }
 
 #[cfg(test)]

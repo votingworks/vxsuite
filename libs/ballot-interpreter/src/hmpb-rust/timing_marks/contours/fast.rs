@@ -16,7 +16,7 @@ use super::{BestFit, BestFitSearchResult, CandidateTimingMark, TimingMarkScore};
 pub fn find_left_timing_marks<'a>(
     geometry: &Geometry,
     candidates: &'a [CandidateTimingMark],
-    debug: &ImageDebugWriter,
+    debug: Option<&ImageDebugWriter>,
 ) -> BestFitSearchResult<'a> {
     let find_result = find_timing_marks(
         candidates,
@@ -26,7 +26,9 @@ pub fn find_left_timing_marks<'a>(
         FindTimingMarkOptions::default(),
     );
 
-    debug::draw_find_timing_mark_border_result_mut("border_find_left", debug, &find_result);
+    if let Some(debug) = debug {
+        debug::draw_find_timing_mark_border_result_mut("border_find_left", debug, &find_result);
+    }
 
     find_result
 }
@@ -36,7 +38,7 @@ pub fn find_left_timing_marks<'a>(
 pub fn find_right_timing_marks<'a>(
     geometry: &Geometry,
     candidates: &'a [CandidateTimingMark],
-    debug: &ImageDebugWriter,
+    debug: Option<&ImageDebugWriter>,
 ) -> BestFitSearchResult<'a> {
     let find_result = find_timing_marks(
         candidates,
@@ -46,7 +48,9 @@ pub fn find_right_timing_marks<'a>(
         FindTimingMarkOptions::default(),
     );
 
-    debug::draw_find_timing_mark_border_result_mut("border_find_right", debug, &find_result);
+    if let Some(debug) = debug {
+        debug::draw_find_timing_mark_border_result_mut("border_find_right", debug, &find_result);
+    }
 
     find_result
 }
@@ -56,7 +60,7 @@ pub fn find_right_timing_marks<'a>(
 pub fn find_top_timing_marks<'a>(
     geometry: &Geometry,
     candidates: &'a [CandidateTimingMark],
-    debug: &ImageDebugWriter,
+    debug: Option<&ImageDebugWriter>,
 ) -> BestFitSearchResult<'a> {
     let find_result = find_timing_marks(
         candidates,
@@ -66,7 +70,9 @@ pub fn find_top_timing_marks<'a>(
         FindTimingMarkOptions::default(),
     );
 
-    debug::draw_find_timing_mark_border_result_mut("border_find_top", debug, &find_result);
+    if let Some(debug) = debug {
+        debug::draw_find_timing_mark_border_result_mut("border_find_top", debug, &find_result);
+    }
 
     find_result
 }
@@ -76,7 +82,7 @@ pub fn find_top_timing_marks<'a>(
 pub fn find_bottom_timing_marks<'a>(
     geometry: &Geometry,
     candidates: &'a [CandidateTimingMark],
-    debug: &ImageDebugWriter,
+    debug: Option<&ImageDebugWriter>,
 ) -> BestFitSearchResult<'a> {
     let find_result = find_timing_marks(
         candidates,
@@ -86,7 +92,9 @@ pub fn find_bottom_timing_marks<'a>(
         FindTimingMarkOptions::default(),
     );
 
-    debug::draw_find_timing_mark_border_result_mut("border_find_bottom", debug, &find_result);
+    if let Some(debug) = debug {
+        debug::draw_find_timing_mark_border_result_mut("border_find_bottom", debug, &find_result);
+    }
 
     find_result
 }

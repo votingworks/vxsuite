@@ -4,6 +4,7 @@ use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit};
 use types_rs::{election::UnitIntervalValue, geometry::Quadrilateral};
 
+use crate::ballot_card::{BallotImage, BallotPixel};
 use crate::{
     debug::{self, ImageDebugWriter},
     scoring::UnitIntervalScore,
@@ -260,9 +261,8 @@ pub fn find_scanned_document_inset(
  * on the scanner glass). Returns a list of the x-coordinate of each streak.
  */
 pub fn detect_vertical_streaks(
-    image: &GrayImage,
-    threshold: u8,
-    debug: &ImageDebugWriter,
+    image: &BallotImage,
+    debug: Option<&ImageDebugWriter>,
 ) -> Vec<PixelPosition> {
     const MIN_STREAK_SCORE: UnitIntervalScore = UnitIntervalScore(0.75);
     const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
@@ -283,8 +283,8 @@ pub fn detect_vertical_streaks(
         let binarized_column = (0..height)
             .map(|y| {
                 [image.get_pixel(x, y), image.get_pixel(x + 1, y)]
-                    .iter()
-                    .any(|pixel| pixel[0] <= threshold)
+                    .into_iter()
+                    .any(BallotPixel::is_foreground)
             })
             .collect::<Vec<_>>();
         (x as PixelPosition, binarized_column)
@@ -325,9 +325,16 @@ pub fn detect_vertical_streaks(
         })
         .collect::<Vec<_>>();
 
-    debug.write("vertical_streaks", |canvas| {
-        debug::draw_vertical_streaks_debug_image_mut(canvas, threshold, x_range, &streaks);
-    });
+    if let Some(debug) = debug {
+        debug.write("vertical_streaks", |canvas| {
+            debug::draw_vertical_streaks_debug_image_mut(
+                canvas,
+                image.threshold(),
+                x_range,
+                &streaks,
+            );
+        });
+    }
 
     streaks.into_iter().map(|(x, _, _)| x).collect()
 }

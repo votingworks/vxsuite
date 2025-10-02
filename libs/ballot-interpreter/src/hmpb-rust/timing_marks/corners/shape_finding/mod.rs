@@ -1,11 +1,11 @@
 use std::ops::RangeInclusive;
 
-use image::{GrayImage, RgbImage};
+use image::RgbImage;
 use itertools::Itertools;
 use types_rs::geometry::{PixelUnit, Point, Rect};
 
 use crate::{
-    ballot_card::{BallotImage, Geometry},
+    ballot_card::{BallotPage, Geometry},
     image_utils::{rainbow, Inset},
     impl_edgewise,
     timing_marks::{
@@ -31,16 +31,10 @@ impl BallotGridBorderShapes {
     /// Searches the given ballot image within the given inset area for timing
     /// mark shapes. Searches each of the four sides independently, so the
     /// resulting shape lists will likely contain duplicates.
-    pub fn from_ballot_image(
-        ballot_image: &BallotImage,
-        geometry: &Geometry,
-        options: &Options,
-    ) -> Self {
+    pub fn from_ballot_page(ballot_page: &BallotPage, options: &Options) -> Self {
         let search_inset = options.search_inset;
 
-        let image = &ballot_image.image;
-        let (width, height) = image.dimensions();
-        let threshold = ballot_image.threshold;
+        let (width, height) = ballot_page.ballot_image().dimensions();
 
         let search_areas = [
             Rect::new(0, 0, search_inset.left, height),
@@ -60,7 +54,7 @@ impl BallotGridBorderShapes {
         ];
 
         search_areas.par_map_edgewise(|search_area| {
-            find_timing_mark_shapes(image, threshold, geometry, search_area, options)
+            find_timing_mark_shapes(ballot_page, search_area, options)
         })
     }
 
@@ -86,15 +80,14 @@ impl BallotGridBorderShapes {
 ///
 /// See [`ShapeListBuilder::add_slice`] for details on how this works.
 fn find_timing_mark_shapes(
-    image: &GrayImage,
-    threshold: u8,
-    geometry: &Geometry,
+    ballot_page: &BallotPage,
     search_area: Rect,
     options: &Options,
 ) -> Vec<TimingMarkShape> {
-    let allowed_timing_mark_height_range = options.timing_mark_height_range(geometry);
+    let allowed_timing_mark_height_range = options.timing_mark_height_range(ballot_page.geometry());
+    let ballot_image = ballot_page.ballot_image();
     let mut shape_list_builder = ShapeListBuilder::new();
-    let image_bounds = Rect::new(0, 0, image.width(), image.height());
+    let image_bounds = Rect::new(0, 0, ballot_image.width(), ballot_image.height());
 
     // Restrict `search_area` to within the image bounds.
     let Some(search_area) = search_area.intersect(&image_bounds) else {
@@ -107,9 +100,9 @@ fn find_timing_mark_shapes(
     for x in x_range {
         for range in y_range
             .clone()
-            .group_by(|&y| image.get_pixel(x, y)[0] <= threshold)
+            .group_by(|&y| ballot_image.get_pixel(x, y).is_foreground())
             .into_iter()
-            .filter(|(is_black, _)| *is_black)
+            .filter(|(is_foreground, _)| *is_foreground)
             .filter_map(|(_, group)| {
                 let group = group.collect_vec();
 
@@ -136,7 +129,7 @@ fn find_timing_mark_shapes(
             let bounds = shape.bounds();
 
             // Filter out anything that is not vaguely timing mark size & shape.
-            if !rect_could_be_timing_mark(geometry, &bounds) {
+            if !rect_could_be_timing_mark(ballot_page.geometry(), &bounds) {
                 return None;
             }
 
@@ -246,12 +239,8 @@ impl TimingMarkShape {
 
     /// Converts this shape into a timing mark shape scored according to the
     /// given ballot image and geometry.
-    pub fn to_candidate_timing_mark(
-        &self,
-        ballot_image: &BallotImage,
-        geometry: &Geometry,
-    ) -> CandidateTimingMark {
-        CandidateTimingMark::scored(ballot_image, geometry, self.bounds())
+    pub fn to_candidate_timing_mark(&self, ballot_page: &BallotPage) -> CandidateTimingMark {
+        CandidateTimingMark::scored(ballot_page, self.bounds())
     }
 }
 

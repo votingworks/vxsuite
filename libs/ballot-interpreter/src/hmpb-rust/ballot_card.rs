@@ -1,31 +1,445 @@
-use std::{cmp::Ordering, io, ops::Range};
+use std::{cmp::Ordering, io, ops::Range, path::PathBuf};
 
-use image::GrayImage;
+use image::{GenericImageView, GrayImage};
 use imageproc::contrast::{otsu_level, threshold};
 use serde::Serialize;
 
-use crate::image_utils::{bleed, Inset, BLACK};
+use crate::{
+    debug::ImageDebugWriter,
+    image_utils::{bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, BLACK},
+    interpret::{
+        BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm, SIDE_A_LABEL, SIDE_B_LABEL,
+    },
+    qr_code::{self, Detected},
+    scoring::UnitIntervalScore,
+    timing_marks::{contours, corners, BorderAxis, DefaultForGeometry, TimingMarks},
+};
 
 use types_rs::{
     ballot_card::PaperSize,
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
 };
 
+#[must_use]
 pub struct BallotImage {
-    pub image: GrayImage,
-    pub threshold: u8,
-    pub border_inset: Inset,
+    image: GrayImage,
+    threshold: u8,
+    border_inset: Inset,
+    debug: Option<ImageDebugWriter>,
+}
+
+impl BallotImage {
+    /// This sets the ratio of pixels required to be white (above the threshold) in
+    /// a given edge row or column to consider it no longer eligible to be cropped.
+    /// This used to be 50%, but we found that too much of the top/bottom of the
+    /// actual ballot content was being cropped, especially in the case of a skewed
+    /// ballot. In such cases, one of the corners would sometimes be partially or
+    /// completely cropped, leading to the ballot being rejected. We chose the new
+    /// value by trial and error, in particular by seeing how much cropping occurred
+    /// on ballots with significant but still acceptable skew (i.e. 3 degrees).
+    const CROP_BORDERS_THRESHOLD_RATIO: f32 = 0.1;
+
+    /// Crops the black edges off all sides of the image and determines an
+    /// appropriate black & white threshold.
+    #[must_use]
+    pub fn from_image(image: GrayImage, debug_base: impl Into<Option<PathBuf>>) -> Option<Self> {
+        let threshold = otsu_level(&image);
+        let border_inset =
+            find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
+        let debug_base = debug_base.into();
+
+        if border_inset.is_zero() {
+            // Don't bother cropping if there's no inset.
+            let debug =
+                debug_base.map(|debug_base| ImageDebugWriter::new(debug_base, image.clone()));
+            return Some(Self {
+                image,
+                threshold,
+                border_inset,
+                debug,
+            });
+        }
+
+        let image = image
+            .view(
+                border_inset.left,
+                border_inset.top,
+                image.width() - border_inset.left - border_inset.right,
+                image.height() - border_inset.top - border_inset.bottom,
+            )
+            .to_image();
+
+        // Re-compute the threshold after cropping to ensure future
+        // re-interpretations based on the saved image are consistent with the
+        // initial one.
+        let threshold = otsu_level(&image);
+
+        let debug = debug_base.map(|debug_base| ImageDebugWriter::new(debug_base, image.clone()));
+        Some(Self {
+            image,
+            threshold,
+            border_inset,
+            debug,
+        })
+    }
+
+    pub fn with_maximum_threshold(self, maximum_threshold: u8) -> Self {
+        Self {
+            threshold: self.threshold.min(maximum_threshold),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn dimensions(&self) -> (PixelUnit, PixelUnit) {
+        self.image.dimensions()
+    }
+
+    #[must_use]
+    pub fn width(&self) -> PixelUnit {
+        self.image.width()
+    }
+
+    #[must_use]
+    pub fn height(&self) -> PixelUnit {
+        self.image.height()
+    }
+
+    #[must_use]
+    pub fn threshold(&self) -> u8 {
+        self.threshold
+    }
+
+    pub fn debug(&self) -> Option<&ImageDebugWriter> {
+        self.debug.as_ref()
+    }
+
+    pub fn get_pixel(&self, x: u32, y: u32) -> BallotPixel {
+        if self.image.get_pixel(x, y).0[0] < self.threshold {
+            BallotPixel::Foreground
+        } else {
+            BallotPixel::Background
+        }
+    }
+
+    pub fn image(&self) -> &GrayImage {
+        &self.image
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum BallotPixel {
+    /// A white pixel.
+    Background,
+
+    /// A black pixel.
+    Foreground,
+}
+
+impl BallotPixel {
+    pub fn is_foreground(self) -> bool {
+        matches!(self, Self::Foreground)
+    }
+
+    pub fn is_background(self) -> bool {
+        matches!(self, Self::Background)
+    }
 }
 
 pub struct BallotPage {
-    pub ballot_image: BallotImage,
-    pub geometry: Geometry,
+    ballot_image: BallotImage,
+    geometry: Geometry,
+}
+
+impl BallotPage {
+    /// Prepare a ballot page image for interpretation by cropping the black
+    /// border.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the image cannot be cropped or if the paper
+    /// information cannot be determined.
+    #[allow(clippy::result_large_err)]
+    pub fn from_image(
+        image: GrayImage,
+        label: impl Into<String>,
+        possible_paper_infos: &[PaperInfo],
+        debug_base: impl Into<Option<PathBuf>>,
+    ) -> Result<Self> {
+        let Some(ballot_image) = BallotImage::from_image(image, debug_base) else {
+            return Err(Error::BorderInsetNotFound {
+                label: label.into(),
+            });
+        };
+
+        let Some(paper_info) =
+            get_matching_paper_info_for_image_size(ballot_image.dimensions(), possible_paper_infos)
+        else {
+            let (width, height) = ballot_image.dimensions();
+            return Err(Error::UnexpectedDimensions {
+                label: label.into(),
+                dimensions: Size { width, height },
+            });
+        };
+
+        Ok(BallotPage {
+            ballot_image,
+            geometry: paper_info.compute_geometry(),
+        })
+    }
+
+    pub fn geometry(&self) -> &Geometry {
+        &self.geometry
+    }
+
+    pub fn border_inset(&self) -> Inset {
+        self.ballot_image.border_inset
+    }
+
+    pub fn ballot_image(&self) -> &BallotImage {
+        &self.ballot_image
+    }
+
+    pub fn debug(&self) -> Option<&ImageDebugWriter> {
+        self.ballot_image.debug()
+    }
+
+    pub fn find_timing_marks(
+        &self,
+        timing_mark_algorithm: TimingMarkAlgorithm,
+    ) -> Result<TimingMarks, Error> {
+        let geometry = self.geometry();
+        match timing_mark_algorithm {
+            TimingMarkAlgorithm::Contours { inference } => contours::find_timing_mark_grid(
+                self,
+                contours::FindTimingMarkGridOptions {
+                    allowed_timing_mark_inset_percentage_of_width:
+                        contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                    inference,
+                },
+            ),
+            TimingMarkAlgorithm::Corners => corners::find_timing_mark_grid(
+                self,
+                &corners::Options::default_for_geometry(geometry),
+            ),
+        }
+    }
+
+    pub fn width(&self) -> PixelUnit {
+        self.ballot_image.width()
+    }
+
+    pub fn height(&self) -> PixelUnit {
+        self.ballot_image.height()
+    }
 }
 
 pub struct BallotCard {
-    pub side_a: BallotImage,
-    pub side_b: BallotImage,
-    pub geometry: Geometry,
+    page_a: BallotPage,
+    page_b: BallotPage,
+}
+
+impl BallotCard {
+    pub fn geometry(&self) -> &Geometry {
+        &self.page_a.geometry
+    }
+
+    pub fn page_a(&self) -> &BallotPage {
+        &self.page_a
+    }
+
+    pub fn page_b(&self) -> &BallotPage {
+        &self.page_b
+    }
+
+    pub fn as_pair(&self) -> Pair<&BallotPage> {
+        (&self.page_a, &self.page_b).into()
+    }
+
+    pub fn as_labeled_pair(&self) -> Pair<(&'static str, &BallotPage)> {
+        ((SIDE_A_LABEL, &self.page_a), (SIDE_B_LABEL, &self.page_b)).into()
+    }
+
+    pub fn find_timing_marks(
+        &self,
+        timing_mark_algorithm: TimingMarkAlgorithm,
+    ) -> Result<Pair<TimingMarks>, Error> {
+        self.as_pair()
+            .par_map(|page| page.find_timing_marks(timing_mark_algorithm))
+            .into_result()
+    }
+
+    pub fn detect_qr_codes(&self) -> Pair<Result<Detected, Error>> {
+        self.as_labeled_pair().map(|(label, page)| {
+            qr_code::detect(page.ballot_image()).map_err(|err| Error::InvalidQrCodeMetadata {
+                label: label.to_owned(),
+                message: err.to_string(),
+            })
+        })
+    }
+
+    pub fn detect_vertical_streaks(&self) -> Result<(), Error> {
+        self.as_labeled_pair()
+            .par_map(|(label, page)| {
+                let streaks = detect_vertical_streaks(page.ballot_image(), page.debug());
+                if streaks.is_empty() {
+                    Ok(())
+                } else {
+                    Err(Error::VerticalStreaksDetected {
+                        label: (*label).to_string(),
+                        x_coordinates: streaks,
+                    })
+                }
+            })
+            .into_result()?;
+        Ok(())
+    }
+
+    pub fn enforce_minimum_scale<'a>(
+        &'_ self,
+        minimum_scale: UnitIntervalScore,
+        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+    ) -> Result<(), Error> {
+        self.as_labeled_pair()
+            .zip(timing_marks)
+            .map(|((label, _), timing_marks)| {
+                // We use the horizontal axis here because it is perpendicular to
+                // the scan direction and therefore stretching should be minimal.
+                //
+                // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
+                match timing_marks.compute_scale_based_on_axis(BorderAxis::Horizontal) {
+                    Some(scale) if scale < minimum_scale => {
+                        return Err(Error::InvalidScale {
+                            label: label.to_owned(),
+                            scale,
+                        });
+                    }
+                    _ => Ok(()),
+                }
+            })
+            .into_result()?;
+        Ok(())
+    }
+}
+
+pub struct Pair<T> {
+    first: T,
+    second: T,
+}
+
+impl<T> Pair<T> {
+    pub const fn new(first: T, second: T) -> Self {
+        Self { first, second }
+    }
+
+    pub const fn first(&self) -> &T {
+        &self.first
+    }
+
+    pub const fn second(&self) -> &T {
+        &self.second
+    }
+
+    pub fn map<U>(self, mapper: impl Fn(T) -> U) -> Pair<U> {
+        Pair::new(mapper(self.first), mapper(self.second))
+    }
+
+    pub fn zip<U>(self, other: impl Into<Pair<U>>) -> Pair<(T, U)> {
+        let other = other.into();
+        Pair::new((self.first, other.first), (self.second, other.second))
+    }
+}
+
+impl<T> Pair<T>
+where
+    T: Send + Sync,
+{
+    pub fn par_map<U, F>(self, mapper: F) -> Pair<U>
+    where
+        U: Send,
+        F: (Fn(T) -> U) + Send + Sync,
+    {
+        let (first, second) = self.into();
+        rayon::join(|| mapper(first), || mapper(second)).into()
+    }
+}
+
+impl<T> From<(T, T)> for Pair<T> {
+    fn from(value: (T, T)) -> Self {
+        Pair::new(value.0, value.1)
+    }
+}
+
+impl<T> From<Pair<T>> for (T, T) {
+    fn from(value: Pair<T>) -> Self {
+        (value.first, value.second)
+    }
+}
+
+impl<'a, T> From<&'a Pair<T>> for Pair<&'a T> {
+    fn from(value: &'a Pair<T>) -> Self {
+        (&value.first, &value.second).into()
+    }
+}
+
+impl<T, E> Pair<Result<T, E>> {
+    pub fn into_result(self: Pair<Result<T, E>>) -> Result<Pair<T>, E> {
+        let (first, second) = self.into();
+        Ok(Pair::new(first?, second?))
+    }
+}
+
+pub struct RawBallotCard {
+    image_a: GrayImage,
+    image_b: GrayImage,
+}
+
+impl RawBallotCard {
+    pub fn new(side_a: GrayImage, side_b: GrayImage) -> Self {
+        Self {
+            image_a: side_a,
+            image_b: side_b,
+        }
+    }
+
+    /// Prepare images from both sides of a ballot card.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the images could not be loaded or if the ballot card
+    /// could not be prepared.
+    #[allow(clippy::result_large_err)]
+    pub fn into_ballot_card(
+        self,
+        possible_paper_infos: &[PaperInfo],
+        debug_bases: impl Into<Pair<Option<PathBuf>>>,
+    ) -> Result<BallotCard> {
+        let (page_a, page_b) = Pair::new(self.image_a, self.image_b)
+            .zip((SIDE_A_LABEL, SIDE_B_LABEL))
+            .zip(debug_bases)
+            .par_map(|((image, label), debug_base)| {
+                BallotPage::from_image(image, label, possible_paper_infos, debug_base)
+            })
+            .into_result()?
+            .into();
+
+        if page_a.geometry != page_b.geometry {
+            return Err(Error::MismatchedBallotCardGeometries {
+                side_a: BallotPageAndGeometry {
+                    label: SIDE_A_LABEL.to_string(),
+                    border_inset: page_a.border_inset(),
+                    geometry: page_a.geometry,
+                },
+                side_b: BallotPageAndGeometry {
+                    label: SIDE_B_LABEL.to_string(),
+                    border_inset: page_b.border_inset(),
+                    geometry: page_b.geometry,
+                },
+            });
+        }
+
+        Ok(BallotCard { page_a, page_b })
+    }
 }
 
 /// Ballot card orientation.

@@ -1,10 +1,7 @@
 use serde::Serialize;
-use types_rs::geometry::{PixelUnit, Point, Rect};
+use types_rs::geometry::{PixelUnit, Rect};
 
-use crate::{
-    ballot_card::{BallotImage, Geometry},
-    scoring::UnitIntervalScore,
-};
+use crate::{ballot_card::BallotPage, scoring::UnitIntervalScore};
 
 /// Scores the given timing mark against its expected geometry. The score is
 /// based on the number of pixels in the timing mark that are the expected
@@ -36,13 +33,12 @@ use crate::{
 ///
 /// ```
 fn score_timing_mark_geometry_match(
-    ballot_image: &BallotImage,
+    ballot_page: &BallotPage,
     timing_mark: &Rect,
-    geometry: &Geometry,
 ) -> TimingMarkScore {
-    let image = &ballot_image.image;
-    let threshold = ballot_image.threshold;
-    let image_rect = Rect::new(0, 0, image.width(), image.height());
+    let geometry = ballot_page.geometry();
+    let ballot_image = ballot_page.ballot_image();
+    let image_rect = Rect::new(0, 0, ballot_page.width(), ballot_page.height());
     let expected_width = geometry.timing_mark_width_pixels() as PixelUnit;
     let expected_height = geometry.timing_mark_height_pixels() as PixelUnit;
     let expected_timing_mark_rect = Rect::new(
@@ -60,20 +56,16 @@ fn score_timing_mark_geometry_match(
     let mut mark_pixel_match_count = 0;
     let mut padding_pixel_match_count = 0;
 
-    for y in search_rect.top()..search_rect.bottom() {
-        for x in search_rect.left()..search_rect.right() {
-            let point = Point::new(x, y);
-            if image_rect.contains(point) {
-                let luma = image.get_pixel(x as u32, y as u32);
-                let expects_mark_pixel = expected_timing_mark_rect.contains(point);
-                let is_black_pixel = luma.0[0] <= threshold;
+    for point in search_rect.points() {
+        if image_rect.contains(point) {
+            let pixel = ballot_image.get_pixel(point.x as u32, point.y as u32);
+            let expects_mark_pixel = expected_timing_mark_rect.contains(point);
 
-                if expects_mark_pixel == is_black_pixel {
-                    if expects_mark_pixel {
-                        mark_pixel_match_count += 1;
-                    } else {
-                        padding_pixel_match_count += 1;
-                    }
+            if expects_mark_pixel == pixel.is_foreground() {
+                if expects_mark_pixel {
+                    mark_pixel_match_count += 1;
+                } else {
+                    padding_pixel_match_count += 1;
                 }
             }
         }
@@ -130,9 +122,9 @@ impl CandidateTimingMark {
         Self { rect, scores }
     }
 
-    pub fn scored(ballot_image: &BallotImage, geometry: &Geometry, rect: Rect) -> Self {
+    pub fn scored(ballot_page: &BallotPage, rect: Rect) -> Self {
         Self {
-            scores: score_timing_mark_geometry_match(ballot_image, &rect, geometry),
+            scores: score_timing_mark_geometry_match(ballot_page, &rect),
             rect,
         }
     }

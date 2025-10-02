@@ -392,6 +392,12 @@ impl Rect {
             || left_line.intersects(line)
             || right_line.intersects(line)
     }
+
+    /// Iterates through all contained points from top left to bottom right.
+    pub fn points(&self) -> impl Iterator<Item = Point<PixelPosition>> + '_ {
+        (self.top()..=self.bottom())
+            .flat_map(move |y| (self.left()..=self.right()).map(move |x| Point::new(x, y)))
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
