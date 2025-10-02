@@ -1,23 +1,34 @@
 use std::{cmp::Ordering, io, ops::Range, path::PathBuf};
 
-use image::{GenericImageView, GrayImage};
-use imageproc::contrast::{otsu_level, threshold};
+use image::{imageops::rotate180_in_place, GenericImageView, GrayImage};
+use imageproc::contrast::{otsu_level, threshold, threshold_mut};
+use itertools::Itertools;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 
 use crate::{
-    debug::ImageDebugWriter,
+    debug::{self, ImageDebugWriter},
     image_utils::{bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, BLACK},
     interpret::{
         BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm, SIDE_A_LABEL, SIDE_B_LABEL,
     },
+    layout::{build_option_layout, InterpretedContestLayout},
     qr_code::{self, Detected},
-    scoring::UnitIntervalScore,
-    timing_marks::{contours, corners, BorderAxis, DefaultForGeometry, TimingMarks},
+    scoring::{
+        score_bubble_mark, score_write_in_area, ScoredBubbleMarks, ScoredPositionAreas,
+        UnitIntervalScore, DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+    },
+    timing_marks::{
+        contours, corners, BallotPageMetadata, BorderAxis, DefaultForGeometry, TimingMarks,
+    },
 };
 
 use types_rs::{
-    ballot_card::PaperSize,
-    geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
+    ballot_card::{BallotSide, PaperSize},
+    coding,
+    election::{BallotStyleId, Election, GridLayout, GridPosition},
+    geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubGridUnit, SubPixelUnit},
+    hmpb,
 };
 
 #[must_use]
@@ -124,6 +135,13 @@ impl BallotImage {
 
     pub fn image(&self) -> &GrayImage {
         &self.image
+    }
+
+    fn rotate180(&mut self) {
+        rotate180_in_place(&mut self.image);
+        if let Some(debug) = &mut self.debug {
+            debug.rotate180();
+        }
     }
 }
 
@@ -232,6 +250,10 @@ impl BallotPage {
     pub fn height(&self) -> PixelUnit {
         self.ballot_image.height()
     }
+
+    pub fn rotate180(&mut self) {
+        self.ballot_image.rotate180()
+    }
 }
 
 pub struct BallotCard {
@@ -256,6 +278,14 @@ impl BallotCard {
         (&self.page_a, &self.page_b).into()
     }
 
+    pub fn as_pair_mut(&mut self) -> Pair<&mut BallotPage> {
+        (&mut self.page_a, &mut self.page_b).into()
+    }
+
+    pub fn into_pair(self) -> Pair<BallotPage> {
+        (self.page_a, self.page_b).into()
+    }
+
     pub fn as_labeled_pair(&self) -> Pair<(&'static str, &BallotPage)> {
         ((SIDE_A_LABEL, &self.page_a), (SIDE_B_LABEL, &self.page_b)).into()
     }
@@ -269,7 +299,7 @@ impl BallotCard {
             .into_result()
     }
 
-    pub fn detect_qr_codes(&self) -> Pair<Result<Detected, Error>> {
+    pub fn detect_qr_codes(&self) -> Pair<Result<Detected>> {
         self.as_labeled_pair().map(|(label, page)| {
             qr_code::detect(page.ballot_image()).map_err(|err| Error::InvalidQrCodeMetadata {
                 label: label.to_owned(),
@@ -278,7 +308,55 @@ impl BallotCard {
         })
     }
 
-    pub fn detect_vertical_streaks(&self) -> Result<(), Error> {
+    pub fn decode_qr_codes(
+        &self,
+        election: &Election,
+    ) -> Result<Pair<(hmpb::Metadata, Orientation)>> {
+        Ok(self
+            .detect_qr_codes()
+            .zip((SIDE_A_LABEL, SIDE_B_LABEL))
+            .map(|(result, label)| {
+                let qr_code = result?;
+                Ok((
+                    coding::decode_with::<hmpb::Metadata>(&qr_code.bytes(), election).map_err(
+                        |e| Error::InvalidQrCodeMetadata {
+                            label: label.to_owned(),
+                            message: format!(
+                                "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
+                                bytes = qr_code.bytes()
+                            ),
+                        },
+                    )?,
+                    qr_code.orientation(),
+                ))
+            })
+            .join(|result_a, result_b| {
+                // If one side has a detected QR code and the other doesn't, we can
+                // infer the missing metadata from the detected metadata.
+                match (result_a, result_b) {
+                    // Both QR codes were read.
+                    (Ok(a), Ok(b)) => Ok((a, b)),
+
+                    // Only side B was read.
+                    (Err(Error::InvalidQrCodeMetadata { .. }), Ok((metadata_b, orientation_b))) => {
+                        let metadata_a = hmpb::infer_missing_page_metadata(&metadata_b);
+                        Ok(((metadata_a, orientation_b), (metadata_b, orientation_b)))
+                    }
+
+                    // Only side A was read.
+                    (Ok((metadata_a, orientation_a)), Err(Error::InvalidQrCodeMetadata { .. })) => {
+                        let metadata_b = hmpb::infer_missing_page_metadata(&metadata_a);
+                        Ok(((metadata_a, orientation_a), (metadata_b, orientation_a)))
+                    }
+
+                    // Neither side could be read.
+                    (Err(e), _) | (_, Err(e)) => Err(e),
+                }
+            })?
+            .into())
+    }
+
+    pub fn detect_vertical_streaks(&self) -> Result<()> {
         self.as_labeled_pair()
             .par_map(|(label, page)| {
                 let streaks = detect_vertical_streaks(page.ballot_image(), page.debug());
@@ -322,6 +400,333 @@ impl BallotCard {
     }
 }
 
+pub struct ProcessedBubbleBallotCard {
+    election: Election,
+    front_page: BallotPage,
+    back_page: BallotPage,
+    front_timing_marks: TimingMarks,
+    back_timing_marks: TimingMarks,
+    front_metadata: hmpb::Metadata,
+    back_metadata: hmpb::Metadata,
+    grid_layout: GridLayout,
+}
+
+impl ProcessedBubbleBallotCard {
+    pub fn new(
+        election: Election,
+        pages: impl Into<(BallotPage, BallotPage)>,
+        timing_marks: impl Into<(TimingMarks, TimingMarks)>,
+        metadatas: impl Into<(hmpb::Metadata, hmpb::Metadata)>,
+    ) -> Result<Self> {
+        let (page_a, page_b) = pages.into();
+        let (timing_marks_a, timing_marks_b) = timing_marks.into();
+        let (metadata_a, metadata_b) = metadatas.into();
+
+        if metadata_a.precinct_id != metadata_b.precinct_id {
+            return Err(Error::MismatchedPrecincts {
+                side_a: metadata_a.precinct_id,
+                side_b: metadata_b.precinct_id,
+            });
+        }
+        if metadata_a.ballot_style_id != metadata_b.ballot_style_id {
+            return Err(Error::MismatchedBallotStyles {
+                side_a: metadata_a.ballot_style_id,
+                side_b: metadata_b.ballot_style_id,
+            });
+        }
+        if metadata_a.page_number.opposite() != metadata_b.page_number {
+            return Err(Error::NonConsecutivePageNumbers {
+                side_a: metadata_a.page_number.get(),
+                side_b: metadata_b.page_number.get(),
+            });
+        }
+
+        let (
+            front_page,
+            back_page,
+            front_timing_marks,
+            back_timing_marks,
+            front_metadata,
+            back_metadata,
+        ) = if metadata_a.page_number.is_front() {
+            // A = front, B = back
+            (
+                page_a,
+                page_b,
+                timing_marks_a,
+                timing_marks_b,
+                metadata_a,
+                metadata_b,
+            )
+        } else {
+            // A = back, B = front
+            (
+                page_b,
+                page_a,
+                timing_marks_b,
+                timing_marks_a,
+                metadata_b,
+                metadata_a,
+            )
+        };
+
+        let grid_layout = match election.grid_layouts {
+            Some(ref layouts) => match layouts
+                .iter()
+                .find(|layout| layout.ballot_style_id == front_metadata.ballot_style_id)
+            {
+                Some(grid_layout) => grid_layout.clone(),
+
+                None => {
+                    return Err(Error::MissingGridLayout {
+                        front: BallotPageMetadata::QrCode(front_metadata),
+                        back: BallotPageMetadata::QrCode(back_metadata),
+                    })
+                }
+            },
+
+            None => {
+                return Err(Error::InvalidElection {
+                    message: "required field `gridLayouts` is missing".to_owned(),
+                })
+            }
+        };
+
+        Ok(Self {
+            election,
+            front_page,
+            back_page,
+            front_timing_marks,
+            back_timing_marks,
+            front_metadata,
+            back_metadata,
+            grid_layout: grid_layout.clone(),
+        })
+    }
+
+    #[must_use]
+    pub fn front_page(&self) -> &BallotPage {
+        &self.front_page
+    }
+
+    #[must_use]
+    pub fn back_page(&self) -> &BallotPage {
+        &self.back_page
+    }
+
+    #[must_use]
+    pub fn front_metadata(&self) -> &hmpb::Metadata {
+        &self.front_metadata
+    }
+
+    #[must_use]
+    pub fn back_metadata(&self) -> &hmpb::Metadata {
+        &self.back_metadata
+    }
+
+    #[must_use]
+    pub fn ballot_style_id(&self) -> &BallotStyleId {
+        &self.front_metadata.ballot_style_id
+    }
+
+    #[must_use]
+    pub fn grid_layout(&self) -> &GridLayout {
+        &self.grid_layout
+    }
+
+    #[must_use]
+    pub fn sheet_number(&self) -> u32 {
+        u32::from(self.front_metadata.page_number.sheet_number().get())
+    }
+
+    #[must_use]
+    pub fn score_bubbles(&self, bubble_template: &GrayImage) -> Result<Pair<ScoredBubbleMarks>> {
+        let grid_layout = self.grid_layout();
+        let sheet_number = self.sheet_number();
+
+        Pair::new(
+            (
+                &self.front_page,
+                &self.front_timing_marks,
+                BallotSide::Front,
+            ),
+            (&self.back_page, &self.back_timing_marks, BallotSide::Back),
+        )
+        .map(|(page, timing_marks, side)| {
+            let scored_bubbles = grid_layout
+                .grid_positions
+                .par_iter()
+                .flat_map(|grid_position| {
+                    let location = grid_position.location();
+
+                    if !(grid_position.sheet_number() == sheet_number && location.side == side) {
+                        return vec![];
+                    }
+
+                    timing_marks
+                        .point_for_location(
+                            location.column as SubGridUnit,
+                            location.row as SubGridUnit,
+                        )
+                        .map_or_else(
+                            || vec![(grid_position.clone(), None)],
+                            |expected_bubble_center| {
+                                vec![(
+                                    grid_position.clone(),
+                                    score_bubble_mark(
+                                        page.ballot_image(),
+                                        bubble_template,
+                                        expected_bubble_center,
+                                        &location,
+                                        DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+                                    ),
+                                )]
+                            },
+                        )
+                })
+                .collect::<ScoredBubbleMarks>();
+
+            if let Some(debug) = page.debug() {
+                debug.write("scored_bubble_marks", |canvas| {
+                    debug::draw_scored_bubble_marks_debug_image_mut(canvas, &scored_bubbles);
+                });
+            }
+
+            Ok(scored_bubbles)
+        })
+        .into_result()
+    }
+
+    pub fn layout_contests(&self) -> Result<Pair<Vec<InterpretedContestLayout>>> {
+        let grid_layout = self.grid_layout();
+        let sheet_number = self.sheet_number();
+
+        Pair::new(
+            (
+                &self.front_page,
+                &self.front_timing_marks,
+                BallotSide::Front,
+            ),
+            (&self.back_page, &self.back_timing_marks, BallotSide::Back),
+        )
+        .map(|(page, timing_marks, side)| {
+            let contest_ids_in_grid_layout_order = grid_layout
+                .grid_positions
+                .iter()
+                .filter(|grid_position| {
+                    grid_position.sheet_number() == sheet_number
+                        && grid_position.location().side == side
+                })
+                .map(GridPosition::contest_id)
+                .unique()
+                .collect::<Vec<_>>();
+
+            let layouts = contest_ids_in_grid_layout_order
+                .iter()
+                .map(|contest_id| {
+                    let grid_positions = grid_layout
+                        .grid_positions
+                        .iter()
+                        .filter(|grid_position| grid_position.contest_id() == *contest_id)
+                        .collect::<Vec<_>>();
+
+                    let options = grid_positions
+                        .iter()
+                        .map(|grid_position| {
+                            build_option_layout(timing_marks, grid_layout, grid_position)
+                                .ok_or_else(|| Error::CouldNotComputeLayout { side })
+                        })
+                        .collect::<Result<Vec<_>>>()?;
+
+                    // Use the union of the option bounds as an approximation of the contest bounds
+                    let bounds = options
+                        .iter()
+                        .map(|option| option.bounds)
+                        .reduce(|a, b| a.union(&b))
+                        .expect("Contest must have options");
+
+                    Ok(InterpretedContestLayout {
+                        contest_id: contest_id.clone(),
+                        bounds,
+                        options,
+                    })
+                })
+                .collect::<Result<Vec<_>>>()?;
+
+            if let Some(debug) = page.debug() {
+                debug.write("contest_layouts", |canvas| {
+                    debug::draw_contest_layouts_debug_image_mut(canvas, &layouts);
+                });
+            }
+
+            Ok(layouts)
+        })
+        .into_result()
+    }
+
+    /// Computes scores for all the write-in areas in a scanned ballot image. This could
+    /// be used to determine which write-in areas are most likely to contain a write-in
+    /// vote even if the bubble is not filled in.
+    pub fn score_write_in_areas(&self) -> Pair<ScoredPositionAreas> {
+        let grid_layout = self.grid_layout();
+        let sheet_number = self.sheet_number();
+
+        Pair::new(
+            (
+                &self.front_page,
+                &self.front_timing_marks,
+                BallotSide::Front,
+            ),
+            (&self.back_page, &self.back_timing_marks, BallotSide::Back),
+        )
+        .map(|(page, timing_marks, side)| {
+            let scored_write_in_areas = grid_layout
+                .write_in_positions()
+                .filter(|grid_position| {
+                    let location = grid_position.location();
+                    grid_position.sheet_number() == sheet_number && location.side == side
+                })
+                .filter_map(|grid_position| {
+                    score_write_in_area(page.ballot_image(), timing_marks, grid_position)
+                })
+                .collect();
+
+            if let Some(debug) = page.debug() {
+                debug.write("scored_write_in_areas", |canvas| {
+                    debug::draw_scored_write_in_areas(canvas, &scored_write_in_areas);
+                });
+            }
+
+            scored_write_in_areas
+        })
+    }
+
+    pub fn into_parts(self) -> Pair<ProcessedBubbleBallotPageParts> {
+        Pair::new(
+            (
+                self.front_page,
+                self.front_timing_marks,
+                self.front_metadata,
+            ),
+            (self.back_page, self.back_timing_marks, self.back_metadata),
+        )
+        .map(|(mut page, timing_marks, metadata)| {
+            threshold_mut(&mut page.ballot_image.image, page.ballot_image.threshold);
+            ProcessedBubbleBallotPageParts {
+                image: page.ballot_image.image,
+                timing_marks,
+                metadata,
+            }
+        })
+    }
+}
+
+pub struct ProcessedBubbleBallotPageParts {
+    pub image: GrayImage,
+    pub timing_marks: TimingMarks,
+    pub metadata: hmpb::Metadata,
+}
+
 pub struct Pair<T> {
     first: T,
     second: T,
@@ -347,6 +752,10 @@ impl<T> Pair<T> {
     pub fn zip<U>(self, other: impl Into<Pair<U>>) -> Pair<(T, U)> {
         let other = other.into();
         Pair::new((self.first, other.first), (self.second, other.second))
+    }
+
+    pub fn join<U>(self, joiner: impl Fn(T, T) -> U) -> U {
+        joiner(self.first, self.second)
     }
 }
 
@@ -382,10 +791,25 @@ impl<'a, T> From<&'a Pair<T>> for Pair<&'a T> {
     }
 }
 
+impl<'a, T> From<&'a mut Pair<T>> for Pair<&'a mut T> {
+    fn from(value: &'a mut Pair<T>) -> Self {
+        (&mut value.first, &mut value.second).into()
+    }
+}
+
 impl<T, E> Pair<Result<T, E>> {
     pub fn into_result(self: Pair<Result<T, E>>) -> Result<Pair<T>, E> {
         let (first, second) = self.into();
         Ok(Pair::new(first?, second?))
+    }
+}
+
+impl<T> Default for Pair<T>
+where
+    T: Default,
+{
+    fn default() -> Self {
+        (T::default(), T::default()).into()
     }
 }
 

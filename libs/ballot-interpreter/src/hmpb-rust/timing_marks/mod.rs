@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use image::{imageops::rotate180, GrayImage};
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::{
@@ -10,12 +9,9 @@ use types_rs::{
     hmpb,
 };
 
+use crate::ballot_card::Geometry;
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::scoring::CandidateTimingMark;
-use crate::{
-    ballot_card::{Geometry, Orientation},
-    debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
-};
 
 pub mod contours;
 pub mod corners;
@@ -40,52 +36,40 @@ pub struct TimingMarks {
 }
 
 impl TimingMarks {
-    fn rotate(self, image_size: Size<u32>) -> Self {
-        let Self {
-            geometry,
-            top_left_corner,
-            top_right_corner,
-            bottom_left_corner,
-            bottom_right_corner,
-            top_left_mark,
-            top_right_mark,
-            bottom_left_mark,
-            bottom_right_mark,
-            top_marks,
-            bottom_marks,
-            left_marks,
-            right_marks,
-        } = self;
-
+    pub fn rotate180(&mut self, image_size: Size<u32>) {
         let rotator = Rotator180::new(image_size);
 
         let (top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner) = (
-            rotator.rotate_point_around_subpixel_position(bottom_right_corner),
-            rotator.rotate_point_around_subpixel_position(bottom_left_corner),
-            rotator.rotate_point_around_subpixel_position(top_right_corner),
-            rotator.rotate_point_around_subpixel_position(top_left_corner),
+            rotator.rotate_point_around_subpixel_position(self.bottom_right_corner),
+            rotator.rotate_point_around_subpixel_position(self.bottom_left_corner),
+            rotator.rotate_point_around_subpixel_position(self.top_right_corner),
+            rotator.rotate_point_around_subpixel_position(self.top_left_corner),
         );
 
         let (top_left_mark, top_right_mark, bottom_left_mark, bottom_right_mark) = (
-            rotator.rotate_candidate_timing_mark(&bottom_right_mark),
-            rotator.rotate_candidate_timing_mark(&bottom_left_mark),
-            rotator.rotate_candidate_timing_mark(&top_right_mark),
-            rotator.rotate_candidate_timing_mark(&top_left_mark),
+            rotator.rotate_candidate_timing_mark(&self.bottom_right_mark),
+            rotator.rotate_candidate_timing_mark(&self.bottom_left_mark),
+            rotator.rotate_candidate_timing_mark(&self.top_right_mark),
+            rotator.rotate_candidate_timing_mark(&self.top_left_mark),
         );
 
-        let mut rotated_top_marks: Vec<CandidateTimingMark> = top_marks
+        let mut rotated_top_marks: Vec<CandidateTimingMark> = self
+            .top_marks
             .iter()
             .map(|m| rotator.rotate_candidate_timing_mark(m))
             .collect();
-        let mut rotated_bottom_marks: Vec<CandidateTimingMark> = bottom_marks
+        let mut rotated_bottom_marks: Vec<CandidateTimingMark> = self
+            .bottom_marks
             .iter()
             .map(|m| rotator.rotate_candidate_timing_mark(m))
             .collect();
-        let mut rotated_left_marks: Vec<CandidateTimingMark> = left_marks
+        let mut rotated_left_marks: Vec<CandidateTimingMark> = self
+            .left_marks
             .iter()
             .map(|m| rotator.rotate_candidate_timing_mark(m))
             .collect();
-        let mut rotated_right_marks: Vec<CandidateTimingMark> = right_marks
+        let mut rotated_right_marks: Vec<CandidateTimingMark> = self
+            .right_marks
             .iter()
             .map(|m| rotator.rotate_candidate_timing_mark(m))
             .collect();
@@ -95,21 +79,18 @@ impl TimingMarks {
         rotated_left_marks.sort_by_key(|m| m.rect().top());
         rotated_right_marks.sort_by_key(|m| m.rect().top());
 
-        Self {
-            geometry,
-            top_left_corner,
-            top_right_corner,
-            bottom_left_corner,
-            bottom_right_corner,
-            top_left_mark,
-            top_right_mark,
-            bottom_left_mark,
-            bottom_right_mark,
-            top_marks: rotated_bottom_marks,
-            bottom_marks: rotated_top_marks,
-            left_marks: rotated_right_marks,
-            right_marks: rotated_left_marks,
-        }
+        self.top_left_corner = top_left_corner;
+        self.top_right_corner = top_right_corner;
+        self.bottom_left_corner = bottom_left_corner;
+        self.bottom_right_corner = bottom_right_corner;
+        self.top_left_mark = top_left_mark;
+        self.top_right_mark = top_right_mark;
+        self.bottom_left_mark = bottom_left_mark;
+        self.bottom_right_mark = bottom_right_mark;
+        self.top_marks = rotated_bottom_marks;
+        self.bottom_marks = rotated_top_marks;
+        self.left_marks = rotated_right_marks;
+        self.right_marks = rotated_left_marks;
     }
 
     /// Returns the center of the grid position at the given coordinates. Timing
@@ -428,35 +409,6 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
         && rect.width() <= max_timing_mark_width
         && rect.height() >= min_timing_mark_height
         && rect.height() <= max_timing_mark_height
-}
-
-pub fn normalize_orientation(
-    geometry: &Geometry,
-    timing_marks: TimingMarks,
-    image: &GrayImage,
-    orientation: Orientation,
-    debug: &mut ImageDebugWriter,
-) -> (TimingMarks, GrayImage) {
-    // Handle rotating the image and our timing marks if necessary.
-    let (timing_marks, normalized_image) = if orientation == Orientation::Portrait {
-        (timing_marks, image.clone())
-    } else {
-        let (width, height) = image.dimensions();
-        debug.rotate180();
-        (
-            timing_marks.rotate(Size { width, height }),
-            rotate180(image),
-        )
-    };
-
-    debug.write(
-        "complete_timing_marks_after_orientation_correction",
-        |canvas| {
-            draw_timing_mark_debug_image_mut(canvas, geometry, &timing_marks.clone().into());
-        },
-    );
-
-    (timing_marks, normalized_image)
 }
 
 pub trait DefaultForGeometry {

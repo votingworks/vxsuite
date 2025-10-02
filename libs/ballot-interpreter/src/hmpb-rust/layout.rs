@@ -25,7 +25,7 @@ pub struct InterpretedContestLayout {
     pub options: Vec<InterpretedContestOptionLayout>,
 }
 
-fn build_option_layout(
+pub fn build_option_layout(
     timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
     grid_position: &GridPosition,
