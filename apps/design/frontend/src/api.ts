@@ -119,8 +119,11 @@ export const getQuickReportedResults = {
   queryKey(
     id: ElectionId,
     isLive: boolean,
-    precinctSelection: PrecinctSelection
+    precinctSelection?: PrecinctSelection
   ): QueryKey {
+    if (!precinctSelection) {
+      return ['getQuickReportedResults', id, isLive];
+    }
     return [
       'getQuickReportedResults',
       id,
