@@ -146,6 +146,20 @@ export const getQuickReportedResults = {
   },
 } as const;
 
+export const deleteQuickReportingResults = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteQuickReportingResults, {
+      async onSuccess(_, { electionId, isLive }) {
+        await queryClient.invalidateQueries(
+          getQuickReportedResults.queryKey(electionId, isLive)
+        );
+      },
+    });
+  },
+} as const;
+
 export const listDistricts = {
   queryKey(id: ElectionId): QueryKey {
     return ['listDistricts', id];

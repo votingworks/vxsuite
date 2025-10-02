@@ -784,6 +784,17 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       });
     },
 
+    async deleteQuickReportingResults(input: {
+      electionId: ElectionId;
+      isLive: boolean;
+    }): Promise<void> {
+      const electionRecord = await store.getElection(input.electionId);
+      await store.deleteQuickReportingResultsForElection(
+        electionRecord.election.id,
+        input.isLive
+      );
+    },
+
     async getElectionFeatures(input: {
       electionId: ElectionId;
     }): Promise<ElectionFeaturesConfig> {

@@ -2171,4 +2171,20 @@ export class Store {
       })
     );
   }
+
+  async deleteQuickReportingResultsForElection(
+    electionId: ElectionId,
+    isLive: boolean
+  ): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          delete from results_reports
+          where election_id = $1 and is_live_mode = $2
+        `,
+        electionId,
+        isLive
+      )
+    );
+  }
 }
