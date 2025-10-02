@@ -29,6 +29,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
+import { Button, Modal, P } from '@votingworks/ui';
 import { UsbDriveIcon } from './usb_drive_icon';
 import { Colors } from './colors';
 import { FujitsuPrinterMockControl } from './fujitsu_printer_mock';
@@ -397,6 +398,17 @@ const ScreenshotButton = styled.button`
   }
 `;
 
+interface ScreenshotToSaveProps {
+  screenshot: Uint8Array<ArrayBufferLike>;
+  fileName: string;
+}
+
+const ScreenshotModal = styled(Modal)`
+  background-color: ${Colors.BACKGROUND};
+  border-color: ${Colors.BORDER} !important;
+  color: ${Colors} !important;
+`;
+
 function ScreenshotControls({
   containerRef,
 }: {
@@ -406,6 +418,9 @@ function ScreenshotControls({
   const saveScreenshotForAppMutation = useMutation(
     apiClient.saveScreenshotForApp
   );
+
+  const [screenshotToSave, setScreenshotToSave] =
+    useState<ScreenshotToSaveProps>();
 
   async function captureScreenshot() {
     // Use a ref to the dock container to momentarily hide it during the
@@ -420,28 +435,92 @@ function ScreenshotControls({
 
     // "VotingWorks VxAdmin" -> "VxAdmin"
     const appName = document.title.replace('VotingWorks', '').trim();
-    const fileName = await saveScreenshotForAppMutation.mutateAsync({
-      appName,
-      screenshot,
-    });
+    assert(/^[a-z0-9]+$/i.test(appName));
+    const defaultFileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
 
+    setScreenshotToSave({ screenshot, fileName: defaultFileName });
     // eslint-disable-next-line no-param-reassign
     containerRef.current.style.visibility = 'visible';
+  }
 
-    if (fileName) {
-      // eslint-disable-next-line no-alert
-      alert(`Screenshot saved as ${fileName} in the Downloads folder.`);
+  async function onSaveScreenshot() {
+    assert(screenshotToSave);
+    await saveScreenshotForAppMutation.mutateAsync(screenshotToSave);
+    setScreenshotToSave(undefined);
+  }
+
+  async function onKeyDown(event: KeyboardEvent): Promise<void> {
+    if (event.key.toLowerCase() === 'k' && event.metaKey) {
+      event.preventDefault();
+      event.stopPropagation();
+      await captureScreenshot();
     }
   }
 
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   return (
-    <ScreenshotButton
-      onClick={captureScreenshot}
-      disabled={!window.kiosk}
-      aria-label="Capture Screenshot"
-    >
-      <FontAwesomeIcon icon={faCamera} size="2x" />
-    </ScreenshotButton>
+    <>
+      <ScreenshotButton
+        onClick={captureScreenshot}
+        disabled={!window.kiosk}
+        aria-label="Capture Screenshot"
+      >
+        <FontAwesomeIcon icon={faCamera} size="2x" />
+      </ScreenshotButton>
+      {screenshotToSave && (
+        <ScreenshotModal
+          title="Save Screenshot"
+          content={
+            <>
+              <P>The image will be saved to the Downloads folder as:</P>
+              <input
+                type="text"
+                value={screenshotToSave.fileName}
+                aria-label="Screenshot File Name"
+                onChange={(e) =>
+                  setScreenshotToSave({
+                    ...screenshotToSave,
+                    fileName: e.target.value,
+                  })
+                }
+                onBlur={(e) =>
+                  setScreenshotToSave({
+                    ...screenshotToSave,
+                    fileName: e.target.value.trim(),
+                  })
+                }
+                autoComplete="off"
+              />
+            </>
+          }
+          actions={
+            <>
+              <Button
+                onPress={onSaveScreenshot}
+                style={{
+                  backgroundColor: Colors.ACTIVE,
+                  color: Colors.BACKGROUND,
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                onPress={() => setScreenshotToSave(undefined)}
+                style={{
+                  backgroundColor: 'white',
+                }}
+              >
+                Cancel
+              </Button>
+            </>
+          }
+        />
+      )}
+    </>
   );
 }
 
@@ -685,7 +764,9 @@ function DevDock() {
   );
 
   function onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'd' && event.metaKey) {
+    if (event.key.toLowerCase() === 'd' && event.metaKey) {
+      event.preventDefault();
+      event.stopPropagation();
       setIsOpen((previousIsOpen) => !previousIsOpen);
     }
     if (isOpen) {

@@ -7,7 +7,7 @@ import {
   test,
   vi,
 } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api } from '@votingworks/dev-dock-backend';
@@ -23,6 +23,7 @@ import {
 } from '@votingworks/test-utils';
 import { CardStatus } from '@votingworks/auth';
 import { PrinterConfig } from '@votingworks/types';
+import { renderWithThemes as render } from '@votingworks/ui';
 import { DevDock } from './dev_dock';
 
 const noCardStatus: CardStatus = {
@@ -304,25 +305,42 @@ test('disabled USB drive controls if USB drive mocks are disabled', async () => 
   expect(clearUsbDriveButton).toBeDisabled();
 });
 
-test('screenshot button', async () => {
+test('screenshot flow', async () => {
   render(<DevDock apiClient={mockApiClient} />);
   const screenshotButton = await screen.findByRole('button', {
     name: 'Capture Screenshot',
   });
 
-  vi.spyOn(window, 'alert').mockImplementation(() => {});
   document.title = 'VotingWorks VxAdmin';
   mockApiClient.saveScreenshotForApp
-    .expectCallWith({ appName: 'VxAdmin', screenshot: Uint8Array.of() })
-    .resolves('Screenshot-VxAdmin-2024-11-25-00:00:00.000Z.png');
+    .expectCallWith({
+      fileName: 'test.png',
+      screenshot: Uint8Array.of(),
+    })
+    .resolves();
+
   userEvent.click(screenshotButton);
 
-  await waitFor(() => {
-    mockApiClient.assertComplete();
-    expect(window.alert).toHaveBeenCalledWith(
-      'Screenshot saved as Screenshot-VxAdmin-2024-11-25-00:00:00.000Z.png in the Downloads folder.'
-    );
+  await screen.findByText('Save Screenshot');
+  const screenshotFileNameInput = screen.getByRole('textbox', {
+    name: 'Screenshot File Name',
   });
+  userEvent.clear(screenshotFileNameInput);
+  userEvent.type(screenshotFileNameInput, 'test.png');
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+});
+
+test('Cmd+K starts screenshot flow', async () => {
+  render(<DevDock apiClient={mockApiClient} />);
+  await screen.findByRole('button', { name: 'Capture Screenshot' });
+
+  document.title = 'VotingWorks VxAdmin';
+  userEvent.keyboard('{Meta>}k{/Meta}');
+  await screen.findByText('Save Screenshot');
 });
 
 test('printer mock control', async () => {

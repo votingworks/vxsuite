@@ -185,17 +185,14 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
     },
 
     async saveScreenshotForApp({
-      appName,
+      fileName,
       screenshot,
     }: {
-      appName: string;
+      fileName: string;
       screenshot: Uint8Array;
-    }): Promise<string> {
-      assert(/^[a-z0-9]+$/i.test(appName));
+    }): Promise<void> {
       const downloadsPath = join(homedir(), 'Downloads');
-      const fileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
       await writeFile(join(downloadsPath, fileName), screenshot);
-      return fileName;
     },
 
     getPrinterStatus(): PrinterStatus {
