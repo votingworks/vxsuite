@@ -176,6 +176,8 @@ export async function generateElectionPackageAndBallots(
       appStrings,
       electionStrings,
       speechSynthesizer,
+      emitProgress: (progress, total) =>
+        emitProgress('Generating audio', progress, total),
     });
     electionPackageZip.file(
       ElectionPackageFileName.AUDIO_IDS,

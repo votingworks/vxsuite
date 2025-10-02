@@ -25,10 +25,12 @@ export function generateAudioIdsAndClips({
   appStrings,
   electionStrings,
   speechSynthesizer,
+  emitProgress,
 }: {
   appStrings: UiStringsPackage;
   electionStrings: UiStringsPackage;
   speechSynthesizer: SpeechSynthesizer;
+  emitProgress?: (progress: number, total: number) => void;
 }): {
   uiStringAudioIds: UiStringAudioIdsPackage;
   uiStringAudioClips: NodeJS.ReadableStream;
@@ -73,7 +75,11 @@ export function generateAudioIdsAndClips({
 
   // Prepare UI string audio clips
   async function* uiStringAudioClipGenerator() {
-    for (const { audioId, languageCode, text } of textToSynthesizeSpeechFor) {
+    emitProgress?.(0, textToSynthesizeSpeechFor.length);
+    for (const [
+      i,
+      { audioId, languageCode, text },
+    ] of textToSynthesizeSpeechFor.entries()) {
       const uiStringAudioClip: UiStringAudioClip = {
         dataBase64: await speechSynthesizer.synthesizeSpeech(
           text,
@@ -82,6 +88,7 @@ export function generateAudioIdsAndClips({
         id: audioId,
         languageCode,
       };
+      emitProgress?.(i + 1, textToSynthesizeSpeechFor.length);
       yield `${JSON.stringify(uiStringAudioClip)}\n`;
     }
   }
