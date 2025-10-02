@@ -93,6 +93,7 @@ impl BallotImage {
         })
     }
 
+    /// Create a new `BallotImage` with a threshold that doesn't exceed the given maximum.
     pub fn with_maximum_threshold(self, maximum_threshold: u8) -> Self {
         Self {
             threshold: self.threshold.min(maximum_threshold),
@@ -157,11 +158,31 @@ pub enum BallotPixel {
 }
 
 impl BallotPixel {
+    /// Check if this pixel is a foreground (black) pixel.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ballot_interpreter::ballot_card::BallotPixel;
+    ///
+    /// assert!(BallotPixel::Foreground.is_foreground());
+    /// assert!(!BallotPixel::Background.is_foreground());
+    /// ```
     #[must_use]
     pub fn is_foreground(self) -> bool {
         matches!(self, Self::Foreground)
     }
 
+    /// Check if this pixel is a background (white) pixel.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ballot_interpreter::ballot_card::BallotPixel;
+    ///
+    /// assert!(BallotPixel::Background.is_background());
+    /// assert!(!BallotPixel::Foreground.is_background());
+    /// ```
     #[must_use]
     pub fn is_background(self) -> bool {
         matches!(self, Self::Background)
@@ -210,6 +231,7 @@ impl BallotPage {
         })
     }
 
+    /// Get the geometry information for this ballot page.
     pub fn geometry(&self) -> &Geometry {
         &self.geometry
     }
@@ -219,6 +241,7 @@ impl BallotPage {
         self.ballot_image.border_inset
     }
 
+    /// Get the ballot image for this page.
     pub fn ballot_image(&self) -> &BallotImage {
         &self.ballot_image
     }
@@ -265,6 +288,7 @@ impl BallotPage {
         self.ballot_image.height()
     }
 
+    /// Rotate this ballot page 180 degrees.
     pub fn rotate180(&mut self) {
         self.ballot_image.rotate180();
     }
@@ -276,6 +300,7 @@ pub struct BallotCard {
 }
 
 impl BallotCard {
+    /// Get the geometry information for this ballot card (same for both pages).
     pub fn geometry(&self) -> &Geometry {
         &self.page_a.geometry
     }
@@ -295,6 +320,7 @@ impl BallotCard {
         (&self.page_a, &self.page_b).into()
     }
 
+    /// Get mutable references to both pages as a `Pair`.
     pub fn as_pair_mut(&mut self) -> Pair<&mut BallotPage> {
         (&mut self.page_a, &mut self.page_b).into()
     }
@@ -566,6 +592,7 @@ impl ProcessedBubbleBallotCard {
         &self.back_metadata
     }
 
+    /// Get the ballot style ID for this ballot card.
     pub fn ballot_style_id(&self) -> &BallotStyleId {
         &self.front_metadata.ballot_style_id
     }
@@ -790,27 +817,98 @@ pub struct Pair<T> {
 }
 
 impl<T> Pair<T> {
+    /// Create a new `Pair` with the given first and second elements.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ballot_interpreter::ballot_card::Pair;
+    ///
+    /// let pair = Pair::new(42, 99);
+    /// assert_eq!(pair.first(), &42);
+    /// assert_eq!(pair.second(), &99);
+    /// ```
     pub const fn new(first: T, second: T) -> Self {
         Self { first, second }
     }
 
+    /// Get a reference to the first element.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ballot_interpreter::ballot_card::Pair;
+    ///
+    /// let pair = Pair::new(1, 2);
+    /// assert_eq!(pair.first(), &1);
+    /// ```
     pub const fn first(&self) -> &T {
         &self.first
     }
 
+    /// Get a reference to the second element.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ballot_interpreter::ballot_card::Pair;
+    ///
+    /// let pair = Pair::new(1, 2);
+    /// assert_eq!(pair.second(), &2);
+    /// ```
     pub const fn second(&self) -> &T {
         &self.second
     }
 
+    /// Transform both elements of the pair using the given mapper function.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ballot_interpreter::ballot_card::Pair;
+    ///
+    /// let pair = Pair::new(1, 2);
+    /// let doubled = pair.map(|x| x * 2);
+    /// assert_eq!(doubled.first(), &2);
+    /// assert_eq!(doubled.second(), &4);
+    /// ```
     pub fn map<U>(self, mapper: impl Fn(T) -> U) -> Pair<U> {
         Pair::new(mapper(self.first), mapper(self.second))
     }
 
+    /// Combine this pair with another pair, creating pairs of tuples.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ballot_interpreter::ballot_card::Pair;
+    ///
+    /// let numbers = Pair::new(1, 2);
+    /// let letters = Pair::new('a', 'b');
+    /// let combined = numbers.zip(letters);
+    /// assert_eq!(combined.first(), &(1, 'a'));
+    /// assert_eq!(combined.second(), &(2, 'b'));
+    /// ```
     pub fn zip<U>(self, other: impl Into<Pair<U>>) -> Pair<(T, U)> {
         let other = other.into();
         Pair::new((self.first, other.first), (self.second, other.second))
     }
 
+    /// Combine both elements of the pair using the given joiner function.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ballot_interpreter::ballot_card::Pair;
+    ///
+    /// let pair = Pair::new(3, 5);
+    /// let sum = pair.join(|a, b| a + b);
+    /// assert_eq!(sum, 8);
+    ///
+    /// let pair = Pair::new("hello", "world");
+    /// let combined = pair.join(|a, b| format!("{} {}", a, b));
+    /// assert_eq!(combined, "hello world");
+    /// ```
     pub fn join<U>(self, joiner: impl Fn(T, T) -> U) -> U {
         joiner(self.first, self.second)
     }
@@ -820,6 +918,7 @@ impl<T> Pair<T>
 where
     T: Send + Sync,
 {
+    /// Transform both elements of the pair in parallel using the given mapper function.
     pub fn par_map<U, F>(self, mapper: F) -> Pair<U>
     where
         U: Send,
@@ -1095,6 +1194,7 @@ impl PaperInfo {
         ]
     }
 
+    /// Compute the geometry information for this paper configuration.
     pub fn compute_geometry(&self) -> Geometry {
         let ballot_paper_size = self.size;
         let margins = self.margins;
