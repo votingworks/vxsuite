@@ -591,7 +591,8 @@ export async function layOutBallotsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
-  electionSerializationFormat: ElectionSerializationFormat
+  electionSerializationFormat: ElectionSerializationFormat,
+  emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
   ballotContents: string[];
   electionDefinition: ElectionDefinition;
@@ -600,6 +601,8 @@ export async function layOutBallotsAndCreateElectionDefinition<
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
+  let progress = 0;
+  emitProgress?.('Laying out ballots', progress, ballotProps.length);
   const ballotLayouts = await rendererPool.runTasks(
     ballotProps.map((props) => async (renderer) => {
       // We currently only need to return errors to the user in ballot preview -
@@ -613,6 +616,8 @@ export async function layOutBallotsAndCreateElectionDefinition<
         template.isAllBubbleBallot
       );
       const ballotContent = await document.getContent();
+      progress += 1;
+      emitProgress?.('Laying out ballots', progress, ballotProps.length);
       return {
         props,
         gridLayout,
@@ -721,7 +726,8 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
-  electionSerializationFormat: ElectionSerializationFormat
+  electionSerializationFormat: ElectionSerializationFormat,
+  emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
   ballotPdfs: Uint8Array[];
   electionDefinition: ElectionDefinition;
@@ -731,9 +737,12 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
       rendererPool,
       template,
       ballotProps,
-      electionSerializationFormat
+      electionSerializationFormat,
+      emitProgress
     );
 
+  let progress = 0;
+  emitProgress?.('Rendering ballots', progress, ballotProps.length);
   const ballotPdfs = await rendererPool.runTasks(
     iter(ballotProps)
       .zip(ballotContents)
@@ -744,6 +753,8 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
           document,
           electionDefinition
         );
+        progress += 1;
+        emitProgress?.('Rendering ballots', progress, ballotProps.length);
         return ballotPdf;
       })
       .toArray()

@@ -69,7 +69,8 @@ export async function generateElectionPackageAndBallots(
     shouldExportAudio,
     shouldExportSampleBallots,
     numAuditIdBallots,
-  }: GenerateElectionPackageAndBallotsPayload
+  }: GenerateElectionPackageAndBallotsPayload,
+  emitProgress: (label: string, progress: number, total: number) => void
 ): Promise<void> {
   const { store } = workspace;
 
@@ -157,7 +158,8 @@ export async function generateElectionPackageAndBallots(
       rendererPool,
       ballotTemplates[ballotTemplateId],
       allBallotProps,
-      electionSerializationFormat
+      electionSerializationFormat,
+      emitProgress
     );
   electionPackageZip.file(
     ElectionPackageFileName.ELECTION,

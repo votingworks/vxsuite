@@ -81,7 +81,14 @@ export interface BackgroundTask {
   createdAt: Date;
   startedAt?: Date;
   completedAt?: Date;
+  progress?: BackgroundTaskProgress;
   error?: string;
+}
+
+export interface BackgroundTaskProgress {
+  label: string;
+  progress: number;
+  total: number;
 }
 
 const getBackgroundTasksBaseQuery = `
@@ -92,6 +99,7 @@ const getBackgroundTasksBaseQuery = `
     created_at as "createdAt",
     started_at as "startedAt",
     completed_at as "completedAt",
+    progress,
     error
   from background_tasks
 `;
@@ -105,6 +113,7 @@ interface BackgroundTaskRow {
   createdAt: string;
   startedAt: string | null;
   completedAt: string | null;
+  progress: BackgroundTaskProgress | null;
   error: string | null;
 }
 
@@ -118,6 +127,7 @@ function backgroundTaskRowToBackgroundTask(
     createdAt: new Date(row.createdAt),
     startedAt: row.startedAt ? new Date(row.startedAt) : undefined,
     completedAt: row.completedAt ? new Date(row.completedAt) : undefined,
+    progress: row.progress ?? undefined,
     error: row.error ?? undefined,
   };
 }
@@ -1933,6 +1943,23 @@ export class Store {
           where id = $2
         `,
         error ?? null,
+        taskId
+      )
+    );
+  }
+
+  async updateBackgroundTaskProgress(
+    taskId: Id,
+    progress: BackgroundTaskProgress
+  ): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update background_tasks
+          set progress = $1
+          where id = $2
+        `,
+        JSON.stringify(progress),
         taskId
       )
     );
