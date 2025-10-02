@@ -52,7 +52,6 @@ impl BallotImage {
 
     /// Crops the black edges off all sides of the image and determines an
     /// appropriate black & white threshold.
-    #[must_use]
     pub fn from_image(image: GrayImage, debug_base: impl Into<Option<PathBuf>>) -> Option<Self> {
         let threshold = otsu_level(&image);
         let border_inset =
@@ -229,6 +228,12 @@ impl BallotPage {
         self.ballot_image.debug()
     }
 
+    /// Find timing marks on this ballot page using the specified algorithm.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if timing marks cannot be found or if the timing mark
+    /// detection algorithm fails.
     pub fn find_timing_marks(
         &self,
         timing_mark_algorithm: TimingMarkAlgorithm,
@@ -304,6 +309,12 @@ impl BallotCard {
         ((SIDE_A_LABEL, &self.page_a), (SIDE_B_LABEL, &self.page_b)).into()
     }
 
+    /// Find timing marks on both pages of this ballot card using the specified algorithm.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if timing marks cannot be found on either page or if the timing mark
+    /// detection algorithm fails.
     pub fn find_timing_marks(
         &self,
         timing_mark_algorithm: TimingMarkAlgorithm,
@@ -323,6 +334,12 @@ impl BallotCard {
         })
     }
 
+    /// Decode QR codes from both pages of this ballot card.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if QR codes cannot be detected or decoded on either page,
+    /// or if the decoded metadata is invalid.
     pub fn decode_qr_codes(
         &self,
         election: &Election,
@@ -371,6 +388,11 @@ impl BallotCard {
             .into())
     }
 
+    /// Detect vertical streaks on both pages of this ballot card.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if vertical streaks are detected on either page.
     pub fn detect_vertical_streaks(&self) -> Result<()> {
         self.as_labeled_pair()
             .par_map(|(label, page)| {
@@ -424,8 +446,17 @@ pub struct ProcessedBubbleBallotCard {
 }
 
 impl ProcessedBubbleBallotCard {
+    /// Create a new `ProcessedBubbleBallotCard` from ballot pages, timing marks, and metadata.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The precinct IDs don't match between pages
+    /// - The ballot style IDs don't match between pages
+    /// - The page numbers are not consecutive
+    /// - The grid layout is missing from the election
     pub fn new(
-        election: Election,
+        election: &Election,
         pages: impl Into<(BallotPage, BallotPage)>,
         timing_marks: impl Into<(TimingMarks, TimingMarks)>,
         metadatas: impl Into<(hmpb::Metadata, hmpb::Metadata)>,
@@ -549,7 +580,11 @@ impl ProcessedBubbleBallotCard {
         u32::from(self.front_metadata.page_number.sheet_number().get())
     }
 
-    #[must_use]
+    /// Score bubble marks on both pages of this ballot card.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if bubble scoring fails or if there are issues with the grid layout.
     pub fn score_bubbles(&self, bubble_template: &GrayImage) -> Result<Pair<ScoredBubbleMarks>> {
         let grid_layout = self.grid_layout();
         let sheet_number = self.sheet_number();
@@ -607,6 +642,16 @@ impl ProcessedBubbleBallotCard {
         .into_result()
     }
 
+    /// Layout contests for both pages of this ballot card.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if contest layouts cannot be computed or if there are issues
+    /// with the grid layout or timing marks.
+    ///
+    /// # Panics
+    ///
+    /// Panics if a contest has no options, which should not happen with valid ballot data.
     pub fn layout_contests(&self) -> Result<Pair<Vec<InterpretedContestLayout>>> {
         let grid_layout = self.grid_layout();
         let sheet_number = self.sheet_number();
@@ -810,6 +855,11 @@ impl<'a, T> From<&'a mut Pair<T>> for Pair<&'a mut T> {
 }
 
 impl<T, E> Pair<Result<T, E>> {
+    /// Convert a `Pair<Result<T, E>>` into a `Result<Pair<T>, E>`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if either of the pair's results is an error.
     pub fn into_result(self: Pair<Result<T, E>>) -> Result<Pair<T>, E> {
         let (first, second) = self.into();
         Ok(Pair::new(first?, second?))

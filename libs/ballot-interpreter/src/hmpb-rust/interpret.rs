@@ -399,7 +399,7 @@ pub fn ballot_card(
     let metadatas = decoded_qr_codes.map(|(m, _)| m);
 
     let processed_bubble_ballot_card = ProcessedBubbleBallotCard::new(
-        options.election.clone(),
+        &options.election,
         ballot_card.into_pair(),
         timing_marks,
         metadatas,
