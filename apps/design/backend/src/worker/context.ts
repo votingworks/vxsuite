@@ -9,3 +9,9 @@ export interface WorkerContext {
   translator: GoogleCloudTranslatorWithDbCache;
   workspace: Workspace;
 }
+
+export type EmitProgressFunction = (
+  label: string,
+  progress: number,
+  total: number
+) => void;

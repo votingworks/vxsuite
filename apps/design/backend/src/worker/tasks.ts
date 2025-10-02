@@ -52,7 +52,7 @@ export async function processBackgroundTask(
         payload,
         GenerateTestDecksPayloadSchema
       ).unsafeUnwrap();
-      await generateTestDecks(context, parsedPayload);
+      await generateTestDecks(context, parsedPayload, emitProgress);
       break;
     }
     default: {

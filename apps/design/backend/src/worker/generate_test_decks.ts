@@ -17,7 +17,7 @@ import { iter } from '@votingworks/basics';
 import JsZip from 'jszip';
 import path from 'node:path';
 import z from 'zod/v4';
-import { WorkerContext } from './context';
+import { EmitProgressFunction, WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
@@ -41,7 +41,8 @@ export const GenerateTestDecksPayloadSchema: z.ZodType<GenerateTestDecksPayload>
 
 export async function generateTestDecks(
   { translator, workspace, fileStorageClient }: WorkerContext,
-  { electionId, electionSerializationFormat }: GenerateTestDecksPayload
+  { electionId, electionSerializationFormat }: GenerateTestDecksPayload,
+  emitProgress: EmitProgressFunction
 ): Promise<void> {
   const { store } = workspace;
   const {
@@ -76,7 +77,8 @@ export async function generateTestDecks(
       rendererPool,
       ballotTemplates[ballotTemplateId],
       testBallotProps,
-      electionSerializationFormat
+      electionSerializationFormat,
+      emitProgress
     );
   const ballots = iter(testBallotProps)
     .zip(ballotContents)
@@ -88,7 +90,8 @@ export async function generateTestDecks(
 
   const zip = new JsZip();
 
-  for (const precinct of election.precincts) {
+  emitProgress('Rendering test decks', 0, election.precincts.length);
+  for (const [i, precinct] of election.precincts.entries()) {
     const testDeckPdf = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition,
@@ -97,6 +100,7 @@ export async function generateTestDecks(
     });
 
     if (!testDeckPdf) continue;
+    emitProgress('Rendering test decks', i + 1, election.precincts.length);
     const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
     zip.file(fileName, testDeckPdf);
   }

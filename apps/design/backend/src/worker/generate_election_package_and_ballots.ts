@@ -28,7 +28,7 @@ import {
 } from '@votingworks/backend';
 import { assertDefined, find, iter, range } from '@votingworks/basics';
 import z from 'zod/v4';
-import { WorkerContext } from './context';
+import { EmitProgressFunction, WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
@@ -70,7 +70,7 @@ export async function generateElectionPackageAndBallots(
     shouldExportSampleBallots,
     numAuditIdBallots,
   }: GenerateElectionPackageAndBallotsPayload,
-  emitProgress: (label: string, progress: number, total: number) => void
+  emitProgress: EmitProgressFunction
 ): Promise<void> {
   const { store } = workspace;
 

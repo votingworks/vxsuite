@@ -5,7 +5,6 @@ import {
   Button,
   MainContent,
   useQueryChangeListener,
-  LoadingButton,
   CheckboxButton,
   SearchSelect,
   H2,
@@ -136,9 +135,6 @@ export function ExportScreen(): JSX.Element | null {
   }
   const electionPackage = electionPackageQuery.data;
   const testDecks = testDecksQuery.data;
-  const isTestDecksExportInProgress =
-    exportTestDecksMutation.isLoading ||
-    (testDecks.task && !testDecks.task.completedAt);
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotTemplateId = getBallotTemplateQuery.data;
@@ -224,10 +220,25 @@ export function ExportScreen(): JSX.Element | null {
         <H2>Export</H2>
         {features.EXPORT_TEST_DECKS && (
           <P>
-            {isTestDecksExportInProgress ? (
-              <LoadingButton>Exporting Test Decks...</LoadingButton>
+            {testDecks.task && !testDecks.task.completedAt ? (
+              <Card color="primary" style={{ maxWidth: '30rem' }}>
+                <H4>Exporting Test Decks</H4>
+                <P>{testDecks.task.progress?.label ?? 'Starting'}</P>
+                <ProgressBar
+                  progress={
+                    testDecks.task.progress
+                      ? testDecks.task.progress.progress /
+                        testDecks.task.progress.total
+                      : 0
+                  }
+                />
+              </Card>
             ) : (
-              <Button variant="primary" onPress={onPressExportTestDecks}>
+              <Button
+                variant="primary"
+                onPress={onPressExportTestDecks}
+                disabled={exportTestDecksMutation.isLoading}
+              >
                 Export Test Decks
               </Button>
             )}
