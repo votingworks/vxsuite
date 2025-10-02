@@ -128,7 +128,10 @@ impl BallotImage {
 
     #[must_use]
     pub fn get_pixel(&self, x: u32, y: u32) -> BallotPixel {
-        if self.image.get_pixel(x, y).0[0] < self.threshold {
+        // Use <= instead of < to handle the case where OTSU threshold is 0
+        // (which happens with already-binarized images). With threshold=0,
+        // we need to include pixels with value 0 (black) as foreground.
+        if self.image.get_pixel(x, y).0[0] <= self.threshold {
             BallotPixel::Foreground
         } else {
             BallotPixel::Background
