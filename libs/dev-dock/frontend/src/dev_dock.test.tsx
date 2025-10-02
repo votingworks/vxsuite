@@ -321,7 +321,7 @@ test('screenshot flow', async () => {
 
   userEvent.click(screenshotButton);
 
-  await screen.findByText('Screenshot Taken');
+  await screen.findByText('Save Screenshot');
   const screenshotFileNameInput = screen.getByRole('textbox', {
     name: 'Screenshot File Name',
   });
@@ -340,7 +340,7 @@ test('Cmd+K starts screenshot flow', async () => {
 
   document.title = 'VotingWorks VxAdmin';
   userEvent.keyboard('{Meta>}k{/Meta}');
-  await screen.findByText('Screenshot Taken');
+  await screen.findByText('Save Screenshot');
 });
 
 test('printer mock control', async () => {

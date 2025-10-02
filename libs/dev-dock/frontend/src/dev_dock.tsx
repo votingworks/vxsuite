@@ -473,7 +473,7 @@ function ScreenshotControls({
       </ScreenshotButton>
       {screenshotToSave && (
         <ScreenshotModal
-          title="Screenshot Taken"
+          title="Save Screenshot"
           content={
             <>
               <P>The image will be saved to the Downloads folder as:</P>
