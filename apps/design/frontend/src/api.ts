@@ -18,6 +18,7 @@ import {
 import { generateId } from './utils';
 
 export const BACKGROUND_TASK_POLLING_INTERVAL_MS = 1_000;
+export const VXQR_REFETCH_INTERVAL_MS = 1_000;
 
 export type ApiClient = grout.Client<Api>;
 
@@ -139,12 +140,15 @@ export const getQuickReportedResults = {
     isLive: boolean
   ) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id, isLive, precinctSelection), () =>
-      apiClient.getQuickReportedResults({
-        electionId: id,
-        isLive,
-        precinctSelection,
-      })
+    return useQuery(
+      this.queryKey(id, isLive, precinctSelection),
+      () =>
+        apiClient.getQuickReportedResults({
+          electionId: id,
+          isLive,
+          precinctSelection,
+        }),
+      { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
     );
   },
 } as const;
