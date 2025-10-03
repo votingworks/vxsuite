@@ -18,7 +18,10 @@ import { Buffer } from 'node:buffer';
 import { useParams } from 'react-router-dom';
 import { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import type { BallotTemplateId } from '@votingworks/design-backend';
+import type {
+  BallotTemplateId,
+  BackgroundTask,
+} from '@votingworks/design-backend';
 import { format } from '@votingworks/utils';
 import {
   exportElectionPackage,
@@ -38,6 +41,28 @@ import { ElectionIdParams, routes } from './routes';
 import { downloadFile } from './utils';
 import { Column, FieldName, InputGroup } from './layout';
 import { useTitle } from './hooks/use_title';
+
+function TaskProgressCard({
+  title,
+  task,
+  style,
+}: {
+  title: string;
+  task: BackgroundTask;
+  style?: React.CSSProperties;
+}): JSX.Element {
+  return (
+    <Card color="primary" style={style}>
+      <H4>{title}</H4>
+      <P>{task.progress?.label ?? 'Starting'}</P>
+      <ProgressBar
+        progress={
+          task.progress ? task.progress.progress / task.progress.total : 0
+        }
+      />
+    </Card>
+  );
+}
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
@@ -218,24 +243,16 @@ export function ExportScreen(): JSX.Element | null {
         </Column>
 
         <H2>Export</H2>
-        <Column style={{ gap: '0.5rem', alignItems: 'flex-start' }}>
+        <Column
+          style={{ gap: '0.5rem', alignItems: 'flex-start', maxWidth: '30rem' }}
+        >
           {features.EXPORT_TEST_DECKS &&
             (testDecks.task && !testDecks.task.completedAt ? (
-              <Card
-                color="primary"
-                style={{ alignSelf: 'stretch', maxWidth: '30rem' }}
-              >
-                <H4>Exporting Test Decks</H4>
-                <P>{testDecks.task.progress?.label ?? 'Starting'}</P>
-                <ProgressBar
-                  progress={
-                    testDecks.task.progress
-                      ? testDecks.task.progress.progress /
-                        testDecks.task.progress.total
-                      : 0
-                  }
-                />
-              </Card>
+              <TaskProgressCard
+                style={{ alignSelf: 'stretch' }}
+                title="Exporting Test Decks"
+                task={testDecks.task}
+              />
             ) : (
               <Button
                 variant="primary"
@@ -246,21 +263,11 @@ export function ExportScreen(): JSX.Element | null {
               </Button>
             ))}
           {electionPackage.task && !electionPackage.task.completedAt ? (
-            <Card
-              color="primary"
-              style={{ alignSelf: 'stretch', maxWidth: '30rem' }}
-            >
-              <H4>Exporting Election Package and Ballots</H4>
-              <P>{electionPackage.task.progress?.label ?? 'Starting'}</P>
-              <ProgressBar
-                progress={
-                  electionPackage.task.progress
-                    ? electionPackage.task.progress.progress /
-                      electionPackage.task.progress.total
-                    : 0
-                }
-              />
-            </Card>
+            <TaskProgressCard
+              style={{ alignSelf: 'stretch' }}
+              title="Exporting Election Package and Ballots"
+              task={electionPackage.task}
+            />
           ) : (
             <Button
               onPress={onPressExportElectionPackage}
