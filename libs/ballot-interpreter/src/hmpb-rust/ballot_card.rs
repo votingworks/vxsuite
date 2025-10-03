@@ -1,10 +1,15 @@
-use std::{cmp::Ordering, io, ops::Range};
+use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf};
 
 use image::{imageops::rotate180_in_place, GenericImageView, GrayImage};
 use imageproc::contrast::{otsu_level, threshold};
 use serde::Serialize;
 
-use crate::image_utils::{bleed, find_scanned_document_inset, Inset, BLACK};
+use crate::{
+    debug::ImageDebugWriter,
+    image_utils::{bleed, find_scanned_document_inset, Inset, BLACK},
+    interpret::{BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm},
+    timing_marks::{self, contours::FindTimingMarkGridOptions, DefaultForGeometry, TimingMarks},
+};
 
 use types_rs::{
     ballot_card::PaperSize,
@@ -20,6 +25,7 @@ pub struct BallotImage {
     image: GrayImage,
     threshold: u8,
     border_inset: Inset,
+    debug: ImageDebugWriter,
 }
 
 impl BallotImage {
@@ -35,6 +41,7 @@ impl BallotImage {
     pub fn rotate180(&mut self) {
         rotate180_in_place(&mut self.image);
         self.border_inset.rotate180();
+        self.debug.rotate180();
     }
 
     /// This sets the ratio of pixels required to be white (above the threshold) in
@@ -51,10 +58,17 @@ impl BallotImage {
     /// cropped off. Returns [`None`] if a valid border inset cannot be
     /// computed.
     #[must_use]
-    pub fn from_image(image: GrayImage) -> Option<BallotImage> {
+    pub fn from_image(
+        image: GrayImage,
+        debug_base: impl Into<Option<PathBuf>>,
+    ) -> Option<BallotImage> {
         let threshold = otsu_level(&image);
         let border_inset =
             find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
+        let debug_base = debug_base.into();
+        let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
+            ImageDebugWriter::new(debug_base, image.clone())
+        });
 
         if border_inset.is_zero() {
             // Don't bother cropping if there's no inset.
@@ -62,6 +76,7 @@ impl BallotImage {
                 image,
                 threshold,
                 border_inset,
+                debug,
             });
         }
 
@@ -83,6 +98,7 @@ impl BallotImage {
             image,
             threshold,
             border_inset,
+            debug,
         })
     }
 
@@ -92,6 +108,11 @@ impl BallotImage {
     #[must_use]
     pub fn image(&self) -> &GrayImage {
         &self.image
+    }
+
+    /// Gets the image debug writer associated with this ballot image.
+    pub fn debug(&self) -> &ImageDebugWriter {
+        &self.debug
     }
 
     /// Gets the computed Otsu threshold. Generally you should try to access
@@ -170,15 +191,186 @@ impl BallotPixel {
     }
 }
 
+/// Contains one of the two ballot pages within a [`BallotCard`], though
+/// whether it is the front or back is not specified here.
+#[must_use]
 pub struct BallotPage {
-    pub ballot_image: BallotImage,
-    pub geometry: Geometry,
+    label: String,
+    ballot_image: BallotImage,
+    geometry: Geometry,
 }
 
+impl BallotPage {
+    /// Prepare a ballot page image for interpretation by cropping the black border.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the image cannot be cropped or if the paper information
+    /// cannot be determined.
+    #[allow(clippy::result_large_err)]
+    pub fn from_image(
+        label: &str,
+        image: GrayImage,
+        possible_paper_infos: &[PaperInfo],
+        debug_base: impl Into<Option<PathBuf>>,
+    ) -> Result<Self> {
+        let Some(ballot_image) = BallotImage::from_image(image, debug_base) else {
+            return Err(Error::BorderInsetNotFound {
+                label: label.to_owned(),
+            });
+        };
+
+        let Some(paper_info) =
+            get_matching_paper_info_for_image_size(ballot_image.dimensions(), possible_paper_infos)
+        else {
+            return Err(Error::UnexpectedDimensions {
+                label: label.to_owned(),
+                dimensions: ballot_image.dimensions().into(),
+            });
+        };
+
+        Ok(Self {
+            label: label.to_owned(),
+            ballot_image,
+            geometry: paper_info.compute_geometry(),
+        })
+    }
+
+    /// Finds timing marks in this ballot page with the specified algorithm.
+    ///
+    /// # Errors
+    ///
+    /// Fails if the selected timing mark algorithm is unable to find the
+    /// timing mark grid within the image.
+    #[allow(clippy::result_large_err)]
+    pub fn find_timing_marks(
+        &self,
+        timing_mark_algorithm: TimingMarkAlgorithm,
+    ) -> Result<TimingMarks> {
+        match timing_mark_algorithm {
+            TimingMarkAlgorithm::Corners => timing_marks::corners::find_timing_mark_grid(
+                &self.ballot_image,
+                &self.geometry,
+                &timing_marks::corners::Options::default_for_geometry(&self.geometry),
+            ),
+            TimingMarkAlgorithm::Contours { inference } => {
+                timing_marks::contours::find_timing_mark_grid(
+                    &self.geometry,
+                    &self.ballot_image,
+                    &FindTimingMarkGridOptions {
+                        allowed_timing_mark_inset_percentage_of_width:
+                            timing_marks::contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                        inference,
+                    },
+                )
+            }
+        }
+    }
+
+    /// Gets the ballot geometry information for this page.
+    pub fn geometry(&self) -> &Geometry {
+        &self.geometry
+    }
+
+    /// Gets the ballot image for this page.
+    pub fn ballot_image(&self) -> &BallotImage {
+        &self.ballot_image
+    }
+
+    /// Gets the label for this page, mostly used for debugging purposes.
+    #[must_use]
+    pub fn label(&self) -> &str {
+        &self.label
+    }
+
+    /// Gets the debug writer for this page.
+    pub fn debug(&self) -> &ImageDebugWriter {
+        self.ballot_image.debug()
+    }
+
+    /// Gets the dimensions of this page's image after cropping.
+    #[must_use]
+    pub fn dimensions(&self) -> (u32, u32) {
+        self.ballot_image.dimensions()
+    }
+
+    /// Gets the width of this page's image after cropping.
+    #[must_use]
+    pub fn width(&self) -> u32 {
+        self.ballot_image.width()
+    }
+
+    /// Gets the height of this page's image after cropping.
+    #[must_use]
+    pub fn height(&self) -> u32 {
+        self.ballot_image.height()
+    }
+
+    /// Rotates the underlying ballot image.
+    pub fn rotate180(&mut self) {
+        self.ballot_image.rotate180();
+    }
+}
+
+/// Contains the two pages of a ballot card. They're accessed via methods
+/// labeled front and back, but there is no guarantee that they are actually
+/// the front and back of the ballot card. Call [`BallotCard::swap_pages`] if
+/// you discover they are actually wrong and would like to switch them.
+#[must_use]
 pub struct BallotCard {
-    pub side_a: BallotImage,
-    pub side_b: BallotImage,
-    pub geometry: Geometry,
+    front_page: BallotPage,
+    back_page: BallotPage,
+}
+
+impl BallotCard {
+    /// Load both sides of a ballot card image and return the ballot card.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the images could not be loaded or if the ballot card
+    /// could not be prepared.
+    #[allow(clippy::result_large_err)]
+    pub fn from_pages(front_page: BallotPage, back_page: BallotPage) -> Result<BallotCard> {
+        if front_page.geometry() != back_page.geometry() {
+            return Err(Error::MismatchedBallotCardGeometries {
+                side_a: BallotPageAndGeometry {
+                    label: front_page.label,
+                    border_inset: front_page.ballot_image.border_inset(),
+                    geometry: front_page.geometry,
+                },
+                side_b: BallotPageAndGeometry {
+                    label: back_page.label,
+                    border_inset: back_page.ballot_image.border_inset(),
+                    geometry: back_page.geometry,
+                },
+            });
+        }
+
+        Ok(Self {
+            front_page,
+            back_page,
+        })
+    }
+
+    pub fn swap_pages(&mut self) {
+        swap(&mut self.front_page, &mut self.back_page);
+    }
+
+    pub fn geometry(&self) -> &Geometry {
+        &self.front_page.geometry
+    }
+
+    pub fn front_page(&self) -> &BallotPage {
+        &self.front_page
+    }
+
+    pub fn back_page(&self) -> &BallotPage {
+        &self.back_page
+    }
+
+    pub fn pages_mut(&mut self) -> (&mut BallotPage, &mut BallotPage) {
+        (&mut self.front_page, &mut self.back_page)
+    }
 }
 
 /// Ballot card orientation.

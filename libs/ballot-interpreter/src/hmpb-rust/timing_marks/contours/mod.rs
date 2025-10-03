@@ -189,9 +189,8 @@ impl From<TimingMarks> for Partial {
 }
 
 #[derive(Debug)]
-pub struct FindTimingMarkGridOptions<'a> {
+pub struct FindTimingMarkGridOptions {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
-    pub debug: &'a mut debug::ImageDebugWriter,
     pub inference: Inference,
 }
 
@@ -205,18 +204,19 @@ pub struct FindTimingMarkGridOptions<'a> {
 pub fn find_timing_mark_grid(
     geometry: &Geometry,
     ballot_image: &BallotImage,
-    options: FindTimingMarkGridOptions,
+    options: &FindTimingMarkGridOptions,
 ) -> Result<TimingMarks> {
-    let debug = options.debug;
     // Find shapes that look like timing marks but may not be.
-    let candidate_timing_marks = find_timing_mark_shapes(geometry, ballot_image, debug);
+    let candidate_timing_marks = find_timing_mark_shapes(geometry, ballot_image);
 
     // Find timing marks along the border of the image from the candidate
     // shapes. This step may not find all the timing marks, but it should find
     // enough to determine the borders and orientation of the ballot card.
-    let Some(partial_timing_marks) =
-        find_partial_timing_marks_from_candidates(geometry, &candidate_timing_marks, debug)
-    else {
+    let Some(partial_timing_marks) = find_partial_timing_marks_from_candidates(
+        geometry,
+        &candidate_timing_marks,
+        ballot_image.debug(),
+    ) else {
         return Err(Error::MissingTimingMarks {
             reason: "No partial timing marks found".to_owned(),
         });
@@ -230,7 +230,6 @@ pub fn find_timing_mark_grid(
             allowed_timing_mark_inset_percentage_of_width: options
                 .allowed_timing_mark_inset_percentage_of_width,
             inference: options.inference,
-            debug,
         },
     ) {
         Ok(complete_timing_marks) => complete_timing_marks,
@@ -241,7 +240,7 @@ pub fn find_timing_mark_grid(
         }
     };
 
-    debug.write("timing_marks", |canvas| {
+    ballot_image.debug().write("timing_marks", |canvas| {
         debug::draw_timing_mark_grid_debug_image_mut(canvas, &timing_marks, geometry);
     });
 
@@ -356,7 +355,6 @@ const BORDER_SIZE: u8 = 1;
 pub fn find_timing_mark_shapes(
     geometry: &Geometry,
     ballot_image: &BallotImage,
-    debug: &debug::ImageDebugWriter,
 ) -> Vec<CandidateTimingMark> {
     // `find_contours_with_threshold` does not consider timing marks on the edge
     // of the image to be contours, so we expand the image and add whitespace
@@ -367,7 +365,7 @@ pub fn find_timing_mark_shapes(
 
     let contours = find_contours_with_threshold(&img, ballot_image.threshold());
 
-    debug.write("contours", |canvas| {
+    ballot_image.debug().write("contours", |canvas| {
         debug::draw_contours_debug_image_mut(
             canvas,
             &contours
@@ -396,14 +394,16 @@ pub fn find_timing_mark_shapes(
         })
         .collect_vec();
 
-    debug.write("candidate_timing_marks", |canvas| {
-        debug::draw_candidate_timing_marks_debug_image_mut(
-            canvas,
-            &candidate_timing_marks,
-            MIN_REQUIRED_CORNER_MARK_SCORE,
-            MIN_REQUIRED_CORNER_PADDING_SCORE,
-        );
-    });
+    ballot_image
+        .debug()
+        .write("candidate_timing_marks", |canvas| {
+            debug::draw_candidate_timing_marks_debug_image_mut(
+                canvas,
+                &candidate_timing_marks,
+                MIN_REQUIRED_CORNER_MARK_SCORE,
+                MIN_REQUIRED_CORNER_PADDING_SCORE,
+            );
+        });
 
     candidate_timing_marks
 }
@@ -828,9 +828,8 @@ pub const MIN_REQUIRED_CORNER_PADDING_SCORE: UnitIntervalScore = UnitIntervalSco
 /// How much of an error is allowed in the distance between timing marks.
 pub const MAX_ALLOWED_TIMING_MARK_DISTANCE_ERROR: UnitIntervalValue = 0.2;
 
-pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
+pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
-    pub debug: &'a debug::ImageDebugWriter,
     pub inference: Inference,
 }
 
@@ -848,7 +847,6 @@ pub fn find_complete_from_partial(
     partial_timing_marks: &Partial,
     options: &FindCompleteTimingMarksFromPartialTimingMarksOptions,
 ) -> FindGridResult {
-    let debug = options.debug;
     let allowed_inset =
         geometry.canvas_width_pixels() * options.allowed_timing_mark_inset_percentage_of_width;
 
@@ -1110,7 +1108,7 @@ pub fn find_complete_from_partial(
         }
     }
 
-    debug.write("corner_match_info", |canvas| {
+    ballot_image.debug().write("corner_match_info", |canvas| {
         debug::draw_corner_match_info_debug_image_mut(canvas, &corner_match_info);
     });
 
@@ -1229,13 +1227,15 @@ pub fn find_complete_from_partial(
         }
     }
 
-    debug.write("complete_timing_marks", |canvas| {
-        debug::draw_timing_mark_debug_image_mut(
-            canvas,
-            geometry,
-            &partial_timing_marks_from_complete_timing_marks,
-        );
-    });
+    ballot_image
+        .debug()
+        .write("complete_timing_marks", |canvas| {
+            debug::draw_timing_mark_debug_image_mut(
+                canvas,
+                geometry,
+                &partial_timing_marks_from_complete_timing_marks,
+            );
+        });
 
     Ok(complete_timing_marks)
 }

@@ -98,13 +98,12 @@ pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
 #[allow(clippy::too_many_arguments)]
 pub fn score_bubble_marks_from_grid_layout(
-    img: &BallotImage,
+    ballot_image: &BallotImage,
     bubble_template: &GrayImage,
     timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
     sheet_number: u32,
     side: BallotSide,
-    debug: &debug::ImageDebugWriter,
 ) -> ScoredBubbleMarks {
     let scored_bubbles = grid_layout
         .grid_positions
@@ -124,7 +123,7 @@ pub fn score_bubble_marks_from_grid_layout(
                         vec![(
                             grid_position.clone(),
                             score_bubble_mark(
-                                img,
+                                ballot_image,
                                 bubble_template,
                                 expected_bubble_center,
                                 &location,
@@ -136,7 +135,7 @@ pub fn score_bubble_marks_from_grid_layout(
         })
         .collect::<ScoredBubbleMarks>();
 
-    debug.write("scored_bubble_marks", |canvas| {
+    ballot_image.debug().write("scored_bubble_marks", |canvas| {
         debug::draw_scored_bubble_marks_debug_image_mut(canvas, &scored_bubbles);
     });
 
@@ -261,12 +260,11 @@ pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
 /// be used to determine which write-in areas are most likely to contain a write-in
 /// vote even if the bubble is not filled in.
 pub fn score_write_in_areas(
-    image: &BallotImage,
+    ballot_image: &BallotImage,
     timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
     sheet_number: u32,
     side: BallotSide,
-    debug: &debug::ImageDebugWriter,
 ) -> Vec<ScoredPositionArea> {
     let scored_write_in_areas = grid_layout
         .write_in_positions()
@@ -274,12 +272,14 @@ pub fn score_write_in_areas(
             let location = grid_position.location();
             grid_position.sheet_number() == sheet_number && location.side == side
         })
-        .filter_map(|grid_position| score_write_in_area(image, timing_marks, grid_position))
+        .filter_map(|grid_position| score_write_in_area(ballot_image, timing_marks, grid_position))
         .collect();
 
-    debug.write("scored_write_in_areas", |canvas| {
-        debug::draw_scored_write_in_areas(canvas, &scored_write_in_areas);
-    });
+    ballot_image
+        .debug()
+        .write("scored_write_in_areas", |canvas| {
+            debug::draw_scored_write_in_areas(canvas, &scored_write_in_areas);
+        });
 
     scored_write_in_areas
 }
