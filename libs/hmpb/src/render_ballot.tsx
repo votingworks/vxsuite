@@ -596,6 +596,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
   ballotContents: string[];
   electionDefinition: ElectionDefinition;
 }> {
+  assert(ballotProps.length > 0, 'No ballot props provided');
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
