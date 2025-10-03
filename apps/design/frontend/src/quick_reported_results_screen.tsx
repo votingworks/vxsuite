@@ -15,7 +15,10 @@ import { useParams } from 'react-router-dom';
 import React, { useState } from 'react';
 import { assert } from '@votingworks/basics';
 import { formatBallotHash, PrecinctSelection } from '@votingworks/types';
-import { getContestsForPrecinctAndElection } from '@votingworks/utils';
+import {
+  getContestsForPrecinctAndElection,
+  groupContestsByParty,
+} from '@votingworks/utils';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import {
@@ -103,6 +106,10 @@ export function QuickReportedResultsScreen(): JSX.Element | null {
     aggregatedResults.election,
     precinctSelection
   );
+  const [contestsByParty, nonPartisanContests] = groupContestsByParty(contests);
+  const partiesById = Object.fromEntries(
+    aggregatedResults.election.parties.map((p) => [p.id, p])
+  );
   return (
     <ElectionNavScreen electionId={electionId}>
       <Header>
@@ -150,13 +157,40 @@ export function QuickReportedResultsScreen(): JSX.Element | null {
             >
               Delete All {isLive ? 'Live' : 'Test'} Data
             </Button>
+            {Object.keys(contestsByParty).map((partyId) => (
+              <div key={`partyResults-${partyId}`}>
+                <h2 key={`partyId-${partyId}`}>
+                  {partiesById[partyId].name} Party Results
+                </h2>
+                <TallyReportColumns>
+                  {contestsByParty[partyId].map((contest) => {
+                    const currentContestResults =
+                      aggregatedResults.contestResults[contest.id];
+                    assert(
+                      currentContestResults,
+                      `missing scanned results for contest ${contest.id}`
+                    );
+                    return (
+                      <ContestResultsTable
+                        key={contest.id}
+                        election={aggregatedResults.election}
+                        contest={contest}
+                        scannedContestResults={currentContestResults}
+                      />
+                    );
+                  })}
+                </TallyReportColumns>
+              </div>
+            ))}
+            {Object.keys(contestsByParty).length > 0 &&
+              nonPartisanContests.length > 0 && <h2> Nonpartisan Results</h2>}
             <TallyReportColumns>
-              {contests.map((contest) => {
+              {nonPartisanContests.map((contest) => {
                 const currentContestResults =
                   aggregatedResults.contestResults[contest.id];
                 assert(
                   currentContestResults,
-                  `missing reported results for contest ${contest.id}`
+                  `missing scanned results for contest ${contest.id}`
                 );
                 return (
                   <ContestResultsTable

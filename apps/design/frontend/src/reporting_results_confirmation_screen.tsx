@@ -12,6 +12,7 @@ import { assert } from '@votingworks/basics';
 import { formatBallotHash } from '@votingworks/types';
 import {
   getContestsForPrecinctAndElection,
+  groupContestsByParty,
   maybeGetPrecinctIdFromSelection,
 } from '@votingworks/utils';
 import { processQrCodeReport } from './public_api';
@@ -115,6 +116,11 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
     election,
     reportData.precinctSelection
   );
+  const [contestsByParty, nonPartisanContests] =
+    groupContestsByParty(contestsForPrecinct);
+  const partiesById = Object.fromEntries(
+    election.parties.map((p) => [p.id, p])
+  );
 
   return (
     <ResultsScreen>
@@ -142,9 +148,34 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
               <strong>Precinct:</strong>{' '}
               {precinct ? precinct.name : 'All Precincts'}
             </p>
-            <h2>Results Reported</h2>
+            {Object.keys(contestsByParty).map((partyId) => (
+              <div key={`partyResults-${partyId}`}>
+                <h2 key={`partyId-${partyId}`}>
+                  {partiesById[partyId].name} Party Results
+                </h2>
+                <TallyReportColumns>
+                  {contestsByParty[partyId].map((contest) => {
+                    const currentContestResults = contestResults[contest.id];
+                    assert(
+                      currentContestResults,
+                      `missing scanned results for contest ${contest.id}`
+                    );
+                    return (
+                      <ContestResultsTable
+                        key={contest.id}
+                        election={election}
+                        contest={contest}
+                        scannedContestResults={currentContestResults}
+                      />
+                    );
+                  })}
+                </TallyReportColumns>
+              </div>
+            ))}
+            {Object.keys(contestsByParty).length > 0 &&
+              nonPartisanContests.length > 0 && <h2> Nonpartisan Results</h2>}
             <TallyReportColumns>
-              {contestsForPrecinct.map((contest) => {
+              {nonPartisanContests.map((contest) => {
                 const currentContestResults = contestResults[contest.id];
                 assert(
                   currentContestResults,
