@@ -40,8 +40,7 @@ fn score_timing_mark_geometry_match(
     timing_mark: &Rect,
     geometry: &Geometry,
 ) -> TimingMarkScore {
-    let image = &ballot_image.image;
-    let threshold = ballot_image.threshold;
+    let image = ballot_image.image();
     let image_rect = Rect::new(0, 0, image.width(), image.height());
     let expected_width = geometry.timing_mark_width_pixels() as PixelUnit;
     let expected_height = geometry.timing_mark_height_pixels() as PixelUnit;
@@ -64,11 +63,10 @@ fn score_timing_mark_geometry_match(
         for x in search_rect.left()..search_rect.right() {
             let point = Point::new(x, y);
             if image_rect.contains(point) {
-                let luma = image.get_pixel(x as u32, y as u32);
+                let pixel = ballot_image.get_pixel(x as u32, y as u32);
                 let expects_mark_pixel = expected_timing_mark_rect.contains(point);
-                let is_black_pixel = luma.0[0] <= threshold;
 
-                if expects_mark_pixel == is_black_pixel {
+                if expects_mark_pixel == pixel.is_foreground() {
                     if expects_mark_pixel {
                         mark_pixel_match_count += 1;
                     } else {

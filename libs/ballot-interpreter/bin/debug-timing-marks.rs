@@ -107,7 +107,7 @@ fn process_path<W: Write>(
     *prepare_image_duration += start.elapsed();
 
     let debug = if options.debug {
-        debug::ImageDebugWriter::new(path.to_path_buf(), ballot_page.ballot_image.image.clone())
+        debug::ImageDebugWriter::new(path.to_path_buf(), ballot_page.ballot_image.image().clone())
     } else {
         debug::ImageDebugWriter::disabled()
     };

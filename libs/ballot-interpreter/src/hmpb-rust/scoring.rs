@@ -10,6 +10,7 @@ use types_rs::geometry::{
     PixelPosition, PixelUnit, Point, Quadrilateral, Rect, SubGridUnit, SubPixelUnit,
 };
 
+use crate::ballot_card::BallotImage;
 use crate::image_utils::{count_pixels, count_pixels_in_shape};
 use crate::timing_marks::TimingMarks;
 use crate::{
@@ -97,8 +98,7 @@ pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
 #[allow(clippy::too_many_arguments)]
 pub fn score_bubble_marks_from_grid_layout(
-    img: &GrayImage,
-    threshold: u8,
+    img: &BallotImage,
     bubble_template: &GrayImage,
     timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
@@ -129,7 +129,6 @@ pub fn score_bubble_marks_from_grid_layout(
                                 expected_bubble_center,
                                 &location,
                                 DEFAULT_MAXIMUM_SEARCH_DISTANCE,
-                                threshold,
                             ),
                         )]
                     },
@@ -157,12 +156,11 @@ pub fn score_bubble_marks_from_grid_layout(
 /// because the bubble mark may not be exactly where we expect in the scanned
 /// image due to stretching or other distortions.
 pub fn score_bubble_mark(
-    img: &GrayImage,
+    ballot_image: &BallotImage,
     bubble_template: &GrayImage,
     expected_bubble_center: Point<SubPixelUnit>,
     location: &GridLocation,
     maximum_search_distance: PixelUnit,
-    threshold: u8,
 ) -> Option<ScoredBubbleMark> {
     struct Match {
         bounds: Rect,
@@ -195,10 +193,12 @@ pub fn score_bubble_mark(
                 continue;
             }
 
-            let cropped = img
+            let cropped = ballot_image
+                .image()
                 .view(x as PixelUnit, y as PixelUnit, width, height)
                 .to_image();
-            let cropped_and_thresholded = imageproc::contrast::threshold(&cropped, threshold);
+            let cropped_and_thresholded =
+                imageproc::contrast::threshold(&cropped, ballot_image.threshold());
 
             let match_diff = diff(&cropped_and_thresholded, bubble_template);
             let match_score = UnitIntervalScore(count_pixels(&match_diff, WHITE).ratio());
@@ -223,7 +223,8 @@ pub fn score_bubble_mark(
     }
 
     let best_match = best_match?;
-    let source_image = img
+    let source_image = ballot_image
+        .image()
         .view(
             best_match.bounds.left() as PixelUnit,
             best_match.bounds.top() as PixelUnit,
@@ -231,7 +232,8 @@ pub fn score_bubble_mark(
             best_match.bounds.height(),
         )
         .to_image();
-    let binarized_source_image = imageproc::contrast::threshold(&source_image, threshold);
+    let binarized_source_image =
+        imageproc::contrast::threshold(&source_image, ballot_image.threshold());
     let diff_image = diff(bubble_template, &binarized_source_image);
     let fill_score = UnitIntervalScore(count_pixels(&diff_image, BLACK).ratio());
 
@@ -259,8 +261,7 @@ pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
 /// be used to determine which write-in areas are most likely to contain a write-in
 /// vote even if the bubble is not filled in.
 pub fn score_write_in_areas(
-    image: &GrayImage,
-    threshold: u8,
+    image: &BallotImage,
     timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
     sheet_number: u32,
@@ -273,9 +274,7 @@ pub fn score_write_in_areas(
             let location = grid_position.location();
             grid_position.sheet_number() == sheet_number && location.side == side
         })
-        .filter_map(|grid_position| {
-            score_write_in_area(image, timing_marks, grid_position, threshold)
-        })
+        .filter_map(|grid_position| score_write_in_area(image, timing_marks, grid_position))
         .collect();
 
     debug.write("scored_write_in_areas", |canvas| {
@@ -286,10 +285,9 @@ pub fn score_write_in_areas(
 }
 
 fn score_write_in_area(
-    img: &GrayImage,
+    img: &BallotImage,
     timing_marks: &TimingMarks,
     grid_position: &GridPosition,
-    threshold: u8,
 ) -> Option<ScoredPositionArea> {
     let GridPosition::WriteIn { write_in_area, .. } = *grid_position else {
         return None;
@@ -310,7 +308,7 @@ fn score_write_in_area(
         bottom_left: bottom_left_corner,
         bottom_right: bottom_right_corner,
     };
-    let counted = count_pixels_in_shape(img, &shape, threshold);
+    let counted = count_pixels_in_shape(img, &shape);
     let score = UnitIntervalScore(counted.ratio());
 
     Some(ScoredPositionArea {

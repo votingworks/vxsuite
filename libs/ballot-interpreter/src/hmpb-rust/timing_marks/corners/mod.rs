@@ -60,7 +60,7 @@ pub fn find_timing_mark_grid(
     });
 
     let corners = corner_finding::BallotGridCorners::find_all(
-        ballot_image.image.dimensions().into(),
+        ballot_image.dimensions().into(),
         geometry,
         &candidates,
         &options.corner_finding_options,

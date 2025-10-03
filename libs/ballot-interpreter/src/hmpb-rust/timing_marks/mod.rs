@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use image::{imageops::rotate180, GrayImage};
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::{
@@ -10,8 +9,8 @@ use types_rs::{
     hmpb,
 };
 
-use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::scoring::CandidateTimingMark;
+use crate::{ballot_card::BallotImage, scoring::UnitIntervalScore};
 use crate::{
     ballot_card::{Geometry, Orientation},
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
@@ -432,22 +431,17 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
 
 pub fn normalize_orientation(
     geometry: &Geometry,
-    timing_marks: TimingMarks,
-    image: &GrayImage,
+    mut timing_marks: TimingMarks,
+    mut ballot_image: BallotImage,
     orientation: Orientation,
     debug: &mut ImageDebugWriter,
-) -> (TimingMarks, GrayImage) {
+) -> (TimingMarks, BallotImage) {
     // Handle rotating the image and our timing marks if necessary.
-    let (timing_marks, normalized_image) = if orientation == Orientation::Portrait {
-        (timing_marks, image.clone())
-    } else {
-        let (width, height) = image.dimensions();
+    if orientation == Orientation::PortraitReversed {
         debug.rotate180();
-        (
-            timing_marks.rotate(Size { width, height }),
-            rotate180(image),
-        )
-    };
+        timing_marks = timing_marks.rotate(ballot_image.dimensions().into());
+        ballot_image.rotate180();
+    }
 
     debug.write(
         "complete_timing_marks_after_orientation_correction",
@@ -456,7 +450,7 @@ pub fn normalize_orientation(
         },
     );
 
-    (timing_marks, normalized_image)
+    (timing_marks, ballot_image)
 }
 
 pub trait DefaultForGeometry {
