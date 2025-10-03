@@ -1,4 +1,5 @@
 import { assert } from '@votingworks/basics';
+import { useRef } from 'react';
 import styled from 'styled-components';
 
 const ProgressBarContainer = styled.div`
@@ -19,9 +20,20 @@ const ProgressBarFill = styled.div`
 
 export function ProgressBar({ progress }: { progress: number }): JSX.Element {
   assert(progress >= 0 && progress <= 1, 'Progress must be between 0 and 1');
+  // We only want the progress bar to animate forward, not backward. So we
+  // create a new fill element whenever the progress resets.
+  const lastProgress = useRef(progress);
+  const lastReset = useRef(Date.now());
+  if (progress < lastProgress.current) {
+    lastReset.current = Date.now();
+  }
+  lastProgress.current = progress;
   return (
     <ProgressBarContainer>
-      <ProgressBarFill style={{ width: `${progress * 100}%` }} />
+      <ProgressBarFill
+        key={lastReset.current}
+        style={{ width: `${progress * 100}%` }}
+      />
     </ProgressBarContainer>
   );
 }
