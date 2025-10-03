@@ -54,7 +54,6 @@ export async function createPrecinctTestDeck({
   if (ballotSpecs.length === 0) {
     return undefined;
   }
-  let ballotsRendered = 0;
   const markedBallots = await rendererPool.runTasks(
     ballotSpecs.map((ballotSpec) => async (renderer) => {
       const { props, contents } = find(
@@ -70,10 +69,9 @@ export async function createPrecinctTestDeck({
         markedBallot,
         electionDefinition
       );
-      ballotsRendered += 1;
-      emitProgress(ballotsRendered);
       return ballotPdf;
-    })
+    }),
+    emitProgress
   );
   return await concatenatePdfs(markedBallots);
 }

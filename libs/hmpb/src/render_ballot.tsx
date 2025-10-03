@@ -601,8 +601,6 @@ export async function layOutBallotsAndCreateElectionDefinition<
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
-  let progress = 0;
-  emitProgress?.('Laying out ballots', progress, ballotProps.length);
   const ballotLayouts = await rendererPool.runTasks(
     ballotProps.map((props) => async (renderer) => {
       // We currently only need to return errors to the user in ballot preview -
@@ -616,14 +614,14 @@ export async function layOutBallotsAndCreateElectionDefinition<
         template.isAllBubbleBallot
       );
       const ballotContent = await document.getContent();
-      progress += 1;
-      emitProgress?.('Laying out ballots', progress, ballotProps.length);
       return {
         props,
         gridLayout,
         ballotContent,
       };
-    })
+    }),
+    emitProgress &&
+      ((progress, total) => emitProgress('Laying out ballots', progress, total))
   );
 
   // All ballots of a given ballot style must have the same grid layout.
@@ -741,8 +739,6 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
       emitProgress
     );
 
-  let progress = 0;
-  emitProgress?.('Rendering ballots', progress, ballotProps.length);
   const ballotPdfs = await rendererPool.runTasks(
     iter(ballotProps)
       .zip(ballotContents)
@@ -753,11 +749,12 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
           document,
           electionDefinition
         );
-        progress += 1;
-        emitProgress?.('Rendering ballots', progress, ballotProps.length);
         return ballotPdf;
       })
-      .toArray()
+      .toArray(),
+    emitProgress &&
+      ((progress, total) =>
+        emitProgress('Rendering ballot PDFs', progress, total))
   );
   return { ballotPdfs, electionDefinition };
 }

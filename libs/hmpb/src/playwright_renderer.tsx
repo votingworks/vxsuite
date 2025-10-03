@@ -164,22 +164,36 @@ export async function createPlaywrightRendererPool(
   const pages: Page[] = [];
   let isRunningTasks = false;
 
-  async function runTasks<T>(tasks: Array<Task<T>>): Promise<T[]> {
+  async function runTasks<T>(
+    tasks: Array<Task<T>>,
+    emitProgress?: (progress: number, total: number) => void
+  ): Promise<T[]> {
     assert(!isRunningTasks, 'Cannot run multiple sets of tasks concurrently');
     isRunningTasks = true;
+
+    emitProgress?.(0, tasks.length);
+    let numTasksCompleted = 0;
+
     const results = await runTasksConcurrently({
       tasks: tasks.map((task) => async () => {
         const page = pages.pop() ?? (await context.newPage());
         const pageHandle = makePageHandle(page);
+
         const renderer = createRendererFromPage(pageHandle);
         const result = await task(renderer);
+
         assert(!page.isClosed(), 'Page should not be closed during task');
         pageHandle.void();
         pages.push(page);
+
+        numTasksCompleted += 1;
+        emitProgress?.(numTasksCompleted, tasks.length);
+
         return result;
       }),
       concurrencyLimit: size,
     });
+
     isRunningTasks = false;
     return results;
   }
