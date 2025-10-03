@@ -5,6 +5,7 @@ import {
   ElectionSerializationFormat,
 } from '@votingworks/types';
 import { Buffer, File as NodeFile } from 'node:buffer';
+import type { BackgroundTask } from '@votingworks/design-backend';
 import {
   provideApi,
   createMockApiClient,
@@ -18,6 +19,7 @@ import { ExportScreen } from './export_screen';
 import { routes } from './routes';
 import { downloadFile } from './utils';
 import { generalElectionRecord } from '../test/fixtures';
+import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api';
 
 const electionRecord = generalElectionRecord(user.orgId);
 const electionId = electionRecord.election.id;
@@ -30,6 +32,8 @@ vi.mock(import('./utils'), async (importActual) => ({
 }));
 
 let apiMock: MockApiClient;
+
+vi.useFakeTimers({ shouldAdvanceTime: true });
 
 beforeEach(() => {
   apiMock = createMockApiClient();
@@ -70,37 +74,49 @@ async function exportTestDecksAndExpectDownload(
     .expectCallWith({ electionId, electionSerializationFormat })
     .resolves();
 
-  userEvent.click(screen.getButton('Export Test Decks'));
+  const testDecksTask: BackgroundTask = {
+    createdAt: taskCreatedAt,
+    id: '1',
+    payload: JSON.stringify({ electionId }),
+    taskName: 'generate_test_decks',
+  };
 
-  apiMock.getTestDecks.expectRepeatedCallsWith({ electionId }).resolves({
-    task: {
-      createdAt: taskCreatedAt,
-      id: '1',
-      payload: JSON.stringify({ electionId }),
-      taskName: 'generate_election_package',
-    },
+  apiMock.getTestDecks.expectCallWith({ electionId }).resolves({
+    task: testDecksTask,
   });
 
-  await screen.findByText('Exporting Test Decks...');
-  expect(screen.queryByText('Export Test Decks')).not.toBeInTheDocument();
+  userEvent.click(screen.getButton('Export Test Decks'));
+  await screen.findByText('Exporting Test Decks');
+  screen.getByText('Starting');
+  expect(screen.getByRole('progressbar').firstChild).toHaveStyle({
+    width: '0%',
+  });
+  expect(screen.queryButton('Export Test Decks')).not.toBeInTheDocument();
+
+  apiMock.getTestDecks.expectCallWith({ electionId }).resolves({
+    task: {
+      ...testDecksTask,
+      progress: { label: 'Rendering test decks', progress: 50, total: 100 },
+    },
+  });
+  vi.advanceTimersByTime(BACKGROUND_TASK_POLLING_INTERVAL_MS);
+  await screen.findByText('Rendering test decks');
+  expect(screen.getByRole('progressbar').firstChild).toHaveStyle({
+    width: '50%',
+  });
 
   const fileUrl = `https://mock-file-storage/${electionRecord.orgId}/test-decks-1234567890.zip`;
   apiMock.getTestDecks.expectCallWith({ electionId }).resolves({
     task: {
+      ...testDecksTask,
       completedAt: new Date(taskCreatedAt.getTime() + 2000),
-      createdAt: taskCreatedAt,
-      id: '1',
-      payload: JSON.stringify({ electionId }),
-      startedAt: new Date(taskCreatedAt.getTime() + 1000),
-      taskName: 'generate_test_decks',
+      progress: { label: 'Rendering test decks', progress: 100, total: 100 },
     },
     url: fileUrl,
   });
-
-  await screen.findByText('Export Test Decks', undefined, {
-    timeout: 2000,
-  });
-  expect(screen.queryByText('Exporting Test Decks...')).not.toBeInTheDocument();
+  vi.advanceTimersByTime(BACKGROUND_TASK_POLLING_INTERVAL_MS);
+  await screen.findByText('Export Test Decks');
+  expect(screen.queryByText('Exporting Test Decks')).not.toBeInTheDocument();
 
   await waitFor(() => {
     expect(vi.mocked(downloadFile)).toHaveBeenCalledWith(fileUrl);
@@ -135,39 +151,52 @@ test('export election package and ballots', async () => {
       numAuditIdBallots: undefined,
     })
     .resolves();
-  apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
-    task: {
-      createdAt: taskCreatedAt,
-      id: '1',
-      payload: JSON.stringify({ electionId }),
-      taskName: 'generate_election_package',
-    },
+  const electionPackageTask: BackgroundTask = {
+    createdAt: taskCreatedAt,
+    id: '1',
+    payload: JSON.stringify({ electionId }),
+    taskName: 'generate_election_package',
+  };
+  apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
+    task: electionPackageTask,
   });
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
-  await screen.findByText('Exporting Election Package and Ballots...');
+  await screen.findByText('Exporting Election Package and Ballots');
   expect(
-    screen.queryByText('Export Election Package and Ballots')
+    screen.queryButton('Export Election Package and Ballots')
   ).not.toBeInTheDocument();
+  screen.getByText('Starting');
+  expect(screen.getByRole('progressbar').firstChild).toHaveStyle({
+    width: '0%',
+  });
+
+  apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
+    task: {
+      ...electionPackageTask,
+      progress: { label: 'Rendering ballot PDFs', progress: 50, total: 100 },
+    },
+  });
+  vi.advanceTimersByTime(BACKGROUND_TASK_POLLING_INTERVAL_MS);
+  await screen.findByText('Rendering ballot PDFs');
+  expect(screen.getByRole('progressbar').firstChild).toHaveStyle({
+    width: '50%',
+  });
 
   const fileUrl = `https://mock-file-storage/${electionRecord.orgId}/election-package-1234567890.zip`;
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: {
+      ...electionPackageTask,
       completedAt: new Date(taskCreatedAt.getTime() + 2000),
-      createdAt: taskCreatedAt,
-      id: '1',
-      payload: JSON.stringify({ electionId }),
-      startedAt: new Date(taskCreatedAt.getTime() + 1000),
-      taskName: 'generate_election_package',
+      progress: { label: 'Rendering ballot PDFs', progress: 100, total: 100 },
     },
     url: fileUrl,
   });
+  vi.advanceTimersByTime(BACKGROUND_TASK_POLLING_INTERVAL_MS);
 
-  await screen.findByText('Export Election Package and Ballots', undefined, {
-    timeout: 2000,
-  });
+  await screen.findButton('Export Election Package and Ballots');
   expect(
-    screen.queryByText('Exporting Election Package and Ballots...')
+    screen.queryByText('Exporting Election Package and Ballots')
   ).not.toBeInTheDocument();
 
   await waitFor(() => {
@@ -210,7 +239,7 @@ test('with audio export checked', async () => {
   });
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
-  await screen.findByText('Exporting Election Package and Ballots...');
+  await screen.findByText('Exporting Election Package and Ballots');
   // 'export election package and ballots' fully covers export flow
 });
 
@@ -238,7 +267,7 @@ test('export election package error handling', async () => {
   });
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
-  await screen.findByText('Exporting Election Package and Ballots...');
+  await screen.findByText('Exporting Election Package and Ballots');
   expect(
     screen.queryByText('Export Election Package and Ballots')
   ).not.toBeInTheDocument();
@@ -259,7 +288,7 @@ test('export election package error handling', async () => {
     timeout: 2000,
   });
   expect(
-    screen.queryByText('Exporting Election Package and Ballots...')
+    screen.queryByText('Exporting Election Package and Ballots')
   ).not.toBeInTheDocument();
 
   await screen.findByText(
@@ -303,7 +332,7 @@ test('with sample ballots export checked', async () => {
   });
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
-  await screen.findByText('Exporting Election Package and Ballots...');
+  await screen.findByText('Exporting Election Package and Ballots');
   // 'export election package and ballots' fully covers export flow
 });
 
@@ -393,7 +422,7 @@ test('export ballots with audit ballot IDs', async () => {
   userEvent.type(numAuditIdBallotsInput, '0'); // Add 0 after 1 to make it 10
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
-  await screen.findByText('Exporting Election Package and Ballots...');
+  await screen.findByText('Exporting Election Package and Ballots');
 });
 
 test('decrypt ballot audit IDs in CVRs', async () => {

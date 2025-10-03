@@ -16,6 +16,8 @@ import {
 } from '@votingworks/types';
 import { generateId } from './utils';
 
+export const BACKGROUND_TASK_POLLING_INTERVAL_MS = 1_000;
+
 export type ApiClient = grout.Client<Api>;
 
 export function createApiClient(): ApiClient {
@@ -597,7 +599,9 @@ export const getElectionPackage = {
       {
         // Poll if an export is in progress
         refetchInterval: (result) =>
-          result?.task && !result.task.completedAt ? 1000 : 0,
+          result?.task && !result.task.completedAt
+            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
+            : 0,
       }
     );
   },
@@ -630,7 +634,9 @@ export const getTestDecks = {
       {
         // Poll if an export is in progress
         refetchInterval: (result) =>
-          result?.task && !result.task.completedAt ? 1000 : 0,
+          result?.task && !result.task.completedAt
+            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
+            : 0,
       }
     );
   },
