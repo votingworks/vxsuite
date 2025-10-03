@@ -49,7 +49,7 @@ export async function createPrecinctTestDeck({
   electionDefinition: ElectionDefinition;
   ballotSpecs: TestDeckBallotSpec[];
   ballots: Array<{ props: BaseBallotProps; contents: string }>;
-  emitProgress: (ballotsRendered: number) => void;
+  emitProgress?: (ballotsRendered: number) => void;
 }): Promise<Uint8Array | undefined> {
   if (ballotSpecs.length === 0) {
     return undefined;

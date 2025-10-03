@@ -14,6 +14,7 @@ import { assert, find, iter } from '@votingworks/basics';
 import {
   buildContestResultsFixture,
   CachedElectionLookups,
+  generateTestDeckBallots,
   getBallotStyleGroupsForPrecinctOrSplit,
 } from '@votingworks/utils';
 import {
@@ -71,10 +72,15 @@ describe('createPrecinctTestDeck', () => {
       .map(([props, contents]) => ({ props, contents }))
       .toArray();
 
+    const ballotSpecs = generateTestDeckBallots({
+      election,
+      precinctId,
+      markingMethod: 'hand',
+    });
     const testDeckDocument = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition,
-      precinctId,
+      ballotSpecs,
       ballots,
     });
     await expect(testDeckDocument).toMatchPdfSnapshot();
@@ -120,10 +126,15 @@ describe('createPrecinctTestDeck', () => {
       .map(([props, contents]) => ({ props, contents }))
       .toArray();
 
+    const ballotSpecs = generateTestDeckBallots({
+      election,
+      precinctId: precinct.id,
+      markingMethod: 'hand',
+    });
     const testDeckDocument = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition: layouts.electionDefinition,
-      precinctId: precinct.id,
+      ballotSpecs,
       ballots,
     });
     await expect(testDeckDocument).toMatchPdfSnapshot();
@@ -134,20 +145,11 @@ describe('createPrecinctTestDeck', () => {
     const electionDefinition = (
       await readElection(fixtures.electionPath)
     ).unsafeUnwrap();
-    const { election } = electionDefinition;
-    const precinctWithNoBallotStyles = find(
-      election.precincts,
-      (precinct) =>
-        CachedElectionLookups.getBallotStylesByPrecinctId(
-          electionDefinition,
-          precinct.id
-        ).length === 0
-    );
 
     const testDeckDocument = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition,
-      precinctId: precinctWithNoBallotStyles.id,
+      ballotSpecs: [],
       ballots: [], // doesn't matter
     });
     expect(testDeckDocument).toBeUndefined();
