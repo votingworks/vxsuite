@@ -1,20 +1,70 @@
 use std::{cmp::Ordering, io, ops::Range};
 
-use image::GrayImage;
+use image::{GenericImageView, GrayImage};
 use imageproc::contrast::{otsu_level, threshold};
 use serde::Serialize;
 
-use crate::image_utils::{bleed, Inset, BLACK};
+use crate::image_utils::{bleed, find_scanned_document_inset, Inset, BLACK};
 
 use types_rs::{
     ballot_card::PaperSize,
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
 };
 
+#[must_use]
 pub struct BallotImage {
     pub image: GrayImage,
     pub threshold: u8,
     pub border_inset: Inset,
+}
+
+impl BallotImage {
+    /// This sets the ratio of pixels required to be white (above the threshold) in
+    /// a given edge row or column to consider it no longer eligible to be cropped.
+    /// This used to be 50%, but we found that too much of the top/bottom of the
+    /// actual ballot content was being cropped, especially in the case of a skewed
+    /// ballot. In such cases, one of the corners would sometimes be partially or
+    /// completely cropped, leading to the ballot being rejected. We chose the new
+    /// value by trial and error, in particular by seeing how much cropping occurred
+    /// on ballots with significant but still acceptable skew (i.e. 3 degrees).
+    const CROP_BORDERS_THRESHOLD_RATIO: f32 = 0.1;
+
+    /// Return the image with the black border cropped off.
+    #[must_use]
+    pub fn from_image(image: GrayImage) -> Option<BallotImage> {
+        let threshold = otsu_level(&image);
+        let border_inset =
+            find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
+
+        if border_inset.is_zero() {
+            // Don't bother cropping if there's no inset.
+            return Some(BallotImage {
+                image,
+                threshold,
+                border_inset,
+            });
+        }
+
+        let image = image
+            .view(
+                border_inset.left,
+                border_inset.top,
+                image.width() - border_inset.left - border_inset.right,
+                image.height() - border_inset.top - border_inset.bottom,
+            )
+            .to_image();
+
+        // Re-compute the threshold after cropping to ensure future
+        // re-interpretations based on the saved image are consistent with the
+        // initial one.
+        let threshold = otsu_level(&image);
+
+        Some(BallotImage {
+            image,
+            threshold,
+            border_inset,
+        })
+    }
 }
 
 pub struct BallotPage {

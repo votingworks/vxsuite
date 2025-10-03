@@ -8,7 +8,6 @@ use crate::{
     ballot_card::{load_ballot_scan_bubble_image, BallotImage},
     debug::{draw_diagnostic_cells, ImageDebugWriter},
     image_utils::{count_pixels, BLACK},
-    interpret::crop_ballot_page_image_borders,
 };
 
 const FAIL_SCORE: f32 = 0.05;
@@ -89,7 +88,7 @@ pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
             CROP_BORDER_PIXELS + cell_height / 2,
         ),
     ];
-    let Some(ballot_image) = crop_ballot_page_image_borders(img) else {
+    let Some(ballot_image) = BallotImage::from_image(img) else {
         return false;
     };
 
