@@ -152,7 +152,7 @@ pub enum BallotPixel {
     /// A black pixel.
     Foreground,
 
-    // A white pixel.
+    /// A white pixel.
     Background,
 }
 
