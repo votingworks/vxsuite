@@ -14,6 +14,7 @@ use crate::{
 use types_rs::{
     ballot_card::PaperSize,
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
+    pair::Pair,
 };
 
 /// An image of a ballot after it has had any black areas outside the paper
@@ -368,8 +369,14 @@ impl BallotCard {
         &self.back_page
     }
 
-    pub fn pages_mut(&mut self) -> (&mut BallotPage, &mut BallotPage) {
-        (&mut self.front_page, &mut self.back_page)
+    #[must_use]
+    pub fn as_pair(&self) -> Pair<&BallotPage> {
+        Pair::new(&self.front_page, &self.back_page)
+    }
+
+    #[must_use]
+    pub fn as_pair_mut(&mut self) -> Pair<&mut BallotPage> {
+        Pair::new(&mut self.front_page, &mut self.back_page)
     }
 }
 
