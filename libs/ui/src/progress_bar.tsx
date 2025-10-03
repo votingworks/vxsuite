@@ -29,7 +29,7 @@ export function ProgressBar({ progress }: { progress: number }): JSX.Element {
   }
   lastProgress.current = progress;
   return (
-    <ProgressBarContainer>
+    <ProgressBarContainer role="progressbar">
       <ProgressBarFill
         key={lastReset.current}
         style={{ width: `${progress * 100}%` }}
