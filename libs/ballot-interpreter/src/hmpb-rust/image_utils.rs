@@ -4,6 +4,7 @@ use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit};
 use types_rs::{election::UnitIntervalValue, geometry::Quadrilateral};
 
+use crate::ballot_card::BallotImage;
 use crate::{
     debug::{self, ImageDebugWriter},
     scoring::UnitIntervalScore,
@@ -50,6 +51,20 @@ pub struct Inset<T = PixelUnit> {
 
     /// The number of units to remove from the right of the image.
     pub right: T,
+}
+
+impl<T> Default for Inset<T>
+where
+    T: Default,
+{
+    fn default() -> Self {
+        Self {
+            top: T::default(),
+            bottom: T::default(),
+            left: T::default(),
+            right: T::default(),
+        }
+    }
 }
 
 impl<T> Inset<T>
@@ -154,26 +169,22 @@ pub fn count_pixels(img: &GrayImage, luma: Luma<u8>) -> CountedPixels {
 
 /// Count the number of pixels in an image that are within the given shape and
 /// at or below the given threshold.
-pub fn count_pixels_in_shape(
-    img: &GrayImage,
-    shape: &Quadrilateral,
-    threshold: u8,
-) -> CountedPixels {
+pub fn count_pixels_in_shape(img: &BallotImage, shape: &Quadrilateral) -> CountedPixels {
     let mut counted = CountedPixels::default();
     let bounds = shape.bounds();
     for x in bounds.left()..bounds.right() {
-        if x < 0 || x >= img.width() as i32 {
+        if x < 0 || x >= img.image.width() as i32 {
             continue;
         }
 
         for y in bounds.top()..bounds.bottom() {
-            if y < 0 || y >= img.height() as i32 {
+            if y < 0 || y >= img.image.height() as i32 {
                 continue;
             }
 
             if shape.contains_subpixel(x as f32 + 0.5, y as f32 + 0.5) {
                 counted.examined += 1;
-                if img.get_pixel(x as u32, y as u32).0[0] <= threshold {
+                if img.image.get_pixel(x as u32, y as u32).0[0] <= img.threshold {
                     counted.matched += 1;
                 }
             }
@@ -260,8 +271,7 @@ pub fn find_scanned_document_inset(
  * on the scanner glass). Returns a list of the x-coordinate of each streak.
  */
 pub fn detect_vertical_streaks(
-    image: &GrayImage,
-    threshold: u8,
+    ballot_image: &BallotImage,
     debug: &ImageDebugWriter,
 ) -> Vec<PixelPosition> {
     const MIN_STREAK_SCORE: UnitIntervalScore = UnitIntervalScore(0.75);
@@ -277,14 +287,17 @@ pub fn detect_vertical_streaks(
     // invariant that there are no printed features that span the entire page
     // top to bottom without a gap greater than MAX_WHITE_GAP_PIXELS.
 
-    let (width, height) = image.dimensions();
+    let (width, height) = ballot_image.image.dimensions();
     let x_range = BORDER_COLUMNS_TO_EXCLUDE - 1..width - BORDER_COLUMNS_TO_EXCLUDE;
     let binarized_columns = x_range.clone().map(|x| {
         let binarized_column = (0..height)
             .map(|y| {
-                [image.get_pixel(x, y), image.get_pixel(x + 1, y)]
-                    .iter()
-                    .any(|pixel| pixel[0] <= threshold)
+                [
+                    ballot_image.image.get_pixel(x, y),
+                    ballot_image.image.get_pixel(x + 1, y),
+                ]
+                .iter()
+                .any(|pixel| pixel[0] <= ballot_image.threshold)
             })
             .collect::<Vec<_>>();
         (x as PixelPosition, binarized_column)
@@ -326,7 +339,12 @@ pub fn detect_vertical_streaks(
         .collect::<Vec<_>>();
 
     debug.write("vertical_streaks", |canvas| {
-        debug::draw_vertical_streaks_debug_image_mut(canvas, threshold, x_range, &streaks);
+        debug::draw_vertical_streaks_debug_image_mut(
+            canvas,
+            ballot_image.threshold,
+            x_range,
+            &streaks,
+        );
     });
 
     streaks.into_iter().map(|(x, _, _)| x).collect()

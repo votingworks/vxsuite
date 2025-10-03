@@ -527,7 +527,7 @@ pub fn ballot_card(
         ]
         .par_iter()
         .map(|(label, side, debug)| {
-            let streaks = detect_vertical_streaks(&side.image, side.threshold, debug);
+            let streaks = detect_vertical_streaks(side, debug);
             if streaks.is_empty() {
                 Ok(())
             } else {
@@ -592,16 +592,16 @@ pub fn ballot_card(
     // We'll find the appropriate metadata, use it to normalize the image and
     // grid orientation, and extract the ballot style from it.
     let (
-        (front_timing_marks, front_image, front_threshold, front_metadata, front_debug),
-        (back_timing_marks, back_image, back_threshold, back_metadata, back_debug),
+        (front_timing_marks, front_ballot_image, front_metadata, front_debug),
+        (back_timing_marks, back_ballot_image, back_metadata, back_debug),
         ballot_style_id,
     ) = match options.election.ballot_layout.metadata_encoding {
         MetadataEncoding::QrCode => {
             let (side_a_qr_code_result, side_b_qr_code_result) = par_map_pair(
-                (&side_a.image, &side_a_debug, SIDE_A_LABEL),
-                (&side_b.image, &side_b_debug, SIDE_B_LABEL),
+                (&side_a, &side_a_debug, SIDE_A_LABEL),
+                (&side_b, &side_b_debug, SIDE_B_LABEL),
                 |(image, debug, label)| {
-                    let qr_code = qr_code::detect(image, debug).map_err(|e| {
+                    let qr_code = qr_code::detect(&image.image, debug).map_err(|e| {
                         Error::InvalidQrCodeMetadata {
                             label: label.to_owned(),
                             message: e.to_string(),
@@ -701,15 +701,19 @@ pub fn ballot_card(
             let (side_a, side_b) = (
                 (
                     side_a_normalized_grid,
-                    side_a_normalized_image,
-                    side_a.threshold,
+                    BallotImage {
+                        image: side_a_normalized_image,
+                        ..side_a
+                    },
                     BallotPageMetadata::QrCode(side_a_metadata.clone()),
                     side_a_debug,
                 ),
                 (
                     side_b_normalized_grid,
-                    side_b_normalized_image,
-                    side_b.threshold,
+                    BallotImage {
+                        image: side_b_normalized_image,
+                        ..side_b
+                    },
                     BallotPageMetadata::QrCode(side_b_metadata),
                     side_b_debug,
                 ),
@@ -743,23 +747,20 @@ pub fn ballot_card(
 
     let (front_scored_bubble_marks, back_scored_bubble_marks) = par_map_pair(
         (
-            &front_image,
-            front_threshold,
+            &front_ballot_image,
             &front_timing_marks,
             BallotSide::Front,
             &front_debug,
         ),
         (
-            &back_image,
-            back_threshold,
+            &back_ballot_image,
             &back_timing_marks,
             BallotSide::Back,
             &back_debug,
         ),
-        |(image, threshold, timing_marks, side, debug)| {
+        |(ballot_image, timing_marks, side, debug)| {
             score_bubble_marks_from_grid_layout(
-                image,
-                threshold,
+                ballot_image,
                 &options.bubble_template,
                 timing_marks,
                 grid_layout,
@@ -784,36 +785,28 @@ pub fn ballot_card(
     let (front_write_in_area_scores, back_write_in_area_scores) = match options.write_in_scoring {
         WriteInScoring::Enabled => par_map_pair(
             (
-                &front_image,
-                front_threshold,
+                &front_ballot_image,
                 &front_timing_marks,
                 BallotSide::Front,
                 &front_debug,
             ),
             (
-                &back_image,
-                back_threshold,
+                &back_ballot_image,
                 &back_timing_marks,
                 BallotSide::Back,
                 &back_debug,
             ),
-            |(image, threshold, grid, side, debug)| {
-                score_write_in_areas(
-                    image,
-                    threshold,
-                    grid,
-                    grid_layout,
-                    sheet_number,
-                    side,
-                    debug,
-                )
+            |(ballot_image, grid, side, debug)| {
+                score_write_in_areas(ballot_image, grid, grid_layout, sheet_number, side, debug)
             },
         ),
         WriteInScoring::Disabled => Default::default(),
     };
 
-    let normalized_front_image = imageproc::contrast::threshold(&front_image, front_threshold);
-    let normalized_back_image = imageproc::contrast::threshold(&back_image, back_threshold);
+    let normalized_front_image =
+        imageproc::contrast::threshold(&front_ballot_image.image, front_ballot_image.threshold);
+    let normalized_back_image =
+        imageproc::contrast::threshold(&back_ballot_image.image, back_ballot_image.threshold);
 
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
