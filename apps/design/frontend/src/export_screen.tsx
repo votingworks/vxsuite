@@ -218,10 +218,13 @@ export function ExportScreen(): JSX.Element | null {
         </Column>
 
         <H2>Export</H2>
-        {features.EXPORT_TEST_DECKS && (
-          <P>
-            {testDecks.task && !testDecks.task.completedAt ? (
-              <Card color="primary" style={{ maxWidth: '30rem' }}>
+        <Column style={{ gap: '0.5rem', alignItems: 'flex-start' }}>
+          {features.EXPORT_TEST_DECKS &&
+            (testDecks.task && !testDecks.task.completedAt ? (
+              <Card
+                color="primary"
+                style={{ alignSelf: 'stretch', maxWidth: '30rem' }}
+              >
                 <H4>Exporting Test Decks</H4>
                 <P>{testDecks.task.progress?.label ?? 'Starting'}</P>
                 <ProgressBar
@@ -241,12 +244,12 @@ export function ExportScreen(): JSX.Element | null {
               >
                 Export Test Decks
               </Button>
-            )}
-          </P>
-        )}
-        <P>
+            ))}
           {electionPackage.task && !electionPackage.task.completedAt ? (
-            <Card color="primary" style={{ maxWidth: '30rem' }}>
+            <Card
+              color="primary"
+              style={{ alignSelf: 'stretch', maxWidth: '30rem' }}
+            >
               <H4>Exporting Election Package and Ballots</H4>
               <P>{electionPackage.task.progress?.label ?? 'Starting'}</P>
               <ProgressBar
@@ -267,30 +270,28 @@ export function ExportScreen(): JSX.Element | null {
               Export Election Package and Ballots
             </Button>
           )}
-        </P>
-        {exportError && (
-          <Callout color="danger" icon="Danger" style={{ margin: '0.5rem 0' }}>
-            An unexpected error occurred while exporting. Please try again.
-          </Callout>
-        )}
+          {exportError && (
+            <Callout
+              color="danger"
+              icon="Danger"
+              style={{ margin: '0.5rem 0' }}
+            >
+              An unexpected error occurred while exporting. Please try again.
+            </Callout>
+          )}
 
-        <P>
           <CheckboxButton
             label="Include audio"
             isChecked={shouldExportAudio}
             onChange={(isChecked) => setShouldExportAudio(isChecked)}
           />
-        </P>
 
-        <P>
           <CheckboxButton
             label="Include sample ballots"
             isChecked={shouldExportSampleBallots}
             onChange={(isChecked) => setShouldExportSampleBallots(isChecked)}
           />
-        </P>
 
-        <P>
           <CheckboxButton
             label="Format election using CDF"
             isChecked={electionSerializationFormat === 'cdf'}
@@ -298,8 +299,7 @@ export function ExportScreen(): JSX.Element | null {
               setElectionSerializationFormat(isChecked ? 'cdf' : 'vxf')
             }
           />
-        </P>
-        <P>
+
           <CheckboxButton
             label="Generate audit IDs for ballots"
             isChecked={numAuditIdBallots !== undefined}
@@ -307,17 +307,18 @@ export function ExportScreen(): JSX.Element | null {
               setNumAuditIdBallots(isChecked ? 1 : undefined)
             }
           />
-        </P>
-        <InputGroup label="Number of Audit IDs to Generate">
-          <input
-            type="number"
-            min={1}
-            max={100}
-            value={numAuditIdBallots ?? ''}
-            onChange={(e) => setNumAuditIdBallots(e.target.valueAsNumber)}
-            disabled={numAuditIdBallots === undefined}
-          />
-        </InputGroup>
+
+          <InputGroup label="Number of Audit IDs to Generate">
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={numAuditIdBallots ?? ''}
+              onChange={(e) => setNumAuditIdBallots(e.target.valueAsNumber)}
+              disabled={numAuditIdBallots === undefined}
+            />
+          </InputGroup>
+        </Column>
 
         <H2>Decrypt CVR Ballot Audit IDs</H2>
         <InputGroup label="Secret Key">
