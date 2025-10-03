@@ -55,10 +55,10 @@ fn generate_cells(
     cells
 }
 
-fn inspect_cells(img: &BallotImage, cells: &[Rect]) -> (Vec<Rect>, Vec<Rect>) {
+fn inspect_cells(ballot_image: &BallotImage, cells: &[Rect]) -> (Vec<Rect>, Vec<Rect>) {
     let (failed_cells, passed_cells) = cells.par_iter().partition(|cell| {
-        let cropped = img
-            .image
+        let cropped = ballot_image
+            .image()
             .view(
                 cell.left() as u32,
                 cell.top() as u32,
@@ -66,7 +66,8 @@ fn inspect_cells(img: &BallotImage, cells: &[Rect]) -> (Vec<Rect>, Vec<Rect>) {
                 cell.height(),
             )
             .to_image();
-        let cropped_and_thresholded = imageproc::contrast::threshold(&cropped, img.threshold);
+        let cropped_and_thresholded =
+            imageproc::contrast::threshold(&cropped, ballot_image.threshold());
         let match_score = count_pixels(&cropped_and_thresholded, BLACK).ratio();
         match_score > FAIL_SCORE
     });
@@ -88,7 +89,7 @@ pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
             CROP_BORDER_PIXELS + cell_height / 2,
         ),
     ];
-    let Some(ballot_image) = BallotImage::from_image(img) else {
+    let Some(mut ballot_image) = BallotImage::from_image(img) else {
         return false;
     };
 
@@ -98,22 +99,19 @@ pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
             generate_cells(
                 left_start,
                 top_start,
-                ballot_image.image.width() - CROP_BORDER_PIXELS,
-                ballot_image.image.height() - CROP_BORDER_PIXELS,
+                ballot_image.width() - CROP_BORDER_PIXELS,
+                ballot_image.height() - CROP_BORDER_PIXELS,
                 cell_width,
                 cell_height,
             )
         })
         .collect::<Vec<_>>();
 
-    let ballot_image = BallotImage {
-        threshold: ballot_image.threshold.min(MAX_WHITE_THRESHOLD),
-        ..ballot_image
-    };
+    ballot_image.clamp_threshold(0, MAX_WHITE_THRESHOLD);
     let (passed_cells, failed_cells) = inspect_cells(&ballot_image, &cells);
 
     let debug = debug_path.map_or_else(ImageDebugWriter::disabled, |base| {
-        ImageDebugWriter::new(base, ballot_image.image.clone())
+        ImageDebugWriter::new(base, ballot_image.image().clone())
     });
     debug.write("diagnostic", |canvas| {
         draw_diagnostic_cells(canvas, &passed_cells, &failed_cells);

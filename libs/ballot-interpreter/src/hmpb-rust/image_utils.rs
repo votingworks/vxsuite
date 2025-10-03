@@ -1,3 +1,5 @@
+use std::mem::swap;
+
 use image::{GenericImage, GrayImage, ImageError, Luma, Rgb};
 use itertools::Itertools;
 use serde::Serialize;
@@ -76,6 +78,12 @@ where
             && self.bottom == T::default()
             && self.left == T::default()
             && self.right == T::default()
+    }
+
+    /// Rotates in place, swapping left/right and top/bottom.
+    pub fn rotate180(&mut self) {
+        swap(&mut self.left, &mut self.right);
+        swap(&mut self.top, &mut self.bottom);
     }
 }
 
@@ -169,22 +177,22 @@ pub fn count_pixels(img: &GrayImage, luma: Luma<u8>) -> CountedPixels {
 
 /// Count the number of pixels in an image that are within the given shape and
 /// at or below the given threshold.
-pub fn count_pixels_in_shape(img: &BallotImage, shape: &Quadrilateral) -> CountedPixels {
+pub fn count_pixels_in_shape(ballot_image: &BallotImage, shape: &Quadrilateral) -> CountedPixels {
     let mut counted = CountedPixels::default();
     let bounds = shape.bounds();
     for x in bounds.left()..bounds.right() {
-        if x < 0 || x >= img.image.width() as i32 {
+        if x < 0 || x >= ballot_image.width() as i32 {
             continue;
         }
 
         for y in bounds.top()..bounds.bottom() {
-            if y < 0 || y >= img.image.height() as i32 {
+            if y < 0 || y >= ballot_image.height() as i32 {
                 continue;
             }
 
             if shape.contains_subpixel(x as f32 + 0.5, y as f32 + 0.5) {
                 counted.examined += 1;
-                if img.image.get_pixel(x as u32, y as u32).0[0] <= img.threshold {
+                if ballot_image.get_pixel(x as u32, y as u32).is_foreground() {
                     counted.matched += 1;
                 }
             }
@@ -287,17 +295,13 @@ pub fn detect_vertical_streaks(
     // invariant that there are no printed features that span the entire page
     // top to bottom without a gap greater than MAX_WHITE_GAP_PIXELS.
 
-    let (width, height) = ballot_image.image.dimensions();
+    let (width, height) = ballot_image.dimensions();
     let x_range = BORDER_COLUMNS_TO_EXCLUDE - 1..width - BORDER_COLUMNS_TO_EXCLUDE;
     let binarized_columns = x_range.clone().map(|x| {
         let binarized_column = (0..height)
             .map(|y| {
-                [
-                    ballot_image.image.get_pixel(x, y),
-                    ballot_image.image.get_pixel(x + 1, y),
-                ]
-                .iter()
-                .any(|pixel| pixel[0] <= ballot_image.threshold)
+                ballot_image.get_pixel(x, y).is_foreground()
+                    || ballot_image.get_pixel(x + 1, y).is_foreground()
             })
             .collect::<Vec<_>>();
         (x as PixelPosition, binarized_column)
@@ -341,7 +345,7 @@ pub fn detect_vertical_streaks(
     debug.write("vertical_streaks", |canvas| {
         debug::draw_vertical_streaks_debug_image_mut(
             canvas,
-            ballot_image.threshold,
+            ballot_image.threshold(),
             x_range,
             &streaks,
         );

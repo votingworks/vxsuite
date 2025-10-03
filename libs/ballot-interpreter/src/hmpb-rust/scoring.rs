@@ -156,7 +156,7 @@ pub fn score_bubble_marks_from_grid_layout(
 /// because the bubble mark may not be exactly where we expect in the scanned
 /// image due to stretching or other distortions.
 pub fn score_bubble_mark(
-    img: &BallotImage,
+    ballot_image: &BallotImage,
     bubble_template: &GrayImage,
     expected_bubble_center: Point<SubPixelUnit>,
     location: &GridLocation,
@@ -193,11 +193,12 @@ pub fn score_bubble_mark(
                 continue;
             }
 
-            let cropped = img
-                .image
+            let cropped = ballot_image
+                .image()
                 .view(x as PixelUnit, y as PixelUnit, width, height)
                 .to_image();
-            let cropped_and_thresholded = imageproc::contrast::threshold(&cropped, img.threshold);
+            let cropped_and_thresholded =
+                imageproc::contrast::threshold(&cropped, ballot_image.threshold());
 
             let match_diff = diff(&cropped_and_thresholded, bubble_template);
             let match_score = UnitIntervalScore(count_pixels(&match_diff, WHITE).ratio());
@@ -222,8 +223,8 @@ pub fn score_bubble_mark(
     }
 
     let best_match = best_match?;
-    let source_image = img
-        .image
+    let source_image = ballot_image
+        .image()
         .view(
             best_match.bounds.left() as PixelUnit,
             best_match.bounds.top() as PixelUnit,
@@ -231,7 +232,8 @@ pub fn score_bubble_mark(
             best_match.bounds.height(),
         )
         .to_image();
-    let binarized_source_image = imageproc::contrast::threshold(&source_image, img.threshold);
+    let binarized_source_image =
+        imageproc::contrast::threshold(&source_image, ballot_image.threshold());
     let diff_image = diff(bubble_template, &binarized_source_image);
     let fill_score = UnitIntervalScore(count_pixels(&diff_image, BLACK).ratio());
 

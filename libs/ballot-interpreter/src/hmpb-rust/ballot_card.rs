@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, io, ops::Range};
 
-use image::{GenericImageView, GrayImage};
+use image::{imageops::rotate180_in_place, GenericImageView, GrayImage};
 use imageproc::contrast::{otsu_level, threshold};
 use serde::Serialize;
 
@@ -11,14 +11,32 @@ use types_rs::{
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
 };
 
+/// An image of a ballot after it has had any black areas outside the paper
+/// bounds cropped off. Provides access to the underlying image data, but most
+/// uses should go through the methods such as [`BallotImage::get_pixel`] rather
+/// than comparing the threshold against the underlying image data.
 #[must_use]
 pub struct BallotImage {
-    pub image: GrayImage,
-    pub threshold: u8,
-    pub border_inset: Inset,
+    image: GrayImage,
+    threshold: u8,
+    border_inset: Inset,
 }
 
 impl BallotImage {
+    /// Clamps the threshold to the given range. This is useful for situations
+    /// where the threshold computed by Otsu's method is too extreme, such as
+    /// when most of the image is nearly all one luminosity.
+    pub fn clamp_threshold(&mut self, min: u8, max: u8) {
+        self.threshold = self.threshold.clamp(min, max);
+    }
+
+    /// Rotates the underlying image data, leaving the threshold as-is since
+    /// Otsu's method is rotation-independent.
+    pub fn rotate180(&mut self) {
+        rotate180_in_place(&mut self.image);
+        self.border_inset.rotate180();
+    }
+
     /// This sets the ratio of pixels required to be white (above the threshold) in
     /// a given edge row or column to consider it no longer eligible to be cropped.
     /// This used to be 50%, but we found that too much of the top/bottom of the
@@ -29,7 +47,9 @@ impl BallotImage {
     /// on ballots with significant but still acceptable skew (i.e. 3 degrees).
     const CROP_BORDERS_THRESHOLD_RATIO: f32 = 0.1;
 
-    /// Return the image with the black border cropped off.
+    /// Builds a [`BallotImage`] with the black border outside the paper area
+    /// cropped off. Returns [`None`] if a valid border inset cannot be
+    /// computed.
     #[must_use]
     pub fn from_image(image: GrayImage) -> Option<BallotImage> {
         let threshold = otsu_level(&image);
@@ -64,6 +84,89 @@ impl BallotImage {
             threshold,
             border_inset,
         })
+    }
+
+    /// Gets the underlying image data. Generally you should try to access
+    /// information about the image through the other methods on
+    /// [`BallotImage`].
+    #[must_use]
+    pub fn image(&self) -> &GrayImage {
+        &self.image
+    }
+
+    /// Gets the computed Otsu threshold. Generally you should try to access
+    /// pixel information through [`BallotImage::get_pixel`] rather than
+    /// comparing against this value.
+    #[must_use]
+    pub fn threshold(&self) -> u8 {
+        self.threshold
+    }
+
+    /// Returns the computed border inset, showing the amount cropped off on
+    /// each side.
+    #[must_use]
+    pub fn border_inset(&self) -> Inset {
+        self.border_inset
+    }
+
+    /// Gets the width of the image after cropping.
+    #[must_use]
+    pub fn width(&self) -> u32 {
+        self.image.width()
+    }
+
+    /// Gets the height of the image after cropping.
+    #[must_use]
+    pub fn height(&self) -> u32 {
+        self.image.height()
+    }
+
+    /// Gets the dimensions of the image after cropping.
+    #[must_use]
+    pub fn dimensions(&self) -> (u32, u32) {
+        self.image.dimensions()
+    }
+
+    /// Determines whether the pixel at the given coordinate is foreground
+    /// or background.
+    #[must_use]
+    pub fn get_pixel(&self, x: u32, y: u32) -> BallotPixel {
+        // This must be `<=` so that binarized images whose threshold is 0
+        // still have pixels with luma 0 count as foreground pixels.
+        if self.image.get_pixel(x, y)[0] <= self.threshold {
+            BallotPixel::Foreground
+        } else {
+            BallotPixel::Background
+        }
+    }
+}
+
+/// A pixel from a binarized ballot image.
+///
+/// Note that even though the variants are called "foreground" and
+/// "background", black pixels will likely also come from the area outside the
+/// scanned sheet where there was no paper. These pixels are not distinguished
+/// from "foreground" pixels.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BallotPixel {
+    /// A black pixel.
+    Foreground,
+
+    // A white pixel.
+    Background,
+}
+
+impl BallotPixel {
+    /// Determines whether this pixel is a foreground pixel, i.e. black.
+    #[must_use]
+    pub fn is_foreground(self) -> bool {
+        matches!(self, Self::Foreground)
+    }
+
+    /// Determines whether this pixel is a background pixel, i.e. white.
+    #[must_use]
+    pub fn is_background(self) -> bool {
+        matches!(self, Self::Background)
     }
 }
 

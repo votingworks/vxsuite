@@ -378,12 +378,12 @@ pub fn prepare_ballot_card_images(
         return Err(Error::MismatchedBallotCardGeometries {
             side_a: BallotPageAndGeometry {
                 label: SIDE_A_LABEL.to_string(),
-                border_inset: side_a_image.border_inset,
+                border_inset: side_a_image.border_inset(),
                 geometry: side_a_geometry,
             },
             side_b: BallotPageAndGeometry {
                 label: SIDE_B_LABEL.to_string(),
-                border_inset: side_b_image.border_inset,
+                border_inset: side_b_image.border_inset(),
                 geometry: side_b_geometry,
             },
         });
@@ -408,33 +408,23 @@ pub fn prepare_ballot_page_image(
     image: GrayImage,
     possible_paper_infos: &[PaperInfo],
 ) -> Result<BallotPage> {
-    let Some(BallotImage {
-        image,
-        threshold,
-        border_inset,
-    }) = BallotImage::from_image(image)
-    else {
+    let Some(ballot_image) = BallotImage::from_image(image) else {
         return Err(Error::BorderInsetNotFound {
             label: label.to_string(),
         });
     };
 
     let Some(paper_info) =
-        get_matching_paper_info_for_image_size(image.dimensions(), possible_paper_infos)
+        get_matching_paper_info_for_image_size(ballot_image.dimensions(), possible_paper_infos)
     else {
-        let (width, height) = image.dimensions();
         return Err(Error::UnexpectedDimensions {
             label: label.to_string(),
-            dimensions: Size { width, height },
+            dimensions: ballot_image.dimensions().into(),
         });
     };
 
     Ok(BallotPage {
-        ballot_image: BallotImage {
-            image,
-            threshold,
-            border_inset,
-        },
+        ballot_image,
         geometry: paper_info.compute_geometry(),
     })
 }
@@ -462,11 +452,11 @@ pub fn ballot_card(
     } = prepare_ballot_card_images(side_a_image, side_b_image, &PaperInfo::scanned())?;
 
     let mut side_a_debug = match &options.debug_side_a_base {
-        Some(base) => ImageDebugWriter::new(base.clone(), side_a.image.clone()),
+        Some(base) => ImageDebugWriter::new(base.clone(), side_a.image().clone()),
         None => ImageDebugWriter::disabled(),
     };
     let mut side_b_debug = match &options.debug_side_b_base {
-        Some(base) => ImageDebugWriter::new(base.clone(), side_b.image.clone()),
+        Some(base) => ImageDebugWriter::new(base.clone(), side_b.image().clone()),
         None => ImageDebugWriter::disabled(),
     };
 
@@ -551,7 +541,7 @@ pub fn ballot_card(
                 (&side_a, &side_a_debug, SIDE_A_LABEL),
                 (&side_b, &side_b_debug, SIDE_B_LABEL),
                 |(image, debug, label)| {
-                    let qr_code = qr_code::detect(&image.image, debug).map_err(|e| {
+                    let qr_code = qr_code::detect(image.image(), debug).map_err(|e| {
                         Error::InvalidQrCodeMetadata {
                             label: label.to_owned(),
                             message: e.to_string(),
@@ -609,23 +599,23 @@ pub fn ballot_card(
             let (side_b_metadata, side_b_orientation) = side_b_qr_code_result?;
 
             let (
-                (side_a_normalized_grid, side_a_normalized_image),
-                (side_b_normalized_grid, side_b_normalized_image),
+                (side_a_normalized_grid, side_a_normalized_ballot_image),
+                (side_b_normalized_grid, side_b_normalized_ballot_image),
             ) = par_map_pair(
                 (
                     side_a_timing_marks,
-                    &side_a.image,
+                    side_a,
                     side_a_orientation,
                     &mut side_a_debug,
                 ),
                 (
                     side_b_timing_marks,
-                    &side_b.image,
+                    side_b,
                     side_b_orientation,
                     &mut side_b_debug,
                 ),
-                |(grid, image, orientation, debug)| {
-                    normalize_orientation(&geometry, grid, image, orientation, debug)
+                |(grid, ballot_image, orientation, debug)| {
+                    normalize_orientation(&geometry, grid, ballot_image, orientation, debug)
                 },
             );
 
@@ -651,19 +641,13 @@ pub fn ballot_card(
             let (side_a, side_b) = (
                 (
                     side_a_normalized_grid,
-                    BallotImage {
-                        image: side_a_normalized_image,
-                        ..side_a
-                    },
+                    side_a_normalized_ballot_image,
                     BallotPageMetadata::QrCode(side_a_metadata.clone()),
                     side_a_debug,
                 ),
                 (
                     side_b_normalized_grid,
-                    BallotImage {
-                        image: side_b_normalized_image,
-                        ..side_b
-                    },
+                    side_b_normalized_ballot_image,
                     BallotPageMetadata::QrCode(side_b_metadata),
                     side_b_debug,
                 ),
@@ -754,9 +738,9 @@ pub fn ballot_card(
     };
 
     let normalized_front_image =
-        imageproc::contrast::threshold(&front_ballot_image.image, front_ballot_image.threshold);
+        imageproc::contrast::threshold(front_ballot_image.image(), front_ballot_image.threshold());
     let normalized_back_image =
-        imageproc::contrast::threshold(&back_ballot_image.image, back_ballot_image.threshold);
+        imageproc::contrast::threshold(back_ballot_image.image(), back_ballot_image.threshold());
 
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {

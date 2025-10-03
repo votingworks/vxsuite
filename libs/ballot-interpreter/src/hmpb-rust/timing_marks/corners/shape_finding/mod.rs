@@ -38,7 +38,7 @@ impl BallotGridBorderShapes {
     ) -> Self {
         let search_inset = options.search_inset;
 
-        let image = &ballot_image.image;
+        let image = ballot_image.image();
         let (width, height) = image.dimensions();
 
         let search_areas = [
@@ -92,12 +92,7 @@ fn find_timing_mark_shapes(
 ) -> Vec<TimingMarkShape> {
     let allowed_timing_mark_height_range = options.timing_mark_height_range(geometry);
     let mut shape_list_builder = ShapeListBuilder::new();
-    let image_bounds = Rect::new(
-        0,
-        0,
-        ballot_image.image.width(),
-        ballot_image.image.height(),
-    );
+    let image_bounds = Rect::new(0, 0, ballot_image.width(), ballot_image.height());
 
     // Restrict `search_area` to within the image bounds.
     let Some(search_area) = search_area.intersect(&image_bounds) else {
@@ -110,7 +105,7 @@ fn find_timing_mark_shapes(
     for x in x_range {
         for range in y_range
             .clone()
-            .group_by(|&y| ballot_image.image.get_pixel(x, y)[0] <= ballot_image.threshold)
+            .group_by(|&y| ballot_image.get_pixel(x, y).is_foreground())
             .into_iter()
             .filter(|(is_black, _)| *is_black)
             .filter_map(|(_, group)| {
