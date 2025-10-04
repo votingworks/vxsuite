@@ -6,14 +6,25 @@ use serde::Serialize;
 
 use crate::{
     debug::ImageDebugWriter,
-    image_utils::{bleed, find_scanned_document_inset, Inset, BLACK},
+    image_utils::{bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, BLACK},
     interpret::{BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm},
-    timing_marks::{self, contours::FindTimingMarkGridOptions, DefaultForGeometry, TimingMarks},
+    layout::{build_interpreted_page_layout, InterpretedContestLayout},
+    qr_code,
+    scoring::{
+        score_bubble_marks_from_grid_layout, score_write_in_areas, ScoredBubbleMarks,
+        ScoredPositionAreas, UnitIntervalScore,
+    },
+    timing_marks::{
+        self, contours::FindTimingMarkGridOptions, BorderAxis, DefaultForGeometry, TimingMarks,
+    },
 };
 
 use types_rs::{
-    ballot_card::PaperSize,
+    ballot_card::{BallotSide, PaperSize},
+    coding,
+    election::{Election, GridLayout},
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
+    hmpb,
     pair::Pair,
 };
 
@@ -380,6 +391,245 @@ impl BallotCard {
     #[must_use]
     pub fn as_pair_mut(&mut self) -> Pair<&mut BallotPage> {
         Pair::new(&mut self.front_page, &mut self.back_page)
+    }
+
+    /// Detects vertical streaks on both sides of the ballot card.
+    ///
+    /// # Errors
+    ///
+    /// Fails if vertical streaks are detected on either side.
+    #[allow(clippy::result_large_err)]
+    pub fn detect_vertical_streaks(&self) -> Result<()> {
+        self.as_pair()
+            .par_map(|ballot_page| {
+                let streaks = detect_vertical_streaks(ballot_page.ballot_image());
+                if streaks.is_empty() {
+                    Ok(())
+                } else {
+                    Err(Error::VerticalStreaksDetected {
+                        label: ballot_page.label().to_string(),
+                        x_coordinates: streaks,
+                    })
+                }
+            })
+            .into_result()?;
+        Ok(())
+    }
+
+    /// Finds timing marks on the ballot card using the given timing mark
+    /// algorithm.
+    ///
+    /// # Errors
+    ///
+    /// Fails if timing marks cannot be found on one or both ballot pages.
+    #[allow(clippy::result_large_err)]
+    pub fn find_timing_marks(
+        &self,
+        timing_mark_algorithm: TimingMarkAlgorithm,
+    ) -> Result<Pair<TimingMarks>> {
+        self.as_pair()
+            .par_map(|ballot_page| ballot_page.find_timing_marks(timing_mark_algorithm))
+            .into_result()
+    }
+
+    /// Checks the scale of the ballot pages as computed from the timing marks
+    /// is at least a given minimum value.
+    ///
+    /// # Errors
+    ///
+    /// Fails if the computed scale based on the timing marks for either page is
+    /// less than the provided minimum scale.
+    #[allow(clippy::result_large_err)]
+    pub fn check_minimum_scale<'a>(
+        &self,
+        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        minimum_scale: UnitIntervalScore,
+    ) -> Result<()> {
+        self.as_pair()
+            .zip(timing_marks)
+            .map(|(ballot_page, timing_marks)| {
+                // We use the horizontal axis here because it is perpendicular to
+                // the scan direction and therefore stretching should be minimal.
+                //
+                // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
+                if let Some(scale) =
+                    timing_marks.compute_scale_based_on_axis(BorderAxis::Horizontal)
+                {
+                    if scale < minimum_scale {
+                        return Err(Error::InvalidScale {
+                            label: ballot_page.label().to_owned(),
+                            scale,
+                        });
+                    }
+                }
+
+                Ok(())
+            })
+            .into_result()?;
+        Ok(())
+    }
+
+    /// Detects and decodes barcodes on the ballot pages and returns the decoded
+    /// data. Uses the position of the detected barcodes to determine the
+    /// orientation of the ballot pages.
+    ///
+    /// # Errors
+    ///
+    /// Fails if the barcodes cannot be located or cannot be decoded.
+    #[allow(clippy::result_large_err)]
+    pub fn decode_ballot_barcodes(
+        &self,
+        election: &Election,
+    ) -> Result<Pair<(hmpb::Metadata, Orientation)>> {
+        self.as_pair()
+            .map(|ballot_page| {
+                let qr_code =
+                    qr_code::detect(ballot_page.ballot_image().image(), ballot_page.debug())
+                        .map_err(|e| Error::InvalidQrCodeMetadata {
+                            label: ballot_page.label().to_owned(),
+                            message: e.to_string(),
+                        })?;
+                let metadata = coding::decode_with(qr_code.bytes(), election).map_err(|e| {
+                    Error::InvalidQrCodeMetadata {
+                        label: ballot_page.label().to_owned(),
+                        message: format!(
+                            "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
+                            bytes = qr_code.bytes()
+                        ),
+                    }
+                })?;
+                Ok((metadata, qr_code.orientation()))
+            })
+            .join(|decode_front_result, decode_back_result| {
+                // If one side has a detected QR code and the other doesn't, we can
+                // infer the missing metadata from the detected metadata.
+                match (decode_front_result, decode_back_result) {
+                    (Ok(front), Ok(back)) => Ok(Pair::new(front, back)),
+                    (
+                        Err(Error::InvalidQrCodeMetadata { .. }),
+                        Ok((back_metadata, back_orientation)),
+                    ) => {
+                        let front_metadata = hmpb::infer_missing_page_metadata(&back_metadata);
+                        Ok(Pair::new(
+                            (front_metadata, back_orientation),
+                            (back_metadata, back_orientation),
+                        ))
+                    }
+                    (
+                        Ok((front_metadata, front_orientation)),
+                        Err(Error::InvalidQrCodeMetadata { .. }),
+                    ) => {
+                        let back_metadata = hmpb::infer_missing_page_metadata(&front_metadata);
+                        Ok(Pair::new(
+                            (front_metadata, front_orientation),
+                            (back_metadata, front_orientation),
+                        ))
+                    }
+                    (Err(e), _) | (_, Err(e)) => Err(e),
+                }
+            })?
+            .join(
+                // Do some validation to check that the two sides agree.
+                |(front_metadata, front_orientation), (back_metadata, back_orientation)| {
+                    if front_metadata.precinct_id != back_metadata.precinct_id {
+                        return Err(Error::MismatchedPrecincts {
+                            side_a: front_metadata.precinct_id,
+                            side_b: back_metadata.precinct_id,
+                        });
+                    }
+                    if front_metadata.ballot_style_id != back_metadata.ballot_style_id {
+                        return Err(Error::MismatchedBallotStyles {
+                            side_a: front_metadata.ballot_style_id,
+                            side_b: back_metadata.ballot_style_id,
+                        });
+                    }
+                    if front_metadata.page_number.opposite() != back_metadata.page_number {
+                        return Err(Error::NonConsecutivePageNumbers {
+                            side_a: front_metadata.page_number.get(),
+                            side_b: back_metadata.page_number.get(),
+                        });
+                    }
+
+                    Ok(Pair::new(
+                        (front_metadata, front_orientation),
+                        (back_metadata, back_orientation),
+                    ))
+                },
+            )
+    }
+
+    /// Scores bubble marks on both ballot pages.
+    #[must_use]
+    pub fn score_bubble_marks<'a>(
+        &self,
+        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        bubble_template: &GrayImage,
+        grid_layout: &GridLayout,
+        sheet_number: u32,
+    ) -> Pair<ScoredBubbleMarks> {
+        self.as_pair()
+            .zip(timing_marks)
+            .zip((BallotSide::Front, BallotSide::Back))
+            .par_map(|((ballot_page, timing_marks), side)| {
+                score_bubble_marks_from_grid_layout(
+                    ballot_page.ballot_image(),
+                    bubble_template,
+                    timing_marks,
+                    grid_layout,
+                    sheet_number,
+                    side,
+                )
+            })
+    }
+
+    /// Scores write-in areas in order to detect unmarked write-ins.
+    pub fn score_write_in_areas<'a>(
+        &self,
+        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        grid_layout: &GridLayout,
+        sheet_number: u32,
+    ) -> Pair<ScoredPositionAreas> {
+        self.as_pair()
+            .zip(timing_marks)
+            .zip((BallotSide::Front, BallotSide::Back))
+            .par_map(|((ballot_page, timing_marks), side)| {
+                score_write_in_areas(
+                    ballot_page.ballot_image(),
+                    timing_marks,
+                    grid_layout,
+                    sheet_number,
+                    side,
+                )
+            })
+    }
+
+    /// Determines the bounds of all contest options within the image based on
+    /// the timing marks for both ballot pages.
+    ///
+    /// # Errors
+    ///
+    /// Fails if either side fails to determine the contest layout.
+    #[allow(clippy::result_large_err)]
+    pub fn build_page_layout<'a>(
+        &self,
+        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        grid_layout: &GridLayout,
+        sheet_number: u32,
+    ) -> Result<Pair<Vec<InterpretedContestLayout>>> {
+        self.as_pair()
+            .zip(timing_marks)
+            .zip((BallotSide::Front, BallotSide::Back))
+            .map(|((ballot_page, timing_marks), side)| {
+                build_interpreted_page_layout(
+                    timing_marks,
+                    grid_layout,
+                    sheet_number,
+                    side,
+                    ballot_page.debug(),
+                )
+                .ok_or(Error::CouldNotComputeLayout { side })
+            })
+            .into_result()
     }
 }
 
