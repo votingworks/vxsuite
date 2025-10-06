@@ -1146,7 +1146,7 @@ export class Store {
         signature:
           electionRow.ballotTemplateId === 'NhBallot' ||
           electionRow.ballotTemplateId === 'NhPrimaryBallot' ||
-          electionRow.ballotTemplateId === 'NhStateBallot'
+          electionRow.ballotTemplateId === 'NhGeneralBallot'
             ? electionRow.signature || undefined
             : undefined,
         districts,

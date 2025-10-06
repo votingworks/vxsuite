@@ -755,7 +755,7 @@ export function Footer({
   );
 }
 
-interface ContestHeaderProps {
+export interface ContestHeaderProps {
   compact?: boolean;
 }
 
