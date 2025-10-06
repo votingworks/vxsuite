@@ -70,14 +70,10 @@ impl BallotImage {
     /// cropped off. Returns [`None`] if a valid border inset cannot be
     /// computed.
     #[must_use]
-    pub fn from_image(
-        image: GrayImage,
-        debug_base: impl Into<Option<PathBuf>>,
-    ) -> Option<BallotImage> {
+    pub fn from_image(image: GrayImage, debug_base: Option<PathBuf>) -> Option<BallotImage> {
         let threshold = otsu_level(&image);
         let border_inset =
             find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
-        let debug_base = debug_base.into();
 
         if border_inset.is_zero() {
             // Don't bother cropping if there's no inset.
@@ -227,7 +223,7 @@ impl BallotPage {
         label: &str,
         image: GrayImage,
         possible_paper_infos: &[PaperInfo],
-        debug_base: impl Into<Option<PathBuf>>,
+        debug_base: Option<PathBuf>,
     ) -> Result<Self> {
         let Some(ballot_image) = BallotImage::from_image(image, debug_base) else {
             return Err(Error::BorderInsetNotFound {
