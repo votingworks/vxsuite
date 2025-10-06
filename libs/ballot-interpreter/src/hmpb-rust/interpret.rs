@@ -507,7 +507,6 @@ pub fn ballot_card(
 
     // If the pages are reversed, i.e. fed in bottom-first, we need to rotate
     // them so they're right-side up.
-    let geometry = ballot_card.geometry().clone();
     ballot_card
         .as_pair_mut()
         .zip(&mut timing_marks)
@@ -524,7 +523,7 @@ pub fn ballot_card(
                 |canvas| {
                     draw_timing_mark_debug_image_mut(
                         canvas,
-                        &geometry,
+                        ballot_page.geometry(),
                         &timing_marks.clone().into(),
                     );
                 },
