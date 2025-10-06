@@ -33,7 +33,7 @@ function isBallotTemplateId(id: string): id is BallotTemplateId {
 
 function getTemplate(templateId: string | null) {
   if (!templateId) {
-    return ballotTemplates.NhPrimaryBallot;
+    return ballotTemplates.NhGeneralBallot;
   }
 
   if (!isBallotTemplateId(templateId)) {
