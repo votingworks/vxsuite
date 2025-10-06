@@ -293,7 +293,10 @@ def main():
     outdir = args.outdir
     if outdir is None:
         default_outdir = Path("outputs") / "{}-labels".format(csv_path.stem)
-        outdir = Path(prompt_output_dir(str(default_outdir)))
+        outdir_name = input(f"\nEnter output directory name (press Enter for '{default_outdir}'): ").strip() or default_outdir
+        outdir = Path("outputs") / outdir_name
+        outdir.mkdir(parents=True, exist_ok=True)
+        print(f"Output directory: {outdir} (created if needed)")
 
     print("\n--- Summary ---")
     print("Template :", tpl.name)
