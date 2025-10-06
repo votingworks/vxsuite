@@ -2,7 +2,6 @@ import React from 'react';
 import {
   ROBOTO_REGULAR_FONT_DECLARATIONS,
   ROBOTO_ITALIC_FONT_DECLARATIONS,
-  ROBOTO_CONDENSED_FONT_DECLARATIONS,
 } from '@votingworks/ui';
 
 export interface BaseStylesProps {
@@ -13,7 +12,7 @@ export function baseLineHeight(compact?: boolean): number {
   return compact ? 1.1 : 1.2;
 }
 
-function baseStyles(params: BaseStylesProps) {
+export function baseStyles(params: BaseStylesProps): string {
   const { compact } = params;
 
   return `
@@ -77,7 +76,6 @@ export function BaseStyles(props: BaseStylesProps): JSX.Element {
           __html: [
             ROBOTO_REGULAR_FONT_DECLARATIONS,
             ROBOTO_ITALIC_FONT_DECLARATIONS,
-            ROBOTO_CONDENSED_FONT_DECLARATIONS,
           ].join('\n'),
         }}
       />
