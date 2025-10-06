@@ -20,6 +20,16 @@ export const ALL_PRECINCTS_SELECTION: AllPrecinctsSelection = {
   kind: 'AllPrecincts',
 };
 
+export function maybeGetPrecinctIdFromSelection(
+  precinctSelection: PrecinctSelection
+): PrecinctId | undefined {
+  if (precinctSelection.kind === 'SinglePrecinct') {
+    return precinctSelection.precinctId;
+  }
+
+  return undefined;
+}
+
 export const ALL_PRECINCTS_NAME = 'All Precincts';
 
 export function getPrecinctSelection(

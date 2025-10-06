@@ -42,12 +42,18 @@ import {
   safeParse,
   PhoneticWordsSchema,
   ContestId,
+  PrecinctSelection,
 } from '@votingworks/types';
+import {
+  singlePrecinctSelectionFor,
+  ALL_PRECINCTS_SELECTION,
+  combineAndDecodeCompressedElectionResults,
+  getContestsForPrecinctAndElection,
+} from '@votingworks/utils';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
-import { combineAndDecodeCompressedElectionResults } from '@votingworks/utils';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
   BallotStyle,
@@ -2043,6 +2049,7 @@ export class Store {
 
   async getQuickResultsReportingTalliesForElection(
     election: ElectionRecord,
+    precinctSelection: PrecinctSelection,
     isLive: boolean
   ): Promise<{
     contestResults: Record<ContestId, ContestResults>;
@@ -2052,35 +2059,64 @@ export class Store {
       election.lastExportedBallotHash !== undefined,
       'Election has not yet been exported.'
     );
+    let precinctWhereClause = '';
+    const queryParams = [
+      election.lastExportedBallotHash,
+      election.election.id,
+      isLive,
+    ];
+    if (precinctSelection.kind === 'SinglePrecinct') {
+      precinctWhereClause = `
+        and precinct_id = $4
+      `;
+      queryParams.push(precinctSelection.precinctId);
+    }
     const rows = (
       await this.db.withClient((client) =>
         client.query(
           `
             select
               encoded_compressed_tally as "encodedCompressedTally",
-              machine_id as "machineId"
+              machine_id as "machineId",
+              precinct_id as "precinctId"
             from results_reports
             where
               ballot_hash = $1 and
               election_id = $2 and
               is_live_mode = $3
+              ${precinctWhereClause}
             order by signed_at desc
           `,
-          election.lastExportedBallotHash,
-          election.election.id,
-          isLive
+          ...queryParams
         )
       )
     ).rows as Array<{
       encodedCompressedTally: string;
       machineId: string;
+      precinctId: string | null;
     }>;
     const contestResults = combineAndDecodeCompressedElectionResults({
       election: election.election,
-      encodedCompressedTallies: rows.map((r) => r.encodedCompressedTally),
+      encodedCompressedTallies: rows.map((r) => ({
+        encodedTally: r.encodedCompressedTally,
+        precinctSelection: r.precinctId
+          ? singlePrecinctSelectionFor(r.precinctId)
+          : ALL_PRECINCTS_SELECTION,
+      })),
     });
+    const contestIdsForPrecinct = getContestsForPrecinctAndElection(
+      election.election,
+      precinctSelection
+    ).map((contest) => contest.id);
+
+    const filteredContestResults: Record<ContestId, ContestResults> = {};
+    for (const contestId of contestIdsForPrecinct) {
+      assert(contestId in contestResults, 'Missing contest results');
+      filteredContestResults[contestId] = contestResults[contestId];
+    }
+
     return {
-      contestResults,
+      contestResults: filteredContestResults,
       machinesReporting: rows.map((r) => r.machineId),
     };
   }

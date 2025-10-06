@@ -5,6 +5,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   areEqualPrecinctSelections,
   getPrecinctSelectionName,
+  maybeGetPrecinctIdFromSelection,
   singlePrecinctSelectionFor,
 } from './precinct_selection';
 
@@ -90,5 +91,14 @@ describe('areEqualPrecinctSelections', () => {
         singlePrecinctSelectionFor('precinct-1')
       )
     ).toEqual(true);
+  });
+
+  test('maybeGetPrecinctIdForSelection', () => {
+    expect(maybeGetPrecinctIdFromSelection(ALL_PRECINCTS_SELECTION)).toEqual(
+      undefined
+    );
+    expect(
+      maybeGetPrecinctIdFromSelection(singlePrecinctSelectionFor('precinct-1'))
+    ).toEqual('precinct-1');
   });
 });

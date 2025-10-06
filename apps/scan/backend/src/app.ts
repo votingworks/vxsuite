@@ -575,6 +575,8 @@ export function buildApi({
     async getQuickResultsReportingUrl(): Promise<string> {
       const { machineId } = getMachineConfig();
       const { electionDefinition } = assertDefined(store.getElectionRecord());
+      const precinctSelection = store.getPrecinctSelection();
+      assert(precinctSelection !== undefined);
       const systemSettings = store.getSystemSettings();
       const pollState = store.getPollsState();
       if (
@@ -596,6 +598,7 @@ export function buildApi({
           quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
           signingMachineId: machineId,
           isLiveMode: !store.getTestMode(),
+          precinctSelection,
           results: combinedResults,
         });
       return signedQuickResultsReportingUrl;

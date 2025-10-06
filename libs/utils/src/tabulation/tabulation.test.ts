@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, test } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
+  electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import {
@@ -53,7 +54,11 @@ import {
   getExportedCastVoteRecordIds,
   getOriginalSnapshot,
 } from '../cast_vote_records';
-import { compressAndEncodeTally } from '../compressed_tallies';
+import { compressAndEncodeTally } from './compressed_tallies';
+import {
+  ALL_PRECINCTS_SELECTION,
+  singlePrecinctSelectionFor,
+} from '../precinct_selection';
 
 function castVoteRecordToTabulationCastVoteRecord(
   castVoteRecord: CVR.CVR
@@ -1430,28 +1435,32 @@ test('combineCompressedElectionResults', () => {
   };
   const election = electionTwoPartyPrimaryFixtures.readElection();
 
-  const encoded1 = compressAndEncodeTally(
+  const encoded1 = compressAndEncodeTally({
     election,
-    buildElectionResultsFixture({
+    results: buildElectionResultsFixture({
       election,
       contestResultsSummaries: contestResultsSummaries1,
       includeGenericWriteIn: true,
       cardCounts: { bmd: 0, hmpb: [] },
-    })
-  );
-  const encoded2 = compressAndEncodeTally(
+    }),
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+  const encoded2 = compressAndEncodeTally({
     election,
-    buildElectionResultsFixture({
+    results: buildElectionResultsFixture({
       election,
       contestResultsSummaries: contestResultsSummaries2,
       includeGenericWriteIn: true,
       cardCounts: { bmd: 0, hmpb: [] },
-    })
-  );
-
+    }),
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
   const combined = combineAndDecodeCompressedElectionResults({
     election,
-    encodedCompressedTallies: [encoded1, encoded2],
+    encodedCompressedTallies: [
+      { encodedTally: encoded1, precinctSelection: ALL_PRECINCTS_SELECTION },
+      { encodedTally: encoded2, precinctSelection: ALL_PRECINCTS_SELECTION },
+    ],
   });
   expect(combined).toEqual(
     buildElectionResultsFixture({
@@ -1500,6 +1509,147 @@ test('combineCompressedElectionResults', () => {
       cardCounts: { bmd: 0, hmpb: [] },
     }).contestResults
   );
+});
+
+test('combineCompressedElectionResults - can combine results from different precincts', () => {
+  const electionEitherNeither =
+    electionWithMsEitherNeitherFixtures.readElection();
+
+  // Choose two precincts with different contests.
+  const singlePrecinctSelectionPrecinct1 = singlePrecinctSelectionFor('6522');
+  const singlePrecinctSelectionPrecinct2 = singlePrecinctSelectionFor('6525');
+
+  const mockResultsPrecinct1 = buildElectionResultsFixture({
+    election: electionEitherNeither,
+    cardCounts: {
+      bmd: 10,
+      hmpb: [],
+    },
+    contestResultsSummaries: {
+      // Add results for a contest in all precincts
+      '750000015': {
+        type: 'yesno',
+        ballots: 10,
+        yesTally: 4,
+        noTally: 6,
+      },
+      // Add results for a contest in only this precinct
+      '775020903': {
+        type: 'candidate',
+        ballots: 10,
+        undervotes: 1,
+        overvotes: 2,
+        officialOptionTallies: {
+          '775032021': 5,
+          '775032022': 2,
+        },
+      },
+    },
+    includeGenericWriteIn: true,
+  });
+
+  const mockResultsPrecinct2 = buildElectionResultsFixture({
+    election: electionEitherNeither,
+    cardCounts: {
+      bmd: 10,
+      hmpb: [],
+    },
+    contestResultsSummaries: {
+      // Add results for a contest in all precincts
+      '750000015': {
+        type: 'yesno',
+        ballots: 5,
+        undervotes: 1,
+        overvotes: 1,
+        yesTally: 2,
+        noTally: 1,
+      },
+      // Add results for a contest in only this precinct
+      '775020902': {
+        type: 'candidate',
+        ballots: 5,
+        undervotes: 1,
+        overvotes: 0,
+        officialOptionTallies: {
+          '775032019': 3,
+          '775032020': 1,
+        },
+      },
+    },
+    includeGenericWriteIn: true,
+  });
+
+  const encodedTallyPrecinct1 = compressAndEncodeTally({
+    election: electionEitherNeither,
+    results: mockResultsPrecinct1,
+    precinctSelection: singlePrecinctSelectionPrecinct1,
+  });
+  const encodedTallyPrecinct2 = compressAndEncodeTally({
+    election: electionEitherNeither,
+    results: mockResultsPrecinct2,
+    precinctSelection: singlePrecinctSelectionPrecinct2,
+  });
+  expect(encodedTallyPrecinct1).toMatchInlineSnapshot(
+    `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAoABQACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoABAAGAAAAAAAAAAAAAAA"`
+  );
+  expect(encodedTallyPrecinct2).toMatchInlineSnapshot(
+    `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAUAAwABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEABQACAAEAAAAAAAAAAAAAAA"`
+  );
+
+  const combinedResults = combineAndDecodeCompressedElectionResults({
+    election: electionEitherNeither,
+    encodedCompressedTallies: [
+      {
+        precinctSelection: singlePrecinctSelectionPrecinct1,
+        encodedTally: encodedTallyPrecinct1,
+      },
+      {
+        precinctSelection: singlePrecinctSelectionPrecinct2,
+        encodedTally: encodedTallyPrecinct2,
+      },
+    ],
+  });
+
+  console.log(combinedResults);
+  // Results should contain all contests
+  expect(Object.keys(combinedResults)).toHaveLength(
+    electionEitherNeither.contests.length
+  );
+
+  expect(combinedResults['750000015']).toMatchObject({
+    ballots: 15,
+    noTally: 7,
+    overvotes: 1,
+    undervotes: 1,
+    yesTally: 6,
+  });
+
+  expect(combinedResults['775020903']).toMatchObject({
+    ballots: 10,
+    overvotes: 2,
+    undervotes: 1,
+    tallies: {
+      '775032021': { id: '775032021', tally: 5 },
+      '775032022': { id: '775032022', tally: 2 },
+    },
+  });
+
+  expect(combinedResults['775020902']).toMatchObject({
+    ballots: 5,
+    overvotes: 0,
+    undervotes: 1,
+    tallies: {
+      '775032019': { id: '775032019', tally: 3 },
+      '775032020': { id: '775032020', tally: 1 },
+    },
+  });
+
+  // This contests is not on either precincts ballot
+  expect(combinedResults['775020901']).toMatchObject({
+    ballots: 0,
+    overvotes: 0,
+    undervotes: 0,
+  });
 });
 
 test('areContestResultsValid', () => {

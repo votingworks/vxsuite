@@ -13,6 +13,7 @@ import {
   BallotType,
   ElectionId,
   ElectionSerializationFormat,
+  PrecinctSelection,
 } from '@votingworks/types';
 import { generateId } from './utils';
 
@@ -115,13 +116,32 @@ export const getElectionInfo = {
 } as const;
 
 export const getQuickReportedResults = {
-  queryKey(id: ElectionId, isLive: boolean): QueryKey {
-    return ['getQuickReportedResults', id, isLive];
+  queryKey(
+    id: ElectionId,
+    isLive: boolean,
+    precinctSelection: PrecinctSelection
+  ): QueryKey {
+    return [
+      'getQuickReportedResults',
+      id,
+      isLive,
+      precinctSelection.kind === 'AllPrecincts'
+        ? ''
+        : precinctSelection.precinctId,
+    ];
   },
-  useQuery(id: ElectionId, isLive: boolean) {
+  useQuery(
+    id: ElectionId,
+    precinctSelection: PrecinctSelection,
+    isLive: boolean
+  ) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id, isLive), () =>
-      apiClient.getQuickReportedResults({ electionId: id, isLive })
+    return useQuery(this.queryKey(id, isLive, precinctSelection), () =>
+      apiClient.getQuickReportedResults({
+        electionId: id,
+        isLive,
+        precinctSelection,
+      })
     );
   },
 } as const;

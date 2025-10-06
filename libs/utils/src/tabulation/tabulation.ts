@@ -14,12 +14,13 @@ import {
   Election,
   Id,
   PartyId,
+  PrecinctSelection,
   Tabulation,
   YesNoContest,
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
-import { decodeAndReadCompressedTally } from '../compressed_tallies';
+import { decodeAndReadCompressedTally } from './compressed_tallies';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -707,12 +708,23 @@ export function combineAndDecodeCompressedElectionResults({
   encodedCompressedTallies,
 }: {
   election: Election;
-  encodedCompressedTallies: string[];
+  encodedCompressedTallies: Array<{
+    encodedTally: string;
+    precinctSelection: PrecinctSelection;
+  }>;
 }): Tabulation.ElectionResults['contestResults'] {
-  const allElectionContestResults = encodedCompressedTallies.map((encoded) =>
-    decodeAndReadCompressedTally(election, encoded)
+  const allElectionContestResults = encodedCompressedTallies.map(
+    ({ encodedTally, precinctSelection }) =>
+      decodeAndReadCompressedTally({
+        election,
+        precinctSelection,
+        encodedTally,
+      })
   );
-  return combineElectionContestResults({ election, allElectionContestResults });
+  return combineElectionContestResults({
+    election,
+    allElectionContestResults,
+  });
 }
 
 /**

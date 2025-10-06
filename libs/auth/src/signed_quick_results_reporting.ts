@@ -3,11 +3,16 @@ import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import {
   ElectionDefinition,
+  PrecinctSelection,
   Tabulation,
   safeParseInt,
 } from '@votingworks/types';
 import { assert, err, ok, Result } from '@votingworks/basics';
-import { compressAndEncodeTally } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  compressAndEncodeTally,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import {
   constructPrefixedMessage,
   deconstructPrefixedMessage,
@@ -31,6 +36,7 @@ interface SignedQuickResultsReportingInput {
   quickResultsReportingUrl: string;
   results: Tabulation.ElectionResults;
   signingMachineId: string;
+  precinctSelection: PrecinctSelection;
 }
 
 const CERT_PEM_HEADER = '-----BEGIN CERTIFICATE-----';
@@ -73,6 +79,7 @@ export function encodeQuickResultsMessage(components: {
   isLiveMode: boolean;
   timestamp: number;
   compressedTally: string;
+  precinctSelection: PrecinctSelection;
 }): string {
   const messagePayloadParts = [
     safeEncodeForUrl(components.ballotHash),
@@ -80,6 +87,9 @@ export function encodeQuickResultsMessage(components: {
     components.isLiveMode ? '1' : '0',
     components.timestamp.toString(),
     components.compressedTally,
+    components.precinctSelection.kind === 'SinglePrecinct'
+      ? safeEncodeForUrl(components.precinctSelection.precinctId)
+      : '',
   ];
 
   return messagePayloadParts.join(
@@ -97,6 +107,7 @@ export function decodeQuickResultsMessage(payload: string): {
   isLive: boolean;
   signedTimestamp: Date;
   encodedCompressedTally: string;
+  precinctSelection: PrecinctSelection;
 } {
   const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
 
@@ -106,7 +117,7 @@ export function decodeQuickResultsMessage(payload: string): {
     SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
   );
 
-  if (parts.length !== 5) {
+  if (parts.length !== 6) {
     throw new Error('Invalid message payload format');
   }
 
@@ -116,6 +127,7 @@ export function decodeQuickResultsMessage(payload: string): {
     isLiveModeStr,
     timestampStr,
     encodedCompressedTally,
+    precinctId,
   ] = parts;
 
   if (
@@ -137,6 +149,9 @@ export function decodeQuickResultsMessage(payload: string): {
   return {
     ballotHash: safeDecodeFromUrl(ballotHashEncoded),
     machineId: safeDecodeFromUrl(signingMachineIdEncoded),
+    precinctSelection: precinctId
+      ? singlePrecinctSelectionFor(safeDecodeFromUrl(precinctId))
+      : ALL_PRECINCTS_SELECTION,
     isLive: isLiveModeStr === '1',
     signedTimestamp: new Date(timestampNumber * 1000),
     encodedCompressedTally,
@@ -154,6 +169,7 @@ export async function generateSignedQuickResultsReportingUrl(
     quickResultsReportingUrl,
     results,
     signingMachineId,
+    precinctSelection,
   }: SignedQuickResultsReportingInput,
   configOverride?: SignedQuickResultsReportingConfig
 ): Promise<string> {
@@ -162,7 +178,11 @@ export async function generateSignedQuickResultsReportingUrl(
     /* istanbul ignore next - @preserve */ constructSignedQuickResultsReportingConfig();
 
   const { ballotHash, election } = electionDefinition;
-  const compressedTally = compressAndEncodeTally(election, results);
+  const compressedTally = compressAndEncodeTally({
+    election,
+    results,
+    precinctSelection,
+  });
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
 
   const messagePayload = encodeQuickResultsMessage({
@@ -171,6 +191,7 @@ export async function generateSignedQuickResultsReportingUrl(
     isLiveMode,
     timestamp: secondsSince1970,
     compressedTally,
+    precinctSelection,
   });
   const message = constructPrefixedMessage(QR_MESSAGE_FORMAT, messagePayload);
   const messageSignature = await signMessage({

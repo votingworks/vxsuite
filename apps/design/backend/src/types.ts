@@ -10,6 +10,7 @@ import {
   ElectionId,
   Election,
   ContestId,
+  PrecinctSelection,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
@@ -107,7 +108,7 @@ export interface ResultsReportInfo {
   signedTimestamp: Date;
   contestResults: Record<ContestId, ContestResults>;
   election: Election;
-  precinctId?: PrecinctOrSplitId;
+  precinctSelection: PrecinctSelection;
 }
 
 export interface AggregatedReportedResults {
@@ -115,7 +116,6 @@ export interface AggregatedReportedResults {
   contestResults: Record<ContestId, ContestResults>;
   election: Election;
   machinesReporting: string[];
-  precinctId?: PrecinctOrSplitId;
 }
 
 export type ResultsReportingError =

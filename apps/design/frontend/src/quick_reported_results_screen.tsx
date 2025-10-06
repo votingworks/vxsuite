@@ -1,4 +1,5 @@
 import {
+  ChangePrecinctButton,
   ContestResultsTable,
   H1,
   LoadingAnimation,
@@ -9,7 +10,8 @@ import {
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { assert } from '@votingworks/basics';
-import { formatBallotHash } from '@votingworks/types';
+import { formatBallotHash, PrecinctSelection } from '@votingworks/types';
+import { getContestsForPrecinctAndElection } from '@votingworks/utils';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import { getQuickReportedResults, getSystemSettings } from './api';
@@ -19,8 +21,12 @@ export function QuickReportedResultsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
   const [isLive, setIsLive] = useState(true);
+  const [precinctSelection, setPrecinctSelection] = useState<PrecinctSelection>(
+    { kind: 'AllPrecincts' }
+  );
   const getQuickReportedResultsQuery = getQuickReportedResults.useQuery(
     electionId,
+    precinctSelection,
     isLive
   );
 
@@ -56,6 +62,7 @@ export function QuickReportedResultsScreen(): JSX.Element | null {
       </ElectionNavScreen>
     );
   }
+
   if (getQuickReportedResultsQuery.data.isErr()) {
     const err = getQuickReportedResultsQuery.data.err();
     assert(err === 'election-not-exported'); // This is the only possible error.
@@ -73,54 +80,70 @@ export function QuickReportedResultsScreen(): JSX.Element | null {
   }
 
   const aggregatedResults = getQuickReportedResultsQuery.data.ok();
-
+  const contests = getContestsForPrecinctAndElection(
+    aggregatedResults.election,
+    precinctSelection
+  );
   return (
     <ElectionNavScreen electionId={electionId}>
       <Header>
         <H1>Quick Reported Results</H1>
       </Header>
       <MainContent>
-        <SegmentedButton
-          label="Ballot Data Mode"
-          selectedOptionId={isLive ? 'live' : 'test'}
-          onChange={() => setIsLive(!isLive)}
-          options={[
-            { id: 'live', label: 'Live' },
-            { id: 'test', label: 'Test (L&A)' },
-          ]}
-        />
-        <h2>Report Information</h2>
-        <p>
-          <strong>Ballot Hash:</strong>{' '}
-          {formatBallotHash(aggregatedResults.ballotHash)}
-        </p>
-        <p>
-          <strong>Machine Ids Reporting:</strong>{' '}
-          {aggregatedResults.machinesReporting.join(', ')}
-        </p>
+        <div>
+          <div style={{ width: '500px' }}>
+            <ChangePrecinctButton
+              appPrecinctSelection={precinctSelection}
+              // eslint-disable-next-line @typescript-eslint/require-await
+              updatePrecinctSelection={async (s) => setPrecinctSelection(s)}
+              election={aggregatedResults.election}
+              mode="default"
+            />
+          </div>
+          <br />
+          <SegmentedButton
+            label="Ballot Mode"
+            selectedOptionId={isLive ? 'live' : 'test'}
+            onChange={() => setIsLive(!isLive)}
+            options={[
+              { id: 'live', label: 'Live' },
+              { id: 'test', label: 'Test' },
+            ]}
+          />
+        </div>
         <h2>Results</h2>
         {aggregatedResults.machinesReporting.length === 0 && (
           <p>No results reported.</p>
         )}
         {aggregatedResults.machinesReporting.length > 0 && (
-          <TallyReportColumns>
-            {aggregatedResults.election.contests.map((contest) => {
-              const currentContestResults =
-                aggregatedResults.contestResults[contest.id];
-              assert(
-                currentContestResults,
-                `missing reported results for contest ${contest.id}`
-              );
-              return (
-                <ContestResultsTable
-                  key={contest.id}
-                  election={aggregatedResults.election}
-                  contest={contest}
-                  scannedContestResults={currentContestResults}
-                />
-              );
-            })}
-          </TallyReportColumns>
+          <div>
+            <p>
+              Showing results for exported election with ballot hash:{' '}
+              {formatBallotHash(aggregatedResults.ballotHash)}
+            </p>
+            <p>
+              <strong>Machine Ids Reporting:</strong>{' '}
+              {aggregatedResults.machinesReporting.join(', ')}
+            </p>
+            <TallyReportColumns>
+              {contests.map((contest) => {
+                const currentContestResults =
+                  aggregatedResults.contestResults[contest.id];
+                assert(
+                  currentContestResults,
+                  `missing reported results for contest ${contest.id}`
+                );
+                return (
+                  <ContestResultsTable
+                    key={contest.id}
+                    election={aggregatedResults.election}
+                    contest={contest}
+                    scannedContestResults={currentContestResults}
+                  />
+                );
+              })}
+            </TallyReportColumns>
+          </div>
         )}
       </MainContent>
     </ElectionNavScreen>
