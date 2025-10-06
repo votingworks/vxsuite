@@ -451,28 +451,27 @@ pub fn ballot_card(
         )
     });
 
-    timing_marks
-        .zip(decoded_qr_codes)
-        .zip(scored_bubble_marks)
-        .zip(write_in_area_scores)
-        .zip(normalized_images)
-        .zip(contest_layouts)
-        .map(
-            |(
-                ((((timing_marks, (metadata, _)), marks), write_ins), normalized_image),
+    Pair::from((
+        timing_marks,
+        decoded_qr_codes,
+        scored_bubble_marks,
+        write_in_area_scores,
+        normalized_images,
+        contest_layouts,
+    ))
+    .map(
+        |(timing_marks, (metadata, _), marks, write_ins, normalized_image, contest_layouts)| {
+            InterpretedBallotPage {
+                timing_marks,
+                metadata: BallotPageMetadata::QrCode(metadata),
+                marks,
+                write_ins,
+                normalized_image,
                 contest_layouts,
-            )| {
-                InterpretedBallotPage {
-                    timing_marks,
-                    metadata: BallotPageMetadata::QrCode(metadata),
-                    marks,
-                    write_ins,
-                    normalized_image,
-                    contest_layouts,
-                }
-            },
-        )
-        .join(|front, back| Ok(InterpretedBallotCard { front, back }))
+            }
+        },
+    )
+    .join(|front, back| Ok(InterpretedBallotCard { front, back }))
 }
 
 #[cfg(test)]

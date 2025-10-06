@@ -148,6 +148,129 @@ impl<T> From<Pair<T>> for (T, T) {
     }
 }
 
+impl<T, U> From<(Pair<T>, Pair<U>)> for Pair<(T, U)> {
+    fn from(value: (Pair<T>, Pair<U>)) -> Self {
+        Pair::new(
+            (value.0.first, value.1.first),
+            (value.0.second, value.1.second),
+        )
+    }
+}
+
+impl<T, U, V> From<(Pair<T>, Pair<U>, Pair<V>)> for Pair<(T, U, V)> {
+    fn from(value: (Pair<T>, Pair<U>, Pair<V>)) -> Self {
+        Pair::new(
+            (value.0.first, value.1.first, value.2.first),
+            (value.0.second, value.1.second, value.2.second),
+        )
+    }
+}
+
+impl<T, U, V, W> From<(Pair<T>, Pair<U>, Pair<V>, Pair<W>)> for Pair<(T, U, V, W)> {
+    fn from(value: (Pair<T>, Pair<U>, Pair<V>, Pair<W>)) -> Self {
+        Pair::new(
+            (value.0.first, value.1.first, value.2.first, value.3.first),
+            (
+                value.0.second,
+                value.1.second,
+                value.2.second,
+                value.3.second,
+            ),
+        )
+    }
+}
+
+impl<T, U, V, W, X> From<(Pair<T>, Pair<U>, Pair<V>, Pair<W>, Pair<X>)> for Pair<(T, U, V, W, X)> {
+    fn from(value: (Pair<T>, Pair<U>, Pair<V>, Pair<W>, Pair<X>)) -> Self {
+        Pair::new(
+            (
+                value.0.first,
+                value.1.first,
+                value.2.first,
+                value.3.first,
+                value.4.first,
+            ),
+            (
+                value.0.second,
+                value.1.second,
+                value.2.second,
+                value.3.second,
+                value.4.second,
+            ),
+        )
+    }
+}
+
+impl<T, U, V, W, X, Y> From<(Pair<T>, Pair<U>, Pair<V>, Pair<W>, Pair<X>, Pair<Y>)>
+    for Pair<(T, U, V, W, X, Y)>
+{
+    fn from(value: (Pair<T>, Pair<U>, Pair<V>, Pair<W>, Pair<X>, Pair<Y>)) -> Self {
+        Pair::new(
+            (
+                value.0.first,
+                value.1.first,
+                value.2.first,
+                value.3.first,
+                value.4.first,
+                value.5.first,
+            ),
+            (
+                value.0.second,
+                value.1.second,
+                value.2.second,
+                value.3.second,
+                value.4.second,
+                value.5.second,
+            ),
+        )
+    }
+}
+
+impl<T, U, V, W, X, Y, Z>
+    From<(
+        Pair<T>,
+        Pair<U>,
+        Pair<V>,
+        Pair<W>,
+        Pair<X>,
+        Pair<Y>,
+        Pair<Z>,
+    )> for Pair<(T, U, V, W, X, Y, Z)>
+{
+    fn from(
+        value: (
+            Pair<T>,
+            Pair<U>,
+            Pair<V>,
+            Pair<W>,
+            Pair<X>,
+            Pair<Y>,
+            Pair<Z>,
+        ),
+    ) -> Self {
+        Pair::new(
+            (
+                value.0.first,
+                value.1.first,
+                value.2.first,
+                value.3.first,
+                value.4.first,
+                value.5.first,
+                value.6.first,
+            ),
+            (
+                value.0.second,
+                value.1.second,
+                value.2.second,
+                value.3.second,
+                value.4.second,
+                value.5.second,
+                value.6.second,
+            ),
+        )
+    }
+}
+
 impl<'a, T> From<&'a Pair<T>> for Pair<&'a T> {
     fn from(value: &'a Pair<T>) -> Self {
         (&value.first, &value.second).into()
