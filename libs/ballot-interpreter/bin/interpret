@@ -16,7 +16,7 @@ require('esbuild-runner').install({
   type: 'transform',
 });
 
-require('../src/hmpb-ts/cli')
+require('../src/bubble-ballot-ts/cli')
   .main(process.argv.slice(2))
   .then(
     (code) => {

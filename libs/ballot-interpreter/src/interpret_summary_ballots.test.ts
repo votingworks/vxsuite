@@ -41,7 +41,7 @@ import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
-import { rotateImageData180 } from './bmd/utils/rotate';
+import { rotateImageData180 } from './summary-ballot/utils/rotate';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
