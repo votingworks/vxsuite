@@ -129,7 +129,7 @@ where
     pub fn par_map<U, F>(self, mapper: F) -> Pair<U>
     where
         U: Send,
-        F: (Fn(T) -> U) + Send + Sync,
+        F: Fn(T) -> U + Send + Sync,
     {
         let (first, second) = self.into();
         rayon::join(|| mapper(first), || mapper(second)).into()
