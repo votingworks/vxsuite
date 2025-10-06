@@ -846,3 +846,191 @@ test('quick results reporting works as expected end to end with single precinct 
     )
   );
 });
+
+test('deleteQuickReportingResults clears quick results data as expected', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp([nonVxOrg]);
+  auth0.setLoggedInUser(nonVxUser);
+  const sampleElectionDefinition = await setUpElectionInSystem(
+    apiClient,
+    workspace,
+    fileStorageClient
+  );
+  auth0.logOut();
+
+  // Create and submit some quick results data
+  const sampleContest = sampleElectionDefinition.election.contests[0];
+  const sampleContestResults: Record<ContestId, ContestResultsSummary> = {
+    [sampleContest.id]: {
+      type: 'candidate',
+      ballots: 15,
+      undervotes: 3,
+      overvotes: 1,
+      officialOptionTallies: {},
+    },
+  };
+  const mockResults = buildElectionResultsFixture({
+    election: sampleElectionDefinition.election,
+    cardCounts: {
+      bmd: 0,
+      hmpb: [],
+    },
+    contestResultsSummaries: sampleContestResults,
+    includeGenericWriteIn: true,
+  });
+  const encodedTally = compressAndEncodeTally({
+    election: sampleElectionDefinition.election,
+    results: mockResults,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+
+  // Submit live results
+  const result = await unauthenticatedApiClient.processQrCodeReport({
+    payload: `1//qr1//${encodeQuickResultsMessage({
+      ballotHash: sampleElectionDefinition.ballotHash,
+      signingMachineId: 'test-machine-live',
+      timestamp: new Date('2024-01-01T12:00:00Z').getTime() / 1000,
+      isLiveMode: true,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      compressedTally: encodedTally,
+    })}`,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  expect(result).toEqual(ok(expect.anything()));
+
+  // Submit test results (isLiveMode: false)
+  const testResult = await unauthenticatedApiClient.processQrCodeReport({
+    payload: `1//qr1//${encodeQuickResultsMessage({
+      ballotHash: sampleElectionDefinition.ballotHash,
+      signingMachineId: 'test-machine-test',
+      timestamp: new Date('2024-01-01T13:00:00Z').getTime() / 1000,
+      isLiveMode: false,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      compressedTally: encodedTally,
+    })}`,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  expect(testResult).toEqual(ok(expect.anything()));
+
+  auth0.setLoggedInUser(nonVxUser);
+
+  // Verify both live and test results exist before clearing
+  const storedLiveResults = await apiClient.getQuickReportedResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: true,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+  expect(storedLiveResults).toEqual(
+    ok({
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      ballotHash: sampleElectionDefinition.ballotHash,
+      contestResults: expect.objectContaining({
+        [sampleContest.id]: expect.objectContaining({
+          ballots: 15,
+          undervotes: 3,
+          overvotes: 1,
+        }),
+      }),
+      machinesReporting: ['test-machine-live'],
+    })
+  );
+
+  const storedTestResults = await apiClient.getQuickReportedResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: false,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+  expect(storedTestResults).toEqual(
+    ok({
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      ballotHash: sampleElectionDefinition.ballotHash,
+      contestResults: expect.objectContaining({
+        [sampleContest.id]: expect.objectContaining({
+          ballots: 15,
+          undervotes: 3,
+          overvotes: 1,
+        }),
+      }),
+      machinesReporting: ['test-machine-test'],
+    })
+  );
+
+  // Clear live results only
+  await apiClient.deleteQuickReportingResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: true,
+  });
+
+  // Verify live results are cleared but test results remain
+  const clearedLiveResults = await apiClient.getQuickReportedResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: true,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+  expect(clearedLiveResults).toEqual(ok(expect.anything()));
+  expect(clearedLiveResults.ok()?.machinesReporting).toEqual([]);
+  // When cleared, contest results should exist but have zero values
+  const liveContestResults = clearedLiveResults.ok()?.contestResults;
+  expect(liveContestResults).toBeDefined();
+  for (const contestResult of Object.values(liveContestResults!)) {
+    expect(contestResult.ballots).toEqual(0);
+    expect(contestResult.overvotes).toEqual(0);
+    expect(contestResult.undervotes).toEqual(0);
+  }
+
+  const remainingTestResults = await apiClient.getQuickReportedResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: false,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+  expect(remainingTestResults).toEqual(
+    ok({
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      ballotHash: sampleElectionDefinition.ballotHash,
+      contestResults: expect.objectContaining({
+        [sampleContest.id]: expect.objectContaining({
+          ballots: 15,
+          undervotes: 3,
+          overvotes: 1,
+        }),
+      }),
+      machinesReporting: ['test-machine-test'],
+    })
+  );
+
+  // Clear test results
+  await apiClient.deleteQuickReportingResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: false,
+  });
+
+  // Verify test results are now also cleared
+  const clearedTestResults = await apiClient.getQuickReportedResults({
+    electionId: sampleElectionDefinition.election.id,
+    isLive: false,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+  expect(clearedTestResults).toEqual(ok(expect.anything()));
+  expect(clearedTestResults.ok()?.machinesReporting).toEqual([]);
+  // When cleared, contest results should exist but have zero values
+  const testContestResults = clearedTestResults.ok()?.contestResults;
+  expect(testContestResults).toBeDefined();
+  for (const contestResult of Object.values(testContestResults!)) {
+    expect(contestResult.ballots).toEqual(0);
+    expect(contestResult.overvotes).toEqual(0);
+    expect(contestResult.undervotes).toEqual(0);
+  }
+});
