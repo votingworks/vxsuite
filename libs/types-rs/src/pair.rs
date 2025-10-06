@@ -1,4 +1,4 @@
-use std::mem::swap;
+use std::{fmt::Debug, mem::swap};
 
 /// Represents a pair of two values of the same type. This type is useful for
 /// doing similar things to what you might do with iterables, but optimized for
@@ -280,6 +280,15 @@ impl<'a, T> From<&'a Pair<T>> for Pair<&'a T> {
 impl<'a, T> From<&'a mut Pair<T>> for Pair<&'a mut T> {
     fn from(value: &'a mut Pair<T>) -> Self {
         (&mut value.first, &mut value.second).into()
+    }
+}
+
+impl<T> Debug for Pair<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Pair({:?}, {:?})", self.first, self.second)
     }
 }
 
