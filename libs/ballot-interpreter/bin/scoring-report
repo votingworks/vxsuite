@@ -16,7 +16,7 @@ require('esbuild-runner').install({
   type: 'transform',
 });
 
-require('../src/hmpb-ts/scoring_report')
+require('../src/bubble-ballot-ts/scoring_report')
   .main(process.argv.slice(2))
   .catch((err) => {
     console.error(err.message);

@@ -3,10 +3,10 @@ use std::str::FromStr;
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::{
+    bubble_ballot,
     geometry::{
         GridUnit, PixelPosition, PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
     },
-    hmpb,
 };
 
 use crate::ballot_card::Geometry;
@@ -295,7 +295,7 @@ fn median(values: impl IntoIterator<Item = SubPixelUnit>) -> Option<SubPixelUnit
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "source", rename_all = "kebab-case")]
 pub enum BallotPageMetadata {
-    QrCode(hmpb::Metadata),
+    QrCode(bubble_ballot::Metadata),
 }
 
 struct Rotator180 {

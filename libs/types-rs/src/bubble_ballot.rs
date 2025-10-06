@@ -34,11 +34,11 @@ pub struct Metadata {
 /// primarily for serializing to JSON as a hex string.
 ///
 /// ```
-/// # use types_rs::hmpb::PartialBallotHash;
+/// # use types_rs::bubble_ballot::PartialBallotHash;
 /// # use serde::{Serialize, Deserialize};
 /// #[derive(Debug, Serialize, Deserialize)]
 /// struct MyContainer {
-///     #[serde(with = "types_rs::hmpb::ballot_hash_serde")]
+///     #[serde(with = "types_rs::bubble_ballot::ballot_hash_serde")]
 ///     hash: PartialBallotHash,
 /// }
 /// let value = MyContainer { hash: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] };

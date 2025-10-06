@@ -56,7 +56,7 @@ import {
   getAllPossibleAdjudicationReasons,
   getAllPossibleAdjudicationReasonsForBmdVotes,
 } from './adjudication_reasons';
-import { interpret as interpretVxBmdBallotSheet } from './bmd';
+import { interpret as interpretVxBmdBallotSheet } from './summary-ballot';
 import {
   Geometry,
   InterpretedBallotCard,
@@ -68,7 +68,7 @@ import {
   ScoredBubbleMark,
   ScoredBubbleMarks,
   ScoredPositionArea,
-} from './hmpb-ts';
+} from './bubble-ballot-ts';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
 
@@ -683,7 +683,7 @@ export async function interpretSimplexBmdBallot(
   const ballotImages: SheetOf<ImageData> = [
     frontImage,
     // We need at least a 2x2 placeholder image for top-bottom search area logic to work as
-    // expected (see getSearchAreas in src/bmd/utils/qrcode.ts)
+    // expected (see getSearchAreas in src/summary-ballot/utils/qrcode.ts)
     fromGrayScale(new Uint8ClampedArray([0, 0, 0, 0]), 2, 2),
   ];
   return interpretBmdBallot(ballotImages, options);

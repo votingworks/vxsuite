@@ -21,10 +21,9 @@ use crate::{
 
 use types_rs::{
     ballot_card::{BallotSide, PaperSize},
-    coding,
+    bubble_ballot, coding,
     election::{Election, GridLayout},
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
-    hmpb,
     pair::Pair,
 };
 
@@ -476,7 +475,7 @@ impl BallotCard {
     pub fn decode_ballot_barcodes(
         &self,
         election: &Election,
-    ) -> Result<Pair<(hmpb::Metadata, Orientation)>> {
+    ) -> Result<Pair<(bubble_ballot::Metadata, Orientation)>> {
         self.as_pair()
             .map(|ballot_page| {
                 let qr_code =
@@ -505,7 +504,8 @@ impl BallotCard {
                         Err(Error::InvalidQrCodeMetadata { .. }),
                         Ok((back_metadata, back_orientation)),
                     ) => {
-                        let front_metadata = hmpb::infer_missing_page_metadata(&back_metadata);
+                        let front_metadata =
+                            bubble_ballot::infer_missing_page_metadata(&back_metadata);
                         Ok(Pair::new(
                             (front_metadata, back_orientation),
                             (back_metadata, back_orientation),
@@ -515,7 +515,8 @@ impl BallotCard {
                         Ok((front_metadata, front_orientation)),
                         Err(Error::InvalidQrCodeMetadata { .. }),
                     ) => {
-                        let back_metadata = hmpb::infer_missing_page_metadata(&front_metadata);
+                        let back_metadata =
+                            bubble_ballot::infer_missing_page_metadata(&front_metadata);
                         Ok(Pair::new(
                             (front_metadata, front_orientation),
                             (back_metadata, front_orientation),

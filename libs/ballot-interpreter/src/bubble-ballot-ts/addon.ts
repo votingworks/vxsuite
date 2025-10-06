@@ -8,8 +8,8 @@ const addon = (() => {
   // NOTE: this only works because the build output can get to the root of the
   // project in the same number of `../` as the source input:
   //
-  //   src/hmpb-ts/addon.ts -> build/addon.node via `../../build/addon.node`
-  //   build/hmpb-ts/addon.js -> build/addon.node via `../../build/addon.node`
+  //   src/bubble-ballot-ts/addon.ts -> build/addon.node via `../../build/addon.node`
+  //   build/bubble-ballot-ts/addon.js -> build/addon.node via `../../build/addon.node`
   //
   const require = createRequire(__filename);
   const root = join(__dirname, '../..');

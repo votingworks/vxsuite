@@ -16,7 +16,7 @@ require('esbuild-runner').install({
   type: 'transform',
 });
 
-require('../src/hmpb-ts/diagnostic_cli')
+require('../src/bubble-ballot-ts/diagnostic_cli')
   .main(process.argv.slice(2))
   .catch((err) => {
     console.error(err.message);

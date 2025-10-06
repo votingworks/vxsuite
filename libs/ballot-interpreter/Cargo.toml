@@ -6,7 +6,7 @@ exclude = ["build/addon.node"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-path = "src/hmpb-rust/lib.rs"
+path = "src/bubble-ballot-rust/lib.rs"
 
 [[bin]]
 name = "interpret"
