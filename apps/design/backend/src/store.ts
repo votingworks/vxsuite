@@ -42,6 +42,7 @@ import {
   safeParse,
   PhoneticWordsSchema,
   ContestId,
+  ElectionStringKey,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -1069,38 +1070,63 @@ export class Store {
     electionInfo: ElectionInfo
   ): Promise<Result<void, DuplicateElectionError>> {
     try {
-      const { rowCount } = await this.db.withClient((client) =>
-        client.query(
-          `
-          update elections
-          set
-            type = $1,
-            title = $2,
-            date = $3,
-            jurisdiction = $4,
-            state = $5,
-            seal = $6,
-            signature = $7,
-            ballot_language_codes = $8
-          where id = $9
-        `,
-          electionInfo.type,
-          electionInfo.title,
-          electionInfo.date.toISOString(),
-          electionInfo.jurisdiction,
-          electionInfo.state,
-          electionInfo.seal,
-          electionInfo.signatureImage
-            ? JSON.stringify({
-                image: electionInfo.signatureImage,
-                caption: electionInfo.signatureCaption,
-              })
-            : null,
-          electionInfo.languageCodes,
-          electionInfo.electionId
-        )
+      await this.db.withClient((client) =>
+        client.withTransaction(async () => {
+          const res = await client.query<{ state: string; title: string }>(
+            `
+              update elections as new
+              set
+                type = $1,
+                title = $2,
+                date = $3,
+                jurisdiction = $4,
+                state = $5,
+                seal = $6,
+                signature = $7,
+                ballot_language_codes = $8
+              from elections as old
+              where new.id = $9 and new.id = old.id
+              returning
+                old.state,
+                old.title
+            `,
+            electionInfo.type,
+            electionInfo.title,
+            electionInfo.date.toISOString(),
+            electionInfo.jurisdiction,
+            electionInfo.state,
+            electionInfo.seal,
+            electionInfo.signatureImage
+              ? JSON.stringify({
+                  image: electionInfo.signatureImage,
+                  caption: electionInfo.signatureCaption,
+                })
+              : null,
+            electionInfo.languageCodes,
+            electionInfo.electionId
+          );
+
+          const old = assertDefined(res.rows[0], 'Election not found');
+
+          const invalidatedTtsEdits: Array<{ key: ElectionStringKey }> = [];
+
+          if (old.state !== electionInfo.state) {
+            invalidatedTtsEdits.push({ key: ElectionStringKey.STATE_NAME });
+          }
+
+          if (old.title !== electionInfo.title) {
+            invalidatedTtsEdits.push({ key: ElectionStringKey.ELECTION_TITLE });
+          }
+
+          await this.ttsStringsDeleteImpl(client, {
+            electionId: electionInfo.electionId,
+            keys: invalidatedTtsEdits,
+          });
+
+          return true;
+        })
       );
-      assert(rowCount === 1, 'Election not found');
+
       return ok();
     } catch (error) {
       if (
@@ -1143,19 +1169,36 @@ export class Store {
     district: District
   ): Promise<Result<void, DuplicateDistrictError>> {
     try {
-      const { rowCount } = await this.db.withClient((client) =>
-        client.query(
-          `
-          update districts
-          set name = $1
-          where id = $2 and election_id = $3
-        `,
-          district.name,
-          district.id,
-          electionId
-        )
+      await this.db.withClient((client) =>
+        client.withTransaction(async () => {
+          const res = await client.query<{ name: string }>(
+            `
+              update districts
+              set name = $1
+              where id = $2 and election_id = $3
+              returning (
+                select name from districts where id = $2 and election_id = $3
+              )
+            `,
+            district.name,
+            district.id,
+            electionId
+          );
+
+          const old = assertDefined(res.rows[0], 'District not found');
+
+          if (old.name !== district.name) {
+            await this.ttsStringsDeleteImpl(client, {
+              electionId,
+              keys: [
+                { key: ElectionStringKey.DISTRICT_NAME, subkey: district.id },
+              ],
+            });
+          }
+
+          return true;
+        })
       );
-      assert(rowCount === 1, 'District not found');
       return ok();
     } catch (error) {
       if (
@@ -1172,17 +1215,26 @@ export class Store {
     electionId: ElectionId,
     districtId: DistrictId
   ): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      client.query(
-        `
-          delete from districts
-          where id = $1 and election_id = $2
-        `,
-        districtId,
-        electionId
-      )
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        const { rowCount } = await client.query(
+          `
+            delete from districts
+            where id = $1 and election_id = $2
+          `,
+          districtId,
+          electionId
+        );
+        assert(rowCount === 1, 'District not found');
+
+        await this.ttsStringsDeleteImpl(client, {
+          electionId,
+          keys: [{ key: ElectionStringKey.DISTRICT_NAME, subkey: districtId }],
+        });
+
+        return true;
+      })
     );
-    assert(rowCount === 1, 'District not found');
   }
 
   async listPrecincts(electionId: ElectionId): Promise<readonly Precinct[]> {
@@ -1259,17 +1311,50 @@ export class Store {
     electionId: ElectionId,
     precinctId: PrecinctId
   ): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      client.query(
-        `
-          delete from precincts
-          where id = $1 and election_id = $2
-        `,
-        precinctId,
-        electionId
-      )
-    );
-    assert(rowCount === 1, 'Precinct not found');
+    await this.db.withClient(async (client) => {
+      const invalidatedTtsEdits: Array<{
+        key: ElectionStringKey;
+        subkey: string;
+      }> = [];
+
+      invalidatedTtsEdits.push({
+        key: ElectionStringKey.PRECINCT_NAME,
+        subkey: precinctId,
+      });
+
+      const splits = (
+        await client.query(
+          `select id from precinct_splits where precinct_id = $1`,
+          precinctId
+        )
+      ).rows;
+
+      for (const split of splits) {
+        invalidatedTtsEdits.push({
+          key: ElectionStringKey.PRECINCT_SPLIT_NAME,
+          subkey: split.id,
+        });
+      }
+
+      await client.withTransaction(async () => {
+        const { rowCount } = await client.query(
+          `
+            delete from precincts
+            where id = $1 and election_id = $2
+          `,
+          precinctId,
+          electionId
+        );
+        assert(rowCount === 1, 'Precinct not found');
+
+        await this.ttsStringsDeleteImpl(client, {
+          electionId,
+          keys: invalidatedTtsEdits,
+        });
+
+        return true;
+      });
+    });
   }
 
   async listBallotStyles(electionId: ElectionId): Promise<BallotStyle[]> {
@@ -1316,24 +1401,59 @@ export class Store {
     party: Party
   ): Promise<Result<void, DuplicatePartyError>> {
     try {
-      const { rowCount } = await this.db.withClient((client) =>
-        client.query(
-          `
-          update parties
-          set
-            name = $1,
-            full_name = $2,
-            abbrev = $3
-          where id = $4 and election_id = $5
-        `,
-          party.name,
-          party.fullName,
-          party.abbrev,
-          party.id,
-          electionId
-        )
+      await this.db.withClient((client) =>
+        client.withTransaction(async () => {
+          const res = await client.query<{ fullName: string; name: string }>(
+            `
+              update parties as new
+              set
+                name = $1,
+                full_name = $2,
+                abbrev = $3
+              from parties as old
+              where new.id = $4 and new.election_id = $5
+                and new.id = old.id and new.election_id = old.election_id
+              returning
+                old.full_name as "fullName",
+                old.name
+            `,
+            party.name,
+            party.fullName,
+            party.abbrev,
+            party.id,
+            electionId
+          );
+
+          const old = assertDefined(res.rows[0], 'Party not found');
+
+          const invalidatedTtsEdits: Array<{
+            key: ElectionStringKey;
+            subkey: string;
+          }> = [];
+
+          if (old.fullName !== party.fullName) {
+            invalidatedTtsEdits.push({
+              key: ElectionStringKey.PARTY_FULL_NAME,
+              subkey: party.id,
+            });
+          }
+
+          if (old.name !== party.name) {
+            invalidatedTtsEdits.push({
+              key: ElectionStringKey.PARTY_NAME,
+              subkey: party.id,
+            });
+          }
+
+          await this.ttsStringsDeleteImpl(client, {
+            electionId,
+            keys: invalidatedTtsEdits,
+          });
+
+          return true;
+        })
       );
-      assert(rowCount === 1, 'Party not found');
+
       return ok();
     } catch (error) {
       return this.handlePartyError(error);
@@ -1341,17 +1461,28 @@ export class Store {
   }
 
   async deleteParty(electionId: ElectionId, partyId: string): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      client.query(
-        `
-          delete from parties
-          where id = $1 and election_id = $2
-        `,
-        partyId,
-        electionId
-      )
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await client.query(
+          `
+            delete from parties
+            where id = $1 and election_id = $2
+          `,
+          partyId,
+          electionId
+        );
+
+        await this.ttsStringsDeleteImpl(client, {
+          electionId,
+          keys: [
+            { key: ElectionStringKey.PARTY_NAME, subkey: partyId },
+            { key: ElectionStringKey.PARTY_FULL_NAME, subkey: partyId },
+          ],
+        });
+
+        return true;
+      })
     );
-    assert(rowCount === 1, 'Party not found');
   }
 
   async listContests(electionId: ElectionId): Promise<readonly AnyContest[]> {
@@ -1470,19 +1601,65 @@ export class Store {
     electionId: ElectionId,
     contestId: string
   ): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      // We don't worry about updating ballot_order for other contests because
-      // they will still be in the correct order even with a gap.
-      client.query(
-        `
-          delete from contests
-          where id = $1 and election_id = $2
-        `,
-        contestId,
-        electionId
-      )
+    const invalidatedTtsEdits: Array<{
+      key: ElectionStringKey;
+      subkey: string;
+    }> = [];
+
+    for (const contest of await this.listContests(electionId)) {
+      if (contest.id !== contestId) continue;
+
+      invalidatedTtsEdits.push(
+        { key: ElectionStringKey.CONTEST_TITLE, subkey: contestId },
+        { key: ElectionStringKey.CONTEST_TERM, subkey: contestId },
+        { key: ElectionStringKey.CONTEST_DESCRIPTION, subkey: contestId }
+      );
+
+      if (contest.type === 'candidate') {
+        for (const candidate of contest.candidates) {
+          invalidatedTtsEdits.push({
+            key: ElectionStringKey.CANDIDATE_NAME,
+            subkey: candidate.id,
+          });
+        }
+      } else {
+        invalidatedTtsEdits.push(
+          {
+            key: ElectionStringKey.CONTEST_OPTION_LABEL,
+            subkey: contest.yesOption.id,
+          },
+          {
+            key: ElectionStringKey.CONTEST_OPTION_LABEL,
+            subkey: contest.noOption.id,
+          }
+        );
+      }
+
+      break;
+    }
+
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        // We don't worry about updating ballot_order for other contests because
+        // they will still be in the correct order even with a gap.
+        const { rowCount } = await client.query(
+          `
+            delete from contests
+            where id = $1 and election_id = $2
+          `,
+          contestId,
+          electionId
+        );
+        assert(rowCount === 1, 'Contest not found');
+
+        await this.ttsStringsDeleteImpl(client, {
+          electionId,
+          keys: invalidatedTtsEdits,
+        });
+
+        return true;
+      })
     );
-    assert(rowCount === 1, 'Contest not found');
   }
 
   async getBallotLayoutSettings(
@@ -1972,6 +2149,45 @@ export class Store {
         set started_at = null
         where started_at is not null and completed_at is null
       `)
+    );
+  }
+
+  async ttsStringsDelete(params: {
+    electionId: string;
+    keys: Array<{ key: ElectionStringKey; subkey?: string }>;
+  }): Promise<void> {
+    await this.db.withClient(async (client) =>
+      this.ttsStringsDeleteImpl(client, params)
+    );
+  }
+
+  private async ttsStringsDeleteImpl(
+    client: Client,
+    params: {
+      electionId: string;
+      keys: Array<{ key: ElectionStringKey; subkey?: string }>;
+    }
+  ): Promise<void> {
+    if (params.keys.length === 0) return;
+
+    const keyQueries: string[] = [];
+    const keyParams: Array<string | undefined> = [];
+
+    let idxParam = 2;
+    for (const ttsKey of params.keys) {
+      keyQueries.push(`( key = $${idxParam} and subkey = $${idxParam + 1} )`);
+      keyParams.push(ttsKey.key, ttsKey.subkey || '');
+      idxParam += 2;
+    }
+
+    await client.query(
+      `
+        delete from tts_strings where
+          election_id = $1
+          and ( ${keyQueries.join(' or ')} )
+      `,
+      params.electionId,
+      ...keyParams
     );
   }
 

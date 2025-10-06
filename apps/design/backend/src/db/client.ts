@@ -1,3 +1,4 @@
+/* eslint-disable vx/gts-no-return-type-only-generics */
 /* istanbul ignore file - [TODO] need to update CI image to include postgres. @preserve */
 
 import { Buffer } from 'node:buffer';
@@ -42,11 +43,12 @@ export class Client {
    *   }
    * ```
    */
-  query(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  query<Row extends pg.QueryResultRow = any>(
     sql: string,
     ...values: pg.QueryConfigValues<Array<Bindable | Bindable[]>>
-  ): Promise<pg.QueryResult> {
-    return this.conn.query(sql, values);
+  ): Promise<pg.QueryResult<Row>> {
+    return this.conn.query<Row>(sql, values);
   }
 
   /**
