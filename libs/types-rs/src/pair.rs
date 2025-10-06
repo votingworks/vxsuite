@@ -112,7 +112,7 @@ impl<T> Pair<T> {
     /// ```
     /// use types_rs::pair::Pair;
     ///
-    /// let mut pair = Pair::new(3, 5);
+    /// let mut pair = Pair::<u8>::new(3, 5);
     /// pair.swap();
     /// assert_eq!(pair, Pair::new(5, 3));
     /// ```
@@ -289,6 +289,15 @@ where
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Pair({:?}, {:?})", self.first, self.second)
+    }
+}
+
+impl<T> PartialEq for Pair<T>
+where
+    T: PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.first == other.first && self.second == other.second
     }
 }
 
