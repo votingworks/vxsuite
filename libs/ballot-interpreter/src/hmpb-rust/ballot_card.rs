@@ -67,12 +67,12 @@ impl BallotImage {
         let border_inset =
             find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
         let debug_base = debug_base.into();
-        let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
-            ImageDebugWriter::new(debug_base, image.clone())
-        });
 
         if border_inset.is_zero() {
             // Don't bother cropping if there's no inset.
+            let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
+                ImageDebugWriter::new(debug_base, image.clone())
+            });
             return Some(BallotImage {
                 image,
                 threshold,
@@ -94,6 +94,9 @@ impl BallotImage {
         // re-interpretations based on the saved image are consistent with the
         // initial one.
         let threshold = otsu_level(&image);
+        let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
+            ImageDebugWriter::new(debug_base, image.clone())
+        });
 
         Some(BallotImage {
             image,

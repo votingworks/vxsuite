@@ -759,6 +759,40 @@ mod test {
     }
 
     #[test]
+    fn test_debug_images_with_cropping() {
+        let (side_a_image, _, _) = load_hmpb_fixture("vx-general-election/letter", 1);
+        let side_a_image_original_dimensions = side_a_image.dimensions();
+        let side_a_image = {
+            let inset = Inset {
+                left: 50,
+                top: 170,
+                bottom: 30,
+                right: 30,
+            };
+            let mut expanded = GrayImage::new(
+                side_a_image.width() + inset.left + inset.right,
+                side_a_image.height() + inset.top + inset.bottom,
+            );
+            for (x, y, luma) in side_a_image.enumerate_pixels() {
+                expanded.put_pixel(x, y, *luma);
+            }
+            expanded
+        };
+        let ballot_page = BallotPage::from_image(
+            "test",
+            side_a_image,
+            &PaperInfo::scanned(),
+            Some(PathBuf::from("/tmp/unused")),
+        )
+        .unwrap();
+        // Ensure that the black area we added around the image is cropped off in the debug image.
+        assert_eq!(
+            ballot_page.debug().input_image().unwrap().dimensions(),
+            side_a_image_original_dimensions
+        );
+    }
+
+    #[test]
     fn test_inferred_missing_metadata_from_one_side() {
         let (mut side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
