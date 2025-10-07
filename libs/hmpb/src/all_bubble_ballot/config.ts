@@ -5,8 +5,9 @@ export interface AllBubbleBallotConfig {
   pageDimensions: { width: number; height: number };
   columnsPerInch: number;
   rowsPerInch: number;
-  gridRows: number;
-  gridColumns: number;
+  gridRows: number[];
+  gridColumns: number[];
+  seats: number[];
   footerRowHeight: number;
   numPages: number;
 }
@@ -26,9 +27,10 @@ export function allBubbleBallotConfig(
     pageDimensions: ballotPaperDimensions(paperSize),
     columnsPerInch,
     rowsPerInch,
-    gridRows: 20, // ballotPaperDimensions(paperSize).height * rowsPerInch - 3,
-    gridColumns: 5, // ballotPaperDimensions(paperSize).width * columnsPerInch,
+    gridRows: [40, 40, 7, 6, ...Array.from<number>({ length: 21 }).fill(2)], // ballotPaperDimensions(paperSize).height * rowsPerInch - 3,
+    gridColumns: [1, 1, 1, 1, ...Array.from<number>({ length: 21 }).fill(1)], // ballotPaperDimensions(paperSize).width * columnsPerInch,
+    seats: [25, 25, 2, 2, ...Array.from<number>({ length: 21 }).fill(1)],
     footerRowHeight: 0,
-    numPages: 1,
+    numPages: 25,
   };
 }

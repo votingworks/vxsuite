@@ -93,12 +93,12 @@ export function allBubbleBallotTemplate(
           padding: '1rem',
         }}
       >
-        {range(1, gridRows + 1).flatMap((row) => (
+        {range(1, gridRows[pageNumber - 1] + 1).flatMap((row) => (
           <div
             key={`row-${row}`}
             style={{ display: 'flex', justifyContent: 'space-between' }}
           >
-            {range(1, gridColumns + 1).map((column) => (
+            {range(1, gridColumns[pageNumber - 1] + 1).map((column) => (
               <div
                 style={{ display: 'flex', gap: '0.25rem', width: '5rem' }}
                 key={`bubble-${row}-${column}`}

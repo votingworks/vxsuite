@@ -6,8 +6,8 @@
   "ballotStrings": {},
   "ballotStyles": [
     {
-      "id": "sheet-1",
-      "groupId": "sheet-1",
+      "id": "test-ballot-style",
+      "groupId": "test-ballot-style",
       "precincts": [
         "test-precinct"
       ],
@@ -18,419 +18,799 @@
   ],
   "contests": [
     {
-      "id": "test-contest-page-1",
+      "id": "test-contest-1",
       "districtId": "test-district",
-      "title": "Test Contest - Page 1",
+      "title": "Contest 1: 25/40",
       "type": "candidate",
-      "seats": 50,
+      "seats": 25,
       "candidates": [
         {
-          "id": "test-candidate-page-1-row-1-column-1",
-          "name": "Page 1, Row 1, Column 1"
+          "id": "test-candidate-1-1",
+          "name": "Candidate 1-1"
         },
         {
-          "id": "test-candidate-page-1-row-1-column-2",
-          "name": "Page 1, Row 1, Column 2"
+          "id": "test-candidate-1-2",
+          "name": "Candidate 1-2"
         },
         {
-          "id": "test-candidate-page-1-row-1-column-3",
-          "name": "Page 1, Row 1, Column 3"
+          "id": "test-candidate-1-3",
+          "name": "Candidate 1-3"
         },
         {
-          "id": "test-candidate-page-1-row-1-column-4",
-          "name": "Page 1, Row 1, Column 4"
+          "id": "test-candidate-1-4",
+          "name": "Candidate 1-4"
         },
         {
-          "id": "test-candidate-page-1-row-1-column-5",
-          "name": "Page 1, Row 1, Column 5"
+          "id": "test-candidate-1-5",
+          "name": "Candidate 1-5"
         },
         {
-          "id": "test-candidate-page-1-row-2-column-1",
-          "name": "Page 1, Row 2, Column 1"
+          "id": "test-candidate-1-6",
+          "name": "Candidate 1-6"
         },
         {
-          "id": "test-candidate-page-1-row-2-column-2",
-          "name": "Page 1, Row 2, Column 2"
+          "id": "test-candidate-1-7",
+          "name": "Candidate 1-7"
         },
         {
-          "id": "test-candidate-page-1-row-2-column-3",
-          "name": "Page 1, Row 2, Column 3"
+          "id": "test-candidate-1-8",
+          "name": "Candidate 1-8"
         },
         {
-          "id": "test-candidate-page-1-row-2-column-4",
-          "name": "Page 1, Row 2, Column 4"
+          "id": "test-candidate-1-9",
+          "name": "Candidate 1-9"
         },
         {
-          "id": "test-candidate-page-1-row-2-column-5",
-          "name": "Page 1, Row 2, Column 5"
+          "id": "test-candidate-1-10",
+          "name": "Candidate 1-10"
         },
         {
-          "id": "test-candidate-page-1-row-3-column-1",
-          "name": "Page 1, Row 3, Column 1"
+          "id": "test-candidate-1-11",
+          "name": "Candidate 1-11"
         },
         {
-          "id": "test-candidate-page-1-row-3-column-2",
-          "name": "Page 1, Row 3, Column 2"
+          "id": "test-candidate-1-12",
+          "name": "Candidate 1-12"
         },
         {
-          "id": "test-candidate-page-1-row-3-column-3",
-          "name": "Page 1, Row 3, Column 3"
+          "id": "test-candidate-1-13",
+          "name": "Candidate 1-13"
         },
         {
-          "id": "test-candidate-page-1-row-3-column-4",
-          "name": "Page 1, Row 3, Column 4"
+          "id": "test-candidate-1-14",
+          "name": "Candidate 1-14"
         },
         {
-          "id": "test-candidate-page-1-row-3-column-5",
-          "name": "Page 1, Row 3, Column 5"
+          "id": "test-candidate-1-15",
+          "name": "Candidate 1-15"
         },
         {
-          "id": "test-candidate-page-1-row-4-column-1",
-          "name": "Page 1, Row 4, Column 1"
+          "id": "test-candidate-1-16",
+          "name": "Candidate 1-16"
         },
         {
-          "id": "test-candidate-page-1-row-4-column-2",
-          "name": "Page 1, Row 4, Column 2"
+          "id": "test-candidate-1-17",
+          "name": "Candidate 1-17"
         },
         {
-          "id": "test-candidate-page-1-row-4-column-3",
-          "name": "Page 1, Row 4, Column 3"
+          "id": "test-candidate-1-18",
+          "name": "Candidate 1-18"
         },
         {
-          "id": "test-candidate-page-1-row-4-column-4",
-          "name": "Page 1, Row 4, Column 4"
+          "id": "test-candidate-1-19",
+          "name": "Candidate 1-19"
         },
         {
-          "id": "test-candidate-page-1-row-4-column-5",
-          "name": "Page 1, Row 4, Column 5"
+          "id": "test-candidate-1-20",
+          "name": "Candidate 1-20"
         },
         {
-          "id": "test-candidate-page-1-row-5-column-1",
-          "name": "Page 1, Row 5, Column 1"
+          "id": "test-candidate-1-21",
+          "name": "Candidate 1-21"
         },
         {
-          "id": "test-candidate-page-1-row-5-column-2",
-          "name": "Page 1, Row 5, Column 2"
+          "id": "test-candidate-1-22",
+          "name": "Candidate 1-22"
         },
         {
-          "id": "test-candidate-page-1-row-5-column-3",
-          "name": "Page 1, Row 5, Column 3"
+          "id": "test-candidate-1-23",
+          "name": "Candidate 1-23"
         },
         {
-          "id": "test-candidate-page-1-row-5-column-4",
-          "name": "Page 1, Row 5, Column 4"
+          "id": "test-candidate-1-24",
+          "name": "Candidate 1-24"
         },
         {
-          "id": "test-candidate-page-1-row-5-column-5",
-          "name": "Page 1, Row 5, Column 5"
+          "id": "test-candidate-1-25",
+          "name": "Candidate 1-25"
         },
         {
-          "id": "test-candidate-page-1-row-6-column-1",
-          "name": "Page 1, Row 6, Column 1"
+          "id": "test-candidate-1-26",
+          "name": "Candidate 1-26"
         },
         {
-          "id": "test-candidate-page-1-row-6-column-2",
-          "name": "Page 1, Row 6, Column 2"
+          "id": "test-candidate-1-27",
+          "name": "Candidate 1-27"
         },
         {
-          "id": "test-candidate-page-1-row-6-column-3",
-          "name": "Page 1, Row 6, Column 3"
+          "id": "test-candidate-1-28",
+          "name": "Candidate 1-28"
         },
         {
-          "id": "test-candidate-page-1-row-6-column-4",
-          "name": "Page 1, Row 6, Column 4"
+          "id": "test-candidate-1-29",
+          "name": "Candidate 1-29"
         },
         {
-          "id": "test-candidate-page-1-row-6-column-5",
-          "name": "Page 1, Row 6, Column 5"
+          "id": "test-candidate-1-30",
+          "name": "Candidate 1-30"
         },
         {
-          "id": "test-candidate-page-1-row-7-column-1",
-          "name": "Page 1, Row 7, Column 1"
+          "id": "test-candidate-1-31",
+          "name": "Candidate 1-31"
         },
         {
-          "id": "test-candidate-page-1-row-7-column-2",
-          "name": "Page 1, Row 7, Column 2"
+          "id": "test-candidate-1-32",
+          "name": "Candidate 1-32"
         },
         {
-          "id": "test-candidate-page-1-row-7-column-3",
-          "name": "Page 1, Row 7, Column 3"
+          "id": "test-candidate-1-33",
+          "name": "Candidate 1-33"
         },
         {
-          "id": "test-candidate-page-1-row-7-column-4",
-          "name": "Page 1, Row 7, Column 4"
+          "id": "test-candidate-1-34",
+          "name": "Candidate 1-34"
         },
         {
-          "id": "test-candidate-page-1-row-7-column-5",
-          "name": "Page 1, Row 7, Column 5"
+          "id": "test-candidate-1-35",
+          "name": "Candidate 1-35"
         },
         {
-          "id": "test-candidate-page-1-row-8-column-1",
-          "name": "Page 1, Row 8, Column 1"
+          "id": "test-candidate-1-36",
+          "name": "Candidate 1-36"
         },
         {
-          "id": "test-candidate-page-1-row-8-column-2",
-          "name": "Page 1, Row 8, Column 2"
+          "id": "test-candidate-1-37",
+          "name": "Candidate 1-37"
         },
         {
-          "id": "test-candidate-page-1-row-8-column-3",
-          "name": "Page 1, Row 8, Column 3"
+          "id": "test-candidate-1-38",
+          "name": "Candidate 1-38"
         },
         {
-          "id": "test-candidate-page-1-row-8-column-4",
-          "name": "Page 1, Row 8, Column 4"
+          "id": "test-candidate-1-39",
+          "name": "Candidate 1-39"
         },
         {
-          "id": "test-candidate-page-1-row-8-column-5",
-          "name": "Page 1, Row 8, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-9-column-1",
-          "name": "Page 1, Row 9, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-9-column-2",
-          "name": "Page 1, Row 9, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-9-column-3",
-          "name": "Page 1, Row 9, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-9-column-4",
-          "name": "Page 1, Row 9, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-9-column-5",
-          "name": "Page 1, Row 9, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-10-column-1",
-          "name": "Page 1, Row 10, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-10-column-2",
-          "name": "Page 1, Row 10, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-10-column-3",
-          "name": "Page 1, Row 10, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-10-column-4",
-          "name": "Page 1, Row 10, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-10-column-5",
-          "name": "Page 1, Row 10, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-11-column-1",
-          "name": "Page 1, Row 11, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-11-column-2",
-          "name": "Page 1, Row 11, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-11-column-3",
-          "name": "Page 1, Row 11, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-11-column-4",
-          "name": "Page 1, Row 11, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-11-column-5",
-          "name": "Page 1, Row 11, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-12-column-1",
-          "name": "Page 1, Row 12, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-12-column-2",
-          "name": "Page 1, Row 12, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-12-column-3",
-          "name": "Page 1, Row 12, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-12-column-4",
-          "name": "Page 1, Row 12, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-12-column-5",
-          "name": "Page 1, Row 12, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-13-column-1",
-          "name": "Page 1, Row 13, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-13-column-2",
-          "name": "Page 1, Row 13, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-13-column-3",
-          "name": "Page 1, Row 13, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-13-column-4",
-          "name": "Page 1, Row 13, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-13-column-5",
-          "name": "Page 1, Row 13, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-14-column-1",
-          "name": "Page 1, Row 14, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-14-column-2",
-          "name": "Page 1, Row 14, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-14-column-3",
-          "name": "Page 1, Row 14, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-14-column-4",
-          "name": "Page 1, Row 14, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-14-column-5",
-          "name": "Page 1, Row 14, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-15-column-1",
-          "name": "Page 1, Row 15, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-15-column-2",
-          "name": "Page 1, Row 15, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-15-column-3",
-          "name": "Page 1, Row 15, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-15-column-4",
-          "name": "Page 1, Row 15, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-15-column-5",
-          "name": "Page 1, Row 15, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-16-column-1",
-          "name": "Page 1, Row 16, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-16-column-2",
-          "name": "Page 1, Row 16, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-16-column-3",
-          "name": "Page 1, Row 16, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-16-column-4",
-          "name": "Page 1, Row 16, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-16-column-5",
-          "name": "Page 1, Row 16, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-17-column-1",
-          "name": "Page 1, Row 17, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-17-column-2",
-          "name": "Page 1, Row 17, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-17-column-3",
-          "name": "Page 1, Row 17, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-17-column-4",
-          "name": "Page 1, Row 17, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-17-column-5",
-          "name": "Page 1, Row 17, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-18-column-1",
-          "name": "Page 1, Row 18, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-18-column-2",
-          "name": "Page 1, Row 18, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-18-column-3",
-          "name": "Page 1, Row 18, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-18-column-4",
-          "name": "Page 1, Row 18, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-18-column-5",
-          "name": "Page 1, Row 18, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-19-column-1",
-          "name": "Page 1, Row 19, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-19-column-2",
-          "name": "Page 1, Row 19, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-19-column-3",
-          "name": "Page 1, Row 19, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-19-column-4",
-          "name": "Page 1, Row 19, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-19-column-5",
-          "name": "Page 1, Row 19, Column 5"
-        },
-        {
-          "id": "test-candidate-page-1-row-20-column-1",
-          "name": "Page 1, Row 20, Column 1"
-        },
-        {
-          "id": "test-candidate-page-1-row-20-column-2",
-          "name": "Page 1, Row 20, Column 2"
-        },
-        {
-          "id": "test-candidate-page-1-row-20-column-3",
-          "name": "Page 1, Row 20, Column 3"
-        },
-        {
-          "id": "test-candidate-page-1-row-20-column-4",
-          "name": "Page 1, Row 20, Column 4"
-        },
-        {
-          "id": "test-candidate-page-1-row-20-column-5",
-          "name": "Page 1, Row 20, Column 5"
+          "id": "test-candidate-1-40",
+          "name": "Candidate 1-40"
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-2",
+      "districtId": "test-district",
+      "title": "Contest 2: 25/40",
+      "type": "candidate",
+      "seats": 25,
+      "candidates": [
+        {
+          "id": "test-candidate-2-1",
+          "name": "Candidate 2-1"
+        },
+        {
+          "id": "test-candidate-2-2",
+          "name": "Candidate 2-2"
+        },
+        {
+          "id": "test-candidate-2-3",
+          "name": "Candidate 2-3"
+        },
+        {
+          "id": "test-candidate-2-4",
+          "name": "Candidate 2-4"
+        },
+        {
+          "id": "test-candidate-2-5",
+          "name": "Candidate 2-5"
+        },
+        {
+          "id": "test-candidate-2-6",
+          "name": "Candidate 2-6"
+        },
+        {
+          "id": "test-candidate-2-7",
+          "name": "Candidate 2-7"
+        },
+        {
+          "id": "test-candidate-2-8",
+          "name": "Candidate 2-8"
+        },
+        {
+          "id": "test-candidate-2-9",
+          "name": "Candidate 2-9"
+        },
+        {
+          "id": "test-candidate-2-10",
+          "name": "Candidate 2-10"
+        },
+        {
+          "id": "test-candidate-2-11",
+          "name": "Candidate 2-11"
+        },
+        {
+          "id": "test-candidate-2-12",
+          "name": "Candidate 2-12"
+        },
+        {
+          "id": "test-candidate-2-13",
+          "name": "Candidate 2-13"
+        },
+        {
+          "id": "test-candidate-2-14",
+          "name": "Candidate 2-14"
+        },
+        {
+          "id": "test-candidate-2-15",
+          "name": "Candidate 2-15"
+        },
+        {
+          "id": "test-candidate-2-16",
+          "name": "Candidate 2-16"
+        },
+        {
+          "id": "test-candidate-2-17",
+          "name": "Candidate 2-17"
+        },
+        {
+          "id": "test-candidate-2-18",
+          "name": "Candidate 2-18"
+        },
+        {
+          "id": "test-candidate-2-19",
+          "name": "Candidate 2-19"
+        },
+        {
+          "id": "test-candidate-2-20",
+          "name": "Candidate 2-20"
+        },
+        {
+          "id": "test-candidate-2-21",
+          "name": "Candidate 2-21"
+        },
+        {
+          "id": "test-candidate-2-22",
+          "name": "Candidate 2-22"
+        },
+        {
+          "id": "test-candidate-2-23",
+          "name": "Candidate 2-23"
+        },
+        {
+          "id": "test-candidate-2-24",
+          "name": "Candidate 2-24"
+        },
+        {
+          "id": "test-candidate-2-25",
+          "name": "Candidate 2-25"
+        },
+        {
+          "id": "test-candidate-2-26",
+          "name": "Candidate 2-26"
+        },
+        {
+          "id": "test-candidate-2-27",
+          "name": "Candidate 2-27"
+        },
+        {
+          "id": "test-candidate-2-28",
+          "name": "Candidate 2-28"
+        },
+        {
+          "id": "test-candidate-2-29",
+          "name": "Candidate 2-29"
+        },
+        {
+          "id": "test-candidate-2-30",
+          "name": "Candidate 2-30"
+        },
+        {
+          "id": "test-candidate-2-31",
+          "name": "Candidate 2-31"
+        },
+        {
+          "id": "test-candidate-2-32",
+          "name": "Candidate 2-32"
+        },
+        {
+          "id": "test-candidate-2-33",
+          "name": "Candidate 2-33"
+        },
+        {
+          "id": "test-candidate-2-34",
+          "name": "Candidate 2-34"
+        },
+        {
+          "id": "test-candidate-2-35",
+          "name": "Candidate 2-35"
+        },
+        {
+          "id": "test-candidate-2-36",
+          "name": "Candidate 2-36"
+        },
+        {
+          "id": "test-candidate-2-37",
+          "name": "Candidate 2-37"
+        },
+        {
+          "id": "test-candidate-2-38",
+          "name": "Candidate 2-38"
+        },
+        {
+          "id": "test-candidate-2-39",
+          "name": "Candidate 2-39"
+        },
+        {
+          "id": "test-candidate-2-40",
+          "name": "Candidate 2-40"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-3",
+      "districtId": "test-district",
+      "title": "Contest 3: 2/7",
+      "type": "candidate",
+      "seats": 2,
+      "candidates": [
+        {
+          "id": "test-candidate-3-1",
+          "name": "Candidate 3-1"
+        },
+        {
+          "id": "test-candidate-3-2",
+          "name": "Candidate 3-2"
+        },
+        {
+          "id": "test-candidate-3-3",
+          "name": "Candidate 3-3"
+        },
+        {
+          "id": "test-candidate-3-4",
+          "name": "Candidate 3-4"
+        },
+        {
+          "id": "test-candidate-3-5",
+          "name": "Candidate 3-5"
+        },
+        {
+          "id": "test-candidate-3-6",
+          "name": "Candidate 3-6"
+        },
+        {
+          "id": "test-candidate-3-7",
+          "name": "Candidate 3-7"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-4",
+      "districtId": "test-district",
+      "title": "Contest 4: 2/6",
+      "type": "candidate",
+      "seats": 2,
+      "candidates": [
+        {
+          "id": "test-candidate-4-1",
+          "name": "Candidate 4-1"
+        },
+        {
+          "id": "test-candidate-4-2",
+          "name": "Candidate 4-2"
+        },
+        {
+          "id": "test-candidate-4-3",
+          "name": "Candidate 4-3"
+        },
+        {
+          "id": "test-candidate-4-4",
+          "name": "Candidate 4-4"
+        },
+        {
+          "id": "test-candidate-4-5",
+          "name": "Candidate 4-5"
+        },
+        {
+          "id": "test-candidate-4-6",
+          "name": "Candidate 4-6"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-5",
+      "districtId": "test-district",
+      "title": "Contest 5: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-5-1",
+          "name": "Candidate 5-1"
+        },
+        {
+          "id": "test-candidate-5-2",
+          "name": "Candidate 5-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-6",
+      "districtId": "test-district",
+      "title": "Contest 6: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-6-1",
+          "name": "Candidate 6-1"
+        },
+        {
+          "id": "test-candidate-6-2",
+          "name": "Candidate 6-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-7",
+      "districtId": "test-district",
+      "title": "Contest 7: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-7-1",
+          "name": "Candidate 7-1"
+        },
+        {
+          "id": "test-candidate-7-2",
+          "name": "Candidate 7-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-8",
+      "districtId": "test-district",
+      "title": "Contest 8: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-8-1",
+          "name": "Candidate 8-1"
+        },
+        {
+          "id": "test-candidate-8-2",
+          "name": "Candidate 8-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-9",
+      "districtId": "test-district",
+      "title": "Contest 9: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-9-1",
+          "name": "Candidate 9-1"
+        },
+        {
+          "id": "test-candidate-9-2",
+          "name": "Candidate 9-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-10",
+      "districtId": "test-district",
+      "title": "Contest 10: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-10-1",
+          "name": "Candidate 10-1"
+        },
+        {
+          "id": "test-candidate-10-2",
+          "name": "Candidate 10-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-11",
+      "districtId": "test-district",
+      "title": "Contest 11: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-11-1",
+          "name": "Candidate 11-1"
+        },
+        {
+          "id": "test-candidate-11-2",
+          "name": "Candidate 11-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-12",
+      "districtId": "test-district",
+      "title": "Contest 12: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-12-1",
+          "name": "Candidate 12-1"
+        },
+        {
+          "id": "test-candidate-12-2",
+          "name": "Candidate 12-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-13",
+      "districtId": "test-district",
+      "title": "Contest 13: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-13-1",
+          "name": "Candidate 13-1"
+        },
+        {
+          "id": "test-candidate-13-2",
+          "name": "Candidate 13-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-14",
+      "districtId": "test-district",
+      "title": "Contest 14: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-14-1",
+          "name": "Candidate 14-1"
+        },
+        {
+          "id": "test-candidate-14-2",
+          "name": "Candidate 14-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-15",
+      "districtId": "test-district",
+      "title": "Contest 15: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-15-1",
+          "name": "Candidate 15-1"
+        },
+        {
+          "id": "test-candidate-15-2",
+          "name": "Candidate 15-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-16",
+      "districtId": "test-district",
+      "title": "Contest 16: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-16-1",
+          "name": "Candidate 16-1"
+        },
+        {
+          "id": "test-candidate-16-2",
+          "name": "Candidate 16-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-17",
+      "districtId": "test-district",
+      "title": "Contest 17: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-17-1",
+          "name": "Candidate 17-1"
+        },
+        {
+          "id": "test-candidate-17-2",
+          "name": "Candidate 17-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-18",
+      "districtId": "test-district",
+      "title": "Contest 18: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-18-1",
+          "name": "Candidate 18-1"
+        },
+        {
+          "id": "test-candidate-18-2",
+          "name": "Candidate 18-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-19",
+      "districtId": "test-district",
+      "title": "Contest 19: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-19-1",
+          "name": "Candidate 19-1"
+        },
+        {
+          "id": "test-candidate-19-2",
+          "name": "Candidate 19-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-20",
+      "districtId": "test-district",
+      "title": "Contest 20: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-20-1",
+          "name": "Candidate 20-1"
+        },
+        {
+          "id": "test-candidate-20-2",
+          "name": "Candidate 20-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-21",
+      "districtId": "test-district",
+      "title": "Contest 21: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-21-1",
+          "name": "Candidate 21-1"
+        },
+        {
+          "id": "test-candidate-21-2",
+          "name": "Candidate 21-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-22",
+      "districtId": "test-district",
+      "title": "Contest 22: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-22-1",
+          "name": "Candidate 22-1"
+        },
+        {
+          "id": "test-candidate-22-2",
+          "name": "Candidate 22-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-23",
+      "districtId": "test-district",
+      "title": "Contest 23: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-23-1",
+          "name": "Candidate 23-1"
+        },
+        {
+          "id": "test-candidate-23-2",
+          "name": "Candidate 23-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-24",
+      "districtId": "test-district",
+      "title": "Contest 24: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-24-1",
+          "name": "Candidate 24-1"
+        },
+        {
+          "id": "test-candidate-24-2",
+          "name": "Candidate 24-2"
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "test-contest-25",
+      "districtId": "test-district",
+      "title": "Contest 25: 1/2",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "test-candidate-25-1",
+          "name": "Candidate 25-1"
+        },
+        {
+          "id": "test-candidate-25-2",
+          "name": "Candidate 25-2"
+        }
+      ],
+      "allowWriteIns": true
     }
   ],
   "gridLayouts": [
     {
-      "ballotStyleId": "sheet-1",
+      "ballotStyleId": "test-ballot-style",
       "optionBoundsFromTargetMark": {
         "top": 0,
         "right": 0,
@@ -444,899 +824,1214 @@
           "side": "front",
           "column": 1.7058206930570972,
           "row": 1.1904469548133596,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-1-column-1"
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-1"
         },
         {
           "type": "option",
           "sheetNumber": 1,
           "side": "front",
-          "column": 8.440929831051918,
+          "column": 1.7058206930570972,
+          "row": 2.090496070726916,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-2"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 2.9905451866404715,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-3"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 3.8905943025540277,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 4.7906434184675835,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-5"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 5.69069253438114,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-6"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 6.590741650294696,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-7"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 7.490790766208252,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-8"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 8.390839882121808,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-9"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 9.290888998035363,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-10"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 10.19093811394892,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-11"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 11.090987229862476,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-12"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 11.991036345776031,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-13"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 12.891085461689588,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-14"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 13.791134577603144,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-15"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 14.6911836935167,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-16"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 15.591232809430256,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-17"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 16.491281925343813,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-18"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 17.391331041257367,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-19"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 18.291380157170924,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-20"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 19.19142927308448,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-21"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 20.091478388998034,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-22"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 20.99152750491159,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-23"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 21.89157662082515,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-24"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 22.791625736738705,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-25"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 23.69167485265226,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-26"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 24.591723968565816,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-27"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 25.491773084479373,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-28"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 26.391822200392927,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-29"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 27.291871316306484,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-30"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 28.19192043222004,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-31"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 29.091969548133598,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-32"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 29.99201866404715,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-33"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 30.89206777996071,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-34"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 31.792116895874265,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-35"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 32.69216601178782,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-36"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 33.59221512770138,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-37"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 34.49226424361493,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-38"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 35.39231335952849,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-39"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 36.29236247544205,
+          "contestId": "test-contest-1",
+          "optionId": "test-candidate-1-40"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
           "row": 1.1904469548133596,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-1-column-2"
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-1"
         },
         {
           "type": "option",
           "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 2.090496070726916,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-2"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 2.9905451866404715,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-3"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 3.8905943025540277,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 4.7906434184675835,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-5"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 5.69069253438114,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-6"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 6.590741650294696,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-7"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 7.490790766208252,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-8"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 8.390839882121808,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-9"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 9.290888998035363,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-10"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 10.19093811394892,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-11"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 11.090987229862476,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-12"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 11.991036345776031,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-13"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 12.891085461689588,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-14"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 13.791134577603144,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-15"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 14.6911836935167,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-16"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 15.591232809430256,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-17"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 16.491281925343813,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-18"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 17.391331041257367,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-19"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 18.291380157170924,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-20"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 19.19142927308448,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-21"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 20.091478388998034,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-22"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 20.99152750491159,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-23"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 21.89157662082515,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-24"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 22.791625736738705,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-25"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 23.69167485265226,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-26"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 24.591723968565816,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-27"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 25.491773084479373,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-28"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 26.391822200392927,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-29"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 27.291871316306484,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-30"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 28.19192043222004,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-31"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 29.091969548133598,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-32"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 29.99201866404715,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-33"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 30.89206777996071,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-34"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 31.792116895874265,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-35"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 32.69216601178782,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-36"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 33.59221512770138,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-37"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 34.49226424361493,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-38"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 35.39231335952849,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-39"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.29236247544205,
+          "contestId": "test-contest-2",
+          "optionId": "test-candidate-2-40"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
           "side": "front",
-          "column": 15.17603896904674,
+          "column": 1.7058206930570972,
           "row": 1.1904469548133596,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-1-column-3"
+          "contestId": "test-contest-3",
+          "optionId": "test-candidate-3-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 2,
           "side": "front",
-          "column": 21.91114810704156,
+          "column": 1.7058206930570972,
+          "row": 7.042608055009824,
+          "contestId": "test-contest-3",
+          "optionId": "test-candidate-3-2"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 12.894769155206287,
+          "contestId": "test-contest-3",
+          "optionId": "test-candidate-3-3"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 18.746930255402752,
+          "contestId": "test-contest-3",
+          "optionId": "test-candidate-3-4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 24.599091355599214,
+          "contestId": "test-contest-3",
+          "optionId": "test-candidate-3-5"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 30.45125245579568,
+          "contestId": "test-contest-3",
+          "optionId": "test-candidate-3-6"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "front",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-3",
+          "optionId": "test-candidate-3-7"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "back",
+          "column": 1.7058206930570972,
           "row": 1.1904469548133596,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-1-column-4"
+          "contestId": "test-contest-4",
+          "optionId": "test-candidate-4-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 2,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 8.212794695481335,
+          "contestId": "test-contest-4",
+          "optionId": "test-candidate-4-2"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 15.235142436149312,
+          "contestId": "test-contest-4",
+          "optionId": "test-candidate-4-3"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 22.25749017681729,
+          "contestId": "test-contest-4",
+          "optionId": "test-candidate-4-4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 29.279837917485267,
+          "contestId": "test-contest-4",
+          "optionId": "test-candidate-4-5"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.30218565815324,
+          "contestId": "test-contest-4",
+          "optionId": "test-candidate-4-6"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 3,
           "side": "front",
-          "column": 28.64625724503638,
+          "column": 1.7058206930570972,
           "row": 1.1904469548133596,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-1-column-5"
+          "contestId": "test-contest-5",
+          "optionId": "test-candidate-5-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 3,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 3.038433202357564,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-2-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-5",
+          "optionId": "test-candidate-5-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 3.038433202357564,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-2-column-2"
+          "sheetNumber": 3,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-6",
+          "optionId": "test-candidate-6-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 3.038433202357564,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-2-column-3"
+          "sheetNumber": 3,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-6",
+          "optionId": "test-candidate-6-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 3.038433202357564,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-2-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 3.038433202357564,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-2-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 4,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 4.886419449901768,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-3-column-1"
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-7",
+          "optionId": "test-candidate-7-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 4.886419449901768,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-3-column-2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 4.886419449901768,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-3-column-3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 4.886419449901768,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-3-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 4.886419449901768,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-3-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 4,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 6.734405697445973,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-4-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-7",
+          "optionId": "test-candidate-7-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 6.734405697445973,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-4-column-2"
+          "sheetNumber": 4,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-8",
+          "optionId": "test-candidate-8-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 6.734405697445973,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-4-column-3"
+          "sheetNumber": 4,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-8",
+          "optionId": "test-candidate-8-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 6.734405697445973,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-4-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 6.734405697445973,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-4-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 5,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 8.582391944990176,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-5-column-1"
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-9",
+          "optionId": "test-candidate-9-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 8.582391944990176,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-5-column-2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 8.582391944990176,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-5-column-3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 8.582391944990176,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-5-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 8.582391944990176,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-5-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 5,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 10.43037819253438,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-6-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-9",
+          "optionId": "test-candidate-9-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 10.43037819253438,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-6-column-2"
+          "sheetNumber": 5,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-10",
+          "optionId": "test-candidate-10-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 10.43037819253438,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-6-column-3"
+          "sheetNumber": 5,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-10",
+          "optionId": "test-candidate-10-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 10.43037819253438,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-6-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 10.43037819253438,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-6-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 6,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 12.278364440078585,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-7-column-1"
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-11",
+          "optionId": "test-candidate-11-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 12.278364440078585,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-7-column-2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 12.278364440078585,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-7-column-3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 12.278364440078585,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-7-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 12.278364440078585,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-7-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 6,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 14.12635068762279,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-8-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-11",
+          "optionId": "test-candidate-11-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 14.12635068762279,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-8-column-2"
+          "sheetNumber": 6,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-12",
+          "optionId": "test-candidate-12-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 14.12635068762279,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-8-column-3"
+          "sheetNumber": 6,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-12",
+          "optionId": "test-candidate-12-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 14.12635068762279,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-8-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 14.12635068762279,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-8-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 7,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 15.974336935166994,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-9-column-1"
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-13",
+          "optionId": "test-candidate-13-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 15.974336935166994,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-9-column-2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 15.974336935166994,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-9-column-3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 15.974336935166994,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-9-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 15.974336935166994,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-9-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 7,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 17.822323182711198,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-10-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-13",
+          "optionId": "test-candidate-13-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 17.822323182711198,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-10-column-2"
+          "sheetNumber": 7,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-14",
+          "optionId": "test-candidate-14-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 17.822323182711198,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-10-column-3"
+          "sheetNumber": 7,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-14",
+          "optionId": "test-candidate-14-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 17.822323182711198,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-10-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 17.822323182711198,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-10-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 8,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 19.670309430255404,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-11-column-1"
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-15",
+          "optionId": "test-candidate-15-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 19.670309430255404,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-11-column-2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 19.670309430255404,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-11-column-3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 19.670309430255404,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-11-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 19.670309430255404,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-11-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 8,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 21.518295677799607,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-12-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-15",
+          "optionId": "test-candidate-15-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 21.518295677799607,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-12-column-2"
+          "sheetNumber": 8,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-16",
+          "optionId": "test-candidate-16-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 21.518295677799607,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-12-column-3"
+          "sheetNumber": 8,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-16",
+          "optionId": "test-candidate-16-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 21.518295677799607,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-12-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 21.518295677799607,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-12-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 9,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 23.366281925343813,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-13-column-1"
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-17",
+          "optionId": "test-candidate-17-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 23.366281925343813,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-13-column-2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 23.366281925343813,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-13-column-3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 23.366281925343813,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-13-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 23.366281925343813,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-13-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 9,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 25.214268172888016,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-14-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-17",
+          "optionId": "test-candidate-17-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 25.214268172888016,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-14-column-2"
+          "sheetNumber": 9,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-18",
+          "optionId": "test-candidate-18-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 25.214268172888016,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-14-column-3"
+          "sheetNumber": 9,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-18",
+          "optionId": "test-candidate-18-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 25.214268172888016,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-14-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 25.214268172888016,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-14-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 10,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 27.06225442043222,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-15-column-1"
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-19",
+          "optionId": "test-candidate-19-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 27.06225442043222,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-15-column-2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 27.06225442043222,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-15-column-3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 27.06225442043222,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-15-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 27.06225442043222,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-15-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 10,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 28.910240667976424,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-16-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-19",
+          "optionId": "test-candidate-19-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 28.910240667976424,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-16-column-2"
+          "sheetNumber": 10,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-20",
+          "optionId": "test-candidate-20-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 28.910240667976424,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-16-column-3"
+          "sheetNumber": 10,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-20",
+          "optionId": "test-candidate-20-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 28.910240667976424,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-16-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 28.910240667976424,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-16-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 11,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 30.75822691552063,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-17-column-1"
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-21",
+          "optionId": "test-candidate-21-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 30.75822691552063,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-17-column-2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 30.75822691552063,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-17-column-3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 30.75822691552063,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-17-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 30.75822691552063,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-17-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 11,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 32.60621316306484,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-18-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-21",
+          "optionId": "test-candidate-21-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 32.60621316306484,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-18-column-2"
+          "sheetNumber": 11,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-22",
+          "optionId": "test-candidate-22-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 32.60621316306484,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-18-column-3"
+          "sheetNumber": 11,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-22",
+          "optionId": "test-candidate-22-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 32.60621316306484,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-18-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 32.60621316306484,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-18-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 12,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 34.454199410609036,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-19-column-1"
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-23",
+          "optionId": "test-candidate-23-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 34.454199410609036,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-19-column-2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 34.454199410609036,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-19-column-3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 21.91114810704156,
-          "row": 34.454199410609036,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-19-column-4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 28.64625724503638,
-          "row": 34.454199410609036,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-19-column-5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 12,
           "side": "front",
           "column": 1.7058206930570972,
-          "row": 36.30218565815324,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-20-column-1"
+          "row": 36.303413555992144,
+          "contestId": "test-contest-23",
+          "optionId": "test-candidate-23-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 8.440929831051918,
-          "row": 36.30218565815324,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-20-column-2"
+          "sheetNumber": 12,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-24",
+          "optionId": "test-candidate-24-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 15.17603896904674,
-          "row": 36.30218565815324,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-20-column-3"
+          "sheetNumber": 12,
+          "side": "back",
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-24",
+          "optionId": "test-candidate-24-2"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 13,
           "side": "front",
-          "column": 21.91114810704156,
-          "row": 36.30218565815324,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-20-column-4"
+          "column": 1.7058206930570972,
+          "row": 1.1904469548133596,
+          "contestId": "test-contest-25",
+          "optionId": "test-candidate-25-1"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
+          "sheetNumber": 13,
           "side": "front",
-          "column": 28.64625724503638,
-          "row": 36.30218565815324,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-20-column-5"
+          "column": 1.7058206930570972,
+          "row": 36.303413555992144,
+          "contestId": "test-contest-25",
+          "optionId": "test-candidate-25-2"
         }
       ]
     }
@@ -1352,7 +2047,7 @@
       "name": "Test District"
     }
   ],
-  "id": "all-bubble-ballot-election",
+  "id": "test-election-75-135",
   "parties": [],
   "precincts": [
     {
@@ -1365,6 +2060,6 @@
   ],
   "seal": "",
   "state": "Test State",
-  "title": "Test Election - All Bubble Ballot",
+  "title": "Test Election: 75/135",
   "type": "general"
 }
