@@ -932,6 +932,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
       }
 
       try {
+        // TODO(CARO) Handle pollsState
         const {
           ballotHash,
           machineId,
