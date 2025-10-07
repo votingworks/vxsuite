@@ -168,7 +168,8 @@ export function decodeQuickResultsMessage(payload: string): {
       : ALL_PRECINCTS_SELECTION,
     isLive: isLiveModeStr === '1',
     signedTimestamp: new Date(timestampNumber * 1000),
-    encodedCompressedTally,
+    encodedCompressedTally:
+      pollsState === 'polls_open' ? '' : encodedCompressedTally,
     pollsState,
   };
 }
