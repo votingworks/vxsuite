@@ -12,6 +12,7 @@ import {
   isPollsSuspensionTransition,
 } from '@votingworks/utils';
 import type { PrintResult } from '@votingworks/fujitsu-thermal-printer';
+import { on } from 'node:events';
 import { Screen, getPostPollsTransitionHeaderText } from './poll_worker_shared';
 import { getPrinterStatus, printReportSection } from '../api';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
@@ -48,11 +49,13 @@ export function PostPrintScreen({
   pollsTransitionType,
   isPostPollsTransition,
   initialPrintResult,
+  onViewReportResults,
 }: {
   electionDefinition: ElectionDefinition;
   pollsTransitionType: PollsTransitionType;
   isPostPollsTransition: boolean;
   initialPrintResult: PrintResult;
+  onViewReportResults: () => void;
 }): JSX.Element {
   // we start on index 1 because we printed the first report before transitioning to this screen
   const [printIndex, setPrintIndex] = useState(1);
@@ -161,6 +164,7 @@ export function PostPrintScreen({
               reports.
             </P>
             <P>
+              <Button onPress={onViewReportResults}>Report Results</Button>{' '}
               <Button
                 onPress={() => printSection(printIndex - 1)}
                 disabled={disablePrinting}

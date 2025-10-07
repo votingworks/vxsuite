@@ -11,6 +11,7 @@ import {
   Election,
   ContestId,
   PrecinctSelection,
+  PollsState,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
@@ -116,6 +117,13 @@ export interface AggregatedReportedResults {
   contestResults: Record<ContestId, ContestResults>;
   election: Election;
   machinesReporting: string[];
+}
+
+export interface QuickReportedPollStatus {
+  machineId: string;
+  precinctSelection: PrecinctSelection;
+  pollsState: PollsState;
+  signedTimestamp: Date;
 }
 
 export type ResultsReportingError =

@@ -49,6 +49,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   combineAndDecodeCompressedElectionResults,
   getContestsForPrecinctAndElection,
+  getPrecinctSelection,
 } from '@votingworks/utils';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -61,6 +62,7 @@ import {
   ElectionInfo,
   ElectionListing,
   Org,
+  QuickReportedPollStatus,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
@@ -2045,6 +2047,74 @@ export class Store {
         data.text
       );
     });
+  }
+
+  async getPollsStatusForElection(
+    election: ElectionRecord,
+    precinctSelection: PrecinctSelection,
+    isLive: boolean
+  ): Promise<QuickReportedPollStatus[]> {
+    assert(
+      election.lastExportedBallotHash !== undefined,
+      'Election has not yet been exported.'
+    );
+    let precinctWhereClause = '';
+    const queryParams = [
+      election.lastExportedBallotHash,
+      election.election.id,
+      isLive,
+    ];
+    if (precinctSelection.kind === 'SinglePrecinct') {
+      precinctWhereClause = `
+        and precinct_id = $4
+      `;
+      queryParams.push(precinctSelection.precinctId);
+    }
+    const rows = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              encoded_compressed_tally as "encodedCompressedTally",
+              machine_id as "machineId",
+              signed_at as "signedAt",
+              precinct_id as "precinctId"
+            from results_reports
+            where
+              ballot_hash = $1 and
+              election_id = $2 and
+              is_live_mode = $3
+              ${precinctWhereClause}
+            order by signed_at desc
+          `,
+          ...queryParams
+        )
+      )
+    ).rows as Array<{
+      encodedCompressedTally: string;
+      machineId: string;
+      precinctId: string | null;
+      signedAt: Date;
+    }>;
+    const pollsStatus: QuickReportedPollStatus[] = rows.map((r) => ({
+      machineId: r.machineId,
+      signedTimestamp: r.signedAt,
+      precinctSelection: r.precinctId
+        ? singlePrecinctSelectionFor(r.precinctId)
+        : ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_closed_final',
+    }));
+    if (!isLive) {
+      pollsStatus.push({
+        machineId: 'FAKE-CARO-04',
+        signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+        pollsState: 'polls_open',
+        precinctSelection: singlePrecinctSelectionFor(
+          election.election.precincts[1]?.id
+        ),
+      });
+    }
+    return pollsStatus;
   }
 
   async getQuickResultsReportingTalliesForElection(

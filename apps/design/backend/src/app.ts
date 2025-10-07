@@ -84,6 +84,7 @@ import {
   ElectionInfo,
   ElectionListing,
   Org,
+  QuickReportedPollStatus,
   ResultsReportInfo,
   ResultsReportingError,
   User,
@@ -781,6 +782,34 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         contestResults,
         election: electionRecord.election,
         machinesReporting,
+      });
+    },
+
+    async getQuickReportedPollsStatus(input: {
+      electionId: ElectionId;
+      isLive: boolean;
+      precinctSelection: PrecinctSelection;
+    }): Promise<
+      Result<
+        {
+          election: Election;
+          machines: QuickReportedPollStatus[];
+        },
+        'election-not-exported'
+      >
+    > {
+      const electionRecord = await store.getElection(input.electionId);
+      if (!electionRecord.lastExportedBallotHash) {
+        return err('election-not-exported');
+      }
+      const pollsStatus = await store.getPollsStatusForElection(
+        electionRecord,
+        input.precinctSelection,
+        input.isLive
+      );
+      return ok({
+        election: electionRecord.election,
+        machines: pollsStatus,
       });
     },
 

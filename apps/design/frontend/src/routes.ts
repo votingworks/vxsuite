@@ -120,8 +120,18 @@ export const routes = {
         path: `${root}/export`,
       },
       results: {
-        title: 'Results',
-        path: `${root}/results`,
+        root: {
+          title: 'Results',
+          path: `${root}/results`,
+        },
+        allPrecinctResults: {
+          title: 'All Precincts Results',
+          path: `${root}/results/all-precincts`,
+        },
+        byPrecinctResults: (precinctId: string) => ({
+          title: 'Results by Precinct',
+          path: `${root}/results/precinct/${precinctId}`,
+        }),
       },
     };
   },
@@ -147,7 +157,7 @@ export function electionNavRoutes(
     ...(features.SYSTEM_SETTINGS_SCREEN ? [electionRoutes.systemSettings] : []),
     ...(features.EXPORT_SCREEN ? [electionRoutes.export] : []),
     ...(electionSystemSettings.quickResultsReportingUrl
-      ? [electionRoutes.results]
+      ? [electionRoutes.results.root]
       : []),
   ];
 }

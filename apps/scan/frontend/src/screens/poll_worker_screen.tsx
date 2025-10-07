@@ -496,9 +496,13 @@ function PollWorkerScreenContents({
       case 'view-reporting-qr-code':
         return (
           <Screen>
+            Scan the QR code to report and view results
             <CenteredText>
               {getQuickResultsReportingUrlQuery.data && (
-                <div data-testid="quick-results-code">
+                <div
+                  style={{ marginTop: '0.5rem' }}
+                  data-testid="quick-results-code"
+                >
                   <QrCode
                     value={getQuickResultsReportingUrlQuery.data}
                     level="M"
@@ -507,7 +511,9 @@ function PollWorkerScreenContents({
                 </div>
               )}
               <br />
-              <Button onPress={showAllPollWorkerActions}>Back</Button>
+              <Button onPress={showAllPollWorkerActions}>
+                Poll Worker Menu
+              </Button>
             </CenteredText>
           </Screen>
         );
@@ -518,6 +524,9 @@ function PollWorkerScreenContents({
             pollsTransitionType={pollWorkerFlowState.transitionType}
             electionDefinition={electionDefinition}
             initialPrintResult={pollWorkerFlowState.printResult}
+            onViewReportResults={() =>
+              setPollWorkerFlowState({ type: 'view-reporting-qr-code' })
+            }
           />
         );
       /* istanbul ignore next - compile-time check for completeness @preserve */
@@ -649,6 +658,7 @@ function PollWorkerScreenContents({
               Polls are <Font weight="bold">closed</Font>. Voting is complete
               and the polls cannot be reopened.
             </P>
+            <H5>Other Actions</H5>
             <ButtonGrid>
               {getQuickResultsReportingUrlQuery.data && (
                 <Button
@@ -656,12 +666,11 @@ function PollWorkerScreenContents({
                     setPollWorkerFlowState({ type: 'view-reporting-qr-code' })
                   }
                 >
-                  View Quick Results Code
+                  Report Results
                 </Button>
               )}
+              {commonActions}
             </ButtonGrid>
-            <H5>Other Actions</H5>
-            <ButtonGrid>{commonActions}</ButtonGrid>
           </Container>
         );
       /* istanbul ignore next - compile-time check for completeness @preserve */

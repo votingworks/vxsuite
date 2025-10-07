@@ -7,15 +7,23 @@ import {
   Screen,
   TallyReportColumns,
   ContestResultsTable,
+  ReportElectionInfo,
+  LabeledValue,
+  ReportMetadata,
+  Icons,
 } from '@votingworks/ui';
+import { DateTime } from 'luxon';
 import { assert } from '@votingworks/basics';
 import { formatBallotHash } from '@votingworks/types';
 import {
+  formatFullDateTimeZone,
   getContestsForPrecinctAndElection,
+  getPrecinctSelectionName,
   groupContestsByParty,
   maybeGetPrecinctIdFromSelection,
 } from '@votingworks/utils';
 import { processQrCodeReport } from './public_api';
+import { Column } from './layout';
 
 export function ResultsScreen({
   children,
@@ -26,7 +34,7 @@ export function ResultsScreen({
     <Screen flexDirection="row">
       <Main flexColumn>
         <MainHeader>
-          <h1>Quick Results Reporting</h1>
+          <h1>Results Reported</h1>
         </MainHeader>
         {children}
       </Main>
@@ -111,6 +119,11 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
   const precinct = precinctId
     ? election.precincts.find((p) => p.id === precinctId)
     : undefined;
+  const precinctName = getPrecinctSelectionName(
+    election.precincts,
+    reportData.precinctSelection
+  );
+  const reportTitle = `Polls Closed Report • ${precinctName}`;
 
   const contestsForPrecinct = getContestsForPrecinctAndElection(
     election,
@@ -126,32 +139,33 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
     <ResultsScreen>
       <MainContent>
         <div>
-          <p>Thank you for reporting your election results!</p>
+          <p>
+            <Icons.Checkbox color="success" /> The results from this polling
+            location have been verified and reported successfully.
+          </p>
           <div style={{ marginTop: '20px' }}>
-            <h2>Report Details</h2>
-            <p>
-              <strong>Ballot Hash:</strong>{' '}
-              {formatBallotHash(reportData.ballotHash)}
-            </p>
-            <p>
-              <strong>Machine ID:</strong> {reportData.machineId}
-            </p>
-            <p>
-              <strong>Environment:</strong>{' '}
-              {reportData.isLive ? 'Live' : 'Test'}
-            </p>
-            <p>
-              <strong>Timestamp:</strong>{' '}
-              {reportData.signedTimestamp.toLocaleString()}
-            </p>
-            <p>
-              <strong>Precinct:</strong>{' '}
-              {precinct ? precinct.name : 'All Precincts'}
-            </p>
+            <h2>{reportTitle}</h2>
+            <ReportElectionInfo election={election} />
+            <ReportMetadata>
+              <Column>
+                <LabeledValue
+                  label="Report Created At"
+                  value={formatFullDateTimeZone(
+                    DateTime.fromJSDate(reportData.signedTimestamp),
+                    { includeWeekday: false, includeSeconds: true }
+                  )}
+                />
+                <LabeledValue label="Scanner ID" value={reportData.machineId} />
+                <LabeledValue
+                  label="Election ID"
+                  value={formatBallotHash(reportData.ballotHash)}
+                />
+              </Column>
+            </ReportMetadata>
             {Object.keys(contestsByParty).map((partyId) => (
               <div key={`partyResults-${partyId}`}>
                 <h2 key={`partyId-${partyId}`}>
-                  {partiesById[partyId].name} Party Results
+                  {partiesById[partyId].fullName}
                 </h2>
                 <TallyReportColumns>
                   {contestsByParty[partyId].map((contest) => {
@@ -173,7 +187,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
               </div>
             ))}
             {Object.keys(contestsByParty).length > 0 &&
-              nonPartisanContests.length > 0 && <h2> Nonpartisan Results</h2>}
+              nonPartisanContests.length > 0 && <h2> Nonpartisan Contests</h2>}
             <TallyReportColumns>
               {nonPartisanContests.map((contest) => {
                 const currentContestResults = contestResults[contest.id];

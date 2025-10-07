@@ -153,6 +153,43 @@ export const getQuickReportedResults = {
   },
 } as const;
 
+export const getQuickReportedPollsStatus = {
+  queryKey(
+    id: ElectionId,
+    isLive: boolean,
+    precinctSelection?: PrecinctSelection
+  ): QueryKey {
+    if (!precinctSelection) {
+      return ['getQuickReportedPollsStatus', id, isLive];
+    }
+    return [
+      'getQuickReportedPollsStatus',
+      id,
+      isLive,
+      precinctSelection.kind === 'AllPrecincts'
+        ? ''
+        : precinctSelection.precinctId,
+    ];
+  },
+  useQuery(
+    id: ElectionId,
+    precinctSelection: PrecinctSelection,
+    isLive: boolean
+  ) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(id, isLive, precinctSelection),
+      () =>
+        apiClient.getQuickReportedPollsStatus({
+          electionId: id,
+          isLive,
+          precinctSelection,
+        }),
+      { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
+    );
+  },
+} as const;
+
 export const deleteQuickReportingResults = {
   useMutation() {
     const apiClient = useApiClient();
