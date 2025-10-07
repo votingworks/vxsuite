@@ -204,7 +204,7 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
         // attempt to base64 decode the data
         let bytes = STANDARD
             .decode(qr_code.bytes())
-            .unwrap_or_else(|_| qr_code.bytes().clone());
+            .unwrap_or_else(|_| qr_code.bytes().to_vec());
         Detected::new(
             qr_code.detector(),
             qr_code.detection_areas().to_vec(),
@@ -232,8 +232,8 @@ mod test {
         let scan_side_a = image::open(scan_side_a_path).unwrap().into_luma8();
         let qr_code = detect(&scan_side_a, &ImageDebugWriter::disabled()).unwrap();
         assert_eq!(
-            qr_code.bytes().clone(),
-            vec![
+            qr_code.bytes(),
+            [
                 0x56, 0x50, 0x02, 0xf1, 0x3f, 0x4a, 0xb3, 0x76, 0xfb, 0xaa, 0xf9, 0x14, 0x37, 0x00,
                 0x00, 0x00, 0x03, 0x00
             ]

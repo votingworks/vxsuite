@@ -23,7 +23,7 @@ use types_rs::{
     ballot_card::{BallotSide, PaperSize},
     bmd::cvr::CastVoteRecord,
     bubble_ballot, coding,
-    election::{Election, GridLayout},
+    election::{BallotStyleId, Election, GridLayout},
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
     pair::Pair,
 };
@@ -249,37 +249,41 @@ impl BallotPage {
 
     /// Finds a QR code on the page in the expected places and decodes it
     /// according to the interpreter configuration.
-    pub fn decode_barcode(
+    ///
+    /// # Errors
+    ///
+    /// If the barcode cannot be found or cannot be decoded, an error will be
+    /// returned.
+    pub fn find_barcode(
         &self,
         election: &Election,
         interpreters: &BallotInterpreters,
-    ) -> BallotPageData {
-        let qr_code = match qr_code::detect(self.ballot_image().image(), self.debug()) {
-            Ok(qr_code) => qr_code,
-            Err(_) => return BallotPageData::NoBarcodeFound,
+    ) -> Result<BallotPageData, ReadBallotPageBarcodeError> {
+        let Ok(qr_code) = qr_code::detect(self.ballot_image().image(), self.debug()) else {
+            return Err(ReadBallotPageBarcodeError::NoBarcodeFound);
         };
 
         if interpreters.bubble_ballot_config().is_some() {
             if let Ok(metadata) = coding::decode_with(qr_code.bytes(), election) {
-                return BallotPageData::BubbleBallot {
+                return Ok(BallotPageData::BubbleBallot {
                     metadata,
                     orientation: qr_code.orientation(),
-                };
+                });
             }
         }
 
         if interpreters.summary_ballot_config().is_some() {
             if let Ok(cvr) = coding::decode_with(qr_code.bytes(), election) {
-                return BallotPageData::SummaryBallot {
+                return Ok(BallotPageData::SummaryBallot {
                     cvr,
                     orientation: qr_code.orientation(),
-                };
+                });
             }
         }
 
-        BallotPageData::DecodeFailed {
+        Err(ReadBallotPageBarcodeError::DecodeFailed {
             data: qr_code.into_bytes(),
-        }
+        })
     }
 
     /// Finds timing marks in this ballot page with the specified algorithm.
@@ -368,10 +372,15 @@ pub enum BallotPageData {
         cvr: CastVoteRecord,
         orientation: Orientation,
     },
-    DecodeFailed {
-        data: Vec<u8>,
-    },
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum ReadBallotPageBarcodeError {
+    #[error("No barcode found")]
     NoBarcodeFound,
+
+    #[error("Unable to decode data: {data:x?}")]
+    DecodeFailed { data: Vec<u8> },
 }
 
 #[derive(Debug, Clone)]
@@ -382,22 +391,37 @@ pub enum BallotCardData {
     SummaryBallot {
         cvr: CastVoteRecord,
         orientation: Orientation,
+        order: SummaryBallotPageOrder,
     },
 }
 
 impl BallotCardData {
-    pub fn from_page_data(front: BallotPageData, back: BallotPageData) -> Result<Self> {
+    /// Builds a `BallotCardData` from the result of finding barcodes on the
+    /// card's two pages. We take the `Result`s rather than requiring that they
+    /// both succeeded in order to do some error recovery in the event we can
+    /// infer what the other bubble ballot card's side should have said.
+    ///
+    /// # Errors
+    ///
+    /// If both sides failed to be decoded or the resulting card would be
+    /// nonsensical (e.g. front=summary, back=bubble) then an error will be
+    /// returned.
+    #[allow(clippy::too_many_lines, clippy::result_large_err)]
+    pub fn from_find_barcode_results(
+        front: Result<BallotPageData, ReadBallotPageBarcodeError>,
+        back: Result<BallotPageData, ReadBallotPageBarcodeError>,
+    ) -> Result<Self> {
         match (front, back) {
             // Both decode as bubble ballots.
             (
-                BallotPageData::BubbleBallot {
+                Ok(BallotPageData::BubbleBallot {
                     metadata: front_metadata,
                     orientation: front_orientation,
-                },
-                BallotPageData::BubbleBallot {
+                }),
+                Ok(BallotPageData::BubbleBallot {
                     metadata: back_metadata,
                     orientation: back_orientation,
-                },
+                }),
             ) => {
                 if front_metadata.precinct_id != back_metadata.precinct_id {
                     return Err(Error::MismatchedPrecincts {
@@ -428,11 +452,14 @@ impl BallotCardData {
 
             // Front decodes as bubble ballot, back is unreadable.
             (
-                BallotPageData::BubbleBallot {
+                Ok(BallotPageData::BubbleBallot {
                     metadata: front_metadata,
                     orientation: front_orientation,
-                },
-                BallotPageData::DecodeFailed { .. } | BallotPageData::NoBarcodeFound,
+                }),
+                Err(
+                    ReadBallotPageBarcodeError::DecodeFailed { .. }
+                    | ReadBallotPageBarcodeError::NoBarcodeFound,
+                ),
             ) => {
                 let back_metadata = bubble_ballot::infer_missing_page_metadata(&front_metadata);
                 Ok(Self::BubbleBallot {
@@ -445,11 +472,14 @@ impl BallotCardData {
 
             // Back decodes as bubble ballot, front is unreadable.
             (
-                BallotPageData::DecodeFailed { .. } | BallotPageData::NoBarcodeFound,
-                BallotPageData::BubbleBallot {
+                Err(
+                    ReadBallotPageBarcodeError::DecodeFailed { .. }
+                    | ReadBallotPageBarcodeError::NoBarcodeFound,
+                ),
+                Ok(BallotPageData::BubbleBallot {
                     metadata: back_metadata,
                     orientation: back_orientation,
-                },
+                }),
             ) => {
                 let front_metadata = bubble_ballot::infer_missing_page_metadata(&back_metadata);
                 Ok(Self::BubbleBallot {
@@ -462,34 +492,112 @@ impl BallotCardData {
 
             // Front OR back is a summary ballot, and the other cannot be read.
             (
-                BallotPageData::SummaryBallot { cvr, orientation },
-                BallotPageData::DecodeFailed { .. } | BallotPageData::NoBarcodeFound,
-            )
-            | (
-                BallotPageData::DecodeFailed { .. } | BallotPageData::NoBarcodeFound,
-                BallotPageData::SummaryBallot { cvr, orientation },
-            ) => Ok(Self::SummaryBallot { cvr, orientation }),
-
-            // Barcode decode failed.
-            (BallotPageData::DecodeFailed { data }, _)
-            | (_, BallotPageData::DecodeFailed { data }) => Err(Error::InvalidBarcode {
-                message: format!("decode failed: {data:?}"),
+                Ok(BallotPageData::SummaryBallot { cvr, orientation }),
+                Err(
+                    ReadBallotPageBarcodeError::DecodeFailed { .. }
+                    | ReadBallotPageBarcodeError::NoBarcodeFound,
+                ),
+            ) => Ok(Self::SummaryBallot {
+                cvr,
+                orientation,
+                order: SummaryBallotPageOrder::SummaryFirst,
+            }),
+            (
+                Err(
+                    ReadBallotPageBarcodeError::DecodeFailed { .. }
+                    | ReadBallotPageBarcodeError::NoBarcodeFound,
+                ),
+                Ok(BallotPageData::SummaryBallot { cvr, orientation }),
+            ) => Ok(Self::SummaryBallot {
+                cvr,
+                orientation,
+                order: SummaryBallotPageOrder::BlankFirst,
             }),
 
-            // Could not find barcode.
-            (BallotPageData::NoBarcodeFound, BallotPageData::NoBarcodeFound) => {
+            // Barcode decode failed.
+            (Err(ReadBallotPageBarcodeError::DecodeFailed { data }), _)
+            | (_, Err(ReadBallotPageBarcodeError::DecodeFailed { data })) => {
                 Err(Error::InvalidBarcode {
-                    message: format!("no barcode found"),
+                    message: format!("decode failed: {data:?}"),
                 })
             }
 
+            // Could not find barcode.
+            (
+                Err(ReadBallotPageBarcodeError::NoBarcodeFound),
+                Err(ReadBallotPageBarcodeError::NoBarcodeFound),
+            ) => Err(Error::InvalidBarcode {
+                message: "no barcode found".to_owned(),
+            }),
+
             // Nonsense ballot, e.g. summary on the front and bubble on the back.
             (
-                BallotPageData::BubbleBallot { .. } | BallotPageData::SummaryBallot { .. },
-                BallotPageData::BubbleBallot { .. } | BallotPageData::SummaryBallot { .. },
+                Ok(BallotPageData::BubbleBallot { .. } | BallotPageData::SummaryBallot { .. }),
+                Ok(BallotPageData::BubbleBallot { .. } | BallotPageData::SummaryBallot { .. }),
             ) => Err(Error::InvalidBarcode {
-                message: format!("invalid combination of summary/bubble ballot pages"),
+                message: "invalid combination of summary/bubble ballot pages".to_owned(),
             }),
+        }
+    }
+
+    /// Gets the orientations of the pages in this card.
+    #[must_use]
+    pub fn orientations(&self) -> Pair<Orientation> {
+        match self {
+            Self::BubbleBallot { page_data } => {
+                Pair::new(page_data.first().1, page_data.second().1)
+            }
+            Self::SummaryBallot { orientation, .. } => Pair::new(*orientation, *orientation),
+        }
+    }
+
+    /// Determines whether the pages whose data was used to construct this
+    /// `BallotCardData` were in the expected order, i.e. front/back.
+    #[must_use]
+    pub fn pages_in_expected_order(&self) -> bool {
+        match self {
+            Self::BubbleBallot { page_data } => page_data.first().0.page_number.is_front(),
+            Self::SummaryBallot { order, .. } => {
+                matches!(order, SummaryBallotPageOrder::SummaryFirst)
+            }
+        }
+    }
+
+    /// Swaps the order of pages in this ballot card data. Afterward, this
+    /// should be the same as if it was constructed in the opposite order.
+    pub fn swap(&mut self) {
+        match self {
+            Self::BubbleBallot { page_data } => page_data.swap(),
+            Self::SummaryBallot { order, .. } => order.swap(),
+        }
+    }
+
+    /// Gets the ballot style ID from the data read from the ballot barcodes.
+    pub fn ballot_style_id(&self) -> &BallotStyleId {
+        match self {
+            Self::BubbleBallot { page_data } => &page_data.first().0.ballot_style_id,
+            Self::SummaryBallot { cvr, .. } => &cvr.ballot_style_id,
+        }
+    }
+}
+
+/// Summary ballots are a single sheet of paper with one side having the
+/// summary printed and the other side being blank. Depending on which side is
+/// facing up when scanning, we might have either of those as the "front". This
+/// tells which situation we're in.
+#[derive(Debug, Clone, Copy)]
+pub enum SummaryBallotPageOrder {
+    SummaryFirst,
+    BlankFirst,
+}
+
+impl SummaryBallotPageOrder {
+    /// Swaps between the two variants of this enum, replacing one with the
+    /// other.
+    pub fn swap(&mut self) {
+        *self = match self {
+            Self::SummaryFirst => Self::BlankFirst,
+            Self::BlankFirst => Self::SummaryFirst,
         }
     }
 }
@@ -644,14 +752,14 @@ impl BallotCard {
     ///
     /// Fails if the barcodes cannot be located or cannot be decoded.
     #[allow(clippy::result_large_err)]
-    pub fn decode_ballot_barcodes(
+    pub fn find_barcodes(
         &self,
         election: &Election,
         interpreters: &BallotInterpreters,
     ) -> Result<BallotCardData> {
         self.as_pair()
-            .map(|ballot_page| ballot_page.decode_barcode(election, interpreters))
-            .join(BallotCardData::from_page_data)
+            .map(|ballot_page| ballot_page.find_barcode(election, interpreters))
+            .join(BallotCardData::from_find_barcode_results)
     }
 
     /// Scores bubble marks on both ballot pages.
