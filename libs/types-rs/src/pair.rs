@@ -321,3 +321,12 @@ where
         (T::default(), T::default()).into()
     }
 }
+
+impl<T> Clone for Pair<T>
+where
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        Pair::new(self.first.clone(), self.second.clone())
+    }
+}

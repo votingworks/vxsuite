@@ -10,7 +10,7 @@ use super::error::Error;
 /// Represents the name of a write-in candidate as entered by a voter on a BMD.
 /// The name can only contain certain characters and has a maximum length, and
 /// the constructor ensures that the name is valid.
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 #[must_use]
 #[serde(transparent)]
 pub struct WriteInName(String);

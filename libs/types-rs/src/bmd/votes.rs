@@ -8,7 +8,7 @@ use crate::{
     election::{Contest, OptionId},
 };
 
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum CandidateVote {
     NamedCandidate {
         candidate_id: OptionId,
@@ -30,7 +30,7 @@ impl CandidateVote {
 }
 pub type YesNoVote = OptionId;
 
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum ContestVote {
     Candidate(Vec<CandidateVote>),
     YesNo(YesNoVote),

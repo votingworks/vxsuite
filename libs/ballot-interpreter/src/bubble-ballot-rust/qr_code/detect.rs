@@ -125,7 +125,7 @@ impl Detected {
     }
 
     /// Gets the data decoded from the detected QR code.
-    pub fn bytes(&self) -> &Vec<u8> {
+    pub fn bytes(&self) -> &[u8] {
         self.bytes.as_ref()
     }
 
@@ -142,6 +142,11 @@ impl Detected {
     /// The areas of the image that were searched for QR codes.
     pub fn detection_areas(&self) -> &[Rect] {
         &self.detection_areas
+    }
+
+    /// Decompose this detection into the raw bytes.
+    pub fn into_bytes(self) -> Vec<u8> {
+        self.bytes
     }
 }
 

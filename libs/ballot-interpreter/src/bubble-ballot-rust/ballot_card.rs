@@ -7,7 +7,7 @@ use serde::Serialize;
 use crate::{
     debug::ImageDebugWriter,
     image_utils::{bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, BLACK},
-    interpret::{BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm},
+    interpret::{BallotInterpreters, BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm},
     layout::{build_interpreted_page_layout, InterpretedContestLayout},
     qr_code,
     scoring::{
@@ -247,6 +247,41 @@ impl BallotPage {
         })
     }
 
+    /// Finds a QR code on the page in the expected places and decodes it
+    /// according to the interpreter configuration.
+    pub fn decode_barcode(
+        &self,
+        election: &Election,
+        interpreters: &BallotInterpreters,
+    ) -> BallotPageData {
+        let qr_code = match qr_code::detect(self.ballot_image().image(), self.debug()) {
+            Ok(qr_code) => qr_code,
+            Err(_) => return BallotPageData::NoBarcodeFound,
+        };
+
+        if interpreters.bubble_ballot_config().is_some() {
+            if let Ok(metadata) = coding::decode_with(qr_code.bytes(), election) {
+                return BallotPageData::BubbleBallot {
+                    metadata,
+                    orientation: qr_code.orientation(),
+                };
+            }
+        }
+
+        if interpreters.summary_ballot_config().is_some() {
+            if let Ok(cvr) = coding::decode_with(qr_code.bytes(), election) {
+                return BallotPageData::SummaryBallot {
+                    cvr,
+                    orientation: qr_code.orientation(),
+                };
+            }
+        }
+
+        BallotPageData::DecodeFailed {
+            data: qr_code.into_bytes(),
+        }
+    }
+
     /// Finds timing marks in this ballot page with the specified algorithm.
     ///
     /// # Errors
@@ -324,9 +359,139 @@ impl BallotPage {
 }
 
 #[derive(Debug, Clone)]
-pub enum DecodedQrCode {
-    BubbleBallot(bubble_ballot::Metadata),
-    SummaryBallot(CastVoteRecord),
+pub enum BallotPageData {
+    BubbleBallot {
+        metadata: bubble_ballot::Metadata,
+        orientation: Orientation,
+    },
+    SummaryBallot {
+        cvr: CastVoteRecord,
+        orientation: Orientation,
+    },
+    DecodeFailed {
+        data: Vec<u8>,
+    },
+    NoBarcodeFound,
+}
+
+#[derive(Debug, Clone)]
+pub enum BallotCardData {
+    BubbleBallot {
+        page_data: Pair<(bubble_ballot::Metadata, Orientation)>,
+    },
+    SummaryBallot {
+        cvr: CastVoteRecord,
+        orientation: Orientation,
+    },
+}
+
+impl BallotCardData {
+    pub fn from_page_data(front: BallotPageData, back: BallotPageData) -> Result<Self> {
+        match (front, back) {
+            // Both decode as bubble ballots.
+            (
+                BallotPageData::BubbleBallot {
+                    metadata: front_metadata,
+                    orientation: front_orientation,
+                },
+                BallotPageData::BubbleBallot {
+                    metadata: back_metadata,
+                    orientation: back_orientation,
+                },
+            ) => {
+                if front_metadata.precinct_id != back_metadata.precinct_id {
+                    return Err(Error::MismatchedPrecincts {
+                        side_a: front_metadata.precinct_id,
+                        side_b: back_metadata.precinct_id,
+                    });
+                }
+                if front_metadata.ballot_style_id != back_metadata.ballot_style_id {
+                    return Err(Error::MismatchedBallotStyles {
+                        side_a: front_metadata.ballot_style_id,
+                        side_b: back_metadata.ballot_style_id,
+                    });
+                }
+                if front_metadata.page_number.opposite() != back_metadata.page_number {
+                    return Err(Error::NonConsecutivePageNumbers {
+                        side_a: front_metadata.page_number.get(),
+                        side_b: back_metadata.page_number.get(),
+                    });
+                }
+
+                Ok(Self::BubbleBallot {
+                    page_data: Pair::new(
+                        (front_metadata, front_orientation),
+                        (back_metadata, back_orientation),
+                    ),
+                })
+            }
+
+            // Front decodes as bubble ballot, back is unreadable.
+            (
+                BallotPageData::BubbleBallot {
+                    metadata: front_metadata,
+                    orientation: front_orientation,
+                },
+                BallotPageData::DecodeFailed { .. } | BallotPageData::NoBarcodeFound,
+            ) => {
+                let back_metadata = bubble_ballot::infer_missing_page_metadata(&front_metadata);
+                Ok(Self::BubbleBallot {
+                    page_data: Pair::new(
+                        (front_metadata, front_orientation),
+                        (back_metadata, front_orientation),
+                    ),
+                })
+            }
+
+            // Back decodes as bubble ballot, front is unreadable.
+            (
+                BallotPageData::DecodeFailed { .. } | BallotPageData::NoBarcodeFound,
+                BallotPageData::BubbleBallot {
+                    metadata: back_metadata,
+                    orientation: back_orientation,
+                },
+            ) => {
+                let front_metadata = bubble_ballot::infer_missing_page_metadata(&back_metadata);
+                Ok(Self::BubbleBallot {
+                    page_data: Pair::new(
+                        (front_metadata, back_orientation),
+                        (back_metadata, back_orientation),
+                    ),
+                })
+            }
+
+            // Front OR back is a summary ballot, and the other cannot be read.
+            (
+                BallotPageData::SummaryBallot { cvr, orientation },
+                BallotPageData::DecodeFailed { .. } | BallotPageData::NoBarcodeFound,
+            )
+            | (
+                BallotPageData::DecodeFailed { .. } | BallotPageData::NoBarcodeFound,
+                BallotPageData::SummaryBallot { cvr, orientation },
+            ) => Ok(Self::SummaryBallot { cvr, orientation }),
+
+            // Barcode decode failed.
+            (BallotPageData::DecodeFailed { data }, _)
+            | (_, BallotPageData::DecodeFailed { data }) => Err(Error::InvalidBarcode {
+                message: format!("decode failed: {data:?}"),
+            }),
+
+            // Could not find barcode.
+            (BallotPageData::NoBarcodeFound, BallotPageData::NoBarcodeFound) => {
+                Err(Error::InvalidBarcode {
+                    message: format!("no barcode found"),
+                })
+            }
+
+            // Nonsense ballot, e.g. summary on the front and bubble on the back.
+            (
+                BallotPageData::BubbleBallot { .. } | BallotPageData::SummaryBallot { .. },
+                BallotPageData::BubbleBallot { .. } | BallotPageData::SummaryBallot { .. },
+            ) => Err(Error::InvalidBarcode {
+                message: format!("invalid combination of summary/bubble ballot pages"),
+            }),
+        }
+    }
 }
 
 /// Contains the two pages of a ballot card. They're accessed via methods
@@ -482,93 +647,11 @@ impl BallotCard {
     pub fn decode_ballot_barcodes(
         &self,
         election: &Election,
-    ) -> Result<Pair<(DecodedQrCode, Orientation)>> {
+        interpreters: &BallotInterpreters,
+    ) -> Result<BallotCardData> {
         self.as_pair()
-            .map(|ballot_page| {
-                let qr_code =
-                    qr_code::detect(ballot_page.ballot_image().image(), ballot_page.debug())
-                        .map_err(|e| Error::InvalidQrCodeMetadata {
-                            label: ballot_page.label().to_owned(),
-                            message: e.to_string(),
-                        })?;
-                dbg!(&qr_code);
-                match (
-                    coding::decode_with::<bubble_ballot::Metadata>(qr_code.bytes(), election)
-                        .map(DecodedQrCode::BubbleBallot),
-                    coding::decode_with::<CastVoteRecord>(qr_code.bytes(), election)
-                        .map(DecodedQrCode::SummaryBallot),
-                ) {
-                    (Ok(decoded), _) | (_, Ok(decoded)) => Ok((decoded, qr_code.orientation())),
-                    (Err(e), _) => Err(Error::InvalidQrCodeMetadata {
-                        label: ballot_page.label().to_owned(),
-                        message: format!(
-                            "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
-                            bytes = qr_code.bytes()
-                        ),
-                    }),
-                }
-            })
-            .join(|decode_front_result, decode_back_result| {
-                // If one side has a detected QR code and the other doesn't, we can
-                // infer the missing metadata from the detected metadata.
-                match (decode_front_result, decode_back_result) {
-                    (
-                        Ok(front @ (DecodedQrCode::BubbleBallot(_), _)),
-                        Ok(back @ (DecodedQrCode::BubbleBallot(_), _)),
-                    ) => Ok(Pair::new(front, back)),
-                    (
-                        Err(Error::InvalidQrCodeMetadata { .. }),
-                        Ok((back_metadata, back_orientation)),
-                    ) => {
-                        let front_metadata =
-                            bubble_ballot::infer_missing_page_metadata(&back_metadata);
-                        Ok(Pair::new(
-                            (front_metadata, back_orientation),
-                            (back_metadata, back_orientation),
-                        ))
-                    }
-                    (
-                        Ok((front_metadata, front_orientation)),
-                        Err(Error::InvalidQrCodeMetadata { .. }),
-                    ) => {
-                        let back_metadata =
-                            bubble_ballot::infer_missing_page_metadata(&front_metadata);
-                        Ok(Pair::new(
-                            (front_metadata, front_orientation),
-                            (back_metadata, front_orientation),
-                        ))
-                    }
-                    (Err(e), _) | (_, Err(e)) => Err(e),
-                }
-            })?
-            .join(
-                // Do some validation to check that the two sides agree.
-                |(front_metadata, front_orientation), (back_metadata, back_orientation)| {
-                    if front_metadata.precinct_id != back_metadata.precinct_id {
-                        return Err(Error::MismatchedPrecincts {
-                            side_a: front_metadata.precinct_id,
-                            side_b: back_metadata.precinct_id,
-                        });
-                    }
-                    if front_metadata.ballot_style_id != back_metadata.ballot_style_id {
-                        return Err(Error::MismatchedBallotStyles {
-                            side_a: front_metadata.ballot_style_id,
-                            side_b: back_metadata.ballot_style_id,
-                        });
-                    }
-                    if front_metadata.page_number.opposite() != back_metadata.page_number {
-                        return Err(Error::NonConsecutivePageNumbers {
-                            side_a: front_metadata.page_number.get(),
-                            side_b: back_metadata.page_number.get(),
-                        });
-                    }
-
-                    Ok(Pair::new(
-                        (front_metadata, front_orientation),
-                        (back_metadata, back_orientation),
-                    ))
-                },
-            )
+            .map(|ballot_page| ballot_page.decode_barcode(election, interpreters))
+            .join(BallotCardData::from_page_data)
     }
 
     /// Scores bubble marks on both ballot pages.

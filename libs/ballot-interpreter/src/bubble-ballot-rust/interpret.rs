@@ -335,8 +335,8 @@ pub enum Error {
         side_b: BallotPageMetadata,
     },
 
-    #[error("invalid QR code metadata for {label}: {message}")]
-    InvalidQrCodeMetadata { label: String, message: String },
+    #[error("invalid barcode: {message}")]
+    InvalidBarcode { message: String },
 
     #[error("mismatched precincts: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
     #[serde(rename_all = "camelCase")]
