@@ -14,13 +14,11 @@ import {
   Election,
   Id,
   PartyId,
-  PrecinctSelection,
   Tabulation,
   YesNoContest,
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
-import { decodeAndReadCompressedTally } from './compressed_tallies';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -590,7 +588,7 @@ export function combineContestResults({
  * {@link Tabulation.ManualElectionResults}. Assumes that each dictionary has
  * a key and value for each contest in the election.
  */
-function combineElectionContestResults({
+export function combineElectionContestResults({
   election,
   allElectionContestResults,
 }: {
@@ -697,34 +695,6 @@ export function combineElectionResults({
     cardCounts: combinedCardCounts,
     contestResults: electionContestResults,
   };
-}
-
-/**
- * Combines a list of compressed election results into a single
- * compressed election result representing the aggregation of all inputted results.
- */
-export function combineAndDecodeCompressedElectionResults({
-  election,
-  encodedCompressedTallies,
-}: {
-  election: Election;
-  encodedCompressedTallies: Array<{
-    encodedTally: string;
-    precinctSelection: PrecinctSelection;
-  }>;
-}): Tabulation.ElectionResults['contestResults'] {
-  const allElectionContestResults = encodedCompressedTallies.map(
-    ({ encodedTally, precinctSelection }) =>
-      decodeAndReadCompressedTally({
-        election,
-        precinctSelection,
-        encodedTally,
-      })
-  );
-  return combineElectionContestResults({
-    election,
-    allElectionContestResults,
-  });
 }
 
 /**

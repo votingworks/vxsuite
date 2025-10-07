@@ -35,7 +35,7 @@ interface SignedQuickResultsReportingInput {
   electionDefinition: ElectionDefinition;
   isLiveMode: boolean;
   quickResultsReportingUrl: string;
-  results: Tabulation.ElectionResults;
+  resultsByParty: Tabulation.GroupList<Tabulation.ElectionResults>;
   signingMachineId: string;
   precinctSelection: PrecinctSelection;
   pollsState: PollsState;
@@ -183,7 +183,7 @@ export async function generateSignedQuickResultsReportingUrl(
     electionDefinition,
     isLiveMode,
     quickResultsReportingUrl,
-    results,
+    resultsByParty,
     signingMachineId,
     precinctSelection,
     pollsState,
@@ -198,11 +198,12 @@ export async function generateSignedQuickResultsReportingUrl(
     /* istanbul ignore next - @preserve */ constructSignedQuickResultsReportingConfig();
 
   const { ballotHash, election } = electionDefinition;
+
   const compressedTally =
     pollsState === 'polls_closed_final'
       ? compressAndEncodeTally({
           election,
-          results,
+          resultsByParty,
           precinctSelection,
         })
       : '';

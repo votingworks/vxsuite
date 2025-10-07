@@ -5,7 +5,7 @@ import {
   compressAndEncodeTally,
   ContestResultsSummary,
   ContestResultsSummaries,
-  encodeCompressedTally,
+  encodeCompressedTallyWithCardCounts,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
   getContestsForPrecinct,
@@ -183,7 +183,7 @@ test('processQRCodeReport returns "invalid-signature" when authenticating the si
     [1, 1, 3, 5],
     [0, 0, 0, 0],
   ] as CompressedTally;
-  const encodedTally = encodeCompressedTally(mockCompressedTally);
+  const encodedTally = encodeCompressedTallyWithCardCounts(mockCompressedTally);
 
   mockAuthReturnValue = err('invalid-signature');
 
@@ -211,7 +211,7 @@ test('processQRCodeReport returns no election found where there is no election f
     [1, 1, 3, 5],
     [0, 0, 0, 0],
   ] as CompressedTally;
-  const encodedTally = encodeCompressedTally(mockCompressedTally);
+  const encodedTally = encodeCompressedTallyWithCardCounts(mockCompressedTally);
 
   const result = await unauthenticatedApiClient.processQrCodeReport({
     payload: `1//qr1//${encodeQuickResultsMessage({

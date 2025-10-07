@@ -17,7 +17,7 @@ import {
   compressAndEncodeTally,
   compressTally,
   decodeCompressedTally,
-  encodeCompressedTally,
+  encodeCompressedTallyWithCardCounts,
   decodeAndReadCompressedTally,
 } from './compressed_tallies';
 import {
@@ -201,7 +201,7 @@ describe('readCompressTally', () => {
     const tally = decodeAndReadCompressedTally({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      encodedTally: encodeCompressedTally(zeroTally),
+      encodedTally: encodeCompressedTallyWithCardCounts(zeroTally),
     });
     // Check that all tallies are 0
     for (const contestTally of Object.values(tally)) {
@@ -235,7 +235,7 @@ describe('readCompressTally', () => {
     const tally = decodeAndReadCompressedTally({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      encodedTally: encodeCompressedTally(compressedTally),
+      encodedTally: encodeCompressedTallyWithCardCounts(compressedTally),
     });
     const presidentTally = tally['775020876'];
     assert(presidentTally);
@@ -280,7 +280,7 @@ describe('readCompressTally', () => {
     const tally = decodeAndReadCompressedTally({
       election,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      encodedTally: encodeCompressedTally(compressedTally),
+      encodedTally: encodeCompressedTallyWithCardCounts(compressedTally),
     });
     const presidentTally = tally['president'];
     assert(presidentTally);
@@ -354,7 +354,7 @@ describe('readCompressTally', () => {
     const tally = decodeAndReadCompressedTally({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      encodedTally: encodeCompressedTally(compressedTally),
+      encodedTally: encodeCompressedTallyWithCardCounts(compressedTally),
     });
     const yesNoTally = tally['750000017'];
     assert(yesNoTally?.contestType === 'yesno');
@@ -430,8 +430,10 @@ test('compresses and decompresses tally for a single precinct', () => {
   );
   expect(compressedTally).toHaveLength(10); // There are 14 contests in this election but only 10 for the precinct
   expect(compressedTallyPrecinct2).toHaveLength(9); // There are 14 contests in this election but only 9 for the precinct
-  const encodedTally = encodeCompressedTally(compressedTally);
-  const encodedTallyPrecinct2 = encodeCompressedTally(compressedTallyPrecinct2);
+  const encodedTally = encodeCompressedTallyWithCardCounts(compressedTally);
+  const encodedTallyPrecinct2 = encodeCompressedTallyWithCardCounts(
+    compressedTallyPrecinct2
+  );
   const decodedTally = decodeAndReadCompressedTally({
     election: electionEitherNeither,
     precinctSelection: singlePrecinctSelection,

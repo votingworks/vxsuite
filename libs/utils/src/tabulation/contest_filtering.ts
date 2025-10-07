@@ -132,3 +132,21 @@ export function getContestsForPrecinctAndElection(
     .map((id) => lookupContestIdToContest[id])
     .filter((c): c is AnyContest => c !== undefined);
 }
+
+export function groupContestsByParty(
+  contests: Contests
+): [Record<string, Contests>, Contests] {
+  const contestsByParty: Record<string, AnyContest[]> = {};
+  const nonPartisanContests: AnyContest[] = [];
+  for (const contest of contests) {
+    if (contest.type === 'yesno' || !contest.partyId) {
+      nonPartisanContests.push(contest);
+      continue;
+    }
+    const contestsForParty = contestsByParty[contest.partyId] || [];
+    contestsForParty.push(contest);
+    contestsByParty[contest.partyId] = contestsForParty;
+  }
+
+  return [contestsByParty, nonPartisanContests];
+}
