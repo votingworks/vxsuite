@@ -379,20 +379,14 @@ pub enum ReadBallotPageBarcodeError {
     #[error("No barcode found")]
     NoBarcodeFound,
 
-    #[error("Unable to decode data: {data:x?}")]
+    #[error("Unable to decode data: {data:02x?}")]
     DecodeFailed { data: Vec<u8> },
 }
 
 #[derive(Debug, Clone)]
 pub enum BallotCardData {
-    BubbleBallot {
-        page_data: Pair<(bubble_ballot::Metadata, Orientation)>,
-    },
-    SummaryBallot {
-        cvr: CastVoteRecord,
-        orientation: Orientation,
-        order: SummaryBallotPageOrder,
-    },
+    BubbleBallot(BubbleBallotCardData),
+    SummaryBallot(SummaryBallotCardData),
 }
 
 impl BallotCardData {
@@ -442,12 +436,12 @@ impl BallotCardData {
                     });
                 }
 
-                Ok(Self::BubbleBallot {
+                Ok(Self::BubbleBallot(BubbleBallotCardData {
                     page_data: Pair::new(
                         (front_metadata, front_orientation),
                         (back_metadata, back_orientation),
                     ),
-                })
+                }))
             }
 
             // Front decodes as bubble ballot, back is unreadable.
@@ -462,12 +456,12 @@ impl BallotCardData {
                 ),
             ) => {
                 let back_metadata = bubble_ballot::infer_missing_page_metadata(&front_metadata);
-                Ok(Self::BubbleBallot {
+                Ok(Self::BubbleBallot(BubbleBallotCardData {
                     page_data: Pair::new(
                         (front_metadata, front_orientation),
                         (back_metadata, front_orientation),
                     ),
-                })
+                }))
             }
 
             // Back decodes as bubble ballot, front is unreadable.
@@ -482,12 +476,12 @@ impl BallotCardData {
                 }),
             ) => {
                 let front_metadata = bubble_ballot::infer_missing_page_metadata(&back_metadata);
-                Ok(Self::BubbleBallot {
+                Ok(Self::BubbleBallot(BubbleBallotCardData {
                     page_data: Pair::new(
                         (front_metadata, back_orientation),
                         (back_metadata, back_orientation),
                     ),
-                })
+                }))
             }
 
             // Front OR back is a summary ballot, and the other cannot be read.
@@ -497,28 +491,28 @@ impl BallotCardData {
                     ReadBallotPageBarcodeError::DecodeFailed { .. }
                     | ReadBallotPageBarcodeError::NoBarcodeFound,
                 ),
-            ) => Ok(Self::SummaryBallot {
+            ) => Ok(Self::SummaryBallot(SummaryBallotCardData {
                 cvr,
                 orientation,
                 order: SummaryBallotPageOrder::SummaryFirst,
-            }),
+            })),
             (
                 Err(
                     ReadBallotPageBarcodeError::DecodeFailed { .. }
                     | ReadBallotPageBarcodeError::NoBarcodeFound,
                 ),
                 Ok(BallotPageData::SummaryBallot { cvr, orientation }),
-            ) => Ok(Self::SummaryBallot {
+            ) => Ok(Self::SummaryBallot(SummaryBallotCardData {
                 cvr,
                 orientation,
                 order: SummaryBallotPageOrder::BlankFirst,
-            }),
+            })),
 
             // Barcode decode failed.
             (Err(ReadBallotPageBarcodeError::DecodeFailed { data }), _)
             | (_, Err(ReadBallotPageBarcodeError::DecodeFailed { data })) => {
                 Err(Error::InvalidBarcode {
-                    message: format!("decode failed: {data:?}"),
+                    message: format!("decode failed: {data:02x?}"),
                 })
             }
 
@@ -544,10 +538,8 @@ impl BallotCardData {
     #[must_use]
     pub fn orientations(&self) -> Pair<Orientation> {
         match self {
-            Self::BubbleBallot { page_data } => {
-                Pair::new(page_data.first().1, page_data.second().1)
-            }
-            Self::SummaryBallot { orientation, .. } => Pair::new(*orientation, *orientation),
+            Self::BubbleBallot(data @ BubbleBallotCardData { .. }) => data.orientations(),
+            Self::SummaryBallot(data @ SummaryBallotCardData { .. }) => data.orientations(),
         }
     }
 
@@ -556,9 +548,11 @@ impl BallotCardData {
     #[must_use]
     pub fn pages_in_expected_order(&self) -> bool {
         match self {
-            Self::BubbleBallot { page_data } => page_data.first().0.page_number.is_front(),
-            Self::SummaryBallot { order, .. } => {
-                matches!(order, SummaryBallotPageOrder::SummaryFirst)
+            Self::BubbleBallot(data @ BubbleBallotCardData { .. }) => {
+                data.pages_in_expected_order()
+            }
+            Self::SummaryBallot(data @ SummaryBallotCardData { .. }) => {
+                data.pages_in_expected_order()
             }
         }
     }
@@ -567,17 +561,94 @@ impl BallotCardData {
     /// should be the same as if it was constructed in the opposite order.
     pub fn swap(&mut self) {
         match self {
-            Self::BubbleBallot { page_data } => page_data.swap(),
-            Self::SummaryBallot { order, .. } => order.swap(),
+            Self::BubbleBallot(data @ BubbleBallotCardData { .. }) => data.swap(),
+            Self::SummaryBallot(data @ SummaryBallotCardData { .. }) => data.swap(),
         }
     }
 
     /// Gets the ballot style ID from the data read from the ballot barcodes.
     pub fn ballot_style_id(&self) -> &BallotStyleId {
         match self {
-            Self::BubbleBallot { page_data } => &page_data.first().0.ballot_style_id,
-            Self::SummaryBallot { cvr, .. } => &cvr.ballot_style_id,
+            Self::BubbleBallot(BubbleBallotCardData { page_data }) => {
+                &page_data.first().0.ballot_style_id
+            }
+            Self::SummaryBallot(SummaryBallotCardData { cvr, .. }) => &cvr.ballot_style_id,
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BubbleBallotCardData {
+    page_data: Pair<(bubble_ballot::Metadata, Orientation)>,
+}
+
+impl BubbleBallotCardData {
+    #[must_use]
+    pub fn pages_in_expected_order(&self) -> bool {
+        self.page_data.first().0.page_number.is_front()
+    }
+
+    #[must_use]
+    pub fn orientations(&self) -> Pair<Orientation> {
+        self.page_data.as_ref().map(|(_, orientation)| *orientation)
+    }
+
+    #[must_use]
+    pub fn metadatas(&self) -> Pair<&bubble_ballot::Metadata> {
+        self.page_data.as_ref().map(|(metadata, _)| metadata)
+    }
+
+    pub fn swap(&mut self) {
+        self.page_data.swap();
+    }
+
+    /// Gets the ballot style ID from the data read from the ballot barcodes.
+    pub fn ballot_style_id(&self) -> &BallotStyleId {
+        &self.page_data.first().0.ballot_style_id
+    }
+
+    #[must_use]
+    pub fn sheet_number(&self) -> u32 {
+        self.page_data
+            .first()
+            .0
+            .page_number
+            .sheet_number()
+            .get()
+            .into()
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct SummaryBallotCardData {
+    cvr: CastVoteRecord,
+    orientation: Orientation,
+    order: SummaryBallotPageOrder,
+}
+
+impl SummaryBallotCardData {
+    #[must_use]
+    pub fn pages_in_expected_order(&self) -> bool {
+        matches!(self.order, SummaryBallotPageOrder::SummaryFirst)
+    }
+
+    #[must_use]
+    pub fn orientations(&self) -> Pair<Orientation> {
+        Pair::new(self.orientation, self.orientation)
+    }
+
+    pub fn swap(&mut self) {
+        self.order.swap();
+    }
+
+    #[must_use]
+    pub fn order(&self) -> SummaryBallotPageOrder {
+        self.order
+    }
+
+    #[must_use]
+    pub fn into_cvr(self) -> CastVoteRecord {
+        self.cvr
     }
 }
 

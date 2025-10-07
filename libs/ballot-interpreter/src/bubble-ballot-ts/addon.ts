@@ -22,13 +22,13 @@ const addon = (() => {
  */
 export type BridgeInterpretResult =
   | {
-      type: 'ok';
-      value: InterpretedBallotCard;
-    }
+    type: 'ok';
+    value: InterpretedBallotCard;
+  }
   | {
-      type: 'err';
-      value: InterpretError;
-    };
+    type: 'err';
+    value: InterpretError;
+  };
 
 /**
  * Type of the Rust `interpret` implementation. Under normal circumstances,
@@ -39,9 +39,10 @@ export function interpret(
   election: Election,
   ballotImageSourceSideA: string | ImageData,
   ballotImageSourceSideB: string | ImageData,
-  options?: {
+  options: {
     debugBasePathSideA?: string;
     debugBasePathSideB?: string;
+    interpreters: 'all' | 'bubble-only' | 'summary-only',
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
     timingMarkAlgorithm?: 'contours' | 'corners';
@@ -93,15 +94,15 @@ export function findTimingMarkGrid(
 ): TimingMarks {
   return typeof image === 'string'
     ? addon.findTimingMarkGridFromPath(
-        image,
-        debugBasePath ?? null,
-        options ?? null
-      )
+      image,
+      debugBasePath ?? null,
+      options ?? null
+    )
     : addon.findTimingMarkGridFromImage(
-        image.width,
-        image.height,
-        image.data,
-        debugBasePath ?? null,
-        options ?? null
-      );
+      image.width,
+      image.height,
+      image.data,
+      debugBasePath ?? null,
+      options ?? null
+    );
 }

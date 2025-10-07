@@ -179,12 +179,13 @@ async function generateScoringReport(
     let frontNormalizedImageOutputFile!: ReturnType<typeof fileSync>;
     let backNormalizedImageOutputFile!: ReturnType<typeof fileSync>;
     try {
-      frontNormalizedImageOutputFile = fileSync();
-      backNormalizedImageOutputFile = fileSync();
+      frontNormalizedImageOutputFile = fileSync({ postfix: '.png' });
+      backNormalizedImageOutputFile = fileSync({ postfix: '.png' });
       process.stdout.write(`Scoring sheet ${sheetName}\n`);
       const interpretationResult = interpret({
         electionDefinition,
         ballotImages: imagePaths,
+        interpreters: 'bubble-only',
         scoreWriteIns: true,
         frontNormalizedImageOutputPath: frontNormalizedImageOutputFile.name,
         backNormalizedImageOutputPath: backNormalizedImageOutputFile.name,
@@ -200,6 +201,7 @@ async function generateScoringReport(
         continue;
       }
       const interpretation = interpretationResult.ok();
+      assert(interpretation.type === 'bubble')
 
       const frontScoredImage = annotateBallotImageScores(
         scoreType,
@@ -211,8 +213,8 @@ async function generateScoringReport(
         await loadImageData(backNormalizedImageOutputFile.name),
         interpretation.back
       );
-      const frontOutputPath = join(outputDir, `${sheetName}-front.jpg`);
-      const backOutputPath = join(outputDir, `${sheetName}-back.jpg`);
+      const frontOutputPath = join(outputDir, `${sheetName}-front.png`);
+      const backOutputPath = join(outputDir, `${sheetName}-back.png`);
       await writeImageData(frontOutputPath, frontScoredImage);
       await writeImageData(backOutputPath, backScoredImage);
     } finally {

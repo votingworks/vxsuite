@@ -7,10 +7,10 @@ import { HmpbInterpretResult } from './types';
 function assertImageData(imageData: unknown): asserts imageData is ImageData {
   assert(
     typeof imageData === 'object' &&
-      imageData !== null &&
-      typeof (imageData as ImageData).width === 'number' &&
-      typeof (imageData as ImageData).height === 'number' &&
-      typeof (imageData as ImageData).data === 'object',
+    imageData !== null &&
+    typeof (imageData as ImageData).width === 'number' &&
+    typeof (imageData as ImageData).height === 'number' &&
+    typeof (imageData as ImageData).data === 'object',
     'imageData is not an ImageData'
   );
 }
@@ -33,6 +33,7 @@ function checkImageSource(imageSource: string | ImageData): void {
 function normalizeOptionsForBridge(options: {
   electionDefinition: ElectionDefinition;
   ballotImages: SheetOf<string> | SheetOf<ImageData>;
+  interpreters: 'all' | 'bubble-only' | 'summary-only',
   scoreWriteIns?: boolean;
   disableVerticalStreakDetection?: boolean;
   timingMarkAlgorithm?: 'contours' | 'corners';
@@ -65,6 +66,7 @@ function normalizeOptionsForBridge(options: {
     {
       debugBasePathSideA,
       debugBasePathSideB,
+      interpreters: options.interpreters,
       scoreWriteIns: options.scoreWriteIns,
       timingMarkAlgorithm: options.timingMarkAlgorithm,
       disableVerticalStreakDetection: options.disableVerticalStreakDetection,
@@ -82,6 +84,7 @@ function normalizeOptionsForBridge(options: {
 export function interpret(options: {
   electionDefinition: ElectionDefinition;
   ballotImages: SheetOf<string> | SheetOf<ImageData>;
+  interpreters: 'all' | 'bubble-only' | 'summary-only',
   scoreWriteIns?: boolean;
   disableVerticalStreakDetection?: boolean;
   timingMarkAlgorithm?: 'contours' | 'corners';

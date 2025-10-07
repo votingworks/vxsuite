@@ -5,6 +5,7 @@ import {
   PrecinctId,
   BallotStyleId,
   Side,
+  CompletedBallot,
 } from '@votingworks/types';
 import { Optional, Result } from '@votingworks/basics';
 
@@ -84,9 +85,13 @@ export interface Inset {
 export type HmpbInterpretResult = Result<InterpretedBallotCard, InterpretError>;
 
 /** A successfully interpreted ballot card. */
-export interface InterpretedBallotCard {
+export type InterpretedBallotCard = {
+  type: 'bubble',
   front: InterpretedBallotPage;
   back: InterpretedBallotPage;
+} | {
+  type: 'summary',
+  cvr: CompletedBallot
 }
 
 /** A successfully imported ballot page. */
@@ -306,41 +311,41 @@ export interface Size<T> {
 export type InterpretError =
   | { type: 'borderInsetNotFound'; path: string }
   | {
-      type: 'invalidCardMetadata';
-      sideA: BallotPageMetadata;
-      sideB: BallotPageMetadata;
-    }
+    type: 'invalidCardMetadata';
+    sideA: BallotPageMetadata;
+    sideB: BallotPageMetadata;
+  }
   | { type: 'invalidQrCodeMetadata'; label: string; message: string }
   | { type: 'mismatchedPrecincts'; sideA: PrecinctId; sideB: PrecinctId }
   | {
-      type: 'mismatchedBallotStyles';
-      sideA: BallotStyleId;
-      sideB: BallotStyleId;
-    }
+    type: 'mismatchedBallotStyles';
+    sideA: BallotStyleId;
+    sideB: BallotStyleId;
+  }
   | { type: 'nonConsecutivePageNumbers'; sideA: number; sideB: number }
   | {
-      type: 'mismatchedBallotCardGeometries';
-      side_a: BallotPagePathAndGeometry;
-      side_b: BallotPagePathAndGeometry;
-    }
+    type: 'mismatchedBallotCardGeometries';
+    side_a: BallotPagePathAndGeometry;
+    side_b: BallotPagePathAndGeometry;
+  }
   | {
-      type: 'missingGridLayout';
-      front: BallotPageMetadata;
-      back: BallotPageMetadata;
-    }
+    type: 'missingGridLayout';
+    front: BallotPageMetadata;
+    back: BallotPageMetadata;
+  }
   | { type: 'missingTimingMarks'; reason: string }
   | { type: 'unexpectedDimensions'; label: string; dimensions: Size<PixelUnit> }
   | { type: 'invalidScale'; label: string; scale: number }
   | { type: 'couldNotComputeLayout'; side: Side }
   | {
-      type: 'verticalStreaksDetected';
-      label: string;
-      xCoordinates: PixelPosition[];
-    }
+    type: 'verticalStreaksDetected';
+    label: string;
+    xCoordinates: PixelPosition[];
+  }
   | {
-      type: 'invalidElection';
-      message: string;
-    };
+    type: 'invalidElection';
+    message: string;
+  };
 
 /**
  * Information about a ballot page that has failed to be interpreted.

@@ -14,6 +14,7 @@ import {
 import { expect, test } from 'vitest';
 import { pdfToPageImages } from '../../test/helpers/interpretation';
 import { interpret } from './interpret';
+import assert from 'node:assert';
 
 const electionGridLayoutNewHampshireTestBallotDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -25,7 +26,7 @@ test('interpret with bad election data', () => {
   };
 
   expect(() =>
-    interpret({ electionDefinition, ballotImages: ['a', 'b'] })
+    interpret({ electionDefinition, ballotImages: ['a', 'b'], interpreters: 'bubble-only' })
   ).toThrowError('missing field `title`');
 });
 
@@ -33,7 +34,7 @@ test('interpret with bad ballot image paths', () => {
   const electionDefinition = electionGridLayoutNewHampshireTestBallotDefinition;
 
   expect(() =>
-    interpret({ electionDefinition, ballotImages: ['a', 'b'] })
+    interpret({ electionDefinition, ballotImages: ['a', 'b'], interpreters: 'bubble-only' })
   ).toThrowError(/No such file or directory/);
 });
 
@@ -42,10 +43,12 @@ test('interpret `ImageData` objects', async () => {
   const ballotImages = asSheet(
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
-  const result = interpret({ electionDefinition, ballotImages });
+  const result = interpret({ electionDefinition, ballotImages, interpreters: 'bubble-only' });
   expect(result).toEqual(ok(expect.anything()));
 
-  const { front, back } = result.unsafeUnwrap();
+  const interpretation = result.unsafeUnwrap();
+  assert(interpretation.type === 'bubble');
+  const { front, back } = interpretation;
 
   const gridPositions = assertDefined(
     electionDefinition.election.gridLayouts?.[0]?.gridPositions
@@ -341,10 +344,13 @@ test('interpret images from paths', async () => {
   const result = interpret({
     electionDefinition,
     ballotImages: ballotImagePaths,
+    interpreters: 'bubble-only'
   });
   expect(result).toEqual(ok(expect.anything()));
 
-  const { front, back } = result.unsafeUnwrap();
+  const interpretation = result.unsafeUnwrap();
+  assert(interpretation.type === 'bubble');
+  const { front, back } = interpretation;
 
   const gridPositions = assertDefined(
     electionDefinition.election.gridLayouts?.[0]?.gridPositions
@@ -644,13 +650,17 @@ test('interpret with old timing mark algorithm', async () => {
   const contoursInterpretedCard = interpret({
     electionDefinition,
     ballotImages: ballotImagePaths,
+    interpreters: 'bubble-only',
     timingMarkAlgorithm: 'contours',
   }).unsafeUnwrap();
+  assert(contoursInterpretedCard.type === 'bubble');
   const cornersInterpretedCard = interpret({
     electionDefinition,
     ballotImages: ballotImagePaths,
+    interpreters: 'bubble-only',
     timingMarkAlgorithm: 'corners',
   }).unsafeUnwrap();
+  assert(cornersInterpretedCard.type === 'bubble');
 
   expect(contoursInterpretedCard.front.marks).not.toEqual(
     cornersInterpretedCard.front.marks
@@ -669,11 +679,14 @@ test('score write in areas', async () => {
   const result = interpret({
     electionDefinition,
     ballotImages,
+    interpreters: 'bubble-only',
     scoreWriteIns: true,
   });
   expect(result).toEqual(ok(expect.anything()));
 
-  const { front, back } = result.unsafeUnwrap();
+  const interpretation = result.unsafeUnwrap();
+  assert(interpretation.type === 'bubble');
+  const { front, back } = interpretation;
 
   expect(front.writeIns).toMatchSnapshot();
   expect(back.writeIns).toMatchSnapshot();

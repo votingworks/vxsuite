@@ -11,12 +11,14 @@ import {
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
+  BooleanEnvironmentVariableName,
   CachedElectionLookups,
+  getFeatureFlagMock,
 } from '@votingworks/utils';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
-test('interpret BMD ballot for an election supporting hand-marked paper ballots', async () => {
+test.each([{ useNativeInterpreterForSummaryBallots: false }, { useNativeInterpreterForSummaryBallots: true }])('interpret BMD ballot for an election supporting hand-marked paper ballots ($useNativeInterpreterForSummaryBallots)', async ({ useNativeInterpreterForSummaryBallots }) => {
   const { electionDefinition } = vxFamousNamesFixtures;
   // Fixture votes includes overvotes, which aren't possible on a BMD ballot
   const validBmdVotes: VotesDict = Object.fromEntries(
@@ -43,6 +45,12 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       })
     ).toArray()
   );
+
+  if (useNativeInterpreterForSummaryBallots) {
+    getFeatureFlagMock().enableFeatureFlag(BooleanEnvironmentVariableName.USE_RUST_SUMMARY_BALLOT_INTERPRETATION);
+  } else {
+    getFeatureFlagMock().disableFeatureFlag(BooleanEnvironmentVariableName.USE_RUST_SUMMARY_BALLOT_INTERPRETATION);
+  }
 
   const [bmdPage1Result, bmdPage2Result] = await interpretSheet(
     {

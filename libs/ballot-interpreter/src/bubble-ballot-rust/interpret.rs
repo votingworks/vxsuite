@@ -9,17 +9,17 @@ use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
 use types_rs::bmd::cvr::CastVoteRecord;
-use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
+use types_rs::election::{BallotStyleId, Election, PrecinctId};
 use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
 use types_rs::pair::Pair;
 
-use crate::ballot_card::BallotPage;
-use crate::ballot_card::Geometry;
+use crate::ballot_card::BallotCard;
 use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
 use crate::ballot_card::{load_ballot_scan_bubble_image, BallotCardData};
-use crate::ballot_card::{BallotCard, SummaryBallotPageOrder};
+use crate::ballot_card::{BallotPage, BubbleBallotCardData};
+use crate::ballot_card::{Geometry, SummaryBallotCardData};
 use crate::debug::draw_timing_mark_debug_image_mut;
 use crate::image_utils::Inset;
 use crate::layout::InterpretedContestLayout;
@@ -39,6 +39,7 @@ pub struct Options {
 }
 
 #[derive(Debug, Clone)]
+#[must_use]
 pub enum BallotInterpreters {
     All {
         bubble_ballot_config: BubbleBallotConfig,
@@ -285,10 +286,12 @@ pub struct InterpretedBallotPage {
 #[derive(Debug, Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum InterpretedBallotCard {
+    #[serde(rename = "bubble")]
     BubbleBallot {
         front: Box<InterpretedBallotPage>,
         back: Box<InterpretedBallotPage>,
     },
+    #[serde(rename = "summary")]
     SummaryBallot {
         cvr: CastVoteRecord,
         #[serde(skip_serializing)]
@@ -445,12 +448,7 @@ pub fn ballot_card(
     side_b_image: GrayImage,
     options: &Options,
 ) -> Result<InterpretedBallotCard> {
-    let Some(ref grid_layouts) = options.election.grid_layouts else {
-        return Err(Error::InvalidElection {
-            message: "required field `gridLayouts` is missing".to_owned(),
-        });
-    };
-    let mut ballot_card = Pair::new(
+    let ballot_card = Pair::new(
         (
             SIDE_A_LABEL,
             side_a_image,
@@ -468,30 +466,55 @@ pub fn ballot_card(
     .into_result()?
     .join(BallotCard::from_pages)?;
 
-    if options.vertical_streak_detection == VerticalStreakDetection::Enabled {
+    // Bail early if we're looking for and find vertical streaks.
+    if matches!(
+        options.vertical_streak_detection,
+        VerticalStreakDetection::Enabled
+    ) {
         ballot_card.detect_vertical_streaks()?;
     }
 
     // Find ballot barcodes and decode them.
-    let mut ballot_card_data =
-        ballot_card.find_barcodes(&options.election, &options.interpreters)?;
+    let ballot_card_data = ballot_card.find_barcodes(&options.election, &options.interpreters)?;
 
-    let bubble_ballot_config = options
-        .interpreters
-        .bubble_ballot_config()
-        .expect("always set for now");
+    // Now we should know what interpreter to use based on the barcode found.
+    // Only try to use an interpreter that we have a configuration for.
+    match (
+        ballot_card_data,
+        options.interpreters.bubble_ballot_config(),
+        options.interpreters.summary_ballot_config(),
+    ) {
+        (BallotCardData::BubbleBallot(ballot_card_data), Some(config), _) => {
+            interpret_as_bubble_ballot(ballot_card, ballot_card_data, &options.election, config)
+        }
+        (BallotCardData::SummaryBallot(ballot_card_data), _, Some(config)) => Ok(
+            interpret_as_summary_ballot(ballot_card, ballot_card_data, *config),
+        ),
+        _ => Err(Error::InvalidBarcode {
+            message: "No barcode could be found matching the configured ballot interpreters"
+                .to_owned(),
+        }),
+    }
+}
 
-    let mut timing_marks =
-        ballot_card.find_timing_marks(bubble_ballot_config.timing_mark_algorithm)?;
+#[allow(clippy::result_large_err)]
+fn interpret_as_bubble_ballot(
+    mut ballot_card: BallotCard,
+    mut ballot_card_data: BubbleBallotCardData,
+    election: &Election,
+    config: &BubbleBallotConfig,
+) -> Result<InterpretedBallotCard> {
+    let Some(ref grid_layouts) = election.grid_layouts else {
+        return Err(Error::InvalidElection {
+            message: "required field `gridLayouts` is missing".to_owned(),
+        });
+    };
 
-    if let Some(minimum_detected_scale) = bubble_ballot_config.minimum_detected_scale {
+    let mut timing_marks = ballot_card.find_timing_marks(config.timing_mark_algorithm)?;
+
+    if let Some(minimum_detected_scale) = config.minimum_detected_scale {
         ballot_card.check_minimum_scale(&timing_marks, minimum_detected_scale)?;
     }
-
-    debug_assert_eq!(
-        options.election.ballot_layout.metadata_encoding,
-        MetadataEncoding::QrCode
-    );
 
     // If the pages are reversed, i.e. fed in bottom-first, we need to rotate
     // them so they're right-side up.
@@ -533,88 +556,98 @@ pub fn ballot_card(
         return Err(Error::MissingGridLayout { ballot_style_id });
     };
 
-    match ballot_card_data {
-        BallotCardData::BubbleBallot { page_data } => {
-            let sheet_number = u32::from(page_data.first().0.page_number.sheet_number().get());
+    let sheet_number = ballot_card_data.sheet_number();
+    let scored_bubble_marks = ballot_card.score_bubble_marks(
+        &timing_marks,
+        &config.bubble_template,
+        grid_layout,
+        sheet_number,
+    );
 
-            let scored_bubble_marks = ballot_card.score_bubble_marks(
-                &timing_marks,
-                &bubble_ballot_config.bubble_template,
-                grid_layout,
-                sheet_number,
-            );
+    let contest_layouts =
+        ballot_card.build_page_layout(&timing_marks, grid_layout, sheet_number)?;
 
-            let contest_layouts =
-                ballot_card.build_page_layout(&timing_marks, grid_layout, sheet_number)?;
+    let write_in_area_scores = match config.write_in_scoring {
+        WriteInScoring::Enabled => {
+            ballot_card.score_write_in_areas(&timing_marks, grid_layout, sheet_number)
+        }
+        WriteInScoring::Disabled => Pair::default(),
+    };
 
-            let write_in_area_scores = match bubble_ballot_config.write_in_scoring {
-                WriteInScoring::Enabled => {
-                    ballot_card.score_write_in_areas(&timing_marks, grid_layout, sheet_number)
-                }
-                WriteInScoring::Disabled => Pair::default(),
-            };
+    // Binarize the images for storage.
+    let normalized_images = ballot_card.as_pair().par_map(|ballot_page| {
+        imageproc::contrast::threshold(
+            ballot_page.ballot_image().image(),
+            ballot_page.ballot_image().threshold(),
+        )
+    });
 
-            let normalized_images = ballot_card.as_pair().par_map(|ballot_page| {
-                imageproc::contrast::threshold(
-                    ballot_page.ballot_image().image(),
-                    ballot_page.ballot_image().threshold(),
-                )
-            });
-
-            Pair::from((
+    Pair::from((
+        timing_marks,
+        ballot_card_data.metadatas(),
+        scored_bubble_marks,
+        write_in_area_scores,
+        normalized_images,
+        contest_layouts,
+    ))
+    .map(
+        |(timing_marks, metadata, marks, write_ins, normalized_image, contest_layouts)| {
+            InterpretedBallotPage {
                 timing_marks,
-                page_data,
-                scored_bubble_marks,
-                write_in_area_scores,
-                normalized_images,
+                metadata: BallotPageMetadata::QrCode(metadata.clone()),
+                marks,
+                write_ins,
+                normalized_image,
                 contest_layouts,
-            ))
-            .map(
-                |(
-                    timing_marks,
-                    (metadata, _),
-                    marks,
-                    write_ins,
-                    normalized_image,
-                    contest_layouts,
-                )| {
-                    InterpretedBallotPage {
-                        timing_marks,
-                        metadata: BallotPageMetadata::QrCode(metadata),
-                        marks,
-                        write_ins,
-                        normalized_image,
-                        contest_layouts,
-                    }
-                },
+            }
+        },
+    )
+    .join(|front, back| {
+        Ok(InterpretedBallotCard::BubbleBallot {
+            front: Box::new(front),
+            back: Box::new(back),
+        })
+    })
+}
+
+fn interpret_as_summary_ballot(
+    mut ballot_card: BallotCard,
+    mut ballot_card_data: SummaryBallotCardData,
+    _config: SummaryBallotConfig,
+) -> InterpretedBallotCard {
+    // If the pages are reversed, i.e. fed in bottom-first, we need to rotate
+    // them so they're right-side up.
+    ballot_card
+        .as_pair_mut()
+        .zip(ballot_card_data.orientations())
+        .map(|(ballot_page, orientation)| {
+            // Handle rotating the image if necessary.
+            if matches!(orientation, Orientation::PortraitReversed) {
+                ballot_page.rotate180();
+            }
+        });
+
+    // If what we've been calling the front is actually the back, swap them.
+    if !ballot_card_data.pages_in_expected_order() {
+        ballot_card.swap_pages();
+        ballot_card_data.swap();
+    }
+
+    // Binarize the images for storage.
+    let (front_normalized_image, back_normalized_image) = ballot_card
+        .as_pair()
+        .par_map(|ballot_page| {
+            imageproc::contrast::threshold(
+                ballot_page.ballot_image().image(),
+                ballot_page.ballot_image().threshold(),
             )
-            .join(|front, back| {
-                Ok(InterpretedBallotCard::BubbleBallot {
-                    front: Box::new(front),
-                    back: Box::new(back),
-                })
-            })
-        }
-        BallotCardData::SummaryBallot { cvr, order, .. } => {
-            // This should have been swapped above if it wasn't already the case.
-            assert!(matches!(order, SummaryBallotPageOrder::SummaryFirst));
+        })
+        .into();
 
-            let (front_normalized_image, back_normalized_image) = ballot_card
-                .as_pair()
-                .par_map(|ballot_page| {
-                    imageproc::contrast::threshold(
-                        ballot_page.ballot_image().image(),
-                        ballot_page.ballot_image().threshold(),
-                    )
-                })
-                .into();
-
-            Ok(InterpretedBallotCard::SummaryBallot {
-                cvr,
-                front_normalized_image,
-                back_normalized_image,
-            })
-        }
+    InterpretedBallotCard::SummaryBallot {
+        cvr: ballot_card_data.into_cvr(),
+        front_normalized_image,
+        back_normalized_image,
     }
 }
 
@@ -622,6 +655,7 @@ pub fn ballot_card(
 #[allow(clippy::similar_names, clippy::unwrap_used)]
 mod test {
     use std::{
+        collections::HashMap,
         fs::File,
         io::BufReader,
         path::{Path, PathBuf},
@@ -631,6 +665,8 @@ mod test {
     use imageproc::geometric_transformations::{self, Interpolation, Projection};
     use itertools::Itertools;
     use types_rs::{
+        ballot_card::BallotType,
+        bmd::votes::{CandidateVote, ContestVote},
         election::{ContestId, OptionId},
         geometry::{Degrees, PixelPosition, Radians, Rect},
     };
@@ -671,12 +707,15 @@ mod test {
             debug_side_b_base: None,
             election,
             vertical_streak_detection: VerticalStreakDetection::Enabled,
-            interpreters: BallotInterpreters::BubbleBallotOnly(BubbleBallotConfig {
-                bubble_template,
-                write_in_scoring: WriteInScoring::Enabled,
-                timing_mark_algorithm: TimingMarkAlgorithm::default(),
-                minimum_detected_scale: None,
-            }),
+            interpreters: BallotInterpreters::All {
+                bubble_ballot_config: BubbleBallotConfig {
+                    bubble_template,
+                    write_in_scoring: WriteInScoring::Enabled,
+                    timing_mark_algorithm: TimingMarkAlgorithm::default(),
+                    minimum_detected_scale: None,
+                },
+                summary_ballot_config: SummaryBallotConfig,
+            },
         };
         (side_a_image, side_b_image, options)
     }
@@ -754,6 +793,109 @@ mod test {
         };
         assert!(is_binary_image(&front.normalized_image));
         assert!(is_binary_image(&back.normalized_image));
+    }
+
+    #[test]
+    fn test_interpret_summary_ballot() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "famous-names-summary-ballot",
+            ("summary-page.png", "blank-page.png"),
+        );
+        let InterpretedBallotCard::SummaryBallot {
+            cvr,
+            front_normalized_image,
+            back_normalized_image,
+        } = ballot_card(side_a_image, side_b_image, &options).unwrap()
+        else {
+            panic!("wrong interpretation type");
+        };
+        assert!(is_binary_image(&front_normalized_image));
+        assert!(is_binary_image(&back_normalized_image));
+
+        assert_eq!(
+            cvr.ballot_hash,
+            [0x72, 0x87, 0x05, 0x90, 0x0a, 0xc9, 0xaf, 0x39, 0xa8, 0x3b]
+        );
+        assert_eq!(cvr.ballot_style_id, BallotStyleId::from("1"),);
+        assert_eq!(cvr.precinct_id, PrecinctId::from("23"));
+        assert!(cvr.is_test_mode);
+        assert_eq!(cvr.ballot_type, BallotType::Precinct);
+        assert_eq!(
+            cvr.votes,
+            HashMap::from([
+                (
+                    ContestId::from("mayor"),
+                    ContestVote::Candidate(vec![CandidateVote::NamedCandidate {
+                        candidate_id: OptionId::from("sherlock-holmes")
+                    }])
+                ),
+                (
+                    ContestId::from("city-council"),
+                    ContestVote::Candidate(vec![
+                        CandidateVote::NamedCandidate {
+                            candidate_id: OptionId::from("marie-curie")
+                        },
+                        CandidateVote::NamedCandidate {
+                            candidate_id: OptionId::from("indiana-jones")
+                        },
+                        CandidateVote::NamedCandidate {
+                            candidate_id: OptionId::from("mona-lisa")
+                        },
+                        CandidateVote::NamedCandidate {
+                            candidate_id: OptionId::from("jackie-chan")
+                        },
+                    ])
+                ),
+                (
+                    ContestId::from("chief-of-police"),
+                    ContestVote::Candidate(vec![CandidateVote::NamedCandidate {
+                        candidate_id: OptionId::from("natalie-portman")
+                    }])
+                ),
+                (
+                    ContestId::from("attorney"),
+                    ContestVote::Candidate(vec![CandidateVote::NamedCandidate {
+                        candidate_id: OptionId::from("john-snow")
+                    }])
+                ),
+                (
+                    ContestId::from("public-works-director"),
+                    ContestVote::Candidate(vec![CandidateVote::NamedCandidate {
+                        candidate_id: OptionId::from("benjamin-franklin")
+                    }])
+                ),
+                (
+                    ContestId::from("controller"),
+                    ContestVote::Candidate(vec![CandidateVote::NamedCandidate {
+                        candidate_id: OptionId::from("winston-churchill")
+                    }])
+                ),
+                (
+                    ContestId::from("parks-and-recreation-director"),
+                    ContestVote::Candidate(vec![CandidateVote::NamedCandidate {
+                        candidate_id: OptionId::from("charles-darwin")
+                    }])
+                ),
+                (
+                    ContestId::from("board-of-alderman"),
+                    ContestVote::Candidate(vec![
+                        CandidateVote::NamedCandidate {
+                            candidate_id: OptionId::from("helen-keller")
+                        },
+                        CandidateVote::NamedCandidate {
+                            candidate_id: OptionId::from("steve-jobs")
+                        },
+                        CandidateVote::NamedCandidate {
+                            candidate_id: OptionId::from("nikola-tesla")
+                        },
+                        CandidateVote::NamedCandidate {
+                            candidate_id: OptionId::from("vincent-van-gogh")
+                        },
+                    ])
+                )
+            ])
+        );
+        assert_eq!(cvr.ballot_audit_id, None);
     }
 
     #[test]
@@ -1000,15 +1142,8 @@ mod test {
             side_b_image.clone(),
             &Options {
                 interpreters: BallotInterpreters::BubbleBallotOnly(BubbleBallotConfig {
-                    ..match options.interpreters {
-                        BallotInterpreters::BubbleBallotOnly(bubble_ballot_config) => {
-                            BubbleBallotConfig {
-                                timing_mark_algorithm: TimingMarkAlgorithm::Corners,
-                                ..bubble_ballot_config
-                            }
-                        }
-                        _ => panic!("unexpected interpreters"),
-                    }
+                    timing_mark_algorithm: TimingMarkAlgorithm::Corners,
+                    ..options.interpreters.bubble_ballot_config().unwrap().clone()
                 }),
                 ..options
             },

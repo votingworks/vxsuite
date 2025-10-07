@@ -18,6 +18,7 @@ test('no debug', () => {
   void interpret({
     electionDefinition,
     ballotImages: ['a.jpeg', 'b.jpeg'],
+    interpreters: 'bubble-only',
     debug: false,
   });
 
@@ -37,6 +38,7 @@ test('debug with image paths', () => {
 
   void interpret({
     electionDefinition,
+    interpreters: 'bubble-only',
     ballotImages: ['a.jpeg', 'b.jpeg'],
     debug: true,
   });

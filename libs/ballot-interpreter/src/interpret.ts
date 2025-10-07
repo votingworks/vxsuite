@@ -46,7 +46,9 @@ import {
 import {
   ALL_PRECINCTS_SELECTION,
   allContestOptions,
+  BooleanEnvironmentVariableName,
   convertMarksToVotesDict,
+  isFeatureFlagEnabled,
   time,
 } from '@votingworks/utils';
 import { ImageData } from 'canvas';
@@ -59,7 +61,6 @@ import {
 import { interpret as interpretVxBmdBallotSheet } from './summary-ballot';
 import {
   Geometry,
-  InterpretedBallotCard,
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
   interpret as interpretHmpbBallotSheetRust,
@@ -68,6 +69,7 @@ import {
   ScoredBubbleMark,
   ScoredBubbleMarks,
   ScoredPositionArea,
+  InterpretedBallotPage,
 } from './bubble-ballot-ts';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
@@ -104,10 +106,9 @@ function getContestOptionForGridPosition(
   );
   assert(
     option,
-    `option not found for mark ${gridPosition.contestId}/${
-      gridPosition.type === 'option'
-        ? gridPosition.optionId
-        : `write-in-${gridPosition.writeInIndex}`
+    `option not found for mark ${gridPosition.contestId}/${gridPosition.type === 'option'
+      ? gridPosition.optionId
+      : `write-in-${gridPosition.writeInIndex}`
     }`
   );
 
@@ -164,8 +165,8 @@ function aggregateContestOptionScores({
       scoredMark.fillScore >= options.markThresholds.definite
         ? MarkStatus.Marked
         : scoredMark.fillScore >= options.markThresholds.marginal
-        ? MarkStatus.Marginal
-        : MarkStatus.Unmarked;
+          ? MarkStatus.Marginal
+          : MarkStatus.Unmarked;
 
     const expectScoredWriteInArea =
       shouldScoreWriteIns(options) && gridPosition.type === 'write-in';
@@ -389,12 +390,8 @@ function convertContestLayouts(
 function convertInterpretedBallotPage(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  interpretedBallotCard: InterpretedBallotCard,
-  side: 'front' | 'back'
+  interpretation: InterpretedBallotPage,
 ): PageInterpretation {
-  const { metadata } = interpretedBallotCard[side];
-
-  const interpretation = interpretedBallotCard[side];
   const contestOptionScores: ScoredContestOption[] =
     aggregateContestOptionScores({
       marks: interpretation.marks,
@@ -408,7 +405,7 @@ function convertInterpretedBallotPage(
   );
   return {
     type: 'InterpretedHmpbPage',
-    metadata,
+    metadata: interpretation.metadata,
     markInfo,
     adjudicationInfo: determineAdjudicationInfoFromScoredContestOptions(
       electionDefinition,
@@ -425,7 +422,7 @@ function convertInterpretedBallotPage(
       : undefined,
     layout: {
       pageSize: interpretation.timingMarks.geometry.canvasSize,
-      metadata,
+      metadata: interpretation.metadata,
       contests: convertContestLayouts(
         electionDefinition.election.contests,
         interpretation.contestLayouts
@@ -458,20 +455,13 @@ export function convertRustInterpretResult(
   }
 
   const ballotCard = result.ok();
-  return ok([
-    convertInterpretedBallotPage(
-      options.electionDefinition,
-      options,
-      ballotCard,
-      'front'
-    ),
-    convertInterpretedBallotPage(
-      options.electionDefinition,
-      options,
-      ballotCard,
-      'back'
-    ),
-  ]);
+
+  // TODO: Handle summary ballots here.
+  assert(ballotCard.type === 'bubble');
+
+  return ok(
+    mapSheet([ballotCard.front, ballotCard.back], (page) => convertInterpretedBallotPage(options.electionDefinition, options, page))
+  );
 }
 
 /**
@@ -537,13 +527,14 @@ function validateInterpretResults(
  * Interpret a HMPB sheet and convert the result from the Rust
  * interpreter's result format to the result format used by the rest of VxSuite.
  */
-function interpretHmpb(
+function nativeInterpret(
   sheet: SheetOf<ImageData>,
-  options: InterpreterOptions
+  options: InterpreterOptions & { interpreters: 'all' | 'bubble-only' | 'summary-only' }
 ): SheetOf<PageInterpretation> {
   const result = interpretHmpbBallotSheetRust({
     electionDefinition: options.electionDefinition,
     ballotImages: sheet,
+    interpreters: options.interpreters,
     scoreWriteIns: shouldScoreWriteIns(options),
     disableVerticalStreakDetection: options.disableVerticalStreakDetection,
     inferTimingMarks: options.inferTimingMarks,
@@ -779,22 +770,27 @@ export async function interpretSheet(
   sheet: SheetOf<ImageData>
 ): Promise<SheetOf<PageInterpretation>> {
   const timer = time(debug, 'interpretSheet');
+  const useNativeForEverything = isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_RUST_SUMMARY_BALLOT_INTERPRETATION);
 
   try {
-    const hmpbInterpretation = options.electionDefinition.election.gridLayouts
-      ? interpretHmpb(sheet, options)
+    if (useNativeForEverything) {
+      return nativeInterpret(sheet, { ...options, interpreters: 'all' });
+    }
+
+    const nativeInterpretation = options.electionDefinition.election.gridLayouts
+      ? nativeInterpret(sheet, { ...options, interpreters: 'bubble-only' })
       : undefined;
 
     if (
-      hmpbInterpretation?.[0].type === 'InterpretedHmpbPage' &&
-      hmpbInterpretation[1].type === 'InterpretedHmpbPage'
+      nativeInterpretation?.[0].type === 'InterpretedHmpbPage' &&
+      nativeInterpretation[1].type === 'InterpretedHmpbPage'
     ) {
-      return hmpbInterpretation;
+      return nativeInterpretation;
     }
 
     const bmdInterpretation = await interpretBmdBallot(sheet, options);
 
-    return chooseInterpretationToUse(bmdInterpretation, hmpbInterpretation);
+    return chooseInterpretationToUse(bmdInterpretation, nativeInterpretation);
   } finally {
     timer.end();
   }

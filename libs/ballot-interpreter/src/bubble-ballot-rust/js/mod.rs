@@ -12,7 +12,8 @@ use types_rs::election::Election;
 use crate::ballot_card::{BallotPage, PaperInfo};
 use crate::interpret::{
     self, ballot_card, BallotInterpreters, BubbleBallotConfigBuilder, Inference,
-    InterpretedBallotCard, Options, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
+    InterpretedBallotCard, Options, SummaryBallotConfig, TimingMarkAlgorithm,
+    VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::TimingMarks;
@@ -24,11 +25,24 @@ struct JsInterpretOptions {
     back_normalized_image_output_path: Option<String>,
     debug_base_path_side_a: Option<String>,
     debug_base_path_side_b: Option<String>,
+    interpreters: Interpreters,
     timing_mark_algorithm: Option<TimingMarkAlgorithm>,
     minimum_detected_scale: Option<f64>,
     score_write_ins: Option<bool>,
     disable_vertical_streak_detection: Option<bool>,
     infer_timing_marks: Option<bool>,
+}
+
+#[derive(Debug, Deserialize)]
+enum Interpreters {
+    #[serde(rename = "all")]
+    All,
+
+    #[serde(rename = "bubble-only")]
+    BubbleOnly,
+
+    #[serde(rename = "summary-only")]
+    SummaryOnly,
 }
 
 #[derive(Debug, Serialize)]
@@ -57,6 +71,37 @@ fn interpret(
         None => None,
     };
 
+    let bubble_ballot_config = BubbleBallotConfigBuilder::new()
+        .write_in_scoring(
+            options
+                .score_write_ins
+                .map(|score| {
+                    if score {
+                        WriteInScoring::Enabled
+                    } else {
+                        WriteInScoring::Disabled
+                    }
+                })
+                .unwrap_or_default(),
+        )
+        .timing_mark_algorithm(match options.timing_mark_algorithm.unwrap_or_default() {
+            TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
+                inference: options
+                    .infer_timing_marks
+                    .map(|infer| {
+                        if infer {
+                            Inference::Enabled
+                        } else {
+                            Inference::Disabled
+                        }
+                    })
+                    .unwrap_or_default(),
+            },
+            TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
+        })
+        .minimum_detected_scale(minimum_detected_scale)
+        .build();
+
     let interpret_result = ballot_card(
         side_a_image,
         side_b_image,
@@ -70,40 +115,18 @@ fn interpret(
             } else {
                 VerticalStreakDetection::Enabled
             },
-            interpreters: BallotInterpreters::BubbleBallotOnly(
-                BubbleBallotConfigBuilder::new()
-                    .write_in_scoring(
-                        options
-                            .score_write_ins
-                            .map(|score| {
-                                if score {
-                                    WriteInScoring::Enabled
-                                } else {
-                                    WriteInScoring::Disabled
-                                }
-                            })
-                            .unwrap_or_default(),
-                    )
-                    .timing_mark_algorithm(
-                        match options.timing_mark_algorithm.unwrap_or_default() {
-                            TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
-                                inference: options
-                                    .infer_timing_marks
-                                    .map(|infer| {
-                                        if infer {
-                                            Inference::Enabled
-                                        } else {
-                                            Inference::Disabled
-                                        }
-                                    })
-                                    .unwrap_or_default(),
-                            },
-                            TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
-                        },
-                    )
-                    .minimum_detected_scale(minimum_detected_scale)
-                    .build(),
-            ),
+            interpreters: match options.interpreters {
+                Interpreters::All => BallotInterpreters::All {
+                    bubble_ballot_config,
+                    summary_ballot_config: SummaryBallotConfig,
+                },
+                Interpreters::BubbleOnly => {
+                    BallotInterpreters::BubbleBallotOnly(bubble_ballot_config)
+                }
+                Interpreters::SummaryOnly => {
+                    BallotInterpreters::SummaryBallotOnly(SummaryBallotConfig)
+                }
+            },
         },
     );
 

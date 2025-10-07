@@ -31,7 +31,7 @@ pub struct Election {
     pub precincts: Vec<Precinct>,
     pub grid_layouts: Option<Vec<GridLayout>>,
     pub mark_thresholds: Option<MarkThresholds>,
-    pub ballot_layout: BallotLayout,
+    pub ballot_layout: Option<BallotLayout>,
     pub contests: Vec<Contest>,
 }
 

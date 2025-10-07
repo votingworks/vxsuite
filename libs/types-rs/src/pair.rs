@@ -119,6 +119,12 @@ impl<T> Pair<T> {
     pub fn swap(&mut self) {
         swap(&mut self.first, &mut self.second);
     }
+
+    /// Gets a pair of references to the values held by this pair. Useful if you
+    /// wish to transform this pair without consuming it.
+    pub const fn as_ref(&self) -> Pair<&T> {
+        Pair::new(&self.first, &self.second)
+    }
 }
 
 impl<T> Pair<T>

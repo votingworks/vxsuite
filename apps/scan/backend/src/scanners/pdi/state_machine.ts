@@ -141,17 +141,17 @@ interface Context {
 
 type Event =
   | {
-      type: 'SCANNER_STATUS';
-      status: ScannerStatus;
-    }
+    type: 'SCANNER_STATUS';
+    status: ScannerStatus;
+  }
   | {
-      type: 'SCANNER_EVENT';
-      event: ScannerEvent;
-    }
+    type: 'SCANNER_EVENT';
+    event: ScannerEvent;
+  }
   | {
-      type: 'SCANNER_ERROR';
-      error: ScannerError;
-    }
+    type: 'SCANNER_ERROR';
+    error: ScannerError;
+  }
   | { type: 'ACCEPT' }
   | { type: 'RETURN' }
   | { type: 'READY_FOR_NEXT_BALLOT' }
@@ -701,7 +701,7 @@ function buildMachine({
                         // Don't overwrite the double_feed_detected error if
                         // we already caught that
                         context.error instanceof PrecinctScannerError &&
-                        context.error.type === 'double_feed_detected'
+                          context.error.type === 'double_feed_detected'
                           ? context.error
                           : new PrecinctScannerError('scanning_failed'),
                     }),
@@ -945,12 +945,12 @@ function buildMachine({
                   assert(event.event === 'imageSensorCalibrationFailed');
                   return event.error === 'calibrationTimeoutError'
                     ? new PrecinctScannerError(
-                        'image_sensor_calibration_timed_out'
-                      )
+                      'image_sensor_calibration_timed_out'
+                    )
                     : new PrecinctScannerError(
-                        'image_sensor_calibration_failed',
-                        event.error
-                      );
+                      'image_sensor_calibration_failed',
+                      event.error
+                    );
                 },
               }),
             },
@@ -1125,9 +1125,9 @@ function buildMachine({
                   const paperLengthInches = ballotPaperDimensions(
                     electionRecord?.electionDefinition.election.ballotLayout
                       .paperSize ??
-                      // If the scanner isn't configured, set the paper length
-                      // limit to the longest paper length so any paper will work
-                      HmpbBallotPaperSize.Custom22
+                    // If the scanner isn't configured, set the paper length
+                    // limit to the longest paper length so any paper will work
+                    HmpbBallotPaperSize.Custom22
                   ).height;
                   (
                     await scannerClient.enableScanning({
