@@ -1,11 +1,7 @@
 import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 
-import {
-  ElectionStringKey,
-  LanguageCode,
-  TtsStringKey,
-} from '@votingworks/types';
+import { LanguageCode, TtsEditKey } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store, TaskName } from './store';
 import { TestStore } from '../test/test_store';
@@ -320,11 +316,10 @@ test('Background task processing - requeuing interrupted tasks', async () => {
 });
 
 describe('tts_strings', () => {
-  const key: TtsStringKey = {
+  const key: TtsEditKey = {
     electionId: '5678',
-    key: ElectionStringKey.CONTEST_TITLE,
+    original: 'one two',
     languageCode: 'en',
-    subkey: '1234',
   };
 
   async function setUpElection(store: Store) {
@@ -336,26 +331,26 @@ describe('tts_strings', () => {
   test('ttsStringsGet returns null if absent', async () => {
     const store = testStore.getStore();
     await setUpElection(store);
-    await expect(store.ttsStringsGet(key)).resolves.toBeNull();
+    await expect(store.ttsEditsGet(key)).resolves.toBeNull();
   });
 
   test('ttsStringsSet inserts if absent, updates if present', async () => {
     const store = testStore.getStore();
     await setUpElection(store);
 
-    await store.ttsStringsSet(key, {
+    await store.ttsEditsSet(key, {
       exportSource: 'phonetic',
       phonetic: [{ text: 'one' }, { text: 'two' }],
       text: 'one two',
     });
 
-    await expect(store.ttsStringsGet(key)).resolves.toEqual({
+    await expect(store.ttsEditsGet(key)).resolves.toEqual({
       exportSource: 'phonetic',
       phonetic: [{ text: 'one' }, { text: 'two' }],
       text: 'one two',
     });
 
-    await store.ttsStringsSet(key, {
+    await store.ttsEditsSet(key, {
       exportSource: 'phonetic',
       phonetic: [
         { text: 'one' },
@@ -364,7 +359,7 @@ describe('tts_strings', () => {
       text: 'one two',
     });
 
-    await expect(store.ttsStringsGet(key)).resolves.toEqual({
+    await expect(store.ttsEditsGet(key)).resolves.toEqual({
       exportSource: 'phonetic',
       phonetic: [
         { text: 'one' },

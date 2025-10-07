@@ -37,8 +37,8 @@ import {
   CandidateContest,
   ElectionType,
   Signature,
-  TtsString,
-  TtsStringKey,
+  TtsEdit,
+  TtsEditKey,
   safeParse,
   PhoneticWordsSchema,
   ContestId,
@@ -1975,7 +1975,7 @@ export class Store {
     );
   }
 
-  async ttsStringsGet(key: TtsStringKey): Promise<TtsString | null> {
+  async ttsEditsGet(key: TtsEditKey): Promise<TtsEdit | null> {
     return this.db.withClient(async (client) => {
       const res = await client.query(
         `
@@ -1983,17 +1983,15 @@ export class Store {
             export_source as "exportSource",
             phonetic,
             text
-          from tts_strings
+          from tts_edits
           where
             election_id = $1 and
-            key = $2 and
-            subkey = $3 and
-            language_code = $4
+            language_code = $2 and
+            original = $3
         `,
         key.electionId,
-        key.key,
-        key.subkey,
-        key.languageCode
+        key.languageCode,
+        key.original
       );
 
       if (res.rows.length === 0) return null;
@@ -2011,29 +2009,27 @@ export class Store {
     });
   }
 
-  async ttsStringsSet(key: TtsStringKey, data: TtsString): Promise<void> {
+  async ttsEditsSet(key: TtsEditKey, data: TtsEdit): Promise<void> {
     return this.db.withClient(async (client) => {
       await client.query(
         `
-            insert into tts_strings (
+            insert into tts_edits (
               election_id,
-              key,
-              subkey,
               language_code,
+              original,
               export_source,
               phonetic,
               text
             )
-            values ($1, $2, $3, $4, $5, $6, $7)
-            on conflict (election_id, key, subkey, language_code) do update set
+            values ($1, $2, $3, $4, $5, $6)
+            on conflict (election_id, language_code, original) do update set
               export_source = EXCLUDED.export_source,
               phonetic = EXCLUDED.phonetic,
               text = EXCLUDED.text
           `,
         key.electionId,
-        key.key,
-        key.subkey,
         key.languageCode,
+        key.original,
         data.exportSource,
         JSON.stringify(data.phonetic),
         data.text
