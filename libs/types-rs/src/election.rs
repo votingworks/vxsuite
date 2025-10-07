@@ -101,6 +101,7 @@ pub struct BallotStyle {
 #[serde(rename_all = "camelCase")]
 pub struct Precinct {
     pub id: PrecinctId,
+    pub name: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -322,6 +323,15 @@ impl Candidate {
             Self::Named(NamedCandidate { id, .. }) | Self::WriteIn(WriteInCandidate { id, .. }) => {
                 id
             }
+        }
+    }
+}
+
+impl Display for Candidate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Named(named) => write!(f, "{}", named.name),
+            Self::WriteIn(writein) => write!(f, "Write-In #{}", writein.write_in_index + 1),
         }
     }
 }

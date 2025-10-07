@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
+use serde::Serialize;
 
 use crate::{
     ballot_card::{BallotAuditIdLength, BallotStyleByIndex, BallotType, PrecinctByIndex},
@@ -9,7 +10,7 @@ use crate::{
 };
 
 /// A cast vote record as encoded on a BMD summary ballot's QR code.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct CastVoteRecord {
     pub ballot_hash: PartialBallotHash,
     pub ballot_style_id: BallotStyleId,

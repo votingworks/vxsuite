@@ -21,6 +21,7 @@ use crate::{
 
 use types_rs::{
     ballot_card::{BallotSide, PaperSize},
+    bmd::cvr::CastVoteRecord,
     bubble_ballot, coding,
     election::{Election, GridLayout},
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
@@ -322,6 +323,12 @@ impl BallotPage {
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum DecodedQrCode {
+    BubbleBallot(bubble_ballot::Metadata),
+    SummaryBallot(CastVoteRecord),
+}
+
 /// Contains the two pages of a ballot card. They're accessed via methods
 /// labeled front and back, but there is no guarantee that they are actually
 /// the front and back of the ballot card. Call [`BallotCard::swap_pages`] if
@@ -475,7 +482,7 @@ impl BallotCard {
     pub fn decode_ballot_barcodes(
         &self,
         election: &Election,
-    ) -> Result<Pair<(bubble_ballot::Metadata, Orientation)>> {
+    ) -> Result<Pair<(DecodedQrCode, Orientation)>> {
         self.as_pair()
             .map(|ballot_page| {
                 let qr_code =
@@ -484,22 +491,31 @@ impl BallotCard {
                             label: ballot_page.label().to_owned(),
                             message: e.to_string(),
                         })?;
-                let metadata = coding::decode_with(qr_code.bytes(), election).map_err(|e| {
-                    Error::InvalidQrCodeMetadata {
+                dbg!(&qr_code);
+                match (
+                    coding::decode_with::<bubble_ballot::Metadata>(qr_code.bytes(), election)
+                        .map(DecodedQrCode::BubbleBallot),
+                    coding::decode_with::<CastVoteRecord>(qr_code.bytes(), election)
+                        .map(DecodedQrCode::SummaryBallot),
+                ) {
+                    (Ok(decoded), _) | (_, Ok(decoded)) => Ok((decoded, qr_code.orientation())),
+                    (Err(e), _) => Err(Error::InvalidQrCodeMetadata {
                         label: ballot_page.label().to_owned(),
                         message: format!(
                             "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
                             bytes = qr_code.bytes()
                         ),
-                    }
-                })?;
-                Ok((metadata, qr_code.orientation()))
+                    }),
+                }
             })
             .join(|decode_front_result, decode_back_result| {
                 // If one side has a detected QR code and the other doesn't, we can
                 // infer the missing metadata from the detected metadata.
                 match (decode_front_result, decode_back_result) {
-                    (Ok(front), Ok(back)) => Ok(Pair::new(front, back)),
+                    (
+                        Ok(front @ (DecodedQrCode::BubbleBallot(_), _)),
+                        Ok(back @ (DecodedQrCode::BubbleBallot(_), _)),
+                    ) => Ok(Pair::new(front, back)),
                     (
                         Err(Error::InvalidQrCodeMetadata { .. }),
                         Ok((back_metadata, back_orientation)),

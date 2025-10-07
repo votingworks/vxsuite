@@ -9,10 +9,10 @@ use neon::types::extract::{Error, Json};
 use serde::{Deserialize, Serialize};
 use types_rs::election::Election;
 
-use crate::ballot_card::{load_ballot_scan_bubble_image, BallotPage, PaperInfo};
+use crate::ballot_card::{BallotPage, PaperInfo};
 use crate::interpret::{
-    self, ballot_card, Inference, InterpretedBallotCard, Options, TimingMarkAlgorithm,
-    VerticalStreakDetection, WriteInScoring,
+    self, ballot_card, BallotInterpreters, BubbleBallotConfigBuilder, Inference,
+    InterpretedBallotCard, Options, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::TimingMarks;
@@ -57,42 +57,53 @@ fn interpret(
         None => None,
     };
 
-    let bubble_template = load_ballot_scan_bubble_image().expect("failed to load bubble template");
     let interpret_result = ballot_card(
         side_a_image,
         side_b_image,
         &Options {
             election,
-            bubble_template,
             debug_side_a_base: options.debug_base_path_side_a.map(PathBuf::from),
             debug_side_b_base: options.debug_base_path_side_b.map(PathBuf::from),
-            write_in_scoring: if options.score_write_ins.unwrap_or(false) {
-                WriteInScoring::Enabled
-            } else {
-                WriteInScoring::Disabled
-            },
             vertical_streak_detection: if options.disable_vertical_streak_detection.unwrap_or(false)
             {
                 VerticalStreakDetection::Disabled
             } else {
                 VerticalStreakDetection::Enabled
             },
-            timing_mark_algorithm: match options.timing_mark_algorithm.unwrap_or_default() {
-                TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
-                    inference: options
-                        .infer_timing_marks
-                        .map(|infer| {
-                            if infer {
-                                Inference::Enabled
-                            } else {
-                                Inference::Disabled
-                            }
-                        })
-                        .unwrap_or_default(),
-                },
-                TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
-            },
-            minimum_detected_scale,
+            interpreters: BallotInterpreters::BubbleBallotOnly(
+                BubbleBallotConfigBuilder::new()
+                    .write_in_scoring(
+                        options
+                            .score_write_ins
+                            .map(|score| {
+                                if score {
+                                    WriteInScoring::Enabled
+                                } else {
+                                    WriteInScoring::Disabled
+                                }
+                            })
+                            .unwrap_or_default(),
+                    )
+                    .timing_mark_algorithm(
+                        match options.timing_mark_algorithm.unwrap_or_default() {
+                            TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
+                                inference: options
+                                    .infer_timing_marks
+                                    .map(|infer| {
+                                        if infer {
+                                            Inference::Enabled
+                                        } else {
+                                            Inference::Disabled
+                                        }
+                                    })
+                                    .unwrap_or_default(),
+                            },
+                            TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
+                        },
+                    )
+                    .minimum_detected_scale(minimum_detected_scale)
+                    .build(),
+            ),
         },
     );
 
@@ -104,38 +115,18 @@ fn interpret(
         }
     };
 
-    let maybe_save_normalized_image =
-        |path: Option<PathBuf>, image: &GrayImage| -> Result<(), String> {
-            match path {
-                None => Ok(()),
-                Some(ref path) => image.save(path).map_err(|err| {
-                    format!(
-                        "unable to save image to {path}: {err}",
-                        path = path.display()
-                    )
-                }),
-            }
-        };
-
-    match rayon::join(
-        || {
-            maybe_save_normalized_image(
-                options
-                    .front_normalized_image_output_path
-                    .map(PathBuf::from),
-                &card.front.normalized_image,
-            )
-        },
-        || {
-            maybe_save_normalized_image(
-                options.back_normalized_image_output_path.map(PathBuf::from),
-                &card.back.normalized_image,
-            )
-        },
-    ) {
-        (Err(err), _) | (_, Err(err)) => Err(err)?,
-        (Ok(()), Ok(())) => {}
-    }
+    card.normalized_images()
+        .zip((
+            options.front_normalized_image_output_path,
+            options.back_normalized_image_output_path,
+        ))
+        .par_map(|(image, path)| match path {
+            None => Ok(()),
+            Some(path) => image
+                .save(&path)
+                .map_err(|err| format!("unable to save image to {path}: {err}")),
+        })
+        .into_result()?;
 
     Ok(JsInterpretResult::Ok(Box::new(card)))
 }

@@ -3,7 +3,8 @@
 use std::{fmt::Display, fs::File, io::BufReader, path::PathBuf};
 
 use ballot_interpreter::interpret::{
-    Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
+    BallotInterpreters, BubbleBallotConfigBuilder, Inference, Options, ScanInterpreter,
+    TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
 };
 use divan::{black_box, Bencher};
 use image::GrayImage;
@@ -41,13 +42,18 @@ impl InterpretFixture {
         let election_path = fixture_path.join(self.election).join("election.json");
         let election: types_rs::election::Election =
             serde_json::from_reader(BufReader::new(File::open(election_path)?))?;
-        let interpreter = ScanInterpreter::new(
+        let interpreter = ScanInterpreter::new(Options {
             election,
-            WriteInScoring::Enabled,
-            VerticalStreakDetection::Enabled,
-            self.timing_mark_algorithm,
-            None,
-        )?;
+            vertical_streak_detection: VerticalStreakDetection::Enabled,
+            interpreters: BallotInterpreters::BubbleBallotOnly(
+                BubbleBallotConfigBuilder::new()
+                    .write_in_scoring(WriteInScoring::Enabled)
+                    .timing_mark_algorithm(self.timing_mark_algorithm)
+                    .build(),
+            ),
+            debug_side_a_base: None,
+            debug_side_b_base: None,
+        });
         let side_a_path = fixture_path
             .join(self.election)
             .join(format!("{}-front{}", self.name, self.extension));
@@ -84,7 +90,7 @@ fn interpret(bencher: Bencher, fixture: InterpretFixture) {
     bencher.bench_local(move || {
         black_box(
             interpreter
-                .interpret(side_a_image.clone(), side_b_image.clone(), None, None)
+                .interpret(side_a_image.clone(), side_b_image.clone())
                 .unwrap(),
         );
     });

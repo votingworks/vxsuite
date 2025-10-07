@@ -8,6 +8,7 @@ use image::GrayImage;
 use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
+use types_rs::bmd::cvr::CastVoteRecord;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
 use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
@@ -31,14 +32,123 @@ use crate::timing_marks::TimingMarks;
 #[derive(Debug, Clone)]
 pub struct Options {
     pub election: Election,
-    pub bubble_template: GrayImage,
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
-    pub write_in_scoring: WriteInScoring,
     pub vertical_streak_detection: VerticalStreakDetection,
-    pub timing_mark_algorithm: TimingMarkAlgorithm,
-    pub minimum_detected_scale: Option<UnitIntervalScore>,
+    pub interpreters: BallotInterpreters,
 }
+
+#[derive(Debug, Clone)]
+pub enum BallotInterpreters {
+    All {
+        bubble_ballot_config: BubbleBallotConfig,
+        summary_ballot_config: SummaryBallotConfig,
+    },
+    BubbleBallotOnly(BubbleBallotConfig),
+    SummaryBallotOnly(SummaryBallotConfig),
+}
+
+impl BallotInterpreters {
+    #[must_use]
+    pub fn bubble_ballot_config(&self) -> Option<&BubbleBallotConfig> {
+        match self {
+            Self::All {
+                ref bubble_ballot_config,
+                ..
+            }
+            | Self::BubbleBallotOnly(ref bubble_ballot_config) => Some(bubble_ballot_config),
+            Self::SummaryBallotOnly(_) => None,
+        }
+    }
+
+    #[must_use]
+    pub fn summary_ballot_config(&self) -> Option<&SummaryBallotConfig> {
+        match self {
+            Self::All {
+                ref summary_ballot_config,
+                ..
+            }
+            | Self::SummaryBallotOnly(ref summary_ballot_config) => Some(summary_ballot_config),
+            Self::BubbleBallotOnly(_) => None,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+#[must_use]
+pub struct BubbleBallotConfig {
+    timing_mark_algorithm: TimingMarkAlgorithm,
+    bubble_template: GrayImage,
+    write_in_scoring: WriteInScoring,
+    minimum_detected_scale: Option<UnitIntervalScore>,
+}
+
+impl Default for BubbleBallotConfig {
+    fn default() -> Self {
+        Self {
+            timing_mark_algorithm: TimingMarkAlgorithm::default(),
+            bubble_template: load_ballot_scan_bubble_image().expect("can load image from memory"),
+            write_in_scoring: WriteInScoring::default(),
+            minimum_detected_scale: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+#[must_use]
+pub struct BubbleBallotConfigBuilder {
+    config: BubbleBallotConfig,
+}
+
+impl BubbleBallotConfigBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn timing_mark_algorithm(self, timing_mark_algorithm: TimingMarkAlgorithm) -> Self {
+        Self {
+            config: BubbleBallotConfig {
+                timing_mark_algorithm,
+                ..self.config
+            },
+        }
+    }
+
+    pub fn bubble_template(self, bubble_template: GrayImage) -> Self {
+        Self {
+            config: BubbleBallotConfig {
+                bubble_template,
+                ..self.config
+            },
+        }
+    }
+
+    pub fn write_in_scoring(self, write_in_scoring: WriteInScoring) -> Self {
+        Self {
+            config: BubbleBallotConfig {
+                write_in_scoring,
+                ..self.config
+            },
+        }
+    }
+
+    pub fn minimum_detected_scale(self, minimum_detected_scale: Option<UnitIntervalScore>) -> Self {
+        Self {
+            config: BubbleBallotConfig {
+                minimum_detected_scale,
+                ..self.config
+            },
+        }
+    }
+
+    pub fn build(self) -> BubbleBallotConfig {
+        self.config
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+#[must_use]
+pub struct SummaryBallotConfig;
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr)]
 pub enum TimingMarkAlgorithm {
@@ -132,9 +242,11 @@ impl FromStr for VerticalStreakDetection {
     }
 }
 
-#[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, DeserializeFromStr, PartialEq)]
 pub enum WriteInScoring {
     Enabled,
+
+    #[default]
     Disabled,
 }
 
@@ -171,10 +283,35 @@ pub struct InterpretedBallotPage {
     pub contest_layouts: Vec<InterpretedContestLayout>,
 }
 #[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InterpretedBallotCard {
-    pub front: InterpretedBallotPage,
-    pub back: InterpretedBallotPage,
+#[serde(tag = "type", rename_all = "camelCase")]
+pub enum InterpretedBallotCard {
+    BubbleBallot {
+        front: Box<InterpretedBallotPage>,
+        back: Box<InterpretedBallotPage>,
+    },
+    SummaryBallot {
+        cvr: CastVoteRecord,
+        #[serde(skip_serializing)]
+        front_normalized_image: GrayImage,
+        #[serde(skip_serializing)]
+        back_normalized_image: GrayImage,
+    },
+}
+
+impl InterpretedBallotCard {
+    #[must_use]
+    pub fn normalized_images(&self) -> Pair<&GrayImage> {
+        match self {
+            Self::BubbleBallot { front, back } => {
+                Pair::new(&front.normalized_image, &back.normalized_image)
+            }
+            Self::SummaryBallot {
+                front_normalized_image,
+                back_normalized_image,
+                ..
+            } => Pair::new(front_normalized_image, back_normalized_image),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -270,37 +407,15 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 pub const SIDE_A_LABEL: &str = "side A";
 pub const SIDE_B_LABEL: &str = "side B";
 
+#[must_use]
 pub struct ScanInterpreter {
-    election: Election,
-    write_in_scoring: WriteInScoring,
-    vertical_streak_detection: VerticalStreakDetection,
-    bubble_template_image: GrayImage,
-    timing_mark_algorithm: TimingMarkAlgorithm,
-    minimum_detected_scale: Option<f32>,
+    options: Options,
 }
 
 impl ScanInterpreter {
     /// Creates a new `ScanInterpreter` with the given configuration.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the bubble template image could not be loaded.
-    pub fn new(
-        election: Election,
-        write_in_scoring: WriteInScoring,
-        vertical_streak_detection: VerticalStreakDetection,
-        timing_mark_algorithm: TimingMarkAlgorithm,
-        minimum_detected_scale: Option<f32>,
-    ) -> Result<Self, image::ImageError> {
-        let bubble_template_image = load_ballot_scan_bubble_image()?;
-        Ok(Self {
-            election,
-            write_in_scoring,
-            vertical_streak_detection,
-            bubble_template_image,
-            timing_mark_algorithm,
-            minimum_detected_scale,
-        })
+    pub const fn new(options: Options) -> Self {
+        Self { options }
     }
 
     /// Interprets a pair of ballot card images.
@@ -309,24 +424,12 @@ impl ScanInterpreter {
     ///
     /// Returns an error if the images could not be interpreted.
     #[allow(clippy::result_large_err)]
-    pub fn interpret<P: Into<Option<PathBuf>>>(
+    pub fn interpret(
         &self,
         side_a_image: GrayImage,
         side_b_image: GrayImage,
-        debug_side_a_base: P,
-        debug_side_b_base: P,
     ) -> Result<InterpretedBallotCard> {
-        let options = Options {
-            election: self.election.clone(),
-            bubble_template: self.bubble_template_image.clone(),
-            debug_side_a_base: debug_side_a_base.into(),
-            debug_side_b_base: debug_side_b_base.into(),
-            write_in_scoring: self.write_in_scoring,
-            vertical_streak_detection: self.vertical_streak_detection,
-            timing_mark_algorithm: self.timing_mark_algorithm,
-            minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
-        };
-        ballot_card(side_a_image, side_b_image, &options)
+        ballot_card(side_a_image, side_b_image, &self.options)
     }
 }
 
@@ -335,7 +438,11 @@ impl ScanInterpreter {
 /// # Errors
 ///
 /// Returns an error if the ballot card could not be interpreted.
-#[allow(clippy::too_many_lines, clippy::result_large_err)]
+#[allow(
+    clippy::too_many_lines,
+    clippy::result_large_err,
+    clippy::missing_panics_doc
+)]
 pub fn ballot_card(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
@@ -368,9 +475,20 @@ pub fn ballot_card(
         ballot_card.detect_vertical_streaks()?;
     }
 
-    let mut timing_marks = ballot_card.find_timing_marks(options.timing_mark_algorithm)?;
+    // Find the metadata and validate it.
+    let mut decoded_qr_codes = ballot_card.decode_ballot_barcodes(&options.election)?;
 
-    if let Some(minimum_detected_scale) = options.minimum_detected_scale {
+    dbg!(&decoded_qr_codes);
+
+    let bubble_ballot_config = options
+        .interpreters
+        .bubble_ballot_config()
+        .expect("always set for now");
+
+    let mut timing_marks =
+        ballot_card.find_timing_marks(bubble_ballot_config.timing_mark_algorithm)?;
+
+    if let Some(minimum_detected_scale) = bubble_ballot_config.minimum_detected_scale {
         ballot_card.check_minimum_scale(&timing_marks, minimum_detected_scale)?;
     }
 
@@ -378,9 +496,6 @@ pub fn ballot_card(
         options.election.ballot_layout.metadata_encoding,
         MetadataEncoding::QrCode
     );
-
-    // Find the metadata and validate it.
-    let mut decoded_qr_codes = ballot_card.decode_ballot_barcodes(&options.election)?;
 
     // If the pages are reversed, i.e. fed in bottom-first, we need to rotate
     // them so they're right-side up.
@@ -429,7 +544,7 @@ pub fn ballot_card(
 
     let scored_bubble_marks = ballot_card.score_bubble_marks(
         &timing_marks,
-        &options.bubble_template,
+        &bubble_ballot_config.bubble_template,
         grid_layout,
         sheet_number,
     );
@@ -437,7 +552,7 @@ pub fn ballot_card(
     let contest_layouts =
         ballot_card.build_page_layout(&timing_marks, grid_layout, sheet_number)?;
 
-    let write_in_area_scores = match options.write_in_scoring {
+    let write_in_area_scores = match bubble_ballot_config.write_in_scoring {
         WriteInScoring::Enabled => {
             ballot_card.score_write_in_areas(&timing_marks, grid_layout, sheet_number)
         }
@@ -471,7 +586,12 @@ pub fn ballot_card(
             }
         },
     )
-    .join(|front, back| Ok(InterpretedBallotCard { front, back }))
+    .join(|front, back| {
+        Ok(InterpretedBallotCard::BubbleBallot {
+            front: Box::new(front),
+            back: Box::new(back),
+        })
+    })
 }
 
 #[cfg(test)]
@@ -525,12 +645,14 @@ mod test {
         let options = Options {
             debug_side_a_base: None,
             debug_side_b_base: None,
-            bubble_template,
             election,
-            write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::Enabled,
-            timing_mark_algorithm: TimingMarkAlgorithm::default(),
-            minimum_detected_scale: None,
+            interpreters: BallotInterpreters::BubbleBallotOnly(BubbleBallotConfig {
+                bubble_template,
+                write_in_scoring: WriteInScoring::Enabled,
+                timing_mark_algorithm: TimingMarkAlgorithm::default(),
+                minimum_detected_scale: None,
+            }),
         };
         (side_a_image, side_b_image, options)
     }
@@ -554,12 +676,14 @@ mod test {
         let options = Options {
             debug_side_a_base: None,
             debug_side_b_base: None,
-            bubble_template,
             election,
-            write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::Enabled,
-            timing_mark_algorithm: TimingMarkAlgorithm::default(),
-            minimum_detected_scale: None,
+            interpreters: BallotInterpreters::BubbleBallotOnly(BubbleBallotConfig {
+                bubble_template,
+                write_in_scoring: WriteInScoring::Enabled,
+                timing_mark_algorithm: TimingMarkAlgorithm::default(),
+                minimum_detected_scale: None,
+            }),
         };
         (side_a_image, side_b_image, options)
     }
@@ -599,9 +723,13 @@ mod test {
     fn test_interpret_returns_binarized_images() {
         let (side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
-        let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
-        assert!(is_binary_image(&card.front.normalized_image));
-        assert!(is_binary_image(&card.back.normalized_image));
+        let InterpretedBallotCard::BubbleBallot { front, back } =
+            ballot_card(side_a_image, side_b_image, &options).unwrap()
+        else {
+            panic!("wrong interpretation type");
+        };
+        assert!(is_binary_image(&front.normalized_image));
+        assert!(is_binary_image(&back.normalized_image));
     }
 
     #[test]
@@ -766,11 +894,11 @@ mod test {
             })
             .into();
 
-        let interpretation =
-            ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
-
-        let front = interpretation.front;
-        let back = interpretation.back;
+        let InterpretedBallotCard::BubbleBallot { front, back } =
+            ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap()
+        else {
+            panic!("wrong interpretation type");
+        };
 
         // front has write-in contests, back doesn't
         assert!(!front.write_ins.is_empty());
@@ -786,14 +914,14 @@ mod test {
     fn test_high_rotation_is_rejected() {
         let (mut side_a_image, side_b_image, options) =
             load_ballot_card_fixture("vxqa-2024-10", ("rotation-front.png", "rotation-back.png"));
-        let interpretation =
-            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+        let InterpretedBallotCard::BubbleBallot { front, .. } =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap()
+        else {
+            panic!("wrong interpretation type");
+        };
 
         // remove timing marks to trigger rotation limiting
-        deface_ballot_by_removing_side_timing_marks(
-            &mut side_a_image,
-            &interpretation.front.timing_marks,
-        );
+        deface_ballot_by_removing_side_timing_marks(&mut side_a_image, &front.timing_marks);
 
         let _debug_image =
             DebugImage::write("debug__test_high_rotation_is_rejected.png", &side_a_image);
@@ -816,13 +944,13 @@ mod test {
     fn test_high_skew_is_rejected() {
         let (mut side_a_image, side_b_image, options) =
             load_ballot_card_fixture("vxqa-2024-10", ("skew-front.png", "skew-back.png"));
-        let interpretation =
-            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+        let InterpretedBallotCard::BubbleBallot { front, .. } =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap()
+        else {
+            panic!("wrong interpretation type");
+        };
 
-        deface_ballot_by_removing_side_timing_marks(
-            &mut side_a_image,
-            &interpretation.front.timing_marks,
-        );
+        deface_ballot_by_removing_side_timing_marks(&mut side_a_image, &front.timing_marks);
 
         let _debug_image =
             DebugImage::write("debug__test_high_skew_is_rejected.png", &side_a_image);
@@ -843,18 +971,29 @@ mod test {
             "104h-2025-04",
             ("imprinter-front.png", "imprinter-back.png"),
         );
-        let interpretation = ballot_card(
+        let InterpretedBallotCard::BubbleBallot { front, .. } = ballot_card(
             side_a_image.clone(),
             side_b_image.clone(),
             &Options {
-                timing_mark_algorithm: TimingMarkAlgorithm::Corners,
+                interpreters: BallotInterpreters::BubbleBallotOnly(BubbleBallotConfig {
+                    ..match options.interpreters {
+                        BallotInterpreters::BubbleBallotOnly(bubble_ballot_config) => {
+                            BubbleBallotConfig {
+                                timing_mark_algorithm: TimingMarkAlgorithm::Corners,
+                                ..bubble_ballot_config
+                            }
+                        }
+                        _ => panic!("unexpected interpreters"),
+                    }
+                }),
                 ..options
             },
         )
-        .unwrap();
+        .unwrap() else {
+            panic!("wrong interpretation type");
+        };
 
-        let marked_grid_positions = interpretation
-            .front
+        let marked_grid_positions = front
             .marks
             .iter()
             .filter_map(|(grid_position, scored_bubble)| {
@@ -924,7 +1063,13 @@ mod test {
         // Set a minimum scale of 98.5%.
         let minimum_detected_scale = UnitIntervalScore(0.985);
         let options = Options {
-            minimum_detected_scale: Some(minimum_detected_scale),
+            interpreters: BallotInterpreters::BubbleBallotOnly(match options.interpreters {
+                BallotInterpreters::BubbleBallotOnly(bubble_ballot_config) => BubbleBallotConfig {
+                    minimum_detected_scale: Some(minimum_detected_scale),
+                    ..bubble_ballot_config
+                },
+                _ => panic!("unexpected interpreters"),
+            }),
             ..options
         };
 
