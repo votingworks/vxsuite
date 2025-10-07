@@ -39,10 +39,6 @@ LOGO_PADDING_LEFT = 0.05        # 5% padding from left edge
 SQUARE_PADDING_TOP_BOTTOM = 0.10  # 10% padding above and below square
 SQUARE_PADDING_RIGHT = 0.05       # 5% padding from right edge
 
-# Textbox1 (VotingWorks) positioning
-TEXTBOX1_OVERLAP_WITH_LOGO = 0.03    # 3% overlap with logo (negative padding)
-TEXTBOX1_PADDING_FROM_SQUARE = 0.02  # 2% padding from square
-
 # Textbox2 (middle section) constraints
 TEXTBOX2_MAX_WIDTH_RATIO = 0.9  # 90% of hole center distance
 
@@ -50,6 +46,7 @@ TEXTBOX2_MAX_WIDTH_RATIO = 0.9  # 90% of hole center distance
 MIN_FONT_SIZE = 0.5
 MAX_FONT_SIZE = 20.0
 TEXTBOX1_MAX_FONT_SIZE = 50.0
+TEXTBOX1_LOGO_HEIGHT_PADDING = 0.05  # 1% padding for font height constraint
 
 # Line height multiplier
 LINE_HEIGHT_MULTIPLIER = 1.3
@@ -95,6 +92,10 @@ DEFAULT_CONFIG = {
         'hole_diameter': 4,
         'hole_center_distance': 70
     },
+    'layout': {
+        'textbox1_overlap_with_logo': -0.01,  # Negative means overlap
+        'textbox1_padding_from_square': 0.02
+    },
     'text': {
         'company_name': 'VotingWorks',
         'product_line': {
@@ -120,6 +121,29 @@ DEFAULT_CONFIG = {
 }
 
 # ============================================================================
+# YAML UTILITIES
+# ============================================================================
+
+def escape_yaml_string(text):
+    """Escape special characters in strings for YAML compatibility."""
+    if not text:
+        return text
+    
+    # Check if string needs quoting (contains special YAML chars)
+    special_chars = [':', '#', '{', '}', '[', ']', ',', '&', '*', '!', '|', '>', 
+                     '@', '`', '"', "'", '%', '\\', '\n', '\r', '\t']
+    
+    needs_quoting = any(special in text for special in special_chars)  # Changed 'char' to 'special'
+    starts_with_special = text and text[0] in ['-', '?', ' ']
+    
+    if needs_quoting or starts_with_special:
+        # Escape existing quotes and wrap in quotes
+        escaped = text.replace('"', '\\"')
+        return f'"{escaped}"'
+    
+    return text
+
+# ============================================================================
 # CONFIGURATION HANDLING
 # ============================================================================
 
@@ -140,9 +164,27 @@ def save_config_file(products_config):
     # Ensure assets directory exists
     os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
     
+    # Escape all text values before saving
+    escaped_products = {}
+    for product_name, config in products_config.items():
+        import copy
+        escaped_config = copy.deepcopy(config)
+        
+        # Escape text fields
+        if 'text' in escaped_config:
+            for key, value in escaped_config['text'].items():
+                if isinstance(value, str):
+                    escaped_config['text'][key] = escape_yaml_string(value)
+                elif isinstance(value, dict):
+                    for subkey, subvalue in value.items():
+                        if isinstance(subvalue, str):
+                            escaped_config['text'][key][subkey] = escape_yaml_string(subvalue)
+        
+        escaped_products[product_name] = escaped_config
+    
     try:
         with open(CONFIG_FILE, 'w') as f:
-            yaml.dump({'products': products_config}, f, default_flow_style=False, sort_keys=False)
+            yaml.dump({'products': escaped_products}, f, default_flow_style=False, sort_keys=False)
         return True
     except Exception as e:
         print(f"Error saving config file: {e}")
@@ -152,7 +194,7 @@ def save_config_file(products_config):
 def select_product_from_config(products):
     """Let user select a product from available configurations."""
     if not products:
-        return None
+        return None, False
     
     print("\n=== Available Product Configurations ===")
     product_list = list(products.keys())
@@ -168,9 +210,12 @@ def select_product_from_config(products):
             if 0 <= choice_idx < len(product_list):
                 selected_product = product_list[choice_idx]
                 print(f"\nUsing configuration for: {selected_product}")
-                return products[selected_product]
+                
+                # Ask if user wants to modify or use as-is
+                modify = input("Modify this configuration? [y/N]: ").strip().lower()
+                return products[selected_product], modify == 'y'
             elif choice_idx == len(product_list):
-                return None
+                return None, True
             else:
                 print("Invalid selection. Please try again.")
         except ValueError:
@@ -358,7 +403,7 @@ def create_text_element(x, y, text, font_family, font_size, text_anchor="start",
 def add_outline_and_holes(svg_parts, w, h, r, hd, cdist):
     """Add the outline rectangle and mounting holes to the SVG."""
     # Outline rectangle
-    svg_parts.append(create_svg_element('rect', x=0, y=0, width=w, height=h, 
+    svg_parts.append(create_svg_element('rect', id="outline", x=0, y=0, width=w, height=h, 
                                        rx=r, ry=r, fill=WHITE, stroke=RED, 
                                        stroke_width=STROKE_WIDTH))
     
@@ -424,8 +469,13 @@ def calculate_textbox3_font_size(text, width, fonts, max_font_size):
     
     return calculate_max_font_size(textbox3_metrics, width, max_font_size=max_font_size)
 
-def add_top_section(svg_parts, w, h, hd, y2_top, fonts, company_name):
+def add_top_section(svg_parts, w, h, hd, y2_top, fonts, company_name, config):
     """Add the top section containing logo, text, and square."""
+    # Get layout config
+    layout = config.get('layout', {})
+    textbox1_overlap = layout.get('textbox1_overlap_with_logo', -0.01)
+    textbox1_square_padding = layout.get('textbox1_padding_from_square', 0.02)
+    
     # Calculate logo position and size
     logo_available_height = y2_top * (1 - 2 * LOGO_PADDING_TOP_BOTTOM)
     logo_y_start = y2_top * LOGO_PADDING_TOP_BOTTOM
@@ -435,8 +485,8 @@ def add_top_section(svg_parts, w, h, hd, y2_top, fonts, company_name):
     logo_height = LOGO_ORIGINAL_HEIGHT * logo_scale
     
     # Add logo
-    svg_parts.append(f'  <g transform="translate({logo_x_start}, {logo_y_start}) scale({logo_scale})">')
-    svg_parts.append(f'    <path d="{LOGO_PATH_DATA}" fill="{BLACK}" stroke="none"/>')
+    svg_parts.append(f'  <g id="logo" transform="translate({logo_x_start}, {logo_y_start}) scale({logo_scale})">')
+    svg_parts.append(f'    <path id="logo-path" d="{LOGO_PATH_DATA}" fill="{BLACK}" stroke="none"/>')
     svg_parts.append('  </g>')
     
     # Calculate and add black square
@@ -445,14 +495,17 @@ def add_top_section(svg_parts, w, h, hd, y2_top, fonts, company_name):
     square_y = hole_top_y * SQUARE_PADDING_TOP_BOTTOM
     square_x = w - (w * SQUARE_PADDING_RIGHT) - square_size
     
-    svg_parts.append(create_svg_element('rect', x=square_x, y=square_y, 
+    svg_parts.append(create_svg_element('rect', id="square", x=square_x, y=square_y, 
                                        width=square_size, height=square_size,
                                        fill=BLACK, stroke="none"))
     
     # Calculate textbox1 (company name) font size and position
-    textbox1_x_start = logo_x_start + logo_width - (w * TEXTBOX1_OVERLAP_WITH_LOGO)
-    textbox1_x_end = square_x - (w * TEXTBOX1_PADDING_FROM_SQUARE)
+    textbox1_x_start = logo_x_start + logo_width - (w * textbox1_overlap)
+    textbox1_x_end = square_x - (w * textbox1_square_padding)
     textbox1_available_width = textbox1_x_end - (logo_x_start + logo_width)
+    
+    # Max font height constraint: logo height with 1% padding
+    max_font_height = logo_height * (1 - TEXTBOX1_LOGO_HEIGHT_PADDING)
     
     def textbox1_metrics(fs):
         # Assume "Voting" is bold and "Works" is regular for VotingWorks
@@ -465,6 +518,7 @@ def add_top_section(svg_parts, w, h, hd, y2_top, fonts, company_name):
         return (1, text_width, fs)
     
     font_size_textbox1 = calculate_max_font_size(textbox1_metrics, textbox1_available_width, 
+                                                max_height=max_font_height,
                                                 max_font_size=TEXTBOX1_MAX_FONT_SIZE)
     
     # Position text with bottom aligned to bottom of logo
@@ -472,28 +526,34 @@ def add_top_section(svg_parts, w, h, hd, y2_top, fonts, company_name):
     
     # Special handling for VotingWorks with bold "Voting"
     if company_name == "VotingWorks":
-        svg_parts.append(f'  <text x="{textbox1_x_start}" y="{logo_bottom_y}" '
+        svg_parts.append(f'  <text id="company-name" x="{textbox1_x_start}" y="{logo_bottom_y}" '
                         f'font-family="Roboto, sans-serif" font-size="{font_size_textbox1}" '
                         f'fill="black" text-anchor="start">')
         svg_parts.append(f'    <tspan font-weight="bold">Voting</tspan>Works')
         svg_parts.append('  </text>')
     else:
         svg_parts.append(create_text_element(textbox1_x_start, logo_bottom_y, company_name,
-                                            "Roboto, sans-serif", font_size_textbox1))
+                                            "Roboto, sans-serif", font_size_textbox1, id="company-name"))
 
 def add_middle_section(svg_parts, w, config, font_size, fonts, y2_top):
     """Add the middle section containing product info."""
     line_height = font_size * LINE_HEIGHT_MULTIPLIER
     text_config = config['text']
     
-    # Build lines that have content
-    lines = []
+    # Build lines that have content with standardized IDs
+    lines_data = []
+    line_ids = ['product-line', 'serial-line', 'rating-line']
+    id_index = 0
+    
     for line_key in ['product_line', 'version_line', 'serial_line', 'rating_line']:
         line_config = text_config.get(line_key, {})
         if line_config.get('label') or line_config.get('value'):
-            lines.append(line_config)
+            # Assign standardized ID
+            if id_index < len(line_ids):
+                lines_data.append((line_ids[id_index], line_config))
+                id_index += 1
     
-    if not lines:
+    if not lines_data:
         return
     
     # Calculate text widths for centering
@@ -511,13 +571,13 @@ def add_middle_section(svg_parts, w, config, font_size, fonts, y2_top):
                                       font_size, is_bold=line_config['value_bold'])
         return width
     
-    text_block_width = max(get_line_width(line) for line in lines)
+    text_block_width = max(get_line_width(line_config) for _, line_config in lines_data)
     x_start = (w - text_block_width) / 2.0
     
     # Render each line
     y_current = y2_top + font_size
-    for line_config in lines:
-        svg_parts.append(f'  <text x="{x_start}" y="{y_current}" '
+    for line_id, line_config in lines_data:
+        svg_parts.append(f'  <text id="{line_id}" x="{x_start}" y="{y_current}" '
                         f'font-family="Arial, sans-serif" font-size="{font_size}" '
                         f'fill="black" text-anchor="start">')
         
@@ -545,9 +605,11 @@ def add_bottom_section(svg_parts, lines, font_size, y3_top, padding_mm):
     x_start = padding_mm
     y_current = y3_top + font_size
     
-    for line in lines:
+    for i, line in enumerate(lines):
+        # Standardized IDs: warning-line-1, warning-line-2
         svg_parts.append(create_text_element(x_start, y_current, line,
-                                            "Arial, sans-serif", font_size))
+                                            "Arial, sans-serif", font_size, 
+                                            id=f"warning-line-{i+1}"))
         y_current += line_height
 
 # ============================================================================
@@ -606,7 +668,7 @@ def build_svg(config, fonts):
     
     # Add main components
     add_outline_and_holes(svg_parts, w, h, r, hd, cdist)
-    add_top_section(svg_parts, w, h, hd, y2_top, fonts, text_config.get('company_name', 'VotingWorks'))
+    add_top_section(svg_parts, w, h, hd, y2_top, fonts, text_config.get('company_name', 'VotingWorks'), config)
     add_middle_section(svg_parts, w, config, font_size_textbox2, fonts, y2_top)
     add_bottom_section(svg_parts, textbox3_lines, font_size_textbox3, 
                       y3_top, textbox3_side_padding_mm)
@@ -670,6 +732,18 @@ def prompt_configuration(base_config=None):
     config['dimensions']['hole_center_distance'] = prompt_float("Center distance between holes (mm)", 
                                                                default=config['dimensions']['hole_center_distance'], min_val=0.0)
     
+    # Get layout inputs
+    print("\n--- Layout ---")
+    if 'layout' not in config:
+        config['layout'] = {}
+    config['layout']['textbox1_overlap_with_logo'] = prompt_float(
+        "Textbox1 overlap with logo (negative=overlap, positive=gap)", 
+        default=config.get('layout', {}).get('textbox1_overlap_with_logo', -0.01))
+    config['layout']['textbox1_padding_from_square'] = prompt_float(
+        "Textbox1 padding from square", 
+        default=config.get('layout', {}).get('textbox1_padding_from_square', 0.02), 
+        min_val=0.0)
+    
     # Get text content inputs
     print("\n--- Text Content ---")
     config['text']['company_name'] = prompt_string("Company name", 
@@ -677,7 +751,7 @@ def prompt_configuration(base_config=None):
     
     # Product line
     print("\nProduct Line:")
-    config['text']['product_line']['label'] = prompt_string("  Label  ", 
+    config['text']['product_line']['label'] = prompt_string("  Label", 
                                                            default=config['text']['product_line']['label'])
     config['text']['product_line']['value'] = prompt_string("  Value", 
                                                            default=config['text']['product_line']['value'])
@@ -722,7 +796,7 @@ def prompt_configuration(base_config=None):
 
 def ensure_output_directory():
     """Ensure the output directory exists."""
-    outdir = os.path.join(".", "outputs", "templates")
+    outdir = os.path.join(".", "assets", "templates")
     os.makedirs(outdir, exist_ok=True)
     return outdir
 
@@ -752,12 +826,18 @@ def main():
     
     # Select or create configuration
     selected_config = None
+    should_modify = True
+    
     if products:
-        selected_config = select_product_from_config(products)
+        selected_config, should_modify = select_product_from_config(products)
     
     # Prompt for configuration
-    if selected_config:
-        print("\nUsing selected configuration as base. Press Enter to keep existing values.")
+    if selected_config and not should_modify:
+        # Use config as-is
+        print("\nUsing configuration without modifications.")
+        config = selected_config
+    elif selected_config and should_modify:
+        print("\nModifying selected configuration. Press Enter to keep existing values.")
         config = prompt_configuration(selected_config)
     else:
         print("\nNo configuration selected. Using defaults.")
@@ -788,7 +868,8 @@ def main():
     print(f"\nSaved: {outpath}")
     
     # Offer to save configuration
-    prompt_for_save(config, products)
+    if should_modify:
+        prompt_for_save(config, products)
 
 if __name__ == "__main__":
     main()
