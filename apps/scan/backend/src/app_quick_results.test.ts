@@ -58,8 +58,17 @@ test('getQuickResultsReportingUrl returns expected results when system setting f
         time: pollsTransitionTime,
       },
     });
-    // getQuickResultsReportingUrl should return an empty string when polls are open
+    expect(await apiClient.getQuickResultsReportingUrl()).toMatch(
+      /http:\/\/example-results-url\.com\/something\?p=[^&]+&s=[^&]+&c=[^&]+$/
+    );
+
+    await apiClient.pauseVoting();
     expect(await apiClient.getQuickResultsReportingUrl()).toEqual('');
+
+    await apiClient.resumeVoting();
+    expect(await apiClient.getQuickResultsReportingUrl()).toMatch(
+      /http:\/\/example-results-url\.com\/something\?p=[^&]+&s=[^&]+&c=[^&]+$/
+    );
 
     await apiClient.closePolls();
     expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
