@@ -48,11 +48,15 @@ export function PostPrintScreen({
   pollsTransitionType,
   isPostPollsTransition,
   initialPrintResult,
+  reportQuickResultsEnabled,
+  onViewReportResults,
 }: {
   electionDefinition: ElectionDefinition;
   pollsTransitionType: PollsTransitionType;
   isPostPollsTransition: boolean;
   initialPrintResult: PrintResult;
+  reportQuickResultsEnabled: boolean;
+  onViewReportResults: () => void;
 }): JSX.Element {
   // we start on index 1 because we printed the first report before transitioning to this screen
   const [printIndex, setPrintIndex] = useState(1);
@@ -137,6 +141,15 @@ export function PostPrintScreen({
             <Button onPress={() => printSection(0)} disabled={disablePrinting}>
               Reprint {getPollsReportTitle(pollsTransitionType)}
             </Button>
+            {['open_polls', 'close_polls'].includes(pollsTransitionType) &&
+              reportQuickResultsEnabled && (
+                <Button variant="primary" onPress={onViewReportResults}>
+                  Report{' '}
+                  {pollsTransitionType === 'open_polls'
+                    ? 'Polls Open'
+                    : 'Results'}
+                </Button>
+              )}
           </P>
         </CenteredText>
       </Screen>
@@ -172,7 +185,16 @@ export function PostPrintScreen({
                 disabled={disablePrinting}
               >
                 Reprint All Reports
-              </Button>
+              </Button>{' '}
+              {['open_polls', 'close_polls'].includes(pollsTransitionType) &&
+                reportQuickResultsEnabled && (
+                  <Button variant="primary" onPress={onViewReportResults}>
+                    Report{' '}
+                    {pollsTransitionType === 'open_polls'
+                      ? 'Polls Open'
+                      : 'Results'}
+                  </Button>
+                )}
             </P>
           </React.Fragment>
         ) : (

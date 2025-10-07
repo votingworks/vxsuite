@@ -496,18 +496,22 @@ function PollWorkerScreenContents({
       case 'view-reporting-qr-code':
         return (
           <Screen>
+            <h4 style={{ marginTop: 0 }}>
+              Scan the QR code to report{' '}
+              {pollsState === 'polls_closed_final' ? 'results' : 'polls open'}
+            </h4>
             <CenteredText>
               {getQuickResultsReportingUrlQuery.data && (
                 <div data-testid="quick-results-code">
                   <QrCode
                     value={getQuickResultsReportingUrlQuery.data}
-                    level="M"
-                    size={500}
+                    level="L"
+                    size={400}
                   />
                 </div>
               )}
               <br />
-              <Button onPress={showAllPollWorkerActions}>Back</Button>
+              <Button onPress={showAllPollWorkerActions}>Done</Button>
             </CenteredText>
           </Screen>
         );
@@ -518,6 +522,10 @@ function PollWorkerScreenContents({
             pollsTransitionType={pollWorkerFlowState.transitionType}
             electionDefinition={electionDefinition}
             initialPrintResult={pollWorkerFlowState.printResult}
+            reportQuickResultsEnabled={!!getQuickResultsReportingUrlQuery.data}
+            onViewReportResults={() =>
+              setPollWorkerFlowState({ type: 'view-reporting-qr-code' })
+            }
           />
         );
       /* istanbul ignore next - compile-time check for completeness @preserve */
@@ -525,6 +533,20 @@ function PollWorkerScreenContents({
         throwIllegalValue(pollWorkerFlowState, 'state');
     }
   }
+
+  const viewQrReportButton =
+    getQuickResultsReportingUrlQuery.data &&
+    ['polls_closed_final', 'polls_open'].includes(pollsState) ? (
+      <Button
+        onPress={() =>
+          setPollWorkerFlowState({ type: 'view-reporting-qr-code' })
+        }
+      >
+        {pollsInfo.pollsState === 'polls_closed_final'
+          ? 'Report Results'
+          : 'Report Polls Open'}
+      </Button>
+    ) : null;
 
   const commonActions = (
     <React.Fragment>
@@ -543,6 +565,7 @@ function PollWorkerScreenContents({
           loadPaperText="Load Printer Paper"
         />
       )}
+      {viewQrReportButton}
       <SignedHashValidationButton apiClient={apiClient} />
       <PowerDownButton />
     </React.Fragment>
@@ -649,18 +672,6 @@ function PollWorkerScreenContents({
               Polls are <Font weight="bold">closed</Font>. Voting is complete
               and the polls cannot be reopened.
             </P>
-            <ButtonGrid>
-              {getQuickResultsReportingUrlQuery.data && (
-                <Button
-                  onPress={() =>
-                    setPollWorkerFlowState({ type: 'view-reporting-qr-code' })
-                  }
-                >
-                  View Quick Results Code
-                </Button>
-              )}
-            </ButtonGrid>
-            <H5>Other Actions</H5>
             <ButtonGrid>{commonActions}</ButtonGrid>
           </Container>
         );
