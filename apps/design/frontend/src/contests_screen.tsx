@@ -33,7 +33,6 @@ import {
   Contests,
   DistrictId,
   ElectionId,
-  ElectionStringKey,
   Party,
   PartyId,
   safeParse,
@@ -70,7 +69,6 @@ import {
 import { generateId, reorderElement, replaceAtIndex } from './utils';
 import { RichTextEditor } from './rich_text_editor';
 import { useTitle } from './hooks/use_title';
-import * as api from './api';
 
 const ReorderableTr = styled.tr<{ isReordering: boolean }>`
   &:hover {
@@ -551,18 +549,6 @@ function ContestForm({
     string | null
   >(null);
 
-  const [titleUpdated, setTitleUpdated] = useState(false);
-  const [descriptionUpdated, setDescriptionUpdated] = useState(false);
-  const [termUpdated, setTermUpdated] = useState(false);
-  const [updatedCandidateNameIds, setUpdatedCandidateNameIds] = useState<
-    Set<string>
-  >(new Set());
-  const [updatedOptionLabelIds, setUpdatedOptionLabelIds] = useState<
-    Set<string>
-  >(new Set());
-
-  const ttsStringsDelete = api.ttsStringsDelete.useMutation().mutate;
-
   /* istanbul ignore next - @preserve */
   if (
     !(
@@ -607,50 +593,6 @@ function ContestForm({
           },
         }
       );
-
-      const invalidatedTtsEdits: Array<{
-        key: ElectionStringKey;
-        subkey: string;
-      }> = [];
-
-      if (titleUpdated) {
-        invalidatedTtsEdits.push({
-          key: ElectionStringKey.CONTEST_TITLE,
-          subkey: formContest.id,
-        });
-      }
-
-      if (termUpdated) {
-        invalidatedTtsEdits.push({
-          key: ElectionStringKey.CONTEST_TERM,
-          subkey: formContest.id,
-        });
-      }
-
-      if (descriptionUpdated) {
-        invalidatedTtsEdits.push({
-          key: ElectionStringKey.CONTEST_DESCRIPTION,
-          subkey: formContest.id,
-        });
-      }
-
-      for (const candidateId of updatedCandidateNameIds) {
-        invalidatedTtsEdits.push({
-          key: ElectionStringKey.CANDIDATE_NAME,
-          subkey: candidateId,
-        });
-      }
-
-      for (const optionId of updatedOptionLabelIds) {
-        invalidatedTtsEdits.push({
-          key: ElectionStringKey.CONTEST_OPTION_LABEL,
-          subkey: optionId,
-        });
-      }
-
-      if (invalidatedTtsEdits.length > 0) {
-        ttsStringsDelete({ electionId, keys: invalidatedTtsEdits });
-      }
     } else {
       createContestMutation.mutate(
         { electionId, newContest: formContest },
@@ -762,10 +704,7 @@ function ContestForm({
         <input
           type="text"
           value={contest.title}
-          onChange={(e) => {
-            setContest({ ...contest, title: e.target.value });
-            setTitleUpdated(true);
-          }}
+          onChange={(e) => setContest({ ...contest, title: e.target.value })}
           onBlur={(e) =>
             setContest({ ...contest, title: e.target.value.trim() })
           }
@@ -797,7 +736,7 @@ function ContestForm({
           { id: 'yesno', label: 'Ballot Measure' },
         ]}
         selectedOptionId={contest.type}
-        onChange={(type) => {
+        onChange={(type) =>
           setContest({
             ...(type === 'candidate'
               ? createBlankCandidateContest()
@@ -805,20 +744,8 @@ function ContestForm({
             id: contest.id,
             title: contest.title,
             districtId: contest.districtId,
-          });
-
-          setDescriptionUpdated(true);
-
-          if (contest.type === 'candidate') {
-            setUpdatedCandidateNameIds(
-              new Set(contest.candidates.map((c) => c.id))
-            );
-          } else {
-            setUpdatedOptionLabelIds(
-              new Set([contest.yesOption.id, contest.noOption.id])
-            );
-          }
-        }}
+          })
+        }
       />
 
       {contest.type === 'candidate' && (
@@ -864,10 +791,9 @@ function ContestForm({
             <input
               type="text"
               value={contest.termDescription ?? ''}
-              onChange={(e) => {
-                setContest({ ...contest, termDescription: e.target.value });
-                setTermUpdated(true);
-              }}
+              onChange={(e) =>
+                setContest({ ...contest, termDescription: e.target.value })
+              }
               onBlur={(e) =>
                 setContest({
                   ...contest,
@@ -916,18 +842,11 @@ function ContestForm({
                           value={candidate.firstName}
                           // eslint-disable-next-line jsx-a11y/no-autofocus
                           autoFocus
-                          onChange={(e) => {
+                          onChange={(e) =>
                             onNameChange(contest, candidate, index, {
                               first: e.target.value,
-                            });
-
-                            setUpdatedCandidateNameIds(
-                              new Set([
-                                ...updatedCandidateNameIds,
-                                candidate.id,
-                              ])
-                            );
-                          }}
+                            })
+                          }
                           onBlur={(e) =>
                             onNameChange(contest, candidate, index, {
                               first: e.target.value.trim() || undefined,
@@ -1020,21 +939,14 @@ function ContestForm({
                           icon="Delete"
                           variant="danger"
                           fill="transparent"
-                          onPress={() => {
+                          onPress={() =>
                             setContest({
                               ...contest,
                               candidates: contest.candidates.filter(
                                 (_, i) => i !== index
                               ),
-                            });
-
-                            setUpdatedCandidateNameIds(
-                              new Set([
-                                ...updatedCandidateNameIds,
-                                candidate.id,
-                              ])
-                            );
-                          }}
+                            })
+                          }
                         >
                           Remove
                         </Button>
@@ -1067,10 +979,9 @@ function ContestForm({
             <FieldName>Description</FieldName>
             <RichTextEditor
               initialHtmlContent={contest.description}
-              onChange={(htmlContent) => {
-                setContest({ ...contest, description: htmlContent });
-                setDescriptionUpdated(true);
-              }}
+              onChange={(htmlContent) =>
+                setContest({ ...contest, description: htmlContent })
+              }
             />
           </div>
 
@@ -1078,16 +989,12 @@ function ContestForm({
             <input
               type="text"
               value={contest.yesOption.label}
-              onChange={(e) => {
+              onChange={(e) =>
                 setContest({
                   ...contest,
                   yesOption: { ...contest.yesOption, label: e.target.value },
-                });
-
-                setUpdatedOptionLabelIds(
-                  new Set([...updatedOptionLabelIds, contest.yesOption.id])
-                );
-              }}
+                })
+              }
               autoComplete="off"
               style={{ width: '4rem' }}
             />
@@ -1097,16 +1004,12 @@ function ContestForm({
             <input
               type="text"
               value={contest.noOption.label}
-              onChange={(e) => {
+              onChange={(e) =>
                 setContest({
                   ...contest,
                   noOption: { ...contest.noOption, label: e.target.value },
-                });
-
-                setUpdatedOptionLabelIds(
-                  new Set([...updatedOptionLabelIds, contest.noOption.id])
-                );
-              }}
+                })
+              }
               autoComplete="off"
               style={{ width: '4rem' }}
             />
