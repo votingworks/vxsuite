@@ -19,6 +19,7 @@ import {
   ReportElectionInfo,
   ReportMetadata,
   TallyReportCardCounts,
+  Icons,
 } from '@votingworks/ui';
 import { useParams, Switch, Route, Redirect } from 'react-router-dom';
 import React, { useState } from 'react';
@@ -61,6 +62,29 @@ function getPollsStateColor(pollsState: PollsState) {
     default:
       throwIllegalValue(pollsState);
   }
+}
+
+function getPollsStatusText(
+  pollsOpenCount: number,
+  pollsPausedCount: number,
+  pollsClosedCount: number
+): JSX.Element | string {
+  const totalCount = pollsOpenCount + pollsPausedCount + pollsClosedCount;
+  if (pollsClosedCount > 0) {
+    return (
+      <span>
+        {`${pollsClosedCount} / ${totalCount} Closed `}
+        {pollsClosedCount >= totalCount && <Icons.Done color="success" />}
+      </span>
+    );
+  }
+  if (pollsPausedCount > 0) {
+    return `${pollsPausedCount} / ${totalCount} Paused `;
+  }
+  if (pollsOpenCount > 0) {
+    return `${pollsOpenCount} Open `;
+  }
+  return '-';
 }
 
 function ViewResultsSummaryScreen({
@@ -152,52 +176,60 @@ function ViewResultsSummaryScreen({
             <thead>
               <tr>
                 <TH>Precinct Name</TH>
-                <TH>Polls Open</TH>
-                <TH>Polls Paused</TH>
-                <TH>Polls Closed</TH>
+                <TH>Scanner Status</TH>
                 <TH>Results</TH>
               </tr>
             </thead>
             <tbody>
-              {pollsStatusData.election.precincts.map((precinct) => (
-                <tr key={precinct.id}>
-                  <TD>{precinct.name}</TD>
-                  <TD narrow>
-                    {precinctPollsStateCounts[precinct.id]?.['polls_open'] || 0}
-                  </TD>
-                  <TD narrow>
-                    {precinctPollsStateCounts[precinct.id]?.['polls_paused'] ||
-                      0}
-                  </TD>
-                  <TD narrow>
-                    {precinctPollsStateCounts[precinct.id]?.[
-                      'polls_closed_final'
-                    ] || 0}
-                  </TD>
-                  <TD>
-                    <LinkButton
-                      to={
-                        routes
-                          .election(electionId)
-                          .results.byPrecinctResults(precinct.id).path
-                      }
-                    >
-                      View Results
-                    </LinkButton>
-                  </TD>
-                </tr>
-              ))}
+              {pollsStatusData.election.precincts.map((precinct) => {
+                const pollsOpenCount =
+                  precinctPollsStateCounts[precinct.id]?.['polls_open'] || 0;
+                const pollsPausedCount =
+                  precinctPollsStateCounts[precinct.id]?.['polls_paused'] || 0;
+                const pollsClosedCount =
+                  precinctPollsStateCounts[precinct.id]?.[
+                    'polls_closed_final'
+                  ] || 0;
+                const totalCount =
+                  pollsOpenCount + pollsPausedCount + pollsClosedCount;
+                const allPollsClosed =
+                  totalCount === pollsClosedCount && totalCount > 0;
+
+                return (
+                  <tr key={precinct.id} style={{ height: '50px' }}>
+                    <TD>{precinct.name}</TD>
+                    <TD>
+                      {getPollsStatusText(
+                        pollsOpenCount,
+                        pollsPausedCount,
+                        pollsClosedCount
+                      )}
+                    </TD>
+                    <TD>
+                      {pollsClosedCount > 0 && (
+                        <LinkButton
+                          to={
+                            routes
+                              .election(electionId)
+                              .results.byPrecinctResults(precinct.id).path
+                          }
+                        >
+                          View {allPollsClosed ? '' : 'Partial'} Results
+                        </LinkButton>
+                      )}
+                    </TD>
+                  </tr>
+                );
+              })}
               {hasAllPrecinctData && (
                 <tr style={{ height: '50px' }} key="all-precincts">
                   <TD>Precinct Not Specified</TD>
-                  <TD narrow>
-                    {precinctPollsStateCounts['']?.['polls_open'] || 0}
-                  </TD>
-                  <TD narrow>
-                    {precinctPollsStateCounts['']?.['polls_paused'] || 0}
-                  </TD>
-                  <TD narrow>
-                    {precinctPollsStateCounts['']?.['polls_closed_final'] || 0}
+                  <TD>
+                    {getPollsStatusText(
+                      precinctPollsStateCounts[''].polls_open || 0,
+                      precinctPollsStateCounts[''].polls_paused || 0,
+                      precinctPollsStateCounts[''].polls_closed_final || 0
+                    )}
                   </TD>
                   <TD />
                 </tr>

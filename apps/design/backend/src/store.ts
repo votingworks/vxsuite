@@ -2113,6 +2113,22 @@ export class Store {
           election.election.precincts[1]?.id
         ),
       });
+      pollsStatus.push({
+        machineId: 'FAKE-CARO-03',
+        signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+        pollsState: 'polls_open',
+        precinctSelection: singlePrecinctSelectionFor(
+          election.election.precincts[2]?.id
+        ),
+      });
+      pollsStatus.push({
+        machineId: 'FAKE-CARO-02',
+        signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+        pollsState: 'polls_closed_final',
+        precinctSelection: singlePrecinctSelectionFor(
+          election.election.precincts[2]?.id
+        ),
+      });
     }
     return pollsStatus;
   }
