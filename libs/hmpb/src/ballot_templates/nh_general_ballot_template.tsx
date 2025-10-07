@@ -39,8 +39,6 @@ import {
   OptionInfo,
   AlignedBubble,
   WRITE_IN_OPTION_CLASS,
-  Box,
-  ContestHeader,
   QrCodeSlot,
 } from '../ballot_components';
 import {
@@ -54,9 +52,9 @@ import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { RenderScratchpad } from '../renderer';
-import { handCountInsigniaImageData } from './nh_images';
 import {
   allCaps,
+  HandCountInsignia,
   Instructions,
   NhBaseStyles,
 } from './nh_state_ballot_components';
@@ -81,15 +79,13 @@ export function Header({
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns:
-          election.type === 'primary' ? '1fr 1fr 1fr' : '1.8fr 1fr 0.6fr',
+        gridTemplateColumns: '1.8fr 1fr 0.6fr',
         alignItems: 'center',
       }}
     >
       <div>
         <div
           style={{
-            marginBottom: '0.25rem',
             fontWeight: 'bold',
             fontSize: '10pt',
             textAlign: 'center',
@@ -107,7 +103,7 @@ export function Header({
           flexDirection: 'column',
           justifyContent: 'space-evenly',
           alignSelf: 'stretch',
-          padding: election.type === 'primary' ? '0 5rem' : '0 2.5rem',
+          padding: '0 2.5rem',
         }}
       >
         {absenteeLabel && <h5>{absenteeLabel}</h5>}
@@ -177,25 +173,41 @@ const arrowNextPage = (
   </svg>
 );
 
-function Footer({ isHandCount }: { isHandCount: boolean }): JSX.Element {
+function Footer({
+  pageNumber,
+  isHandCount,
+}: {
+  pageNumber: number;
+  isHandCount: boolean;
+}): JSX.Element {
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: '1rem',
-        justifyContent: 'space-around',
       }}
     >
       {!isHandCount && (
-        <div>
+        <div style={{ justifySelf: 'start' }}>
           <QrCodeSlot />
         </div>
       )}
-      <div style={{ fontSize: '20pt', fontWeight: 'bold', height: '0.9em' }}>
-        BALLOT CONTINUES ON BACK - TURN OVER
-      </div>
-      {arrowNextPage}
+      {pageNumber === 1 && (
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            justifyContent: 'space-evenly',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ fontSize: '20pt', fontWeight: 'bold' }}>
+            BALLOT CONTINUES ON BACK - TURN OVER
+          </div>
+          {arrowNextPage}
+        </div>
+      )}
     </div>
   );
 }
@@ -203,7 +215,6 @@ function Footer({ isHandCount }: { isHandCount: boolean }): JSX.Element {
 function BallotPageFrame({
   election,
   ballotStyleId,
-  precinctId,
   ballotType,
   ballotMode,
   pageNumber,
@@ -275,8 +286,11 @@ function BallotPageFrame({
               }}
             >
               {children}
+              {isHandCount && pageNumber === totalPages && (
+                <HandCountInsignia election={election} />
+              )}
             </div>
-            <Footer isHandCount={isHandCount} />
+            <Footer pageNumber={pageNumber} isHandCount={isHandCount} />
           </div>
         </TimingMarkGrid>
       </Page>
@@ -287,7 +301,6 @@ function BallotPageFrame({
 const rowStyles = css`
   display: grid;
   grid-template-columns: 0.8fr repeat(3, 1fr) 0.85fr;
-  column-gap: 1px;
 `;
 
 const CandidateContestSectionHeaderContainer = styled.div`
@@ -295,12 +308,14 @@ const CandidateContestSectionHeaderContainer = styled.div`
   > div {
     background-color: ${Colors.BLACK};
     color: ${Colors.WHITE};
+    &:not(:last-child) {
+      border-right: 1px solid ${Colors.WHITE};
+    }
     text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: 0.375rem;
-    padding-bottom: 0;
+    padding: 0.125rem;
     font-weight: bold;
     line-height: 0.9;
     font-size: 14pt;
@@ -324,24 +339,25 @@ function CandidateContestSectionHeader(): JSX.Element {
 }
 
 const CandidateContestRow = styled.div`
-  background-color: ${Colors.BLACK};
   ${rowStyles}
   border-bottom: 2.5px solid ${Colors.BLACK};
   &:last-child {
     border-bottom-width: 1px;
   }
+  > div:not(:last-child) {
+    border-right: 1px solid ${Colors.BLACK};
+  }
 `;
 
-const CandidateListCell = styled.div`
-  background-color: ${Colors.WHITE};
-`;
+const CandidateListCell = styled.div``;
 
 const ContestTitleCell = styled.div`
-  background-color: ${Colors.WHITE};
   line-height: 1;
   text-align: center;
   min-width: 0;
   padding: 0.375rem 0.25rem;
+  display: flex;
+  align-items: center;
 `;
 
 function CandidateList({
@@ -377,7 +393,10 @@ function CandidateList({
             key={candidate.id}
             style={{
               padding: '0.375rem 0.375rem',
-              height: '2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              height: '3rem',
             }}
           >
             <div
@@ -386,6 +405,7 @@ function CandidateList({
                 gap: '0.375rem',
                 justifyContent: 'end',
                 textAlign: 'right',
+                alignItems: 'center',
               }}
             >
               <div style={{ position: 'relative', width: '100%' }}>
@@ -396,7 +416,7 @@ function CandidateList({
                       position: 'absolute',
                       width: '100%',
                       textAlign: 'center',
-                      top: '-1.125em',
+                      top: '-0.75em',
                     }}
                   >
                     {electionStrings.partyName(party)}
@@ -421,7 +441,7 @@ function CandidateContest({
   contest: CandidateContestStruct;
 }) {
   const voteForText = {
-    1: hmpbStrings.hmpbVoteFor1,
+    1: hmpbStrings.hmpbVoteForNotMoreThan1,
     2: hmpbStrings.hmpbVoteFor2,
     3: hmpbStrings.hmpbVoteFor3,
     4: hmpbStrings.hmpbVoteFor4,
@@ -472,15 +492,19 @@ function CandidateContest({
   return (
     <CandidateContestRow>
       <ContestTitleCell>
-        <div style={{ fontSize: '8pt', marginBottom: '0.125rem' }}>For</div>
-        <h3>{electionStrings.contestTitle(contest)}</h3>
-        <div style={{ fontSize: '8.75pt' }}>{voteForText}</div>
-        {willBeElectedText && (
-          <div style={{ fontSize: '8.75pt' }}>{willBeElectedText}</div>
-        )}
-        {contest.termDescription && (
-          <div>{electionStrings.contestTerm(contest)}</div>
-        )}
+        <div>
+          <div style={{ fontSize: '8pt' }}>For</div>
+          <h3 style={{ marginBottom: '0.125rem' }}>
+            {electionStrings.contestTitle(contest)}
+          </h3>
+          <div style={{ fontSize: '8.75pt' }}>{voteForText}</div>
+          {willBeElectedText && (
+            <div style={{ fontSize: '8.75pt' }}>{willBeElectedText}</div>
+          )}
+          {contest.termDescription && (
+            <div>{electionStrings.contestTerm(contest)}</div>
+          )}
+        </div>
       </ContestTitleCell>
       <CandidateListCell>
         <CandidateList
@@ -537,16 +561,19 @@ function CandidateContest({
                   style={{
                     display: 'flex',
                     padding: '0.375rem 0.375rem',
-                    height: '2rem',
+                    height: '3rem',
+                    alignItems: 'center',
                   }}
                 >
                   <div
                     style={{
+                      alignSelf: 'start',
                       flex: 1,
                       fontSize: '7.5pt',
                       padding: '0.125rem',
-                      marginTop: '1rem',
                       textAlign: 'right',
+                      lineHeight: 1,
+                      marginTop: '1.5rem',
                     }}
                   >
                     {electionStrings.contestTitle(contest)}
@@ -570,93 +597,57 @@ function CandidateContest({
 
 function BallotMeasureContestSectionHeader() {
   return (
-    <div
-      style={{
-        borderTop: `2px solid ${Colors.DARKER_GRAY}`,
-        borderBottom: `2px solid ${Colors.DARKER_GRAY}`,
-      }}
-    >
-      <ContestHeader
-        style={{
-          fontFamily: 'Helvetica Condensed',
-          backgroundColor: Colors.DARKER_GRAY,
-          color: Colors.WHITE,
-        }}
-      >
-        <h3>Constitutional Amendment Questions</h3>
-        <div>Constitutional Amendments Proposed by the General Court </div>
-      </ContestHeader>
+    <div style={{ textAlign: 'center' }}>
+      <h2>Constitutional Amendment Questions</h2>
+      <h3>Constitutional Amendments Proposed by the General Court </h3>
     </div>
   );
 }
 
 function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
   return (
-    <Box
-      style={{
-        padding: 0,
-        fontFamily: 'Helvetica Condensed',
-        borderTopWidth: '0',
-      }}
-    >
-      {/* <ContestHeader>
-        <h4>{electionStrings.contestTitle(contest)}</h4>
-      </ContestHeader> */}
+    <div>
       <div
         style={{
+          paddingTop: '1rem',
           display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
           gap: '0.25rem',
         }}
       >
-        <div
-          style={{
-            padding: '0.5rem 0.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
-          }}
+        <RichText
+          tableBorderWidth={'1px'}
+          tableBorderColor={Colors.DARKER_GRAY}
+          tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
         >
-          <RichText
-            tableBorderWidth={'1px'}
-            tableBorderColor={Colors.DARKER_GRAY}
-            tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
-          >
-            1. {contest.description}
-          </RichText>
-        </div>
-        <ul
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'end',
-          }}
-        >
-          {[contest.yesOption, contest.noOption].map((option) => (
-            <li
-              key={option.id}
-              style={{
-                padding: '0.375rem 0.5rem',
-                borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
-                borderLeft: `1px solid ${Colors.LIGHT_GRAY}`,
-              }}
-            >
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <AlignedBubble
-                  optionInfo={{
-                    type: 'option',
-                    contestId: contest.id,
-                    optionId: option.id,
-                  }}
-                />
-                <strong>{electionStrings.contestOptionLabel(option)}</strong>
-              </div>
-            </li>
-          ))}
-        </ul>
+          1. {contest.description}
+        </RichText>
       </div>
-    </Box>
+      <ul
+        style={{
+          display: 'flex',
+          justifyContent: 'end',
+          gap: '3rem',
+        }}
+      >
+        {[contest.yesOption, contest.noOption].map((option) => (
+          <li key={option.id}>
+            <div
+              style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}
+            >
+              <h3>{electionStrings.contestOptionLabel(option)}</h3>
+              <AlignedBubble
+                optionInfo={{
+                  type: 'option',
+                  contestId: contest.id,
+                  optionId: option.id,
+                }}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -794,29 +785,6 @@ async function BallotPageContent(
       error: 'contestTooLong',
       contest: contestsLeftToLayout[0],
     });
-  }
-
-  // Add hand-count insignia
-  if (contestsLeftToLayout.length === 0) {
-    pageSections.push(
-      <div
-        key="hand-count-insignia"
-        style={{
-          display: 'flex',
-          justifyContent: 'end',
-        }}
-      >
-        <div
-          style={{
-            backgroundImage: `url(${handCountInsigniaImageData})`,
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-            height: '20rem',
-            width: '15rem',
-          }}
-        />
-      </div>
-    );
   }
 
   const currentPageElement =
