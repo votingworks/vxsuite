@@ -1,6 +1,5 @@
 import { z } from 'zod/v4';
 
-import { ElectionStringKey } from './ui_string_translations';
 import {
   IpaPhoneme,
   IpaPhonemeSchema,
@@ -43,20 +42,18 @@ export const PhoneticWordSchema: z.ZodType<PhoneticWord> = z.object({
 export const PhoneticWordsSchema = z.array(PhoneticWordSchema);
 
 /**
- * Unique key identifying a given TTS string in storage.
+ * Unique key identifying user edits for a given TTS string in storage.
  */
-export interface TtsStringKey {
+export interface TtsEditKey {
   electionId: string;
-  key: ElectionStringKey;
   languageCode: string;
-  subkey?: string;
+  original: string;
 }
 
-export const TtsStringKeySchema: z.ZodType<TtsStringKey> = z.object({
+export const TtsEditKeySchema: z.ZodType<TtsEditKey> = z.object({
   electionId: z.string(),
-  key: z.enum(ElectionStringKey),
   languageCode: z.string(),
-  subkey: z.string().optional(),
+  original: z.string(),
 });
 
 const ExportSourceSchema = z.enum(['phonetic', 'text']);
@@ -68,15 +65,15 @@ const ExportSourceSchema = z.enum(['phonetic', 'text']);
 export type TtsExportSource = z.infer<typeof ExportSourceSchema>;
 
 /**
- * Speech synthesis inputs for a given election string.
+ * Speech synthesis edits for a given election string.
  */
-export interface TtsString {
+export interface TtsEdit {
   exportSource: TtsExportSource;
   phonetic: PhoneticWord[];
   text: string;
 }
 
-export const TtsStringSchema: z.ZodType<TtsString> = z.object({
+export const TtsEditSchema: z.ZodType<TtsEdit> = z.object({
   exportSource: ExportSourceSchema,
   phonetic: z.array(PhoneticWordSchema),
   text: z.string(),
