@@ -3,6 +3,7 @@ import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import {
   ElectionDefinition,
+  PollsState,
   PrecinctSelection,
   Tabulation,
   safeParseInt,
@@ -37,10 +38,13 @@ interface SignedQuickResultsReportingInput {
   results: Tabulation.ElectionResults;
   signingMachineId: string;
   precinctSelection: PrecinctSelection;
+  pollsState: PollsState;
 }
 
 const CERT_PEM_HEADER = '-----BEGIN CERTIFICATE-----';
 const CERT_PEM_FOOTER = '-----END CERTIFICATE-----';
+
+const REPORTABLE_POLL_STATES = ['polls_open', 'polls_closed_final'];
 
 /**
  * The separator between parts of the signed quick results reporting message payload.
@@ -80,13 +84,17 @@ export function encodeQuickResultsMessage(components: {
   timestamp: number;
   compressedTally: string;
   precinctSelection: PrecinctSelection;
+  pollsState: PollsState;
 }): string {
   const messagePayloadParts = [
     safeEncodeForUrl(components.ballotHash),
     safeEncodeForUrl(components.signingMachineId),
     components.isLiveMode ? '1' : '0',
     components.timestamp.toString(),
-    components.compressedTally,
+    // When polls are closed we send results, otherwise we can reuse this field for the poll state.
+    components.compressedTally === ''
+      ? components.pollsState
+      : components.compressedTally,
     components.precinctSelection.kind === 'SinglePrecinct'
       ? safeEncodeForUrl(components.precinctSelection.precinctId)
       : '',
@@ -108,6 +116,7 @@ export function decodeQuickResultsMessage(payload: string): {
   signedTimestamp: Date;
   encodedCompressedTally: string;
   precinctSelection: PrecinctSelection;
+  pollsState: PollsState;
 } {
   const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
 
@@ -145,6 +154,11 @@ export function decodeQuickResultsMessage(payload: string): {
     throw new Error('Invalid timestamp format');
   }
   const timestampNumber = timestampResult.ok();
+  // If the tally is a tally it will be base64 encoded, otherwise it will be a plaintext string with the poll state.
+  const pollsState =
+    encodedCompressedTally === 'polls_open'
+      ? 'polls_open'
+      : 'polls_closed_final';
 
   return {
     ballotHash: safeDecodeFromUrl(ballotHashEncoded),
@@ -155,6 +169,7 @@ export function decodeQuickResultsMessage(payload: string): {
     isLive: isLiveModeStr === '1',
     signedTimestamp: new Date(timestampNumber * 1000),
     encodedCompressedTally,
+    pollsState,
   };
 }
 
@@ -170,19 +185,26 @@ export async function generateSignedQuickResultsReportingUrl(
     results,
     signingMachineId,
     precinctSelection,
+    pollsState,
   }: SignedQuickResultsReportingInput,
   configOverride?: SignedQuickResultsReportingConfig
 ): Promise<string> {
+  if (!REPORTABLE_POLL_STATES.includes(pollsState)) {
+    return '';
+  }
   const config =
     configOverride ??
     /* istanbul ignore next - @preserve */ constructSignedQuickResultsReportingConfig();
 
   const { ballotHash, election } = electionDefinition;
-  const compressedTally = compressAndEncodeTally({
-    election,
-    results,
-    precinctSelection,
-  });
+  const compressedTally =
+    pollsState === 'polls_closed_final'
+      ? compressAndEncodeTally({
+          election,
+          results,
+          precinctSelection,
+        })
+      : '';
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
 
   const messagePayload = encodeQuickResultsMessage({
@@ -191,6 +213,7 @@ export async function generateSignedQuickResultsReportingUrl(
     isLiveMode,
     timestamp: secondsSince1970,
     compressedTally,
+    pollsState,
     precinctSelection,
   });
   const message = constructPrefixedMessage(QR_MESSAGE_FORMAT, messagePayload);
