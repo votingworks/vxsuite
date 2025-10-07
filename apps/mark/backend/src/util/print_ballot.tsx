@@ -52,12 +52,6 @@ async function printMarkOverlay(p: PrintBallotProps): Promise<void> {
   const { electionDefinition } = assertDefined(p.store.getElectionRecord());
   const { election } = electionDefinition;
 
-  const size = election.ballotLayout.paperSize;
-  assert(
-    size === 'letter' || size === 'legal',
-    `${size} paper size not yet supported for pre-printed ballot marking`
-  );
-
   const stream = generateMarkOverlay(
     election,
     p.ballotStyleId,
@@ -76,6 +70,6 @@ async function printMarkOverlay(p: PrintBallotProps): Promise<void> {
   return p.printer.print({
     data: new Uint8Array(pdf.buffer, pdf.byteOffset, pdf.length),
     sides: PrintSides.TwoSidedLongEdge,
-    size,
+    size: election.ballotLayout.paperSize,
   });
 }

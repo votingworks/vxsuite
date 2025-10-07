@@ -91,33 +91,6 @@ describe(`printMode === "bubble_marks"`, () => {
       ],
     ]);
   });
-
-  const testInvalidSizes = test.each<HmpbBallotPaperSize>([
-    HmpbBallotPaperSize.Custom17,
-    HmpbBallotPaperSize.Custom19,
-    HmpbBallotPaperSize.Custom22,
-  ]);
-
-  testInvalidSizes('throws for unsupported paper size - %s', async (size) => {
-    const electionDefinition = mockElection({ paperSize: size });
-
-    await expect(() =>
-      printBallot({
-        ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-        languageCode: 'unused',
-        precinctId: 'unused',
-        printer: mockPrinter({}),
-        store: mockStore({
-          getElectionRecord: () => ({
-            electionDefinition,
-            electionPackageHash: 'unused',
-          }),
-          getPrintMode: () => 'bubble_marks',
-        }),
-        votes: { foo: ['yes'] },
-      })
-    ).rejects.toThrow(/paper size not yet supported/);
-  });
 });
 
 describe(`printMode === "summary"`, () => {

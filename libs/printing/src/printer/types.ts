@@ -1,4 +1,4 @@
-import { PrinterStatus } from '@votingworks/types';
+import { HmpbBallotPaperSize, PrinterStatus } from '@votingworks/types';
 
 export enum PrintSides {
   /**
@@ -21,10 +21,12 @@ export enum PrintSides {
   TwoSidedShortEdge = 'two-sided-short-edge',
 }
 
+export type PaperSize = `${HmpbBallotPaperSize}`;
+
 export interface PrintOptions {
   copies?: number;
   sides?: PrintSides;
-  size?: 'letter' | 'legal';
+  size?: PaperSize;
   raw?: { [key: string]: string };
 }
 
