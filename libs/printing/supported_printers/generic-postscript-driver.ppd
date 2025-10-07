@@ -46,6 +46,9 @@
 *PageSize EnvC5/Envelope C5: "<</PageSize[459 649]/ImagingBBox null>>setpagedevice"
 *PageSize EnvDL/Envelope DL: "<</PageSize[312 624]/ImagingBBox null>>setpagedevice"
 *PageSize EnvMonarch/Envelope Monarch: "<</PageSize[279 540]/ImagingBBox null>>setpagedevice"
+*PageSize Custom-8.5x17/Custom 8.5x17: "<</PageSize[612 1224]/ImagingBBox null>>setpagedevice"
+*PageSize Custom-8.5x19/Custom 8.5x19: "<</PageSize[612 1368]/ImagingBBox null>>setpagedevice"
+*PageSize Custom-8.5x22/Custom 8.5x22: "<</PageSize[612 1584]/ImagingBBox null>>setpagedevice"
 *CloseUI: *PageSize
 *OpenUI *PageRegion/Media Size: PickOne
 *OrderDependency: 10 AnySetup *PageRegion
@@ -63,6 +66,9 @@
 *PageRegion EnvC5/Envelope C5: "<</PageSize[459 649]/ImagingBBox null>>setpagedevice"
 *PageRegion EnvDL/Envelope DL: "<</PageSize[312 624]/ImagingBBox null>>setpagedevice"
 *PageRegion EnvMonarch/Envelope Monarch: "<</PageSize[279 540]/ImagingBBox null>>setpagedevice"
+*PageRegion Custom-8.5x17/Custom 8.5x17: "<</PageSize[612 1224]/ImagingBBox null>>setpagedevice"
+*PageRegion Custom-8.5x19/Custom 8.5x19: "<</PageSize[612 1368]/ImagingBBox null>>setpagedevice"
+*PageRegion Custom-8.5x22/Custom 8.5x22: "<</PageSize[612 1584]/ImagingBBox null>>setpagedevice"
 *CloseUI: *PageRegion
 *DefaultImageableArea: Letter
 *ImageableArea Letter/US Letter: "12 12 600 780"
@@ -78,6 +84,9 @@
 *ImageableArea EnvC5/Envelope C5: "12 12 447 637"
 *ImageableArea EnvDL/Envelope DL: "12 12 300 612"
 *ImageableArea EnvMonarch/Envelope Monarch: "12 12 267 528"
+*ImageableArea Custom-8.5x17/Custom 8.5x17: "12 12 600 1212"
+*ImageableArea Custom-8.5x19/Custom 8.5x19: "12 12 600 1356"
+*ImageableArea Custom-8.5x22/Custom 8.5x22: "12 12 600 1572"
 *DefaultPaperDimension: Letter
 *PaperDimension Letter/US Letter: "612 792"
 *PaperDimension Legal/US Legal: "612 1008"
@@ -92,6 +101,9 @@
 *PaperDimension EnvC5/Envelope C5: "459 649"
 *PaperDimension EnvDL/Envelope DL: "312 624"
 *PaperDimension EnvMonarch/Envelope Monarch: "279 540"
+*PaperDimension Custom-8.5x17/Custom 8.5x17: "612 1224"
+*PaperDimension Custom-8.5x19/Custom 8.5x19: "612 1368"
+*PaperDimension Custom-8.5x22/Custom 8.5x22: "612 1584"
 *OpenUI *InputSlot/Media Source: PickOne
 *OrderDependency: 10 AnySetup *InputSlot
 *DefaultInputSlot: Default
