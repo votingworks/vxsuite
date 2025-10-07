@@ -8,7 +8,7 @@ use image::GrayImage;
 use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
-use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
+use types_rs::election::{BallotStyleId, Election, PrecinctId};
 use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
 use types_rs::pair::Pair;
@@ -373,11 +373,6 @@ pub fn ballot_card(
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {
         ballot_card.check_minimum_scale(&timing_marks, minimum_detected_scale)?;
     }
-
-    debug_assert_eq!(
-        options.election.ballot_layout.metadata_encoding,
-        MetadataEncoding::QrCode
-    );
 
     // Find the metadata and validate it.
     let mut decoded_qr_codes = ballot_card.decode_ballot_barcodes(&options.election)?;

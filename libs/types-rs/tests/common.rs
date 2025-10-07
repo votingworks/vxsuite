@@ -3,9 +3,9 @@ use proptest::prelude::*;
 use types_rs::{
     ballot_card::BallotType,
     election::{
-        BallotLayout, BallotStyle, BallotStyleGroupId, BallotStyleId, Candidate, CandidateContest,
-        Contest, ContestId, DistrictId, Election, MetadataEncoding, NamedCandidate, OptionId,
-        Precinct, PrecinctId, YesNoContest, YesNoOption,
+        BallotStyle, BallotStyleGroupId, BallotStyleId, Candidate, CandidateContest, Contest,
+        ContestId, DistrictId, Election, NamedCandidate, OptionId, Precinct, PrecinctId,
+        YesNoContest, YesNoOption,
     },
 };
 
@@ -26,9 +26,6 @@ pub fn simple_election() -> Election {
         }],
         grid_layouts: None,
         mark_thresholds: None,
-        ballot_layout: BallotLayout {
-            metadata_encoding: MetadataEncoding::QrCode,
-        },
         contests: vec![
             Contest::Candidate(CandidateContest {
                 id: ContestId::from("cc-1".to_owned()),
