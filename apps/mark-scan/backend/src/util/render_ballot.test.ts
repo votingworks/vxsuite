@@ -1,5 +1,4 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import * as assert from 'node:assert';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   makeTemporaryDirectory,
@@ -7,46 +6,23 @@ import {
   systemSettings,
 } from '@votingworks/fixtures';
 import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
-import {
-  getPdfPageCount,
-  PdfPage,
-  pdfToImages,
-} from '@votingworks/image-utils';
+import { getPdfPageCount } from '@votingworks/image-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { ImageData } from 'canvas';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import {
   getLayout,
   NoLayoutOptionError,
   ORDERED_BMD_BALLOT_LAYOUTS,
 } from '@votingworks/ui';
-import { err, ok } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import { renderBallot } from './render_ballot';
 import { createWorkspace, Workspace } from './workspace';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
 
-async function* mockPdfToImages(pageCount: number): AsyncIterable<PdfPage> {
-  await Promise.resolve();
-
-  for (let i = 0; i < pageCount; i += 1) {
-    yield {
-      pageNumber: i + 1, // pageNumber is 1-indexed
-      pageCount,
-      page: new ImageData(1, 1),
-    };
-  }
-}
-
 vi.mock(import('@votingworks/image-utils'), async (importActual) => ({
   ...(await importActual()),
-  pdfToImages: vi.fn().mockImplementation(() => {
-    throw new Error('Unexpected call to pdfToImages during this test');
-  }),
-  parsePdf: vi.fn().mockImplementation(() => {
-    throw new Error('Unexpected call to parsePdf during this test');
-  }),
   getPdfPageCount: vi.fn().mockImplementation(() => {
     throw new Error('Unexpected call to getPdfPageCount during this test');
   }),
@@ -58,6 +34,7 @@ vi.mock(import('@votingworks/ui'), async (importActual) => ({
 }));
 
 const precinctId = electionGeneralDefinition.election.precincts[1].id;
+const ballotStyleId = electionGeneral.ballotStyles[0].id;
 
 let workspace: Workspace;
 
@@ -76,50 +53,81 @@ beforeEach(() => {
   workspace.store.setTestMode(true);
 });
 
-test("throws an error if a single page can't be rendered after max retries", async () => {
-  vi.mocked(getLayout).mockImplementation(() =>
-    ok(ORDERED_BMD_BALLOT_LAYOUTS.mark[0])
+test('tries as many layouts as necessary and proceeds with the first that works', async () => {
+  vi.mocked(getLayout).mockImplementation(
+    (_machineType, _ballotStyleId, _electionDefinition, i) => {
+      assert(i !== undefined);
+      return i >= ORDERED_BMD_BALLOT_LAYOUTS.markScan.length
+        ? err(new NoLayoutOptionError(0, 0, 'markScan'))
+        : ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[i]);
+    }
+  );
+  vi.mocked(getPdfPageCount).mockImplementationOnce(() => Promise.resolve(2));
+  vi.mocked(getPdfPageCount).mockImplementationOnce(() => Promise.resolve(2));
+  vi.mocked(getPdfPageCount).mockImplementationOnce(() => Promise.resolve(1));
+
+  await renderBallot({
+    store: workspace.store,
+    precinctId,
+    ballotStyleId,
+    votes: {},
+    languageCode: TestLanguageCode.ENGLISH,
+  });
+
+  expect(getLayout).toHaveBeenCalledTimes(3);
+});
+
+test('tries all layouts beginning with the least compacted layout and errors if none work', async () => {
+  vi.mocked(getLayout).mockImplementation(
+    (_machineType, _ballotStyleId, _electionDefinition, i) => {
+      assert(i !== undefined);
+      return i >= ORDERED_BMD_BALLOT_LAYOUTS.markScan.length
+        ? err(new NoLayoutOptionError(0, 0, 'markScan'))
+        : ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[i]);
+    }
   );
   vi.mocked(getPdfPageCount).mockImplementation(() => Promise.resolve(2));
 
-  const { store } = workspace;
-  const ballotStyleId = electionGeneral.ballotStyles[0].id;
-
-  let error: Error | undefined;
-  try {
-    await renderBallot({
-      store,
-      precinctId,
-      ballotStyleId,
-      votes: {},
-      languageCode: TestLanguageCode.ENGLISH,
-    });
-  } catch (e) {
-    assert.ok(e instanceof Error);
-    error = e;
-  }
-
-  expect(error?.message).toEqual(
-    'Unable to render ballot contents in a single page'
-  );
-});
-
-test('short circuits if getLayout returns an error', async () => {
-  vi.mocked(getLayout).mockImplementation(() =>
-    err(new NoLayoutOptionError(10, 10, 'markScan'))
-  );
-  vi.mocked(pdfToImages).mockImplementation(() => mockPdfToImages(1));
-
-  const { store } = workspace;
-  const ballotStyleId = electionGeneral.ballotStyles[0].id;
-
   await expect(
     renderBallot({
-      store,
+      store: workspace.store,
       precinctId,
       ballotStyleId,
       votes: {},
       languageCode: TestLanguageCode.ENGLISH,
     })
   ).rejects.toThrow('Unable to render ballot contents in a single page');
+
+  expect(getLayout).toHaveBeenCalledTimes(
+    ORDERED_BMD_BALLOT_LAYOUTS.markScan.length
+  );
+});
+
+test('tries all layouts beginning with a slightly compacted layout and errors if none work', async () => {
+  vi.mocked(getLayout).mockImplementation(
+    (_machineType, _ballotStyleId, _electionDefinition, i) => {
+      assert(i !== undefined);
+      // getLayout picks a first layout to try given the nature of the election itself, e.g., if
+      // there are many contests, we don't even try the least compacted layout
+      const iAdjusted = i + 2;
+      return iAdjusted >= ORDERED_BMD_BALLOT_LAYOUTS.markScan.length
+        ? err(new NoLayoutOptionError(0, 0, 'markScan'))
+        : ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[iAdjusted]);
+    }
+  );
+  vi.mocked(getPdfPageCount).mockImplementation(() => Promise.resolve(2));
+
+  await expect(
+    renderBallot({
+      store: workspace.store,
+      precinctId,
+      ballotStyleId,
+      votes: {},
+      languageCode: TestLanguageCode.ENGLISH,
+    })
+  ).rejects.toThrow('Unable to render ballot contents in a single page');
+
+  expect(getLayout).toHaveBeenCalledTimes(
+    ORDERED_BMD_BALLOT_LAYOUTS.markScan.length - 1
+  );
 });

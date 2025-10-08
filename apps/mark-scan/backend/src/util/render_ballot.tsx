@@ -18,6 +18,7 @@ import {
   BmdBallotSheetSize,
   getLayout,
   MachineType,
+  ORDERED_BMD_BALLOT_LAYOUTS,
 } from '@votingworks/ui';
 import { getPdfPageCount } from '@votingworks/image-utils';
 import { Store } from '../store';
@@ -95,9 +96,9 @@ export async function renderBallot({
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const isLiveMode = !store.getTestMode();
 
-  const maxRenderRetry = 2;
+  const maxRenderAttempts = ORDERED_BMD_BALLOT_LAYOUTS.markScan.length;
 
-  for (let i = 0; i < maxRenderRetry; i += 1) {
+  for (let i = 0; i < maxRenderAttempts; i += 1) {
     const layout = getLayout(
       MACHINE_TYPE,
       ballotStyleId,
