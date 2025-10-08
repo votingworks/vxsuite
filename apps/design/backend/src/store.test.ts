@@ -369,3 +369,13 @@ describe('tts_strings', () => {
     });
   });
 });
+
+test('getElectionData', async () => {
+  const store = testStore.getStore();
+  const election = createBlankElection('abc123');
+  await store.syncOrganizationsCache([{ id: 'vx', name: 'VotingWorks' }]);
+  await store.createElection('vx', election, 'VxDefaultBallot');
+
+  const { election: expected } = await store.getElection('abc123');
+  expect(await store.getElectionData('abc123')).toEqual(expected);
+});

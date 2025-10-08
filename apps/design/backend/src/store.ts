@@ -889,6 +889,11 @@ export class Store {
     });
   }
 
+  async getElectionData(electionId: ElectionId): Promise<Election> {
+    const { election } = await this.getElection(electionId);
+    return election;
+  }
+
   async getElectionFromBallotHash(
     ballotHash: string
   ): Promise<ElectionRecord | undefined> {
