@@ -1,7 +1,4 @@
-import {
-  generateAudioIdsAndClips,
-  getAllStringsForElectionPackage,
-} from '@votingworks/backend';
+import { getAllStringsForElectionPackage } from '@votingworks/backend';
 import {
   allBaseBallotProps,
   ballotTemplates,
@@ -25,7 +22,6 @@ import JsZip from 'jszip';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache';
-import { MockTextToSpeechSynthesizer } from './mock_speech_synthesizer';
 
 // In order for the zip files generated to hash to the same value when the contents
 // are the same we need to make sure the date on the files is always kept static.
@@ -94,22 +90,6 @@ export async function generateElectionPackage(
     JSON.stringify(DEFAULT_SYSTEM_SETTINGS, null, 2),
     { date: FIXTURES_FILE_DATE }
   );
-
-  // Generate audio clips and ids with a mock text to speech client to reduce bloat.
-  const speechSynthesizer = new MockTextToSpeechSynthesizer();
-  const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
-    appStrings,
-    electionStrings,
-    speechSynthesizer,
-  });
-  zip.file(
-    ElectionPackageFileName.AUDIO_IDS,
-    JSON.stringify(uiStringAudioIds, null, 2),
-    { date: FIXTURES_FILE_DATE }
-  );
-  zip.file(ElectionPackageFileName.AUDIO_CLIPS, uiStringAudioClips, {
-    date: FIXTURES_FILE_DATE,
-  });
 
   const zipContents = await zip.generateAsync({
     type: 'nodebuffer',
