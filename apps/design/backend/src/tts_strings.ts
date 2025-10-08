@@ -31,18 +31,6 @@ export interface TtsStringDefault {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function apiMethods(ctx: TtsApiContext) {
   return {
-    async synthesizeText(input: {
-      text: string;
-      languageCode: string;
-    }): Promise<DataUrl> {
-      const base64Data = await ctx.speechSynthesizer.synthesizeSpeech(
-        input.text,
-        input.languageCode as LanguageCode
-      );
-
-      return `data:audio/mp3;base64,${base64Data}`;
-    },
-
     ttsEditsGet(key: TtsEditKey): Promise<TtsEdit | null> {
       return ctx.workspace.store.ttsEditsGet(key);
     },
@@ -54,7 +42,7 @@ export function apiMethods(ctx: TtsApiContext) {
     async ttsStringDefaults(input: {
       electionId: string;
     }): Promise<TtsStringDefault[]> {
-      const election = await ctx.workspace.store.getElectionData(
+      const { election } = await ctx.workspace.store.getElection(
         input.electionId
       );
 
@@ -191,7 +179,21 @@ export function apiMethods(ctx: TtsApiContext) {
         })
       );
     },
+
+    async ttsSynthesizeFromText(input: {
+      text: string;
+      languageCode: string;
+    }): Promise<DataUrl> {
+      const base64Data = await ctx.speechSynthesizer.synthesizeSpeech(
+        input.text,
+        input.languageCode as LanguageCode
+      );
+
+      return `data:audio/mp3;base64,${base64Data}`;
+    },
   } as const;
 }
 
-export const methodsThatHandleAuthThemselves = ['synthesizeText'] as const;
+export const methodsThatHandleAuthThemselves = [
+  'ttsSynthesizeFromText',
+] as const satisfies Array<keyof ReturnType<typeof apiMethods>>;

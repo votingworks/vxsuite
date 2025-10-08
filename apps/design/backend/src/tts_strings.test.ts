@@ -10,9 +10,9 @@ import {
   TtsEditKey,
 } from '@votingworks/types';
 import * as ttsStrings from './tts_strings';
-import { Store } from './store';
+import { ElectionRecord, Store } from './store';
 
-test('synthesizeText', async () => {
+test('ttsSynthesizeFromText', async () => {
   const mockSynthesizer: Mocked<SpeechSynthesizer> = {
     synthesizeSpeech: vi.fn(),
   };
@@ -27,7 +27,7 @@ test('synthesizeText', async () => {
   );
 
   const api = newApi({ speechSynthesizer: mockSynthesizer });
-  const result = await api.synthesizeText({
+  const result = await api.ttsSynthesizeFromText({
     text: 'hola',
     languageCode: 'es-US',
   });
@@ -204,14 +204,16 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
     electionDate: [],
   };
 
-  const mockStore: Partial<Mocked<Store>> = { getElectionData: vi.fn() };
+  const mockStore: Partial<Mocked<Store>> = { getElection: vi.fn() };
   const api = newApi({ workspace: { store: mockStore } });
 
-  assert(mockStore.getElectionData);
-  mockStore.getElectionData.mockImplementationOnce((electionId) => {
+  assert(mockStore.getElection);
+  mockStore.getElection.mockImplementationOnce((electionId) => {
     expect(electionId).toEqual('abc123');
 
-    return Promise.resolve(election as Election);
+    const record: PartialDeep<ElectionRecord> = { election };
+
+    return Promise.resolve(record as ElectionRecord);
   });
 
   const result = await api.ttsStringDefaults({ electionId: 'abc123' });
@@ -238,15 +240,12 @@ test('ttsStringDefaults - new/empty election', async () => {
     title: '',
   };
 
-  const mockStore: Partial<Mocked<Store>> = { getElectionData: vi.fn() };
+  const mockStore: Partial<Mocked<Store>> = { getElection: vi.fn() };
   const api = newApi({ workspace: { store: mockStore } });
 
-  assert(mockStore.getElectionData);
-  mockStore.getElectionData.mockImplementationOnce((electionId) => {
-    expect(electionId).toEqual('abc123');
-
-    return Promise.resolve(election as Election);
-  });
+  const electionRecord: PartialDeep<ElectionRecord> = { election };
+  assert(mockStore.getElection);
+  mockStore.getElection.mockResolvedValueOnce(electionRecord as ElectionRecord);
 
   const result = await api.ttsStringDefaults({ electionId: 'abc123' });
   expect(result).toEqual([]);
@@ -274,15 +273,12 @@ test('ttsStringDefaults - spot checks for sort order', async () => {
     precincts: [],
   };
 
-  const mockStore: Partial<Mocked<Store>> = { getElectionData: vi.fn() };
+  const mockStore: Partial<Mocked<Store>> = { getElection: vi.fn() };
   const api = newApi({ workspace: { store: mockStore } });
 
-  assert(mockStore.getElectionData);
-  mockStore.getElectionData.mockImplementationOnce((electionId) => {
-    expect(electionId).toEqual('abc123');
-
-    return Promise.resolve(election as Election);
-  });
+  const electionRecord: PartialDeep<ElectionRecord> = { election };
+  assert(mockStore.getElection);
+  mockStore.getElection.mockResolvedValueOnce(electionRecord as ElectionRecord);
 
   const result = await api.ttsStringDefaults({ electionId: 'abc123' });
   expect(result).toEqual<ttsStrings.TtsStringDefault[]>([
