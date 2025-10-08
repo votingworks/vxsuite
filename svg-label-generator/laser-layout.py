@@ -72,7 +72,7 @@ def get_laser_settings():
         'height': prompt_float("Laser cutter height", 508),
         'kerf': prompt_float("Laser kerf", 0.1),
         'margin': prompt_float("Margins (all sides)", 10),
-        'padding': prompt_float("Padding between labels", 5)
+        'padding': prompt_float("Padding between labels", 10)
     }
     return settings
 

@@ -29,15 +29,15 @@ WHITE = "#FFFFFF"
 STROKE_WIDTH = 0.1  # mm
 
 # Textbox3 (bottom section) side padding as ratio of overall width (per side)
-TEXTBOX3_SIDE_PADDING_RATIO = 0.05  # 5% per side
+TEXTBOX3_SIDE_PADDING_RATIO = 0.10  # 5% per side
 
 # Logo positioning and padding (as percentage of available space)
 LOGO_PADDING_TOP_BOTTOM = 0.15  # 15% padding above and below logo
-LOGO_PADDING_LEFT = 0.05        # 5% padding from left edge
+LOGO_PADDING_LEFT = 0.10        # 5% padding from left edge
 
 # Square positioning and padding
 SQUARE_PADDING_TOP_BOTTOM = 0.10  # 10% padding above and below square
-SQUARE_PADDING_RIGHT = 0.05       # 5% padding from right edge
+SQUARE_PADDING_RIGHT = 0.10       # 5% padding from right edge
 
 # Textbox2 (middle section) constraints
 TEXTBOX2_MAX_WIDTH_RATIO = 0.9  # 90% of hole center distance
@@ -46,7 +46,7 @@ TEXTBOX2_MAX_WIDTH_RATIO = 0.9  # 90% of hole center distance
 MIN_FONT_SIZE = 0.5
 MAX_FONT_SIZE = 20.0
 TEXTBOX1_MAX_FONT_SIZE = 50.0
-TEXTBOX1_LOGO_HEIGHT_PADDING = 0.05  # 1% padding for font height constraint
+TEXTBOX1_LOGO_HEIGHT_PADDING = 0.10  # 1% padding for font height constraint
 
 # Line height multiplier
 LINE_HEIGHT_MULTIPLIER = 1.3
@@ -404,7 +404,7 @@ def add_outline_and_holes(svg_parts, w, h, r, hd, cdist):
     """Add the outline rectangle and mounting holes to the SVG."""
     # Outline rectangle
     svg_parts.append(create_svg_element('rect', id="outline", x=0, y=0, width=w, height=h, 
-                                       rx=r, ry=r, fill=WHITE, stroke=RED, 
+                                       rx=r, ry=r, fill="none", stroke=RED, 
                                        stroke_width=STROKE_WIDTH))
     
     # Mounting holes
