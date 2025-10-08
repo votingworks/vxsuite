@@ -11,3 +11,4 @@ mod f32_newtype;
 pub mod geometry;
 pub mod hmpb;
 pub mod idtype;
+pub mod pair;

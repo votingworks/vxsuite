@@ -1,14 +1,31 @@
-use std::{cmp::Ordering, io, ops::Range};
+use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf};
 
 use image::{imageops::rotate180_in_place, GenericImageView, GrayImage};
 use imageproc::contrast::{otsu_level, threshold};
 use serde::Serialize;
 
-use crate::image_utils::{bleed, find_scanned_document_inset, Inset, BLACK};
+use crate::{
+    debug::ImageDebugWriter,
+    image_utils::{bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, BLACK},
+    interpret::{BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm},
+    layout::{build_interpreted_page_layout, InterpretedContestLayout},
+    qr_code,
+    scoring::{
+        score_bubble_marks_from_grid_layout, score_write_in_areas, ScoredBubbleMarks,
+        ScoredPositionAreas, UnitIntervalScore,
+    },
+    timing_marks::{
+        self, contours::FindTimingMarkGridOptions, BorderAxis, DefaultForGeometry, TimingMarks,
+    },
+};
 
 use types_rs::{
-    ballot_card::PaperSize,
+    ballot_card::{BallotSide, PaperSize},
+    coding,
+    election::{Election, GridLayout},
     geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
+    hmpb,
+    pair::Pair,
 };
 
 /// An image of a ballot after it has had any black areas outside the paper
@@ -20,6 +37,7 @@ pub struct BallotImage {
     image: GrayImage,
     threshold: u8,
     border_inset: Inset,
+    debug: ImageDebugWriter,
 }
 
 impl BallotImage {
@@ -35,6 +53,7 @@ impl BallotImage {
     pub fn rotate180(&mut self) {
         rotate180_in_place(&mut self.image);
         self.border_inset.rotate180();
+        self.debug.rotate180();
     }
 
     /// This sets the ratio of pixels required to be white (above the threshold) in
@@ -51,17 +70,21 @@ impl BallotImage {
     /// cropped off. Returns [`None`] if a valid border inset cannot be
     /// computed.
     #[must_use]
-    pub fn from_image(image: GrayImage) -> Option<BallotImage> {
+    pub fn from_image(image: GrayImage, debug_base: Option<PathBuf>) -> Option<BallotImage> {
         let threshold = otsu_level(&image);
         let border_inset =
             find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
 
         if border_inset.is_zero() {
             // Don't bother cropping if there's no inset.
+            let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
+                ImageDebugWriter::new(debug_base, image.clone())
+            });
             return Some(BallotImage {
                 image,
                 threshold,
                 border_inset,
+                debug,
             });
         }
 
@@ -78,11 +101,15 @@ impl BallotImage {
         // re-interpretations based on the saved image are consistent with the
         // initial one.
         let threshold = otsu_level(&image);
+        let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
+            ImageDebugWriter::new(debug_base, image.clone())
+        });
 
         Some(BallotImage {
             image,
             threshold,
             border_inset,
+            debug,
         })
     }
 
@@ -92,6 +119,11 @@ impl BallotImage {
     #[must_use]
     pub fn image(&self) -> &GrayImage {
         &self.image
+    }
+
+    /// Gets the image debug writer associated with this ballot image.
+    pub fn debug(&self) -> &ImageDebugWriter {
+        &self.debug
     }
 
     /// Gets the computed Otsu threshold. Generally you should try to access
@@ -170,15 +202,431 @@ impl BallotPixel {
     }
 }
 
+/// Contains one of the two ballot pages within a [`BallotCard`], though
+/// whether it is the front or back is not specified here.
+#[must_use]
 pub struct BallotPage {
-    pub ballot_image: BallotImage,
-    pub geometry: Geometry,
+    label: String,
+    ballot_image: BallotImage,
+    geometry: Geometry,
 }
 
+impl BallotPage {
+    /// Prepare a ballot page image for interpretation by cropping the black border.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the image cannot be cropped or if the paper information
+    /// cannot be determined.
+    #[allow(clippy::result_large_err)]
+    pub fn from_image(
+        label: &str,
+        image: GrayImage,
+        possible_paper_infos: &[PaperInfo],
+        debug_base: Option<PathBuf>,
+    ) -> Result<Self> {
+        let Some(ballot_image) = BallotImage::from_image(image, debug_base) else {
+            return Err(Error::BorderInsetNotFound {
+                label: label.to_owned(),
+            });
+        };
+
+        let Some(paper_info) =
+            get_matching_paper_info_for_image_size(ballot_image.dimensions(), possible_paper_infos)
+        else {
+            return Err(Error::UnexpectedDimensions {
+                label: label.to_owned(),
+                dimensions: ballot_image.dimensions().into(),
+            });
+        };
+
+        Ok(Self {
+            label: label.to_owned(),
+            ballot_image,
+            geometry: paper_info.compute_geometry(),
+        })
+    }
+
+    /// Finds timing marks in this ballot page with the specified algorithm.
+    ///
+    /// # Errors
+    ///
+    /// Fails if the selected timing mark algorithm is unable to find the
+    /// timing mark grid within the image.
+    #[allow(clippy::result_large_err)]
+    pub fn find_timing_marks(
+        &self,
+        timing_mark_algorithm: TimingMarkAlgorithm,
+    ) -> Result<TimingMarks> {
+        match timing_mark_algorithm {
+            TimingMarkAlgorithm::Corners => timing_marks::corners::find_timing_mark_grid(
+                &self.ballot_image,
+                &self.geometry,
+                &timing_marks::corners::Options::default_for_geometry(&self.geometry),
+            ),
+            TimingMarkAlgorithm::Contours { inference } => {
+                timing_marks::contours::find_timing_mark_grid(
+                    &self.geometry,
+                    &self.ballot_image,
+                    &FindTimingMarkGridOptions {
+                        allowed_timing_mark_inset_percentage_of_width:
+                            timing_marks::contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                        inference,
+                    },
+                )
+            }
+        }
+    }
+
+    /// Gets the ballot geometry information for this page.
+    pub fn geometry(&self) -> &Geometry {
+        &self.geometry
+    }
+
+    /// Gets the ballot image for this page.
+    pub fn ballot_image(&self) -> &BallotImage {
+        &self.ballot_image
+    }
+
+    /// Gets the label for this page, mostly used for debugging purposes.
+    #[must_use]
+    pub fn label(&self) -> &str {
+        &self.label
+    }
+
+    /// Gets the debug writer for this page.
+    pub fn debug(&self) -> &ImageDebugWriter {
+        self.ballot_image.debug()
+    }
+
+    /// Gets the dimensions of this page's image after cropping.
+    #[must_use]
+    pub fn dimensions(&self) -> (u32, u32) {
+        self.ballot_image.dimensions()
+    }
+
+    /// Gets the width of this page's image after cropping.
+    #[must_use]
+    pub fn width(&self) -> u32 {
+        self.ballot_image.width()
+    }
+
+    /// Gets the height of this page's image after cropping.
+    #[must_use]
+    pub fn height(&self) -> u32 {
+        self.ballot_image.height()
+    }
+
+    /// Rotates the underlying ballot image.
+    pub fn rotate180(&mut self) {
+        self.ballot_image.rotate180();
+    }
+}
+
+/// Contains the two pages of a ballot card. They're accessed via methods
+/// labeled front and back, but there is no guarantee that they are actually
+/// the front and back of the ballot card. Call [`BallotCard::swap_pages`] if
+/// you discover they are actually wrong and would like to switch them.
+#[must_use]
 pub struct BallotCard {
-    pub side_a: BallotImage,
-    pub side_b: BallotImage,
-    pub geometry: Geometry,
+    front_page: BallotPage,
+    back_page: BallotPage,
+}
+
+impl BallotCard {
+    /// Load both sides of a ballot card image and return the ballot card.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the images could not be loaded or if the ballot card
+    /// could not be prepared.
+    #[allow(clippy::result_large_err)]
+    pub fn from_pages(front_page: BallotPage, back_page: BallotPage) -> Result<BallotCard> {
+        if front_page.geometry() != back_page.geometry() {
+            return Err(Error::MismatchedBallotCardGeometries {
+                side_a: BallotPageAndGeometry {
+                    label: front_page.label,
+                    border_inset: front_page.ballot_image.border_inset(),
+                    geometry: front_page.geometry,
+                },
+                side_b: BallotPageAndGeometry {
+                    label: back_page.label,
+                    border_inset: back_page.ballot_image.border_inset(),
+                    geometry: back_page.geometry,
+                },
+            });
+        }
+
+        Ok(Self {
+            front_page,
+            back_page,
+        })
+    }
+
+    pub fn swap_pages(&mut self) {
+        swap(&mut self.front_page, &mut self.back_page);
+    }
+
+    pub fn geometry(&self) -> &Geometry {
+        &self.front_page.geometry
+    }
+
+    pub fn front_page(&self) -> &BallotPage {
+        &self.front_page
+    }
+
+    pub fn back_page(&self) -> &BallotPage {
+        &self.back_page
+    }
+
+    #[must_use]
+    pub fn as_pair(&self) -> Pair<&BallotPage> {
+        Pair::new(&self.front_page, &self.back_page)
+    }
+
+    #[must_use]
+    pub fn as_pair_mut(&mut self) -> Pair<&mut BallotPage> {
+        Pair::new(&mut self.front_page, &mut self.back_page)
+    }
+
+    /// Detects vertical streaks on both sides of the ballot card.
+    ///
+    /// # Errors
+    ///
+    /// Fails if vertical streaks are detected on either side.
+    #[allow(clippy::result_large_err)]
+    pub fn detect_vertical_streaks(&self) -> Result<()> {
+        self.as_pair()
+            .par_map(|ballot_page| {
+                let streaks = detect_vertical_streaks(ballot_page.ballot_image());
+                if streaks.is_empty() {
+                    Ok(())
+                } else {
+                    Err(Error::VerticalStreaksDetected {
+                        label: ballot_page.label().to_string(),
+                        x_coordinates: streaks,
+                    })
+                }
+            })
+            .into_result()?;
+        Ok(())
+    }
+
+    /// Finds timing marks on the ballot card using the given timing mark
+    /// algorithm.
+    ///
+    /// # Errors
+    ///
+    /// Fails if timing marks cannot be found on one or both ballot pages.
+    #[allow(clippy::result_large_err)]
+    pub fn find_timing_marks(
+        &self,
+        timing_mark_algorithm: TimingMarkAlgorithm,
+    ) -> Result<Pair<TimingMarks>> {
+        self.as_pair()
+            .par_map(|ballot_page| ballot_page.find_timing_marks(timing_mark_algorithm))
+            .into_result()
+    }
+
+    /// Checks the scale of the ballot pages as computed from the timing marks
+    /// is at least a given minimum value.
+    ///
+    /// # Errors
+    ///
+    /// Fails if the computed scale based on the timing marks for either page is
+    /// less than the provided minimum scale.
+    #[allow(clippy::result_large_err)]
+    pub fn check_minimum_scale<'a>(
+        &self,
+        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        minimum_scale: UnitIntervalScore,
+    ) -> Result<()> {
+        self.as_pair()
+            .zip(timing_marks)
+            .map(|(ballot_page, timing_marks)| {
+                // We use the horizontal axis here because it is perpendicular to
+                // the scan direction and therefore stretching should be minimal.
+                //
+                // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
+                if let Some(scale) =
+                    timing_marks.compute_scale_based_on_axis(BorderAxis::Horizontal)
+                {
+                    if scale < minimum_scale {
+                        return Err(Error::InvalidScale {
+                            label: ballot_page.label().to_owned(),
+                            scale,
+                        });
+                    }
+                }
+
+                Ok(())
+            })
+            .into_result()?;
+        Ok(())
+    }
+
+    /// Detects and decodes barcodes on the ballot pages and returns the decoded
+    /// data. Uses the position of the detected barcodes to determine the
+    /// orientation of the ballot pages.
+    ///
+    /// # Errors
+    ///
+    /// Fails if the barcodes cannot be located or cannot be decoded.
+    #[allow(clippy::result_large_err)]
+    pub fn decode_ballot_barcodes(
+        &self,
+        election: &Election,
+    ) -> Result<Pair<(hmpb::Metadata, Orientation)>> {
+        self.as_pair()
+            .map(|ballot_page| {
+                let qr_code =
+                    qr_code::detect(ballot_page.ballot_image().image(), ballot_page.debug())
+                        .map_err(|e| Error::InvalidQrCodeMetadata {
+                            label: ballot_page.label().to_owned(),
+                            message: e.to_string(),
+                        })?;
+                let metadata = coding::decode_with(qr_code.bytes(), election).map_err(|e| {
+                    Error::InvalidQrCodeMetadata {
+                        label: ballot_page.label().to_owned(),
+                        message: format!(
+                            "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
+                            bytes = qr_code.bytes()
+                        ),
+                    }
+                })?;
+                Ok((metadata, qr_code.orientation()))
+            })
+            .join(|decode_front_result, decode_back_result| {
+                // If one side has a detected QR code and the other doesn't, we can
+                // infer the missing metadata from the detected metadata.
+                match (decode_front_result, decode_back_result) {
+                    (Ok(front), Ok(back)) => Ok(Pair::new(front, back)),
+                    (
+                        Err(Error::InvalidQrCodeMetadata { .. }),
+                        Ok((back_metadata, back_orientation)),
+                    ) => {
+                        let front_metadata = hmpb::infer_missing_page_metadata(&back_metadata);
+                        Ok(Pair::new(
+                            (front_metadata, back_orientation),
+                            (back_metadata, back_orientation),
+                        ))
+                    }
+                    (
+                        Ok((front_metadata, front_orientation)),
+                        Err(Error::InvalidQrCodeMetadata { .. }),
+                    ) => {
+                        let back_metadata = hmpb::infer_missing_page_metadata(&front_metadata);
+                        Ok(Pair::new(
+                            (front_metadata, front_orientation),
+                            (back_metadata, front_orientation),
+                        ))
+                    }
+                    (Err(e), _) | (_, Err(e)) => Err(e),
+                }
+            })?
+            .join(
+                // Do some validation to check that the two sides agree.
+                |(front_metadata, front_orientation), (back_metadata, back_orientation)| {
+                    if front_metadata.precinct_id != back_metadata.precinct_id {
+                        return Err(Error::MismatchedPrecincts {
+                            side_a: front_metadata.precinct_id,
+                            side_b: back_metadata.precinct_id,
+                        });
+                    }
+                    if front_metadata.ballot_style_id != back_metadata.ballot_style_id {
+                        return Err(Error::MismatchedBallotStyles {
+                            side_a: front_metadata.ballot_style_id,
+                            side_b: back_metadata.ballot_style_id,
+                        });
+                    }
+                    if front_metadata.page_number.opposite() != back_metadata.page_number {
+                        return Err(Error::NonConsecutivePageNumbers {
+                            side_a: front_metadata.page_number.get(),
+                            side_b: back_metadata.page_number.get(),
+                        });
+                    }
+
+                    Ok(Pair::new(
+                        (front_metadata, front_orientation),
+                        (back_metadata, back_orientation),
+                    ))
+                },
+            )
+    }
+
+    /// Scores bubble marks on both ballot pages.
+    #[must_use]
+    pub fn score_bubble_marks<'a>(
+        &self,
+        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        bubble_template: &GrayImage,
+        grid_layout: &GridLayout,
+        sheet_number: u32,
+    ) -> Pair<ScoredBubbleMarks> {
+        self.as_pair()
+            .zip(timing_marks)
+            .zip((BallotSide::Front, BallotSide::Back))
+            .par_map(|((ballot_page, timing_marks), side)| {
+                score_bubble_marks_from_grid_layout(
+                    ballot_page.ballot_image(),
+                    bubble_template,
+                    timing_marks,
+                    grid_layout,
+                    sheet_number,
+                    side,
+                )
+            })
+    }
+
+    /// Scores write-in areas in order to detect unmarked write-ins.
+    pub fn score_write_in_areas<'a>(
+        &self,
+        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        grid_layout: &GridLayout,
+        sheet_number: u32,
+    ) -> Pair<ScoredPositionAreas> {
+        self.as_pair()
+            .zip(timing_marks)
+            .zip((BallotSide::Front, BallotSide::Back))
+            .par_map(|((ballot_page, timing_marks), side)| {
+                score_write_in_areas(
+                    ballot_page.ballot_image(),
+                    timing_marks,
+                    grid_layout,
+                    sheet_number,
+                    side,
+                )
+            })
+    }
+
+    /// Determines the bounds of all contest options within the image based on
+    /// the timing marks for both ballot pages.
+    ///
+    /// # Errors
+    ///
+    /// Fails if either side fails to determine the contest layout.
+    #[allow(clippy::result_large_err)]
+    pub fn build_page_layout<'a>(
+        &self,
+        timing_marks: impl Into<Pair<&'a TimingMarks>>,
+        grid_layout: &GridLayout,
+        sheet_number: u32,
+    ) -> Result<Pair<Vec<InterpretedContestLayout>>> {
+        self.as_pair()
+            .zip(timing_marks)
+            .zip((BallotSide::Front, BallotSide::Back))
+            .map(|((ballot_page, timing_marks), side)| {
+                build_interpreted_page_layout(
+                    timing_marks,
+                    grid_layout,
+                    sheet_number,
+                    side,
+                    ballot_page.debug(),
+                )
+                .ok_or(Error::CouldNotComputeLayout { side })
+            })
+            .into_result()
+    }
 }
 
 /// Ballot card orientation.

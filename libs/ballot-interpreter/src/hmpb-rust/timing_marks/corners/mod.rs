@@ -1,6 +1,5 @@
 use crate::{
     ballot_card::{BallotImage, Geometry},
-    debug::ImageDebugWriter,
     interpret::Error,
     timing_marks::{
         corners::{mark_finding::BallotGridCandidateMarks, util::CornerWise},
@@ -39,7 +38,6 @@ impl DefaultForGeometry for Options {
 pub fn find_timing_mark_grid(
     ballot_image: &BallotImage,
     geometry: &Geometry,
-    debug: &ImageDebugWriter,
     options: &Options,
 ) -> Result<TimingMarks, Error> {
     let shapes = shape_finding::BallotGridBorderShapes::from_ballot_image(
@@ -48,14 +46,14 @@ pub fn find_timing_mark_grid(
         &options.shape_finding_options,
     );
 
-    debug.write("01-shapes", |canvas| {
+    ballot_image.debug().write("01-shapes", |canvas| {
         shapes.debug_draw(canvas);
     });
 
     let candidates =
         mark_finding::BallotGridCandidateMarks::from_shapes(ballot_image, geometry, shapes);
 
-    debug.write("02-candidate_marks", |canvas| {
+    ballot_image.debug().write("02-candidate_marks", |canvas| {
         candidates.debug_draw(canvas);
     });
 
@@ -66,7 +64,7 @@ pub fn find_timing_mark_grid(
         &options.corner_finding_options,
     )?;
 
-    debug.write("03-corners", |canvas| {
+    ballot_image.debug().write("03-corners", |canvas| {
         corners.debug_draw(canvas);
     });
 
@@ -77,7 +75,7 @@ pub fn find_timing_mark_grid(
         &options.border_finding_options,
     )?;
 
-    debug.write("04-borders", |canvas| {
+    ballot_image.debug().write("04-borders", |canvas| {
         borders.debug_draw(canvas);
     });
 

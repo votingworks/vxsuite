@@ -1,48 +1,31 @@
 #![allow(clippy::similar_names)]
 
 use std::fmt::Display;
-use std::io::Cursor;
 use std::path::PathBuf;
 use std::str::FromStr;
 
-use bitstream_io::BigEndian;
-use bitstream_io::BitReader;
-use bitstream_io::FromBitStreamWith;
 use image::GrayImage;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
 use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
 use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
-use types_rs::hmpb;
+use types_rs::pair::Pair;
 
-use crate::ballot_card::get_matching_paper_info_for_image_size;
 use crate::ballot_card::load_ballot_scan_bubble_image;
 use crate::ballot_card::BallotCard;
-use crate::ballot_card::BallotImage;
 use crate::ballot_card::BallotPage;
 use crate::ballot_card::Geometry;
+use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
-use crate::debug::ImageDebugWriter;
-use crate::image_utils::detect_vertical_streaks;
+use crate::debug::draw_timing_mark_debug_image_mut;
 use crate::image_utils::Inset;
-use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
-use crate::qr_code;
-use crate::scoring::score_bubble_marks_from_grid_layout;
-use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::contours;
-use crate::timing_marks::corners;
-use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
-use crate::timing_marks::BorderAxis;
-use crate::timing_marks::DefaultForGeometry;
 use crate::timing_marks::TimingMarks;
 
 #[derive(Debug, Clone)]
@@ -347,88 +330,6 @@ impl ScanInterpreter {
     }
 }
 
-/// Load both sides of a ballot card image and return the ballot card.
-///
-/// # Errors
-///
-/// Returns an error if the images could not be loaded or if the ballot card
-/// could not be prepared.
-#[allow(clippy::result_large_err)]
-pub fn prepare_ballot_card_images(
-    side_a_image: GrayImage,
-    side_b_image: GrayImage,
-    possible_paper_infos: &[PaperInfo],
-) -> Result<BallotCard> {
-    let (side_a_result, side_b_result) = par_map_pair(
-        (SIDE_A_LABEL, side_a_image),
-        (SIDE_B_LABEL, side_b_image),
-        |(label, image)| prepare_ballot_page_image(label, image, possible_paper_infos),
-    );
-
-    let BallotPage {
-        ballot_image: side_a_image,
-        geometry: side_a_geometry,
-    } = side_a_result?;
-    let BallotPage {
-        ballot_image: side_b_image,
-        geometry: side_b_geometry,
-    } = side_b_result?;
-
-    if side_a_geometry != side_b_geometry {
-        return Err(Error::MismatchedBallotCardGeometries {
-            side_a: BallotPageAndGeometry {
-                label: SIDE_A_LABEL.to_string(),
-                border_inset: side_a_image.border_inset(),
-                geometry: side_a_geometry,
-            },
-            side_b: BallotPageAndGeometry {
-                label: SIDE_B_LABEL.to_string(),
-                border_inset: side_b_image.border_inset(),
-                geometry: side_b_geometry,
-            },
-        });
-    }
-
-    Ok(BallotCard {
-        side_a: side_a_image,
-        side_b: side_b_image,
-        geometry: side_a_geometry,
-    })
-}
-
-/// Prepare a ballot page image for interpretation by cropping the black border.
-///
-/// # Errors
-///
-/// Returns an error if the image cannot be cropped or if the paper information
-/// cannot be determined.
-#[allow(clippy::result_large_err)]
-pub fn prepare_ballot_page_image(
-    label: &str,
-    image: GrayImage,
-    possible_paper_infos: &[PaperInfo],
-) -> Result<BallotPage> {
-    let Some(ballot_image) = BallotImage::from_image(image) else {
-        return Err(Error::BorderInsetNotFound {
-            label: label.to_string(),
-        });
-    };
-
-    let Some(paper_info) =
-        get_matching_paper_info_for_image_size(ballot_image.dimensions(), possible_paper_infos)
-    else {
-        return Err(Error::UnexpectedDimensions {
-            label: label.to_string(),
-            dimensions: ballot_image.dimensions().into(),
-        });
-    };
-
-    Ok(BallotPage {
-        ballot_image,
-        geometry: paper_info.compute_geometry(),
-    })
-}
-
 /// Interpret a ballot card image.
 ///
 /// # Errors
@@ -445,337 +346,132 @@ pub fn ballot_card(
             message: "required field `gridLayouts` is missing".to_owned(),
         });
     };
-    let BallotCard {
-        side_a,
-        side_b,
-        geometry,
-    } = prepare_ballot_card_images(side_a_image, side_b_image, &PaperInfo::scanned())?;
-
-    let mut side_a_debug = match &options.debug_side_a_base {
-        Some(base) => ImageDebugWriter::new(base.clone(), side_a.image().clone()),
-        None => ImageDebugWriter::disabled(),
-    };
-    let mut side_b_debug = match &options.debug_side_b_base {
-        Some(base) => ImageDebugWriter::new(base.clone(), side_b.image().clone()),
-        None => ImageDebugWriter::disabled(),
-    };
+    let mut ballot_card = Pair::new(
+        (
+            SIDE_A_LABEL,
+            side_a_image,
+            options.debug_side_a_base.clone(),
+        ),
+        (
+            SIDE_B_LABEL,
+            side_b_image,
+            options.debug_side_b_base.clone(),
+        ),
+    )
+    .par_map(|(label, image, debug_base)| {
+        BallotPage::from_image(label, image, &PaperInfo::scanned(), debug_base)
+    })
+    .into_result()?
+    .join(BallotCard::from_pages)?;
 
     if options.vertical_streak_detection == VerticalStreakDetection::Enabled {
-        [
-            (SIDE_A_LABEL, &side_a, &side_a_debug),
-            (SIDE_B_LABEL, &side_b, &side_b_debug),
-        ]
-        .par_iter()
-        .map(|(label, side, debug)| {
-            let streaks = detect_vertical_streaks(side, debug);
-            if streaks.is_empty() {
-                Ok(())
-            } else {
-                Err(Error::VerticalStreaksDetected {
-                    label: (*label).to_string(),
-                    x_coordinates: streaks,
-                })
-            }
-        })
-        .collect::<Result<(), _>>()?;
+        ballot_card.detect_vertical_streaks()?;
     }
 
-    let (side_a_timing_marks_result, side_b_timing_marks_result) = par_map_pair(
-        (&side_a, &mut side_a_debug),
-        (&side_b, &mut side_b_debug),
-        |(ballot_image, debug)| match options.timing_mark_algorithm {
-            TimingMarkAlgorithm::Contours { inference } => contours::find_timing_mark_grid(
-                &geometry,
-                ballot_image,
-                contours::FindTimingMarkGridOptions {
-                    allowed_timing_mark_inset_percentage_of_width:
-                        contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
-                    inference,
-                    debug,
-                },
-            ),
-            TimingMarkAlgorithm::Corners => {
-                let default_geometry = PaperInfo::scanned_letter().compute_geometry();
-                corners::find_timing_mark_grid(
-                    ballot_image,
-                    &geometry,
-                    debug,
-                    &corners::Options::default_for_geometry(&default_geometry),
-                )
-            }
-        },
-    );
-
-    let side_a_timing_marks = side_a_timing_marks_result?;
-    let side_b_timing_marks = side_b_timing_marks_result?;
+    let mut timing_marks = ballot_card.find_timing_marks(options.timing_mark_algorithm)?;
 
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {
-        for (label, timing_marks) in [
-            (SIDE_A_LABEL, &side_a_timing_marks),
-            (SIDE_B_LABEL, &side_b_timing_marks),
-        ] {
-            // We use the horizontal axis here because it is perpendicular to
-            // the scan direction and therefore stretching should be minimal.
-            //
-            // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
-            if let Some(scale) = timing_marks.compute_scale_based_on_axis(BorderAxis::Horizontal) {
-                if scale < minimum_detected_scale {
-                    return Err(Error::InvalidScale {
-                        label: label.to_owned(),
-                        scale,
-                    });
-                }
-            }
-        }
+        ballot_card.check_minimum_scale(&timing_marks, minimum_detected_scale)?;
     }
 
-    // We'll find the appropriate metadata, use it to normalize the image and
-    // grid orientation, and extract the ballot style from it.
-    let (
-        (front_timing_marks, front_ballot_image, front_metadata, front_debug),
-        (back_timing_marks, back_ballot_image, back_metadata, back_debug),
-        ballot_style_id,
-    ) = match options.election.ballot_layout.metadata_encoding {
-        MetadataEncoding::QrCode => {
-            let (side_a_qr_code_result, side_b_qr_code_result) = par_map_pair(
-                (&side_a, &side_a_debug, SIDE_A_LABEL),
-                (&side_b, &side_b_debug, SIDE_B_LABEL),
-                |(image, debug, label)| {
-                    let qr_code = qr_code::detect(image.image(), debug).map_err(|e| {
-                        Error::InvalidQrCodeMetadata {
-                            label: label.to_owned(),
-                            message: e.to_string(),
-                        }
-                    })?;
-                    let metadata = hmpb::Metadata::from_reader(
-                        &mut BitReader::endian(Cursor::new(qr_code.bytes()), BigEndian),
-                        &options.election,
-                    )
-                    .map_err(|e| Error::InvalidQrCodeMetadata {
-                        label: label.to_string(),
-                        message: format!(
-                            "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
-                            bytes = qr_code.bytes()
-                        ),
-                    })?;
-                    Ok((metadata, qr_code.orientation()))
+    debug_assert_eq!(
+        options.election.ballot_layout.metadata_encoding,
+        MetadataEncoding::QrCode
+    );
+
+    // Find the metadata and validate it.
+    let mut decoded_qr_codes = ballot_card.decode_ballot_barcodes(&options.election)?;
+
+    // If the pages are reversed, i.e. fed in bottom-first, we need to rotate
+    // them so they're right-side up.
+    ballot_card
+        .as_pair_mut()
+        .zip(&mut timing_marks)
+        .zip(&decoded_qr_codes)
+        .map(|((ballot_page, timing_marks), (_, orientation))| {
+            // Handle rotating the image and our timing marks if necessary.
+            if matches!(orientation, Orientation::PortraitReversed) {
+                timing_marks.rotate180(ballot_page.dimensions().into());
+                ballot_page.rotate180();
+            }
+
+            ballot_page.debug().write(
+                "complete_timing_marks_after_orientation_correction",
+                |canvas| {
+                    draw_timing_mark_debug_image_mut(
+                        canvas,
+                        ballot_page.geometry(),
+                        &timing_marks.clone().into(),
+                    );
                 },
             );
+        });
 
-            // If one side has a detected QR code and the other doesn't, we can
-            // infer the missing metadata from the detected metadata.
-            let (side_a_qr_code_result, side_b_qr_code_result) =
-                match (side_a_qr_code_result, side_b_qr_code_result) {
-                    (
-                        Err(Error::InvalidQrCodeMetadata { .. }),
-                        Ok((side_b_metadata, side_b_orientation)),
-                    ) => {
-                        let side_a_metadata = hmpb::infer_missing_page_metadata(&side_b_metadata);
-                        let side_a_orientation = side_b_orientation;
+    // If what we've been calling the front is actually the back, swap them.
+    if decoded_qr_codes.first().0.page_number.is_back() {
+        ballot_card.swap_pages();
+        decoded_qr_codes.swap();
+        timing_marks.swap();
+    }
 
-                        (
-                            Ok((side_a_metadata, side_a_orientation)),
-                            Ok((side_b_metadata, side_b_orientation)),
-                        )
-                    }
-                    (
-                        Ok((side_a_metadata, side_a_orientation)),
-                        Err(Error::InvalidQrCodeMetadata { .. }),
-                    ) => {
-                        let side_b_metadata = hmpb::infer_missing_page_metadata(&side_a_metadata);
-                        let side_b_orientation = side_a_orientation;
-
-                        (
-                            Ok((side_a_metadata, side_a_orientation)),
-                            Ok((side_b_metadata, side_b_orientation)),
-                        )
-                    }
-                    (side_a_qr_code_result, side_b_qr_code_result) => {
-                        (side_a_qr_code_result, side_b_qr_code_result)
-                    }
-                };
-
-            let (side_a_metadata, side_a_orientation) = side_a_qr_code_result?;
-            let (side_b_metadata, side_b_orientation) = side_b_qr_code_result?;
-
-            let (
-                (side_a_normalized_grid, side_a_normalized_ballot_image),
-                (side_b_normalized_grid, side_b_normalized_ballot_image),
-            ) = par_map_pair(
-                (
-                    side_a_timing_marks,
-                    side_a,
-                    side_a_orientation,
-                    &mut side_a_debug,
-                ),
-                (
-                    side_b_timing_marks,
-                    side_b,
-                    side_b_orientation,
-                    &mut side_b_debug,
-                ),
-                |(grid, ballot_image, orientation, debug)| {
-                    normalize_orientation(&geometry, grid, ballot_image, orientation, debug)
-                },
-            );
-
-            if side_a_metadata.precinct_id != side_b_metadata.precinct_id {
-                return Err(Error::MismatchedPrecincts {
-                    side_a: side_a_metadata.precinct_id,
-                    side_b: side_b_metadata.precinct_id,
-                });
-            }
-            if side_a_metadata.ballot_style_id != side_b_metadata.ballot_style_id {
-                return Err(Error::MismatchedBallotStyles {
-                    side_a: side_a_metadata.ballot_style_id,
-                    side_b: side_b_metadata.ballot_style_id,
-                });
-            }
-            if side_a_metadata.page_number.opposite() != side_b_metadata.page_number {
-                return Err(Error::NonConsecutivePageNumbers {
-                    side_a: side_a_metadata.page_number.get(),
-                    side_b: side_b_metadata.page_number.get(),
-                });
-            }
-
-            let (side_a, side_b) = (
-                (
-                    side_a_normalized_grid,
-                    side_a_normalized_ballot_image,
-                    BallotPageMetadata::QrCode(side_a_metadata.clone()),
-                    side_a_debug,
-                ),
-                (
-                    side_b_normalized_grid,
-                    side_b_normalized_ballot_image,
-                    BallotPageMetadata::QrCode(side_b_metadata),
-                    side_b_debug,
-                ),
-            );
-
-            let ballot_style_id = side_a_metadata.ballot_style_id.clone();
-
-            if side_a_metadata.page_number.is_front() {
-                (side_a, side_b, ballot_style_id)
-            } else {
-                (side_b, side_a, ballot_style_id)
-            }
-        }
-    };
-
+    let ballot_style_id = decoded_qr_codes.first().0.ballot_style_id.clone();
     let Some(grid_layout) = grid_layouts
         .iter()
         .find(|layout| layout.ballot_style_id == ballot_style_id)
     else {
         return Err(Error::MissingGridLayout {
-            front: front_metadata,
-            back: back_metadata,
+            front: BallotPageMetadata::QrCode(decoded_qr_codes.first().0.clone()),
+            back: BallotPageMetadata::QrCode(decoded_qr_codes.second().0.clone()),
         });
     };
 
-    let sheet_number = match &front_metadata {
-        BallotPageMetadata::QrCode(metadata) => {
-            u32::from(metadata.page_number.sheet_number().get())
+    let sheet_number = u32::from(decoded_qr_codes.first().0.page_number.sheet_number().get());
+
+    let scored_bubble_marks = ballot_card.score_bubble_marks(
+        &timing_marks,
+        &options.bubble_template,
+        grid_layout,
+        sheet_number,
+    );
+
+    let contest_layouts =
+        ballot_card.build_page_layout(&timing_marks, grid_layout, sheet_number)?;
+
+    let write_in_area_scores = match options.write_in_scoring {
+        WriteInScoring::Enabled => {
+            ballot_card.score_write_in_areas(&timing_marks, grid_layout, sheet_number)
         }
+        WriteInScoring::Disabled => Pair::default(),
     };
 
-    let (front_scored_bubble_marks, back_scored_bubble_marks) = par_map_pair(
-        (
-            &front_ballot_image,
-            &front_timing_marks,
-            BallotSide::Front,
-            &front_debug,
-        ),
-        (
-            &back_ballot_image,
-            &back_timing_marks,
-            BallotSide::Back,
-            &back_debug,
-        ),
-        |(ballot_image, timing_marks, side, debug)| {
-            score_bubble_marks_from_grid_layout(
-                ballot_image,
-                &options.bubble_template,
+    let normalized_images = ballot_card.as_pair().par_map(|ballot_page| {
+        imageproc::contrast::threshold(
+            ballot_page.ballot_image().image(),
+            ballot_page.ballot_image().threshold(),
+        )
+    });
+
+    Pair::from((
+        timing_marks,
+        decoded_qr_codes,
+        scored_bubble_marks,
+        write_in_area_scores,
+        normalized_images,
+        contest_layouts,
+    ))
+    .map(
+        |(timing_marks, (metadata, _), marks, write_ins, normalized_image, contest_layouts)| {
+            InterpretedBallotPage {
                 timing_marks,
-                grid_layout,
-                sheet_number,
-                side,
-                debug,
-            )
+                metadata: BallotPageMetadata::QrCode(metadata),
+                marks,
+                write_ins,
+                normalized_image,
+                contest_layouts,
+            }
         },
-    );
-
-    let (front_contest_layouts, back_contest_layouts) = map_pair(
-        (&front_timing_marks, BallotSide::Front, &front_debug),
-        (&back_timing_marks, BallotSide::Back, &back_debug),
-        |(grid, side, debug)| {
-            build_interpreted_page_layout(grid, grid_layout, sheet_number, side, debug)
-                .ok_or(Error::CouldNotComputeLayout { side })
-        },
-    );
-    let front_contest_layouts = front_contest_layouts?;
-    let back_contest_layouts = back_contest_layouts?;
-
-    let (front_write_in_area_scores, back_write_in_area_scores) = match options.write_in_scoring {
-        WriteInScoring::Enabled => par_map_pair(
-            (
-                &front_ballot_image,
-                &front_timing_marks,
-                BallotSide::Front,
-                &front_debug,
-            ),
-            (
-                &back_ballot_image,
-                &back_timing_marks,
-                BallotSide::Back,
-                &back_debug,
-            ),
-            |(ballot_image, grid, side, debug)| {
-                score_write_in_areas(ballot_image, grid, grid_layout, sheet_number, side, debug)
-            },
-        ),
-        WriteInScoring::Disabled => Default::default(),
-    };
-
-    let normalized_front_image =
-        imageproc::contrast::threshold(front_ballot_image.image(), front_ballot_image.threshold());
-    let normalized_back_image =
-        imageproc::contrast::threshold(back_ballot_image.image(), back_ballot_image.threshold());
-
-    Ok(InterpretedBallotCard {
-        front: InterpretedBallotPage {
-            timing_marks: front_timing_marks,
-            metadata: front_metadata,
-            marks: front_scored_bubble_marks,
-            write_ins: front_write_in_area_scores,
-            normalized_image: normalized_front_image,
-            contest_layouts: front_contest_layouts,
-        },
-        back: InterpretedBallotPage {
-            timing_marks: back_timing_marks,
-            metadata: back_metadata,
-            marks: back_scored_bubble_marks,
-            write_ins: back_write_in_area_scores,
-            normalized_image: normalized_back_image,
-            contest_layouts: back_contest_layouts,
-        },
-    })
-}
-
-pub fn par_map_pair<T, F, R>(left: T, right: T, mapper: F) -> (R, R)
-where
-    F: Fn(T) -> R + Send + Sync,
-    R: Send,
-    T: Send,
-{
-    rayon::join(|| mapper(left), || mapper(right))
-}
-
-pub fn map_pair<T, F, R>(left: T, right: T, mapper: F) -> (R, R)
-where
-    F: Fn(T) -> R,
-{
-    (mapper(left), mapper(right))
+    )
+    .join(|front, back| Ok(InterpretedBallotCard { front, back }))
 }
 
 #[cfg(test)]
@@ -796,8 +492,8 @@ mod test {
     };
 
     use crate::{
-        ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore,
-        timing_marks::TimingMarks,
+        ballot_card::load_ballot_scan_bubble_image, debug::ImageDebugWriter, qr_code,
+        scoring::UnitIntervalScore, timing_marks::TimingMarks,
     };
 
     use super::*;
@@ -809,7 +505,9 @@ mod test {
 
     /// Loads images for both sides of a ballot card and returns them.
     fn load_ballot_card_images(side_a_path: &Path, side_b_path: &Path) -> (GrayImage, GrayImage) {
-        par_map_pair(side_a_path, side_b_path, load_ballot_page_image)
+        Pair::new(side_a_path, side_b_path)
+            .par_map(load_ballot_page_image)
+            .into()
     }
 
     fn load_ballot_card_fixture(
@@ -898,17 +596,46 @@ mod test {
     }
 
     #[test]
-    fn test_par_map_pair() {
-        assert_eq!(par_map_pair(1, 2, |n| n * 2), (2, 4));
-    }
-
-    #[test]
     fn test_interpret_returns_binarized_images() {
         let (side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
         let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
         assert!(is_binary_image(&card.front.normalized_image));
         assert!(is_binary_image(&card.back.normalized_image));
+    }
+
+    #[test]
+    fn test_debug_images_with_cropping() {
+        let (side_a_image, _, _) = load_hmpb_fixture("vx-general-election/letter", 1);
+        let side_a_image_original_dimensions = side_a_image.dimensions();
+        let side_a_image = {
+            let inset = Inset {
+                left: 50,
+                top: 170,
+                bottom: 30,
+                right: 30,
+            };
+            let mut expanded = GrayImage::new(
+                side_a_image.width() + inset.left + inset.right,
+                side_a_image.height() + inset.top + inset.bottom,
+            );
+            for (x, y, luma) in side_a_image.enumerate_pixels() {
+                expanded.put_pixel(x, y, *luma);
+            }
+            expanded
+        };
+        let ballot_page = BallotPage::from_image(
+            "test",
+            side_a_image,
+            &PaperInfo::scanned(),
+            Some(PathBuf::from("/tmp/unused")),
+        )
+        .unwrap();
+        // Ensure that the black area we added around the image is cropped off in the debug image.
+        assert_eq!(
+            ballot_page.debug().input_image().unwrap().dimensions(),
+            side_a_image_original_dimensions
+        );
     }
 
     #[test]

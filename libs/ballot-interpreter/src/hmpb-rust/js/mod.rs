@@ -9,15 +9,13 @@ use neon::types::extract::{Error, Json};
 use serde::{Deserialize, Serialize};
 use types_rs::election::Election;
 
-use crate::ballot_card::{load_ballot_scan_bubble_image, PaperInfo};
-use crate::debug::ImageDebugWriter;
+use crate::ballot_card::{load_ballot_scan_bubble_image, BallotPage, PaperInfo};
 use crate::interpret::{
-    self, ballot_card, prepare_ballot_page_image, Inference, InterpretedBallotCard, Options,
-    TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
+    self, ballot_card, Inference, InterpretedBallotCard, Options, TimingMarkAlgorithm,
+    VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::contours::FindTimingMarkGridOptions;
-use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
+use crate::timing_marks::TimingMarks;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -205,35 +203,11 @@ fn find_timing_mark_grid(
     debug_path: Option<PathBuf>,
     timing_mark_algorithm: Option<TimingMarkAlgorithm>,
 ) -> Result<TimingMarks, Error> {
-    let mut debug = match debug_path {
-        Some(path) => ImageDebugWriter::new(path, image.clone()),
-        None => ImageDebugWriter::disabled(),
-    };
-
-    let ballot_page = prepare_ballot_page_image(label, image, &PaperInfo::scanned())
+    let ballot_page = BallotPage::from_image(label, image, &PaperInfo::scanned(), debug_path)
         .map_err(|err| Error::new(format!("Unable to prepare ballot page image: {err}")))?;
 
     let timing_mark_algorithm = timing_mark_algorithm.unwrap_or_default();
-    let find_timing_marks_result = match timing_mark_algorithm {
-        TimingMarkAlgorithm::Corners => timing_marks::corners::find_timing_mark_grid(
-            &ballot_page.ballot_image,
-            &ballot_page.geometry,
-            &debug,
-            &timing_marks::corners::Options::default_for_geometry(&ballot_page.geometry),
-        ),
-        TimingMarkAlgorithm::Contours { inference } => {
-            timing_marks::contours::find_timing_mark_grid(
-                &ballot_page.geometry,
-                &ballot_page.ballot_image,
-                FindTimingMarkGridOptions {
-                    allowed_timing_mark_inset_percentage_of_width:
-                        timing_marks::contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
-                    inference,
-                    debug: &mut debug,
-                },
-            )
-        }
-    };
+    let find_timing_marks_result = ballot_page.find_timing_marks(timing_mark_algorithm);
 
     let timing_marks = find_timing_marks_result
         .map_err(|err| Error::new(format!("failed to detect timing mark grid: {err:?}")))?;

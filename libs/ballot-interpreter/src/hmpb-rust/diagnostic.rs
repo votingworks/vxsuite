@@ -6,7 +6,7 @@ use types_rs::geometry::Rect;
 
 use crate::{
     ballot_card::{load_ballot_scan_bubble_image, BallotImage},
-    debug::{draw_diagnostic_cells, ImageDebugWriter},
+    debug::draw_diagnostic_cells,
     image_utils::{count_pixels, BLACK},
 };
 
@@ -89,7 +89,7 @@ pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
             CROP_BORDER_PIXELS + cell_height / 2,
         ),
     ];
-    let Some(mut ballot_image) = BallotImage::from_image(img) else {
+    let Some(mut ballot_image) = BallotImage::from_image(img, debug_path) else {
         return false;
     };
 
@@ -110,10 +110,7 @@ pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
     ballot_image.clamp_threshold(0, MAX_WHITE_THRESHOLD);
     let (passed_cells, failed_cells) = inspect_cells(&ballot_image, &cells);
 
-    let debug = debug_path.map_or_else(ImageDebugWriter::disabled, |base| {
-        ImageDebugWriter::new(base, ballot_image.image().clone())
-    });
-    debug.write("diagnostic", |canvas| {
+    ballot_image.debug().write("diagnostic", |canvas| {
         draw_diagnostic_cells(canvas, &passed_cells, &failed_cells);
     });
 

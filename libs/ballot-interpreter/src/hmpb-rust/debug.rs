@@ -1380,6 +1380,11 @@ impl ImageDebugWriter {
     }
 
     #[must_use]
+    pub fn input_image(&self) -> Option<&GrayImage> {
+        self.input_image.as_ref()
+    }
+
+    #[must_use]
     pub const fn is_disabled(&self) -> bool {
         self.input_image.is_none()
     }

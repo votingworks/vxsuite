@@ -3189,6 +3189,7 @@ dependencies = [
  "bitstream-io 4.0.0",
  "hex",
  "proptest",
+ "rayon",
  "serde",
  "serde_json",
  "static_assertions",

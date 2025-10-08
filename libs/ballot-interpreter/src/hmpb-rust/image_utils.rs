@@ -7,10 +7,7 @@ use types_rs::geometry::{PixelPosition, PixelUnit};
 use types_rs::{election::UnitIntervalValue, geometry::Quadrilateral};
 
 use crate::ballot_card::BallotImage;
-use crate::{
-    debug::{self, ImageDebugWriter},
-    scoring::UnitIntervalScore,
-};
+use crate::{debug, scoring::UnitIntervalScore};
 
 pub const WHITE: Luma<u8> = Luma([255]);
 pub const BLACK: Luma<u8> = Luma([0]);
@@ -278,10 +275,7 @@ pub fn find_scanned_document_inset(
  * Detects vertical streaks in the given image (presumably resulting from debris
  * on the scanner glass). Returns a list of the x-coordinate of each streak.
  */
-pub fn detect_vertical_streaks(
-    ballot_image: &BallotImage,
-    debug: &ImageDebugWriter,
-) -> Vec<PixelPosition> {
+pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<PixelPosition> {
     const MIN_STREAK_SCORE: UnitIntervalScore = UnitIntervalScore(0.75);
     const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
     const BORDER_COLUMNS_TO_EXCLUDE: PixelUnit = 20;
@@ -342,7 +336,7 @@ pub fn detect_vertical_streaks(
         })
         .collect::<Vec<_>>();
 
-    debug.write("vertical_streaks", |canvas| {
+    ballot_image.debug().write("vertical_streaks", |canvas| {
         debug::draw_vertical_streaks_debug_image_mut(
             canvas,
             ballot_image.threshold(),
