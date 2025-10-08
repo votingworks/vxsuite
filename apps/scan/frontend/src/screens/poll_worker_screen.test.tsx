@@ -91,7 +91,7 @@ describe('transitions from polls closed initial', () => {
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
     await screen.findByText('Reprint Polls Opened Report');
-    expect(screen.queryByText('Report Polls Open')).toBeNull();
+    expect(screen.queryByText('Send Polls Opened Report')).toBeNull();
   });
 
   test('open polls from landing screen', async () => {
@@ -103,7 +103,7 @@ describe('transitions from polls closed initial', () => {
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
     await screen.findByText('Reprint Polls Opened Report');
-    expect(screen.queryByText('Report Polls Open')).toBeNull();
+    expect(screen.queryByText('Send Polls Opened Report')).toBeNull();
   });
 
   test('open polls happy path with vxqr', async () => {
@@ -115,7 +115,7 @@ describe('transitions from polls closed initial', () => {
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
     await screen.findByText('Reprint Polls Opened Report');
-    userEvent.click(screen.getButton('Report Polls Open'));
+    userEvent.click(screen.getButton('Send Polls Opened Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
     userEvent.click(screen.getButton('Done'));
@@ -141,7 +141,7 @@ describe('transitions from polls open', () => {
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
     await screen.findByText('Reprint Polls Closed Report');
-    expect(screen.queryByText('Report Results')).toBeNull();
+    expect(screen.queryByText('Send Polls Closed Report')).toBeNull();
   });
 
   test('close polls from landing screen', async () => {
@@ -154,7 +154,7 @@ describe('transitions from polls open', () => {
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
     await screen.findByText('Reprint Polls Closed Report');
-    expect(screen.queryByText('Report Results')).toBeNull();
+    expect(screen.queryByText('Send Polls Closed Report')).toBeNull();
   });
 
   test('close polls happy path with vxqr', async () => {
@@ -167,7 +167,7 @@ describe('transitions from polls open', () => {
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
     await screen.findByText('Reprint Polls Closed Report');
-    userEvent.click(screen.getButton('Report Results'));
+    userEvent.click(screen.getButton('Send Polls Closed Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
     userEvent.click(screen.getButton('Done'));
@@ -181,7 +181,7 @@ describe('transitions from polls open', () => {
     userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     await screen.findByText('Voting Paused');
-    expect(screen.queryByText('Report Results')).toBeNull();
+    expect(screen.queryByText('Send Polls Paused Report')).toBeNull();
   });
 });
 
@@ -239,7 +239,9 @@ test('no transitions from polls closed final', async () => {
   screen.getButton('Signed Hash Validation');
 
   // If the election is not configured for VxQR there should not be an option to view QR code
-  expect(screen.queryByText('Report Results')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Send Polls Closed Report')
+  ).not.toBeInTheDocument();
 });
 
 test('polls closed final shows quick results code when configured', async () => {
@@ -255,7 +257,7 @@ test('polls closed final shows quick results code when configured', async () => 
   screen.getButton('Print Polls Closed Report');
   screen.getButton('Signed Hash Validation');
 
-  const qrButton = screen.getButton('Report Results');
+  const qrButton = screen.getButton('Send Polls Closed Report');
   userEvent.click(qrButton);
   const qrCode = screen.getByTestId('quick-results-code');
   expect(qrCode).toBeInTheDocument();
@@ -278,7 +280,7 @@ test('polls open shows quick results code when configured', async () => {
   screen.getButton('Pause Voting');
   screen.getButton('Signed Hash Validation');
 
-  const qrButton = screen.getButton('Report Polls Open');
+  const qrButton = screen.getButton('Send Polls Opened Report');
   userEvent.click(qrButton);
   const qrCode = screen.getByTestId('quick-results-code');
   expect(qrCode).toBeInTheDocument();
@@ -818,7 +820,7 @@ describe('report printing', () => {
       'Report printed. Remove the poll worker card once you have printed all necessary reports.'
     );
 
-    userEvent.click(screen.getButton('Report Polls Open'));
+    userEvent.click(screen.getButton('Send Polls Opened Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
     userEvent.click(screen.getButton('Done'));
@@ -903,7 +905,7 @@ describe('report printing', () => {
     await screen.findByText('Polls Opened');
 
     // We should also get an option to report polls open at this point via VxQR
-    userEvent.click(screen.getButton('Report Polls Open'));
+    userEvent.click(screen.getButton('Send Polls Opened Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
     userEvent.click(screen.getButton('Done'));

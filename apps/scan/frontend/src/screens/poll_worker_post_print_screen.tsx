@@ -149,7 +149,7 @@ export function PostPrintScreen({
             {POLLS_TRANSITIONS_WITH_REPORTS.includes(pollsTransitionType) &&
               reportQuickResultsEnabled && (
                 <Button variant="primary" onPress={onViewReportResults}>
-                  Send {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
+                  Send {getPollsReportTitle(pollsTransitionType)}
                 </Button>
               )}
           </P>
