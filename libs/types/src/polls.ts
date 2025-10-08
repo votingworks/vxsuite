@@ -6,6 +6,16 @@ export type PollsState =
   | 'polls_paused'
   | 'polls_closed_final';
 
+export type PollsStateSupportsLiveReporting =
+  | 'polls_open'
+  | 'polls_closed_final';
+
+export function doesPollsStateSupportLiveReporting(
+  state: PollsState
+): state is PollsStateSupportsLiveReporting {
+  return state === 'polls_open' || state === 'polls_closed_final';
+}
+
 export const PollsStateSchema: z.ZodSchema<PollsState> = z.union([
   z.literal('polls_closed_initial'),
   z.literal('polls_open'),

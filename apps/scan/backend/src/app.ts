@@ -7,6 +7,7 @@ import {
   SinglePrecinctSelection,
   DiagnosticRecord,
   DiagnosticOutcome,
+  doesPollsStateSupportLiveReporting,
 } from '@votingworks/types';
 import {
   combineElectionResults,
@@ -578,12 +579,11 @@ export function buildApi({
       const precinctSelection = store.getPrecinctSelection();
       assert(precinctSelection !== undefined);
       const systemSettings = store.getSystemSettings();
-      const pollState = store.getPollsState();
-      if (
-        !systemSettings ||
-        !systemSettings.quickResultsReportingUrl ||
-        pollState !== 'polls_closed_final'
-      ) {
+      const pollsState = store.getPollsState();
+      if (!systemSettings || !systemSettings.quickResultsReportingUrl) {
+        return '';
+      }
+      if (!doesPollsStateSupportLiveReporting(pollsState)) {
         return '';
       }
       const scannerResultsByParty = await getScannerResultsMemoized({ store });
@@ -600,6 +600,7 @@ export function buildApi({
           isLiveMode: !store.getTestMode(),
           precinctSelection,
           results: combinedResults,
+          pollsState,
         });
       return signedQuickResultsReportingUrl;
     },

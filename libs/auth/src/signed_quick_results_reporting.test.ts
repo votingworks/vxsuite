@@ -51,16 +51,68 @@ test.each<{ isLiveMode: boolean }>([
           results: mockedResults,
           signingMachineId: DEV_MACHINE_ID,
           precinctSelection: { kind: 'AllPrecincts' },
+          pollsState: 'polls_closed_final',
         },
         vxScanTestConfig
       );
 
     expect(compressAndEncodeTally).toHaveBeenCalledTimes(1);
+    expect(signedQuickResultsReportingUrl).not.toContain('polls_open');
     expect(signedQuickResultsReportingUrl).toMatch(
       /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
     );
   }
 );
+
+test('generateSignedQuickResultsReportingUrl works for reporting polls open status - live all precincts', async () => {
+  const signedQuickResultsReportingUrl =
+    await generateSignedQuickResultsReportingUrl(
+      {
+        electionDefinition,
+        isLiveMode: true,
+        quickResultsReportingUrl: 'https://example.com',
+        results: mockedResults,
+        signingMachineId: DEV_MACHINE_ID,
+        precinctSelection: { kind: 'AllPrecincts' },
+        pollsState: 'polls_open',
+      },
+      vxScanTestConfig
+    );
+
+  // We do not need a compressed tally when reporting polls open status
+  expect(compressAndEncodeTally).toHaveBeenCalledTimes(0);
+  expect(signedQuickResultsReportingUrl).toMatch(
+    /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
+  );
+  expect(signedQuickResultsReportingUrl).toContain('polls_open');
+});
+
+test('generateSignedQuickResultsReportingUrl works for reporting polls open status - test single precincts', async () => {
+  const signedQuickResultsReportingUrl =
+    await generateSignedQuickResultsReportingUrl(
+      {
+        electionDefinition,
+        isLiveMode: false,
+        quickResultsReportingUrl: 'https://example.com',
+        results: mockedResults,
+        signingMachineId: DEV_MACHINE_ID,
+        precinctSelection: {
+          kind: 'SinglePrecinct',
+          precinctId: 'mockPrecinctId',
+        },
+        pollsState: 'polls_open',
+      },
+      vxScanTestConfig
+    );
+
+  // We do not need a compressed tally when reporting polls open status
+  expect(compressAndEncodeTally).toHaveBeenCalledTimes(0);
+  expect(signedQuickResultsReportingUrl).toMatch(
+    /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
+  );
+  expect(signedQuickResultsReportingUrl).toContain('polls_open');
+  expect(signedQuickResultsReportingUrl).toContain('mockPrecinctId');
+});
 
 test('authenticateSignedQuickResultsReportingUrl - success case with real certificates', async () => {
   // First generate a valid signed URL to get real payload, signature, and certificate
@@ -72,6 +124,7 @@ test('authenticateSignedQuickResultsReportingUrl - success case with real certif
       results: mockedResults,
       signingMachineId: DEV_MACHINE_ID,
       precinctSelection: { kind: 'AllPrecincts' },
+      pollsState: 'polls_closed_final',
     },
     vxScanTestConfig
   );
@@ -107,6 +160,7 @@ test('authenticateSignedQuickResultsReportingUrl - invalid signature', async () 
       results: mockedResults,
       signingMachineId: DEV_MACHINE_ID,
       precinctSelection: { kind: 'AllPrecincts' },
+      pollsState: 'polls_closed_final',
     },
     vxScanTestConfig
   );
@@ -158,6 +212,7 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
       results: mockedResults,
       signingMachineId: DEV_MACHINE_ID,
       precinctSelection: { kind: 'AllPrecincts' },
+      pollsState: 'polls_closed_final',
     },
     vxScanTestConfig
   );
@@ -209,6 +264,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     timestamp: timeInSeconds,
     compressedTally: 'sampleCompressedTally',
     precinctSelection: { kind: 'AllPrecincts' },
+    pollsState: 'polls_closed_final',
   });
   expect(() => {
     decodeQuickResultsMessage(
@@ -260,6 +316,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
         compressedTally: 'sampleCompressedTally',
         precinctSelection: { kind: 'AllPrecincts' },
+        pollsState: 'polls_closed_final',
       })
     )
   );
@@ -269,6 +326,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
       "encodedCompressedTally": "sampleCompressedTally",
       "isLive": false,
       "machineId": "machineId",
+      "pollsState": "polls_closed_final",
       "precinctSelection": {
         "kind": "AllPrecincts",
       },
@@ -291,6 +349,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
           kind: 'SinglePrecinct',
           precinctId: 'mockPrecinctId',
         },
+        pollsState: 'polls_closed_final',
       })
     )
   );
@@ -300,6 +359,41 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
       "encodedCompressedTally": "sampleCompressedTally",
       "isLive": false,
       "machineId": "machineId",
+      "pollsState": "polls_closed_final",
+      "precinctSelection": {
+        "kind": "SinglePrecinct",
+        "precinctId": "mockPrecinctId",
+      },
+      "signedTimestamp": 2024-01-01T00:00:00.000Z,
+    }
+  `);
+});
+
+test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting polls open status', () => {
+  const encoded = encodeQuickResultsMessage({
+    ballotHash: 'mockBallotHash',
+    signingMachineId: 'machineId',
+    isLiveMode: false,
+    timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
+    compressedTally: '',
+    precinctSelection: {
+      kind: 'SinglePrecinct',
+      precinctId: 'mockPrecinctId',
+    },
+    pollsState: 'polls_open',
+  });
+
+  expect(encoded).toContain('polls_open');
+  const decoded = decodeQuickResultsMessage(
+    constructPrefixedMessage(QR_MESSAGE_FORMAT, encoded)
+  );
+  expect(decoded).toMatchInlineSnapshot(`
+    {
+      "ballotHash": "mockBallotHash",
+      "encodedCompressedTally": "",
+      "isLive": false,
+      "machineId": "machineId",
+      "pollsState": "polls_open",
       "precinctSelection": {
         "kind": "SinglePrecinct",
         "precinctId": "mockPrecinctId",

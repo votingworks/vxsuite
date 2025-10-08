@@ -340,6 +340,9 @@ export function createApiMock() {
     expectGetQuickResultsReportingUrl(url: string = '') {
       mockApiClient.getQuickResultsReportingUrl.reset();
       mockApiClient.getQuickResultsReportingUrl.expectCallWith().resolves(url);
+      mockApiClient.getQuickResultsReportingUrl
+        .expectOptionalRepeatedCallsWith()
+        .resolves(url);
     },
   };
 }

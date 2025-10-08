@@ -17,6 +17,11 @@ import { getPrinterStatus, printReportSection } from '../api';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
 import { CenteredText } from '../components/layout';
 
+const POLLS_TRANSITIONS_WITH_REPORTS: PollsTransitionType[] = [
+  'open_polls',
+  'close_polls',
+];
+
 function getReportManifest(
   electionDefinition: ElectionDefinition,
   pollsTransitionType: PollsTransitionType
@@ -48,11 +53,15 @@ export function PostPrintScreen({
   pollsTransitionType,
   isPostPollsTransition,
   initialPrintResult,
+  reportQuickResultsEnabled,
+  onViewReportResults,
 }: {
   electionDefinition: ElectionDefinition;
   pollsTransitionType: PollsTransitionType;
   isPostPollsTransition: boolean;
   initialPrintResult: PrintResult;
+  reportQuickResultsEnabled: boolean;
+  onViewReportResults: () => void;
 }): JSX.Element {
   // we start on index 1 because we printed the first report before transitioning to this screen
   const [printIndex, setPrintIndex] = useState(1);
@@ -137,6 +146,12 @@ export function PostPrintScreen({
             <Button onPress={() => printSection(0)} disabled={disablePrinting}>
               Reprint {getPollsReportTitle(pollsTransitionType)}
             </Button>
+            {POLLS_TRANSITIONS_WITH_REPORTS.includes(pollsTransitionType) &&
+              reportQuickResultsEnabled && (
+                <Button variant="primary" onPress={onViewReportResults}>
+                  Send {getPollsReportTitle(pollsTransitionType)}
+                </Button>
+              )}
           </P>
         </CenteredText>
       </Screen>
@@ -172,7 +187,13 @@ export function PostPrintScreen({
                 disabled={disablePrinting}
               >
                 Reprint All Reports
-              </Button>
+              </Button>{' '}
+              {POLLS_TRANSITIONS_WITH_REPORTS.includes(pollsTransitionType) &&
+                reportQuickResultsEnabled && (
+                  <Button variant="primary" onPress={onViewReportResults}>
+                    Send {getPollsReportTitle(pollsTransitionType)}
+                  </Button>
+                )}
             </P>
           </React.Fragment>
         ) : (

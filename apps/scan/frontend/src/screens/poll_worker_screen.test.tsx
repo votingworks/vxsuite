@@ -76,6 +76,7 @@ function renderScreen(props: Partial<PollWorkerScreenProps> = {}) {
 describe('transitions from polls closed initial', () => {
   beforeEach(async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
+    apiMock.expectGetQuickResultsReportingUrl('');
     renderScreen({
       scannedBallotCount: 0,
     });
@@ -89,6 +90,8 @@ describe('transitions from polls closed initial', () => {
     userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
+    await screen.findByText('Reprint Polls Opened Report');
+    expect(screen.queryByText('Send Polls Opened Report')).toBeNull();
   });
 
   test('open polls from landing screen', async () => {
@@ -99,6 +102,24 @@ describe('transitions from polls closed initial', () => {
     userEvent.click(await screen.findByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
+    await screen.findByText('Reprint Polls Opened Report');
+    expect(screen.queryByText('Send Polls Opened Report')).toBeNull();
+  });
+
+  test('open polls happy path with vxqr', async () => {
+    apiMock.expectOpenPolls();
+    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+    apiMock.expectPrintReportSection(0).resolve();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(screen.getByText('Open Polls'));
+    await screen.findByText('Opening Polls…');
+    await screen.findByText('Polls Opened');
+    await screen.findByText('Reprint Polls Opened Report');
+    userEvent.click(screen.getButton('Send Polls Opened Report'));
+    const qrCode = screen.getByTestId('quick-results-code');
+    expect(qrCode).toBeInTheDocument();
+    userEvent.click(screen.getButton('Done'));
+    await screen.findByText('Close Polls');
   });
 });
 
@@ -119,6 +140,8 @@ describe('transitions from polls open', () => {
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
+    await screen.findByText('Reprint Polls Closed Report');
+    expect(screen.queryByText('Send Polls Closed Report')).toBeNull();
   });
 
   test('close polls from landing screen', async () => {
@@ -130,6 +153,24 @@ describe('transitions from polls open', () => {
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
+    await screen.findByText('Reprint Polls Closed Report');
+    expect(screen.queryByText('Send Polls Closed Report')).toBeNull();
+  });
+
+  test('close polls happy path with vxqr', async () => {
+    apiMock.expectClosePolls();
+    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+    apiMock.expectPrintReportSection(0).resolve();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Close Polls'));
+    await screen.findByText('Closing Polls…');
+    await screen.findByText('Polls Closed');
+    expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
+    await screen.findByText('Reprint Polls Closed Report');
+    userEvent.click(screen.getButton('Send Polls Closed Report'));
+    const qrCode = screen.getByTestId('quick-results-code');
+    expect(qrCode).toBeInTheDocument();
+    userEvent.click(screen.getButton('Done'));
   });
 
   test('pause voting', async () => {
@@ -140,6 +181,7 @@ describe('transitions from polls open', () => {
     userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     await screen.findByText('Voting Paused');
+    expect(screen.queryByText('Send Polls Paused Report')).toBeNull();
   });
 });
 
@@ -197,7 +239,9 @@ test('no transitions from polls closed final', async () => {
   screen.getButton('Signed Hash Validation');
 
   // If the election is not configured for VxQR there should not be an option to view QR code
-  expect(screen.queryByText('View Quick Results Code')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Send Polls Closed Report')
+  ).not.toBeInTheDocument();
 });
 
 test('polls closed final shows quick results code when configured', async () => {
@@ -213,7 +257,30 @@ test('polls closed final shows quick results code when configured', async () => 
   screen.getButton('Print Polls Closed Report');
   screen.getButton('Signed Hash Validation');
 
-  const qrButton = screen.getButton('View Quick Results Code');
+  const qrButton = screen.getButton('Send Polls Closed Report');
+  userEvent.click(qrButton);
+  const qrCode = screen.getByTestId('quick-results-code');
+  expect(qrCode).toBeInTheDocument();
+});
+
+test('polls open shows quick results code when configured', async () => {
+  apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+  apiMock.expectGetPollsInfo('polls_open');
+  renderScreen({
+    scannedBallotCount: 0,
+  });
+  const menu = await screen.findButton('Menu');
+  userEvent.click(menu);
+  await screen.findByText(/Close the polls/);
+
+  expect(screen.queryAllByRole('button')).toHaveLength(6);
+  screen.getButton('Close Polls');
+  screen.getButton('Power Down');
+  screen.getButton('Print Polls Opened Report');
+  screen.getButton('Pause Voting');
+  screen.getButton('Signed Hash Validation');
+
+  const qrButton = screen.getButton('Send Polls Opened Report');
   userEvent.click(qrButton);
   const qrCode = screen.getByTestId('quick-results-code');
   expect(qrCode).toBeInTheDocument();
@@ -720,9 +787,10 @@ describe('does not need usb drive attached to transition polls if continuous exp
 });
 
 describe('report printing', () => {
-  test('single report printing happy path', async () => {
+  test('single report printing happy path works to report polls open', async () => {
     apiMock.setPrinterStatus();
     apiMock.expectGetPollsInfo('polls_closed_initial');
+    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
     apiMock.expectOpenPolls();
     const { resolve } = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
@@ -733,6 +801,7 @@ describe('report printing', () => {
 
     // close polls to trigger first section to print
     await screen.findByText('Do you want to open the polls?');
+    // Opening polls will cause this to be refetched
     userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     resolve();
@@ -750,10 +819,17 @@ describe('report printing', () => {
     screen.getByText(
       'Report printed. Remove the poll worker card once you have printed all necessary reports.'
     );
+
+    userEvent.click(screen.getButton('Send Polls Opened Report'));
+    const qrCode = screen.getByTestId('quick-results-code');
+    expect(qrCode).toBeInTheDocument();
+    userEvent.click(screen.getButton('Done'));
+    await screen.findByText('Close Polls');
   });
 
-  test('multiple report printing happy path', async () => {
+  test('multiple report printing happy path with reporting polls open', async () => {
     apiMock.setPrinterStatus();
+    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectOpenPolls();
     const { resolve: resolveMammal } = apiMock.expectPrintReportSection(0);
@@ -764,6 +840,8 @@ describe('report printing', () => {
 
     // close polls to trigger first section to print
     await screen.findByText('Do you want to open the polls?');
+    // This will be called again when polls are opened
+    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
     userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     resolveMammal();
@@ -812,6 +890,26 @@ describe('report printing', () => {
     resolveMammalReprint2();
     await screen.findByText('Polls Opened');
     screen.getByText(/Mammal Party Polls Opened Report/);
+
+    // Finish printing the next two pages
+    const { resolve: resolveFish2 } = apiMock.expectPrintReportSection(1);
+    userEvent.click(screen.getButton('Print Next Report'));
+    await screen.findByText('Printing Report…');
+    resolveFish2();
+    await screen.findByText('Polls Opened');
+    const { resolve: resolveNonpartisan2 } =
+      apiMock.expectPrintReportSection(2);
+    userEvent.click(screen.getButton('Print Next Report'));
+    await screen.findByText('Printing Report…');
+    resolveNonpartisan2();
+    await screen.findByText('Polls Opened');
+
+    // We should also get an option to report polls open at this point via VxQR
+    userEvent.click(screen.getButton('Send Polls Opened Report'));
+    const qrCode = screen.getByTestId('quick-results-code');
+    expect(qrCode).toBeInTheDocument();
+    userEvent.click(screen.getButton('Done'));
+    await screen.findByText('Close Polls');
   });
 
   test('suspension report printing happy path, for primary', async () => {
