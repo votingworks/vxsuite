@@ -13,7 +13,12 @@ import {
   NhBallotProps,
   NhPrimaryBallotProps,
 } from '@votingworks/hmpb';
-import { find, throwIllegalValue, assertDefined } from '@votingworks/basics';
+import {
+  find,
+  throwIllegalValue,
+  assertDefined,
+  assert,
+} from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { sliOrgId } from './globals';
 import { BallotStyle, normalizeState, User, UsState } from './types';
@@ -135,7 +140,7 @@ export function createBallotPropsForTemplate(
     case 'NhPrimaryBallot':
       return baseBallotProps.map(addColorTintByParty);
 
-    case 'NhStateBallot':
+    case 'NhGeneralBallot':
     case 'VxDefaultBallot':
       return baseBallotProps;
 

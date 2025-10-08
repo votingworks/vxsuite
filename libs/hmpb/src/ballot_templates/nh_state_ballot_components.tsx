@@ -150,7 +150,7 @@ export function Instructions(): JSX.Element {
       style={{
         fontSize: '9pt',
         textAlign: 'justify',
-        lineHeight: '1.1',
+        lineHeight: '1',
       }}
     >
       <div>
@@ -219,7 +219,7 @@ export function HandCountInsignia({
         right: 0,
         bottom: 0,
         width: '50%',
-        height: '45%',
+        height: '50%',
         backgroundColor: colorTint && ColorTints[colorTint],
         display: 'flex',
         flexDirection: 'column',
@@ -230,11 +230,21 @@ export function HandCountInsignia({
         padding: '1rem 3rem',
       }}
     >
-      {party && <h2>{electionStrings.partyName(party)}</h2>}
+      {party && (
+        <h2
+          style={{
+            ...allCaps,
+            fontFamily: 'Times New Roman',
+            fontWeight: 'bold',
+            fontSize: '22pt',
+          }}
+        >
+          {electionStrings.partyName(party)}
+        </h2>
+      )}
       <div
         style={{
           fontFamily: 'Blackletter',
-          fontWeight: 'bold',
           fontSize: '19pt',
         }}
       >
@@ -243,7 +253,6 @@ export function HandCountInsignia({
       <div
         style={{
           fontFamily: 'Blackletter',
-          fontWeight: 'bold',
           fontSize: '48pt',
         }}
       >
@@ -258,21 +267,46 @@ export function HandCountInsignia({
           padding: '0.5rem 0',
         }}
       >
-        <h4>{electionStrings.electionTitle(election)}</h4>
+        <h2
+          style={{
+            ...allCaps,
+            fontFamily: 'Century Schoolbook',
+            fontWeight: 'bold',
+          }}
+        >
+          {electionStrings.electionTitle(election)}
+        </h2>
       </div>
-      <div>{electionStrings.electionDate(election)}</div>
-      <div>{electionStrings.countyName(election.county)}</div>
-      <div style={{ textAlign: 'center' }}>
+      <h1 style={{ fontFamily: 'Times New Roman', fontWeight: 'bold' }}>
+        {electionStrings.electionDate(election)}
+      </h1>
+      <h1
+        style={{
+          fontFamily: 'Times New Roman',
+          fontSize: '18pt',
+          fontWeight: 'bold',
+        }}
+      >
+        {electionStrings.countyName(election.county)}
+      </h1>
+      <div style={{ textAlign: 'right' }}>
         <img
           src={`data:image/svg+xml;base64,${Buffer.from(
             assertDefined(election.signature).image
           ).toString('base64')}`}
           style={{
-            height: '2.5rem',
-            marginBottom: '-0.75rem',
+            width: '1.5in',
           }}
         />
-        <div style={{ fontSize: '0.8rem' }}>
+        <div
+          style={{
+            ...allCaps,
+            fontSize: '6.25pt',
+            fontWeight: 'bold',
+            marginTop: '-1.5rem',
+            marginRight: '0.25rem',
+          }}
+        >
           {assertDefined(election.signature).caption}
         </div>
       </div>
