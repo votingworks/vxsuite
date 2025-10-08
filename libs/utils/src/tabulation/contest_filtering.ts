@@ -7,6 +7,8 @@ import {
   AnyContest,
   Contests,
   PrecinctSelection,
+  PartyId,
+  getPartyIdsWithContests,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
@@ -131,4 +133,23 @@ export function getContestsForPrecinctAndElection(
   return Array.from(assertDefined(contestIds))
     .map((id) => lookupContestIdToContest[id])
     .filter((c): c is AnyContest => c !== undefined);
+}
+
+export interface PartyWithContests {
+  partyId?: PartyId; // undefined for non-partisan contests
+  partyName?: string;
+  contests: Contests;
+}
+
+export function groupContestsByParty(
+  election: Election,
+  contests: Contests
+): PartyWithContests[] {
+  const partyIds = getPartyIdsWithContests(election);
+  return partyIds.map((partyId) => {
+    const sectionContests = partyId
+      ? contests.filter((c) => c.type === 'candidate' && c.partyId === partyId)
+      : contests.filter((c) => c.type === 'yesno' || !c.partyId);
+    return { partyId, contests: sectionContests };
+  });
 }
