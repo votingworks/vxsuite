@@ -149,10 +149,7 @@ export function PostPrintScreen({
             {POLLS_TRANSITIONS_WITH_REPORTS.includes(pollsTransitionType) &&
               reportQuickResultsEnabled && (
                 <Button variant="primary" onPress={onViewReportResults}>
-                  Report{' '}
-                  {pollsTransitionType === 'open_polls'
-                    ? 'Polls Open'
-                    : 'Results'}
+                  Send {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
                 </Button>
               )}
           </P>
@@ -194,10 +191,7 @@ export function PostPrintScreen({
               {POLLS_TRANSITIONS_WITH_REPORTS.includes(pollsTransitionType) &&
                 reportQuickResultsEnabled && (
                   <Button variant="primary" onPress={onViewReportResults}>
-                    Report{' '}
-                    {pollsTransitionType === 'open_polls'
-                      ? 'Polls Open'
-                      : 'Results'}
+                    Send {getPollsReportTitle(pollsTransitionType)}
                   </Button>
                 )}
             </P>

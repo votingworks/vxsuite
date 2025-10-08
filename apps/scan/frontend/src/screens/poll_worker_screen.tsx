@@ -497,8 +497,8 @@ function PollWorkerScreenContents({
         return (
           <Screen>
             <h4 style={{ marginTop: 0 }}>
-              Scan the QR code to report{' '}
-              {pollsState === 'polls_closed_final' ? 'results' : 'polls open'}
+              Scan the QR code to send{' '}
+              {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
             </h4>
             <CenteredText>
               {getQuickResultsReportingUrlQuery.data && (
@@ -506,7 +506,7 @@ function PollWorkerScreenContents({
                   <QrCode
                     value={getQuickResultsReportingUrlQuery.data}
                     level="L"
-                    size={400}
+                    size={450}
                   />
                 </div>
               )}
@@ -542,9 +542,7 @@ function PollWorkerScreenContents({
           setPollWorkerFlowState({ type: 'view-reporting-qr-code' })
         }
       >
-        {pollsInfo.pollsState === 'polls_closed_final'
-          ? 'Report Results'
-          : 'Report Polls Open'}
+        {`Send ${getPollsReportTitle(pollsInfo.lastPollsTransition.type)}`}
       </Button>
     ) : null;
 
