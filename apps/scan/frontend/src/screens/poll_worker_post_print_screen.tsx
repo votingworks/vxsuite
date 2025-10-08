@@ -17,6 +17,11 @@ import { getPrinterStatus, printReportSection } from '../api';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
 import { CenteredText } from '../components/layout';
 
+const POLLS_TRANSITIONS_WITH_REPORTS: PollsTransitionType[] = [
+  'open_polls',
+  'close_polls',
+];
+
 function getReportManifest(
   electionDefinition: ElectionDefinition,
   pollsTransitionType: PollsTransitionType
@@ -141,7 +146,7 @@ export function PostPrintScreen({
             <Button onPress={() => printSection(0)} disabled={disablePrinting}>
               Reprint {getPollsReportTitle(pollsTransitionType)}
             </Button>
-            {['open_polls', 'close_polls'].includes(pollsTransitionType) &&
+            {POLLS_TRANSITIONS_WITH_REPORTS.includes(pollsTransitionType) &&
               reportQuickResultsEnabled && (
                 <Button variant="primary" onPress={onViewReportResults}>
                   Report{' '}
@@ -186,7 +191,7 @@ export function PostPrintScreen({
               >
                 Reprint All Reports
               </Button>{' '}
-              {['open_polls', 'close_polls'].includes(pollsTransitionType) &&
+              {POLLS_TRANSITIONS_WITH_REPORTS.includes(pollsTransitionType) &&
                 reportQuickResultsEnabled && (
                   <Button variant="primary" onPress={onViewReportResults}>
                     Report{' '}

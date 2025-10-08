@@ -44,7 +44,10 @@ interface SignedQuickResultsReportingInput {
 const CERT_PEM_HEADER = '-----BEGIN CERTIFICATE-----';
 const CERT_PEM_FOOTER = '-----END CERTIFICATE-----';
 
-const REPORTABLE_POLL_STATES = ['polls_open', 'polls_closed_final'];
+const REPORTABLE_POLL_STATES: PollsState[] = [
+  'polls_open',
+  'polls_closed_final',
+];
 
 /**
  * The separator between parts of the signed quick results reporting message payload.
