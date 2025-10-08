@@ -108,6 +108,7 @@ import {
   UserFeaturesConfig,
 } from './features';
 import { rootDebug } from './debug';
+import * as ttsStrings from './tts_strings';
 
 const debug = rootDebug.extend('app');
 
@@ -183,7 +184,8 @@ function requireOrgAccess(user: User, orgId: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
+export function buildApi(ctx: AppContext) {
+  const { auth0, logger, workspace, translator } = ctx;
   const { store } = workspace;
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
@@ -230,8 +232,18 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           'getUserFeatures',
           'getBaseUrl',
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
+          ...ttsStrings.methodsThatHandleAuthThemselves,
         ];
-        assert(methodsThatHandleAuthThemselves.includes(methodName));
+        assert(
+          methodsThatHandleAuthThemselves.includes(methodName),
+          `Auth info missing from input for API method \`${methodName}\`.
+          Options:
+            - Add (or move) an electionId field to the top-level input object.
+            - Add (or move) an orgId field to the top-level input object.
+            - Add '${methodName}' to the \`methodsThatHandleAuthThemselves\`
+              array in src/app.ts.
+        `
+        );
       },
     ],
 
@@ -878,6 +890,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         ]);
       }
     },
+
+    ...ttsStrings.apiMethods(ctx),
   } as const;
 
   return grout.createApi(methods, middlewares);

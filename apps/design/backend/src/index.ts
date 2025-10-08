@@ -15,6 +15,7 @@ import {
   S3FileStorageClient,
 } from './file_storage_client';
 
+export type { TtsStringDefault } from './tts_strings';
 export type { ElectionRecord, BackgroundTask } from './store';
 export type {
   BallotStyle,
