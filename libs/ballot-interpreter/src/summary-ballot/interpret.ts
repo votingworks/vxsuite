@@ -11,9 +11,12 @@ import {
   decodeBallot,
   decodeBallotHash,
 } from '@votingworks/ballot-encoder';
+import { crop } from '@votingworks/image-utils';
 import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
 import { DetectedQrCode } from './types';
 import { rotateImageData180 } from './utils/rotate';
+import { findScannedDocumentInset } from './image_utils';
+import { otsu } from './otsu';
 
 export interface Interpretation {
   ballot: CompletedBallot;
@@ -49,7 +52,21 @@ export async function interpret(
   card: SheetOf<ImageData>,
   disableBmdBallotScanning: boolean = false
 ): Promise<InterpretResult> {
-  const [frontResult, backResult] = await mapSheet(card, detectInBallot);
+  const croppedCard = mapSheet(card, (imageData) => {
+    const threshold = otsu(imageData.data);
+    const inset = findScannedDocumentInset(imageData, threshold);
+
+    return inset
+      ? crop(imageData, {
+          x: inset.left,
+          y: inset.top,
+          width: imageData.width - inset.right - inset.left,
+          height: imageData.height - inset.bottom - inset.top,
+        })
+      : imageData;
+  });
+
+  const [frontResult, backResult] = await mapSheet(croppedCard, detectInBallot);
 
   if (frontResult.isErr() && backResult.isErr()) {
     return err({
@@ -91,7 +108,9 @@ export async function interpret(
     });
   }
 
-  const summaryBallotImage = frontResult.isOk() ? card[0] : card[1];
+  const summaryBallotImage = frontResult.isOk()
+    ? croppedCard[0]
+    : croppedCard[1];
   // Orient the ballot image right side up
   if (foundQrCode.position === 'bottom') {
     rotateImageData180(summaryBallotImage);
@@ -100,6 +119,6 @@ export async function interpret(
   return ok({
     ballot: decodeBallot(electionDefinition.election, foundQrCode.data),
     summaryBallotImage,
-    blankPageImage: frontResult.isOk() ? card[1] : card[0],
+    blankPageImage: frontResult.isOk() ? croppedCard[1] : croppedCard[0],
   });
 }
