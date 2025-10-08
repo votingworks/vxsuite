@@ -1,10 +1,7 @@
 use serde::Serialize;
 use types_rs::geometry::{PixelUnit, Point, Rect};
 
-use crate::{
-    ballot_card::{BallotImage, Geometry},
-    scoring::UnitIntervalScore,
-};
+use crate::{ballot_card::BallotImage, scoring::UnitIntervalScore};
 
 /// Scores the given timing mark against its expected geometry. The score is
 /// based on the number of pixels in the timing mark that are the expected
@@ -38,12 +35,11 @@ use crate::{
 fn score_timing_mark_geometry_match(
     ballot_image: &BallotImage,
     timing_mark: &Rect,
-    geometry: &Geometry,
 ) -> TimingMarkScore {
     let image = ballot_image.image();
     let image_rect = Rect::new(0, 0, image.width(), image.height());
-    let expected_width = geometry.timing_mark_width_pixels() as PixelUnit;
-    let expected_height = geometry.timing_mark_height_pixels() as PixelUnit;
+    let expected_width = ballot_image.geometry().timing_mark_width_pixels() as PixelUnit;
+    let expected_height = ballot_image.geometry().timing_mark_height_pixels() as PixelUnit;
     let expected_timing_mark_rect = Rect::new(
         timing_mark.left(),
         timing_mark.top(),
@@ -128,9 +124,9 @@ impl CandidateTimingMark {
         Self { rect, scores }
     }
 
-    pub fn scored(ballot_image: &BallotImage, geometry: &Geometry, rect: Rect) -> Self {
+    pub fn scored(ballot_image: &BallotImage, rect: Rect) -> Self {
         Self {
-            scores: score_timing_mark_geometry_match(ballot_image, &rect, geometry),
+            scores: score_timing_mark_geometry_match(ballot_image, &rect),
             rect,
         }
     }

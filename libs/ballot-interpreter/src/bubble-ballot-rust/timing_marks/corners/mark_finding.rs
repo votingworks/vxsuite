@@ -4,7 +4,7 @@ use imageproc::drawing::{draw_filled_rect_mut, draw_text_mut};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::{
-    ballot_card::{BallotImage, Geometry},
+    ballot_card::BallotImage,
     debug::{imageproc_rect_from_rect, monospace_font},
     image_utils::rainbow,
     impl_edgewise,
@@ -28,17 +28,13 @@ impl BallotGridCandidateMarks {
     /// Converts a set of ballot grid border shapes into a set of candidate
     /// timing marks. This operation cannot fail because it doesn't do any
     /// validation of the input shapes, it just scores the shapes.
-    pub fn from_shapes(
-        ballot_image: &BallotImage,
-        geometry: &Geometry,
-        shapes: BallotGridBorderShapes,
-    ) -> Self {
+    pub fn from_shapes(ballot_image: &BallotImage, shapes: BallotGridBorderShapes) -> Self {
         // Since we're scoring the shapes by examining every pixel in every shape,
         // we use parallel processing to speed up the operation.
         shapes.par_map_edgewise(|shapes| {
             shapes
                 .par_iter()
-                .map(|shape| shape.to_candidate_timing_mark(ballot_image, geometry))
+                .map(|shape| shape.to_candidate_timing_mark(ballot_image))
                 .collect()
         })
     }

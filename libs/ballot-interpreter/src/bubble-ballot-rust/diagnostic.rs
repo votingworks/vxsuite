@@ -75,7 +75,7 @@ fn inspect_cells(ballot_image: &BallotImage, cells: &[Rect]) -> (Vec<Rect>, Vec<
     (passed_cells, failed_cells)
 }
 
-pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
+pub fn blank_paper(img: GrayImage, label: impl Into<String>, debug_path: Option<PathBuf>) -> bool {
     let bubble_img = load_ballot_scan_bubble_image().expect("loaded bubble image");
     let cell_width = bubble_img.width();
     let cell_height = bubble_img.height();
@@ -89,7 +89,7 @@ pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
             CROP_BORDER_PIXELS + cell_height / 2,
         ),
     ];
-    let Some(mut ballot_image) = BallotImage::from_image(img, debug_path) else {
+    let Ok(mut ballot_image) = BallotImage::from_image(img, label, debug_path) else {
         return false;
     };
 
@@ -135,7 +135,11 @@ mod test {
                         .ok()
                         .map(DynamicImage::into_luma8)
                         .unwrap();
-                    assert_eq!(blank_paper(img, None), $expected, "image path: {path:?}");
+                    assert_eq!(
+                        blank_paper(img, stringify!($test_name), None),
+                        $expected,
+                        "image path: {path:?}"
+                    );
                 }
             }
         };
@@ -171,6 +175,6 @@ mod test {
             .ok()
             .map(DynamicImage::into_luma8)
             .unwrap();
-        assert!(!blank_paper(img, None));
+        assert!(!blank_paper(img, "blank-front.jpg", None));
     }
 }

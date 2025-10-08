@@ -119,6 +119,16 @@ impl<T> Pair<T> {
     pub fn swap(&mut self) {
         swap(&mut self.first, &mut self.second);
     }
+
+    /// Gets a pair with references to the underlying values.
+    pub fn as_ref(&self) -> Pair<&T> {
+        Pair::new(&self.first, &self.second)
+    }
+
+    /// Gets a pair with mutable references to the underlying values.
+    pub fn as_mut_ref(&mut self) -> Pair<&mut T> {
+        Pair::new(&mut self.first, &mut self.second)
+    }
 }
 
 impl<T> Pair<T>

@@ -34,7 +34,9 @@ use types_rs::{
 #[must_use]
 pub struct BallotImage {
     image: GrayImage,
+    label: String,
     threshold: u8,
+    geometry: Geometry,
     border_inset: Inset,
     debug: ImageDebugWriter,
 }
@@ -69,20 +71,40 @@ impl BallotImage {
     /// cropped off. Returns [`None`] if a valid border inset cannot be
     /// computed.
     #[must_use]
-    pub fn from_image(image: GrayImage, debug_base: Option<PathBuf>) -> Option<BallotImage> {
+    pub fn from_image(
+        image: GrayImage,
+        label: impl Into<String>,
+        debug_base: Option<PathBuf>,
+    ) -> Result<BallotImage> {
         let threshold = otsu_level(&image);
+        let label = label.into();
         let border_inset =
-            find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
+            find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)
+                .ok_or_else(|| Error::BorderInsetNotFound {
+                    label: label.clone(),
+                })?;
 
         if border_inset.is_zero() {
             // Don't bother cropping if there's no inset.
             let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
                 ImageDebugWriter::new(debug_base, image.clone())
             });
-            return Some(BallotImage {
+
+            let Some(paper_info) =
+                get_matching_paper_info_for_image_size(image.dimensions(), &PaperInfo::scanned())
+            else {
+                return Err(Error::UnexpectedDimensions {
+                    label: label.into(),
+                    dimensions: image.dimensions().into(),
+                });
+            };
+
+            return Ok(BallotImage {
                 image,
+                label: label.into(),
                 threshold,
                 border_inset,
+                geometry: paper_info.compute_geometry(),
                 debug,
             });
         }
@@ -104,10 +126,21 @@ impl BallotImage {
             ImageDebugWriter::new(debug_base, image.clone())
         });
 
-        Some(BallotImage {
+        let Some(paper_info) =
+            get_matching_paper_info_for_image_size(image.dimensions(), &PaperInfo::scanned())
+        else {
+            return Err(Error::UnexpectedDimensions {
+                label: label.into(),
+                dimensions: image.dimensions().into(),
+            });
+        };
+
+        Ok(BallotImage {
             image,
+            label: label.into(),
             threshold,
             border_inset,
+            geometry: paper_info.compute_geometry(),
             debug,
         })
     }
@@ -118,6 +151,16 @@ impl BallotImage {
     #[must_use]
     pub fn image(&self) -> &GrayImage {
         &self.image
+    }
+
+    /// Gets the label used to describe this image.
+    pub fn label(&self) -> &str {
+        &self.label
+    }
+
+    /// Gets the geometry of the ballot image.
+    pub fn geometry(&self) -> &Geometry {
+        &self.geometry
     }
 
     /// Gets the image debug writer associated with this ballot image.
@@ -219,16 +262,13 @@ impl BallotPage {
     /// cannot be determined.
     #[allow(clippy::result_large_err)]
     pub fn from_image(
-        label: &str,
+        label: impl Into<String>,
         image: GrayImage,
         possible_paper_infos: &[PaperInfo],
         debug_base: Option<PathBuf>,
     ) -> Result<Self> {
-        let Some(ballot_image) = BallotImage::from_image(image, debug_base) else {
-            return Err(Error::BorderInsetNotFound {
-                label: label.to_owned(),
-            });
-        };
+        let label = label.into();
+        let ballot_image = BallotImage::from_image(image, &label, debug_base)?;
 
         let Some(paper_info) =
             get_matching_paper_info_for_image_size(ballot_image.dimensions(), possible_paper_infos)
@@ -240,7 +280,7 @@ impl BallotPage {
         };
 
         Ok(Self {
-            label: label.to_owned(),
+            label,
             ballot_image,
             geometry: paper_info.compute_geometry(),
         })
@@ -260,12 +300,10 @@ impl BallotPage {
         match timing_mark_algorithm {
             TimingMarkAlgorithm::Corners => timing_marks::corners::find_timing_mark_grid(
                 &self.ballot_image,
-                &self.geometry,
                 &timing_marks::corners::Options::default_for_geometry(&self.geometry),
             ),
             TimingMarkAlgorithm::Contours { inference } => {
                 timing_marks::contours::find_timing_mark_grid(
-                    &self.geometry,
                     &self.ballot_image,
                     &FindTimingMarkGridOptions {
                         allowed_timing_mark_inset_percentage_of_width:

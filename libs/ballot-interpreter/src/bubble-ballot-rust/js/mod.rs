@@ -287,9 +287,10 @@ pub fn run_blank_paper_diagnostic_from_path(
     image_path: String,
     debug_path: Option<String>,
 ) -> Result<bool, Error> {
-    let image = image::open(image_path).map(DynamicImage::into_luma8)?;
+    let image = image::open(&image_path).map(DynamicImage::into_luma8)?;
     Ok(crate::diagnostic::blank_paper(
         image,
+        image_path,
         debug_path.map(PathBuf::from),
     ))
 }

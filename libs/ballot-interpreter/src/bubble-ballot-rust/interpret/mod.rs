@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 use std::path::PathBuf;
-use std::str::FromStr;
+use std::str::{self, FromStr};
 
 use image::GrayImage;
 use serde::Serialize;
@@ -27,6 +27,11 @@ use crate::scoring::ScoredPositionAreas;
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::BallotPageMetadata;
 use crate::timing_marks::TimingMarks;
+
+mod barcode_data;
+mod identified_ballot_card;
+mod raw_ballot_card;
+mod registered_bubble_ballot_card;
 
 #[derive(Debug, Clone)]
 pub struct Options {

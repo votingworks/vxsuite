@@ -37,12 +37,11 @@ impl DefaultForGeometry for Options {
 #[allow(clippy::result_large_err)]
 pub fn find_timing_mark_grid(
     ballot_image: &BallotImage,
-    geometry: &Geometry,
     options: &Options,
 ) -> Result<TimingMarks, Error> {
     let shapes = shape_finding::BallotGridBorderShapes::from_ballot_image(
         ballot_image,
-        geometry,
+        ballot_image.geometry(),
         &options.shape_finding_options,
     );
 
@@ -50,8 +49,7 @@ pub fn find_timing_mark_grid(
         shapes.debug_draw(canvas);
     });
 
-    let candidates =
-        mark_finding::BallotGridCandidateMarks::from_shapes(ballot_image, geometry, shapes);
+    let candidates = mark_finding::BallotGridCandidateMarks::from_shapes(ballot_image, shapes);
 
     ballot_image.debug().write("02-candidate_marks", |canvas| {
         candidates.debug_draw(canvas);
@@ -59,7 +57,7 @@ pub fn find_timing_mark_grid(
 
     let corners = corner_finding::BallotGridCorners::find_all(
         ballot_image.dimensions().into(),
-        geometry,
+        ballot_image.geometry(),
         &candidates,
         &options.corner_finding_options,
     )?;
@@ -69,7 +67,7 @@ pub fn find_timing_mark_grid(
     });
 
     let borders = border_finding::BallotGridBorders::find_all(
-        geometry,
+        ballot_image.geometry(),
         &corners,
         &candidates,
         &options.border_finding_options,
@@ -96,7 +94,7 @@ pub fn find_timing_mark_grid(
     .map_cornerwise(|mark| mark.rect().center());
 
     let timing_marks = TimingMarks {
-        geometry: geometry.clone(),
+        geometry: ballot_image.geometry().clone(),
         top_left_corner,
         top_right_corner,
         bottom_left_corner,

@@ -244,12 +244,8 @@ impl TimingMarkShape {
 
     /// Converts this shape into a timing mark shape scored according to the
     /// given ballot image and geometry.
-    pub fn to_candidate_timing_mark(
-        &self,
-        ballot_image: &BallotImage,
-        geometry: &Geometry,
-    ) -> CandidateTimingMark {
-        CandidateTimingMark::scored(ballot_image, geometry, self.bounds())
+    pub fn to_candidate_timing_mark(&self, ballot_image: &BallotImage) -> CandidateTimingMark {
+        CandidateTimingMark::scored(ballot_image, self.bounds())
     }
 }
 
