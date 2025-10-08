@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Button, Modal, P } from '@votingworks/ui';
 import {
   getCastVoteRecordFileMode,
+  getManualResultsMetadata,
   markResultsOfficial,
   revertResultsToUnofficial,
 } from '../api';
@@ -16,10 +17,15 @@ export function MarkResultsOfficialButton(): JSX.Element {
 
   const markResultsOfficialMutation = markResultsOfficial.useMutation();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const manualResultsMetadataQuery = getManualResultsMetadata.useQuery();
+
+  const hasManualTallies =
+    manualResultsMetadataQuery.isSuccess &&
+    manualResultsMetadataQuery.data.length > 0;
 
   const canMarkResultsOfficial =
     castVoteRecordFileModeQuery.isSuccess &&
-    castVoteRecordFileModeQuery.data !== 'unlocked' &&
+    (castVoteRecordFileModeQuery.data !== 'unlocked' || hasManualTallies) &&
     !isOfficialResults;
 
   function openModal() {
