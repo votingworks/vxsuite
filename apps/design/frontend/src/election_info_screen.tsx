@@ -90,7 +90,7 @@ function ElectionInfoForm({
   const showSignatureInput =
     ballotTemplateId === 'NhBallot' ||
     ballotTemplateId === 'NhPrimaryBallot' ||
-    ballotTemplateId === 'NhStateBallot';
+    ballotTemplateId === 'NhGeneralBallot';
 
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {

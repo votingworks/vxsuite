@@ -96,7 +96,6 @@ function Header({
       <div style={{ fontWeight: 'bold' }}>
         <div
           style={{
-            marginBottom: '0.25rem',
             fontWeight: 'bold',
             fontSize: '9pt',
           }}
