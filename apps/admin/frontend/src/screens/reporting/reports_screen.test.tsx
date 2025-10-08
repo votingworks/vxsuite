@@ -27,6 +27,7 @@ const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 describe('ballot count summary text', () => {
   test('unlocked mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
+    apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(0);
 
     renderInAppContext(<ReportsScreen />, {
@@ -39,6 +40,7 @@ describe('ballot count summary text', () => {
 
   test('"official" mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
+    apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
 
     renderInAppContext(<ReportsScreen />, {
@@ -51,6 +53,7 @@ describe('ballot count summary text', () => {
 
   test('"test" mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
 
     renderInAppContext(<ReportsScreen />, {
@@ -67,6 +70,7 @@ describe('showing WIA report link', () => {
 
   test('shown when election has write-in contests', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
 
     renderInAppContext(<ReportsScreen />, {
@@ -79,6 +83,7 @@ describe('showing WIA report link', () => {
 
   test('not shown when election does not write-in contests', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
+    apiMock.expectGetManualResultsMetadata([]);
     apiMock.expectGetTotalBallotCount(3000);
 
     const electionDefinitionWithoutWriteIns: ElectionDefinition = {
