@@ -2106,6 +2106,22 @@ export class Store {
     }));
     if (!isLive) {
       pollsStatus.push({
+        machineId: 'FAKE-CARO-01',
+        signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+        pollsState: 'polls_closed_final',
+        precinctSelection: singlePrecinctSelectionFor(
+          election.election.precincts[0]?.id
+        ),
+      });
+      pollsStatus.push({
+        machineId: 'FAKE-CARO-06',
+        signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+        pollsState: 'polls_closed_final',
+        precinctSelection: singlePrecinctSelectionFor(
+          election.election.precincts[0]?.id
+        ),
+      });
+      pollsStatus.push({
         machineId: 'FAKE-CARO-04',
         signedTimestamp: new Date('2024-01-01T12:00:00Z'),
         pollsState: 'polls_open',

@@ -20,6 +20,10 @@ import {
   ReportMetadata,
   TallyReportCardCounts,
   Icons,
+  Card,
+  LabelledText,
+  H3,
+  Caption,
 } from '@votingworks/ui';
 import { useParams, Switch, Route, Redirect } from 'react-router-dom';
 import React, { useState } from 'react';
@@ -30,6 +34,7 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 import {
+  format,
   getContestsForPrecinctAndElection,
   getPollsStateName,
   getPrecinctSelectionName,
@@ -44,6 +49,7 @@ import {
   getSystemSettings,
 } from './api';
 import { useTitle } from './hooks/use_title';
+import { Column, Row } from './layout';
 
 interface PollsStatusTabProps {
   electionId: string;
@@ -73,19 +79,42 @@ function getPollsStatusText(
   if (pollsClosedCount > 0) {
     return (
       <span>
-        {`${pollsClosedCount} / ${totalCount} Closed `}
-        {pollsClosedCount >= totalCount && <Icons.Done color="success" />}
+        {pollsClosedCount >= totalCount ? (
+          <Icons.Done color="primary" />
+        ) : (
+          <Icons.CircleDot color="primary" />
+        )}{' '}
+        {pollsClosedCount}/{totalCount} closed
       </span>
     );
   }
   if (pollsPausedCount > 0) {
-    return `${pollsPausedCount} / ${totalCount} Paused `;
+    return (
+      <span>
+        <Icons.Paused color="warning" /> {pollsPausedCount}/{totalCount} paused
+      </span>
+    );
   }
   if (pollsOpenCount > 0) {
-    return `${pollsOpenCount} Open `;
+    return (
+      <span>
+        <Icons.Circle color="success" /> {pollsOpenCount} open
+      </span>
+    );
   }
-  return '-';
+  return (
+    <span>
+      <Icons.Warning color="warning" /> No reports sent
+    </span>
+  );
 }
+
+const prettyPollsState: Record<PollsState, string> = {
+  polls_open: 'Polls Opened',
+  polls_paused: 'Polls Paused',
+  polls_closed_initial: 'Polls Closed',
+  polls_closed_final: 'Polls Closed',
+};
 
 function ViewResultsSummaryScreen({
   electionId,
@@ -161,23 +190,91 @@ function ViewResultsSummaryScreen({
   return (
     <div>
       {machineStatusData.length > 0 && (
-        <div>
-          <LinkButton
-            variant="primary"
-            to={routes.election(electionId).results.allPrecinctResults.path}
-          >
-            View All Results
-          </LinkButton>{' '}
-          <Button color="danger" onPress={() => setIsDeleteDataModalOpen(true)}>
-            Delete All {isLive ? 'Live' : 'Test'} Data
-          </Button>
-          <H2>Machines Reporting by Precinct</H2>
+        <Column style={{ gap: '1rem' }}>
+          <Card color="neutral">
+            <Row
+              style={{
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div>
+                <H3>Precinct Status</H3>
+                <Row
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    flex: 1,
+                    justifyContent: '',
+                    gap: '2rem',
+                  }}
+                >
+                  <LabelledText
+                    labelPosition="bottom"
+                    label={
+                      <span style={{ fontSize: '1rem' }}>No reports sent</span>
+                    }
+                  >
+                    <H1>
+                      <Icons.Warning color="warning" /> 1
+                    </H1>
+                  </LabelledText>
+                  <LabelledText
+                    labelPosition="bottom"
+                    label={<span style={{ fontSize: '1rem' }}>Polls open</span>}
+                  >
+                    <H1>
+                      <Icons.Circle color="success" /> 1
+                    </H1>
+                  </LabelledText>
+                  <LabelledText
+                    labelPosition="bottom"
+                    label={
+                      <span style={{ fontSize: '1rem' }}>Polls closing</span>
+                    }
+                  >
+                    <H1>
+                      <Icons.CircleDot color="primary" /> 1
+                    </H1>
+                  </LabelledText>
+                  <LabelledText
+                    labelPosition="bottom"
+                    label={
+                      <span style={{ fontSize: '1rem' }}>Polls closed</span>
+                    }
+                  >
+                    <H1>
+                      <Icons.Done color="primary" /> 1
+                    </H1>
+                  </LabelledText>
+                </Row>
+              </div>
+              <Column style={{ gap: '0.5rem' }}>
+                <LinkButton
+                  variant="primary"
+                  to={
+                    routes.election(electionId).results.allPrecinctResults.path
+                  }
+                >
+                  View Full Election Tally Report
+                </LinkButton>{' '}
+                <Button
+                  color="danger"
+                  icon="Delete"
+                  onPress={() => setIsDeleteDataModalOpen(true)}
+                >
+                  Delete All {isLive ? 'Live' : 'Test'} Data
+                </Button>
+              </Column>
+            </Row>
+          </Card>
           <Table>
             <thead>
               <tr>
-                <TH>Precinct Name</TH>
+                <TH>Precinct</TH>
                 <TH>Scanner Status</TH>
-                <TH>Results</TH>
+                <TH>Last Report Sent</TH>
+                <TH narrow />
               </tr>
             </thead>
             <tbody>
@@ -194,9 +291,19 @@ function ViewResultsSummaryScreen({
                   pollsOpenCount + pollsPausedCount + pollsClosedCount;
                 const allPollsClosed =
                   totalCount === pollsClosedCount && totalCount > 0;
+                const lastUpdate = pollsStatusData.machines
+                  .filter(
+                    (machine) =>
+                      machine.precinctSelection.kind === 'SinglePrecinct' &&
+                      machine.precinctSelection.precinctId === precinct.id
+                  )
+                  .sort(
+                    (a, b) =>
+                      a.signedTimestamp.getTime() - b.signedTimestamp.getTime()
+                  )[0];
 
                 return (
-                  <tr key={precinct.id} style={{ height: '50px' }}>
+                  <tr key={precinct.id} style={{ height: '3rem' }}>
                     <TD>{precinct.name}</TD>
                     <TD>
                       {getPollsStatusText(
@@ -206,6 +313,19 @@ function ViewResultsSummaryScreen({
                       )}
                     </TD>
                     <TD>
+                      {lastUpdate && (
+                        <Column>
+                          <div>
+                            {lastUpdate.machineId}:{' '}
+                            {prettyPollsState[lastUpdate.pollsState]}
+                          </div>
+                          <Caption>
+                            {format.localeTime(lastUpdate.signedTimestamp)}
+                          </Caption>
+                        </Column>
+                      )}
+                    </TD>
+                    <TD textAlign="right" style={{ paddingRight: '1rem' }}>
                       {pollsClosedCount > 0 && (
                         <LinkButton
                           to={
@@ -214,7 +334,7 @@ function ViewResultsSummaryScreen({
                               .results.byPrecinctResults(precinct.id).path
                           }
                         >
-                          View {allPollsClosed ? '' : 'Partial'} Results
+                          View&nbsp;Tally&nbsp;Report
                         </LinkButton>
                       )}
                     </TD>
@@ -237,7 +357,7 @@ function ViewResultsSummaryScreen({
             </tbody>
           </Table>
           <div style={{ padding: '2rem 0' }} />
-        </div>
+        </Column>
       )}
 
       {machineStatusData.length === 0 && (
@@ -444,7 +564,9 @@ export function QuickReportedResultsScreen(): JSX.Element | null {
         <Route path={routes.election(':electionId').results.root.path}>
           {' '}
           <Header>
-            <H1 style={{ paddingRight: '1rem', display: 'inline' }}>Results</H1>
+            <H1 style={{ paddingRight: '1rem', display: 'inline' }}>
+              Live Reports
+            </H1>
           </Header>
           <MainContent>
             <ViewResultsSummaryScreen
