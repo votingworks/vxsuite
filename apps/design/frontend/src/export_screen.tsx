@@ -39,10 +39,10 @@ import { TaskProgress } from './task_progress';
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
-  NhBallot: 'New Hampshire Ballot',
   MsBallot: 'Mississippi Ballot',
+  NhBallot: 'New Hampshire Town Ballot',
   NhPrimaryBallot: 'New Hampshire Primary Ballot',
-  NhStateBallot: 'New Hampshire State Ballot',
+  NhGeneralBallot: 'New Hampshire General Ballot',
 } satisfies Record<BallotTemplateId, string>;
 
 export function ExportScreen(): JSX.Element | null {

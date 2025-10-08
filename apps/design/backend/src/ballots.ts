@@ -143,7 +143,7 @@ export function createBallotPropsForTemplate(
       return baseBallotProps.map(addColorTintByParty);
 
     case 'MsBallot':
-    case 'NhStateBallot':
+    case 'NhGeneralBallot':
     case 'VxDefaultBallot':
       return baseBallotProps;
 
