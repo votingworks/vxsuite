@@ -474,12 +474,12 @@ test('election schema', () => {
         candidates: [
           ...candidateContest.candidates.map((c) => ({
             ...c,
-            partyId: election.parties[0].id,
+            partyIds: [election.parties[0].id],
           })),
           ...candidateContest.candidates.map((c) => ({
             ...c,
             id: `${c.id}-noparty`,
-            partyId: undefined,
+            partyIds: [],
           })),
         ],
       },
@@ -491,9 +491,7 @@ test('election schema', () => {
     if (contest.type === 'candidate') {
       for (const candidate of contest.candidates) {
         expect(candidate.partyIds).toEqual(
-          candidate.id.endsWith('-noparty')
-            ? undefined
-            : [election.parties[0].id]
+          candidate.id.endsWith('-noparty') ? [] : [election.parties[0].id]
         );
       }
     }

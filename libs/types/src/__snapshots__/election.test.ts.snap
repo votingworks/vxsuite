@@ -5,6 +5,14 @@ exports[`safeParseElection shows VXF and CDF parsing errors 1`] = `
 
 VXF error: ZodError: [
   {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "ballotLayout"
+    ],
+    "message": "Invalid input: expected object, received undefined"
+  },
+  {
     "expected": "record",
     "code": "invalid_type",
     "path": [
@@ -79,6 +87,14 @@ VXF error: ZodError: [
     "expected": "string",
     "code": "invalid_type",
     "path": [
+      "seal"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
       "state"
     ],
     "message": "Invalid input: expected string, received undefined"
@@ -90,6 +106,17 @@ VXF error: ZodError: [
       "title"
     ],
     "message": "Invalid input: expected string, received undefined"
+  },
+  {
+    "code": "invalid_value",
+    "values": [
+      "general",
+      "primary"
+    ],
+    "path": [
+      "type"
+    ],
+    "message": "Invalid option: expected one of \\"general\\"|\\"primary\\""
   }
 ]
 
