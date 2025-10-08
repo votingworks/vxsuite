@@ -15,10 +15,13 @@ pub enum BallotPageData {
     Summary(SummaryPageData),
 }
 impl BallotPageData {
-    pub fn infer_opposite_page_data(&self) -> Option<Self> {
+    pub fn ballot_barcode_data(&self) -> BarcodeData {
         match self {
             Self::Bubble(page_data) => {
-                Some(BallotPageData::Bubble(page_data.infer_opposite_page_data()))
+                BarcodeData::BubbleBallot(Pair::new(
+
+                ))
+                BallotPageData::Bubble(page_data.infer_opposite_page_data())
             }
             Self::Summary(_) => None,
         }
