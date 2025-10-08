@@ -7,6 +7,7 @@ import {
   SinglePrecinctSelection,
   DiagnosticRecord,
   DiagnosticOutcome,
+  doesPollsStateSupportLiveReporting,
 } from '@votingworks/types';
 import {
   combineElectionResults,
@@ -580,6 +581,9 @@ export function buildApi({
       const systemSettings = store.getSystemSettings();
       const pollsState = store.getPollsState();
       if (!systemSettings || !systemSettings.quickResultsReportingUrl) {
+        return '';
+      }
+      if (!doesPollsStateSupportLiveReporting(pollsState)) {
         return '';
       }
       const scannerResultsByParty = await getScannerResultsMemoized({ store });

@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
-import { DEV_MACHINE_ID, PollsState, Tabulation } from '@votingworks/types';
+import { DEV_MACHINE_ID, Tabulation } from '@votingworks/types';
 import { compressAndEncodeTally } from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
 
@@ -61,30 +61,6 @@ test.each<{ isLiveMode: boolean }>([
     expect(signedQuickResultsReportingUrl).toMatch(
       /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
     );
-  }
-);
-
-test.each<{ pollsState: PollsState }>([
-  { pollsState: 'polls_closed_initial' },
-  { pollsState: 'polls_paused' },
-])(
-  'generateSignedQuickResultsReportingUrl returns empty string for bad poll state $pollsState',
-  async ({ pollsState }) => {
-    const signedQuickResultsReportingUrl =
-      await generateSignedQuickResultsReportingUrl(
-        {
-          electionDefinition,
-          isLiveMode: false,
-          quickResultsReportingUrl: 'https://example.com',
-          results: mockedResults,
-          signingMachineId: DEV_MACHINE_ID,
-          precinctSelection: { kind: 'AllPrecincts' },
-          pollsState,
-        },
-        vxScanTestConfig
-      );
-
-    expect(signedQuickResultsReportingUrl).toEqual('');
   }
 );
 

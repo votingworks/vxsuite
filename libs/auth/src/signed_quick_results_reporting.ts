@@ -3,7 +3,7 @@ import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import {
   ElectionDefinition,
-  PollsState,
+  PollsStateSupportsLiveReporting,
   PrecinctSelection,
   Tabulation,
   safeParseInt,
@@ -38,16 +38,11 @@ interface SignedQuickResultsReportingInput {
   results: Tabulation.ElectionResults;
   signingMachineId: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsState;
+  pollsState: PollsStateSupportsLiveReporting;
 }
 
 const CERT_PEM_HEADER = '-----BEGIN CERTIFICATE-----';
 const CERT_PEM_FOOTER = '-----END CERTIFICATE-----';
-
-const REPORTABLE_POLL_STATES: PollsState[] = [
-  'polls_open',
-  'polls_closed_final',
-];
 
 /**
  * The separator between parts of the signed quick results reporting message payload.
@@ -87,7 +82,7 @@ export function encodeQuickResultsMessage(components: {
   timestamp: number;
   compressedTally: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsState;
+  pollsState: PollsStateSupportsLiveReporting;
 }): string {
   const messagePayloadParts = [
     safeEncodeForUrl(components.ballotHash),
@@ -119,7 +114,7 @@ export function decodeQuickResultsMessage(payload: string): {
   signedTimestamp: Date;
   encodedCompressedTally: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsState;
+  pollsState: PollsStateSupportsLiveReporting;
 } {
   const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
 
@@ -193,9 +188,6 @@ export async function generateSignedQuickResultsReportingUrl(
   }: SignedQuickResultsReportingInput,
   configOverride?: SignedQuickResultsReportingConfig
 ): Promise<string> {
-  if (!REPORTABLE_POLL_STATES.includes(pollsState)) {
-    return '';
-  }
   const config =
     configOverride ??
     /* istanbul ignore next - @preserve */ constructSignedQuickResultsReportingConfig();

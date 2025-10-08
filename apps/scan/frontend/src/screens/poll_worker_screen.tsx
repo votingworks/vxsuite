@@ -16,7 +16,11 @@ import {
   QrCode,
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
-import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  doesPollsStateSupportLiveReporting,
+  PollsTransitionType,
+} from '@votingworks/types';
 import { Optional, assert, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import type { PrecinctScannerPollsInfo } from '@votingworks/scan-backend';
@@ -493,7 +497,10 @@ function PollWorkerScreenContents({
             </CenteredText>
           </Screen>
         );
-      case 'view-reporting-qr-code':
+      case 'view-reporting-qr-code': {
+        assert(doesPollsStateSupportLiveReporting(pollsInfo.pollsState));
+        // @ts-expect-error: Redundant check to satisfy TypeScript issue with accessing lastPollsTransition
+        assert(pollsInfo.pollsState !== 'polls_closed_initial');
         return (
           <Screen>
             <h4 style={{ marginTop: 0 }}>
@@ -515,6 +522,7 @@ function PollWorkerScreenContents({
             </CenteredText>
           </Screen>
         );
+      }
       case 'post-print':
         return (
           <PostPrintScreen
@@ -536,7 +544,9 @@ function PollWorkerScreenContents({
 
   const viewQrReportButton =
     getQuickResultsReportingUrlQuery.data &&
-    ['polls_closed_final', 'polls_open'].includes(pollsState) ? (
+    doesPollsStateSupportLiveReporting(pollsInfo.pollsState) &&
+    // @ts-expect-error: Redundant check to satisfy TypeScript issue with accessing lastPollsTransition
+    pollsInfo.pollsState !== 'polls_closed_initial' ? (
       <Button
         onPress={() =>
           setPollWorkerFlowState({ type: 'view-reporting-qr-code' })
