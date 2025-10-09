@@ -22,8 +22,10 @@ import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ok } from '@votingworks/basics';
+import { mockVendorUser, mockSessionExpiresAt } from '@votingworks/test-utils';
 import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
 import { DEFAULT_STATUS } from './fixtures';
+import { screen } from './react_testing_library';
 
 export type MockApiClient = Omit<MockClient<Api>, 'getBatteryInfo'> & {
   // Because this is polled so frequently, we opt for a standard vitest mock instead of a
@@ -192,6 +194,20 @@ export function createApiMock(
 
     expectRebootToVendorMenu() {
       apiClient.rebootToVendorMenu.expectCallWith().resolves();
+    },
+
+    async authenticateAsVendor(
+      lockScreenText = 'VxCentralScan is Locked'
+    ): Promise<void> {
+      // First verify that we're logged out
+      await screen.findByText(lockScreenText);
+
+      this.setAuthStatus({
+        status: 'logged_in',
+        user: mockVendorUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
+      });
+      await screen.findByText('Lock Machine');
     },
   };
 }

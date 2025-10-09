@@ -33,6 +33,7 @@ import {
   getTestMode,
   getUsbDriveStatus,
   logOut,
+  unconfigure,
   useApiClient,
 } from './api';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
@@ -51,6 +52,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const checkPinMutation = checkPin.useMutation();
   const statusQuery = getStatus.useQuery();
   const logOutMutation = logOut.useMutation();
+  const unconfigureMutation = unconfigure.useMutation();
 
   const getTestModeQuery = getTestMode.useQuery();
   const isTestMode = getTestModeQuery.data ?? false;
@@ -150,6 +152,10 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
       <VendorScreen
         logOut={() => logOutMutation.mutate()}
         rebootToVendorMenu={() => apiClient.rebootToVendorMenu()}
+        unconfigureMachine={() =>
+          unconfigureMutation.mutateAsync({ ignoreBackupRequirement: true })
+        }
+        isMachineConfigured={Boolean(electionDefinition)}
       />
     );
   }
