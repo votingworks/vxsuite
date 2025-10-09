@@ -78,3 +78,11 @@ export const TtsEditSchema: z.ZodType<TtsEdit> = z.object({
   phonetic: z.array(PhoneticWordSchema),
   text: z.string(),
 });
+
+/**
+ * TTS user edits and metadata for a language-specific string.
+ */
+export type TtsEditEntry = TtsEdit & {
+  original: string;
+  languageCode: string;
+};
