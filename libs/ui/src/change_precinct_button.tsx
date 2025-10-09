@@ -100,7 +100,10 @@ export function ChangePrecinctButton({
         },
         ...[...election.precincts]
           .sort((a, b) =>
-            a.name.localeCompare(b.name, undefined, { ignorePunctuation: true })
+            a.name.localeCompare(b.name, undefined, {
+              ignorePunctuation: true,
+              numeric: true,
+            })
           )
           .map((precinct) => ({
             value: precinct.id,

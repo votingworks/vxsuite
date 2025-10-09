@@ -707,3 +707,45 @@ test('getAllPrecinctsAndSplits', () => {
     { precinct: precinct2, split: precinct2.splits[1] },
   ]);
 });
+
+test('getAllPrecinctsAndSplits sorts with numeric-aware locale comparison', () => {
+  const precinct1: Precinct = {
+    id: 'precinct-1',
+    name: '1 - North',
+    districtIds: ['district-1' as DistrictId],
+  };
+  const precinct10: Precinct = {
+    id: 'precinct-10',
+    name: '10 - Center',
+    splits: [
+      {
+        id: 'split-10a',
+        name: '10A - East',
+        districtIds: ['district-1' as DistrictId],
+      },
+      {
+        id: 'split-10b',
+        name: '10B - West',
+        districtIds: ['district-1' as DistrictId],
+      },
+    ],
+  };
+  const precinct2: Precinct = {
+    id: 'precinct-2',
+    name: '2 - South',
+    districtIds: ['district-1' as DistrictId],
+  };
+
+  const result = getAllPrecinctsAndSplits({
+    ...election,
+    precincts: [precinct10, precinct1, precinct2],
+  });
+
+  // Verify numeric sort: 1, 2, 10A, 10B (not lexicographic: 1, 10A, 10B, 2)
+  expect(result).toEqual([
+    { precinct: precinct1 },
+    { precinct: precinct2 },
+    { precinct: precinct10, split: precinct10.splits[0] },
+    { precinct: precinct10, split: precinct10.splits[1] },
+  ]);
+});

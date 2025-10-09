@@ -139,3 +139,48 @@ test('disabled mode', () => {
 
   expect(screen.getByLabelText(SELECT_PRECINCT_TEXT)).toBeDisabled();
 });
+
+test('sorts precincts with numeric-aware locale sort', () => {
+  const electionWithNumberedPrecincts: typeof electionTwoPartyPrimary = {
+    ...electionTwoPartyPrimary,
+    precincts: [
+      {
+        id: 'precinct-10',
+        name: '10 - Firehouse',
+        districtIds: ['district-1'],
+      },
+      { id: 'precinct-1', name: '1 - Hawthorn', districtIds: ['district-1'] },
+      {
+        id: 'precinct-2',
+        name: '2 - South Station',
+        districtIds: ['district-1'],
+      },
+    ],
+  };
+
+  const updatePrecinctSelection = vi.fn();
+
+  render(
+    <ChangePrecinctButton
+      appPrecinctSelection={undefined}
+      updatePrecinctSelection={updatePrecinctSelection}
+      election={electionWithNumberedPrecincts}
+      mode="default"
+    />
+  );
+
+  // Open the dropdown
+  userEvent.click(screen.getByText(SELECT_PRECINCT_TEXT));
+
+  // Get all precinct options in DOM order (excluding "All Precincts")
+  const precinctOptions = screen
+    .getAllByText(/^\d+ - /)
+    .map((el) => el.textContent);
+
+  // Verify numeric sort: 1, 2, 10 (not lexicographic: 1, 10, 2)
+  expect(precinctOptions).toEqual([
+    '1 - Hawthorn',
+    '2 - South Station',
+    '10 - Firehouse',
+  ]);
+});
