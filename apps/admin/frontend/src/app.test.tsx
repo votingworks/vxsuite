@@ -230,6 +230,7 @@ test('marking results as official', async () => {
 
   // unofficial on reports screen
   apiMock.expectGetCastVoteRecordFileMode('official');
+  apiMock.expectGetManualResultsMetadata([]);
   apiMock.expectGetTotalBallotCount(1000);
   userEvent.click(screen.getButton('Reports'));
   screen.getByRole('heading', { name: 'Unofficial Tally Reports' });
@@ -420,6 +421,7 @@ test('election manager UI has expected nav', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
+  apiMock.expectGetManualResultsMetadata([]);
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetTotalBallotCount(100);
   renderApp();

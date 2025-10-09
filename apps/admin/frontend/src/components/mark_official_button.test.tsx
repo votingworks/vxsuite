@@ -23,6 +23,7 @@ test('mark results as official', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
+  apiMock.expectGetManualResultsMetadata([]);
 
   renderInAppContext(<MarkResultsOfficialButton />, {
     electionDefinition,
@@ -52,6 +53,7 @@ test('mark official results button disabled when no cvr files', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('unlocked'); // no CVR files
+  apiMock.expectGetManualResultsMetadata([]); // no manual tallies either
   renderInAppContext(<MarkResultsOfficialButton />, {
     electionDefinition,
     apiMock,
@@ -69,6 +71,7 @@ test('mark official results button disabled when already official', async () => 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
+  apiMock.expectGetManualResultsMetadata([]);
   renderInAppContext(<MarkResultsOfficialButton />, {
     electionDefinition,
     apiMock,
@@ -81,4 +84,28 @@ test('mark official results button disabled when already official', async () => 
   });
 
   expect(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT)).toBeDisabled();
+});
+
+test('mark official results button enabled when manual tallies exist but no CVRs', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  apiMock.expectGetCastVoteRecordFileMode('unlocked'); // no CVR files
+  apiMock.expectGetManualResultsMetadata([
+    {
+      precinctId: 'precinct-1',
+      ballotStyleGroupId: '1M',
+      votingMethod: 'precinct',
+      ballotCount: 100,
+      createdAt: new Date().toISOString(),
+    },
+  ]); // has manual tallies
+  renderInAppContext(<MarkResultsOfficialButton />, {
+    electionDefinition,
+    apiMock,
+    isOfficialResults: false,
+  });
+
+  await vi.waitFor(() => {
+    expect(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT)).toBeEnabled();
+  });
 });
