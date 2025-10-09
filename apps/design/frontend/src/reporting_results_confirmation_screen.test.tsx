@@ -142,7 +142,7 @@ test.each(invalidParameterTestCases)(
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Invalid Request. Please try scanning the QR code again.'
+        'Invalid request. Please try scanning the QR code again.'
       )
     ).toBeInTheDocument();
   }
@@ -201,7 +201,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          'Wrong Election. Confirm VxScan and VxDesign are configured with the same election package.'
+          'Wrong election. Confirm VxScan and VxDesign are configured with the same election package.'
         )
       ).toBeInTheDocument();
     });
@@ -226,7 +226,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          'Invalid Request. Please try scanning the QR code again.'
+          'Invalid request. Please try scanning the QR code again.'
         )
       ).toBeInTheDocument();
     });
@@ -246,12 +246,10 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'Polls Opened Report Saved' })
+        screen.getByRole('heading', { name: 'Polls Opened Report Sent' })
       ).toBeInTheDocument();
       expect(
-        screen.getByText(
-          'The submitted Polls Opened Report has been verified and saved.'
-        )
+        screen.getByText('The polls opened report has been sent to VxDesign.')
       ).toBeInTheDocument();
     });
 
@@ -307,12 +305,10 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'Polls Closed Report Saved' })
+        screen.getByRole('heading', { name: 'Polls Closed Report Sent' })
       ).toBeInTheDocument();
       expect(
-        screen.getByText(
-          'The submitted Polls Closed Report has been verified and saved.'
-        )
+        screen.getByText('The polls closed report has been sent to VxDesign.')
       ).toBeInTheDocument();
     });
 
@@ -374,12 +370,10 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'Polls Closed Report Saved' })
+        screen.getByRole('heading', { name: 'Polls Closed Report Sent' })
       ).toBeInTheDocument();
       expect(
-        screen.getByText(
-          'The submitted Polls Closed Report has been verified and saved.'
-        )
+        screen.getByText('The polls closed report has been sent to VxDesign.')
       ).toBeInTheDocument();
     });
 

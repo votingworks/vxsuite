@@ -107,10 +107,14 @@ function ReportHeader({
   isLive: boolean;
   reportTitle: string;
 }): JSX.Element {
+  const lowerCasedReportTitle = reportTitle
+    .split(' ')
+    .map((word) => word.toLowerCase())
+    .join(' ');
   return (
     <div style={{ flexDirection: 'column', gap: '1rem', display: 'flex' }}>
       <Callout icon="Done" color="primary">
-        The submitted {reportTitle} has been verified and saved.
+        The {lowerCasedReportTitle} has been sent to VxDesign.
       </Callout>
       {!isLive && (
         <div>
@@ -131,7 +135,7 @@ function PollsOpenReportConfirmation({
 }: ReportDetailsProps & { isLive: boolean }): JSX.Element {
   const reportTitle = getPollsReportTitle('open_polls');
   return (
-    <ResultsScreen screenTitle={`${reportTitle} Saved`}>
+    <ResultsScreen screenTitle={`${reportTitle} Sent`}>
       <MainContent>
         <ReportHeader reportTitle={reportTitle} isLive={isLive} />
         <ReportDetails
@@ -173,7 +177,7 @@ function PollsClosedReportConfirmation({
   );
 
   return (
-    <ResultsScreen screenTitle={`${reportTitle} Saved`}>
+    <ResultsScreen screenTitle={`${reportTitle} Sent`}>
       <MainContent>
         <ReportHeader reportTitle={reportTitle} isLive={isLive} />
         <ReportDetails
@@ -256,7 +260,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
         <ResultsScreen screenTitle="Error Sending Report">
           <MainContent>
             <Callout color="danger" icon="Warning">
-              Wrong Election. Confirm VxScan and VxDesign are configured with
+              Wrong election. Confirm VxScan and VxDesign are configured with
               the same election package.
             </Callout>
           </MainContent>
@@ -267,7 +271,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
       <ResultsScreen screenTitle="Error Sending Report">
         <MainContent>
           <Callout color="danger" icon="Warning">
-            Invalid Request. Please try scanning the QR code again.
+            Invalid request. Please try scanning the QR code again.
           </Callout>
         </MainContent>
       </ResultsScreen>
