@@ -5,10 +5,10 @@
 
 pub mod ballot_card;
 pub mod bmd;
+pub mod bubble_ballot;
 pub mod coding;
 pub mod election;
 mod f32_newtype;
 pub mod geometry;
-pub mod hmpb;
 pub mod idtype;
 pub mod pair;

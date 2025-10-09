@@ -88,7 +88,7 @@ export function timingMarkCounts(pageDimensions: InchDimensions): {
   // Corresponds to the NH Accuvote ballot grid, which we mimic so that our
   // interpreter can support both Accuvote-style ballots and our ballots.
   // This formula is replicated in
-  // libs/ballot-interpreter/src/hmpb-rust/ballot_card.rs.
+  // libs/ballot-interpreter/src/bubble-ballot-rust/ballot_card.rs.
   const columnsPerInch = 4;
   const rowsPerInch = 4;
 
