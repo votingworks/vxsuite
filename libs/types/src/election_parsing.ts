@@ -2,8 +2,6 @@ import {
   Result,
   err,
   ok,
-  assertDefined,
-  find,
   DateWithoutTime,
   extractErrorMessage,
 } from '@votingworks/basics';
@@ -11,184 +9,8 @@ import { sha256 } from 'js-sha256';
 import { z } from 'zod/v4';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import * as Cdf from './cdf/ballot-definition';
-import {
-  HmpbBallotPaperSize,
-  Candidate,
-  Election,
-  ElectionDefinition,
-  ElectionSchema,
-  PartyId,
-} from './election';
+import { Election, ElectionDefinition, ElectionSchema } from './election';
 import { safeParse, safeParseJson } from './generic';
-
-/**
- * Support old versions of the election definition format.
- */
-/* istanbul ignore next - @preserve */
-function maintainBackwardsCompatibility(value: unknown): unknown {
-  if (!value || typeof value !== 'object') {
-    return value;
-  }
-
-  // We're casting it here to make it easier to use, but in this function you
-  // must assume the type is unknown.
-  let election = value as Election;
-
-  // Fill in a default empty seal value
-  election = { ...election, seal: election.seal ?? '' };
-
-  // Fill in `Party#fullName` from `Party#name` if it's missing.
-  const isMissingPartyFullName = election.parties?.some(
-    /* istanbul ignore next - @preserve */
-    (party) => !party?.fullName
-  );
-
-  /* istanbul ignore next - @preserve */
-  if (isMissingPartyFullName) {
-    election = {
-      ...election,
-      parties: election.parties?.map((party) =>
-        !party
-          ? party
-          : {
-              ...party,
-              fullName: party.fullName ?? party.name,
-            }
-      ),
-    };
-  }
-
-  if (election.contests) {
-    // Handle single `partyId` on candidates.
-    interface CandidateWithPartyId extends Candidate {
-      readonly partyId?: PartyId;
-    }
-
-    const hasPartyId = election.contests.some(
-      (contest) =>
-        /* istanbul ignore next - @preserve */
-        contest?.type === 'candidate' &&
-        contest.candidates.some(
-          (candidate: CandidateWithPartyId) => candidate?.partyId
-        )
-    );
-
-    if (hasPartyId) {
-      election = {
-        ...election,
-        contests: election.contests.map((contest) => {
-          /* istanbul ignore next - @preserve */
-          if (contest?.type !== 'candidate' || !contest.candidates) {
-            return contest;
-          }
-
-          return {
-            ...contest,
-            candidates: contest.candidates.map(
-              (candidate: CandidateWithPartyId) => {
-                /* istanbul ignore next - @preserve */
-                if (!candidate?.partyId) {
-                  return candidate;
-                }
-
-                return {
-                  ...candidate,
-                  partyIds: [candidate.partyId],
-                };
-              }
-            ),
-          };
-        }),
-      };
-    }
-
-    // Fill in required contest yesOption/noOption
-    const contests = election.contests.map((contest) => {
-      if (contest.type !== 'yesno') return contest;
-      return {
-        ...contest,
-        yesOption: contest.yesOption ?? {
-          label: 'Yes',
-          id: `${contest.id}-option-yes`,
-        },
-        noOption: contest.noOption ?? {
-          label: 'No',
-          id: `${contest.id}-option-no`,
-        },
-      };
-    });
-    election = {
-      ...election,
-      contests,
-    };
-    /* istanbul ignore next - @preserve */
-    if ('gridLayouts' in election) {
-      election = {
-        ...election,
-        gridLayouts: assertDefined(election.gridLayouts).map((gridLayout) => ({
-          ...gridLayout,
-          gridPositions: gridLayout.gridPositions.map((gridPosition) => {
-            const contest = find(
-              contests,
-              (c) => c.id === gridPosition.contestId
-            );
-            if (contest.type !== 'yesno' || gridPosition.type !== 'option') {
-              return gridPosition;
-            }
-            return {
-              ...gridPosition,
-              optionId:
-                gridPosition.optionId === 'yes'
-                  ? contest.yesOption.id
-                  : gridPosition.optionId === 'no'
-                  ? contest.noOption.id
-                  : gridPosition.optionId,
-            };
-          }),
-        })),
-      };
-    }
-  }
-
-  if (!('ballotLayout' in election)) {
-    election = {
-      ...(election as Election),
-      ballotLayout: {
-        paperSize: HmpbBallotPaperSize.Letter,
-        metadataEncoding: 'qr-code',
-      },
-    };
-  }
-
-  // Add sheetNumber to grid positions
-  /* istanbul ignore next - @preserve */
-  if (election.gridLayouts) {
-    election = {
-      ...election,
-      gridLayouts: election.gridLayouts.map((gridLayout) => ({
-        ...gridLayout,
-        gridPositions: gridLayout.gridPositions.map((gridPosition) => ({
-          ...gridPosition,
-          sheetNumber: gridPosition.sheetNumber ?? 1,
-        })),
-      })),
-    };
-  }
-
-  // Add election.type
-  if (!('type' in election)) {
-    election = {
-      ...(election as Election),
-      type: (election as Election).contests?.some(
-        (contest) => contest.type === 'candidate' && contest.partyId
-      )
-        ? 'primary'
-        : 'general',
-    };
-  }
-
-  return election;
-}
 
 /**
  * Parse the date field of an Election object from a string to a
@@ -229,9 +51,7 @@ function parseElectionDate(value: unknown): Result<unknown, z.ZodError> {
 export function safeParseVxfElection(
   value: unknown
 ): Result<Election, z.ZodError> {
-  const valueWithParsedDate = parseElectionDate(
-    maintainBackwardsCompatibility(value)
-  );
+  const valueWithParsedDate = parseElectionDate(value);
   if (valueWithParsedDate.isErr()) {
     return valueWithParsedDate;
   }

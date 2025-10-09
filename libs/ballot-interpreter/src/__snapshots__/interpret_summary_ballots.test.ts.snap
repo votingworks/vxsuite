@@ -10,7 +10,7 @@ exports[`VX BMD interpretation > extracts votes encoded in a QR code 1`] = `
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "728705900ac9af39a83b",
+      "ballotHash": "9457b7779645d4171777",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -150,7 +150,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "728705900ac9af39a83b",
+      "ballotHash": "9457b7779645d4171777",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -290,7 +290,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "728705900ac9af39a83b",
+      "ballotHash": "9457b7779645d4171777",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -430,7 +430,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "728705900ac9af39a83b",
+      "ballotHash": "9457b7779645d4171777",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -570,7 +570,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "728705900ac9af39a83b",
+      "ballotHash": "9457b7779645d4171777",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -710,7 +710,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotat
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "728705900ac9af39a83b",
+      "ballotHash": "9457b7779645d4171777",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -850,7 +850,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotat
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "728705900ac9af39a83b",
+      "ballotHash": "9457b7779645d4171777",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -990,7 +990,7 @@ exports[`VX BMD interpretation > interpretSimplexBmdBallot 1`] = `
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "728705900ac9af39a83b",
+      "ballotHash": "9457b7779645d4171777",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,

@@ -46,7 +46,15 @@ export const electionData = `
       "id": "YNC",
       "districtId": "D",
       "title": "TITLE",
-      "description": "DESCRIPTION"
+      "description": "DESCRIPTION",
+      "yesOption": {
+        "id": "YNC-option-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "YNC-option-no",
+        "label": "No"
+      }
     }
   ],
   "county": {
@@ -71,6 +79,11 @@ export const electionData = `
   ],
   "seal": "<svg>test seal</svg>",
   "state": "STATE",
+  "type": "general",
+  "ballotLayout": {
+    "paperSize": "letter",
+    "metadataEncoding": "qr-code"
+  },
   "ballotStrings": {
     "en": {
        "ballotLanguage": {
