@@ -17,65 +17,19 @@ export function cleanText(text: string): string {
 }
 
 /**
- * Segment of text that is either interpolated or not
- */
-export interface Segment {
-  content: string;
-  isInterpolated: boolean;
-}
-
-/**
- * Splits interpolated text in preparation for speech synthesis. See tests for sample inputs and
- * outputs.
- */
-export function splitInterpolatedText(text: string): Segment[] {
-  const interpolationRegex = /\{\{.*?\}\}/g;
-  const nonInterpolatedSegments = text.split(interpolationRegex);
-  const interpolatedSegments = text.match(interpolationRegex);
-  const segments: Segment[] = [];
-  for (const [i, nonInterpolatedSegment] of nonInterpolatedSegments.entries()) {
-    segments.push({ content: nonInterpolatedSegment, isInterpolated: false });
-    if (interpolatedSegments && i < interpolatedSegments.length) {
-      segments.push({
-        content: assertDefined(interpolatedSegments[i]),
-        isInterpolated: true,
-      });
-    }
-  }
-
-  const segmentsCleaned = segments.map(({ content, isInterpolated }) => ({
-    content: content.trim(),
-    isInterpolated,
-  }));
-
-  // Allow non-empty, single-segment strings (like punctuation) through without
-  // further cleaning:
-  if (
-    segmentsCleaned.length === 1 &&
-    segmentsCleaned[0] &&
-    segmentsCleaned[0].content.length > 0
-  ) {
-    return segmentsCleaned;
-  }
-
-  // Remove extraneous non-word segments from multi-segment strings:
-  return segmentsCleaned.filter(({ content }) => /[a-z0-9]/i.test(content));
-}
-
-/**
  * Prepares text for speech synthesis by cleaning it, splitting it if interpolated, and generating
  * audio IDs for the resulting segments
  */
 export function prepareTextForSpeechSynthesis(
   languageCode: LanguageCode,
   text: string
-): Array<{ audioId: string; segment: Segment }> {
-  return splitInterpolatedText(cleanText(text)).map((segment) => ({
-    audioId: segment.isInterpolated
-      ? segment.content
-      : sha256([languageCode, segment.content].join(':')).slice(0, 10),
-    segment,
-  }));
+): { audioId: string; text: string } {
+  const sanitizedText = cleanText(text);
+
+  return {
+    audioId: sha256([languageCode, sanitizedText].join(':')).slice(0, 10),
+    text: sanitizedText,
+  };
 }
 
 /**

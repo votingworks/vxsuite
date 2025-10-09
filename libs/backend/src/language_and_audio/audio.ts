@@ -47,26 +47,13 @@ export function generateAudioIdsAndClips({
     stringKey: string | [string, string];
     stringInLanguage: string;
   }): void {
-    const segmentsWithAudioIds = prepareTextForSpeechSynthesis(
+    const { audioId, text } = prepareTextForSpeechSynthesis(
       languageCode,
       stringInLanguage
     );
-    setUiStringAudioIds(
-      uiStringAudioIds,
-      languageCode,
-      stringKey,
-      segmentsWithAudioIds.map(({ audioId }) => audioId)
-    );
+    setUiStringAudioIds(uiStringAudioIds, languageCode, stringKey, [audioId]);
 
-    textToSynthesizeSpeechFor.push(
-      ...segmentsWithAudioIds
-        .filter(({ segment }) => !segment.isInterpolated)
-        .map(({ audioId, segment }) => ({
-          audioId,
-          languageCode,
-          text: segment.content,
-        }))
-    );
+    textToSynthesizeSpeechFor.push({ audioId, languageCode, text });
   }
 
   // Prepare UI string audio IDs
