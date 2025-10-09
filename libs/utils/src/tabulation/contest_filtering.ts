@@ -10,7 +10,7 @@ import {
   PartyId,
   getPartyIdsWithContests,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   createElectionMetadataLookupFunction,
   getContestById,
@@ -145,11 +145,18 @@ export function groupContestsByParty(
   election: Election,
   contests: Contests
 ): PartyWithContests[] {
-  const partyIds = getPartyIdsWithContests(election);
-  return partyIds.map((partyId) => {
-    const sectionContests = partyId
-      ? contests.filter((c) => c.type === 'candidate' && c.partyId === partyId)
-      : contests.filter((c) => c.type === 'yesno' || !c.partyId);
-    return { partyId, contests: sectionContests };
-  });
+  return getPartyIdsWithContests(election).map((partyId) => ({
+    partyId,
+    // eslint-disable-next-line array-callback-return
+    contests: contests.filter((c) => {
+      switch (c.type) {
+        case 'candidate':
+          return c.partyId === partyId;
+        case 'yesno':
+          return !partyId; // all yes/no contests are non-partisan
+        default:
+          throwIllegalValue(c);
+      }
+    }),
+  }));
 }

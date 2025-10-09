@@ -14,7 +14,7 @@ import {
   TestModeBanner,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
-import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   formatBallotHash,
   Election,
@@ -168,12 +168,9 @@ function PollsClosedReportConfirmation({
   );
   const contestsByParty = groupContestsByParty(election, contestsForPrecinct);
   const reportTitle = getPollsReportTitle('close_polls');
-  const partyNamesById: Record<string, string> = election.parties.reduce(
-    (acc, party) => {
-      acc[party.id] = party.fullName;
-      return acc;
-    },
-    typedAs<Record<string, string>>({})
+  const partyNamesById = election.parties.reduce<Record<string, string>>(
+    (acc, party) => ({ ...acc, [party.id]: party.fullName }),
+    {}
   );
 
   return (
