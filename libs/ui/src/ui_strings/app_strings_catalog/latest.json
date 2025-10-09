@@ -145,6 +145,7 @@
   "labelThemesSizeSmall": "Small",
   "labelTotalContests": "Total contests:",
   "labelWriteInCandidateName": "Write-In Candidate",
+  "labelWriteInCharacterLimitAcrossContests": "Write-in character limit across contests:",
   "labelWriteInParenthesized": "(write-in)",
   "labelWriteInTitleCase": "Write-In",
   "labelWriteInTitleCaseColon": "Write-In:",
