@@ -411,7 +411,11 @@ export function AppRoot(): JSX.Element | null {
 
   if (isVendorAuth(authStatus)) {
     return (
-      <VendorScreen rebootToVendorMenu={() => apiClient.rebootToVendorMenu()} />
+      <VendorScreen
+        rebootToVendorMenu={() => apiClient.rebootToVendorMenu()}
+        unconfigureMachine={unconfigure}
+        isMachineConfigured={Boolean(electionDefinition)}
+      />
     );
   }
 
