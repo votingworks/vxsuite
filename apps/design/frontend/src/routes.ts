@@ -1,5 +1,9 @@
 import type { UserFeaturesConfig } from '@votingworks/design-backend';
-import { ElectionId, SystemSettings } from '@votingworks/types';
+import {
+  ElectionId,
+  SystemSettings,
+  TtsExportSource,
+} from '@votingworks/types';
 import { Route } from '@votingworks/ui';
 
 export const resultsRoutes = {
@@ -97,6 +101,24 @@ export const routes = {
         root: {
           title: 'Proof Ballots',
           path: `${root}/ballots`,
+        },
+        audio: {
+          root: {
+            title: 'Audio',
+            path: `${root}/ballots/audio`,
+          },
+          manage: (
+            ttsMode: TtsExportSource | ':ttsMode',
+            stringKey: string,
+            subkey?: string
+          ) => {
+            const subpath = subkey ? `/${subkey}` : '';
+
+            return {
+              title: 'Audio',
+              path: `${root}/ballots/audio/${ttsMode}/${stringKey}${subpath}`,
+            };
+          },
         },
         ballotStyles: {
           title: 'Ballot Styles',

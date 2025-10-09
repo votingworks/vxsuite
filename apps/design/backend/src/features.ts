@@ -11,7 +11,7 @@ export function isVxOrSliOrg(orgId: string): boolean {
  * differentiating between what VX support users can do and what election
  * officials can do.
  */
-enum UserFeature {
+export enum UserFeature {
   /**
    * Allow the user to access all elections across all organizations.
    */
@@ -59,6 +59,10 @@ enum UserFeature {
    * Allow for configuring the Quick Results Reporting system setting on elections.
    */
   QUICK_RESULTS_REPORTING = 'QUICK_RESULTS_REPORTING',
+  /**
+   * Enable audio-proofing UI.
+   */
+  AUDIO_PROOFING = 'AUDIO_PROOFING',
 }
 
 /**
@@ -67,7 +71,7 @@ enum UserFeature {
  * have the same functionality for these features when viewing a specific
  * election.
  */
-enum ElectionFeature {
+export enum ElectionFeature {
   /**
    * Add a field to override the election title for a precinct split.
    */
@@ -86,15 +90,14 @@ enum ElectionFeature {
   PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE = 'PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE',
 }
 
-export type UserFeaturesConfig = Record<UserFeature, boolean>;
-export type ElectionFeaturesConfig = Record<ElectionFeature, boolean>;
+export type UserFeaturesConfig = Partial<Record<UserFeature, boolean>>;
+export type ElectionFeaturesConfig = Partial<Record<ElectionFeature, boolean>>;
 
 export const userFeatureConfigs = {
   vx: {
     ACCESS_ALL_ORGS: true,
 
     BALLOT_LANGUAGE_CONFIG: true,
-    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
 
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
@@ -105,76 +108,35 @@ export const userFeatureConfigs = {
     CHOOSE_BALLOT_TEMPLATE: true,
     EXPORT_TEST_DECKS: true,
     QUICK_RESULTS_REPORTING: true,
+    AUDIO_PROOFING: true,
   },
 
   sli: {
-    ACCESS_ALL_ORGS: false,
-
     BALLOT_LANGUAGE_CONFIG: true,
-    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
-
-    SYSTEM_SETTINGS_SCREEN: true,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
-    BMD_OVERVOTE_ALLOW_TOGGLE: false,
-    BMD_EXTRA_PRINT_MODES: false,
-
     EXPORT_SCREEN: true,
-    CHOOSE_BALLOT_TEMPLATE: false,
-    EXPORT_TEST_DECKS: false,
-    QUICK_RESULTS_REPORTING: false,
+    SYSTEM_SETTINGS_SCREEN: true,
   },
 
   demos: {
-    ACCESS_ALL_ORGS: false,
-
     BALLOT_LANGUAGE_CONFIG: true,
-    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
-
-    SYSTEM_SETTINGS_SCREEN: true,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
-    BMD_OVERVOTE_ALLOW_TOGGLE: false,
-    BMD_EXTRA_PRINT_MODES: false,
-
-    EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
+    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
+    EXPORT_SCREEN: true,
     EXPORT_TEST_DECKS: true,
-    QUICK_RESULTS_REPORTING: false,
+    SYSTEM_SETTINGS_SCREEN: true,
   },
 
   nh: {
-    ACCESS_ALL_ORGS: false,
-
-    BALLOT_LANGUAGE_CONFIG: false,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
-
-    SYSTEM_SETTINGS_SCREEN: false,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
-    BMD_OVERVOTE_ALLOW_TOGGLE: false,
-    BMD_EXTRA_PRINT_MODES: false,
-
-    EXPORT_SCREEN: false,
-    CHOOSE_BALLOT_TEMPLATE: false,
-    EXPORT_TEST_DECKS: false,
-    QUICK_RESULTS_REPORTING: false,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
 export const electionFeatureConfigs = {
   // VX sandbox elections should have not have any state-specific features
   // enabled
-  vx: {
-    PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: false,
-    PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: false,
-    PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: false,
-    PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: false,
-  },
+  vx: {},
 
-  sli: {
-    PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: false,
-    PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: false,
-    PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: false,
-    PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: false,
-  },
+  sli: {},
 
   nh: {
     PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,

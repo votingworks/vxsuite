@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   HmpbBallotPaperSize,
@@ -22,6 +22,9 @@ import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { BallotsScreen } from './ballots_screen';
 import { routes } from './routes';
+import { BallotAudioScreen } from './ballot_audio/screen';
+
+vi.mock('./ballot_audio/screen');
 
 let apiMock: MockApiClient;
 
@@ -359,5 +362,43 @@ describe('Ballot layout tab', () => {
     expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).not.toBeChecked();
     expect(screen.getByLabelText('Default')).toBeChecked();
     expect(screen.getByLabelText('Compact')).not.toBeChecked();
+  });
+});
+
+describe('audio tab', () => {
+  const electionRecord = generalElectionRecord(user.orgId);
+  const { election } = electionRecord;
+  const electionId = election.id;
+
+  beforeEach(() => {
+    expectElectionApiCalls(electionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  });
+
+  test('excluded if AUDIO_PROOFING feature is off', async () => {
+    mockUserFeatures(apiMock, { AUDIO_PROOFING: false });
+
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    expect(
+      screen.queryByRole('tab', { name: 'Audio' })
+    ).not.toBeInTheDocument();
+  });
+
+  test('included if AUDIO_PROOFING feature is on', async () => {
+    mockUserFeatures(apiMock, { AUDIO_PROOFING: true });
+    vi.mocked(BallotAudioScreen).mockImplementation(() => (
+      <div data-testid="Audio Screen" />
+    ));
+
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    const tab = screen.getByRole('tab', { name: 'Audio' });
+    expect(screen.queryByTestId('Audio Screen')).not.toBeInTheDocument();
+
+    userEvent.click(tab);
+    screen.queryByTestId('Audio Screen');
   });
 });
