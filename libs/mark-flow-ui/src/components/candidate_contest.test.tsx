@@ -26,6 +26,7 @@ import { assert } from '@votingworks/basics';
 import { screen, within, render, act } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
 import { UpdateVoteFunction } from '../config/types';
+import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 
 vi.mock('@votingworks/ui', async () => {
   const ui = await vi.importActual('@votingworks/ui');
@@ -496,7 +497,84 @@ describe('supports write-in candidates', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  test('prevents writing more than the allowed number of characters', () => {
+  test.each([
+    {
+      writeInCharacterLimitAcrossContests: undefined,
+    },
+    {
+      writeInCharacterLimitAcrossContests: {
+        numCharactersAllowed: Infinity,
+        numCharactersRemaining: Infinity,
+      },
+    },
+    {
+      writeInCharacterLimitAcrossContests: {
+        numCharactersAllowed: WRITE_IN_CANDIDATE_MAX_LENGTH * 2,
+        numCharactersRemaining: WRITE_IN_CANDIDATE_MAX_LENGTH * 2,
+      },
+    },
+    {
+      writeInCharacterLimitAcrossContests: {
+        numCharactersAllowed: WRITE_IN_CANDIDATE_MAX_LENGTH * 2,
+        numCharactersRemaining: WRITE_IN_CANDIDATE_MAX_LENGTH,
+      },
+    },
+  ])(
+    'prevents writing more than the allowed number of characters (when the write-in character limit across contests is not the limiting factor)',
+    ({ writeInCharacterLimitAcrossContests }) => {
+      const { checkIsKeyDisabled, fireKeyPressEvents } =
+        setUpMockVirtualKeyboard();
+
+      const updateVote = vi.fn();
+      render(
+        <CandidateContest
+          election={electionDefinition.election}
+          contest={candidateContestWithWriteIns}
+          vote={[]}
+          updateVote={updateVote}
+          writeInCharacterLimitAcrossContests={
+            writeInCharacterLimitAcrossContests
+          }
+        />
+      );
+      userEvent.click(
+        screen.getByText('add write-in candidate').closest('button')!
+      );
+
+      const modal = within(screen.getByRole('alertdialog'));
+
+      modal.getByRole('heading', {
+        name: `Write-In: ${candidateContestWithWriteIns.title}`,
+      });
+      const writeInCandidate =
+        "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO";
+      fireKeyPressEvents(writeInCandidate);
+      modal.getByText(hasTextAcrossElements(/characters remaining: 0/i));
+      expect(
+        modal.queryByText(
+          hasTextAcrossElements(/write-in character limit across contests/i)
+        )
+      ).not.toBeInTheDocument();
+
+      expect(checkIsKeyDisabled(SPACE_BAR_KEY)).toEqual(true);
+      expect(checkIsKeyDisabled(DELETE_KEY)).toEqual(false);
+      expect(checkIsKeyDisabled(CANCEL_KEY)).toEqual(false);
+      expect(checkIsKeyDisabled(ACCEPT_KEY)).toEqual(false);
+      userEvent.click(modal.getByText('Accept'));
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+      expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
+        {
+          id: 'write-in-jacobJohansonJingleheimmerSchmidttT',
+          isWriteIn: true,
+          name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
+          writeInIndex: 0,
+        },
+      ]);
+    }
+  );
+
+  test('prevents writing more than the allowed number of characters (when the write-in character limit across contests is the limiting factor)', () => {
     const { checkIsKeyDisabled, fireKeyPressEvents } =
       setUpMockVirtualKeyboard();
 
@@ -507,6 +585,10 @@ describe('supports write-in candidates', () => {
         contest={candidateContestWithWriteIns}
         vote={[]}
         updateVote={updateVote}
+        writeInCharacterLimitAcrossContests={{
+          numCharactersAllowed: WRITE_IN_CANDIDATE_MAX_LENGTH * 2,
+          numCharactersRemaining: 3,
+        }}
       />
     );
     userEvent.click(
@@ -518,8 +600,11 @@ describe('supports write-in candidates', () => {
     modal.getByRole('heading', {
       name: `Write-In: ${candidateContestWithWriteIns.title}`,
     });
-    const writeInCandidate =
-      "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO";
+    modal.getByText(hasTextAcrossElements(/characters remaining: 3/i));
+    modal.getByText(
+      hasTextAcrossElements(/write-in character limit across contests: 80/i)
+    );
+    const writeInCandidate = 'ABC';
     fireKeyPressEvents(writeInCandidate);
     modal.getByText(hasTextAcrossElements(/characters remaining: 0/i));
 
@@ -532,9 +617,9 @@ describe('supports write-in candidates', () => {
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
       {
-        id: 'write-in-jacobJohansonJingleheimmerSchmidttT',
+        id: 'write-in-abc',
         isWriteIn: true,
-        name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
+        name: 'ABC',
         writeInIndex: 0,
       },
     ]);
