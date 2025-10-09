@@ -34,7 +34,9 @@ test('vendor screen', async () => {
   apiMock.expectGetElectionRecord(null);
   render(<App apiClient={apiMock.apiClient} />);
 
-  await apiMock.authenticateAsVendor();
+  const lockScreenText =
+    'Insert an election manager card to configure VxCentralScan';
+  await apiMock.authenticateAsVendor(lockScreenText);
   await screen.findButton('Reboot to Vendor Menu');
   const lockMachineButton = screen.getButton('Lock Machine');
   const unconfigureButton = screen.getButton('Unconfigure Machine');
@@ -46,10 +48,10 @@ test('vendor screen', async () => {
   apiMock.expectLogOut();
   userEvent.click(lockMachineButton);
   apiMock.setAuthStatus({ status: 'logged_out', reason: 'machine_locked' });
-  await screen.findByText('VxCentralScan is Locked');
+  await screen.findByText(lockScreenText);
 
   // Test "Reboot to Vendor Menu" button
-  await apiMock.authenticateAsVendor();
+  await apiMock.authenticateAsVendor(lockScreenText);
   const rebootButton = await screen.findButton('Reboot to Vendor Menu');
   apiMock.expectRebootToVendorMenu();
   userEvent.click(rebootButton);

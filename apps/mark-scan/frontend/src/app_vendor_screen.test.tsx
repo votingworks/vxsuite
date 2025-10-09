@@ -56,6 +56,7 @@ test('vendor screen unconfigure', async () => {
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetMachineConfig();
   userEvent.click(
     within(modal).getByRole('button', { name: 'Delete All Election Data' })
   );
