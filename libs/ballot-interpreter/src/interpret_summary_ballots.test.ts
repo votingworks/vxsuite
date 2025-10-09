@@ -12,6 +12,7 @@ import {
 import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
+  makeTemporaryFile,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -28,6 +29,7 @@ import {
   asSheet,
   getBallotStyle,
   getContests,
+  mapSheet,
   vote,
 } from '@votingworks/types';
 import {
@@ -37,6 +39,8 @@ import {
 import { createCanvas, ImageData } from 'canvas';
 import { assert } from 'node:console';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { loadImageData, toImageBuffer } from '@votingworks/image-utils';
+import { readFile } from 'node:fs/promises';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
 import { InterpreterOptions } from './types';
@@ -443,6 +447,53 @@ describe('VX BMD interpretation', () => {
       ),
       expectedBallotHash: 'd34db33f',
     });
+  });
+
+  test('crops black headers and footers', async () => {
+    const canvas = createCanvas(
+      bmdSummaryBallotPage.width,
+      bmdSummaryBallotPage.height
+    );
+    const extendedSheet = mapSheet(
+      [bmdSummaryBallotPage, bmdBlankPage],
+      (imageData) => {
+        canvas.width = imageData.width + 50;
+        canvas.height = imageData.height + 500;
+        const context = canvas.getContext('2d');
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.putImageData(imageData, 25, 250);
+        return context.getImageData(0, 0, canvas.width, canvas.height);
+      }
+    );
+
+    const outputPath = makeTemporaryFile({ postfix: '.png' });
+    const interpretation = await interpretSheet(
+      {
+        electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+        frontNormalizedImageOutputPath: outputPath,
+      },
+      extendedSheet
+    );
+
+    expect(interpretation).toMatchSnapshot();
+
+    const outputImage = await loadImageData(outputPath);
+    expect({
+      width: outputImage.width,
+      height: outputImage.height,
+    }).toEqual({
+      width: bmdSummaryBallotPage.width,
+      height: bmdSummaryBallotPage.height,
+    });
+
+    // snapshot the input and output images
+    expect(toImageBuffer(extendedSheet[0])).toMatchImageSnapshot();
+    expect(await readFile(outputPath)).toMatchImageSnapshot();
   });
 
   test.each([

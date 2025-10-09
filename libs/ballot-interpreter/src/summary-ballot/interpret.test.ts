@@ -63,10 +63,10 @@ test('happy path: front, back', async () => {
   const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
   expect(ballot).toMatchSnapshot();
 
-  // don't use `expect::toEqual` matcher because it tries to pretty print the
-  // ImageData objects, which is slow and causes the test to time out
-  assert(summaryBallotImage === card[0]);
-  assert(blankPageImage === card[1]);
+  expect(summaryBallotImage.width).toBeLessThanOrEqual(card[0].width);
+  expect(summaryBallotImage.height).toBeLessThanOrEqual(card[0].height);
+  expect(blankPageImage.width).toBeLessThanOrEqual(card[1].width);
+  expect(blankPageImage.height).toBeLessThanOrEqual(card[1].height);
 });
 
 test('happy path: back, front', async () => {
@@ -78,10 +78,10 @@ test('happy path: back, front', async () => {
   const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
   expect(ballot).toMatchSnapshot();
 
-  // don't use `expect::toEqual` matcher because it tries to pretty print the
-  // ImageData objects, which is slow and causes the test to time out
-  assert(summaryBallotImage === card[0]);
-  assert(blankPageImage === card[1]);
+  expect(summaryBallotImage.width).toBeLessThanOrEqual(card[0].width);
+  expect(summaryBallotImage.height).toBeLessThanOrEqual(card[0].height);
+  expect(blankPageImage.width).toBeLessThanOrEqual(card[1].width);
+  expect(blankPageImage.height).toBeLessThanOrEqual(card[1].height);
 });
 
 test('happy path: front upside down, back', async () => {
