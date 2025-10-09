@@ -30,7 +30,7 @@ import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { AdjudicationSummaryScreen } from '../screens/adjudication_summary_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { ReportsScreen } from '../screens/reporting/reports_screen';
-import { checkPin, logOut, useApiClient } from '../api';
+import { checkPin, logOut, unconfigure, useApiClient } from '../api';
 import { TallyReportBuilder } from '../screens/reporting/tally_report_builder';
 import { BallotCountReportBuilder } from '../screens/reporting/ballot_count_report_builder';
 import { AllPrecinctsTallyReportScreen } from '../screens/reporting/all_precincts_tally_report_screen';
@@ -47,6 +47,7 @@ export function AppRoutes(): JSX.Element | null {
   const apiClient = useApiClient();
   const checkPinMutation = checkPin.useMutation();
   const logOutMutation = logOut.useMutation();
+  const unconfigureMutation = unconfigure.useMutation();
 
   const hasCardReaderAttached = !(
     auth.status === 'logged_out' && auth.reason === 'no_card_reader'
@@ -101,6 +102,8 @@ export function AppRoutes(): JSX.Element | null {
       <VendorScreen
         logOut={logOutMutation.mutate}
         rebootToVendorMenu={apiClient.rebootToVendorMenu}
+        unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+        isMachineConfigured={Boolean(electionDefinition)}
       />
     );
   }
