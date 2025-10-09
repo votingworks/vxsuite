@@ -1610,7 +1610,6 @@ test('combineCompressedElectionResults - can combine results from different prec
     ],
   });
 
-  console.log(combinedResults);
   // Results should contain all contests
   expect(Object.keys(combinedResults)).toHaveLength(
     electionEitherNeither.contests.length

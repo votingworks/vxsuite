@@ -154,6 +154,7 @@ export function groupContestsByParty(
           return c.partyId === partyId;
         case 'yesno':
           return !partyId; // all yes/no contests are non-partisan
+        /* istanbul ignore next - @preserve */
         default:
           throwIllegalValue(c);
       }
