@@ -7,6 +7,11 @@ import { AccessibilityMode } from '@votingworks/ui';
 import * as api from '../api';
 import { BallotContext } from '../contexts/ballot_context';
 
+/**
+ * A cap to ensure that the summary ballot QR code remains readable
+ */
+const NUM_WRITE_IN_CHARACTERS_ALLOWED_ACROSS_CONTESTS = 60;
+
 function getContestUrl(contestIndex: number) {
   return `/contests/${contestIndex}`;
 }
@@ -47,6 +52,9 @@ export function ContestScreen(): JSX.Element {
         isPatDeviceConnected
           ? AccessibilityMode.SWITCH_SCANNING
           : AccessibilityMode.ATI_CONTROLLER
+      }
+      numWriteInCharactersAllowedAcrossContests={
+        NUM_WRITE_IN_CHARACTERS_ALLOWED_ACROSS_CONTESTS
       }
     />
   );

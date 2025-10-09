@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   CandidateVote,
   Election,
@@ -48,6 +48,16 @@ export interface ContestProps {
    * for ATI controllers with directional buttons.
    */
   accessibilityMode?: AccessibilityMode;
+
+  numWriteInCharactersAllowedAcrossContests?: number;
+}
+
+function countNumWriteInCharactersUsedAcrossContests(votes: VotesDict): number {
+  return Object.values(votes)
+    .flat()
+    .filter((vote) => vote !== undefined && typeof vote !== 'string')
+    .map((vote) => (vote.isWriteIn ? vote.name.length : 0))
+    .reduce((acc, n) => acc + n, 0);
 }
 
 export function Contest({
@@ -59,8 +69,13 @@ export function Contest({
   accessibilityMode,
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
+  numWriteInCharactersAllowedAcrossContests = Infinity,
 }: ContestProps): JSX.Element {
   const vote = votes[contest.id];
+  const numWriteInCharactersUsedAcrossContests = useMemo(
+    () => countNumWriteInCharactersUsedAcrossContests(votes),
+    [votes]
+  );
 
   return (
     <React.Fragment>
@@ -75,6 +90,12 @@ export function Contest({
           accessibilityMode={accessibilityMode}
           onOpenWriteInKeyboard={onOpenWriteInKeyboard}
           onCloseWriteInKeyboard={onCloseWriteInKeyboard}
+          writeInCharacterLimitAcrossContests={{
+            numCharactersAllowed: numWriteInCharactersAllowedAcrossContests,
+            numCharactersRemaining:
+              numWriteInCharactersAllowedAcrossContests -
+              numWriteInCharactersUsedAcrossContests,
+          }}
         />
       )}
       {contest.type === 'yesno' && (

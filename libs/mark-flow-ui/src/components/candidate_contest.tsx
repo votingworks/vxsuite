@@ -44,6 +44,11 @@ import { ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { WriteInCandidateName } from './write_in_candidate_name';
 
+export interface WriteInCharacterLimitAcrossContests {
+  numCharactersAllowed: number;
+  numCharactersRemaining: number;
+}
+
 interface Props {
   breadcrumbs?: BreadcrumbMetadata;
   election: Election;
@@ -53,6 +58,7 @@ interface Props {
   accessibilityMode?: AccessibilityMode;
   onOpenWriteInKeyboard?: () => void;
   onCloseWriteInKeyboard?: () => void;
+  writeInCharacterLimitAcrossContests?: WriteInCharacterLimitAcrossContests;
 }
 
 const WriteInModalBody = styled.div`
@@ -94,6 +100,7 @@ export function CandidateContest({
   accessibilityMode,
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
+  writeInCharacterLimitAcrossContests,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
 
@@ -110,6 +117,13 @@ export function CandidateContest({
     useState('');
 
   const screenInfo = useScreenInfo();
+
+  const writeInCharacterLimit = Math.min(
+    WRITE_IN_CANDIDATE_MAX_LENGTH,
+    writeInCharacterLimitAcrossContests?.numCharactersRemaining ?? Infinity
+  );
+  const writeInCharacterLimitAcrossContestsIsLimitingFactor =
+    writeInCharacterLimit < WRITE_IN_CANDIDATE_MAX_LENGTH;
 
   useEffect(() => {
     if (recentlyDeselectedCandidate !== '') {
@@ -238,7 +252,7 @@ export function CandidateContest({
       (prevName + key)
         .trimStart()
         .replace(/\s+/g, ' ')
-        .slice(0, WRITE_IN_CANDIDATE_MAX_LENGTH)
+        .slice(0, writeInCharacterLimit)
     );
   }
 
@@ -248,8 +262,8 @@ export function CandidateContest({
     );
   }
 
-  const writeInCharsRemaining =
-    WRITE_IN_CANDIDATE_MAX_LENGTH - writeInCandidateName.length;
+  const writeInCharactersRemaining =
+    writeInCharacterLimit - writeInCandidateName.length;
 
   function keyDisabled(key: virtualKeyboardCommon.Key) {
     switch (key.action) {
@@ -263,7 +277,7 @@ export function CandidateContest({
         return false;
 
       default:
-        return writeInCharsRemaining === 0;
+        return writeInCharactersRemaining === 0;
     }
   }
 
@@ -513,11 +527,24 @@ export function CandidateContest({
                     </AudioOnly>
                     <P align="right">
                       <Caption>
-                        {writeInCharsRemaining === 0 && (
+                        {writeInCharactersRemaining === 0 && (
                           <Icons.Warning color="warning" />
                         )}{' '}
                         {appStrings.labelCharactersRemaining()}{' '}
-                        <NumberString value={writeInCharsRemaining} />
+                        <NumberString value={writeInCharactersRemaining} />
+                        {writeInCharacterLimitAcrossContestsIsLimitingFactor && (
+                          <React.Fragment>
+                            {' | '}
+                            {appStrings.labelWriteInCharacterLimitAcrossContests()}{' '}
+                            <NumberString
+                              value={
+                                assertDefined(
+                                  writeInCharacterLimitAcrossContests
+                                ).numCharactersAllowed
+                              }
+                            />
+                          </React.Fragment>
+                        )}
                       </Caption>
                     </P>
                   </ReadOnLoad>

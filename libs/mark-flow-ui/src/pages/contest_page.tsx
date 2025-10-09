@@ -36,6 +36,7 @@ export interface ContestPageProps {
   precinctId?: PrecinctId;
   updateVote: ContestProps['updateVote'];
   votes: VotesDict;
+  numWriteInCharactersAllowedAcrossContests?: number;
 }
 
 interface ContestParams {
@@ -58,6 +59,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     precinctId,
     updateVote,
     votes,
+    numWriteInCharactersAllowedAcrossContests,
   } = props;
 
   // eslint-disable-next-line vx/gts-safe-number-parse
@@ -188,6 +190,9 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         votes={votes}
         updateVote={handleUpdateVote}
         accessibilityMode={accessibilityMode}
+        numWriteInCharactersAllowedAcrossContests={
+          numWriteInCharactersAllowedAcrossContests
+        }
       />
     </VoterScreen>
   );
