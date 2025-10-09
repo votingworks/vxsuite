@@ -2,8 +2,10 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type {
   Api,
+  ElectionFeature,
   ElectionFeaturesConfig,
   User,
+  UserFeature,
   UserFeaturesConfig,
 } from '@votingworks/design-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -17,7 +19,7 @@ export function createMockApiClient(): MockApiClient {
   return createMockClient<Api>();
 }
 
-const allUserFeaturesOnConfig: UserFeaturesConfig = {
+const allUserFeaturesOnConfig: Record<UserFeature, boolean> = {
   ACCESS_ALL_ORGS: true,
   SYSTEM_SETTINGS_SCREEN: true,
   EXPORT_SCREEN: true,
@@ -29,9 +31,10 @@ const allUserFeaturesOnConfig: UserFeaturesConfig = {
   BALLOT_LANGUAGE_CONFIG: true,
   BMD_EXTRA_PRINT_MODES: true,
   QUICK_RESULTS_REPORTING: true,
+  AUDIO_PROOFING: true,
 };
 
-const allElectionFeaturesOffConfig: ElectionFeaturesConfig = {
+const allElectionFeaturesOffConfig: Record<ElectionFeature, boolean> = {
   PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: false,
   PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: false,
   PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: false,
