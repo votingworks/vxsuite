@@ -139,3 +139,30 @@ export function languageDisplayName(params: {
     `unexpected missing language display name for ${languageCode} in ${displayLanguageCode}`
   );
 }
+
+/**
+ * Format bytes to a human-readable string with automatic unit selection.
+ * Automatically selects the most appropriate unit (B, KB, MB, GB, TB).
+ *
+ * @example
+ *   bytes(0)             // '0 B'
+ *   bytes(1024)          // '1 KB'
+ *   bytes(1536)          // '1.5 KB'
+ *   bytes(1073741824)    // '1 GB'
+ *   bytes(5368709120)    // '5 GB'
+ */
+export function bytes(
+  value: number,
+  { fractionDigits = 1 }: { fractionDigits?: number } = {}
+): string {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const k = 1024;
+
+  if (value === 0) return '0 B';
+
+  const i = Math.floor(Math.log(value) / Math.log(k));
+  const unitIndex = Math.min(i, units.length - 1);
+  const scaledValue = value / k ** unitIndex;
+
+  return `${scaledValue.toFixed(fractionDigits)} ${units[unitIndex]}`;
+}
