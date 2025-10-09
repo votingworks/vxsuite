@@ -2360,14 +2360,19 @@ test('Election package management', async () => {
     .mock.lastCall![4]!;
   emitProgress('Test progress message', 2, 10);
 
-  const electionPackageDuringExport = await apiClient.getElectionPackage({
-    electionId,
-  });
-  expect(electionPackageDuringExport.task?.progress).toEqual({
-    label: 'Test progress message',
-    progress: 2,
-    total: 10,
-  });
+  await backendWaitFor(
+    async () => {
+      const electionPackageDuringExport = await apiClient.getElectionPackage({
+        electionId,
+      });
+      expect(electionPackageDuringExport.task?.progress).toEqual({
+        label: 'Test progress message',
+        progress: 2,
+        total: 10,
+      });
+    },
+    { interval: 500, retries: 3 }
+  );
 
   // Complete the task
   emitProgress('Test progress message', 10, 10);
@@ -2923,12 +2928,17 @@ test('Export test decks', async () => {
     expect.any(Function) // emitProgress callback
   );
 
-  const testDecksTask = await apiClient.getTestDecks({ electionId });
-  expect(testDecksTask.task!.progress).toEqual({
-    label: 'Rendering test decks',
-    progress: expect.any(Number),
-    total: testDecksTask.task!.progress!.progress,
-  });
+  await backendWaitFor(
+    async () => {
+      const testDecksTask = await apiClient.getTestDecks({ electionId });
+      expect(testDecksTask.task!.progress).toEqual({
+        label: 'Rendering test decks',
+        progress: expect.any(Number),
+        total: testDecksTask.task!.progress!.progress,
+      });
+    },
+    { interval: 500, retries: 3 }
+  );
 
   await suppressingConsoleOutput(async () => {
     // Check permissions
