@@ -43,6 +43,7 @@ import {
   PhoneticWordsSchema,
   ContestId,
   PrecinctSelection,
+  TtsEditEntry,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -1979,6 +1980,32 @@ export class Store {
         where started_at is not null and completed_at is null
       `)
     );
+  }
+
+  async ttsEditsAll(params: { electionId: string }): Promise<TtsEditEntry[]> {
+    return this.db.withClient(async (client) => {
+      const res = await client.query(
+        `
+          select
+            original,
+            language_code as "languageCode",
+            export_source as "exportSource",
+            phonetic,
+            text
+          from tts_edits
+          where election_id = $1
+        `,
+        params.electionId
+      );
+
+      return res.rows.map<TtsEditEntry>((row) => ({
+        exportSource: row.exportSource,
+        original: row.original,
+        languageCode: row.languageCode,
+        phonetic: safeParse(PhoneticWordsSchema, row.phonetic).unsafeUnwrap(),
+        text: row.text as string,
+      }));
+    });
   }
 
   async ttsEditsGet(key: TtsEditKey): Promise<TtsEdit | null> {

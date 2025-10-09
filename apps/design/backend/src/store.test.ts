@@ -322,8 +322,8 @@ describe('tts_strings', () => {
     languageCode: 'en',
   };
 
-  async function setUpElection(store: Store) {
-    const election = createBlankElection(key.electionId);
+  async function setUpElection(store: Store, id = key.electionId) {
+    const election = createBlankElection(id);
     await store.syncOrganizationsCache([{ id: 'vx', name: 'VotingWorks' }]);
     await store.createElection('vx', election, 'VxDefaultBallot');
   }
@@ -367,5 +367,45 @@ describe('tts_strings', () => {
       ],
       text: 'one two',
     });
+  });
+
+  test('ttsStringsAll', async () => {
+    const electionId = 'election-1';
+    const electionIdOther = 'election-2';
+
+    const store = testStore.getStore();
+    await setUpElection(store, electionId);
+    await setUpElection(store, electionIdOther);
+
+    await store.ttsEditsSet(
+      { electionId, languageCode: 'en', original: 'one two' },
+      { exportSource: 'text', phonetic: [], text: 'wun too' }
+    );
+    await store.ttsEditsSet(
+      { electionId, languageCode: 'es', original: 'three four' },
+      { exportSource: 'text', phonetic: [], text: 'three foar' }
+    );
+
+    await store.ttsEditsSet(
+      { electionId: electionIdOther, languageCode: 'en', original: 'five six' },
+      { exportSource: 'text', phonetic: [], text: 'fayv six' }
+    );
+
+    await expect(store.ttsEditsAll({ electionId })).resolves.toEqual([
+      {
+        exportSource: 'text',
+        languageCode: 'en',
+        original: 'one two',
+        phonetic: [],
+        text: 'wun too',
+      },
+      {
+        exportSource: 'text',
+        languageCode: 'es',
+        original: 'three four',
+        phonetic: [],
+        text: 'three foar',
+      },
+    ]);
   });
 });
