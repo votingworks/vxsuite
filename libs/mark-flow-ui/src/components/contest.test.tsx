@@ -4,10 +4,10 @@ import {
   readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { find } from '@votingworks/basics';
-import { CandidateContest, YesNoContest } from '@votingworks/types';
+import { assert, find } from '@votingworks/basics';
+import { CandidateContest, VotesDict, YesNoContest } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen, within } from '../../test/react_testing_library';
 
 import { Contest } from './contest';
 import {
@@ -46,6 +46,70 @@ test.each([
     />
   );
   screen.getByText(candidateContest.title);
+  // Tested further in candidate_contest.test.tsx
+});
+
+test('write-in character limit across contests', () => {
+  const singleSeatCandidateContests = electionGeneral.contests.filter(
+    (c) => c.type === 'candidate' && c.seats === 1
+  ) as CandidateContest[];
+  const manySeatCandidateContests = electionGeneral.contests.filter(
+    (c) => c.type === 'candidate' && c.seats >= 3
+  ) as CandidateContest[];
+  const yesNoContests = electionGeneral.contests.filter(
+    (c) => c.type === 'yesno'
+  );
+
+  assert(singleSeatCandidateContests.length >= 2);
+  assert(manySeatCandidateContests.length >= 2);
+  assert(yesNoContests.length >= 1);
+
+  let i = 0;
+  function createWriteIn(name: string, index: number) {
+    i += 1;
+    return {
+      id: `write-in-${i}`,
+      isWriteIn: true,
+      name,
+      writeInIndex: index,
+    };
+  }
+
+  const votes: VotesDict = {
+    [singleSeatCandidateContests[0].id]: [
+      createWriteIn('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 0),
+    ],
+    [singleSeatCandidateContests[1].id]: [
+      singleSeatCandidateContests[1].candidates[0],
+    ],
+    [manySeatCandidateContests[0].id]: [
+      manySeatCandidateContests[0].candidates[0],
+      createWriteIn('ABCDEF 123456', 0),
+      createWriteIn('ABC', 1),
+    ],
+    [manySeatCandidateContests[1].id]: [createWriteIn('A', 0)],
+    [yesNoContests[0].id]: [yesNoContests[0].yesOption.id],
+  };
+
+  render(
+    <Contest
+      election={electionGeneral}
+      contest={manySeatCandidateContests[1]}
+      votes={votes}
+      updateVote={vi.fn()}
+      numWriteInCharactersAllowedAcrossContests={60}
+    />
+  );
+
+  screen.getByText(manySeatCandidateContests[1].title);
+  userEvent.click(
+    screen.getByText('add write-in candidate').closest('button')!
+  );
+  const modal = within(screen.getByRole('alertdialog'));
+  modal.getByText(hasTextAcrossElements(/characters remaining: 17/i)); // 60 - 43 = 17
+  modal.getByText(
+    hasTextAcrossElements(/write-in character limit across contests: 60/i)
+  );
   // Tested further in candidate_contest.test.tsx
 });
 

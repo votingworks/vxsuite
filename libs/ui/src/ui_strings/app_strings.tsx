@@ -660,6 +660,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  labelWriteInCharacterLimitAcrossContests: () => (
+    <UiString uiStringKey="labelWriteInCharacterLimitAcrossContests">
+      Write-in character limit across contests:
+    </UiString>
+  ),
+
   labelContestsRemaining: () => (
     <UiString uiStringKey="labelContestsRemaining">
       Contests remaining:
