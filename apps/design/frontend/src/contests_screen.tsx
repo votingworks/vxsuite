@@ -781,7 +781,7 @@ function ContestForm({
                 setContest({ ...contest, seats: e.target.valueAsNumber })
               }
               min={1}
-              max={10}
+              max={50}
               step={1}
               style={{ width: '4rem' }}
               maxLength={2}
