@@ -323,7 +323,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     expect(tables.length).toBeGreaterThan(0);
 
     expect(
-      screen.queryByRole('heading', { name: 'Non-Partisan Contests' })
+      screen.queryByRole('heading', { name: 'Nonpartisan Contests' })
     ).not.toBeInTheDocument();
 
     // All contests should be listed.
@@ -406,6 +406,6 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     // Contests should have headers, this election has non partisan contests.
     await screen.findByText('Mammal Party Contests');
     await screen.findByText('Fish Party Contests');
-    await screen.findByText('Non-Partisan Contests');
+    await screen.findByText('Nonpartisan Contests');
   });
 });

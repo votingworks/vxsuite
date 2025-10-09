@@ -185,10 +185,10 @@ function PollsClosedReportConfirmation({
           precinctSelection={precinctSelection}
         />
         {contestsByParty.map(({ partyId, contests }) => (
-          <div key={partyId || 'non-partisan'}>
+          <div key={partyId || 'nonpartisan'}>
             {partyId && <h2>{partyNamesById[partyId]} Contests</h2>}
             {!partyId && contestsByParty.length > 1 && (
-              <h2>Non-Partisan Contests</h2>
+              <h2>Nonpartisan Contests</h2>
             )}
             <TallyReportColumns>
               {contests.map((contest) => {
@@ -244,7 +244,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
       return (
         <ResultsScreen screenTitle="Error Sending Report">
           <MainContent>
-            <Callout color="danger" icon="Warning">
+            <Callout color="danger" icon="Danger">
               Signature not verified. Please try scanning the QR code again.
             </Callout>
           </MainContent>
@@ -256,7 +256,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
       return (
         <ResultsScreen screenTitle="Error Sending Report">
           <MainContent>
-            <Callout color="danger" icon="Warning">
+            <Callout color="danger" icon="Danger">
               Wrong election. Confirm VxScan and VxDesign are configured with
               the same election package.
             </Callout>
@@ -267,7 +267,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
     return (
       <ResultsScreen screenTitle="Error Sending Report">
         <MainContent>
-          <Callout color="danger" icon="Warning">
+          <Callout color="danger" icon="Danger">
             Invalid request. Please try scanning the QR code again.
           </Callout>
         </MainContent>
