@@ -24,6 +24,7 @@ export type {
   ElectionListing,
   ElectionInfo,
   AggregatedReportedResults,
+  ReceivedReportInfo,
 } from './types';
 export type {
   ElectionFeature,
