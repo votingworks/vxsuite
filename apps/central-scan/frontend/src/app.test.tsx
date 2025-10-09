@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import fetchMock from 'fetch-mock';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
@@ -41,23 +40,10 @@ beforeEach(() => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetMachineConfig();
   apiMock.setStatus();
-
-  fetchMock.config.fallbackToNetwork = true;
-
-  const oldWindowLocation = window.location;
-  Object.defineProperty(window, 'location', {
-    value: {
-      ...oldWindowLocation,
-      href: '/',
-    },
-    configurable: true,
-  });
 });
 
 afterEach(() => {
   apiMock.assertComplete();
-  expect(fetchMock.done()).toEqual(true);
-  expect(fetchMock.calls('unmatched')).toEqual([]);
 });
 
 function expectConfigureFromElectionPackageOnUsbDrive() {
@@ -114,12 +100,11 @@ export async function authenticateAsElectionManager(
   await screen.findByText(postAuthText);
 }
 
-test('renders without crashing', async () => {
+test('renders without crashing', () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
-  await vi.waitFor(() => fetchMock.called());
 });
 
 test('clicking Scan Batch will scan a batch', async () => {

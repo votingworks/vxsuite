@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import fetchMock from 'fetch-mock';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { render, within, screen, waitFor } from '../test/react_testing_library';
@@ -24,24 +23,10 @@ beforeEach(() => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetMachineConfig();
   apiMock.setStatus();
-
-  fetchMock.config.fallbackToNetwork = true;
-
-  const oldWindowLocation = window.location;
-  Object.defineProperty(window, 'location', {
-    value: {
-      ...oldWindowLocation,
-      href: '/',
-    },
-    configurable: true,
-  });
 });
 
 afterEach(() => {
   apiMock.assertComplete();
-  expect(fetchMock.done()).toEqual(true);
-  expect(fetchMock.calls('unmatched')).toEqual([]);
-  fetchMock.restore();
 });
 
 test('vendor screen', async () => {

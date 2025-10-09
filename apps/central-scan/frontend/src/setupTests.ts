@@ -4,7 +4,6 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { cleanup, configure } from '../test/react_testing_library';
 
@@ -15,8 +14,6 @@ configure({ asyncUtilTimeout: 5_000 });
 beforeEach(() => {
   vi.clearAllMocks();
   cleanup();
-  fetchMock.reset();
-  fetchMock.mock();
 });
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
