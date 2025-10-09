@@ -31,6 +31,7 @@ import {
   getElection,
   logOut,
   systemCallApi,
+  unconfigure,
   useApiClient,
 } from './api';
 import { ErrorScreen } from './error_screen';
@@ -44,6 +45,7 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   const apiClient = useApiClient();
   const checkPinMutation = checkPin.useMutation();
   const logOutMutation = logOut.useMutation();
+  const unconfigureMutation = unconfigure.useMutation();
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const getElectionQuery = getElection.useQuery({ refetchInterval: 100 });
   const history = useHistory();
@@ -129,6 +131,8 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
       <VendorScreen
         logOut={logOutMutation.mutate}
         rebootToVendorMenu={apiClient.rebootToVendorMenu}
+        unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+        isMachineConfigured={getElectionQuery.data.isOk()}
       />
     );
   }

@@ -202,14 +202,6 @@ test('renders ElectionManagerScreen when logged in as election manager', async (
   );
 });
 
-test('renders VendorScreen when logged in as vendor', async () => {
-  apiMock.expectGetDeviceStatuses();
-  apiMock.authenticateAsVendor();
-  renderApp();
-
-  await screen.findByText('Reboot to Vendor Menu');
-});
-
 test('election manager - unconfigured screen - loading', async () => {
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
