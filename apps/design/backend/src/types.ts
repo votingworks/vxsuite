@@ -130,6 +130,14 @@ export interface AggregatedReportedResults {
   contestResults: Record<ContestId, ContestResults>;
   election: Election;
   machinesReporting: string[];
+  isLive: boolean;
+}
+
+export interface AggregatedReportedPollsStatus {
+  entries: QuickReportedPollStatus[];
+  election: Election;
+  isLive: boolean;
+  ballotHash: string;
 }
 
 export interface QuickReportedPollStatus {

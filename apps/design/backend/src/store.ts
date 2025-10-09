@@ -2088,6 +2088,30 @@ export class Store {
     });
   }
 
+  async electionHasLiveReportData(election: ElectionRecord): Promise<boolean> {
+    assert(
+      election.lastExportedBallotHash !== undefined,
+      'Election has not yet been exported.'
+    );
+    const { count } = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select count(*) as count
+            from results_reports
+            where
+              ballot_hash = $1 and
+              election_id = $2 and
+              is_live_mode = true
+          `,
+          election.lastExportedBallotHash,
+          election.election.id
+        )
+      )
+    ).rows[0] as { count: number };
+    return count > 0;
+  }
+
   async getPollsStatusForElection(
     election: ElectionRecord,
     isLive: boolean
