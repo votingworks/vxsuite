@@ -59,8 +59,6 @@ export enum BooleanEnvironmentVariableName {
    * Run VxMarkScan expecting BMD-150 hardware
    */
   MARK_SCAN_USE_BMD_150 = 'REACT_APP_VX_MARK_SCAN_USE_BMD_150',
-  /** Use the Custom scanner in VxScan (as opposed to the PDI scanner) */
-  USE_CUSTOM_SCANNER = 'REACT_APP_VX_USE_CUSTOM_SCANNER',
   /**
    * Enables screen reader audio only when headphones are plugged in.
    *
@@ -147,8 +145,6 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_USE_MOCK_PAPER_HANDLER;
     case BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150:
       return process.env.REACT_APP_VX_MARK_SCAN_USE_BMD_150;
-    case BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER:
-      return process.env.REACT_APP_VX_USE_CUSTOM_SCANNER;
     case BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES:
       return process.env.REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES;
     case BooleanEnvironmentVariableName.HIDE_CURSOR:
@@ -249,12 +245,6 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150:
-      return {
-        name,
-        allowInProduction: true,
-        autoEnableInDevelopment: false,
-      };
-    case BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER:
       return {
         name,
         allowInProduction: true,

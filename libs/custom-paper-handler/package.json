@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
-    "@votingworks/custom-scanner": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/message-coder": "workspace:*",
     "@votingworks/types": "workspace:*",

@@ -1,6 +1,6 @@
 import { Device, WebUSBDevice, findByIds } from 'usb';
-import { mocks } from '@votingworks/custom-scanner';
 import { MockedFunction } from 'vitest';
+import * as mocks from '../mocks';
 import {
   REAL_TIME_ENDPOINT_IN,
   REAL_TIME_ENDPOINT_OUT,

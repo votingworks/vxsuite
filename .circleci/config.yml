@@ -696,30 +696,6 @@ jobs:
       - store_test_results:
           path: libs/custom-paper-handler/reports/
 
-  # @votingworks/custom-scanner
-  test-libs-custom-scanner:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/custom-scanner build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/custom-scanner lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/custom-scanner test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/custom-scanner/reports/
-
   # @votingworks/db
   test-libs-db:
     executor: nodejs
@@ -1371,7 +1347,6 @@ workflows:
       - test-libs-bmd-ballot-fixtures
       - test-libs-cdf-schema-builder
       - test-libs-custom-paper-handler
-      - test-libs-custom-scanner
       - test-libs-db
       - test-libs-dev-dock-backend
       - test-libs-dev-dock-frontend

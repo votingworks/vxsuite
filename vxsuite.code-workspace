@@ -181,10 +181,6 @@
       "path": "libs/message-coder"
     },
     {
-      "name": "libs/custom-scanner",
-      "path": "libs/custom-scanner"
-    },
-    {
       "name": "libs/pdi-scanner",
       "path": "libs/pdi-scanner"
     },
