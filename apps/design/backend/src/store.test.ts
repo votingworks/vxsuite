@@ -5,7 +5,6 @@ import { LanguageCode, TtsEditKey } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store, TaskName } from './store';
 import { TestStore } from '../test/test_store';
-import { createBlankElection } from './app';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
@@ -317,26 +316,24 @@ test('Background task processing - requeuing interrupted tasks', async () => {
 
 describe('tts_strings', () => {
   const key: TtsEditKey = {
-    electionId: '5678',
+    orgId: 'vx',
     original: 'one two',
     languageCode: 'en',
   };
 
-  async function setUpElection(store: Store, id = key.electionId) {
-    const election = createBlankElection(id);
-    await store.syncOrganizationsCache([{ id: 'vx', name: 'VotingWorks' }]);
-    await store.createElection('vx', election, 'VxDefaultBallot');
+  async function setUpOrgs(store: Store, ids: string[] = [key.orgId]) {
+    await store.syncOrganizationsCache(ids.map((id) => ({ id, name: id })));
   }
 
   test('ttsStringsGet returns null if absent', async () => {
     const store = testStore.getStore();
-    await setUpElection(store);
+    await setUpOrgs(store);
     await expect(store.ttsEditsGet(key)).resolves.toBeNull();
   });
 
   test('ttsStringsSet inserts if absent, updates if present', async () => {
     const store = testStore.getStore();
-    await setUpElection(store);
+    await setUpOrgs(store);
 
     await store.ttsEditsSet(key, {
       exportSource: 'phonetic',
@@ -370,28 +367,27 @@ describe('tts_strings', () => {
   });
 
   test('ttsStringsAll', async () => {
-    const electionId = 'election-1';
-    const electionIdOther = 'election-2';
+    const orgId = 'election-1';
+    const orgIdOther = 'election-2';
 
     const store = testStore.getStore();
-    await setUpElection(store, electionId);
-    await setUpElection(store, electionIdOther);
+    await setUpOrgs(store, [orgId, orgIdOther]);
 
     await store.ttsEditsSet(
-      { electionId, languageCode: 'en', original: 'one two' },
+      { orgId, languageCode: 'en', original: 'one two' },
       { exportSource: 'text', phonetic: [], text: 'wun too' }
     );
     await store.ttsEditsSet(
-      { electionId, languageCode: 'es', original: 'three four' },
+      { orgId, languageCode: 'es', original: 'three four' },
       { exportSource: 'text', phonetic: [], text: 'three foar' }
     );
 
     await store.ttsEditsSet(
-      { electionId: electionIdOther, languageCode: 'en', original: 'five six' },
+      { orgId: orgIdOther, languageCode: 'en', original: 'five six' },
       { exportSource: 'text', phonetic: [], text: 'fayv six' }
     );
 
-    await expect(store.ttsEditsAll({ electionId })).resolves.toEqual([
+    await expect(store.ttsEditsAll({ orgId })).resolves.toEqual([
       {
         exportSource: 'text',
         languageCode: 'en',
