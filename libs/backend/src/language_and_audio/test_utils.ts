@@ -53,7 +53,11 @@ const mockGoogleCloudTextToSpeechClient: MinimalGoogleCloudTextToSpeechClient =
       input: { text: string };
     }): Promise<[{ audioContent: string | Uint8Array }, undefined, undefined]> {
       return Promise.resolve([
-        { audioContent: mockCloudSynthesizedSpeech(input.input.text) },
+        {
+          audioContent: new TextEncoder().encode(
+            mockCloudSynthesizedSpeech(input.input.text)
+          ),
+        },
         undefined,
         undefined,
       ]);

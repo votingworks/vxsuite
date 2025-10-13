@@ -17,8 +17,17 @@ export function cleanText(text: string): string {
 }
 
 /**
- * Prepares text for speech synthesis by cleaning it, splitting it if interpolated, and generating
- * audio IDs for the resulting segments
+ * Generates an audio ID for the given text/language code pair.
+ */
+export function audioIdForText(
+  languageCode: LanguageCode,
+  text: string
+): string {
+  return sha256([languageCode, text].join(':')).slice(0, 10);
+}
+
+/**
+ * Prepares text for speech synthesis by cleaning it and generating an audio ID.
  */
 export function prepareTextForSpeechSynthesis(
   languageCode: LanguageCode,
@@ -27,7 +36,7 @@ export function prepareTextForSpeechSynthesis(
   const sanitizedText = cleanText(text);
 
   return {
-    audioId: sha256([languageCode, sanitizedText].join(':')).slice(0, 10),
+    audioId: audioIdForText(languageCode, sanitizedText),
     text: sanitizedText,
   };
 }
