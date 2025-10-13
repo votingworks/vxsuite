@@ -17,11 +17,6 @@ import {
   setUiStringAudioIds,
 } from './utils';
 
-interface TextToSynthesizeSpeechFor {
-  audioId: string;
-  input: UiStringTtsInput;
-}
-
 /**
  * Generates audio IDs and clips for all app and election strings provided with
  * the given speech synthesizer
@@ -37,7 +32,13 @@ export function generateAudioIdsAndClips(ctx: {
   uiStringAudioClips: NodeJS.ReadableStream;
 } {
   const audioIds: UiStringAudioIdsPackage = {};
-  const ttsStrings: TextToSynthesizeSpeechFor[] = [];
+  /**
+   * NOTE: It's possible for the same text (and the same audioId) to appear
+   * multiple times in an election under different string keys (e.g. a candidate
+   * name in multiple contests, contests with the same title, etc).
+   * De-duping with a `Map` to avoid exporting the same clip multiple times.
+   */
+  const ttsStrings = new Map<string, UiStringTtsInput>();
 
   // Prepare app strings for synthesis:
   forEachUiString(ctx.appStrings, (str) => {
@@ -48,15 +49,12 @@ export function generateAudioIdsAndClips(ctx: {
 
     setUiStringAudioIds(audioIds, str.languageCode, str.stringKey, [audioId]);
 
-    ttsStrings.push({
-      audioId,
-      input: {
-        exportSource: 'text',
-        key: str.stringKey,
-        languageCode: str.languageCode,
-        phonetic: [],
-        text,
-      },
+    ttsStrings.set(audioId, {
+      exportSource: 'text',
+      key: str.stringKey,
+      languageCode: str.languageCode,
+      phonetic: [],
+      text,
     });
   });
 
@@ -84,10 +82,7 @@ export function generateAudioIdsAndClips(ctx: {
       const audioId = audioIdForText(str.languageCode, edit.original);
       setUiStringAudioIds(audioIds, str.languageCode, str.stringKey, [audioId]);
 
-      ttsStrings.push({
-        audioId,
-        input: { ...edit, key: str.stringKey },
-      });
+      ttsStrings.set(audioId, { ...edit, key: str.stringKey });
 
       return;
     }
@@ -99,55 +94,41 @@ export function generateAudioIdsAndClips(ctx: {
 
     setUiStringAudioIds(audioIds, str.languageCode, str.stringKey, [audioId]);
 
-    ttsStrings.push({
-      audioId,
-      input: {
-        exportSource: 'text',
-        key: str.stringKey,
-        languageCode: str.languageCode,
-        phonetic: [],
-        text,
-      },
+    ttsStrings.set(audioId, {
+      exportSource: 'text',
+      key: str.stringKey,
+      languageCode: str.languageCode,
+      phonetic: [],
+      text,
     });
   });
 
   // Prepare UI string audio clips
   async function* uiStringAudioClipGenerator() {
-    /**
-     * It's possible for the same text (and the same audioId) to appear multiple
-     * times in an election under different string keys (e.g. a candidate name
-     * in multiple contests, contests with the same title, etc).
-     * Tracking seen IDs to avoid exporting the same clip multiple times.
-     */
-    const seenAudioIds = new Set<string>();
-
     let i = 0;
-    ctx.emitProgress?.(i, ttsStrings.length);
+    ctx.emitProgress?.(i, ttsStrings.size);
 
-    for (const str of ttsStrings) {
-      if (seenAudioIds.has(str.audioId)) continue;
-      seenAudioIds.add(str.audioId);
-
+    for (const [audioId, str] of ttsStrings.entries()) {
       // [TODO](https://github.com/votingworks/vxsuite/issues/7264): Support
       // synthesis from phonetic edits.
       assert(
-        str.input.exportSource === 'text',
+        str.exportSource === 'text',
         'phonetic-based TTS not yet implemented'
       );
 
       const clip: UiStringAudioClip = {
         dataBase64: await ctx.speechSynthesizer.synthesizeSpeech(
-          str.input.text,
-          str.input.languageCode as LanguageCode
+          str.text,
+          str.languageCode as LanguageCode
         ),
-        id: str.audioId,
-        languageCode: str.input.languageCode,
+        id: audioId,
+        languageCode: str.languageCode,
       };
 
       yield `${JSON.stringify(clip)}\n`;
 
       i += 1;
-      ctx.emitProgress?.(i, ttsStrings.length);
+      ctx.emitProgress?.(i, ttsStrings.size);
     }
   }
   const uiStringAudioClips = Readable.from(uiStringAudioClipGenerator());
