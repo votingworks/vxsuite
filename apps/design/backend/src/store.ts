@@ -44,6 +44,8 @@ import {
   ContestId,
   PrecinctSelection,
   TtsEditEntry,
+  PollsState,
+  PollsStateSupportsLiveReporting,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -62,6 +64,7 @@ import {
   ElectionInfo,
   ElectionListing,
   Org,
+  QuickReportedPollStatus,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
@@ -2070,6 +2073,64 @@ export class Store {
     });
   }
 
+  async getPollsStatusForElection(
+    election: ElectionRecord,
+    isLive: boolean
+  ): Promise<QuickReportedPollStatus[]> {
+    assert(
+      election.lastExportedBallotHash !== undefined,
+      'Election has not yet been exported.'
+    );
+    const queryParams = [
+      election.lastExportedBallotHash,
+      election.election.id,
+      isLive,
+    ];
+    const rows = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              polls_state as "pollsState",
+              machine_id as "machineId",
+              signed_at as "signedAt",
+              precinct_id as "precinctId"
+            from (
+              select
+                polls_state,
+                machine_id,
+                signed_at,
+                precinct_id,
+                row_number() over (partition by machine_id, ballot_hash order by signed_at desc) as rn
+              from results_reports
+              where
+                ballot_hash = $1 and
+                election_id = $2 and
+                is_live_mode = $3
+            ) ranked_results
+            where rn = 1
+            order by signed_at desc
+          `,
+          ...queryParams
+        )
+      )
+    ).rows as Array<{
+      pollsState: PollsStateSupportsLiveReporting;
+      machineId: string;
+      precinctId: string | null;
+      signedAt: Date;
+    }>;
+    const pollsStatus: QuickReportedPollStatus[] = rows.map((r) => ({
+      machineId: r.machineId,
+      signedTimestamp: r.signedAt,
+      precinctSelection: r.precinctId
+        ? singlePrecinctSelectionFor(r.precinctId)
+        : ALL_PRECINCTS_SELECTION,
+      pollsState: r.pollsState,
+    }));
+    return pollsStatus;
+  }
+
   async getQuickResultsReportingTalliesForElection(
     election: ElectionRecord,
     precinctSelection: PrecinctSelection,
@@ -2153,6 +2214,7 @@ export class Store {
     isLive,
     signedTimestamp,
     precinctId,
+    pollsState,
   }: {
     electionId: string;
     ballotHash: string;
@@ -2161,6 +2223,7 @@ export class Store {
     isLive: boolean;
     signedTimestamp: Date;
     precinctId?: string;
+    pollsState: PollsState;
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
@@ -2173,13 +2236,15 @@ export class Store {
               is_live_mode,
               signed_at,
               encoded_compressed_tally,
-              precinct_id
-            ) values ($1, $2, $3, $4, $5, $6, $7)
-            on conflict (ballot_hash, machine_id, is_live_mode)
+              precinct_id,
+              polls_state
+            ) values ($1, $2, $3, $4, $5, $6, $7, $8)
+            on conflict (ballot_hash, machine_id, is_live_mode, polls_state)
             do update set
               signed_at = excluded.signed_at,
               encoded_compressed_tally = excluded.encoded_compressed_tally,
-              precinct_id = excluded.precinct_id
+              precinct_id = excluded.precinct_id,
+              polls_state = excluded.polls_state
           `,
           ballotHash,
           electionId,
@@ -2187,7 +2252,8 @@ export class Store {
           isLive,
           signedTimestamp.toISOString(),
           encodedCompressedTally,
-          precinctId || null
+          precinctId || null,
+          pollsState
         );
         assert(rowCount === 1, 'Failed to insert results report');
         return true;

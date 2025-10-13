@@ -7,8 +7,10 @@ import {
   AnyContest,
   Contests,
   PrecinctSelection,
+  PartyId,
+  getPartyIdsWithContests,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   createElectionMetadataLookupFunction,
   getContestById,
@@ -131,4 +133,31 @@ export function getContestsForPrecinctAndElection(
   return Array.from(assertDefined(contestIds))
     .map((id) => lookupContestIdToContest[id])
     .filter((c): c is AnyContest => c !== undefined);
+}
+
+export interface PartyWithContests {
+  partyId?: PartyId; // undefined for non-partisan contests
+  partyName?: string;
+  contests: Contests;
+}
+
+export function groupContestsByParty(
+  election: Election,
+  contests: Contests
+): PartyWithContests[] {
+  return getPartyIdsWithContests(election).map((partyId) => ({
+    partyId,
+    // eslint-disable-next-line array-callback-return
+    contests: contests.filter((c) => {
+      switch (c.type) {
+        case 'candidate':
+          return c.partyId === partyId;
+        case 'yesno':
+          return !partyId; // all yes/no contests are non-partisan
+        /* istanbul ignore next - @preserve */
+        default:
+          throwIllegalValue(c);
+      }
+    }),
+  }));
 }

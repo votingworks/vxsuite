@@ -3,6 +3,7 @@ import {
   combineElectionResults,
   getContestsForPrecinct,
   getEmptyElectionResults,
+  groupContestsByParty,
   isPollsSuspensionTransition,
 } from '@votingworks/utils';
 import {
@@ -19,12 +20,6 @@ import {
   FujitsuThermalPrinterInterface,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
-import {
-  Contests,
-  Election,
-  getPartyIdsWithContests,
-  PartyId,
-} from '@votingworks/types';
 import { Store } from '../store';
 import { getMachineConfig } from '../machine_config';
 import { getScannerResultsMemoized } from '../util/results';
@@ -32,24 +27,6 @@ import { getCurrentTime } from '../util/get_current_time';
 import { rootDebug } from '../util/debug';
 
 const debug = rootDebug.extend('print-report-section');
-
-interface TallyReportSectionSpec {
-  partyId?: PartyId;
-  contests: Contests;
-}
-
-function getTallyReportSectionSpecs(
-  election: Election,
-  contests: Contests
-): TallyReportSectionSpec[] {
-  const partyIds = getPartyIdsWithContests(election);
-  return partyIds.map((partyId) => {
-    const sectionContests = partyId
-      ? contests.filter((c) => c.type === 'candidate' && c.partyId === partyId)
-      : contests.filter((c) => c.type === 'yesno' || !c.partyId);
-    return { partyId, contests: sectionContests };
-  });
-}
 
 async function getReportSection(
   store: Store,
@@ -96,10 +73,10 @@ async function getReportSection(
     precinctSelection
   );
 
-  const { partyId, contests: reportSectionContests } =
-    getTallyReportSectionSpecs(election, fullReportContests)[
-      reportSectionIndex
-    ];
+  const { partyId, contests: reportSectionContests } = groupContestsByParty(
+    election,
+    fullReportContests
+  )[reportSectionIndex];
 
   const scannedElectionResults = partyId
     ? scannerResultsByParty.find((results) => results.partyId === partyId) ||

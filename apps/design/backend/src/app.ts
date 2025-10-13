@@ -44,6 +44,7 @@ import {
   find,
   ok,
   Result,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   BallotLayoutError,
@@ -84,7 +85,7 @@ import {
   ElectionInfo,
   ElectionListing,
   Org,
-  ResultsReportInfo,
+  ReceivedReportInfo,
   ResultsReportingError,
   User,
   UsState,
@@ -934,7 +935,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
       payload: string;
       signature: string;
       certificate: string;
-    }): Promise<Result<ResultsReportInfo, ResultsReportingError>> {
+    }): Promise<Result<ReceivedReportInfo, ResultsReportingError>> {
       // Verify the signature and certificate
       const validationResult = await authenticateSignedQuickResultsReportingUrl(
         payload,
@@ -946,7 +947,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
       }
 
       try {
-        // TODO(CARO) Handle pollsState
         const {
           ballotHash,
           machineId,
@@ -954,6 +954,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           signedTimestamp,
           encodedCompressedTally,
           precinctSelection,
+          pollsState,
         } = decodeQuickResultsMessage(payload);
 
         const electionRecord =
@@ -962,11 +963,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           return err('no-election-found');
         }
 
-        const contestResults = decodeAndReadCompressedTally({
-          election: electionRecord.election,
-          precinctSelection,
-          encodedTally: encodedCompressedTally,
-        });
         await store.saveQuickResultsReportingTally({
           electionId: electionRecord.election.id,
           precinctId: maybeGetPrecinctIdFromSelection(precinctSelection),
@@ -975,17 +971,41 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           machineId,
           isLive,
           signedTimestamp,
+          pollsState,
         });
 
-        return ok({
-          ballotHash,
-          machineId,
-          isLive,
-          signedTimestamp,
-          contestResults,
-          precinctSelection,
-          election: electionRecord.election,
-        });
+        switch (pollsState) {
+          case 'polls_closed_final': {
+            const contestResults = decodeAndReadCompressedTally({
+              election: electionRecord.election,
+              precinctSelection,
+              encodedTally: encodedCompressedTally,
+            });
+            return ok({
+              pollsState,
+              ballotHash,
+              machineId,
+              isLive,
+              signedTimestamp,
+              contestResults,
+              precinctSelection,
+              election: electionRecord.election,
+            });
+          }
+          case 'polls_open':
+            return ok({
+              pollsState,
+              ballotHash,
+              machineId,
+              isLive,
+              signedTimestamp,
+              precinctSelection,
+              election: electionRecord.election,
+            });
+          /* istanbul ignore next - @preserve */
+          default:
+            throwIllegalValue(pollsState);
+        }
       } catch (e) {
         return err('invalid-payload');
       }

@@ -11,6 +11,7 @@ import {
   Election,
   ContestId,
   PrecinctSelection,
+  PollsStateSupportsLiveReporting,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
@@ -101,21 +102,41 @@ export interface ElectionInfo {
   signatureCaption?: string;
 }
 
-export interface ResultsReportInfo {
+export interface ReceivedReportInfoBase {
+  pollsState: PollsStateSupportsLiveReporting;
   ballotHash: string;
   machineId: string;
   isLive: boolean;
   signedTimestamp: Date;
-  contestResults: Record<ContestId, ContestResults>;
   election: Election;
   precinctSelection: PrecinctSelection;
 }
+
+export interface ReceivedPollsOpenReportInfo extends ReceivedReportInfoBase {
+  pollsState: 'polls_open';
+}
+
+export interface ReceivedPollsClosedReportInfo extends ReceivedReportInfoBase {
+  pollsState: 'polls_closed_final';
+  contestResults: Record<ContestId, ContestResults>;
+}
+
+export type ReceivedReportInfo =
+  | ReceivedPollsOpenReportInfo
+  | ReceivedPollsClosedReportInfo;
 
 export interface AggregatedReportedResults {
   ballotHash: string;
   contestResults: Record<ContestId, ContestResults>;
   election: Election;
   machinesReporting: string[];
+}
+
+export interface QuickReportedPollStatus {
+  machineId: string;
+  precinctSelection: PrecinctSelection;
+  pollsState: PollsStateSupportsLiveReporting;
+  signedTimestamp: Date;
 }
 
 export type ResultsReportingError =
