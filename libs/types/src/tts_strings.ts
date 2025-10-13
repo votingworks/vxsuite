@@ -86,3 +86,11 @@ export type TtsEditEntry = TtsEdit & {
   original: string;
   languageCode: string;
 };
+
+/**
+ * TTS input and metadata for a single `UiString`.
+ */
+export type UiStringTtsInput = TtsEdit & {
+  key: string | [string, string];
+  languageCode: string;
+};

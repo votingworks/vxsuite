@@ -3,7 +3,7 @@ import {
   TextToSpeechClient as GoogleCloudTextToSpeechClient,
   protos,
 } from '@google-cloud/text-to-speech';
-import { assertDefined } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 
 import { LanguageCode } from '@votingworks/types';
 import { convertHtmlToAudioCues } from './rich_text';
@@ -95,9 +95,9 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
       input: { text: sanitizedText },
       voice: GoogleCloudVoices[languageCode],
     });
-    const audioClipBase64 = Buffer.from(
-      assertDefined(response.audioContent)
-    ).toString('base64');
-    return audioClipBase64;
+
+    assert(response.audioContent instanceof Uint8Array);
+
+    return Buffer.from(response.audioContent.buffer).toString('base64');
   }
 }

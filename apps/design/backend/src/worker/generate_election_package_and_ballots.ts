@@ -175,6 +175,7 @@ export async function generateElectionPackageAndBallots(
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
       appStrings,
       electionStrings,
+      electionTtsEdits: await store.ttsEditsAll({ orgId }),
       speechSynthesizer,
       emitProgress: (progress, total) =>
         emitProgress('Generating audio', progress, total),

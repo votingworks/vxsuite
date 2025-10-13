@@ -11,12 +11,6 @@ import { Workspace } from './workspace';
 
 export type DataUrl = string;
 
-export interface UiStringInfo {
-  key: string;
-  subkey?: string;
-  text: string;
-}
-
 export interface TtsApiContext {
   speechSynthesizer: SpeechSynthesizer;
   workspace: Workspace;
