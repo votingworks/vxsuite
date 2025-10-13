@@ -25,7 +25,7 @@ import {
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
-import { QuickReportedResultsScreen } from './quick_reported_results_screen';
+import { LiveReportsScreen } from './live_reports_screen';
 import { generalElectionRecord } from '../test/fixtures';
 
 const electionRecord = generalElectionRecord(user.orgId);
@@ -55,7 +55,7 @@ function renderScreen(
   render(
     provideApi(
       apiMock,
-      withRoute(<QuickReportedResultsScreen />, {
+      withRoute(<LiveReportsScreen />, {
         paramPath,
         path,
       })

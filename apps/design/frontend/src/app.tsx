@@ -31,7 +31,7 @@ import { SystemSettingsScreen } from './system_settings_screen';
 import { ExportScreen } from './export_screen';
 import { ErrorScreen } from './error_screen';
 import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen';
-import { QuickReportedResultsScreen } from './quick_reported_results_screen';
+import { LiveReportsScreen } from './live_reports_screen';
 
 function ElectionScreens(): JSX.Element {
   return (
@@ -59,7 +59,7 @@ function ElectionScreens(): JSX.Element {
       <Route path={electionParamRoutes.export.path} component={ExportScreen} />
       <Route
         path={electionParamRoutes.reports.root.path}
-        component={QuickReportedResultsScreen}
+        component={LiveReportsScreen}
       />
       <Redirect
         from={electionParamRoutes.root.path}

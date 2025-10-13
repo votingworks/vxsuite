@@ -185,13 +185,13 @@ function getLastUpdateInformation(
   );
 }
 
-interface ViewResultsSummaryScreenProps {
+interface LiveReportsSummaryScreenProps {
   electionId: string;
 }
 
-function ViewResultsSummaryScreen({
+function LiveReportsSummaryScreen({
   electionId,
-}: ViewResultsSummaryScreenProps): JSX.Element {
+}: LiveReportsSummaryScreenProps): JSX.Element {
   const [isDeleteDataModalOpen, setIsDeleteDataModalOpen] = useState(false);
   const getReportedPollsStatusQuery =
     getReportedPollsStatus.useQuery(electionId);
@@ -563,7 +563,7 @@ interface ResultsTabProps {
   electionId: string;
 }
 
-function ViewPrecinctResultsScreen({
+function LiveReportsResultsScreen({
   electionId,
 }: ResultsTabProps): JSX.Element {
   const { precinctId } = useParams<{ precinctId: string }>();
@@ -675,7 +675,7 @@ function ViewPrecinctResultsScreen({
   );
 }
 
-export function QuickReportedResultsScreen(): JSX.Element | null {
+export function LiveReportsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
 
@@ -690,10 +690,10 @@ export function QuickReportedResultsScreen(): JSX.Element | null {
     return (
       <ElectionNavScreen electionId={electionId}>
         <Header>
-          <H1>Results</H1>
+          <H1>Live Reports</H1>
         </Header>
         <MainContent>
-          This election does not have Quick Results Reporting enabled.
+          This election does not have live reports enabled.
         </MainContent>
       </ElectionNavScreen>
     );
@@ -709,17 +709,17 @@ export function QuickReportedResultsScreen(): JSX.Element | null {
               .reports.byPrecinctResults(':precinctId').path
           }`}
         >
-          <ViewPrecinctResultsScreen electionId={electionId} />
+          <LiveReportsResultsScreen electionId={electionId} />
         </Route>
         <Route
           path={`${
             routes.election(':electionId').reports.allPrecinctResults.path
           }`}
         >
-          <ViewPrecinctResultsScreen electionId={electionId} />
+          <LiveReportsResultsScreen electionId={electionId} />
         </Route>
         <Route path={routes.election(':electionId').reports.root.path}>
-          <ViewResultsSummaryScreen electionId={electionId} />
+          <LiveReportsSummaryScreen electionId={electionId} />
         </Route>
       </Switch>
     </ElectionNavScreen>
