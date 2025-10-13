@@ -152,7 +152,7 @@ test('entering initial ballot count and contest tallies', async () => {
   screen.getButton('Cancel');
   expect(screen.getButton('Save & Next')).toBeDisabled();
   userEvent.type(
-    screen.getByLabelText('Total Ballots Cast'),
+    screen.getByLabelText('Manual Tally Ballot Count'),
     mockValidResults.ballotCount.toString()
   );
   let updatedResults: Tabulation.ManualElectionResults = {
@@ -186,7 +186,7 @@ test('entering initial ballot count and contest tallies', async () => {
       contestNumber === contests.length ? 'Finish' : 'Save & Next';
     expect(screen.getButton(saveButtonLabel)).toBeEnabled();
 
-    const ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+    const ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
     expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
     expect(ballotCountInput).toBeDisabled();
 
@@ -258,7 +258,7 @@ test('editing existing tallies', async () => {
   screen.getByText(hasTextAcrossElements(/Voting MethodPrecinct/));
 
   // Edit ballot count
-  const ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+  const ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
   expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   userEvent.clear(ballotCountInput);
   expect(screen.getButton('Save & Next')).toBeDisabled();
@@ -346,7 +346,7 @@ test('cannot add negative or decimal tallies', async () => {
   screen.getByText(hasTextAcrossElements(/Voting MethodAbsentee/));
 
   // Enter ballot count
-  const ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+  const ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
 
   userEvent.type(ballotCountInput, '-100');
   expect(ballotCountInput).toHaveValue('100');
@@ -528,7 +528,7 @@ test('previous/cancel button', async () => {
   await screen.findByRole('heading', { name: contests[0].title });
   userEvent.click(screen.getButton('Previous'));
 
-  await screen.findByLabelText('Total Ballots Cast');
+  await screen.findByLabelText('Manual Tally Ballot Count');
   userEvent.click(screen.getButton('Cancel'));
   await vi.waitFor(() =>
     expect(history.location.pathname).toEqual('/tally/manual')
@@ -555,7 +555,7 @@ test('overriding ballot count for a contest', async () => {
   });
 
   await screen.findByRole('heading', { name: contests[0].title });
-  let ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+  let ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
   expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   expect(ballotCountInput).toBeDisabled();
 
@@ -595,7 +595,7 @@ test('overriding ballot count for a contest', async () => {
   userEvent.click(screen.getButton('Previous'));
 
   await screen.findByRole('heading', { name: contests[0].title });
-  ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+  ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
   expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount * 2}`);
   expect(ballotCountInput).toBeEnabled();
 
@@ -628,10 +628,12 @@ test('changing overall ballot count when there are overrides', async () => {
   });
   renderScreen();
 
-  const ballotCountInput = await screen.findByLabelText('Total Ballots Cast');
+  const ballotCountInput = await screen.findByLabelText(
+    'Manual Tally Ballot Count'
+  );
   expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   screen.getByText(
-    'Changing the total ballots cast will remove contest overrides.'
+    'Changing the manual tally ballot count will remove contest overrides.'
   );
   userEvent.clear(ballotCountInput);
   expect(screen.getButton('Save & Next')).toBeDisabled();
@@ -659,10 +661,10 @@ test('changing overall ballot count when there are overrides', async () => {
   userEvent.click(screen.getButton('Save & Next'));
 
   await screen.findByRole('heading', { name: contests[0].title });
-  expect(screen.getByLabelText('Total Ballots Cast')).toHaveValue(
+  expect(screen.getByLabelText('Manual Tally Ballot Count')).toHaveValue(
     `${mockValidResults.ballotCount + 1}`
   );
-  expect(screen.getByLabelText('Total Ballots Cast')).toBeDisabled();
+  expect(screen.getByLabelText('Manual Tally Ballot Count')).toBeDisabled();
 });
 
 test('leaving overrides as is when passing through overall ballot count without an update', async () => {
@@ -679,18 +681,20 @@ test('leaving overrides as is when passing through overall ballot count without 
   });
   renderScreen();
 
-  const ballotCountInput = await screen.findByLabelText('Total Ballots Cast');
+  const ballotCountInput = await screen.findByLabelText(
+    'Manual Tally Ballot Count'
+  );
   expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   screen.getByText(
-    'Changing the total ballots cast will remove contest overrides.'
+    'Changing the manual tally ballot count will remove contest overrides.'
   );
 
   // No API calls are expected since we didn't change the overall ballot count
   userEvent.click(screen.getButton('Save & Next'));
 
   await screen.findByRole('heading', { name: contests[0].title });
-  expect(screen.getByLabelText('Total Ballots Cast')).toHaveValue(
+  expect(screen.getByLabelText('Manual Tally Ballot Count')).toHaveValue(
     `${mockValidResults.ballotCount * 2}`
   );
-  expect(screen.getByLabelText('Total Ballots Cast')).toBeEnabled();
+  expect(screen.getByLabelText('Manual Tally Ballot Count')).toBeEnabled();
 });
