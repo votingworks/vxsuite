@@ -45,14 +45,14 @@ export const PhoneticWordsSchema = z.array(PhoneticWordSchema);
  * Unique key identifying user edits for a given TTS string in storage.
  */
 export interface TtsEditKey {
-  electionId: string;
   languageCode: string;
+  orgId: string;
   original: string;
 }
 
 export const TtsEditKeySchema: z.ZodType<TtsEditKey> = z.object({
-  electionId: z.string(),
   languageCode: z.string(),
+  orgId: z.string(),
   original: z.string(),
 });
 

@@ -1985,7 +1985,7 @@ export class Store {
     );
   }
 
-  async ttsEditsAll(params: { electionId: string }): Promise<TtsEditEntry[]> {
+  async ttsEditsAll(params: { orgId: string }): Promise<TtsEditEntry[]> {
     return this.db.withClient(async (client) => {
       const res = await client.query(
         `
@@ -1996,9 +1996,9 @@ export class Store {
             phonetic,
             text
           from tts_edits
-          where election_id = $1
+          where org_id = $1
         `,
-        params.electionId
+        params.orgId
       );
 
       return res.rows.map<TtsEditEntry>((row) => ({
@@ -2021,11 +2021,11 @@ export class Store {
             text
           from tts_edits
           where
-            election_id = $1 and
+            org_id = $1 and
             language_code = $2 and
             original = $3
         `,
-        key.electionId,
+        key.orgId,
         key.languageCode,
         key.original
       );
@@ -2050,7 +2050,7 @@ export class Store {
       await client.query(
         `
             insert into tts_edits (
-              election_id,
+              org_id,
               language_code,
               original,
               export_source,
@@ -2058,12 +2058,12 @@ export class Store {
               text
             )
             values ($1, $2, $3, $4, $5, $6)
-            on conflict (election_id, language_code, original) do update set
+            on conflict (org_id, language_code, original) do update set
               export_source = EXCLUDED.export_source,
               phonetic = EXCLUDED.phonetic,
               text = EXCLUDED.text
           `,
-        key.electionId,
+        key.orgId,
         key.languageCode,
         key.original,
         data.exportSource,
