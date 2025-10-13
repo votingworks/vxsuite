@@ -31,7 +31,7 @@ function readFixture(filename: string): Promise<string> {
 
 test('convert general election', async () => {
   const election = convertMsElection(
-    'general-election-id',
+    'election-id-1',
     await readFixture('ms-sems-election-general-10.csv'),
     await readFixture('ms-sems-election-candidates-general-10.csv')
   );
@@ -41,9 +41,21 @@ test('convert general election', async () => {
 
 test('convert primary election', async () => {
   const election = convertMsElection(
-    'primary-election-id',
+    'election-id-2',
     await readFixture('ms-sems-election-primary-60.csv'),
     await readFixture('ms-sems-election-candidates-primary-60.csv')
+  );
+  await store.createElection(org.id, election, 'VxDefaultBallot');
+  expect(election).toMatchSnapshot();
+});
+
+test('convert election with ballot measures', async () => {
+  const election = convertMsElection(
+    'election-id-3',
+    await readFixture('ms-sems-election-general-ballot-measures-10.csv'),
+    await readFixture(
+      'ms-sems-election-candidates-general-ballot-measures-10.csv'
+    )
   );
   expect(election).toMatchSnapshot();
   await store.createElection(org.id, election, 'VxDefaultBallot');
