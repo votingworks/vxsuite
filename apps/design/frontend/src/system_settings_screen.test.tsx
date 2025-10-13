@@ -731,7 +731,7 @@ describe('Quick Results Reporting SS', () => {
 
     userEvent.click(
       screen.getByRole('checkbox', {
-        name: 'Quick Results Reporting',
+        name: 'Live Reports',
         checked: false,
       })
     );

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, vi, test } from 'vitest';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { cleanup, screen, waitFor } from '@testing-library/react';
@@ -6,14 +6,16 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
   ElectionId,
+  Election,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
-  buildElectionResultsFixture,
-  ContestResultsSummaries,
   singlePrecinctSelectionFor,
+  buildElectionResultsFixture,
+  type ContestResultsSummaries,
+  getContestsForPrecinctAndElection,
 } from '@votingworks/utils';
-import type { AggregatedReportedResults } from '@votingworks/design-backend';
+import type { QuickReportedPollStatus } from '@votingworks/design-backend';
 import { err, ok } from '@votingworks/basics';
 import { render } from '../test/react_testing_library';
 import {
@@ -26,11 +28,14 @@ import {
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { LiveReportsScreen } from './live_reports_screen';
-import { generalElectionRecord } from '../test/fixtures';
+import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
+import { VXQR_REFETCH_INTERVAL_MS } from './api';
 
 const electionRecord = generalElectionRecord(user.orgId);
+const primaryElectionRecordGenerated = primaryElectionRecord(user.orgId);
 const electionId = electionRecord.election.id;
 const { election } = electionRecord;
+const primaryElection = primaryElectionRecordGenerated.election;
 
 let apiMock: MockApiClient;
 
@@ -50,7 +55,6 @@ function renderScreen(
 ): ReturnType<typeof createMemoryHistory> {
   const { path } = routes.election(electionIdParam).reports.root;
   const paramPath = routes.election(':electionId').reports.root.path;
-  // console.log('Rendering with path:', path, 'paramPath:', paramPath);
   const history = createMemoryHistory({ initialEntries: [path] });
   render(
     provideApi(
@@ -75,86 +79,73 @@ const mockSystemSettingsWithoutUrl: SystemSettings = {
   quickResultsReportingUrl: '',
 };
 
-// Helper function to create mock aggregated results using buildElectionResultsFixture
+// Helper function to create mock aggregated results
 function createMockAggregatedResults(
-  electionData: typeof election
-): AggregatedReportedResults {
-  // Create contest results summaries for buildElectionResultsFixture
+  electionData: typeof election,
+  isLive = false
+) {
+  // Create realistic contest results for the general election contests
   const contestResultsSummaries: ContestResultsSummaries = {};
 
-  for (const contest of electionData.contests) {
-    if (contest.type === 'candidate') {
-      // Create officialOptionTallies for candidate contests
-      const officialOptionTallies: Record<string, number> = {};
-      for (const [index, candidate] of contest.candidates.entries()) {
-        officialOptionTallies[candidate.id] = 100 + index * 10;
-      }
-
-      contestResultsSummaries[contest.id] = {
-        type: 'candidate',
-        ballots: 200,
-        overvotes: 5,
-        undervotes: 10,
-        officialOptionTallies,
-      };
-    } else if (contest.type === 'yesno') {
-      contestResultsSummaries[contest.id] = {
-        type: 'yesno',
-        ballots: 240,
-        overvotes: 3,
-        undervotes: 7,
-        yesTally: 150,
-        noTally: 80,
-      };
-    }
-  }
-
-  // Build proper election results using the utility function
   const electionResults = buildElectionResultsFixture({
     election: electionData,
-    contestResultsSummaries,
     cardCounts: {
-      bmd: 50,
-      hmpb: [150],
+      bmd: 0,
+      hmpb: [],
     },
-    includeGenericWriteIn: false,
+    contestResultsSummaries,
+    includeGenericWriteIn: true,
   });
 
   return {
-    ballotHash: 'abc123def456',
-    machinesReporting: ['VxScan-001', 'VxScan-002'],
-    election: electionData,
+    ballotHash: 'test-ballot-hash-123',
     contestResults: electionResults.contestResults,
-    isLive: false,
+    election: electionData,
+    machinesReporting: ['VxScan-001', 'VxScan-002', 'VxScan-003'],
+    isLive,
   };
 }
 
-const mockAggregatedResults: AggregatedReportedResults =
-  createMockAggregatedResults(election);
+// Helper function to create mock polls status data
+function createMockPollsStatus(electionItem: Election, isLive = false) {
+  const reportsByPrecinct: Record<string, QuickReportedPollStatus[]> = {};
+
+  // Add empty arrays for each precinct
+  for (const precinct of electionItem.precincts) {
+    reportsByPrecinct[precinct.id] = [];
+  }
+
+  return {
+    election: electionItem,
+    ballotHash: 'abc123def456',
+    isLive,
+    reportsByPrecinct,
+  };
+}
+
+const mockPollsStatus = createMockPollsStatus(election);
 
 describe('Navigation tab visibility', () => {
   test('Results tab appears in navigation when quickResultsReportingUrl is configured', async () => {
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithUrl);
-    apiMock.getQuickReportedResults
-      .expectCallWith({
-        electionId,
-
-        precinctSelection: ALL_PRECINCTS_SELECTION,
-      })
-      .resolves(ok(mockAggregatedResults));
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(ok(mockPollsStatus));
 
     renderScreen();
 
     // Wait for the component to potentially load
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'Quick Reported Results' })
+        screen.getByRole('heading', { name: 'Live Reports' })
       ).toBeInTheDocument();
     });
 
-    const resultsNavButton = screen.getByRole('button', { name: 'Results' });
+    const resultsNavButton = screen.getByRole('button', {
+      name: 'Live Reports',
+    });
     expect(resultsNavButton).toBeInTheDocument();
   });
 
@@ -162,31 +153,21 @@ describe('Navigation tab visibility', () => {
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithoutUrl);
-    // Component still calls getQuickReportedResults even when URL is not configured
-    apiMock.getQuickReportedResults
-      .expectCallWith({
-        electionId,
-
-        precinctSelection: ALL_PRECINCTS_SELECTION,
-      })
-      .resolves(ok(mockAggregatedResults));
 
     renderScreen();
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'Quick Reported Results' })
+        screen.getByRole('heading', { name: 'Live Reports' })
       ).toBeInTheDocument();
     });
     expect(
-      screen.getByText(
-        'This election does not have Quick Results Reporting enabled.'
-      )
+      screen.getByText('This election does not have live reports enabled.')
     ).toBeInTheDocument();
 
     // There should not be a link to this page in the navigation.
     expect(
-      screen.queryByRole('button', { name: 'Results' })
+      screen.queryByRole('button', { name: 'Live Reports' })
     ).not.toBeInTheDocument();
   });
 });
@@ -195,162 +176,1061 @@ test('shows error message when election is not exported', async () => {
   apiMock.getSystemSettings
     .expectRepeatedCallsWith({ electionId })
     .resolves(mockSystemSettingsWithUrl);
-  apiMock.getQuickReportedResults
-    .expectRepeatedCallsWith({
-      electionId,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-    })
-    .resolves(err('election-not-exported'));
 
+  apiMock.getReportedPollsStatus
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(err('election-not-exported'));
   renderScreen();
 
   await waitFor(() => {
     expect(
-      screen.getByRole('heading', { name: 'Quick Reported Results' })
+      screen.getByRole('heading', { name: 'Live Reports' })
     ).toBeInTheDocument();
   });
   expect(
-    screen.getByText(
-      'This election has not yet been exported. Please export the election and configure VxScan to report results.'
-    )
+    screen.getByText(/This election has not yet been exported/)
   ).toBeInTheDocument();
 });
 
-test('Live/Test toggle works correctly', async () => {
-  apiMock.getSystemSettings
-    .expectRepeatedCallsWith({ electionId })
-    .resolves(mockSystemSettingsWithUrl);
-
-  // Initial load with isLive: true
-  apiMock.getQuickReportedResults
-    .expectCallWith({
-      electionId,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-    })
-    .resolves(ok(mockAggregatedResults));
-
-  renderScreen();
-
-  // Wait for the component to fully load with results and the SegmentedButton
-  await waitFor(() => {
-    expect(screen.getByText('Quick Reported Results')).toBeInTheDocument();
-  });
-
-  // Verify SegmentedButton options are present (handle multiple instances)
-  expect(
-    screen.getAllByRole('option', { name: 'Live' }).length
-  ).toBeGreaterThanOrEqual(1);
-  expect(
-    screen.getAllByRole('option', { name: 'Test' }).length
-  ).toBeGreaterThanOrEqual(1);
-
-  // Mock the API call for Test mode
-  const testModeResults: AggregatedReportedResults = {
-    ...mockAggregatedResults,
-  };
-  apiMock.getQuickReportedResults
-    .expectCallWith({
-      electionId,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-    })
-    .resolves(ok(testModeResults));
-
-  // Click Test mode
-  userEvent.click(screen.getByRole('option', { name: 'Test' }));
-
-  await waitFor(() => {
-    expect(
-      screen.getByRole('option', { name: 'Test', selected: true })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('option', { name: 'Live', selected: false })
-    ).toBeInTheDocument();
-  });
-});
-
-test('Precinct button', async () => {
-  apiMock.getSystemSettings
-    .expectRepeatedCallsWith({ electionId })
-    .resolves(mockSystemSettingsWithUrl);
-
-  // Initial load with isLive: true
-  apiMock.getQuickReportedResults
-    .expectCallWith({
-      electionId,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-    })
-    .resolves(ok(mockAggregatedResults));
-
-  renderScreen();
-
-  apiMock.getQuickReportedResults
-    .expectCallWith({
-      electionId,
-      precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
-    })
-    .resolves(ok(mockAggregatedResults));
-  // Verify ChangePrecinctButton is present
-  userEvent.click(await screen.findByLabelText('Select a precinct…'));
-  userEvent.click(screen.getByText(election.precincts[0].name));
-});
-
-describe('Results display', () => {
-  beforeEach(() => {
+describe('Polls status summary display', () => {
+  test('shows poll status summary correctly when there is no "all precinct" data, test mode', async () => {
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithUrl);
-    apiMock.getQuickReportedResults
-      .expectRepeatedCallsWith({
-        electionId,
 
-        precinctSelection: ALL_PRECINCTS_SELECTION,
-      })
-      .resolves(ok(mockAggregatedResults));
-  });
-
-  test('displays report information correctly', async () => {
-    renderScreen();
-
-    // Wait for the component to fully load with results and the SegmentedButton
-    await waitFor(() => {
-      expect(screen.getByText('Quick Reported Results')).toBeInTheDocument();
-    });
-
-    expect(screen.getByText('Machine Ids Reporting:')).toBeInTheDocument();
-    expect(screen.getByText('VxScan-001, VxScan-002')).toBeInTheDocument();
-
-    // Check results section (handle multiple instances)
-    expect(
-      screen.getAllByRole('heading', { level: 2, name: 'Results' }).length
-    ).toBeGreaterThanOrEqual(1);
-
-    // There should be contest results tables for each contest
-    const tables = screen.getAllByRole('table');
-    expect(tables.length).toEqual(election.contests.length);
-  });
-
-  test('shows "No results reported" when no machines are reporting', async () => {
-    const noResultsData: AggregatedReportedResults = {
-      ...mockAggregatedResults,
-      machinesReporting: [],
+    // Create mock data with individual precinct reports but no aggregated data
+    const mockPollsStatusWithIndividualReports: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      election,
+      ballotHash: 'abc123def456',
+      isLive: false,
+      reportsByPrecinct: {
+        // First precinct has reports (polls closed)
+        [election.precincts[0].id]: [
+          {
+            machineId: 'VxScan-001',
+            pollsState: 'polls_closed_final',
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[0].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+          },
+        ],
+        // Second precinct has reports (polls open)
+        [election.precincts[1].id]: [
+          {
+            machineId: 'VxScan-002',
+            pollsState: 'polls_open',
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[1].id
+            ),
+            signedTimestamp: new Date('2024-01-01T17:30:00Z'),
+          },
+        ],
+        // Third precinct has no reports
+        [election.precincts[2].id]: [],
+      },
     };
-    apiMock.getQuickReportedResults.reset();
-    apiMock.getQuickReportedResults
-      .expectRepeatedCallsWith({
-        electionId,
 
-        precinctSelection: ALL_PRECINCTS_SELECTION,
-      })
-      .resolves(ok(noResultsData));
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(ok(mockPollsStatusWithIndividualReports));
 
     renderScreen();
 
-    // Wait for the component to fully load first
     await waitFor(() => {
-      expect(screen.getByText('Quick Reported Results')).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
     });
 
-    // Look for the "No results reported." text
-    expect(screen.getByText('No results reported.')).toBeInTheDocument();
+    // Check that "View Full Election Tally Report" button is enabled
+    const viewFullReportButton = screen.getByRole('button', {
+      name: 'View Full Election Tally Report',
+    });
+    expect(viewFullReportButton).toBeEnabled();
+
+    expect(screen.getByTestId('no-reports-sent-count')).toHaveTextContent('1');
+    expect(screen.getByTestId('polls-open-count')).toHaveTextContent('1');
+    expect(screen.getByTestId('polls-closing-count')).toHaveTextContent('0');
+    expect(screen.getByTestId('polls-closed-count')).toHaveTextContent('1');
+
+    // Check individual precinct rows in the table
+    screen.getByText(election.precincts[0].name);
+    screen.getByText(election.precincts[1].name);
+    expect(
+      screen.queryByText(/Precinct Not Specified/)
+    ).not.toBeInTheDocument();
+
+    // Expect test mode callout
+    screen.getByText('Test Ballot Mode');
+
+    // Expect one precinct to have a "View Tally Report" button
+    expect(screen.queryAllByText('View Tally Report')).toHaveLength(1);
+  });
+
+  test('shows poll status summary correctly when there is "all precinct" data - live mode', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(mockSystemSettingsWithUrl);
+
+    // Create mock data with aggregated "all precincts" reports
+    const mockPollsStatusWithAggregatedData: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      election,
+      ballotHash: 'abc123def456',
+      isLive: true,
+      reportsByPrecinct: {
+        // All individual precincts have closed polls
+        [election.precincts[0].id]: [
+          {
+            machineId: 'VxScan-001',
+            pollsState: 'polls_open',
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[0].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+          },
+          {
+            machineId: 'VxScan-002',
+            pollsState: 'polls_open',
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[1].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:05:00Z'),
+          },
+        ],
+        [election.precincts[1].id]: [],
+        [election.precincts[2].id]: [
+          {
+            machineId: 'VxScan-003',
+            pollsState: 'polls_closed_final',
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[2].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:10:00Z'),
+          },
+          {
+            machineId: 'VxScan-005',
+            pollsState: 'polls_closed_final',
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[2].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:11:00Z'),
+          },
+        ],
+        '': [
+          {
+            machineId: 'VxScan-004',
+            pollsState: 'polls_closed_final',
+            precinctSelection: ALL_PRECINCTS_SELECTION,
+            signedTimestamp: new Date('2024-01-01T17:45:00Z'),
+          },
+
+          {
+            machineId: 'VxScan-006',
+            pollsState: 'polls_open',
+            precinctSelection: ALL_PRECINCTS_SELECTION,
+            signedTimestamp: new Date('2024-01-01T17:48:00Z'),
+          },
+        ],
+      },
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(ok(mockPollsStatusWithAggregatedData));
+
+    renderScreen();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // Should not show Test Mode callout since isLive is true
+    expect(screen.queryByText(/Test Mode/)).not.toBeInTheDocument();
+
+    // Check that "View Full Election Tally Report" button is enabled
+    const viewFullReportButton = screen.getByRole('button', {
+      name: 'View Full Election Tally Report',
+    });
+    expect(viewFullReportButton).toBeEnabled();
+
+    expect(screen.getByTestId('no-reports-sent-count')).toHaveTextContent('1');
+    expect(screen.getByTestId('polls-open-count')).toHaveTextContent('1');
+    expect(screen.getByTestId('polls-closing-count')).toHaveTextContent('1');
+    expect(screen.getByTestId('polls-closed-count')).toHaveTextContent('1');
+
+    // Check individual precinct rows in the table
+    screen.getByText(election.precincts[0].name);
+    screen.getByText(election.precincts[1].name);
+    screen.getByText('Precinct Not Specified');
+
+    // Expect no test mode callout
+    expect(screen.queryByText(/Test Ballot Mode/)).not.toBeInTheDocument();
+    // The "No Precinct Specified" row does not expose a tally report so there should be one
+    // precinct specific "View Tally Report" available.
+    expect(screen.queryAllByText('View Tally Report')).toHaveLength(1);
+
+    // Check last report sent column
+    expect(screen.queryByText('VxScan-002: Polls Open')).toBeInTheDocument();
+    expect(
+      screen.queryByText('VxScan-001: Polls Open')
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('VxScan-006: Polls Open')).toBeInTheDocument();
+    expect(screen.queryByText('VxScan-005: Polls Closed')).toBeInTheDocument();
+    expect(
+      screen.queryByText('VxScan-003: Polls Closed')
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe('Animation behavior', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+    });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('highlights precincts when data changes', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(mockSystemSettingsWithUrl);
+
+    const initialData: Record<string, QuickReportedPollStatus[]> = {
+      ...mockPollsStatus.reportsByPrecinct,
+    };
+    initialData[election.precincts[0].id] = [
+      {
+        machineId: 'VxScan-001',
+        pollsState: 'polls_open',
+        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        signedTimestamp: new Date('2024-01-01T17:00:00Z'),
+      },
+    ];
+    // Start with some initial data - one precinct has a report
+    const initialPollsStatus: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      election,
+      ballotHash: 'abc123def456',
+      isLive: false,
+      reportsByPrecinct: initialData,
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(ok(initialPollsStatus));
+
+    renderScreen();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // Should show initial counts - 2 precincts with no reports, 1 with polls open
+    expect(screen.getByTestId('no-reports-sent-count')).toHaveTextContent('2');
+    expect(screen.getByTestId('polls-open-count')).toHaveTextContent('1');
+
+    for (const precinct of election.precincts) {
+      const row = screen.getByTestId(`precinct-row-${precinct.id}`);
+      expect(row).toHaveAttribute('data-highlighted', 'false');
+    }
+
+    const updatedData: Record<string, QuickReportedPollStatus[]> = {
+      ...initialData,
+      [election.precincts[1].id]: [
+        {
+          machineId: 'VxScan-002',
+          pollsState: 'polls_open',
+          precinctSelection: singlePrecinctSelectionFor(
+            election.precincts[1].id
+          ),
+          signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+        },
+      ],
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(
+        ok({
+          ...initialPollsStatus,
+          reportsByPrecinct: updatedData,
+        })
+      );
+
+    vi.advanceTimersByTime(VXQR_REFETCH_INTERVAL_MS);
+    await waitFor(() => {
+      expect(screen.getByTestId('polls-open-count')).toHaveTextContent('2');
+    });
+
+    // Check that Precinct 2 is updated and highlighted
+    await waitFor(() => {
+      const precinct2Row = screen.getByTestId(
+        `precinct-row-${election.precincts[1].id}`
+      );
+      expect(precinct2Row).toHaveAttribute('data-highlighted', 'true');
+    });
+  });
+
+  test('handles switching between live and test mode', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(mockSystemSettingsWithUrl);
+
+    const initialData = mockPollsStatus.reportsByPrecinct;
+    initialData[election.precincts[0].id] = [
+      {
+        machineId: 'VxScan-001',
+        pollsState: 'polls_closed_final' as const,
+        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+      },
+    ];
+
+    // Start in test mode with some data
+    const testModeData: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      election,
+      ballotHash: 'abc123def456',
+      isLive: false,
+      reportsByPrecinct: initialData,
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(ok(testModeData));
+
+    renderScreen();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // Should show test mode callout
+    expect(screen.getByText('Test Ballot Mode')).toBeInTheDocument();
+
+    initialData[election.precincts[0].id] = [
+      {
+        machineId: 'VxScan-001',
+        pollsState: 'polls_open' as const,
+        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+      },
+    ];
+
+    // Switch to live mode with same data
+    const liveModeData: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      ...testModeData,
+      reportsByPrecinct: initialData,
+      isLive: true,
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(ok(liveModeData));
+
+    // Wait for update
+    vi.advanceTimersByTime(VXQR_REFETCH_INTERVAL_MS);
+    await waitFor(() => {
+      expect(screen.queryByText('Test Ballot Mode')).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId('polls-open-count')).toHaveTextContent('1');
+
+    // Check animation state with waitFor to handle async updates
+    await waitFor(() => {
+      const precinct0Row = screen.getByTestId(
+        `precinct-row-${election.precincts[0].id}`
+      );
+      const precinct1Row = screen.getByTestId(
+        `precinct-row-${election.precincts[1].id}`
+      );
+
+      // Test that the animation behavior is working by verifying the data changes are reflected
+      // rather than testing computed CSS (which doesn't work reliably in test environments)
+      expect(precinct0Row).toHaveAttribute('data-highlighted', 'true');
+      expect(precinct1Row).toHaveAttribute('data-highlighted', 'false');
+    });
+  });
+
+  test('shows animation when machine status changes for same precinct', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(mockSystemSettingsWithUrl);
+
+    const initialData = mockPollsStatus.reportsByPrecinct;
+    initialData[election.precincts[0].id] = [
+      {
+        machineId: 'VxScan-001',
+        pollsState: 'polls_open' as const,
+        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        signedTimestamp: new Date('2024-01-01T17:00:00Z'),
+      },
+    ];
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(
+        ok({
+          election,
+          isLive: false,
+          ballotHash: 'abc123def456',
+          reportsByPrecinct: initialData,
+        })
+      );
+
+    renderScreen();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // Should show polls open
+    expect(screen.getByTestId('polls-open-count')).toHaveTextContent('1');
+    expect(screen.getByText('VxScan-001: Polls Open')).toBeInTheDocument();
+    const precinctRow = screen.getByTestId(
+      `precinct-row-${election.precincts[0].id}`
+    );
+    expect(precinctRow).toHaveAttribute('data-highlighted', 'false');
+
+    // Update to polls closed
+    initialData[election.precincts[0].id] = [
+      {
+        machineId: 'VxScan-001',
+        pollsState: 'polls_closed_final' as const,
+        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        signedTimestamp: new Date('2024-01-01T18:00:00Z'), // Later timestamp
+      },
+    ];
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(
+        ok({
+          election,
+          ballotHash: 'abc123def456',
+          isLive: true,
+          reportsByPrecinct: initialData,
+        })
+      );
+    vi.advanceTimersByTime(VXQR_REFETCH_INTERVAL_MS);
+
+    // Wait for the update to be reflected
+    await waitFor(() => {
+      expect(screen.getByTestId('polls-closed-count')).toHaveTextContent('1');
+    });
+
+    // Check highlighted state with waitFor to handle async updates
+    await waitFor(() => {
+      const precinctRowUpdated = screen.getByTestId(
+        `precinct-row-${election.precincts[0].id}`
+      );
+      expect(precinctRowUpdated).toHaveAttribute('data-highlighted', 'true');
+    });
+
+    expect(screen.getByTestId('polls-open-count')).toHaveTextContent('0');
+    expect(screen.getByText('VxScan-001: Polls Closed')).toBeInTheDocument();
+  });
+
+  test('handles precinct not specified data correctly', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(mockSystemSettingsWithUrl);
+
+    const initialData = mockPollsStatus.reportsByPrecinct;
+    initialData[election.precincts[0].id] = [
+      {
+        machineId: 'VxScan-001',
+        pollsState: 'polls_open',
+        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+      },
+    ];
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(
+        ok({
+          election,
+          ballotHash: 'abc123def456',
+          isLive: true,
+          reportsByPrecinct: initialData,
+        })
+      );
+
+    renderScreen();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // Should show the "Precinct Not Specified" row since it has data
+    expect(
+      screen.queryByText('Precinct Not Specified')
+    ).not.toBeInTheDocument();
+
+    expect(screen.getByTestId('polls-open-count')).toHaveTextContent('1');
+    expect(
+      screen.queryByText('Precinct Not Specified')
+    ).not.toBeInTheDocument();
+
+    // Add precinct not specified data
+    const updatedData: Record<string, QuickReportedPollStatus[]> = {
+      ...initialData,
+      '': [
+        {
+          machineId: 'VxScan-999',
+          pollsState: 'polls_open',
+          precinctSelection: singlePrecinctSelectionFor(
+            election.precincts[0].id
+          ),
+          signedTimestamp: new Date('2024-01-01T19:00:00Z'),
+        },
+      ],
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(
+        ok({
+          election,
+          ballotHash: 'abc123def456',
+          isLive: true,
+          reportsByPrecinct: updatedData,
+        })
+      );
+    vi.advanceTimersByTime(VXQR_REFETCH_INTERVAL_MS);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('polls-open-count')).toHaveTextContent('2');
+    });
+    expect(screen.queryByText('Precinct Not Specified')).toBeInTheDocument();
+
+    // Check highlighted state with waitFor to handle async updates
+    await waitFor(() => {
+      const nonSpecifiedRow = screen.getByTestId('precinct-row-');
+      expect(nonSpecifiedRow).toHaveAttribute('data-highlighted', 'true');
+    });
+  });
+});
+
+describe('Results navigation and display', () => {
+  test('can view results properly for a single precinct general election', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(mockSystemSettingsWithUrl);
+
+    // Set up polls status data with closed polls for first precinct
+    const mockPollsStatusWithClosedPolls: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      election,
+      ballotHash: 'abc123def456',
+      isLive: false,
+      reportsByPrecinct: {
+        [election.precincts[0].id]: [
+          {
+            machineId: 'VxScan-001',
+            pollsState: 'polls_closed_final',
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[0].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+          },
+        ],
+        [election.precincts[1].id]: [],
+        [election.precincts[2].id]: [],
+        '': [],
+      },
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(ok(mockPollsStatusWithClosedPolls));
+
+    renderScreen();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // Check that the "View Tally Report" button is present and enabled for closed polls
+    const viewTallyReportButton = screen.getByRole('button', {
+      name: 'View Tally Report',
+    });
+    expect(viewTallyReportButton).toBeInTheDocument();
+    expect(viewTallyReportButton).toBeEnabled();
+
+    // Mock the API call that will be made when navigating to results view
+    const mockSinglePrecinctResults = createMockAggregatedResults(
+      election,
+      false
+    );
+    apiMock.getQuickReportedResults
+      .expectCallWith({
+        electionId,
+        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+      })
+      .resolves(ok(mockSinglePrecinctResults));
+
+    // Click the view tally report button - this should trigger navigation and API call
+    userEvent.click(viewTallyReportButton);
+
+    // Wait for the API call to be made, confirming navigation attempt worked
+    await screen.findAllByText(
+      'Unofficial Test Center Springfield Tally Report'
+    );
+
+    // In a general election we do not show Nonpartisan Contests as a header
+    expect(screen.queryByText('Nonpartisan Contests')).not.toBeInTheDocument();
+    for (const contest of election.contests) {
+      screen.getByText(contest.title);
+    }
+  });
+
+  test('can view results properly for all precincts general election', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(mockSystemSettingsWithUrl);
+
+    // Set up polls status data with all polls closed
+    const mockPollsStatusAllClosed: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      election,
+      ballotHash: 'abc123def456',
+      isLive: true,
+      reportsByPrecinct: {
+        [election.precincts[0].id]: [
+          {
+            machineId: 'VxScan-001',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[0].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+          },
+        ],
+        [election.precincts[1].id]: [
+          {
+            machineId: 'VxScan-002',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[1].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:05:00Z'),
+          },
+        ],
+        [election.precincts[2].id]: [
+          {
+            machineId: 'VxScan-003',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[2].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:10:00Z'),
+          },
+        ],
+        '': [],
+      },
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(ok(mockPollsStatusAllClosed));
+
+    renderScreen();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // Check that the "View Full Election Tally Report" button is present and enabled
+    const viewFullReportButton = screen.getByRole('button', {
+      name: 'View Full Election Tally Report',
+    });
+    expect(viewFullReportButton).toBeEnabled();
+
+    // Mock the API call that will be made when navigating to results view
+    const mockAllPrecinctsResults = createMockAggregatedResults(election, true);
+    apiMock.getQuickReportedResults
+      .expectCallWith({
+        electionId,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+      })
+      .resolves(ok(mockAllPrecinctsResults));
+
+    // Click the view full election tally report button - this should trigger navigation and API call
+    userEvent.click(viewFullReportButton);
+
+    // Wait for the API call to be made, confirming navigation attempt worked
+    await screen.findAllByText('Unofficial Tally Report');
+
+    // In a general election we do not show Nonpartisan Contests as a header
+    expect(screen.queryByText('Nonpartisan Contests')).not.toBeInTheDocument();
+    for (const contest of election.contests) {
+      screen.getByText(contest.title);
+    }
+  });
+
+  test('can view results properly for all precincts primary election', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId: primaryElection.id })
+      .resolves(mockSystemSettingsWithUrl);
+
+    // Set up polls status data with all polls closed
+    const mockPollsStatusAllClosed: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      election: primaryElection,
+      ballotHash: 'abc123def456',
+      isLive: true,
+      reportsByPrecinct: {
+        [primaryElection.precincts[0].id]: [
+          {
+            machineId: 'VxScan-001',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              primaryElection.precincts[0].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+          },
+        ],
+        [primaryElection.precincts[1].id]: [
+          {
+            machineId: 'VxScan-002',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              primaryElection.precincts[1].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:05:00Z'),
+          },
+        ],
+        [primaryElection.precincts[2].id]: [
+          {
+            machineId: 'VxScan-003',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              primaryElection.precincts[2].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:10:00Z'),
+          },
+        ],
+        '': [],
+      },
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId: primaryElection.id })
+      .resolves(ok(mockPollsStatusAllClosed));
+
+    renderScreen(primaryElection.id);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // Check that the "View Full Election Tally Report" button is present and enabled
+    const viewFullReportButton = screen.getByRole('button', {
+      name: 'View Full Election Tally Report',
+    });
+    expect(viewFullReportButton).toBeEnabled();
+
+    // Mock the API call that will be made when navigating to results view
+    const mockAllPrecinctsResults = createMockAggregatedResults(
+      primaryElection,
+      true
+    );
+    apiMock.getQuickReportedResults
+      .expectCallWith({
+        electionId: primaryElection.id,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+      })
+      .resolves(ok(mockAllPrecinctsResults));
+
+    // Click the view full election tally report button - this should trigger navigation and API call
+    userEvent.click(viewFullReportButton);
+
+    // Wait for the API call to be made, confirming navigation attempt worked
+    await screen.findAllByText('Unofficial Tally Report');
+
+    // In a general election we do not show Nonpartisan Contests as a header
+    expect(screen.queryByText('Nonpartisan Contests')).toBeInTheDocument();
+    expect(screen.queryByText('Mammal Party Contests')).toBeInTheDocument();
+    expect(screen.queryByText('Fish Party Contests')).toBeInTheDocument();
+
+    // All contests should be shown
+    for (const contest of primaryElection.contests) {
+      screen.getByText(contest.title);
+    }
+  });
+
+  test('can view results properly for single precinct primary election', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId: primaryElection.id })
+      .resolves(mockSystemSettingsWithUrl);
+
+    // Set up polls status data with all polls closed
+    const mockPollsStatusAllClosed: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      election: primaryElection,
+      ballotHash: 'abc123def456',
+      isLive: true,
+      reportsByPrecinct: {
+        [primaryElection.precincts[0].id]: [
+          {
+            machineId: 'VxScan-001',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              primaryElection.precincts[0].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+          },
+        ],
+        [primaryElection.precincts[1].id]: [
+          {
+            machineId: 'VxScan-002',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              primaryElection.precincts[1].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:05:00Z'),
+          },
+        ],
+        [primaryElection.precincts[2].id]: [
+          {
+            machineId: 'VxScan-003',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              primaryElection.precincts[2].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:10:00Z'),
+          },
+        ],
+        '': [],
+      },
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId: primaryElection.id })
+      .resolves(ok(mockPollsStatusAllClosed));
+
+    renderScreen(primaryElection.id);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // There should be three "View Tally Report" buttons - one for each precinct with results
+    expect(
+      screen.getAllByRole('button', {
+        name: 'View Tally Report',
+      })
+    ).toHaveLength(3);
+
+    const precinct0TallyButton = screen.getByTestId(
+      `view-tally-report-${primaryElection.precincts[0].id}`
+    );
+    expect(precinct0TallyButton).toBeEnabled();
+
+    // Mock the API call that will be made when navigating to results view
+    const mockPrecinct0Results = createMockAggregatedResults(
+      primaryElection,
+      true
+    );
+    apiMock.getQuickReportedResults
+      .expectCallWith({
+        electionId: primaryElection.id,
+        precinctSelection: singlePrecinctSelectionFor(
+          primaryElection.precincts[0].id
+        ),
+      })
+      .resolves(ok(mockPrecinct0Results));
+
+    // Click the view full election tally report button - this should trigger navigation and API call
+    userEvent.click(precinct0TallyButton);
+
+    // Wait for the API call to be made, confirming navigation attempt worked
+    await screen.findAllByText('Unofficial Precinct 1 Tally Report');
+
+    // In a general election we do not show Nonpartisan Contests as a header
+    expect(screen.queryByText('Nonpartisan Contests')).toBeInTheDocument();
+    expect(screen.queryByText('Mammal Party Contests')).toBeInTheDocument();
+    expect(screen.queryByText('Fish Party Contests')).toBeInTheDocument();
+
+    const contestsInPrecinct = getContestsForPrecinctAndElection(
+      primaryElection,
+      singlePrecinctSelectionFor(primaryElection.precincts[0].id)
+    );
+    const contestsOutsidePrecinct = election.contests.filter(
+      (c) => !contestsInPrecinct.some((cp) => cp.id === c.id)
+    );
+    // Contests in the precinct should have results listed.
+    for (const contest of contestsInPrecinct) {
+      expect(screen.queryByText(contest.title)).toBeInTheDocument();
+    }
+    for (const contest of contestsOutsidePrecinct) {
+      expect(screen.queryByText(contest.title)).not.toBeInTheDocument();
+    }
+  });
+
+  test('can delete data properly', async () => {
+    apiMock.getSystemSettings
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(mockSystemSettingsWithUrl);
+
+    const mockPollsStatusWithData: {
+      election: typeof election;
+      ballotHash: string;
+      isLive: boolean;
+      reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+    } = {
+      election,
+      ballotHash: 'abc123def456',
+      isLive: false,
+      reportsByPrecinct: {
+        [election.precincts[0].id]: [
+          {
+            machineId: 'VxScan-001',
+            pollsState: 'polls_closed_final' as const,
+            precinctSelection: singlePrecinctSelectionFor(
+              election.precincts[0].id
+            ),
+            signedTimestamp: new Date('2024-01-01T18:00:00Z'),
+          },
+        ],
+        [election.precincts[1].id]: [],
+        [election.precincts[2].id]: [],
+        '': [],
+      },
+    };
+
+    apiMock.getReportedPollsStatus
+      .expectRepeatedCallsWith({ electionId })
+      .resolves(ok(mockPollsStatusWithData));
+
+    renderScreen();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Live Reports' })
+      ).toBeInTheDocument();
+    });
+
+    // Verify the delete button is present and properly labeled
+    const deleteButton = screen.getByRole('button', {
+      name: 'Delete All Data',
+    });
+    expect(deleteButton).toBeInTheDocument();
+    expect(deleteButton).toBeEnabled();
+
+    // Click the delete button to open the modal
+    userEvent.click(deleteButton);
+
+    // Should see the confirmation modal
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Delete All Data' })
+      ).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByText(
+        'This will delete all quick reported results data for this election in both test and live mode.'
+      )
+    ).toBeInTheDocument();
+
+    const closeButton = screen.getByRole('button', { name: /cancel/i });
+    userEvent.click(closeButton);
+
+    // Modal should close after clicking cancel
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('heading', { name: 'Delete All Data' })
+      ).not.toBeInTheDocument();
+    });
+
+    // Reopen the modal
+    userEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Delete All Data' })
+      ).toBeInTheDocument();
+    });
+
+    // Mock the delete mutation after the modal is open
+    apiMock.deleteQuickReportingResults
+      .expectCallWith({ electionId })
+      .resolves();
+
+    // Click the confirm delete button
+    const confirmDeleteButton = screen.getByTestId(
+      'confirm-delete-data-button'
+    );
+    userEvent.click(confirmDeleteButton);
+
+    // Modal should close after the deletion
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('heading', { name: 'Delete All Data' })
+      ).not.toBeInTheDocument();
+    });
   });
 });

@@ -103,9 +103,6 @@ function usePrecinctAnimations(
             );
           }));
 
-      if (hasChanged) {
-        console.log(`Precinct ${precinct.name} data changed`);
-      }
       newAnimationStates[precinct.id] = {
         hasChanged,
         timestamp: Date.now(),
@@ -230,11 +227,10 @@ function LiveReportsSummaryScreen({
   );
   const theme = useTheme();
 
-  async function deleteData(isLive: boolean): Promise<void> {
+  async function deleteData(): Promise<void> {
     try {
       await deleteQuickReportingResultsMutation.mutateAsync({
         electionId,
-        isLive,
       });
     } catch {
       // Even if there's an error, continue to close modal
@@ -244,7 +240,7 @@ function LiveReportsSummaryScreen({
     }
   }
 
-  if (!getReportedPollsStatusQuery.isSuccess || !pollsStatusData) {
+  if (!getReportedPollsStatusQuery.isSuccess) {
     return (
       <div>
         <Header>
@@ -272,12 +268,14 @@ function LiveReportsSummaryScreen({
         <MainContent>
           <Callout color="warning" icon="Warning">
             This election has not yet been exported. Please export the election
-            and configure VxScan to enable Live Reports.
+            and configure VxScan to enable live reports.
           </Callout>
         </MainContent>
       </div>
     );
   }
+
+  assert(pollsStatusData !== null);
 
   const allEntries = Object.values(pollsStatusData.reportsByPrecinct).flat();
 
@@ -324,7 +322,7 @@ function LiveReportsSummaryScreen({
                         </span>
                       }
                     >
-                      <H1>
+                      <H1 data-testid="no-reports-sent-count">
                         <Icons.Warning color="warning" />{' '}
                         {
                           Object.values(
@@ -339,7 +337,7 @@ function LiveReportsSummaryScreen({
                         <span style={{ fontSize: '1rem' }}>Polls open</span>
                       }
                     >
-                      <H1>
+                      <H1 data-testid="polls-open-count">
                         <Icons.Circle color="success" />{' '}
                         {
                           Object.values(
@@ -360,7 +358,7 @@ function LiveReportsSummaryScreen({
                         <span style={{ fontSize: '1rem' }}>Polls closing</span>
                       }
                     >
-                      <H1>
+                      <H1 data-testid="polls-closing-count">
                         <Icons.CircleDot color="primary" />{' '}
                         {
                           Object.values(
@@ -385,7 +383,7 @@ function LiveReportsSummaryScreen({
                         <span style={{ fontSize: '1rem' }}>Polls closed</span>
                       }
                     >
-                      <H1>
+                      <H1 data-testid="polls-closed-count">
                         <Icons.Done color="primary" />{' '}
                         {
                           Object.values(
@@ -429,7 +427,7 @@ function LiveReportsSummaryScreen({
                     icon="Delete"
                     onPress={() => setIsDeleteDataModalOpen(true)}
                   >
-                    Delete All {pollsStatusData.isLive ? 'Live' : 'Test'} Data
+                    Delete All Data
                   </Button>
                 </div>
               </div>
@@ -445,8 +443,14 @@ function LiveReportsSummaryScreen({
               </thead>
               <tbody>
                 {precinctsWithNonSpecified.map((precinct) => {
+                  // Only show the "Precinct Not Specified" row if there is data for it
                   const reportsForPrecinct =
                     pollsStatusData.reportsByPrecinct[precinct.id] || [];
+
+                  if (precinct.id === '' && reportsForPrecinct.length === 0) {
+                    return null;
+                  }
+
                   const pollsOpenCount = reportsForPrecinct.filter(
                     (entry) => entry.pollsState === 'polls_open'
                   ).length;
@@ -461,6 +465,8 @@ function LiveReportsSummaryScreen({
                   return (
                     <tr
                       key={precinct.id}
+                      data-testid={`precinct-row-${precinct.id}`}
+                      data-highlighted={isHighlighted ? 'true' : 'false'}
                       style={{
                         height: '3rem',
                         transition: 'background-color 0.5s ease-in-out',
@@ -478,8 +484,9 @@ function LiveReportsSummaryScreen({
                           getLastUpdateInformation(reportsForPrecinct)}
                       </TD>
                       <TD textAlign="right" style={{ paddingRight: '1rem' }}>
-                        {pollsClosedCount > 0 && (
+                        {pollsClosedCount > 0 && precinct.id && (
                           <LinkButton
+                            data-testid={`view-tally-report-${precinct.id}`}
                             to={`${
                               routes
                                 .election(electionId)
@@ -512,12 +519,10 @@ function LiveReportsSummaryScreen({
               <LoadingAnimation />
             ) : (
               <React.Fragment>
-                <H2 as="h1">
-                  Delete All {pollsStatusData.isLive ? 'Live' : 'Test'} Data
-                </H2>
+                <H2 as="h1">Delete All Data</H2>
                 <P>
                   This will delete all quick reported results data for this
-                  election in {pollsStatusData.isLive ? 'live' : 'test'} mode.
+                  election in both test and live mode.
                 </P>
               </React.Fragment>
             )
@@ -533,7 +538,7 @@ function LiveReportsSummaryScreen({
             ) : (
               <React.Fragment>
                 <Button
-                  onPress={() => deleteData(pollsStatusData.isLive)}
+                  onPress={() => deleteData()}
                   variant="danger"
                   data-testid="confirm-delete-data-button"
                 >
@@ -585,7 +590,7 @@ function LiveReportsResultsScreen({
     return (
       <P>
         This election has not yet been exported. Please export the election and
-        configure VxScan to report results.
+        configure VxScan to enable live reports.
       </P>
     );
   }
@@ -602,12 +607,12 @@ function LiveReportsResultsScreen({
   const partyNamesById = aggregatedResults.election.parties.reduce<
     Record<string, string>
   >((acc, party) => ({ ...acc, [party.id]: party.fullName }), {});
-  const testLivePrefix = aggregatedResults.isLive ? '' : ' Test ';
+  const testLivePrefix = aggregatedResults.isLive ? '' : 'Test ';
 
   const reportTitle =
     precinctSelection.kind === 'AllPrecincts'
       ? `Unofficial ${testLivePrefix}Tally Report`
-      : `Unofficial ${testLivePrefix} ${getPrecinctSelectionName(
+      : `Unofficial ${testLivePrefix}${getPrecinctSelectionName(
           aggregatedResults.election.precincts,
           precinctSelection
         )} Tally Report`;
