@@ -908,9 +908,6 @@ importers:
       '@types/fast-text-encoding':
         specifier: ^1.0.1
         version: 1.0.1
-      '@types/fetch-mock':
-        specifier: ^7.3.2
-        version: 7.3.3
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
@@ -980,9 +977,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      fetch-mock:
-        specifier: 9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -992,9 +986,6 @@ importers:
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       react-app-polyfill:
         specifier: 3.0.0
         version: 3.0.0

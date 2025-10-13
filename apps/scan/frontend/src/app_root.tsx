@@ -32,6 +32,7 @@ import {
   getPrinterStatus,
   getScannerStatus,
   getUsbDriveStatus,
+  unconfigureElection,
   useApiClient,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
@@ -56,6 +57,7 @@ export function AppRoot(): JSX.Element | null {
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
+  const unconfigureMutation = unconfigureElection.useMutation();
 
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
@@ -162,7 +164,11 @@ export function AppRoot(): JSX.Element | null {
 
   if (isVendorAuth(authStatus)) {
     return (
-      <VendorScreen rebootToVendorMenu={() => apiClient.rebootToVendorMenu()} />
+      <VendorScreen
+        rebootToVendorMenu={() => apiClient.rebootToVendorMenu()}
+        unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+        isMachineConfigured={Boolean(electionDefinition)}
+      />
     );
   }
 

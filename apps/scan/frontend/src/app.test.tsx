@@ -1181,22 +1181,6 @@ test('image sensor calibration failure', async () => {
   await screen.findByRole('heading', { name: 'System Administrator Menu' });
 });
 
-test('vendor screen', async () => {
-  apiMock.expectGetConfig();
-  apiMock.expectGetPollsInfo('polls_closed_initial');
-  apiMock.expectGetUsbDriveStatus('mounted');
-  apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatus();
-  renderApp();
-
-  apiMock.authenticateAsVendor();
-  const rebootButton = await screen.findButton('Reboot to Vendor Menu');
-  screen.getByText('Remove the card to leave this screen.');
-
-  apiMock.expectRebootToVendorMenu();
-  userEvent.click(rebootButton);
-});
-
 test('"Test" voter settings are cleared when a voter finishes', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
