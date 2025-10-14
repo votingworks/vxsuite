@@ -75,6 +75,10 @@ interface VxPollBookCustomCertFields extends BaseMachineCustomCertFields {
   jurisdiction: string;
 }
 
+interface VxPrintCustomCertFields extends BaseMachineCustomCertFields {
+  component: 'print';
+}
+
 interface BaseCardCustomCertFields {
   component: 'card';
   jurisdiction: string;
@@ -112,7 +116,8 @@ export type MachineCustomCertFields =
   | VxMarkCustomCertFields
   | VxMarkScanCustomCertFields
   | VxScanCustomCertFields
-  | VxPollBookCustomCertFields;
+  | VxPollBookCustomCertFields
+  | VxPrintCustomCertFields;
 
 /**
  * Parsed custom cert fields
