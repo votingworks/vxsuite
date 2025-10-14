@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, Mocked, test, vi } from 'vitest';
-import { LanguageCode, UiStringsPackage } from '@votingworks/types';
+import {
+  ElectionStringKey,
+  LanguageCode,
+  UiStringsPackage,
+} from '@votingworks/types';
 import { getFeatureFlagMock } from '@votingworks/utils';
+import { deferred } from '@votingworks/basics';
 import {
   GoogleCloudSpeechSynthesizer,
   SpeechSynthesizer,
@@ -8,6 +13,7 @@ import {
 import { generateAudioIdsAndClips } from './audio';
 import { audioIdForText } from './utils';
 import { makeMockGoogleCloudTextToSpeechClient } from './test_utils';
+import { convertHtmlToAudioCues } from './rich_text';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 vi.mock(
@@ -142,10 +148,11 @@ describe('extractAndTranslateElectionStrings', () => {
     const clips: string[] = [];
     uiStringAudioClips.on('data', (chunk) => clips.push(chunk.toString()));
 
-    await new Promise<void>((resolve) => {
-      uiStringAudioClips.on('end', () => {
-        const parsedClips = clips.map((c) => JSON.parse(c));
+    const { promise, reject, resolve } = deferred<void>();
+    uiStringAudioClips.on('end', () => {
+      const parsedClips = clips.map((c) => JSON.parse(c));
 
+      try {
         expect(parsedClips).toMatchObject([
           // buttonYes
           {
@@ -170,7 +177,78 @@ describe('extractAndTranslateElectionStrings', () => {
         ]);
 
         resolve();
-      });
+      } catch (err) {
+        reject(err);
+      }
     });
+
+    await promise;
+  });
+
+  test('matches contest description edits based on sanitized strings', async () => {
+    const mockSynthesizer: Mocked<SpeechSynthesizer> = {
+      synthesizeSpeech: vi.fn((text, lang) =>
+        Promise.resolve(`audio-${lang}-${text}`)
+      ),
+    };
+
+    const { ENGLISH } = LanguageCode;
+
+    const originalString = `
+      <p>Change the state seal to this?</p>
+      <img src="data:image/png;base64,AABBCC==" />
+    `;
+    const sanitizedString = convertHtmlToAudioCues(originalString);
+
+    const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
+      appStrings: {},
+      electionStrings: {
+        [ENGLISH]: {
+          [ElectionStringKey.CONTEST_DESCRIPTION]: { abc123: originalString },
+        },
+      },
+      electionTtsEdits: [
+        {
+          languageCode: ENGLISH,
+          original: sanitizedString,
+          text: 'edited description',
+
+          exportSource: 'text',
+          phonetic: [],
+        },
+      ],
+      speechSynthesizer: mockSynthesizer,
+    });
+
+    expect(uiStringAudioIds).toMatchObject({
+      [ENGLISH]: {
+        [ElectionStringKey.CONTEST_DESCRIPTION]: {
+          abc123: [audioIdForText(ENGLISH, sanitizedString)],
+        },
+      },
+    });
+
+    const clips: string[] = [];
+    uiStringAudioClips.on('data', (chunk) => clips.push(chunk.toString()));
+
+    const { promise, reject, resolve } = deferred<void>();
+    uiStringAudioClips.on('end', () => {
+      const parsedClips = clips.map((c) => JSON.parse(c));
+
+      try {
+        expect(parsedClips).toMatchObject([
+          {
+            id: audioIdForText(ENGLISH, sanitizedString),
+            languageCode: ENGLISH,
+            dataBase64: `audio-${ENGLISH}-edited description`,
+          },
+        ]);
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    });
+
+    await promise;
   });
 });

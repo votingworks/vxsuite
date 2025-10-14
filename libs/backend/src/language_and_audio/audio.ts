@@ -6,16 +6,19 @@ import {
   UiStringsPackage,
   TtsEditEntry,
   LanguageCode,
+  ElectionStringKey,
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
 import { SpeechSynthesizer } from './speech_synthesizer';
 import {
   audioIdForText,
+  cleanText,
   forEachUiString,
   prepareTextForSpeechSynthesis,
   setUiStringAudioIds,
 } from './utils';
+import { convertHtmlToAudioCues } from './rich_text';
 
 /**
  * Generates audio IDs and clips for all app and election strings provided with
@@ -74,25 +77,26 @@ export function generateAudioIdsAndClips(ctx: {
 
   // Prepare election strings/edits for synthesis:
   forEachUiString(ctx.electionStrings, (str) => {
+    const primaryStringKey =
+      typeof str.stringKey === 'string' ? str.stringKey : str.stringKey[0];
+
+    const text =
+      primaryStringKey === ElectionStringKey.CONTEST_DESCRIPTION
+        ? // TTS edits for ballot measure text are keyed on original strings
+          // after stripping out HTML.
+          convertHtmlToAudioCues(str.stringInLanguage)
+        : cleanText(str.stringInLanguage);
+
+    const audioId = audioIdForText(str.languageCode, text);
+    setUiStringAudioIds(audioIds, str.languageCode, str.stringKey, [audioId]);
+
     const edit = ttsEdits.get(
-      editKey({ lang: str.languageCode, original: str.stringInLanguage })
+      editKey({ lang: str.languageCode, original: text })
     );
-
     if (edit) {
-      const audioId = audioIdForText(str.languageCode, edit.original);
-      setUiStringAudioIds(audioIds, str.languageCode, str.stringKey, [audioId]);
-
       ttsStrings.set(audioId, { ...edit, key: str.stringKey });
-
       return;
     }
-
-    const { audioId, text } = prepareTextForSpeechSynthesis(
-      str.languageCode,
-      str.stringInLanguage
-    );
-
-    setUiStringAudioIds(audioIds, str.languageCode, str.stringKey, [audioId]);
 
     ttsStrings.set(audioId, {
       exportSource: 'text',
