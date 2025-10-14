@@ -219,7 +219,6 @@ export async function generateElectionPackageAndBallots(
         props,
         ballotPdf: await normalizeBallotColorModeForPrinting(
           ballotPdf,
-          props,
           ballotTemplateId
         ),
       }))

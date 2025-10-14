@@ -47,15 +47,6 @@ export const Colors = {
   DARKER_GRAY: '#B0B0B0',
 } as const;
 
-export const ColorTints = {
-  YELLOW: 'hsl(59, 75%, 93%)',
-  BLUE: 'hsl(209, 74%, 93%)',
-  GREEN: 'hsl(129, 60%, 93%)',
-  PINK: 'hsl(315, 58%, 93%)',
-} as const;
-
-export type ColorTint = keyof typeof ColorTints;
-
 export function primaryLanguageCode(ballotStyle: BallotStyle): string {
   return ballotStyle.languages?.[0] ?? 'en';
 }
@@ -420,17 +411,13 @@ export function BlankPageMessage(): React.ReactElement {
 }
 
 export const Box = styled.div<{
-  fill?: 'transparent' | 'tinted' | ColorTint;
+  fill?: 'transparent' | 'tinted';
 }>`
   border: 1px solid ${Colors.BLACK};
   border-top-width: 3px;
   padding: 0.75rem;
   background-color: ${(p) =>
-    p.fill === 'tinted'
-      ? Colors.LIGHT_GRAY
-      : p.fill === 'transparent' || !p.fill
-      ? 'none'
-      : ColorTints[p.fill]};
+    p.fill === 'tinted' ? Colors.LIGHT_GRAY : 'none'};
 `;
 
 export function WriteInLabel(): React.ReactElement {
@@ -441,11 +428,9 @@ export function WriteInLabel(): React.ReactElement {
 
 export function Instructions({
   languageCode,
-  colorTint,
   bubbleSide = 'left',
 }: {
   languageCode?: string;
-  colorTint?: ColorTint;
   bubbleSide?: 'left' | 'right';
 }): React.ReactElement {
   // To minimize vertical space used, we do a slightly different layout for
@@ -453,7 +438,7 @@ export function Instructions({
   if (!languageCode || languageCode === 'en') {
     return (
       <Box
-        fill={colorTint ?? 'tinted'}
+        fill="tinted"
         style={{
           padding: '0.5rem 0.5rem',
           display: 'grid',
@@ -560,7 +545,6 @@ export function Footer({
   pageNumber,
   totalPages,
   electionTitleOverride,
-  colorTint,
 }: {
   election: Election;
   ballotStyleId: BallotStyleId;
@@ -568,7 +552,6 @@ export function Footer({
   pageNumber: number;
   totalPages?: number;
   electionTitleOverride?: React.ReactNode;
-  colorTint?: ColorTint;
 }): JSX.Element {
   const party = getPartyForBallotStyle({ election, ballotStyleId });
 
@@ -623,7 +606,7 @@ export function Footer({
       <div style={{ display: 'flex', gap: '0.75rem' }}>
         <QrCodeSlot />
         <Box
-          fill={colorTint ?? 'tinted'}
+          fill="tinted"
           style={{
             padding: '0.25rem 0.5rem',
             flex: 1,
@@ -694,12 +677,10 @@ export function Footer({
 
 interface ContestHeaderProps {
   compact?: boolean;
-  colorTint?: ColorTint;
 }
 
 export const ContestHeader = styled.div<ContestHeaderProps>`
-  background: ${(p) =>
-    p.colorTint ? ColorTints[p.colorTint] : Colors.LIGHT_GRAY};
+  background: ${Colors.LIGHT_GRAY};
   padding: ${(p) => (p.compact ? '0.25rem 0.5rem' : '0.5rem')};
 `;
 
