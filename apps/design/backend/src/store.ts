@@ -2314,17 +2314,161 @@ export class Store {
     );
   }
 
+  // Save a single partial page of a multi-page QR results report. Each page is
+  // stored separately in `results_reports_partial` and identified by its
+  // page_index and num_pages. This allows assembling the final report when the
+  // last page is received.
+  async savePartialQuickResultsReportingPage({
+    electionId,
+    ballotHash,
+    encodedCompressedTally,
+    machineId,
+    isLive,
+    signedTimestamp,
+    precinctId,
+    pollsState,
+    pageIndex,
+    numPages,
+  }: {
+    electionId: string;
+    ballotHash: string;
+    encodedCompressedTally: string;
+    machineId: string;
+    isLive: boolean;
+    signedTimestamp: Date;
+    precinctId?: string;
+    pollsState: PollsState;
+    pageIndex: number;
+    numPages: number;
+  }): Promise<void> {
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        const { rowCount } = await client.query(
+          `
+            insert into results_reports_partial (
+              ballot_hash,
+              election_id,
+              machine_id,
+              is_live_mode,
+              signed_at,
+              encoded_compressed_tally,
+              precinct_id,
+              polls_state,
+              page_index,
+              num_pages
+            ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            on conflict (ballot_hash, machine_id, is_live_mode, polls_state, page_index)
+            do update set
+              signed_at = excluded.signed_at,
+              encoded_compressed_tally = excluded.encoded_compressed_tally,
+              precinct_id = excluded.precinct_id,
+              polls_state = excluded.polls_state,
+              num_pages = excluded.num_pages
+          `,
+          ballotHash,
+          electionId,
+          machineId,
+          isLive,
+          signedTimestamp.toISOString(),
+          encodedCompressedTally,
+          precinctId || null,
+          pollsState,
+          pageIndex,
+          numPages
+        );
+        assert(rowCount === 1, 'Failed to insert partial results report');
+        return true;
+      })
+    );
+  }
+
+  // Fetch all partial pages for the given ballot_hash/machine/is_live/polls_state
+  // combination ordered by page_index. Returns rows with encoded_compressed_tally
+  // and precinct_id.
+  async fetchPartialPages({
+    ballotHash,
+    machineId,
+    isLive,
+    pollsState,
+  }: {
+    ballotHash: string;
+    machineId: string;
+    isLive: boolean;
+    pollsState: PollsState;
+  }): Promise<
+    Array<{ encodedCompressedTally: string; precinctId: string | null }>
+  > {
+    return await this.db.withClient(async (client) => {
+      const res = await client.query(
+        `
+          select encoded_compressed_tally as "encodedCompressedTally", precinct_id as "precinctId"
+          from results_reports_partial
+          where
+            ballot_hash = $1 and
+            machine_id = $2 and
+            is_live_mode = $3 and
+            polls_state = $4
+          order by page_index asc
+        `,
+        ballotHash,
+        machineId,
+        isLive,
+        pollsState
+      );
+      return res.rows as Array<{
+        encodedCompressedTally: string;
+        precinctId: string | null;
+      }>;
+    });
+  }
+
+  // Delete partial pages for a given ballot/machine/is_live/polls_state
+  async deletePartialPages({
+    ballotHash,
+    machineId,
+    isLive,
+    pollsState,
+  }: {
+    ballotHash: string;
+    machineId: string;
+    isLive: boolean;
+    pollsState: PollsState;
+  }): Promise<void> {
+    await this.db.withClient(async (client) =>
+      client.query(
+        `
+          delete from results_reports_partial
+          where
+            ballot_hash = $1 and
+            machine_id = $2 and
+            is_live_mode = $3 and
+            polls_state = $4
+        `,
+        ballotHash,
+        machineId,
+        isLive,
+        pollsState
+      )
+    );
+  }
+
   async deleteQuickReportingResultsForElection(
     electionId: ElectionId
   ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.query(
+    await this.db.withClient(async (client) => {
+      await client.query(
         `
           delete from results_reports
           where election_id = $1
         `,
         electionId
-      )
-    );
+      );
+      await client.query(
+        `delete from results_reports_partial
+        where election_id = $1
+      `,
+        electionId
+      );
+    });
   }
 }

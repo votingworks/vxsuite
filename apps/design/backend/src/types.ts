@@ -105,6 +105,7 @@ export interface ElectionInfo {
 
 export interface ReceivedReportInfoBase {
   pollsState: PollsStateSupportsLiveReporting;
+  isPartial: boolean;
   ballotHash: string;
   machineId: string;
   isLive: boolean;
@@ -115,16 +116,28 @@ export interface ReceivedReportInfoBase {
 
 export interface ReceivedPollsOpenReportInfo extends ReceivedReportInfoBase {
   pollsState: 'polls_open';
+  isPartial: false;
 }
 
-export interface ReceivedPollsClosedReportInfo extends ReceivedReportInfoBase {
+export interface ReceivedPollsClosedPartialReportInfo
+  extends ReceivedReportInfoBase {
   pollsState: 'polls_closed_final';
+  isPartial: true;
+  numPages: number;
+  pageIndex: number;
+}
+
+export interface ReceivedPollsClosedFinalReportInfo
+  extends ReceivedReportInfoBase {
+  pollsState: 'polls_closed_final';
+  isPartial: false;
   contestResults: Record<ContestId, ContestResults>;
 }
 
 export type ReceivedReportInfo =
   | ReceivedPollsOpenReportInfo
-  | ReceivedPollsClosedReportInfo;
+  | ReceivedPollsClosedPartialReportInfo
+  | ReceivedPollsClosedFinalReportInfo;
 
 export interface AggregatedReportedResults {
   ballotHash: string;

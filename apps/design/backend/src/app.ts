@@ -981,6 +981,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           encodedCompressedTally,
           precinctSelection,
           pollsState,
+          numPages,
+          pageIndex,
         } = decodeQuickResultsMessage(payload);
 
         const electionRecord =
@@ -989,6 +991,98 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           return err('no-election-found');
         }
 
+        // If this QR message is paginated (numPages > 1), then we either
+        // store the partial page or assemble the final report when we receive
+        // the last page.
+        if (numPages > 1) {
+          // Pagination only supported or necessary for polls closed reports
+          assert(pollsState === 'polls_closed_final');
+          // Save the received page as a partial. This handles out-of-order
+          // arrival: whenever we receive any page we save it and then check
+          // whether we have all pages stored (by count). If so, assemble and
+          // finalize; otherwise return early.
+          await store.savePartialQuickResultsReportingPage({
+            electionId: electionRecord.election.id,
+            precinctId: maybeGetPrecinctIdFromSelection(precinctSelection),
+            ballotHash,
+            encodedCompressedTally,
+            machineId,
+            isLive,
+            signedTimestamp,
+            pollsState,
+            pageIndex,
+            numPages,
+          });
+
+          const partials = await store.fetchPartialPages({
+            ballotHash,
+            machineId,
+            isLive,
+            pollsState,
+          });
+
+          // If we don't yet have all pages, return a minimal OK response.
+          if (partials.length < numPages) {
+            return ok({
+              pollsState,
+              ballotHash,
+              machineId,
+              isLive,
+              signedTimestamp,
+              precinctSelection,
+              election: electionRecord.election,
+              numPages,
+              pageIndex,
+              isPartial: true,
+            });
+          }
+
+          const allBuffers = partials.map((p) =>
+            Buffer.from(p.encodedCompressedTally, 'base64url')
+          );
+          const combinedBuffer = Buffer.concat(allBuffers);
+          const allEncoded = combinedBuffer.toString('base64url');
+
+          // Save the final assembled report.
+          await store.saveQuickResultsReportingTally({
+            electionId: electionRecord.election.id,
+            precinctId: maybeGetPrecinctIdFromSelection(precinctSelection),
+            ballotHash,
+            encodedCompressedTally: allEncoded,
+            machineId,
+            isLive,
+            signedTimestamp,
+            pollsState,
+          });
+
+          // Clean up partials for this report.
+          await store.deletePartialPages({
+            ballotHash,
+            machineId,
+            isLive,
+            pollsState,
+          });
+
+          const contestResults = decodeAndReadCompressedTally({
+            election: electionRecord.election,
+            precinctSelection,
+            encodedTally: allEncoded,
+          });
+
+          return ok({
+            pollsState,
+            ballotHash,
+            machineId,
+            isLive,
+            signedTimestamp,
+            contestResults,
+            precinctSelection,
+            election: electionRecord.election,
+            isPartial: false,
+          });
+        }
+
+        // Non-paginated path
         await store.saveQuickResultsReportingTally({
           electionId: electionRecord.election.id,
           precinctId: maybeGetPrecinctIdFromSelection(precinctSelection),
@@ -1016,9 +1110,10 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               contestResults,
               precinctSelection,
               election: electionRecord.election,
+              isPartial: false,
             });
           }
-          case 'polls_open':
+          case 'polls_open': {
             return ok({
               pollsState,
               ballotHash,
@@ -1027,7 +1122,9 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               signedTimestamp,
               precinctSelection,
               election: electionRecord.election,
+              isPartial: false,
             });
+          }
           /* istanbul ignore next - @preserve */
           default:
             throwIllegalValue(pollsState);
