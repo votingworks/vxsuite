@@ -1845,7 +1845,7 @@ export class Store {
   }
 
   /**
-   * Gets write-ins specifically for tabulation, filtered and and
+   * Gets write-ins specifically for tabulation, filtered and
    * grouped by cast vote record attributes.
    *
    * When using write-in tallies to hydrate tally results, unmarked write-ins
