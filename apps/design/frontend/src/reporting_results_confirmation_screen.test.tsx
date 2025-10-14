@@ -47,6 +47,7 @@ const mockPollsOpenReport: ReceivedReportInfo = {
   signedTimestamp: new Date('2024-11-05T08:00:00Z'),
   election,
   precinctSelection: ALL_PRECINCTS_SELECTION,
+  isPartial: false,
 };
 
 const mockPollsClosedReportGeneral: ReceivedReportInfo = {
@@ -66,6 +67,20 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
     },
     includeGenericWriteIn: false,
   }).contestResults,
+  isPartial: false,
+};
+
+const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
+  pollsState: 'polls_closed_final',
+  ballotHash: 'abc123def456',
+  machineId: 'VxScan-001',
+  isLive: true,
+  signedTimestamp: new Date('2024-11-05T20:00:00Z'),
+  election,
+  precinctSelection: ALL_PRECINCTS_SELECTION,
+  isPartial: true,
+  numPages: 4,
+  pageIndex: 1,
 };
 
 const primaryElection = electionPrimaryPrecinctSplitsFixtures.readElection();
@@ -89,6 +104,7 @@ const mockPollsClosedReportPrimary: ReceivedReportInfo = {
     },
     includeGenericWriteIn: false,
   }).contestResults,
+  isPartial: false,
 };
 
 beforeEach(() => {
@@ -289,6 +305,42 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     await waitFor(() => {
       expect(screen.getByText('Test Report')).toBeInTheDocument();
     });
+  });
+
+  test('displays partial polls closed report correctly - general election', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockPollsClosedPartialReportGeneral));
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', {
+          name: 'Polls Closed Report Part 2 / 4 Sent',
+        })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Part 2 \/ 4 of the polls closed report has been sent to VxDesign./
+        )
+      ).toBeInTheDocument();
+    });
+
+    // Check report details
+    expect(screen.getByText('All Precincts')).toBeInTheDocument();
+    expect(screen.getByText('VxScan-001')).toBeInTheDocument();
+    // The ballot hash might be truncated by formatBallotHash function
+    expect(screen.getByText(/abc123d/)).toBeInTheDocument();
+
+    // Check that contest results tables are not rendered
+    const tables = screen.queryAllByRole('table');
+    expect(tables.length).toEqual(0);
   });
 
   test('displays polls closed report correctly - general election', async () => {

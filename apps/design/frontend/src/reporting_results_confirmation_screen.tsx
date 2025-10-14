@@ -125,6 +125,37 @@ function ReportHeader({
   );
 }
 
+function PartialReportHeader({
+  isLive,
+  reportTitle,
+  numPages,
+  pageIndex,
+}: {
+  isLive: boolean;
+  reportTitle: string;
+  numPages: number;
+  pageIndex: number;
+}): JSX.Element {
+  const lowerCasedReportTitle = reportTitle
+    .split(' ')
+    .map((word) => word.toLowerCase())
+    .join(' ');
+  return (
+    <div style={{ flexDirection: 'column', gap: '1rem', display: 'flex' }}>
+      <Callout icon="CircleDot" color="primary">
+        Part {pageIndex + 1} / {numPages} of the {lowerCasedReportTitle} has
+        been sent to VxDesign. You must scan the remaining parts to complete the
+        report. Click &apos;Next&apos; on VxScan to get the next code to scan.
+      </Callout>
+      {!isLive && (
+        <div>
+          <TestModeBanner />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PollsOpenReportConfirmation({
   ballotHash,
   machineId,
@@ -138,6 +169,44 @@ function PollsOpenReportConfirmation({
     <ResultsScreen screenTitle={`${reportTitle} Sent`}>
       <MainContent>
         <ReportHeader reportTitle={reportTitle} isLive={isLive} />
+        <ReportDetails
+          ballotHash={ballotHash}
+          machineId={machineId}
+          signedTimestamp={signedTimestamp}
+          election={election}
+          precinctSelection={precinctSelection}
+        />
+      </MainContent>
+    </ResultsScreen>
+  );
+}
+
+function PollsClosedPartialReportConfirmation({
+  ballotHash,
+  machineId,
+  isLive,
+  signedTimestamp,
+  election,
+  precinctSelection,
+  numPages,
+  pageIndex,
+}: ReportDetailsProps & {
+  isLive: boolean;
+  numPages: number;
+  pageIndex: number;
+}): JSX.Element {
+  const reportTitle = getPollsReportTitle('close_polls');
+  return (
+    <ResultsScreen
+      screenTitle={`${reportTitle} Part ${pageIndex + 1} / ${numPages} Sent`}
+    >
+      <MainContent>
+        <PartialReportHeader
+          reportTitle={reportTitle}
+          isLive={isLive}
+          numPages={numPages}
+          pageIndex={pageIndex}
+        />
         <ReportDetails
           ballotHash={ballotHash}
           machineId={machineId}
@@ -301,17 +370,32 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
         />
       );
     case 'polls_closed_final':
+      if (!reportData.isPartial) {
+        return (
+          <PollsClosedReportConfirmation
+            ballotHash={reportData.ballotHash}
+            machineId={reportData.machineId}
+            isLive={reportData.isLive}
+            signedTimestamp={reportData.signedTimestamp}
+            election={reportData.election}
+            precinctSelection={reportData.precinctSelection}
+            contestResults={reportData.contestResults}
+          />
+        );
+      }
       return (
-        <PollsClosedReportConfirmation
+        <PollsClosedPartialReportConfirmation
           ballotHash={reportData.ballotHash}
           machineId={reportData.machineId}
           isLive={reportData.isLive}
           signedTimestamp={reportData.signedTimestamp}
           election={reportData.election}
           precinctSelection={reportData.precinctSelection}
-          contestResults={reportData.contestResults}
+          numPages={reportData.numPages}
+          pageIndex={reportData.pageIndex}
         />
       );
+
     default:
       /* istanbul ignore next -  @preserve */
       throwIllegalValue(reportData, 'pollsState');
