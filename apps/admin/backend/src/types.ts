@@ -229,6 +229,19 @@ export type WriteInAdjudicationType =
   WriteInRecordAdjudicated['adjudicationType'];
 
 /**
+ * Information about an individual write-in for tallying purposes.
+ */
+export interface WriteInForTally {
+  contestId: ContestId;
+  cvrId: Id;
+  isInvalid: boolean;
+  isUnmarked: boolean;
+  candidateName: string | null;
+  officialCandidateId: string | null;
+  writeInCandidateId: string | null;
+}
+
+/**
  * Write-in summary information for non-adjudicated records.
  */
 export interface WriteInPendingTally {
