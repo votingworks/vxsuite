@@ -6,7 +6,10 @@ import {
   TtsEdit,
   TtsEditKey,
 } from '@votingworks/types';
-import { SpeechSynthesizer } from '@votingworks/backend';
+import {
+  SpeechSynthesizer,
+  convertHtmlToAudioCues,
+} from '@votingworks/backend';
 import { Workspace } from './workspace';
 
 export type DataUrl = string;
@@ -135,7 +138,7 @@ export function apiMethods(ctx: TtsApiContext) {
             strings.push({
               key: ElectionStringKey.CONTEST_DESCRIPTION,
               subkey: contest.id,
-              text: contest.description,
+              text: convertHtmlToAudioCues(contest.description),
             });
 
             // NOTE: Default yes/no option labels are excluded below, since the
