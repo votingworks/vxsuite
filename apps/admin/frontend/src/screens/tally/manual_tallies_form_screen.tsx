@@ -531,12 +531,13 @@ function BallotCountForm({
       <TallyTaskContent>
         {hasOverrides && (
           <Callout icon="Warning" color="warning">
-            Changing the total ballots cast will remove contest overrides.
+            Changing the manual tally ballot count will remove contest
+            overrides.
           </Callout>
         )}
         <FormCard>
           <label htmlFor="ballotCount">
-            <H3>Total Ballots Cast</H3>
+            <H3>Manual Tally Ballot Count</H3>
           </label>
           <TallyInput
             autoFocus
@@ -813,7 +814,7 @@ function ContestForm({
                 style={{ fontWeight: '500' }}
               />
               <label htmlFor="numBallots">
-                <Font weight="bold">Total Ballots Cast</Font>
+                <Font weight="bold">Manual Tally Ballot Count</Font>
               </label>
               <div style={{ marginLeft: 'auto' }}>
                 {isOverridingBallotCount ? (
