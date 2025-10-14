@@ -1,10 +1,9 @@
 import { test, expect, vi, beforeAll, afterAll } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { convertMsElection } from './convert_ms_election';
 import { TestStore } from '../test/test_store';
 import { Org } from './types';
+import { readFixture } from '../test/helpers';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
@@ -22,12 +21,6 @@ beforeAll(async () => {
 afterAll(async () => {
   await testStore.cleanUp();
 });
-
-const fixturesPath = `${__dirname}/../test/fixtures`;
-
-function readFixture(filename: string): Promise<string> {
-  return readFile(join(fixturesPath, filename), 'utf8');
-}
 
 test('convert general election', async () => {
   const election = convertMsElection(

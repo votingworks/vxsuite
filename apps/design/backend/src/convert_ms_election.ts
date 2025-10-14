@@ -121,6 +121,8 @@ const counties: Record<string, string> = {
   '82': 'Yazoo',
 };
 
+export const MS_ID_SEPARATOR = '_'; // Use a separator that won't interrupt a double-click selection
+
 export function convertMsElection(
   newElectionId: ElectionId,
   semsElectionFileContents: string,
@@ -129,9 +131,8 @@ export function convertMsElection(
   // Ensure all of the SEMS IDs are unique within each table in the VxDesign
   // database so they can be used as primary keys.
   function uniqueId(id: string): string {
-    const separator = '_'; // Use a separator that won't interrupt a double-click selection
-    assert(!id.includes(separator));
-    return `${newElectionId}${separator}${id}`;
+    assert(!id.includes(MS_ID_SEPARATOR));
+    return `${newElectionId}${MS_ID_SEPARATOR}${id}`;
   }
 
   const electionFileRows: Array<string[]> = parse(semsElectionFileContents, {
