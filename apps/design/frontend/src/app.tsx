@@ -58,7 +58,7 @@ function ElectionScreens(): JSX.Element {
       />
       <Route path={electionParamRoutes.export.path} component={ExportScreen} />
       <Route
-        path={electionParamRoutes.results.path}
+        path={electionParamRoutes.reports.root.path}
         component={QuickReportedResultsScreen}
       />
       <Redirect

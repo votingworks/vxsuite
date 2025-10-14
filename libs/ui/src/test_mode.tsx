@@ -1,4 +1,4 @@
-import styled, { ThemeProvider } from 'styled-components';
+import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 import { makeTheme, TouchscreenPalette } from './themes/make_theme';
 import { Icons } from './icons';
 import { TextOnly } from './ui_strings';
@@ -16,8 +16,10 @@ const TestModeCard = styled.div`
 
 export function TestModeCallout({
   style,
+  themeOverride,
 }: {
   style?: React.CSSProperties;
+  themeOverride?: DefaultTheme;
 }): JSX.Element {
   return (
     <TextOnly>
@@ -25,10 +27,12 @@ export function TestModeCallout({
         theme={(theme) =>
           // Lock to "medium" size mode to keep things from getting out of hand at
           // larger text sizes.
-          makeTheme({
-            ...theme,
-            sizeMode: 'touchMedium',
-          })
+          makeTheme(
+            themeOverride || {
+              ...theme,
+              sizeMode: 'touchMedium',
+            }
+          )
         }
       >
         <TestModeCard style={style}>

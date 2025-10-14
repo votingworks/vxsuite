@@ -141,9 +141,19 @@ export const routes = {
         title: 'Export',
         path: `${root}/export`,
       },
-      results: {
-        title: 'Results',
-        path: `${root}/results`,
+      reports: {
+        root: {
+          title: 'Live Reports',
+          path: `${root}/reports`,
+        },
+        allPrecinctResults: {
+          title: 'All Precincts Tally Report',
+          path: `${root}/reports/tally-all-precincts`,
+        },
+        byPrecinctResults: (precinctId: string) => ({
+          title: 'Tally Report by Precinct',
+          path: `${root}/reports/tally-by-precinct/${precinctId}`,
+        }),
       },
     };
   },
@@ -169,7 +179,7 @@ export function electionNavRoutes(
     ...(features.SYSTEM_SETTINGS_SCREEN ? [electionRoutes.systemSettings] : []),
     ...(features.EXPORT_SCREEN ? [electionRoutes.export] : []),
     ...(electionSystemSettings.quickResultsReportingUrl
-      ? [electionRoutes.results]
+      ? [electionRoutes.reports.root]
       : []),
   ];
 }

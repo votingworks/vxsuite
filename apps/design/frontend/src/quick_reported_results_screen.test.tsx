@@ -48,8 +48,8 @@ afterEach(() => {
 function renderScreen(
   electionIdParam: ElectionId = electionId
 ): ReturnType<typeof createMemoryHistory> {
-  const { path } = routes.election(electionIdParam).results;
-  const paramPath = routes.election(':electionId').results.path;
+  const { path } = routes.election(electionIdParam).reports.root;
+  const paramPath = routes.election(':electionId').reports.root.path;
   // console.log('Rendering with path:', path, 'paramPath:', paramPath);
   const history = createMemoryHistory({ initialEntries: [path] });
   render(
@@ -125,6 +125,7 @@ function createMockAggregatedResults(
     machinesReporting: ['VxScan-001', 'VxScan-002'],
     election: electionData,
     contestResults: electionResults.contestResults,
+    isLive: false,
   };
 }
 
@@ -139,7 +140,7 @@ describe('Navigation tab visibility', () => {
     apiMock.getQuickReportedResults
       .expectCallWith({
         electionId,
-        isLive: true,
+
         precinctSelection: ALL_PRECINCTS_SELECTION,
       })
       .resolves(ok(mockAggregatedResults));
@@ -165,7 +166,7 @@ describe('Navigation tab visibility', () => {
     apiMock.getQuickReportedResults
       .expectCallWith({
         electionId,
-        isLive: true,
+
         precinctSelection: ALL_PRECINCTS_SELECTION,
       })
       .resolves(ok(mockAggregatedResults));
@@ -197,7 +198,6 @@ test('shows error message when election is not exported', async () => {
   apiMock.getQuickReportedResults
     .expectRepeatedCallsWith({
       electionId,
-      isLive: true,
       precinctSelection: ALL_PRECINCTS_SELECTION,
     })
     .resolves(err('election-not-exported'));
@@ -225,7 +225,6 @@ test('Live/Test toggle works correctly', async () => {
   apiMock.getQuickReportedResults
     .expectCallWith({
       electionId,
-      isLive: true,
       precinctSelection: ALL_PRECINCTS_SELECTION,
     })
     .resolves(ok(mockAggregatedResults));
@@ -252,7 +251,6 @@ test('Live/Test toggle works correctly', async () => {
   apiMock.getQuickReportedResults
     .expectCallWith({
       electionId,
-      isLive: false,
       precinctSelection: ALL_PRECINCTS_SELECTION,
     })
     .resolves(ok(testModeResults));
@@ -279,7 +277,6 @@ test('Precinct button', async () => {
   apiMock.getQuickReportedResults
     .expectCallWith({
       electionId,
-      isLive: true,
       precinctSelection: ALL_PRECINCTS_SELECTION,
     })
     .resolves(ok(mockAggregatedResults));
@@ -289,7 +286,6 @@ test('Precinct button', async () => {
   apiMock.getQuickReportedResults
     .expectCallWith({
       electionId,
-      isLive: true,
       precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
     })
     .resolves(ok(mockAggregatedResults));
@@ -306,7 +302,7 @@ describe('Results display', () => {
     apiMock.getQuickReportedResults
       .expectRepeatedCallsWith({
         electionId,
-        isLive: true,
+
         precinctSelection: ALL_PRECINCTS_SELECTION,
       })
       .resolves(ok(mockAggregatedResults));
@@ -342,7 +338,7 @@ describe('Results display', () => {
     apiMock.getQuickReportedResults
       .expectRepeatedCallsWith({
         electionId,
-        isLive: true,
+
         precinctSelection: ALL_PRECINCTS_SELECTION,
       })
       .resolves(ok(noResultsData));
