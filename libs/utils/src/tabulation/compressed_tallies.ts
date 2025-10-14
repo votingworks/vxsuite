@@ -23,8 +23,9 @@ const MAX_UINT16 = 0xffff;
 const COMPRESSED_TALLY_VERSION = 0; // Increment this if the format changes and make sure the reading code can handle multiple versions.
 
 export function encodeCompressedTally(
-  compressedTally: CompressedTally
-): string {
+  compressedTally: CompressedTally,
+  numParts: number
+): string[] {
   const flatArray = [COMPRESSED_TALLY_VERSION, ...compressedTally.flat()];
   for (const value of flatArray) {
     assert(
@@ -33,7 +34,21 @@ export function encodeCompressedTally(
     );
   }
   const uint16Array = new Uint16Array(flatArray);
-  return Buffer.from(uint16Array.buffer).toString('base64url');
+  const sectionSize = Math.ceil(uint16Array.length / numParts);
+  const sections: string[] = [];
+  for (let i = 0; i < numParts; i += 1) {
+    const start = i * sectionSize;
+    const end = Math.min(start + sectionSize, uint16Array.length);
+    const section = uint16Array.slice(start, end);
+    sections.push(
+      Buffer.from(
+        section.buffer,
+        section.byteOffset,
+        section.byteLength
+      ).toString('base64url')
+    );
+  }
+  return sections;
 }
 
 /**
@@ -98,13 +113,15 @@ export function compressAndEncodeTally({
   election,
   results,
   precinctSelection,
+  numParts: numSections,
 }: {
   election: Election;
   results: Tabulation.ElectionResults;
   precinctSelection: PrecinctSelection;
-}): string {
+  numParts: number;
+}): string[] {
   const compressedTally = compressTally(election, results, precinctSelection);
-  return encodeCompressedTally(compressedTally);
+  return encodeCompressedTally(compressedTally, numSections);
 }
 
 function getContestTalliesForCompressedContest(

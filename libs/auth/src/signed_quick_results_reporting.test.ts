@@ -15,13 +15,25 @@ import {
 } from './signed_quick_results_reporting';
 import { constructPrefixedMessage } from './signatures';
 
+const sampleCompressedTally = 'a'.repeat(500);
+
 vi.mock(
   '@votingworks/utils',
   async (importActual): Promise<typeof import('@votingworks/utils')> => ({
     ...(await importActual<typeof import('@votingworks/utils')>()),
     compressAndEncodeTally: vi
       .fn<typeof compressAndEncodeTally>()
-      .mockReturnValue(''),
+      .mockImplementation(({ numParts }) => {
+        // Split sampleCompressedTally into numParts equal parts
+        const partLength = Math.ceil(sampleCompressedTally.length / numParts);
+        const parts = [];
+        for (let i = 0; i < numParts; i += 1) {
+          parts.push(
+            sampleCompressedTally.slice(i * partLength, (i + 1) * partLength)
+          );
+        }
+        return parts;
+      }),
   })
 );
 
@@ -40,9 +52,9 @@ test.each<{ isLiveMode: boolean }>([
   { isLiveMode: false },
   { isLiveMode: true },
 ])(
-  'Generating signed quick results reporting URL, isLiveMode = $isLiveMode',
+  'Generating signed polls closed quick results reporting URL, isLiveMode = $isLiveMode',
   async ({ isLiveMode }) => {
-    const signedQuickResultsReportingUrl =
+    const signedQuickResultsReportingUrls =
       await generateSignedQuickResultsReportingUrl(
         {
           electionDefinition,
@@ -56,6 +68,10 @@ test.each<{ isLiveMode: boolean }>([
         vxScanTestConfig
       );
 
+    expect(signedQuickResultsReportingUrls).toHaveLength(1);
+    const signedQuickResultsReportingUrl =
+      signedQuickResultsReportingUrls[0] as string;
+
     expect(compressAndEncodeTally).toHaveBeenCalledTimes(1);
     expect(signedQuickResultsReportingUrl).not.toContain('polls_open');
     expect(signedQuickResultsReportingUrl).toMatch(
@@ -64,8 +80,73 @@ test.each<{ isLiveMode: boolean }>([
   }
 );
 
+test.each<{ isLiveMode: boolean }>([
+  { isLiveMode: false },
+  { isLiveMode: true },
+])(
+  'Generating signed polls closed multi-part quick results reporting URL, isLiveMode = $isLiveMode',
+  async ({ isLiveMode }) => {
+    const signedQuickResultsReportingUrls =
+      await generateSignedQuickResultsReportingUrl(
+        {
+          electionDefinition,
+          isLiveMode,
+          quickResultsReportingUrl: 'https://example.com',
+          results: mockedResults,
+          signingMachineId: DEV_MACHINE_ID,
+          precinctSelection: { kind: 'AllPrecincts' },
+          pollsState: 'polls_closed_final',
+          maxQrCodeLength: 1000, // Force multi-part by setting a small max length
+        },
+        vxScanTestConfig
+      );
+
+    expect(signedQuickResultsReportingUrls).toHaveLength(3);
+    const signedQuickResultsReportingUrl1 =
+      signedQuickResultsReportingUrls[0] as string;
+    const signedQuickResultsReportingUrl2 =
+      signedQuickResultsReportingUrls[1] as string;
+    const signedQuickResultsReportingUrl3 =
+      signedQuickResultsReportingUrls[2] as string;
+
+    expect(compressAndEncodeTally).toHaveBeenCalledTimes(3);
+    expect(signedQuickResultsReportingUrl1).not.toContain('polls_open');
+    expect(signedQuickResultsReportingUrl2).not.toContain('polls_open');
+    expect(signedQuickResultsReportingUrl1).toMatch(
+      /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
+    );
+    expect(signedQuickResultsReportingUrl2).toMatch(
+      /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
+    );
+    expect(signedQuickResultsReportingUrl3).toMatch(
+      /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
+    );
+  }
+);
+
+test('If it is impossible to fit the signed quick results reporting URL within the max length even when broken into the maximum number of parts, an error is thrown', async () => {
+  await expect(() =>
+    generateSignedQuickResultsReportingUrl(
+      {
+        electionDefinition,
+        isLiveMode: true,
+        quickResultsReportingUrl: 'https://example.com',
+        results: mockedResults,
+        signingMachineId: DEV_MACHINE_ID,
+        precinctSelection: { kind: 'AllPrecincts' },
+        pollsState: 'polls_closed_final',
+        maxQrCodeLength: 10, // impossible length
+      },
+      vxScanTestConfig
+    )
+  ).rejects.toThrow(
+    `Unable to fit signed quick results reporting URL within 10 bytes broken up over 25 parts`
+  );
+  expect(compressAndEncodeTally).toHaveBeenCalledTimes(25);
+}, 20000);
+
 test('generateSignedQuickResultsReportingUrl works for reporting polls open status - live all precincts', async () => {
-  const signedQuickResultsReportingUrl =
+  const signedQuickResultsReportingUrls =
     await generateSignedQuickResultsReportingUrl(
       {
         electionDefinition,
@@ -78,6 +159,9 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
       },
       vxScanTestConfig
     );
+  expect(signedQuickResultsReportingUrls).toHaveLength(1);
+  const signedQuickResultsReportingUrl =
+    signedQuickResultsReportingUrls[0] as string;
 
   // We do not need a compressed tally when reporting polls open status
   expect(compressAndEncodeTally).toHaveBeenCalledTimes(0);
@@ -88,7 +172,7 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
 });
 
 test('generateSignedQuickResultsReportingUrl works for reporting polls open status - test single precincts', async () => {
-  const signedQuickResultsReportingUrl =
+  const signedQuickResultsReportingUrls =
     await generateSignedQuickResultsReportingUrl(
       {
         electionDefinition,
@@ -105,6 +189,9 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
       vxScanTestConfig
     );
 
+  expect(signedQuickResultsReportingUrls).toHaveLength(1);
+  const signedQuickResultsReportingUrl =
+    signedQuickResultsReportingUrls[0] as string;
   // We do not need a compressed tally when reporting polls open status
   expect(compressAndEncodeTally).toHaveBeenCalledTimes(0);
   expect(signedQuickResultsReportingUrl).toMatch(
@@ -128,9 +215,10 @@ test('authenticateSignedQuickResultsReportingUrl - success case with real certif
     },
     vxScanTestConfig
   );
+  expect(signedUrl).toHaveLength(1);
 
   // Extract the payload, signature, and certificate from the URL
-  const url = new URL(signedUrl);
+  const url = new URL(signedUrl[0] as string);
   const payload = url.searchParams.get('p') ?? '';
   const signature = url.searchParams.get('s') ?? '';
   const certificate = url.searchParams.get('c') ?? '';
@@ -164,9 +252,10 @@ test('authenticateSignedQuickResultsReportingUrl - invalid signature', async () 
     },
     vxScanTestConfig
   );
+  expect(signedUrl).toHaveLength(1);
 
   // Extract the payload and certificate from the URL
-  const url = new URL(signedUrl);
+  const url = new URL(signedUrl[0] as string);
   const payload = url.searchParams.get('p') ?? '';
   const certificate = url.searchParams.get('c') ?? '';
 
@@ -216,9 +305,10 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
     },
     vxScanTestConfig
   );
+  expect(signedUrl).toHaveLength(1);
 
   // Extract the signature and certificate from the URL
-  const url = new URL(signedUrl);
+  const url = new URL(signedUrl[0] as string);
   const signature = url.searchParams.get('s') ?? '';
   const certificate = url.searchParams.get('c') ?? '';
 
@@ -265,6 +355,8 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     compressedTally: 'sampleCompressedTally',
     precinctSelection: { kind: 'AllPrecincts' },
     pollsState: 'polls_closed_final',
+    numParts: 88,
+    partIndex: 77,
   });
   expect(() => {
     decodeQuickResultsMessage(
@@ -285,6 +377,27 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
       )
     );
   }).toThrow('Invalid message payload format');
+
+  expect(() => {
+    decodeQuickResultsMessage(
+      constructPrefixedMessage(
+        QR_MESSAGE_FORMAT,
+        // remove the final field
+        encodedMessage.replace('88', 'nan')
+      )
+    );
+  }).toThrow('Invalid number of pages format');
+
+  expect(() => {
+    decodeQuickResultsMessage(
+      constructPrefixedMessage(
+        QR_MESSAGE_FORMAT,
+        // remove the final field
+        encodedMessage.replace('77', 'nan')
+      )
+    );
+  }).toThrow('Invalid page index format');
+
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
@@ -317,6 +430,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         compressedTally: 'sampleCompressedTally',
         precinctSelection: { kind: 'AllPrecincts' },
         pollsState: 'polls_closed_final',
+        numParts: 1,
+        partIndex: 0,
       })
     )
   );
@@ -326,6 +441,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
       "encodedCompressedTally": "sampleCompressedTally",
       "isLive": false,
       "machineId": "machineId",
+      "numPages": 1,
+      "pageIndex": 0,
       "pollsState": "polls_closed_final",
       "precinctSelection": {
         "kind": "AllPrecincts",
@@ -350,6 +467,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
           precinctId: 'mockPrecinctId',
         },
         pollsState: 'polls_closed_final',
+        numParts: 1,
+        partIndex: 0,
       })
     )
   );
@@ -359,6 +478,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
       "encodedCompressedTally": "sampleCompressedTally",
       "isLive": false,
       "machineId": "machineId",
+      "numPages": 1,
+      "pageIndex": 0,
       "pollsState": "polls_closed_final",
       "precinctSelection": {
         "kind": "SinglePrecinct",
@@ -381,6 +502,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
       precinctId: 'mockPrecinctId',
     },
     pollsState: 'polls_open',
+    numParts: 1,
+    partIndex: 0,
   });
 
   expect(encoded).toContain('polls_open');
@@ -393,6 +516,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
       "encodedCompressedTally": "",
       "isLive": false,
       "machineId": "machineId",
+      "numPages": 1,
+      "pageIndex": 0,
       "pollsState": "polls_open",
       "precinctSelection": {
         "kind": "SinglePrecinct",

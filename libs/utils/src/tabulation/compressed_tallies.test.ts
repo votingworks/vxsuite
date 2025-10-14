@@ -12,7 +12,7 @@ import {
   readElectionGeneral,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
-import { find, assert } from '@votingworks/basics';
+import { find, assert, assertDefined } from '@votingworks/basics';
 import {
   compressAndEncodeTally,
   compressTally,
@@ -49,11 +49,16 @@ describe('compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
-    const compressedTally = compressAndEncodeTally({
+    const compressedTallies = compressAndEncodeTally({
       election: electionEitherNeither,
       results: getEmptyElectionResults(electionEitherNeither),
       precinctSelection: ALL_PRECINCTS_SELECTION,
+      numParts: 1,
     });
+    expect(compressedTallies).toHaveLength(1);
+    const [compressedTally] = compressedTallies;
+    assert(typeof compressedTally === 'string');
+    // The compressed tally should be a long string of A's since all counts are 0
     expect(compressedTally).toMatchInlineSnapshot(
       `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
     );
@@ -70,11 +75,15 @@ describe('compressTally', () => {
     expect(decodedCompressedTally[0]).toStrictEqual([0, 0, 0, 0, 0, 0, 0]);
 
     // Compress for a single precinct
-    const compressedTallySinglePrecinct = compressAndEncodeTally({
+    const compressedTalliesSinglePrecinct = compressAndEncodeTally({
       election: electionEitherNeither,
       results: getEmptyElectionResults(electionEitherNeither),
       precinctSelection: singlePrecinctSelectionFor('6522'),
+      numParts: 1,
     });
+    expect(compressedTalliesSinglePrecinct).toHaveLength(1);
+    const [compressedTallySinglePrecinct] = compressedTalliesSinglePrecinct;
+    assert(typeof compressedTallySinglePrecinct === 'string');
     expect(compressedTallySinglePrecinct).toMatchInlineSnapshot(
       `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
     );
@@ -93,6 +102,46 @@ describe('compressTally', () => {
     expect(decodedCompressedTally[yesNoContestIdx]).toStrictEqual([
       0, 0, 0, 0, 0,
     ]);
+  });
+
+  test('compressTally can break a tally into multiple parts', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+    const compressedTallies = compressAndEncodeTally({
+      election: electionEitherNeither,
+      results: getEmptyElectionResults(electionEitherNeither),
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      numParts: 3,
+    });
+    expect(compressedTallies).toHaveLength(3);
+    const [compressedTallyPt1, compressedTallyPt2, compressedTallyPt3] =
+      compressedTallies;
+    assert(typeof compressedTallyPt1 === 'string');
+    assert(typeof compressedTallyPt2 === 'string');
+    assert(typeof compressedTallyPt3 === 'string');
+    // The compressed tally should be a long string of A's since all counts are 0
+    expect(compressedTallyPt1).toMatchInlineSnapshot(
+      `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
+    );
+    expect(compressedTallyPt2).toMatchInlineSnapshot(
+      `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
+    );
+    expect(compressedTallyPt3).toMatchInlineSnapshot(
+      `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
+    );
+
+    const compressedTalliesSinglePart = compressAndEncodeTally({
+      election: electionEitherNeither,
+      results: getEmptyElectionResults(electionEitherNeither),
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      numParts: 1,
+    });
+    expect(compressedTalliesSinglePart).toHaveLength(1);
+    const [compressedTallySinglePart] = compressedTalliesSinglePart;
+    assert(typeof compressedTallySinglePart === 'string');
+    expect(compressedTallySinglePart).toEqual(
+      compressedTallyPt1 + compressedTallyPt2 + compressedTallyPt3
+    );
   });
 
   test('compressTally compresses a candidate tally properly', () => {
@@ -126,11 +175,15 @@ describe('compressTally', () => {
       },
       includeGenericWriteIn: true,
     });
-    const compressedTally = compressAndEncodeTally({
+    const compressedTallies = compressAndEncodeTally({
       election: electionEitherNeither,
       results: resultsWithPresidentTallies,
       precinctSelection: ALL_PRECINCTS_SELECTION,
+      numParts: 1,
     });
+    expect(compressedTallies).toHaveLength(1);
+    const [compressedTally] = compressedTallies;
+    assert(typeof compressedTally === 'string');
     expect(compressedTally).toMatchInlineSnapshot(
       `"AAAFAAQAFAAAAAIABAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
     );
@@ -171,11 +224,15 @@ describe('compressTally', () => {
       },
     });
 
-    const compressedTally = compressAndEncodeTally({
+    const compressedTallies = compressAndEncodeTally({
       election: electionEitherNeither,
       results: resultsWithYesNoTallies,
       precinctSelection: ALL_PRECINCTS_SELECTION,
+      numParts: 1,
     });
+    expect(compressedTallies).toHaveLength(1);
+    const [compressedTally] = compressedTallies;
+    assert(typeof compressedTally === 'string');
     expect(compressedTally).toMatchInlineSnapshot(
       `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQADABQABwAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
     );
@@ -201,7 +258,7 @@ describe('readCompressTally', () => {
     const tally = decodeAndReadCompressedTally({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      encodedTally: encodeCompressedTally(zeroTally),
+      encodedTally: assertDefined(encodeCompressedTally(zeroTally, 1)[0]),
     });
     // Check that all tallies are 0
     for (const contestTally of Object.values(tally)) {
@@ -235,7 +292,7 @@ describe('readCompressTally', () => {
     const tally = decodeAndReadCompressedTally({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      encodedTally: encodeCompressedTally(compressedTally),
+      encodedTally: assertDefined(encodeCompressedTally(compressedTally, 1)[0]),
     });
     const presidentTally = tally['775020876'];
     assert(presidentTally);
@@ -280,7 +337,7 @@ describe('readCompressTally', () => {
     const tally = decodeAndReadCompressedTally({
       election,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      encodedTally: encodeCompressedTally(compressedTally),
+      encodedTally: assertDefined(encodeCompressedTally(compressedTally, 1)[0]),
     });
     const presidentTally = tally['president'];
     assert(presidentTally);
@@ -354,7 +411,7 @@ describe('readCompressTally', () => {
     const tally = decodeAndReadCompressedTally({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      encodedTally: encodeCompressedTally(compressedTally),
+      encodedTally: assertDefined(encodeCompressedTally(compressedTally, 1)[0]),
     });
     const yesNoTally = tally['750000017'];
     assert(yesNoTally?.contestType === 'yesno');
@@ -387,11 +444,15 @@ test('primary tally can compress and be read back and end with the original tall
     includeGenericWriteIn: true,
   });
 
-  const compressedTally = compressAndEncodeTally({
+  const compressedTallies = compressAndEncodeTally({
     election,
     results: expectedTally,
     precinctSelection: ALL_PRECINCTS_SELECTION,
+    numParts: 1,
   });
+  expect(compressedTallies).toHaveLength(1);
+  const [compressedTally] = compressedTallies;
+  assert(typeof compressedTally === 'string');
   const decompressedTally = decodeAndReadCompressedTally({
     election,
     precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -430,17 +491,20 @@ test('compresses and decompresses tally for a single precinct', () => {
   );
   expect(compressedTally).toHaveLength(10); // There are 14 contests in this election but only 10 for the precinct
   expect(compressedTallyPrecinct2).toHaveLength(9); // There are 14 contests in this election but only 9 for the precinct
-  const encodedTally = encodeCompressedTally(compressedTally);
-  const encodedTallyPrecinct2 = encodeCompressedTally(compressedTallyPrecinct2);
+  const encodedTally = encodeCompressedTally(compressedTally, 1);
+  const encodedTallyPrecinct2 = encodeCompressedTally(
+    compressedTallyPrecinct2,
+    1
+  );
   const decodedTally = decodeAndReadCompressedTally({
     election: electionEitherNeither,
     precinctSelection: singlePrecinctSelection,
-    encodedTally,
+    encodedTally: assertDefined(encodedTally[0]),
   });
   const decodedTallyPrecinct2 = decodeAndReadCompressedTally({
     election: electionEitherNeither,
     precinctSelection: singlePrecinctSelection2,
-    encodedTally: encodedTallyPrecinct2,
+    encodedTally: assertDefined(encodedTallyPrecinct2[0]),
   });
 
   // Verify that the contest results received are for the correct precincts contests
