@@ -2312,17 +2312,15 @@ export class Store {
   }
 
   async deleteQuickReportingResultsForElection(
-    electionId: ElectionId,
-    isLive: boolean
+    electionId: ElectionId
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
         `
           delete from results_reports
-          where election_id = $1 and is_live_mode = $2
+          where election_id = $1
         `,
-        electionId,
-        isLive
+        electionId
       )
     );
   }

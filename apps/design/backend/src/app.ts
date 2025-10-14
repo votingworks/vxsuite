@@ -827,12 +827,10 @@ export function buildApi(ctx: AppContext) {
 
     async deleteQuickReportingResults(input: {
       electionId: ElectionId;
-      isLive: boolean;
     }): Promise<void> {
       const electionRecord = await store.getElection(input.electionId);
       await store.deleteQuickReportingResultsForElection(
-        electionRecord.election.id,
-        input.isLive
+        electionRecord.election.id
       );
     },
 
