@@ -134,7 +134,7 @@ export interface AggregatedReportedResults {
 }
 
 export interface AggregatedReportedPollsStatus {
-  entries: QuickReportedPollStatus[];
+  reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
   election: Election;
   isLive: boolean;
   ballotHash: string;
@@ -143,8 +143,8 @@ export interface AggregatedReportedPollsStatus {
 export interface QuickReportedPollStatus {
   machineId: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsStateSupportsLiveReporting;
   signedTimestamp: Date;
+  pollsState: PollsStateSupportsLiveReporting;
 }
 
 export type ResultsReportingError =

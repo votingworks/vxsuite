@@ -2115,7 +2115,7 @@ export class Store {
   async getPollsStatusForElection(
     election: ElectionRecord,
     isLive: boolean
-  ): Promise<QuickReportedPollStatus[]> {
+  ): Promise<Record<string, QuickReportedPollStatus[]>> {
     assert(
       election.lastExportedBallotHash !== undefined,
       'Election has not yet been exported.'
@@ -2159,15 +2159,25 @@ export class Store {
       precinctId: string | null;
       signedAt: Date;
     }>;
-    const pollsStatus: QuickReportedPollStatus[] = rows.map((r) => ({
-      machineId: r.machineId,
-      signedTimestamp: r.signedAt,
-      precinctSelection: r.precinctId
-        ? singlePrecinctSelectionFor(r.precinctId)
-        : ALL_PRECINCTS_SELECTION,
-      pollsState: r.pollsState,
-    }));
-    return pollsStatus;
+    const reportsByPrecinctId: Record<string, QuickReportedPollStatus[]> = {};
+    for (const precinct of election.election.precincts) {
+      reportsByPrecinctId[precinct.id] = [];
+    }
+
+    for (const status of rows) {
+      if (!status.precinctId && !reportsByPrecinctId['']) {
+        reportsByPrecinctId[''] = [];
+      }
+      reportsByPrecinctId[status.precinctId ?? ''].push({
+        machineId: status.machineId,
+        signedTimestamp: status.signedAt,
+        precinctSelection: status.precinctId
+          ? singlePrecinctSelectionFor(status.precinctId)
+          : ALL_PRECINCTS_SELECTION,
+        pollsState: status.pollsState,
+      });
+    }
+    return reportsByPrecinctId;
   }
 
   async getQuickResultsReportingTalliesForElection(
@@ -2206,6 +2216,7 @@ export class Store {
             where
               ballot_hash = $1 and
               election_id = $2 and
+              polls_state = 'polls_closed_final' and
               is_live_mode = $3
               ${precinctWhereClause}
             order by signed_at desc

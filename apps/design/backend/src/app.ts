@@ -787,13 +787,13 @@ export function buildApi(ctx: AppContext) {
       // Check if live data for ANY precinct has been reported, if so we should
       // return live results to the frontend.
       const isLive = await store.electionHasLiveReportData(electionRecord);
-      const entries = await store.getPollsStatusForElection(
+      const reportsByPrecinct = await store.getPollsStatusForElection(
         electionRecord,
         isLive
       );
       return ok({
         ballotHash: electionRecord.lastExportedBallotHash,
-        entries,
+        reportsByPrecinct,
         election: electionRecord.election,
         isLive,
       });
