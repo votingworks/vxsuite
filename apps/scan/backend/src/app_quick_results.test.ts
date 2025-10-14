@@ -58,15 +58,19 @@ test('getQuickResultsReportingUrl returns expected results when system setting f
         time: pollsTransitionTime,
       },
     });
-    expect(await apiClient.getQuickResultsReportingUrl()).toMatch(
+    const urls = await apiClient.getQuickResultsReportingUrl();
+    expect(urls).toHaveLength(1);
+    expect(urls[0]).toMatch(
       /http:\/\/example-results-url\.com\/something\?p=[^&]+&s=[^&]+&c=[^&]+$/
     );
 
     await apiClient.pauseVoting();
-    expect(await apiClient.getQuickResultsReportingUrl()).toEqual('');
+    expect(await apiClient.getQuickResultsReportingUrl()).toEqual([]);
 
     await apiClient.resumeVoting();
-    expect(await apiClient.getQuickResultsReportingUrl()).toMatch(
+    const urls2 = await apiClient.getQuickResultsReportingUrl();
+    expect(urls2).toHaveLength(1);
+    expect(urls2[0]).toMatch(
       /http:\/\/example-results-url\.com\/something\?p=[^&]+&s=[^&]+&c=[^&]+$/
     );
 
@@ -79,8 +83,9 @@ test('getQuickResultsReportingUrl returns expected results when system setting f
         time: pollsTransitionTime,
       },
     });
-    // Quick results URL should be returned as expected after polls are closed
-    expect(await apiClient.getQuickResultsReportingUrl()).toMatch(
+    const urls3 = await apiClient.getQuickResultsReportingUrl();
+    expect(urls3).toHaveLength(1);
+    expect(urls3[0]).toMatch(
       /http:\/\/example-results-url\.com\/something\?p=[^&]+&s=[^&]+&c=[^&]+$/
     );
   });
@@ -102,7 +107,7 @@ test('getQuickResultsReportingUrl returns nothing when system setting flag is no
       },
     });
     // getQuickResultsReportingUrl should return an empty string when polls are open
-    expect(await apiClient.getQuickResultsReportingUrl()).toEqual('');
+    expect(await apiClient.getQuickResultsReportingUrl()).toEqual([]);
 
     await apiClient.closePolls();
     expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
@@ -114,6 +119,6 @@ test('getQuickResultsReportingUrl returns nothing when system setting flag is no
       },
     });
     // Quick results URL should still be an empty string after polls are closed
-    expect(await apiClient.getQuickResultsReportingUrl()).toEqual('');
+    expect(await apiClient.getQuickResultsReportingUrl()).toEqual([]);
   });
 });

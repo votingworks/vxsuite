@@ -573,7 +573,7 @@ export function buildApi({
       return audioPlayer.play(input.name);
     },
 
-    async getQuickResultsReportingUrl(): Promise<string> {
+    async getQuickResultsReportingUrl(): Promise<string[]> {
       const { machineId } = getMachineConfig();
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       const precinctSelection = store.getPrecinctSelection();
@@ -581,10 +581,10 @@ export function buildApi({
       const systemSettings = store.getSystemSettings();
       const pollsState = store.getPollsState();
       if (!systemSettings || !systemSettings.quickResultsReportingUrl) {
-        return '';
+        return [];
       }
       if (!doesPollsStateSupportLiveReporting(pollsState)) {
-        return '';
+        return [];
       }
       const scannerResultsByParty = await getScannerResultsMemoized({ store });
 
@@ -592,7 +592,7 @@ export function buildApi({
         election: electionDefinition.election,
         allElectionResults: scannerResultsByParty,
       });
-      const signedQuickResultsReportingUrl =
+      const signedQuickResultsReportingUrls =
         await generateSignedQuickResultsReportingUrl({
           electionDefinition,
           quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
@@ -602,7 +602,7 @@ export function buildApi({
           results: combinedResults,
           pollsState,
         });
-      return signedQuickResultsReportingUrl;
+      return signedQuickResultsReportingUrls;
     },
 
     ...createUiStringsApi({
