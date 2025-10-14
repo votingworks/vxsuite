@@ -3,7 +3,7 @@
 
 import * as fs from 'node:fs/promises';
 import { open as fsOpen } from '@votingworks/fs';
-import { assert } from '@votingworks/basics';
+import { assert, sleep } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { join } from 'node:path';
@@ -14,6 +14,9 @@ import {
   PAT_GPIO_OFFSET,
 } from './constants';
 import { BmdModelNumber } from '../types';
+
+const CONNECTION_TIMEOUT_MS = 5000;
+const CONNECTION_RETRY_INTERVAL_MS = 500;
 
 export interface PatConnectionStatusReaderInterface {
   readonly logger: BaseLogger;
@@ -83,21 +86,39 @@ export class PatConnectionStatusReader
   async openBmd150(): Promise<boolean> {
     this.logger.log(LogEventId.ConnectToPatInputInit, 'system');
     const path = join(this.workspacePath, FAI_100_STATUS_FILENAME);
-    const openResult = await fsOpen(path);
-    if (openResult.isErr()) {
-      this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
-        message: `Unexpected error trying to open ${path}. Is fai_100_controllerd running?`,
-        disposition: 'failure',
-      });
 
-      return false;
+    const start = new Date();
+
+    while (
+      // Check for this.file is not necessary because we return early in the loop
+      // but we keep it for redundancy and clarity
+      !this.file &&
+      new Date().getTime() - start.getTime() < CONNECTION_TIMEOUT_MS
+    ) {
+      const openResult = await fsOpen(path);
+
+      if (openResult.isErr() && openResult.err().message.match('ENOENT')) {
+        this.logger.log(LogEventId.Info, 'system', {
+          message: 'Could not find PAT status file. Retrying...',
+          disposition: 'success',
+        });
+        await sleep(CONNECTION_RETRY_INTERVAL_MS);
+        continue;
+      }
+
+      this.file = openResult.ok();
+      this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+        disposition: 'success',
+      });
+      return true;
     }
 
-    this.file = openResult.ok();
     this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
-      disposition: 'success',
+      message: `Unexpected error trying to open ${path}. Is fai_100_controllerd running?`,
+      disposition: 'failure',
     });
-    return true;
+
+    return false;
   }
 
   async open(): Promise<boolean> {
