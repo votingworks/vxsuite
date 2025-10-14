@@ -8,12 +8,12 @@ generate_nameplate_svg.py — Using fontTools for accurate text measurements
 - Three textboxes with accurate font-based measurements
 - Logo and square in top section
 - Configuration file support for products
-- Textbox3 side padding is a global percentage (5% per side), not prompted
+- Layout-first approach: textbox2 → top section → bottom section
 
 Requires: pip install fonttools pyyaml
 """
 
-import os
+import os, sys
 import yaml
 from fontTools.ttLib import TTFont
 from fontTools.pens.boundsPen import BoundsPen
@@ -28,25 +28,10 @@ BLACK = "#000000"
 WHITE = "#FFFFFF"
 STROKE_WIDTH = 0.1  # mm
 
-# Textbox3 (bottom section) side padding as ratio of overall width (per side)
-TEXTBOX3_SIDE_PADDING_RATIO = 0.10  # 5% per side
-
-# Logo positioning and padding (as percentage of available space)
-LOGO_PADDING_TOP_BOTTOM = 0.15  # 15% padding above and below logo
-LOGO_PADDING_LEFT = 0.10        # 5% padding from left edge
-
-# Square positioning and padding
-SQUARE_PADDING_TOP_BOTTOM = 0.10  # 10% padding above and below square
-SQUARE_PADDING_RIGHT = 0.10       # 5% padding from right edge
-
-# Textbox2 (middle section) constraints
-TEXTBOX2_MAX_WIDTH_RATIO = 0.9  # 90% of hole center distance
-
 # Font sizing constraints
 MIN_FONT_SIZE = 0.5
 MAX_FONT_SIZE = 20.0
 TEXTBOX1_MAX_FONT_SIZE = 50.0
-TEXTBOX1_LOGO_HEIGHT_PADDING = 0.10  # 1% padding for font height constraint
 
 # Line height multiplier
 LINE_HEIGHT_MULTIPLIER = 1.3
@@ -93,8 +78,17 @@ DEFAULT_CONFIG = {
         'hole_center_distance': 70
     },
     'layout': {
-        'textbox1_overlap_with_logo': -0.01,  # Negative means overlap
-        'textbox1_padding_from_square': 0.02
+        'top_section_margin': 0.10,
+        'middle_section_margin': 0.10,
+        'bottom_section_margin': 0.10,
+        'logo_padding_horizontal': 0.10,
+        'logo_padding_vertical': 0.15,
+        'square_padding_top': 0.10,
+        'square_padding_right': 0.0,
+        'textbox1_logo_overlap': -0.01,
+        'textbox1_to_square_padding': 0.02,
+        'textbox1_height_ratio': 0.66,
+        'textbox3_bottom_margin': 0.05
     },
     'text': {
         'company_name': 'VotingWorks',
@@ -121,25 +115,19 @@ DEFAULT_CONFIG = {
 }
 
 # ============================================================================
-# YAML UTILITIES
+# XML/SVG UTILITIES
 # ============================================================================
 
-def escape_yaml_string(text):
-    """Escape special characters in strings for YAML compatibility."""
+def xml_escape(text):
+    """Escape special XML/SVG characters in text."""
     if not text:
         return text
     
-    # Check if string needs quoting (contains special YAML chars)
-    special_chars = [':', '#', '{', '}', '[', ']', ',', '&', '*', '!', '|', '>', 
-                     '@', '`', '"', "'", '%', '\\', '\n', '\r', '\t']
-    
-    needs_quoting = any(special in text for special in special_chars)  # Changed 'char' to 'special'
-    starts_with_special = text and text[0] in ['-', '?', ' ']
-    
-    if needs_quoting or starts_with_special:
-        # Escape existing quotes and wrap in quotes
-        escaped = text.replace('"', '\\"')
-        return f'"{escaped}"'
+    text = text.replace('&', '&amp;')
+    text = text.replace('<', '&lt;')
+    text = text.replace('>', '&gt;')
+    text = text.replace('"', '&quot;')
+    text = text.replace("'", '&apos;')
     
     return text
 
@@ -161,30 +149,11 @@ def load_config_file():
 
 def save_config_file(products_config):
     """Save the configuration file."""
-    # Ensure assets directory exists
     os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
-    
-    # Escape all text values before saving
-    escaped_products = {}
-    for product_name, config in products_config.items():
-        import copy
-        escaped_config = copy.deepcopy(config)
-        
-        # Escape text fields
-        if 'text' in escaped_config:
-            for key, value in escaped_config['text'].items():
-                if isinstance(value, str):
-                    escaped_config['text'][key] = escape_yaml_string(value)
-                elif isinstance(value, dict):
-                    for subkey, subvalue in value.items():
-                        if isinstance(subvalue, str):
-                            escaped_config['text'][key][subkey] = escape_yaml_string(subvalue)
-        
-        escaped_products[product_name] = escaped_config
     
     try:
         with open(CONFIG_FILE, 'w') as f:
-            yaml.dump({'products': escaped_products}, f, default_flow_style=False, sort_keys=False)
+            yaml.dump({'products': products_config}, f, default_flow_style=False, sort_keys=False)
         return True
     except Exception as e:
         print(f"Error saving config file: {e}")
@@ -211,7 +180,6 @@ def select_product_from_config(products):
                 selected_product = product_list[choice_idx]
                 print(f"\nUsing configuration for: {selected_product}")
                 
-                # Ask if user wants to modify or use as-is
                 modify = input("Modify this configuration? [y/N]: ").strip().lower()
                 return products[selected_product], modify == 'y'
             elif choice_idx == len(product_list):
@@ -228,19 +196,16 @@ def prompt_for_save(config, products):
     if save != 'y':
         return
     
-    # Get product name for saving
     default_name = config['text'].get('product_line', {}).get('label', 'Custom')
     product_name = input(f"Product name to save as [{default_name}]: ").strip()
     if not product_name:
         product_name = default_name
     
-    # Check if overwriting
     if product_name in products:
         overwrite = input(f"'{product_name}' already exists. Overwrite? [y/N]: ").strip().lower()
         if overwrite != 'y':
             return
     
-    # Save configuration
     products[product_name] = config
     if save_config_file(products):
         print(f"Configuration saved as '{product_name}'")
@@ -260,20 +225,8 @@ def load_font(font_path):
 
 
 def get_text_width_mm(text, font, font_size_mm, is_bold=False):
-    """
-    Calculate actual text width in mm using font metrics.
-    
-    Args:
-        text: String to measure
-        font: TTFont object or None
-        font_size_mm: Font size in millimeters
-        is_bold: Whether the text is bold
-        
-    Returns:
-        Width of text in millimeters
-    """
+    """Calculate actual text width in mm using font metrics."""
     if font is None:
-        # Fallback to estimation if font can't be loaded
         avg_char_width = font_size_mm * (0.57 if is_bold else 0.52)
         return len(text) * avg_char_width
     
@@ -288,11 +241,8 @@ def get_text_width_mm(text, font, font_size_mm, is_bold=False):
             glyph_name = cmap[ord(char)]
             if glyph_name in glyph_set:
                 glyph = glyph_set[glyph_name]
-                
-                # Use advance width as baseline
                 advance_width = glyph.width
                 
-                # Get bounding box for actual rendered size
                 pen = BoundsPen(glyph_set)
                 glyph.draw(pen)
                 
@@ -303,7 +253,6 @@ def get_text_width_mm(text, font, font_size_mm, is_bold=False):
                 else:
                     total_bounds_width += advance_width
     
-    # Convert from font units to mm
     width_mm = (total_bounds_width / units_per_em) * font_size_mm
     return width_mm
 
@@ -312,19 +261,7 @@ def get_text_width_mm(text, font, font_size_mm, is_bold=False):
 # ============================================================================
 
 def wrap_text_to_width(text, max_width_mm, font, font_size_mm, is_bold=False):
-    """
-    Wrap text to fit within max_width_mm.
-    
-    Args:
-        text: Text to wrap
-        max_width_mm: Maximum width in millimeters
-        font: TTFont object
-        font_size_mm: Font size in millimeters
-        is_bold: Whether the text is bold
-        
-    Returns:
-        List of wrapped lines
-    """
+    """Wrap text to fit within max_width_mm."""
     words = text.split()
     lines = []
     current_line = []
@@ -351,19 +288,7 @@ def wrap_text_to_width(text, max_width_mm, font, font_size_mm, is_bold=False):
 
 def calculate_max_font_size(text_lines_fn, max_width, max_height=None, 
                            max_font_size=MAX_FONT_SIZE, min_font_size=MIN_FONT_SIZE):
-    """
-    Binary search to find maximum font size that satisfies constraints.
-    
-    Args:
-        text_lines_fn: Function that takes font_size and returns (lines, max_line_width, total_height)
-        max_width: Maximum width constraint
-        max_height: Optional maximum height constraint
-        max_font_size: Upper bound for search
-        min_font_size: Lower bound for search
-    
-    Returns:
-        Maximum font size that fits constraints
-    """
+    """Binary search to find maximum font size that satisfies constraints."""
     font_size = min_font_size
     
     for _ in range(FONT_SIZE_SEARCH_ITERATIONS):
@@ -394,20 +319,209 @@ def create_svg_element(tag, **attrs):
 def create_text_element(x, y, text, font_family, font_size, text_anchor="start", **attrs):
     """Create an SVG text element."""
     attr_str = ' '.join(f'{k.replace("_", "-")}="{v}"' for k, v in attrs.items())
-    return f'  <text x="{x}" y="{y}" font-family="{font_family}" font-size="{font_size}" fill="black" text-anchor="{text_anchor}" {attr_str}>{text}</text>'
+    escaped_text = xml_escape(text)
+    return f'  <text x="{x}" y="{y}" font-family="{font_family}" font-size="{font_size}" fill="black" text-anchor="{text_anchor}" {attr_str}>{escaped_text}</text>'
 
 # ============================================================================
-# LAYOUT COMPONENTS
+# LAYOUT CALCULATION
+# ============================================================================
+
+def calculate_textbox2_metrics(config, fonts):
+    """Calculate font size and metrics for textbox2 (middle section)."""
+    dims = config['dimensions']
+    layout = config['layout']
+    text_config = config['text']
+    
+    w = float(dims['width'])
+    cdist = float(dims['hole_center_distance'])
+    middle_margin = layout.get('middle_section_margin', 0.10)
+    
+    middle_margin_mm = w * middle_margin
+    available_width = w - 2 * middle_margin_mm
+    max_width = min(available_width, cdist * 0.9)
+    
+    def get_line_width(line_config, fs):
+        width = 0
+        if line_config['label']:
+            width += get_text_width_mm(line_config['label'], 
+                                      fonts['arial-bold'] if line_config['label_bold'] else fonts['arial'], 
+                                      fs, is_bold=line_config['label_bold'])
+            if line_config['value']:
+                width += get_text_width_mm(' ', fonts['arial'], fs, is_bold=False)
+        if line_config['value']:
+            width += get_text_width_mm(line_config['value'], 
+                                      fonts['arial-bold'] if line_config['value_bold'] else fonts['arial'], 
+                                      fs, is_bold=line_config['value_bold'])
+        return width
+    
+    def textbox2_metrics(fs):
+        line_count = 0
+        max_w = 0
+        
+        for line_key in ['product_line', 'version_line', 'serial_line', 'rating_line']:
+            line_config = text_config.get(line_key, {})
+            if line_config.get('label') or line_config.get('value'):
+                line_count += 1
+                line_w = get_line_width(line_config, fs)
+                max_w = max(max_w, line_w)
+        
+        return (line_count, max_w, fs * LINE_HEIGHT_MULTIPLIER * line_count)
+    
+    font_size = calculate_max_font_size(textbox2_metrics, max_width)
+    _, _, height = textbox2_metrics(font_size)
+    
+    return {
+        'font_size': font_size,
+        'height': height,
+        'x_start': middle_margin_mm
+    }
+
+
+def calculate_top_section_layout(config, top_space, fonts):
+    """Calculate layout for top section (logo, textbox1, square)."""
+    dims = config['dimensions']
+    layout = config['layout']
+    text_config = config['text']
+    
+    w = float(dims['width'])
+    h = float(dims['height'])
+    hd = float(dims['hole_diameter'])
+    
+    top_margin = layout.get('top_section_margin', 0.10)
+    logo_pad_h = layout.get('logo_padding_horizontal', 0.10)
+    logo_pad_v = layout.get('logo_padding_vertical', 0.15)
+    square_pad_top = layout.get('square_padding_top', 0.10)
+    square_pad_right = layout.get('square_padding_right', 0.0)
+    textbox1_logo_overlap = layout.get('textbox1_logo_overlap', -0.01)
+    textbox1_square_pad = layout.get('textbox1_to_square_padding', 0.02)
+    textbox1_height_ratio = layout.get('textbox1_height_ratio', 0.66)
+    
+    # Calculate square - positioned relative to hole with equal padding
+    hole_top_y = h / 2.0 - hd / 2.0
+    square_size = hole_top_y * (1 - 2 * square_pad_top)
+    square_x = w - (w * top_margin) - (w * square_pad_right) - square_size
+    square_y = hole_top_y * square_pad_top
+    
+    # Calculate logo with padding
+    logo_left_margin = w * top_margin
+    logo_padded_width_space = w - logo_left_margin - (square_x - logo_left_margin)
+    logo_content_width = logo_padded_width_space * (1 - 2 * logo_pad_h)
+    logo_content_height = top_space * (1 - 2 * logo_pad_v)
+    
+    # Logo scale by height (it's square, so we can use either dimension)
+    logo_scale = logo_content_height / LOGO_ORIGINAL_HEIGHT
+    logo_width = LOGO_ORIGINAL_WIDTH * logo_scale
+    logo_height = LOGO_ORIGINAL_HEIGHT * logo_scale
+    
+    # Adjust if logo width exceeds available space
+    if logo_width > logo_content_width:
+        logo_scale = logo_content_width / LOGO_ORIGINAL_WIDTH
+        logo_width = LOGO_ORIGINAL_WIDTH * logo_scale
+        logo_height = LOGO_ORIGINAL_HEIGHT * logo_scale
+    
+    logo_x = logo_left_margin + (logo_padded_width_space * logo_pad_h)
+    logo_y = top_space * logo_pad_v
+    
+    # Calculate textbox1
+    textbox1_height = logo_height * textbox1_height_ratio
+    # Start after logo content + logo's right padding, then apply overlap
+    logo_right_padding = logo_padded_width_space * logo_pad_h
+    textbox1_x_start = logo_x + logo_width + logo_right_padding + (w * textbox1_logo_overlap)
+    textbox1_x_end = square_x - (w * textbox1_square_pad)
+    textbox1_available_width = textbox1_x_end - textbox1_x_start
+    
+    company_name = text_config.get('company_name', 'VotingWorks')
+    
+    def textbox1_metrics(fs):
+        if company_name == "VotingWorks":
+            voting_width = get_text_width_mm("Voting", fonts['roboto'], fs, is_bold=True)
+            works_width = get_text_width_mm("Works", fonts['roboto'], fs, is_bold=False)
+            text_width = voting_width + works_width
+        else:
+            text_width = get_text_width_mm(company_name, fonts['roboto'], fs, is_bold=False)
+        return (1, text_width, fs)
+    
+    font_size_textbox1 = calculate_max_font_size(textbox1_metrics, textbox1_available_width, 
+                                                max_height=textbox1_height,
+                                                max_font_size=TEXTBOX1_MAX_FONT_SIZE)
+    
+    # Align textbox1 baseline with logo bottom
+    textbox1_y = logo_y + logo_height
+    
+    return {
+        'logo': {
+            'x': logo_x,
+            'y': logo_y,
+            'scale': logo_scale,
+            'width': logo_width,
+            'height': logo_height
+        },
+        'square': {
+            'x': square_x,
+            'y': square_y,
+            'size': square_size
+        },
+        'textbox1': {
+            'x': textbox1_x_start,
+            'y': textbox1_y,
+            'font_size': font_size_textbox1,
+            'company_name': company_name
+        }
+    }
+
+
+def calculate_textbox3_metrics(config, fonts, available_height, gap_from_textbox2):
+    """Calculate font size and metrics for textbox3 (bottom section)."""
+    dims = config['dimensions']
+    layout = config['layout']
+    text_config = config['text']
+    
+    w = float(dims['width'])
+    h = float(dims['height'])
+    bottom_margin = layout.get('bottom_section_margin', 0.10)
+    textbox3_bottom_margin = layout.get('textbox3_bottom_margin', 0.05)
+    
+    bottom_margin_mm = w * bottom_margin
+    available_width = w - 2 * bottom_margin_mm
+    
+    # Reserve space for bottom margin
+    textbox3_bottom_margin_mm = h * textbox3_bottom_margin
+    max_height = available_height - gap_from_textbox2 - textbox3_bottom_margin_mm
+    
+    warning_text = text_config.get('warning_text', '')
+    
+    def textbox3_metrics(fs):
+        lines = wrap_text_to_width(warning_text, available_width, fonts['arial'], fs, is_bold=False)
+        if len(lines) > 2:
+            return (lines, float('inf'), float('inf'))
+        max_w = max(get_text_width_mm(line, fonts['arial'], fs, is_bold=False) 
+                   for line in lines) if lines else 0
+        return (lines, max_w, fs * LINE_HEIGHT_MULTIPLIER * len(lines))
+    
+    # Limit max font size to textbox2's font size
+    font_size = calculate_max_font_size(textbox3_metrics, available_width, 
+                                       max_height=max_height,
+                                       max_font_size=MAX_FONT_SIZE)
+    
+    lines, _, height = textbox3_metrics(font_size)
+    
+    return {
+        'font_size': font_size,
+        'height': height,
+        'lines': lines,
+        'x_start': bottom_margin_mm
+    }
+
+# ============================================================================
+# SVG RENDERING
 # ============================================================================
 
 def add_outline_and_holes(svg_parts, w, h, r, hd, cdist):
     """Add the outline rectangle and mounting holes to the SVG."""
-    # Outline rectangle
     svg_parts.append(create_svg_element('rect', id="outline", x=0, y=0, width=w, height=h, 
                                        rx=r, ry=r, fill="none", stroke=RED, 
                                        stroke_width=STROKE_WIDTH))
     
-    # Mounting holes
     if hd > 0:
         rc = hd / 2.0
         cx_left = w / 2.0 - cdist / 2.0
@@ -423,124 +537,44 @@ def add_outline_and_holes(svg_parts, w, h, r, hd, cdist):
                                            fill="none", stroke=RED, 
                                            stroke_width=STROKE_WIDTH))
 
-def calculate_textbox2_font_size(config, fonts, max_width):
-    """Calculate the font size for textbox2 (middle section)."""
-    text_config = config['text']
-    
-    def get_line_width(line_config, fs):
-        width = 0
-        if line_config['label']:
-            width += get_text_width_mm(line_config['label'], 
-                                      fonts['arial-bold'] if line_config['label_bold'] else fonts['arial'], 
-                                      fs, is_bold=line_config['label_bold'])
-            if line_config['value']:
-                width += get_text_width_mm(' ', fonts['arial'], fs, is_bold=False)  # Space between
-        if line_config['value']:
-            width += get_text_width_mm(line_config['value'], 
-                                      fonts['arial-bold'] if line_config['value_bold'] else fonts['arial'], 
-                                      fs, is_bold=line_config['value_bold'])
-        return width
-    
-    def textbox2_metrics(fs):
-        # Count non-empty lines
-        line_count = 0
-        max_w = 0
-        
-        for line_key in ['product_line', 'version_line', 'serial_line', 'rating_line']:
-            line_config = text_config.get(line_key, {})
-            if line_config.get('label') or line_config.get('value'):
-                line_count += 1
-                line_w = get_line_width(line_config, fs)
-                max_w = max(max_w, line_w)
-        
-        return (line_count, max_w, fs * LINE_HEIGHT_MULTIPLIER * line_count)
-    
-    return calculate_max_font_size(textbox2_metrics, max_width)
 
-def calculate_textbox3_font_size(text, width, fonts, max_font_size):
-    """Calculate the font size for textbox3 (bottom section)."""
-    def textbox3_metrics(fs):
-        lines = wrap_text_to_width(text, width, fonts['arial'], fs, is_bold=False)
-        if len(lines) > 2:
-            return (lines, float('inf'), float('inf'))  # Reject if more than 2 lines
-        max_w = max(get_text_width_mm(line, fonts['arial'], fs, is_bold=False) 
-                   for line in lines) if lines else 0
-        return (lines, max_w, fs * LINE_HEIGHT_MULTIPLIER * len(lines))
-    
-    return calculate_max_font_size(textbox3_metrics, width, max_font_size=max_font_size)
-
-def add_top_section(svg_parts, w, h, hd, y2_top, fonts, company_name, config):
-    """Add the top section containing logo, text, and square."""
-    # Get layout config
-    layout = config.get('layout', {})
-    textbox1_overlap = layout.get('textbox1_overlap_with_logo', -0.01)
-    textbox1_square_padding = layout.get('textbox1_padding_from_square', 0.02)
-    
-    # Calculate logo position and size
-    logo_available_height = y2_top * (1 - 2 * LOGO_PADDING_TOP_BOTTOM)
-    logo_y_start = y2_top * LOGO_PADDING_TOP_BOTTOM
-    logo_x_start = w * LOGO_PADDING_LEFT
-    logo_scale = logo_available_height / LOGO_ORIGINAL_HEIGHT
-    logo_width = LOGO_ORIGINAL_WIDTH * logo_scale
-    logo_height = LOGO_ORIGINAL_HEIGHT * logo_scale
+def render_top_section(svg_parts, top_layout):
+    """Render the top section (logo, textbox1, square)."""
+    logo = top_layout['logo']
+    square = top_layout['square']
+    textbox1 = top_layout['textbox1']
     
     # Add logo
-    svg_parts.append(f'  <g id="logo" transform="translate({logo_x_start}, {logo_y_start}) scale({logo_scale})">')
+    svg_parts.append(f'  <g id="logo" transform="translate({logo["x"]}, {logo["y"]}) scale({logo["scale"]})">')
     svg_parts.append(f'    <path id="logo-path" d="{LOGO_PATH_DATA}" fill="{BLACK}" stroke="none"/>')
     svg_parts.append('  </g>')
     
-    # Calculate and add black square
-    hole_top_y = h / 2.0 - hd / 2.0
-    square_size = hole_top_y * (1 - 2 * SQUARE_PADDING_TOP_BOTTOM)
-    square_y = hole_top_y * SQUARE_PADDING_TOP_BOTTOM
-    square_x = w - (w * SQUARE_PADDING_RIGHT) - square_size
-    
-    svg_parts.append(create_svg_element('rect', id="square", x=square_x, y=square_y, 
-                                       width=square_size, height=square_size,
+    # Add square
+    svg_parts.append(create_svg_element('rect', id="square", 
+                                       x=square['x'], y=square['y'], 
+                                       width=square['size'], height=square['size'],
                                        fill=BLACK, stroke="none"))
     
-    # Calculate textbox1 (company name) font size and position
-    textbox1_x_start = logo_x_start + logo_width - (w * textbox1_overlap)
-    textbox1_x_end = square_x - (w * textbox1_square_padding)
-    textbox1_available_width = textbox1_x_end - (logo_x_start + logo_width)
-    
-    # Max font height constraint: logo height with 1% padding
-    max_font_height = logo_height * (1 - TEXTBOX1_LOGO_HEIGHT_PADDING)
-    
-    def textbox1_metrics(fs):
-        # Assume "Voting" is bold and "Works" is regular for VotingWorks
-        if company_name == "VotingWorks":
-            voting_width = get_text_width_mm("Voting", fonts['roboto'], fs, is_bold=True)
-            works_width = get_text_width_mm("Works", fonts['roboto'], fs, is_bold=False)
-            text_width = voting_width + works_width
-        else:
-            text_width = get_text_width_mm(company_name, fonts['roboto'], fs, is_bold=False)
-        return (1, text_width, fs)
-    
-    font_size_textbox1 = calculate_max_font_size(textbox1_metrics, textbox1_available_width, 
-                                                max_height=max_font_height,
-                                                max_font_size=TEXTBOX1_MAX_FONT_SIZE)
-    
-    # Position text with bottom aligned to bottom of logo
-    logo_bottom_y = logo_y_start + logo_height
-    
-    # Special handling for VotingWorks with bold "Voting"
+    # Add company name
+    company_name = textbox1['company_name']
     if company_name == "VotingWorks":
-        svg_parts.append(f'  <text id="company-name" x="{textbox1_x_start}" y="{logo_bottom_y}" '
-                        f'font-family="Roboto, sans-serif" font-size="{font_size_textbox1}" '
+        svg_parts.append(f'  <text id="company-name" x="{textbox1["x"]}" y="{textbox1["y"]}" '
+                        f'font-family="Roboto, sans-serif" font-size="{textbox1["font_size"]}" '
                         f'fill="black" text-anchor="start">')
-        svg_parts.append(f'    <tspan font-weight="bold">Voting</tspan>Works')
+        svg_parts.append(f'    <tspan font-weight="bold">{xml_escape("Voting")}</tspan>{xml_escape("Works")}')
         svg_parts.append('  </text>')
     else:
-        svg_parts.append(create_text_element(textbox1_x_start, logo_bottom_y, company_name,
-                                            "Roboto, sans-serif", font_size_textbox1, id="company-name"))
+        svg_parts.append(create_text_element(textbox1['x'], textbox1['y'], company_name,
+                                            "Roboto, sans-serif", textbox1['font_size'], 
+                                            id="company-name"))
 
-def add_middle_section(svg_parts, w, config, font_size, fonts, y2_top):
-    """Add the middle section containing product info."""
-    line_height = font_size * LINE_HEIGHT_MULTIPLIER
+
+def render_middle_section(svg_parts, config, textbox2_metrics, y_start, fonts):
+    """Render the middle section (product info)."""
+    line_height = textbox2_metrics['font_size'] * LINE_HEIGHT_MULTIPLIER
     text_config = config['text']
+    x_start = textbox2_metrics['x_start']
     
-    # Build lines that have content with standardized IDs
     lines_data = []
     line_ids = ['product-line', 'serial-line', 'rating-line']
     id_index = 0
@@ -548,7 +582,6 @@ def add_middle_section(svg_parts, w, config, font_size, fonts, y2_top):
     for line_key in ['product_line', 'version_line', 'serial_line', 'rating_line']:
         line_config = text_config.get(line_key, {})
         if line_config.get('label') or line_config.get('value'):
-            # Assign standardized ID
             if id_index < len(line_ids):
                 lines_data.append((line_ids[id_index], line_config))
                 id_index += 1
@@ -556,59 +589,42 @@ def add_middle_section(svg_parts, w, config, font_size, fonts, y2_top):
     if not lines_data:
         return
     
-    # Calculate text widths for centering
-    def get_line_width(line_config):
-        width = 0
-        if line_config['label']:
-            width += get_text_width_mm(line_config['label'], 
-                                      fonts['arial-bold'] if line_config['label_bold'] else fonts['arial'], 
-                                      font_size, is_bold=line_config['label_bold'])
-            if line_config['value']:
-                width += get_text_width_mm(' ', fonts['arial'], font_size, is_bold=False)
-        if line_config['value']:
-            width += get_text_width_mm(line_config['value'], 
-                                      fonts['arial-bold'] if line_config['value_bold'] else fonts['arial'], 
-                                      font_size, is_bold=line_config['value_bold'])
-        return width
-    
-    text_block_width = max(get_line_width(line_config) for _, line_config in lines_data)
-    x_start = (w - text_block_width) / 2.0
-    
-    # Render each line
-    y_current = y2_top + font_size
+    y_current = y_start + textbox2_metrics['font_size']
     for line_id, line_config in lines_data:
         svg_parts.append(f'  <text id="{line_id}" x="{x_start}" y="{y_current}" '
-                        f'font-family="Arial, sans-serif" font-size="{font_size}" '
+                        f'font-family="Arial, sans-serif" font-size="{textbox2_metrics["font_size"]}" '
                         f'fill="black" text-anchor="start">')
         
         if line_config['label']:
+            escaped_label = xml_escape(line_config['label'])
             if line_config['label_bold']:
-                svg_parts.append(f'    <tspan font-weight="bold">{line_config["label"]}</tspan>')
+                svg_parts.append(f'    <tspan font-weight="bold">{escaped_label}</tspan>')
             else:
-                svg_parts.append(f'    <tspan>{line_config["label"]}</tspan>')
+                svg_parts.append(f'    <tspan>{escaped_label}</tspan>')
             
             if line_config['value']:
-                svg_parts.append(' ')  # Space between label and value
+                svg_parts.append(' ')
         
         if line_config['value']:
+            escaped_value = xml_escape(line_config['value'])
             if line_config['value_bold']:
-                svg_parts.append(f'<tspan font-weight="bold">{line_config["value"]}</tspan>')
+                svg_parts.append(f'<tspan font-weight="bold">{escaped_value}</tspan>')
             else:
-                svg_parts.append(line_config['value'])
+                svg_parts.append(escaped_value)
         
         svg_parts.append('  </text>')
         y_current += line_height
 
-def add_bottom_section(svg_parts, lines, font_size, y3_top, padding_mm):
-    """Add the bottom section containing warning text."""
-    line_height = font_size * LINE_HEIGHT_MULTIPLIER
-    x_start = padding_mm
-    y_current = y3_top + font_size
+
+def render_bottom_section(svg_parts, textbox3_metrics, y_start):
+    """Render the bottom section (warning text)."""
+    line_height = textbox3_metrics['font_size'] * LINE_HEIGHT_MULTIPLIER
+    x_start = textbox3_metrics['x_start']
+    y_current = y_start + textbox3_metrics['font_size']
     
-    for i, line in enumerate(lines):
-        # Standardized IDs: warning-line-1, warning-line-2
+    for i, line in enumerate(textbox3_metrics['lines']):
         svg_parts.append(create_text_element(x_start, y_current, line,
-                                            "Arial, sans-serif", font_size, 
+                                            "Arial, sans-serif", textbox3_metrics['font_size'], 
                                             id=f"warning-line-{i+1}"))
         y_current += line_height
 
@@ -618,60 +634,42 @@ def add_bottom_section(svg_parts, lines, font_size, y3_top, padding_mm):
 
 def build_svg(config, fonts):
     """Build the complete SVG nameplate."""
-    # Extract dimensions from config
     dims = config['dimensions']
     w = float(dims['width'])
     h = float(dims['height'])
-    r = min(float(dims['corner_radius']), w / 2.0, h / 2.0)  # Clamp radius
+    r = min(float(dims['corner_radius']), w / 2.0, h / 2.0)
     hd = max(0.0, float(dims['hole_diameter']))
     cdist = max(0.0, float(dims['hole_center_distance']))
     
-    # Extract text config
-    text_config = config['text']
+    # Step 1: Calculate textbox2 and center it
+    textbox2_metrics = calculate_textbox2_metrics(config, fonts)
+    textbox2_y = (h - textbox2_metrics['height']) / 2.0
     
-    # Calculate font sizes for text sections
-    max_textbox2_width = cdist * TEXTBOX2_MAX_WIDTH_RATIO
-    font_size_textbox2 = calculate_textbox2_font_size(config, fonts, max_textbox2_width)
+    # Step 2: Calculate available space for top and bottom
+    top_space = textbox2_y
+    bottom_space = h - (textbox2_y + textbox2_metrics['height'])
     
-    warning_text = text_config.get('warning_text', '')
-    textbox3_side_padding_mm = w * TEXTBOX3_SIDE_PADDING_RATIO
-    textbox3_width = w - (2 * textbox3_side_padding_mm)
-    font_size_textbox3 = calculate_textbox3_font_size(warning_text, textbox3_width, 
-                                                      fonts, font_size_textbox2)
+    # Step 3: Calculate top section layout
+    top_layout = calculate_top_section_layout(config, top_space, fonts)
     
-    # Calculate section heights for middle section
-    line_height_textbox2 = font_size_textbox2 * LINE_HEIGHT_MULTIPLIER
+    # Step 4: Calculate gap between top section and textbox2
+    # Use textbox1 baseline as the bottom of top section content
+    top_content_bottom = top_layout['textbox1']['y']
+    gap1 = textbox2_y - top_content_bottom
     
-    # Count actual lines in middle section
-    middle_line_count = 0
-    for line_key in ['product_line', 'version_line', 'serial_line', 'rating_line']:
-        line_config = text_config.get(line_key, {})
-        if line_config.get('label') or line_config.get('value'):
-            middle_line_count += 1
-    
-    textbox2_height = line_height_textbox2 * middle_line_count
-    
-    textbox3_lines = wrap_text_to_width(warning_text, textbox3_width, 
-                                       fonts['arial'], font_size_textbox3)
-    textbox3_height = font_size_textbox3 * LINE_HEIGHT_MULTIPLIER * len(textbox3_lines)
-    
-    # Calculate vertical layout positions
-    y2_top = (h - textbox2_height) / 2.0  # Center textbox2 vertically
-    space_below = h - (y2_top + textbox2_height)
-    gap_below = (space_below - textbox3_height) / 2.0
-    y3_top = y2_top + textbox2_height + gap_below
+    # Step 5: Calculate textbox3 using same gap
+    textbox3_metrics = calculate_textbox3_metrics(config, fonts, bottom_space, gap1)
+    textbox3_y = textbox2_y + textbox2_metrics['height'] + gap1
     
     # Build SVG
     svg_parts = []
     svg_parts.append('<?xml version="1.0" encoding="UTF-8" standalone="no"?>')
     svg_parts.append(f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}mm" height="{h}mm" viewBox="0 0 {w} {h}">')
     
-    # Add main components
     add_outline_and_holes(svg_parts, w, h, r, hd, cdist)
-    add_top_section(svg_parts, w, h, hd, y2_top, fonts, text_config.get('company_name', 'VotingWorks'), config)
-    add_middle_section(svg_parts, w, config, font_size_textbox2, fonts, y2_top)
-    add_bottom_section(svg_parts, textbox3_lines, font_size_textbox3, 
-                      y3_top, textbox3_side_padding_mm)
+    render_top_section(svg_parts, top_layout)
+    render_middle_section(svg_parts, config, textbox2_metrics, textbox2_y, fonts)
+    render_bottom_section(svg_parts, textbox3_metrics, textbox3_y)
     
     svg_parts.append('</svg>')
     return "\n".join(svg_parts)
@@ -680,7 +678,7 @@ def build_svg(config, fonts):
 # USER INTERFACE
 # ============================================================================
 
-def prompt_float(prompt, default=None, min_val=None):
+def prompt_float(prompt, default=None, min_val=None, max_val=None):
     """Prompt user for a floating-point value."""
     while True:
         raw = input(f"{prompt}" + (f" [{default}]" if default is not None else "") + ": ").strip()
@@ -690,6 +688,9 @@ def prompt_float(prompt, default=None, min_val=None):
             val = float(raw)
             if min_val is not None and val < min_val:
                 print(f"  Value must be >= {min_val}.")
+                continue
+            if max_val is not None and val > max_val:
+                print(f"  Value must be <= {max_val}.")
                 continue
             return val
         except ValueError:
@@ -715,11 +716,9 @@ def prompt_configuration(base_config=None):
     if base_config is None:
         config = DEFAULT_CONFIG.copy()
     else:
-        # Deep copy the base configuration
         import copy
         config = copy.deepcopy(base_config)
     
-    # Get dimension inputs
     print("\n--- Dimensions ---")
     config['dimensions']['width'] = prompt_float("Width (mm)", 
                                                 default=config['dimensions']['width'], min_val=0.01)
@@ -732,24 +731,68 @@ def prompt_configuration(base_config=None):
     config['dimensions']['hole_center_distance'] = prompt_float("Center distance between holes (mm)", 
                                                                default=config['dimensions']['hole_center_distance'], min_val=0.0)
     
-    # Get layout inputs
     print("\n--- Layout ---")
     if 'layout' not in config:
         config['layout'] = {}
-    config['layout']['textbox1_overlap_with_logo'] = prompt_float(
-        "Textbox1 overlap with logo (negative=overlap, positive=gap)", 
-        default=config.get('layout', {}).get('textbox1_overlap_with_logo', -0.01))
-    config['layout']['textbox1_padding_from_square'] = prompt_float(
-        "Textbox1 padding from square", 
-        default=config.get('layout', {}).get('textbox1_padding_from_square', 0.02), 
-        min_val=0.0)
     
-    # Get text content inputs
+    config['layout']['top_section_margin'] = prompt_float(
+        "Top section margin (ratio, e.g., 0.10 for 10%)", 
+        default=config.get('layout', {}).get('top_section_margin', 0.10),
+        min_val=0.0, max_val=0.5)
+    
+    config['layout']['middle_section_margin'] = prompt_float(
+        "Middle section margin (ratio, e.g., 0.10 for 10%)", 
+        default=config.get('layout', {}).get('middle_section_margin', 0.10),
+        min_val=0.0, max_val=0.5)
+    
+    config['layout']['bottom_section_margin'] = prompt_float(
+        "Bottom section margin (ratio, e.g., 0.10 for 10%)", 
+        default=config.get('layout', {}).get('bottom_section_margin', 0.10),
+        min_val=0.0, max_val=0.5)
+    
+    config['layout']['logo_padding_horizontal'] = prompt_float(
+        "Logo horizontal padding (ratio)", 
+        default=config.get('layout', {}).get('logo_padding_horizontal', 0.10),
+        min_val=0.0, max_val=0.5)
+    
+    config['layout']['logo_padding_vertical'] = prompt_float(
+        "Logo vertical padding (ratio)", 
+        default=config.get('layout', {}).get('logo_padding_vertical', 0.15),
+        min_val=0.0, max_val=0.5)
+    
+    config['layout']['square_padding_top'] = prompt_float(
+        "Square top padding (ratio)", 
+        default=config.get('layout', {}).get('square_padding_top', 0.10),
+        min_val=0.0, max_val=0.5)
+    
+    config['layout']['square_padding_right'] = prompt_float(
+        "Square right padding (ratio)", 
+        default=config.get('layout', {}).get('square_padding_right', 0.0),
+        min_val=0.0, max_val=0.5)
+    
+    config['layout']['textbox1_logo_overlap'] = prompt_float(
+        "Textbox1 overlap with logo (negative=overlap, positive=gap)", 
+        default=config.get('layout', {}).get('textbox1_logo_overlap', -0.01))
+    
+    config['layout']['textbox1_to_square_padding'] = prompt_float(
+        "Textbox1 to square padding (ratio)", 
+        default=config.get('layout', {}).get('textbox1_to_square_padding', 0.02),
+        min_val=0.0, max_val=0.5)
+    
+    config['layout']['textbox1_height_ratio'] = prompt_float(
+        "Textbox1 height ratio (relative to logo height)", 
+        default=config.get('layout', {}).get('textbox1_height_ratio', 0.66),
+        min_val=0.1, max_val=2.0)
+    
+    config['layout']['textbox3_bottom_margin'] = prompt_float(
+        "Textbox3 bottom margin (ratio)", 
+        default=config.get('layout', {}).get('textbox3_bottom_margin', 0.05),
+        min_val=0.0, max_val=0.5)
+    
     print("\n--- Text Content ---")
     config['text']['company_name'] = prompt_string("Company name", 
                                                   default=config['text']['company_name'])
     
-    # Product line
     print("\nProduct Line:")
     config['text']['product_line']['label'] = prompt_string("  Label", 
                                                            default=config['text']['product_line']['label'])
@@ -762,7 +805,6 @@ def prompt_configuration(base_config=None):
         config['text']['product_line']['value_bold'] = prompt_boolean("  Value bold?", 
                                                                      default=config['text']['product_line']['value_bold'])
     
-    # Serial line
     print("\nSerial Line:")
     config['text']['serial_line']['label'] = prompt_string("  Label", 
                                                           default=config['text']['serial_line']['label'])
@@ -775,7 +817,6 @@ def prompt_configuration(base_config=None):
         config['text']['serial_line']['value_bold'] = prompt_boolean("  Value bold?", 
                                                                     default=config['text']['serial_line']['value_bold'])
     
-    # Rating line
     print("\nRating Line:")
     config['text']['rating_line']['label'] = prompt_string("  Label", 
                                                           default=config['text']['rating_line']['label'])
@@ -788,7 +829,6 @@ def prompt_configuration(base_config=None):
         config['text']['rating_line']['value_bold'] = prompt_boolean("  Value bold?", 
                                                                     default=config['text']['rating_line']['value_bold'])
     
-    # Warning text
     config['text']['warning_text'] = prompt_string("\nWarning text", 
                                                   default=config['text']['warning_text'])
     
@@ -808,7 +848,6 @@ def main():
     """Main program entry point."""
     print("=== Nameplate SVG Generator ===")
     
-    # Load fonts
     print("\nLoading fonts...")
     fonts = {
         'roboto': load_font(FONT_PATHS['roboto']),
@@ -816,43 +855,52 @@ def main():
         'arial-bold': load_font(FONT_PATHS['arial-bold'])
     }
     
-    # Check font loading status
     for name, font in fonts.items():
         if font is None:
             print(f"Warning: Could not load {name} font, using estimation fallback")
     
-    # Load existing configurations
     products = load_config_file()
     
-    # Select or create configuration
-    selected_config = None
-    should_modify = True
-    
-    if products:
-        selected_config, should_modify = select_product_from_config(products)
-    
-    # Prompt for configuration
-    if selected_config and not should_modify:
-        # Use config as-is
-        print("\nUsing configuration without modifications.")
-        config = selected_config
-    elif selected_config and should_modify:
-        print("\nModifying selected configuration. Press Enter to keep existing values.")
-        config = prompt_configuration(selected_config)
+    if len(sys.argv) > 1:
+        product_name_arg = sys.argv[1]
+        matching_product = None
+        for product_key in products.keys():
+            if product_key.lower() == product_name_arg.lower():
+                matching_product = product_key
+                break
+        
+        if matching_product:
+            print(f"\nUsing configuration for: {matching_product}")
+            config = products[matching_product]
+            should_modify = False
+        else:
+            print(f"\nProduct '{product_name_arg}' not found in configuration.")
+            print("Available products:", ", ".join(products.keys()) if products else "None")
+            return
     else:
-        print("\nNo configuration selected. Using defaults.")
-        config = prompt_configuration()
+        selected_config = None
+        should_modify = True
+        
+        if products:
+            selected_config, should_modify = select_product_from_config(products)
+        
+        if selected_config and not should_modify:
+            print("\nUsing configuration without modifications.")
+            config = selected_config
+        elif selected_config and should_modify:
+            print("\nModifying selected configuration. Press Enter to keep existing values.")
+            config = prompt_configuration(selected_config)
+        else:
+            print("\nNo configuration selected. Using defaults.")
+            config = prompt_configuration()
     
-    # Generate SVG
     svg_text = build_svg(config, fonts)
     
-    # Save to file
     outdir = ensure_output_directory()
     product_name = config['text']['product_line']['label'] or ''
     version = config['text']['product_line']['value'] or ''
     serial = config['text']['serial_line']['value'] or ''
     
-    # Build filename
     fname_parts = ['nameplate', product_name]
     if version:
         fname_parts.append(version)
@@ -867,8 +915,7 @@ def main():
     
     print(f"\nSaved: {outpath}")
     
-    # Offer to save configuration
-    if should_modify:
+    if len(sys.argv) == 1 and should_modify:
         prompt_for_save(config, products)
 
 if __name__ == "__main__":
