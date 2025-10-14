@@ -23,6 +23,7 @@ export type {
   ElectionStatus,
   ElectionListing,
   ElectionInfo,
+  ElectionUpload,
   AggregatedReportedResults,
   ReceivedReportInfo,
   QuickReportedPollStatus,

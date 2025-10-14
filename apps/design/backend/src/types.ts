@@ -156,3 +156,14 @@ export type ResultsReportingError =
   | 'invalid-payload'
   | 'invalid-signature'
   | 'no-election-found';
+
+export type ElectionUpload =
+  | {
+      format: 'vxf';
+      electionFileContents: string;
+    }
+  | {
+      format: 'ms-sems';
+      electionFileContents: string;
+      candidateFileContents: string;
+    };
