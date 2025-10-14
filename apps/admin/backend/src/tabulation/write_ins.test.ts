@@ -227,18 +227,33 @@ test('tabulateWriteInTallies', () => {
       card: { type: 'bmd' },
       multiplier: 34,
     },
+    // Write-in with overvote
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-3-1',
+      scannerId: 'scanner-3',
+      precinctId: 'precinct-2',
+      votingMethod: 'precinct',
+      votes: {
+        'zoo-council-mammal': ['write-in', 'elephant', 'lion', 'zebra'],
+      },
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
   ];
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
   // because we're only testing filtering
   function getMockElectionWriteInSummary(
-    pendingTally: number
+    pendingTally: number,
+    invalidTally: number
   ): Tabulation.ElectionWriteInSummary {
     const electionWriteInSummary = getEmptyElectionWriteInSummary(election);
     const contestWriteInSummary =
       getEmptyContestWriteInSummary('zoo-council-mammal');
     contestWriteInSummary.pendingTally = pendingTally;
-    contestWriteInSummary.totalTally = pendingTally;
+    contestWriteInSummary.invalidTally = invalidTally;
+    contestWriteInSummary.totalTally = pendingTally + invalidTally;
     electionWriteInSummary.contestWriteInSummaries['zoo-council-mammal'] =
       contestWriteInSummary;
     return electionWriteInSummary;
@@ -247,92 +262,94 @@ test('tabulateWriteInTallies', () => {
   const testCases: Array<{
     filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
-    expected: Array<[groupKey: Tabulation.GroupKey, tally: number]>;
+    expected: Array<
+      [groupKey: Tabulation.GroupKey, tally: number, invalidTally: number]
+    >;
   }> = [
     // no filter case
     {
-      expected: [['root', 83]],
+      expected: [['root', 83, 1]],
     },
     // each filter case
     {
       filter: { precinctIds: ['precinct-2'] },
-      expected: [['root', 55]],
+      expected: [['root', 55, 1]],
     },
     {
       filter: { scannerIds: ['scanner-2'] },
-      expected: [['root', 21]],
+      expected: [['root', 21, 0]],
     },
     {
       filter: { batchIds: ['batch-2-1', 'batch-3-1'] },
-      expected: [['root', 43]],
+      expected: [['root', 43, 1]],
     },
     {
       filter: { votingMethods: ['precinct'] },
-      expected: [['root', 68]],
+      expected: [['root', 68, 1]],
     },
     {
       filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
-      expected: [['root', 45]],
+      expected: [['root', 45, 1]],
     },
     {
       filter: { partyIds: ['0'] },
-      expected: [['root', 45]],
+      expected: [['root', 45, 1]],
     },
     // empty filter case
     {
       filter: { partyIds: [] },
-      expected: [['root', 0]],
+      expected: [['root', 0, 0]],
     },
     // trivial filter case
     {
       filter: { partyIds: ['0', '1'] },
-      expected: [['root', 83]],
+      expected: [['root', 83, 1]],
     },
     // each group case
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&ballotStyleGroupId=1M', 45],
-        ['root&ballotStyleGroupId=2F', 38],
+        ['root&ballotStyleGroupId=1M', 45, 1],
+        ['root&ballotStyleGroupId=2F', 38, 0],
       ],
     },
     {
       groupBy: { groupByParty: true },
       expected: [
-        ['root&partyId=0', 45],
-        ['root&partyId=1', 38],
+        ['root&partyId=0', 45, 1],
+        ['root&partyId=1', 38, 0],
       ],
     },
     {
       groupBy: { groupByBatch: true },
       expected: [
-        ['root&batchId=batch-1-1', 11],
-        ['root&batchId=batch-1-2', 17],
-        ['root&batchId=batch-2-1', 9],
-        ['root&batchId=batch-2-2', 12],
-        ['root&batchId=batch-3-1', 34],
+        ['root&batchId=batch-1-1', 11, 0],
+        ['root&batchId=batch-1-2', 17, 0],
+        ['root&batchId=batch-2-1', 9, 0],
+        ['root&batchId=batch-2-2', 12, 0],
+        ['root&batchId=batch-3-1', 34, 1],
       ],
     },
     {
       groupBy: { groupByScanner: true },
       expected: [
-        ['root&scannerId=scanner-1', 28],
-        ['root&scannerId=scanner-2', 21],
-        ['root&scannerId=scanner-3', 34],
+        ['root&scannerId=scanner-1', 28, 0],
+        ['root&scannerId=scanner-2', 21, 0],
+        ['root&scannerId=scanner-3', 34, 1],
       ],
     },
     {
       groupBy: { groupByPrecinct: true },
       expected: [
-        ['root&precinctId=precinct-1', 28],
-        ['root&precinctId=precinct-2', 55],
+        ['root&precinctId=precinct-1', 28, 0],
+        ['root&precinctId=precinct-2', 55, 1],
       ],
     },
     {
       groupBy: { groupByVotingMethod: true },
       expected: [
-        ['root&votingMethod=precinct', 68],
-        ['root&votingMethod=absentee', 15],
+        ['root&votingMethod=precinct', 68, 1],
+        ['root&votingMethod=absentee', 15, 0],
       ],
     },
   ];
@@ -345,9 +362,32 @@ test('tabulateWriteInTallies', () => {
       groupBy,
     });
 
-    for (const [groupKey, tally] of expected) {
+    for (const [groupKey, tally, invalidTally] of expected) {
       expect(groupedWriteInSummaries[groupKey]).toEqual(
-        getMockElectionWriteInSummary(tally)
+        getMockElectionWriteInSummary(tally, invalidTally)
+      );
+    }
+
+    expect(Object.values(groupedWriteInSummaries)).toHaveLength(
+      expected.length
+    );
+  }
+
+  // Re-test with includeUnallocablePendingWriteInsAsPending = true.
+  // Here the tally from the overvote write-in should be counted as pending
+  // instead of invalid.
+  for (const { filter, groupBy, expected } of testCases) {
+    const groupedWriteInSummaries = tabulateWriteInTallies({
+      electionId,
+      store,
+      filter,
+      groupBy,
+      includeUnallocablePendingWriteInsAsPending: true,
+    });
+
+    for (const [groupKey, tally, invalidTally] of expected) {
+      expect(groupedWriteInSummaries[groupKey]).toEqual(
+        getMockElectionWriteInSummary(tally + invalidTally, 0)
       );
     }
 
