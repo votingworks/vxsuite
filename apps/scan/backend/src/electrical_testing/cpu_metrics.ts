@@ -72,10 +72,10 @@ function parseTemperatureFromSensorsJson(sensorsData: unknown): number | null {
  * Get CPU temperature in Celsius.
  * Returns null if temperature cannot be read.
  *
- * On Debian, we try multiple methods:
- * 1. File specified in VX_TEMPERATURE_FILE_PATH env var (for VMs without direct sensor access)
- * 2. sensors command with JSON output (lm-sensors package)
- * 3. /sys/class/thermal/thermal_zone* /temp (kernel thermal zones)
+ * On Debian, we use the `sensors` CLI from `lm-sensors` if available. For
+ * testing in a VM, you can specify the VX_TEMPERATURE_FILE_PATH env var to be
+ * read instead, which can be updated via a shared file system mount or periodic
+ * `scp` or however you'd like.
  */
 async function getCpuTemperature(): Promise<number | null> {
   // Try reading from environment variable file first (for VMs)
@@ -103,41 +103,6 @@ async function getCpuTemperature(): Promise<number | null> {
     }
   } catch {
     // sensors command not available or JSON parsing failed
-  }
-
-  // Try reading from thermal zones as final fallback
-  try {
-    const { stdout } = await execFileAsync('find', [
-      '/sys/class/thermal',
-      '-name',
-      'temp',
-      '-type',
-      'f',
-    ]);
-    const tempFiles = stdout.trim().split('\n').filter(Boolean);
-
-    for (const tempFile of tempFiles) {
-      try {
-        const content = await readFile(tempFile, 'utf8');
-        const tempMillicelsiusResult = safeParseInt(content.trim());
-        if (tempMillicelsiusResult.isOk()) {
-          const tempMillicelsius = tempMillicelsiusResult.ok();
-          // Convert from millidegrees to degrees
-          const tempCelsius = tempMillicelsius / 1000;
-          // Filter out anything that is very unlikely to be a realistic temperature.
-          if (
-            tempCelsius > MIN_REALISTIC_TEMP_C &&
-            tempCelsius < MAX_REALISTIC_TEMP_C
-          ) {
-            return tempCelsius;
-          }
-        }
-      } catch {
-        // Try next file
-      }
-    }
-  } catch {
-    // Thermal zones not available
   }
 
   return null;
