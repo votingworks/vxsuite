@@ -611,7 +611,22 @@ function LiveReportsResultsScreen({
   );
 
   if (!getQuickReportedResultsQuery.isSuccess) {
-    return <LoadingAnimation />;
+    // We don't know test/live mode yet or have the election data yet so show a generic title.
+    const reportTitle = 'Unofficial Tally Report';
+    return (
+      <React.Fragment>
+        <Header>
+          <Breadcrumbs
+            currentTitle={reportTitle}
+            parentRoutes={[routes.election(electionId).reports.root]}
+          />
+          <H1>{reportTitle}</H1>
+        </Header>
+        <MainContent>
+          <LoadingAnimation />
+        </MainContent>
+      </React.Fragment>
+    );
   }
 
   if (getQuickReportedResultsQuery.data.isErr()) {
