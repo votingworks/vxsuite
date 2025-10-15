@@ -273,8 +273,8 @@ export const ttsEditsGet = {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(params),
-      () => (params.original ? apiClient.ttsEditsGet(params) : null),
-      { ...opts }
+      () => apiClient.ttsEditsGet(params),
+      opts
     );
   },
 } as const;
