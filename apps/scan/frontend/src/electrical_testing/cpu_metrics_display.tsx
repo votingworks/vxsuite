@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { Sparkline } from './sparkline';
@@ -27,6 +27,12 @@ const MetricGroup = styled.div`
   gap: 0.5rem;
 `;
 
+const MetricContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
 const MetricLabel = styled.div`
   font-size: 0.7rem;
   font-weight: 600;
@@ -45,12 +51,6 @@ const MetricValue = styled.div`
 const SparklineWrapper = styled.div`
   width: 80px;
   height: 30px;
-`;
-
-const Separator = styled.div`
-  width: 1px;
-  height: 30px;
-  background: rgba(255, 255, 255, 20%);
 `;
 
 interface MetricHistory {
@@ -117,35 +117,32 @@ export function CpuMetricsDisplay(): JSX.Element {
     <TopBar>
       {/* CPU Temperature */}
       {metrics.temperatureCelsius !== null && (
-        <React.Fragment>
-          <MetricGroup>
+        <MetricGroup>
+          <MetricContent>
             <MetricLabel>CPU</MetricLabel>
             <MetricValue>{metrics.temperatureCelsius.toFixed(1)}°C</MetricValue>
-            <SparklineWrapper>
-              {history.temperatures.length > 0 && (
-                <Sparkline
-                  data={history.temperatures}
-                  strokeColor="#ff6b6b"
-                  fillColor="rgba(255, 107, 107, 0.2)"
-                  minValue={20}
-                  maxValue={100}
-                  strokeWidth={1.5}
-                />
-              )}
-            </SparklineWrapper>
-          </MetricGroup>
-          <Separator />
-        </React.Fragment>
+          </MetricContent>
+          <SparklineWrapper>
+            {history.temperatures.length > 0 && (
+              <Sparkline
+                data={history.temperatures}
+                strokeColor="#ff6b6b"
+                fillColor="rgba(255, 107, 107, 0.2)"
+                minValue={20}
+                maxValue={100}
+                strokeWidth={1.5}
+              />
+            )}
+          </SparklineWrapper>
+        </MetricGroup>
       )}
 
       {/* Load Average */}
       <MetricGroup>
-        <MetricLabel>Load</MetricLabel>
-        <MetricValue>
-          {metrics.loadAverage.oneMinute.toFixed(2)} /{' '}
-          {metrics.loadAverage.fiveMinute.toFixed(2)} /{' '}
-          {metrics.loadAverage.fifteenMinute.toFixed(2)}
-        </MetricValue>
+        <MetricContent>
+          <MetricLabel>Load</MetricLabel>
+          <MetricValue>{metrics.loadAverage.oneMinute.toFixed(2)}</MetricValue>
+        </MetricContent>
         <SparklineWrapper>
           {history.loadAverages1m.length > 0 && (
             <Sparkline
@@ -159,14 +156,14 @@ export function CpuMetricsDisplay(): JSX.Element {
         </SparklineWrapper>
       </MetricGroup>
 
-      <Separator />
-
       {/* Memory */}
       <MetricGroup>
-        <MetricLabel>Memory</MetricLabel>
-        <MetricValue>
-          {memUsed} / {memTotal}
-        </MetricValue>
+        <MetricContent>
+          <MetricLabel>Memory Used</MetricLabel>
+          <MetricValue>
+            {memUsed} of {memTotal}
+          </MetricValue>
+        </MetricContent>
         <SparklineWrapper>
           {history.memoryUsedPercent.length > 0 && (
             <Sparkline
@@ -181,14 +178,26 @@ export function CpuMetricsDisplay(): JSX.Element {
         </SparklineWrapper>
       </MetricGroup>
 
-      <Separator />
-
       {/* Memory Details */}
       <MetricGroup>
-        <MetricLabel>Avail / Cached / Free</MetricLabel>
-        <MetricValue>
-          {memAvail} / {memCached} / {memFree}
-        </MetricValue>
+        <MetricContent>
+          <MetricLabel>Available</MetricLabel>
+          <MetricValue>{memAvail}</MetricValue>
+        </MetricContent>
+      </MetricGroup>
+
+      <MetricGroup>
+        <MetricContent>
+          <MetricLabel>Cached</MetricLabel>
+          <MetricValue>{memCached}</MetricValue>
+        </MetricContent>
+      </MetricGroup>
+
+      <MetricGroup>
+        <MetricContent>
+          <MetricLabel>Free</MetricLabel>
+          <MetricValue>{memFree}</MetricValue>
+        </MetricContent>
       </MetricGroup>
     </TopBar>
   );
