@@ -3,7 +3,11 @@
 import { extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import { setAudioVolume, setDefaultAudio } from '@votingworks/backend';
+import {
+  setAudioVolume,
+  setDefaultAudio,
+  startCpuMetricsLogging,
+} from '@votingworks/backend';
 import { NODE_ENV, PORT } from '../globals';
 import { buildApp } from './app';
 import { runPrintAndScanTask } from './tasks/print_and_scan_task';
@@ -11,7 +15,6 @@ import { ServerContext } from './context';
 import { runCardReadAndUsbDriveWriteTask } from './tasks/card_read_and_usb_drive_write_task';
 import { Player as AudioPlayer } from '../audio/player';
 import { getAudioInfo } from '../audio/info';
-import { startCpuMetricsLogging } from './cpu_metrics';
 
 export async function startElectricalTestingServer(
   context: ServerContext
