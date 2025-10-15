@@ -4,7 +4,7 @@ import {
   DateWithoutTime,
   find,
   groupBy,
-  uniqueBy,
+  uniqueDeep,
 } from '@votingworks/basics';
 import {
   AnyContest,
@@ -176,12 +176,23 @@ export function convertMsElection(
       rows.map(([, , districtId]) => uniqueId(districtId)),
     ])
   );
-  // In a primary, there will be multiple rows for each precinct or split (one for each party ballot style).
-  // We don't care about ballot styles for now, so we only want one row per precinct or split.
-  const uniquePrecinctRows = uniqueBy(
+
+  // There may be multiple splits within a precinct with the same ballot style
+  // (meaning the same district list). Not sure why this is the case, but we
+  // need to deduplicate them, because we only represent precinct splits when
+  // they have different contests on the ballot.
+  let uniquePrecinctRows = uniqueDeep(
     sectionRows(4),
-    ([, , precinctId, splitId]) => `${precinctId};${splitId}`
+    ([, , precinctId, , , , ballotStyle]) => [precinctId, ballotStyle]
   );
+  // In a primary, there may be multiple ballot styles within a precinct or
+  // split (one for each party).  We only are concerned with the precincts and
+  // splits, so we deduplicate them here.
+  uniquePrecinctRows = uniqueDeep(
+    uniquePrecinctRows,
+    ([, , precinctId, splitId]) => [precinctId, splitId]
+  );
+
   const precincts: Precinct[] = groupBy(
     uniquePrecinctRows,
     ([, , precinctId]) => precinctId

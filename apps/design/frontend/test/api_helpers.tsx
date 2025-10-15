@@ -32,6 +32,7 @@ const allUserFeaturesOnConfig: Record<UserFeature, boolean> = {
   BMD_EXTRA_PRINT_MODES: true,
   QUICK_RESULTS_REPORTING: true,
   AUDIO_PROOFING: true,
+  MS_SEMS_CONVERSION: true,
 };
 
 const allElectionFeaturesOffConfig: Record<ElectionFeature, boolean> = {

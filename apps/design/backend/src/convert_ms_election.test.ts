@@ -50,6 +50,18 @@ test('convert election with ballot measures', async () => {
       'ms-sems-election-candidates-general-ballot-measures-10.csv'
     )
   );
-  expect(election).toMatchSnapshot();
   await store.createElection(org.id, election, 'VxDefaultBallot');
+  expect(election).toMatchSnapshot();
+});
+
+test('convert election with precinct splits', async () => {
+  const election = convertMsElection(
+    'election-id-4',
+    await readFixture('ms-sems-election-primary-precinct-splits-75.csv'),
+    await readFixture(
+      'ms-sems-election-candidates-primary-precinct-splits-75.csv'
+    )
+  );
+  await store.createElection(org.id, election, 'VxDefaultBallot');
+  expect(election).toMatchSnapshot();
 });
