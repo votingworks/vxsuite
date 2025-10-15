@@ -19,7 +19,7 @@ import {
 import {
   blankElectionRecord,
   electionInfoFromElection,
-  generalElectionInfo,
+  electionInfoFromRecord,
   generalElectionRecord,
 } from '../test/fixtures';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
@@ -116,7 +116,7 @@ test('edit and save election', async () => {
     .resolves(DEFAULT_SYSTEM_SETTINGS);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
-    .resolves(electionInfoFromElection(electionRecord.election));
+    .resolves(electionInfoFromRecord(electionRecord));
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   apiMock.getBallotTemplate
     .expectCallWith({ electionId })
@@ -200,6 +200,7 @@ test('edit and save election', async () => {
   userEvent.click(spanishBallotLanguageCheckbox);
 
   const updatedElectionInfo: ElectionInfo = {
+    orgId: electionRecord.orgId,
     electionId,
     title: 'New Title',
     date: new DateWithoutTime('2023-09-06'),
@@ -214,7 +215,7 @@ test('edit and save election', async () => {
   apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves(ok());
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
-    .resolves({ ...generalElectionInfo, ...updatedElectionInfo });
+    .resolves(updatedElectionInfo);
 
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByRole('button', { name: 'Edit' });
@@ -230,7 +231,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
     .resolves(DEFAULT_SYSTEM_SETTINGS);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
-    .resolves(electionInfoFromElection(electionRecord.election));
+    .resolves(electionInfoFromRecord(electionRecord));
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   apiMock.getBallotTemplate.expectCallWith({ electionId }).resolves('NhBallot');
   renderScreen(electionId);
@@ -265,6 +266,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
   expect(signatureCaptionInput).toHaveValue('New Signature Caption');
 
   const updatedElectionInfo: ElectionInfo = {
+    orgId: electionRecord.orgId,
     electionId,
     title: election.title,
     date: election.date,
@@ -279,7 +281,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
   apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves(ok());
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
-    .resolves({ ...generalElectionInfo, ...updatedElectionInfo });
+    .resolves(updatedElectionInfo);
 
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByRole('button', { name: 'Edit' });
