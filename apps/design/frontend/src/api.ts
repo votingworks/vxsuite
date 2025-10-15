@@ -14,6 +14,7 @@ import {
   ElectionId,
   ElectionSerializationFormat,
   PrecinctSelection,
+  TtsEditKey,
 } from '@votingworks/types';
 import { generateId } from './utils';
 
@@ -273,17 +274,75 @@ export const getBallotTemplate = {
   },
 } as const;
 
+/* istanbul ignore next - WIP @preserve */
+export const ttsEditsGet = {
+  queryKey(params: TtsEditKey): QueryKey {
+    return ['ttsEditsGet', params.orgId, params.languageCode, params.original];
+  },
+  useQuery(params: TtsEditKey, opts: { enabled?: boolean } = {}) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(params),
+      () => apiClient.ttsEditsGet(params),
+      opts
+    );
+  },
+} as const;
+
+/* istanbul ignore next - WIP @preserve */
+export const ttsEditsSet = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation(apiClient.ttsEditsSet, {
+      onSuccess: (_, params) =>
+        queryClient.invalidateQueries(ttsEditsGet.queryKey(params)),
+    });
+  },
+} as const;
+
+/* istanbul ignore next - WIP @preserve */
+export const ttsStringDefaults = {
+  queryKey(electionId: string): QueryKey {
+    return ['ttsStringDefaults', electionId];
+  },
+
+  useQuery(electionId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId), () =>
+      apiClient.ttsStringDefaults({ electionId })
+    );
+  },
+} as const;
+
+/* istanbul ignore next - WIP @preserve */
+export const ttsSynthesizeFromText = {
+  queryKey(input: { languageCode: string; text: string }): QueryKey {
+    return ['ttsSynthesizeFromText', input.languageCode, input.text];
+  },
+  useQuery(input: { languageCode: string; text: string }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.ttsSynthesizeFromText(input)
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
 ) {
-  await queryClient.invalidateQueries(listElections.queryKey());
-  await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
-  await queryClient.invalidateQueries(listDistricts.queryKey(electionId));
-  await queryClient.invalidateQueries(listPrecincts.queryKey(electionId));
-  await queryClient.invalidateQueries(listBallotStyles.queryKey(electionId));
-  await queryClient.invalidateQueries(listParties.queryKey(electionId));
-  await queryClient.invalidateQueries(listContests.queryKey(electionId));
+  await Promise.all([
+    queryClient.invalidateQueries(listElections.queryKey()),
+    queryClient.invalidateQueries(getElectionInfo.queryKey(electionId)),
+    queryClient.invalidateQueries(listDistricts.queryKey(electionId)),
+    queryClient.invalidateQueries(listPrecincts.queryKey(electionId)),
+    queryClient.invalidateQueries(listBallotStyles.queryKey(electionId)),
+    queryClient.invalidateQueries(listParties.queryKey(electionId)),
+    queryClient.invalidateQueries(listContests.queryKey(electionId)),
+    queryClient.invalidateQueries(ttsStringDefaults.queryKey(electionId)),
+  ]);
 }
 
 export const loadElection = {
