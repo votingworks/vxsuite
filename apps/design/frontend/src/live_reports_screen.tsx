@@ -3,7 +3,6 @@ import {
   ContestResultsTable,
   H1,
   H2,
-  LoadingAnimation,
   MainContent,
   Modal,
   P,
@@ -284,7 +283,7 @@ function LiveReportsSummaryScreen({
           </H1>
         </Header>
         <MainContent>
-          <LoadingAnimation />
+          <Icons.Loading />
         </MainContent>
       </div>
     );
@@ -550,7 +549,7 @@ function LiveReportsSummaryScreen({
         <Modal
           content={
             deleteQuickReportingResultsMutation.isLoading ? (
-              <LoadingAnimation />
+              <Icons.Loading />
             ) : (
               <React.Fragment>
                 <H2 as="h1">Delete All Reports</H2>
@@ -623,7 +622,7 @@ function LiveReportsResultsScreen({
           <H1>{reportTitle}</H1>
         </Header>
         <MainContent>
-          <LoadingAnimation />
+          <Icons.Loading />
         </MainContent>
       </React.Fragment>
     );
