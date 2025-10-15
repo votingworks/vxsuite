@@ -358,7 +358,13 @@ export const buttonStyles = css<StyledButtonProps>`
   box-sizing: border-box;
   cursor: pointer;
   display: inline-flex;
-  flex-wrap: ${(p) => (p.rightIcon ? 'wrap-reverse' : 'wrap')};
+  flex-wrap: ${(p) =>
+    p.theme.sizeMode === 'desktop'
+      ? 'nowrap'
+      : p.rightIcon
+      ? 'wrap-reverse'
+      : 'wrap'};
+  white-space: ${(p) => (p.theme.sizeMode === 'desktop' ? 'nowrap' : 'normal')};
   font-family: inherit;
   font-size: ${FONT_SIZE_REM}rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
