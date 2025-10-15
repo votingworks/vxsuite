@@ -1,8 +1,10 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { readFile } from 'node:fs/promises';
+import { readFile, readlink } from 'node:fs/promises';
 import { safeParseInt, safeParseNumber } from '@votingworks/types';
-import { lines } from '@votingworks/basics';
+import { extractErrorMessage, lines } from '@votingworks/basics';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import { format } from '@votingworks/utils';
 
 const execFileAsync = promisify(execFile);
 
@@ -200,28 +202,54 @@ export async function getCpuMetrics(): Promise<CpuMetrics> {
 }
 
 /**
- * Get top CPU-using processes
+ * Get top CPU-using processes with user and working directory information
  */
-export async function getTopCpuProcesses(
-  limit = 5
-): Promise<Array<{ pid: number; cpu: number; command: string }>> {
+export async function getTopCpuProcesses(limit = 5): Promise<
+  Array<{
+    pid: number;
+    cpu: number;
+    command: string;
+    user: string;
+    cwd: string | null;
+  }>
+> {
   try {
+    // Use 'comm' and 'user' format specifiers to get executable name and user
     const { stdout } = await execFileAsync('ps', [
-      'aux',
+      '-eo',
+      'pid,%cpu,user,comm',
       '--sort=-pcpu',
       '--no-headers',
     ]);
-    const processes: Array<{ pid: number; cpu: number; command: string }> = [];
+    const processes: Array<{
+      pid: number;
+      cpu: number;
+      command: string;
+      user: string;
+      cwd: string | null;
+    }> = [];
 
     for (const line of lines(stdout.trim()).take(limit)) {
-      // ps aux format: USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
-      const parts = line.trim().split(/\s+/);
-      if (parts.length >= 11) {
-        const pidResult = safeParseInt(parts[1]);
-        const cpuResult = safeParseNumber(parts[2]);
+      // ps -eo format: PID %CPU USER COMMAND
+      // Note: USER and COMMAND (comm) can contain spaces, so we use a regex to parse
+      // Match: PID (non-whitespace), whitespace, CPU (non-whitespace), whitespace, USER (non-whitespace), whitespace, COMMAND (everything else)
+      const match = line.trim().match(/^(\S+)\s+(\S+)\s+(\S+)\s+(.+)$/);
+      if (match) {
+        const pidResult = safeParseInt(match[1]);
+        const cpuResult = safeParseNumber(match[2]);
         if (pidResult.isOk() && cpuResult.isOk()) {
-          const command = parts.slice(10).join(' ');
-          processes.push({ pid: pidResult.ok(), cpu: cpuResult.ok(), command });
+          const pid = pidResult.ok();
+          const user = match[3];
+          const command = match[4];
+
+          let cwd: string | null = null;
+          try {
+            cwd = await readlink(`/proc/${pid}/cwd`);
+          } catch {
+            // Can't read cwd (e.g., permission denied or process ended), leave as null
+          }
+
+          processes.push({ pid, cpu: cpuResult.ok(), command, user, cwd });
         }
       }
     }
@@ -230,4 +258,72 @@ export async function getTopCpuProcesses(
   } catch {
     return [];
   }
+}
+
+/**
+ * Start periodic logging of CPU metrics
+ * @param logger - Logger instance to use for logging metrics
+ */
+export function startCpuMetricsLogging(logger: Logger): void {
+  const LOG_INTERVAL_MS = 30_000; // 30 seconds
+
+  async function logCpuMetrics(): Promise<void> {
+    try {
+      const [metrics, topProcesses] = await Promise.all([
+        getCpuMetrics(),
+        getTopCpuProcesses(5),
+      ]);
+
+      const processInfo = topProcesses
+        .map((p) => {
+          const cwdInfo = p.cwd ? ` [${p.cwd}]` : '';
+          return `${p.command} (${p.user}, ${p.cpu}%)${cwdInfo}`;
+        })
+        .join(', ');
+
+      const memUsed = format.bytes(metrics.memory.usedBytes);
+      const memAvail = format.bytes(metrics.memory.availableBytes);
+      const memCached = format.bytes(metrics.memory.cachedBytes);
+      const memFree = format.bytes(metrics.memory.freeBytes);
+
+      logger.log(LogEventId.DiagnosticComplete, 'system', {
+        disposition: 'success',
+        message: `System Metrics - Temp: ${
+          metrics.temperatureCelsius ?? 'N/A'
+        }°C, Load: ${metrics.loadAverage.oneMinute.toFixed(
+          2
+        )}/${metrics.loadAverage.fiveMinute.toFixed(
+          2
+        )}/${metrics.loadAverage.fifteenMinute.toFixed(
+          2
+        )}, Mem: ${memUsed} used / ${memAvail} avail / ${memCached} cached / ${memFree} free`,
+        temperatureCelsius:
+          metrics.temperatureCelsius !== null
+            ? metrics.temperatureCelsius
+            : undefined,
+        loadAverage1m: metrics.loadAverage.oneMinute,
+        loadAverage5m: metrics.loadAverage.fiveMinute,
+        loadAverage15m: metrics.loadAverage.fifteenMinute,
+        memoryUsedBytes: metrics.memory.usedBytes,
+        memoryAvailableBytes: metrics.memory.availableBytes,
+        memoryCachedBytes: metrics.memory.cachedBytes,
+        memoryFreeBytes: metrics.memory.freeBytes,
+        topProcesses: processInfo || 'none',
+      });
+    } catch (error) {
+      logger.log(LogEventId.UnknownError, 'system', {
+        disposition: 'failure',
+        message: 'Failed to log CPU metrics',
+        error: extractErrorMessage(error),
+      });
+    }
+  }
+
+  // Log immediately on startup
+  void logCpuMetrics();
+
+  // Then log periodically
+  setInterval(() => {
+    void logCpuMetrics();
+  }, LOG_INTERVAL_MS);
 }

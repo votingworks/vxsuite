@@ -2,7 +2,6 @@
 
 import { extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { format } from '@votingworks/utils';
 
 import { setAudioVolume, setDefaultAudio } from '@votingworks/backend';
 import { NODE_ENV, PORT } from '../globals';
@@ -12,7 +11,7 @@ import { ServerContext } from './context';
 import { runCardReadAndUsbDriveWriteTask } from './tasks/card_read_and_usb_drive_write_task';
 import { Player as AudioPlayer } from '../audio/player';
 import { getAudioInfo } from '../audio/info';
-import { getCpuMetrics, getTopCpuProcesses } from './cpu_metrics';
+import { startCpuMetricsLogging } from './cpu_metrics';
 
 export async function startElectricalTestingServer(
   context: ServerContext
@@ -94,62 +93,6 @@ export async function startElectricalTestingServer(
       message: `VxScan electrical testing backend running at http://localhost:${PORT}`,
     });
   });
-}
-
-/**
- * Start periodic logging of CPU metrics
- */
-function startCpuMetricsLogging(logger: Logger): void {
-  const LOG_INTERVAL_MS = 30_000; // 30 seconds
-
-  async function logCpuMetrics(): Promise<void> {
-    try {
-      const [metrics, topProcesses] = await Promise.all([
-        getCpuMetrics(),
-        getTopCpuProcesses(5),
-      ]);
-
-      const processInfo = topProcesses
-        .map((p) => `${p.command} (${p.cpu}%)`)
-        .join(', ');
-
-      const memUsed = format.bytes(metrics.memory.usedBytes);
-      const memAvail = format.bytes(metrics.memory.availableBytes);
-      const memCached = format.bytes(metrics.memory.cachedBytes);
-      const memFree = format.bytes(metrics.memory.freeBytes);
-
-      logger.log(LogEventId.DiagnosticComplete, 'system', {
-        disposition: 'success',
-        message: `System Metrics - Temp: ${metrics.temperatureCelsius ?? 'N/A'}°C, Load: ${metrics.loadAverage.oneMinute.toFixed(2)}/${metrics.loadAverage.fiveMinute.toFixed(2)}/${metrics.loadAverage.fifteenMinute.toFixed(2)}, Mem: ${memUsed} used / ${memAvail} avail / ${memCached} cached / ${memFree} free`,
-        temperatureCelsius:
-          metrics.temperatureCelsius !== null
-            ? metrics.temperatureCelsius
-            : undefined,
-        loadAverage1m: metrics.loadAverage.oneMinute,
-        loadAverage5m: metrics.loadAverage.fiveMinute,
-        loadAverage15m: metrics.loadAverage.fifteenMinute,
-        memoryUsedBytes: metrics.memory.usedBytes,
-        memoryAvailableBytes: metrics.memory.availableBytes,
-        memoryCachedBytes: metrics.memory.cachedBytes,
-        memoryFreeBytes: metrics.memory.freeBytes,
-        topProcesses: processInfo || 'none',
-      });
-    } catch (error) {
-      logger.log(LogEventId.UnknownError, 'system', {
-        disposition: 'failure',
-        message: 'Failed to log CPU metrics',
-        error: extractErrorMessage(error),
-      });
-    }
-  }
-
-  // Log immediately on startup
-  void logCpuMetrics();
-
-  // Then log periodically
-  setInterval(() => {
-    void logCpuMetrics();
-  }, LOG_INTERVAL_MS);
 }
 
 async function configureAudio(logger: Logger): Promise<AudioPlayer> {
