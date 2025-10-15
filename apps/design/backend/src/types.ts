@@ -90,6 +90,7 @@ export interface ElectionListing {
 }
 
 export interface ElectionInfo {
+  orgId: string;
   electionId: ElectionId;
   type: ElectionType;
   date: DateWithoutTime;

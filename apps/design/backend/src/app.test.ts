@@ -360,6 +360,7 @@ test('create/list/delete elections', async () => {
   expect(
     await apiClient.getElectionInfo({ electionId: electionId2 })
   ).toEqual<ElectionInfo>({
+    orgId: vxOrg.id,
     electionId: importedElectionNewId,
     title: election2.title,
     jurisdiction: election2.county.name,
@@ -550,6 +551,7 @@ test('update election info', async () => {
   // Default election info should be blank
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
+      orgId: nonVxUser.orgId,
       electionId,
       title: '',
       jurisdiction: '',
@@ -563,6 +565,7 @@ test('update election info', async () => {
 
   // Update election info
   const electionInfoUpdate: ElectionInfo = {
+    orgId: nonVxUser.orgId,
     electionId,
     // trim text values
     title: '   Updated Election  ',
@@ -576,6 +579,7 @@ test('update election info', async () => {
   await apiClient.updateElectionInfo(electionInfoUpdate);
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
+      orgId: nonVxUser.orgId,
       electionId,
       title: 'Updated Election',
       jurisdiction: 'New Hampshire',
@@ -596,6 +600,7 @@ test('update election info', async () => {
   // Election info should be unchanged at first
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
+      orgId: nonVxUser.orgId,
       electionId,
       title: 'Updated Election',
       jurisdiction: 'New Hampshire',
@@ -608,6 +613,7 @@ test('update election info', async () => {
   );
 
   const electionInfoUpdateWithSignature: ElectionInfo = {
+    orgId: nonVxUser.orgId,
     electionId,
     title: '   Updated Election  ',
     jurisdiction: '   New Hampshire   ',
@@ -624,6 +630,7 @@ test('update election info', async () => {
   // Signature should be included in response
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
+      orgId: nonVxUser.orgId,
       electionId,
       title: 'Updated Election',
       jurisdiction: 'New Hampshire',
@@ -646,6 +653,7 @@ test('update election info', async () => {
   // Signature should no longer be included in response
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
+      orgId: nonVxUser.orgId,
       electionId,
       title: 'Updated Election',
       jurisdiction: 'New Hampshire',
@@ -676,6 +684,7 @@ test('update election info', async () => {
     // Empty string values are rejected
     await expect(
       apiClient.updateElectionInfo({
+        orgId: nonVxUser.orgId,
         electionId,
         type: 'primary',
         title: '',
@@ -2142,6 +2151,7 @@ test('cloneElection', async () => {
   });
   expect(destElectionInfo).toEqual({
     ...srcElectionInfo,
+    orgId: anotherNonVxOrg.id,
     electionId: newElectionId,
   });
 
@@ -2862,6 +2872,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
 
   // Set a signature in the election info
   await apiClient.updateElectionInfo({
+    orgId: nonVxOrg.id,
     electionId,
     title: baseElectionDefinition.election.title,
     jurisdiction: baseElectionDefinition.election.county.name,

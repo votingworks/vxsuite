@@ -80,6 +80,7 @@ export function makeElectionRecord(
 
 export function electionInfoFromElection(election: Election): ElectionInfo {
   return {
+    orgId: `org-${election.id}`,
     electionId: election.id,
     title: election.title,
     date: election.date,
@@ -90,6 +91,13 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
     signatureImage: election.signature?.image,
     signatureCaption: election.signature?.caption,
     languageCodes: [LanguageCode.ENGLISH],
+  };
+}
+
+export function electionInfoFromRecord(record: ElectionRecord): ElectionInfo {
+  return {
+    ...electionInfoFromElection(record.election),
+    orgId: record.orgId,
   };
 }
 
@@ -126,5 +134,5 @@ export function primaryElectionRecord(orgId: Id): ElectionRecord {
   );
 }
 export function generalElectionInfo(orgId: Id): ElectionInfo {
-  return electionInfoFromElection(generalElectionRecord(orgId).election);
+  return electionInfoFromRecord(generalElectionRecord(orgId));
 }
