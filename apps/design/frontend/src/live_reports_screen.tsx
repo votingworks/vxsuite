@@ -23,10 +23,11 @@ import {
   Callout,
   TestModeCallout,
   TestModeBanner,
+  useQueryChangeListener,
 } from '@votingworks/ui';
 import { useParams, Switch, Route } from 'react-router-dom';
-import React, { useState, useEffect, useRef } from 'react';
-import { assert } from '@votingworks/basics';
+import React, { useState } from 'react';
+import { assert, deepEqual } from '@votingworks/basics';
 import { formatBallotHash, PrecinctSelection } from '@votingworks/types';
 import {
   getContestsForPrecinctAndElection,
@@ -49,113 +50,9 @@ import { useTitle } from './hooks/use_title';
 import { Row } from './layout';
 import { ALL_PRECINCTS_REPORT_KEY, useSound } from './utils';
 
-// Animation utilities
-interface AnimationState {
-  [key: string]: {
-    hasChanged: boolean;
-    timestamp: number;
-  };
-}
-
 const PollsStatusLabel = styled.span`
   font-size: 1rem;
 `;
-
-function usePrecinctAnimations(
-  precincts: ReadonlyArray<{ id: string; name: string }>,
-  reportsByPrecinct: Record<string, QuickReportedPollStatus[]>,
-  isLive?: boolean,
-  playSound?: () => void
-) {
-  const [animationStates, setAnimationStates] = useState<AnimationState>({});
-  const prevDataRef = useRef<Record<string, QuickReportedPollStatus[]>>({});
-  const prevIsLiveRef = useRef<boolean | undefined>(isLive);
-  // Keep a ref to the last animationStates so we can avoid updating state
-  // when only timestamps would change (which would cause rerenders).
-  const prevAnimationStatesRef = useRef<AnimationState>({});
-
-  useEffect(() => {
-    const newAnimationStates: AnimationState = {};
-    // If we changed between live and test mode, treat all data as new.
-    const changedLiveTestMode =
-      prevIsLiveRef.current !== undefined &&
-      isLive !== undefined &&
-      prevIsLiveRef.current !== isLive;
-
-    const isFirstDataLoad = prevIsLiveRef.current === undefined;
-    let hasAnyChange = false;
-    let hasAnyData = false;
-
-    prevIsLiveRef.current = isLive;
-
-    for (const precinct of precincts) {
-      const currentReports = reportsByPrecinct[precinct.id] || [];
-      const prevReports = prevDataRef.current[precinct.id] || [];
-      const prevAnim = prevAnimationStatesRef.current[precinct.id];
-
-      hasAnyData = hasAnyData || currentReports.length > 0;
-
-      // Check if data has changed
-      const hasChanged =
-        !isFirstDataLoad &&
-        ((changedLiveTestMode && currentReports.length > 0) ||
-          currentReports.length !== prevReports.length ||
-          currentReports.some((currentReport, index) => {
-            const prevReport = prevReports[index];
-            return (
-              !prevReport ||
-              currentReport.machineId !== prevReport.machineId ||
-              currentReport.pollsState !== prevReport.pollsState ||
-              currentReport.signedTimestamp.getTime() !==
-                prevReport.signedTimestamp.getTime()
-            );
-          }));
-
-      hasAnyChange = hasAnyChange || hasChanged;
-
-      // Only update the timestamp when the precinct actually changed. If it
-      // didn't, preserve the previous timestamp so the animation state object
-      // remains referentially similar and doesn't force needless rerenders.
-      const timestamp = hasChanged
-        ? Date.now()
-        : prevAnim
-        ? prevAnim.timestamp
-        : 0;
-
-      newAnimationStates[precinct.id] = {
-        hasChanged,
-        timestamp,
-      };
-    }
-
-    if (hasAnyChange && !isFirstDataLoad && hasAnyData && playSound) {
-      playSound();
-    }
-
-    if (hasAnyChange) {
-      prevAnimationStatesRef.current = newAnimationStates;
-      setAnimationStates(newAnimationStates);
-    }
-
-    prevDataRef.current = reportsByPrecinct;
-
-    // Clear animation flags after animation completes
-    const timeout = setTimeout(() => {
-      setAnimationStates((prev): AnimationState => {
-        const updated: AnimationState = { ...prev };
-        for (const key of Object.keys(updated)) {
-          updated[key] = { ...updated[key], hasChanged: false };
-        }
-        prevAnimationStatesRef.current = updated;
-        return updated;
-      });
-    }, 1000); // Match CSS animation duration
-
-    return () => clearTimeout(timeout);
-  }, [precincts, reportsByPrecinct, isLive, playSound]);
-
-  return animationStates;
-}
 
 function getPollsStatusText(
   pollsOpenCount: number,
@@ -218,11 +115,23 @@ function LiveReportsSummaryScreen({
   electionId,
 }: LiveReportsSummaryScreenProps): JSX.Element {
   const [isDeleteDataModalOpen, setIsDeleteDataModalOpen] = useState(false);
+  const [precinctIdsToAnimate, setPrecinctIdsToAnimate] = useState<string[]>(
+    []
+  );
   const getReportedPollsStatusQuery =
     getReportedPollsStatus.useQuery(electionId);
 
   const deleteQuickReportingResultsMutation =
     deleteQuickReportingResults.useMutation();
+
+  function setPrecinctsToAnimate(precinctIds: string[]): void {
+    setPrecinctIdsToAnimate(precinctIds);
+    setTimeout(() => {
+      setPrecinctIdsToAnimate((prev) =>
+        prev.filter((id) => !precinctIds.includes(id))
+      );
+    }, 1000);
+  }
 
   // Get data for animations (provide empty defaults if not loaded)
   const pollsStatusData = getReportedPollsStatusQuery.isSuccess
@@ -246,19 +155,51 @@ function LiveReportsSummaryScreen({
     [pollsStatusData]
   );
 
-  const reportsByPrecinct = pollsStatusData
-    ? pollsStatusData.reportsByPrecinct
-    : {};
-  const reportsIsLive = pollsStatusData ? pollsStatusData.isLive : undefined;
-
   const playSound = useSound('success');
-  // Animation hooks (always called)
+  useQueryChangeListener(getReportedPollsStatusQuery, {
+    // Could also select `isLive` too if that's relevant
+    select: (result) => ({
+      reportsByPrecinct: result.ok()?.reportsByPrecinct,
+      isLive: result.ok()?.isLive,
+    }),
+    onChange: (newData, oldData) => {
+      if (!oldData) return;
+      const { reportsByPrecinct: newReportsByPrecinct, isLive: newIsLive } =
+        newData;
+      const { reportsByPrecinct: oldReportsByPrecinct, isLive: oldIsLive } =
+        oldData;
+      if (!newReportsByPrecinct) return;
+      const switchedLive = newIsLive && !oldIsLive;
+      const changedPrecincts = Object.entries(newReportsByPrecinct)
+        .filter(([precinctId, newReports]) => {
+          const oldReports =
+            switchedLive || !oldReportsByPrecinct
+              ? []
+              : oldReportsByPrecinct[precinctId];
+          return !deepEqual(oldReports, newReports);
+        })
+        .map(([precinctId]) => precinctId);
+      // do not ping when data is deleted.
+      const hasNewData =
+        Object.entries(newReportsByPrecinct).filter(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ([_, newReports]) => newReports.length > 0
+        ).length > 0;
+      setPrecinctsToAnimate(changedPrecincts);
+      if (changedPrecincts.length > 0 && hasNewData) {
+        playSound();
+      }
+    },
+  });
+
+  /* // Animation hooks (always called)
   const precinctAnimations = usePrecinctAnimations(
     precinctsWithNonSpecified,
     reportsByPrecinct,
     reportsIsLive,
     playSound
-  );
+  ); */
+
   const theme = useTheme();
 
   async function deleteData(): Promise<void> {
@@ -491,9 +432,9 @@ function LiveReportsSummaryScreen({
                     (entry) => entry.pollsState === 'polls_closed_final'
                   ).length;
 
-                  const animation = precinctAnimations[precinct.id];
-
-                  const isHighlighted = animation && animation.hasChanged;
+                  const isHighlighted = precinctIdsToAnimate.includes(
+                    precinct.id
+                  );
 
                   return (
                     <tr
