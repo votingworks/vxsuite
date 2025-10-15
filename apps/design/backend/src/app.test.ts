@@ -1049,6 +1049,49 @@ test('CRUD precincts', async () => {
     })
   ).toEqual(err('duplicate-split-name'));
 
+  // Can't create splits with the same district lists
+  expect(
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: {
+        id: 'precinct-3',
+        name: 'Precinct 3',
+        splits: [
+          {
+            id: 'precinct-3-split-1',
+            name: 'Split 1',
+            districtIds: [district1.id],
+          },
+          {
+            id: 'precinct-3-split-2',
+            name: 'Split 2',
+            districtIds: [district1.id],
+          },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-split-districts'));
+
+  // Can't update splits to have the same district lists
+  expect(
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: {
+        ...updatedPrecinct2,
+        splits: [
+          {
+            ...updatedPrecinct2.splits[0],
+            districtIds: [district1.id],
+          },
+          {
+            ...updatedPrecinct2.splits[1],
+            districtIds: [district1.id],
+          },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-split-districts'));
+
   // Delete a precinct
   await apiClient.deletePrecinct({
     electionId,

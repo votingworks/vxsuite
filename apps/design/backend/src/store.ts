@@ -8,6 +8,7 @@ import {
   ok,
   throwIllegalValue,
   typedAs,
+  uniqueDeep,
 } from '@votingworks/basics';
 import {
   Id,
@@ -180,7 +181,8 @@ export type DuplicateDistrictError = 'duplicate-name';
 
 export type DuplicatePrecinctError =
   | 'duplicate-precinct-name'
-  | 'duplicate-split-name';
+  | 'duplicate-split-name'
+  | 'duplicate-split-districts';
 
 export type DuplicatePartyError =
   | 'duplicate-name'
@@ -232,6 +234,13 @@ async function insertPrecinct(
     precinct.name
   );
   if (hasSplits(precinct)) {
+    if (
+      uniqueDeep(precinct.splits, (split) => split.districtIds.toSorted())
+        .length !== precinct.splits.length
+    ) {
+      throw new Error('duplicate-split-districts');
+    }
+
     for (const split of precinct.splits) {
       const { id: splitId, name, districtIds, ...nhOptions } = split;
       await client.query(
@@ -1203,6 +1212,12 @@ export class Store {
   private handlePrecinctError(
     error: unknown
   ): Result<void, DuplicatePrecinctError> {
+    if (
+      error instanceof Error &&
+      error.message === 'duplicate-split-districts'
+    ) {
+      return err('duplicate-split-districts');
+    }
     if (isDuplicateKeyError(error, 'precincts_election_id_name_unique_index')) {
       return err('duplicate-precinct-name');
     }
@@ -1237,7 +1252,7 @@ export class Store {
   async updatePrecinct(
     electionId: ElectionId,
     precinct: Precinct
-  ): Promise<Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'>> {
+  ): Promise<Result<void, DuplicatePrecinctError>> {
     try {
       await this.db.withClient((client) =>
         client.withTransaction(async () => {

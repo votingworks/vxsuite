@@ -948,4 +948,60 @@ describe('Precincts tab', () => {
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByText('Precinct splits must have different names.');
   });
+
+  test('error message for splits with the same districts', async () => {
+    const savedPrecinct = election.precincts.find(hasSplits)!;
+    assert(savedPrecinct.splits.length === 2);
+
+    mockElectionFeatures(apiMock, electionId, {});
+    apiMock.listPrecincts
+      .expectCallWith({ electionId })
+      .resolves(election.precincts);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Geography' });
+    userEvent.click(screen.getByRole('tab', { name: 'Precincts' }));
+    userEvent.click(
+      await screen.findByRole('button', { name: 'Add Precinct' })
+    );
+    await screen.findByRole('heading', { name: 'Add Precinct' });
+    userEvent.type(screen.getByLabelText('Name'), 'New Precinct');
+    userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
+    const splitCards = screen
+      .getAllByRole('button', { name: 'Remove Split' })
+      .map((button) => button.closest('div')!);
+    expect(splitCards).toHaveLength(2);
+    const [split1Card, split2Card] = splitCards;
+    userEvent.type(within(split1Card).getByLabelText('Name'), 'Split 1');
+    userEvent.type(within(split2Card).getByLabelText('Name'), 'Split 2');
+
+    apiMock.createPrecinct
+      .expectCallWith({
+        electionId,
+        newPrecinct: {
+          id: idFactory.next(),
+          name: 'New Precinct',
+          splits: [
+            {
+              id: idFactory.next(),
+              name: 'Split 1',
+              districtIds: [],
+            },
+            {
+              id: idFactory.next(),
+              name: 'Split 2',
+              districtIds: [],
+            },
+          ],
+        },
+      })
+      .resolves(err('duplicate-split-districts'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText(
+      'Each precinct split must have a different set of districts.'
+    );
+  });
 });

@@ -615,6 +615,12 @@ function PrecinctForm({
               Precinct splits must have different names.
             </Callout>
           );
+        case 'duplicate-split-districts':
+          return (
+            <Callout icon="Danger" color="danger">
+              Each precinct split must have a different set of districts.
+            </Callout>
+          );
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(error);
