@@ -71,6 +71,9 @@ function usePrecinctAnimations(
   const [animationStates, setAnimationStates] = useState<AnimationState>({});
   const prevDataRef = useRef<Record<string, QuickReportedPollStatus[]>>({});
   const prevIsLiveRef = useRef<boolean | undefined>(isLive);
+  // Keep a ref to the last animationStates so we can avoid updating state
+  // when only timestamps would change (which would cause rerenders).
+  const prevAnimationStatesRef = useRef<AnimationState>({});
 
   useEffect(() => {
     const newAnimationStates: AnimationState = {};
@@ -84,17 +87,12 @@ function usePrecinctAnimations(
     let hasAnyChange = false;
     let hasAnyData = false;
 
-    // Reset animations if switching between live and test mode
-    if (changedLiveTestMode) {
-      setAnimationStates({});
-      prevDataRef.current = {};
-      hasAnyChange = true;
-    }
     prevIsLiveRef.current = isLive;
 
     for (const precinct of precincts) {
       const currentReports = reportsByPrecinct[precinct.id] || [];
       const prevReports = prevDataRef.current[precinct.id] || [];
+      const prevAnim = prevAnimationStatesRef.current[precinct.id];
 
       hasAnyData = hasAnyData || currentReports.length > 0;
 
@@ -115,9 +113,19 @@ function usePrecinctAnimations(
           }));
 
       hasAnyChange = hasAnyChange || hasChanged;
+
+      // Only update the timestamp when the precinct actually changed. If it
+      // didn't, preserve the previous timestamp so the animation state object
+      // remains referentially similar and doesn't force needless rerenders.
+      const timestamp = hasChanged
+        ? Date.now()
+        : prevAnim
+        ? prevAnim.timestamp
+        : 0;
+
       newAnimationStates[precinct.id] = {
         hasChanged,
-        timestamp: Date.now(),
+        timestamp,
       };
     }
 
@@ -125,7 +133,11 @@ function usePrecinctAnimations(
       playSound();
     }
 
-    setAnimationStates(newAnimationStates);
+    if (hasAnyChange) {
+      prevAnimationStatesRef.current = newAnimationStates;
+      setAnimationStates(newAnimationStates);
+    }
+
     prevDataRef.current = reportsByPrecinct;
 
     // Clear animation flags after animation completes
@@ -135,6 +147,7 @@ function usePrecinctAnimations(
         for (const key of Object.keys(updated)) {
           updated[key] = { ...updated[key], hasChanged: false };
         }
+        prevAnimationStatesRef.current = updated;
         return updated;
       });
     }, 1000); // Match CSS animation duration
