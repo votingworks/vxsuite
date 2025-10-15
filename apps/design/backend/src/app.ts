@@ -80,6 +80,7 @@ import {
   DuplicatePrecinctError,
 } from './store';
 import {
+  AggregatedReportedPollsStatus,
   AggregatedReportedResults,
   BallotStyle,
   ElectionInfo,
@@ -774,37 +775,62 @@ export function buildApi(ctx: AppContext) {
       return baseUrl();
     },
 
+    async getReportedPollsStatus(input: {
+      electionId: ElectionId;
+    }): Promise<
+      Result<AggregatedReportedPollsStatus, 'election-not-exported'>
+    > {
+      const electionRecord = await store.getElection(input.electionId);
+      if (!electionRecord.lastExportedBallotHash) {
+        return err('election-not-exported');
+      }
+      // Check if live data for ANY precinct has been reported, if so we should
+      // return live results to the frontend.
+      const isLive = await store.electionHasLiveReportData(electionRecord);
+      const reportsByPrecinct = await store.getPollsStatusForElection(
+        electionRecord,
+        isLive
+      );
+      return ok({
+        ballotHash: electionRecord.lastExportedBallotHash,
+        reportsByPrecinct,
+        election: electionRecord.election,
+        isLive,
+      });
+    },
+
     async getQuickReportedResults(input: {
       electionId: ElectionId;
-      isLive: boolean;
       precinctSelection: PrecinctSelection;
     }): Promise<Result<AggregatedReportedResults, 'election-not-exported'>> {
       const electionRecord = await store.getElection(input.electionId);
       if (!electionRecord.lastExportedBallotHash) {
         return err('election-not-exported');
       }
+      // Check if live data for ANY precinct has been reported, if so we should
+      // return live results to the frontend.
+      const isLive = await store.electionHasLiveReportData(electionRecord);
       const { contestResults, machinesReporting } =
         await store.getQuickResultsReportingTalliesForElection(
           electionRecord,
           input.precinctSelection,
-          input.isLive
+          isLive
         );
       return ok({
         ballotHash: electionRecord.lastExportedBallotHash,
         contestResults,
         election: electionRecord.election,
         machinesReporting,
+        isLive,
       });
     },
 
     async deleteQuickReportingResults(input: {
       electionId: ElectionId;
-      isLive: boolean;
     }): Promise<void> {
       const electionRecord = await store.getElection(input.electionId);
       await store.deleteQuickReportingResultsForElection(
-        electionRecord.election.id,
-        input.isLive
+        electionRecord.election.id
       );
     },
 

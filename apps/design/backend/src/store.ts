@@ -60,6 +60,7 @@ import { BallotTemplateId } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
+  ALL_PRECINCTS_REPORT_KEY,
   BallotStyle,
   convertToVxfBallotStyle,
   ElectionInfo,
@@ -2088,10 +2089,33 @@ export class Store {
     });
   }
 
+  async electionHasLiveReportData(election: ElectionRecord): Promise<boolean> {
+    assert(
+      election.lastExportedBallotHash !== undefined,
+      'Election has not yet been exported.'
+    );
+    const rows = await this.db.withClient((client) =>
+      client.query(
+        `
+            select 1
+            from results_reports
+            where
+              ballot_hash = $1 and
+              election_id = $2 and
+              is_live_mode = true
+            limit 1
+          `,
+        election.lastExportedBallotHash,
+        election.election.id
+      )
+    );
+    return !!rows.rowCount;
+  }
+
   async getPollsStatusForElection(
     election: ElectionRecord,
     isLive: boolean
-  ): Promise<QuickReportedPollStatus[]> {
+  ): Promise<Record<string, QuickReportedPollStatus[]>> {
     assert(
       election.lastExportedBallotHash !== undefined,
       'Election has not yet been exported.'
@@ -2135,15 +2159,28 @@ export class Store {
       precinctId: string | null;
       signedAt: Date;
     }>;
-    const pollsStatus: QuickReportedPollStatus[] = rows.map((r) => ({
-      machineId: r.machineId,
-      signedTimestamp: r.signedAt,
-      precinctSelection: r.precinctId
-        ? singlePrecinctSelectionFor(r.precinctId)
-        : ALL_PRECINCTS_SELECTION,
-      pollsState: r.pollsState,
-    }));
-    return pollsStatus;
+    const reportsByPrecinctId: Record<string, QuickReportedPollStatus[]> = {};
+    for (const precinct of election.election.precincts) {
+      reportsByPrecinctId[precinct.id] = [];
+    }
+
+    for (const status of rows) {
+      if (
+        !status.precinctId &&
+        !reportsByPrecinctId[ALL_PRECINCTS_REPORT_KEY]
+      ) {
+        reportsByPrecinctId[ALL_PRECINCTS_REPORT_KEY] = [];
+      }
+      reportsByPrecinctId[status.precinctId ?? ALL_PRECINCTS_REPORT_KEY].push({
+        machineId: status.machineId,
+        signedTimestamp: status.signedAt,
+        precinctSelection: status.precinctId
+          ? singlePrecinctSelectionFor(status.precinctId)
+          : ALL_PRECINCTS_SELECTION,
+        pollsState: status.pollsState,
+      });
+    }
+    return reportsByPrecinctId;
   }
 
   async getQuickResultsReportingTalliesForElection(
@@ -2182,6 +2219,7 @@ export class Store {
             where
               ballot_hash = $1 and
               election_id = $2 and
+              polls_state = 'polls_closed_final' and
               is_live_mode = $3
               ${precinctWhereClause}
             order by signed_at desc
@@ -2277,17 +2315,15 @@ export class Store {
   }
 
   async deleteQuickReportingResultsForElection(
-    electionId: ElectionId,
-    isLive: boolean
+    electionId: ElectionId
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
         `
           delete from results_reports
-          where election_id = $1 and is_live_mode = $2
+          where election_id = $1
         `,
-        electionId,
-        isLive
+        electionId
       )
     );
   }

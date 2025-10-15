@@ -595,9 +595,9 @@ export function SystemSettingsForm({
               disabled={!isEditing}
             />
             {features.QUICK_RESULTS_REPORTING && (
-              <InputGroup label="Quick Results Reporting">
+              <InputGroup label="Live Reports">
                 <CheckboxButton
-                  label="Enable Quick Results Reporting"
+                  label="Enable Live Reporting"
                   isChecked={Boolean(systemSettings.quickResultsReportingUrl)}
                   onChange={(isChecked) =>
                     setSystemSettings({

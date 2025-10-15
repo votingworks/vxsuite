@@ -116,36 +116,43 @@ export const getElectionInfo = {
   },
 } as const;
 
+export const getReportedPollsStatus = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['getReportedPollsStatus', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(id),
+      () =>
+        apiClient.getReportedPollsStatus({
+          electionId: id,
+        }),
+      { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
+    );
+  },
+} as const;
+
 export const getQuickReportedResults = {
-  queryKey(
-    id: ElectionId,
-    isLive: boolean,
-    precinctSelection?: PrecinctSelection
-  ): QueryKey {
+  queryKey(id: ElectionId, precinctSelection?: PrecinctSelection): QueryKey {
     if (!precinctSelection) {
-      return ['getQuickReportedResults', id, isLive];
+      return ['getQuickReportedResults', id];
     }
     return [
       'getQuickReportedResults',
       id,
-      isLive,
       precinctSelection.kind === 'AllPrecincts'
         ? ''
         : precinctSelection.precinctId,
     ];
   },
-  useQuery(
-    id: ElectionId,
-    precinctSelection: PrecinctSelection,
-    isLive: boolean
-  ) {
+  useQuery(id: ElectionId, precinctSelection: PrecinctSelection) {
     const apiClient = useApiClient();
     return useQuery(
-      this.queryKey(id, isLive, precinctSelection),
+      this.queryKey(id, precinctSelection),
       () =>
         apiClient.getQuickReportedResults({
           electionId: id,
-          isLive,
           precinctSelection,
         }),
       { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
@@ -158,9 +165,12 @@ export const deleteQuickReportingResults = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.deleteQuickReportingResults, {
-      async onSuccess(_, { electionId, isLive }) {
+      async onSuccess(_, { electionId }) {
         await queryClient.invalidateQueries(
-          getQuickReportedResults.queryKey(electionId, isLive)
+          getQuickReportedResults.queryKey(electionId)
+        );
+        await queryClient.invalidateQueries(
+          getReportedPollsStatus.queryKey(electionId)
         );
       },
     });

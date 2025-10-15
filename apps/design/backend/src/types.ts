@@ -131,14 +131,24 @@ export interface AggregatedReportedResults {
   contestResults: Record<ContestId, ContestResults>;
   election: Election;
   machinesReporting: string[];
+  isLive: boolean;
+}
+
+export interface AggregatedReportedPollsStatus {
+  reportsByPrecinct: Record<string, QuickReportedPollStatus[]>;
+  election: Election;
+  isLive: boolean;
+  ballotHash: string;
 }
 
 export interface QuickReportedPollStatus {
   machineId: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsStateSupportsLiveReporting;
   signedTimestamp: Date;
+  pollsState: PollsStateSupportsLiveReporting;
 }
+
+export const ALL_PRECINCTS_REPORT_KEY = '';
 
 export type ResultsReportingError =
   | 'invalid-payload'
