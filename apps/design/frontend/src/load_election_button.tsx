@@ -1,6 +1,8 @@
 import React, { FormEvent, useState } from 'react';
 import {
   Button,
+  Callout,
+  Caption,
   FileInputButton,
   LoadingButton,
   Modal,
@@ -127,129 +129,139 @@ export function LoadElectionButton({
       { upload, orgId: user.orgId },
       {
         onSuccess: (result) => {
+          setModalFormState(undefined);
           if (result.isOk()) {
             const electionId = result.ok();
             history.push(`/elections/${electionId}`);
-            return;
           }
-          // TODO handle error case
-          /* istanbul ignore next - @preserve */
-          throw result.err();
         },
       }
     );
   }
 
-  if (features.MS_SEMS_CONVERSION) {
-    return (
-      <React.Fragment>
+  return (
+    <React.Fragment>
+      {features.MS_SEMS_CONVERSION ? (
         <Button
           disabled={disabled}
           onPress={() => setModalFormState({ format: 'vxf' })}
         >
           Load Election
         </Button>
-        {modalFormState && (
-          <Modal
-            title="Load Election"
-            content={
-              <Column style={{ gap: '1rem', overflow: 'visible' }}>
-                <InputGroup label="Format">
-                  <SearchSelect<ElectionUpload['format']>
-                    style={{ width: '100%' }}
-                    options={[
-                      { label: 'VotingWorks', value: 'vxf' },
-                      { label: 'Mississippi SEMS', value: 'ms-sems' },
-                    ]}
-                    value={modalFormState.format}
-                    onChange={(value) =>
-                      setModalFormState({ format: assertDefined(value) })
-                    }
-                  />
-                </InputGroup>
-                {modalFormState.format === 'vxf' && (
+      ) : (
+        <FileInputButton
+          accept=".json"
+          onChange={async (event) => {
+            const file = getFile(event);
+            await submitUpload({ format: 'vxf', electionFile: file });
+          }}
+          disabled={loadElectionMutation.isLoading}
+        >
+          Load Election
+        </FileInputButton>
+      )}
+      {modalFormState && (
+        <Modal
+          title="Load Election"
+          content={
+            <Column style={{ gap: '1rem', overflow: 'visible' }}>
+              <InputGroup label="Format">
+                <SearchSelect<ElectionUpload['format']>
+                  style={{ width: '100%' }}
+                  options={[
+                    { label: 'VotingWorks', value: 'vxf' },
+                    { label: 'Mississippi SEMS', value: 'ms-sems' },
+                  ]}
+                  value={modalFormState.format}
+                  onChange={(value) =>
+                    setModalFormState({ format: assertDefined(value) })
+                  }
+                />
+              </InputGroup>
+              {modalFormState.format === 'vxf' && (
+                <FileField
+                  label="Election File"
+                  accept=".json"
+                  value={modalFormState.electionFile}
+                  onChange={(file) =>
+                    setModalFormState({
+                      format: 'vxf',
+                      electionFile: file,
+                    })
+                  }
+                />
+              )}
+              {modalFormState.format === 'ms-sems' && (
+                <React.Fragment>
                   <FileField
                     label="Election File"
-                    accept=".json"
+                    accept=".txt,.csv"
                     value={modalFormState.electionFile}
                     onChange={(file) =>
                       setModalFormState({
-                        format: 'vxf',
+                        ...modalFormState,
                         electionFile: file,
                       })
                     }
                   />
-                )}
-                {modalFormState.format === 'ms-sems' && (
-                  <React.Fragment>
-                    <FileField
-                      label="Election File"
-                      accept=".txt,.csv"
-                      value={modalFormState.electionFile}
-                      onChange={(file) =>
-                        setModalFormState({
-                          ...modalFormState,
-                          electionFile: file,
-                        })
-                      }
-                    />
-                    <FileField
-                      label="Candidate File"
-                      accept=".txt,.csv"
-                      value={modalFormState.candidateFile}
-                      onChange={(file) =>
-                        setModalFormState({
-                          ...modalFormState,
-                          candidateFile: file,
-                        })
-                      }
-                    />
-                  </React.Fragment>
-                )}
-              </Column>
-            }
-            actions={
-              <React.Fragment>
-                {loadElectionMutation.isLoading ? (
-                  <LoadingButton variant="primary">
-                    Loading Election…
-                  </LoadingButton>
-                ) : (
-                  <Button
-                    variant="primary"
-                    disabled={!isFormStateComplete(modalFormState)}
-                    onPress={() => submitUpload(modalFormState)}
-                  >
-                    Load Election
-                  </Button>
-                )}
+                  <FileField
+                    label="Candidate File"
+                    accept=".txt,.csv"
+                    value={modalFormState.candidateFile}
+                    onChange={(file) =>
+                      setModalFormState({
+                        ...modalFormState,
+                        candidateFile: file,
+                      })
+                    }
+                  />
+                </React.Fragment>
+              )}
+            </Column>
+          }
+          actions={
+            <React.Fragment>
+              {loadElectionMutation.isLoading ? (
+                <LoadingButton variant="primary">
+                  Loading Election…
+                </LoadingButton>
+              ) : (
                 <Button
-                  disabled={loadElectionMutation.isLoading}
-                  onPress={() => setModalFormState(undefined)}
+                  variant="primary"
+                  disabled={!isFormStateComplete(modalFormState)}
+                  onPress={() => submitUpload(modalFormState)}
                 >
-                  Cancel
+                  Load Election
                 </Button>
-              </React.Fragment>
-            }
-            onOverlayClick={() => setModalFormState(undefined)}
-          />
-        )}
-      </React.Fragment>
-    );
-  }
-
-  async function onSelectElectionFile(event: FormEvent<HTMLInputElement>) {
-    const file = getFile(event);
-    await submitUpload({ format: 'vxf', electionFile: file });
-  }
-
-  return (
-    <FileInputButton
-      accept=".json"
-      onChange={onSelectElectionFile}
-      disabled={loadElectionMutation.isLoading}
-    >
-      Load Election
-    </FileInputButton>
+              )}
+              <Button
+                disabled={loadElectionMutation.isLoading}
+                onPress={() => setModalFormState(undefined)}
+              >
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={() => setModalFormState(undefined)}
+        />
+      )}
+      {loadElectionMutation.isSuccess && loadElectionMutation.data.isErr() && (
+        <Modal
+          title="Error Loading Election"
+          content={
+            <Callout color="danger" icon="Danger">
+              <Column style={{ gap: '0.5rem' }}>
+                <strong>Invalid election file</strong>
+                <Caption>{loadElectionMutation.data.err().message}</Caption>
+              </Column>
+            </Callout>
+          }
+          actions={
+            <Button onPress={() => loadElectionMutation.reset()}>Close</Button>
+          }
+          onOverlayClick={() => loadElectionMutation.reset()}
+        />
+      )}
+    </React.Fragment>
   );
 }

@@ -45,6 +45,7 @@ import {
   ok,
   Result,
   throwIllegalValue,
+  wrapException,
 } from '@votingworks/basics';
 import {
   BallotLayoutError,
@@ -361,13 +362,17 @@ export function buildApi(ctx: AppContext) {
           }
 
           case 'ms-sems': {
-            return ok(
-              convertMsElection(
-                input.newId,
-                input.upload.electionFileContents,
-                input.upload.candidateFileContents
-              )
-            );
+            try {
+              return ok(
+                convertMsElection(
+                  input.newId,
+                  input.upload.electionFileContents,
+                  input.upload.candidateFileContents
+                )
+              );
+            } catch (error) {
+              return wrapException(error);
+            }
           }
 
           default: {
