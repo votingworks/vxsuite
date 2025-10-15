@@ -11,6 +11,7 @@ import { ServerContext } from './context';
 import { runCardReadAndUsbDriveWriteTask } from './tasks/card_read_and_usb_drive_write_task';
 import { Player as AudioPlayer } from '../audio/player';
 import { getAudioInfo } from '../audio/info';
+import { startCpuMetricsLogging } from './cpu_metrics';
 
 export async function startElectricalTestingServer(
   context: ServerContext
@@ -82,6 +83,9 @@ export async function startElectricalTestingServer(
     ...context,
     audioPlayer,
   });
+
+  // Start periodic CPU metrics logging
+  startCpuMetricsLogging(logger);
 
   app.listen(PORT, () => {
     logger.log(LogEventId.ApplicationStartup, 'system', {

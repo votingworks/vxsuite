@@ -7,6 +7,7 @@ import { Player as AudioPlayer, SoundName } from '../audio/player';
 import { getMachineConfig } from '../machine_config';
 import type { ScanningMode, ServerContext } from './context';
 import { ScanningSession, ScanningSessionData } from './analysis/scan';
+import { getCpuMetrics, CpuMetrics } from './cpu_metrics';
 
 type ApiContext = ServerContext & {
   audioPlayer?: AudioPlayer;
@@ -140,6 +141,10 @@ function buildApi({
         ),
         stats,
       };
+    },
+
+    async getCpuMetrics(): Promise<CpuMetrics> {
+      return getCpuMetrics();
     },
 
     ...createSystemCallApi({

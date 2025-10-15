@@ -28,6 +28,7 @@ import * as customStateMachine from './scanners/custom/state_machine';
 import * as pdiStateMachine from './scanners/pdi/state_machine';
 import { Player as AudioPlayer } from './audio/player';
 import { getAudioInfo } from './audio/info';
+import { startCpuMetricsLogging } from './electrical_testing/cpu_metrics';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;
@@ -128,6 +129,9 @@ export async function start({
     printerConfig: 'fujitsu',
     mockPdiScanner,
   });
+
+  // Start periodic CPU metrics logging
+  startCpuMetricsLogging(logger);
 
   app.listen(PORT, () => {
     logger.log(LogEventId.ApplicationStartup, 'system', {

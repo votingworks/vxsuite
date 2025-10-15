@@ -19,6 +19,7 @@ import { mapSheet, SheetOf } from '@votingworks/types';
 import type { HWTA } from '@votingworks/scan-backend';
 import { useSound } from '../utils/use_sound';
 import * as api from './api';
+import { CpuMetricsDisplay } from './cpu_metrics_display';
 
 const SOUND_INTERVAL_SECONDS = 5;
 
@@ -645,7 +646,8 @@ export function AppRoot(): JSX.Element {
 
   return (
     <Screen>
-      <Main centerChild>
+      <CpuMetricsDisplay />
+      <Main centerChild style={{ paddingTop: '70px' }}>
         <Column center style={{ width: '80%' }}>
           <Row gap="2rem" style={{ flexGrow: 1, maxHeight: '70%' }}>
             <Column gap="2rem" style={{ flexGrow: 1 }}>

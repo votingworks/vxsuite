@@ -120,3 +120,49 @@ describe('languageDisplayName()', () => {
     ).toThrow();
   });
 });
+
+describe('bytes()', () => {
+  test('formats zero bytes', () => {
+    expect(format.bytes(0)).toEqual('0 B');
+  });
+
+  test('formats bytes', () => {
+    expect(format.bytes(1)).toEqual('1.0 B');
+    expect(format.bytes(512)).toEqual('512.0 B');
+    expect(format.bytes(1023)).toEqual('1023.0 B');
+  });
+
+  test('formats kilobytes', () => {
+    expect(format.bytes(1024)).toEqual('1.0 KB');
+    expect(format.bytes(1536)).toEqual('1.5 KB');
+    expect(format.bytes(10240)).toEqual('10.0 KB');
+    expect(format.bytes(1048575)).toEqual('1024.0 KB');
+  });
+
+  test('formats megabytes', () => {
+    expect(format.bytes(1048576)).toEqual('1.0 MB');
+    expect(format.bytes(5242880)).toEqual('5.0 MB');
+    expect(format.bytes(536870912 - 1)).toEqual('512.0 MB');
+  });
+
+  test('formats gigabytes', () => {
+    expect(format.bytes(1073741824)).toEqual('1.0 GB');
+    expect(format.bytes(5368709120)).toEqual('5.0 GB');
+    expect(format.bytes(536870912)).toEqual('512.0 MB'); // 0.5 GB displays as 512 MB
+    expect(format.bytes(10737418240)).toEqual('10.0 GB');
+  });
+
+  test('formats terabytes', () => {
+    expect(format.bytes(1099511627776)).toEqual('1.0 TB');
+    expect(format.bytes(5497558138880)).toEqual('5.0 TB');
+  });
+
+  test('respects custom fraction digits', () => {
+    expect(format.bytes(1536, { fractionDigits: 0 })).toEqual('2 KB');
+    expect(format.bytes(1536, { fractionDigits: 2 })).toEqual('1.50 KB');
+    expect(format.bytes(1073741824, { fractionDigits: 3 })).toEqual(
+      '1.000 GB'
+    );
+  });
+});
+
