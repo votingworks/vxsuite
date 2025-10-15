@@ -8,6 +8,10 @@ import { format } from '@votingworks/utils';
 
 const execFileAsync = promisify(execFile);
 
+// Temperature validation constants
+const MIN_REALISTIC_TEMP_C = 0;
+const MAX_REALISTIC_TEMP_C = 150;
+
 export interface MemoryStats {
   totalBytes: number;
   usedBytes: number;
@@ -48,7 +52,11 @@ function parseTemperatureFromSensorsJson(sensorsData: unknown): number | null {
           if (typeof tempData['temp1_input'] === 'number') {
             const temp = tempData['temp1_input'];
             // Filter out anything that is very unlikely to be a realistic temperature.
-            if (!Number.isNaN(temp) && temp > 0 && temp < 150) {
+            if (
+              !Number.isNaN(temp) &&
+              temp > MIN_REALISTIC_TEMP_C &&
+              temp < MAX_REALISTIC_TEMP_C
+            ) {
               return temp;
             }
           }
@@ -114,9 +122,14 @@ async function getCpuTemperature(): Promise<number | null> {
         const tempMillicelsiusResult = safeParseInt(content.trim());
         if (tempMillicelsiusResult.isOk()) {
           const tempMillicelsius = tempMillicelsiusResult.ok();
-          if (tempMillicelsius > 0) {
-            // Convert from millidegrees to degrees
-            return tempMillicelsius / 1000;
+          // Convert from millidegrees to degrees
+          const tempCelsius = tempMillicelsius / 1000;
+          // Filter out anything that is very unlikely to be a realistic temperature.
+          if (
+            tempCelsius > MIN_REALISTIC_TEMP_C &&
+            tempCelsius < MAX_REALISTIC_TEMP_C
+          ) {
+            return tempCelsius;
           }
         }
       } catch {
