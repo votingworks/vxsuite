@@ -60,6 +60,7 @@ import { BallotTemplateId } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
+  ALL_PRECINCTS_REPORT_KEY,
   BallotStyle,
   convertToVxfBallotStyle,
   ElectionInfo,
@@ -2093,23 +2094,22 @@ export class Store {
       election.lastExportedBallotHash !== undefined,
       'Election has not yet been exported.'
     );
-    const { count } = (
-      await this.db.withClient((client) =>
-        client.query(
-          `
-            select count(*) as count
+    const rows = await this.db.withClient((client) =>
+      client.query(
+        `
+            select 1
             from results_reports
             where
               ballot_hash = $1 and
               election_id = $2 and
               is_live_mode = true
+            limit 1
           `,
-          election.lastExportedBallotHash,
-          election.election.id
-        )
+        election.lastExportedBallotHash,
+        election.election.id
       )
-    ).rows[0] as { count: number };
-    return count > 0;
+    );
+    return !!rows.rowCount;
   }
 
   async getPollsStatusForElection(
@@ -2165,10 +2165,13 @@ export class Store {
     }
 
     for (const status of rows) {
-      if (!status.precinctId && !reportsByPrecinctId['']) {
-        reportsByPrecinctId[''] = [];
+      if (
+        !status.precinctId &&
+        !reportsByPrecinctId[ALL_PRECINCTS_REPORT_KEY]
+      ) {
+        reportsByPrecinctId[ALL_PRECINCTS_REPORT_KEY] = [];
       }
-      reportsByPrecinctId[status.precinctId ?? ''].push({
+      reportsByPrecinctId[status.precinctId ?? ALL_PRECINCTS_REPORT_KEY].push({
         machineId: status.machineId,
         signedTimestamp: status.signedAt,
         precinctSelection: status.precinctId

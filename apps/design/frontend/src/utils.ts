@@ -52,3 +52,5 @@ export function reorderElement<T>(
   result.splice(toIndex, 0, removed);
   return result;
 }
+
+export const ALL_PRECINCTS_REPORT_KEY = '';

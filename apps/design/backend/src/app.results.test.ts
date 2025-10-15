@@ -32,7 +32,7 @@ import {
   testSetupHelpers,
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
-import { Org, User } from './types';
+import { ALL_PRECINCTS_REPORT_KEY, Org, User } from './types';
 import { Workspace } from './workspace';
 
 const mockFeatureFlagger = getFeatureFlagMock();
@@ -457,7 +457,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       ballotHash: sampleElectionDefinition.ballotHash,
       isLive: true,
       reportsByPrecinct: {
-        '': [
+        [ALL_PRECINCTS_REPORT_KEY]: [
           {
             machineId: 'machineId',
             pollsState: 'polls_closed_final',
@@ -610,7 +610,7 @@ test('quick results reporting works for polls open reporting', async () => {
             signedTimestamp: new Date('2024-05-04T09:00:00Z'),
           },
         ],
-        '': [
+        [ALL_PRECINCTS_REPORT_KEY]: [
           {
             machineId: 'mock-01',
             pollsState: 'polls_open',
@@ -688,7 +688,7 @@ test('quick results reporting works for polls open reporting', async () => {
             signedTimestamp: new Date('2024-05-04T09:00:00Z'),
           },
         ],
-        '': [
+        [ALL_PRECINCTS_REPORT_KEY]: [
           {
             machineId: 'mock-01',
             pollsState: 'polls_closed_final',
@@ -746,7 +746,7 @@ test('quick results reporting works for polls open reporting', async () => {
       isLive: true,
       ballotHash: sampleElectionDefinition.ballotHash,
       reportsByPrecinct: expect.objectContaining({
-        '': [
+        [ALL_PRECINCTS_REPORT_KEY]: [
           {
             machineId: 'mock-01',
             pollsState: 'polls_open',

@@ -17,6 +17,7 @@ import {
 } from '@votingworks/utils';
 import type { QuickReportedPollStatus } from '@votingworks/design-backend';
 import { err, ok } from '@votingworks/basics';
+import { ALL_PRECINCTS_REPORT_KEY } from './utils';
 import { render } from '../test/react_testing_library';
 import {
   MockApiClient,
@@ -327,7 +328,7 @@ describe('Polls status summary display', () => {
             signedTimestamp: new Date('2024-01-01T18:11:00Z'),
           },
         ],
-        '': [
+        [ALL_PRECINCTS_REPORT_KEY]: [
           {
             machineId: 'VxScan-004',
             pollsState: 'polls_closed_final',
@@ -712,7 +713,7 @@ describe('Animation behavior', () => {
     // Add precinct not specified data
     const updatedData: Record<string, QuickReportedPollStatus[]> = {
       ...initialData,
-      '': [
+      [ALL_PRECINCTS_REPORT_KEY]: [
         {
           machineId: 'VxScan-999',
           pollsState: 'polls_open',
@@ -778,7 +779,7 @@ describe('Results navigation and display', () => {
         ],
         [election.precincts[1].id]: [],
         [election.precincts[2].id]: [],
-        '': [],
+        [ALL_PRECINCTS_REPORT_KEY]: [],
       },
     };
 
@@ -874,7 +875,8 @@ describe('Results navigation and display', () => {
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
         ],
-        '': [],
+
+        [ALL_PRECINCTS_REPORT_KEY]: [],
       },
     };
 
@@ -964,7 +966,7 @@ describe('Results navigation and display', () => {
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
         ],
-        '': [],
+        [ALL_PRECINCTS_REPORT_KEY]: [],
       },
     };
 
@@ -1061,7 +1063,7 @@ describe('Results navigation and display', () => {
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
         ],
-        '': [],
+        [ALL_PRECINCTS_REPORT_KEY]: [],
       },
     };
 
@@ -1157,7 +1159,7 @@ describe('Results navigation and display', () => {
         ],
         [election.precincts[1].id]: [],
         [election.precincts[2].id]: [],
-        '': [],
+        [ALL_PRECINCTS_REPORT_KEY]: [],
       },
     };
 
@@ -1175,7 +1177,7 @@ describe('Results navigation and display', () => {
 
     // Verify the delete button is present and properly labeled
     const deleteButton = screen.getByRole('button', {
-      name: 'Delete All Data',
+      name: 'Delete All Reports',
     });
     expect(deleteButton).toBeInTheDocument();
     expect(deleteButton).toBeEnabled();
@@ -1186,13 +1188,13 @@ describe('Results navigation and display', () => {
     // Should see the confirmation modal
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'Delete All Data' })
+        screen.getByRole('heading', { name: 'Delete All Reports' })
       ).toBeInTheDocument();
     });
 
     expect(
       screen.getByText(
-        'This will delete all quick reported results data for this election in both test and live mode.'
+        'Are you sure you want to delete all reports for this election?'
       )
     ).toBeInTheDocument();
 
@@ -1202,7 +1204,7 @@ describe('Results navigation and display', () => {
     // Modal should close after clicking cancel
     await waitFor(() => {
       expect(
-        screen.queryByRole('heading', { name: 'Delete All Data' })
+        screen.queryByRole('heading', { name: 'Delete All Reports' })
       ).not.toBeInTheDocument();
     });
 
@@ -1211,7 +1213,7 @@ describe('Results navigation and display', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'Delete All Data' })
+        screen.getByRole('heading', { name: 'Delete All Reports' })
       ).toBeInTheDocument();
     });
 
@@ -1229,7 +1231,7 @@ describe('Results navigation and display', () => {
     // Modal should close after the deletion
     await waitFor(() => {
       expect(
-        screen.queryByRole('heading', { name: 'Delete All Data' })
+        screen.queryByRole('heading', { name: 'Delete Reports' })
       ).not.toBeInTheDocument();
     });
   });

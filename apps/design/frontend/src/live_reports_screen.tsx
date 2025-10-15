@@ -36,7 +36,7 @@ import {
   groupContestsByParty,
   getPollsStateName,
 } from '@votingworks/utils';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import type { QuickReportedPollStatus } from '@votingworks/design-backend';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
@@ -48,6 +48,7 @@ import {
 } from './api';
 import { useTitle } from './hooks/use_title';
 import { Row } from './layout';
+import { ALL_PRECINCTS_REPORT_KEY } from './utils';
 
 // Animation utilities
 interface AnimationState {
@@ -56,6 +57,10 @@ interface AnimationState {
     timestamp: number;
   };
 }
+
+const PollsStatusLabel = styled.span`
+  font-size: 1rem;
+`;
 
 function usePrecinctAnimations(
   precincts: ReadonlyArray<{ id: string; name: string }>,
@@ -208,7 +213,11 @@ function LiveReportsSummaryScreen({
       pollsStatusData
         ? [
             ...pollsStatusData.election.precincts,
-            { id: '', name: 'Precinct Not Specified', splits: [] },
+            {
+              id: ALL_PRECINCTS_REPORT_KEY,
+              name: 'Precinct Not Specified',
+              splits: [],
+            },
           ]
         : [],
     [pollsStatusData]
@@ -315,11 +324,10 @@ function LiveReportsSummaryScreen({
                     }}
                   >
                     <LabelledText
+                      style={{ marginTop: '-.25rem' }}
                       labelPosition="bottom"
                       label={
-                        <span style={{ fontSize: '1rem' }}>
-                          No reports sent
-                        </span>
+                        <PollsStatusLabel>No reports sent</PollsStatusLabel>
                       }
                     >
                       <H1 data-testid="no-reports-sent-count">
@@ -332,10 +340,9 @@ function LiveReportsSummaryScreen({
                       </H1>
                     </LabelledText>
                     <LabelledText
+                      style={{ marginTop: '-.25rem' }}
                       labelPosition="bottom"
-                      label={
-                        <span style={{ fontSize: '1rem' }}>Polls open</span>
-                      }
+                      label={<PollsStatusLabel>Polls open</PollsStatusLabel>}
                     >
                       <H1 data-testid="polls-open-count">
                         <Icons.Circle color="success" />{' '}
@@ -353,10 +360,9 @@ function LiveReportsSummaryScreen({
                       </H1>
                     </LabelledText>
                     <LabelledText
+                      style={{ marginTop: '-.25rem' }}
                       labelPosition="bottom"
-                      label={
-                        <span style={{ fontSize: '1rem' }}>Polls closing</span>
-                      }
+                      label={<PollsStatusLabel>Polls closing</PollsStatusLabel>}
                     >
                       <H1 data-testid="polls-closing-count">
                         <Icons.CircleDot color="primary" />{' '}
@@ -378,10 +384,9 @@ function LiveReportsSummaryScreen({
                       </H1>
                     </LabelledText>
                     <LabelledText
+                      style={{ marginTop: '-.25rem' }}
                       labelPosition="bottom"
-                      label={
-                        <span style={{ fontSize: '1rem' }}>Polls closed</span>
-                      }
+                      label={<PollsStatusLabel>Polls closed</PollsStatusLabel>}
                     >
                       <H1 data-testid="polls-closed-count">
                         <Icons.Done color="primary" />{' '}
@@ -427,7 +432,7 @@ function LiveReportsSummaryScreen({
                     icon="Delete"
                     onPress={() => setIsDeleteDataModalOpen(true)}
                   >
-                    Delete All Data
+                    Delete All Reports
                   </Button>
                 </div>
               </div>
@@ -447,7 +452,10 @@ function LiveReportsSummaryScreen({
                   const reportsForPrecinct =
                     pollsStatusData.reportsByPrecinct[precinct.id] || [];
 
-                  if (precinct.id === '' && reportsForPrecinct.length === 0) {
+                  if (
+                    precinct.id === ALL_PRECINCTS_REPORT_KEY &&
+                    reportsForPrecinct.length === 0
+                  ) {
                     return null;
                   }
 
@@ -507,8 +515,8 @@ function LiveReportsSummaryScreen({
         )}
 
         {allEntries.length === 0 && (
-          <Callout color="warning" icon="Warning">
-            No machines have reported status yet.
+          <Callout color="neutral" icon="Info">
+            No machines have sent reports yet.
           </Callout>
         )}
       </MainContent>
@@ -519,10 +527,9 @@ function LiveReportsSummaryScreen({
               <LoadingAnimation />
             ) : (
               <React.Fragment>
-                <H2 as="h1">Delete All Data</H2>
+                <H2 as="h1">Delete All Reports</H2>
                 <P>
-                  This will delete all quick reported results data for this
-                  election in both test and live mode.
+                  Are you sure you want to delete all reports for this election?
                 </P>
               </React.Fragment>
             )
@@ -542,12 +549,9 @@ function LiveReportsSummaryScreen({
                   variant="danger"
                   data-testid="confirm-delete-data-button"
                 >
-                  Delete Data
+                  Delete Reports
                 </Button>
-                <Button
-                  onPress={() => setIsDeleteDataModalOpen(false)}
-                  variant="secondary"
-                >
+                <Button onPress={() => setIsDeleteDataModalOpen(false)}>
                   Cancel
                 </Button>
               </React.Fragment>

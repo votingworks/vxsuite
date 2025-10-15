@@ -147,6 +147,8 @@ export interface QuickReportedPollStatus {
   pollsState: PollsStateSupportsLiveReporting;
 }
 
+export const ALL_PRECINCTS_REPORT_KEY = '';
+
 export type ResultsReportingError =
   | 'invalid-payload'
   | 'invalid-signature'
