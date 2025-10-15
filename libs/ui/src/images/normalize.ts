@@ -1,5 +1,3 @@
-/* eslint @typescript-eslint/no-use-before-define: ["error", { "functions": false }] */
-
 /* istanbul ignore file - [TODO] Adding browser tests in future PRs. @preserve */
 
 import { assertDefined, deferred, err, ok, Result } from '@votingworks/basics';

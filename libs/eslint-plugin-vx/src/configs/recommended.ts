@@ -159,7 +159,7 @@ export = {
     // replace some built-in rules that don't play well with TypeScript, with Typescript-aware versions
     '@typescript-eslint/no-shadow': 'error',
     'no-shadow': 'off',
-    '@typescript-eslint/no-use-before-define': 'error',
+    '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
     'no-use-before-define': 'off',
     '@typescript-eslint/no-useless-constructor': 'error',
     'no-useless-constructor': 'off',
