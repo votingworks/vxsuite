@@ -467,9 +467,9 @@ function LiveReportsSummaryScreen({
               <thead>
                 <tr>
                   <TH style={{ minWidth: '200px' }}>Precinct</TH>
-                  <TH style={{ width: '180px' }}>Scanner Status</TH>
-                  <TH style={{ minWidth: '400px' }}>Last Report Sent</TH>
-                  <TH style={{ width: '200px' }} />
+                  <TH style={{ minWidth: '180px' }}>Scanner Status</TH>
+                  <TH style={{ minWidth: '250px' }}>Last Report Sent</TH>
+                  <TH style={{ minWidth: '200px' }} />
                 </tr>
               </thead>
               <tbody>
