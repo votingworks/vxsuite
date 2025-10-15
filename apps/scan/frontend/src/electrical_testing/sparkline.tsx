@@ -62,7 +62,7 @@ export function Sparkline({
 
   // Calculate points for the line
   const points = limitedData.map((value, index) => {
-    const x = (index / (limitedData.length - 1 || 1)) * width;
+    const x = (index / Math.max(limitedData.length - 1, 1)) * width;
     const y = height - ((value - dataMin) / range) * height;
     return { x, y };
   });
