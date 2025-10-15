@@ -1847,14 +1847,6 @@ export class Store {
   /**
    * Gets write-ins specifically for tabulation, filtered and
    * grouped by cast vote record attributes.
-   *
-   * When using write-in tallies to hydrate tally results, unmarked write-ins
-   * that haven't been adjudicated or are invalid should not be included
-   * because they are not associated with an original or adjudicated mark. Whe
-   * using write-in tallies as a summary of write-in adjudication, they should
-   * be included because they exist in the adjudication flow just as marked
-   * write-ins do. The behavior can be controlled with the
-   * `includeUnadjudicatedAndInvalidUnmarkedWriteIns` flag.
    */
   *getWriteInsForTallies({
     election,

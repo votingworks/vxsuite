@@ -106,7 +106,7 @@ export function convertContestWriteInSummaryToWriteInTallies(
 }
 
 /**
- * Adds a {@link WriteInTallyRow} into a {@link Tabulation.ElectionWriteInSummary}.
+ * Adds a {@link WriteInForTally} into a {@link Tabulation.ElectionWriteInSummary}.
  * Modifies the summary in place! Do not export.
  */
 function addWriteInToElectionWriteInSummary({
