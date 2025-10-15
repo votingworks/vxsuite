@@ -48,7 +48,7 @@ import {
 } from './api';
 import { useTitle } from './hooks/use_title';
 import { Row } from './layout';
-import { ALL_PRECINCTS_REPORT_KEY } from './utils';
+import { ALL_PRECINCTS_REPORT_KEY, useSound } from './utils';
 
 // Animation utilities
 interface AnimationState {
@@ -65,7 +65,8 @@ const PollsStatusLabel = styled.span`
 function usePrecinctAnimations(
   precincts: ReadonlyArray<{ id: string; name: string }>,
   reportsByPrecinct: Record<string, QuickReportedPollStatus[]>,
-  isLive?: boolean
+  isLive?: boolean,
+  playSound?: () => void
 ) {
   const [animationStates, setAnimationStates] = useState<AnimationState>({});
   const prevDataRef = useRef<Record<string, QuickReportedPollStatus[]>>({});
@@ -80,17 +81,22 @@ function usePrecinctAnimations(
       prevIsLiveRef.current !== isLive;
 
     const isFirstDataLoad = prevIsLiveRef.current === undefined;
+    let hasAnyChange = false;
+    let hasAnyData = false;
 
     // Reset animations if switching between live and test mode
     if (changedLiveTestMode) {
       setAnimationStates({});
       prevDataRef.current = {};
+      hasAnyChange = true;
     }
     prevIsLiveRef.current = isLive;
 
     for (const precinct of precincts) {
       const currentReports = reportsByPrecinct[precinct.id] || [];
       const prevReports = prevDataRef.current[precinct.id] || [];
+
+      hasAnyData = hasAnyData || currentReports.length > 0;
 
       // Check if data has changed
       const hasChanged =
@@ -108,10 +114,15 @@ function usePrecinctAnimations(
             );
           }));
 
+      hasAnyChange = hasAnyChange || hasChanged;
       newAnimationStates[precinct.id] = {
         hasChanged,
         timestamp: Date.now(),
       };
+    }
+
+    if (hasAnyChange && !isFirstDataLoad && hasAnyData && playSound) {
+      playSound();
     }
 
     setAnimationStates(newAnimationStates);
@@ -129,7 +140,7 @@ function usePrecinctAnimations(
     }, 1000); // Match CSS animation duration
 
     return () => clearTimeout(timeout);
-  }, [precincts, reportsByPrecinct, isLive]);
+  }, [precincts, reportsByPrecinct, isLive, playSound]);
 
   return animationStates;
 }
@@ -228,11 +239,13 @@ function LiveReportsSummaryScreen({
     : {};
   const reportsIsLive = pollsStatusData ? pollsStatusData.isLive : undefined;
 
+  const playSound = useSound('success');
   // Animation hooks (always called)
   const precinctAnimations = usePrecinctAnimations(
     precinctsWithNonSpecified,
     reportsByPrecinct,
-    reportsIsLive
+    reportsIsLive,
+    playSound
   );
   const theme = useTheme();
 
