@@ -701,7 +701,7 @@ export function LiveReportsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
 
-  useTitle(routes.election(electionId).systemSettings.title);
+  useTitle(routes.election(electionId).reports.root.title);
 
   if (!getSystemSettingsQuery.isSuccess) {
     return null;
