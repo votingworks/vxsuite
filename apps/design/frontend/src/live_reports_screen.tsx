@@ -155,7 +155,7 @@ function LiveReportsSummaryScreen({
     [pollsStatusData]
   );
 
-  const playSound = useSound('success');
+  const playSound = useSound('happy-ping');
   useQueryChangeListener(getReportedPollsStatusQuery, {
     // Could also select `isLive` too if that's relevant
     select: (result) => ({
