@@ -1,7 +1,7 @@
 import { readFile, readlink } from 'node:fs/promises';
 import { safeParseInt, safeParseNumber } from '@votingworks/types';
 import { extractErrorMessage, lines, Optional } from '@votingworks/basics';
-import { LogEventId, type Logger } from '@votingworks/logging';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { format } from '@votingworks/utils';
 import { execFile } from './exec';
 
@@ -257,7 +257,7 @@ export async function getTopCpuProcesses(
  * @param logger - Logger instance to use for logging metrics
  */
 export function startCpuMetricsLogging(
-  logger: Logger,
+  logger: BaseLogger,
   {
     interval = 30_000, // 30 seconds
     topProcessCount = 5,

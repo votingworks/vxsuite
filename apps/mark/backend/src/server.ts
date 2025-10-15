@@ -13,7 +13,10 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
-import { initializeSystemAudio } from '@votingworks/backend';
+import {
+  initializeSystemAudio,
+  startCpuMetricsLogging,
+} from '@votingworks/backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApp } from './app';
@@ -62,6 +65,9 @@ export async function start({
   const app = buildApp(resolvedAuth, logger, workspace, usbDrive, printer);
 
   useDevDockRouter(app, express, { printerConfig: HP_LASER_PRINTER_CONFIG });
+
+  // Start periodic CPU metrics logging
+  startCpuMetricsLogging(logger);
 
   return app.listen(
     port,

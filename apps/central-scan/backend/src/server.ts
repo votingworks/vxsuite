@@ -13,7 +13,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
-import { detectDevices } from '@votingworks/backend';
+import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
@@ -129,6 +129,9 @@ export function start({
   }
 
   useDevDockRouter(resolvedApp, express, {});
+
+  // Start periodic CPU metrics logging
+  startCpuMetricsLogging(baseLogger);
 
   return resolvedApp.listen(port, () => {
     baseLogger.log(LogEventId.ApplicationStartup, 'system', {
