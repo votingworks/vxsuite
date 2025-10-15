@@ -143,9 +143,10 @@ function PartialReportHeader({
   return (
     <div style={{ flexDirection: 'column', gap: '1rem', display: 'flex' }}>
       <Callout icon="CircleDot" color="primary">
-        Part {pageIndex + 1} / {numPages} of the {lowerCasedReportTitle} has
-        been sent to VxDesign. You must scan the remaining parts to complete the
-        report. Click &apos;Next&apos; on VxScan to get the next code to scan.
+        Part {pageIndex + 1}/{numPages} of the {lowerCasedReportTitle} has been
+        sent to VxDesign.
+        <br />
+        <br /> Press &apos;Next&apos; on VxScan to send the next part.
       </Callout>
       {!isLive && (
         <div>
@@ -198,7 +199,7 @@ function PollsClosedPartialReportConfirmation({
   const reportTitle = getPollsReportTitle('close_polls');
   return (
     <ResultsScreen
-      screenTitle={`${reportTitle} Part ${pageIndex + 1} / ${numPages} Sent`}
+      screenTitle={`${reportTitle} Part ${pageIndex + 1}/${numPages} Sent`}
     >
       <MainContent>
         <PartialReportHeader

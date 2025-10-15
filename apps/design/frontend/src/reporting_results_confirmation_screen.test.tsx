@@ -322,12 +322,12 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     await waitFor(() => {
       expect(
         screen.getByRole('heading', {
-          name: 'Polls Closed Report Part 2 / 4 Sent',
+          name: 'Polls Closed Report Part 2/4 Sent',
         })
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          /Part 2 \/ 4 of the polls closed report has been sent to VxDesign./
+          /Part 2\/4 of the polls closed report has been sent to VxDesign./
         )
       ).toBeInTheDocument();
     });
