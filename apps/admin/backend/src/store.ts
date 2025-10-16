@@ -51,7 +51,6 @@ import {
   fromSqliteBool,
   getGroupedBallotStyles,
   getOfficialCandidateNameLookup,
-  OfficialCandidateNameLookup,
   SqliteBool,
 } from '@votingworks/utils';
 import {
@@ -74,11 +73,6 @@ import {
   WriteInRecordAdjudicatedOfficialCandidate,
   WriteInRecordAdjudicatedWriteInCandidate,
   WriteInRecordPending,
-  WriteInTally,
-  WriteInAdjudicatedInvalidTally,
-  WriteInAdjudicatedOfficialCandidateTally,
-  WriteInAdjudicatedWriteInCandidateTally,
-  WriteInPendingTally,
   ManualResultsFilter,
   CardTally,
   AdjudicationQueueMetadata,
@@ -90,6 +84,7 @@ import {
   CastVoteRecordAdjudicationFlags,
   WriteInAdjudicationActionReset,
   CvrContestTag,
+  WriteInForTally,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -138,15 +133,6 @@ function convertSqliteTimestampToIso8601(
 function asQueryPlaceholders(list: unknown[]): string {
   const questionMarks = list.map(() => '?');
   return `(${questionMarks.join(', ')})`;
-}
-
-interface WriteInTallyRow {
-  contestId: ContestId;
-  isInvalid: boolean;
-  officialCandidateId: string | null;
-  writeInCandidateId: string | null;
-  writeInCandidateName: string | null;
-  tally: number;
 }
 
 interface CastVoteRecordVoteAdjudication {
@@ -1764,52 +1750,6 @@ export class Store {
     );
   }
 
-  formatWriteInTallyRow(
-    row: WriteInTallyRow,
-    officialCandidateNameLookup: OfficialCandidateNameLookup
-  ): WriteInTally {
-    if (row.officialCandidateId) {
-      return typedAs<WriteInAdjudicatedOfficialCandidateTally>({
-        status: 'adjudicated',
-        adjudicationType: 'official-candidate',
-        contestId: row.contestId,
-        tally: row.tally,
-        candidateId: row.officialCandidateId,
-        candidateName: officialCandidateNameLookup.get(
-          row.contestId,
-          row.officialCandidateId
-        ),
-      });
-    }
-
-    if (row.writeInCandidateId) {
-      assert(row.writeInCandidateName !== null);
-      return typedAs<WriteInAdjudicatedWriteInCandidateTally>({
-        status: 'adjudicated',
-        adjudicationType: 'write-in-candidate',
-        contestId: row.contestId,
-        tally: row.tally,
-        candidateId: row.writeInCandidateId,
-        candidateName: row.writeInCandidateName,
-      });
-    }
-
-    if (row.isInvalid) {
-      return typedAs<WriteInAdjudicatedInvalidTally>({
-        status: 'adjudicated',
-        adjudicationType: 'invalid',
-        contestId: row.contestId,
-        tally: row.tally,
-      });
-    }
-
-    return typedAs<WriteInPendingTally>({
-      status: 'pending',
-      contestId: row.contestId,
-      tally: row.tally,
-    });
-  }
-
   /**
    * Gets the adjudication queue for a specific contest.
    */
@@ -1905,90 +1845,65 @@ export class Store {
   }
 
   /**
-   * Gets write-in tallies specifically for tabulation, filtered and and
+   * Gets write-ins specifically for tabulation, filtered and
    * grouped by cast vote record attributes.
-   *
-   * When using write-in tallies to hydrate tally results, unmarked write-ins
-   * that haven't been adjudicated or are invalid should not be included
-   * because they are not associated with an original or adjudicated mark. Whe
-   * using write-in tallies as a summary of write-in adjudication, they should
-   * be included because they exist in the adjudication flow just as marked
-   * write-ins do. The behavior can be controlled with the
-   * `includeUnadjudicatedAndInvalidUnmarkedWriteIns` flag.
    */
-  *getWriteInTallies({
-    electionId,
+  *getWriteInsForTallies({
     election,
+    electionId,
     filter = {},
     groupBy = {},
-    includeUnadjudicatedAndInvalidUnmarkedWriteIns,
   }: {
-    electionId: Id;
     election: Election;
+    electionId: Id;
     filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
-    includeUnadjudicatedAndInvalidUnmarkedWriteIns?: boolean;
-  }): Generator<Tabulation.GroupOf<WriteInTally>> {
+  }): Generator<Tabulation.GroupOf<WriteInForTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
       filter
     );
 
     const selectParts: string[] = [];
-    const groupByParts: string[] = [];
 
     if (groupBy.groupByBallotStyle) {
       selectParts.push('cvrs.ballot_style_group_id as ballotStyleGroupId');
-      groupByParts.push('cvrs.ballot_style_group_id');
     }
 
     if (groupBy.groupByParty) {
       selectParts.push('ballot_styles.party_id as partyId');
-      groupByParts.push('ballot_styles.party_id');
     }
 
     if (groupBy.groupByBatch) {
       selectParts.push('cvrs.batch_id as batchId');
-      groupByParts.push('cvrs.batch_id');
     }
 
     if (groupBy.groupByPrecinct) {
       selectParts.push('cvrs.precinct_id as precinctId');
-      groupByParts.push('cvrs.precinct_id');
     }
 
     if (groupBy.groupByScanner) {
       selectParts.push('scanner_batches.scanner_id as scannerId');
-      groupByParts.push('scanner_batches.scanner_id');
     }
 
     if (groupBy.groupByVotingMethod) {
       selectParts.push('cvrs.ballot_type as votingMethod');
-      groupByParts.push('cvrs.ballot_type');
     }
 
     const officialCandidateNameLookup =
       getOfficialCandidateNameLookup(election);
-
-    if (!includeUnadjudicatedAndInvalidUnmarkedWriteIns) {
-      // i.e. include unmarked write-ins only if adjudicated for a candidate
-      whereParts.push(`not (
-        write_ins.is_unmarked = 1 and
-        official_candidate_id is null and
-        write_in_candidate_id is null
-    )`);
-    }
 
     for (const row of this.client.each(
       `
           select
             ${selectParts.map((line) => `${line},`).join('\n')}
             write_ins.contest_id as contestId,
+            write_ins.cvr_id as cvrId,
             write_ins.official_candidate_id as officialCandidateId,
             write_ins.write_in_candidate_id as writeInCandidateId,
-            write_in_candidates.name as writeInCandidateName,
+            write_in_candidates.name as candidateName,
             write_ins.is_invalid as isInvalid,
-            count(write_ins.id) as tally
+            write_ins.is_unmarked as isUnmarked
           from write_ins
           inner join
             cvrs on write_ins.cvr_id = cvrs.id
@@ -1999,24 +1914,19 @@ export class Store {
           left join
             write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
           where ${whereParts.join(' and ')}
-          group by
-            ${groupByParts.map((line) => `${line},`).join('\n')}
-            write_ins.contest_id,
-            write_ins.official_candidate_id,
-            write_ins.write_in_candidate_id,
-            write_ins.is_invalid
+          order by write_ins.id
         `,
       ...params
-    ) as Iterable<WriteInTallyRow & Partial<StoreCastVoteRecordAttributes>>) {
+    ) as Iterable<WriteInForTally & Partial<StoreCastVoteRecordAttributes>>) {
       const groupSpecifier: Tabulation.GroupSpecifier = {
         ballotStyleGroupId: groupBy.groupByBallotStyle
           ? row.ballotStyleGroupId
           : undefined,
-        /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
-        partyId: groupBy.groupByParty
-          ? /* istanbul ignore next - @preserve */
-            row.partyId ?? undefined
-          : undefined,
+        partyId:
+          /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
+          groupBy.groupByParty && row.partyId !== null
+            ? row.partyId
+            : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
@@ -2025,9 +1935,22 @@ export class Store {
           : undefined,
       };
 
+      const candidateName = row.officialCandidateId
+        ? officialCandidateNameLookup.get(
+            row.contestId,
+            row.officialCandidateId
+          )
+        : row.candidateName;
+
       yield {
         ...groupSpecifier,
-        ...this.formatWriteInTallyRow(row, officialCandidateNameLookup),
+        contestId: row.contestId,
+        cvrId: row.cvrId,
+        isInvalid: row.isInvalid,
+        isUnmarked: row.isUnmarked,
+        officialCandidateId: row.officialCandidateId,
+        writeInCandidateId: row.writeInCandidateId,
+        candidateName,
       };
     }
   }

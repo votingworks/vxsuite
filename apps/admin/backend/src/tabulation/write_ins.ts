@@ -2,17 +2,19 @@ import {
   AnyContest,
   ContestId,
   Election,
+  ElectionDefinition,
   Id,
   Tabulation,
 } from '@votingworks/types';
 import {
+  CachedElectionLookups,
   GROUP_KEY_ROOT,
   extractGroupSpecifier,
   getGroupKey,
   isGroupByEmpty,
 } from '@votingworks/utils';
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { WriteInTally } from '../types';
+import { assert, assertDefined } from '@votingworks/basics';
+import { WriteInForTally, WriteInTally } from '../types';
 import { Store } from '../store';
 import { extractWriteInSummary, tabulateManualResults } from './manual_results';
 import { rootDebug } from '../util/debug';
@@ -104,55 +106,105 @@ export function convertContestWriteInSummaryToWriteInTallies(
 }
 
 /**
- * Adds a {@link WriteInTally} into a {@link Tabulation.ElectionWriteInSummary}. Modifies
- * the summary in place! Do not export. Write-in tallies of the same type (e.g.)
- * invalid, pending, or for a specific candidate do not accumulate, they simply
- * overwrite existing values. This is because we only expect one of each type
- * from the store.
+ * Adds a {@link WriteInForTally} into a {@link Tabulation.ElectionWriteInSummary}.
+ * Modifies the summary in place! Do not export.
  */
-function addWriteInTallyToElectionWriteInSummary({
-  writeInTally,
+function addWriteInToElectionWriteInSummary({
+  store,
+  electionId,
+  electionDefinition,
   electionWriteInSummary,
+  writeIn,
+  // Whether to include pending write-ins that don't contribute to tallies
+  // (i.e. pending unmarked write-ins, pending write-ins part of overvotes)
+  includeUnallocablePendingWriteInsAsPending,
 }: {
+  store: Store;
+  electionId: Id;
+  electionDefinition: ElectionDefinition;
   electionWriteInSummary: Tabulation.ElectionWriteInSummary;
-  writeInTally: WriteInTally;
+  writeIn: WriteInForTally;
+  includeUnallocablePendingWriteInsAsPending: boolean;
 }): Tabulation.ElectionWriteInSummary {
+  const {
+    contestId,
+    cvrId,
+    officialCandidateId,
+    writeInCandidateId,
+    candidateName,
+  } = writeIn;
   const contestWriteInSummary =
-    electionWriteInSummary.contestWriteInSummaries[writeInTally.contestId];
+    electionWriteInSummary.contestWriteInSummaries[contestId];
   assert(contestWriteInSummary);
 
-  contestWriteInSummary.totalTally += writeInTally.tally;
+  // Total number of write-ins, regardless of overvote status
+  contestWriteInSummary.totalTally += 1;
 
-  if (writeInTally.status === 'pending') {
-    contestWriteInSummary.pendingTally += writeInTally.tally;
-  } else {
-    switch (writeInTally.adjudicationType) {
-      case 'invalid':
-        contestWriteInSummary.invalidTally += writeInTally.tally;
-        break;
-      case 'official-candidate':
-        contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
-          tally: writeInTally.tally,
-          name: writeInTally.candidateName,
-          id: writeInTally.candidateId,
-          isWriteIn: false,
-        };
-        break;
-      case 'write-in-candidate':
-        contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
-          tally: writeInTally.tally,
-          name: writeInTally.candidateName,
-          id: writeInTally.candidateId,
-          isWriteIn: true,
-        };
-        break;
-      default: {
-        /* istanbul ignore next - @preserve */
-        throwIllegalValue(writeInTally);
-      }
-    }
+  if (writeIn.isInvalid) {
+    contestWriteInSummary.invalidTally += 1;
+    return electionWriteInSummary;
   }
 
+  const [cvr] = store.getCastVoteRecords({ electionId, cvrId, filter: {} });
+  const votes = assertDefined(assertDefined(cvr).votes[contestId]);
+
+  const contest = CachedElectionLookups.getContestById(
+    electionDefinition,
+    contestId
+  );
+  assert(contest.type === 'candidate');
+
+  const isPending = officialCandidateId === null && writeInCandidateId === null;
+  const isOvervote = votes.length > contest.seats;
+  if (isOvervote) {
+    // Special case handling: If includeUnallocablePendingWriteInsAsPending is true, treat
+    // pending write-in as pending even if part of an overvote, rather than invalid (used
+    // for WIA report). Post-adjudication, it will be counted as invalid if the overvote holds
+    if (isPending && includeUnallocablePendingWriteInsAsPending) {
+      contestWriteInSummary.pendingTally += 1;
+    } else {
+      contestWriteInSummary.invalidTally += 1;
+    }
+    return electionWriteInSummary;
+  }
+
+  if (isPending) {
+    // Special NH case handling: If includeUnallocablePendingWriteInsAsPending is false,
+    // ignore pending unmarked write-ins (required for tally report)
+    if (writeIn.isUnmarked && !includeUnallocablePendingWriteInsAsPending) {
+      return electionWriteInSummary;
+    }
+    contestWriteInSummary.pendingTally += 1;
+    return electionWriteInSummary;
+  }
+
+  // Since it is not pending or invalid, it must be adjudicated for a candidate
+  assert(candidateName !== null);
+
+  if (officialCandidateId) {
+    const tally =
+      (contestWriteInSummary.candidateTallies[officialCandidateId]?.tally ??
+        0) + 1;
+    contestWriteInSummary.candidateTallies[officialCandidateId] = {
+      tally,
+      name: candidateName,
+      id: officialCandidateId,
+      isWriteIn: false,
+    };
+    return electionWriteInSummary;
+  }
+
+  // Must be adjudicated for a write-in candidate
+  assert(writeInCandidateId !== null);
+  const tally =
+    (contestWriteInSummary.candidateTallies[writeInCandidateId]?.tally ?? 0) +
+    1;
+  contestWriteInSummary.candidateTallies[writeInCandidateId] = {
+    tally,
+    name: candidateName,
+    id: writeInCandidateId,
+    isWriteIn: true,
+  };
   return electionWriteInSummary;
 }
 
@@ -165,24 +217,25 @@ export function tabulateWriteInTallies({
   store,
   filter,
   groupBy,
-  includeUnadjudicatedAndInvalidUnmarkedWriteIns,
+  includeUnallocablePendingWriteInsAsPending = false,
 }: {
   electionId: Id;
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-  includeUnadjudicatedAndInvalidUnmarkedWriteIns?: boolean;
+  // Whether to include pending write-ins that don't contribute to tallies
+  // i.e. pending unmarked write-ins, write-ins part of overvotes. Defaults to
+  // false for regular tabulations, set to true for overall WIA summary report
+  includeUnallocablePendingWriteInsAsPending?: boolean;
 }): Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> {
-  const {
-    electionDefinition: { election },
-  } = assertDefined(store.getElection(electionId));
+  const { electionDefinition } = assertDefined(store.getElection(electionId));
+  const { election } = electionDefinition;
 
-  const writeInTallies = store.getWriteInTallies({
-    electionId,
+  const writeIns = store.getWriteInsForTallies({
     election,
+    electionId,
     filter,
     groupBy,
-    includeUnadjudicatedAndInvalidUnmarkedWriteIns,
   });
 
   const electionWriteInSummaryGroupMap: Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> =
@@ -191,10 +244,14 @@ export function tabulateWriteInTallies({
   // optimized special case, when the results do not need to be grouped
   if (!groupBy || isGroupByEmpty(groupBy)) {
     const electionWriteInSummary = getEmptyElectionWriteInSummary(election);
-    for (const writeInTally of writeInTallies) {
-      addWriteInTallyToElectionWriteInSummary({
-        writeInTally,
+    for (const writeIn of writeIns) {
+      addWriteInToElectionWriteInSummary({
+        store,
+        electionId,
+        electionDefinition,
         electionWriteInSummary,
+        writeIn,
+        includeUnallocablePendingWriteInsAsPending,
       });
     }
     electionWriteInSummaryGroupMap[GROUP_KEY_ROOT] = electionWriteInSummary;
@@ -202,16 +259,20 @@ export function tabulateWriteInTallies({
   }
 
   // general case, grouping results by specified group by clause
-  for (const writeInTally of writeInTallies) {
-    const groupKey = getGroupKey(writeInTally, groupBy);
+  for (const writeIn of writeIns) {
+    const groupKey = getGroupKey(writeIn, groupBy);
 
     const existingSummary = electionWriteInSummaryGroupMap[groupKey];
     const summary = existingSummary ?? getEmptyElectionWriteInSummary(election);
 
     electionWriteInSummaryGroupMap[groupKey] =
-      addWriteInTallyToElectionWriteInSummary({
-        writeInTally,
+      addWriteInToElectionWriteInSummary({
+        store,
+        electionId,
+        electionDefinition,
         electionWriteInSummary: summary,
+        writeIn,
+        includeUnallocablePendingWriteInsAsPending,
       });
   }
 
@@ -391,7 +452,7 @@ export function getOverallElectionWriteInSummary({
     tabulateWriteInTallies({
       electionId,
       store,
-      includeUnadjudicatedAndInvalidUnmarkedWriteIns: true,
+      includeUnallocablePendingWriteInsAsPending: true,
     })
   )[0];
   assert(scannedElectionWriteInSummary);
@@ -413,74 +474,4 @@ export function getOverallElectionWriteInSummary({
     overallManualWriteInSummary,
     election
   );
-}
-
-/**
- * Fixes a bug in {@link tabulateWriteInTallies} that results in write-ins being
- * added to tallies even when part of an overvote.
- *
- * See https://github.com/votingworks/vxsuite/issues/5656
- */
-export function filterOvervoteWriteInsFromElectionResults({
-  electionId,
-  store,
-  groupedElectionResults,
-  groupBy,
-}: {
-  electionId: Id;
-  store: Store;
-  groupedElectionResults: Tabulation.ElectionResultsGroupMap;
-  groupBy?: Tabulation.GroupBy;
-}): Tabulation.ElectionResultsGroupMap {
-  const writeIns = store.getWriteInRecords({ electionId });
-  for (const writeIn of writeIns) {
-    const { contestId, cvrId } = writeIn;
-    const cvr = assertDefined(
-      Array.from(store.getCastVoteRecords({ electionId, filter: {}, cvrId }))[0]
-    );
-    const cvrContestVotes = assertDefined(cvr.votes[contestId]);
-    const groupKey = !groupBy ? GROUP_KEY_ROOT : getGroupKey(cvr, groupBy);
-    const groupElectionResults = groupedElectionResults[groupKey];
-    // If there is no existing group, these election results are filtered to not include this write-in
-    if (!groupElectionResults) {
-      continue;
-    }
-    const contestResult = assertDefined(
-      groupElectionResults.contestResults[contestId]
-    );
-
-    // Write-ins are only for candidate contests
-    assert(contestResult.contestType === 'candidate');
-
-    const isOvervote = cvrContestVotes.length > contestResult.votesAllowed;
-    if (isOvervote) {
-      if (writeIn.status === 'pending') {
-        if (writeIn.isUnmarked) continue; // pending unmarked write-ins do not contribute to tallies
-        const pendingWriteIns = assertDefined(
-          contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
-        );
-        pendingWriteIns.tally -= 1;
-      } else {
-        switch (writeIn.adjudicationType) {
-          case 'invalid':
-            // Invalid write-in does not contribute to tallies
-            continue;
-          case 'official-candidate':
-          case 'write-in-candidate': {
-            const candidateWriteIn = assertDefined(
-              contestResult.tallies[writeIn.candidateId]
-            );
-            candidateWriteIn.tally -= 1;
-            break;
-          }
-          default: {
-            /* istanbul ignore next - @preserve */
-            throwIllegalValue(writeIn, 'adjudicationType');
-          }
-        }
-      }
-    }
-  }
-
-  return groupedElectionResults;
 }
