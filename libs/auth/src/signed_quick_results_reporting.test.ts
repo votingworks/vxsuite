@@ -23,11 +23,11 @@ vi.mock(
     ...(await importActual<typeof import('@votingworks/utils')>()),
     compressAndEncodeTally: vi
       .fn<typeof compressAndEncodeTally>()
-      .mockImplementation(({ numParts }) => {
-        // Split sampleCompressedTally into numParts equal parts
-        const partLength = Math.ceil(sampleCompressedTally.length / numParts);
+      .mockImplementation(({ numPages }) => {
+        // Split sampleCompressedTally into numPages equal parts
+        const partLength = Math.ceil(sampleCompressedTally.length / numPages);
         const parts = [];
-        for (let i = 0; i < numParts; i += 1) {
+        for (let i = 0; i < numPages; i += 1) {
           parts.push(
             sampleCompressedTally.slice(i * partLength, (i + 1) * partLength)
           );
@@ -355,8 +355,8 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     compressedTally: 'sampleCompressedTally',
     precinctSelection: { kind: 'AllPrecincts' },
     pollsState: 'polls_closed_final',
-    numParts: 88,
-    partIndex: 77,
+    numPages: 88,
+    pageIndex: 77,
   });
   expect(() => {
     decodeQuickResultsMessage(
@@ -430,8 +430,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         compressedTally: 'sampleCompressedTally',
         precinctSelection: { kind: 'AllPrecincts' },
         pollsState: 'polls_closed_final',
-        numParts: 1,
-        partIndex: 0,
+        numPages: 1,
+        pageIndex: 0,
       })
     )
   );
@@ -467,8 +467,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
           precinctId: 'mockPrecinctId',
         },
         pollsState: 'polls_closed_final',
-        numParts: 1,
-        partIndex: 0,
+        numPages: 1,
+        pageIndex: 0,
       })
     )
   );
@@ -502,8 +502,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
       precinctId: 'mockPrecinctId',
     },
     pollsState: 'polls_open',
-    numParts: 1,
-    partIndex: 0,
+    numPages: 1,
+    pageIndex: 0,
   });
 
   expect(encoded).toContain('polls_open');

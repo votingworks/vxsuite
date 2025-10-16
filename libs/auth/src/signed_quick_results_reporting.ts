@@ -87,8 +87,8 @@ export function encodeQuickResultsMessage(components: {
   compressedTally: string;
   precinctSelection: PrecinctSelection;
   pollsState: PollsStateSupportsLiveReporting;
-  numParts: number;
-  partIndex: number;
+  numPages: number;
+  pageIndex: number;
 }): string {
   const messagePayloadParts = [
     safeEncodeForUrl(components.ballotHash),
@@ -102,8 +102,8 @@ export function encodeQuickResultsMessage(components: {
     components.precinctSelection.kind === 'SinglePrecinct'
       ? safeEncodeForUrl(components.precinctSelection.precinctId)
       : '',
-    components.numParts.toString(),
-    components.partIndex.toString(),
+    components.numPages.toString(),
+    components.pageIndex.toString(),
   ];
 
   return messagePayloadParts.join(
@@ -223,11 +223,11 @@ export async function generateSignedQuickResultsReportingUrl(
     /* istanbul ignore next - @preserve */ constructSignedQuickResultsReportingConfig();
 
   const { ballotHash, election } = electionDefinition;
-  let numPartsNeeded = 1; // If we need to paginate this value will be incremented.
+  let numPagesNeeded = 1; // If we need to paginate this value will be incremented.
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
 
   while (
-    numPartsNeeded <=
+    numPagesNeeded <=
     // Only paginate if polls are closed and we have results to send.
     (pollsState === 'polls_closed_final' ? MAX_PARTS_FOR_QR_CODE : 1)
   ) {
@@ -237,7 +237,7 @@ export async function generateSignedQuickResultsReportingUrl(
             election,
             results,
             precinctSelection,
-            numParts: numPartsNeeded,
+            numPages: numPagesNeeded,
           })
         : ['']; // For polls open reports we don't have results to send.
     const encodedUrls: string[] = [];
@@ -250,8 +250,8 @@ export async function generateSignedQuickResultsReportingUrl(
         compressedTally,
         pollsState,
         precinctSelection,
-        numParts: numPartsNeeded,
-        partIndex: encodedUrls.length,
+        numPages: numPagesNeeded,
+        pageIndex: encodedUrls.length,
       });
       const message = constructPrefixedMessage(
         QR_MESSAGE_FORMAT,
@@ -289,7 +289,7 @@ export async function generateSignedQuickResultsReportingUrl(
     }
 
     if (encodedUrls.length !== compressedTallies.length) {
-      numPartsNeeded += 1;
+      numPagesNeeded += 1;
       continue;
     }
     return encodedUrls;

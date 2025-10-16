@@ -165,8 +165,8 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
       precinctSelection: ALL_PRECINCTS_SELECTION,
       compressedTally: 'notbase64encoded',
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`, // Bad data
   ];
   for (const payload of invalidPayloads) {
@@ -202,8 +202,8 @@ test('processQRCodeReport returns "invalid-signature" when authenticating the si
       precinctSelection: ALL_PRECINCTS_SELECTION,
       compressedTally: encodedTally,
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -230,8 +230,8 @@ test('processQRCodeReport returns no election found where there is no election f
       precinctSelection: ALL_PRECINCTS_SELECTION,
       compressedTally: encodedTally,
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -268,7 +268,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     election: sampleElectionDefinition.election,
     results: mockResults,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    numParts: 1,
+    numPages: 1,
   })[0];
 
   const result = await unauthenticatedApiClient.processQrCodeReport({
@@ -280,8 +280,8 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       precinctSelection: ALL_PRECINCTS_SELECTION,
       compressedTally: encodedTally,
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -333,8 +333,8 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       compressedTally: encodedTally,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -383,7 +383,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     precinctSelection: ALL_PRECINCTS_SELECTION,
     election: sampleElectionDefinition.election,
     results: mockResults2,
-    numParts: 1,
+    numPages: 1,
   })[0];
 
   // Calling with updated data should overwrite the previous result.
@@ -396,8 +396,8 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       compressedTally: encodedTally2,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -514,8 +514,8 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       compressedTally: encodedTally2,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -564,8 +564,8 @@ test('quick results reporting works for polls open reporting', async () => {
       precinctSelection: ALL_PRECINCTS_SELECTION,
       compressedTally: '',
       pollsState: 'polls_open',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -598,8 +598,8 @@ test('quick results reporting works for polls open reporting', async () => {
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         compressedTally: '',
         pollsState: 'polls_open',
-        numParts: 1,
-        partIndex: 0,
+        numPages: 1,
+        pageIndex: 0,
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -670,7 +670,7 @@ test('quick results reporting works for polls open reporting', async () => {
     election: sampleElectionDefinition.election,
     results: mockResults,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    numParts: 1,
+    numPages: 1,
   })[0];
 
   const result = await unauthenticatedApiClient.processQrCodeReport({
@@ -682,8 +682,8 @@ test('quick results reporting works for polls open reporting', async () => {
       precinctSelection: ALL_PRECINCTS_SELECTION,
       compressedTally: encodedTally,
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -753,8 +753,8 @@ test('quick results reporting works for polls open reporting', async () => {
         precinctSelection: ALL_PRECINCTS_SELECTION,
         compressedTally: '',
         pollsState: 'polls_open',
-        numParts: 1,
-        partIndex: 0,
+        numPages: 1,
+        pageIndex: 0,
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -881,7 +881,7 @@ test('quick results reporting works as expected end to end with single precinct 
     election: sampleElectionDefinition.election,
     results: mockResultsFirstPrecinct,
     precinctSelection: singlePrecinctSelectionFor(firstPrecinctId),
-    numParts: 1,
+    numPages: 1,
   })[0];
 
   const resultFirstPrecinct =
@@ -894,8 +894,8 @@ test('quick results reporting works as expected end to end with single precinct 
         precinctSelection: singlePrecinctSelectionFor(firstPrecinctId),
         compressedTally: encodedTallyFirstPrecinct,
         pollsState: 'polls_closed_final',
-        numParts: 1,
-        partIndex: 0,
+        numPages: 1,
+        pageIndex: 0,
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -927,7 +927,7 @@ test('quick results reporting works as expected end to end with single precinct 
     election: sampleElectionDefinition.election,
     results: mockResultsSecondPrecinct,
     precinctSelection: singlePrecinctSelectionFor(secondPrecinctId),
-    numParts: 1,
+    numPages: 1,
   })[0];
 
   const resultSecondPrecinct =
@@ -940,8 +940,8 @@ test('quick results reporting works as expected end to end with single precinct 
         precinctSelection: singlePrecinctSelectionFor(secondPrecinctId),
         compressedTally: encodedTallySecondPrecinct,
         pollsState: 'polls_closed_final',
-        numParts: 1,
-        partIndex: 0,
+        numPages: 1,
+        pageIndex: 0,
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -1120,7 +1120,7 @@ test('quick results reporting works as expected end to end with single precinct 
     election: sampleElectionDefinition.election,
     results: mockResultsAllPrecincts,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    numParts: 1,
+    numPages: 1,
   })[0];
 
   const resultAllPrecincts = await unauthenticatedApiClient.processQrCodeReport(
@@ -1133,8 +1133,8 @@ test('quick results reporting works as expected end to end with single precinct 
         precinctSelection: ALL_PRECINCTS_SELECTION,
         compressedTally: encodedTallyAllPrecincts,
         pollsState: 'polls_closed_final',
-        numParts: 1,
-        partIndex: 0,
+        numPages: 1,
+        pageIndex: 0,
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -1237,7 +1237,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
     election: sampleElectionDefinition.election,
     results: mockResults,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    numParts: 1,
+    numPages: 1,
   })[0];
 
   // Submit test results (isLiveMode: false)
@@ -1250,8 +1250,8 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
       precinctSelection: ALL_PRECINCTS_SELECTION,
       compressedTally: encodedTally,
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -1292,8 +1292,8 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
       precinctSelection: ALL_PRECINCTS_SELECTION,
       compressedTally: encodedTally,
       pollsState: 'polls_closed_final',
-      numParts: 1,
-      partIndex: 0,
+      numPages: 1,
+      pageIndex: 0,
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -1392,7 +1392,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     election: sampleElectionDefinition.election,
     results: mockResults,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    numParts: 2,
+    numPages: 2,
   });
 
   // Sanity: should produce 2 sections
@@ -1407,8 +1407,8 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     precinctSelection: ALL_PRECINCTS_SELECTION,
     compressedTally: sections[0],
     pollsState: 'polls_closed_final',
-    numParts: 2,
-    partIndex: 0,
+    numPages: 2,
+    pageIndex: 0,
   })}`;
 
   const r1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1462,8 +1462,8 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     precinctSelection: ALL_PRECINCTS_SELECTION,
     compressedTally: sections[1],
     pollsState: 'polls_closed_final',
-    numParts: 2,
-    partIndex: 1,
+    numPages: 2,
+    pageIndex: 1,
   })}`;
 
   auth0.logOut();

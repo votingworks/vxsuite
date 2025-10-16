@@ -1444,7 +1444,7 @@ test('combineCompressedElectionResults', () => {
       cardCounts: { bmd: 0, hmpb: [] },
     }),
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    numParts: 1,
+    numPages: 1,
   });
   const encoded2 = compressAndEncodeTally({
     election,
@@ -1455,7 +1455,7 @@ test('combineCompressedElectionResults', () => {
       cardCounts: { bmd: 0, hmpb: [] },
     }),
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    numParts: 1,
+    numPages: 1,
   });
   const combined = combineAndDecodeCompressedElectionResults({
     election,
@@ -1591,13 +1591,13 @@ test('combineCompressedElectionResults - can combine results from different prec
     election: electionEitherNeither,
     results: mockResultsPrecinct1,
     precinctSelection: singlePrecinctSelectionPrecinct1,
-    numParts: 1,
+    numPages: 1,
   });
   const encodedTallyPrecinct2 = compressAndEncodeTally({
     election: electionEitherNeither,
     results: mockResultsPrecinct2,
     precinctSelection: singlePrecinctSelectionPrecinct2,
-    numParts: 1,
+    numPages: 1,
   });
   expect(encodedTallyPrecinct1[0]).toMatchInlineSnapshot(
     `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAoABQACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoABAAGAAAAAAAAAAAAAAA"`

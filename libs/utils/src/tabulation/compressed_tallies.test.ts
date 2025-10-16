@@ -53,7 +53,7 @@ describe('compressTally', () => {
       election: electionEitherNeither,
       results: getEmptyElectionResults(electionEitherNeither),
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      numParts: 1,
+      numPages: 1,
     });
     expect(compressedTallies).toHaveLength(1);
     const [compressedTally] = compressedTallies;
@@ -79,7 +79,7 @@ describe('compressTally', () => {
       election: electionEitherNeither,
       results: getEmptyElectionResults(electionEitherNeither),
       precinctSelection: singlePrecinctSelectionFor('6522'),
-      numParts: 1,
+      numPages: 1,
     });
     expect(compressedTalliesSinglePrecinct).toHaveLength(1);
     const [compressedTallySinglePrecinct] = compressedTalliesSinglePrecinct;
@@ -111,7 +111,7 @@ describe('compressTally', () => {
       election: electionEitherNeither,
       results: getEmptyElectionResults(electionEitherNeither),
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      numParts: 3,
+      numPages: 3,
     });
     expect(compressedTallies).toHaveLength(3);
     const [compressedTallyPt1, compressedTallyPt2, compressedTallyPt3] =
@@ -134,7 +134,7 @@ describe('compressTally', () => {
       election: electionEitherNeither,
       results: getEmptyElectionResults(electionEitherNeither),
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      numParts: 1,
+      numPages: 1,
     });
     expect(compressedTalliesSinglePart).toHaveLength(1);
     const [compressedTallySinglePart] = compressedTalliesSinglePart;
@@ -179,7 +179,7 @@ describe('compressTally', () => {
       election: electionEitherNeither,
       results: resultsWithPresidentTallies,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      numParts: 1,
+      numPages: 1,
     });
     expect(compressedTallies).toHaveLength(1);
     const [compressedTally] = compressedTallies;
@@ -228,7 +228,7 @@ describe('compressTally', () => {
       election: electionEitherNeither,
       results: resultsWithYesNoTallies,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      numParts: 1,
+      numPages: 1,
     });
     expect(compressedTallies).toHaveLength(1);
     const [compressedTally] = compressedTallies;
@@ -448,7 +448,7 @@ test('primary tally can compress and be read back and end with the original tall
     election,
     results: expectedTally,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    numParts: 1,
+    numPages: 1,
   });
   expect(compressedTallies).toHaveLength(1);
   const [compressedTally] = compressedTallies;
