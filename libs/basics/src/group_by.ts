@@ -5,7 +5,7 @@ import { deepEqual } from './equality';
  * support complex key types. For simpler key types, a Map would suffice.
  */
 export function groupBy<T, K>(
-  items: T[],
+  items: Iterable<T>,
   keyFn: (item: T) => K
 ): Array<[K, T[]]> {
   const groups: Array<[K, T[]]> = [];
