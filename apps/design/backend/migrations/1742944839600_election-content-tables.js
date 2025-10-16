@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 const { throwIllegalValue } = require('@votingworks/basics');
 const { hasSplits } = require('@votingworks/types');
 const { PgLiteral } = require('node-pg-migrate');
