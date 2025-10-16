@@ -45,6 +45,11 @@ export enum UserFeature {
    */
   VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING = 'VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING',
   /**
+   * Allow the user to toggle VxScan's alarms.
+   * Requires the system settings screen to be enabled.
+   */
+  VXSCAN_ALARMS_SYSTEM_SETTING = 'VXSCAN_ALARMS_SYSTEM_SETTING',
+  /**
    * Allow the user to toggle the ability to mark overvotes on VxMark.
    * Requires the system settings screen to be enabled.
    */
@@ -118,6 +123,7 @@ export const userFeatureConfigs = {
 
     SYSTEM_SETTINGS_SCREEN: true,
     VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
+    VXSCAN_ALARMS_SYSTEM_SETTING: true,
     BMD_OVERVOTE_SYSTEM_SETTING: true,
     BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
     QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
