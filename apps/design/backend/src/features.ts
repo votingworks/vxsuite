@@ -12,53 +12,70 @@ export function isVxOrSliOrg(orgId: string): boolean {
  * officials can do.
  */
 export enum UserFeature {
-  /**
-   * Allow the user to access all elections across all organizations.
-   */
-  ACCESS_ALL_ORGS = 'ACCESS_ALL_ORGS',
-  /**
-   * Show the System Settings screen.
-   */
-  SYSTEM_SETTINGS_SCREEN = 'SYSTEM_SETTINGS_SCREEN',
-  /**
-   * Show the System Settings "Enable BMD Ballot Scanning on VxScan" option.
-   * If enabled, also requires SYSTEM_SETTINGS_SCREEN.
-   */
-  ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION = 'ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION',
+  //
+  // Export screen features
+  //
+
   /**
    * Show the export screen.
    */
   EXPORT_SCREEN = 'EXPORT_SCREEN',
   /**
-   * Show the ballot template picker on the export screen.
-   * If enabled, also requires EXPORT_SCREEN.
+   * Allow the user to choose a ballot template.
+   * Requires the export screen to be enabled.
    */
   CHOOSE_BALLOT_TEMPLATE = 'CHOOSE_BALLOT_TEMPLATE',
   /**
-   * Show the "Export Test Decks" button on the export screen.
-   * If enabled, also requires EXPORT_SCREEN.
+   * Allow the user to export test decks.
+   * Requires the export screen to be enabled.
    */
   EXPORT_TEST_DECKS = 'EXPORT_TEST_DECKS',
+
+  //
+  // System settings screen features
+  //
+
   /**
-   * Only allow selecting Letter and Legal paper sizes for ballots.
+   * Show the system settings screen.
+   */
+  SYSTEM_SETTINGS_SCREEN = 'SYSTEM_SETTINGS_SCREEN',
+  /**
+   * Allow the user to toggle VxScan's ability to scan BMD ballots.
+   * Requires the system settings screen to be enabled.
+   */
+  VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING = 'VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING',
+  /**
+   * Allow the user to toggle the ability to mark overvotes on VxMark.
+   * Requires the system settings screen to be enabled.
+   */
+  BMD_OVERVOTE_SYSTEM_SETTING = 'BMD_OVERVOTE_SYSTEM_SETTING',
+  /**
+   * Allow the user to select BMD print modes beyond summary ballots.
+   * Requires the system settings screen to be enabled.
+   */
+  BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING = 'BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING',
+  /**
+   * Allow the user to configure quick results reporting.
+   * Requires the system settings screen to be enabled.
+   */
+  QUICK_RESULTS_REPORTING_SYSTEM_SETTING = 'QUICK_RESULTS_REPORTING_SYSTEM_SETTING',
+
+  //
+  // Other features
+  //
+
+  /**
+   * Allow the user to access all elections across all organizations.
+   */
+  ACCESS_ALL_ORGS = 'ACCESS_ALL_ORGS',
+  /**
+   * Only allow selecting letter and legal paper sizes for ballots.
    */
   ONLY_LETTER_AND_LEGAL_PAPER_SIZES = 'ONLY_LETTER_AND_LEGAL_PAPER_SIZES',
   /**
    * Allow the user to select ballot languages.
    */
   BALLOT_LANGUAGE_CONFIG = 'BALLOT_LANGUAGE_CONFIG',
-  /**
-   * Allow the user to toggle the ability to mark overvotes on VxMark.
-   */
-  BMD_OVERVOTE_ALLOW_TOGGLE = 'BMD_OVERVOTE_ALLOW_TOGGLE',
-  /**
-   * Allow selection of additional BMD print modes beyond summary ballots.
-   */
-  BMD_EXTRA_PRINT_MODES = 'BMD_EXTRA_PRINT_MODES',
-  /**
-   * Allow for configuring the Quick Results Reporting system setting on elections.
-   */
-  QUICK_RESULTS_REPORTING = 'QUICK_RESULTS_REPORTING',
   /**
    * Enable audio-proofing UI.
    */
@@ -95,35 +112,38 @@ export type ElectionFeaturesConfig = Partial<Record<ElectionFeature, boolean>>;
 
 export const userFeatureConfigs = {
   vx: {
-    ACCESS_ALL_ORGS: true,
-
-    BALLOT_LANGUAGE_CONFIG: true,
-
-    SYSTEM_SETTINGS_SCREEN: true,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
-    BMD_OVERVOTE_ALLOW_TOGGLE: true,
-    BMD_EXTRA_PRINT_MODES: true,
-
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
     EXPORT_TEST_DECKS: true,
-    QUICK_RESULTS_REPORTING: true,
+
+    SYSTEM_SETTINGS_SCREEN: true,
+    VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
+    BMD_OVERVOTE_SYSTEM_SETTING: true,
+    BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
+    QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
+
+    ACCESS_ALL_ORGS: true,
+    BALLOT_LANGUAGE_CONFIG: true,
     AUDIO_PROOFING: true,
   },
 
   sli: {
-    BALLOT_LANGUAGE_CONFIG: true,
     EXPORT_SCREEN: true,
+
     SYSTEM_SETTINGS_SCREEN: true,
+
+    BALLOT_LANGUAGE_CONFIG: true,
   },
 
   demos: {
-    BALLOT_LANGUAGE_CONFIG: true,
-    CHOOSE_BALLOT_TEMPLATE: true,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
     EXPORT_SCREEN: true,
+    CHOOSE_BALLOT_TEMPLATE: true,
     EXPORT_TEST_DECKS: true,
+
     SYSTEM_SETTINGS_SCREEN: true,
+    VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
+
+    BALLOT_LANGUAGE_CONFIG: true,
   },
 
   nh: {

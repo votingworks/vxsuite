@@ -539,7 +539,9 @@ describe('BMD overvote toggle', () => {
       .expectCallWith({ electionId })
       .resolves(electionRecord.systemSettings);
 
-    mockUserFeatures(apiMock, { BMD_OVERVOTE_ALLOW_TOGGLE: false });
+    mockUserFeatures(apiMock, {
+      BMD_OVERVOTE_SYSTEM_SETTING: false,
+    });
 
     renderScreen();
 
@@ -559,7 +561,9 @@ describe('BMD overvote toggle', () => {
       .expectCallWith({ electionId })
       .resolves(mockSettingsInitial);
 
-    mockUserFeatures(apiMock, { BMD_OVERVOTE_ALLOW_TOGGLE: true });
+    mockUserFeatures(apiMock, {
+      BMD_OVERVOTE_SYSTEM_SETTING: true,
+    });
 
     renderScreen();
 
@@ -593,7 +597,7 @@ describe('BMD overvote toggle', () => {
 
 describe('BMD print mode', () => {
   test('omitted when feature flag is off', async () => {
-    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES: false });
+    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: false });
 
     apiMock.getSystemSettings
       .expectCallWith({ electionId })
@@ -606,7 +610,7 @@ describe('BMD print mode', () => {
   });
 
   test('included when feature flag is on', async () => {
-    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES: true });
+    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true });
 
     const mockSettingsInitial: SystemSettings = {
       ...electionRecord.systemSettings,
@@ -647,7 +651,7 @@ describe('BMD print mode', () => {
   });
 
   test('omits default value from saved settings', async () => {
-    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES: true });
+    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true });
 
     const mockSettingsInitial: SystemSettings = {
       ...electionRecord.systemSettings,
@@ -700,7 +704,9 @@ describe('Quick Results Reporting SS', () => {
       .expectCallWith({ electionId })
       .resolves(electionRecord.systemSettings);
 
-    mockUserFeatures(apiMock, { QUICK_RESULTS_REPORTING: false });
+    mockUserFeatures(apiMock, {
+      QUICK_RESULTS_REPORTING_SYSTEM_SETTING: false,
+    });
 
     renderScreen();
 
@@ -720,7 +726,7 @@ describe('Quick Results Reporting SS', () => {
       .expectCallWith({ electionId })
       .resolves(mockSettingsInitial);
 
-    mockUserFeatures(apiMock, { QUICK_RESULTS_REPORTING: true });
+    mockUserFeatures(apiMock, { QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true });
 
     renderScreen();
 

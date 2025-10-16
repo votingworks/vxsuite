@@ -517,7 +517,7 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
-            {features.ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION && (
+            {features.VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING && (
               <CheckboxButton
                 label="Enable BMD Ballot Scanning on VxScan"
                 isChecked={Boolean(
@@ -534,7 +534,7 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
-            {features.BMD_OVERVOTE_ALLOW_TOGGLE && (
+            {features.BMD_OVERVOTE_SYSTEM_SETTING && (
               <CheckboxButton
                 label="Allow Overvote Marking on VxMark"
                 isChecked={Boolean(systemSettings.bmdAllowOvervotes)}
@@ -547,7 +547,7 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
-            {features.BMD_EXTRA_PRINT_MODES && (
+            {features.BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING && (
               <InputGroup label="VxMark Print Mode">
                 <SearchSelect<BmdPrintMode>
                   aria-label="VxMark Print Mode"
@@ -594,7 +594,7 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
-            {features.QUICK_RESULTS_REPORTING && (
+            {features.QUICK_RESULTS_REPORTING_SYSTEM_SETTING && (
               <InputGroup label="Live Reports">
                 <CheckboxButton
                   label="Enable Live Reporting"
