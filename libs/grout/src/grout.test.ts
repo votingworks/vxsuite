@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 import { expect, test, vi } from 'vitest';
 import { AddressInfo } from 'node:net';
@@ -10,6 +9,7 @@ import waitForExpect from 'wait-for-expect';
 import { createClient, ServerError } from './client';
 import {
   AnyApi,
+  Api,
   buildRouter,
   createApi,
   MiddlewareMethodCall,
@@ -66,12 +66,14 @@ test('registers Express routes for an API', async () => {
     updatePerson(input: { name: string; newPerson: Person }): Promise<void>;
   }>();
 
+  /* eslint-disable @typescript-eslint/no-unused-expressions */
   // @ts-expect-error Catches typos in method names
   client.getAllPeeple;
   // @ts-expect-error Catches incorrect argument names
   () => client.getPersonByName({ nam: 'Alice' });
   // @ts-expect-error Catches incorrect argument types
   () => client.getPersonByName({ name: 1 });
+  /* eslint-enable @typescript-eslint/no-unused-expressions */
 
   const mockPerson: Person = { name: 'Alice', age: 99 };
 
@@ -204,6 +206,7 @@ test('errors if RPC method doesnt have the correct signature', async () => {
     );
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   async () => {
     // We can catch the wrong number of arguments when calling a method at compile time
     // @ts-expect-error expected 1 argument, got 2
@@ -301,14 +304,10 @@ test('can send timeout', async () => {
 });
 
 test('client errors if response is not JSON', async () => {
-  const api = createApi({
-    async getStuff(): Promise<number> {
-      return 42;
-    },
-    async getMoreStuff(): Promise<number> {
-      return 42;
-    },
-  });
+  type api = Api<{
+    getStuff(): Promise<number>;
+    getMoreStuff(): Promise<number>;
+  }>;
   const app = express();
   app.post('/api/getStuff', (req, res) => {
     // Send valid JSON, but not the right Content-type
@@ -323,7 +322,7 @@ test('client errors if response is not JSON', async () => {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createClient<api>({ baseUrl });
 
   await expect(client.getStuff()).rejects.toThrow(
     `Response content type is not JSON for ${baseUrl}/getStuff`
@@ -335,11 +334,7 @@ test('client errors if response is not JSON', async () => {
 });
 
 test('client handles non-JSON error responses', async () => {
-  const api = createApi({
-    async getStuff(): Promise<number> {
-      return 42;
-    },
-  });
+  type api = Api<{ getStuff(): Promise<number> }>;
   const app = express();
   app.post('/api/getStuff', (req, res) => {
     res.set('Content-Type', 'application/json');
@@ -349,17 +344,13 @@ test('client handles non-JSON error responses', async () => {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createClient<api>({ baseUrl });
   await expect(client.getStuff()).rejects.toThrow('invalid json response body');
   server.close();
 });
 
 test('client handles other server errors', async () => {
-  const api = createApi({
-    async getStuff(): Promise<number> {
-      return 42;
-    },
-  });
+  type api = Api<{ getStuff(): Promise<number> }>;
   const app = express();
   app.post('/api/getStuff', (req, res) => {
     res.status(500).send();
@@ -367,7 +358,7 @@ test('client handles other server errors', async () => {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createClient<api>({ baseUrl });
   await expect(client.getStuff()).rejects.toThrow(
     `Got 500 for ${baseUrl}/getStuff`
   );
@@ -452,7 +443,7 @@ test('middleware runs before and after RPC method, adding context that can be ac
 });
 
 test('before middleware errors are caught, returned to client, and passed to after middleware', async () => {
-  interface Context {}
+  type Context = object;
 
   const authMiddleware = vi.fn(() => {
     throw new UserError('middleware error');

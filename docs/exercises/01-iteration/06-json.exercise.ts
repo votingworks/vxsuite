@@ -29,12 +29,12 @@ interface Contact {
   email: string;
 }
 
-function* getListOfContactsFromDatabase(): Generator<Contact> {
+async function* getListOfContactsFromDatabase(): AsyncGenerator<Contact> {
   for (let i = 0; i < 100_000; i += 1) {
-    yield {
+    yield await Promise.resolve({
       name: `Person ${i}`,
       email: `person${i}@example.com`,
-    };
+    });
   }
 }
 

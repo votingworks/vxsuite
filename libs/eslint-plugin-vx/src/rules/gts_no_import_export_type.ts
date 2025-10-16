@@ -10,8 +10,6 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Disallows use of `import type` and `export type`',
-      recommended: 'strict',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {
@@ -72,9 +70,9 @@ const rule: TSESLint.RuleModule<
 
       if (
         reference.identifier.parent.type !==
-          AST_NODE_TYPES.ExportAllDeclaration &&
+        AST_NODE_TYPES.ExportAllDeclaration &&
         reference.identifier.parent.parent.type !==
-          AST_NODE_TYPES.ExportNamedDeclaration
+        AST_NODE_TYPES.ExportNamedDeclaration
       ) {
         return false;
       }
@@ -149,8 +147,10 @@ const rule: TSESLint.RuleModule<
         // export type { foo }
         if (
           allowReexport &&
-          node.specifiers.every((specifier) =>
-            isReexportOnly(specifier.local.name)
+          node.specifiers.every(
+            (specifier) =>
+              specifier.local.type === AST_NODE_TYPES.Identifier &&
+              isReexportOnly(specifier.local.name)
           )
         ) {
           return;

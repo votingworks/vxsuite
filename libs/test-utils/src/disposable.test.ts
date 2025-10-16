@@ -31,7 +31,7 @@ test('disposable runs even if an exception is thrown', () => {
     });
 
     throw new Error(resource.toString());
-  } catch (e) {
+  } catch {
     // ignore
   }
 
@@ -73,7 +73,7 @@ test('asyncDisposable runs even if an exception is thrown', async () => {
     );
 
     throw new Error(resource.toString());
-  } catch (e) {
+  } catch {
     // ignore
   }
 
