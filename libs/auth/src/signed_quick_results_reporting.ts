@@ -332,11 +332,12 @@ export async function generateSignedQuickResultsReportingUrl(
         quickResultsReportingUrl,
         maxQrCodeLength
       );
+      /* istanbul ignore next - @preserve */
       if (!url) break;
       return [url];
     }
+    /* istanbul ignore next - @preserve */
     default: {
-      /* istanbul ignore next - @preserve */
       throwIllegalValue(pollsState);
     }
   }
