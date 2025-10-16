@@ -8,7 +8,13 @@ import {
   Tabulation,
   safeParseInt,
 } from '@votingworks/types';
-import { assert, err, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   ALL_PRECINCTS_SELECTION,
   compressAndEncodeTally,
@@ -84,9 +90,9 @@ export function encodeQuickResultsMessage(components: {
   signingMachineId: string;
   isLiveMode: boolean;
   timestamp: number;
-  compressedTally: string;
+  // primaryMessage is either a compressed tally (base64) or the string 'polls_open'
+  primaryMessage: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsStateSupportsLiveReporting;
   numPages: number;
   pageIndex: number;
 }): string {
@@ -95,10 +101,7 @@ export function encodeQuickResultsMessage(components: {
     safeEncodeForUrl(components.signingMachineId),
     components.isLiveMode ? '1' : '0',
     components.timestamp.toString(),
-    // When polls are closed we send results, otherwise we can reuse this field for the poll state.
-    components.compressedTally === ''
-      ? components.pollsState
-      : components.compressedTally,
+    components.primaryMessage,
     components.precinctSelection.kind === 'SinglePrecinct'
       ? safeEncodeForUrl(components.precinctSelection.precinctId)
       : '',
@@ -201,6 +204,43 @@ export function decodeQuickResultsMessage(payload: string): {
   };
 }
 
+// Shared helper: sign a message, read machine cert, and build the final URL.
+async function signAndBuildUrl(
+  message: string,
+  config: SignedQuickResultsReportingConfig,
+  quickResultsReportingUrl: string,
+  maxQrCodeLength: number
+): Promise<string | null> {
+  const messageSignature = await signMessage({
+    message: Readable.from(message),
+    signingPrivateKey: config.machinePrivateKey,
+  });
+
+  const machineCert = await fs.readFile(config.machineCertPath);
+  const certDetails = await parseCert(machineCert);
+  assert(certDetails.component !== 'card');
+
+  // Extract the certificate content, decode from PEM base64 to binary DER, then encode as base64url
+  const machineCertContent = machineCert
+    .toString('utf-8')
+    // Remove the standard PEM header and footer to get the base64 content
+    .replace(CERT_PEM_HEADER, '')
+    .replace(CERT_PEM_FOOTER, '');
+
+  const params = new URLSearchParams({
+    p: message,
+    s: messageSignature.toString('base64url'),
+    c: machineCertContent,
+  });
+  const signedQuickResultsReportingUrl = `${quickResultsReportingUrl}?${params.toString()}`;
+  if (
+    Buffer.byteLength(signedQuickResultsReportingUrl, 'utf-8') > maxQrCodeLength
+  ) {
+    return null;
+  }
+  return signedQuickResultsReportingUrl;
+}
+
 /**
  * Returns the URL to encode as a QR code for quick results reporting, including a signed payload
  * containing the election results
@@ -226,78 +266,85 @@ export async function generateSignedQuickResultsReportingUrl(
   let numPagesNeeded = 1; // If we need to paginate this value will be incremented.
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
 
-  while (
-    numPagesNeeded <=
-    // Only paginate if polls are closed and we have results to send.
-    (pollsState === 'polls_closed_final' ? MAX_PARTS_FOR_QR_CODE : 1)
-  ) {
-    const compressedTallies =
-      pollsState === 'polls_closed_final'
-        ? compressAndEncodeTally({
-            election,
-            results,
+  switch (pollsState) {
+    case 'polls_closed_final': {
+      // Try increasing pagination until all parts fit within the QR size limits.
+      while (numPagesNeeded <= MAX_PARTS_FOR_QR_CODE) {
+        const encodedUrls: string[] = [];
+        const compressedTallies = compressAndEncodeTally({
+          election,
+          results,
+          precinctSelection,
+          numPages: numPagesNeeded,
+        });
+        for (const compressedTally of compressedTallies) {
+          const messagePayload = encodeQuickResultsMessage({
+            ballotHash,
+            signingMachineId,
+            isLiveMode,
+            timestamp: secondsSince1970,
+            primaryMessage: compressedTally,
             precinctSelection,
             numPages: numPagesNeeded,
-          })
-        : ['']; // For polls open reports we don't have results to send.
-    const encodedUrls: string[] = [];
-    for (const compressedTally of compressedTallies) {
+            pageIndex: encodedUrls.length,
+          });
+          const message = constructPrefixedMessage(
+            QR_MESSAGE_FORMAT,
+            messagePayload
+          );
+          const url = await signAndBuildUrl(
+            message,
+            config,
+            quickResultsReportingUrl,
+            maxQrCodeLength
+          );
+          if (!url) break;
+          encodedUrls.push(url);
+        }
+
+        if (encodedUrls.length !== compressedTallies.length) {
+          numPagesNeeded += 1;
+          continue;
+        }
+        return encodedUrls;
+      }
+      break;
+    }
+    case 'polls_open': {
+      // For polls open reports we don't have results to send. Build a single URL with 'polls_open'.
       const messagePayload = encodeQuickResultsMessage({
         ballotHash,
         signingMachineId,
         isLiveMode,
         timestamp: secondsSince1970,
-        compressedTally,
-        pollsState,
+        primaryMessage: 'polls_open',
         precinctSelection,
-        numPages: numPagesNeeded,
-        pageIndex: encodedUrls.length,
+        numPages: 1,
+        pageIndex: 0,
       });
       const message = constructPrefixedMessage(
         QR_MESSAGE_FORMAT,
         messagePayload
       );
-      const messageSignature = await signMessage({
-        message: Readable.from(message),
-        signingPrivateKey: config.machinePrivateKey,
-      });
-
-      const machineCert = await fs.readFile(config.machineCertPath);
-      const certDetails = await parseCert(machineCert);
-      assert(certDetails.component !== 'card');
-
-      // Extract the certificate content, decode from PEM base64 to binary DER, then encode as base64url
-      const machineCertContent = machineCert
-        .toString('utf-8')
-        // Remove the standard PEM header and footer to get the base64 content
-        .replace(CERT_PEM_HEADER, '')
-        .replace(CERT_PEM_FOOTER, '');
-
-      const params = new URLSearchParams({
-        p: message,
-        s: messageSignature.toString('base64url'),
-        c: machineCertContent,
-      });
-      const signedQuickResultsReportingUrl = `${quickResultsReportingUrl}?${params.toString()}`;
-      if (
-        Buffer.byteLength(signedQuickResultsReportingUrl, 'utf-8') >
+      const url = await signAndBuildUrl(
+        message,
+        config,
+        quickResultsReportingUrl,
         maxQrCodeLength
-      ) {
-        break;
-      }
-      encodedUrls.push(signedQuickResultsReportingUrl);
+      );
+      if (!url) break;
+      return [url];
     }
-
-    if (encodedUrls.length !== compressedTallies.length) {
-      numPagesNeeded += 1;
-      continue;
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(pollsState);
     }
-    return encodedUrls;
   }
   throw new Error(
     `Unable to fit signed quick results reporting URL within ${maxQrCodeLength} bytes broken up over ${MAX_PARTS_FOR_QR_CODE} parts`
   );
 }
+
 /**
  * Verifies that the provided signature is valid for the given payload and was signed by the key that the public certificate is for.
  * Additionally verifies that the certificate why signed by the trusted certificate authority.

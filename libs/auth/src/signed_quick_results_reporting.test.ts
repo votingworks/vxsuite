@@ -22,8 +22,9 @@ vi.mock(
   async (importActual): Promise<typeof import('@votingworks/utils')> => ({
     ...(await importActual<typeof import('@votingworks/utils')>()),
     compressAndEncodeTally: vi
-      .fn<typeof compressAndEncodeTally>()
-      .mockImplementation(({ numPages }) => {
+      .fn()
+      .mockImplementation((args: { numPages?: number }) => {
+        const numPages = args?.numPages ?? 1;
         // Split sampleCompressedTally into numPages equal parts
         const partLength = Math.ceil(sampleCompressedTally.length / numPages);
         const parts = [];
@@ -352,9 +353,8 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     signingMachineId: 'machineId',
     isLiveMode: false,
     timestamp: timeInSeconds,
-    compressedTally: 'sampleCompressedTally',
+    primaryMessage: 'sampleCompressedTally',
     precinctSelection: { kind: 'AllPrecincts' },
-    pollsState: 'polls_closed_final',
     numPages: 88,
     pageIndex: 77,
   });
@@ -427,9 +427,8 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         signingMachineId: 'machineId',
         isLiveMode: false,
         timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
-        compressedTally: 'sampleCompressedTally',
+        primaryMessage: 'sampleCompressedTally',
         precinctSelection: { kind: 'AllPrecincts' },
-        pollsState: 'polls_closed_final',
         numPages: 1,
         pageIndex: 0,
       })
@@ -461,12 +460,11 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         signingMachineId: 'machineId',
         isLiveMode: false,
         timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
-        compressedTally: 'sampleCompressedTally',
+        primaryMessage: 'sampleCompressedTally',
         precinctSelection: {
           kind: 'SinglePrecinct',
           precinctId: 'mockPrecinctId',
         },
-        pollsState: 'polls_closed_final',
         numPages: 1,
         pageIndex: 0,
       })
@@ -496,12 +494,11 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
     signingMachineId: 'machineId',
     isLiveMode: false,
     timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
-    compressedTally: '',
+    primaryMessage: 'polls_open',
     precinctSelection: {
       kind: 'SinglePrecinct',
       precinctId: 'mockPrecinctId',
     },
-    pollsState: 'polls_open',
     numPages: 1,
     pageIndex: 0,
   });
