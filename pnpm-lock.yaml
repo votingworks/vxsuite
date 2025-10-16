@@ -1369,6 +1369,9 @@ importers:
       styled-components:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
+      use-sound:
+        specifier: 5.0.0
+        version: 5.0.0(react@18.3.1)
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -1723,8 +1726,8 @@ importers:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
       use-sound:
-        specifier: ^4.0.1
-        version: 4.0.1(react@18.3.1)
+        specifier: 5.0.0
+        version: 5.0.0(react@18.3.1)
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -2913,8 +2916,8 @@ importers:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
       use-sound:
-        specifier: ^4.0.1
-        version: 4.0.1(react@18.3.1)
+        specifier: 5.0.0
+        version: 5.0.0(react@18.3.1)
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -19067,8 +19070,8 @@ packages:
       lru-cache: 6.0.0
     dev: true
 
-  /howler@2.2.3:
-    resolution: {integrity: sha512-QM0FFkw0LRX1PR8pNzJVAY25JhIWvbKMBFM4gqk+QdV+kPXOhleWGCB6AiAF/goGjIHK2e/nIElplvjQwhr0jg==}
+  /howler@2.2.4:
+    resolution: {integrity: sha512-iARIBPgcQrwtEr+tALF+rapJ8qSc+Set2GJQl7xT1MQzWaVkFebdJhR3alVlSiUf5U7nAANKuj3aWpwerocD5w==}
     dev: false
 
   /html-encoding-sniffer@3.0.0:
@@ -25046,12 +25049,12 @@ packages:
       tslib: 2.6.2
     dev: true
 
-  /use-sound@4.0.1(react@18.3.1):
-    resolution: {integrity: sha512-hykJ86kNcu6y/FzlSHcQxhjSGMslZx2WlfLpZNoPbvueakv4OF3xPxEtGV2YmculrIaH0tPp9LtG4jgy17xMWg==}
+  /use-sound@5.0.0(react@18.3.1):
+    resolution: {integrity: sha512-MNHT3FFC5HxNCrgZtrnpIMJI2cw/0D2xismcrtyht8BTuF5FhFhb57xO/jlQr2xJaFrc/0btzRQvGyHQwB7PVA==}
     peerDependencies:
       react: '>=16.8'
     dependencies:
-      howler: 2.2.3
+      howler: 2.2.4
       react: 18.3.1
     dev: false
 

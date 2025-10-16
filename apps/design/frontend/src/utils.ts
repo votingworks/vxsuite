@@ -1,5 +1,6 @@
 import { assert } from '@votingworks/basics';
 import { customAlphabet } from 'nanoid';
+import useSoundLib from 'use-sound';
 
 const idGenerator = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
 
@@ -54,3 +55,10 @@ export function reorderElement<T>(
 }
 
 export const ALL_PRECINCTS_REPORT_KEY = '';
+
+export type SoundType = 'happy-ping';
+
+export function useSound(sound: SoundType): () => void {
+  const [playSound] = useSoundLib(`/sounds/${sound}.mp3`);
+  return playSound;
+}
