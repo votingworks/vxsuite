@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   Button,
@@ -315,6 +315,19 @@ function PollWorkerScreenContents({
     Optional<PollWorkerFlowState>
   >(initialPollWorkerFlowState());
 
+  // Track which QR index we're viewing when multiple quick-results reports exist.
+  const [currentQrIndex, setCurrentQrIndex] = useState(0);
+
+  // Reset the current QR index when entering the view-reporting-qr-code flow.
+  useEffect(() => {
+    if (
+      pollWorkerFlowState &&
+      pollWorkerFlowState.type === 'view-reporting-qr-code'
+    ) {
+      setCurrentQrIndex(0);
+    }
+  }, [pollWorkerFlowState]);
+
   if (
     !usbDriveStatusQuery.isSuccess ||
     !printerStatusQuery.isSuccess ||
@@ -340,6 +353,12 @@ function PollWorkerScreenContents({
 
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
+  }
+
+  function showNextQr() {
+    setCurrentQrIndex((i) =>
+      Math.min(i + 1, (getQuickResultsReportingUrlQuery.data?.length ?? 1) - 1)
+    );
   }
 
   async function openPolls() {
@@ -501,24 +520,47 @@ function PollWorkerScreenContents({
         assert(doesPollsStateSupportLiveReporting(pollsInfo.pollsState));
         // @ts-expect-error: Redundant check to satisfy TypeScript issue with accessing lastPollsTransition
         assert(pollsInfo.pollsState !== 'polls_closed_initial');
+        const reports = getQuickResultsReportingUrlQuery.data;
+        assert(reports !== undefined && reports.length > 0);
+
         return (
           <Screen>
-            <h4 style={{ marginTop: 0 }}>
-              Scan the QR code to send{' '}
-              {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
+            <h4 style={{ marginTop: 0, marginBottom: '0.3em' }}>
+              {reports.length === 1
+                ? `Scan the QR code to send 
+              ${getPollsReportTitle(pollsInfo.lastPollsTransition.type)}`
+                : `Scan all ${
+                    reports.length
+                  } QR codes to send ${getPollsReportTitle(
+                    pollsInfo.lastPollsTransition.type
+                  )}`}
             </h4>
             <CenteredText>
-              {getQuickResultsReportingUrlQuery.data && (
-                <div data-testid="quick-results-code">
+              {reports && (
+                <div
+                  data-testid="quick-results-code"
+                  data-value={reports[currentQrIndex]}
+                >
                   <QrCode
-                    value={getQuickResultsReportingUrlQuery.data}
-                    level="L"
+                    value={reports[currentQrIndex]}
+                    level="M"
                     size={450}
                   />
                 </div>
               )}
-              <br />
-              <Button onPress={showAllPollWorkerActions}>Done</Button>
+              <div style={{ height: '0.3em' }} />
+              {reports.length > 1 && (
+                <H6 style={{ marginTop: '0' }}>
+                  {currentQrIndex + 1} / {reports.length}
+                </H6>
+              )}
+              <div>
+                {currentQrIndex < reports.length - 1 ? (
+                  <Button onPress={showNextQr}>Next</Button>
+                ) : (
+                  <Button onPress={showAllPollWorkerActions}>Done</Button>
+                )}
+              </div>
             </CenteredText>
           </Screen>
         );
@@ -530,7 +572,10 @@ function PollWorkerScreenContents({
             pollsTransitionType={pollWorkerFlowState.transitionType}
             electionDefinition={electionDefinition}
             initialPrintResult={pollWorkerFlowState.printResult}
-            reportQuickResultsEnabled={!!getQuickResultsReportingUrlQuery.data}
+            reportQuickResultsEnabled={
+              !!getQuickResultsReportingUrlQuery.data &&
+              getQuickResultsReportingUrlQuery.data.length > 0
+            }
             onViewReportResults={() =>
               setPollWorkerFlowState({ type: 'view-reporting-qr-code' })
             }
@@ -541,9 +586,9 @@ function PollWorkerScreenContents({
         throwIllegalValue(pollWorkerFlowState, 'state');
     }
   }
-
   const viewQrReportButton =
     getQuickResultsReportingUrlQuery.data &&
+    getQuickResultsReportingUrlQuery.data.length > 0 &&
     doesPollsStateSupportLiveReporting(pollsInfo.pollsState) &&
     // @ts-expect-error: Redundant check to satisfy TypeScript issue with accessing lastPollsTransition
     pollsInfo.pollsState !== 'polls_closed_initial' ? (

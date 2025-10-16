@@ -51,7 +51,7 @@ beforeEach(() => {
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.setPrinterStatus();
-  apiMock.expectGetQuickResultsReportingUrl();
+  apiMock.expectGetQuickResultsReportingUrl([]);
 });
 
 afterEach(() => {
@@ -76,7 +76,7 @@ function renderScreen(props: Partial<PollWorkerScreenProps> = {}) {
 describe('transitions from polls closed initial', () => {
   beforeEach(async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.expectGetQuickResultsReportingUrl('');
+    apiMock.expectGetQuickResultsReportingUrl([]);
     renderScreen({
       scannedBallotCount: 0,
     });
@@ -108,7 +108,7 @@ describe('transitions from polls closed initial', () => {
 
   test('open polls happy path with vxqr', async () => {
     apiMock.expectOpenPolls();
-    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+    apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Open Polls'));
@@ -159,7 +159,7 @@ describe('transitions from polls open', () => {
 
   test('close polls happy path with vxqr', async () => {
     apiMock.expectClosePolls();
-    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+    apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
@@ -170,6 +170,33 @@ describe('transitions from polls open', () => {
     userEvent.click(screen.getButton('Send Polls Closed Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
+    userEvent.click(screen.getButton('Done'));
+  });
+
+  test('close polls happy path with multi-page vxqr', async () => {
+    apiMock.expectClosePolls();
+    apiMock.expectGetQuickResultsReportingUrl([
+      'https://example.com/qr1',
+      'https://example.com/qr2',
+    ]);
+    apiMock.expectPrintReportSection(0).resolve();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Close Polls'));
+    await screen.findByText('Closing Polls…');
+    await screen.findByText('Polls Closed');
+    expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
+    await screen.findByText('Reprint Polls Closed Report');
+    userEvent.click(screen.getButton('Send Polls Closed Report'));
+    const qrCode = screen.getByTestId('quick-results-code');
+    expect(qrCode).toBeInTheDocument();
+    expect(qrCode).toHaveAttribute('data-value', 'https://example.com/qr1');
+    expect(screen.queryByText('Done')).toBeNull();
+    screen.queryByText('1 / 2');
+    userEvent.click(screen.getButton('Next'));
+    screen.queryByText('2 / 2');
+    const qrCode2 = screen.getByTestId('quick-results-code');
+    expect(qrCode2).toBeInTheDocument();
+    expect(qrCode2).toHaveAttribute('data-value', 'https://example.com/qr2');
     userEvent.click(screen.getButton('Done'));
   });
 
@@ -245,7 +272,7 @@ test('no transitions from polls closed final', async () => {
 });
 
 test('polls closed final shows quick results code when configured', async () => {
-  apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+  apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
   apiMock.expectGetPollsInfo('polls_closed_final');
   renderScreen({
     scannedBallotCount: 0,
@@ -264,7 +291,7 @@ test('polls closed final shows quick results code when configured', async () => 
 });
 
 test('polls open shows quick results code when configured', async () => {
-  apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+  apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
   apiMock.expectGetPollsInfo('polls_open');
   renderScreen({
     scannedBallotCount: 0,
@@ -790,7 +817,7 @@ describe('report printing', () => {
   test('single report printing happy path works to report polls open', async () => {
     apiMock.setPrinterStatus();
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+    apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     apiMock.expectOpenPolls();
     const { resolve } = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
@@ -829,7 +856,7 @@ describe('report printing', () => {
 
   test('multiple report printing happy path with reporting polls open', async () => {
     apiMock.setPrinterStatus();
-    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+    apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectOpenPolls();
     const { resolve: resolveMammal } = apiMock.expectPrintReportSection(0);
@@ -841,7 +868,7 @@ describe('report printing', () => {
     // close polls to trigger first section to print
     await screen.findByText('Do you want to open the polls?');
     // This will be called again when polls are opened
-    apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+    apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     resolveMammal();

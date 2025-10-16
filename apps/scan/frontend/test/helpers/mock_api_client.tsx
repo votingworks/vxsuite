@@ -337,12 +337,12 @@ export function createApiMock() {
       mockApiClient.rebootToVendorMenu.expectCallWith().resolves();
     },
 
-    expectGetQuickResultsReportingUrl(url: string = '') {
+    expectGetQuickResultsReportingUrl(urls: string[] = []) {
       mockApiClient.getQuickResultsReportingUrl.reset();
-      mockApiClient.getQuickResultsReportingUrl.expectCallWith().resolves(url);
+      mockApiClient.getQuickResultsReportingUrl.expectCallWith().resolves(urls);
       mockApiClient.getQuickResultsReportingUrl
         .expectOptionalRepeatedCallsWith()
-        .resolves(url);
+        .resolves(urls);
     },
   };
 }
