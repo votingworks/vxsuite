@@ -17,6 +17,7 @@ import {
   Party,
   Precinct,
   safeParseNumber,
+  safeParseVxfElection,
 } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import { splitCandidateName } from './utils';
@@ -121,7 +122,8 @@ const counties: Record<string, string> = {
   '82': 'Yazoo',
 };
 
-export const MS_ID_SEPARATOR = '_'; // Use a separator that won't interrupt a double-click selection
+// Use a separator that won't interrupt double-clicking to select the entire ID
+export const MS_ID_SEPARATOR = '_';
 
 export function convertMsElection(
   newElectionId: ElectionId,
@@ -177,47 +179,37 @@ export function convertMsElection(
     ])
   );
 
-  // There may be multiple splits within a precinct with the same ballot style
-  // (meaning the same district list). Not sure why this is the case, but we
-  // need to deduplicate them, because we only represent precinct splits when
-  // they have different contests on the ballot.
-  let uniquePrecinctRows = uniqueDeep(
-    sectionRows(4),
-    ([, , precinctId, , , , ballotStyle]) => [precinctId, ballotStyle]
-  );
-  // In a primary, there may be multiple ballot styles within a precinct or
-  // split (one for each party).  We only are concerned with the precincts and
-  // splits, so we deduplicate them here.
-  uniquePrecinctRows = uniqueDeep(
-    uniquePrecinctRows,
-    ([, , precinctId, splitId]) => [precinctId, splitId]
-  );
-
+  const precinctEntries = sectionRows(4).map((row) => {
+    const [, , precinctId, splitId, precinctLabel] = row;
+    return { precinctId, splitId, precinctLabel };
+  });
   const precincts: Precinct[] = groupBy(
-    uniquePrecinctRows,
-    ([, , precinctId]) => precinctId
-  ).map(([precinctId, rows]) => {
-    const precinctLabel = rows[0][4];
+    precinctEntries,
+    ({ precinctId }) => precinctId
+  ).map(([precinctId, rowsForPrecinct]) => {
+    // Deduplicate rows such that we only have rows for splits that have
+    // different districts (i.e. different contests on the ballot).
+    const rows = uniqueDeep(rowsForPrecinct, ({ splitId }) =>
+      assertDefined(splitsToDistricts.get(splitId)).sort()
+    );
+
     const base = {
       id: uniqueId(precinctId),
-      name: precinctLabel,
+      name: rows[0].precinctLabel,
     } as const;
     if (rows.length === 1) {
       return {
         ...base,
-        districtIds: assertDefined(splitsToDistricts.get(rows[0][3])),
+        districtIds: assertDefined(splitsToDistricts.get(rows[0].splitId)),
       };
     }
     return {
       ...base,
-      splits: rows.map((row, i) => {
-        const splitId = row[3];
-        return {
-          id: uniqueId(splitId),
-          name: `${precinctLabel} - Split #${i + 1}`,
-          districtIds: assertDefined(splitsToDistricts.get(splitId)),
-        };
-      }),
+      splits: rows.map((row, i) => ({
+        id: uniqueId(row.splitId),
+        name: `${row.precinctLabel} - Split #${i + 1}`,
+        districtIds: [...assertDefined(splitsToDistricts.get(row.splitId))],
+      })),
     };
   });
 
@@ -238,34 +230,37 @@ export function convertMsElection(
   // - PARTY_ID is 0 for non-partisan
   //
   // Section 8 is one row per candidate: 8, CONTEST_ID, CANDIDATE_ID, CANDIDATE_LABEL, CANDIDATE_TYPE, SORT_SEQ, PARTY_ID, CANDIDATE_LABEL_ON_BALLOT
-  // - CANDIDATE_TYPE is 0 for normal, 1 for write-in (??), and 2 for registered write-in
+  // - CANDIDATE_TYPE is 0 for normal, 1 for write-in (??), and 2 for registered write-in (we don't use this currently)
   // - PARTY_ID is 0 for non-partisan
   //
-  //  Candidate file format:
-  //  Every row is
-  //  9, COUNTY_CODE, CONTEST_ID, CANDIDATE_SEQ_NUM, SEMS_CANDIDATE_ID
-  //  The CANDIDATE_ID in the election file is not globally unique, it's only unique within a contest.
-  //  Results have to be reported by SEMS candidate ID which is in the candidate file.
-  const [, countyId] = candidateFileRows[0];
+  // Candidate file format:
+  // Every row is: 9, COUNTY_CODE, CONTEST_ID, CANDIDATE_ID, SEMS_CANDIDATE_ID
+  // - The CANDIDATE_ID in the election file is not globally unique, it's only unique within a contest.
+  //   Results have to be reported by SEMS candidate ID which is in the candidate file.
+  const candidateFileEntries = candidateFileRows.map((row) => {
+    const [, countyId, contestId, candidateId, candidateSemsId] = row;
+    return { countyId, contestId, candidateId, candidateSemsId };
+  });
+
+  const [{ countyId }] = candidateFileEntries;
   const county: County = {
     id: uniqueId(countyId),
     name: `${counties[countyId]} County`,
   };
 
-  function getCandidateSemsId(
-    contestId: string,
-    candidateSeqNum: string
-  ): string {
-    const [, , , , candidateSemsId] = find(
-      candidateFileRows,
-      ([, , rowContestId, rowCandidateSeqNum]) =>
-        rowContestId === contestId && rowCandidateSeqNum === candidateSeqNum
-    );
-    return candidateSemsId;
+  function getCandidateSemsId(contestId: string, candidateId: string): string {
+    return find(
+      candidateFileEntries,
+      (row) => row.contestId === contestId && row.candidateId === candidateId
+    ).candidateSemsId;
   }
 
+  const candidateEntries = sectionRows(8).map((row) => {
+    const [, contestId, candidateId, , , sortSeq, partyId, labelOnBallot] = row;
+    return { contestId, candidateId, sortSeq, partyId, labelOnBallot };
+  });
   const candidatesByContest = new Map(
-    groupBy(sectionRows(8), ([, contestId]) => contestId)
+    groupBy(candidateEntries, ({ contestId }) => contestId)
   );
 
   const contests: AnyContest[] = sectionRows(7).map((row) => {
@@ -281,37 +276,36 @@ export function convertMsElection(
       contestText,
       partyId,
     ] = row;
+
+    const candidateRows = assertDefined(
+      candidatesByContest.get(contestId)
+    ).sort(
+      (rowA, rowB) =>
+        safeParseNumber(rowA.sortSeq).unsafeUnwrap() -
+        safeParseNumber(rowB.sortSeq).unsafeUnwrap()
+    );
+
     switch (contestType) {
       // Candidate contest
       case '0': {
         const [, contestTitle, termDescription] = contestText.split(/\\n/);
-        const candidates = assertDefined(candidatesByContest.get(contestId))
-          .map((candidateRow): [number, Candidate] => {
-            const [
-              ,
-              ,
-              candidateId,
-              ,
-              ,
-              sortSeq,
-              candidatePartyId,
-              candidateLabelOnBallot,
-            ] = candidateRow;
-            return [
-              safeParseNumber(sortSeq).unsafeUnwrap(),
-              {
-                id: uniqueId(getCandidateSemsId(contestId, candidateId)),
-                name: candidateLabelOnBallot,
-                ...splitCandidateName(candidateLabelOnBallot),
-                partyIds:
-                  candidatePartyId === '' || candidatePartyId === '0'
-                    ? undefined
-                    : [uniqueId(candidatePartyId)],
-              },
-            ];
+
+        const candidates = candidateRows.map(
+          (candidateRow): Candidate => ({
+            // For candidate contests, candidateId is a seq number that's only unique
+            // within the contest, so we need to map it to the SEMS unique ID.
+            id: uniqueId(
+              getCandidateSemsId(contestId, candidateRow.candidateId)
+            ),
+            name: candidateRow.labelOnBallot,
+            ...splitCandidateName(candidateRow.labelOnBallot),
+            partyIds:
+              candidateRow.partyId === '' || candidateRow.partyId === '0'
+                ? undefined
+                : [uniqueId(candidateRow.partyId)],
           })
-          .sort(([sortSeqA], [sortSeqB]) => sortSeqA - sortSeqB)
-          .map(([, candidate]) => candidate);
+        );
+
         return {
           id: uniqueId(contestId),
           type: 'candidate',
@@ -332,18 +326,12 @@ export function convertMsElection(
         const [titlePrefix, ...descriptionLines] = contestText.split(/\\n/);
         const contestTitle = `${titlePrefix}: ${contestLabel}`;
         const description = descriptionLines.join('\n').trim();
-        const candidateRows = assertDefined(candidatesByContest.get(contestId));
+
         assert(candidateRows.length === 2);
-        // eslint-disable-next-line vx/no-array-sort-mutation
-        const [yesCandidateRow, noCandidateRow] = candidateRows.sort(
-          ([, , , , , sortSeqA], [, , , , , sortSeqB]) =>
-            safeParseNumber(sortSeqA).unsafeUnwrap() -
-            safeParseNumber(sortSeqB).unsafeUnwrap()
-        );
-        const [, , yesCandidateId, , , , , yesText] = yesCandidateRow;
-        const [, , noCandidateId, , , , , noText] = noCandidateRow;
-        const [, yesLabel] = yesText.split(/\\n/);
-        const [, noLabel] = noText.split(/\\n/);
+        const [yesCandidateRow, noCandidateRow] = candidateRows;
+        const [, yesLabel] = yesCandidateRow.labelOnBallot.split(/\\n/);
+        const [, noLabel] = noCandidateRow.labelOnBallot.split(/\\n/);
+
         return {
           id: uniqueId(contestId),
           type: 'yesno',
@@ -351,11 +339,13 @@ export function convertMsElection(
           districtId: uniqueId(districtId),
           description,
           yesOption: {
-            id: uniqueId(yesCandidateId),
+            // For ballot measures, candidateId is already the SEMS unique ID,
+            // so we don't need to map it using getCandidateSemsId.
+            id: uniqueId(yesCandidateRow.candidateId),
             label: yesLabel,
           },
           noOption: {
-            id: uniqueId(noCandidateId),
+            id: uniqueId(noCandidateRow.candidateId),
             label: noLabel,
           },
         };
@@ -372,7 +362,7 @@ export function convertMsElection(
     ? 'primary'
     : 'general';
 
-  return {
+  const election: Election = {
     id: newElectionId,
     type,
     title,
@@ -388,7 +378,16 @@ export function convertMsElection(
       paperSize: HmpbBallotPaperSize.Letter,
       metadataEncoding: 'qr-code',
     },
-    ballotStrings: {}, // Will be generated after import
-    ballotStyles: [], // Will be generated after import
+    // Will be generated after import
+    ballotStrings: {},
+    // Will be generated after import, but need a dummy ballot style to pass validation
+    ballotStyles: [
+      { id: 'dummy', groupId: 'dummy', precincts: [], districts: [] },
+    ],
+  };
+  const validElection = safeParseVxfElection(election).unsafeUnwrap();
+  return {
+    ...validElection,
+    ballotStyles: [],
   };
 }
