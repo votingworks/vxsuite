@@ -1491,3 +1491,205 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     )
   );
 });
+
+test('quick results reporting clears previous partial reports on numPages change', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp([nonVxOrg]);
+  auth0.setLoggedInUser(nonVxUser);
+  const sampleElectionDefinition = await setUpElectionInSystem(
+    apiClient,
+    workspace,
+    fileStorageClient
+  );
+  auth0.logOut();
+  const { contests } = sampleElectionDefinition.election;
+  const contestId1 = contests[0].id;
+  const contestIdLast = contests[contests.length - 1].id;
+
+  // Build simple results and split into two sections
+  const mockResults = buildElectionResultsFixture({
+    election: sampleElectionDefinition.election,
+    cardCounts: { bmd: 0, hmpb: [] },
+    contestResultsSummaries: {
+      [contestId1]: {
+        type: 'candidate',
+        ballots: 100,
+        undervotes: 10,
+        overvotes: 5,
+        officialOptionTallies: {},
+      },
+      [contestIdLast]: {
+        type: 'yesno',
+        ballots: 200,
+        undervotes: 20,
+        overvotes: 10,
+        yesTally: 150,
+        noTally: 40,
+      },
+    },
+    includeGenericWriteIn: true,
+  });
+
+  const sections = compressAndEncodeTally({
+    election: sampleElectionDefinition.election,
+    results: mockResults,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    numPages: 2,
+  });
+
+  // Sanity: should produce 2 sections
+  expect(sections.length).toEqual(2);
+
+  // Send page 1 (index 0) only
+  const payloadPage1 = `1//qr1//${encodeQuickResultsMessage({
+    ballotHash: sampleElectionDefinition.ballotHash,
+    signingMachineId: 'paginated-machine',
+    timestamp: new Date('2024-01-01T12:00:00Z').getTime() / 1000,
+    isLiveMode: true,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    primaryMessage: sections[0],
+    numPages: 2,
+    pageIndex: 0,
+  })}`;
+
+  const r1 = await unauthenticatedApiClient.processQrCodeReport({
+    payload: payloadPage1,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  // Should accept page, but not return assembled contestResults yet
+  expect(r1).toEqual(
+    ok({
+      ballotHash: sampleElectionDefinition.ballotHash,
+      machineId: 'paginated-machine',
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      numPages: 2,
+      pageIndex: 0,
+      pollsState: 'polls_closed_final',
+      isLive: true,
+      signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+      isPartial: true,
+    })
+  );
+
+  // Create a new url now with 3 pages
+  const sectionsInThreePages = compressAndEncodeTally({
+    election: sampleElectionDefinition.election,
+    results: mockResults,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    numPages: 3,
+  });
+
+  // Send page 2 (of now 3) - this should clear the previous partial report and NOT send results (like p2/2 would)
+  const payloadPage2 = `1//qr1//${encodeQuickResultsMessage({
+    ballotHash: sampleElectionDefinition.ballotHash,
+    signingMachineId: 'paginated-machine',
+    timestamp: new Date('2024-01-01T12:00:01Z').getTime() / 1000,
+    isLiveMode: true,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    primaryMessage: sectionsInThreePages[1],
+    numPages: 3,
+    pageIndex: 1,
+  })}`;
+
+  const r2 = await unauthenticatedApiClient.processQrCodeReport({
+    payload: payloadPage2,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  // Should accept page, but not return assembled contestResults yet
+  expect(r2).toEqual(
+    ok({
+      ballotHash: sampleElectionDefinition.ballotHash,
+      machineId: 'paginated-machine',
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      numPages: 3,
+      pageIndex: 1,
+      pollsState: 'polls_closed_final',
+      isLive: true,
+      signedTimestamp: new Date('2024-01-01T12:00:01Z'),
+      isPartial: true,
+    })
+  );
+
+  // Now send page 3 (of 3)
+  const payloadPage3 = `1//qr1//${encodeQuickResultsMessage({
+    ballotHash: sampleElectionDefinition.ballotHash,
+    signingMachineId: 'paginated-machine',
+    timestamp: new Date('2024-01-01T12:00:02Z').getTime() / 1000,
+    isLiveMode: true,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    primaryMessage: sectionsInThreePages[2],
+    numPages: 3,
+    pageIndex: 2,
+  })}`;
+
+  const r3 = await unauthenticatedApiClient.processQrCodeReport({
+    payload: payloadPage3,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  // We are still missing page 1 of 3, so should not have results yet
+  expect(r3).toEqual(
+    ok({
+      ballotHash: sampleElectionDefinition.ballotHash,
+      machineId: 'paginated-machine',
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      numPages: 3,
+      pageIndex: 2,
+      pollsState: 'polls_closed_final',
+      isLive: true,
+      signedTimestamp: new Date('2024-01-01T12:00:02Z'),
+      isPartial: true,
+    })
+  );
+
+  const newPayloadPage1 = `1//qr1//${encodeQuickResultsMessage({
+    ballotHash: sampleElectionDefinition.ballotHash,
+    signingMachineId: 'paginated-machine',
+    timestamp: new Date('2024-01-01T12:00:00Z').getTime() / 1000,
+    isLiveMode: true,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    primaryMessage: sectionsInThreePages[0],
+    numPages: 3,
+    pageIndex: 0,
+  })}`;
+
+  expect(newPayloadPage1).not.toEqual(payloadPage1);
+  // Now send page 1 (of 3) again
+  const r1again = await unauthenticatedApiClient.processQrCodeReport({
+    payload: newPayloadPage1,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  // Now we should have results since all 3 pages have been submitted
+  expect(r1again).toEqual(
+    ok({
+      ballotHash: sampleElectionDefinition.ballotHash,
+      machineId: 'paginated-machine',
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      election: expect.objectContaining({
+        id: sampleElectionDefinition.election.id,
+      }),
+      pollsState: 'polls_closed_final',
+      isLive: true,
+      signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+      contestResults: mockResults.contestResults,
+      isPartial: false,
+    })
+  );
+});
