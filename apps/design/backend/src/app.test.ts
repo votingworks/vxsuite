@@ -2991,7 +2991,7 @@ test('Export test decks', async () => {
         total: testDecksTask.task!.progress!.progress,
       });
     },
-    { interval: 500, retries: 10 }
+    { interval: 1000, retries: 10 }
   );
 
   await suppressingConsoleOutput(async () => {
