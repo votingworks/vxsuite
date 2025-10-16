@@ -1036,6 +1036,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               isPartial: true,
             });
           }
+          // It should be impossible to have more than numPages partials
+          assert(partials.length === numPages);
 
           const allBuffers = partials.map((p) =>
             Buffer.from(p.encodedCompressedTally, 'base64url')
@@ -1052,14 +1054,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             machineId,
             isLive,
             signedTimestamp,
-            pollsState,
-          });
-
-          // Clean up partials for this report.
-          await store.deletePartialPages({
-            ballotHash,
-            machineId,
-            isLive,
             pollsState,
           });
 

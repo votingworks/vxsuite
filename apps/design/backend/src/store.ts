@@ -2309,6 +2309,22 @@ export class Store {
           pollsState
         );
         assert(rowCount === 1, 'Failed to insert results report');
+
+        // Clean up partial reports, if relevant, for this machine.
+        await client.query(
+          `
+          delete from results_reports_partial
+          where
+            ballot_hash = $1 and
+            machine_id = $2 and
+            is_live_mode = $3 and
+            polls_state = $4
+        `,
+          ballotHash,
+          machineId,
+          isLive,
+          pollsState
+        );
         return true;
       })
     );
@@ -2343,6 +2359,23 @@ export class Store {
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
+        // If any existing partial row has a different num_pages delete it so the new report will override.
+        await client.query(
+          `
+          delete from results_reports_partial
+          where
+          ballot_hash = $1 and
+          machine_id = $2 and
+          is_live_mode = $3 and
+          polls_state = $4 and
+          num_pages != $5
+            `,
+          ballotHash,
+          machineId,
+          isLive,
+          pollsState,
+          numPages
+        );
         const { rowCount } = await client.query(
           `
             insert into results_reports_partial (
@@ -2422,53 +2455,26 @@ export class Store {
     });
   }
 
-  // Delete partial pages for a given ballot/machine/is_live/polls_state
-  async deletePartialPages({
-    ballotHash,
-    machineId,
-    isLive,
-    pollsState,
-  }: {
-    ballotHash: string;
-    machineId: string;
-    isLive: boolean;
-    pollsState: PollsState;
-  }): Promise<void> {
-    await this.db.withClient(async (client) =>
-      client.query(
-        `
-          delete from results_reports_partial
-          where
-            ballot_hash = $1 and
-            machine_id = $2 and
-            is_live_mode = $3 and
-            polls_state = $4
-        `,
-        ballotHash,
-        machineId,
-        isLive,
-        pollsState
-      )
-    );
-  }
-
   async deleteQuickReportingResultsForElection(
     electionId: ElectionId
   ): Promise<void> {
-    await this.db.withClient(async (client) => {
-      await client.query(
-        `
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await client.query(
+          `
           delete from results_reports
           where election_id = $1
         `,
-        electionId
-      );
-      await client.query(
-        `delete from results_reports_partial
+          electionId
+        );
+        await client.query(
+          `delete from results_reports_partial
         where election_id = $1
       `,
-        electionId
-      );
-    });
+          electionId
+        );
+        return true;
+      })
+    );
   }
 }
