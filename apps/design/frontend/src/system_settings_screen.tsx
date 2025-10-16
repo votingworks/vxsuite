@@ -156,14 +156,6 @@ export function SystemSettingsForm({
       option.value !== AdjudicationReason.UnmarkedWriteIn
   );
 
-  enum CvrOption {
-    RedudantMetadata = 'Redundant Metadata',
-  }
-
-  const cvrOptions = [
-    { label: 'Include Redundant Metadata', value: CvrOption.RedudantMetadata },
-  ];
-
   const isScoringUnmarkedWriteIns =
     systemSettings.centralScanAdjudicationReasons?.includes(
       AdjudicationReason.UnmarkedWriteIn
@@ -184,7 +176,7 @@ export function SystemSettingsForm({
         setIsEditing(false);
       }}
     >
-      <Row style={{ gap: '1rem' }}>
+      <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
         <Card>
           <H2>Adjudication Reasons</H2>
           <Column style={{ gap: '1.5rem' }}>
@@ -517,9 +509,9 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
-            {features.ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION && (
+            {features.VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING && (
               <CheckboxButton
-                label="Enable BMD Ballot Scanning on VxScan"
+                label="Enable Summary Ballot Scanning on VxScan"
                 isChecked={Boolean(
                   systemSettings.precinctScanEnableBmdBallotScanning
                 )}
@@ -534,7 +526,20 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
-            {features.BMD_OVERVOTE_ALLOW_TOGGLE && (
+            {features.VXSCAN_ALARMS_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Disable Alarms on VxScan"
+                isChecked={Boolean(systemSettings.precinctScanDisableAlarms)}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    precinctScanDisableAlarms: isChecked ? true : undefined, // Completely omit when unchecked
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
+            {features.BMD_OVERVOTE_SYSTEM_SETTING && (
               <CheckboxButton
                 label="Allow Overvote Marking on VxMark"
                 isChecked={Boolean(systemSettings.bmdAllowOvervotes)}
@@ -547,7 +552,7 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
-            {features.BMD_EXTRA_PRINT_MODES && (
+            {features.BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING && (
               <InputGroup label="VxMark Print Mode">
                 <SearchSelect<BmdPrintMode>
                   aria-label="VxMark Print Mode"
@@ -576,40 +581,33 @@ export function SystemSettingsForm({
                 />
               </InputGroup>
             )}
-            <CheckboxGroup
-              label="CVR"
-              options={cvrOptions}
-              value={[
+            <CheckboxButton
+              label="Include Redundant Metadata in CVRs"
+              isChecked={Boolean(
                 systemSettings.castVoteRecordsIncludeRedundantMetadata
-                  ? CvrOption.RedudantMetadata
-                  : undefined,
-              ].filter((v) => v !== undefined)}
-              onChange={(value) =>
+              )}
+              onChange={(isChecked) =>
                 setSystemSettings({
                   ...systemSettings,
-                  castVoteRecordsIncludeRedundantMetadata: value.includes(
-                    CvrOption.RedudantMetadata
-                  ),
+                  castVoteRecordsIncludeRedundantMetadata: isChecked,
                 })
               }
               disabled={!isEditing}
             />
-            {features.QUICK_RESULTS_REPORTING && (
-              <InputGroup label="Live Reports">
-                <CheckboxButton
-                  label="Enable Live Reporting"
-                  isChecked={Boolean(systemSettings.quickResultsReportingUrl)}
-                  onChange={(isChecked) =>
-                    setSystemSettings({
-                      ...systemSettings,
-                      quickResultsReportingUrl: isChecked
-                        ? `${getBaseUrlQuery.data}${resultsRoutes.root.path}`
-                        : undefined,
-                    })
-                  }
-                  disabled={!isEditing}
-                />
-              </InputGroup>
+            {features.QUICK_RESULTS_REPORTING_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Enable Live Reporting"
+                isChecked={Boolean(systemSettings.quickResultsReportingUrl)}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    quickResultsReportingUrl: isChecked
+                      ? `${getBaseUrlQuery.data}${resultsRoutes.root.path}`
+                      : undefined,
+                  })
+                }
+                disabled={!isEditing}
+              />
             )}
           </Column>
         </Card>

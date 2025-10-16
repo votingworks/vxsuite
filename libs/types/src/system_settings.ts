@@ -97,6 +97,15 @@ export interface SystemSettings {
   readonly precinctScanEnableBmdBallotScanning?: boolean;
 
   /**
+   * Disables the VxScan alarms triggered when USB drives are removed or the scanner cover is
+   * opened while polls are open. These alarms can be silenced by inserting a smart card, but
+   * forgetting to do so before performing a routine action like scanner cleaning could cause
+   * unnecessary worry in a polling place. We're accordingly giving election officials the option
+   * to disable these alarms completely.
+   */
+  readonly precinctScanDisableAlarms?: boolean;
+
+  /**
    * We detect the print scale of ballots and reject those with a detected scale less than
    * {@link DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE} to prevent issues with bubble scoring on ballots
    * that are printed at too low of a scale. This setting allows overriding that default value. The
@@ -152,6 +161,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   minimumDetectedBallotScaleOverride: z.number().min(0.0).max(1.0).optional(),
   bmdAllowOvervotes: z.boolean().optional(),
   bmdPrintMode: z.enum(PRINT_MODES).optional(),
+  precinctScanDisableAlarms: z.boolean().optional(),
 });
 
 /**
