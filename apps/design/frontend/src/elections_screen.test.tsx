@@ -471,6 +471,8 @@ test('shows error message when loading election fails', async () => {
   const electionRecord = primaryElectionRecord(user.orgId);
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections.expectCallWith().resolves([]);
+
+  renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
   const electionData = JSON.stringify(electionRecord.election);

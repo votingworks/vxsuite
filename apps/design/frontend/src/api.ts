@@ -356,8 +356,10 @@ export const loadElection = {
           newId: generateId(),
         }),
       {
-        async onSuccess() {
-          await queryClient.invalidateQueries(listElections.queryKey());
+        async onSuccess(result) {
+          if (result.isOk()) {
+            await queryClient.invalidateQueries(listElections.queryKey());
+          }
         },
       }
     );

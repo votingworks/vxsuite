@@ -19,7 +19,10 @@ export function LoadElectionButton({
   const history = useHistory();
   const loadElectionMutation = loadElection.useMutation();
   const getUserQuery = getUser.useQuery();
-  assert(getUserQuery.isSuccess);
+
+  if (!getUserQuery.isSuccess) {
+    return null;
+  }
   const user = getUserQuery.data;
 
   async function onSelectElectionFile(event: FormEvent<HTMLInputElement>) {
@@ -61,8 +64,9 @@ export function LoadElectionButton({
                   {loadElectionMutation.data
                     .err()
                     .message.split('\n')
-                    .map((line) => (
-                      <div key={line}>
+                    .map((line, index) => (
+                      // eslint-disable-next-line react/no-array-index-key
+                      <div key={index}>
                         <Caption>{line}</Caption>
                       </div>
                     ))}
