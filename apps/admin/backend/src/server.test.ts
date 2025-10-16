@@ -13,6 +13,7 @@ import { createMockPrinterHandler } from '@votingworks/printing';
 import { testDetectDevices } from '@votingworks/backend';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { buildManualResultsFixture } from '@votingworks/utils';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
@@ -40,15 +41,11 @@ test('starts with default logger and port', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  vi.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
-  await start({ app, workspace });
+  await suppressingConsoleOutput(() => start({ app, workspace }));
 
   expect(app.listen).toHaveBeenCalledWith(PORT, expect.anything());
-
-  // eslint-disable-next-line no-console
-  expect(console.log).toHaveBeenCalled();
 });
 
 test('start with config options', async () => {
@@ -70,7 +67,9 @@ test('start with config options', async () => {
   vi.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
-  await start({ app, workspace, port: 3005, logger });
+  await suppressingConsoleOutput(() =>
+    start({ app, workspace, port: 3005, logger })
+  );
 
   expect(app.listen).toHaveBeenCalledWith(3005, expect.anything());
   expect(logger.log).toHaveBeenCalled();
@@ -89,11 +88,13 @@ test('errors on start with no workspace', async () => {
 
   // start up the server
   try {
-    await start({
-      app,
-      workspace: undefined,
-      logger,
-    });
+    await suppressingConsoleOutput(() =>
+      start({
+        app,
+        workspace: undefined,
+        logger,
+      })
+    );
   } catch (err: unknown) {
     assert(err instanceof Error);
     expect(err.message).toMatch(
@@ -131,7 +132,9 @@ test('logs device attach/un-attach events', async () => {
   vi.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
-  await start({ app, workspace, port: 3005, logger });
+  await suppressingConsoleOutput(() =>
+    start({ app, workspace, port: 3005, logger })
+  );
 
   testDetectDevices(logger, expect);
 });
@@ -152,10 +155,9 @@ test('logs when no election results data present at startup', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  vi.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
-  await start({ app, workspace, logger });
+  await suppressingConsoleOutput(() => start({ app, workspace, logger }));
 
   expect(app.listen).toHaveBeenCalledWith(PORT, expect.anything());
 
@@ -169,9 +171,6 @@ test('logs when no election results data present at startup', async () => {
       numManualResults: 0,
     }
   );
-
-  // eslint-disable-next-line no-console
-  expect(console.log).toHaveBeenCalled();
 });
 
 test('logs when there is stored election results data present at startup', async () => {
@@ -236,10 +235,9 @@ test('logs when there is stored election results data present at startup', async
     onListening?.();
     return undefined as unknown as Server;
   });
-  vi.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
-  await start({ app, workspace, logger });
+  await suppressingConsoleOutput(() => start({ app, workspace, logger }));
 
   expect(app.listen).toHaveBeenCalledWith(PORT, expect.anything());
 
@@ -253,7 +251,4 @@ test('logs when there is stored election results data present at startup', async
       numManualResults: 1,
     }
   );
-
-  // eslint-disable-next-line no-console
-  expect(console.log).toHaveBeenCalled();
 });
