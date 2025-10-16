@@ -70,9 +70,9 @@ const rule: TSESLint.RuleModule<
 
       if (
         reference.identifier.parent.type !==
-          AST_NODE_TYPES.ExportAllDeclaration &&
+        AST_NODE_TYPES.ExportAllDeclaration &&
         reference.identifier.parent.parent.type !==
-          AST_NODE_TYPES.ExportNamedDeclaration
+        AST_NODE_TYPES.ExportNamedDeclaration
       ) {
         return false;
       }

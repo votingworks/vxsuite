@@ -27,7 +27,7 @@ const rule: TSESLint.RuleModule<
       node: TSESTree.FunctionLike,
       typeParameter: TSESTree.TSTypeParameter
     ): boolean {
-      const scope = context.getScope();
+      const scope = context.sourceCode.getScope(typeParameter.name);
       const variable = scope.set.get(typeParameter.name.name);
       let typeParameterReferencedByFunctionParamType = false;
       let typeParameterReferencedByFunctionReturnType = false;
