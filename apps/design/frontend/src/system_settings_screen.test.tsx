@@ -219,7 +219,7 @@ test('adjudication reasons', async () => {
     if (
       option.textContent === 'Overvote' ||
       option.textContent === 'Disallow Casting Overvotes' ||
-      option.textContent === 'Enable BMD Ballot Scanning on VxScan'
+      option.textContent === 'Enable Summary Ballot Scanning on VxScan'
     ) {
       expect(option).toBeChecked();
     } else {
@@ -436,7 +436,7 @@ test('setting "other" system settings', async () => {
     'Allow Official Ballots in Test Mode',
     'Disable Vertical Streak Detection',
     'Enable Shoeshine Mode on VxScan',
-    'Include Redundant Metadata',
+    'Include Redundant Metadata in CVRs',
   ];
 
   for (const label of checkboxLabels) {
@@ -520,7 +520,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(28);
+  expect(allControls).toHaveLength(29);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -698,7 +698,7 @@ describe('BMD print mode', () => {
   });
 });
 
-describe('Quick Results Reporting SS', () => {
+describe('quick results reporting toggle', () => {
   test('omitted when feature flag is off', async () => {
     apiMock.getSystemSettings
       .expectCallWith({ electionId })
@@ -737,7 +737,7 @@ describe('Quick Results Reporting SS', () => {
 
     userEvent.click(
       screen.getByRole('checkbox', {
-        name: 'Live Reports',
+        name: 'Enable Live Reporting',
         checked: false,
       })
     );
@@ -755,5 +755,52 @@ describe('Quick Results Reporting SS', () => {
       .resolves(mockSettingsFinal);
 
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  });
+});
+
+describe('VxScan alarms toggle', () => {
+  const checkboxLabel = 'Disable Alarms on VxScan';
+
+  test('omitted when feature flag is off', async () => {
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(electionRecord.systemSettings);
+    mockUserFeatures(apiMock, {
+      VXSCAN_ALARMS_SYSTEM_SETTING: false,
+    });
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    expect(screen.queryByText(checkboxLabel)).not.toBeInTheDocument();
+  });
+
+  test('included when feature flag is on', async () => {
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(electionRecord.systemSettings);
+    mockUserFeatures(apiMock, { VXSCAN_ALARMS_SYSTEM_SETTING: true });
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    screen.getByText(checkboxLabel);
+
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    userEvent.click(
+      screen.getByRole('checkbox', { name: checkboxLabel, checked: false })
+    );
+
+    const mockSettingsFinal: SystemSettings = {
+      ...electionRecord.systemSettings,
+      precinctScanDisableAlarms: true,
+    };
+    apiMock.updateSystemSettings
+      .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
+      .resolves();
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsFinal);
+
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    screen.getByRole('checkbox', { name: checkboxLabel, checked: true });
   });
 });
