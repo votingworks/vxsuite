@@ -707,7 +707,7 @@ export function buildApi(ctx: AppContext) {
       return store.getElectionPackage(electionId);
     },
 
-    exportElectionPackage({
+    async exportElectionPackage({
       electionId,
       electionSerializationFormat,
       shouldExportAudio,
@@ -719,14 +719,27 @@ export function buildApi(ctx: AppContext) {
       shouldExportAudio: boolean;
       shouldExportSampleBallots: boolean;
       numAuditIdBallots?: number;
-    }): Promise<void> {
-      return store.createElectionPackageBackgroundTask(
+    }): Promise<Result<void, 'incompatible-template-live-reports'>> {
+      const electionRecord = await store.getElection(electionId);
+      const { ballotTemplateId } = electionRecord;
+      const systemSettings = await store.getSystemSettings(electionId);
+
+      // TODO(#7394): Remove this check after we have solved the candidate rotation problem with VxQR on the NH Ballot.
+      if (
+        ballotTemplateId === 'NhBallot' &&
+        !!systemSettings.quickResultsReportingUrl
+      ) {
+        return err('incompatible-template-live-reports');
+      }
+
+      await store.createElectionPackageBackgroundTask(
         electionId,
         electionSerializationFormat,
         shouldExportAudio,
         shouldExportSampleBallots,
         numAuditIdBallots
       );
+      return ok();
     },
 
     getTestDecks({

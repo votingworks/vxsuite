@@ -6,6 +6,7 @@ import {
 } from '@votingworks/types';
 import { Buffer, File as NodeFile } from 'node:buffer';
 import type { BackgroundTask } from '@votingworks/design-backend';
+import { ok } from '@votingworks/basics';
 import {
   provideApi,
   createMockApiClient,
@@ -150,7 +151,7 @@ test('export election package and ballots', async () => {
       shouldExportSampleBallots: false,
       numAuditIdBallots: undefined,
     })
-    .resolves();
+    .resolves(ok());
   const electionPackageTask: BackgroundTask = {
     createdAt: taskCreatedAt,
     id: '1',
@@ -228,7 +229,7 @@ test('with audio export checked', async () => {
       shouldExportSampleBallots: false,
       numAuditIdBallots: undefined,
     })
-    .resolves();
+    .resolves(ok());
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
       createdAt: taskCreatedAt,
@@ -256,7 +257,7 @@ test('export election package error handling', async () => {
       shouldExportSampleBallots: false,
       numAuditIdBallots: undefined,
     })
-    .resolves();
+    .resolves(ok());
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
       createdAt: taskCreatedAt,
@@ -321,7 +322,7 @@ test('with sample ballots export checked', async () => {
       shouldExportSampleBallots: true,
       numAuditIdBallots: undefined,
     })
-    .resolves();
+    .resolves(ok());
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
       createdAt: taskCreatedAt,
@@ -362,7 +363,7 @@ test('using CDF', async () => {
       shouldExportSampleBallots: false,
       numAuditIdBallots: undefined,
     })
-    .resolves();
+    .resolves(ok());
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
       createdAt: new Date(),
@@ -401,7 +402,7 @@ test('export ballots with audit ballot IDs', async () => {
       shouldExportSampleBallots: false,
       numAuditIdBallots: 10,
     })
-    .resolves();
+    .resolves(ok());
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
       createdAt: taskCreatedAt,
