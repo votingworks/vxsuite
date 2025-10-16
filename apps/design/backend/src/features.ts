@@ -115,40 +115,31 @@ export enum ElectionFeature {
 export type UserFeaturesConfig = Partial<Record<UserFeature, boolean>>;
 export type ElectionFeaturesConfig = Partial<Record<ElectionFeature, boolean>>;
 
+const vxUserFeaturesConfig: UserFeaturesConfig = {
+  EXPORT_SCREEN: true,
+  CHOOSE_BALLOT_TEMPLATE: true,
+  EXPORT_TEST_DECKS: true,
+
+  SYSTEM_SETTINGS_SCREEN: true,
+  VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
+  VXSCAN_ALARMS_SYSTEM_SETTING: true,
+  BMD_OVERVOTE_SYSTEM_SETTING: true,
+  BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
+  QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
+
+  ACCESS_ALL_ORGS: true,
+  BALLOT_LANGUAGE_CONFIG: true,
+  AUDIO_PROOFING: true,
+};
+
 export const userFeatureConfigs = {
-  vx: {
-    EXPORT_SCREEN: true,
-    CHOOSE_BALLOT_TEMPLATE: true,
-    EXPORT_TEST_DECKS: true,
+  vx: vxUserFeaturesConfig,
 
-    SYSTEM_SETTINGS_SCREEN: true,
-    VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
-    VXSCAN_ALARMS_SYSTEM_SETTING: true,
-    BMD_OVERVOTE_SYSTEM_SETTING: true,
-    BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
-    QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
-
-    ACCESS_ALL_ORGS: true,
-    BALLOT_LANGUAGE_CONFIG: true,
-    AUDIO_PROOFING: true,
-  },
+  demos: { ...vxUserFeaturesConfig, ACCESS_ALL_ORGS: false },
 
   sli: {
     EXPORT_SCREEN: true,
-
     SYSTEM_SETTINGS_SCREEN: true,
-
-    BALLOT_LANGUAGE_CONFIG: true,
-  },
-
-  demos: {
-    EXPORT_SCREEN: true,
-    CHOOSE_BALLOT_TEMPLATE: true,
-    EXPORT_TEST_DECKS: true,
-
-    SYSTEM_SETTINGS_SCREEN: true,
-    VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
-
     BALLOT_LANGUAGE_CONFIG: true,
   },
 
