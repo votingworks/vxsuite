@@ -102,7 +102,11 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { getBallotPdfFileName, regenerateElectionIds } from './utils';
+import {
+  getBallotPdfFileName,
+  regenerateElectionIds,
+  splitCandidateName,
+} from './utils';
 import {
   ElectionFeaturesConfig,
   getElectionFeaturesConfig,
@@ -325,12 +329,9 @@ export function buildApi(ctx: AppContext) {
             ) {
               return candidate;
             }
-            const [firstPart, ...middleParts] = candidate.name.split(' ');
             return {
               ...candidate,
-              firstName: firstPart ?? '',
-              lastName: middleParts.pop() ?? '',
-              middleName: middleParts.join(' '),
+              ...splitCandidateName(candidate.name),
             };
           }),
         };
