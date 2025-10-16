@@ -6,6 +6,7 @@ import {
   detectDevices,
   setAudioVolume,
   setDefaultAudio,
+  startCpuMetricsLogging,
 } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import * as customScanner from '@votingworks/custom-scanner';
@@ -28,7 +29,6 @@ import * as customStateMachine from './scanners/custom/state_machine';
 import * as pdiStateMachine from './scanners/pdi/state_machine';
 import { Player as AudioPlayer } from './audio/player';
 import { getAudioInfo } from './audio/info';
-import { startCpuMetricsLogging } from './electrical_testing/cpu_metrics';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;

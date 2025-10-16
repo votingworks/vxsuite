@@ -1,4 +1,8 @@
-import { createSystemCallApi } from '@votingworks/backend';
+import {
+  createSystemCallApi,
+  getCpuMetrics,
+  CpuMetrics,
+} from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { mapSheet } from '@votingworks/types';
 import express, { Application } from 'express';
@@ -7,7 +11,6 @@ import { Player as AudioPlayer, SoundName } from '../audio/player';
 import { getMachineConfig } from '../machine_config';
 import type { ScanningMode, ServerContext } from './context';
 import { ScanningSession, ScanningSessionData } from './analysis/scan';
-import { getCpuMetrics, CpuMetrics } from './cpu_metrics';
 
 type ApiContext = ServerContext & {
   audioPlayer?: AudioPlayer;
@@ -144,7 +147,7 @@ function buildApi({
     },
 
     async getCpuMetrics(): Promise<CpuMetrics> {
-      return getCpuMetrics();
+      return await getCpuMetrics();
     },
 
     ...createSystemCallApi({

@@ -23,7 +23,7 @@ import {
   Printer,
   detectPrinter,
 } from '@votingworks/printing';
-import { detectDevices } from '@votingworks/backend';
+import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -56,7 +56,6 @@ export async function start({
   usbDrive,
   printer,
 }: Partial<StartOptions>): Promise<Server> {
-  console.log('start');
   debug('starting server...');
   detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
@@ -136,6 +135,9 @@ export async function start({
   useDevDockRouter(resolvedApp, express, {
     printerConfig: HP_LASER_PRINTER_CONFIG,
   });
+
+  // Start periodic CPU metrics logging
+  startCpuMetricsLogging(baseLogger);
 
   // VxAdmin uses an OpenSSL config file swapping mechanism for card cert creation with the TPM.
   // This is a fallback call to restore the default config in case the app crashed before the

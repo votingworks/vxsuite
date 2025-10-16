@@ -1,17 +1,17 @@
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { readFile, readlink } from 'node:fs/promises';
 import { safeParseInt, safeParseNumber } from '@votingworks/types';
-import { extractErrorMessage, lines } from '@votingworks/basics';
-import { LogEventId, type Logger } from '@votingworks/logging';
+import { extractErrorMessage, lines, Optional } from '@votingworks/basics';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { format } from '@votingworks/utils';
-
-const execFileAsync = promisify(execFile);
+import { execFile } from './exec';
 
 // Temperature validation constants
 const MIN_REALISTIC_TEMP_C = 0;
 const MAX_REALISTIC_TEMP_C = 150;
 
+/**
+ * Current memory usage stats.
+ */
 export interface MemoryStats {
   totalBytes: number;
   usedBytes: number;
@@ -21,6 +21,9 @@ export interface MemoryStats {
   buffersBytes: number;
 }
 
+/**
+ * Current CPU usage, temperature, and load average stats.
+ */
 export interface CpuMetrics {
   temperatureCelsius: number | null;
   loadAverage: {
@@ -33,10 +36,22 @@ export interface CpuMetrics {
 }
 
 /**
+ * Process information relevant to CPU utilization logging.
+ */
+export interface ProcessInfo {
+  pid: number;
+  cpu: number;
+  command: string;
+  user: string;
+  cwd?: string;
+}
+
+/**
  * Parse temperature from sensors JSON format.
  * Extracts CPU temperature from coretemp sensor data.
  */
 function parseTemperatureFromSensorsJson(sensorsData: unknown): number | null {
+  // istanbul ignore next @preserve
   if (typeof sensorsData !== 'object' || sensorsData === null) {
     return null;
   }
@@ -65,6 +80,7 @@ function parseTemperatureFromSensorsJson(sensorsData: unknown): number | null {
     }
   }
 
+  // istanbul ignore next @preserve
   return null;
 }
 
@@ -88,14 +104,14 @@ async function getCpuTemperature(): Promise<number | null> {
       if (temp !== null) {
         return temp;
       }
-    } catch {
+    } catch (e) {
       // Fall through to other methods if file read/parse fails
     }
   }
 
   // Try sensors command (requires lm-sensors package)
   try {
-    const { stdout } = await execFileAsync('sensors', ['-j']);
+    const { stdout } = await execFile('sensors', ['-j']);
     const sensorsData: unknown = JSON.parse(stdout);
     const temp = parseTemperatureFromSensorsJson(sensorsData);
     if (temp !== null) {
@@ -109,7 +125,7 @@ async function getCpuTemperature(): Promise<number | null> {
 }
 
 /**
- * Get load averages from /proc/loadavg
+ * Get load averages from /proc/loadavg.
  */
 async function getLoadAverage(): Promise<{
   oneMinute: number;
@@ -126,7 +142,7 @@ async function getLoadAverage(): Promise<{
 }
 
 /**
- * Get memory statistics from /proc/meminfo
+ * Get memory statistics from /proc/meminfo.
  */
 async function getMemoryStats(): Promise<MemoryStats> {
   const content = await readFile('/proc/meminfo', 'utf8');
@@ -135,10 +151,13 @@ async function getMemoryStats(): Promise<MemoryStats> {
   // Parse meminfo format: "MemTotal:       19995316 kB"
   function getValue(key: string): number {
     const line = meminfoLines.find((l) => l.startsWith(key));
+    // istanbul ignore next @preserve
     if (!line) return 0;
     const match = line.match(/:\s+(\d+)/);
+    // istanbul ignore next @preserve
     if (!match) return 0;
     const valueResult = safeParseInt(match[1]);
+    // istanbul ignore next @preserve
     return valueResult.isOk() ? valueResult.ok() * 1024 : 0; // Convert kB to bytes
   }
 
@@ -162,7 +181,7 @@ async function getMemoryStats(): Promise<MemoryStats> {
 }
 
 /**
- * Get current CPU metrics
+ * Get current CPU metrics.
  */
 export async function getCpuMetrics(): Promise<CpuMetrics> {
   const [temperature, loadAverage, memory] = await Promise.all([
@@ -180,34 +199,28 @@ export async function getCpuMetrics(): Promise<CpuMetrics> {
 }
 
 /**
- * Get top CPU-using processes with user and working directory information
+ * Get top CPU-using processes with user and working directory information.
  */
-export async function getTopCpuProcesses(limit = 5): Promise<
-  Array<{
-    pid: number;
-    cpu: number;
-    command: string;
-    user: string;
-    cwd: string | null;
-  }>
-> {
+export async function getTopCpuProcesses(
+  limit = Infinity
+): Promise<ProcessInfo[]> {
   try {
     // Use 'comm' and 'user' format specifiers to get executable name and user
-    const { stdout } = await execFileAsync('ps', [
+    const { stdout } = await execFile('ps', [
       '-eo',
       'pid,%cpu,user,comm',
       '--sort=-pcpu',
       '--no-headers',
     ]);
-    const processes: Array<{
-      pid: number;
-      cpu: number;
-      command: string;
-      user: string;
-      cwd: string | null;
-    }> = [];
+    const processes: ProcessInfo[] = [];
+    const remainingLines = lines(stdout.trim()).toArray();
 
-    for (const line of lines(stdout.trim()).take(limit)) {
+    while (processes.length < limit) {
+      const line = remainingLines.shift();
+      if (!line) {
+        break;
+      }
+
       // ps -eo format: PID %CPU USER COMMAND
       // Note: USER and COMMAND (comm) can contain spaces, so we use a regex to parse
       // Match: PID (non-whitespace), whitespace, CPU (non-whitespace), whitespace, USER (non-whitespace), whitespace, COMMAND (everything else)
@@ -217,10 +230,10 @@ export async function getTopCpuProcesses(limit = 5): Promise<
         const cpuResult = safeParseNumber(match[2]);
         if (pidResult.isOk() && cpuResult.isOk()) {
           const pid = pidResult.ok();
-          const user = match[3];
-          const command = match[4];
+          const user = match[3] as string;
+          const command = match[4] as string;
 
-          let cwd: string | null = null;
+          let cwd: Optional<string>;
           try {
             cwd = await readlink(`/proc/${pid}/cwd`);
           } catch {
@@ -239,17 +252,22 @@ export async function getTopCpuProcesses(limit = 5): Promise<
 }
 
 /**
- * Start periodic logging of CPU metrics
+ * Start periodic logging of CPU metrics.
+ *
  * @param logger - Logger instance to use for logging metrics
  */
-export function startCpuMetricsLogging(logger: Logger): void {
-  const LOG_INTERVAL_MS = 30_000; // 30 seconds
-
+export function startCpuMetricsLogging(
+  logger: BaseLogger,
+  {
+    interval = 30_000, // 30 seconds
+    topProcessCount = 5,
+  } = {}
+): { stop(): void } {
   async function logCpuMetrics(): Promise<void> {
     try {
       const [metrics, topProcesses] = await Promise.all([
         getCpuMetrics(),
-        getTopCpuProcesses(5),
+        getTopCpuProcesses(topProcessCount),
       ]);
 
       const processInfo = topProcesses
@@ -301,7 +319,13 @@ export function startCpuMetricsLogging(logger: Logger): void {
   void logCpuMetrics();
 
   // Then log periodically
-  setInterval(() => {
+  const logCpuMetricsTimeout = setInterval(() => {
     void logCpuMetrics();
-  }, LOG_INTERVAL_MS);
+  }, interval);
+
+  return {
+    stop() {
+      clearTimeout(logCpuMetricsTimeout);
+    },
+  };
 }

@@ -13,7 +13,11 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
-import { detectDevices, initializeSystemAudio } from '@votingworks/backend';
+import {
+  detectDevices,
+  initializeSystemAudio,
+  startCpuMetricsLogging,
+} from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
@@ -120,6 +124,9 @@ export async function start({
   );
 
   useDevDockRouter(app, express, {});
+
+  // Start periodic CPU metrics logging
+  startCpuMetricsLogging(logger);
 
   return app.listen(
     port,

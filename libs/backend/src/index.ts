@@ -1,5 +1,6 @@
 /* istanbul ignore file - @preserve */
 export * from './cast_vote_records';
+export * from './cpu_metrics';
 export * from './detect_devices';
 export * from './test_detect_devices';
 export * from './diagnostics';
