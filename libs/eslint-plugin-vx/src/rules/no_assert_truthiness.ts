@@ -20,10 +20,10 @@ function typeIncludesStringOrNumber(type: ts.Type): boolean {
   const flags = type.getFlags();
 
   return (
-    flags === ts.TypeFlags.String ||
-    flags === ts.TypeFlags.Number ||
-    flags === ts.TypeFlags.NumberLiteral ||
-    flags === ts.TypeFlags.StringLiteral
+    (flags & ts.TypeFlags.String) !== 0 ||
+    (flags & ts.TypeFlags.Number) !== 0 ||
+    (flags & ts.TypeFlags.NumberLiteral) !== 0 ||
+    (flags & ts.TypeFlags.StringLiteral) !== 0
   );
 }
 
@@ -32,13 +32,14 @@ function typeIncludesUndefined(type: ts.Type): boolean {
     return type.types.some((subtype) => typeIncludesUndefined(subtype));
   }
 
-  return type.getFlags() === ts.TypeFlags.Undefined;
+  return (type.getFlags() & ts.TypeFlags.Undefined) !== 0;
 }
 
 function typeIsBoolean(type: ts.Type): boolean {
   const flags = type.getFlags();
   return (
-    flags === ts.TypeFlags.Boolean || flags === ts.TypeFlags.BooleanLiteral
+    (flags & ts.TypeFlags.Boolean) !== 0 ||
+    (flags & ts.TypeFlags.BooleanLiteral) !== 0
   );
 }
 
