@@ -2,7 +2,6 @@
   "extends": ["plugin:vx/recommended"],
   "rules": {
     // Disable JSDOC rule as code is self-documenting.
-    "vx/gts-jsdoc": "off",
-    "@typescript-eslint/no-use-before-define": ["error", { "functions": false }]
+    "vx/gts-jsdoc": "off"
   }
 }

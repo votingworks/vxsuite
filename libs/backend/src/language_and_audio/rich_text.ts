@@ -1,5 +1,3 @@
-/* eslint @typescript-eslint/no-use-before-define: ["error", { "functions": false }] */
-
 import { assert, assertDefined } from '@votingworks/basics';
 import { parse as parseHtml, Node, HTMLElement } from 'node-html-parser';
 

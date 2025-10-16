@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import { expect, Mocked, test, vi } from 'vitest';
 import { SpeechSynthesizer } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';

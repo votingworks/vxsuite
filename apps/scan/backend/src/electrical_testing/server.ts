@@ -1,5 +1,3 @@
-/* eslint @typescript-eslint/no-use-before-define: ["error", { "functions": false }] */
-
 import { extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 

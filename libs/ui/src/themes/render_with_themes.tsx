@@ -1,6 +1,3 @@
-// Enable keeping main public exports at the top of the file:
-/* eslint-disable @typescript-eslint/no-use-before-define */
-
 // TODO: This file's scope has gone out of sync with its current name/location -
 // Need to break it up and/or rename/re-locate.
 
