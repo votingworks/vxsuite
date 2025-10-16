@@ -58,6 +58,12 @@ export function safeParseVxfElection(
   return safeParse(ElectionSchema, valueWithParsedDate.ok());
 }
 
+function prettyZodError(error: z.ZodError): string {
+  return error.issues
+    .map((issue) => `- ${issue.path.join('.')}: ${issue.message}`)
+    .join('\n');
+}
+
 /**
  * Parses `value` as an `Election` object. Supports both VXF and CDF. If given a
  * string, will attempt to parse it as JSON first.
@@ -87,13 +93,13 @@ function safeParseElectionExtended(value: unknown): Result<
     return cdfResult;
   }
 
+  const isProbablyCdf = typeof value === 'object' && value && '@type' in value;
+
   return err(
     new Error(
-      [
-        'Invalid election definition',
-        `VXF error: ${vxfResult.err()}`,
-        `CDF error: ${cdfResult.err()}`,
-      ].join('\n\n')
+      isProbablyCdf
+        ? `Invalid CDF election:\n${cdfResult.err()}`
+        : `Invalid election:\n${prettyZodError(vxfResult.err())}`
     )
   );
 }

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { useState } from 'react';
-import { ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { ElectionIdSchema, unsafeParse } from '@votingworks/types';
@@ -465,4 +465,32 @@ test('single org elections list', async () => {
   expect(secondRowCells[1]).toHaveTextContent('Sep 8, 2021');
   expect(secondRowCells[2]).toHaveTextContent(primary.election.county.name);
   expect(secondRowCells[3]).toHaveTextContent(primary.election.state);
+});
+
+test('shows error message when loading election fails', async () => {
+  const electionRecord = primaryElectionRecord(user.orgId);
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listElections.expectCallWith().resolves([]);
+
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Elections' });
+
+  const electionData = JSON.stringify(electionRecord.election);
+  apiMock.loadElection
+    .expectCallWith({
+      orgId: user.orgId,
+      electionData,
+      newId: ELECTION_ID,
+    })
+    .resolves(err(new Error('mock error details')));
+  const loadElectionInput = screen.getByLabelText('Load Election');
+  const file = new File([electionData], 'election.json', {
+    type: 'application/json',
+  });
+  // JSDOM's File doesn't implement File.text
+  file.text = () => Promise.resolve(electionData);
+  userEvent.upload(loadElectionInput, file);
+  const errorModal = await screen.findByRole('alertdialog');
+  within(errorModal).getByRole('heading', { name: 'Error Loading Election' });
+  within(errorModal).getByText('mock error details');
 });
