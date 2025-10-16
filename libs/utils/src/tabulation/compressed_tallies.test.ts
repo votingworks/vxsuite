@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { Buffer } from 'node:buffer';
 import {
   CandidateContest,
   CandidateContestCompressedTally,
@@ -13,6 +14,7 @@ import {
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import { find, assert, assertDefined } from '@votingworks/basics';
+import fc from 'fast-check';
 import {
   compressAndEncodeTally,
   compressTally,
@@ -104,31 +106,10 @@ describe('compressTally', () => {
     ]);
   });
 
-  test('compressTally can break a tally into multiple parts', () => {
+  test('compressTally can break a tally into arbitrary parts', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
-    const compressedTallies = compressAndEncodeTally({
-      election: electionEitherNeither,
-      results: getEmptyElectionResults(electionEitherNeither),
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      numPages: 3,
-    });
-    expect(compressedTallies).toHaveLength(3);
-    const [compressedTallyPt1, compressedTallyPt2, compressedTallyPt3] =
-      compressedTallies;
-    assert(typeof compressedTallyPt1 === 'string');
-    assert(typeof compressedTallyPt2 === 'string');
-    assert(typeof compressedTallyPt3 === 'string');
-    // The compressed tally should be a long string of A's since all counts are 0
-    expect(compressedTallyPt1).toMatchInlineSnapshot(
-      `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
-    );
-    expect(compressedTallyPt2).toMatchInlineSnapshot(
-      `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
-    );
-    expect(compressedTallyPt3).toMatchInlineSnapshot(
-      `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`
-    );
+    const results = getEmptyElectionResults(electionEitherNeither);
 
     const compressedTalliesSinglePart = compressAndEncodeTally({
       election: electionEitherNeither,
@@ -139,8 +120,28 @@ describe('compressTally', () => {
     expect(compressedTalliesSinglePart).toHaveLength(1);
     const [compressedTallySinglePart] = compressedTalliesSinglePart;
     assert(typeof compressedTallySinglePart === 'string');
-    expect(compressedTallySinglePart).toEqual(
-      compressedTallyPt1 + compressedTallyPt2 + compressedTallyPt3
+
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 25 }), (numPages) => {
+        const compressedTallies = compressAndEncodeTally({
+          election: electionEitherNeither,
+          results,
+          precinctSelection: ALL_PRECINCTS_SELECTION,
+          numPages,
+        });
+        expect(compressedTallies).toHaveLength(numPages);
+
+        // The broken up tallies should combine to equal the single part tally
+        expect(compressedTallySinglePart).toEqual(
+          assertDefined(
+            Buffer.concat(
+              compressedTallies.map((compressedTally) =>
+                Buffer.from(compressedTally, 'base64url')
+              )
+            ).toString('base64url')
+          )
+        );
+      })
     );
   });
 
