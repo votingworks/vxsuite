@@ -54,6 +54,7 @@ const StyledContainer = styled.div<{ color?: CardColor }>`
         : p.theme.sizes.bordersRem.hairline}rem
     solid ${(p) => cardColors(p.theme, p.color).border};
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+  min-width: fit-content;
 `;
 
 const StyledContent = styled.div`
