@@ -145,7 +145,7 @@ export function PostPrintScreen({
           <P>
             <Button onPress={() => printSection(0)} disabled={disablePrinting}>
               Reprint {getPollsReportTitle(pollsTransitionType)}
-            </Button>
+            </Button>{' '}
             {POLLS_TRANSITIONS_WITH_REPORTS.includes(pollsTransitionType) &&
               reportQuickResultsEnabled && (
                 <Button variant="primary" onPress={onViewReportResults}>
