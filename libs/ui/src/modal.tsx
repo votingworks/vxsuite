@@ -129,6 +129,7 @@ const ModalContent = styled('div')<ModalContentInterface>`
     centerContent ? 'center' : undefined};
   overflow: auto;
   padding: ${(p) => (p.fullscreen ? 0 : getSpacingValueRem(p))}rem;
+  // max-height: 75vh;
 `;
 
 const ReadOnOpen = styled(ReadOnLoad)`
@@ -136,7 +137,10 @@ const ReadOnOpen = styled(ReadOnLoad)`
   display: flex;
   flex-direction: column;
   justify-content: inherit;
+  // max-height: 60vh;
 `;
+
+ReactModal.setAppElement('#root');
 
 /** Props for {@link Modal}. */
 export interface ModalProps {

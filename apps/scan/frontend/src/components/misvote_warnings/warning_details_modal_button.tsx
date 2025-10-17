@@ -21,7 +21,7 @@ export function WarningDetailsModalButton(
       <Modal
         modalWidth={ModalWidth.Wide}
         content={
-          <WithScrollButtons>
+          <WithScrollButtons focusable>
             <WarningDetails
               blankContests={blankContests}
               overvoteContests={overvoteContests}

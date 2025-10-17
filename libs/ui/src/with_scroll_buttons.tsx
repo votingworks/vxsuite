@@ -207,6 +207,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
         >
           <Controls aria-hidden={!focusable}>
             <Control
+              aria-hidden={!focusable}
               disabled={!canScrollUp}
               onPress={onScrollUp}
               variant="primary"
@@ -217,6 +218,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
               </ControlLabel>
             </Control>
             <Control
+              aria-hidden={!focusable}
               disabled={!canScrollDown}
               onPress={onScrollDown}
               variant="primary"

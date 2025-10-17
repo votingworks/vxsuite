@@ -24,6 +24,7 @@ const Container = styled.div<ContainerProps>`
   flex-direction: column;
   grid-template-columns: repeat(${(p) => p.numCardsPerRow}, 1fr);
   grid-gap: ${(p) => CONTENT_SPACING_VALUES_REM[p.theme.sizeMode]}rem;
+  max-height: 60vh;
 `;
 
 export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {

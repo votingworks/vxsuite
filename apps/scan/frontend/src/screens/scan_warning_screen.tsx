@@ -177,7 +177,7 @@ function MisvoteWarningScreen({
       {confirmTabulate && (
         <ConfirmModal
           content={
-            <WithScrollButtons>
+            <WithScrollButtons focusable>
               <MisvoteWarningDetails
                 blankContests={blankContests}
                 overvoteContests={overvoteContests}
