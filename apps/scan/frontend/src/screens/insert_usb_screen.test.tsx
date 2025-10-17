@@ -1,4 +1,5 @@
-import { beforeEach, afterEach, test } from 'vitest';
+import { beforeEach, afterEach, test, vi } from 'vitest';
+import { PollsState } from '@votingworks/types';
 import { render as baseRender } from '../../test/react_testing_library';
 import { InsertUsbScreen } from './insert_usb_screen';
 import {
@@ -7,6 +8,8 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
+
+vi.useFakeTimers({ shouldAdvanceTime: true });
 
 let apiMock: ApiMock;
 
@@ -27,9 +30,33 @@ function setUp() {
   };
 }
 
-test('plays sound on open', () => {
-  const { render } = setUp();
-  apiMock.expectPlaySound('alarm');
+test.each<{
+  disableAlarm?: boolean;
+  pollsState: PollsState;
+  isSoundExpected?: boolean;
+}>([
+  { pollsState: 'polls_closed_initial', isSoundExpected: false },
+  { pollsState: 'polls_open', isSoundExpected: true },
+  { pollsState: 'polls_closed_final', isSoundExpected: false },
+  {
+    disableAlarm: true,
+    pollsState: 'polls_open',
+    isSoundExpected: false,
+  },
+])(
+  'Alarm plays when expected',
+  ({ disableAlarm, pollsState, isSoundExpected }) => {
+    const { render } = setUp();
 
-  render(<InsertUsbScreen />);
-});
+    if (isSoundExpected) {
+      // Expect two or more plays
+      apiMock.expectPlaySound('alarm');
+      apiMock.expectPlaySoundRepeated('alarm');
+    }
+
+    render(
+      <InsertUsbScreen disableAlarm={disableAlarm} pollsState={pollsState} />
+    );
+    vi.advanceTimersByTime(5000);
+  }
+);
