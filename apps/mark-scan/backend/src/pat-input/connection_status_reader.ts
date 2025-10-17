@@ -97,7 +97,11 @@ export class PatConnectionStatusReader
     ) {
       const openResult = await fsOpen(path);
 
-      if (openResult.isErr() && openResult.err().message.match('ENOENT')) {
+      if (openResult.isErr()) {
+        if (!openResult.err().message.match('ENOENT')) {
+          break;
+        }
+
         this.logger.log(LogEventId.Info, 'system', {
           message: 'Could not find PAT status file. Retrying...',
           disposition: 'success',
