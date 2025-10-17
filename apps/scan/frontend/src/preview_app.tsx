@@ -9,12 +9,14 @@ import * as CardErrorScreen from './screens/card_error_screen';
 import * as ElectionManagerScreen from './screens/election_manager_screen';
 import * as SystemAdministratorScreen from './screens/system_administrator_screen';
 import * as InsertBallotScreen from './screens/insert_ballot_screen';
+import * as InsertUsbScreen from './screens/insert_usb_screen';
 import * as InvalidCardScreen from './screens/invalid_card_screen';
 import * as LoadingConfigurationScreen from './screens/loading_configuration_screen';
 import * as PollsNotOpenScreen from './screens/polls_not_open_screen';
 import * as PollWorkerScreen from './screens/poll_worker_screen';
 import * as ScanDoubleSheetScreen from './screens/scan_double_sheet_screen';
 import * as ScanErrorScreen from './screens/scan_error_screen';
+import * as ScannerCoverOpenScreen from './screens/scanner_cover_open_screen';
 import * as ScanProcessingScreen from './screens/scan_processing_screen';
 import * as ScanSuccessScreen from './screens/scan_success_screen';
 import * as ScanWarningScreen from './screens/scan_warning_screen';
@@ -41,12 +43,14 @@ export function PreviewApp(): JSX.Element {
           ElectionManagerScreen,
           SystemAdministratorScreen,
           InsertBallotScreen,
+          InsertUsbScreen,
           InvalidCardScreen,
           LoadingConfigurationScreen,
           PollsNotOpenScreen,
           PollWorkerScreen,
           ScanDoubleSheetScreen,
           ScanErrorScreen,
+          ScannerCoverOpenScreen,
           ScanProcessingScreen,
           ScanSuccessScreen,
           ScanWarningScreen,

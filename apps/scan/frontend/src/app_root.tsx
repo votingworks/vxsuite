@@ -285,7 +285,12 @@ export function AppRoot(): JSX.Element | null {
     usbDrive.status !== 'mounted' &&
     pollsState !== 'polls_closed_final'
   ) {
-    return <InsertUsbScreen />;
+    return (
+      <InsertUsbScreen
+        disableAlarm={Boolean(systemSettings.precinctScanDisableAlarms)}
+        pollsState={pollsState}
+      />
+    );
   }
 
   // When no card is inserted, we're in "voter" mode
@@ -305,7 +310,11 @@ export function AppRoot(): JSX.Element | null {
   }
 
   if (scannerStatus.state === 'cover_open') {
-    return <ScannerCoverOpenScreen />;
+    return (
+      <ScannerCoverOpenScreen
+        disableAlarm={Boolean(systemSettings.precinctScanDisableAlarms)}
+      />
+    );
   }
 
   if (printerStatus.state === 'cover-open') {
