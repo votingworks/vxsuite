@@ -15,8 +15,8 @@ import {
 } from './constants';
 import { BmdModelNumber } from '../types';
 
-const CONNECTION_TIMEOUT_MS = 5000;
-const CONNECTION_RETRY_INTERVAL_MS = 500;
+export const CONNECTION_TIMEOUT_MS = 5000;
+export const CONNECTION_RETRY_INTERVAL_MS = 500;
 
 export interface PatConnectionStatusReaderInterface {
   readonly logger: BaseLogger;
@@ -98,8 +98,16 @@ export class PatConnectionStatusReader
       const openResult = await fsOpen(path);
 
       if (openResult.isErr()) {
+        /* istanbul ignore next - @preserve */
         if (!openResult.err().message.match('ENOENT')) {
-          break;
+          /* istanbul ignore next - @preserve */
+          this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+            message: `Unexpected error trying to open ${path}.`,
+            disposition: 'failure',
+            error: openResult.err().message,
+          });
+          /* istanbul ignore next - @preserve */
+          return false;
         }
 
         this.logger.log(LogEventId.Info, 'system', {
@@ -118,7 +126,7 @@ export class PatConnectionStatusReader
     }
 
     this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
-      message: `Unexpected error trying to open ${path}. Is fai_100_controllerd running?`,
+      message: `Could not find status file at ${path}. Is fai_100_controllerd running?`,
       disposition: 'failure',
     });
 
@@ -147,7 +155,7 @@ export class PatConnectionStatusReader
   async isPatDeviceConnected(): Promise<boolean> {
     assert(
       this.file,
-      'No FileHandle for PAT connection status pin. Did you call `PatConnectionStatusReader.open()`?'
+      'No FileHandle for PAT connection status file. Did you call `PatConnectionStatusReader.open()`?'
     );
     // The value file will always contain a single byte (0 or 1)
     const buf = Buffer.alloc(1);

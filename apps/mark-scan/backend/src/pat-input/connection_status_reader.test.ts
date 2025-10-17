@@ -8,7 +8,11 @@ import {
 import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import { join } from 'node:path';
-import { PatConnectionStatusReader } from './connection_status_reader';
+import {
+  CONNECTION_RETRY_INTERVAL_MS,
+  CONNECTION_TIMEOUT_MS,
+  PatConnectionStatusReader,
+} from './connection_status_reader';
 import { FAI_100_STATUS_FILENAME } from './constants';
 
 const ASCII_ZERO = 48;
@@ -108,20 +112,34 @@ test('bmd-150 implementation happy path', async () => {
   await reader.close();
 });
 
-test('bmd-150 implementation cannot find workspace', async () => {
+test('bmd-150 implementation cannot find status file', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+
   const reader = new PatConnectionStatusReader(
     logger,
     'bmd-150',
     '/tmp/notarealdirectory/notarealfile.status'
   );
-  const result = await reader.open();
+
+  const openPromise = reader.open();
+
+  // Advance timers and flush promises in steps to handle the retry loop
+  const steps = Math.ceil(CONNECTION_TIMEOUT_MS / CONNECTION_RETRY_INTERVAL_MS);
+  for (let i = 0; i <= steps; i += 1) {
+    await vi.advanceTimersByTimeAsync(CONNECTION_RETRY_INTERVAL_MS);
+  }
+
+  const result = await openPromise;
+
   expect(result).toEqual(false);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ConnectToPatInputComplete,
     'system',
     {
       disposition: 'failure',
-      message: expect.stringMatching(/Unexpected error trying to open/),
+      message: expect.stringMatching(/Could not find status file at/),
     }
   );
+
+  vi.useRealTimers();
 });
