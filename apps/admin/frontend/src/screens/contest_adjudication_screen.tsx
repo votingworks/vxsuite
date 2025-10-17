@@ -646,12 +646,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
           ) : (
             <ContestOptionButtonList role="listbox">
               {officialOptions.map((officialOption) => {
-                const originalVote = originalVotes.includes(officialOption.id);
-                const currentVote = getOptionHasVote(officialOption.id);
+                const { id: optionId } = officialOption;
+                const originalVote = originalVotes.includes(optionId);
+                const currentVote = getOptionHasVote(optionId);
                 const optionLabel = isCandidateContest
                   ? (officialOption as Candidate).name
                   : (officialOption as YesNoOption).label;
-                const { id: optionId } = officialOption;
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
                 function getRef(el: HTMLDivElement | null) {
