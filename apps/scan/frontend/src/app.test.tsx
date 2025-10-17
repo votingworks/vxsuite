@@ -14,7 +14,11 @@ import {
 } from '@votingworks/types';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 
-import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
+import type {
+  PrecinctScannerConfig,
+  PrecinctScannerStatus,
+} from '@votingworks/scan-backend';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { waitFor, screen, within, render } from '../test/react_testing_library';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 import { scannerStatus } from '../test/helpers/helpers';
@@ -80,7 +84,6 @@ test('shows insert USB Drive screen when there is no USB drive', async () => {
   apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
-  apiMock.expectPlaySound('alarm');
   renderApp();
   await screen.findByText('No USB Drive Detected');
 });
@@ -1254,4 +1257,46 @@ test('"Test" voter settings are not reset when voting begins', async () => {
   await screen.findByText(/Insert Your Ballot/i);
 
   expect(startNewSessionMock).not.toBeCalled();
+});
+
+test.each<{
+  description: string;
+  scannerStatus: PrecinctScannerStatus;
+  usbDriveStatus: UsbDriveStatus['status'];
+  expectedHeading: string;
+}>([
+  {
+    description: 'USB drive removed',
+    scannerStatus: statusNoPaper,
+    usbDriveStatus: 'no_drive',
+    expectedHeading: 'No USB Drive Detected',
+  },
+  {
+    description: 'scanner cover opened',
+    scannerStatus: { ballotsCounted: 0, state: 'cover_open' },
+    usbDriveStatus: 'mounted',
+    expectedHeading: 'Scanner Cover is Open',
+  },
+])('alarms - $description', async (testConfig) => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetScannerStatus(testConfig.scannerStatus);
+  apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus);
+  apiMock.setPrinterStatus();
+
+  apiMock.expectPlaySoundRepeated('alarm');
+
+  renderApp();
+  await screen.findByText(testConfig.expectedHeading);
+  vi.advanceTimersByTime(5000);
+
+  await waitFor(() => apiMock.mockApiClient.playSound.assertComplete());
+  // Clear the mock to check that no further sounds are played once we authenticate as a poll
+  // worker
+  apiMock.mockApiClient.playSound.reset();
+
+  apiMock.expectGetQuickResultsReportingUrl();
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+  await screen.findByText('Close Polls');
+  vi.advanceTimersByTime(5000);
 });

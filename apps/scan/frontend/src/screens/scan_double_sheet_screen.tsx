@@ -33,9 +33,7 @@ export function ScanDoubleSheetScreen({
         }
       >
         <P weight="bold">{appStrings.instructionsScannerRemoveDoubleSheet()}</P>
-        <P>
-          <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
-        </P>
+        <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
       </FullScreenPromptLayout>
     </Screen>
   );
