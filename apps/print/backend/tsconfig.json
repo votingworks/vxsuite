@@ -1,0 +1,36 @@
+{
+  "extends": "../../../tsconfig.shared.json",
+  "include": ["scripts", "src", "test"],
+  "exclude": [],
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "lib": ["esnext"],
+    "module": "node16",
+    "moduleResolution": "node16",
+    "noEmit": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": false
+  },
+  "references": [
+    { "path": "../../../libs/auth/tsconfig.build.json" },
+    { "path": "../../../libs/basics/tsconfig.build.json" },
+    { "path": "../../../libs/backend/tsconfig.build.json" },
+    { "path": "../../../libs/db/tsconfig.build.json" },
+    { "path": "../../../libs/dev-dock/backend/tsconfig.build.json" },
+    { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../../libs/fs/tsconfig.build.json" },
+    { "path": "../../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../../libs/grout/tsconfig.build.json" },
+    { "path": "../../../libs/printing/tsconfig.build.json" },
+    { "path": "../../../libs/types/tsconfig.build.json" },
+    { "path": "../../../libs/ui/tsconfig.build.json" },
+    { "path": "../../../libs/usb-drive/tsconfig.build.json" },
+    { "path": "../../../libs/utils/tsconfig.build.json" }
+  ]
+}

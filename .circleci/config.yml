@@ -426,6 +426,54 @@ jobs:
       - store_test_results:
           path: apps/pollbook/frontend/reports/
 
+  # @votingworks/print-backend
+  test-apps-print-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/print/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/print/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/print/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/print/backend/reports/
+
+  # @votingworks/print-frontend
+  test-apps-print-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/print/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/print/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/print/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/print/frontend/reports/
+
   # @votingworks/scan-backend
   test-apps-scan-backend:
     executor: nodejs
@@ -1360,6 +1408,8 @@ workflows:
       - test-apps-mark-frontend
       - test-apps-mark-integration-testing
       - test-apps-pollbook-frontend
+      - test-apps-print-backend
+      - test-apps-print-frontend
       - test-apps-scan-backend
       - test-apps-scan-frontend
       - test-docs-exercises
