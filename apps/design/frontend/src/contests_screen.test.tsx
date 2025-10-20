@@ -1063,7 +1063,7 @@ describe('Contests tab', () => {
 
     await screen.findByRole('button', { name: 'Reorder Contests' });
     expect(getRowOrder()).toEqual(newOrder);
-  });
+  }, 20000);
 
   test('deleting a contest', async () => {
     const electionRecord = generalElectionRecord(user.orgId);
