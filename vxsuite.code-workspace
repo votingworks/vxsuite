@@ -13,6 +13,10 @@
       "path": "apps/admin/integration-testing"
     },
     {
+      "name": "apps/central-scan/backend",
+      "path": "apps/central-scan/backend"
+    },
+    {
       "name": "apps/central-scan/frontend",
       "path": "apps/central-scan/frontend"
     },
