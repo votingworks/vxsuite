@@ -1,225 +1,33 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`safeParseElection shows VXF and CDF parsing errors 1`] = `
-[Error: Invalid election definition
-
-VXF error: ZodError: [
-  {
-    "expected": "object",
-    "code": "invalid_type",
-    "path": [
-      "ballotLayout"
-    ],
-    "message": "Invalid input: expected object, received undefined"
-  },
-  {
-    "expected": "record",
-    "code": "invalid_type",
-    "path": [
-      "ballotStrings"
-    ],
-    "message": "Invalid input: expected record, received undefined"
-  },
-  {
-    "expected": "array",
-    "code": "invalid_type",
-    "path": [
-      "ballotStyles"
-    ],
-    "message": "Invalid input: expected array, received undefined"
-  },
-  {
-    "expected": "array",
-    "code": "invalid_type",
-    "path": [
-      "contests"
-    ],
-    "message": "Invalid input: expected array, received undefined"
-  },
-  {
-    "expected": "object",
-    "code": "invalid_type",
-    "path": [
-      "county"
-    ],
-    "message": "Invalid input: expected object, received undefined"
-  },
-  {
-    "code": "custom",
-    "path": [
-      "date"
-    ],
-    "message": "Input not instance of DateWithoutTime"
-  },
-  {
-    "expected": "array",
-    "code": "invalid_type",
-    "path": [
-      "districts"
-    ],
-    "message": "Invalid input: expected array, received undefined"
-  },
-  {
-    "expected": "string",
-    "code": "invalid_type",
-    "path": [
-      "id"
-    ],
-    "message": "Invalid input: expected string, received undefined"
-  },
-  {
-    "expected": "array",
-    "code": "invalid_type",
-    "path": [
-      "parties"
-    ],
-    "message": "Invalid input: expected array, received undefined"
-  },
-  {
-    "expected": "array",
-    "code": "invalid_type",
-    "path": [
-      "precincts"
-    ],
-    "message": "Invalid input: expected array, received undefined"
-  },
-  {
-    "expected": "string",
-    "code": "invalid_type",
-    "path": [
-      "seal"
-    ],
-    "message": "Invalid input: expected string, received undefined"
-  },
-  {
-    "expected": "string",
-    "code": "invalid_type",
-    "path": [
-      "state"
-    ],
-    "message": "Invalid input: expected string, received undefined"
-  },
-  {
-    "expected": "string",
-    "code": "invalid_type",
-    "path": [
-      "title"
-    ],
-    "message": "Invalid input: expected string, received undefined"
-  },
-  {
-    "code": "invalid_value",
-    "values": [
-      "general",
-      "primary"
-    ],
-    "path": [
-      "type"
-    ],
-    "message": "Invalid option: expected one of \\"general\\"|\\"primary\\""
-  }
-]
-
-CDF error: ZodError: [
-  {
-    "code": "invalid_value",
-    "values": [
-      "BallotDefinition.BallotDefinition"
-    ],
-    "path": [
-      "@type"
-    ],
-    "message": "Invalid input: expected \\"BallotDefinition.BallotDefinition\\""
-  },
-  {
-    "expected": "array",
-    "code": "invalid_type",
-    "path": [
-      "BallotFormat"
-    ],
-    "message": "Invalid input: expected array, received undefined"
-  },
-  {
-    "expected": "array",
-    "code": "invalid_type",
-    "path": [
-      "Election"
-    ],
-    "message": "Invalid input: expected array, received undefined"
-  },
+exports[`safeParseElection shows CDF parsing errors when input seems like it might be CDF 1`] = `
+[Error: Invalid CDF election:
+ZodError: [
   {
     "expected": "string",
     "code": "invalid_type",
     "path": [
       "GeneratedDate"
     ],
-    "message": "Invalid input: expected string, received undefined"
-  },
-  {
-    "expected": "array",
-    "code": "invalid_type",
-    "path": [
-      "GpUnit"
-    ],
-    "message": "Invalid input: expected array, received undefined"
-  },
-  {
-    "expected": "string",
-    "code": "invalid_type",
-    "path": [
-      "Issuer"
-    ],
-    "message": "Invalid input: expected string, received undefined"
-  },
-  {
-    "expected": "string",
-    "code": "invalid_type",
-    "path": [
-      "IssuerAbbreviation"
-    ],
-    "message": "Invalid input: expected string, received undefined"
-  },
-  {
-    "expected": "array",
-    "code": "invalid_type",
-    "path": [
-      "Party"
-    ],
-    "message": "Invalid input: expected array, received undefined"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "SequenceEnd"
-    ],
-    "message": "Invalid input: expected number, received undefined"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "SequenceStart"
-    ],
-    "message": "Invalid input: expected number, received undefined"
-  },
-  {
-    "expected": "string",
-    "code": "invalid_type",
-    "path": [
-      "VendorApplicationId"
-    ],
-    "message": "Invalid input: expected string, received undefined"
-  },
-  {
-    "code": "invalid_value",
-    "values": [
-      "1.0.0"
-    ],
-    "path": [
-      "Version"
-    ],
-    "message": "Invalid input: expected \\"1.0.0\\""
+    "message": "Invalid input: expected string, received number"
   }
 ]]
+`;
+
+exports[`safeParseElection shows VXF parsing errors by default 1`] = `
+[Error: Invalid election:
+- ballotLayout: Invalid input: expected object, received undefined
+- ballotStrings: Invalid input: expected record, received undefined
+- ballotStyles: Invalid input: expected array, received undefined
+- contests: Invalid input: expected array, received undefined
+- county: Invalid input: expected object, received undefined
+- date: Input not instance of DateWithoutTime
+- districts: Invalid input: expected array, received undefined
+- id: Invalid input: expected string, received undefined
+- parties: Invalid input: expected array, received undefined
+- precincts: Invalid input: expected array, received undefined
+- seal: Invalid input: expected string, received undefined
+- state: Invalid input: expected string, received undefined
+- title: Invalid input: expected string, received undefined
+- type: Invalid option: expected one of "general"|"primary"]
 `;

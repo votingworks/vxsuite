@@ -1,15 +1,13 @@
-import { assert, Result, throwIllegalValue } from '@votingworks/basics';
-import { Id } from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/basics';
 import {
   H1,
   Icons,
   MainContent,
-  FileInputButton,
   Table,
   Button,
   StyledButtonProps,
 } from '@votingworks/ui';
-import { FormEvent, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
@@ -21,7 +19,6 @@ import {
   listElections,
   createElection,
   loadElection,
-  getUser,
   getUserFeatures,
 } from './api';
 import { Column, Row } from './layout';
@@ -30,6 +27,7 @@ import { CreateElectionButton } from './create_election_button';
 import { useTitle } from './hooks/use_title';
 import { routes } from './routes';
 import { CloneElectionButton } from './clone_election_button';
+import { LoadElectionButton } from './load_election_button';
 
 const ElectionRow = styled.tr`
   & td {
@@ -355,34 +353,7 @@ export function ElectionsScreen({
   const createElectionMutation = createElection.useMutation();
   const loadElectionMutation = loadElection.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
-  const user = getUser.useQuery().data;
-  const history = useHistory();
   const filterRef = useRef<HTMLInputElement>(null);
-
-  function onCreateElectionSuccess(result: Result<Id, Error>) {
-    if (result.isOk()) {
-      const electionId = result.ok();
-      history.push(`/elections/${electionId}`);
-      return;
-    }
-    // TODO handle error case
-    /* istanbul ignore next - @preserve */
-    throw result.err();
-  }
-
-  async function onSelectElectionFile(event: FormEvent<HTMLInputElement>) {
-    const input = event.currentTarget;
-    const files = Array.from(input.files || []);
-    const file = files[0];
-    const electionData = await file.text();
-    assert(!!user);
-    loadElectionMutation.mutate(
-      // [TODO] Assuming this flow will be unused for March elections. If
-      // it ends up being needed, we'll need an org selection flow here as well.
-      { electionData, orgId: user.orgId },
-      { onSuccess: onCreateElectionSuccess }
-    );
-  }
 
   /* istanbul ignore next - @preserve */
   if (!(listElectionsQuery.isSuccess && getUserFeaturesQuery.isSuccess)) {
@@ -452,13 +423,7 @@ export function ElectionsScreen({
               disabled={anyMutationIsLoading}
               variant={elections.length === 0 ? 'primary' : undefined}
             />
-            <FileInputButton
-              accept=".json"
-              onChange={onSelectElectionFile}
-              disabled={anyMutationIsLoading}
-            >
-              Load Election
-            </FileInputButton>
+            <LoadElectionButton disabled={anyMutationIsLoading} />
           </Row>
 
           <div style={{ overflow: 'auto' }}>
