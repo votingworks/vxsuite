@@ -1444,6 +1444,7 @@ test('combineCompressedElectionResults', () => {
       cardCounts: { bmd: 0, hmpb: [] },
     }),
     precinctSelection: ALL_PRECINCTS_SELECTION,
+    numPages: 1,
   });
   const encoded2 = compressAndEncodeTally({
     election,
@@ -1454,12 +1455,19 @@ test('combineCompressedElectionResults', () => {
       cardCounts: { bmd: 0, hmpb: [] },
     }),
     precinctSelection: ALL_PRECINCTS_SELECTION,
+    numPages: 1,
   });
   const combined = combineAndDecodeCompressedElectionResults({
     election,
     encodedCompressedTallies: [
-      { encodedTally: encoded1, precinctSelection: ALL_PRECINCTS_SELECTION },
-      { encodedTally: encoded2, precinctSelection: ALL_PRECINCTS_SELECTION },
+      {
+        encodedTally: assertDefined(encoded1[0]),
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+      },
+      {
+        encodedTally: assertDefined(encoded2[0]),
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+      },
     ],
   });
   expect(combined).toEqual(
@@ -1583,16 +1591,18 @@ test('combineCompressedElectionResults - can combine results from different prec
     election: electionEitherNeither,
     results: mockResultsPrecinct1,
     precinctSelection: singlePrecinctSelectionPrecinct1,
+    numPages: 1,
   });
   const encodedTallyPrecinct2 = compressAndEncodeTally({
     election: electionEitherNeither,
     results: mockResultsPrecinct2,
     precinctSelection: singlePrecinctSelectionPrecinct2,
+    numPages: 1,
   });
-  expect(encodedTallyPrecinct1).toMatchInlineSnapshot(
+  expect(encodedTallyPrecinct1[0]).toMatchInlineSnapshot(
     `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAoABQACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoABAAGAAAAAAAAAAAAAAA"`
   );
-  expect(encodedTallyPrecinct2).toMatchInlineSnapshot(
+  expect(encodedTallyPrecinct2[0]).toMatchInlineSnapshot(
     `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAUAAwABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEABQACAAEAAAAAAAAAAAAAAA"`
   );
 
@@ -1601,11 +1611,11 @@ test('combineCompressedElectionResults - can combine results from different prec
     encodedCompressedTallies: [
       {
         precinctSelection: singlePrecinctSelectionPrecinct1,
-        encodedTally: encodedTallyPrecinct1,
+        encodedTally: assertDefined(encodedTallyPrecinct1[0]),
       },
       {
         precinctSelection: singlePrecinctSelectionPrecinct2,
-        encodedTally: encodedTallyPrecinct2,
+        encodedTally: assertDefined(encodedTallyPrecinct2[0]),
       },
     ],
   });
