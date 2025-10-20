@@ -142,6 +142,12 @@ fn main() -> color_eyre::Result<()> {
             exit(1);
         }
 
+        // The app checks for connection status on startup. Write a dummy value so
+        // the status file exists. This avoid a race between app startup and user plugging
+        // in PAT device. Risk of race between the daemon and app starting up should be low
+        // but is handled anyway with retry in the app.
+        write_pat_connection_status(SipAndPuffDeviceStatus::Disconnected, workspace_path)?;
+
         run_event_loop(&mut port, &running, &mut keyboard, workspace_path);
 
         exit(0);
