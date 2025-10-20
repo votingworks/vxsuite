@@ -9,9 +9,19 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import type { ElectionUpload } from '@votingworks/design-backend';
-import { getUser, getUserFeatures, loadElection } from './api';
+import {
+  getUser,
+  getUserFeatures,
+  loadElectionMsSems,
+  loadElectionVxf,
+} from './api';
 import { Column, InputGroup, Row } from './layout';
 
 interface VxUploadFormState {
@@ -46,33 +56,6 @@ function getFile(event: FormEvent<HTMLInputElement>): File {
   const files = Array.from(input.files || []);
   assert(files.length === 1);
   return files[0];
-}
-
-async function loadFileContents(
-  formState: UploadFormState
-): Promise<ElectionUpload> {
-  switch (formState.format) {
-    case 'vxf': {
-      assert(formState.electionFile);
-      return {
-        format: 'vxf',
-        electionFileContents: await formState.electionFile.text(),
-      };
-    }
-    case 'ms-sems': {
-      assert(formState.electionFile);
-      assert(formState.candidateFile);
-      return {
-        format: 'ms-sems',
-        electionFileContents: await formState.electionFile.text(),
-        candidateFileContents: await formState.candidateFile.text(),
-      };
-    }
-    default: {
-      /* istanbul ignore next - @preserve */
-      throwIllegalValue(formState);
-    }
-  }
 }
 
 function FileField({
@@ -110,7 +93,8 @@ export function LoadElectionButton({
   disabled: boolean;
 }): JSX.Element | null {
   const history = useHistory();
-  const loadElectionMutation = loadElection.useMutation();
+  const loadElectionVxfMutation = loadElectionVxf.useMutation();
+  const loadElectionMsSemsMutation = loadElectionMsSems.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const getUserQuery = getUser.useQuery();
   const [modalFormState, setModalFormState] = useState<UploadFormState>();
@@ -122,20 +106,63 @@ export function LoadElectionButton({
   const user = getUserQuery.data;
   const features = getUserFeaturesQuery.data;
 
-  async function submitUpload(formState: UploadFormState) {
-    const upload = await loadFileContents(formState);
-    loadElectionMutation.mutate(
-      { upload, orgId: user.orgId },
-      {
-        onSuccess: (result) => {
-          setModalFormState(undefined);
-          if (result.isOk()) {
-            const electionId = result.ok();
-            history.push(`/elections/${electionId}`);
-          }
-        },
-      }
+  function onSuccess(result: Result<string, Error>) {
+    setModalFormState(undefined);
+    if (result.isOk()) {
+      const electionId = result.ok();
+      history.push(`/elections/${electionId}`);
+    }
+  }
+
+  async function submitVxfUpload(formState: VxUploadFormState) {
+    const electionFileContents = await assertDefined(
+      formState.electionFile
+    ).text();
+    loadElectionVxfMutation.mutate(
+      { electionFileContents, orgId: user.orgId },
+      { onSuccess }
     );
+  }
+
+  async function submitMsSemsUpload(formState: MsSemsUploadFormState) {
+    const electionFileContents = await assertDefined(
+      formState.electionFile
+    ).text();
+    const candidateFileContents = await assertDefined(
+      formState.candidateFile
+    ).text();
+    loadElectionMsSemsMutation.mutate(
+      { electionFileContents, candidateFileContents, orgId: user.orgId },
+      { onSuccess }
+    );
+  }
+
+  async function submitUpload(formState: UploadFormState) {
+    switch (formState.format) {
+      case 'vxf':
+        await submitVxfUpload(formState);
+        break;
+      case 'ms-sems':
+        await submitMsSemsUpload(formState);
+        break;
+      default:
+        /* istanbul ignore next - @preserve */
+        throwIllegalValue(formState);
+    }
+  }
+
+  const mutationIsLoading =
+    loadElectionVxfMutation.isLoading || loadElectionMsSemsMutation.isLoading;
+
+  const mutationError = loadElectionVxfMutation.data?.isErr()
+    ? loadElectionVxfMutation.data.err()
+    : loadElectionMsSemsMutation.data?.isErr()
+    ? loadElectionMsSemsMutation.data.err()
+    : undefined;
+
+  function resetMutations() {
+    loadElectionVxfMutation.reset();
+    loadElectionMsSemsMutation.reset();
   }
 
   return (
@@ -152,9 +179,9 @@ export function LoadElectionButton({
           accept=".json"
           onChange={async (event) => {
             const file = getFile(event);
-            await submitUpload({ format: 'vxf', electionFile: file });
+            await submitVxfUpload({ format: 'vxf', electionFile: file });
           }}
-          disabled={loadElectionMutation.isLoading}
+          disabled={loadElectionVxfMutation.isLoading}
         >
           Load Election
         </FileInputButton>
@@ -220,7 +247,7 @@ export function LoadElectionButton({
           }
           actions={
             <React.Fragment>
-              {loadElectionMutation.isLoading ? (
+              {mutationIsLoading ? (
                 <LoadingButton variant="primary">
                   Loading Election…
                 </LoadingButton>
@@ -234,7 +261,7 @@ export function LoadElectionButton({
                 </Button>
               )}
               <Button
-                disabled={loadElectionMutation.isLoading}
+                disabled={mutationIsLoading}
                 onPress={() => setModalFormState(undefined)}
               >
                 Cancel
@@ -244,7 +271,7 @@ export function LoadElectionButton({
           onOverlayClick={() => setModalFormState(undefined)}
         />
       )}
-      {loadElectionMutation.isSuccess && loadElectionMutation.data.isErr() && (
+      {mutationError && (
         <Modal
           title="Error Loading Election"
           content={
@@ -252,23 +279,18 @@ export function LoadElectionButton({
               <Column style={{ gap: '0.5rem' }}>
                 <strong>Invalid election file</strong>
                 <div>
-                  {loadElectionMutation.data
-                    .err()
-                    .message.split('\n')
-                    .map((line, index) => (
-                      // eslint-disable-next-line react/no-array-index-key
-                      <div key={index}>
-                        <Caption>{line}</Caption>
-                      </div>
-                    ))}
+                  {mutationError.message.split('\n').map((line, index) => (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <div key={index}>
+                      <Caption>{line}</Caption>
+                    </div>
+                  ))}
                 </div>
               </Column>
             </Callout>
           }
-          actions={
-            <Button onPress={() => loadElectionMutation.reset()}>Close</Button>
-          }
-          onOverlayClick={() => loadElectionMutation.reset()}
+          actions={<Button onPress={resetMutations}>Close</Button>}
+          onOverlayClick={resetMutations}
         />
       )}
     </React.Fragment>

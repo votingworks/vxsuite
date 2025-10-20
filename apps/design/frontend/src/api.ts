@@ -350,13 +350,38 @@ async function invalidateElectionQueries(
   ]);
 }
 
-export const loadElection = {
+export const loadElectionVxf = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (input: { upload: ElectionUpload; orgId: string }) =>
-        apiClient.loadElection({
+      (input: { electionFileContents: string; orgId: string }) =>
+        apiClient.loadElectionVxf({
+          ...input,
+          newId: generateId(),
+        }),
+      {
+        async onSuccess(result) {
+          if (result.isOk()) {
+            await queryClient.invalidateQueries(listElections.queryKey());
+          }
+        },
+      }
+    );
+  },
+} as const;
+
+export const loadElectionMsSems = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (input: {
+        electionFileContents: string;
+        candidateFileContents: string;
+        orgId: string;
+      }) =>
+        apiClient.loadElectionMsSems({
           ...input,
           newId: generateId(),
         }),

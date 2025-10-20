@@ -305,92 +305,86 @@ export function buildApi(ctx: AppContext) {
       }));
     },
 
-    async loadElection(
+    async loadElectionVxf(
       input: {
-        upload: ElectionUpload;
+        electionFileContents: string;
         newId: ElectionId;
         orgId: string;
       },
       context: ApiContext
     ): Promise<Result<ElectionId, Error>> {
-      const electionResult = ((): Result<Election, Error> => {
-        switch (input.upload.format) {
-          case 'vxf': {
-            const parseResult = safeParseElection(
-              input.upload.electionFileContents
-            );
-            if (parseResult.isErr()) return parseResult;
-            const sourceElection = parseResult.ok();
-            const { districts, precincts, parties, contests } =
-              regenerateElectionIds(sourceElection);
-            // Split candidate names into first, middle, and last names, if they are
-            // not already split
-            const contestsWithSplitCandidateNames = contests.map((contest) => {
-              if (contest.type !== 'candidate') return contest;
-              return {
-                ...contest,
-                candidates: contest.candidates.map((candidate) => {
-                  if (
-                    candidate.firstName !== undefined &&
-                    candidate.middleName !== undefined &&
-                    candidate.lastName !== undefined
-                  ) {
-                    return candidate;
-                  }
-                  return {
-                    ...candidate,
-                    ...splitCandidateName(candidate.name),
-                  };
-                }),
-              };
-            });
-            const election: Election = {
-              ...sourceElection,
-              id: input.newId,
-              districts,
-              precincts,
-              parties,
-              contests: contestsWithSplitCandidateNames,
-              // Remove any existing ballot styles/grid layouts so we can generate our own
-              ballotStyles: [],
-              gridLayouts: undefined,
-              // Fill in a blank seal if none is provided
-              seal: sourceElection.seal ?? '',
-              signature: sourceElection.signature,
-            };
-            return ok(election);
-          }
-
-          case 'ms-sems': {
-            try {
-              return ok(
-                convertMsElection(
-                  input.newId,
-                  input.upload.electionFileContents,
-                  input.upload.candidateFileContents
-                )
-              );
-            } catch (error) {
-              return wrapException(error);
+      const parseResult = safeParseElection(input.electionFileContents);
+      if (parseResult.isErr()) return parseResult;
+      const sourceElection = parseResult.ok();
+      const { districts, precincts, parties, contests } =
+        regenerateElectionIds(sourceElection);
+      // Split candidate names into first, middle, and last names, if they are
+      // not already split
+      const contestsWithSplitCandidateNames = contests.map((contest) => {
+        if (contest.type !== 'candidate') return contest;
+        return {
+          ...contest,
+          candidates: contest.candidates.map((candidate) => {
+            if (
+              candidate.firstName !== undefined &&
+              candidate.middleName !== undefined &&
+              candidate.lastName !== undefined
+            ) {
+              return candidate;
             }
-          }
-
-          default: {
-            /* istanbul ignore next - @preserve */
-            return throwIllegalValue(input.upload);
-          }
-        }
-      })();
-      if (electionResult.isErr()) {
-        return electionResult;
-      }
-      const election = electionResult.ok();
+            return {
+              ...candidate,
+              ...splitCandidateName(candidate.name),
+            };
+          }),
+        };
+      });
+      const election: Election = {
+        ...sourceElection,
+        id: input.newId,
+        districts,
+        precincts,
+        parties,
+        contests: contestsWithSplitCandidateNames,
+        // Remove any existing ballot styles/grid layouts so we can generate our own
+        ballotStyles: [],
+        gridLayouts: undefined,
+        // Fill in a blank seal if none is provided
+        seal: sourceElection.seal ?? '',
+        signature: sourceElection.signature,
+      };
       await store.createElection(
         input.orgId,
         election,
         defaultBallotTemplate(election.state, context.user)
       );
       return ok(election.id);
+    },
+
+    async loadElectionMsSems(
+      input: {
+        electionFileContents: string;
+        candidateFileContents: string;
+        newId: ElectionId;
+        orgId: string;
+      },
+      context: ApiContext
+    ): Promise<Result<ElectionId, Error>> {
+      try {
+        const election = convertMsElection(
+          input.newId,
+          input.electionFileContents,
+          input.candidateFileContents
+        );
+        await store.createElection(
+          input.orgId,
+          election,
+          defaultBallotTemplate(election.state, context.user)
+        );
+        return ok(election.id);
+      } catch (error) {
+        return wrapException(error);
+      }
     },
 
     async createElection(
