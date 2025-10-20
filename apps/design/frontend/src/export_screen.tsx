@@ -194,7 +194,6 @@ export function ExportScreen(): JSX.Element | null {
     );
   }
 
-  console.log(exportError);
   return (
     <ElectionNavScreen electionId={electionId}>
       <Header>
