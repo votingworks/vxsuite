@@ -1,16 +1,12 @@
 import './polyfills';
-import { AppBase, ErrorBoundary } from '@votingworks/ui';
+import { AppBase, AppErrorBoundary } from '@votingworks/ui';
 import { BrowserRouter } from 'react-router-dom';
 import { DevDock } from '@votingworks/dev-dock-frontend';
-import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { MachineLockedScreen } from './machine_locked_screen';
-import { ErrorScreen } from './error_screen';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
-  logger.log(LogEventId.ApplicationStartup, 'system', {
-    message: 'VxPrint starting app',
-  });
-
   return <MachineLockedScreen />;
 }
 
@@ -24,11 +20,14 @@ export function App(): JSX.Element {
       screenType="lenovoThinkpad15"
       showScrollBars
     >
-      <ErrorBoundary errorMessage={<ErrorScreen />} logger={logger}>
+      <AppErrorBoundary
+        restartMessage="Please restart the machine."
+        logger={logger}
+      >
         <BrowserRouter>
           <AppRoot logger={logger} />
         </BrowserRouter>
-      </ErrorBoundary>
+      </AppErrorBoundary>
       <DevDock />
     </AppBase>
   );

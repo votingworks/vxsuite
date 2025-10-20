@@ -1,4 +1,4 @@
-# VxPrint Frontend
+# VxPrint
 
 ## Setup
 
