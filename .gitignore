@@ -24,6 +24,7 @@ junit.xml
 .vscode
 *.local
 *.github/instructions/**
+CLAUDE.md
 
 *.log
 *~
