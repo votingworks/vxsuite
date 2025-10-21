@@ -45,8 +45,8 @@ import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import {
   deleteQuickReportingResults,
-  getQuickReportedResults,
-  getReportedPollsStatus,
+  getLiveResultsReports,
+  getLiveReportsSummary,
   getSystemSettings,
 } from './api';
 import { useTitle } from './hooks/use_title';
@@ -133,8 +133,7 @@ function LiveReportsSummaryScreen({
   const [precinctIdsToAnimate, setPrecinctIdsToAnimate] = useState<string[]>(
     []
   );
-  const getReportedPollsStatusQuery =
-    getReportedPollsStatus.useQuery(electionId);
+  const getLiveReportsSummaryQuery = getLiveReportsSummary.useQuery(electionId);
 
   const deleteQuickReportingResultsMutation =
     deleteQuickReportingResults.useMutation();
@@ -149,9 +148,9 @@ function LiveReportsSummaryScreen({
   }
 
   // Get data for animations (provide empty defaults if not loaded)
-  const pollsStatusData = getReportedPollsStatusQuery.isSuccess
-    ? getReportedPollsStatusQuery.data.isOk()
-      ? getReportedPollsStatusQuery.data.ok()
+  const pollsStatusData = getLiveReportsSummaryQuery.isSuccess
+    ? getLiveReportsSummaryQuery.data.isOk()
+      ? getLiveReportsSummaryQuery.data.ok()
       : null
     : null;
   // Memoize precincts so it only recalculates when pollsStatusData changes
@@ -171,7 +170,7 @@ function LiveReportsSummaryScreen({
   );
 
   const playSound = useSound('happy-ping');
-  useQueryChangeListener(getReportedPollsStatusQuery, {
+  useQueryChangeListener(getLiveReportsSummaryQuery, {
     // Could also select `isLive` too if that's relevant
     select: (result) => ({
       reportsByPrecinct: result.ok()?.reportsByPrecinct,
@@ -230,7 +229,7 @@ function LiveReportsSummaryScreen({
     }
   }
 
-  if (!getReportedPollsStatusQuery.isSuccess) {
+  if (!getLiveReportsSummaryQuery.isSuccess) {
     return (
       <div>
         <Header>
@@ -245,10 +244,8 @@ function LiveReportsSummaryScreen({
     );
   }
 
-  if (getReportedPollsStatusQuery.data.isErr()) {
-    const errorMessage = getErrorMessage(
-      getReportedPollsStatusQuery.data.err()
-    );
+  if (getLiveReportsSummaryQuery.data.isErr()) {
+    const errorMessage = getErrorMessage(getLiveReportsSummaryQuery.data.err());
     return (
       <div>
         <Header>
@@ -560,12 +557,12 @@ function LiveReportsResultsScreen({
   const precinctSelection: PrecinctSelection = precinctId
     ? { kind: 'SinglePrecinct', precinctId }
     : { kind: 'AllPrecincts' };
-  const getQuickReportedResultsQuery = getQuickReportedResults.useQuery(
+  const getLiveResultsReportsQuery = getLiveResultsReports.useQuery(
     electionId,
     precinctSelection
   );
 
-  if (!getQuickReportedResultsQuery.isSuccess) {
+  if (!getLiveResultsReportsQuery.isSuccess) {
     // We don't know test/live mode yet or have the election data yet so show a generic title.
     const reportTitle = 'Unofficial Tally Report';
     return (
@@ -584,14 +581,12 @@ function LiveReportsResultsScreen({
     );
   }
 
-  if (getQuickReportedResultsQuery.data.isErr()) {
-    const errorMessage = getErrorMessage(
-      getQuickReportedResultsQuery.data.err()
-    );
+  if (getLiveResultsReportsQuery.data.isErr()) {
+    const errorMessage = getErrorMessage(getLiveResultsReportsQuery.data.err());
     return <P>{errorMessage}</P>;
   }
 
-  const aggregatedResults = getQuickReportedResultsQuery.data.ok();
+  const aggregatedResults = getLiveResultsReportsQuery.data.ok();
   const contests = getContestsForPrecinctAndElection(
     aggregatedResults.election,
     precinctSelection

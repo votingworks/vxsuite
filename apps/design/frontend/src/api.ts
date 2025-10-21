@@ -117,16 +117,16 @@ export const getElectionInfo = {
   },
 } as const;
 
-export const getReportedPollsStatus = {
+export const getLiveReportsSummary = {
   queryKey(id: ElectionId): QueryKey {
-    return ['getReportedPollsStatus', id];
+    return ['getLiveReportsSummary', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(id),
       () =>
-        apiClient.getReportedPollsStatus({
+        apiClient.getLiveReportsSummary({
           electionId: id,
         }),
       { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
@@ -134,13 +134,13 @@ export const getReportedPollsStatus = {
   },
 } as const;
 
-export const getQuickReportedResults = {
+export const getLiveResultsReports = {
   queryKey(id: ElectionId, precinctSelection?: PrecinctSelection): QueryKey {
     if (!precinctSelection) {
-      return ['getQuickReportedResults', id];
+      return ['getLiveResultsReports', id];
     }
     return [
-      'getQuickReportedResults',
+      'getLiveResultsReports',
       id,
       precinctSelection.kind === 'AllPrecincts'
         ? ''
@@ -152,7 +152,7 @@ export const getQuickReportedResults = {
     return useQuery(
       this.queryKey(id, precinctSelection),
       () =>
-        apiClient.getQuickReportedResults({
+        apiClient.getLiveResultsReports({
           electionId: id,
           precinctSelection,
         }),
@@ -168,10 +168,10 @@ export const deleteQuickReportingResults = {
     return useMutation(apiClient.deleteQuickReportingResults, {
       async onSuccess(_, { electionId }) {
         await queryClient.invalidateQueries(
-          getQuickReportedResults.queryKey(electionId)
+          getLiveResultsReports.queryKey(electionId)
         );
         await queryClient.invalidateQueries(
-          getReportedPollsStatus.queryKey(electionId)
+          getLiveReportsSummary.queryKey(electionId)
         );
       },
     });

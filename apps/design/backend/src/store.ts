@@ -2236,7 +2236,7 @@ export class Store {
     return reportsByPrecinctId;
   }
 
-  async getQuickResultsReportingTalliesForElection(
+  async getLiveReportTalliesForElection(
     election: Election,
     electionBallotHash: string,
     precinctSelection: PrecinctSelection,

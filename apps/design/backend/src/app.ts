@@ -776,7 +776,7 @@ export function buildApi(ctx: AppContext) {
       return baseUrl();
     },
 
-    async getReportedPollsStatus(input: {
+    async getLiveReportsSummary(input: {
       electionId: ElectionId;
     }): Promise<Result<AggregatedReportedPollsStatus, GetLiveReportError>> {
       const electionRecord = await store.getElection(input.electionId);
@@ -809,7 +809,7 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    async getLiveReports(input: {
+    async getLiveResultsReports(input: {
       electionId: ElectionId;
       precinctSelection: PrecinctSelection;
     }): Promise<Result<AggregatedReportedResults, GetLiveReportError>> {
@@ -831,7 +831,7 @@ export function buildApi(ctx: AppContext) {
         electionRecord.lastExportedBallotHash
       );
       const { contestResults, machinesReporting } =
-        await store.getQuickResultsReportingTalliesForElection(
+        await store.getLiveReportTalliesForElection(
           election,
           electionRecord.lastExportedBallotHash,
           input.precinctSelection,

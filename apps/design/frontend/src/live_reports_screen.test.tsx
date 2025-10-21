@@ -131,7 +131,7 @@ describe('Navigation tab visibility', () => {
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithUrl);
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatus));
 
@@ -178,7 +178,7 @@ test('shows error message when election is not exported', async () => {
     .expectRepeatedCallsWith({ electionId })
     .resolves(mockSystemSettingsWithUrl);
 
-  apiMock.getReportedPollsStatus
+  apiMock.getLiveReportsSummary
     .expectRepeatedCallsWith({ electionId })
     .resolves(err('election-not-exported'));
   renderScreen();
@@ -237,7 +237,7 @@ describe('Polls status summary display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusWithIndividualReports));
 
@@ -346,7 +346,7 @@ describe('Polls status summary display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusWithAggregatedData));
 
@@ -436,7 +436,7 @@ describe('Animation behavior', () => {
       reportsByPrecinct: initialData,
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(initialPollsStatus));
 
@@ -471,7 +471,7 @@ describe('Animation behavior', () => {
       ],
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -522,7 +522,7 @@ describe('Animation behavior', () => {
       reportsByPrecinct: initialData,
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(testModeData));
 
@@ -558,7 +558,7 @@ describe('Animation behavior', () => {
       isLive: true,
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(liveModeData));
 
@@ -600,7 +600,7 @@ describe('Animation behavior', () => {
         signedTimestamp: new Date('2024-01-01T17:00:00Z'),
       },
     ];
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -637,7 +637,7 @@ describe('Animation behavior', () => {
       },
     ];
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -681,7 +681,7 @@ describe('Animation behavior', () => {
       },
     ];
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -725,7 +725,7 @@ describe('Animation behavior', () => {
       ],
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -783,7 +783,7 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusWithClosedPolls));
 
@@ -807,7 +807,7 @@ describe('Results navigation and display', () => {
       election,
       false
     );
-    apiMock.getQuickReportedResults
+    apiMock.getLiveResultsReports
       .expectCallWith({
         electionId,
         precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
@@ -880,7 +880,7 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusAllClosed));
 
@@ -900,7 +900,7 @@ describe('Results navigation and display', () => {
 
     // Mock the API call that will be made when navigating to results view
     const mockAllPrecinctsResults = createMockAggregatedResults(election, true);
-    apiMock.getQuickReportedResults
+    apiMock.getLiveResultsReports
       .expectCallWith({
         electionId,
         precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -970,7 +970,7 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(ok(mockPollsStatusAllClosed));
 
@@ -993,7 +993,7 @@ describe('Results navigation and display', () => {
       primaryElection,
       true
     );
-    apiMock.getQuickReportedResults
+    apiMock.getLiveResultsReports
       .expectCallWith({
         electionId: primaryElection.id,
         precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -1067,7 +1067,7 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(ok(mockPollsStatusAllClosed));
 
@@ -1096,7 +1096,7 @@ describe('Results navigation and display', () => {
       primaryElection,
       true
     );
-    apiMock.getQuickReportedResults
+    apiMock.getLiveResultsReports
       .expectCallWith({
         electionId: primaryElection.id,
         precinctSelection: singlePrecinctSelectionFor(
@@ -1163,7 +1163,7 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusWithData));
 
