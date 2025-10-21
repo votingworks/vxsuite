@@ -1,4 +1,4 @@
-import { err, typedAs } from '@votingworks/basics';
+import { err, sleep, typedAs } from '@votingworks/basics';
 import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
@@ -14,6 +14,11 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { beforeEach, expect, test, vi } from 'vitest';
+import {
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
+} from '@votingworks/test-utils';
+import { LogEventId } from '@votingworks/logging';
 import {
   ballotImages,
   simulateScan,
@@ -642,6 +647,66 @@ test('if scanner status errors, show unrecoverable error', async () => {
       await waitForStatus(apiClient, {
         state: 'unrecoverable_error',
       });
+    }
+  );
+});
+
+test('avoid logging successive SCANNING_ENABLED and SCANNING_DISABLED events', async () => {
+  await withApp(
+    async ({ apiClient, mockUsbDrive, mockAuth, clock, logger }) => {
+      const logSpy = vi.spyOn(logger, 'log');
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      // Scanning is enabled
+      for (let i = 0; i < 5; i += 1) {
+        clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+        await sleep(1); // Need a sleep to let logs emit
+      }
+
+      // Inserting a smart card disables scanning
+      vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
+        Promise.resolve({
+          status: 'logged_in',
+          user: mockSystemAdministratorUser(),
+          sessionExpiresAt: mockSessionExpiresAt(),
+        })
+      );
+
+      // Scanning is disabled
+      for (let i = 0; i < 5; i += 1) {
+        clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+        await sleep(1); // Need a sleep to let logs emit
+      }
+
+      const scanningEnabledMessage = 'Event: SCANNING_ENABLED';
+      const scanningDisabledMessage = 'Event: SCANNING_DISABLED';
+
+      const scannerEventLogMessages = logSpy.mock.calls
+        .filter((call) => call[0] === LogEventId.ScannerEvent)
+        .map((call) => call[2]?.message);
+      expect(scannerEventLogMessages).toContain(scanningEnabledMessage);
+      expect(scannerEventLogMessages).toContain(scanningDisabledMessage);
+
+      function hasConsecutiveElement(
+        array: Array<string | undefined>,
+        element: string
+      ) {
+        for (let i = 0; i < array.length - 1; i += 1) {
+          if (array[i] === element && array[i + 1] === element) {
+            return true;
+          }
+        }
+        return false;
+      }
+      expect(
+        hasConsecutiveElement(scannerEventLogMessages, scanningEnabledMessage)
+      ).toEqual(false);
+      expect(
+        hasConsecutiveElement(scannerEventLogMessages, scanningDisabledMessage)
+      ).toEqual(false);
     }
   );
 });

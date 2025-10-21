@@ -1197,6 +1197,13 @@ function buildMachine({
   );
 }
 
+let previousEventType: Event['type'] | '' = '';
+
+const EVENTS_TO_SKIP_WHEN_SEEN_SUCCESSIVELY: Set<Event['type']> = new Set([
+  'SCANNING_ENABLED',
+  'SCANNING_DISABLED',
+]);
+
 function setupLogging(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   machineService: Interpreter<Context, any, Event, any, any>,
@@ -1204,6 +1211,17 @@ function setupLogging(
 ) {
   machineService
     .onEvent(async (event) => {
+      const currentEventType = event.type as Event['type'];
+      if (
+        EVENTS_TO_SKIP_WHEN_SEEN_SUCCESSIVELY.has(currentEventType) &&
+        currentEventType === previousEventType
+      ) {
+        // These events result in log spam, and all instances other than the first in a successive
+        // sequence can be skipped without any meaningful loss of information.
+        return;
+      }
+      previousEventType = currentEventType;
+
       const eventString = JSON.stringify(event, cleanLogData);
       if (isEventUserAction(event)) {
         // This event was triggered by a user so we should log as a current user role, falling back to 'cardless_voter' if there is no one authenticated.
