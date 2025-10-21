@@ -1850,3 +1850,162 @@ test('quick results clears previous partial reports when precinctSelection chang
     )
   );
 });
+
+test('LiveReports uses modified exported election, not original vxdesign election', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp([nonVxOrg]);
+  auth0.setLoggedInUser(nonVxUser);
+
+  // Load the base election
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'reordered-election-id' as ElectionId,
+      orgId: nonVxUser.orgId,
+      electionData: JSON.stringify(baseElectionDefinition.election, null, 2),
+    })
+  ).unsafeUnwrap();
+
+  // Get the original contest and candidate order
+  const originalFirstContest = baseElectionDefinition.election.contests[0];
+
+  // Create a reordered version of the election (simulating NH ballot template behavior)
+  const reorderedElection: typeof baseElectionDefinition.election = {
+    ...baseElectionDefinition.election,
+    id: 'reordered-election-id' as ElectionId,
+    // Reverse both contest order and candidate order in first contest
+    contests: [...baseElectionDefinition.election.contests]
+      .reverse()
+      .map((contest) => {
+        if (
+          contest.type === 'candidate' &&
+          contest.id === originalFirstContest.id
+        ) {
+          return {
+            ...contest,
+            candidates: [...contest.candidates].reverse(),
+          };
+        }
+        return contest;
+      }),
+  };
+
+  // Mock the ballot rendering to return the reordered election
+  const reorderedElectionData = JSON.stringify(reorderedElection, null, 2);
+  const reorderedElectionDefinition = safeParseElectionDefinition(
+    reorderedElectionData
+  ).unsafeUnwrap();
+
+  const internalElectionRecord = await workspace.store.getElection(electionId);
+  expect(internalElectionRecord.election).not.toEqual(
+    reorderedElectionDefinition.election
+  );
+
+  vi.mocked(
+    renderAllBallotPdfsAndCreateElectionDefinition
+  ).mockImplementationOnce(
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async (_, _ballotTemplates, ballotProps) => ({
+      ballotPdfs: ballotProps.map(() => Uint8Array.from('mock-pdf-contents')),
+      electionDefinition: reorderedElectionDefinition,
+    })
+  );
+
+  // Export the election (which will save the reordered version)
+  const electionPackageFilePath = await exportElectionPackage({
+    electionId,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: false,
+    fileStorageClient,
+    apiClient,
+    workspace,
+  });
+
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
+  );
+  const { electionPackageContents } =
+    await unzipElectionPackageAndBallots(contents);
+  const { electionPackage } = (
+    await readElectionPackageFromBuffer(electionPackageContents)
+  ).unsafeUnwrap();
+
+  // Process a QR code report with results
+  const mockResults = buildElectionResultsFixture({
+    election: reorderedElectionDefinition.election,
+    cardCounts: {
+      bmd: 0,
+      hmpb: [],
+    },
+    contestResultsSummaries: {},
+    includeGenericWriteIn: true,
+  });
+  const encodedTally = compressAndEncodeTally({
+    election: reorderedElectionDefinition.election,
+    results: mockResults,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    numPages: 1,
+  })[0];
+
+  auth0.logOut();
+
+  const reportResult = await unauthenticatedApiClient.processQrCodeReport({
+    payload: `1//qr1//${encodeQuickResultsMessage({
+      ballotHash: electionPackage.electionDefinition.ballotHash,
+      signingMachineId: 'test-machine',
+      timestamp: new Date('2024-01-01T12:00:00Z').getTime() / 1000,
+      isLiveMode: true,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      primaryMessage: encodedTally,
+      numPages: 1,
+      pageIndex: 0,
+    })}`,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+
+  // Check the endpoint returned success and references the exported (reordered) election
+  expect(reportResult).toEqual(
+    ok(
+      expect.objectContaining({
+        ballotHash: reorderedElectionDefinition.ballotHash,
+        isLive: true,
+        election: reorderedElectionDefinition.election,
+      })
+    )
+  );
+
+  auth0.setLoggedInUser(nonVxUser);
+
+  const pollStatus = await apiClient.getLiveReportsSummary({ electionId });
+  expect(pollStatus).toEqual(
+    ok(
+      expect.objectContaining({
+        ballotHash: reorderedElectionDefinition.ballotHash,
+        isLive: true,
+        election: reorderedElectionDefinition.election,
+      })
+    )
+  );
+
+  // Get the live reports - should return the EXPORTED (reordered) election
+  const liveReports = await apiClient.getLiveResultsReports({
+    electionId,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+
+  expect(liveReports).toEqual(
+    ok(
+      expect.objectContaining({
+        ballotHash: reorderedElectionDefinition.ballotHash,
+        isLive: true,
+        election: reorderedElectionDefinition.election,
+      })
+    )
+  );
+});
