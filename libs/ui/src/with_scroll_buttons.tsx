@@ -197,7 +197,10 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
       {scrollEnabled && (
         <ThemeProvider
           theme={(theme) => {
-            assert(isTouchSizeMode(theme.sizeMode));
+            assert(
+              isTouchSizeMode(theme.sizeMode),
+              'WithScrollButtons may only be used with a touchscreen theme'
+            );
             return makeTheme({
               colorMode: theme.colorMode,
               screenType: theme.screenType,
