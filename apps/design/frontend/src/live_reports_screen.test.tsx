@@ -193,6 +193,51 @@ test('shows error message when election is not exported', async () => {
   ).toBeInTheDocument();
 });
 
+test('shows error message when exported election is not found', async () => {
+  apiMock.getSystemSettings
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(mockSystemSettingsWithUrl);
+
+  apiMock.getLiveReportsSummary
+    .expectRepeatedCallsWith({ electionId })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .resolves(err('no-election-found') as any);
+  renderScreen();
+
+  await waitFor(() => {
+    expect(
+      screen.getByRole('heading', { name: 'Live Reports' })
+    ).toBeInTheDocument();
+  });
+  expect(
+    screen.getByText(/This election has not yet been exported/)
+  ).toBeInTheDocument();
+});
+
+test('shows error message when exported election is out of date', async () => {
+  apiMock.getSystemSettings
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(mockSystemSettingsWithUrl);
+
+  apiMock.getLiveReportsSummary
+    .expectRepeatedCallsWith({ electionId })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .resolves(err('election-out-of-date') as any);
+  renderScreen();
+
+  await waitFor(() => {
+    expect(
+      screen.getByRole('heading', { name: 'Live Reports' })
+    ).toBeInTheDocument();
+  });
+  expect(
+    screen.getByText(/This election is no longer compatible with Live Reports/)
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(/Please export a new election package/)
+  ).toBeInTheDocument();
+});
+
 describe('Polls status summary display', () => {
   test('shows poll status summary correctly when there is no "all precinct" data, test mode', async () => {
     apiMock.getSystemSettings
