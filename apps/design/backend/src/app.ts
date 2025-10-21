@@ -1033,6 +1033,36 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             isLive,
             pollsState,
           });
+          const expectedPrecinctId =
+            maybeGetPrecinctIdFromSelection(precinctSelection);
+
+          const seenIndexes = new Set<number>();
+          for (const partial of partials) {
+            // Each partial should report the expected total number of pages
+            assert(
+              partial.numPages === numPages,
+              `Partial page has unexpected numPages: ${partial.numPages} (expected ${numPages})`
+            );
+            if (expectedPrecinctId) {
+              assert(
+                partial.precinctId === expectedPrecinctId,
+                `Partial page has unexpected precinctId: ${partial.precinctId} (expected ${expectedPrecinctId})`
+              );
+            } else {
+              assert(
+                !partial.precinctId,
+                `Partial page has unexpected precinctId: ${partial.precinctId} (expected none)`
+              );
+            }
+            // Ensure pageIndex is an integer and in the valid 1..numPages range
+            assert(
+              partial.pageIndex >= 0 && partial.pageIndex < numPages,
+              `Invalid pageIndex: ${partial.pageIndex} (expected 0..${
+                numPages - 1
+              })`
+            );
+            seenIndexes.add(partial.pageIndex);
+          }
 
           // If we don't yet have all pages, return a minimal OK response.
           if (partials.length < numPages) {
@@ -1051,8 +1081,14 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           }
           // It should be impossible to have more than numPages partials
           assert(partials.length === numPages);
+          assert(seenIndexes.size === numPages);
 
-          const allBuffers = partials.map((p) =>
+          // Sort a copy of partials by pageIndex to assemble in the correct order
+          const sortedPartials = [...partials].sort(
+            (a, b) => a.pageIndex - b.pageIndex
+          );
+
+          const allBuffers = sortedPartials.map((p) =>
             Buffer.from(p.encodedCompressedTally, 'base64url')
           );
           const combinedBuffer = Buffer.concat(allBuffers);

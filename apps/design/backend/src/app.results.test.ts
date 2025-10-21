@@ -1693,3 +1693,160 @@ test('quick results reporting clears previous partial reports on numPages change
     })
   );
 });
+
+test('quick results clears previous partial reports when precinctSelection changes', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp([nonVxOrg]);
+  auth0.setLoggedInUser(nonVxUser);
+  const sampleElectionDefinition = await setUpElectionInSystem(
+    apiClient,
+    workspace,
+    fileStorageClient
+  );
+  auth0.logOut();
+
+  const precinctA = sampleElectionDefinition.election.precincts[0].id;
+  const precinctB = sampleElectionDefinition.election.precincts[1].id;
+
+  // Build simple results and split into two pages
+  const mockResults = buildElectionResultsFixture({
+    election: sampleElectionDefinition.election,
+    cardCounts: { bmd: 0, hmpb: [] },
+    contestResultsSummaries: {},
+    includeGenericWriteIn: true,
+  });
+
+  const sections = compressAndEncodeTally({
+    election: sampleElectionDefinition.election,
+    results: mockResults,
+    precinctSelection: singlePrecinctSelectionFor(precinctA),
+    numPages: 2,
+  });
+
+  // Submit page 1 for precinct A (partial)
+  const payloadA1 = `1//qr1//${encodeQuickResultsMessage({
+    ballotHash: sampleElectionDefinition.ballotHash,
+    signingMachineId: 'machine-x',
+    timestamp: new Date('2024-01-01T10:00:00Z').getTime() / 1000,
+    isLiveMode: true,
+    precinctSelection: singlePrecinctSelectionFor(precinctA),
+    primaryMessage: sections[0],
+    numPages: 2,
+    pageIndex: 0,
+  })}`;
+
+  const rA1 = await unauthenticatedApiClient.processQrCodeReport({
+    payload: payloadA1,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  expect(rA1).toEqual(
+    ok(
+      expect.objectContaining({
+        isPartial: true,
+      })
+    )
+  );
+
+  // Now submit page 1 for precinct B with same machine (should clear A's partial)
+  const sectionsB = compressAndEncodeTally({
+    election: sampleElectionDefinition.election,
+    results: mockResults,
+    precinctSelection: singlePrecinctSelectionFor(precinctB),
+    numPages: 2,
+  });
+
+  const payloadB1 = `1//qr1//${encodeQuickResultsMessage({
+    ballotHash: sampleElectionDefinition.ballotHash,
+    signingMachineId: 'machine-x',
+    timestamp: new Date('2024-01-01T10:00:01Z').getTime() / 1000,
+    isLiveMode: true,
+    precinctSelection: singlePrecinctSelectionFor(precinctB),
+    primaryMessage: sectionsB[0],
+    numPages: 2,
+    pageIndex: 0,
+  })}`;
+
+  const rB1 = await unauthenticatedApiClient.processQrCodeReport({
+    payload: payloadB1,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  expect(rB1).toEqual(
+    ok(
+      expect.objectContaining({
+        isPartial: true,
+      })
+    )
+  );
+
+  // Now submit page 2 for all precincts selection, should clear B's partial
+  const payloadC1 = `1//qr1//${encodeQuickResultsMessage({
+    ballotHash: sampleElectionDefinition.ballotHash,
+    signingMachineId: 'machine-x',
+    timestamp: new Date('2024-01-01T10:00:02Z').getTime() / 1000,
+    isLiveMode: true,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    primaryMessage: sections[1],
+    numPages: 2,
+    pageIndex: 1,
+  })}`;
+
+  const rC1 = await unauthenticatedApiClient.processQrCodeReport({
+    payload: payloadC1,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  expect(rC1).toEqual(
+    ok(
+      expect.objectContaining({
+        isPartial: true,
+      })
+    )
+  );
+
+  // Now re-submit page 1 for precinct A again should clear all previous partials
+  const rA1Again = await unauthenticatedApiClient.processQrCodeReport({
+    payload: payloadA1,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  expect(rA1Again).toEqual(
+    ok(
+      expect.objectContaining({
+        isPartial: true,
+      })
+    )
+  );
+
+  // Submit page 2 for precinct A - should assemble final result
+  const payloadA2 = `1//qr1//${encodeQuickResultsMessage({
+    ballotHash: sampleElectionDefinition.ballotHash,
+    signingMachineId: 'machine-x',
+    timestamp: new Date('2024-01-01T10:00:03Z').getTime() / 1000,
+    isLiveMode: true,
+    precinctSelection: singlePrecinctSelectionFor(precinctA),
+    primaryMessage: sections[1],
+    numPages: 2,
+    pageIndex: 1,
+  })}`;
+
+  const rA2 = await unauthenticatedApiClient.processQrCodeReport({
+    payload: payloadA2,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+  expect(rA2).toEqual(
+    ok(
+      expect.objectContaining({
+        isPartial: false,
+        contestResults: expect.anything(),
+      })
+    )
+  );
+});
