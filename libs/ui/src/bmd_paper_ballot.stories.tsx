@@ -1,5 +1,4 @@
 import { Meta } from '@storybook/react';
-
 import {
   CandidateContest,
   Election,
@@ -7,13 +6,14 @@ import {
   UiStringsPackage,
   YesNoContest,
   getContests,
+  safeParseElection,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { generateBallotStyleId } from '@votingworks/utils';
 import styled from 'styled-components';
-import { readElectionGeneral } from '@votingworks/fixtures';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { assert, find } from '@votingworks/basics';
+import electionGeneralData from '@fixtures/electionGeneral/election.json?raw';
 import {
   BmdPaperBallot as Component,
   BmdPaperBallotProps,
@@ -31,7 +31,7 @@ import {
 } from './bmd_paper_ballot_test_utils';
 import { TouchscreenPalette } from './themes/make_theme';
 
-const electionGeneral = readElectionGeneral();
+const electionGeneral = safeParseElection(electionGeneralData).unsafeUnwrap();
 const ORIGINAL_CONTESTS = electionGeneral.contests;
 
 function getDuplicatedContests(idSuffix: string) {

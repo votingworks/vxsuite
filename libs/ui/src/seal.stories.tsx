@@ -1,9 +1,9 @@
 import { Meta } from '@storybook/react';
-import { readElectionGeneral } from '@votingworks/fixtures';
-
+import electionGeneralData from '@fixtures/electionGeneral/election.json?raw';
+import { safeParseElection } from '@votingworks/types';
 import { Seal, SealProps } from './seal';
 
-const electionGeneral = readElectionGeneral();
+const electionGeneral = safeParseElection(electionGeneralData).unsafeUnwrap();
 
 const meta: Meta<typeof Seal> = {
   title: 'libs-ui/Seal',

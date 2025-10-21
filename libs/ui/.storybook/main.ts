@@ -36,6 +36,15 @@ const config: StorybookConfig = {
       },
       resolve: {
         alias: [
+          // Special alias for libs/fixtures raw data files. Example usage:
+          //
+          // import electionData from '@fixtures/electionTwoPartyPrimary/election.json?raw;
+          // const election = safeParseElection(electionData).unsafeUnwrap();
+          {
+            find: '@fixtures',
+            replacement: path.join(__dirname, '../../fixtures/data'),
+          },
+
           // Replace NodeJS built-in modules with polyfills.
           //
           // The trailing slash is important, otherwise it will be resolved as a

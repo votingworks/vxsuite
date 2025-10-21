@@ -1,27 +1,28 @@
 import { Meta, StoryObj } from '@storybook/react';
 import {
-  readElectionTwoPartyPrimaryDefinition,
-  readElectionWithMsEitherNeitherDefinition,
-} from '@votingworks/fixtures';
-import {
   BallotStyleId,
   ElectionDefinition,
   GridLayout,
+  safeParseElectionDefinition,
   Tabulation,
 } from '@votingworks/types';
 import styled from 'styled-components';
 import { getGroupedBallotStyles } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
+import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
+import electionWithMsEitherNeitherData from '@fixtures/electionWithMsEitherNeither/electionWithMsEitherNeither.json?raw';
 import {
   BallotCountReport,
   BallotCountReportProps,
 } from './ballot_count_report';
 import { LabeledScannerBatch } from './utils';
 
-const electionTwoPartyPrimaryDefinition =
-  readElectionTwoPartyPrimaryDefinition();
-const electionWithMsEitherNeitherDefinition =
-  readElectionWithMsEitherNeitherDefinition();
+const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
+  electionTwoPartyPrimaryData
+).unsafeUnwrap();
+const electionWithMsEitherNeitherDefinition = safeParseElectionDefinition(
+  electionWithMsEitherNeitherData
+).unsafeUnwrap();
 
 const ReportPreview = styled.div`
   section {

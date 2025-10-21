@@ -1,5 +1,4 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   buildElectionResultsFixture,
   buildManualResultsFixture,
@@ -9,13 +8,16 @@ import {
   Tabulation,
   getBallotStyle,
   getContests,
+  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
+import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import { AdminTallyReportProps, AdminTallyReport } from './admin_tally_report';
 import { PrintedReportPreview } from './layout';
 
-const electionTwoPartyPrimaryDefinition =
-  readElectionTwoPartyPrimaryDefinition();
+const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
+  electionTwoPartyPrimaryData
+).unsafeUnwrap();
 const { election } = electionTwoPartyPrimaryDefinition;
 const { contests } = election;
 

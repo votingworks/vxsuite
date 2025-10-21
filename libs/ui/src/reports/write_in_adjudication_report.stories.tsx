@@ -1,16 +1,19 @@
 import { Meta, StoryObj } from '@storybook/react';
-import {
-  electionFamousNames2021Fixtures,
-  readElectionTwoPartyPrimaryDefinition,
-} from '@votingworks/fixtures';
-import { PrintedReportPreview } from './layout';
+import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
+import electionFamousNamesData from '@fixtures/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json?raw';
+import { safeParseElectionDefinition } from '@votingworks/types';
 import {
   WriteInAdjudicationReport,
   WriteInAdjudicationReportProps,
 } from './write_in_adjudication_report';
+import { PrintedReportPreview } from './layout';
 
-const electionTwoPartyPrimaryDefinition =
-  readElectionTwoPartyPrimaryDefinition();
+const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
+  electionTwoPartyPrimaryData
+).unsafeUnwrap();
+const electionFamousNamesDefinition = safeParseElectionDefinition(
+  electionFamousNamesData
+).unsafeUnwrap();
 
 function WriteInTallyReportPreview(
   props: WriteInAdjudicationReportProps
@@ -39,7 +42,7 @@ const meta: Meta<typeof WriteInTallyReportPreview> = {
 };
 
 const generalReportArgs: WriteInAdjudicationReportProps = {
-  electionDefinition: electionFamousNames2021Fixtures.readElectionDefinition(),
+  electionDefinition: electionFamousNamesDefinition,
   electionPackageHash: '11111111111111111111',
   isOfficial: false,
   isTest: false,
