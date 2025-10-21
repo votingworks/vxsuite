@@ -334,6 +334,20 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
         </ResultsScreen>
       );
     }
+
+    if (reportResult && reportResult.err() === 'election-out-of-date') {
+      return (
+        <ResultsScreen screenTitle="Error Sending Report">
+          <MainContent>
+            <Callout color="danger" icon="Danger">
+              This election is no longer compatible with Live Reports. Please
+              export a new election package to continue using Live Reports.
+            </Callout>
+          </MainContent>
+        </ResultsScreen>
+      );
+    }
+
     return (
       <ResultsScreen screenTitle="Error Sending Report">
         <MainContent>

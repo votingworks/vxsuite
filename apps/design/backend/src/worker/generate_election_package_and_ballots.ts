@@ -274,5 +274,6 @@ export async function generateElectionPackageAndBallots(
     electionId,
     ballotHash: electionDefinition.ballotHash,
     electionPackageUrl,
+    electionData: electionDefinition.electionData,
   });
 }

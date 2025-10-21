@@ -5,7 +5,6 @@ import path, { join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import {
   Election,
-  safeParseElection,
   HmpbBallotPaperSize,
   SystemSettings,
   BallotType,
@@ -33,6 +32,7 @@ import {
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
   PrecinctSelection,
+  safeParseElection,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -85,6 +85,7 @@ import {
   BallotStyle,
   ElectionInfo,
   ElectionListing,
+  GetLiveReportError,
   Org,
   ReceivedReportInfo,
   ResultsReportingError,
@@ -777,49 +778,69 @@ export function buildApi(ctx: AppContext) {
 
     async getReportedPollsStatus(input: {
       electionId: ElectionId;
-    }): Promise<
-      Result<AggregatedReportedPollsStatus, 'election-not-exported'>
-    > {
+    }): Promise<Result<AggregatedReportedPollsStatus, GetLiveReportError>> {
       const electionRecord = await store.getElection(input.electionId);
       if (!electionRecord.lastExportedBallotHash) {
         return err('election-not-exported');
       }
+      const exportedElection = await store.getExportedElection(
+        electionRecord.lastExportedBallotHash
+      );
+      if (exportedElection.isErr()) {
+        return err(exportedElection.err());
+      }
+      const election = exportedElection.ok();
       // Check if live data for ANY precinct has been reported, if so we should
       // return live results to the frontend.
-      const isLive = await store.electionHasLiveReportData(electionRecord);
+      const isLive = await store.electionHasLiveReportData(
+        election.id,
+        electionRecord.lastExportedBallotHash
+      );
       const reportsByPrecinct = await store.getPollsStatusForElection(
-        electionRecord,
+        election,
+        electionRecord.lastExportedBallotHash,
         isLive
       );
       return ok({
         ballotHash: electionRecord.lastExportedBallotHash,
         reportsByPrecinct,
-        election: electionRecord.election,
+        election,
         isLive,
       });
     },
 
-    async getQuickReportedResults(input: {
+    async getLiveReports(input: {
       electionId: ElectionId;
       precinctSelection: PrecinctSelection;
-    }): Promise<Result<AggregatedReportedResults, 'election-not-exported'>> {
+    }): Promise<Result<AggregatedReportedResults, GetLiveReportError>> {
       const electionRecord = await store.getElection(input.electionId);
       if (!electionRecord.lastExportedBallotHash) {
         return err('election-not-exported');
       }
+      const exportedElection = await store.getExportedElection(
+        electionRecord.lastExportedBallotHash
+      );
+      if (exportedElection.isErr()) {
+        return err(exportedElection.err());
+      }
+      const election = exportedElection.ok();
       // Check if live data for ANY precinct has been reported, if so we should
       // return live results to the frontend.
-      const isLive = await store.electionHasLiveReportData(electionRecord);
+      const isLive = await store.electionHasLiveReportData(
+        election.id,
+        electionRecord.lastExportedBallotHash
+      );
       const { contestResults, machinesReporting } =
         await store.getQuickResultsReportingTalliesForElection(
-          electionRecord,
+          election,
+          electionRecord.lastExportedBallotHash,
           input.precinctSelection,
           isLive
         );
       return ok({
         ballotHash: electionRecord.lastExportedBallotHash,
         contestResults,
-        election: electionRecord.election,
+        election,
         machinesReporting,
         isLive,
       });
@@ -985,6 +1006,15 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           pageIndex,
         } = decodeQuickResultsMessage(payload);
 
+        // Get the exported election data and validate it
+        const exportedElectionResult =
+          await store.getExportedElection(ballotHash);
+        if (exportedElectionResult.isErr()) {
+          return exportedElectionResult;
+        }
+        const election = exportedElectionResult.ok();
+
+        // Also get the election record for metadata
         const electionRecord =
           await store.getElectionFromBallotHash(ballotHash);
         if (!electionRecord) {
@@ -1060,7 +1090,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               isLive,
               signedTimestamp,
               precinctSelection,
-              election: electionRecord.election,
+              election,
               numPages,
               pageIndex,
               isPartial: true,
@@ -1094,7 +1124,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           });
 
           const contestResults = decodeAndReadCompressedTally({
-            election: electionRecord.election,
+            election,
             precinctSelection,
             encodedTally: allEncoded,
           });
@@ -1107,7 +1137,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             signedTimestamp,
             contestResults,
             precinctSelection,
-            election: electionRecord.election,
+            election,
             isPartial: false,
           });
         }
@@ -1127,7 +1157,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
         switch (pollsState) {
           case 'polls_closed_final': {
             const contestResults = decodeAndReadCompressedTally({
-              election: electionRecord.election,
+              election,
               precinctSelection,
               encodedTally: encodedCompressedTally,
             });
@@ -1139,7 +1169,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               signedTimestamp,
               contestResults,
               precinctSelection,
-              election: electionRecord.election,
+              election,
               isPartial: false,
             });
           }
@@ -1151,7 +1181,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               isLive,
               signedTimestamp,
               precinctSelection,
-              election: electionRecord.election,
+              election,
               isPartial: false,
             });
           }

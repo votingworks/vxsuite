@@ -27,7 +27,7 @@ import {
 } from '@votingworks/ui';
 import { useParams, Switch, Route } from 'react-router-dom';
 import React, { useState } from 'react';
-import { assert, deepEqual } from '@votingworks/basics';
+import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
 import { formatBallotHash, PrecinctSelection } from '@votingworks/types';
 import {
   getContestsForPrecinctAndElection,
@@ -37,7 +37,10 @@ import {
   getPollsStateName,
 } from '@votingworks/utils';
 import styled, { useTheme } from 'styled-components';
-import type { QuickReportedPollStatus } from '@votingworks/design-backend';
+import type {
+  GetLiveReportError,
+  QuickReportedPollStatus,
+} from '@votingworks/design-backend';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import {
@@ -85,6 +88,18 @@ function getPollsStatusText(
       {icon} {pollsClosedCount}/{totalCount} closed
     </span>
   );
+}
+
+function getErrorMessage(error: GetLiveReportError): string {
+  switch (error) {
+    case 'election-not-exported':
+    case 'no-election-found':
+      return 'This election has not yet been exported. Please export the election and configure VxScan to enable live reports.';
+    case 'election-out-of-date':
+      return 'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.';
+    default:
+      throwIllegalValue(error);
+  }
 }
 
 function getLastUpdateInformation(
@@ -231,8 +246,9 @@ function LiveReportsSummaryScreen({
   }
 
   if (getReportedPollsStatusQuery.data.isErr()) {
-    const err = getReportedPollsStatusQuery.data.err();
-    assert(err === 'election-not-exported');
+    const errorMessage = getErrorMessage(
+      getReportedPollsStatusQuery.data.err()
+    );
     return (
       <div>
         <Header>
@@ -242,8 +258,7 @@ function LiveReportsSummaryScreen({
         </Header>
         <MainContent>
           <Callout color="warning" icon="Warning">
-            This election has not yet been exported. Please export the election
-            and configure VxScan to enable live reports.
+            {errorMessage}
           </Callout>
         </MainContent>
       </div>
@@ -570,14 +585,10 @@ function LiveReportsResultsScreen({
   }
 
   if (getQuickReportedResultsQuery.data.isErr()) {
-    const err = getQuickReportedResultsQuery.data.err();
-    assert(err === 'election-not-exported');
-    return (
-      <P>
-        This election has not yet been exported. Please export the election and
-        configure VxScan to enable live reports.
-      </P>
+    const errorMessage = getErrorMessage(
+      getQuickReportedResultsQuery.data.err()
     );
+    return <P>{errorMessage}</P>;
   }
 
   const aggregatedResults = getQuickReportedResultsQuery.data.ok();
