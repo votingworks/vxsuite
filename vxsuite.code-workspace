@@ -73,6 +73,14 @@
       "path": "apps/mark-scan/pat-device-input"
     },
     {
+      "name": "apps/print/backend",
+      "path": "apps/print/backend"
+    },
+    {
+      "name": "apps/print/frontend",
+      "path": "apps/print/frontend"
+    },
+    {
       "name": "apps/scan/backend",
       "path": "apps/scan/backend"
     },

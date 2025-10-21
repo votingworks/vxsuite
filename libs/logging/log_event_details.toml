@@ -100,6 +100,12 @@ source = 'vx-pollbook-backend'
 [LogSources.VxPollBookBarcodeScannerDaemon]
 source = 'vx-pollbook-barcode-scanner-daemon'
 
+[LogSources.VxPrintFrontend]
+source = 'vx-print-frontend'
+
+[LogSources.VxPrintBackend]
+source = 'vx-print-backend'
+
 [EventTypes.UserAction]
 eventType = "user-action"
 documentationMessage = "A log that results from a user taking an action, i.e. an election admin uploading an election definition to a machine."

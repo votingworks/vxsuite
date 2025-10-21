@@ -18,6 +18,7 @@ Includes software for:
 - [VxPollBook](./apps/pollbook/frontend) — An electronic poll book application
   for checking in voters
 - [VxDesign](./apps/design/frontend) — An application for designing ballots
+- [VxPrint](./apps/print/frontend) — An application for printing ballots
 
 VxAdmin and VxCentralScan comprise the "central system." VxMark/VxMarkScan and
 VxScan comprise the "precinct system."
