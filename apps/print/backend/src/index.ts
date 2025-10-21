@@ -19,11 +19,11 @@ function resolveWorkspace(): Workspace {
   if (!workspacePath) {
     baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message:
-        'workspace path could not be determined; pass a workspace or run with BALLOT_ON_DEMAND_WORKSPACE',
+        'workspace path could not be determined; pass a workspace or run with PRINT_WORKSPACE',
       disposition: 'failure',
     });
     throw new Error(
-      'workspace path could not be determined; pass a workspace or run with BALLOT_ON_DEMAND_WORKSPACE'
+      'workspace path could not be determined; pass a workspace or run with PRINT_WORKSPACE'
     );
   }
   return createWorkspace(workspacePath, baseLogger);
