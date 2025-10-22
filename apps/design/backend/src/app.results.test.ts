@@ -107,12 +107,12 @@ async function setUpElectionInSystem(
     electionId,
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
-  expect(storedResults).toEqual(err('election-not-exported'));
+  expect(storedResults).toEqual(err('no-election-export-found'));
 
   const storedPollStatus = await apiClient.getLiveReportsSummary({
     electionId,
   });
-  expect(storedPollStatus).toEqual(err('election-not-exported'));
+  expect(storedPollStatus).toEqual(err('no-election-export-found'));
 
   const electionPackageFilePath = await exportElectionPackage({
     electionId,
@@ -233,7 +233,7 @@ test('processQRCodeReport returns no election found where there is no election f
     signature: 'test-signature',
     certificate: 'test-certificate',
   });
-  expect(result.err()).toEqual('no-election-found');
+  expect(result.err()).toEqual('no-election-export-found');
 });
 
 test('quick results reporting works e2e with all precinct reports', async () => {

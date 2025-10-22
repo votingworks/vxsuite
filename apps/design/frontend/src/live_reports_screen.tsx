@@ -38,7 +38,7 @@ import {
 } from '@votingworks/utils';
 import styled, { useTheme } from 'styled-components';
 import type {
-  GetLiveReportError,
+  GetExportedElectionError,
   QuickReportedPollStatus,
 } from '@votingworks/design-backend';
 import { ElectionNavScreen, Header } from './nav_screen';
@@ -90,10 +90,9 @@ function getPollsStatusText(
   );
 }
 
-function getErrorMessage(error: GetLiveReportError): string {
+function getErrorMessage(error: GetExportedElectionError): string {
   switch (error) {
-    case 'election-not-exported':
-    case 'no-election-found':
+    case 'no-election-export-found':
       return 'This election has not yet been exported. Please export the election and configure VxScan to enable live reports.';
     case 'election-out-of-date':
       return 'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.';

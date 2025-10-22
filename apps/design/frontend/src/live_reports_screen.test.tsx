@@ -180,28 +180,7 @@ test('shows error message when election is not exported', async () => {
 
   apiMock.getLiveReportsSummary
     .expectRepeatedCallsWith({ electionId })
-    .resolves(err('election-not-exported'));
-  renderScreen();
-
-  await waitFor(() => {
-    expect(
-      screen.getByRole('heading', { name: 'Live Reports' })
-    ).toBeInTheDocument();
-  });
-  expect(
-    screen.getByText(/This election has not yet been exported/)
-  ).toBeInTheDocument();
-});
-
-test('shows error message when exported election is not found', async () => {
-  apiMock.getSystemSettings
-    .expectRepeatedCallsWith({ electionId })
-    .resolves(mockSystemSettingsWithUrl);
-
-  apiMock.getLiveReportsSummary
-    .expectRepeatedCallsWith({ electionId })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .resolves(err('no-election-found') as any);
+    .resolves(err('no-election-export-found'));
   renderScreen();
 
   await waitFor(() => {

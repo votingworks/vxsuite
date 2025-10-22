@@ -2608,16 +2608,16 @@ test('Election package and ballots export', async () => {
     formatBallotHash(electionDefinition.ballotHash)
   );
   // The election should be retrievable from the ballot hash.
-  const electionRecord = await workspace.store.getElectionFromBallotHash(
+  const exportedElectionId = await workspace.store.getElectionIdFromBallotHash(
     electionDefinition.ballotHash
   );
-  expect(electionRecord).toBeDefined();
-  expect(electionRecord?.election.id).toEqual(electionInfo.electionId);
+  expect(exportedElectionId).toBeDefined();
+  expect(exportedElectionId).toEqual(electionInfo.electionId);
 
   // The election is not retrievable from the election package hash, since we don't store that
-  const undefinedElectionRecord =
-    await workspace.store.getElectionFromBallotHash(electionPackageHash);
-  expect(undefinedElectionRecord).toBeUndefined();
+  const undefinedElectionId =
+    await workspace.store.getElectionIdFromBallotHash(electionPackageHash);
+  expect(undefinedElectionId).toBeUndefined();
 
   //
   // Check metadata
@@ -3640,7 +3640,7 @@ test('decryptCvrBallotAuditIds', async () => {
   }
 });
 
-test('getExportedElection returns the exported election including reordering updates on render', async () => {
+test('getExportedElectionDefinition returns the exported election including reordering updates on render', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
@@ -3729,12 +3729,15 @@ test('getExportedElection returns the exported election including reordering upd
   const electionRecord = await store.getElection(electionId);
   expect(electionRecord.lastExportedBallotHash).toBe(reorderedBallotHash);
 
-  // Now get the exported election from the store using the ballot hash
-  const exportedElectionResult =
-    await store.getExportedElection(reorderedBallotHash);
-  expect(exportedElectionResult.isOk()).toBe(true);
-  const storedElection = exportedElectionResult.ok();
-  assert(storedElection !== undefined);
+  // Now get the exported election from the store using the election ID
+  const exportedElectionDefinitionResult =
+    await store.getExportedElectionDefinition(electionId);
+  expect(exportedElectionDefinitionResult.isOk()).toBe(true);
+  const exportedData = exportedElectionDefinitionResult.ok();
+  assert(exportedData !== undefined);
+  const { election: storedElection, ballotHash: storedBallotHash } =
+    exportedData;
+  expect(storedBallotHash).toBe(reorderedBallotHash);
 
   // Verify that the stored election has the reordered contests (reversed from original)
   const storedContestIds = storedElection.contests.map((c) => c.id);
@@ -3795,14 +3798,14 @@ test('getExportedElection returns election-out-of-date error when election data 
   // Get the ballot hash from the stored election
   const { store } = workspace;
   const electionRecord = await store.getElection(electionId);
-  const ballotHash = assertDefined(electionRecord.lastExportedBallotHash);
+  assertDefined(electionRecord.lastExportedBallotHash);
 
   // Mock safeParseElection to return an error, simulating an outdated election schema
-  const safeParseElectionSpy = vi.spyOn(types, 'safeParseElection');
+  const safeParseElectionSpy = vi.spyOn(types, 'safeParseElectionDefinition');
   safeParseElectionSpy.mockReturnValue(err(new Error('Parse error')));
 
   // Try to get the exported election - should fail because parsing fails
-  const result = await store.getExportedElection(ballotHash);
+  const result = await store.getExportedElectionDefinition(electionId);
 
   // Should return an error indicating the election is out of date
   expect(result).toEqual(err('election-out-of-date'));

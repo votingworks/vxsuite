@@ -205,7 +205,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
         signature: 'test-signature',
         certificate: 'test-certificate',
       })
-      .resolves(err('no-election-found'));
+      .resolves(err('no-election-export-found'));
 
     render(
       provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)

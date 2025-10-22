@@ -47,7 +47,8 @@ import {
   TtsEditEntry,
   PollsState,
   PollsStateSupportsLiveReporting,
-  safeParseElection,
+  safeParseElectionDefinition,
+  ElectionDefinition,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -60,7 +61,6 @@ import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
 import { ContestResults } from '@votingworks/types/src/tabulation';
-import { sha256 } from 'js-sha256';
 import {
   ALL_PRECINCTS_REPORT_KEY,
   BallotStyle,
@@ -906,9 +906,9 @@ export class Store {
     });
   }
 
-  async getElectionFromBallotHash(
+  async getElectionIdFromBallotHash(
     ballotHash: string
-  ): Promise<ElectionRecord | undefined> {
+  ): Promise<ElectionId | undefined> {
     const row = (
       await this.db.withClient((client) =>
         client.query(
@@ -926,40 +926,42 @@ export class Store {
     }
     const electionId = row.id as ElectionId;
 
-    return this.getElection(electionId);
+    return electionId;
   }
 
-  async getExportedElection(
-    ballotHash: string
-  ): Promise<Result<Election, GetExportedElectionError>> {
+  async getExportedElectionDefinition(
+    electionId: ElectionId
+  ): Promise<Result<ElectionDefinition, GetExportedElectionError>> {
     const row = (
       await this.db.withClient((client) =>
         client.query(
           `
-          select election_data as "electionData"
-          from exported_elections
-          where ballot_hash = $1
+          select
+            last_exported_election_data as "electionData",
+            last_exported_ballot_hash as "ballotHash"
+          from elections
+          where id = $1
         `,
-          ballotHash
+          electionId
         )
       )
-    ).rows[0] as { electionData: string } | undefined;
+    ).rows[0] as { electionData: string; ballotHash: string } | undefined;
 
-    if (!row) {
-      return err('no-election-found');
+    if (!row || !row.ballotHash) {
+      return err('no-election-export-found');
     }
 
-    // Verify the ballot hash matches the sha256 of the election data
-    const computedHash = sha256(row.electionData);
-    assert(computedHash === ballotHash);
-
     // Parse the election data
-    const parseResult = safeParseElection(row.electionData);
+    const parseResult = safeParseElectionDefinition(row.electionData);
     if (parseResult.isErr()) {
       return err('election-out-of-date');
     }
+    const electionDefinition = parseResult.ok();
 
-    return ok(parseResult.ok());
+    // Verify the ballot hash matches the sha256 of the election data
+    assert(electionDefinition.ballotHash === row.ballotHash);
+
+    return ok(electionDefinition);
   }
 
   async getElectionOrgId(electionId: ElectionId): Promise<string> {
@@ -1681,31 +1683,14 @@ export class Store {
           `
             update elections
             set election_package_url = $1,
-                last_exported_ballot_hash = $2
-            where id = $3
+                last_exported_ballot_hash = $2,
+                last_exported_election_data = $3
+            where id = $4
           `,
           electionPackageUrl,
           ballotHash,
+          electionData,
           electionId
-        );
-
-        // Store the exported election blob for Live Reports validation
-        await client.query(
-          `
-            insert into exported_elections (
-              ballot_hash,
-              election_id,
-              election_data
-            )
-            values ($1, $2, $3)
-            on conflict (ballot_hash)
-            do update set
-              election_data = excluded.election_data,
-              exported_at = current_timestamp
-          `,
-          ballotHash,
-          electionId,
-          electionData
         );
 
         return true;

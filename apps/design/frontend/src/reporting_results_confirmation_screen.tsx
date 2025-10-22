@@ -322,7 +322,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
       );
     }
 
-    if (reportResult && reportResult.err() === 'no-election-found') {
+    if (reportResult && reportResult.err() === 'no-election-export-found') {
       return (
         <ResultsScreen screenTitle="Error Sending Report">
           <MainContent>
