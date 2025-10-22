@@ -575,6 +575,9 @@ export interface GridPositionWriteIn {
    * fill in the bubble).
    */
   readonly writeInArea: Rect;
+
+  readonly contestOrderingIndex: number;
+  // write ins will always be the last option(s) in a contest, so no need for optionOrderingIndex
 }
 export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
   z.object({
@@ -585,6 +588,7 @@ export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
     row: z.number().nonnegative(),
     contestId: ContestIdSchema,
     writeInIndex: z.number().int().nonnegative(),
+    contestOrderingIndex: z.number().int().nonnegative(),
     writeInArea: RectSchema,
   });
 

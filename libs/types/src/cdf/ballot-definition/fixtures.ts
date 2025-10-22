@@ -183,6 +183,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 12,
           optionId: 'candidate-1',
+          contestOrderingIndex: 0,
+          optionOrderingIndex: 0,
         },
         {
           type: 'option',
@@ -192,6 +194,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 14,
           optionId: 'candidate-2',
+          contestOrderingIndex: 0,
+          optionOrderingIndex: 1,
         },
         {
           type: 'write-in',
@@ -201,6 +205,7 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 16,
           writeInIndex: 0,
+          contestOrderingIndex: 0,
           writeInArea: {
             x: 2.5,
             y: 15,
@@ -216,6 +221,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 21,
           optionId: 'contest-2-option-yes',
+          contestOrderingIndex: 1,
+          optionOrderingIndex: 0,
         },
         {
           type: 'option',
@@ -225,6 +232,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 22,
           optionId: 'contest-2-option-no',
+          contestOrderingIndex: 1,
+          optionOrderingIndex: 1,
         },
       ],
     },
@@ -245,6 +254,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 12,
           optionId: 'candidate-3',
+          contestOrderingIndex: 0,
+          optionOrderingIndex: 0,
         },
       ],
     },
@@ -265,6 +276,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 12,
           optionId: 'candidate-1',
+          contestOrderingIndex: 0,
+          optionOrderingIndex: 0,
         },
         {
           type: 'option',
@@ -274,6 +287,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 14,
           optionId: 'candidate-2',
+          contestOrderingIndex: 0,
+          optionOrderingIndex: 1,
         },
         {
           type: 'write-in',
@@ -289,6 +304,7 @@ export const testVxfElectionWithGridLayouts: Election = {
             width: 3,
             height: 1,
           },
+          contestOrderingIndex: 0,
         },
         {
           type: 'option',
@@ -298,6 +314,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 21,
           optionId: 'contest-2-option-yes',
+          contestOrderingIndex: 1,
+          optionOrderingIndex: 0,
         },
         {
           type: 'option',
@@ -307,6 +325,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 22,
           optionId: 'contest-2-option-no',
+          contestOrderingIndex: 1,
+          optionOrderingIndex: 1,
         },
         {
           type: 'option',
@@ -316,6 +336,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 12,
           row: 12,
           optionId: 'candidate-3',
+          contestOrderingIndex: 0,
+          optionOrderingIndex: 0,
         },
       ],
     },
@@ -336,6 +358,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 12,
           optionId: 'candidate-1',
+          contestOrderingIndex: 0,
+          optionOrderingIndex: 0,
         },
         {
           type: 'option',
@@ -345,6 +369,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 14,
           optionId: 'candidate-2',
+          contestOrderingIndex: 0,
+          optionOrderingIndex: 1,
         },
         {
           type: 'write-in',
@@ -360,6 +386,7 @@ export const testVxfElectionWithGridLayouts: Election = {
             width: 3,
             height: 1,
           },
+          contestOrderingIndex: 0,
         },
         {
           type: 'option',
@@ -369,6 +396,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 21,
           optionId: 'contest-2-option-yes',
+          contestOrderingIndex: 1,
+          optionOrderingIndex: 0,
         },
         {
           type: 'option',
@@ -378,6 +407,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 2,
           row: 22,
           optionId: 'contest-2-option-no',
+          contestOrderingIndex: 1,
+          optionOrderingIndex: 1,
         },
         {
           type: 'option',
@@ -387,6 +418,8 @@ export const testVxfElectionWithGridLayouts: Election = {
           column: 12,
           row: 12,
           optionId: 'candidate-3',
+          contestOrderingIndex: 0,
+          optionOrderingIndex: 0,
         },
       ],
     },

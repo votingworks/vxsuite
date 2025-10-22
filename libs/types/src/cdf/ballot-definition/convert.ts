@@ -1134,14 +1134,15 @@ export function convertCdfBallotDefinitionToVxfElection(
             bottom: 1,
           },
           gridPositions: orderedContests.flatMap(
-            (orderedContest): Vxf.GridPosition[] =>
+            (orderedContest, contestIdx): Vxf.GridPosition[] =>
               orderedContest.Physical[0].PhysicalContestOption.map(
-                (option): Vxf.GridPosition => ({
+                (option, optionIdx): Vxf.GridPosition => ({
                   contestId: orderedContest.ContestId,
                   sheetNumber: option.OptionPosition[0].Sheet,
                   side: option.OptionPosition[0].Side,
                   column: option.OptionPosition[0].X,
                   row: option.OptionPosition[0].Y,
+                  contestOrderingIndex: contestIdx,
                   ...(option.WriteInPosition
                     ? {
                         type: 'write-in',
@@ -1162,6 +1163,7 @@ export function convertCdfBallotDefinitionToVxfElection(
                           orderedContest.ContestId,
                           option.ContestOptionId
                         ),
+                        optionOrderingIndex: optionIdx,
                       }),
                 })
               )

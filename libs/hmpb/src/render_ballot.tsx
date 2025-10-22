@@ -328,6 +328,7 @@ async function extractGridLayout(
           ...bubbleGridCoordinates,
         } as const;
         const optionInfo = JSON.parse(bubble.data.optionInfo) as OptionInfo;
+        console.log('we have option info', optionInfo);
         switch (optionInfo.type) {
           case 'option':
             return {
@@ -682,6 +683,8 @@ export async function layOutBallotsAndCreateElectionDefinition<
     }
     return contest;
   });
+  console.log('building electionWithGridLayouts:');
+  console.log(gridLayouts.find((layout) => layout.ballotStyleId === '12'));
 
   const electionWithGridLayouts: Election = {
     ...election,

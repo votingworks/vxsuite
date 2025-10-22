@@ -101,6 +101,8 @@ export function allBubbleBallotTemplate(
                   type: 'option',
                   contestId: contestId(pageNumber),
                   optionId: candidateId(pageNumber, row, column),
+                  contestOrderingIndex: 0, // only one contest per page
+                  optionOrderingIndex: (row - 1) * (column - 1), // left-to-right, top-to-bottom
                 }}
               />
             ))}
