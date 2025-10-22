@@ -25,7 +25,6 @@ import {
   UiStringsReactQueryApi,
 } from '@votingworks/ui';
 
-import { getSingleYesNoVote } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
 
 import getDeepValue from 'lodash.get';
@@ -34,6 +33,7 @@ import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { UpdateVoteFunction } from '../config/types';
 
 interface Props {
+  allowOvervotes?: boolean;
   breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: YesNoContestInterface;
@@ -43,6 +43,7 @@ interface Props {
 }
 
 export function YesNoContest({
+  allowOvervotes,
   breadcrumbs,
   election,
   contest,
@@ -73,10 +74,14 @@ export function YesNoContest({
 
   function handleUpdateSelection(newVote: YesNoContestOptionId) {
     if ((vote as string[] | undefined)?.includes(newVote)) {
-      updateVote(contest.id, undefined);
+      const updatedVote = (vote ?? []).filter((v) => v !== newVote);
+      updateVote(
+        contest.id,
+        updatedVote.length === 0 ? undefined : updatedVote
+      );
       setDeselectedVote(newVote);
     } else {
-      updateVote(contest.id, [newVote]);
+      updateVote(contest.id, [...(vote ?? []), newVote]);
     }
   }
 
@@ -117,8 +122,8 @@ export function YesNoContest({
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
             {[contest.yesOption, contest.noOption].map((option) => {
-              const isChecked = getSingleYesNoVote(vote) === option.id;
-              const isDisabled = !isChecked && !!vote;
+              const isChecked = vote?.includes(option.id);
+              const isDisabled = !isChecked && !!vote && !allowOvervotes;
               function handleDisabledClick() {
                 handleChangeVoteAlert(option.id);
               }

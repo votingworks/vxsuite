@@ -32,7 +32,6 @@ import {
   TextOnly,
 } from '@votingworks/ui';
 
-import { getSingleYesNoVote } from '@votingworks/utils';
 import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
@@ -167,13 +166,6 @@ function YesNoContestResult({
   uiStringsApi,
 }: YesNoContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
-  const yesNo = getSingleYesNoVote(vote);
-  const selectedOption =
-    yesNo === contest.yesOption.id
-      ? contest.yesOption
-      : yesNo === contest.noOption.id
-      ? contest.noOption
-      : null;
 
   const audioIdsQuery = uiStringsApi.getAudioIds.useQuery('en');
   const hasContestAudioOverride = !!getDeepValue(
@@ -181,14 +173,12 @@ function YesNoContestResult({
     `${ElectionStringKey.LA_CONTEST_AUDIO}.${contest.id}`
   );
 
-  const votes: ContestVote[] = selectedOption
-    ? [
-        {
-          id: selectedOption.id,
-          label: electionStrings.contestOptionLabel(selectedOption),
-        },
-      ]
-    : [];
+  const votes: ContestVote[] = (vote ?? []).map((optionId) => ({
+    id: optionId,
+    label: electionStrings.contestOptionLabel(
+      optionId === contest.yesOption.id ? contest.yesOption : contest.noOption
+    ),
+  }));
 
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()
@@ -207,7 +197,7 @@ function YesNoContestResult({
         )
       }
       titleType="h2"
-      undervoteWarning={!yesNo ? noVotesString : undefined}
+      undervoteWarning={votes.length === 0 ? noVotesString : undefined}
       votes={votes}
     />
   );

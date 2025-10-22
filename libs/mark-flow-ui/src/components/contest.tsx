@@ -87,6 +87,7 @@ export function Contest({
       )}
       {contest.type === 'yesno' && (
         <YesNoContest
+          allowOvervotes={allowCandidateOvervotes}
           breadcrumbs={breadcrumbs}
           election={election}
           contest={contest}
