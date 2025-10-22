@@ -67,8 +67,6 @@ function contestHasAllSameVote(
 ): boolean {
   if (contestResults.ballots === 0) return false;
 
-  if (contestResults.undervotes === contestResults.ballots) return true;
-
   if (contestResults.contestType === 'yesno') {
     return (
       contestResults.yesTally === contestResults.ballots ||
