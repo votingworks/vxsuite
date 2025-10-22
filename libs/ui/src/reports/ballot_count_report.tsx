@@ -14,9 +14,10 @@ import {
   getBallotCount,
   getMaxSheetsPerBallot,
   getGroupKey,
-  getHmpbBallotCount,
   CachedElectionLookups,
   isGroupByEmpty,
+  getScannedBallotCount,
+  getScannedBallotCountForSheet,
 } from '@votingworks/utils';
 import React from 'react';
 import { printedReportThemeFn, PrintedReport, reportColors } from './layout';
@@ -50,7 +51,7 @@ interface AttributeColumn {
   id: AttributeColumnId;
 }
 
-type BallotCountColumnId = 'manual' | 'bmd' | 'hmpb' | 'total';
+type BallotCountColumnId = 'manual' | 'scanned' | 'total';
 interface BallotCountColumn {
   type: 'ballot-count';
   id: BallotCountColumnId;
@@ -84,8 +85,7 @@ const COLUMN_LABELS: Record<AttributeColumnId | BallotCountColumnId, string> = {
   scanner: 'Scanner ID',
   batch: 'Batch',
   manual: 'Manual',
-  bmd: 'BMD',
-  hmpb: 'HMPB',
+  scanned: 'Scanned',
   total: 'Total',
 };
 
@@ -239,17 +239,14 @@ function getFormattedCount(
     switch (column.id) {
       case 'manual':
         return cardCounts.manual ?? 0;
-      case 'bmd':
-        return cardCounts.bmd;
-      case 'hmpb':
-        return getHmpbBallotCount(cardCounts);
+      case 'scanned':
+        return getScannedBallotCount(cardCounts);
       case 'total':
         return getBallotCount(cardCounts);
       // sheet count case
       default: {
         assert(typeof column.id === 'number');
-        /* istanbul ignore next - trivial default value - @preserve */
-        return cardCounts.hmpb[column.id] ?? 0;
+        return getScannedBallotCountForSheet(cardCounts, column.id);
       }
     }
   })();
@@ -303,11 +300,15 @@ function getCellClass(
         classes.push('thicker-top-border');
       }
 
-      // remove extra lines outside of sheet count area
-      if (column.type !== 'sheet-count' && column.id !== 'total') {
+      // remove extra lines except side edge of sheet count area
+      if (
+        !(
+          (column.type === 'sheet-count' && column.id === 0) ||
+          column.id === 'total'
+        )
+      ) {
         classes.push('no-left-border');
       }
-      classes.push('no-bottom-border');
     }
   }
 
@@ -469,12 +470,10 @@ function BallotCountTable({
   }
 
   // always show manual counts if they exist
-  const hasNonZeroManualData = cardCountsList.some((cc) => !!cc.manual);
-  if (hasNonZeroManualData) {
+  const showManualData = cardCountsList.some((cc) => !!cc.manual);
+  if (showManualData) {
     columns.push({ type: 'ballot-count', id: 'manual' });
   }
-
-  columns.push({ type: 'ballot-count', id: 'bmd' });
 
   // we show the sheet counts if the flag is true even if it's a single-sheet
   // election. it's the caller's responsibility to check the election definition
@@ -484,8 +483,8 @@ function BallotCountTable({
     for (let i = 0; i < sheetCount; i += 1) {
       columns.push({ type: 'sheet-count', id: i });
     }
-  } else {
-    columns.push({ type: 'ballot-count', id: 'hmpb' });
+  } else if (showManualData) {
+    columns.push({ type: 'ballot-count', id: 'scanned' });
   }
 
   columns.push({ type: 'ballot-count', id: 'total' });
@@ -507,7 +506,7 @@ function BallotCountTable({
             className={getCellClass(column, 'group-header', includeSheetCounts)}
             data-testid={`group-header-${getColumnKey(column)}`}
           >
-            {column.type === 'sheet-count' ? 'HMPB' : ''}
+            {column.type === 'sheet-count' && column.id === 0 ? 'Scanned' : ''}
           </span>
         ))}
       {/* Header */}
