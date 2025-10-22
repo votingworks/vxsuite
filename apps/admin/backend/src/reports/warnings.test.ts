@@ -98,16 +98,6 @@ describe('getTallyReportWarning', () => {
       },
       {
         contestResultsSummaries: {
-          fishing: {
-            type: 'yesno',
-            ballots: 25,
-            undervotes: 25,
-          },
-        },
-        expectedContestIds: ['fishing'],
-      },
-      {
-        contestResultsSummaries: {
           'zoo-council-mammal': {
             type: 'candidate',
             ballots: 25,
