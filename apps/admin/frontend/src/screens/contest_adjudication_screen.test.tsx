@@ -37,7 +37,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   // JSDOM does not implement scrollIntoView, so we define it as a no-op
   // to prevent tests from throwing when components attempt to scroll elements.
-  window.HTMLElement.prototype.scrollIntoView = function () {};
+  window.HTMLElement.prototype.scrollIntoView = () => {};
 });
 
 afterEach(() => {
@@ -614,55 +614,43 @@ describe('vote adjudication', () => {
     });
 
     await waitForBallotById('id-174');
-    const kangarooCheckbox = screen.getByRole('checkbox', {
-      name: /kangaroo/i,
-    });
-    const elephantCheckbox = screen.getByRole('checkbox', {
-      name: /elephant/i,
-    });
-    const zebraCheckbox = screen.getByRole('checkbox', {
-      name: /zebra/i,
-    });
-    const lionCheckbox = screen.getByRole('checkbox', {
-      name: /lion/i,
-    });
 
     // check that previous vote adjudication is loaded properly along with caption
-    expect(lionCheckbox).toBeChecked();
+    expect(getCheckboxByName('lion')).toBeChecked();
     expect(screen.queryByText(/undetected mark/i)).toBeInTheDocument();
-    userEvent.click(lionCheckbox);
+    userEvent.click(getCheckboxByName('lion'));
     expect(screen.queryByText(/undetected mark/i)).toBeNull();
-    userEvent.click(lionCheckbox);
-    expect(lionCheckbox).toBeChecked();
+    userEvent.click(getCheckboxByName('lion'));
+    expect(getCheckboxByName('lion')).toBeChecked();
     expect(screen.queryByText(/undetected mark/i)).toBeInTheDocument();
 
     // check that an overvote is created if all candidates are selected
     expect(screen.queryByText(/overvote/i)).toBeNull();
-    userEvent.click(zebraCheckbox);
-    userEvent.click(elephantCheckbox);
+    userEvent.click(getCheckboxByName('zebra'));
+    userEvent.click(getCheckboxByName('elephant'));
     expect(screen.queryByText(/overvote/i)).toBeInTheDocument();
 
     // remove the overvote, cause an undervote
     expect(screen.queryByText(/undervote/i)).toBeNull();
-    userEvent.click(zebraCheckbox);
-    userEvent.click(elephantCheckbox);
+    userEvent.click(getCheckboxByName('zebra'));
+    userEvent.click(getCheckboxByName('elephant'));
     expect(screen.queryByText(/overvote/i)).toBeNull();
     expect(screen.queryByText(/undervote/i)).toBeInTheDocument();
 
     // check caption for new vote adjudication from true to false
-    expect(kangarooCheckbox).toBeChecked();
+    expect(getCheckboxByName('kangaroo')).toBeChecked();
     expect(screen.queryByText(/invalid/i)).toBeNull();
-    userEvent.click(kangarooCheckbox);
-    expect(kangarooCheckbox).not.toBeChecked();
+    userEvent.click(getCheckboxByName('kangaroo'));
+    expect(getCheckboxByName('kangaroo')).not.toBeChecked();
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
     // caption disappears when undone
-    userEvent.click(kangarooCheckbox);
-    expect(kangarooCheckbox).toBeChecked();
+    userEvent.click(getCheckboxByName('kangaroo'));
+    expect(getCheckboxByName('kangaroo')).toBeChecked();
     expect(screen.queryByText(/invalid/i)).toBeNull();
 
     // add vote for kangaroo so there is some change, enabling the primary button
-    userEvent.click(kangarooCheckbox);
+    userEvent.click(getCheckboxByName('kangaroo'));
 
     const primaryButton = screen.getByRole('button', { name: /save & next/i });
     expect(primaryButton).toBeEnabled();

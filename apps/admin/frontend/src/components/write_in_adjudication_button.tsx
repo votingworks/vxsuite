@@ -4,10 +4,11 @@ import { CheckboxButton, Icons, SearchSelect } from '@votingworks/ui';
 import { Candidate } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { normalizeWriteInName } from '../utils/adjudication';
-import type {
-  MarginalMarkStatus,
-  WriteInAdjudicationStatus,
-} from '../screens/contest_adjudication_screen';
+import {
+  isMarginalMarkPending,
+  type MarginalMarkStatus,
+  type WriteInAdjudicationStatus,
+} from '../hooks/use_contest_adjudication_state';
 
 export const MAX_WRITE_IN_NAME_LENGTH = 200;
 const INVALID_KEY = '\0invalid';
@@ -101,7 +102,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     let value: string | undefined;
     switch (writeInStatus?.type) {
       case undefined: {
-        showSearchSelect = marginalMarkStatus === 'pending';
+        showSearchSelect = isMarginalMarkPending(marginalMarkStatus);
         break;
       }
       case 'invalid': {
