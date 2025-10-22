@@ -1,9 +1,10 @@
-import React from 'react';
 import styled from 'styled-components';
-
 import { Tabulation } from '@votingworks/types';
-
-import { format, getBallotCount } from '@votingworks/utils';
+import {
+  format,
+  getBallotCount,
+  getScannedBallotCount,
+} from '@votingworks/utils';
 import { TD, TH } from '../table';
 import { reportColors } from './layout';
 
@@ -17,12 +18,6 @@ const CardCountTable = styled.div`
     width: 100%;
   }
 
-  th,
-  td {
-    border-top: 1px solid ${reportColors.outline};
-    border-bottom: 1px solid ${reportColors.outline};
-  }
-
   th {
     background: ${reportColors.container};
     padding: 0.375em;
@@ -33,47 +28,25 @@ const CardCountTable = styled.div`
     padding: 0.25em 0.375em;
     font-weight: 400;
   }
-`;
 
-const SheetCount = styled.span`
-  margin-left: 2.5em;
-`;
+  th,
+  td {
+    border-top: 1px solid ${reportColors.outline};
+    border-bottom: 1px solid ${reportColors.outline};
 
-function getHmpbRows({
-  hmpbCounts,
-}: {
-  hmpbCounts: Tabulation.CardCounts['hmpb'];
-}): JSX.Element {
-  const rows: JSX.Element[] = [
-    <tr key="hmpb" data-testid="hmpb">
-      <TD nowrap>Hand Marked</TD>
-      <TD textAlign="right">{format.count(hmpbCounts[0] ?? 0)}</TD>
-    </tr>,
-  ];
-
-  if (hmpbCounts.length <= 1) {
-    return <React.Fragment>{rows}</React.Fragment>;
+    &:last-child {
+      text-align: right;
+    }
   }
 
-  for (
-    let sheetNumber = 1;
-    sheetNumber <= hmpbCounts.length;
-    sheetNumber += 1
-  ) {
-    const key = `hmpb-${sheetNumber}`;
-    rows.push(
-      <tr key={key} data-testid={key}>
-        <TD nowrap>
-          <SheetCount>Sheet {sheetNumber}</SheetCount>
-        </TD>
-        <TD textAlign="right">
-          {format.count(hmpbCounts[sheetNumber - 1] ?? 0)}
-        </TD>
-      </tr>
-    );
+  tr.subrow {
+    font-style: italic;
+
+    td:first-child {
+      padding-left: 1em;
+    }
   }
-  return <React.Fragment>{rows}</React.Fragment>;
-}
+`;
 
 interface TallyReportCardCountsProps {
   cardCounts: Tabulation.CardCounts;
@@ -82,33 +55,49 @@ interface TallyReportCardCountsProps {
 export function TallyReportCardCounts({
   cardCounts,
 }: TallyReportCardCountsProps): JSX.Element | null {
+  const manualCount =
+    cardCounts.manual !== undefined && cardCounts.manual > 0
+      ? cardCounts.manual
+      : undefined;
+  const showScannedCount = manualCount !== undefined;
+
   return (
     <CardCountTable>
       <table data-testid="voting-method-table">
         <tbody>
           <tr>
-            <TH>Ballot Counts</TH>
-            <TH />
+            <TH>Ballot Count</TH>
+            <TH data-testid="total-ballot-count">
+              {format.count(getBallotCount(cardCounts))}
+            </TH>
           </tr>
-          {getHmpbRows({ hmpbCounts: cardCounts.hmpb })}
-          <tr data-testid="bmd">
-            <TD>Machine Marked</TD>
-            <TD textAlign="right">{format.count(cardCounts.bmd)}</TD>
-          </tr>
-          {cardCounts.manual !== undefined && cardCounts.manual > 0 && (
-            <tr data-testid="manual">
-              <TD>Manually Entered</TD>
-              <TD textAlign="right">{format.count(cardCounts.manual)}</TD>
+          {showScannedCount && (
+            <tr>
+              <TD nowrap>Scanned</TD>
+              <TD>{format.count(getScannedBallotCount(cardCounts))}</TD>
             </tr>
           )}
-          <tr data-testid="total-ballots">
-            <TD>
-              <strong>Total</strong>
-            </TD>
-            <TD textAlign="right" data-testid="total-ballot-count">
-              <strong>{format.count(getBallotCount(cardCounts))}</strong>
-            </TD>
-          </tr>
+          {cardCounts.hmpb.length > 1 &&
+            cardCounts.hmpb.map((count, index) => {
+              const sheetNumber = index + 1;
+              const sheetCount =
+                (count ?? 0) + (sheetNumber === 1 ? cardCounts.bmd : 0);
+              return (
+                <tr
+                  key={sheetNumber}
+                  className={showScannedCount ? 'subrow' : undefined}
+                >
+                  <TD nowrap>Sheet {sheetNumber}</TD>
+                  <TD>{format.count(sheetCount)}</TD>
+                </tr>
+              );
+            })}
+          {manualCount && (
+            <tr>
+              <TD>Manually Entered</TD>
+              <TD>{format.count(manualCount)}</TD>
+            </tr>
+          )}
         </tbody>
       </table>
     </CardCountTable>
