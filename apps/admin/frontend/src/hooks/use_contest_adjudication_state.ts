@@ -145,9 +145,8 @@ function getWriteInOptions(
     .toArray();
 }
 
-export function makeInitialState(
-  contestInfo: ContestInfo,
-  initialValues: InitialValues
+function makeEmptyState(
+  contestInfo: ContestInfo
 ): ContestOptionAdjudicationStateById {
   const state: ContestOptionAdjudicationStateById = new Map();
   for (const option of contestInfo.officialOptions) {
@@ -168,6 +167,14 @@ export function makeInitialState(
       writeInAdjudicationStatus: undefined,
     });
   }
+  return state;
+}
+
+export function makeInitialState(
+  contestInfo: ContestInfo,
+  initialValues: InitialValues
+): ContestOptionAdjudicationStateById {
+  const state = makeEmptyState(contestInfo);
 
   for (const optionId of initialValues.votes) {
     assertDefined(state.get(optionId)).hasVote = true;
@@ -232,31 +239,6 @@ export function makeInitialState(
         throwIllegalValue(writeInRecord, 'adjudicationType');
       }
     }
-  }
-  return state;
-}
-
-function makeEmptyState(
-  contestInfo: ContestInfo
-): ContestOptionAdjudicationStateById {
-  const state: ContestOptionAdjudicationStateById = new Map();
-  for (const option of contestInfo.officialOptions) {
-    state.set(option.id, {
-      optionId: option.id,
-      hasVote: false,
-      isWriteIn: false,
-      marginalMarkStatus: 'none',
-    });
-  }
-  for (let i = 0; i < contestInfo.numberOfWriteIns; i += 1) {
-    const writeInOptionId = `write-in-${i}`;
-    state.set(writeInOptionId, {
-      optionId: writeInOptionId,
-      hasVote: false,
-      isWriteIn: true,
-      marginalMarkStatus: 'none',
-      writeInAdjudicationStatus: undefined,
-    });
   }
   return state;
 }
@@ -405,7 +387,7 @@ export function useContestAdjudicationState(
     const contestOptionsWithVote = optionsList.filter(
       (option) => option.hasVote
     );
-    const names = [];
+    const names: string[] = [];
     for (const contestOption of contestOptionsWithVote) {
       if (contestOption.isWriteIn) {
         if (!isValidCandidate(contestOption.writeInAdjudicationStatus)) {
