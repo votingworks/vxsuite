@@ -1,13 +1,65 @@
 import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, err, ok } from '@votingworks/basics';
 
-import { LanguageCode, TtsEditKey } from '@votingworks/types';
+import {
+  CandidateContest,
+  Election,
+  ElectionDefinition,
+  ElectionId,
+  LanguageCode,
+  TtsEditKey,
+} from '@votingworks/types';
+import * as types from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { sha256 } from 'js-sha256';
+import {
+  allBaseBallotProps,
+  renderAllBallotPdfsAndCreateElectionDefinition,
+} from '@votingworks/hmpb';
 import { Store, TaskName } from './store';
 import { TestStore } from '../test/test_store';
+import {
+  processNextBackgroundTaskIfAny,
+  testSetupHelpers,
+} from '../test/helpers';
+import { Org, User } from './types';
+import { votingWorksOrgId } from './globals';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
+const vxOrg: Org = {
+  id: votingWorksOrgId(),
+  name: 'VotingWorks',
+};
+
+const nonVxOrg: Org = {
+  id: 'other-org-id',
+  name: 'Other Org',
+};
+const nonVxUser: User = {
+  name: 'non.vx.user@example.com',
+  auth0Id: 'auth0|non-vx-user-id',
+  orgId: nonVxOrg.id,
+};
+const testOrgs: Org[] = [vxOrg, nonVxOrg];
+
+// Spy on the ballot rendering function so we can check that it's called with the
+// right arguments.
+vi.mock(import('@votingworks/hmpb'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    renderAllBallotPdfsAndCreateElectionDefinition: vi.fn(
+      original.renderAllBallotPdfsAndCreateElectionDefinition
+    ),
+    layOutBallotsAndCreateElectionDefinition: vi.fn(
+      original.layOutBallotsAndCreateElectionDefinition
+    ),
+  } as unknown as typeof original;
+});
+
+const { setupApp, cleanup } = testSetupHelpers();
 
 beforeEach(async () => {
   vi.resetAllMocks();
@@ -16,6 +68,7 @@ beforeEach(async () => {
 
 afterAll(async () => {
   await testStore.cleanUp();
+  vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockRestore();
 });
 
 test('Translation cache', async () => {
@@ -404,4 +457,182 @@ describe('tts_strings', () => {
       },
     ]);
   });
+});
+
+test('getExportedElectionDefinition returns the exported election including reordering updates on render', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+
+  const { apiClient, auth0, workspace, fileStorageClient } =
+    await setupApp(testOrgs);
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'test-nh-election-id' as ElectionId,
+      orgId: nonVxUser.orgId,
+      electionData: JSON.stringify(baseElectionDefinition.election),
+    })
+  ).unsafeUnwrap();
+
+  // Set to NhBallot template which will reorder candidates
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'NhBallot',
+  });
+
+  // Get the original candidate order and contest order from the base election
+  const originalCandidateContest =
+    baseElectionDefinition.election.contests.find(
+      (c): c is CandidateContest => c.type === 'candidate'
+    );
+  assert(originalCandidateContest);
+  const originalCandidateIds = originalCandidateContest.candidates.map(
+    (c) => c.id
+  );
+  const originalContestIds = baseElectionDefinition.election.contests.map(
+    (c) => c.id
+  );
+
+  // Create a modified election with reordered candidates AND contests to simulate NH ballot template behavior
+  const reorderedElection: Election = {
+    ...baseElectionDefinition.election,
+    // Reverse the contest order
+    contests: [...baseElectionDefinition.election.contests]
+      .reverse()
+      .map((contest) => {
+        if (
+          contest.type === 'candidate' &&
+          contest.id === originalCandidateContest.id
+        ) {
+          // Also reverse the candidate order within the contest
+          return {
+            ...contest,
+            candidates: [...contest.candidates].reverse(),
+          };
+        }
+        return contest;
+      }),
+  };
+  const reorderedElectionData = JSON.stringify(reorderedElection);
+  const reorderedBallotHash = sha256(reorderedElectionData);
+  const reorderedElectionDefinition: ElectionDefinition = {
+    ...baseElectionDefinition,
+    election: reorderedElection,
+    electionData: reorderedElectionData,
+    ballotHash: reorderedBallotHash,
+  };
+
+  // Mock the ballot rendering to return the reordered election
+  const props = allBaseBallotProps(reorderedElection);
+  vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockResolvedValue({
+    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
+    electionDefinition: reorderedElectionDefinition,
+  });
+
+  // Export the election package
+  await apiClient.exportElectionPackage({
+    electionId,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: true,
+  });
+
+  await processNextBackgroundTaskIfAny({
+    fileStorageClient,
+    workspace,
+  });
+
+  // Verify that the last exported ballot hash matches the mocked value we returned
+  const { store } = workspace;
+  const electionRecord = await store.getElection(electionId);
+  expect(electionRecord.lastExportedBallotHash).toEqual(reorderedBallotHash);
+
+  // Now get the exported election from the store using the election ID
+  const exportedElectionDefinitionResult =
+    await store.getExportedElectionDefinition(electionId);
+  expect(exportedElectionDefinitionResult).toEqual(
+    ok({
+      election: expect.anything(), // checked below
+      electionData: expect.anything(),
+      ballotHash: reorderedBallotHash,
+    })
+  );
+  const exportedData = assertDefined(exportedElectionDefinitionResult.ok());
+  const { election: storedElection } = exportedData;
+
+  // Verify that the stored election has the reordered contests (reversed from original)
+  const storedContestIds = storedElection.contests.map((c) => c.id);
+  const expectedReorderedContestIds = [...originalContestIds].reverse();
+  expect(storedContestIds).toEqual(expectedReorderedContestIds);
+  expect(storedContestIds).not.toEqual(originalContestIds);
+
+  // Verify that the stored election has the reordered candidates (reversed from original)
+  const storedCandidateContest = storedElection.contests.find(
+    (c): c is CandidateContest =>
+      c.type === 'candidate' && c.id === originalCandidateContest.id
+  );
+  assert(storedCandidateContest);
+  const storedCandidateIds = storedCandidateContest.candidates.map((c) => c.id);
+
+  // The stored election should have reversed candidate order (simulating NH ballot template)
+  const expectedReorderedCandidateIds = [...originalCandidateIds].reverse();
+  expect(storedCandidateIds).toEqual(expectedReorderedCandidateIds);
+  expect(storedCandidateIds).not.toEqual(originalCandidateIds);
+});
+
+test('getExportedElection returns election-out-of-date error when election data fails to parse', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+
+  const { apiClient, auth0, workspace, fileStorageClient } =
+    await setupApp(testOrgs);
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'test-election-parse-error' as ElectionId,
+      orgId: nonVxUser.orgId,
+      electionData: JSON.stringify(baseElectionDefinition.election),
+    })
+  ).unsafeUnwrap();
+
+  // Mock the ballot rendering to return a valid election
+  const props = allBaseBallotProps(baseElectionDefinition.election);
+  vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockResolvedValue({
+    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
+    electionDefinition: baseElectionDefinition,
+  });
+
+  // Export the election package
+  await apiClient.exportElectionPackage({
+    electionId,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: true,
+  });
+
+  await processNextBackgroundTaskIfAny({
+    fileStorageClient,
+    workspace,
+  });
+
+  // Get the ballot hash from the stored election
+  const { store } = workspace;
+  const electionRecord = await store.getElection(electionId);
+  assertDefined(electionRecord.lastExportedBallotHash);
+
+  // Mock safeParseElection to return an error, simulating an outdated election schema
+  const safeParseElectionSpy = vi.spyOn(types, 'safeParseElectionDefinition');
+  safeParseElectionSpy.mockReturnValue(err(new Error('Parse error')));
+
+  // Try to get the exported election - should fail because parsing fails
+  const result = await store.getExportedElectionDefinition(electionId);
+
+  // Should return an error indicating the election is out of date
+  expect(result).toEqual(err('election-out-of-date'));
+
+  // Restore the mock
+  safeParseElectionSpy.mockRestore();
+  await cleanup();
 });
