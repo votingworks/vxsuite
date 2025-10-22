@@ -2359,7 +2359,7 @@ export class Store {
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
-        // If any existing partial row has a different num_pages delete it so the new report will override.
+        // If any existing partial row has a different num_pages, or precinct_id delete it so the new report will override.
         await client.query(
           `
           delete from results_reports_partial
@@ -2368,13 +2368,14 @@ export class Store {
           machine_id = $2 and
           is_live_mode = $3 and
           polls_state = $4 and
-          num_pages != $5
+          (num_pages != $5 OR precinct_id IS DISTINCT FROM $6)
             `,
           ballotHash,
           machineId,
           isLive,
           pollsState,
-          numPages
+          numPages,
+          precinctId || null
         );
         const { rowCount } = await client.query(
           `
@@ -2429,12 +2430,21 @@ export class Store {
     isLive: boolean;
     pollsState: PollsState;
   }): Promise<
-    Array<{ encodedCompressedTally: string; precinctId: string | null }>
+    Array<{
+      encodedCompressedTally: string;
+      precinctId: string | null;
+      numPages: number;
+      pageIndex: number;
+    }>
   > {
     return await this.db.withClient(async (client) => {
       const res = await client.query(
         `
-          select encoded_compressed_tally as "encodedCompressedTally", precinct_id as "precinctId"
+          select
+            encoded_compressed_tally as "encodedCompressedTally",
+            precinct_id as "precinctId",
+            page_index as "pageIndex",
+            num_pages as "numPages"
           from results_reports_partial
           where
             ballot_hash = $1 and
@@ -2451,6 +2461,8 @@ export class Store {
       return res.rows as Array<{
         encodedCompressedTally: string;
         precinctId: string | null;
+        numPages: number;
+        pageIndex: number;
       }>;
     });
   }
