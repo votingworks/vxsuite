@@ -528,7 +528,17 @@ export interface GridPositionOption {
   readonly row: number;
   readonly contestId: ContestId;
   readonly optionId: Id;
+
+  /**
+   * Ordering index of the contest within the ballot style, and candidate within the contest.
+   * Used so the VxMark and other VxSuite interfaces can present options in the same order as the
+   * ballot (respecting candidate and contest rotation). In current ballot templates this can be
+   * derived from the rows/columns but in future templates that may not be the case.
+   */
+  readonly contestOrderingIndex: number;
+  readonly optionOrderingIndex: number;
 }
+
 export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
   z.object({
     type: z.literal('option'),
@@ -538,6 +548,8 @@ export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
     row: z.number().nonnegative(),
     contestId: ContestIdSchema,
     optionId: IdSchema,
+    contestOrderingIndex: z.number().int().nonnegative(),
+    optionOrderingIndex: z.number().int().nonnegative(),
   });
 
 export interface GridPositionWriteIn {

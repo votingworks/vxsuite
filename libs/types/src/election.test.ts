@@ -962,7 +962,6 @@ test('getContestsWithGridLayoutOrder returns contests in gridLayout order when g
     ballotStyle: ballotStyle1,
     election: modifiedElection,
   });
-  console.log(contests1);
 
   expect(contests1.map((c) => c.id)).toEqual(['contest-2', 'contest-1']);
   const mayorContest1 = contests1[1] as CandidateContest;
