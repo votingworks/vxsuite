@@ -224,12 +224,15 @@ export type OptionInfo =
       type: 'option';
       contestId: string;
       optionId: string;
+      optionOrderingIndex: number;
+      contestOrderingIndex: number;
     }
   | {
       type: 'write-in';
       contestId: string;
       writeInIndex: number;
       writeInArea: Outset<number>; // Grid coordinates for write-in space in relation to the bubble
+      contestOrderingIndex: number;
     };
 
 export function Bubble({

@@ -427,11 +427,13 @@ function CandidateContest({
   contest,
   compact,
   precinctId,
+  contestOrderingIndex,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   compact?: boolean;
   precinctId: PrecinctId;
+  contestOrderingIndex: number;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
@@ -508,6 +510,8 @@ function CandidateContest({
             type: 'option',
             contestId: contest.id,
             optionId: candidate.id,
+            optionOrderingIndex: i,
+            contestOrderingIndex,
           };
           return (
             <li
@@ -544,6 +548,7 @@ function CandidateContest({
               type: 'write-in',
               contestId: contest.id,
               writeInIndex,
+              contestOrderingIndex,
               writeInArea: {
                 top: compact ? 0.7 : 0.8,
                 right: -0.9,
@@ -587,10 +592,12 @@ function BallotMeasureContest({
   contest,
   compact,
   continuesOnNextPage,
+  contestOrderingIndex,
 }: {
   contest: YesNoContest;
   compact?: boolean;
   continuesOnNextPage?: boolean;
+  contestOrderingIndex: number;
 }) {
   return (
     <Box style={{ padding: 0 }}>
@@ -660,7 +667,7 @@ function BallotMeasureContest({
               justifyContent: 'end',
             }}
           >
-            {[contest.yesOption, contest.noOption].map((option) => (
+            {[contest.yesOption, contest.noOption].map((option, i) => (
               <li
                 key={option.id}
                 className={BALLOT_MEASURE_OPTION_CLASS}
@@ -684,6 +691,8 @@ function BallotMeasureContest({
                       type: 'option',
                       contestId: contest.id,
                       optionId: option.id,
+                      optionOrderingIndex: i,
+                      contestOrderingIndex,
                     }}
                   />
                 </div>
@@ -701,11 +710,13 @@ function Contest({
   contest,
   election,
   precinctId,
+  contestOrderingIndex,
 }: {
   compact?: boolean;
   contest: AnyContest;
   election: Election;
   precinctId: PrecinctId;
+  contestOrderingIndex: number;
 }) {
   switch (contest.type) {
     case 'candidate':
@@ -715,10 +726,17 @@ function Contest({
           election={election}
           contest={contest}
           precinctId={precinctId}
+          contestOrderingIndex={contestOrderingIndex}
         />
       );
     case 'yesno':
-      return <BallotMeasureContest compact={compact} contest={contest} />;
+      return (
+        <BallotMeasureContest
+          compact={compact}
+          contest={contest}
+          contestOrderingIndex={contestOrderingIndex}
+        />
+      );
     default:
       return throwIllegalValue(contest);
   }
@@ -828,15 +846,18 @@ async function BallotPageContent(
   // font size and map to px?
   const horizontalGapPx = (compact ? 0.5 : 0.75) * 16; // Assuming 16px per 1rem
   const verticalGapPx = horizontalGapPx;
+  let numContestsAdded = 0;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
-    const contestElements = section.map((contest) => (
+    const baseContestOrderingIndex = numContestsAdded;
+    const contestElements = section.map((contest, i) => (
       <Contest
         key={contest.id}
         compact={compact}
         contest={contest}
         election={election}
         precinctId={props.precinctId}
+        contestOrderingIndex={baseContestOrderingIndex + i}
       />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
@@ -873,6 +894,7 @@ async function BallotPageContent(
 
     // Put contests we didn't lay out back on the front of the queue
     const numElementsUsed = columns.flat().length;
+    numContestsAdded += numElementsUsed;
     if (numElementsUsed < section.length) {
       contestSections.unshift(section.slice(numElementsUsed));
     }
@@ -917,11 +939,13 @@ async function BallotPageContent(
             election,
             compact,
             precinctId: props.precinctId,
+            contestOrderingIndex: numContestsAdded,
           },
           ballotStyle,
           dimensions,
           scratchpad
         );
+      numContestsAdded += 1;
       pageSections.push(<div key="section-1">{firstContestElement}</div>);
       contestsLeftToLayout.unshift(restContest);
     } else {

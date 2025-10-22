@@ -214,9 +214,11 @@ function BallotPageFrame({
 function CandidateContest({
   election,
   contest,
+  contestOrderingIndex,
 }: {
   election: Election;
   contest: CandidateContestStruct;
+  contestOrderingIndex: number;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteFor1,
@@ -270,6 +272,8 @@ function CandidateContest({
             type: 'option',
             contestId: contest.id,
             optionId: candidate.id,
+            contestOrderingIndex,
+            optionOrderingIndex: i,
           };
           return (
             <li
@@ -306,6 +310,7 @@ function CandidateContest({
               type: 'write-in',
               contestId: contest.id,
               writeInIndex,
+              contestOrderingIndex,
               writeInArea: {
                 top: 0.8,
                 left: -0.9,
@@ -345,7 +350,13 @@ function CandidateContest({
   );
 }
 
-function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
+function BallotMeasureContest({
+  contest,
+  contestOrderingIndex,
+}: {
+  contest: YesNoContest;
+  contestOrderingIndex: number;
+}) {
   return (
     <Box style={{ padding: 0 }}>
       <ContestHeader>
@@ -386,7 +397,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
             justifyContent: 'end',
           }}
         >
-          {[contest.yesOption, contest.noOption].map((option) => (
+          {[contest.yesOption, contest.noOption].map((option, i) => (
             <li
               key={option.id}
               className={BALLOT_MEASURE_OPTION_CLASS}
@@ -401,6 +412,8 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
                     type: 'option',
                     contestId: contest.id,
                     optionId: option.id,
+                    contestOrderingIndex,
+                    optionOrderingIndex: i,
                   }}
                 />
                 <strong>
@@ -420,15 +433,28 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
 function Contest({
   contest,
   election,
+  contestOrderingIndex,
 }: {
   contest: AnyContest;
   election: Election;
+  contestOrderingIndex: number;
 }) {
   switch (contest.type) {
     case 'candidate':
-      return <CandidateContest election={election} contest={contest} />;
+      return (
+        <CandidateContest
+          election={election}
+          contest={contest}
+          contestOrderingIndex={contestOrderingIndex}
+        />
+      );
     case 'yesno':
-      return <BallotMeasureContest contest={contest} />;
+      return (
+        <BallotMeasureContest
+          contest={contest}
+          contestOrderingIndex={contestOrderingIndex}
+        />
+      );
     default:
       return throwIllegalValue(contest);
   }
@@ -467,10 +493,17 @@ async function BallotPageContent(
   // font size and map to px?
   const horizontalGapPx = 0.75 * 16; // Assuming 16px per 1rem
   const verticalGapPx = horizontalGapPx;
+  let numContestsAdded = 0;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
-    const contestElements = section.map((contest) => (
-      <Contest key={contest.id} contest={contest} election={election} />
+    const baseContestsAdded = numContestsAdded;
+    const contestElements = section.map((contest, i) => (
+      <Contest
+        key={contest.id}
+        contest={contest}
+        election={election}
+        contestOrderingIndex={baseContestsAdded + i}
+      />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 2;
     const columnWidthPx =
@@ -506,6 +539,7 @@ async function BallotPageContent(
 
     // Put contests we didn't lay out back on the front of the queue
     const numElementsUsed = columns.flat().length;
+    numContestsAdded += numElementsUsed;
     if (numElementsUsed < section.length) {
       contestSections.unshift(section.slice(numElementsUsed));
     }
