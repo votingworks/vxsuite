@@ -10,6 +10,7 @@ import {
   BallotStyle,
   BallotStyleId,
   Candidate,
+  CandidateContest,
   Contest,
   ContestId,
   ContestLike,
@@ -18,6 +19,7 @@ import {
   DistrictId,
   Election,
   BallotStyleGroup,
+  GridLayout,
   Parties,
   Party,
   PartyId,
@@ -32,6 +34,7 @@ import {
   PrecinctSplit,
   hasSplits,
   PrecinctOrSplit,
+  GridPositionOption,
 } from './election';
 
 /**
@@ -51,6 +54,114 @@ export function getContests({
         !c.partyId ||
         ballotStyle.partyId === c.partyId)
   );
+}
+
+/**
+ * Orders candidates within a candidate contest according to the gridLayout order.
+ * If no gridLayout is found, returns candidates in their original order.
+ */
+function orderCandidatesByGridLayout(
+  contest: CandidateContest,
+  gridLayout: GridLayout
+): CandidateContest {
+  const positionsForContest: GridPositionOption[] =
+    gridLayout.gridPositions.filter(
+      (position): position is GridPositionOption =>
+        position.type === 'option' && position.contestId === contest.id
+    );
+  // Extract candidate IDs in the order they appear in gridPositions
+  const candidateIdOrder: string[] = positionsForContest.map(
+    (position) => position.optionId
+  );
+
+  // Create a map for quick lookup
+  const candidateMap = new Map<string, Candidate>();
+  for (const candidate of contest.candidates) {
+    candidateMap.set(candidate.id, candidate);
+  }
+
+  // Order candidates according to gridLayout
+  const orderedCandidates: Candidate[] = candidateIdOrder.map((candidateId) =>
+    assertDefined(candidateMap.get(candidateId))
+  );
+
+  return {
+    ...contest,
+    candidates: orderedCandidates,
+  };
+}
+
+/**
+ * Gets contests for a ballot style ordered according to the ballot style's gridLayout.
+ * Candidates within candidate contests are also ordered according to the gridLayout.
+ *
+ * If no gridLayout exists for the ballot style, falls back to the default election.contests order.
+ *
+ * This should be used for:
+ * - Displaying contests during voting
+ * - Printing BMD ballots
+ * - Any voter-facing contest ordering
+ */
+export function getContestsWithGridLayoutOrder({
+  ballotStyle,
+  election,
+}: {
+  ballotStyle: BallotStyle;
+  election: Election;
+}): Contests {
+  // Get contests filtered by ballot style
+  const contests = getContests({ ballotStyle, election });
+
+  // Find the gridLayout for this ballot style
+  const gridLayout = election.gridLayouts?.find(
+    (gl) => gl.ballotStyleId === ballotStyle.id
+  );
+
+  // If no gridLayout, return contests in election.contests order
+  if (!gridLayout) {
+    return contests;
+  }
+
+  // Extract unique contest IDs in the order they appear in gridPositions
+  const contestIdOrder: ContestId[] = (() => {
+    const seen = new Set<ContestId>();
+    const order: ContestId[] = [];
+    for (const position of gridLayout.gridPositions) {
+      const id = position.contestId as ContestId | undefined;
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        order.push(id);
+      }
+    }
+    return order;
+  })();
+
+  // If no contests found in gridLayout, return original order
+  if (contestIdOrder.length === 0) {
+    return contests;
+  }
+
+  // Create a map for quick lookup
+  const contestMap = new Map<ContestId, AnyContest>();
+  for (const contest of contests) {
+    contestMap.set(contest.id, contest);
+  }
+
+  // Order contests according to gridLayout, keeping any not in gridLayout at the end
+  // eslint-disable-next-line array-callback-return
+  const orderedContests: AnyContest[] = contestIdOrder.map((contestId) => {
+    const contest = assertDefined(contestMap.get(contestId));
+    switch (contest.type) {
+      case 'candidate':
+        return orderCandidatesByGridLayout(contest, gridLayout);
+      case 'yesno':
+        return contest;
+      default:
+        throwIllegalValue(contest, 'type');
+    }
+  });
+
+  return orderedContests;
 }
 
 /**

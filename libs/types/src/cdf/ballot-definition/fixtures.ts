@@ -20,7 +20,7 @@ import {
   PartyId,
 } from '../../election';
 
-export const testVxfElection: Election = {
+export const testVxfElectionWithGridLayouts: Election = {
   id: 'election-1' as ElectionId,
   type: 'general',
   title: 'Lincoln Municipal General Election',

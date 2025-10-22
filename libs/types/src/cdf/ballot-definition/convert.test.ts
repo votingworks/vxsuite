@@ -13,7 +13,10 @@ import {
   convertVxfElectionToCdfBallotDefinition,
   safeParseCdfBallotDefinition,
 } from './convert';
-import { testCdfBallotDefinition, testVxfElection } from './fixtures';
+import {
+  testCdfBallotDefinition,
+  testVxfElectionWithGridLayouts,
+} from './fixtures';
 import { ElectionStringKey, UiStringsPackage, mergeUiStrings } from '../..';
 import * as Cdf from '.';
 import { normalizeVxfAfterCdfConversion } from '../../../test/cdf_conversion_helpers';
@@ -31,9 +34,9 @@ test('VXF fixture is valid', () => {
 });
 
 test('convertVxfElectionToCdfBallotDefinition', () => {
-  expect(convertVxfElectionToCdfBallotDefinition(testVxfElection)).toEqual(
-    testCdfBallotDefinition
-  );
+  expect(
+    convertVxfElectionToCdfBallotDefinition(testVxfElectionWithGridLayouts)
+  ).toEqual(testCdfBallotDefinition);
 });
 
 test('convertVxfElectionToCdfBallotDefinition with translated election strings', () => {
@@ -245,9 +248,9 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
 
   expect(
     convertVxfElectionToCdfBallotDefinition({
-      ...testVxfElection,
+      ...testVxfElectionWithGridLayouts,
       ballotStrings: mergeUiStrings(
-        testVxfElection.ballotStrings,
+        testVxfElectionWithGridLayouts.ballotStrings,
         translatedElectionStrings
       ),
     })
@@ -257,7 +260,7 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
 test('convertCdfBallotDefinitionToVxfElection', () => {
   expect(
     convertCdfBallotDefinitionToVxfElection(testCdfBallotDefinition)
-  ).toEqual(normalizeVxfAfterCdfConversion(testVxfElection));
+  ).toEqual(normalizeVxfAfterCdfConversion(testVxfElectionWithGridLayouts));
 });
 
 const elections = [election, primaryElection, electionTwoPartyPrimary];
@@ -300,7 +303,9 @@ test('safeParseCdfBallotDefinition', () => {
 
   expect(safeParseCdfBallotDefinition(testCdfBallotDefinition)).toEqual(
     ok({
-      vxfElection: normalizeVxfAfterCdfConversion(testVxfElection),
+      vxfElection: normalizeVxfAfterCdfConversion(
+        testVxfElectionWithGridLayouts
+      ),
       cdfElection: testCdfBallotDefinition,
     })
   );

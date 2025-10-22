@@ -10,6 +10,7 @@ import {
   getContestDistrictName,
   getContests,
   getContestsFromIds,
+  getContestsWithGridLayoutOrder,
   formatBallotHash,
   getDistrictIdsForPartyId,
   getPartyAbbreviationByPartyId,
@@ -48,11 +49,12 @@ import {
   hasSplits,
   DistrictId,
   Precinct,
+  Election,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
   testCdfBallotDefinition,
-  testVxfElection,
+  testVxfElectionWithGridLayouts,
 } from './cdf/ballot-definition/fixtures';
 import {
   safeParseElection,
@@ -208,11 +210,11 @@ test('getPrecinctIndexById', () => {
 });
 
 test('getPrecinctSplitById', () => {
-  const precinct = testVxfElection.precincts[0];
+  const precinct = testVxfElectionWithGridLayouts.precincts[0];
   assert(hasSplits(precinct));
   expect(
     getPrecinctSplitById({
-      election: testVxfElection,
+      election: testVxfElectionWithGridLayouts,
       precinctSplitId: 'precinct-1-split-1',
     })
   ).toEqual({
@@ -221,7 +223,7 @@ test('getPrecinctSplitById', () => {
   });
   expect(
     getPrecinctSplitById({
-      election: testVxfElection,
+      election: testVxfElectionWithGridLayouts,
       precinctSplitId: 'precinct-1-split-2',
     })
   ).toEqual({
@@ -606,11 +608,11 @@ test('formatElectionHashes', () => {
 
 test('safeParseElection converts CDF to VXF', () => {
   expect(safeParseElection(testCdfBallotDefinition).unsafeUnwrap()).toEqual(
-    normalizeVxfAfterCdfConversion(testVxfElection)
+    normalizeVxfAfterCdfConversion(testVxfElectionWithGridLayouts)
   );
   expect(
     safeParseElection(JSON.stringify(testCdfBallotDefinition)).unsafeUnwrap()
-  ).toEqual(normalizeVxfAfterCdfConversion(testVxfElection));
+  ).toEqual(normalizeVxfAfterCdfConversion(testVxfElectionWithGridLayouts));
 });
 
 test('safeParseElection shows VXF parsing errors by default', () => {
@@ -754,5 +756,238 @@ test('getAllPrecinctsAndSplits sorts with numeric-aware locale comparison', () =
     { precinct: precinct2 },
     { precinct: precinct10, split: precinct10.splits[0] },
     { precinct: precinct10, split: precinct10.splits[1] },
+  ]);
+});
+
+test('getContestsWithGridLayoutOrder returns contests in election order when no gridLayouts exist', () => {
+  const ballotStyle = election.ballotStyles[0]!;
+  const contests = getContestsWithGridLayoutOrder({
+    ballotStyle,
+    election,
+  });
+
+  // Should return contests in the same order as getContests
+  const expectedContests = getContests({ ballotStyle, election });
+  expect(contests).toEqual(expectedContests);
+});
+
+test('getContestsWithGridLayoutOrder returns contests in gridLayout order when gridLayouts exist', () => {
+  // Create a modified election where gridLayouts have different orders than the natural election order
+  // Natural election order: contest-1 (Mayor), contest-2 (Proposition 1), contest-3 (Controller)
+  // Natural candidate order in contest-1: candidate-1 (Sherlock Holmes), candidate-2 (Thomas Edison)
+
+  // We'll create gridLayouts with different orders:
+  // Ballot style 1_en: contest-2 first, then contest-1 with reversed candidates
+  // Ballot style 3_en: contest-3 first, then contest-1, then contest-2 with normal candidates
+
+  const modifiedElection: Election = {
+    ...testVxfElectionWithGridLayouts,
+    gridLayouts: [
+      {
+        // Ballot style 1_en: Proposition 1 first, then Mayor with reversed candidates
+        ballotStyleId: '1_en' as BallotStyleId,
+        optionBoundsFromTargetMark: { bottom: 1, left: 1, right: 9, top: 1 },
+        gridPositions: [
+          // contest-2 (Proposition 1) comes first
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-2',
+            column: 2,
+            row: 10,
+            optionId: 'contest-2-option-yes',
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-2',
+            column: 2,
+            row: 11,
+            optionId: 'contest-2-option-no',
+          },
+          // contest-1 (Mayor) comes second with reversed candidates
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 20,
+            optionId: 'candidate-2',
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 21,
+            optionId: 'candidate-1',
+          },
+        ],
+      },
+      {
+        // Keep ballot style 2_en unchanged
+        ballotStyleId: '2_en' as BallotStyleId,
+        optionBoundsFromTargetMark: { bottom: 1, left: 1, right: 9, top: 1 },
+        gridPositions: [
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-3',
+            column: 2,
+            row: 12,
+            optionId: 'candidate-3',
+          },
+        ],
+      },
+      {
+        // Ballot style 3_en: Controller first, then Mayor, then Proposition 1
+        ballotStyleId: '3_en' as BallotStyleId,
+        optionBoundsFromTargetMark: { bottom: 1, left: 1, right: 9, top: 1 },
+        gridPositions: [
+          // contest-3 (Controller) comes first
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-3',
+            column: 2,
+            row: 5,
+            optionId: 'candidate-3',
+          },
+          // contest-1 (Mayor) comes second with normal candidate order
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 10,
+            optionId: 'candidate-1',
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 11,
+            optionId: 'candidate-2',
+          },
+          // contest-2 (Proposition 1) comes last
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-2',
+            column: 2,
+            row: 20,
+            optionId: 'contest-2-option-yes',
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-2',
+            column: 2,
+            row: 21,
+            optionId: 'contest-2-option-no',
+          },
+        ],
+      },
+      {
+        // Keep ballot style 3_es-US the same as 3_en
+        ballotStyleId: '3_es-US' as BallotStyleId,
+        optionBoundsFromTargetMark: { bottom: 1, left: 1, right: 9, top: 1 },
+        gridPositions: [
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-3',
+            column: 2,
+            row: 5,
+            optionId: 'candidate-3',
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 10,
+            optionId: 'candidate-1',
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 11,
+            optionId: 'candidate-2',
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-2',
+            column: 2,
+            row: 20,
+            optionId: 'contest-2-option-yes',
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-2',
+            column: 2,
+            row: 21,
+            optionId: 'contest-2-option-no',
+          },
+        ],
+      },
+    ],
+  };
+
+  // Test ballot style 1_en: should have contest-2 first, then contest-1 with reversed candidates
+  const ballotStyle1 = modifiedElection.ballotStyles.find(
+    (bs) => bs.id === ('1_en' as BallotStyleId)
+  )!;
+  const contests1 = getContestsWithGridLayoutOrder({
+    ballotStyle: ballotStyle1,
+    election: modifiedElection,
+  });
+  console.log(contests1);
+
+  expect(contests1.map((c) => c.id)).toEqual(['contest-2', 'contest-1']);
+  const mayorContest1 = contests1[1] as CandidateContest;
+  expect(mayorContest1.candidates.map((c) => c.id)).toEqual([
+    'candidate-2', // Thomas Edison first per gridLayout
+    'candidate-1', // Sherlock Holmes second per gridLayout
+  ]);
+
+  // Test ballot style 3_en: should have contest-3, contest-1, contest-2 with normal candidates
+  const ballotStyle3 = modifiedElection.ballotStyles.find(
+    (bs) => bs.id === ('3_en' as BallotStyleId)
+  )!;
+  const contests3 = getContestsWithGridLayoutOrder({
+    ballotStyle: ballotStyle3,
+    election: modifiedElection,
+  });
+
+  expect(contests3.map((c) => c.id)).toEqual([
+    'contest-3',
+    'contest-1',
+    'contest-2',
+  ]);
+  const mayorContest3 = contests3[1] as CandidateContest;
+  expect(mayorContest3.candidates.map((c) => c.id)).toEqual([
+    'candidate-1', // Sherlock Holmes first per gridLayout
+    'candidate-2', // Thomas Edison second per gridLayout
   ]);
 });
