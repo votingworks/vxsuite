@@ -62,7 +62,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
   expect(result.current.isModified).toEqual(false);
   expect(result.current.selectedCandidateNames).toEqual(['Alice']);
   expect(result.current.allAdjudicationsCompleted).toEqual(false);
-  expect(result.current.firstOptionIdRequiringAdjudication).toEqual('bob');
+  expect(result.current.firstOptionIdPendingAdjudication).toEqual('bob');
 
   // Toggle candidate vote to true
   expect(result.current.getOptionHasVote('bob')).toEqual(false);
@@ -91,9 +91,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
   expect(result.current.getOptionMarginalMarkStatus('bob')).toEqual('resolved');
 
   // Toggle write-in vote to true
-  expect(result.current.firstOptionIdRequiringAdjudication).toEqual(
-    'write-in-0'
-  );
+  expect(result.current.firstOptionIdPendingAdjudication).toEqual('write-in-0');
   expect(result.current.getOptionHasVote('write-in-0')).toEqual(false);
   act(() => {
     result.current.setOptionHasVote('write-in-0', true);
@@ -135,9 +133,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
   expect(result.current.selectedCandidateNames).toEqual(['Alice', 'Siena']);
 
   // Dismiss write-in marginal mark
-  expect(result.current.firstOptionIdRequiringAdjudication).toEqual(
-    'write-in-1'
-  );
+  expect(result.current.firstOptionIdPendingAdjudication).toEqual('write-in-1');
   expect(result.current.getOptionMarginalMarkStatus('write-in-1')).toEqual(
     'pending'
   );
@@ -198,7 +194,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
   expect(result.current.allAdjudicationsCompleted).toEqual(false);
   expect(result.current.voteCount).toEqual(1);
   expect(result.current.selectedCandidateNames).toEqual(['Alice']);
-  expect(result.current.firstOptionIdRequiringAdjudication).toEqual('bob');
+  expect(result.current.firstOptionIdPendingAdjudication).toEqual('bob');
 });
 
 test('makeInitialState initializes official and write-in options correctly for candidate contest', () => {

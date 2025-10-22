@@ -61,13 +61,13 @@ import {
 } from '../components/adjudication_double_vote_alert_modal';
 import { DiscardChangesModal } from '../components/discard_changes_modal';
 import {
-  isInvalidWriteIn,
+  useContestAdjudicationState,
+  isWriteInPending,
+  isWriteInInvalid,
   isMarginalMarkPending,
   isOfficialCandidate,
-  isWriteInPending,
   isValidCandidate,
   MarginalMarkStatus,
-  useContestAdjudicationState,
   WriteInAdjudicationStatus,
 } from '../hooks/use_contest_adjudication_state';
 
@@ -239,7 +239,7 @@ function renderContestOptionButtonCaption({
         !isWriteInPending(writeInStatus));
     if (isAmbiguousAndAdjudicated) {
       originalValueStr = 'Ambiguous Write-In';
-    } else if (originalVote && isInvalidWriteIn(writeInStatus)) {
+    } else if (originalVote && isWriteInInvalid(writeInStatus)) {
       originalValueStr = 'Write-In';
     }
   } else if (marginalMarkStatus === 'resolved') {
@@ -336,18 +336,18 @@ export function ContestAdjudicationScreen(): JSX.Element {
   );
 
   const {
+    resetState,
+    isStateReady,
+    isModified,
     getOptionHasVote,
     setOptionHasVote,
     getOptionWriteInStatus,
     setOptionWriteInStatus,
     getOptionMarginalMarkStatus,
     resolveOptionMarginalMark,
-    resetState,
-    isStateReady,
-    isModified,
     checkWriteInNameForDoubleVote,
     allAdjudicationsCompleted,
-    firstOptionIdRequiringAdjudication,
+    firstOptionIdPendingAdjudication,
     selectedCandidateNames,
     voteCount,
   } = useContestAdjudicationState(
@@ -370,7 +370,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   // Vote and write-in state for adjudication management
   const [focusedOptionId, setFocusedOptionId] = useState<string>();
-  const [shouldScrollToOption, setShouldScrollToOption] = useState(false);
+  const [shouldScrollToTarget, setShouldScrollToTarget] = useState(false);
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
   const [discardChangesNextAction, setDiscardChangesNextAction] = useState<
     'close' | 'back' | 'skip'
@@ -424,27 +424,24 @@ export function ContestAdjudicationScreen(): JSX.Element {
       window.removeEventListener('keydown', handleEscape, { capture: true });
   }, [doubleVoteAlert, discardChangesNextAction, focusedOptionId]);
 
-  // On initial load or ballot navigation, autoscroll the user after queries succeed
-  const optionRefs = useRef<Record<ContestOptionId, HTMLDivElement | null>>({});
+  // On initial load OR ballot navigation: scroll user to first pending adjudication
+  const scrollTargetRef = useRef<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
     if (
       !areQueriesFetching &&
-      firstOptionIdRequiringAdjudication &&
-      shouldScrollToOption
+      firstOptionIdPendingAdjudication &&
+      shouldScrollToTarget
     ) {
-      const el = optionRefs.current[firstOptionIdRequiringAdjudication];
-      if (el) {
-        el.scrollIntoView({
-          behavior: 'instant',
-          block: 'start',
-        });
-      }
-      setShouldScrollToOption(false);
+      scrollTargetRef.current?.scrollIntoView({
+        behavior: 'instant',
+        block: 'start',
+      });
+      setShouldScrollToTarget(false);
     }
   }, [
     areQueriesFetching,
-    firstOptionIdRequiringAdjudication,
-    shouldScrollToOption,
+    firstOptionIdPendingAdjudication,
+    shouldScrollToTarget,
   ]);
 
   // Only show full loading screen on initial load to mitigate screen flicker on scroll
@@ -525,7 +522,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       const writeInStatus = getOptionWriteInStatus(optionId);
       // throw error if there is a pending write-in
       assert(!isWriteInPending(writeInStatus));
-      if (isInvalidWriteIn(writeInStatus) || !writeInStatus) {
+      if (isWriteInInvalid(writeInStatus) || !writeInStatus) {
         adjudicatedContestOptionById[optionId] = {
           type: 'write-in-option',
           hasVote: false,
@@ -654,15 +651,16 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   : (officialOption as YesNoOption).label;
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
-                function getRef(el: HTMLDivElement | null) {
-                  optionRefs.current[optionId] = el;
-                }
                 return (
                   <ContestOptionButton
                     key={optionId + currentCvrId}
                     isSelected={currentVote}
                     marginalMarkStatus={marginalMarkStatus}
-                    ref={getRef}
+                    ref={
+                      optionId === firstOptionIdPendingAdjudication
+                        ? scrollTargetRef
+                        : undefined
+                    }
                     option={{
                       id: optionId,
                       label: optionLabel,
@@ -697,9 +695,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 );
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
-                function getRef(el: HTMLDivElement | null) {
-                  optionRefs.current[optionId] = el;
-                }
                 return (
                   <WriteInAdjudicationButton
                     key={optionId + currentCvrId}
@@ -714,7 +709,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     disabled={isBmd && writeInStatus === undefined}
                     onInputFocus={() => setFocusedOptionId(optionId)}
                     onInputBlur={() => setFocusedOptionId(undefined)}
-                    ref={getRef}
+                    ref={
+                      optionId === firstOptionIdPendingAdjudication
+                        ? scrollTargetRef
+                        : undefined
+                    }
                     onChange={(newStatus) => {
                       setFocusedOptionId(undefined);
                       if (isWriteInPending(newStatus)) {
@@ -722,7 +721,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         setOptionHasVote(optionId, true);
                         return;
                       }
-                      if (isInvalidWriteIn(newStatus)) {
+                      if (isWriteInInvalid(newStatus)) {
                         // If there was no write-in record, reset
                         // to undefined instead of invalid
                         setOptionWriteInStatus(
