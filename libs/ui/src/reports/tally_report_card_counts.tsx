@@ -4,6 +4,7 @@ import {
   format,
   getBallotCount,
   getScannedBallotCount,
+  getScannedBallotCountForSheet,
 } from '@votingworks/utils';
 import { TD, TH } from '../table';
 import { reportColors } from './layout';
@@ -78,20 +79,20 @@ export function TallyReportCardCounts({
             </tr>
           )}
           {cardCounts.hmpb.length > 1 &&
-            cardCounts.hmpb.map((count, index) => {
-              const sheetNumber = index + 1;
-              const sheetCount =
-                (count ?? 0) + (sheetNumber === 1 ? cardCounts.bmd : 0);
-              return (
-                <tr
-                  key={sheetNumber}
-                  className={showScannedCount ? 'subrow' : undefined}
-                >
-                  <TD nowrap>Sheet {sheetNumber}</TD>
-                  <TD>{format.count(sheetCount)}</TD>
-                </tr>
-              );
-            })}
+            cardCounts.hmpb.map((_, sheetIndex) => (
+              <tr
+                // eslint-disable-next-line react/no-array-index-key
+                key={sheetIndex}
+                className={showScannedCount ? 'subrow' : undefined}
+              >
+                <TD nowrap>Sheet {sheetIndex + 1}</TD>
+                <TD>
+                  {format.count(
+                    getScannedBallotCountForSheet(cardCounts, sheetIndex)
+                  )}
+                </TD>
+              </tr>
+            ))}
           {manualCount && (
             <tr>
               <TD>Manually Entered</TD>
