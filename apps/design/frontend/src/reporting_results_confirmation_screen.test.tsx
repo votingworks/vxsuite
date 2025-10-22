@@ -205,7 +205,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
         signature: 'test-signature',
         certificate: 'test-certificate',
       })
-      .resolves(err('no-election-found'));
+      .resolves(err('no-election-export-found'));
 
     render(
       provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
@@ -218,6 +218,31 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
       expect(
         screen.getByText(
           'Wrong election. Confirm VxScan and VxDesign are configured with the same election package.'
+        )
+      ).toBeInTheDocument();
+    });
+  });
+
+  test('shows Election Out of Date error when election is no longer compatible', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(err('election-out-of-date'));
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Error Sending Report' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.'
         )
       ).toBeInTheDocument();
     });

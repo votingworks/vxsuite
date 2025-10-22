@@ -163,7 +163,11 @@ export interface QuickReportedPollStatus {
 
 export const ALL_PRECINCTS_REPORT_KEY = '';
 
+export type GetExportedElectionError =
+  | 'no-election-export-found'
+  | 'election-out-of-date';
+
 export type ResultsReportingError =
   | 'invalid-payload'
   | 'invalid-signature'
-  | 'no-election-found';
+  | GetExportedElectionError;

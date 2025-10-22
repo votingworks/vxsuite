@@ -27,7 +27,7 @@ import {
 } from '@votingworks/ui';
 import { useParams, Switch, Route } from 'react-router-dom';
 import React, { useState } from 'react';
-import { assert, deepEqual } from '@votingworks/basics';
+import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
 import { formatBallotHash, PrecinctSelection } from '@votingworks/types';
 import {
   getContestsForPrecinctAndElection,
@@ -37,13 +37,16 @@ import {
   getPollsStateName,
 } from '@votingworks/utils';
 import styled, { useTheme } from 'styled-components';
-import type { QuickReportedPollStatus } from '@votingworks/design-backend';
+import type {
+  GetExportedElectionError,
+  QuickReportedPollStatus,
+} from '@votingworks/design-backend';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import {
   deleteQuickReportingResults,
-  getQuickReportedResults,
-  getReportedPollsStatus,
+  getLiveResultsReports,
+  getLiveReportsSummary,
   getSystemSettings,
 } from './api';
 import { useTitle } from './hooks/use_title';
@@ -87,6 +90,17 @@ function getPollsStatusText(
   );
 }
 
+function getErrorMessage(error: GetExportedElectionError): string {
+  switch (error) {
+    case 'no-election-export-found':
+      return 'This election has not yet been exported. Please export the election and configure VxScan to enable live reports.';
+    case 'election-out-of-date':
+      return 'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.';
+    default:
+      throwIllegalValue(error);
+  }
+}
+
 function getLastUpdateInformation(
   reports: QuickReportedPollStatus[]
 ): JSX.Element {
@@ -118,8 +132,7 @@ function LiveReportsSummaryScreen({
   const [precinctIdsToAnimate, setPrecinctIdsToAnimate] = useState<string[]>(
     []
   );
-  const getReportedPollsStatusQuery =
-    getReportedPollsStatus.useQuery(electionId);
+  const getLiveReportsSummaryQuery = getLiveReportsSummary.useQuery(electionId);
 
   const deleteQuickReportingResultsMutation =
     deleteQuickReportingResults.useMutation();
@@ -134,9 +147,9 @@ function LiveReportsSummaryScreen({
   }
 
   // Get data for animations (provide empty defaults if not loaded)
-  const pollsStatusData = getReportedPollsStatusQuery.isSuccess
-    ? getReportedPollsStatusQuery.data.isOk()
-      ? getReportedPollsStatusQuery.data.ok()
+  const pollsStatusData = getLiveReportsSummaryQuery.isSuccess
+    ? getLiveReportsSummaryQuery.data.isOk()
+      ? getLiveReportsSummaryQuery.data.ok()
       : null
     : null;
   // Memoize precincts so it only recalculates when pollsStatusData changes
@@ -156,7 +169,7 @@ function LiveReportsSummaryScreen({
   );
 
   const playSound = useSound('happy-ping');
-  useQueryChangeListener(getReportedPollsStatusQuery, {
+  useQueryChangeListener(getLiveReportsSummaryQuery, {
     // Could also select `isLive` too if that's relevant
     select: (result) => ({
       reportsByPrecinct: result.ok()?.reportsByPrecinct,
@@ -215,7 +228,7 @@ function LiveReportsSummaryScreen({
     }
   }
 
-  if (!getReportedPollsStatusQuery.isSuccess) {
+  if (!getLiveReportsSummaryQuery.isSuccess) {
     return (
       <div>
         <Header>
@@ -230,9 +243,8 @@ function LiveReportsSummaryScreen({
     );
   }
 
-  if (getReportedPollsStatusQuery.data.isErr()) {
-    const err = getReportedPollsStatusQuery.data.err();
-    assert(err === 'election-not-exported');
+  if (getLiveReportsSummaryQuery.data.isErr()) {
+    const errorMessage = getErrorMessage(getLiveReportsSummaryQuery.data.err());
     return (
       <div>
         <Header>
@@ -242,8 +254,7 @@ function LiveReportsSummaryScreen({
         </Header>
         <MainContent>
           <Callout color="warning" icon="Warning">
-            This election has not yet been exported. Please export the election
-            and configure VxScan to enable live reports.
+            {errorMessage}
           </Callout>
         </MainContent>
       </div>
@@ -545,12 +556,12 @@ function LiveReportsResultsScreen({
   const precinctSelection: PrecinctSelection = precinctId
     ? { kind: 'SinglePrecinct', precinctId }
     : { kind: 'AllPrecincts' };
-  const getQuickReportedResultsQuery = getQuickReportedResults.useQuery(
+  const getLiveResultsReportsQuery = getLiveResultsReports.useQuery(
     electionId,
     precinctSelection
   );
 
-  if (!getQuickReportedResultsQuery.isSuccess) {
+  if (!getLiveResultsReportsQuery.isSuccess) {
     // We don't know test/live mode yet or have the election data yet so show a generic title.
     const reportTitle = 'Unofficial Tally Report';
     return (
@@ -569,18 +580,12 @@ function LiveReportsResultsScreen({
     );
   }
 
-  if (getQuickReportedResultsQuery.data.isErr()) {
-    const err = getQuickReportedResultsQuery.data.err();
-    assert(err === 'election-not-exported');
-    return (
-      <P>
-        This election has not yet been exported. Please export the election and
-        configure VxScan to enable live reports.
-      </P>
-    );
+  if (getLiveResultsReportsQuery.data.isErr()) {
+    const errorMessage = getErrorMessage(getLiveResultsReportsQuery.data.err());
+    return <P>{errorMessage}</P>;
   }
 
-  const aggregatedResults = getQuickReportedResultsQuery.data.ok();
+  const aggregatedResults = getLiveResultsReportsQuery.data.ok();
   const contests = getContestsForPrecinctAndElection(
     aggregatedResults.election,
     precinctSelection

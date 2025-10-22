@@ -47,6 +47,8 @@ import {
   TtsEditEntry,
   PollsState,
   PollsStateSupportsLiveReporting,
+  safeParseElectionDefinition,
+  ElectionDefinition,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -65,6 +67,7 @@ import {
   convertToVxfBallotStyle,
   ElectionInfo,
   ElectionListing,
+  GetExportedElectionError,
   Org,
   QuickReportedPollStatus,
 } from './types';
@@ -903,9 +906,9 @@ export class Store {
     });
   }
 
-  async getElectionFromBallotHash(
+  async getElectionIdFromBallotHash(
     ballotHash: string
-  ): Promise<ElectionRecord | undefined> {
+  ): Promise<ElectionId | undefined> {
     const row = (
       await this.db.withClient((client) =>
         client.query(
@@ -923,7 +926,42 @@ export class Store {
     }
     const electionId = row.id as ElectionId;
 
-    return this.getElection(electionId);
+    return electionId;
+  }
+
+  async getExportedElectionDefinition(
+    electionId: ElectionId
+  ): Promise<Result<ElectionDefinition, GetExportedElectionError>> {
+    const row = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+          select
+            last_exported_election_data as "electionData",
+            last_exported_ballot_hash as "ballotHash"
+          from elections
+          where id = $1
+        `,
+          electionId
+        )
+      )
+    ).rows[0] as { electionData: string; ballotHash: string } | undefined;
+
+    if (!row || !row.ballotHash) {
+      return err('no-election-export-found');
+    }
+
+    // Parse the election data
+    const parseResult = safeParseElectionDefinition(row.electionData);
+    if (parseResult.isErr()) {
+      return err('election-out-of-date');
+    }
+    const electionDefinition = parseResult.ok();
+
+    // Verify the ballot hash matches the sha256 of the election data
+    assert(electionDefinition.ballotHash === row.ballotHash);
+
+    return ok(electionDefinition);
   }
 
   async getElectionOrgId(electionId: ElectionId): Promise<string> {
@@ -1632,23 +1670,31 @@ export class Store {
     electionId,
     electionPackageUrl,
     ballotHash,
+    electionData,
   }: {
     electionId: ElectionId;
     electionPackageUrl: string;
     ballotHash: string;
+    electionData: string;
   }): Promise<void> {
     await this.db.withClient((client) =>
-      client.query(
-        `
-          update elections
-          set election_package_url = $1,
-              last_exported_ballot_hash = $2
-          where id = $3
-        `,
-        electionPackageUrl,
-        ballotHash,
-        electionId
-      )
+      client.withTransaction(async () => {
+        await client.query(
+          `
+            update elections
+            set election_package_url = $1,
+                last_exported_ballot_hash = $2,
+                last_exported_election_data = $3
+            where id = $4
+          `,
+          electionPackageUrl,
+          ballotHash,
+          electionData,
+          electionId
+        );
+
+        return true;
+      })
     );
   }
 
@@ -2089,11 +2135,10 @@ export class Store {
     });
   }
 
-  async electionHasLiveReportData(election: ElectionRecord): Promise<boolean> {
-    assert(
-      election.lastExportedBallotHash !== undefined,
-      'Election has not yet been exported.'
-    );
+  async electionHasLiveReportData(
+    electionId: string,
+    ballotHash: string
+  ): Promise<boolean> {
     const rows = await this.db.withClient((client) =>
       client.query(
         `
@@ -2105,26 +2150,19 @@ export class Store {
               is_live_mode = true
             limit 1
           `,
-        election.lastExportedBallotHash,
-        election.election.id
+        ballotHash,
+        electionId
       )
     );
     return !!rows.rowCount;
   }
 
   async getPollsStatusForElection(
-    election: ElectionRecord,
+    election: Election,
+    ballotHash: string,
     isLive: boolean
   ): Promise<Record<string, QuickReportedPollStatus[]>> {
-    assert(
-      election.lastExportedBallotHash !== undefined,
-      'Election has not yet been exported.'
-    );
-    const queryParams = [
-      election.lastExportedBallotHash,
-      election.election.id,
-      isLive,
-    ];
+    const queryParams = [ballotHash, election.id, isLive];
     const rows = (
       await this.db.withClient((client) =>
         client.query(
@@ -2160,7 +2198,7 @@ export class Store {
       signedAt: Date;
     }>;
     const reportsByPrecinctId: Record<string, QuickReportedPollStatus[]> = {};
-    for (const precinct of election.election.precincts) {
+    for (const precinct of election.precincts) {
       reportsByPrecinctId[precinct.id] = [];
     }
 
@@ -2183,24 +2221,17 @@ export class Store {
     return reportsByPrecinctId;
   }
 
-  async getQuickResultsReportingTalliesForElection(
-    election: ElectionRecord,
+  async getLiveReportTalliesForElection(
+    election: Election,
+    electionBallotHash: string,
     precinctSelection: PrecinctSelection,
     isLive: boolean
   ): Promise<{
     contestResults: Record<ContestId, ContestResults>;
     machinesReporting: string[];
   }> {
-    assert(
-      election.lastExportedBallotHash !== undefined,
-      'Election has not yet been exported.'
-    );
     let precinctWhereClause = '';
-    const queryParams = [
-      election.lastExportedBallotHash,
-      election.election.id,
-      isLive,
-    ];
+    const queryParams = [electionBallotHash, election.id, isLive];
     if (precinctSelection.kind === 'SinglePrecinct') {
       precinctWhereClause = `
         and precinct_id = $4
@@ -2233,7 +2264,7 @@ export class Store {
       precinctId: string | null;
     }>;
     const contestResults = combineAndDecodeCompressedElectionResults({
-      election: election.election,
+      election,
       encodedCompressedTallies: rows.map((r) => ({
         encodedTally: r.encodedCompressedTally,
         precinctSelection: r.precinctId
@@ -2242,7 +2273,7 @@ export class Store {
       })),
     });
     const contestIdsForPrecinct = getContestsForPrecinctAndElection(
-      election.election,
+      election,
       precinctSelection
     ).map((contest) => contest.id);
 

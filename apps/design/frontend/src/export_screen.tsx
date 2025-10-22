@@ -138,18 +138,15 @@ export function ExportScreen(): JSX.Element | null {
     exportTestDecksMutation.mutate({ electionId, electionSerializationFormat });
   }
 
-  async function onPressExportElectionPackage() {
+  function onPressExportElectionPackage() {
     setExportError(undefined);
-    const submitOk = await exportElectionPackageMutation.mutateAsync({
+    exportElectionPackageMutation.mutate({
       electionId,
       electionSerializationFormat,
       shouldExportAudio,
       shouldExportSampleBallots,
       numAuditIdBallots,
     });
-    if (submitOk.isErr()) {
-      setExportError(submitOk.err());
-    }
   }
 
   if (
@@ -282,25 +279,15 @@ export function ExportScreen(): JSX.Element | null {
               Export Election Package and Ballots
             </Button>
           )}
-          {exportError &&
-            (exportError === 'incompatible-template-live-reports' ? (
-              <Callout
-                color="danger"
-                icon="Danger"
-                style={{ margin: '0.5rem 0' }}
-              >
-                Live Reports are not compatible with the New Hampshire Ballot
-                Template at this time.
-              </Callout>
-            ) : (
-              <Callout
-                color="danger"
-                icon="Danger"
-                style={{ margin: '0.5rem 0' }}
-              >
-                An unexpected error occurred while exporting. Please try again.
-              </Callout>
-            ))}
+          {exportError && (
+            <Callout
+              color="danger"
+              icon="Danger"
+              style={{ margin: '0.5rem 0' }}
+            >
+              An unexpected error occurred while exporting. Please try again.
+            </Callout>
+          )}
 
           <CheckboxButton
             label="Include audio"

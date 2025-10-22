@@ -131,23 +131,18 @@ describe('Navigation tab visibility', () => {
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId })
       .resolves(mockSystemSettingsWithUrl);
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatus));
 
     renderScreen();
 
     // Wait for the component to potentially load
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
-    const resultsNavButton = screen.getByRole('button', {
+    await screen.findByRole('button', {
       name: 'Live Reports',
     });
-    expect(resultsNavButton).toBeInTheDocument();
   });
 
   test('screen still works when quickResultsReportingUrl is not configured', async () => {
@@ -157,14 +152,10 @@ describe('Navigation tab visibility', () => {
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
-    expect(
-      screen.getByText('This election does not have live reports enabled.')
-    ).toBeInTheDocument();
+    await screen.findByRole('heading', { name: 'Live Reports' });
+    await screen.findByText(
+      'This election does not have live reports enabled.'
+    );
 
     // There should not be a link to this page in the navigation.
     expect(
@@ -178,19 +169,31 @@ test('shows error message when election is not exported', async () => {
     .expectRepeatedCallsWith({ electionId })
     .resolves(mockSystemSettingsWithUrl);
 
-  apiMock.getReportedPollsStatus
+  apiMock.getLiveReportsSummary
     .expectRepeatedCallsWith({ electionId })
-    .resolves(err('election-not-exported'));
+    .resolves(err('no-election-export-found'));
   renderScreen();
 
-  await waitFor(() => {
-    expect(
-      screen.getByRole('heading', { name: 'Live Reports' })
-    ).toBeInTheDocument();
-  });
-  expect(
-    screen.getByText(/This election has not yet been exported/)
-  ).toBeInTheDocument();
+  await screen.findByRole('heading', { name: 'Live Reports' });
+  await screen.findByText(/This election has not yet been exported/);
+});
+
+test('shows error message when exported election is out of date', async () => {
+  apiMock.getSystemSettings
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(mockSystemSettingsWithUrl);
+
+  apiMock.getLiveReportsSummary
+    .expectRepeatedCallsWith({ electionId })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .resolves(err('election-out-of-date') as any);
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'Live Reports' });
+  await screen.findByText(
+    /This election is no longer compatible with Live Reports/
+  );
+  await screen.findByText(/Please export a new election package/);
 });
 
 describe('Polls status summary display', () => {
@@ -237,17 +240,13 @@ describe('Polls status summary display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusWithIndividualReports));
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Check that "View Full Election Tally Report" button is enabled
     const viewFullReportButton = screen.getByRole('button', {
@@ -346,17 +345,13 @@ describe('Polls status summary display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusWithAggregatedData));
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Should not show Test Mode callout since isLive is true
     expect(screen.queryByText(/Test Mode/)).not.toBeInTheDocument();
@@ -384,12 +379,12 @@ describe('Polls status summary display', () => {
     expect(screen.queryAllByText('View Tally Report')).toHaveLength(1);
 
     // Check last report sent column
-    expect(screen.queryByText('VxScan-002: Polls Open')).toBeInTheDocument();
+    await screen.findByText('VxScan-002: Polls Open');
     expect(
       screen.queryByText('VxScan-001: Polls Open')
     ).not.toBeInTheDocument();
-    expect(screen.queryByText('VxScan-006: Polls Open')).toBeInTheDocument();
-    expect(screen.queryByText('VxScan-005: Polls Closed')).toBeInTheDocument();
+    await screen.findByText('VxScan-006: Polls Open');
+    await screen.findByText('VxScan-005: Polls Closed');
     expect(
       screen.queryByText('VxScan-003: Polls Closed')
     ).not.toBeInTheDocument();
@@ -436,17 +431,13 @@ describe('Animation behavior', () => {
       reportsByPrecinct: initialData,
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(initialPollsStatus));
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Should show initial counts - 2 precincts with no reports, 1 with polls open
     expect(screen.getByTestId('no-reports-sent-count')).toHaveTextContent('2');
@@ -471,7 +462,7 @@ describe('Animation behavior', () => {
       ],
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -522,20 +513,16 @@ describe('Animation behavior', () => {
       reportsByPrecinct: initialData,
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(testModeData));
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Should show test mode callout
-    expect(screen.getByText('Test Ballot Mode')).toBeInTheDocument();
+    await screen.findByText('Test Ballot Mode');
 
     initialData[election.precincts[0].id] = [
       {
@@ -558,7 +545,7 @@ describe('Animation behavior', () => {
       isLive: true,
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(liveModeData));
 
@@ -600,7 +587,7 @@ describe('Animation behavior', () => {
         signedTimestamp: new Date('2024-01-01T17:00:00Z'),
       },
     ];
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -613,15 +600,11 @@ describe('Animation behavior', () => {
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Should show polls open
     expect(screen.getByTestId('polls-open-count')).toHaveTextContent('1');
-    expect(screen.getByText('VxScan-001: Polls Open')).toBeInTheDocument();
+    await screen.findByText('VxScan-001: Polls Open');
     const precinctRow = screen.getByTestId(
       `precinct-row-${election.precincts[0].id}`
     );
@@ -637,7 +620,7 @@ describe('Animation behavior', () => {
       },
     ];
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -663,7 +646,7 @@ describe('Animation behavior', () => {
     });
 
     expect(screen.getByTestId('polls-open-count')).toHaveTextContent('0');
-    expect(screen.getByText('VxScan-001: Polls Closed')).toBeInTheDocument();
+    await screen.findByText('VxScan-001: Polls Closed');
   });
 
   test('handles precinct not specified data correctly', async () => {
@@ -681,7 +664,7 @@ describe('Animation behavior', () => {
       },
     ];
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -694,11 +677,7 @@ describe('Animation behavior', () => {
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Should show the "Precinct Not Specified" row since it has data
     expect(
@@ -725,7 +704,7 @@ describe('Animation behavior', () => {
       ],
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(
         ok({
@@ -740,7 +719,7 @@ describe('Animation behavior', () => {
     await waitFor(() => {
       expect(screen.getByTestId('polls-open-count')).toHaveTextContent('2');
     });
-    expect(screen.queryByText('Precinct Not Specified')).toBeInTheDocument();
+    await screen.findByText('Precinct Not Specified');
 
     // Check highlighted state with waitFor to handle async updates
     await waitFor(() => {
@@ -783,23 +762,18 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusWithClosedPolls));
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Check that the "View Tally Report" button is present and enabled for closed polls
     const viewTallyReportButton = screen.getByRole('button', {
       name: 'View Tally Report',
     });
-    expect(viewTallyReportButton).toBeInTheDocument();
     expect(viewTallyReportButton).toBeEnabled();
 
     // Mock the API call that will be made when navigating to results view
@@ -807,7 +781,7 @@ describe('Results navigation and display', () => {
       election,
       false
     );
-    apiMock.getQuickReportedResults
+    apiMock.getLiveResultsReports
       .expectCallWith({
         electionId,
         precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
@@ -880,17 +854,13 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusAllClosed));
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Check that the "View Full Election Tally Report" button is present and enabled
     const viewFullReportButton = screen.getByRole('button', {
@@ -900,7 +870,7 @@ describe('Results navigation and display', () => {
 
     // Mock the API call that will be made when navigating to results view
     const mockAllPrecinctsResults = createMockAggregatedResults(election, true);
-    apiMock.getQuickReportedResults
+    apiMock.getLiveResultsReports
       .expectCallWith({
         electionId,
         precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -970,17 +940,13 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(ok(mockPollsStatusAllClosed));
 
     renderScreen(primaryElection.id);
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Check that the "View Full Election Tally Report" button is present and enabled
     const viewFullReportButton = screen.getByRole('button', {
@@ -993,7 +959,7 @@ describe('Results navigation and display', () => {
       primaryElection,
       true
     );
-    apiMock.getQuickReportedResults
+    apiMock.getLiveResultsReports
       .expectCallWith({
         electionId: primaryElection.id,
         precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -1007,9 +973,9 @@ describe('Results navigation and display', () => {
     await screen.findAllByText('Unofficial Tally Report');
 
     // In a general election we do not show Nonpartisan Contests as a header
-    expect(screen.queryByText('Nonpartisan Contests')).toBeInTheDocument();
-    expect(screen.queryByText('Mammal Party Contests')).toBeInTheDocument();
-    expect(screen.queryByText('Fish Party Contests')).toBeInTheDocument();
+    await screen.findByText('Nonpartisan Contests');
+    await screen.findByText('Mammal Party Contests');
+    await screen.findByText('Fish Party Contests');
 
     // All contests should be shown
     for (const contest of primaryElection.contests) {
@@ -1067,17 +1033,13 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(ok(mockPollsStatusAllClosed));
 
     renderScreen(primaryElection.id);
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // There should be three "View Tally Report" buttons - one for each precinct with results
     expect(
@@ -1096,7 +1058,7 @@ describe('Results navigation and display', () => {
       primaryElection,
       true
     );
-    apiMock.getQuickReportedResults
+    apiMock.getLiveResultsReports
       .expectCallWith({
         electionId: primaryElection.id,
         precinctSelection: singlePrecinctSelectionFor(
@@ -1112,9 +1074,9 @@ describe('Results navigation and display', () => {
     await screen.findAllByText('Unofficial Precinct 1 Tally Report');
 
     // In a general election we do not show Nonpartisan Contests as a header
-    expect(screen.queryByText('Nonpartisan Contests')).toBeInTheDocument();
-    expect(screen.queryByText('Mammal Party Contests')).toBeInTheDocument();
-    expect(screen.queryByText('Fish Party Contests')).toBeInTheDocument();
+    await screen.findByText('Nonpartisan Contests');
+    await screen.findByText('Mammal Party Contests');
+    await screen.findByText('Fish Party Contests');
 
     const contestsInPrecinct = getContestsForPrecinctAndElection(
       primaryElection,
@@ -1125,7 +1087,7 @@ describe('Results navigation and display', () => {
     );
     // Contests in the precinct should have results listed.
     for (const contest of contestsInPrecinct) {
-      expect(screen.queryByText(contest.title)).toBeInTheDocument();
+      await screen.findByText(contest.title);
     }
     for (const contest of contestsOutsidePrecinct) {
       expect(screen.queryByText(contest.title)).not.toBeInTheDocument();
@@ -1163,40 +1125,28 @@ describe('Results navigation and display', () => {
       },
     };
 
-    apiMock.getReportedPollsStatus
+    apiMock.getLiveReportsSummary
       .expectRepeatedCallsWith({ electionId })
       .resolves(ok(mockPollsStatusWithData));
 
     renderScreen();
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Live Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Verify the delete button is present and properly labeled
     const deleteButton = screen.getByRole('button', {
       name: 'Delete All Reports',
     });
-    expect(deleteButton).toBeInTheDocument();
     expect(deleteButton).toBeEnabled();
 
     // Click the delete button to open the modal
     userEvent.click(deleteButton);
 
     // Should see the confirmation modal
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Delete All Reports' })
-      ).toBeInTheDocument();
-    });
-
-    expect(
-      screen.getByText(
-        'Are you sure you want to delete all reports for this election?'
-      )
-    ).toBeInTheDocument();
+    await screen.findByRole('heading', { name: 'Delete All Reports' });
+    await screen.findByText(
+      'Are you sure you want to delete all reports for this election?'
+    );
 
     const closeButton = screen.getByRole('button', { name: /cancel/i });
     userEvent.click(closeButton);
@@ -1211,11 +1161,7 @@ describe('Results navigation and display', () => {
     // Reopen the modal
     userEvent.click(deleteButton);
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Delete All Reports' })
-      ).toBeInTheDocument();
-    });
+    await screen.findByRole('heading', { name: 'Delete All Reports' });
 
     // Mock the delete mutation after the modal is open
     apiMock.deleteQuickReportingResults

@@ -26,6 +26,7 @@ export type {
   AggregatedReportedResults,
   ReceivedReportInfo,
   QuickReportedPollStatus,
+  GetExportedElectionError,
 } from './types';
 export type {
   ElectionFeature,
