@@ -1,11 +1,15 @@
 /* eslint-disable no-console */
-import { expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { mockKiosk } from '@votingworks/test-utils';
 import { LogEventId, LogEventType, LogSource } from './log_event_enums';
 import { BaseLogger, CLIENT_SIDE_LOG_SOURCES } from './base_logger';
 import { DEVICE_TYPES_FOR_APP, LogDispositionStandardTypes } from './types';
 
-vi.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
+vi.useFakeTimers();
+
+beforeEach(() => {
+  vi.setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
+});
 
 test('logger logs server logs as expected', () => {
   console.log = vi.fn();
@@ -110,3 +114,288 @@ test('verify that client side apps are configured properly', () => {
     expect(source in DEVICE_TYPES_FOR_APP).toBeTruthy();
   }
 });
+
+test.each<{
+  description: string;
+  input: Array<{ message: string }>;
+  timeBetweenLogsMs: number;
+  output: Array<{
+    message: string;
+    repeatCount?: string;
+    firstRepeatAt?: string;
+    lastRepeatAt?: string;
+  }>;
+}>([
+  {
+    description: 'no repeats',
+    input: [
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+    ],
+    timeBetweenLogsMs: 500,
+    output: [
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+    ],
+  },
+  {
+    description: 'repeats where logging trigger is end of repeats',
+    input: [
+      { message: 'Scanner is on' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+    ],
+    timeBetweenLogsMs: 500,
+    output: [
+      { message: 'Scanner is on' },
+      {
+        message: 'Scanner is on',
+        repeatCount: '2',
+        firstRepeatAt: '2020-07-24T00:00:00.500Z',
+        lastRepeatAt: '2020-07-24T00:00:01.000Z',
+      },
+      { message: 'Scanner is off' },
+    ],
+  },
+  {
+    description: 'repeats where logging trigger is count of repeats',
+    input: [
+      ...Array.from<{ message: string }>({ length: 101 }).fill({
+        message: 'Scanner is on',
+      }),
+    ],
+    timeBetweenLogsMs: 500,
+    output: [
+      { message: 'Scanner is on' },
+      {
+        message: 'Scanner is on',
+        repeatCount: '100',
+        firstRepeatAt: '2020-07-24T00:00:00.500Z',
+        lastRepeatAt: '2020-07-24T00:00:50.000Z',
+      },
+    ],
+  },
+  {
+    description:
+      'repeats where logging trigger is time between first and last repeat',
+    input: [
+      ...Array.from<{ message: string }>({ length: 70 }).fill({
+        message: 'Scanner is on',
+      }),
+    ],
+    timeBetweenLogsMs: 1000,
+    output: [
+      { message: 'Scanner is on' },
+      {
+        message: 'Scanner is on',
+        repeatCount: '61',
+        firstRepeatAt: '2020-07-24T00:00:01.000Z',
+        lastRepeatAt: '2020-07-24T00:01:01.000Z',
+      },
+    ],
+  },
+  {
+    description: 'single repeat where logging trigger is end of repeats',
+    input: [
+      { message: 'Scanner is on' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+    ],
+    timeBetweenLogsMs: 500,
+    output: [
+      { message: 'Scanner is on' },
+      {
+        message: 'Scanner is on',
+        repeatCount: '1',
+        firstRepeatAt: '2020-07-24T00:00:00.500Z',
+        lastRepeatAt: '2020-07-24T00:00:00.500Z',
+      },
+      { message: 'Scanner is off' },
+    ],
+  },
+  {
+    description: 'consecutive repeats where logging trigger is end of repeats',
+    input: [
+      { message: 'Scanner is on' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is on' },
+    ],
+    timeBetweenLogsMs: 500,
+    output: [
+      { message: 'Scanner is on' },
+      {
+        message: 'Scanner is on',
+        repeatCount: '2',
+        firstRepeatAt: '2020-07-24T00:00:00.500Z',
+        lastRepeatAt: '2020-07-24T00:00:01.000Z',
+      },
+      { message: 'Scanner is off' },
+      {
+        message: 'Scanner is off',
+        repeatCount: '2',
+        firstRepeatAt: '2020-07-24T00:00:02.000Z',
+        lastRepeatAt: '2020-07-24T00:00:02.500Z',
+      },
+      { message: 'Scanner is on' },
+    ],
+  },
+  {
+    description: 'repeats where logging triggers are varied',
+    input: [
+      ...Array.from<{ message: string }>({ length: 120 }).fill({
+        message: 'Scanner is on',
+      }),
+      { message: 'Scanner is off' },
+    ],
+    timeBetweenLogsMs: 500,
+    output: [
+      { message: 'Scanner is on' },
+      {
+        message: 'Scanner is on',
+        repeatCount: '100',
+        firstRepeatAt: '2020-07-24T00:00:00.500Z',
+        lastRepeatAt: '2020-07-24T00:00:50.000Z',
+      },
+      {
+        message: 'Scanner is on',
+        repeatCount: '19',
+        firstRepeatAt: '2020-07-24T00:00:50.500Z',
+        lastRepeatAt: '2020-07-24T00:00:59.500Z',
+      },
+      { message: 'Scanner is off' },
+    ],
+  },
+  {
+    description:
+      'repeats where logging trigger is count of repeats, multiple logs emitted',
+    input: [
+      ...Array.from<{ message: string }>({ length: 201 }).fill({
+        message: 'Scanner is on',
+      }),
+    ],
+    timeBetweenLogsMs: 500,
+    output: [
+      { message: 'Scanner is on' },
+      {
+        message: 'Scanner is on',
+        repeatCount: '100',
+        firstRepeatAt: '2020-07-24T00:00:00.500Z',
+        lastRepeatAt: '2020-07-24T00:00:50.000Z',
+      },
+      {
+        message: 'Scanner is on',
+        repeatCount: '100',
+        firstRepeatAt: '2020-07-24T00:00:50.500Z',
+        lastRepeatAt: '2020-07-24T00:01:40.000Z',
+      },
+    ],
+  },
+  {
+    description:
+      'repeats where logging trigger is time between first and last repeat, multiple logs emitted',
+    input: [
+      ...Array.from<{ message: string }>({ length: 130 }).fill({
+        message: 'Scanner is on',
+      }),
+    ],
+    timeBetweenLogsMs: 1000,
+    output: [
+      { message: 'Scanner is on' },
+      {
+        message: 'Scanner is on',
+        repeatCount: '61',
+        firstRepeatAt: '2020-07-24T00:00:01.000Z',
+        lastRepeatAt: '2020-07-24T00:01:01.000Z',
+      },
+      {
+        message: 'Scanner is on',
+        repeatCount: '61',
+        firstRepeatAt: '2020-07-24T00:01:02.000Z',
+        lastRepeatAt: '2020-07-24T00:02:02.000Z',
+      },
+    ],
+  },
+  {
+    description: 'first log is not repeat, various repeats after',
+    input: [
+      // In most other test cases we dive right into the repeats. Here we intentionally begin
+      // without a repeat.
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is on' },
+      ...Array.from<{ message: string }>({ length: 101 }).fill({
+        message: 'Scanner is off',
+      }),
+    ],
+    timeBetweenLogsMs: 500,
+    output: [
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+      {
+        message: 'Scanner is off',
+        repeatCount: '2',
+        firstRepeatAt: '2020-07-24T00:00:01.000Z',
+        lastRepeatAt: '2020-07-24T00:00:01.500Z',
+      },
+      { message: 'Scanner is on' },
+      {
+        message: 'Scanner is on',
+        repeatCount: '1',
+        firstRepeatAt: '2020-07-24T00:00:02.500Z',
+        lastRepeatAt: '2020-07-24T00:00:02.500Z',
+      },
+      { message: 'Scanner is off' },
+      { message: 'Scanner is on' },
+      { message: 'Scanner is off' },
+      {
+        message: 'Scanner is off',
+        repeatCount: '100',
+        firstRepeatAt: '2020-07-24T00:00:04.500Z',
+        lastRepeatAt: '2020-07-24T00:00:54.000Z',
+      },
+    ],
+  },
+])(
+  'repeat log handling - $description',
+  ({ input, output, timeBetweenLogsMs }) => {
+    console.log = vi.fn();
+    const logger = new BaseLogger(LogSource.VxScanBackend);
+
+    for (const log of input) {
+      logger.log(LogEventId.ScannerEvent, 'system', log);
+      vi.advanceTimersByTime(timeBetweenLogsMs);
+    }
+
+    expect(console.log).toHaveBeenCalledTimes(output.length);
+    for (const [index, log] of output.entries()) {
+      expect(console.log).toHaveBeenNthCalledWith(
+        index + 1,
+        JSON.stringify({
+          source: LogSource.VxScanBackend,
+          eventId: LogEventId.ScannerEvent,
+          eventType: LogEventType.ApplicationAction,
+          user: 'system',
+          message: log.message,
+          disposition: LogDispositionStandardTypes.NotApplicable,
+          repeatCount: log.repeatCount,
+          firstRepeatAt: log.firstRepeatAt,
+          lastRepeatAt: log.lastRepeatAt,
+        })
+      );
+    }
+  }
+);

@@ -166,7 +166,7 @@ export class BaseLogger {
       // If a repeat sequence is continuing, check other heuristics to determine whether we should
       // emit a log line with repeat details thus far
       repeatCount >= MAX_REPEAT_COUNT_BEFORE_REPEAT_LOG_EMIT ||
-      (secondsBetweenFirstAndLastRepeat ?? 0) >=
+      (secondsBetweenFirstAndLastRepeat ?? /* istanbul ignore next */ 0) >=
         MAX_SECONDS_BETWEEN_FIRST_AND_LAST_REPEAT_BEFORE_REPEAT_LOG_EMIT
     ) {
       this.repeatLogTracker.flushAndRestartTracking(
