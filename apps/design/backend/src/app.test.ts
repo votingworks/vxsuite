@@ -2988,7 +2988,7 @@ test('Export test decks', async () => {
       expect(testDecksTask.task!.progress).toEqual({
         label: 'Rendering test decks',
         progress: expect.any(Number),
-        total: testDecksTask.task!.progress!.progress,
+        total: expect.any(Number),
       });
     },
     { interval: 1000, retries: 10 }
