@@ -18,7 +18,7 @@ import {
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
-  getContests,
+  getOrderedContests,
   getPartyForBallotStyle,
 } from '@votingworks/types';
 import {
@@ -451,7 +451,7 @@ async function BallotPageContent(
   );
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
-  const contests = getContests({ election, ballotStyle });
+  const contests = getOrderedContests({ election, ballotStyle });
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }

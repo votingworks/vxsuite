@@ -3,12 +3,12 @@ import {
   assert,
   assertDefined,
   err,
-  find,
   iter,
   ok,
   range,
   Result,
   throwIllegalValue,
+  typedAs,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
@@ -20,15 +20,19 @@ import {
   CandidateContest as CandidateContestStruct,
   CandidateId,
   ContestId,
+  ContestOrderingSet,
   Election,
   ElectionId,
   LanguageCode,
   NhPrecinctSplitOptions,
+  OrderedCandidateContest,
+  OrderedYesNoContest,
   PrecinctId,
+  RotationParams,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
-  getContests,
+  getOrderedContests,
   getPartyForBallotStyle,
   hasSplits,
 } from '@votingworks/types';
@@ -189,6 +193,51 @@ function rotateCandidates(
     return rotateCandidatesByPrecinct(contest, election, precinctId);
   }
   return rotateCandidatesByStatute(contest);
+}
+
+/**
+ * Generates ordered contests for NH ballot template.
+ * This template does not rotate contests, but will rotate candidates within contests, rotation can be specific to a
+ * precinct.
+ */
+export function getAllOrderedContestSetsForNhBallot({
+  election,
+  districtIds,
+  precinctsOrSplits,
+}: RotationParams): ContestOrderingSet[] {
+  const ballotStyleContests = election.contests.filter((contest) =>
+    districtIds.includes(contest.districtId)
+  );
+  const rotationsByPrecinct = precinctsOrSplits.map(
+    ({ precinctId, splitId }) => ({
+      precinctsOrSplits: [{ precinctId, splitId }],
+      orderedContests: ballotStyleContests.map((contest) => {
+        switch (contest.type) {
+          case 'candidate':
+            return typedAs<OrderedCandidateContest>({
+              contestId: contest.id,
+              type: contest.type,
+              // Apply candidate rotation per precinct
+              orderedCandidateIds: rotateCandidates(
+                contest,
+                election,
+                precinctId
+              ),
+            });
+          case 'yesno':
+            return typedAs<OrderedYesNoContest>({
+              contestId: contest.id,
+              type: contest.type,
+            });
+          default:
+            return throwIllegalValue(contest, 'type');
+        }
+      }),
+    })
+  );
+
+  // Return a rotation for each precinct/split, deduplicating is handled outside of the template-specific logic.
+  return rotationsByPrecinct;
 }
 
 function Header({
@@ -426,7 +475,6 @@ function CandidateContest({
   election,
   contest,
   compact,
-  precinctId,
 }: {
   election: Election;
   contest: CandidateContestStruct;
@@ -463,8 +511,6 @@ function CandidateContest({
     10: hmpbStrings.hmpb10WillBeElected,
   }[contest.seats];
 
-  const rotatedCandidateIds = rotateCandidates(contest, election, precinctId);
-
   return (
     <Box
       style={{
@@ -492,11 +538,7 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {rotatedCandidateIds.map((candidateId, i) => {
-          const candidate = find(
-            contest.candidates,
-            (c) => c.id === candidateId
-          );
+        {contest.candidates.map((candidate, i) => {
           const partyText =
             election.type === 'primary' ? undefined : (
               <CandidatePartyList
@@ -812,7 +854,7 @@ async function BallotPageContent(
   );
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
-  const contests = getContests({ election, ballotStyle });
+  const contests = getOrderedContests({ election, ballotStyle });
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }

@@ -410,6 +410,37 @@ export const PrecinctsSchema = z
     }
   });
 
+export interface OrderedContest {
+  readonly contestId: ContestId;
+  readonly type: ContestTypes;
+}
+
+export interface OrderedCandidateContest extends OrderedContest {
+  readonly type: 'candidate';
+  readonly orderedCandidateIds: readonly CandidateId[];
+}
+export const OrderedCandidateContestSchema: z.ZodType<OrderedCandidateContest> =
+  z.object({
+    contestId: ContestIdSchema,
+    type: z.literal('candidate'),
+    orderedCandidateIds: z.array(CandidateIdSchema),
+  });
+
+export interface OrderedYesNoContest extends OrderedContest {
+  readonly type: 'yesno';
+}
+export const OrderedYesNoContestSchema: z.ZodType<OrderedYesNoContest> =
+  z.object({
+    contestId: ContestIdSchema,
+    type: z.literal('yesno'),
+  });
+
+export type AnyOrderedContest = OrderedCandidateContest | OrderedYesNoContest;
+export const OrderedAnyContestSchema: z.ZodSchema<AnyOrderedContest> = z.union([
+  OrderedCandidateContestSchema,
+  OrderedYesNoContestSchema,
+]);
+
 export type BallotStyleId = string;
 export const BallotStyleIdSchema =
   IdSchema as unknown as z.ZodSchema<BallotStyleId>;
@@ -421,6 +452,7 @@ export interface BallotStyle {
   readonly districts: readonly DistrictId[];
   readonly partyId?: PartyId;
   readonly languages?: readonly string[]; // TODO(kofi): Make required.
+  readonly orderedContests?: readonly AnyOrderedContest[]; // Ordered contests for this ballot style respecting rotation rules. If not specified the order will default to the order the contests are defined in the election.
 }
 
 export type BallotStyleGroupId = string;
@@ -442,6 +474,7 @@ export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   districts: z.array(DistrictIdSchema),
   partyId: PartyIdSchema.optional(),
   languages: z.array(z.string()).optional(),
+  orderedContests: z.array(OrderedAnyContestSchema).optional(),
 });
 export const BallotStylesSchema = z
   .array(BallotStyleSchema)
