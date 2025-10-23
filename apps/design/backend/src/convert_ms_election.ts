@@ -323,12 +323,22 @@ export function convertMsElection(
       // Ballot measure
       case '1': {
         const [, , contestLabel] = row;
-        const [titlePrefix, ...descriptionLines] = contestText.split(/\\n/);
+        // The ballot text looks like this: "Ballot Measure 1\nShould the state..."
+        // So we extract the ballot measure number line and use the rest as the description.
+        // The description may have \r\n line breaks, so we split on those as well.
+        const [titlePrefix, ...descriptionLines] =
+          contestText.split(/\\n|[\r\n]+/);
         const contestTitle = `${titlePrefix}: ${contestLabel}`;
-        const description = descriptionLines.join('\n').trim();
+        const description = descriptionLines
+          .map((line) => line.trim())
+          .filter((line) => line !== '')
+          .map((line) => `<p>${line}</p>`)
+          .join('');
 
         assert(candidateRows.length === 2);
         const [yesCandidateRow, noCandidateRow] = candidateRows;
+        // Candidate ballot labels look like this: "Vote for ONE\nYes"
+        // So we extract the second line as the option label.
         const [, yesLabel] = yesCandidateRow.labelOnBallot.split(/\\n/);
         const [, noLabel] = noCandidateRow.labelOnBallot.split(/\\n/);
 
