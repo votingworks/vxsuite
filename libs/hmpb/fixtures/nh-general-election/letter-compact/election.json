@@ -613,6 +613,181 @@
       "districts": [
         "district-1",
         "district-2"
+      ],
+      "orderedContests": [
+        {
+          "contestId": "president",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "hildebrand-garritty",
+            "barchi-hallaren",
+            "patterson-lariviere",
+            "boone-lian",
+            "cramer-vuocolo",
+            "court-blumhardt"
+          ]
+        },
+        {
+          "contestId": "senator",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "weiford",
+            "wentworthfarthington",
+            "brown",
+            "garriss",
+            "hewetson",
+            "martinez",
+            "pound"
+          ]
+        },
+        {
+          "contestId": "representative-district-6",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "schott",
+            "tawney",
+            "forrest",
+            "plunkard",
+            "reeder"
+          ]
+        },
+        {
+          "contestId": "governor",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "williams",
+            "windbeck",
+            "abcock",
+            "alexander",
+            "alpern",
+            "ash",
+            "bargmann",
+            "franz",
+            "greher",
+            "harris",
+            "lee",
+            "mitchell",
+            "sharp",
+            "sharp-althea",
+            "steelloy",
+            "wallace"
+          ]
+        },
+        {
+          "contestId": "lieutenant-governor",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "freeman",
+            "garcia",
+            "hovis",
+            "norberg",
+            "parks",
+            "qualey",
+            "swan",
+            "zirkle",
+            "davis-brenda"
+          ]
+        },
+        {
+          "contestId": "secretary-of-state",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "shamsi",
+            "talarico"
+          ]
+        },
+        {
+          "contestId": "state-senator-district-31",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "shiplett"
+          ]
+        },
+        {
+          "contestId": "state-assembly-district-54",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "keller",
+            "rangel",
+            "solis"
+          ]
+        },
+        {
+          "contestId": "county-commissioners",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "altman",
+            "argent",
+            "bainbridge",
+            "hennessey",
+            "moore",
+            "rangel-damian",
+            "savoy",
+            "schreiner",
+            "tawa",
+            "tawa-mary",
+            "witherspoonsmithson"
+          ]
+        },
+        {
+          "contestId": "county-registrar-of-wills",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "ramachandrani"
+          ]
+        },
+        {
+          "contestId": "city-mayor",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "seldon",
+            "white"
+          ]
+        },
+        {
+          "contestId": "city-council",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "davis",
+            "eagle",
+            "rupp",
+            "shry",
+            "smith",
+            "barker"
+          ]
+        },
+        {
+          "contestId": "judicial-robert-demergue",
+          "type": "yesno"
+        },
+        {
+          "contestId": "judicial-elmer-hull",
+          "type": "yesno"
+        },
+        {
+          "contestId": "question-a",
+          "type": "yesno"
+        },
+        {
+          "contestId": "question-b",
+          "type": "yesno"
+        },
+        {
+          "contestId": "question-c",
+          "type": "yesno"
+        },
+        {
+          "contestId": "proposition-1",
+          "type": "yesno"
+        },
+        {
+          "contestId": "measure-101",
+          "type": "yesno"
+        },
+        {
+          "contestId": "102",
+          "type": "yesno"
+        }
       ]
     },
     {
@@ -623,6 +798,89 @@
       ],
       "districts": [
         "district-1"
+      ],
+      "orderedContests": [
+        {
+          "contestId": "president",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "hildebrand-garritty",
+            "barchi-hallaren",
+            "patterson-lariviere",
+            "boone-lian",
+            "cramer-vuocolo",
+            "court-blumhardt"
+          ]
+        },
+        {
+          "contestId": "representative-district-6",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "schott",
+            "tawney",
+            "forrest",
+            "plunkard",
+            "reeder"
+          ]
+        },
+        {
+          "contestId": "lieutenant-governor",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "freeman",
+            "garcia",
+            "hovis",
+            "norberg",
+            "parks",
+            "qualey",
+            "swan",
+            "zirkle",
+            "davis-brenda"
+          ]
+        },
+        {
+          "contestId": "state-senator-district-31",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "shiplett"
+          ]
+        },
+        {
+          "contestId": "state-assembly-district-54",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "keller",
+            "rangel",
+            "solis"
+          ]
+        },
+        {
+          "contestId": "county-registrar-of-wills",
+          "type": "candidate",
+          "orderedCandidateIds": [
+            "ramachandrani"
+          ]
+        },
+        {
+          "contestId": "judicial-robert-demergue",
+          "type": "yesno"
+        },
+        {
+          "contestId": "question-a",
+          "type": "yesno"
+        },
+        {
+          "contestId": "question-b",
+          "type": "yesno"
+        },
+        {
+          "contestId": "proposition-1",
+          "type": "yesno"
+        },
+        {
+          "contestId": "102",
+          "type": "yesno"
+        }
       ]
     }
   ],
