@@ -28,16 +28,16 @@ export const CLIENT_SIDE_LOG_SOURCES = [
 ];
 
 /**
- * The maximum number of repeated log lines before we emit a log line with repeat details, even if
- * a repeat sequence hasn't ended yet.
+ * The maximum number of repeated log lines before we emit a repeat summary log line, even if a
+ * repeat sequence hasn't ended yet.
  */
-const MAX_REPEAT_COUNT_BEFORE_REPEAT_LOG_EMIT = 100;
+const MAX_REPEAT_COUNT_BEFORE_REPEAT_SUMMARY_LOG_EMIT = 100;
 
 /**
  * The maximum number of seconds between the first and last repeat of a log line before we emit a
- * log line with repeat details, even if a repeat sequence hasn't ended yet.
+ * repeat summary log line, even if a repeat sequence hasn't ended yet.
  */
-const MAX_SECONDS_BETWEEN_FIRST_AND_LAST_REPEAT_BEFORE_REPEAT_LOG_EMIT = 60;
+const MAX_SECONDS_BETWEEN_FIRST_AND_LAST_REPEAT_BEFORE_REPEAT_SUMMARY_LOG_EMIT = 60;
 
 const debug = makeDebug('logger');
 
@@ -58,75 +58,83 @@ class RepeatLogTracker {
 
   /**
    * Checks whether the incoming log line is a repeat of the currently tracked log line and returns
-   * stats on the currently tracked log line.
+   * log lines after repeat handling. Log lines after repeat handling could mean any of the
+   * following:
+   * - The incoming log line unchanged
+   * - No log lines (if the incoming log line is a repeat and no repeat summary log line is due)
+   * - A repeat summary log line
+   * - Both a repeat summary log line and the incoming log line
    */
-  track(incomingLogLine: LogLine): {
-    /**
-     * Whether the incoming log line is a repeat of the currently tracked log line.
-     */
-    isRepeat: boolean;
-    /**
-     * The repeat count of the currently tracked log line, including the incoming log line.
-     */
-    repeatCount: number;
-    /**
-     * The time between the first and last repeat of the currently tracked log line.
-     */
-    secondsBetweenFirstAndLastRepeat?: number;
-  } {
-    const isRepeat =
+  track(incomingLogLine: LogLine): LogLine[] {
+    const isIncomingLogLineRepeat =
       // Perform cheap checks before kicking off the more expensive deep equality check
       incomingLogLine.eventId === this.trackedLogLine?.eventId &&
       incomingLogLine.message === this.trackedLogLine?.message &&
       deepEqual(incomingLogLine, this.trackedLogLine);
-    if (isRepeat) {
+
+    if (isIncomingLogLineRepeat) {
       this.recordRepeat();
     }
-    return {
-      isRepeat,
-      repeatCount: this.repeatCount,
-      secondsBetweenFirstAndLastRepeat: !this.firstRepeatAt
-        ? undefined
-        : (assertDefined(this.lastRepeatAt).getTime() -
-            this.firstRepeatAt.getTime()) /
-          1000,
-    };
-  }
 
-  /**
-   * Emits a log line with repeat details about the currently tracked log line if applicable and
-   * restarts tracking using the provided log line as the new log line to track.
-   */
-  flushAndRestartTracking(
-    log: (logLine: LogLine) => void,
-    logLineToTrack: LogLine
-  ): void {
-    if (this.repeatCount > 0) {
-      log(this.prepareLogLineWithRepeatDetails());
+    const repeatSequenceHasEnded =
+      !isIncomingLogLineRepeat && this.repeatCount > 0;
+    const repeatSequenceHasHitThreshold =
+      this.repeatCount >= MAX_REPEAT_COUNT_BEFORE_REPEAT_SUMMARY_LOG_EMIT ||
+      this.secondsBetweenFirstAndLastRepeat() >=
+        MAX_SECONDS_BETWEEN_FIRST_AND_LAST_REPEAT_BEFORE_REPEAT_SUMMARY_LOG_EMIT;
+    const shouldEmitRepeatSummaryLogLine =
+      repeatSequenceHasEnded || repeatSequenceHasHitThreshold;
+
+    const logLinesAfterRepeatHandling: LogLine[] = [];
+    if (shouldEmitRepeatSummaryLogLine) {
+      logLinesAfterRepeatHandling.push(this.repeatSummaryLogLine());
     }
-    this.trackedLogLine = logLineToTrack;
-    this.repeatCount = 0;
-    this.firstRepeatAt = undefined;
-    this.lastRepeatAt = undefined;
+    if (!isIncomingLogLineRepeat) {
+      logLinesAfterRepeatHandling.push(incomingLogLine);
+    }
+
+    if (shouldEmitRepeatSummaryLogLine || !isIncomingLogLineRepeat) {
+      this.restartTracking(incomingLogLine);
+    }
+
+    return logLinesAfterRepeatHandling;
   }
 
-  private recordRepeat(): number {
+  private recordRepeat() {
     this.repeatCount += 1;
+    const now = new Date();
     if (this.repeatCount === 1) {
-      this.firstRepeatAt = new Date();
+      this.firstRepeatAt = now;
     }
-    this.lastRepeatAt = new Date();
-    return this.repeatCount;
+    this.lastRepeatAt = now;
   }
 
-  private prepareLogLineWithRepeatDetails(): LogLine {
-    assert(this.trackedLogLine && this.repeatCount > 0);
+  private secondsBetweenFirstAndLastRepeat(): number {
+    if (this.repeatCount === 0) {
+      return 0;
+    }
+    return (
+      (assertDefined(this.lastRepeatAt).getTime() -
+        assertDefined(this.firstRepeatAt).getTime()) /
+      1000
+    );
+  }
+
+  private repeatSummaryLogLine(): LogLine {
+    assert(this.repeatCount > 0);
     return {
-      ...this.trackedLogLine,
+      ...assertDefined(this.trackedLogLine),
       repeatCount: this.repeatCount.toString(),
       firstRepeatAt: assertDefined(this.firstRepeatAt).toISOString(),
       lastRepeatAt: assertDefined(this.lastRepeatAt).toISOString(),
     };
+  }
+
+  private restartTracking(logLineToTrack: LogLine) {
+    this.trackedLogLine = logLineToTrack;
+    this.repeatCount = 0;
+    this.firstRepeatAt = undefined;
+    this.lastRepeatAt = undefined;
   }
 }
 
@@ -150,29 +158,11 @@ export class BaseLogger {
     logData?: LogData,
     outerDebug?: (logLine: LogLine) => void
   ): void {
-    const logLine = this.prepareLogLine(eventId, user, logData);
-
-    const { isRepeat, repeatCount, secondsBetweenFirstAndLastRepeat } =
-      this.repeatLogTracker.track(logLine);
-    if (!isRepeat) {
-      // If a repeat sequence has ended, emit a log line with repeat details
-      this.repeatLogTracker.flushAndRestartTracking(
-        (l) => this.logInternal(l, outerDebug),
-        logLine
-      );
-      // Log the incoming, non-repeated log line
+    const incomingLogLine = this.prepareLogLine(eventId, user, logData);
+    const logLinesAfterRepeatHandling =
+      this.repeatLogTracker.track(incomingLogLine);
+    for (const logLine of logLinesAfterRepeatHandling) {
       this.logInternal(logLine, outerDebug);
-    } else if (
-      // If a repeat sequence is continuing, check other heuristics to determine whether we should
-      // emit a log line with repeat details thus far
-      repeatCount >= MAX_REPEAT_COUNT_BEFORE_REPEAT_LOG_EMIT ||
-      (secondsBetweenFirstAndLastRepeat ?? /* istanbul ignore next */ 0) >=
-        MAX_SECONDS_BETWEEN_FIRST_AND_LAST_REPEAT_BEFORE_REPEAT_LOG_EMIT
-    ) {
-      this.repeatLogTracker.flushAndRestartTracking(
-        (l) => this.logInternal(l, outerDebug),
-        logLine
-      );
     }
   }
 
