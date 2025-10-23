@@ -66,28 +66,30 @@ export function getOrderedContests({
     return contests;
   }
 
-  const orderedContests = ballotStyle.orderedContests.map((orderedContest) => {
-    const contest = assertDefined(
-      find(contests, (c) => c.id === orderedContest.contestId)
-    );
-    switch (orderedContest.type) {
-      case 'candidate': {
-        assert(contest.type === 'candidate', 'Mismatched contest type');
-        return {
-          ...contest,
-          candidates: orderedContest.orderedCandidateIds.map((candidateId) =>
-            assertDefined(
-              contest.candidates.find((can) => can.id === candidateId)
-            )
-          ),
-        };
+  const orderedContests = ballotStyle.orderedContests
+    .map((orderedContest) => {
+      const contest = contests.find((c) => c.id === orderedContest.contestId);
+      // skip missing contests, the rendering engine for hmpbs will call this function with contests already laid out removed.
+      if (!contest) {
+        return;
       }
-      case 'yesno':
-        return contest;
-      default:
-        return throwIllegalValue(orderedContest, 'type');
-    }
-  });
+      switch (orderedContest.type) {
+        case 'candidate': {
+          assert(contest.type === 'candidate', 'Mismatched contest type');
+          return {
+            ...contest,
+            candidates: orderedContest.orderedCandidateIds.map((candidateId) =>
+              find(contest.candidates, (can) => can.id === candidateId)
+            ),
+          };
+        }
+        case 'yesno':
+          return contest;
+        default:
+          return throwIllegalValue(orderedContest, 'type');
+      }
+    })
+    .filter((c): c is AnyContest => c !== undefined);
 
   return orderedContests;
 }

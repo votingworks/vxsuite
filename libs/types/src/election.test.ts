@@ -12,6 +12,7 @@ import {
   getContestsFromIds,
   formatBallotHash,
   getDistrictIdsForPartyId,
+  getOrderedContests,
   getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
   getPartyIdsInBallotStyles,
@@ -36,10 +37,12 @@ import {
 import {
   BallotIdSchema,
   HmpbBallotPaperSize,
+  BallotStyle,
   BallotStyleId,
   BallotStyleSchema,
   CandidateContest,
   CandidateSchema,
+  Election,
   ElectionDefinitionSchema,
   PartyIdSchema,
   WriteInIdSchema,
@@ -755,4 +758,177 @@ test('getAllPrecinctsAndSplits sorts with numeric-aware locale comparison', () =
     { precinct: precinct10, split: precinct10.splits[0] },
     { precinct: precinct10, split: precinct10.splits[1] },
   ]);
+});
+
+test('getOrderedContests returns contests in default order when orderedContests is not specified', () => {
+  const ballotStyle = election.ballotStyles[0];
+  const contests = getOrderedContests({ ballotStyle, election });
+
+  // Should return the same contests as getContests when orderedContests is not specified
+  const expectedContests = getContests({ ballotStyle, election });
+  expect(contests).toEqual(expectedContests);
+});
+
+test('getOrderedContests returns contests in specified order with candidate ordering', () => {
+  // Create a ballot style with ordered contests
+  const ballotStyle: BallotStyle = {
+    ...election.ballotStyles[0],
+    orderedContests: [
+      {
+        type: 'yesno' as const,
+        contestId: 'YNC',
+      },
+      {
+        type: 'candidate' as const,
+        contestId: 'CC',
+        orderedCandidateIds: ['C'], // Only one candidate in this test election
+      },
+    ],
+  };
+
+  const contests = getOrderedContests({ ballotStyle, election });
+
+  // Verify the contests are in the specified order (YNC before CC)
+  expect(contests).toHaveLength(2);
+  expect(contests[0]?.id).toEqual('YNC');
+  expect(contests[0]?.type).toEqual('yesno');
+  expect(contests[1]?.id).toEqual('CC');
+  expect(contests[1]?.type).toEqual('candidate');
+});
+
+test('getOrderedContests reorders candidates within candidate contest', () => {
+  // Create a more complex election with multiple candidates
+  const multiCandidateElection: Election = {
+    ...election,
+    contests: [
+      {
+        type: 'candidate',
+        id: 'multi-candidate-contest',
+        districtId: 'D',
+        seats: 3,
+        title: 'Multi-Candidate Contest',
+        allowWriteIns: false,
+        candidates: [
+          { id: 'candidate-a', name: 'Alice' },
+          { id: 'candidate-b', name: 'Bob' },
+          { id: 'candidate-c', name: 'Charlie' },
+        ],
+      },
+    ],
+  };
+
+  const ballotStyle: BallotStyle = {
+    ...election.ballotStyles[0],
+    orderedContests: [
+      {
+        type: 'candidate' as const,
+        contestId: 'multi-candidate-contest',
+        orderedCandidateIds: ['candidate-c', 'candidate-a', 'candidate-b'],
+      },
+    ],
+  };
+
+  const contests = getOrderedContests({
+    ballotStyle,
+    election: multiCandidateElection,
+  });
+
+  expect(contests).toHaveLength(1);
+  const contest = contests[0];
+  expect(contest?.type).toEqual('candidate');
+
+  if (contest?.type === 'candidate') {
+    expect(contest.candidates).toHaveLength(3);
+    expect(contest.candidates[0]?.id).toEqual('candidate-c');
+    expect(contest.candidates[1]?.id).toEqual('candidate-a');
+    expect(contest.candidates[2]?.id).toEqual('candidate-b');
+  }
+});
+
+test('getOrderedContests handles mixed contest types with ordering', () => {
+  // Create an election with multiple contest types
+  const mixedElection: Election = {
+    ...election,
+    contests: [
+      {
+        type: 'candidate',
+        id: 'contest-1',
+        districtId: 'D',
+        seats: 1,
+        title: 'Contest 1',
+        allowWriteIns: false,
+        candidates: [
+          { id: 'c1-a', name: 'Candidate 1A' },
+          { id: 'c1-b', name: 'Candidate 1B' },
+        ],
+      },
+      {
+        type: 'yesno',
+        id: 'measure-1',
+        districtId: 'D',
+        title: 'Measure 1',
+        description: 'Description 1',
+        yesOption: { id: 'measure-1-yes', label: 'Yes' },
+        noOption: { id: 'measure-1-no', label: 'No' },
+      },
+      {
+        type: 'candidate',
+        id: 'contest-2',
+        districtId: 'D',
+        seats: 2,
+        title: 'Contest 2',
+        allowWriteIns: false,
+        candidates: [
+          { id: 'c2-a', name: 'Candidate 2A' },
+          { id: 'c2-b', name: 'Candidate 2B' },
+          { id: 'c2-c', name: 'Candidate 2C' },
+        ],
+      },
+    ],
+  };
+
+  const ballotStyle: BallotStyle = {
+    ...election.ballotStyles[0],
+    orderedContests: [
+      {
+        type: 'candidate' as const,
+        contestId: 'contest-2',
+        orderedCandidateIds: ['c2-b', 'c2-c', 'c2-a'],
+      },
+      {
+        type: 'yesno' as const,
+        contestId: 'measure-1',
+      },
+      {
+        type: 'candidate' as const,
+        contestId: 'contest-1',
+        orderedCandidateIds: ['c1-b', 'c1-a'],
+      },
+    ],
+  };
+
+  const contests = getOrderedContests({
+    ballotStyle,
+    election: mixedElection,
+  });
+
+  // Verify correct order: contest-2, measure-1, contest-1
+  expect(contests).toHaveLength(3);
+  expect(contests[0]?.id).toEqual('contest-2');
+  expect(contests[1]?.id).toEqual('measure-1');
+  expect(contests[2]?.id).toEqual('contest-1');
+
+  // Verify candidate ordering in contest-2
+  if (contests[0]?.type === 'candidate') {
+    expect(contests[0].candidates.map((c) => c.id)).toEqual([
+      'c2-b',
+      'c2-c',
+      'c2-a',
+    ]);
+  }
+
+  // Verify candidate ordering in contest-1
+  if (contests[2]?.type === 'candidate') {
+    expect(contests[2].candidates.map((c) => c.id)).toEqual(['c1-b', 'c1-a']);
+  }
 });
