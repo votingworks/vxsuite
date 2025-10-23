@@ -85,6 +85,10 @@ export enum UserFeature {
    * Enable audio-proofing UI.
    */
   AUDIO_PROOFING = 'AUDIO_PROOFING',
+  /**
+   * Enable the ability to convert Mississippi SEMS election files.
+   */
+  MS_SEMS_CONVERSION = 'MS_SEMS_CONVERSION',
 }
 
 /**
@@ -130,6 +134,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   ACCESS_ALL_ORGS: true,
   BALLOT_LANGUAGE_CONFIG: true,
   AUDIO_PROOFING: true,
+  MS_SEMS_CONVERSION: true,
 };
 
 export const userFeatureConfigs = {

@@ -4,6 +4,7 @@ import {
   AnyContest,
   BallotStyleId,
   BallotType,
+  Candidate,
   District,
   Election,
   hasSplits,
@@ -136,4 +137,15 @@ export function regenerateElectionIds(election: Election): {
 export function isValidPrimaryKey(text: string): boolean {
   const textSizeInBytes = Buffer.byteLength(text, 'utf8');
   return textSizeInBytes < MAX_POSTGRES_INDEX_KEY_BYTES;
+}
+
+export function splitCandidateName(
+  name: string
+): Pick<Candidate, 'firstName' | 'middleName' | 'lastName'> {
+  const [firstPart, ...middleParts] = name.split(' ');
+  return {
+    firstName: firstPart ?? '',
+    lastName: middleParts.pop() ?? '',
+    middleName: middleParts.join(' '),
+  };
 }

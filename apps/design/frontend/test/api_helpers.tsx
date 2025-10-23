@@ -35,6 +35,7 @@ const allUserFeaturesOnConfig: Record<UserFeature, boolean> = {
   ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
   BALLOT_LANGUAGE_CONFIG: true,
   AUDIO_PROOFING: true,
+  MS_SEMS_CONVERSION: true,
 };
 
 const allElectionFeaturesOffConfig: Record<ElectionFeature, boolean> = {

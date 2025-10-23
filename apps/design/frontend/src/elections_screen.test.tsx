@@ -54,7 +54,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  mockUserFeatures(apiMock);
+  mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: false });
 });
 
 afterEach(() => {
@@ -125,8 +125,11 @@ test('with no elections, loading an election', async () => {
   apiMock.loadElection
     .expectCallWith({
       orgId: user.orgId,
-      electionData,
       newId: ELECTION_ID,
+      upload: {
+        format: 'vxf',
+        electionFileContents: electionData,
+      },
     })
     .resolves(ok(electionRecord.election.id));
   apiMock.listElections
@@ -479,7 +482,10 @@ test('shows error message when loading election fails', async () => {
   apiMock.loadElection
     .expectCallWith({
       orgId: user.orgId,
-      electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: electionData,
+      },
       newId: ELECTION_ID,
     })
     .resolves(err(new Error('mock error details')));
