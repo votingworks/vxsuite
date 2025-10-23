@@ -107,7 +107,7 @@ function FileField({
 export function LoadElectionButton({
   disabled,
 }: {
-  disabled: boolean;
+  disabled?: boolean;
 }): JSX.Element | null {
   const history = useHistory();
   const loadElectionMutation = loadElection.useMutation();
