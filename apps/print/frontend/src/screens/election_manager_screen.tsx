@@ -4,7 +4,8 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   electionManagerRoutes,
   ElectionManagerWrapper,
-} from './components/election_manager_wrapper';
+} from '../components/election_manager_wrapper';
+import { PrintScreen } from './print_screen';
 
 export interface ElectionManagerScreenProps {
   electionDefinition: ElectionDefinition;
@@ -13,15 +14,12 @@ export interface ElectionManagerScreenProps {
 export function ElectionManagerPrintScreen({
   electionDefinition,
 }: ElectionManagerScreenProps): JSX.Element | null {
-  const { election } = electionDefinition;
-
   return (
     <ElectionManagerWrapper
       electionDefinition={electionDefinition}
       title="Print"
     >
-      <H1>Print mode</H1>
-      <P>{election.title}</P>
+      <PrintScreen electionDefinition={electionDefinition} />
     </ElectionManagerWrapper>
   );
 }

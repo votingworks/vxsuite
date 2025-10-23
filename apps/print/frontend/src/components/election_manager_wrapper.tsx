@@ -58,8 +58,10 @@ export function ElectionManagerWrapper({
           />
         </div>
       </LeftNav>
-      <TopBar title={title} />
-      <Main centerChild>{children}</Main>
+      <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+        <TopBar title={title} />
+        <Main>{children}</Main>
+      </div>
     </Screen>
   );
 }
