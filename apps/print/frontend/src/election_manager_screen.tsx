@@ -16,7 +16,10 @@ export function ElectionManagerPrintScreen({
   const { election } = electionDefinition;
 
   return (
-    <ElectionManagerWrapper electionDefinition={electionDefinition}>
+    <ElectionManagerWrapper
+      electionDefinition={electionDefinition}
+      title="Print"
+    >
       <H1>Print mode</H1>
       <P>{election.title}</P>
     </ElectionManagerWrapper>
@@ -29,7 +32,10 @@ function ElectionManagerElectionScreen({
   const { election } = electionDefinition;
 
   return (
-    <ElectionManagerWrapper electionDefinition={electionDefinition}>
+    <ElectionManagerWrapper
+      electionDefinition={electionDefinition}
+      title="Election"
+    >
       <H1>Election Manager</H1>
       <P>{election.title}</P>{' '}
     </ElectionManagerWrapper>
@@ -40,7 +46,10 @@ function ElectionManagerSettingsScreen({
   electionDefinition,
 }: ElectionManagerScreenProps): JSX.Element {
   return (
-    <ElectionManagerWrapper electionDefinition={electionDefinition}>
+    <ElectionManagerWrapper
+      electionDefinition={electionDefinition}
+      title="Settings"
+    >
       Settings for Election Manager
     </ElectionManagerWrapper>
   );

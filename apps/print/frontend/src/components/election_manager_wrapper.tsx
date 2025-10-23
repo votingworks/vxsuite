@@ -11,6 +11,7 @@ import {
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { ElectionDefinition } from '@votingworks/types/src/election';
+import { TopBar } from './top_bar';
 
 export const electionManagerRoutes = {
   print: { title: 'Print', path: '/print' },
@@ -21,9 +22,11 @@ export const electionManagerRoutes = {
 export function ElectionManagerWrapper({
   children,
   electionDefinition,
+  title,
 }: {
   children: React.ReactNode;
   electionDefinition: ElectionDefinition;
+  title: string;
 }): JSX.Element {
   const currentRoute = useRouteMatch();
   return (
@@ -55,6 +58,7 @@ export function ElectionManagerWrapper({
           />
         </div>
       </LeftNav>
+      <TopBar title={title} />
       <Main centerChild>{children}</Main>
     </Screen>
   );
