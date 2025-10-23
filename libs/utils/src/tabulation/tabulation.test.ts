@@ -45,6 +45,7 @@ import {
   buildContestResultsFixture,
   areContestResultsValid,
   combineAndDecodeCompressedElectionResults,
+  getScannedBallotCountForSheet,
 } from './tabulation';
 import {
   convertCastVoteRecordMarkMetricsToMarkScores,
@@ -523,6 +524,48 @@ test('getScannedBallotCount', () => {
       manual: 7,
     })
   ).toEqual(15);
+});
+
+test('getScannedBallotCountForSheet', () => {
+  expect(
+    getScannedBallotCountForSheet(
+      {
+        bmd: 3,
+        hmpb: [10, 5, 2],
+        manual: 7,
+      },
+      0
+    )
+  ).toEqual(13);
+  expect(
+    getScannedBallotCountForSheet(
+      {
+        bmd: 3,
+        hmpb: [10, 5, 2],
+        manual: 7,
+      },
+      1
+    )
+  ).toEqual(5);
+  expect(
+    getScannedBallotCountForSheet(
+      {
+        bmd: 3,
+        hmpb: [10, 5, 2],
+        manual: 7,
+      },
+      2
+    )
+  ).toEqual(2);
+  expect(
+    getScannedBallotCountForSheet(
+      {
+        bmd: 0,
+        hmpb: [3],
+      },
+      0
+    )
+  ).toEqual(3);
 });
 
 test('getSheetCount', () => {

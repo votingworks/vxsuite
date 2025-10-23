@@ -87,7 +87,7 @@ test('renders as expected for a single precinct in a general election', () => {
     )
   );
 
-  within(screen.getByTestId('bmd')).getByText('100');
+  within(screen.getByTestId('total-ballot-count')).getByText('100');
   const boardOfAlderman = screen.getByTestId('results-table-board-of-alderman');
   within(boardOfAlderman).getByText(/100 ballots cast/);
   within(boardOfAlderman).getByText(/0 overvotes/);
@@ -165,7 +165,7 @@ test('renders as expected for all precincts in a primary election', () => {
     )
   );
 
-  within(screen.getByTestId('bmd')).getByText('100');
+  within(screen.getByTestId('total-ballot-count')).getByText('100');
   expect(screen.queryByTestId('results-table-best-animal-fish')).toBeNull();
   const bestAnimal = screen.getByTestId('results-table-best-animal-mammal');
   within(bestAnimal).getByText(/100 ballots cast/);

@@ -212,8 +212,8 @@ test('allows card counts override', () => {
       }}
     />
   );
-  const bmdRow = screen.getByText('Machine Marked').closest('tr')!;
-  within(bmdRow).getByText('10,000');
+  const ballotCountRow = screen.getByText('Ballot Count').closest('tr')!;
+  within(ballotCountRow).getByText('10,000');
 });
 
 test('displays custom filter', () => {

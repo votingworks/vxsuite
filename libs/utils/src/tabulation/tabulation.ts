@@ -490,6 +490,19 @@ export function getScannedBallotCount(
 }
 
 /**
+ * Gets the ballot count for a specific sheet index. For the first sheet, adds
+ * the BMD count (since those are single-sheet summary ballots).
+ */
+export function getScannedBallotCountForSheet(
+  cardCounts: Tabulation.CardCounts,
+  sheetIndex: number // zero-indexed
+): number {
+  return (
+    (cardCounts.hmpb[sheetIndex] ?? 0) + (sheetIndex === 0 ? cardCounts.bmd : 0)
+  );
+}
+
+/**
  * Counts the number of sheets that have been scanned based on the card counts.
  * Simply ignores the manual count.
  */

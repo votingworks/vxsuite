@@ -164,8 +164,6 @@ test('can render all attribute columns', () => {
     'scanner',
     'batch',
     'center',
-    'bmd',
-    'hmpb',
     'total',
     'right',
   ];
@@ -176,8 +174,6 @@ test('can render all attribute columns', () => {
       party: 'Mammal',
       precinct: 'Precinct 1',
       scanner: 'scanner-1',
-      bmd: '3',
-      hmpb: '4',
       total: '7',
       'voting-method': 'Precinct',
     },
@@ -187,15 +183,11 @@ test('can render all attribute columns', () => {
       party: 'Fish',
       precinct: 'Precinct 2',
       scanner: 'scanner-2',
-      bmd: '9',
-      hmpb: '11',
       total: '20',
       'voting-method': 'Absentee',
     },
   ];
   const expectedFooter: RowData = {
-    bmd: '12',
-    hmpb: '15',
     total: '27',
   };
 
@@ -277,8 +269,7 @@ test('shows manual counts', () => {
     'party',
     'center',
     'manual',
-    'bmd',
-    'hmpb',
+    'scanned',
     'total',
     'right',
   ];
@@ -287,23 +278,20 @@ test('shows manual counts', () => {
       party: 'Mammal',
       precinct: 'Precinct 1',
       manual: '3',
-      bmd: '3',
-      hmpb: '4',
+      scanned: '7',
       total: '10',
     },
     {
       party: 'Fish',
       precinct: 'Precinct 2',
       manual: '0',
-      bmd: '9',
-      hmpb: '11',
+      scanned: '20',
       total: '20',
     },
   ];
   const expectedFooter: RowData = {
     manual: '3',
-    bmd: '12',
-    hmpb: '15',
+    scanned: '27',
     total: '30',
   };
 
@@ -348,7 +336,6 @@ test('shows HMPB sheet counts', () => {
   const expectedColumns = [
     'voting-method',
     'center',
-    'bmd',
     '0',
     '1',
     '2',
@@ -358,24 +345,21 @@ test('shows HMPB sheet counts', () => {
   const expectedRows: RowData[] = [
     {
       'voting-method': 'Absentee',
-      bmd: '3',
-      '0': '12',
+      '0': '15',
       '1': '10',
       '2': '7',
       total: '15',
     },
     {
       'voting-method': 'Precinct',
-      bmd: '9',
-      '0': '11',
+      '0': '20',
       '1': '11',
       '2': '10',
       total: '20',
     },
   ];
   const expectedFooter: RowData = {
-    bmd: '12',
-    '0': '23',
+    '0': '35',
     '1': '21',
     '2': '17',
     total: '35',
@@ -424,8 +408,7 @@ test('shows separate manual rows when group by is not compatible with manual res
     'batch',
     'center',
     'manual',
-    'bmd',
-    'hmpb',
+    'scanned',
     'total',
     'right',
   ];
@@ -434,23 +417,20 @@ test('shows separate manual rows when group by is not compatible with manual res
       scanner: 'scanner-1',
       batch: 'Batch 10',
       manual: '0',
-      bmd: '3',
-      hmpb: '0',
+      scanned: '3',
       total: '3',
     },
     {
       scanner: 'Manual Tallies',
       batch: 'Manual Tallies',
       manual: '2',
-      bmd: '0',
-      hmpb: '0',
+      scanned: '0',
       total: '2',
     },
   ];
   const expectedFooter: RowData = {
     manual: '2',
-    bmd: '3',
-    hmpb: '0',
+    scanned: '3',
     total: '5',
   };
 
@@ -480,14 +460,8 @@ test('ungrouped case', () => {
   );
 
   const { columns, rows } = parseGrid({ expectFooter: false });
-  expect(columns).toEqual(['bmd', 'hmpb', 'total', 'right']);
-  expect(rows).toEqual([
-    {
-      bmd: '10',
-      hmpb: '15',
-      total: '25',
-    },
-  ]);
+  expect(columns).toEqual(['total', 'right']);
+  expect(rows).toEqual([{ total: '25' }]);
 });
 
 test('election info, metadata, and custom filters', () => {
