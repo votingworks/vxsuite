@@ -1,38 +1,81 @@
-import { P, Main, Screen, H1, Button } from '@votingworks/ui';
-import React from 'react';
+import { ElectionDefinition } from '@votingworks/types';
+import { P, H1 } from '@votingworks/ui';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import {
-  getAuthStatus,
-  getElectionDefinition,
-  unconfigureMachine,
-} from './api';
+  electionManagerRoutes,
+  ElectionManagerWrapper,
+} from './components/election_manager_wrapper';
 
-export function ElectionManagerScreen(): JSX.Element | null {
-  const authStatusQuery = getAuthStatus.useQuery();
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
-  const unconfigureMachineMutation = unconfigureMachine.useMutation();
-  const unconfigureMachineMutateFn = unconfigureMachineMutation.mutate;
+export interface ElectionManagerScreenProps {
+  electionDefinition: ElectionDefinition;
+}
 
-  if (!authStatusQuery.isSuccess || !getElectionDefinitionQuery.isSuccess) {
-    return null;
-  }
-
-  const electionDefinition = getElectionDefinitionQuery.data;
+export function ElectionManagerPrintScreen({
+  electionDefinition,
+}: ElectionManagerScreenProps): JSX.Element | null {
+  const { election } = electionDefinition;
 
   return (
-    <Screen>
-      <Main centerChild>
-        <H1>Election Manager</H1>
-        {electionDefinition ? (
-          <React.Fragment>
-            <P>{electionDefinition.election.title}</P>
-            <Button onPress={unconfigureMachineMutateFn}>
-              Unconfigure Election
-            </Button>
-          </React.Fragment>
-        ) : (
-          <P>No election found</P>
+    <ElectionManagerWrapper electionDefinition={electionDefinition}>
+      <H1>Print mode</H1>
+      <P>{election.title}</P>
+    </ElectionManagerWrapper>
+  );
+}
+
+function ElectionManagerElectionScreen({
+  electionDefinition,
+}: ElectionManagerScreenProps): JSX.Element | null {
+  const { election } = electionDefinition;
+
+  return (
+    <ElectionManagerWrapper electionDefinition={electionDefinition}>
+      <H1>Election Manager</H1>
+      <P>{election.title}</P>{' '}
+    </ElectionManagerWrapper>
+  );
+}
+
+function ElectionManagerSettingsScreen({
+  electionDefinition,
+}: ElectionManagerScreenProps): JSX.Element {
+  return (
+    <ElectionManagerWrapper electionDefinition={electionDefinition}>
+      Settings for Election Manager
+    </ElectionManagerWrapper>
+  );
+}
+
+export function ElectionManagerScreen({
+  electionDefinition,
+}: ElectionManagerScreenProps): JSX.Element {
+  return (
+    <Switch>
+      <Route
+        path={electionManagerRoutes.print.path}
+        render={() => (
+          <ElectionManagerPrintScreen electionDefinition={electionDefinition} />
         )}
-      </Main>
-    </Screen>
+      />
+      <Route
+        exact
+        path={electionManagerRoutes.election.path}
+        render={() => (
+          <ElectionManagerElectionScreen
+            electionDefinition={electionDefinition}
+          />
+        )}
+      />
+
+      <Route
+        path={electionManagerRoutes.settings.path}
+        render={() => (
+          <ElectionManagerSettingsScreen
+            electionDefinition={electionDefinition}
+          />
+        )}
+      />
+      <Redirect to={electionManagerRoutes.election.path} />
+    </Switch>
   );
 }
