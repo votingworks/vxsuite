@@ -98,7 +98,7 @@ function AppRoot({
     }
 
     if (isElectionManagerAuth(authStatus)) {
-      return <ElectionManagerScreen />;
+      return <ElectionManagerScreen electionDefinition={electionDefinition} />;
       // Uncomment to access ballot printing screen
       // return <BallotListScreen />;
     }
