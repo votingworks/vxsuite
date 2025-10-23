@@ -517,12 +517,12 @@ export interface GridPositionOption {
   readonly sheetNumber: number;
   readonly side: 'front' | 'back';
   /**
-   * X coordinate for the center of the bubble for this option, ralative to the
+   * X coordinate for the center of the bubble for this option, relative to the
    * timing mark grid.
    */
   readonly column: number;
   /**
-   * Y coordinate for the center of the bubble for this option, ralative to the
+   * Y coordinate for the center of the bubble for this option, relative to the
    * timing mark grid.
    */
   readonly row: number;
@@ -545,12 +545,12 @@ export interface GridPositionWriteIn {
   readonly sheetNumber: number;
   readonly side: 'front' | 'back';
   /**
-   * X coordinate for the center of the bubble for this option, ralative to the
+   * X coordinate for the center of the bubble for this option, relative to the
    * timing mark grid.
    */
   readonly column: number;
   /**
-   * Y coordinate for the center of the bubble for this option, ralative to the
+   * Y coordinate for the center of the bubble for this option, relative to the
    * timing mark grid.
    */
   readonly row: number;
