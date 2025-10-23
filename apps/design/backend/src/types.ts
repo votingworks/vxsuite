@@ -1,4 +1,5 @@
 import {
+  AnyOrderedContest,
   BallotStyle as VxfBallotStyle,
   BallotStyleId,
   DistrictId,
@@ -25,6 +26,7 @@ export interface BallotStyle {
   languages: LanguageCode[];
   partyId?: PartyId;
   precinctsOrSplits: readonly PrecinctOrSplitId[];
+  orderedContests?: readonly AnyOrderedContest[];
 }
 
 export function convertToVxfBallotStyle(
@@ -37,9 +39,9 @@ export function convertToVxfBallotStyle(
     districts: ballotStyle.districtIds,
     partyId: ballotStyle.partyId,
     languages: ballotStyle.languages,
+    orderedContests: ballotStyle.orderedContests,
   };
 }
-
 export enum UsState {
   NEW_HAMPSHIRE = 'New Hampshire',
   MISSISSIPPI = 'Mississippi',

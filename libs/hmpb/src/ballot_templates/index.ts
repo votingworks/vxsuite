@@ -3,6 +3,8 @@ import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
 
 export type { NhBallotProps } from './nh_ballot_template';
 
+export { getAllOrderedContestSetsForNhBallot } from './nh_ballot_template';
+
 /**
  * All ballot templates, indexed by ID.
  */

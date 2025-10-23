@@ -111,6 +111,10 @@ export interface BallotPageTemplate<P extends object> {
   stylesComponent: StylesComponent<P>;
   frameComponent: FrameComponent<P>;
   contentComponent: ContentComponent<P>;
+  /* getRotatedContestsForBallotStyle: (props: {
+    ballotStyleId: BallotStyleId;
+    election: Election;
+  }) => AnyOrderedContest[]; */
   isAllBubbleBallot?: boolean;
 }
 
@@ -599,6 +603,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
 }> {
   assert(ballotProps.length > 0, 'No ballot props provided');
   const { election } = ballotProps[0];
+
   assert(ballotProps.every((props) => props.election === election));
 
   const ballotLayouts = await rendererPool.runTasks(

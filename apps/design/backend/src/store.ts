@@ -849,6 +849,7 @@ export class Store {
       const ballotLanguageConfigs = electionRow.ballotLanguageCodes.map(
         (l): BallotLanguageConfig => ({ languages: [l] })
       );
+      const { ballotTemplateId } = electionRow;
 
       const ballotStyles = generateBallotStyles({
         ballotLanguageConfigs,
@@ -856,6 +857,7 @@ export class Store {
         electionType: electionRow.type,
         parties,
         precincts,
+        ballotTemplateId,
       });
 
       // Fill in our precinct/ballot style overrides in the VXF election format.

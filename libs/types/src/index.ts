@@ -6,6 +6,7 @@ export * from './election_package';
 export * from './byte';
 export * from './hmpb';
 export * from './cast_vote_records';
+export * from './rotation';
 export * as EventLogging from './cdf/election-event-logging';
 export * as ResultsReporting from './cdf/election-results-reporting';
 export * from './cdf/election-results-reporting/constants';

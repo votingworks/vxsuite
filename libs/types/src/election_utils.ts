@@ -53,6 +53,45 @@ export function getContests({
   );
 }
 
+/* Get contests which below to a ballot style, sorted in the order they should appear in a voting session for that ballot style */
+export function getOrderedContests({
+  ballotStyle,
+  election,
+}: {
+  ballotStyle: BallotStyle;
+  election: Election;
+}): Contests {
+  const contests = getContests({ ballotStyle, election });
+  if (!ballotStyle.orderedContests) {
+    return contests;
+  }
+
+  const orderedContests = ballotStyle.orderedContests.map((orderedContest) => {
+    const contest = assertDefined(
+      find(contests, (c) => c.id === orderedContest.contestId)
+    );
+    switch (orderedContest.type) {
+      case 'candidate': {
+        assert(contest.type === 'candidate', 'Mismatched contest type');
+        return {
+          ...contest,
+          candidates: orderedContest.orderedCandidateIds.map((candidateId) =>
+            assertDefined(
+              contest.candidates.find((can) => can.id === candidateId)
+            )
+          ),
+        };
+      }
+      case 'yesno':
+        return contest;
+      default:
+        return throwIllegalValue(orderedContest, 'type');
+    }
+  });
+
+  return orderedContests;
+}
+
 /**
  * Retrieves a precinct by id.
  */
