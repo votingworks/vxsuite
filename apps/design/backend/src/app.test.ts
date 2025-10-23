@@ -93,18 +93,26 @@ import {
   ElectionInfo,
   ElectionListing,
   ElectionStatus,
-  Org,
-  User,
   convertToVxfBallotStyle,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { BackgroundTaskMetadata } from './store';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
-import { sliOrgId, votingWorksOrgId, vxDemosOrgId } from './globals';
 import { LogEventId } from '@votingworks/logging';
 import { buildApi } from './app';
 import { readdir, readFile } from 'node:fs/promises';
+import {
+  orgs,
+  vxUser,
+  nonVxUser,
+  nonVxOrg,
+  vxOrg,
+  anotherNonVxUser,
+  anotherNonVxOrg,
+  sliUser,
+  vxDemosUser,
+} from '../test/mocks';
 
 vi.setConfig({
   testTimeout: 120_000,
@@ -117,58 +125,6 @@ function expectNotEqualTo(str: string) {
 function compareName(a: { name: string }, b: { name: string }) {
   return a.name.localeCompare(b.name);
 }
-
-const vxOrg: Org = {
-  id: votingWorksOrgId(),
-  name: 'VotingWorks',
-};
-const vxUser: User = {
-  name: 'vx.user@example.com',
-  auth0Id: 'auth0|vx-user-id',
-  orgId: vxOrg.id,
-};
-
-const nonVxOrg: Org = {
-  id: 'other-org-id',
-  name: 'Other Org',
-};
-const nonVxUser: User = {
-  name: 'non.vx.user@example.com',
-  auth0Id: 'auth0|non-vx-user-id',
-  orgId: nonVxOrg.id,
-};
-
-const anotherNonVxOrg: Org = {
-  id: 'another-org-id',
-  name: 'Another Org',
-};
-const anotherNonVxUser = {
-  ...nonVxUser,
-  auth0Id: 'auth0|another-non-vx-user-id',
-  orgId: anotherNonVxOrg.id,
-};
-
-const sliOrg: Org = {
-  id: sliOrgId(),
-  name: 'SLI',
-};
-const sliUser: User = {
-  name: 'sli.user@example.com',
-  auth0Id: 'auth0|sli-user-id',
-  orgId: sliOrg.id,
-};
-
-const vxDemosOrg: Org = {
-  id: vxDemosOrgId(),
-  name: 'VX Demos',
-};
-const vxDemosUser: User = {
-  name: 'vx.demos.user@example.com',
-  auth0Id: 'auth0|vx-demos-user-id',
-  orgId: vxDemosOrg.id,
-};
-
-const orgs: Org[] = [vxOrg, nonVxOrg, anotherNonVxOrg, sliOrg, vxDemosOrg];
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

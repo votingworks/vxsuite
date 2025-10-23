@@ -383,7 +383,6 @@ export function buildApi(ctx: AppContext) {
         );
         return ok(election.id);
       } catch (error) {
-        console.log(error);
         return wrapException(error);
       }
     },
