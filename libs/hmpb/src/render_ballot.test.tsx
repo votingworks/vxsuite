@@ -1,13 +1,16 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { test, expect } from 'vitest';
-import { BallotType, Election } from '@votingworks/types';
+import {
+  BALLOT_MODES,
+  BallotType,
+  BaseBallotProps,
+  Election,
+} from '@votingworks/types';
 import { assert, iter } from '@votingworks/basics';
 import {
   allBaseBallotProps,
-  BaseBallotProps,
   layOutMinimalBallotsToCreateElectionDefinition,
 } from './render_ballot';
-import { BALLOT_MODES } from './types';
 import { createPlaywrightRendererPool } from './playwright_renderer';
 import { ballotTemplates } from './ballot_templates';
 import { vxFamousNamesFixtures } from './ballot_fixtures';
