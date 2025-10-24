@@ -1,9 +1,11 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
+  BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   ElectionPackageMetadata,
+  EncodedBallotEntry,
   InsertedSmartCardAuth,
   LATEST_METADATA,
   SystemSettings,
@@ -295,6 +297,51 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioClips: audioClips,
       ballots: [],
+    },
+    electionPackageHash: expect.any(String),
+    fileContents: expect.any(Buffer),
+  });
+});
+
+test('readElectionPackageFromFile loads base64-encoded ballots', async () => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { electionData } = electionDefinition;
+
+  const ballots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1_en',
+      precinctId: 'precinct_1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: 'ABC==',
+    },
+    {
+      ballotStyleId: '1_es_us',
+      precinctId: 'precinct_1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: 'DEF==',
+    },
+  ];
+
+  const pkg = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.BALLOT_FLAT_FILE]: ballots
+      .map((ballot) => JSON.stringify(ballot))
+      .join('\n'),
+  });
+  const file = makeTemporaryFile({ content: pkg });
+
+  expect(
+    (await readElectionPackageFromFile(file)).unsafeUnwrap()
+  ).toEqual<ElectionPackageWithFileContents>({
+    electionPackage: {
+      electionDefinition,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
+      uiStrings: electionDefinition.election.ballotStrings,
+      uiStringAudioClips: [],
+      ballots,
     },
     electionPackageHash: expect.any(String),
     fileContents: expect.any(Buffer),
