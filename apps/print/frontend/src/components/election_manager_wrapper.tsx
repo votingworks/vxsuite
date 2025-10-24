@@ -15,6 +15,7 @@ import { TopBar } from './top_bar';
 
 export const electionManagerRoutes = {
   print: { title: 'Print', path: '/print' },
+  printV2: { title: 'Print-v2', path: '/print-v2' },
   election: { title: 'Election', path: '/election' },
   settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
@@ -23,10 +24,12 @@ export function ElectionManagerWrapper({
   children,
   electionDefinition,
   title,
+  centerChild = false,
 }: {
   children: React.ReactNode;
   electionDefinition: ElectionDefinition;
   title: string;
+  centerChild?: boolean;
 }): JSX.Element {
   const currentRoute = useRouteMatch();
   return (
@@ -60,7 +63,7 @@ export function ElectionManagerWrapper({
       </LeftNav>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <TopBar title={title} />
-        <Main>{children}</Main>
+        <Main centerChild={centerChild}>{children}</Main>
       </div>
     </Screen>
   );
