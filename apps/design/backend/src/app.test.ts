@@ -20,6 +20,8 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
+  BallotMode,
+  BaseBallotProps,
   AdjudicationReason,
   HmpbBallotPaperSize,
   BallotType,
@@ -72,9 +74,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   allBaseBallotProps,
-  BallotMode,
   ballotTemplates,
-  BaseBallotProps,
   hmpbStringsCatalog,
   layOutBallotsAndCreateElectionDefinition,
   renderAllBallotPdfsAndCreateElectionDefinition,

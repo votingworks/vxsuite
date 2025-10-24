@@ -4,7 +4,11 @@ import {
   readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
-import { CVR, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import {
+  BaseBallotProps,
+  CVR,
+  DEFAULT_SYSTEM_SETTINGS,
+} from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   convertCastVoteRecordVotesToTabulationVotes,
@@ -14,7 +18,6 @@ import {
 import {
   allBaseBallotProps,
   ballotTemplates,
-  BaseBallotProps,
   createPlaywrightRendererPool,
   renderAllBallotPdfsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
