@@ -1,9 +1,11 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
+  BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   ElectionPackageMetadata,
+  EncodedBallotEntry,
   InsertedSmartCardAuth,
   LATEST_METADATA,
   SystemSettings,
@@ -110,6 +112,7 @@ test('readElectionPackageFromFile reads an election package without system setti
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioClips: [],
+      ballots: [],
     },
     electionPackageHash: sha256(fileContents),
     fileContents,
@@ -135,6 +138,7 @@ test('readElectionPackageFromFile reads an election package with system settings
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioClips: [],
+      ballots: [],
     },
     electionPackageHash: sha256(fileContents),
     fileContents,
@@ -186,6 +190,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: expectedUiStrings,
       uiStringAudioClips: [],
+      ballots: [],
     },
     electionPackageHash: expect.any(String),
     fileContents: expect.any(Buffer),
@@ -211,6 +216,7 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: expectedCdfStrings,
       uiStringAudioClips: [],
+      ballots: [],
     },
     electionPackageHash: expect.any(String),
     fileContents: expect.any(Buffer),
@@ -257,6 +263,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioIds: expectedAudioIds,
       uiStringAudioClips: [],
+      ballots: [],
     },
     electionPackageHash: expect.any(String),
     fileContents: expect.any(Buffer),
@@ -289,6 +296,52 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioClips: audioClips,
+      ballots: [],
+    },
+    electionPackageHash: expect.any(String),
+    fileContents: expect.any(Buffer),
+  });
+});
+
+test('readElectionPackageFromFile loads base64-encoded ballots', async () => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { electionData } = electionDefinition;
+
+  const ballots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1_en',
+      precinctId: 'precinct_1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: 'ABC==',
+    },
+    {
+      ballotStyleId: '1_es_us',
+      precinctId: 'precinct_1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: 'DEF==',
+    },
+  ];
+
+  const pkg = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.BALLOTS]: ballots
+      .map((ballot) => JSON.stringify(ballot))
+      .join('\n'),
+  });
+  const file = makeTemporaryFile({ content: pkg });
+
+  expect(
+    (await readElectionPackageFromFile(file)).unsafeUnwrap()
+  ).toEqual<ElectionPackageWithFileContents>({
+    electionPackage: {
+      electionDefinition,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
+      uiStrings: electionDefinition.election.ballotStrings,
+      uiStringAudioClips: [],
+      ballots,
     },
     electionPackageHash: expect.any(String),
     fileContents: expect.any(Buffer),
@@ -316,6 +369,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStringAudioClips: [],
       uiStrings: electionDefinition.election.ballotStrings,
+      ballots: [],
     },
     electionPackageHash: expect.any(String),
     fileContents: expect.any(Buffer),

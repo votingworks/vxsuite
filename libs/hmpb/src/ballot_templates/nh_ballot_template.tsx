@@ -13,9 +13,11 @@ import {
 import { Buffer } from 'node:buffer';
 import {
   AnyContest,
+  BallotMode,
   BallotStyle,
   BallotStyleId,
   BallotType,
+  BaseBallotProps,
   Candidate,
   CandidateContest as CandidateContestStruct,
   CandidateId,
@@ -42,7 +44,6 @@ import { parse as parseHtml } from 'node-html-parser';
 import {
   BallotLayoutError,
   BallotPageTemplate,
-  BaseBallotProps,
   ContentComponentResult,
 } from '../render_ballot';
 import { RenderScratchpad } from '../renderer';
@@ -67,7 +68,7 @@ import {
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from '../ballot_components';
-import { BallotMode, PixelDimensions } from '../types';
+import { PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';

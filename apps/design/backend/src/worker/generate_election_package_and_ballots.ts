@@ -1,5 +1,6 @@
 import JsZip from 'jszip';
 import path from 'node:path';
+import { Buffer } from 'node:buffer';
 import {
   ElectionSerializationFormat,
   ElectionPackageFileName,
@@ -13,11 +14,12 @@ import {
   BallotType,
   ElectionIdSchema,
   ElectionSerializationFormatSchema,
+  EncodedBallotEntry,
+  BaseBallotProps,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
   ballotTemplates,
-  BaseBallotProps,
   renderAllBallotPdfsAndCreateElectionDefinition,
   createPlaywrightRendererPool,
 } from '@votingworks/hmpb';
@@ -28,6 +30,7 @@ import {
 } from '@votingworks/backend';
 import { assertDefined, find, iter, range } from '@votingworks/basics';
 import z from 'zod/v4';
+import { Readable } from 'node:stream';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -55,6 +58,31 @@ export const GenerateElectionPackageAndBallotsPayloadSchema: z.ZodType<GenerateE
     shouldExportSampleBallots: z.boolean(),
     numAuditIdBallots: z.number().optional(),
   });
+
+function generateEncodedBallots(
+  normalizedBallotPdfs: Array<{
+    props: BaseBallotProps;
+    ballotPdf: Uint8Array<ArrayBufferLike>;
+  }>
+): NodeJS.ReadableStream {
+  return Readable.from(
+    (function* generateJsonLines() {
+      for (const { props, ballotPdf } of normalizedBallotPdfs) {
+        const encodedBallot: EncodedBallotEntry = {
+          ballotStyleId: props.ballotStyleId,
+          precinctId: props.precinctId,
+          ballotType: props.ballotType,
+          ballotMode: props.ballotMode,
+          watermark: props.watermark,
+          compact: props.compact,
+          ballotAuditId: props.ballotAuditId,
+          encodedBallot: Buffer.from(ballotPdf).toString('base64'),
+        };
+        yield `${JSON.stringify(encodedBallot)}\n`;
+      }
+    })()
+  );
+}
 
 export async function generateElectionPackageAndBallots(
   {
@@ -190,6 +218,25 @@ export async function generateElectionPackageAndBallots(
     );
   }
 
+  // Normalizing the ballot PDF colors is not very memory intensive, so it's safe
+  // to do them all at once rather than using a worker pool like we do when
+  // rendering ballots.
+  const normalizedBallotPdfs = await Promise.all(
+    iter(allBallotProps)
+      .zip(ballotPdfs)
+      .map(async ([props, ballotPdf]) => ({
+        props,
+        ballotPdf: await normalizeBallotColorModeForPrinting(
+          ballotPdf,
+          ballotTemplateId
+        ),
+      }))
+      .toArray()
+  );
+
+  const encodedBallots = generateEncodedBallots(normalizedBallotPdfs);
+  electionPackageZip.file(ElectionPackageFileName.BALLOTS, encodedBallots);
+
   const electionPackageZipContents = await electionPackageZip.generateAsync({
     type: 'nodebuffer',
     streamFiles: true,
@@ -208,22 +255,6 @@ export async function generateElectionPackageAndBallots(
   );
 
   combinedZip.file(electionPackageFileName, electionPackageZipContents);
-
-  // Normalizing the ballot PDF colors is not very memory intensive, so it's safe
-  // to do them all at once rather than using a worker pool like we do when
-  // rendering ballots.
-  const normalizedBallotPdfs = await Promise.all(
-    iter(allBallotProps)
-      .zip(ballotPdfs)
-      .map(async ([props, ballotPdf]) => ({
-        props,
-        ballotPdf: await normalizeBallotColorModeForPrinting(
-          ballotPdf,
-          ballotTemplateId
-        ),
-      }))
-      .toArray()
-  );
 
   // Make ballot zip
   for (const { props, ballotPdf } of normalizedBallotPdfs) {

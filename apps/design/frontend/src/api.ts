@@ -1,5 +1,5 @@
 import React from 'react';
-import { Api, BallotMode, AuthErrorCode } from '@votingworks/design-backend';
+import { Api, AuthErrorCode } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -9,6 +9,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
+  BallotMode,
   BallotStyleId,
   BallotType,
   ElectionId,

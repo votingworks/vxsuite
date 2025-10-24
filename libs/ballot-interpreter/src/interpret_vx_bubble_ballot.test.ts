@@ -8,7 +8,6 @@ import {
   nhGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
   allBaseBallotProps,
-  BaseBallotProps,
   ballotTemplates,
   renderAllBallotPdfsAndCreateElectionDefinition,
   layOutBallotsAndCreateElectionDefinition,
@@ -27,6 +26,7 @@ import {
   InterpretedHmpbPage,
   SheetOf,
   ImageData,
+  BaseBallotProps,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,

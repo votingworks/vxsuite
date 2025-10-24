@@ -2,6 +2,7 @@ import { assert, assertDefined, find, uniqueBy } from '@votingworks/basics';
 import {
   Admin,
   BallotStyleId,
+  BaseBallotProps,
   ContestId,
   Election,
   ElectionDefinition,
@@ -23,7 +24,6 @@ import { renderToPdf } from '@votingworks/printing';
 
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import {
-  BaseBallotProps,
   markBallotDocument,
   concatenatePdfs,
   renderBallotPdfWithMetadataQrCode,

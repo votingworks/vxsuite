@@ -10,10 +10,10 @@ export function constructAuthMachineState(
   workspace: Workspace
 ): InsertedSmartCardAuthMachineState {
   const electionKey = workspace.store.getElectionKey();
-  const jurisdiction = workspace.store.getJurisdiction();
   const machineType = 'print';
   const systemSettings =
     workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+  const jurisdiction = workspace.store.getJurisdiction();
   return {
     ...systemSettings.auth,
     electionKey,

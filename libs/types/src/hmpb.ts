@@ -1,11 +1,15 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { z } from 'zod/v4';
 import {
+  BallotStyleId,
+  BallotType,
   ContestId,
   ContestOption,
   ContestOptionSchema,
+  Election,
   HmpbBallotPageMetadata,
   HmpbBallotPageMetadataSchema,
+  PrecinctId,
   Side,
   TargetShape,
   TargetShapeSchema,
@@ -20,6 +24,24 @@ import {
   SizeSchema,
 } from './geometry';
 import { ImageData, ImageDataSchema } from './image';
+
+export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
+export type BallotMode = (typeof BALLOT_MODES)[number];
+
+/**
+ * The base set of props that any {@link BallotPageTemplate} must use. This type
+ * can be extended for ballots that require additional props.
+ */
+export interface BaseBallotProps {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
+  watermark?: string;
+  compact?: boolean;
+  ballotAuditId?: string;
+}
 
 export type BallotPageMetadata = HmpbBallotPageMetadata;
 export const BallotPageMetadataSchema = HmpbBallotPageMetadataSchema;

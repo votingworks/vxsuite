@@ -13,8 +13,10 @@ import {
   safeParseSystemSettings,
   ElectionKey,
   constructElectionKey,
+  EncodedBallotEntry,
 } from '@votingworks/types';
 import { join } from 'node:path';
+import { BallotPrintEntry } from './types';
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
@@ -104,6 +106,10 @@ export class Store {
         electionPackageHash: electionRow.electionPackageHash,
       }
     );
+  }
+
+  deleteElectionRecord(): void {
+    this.client.run('delete from election');
   }
 
   /**
@@ -203,5 +209,77 @@ export class Store {
 
     if (!result) return undefined;
     return safeParseSystemSettings(result.data).unsafeUnwrap();
+  }
+
+  /**
+   * Stores encoded ballots for printing.
+   */
+  setBallots(ballots: EncodedBallotEntry[]): void {
+    this.client.run('delete from ballots');
+
+    const insert = this.client.prepare(
+      `
+      insert into ballots (
+        ballot_style_id,
+        precinct_id,
+        ballot_type,
+        ballot_mode,
+        encoded_ballot
+      ) values (?, ?, ?, ?, ?)
+      `
+    );
+
+    for (const ballot of ballots) {
+      this.client.run(
+        insert,
+        ballot.ballotStyleId,
+        ballot.precinctId,
+        ballot.ballotType,
+        ballot.ballotMode,
+        ballot.encodedBallot
+      );
+    }
+  }
+
+  /**
+   * Deletes all stored ballots.
+   */
+  deleteBallots(): void {
+    this.client.run('delete from ballots');
+  }
+
+  /**
+   * Retrieves all stored encoded ballots.
+   */
+  getBallots(): BallotPrintEntry[] {
+    return this.client.all(
+      `
+      select
+        id as ballotPrintId,
+        ballot_style_id as ballotStyleId,
+        precinct_id as precinctId,
+        ballot_type as ballotType,
+        ballot_mode as ballotMode,
+        encoded_ballot as encodedBallot
+      from ballots
+      `
+    ) as BallotPrintEntry[];
+  }
+
+  getBallot(ballotPrintId: string): BallotPrintEntry | null {
+    return (this.client.one(
+      `
+      select
+        id as ballotPrintId,
+        ballot_style_id as ballotStyleId,
+        precinct_id as precinctId,
+        ballot_type as ballotType,
+        ballot_mode as ballotMode,
+        encoded_ballot as encodedBallot
+      from ballots
+      where id = ?
+      `,
+      ballotPrintId
+    ) || null) as BallotPrintEntry | null;
   }
 }

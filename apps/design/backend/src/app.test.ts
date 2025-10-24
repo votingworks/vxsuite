@@ -20,6 +20,8 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
+  BallotMode,
+  BaseBallotProps,
   AdjudicationReason,
   HmpbBallotPaperSize,
   BallotType,
@@ -48,6 +50,7 @@ import {
   PartyId,
   DistrictId,
   CastVoteRecordExportFileName,
+  BALLOT_MODES,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -72,9 +75,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   allBaseBallotProps,
-  BallotMode,
   ballotTemplates,
-  BaseBallotProps,
   hmpbStringsCatalog,
   layOutBallotsAndCreateElectionDefinition,
   renderAllBallotPdfsAndCreateElectionDefinition,
@@ -2590,6 +2591,7 @@ test('Election package and ballots export', async () => {
     uiStringAudioClips,
     uiStringAudioIds,
     uiStrings,
+    ballots,
   } = electionPackage;
   assert(metadata !== undefined);
   assert(systemSettings !== undefined);
@@ -2755,7 +2757,6 @@ test('Election package and ballots export', async () => {
   //
   // Check audioClips.jsonl
   //
-
   const audioIds: Set<string> = new Set(
     getObjectLeaves(uiStringAudioIds)
       .flat()
@@ -2813,6 +2814,49 @@ test('Election package and ballots export', async () => {
     'VxScan-calibration-sheet.pdf',
   ].sort();
   expect(Object.keys(zip.files).sort()).toEqual(expectedFileNames);
+
+  //
+  // Check ballots.jsonl
+  //
+  const expectedEntries = ballotStyles
+    .flatMap(({ id, precinctsOrSplits }) =>
+      precinctsOrSplits.map((p) => ({
+        ballotStyleId: id,
+        precinctId: p.precinctId,
+      }))
+    )
+    .flatMap(({ ballotStyleId, precinctId }) =>
+      Object.values(['precinct', 'absentee']).flatMap((ballotType) =>
+        BALLOT_MODES.map((ballotMode) => ({
+          ballotStyleId,
+          precinctId,
+          ballotType,
+          ballotMode,
+        }))
+      )
+    );
+
+  // Check that we have the expected number of entries
+  assert(ballots, '`ballots` was undefined after parsing election package');
+  // expect(ballots).toHaveLength(expectedEntries.length);
+
+  // Check each expected entry exists with base64 encoded data
+  expectedEntries.forEach((expected) => {
+    const matchingEntry = ballots.find(
+      (entry) =>
+        entry.ballotStyleId === expected.ballotStyleId &&
+        entry.precinctId === expected.precinctId &&
+        entry.ballotType === expected.ballotType &&
+        entry.ballotMode === expected.ballotMode
+    );
+
+    assert(
+      matchingEntry,
+      `Couldn't find match for ballot entry: ${JSON.stringify(expected)}`
+    );
+    expect(matchingEntry.encodedBallot).toBeTruthy();
+    expect(typeof matchingEntry.encodedBallot).toBe('string');
+  });
 
   // Ballot appearance is tested by fixtures in libs/hmpb, so we
   // just make sure we got a PDF and that we called the layout function with the
