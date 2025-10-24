@@ -1263,32 +1263,56 @@ test.each<{
   description: string;
   scannerStatus: PrecinctScannerStatus;
   usbDriveStatus: UsbDriveStatus['status'];
+  doesAccessibilityInputDisconnect: boolean;
   expectedHeading: string;
 }>([
   {
     description: 'USB drive removed',
     scannerStatus: statusNoPaper,
     usbDriveStatus: 'no_drive',
+    doesAccessibilityInputDisconnect: false,
     expectedHeading: 'No USB Drive Detected',
   },
   {
     description: 'scanner cover opened',
     scannerStatus: { ballotsCounted: 0, state: 'cover_open' },
     usbDriveStatus: 'mounted',
+    doesAccessibilityInputDisconnect: false,
     expectedHeading: 'Scanner Cover is Open',
+  },
+  {
+    description: 'accessibility input disconnected',
+    scannerStatus: statusNoPaper,
+    usbDriveStatus: 'mounted',
+    doesAccessibilityInputDisconnect: true,
+    expectedHeading: 'Accessibility Input Disconnected',
   },
 ])('alarms - $description', async (testConfig) => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetScannerStatus(testConfig.scannerStatus);
-  apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus);
+  apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus, {
+    isAccessibilityInputConnected: true,
+  });
   apiMock.setPrinterStatus();
 
   apiMock.expectPlaySoundRepeated('alarm');
 
   renderApp();
+
+  if (testConfig.doesAccessibilityInputDisconnect) {
+    apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus, {
+      isAccessibilityInputConnected: undefined,
+    });
+  }
+
   await screen.findByText(testConfig.expectedHeading);
   vi.advanceTimersByTime(5000);
+
+  const settingsButton = await screen.findByRole('button', {
+    name: 'Settings',
+  });
+  expect(settingsButton).toBeDisabled();
 
   await waitFor(() => apiMock.mockApiClient.playSound.assertComplete());
   // Clear the mock to check that no further sounds are played once we authenticate as a poll
