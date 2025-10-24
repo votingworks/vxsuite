@@ -5,6 +5,7 @@
 import React from 'react';
 import { handleKeyboardEvent } from '@votingworks/ui';
 import { PreviewDashboard } from './preview_dashboard';
+import * as AccessibilityInputDisconnectedScreen from './screens/accessibility_input_disconnected_screen';
 import * as CardErrorScreen from './screens/card_error_screen';
 import * as ElectionManagerScreen from './screens/election_manager_screen';
 import * as SystemAdministratorScreen from './screens/system_administrator_screen';
@@ -39,6 +40,7 @@ export function PreviewApp(): JSX.Element {
     <ScanAppBase>
       <PreviewDashboard
         modules={[
+          AccessibilityInputDisconnectedScreen,
           CardErrorScreen,
           ElectionManagerScreen,
           SystemAdministratorScreen,

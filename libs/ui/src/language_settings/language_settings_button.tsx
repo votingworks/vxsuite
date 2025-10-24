@@ -11,13 +11,14 @@ import {
 } from '../ui_strings';
 
 export interface LanguageSettingsButtonProps {
+  disabled?: boolean;
   onPress: () => void;
 }
 
 export function LanguageSettingsButton(
   props: LanguageSettingsButtonProps
 ): React.ReactNode {
-  const { onPress } = props;
+  const { disabled, onPress } = props;
   const currentLanguageCode = useCurrentLanguage();
   const availableLanguages = useAvailableLanguages();
 
@@ -47,7 +48,7 @@ export function LanguageSettingsButton(
   );
 
   return (
-    <Button icon="Globe" onPress={onPress}>
+    <Button disabled={disabled} icon="Globe" onPress={onPress}>
       <WithAltAudio audioText={altAudioText}>
         {electionStrings.ballotLanguage(currentLanguageCode)}
       </WithAltAudio>

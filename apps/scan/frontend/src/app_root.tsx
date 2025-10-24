@@ -44,6 +44,7 @@ import { PrinterCoverOpenScreen } from './screens/printer_cover_open_screen';
 import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
 import { useSessionSettingsManager } from './utils/use_session_settings_manager';
 import { ScannerImageSensorCalibrationScreen } from './screens/scanner_image_sensor_calibration_screen';
+import { AccessibilityInputDisconnectedScreen } from './screens/accessibility_input_disconnected_screen';
 
 export function AppRoot(): JSX.Element | null {
   const [
@@ -91,6 +92,25 @@ export function AppRoot(): JSX.Element | null {
         newState === 'no_paper'
       ) {
         sessionSettingsManager.startNewSession();
+      }
+    },
+  });
+
+  const [
+    didAccessibilityInputTransitionFromConnectedToDisconnected,
+    setDidAccessibilityInputTransitionFromConnectedToDisconnected,
+  ] = useState(false);
+  useQueryChangeListener(usbDriveStatusQuery, {
+    select: ({ isAccessibilityInputConnected }) =>
+      isAccessibilityInputConnected,
+    onChange: (
+      isAccessibilityInputConnected,
+      wasAccessibilityInputConnected
+    ) => {
+      if (wasAccessibilityInputConnected && !isAccessibilityInputConnected) {
+        setDidAccessibilityInputTransitionFromConnectedToDisconnected(true);
+      } else if (isAccessibilityInputConnected) {
+        setDidAccessibilityInputTransitionFromConnectedToDisconnected(false);
       }
     },
   });
@@ -319,6 +339,14 @@ export function AppRoot(): JSX.Element | null {
 
   if (printerStatus.state === 'cover-open') {
     return <PrinterCoverOpenScreen />;
+  }
+
+  if (didAccessibilityInputTransitionFromConnectedToDisconnected) {
+    return (
+      <AccessibilityInputDisconnectedScreen
+        disableAlarm={Boolean(systemSettings.precinctScanDisableAlarms)}
+      />
+    );
   }
 
   return (

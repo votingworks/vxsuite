@@ -38,6 +38,7 @@ export interface ScreenProps {
   title?: React.ReactNode;
   showTestModeBanner: boolean;
   voterFacing: boolean;
+  disableSettingsButtons?: boolean;
 }
 
 export type CenteredScreenProps = Omit<ScreenProps, 'centered' | 'padded'>;
@@ -101,6 +102,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     padded,
     title,
     voterFacing,
+    disableSettingsButtons,
   } = props;
 
   const [shouldShowLanguageSettings, setShouldShowLanguageSettings] =
@@ -146,9 +148,10 @@ export function Screen(props: ScreenProps): JSX.Element | null {
         <HeaderRow>
           <SettingsButtons>
             <LanguageSettingsButton
+              disabled={disableSettingsButtons}
               onPress={() => setShouldShowLanguageSettings(true)}
             />
-            <VoterSettingsButton />
+            <VoterSettingsButton disabled={disableSettingsButtons} />
           </SettingsButtons>
           {showTestModeBanner && <TestModeCallout />}
           {ballotCountElement}
