@@ -1261,39 +1261,39 @@ test('"Test" voter settings are not reset when voting begins', async () => {
 
 test.each<{
   description: string;
-  scannerStatus: PrecinctScannerStatus;
   usbDriveStatus: UsbDriveStatus['status'];
+  scannerStatus: PrecinctScannerStatus;
   doesAccessibilityInputDisconnect: boolean;
   expectedHeading: string;
 }>([
   {
     description: 'USB drive removed',
-    scannerStatus: statusNoPaper,
     usbDriveStatus: 'no_drive',
+    scannerStatus: statusNoPaper,
     doesAccessibilityInputDisconnect: false,
     expectedHeading: 'No USB Drive Detected',
   },
   {
     description: 'scanner cover opened',
-    scannerStatus: { ballotsCounted: 0, state: 'cover_open' },
     usbDriveStatus: 'mounted',
+    scannerStatus: { ballotsCounted: 0, state: 'cover_open' },
     doesAccessibilityInputDisconnect: false,
     expectedHeading: 'Scanner Cover is Open',
   },
   {
     description: 'accessibility input disconnected',
-    scannerStatus: statusNoPaper,
     usbDriveStatus: 'mounted',
+    scannerStatus: statusNoPaper,
     doesAccessibilityInputDisconnect: true,
     expectedHeading: 'Accessibility Input Disconnected',
   },
 ])('alarms - $description', async (testConfig) => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
-  apiMock.expectGetScannerStatus(testConfig.scannerStatus);
   apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus, {
     isAccessibilityInputConnected: true,
   });
+  apiMock.expectGetScannerStatus(testConfig.scannerStatus);
   apiMock.setPrinterStatus();
 
   apiMock.expectPlaySoundRepeated('alarm');
@@ -1323,4 +1323,14 @@ test.each<{
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Close Polls');
   vi.advanceTimersByTime(5000);
+
+  // Address source of alarm
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    isAccessibilityInputConnected: true,
+  });
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.removeCard();
+
+  // Ensure alarm doesn't return when poll worker card is removed
+  await screen.findByText('Insert Your Ballot');
 });
