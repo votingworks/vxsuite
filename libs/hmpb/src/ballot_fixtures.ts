@@ -6,6 +6,7 @@ import {
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import {
+  BaseBallotProps,
   HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
@@ -19,7 +20,6 @@ import makeDebug from 'debug';
 import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import { createTestVotes, markBallotDocument } from './mark_ballot';
 import {
-  BaseBallotProps,
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
 } from './render_ballot';

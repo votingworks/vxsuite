@@ -1,6 +1,7 @@
 import { assertDefined, iter, range } from '@votingworks/basics';
 import {
   BallotType,
+  BaseBallotProps,
   CandidateContest,
   ElectionDefinition,
   formatBallotHash,
@@ -16,7 +17,6 @@ import { allBubbleBallotTemplate } from './all_bubble_ballot/template';
 import { concatenatePdfs } from './concatenate_pdfs';
 import { markBallotDocument } from './mark_ballot';
 import {
-  BaseBallotProps,
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
 } from './render_ballot';

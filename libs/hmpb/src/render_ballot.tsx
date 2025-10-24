@@ -14,8 +14,10 @@ import {
 } from '@votingworks/basics';
 import {
   AnyContest,
+  BALLOT_MODES,
   BallotStyleId,
   BallotType,
+  BaseBallotProps,
   CandidateContest,
   CandidateId,
   Election,
@@ -26,7 +28,6 @@ import {
   GridPositionOption,
   HmpbBallotPageMetadata,
   Outset,
-  PrecinctId,
   convertVxfElectionToCdfBallotDefinition,
   formatBallotHash,
   safeParseElection,
@@ -55,13 +56,7 @@ import {
   WRITE_IN_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from './ballot_components';
-import {
-  BALLOT_MODES,
-  BallotMode,
-  PixelDimensions,
-  Pixels,
-  Point,
-} from './types';
+import { PixelDimensions, Pixels, Point } from './types';
 import { BaseStylesProps } from './base_styles';
 
 export type StylesComponent<P> = (props: P) => JSX.Element;
@@ -536,21 +531,6 @@ export async function renderBallotPreviewToPdf<P extends object>(
   const document = result.ok();
   const pdf = await document.renderToPdf();
   return ok(pdf);
-}
-
-/**
- * The base set of props that any {@link BallotPageTemplate} must use. This type
- * can be extended for ballots that require additional props.
- */
-export interface BaseBallotProps {
-  election: Election;
-  ballotStyleId: BallotStyleId;
-  precinctId: PrecinctId;
-  ballotType: BallotType;
-  ballotMode: BallotMode;
-  watermark?: string;
-  compact?: boolean;
-  ballotAuditId?: string;
 }
 
 /**

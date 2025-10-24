@@ -1,8 +1,14 @@
+import z from 'zod/v4';
 import {
   BallotStyleId,
+  BallotStyleIdSchema,
+  BallotType,
+  BallotTypeSchema,
   ContestId,
+  Election,
   ElectionDefinition,
   PrecinctId,
+  PrecinctIdSchema,
 } from './election';
 import { SystemSettings } from './system_settings';
 import { ElectionPackageMetadata } from './election_package_metadata';
@@ -14,12 +20,14 @@ export enum ElectionPackageFileName {
   APP_STRINGS = 'appStrings.json',
   AUDIO_CLIPS = 'audioClips.jsonl',
   AUDIO_IDS = 'audioIds.json',
+  BALLOT_FLAT_FILE = 'ballots.jsonl',
   ELECTION = 'election.json',
   METADATA = 'metadata.json',
   SYSTEM_SETTINGS = 'systemSettings.json',
 }
 
 export interface ElectionPackage {
+  ballots?: EncodedBallotEntry[];
   electionDefinition: ElectionDefinition;
   metadata?: ElectionPackageMetadata; // TODO(kofi): Make required
   systemSettings?: SystemSettings; // TODO(kevin): Make required
@@ -50,3 +58,41 @@ export interface BallotConfig extends BallotStyleData {
   isLiveMode: boolean;
   isAbsentee: boolean;
 }
+
+export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
+export type BallotMode = (typeof BALLOT_MODES)[number];
+
+/**
+ * The base set of props that any {@link BallotPageTemplate} must use. This type
+ * can be extended for ballots that require additional props.
+ */
+export interface BaseBallotProps {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
+  watermark?: string;
+  compact?: boolean;
+  ballotAuditId?: string;
+}
+
+export interface EncodedBallotEntry extends Omit<BaseBallotProps, 'election'> {
+  encodedBallot: string; // A base64-encoded ballot PDF
+}
+
+/**
+ * A single ballot record in the ballots JSONL file in an election package.
+ */
+export const EncodedBallotEntrySchema: z.ZodType<EncodedBallotEntry> = z.object(
+  {
+    ballotStyleId: BallotStyleIdSchema,
+    precinctId: PrecinctIdSchema,
+    ballotType: BallotTypeSchema,
+    ballotMode: z.enum(BALLOT_MODES),
+    watermark: z.string().optional(),
+    compact: z.boolean().optional(),
+    ballotAuditId: z.string().optional(),
+    encodedBallot: z.string(),
+  }
+);

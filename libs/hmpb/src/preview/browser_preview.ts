@@ -1,5 +1,6 @@
 import './polyfills';
 import {
+  BaseBallotProps,
   HmpbBallotPaperSize,
   BallotStyle,
   BallotType,
@@ -12,7 +13,6 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import {
   BallotPageTemplate,
-  BaseBallotProps,
   gridWidthToPixels,
   measureTimingMarkGrid,
   renderBallotTemplate,

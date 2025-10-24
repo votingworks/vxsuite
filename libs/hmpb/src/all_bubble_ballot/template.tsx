@@ -1,9 +1,12 @@
 import React from 'react';
-import { ballotPaperDimensions, HmpbBallotPaperSize } from '@votingworks/types';
+import {
+  ballotPaperDimensions,
+  BaseBallotProps,
+  HmpbBallotPaperSize,
+} from '@votingworks/types';
 import { assertDefined, ok, range, Result } from '@votingworks/basics';
 import {
   BallotPageTemplate,
-  BaseBallotProps,
   ContentComponentResult,
   BallotLayoutError,
 } from '../render_ballot';
