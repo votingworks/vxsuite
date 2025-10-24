@@ -1,3 +1,4 @@
+import express from 'express';
 import { BaseLogger, Logger } from '@votingworks/logging';
 import {
   DippedSmartCardAuth,
@@ -11,6 +12,8 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import { detectPrinter } from '@votingworks/printing';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { Workspace } from './util/workspace';
@@ -53,14 +56,18 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
       getUserRole(resolvedAuth, workspace)
   );
   const usbDrive = detectUsbDrive(logger);
+  const printer = detectPrinter(logger);
 
   const context: AppContext = {
     auth: resolvedAuth,
     logger,
     usbDrive,
     workspace,
+    printer,
   };
   const app = buildApp(context);
+
+  useDevDockRouter(app, express, {});
 
   app.listen(PORT, () => {
     // eslint-disable-next-line no-console
