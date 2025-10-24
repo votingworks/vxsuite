@@ -71,9 +71,8 @@ export function buildApi(ctx: AppContext) {
       assert(systemSettings);
 
       store.withTransaction(() => {
-        store.setElectionAndJurisdiction({
+        store.setElection({
           electionData: electionDefinition.electionData,
-          jurisdiction: authStatus.user.jurisdiction,
           electionPackageHash,
         });
         store.setSystemSettings(systemSettings);
