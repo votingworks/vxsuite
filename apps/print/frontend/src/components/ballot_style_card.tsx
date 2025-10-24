@@ -127,10 +127,12 @@ export function BallotStyleCard({
   precinctName,
   party,
   language,
+  type,
 }: {
   precinctName: string;
   party: string;
   language: string;
+  type?: string;
 }): JSX.Element {
   const [numCopies, setNumCopies] = useState(1);
 
@@ -153,6 +155,7 @@ export function BallotStyleCard({
           <PrecinctTitle>{precinctName}</PrecinctTitle>
         </Row>
         <Row>
+          {type && <Tag>{type}</Tag>}
           <Tag color={getPartyColor(party)}>{party}</Tag>
           <Tag>{language}</Tag>
         </Row>

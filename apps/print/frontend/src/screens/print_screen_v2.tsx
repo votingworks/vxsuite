@@ -48,7 +48,7 @@ const Row = styled.div`
   gap: 0.5rem;
 `;
 
-const StyleSection = styled.div`
+const Section = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -159,7 +159,7 @@ export function PrintScreenV2({
   return (
     <Container>
       <ContentArea>
-        <StyleSection>
+        <Section>
           <H2>Precinct</H2>
           <SearchSelect
             style={{ width: '80%', marginLeft: '0.125rem' }}
@@ -180,8 +180,8 @@ export function PrintScreenV2({
               setSelectedPrecinct(value === 'all' ? undefined : value);
             }}
           />
-        </StyleSection>
-        <StyleSection>
+        </Section>
+        <Section>
           <H2>Party</H2>
           <Row>
             {parties.map((party) => (
@@ -196,8 +196,8 @@ export function PrintScreenV2({
               </Toggle>
             ))}
           </Row>
-        </StyleSection>
-        <StyleSection>
+        </Section>
+        <Section>
           <H2>Language</H2>
           <Row>
             {languages.map((language) => (
@@ -214,7 +214,7 @@ export function PrintScreenV2({
               </Toggle>
             ))}
           </Row>
-        </StyleSection>
+        </Section>
       </ContentArea>
       <PrintFooter>
         <div

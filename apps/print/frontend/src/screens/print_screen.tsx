@@ -8,6 +8,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { BallotStyleCard } from '../components/ballot_style_card';
 
+const Container = styled.div`
+  height: calc(100vh - 4rem);
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+`;
+
 const FilterBox = styled.div`
   display: flex;
   flex-direction: column;
@@ -20,7 +29,7 @@ const FilterBox = styled.div`
     ${(p) => p.theme.colors.outline};
   border-radius: 0.5rem;
 
-  height: 16rem;
+  height: 15rem;
   width: 16rem;
   flex-shrink: 0;
 `;
@@ -64,16 +73,7 @@ export function PrintScreen({
   const parties = ['Dem', 'Rep'];
 
   return (
-    <div
-      style={{
-        height: `calc(100vh - 4rem)`,
-        width: '100%',
-        overflow: 'hidden',
-        display: 'flex',
-        gap: '1rem',
-        padding: '1rem',
-      }}
-    >
+    <Container>
       <FilterBox>
         <H2>Precinct</H2>
         <SearchSelect
@@ -94,7 +94,7 @@ export function PrintScreen({
             setSelectedPrecinct(value === 'all' ? undefined : value);
           }}
         />
-        <H2>Type</H2>
+        <H2 style={{ marginTop: '1rem' }}>Type</H2>
         <SegmentedButton
           label=""
           onChange={(newValue) => {
@@ -121,6 +121,6 @@ export function PrintScreen({
           )
         )}
       </OptionsList>
-    </div>
+    </Container>
   );
 }
