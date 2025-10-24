@@ -158,7 +158,7 @@ export class Store {
         insert into election (
           election_data,
           election_package_hash
-        ) values (?, ?, ?)
+        ) values (?, ?)
         `,
         input.electionData,
         input.electionPackageHash

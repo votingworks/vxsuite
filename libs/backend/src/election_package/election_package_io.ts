@@ -189,7 +189,7 @@ export async function readElectionPackageFromBuffer(
     // "Entry" in "ballotsEntry" refers to a file as an entry in a zip file.
     const ballotsEntry = maybeGetFileByName(
       entries,
-      ElectionPackageFileName.BALLOT_FLAT_FILE
+      ElectionPackageFileName.BALLOTS
     );
     if (ballotsEntry) {
       const ballotsFileLines = readline.createInterface(

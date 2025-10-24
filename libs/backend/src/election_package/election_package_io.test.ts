@@ -327,7 +327,7 @@ test('readElectionPackageFromFile loads base64-encoded ballots', async () => {
 
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
-    [ElectionPackageFileName.BALLOT_FLAT_FILE]: ballots
+    [ElectionPackageFileName.BALLOTS]: ballots
       .map((ballot) => JSON.stringify(ballot))
       .join('\n'),
   });
