@@ -26,7 +26,7 @@ import {
   getElectionDefinition,
   getUsbDriveStatus,
 } from './api';
-import { ElectionManagerScreen } from './election_manager_screen';
+import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { UnconfiguredElectionScreenWrapper } from './unconfigured_election_screen_wrapper';
 
 function AppRoot({
