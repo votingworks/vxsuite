@@ -145,10 +145,11 @@ export class Store {
   }
 
   /**
-   * Sets the current election definition
+   * Sets the current election definition and jurisdiction.
    */
-  setElection(input?: {
+  setElectionAndJurisdiction(input?: {
     electionData: string;
+    jurisdiction: string;
     electionPackageHash: string;
   }): void {
     this.client.run('delete from election');
@@ -157,10 +158,12 @@ export class Store {
         `
         insert into election (
           election_data,
+          jurisdiction,
           election_package_hash
         ) values (?, ?)
         `,
         input.electionData,
+        input.jurisdiction,
         input.electionPackageHash
       );
     }
