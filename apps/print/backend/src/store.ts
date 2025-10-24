@@ -218,7 +218,15 @@ export class Store {
     this.client.run('delete from ballots');
 
     const insert = this.client.prepare(
-      'insert into ballots (ballot_style_id, precinct_id, ballot_type, ballot_mode, encoded_ballot) values (?, ?, ?, ?, ?)'
+      `
+      insert into ballots (
+        ballot_style_id,
+        precinct_id,
+        ballot_type,
+        ballot_mode,
+        encoded_ballot
+      ) values (?, ?, ?, ?, ?)
+      `
     );
 
     for (const ballot of ballots) {
@@ -245,13 +253,32 @@ export class Store {
    */
   getBallots(): BallotPrintEntry[] {
     return this.client.all(
-      'select id as ballotPrintId, ballot_style_id as ballotStyleId, precinct_id as precinctId, ballot_type as ballotType, ballot_mode as ballotMode, encoded_ballot as encodedBallot from ballots'
+      `
+      select
+        id as ballotPrintId,
+        ballot_style_id as ballotStyleId,
+        precinct_id as precinctId,
+        ballot_type as ballotType,
+        ballot_mode as ballotMode,
+        encoded_ballot as encodedBallot
+      from ballots
+      `
     ) as BallotPrintEntry[];
   }
 
   getBallot(ballotPrintId: string): BallotPrintEntry | null {
     return (this.client.one(
-      'select id as ballotPrintId, ballot_style_id as ballotStyleId, precinct_id as precinctId, ballot_type as ballotType, ballot_mode as ballotMode, encoded_ballot as encodedBallot from ballots where id = ?',
+      `
+      select
+        id as ballotPrintId,
+        ballot_style_id as ballotStyleId,
+        precinct_id as precinctId,
+        ballot_type as ballotType,
+        ballot_mode as ballotMode,
+        encoded_ballot as encodedBallot
+      from ballots
+      where id = ?
+      `,
       ballotPrintId
     ) || null) as BallotPrintEntry | null;
   }

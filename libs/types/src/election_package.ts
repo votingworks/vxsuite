@@ -2,10 +2,8 @@ import z from 'zod/v4';
 import {
   BallotStyleId,
   BallotStyleIdSchema,
-  BallotType,
   BallotTypeSchema,
   ContestId,
-  Election,
   ElectionDefinition,
   PrecinctId,
   PrecinctIdSchema,
@@ -15,6 +13,7 @@ import { ElectionPackageMetadata } from './election_package_metadata';
 import { UiStringAudioClips } from './ui_string_audio_clips';
 import { UiStringAudioIdsPackage } from './ui_string_audio_ids';
 import { UiStringsPackage } from './ui_string_translations';
+import { BALLOT_MODES, BaseBallotProps } from './hmpb';
 
 export enum ElectionPackageFileName {
   APP_STRINGS = 'appStrings.json',
@@ -57,24 +56,6 @@ export interface BallotConfig extends BallotStyleData {
   layoutFilename: string;
   isLiveMode: boolean;
   isAbsentee: boolean;
-}
-
-export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
-export type BallotMode = (typeof BALLOT_MODES)[number];
-
-/**
- * The base set of props that any {@link BallotPageTemplate} must use. This type
- * can be extended for ballots that require additional props.
- */
-export interface BaseBallotProps {
-  election: Election;
-  ballotStyleId: BallotStyleId;
-  precinctId: PrecinctId;
-  ballotType: BallotType;
-  ballotMode: BallotMode;
-  watermark?: string;
-  compact?: boolean;
-  ballotAuditId?: string;
 }
 
 export interface EncodedBallotEntry extends Omit<BaseBallotProps, 'election'> {
