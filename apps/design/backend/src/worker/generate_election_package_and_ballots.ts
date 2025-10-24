@@ -235,10 +235,7 @@ export async function generateElectionPackageAndBallots(
   );
 
   const encodedBallots = generateEncodedBallots(normalizedBallotPdfs);
-  electionPackageZip.file(
-    ElectionPackageFileName.BALLOT_FLAT_FILE,
-    encodedBallots
-  );
+  electionPackageZip.file(ElectionPackageFileName.BALLOTS, encodedBallots);
 
   const electionPackageZipContents = await electionPackageZip.generateAsync({
     type: 'nodebuffer',
