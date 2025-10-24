@@ -9,7 +9,7 @@ export interface UnconfiguredElectionScreenProps {
   usbDriveStatus: UsbDriveStatus;
   isElectionManagerAuth: boolean;
   backendConfigError?: ElectionPackageConfigurationError;
-  machineName: 'VxScan' | 'VxMark' | 'VxMarkScan' | 'VxCentralScan';
+  machineName: 'VxScan' | 'VxMark' | 'VxMarkScan' | 'VxCentralScan' | 'VxPrint';
 }
 
 export function UnconfiguredElectionScreen({
@@ -47,6 +47,8 @@ export function UnconfiguredElectionScreen({
         return 'Error authenticating election package. Try exporting it from VxAdmin again.';
       case 'election_key_mismatch':
         return 'The most recent election package found is for a different election.';
+      case 'no_ballots':
+        return 'No ballots were found in the election package.';
       default: {
         /* istanbul ignore next - compile time check for completeness - @preserve */
         throwIllegalValue(backendConfigError);
