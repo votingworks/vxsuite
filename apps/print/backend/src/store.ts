@@ -145,6 +145,16 @@ export class Store {
   }
 
   /**
+   * Gets the current jurisdiction.
+   */
+  getJurisdiction(): string | undefined {
+    const electionRow = this.client.one('select jurisdiction from election') as
+      | { jurisdiction: string }
+      | undefined;
+    return electionRow?.jurisdiction;
+  }
+
+  /**
    * Sets the current election definition and jurisdiction.
    */
   setElectionAndJurisdiction(input?: {
