@@ -4,6 +4,7 @@ import { auth as auth0Middleware } from 'express-openid-connect';
 import path, { join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import {
+  BallotMode,
   Election,
   safeParseElection,
   HmpbBallotPaperSize,
@@ -48,7 +49,6 @@ import {
 } from '@votingworks/basics';
 import {
   BallotLayoutError,
-  BallotMode,
   BallotTemplateId,
   ballotTemplates,
   createPlaywrightRenderer,

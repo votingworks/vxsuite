@@ -1,7 +1,7 @@
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { BallotMode } from '@votingworks/hmpb';
 import {
   AnyContest,
+  BallotMode,
   BallotStyleId,
   BallotType,
   District,

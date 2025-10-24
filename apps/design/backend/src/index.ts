@@ -35,7 +35,6 @@ export type {
 } from './features';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app';
 
-export type { BallotMode } from '@votingworks/hmpb';
 export type { BallotTemplateId } from '@votingworks/hmpb';
 
 // Frontend tests import these for generating test data

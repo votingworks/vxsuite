@@ -1,4 +1,5 @@
 import {
+  BaseBallotProps,
   Election,
   hasSplits,
   PrecinctSplit,
@@ -8,7 +9,6 @@ import {
 import {
   allBaseBallotProps,
   BallotTemplateId,
-  BaseBallotProps,
   NhBallotProps,
 } from '@votingworks/hmpb';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';

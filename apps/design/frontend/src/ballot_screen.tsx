@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { find, range, throwIllegalValue } from '@votingworks/basics';
 import {
   HmpbBallotPaperSize,
+  BallotMode,
   BallotType,
   unsafeParse,
   ElectionIdSchema,
@@ -26,7 +27,6 @@ import {
 } from '@votingworks/ui';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { format } from '@votingworks/utils';
-import type { BallotMode } from '@votingworks/design-backend';
 import {
   getBallotPreviewPdf,
   getElectionInfo,
