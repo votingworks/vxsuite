@@ -43,6 +43,8 @@ import {
   safeParseElectionDefinition,
   constructElectionKey,
   ElectionPackageWithHash,
+  EncodedBallotEntry,
+  EncodedBallotEntrySchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -181,9 +183,30 @@ export async function readElectionPackageFromBuffer(
       }
     }
 
+    // Ballots:
+    // "Entry" in EncodedBallotEntry refers to a line as an entry in a JSONL file.
+    const ballots: EncodedBallotEntry[] = [];
+    // "Entry" in "ballotsEntry" refers to a file as an entry in a zip file.
+    const ballotsEntry = maybeGetFileByName(
+      entries,
+      ElectionPackageFileName.BALLOT_FLAT_FILE
+    );
+    if (ballotsEntry) {
+      const ballotsFileLines = readline.createInterface(
+        getEntryStream(ballotsEntry)
+      );
+
+      for await (const line of ballotsFileLines) {
+        ballots.push(
+          safeParseJson(line, EncodedBallotEntrySchema).unsafeUnwrap()
+        );
+      }
+    }
+
     // TODO(kofi): Verify package version matches machine build version.
 
     const electionPackage: ElectionPackage = {
+      ballots,
       electionDefinition,
       metadata,
       systemSettings,
