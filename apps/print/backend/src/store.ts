@@ -160,7 +160,7 @@ export class Store {
           election_data,
           jurisdiction,
           election_package_hash
-        ) values (?, ?)
+        ) values (?, ?, ?)
         `,
         input.electionData,
         input.jurisdiction,
