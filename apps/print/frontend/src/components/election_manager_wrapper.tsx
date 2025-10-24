@@ -16,6 +16,7 @@ import { TopBar } from './top_bar';
 export const electionManagerRoutes = {
   print: { title: 'Print', path: '/print' },
   printV2: { title: 'Print-v2', path: '/print-v2' },
+  printV3: { title: 'Print-v3', path: '/print-v3' },
   election: { title: 'Election', path: '/election' },
   settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
