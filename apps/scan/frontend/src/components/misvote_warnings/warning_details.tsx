@@ -24,6 +24,12 @@ const Container = styled.div<ContainerProps>`
   flex-direction: column;
   grid-template-columns: repeat(${(p) => p.numCardsPerRow}, 1fr);
   grid-gap: ${(p) => CONTENT_SPACING_VALUES_REM[p.theme.sizeMode]}rem;
+
+  /**
+   * Necessary to ensure that scroll buttons properly display when content overflows. Leave 40vh
+   * for other elements like the modal title and action buttons.
+   */
+  max-height: 60vh;
 `;
 
 export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {
