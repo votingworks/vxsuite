@@ -12,7 +12,13 @@ const LabelContainer = styled.span`
   text-align: left;
 `;
 
-export function VoterSettingsButton(): JSX.Element | null {
+export interface VoterSettingsButtonProps {
+  disabled?: boolean;
+}
+
+export function VoterSettingsButton({
+  disabled,
+}: VoterSettingsButtonProps): JSX.Element | null {
   const history = useHistory();
 
   if (!history) {
@@ -22,6 +28,7 @@ export function VoterSettingsButton(): JSX.Element | null {
 
   return (
     <Button
+      disabled={disabled}
       onPress={(url: string) => history.push(url)}
       value={Paths.VOTER_SETTINGS}
     >
