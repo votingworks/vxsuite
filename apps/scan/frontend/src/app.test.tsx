@@ -8,8 +8,10 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageConfigurationError,
   SheetInterpretation,
+  SystemSettings,
   formatElectionHashes,
 } from '@votingworks/types';
 import { Result, deferred, err, ok } from '@votingworks/basics';
@@ -1261,34 +1263,112 @@ test('"Test" voter settings are not reset when voting begins', async () => {
 
 test.each<{
   description: string;
-  scannerStatus: PrecinctScannerStatus;
+  systemSettings: Partial<SystemSettings>;
   usbDriveStatus: UsbDriveStatus['status'];
+  scannerStatus: PrecinctScannerStatus;
+  doesAccessibilityInputDisconnect: boolean;
   expectedHeading: string;
+  isAlarmExpected: boolean;
 }>([
   {
     description: 'USB drive removed',
-    scannerStatus: statusNoPaper,
+    systemSettings: {},
     usbDriveStatus: 'no_drive',
+    scannerStatus: statusNoPaper,
+    doesAccessibilityInputDisconnect: false,
     expectedHeading: 'No USB Drive Detected',
+    isAlarmExpected: true,
+  },
+  {
+    description: 'USB drive removed, alarms disabled',
+    systemSettings: { precinctScanDisableAlarms: true },
+    usbDriveStatus: 'no_drive',
+    scannerStatus: statusNoPaper,
+    doesAccessibilityInputDisconnect: false,
+    expectedHeading: 'No USB Drive Detected',
+    isAlarmExpected: false,
   },
   {
     description: 'scanner cover opened',
-    scannerStatus: { ballotsCounted: 0, state: 'cover_open' },
+    systemSettings: {},
     usbDriveStatus: 'mounted',
+    scannerStatus: { ballotsCounted: 0, state: 'cover_open' },
+    doesAccessibilityInputDisconnect: false,
     expectedHeading: 'Scanner Cover is Open',
+    isAlarmExpected: true,
+  },
+  {
+    description: 'scanner cover opened, alarms disabled',
+    systemSettings: { precinctScanDisableAlarms: true },
+    usbDriveStatus: 'mounted',
+    scannerStatus: { ballotsCounted: 0, state: 'cover_open' },
+    doesAccessibilityInputDisconnect: false,
+    expectedHeading: 'Scanner Cover is Open',
+    isAlarmExpected: false,
+  },
+  {
+    description: 'accessibility input disconnected',
+    systemSettings: {},
+    usbDriveStatus: 'mounted',
+    scannerStatus: statusNoPaper,
+    doesAccessibilityInputDisconnect: true,
+    expectedHeading: 'Accessibility Input Disconnected',
+    isAlarmExpected: true,
+  },
+  {
+    description: 'accessibility input disconnected, alarms disabled',
+    systemSettings: { precinctScanDisableAlarms: true },
+    usbDriveStatus: 'mounted',
+    scannerStatus: statusNoPaper,
+    doesAccessibilityInputDisconnect: true,
+    expectedHeading: 'Accessibility Input Disconnected',
+    isAlarmExpected: false,
   },
 ])('alarms - $description', async (testConfig) => {
-  apiMock.expectGetConfig();
+  apiMock.expectGetConfig({
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      ...testConfig.systemSettings,
+    },
+  });
   apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus, {
+    isAccessibilityInputConnected: true,
+  });
   apiMock.expectGetScannerStatus(testConfig.scannerStatus);
-  apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus);
   apiMock.setPrinterStatus();
 
-  apiMock.expectPlaySoundRepeated('alarm');
+  if (testConfig.isAlarmExpected) {
+    apiMock.expectPlaySoundRepeated('alarm');
+  }
 
   renderApp();
+
+  if (testConfig.doesAccessibilityInputDisconnect) {
+    apiMock.expectGetUsbDriveStatus(testConfig.usbDriveStatus, {
+      isAccessibilityInputConnected: undefined,
+    });
+  }
+
   await screen.findByText(testConfig.expectedHeading);
+  await screen.findByText('Please ask a poll worker for help.');
+  if (testConfig.isAlarmExpected) {
+    await screen.findByText('Insert a poll worker card to dismiss the alarm.');
+  } else {
+    expect(
+      screen.queryByText('Insert a poll worker card to dismiss the alarm.')
+    ).not.toBeInTheDocument();
+  }
   vi.advanceTimersByTime(5000);
+
+  const settingsButton = await screen.findByRole('button', {
+    name: 'Settings',
+  });
+  if (testConfig.isAlarmExpected) {
+    expect(settingsButton).toBeDisabled();
+  } else {
+    expect(settingsButton).toBeEnabled();
+  }
 
   await waitFor(() => apiMock.mockApiClient.playSound.assertComplete());
   // Clear the mock to check that no further sounds are played once we authenticate as a poll
@@ -1299,4 +1379,27 @@ test.each<{
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Close Polls');
   vi.advanceTimersByTime(5000);
+
+  // Address alarm trigger
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    isAccessibilityInputConnected: true,
+  });
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.removeCard();
+
+  // Ensure alarm screen doesn't return when poll worker card is removed
+  await screen.findByText('Insert Your Ballot');
+});
+
+test('accessibility input alarm does not trigger if accessibility input was not connected to begin with', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    isAccessibilityInputConnected: undefined,
+  });
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+  renderApp();
+
+  await screen.findByText('Insert Your Ballot');
 });
