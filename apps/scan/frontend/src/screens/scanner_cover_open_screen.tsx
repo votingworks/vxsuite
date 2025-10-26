@@ -1,7 +1,6 @@
 import { Caption, H1, Icons, P, appStrings } from '@votingworks/ui';
-import { useEffect } from 'react';
 import { CenteredText, ScreenMainCenterChild } from '../components/layout';
-import * as api from '../api';
+import { useAlarm } from '../utils/use_alarm';
 
 interface Props {
   disableAlarm?: boolean;
@@ -9,18 +8,14 @@ interface Props {
 
 export function ScannerCoverOpenScreen({ disableAlarm }: Props): JSX.Element {
   const enableAlarm = !disableAlarm;
-
-  const playSound = api.playSound.useMutation().mutate;
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (enableAlarm) {
-      interval = setInterval(() => playSound({ name: 'alarm' }), 2000);
-    }
-    return () => clearInterval(interval);
-  }, [enableAlarm, playSound]);
+  useAlarm(enableAlarm);
 
   return (
-    <ScreenMainCenterChild voterFacing showTestModeBanner={false}>
+    <ScreenMainCenterChild
+      disableSettingsButtons={enableAlarm}
+      showTestModeBanner={false}
+      voterFacing
+    >
       <CenteredText>
         <H1>{appStrings.titleScannerCoverIsOpen()}</H1>
         <P>{appStrings.instructionsAskForHelp()}</P>

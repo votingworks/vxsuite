@@ -1,10 +1,10 @@
 import { appStrings, Caption, H1, Icons, P } from '@votingworks/ui';
-import { useEffect } from 'react';
 import { PollsState } from '@votingworks/types';
+import { assert } from '@votingworks/basics';
 import { CenteredText, ScreenMainCenterChild } from '../components/layout';
-import * as api from '../api';
+import { useAlarm } from '../utils/use_alarm';
 
-interface Props {
+export interface InsertUsbScreenProps {
   disableAlarm?: boolean;
   pollsState: PollsState;
 }
@@ -12,20 +12,15 @@ interface Props {
 export function InsertUsbScreen({
   disableAlarm,
   pollsState,
-}: Props): JSX.Element {
-  const enableAlarm = !disableAlarm && pollsState === 'polls_open';
+}: InsertUsbScreenProps): JSX.Element {
+  assert(pollsState !== 'polls_closed_final');
 
-  const playSound = api.playSound.useMutation().mutate;
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (enableAlarm) {
-      interval = setInterval(() => playSound({ name: 'alarm' }), 2000);
-    }
-    return () => clearInterval(interval);
-  }, [enableAlarm, playSound]);
+  const enableAlarm = !disableAlarm && pollsState === 'polls_open';
+  useAlarm(enableAlarm);
 
   return (
     <ScreenMainCenterChild
+      disableSettingsButtons={enableAlarm}
       showTestModeBanner={false}
       voterFacing={pollsState === 'polls_open'}
     >
