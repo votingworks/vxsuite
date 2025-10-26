@@ -133,7 +133,10 @@ export function buildApi({
     },
 
     async getUsbDriveStatus(): Promise<
-      UsbDriveStatus & { doesUsbDriveRequireCastVoteRecordSync?: true }
+      UsbDriveStatus & {
+        doesUsbDriveRequireCastVoteRecordSync?: true;
+        isAccessibilityInputConnected?: true;
+      }
     > {
       const usbDriveStatus = await usbDrive.status();
       return {
@@ -143,6 +146,8 @@ export function buildApi({
             store,
             usbDriveStatus
           )) || undefined,
+        // TODO: Implement logic to populate this value
+        isAccessibilityInputConnected: undefined,
       };
     },
 
