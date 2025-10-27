@@ -9,13 +9,12 @@ import {
   PrecinctOrSplitId,
   Precinct,
   hasSplits,
+  BallotStyle,
 } from '@votingworks/types';
 import {
   generateBallotStyleGroupId,
   generateBallotStyleId,
 } from '@votingworks/utils';
-
-import { BallotStyle } from './types';
 
 /**
  * Generates ballot styles for the election based on geography data (districts,
@@ -79,11 +78,11 @@ export function generateBallotStyles(params: {
               ballotStyleIndex: index + 1,
               languages,
             }),
-            group_id: generateBallotStyleGroupId({
+            groupId: generateBallotStyleGroupId({
               ballotStyleIndex: index + 1,
             }),
-            precinctsOrSplits,
-            districtIds,
+            precincts: precinctsOrSplits.map(({ precinctId }) => precinctId),
+            districts: districtIds,
             languages,
           }))
       );
@@ -111,12 +110,12 @@ export function generateBallotStyles(params: {
                 languages,
                 party,
               }),
-              group_id: generateBallotStyleGroupId({
+              groupId: generateBallotStyleGroupId({
                 ballotStyleIndex: index + 1,
                 party,
               }),
-              precinctsOrSplits,
-              districtIds,
+              precincts: precinctsOrSplits.map(({ precinctId }) => precinctId),
+              districts: districtIds,
               partyId: party.id,
               languages,
             }))
@@ -124,7 +123,9 @@ export function generateBallotStyles(params: {
         }
       );
 
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       return throwIllegalValue(electionType);
+    }
   }
 }

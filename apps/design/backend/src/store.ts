@@ -49,6 +49,7 @@ import {
   PollsStateSupportsLiveReporting,
   safeParseElectionDefinition,
   ElectionDefinition,
+  BallotStyle,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -63,8 +64,6 @@ import { DatabaseError } from 'pg';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
   ALL_PRECINCTS_REPORT_KEY,
-  BallotStyle,
-  convertToVxfBallotStyle,
   ElectionInfo,
   ElectionListing,
   GetExportedElectionError,
@@ -78,7 +77,6 @@ import { Bindable, Client } from './db/client';
 export interface ElectionRecord {
   orgId: string;
   election: Election;
-  ballotStyles: BallotStyle[];
   systemSettings: SystemSettings;
   createdAt: Iso8601Timestamp;
   ballotLanguageConfigs: BallotLanguageConfigs;
@@ -877,7 +875,7 @@ export class Store {
             : undefined,
         districts,
         precincts,
-        ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
+        ballotStyles,
         parties,
         contests,
         ballotLayout: {
@@ -1336,9 +1334,11 @@ export class Store {
     assert(rowCount === 1, 'Precinct not found');
   }
 
-  async listBallotStyles(electionId: ElectionId): Promise<BallotStyle[]> {
-    const { ballotStyles } = await this.getElection(electionId);
-    return ballotStyles;
+  async listBallotStyles(
+    electionId: ElectionId
+  ): Promise<readonly BallotStyle[]> {
+    const { election } = await this.getElection(electionId);
+    return election.ballotStyles;
   }
 
   async listParties(electionId: ElectionId): Promise<readonly Party[]> {

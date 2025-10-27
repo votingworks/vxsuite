@@ -54,7 +54,7 @@ function expectElectionApiCalls(electionRecord: ElectionRecord) {
   const { id: electionId } = electionRecord.election;
   apiMock.listBallotStyles
     .expectCallWith({ electionId })
-    .resolves(electionRecord.ballotStyles);
+    .resolves(electionRecord.election.ballotStyles);
   apiMock.listPrecincts
     .expectCallWith({ electionId })
     .resolves(electionRecord.election.precincts);
@@ -151,9 +151,12 @@ describe('Ballot styles tab', () => {
     const record = generalElectionRecord(user.orgId);
     const electionRecord: ElectionRecord = {
       ...record,
-      ballotStyles: record.ballotStyles.filter(
-        (ballotStyle) => ballotStyle.id === '2_en'
-      ),
+      election: {
+        ...record.election,
+        ballotStyles: record.election.ballotStyles.filter(
+          (ballotStyle) => ballotStyle.id === '2_en'
+        ),
+      },
     };
     const electionId = electionRecord.election.id;
     expectElectionApiCalls(electionRecord);

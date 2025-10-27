@@ -47,13 +47,8 @@ export async function generateTestDecks(
   emitProgress: EmitProgressFunction
 ): Promise<void> {
   const { store } = workspace;
-  const {
-    election,
-    ballotLanguageConfigs,
-    ballotStyles,
-    ballotTemplateId,
-    orgId,
-  } = await store.getElection(electionId);
+  const { election, ballotLanguageConfigs, ballotTemplateId, orgId } =
+    await store.getElection(electionId);
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
   const ballotStrings = await translateBallotStrings(
@@ -66,7 +61,6 @@ export async function generateTestDecks(
   const allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
-    ballotStyles,
     compact
   );
   const testBallotProps = allBallotProps.filter(
