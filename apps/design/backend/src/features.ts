@@ -64,6 +64,11 @@ export enum UserFeature {
    * Requires the system settings screen to be enabled.
    */
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING = 'QUICK_RESULTS_REPORTING_SYSTEM_SETTING',
+  /**
+   * Allow the user to toggle system limit checks on election package import.
+   * Requires the system settings screen to be enabled.
+   */
+  SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING = 'SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING',
 
   //
   // Other features
@@ -130,6 +135,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   BMD_OVERVOTE_SYSTEM_SETTING: true,
   BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
+  SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
 
   ACCESS_ALL_ORGS: true,
   BALLOT_LANGUAGE_CONFIG: true,

@@ -609,6 +609,19 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
+            {features.SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Disable System Limit Checks on Election Package Import"
+                isChecked={Boolean(systemSettings.disableSystemLimitChecks)}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    disableSystemLimitChecks: isChecked ? true : undefined, // Completely omit when unchecked
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
           </Column>
         </Card>
       </Row>
