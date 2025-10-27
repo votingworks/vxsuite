@@ -1,11 +1,5 @@
 import {
-  BallotStyle as VxfBallotStyle,
-  BallotStyleId,
-  DistrictId,
-  PartyId,
-  BallotStyleGroupId,
   LanguageCode,
-  PrecinctOrSplitId,
   ElectionType,
   ElectionId,
   Election,
@@ -15,30 +9,6 @@ import {
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
-
-// We also create a new type for a ballot style, that can reference precincts and
-// splits. We generate ballot styles on demand, so it won't be stored in the db.
-export interface BallotStyle {
-  districtIds: readonly DistrictId[];
-  id: BallotStyleId;
-  group_id: BallotStyleGroupId;
-  languages: LanguageCode[];
-  partyId?: PartyId;
-  precinctsOrSplits: readonly PrecinctOrSplitId[];
-}
-
-export function convertToVxfBallotStyle(
-  ballotStyle: BallotStyle
-): VxfBallotStyle {
-  return {
-    id: ballotStyle.id,
-    groupId: ballotStyle.group_id,
-    precincts: ballotStyle.precinctsOrSplits.map((p) => p.precinctId),
-    districts: ballotStyle.districtIds,
-    partyId: ballotStyle.partyId,
-    languages: ballotStyle.languages,
-  };
-}
 
 export enum UsState {
   NEW_HAMPSHIRE = 'New Hampshire',
