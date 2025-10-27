@@ -7,8 +7,7 @@ use crate::{
         AutoRunOutAtEndOfScanBehavior, Direction, DoubleFeedDetectionMode, EjectPauseMode,
         FeederMode, PickOnCommandMode, Side,
     },
-    types::UsbError,
-    Error, Result,
+    Error, Result, UsbError,
 };
 
 use super::protocol::{
@@ -73,17 +72,23 @@ impl<T> Client<T> {
 
         let id = self.id;
         self.id = self.id.wrapping_add(1);
-        self.host_to_scanner_tx.send((id, packet)).map_err(|_| {
-            Error::Usb(UsbError::Nusb(nusb::Error::new(
-                io::ErrorKind::ConnectionAborted,
-                "failed to send packet to scanner (host to scanner channel closed)",
-            )))
-        })?;
+        self.host_to_scanner_tx
+            .send((id, packet))
+            .map_err::<Error, _>(|_| {
+                let usb_error: UsbError = nusb::Error::new(
+                    io::ErrorKind::ConnectionAborted,
+                    "failed to send packet to scanner (host to scanner channel closed)",
+                )
+                .into();
+                usb_error.into()
+            })?;
         let Some(ack_id) = self.host_to_scanner_ack_rx.recv().await else {
-            return Err(Error::Usb(UsbError::Nusb(nusb::Error::new(
+            let usb_error: UsbError = nusb::Error::new(
                 io::ErrorKind::ConnectionAborted,
                 "failed to receive ack from scanner (host to scanner ack channel closed)",
-            ))));
+            )
+            .into();
+            return Err(usb_error.into());
         };
         assert_eq!(id, ack_id);
         Ok(())

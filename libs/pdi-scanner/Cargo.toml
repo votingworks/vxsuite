@@ -45,3 +45,4 @@ tokio = { workspace = true, features = [
   "time",
   "sync",
 ] }
+locate-error = "0.1.1"

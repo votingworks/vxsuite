@@ -204,11 +204,11 @@ fn send_to_stdout(message: Message) -> color_eyre::Result<()> {
 
 fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
     match error {
-        Error::Usb(UsbError::DeviceNotFound)
-        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Disconnected))
-        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Fault))
-        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Cancelled))
-        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Stall)) => {
+        Error::Usb(UsbError::DeviceNotFound, _)
+        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Disconnected, _), _)
+        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Fault, _), _)
+        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Cancelled, _), _)
+        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Stall, _), _) => {
             (ErrorCode::Disconnected, None)
         }
 
@@ -248,13 +248,13 @@ async fn main() -> color_eyre::Result<()> {
     };
 
     let send_error_response = |error: &Error| -> color_eyre::Result<()> {
-        tracing::error!("sending error: {error:?}");
+        tracing::error!("sending error: {error}");
         let (code, message) = error_to_code_and_message(error);
         send_response(Response::Error { code, message })
     };
 
     let send_error_event = |error: &Error| -> color_eyre::Result<()> {
-        tracing::error!("sending error event: {error:?}");
+        tracing::error!("sending error event: {error}");
         let (code, message) = error_to_code_and_message(error);
         send_event(Event::Error { code, message })
     };

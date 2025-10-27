@@ -19,7 +19,7 @@ pub struct Scanner {
 }
 
 impl Scanner {
-    pub fn open() -> Result<Self> {
+    pub fn open() -> Result<Self, UsbError> {
         /// Vendor ID for the PDI scanner.
         const VENDOR_ID: u16 = 0x0bd7;
 
@@ -107,7 +107,7 @@ impl Scanner {
 
                     completion = in_image_data_queue.next_complete() => {
                         if completion.status.is_err() {
-                            let err = completion.status.unwrap_err();
+                            let err: UsbError = completion.status.unwrap_err().into();
                             tracing::error!("Error while polling image data endpoint: {err:?}");
                             scanner_to_host_tx.send(Err(err.into())).unwrap();
                             break;
@@ -124,7 +124,7 @@ impl Scanner {
 
                     completion = in_primary_queue.next_complete() => {
                         if completion.status.is_err() {
-                            let err = completion.status.unwrap_err();
+                            let err: UsbError = completion.status.unwrap_err().into();
                             tracing::error!("Error while polling primary IN endpoint: {err:?}");
                             scanner_to_host_tx.send(Err(err.into())).unwrap();
                             break;
