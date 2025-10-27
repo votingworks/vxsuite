@@ -14,6 +14,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  LanguageCode,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
@@ -32,6 +33,7 @@ import {
   nhBallotTemplate,
 } from './ballot_templates/nh_ballot_template';
 import { convertPdfToCmyk } from './pdf_conversion';
+import { generateBallotStyles } from './ballot_styles';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
@@ -466,22 +468,34 @@ export const nhGeneralElectionFixtures = (() => {
       dir,
       [paperSize, props.compact ? 'compact' : ''].filter(Boolean).join('-')
     );
+    // Make one ballot measure description too long to fit on one page to test
+    // that it gets split onto multiple pages
+    const newContests = baseElection.contests.map((contest) =>
+      contest.id === 'proposition-1' && contest.type === 'yesno'
+        ? {
+            ...contest,
+            description: contest.description.repeat(5),
+          }
+        : contest
+    );
+
     const election: Election = {
       ...baseElection,
       ballotLayout: {
         ...baseElection.ballotLayout,
         paperSize,
       },
-      // Make one ballot measure description too long to fit on one page to test
-      // that it gets split onto multiple pages
-      contests: baseElection.contests.map((contest) =>
-        contest.id === 'proposition-1' && contest.type === 'yesno'
-          ? {
-              ...contest,
-              description: contest.description.repeat(5),
-            }
-          : contest
-      ),
+      // Regenerate ballot styles to apply rotation logic
+      ballotStyles: generateBallotStyles({
+        ballotTemplateId: 'NhBallot',
+        electionType: 'general',
+        ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
+        precincts: [...baseElection.precincts],
+        parties: baseElection.parties,
+        contests: newContests,
+        electionId: baseElection.id,
+      }),
+      contests: newContests,
       signature: {
         caption: 'Base Election Signature Caption',
         image: `
@@ -510,7 +524,7 @@ export const nhGeneralElectionFixtures = (() => {
 
     // Has ballot measures
     const ballotStyle = assertDefined(
-      getBallotStyle({ election, ballotStyleId: '12' as BallotStyleId })
+      getBallotStyle({ election, ballotStyleId: '1_en' as BallotStyleId })
     );
     const precinctId = assertDefined(ballotStyle.precincts[0]);
     const contests = getContests({ election, ballotStyle });

@@ -19,12 +19,13 @@ import {
   BaseBallotProps,
   Candidate,
   CandidateContest as CandidateContestStruct,
-  CandidateId,
   ContestId,
+  DisplayCandidate,
   Election,
   ElectionId,
   LanguageCode,
   NhPrecinctSplitOptions,
+  Precinct,
   PrecinctId,
   YesNoContest,
   ballotPaperDimensions,
@@ -67,7 +68,11 @@ import {
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from '../ballot_components';
-import { PixelDimensions } from '../types';
+import {
+  PixelDimensions,
+  CandidateOrderingSet,
+  RotationParams,
+} from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
@@ -108,8 +113,10 @@ const NH_ROTATION_INDICES: Record<number, number> = {
  */
 export function rotateCandidatesByStatute(
   contest: CandidateContestStruct
-): CandidateId[] {
-  if (contest.candidates.length < 2) return contest.candidates.map((c) => c.id);
+): DisplayCandidate[] {
+  if (contest.candidates.length < 2) {
+    return contest.candidates.map((c) => ({ id: c.id }));
+  }
 
   function getSortingName(candidate: Candidate): string {
     return (
@@ -136,16 +143,18 @@ export function rotateCandidatesByStatute(
     ...orderedCandidates.slice(rotationIndex),
     ...orderedCandidates.slice(0, rotationIndex),
   ];
-  return rotatedCandidates.map((c) => c.id);
+  return rotatedCandidates.map((c) => ({ id: c.id }));
 }
 
 export function rotateCandidatesByPrecinct(
   contest: CandidateContestStruct,
-  election: Election,
+  precincts: readonly Precinct[],
   precinctId: PrecinctId
-): CandidateId[] {
-  if (contest.candidates.length < 2) return contest.candidates.map((c) => c.id);
-  const allPrecinctsWithContest = election.precincts.filter((precinct) =>
+): DisplayCandidate[] {
+  if (contest.candidates.length < 2) {
+    return contest.candidates.map((c) => ({ id: c.id }));
+  }
+  const allPrecinctsWithContest = precincts.filter((precinct) =>
     hasSplits(precinct)
       ? precinct.splits.some((split) =>
           split.districtIds.includes(contest.districtId)
@@ -180,17 +189,62 @@ const contestsUsingPrecinctRotation: Record<ElectionId, ContestId[]> = {
   ],
 };
 
-// IN PROGRESS WILL BE MOVED / USED IN FUTURE COMMIT
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function rotateCandidates(
   contest: CandidateContestStruct,
-  election: Election,
+  electionId: ElectionId,
+  precincts: readonly Precinct[],
   precinctId: PrecinctId
-): CandidateId[] {
-  if ((contestsUsingPrecinctRotation[election.id] ?? []).includes(contest.id)) {
-    return rotateCandidatesByPrecinct(contest, election, precinctId);
+): DisplayCandidate[] {
+  if ((contestsUsingPrecinctRotation[electionId] ?? []).includes(contest.id)) {
+    return rotateCandidatesByPrecinct(contest, precincts, precinctId);
   }
   return rotateCandidatesByStatute(contest);
+}
+
+/**
+ * Generates ordered contests for NH ballot template.
+ * Candidates within a template are rotated by statute across all ballot styles in most cases.
+ * There are special cases, handled for now via hardcoding, where certain contests are rotated by precinct.
+ */
+export function getCandidateOrderingSetsForNhBallot({
+  contests,
+  precincts,
+  electionId,
+  districtIds,
+  precinctsOrSplitIds,
+}: RotationParams): CandidateOrderingSet[] {
+  const ballotStyleContests = contests.filter((contest) =>
+    districtIds.includes(contest.districtId)
+  );
+  const rotationsByPrecinct = precinctsOrSplitIds.map(
+    ({ precinctId, splitId }) => {
+      const orderedContests: Record<ContestId, DisplayCandidate[]> = {};
+      for (const contest of ballotStyleContests) {
+        switch (contest.type) {
+          case 'candidate':
+            orderedContests[contest.id] = rotateCandidates(
+              contest,
+              electionId,
+              precincts,
+              precinctId
+            );
+            break;
+          case 'yesno':
+            // do nothing
+            break;
+          default:
+            throwIllegalValue(contest, 'type');
+        }
+      }
+      return {
+        precinctsOrSplits: [{ precinctId, splitId }],
+        orderedContests,
+      };
+    }
+  );
+
+  // Return a rotation for each precinct/split, deduplicating is handled outside of the template-specific logic.
+  return rotationsByPrecinct;
 }
 
 function Header({

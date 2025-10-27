@@ -91,7 +91,7 @@ import {
 } from '../test/helpers';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 import { ElectionInfo, ElectionListing, ElectionStatus } from './types';
-import { generateBallotStyles } from './ballot_styles';
+import { generateBallotStyles } from '@votingworks/hmpb';
 import { BackgroundTaskMetadata } from './store';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
@@ -403,6 +403,8 @@ test('create/list/delete elections', async () => {
       electionType: election2.type,
       parties: election2Parties,
       precincts: [...election2Precincts],
+      ballotTemplateId: 'VxDefaultBallot',
+      electionId: electionId2,
     })
   );
   expect(

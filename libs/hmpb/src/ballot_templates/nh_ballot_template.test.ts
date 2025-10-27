@@ -23,7 +23,7 @@ describe('rotateCandidatesByStatute', () => {
       candidates: candidateContest.candidates.slice(0, 1),
     };
     expect(rotateCandidatesByStatute(contest)).toEqual(
-      contest.candidates.map((c) => c.id)
+      contest.candidates.map((c) => ({ id: c.id }))
     );
   });
 
@@ -47,9 +47,9 @@ describe('rotateCandidatesByStatute', () => {
       ],
     };
     expect(rotateCandidatesByStatute(contest)).toEqual([
-      '1', // Martha Jones
-      '3', // Larry Smith
-      '2', // John Zorro
+      { id: '1' }, // Martha Jones
+      { id: '3' }, // Larry Smith
+      { id: '2' }, // John Zorro
     ]);
   });
 
@@ -100,16 +100,16 @@ describe('rotateCandidatesByStatute', () => {
       ],
     };
     expect(rotateCandidatesByStatute(contest)).toEqual([
-      '3', // John Curtis
-      '4', // Adam Dean
-      '5', // Frank French
-      '6', // Candy Lozenge
-      '7', // Susan North
-      '8', // Joseph Smith
-      '9', // Jean Thompson
-      '10', // John Zorro
-      '1', // Jane Adams
-      '2', // Bruce Brown
+      { id: '3' }, // John Curtis
+      { id: '4' }, // Adam Dean
+      { id: '5' }, // Frank French
+      { id: '6' }, // Candy Lozenge
+      { id: '7' }, // Susan North
+      { id: '8' }, // Joseph Smith
+      { id: '9' }, // Jean Thompson
+      { id: '10' }, // John Zorro
+      { id: '1' }, // Jane Adams
+      { id: '2' }, // Bruce Brown
     ]);
   });
 
@@ -138,10 +138,10 @@ describe('rotateCandidatesByStatute', () => {
       ],
     };
     expect(rotateCandidatesByStatute(contest)).toEqual([
-      '3', // John Adams
+      { id: '3' }, // John Adams
       // 'del Rey' comes after 'Adams' but before 'Harding'
-      '1', // Lana del Rey
-      '2', // Warren Harding
+      { id: '1' }, // Lana del Rey
+      { id: '2' }, // Warren Harding
     ]);
   });
 
@@ -169,10 +169,10 @@ describe('rotateCandidatesByStatute', () => {
       ],
     };
     expect(rotateCandidatesByStatute(contest)).toEqual([
-      '3', // John Adams
+      { id: '3' }, // John Adams
       // 'George' comes after 'Adams' but before 'Harding'
-      '1', // George
-      '2', // Warren Harding
+      { id: '1' }, // George
+      { id: '2' }, // Warren Harding
     ]);
   });
 
@@ -195,9 +195,9 @@ describe('rotateCandidatesByStatute', () => {
       ],
     };
     expect(rotateCandidatesByStatute(contest)).toEqual([
-      '1', // Martha Jones
-      '3', // Larry Smith
-      '2', // John Zorro
+      { id: '1' }, // Martha Jones
+      { id: '3' }, // Larry Smith
+      { id: '2' }, // John Zorro
     ]);
   });
 });
@@ -226,24 +226,32 @@ test('rotateCandidatesByPrecinct rotates based on index of precinct within ballo
   };
   const [precinct1, precinct2, precinct3, precinct4] = election.precincts;
 
-  expect(rotateCandidatesByPrecinct(contest, election, precinct1.id)).toEqual([
-    '1', // Martha Jones
-    '3', // Larry Smith
-    '2', // John Zorro
+  expect(
+    rotateCandidatesByPrecinct(contest, election.precincts, precinct1.id)
+  ).toEqual([
+    { id: '1' }, // Martha Jones
+    { id: '3' }, // Larry Smith
+    { id: '2' }, // John Zorro
   ]);
-  expect(rotateCandidatesByPrecinct(contest, election, precinct2.id)).toEqual([
-    '3', // Larry Smith
-    '2', // John Zorro
-    '1', // Martha Jones
+  expect(
+    rotateCandidatesByPrecinct(contest, election.precincts, precinct2.id)
+  ).toEqual([
+    { id: '3' }, // Larry Smith
+    { id: '2' }, // John Zorro
+    { id: '1' }, // Martha Jones
   ]);
-  expect(rotateCandidatesByPrecinct(contest, election, precinct3.id)).toEqual([
-    '2', // John Zorro
-    '1', // Martha Jones
-    '3', // Larry Smith
+  expect(
+    rotateCandidatesByPrecinct(contest, election.precincts, precinct3.id)
+  ).toEqual([
+    { id: '2' }, // John Zorro
+    { id: '1' }, // Martha Jones
+    { id: '3' }, // Larry Smith
   ]);
-  expect(rotateCandidatesByPrecinct(contest, election, precinct4.id)).toEqual([
-    '1', // Martha Jones
-    '3', // Larry Smith
-    '2', // John Zorro
+  expect(
+    rotateCandidatesByPrecinct(contest, election.precincts, precinct4.id)
+  ).toEqual([
+    { id: '1' }, // Martha Jones
+    { id: '3' }, // Larry Smith
+    { id: '2' }, // John Zorro
   ]);
 });
