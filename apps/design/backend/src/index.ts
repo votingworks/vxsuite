@@ -18,7 +18,6 @@ import {
 export type { TtsStringDefault } from './tts_strings';
 export type { ElectionRecord, BackgroundTask } from './store';
 export type {
-  BallotStyle,
   User,
   ElectionStatus,
   ElectionListing,

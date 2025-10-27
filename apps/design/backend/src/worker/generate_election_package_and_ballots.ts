@@ -103,13 +103,8 @@ export async function generateElectionPackageAndBallots(
   const { store } = workspace;
 
   const electionRecord = await store.getElection(electionId);
-  const {
-    ballotLanguageConfigs,
-    election,
-    ballotStyles,
-    ballotTemplateId,
-    orgId,
-  } = electionRecord;
+  const { ballotLanguageConfigs, election, ballotTemplateId, orgId } =
+    electionRecord;
   let { systemSettings } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
@@ -145,7 +140,6 @@ export async function generateElectionPackageAndBallots(
   let allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
-    ballotStyles,
     compact
   );
   if (!shouldExportSampleBallots) {

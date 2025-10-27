@@ -34,6 +34,7 @@ import {
   CastVoteRecordReportWithoutMetadataSchema,
   PrecinctSelection,
   safeParseElection,
+  BallotStyle,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -83,7 +84,6 @@ import {
 import {
   AggregatedReportedPollsStatus,
   AggregatedReportedResults,
-  BallotStyle,
   ElectionInfo,
   ElectionListing,
   GetExportedElectionError,
@@ -528,7 +528,7 @@ export function buildApi(ctx: AppContext) {
 
     async listBallotStyles(input: {
       electionId: ElectionId;
-    }): Promise<BallotStyle[]> {
+    }): Promise<readonly BallotStyle[]> {
       return store.listBallotStyles(input.electionId);
     },
 
@@ -666,12 +666,8 @@ export function buildApi(ctx: AppContext) {
     }): Promise<
       Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
     > {
-      const {
-        election,
-        ballotLanguageConfigs,
-        ballotStyles,
-        ballotTemplateId,
-      } = await store.getElection(input.electionId);
+      const { election, ballotLanguageConfigs, ballotTemplateId } =
+        await store.getElection(input.electionId);
       const { compact } = await store.getBallotLayoutSettings(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
@@ -686,7 +682,6 @@ export function buildApi(ctx: AppContext) {
       const allBallotProps = createBallotPropsForTemplate(
         ballotTemplateId,
         electionWithBallotStrings,
-        ballotStyles,
         compact
       );
       const ballotProps = find(
