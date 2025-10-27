@@ -22,6 +22,7 @@ import { find } from '@votingworks/basics';
 import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { ballotStyleHasPrecinctSplit } from '@votingworks/utils';
 import {
   getBallotsFinalizedAt,
   finalizeBallots,
@@ -301,16 +302,12 @@ function BallotStylesTab(): JSX.Element | null {
               {precincts.flatMap((precinct) => {
                 if (!hasSplits(precinct)) {
                   const precinctBallotStyles = ballotStyles.filter(
-                    (ballotStyle) =>
-                      ballotStyle.precinctsOrSplits.some(
-                        ({ precinctId, splitId }) =>
-                          precinctId === precinct.id && splitId === undefined
-                      )
+                    (ballotStyle) => ballotStyle.precincts.includes(precinct.id)
                   );
 
                   if (precinctBallotStyles.length === 0) {
                     return (
-                      <NestedTr key={precinct.id}>
+                      <tr key={precinct.id}>
                         <TD>{precinct.name}</TD>
                         <TD>
                           <Font italic>No contests assigned</Font>
@@ -320,7 +317,7 @@ function BallotStylesTab(): JSX.Element | null {
                           electionInfo.type === 'primary' && <TD />
                         }
                         <TD />
-                      </NestedTr>
+                      </tr>
                     );
                   }
 
@@ -363,10 +360,7 @@ function BallotStylesTab(): JSX.Element | null {
 
                 const splitRows = precinct.splits.flatMap((split) => {
                   const splitBallotStyles = ballotStyles.filter((ballotStyle) =>
-                    ballotStyle.precinctsOrSplits.some(
-                      ({ precinctId, splitId }) =>
-                        precinctId === precinct.id && splitId === split.id
-                    )
+                    ballotStyleHasPrecinctSplit(ballotStyle, precinct.id, split)
                   );
 
                   if (splitBallotStyles.length === 0) {

@@ -15,7 +15,7 @@ import {
   readElectionGeneral,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { assert } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import {
   generateBallotStyleId,
   getBallotStyleGroup,
@@ -24,6 +24,7 @@ import {
   getPrecinctsAndSplitsForBallotStyle,
   getRelatedBallotStyle,
   determinePartyId,
+  ballotStyleHasPrecinctSplit,
 } from './ballot_styles';
 
 const electionGeneral = readElectionGeneral();
@@ -425,4 +426,45 @@ test('determinePartyId - multi language election', () => {
   expect(determinePartyId(electionDefinition, ballotStyleCardCounts2)).toEqual(
     undefined
   );
+});
+
+test('ballotStyleHasPrecinctSplit', () => {
+  const election = electionPrimaryPrecinctSplitsFixtures.readElection();
+  const [, , , precinct4] = election.precincts;
+  assert(precinct4 && hasSplits(precinct4));
+  const [split1, split2] = precinct4.splits;
+  assert(split1 && split2);
+  const split1BallotStyle = find(
+    election.ballotStyles,
+    (bs) => bs.id === '3-Ma_en'
+  );
+  const split2BallotStyle = find(
+    election.ballotStyles,
+    (bs) => bs.id === '4-Ma_en'
+  );
+  const otherPrecinctBallotStyle = find(
+    election.ballotStyles,
+    (bs) => bs.id === '1-Ma_en'
+  );
+
+  expect(
+    ballotStyleHasPrecinctSplit(split1BallotStyle, precinct4.id, split1)
+  ).toEqual(true);
+  expect(
+    ballotStyleHasPrecinctSplit(split1BallotStyle, precinct4.id, split2)
+  ).toEqual(false);
+
+  expect(
+    ballotStyleHasPrecinctSplit(split2BallotStyle, precinct4.id, split2)
+  ).toEqual(true);
+  expect(
+    ballotStyleHasPrecinctSplit(split2BallotStyle, precinct4.id, split1)
+  ).toEqual(false);
+
+  expect(
+    ballotStyleHasPrecinctSplit(otherPrecinctBallotStyle, precinct4.id, split1)
+  ).toEqual(false);
+  expect(
+    ballotStyleHasPrecinctSplit(otherPrecinctBallotStyle, precinct4.id, split2)
+  ).toEqual(false);
 });

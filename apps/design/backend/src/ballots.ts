@@ -2,8 +2,6 @@ import {
   BaseBallotProps,
   Election,
   hasSplits,
-  PrecinctSplit,
-  PrecinctWithSplits,
   UiStringsPackage,
 } from '@votingworks/types';
 import {
@@ -13,21 +11,9 @@ import {
 } from '@votingworks/hmpb';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
+import { ballotStyleHasPrecinctSplit } from '@votingworks/utils';
 import { sliOrgId } from './globals';
-import { BallotStyle, normalizeState, User, UsState } from './types';
-
-function getPrecinctSplitForBallotStyle(
-  precinct: PrecinctWithSplits,
-  ballotStyle: BallotStyle
-): PrecinctSplit {
-  return find(precinct.splits, (split) =>
-    ballotStyle.precinctsOrSplits.some(
-      (precinctOrSplit) =>
-        precinctOrSplit.precinctId === precinct.id &&
-        precinctOrSplit.splitId === split.id
-    )
-  );
-}
+import { normalizeState, User, UsState } from './types';
 
 export function defaultBallotTemplate(
   state: string,
@@ -86,7 +72,6 @@ export function formatElectionForExport(
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
-  ballotStyles: BallotStyle[],
   compact: boolean
 ): BaseBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
@@ -95,10 +80,12 @@ export function createBallotPropsForTemplate(
       return props;
     }
     const ballotStyle = find(
-      ballotStyles,
+      election.ballotStyles,
       (bs) => bs.id === props.ballotStyleId
     );
-    const split = getPrecinctSplitForBallotStyle(precinct, ballotStyle);
+    const split = find(precinct.splits, (ps) =>
+      ballotStyleHasPrecinctSplit(ballotStyle, precinct.id, ps)
+    );
     return {
       ...props,
       electionTitleOverride: split.electionTitleOverride,
