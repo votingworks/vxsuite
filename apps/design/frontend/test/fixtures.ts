@@ -50,13 +50,7 @@ export function makeElectionRecord(
   });
   const election: Election = {
     ...baseElection,
-    ballotStyles: ballotStyles.map((ballotStyle) => ({
-      id: ballotStyle.id,
-      groupId: ballotStyle.group_id,
-      precincts: ballotStyle.precinctsOrSplits.map((p) => p.precinctId),
-      districts: ballotStyle.districtIds,
-      partyId: ballotStyle.partyId,
-    })),
+    ballotStyles,
     contests: baseElection.contests.map((contest) =>
       contest.type === 'candidate'
         ? {
@@ -69,7 +63,6 @@ export function makeElectionRecord(
   return {
     election,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    ballotStyles,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
     ballotTemplateId: 'VxDefaultBallot',

@@ -4,7 +4,6 @@ import {
   Election,
   ElectionStringKey,
   hasSplits,
-  LanguageCode,
   Precinct,
   UiStringsPackage,
 } from '@votingworks/types';
@@ -21,19 +20,11 @@ const election: Election = {
   ...electionGridLayoutNewHampshireHudsonFixtures.readElection(),
   state: UsState.NEW_HAMPSHIRE,
 };
-const ballotStyles = election.ballotStyles.map((b) => ({
-  districtIds: b.districts,
-  group_id: b.groupId,
-  id: b.id,
-  languages: [LanguageCode.ENGLISH],
-  precinctsOrSplits: [{ precinctId: election.precincts[0].id }],
-}));
 
 test('createBallotPropsForTemplate', () => {
   const vxDefaultBallotProps = createBallotPropsForTemplate(
     'VxDefaultBallot',
     election,
-    ballotStyles,
     false
   );
   for (const props of vxDefaultBallotProps) {
@@ -43,7 +34,6 @@ test('createBallotPropsForTemplate', () => {
   const nhBallotProps = createBallotPropsForTemplate(
     'NhBallot',
     election,
-    ballotStyles,
     true
   );
   for (const props of nhBallotProps) {

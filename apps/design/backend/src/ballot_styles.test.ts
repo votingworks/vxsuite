@@ -9,14 +9,14 @@ import {
   LanguageCode,
   Precinct,
   PrecinctSplit,
+  BallotStyle,
 } from '@votingworks/types';
 import {
+  ballotStyleHasPrecinctSplit,
   generateBallotStyleGroupId,
   generateBallotStyleId,
 } from '@votingworks/utils';
-
 import { generateBallotStyles } from './ballot_styles';
-import { BallotStyle } from './types';
 
 function makeContest(
   id: string,
@@ -157,17 +157,17 @@ describe('generateBallotStyles()', () => {
     expect(ballotStyles).toEqual<BallotStyle[]>([
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({ ballotStyleIndex: 1, languages }),
-        group_id: generateBallotStyleGroupId({ ballotStyleIndex: 1 }),
-        districtIds: [district1.id],
+        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 1 }),
+        districts: [district1.id],
         languages,
-        precinctsOrSplits: [{ precinctId: precinct1District1.id }],
+        precincts: [precinct1District1.id],
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({ ballotStyleIndex: 2, languages }),
-        group_id: generateBallotStyleGroupId({ ballotStyleIndex: 2 }),
-        districtIds: [district2.id],
+        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 2 }),
+        districts: [district2.id],
         languages,
-        precinctsOrSplits: [{ precinctId: precinct2District2.id }],
+        precincts: [precinct2District2.id],
       })),
     ]);
   });
@@ -193,28 +193,17 @@ describe('generateBallotStyles()', () => {
     expect(ballotStyles).toEqual<BallotStyle[]>([
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({ ballotStyleIndex: 1, languages }),
-        group_id: generateBallotStyleGroupId({ ballotStyleIndex: 1 }),
-        districtIds: [district1.id],
+        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 1 }),
+        districts: [district1.id],
         languages,
-        precinctsOrSplits: [
-          { precinctId: precinct1District1.id },
-          {
-            precinctId: precinct3District1And2.id,
-            splitId: precinct3Splits.district1Only.id,
-          },
-        ],
+        precincts: [precinct1District1.id, precinct3District1And2.id],
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({ ballotStyleIndex: 2, languages }),
-        group_id: generateBallotStyleGroupId({ ballotStyleIndex: 2 }),
-        districtIds: [district1.id, district2.id],
+        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 2 }),
+        districts: [district1.id, district2.id],
         languages,
-        precinctsOrSplits: [
-          {
-            precinctId: precinct3District1And2.id,
-            splitId: precinct3Splits.district1And2.id,
-          },
-        ],
+        precincts: [precinct3District1And2.id],
       })),
     ]);
   });
@@ -249,14 +238,14 @@ describe('generateBallotStyles()', () => {
           languages,
           party: partyA,
         }),
-        group_id: generateBallotStyleGroupId({
+        groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 1,
           party: partyA,
         }),
-        districtIds: [district1.id],
+        districts: [district1.id],
         languages,
         partyId: partyA.id,
-        precinctsOrSplits: [{ precinctId: precinct1District1.id }],
+        precincts: [precinct1District1.id],
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -264,14 +253,14 @@ describe('generateBallotStyles()', () => {
           languages,
           party: partyB,
         }),
-        group_id: generateBallotStyleGroupId({
+        groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 1,
           party: partyB,
         }),
-        districtIds: [district1.id],
+        districts: [district1.id],
         languages,
         partyId: partyB.id,
-        precinctsOrSplits: [{ precinctId: precinct1District1.id }],
+        precincts: [precinct1District1.id],
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -279,14 +268,14 @@ describe('generateBallotStyles()', () => {
           languages,
           party: partyA,
         }),
-        group_id: generateBallotStyleGroupId({
+        groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 2,
           party: partyA,
         }),
-        districtIds: [district2.id],
+        districts: [district2.id],
         languages,
         partyId: partyA.id,
-        precinctsOrSplits: [{ precinctId: precinct2District2.id }],
+        precincts: [precinct2District2.id],
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -294,14 +283,14 @@ describe('generateBallotStyles()', () => {
           languages,
           party: partyB,
         }),
-        group_id: generateBallotStyleGroupId({
+        groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 2,
           party: partyB,
         }),
-        districtIds: [district2.id],
+        districts: [district2.id],
         languages,
         partyId: partyB.id,
-        precinctsOrSplits: [{ precinctId: precinct2District2.id }],
+        precincts: [precinct2District2.id],
       })),
     ]);
   });
@@ -336,20 +325,14 @@ describe('generateBallotStyles()', () => {
           languages,
           party: partyA,
         }),
-        group_id: generateBallotStyleGroupId({
+        groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 1,
           party: partyA,
         }),
-        districtIds: [district1.id],
+        districts: [district1.id],
         languages,
         partyId: partyA.id,
-        precinctsOrSplits: [
-          { precinctId: precinct1District1.id },
-          {
-            precinctId: precinct3District1And2.id,
-            splitId: precinct3Splits.district1Only.id,
-          },
-        ],
+        precincts: [precinct1District1.id, precinct3District1And2.id],
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -357,20 +340,14 @@ describe('generateBallotStyles()', () => {
           languages,
           party: partyB,
         }),
-        group_id: generateBallotStyleGroupId({
+        groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 1,
           party: partyB,
         }),
-        districtIds: [district1.id],
+        districts: [district1.id],
         languages,
         partyId: partyB.id,
-        precinctsOrSplits: [
-          { precinctId: precinct1District1.id },
-          {
-            precinctId: precinct3District1And2.id,
-            splitId: precinct3Splits.district1Only.id,
-          },
-        ],
+        precincts: [precinct1District1.id, precinct3District1And2.id],
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -378,19 +355,14 @@ describe('generateBallotStyles()', () => {
           languages,
           party: partyA,
         }),
-        group_id: generateBallotStyleGroupId({
+        groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 2,
           party: partyA,
         }),
-        districtIds: [district1.id, district2.id],
+        districts: [district1.id, district2.id],
         languages,
         partyId: partyA.id,
-        precinctsOrSplits: [
-          {
-            precinctId: precinct3District1And2.id,
-            splitId: precinct3Splits.district1And2.id,
-          },
-        ],
+        precincts: [precinct3District1And2.id],
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -398,19 +370,14 @@ describe('generateBallotStyles()', () => {
           languages,
           party: partyB,
         }),
-        group_id: generateBallotStyleGroupId({
+        groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 2,
           party: partyB,
         }),
-        districtIds: [district1.id, district2.id],
+        districts: [district1.id, district2.id],
         languages,
         partyId: partyB.id,
-        precinctsOrSplits: [
-          {
-            precinctId: precinct3District1And2.id,
-            splitId: precinct3Splits.district1And2.id,
-          },
-        ],
+        precincts: [precinct3District1And2.id],
       })),
     ]);
   });
@@ -436,11 +403,6 @@ describe('generateBallotStyles()', () => {
           districtIds: [district1.id, district2.id],
         },
         {
-          id: 'precinct-3-split-2',
-          name: 'Precinct 3 - Split 2',
-          districtIds: [district2.id, district1.id],
-        },
-        {
           id: 'precinct-3-split-3',
           name: 'Precinct 3 - Split 3',
           districtIds: [district1.id],
@@ -462,23 +424,27 @@ describe('generateBallotStyles()', () => {
       precincts: [precinct1, precinct2, precinct3, precinct4],
     });
     expect(ballotStyles.length).toEqual(2);
-    expect(ballotStyles[0].districtIds).toEqual([district1.id, district2.id]);
-    expect(ballotStyles[0].precinctsOrSplits).toEqual([
-      { precinctId: precinct1.id },
-      { precinctId: precinct2.id },
-      {
-        precinctId: precinct3.id,
-        splitId: precinct3.splits[0].id,
-      },
-      {
-        precinctId: precinct3.id,
-        splitId: precinct3.splits[1].id,
-      },
+    expect(ballotStyles[0].districts).toEqual([district1.id, district2.id]);
+    expect(ballotStyles[0].precincts).toEqual([
+      precinct1.id,
+      precinct2.id,
+      precinct3.id,
     ]);
-    expect(ballotStyles[1].districtIds).toEqual([district1.id]);
-    expect(ballotStyles[1].precinctsOrSplits).toEqual([
-      { precinctId: precinct3.id, splitId: precinct3.splits[2].id },
-      { precinctId: precinct4.id },
-    ]);
+    expect(
+      ballotStyleHasPrecinctSplit(
+        ballotStyles[0],
+        precinct3.id,
+        precinct3.splits[0]
+      )
+    ).toEqual(true);
+    expect(ballotStyles[1].districts).toEqual([district1.id]);
+    expect(ballotStyles[1].precincts).toEqual([precinct3.id, precinct4.id]);
+    expect(
+      ballotStyleHasPrecinctSplit(
+        ballotStyles[1],
+        precinct3.id,
+        precinct3.splits[1]
+      )
+    ).toEqual(true);
   });
 });
