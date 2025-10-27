@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { inspect, InspectOptions } from 'node:util';
+import { extractErrorMessage } from './errors';
 
 /**
  * Represents a successful result of type `T`.
@@ -208,7 +209,9 @@ export function err<T, E>(error: E): Result<T, E> {
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function wrapException<T>(error: unknown): Result<T, Error> {
-  return err(error instanceof Error ? error : new Error(String(error)));
+  return err(
+    error instanceof Error ? error : new Error(extractErrorMessage(error))
+  );
 }
 
 // Export just the interfaces, not the classes. This encourages the use of

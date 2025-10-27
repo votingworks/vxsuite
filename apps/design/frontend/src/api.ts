@@ -1,5 +1,9 @@
 import React from 'react';
-import { Api, AuthErrorCode } from '@votingworks/design-backend';
+import {
+  Api,
+  AuthErrorCode,
+  ElectionUpload,
+} from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -351,7 +355,7 @@ export const loadElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (input: { electionData: string; orgId: string }) =>
+      (input: { upload: ElectionUpload; orgId: string }) =>
         apiClient.loadElection({
           ...input,
           newId: generateId(),

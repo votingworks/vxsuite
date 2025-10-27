@@ -50,9 +50,11 @@ export function normalizeState(state: string): UsState {
   switch (state.toLowerCase()) {
     case 'nh':
     case 'new hampshire':
+    case 'state of new hampshire':
       return UsState.NEW_HAMPSHIRE;
     case 'ms':
     case 'mississippi':
+    case 'state of mississippi':
       return UsState.MISSISSIPPI;
     default:
       return UsState.UNKNOWN;
@@ -102,6 +104,19 @@ export interface ElectionInfo {
   signatureImage?: string;
   signatureCaption?: string;
 }
+
+export type ElectionUpload =
+  | {
+      format: 'vxf';
+      electionFileContents: string;
+    }
+  | {
+      format: 'ms-sems';
+      electionFileContents: string;
+      candidateFileContents: string;
+    };
+
+// Live Reports types
 
 export interface ReceivedReportInfoBase {
   pollsState: PollsStateSupportsLiveReporting;

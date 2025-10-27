@@ -93,18 +93,26 @@ import {
   ElectionInfo,
   ElectionListing,
   ElectionStatus,
-  Org,
-  User,
   convertToVxfBallotStyle,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { BackgroundTaskMetadata } from './store';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
-import { sliOrgId, votingWorksOrgId, vxDemosOrgId } from './globals';
 import { LogEventId } from '@votingworks/logging';
 import { buildApi } from './app';
 import { readdir, readFile } from 'node:fs/promises';
+import {
+  orgs,
+  vxUser,
+  nonVxUser,
+  nonVxOrg,
+  vxOrg,
+  anotherNonVxUser,
+  anotherNonVxOrg,
+  sliUser,
+  vxDemosUser,
+} from '../test/mocks';
 
 vi.setConfig({
   testTimeout: 120_000,
@@ -117,58 +125,6 @@ function expectNotEqualTo(str: string) {
 function compareName(a: { name: string }, b: { name: string }) {
   return a.name.localeCompare(b.name);
 }
-
-const vxOrg: Org = {
-  id: votingWorksOrgId(),
-  name: 'VotingWorks',
-};
-const vxUser: User = {
-  name: 'vx.user@example.com',
-  auth0Id: 'auth0|vx-user-id',
-  orgId: vxOrg.id,
-};
-
-const nonVxOrg: Org = {
-  id: 'other-org-id',
-  name: 'Other Org',
-};
-const nonVxUser: User = {
-  name: 'non.vx.user@example.com',
-  auth0Id: 'auth0|non-vx-user-id',
-  orgId: nonVxOrg.id,
-};
-
-const anotherNonVxOrg: Org = {
-  id: 'another-org-id',
-  name: 'Another Org',
-};
-const anotherNonVxUser = {
-  ...nonVxUser,
-  auth0Id: 'auth0|another-non-vx-user-id',
-  orgId: anotherNonVxOrg.id,
-};
-
-const sliOrg: Org = {
-  id: sliOrgId(),
-  name: 'SLI',
-};
-const sliUser: User = {
-  name: 'sli.user@example.com',
-  auth0Id: 'auth0|sli-user-id',
-  orgId: sliOrg.id,
-};
-
-const vxDemosOrg: Org = {
-  id: vxDemosOrgId(),
-  name: 'VX Demos',
-};
-const vxDemosUser: User = {
-  name: 'vx.demos.user@example.com',
-  auth0Id: 'auth0|vx-demos-user-id',
-  orgId: vxDemosOrg.id,
-};
-
-const orgs: Org[] = [vxOrg, nonVxOrg, anotherNonVxOrg, sliOrg, vxDemosOrg];
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -320,7 +276,10 @@ test('create/list/delete elections', async () => {
     await apiClient.loadElection({
       newId: importedElectionNewId,
       orgId: vxUser.orgId,
-      electionData: election2Definition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: election2Definition.electionData,
+      },
     })
   ).unsafeUnwrap();
   expect(electionId2).toEqual(importedElectionNewId);
@@ -477,7 +436,10 @@ test('create/list/delete elections', async () => {
     await apiClient.loadElection({
       newId: unsafeParse(ElectionIdSchema, 'duplicate-election-id'),
       orgId: vxUser.orgId,
-      electionData: election2Definition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: election2Definition.electionData,
+      },
     })
   ).unsafeUnwrap();
   const duplicateElection = await apiClient.getElectionInfo({
@@ -490,7 +452,10 @@ test('create/list/delete elections', async () => {
     await apiClient.loadElection({
       newId: unsafeParse(ElectionIdSchema, 'duplicate-election-id-2'),
       orgId: vxUser.orgId,
-      electionData: election2Definition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: election2Definition.electionData,
+      },
     })
   ).unsafeUnwrap();
   const duplicateElection2 = await apiClient.getElectionInfo({
@@ -503,7 +468,10 @@ test('create/list/delete elections', async () => {
     await apiClient.loadElection({
       newId: unsafeParse(ElectionIdSchema, 'duplicate-election-id-3'),
       orgId: vxUser.orgId,
-      electionData: election2Definition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: election2Definition.electionData,
+      },
     })
   ).unsafeUnwrap();
   const duplicateElection3 = await apiClient.getElectionInfo({
@@ -858,7 +826,10 @@ test('deleting a district updates associated precincts', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
 
@@ -1380,7 +1351,10 @@ test('deleting a party updates associated contests', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
 
@@ -1901,7 +1875,11 @@ test('reordering contests', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: electionFamousNames2021Fixtures.electionJson.asText(),
+      upload: {
+        format: 'vxf',
+        electionFileContents:
+          electionFamousNames2021Fixtures.electionJson.asText(),
+      },
     })
   ).unsafeUnwrap();
   const contests = await apiClient.listContests({ electionId });
@@ -2070,7 +2048,11 @@ test('Finalize ballots', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: electionFamousNames2021Fixtures.electionJson.asText(),
+      upload: {
+        format: 'vxf',
+        electionFileContents:
+          electionFamousNames2021Fixtures.electionJson.asText(),
+      },
     })
   ).unsafeUnwrap();
 
@@ -2117,7 +2099,11 @@ test('cloneElection', async () => {
 
   auth0.setLoggedInUser(vxUser);
   await apiClient.loadElection({
-    electionData: electionFamousNames2021Fixtures.electionJson.asText(),
+    upload: {
+      format: 'vxf',
+      electionFileContents:
+        electionFamousNames2021Fixtures.electionJson.asText(),
+    },
     newId: srcElectionId,
     orgId: nonVxUser.orgId,
   });
@@ -2337,7 +2323,10 @@ test('Election package management', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
 
@@ -2557,7 +2546,10 @@ test('Election package and ballots export', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: JSON.stringify(electionWithLegalPaper),
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(electionWithLegalPaper),
+      },
     })
   ).unsafeUnwrap();
   await apiClient.updateSystemSettings({
@@ -2910,7 +2902,10 @@ test('Election package export with VxDefaultBallot drops signature field', async
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
 
@@ -2968,7 +2963,10 @@ test('Export test decks', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: electionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: electionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
 
@@ -3064,7 +3062,10 @@ test('Consistency of ballot hash across exports', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
 
@@ -3124,7 +3125,10 @@ test('CDF exports', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
 
@@ -3179,7 +3183,10 @@ test('export ballots with audit IDs', async () => {
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
 
@@ -3240,7 +3247,10 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
@@ -3302,7 +3312,10 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: JSON.stringify(election),
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(election),
+      },
     })
   ).unsafeUnwrap();
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
@@ -3352,7 +3365,10 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: baseElectionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
@@ -3403,7 +3419,10 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: JSON.stringify(election),
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(election),
+      },
     })
   ).unsafeUnwrap();
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
@@ -3446,7 +3465,10 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: electionDefinition.electionData,
+      upload: {
+        format: 'vxf',
+        electionFileContents: electionDefinition.electionData,
+      },
     })
   ).unsafeUnwrap();
   expect(await apiClient.getBallotTemplate({ electionId })).toEqual(

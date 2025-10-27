@@ -32,6 +32,8 @@ import * as worker from '../src/worker/worker';
 import { createWorkspace, Workspace } from '../src/workspace';
 import { TestStore } from './test_store';
 import { getEntries, openZip, readEntry } from '@votingworks/utils/src';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 tmp.setGracefulCleanup();
 
@@ -291,4 +293,10 @@ export async function exportTestDecks({
   return assertDefined(
     assertDefined(testDecks.url).match(TEST_DECKS_FILE_NAME_REGEX)
   )[0];
+}
+
+const fixturesPath = `${__dirname}/../test/fixtures`;
+
+export function readFixture(filename: string): Promise<string> {
+  return readFile(join(fixturesPath, filename), 'utf8');
 }

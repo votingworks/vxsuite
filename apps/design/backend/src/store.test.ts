@@ -471,7 +471,10 @@ test('getExportedElectionDefinition returns the exported election including reor
     await apiClient.loadElection({
       newId: 'test-nh-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: JSON.stringify(baseElectionDefinition.election),
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(baseElectionDefinition.election),
+      },
     })
   ).unsafeUnwrap();
 
@@ -593,7 +596,10 @@ test('getExportedElection returns election-out-of-date error when election data 
     await apiClient.loadElection({
       newId: 'test-election-parse-error' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: JSON.stringify(baseElectionDefinition.election),
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(baseElectionDefinition.election),
+      },
     })
   ).unsafeUnwrap();
 

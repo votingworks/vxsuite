@@ -98,7 +98,14 @@ async function setUpElectionInSystem(
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: JSON.stringify(baseElectionDefinition.election, null, 2),
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(
+          baseElectionDefinition.election,
+          null,
+          2
+        ),
+      },
     })
   ).unsafeUnwrap();
 
@@ -1866,7 +1873,14 @@ test('LiveReports uses modified exported election, not original vxdesign electio
     await apiClient.loadElection({
       newId: 'reordered-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
-      electionData: JSON.stringify(baseElectionDefinition.election, null, 2),
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(
+          baseElectionDefinition.election,
+          null,
+          2
+        ),
+      },
     })
   ).unsafeUnwrap();
 
