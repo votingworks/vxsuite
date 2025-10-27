@@ -146,7 +146,7 @@ export function convertMsElection(
   }).filter((row: string[]) => row.every((cell) => cell !== ''));
 
   // Election file format:
-  // 9 sections, each row starts with 0-8 to idenify which section it's a part of
+  // 9 sections, each row starts with 0-8 to identify which section it belongs to
   function sectionRows(sectionNumber: number): Array<string[]> {
     return electionFileRows.filter((row) => row[0] === String(sectionNumber));
   }
