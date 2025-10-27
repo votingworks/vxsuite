@@ -3,7 +3,6 @@ import {
   assert,
   assertDefined,
   err,
-  find,
   iter,
   ok,
   range,
@@ -30,7 +29,7 @@ import {
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
-  getContests,
+  getOrderedContests,
   getPartyForBallotStyle,
   hasSplits,
 } from '@votingworks/types';
@@ -181,6 +180,8 @@ const contestsUsingPrecinctRotation: Record<ElectionId, ContestId[]> = {
   ],
 };
 
+// IN PROGRESS WILL BE MOVED / USED IN FUTURE COMMIT
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function rotateCandidates(
   contest: CandidateContestStruct,
   election: Election,
@@ -427,12 +428,10 @@ function CandidateContest({
   election,
   contest,
   compact,
-  precinctId,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   compact?: boolean;
-  precinctId: PrecinctId;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
@@ -464,8 +463,6 @@ function CandidateContest({
     10: hmpbStrings.hmpb10WillBeElected,
   }[contest.seats];
 
-  const rotatedCandidateIds = rotateCandidates(contest, election, precinctId);
-
   return (
     <Box
       style={{
@@ -493,11 +490,7 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {rotatedCandidateIds.map((candidateId, i) => {
-          const candidate = find(
-            contest.candidates,
-            (c) => c.id === candidateId
-          );
+        {contest.candidates.map((candidate, i) => {
           const partyText =
             election.type === 'primary' ? undefined : (
               <CandidatePartyList
@@ -701,7 +694,6 @@ function Contest({
   compact,
   contest,
   election,
-  precinctId,
 }: {
   compact?: boolean;
   contest: AnyContest;
@@ -715,7 +707,6 @@ function Contest({
           compact={compact}
           election={election}
           contest={contest}
-          precinctId={precinctId}
         />
       );
     case 'yesno':
@@ -813,7 +804,7 @@ async function BallotPageContent(
   );
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
-  const contests = getContests({ election, ballotStyle });
+  const contests = getOrderedContests({ election, ballotStyle });
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
