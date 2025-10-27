@@ -262,8 +262,28 @@ function getElectionStringConfig({
     : electionStringConfigs[stringKey[0]];
 }
 
-function extractElectionStrings(election: Election): ElectionString[] {
-  return Object.values(electionStringExtractorFns).flatMap((extractorFn) =>
+/**
+ * Extracts user-provided strings from the given election. Supports exclusion and inclusion params
+ * to exclude or include categories of strings. Only one of options.exclude or options.include may
+ * be provided. By default, all strings are extracted.
+ */
+export function extractElectionStrings(
+  election: Election,
+  options: { exclude?: ElectionStringKey[]; include?: ElectionStringKey[] } = {}
+): ElectionString[] {
+  assert(!(options.exclude && options.include));
+  const electionStringExtractorFnsToUse = Object.entries(
+    electionStringExtractorFns
+  )
+    .filter(([key]) =>
+      options.exclude
+        ? !options.exclude.includes(key as ElectionStringKey)
+        : options.include
+        ? options.include.includes(key as ElectionStringKey)
+        : true
+    )
+    .map(([, extractorFn]) => extractorFn);
+  return electionStringExtractorFnsToUse.flatMap((extractorFn) =>
     extractorFn(election)
   );
 }
