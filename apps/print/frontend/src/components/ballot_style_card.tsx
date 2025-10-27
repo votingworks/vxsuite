@@ -139,10 +139,10 @@ export function BallotStyleCard({
   // Determine color based on party
   function getPartyColor(partyName: string): 'red' | 'blue' | undefined {
     const lowerParty = partyName.toLowerCase();
-    if (lowerParty.includes('dem') || lowerParty.includes('democratic')) {
+    if (lowerParty.includes('dem')) {
       return 'blue';
     }
-    if (lowerParty.includes('rep') || lowerParty.includes('republican')) {
+    if (lowerParty.includes('rep')) {
       return 'red';
     }
     return undefined;
@@ -156,7 +156,7 @@ export function BallotStyleCard({
         </Row>
         <Row>
           {type && <Tag>{type}</Tag>}
-          <Tag color={getPartyColor(party)}>{party}</Tag>
+          <Tag color={!type ? getPartyColor(party) : undefined}>{party}</Tag>
           <Tag>{language}</Tag>
         </Row>
       </BallotStyleInfo>

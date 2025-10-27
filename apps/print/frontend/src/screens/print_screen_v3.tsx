@@ -3,7 +3,7 @@ import {
   hasSplits,
   PrecinctOrSplitId,
 } from '@votingworks/types';
-import { DesktopPalette, H2, H3, SearchSelect } from '@votingworks/ui';
+import { Button, DesktopPalette, H2, H3, SearchSelect } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
 import { BallotStyleCard } from '../components/ballot_style_card';
@@ -235,6 +235,20 @@ export function PrintScreenV3({
             ))}
           </Row>
         </Section>
+        <Button
+          icon="X"
+          onPress={() => {
+            setSelectedPrecinct(undefined);
+            setSelectedParty(undefined);
+            setSelectedLanguage(undefined);
+            setSelectedType(undefined);
+          }}
+          value={undefined}
+          fill="outlined"
+          style={{ marginTop: 'auto', marginBottom: '1rem' }}
+        >
+          Reset
+        </Button>
       </Step1Section>
       <div
         style={{
