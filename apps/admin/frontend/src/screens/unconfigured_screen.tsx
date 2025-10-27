@@ -12,6 +12,7 @@ import {
 } from '@votingworks/ui';
 import type { FileSystemEntry } from '@votingworks/fs';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { systemLimitViolationToString } from '@votingworks/utils';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
@@ -74,9 +75,13 @@ function SelectElectionPackage({
                     return 'Invalid system settings file.';
                   case 'invalid-metadata':
                     return 'Invalid metadata file.';
+                  case 'system-limit-violation':
+                    return systemLimitViolationToString(
+                      configureError.violation
+                    );
                   default: {
                     /* istanbul ignore next - @preserve */
-                    throwIllegalValue(configureError.type);
+                    throwIllegalValue(configureError, 'type');
                   }
                 }
               })()}

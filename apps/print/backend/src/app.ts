@@ -66,7 +66,7 @@ export function buildApi(ctx: AppContext) {
         electionPackageResult.ok();
       const { electionDefinition, systemSettings, ballots } = electionPackage;
       if (!ballots) {
-        return err('no_ballots');
+        return err({ type: 'no_ballots' });
       }
       assert(systemSettings);
 
