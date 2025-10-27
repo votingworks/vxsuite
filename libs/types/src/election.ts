@@ -410,6 +410,16 @@ export const PrecinctsSchema = z
     }
   });
 
+// Represents a bubble option that should be displayed for selection on a ballot.
+export interface DisplayCandidate {
+  id: CandidateId;
+  // TODO(CROSS_ENDORSE): add more partyIds as needed.
+}
+
+export const DisplayCandidateSchema: z.ZodSchema<DisplayCandidate> = z.object({
+  id: CandidateIdSchema,
+});
+
 export type BallotStyleId = string;
 export const BallotStyleIdSchema =
   IdSchema as unknown as z.ZodSchema<BallotStyleId>;
@@ -421,6 +431,10 @@ export interface BallotStyle {
   readonly districts: readonly DistrictId[];
   readonly partyId?: PartyId;
   readonly languages?: readonly string[]; // TODO(kofi): Make required.
+  readonly orderedDisplayCandidatesByContest?: Record<
+    ContestId,
+    DisplayCandidate[]
+  >;
 }
 
 export type BallotStyleGroupId = string;
@@ -442,6 +456,9 @@ export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   districts: z.array(DistrictIdSchema),
   partyId: PartyIdSchema.optional(),
   languages: z.array(z.string()).optional(),
+  orderedDisplayCandidatesByContest: z
+    .record(z.string(), z.array(DisplayCandidateSchema))
+    .optional(),
 });
 export const BallotStylesSchema = z
   .array(BallotStyleSchema)
