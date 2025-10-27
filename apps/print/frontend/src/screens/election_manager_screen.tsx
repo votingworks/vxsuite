@@ -1,5 +1,5 @@
 import { ElectionDefinition } from '@votingworks/types';
-import { P, H1 } from '@votingworks/ui';
+import { P, H1, Button } from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   electionManagerRoutes,
@@ -8,6 +8,7 @@ import {
 import { PrintScreen } from './print_screen';
 import { PrintScreenV2 } from './print_screen_v2';
 import { PrintScreenV3 } from './print_screen_v3';
+import { unconfigureMachine } from '../api';
 
 export interface ElectionManagerScreenProps {
   electionDefinition: ElectionDefinition;
@@ -72,13 +73,13 @@ function ElectionManagerElectionScreen({
 function ElectionManagerSettingsScreen({
   electionDefinition,
 }: ElectionManagerScreenProps): JSX.Element {
+  const unconfigureMachineMutation = unconfigureMachine.useMutation();
   return (
     <ElectionManagerWrapper
       electionDefinition={electionDefinition}
       title="Settings"
-      centerChild
     >
-      Settings for Election Manager
+      <Button onPress={unconfigureMachineMutation.mutate}>Unconfigure</Button>
     </ElectionManagerWrapper>
   );
 }

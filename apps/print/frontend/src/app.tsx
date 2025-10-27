@@ -13,7 +13,10 @@ import { DevDock } from '@votingworks/dev-dock-frontend';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { MachineLockedScreen } from './machine_locked_screen';
 import {
@@ -28,6 +31,7 @@ import {
 } from './api';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { UnconfiguredElectionScreenWrapper } from './unconfigured_election_screen_wrapper';
+import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 
 function AppRoot({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -93,14 +97,20 @@ function AppRoot({
   }
 
   if (authStatus.status === 'logged_in') {
-    if (!electionDefinition) {
-      return <UnconfiguredElectionScreenWrapper />;
-    }
-
     if (isElectionManagerAuth(authStatus)) {
+      if (!electionDefinition) {
+        return <UnconfiguredElectionScreenWrapper />;
+      }
+
       return <ElectionManagerScreen electionDefinition={electionDefinition} />;
       // Uncomment to access ballot printing screen
       // return <BallotListScreen />;
+    }
+
+    if (isSystemAdministratorAuth(authStatus)) {
+      return (
+        <SystemAdministratorScreen electionDefinition={electionDefinition} />
+      );
     }
   }
 

@@ -4,7 +4,7 @@ import {
   isElectionManagerAuth,
 } from '@votingworks/utils';
 import styled from 'styled-components';
-import { getAuthStatus } from '../api';
+import { getAuthStatus, logOut } from '../api';
 
 export const ButtonRow = styled.div`
   display: flex;
@@ -23,6 +23,7 @@ export const Header = styled(MainHeader)`
 
 export function TopBar({ title }: { title: string }): JSX.Element | null {
   const authQuery = getAuthStatus.useQuery();
+  const logOutMutation = logOut.useMutation();
   let showButtonRow = false;
   if (authQuery.isSuccess) {
     showButtonRow =
@@ -39,7 +40,7 @@ export function TopBar({ title }: { title: string }): JSX.Element | null {
             usbDriveStatus={{ status: 'no_drive' }}
             usbDriveIsEjecting={false}
           />
-          <Button onPress={() => console.log('TODO: Lock Machine')} icon="Lock">
+          <Button onPress={logOutMutation.mutate} icon="Lock">
             Lock Machine
           </Button>
           {/* <BatteryDisplay /> */}

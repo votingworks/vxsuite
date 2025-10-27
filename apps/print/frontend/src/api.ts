@@ -48,6 +48,20 @@ export const getAuthStatus = {
   },
 } as const;
 
+export const logOut = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.logOut, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const getElectionDefinition = {
   queryKey(): QueryKey {
     return ['getElectionDefinition'];
