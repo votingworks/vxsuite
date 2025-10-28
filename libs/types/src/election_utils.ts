@@ -71,9 +71,17 @@ export function getOrderedCandidatesForContestInBallotStyle({
   if (!candidateOrdering) {
     return contest.candidates;
   }
-  return candidateOrdering.map(({ id }) =>
-    assertDefined(contest.candidates.find((c) => c.id === id))
-  );
+  return candidateOrdering.map(({ id, partyIds }) => {
+    const candidate = assertDefined(
+      contest.candidates.find((c) => c.id === id)
+    );
+    // If the OrderedCandidateOption has partyIds specified, return a candidate with those specific partyIds
+    // This enables cross-endorsed candidates to appear multiple times with different party affiliations
+    return {
+      ...candidate,
+      partyIds,
+    };
+  });
 }
 
 /**

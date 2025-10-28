@@ -956,9 +956,18 @@ test('getOrderedCandidatesForContestInBallotStyle with primary election', () => 
     })!,
     orderedCandidatesByContest: {
       'best-animal-mammal': [
-        { id: mammalContest.candidates[2].id },
-        { id: mammalContest.candidates[0].id },
-        { id: mammalContest.candidates[1].id },
+        {
+          id: mammalContest.candidates[2].id,
+          partyIds: mammalContest.candidates[2].partyIds,
+        },
+        {
+          id: mammalContest.candidates[0].id,
+          partyIds: mammalContest.candidates[0].partyIds,
+        },
+        {
+          id: mammalContest.candidates[1].id,
+          partyIds: mammalContest.candidates[1].partyIds,
+        },
       ],
     },
   };
@@ -973,4 +982,306 @@ test('getOrderedCandidatesForContestInBallotStyle with primary election', () => 
     mammalContest.candidates[0].id,
     mammalContest.candidates[1].id,
   ]);
+});
+
+test('getOrderedContests handles cross-endorsed candidates represented by multiple options', () => {
+  // Create a candidate cross-endorsed by multiple parties
+  const testElection: Election = {
+    ...election,
+    parties: [
+      { id: 'party-a', name: 'Party A', fullName: 'Party A', abbrev: 'A' },
+      { id: 'party-b', name: 'Party B', fullName: 'Party B', abbrev: 'B' },
+      { id: 'party-c', name: 'Party C', fullName: 'Party C', abbrev: 'C' },
+    ],
+    contests: [
+      {
+        type: 'candidate',
+        id: 'governor',
+        districtId: 'D',
+        seats: 1,
+        title: 'Governor',
+        allowWriteIns: false,
+        candidates: [
+          {
+            id: 'alice',
+            name: 'Alice',
+            partyIds: ['party-a', 'party-b'], // Cross-endorsed by Party A and Party B
+          },
+          { id: 'bob', name: 'Bob', partyIds: ['party-c'] },
+          { id: 'carol', name: 'Carol', partyIds: ['party-a'] },
+        ],
+      },
+    ],
+  };
+
+  // Create two DisplayCandidates for Alice, one for each party
+  const ballotStyleWithCrossEndorsement: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedDisplayCandidatesByContest: {
+      governor: [
+        { id: 'alice', partyIds: ['party-a'] }, // Alice as Party A candidate
+        { id: 'bob', partyIds: ['party-c'] },
+        { id: 'alice', partyIds: ['party-b'] }, // Alice as Party B candidate
+        { id: 'carol', partyIds: ['party-a'] },
+      ],
+    },
+  };
+
+  const orderedContests = getOrderedContests({
+    ballotStyle: ballotStyleWithCrossEndorsement,
+    election: testElection,
+  });
+
+  const governorContest = orderedContests.find(
+    (c): c is CandidateContest => c.id === 'governor'
+  )!;
+
+  // Should have 4 candidate entries (Alice appears twice)
+  expect(governorContest.candidates).toHaveLength(4);
+
+  // Verify the candidates and their partyIds
+  expect(governorContest.candidates[0]).toEqual({
+    id: 'alice',
+    name: 'Alice',
+    partyIds: ['party-a'], // Only Party A
+  });
+  expect(governorContest.candidates[1]).toEqual({
+    id: 'bob',
+    name: 'Bob',
+    partyIds: ['party-c'],
+  });
+  expect(governorContest.candidates[2]).toEqual({
+    id: 'alice',
+    name: 'Alice',
+    partyIds: ['party-b'], // Only Party B
+  });
+  expect(governorContest.candidates[3]).toEqual({
+    id: 'carol',
+    name: 'Carol',
+    partyIds: ['party-a'],
+  });
+});
+
+test('getOrderedContests handles cross-endorsed candidates represented by one option', () => {
+  // Create a candidate cross-endorsed by multiple parties
+  const testElection: Election = {
+    ...election,
+    parties: [
+      { id: 'party-a', name: 'Party A', fullName: 'Party A', abbrev: 'A' },
+      { id: 'party-b', name: 'Party B', fullName: 'Party B', abbrev: 'B' },
+      { id: 'party-c', name: 'Party C', fullName: 'Party C', abbrev: 'C' },
+    ],
+    contests: [
+      {
+        type: 'candidate',
+        id: 'governor',
+        districtId: 'D',
+        seats: 1,
+        title: 'Governor',
+        allowWriteIns: false,
+        candidates: [
+          {
+            id: 'alice',
+            name: 'Alice',
+            partyIds: ['party-a', 'party-b'], // Cross-endorsed by Party A and Party B
+          },
+          { id: 'bob', name: 'Bob', partyIds: ['party-c'] },
+          { id: 'carol', name: 'Carol', partyIds: ['party-a'] },
+        ],
+      },
+    ],
+  };
+
+  // Create two DisplayCandidates for Alice, one for each party
+  const ballotStyleWithCrossEndorsement: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedDisplayCandidatesByContest: {
+      governor: [
+        { id: 'alice', partyIds: ['party-a', 'party-b'] }, // Alice as Party A and B candidate
+        { id: 'bob', partyIds: ['party-c'] },
+        { id: 'carol', partyIds: ['party-a'] },
+      ],
+    },
+  };
+
+  const orderedContests = getOrderedContests({
+    ballotStyle: ballotStyleWithCrossEndorsement,
+    election: testElection,
+  });
+
+  const governorContest = orderedContests.find(
+    (c): c is CandidateContest => c.id === 'governor'
+  )!;
+
+  // Should have 3 candidate entries (Alice appears once)
+  expect(governorContest.candidates).toHaveLength(3);
+
+  // Verify the candidates and their partyIds
+  expect(governorContest.candidates[0]).toEqual({
+    id: 'alice',
+    name: 'Alice',
+    partyIds: ['party-a', 'party-b'], // Both Party A and B
+  });
+  expect(governorContest.candidates[1]).toEqual({
+    id: 'bob',
+    name: 'Bob',
+    partyIds: ['party-c'],
+  });
+  expect(governorContest.candidates[2]).toEqual({
+    id: 'carol',
+    name: 'Carol',
+    partyIds: ['party-a'],
+  });
+});
+
+test('getOrderedContests throws when cross-endorsed candidate has mismatched partyIds', () => {
+  const testElection: Election = {
+    ...election,
+    parties: [
+      { id: 'party-a', name: 'Party A', fullName: 'Party A', abbrev: 'A' },
+      { id: 'party-b', name: 'Party B', fullName: 'Party B', abbrev: 'B' },
+      { id: 'party-c', name: 'Party C', fullName: 'Party C', abbrev: 'C' },
+    ],
+    contests: [
+      {
+        type: 'candidate',
+        id: 'governor',
+        districtId: 'D',
+        seats: 1,
+        title: 'Governor',
+        allowWriteIns: false,
+        candidates: [
+          {
+            id: 'alice',
+            name: 'Alice',
+            partyIds: ['party-a', 'party-b'], // Original has Party A and B
+          },
+        ],
+      },
+    ],
+  };
+
+  // DisplayCandidates specify Party A and C (wrong - missing B, has extra C)
+  const ballotStyleWithMismatchedParties: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedDisplayCandidatesByContest: {
+      governor: [
+        { id: 'alice', partyIds: ['party-a'] },
+        { id: 'alice', partyIds: ['party-c'] }, // Wrong party!
+      ],
+    },
+  };
+
+  expect(() =>
+    getOrderedContests({
+      ballotStyle: ballotStyleWithMismatchedParties,
+      election: testElection,
+    })
+  ).toThrow();
+});
+
+test('getOrderedContests throws when cross-endorsed candidate has incomplete partyIds', () => {
+  const testElection: Election = {
+    ...election,
+    parties: [
+      { id: 'party-a', name: 'Party A', fullName: 'Party A', abbrev: 'A' },
+      { id: 'party-b', name: 'Party B', fullName: 'Party B', abbrev: 'B' },
+      { id: 'party-c', name: 'Party C', fullName: 'Party C', abbrev: 'C' },
+    ],
+    contests: [
+      {
+        type: 'candidate',
+        id: 'senator',
+        districtId: 'D',
+        seats: 1,
+        title: 'Senator',
+        allowWriteIns: false,
+        candidates: [
+          {
+            id: 'bob',
+            name: 'Bob',
+            partyIds: ['party-a', 'party-b', 'party-c'], // Original has 3 parties
+          },
+        ],
+      },
+    ],
+  };
+
+  // DisplayCandidates only specify Party A and B (missing C)
+  const ballotStyleWithIncompleteParties: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedDisplayCandidatesByContest: {
+      senator: [
+        { id: 'bob', partyIds: ['party-a'] },
+        { id: 'bob', partyIds: ['party-b'] }, // Missing party-c
+      ],
+    },
+  };
+
+  expect(() =>
+    getOrderedContests({
+      ballotStyle: ballotStyleWithIncompleteParties,
+      election: testElection,
+    })
+  ).toThrow();
+});
+
+test('getOrderedContests throws when cross-endorsed candidate has undefined partyIds', () => {
+  const testElection: Election = {
+    ...election,
+    parties: [
+      { id: 'party-a', name: 'Party A', fullName: 'Party A', abbrev: 'A' },
+      { id: 'party-b', name: 'Party B', fullName: 'Party B', abbrev: 'B' },
+    ],
+    contests: [
+      {
+        type: 'candidate',
+        id: 'mayor',
+        districtId: 'D',
+        seats: 1,
+        title: 'Mayor',
+        allowWriteIns: false,
+        candidates: [
+          {
+            id: 'carol',
+            name: 'Carol',
+            partyIds: ['party-a', 'party-b'],
+          },
+        ],
+      },
+    ],
+  };
+
+  // One DisplayCandidate has undefined partyIds when appearing multiple times
+  const ballotStyleWithUndefinedPartyIds: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedDisplayCandidatesByContest: {
+      mayor: [
+        { id: 'carol', partyIds: ['party-a'] },
+        { id: 'carol' }, // undefined partyIds - not allowed when appearing multiple times
+      ],
+    },
+  };
+
+  expect(() =>
+    getOrderedContests({
+      ballotStyle: ballotStyleWithUndefinedPartyIds,
+      election: testElection,
+    })
+  ).toThrow();
 });

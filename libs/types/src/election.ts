@@ -413,12 +413,13 @@ export const PrecinctsSchema = z
 // Represents a bubble option that should be displayed for selection on a ballot.
 export interface OrderedCandidateOption {
   id: CandidateId;
-  // TODO(CROSS_ENDORSE): add more partyIds as needed.
+  partyIds?: readonly PartyId[];
 }
 
 export const OrderedCandidateOptionSchema: z.ZodSchema<OrderedCandidateOption> =
   z.object({
     id: CandidateIdSchema,
+    partyIds: z.array(PartyIdSchema).optional(),
   });
 
 export type BallotStyleId = string;

@@ -64,6 +64,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
             (candidate) =>
               typedAs<OrderedCandidateOption>({
                 id: candidate.id,
+                partyIds: candidate.partyIds,
               })
           );
           break;
@@ -103,6 +104,7 @@ function getDefaultCandidateOrdering({
           (candidate) =>
             typedAs<OrderedCandidateOption>({
               id: candidate.id,
+              partyIds: candidate.partyIds,
             })
         );
         break;

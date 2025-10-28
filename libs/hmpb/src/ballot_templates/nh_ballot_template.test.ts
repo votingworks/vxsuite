@@ -26,7 +26,7 @@ describe('rotateCandidatesByStatute', () => {
       candidates: candidateContest.candidates.slice(0, 1),
     };
     expect(rotateCandidatesByStatute(contest)).toEqual(
-      contest.candidates.map((c) => ({ id: c.id }))
+      contest.candidates.map((c) => ({ id: c.id, partyIds: c.partyIds }))
     );
   });
 
