@@ -8,6 +8,9 @@ import {
   EncodedBallotEntry,
   InsertedSmartCardAuth,
   LATEST_METADATA,
+  SYSTEM_LIMITS,
+  SystemLimitViolation,
+  SystemLimits,
   SystemSettings,
   UiStringAudioClips,
   UiStringAudioIdsPackage,
@@ -51,6 +54,7 @@ import {
 } from './test_utils';
 import {
   ElectionPackageWithFileContents,
+  readElectionPackageFromBuffer,
   readElectionPackageFromFile,
   readSignedElectionPackageFromUsb,
 } from './election_package_io';
@@ -445,7 +449,7 @@ test('readElectionPackageFromFile errors when given invalid metadata', async () 
   );
 });
 
-test('readElectionPackageFromUsb can read an election package from usb', async () => {
+test('readSignedElectionPackageFromUsb can read an election package from usb', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
@@ -486,7 +490,7 @@ test('readElectionPackageFromUsb can read an election package from usb', async (
   });
 });
 
-test("readElectionPackageFromUsb uses default system settings when system settings don't exist in the zip file", async () => {
+test("readSignedElectionPackageFromUsb uses default system settings when system settings don't exist in the zip file", async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
@@ -537,7 +541,7 @@ test('errors if logged-out auth is passed', async () => {
     logger
   );
   expect(electionPackageResult).toEqual(
-    err('auth_required_before_election_package_load')
+    err({ type: 'auth_required_before_election_package_load' })
   );
 });
 
@@ -565,7 +569,7 @@ test('errors if election key on provided auth is different than election package
     mockUsbDrive.usbDrive,
     mockBaseLogger({ fn: vi.fn })
   );
-  expect(electionPackageResult).toEqual(err('election_key_mismatch'));
+  expect(electionPackageResult).toEqual(err({ type: 'election_key_mismatch' }));
 });
 
 test('errors if there is no election package on usb drive', async () => {
@@ -587,7 +591,7 @@ test('errors if there is no election package on usb drive', async () => {
     mockBaseLogger({ fn: vi.fn })
   );
   expect(electionPackageResult).toEqual(
-    err('no_election_package_on_usb_drive')
+    err({ type: 'no_election_package_on_usb_drive' })
   );
 });
 
@@ -794,7 +798,7 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   );
 });
 
-test('readElectionPackageFromUsb returns error result if election package authentication errs', async () => {
+test('readSignedElectionPackageFromUsb returns error result if election package authentication errs', async () => {
   vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
@@ -821,11 +825,11 @@ test('readElectionPackageFromUsb returns error result if election package authen
     mockBaseLogger({ fn: vi.fn })
   );
   expect(electionPackageResult).toEqual(
-    err('election_package_authentication_error')
+    err({ type: 'election_package_authentication_error' })
   );
 });
 
-test('readElectionPackageFromUsb ignores election package authentication errors if SKIP_ELECTION_PACKAGE_AUTHENTICATION is enabled', async () => {
+test('readSignedElectionPackageFromUsb ignores election package authentication errors if SKIP_ELECTION_PACKAGE_AUTHENTICATION is enabled', async () => {
   vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
@@ -856,3 +860,147 @@ test('readElectionPackageFromUsb ignores election package authentication errors 
   );
   expect(electionPackageResult).toEqual(ok(expect.anything()));
 });
+
+test.each<{
+  description: string;
+  systemSettings: SystemSettings;
+  isErrorExpected: boolean;
+}>([
+  {
+    description: 'default system settings, validation enabled',
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    isErrorExpected: true,
+  },
+  {
+    description: 'adjusted system settings, validation disabled',
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      disableSystemLimitChecks: true,
+    },
+    isErrorExpected: false,
+  },
+])(
+  'readElectionPackageFromBuffer/File system limit validation - $description',
+  async (testConfig) => {
+    const electionDefinition =
+      electionTwoPartyPrimaryFixtures.readElectionDefinition();
+    const electionPackageContents = await zipFile({
+      [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+      [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+        typedAs<SystemSettings>(testConfig.systemSettings)
+      ),
+    });
+    const electionPackageFile = makeTemporaryFile({
+      content: electionPackageContents,
+    });
+
+    const systemLimitsOverride: SystemLimits = {
+      ...SYSTEM_LIMITS,
+      election: {
+        ...SYSTEM_LIMITS.election,
+        contests: 0,
+      },
+    };
+    const systemLimitViolation: SystemLimitViolation = {
+      limitScope: 'election',
+      limitType: 'contests',
+      valueExceedingLimit: expect.any(Number),
+    };
+
+    const readFromBufferResult = await readElectionPackageFromBuffer(
+      electionPackageContents,
+      { systemLimitsOverride }
+    );
+    if (testConfig.isErrorExpected) {
+      expect(readFromBufferResult).toEqual(
+        err({ type: 'system-limit-violation', violation: systemLimitViolation })
+      );
+    } else {
+      expect(readFromBufferResult).toEqual(ok(expect.anything()));
+    }
+
+    const readFromFileResult = await readElectionPackageFromFile(
+      electionPackageFile,
+      { systemLimitsOverride }
+    );
+    if (testConfig.isErrorExpected) {
+      expect(readFromFileResult).toEqual(
+        err({ type: 'system-limit-violation', violation: systemLimitViolation })
+      );
+    } else {
+      expect(readFromFileResult).toEqual(ok(expect.anything()));
+    }
+  }
+);
+
+test.each<{
+  description: string;
+  systemSettings: SystemSettings;
+  isErrorExpected: boolean;
+}>([
+  {
+    description: 'default system settings, validation enabled',
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    isErrorExpected: true,
+  },
+  {
+    description: 'adjusted system settings, validation disabled',
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      disableSystemLimitChecks: true,
+    },
+    isErrorExpected: false,
+  },
+])(
+  'readSignedElectionPackageFromUsb system limit validation - $description',
+  async (testConfig) => {
+    const electionDefinition =
+      electionTwoPartyPrimaryFixtures.readElectionDefinition();
+    const { election } = electionDefinition;
+    const electionKey = constructElectionKey(election);
+    const authStatus: InsertedSmartCardAuth.AuthStatus = {
+      status: 'logged_in',
+      user: mockElectionManagerUser({ electionKey }),
+      sessionExpiresAt: mockSessionExpiresAt(),
+    };
+
+    const mockUsbDrive = createMockUsbDrive();
+    mockUsbDrive.insertUsbDrive(
+      await mockElectionPackageFileTree({
+        electionDefinition,
+        systemSettings: testConfig.systemSettings,
+      })
+    );
+
+    const systemLimitsOverride: SystemLimits = {
+      ...SYSTEM_LIMITS,
+      markScanBallotStyle: {
+        ...SYSTEM_LIMITS.markScanBallotStyle,
+        candidatesSummedAcrossContests: 0,
+      },
+    };
+    const systemLimitViolation: SystemLimitViolation = {
+      limitScope: 'markScanBallotStyle',
+      limitType: 'candidatesSummedAcrossContests',
+      valueExceedingLimit: expect.any(Number),
+      ballotStyleId: expect.any(String),
+    };
+
+    const result = await readSignedElectionPackageFromUsb(
+      authStatus,
+      mockUsbDrive.usbDrive,
+      mockBaseLogger({ fn: vi.fn }),
+      {
+        checkMarkScanSystemLimits: true,
+        systemLimitsOverride,
+      }
+    );
+    if (testConfig.isErrorExpected) {
+      expect(result).toEqual(
+        err({ type: 'system_limit_violation', violation: systemLimitViolation })
+      );
+    } else {
+      expect(result).toEqual(ok(expect.anything()));
+    }
+  }
+);
