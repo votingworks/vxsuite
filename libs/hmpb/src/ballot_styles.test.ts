@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { typedAs } from '@votingworks/basics';
 import {
   AnyContest,
@@ -17,6 +17,7 @@ import {
   generateBallotStyleId,
 } from '@votingworks/utils';
 import { generateBallotStyles } from './ballot_styles';
+import * as ballotRotation from './ballot_rotation';
 
 function makeContest(
   id: string,
@@ -28,7 +29,11 @@ function makeContest(
     districtId,
     type: 'candidate',
     title: id,
-    candidates: [],
+    candidates: [
+      { id: 'candidate-1', name: 'A' },
+      { id: 'candidate-2', name: 'B' },
+      { id: 'candidate-3', name: 'C' },
+    ],
     allowWriteIns: true,
     seats: 1,
     partyId,
@@ -36,6 +41,25 @@ function makeContest(
 }
 
 describe('generateBallotStyles()', () => {
+  // Spy on getAllPossibleCandidateOrderings so we can mock it in specific tests
+  let mockGetAllPossibleCandidateOrderings = vi.spyOn(
+    ballotRotation,
+    'getAllPossibleCandidateOrderings'
+  );
+
+  beforeEach(() => {
+    // Create a fresh spy before each test that calls through to the original implementation
+    mockGetAllPossibleCandidateOrderings = vi.spyOn(
+      ballotRotation,
+      'getAllPossibleCandidateOrderings'
+    );
+  });
+
+  afterEach(() => {
+    // Restore the original implementation after each test
+    mockGetAllPossibleCandidateOrderings.mockRestore();
+  });
+
   const { ENGLISH, SPANISH } = LanguageCode;
 
   const district1: District = {
@@ -72,12 +96,12 @@ describe('generateBallotStyles()', () => {
 
   const precinct1District1: Precinct = {
     id: 'precinct-1',
-    name: 'Precinct 1',
+    name: 'A - Precinct 1',
     districtIds: [district1.id],
   };
   const precinct2District2: Precinct = {
     id: 'precinct-2',
-    name: 'Precinct 2',
+    name: 'B - Precinct 2',
     districtIds: [district2.id],
   };
 
@@ -108,20 +132,20 @@ describe('generateBallotStyles()', () => {
   } as const;
   const precinct3District1And2: Precinct = {
     id: 'precinct-3-with-splits',
-    name: 'Precinct 3 - With Splits',
+    name: 'C - Precinct 3 - With Splits',
     splits: Object.values(precinct3Splits),
   };
 
   const precinct4NoDistricts: Precinct = {
     id: 'precinct-4',
-    name: 'Precinct 4',
+    name: 'D - Precinct 4',
     // Shouldn't get a ballot style, since no districts assigned
     districtIds: [],
   };
 
   const precinct5NoContests: Precinct = {
     id: 'precinct-5',
-    name: 'Precinct 5',
+    name: 'E - Precinct 5',
     // Shouldn't get a ballot style, since no contests assigned
     districtIds: [district3NoContests.id],
   };
@@ -136,7 +160,7 @@ describe('generateBallotStyles()', () => {
   const partyBContest2 = makeContest('contest-2B', district2.id, partyB.id);
   /* eslint-enable vx/gts-identifiers */
 
-  test('general election, no splits', () => {
+  test('general election, no splits, default rotation', () => {
     const ballotLanguageConfigs = [
       { languages: [ENGLISH] },
       { languages: [ENGLISH, SPANISH] },
@@ -152,6 +176,8 @@ describe('generateBallotStyles()', () => {
         precinct4NoDistricts,
         precinct5NoContests,
       ],
+      ballotTemplateId: 'VxDefaultBallot',
+      electionId: 'test-election',
     });
 
     expect(ballotStyles).toEqual<BallotStyle[]>([
@@ -161,6 +187,13 @@ describe('generateBallotStyles()', () => {
         districts: [district1.id],
         languages,
         precincts: [precinct1District1.id],
+        orderedDisplayCandidatesByContest: {
+          [generalContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({ ballotStyleIndex: 2, languages }),
@@ -168,11 +201,18 @@ describe('generateBallotStyles()', () => {
         districts: [district2.id],
         languages,
         precincts: [precinct2District2.id],
+        orderedDisplayCandidatesByContest: {
+          [generalContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
     ]);
   });
 
-  test('general election, split precincts', () => {
+  test('general election, split precincts, default rotation', () => {
     const ballotLanguageConfigs = [
       { languages: [ENGLISH] },
       { languages: [ENGLISH, SPANISH] },
@@ -188,6 +228,8 @@ describe('generateBallotStyles()', () => {
         precinct4NoDistricts,
         precinct5NoContests,
       ],
+      ballotTemplateId: 'VxDefaultBallot',
+      electionId: 'test-election',
     });
 
     expect(ballotStyles).toEqual<BallotStyle[]>([
@@ -197,6 +239,13 @@ describe('generateBallotStyles()', () => {
         districts: [district1.id],
         languages,
         precincts: [precinct1District1.id, precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [generalContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({ ballotStyleIndex: 2, languages }),
@@ -204,11 +253,98 @@ describe('generateBallotStyles()', () => {
         districts: [district1.id, district2.id],
         languages,
         precincts: [precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [generalContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [generalContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
     ]);
   });
 
-  test('primary election, no splits', () => {
+  test('general election, split precincts, rotation by precinct', () => {
+    const ballotLanguageConfigs = [
+      { languages: [ENGLISH] },
+      { languages: [ENGLISH, SPANISH] },
+    ];
+    mockGetAllPossibleCandidateOrderings.mockImplementation((_, params) =>
+      ballotRotation.getCandidateOrderingByPrecinctAlphabetical(params)
+    );
+
+    const ballotStyles = generateBallotStyles({
+      ballotLanguageConfigs,
+      contests: [generalContest1, generalContest2],
+      electionType: 'general',
+      parties: [],
+      precincts: [
+        precinct1District1,
+        precinct3District1And2,
+        precinct4NoDistricts,
+        precinct5NoContests,
+      ],
+      ballotTemplateId: 'VxDefaultBallot',
+      electionId: 'test-election',
+    });
+
+    expect(ballotStyles).toEqual<BallotStyle[]>([
+      ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
+        id: generateBallotStyleId({ ballotStyleIndex: 1, languages }),
+        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 1 }),
+        districts: [district1.id],
+        languages,
+        precincts: [precinct1District1.id],
+        orderedDisplayCandidatesByContest: {
+          [generalContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
+      })),
+      ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
+        id: generateBallotStyleId({ ballotStyleIndex: 2, languages }),
+        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 2 }),
+        districts: [district1.id],
+        languages,
+        precincts: [precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [generalContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+        },
+      })),
+      ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
+        id: generateBallotStyleId({ ballotStyleIndex: 3, languages }),
+        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 3 }),
+        districts: [district1.id, district2.id],
+        languages,
+        precincts: [precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [generalContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+          [generalContest2.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+        },
+      })),
+    ]);
+  });
+
+  test('primary election, no splits, default rotation', () => {
     const ballotLanguageConfigs = [
       { languages: [ENGLISH] },
       { languages: [ENGLISH, SPANISH] },
@@ -229,6 +365,8 @@ describe('generateBallotStyles()', () => {
         precinct4NoDistricts,
         precinct5NoContests,
       ],
+      ballotTemplateId: 'VxDefaultBallot',
+      electionId: 'test-election',
     });
 
     expect(ballotStyles).toEqual<BallotStyle[]>([
@@ -246,6 +384,18 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct1District1.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -261,6 +411,18 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct1District1.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -276,6 +438,18 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct2District2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -291,11 +465,23 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct2District2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
     ]);
   });
 
-  test('primary election, split precincts', () => {
+  test('primary election, split precincts, no rotation', () => {
     const ballotLanguageConfigs = [
       { languages: [ENGLISH] },
       { languages: [ENGLISH, SPANISH] },
@@ -316,6 +502,8 @@ describe('generateBallotStyles()', () => {
         precinct4NoDistricts,
         precinct5NoContests,
       ],
+      ballotTemplateId: 'VxDefaultBallot',
+      electionId: 'test-election',
     });
 
     expect(ballotStyles).toEqual<BallotStyle[]>([
@@ -333,6 +521,18 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct1District1.id, precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -348,6 +548,18 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct1District1.id, precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -363,6 +575,28 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyAContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
@@ -378,6 +612,242 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyAContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest2.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
+      })),
+    ]);
+  });
+
+  test('primary election, split precincts, rotation by precinct', () => {
+    const ballotLanguageConfigs = [
+      { languages: [ENGLISH] },
+      { languages: [ENGLISH, SPANISH] },
+    ];
+    mockGetAllPossibleCandidateOrderings.mockImplementation((_, params) =>
+      ballotRotation.getCandidateOrderingByPrecinctAlphabetical(params)
+    );
+    const ballotStyles = generateBallotStyles({
+      ballotLanguageConfigs,
+      contests: [
+        partyAContest1,
+        partyAContest2,
+        partyBContest1,
+        partyBContest2,
+      ],
+      electionType: 'primary',
+      parties: [partyA, partyB, partyC],
+      precincts: [
+        precinct1District1,
+        precinct3District1And2,
+        precinct4NoDistricts,
+        precinct5NoContests,
+      ],
+      ballotTemplateId: 'VxDefaultBallot',
+      electionId: 'test-election',
+    });
+
+    expect(ballotStyles).toEqual<BallotStyle[]>([
+      ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
+        id: generateBallotStyleId({
+          ballotStyleIndex: 1,
+          languages,
+          party: partyA,
+        }),
+        groupId: generateBallotStyleGroupId({
+          ballotStyleIndex: 1,
+          party: partyA,
+        }),
+        districts: [district1.id],
+        languages,
+        partyId: partyA.id,
+        precincts: [precinct1District1.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
+      })),
+      ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
+        id: generateBallotStyleId({
+          ballotStyleIndex: 1,
+          languages,
+          party: partyB,
+        }),
+        groupId: generateBallotStyleGroupId({
+          ballotStyleIndex: 1,
+          party: partyB,
+        }),
+        districts: [district1.id],
+        languages,
+        partyId: partyB.id,
+        precincts: [precinct1District1.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+            { id: 'candidate-3' },
+          ],
+        },
+      })),
+      ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
+        id: generateBallotStyleId({
+          ballotStyleIndex: 2,
+          languages,
+          party: partyA,
+        }),
+        groupId: generateBallotStyleGroupId({
+          ballotStyleIndex: 2,
+          party: partyA,
+        }),
+        districts: [district1.id],
+        languages,
+        partyId: partyA.id,
+        precincts: [precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+        },
+      })),
+      ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
+        id: generateBallotStyleId({
+          ballotStyleIndex: 2,
+          languages,
+          party: partyB,
+        }),
+        groupId: generateBallotStyleGroupId({
+          ballotStyleIndex: 2,
+          party: partyB,
+        }),
+        districts: [district1.id],
+        languages,
+        partyId: partyB.id,
+        precincts: [precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+        },
+      })),
+      ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
+        id: generateBallotStyleId({
+          ballotStyleIndex: 3,
+          languages,
+          party: partyA,
+        }),
+        groupId: generateBallotStyleGroupId({
+          ballotStyleIndex: 3,
+          party: partyA,
+        }),
+        districts: [district1.id, district2.id],
+        languages,
+        partyId: partyA.id,
+        precincts: [precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+          [partyAContest2.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+          [partyBContest2.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+        },
+      })),
+      ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
+        id: generateBallotStyleId({
+          ballotStyleIndex: 3,
+          languages,
+          party: partyB,
+        }),
+        groupId: generateBallotStyleGroupId({
+          ballotStyleIndex: 3,
+          party: partyB,
+        }),
+        districts: [district1.id, district2.id],
+        languages,
+        partyId: partyB.id,
+        precincts: [precinct3District1And2.id],
+        orderedDisplayCandidatesByContest: {
+          [partyAContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+          [partyAContest2.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+          [partyBContest1.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+          [partyBContest2.id]: [
+            { id: 'candidate-3' },
+            { id: 'candidate-1' },
+            { id: 'candidate-2' },
+          ],
+        },
       })),
     ]);
   });
@@ -422,6 +892,8 @@ describe('generateBallotStyles()', () => {
       electionType: 'general',
       parties: [],
       precincts: [precinct1, precinct2, precinct3, precinct4],
+      ballotTemplateId: 'VxDefaultBallot',
+      electionId: 'test-election',
     });
     expect(ballotStyles.length).toEqual(2);
     expect(ballotStyles[0].districts).toEqual([district1.id, district2.id]);
