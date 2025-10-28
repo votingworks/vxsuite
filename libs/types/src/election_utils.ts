@@ -85,8 +85,10 @@ export function getOrderedContests({
       }
       case 'yesno':
         return orderedContest;
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         return throwIllegalValue(orderedContest, 'type');
+      }
     }
   });
   return orderedContests;

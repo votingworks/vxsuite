@@ -27,6 +27,7 @@ import {
   getGroupIdFromBallotStyleId,
   getPrecinctSplitById,
   getAllPrecinctsAndSplits,
+  getOrderedContests,
 } from './election_utils';
 import {
   election,
@@ -48,6 +49,8 @@ import {
   hasSplits,
   DistrictId,
   Precinct,
+  BallotStyle,
+  Election,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -754,5 +757,295 @@ test('getAllPrecinctsAndSplits sorts with numeric-aware locale comparison', () =
     { precinct: precinct2 },
     { precinct: precinct10, split: precinct10.splits[0] },
     { precinct: precinct10, split: precinct10.splits[1] },
+  ]);
+});
+
+test('getOrderedContests returns contests without ordering when orderedDisplayCandidatesByContest is not set', () => {
+  const ballotStyle = getBallotStyle({
+    ballotStyleId: '1' as BallotStyleId,
+    election,
+  })!;
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.id === 'CC'
+  )!;
+  const candidateContestWithMoreCandidates: CandidateContest = {
+    ...candidateContest,
+    candidates: [
+      { id: 'C', name: 'Candidate C' },
+      { id: 'B', name: 'Candidate B' },
+      { id: 'A', name: 'Candidate A' },
+      { id: 'D', name: 'Candidate D' },
+      { id: 'E', name: 'Candidate E' },
+    ],
+  };
+  const testElection: Election = {
+    ...election,
+    contests: [candidateContestWithMoreCandidates],
+  };
+
+  const contests = getOrderedContests({ ballotStyle, election: testElection });
+  const regularContests = getContests({ ballotStyle, election: testElection });
+
+  expect(contests).toEqual(regularContests);
+});
+
+test('getOrderedContests returns contests with candidate ordering when specified', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.id === 'CC'
+  )!;
+  const candidateContestWithMoreCandidates: CandidateContest = {
+    ...candidateContest,
+    candidates: [
+      { id: 'C', name: 'Candidate C' },
+      { id: 'B', name: 'Candidate B' },
+      { id: 'A', name: 'Candidate A' },
+      { id: 'D', name: 'Candidate D' },
+      { id: 'E', name: 'Candidate E' },
+    ],
+  };
+
+  // Create a ballot style with ordered candidates (reversed order)
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedDisplayCandidatesByContest: {
+      CC: [{ id: 'A' }, { id: 'B' }, { id: 'C' }, { id: 'D' }, { id: 'E' }],
+    },
+  };
+
+  const orderedContests = getOrderedContests({
+    ballotStyle: ballotStyleWithOrdering,
+    election: {
+      ...election,
+      contests: [candidateContestWithMoreCandidates],
+    },
+  });
+
+  expect(orderedContests).toHaveLength(1);
+
+  const orderedCandidateContest = orderedContests.find(
+    (c): c is CandidateContest => c.id === 'CC'
+  )!;
+
+  expect(orderedCandidateContest.candidates).toEqual([
+    candidateContestWithMoreCandidates.candidates[2], // A
+    candidateContestWithMoreCandidates.candidates[1], // B
+    candidateContestWithMoreCandidates.candidates[0], // C
+    candidateContestWithMoreCandidates.candidates[3], // D
+    candidateContestWithMoreCandidates.candidates[4], // E
+  ]);
+});
+
+test('getOrderedContests handles multiple candidate contests with different orderings', () => {
+  // Create an election with two candidate contests
+  const testElection: Election = {
+    ...election,
+    contests: [
+      {
+        type: 'candidate',
+        id: 'president',
+        districtId: 'D',
+        seats: 1,
+        title: 'President',
+        allowWriteIns: false,
+        candidates: [
+          { id: 'alice', name: 'Alice' },
+          { id: 'bob', name: 'Bob' },
+          { id: 'carol', name: 'Carol' },
+        ],
+      },
+      {
+        type: 'candidate',
+        id: 'mayor',
+        districtId: 'D',
+        seats: 1,
+        title: 'Mayor',
+        allowWriteIns: false,
+        candidates: [
+          { id: 'dave', name: 'Dave' },
+          { id: 'eve', name: 'Eve' },
+          { id: 'frank', name: 'Frank' },
+        ],
+      },
+      election.contests.find((c): c is YesNoContest => c.id === 'YNC')!,
+    ],
+  };
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedDisplayCandidatesByContest: {
+      president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
+      mayor: [{ id: 'frank' }, { id: 'dave' }, { id: 'eve' }],
+    },
+  };
+
+  const orderedContests = getOrderedContests({
+    ballotStyle: ballotStyleWithOrdering,
+    election: testElection,
+  });
+
+  const presidentContest = orderedContests.find(
+    (c): c is CandidateContest => c.id === 'president'
+  )!;
+  const mayorContest = orderedContests.find(
+    (c): c is CandidateContest => c.id === 'mayor'
+  )!;
+
+  expect(presidentContest.candidates.map((c) => c.id)).toEqual([
+    'carol',
+    'alice',
+    'bob',
+  ]);
+  expect(mayorContest.candidates.map((c) => c.id)).toEqual([
+    'frank',
+    'dave',
+    'eve',
+  ]);
+});
+
+test('getOrderedContests preserves original ordering when contest not in orderedDisplayCandidatesByContest', () => {
+  const testElection: Election = {
+    ...election,
+    contests: [
+      {
+        type: 'candidate',
+        id: 'contest-1',
+        districtId: 'D',
+        seats: 1,
+        title: 'Contest 1',
+        allowWriteIns: false,
+        candidates: [
+          { id: 'alice', name: 'Alice' },
+          { id: 'bob', name: 'Bob' },
+        ],
+      },
+      {
+        type: 'candidate',
+        id: 'contest-2',
+        districtId: 'D',
+        seats: 1,
+        title: 'Contest 2',
+        allowWriteIns: false,
+        candidates: [
+          { id: 'carol', name: 'Carol' },
+          { id: 'dave', name: 'Dave' },
+        ],
+      },
+    ],
+  };
+
+  // Only order contest-1, leave contest-2 unordered
+  const ballotStyleWithPartialOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedDisplayCandidatesByContest: {
+      'contest-1': [{ id: 'bob' }, { id: 'alice' }],
+    },
+  };
+
+  const orderedContests = getOrderedContests({
+    ballotStyle: ballotStyleWithPartialOrdering,
+    election: testElection,
+  });
+
+  const contest1 = orderedContests.find(
+    (c): c is CandidateContest => c.id === 'contest-1'
+  )!;
+  const contest2 = orderedContests.find(
+    (c): c is CandidateContest => c.id === 'contest-2'
+  )!;
+
+  // contest-1 should be reordered
+  expect(contest1.candidates.map((c) => c.id)).toEqual(['bob', 'alice']);
+
+  // contest-2 should keep original order
+  expect(contest2.candidates.map((c) => c.id)).toEqual(['carol', 'dave']);
+});
+
+test('getOrderedContests preserves yesno contests unchanged', () => {
+  const testElection: Election = {
+    ...election,
+    contests: [
+      {
+        type: 'candidate',
+        id: 'president',
+        districtId: 'D',
+        seats: 1,
+        title: 'President',
+        allowWriteIns: false,
+        candidates: [
+          { id: 'alice', name: 'Alice' },
+          { id: 'bob', name: 'Bob' },
+        ],
+      },
+      election.contests.find((c): c is YesNoContest => c.id === 'YNC')!,
+    ],
+  };
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedDisplayCandidatesByContest: {
+      president: [{ id: 'bob' }, { id: 'alice' }],
+    },
+  };
+
+  const orderedContests = getOrderedContests({
+    ballotStyle: ballotStyleWithOrdering,
+    election: testElection,
+  });
+
+  const yesnoContest = orderedContests.find(
+    (c): c is YesNoContest => c.id === 'YNC'
+  )!;
+
+  const originalYesnoContest = testElection.contests.find(
+    (c): c is YesNoContest => c.id === 'YNC'
+  )!;
+
+  expect(yesnoContest).toEqual(originalYesnoContest);
+});
+
+test('getOrderedContests with primary elections and candidate ordering', () => {
+  const mammalContest = electionTwoPartyPrimary.contests.find(
+    (c): c is CandidateContest => c.id === 'best-animal-mammal'
+  )!;
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    ...getBallotStyle({
+      ballotStyleId: '1M' as BallotStyleId,
+      election: electionTwoPartyPrimary,
+    })!,
+    orderedDisplayCandidatesByContest: {
+      'best-animal-mammal': [
+        { id: mammalContest.candidates[2].id },
+        { id: mammalContest.candidates[0].id },
+        { id: mammalContest.candidates[1].id },
+      ],
+    },
+  };
+
+  const orderedContests = getOrderedContests({
+    ballotStyle: ballotStyleWithOrdering,
+    election: electionTwoPartyPrimary,
+  });
+
+  const orderedMammalContest = orderedContests.find(
+    (c): c is CandidateContest => c.id === 'best-animal-mammal'
+  )!;
+
+  expect(orderedMammalContest.candidates.map((c) => c.id)).toEqual([
+    mammalContest.candidates[2].id,
+    mammalContest.candidates[0].id,
+    mammalContest.candidates[1].id,
   ]);
 });
