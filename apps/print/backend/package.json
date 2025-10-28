@@ -20,7 +20,7 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "start": "node ./build/index.js",
-    "test": "echo TODO",
+    "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=America/Anchorage vitest run --coverage",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:notdummy": "is-ci test:ci test:watch",
@@ -28,6 +28,7 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
+    "@types/tmp": "0.2.4",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
@@ -73,7 +74,8 @@
     "jest-image-snapshot": "^6.4.0",
     "lint-staged": "11.0.0",
     "nodemon": "^3.1.7",
-    "sort-package-json": "^1.50.0"
+    "sort-package-json": "^1.50.0",
+    "tmp": "^0.2.1"
   },
   "engines": {
     "node": ">= 12"

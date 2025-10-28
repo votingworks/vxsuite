@@ -14,6 +14,7 @@ import {
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { detectPrinter } from '@votingworks/printing';
+import { Server } from 'node:http';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { Workspace } from './util/workspace';
@@ -29,7 +30,7 @@ export interface StartOptions {
 /**
  * Starts the server.
  */
-export function start({ auth, baseLogger, workspace }: StartOptions): void {
+export function start({ auth, baseLogger, workspace }: StartOptions): Server {
   const resolvedAuth =
     auth ??
     new DippedSmartCardAuth({
@@ -69,7 +70,7 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
 
   useDevDockRouter(app, express, {});
 
-  app.listen(PORT, () => {
+  return app.listen(PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`VxPrint backend running at http://localhost:${PORT}/`);
   });

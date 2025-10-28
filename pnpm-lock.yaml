@@ -2659,6 +2659,9 @@ importers:
 
   apps/print/backend:
     dependencies:
+      '@types/tmp':
+        specifier: 0.2.4
+        version: 0.2.4
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -2792,6 +2795,9 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
 
   apps/print/frontend:
     dependencies:
