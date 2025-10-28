@@ -3,13 +3,16 @@ import {
   electionFamousNames2021Fixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { CandidateContest } from '@votingworks/types';
+import { CandidateContest, YesNoContest } from '@votingworks/types';
 import {
   rotateCandidatesByStatute,
   rotateCandidatesByPrecinct,
+  getCandidateOrderingSetsForNhBallot,
 } from './nh_ballot_template';
+import { RotationParams } from '../types';
 
 const electionGeneral = readElectionGeneral();
+const electionFamousNames = electionFamousNames2021Fixtures.readElection();
 
 describe('rotateCandidatesByStatute', () => {
   const election = electionGeneral;
@@ -254,4 +257,114 @@ test('rotateCandidatesByPrecinct rotates based on index of precinct within ballo
     { id: '3' }, // Larry Smith
     { id: '2' }, // John Zorro
   ]);
+});
+
+describe('getCandidateOrderingSetsForNhBallot', () => {
+  test('generates orderings with NH rotation for each precinct/split', () => {
+    const [precinct1, precinct2] = electionFamousNames.precincts;
+
+    const testCases = [
+      {
+        precinctsOrSplitIds: [
+          { precinctId: precinct1.id },
+          { precinctId: precinct2.id },
+        ],
+        expectedCount: 2,
+      },
+      {
+        precinctsOrSplitIds: [
+          { precinctId: precinct1.id, splitId: 'split-1' },
+          { precinctId: precinct1.id, splitId: 'split-2' },
+        ],
+        expectedCount: 2,
+      },
+    ];
+
+    for (const { precinctsOrSplitIds, expectedCount } of testCases) {
+      const contest: CandidateContest = {
+        ...electionFamousNames.contests[0],
+        id: 'contest-1',
+        type: 'candidate',
+        districtId: 'district-1',
+        title: 'Test Contest',
+        seats: 1,
+        allowWriteIns: false,
+        candidates: [
+          { id: '1', name: 'Martha Jones' },
+          { id: '2', name: 'John Zorro' },
+          { id: '3', name: 'Larry Smith' },
+        ],
+      };
+
+      const params: RotationParams = {
+        contests: [contest],
+        precincts: electionFamousNames.precincts,
+        precinctsOrSplitIds,
+        districtIds: [contest.districtId],
+        electionId: electionFamousNames.id,
+      };
+
+      const result = getCandidateOrderingSetsForNhBallot(params);
+
+      expect(result).toHaveLength(expectedCount);
+      expect(result[0].precinctsOrSplits).toEqual([precinctsOrSplitIds[0]]);
+      // Verify NH rotation is applied (alphabetical by last name, then rotated)
+      expect(result[0].orderedContests[contest.id].map((c) => c.id)).toEqual([
+        '1', // Martha Jones
+        '3', // Larry Smith
+        '2', // John Zorro
+      ]);
+    }
+  });
+
+  test('filters contests by type and district', () => {
+    const candidateContest: CandidateContest = {
+      ...electionFamousNames.contests[0],
+      id: 'contest-1',
+      type: 'candidate',
+      districtId: 'district-1',
+      title: 'Test Contest',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [{ id: '1', name: 'Alice' }],
+    };
+
+    const yesnoContest: YesNoContest = {
+      id: 'yesno-1',
+      type: 'yesno',
+      districtId: 'district-1',
+      title: 'Ballot Measure',
+      description: 'Test measure',
+      yesOption: { id: 'yes', label: 'Yes' },
+      noOption: { id: 'no', label: 'No' },
+    };
+
+    const contestInDifferentDistrict: CandidateContest = {
+      ...electionFamousNames.contests[0],
+      id: 'contest-2',
+      type: 'candidate',
+      districtId: 'district-2',
+      title: 'Test Contest 2',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [{ id: '2', name: 'Bob' }],
+    };
+
+    const [precinct1] = electionFamousNames.precincts;
+
+    const params: RotationParams = {
+      contests: [candidateContest, yesnoContest, contestInDifferentDistrict],
+      precincts: electionFamousNames.precincts,
+      precinctsOrSplitIds: [{ precinctId: precinct1.id }],
+      districtIds: ['district-1'],
+      electionId: electionFamousNames.id,
+    };
+
+    const result = getCandidateOrderingSetsForNhBallot(params);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].orderedContests).toHaveProperty('contest-1');
+    expect(result[0].orderedContests).not.toHaveProperty('yesno-1');
+    expect(result[0].orderedContests).not.toHaveProperty('contest-2');
+  });
 });
