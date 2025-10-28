@@ -30,7 +30,9 @@ test('renders an error if election package config endpoint returns an error', as
 
   render(<App apiClient={apiMock.mockApiClient} />);
 
-  apiMock.expectConfigureElectionPackageFromUsbError('election_key_mismatch');
+  apiMock.expectConfigureElectionPackageFromUsbError({
+    type: 'election_key_mismatch',
+  });
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();

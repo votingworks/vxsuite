@@ -100,7 +100,7 @@ test("fails to configure if there's no election package on the usb drive", async
     mockElectionManager(mockAuth, electionGeneralDefinition);
     mockUsbDrive.insertUsbDrive({});
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      err('no_election_package_on_usb_drive')
+      err({ type: 'no_election_package_on_usb_drive' })
     );
 
     expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
@@ -112,7 +112,7 @@ test("fails to configure if there's no election package on the usb drive", async
 
     mockUsbDrive.insertUsbDrive({});
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      err('no_election_package_on_usb_drive')
+      err({ type: 'no_election_package_on_usb_drive' })
     );
   });
 });
@@ -121,7 +121,7 @@ test('fails to configure election package if logged out', async () => {
   await withApp(async ({ apiClient, mockAuth }) => {
     mockLoggedOut(mockAuth);
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      err('auth_required_before_election_package_load')
+      err({ type: 'auth_required_before_election_package_load' })
     );
   });
 });
@@ -138,7 +138,7 @@ test('fails to configure election package if election definition on card does no
       })
     );
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      err('election_key_mismatch')
+      err({ type: 'election_key_mismatch' })
     );
   });
 });

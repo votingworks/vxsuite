@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
 import { assert, deferred, err, find, mapObject } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -44,6 +44,7 @@ import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
 import { AddressInfo } from 'node:net';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
+import * as backendLib from '@votingworks/backend';
 import {
   createApp,
   waitForStatus as waitForStatusHelper,
@@ -84,6 +85,9 @@ let driver: MockPaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let logger: Logger;
 let clock: SimulatedClock;
+let readSignedElectionPackageFromUsbSpy: MockInstance<
+  typeof backendLib.readSignedElectionPackageFromUsb
+>;
 
 beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
@@ -118,6 +122,11 @@ beforeEach(async () => {
   stateMachine = result.stateMachine;
   driver = result.driver;
   clock = result.clock;
+
+  readSignedElectionPackageFromUsbSpy = vi.spyOn(
+    backendLib,
+    'readSignedElectionPackageFromUsb'
+  );
 });
 
 afterEach(async () => {
@@ -203,6 +212,15 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     })
   );
 
+  expect(readSignedElectionPackageFromUsbSpy).toHaveBeenCalledTimes(1);
+  expect(readSignedElectionPackageFromUsbSpy).toHaveBeenNthCalledWith(
+    1,
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    { checkMarkScanSystemLimits: true }
+  );
+
   const readResult = await apiClient.getSystemSettings();
   expect(readResult).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
@@ -271,7 +289,9 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
   });
 
   const result = await apiClient.configureElectionPackageFromUsb();
-  expect(result).toEqual(err('auth_required_before_election_package_load'));
+  expect(result).toEqual(
+    err({ type: 'auth_required_before_election_package_load' })
+  );
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionConfigured,
     expect.objectContaining({

@@ -244,7 +244,9 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
   });
 
   const result = await apiClient.configureElectionPackageFromUsb();
-  expect(result).toEqual(err('auth_required_before_election_package_load'));
+  expect(result).toEqual(
+    err({ type: 'auth_required_before_election_package_load' })
+  );
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionConfigured,
     expect.objectContaining({
