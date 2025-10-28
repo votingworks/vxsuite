@@ -3,10 +3,7 @@ import type {
   ElectionListing,
   ElectionRecord,
 } from '@votingworks/design-backend';
-import {
-  createBlankElection,
-  generateBallotStyles,
-} from '@votingworks/design-backend';
+import { createBlankElection } from '@votingworks/design-backend';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneral,
@@ -19,6 +16,7 @@ import {
   Id,
   LanguageCode,
 } from '@votingworks/types';
+import { generateBallotStyles } from '@votingworks/hmpb';
 import { generateId } from '../src/utils';
 
 function splitCandidateName(candidate: Candidate): Candidate {
@@ -41,24 +39,27 @@ export function makeElectionRecord(
   const ballotLanguageConfigs: BallotLanguageConfigs = [
     { languages: [LanguageCode.ENGLISH] },
   ];
+  const contests = baseElection.contests.map((contest) =>
+    contest.type === 'candidate'
+      ? {
+          ...contest,
+          candidates: contest.candidates.map(splitCandidateName),
+        }
+      : contest
+  );
   const ballotStyles = generateBallotStyles({
     ballotLanguageConfigs,
-    contests: baseElection.contests,
+    contests,
     electionType: baseElection.type,
     parties: baseElection.parties,
     precincts: [...baseElection.precincts],
+    ballotTemplateId: 'VxDefaultBallot',
+    electionId: baseElection.id,
   });
   const election: Election = {
     ...baseElection,
     ballotStyles,
-    contests: baseElection.contests.map((contest) =>
-      contest.type === 'candidate'
-        ? {
-            ...contest,
-            candidates: contest.candidates.map(splitCandidateName),
-          }
-        : contest
-    ),
+    contests,
   };
   return {
     election,

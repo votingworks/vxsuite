@@ -1430,6 +1430,9 @@ importers:
       '@votingworks/grout-test-utils':
         specifier: workspace:*
         version: link:../../../libs/grout/test-utils
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../../../libs/hmpb
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../../../libs/monorepo-utils

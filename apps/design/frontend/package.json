@@ -112,6 +112,7 @@
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout-test-utils": "workspace:*",
+    "@votingworks/hmpb": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
