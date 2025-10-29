@@ -68,11 +68,7 @@ import {
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from '../ballot_components';
-import {
-  PixelDimensions,
-  CandidateOrderingSet,
-  RotationParams,
-} from '../types';
+import { PixelDimensions, CandidateOrdering, RotationParams } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
@@ -212,17 +208,20 @@ export function getCandidateOrderingSetsForNhBallot({
   electionId,
   districtIds,
   precinctsOrSplitIds,
-}: RotationParams): CandidateOrderingSet[] {
+}: RotationParams): CandidateOrdering[] {
   const ballotStyleContests = contests.filter((contest) =>
     districtIds.includes(contest.districtId)
   );
   const rotationsByPrecinct = precinctsOrSplitIds.map(
     ({ precinctId, splitId }) => {
-      const orderedContests: Record<ContestId, OrderedCandidateOption[]> = {};
+      const orderedCandidatesByContest: Record<
+        ContestId,
+        OrderedCandidateOption[]
+      > = {};
       for (const contest of ballotStyleContests) {
         switch (contest.type) {
           case 'candidate':
-            orderedContests[contest.id] = rotateCandidates(
+            orderedCandidatesByContest[contest.id] = rotateCandidates(
               contest,
               electionId,
               precincts,
@@ -238,7 +237,7 @@ export function getCandidateOrderingSetsForNhBallot({
       }
       return {
         precinctsOrSplits: [{ precinctId, splitId }],
-        orderedContests,
+        orderedCandidatesByContest,
       };
     }
   );

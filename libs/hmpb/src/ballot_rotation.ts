@@ -4,7 +4,7 @@ import {
   OrderedCandidateOption,
   PrecinctOrSplitId,
 } from '@votingworks/types';
-import { CandidateOrderingSet, RotationParams } from './types';
+import { CandidateOrdering, RotationParams } from './types';
 import { getCandidateOrderingSetsForNhBallot } from './ballot_templates/nh_ballot_template';
 import { BallotTemplateId } from './ballot_templates';
 
@@ -21,7 +21,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
   precincts,
   precinctsOrSplitIds,
   districtIds,
-}: RotationParams): CandidateOrderingSet[] {
+}: RotationParams): CandidateOrdering[] {
   const ballotStyleContests = contests.filter((contest) =>
     districtIds.includes(contest.districtId)
   );
@@ -35,7 +35,10 @@ export function getCandidateOrderingByPrecinctAlphabetical({
     const precinctName = precinct.name;
     const firstLetter = precinctName.charAt(0).toUpperCase();
 
-    const orderedContests: Record<ContestId, OrderedCandidateOption[]> = {};
+    const orderedCandidatesByContest: Record<
+      ContestId,
+      OrderedCandidateOption[]
+    > = {};
 
     for (const contest of ballotStyleContests) {
       switch (contest.type) {
@@ -60,10 +63,11 @@ export function getCandidateOrderingByPrecinctAlphabetical({
             ];
           }
 
-          orderedContests[contest.id] = sortedCandidates.map((candidate) =>
-            typedAs<OrderedCandidateOption>({
-              id: candidate.id,
-            })
+          orderedCandidatesByContest[contest.id] = sortedCandidates.map(
+            (candidate) =>
+              typedAs<OrderedCandidateOption>({
+                id: candidate.id,
+              })
           );
           break;
         }
@@ -76,7 +80,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
 
     return {
       precinctsOrSplits: [precinctOrSplit],
-      orderedContests,
+      orderedCandidatesByContest,
     };
   });
 }
@@ -90,21 +94,25 @@ function getDefaultCandidateOrdering({
   contests,
   precinctsOrSplitIds,
   districtIds,
-}: RotationParams): CandidateOrderingSet[] {
+}: RotationParams): CandidateOrdering[] {
   // Get contests for this ballot style (filtered by district)
   const ballotStyleContests = contests.filter((contest) =>
     districtIds.includes(contest.districtId)
   );
 
-  const orderedContests: Record<ContestId, OrderedCandidateOption[]> = {};
+  const orderedCandidatesByContest: Record<
+    ContestId,
+    OrderedCandidateOption[]
+  > = {};
 
   for (const contest of ballotStyleContests) {
     switch (contest.type) {
       case 'candidate':
-        orderedContests[contest.id] = contest.candidates.map((candidate) =>
-          typedAs<OrderedCandidateOption>({
-            id: candidate.id,
-          })
+        orderedCandidatesByContest[contest.id] = contest.candidates.map(
+          (candidate) =>
+            typedAs<OrderedCandidateOption>({
+              id: candidate.id,
+            })
         );
         break;
       case 'yesno':
@@ -121,7 +129,7 @@ function getDefaultCandidateOrdering({
   return [
     {
       precinctsOrSplits: [...precinctsOrSplitIds],
-      orderedContests,
+      orderedCandidatesByContest: orderedContests,
     },
   ];
 }
@@ -130,22 +138,22 @@ function getDefaultCandidateOrdering({
  * Given an array of CandidateOrderingSets, deduplicate any that have identical orderings, combining the precincts/splits that use them.
  */
 export function deduplicateIdenticalOrderingsAcrossPrecincts(
-  orderings: CandidateOrderingSet[]
-): CandidateOrderingSet[] {
-  const groupedByKey = new Map<string, CandidateOrderingSet[]>();
+  orderings: CandidateOrdering[]
+): CandidateOrdering[] {
+  const groupedByKey = new Map<string, CandidateOrdering[]>();
 
   // Group all matching CandidateOrderingSets by a key derived from orderedContests
   for (const ordering of orderings) {
-    const key = JSON.stringify(ordering.orderedContests);
+    const key = JSON.stringify(ordering.orderedCandidatesByContest);
     const group = groupedByKey.get(key);
     if (group) group.push(ordering);
     else groupedByKey.set(key, [ordering]);
   }
 
   // Consolidate each group into a single CandidateOrderingSet with deduplicated precincts/splits
-  const deduped: CandidateOrderingSet[] = [];
+  const deduped: CandidateOrdering[] = [];
   for (const [, group] of groupedByKey.entries()) {
-    const { orderedContests } = group[0];
+    const { orderedCandidatesByContest: orderedContests } = group[0];
     const seen = new Set<string>();
     const precinctsOrSplits: PrecinctOrSplitId[] = [];
 
@@ -160,7 +168,7 @@ export function deduplicateIdenticalOrderingsAcrossPrecincts(
     }
 
     deduped.push({
-      orderedContests,
+      orderedCandidatesByContest: orderedContests,
       precinctsOrSplits,
     });
   }
@@ -172,8 +180,8 @@ export function deduplicateIdenticalOrderingsAcrossPrecincts(
 export function getAllPossibleCandidateOrderings(
   ballotStyleTemplateId: BallotTemplateId,
   params: RotationParams
-): CandidateOrderingSet[] {
-  let orderings: CandidateOrderingSet[] = [];
+): CandidateOrdering[] {
+  let orderings: CandidateOrdering[] = [];
   switch (ballotStyleTemplateId) {
     case 'NhBallot':
       orderings = getCandidateOrderingSetsForNhBallot(params);

@@ -101,7 +101,10 @@ export function generateBallotStyles(params: {
           );
           // Create ballot styles for each ordered contest set and language config
           return orderedContestSets.flatMap(
-            ({ orderedContests, precinctsOrSplits: precinctsForSet }) => {
+            ({
+              orderedCandidatesByContest: orderedContests,
+              precinctsOrSplits: precinctsForSet,
+            }) => {
               ballotStyleIndex += 1;
               return ballotLanguageConfigs.map(({ languages }) => ({
                 id: generateBallotStyleId({
@@ -114,7 +117,7 @@ export function generateBallotStyles(params: {
                 precincts: precinctsForSet.map(({ precinctId }) => precinctId),
                 districts: districtIds,
                 languages,
-                orderedDisplayCandidatesByContest: orderedContests,
+                orderedCandidatesByContest: orderedContests,
               }));
             }
           );
@@ -148,7 +151,10 @@ export function generateBallotStyles(params: {
             partyIds.includes(party.id)
           );
           return orderedContestSets.flatMap(
-            ({ orderedContests, precinctsOrSplits: precinctsForSet }) => {
+            ({
+              orderedCandidatesByContest: orderedContests,
+              precinctsOrSplits: precinctsForSet,
+            }) => {
               ballotStyleIndex += 1;
               return partiesWithContests.flatMap((party) =>
                 ballotLanguageConfigs.map(({ languages }) => ({
@@ -167,7 +173,7 @@ export function generateBallotStyles(params: {
                   districts: districtIds,
                   partyId: party.id,
                   languages,
-                  orderedDisplayCandidatesByContest: orderedContests,
+                  orderedCandidatesByContest: orderedContests,
                 }))
               );
             }

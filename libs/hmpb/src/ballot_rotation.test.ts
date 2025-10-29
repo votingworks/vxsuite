@@ -6,7 +6,7 @@ import {
   getAllPossibleCandidateOrderings,
   deduplicateIdenticalOrderingsAcrossPrecincts,
 } from './ballot_rotation';
-import { RotationParams, CandidateOrderingSet } from './types';
+import { RotationParams, CandidateOrdering } from './types';
 
 const electionGeneral = readElectionGeneral();
 
@@ -57,9 +57,9 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
       };
 
       const result = getCandidateOrderingByPrecinctAlphabetical(params);
-      expect(result[0].orderedContests[contest.id].map((c) => c.id)).toEqual(
-        expected
-      );
+      expect(
+        result[0].orderedCandidatesByContest[contest.id].map((c) => c.id)
+      ).toEqual(expected);
     }
   });
 
@@ -152,9 +152,13 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
     const result = getCandidateOrderingByPrecinctAlphabetical(params);
 
     expect(result).toHaveLength(1);
-    expect(result[0].orderedContests).toHaveProperty('contest-1');
-    expect(result[0].orderedContests).not.toHaveProperty('contest-2');
-    expect(result[0].orderedContests).not.toHaveProperty(yesnoContest.id);
+    expect(result[0].orderedCandidatesByContest).toHaveProperty('contest-1');
+    expect(result[0].orderedCandidatesByContest).not.toHaveProperty(
+      'contest-2'
+    );
+    expect(result[0].orderedCandidatesByContest).not.toHaveProperty(
+      yesnoContest.id
+    );
   });
 });
 
@@ -212,9 +216,9 @@ describe('getAllPossibleCandidateOrderings', () => {
       const result = getAllPossibleCandidateOrderings(template, params);
 
       expect(result).toHaveLength(1);
-      expect(result[0].orderedContests[contest.id].map((c) => c.id)).toEqual(
-        expectedOrderIds
-      );
+      expect(
+        result[0].orderedCandidatesByContest[contest.id].map((c) => c.id)
+      ).toEqual(expectedOrderIds);
     }
   });
 
@@ -336,7 +340,7 @@ describe('getAllPossibleCandidateOrderings', () => {
       );
 
       expect(result).toHaveLength(1);
-      expect(Object.keys(result[0].orderedContests)).toEqual(
+      expect(Object.keys(result[0].orderedCandidatesByContest)).toEqual(
         expectedContestIds
       );
     }
@@ -345,22 +349,22 @@ describe('getAllPossibleCandidateOrderings', () => {
 
 describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
   test('combines precincts with identical orderings', () => {
-    const orderings: CandidateOrderingSet[] = [
+    const orderings: CandidateOrdering[] = [
       {
         precinctsOrSplits: [{ precinctId: 'precinct-1' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
         },
       },
       {
         precinctsOrSplits: [{ precinctId: 'precinct-2' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
         },
       },
       {
         precinctsOrSplits: [{ precinctId: 'precinct-3' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
         },
       },
@@ -379,22 +383,22 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
     expect(result[0].precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-3',
     });
-    expect(result[0].orderedContests).toEqual({
+    expect(result[0].orderedCandidatesByContest).toEqual({
       'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
     });
   });
 
   test('preserves different orderings separately', () => {
-    const orderings: CandidateOrderingSet[] = [
+    const orderings: CandidateOrdering[] = [
       {
         precinctsOrSplits: [{ precinctId: 'precinct-1' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
         },
       },
       {
         precinctsOrSplits: [{ precinctId: 'precinct-2' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-2' }, { id: 'candidate-1' }],
         },
       },
@@ -404,32 +408,32 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
 
     expect(result).toHaveLength(2);
     expect(result[0].precinctsOrSplits).toEqual([{ precinctId: 'precinct-1' }]);
-    expect(result[0].orderedContests).toEqual({
+    expect(result[0].orderedCandidatesByContest).toEqual({
       'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
     });
     expect(result[1].precinctsOrSplits).toEqual([{ precinctId: 'precinct-2' }]);
-    expect(result[1].orderedContests).toEqual({
+    expect(result[1].orderedCandidatesByContest).toEqual({
       'contest-1': [{ id: 'candidate-2' }, { id: 'candidate-1' }],
     });
   });
 
   test('handles precinct splits correctly', () => {
-    const orderings: CandidateOrderingSet[] = [
+    const orderings: CandidateOrdering[] = [
       {
         precinctsOrSplits: [{ precinctId: 'precinct-1', splitId: 'split-1' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
         },
       },
       {
         precinctsOrSplits: [{ precinctId: 'precinct-1', splitId: 'split-2' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
         },
       },
       {
         precinctsOrSplits: [{ precinctId: 'precinct-2' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
         },
       },
@@ -453,13 +457,13 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
   });
 
   test('deduplicates precincts within combined groups', () => {
-    const orderings: CandidateOrderingSet[] = [
+    const orderings: CandidateOrdering[] = [
       {
         precinctsOrSplits: [
           { precinctId: 'precinct-1' },
           { precinctId: 'precinct-2' },
         ],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }],
         },
       },
@@ -468,7 +472,7 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
           { precinctId: 'precinct-2' }, // duplicate
           { precinctId: 'precinct-3' },
         ],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }],
         },
       },
@@ -490,17 +494,17 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
   });
 
   test('handles multiple contests in ordering', () => {
-    const orderings: CandidateOrderingSet[] = [
+    const orderings: CandidateOrdering[] = [
       {
         precinctsOrSplits: [{ precinctId: 'precinct-1' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }],
           'contest-2': [{ id: 'candidate-2' }],
         },
       },
       {
         precinctsOrSplits: [{ precinctId: 'precinct-2' }],
-        orderedContests: {
+        orderedCandidatesByContest: {
           'contest-1': [{ id: 'candidate-1' }],
           'contest-2': [{ id: 'candidate-2' }],
         },
@@ -511,14 +515,14 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].precinctsOrSplits).toHaveLength(2);
-    expect(result[0].orderedContests).toEqual({
+    expect(result[0].orderedCandidatesByContest).toEqual({
       'contest-1': [{ id: 'candidate-1' }],
       'contest-2': [{ id: 'candidate-2' }],
     });
   });
 
   test('handles empty orderings', () => {
-    const orderings: CandidateOrderingSet[] = [];
+    const orderings: CandidateOrdering[] = [];
     const result = deduplicateIdenticalOrderingsAcrossPrecincts(orderings);
     expect(result).toEqual([]);
   });

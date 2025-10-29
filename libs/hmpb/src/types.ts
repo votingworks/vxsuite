@@ -46,7 +46,7 @@ export interface RotationParams {
   electionId: string;
 }
 
-export interface CandidateOrderingSet {
-  orderedContests: Record<ContestId, OrderedCandidateOption[]>;
+export interface CandidateOrdering {
+  orderedCandidatesByContest: Record<ContestId, OrderedCandidateOption[]>;
   precinctsOrSplits: PrecinctOrSplitId[];
 }

@@ -416,7 +416,7 @@ export interface OrderedCandidateOption {
   // TODO(CROSS_ENDORSE): add more partyIds as needed.
 }
 
-export const DisplayCandidateSchema: z.ZodSchema<OrderedCandidateOption> =
+export const OrderedCandidateOptionSchema: z.ZodSchema<OrderedCandidateOption> =
   z.object({
     id: CandidateIdSchema,
   });
@@ -457,8 +457,8 @@ export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   districts: z.array(DistrictIdSchema),
   partyId: PartyIdSchema.optional(),
   languages: z.array(z.string()).optional(),
-  orderedDisplayCandidatesByContest: z
-    .record(z.string(), z.array(DisplayCandidateSchema))
+  orderedCandidatesByContest: z
+    .record(z.string(), z.array(OrderedCandidateOptionSchema))
     .optional(),
 });
 export const BallotStylesSchema = z

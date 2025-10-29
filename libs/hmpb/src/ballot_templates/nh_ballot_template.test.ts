@@ -309,7 +309,9 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
       expect(result).toHaveLength(expectedCount);
       expect(result[0].precinctsOrSplits).toEqual([precinctsOrSplitIds[0]]);
       // Verify NH rotation is applied (alphabetical by last name, then rotated)
-      expect(result[0].orderedContests[contest.id].map((c) => c.id)).toEqual([
+      expect(
+        result[0].orderedCandidatesByContest[contest.id].map((c) => c.id)
+      ).toEqual([
         '1', // Martha Jones
         '3', // Larry Smith
         '2', // John Zorro
@@ -363,8 +365,10 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
     const result = getCandidateOrderingSetsForNhBallot(params);
 
     expect(result).toHaveLength(1);
-    expect(result[0].orderedContests).toHaveProperty('contest-1');
-    expect(result[0].orderedContests).not.toHaveProperty('yesno-1');
-    expect(result[0].orderedContests).not.toHaveProperty('contest-2');
+    expect(result[0].orderedCandidatesByContest).toHaveProperty('contest-1');
+    expect(result[0].orderedCandidatesByContest).not.toHaveProperty('yesno-1');
+    expect(result[0].orderedCandidatesByContest).not.toHaveProperty(
+      'contest-2'
+    );
   });
 });
