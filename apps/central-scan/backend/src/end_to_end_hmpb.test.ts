@@ -130,7 +130,7 @@ test('going through the whole process works - HMPB', async () => {
             castVoteRecordExportMetadata.castVoteRecordReportMetadata
           )
         ).toBeTruthy();
-        expect(cvr.BallotStyleId).toEqual('1');
+        expect(cvr.BallotStyleId).toEqual('1-1');
         expect(cvr.BallotStyleUnitId).toEqual('20');
         expect(cvr.CreatingDeviceId).toEqual(DEV_MACHINE_ID);
         expect(cvr.BallotSheetId).toEqual('1');

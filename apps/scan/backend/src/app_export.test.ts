@@ -402,14 +402,14 @@ test('audit ballot IDs', async () => {
     ballotAuditId: '123',
   };
   const rendererPool = await createPlaywrightRendererPool();
-  const ballotPdf = (
+  const { ballotPdfs, electionDefinition: electionDefinitionModified } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
       'vxf'
-    )
-  ).ballotPdfs[0]!;
+    );
+  const ballotPdf = ballotPdfs[0]!;
   await rendererPool.close();
   const ballotImages = await pdfToImageSheet(ballotPdf);
 
@@ -425,7 +425,7 @@ test('audit ballot IDs', async () => {
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage: {
-          electionDefinition,
+          electionDefinition: electionDefinitionModified,
           systemSettings: {
             ...DEFAULT_SYSTEM_SETTINGS,
             precinctScanEnableBallotAuditIds: true,

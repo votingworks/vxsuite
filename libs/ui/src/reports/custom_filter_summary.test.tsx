@@ -29,7 +29,7 @@ test('ballot style filter', () => {
     <CustomFilterSummary
       electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
-      filter={{ ballotStyleGroupIds: ['1'] as BallotStyleGroupId[] }}
+      filter={{ ballotStyleGroupIds: ['1-1'] as BallotStyleGroupId[] }}
     />
   );
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
@@ -138,7 +138,7 @@ test('complex filter', () => {
       scannerBatches={mockScannerBatches}
       filter={{
         precinctIds: ['23'],
-        ballotStyleGroupIds: ['1'] as BallotStyleGroupId[],
+        ballotStyleGroupIds: ['1-4'] as BallotStyleGroupId[],
         votingMethods: ['absentee'],
       }}
     />
