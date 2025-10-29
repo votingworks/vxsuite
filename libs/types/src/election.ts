@@ -1,4 +1,4 @@
-import { Optional, DateWithoutTime } from '@votingworks/basics';
+import { Optional, DateWithoutTime, iter } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { z } from 'zod/v4';
 import {
@@ -413,12 +413,13 @@ export const PrecinctsSchema = z
 // Represents a bubble option that should be displayed for selection on a ballot.
 export interface OrderedCandidateOption {
   id: CandidateId;
-  // TODO(CROSS_ENDORSE): add more partyIds as needed.
+  partyIds?: readonly PartyId[];
 }
 
 export const OrderedCandidateOptionSchema: z.ZodSchema<OrderedCandidateOption> =
   z.object({
     id: CandidateIdSchema,
+    partyIds: z.array(PartyIdSchema).optional(),
   });
 
 export type BallotStyleId = string;
@@ -707,6 +708,85 @@ export const ElectionSchema: z.ZodSchema<Election> = z
               .join(', ')}].`,
             input: election,
           });
+        }
+      }
+    }
+
+    for (const [
+      ballotStyleIndex,
+      ballotStyle,
+    ] of election.ballotStyles.entries()) {
+      if (ballotStyle.orderedCandidatesByContest) {
+        for (const [contestId, orderedCandidates] of Object.entries(
+          ballotStyle.orderedCandidatesByContest
+        )) {
+          const contest = election.contests.find((c) => c.id === contestId);
+          if (!contest) {
+            ctx.issues.push({
+              code: 'custom',
+              path: [
+                'ballotStyles',
+                ballotStyleIndex,
+                'orderedCandidatesByContest',
+                contestId,
+              ],
+              message: `Ballot style '${ballotStyle.id}' has ordered candidates for contest '${contestId}', but no such contest is defined.`,
+              input: election,
+            });
+            continue;
+          }
+          if (contest.type === 'candidate') {
+            for (const [candidateId, candidateOptions] of iter(
+              orderedCandidates
+            )
+              .toMap(({ id }) => id)
+              .entries()) {
+              const candidate = contest.candidates.find(
+                (c) => c.id === candidateId
+              );
+              if (!candidate) {
+                ctx.issues.push({
+                  code: 'custom',
+                  path: [
+                    'ballotStyles',
+                    ballotStyleIndex,
+                    'orderedCandidatesByContest',
+                    contestId,
+                    candidateId,
+                  ],
+                  message: `Ordered candidate '${candidateId}' in ballot style '${ballotStyle.id}' for contest '${contestId}' does not exist in that contest.`,
+                  input: election,
+                });
+                continue;
+              }
+              const candidatePartyIds = candidate.partyIds ?? [];
+              const orderedCandidatePartyIds = [...candidateOptions].flatMap(
+                (oc) => oc.partyIds ?? []
+              );
+              if (
+                JSON.stringify(candidatePartyIds) !==
+                JSON.stringify(orderedCandidatePartyIds)
+              ) {
+                ctx.issues.push({
+                  code: 'custom',
+                  path: [
+                    'ballotStyles',
+                    ballotStyleIndex,
+                    'orderedCandidatesByContest',
+                    contestId,
+                    candidateId,
+                    'partyIds',
+                  ],
+                  message: `Ordered candidate '${candidateId}' has party IDs [${orderedCandidatePartyIds.join(
+                    ', '
+                  )}], but candidate in contest has party IDs [${candidatePartyIds.join(
+                    ', '
+                  )}].`,
+                  input: election,
+                });
+              }
+            }
+          }
         }
       }
     }

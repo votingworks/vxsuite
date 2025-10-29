@@ -620,233 +620,440 @@
       "orderedCandidatesByContest": {
         "president": [
           {
-            "id": "hildebrand-garritty"
+            "id": "hildebrand-garritty",
+            "partyIds": [
+              "4"
+            ]
           },
           {
-            "id": "barchi-hallaren"
+            "id": "barchi-hallaren",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "patterson-lariviere"
+            "id": "patterson-lariviere",
+            "partyIds": [
+              "5"
+            ]
           },
           {
-            "id": "boone-lian"
+            "id": "boone-lian",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "cramer-vuocolo"
+            "id": "cramer-vuocolo",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "court-blumhardt"
+            "id": "court-blumhardt",
+            "partyIds": [
+              "2"
+            ]
           }
         ],
         "senator": [
           {
-            "id": "weiford"
+            "id": "weiford",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "wentworthfarthington"
+            "id": "wentworthfarthington",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "brown"
+            "id": "brown",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "garriss"
+            "id": "garriss",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "hewetson"
+            "id": "hewetson",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "martinez"
+            "id": "martinez",
+            "partyIds": [
+              "4"
+            ]
           },
           {
-            "id": "pound"
+            "id": "pound",
+            "partyIds": [
+              "6"
+            ]
           }
         ],
         "representative-district-6": [
           {
-            "id": "schott"
+            "id": "schott",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "tawney"
+            "id": "tawney",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "forrest"
+            "id": "forrest",
+            "partyIds": [
+              "4"
+            ]
           },
           {
-            "id": "plunkard"
+            "id": "plunkard",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "reeder"
+            "id": "reeder",
+            "partyIds": [
+              "1"
+            ]
           }
         ],
         "governor": [
           {
-            "id": "williams"
+            "id": "williams",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "windbeck"
+            "id": "windbeck",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "abcock"
+            "id": "abcock",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "alexander"
+            "id": "alexander",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "alpern"
+            "id": "alpern",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "ash"
+            "id": "ash",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "bargmann"
+            "id": "bargmann",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "franz"
+            "id": "franz",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "greher"
+            "id": "greher",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "harris"
+            "id": "harris",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "lee"
+            "id": "lee",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "mitchell"
+            "id": "mitchell",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "sharp"
+            "id": "sharp",
+            "partyIds": [
+              "5"
+            ]
           },
           {
-            "id": "sharp-althea"
+            "id": "sharp-althea",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "steelloy"
+            "id": "steelloy",
+            "partyIds": [
+              "4"
+            ]
           },
           {
-            "id": "wallace"
+            "id": "wallace",
+            "partyIds": [
+              "6"
+            ]
           }
         ],
         "lieutenant-governor": [
           {
-            "id": "freeman"
+            "id": "freeman",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "garcia"
+            "id": "garcia",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "hovis"
+            "id": "hovis",
+            "partyIds": [
+              "4"
+            ]
           },
           {
-            "id": "norberg"
+            "id": "norberg",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "parks"
+            "id": "parks",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "qualey"
+            "id": "qualey",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "swan"
+            "id": "swan",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "zirkle"
+            "id": "zirkle",
+            "partyIds": [
+              "5"
+            ]
           },
           {
-            "id": "davis-brenda"
+            "id": "davis-brenda",
+            "partyIds": [
+              "6"
+            ]
           }
         ],
         "secretary-of-state": [
           {
-            "id": "shamsi"
+            "id": "shamsi",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "talarico"
+            "id": "talarico",
+            "partyIds": [
+              "1"
+            ]
           }
         ],
         "state-senator-district-31": [
           {
-            "id": "shiplett"
+            "id": "shiplett",
+            "partyIds": [
+              "3"
+            ]
           }
         ],
         "state-assembly-district-54": [
           {
-            "id": "keller"
+            "id": "keller",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "rangel"
+            "id": "rangel",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "solis"
+            "id": "solis",
+            "partyIds": [
+              "0"
+            ]
           }
         ],
         "county-commissioners": [
           {
-            "id": "altman"
+            "id": "altman",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "argent"
+            "id": "argent",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "bainbridge"
+            "id": "bainbridge",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "hennessey"
+            "id": "hennessey",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "moore"
+            "id": "moore",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "rangel-damian"
+            "id": "rangel-damian",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "savoy"
+            "id": "savoy",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "schreiner"
+            "id": "schreiner",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "tawa"
+            "id": "tawa",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "tawa-mary"
+            "id": "tawa-mary",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "witherspoonsmithson"
+            "id": "witherspoonsmithson",
+            "partyIds": [
+              "0"
+            ]
           }
         ],
         "county-registrar-of-wills": [
           {
-            "id": "ramachandrani"
+            "id": "ramachandrani",
+            "partyIds": [
+              "6"
+            ]
           }
         ],
         "city-mayor": [
           {
-            "id": "seldon"
+            "id": "seldon",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "white"
+            "id": "white",
+            "partyIds": [
+              "1"
+            ]
           }
         ],
         "city-council": [
           {
-            "id": "davis"
+            "id": "davis",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "eagle"
+            "id": "eagle",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "rupp"
+            "id": "rupp",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "shry"
+            "id": "shry",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "smith"
+            "id": "smith",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "barker"
+            "id": "barker",
+            "partyIds": [
+              "1"
+            ]
           }
         ]
       }
@@ -866,89 +1073,164 @@
       "orderedCandidatesByContest": {
         "president": [
           {
-            "id": "hildebrand-garritty"
+            "id": "hildebrand-garritty",
+            "partyIds": [
+              "4"
+            ]
           },
           {
-            "id": "barchi-hallaren"
+            "id": "barchi-hallaren",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "patterson-lariviere"
+            "id": "patterson-lariviere",
+            "partyIds": [
+              "5"
+            ]
           },
           {
-            "id": "boone-lian"
+            "id": "boone-lian",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "cramer-vuocolo"
+            "id": "cramer-vuocolo",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "court-blumhardt"
+            "id": "court-blumhardt",
+            "partyIds": [
+              "2"
+            ]
           }
         ],
         "representative-district-6": [
           {
-            "id": "schott"
+            "id": "schott",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "tawney"
+            "id": "tawney",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "forrest"
+            "id": "forrest",
+            "partyIds": [
+              "4"
+            ]
           },
           {
-            "id": "plunkard"
+            "id": "plunkard",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "reeder"
+            "id": "reeder",
+            "partyIds": [
+              "1"
+            ]
           }
         ],
         "lieutenant-governor": [
           {
-            "id": "freeman"
+            "id": "freeman",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "garcia"
+            "id": "garcia",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "hovis"
+            "id": "hovis",
+            "partyIds": [
+              "4"
+            ]
           },
           {
-            "id": "norberg"
+            "id": "norberg",
+            "partyIds": [
+              "0"
+            ]
           },
           {
-            "id": "parks"
+            "id": "parks",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "qualey"
+            "id": "qualey",
+            "partyIds": [
+              "3"
+            ]
           },
           {
-            "id": "swan"
+            "id": "swan",
+            "partyIds": [
+              "6"
+            ]
           },
           {
-            "id": "zirkle"
+            "id": "zirkle",
+            "partyIds": [
+              "5"
+            ]
           },
           {
-            "id": "davis-brenda"
+            "id": "davis-brenda",
+            "partyIds": [
+              "6"
+            ]
           }
         ],
         "state-senator-district-31": [
           {
-            "id": "shiplett"
+            "id": "shiplett",
+            "partyIds": [
+              "3"
+            ]
           }
         ],
         "state-assembly-district-54": [
           {
-            "id": "keller"
+            "id": "keller",
+            "partyIds": [
+              "1"
+            ]
           },
           {
-            "id": "rangel"
+            "id": "rangel",
+            "partyIds": [
+              "2"
+            ]
           },
           {
-            "id": "solis"
+            "id": "solis",
+            "partyIds": [
+              "0"
+            ]
           }
         ],
         "county-registrar-of-wills": [
           {
-            "id": "ramachandrani"
+            "id": "ramachandrani",
+            "partyIds": [
+              "6"
+            ]
           }
         ]
       }

@@ -112,7 +112,7 @@ export function rotateCandidatesByStatute(
   contest: CandidateContestStruct
 ): OrderedCandidateOption[] {
   if (contest.candidates.length < 2) {
-    return contest.candidates.map((c) => ({ id: c.id }));
+    return contest.candidates.map((c) => ({ id: c.id, partyIds: c.partyIds }));
   }
 
   function getSortingName(candidate: Candidate): string {
@@ -140,7 +140,7 @@ export function rotateCandidatesByStatute(
     ...orderedCandidates.slice(rotationIndex),
     ...orderedCandidates.slice(0, rotationIndex),
   ];
-  return rotatedCandidates.map((c) => ({ id: c.id }));
+  return rotatedCandidates.map((c) => ({ id: c.id, partyIds: c.partyIds }));
 }
 
 export function rotateCandidatesByPrecinct(
@@ -149,7 +149,7 @@ export function rotateCandidatesByPrecinct(
   precinctId: PrecinctId
 ): OrderedCandidateOption[] {
   if (contest.candidates.length < 2) {
-    return contest.candidates.map((c) => ({ id: c.id }));
+    return contest.candidates.map((c) => ({ id: c.id, partyIds: c.partyIds }));
   }
   const allPrecinctsWithContest = precincts.filter((precinct) =>
     hasSplits(precinct)
