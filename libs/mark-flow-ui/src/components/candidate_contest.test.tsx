@@ -92,6 +92,7 @@ test('shows up-to-date vote counter - single-seat contest', () => {
   const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={electionDefinition.election}
       contest={candidateContest}
       vote={[]}
@@ -105,6 +106,7 @@ test('shows up-to-date vote counter - single-seat contest', () => {
 
   rerender(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={electionDefinition.election}
       contest={candidateContest}
       vote={[candidateContest.candidates[0]]}
@@ -121,6 +123,7 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
   const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={electionDefinition.election}
       contest={candidateContestWithMultipleSeats}
       vote={[]}
@@ -134,6 +137,7 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
 
   rerender(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={electionDefinition.election}
       contest={candidateContestWithMultipleSeats}
       vote={[
@@ -154,6 +158,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[]}
@@ -181,6 +186,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[]}
@@ -208,6 +214,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[candidateContest.candidates[0]]}
@@ -242,6 +249,7 @@ describe('supports multi-seat contests', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithMultipleSeats}
         vote={[candidateContestWithMultipleSeats.candidates[0]]}
@@ -295,6 +303,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -347,6 +356,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -394,6 +404,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -420,6 +431,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[
@@ -450,6 +462,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -475,6 +488,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={Array.from({ length: candidateContestWithWriteIns.seats }).map(
@@ -528,6 +542,7 @@ describe('supports write-in candidates', () => {
       const updateVote = vi.fn();
       render(
         <CandidateContest
+          ballotStyleId={electionDefinition.election.ballotStyles[0].id}
           election={electionDefinition.election}
           contest={candidateContestWithWriteIns}
           vote={[]}
@@ -581,6 +596,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -644,6 +660,7 @@ describe('supports write-in candidates', () => {
 
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={contest}
         vote={votes}
@@ -694,6 +711,7 @@ describe('audio cues', () => {
 
     const { rerender } = render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={twoSeatContest}
         vote={[]}
@@ -704,6 +722,7 @@ describe('audio cues', () => {
     updateVote.mockImplementation((_, votes) => {
       rerender(
         <CandidateContest
+          ballotStyleId={electionDefinition.election.ballotStyles[0].id}
           election={electionDefinition.election}
           contest={twoSeatContest}
           vote={votes as CandidateVote}
@@ -812,6 +831,7 @@ test('shows term description, if available', () => {
 
   render(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={election}
       contest={contest}
       vote={[]}

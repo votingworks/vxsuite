@@ -29,8 +29,14 @@ function getStartPageUrl() {
 }
 
 export function ContestScreen(): JSX.Element {
-  const { contests, electionDefinition, precinctId, updateVote, votes } =
-    React.useContext(BallotContext);
+  const {
+    ballotStyleId,
+    contests,
+    electionDefinition,
+    precinctId,
+    updateVote,
+    votes,
+  } = React.useContext(BallotContext);
 
   const isPatDeviceConnected = Boolean(
     api.getIsPatDeviceConnected.useQuery().data
@@ -38,6 +44,7 @@ export function ContestScreen(): JSX.Element {
 
   return (
     <ContestPage
+      ballotStyleId={ballotStyleId}
       contests={contests}
       electionDefinition={electionDefinition}
       getContestUrl={getContestUrl}

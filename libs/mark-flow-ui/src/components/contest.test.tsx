@@ -37,6 +37,7 @@ test.each([
 ])('candidate contest %s', (_, vote) => {
   render(
     <Contest
+      ballotStyleId={electionGeneral.ballotStyles[0].id}
       election={electionGeneral}
       contest={candidateContest}
       votes={{
@@ -93,6 +94,7 @@ test('write-in character limit across contests', () => {
 
   render(
     <Contest
+      ballotStyleId={electionGeneral.ballotStyles[0].id}
       election={electionGeneral}
       contest={manySeatCandidateContests[1]}
       votes={votes}
@@ -116,6 +118,7 @@ test('write-in character limit across contests', () => {
 test('yesno contest', () => {
   render(
     <Contest
+      ballotStyleId={electionGeneral.ballotStyles[0].id}
       election={electionGeneral}
       contest={yesnoContest}
       votes={{
@@ -132,6 +135,7 @@ test('renders ms-either-neither contests', () => {
   const updateVote = vi.fn();
   render(
     <Contest
+      ballotStyleId={electionWithMsEitherNeither.ballotStyles[0].id}
       election={electionWithMsEitherNeither}
       contest={msEitherNeitherContest}
       votes={{}}
@@ -156,6 +160,7 @@ test('renders ms-either-neither contests', () => {
 test('renders breadcrumbs', () => {
   render(
     <Contest
+      ballotStyleId={electionGeneral.ballotStyles[0].id}
       breadcrumbs={{ ballotContestCount: 15, contestNumber: 3 }}
       contest={yesnoContest}
       election={electionGeneral}

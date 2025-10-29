@@ -22,11 +22,18 @@ function getStartPageUrl() {
 }
 
 export function ContestScreen(): JSX.Element {
-  const { contests, electionDefinition, precinctId, updateVote, votes } =
-    React.useContext(BallotContext);
+  const {
+    ballotStyleId,
+    contests,
+    electionDefinition,
+    precinctId,
+    updateVote,
+    votes,
+  } = React.useContext(BallotContext);
 
   return (
     <ContestPage
+      ballotStyleId={ballotStyleId}
       contests={contests}
       electionDefinition={electionDefinition}
       getContestUrl={getContestUrl}
