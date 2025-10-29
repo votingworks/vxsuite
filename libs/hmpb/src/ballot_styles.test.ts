@@ -187,7 +187,7 @@ describe('generateBallotStyles()', () => {
         districts: [district1.id],
         languages,
         precincts: [precinct1District1.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [generalContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -201,7 +201,7 @@ describe('generateBallotStyles()', () => {
         districts: [district2.id],
         languages,
         precincts: [precinct2District2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [generalContest2.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -239,7 +239,7 @@ describe('generateBallotStyles()', () => {
         districts: [district1.id],
         languages,
         precincts: [precinct1District1.id, precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [generalContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -253,7 +253,7 @@ describe('generateBallotStyles()', () => {
         districts: [district1.id, district2.id],
         languages,
         precincts: [precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [generalContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -300,7 +300,7 @@ describe('generateBallotStyles()', () => {
         districts: [district1.id],
         languages,
         precincts: [precinct1District1.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [generalContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -314,7 +314,7 @@ describe('generateBallotStyles()', () => {
         districts: [district1.id],
         languages,
         precincts: [precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [generalContest1.id]: [
             { id: 'candidate-3' },
             { id: 'candidate-1' },
@@ -328,7 +328,7 @@ describe('generateBallotStyles()', () => {
         districts: [district1.id, district2.id],
         languages,
         precincts: [precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [generalContest1.id]: [
             { id: 'candidate-3' },
             { id: 'candidate-1' },
@@ -384,7 +384,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct1District1.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -411,7 +411,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct1District1.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -438,7 +438,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct2District2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest2.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -465,7 +465,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct2District2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest2.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -521,7 +521,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct1District1.id, precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -548,7 +548,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct1District1.id, precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -575,7 +575,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -612,7 +612,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -681,7 +681,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct1District1.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -708,7 +708,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct1District1.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-1' },
             { id: 'candidate-2' },
@@ -735,7 +735,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-3' },
             { id: 'candidate-1' },
@@ -762,7 +762,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-3' },
             { id: 'candidate-1' },
@@ -789,7 +789,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyA.id,
         precincts: [precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-3' },
             { id: 'candidate-1' },
@@ -826,7 +826,7 @@ describe('generateBallotStyles()', () => {
         languages,
         partyId: partyB.id,
         precincts: [precinct3District1And2.id],
-        orderedDisplayCandidatesByContest: {
+        orderedCandidatesByContest: {
           [partyAContest1.id]: [
             { id: 'candidate-3' },
             { id: 'candidate-1' },

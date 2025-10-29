@@ -810,7 +810,7 @@ test('getOrderedContests returns contests with candidate ordering when specified
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
-    orderedDisplayCandidatesByContest: {
+    orderedCandidatesByContest: {
       CC: [{ id: 'A' }, { id: 'B' }, { id: 'C' }, { id: 'D' }, { id: 'E' }],
     },
   };
@@ -878,7 +878,7 @@ test('getOrderedContests handles multiple candidate contests with different orde
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
-    orderedDisplayCandidatesByContest: {
+    orderedCandidatesByContest: {
       president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
       mayor: [{ id: 'frank' }, { id: 'dave' }, { id: 'eve' }],
     },
@@ -945,7 +945,7 @@ test('getOrderedContests preserves original ordering when contest not in ordered
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
-    orderedDisplayCandidatesByContest: {
+    orderedCandidatesByContest: {
       'contest-1': [{ id: 'bob' }, { id: 'alice' }],
     },
   };
@@ -994,7 +994,7 @@ test('getOrderedContests preserves yesno contests unchanged', () => {
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
-    orderedDisplayCandidatesByContest: {
+    orderedCandidatesByContest: {
       president: [{ id: 'bob' }, { id: 'alice' }],
     },
   };
@@ -1025,7 +1025,7 @@ test('getOrderedContests with primary elections and candidate ordering', () => {
       ballotStyleId: '1M' as BallotStyleId,
       election: electionTwoPartyPrimary,
     })!,
-    orderedDisplayCandidatesByContest: {
+    orderedCandidatesByContest: {
       'best-animal-mammal': [
         { id: mammalContest.candidates[2].id },
         { id: mammalContest.candidates[0].id },

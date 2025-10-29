@@ -610,21 +610,19 @@ export async function layOutBallotsAndCreateElectionDefinition<
     if (template.isAllBubbleBallot) return contest;
     if (contest.type !== 'candidate') return contest;
     const ballotStylesWithContest = election.ballotStyles.filter(
-      ({ orderedDisplayCandidatesByContest }) =>
+      ({ orderedCandidatesByContest: orderedDisplayCandidatesByContest }) =>
         orderedDisplayCandidatesByContest &&
         contest.id in orderedDisplayCandidatesByContest
     );
     if (ballotStylesWithContest.length === 0) return contest;
     const [firstBallotStyle, ...restBallotStyles] = ballotStylesWithContest;
     const firstLayoutOrder = assertDefined(
-      firstBallotStyle.orderedDisplayCandidatesByContest
+      firstBallotStyle.orderedCandidatesByContest
     )[contest.id];
     if (
       restBallotStyles.every((ballotStyle) =>
         deepEqual(
-          assertDefined(ballotStyle.orderedDisplayCandidatesByContest)[
-            contest.id
-          ],
+          assertDefined(ballotStyle.orderedCandidatesByContest)[contest.id],
           firstLayoutOrder
         )
       )

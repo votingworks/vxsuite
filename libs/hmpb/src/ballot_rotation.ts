@@ -1,7 +1,7 @@
 import { typedAs, throwIllegalValue, find } from '@votingworks/basics';
 import {
   ContestId,
-  DisplayCandidate,
+  OrderedCandidateOption,
   PrecinctOrSplitId,
 } from '@votingworks/types';
 import { CandidateOrderingSet, RotationParams } from './types';
@@ -35,7 +35,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
     const precinctName = precinct.name;
     const firstLetter = precinctName.charAt(0).toUpperCase();
 
-    const orderedContests: Record<ContestId, DisplayCandidate[]> = {};
+    const orderedContests: Record<ContestId, OrderedCandidateOption[]> = {};
 
     for (const contest of ballotStyleContests) {
       switch (contest.type) {
@@ -61,7 +61,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
           }
 
           orderedContests[contest.id] = sortedCandidates.map((candidate) =>
-            typedAs<DisplayCandidate>({
+            typedAs<OrderedCandidateOption>({
               id: candidate.id,
             })
           );
@@ -96,13 +96,13 @@ function getDefaultCandidateOrdering({
     districtIds.includes(contest.districtId)
   );
 
-  const orderedContests: Record<ContestId, DisplayCandidate[]> = {};
+  const orderedContests: Record<ContestId, OrderedCandidateOption[]> = {};
 
   for (const contest of ballotStyleContests) {
     switch (contest.type) {
       case 'candidate':
         orderedContests[contest.id] = contest.candidates.map((candidate) =>
-          typedAs<DisplayCandidate>({
+          typedAs<OrderedCandidateOption>({
             id: candidate.id,
           })
         );

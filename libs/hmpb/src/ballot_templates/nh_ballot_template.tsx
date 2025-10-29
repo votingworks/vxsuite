@@ -20,7 +20,7 @@ import {
   Candidate,
   CandidateContest as CandidateContestStruct,
   ContestId,
-  DisplayCandidate,
+  OrderedCandidateOption,
   Election,
   ElectionId,
   LanguageCode,
@@ -113,7 +113,7 @@ const NH_ROTATION_INDICES: Record<number, number> = {
  */
 export function rotateCandidatesByStatute(
   contest: CandidateContestStruct
-): DisplayCandidate[] {
+): OrderedCandidateOption[] {
   if (contest.candidates.length < 2) {
     return contest.candidates.map((c) => ({ id: c.id }));
   }
@@ -150,7 +150,7 @@ export function rotateCandidatesByPrecinct(
   contest: CandidateContestStruct,
   precincts: readonly Precinct[],
   precinctId: PrecinctId
-): DisplayCandidate[] {
+): OrderedCandidateOption[] {
   if (contest.candidates.length < 2) {
     return contest.candidates.map((c) => ({ id: c.id }));
   }
@@ -194,7 +194,7 @@ function rotateCandidates(
   electionId: ElectionId,
   precincts: readonly Precinct[],
   precinctId: PrecinctId
-): DisplayCandidate[] {
+): OrderedCandidateOption[] {
   if ((contestsUsingPrecinctRotation[electionId] ?? []).includes(contest.id)) {
     return rotateCandidatesByPrecinct(contest, precincts, precinctId);
   }
@@ -218,7 +218,7 @@ export function getCandidateOrderingSetsForNhBallot({
   );
   const rotationsByPrecinct = precinctsOrSplitIds.map(
     ({ precinctId, splitId }) => {
-      const orderedContests: Record<ContestId, DisplayCandidate[]> = {};
+      const orderedContests: Record<ContestId, OrderedCandidateOption[]> = {};
       for (const contest of ballotStyleContests) {
         switch (contest.type) {
           case 'candidate':

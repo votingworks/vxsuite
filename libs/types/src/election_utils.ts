@@ -62,7 +62,7 @@ export function getOrderedContests({
   election: Election;
 }): Contests {
   const contests = getContests({ ballotStyle, election });
-  if (!ballotStyle.orderedDisplayCandidatesByContest) {
+  if (!ballotStyle.orderedCandidatesByContest) {
     return contests;
   }
 
@@ -70,9 +70,9 @@ export function getOrderedContests({
     switch (orderedContest.type) {
       case 'candidate': {
         assert(orderedContest.type === 'candidate', 'Mismatched contest type');
-        assert(ballotStyle.orderedDisplayCandidatesByContest);
+        assert(ballotStyle.orderedCandidatesByContest);
         const candidateOrdering =
-          ballotStyle.orderedDisplayCandidatesByContest[orderedContest.id];
+          ballotStyle.orderedCandidatesByContest[orderedContest.id];
         if (!candidateOrdering) {
           return orderedContest;
         }

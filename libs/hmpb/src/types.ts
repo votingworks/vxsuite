@@ -1,7 +1,7 @@
 import {
   AnyContest,
   ContestId,
-  DisplayCandidate,
+  OrderedCandidateOption,
   Precinct,
   PrecinctOrSplitId,
 } from '@votingworks/types';
@@ -47,6 +47,6 @@ export interface RotationParams {
 }
 
 export interface CandidateOrderingSet {
-  orderedContests: Record<ContestId, DisplayCandidate[]>;
+  orderedContests: Record<ContestId, OrderedCandidateOption[]>;
   precinctsOrSplits: PrecinctOrSplitId[];
 }
