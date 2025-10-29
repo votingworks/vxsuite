@@ -99,10 +99,8 @@ export function AppRoot(): JSX.Element | null {
   // This state value allows to surface the accessibility input disconnected alarm only if the
   // input is at some point connected. If this input is never connected to begin with, we don't
   // want to block operations on it.
-  const [
-    accessibilityInputTransitionedFromConnectedToDisconnected,
-    setAccessibilityInputTransitionedFromConnectedToDisconnected,
-  ] = useState(false);
+  const [accessibilityInputDisconnected, setAccessibilityInputDisconnected] =
+    useState(false);
   useQueryChangeListener(usbDriveStatusQuery, {
     select: ({ isAccessibilityInputConnected }) =>
       isAccessibilityInputConnected,
@@ -111,9 +109,9 @@ export function AppRoot(): JSX.Element | null {
       wasAccessibilityInputConnected
     ) => {
       if (wasAccessibilityInputConnected && !isAccessibilityInputConnected) {
-        setAccessibilityInputTransitionedFromConnectedToDisconnected(true);
+        setAccessibilityInputDisconnected(true);
       } else if (isAccessibilityInputConnected) {
-        setAccessibilityInputTransitionedFromConnectedToDisconnected(false);
+        setAccessibilityInputDisconnected(false);
       }
     },
   });
@@ -344,7 +342,7 @@ export function AppRoot(): JSX.Element | null {
     return <PrinterCoverOpenScreen />;
   }
 
-  if (accessibilityInputTransitionedFromConnectedToDisconnected) {
+  if (accessibilityInputDisconnected) {
     return (
       <AccessibilityInputDisconnectedScreen
         disableAlarm={Boolean(systemSettings.precinctScanDisableAlarms)}
