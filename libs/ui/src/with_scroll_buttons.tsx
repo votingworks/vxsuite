@@ -208,6 +208,8 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
             });
           }}
         >
+          {/* When aria-hidden is set to false, an element remains focusable by tab navigation but
+            not by our custom accessible navigation logic */}
           <Controls aria-hidden={!focusable}>
             <Control
               disabled={!canScrollUp}

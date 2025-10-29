@@ -177,7 +177,9 @@ function MisvoteWarningScreen({
       {confirmTabulate && (
         <ConfirmModal
           content={
-            <WithScrollButtons>
+            // TODO: Check whether the accessible input is a tactile controller vs. a PAT and only
+            // set focusable to true when using a PAT
+            <WithScrollButtons focusable>
               <MisvoteWarningDetails
                 blankContests={blankContests}
                 overvoteContests={overvoteContests}
