@@ -6,7 +6,9 @@ interface Props {
   disableAlarm?: boolean;
 }
 
-export function ScannerCoverOpenScreen({ disableAlarm }: Props): JSX.Element {
+export function AccessibilityInputDisconnectedScreen({
+  disableAlarm,
+}: Props): JSX.Element {
   const enableAlarm = !disableAlarm;
   useAlarm(enableAlarm);
 
@@ -17,7 +19,9 @@ export function ScannerCoverOpenScreen({ disableAlarm }: Props): JSX.Element {
       voterFacing
     >
       <CenteredText>
-        <H1>{appStrings.titleScannerCoverIsOpen()}</H1>
+        <H1>Accessibility Input Disconnected</H1>
+        {/* Translate this instruction for the voter but leave all else in
+          English for the poll worker */}
         <P>{appStrings.instructionsAskForHelp()}</P>
         {enableAlarm && (
           <Caption>
@@ -32,10 +36,10 @@ export function ScannerCoverOpenScreen({ disableAlarm }: Props): JSX.Element {
 
 /* istanbul ignore next - @preserve */
 export function WithAlarmPreview(): JSX.Element {
-  return <ScannerCoverOpenScreen />;
+  return <AccessibilityInputDisconnectedScreen />;
 }
 
 /* istanbul ignore next - @preserve */
 export function WithoutAlarmPreview(): JSX.Element {
-  return <ScannerCoverOpenScreen disableAlarm />;
+  return <AccessibilityInputDisconnectedScreen disableAlarm />;
 }

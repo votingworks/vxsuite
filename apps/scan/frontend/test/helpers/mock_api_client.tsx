@@ -133,12 +133,16 @@ export function createApiMock() {
 
     expectGetUsbDriveStatus(
       status: UsbDriveStatus['status'],
-      options: { doesUsbDriveRequireCastVoteRecordSync?: true } = {}
+      options: {
+        doesUsbDriveRequireCastVoteRecordSync?: true;
+        isAccessibilityInputConnected?: true;
+      } = {}
     ): void {
       mockApiClient.getUsbDriveStatus.expectRepeatedCallsWith().resolves({
         ...mockUsbDriveStatus(status),
         doesUsbDriveRequireCastVoteRecordSync:
           options.doesUsbDriveRequireCastVoteRecordSync,
+        isAccessibilityInputConnected: options.isAccessibilityInputConnected,
       });
     },
 
