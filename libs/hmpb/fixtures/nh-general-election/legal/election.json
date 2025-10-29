@@ -617,7 +617,7 @@
       "languages": [
         "en"
       ],
-      "orderedDisplayCandidatesByContest": {
+      "orderedCandidatesByContest": {
         "president": [
           {
             "id": "hildebrand-garritty"
@@ -863,7 +863,7 @@
       "languages": [
         "en"
       ],
-      "orderedDisplayCandidatesByContest": {
+      "orderedCandidatesByContest": {
         "president": [
           {
             "id": "hildebrand-garritty"
