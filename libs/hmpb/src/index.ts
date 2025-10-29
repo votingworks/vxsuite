@@ -11,3 +11,4 @@ export * from './renderer';
 export * from './ballot_templates';
 export * as calibrationSheetTemplate from './calibration_sheet/template';
 export * from './types';
+export * from './ballot_styles';

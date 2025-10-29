@@ -5,6 +5,7 @@ import {
   BallotType,
   BaseBallotProps,
   Election,
+  LanguageCode,
 } from '@votingworks/types';
 import { assert, iter } from '@votingworks/basics';
 import {
@@ -15,6 +16,7 @@ import { createPlaywrightRendererPool } from './playwright_renderer';
 import { ballotTemplates } from './ballot_templates';
 import { vxFamousNamesFixtures } from './ballot_fixtures';
 import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template';
+import { generateBallotStyles } from './ballot_styles';
 
 function combinations<T extends Record<string, unknown>>(
   arrays: Array<Array<Partial<T>>>
@@ -83,8 +85,18 @@ test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
 });
 
 test('reorder candidates based on rotation from template', async () => {
+  const baseElection = vxFamousNamesFixtures.electionDefinition.election;
   const fixtureElection: Election = {
-    ...vxFamousNamesFixtures.electionDefinition.election,
+    ...baseElection,
+    ballotStyles: generateBallotStyles({
+      ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
+      electionId: baseElection.id,
+      electionType: baseElection.type,
+      parties: baseElection.parties,
+      precincts: [...baseElection.precincts],
+      ballotTemplateId: 'NhBallot',
+      contests: baseElection.contests,
+    }),
     signature: {
       caption: 'test caption',
       image: '<svg></svg>',
@@ -119,7 +131,7 @@ test('reorder candidates based on rotation from template', async () => {
       fixtureContest;
     expect(restContest).toEqual(restFixtureContest);
     expect(candidates.map((c) => c.id)).toEqual(
-      rotateCandidatesByStatute(fixtureContest)
+      rotateCandidatesByStatute(fixtureContest).map((c) => c.id)
     );
   }
 });

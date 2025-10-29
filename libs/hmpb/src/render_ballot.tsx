@@ -10,7 +10,6 @@ import {
   ok,
   Result,
   throwIllegalValue,
-  unique,
 } from '@votingworks/basics';
 import {
   AnyContest,
@@ -18,14 +17,11 @@ import {
   BallotStyleId,
   BallotType,
   BaseBallotProps,
-  CandidateContest,
-  CandidateId,
   Election,
   ElectionDefinition,
   ElectionSerializationFormat,
   GridLayout,
   GridPosition,
-  GridPositionOption,
   HmpbBallotPageMetadata,
   Outset,
   convertVxfElectionToCdfBallotDefinition,
@@ -534,30 +530,6 @@ export async function renderBallotPreviewToPdf<P extends object>(
 }
 
 /**
- * Given a grid layout and a contest, returns the order of candidates as they
- * appear on the ballot. The ordering starts at the top of a contest and goes
- * down a column of options. If the contest spans multiple columns, orders the
- * columns left to right.
- */
-function candidateOrderFromGridLayout(
-  gridLayout: GridLayout,
-  contest: CandidateContest
-): CandidateId[] {
-  const contestPositions = gridLayout.gridPositions.filter(
-    (position): position is GridPositionOption =>
-      position.contestId === contest.id && position.type === 'option'
-  );
-  assert(
-    unique(contestPositions.map((p) => p.sheetNumber)).length <= 1,
-    `Contest appears on multiple sheets: ${contest.id}`
-  );
-  return [...contestPositions]
-    .sort((a, b) => a.row - b.row)
-    .sort((a, b) => a.column - b.column)
-    .map((p) => p.optionId);
-}
-
-/**
  * Given a {@link BallotPageTemplate} and a list of ballot props, lays out
  * each ballot for each set of props. Then, extracts the grid layout from the
  * ballot and creates an election definition. Returns the HTML content for each
@@ -631,32 +603,34 @@ export async function layOutBallotsAndCreateElectionDefinition<
   // that they appear on the HMPB. (Eventually, we should use the gridLayouts
   // for that ordering instead of the election contests.)
   //
-  // For each candidate contest: if all grid layouts have the same
-  // ordering of candidates, change the election definition to also have that
-  // ordering of candidates.
+  // For each candidate contest: if all ballot styles have the same
+  // orderedCandidatesByContest ordering, change the election definition to also
+  // have that ordering of candidates.
   const contests = election.contests.map((contest) => {
     if (template.isAllBubbleBallot) return contest;
     if (contest.type !== 'candidate') return contest;
-    const gridLayoutsWithContest = gridLayouts.filter((layout) =>
-      layout.gridPositions.some(
-        (gridPosition) => gridPosition.contestId === contest.id
-      )
+    const ballotStylesWithContest = election.ballotStyles.filter(
+      ({ orderedCandidatesByContest: orderedDisplayCandidatesByContest }) =>
+        orderedDisplayCandidatesByContest &&
+        contest.id in orderedDisplayCandidatesByContest
     );
-    if (gridLayoutsWithContest.length === 0) return contest;
-    const [firstLayout, ...restLayouts] = gridLayoutsWithContest;
-    const firstLayoutOrder = candidateOrderFromGridLayout(firstLayout, contest);
+    if (ballotStylesWithContest.length === 0) return contest;
+    const [firstBallotStyle, ...restBallotStyles] = ballotStylesWithContest;
+    const firstLayoutOrder = assertDefined(
+      firstBallotStyle.orderedCandidatesByContest
+    )[contest.id];
     if (
-      restLayouts.every((layout) =>
+      restBallotStyles.every((ballotStyle) =>
         deepEqual(
-          candidateOrderFromGridLayout(layout, contest),
+          assertDefined(ballotStyle.orderedCandidatesByContest)[contest.id],
           firstLayoutOrder
         )
       )
     ) {
       return {
         ...contest,
-        candidates: firstLayoutOrder.map((candidateId) =>
-          find(contest.candidates, (c) => c.id === candidateId)
+        candidates: firstLayoutOrder.map(({ id }) =>
+          find(contest.candidates, (c) => c.id === id)
         ),
       };
     }

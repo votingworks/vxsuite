@@ -12,6 +12,7 @@ import { Buffer } from 'node:buffer';
 import {
   AnyContest,
   BallotMode,
+  BallotStyle,
   BallotStyleId,
   BallotType,
   BaseBallotProps,
@@ -21,6 +22,7 @@ import {
   ballotPaperDimensions,
   getBallotStyle,
   getContests,
+  getOrderedCandidatesForContestInBallotStyle,
   getPartyForBallotStyle,
 } from '@votingworks/types';
 import {
@@ -215,10 +217,16 @@ function BallotPageFrame({
 function CandidateContest({
   election,
   contest,
+  ballotStyle,
 }: {
   election: Election;
   contest: CandidateContestStruct;
+  ballotStyle: BallotStyle;
 }) {
+  const candidates = getOrderedCandidatesForContestInBallotStyle({
+    contest,
+    ballotStyle,
+  });
   const voteForText = {
     1: hmpbStrings.hmpbVoteFor1,
     2: hmpbStrings.hmpbVoteFor2,
@@ -259,7 +267,7 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {contest.candidates.map((candidate, i) => {
+        {candidates.map((candidate, i) => {
           const partyText =
             election.type === 'primary' ? undefined : (
               <CandidatePartyList
@@ -421,13 +429,21 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
 function Contest({
   contest,
   election,
+  ballotStyle,
 }: {
   contest: AnyContest;
   election: Election;
+  ballotStyle: BallotStyle;
 }) {
   switch (contest.type) {
     case 'candidate':
-      return <CandidateContest election={election} contest={contest} />;
+      return (
+        <CandidateContest
+          election={election}
+          contest={contest}
+          ballotStyle={ballotStyle}
+        />
+      );
     case 'yesno':
       return <BallotMeasureContest contest={contest} />;
     default:
@@ -471,7 +487,12 @@ async function BallotPageContent(
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
     const contestElements = section.map((contest) => (
-      <Contest key={contest.id} contest={contest} election={election} />
+      <Contest
+        key={contest.id}
+        contest={contest}
+        election={election}
+        ballotStyle={ballotStyle}
+      />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 2;
     const columnWidthPx =

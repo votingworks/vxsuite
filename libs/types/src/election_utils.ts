@@ -10,6 +10,7 @@ import {
   BallotStyle,
   BallotStyleId,
   Candidate,
+  CandidateContest,
   Contest,
   ContestId,
   ContestLike,
@@ -51,6 +52,36 @@ export function getContests({
         !c.partyId ||
         ballotStyle.partyId === c.partyId)
   );
+}
+
+/**
+ * Gets the ordered candidates for a specific contest based on the ballot style's
+ * orderedCandidatesByContest field. Returns the candidates in the order specified
+ * for ballot rotation, or in their original order if no rotation is specified.
+ */
+export function getOrderedCandidatesForContestInBallotStyle({
+  contest,
+  ballotStyle,
+}: {
+  contest: CandidateContest;
+  ballotStyle: BallotStyle;
+}): readonly Candidate[] {
+  const candidateOrdering =
+    ballotStyle.orderedCandidatesByContest?.[contest.id];
+  if (!candidateOrdering) {
+    return contest.candidates;
+  }
+  return candidateOrdering.map(({ id, partyIds }) => {
+    const candidate = assertDefined(
+      contest.candidates.find((c) => c.id === id)
+    );
+    // If the OrderedCandidateOption has partyIds specified, return a candidate with those specific partyIds
+    // This enables cross-endorsed candidates to appear multiple times with different party affiliations
+    return {
+      ...candidate,
+      partyIds,
+    };
+  });
 }
 
 /**

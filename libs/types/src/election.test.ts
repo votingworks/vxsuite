@@ -27,6 +27,7 @@ import {
   getGroupIdFromBallotStyleId,
   getPrecinctSplitById,
   getAllPrecinctsAndSplits,
+  getOrderedCandidatesForContestInBallotStyle,
 } from './election_utils';
 import {
   election,
@@ -48,6 +49,8 @@ import {
   hasSplits,
   DistrictId,
   Precinct,
+  BallotStyle,
+  Election,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -755,4 +758,528 @@ test('getAllPrecinctsAndSplits sorts with numeric-aware locale comparison', () =
     { precinct: precinct10, split: precinct10.splits[0] },
     { precinct: precinct10, split: precinct10.splits[1] },
   ]);
+});
+
+test('getOrderedCandidatesForContestInBallotStyle returns original candidates when orderedCandidatesByContest is not set', () => {
+  const ballotStyle = getBallotStyle({
+    ballotStyleId: '1' as BallotStyleId,
+    election,
+  })!;
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.id === 'CC'
+  )!;
+  const candidateContestWithMoreCandidates: CandidateContest = {
+    ...candidateContest,
+    candidates: [
+      { id: 'C', name: 'Candidate C' },
+      { id: 'B', name: 'Candidate B' },
+      { id: 'A', name: 'Candidate A' },
+      { id: 'D', name: 'Candidate D' },
+      { id: 'E', name: 'Candidate E' },
+    ],
+  };
+
+  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+    contest: candidateContestWithMoreCandidates,
+    ballotStyle,
+  });
+
+  expect(orderedCandidates).toEqual(
+    candidateContestWithMoreCandidates.candidates
+  );
+});
+
+test('getOrderedCandidatesForContestInBallotStyle returns ordered candidates when specified', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.id === 'CC'
+  )!;
+  const candidateContestWithMoreCandidates: CandidateContest = {
+    ...candidateContest,
+    candidates: [
+      { id: 'C', name: 'Candidate C' },
+      { id: 'B', name: 'Candidate B' },
+      { id: 'A', name: 'Candidate A' },
+      { id: 'D', name: 'Candidate D' },
+      { id: 'E', name: 'Candidate E' },
+    ],
+  };
+
+  // Create a ballot style with ordered candidates (reversed order)
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      CC: [{ id: 'A' }, { id: 'B' }, { id: 'C' }, { id: 'D' }, { id: 'E' }],
+    },
+  };
+
+  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+    contest: candidateContestWithMoreCandidates,
+    ballotStyle: ballotStyleWithOrdering,
+  });
+
+  expect(orderedCandidates).toEqual([
+    candidateContestWithMoreCandidates.candidates[2], // A
+    candidateContestWithMoreCandidates.candidates[1], // B
+    candidateContestWithMoreCandidates.candidates[0], // C
+    candidateContestWithMoreCandidates.candidates[3], // D
+    candidateContestWithMoreCandidates.candidates[4], // E
+  ]);
+});
+
+test('getOrderedCandidatesForContestInBallotStyle handles different orderings', () => {
+  const presidentContest: CandidateContest = {
+    type: 'candidate',
+    id: 'president',
+    districtId: 'D',
+    seats: 1,
+    title: 'President',
+    allowWriteIns: false,
+    candidates: [
+      { id: 'alice', name: 'Alice' },
+      { id: 'bob', name: 'Bob' },
+      { id: 'carol', name: 'Carol' },
+    ],
+  };
+
+  const mayorContest: CandidateContest = {
+    type: 'candidate',
+    id: 'mayor',
+    districtId: 'D',
+    seats: 1,
+    title: 'Mayor',
+    allowWriteIns: false,
+    candidates: [
+      { id: 'dave', name: 'Dave' },
+      { id: 'eve', name: 'Eve' },
+      { id: 'frank', name: 'Frank' },
+    ],
+  };
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
+      mayor: [{ id: 'frank' }, { id: 'dave' }, { id: 'eve' }],
+    },
+  };
+
+  const orderedPresidentCandidates =
+    getOrderedCandidatesForContestInBallotStyle({
+      contest: presidentContest,
+      ballotStyle: ballotStyleWithOrdering,
+    });
+  const orderedMayorCandidates = getOrderedCandidatesForContestInBallotStyle({
+    contest: mayorContest,
+    ballotStyle: ballotStyleWithOrdering,
+  });
+
+  expect(orderedPresidentCandidates.map((c) => c.id)).toEqual([
+    'carol',
+    'alice',
+    'bob',
+  ]);
+  expect(orderedMayorCandidates.map((c) => c.id)).toEqual([
+    'frank',
+    'dave',
+    'eve',
+  ]);
+});
+
+test('getOrderedCandidatesForContestInBallotStyle preserves original ordering when contest not in orderedCandidatesByContest', () => {
+  const contest1: CandidateContest = {
+    type: 'candidate',
+    id: 'contest-1',
+    districtId: 'D',
+    seats: 1,
+    title: 'Contest 1',
+    allowWriteIns: false,
+    candidates: [
+      { id: 'alice', name: 'Alice' },
+      { id: 'bob', name: 'Bob' },
+    ],
+  };
+
+  const contest2: CandidateContest = {
+    type: 'candidate',
+    id: 'contest-2',
+    districtId: 'D',
+    seats: 1,
+    title: 'Contest 2',
+    allowWriteIns: false,
+    candidates: [
+      { id: 'carol', name: 'Carol' },
+      { id: 'dave', name: 'Dave' },
+    ],
+  };
+
+  // Only order contest-1, leave contest-2 unordered
+  const ballotStyleWithPartialOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      'contest-1': [{ id: 'bob' }, { id: 'alice' }],
+    },
+  };
+
+  const orderedCandidates1 = getOrderedCandidatesForContestInBallotStyle({
+    contest: contest1,
+    ballotStyle: ballotStyleWithPartialOrdering,
+  });
+  const orderedCandidates2 = getOrderedCandidatesForContestInBallotStyle({
+    contest: contest2,
+    ballotStyle: ballotStyleWithPartialOrdering,
+  });
+
+  // contest-1 should be reordered
+  expect(orderedCandidates1.map((c) => c.id)).toEqual(['bob', 'alice']);
+
+  // contest-2 should keep original order
+  expect(orderedCandidates2.map((c) => c.id)).toEqual(['carol', 'dave']);
+});
+
+test('getOrderedCandidatesForContestInBallotStyle with primary election', () => {
+  const mammalContest = electionTwoPartyPrimary.contests.find(
+    (c): c is CandidateContest => c.id === 'best-animal-mammal'
+  )!;
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    ...getBallotStyle({
+      ballotStyleId: '1M' as BallotStyleId,
+      election: electionTwoPartyPrimary,
+    })!,
+    orderedCandidatesByContest: {
+      'best-animal-mammal': [
+        {
+          id: mammalContest.candidates[2].id,
+          partyIds: mammalContest.candidates[2].partyIds,
+        },
+        {
+          id: mammalContest.candidates[0].id,
+          partyIds: mammalContest.candidates[0].partyIds,
+        },
+        {
+          id: mammalContest.candidates[1].id,
+          partyIds: mammalContest.candidates[1].partyIds,
+        },
+      ],
+    },
+  };
+
+  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+    contest: mammalContest,
+    ballotStyle: ballotStyleWithOrdering,
+  });
+
+  expect(orderedCandidates.map((c) => c.id)).toEqual([
+    mammalContest.candidates[2].id,
+    mammalContest.candidates[0].id,
+    mammalContest.candidates[1].id,
+  ]);
+});
+
+test('getOrderedCandidatesForContestInBallotStyle handles cross-endorsed candidates represented by multiple options', () => {
+  // Create a candidate cross-endorsed by multiple parties
+  const testContest: CandidateContest = {
+    type: 'candidate',
+    id: 'governor',
+    districtId: 'D',
+    seats: 1,
+    title: 'Governor',
+    allowWriteIns: false,
+    candidates: [
+      {
+        id: 'alice',
+        name: 'Alice',
+        partyIds: ['party-a', 'party-b'], // Cross-endorsed by Party A and Party B
+      },
+      { id: 'bob', name: 'Bob', partyIds: ['party-c'] },
+      { id: 'carol', name: 'Carol', partyIds: ['party-a'] },
+    ],
+  };
+
+  // Create two DisplayCandidates for Alice, one for each party
+  const ballotStyleWithCrossEndorsement: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      governor: [
+        { id: 'alice', partyIds: ['party-a'] }, // Alice as Party A candidate
+        { id: 'bob', partyIds: ['party-c'] },
+        { id: 'alice', partyIds: ['party-b'] }, // Alice as Party B candidate
+        { id: 'carol', partyIds: ['party-a'] },
+      ],
+    },
+  };
+
+  const candidates = getOrderedCandidatesForContestInBallotStyle({
+    ballotStyle: ballotStyleWithCrossEndorsement,
+    contest: testContest,
+  });
+
+  // Should have 4 candidate entries (Alice appears twice)
+  expect(candidates).toHaveLength(4);
+
+  // Verify the candidates and their partyIds
+  expect(candidates[0]).toEqual({
+    id: 'alice',
+    name: 'Alice',
+    partyIds: ['party-a'], // Only Party A
+  });
+  expect(candidates[1]).toEqual({
+    id: 'bob',
+    name: 'Bob',
+    partyIds: ['party-c'],
+  });
+  expect(candidates[2]).toEqual({
+    id: 'alice',
+    name: 'Alice',
+    partyIds: ['party-b'], // Only Party B
+  });
+  expect(candidates[3]).toEqual({
+    id: 'carol',
+    name: 'Carol',
+    partyIds: ['party-a'],
+  });
+});
+
+test('getOrderedContests handles cross-endorsed candidates represented by one option', () => {
+  // Create a candidate cross-endorsed by multiple parties
+  const testContest: CandidateContest = {
+    type: 'candidate',
+    id: 'governor',
+    districtId: 'D',
+    seats: 1,
+    title: 'Governor',
+    allowWriteIns: false,
+    candidates: [
+      {
+        id: 'alice',
+        name: 'Alice',
+        partyIds: ['party-a', 'party-b'], // Cross-endorsed by Party A and Party B
+      },
+      { id: 'bob', name: 'Bob', partyIds: ['party-c'] },
+      { id: 'carol', name: 'Carol', partyIds: ['party-a'] },
+    ],
+  };
+
+  // Create two DisplayCandidates for Alice, one for each party
+  const ballotStyleWithCrossEndorsement: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      governor: [
+        { id: 'alice', partyIds: ['party-a', 'party-b'] }, // Alice as Party A and B candidate
+        { id: 'bob', partyIds: ['party-c'] },
+        { id: 'carol', partyIds: ['party-a'] },
+      ],
+    },
+  };
+
+  const candidates = getOrderedCandidatesForContestInBallotStyle({
+    ballotStyle: ballotStyleWithCrossEndorsement,
+    contest: testContest,
+  });
+
+  // Should have 3 candidate entries (Alice appears once)
+  expect(candidates).toHaveLength(3);
+
+  // Verify the candidates and their partyIds
+  expect(candidates[0]).toEqual({
+    id: 'alice',
+    name: 'Alice',
+    partyIds: ['party-a', 'party-b'], // Both Party A and B
+  });
+  expect(candidates[1]).toEqual({
+    id: 'bob',
+    name: 'Bob',
+    partyIds: ['party-c'],
+  });
+  expect(candidates[2]).toEqual({
+    id: 'carol',
+    name: 'Carol',
+    partyIds: ['party-a'],
+  });
+});
+
+test('election validation throws when orderedCandidatesByContest references non-existent contest', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  const invalidElection: Election = {
+    ...election,
+    ballotStyles: [
+      {
+        ...election.ballotStyles[0],
+        orderedCandidatesByContest: {
+          'non-existent-contest': [{ id: candidateContest.candidates[0].id }],
+        },
+      },
+    ],
+  };
+
+  const result = safeParseElection(invalidElection);
+  expect(result.err()?.message).toContain(
+    "has ordered candidates for contest 'non-existent-contest', but no such contest is defined"
+  );
+});
+
+test('election validation throws when orderedCandidatesByContest references non-existent candidate', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  const invalidElection: Election = {
+    ...election,
+    ballotStyles: [
+      {
+        ...election.ballotStyles[0],
+        orderedCandidatesByContest: {
+          [candidateContest.id]: [
+            { id: 'non-existent-candidate' },
+            { id: candidateContest.candidates[0].id },
+          ],
+        },
+      },
+    ],
+  };
+
+  const result = safeParseElection(invalidElection);
+  expect(result.err()?.message).toContain(
+    "Ordered candidate 'non-existent-candidate'"
+  );
+  expect(result.err()?.message).toContain('does not exist in that contest');
+});
+
+test('election validation throws when orderedCandidatesByContest has mismatched party IDs', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  // Create election with a candidate that has party IDs
+  const testElection: Election = {
+    ...election,
+    contests: [
+      {
+        ...candidateContest,
+        candidates: [
+          {
+            id: 'candidate-1',
+            name: 'Candidate 1',
+            partyIds: ['party-1', 'party-2'],
+          },
+          {
+            id: 'candidate-2',
+            name: 'Candidate 2',
+            partyIds: ['party-3'],
+          },
+        ],
+      },
+    ],
+    ballotStyles: [
+      {
+        ...election.ballotStyles[0],
+        orderedCandidatesByContest: {
+          [candidateContest.id]: [
+            // Wrong party IDs - should be ['party-1', 'party-2']
+            { id: 'candidate-1', partyIds: ['party-1'] },
+            { id: 'candidate-2', partyIds: ['party-3'] },
+          ],
+        },
+      },
+    ],
+  };
+
+  const result = safeParseElection(testElection);
+  expect(result.err()?.message).toContain("Ordered candidate 'candidate-1'");
+  expect(result.err()?.message).toContain('has party IDs [party-1]');
+  expect(result.err()?.message).toContain(
+    'but candidate in contest has party IDs [party-1, party-2]'
+  );
+});
+
+test('election validation throws when orderedCandidatesByContest has extra party IDs', () => {
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  const testElection: Election = {
+    ...election,
+    contests: [
+      {
+        ...candidateContest,
+        candidates: [
+          {
+            id: 'candidate-1',
+            name: 'Candidate 1',
+            partyIds: ['party-1'],
+          },
+          {
+            id: 'candidate-2',
+            name: 'Candidate 2',
+            partyIds: [],
+          },
+        ],
+      },
+    ],
+    ballotStyles: [
+      {
+        ...election.ballotStyles[0],
+        orderedCandidatesByContest: {
+          [candidateContest.id]: [
+            // Extra party IDs - should be ['party-1']
+            { id: 'candidate-1', partyIds: ['party-1', 'party-2'] },
+            { id: 'candidate-2', partyIds: [] },
+          ],
+        },
+      },
+    ],
+  };
+
+  const result = safeParseElection(testElection);
+  expect(result.err()?.message).toContain('has party IDs [party-1, party-2]');
+  expect(result.err()?.message).toContain(
+    'but candidate in contest has party IDs [party-1]'
+  );
+});
+
+test('election validation succeeds when orderedCandidatesByContest party IDs match', () => {
+  // Use electionTwoPartyPrimary which has candidates with party IDs
+  const mammalContest = electionTwoPartyPrimary.contests.find(
+    (c): c is CandidateContest => c.id === 'best-animal-mammal'
+  )!;
+
+  const testElection: Election = {
+    ...electionTwoPartyPrimary,
+    ballotStyles: electionTwoPartyPrimary.ballotStyles.map((bs) => ({
+      ...bs,
+      orderedCandidatesByContest: {
+        'best-animal-mammal': mammalContest.candidates.map((c) => ({
+          id: c.id,
+          partyIds: c.partyIds,
+        })),
+      },
+    })),
+  };
+
+  const result = safeParseElection(testElection);
+  expect(result).toEqual(
+    ok(
+      expect.objectContaining({
+        id: electionTwoPartyPrimary.id,
+      })
+    )
+  );
 });

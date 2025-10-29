@@ -3,7 +3,6 @@ import {
   assert,
   assertDefined,
   err,
-  find,
   iter,
   ok,
   range,
@@ -20,19 +19,21 @@ import {
   BaseBallotProps,
   Candidate,
   CandidateContest as CandidateContestStruct,
-  CandidateId,
   ContestId,
+  OrderedCandidateOption,
   Election,
   ElectionId,
   LanguageCode,
   NhPrecinctSplitOptions,
+  Precinct,
   PrecinctId,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
-  getContests,
   getPartyForBallotStyle,
   hasSplits,
+  getContests,
+  getOrderedCandidatesForContestInBallotStyle,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -68,7 +69,7 @@ import {
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from '../ballot_components';
-import { PixelDimensions } from '../types';
+import { PixelDimensions, CandidateOrdering, RotationParams } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
@@ -109,8 +110,10 @@ const NH_ROTATION_INDICES: Record<number, number> = {
  */
 export function rotateCandidatesByStatute(
   contest: CandidateContestStruct
-): CandidateId[] {
-  if (contest.candidates.length < 2) return contest.candidates.map((c) => c.id);
+): OrderedCandidateOption[] {
+  if (contest.candidates.length < 2) {
+    return contest.candidates.map((c) => ({ id: c.id, partyIds: c.partyIds }));
+  }
 
   function getSortingName(candidate: Candidate): string {
     return (
@@ -137,16 +140,18 @@ export function rotateCandidatesByStatute(
     ...orderedCandidates.slice(rotationIndex),
     ...orderedCandidates.slice(0, rotationIndex),
   ];
-  return rotatedCandidates.map((c) => c.id);
+  return rotatedCandidates.map((c) => ({ id: c.id, partyIds: c.partyIds }));
 }
 
 export function rotateCandidatesByPrecinct(
   contest: CandidateContestStruct,
-  election: Election,
+  precincts: readonly Precinct[],
   precinctId: PrecinctId
-): CandidateId[] {
-  if (contest.candidates.length < 2) return contest.candidates.map((c) => c.id);
-  const allPrecinctsWithContest = election.precincts.filter((precinct) =>
+): OrderedCandidateOption[] {
+  if (contest.candidates.length < 2) {
+    return contest.candidates.map((c) => ({ id: c.id, partyIds: c.partyIds }));
+  }
+  const allPrecinctsWithContest = precincts.filter((precinct) =>
     hasSplits(precinct)
       ? precinct.splits.some((split) =>
           split.districtIds.includes(contest.districtId)
@@ -183,13 +188,59 @@ const contestsUsingPrecinctRotation: Record<ElectionId, ContestId[]> = {
 
 function rotateCandidates(
   contest: CandidateContestStruct,
-  election: Election,
+  electionId: ElectionId,
+  precincts: readonly Precinct[],
   precinctId: PrecinctId
-): CandidateId[] {
-  if ((contestsUsingPrecinctRotation[election.id] ?? []).includes(contest.id)) {
-    return rotateCandidatesByPrecinct(contest, election, precinctId);
+): OrderedCandidateOption[] {
+  if ((contestsUsingPrecinctRotation[electionId] ?? []).includes(contest.id)) {
+    return rotateCandidatesByPrecinct(contest, precincts, precinctId);
   }
   return rotateCandidatesByStatute(contest);
+}
+
+/**
+ * Generates ordered contests for NH ballot template.
+ * Candidates within a template are rotated by statute across all ballot styles in most cases.
+ * There are special cases, handled for now via hardcoding, where certain contests are rotated by precinct.
+ */
+export function getCandidateOrderingSetsForNhBallot({
+  contests,
+  precincts,
+  electionId,
+  precinctsOrSplitIds,
+}: RotationParams): CandidateOrdering[] {
+  const rotationsByPrecinct = precinctsOrSplitIds.map(
+    ({ precinctId, splitId }) => {
+      const orderedCandidatesByContest: Record<
+        ContestId,
+        OrderedCandidateOption[]
+      > = {};
+      for (const contest of contests) {
+        switch (contest.type) {
+          case 'candidate':
+            orderedCandidatesByContest[contest.id] = rotateCandidates(
+              contest,
+              electionId,
+              precincts,
+              precinctId
+            );
+            break;
+          case 'yesno':
+            // do nothing
+            break;
+          default:
+            throwIllegalValue(contest, 'type');
+        }
+      }
+      return {
+        precinctsOrSplits: [{ precinctId, splitId }],
+        orderedCandidatesByContest,
+      };
+    }
+  );
+
+  // Return a rotation for each precinct/split, deduplicating is handled outside of the template-specific logic.
+  return rotationsByPrecinct;
 }
 
 function Header({
@@ -427,13 +478,17 @@ function CandidateContest({
   election,
   contest,
   compact,
-  precinctId,
+  ballotStyle,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   compact?: boolean;
-  precinctId: PrecinctId;
+  ballotStyle: BallotStyle;
 }) {
+  const candidates = getOrderedCandidatesForContestInBallotStyle({
+    contest,
+    ballotStyle,
+  });
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
     2: hmpbStrings.hmpbVoteFor2,
@@ -464,8 +519,6 @@ function CandidateContest({
     10: hmpbStrings.hmpb10WillBeElected,
   }[contest.seats];
 
-  const rotatedCandidateIds = rotateCandidates(contest, election, precinctId);
-
   return (
     <Box
       style={{
@@ -493,11 +546,7 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {rotatedCandidateIds.map((candidateId, i) => {
-          const candidate = find(
-            contest.candidates,
-            (c) => c.id === candidateId
-          );
+        {candidates.map((candidate, i) => {
           const partyText =
             election.type === 'primary' ? undefined : (
               <CandidatePartyList
@@ -701,11 +750,12 @@ function Contest({
   compact,
   contest,
   election,
-  precinctId,
+  ballotStyle,
 }: {
   compact?: boolean;
   contest: AnyContest;
   election: Election;
+  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
 }) {
   switch (contest.type) {
@@ -715,7 +765,7 @@ function Contest({
           compact={compact}
           election={election}
           contest={contest}
-          precinctId={precinctId}
+          ballotStyle={ballotStyle}
         />
       );
     case 'yesno':
@@ -838,6 +888,7 @@ async function BallotPageContent(
         contest={contest}
         election={election}
         precinctId={props.precinctId}
+        ballotStyle={ballotStyle}
       />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
@@ -918,6 +969,7 @@ async function BallotPageContent(
             election,
             compact,
             precinctId: props.precinctId,
+            ballotStyle,
           },
           ballotStyle,
           dimensions,

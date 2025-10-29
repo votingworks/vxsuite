@@ -604,8 +604,8 @@
   },
   "ballotStyles": [
     {
-      "id": "12",
-      "groupId": "12",
+      "id": "1_en",
+      "groupId": "1",
       "precincts": [
         "23",
         "21"
@@ -613,17 +613,627 @@
       "districts": [
         "district-1",
         "district-2"
-      ]
+      ],
+      "languages": [
+        "en"
+      ],
+      "orderedCandidatesByContest": {
+        "president": [
+          {
+            "id": "hildebrand-garritty",
+            "partyIds": [
+              "4"
+            ]
+          },
+          {
+            "id": "barchi-hallaren",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "patterson-lariviere",
+            "partyIds": [
+              "5"
+            ]
+          },
+          {
+            "id": "boone-lian",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "cramer-vuocolo",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "court-blumhardt",
+            "partyIds": [
+              "2"
+            ]
+          }
+        ],
+        "senator": [
+          {
+            "id": "weiford",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "wentworthfarthington",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "brown",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "garriss",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "hewetson",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "martinez",
+            "partyIds": [
+              "4"
+            ]
+          },
+          {
+            "id": "pound",
+            "partyIds": [
+              "6"
+            ]
+          }
+        ],
+        "representative-district-6": [
+          {
+            "id": "schott",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "tawney",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "forrest",
+            "partyIds": [
+              "4"
+            ]
+          },
+          {
+            "id": "plunkard",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "reeder",
+            "partyIds": [
+              "1"
+            ]
+          }
+        ],
+        "governor": [
+          {
+            "id": "williams",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "windbeck",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "abcock",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "alexander",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "alpern",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "ash",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "bargmann",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "franz",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "greher",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "harris",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "lee",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "mitchell",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "sharp",
+            "partyIds": [
+              "5"
+            ]
+          },
+          {
+            "id": "sharp-althea",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "steelloy",
+            "partyIds": [
+              "4"
+            ]
+          },
+          {
+            "id": "wallace",
+            "partyIds": [
+              "6"
+            ]
+          }
+        ],
+        "lieutenant-governor": [
+          {
+            "id": "freeman",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "garcia",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "hovis",
+            "partyIds": [
+              "4"
+            ]
+          },
+          {
+            "id": "norberg",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "parks",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "qualey",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "swan",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "zirkle",
+            "partyIds": [
+              "5"
+            ]
+          },
+          {
+            "id": "davis-brenda",
+            "partyIds": [
+              "6"
+            ]
+          }
+        ],
+        "secretary-of-state": [
+          {
+            "id": "shamsi",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "talarico",
+            "partyIds": [
+              "1"
+            ]
+          }
+        ],
+        "state-senator-district-31": [
+          {
+            "id": "shiplett",
+            "partyIds": [
+              "3"
+            ]
+          }
+        ],
+        "state-assembly-district-54": [
+          {
+            "id": "keller",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "rangel",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "solis",
+            "partyIds": [
+              "0"
+            ]
+          }
+        ],
+        "county-commissioners": [
+          {
+            "id": "altman",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "argent",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "bainbridge",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "hennessey",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "moore",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "rangel-damian",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "savoy",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "schreiner",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "tawa",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "tawa-mary",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "witherspoonsmithson",
+            "partyIds": [
+              "0"
+            ]
+          }
+        ],
+        "county-registrar-of-wills": [
+          {
+            "id": "ramachandrani",
+            "partyIds": [
+              "6"
+            ]
+          }
+        ],
+        "city-mayor": [
+          {
+            "id": "seldon",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "white",
+            "partyIds": [
+              "1"
+            ]
+          }
+        ],
+        "city-council": [
+          {
+            "id": "davis",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "eagle",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "rupp",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "shry",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "smith",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "barker",
+            "partyIds": [
+              "1"
+            ]
+          }
+        ]
+      }
     },
     {
-      "id": "5",
-      "groupId": "5",
+      "id": "2_en",
+      "groupId": "2",
       "precincts": [
         "21"
       ],
       "districts": [
         "district-1"
-      ]
+      ],
+      "languages": [
+        "en"
+      ],
+      "orderedCandidatesByContest": {
+        "president": [
+          {
+            "id": "hildebrand-garritty",
+            "partyIds": [
+              "4"
+            ]
+          },
+          {
+            "id": "barchi-hallaren",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "patterson-lariviere",
+            "partyIds": [
+              "5"
+            ]
+          },
+          {
+            "id": "boone-lian",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "cramer-vuocolo",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "court-blumhardt",
+            "partyIds": [
+              "2"
+            ]
+          }
+        ],
+        "representative-district-6": [
+          {
+            "id": "schott",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "tawney",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "forrest",
+            "partyIds": [
+              "4"
+            ]
+          },
+          {
+            "id": "plunkard",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "reeder",
+            "partyIds": [
+              "1"
+            ]
+          }
+        ],
+        "lieutenant-governor": [
+          {
+            "id": "freeman",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "garcia",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "hovis",
+            "partyIds": [
+              "4"
+            ]
+          },
+          {
+            "id": "norberg",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "parks",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "qualey",
+            "partyIds": [
+              "3"
+            ]
+          },
+          {
+            "id": "swan",
+            "partyIds": [
+              "6"
+            ]
+          },
+          {
+            "id": "zirkle",
+            "partyIds": [
+              "5"
+            ]
+          },
+          {
+            "id": "davis-brenda",
+            "partyIds": [
+              "6"
+            ]
+          }
+        ],
+        "state-senator-district-31": [
+          {
+            "id": "shiplett",
+            "partyIds": [
+              "3"
+            ]
+          }
+        ],
+        "state-assembly-district-54": [
+          {
+            "id": "keller",
+            "partyIds": [
+              "1"
+            ]
+          },
+          {
+            "id": "rangel",
+            "partyIds": [
+              "2"
+            ]
+          },
+          {
+            "id": "solis",
+            "partyIds": [
+              "0"
+            ]
+          }
+        ],
+        "county-registrar-of-wills": [
+          {
+            "id": "ramachandrani",
+            "partyIds": [
+              "6"
+            ]
+          }
+        ]
+      }
     }
   ],
   "contests": [
@@ -1353,7 +1963,7 @@
   ],
   "gridLayouts": [
     {
-      "ballotStyleId": "12",
+      "ballotStyleId": "1_en",
       "optionBoundsFromTargetMark": {
         "top": 0.9817043222003929,
         "right": 0.759649771858429,
@@ -2264,7 +2874,7 @@
       ]
     },
     {
-      "ballotStyleId": "5",
+      "ballotStyleId": "2_en",
       "optionBoundsFromTargetMark": {
         "top": 0.9817043222003929,
         "right": 0.759649771858429,

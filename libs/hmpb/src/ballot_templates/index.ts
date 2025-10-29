@@ -12,6 +12,11 @@ export const ballotTemplates = {
 } as const;
 
 /**
+ * Rotation functions associated with ballot templates.
+ */
+export { getCandidateOrderingSetsForNhBallot as getAllOrderedContestSetsForNhBallot } from './nh_ballot_template';
+
+/**
  * The ID of a ballot template.
  */
 export type BallotTemplateId = keyof typeof ballotTemplates;

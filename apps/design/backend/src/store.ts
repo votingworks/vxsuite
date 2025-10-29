@@ -59,7 +59,7 @@ import {
 } from '@votingworks/utils';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
-import { BallotTemplateId } from '@votingworks/hmpb';
+import { BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
@@ -70,7 +70,6 @@ import {
   Org,
   QuickReportedPollStatus,
 } from './types';
-import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
 
@@ -854,6 +853,8 @@ export class Store {
         electionType: electionRow.type,
         parties,
         precincts,
+        ballotTemplateId: electionRow.ballotTemplateId,
+        electionId,
       });
 
       // Fill in our precinct/ballot style overrides in the VXF election format.
