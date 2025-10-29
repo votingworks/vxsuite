@@ -1,34 +1,30 @@
-import React from 'react';
+import { ElectionDefinition } from '@votingworks/types';
 import {
-  Screen,
   LeftNav,
   AppLogo,
   NavList,
   NavListItem,
-  NavLink,
   VerticalElectionInfoBar,
   Main,
+  Screen,
+  NavLink,
 } from '@votingworks/ui';
-import { Link, useRouteMatch } from 'react-router-dom';
-import { ElectionDefinition } from '@votingworks/types/src/election';
-import { TopBar } from './top_bar';
+import { useRouteMatch, Link } from 'react-router-dom';
+import { TopBar } from '../components/top_bar';
 
-export const electionManagerRoutes = {
-  print: { title: 'Print', path: '/print' },
-  printV2: { title: 'Print-v2', path: '/print-v2' },
-  printV3: { title: 'Print-v3', path: '/print-v3' },
+export const systemAdministratorRoutes = {
   election: { title: 'Election', path: '/election' },
   settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
 
-export function ElectionManagerWrapper({
+export function SystemAdministratorWrapper({
   children,
   electionDefinition,
   title,
   centerChild = false,
 }: {
   children: React.ReactNode;
-  electionDefinition: ElectionDefinition;
+  electionDefinition: ElectionDefinition | null;
   title: string;
   centerChild?: boolean;
 }): JSX.Element {
@@ -36,11 +32,11 @@ export function ElectionManagerWrapper({
   return (
     <Screen flexDirection="row">
       <LeftNav>
-        <Link to="/print">
+        <Link to="/election">
           <AppLogo appName="VxPrint" />
         </Link>
         <NavList>
-          {Object.values(electionManagerRoutes).map((route) => (
+          {Object.values(systemAdministratorRoutes).map((route) => (
             <NavListItem key={route.path}>
               <NavLink
                 to={route.path}
@@ -54,7 +50,7 @@ export function ElectionManagerWrapper({
         <div style={{ marginTop: 'auto' }}>
           <VerticalElectionInfoBar
             mode="admin"
-            electionDefinition={electionDefinition}
+            electionDefinition={electionDefinition || undefined}
             electionPackageHash="TBD"
             codeVersion="TBD"
             machineId="TBD"

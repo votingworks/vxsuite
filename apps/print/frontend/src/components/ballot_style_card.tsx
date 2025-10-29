@@ -1,126 +1,91 @@
-import { Button, H4 } from '@votingworks/ui';
-import { useState } from 'react';
+import { DesktopPalette, H4, H6, Icons } from '@votingworks/ui';
 import styled from 'styled-components';
 
-// drop these near the top of the file
-const SHADOW_BASE = '0 6px 10px rgba(0,0,0,.08), 0 12px 28px rgba(0,0,0,.12)';
-const SHADOW_HOVER = '0 6px 10px rgba(0,0,0,.10), 0 12px 28px rgba(0,0,0,.16)';
-
-const Container = styled.div`
-  width: 100%;
-  height: 6rem;
+const Container = styled.button`
+  width: 40%;
+  height: 14rem;
   display: flex;
 
+  flex-direction: column;
+  align-items: start;
   border-radius: 0.25rem;
-  margin-bottom: 1rem;
 
-  border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+  border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
     ${(p) => p.theme.colors.outline};
-  background-color: none; // ${(p) => p.theme.colors.containerLow};
+  background-color: none; //${(p) => p.theme.colors.containerLow};
+  background: none;
 
-  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  text-align: left;
 
-  box-shadow: ${SHADOW_BASE};
+  justify-content: space-between;
 
-  &:hover,
-  &:active {
-    box-shadow: ${SHADOW_HOVER};
-    transform: translateY(0px);
-  }
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-wrap: nowrap;
-  height: 3rem;
-  align-items: center;
-`;
-
-const Tag = styled.div<{ color?: 'red' | 'blue' }>`
-  padding: 0.25rem 0.5rem;
-  border-top: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
-    ${(p) => p.theme.colors.outline};
-  border-right: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
-    ${(p) => p.theme.colors.outline};
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 6rem;
-
-  font-weight: 500;
-  font-size: 1rem;
-
-  color: ${(p) => {
-    if (p.color === 'blue') {
-      return '#0015BC'; // #0D47A1'; // Blue text color
-    }
-    if (p.color === 'red') {
-      return '#FF0000'; // '#D71A28'; // Red text color
-    }
-    return p.theme.colors.onBackground;
-  }};
-
-  background-color: ${(p) => p.theme.colors.containerLow};
-
-  &:last-child {
-    border-top-right-radius: 0.25rem;
-  }
+  // &:hover {
+  //   background-color: ${DesktopPalette.Purple20};
+  // }
 `;
 
 const BallotStyleInfo = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+
+  gap: 0.25rem;
+  padding: 0.5rem;
 `;
 
 const PrecinctTitle = styled(H4)`
   margin: 0;
-  margin-left: 1rem;
 `;
 
-const PrintButton = styled(Button)`
-  width: 6rem;
+// const CopiesBar = styled.div`
+//   flex-shrink: 0;
+//   display: flex;
+//   flex-direction: row-reverse;
+//   align-items: center;
+//   justify-content: center;
+
+//   gap: 0.5rem;
+//   font-size: 1rem;
+//   font-weight: 500;
+//   color: ${(p) => p.theme.colors.onBackgroundMuted};
+
+//   padding-bottom: 0.5rem;
+
+//   div {
+//     font-size: 1.5rem;
+//     font-weight: 700;
+//     color: ${(p) => p.theme.colors.onBackground};
+//   }
+// `;
+
+// const CopiesButton = styled(Button)`
+//   background-color: none;
+//   border: none;
+//   padding: 0;
+// `;
+
+const PrintLabel = styled.div`
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  align-self: center;
-  padding: 1rem;
-  height: 100%;
 
-  border-radius: 0;
-  border-left: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
-    ${(p) => p.theme.colors.outline};
+  align-self: center;
+  gap: 0.5rem;
+
+  border-top: none; //${(p) => p.theme.sizes.bordersRem.thin}rem solid
+  // ${(p) => p.theme.colors.outline};
+
+  // background-color: white;
 
   font-weight: 700;
   font-size: 1.25rem;
-`;
 
-const CopiesBar = styled.div`
-  width: 2.25rem;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  height: 100%;
-  font-size: 1rem;
-  font-weight: 500;
-  color: ${(p) => p.theme.colors.onBackgroundMuted};
+  justify-self: end;
+  margin-bottom: 1.5rem;
 
-  div {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: ${(p) => p.theme.colors.onBackground};
-  }
-`;
-
-const CopiesButton = styled(Button)`
-  background-color: none;
-  border: none;
-  padding: 0;
+  text-align: center;
 `;
 
 export function BallotStyleCard({
@@ -134,33 +99,30 @@ export function BallotStyleCard({
   language: string;
   type?: string;
 }): JSX.Element {
-  const [numCopies, setNumCopies] = useState(1);
-
-  // Determine color based on party
-  function getPartyColor(partyName: string): 'red' | 'blue' | undefined {
-    const lowerParty = partyName.toLowerCase();
-    if (lowerParty.includes('dem')) {
-      return 'blue';
-    }
-    if (lowerParty.includes('rep')) {
-      return 'red';
-    }
-    return undefined;
-  }
+  // const [numCopies, setNumCopies] = useState(1);
 
   return (
-    <Container>
+    <Container
+      onClick={() =>
+        console.log(
+          `Printing ballot style: ${ 
+            precinctName 
+            }, ${ 
+            party 
+            }, ${ 
+            language 
+            }${type ? `, ${  type}` : ''}`
+        )
+      }
+    >
       <BallotStyleInfo>
-        <Row>
-          <PrecinctTitle>{precinctName}</PrecinctTitle>
-        </Row>
-        <Row>
-          {type && <Tag>{type}</Tag>}
-          <Tag color={!type ? getPartyColor(party) : undefined}>{party}</Tag>
-          <Tag>{language}</Tag>
-        </Row>
+        <PrecinctTitle>{precinctName}</PrecinctTitle>
+        <H6 />
+        {type === 'Absentee' && <H6>Absentee</H6>}
+        <H6>{party}</H6>
+        <H6 style={{ marginTop: '1.5rem' }}>{language}</H6>
       </BallotStyleInfo>
-      <CopiesBar>
+      {/* <CopiesBar>
         <CopiesButton
           color="neutral"
           onPress={() => setNumCopies((prev) => prev + 1)}
@@ -173,15 +135,11 @@ export function BallotStyleCard({
         >
           –
         </CopiesButton>
-      </CopiesBar>
-      <PrintButton
-        color="primary"
-        onPress={() => console.log('Print')}
-        fill="tinted"
-        icon="Print"
-      >
+      </CopiesBar> */}
+      <PrintLabel>
+        <Icons.Print />
         Print
-      </PrintButton>
+      </PrintLabel>
     </Container>
   );
 }

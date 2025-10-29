@@ -1,9 +1,5 @@
-import {
-  ElectionDefinition,
-  hasSplits,
-  PrecinctOrSplitId,
-} from '@votingworks/types';
-import { H2, SearchSelect, SegmentedButton } from '@votingworks/ui';
+import { ElectionDefinition, hasSplits } from '@votingworks/types';
+import { DesktopPalette, H2, H3, SearchSelect } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
 import { BallotStyleCard } from '../components/ballot_style_card';
@@ -13,32 +9,95 @@ const Container = styled.div`
   width: 100%;
   overflow: hidden;
   display: flex;
-  gap: 1rem;
-  padding: 1rem;
+  align-items: stretch;
+  flex-direction: row-reverse;
 `;
 
-const FilterBox = styled.div`
+const Step1Section = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
   padding: 1rem;
+  padding-top: 2rem;
 
-  background-color: ${(p) => p.theme.colors.container}; // none;
-  // ${(p) => p.theme.colors.background};
-  border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+  border-left: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
     ${(p) => p.theme.colors.outline};
-  border-radius: 0.5rem;
 
-  height: 15rem;
-  width: 16rem;
+  height: 100%;
+  width: 22rem;
   flex-shrink: 0;
 `;
 
-const OptionsList = styled.div`
+const Step2Section = styled.div`
   flex: 1 1 auto;
   overflow-y: auto;
-  height: 1040px;
-  padding-right: 0.5rem;
+  height: 1080px;
+
+  // padding: 1rem;
+  padding-bottom: 0rem;
+`;
+
+const Toggle = styled.button`
+  background: ${(p) => p.theme.colors.background};
+  border-radius: 0.25rem;
+  border: 1px solid '#999';
+  color: '#666';
+  cursor: pointer;
+  outline-offset: 2px;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  padding: 0.5rem;
+  position: relative;
+  transition: 120ms ease-out;
+  transition-property: background-color, border, color, outline-offset;
+  width: 13rem;
+  text-align: center;
+
+  :focus,
+  :hover {
+    background-color: ${DesktopPalette.Purple10};
+    color: #000;
+  }
+
+  :active,
+  &[aria-selected='true'] {
+    background-color: ${DesktopPalette.Purple20};
+    color: #000;
+    outline-offset: 0;
+  }
+`;
+
+const Section = styled.div`
+  display: flex;
+  // flex-direction: column;
+  gap: 1rem;
+  justify-content: space-between;
+`;
+
+const ToggleList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+`;
+
+const Badge = styled.div`
+  background-color: ${(p) => p.theme.colors.containerLow};
+  border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+    ${(p) => p.theme.colors.outline};
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  height: 2rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export function PrintScreen({
@@ -48,34 +107,93 @@ export function PrintScreen({
 }): JSX.Element | null {
   const { election } = electionDefinition;
   const precincts = election.precincts || [];
-  const [selectedPrecinct, setSelectedPrecinct] = React.useState<
+
+  const [selectedPrecinctId, setSelectedPrecinctId] = React.useState<
     string | undefined
   >();
-  const [isAbsentee, setIsAbsentee] = React.useState<boolean>(false);
+  const [selectedSplitId, setSelectedSplitId] = React.useState<
+    string | undefined
+  >();
+  const [selectedParty, setSelectedParty] = React.useState<
+    string | undefined
+  >();
+  const [selectedLanguage, setSelectedLanguage] = React.useState<
+    string | undefined
+  >('English');
+  const [selectedType, setSelectedType] = React.useState<string | undefined>();
 
-  const allPrecinctsOrSplits: Array<
-    PrecinctOrSplitId & { precinctName: string }
-  > = precincts.flatMap((precinct) => {
-    if (hasSplits(precinct)) {
-      return precinct.splits.map((split) => ({
-        precinctId: split.id,
-        precinctName: split.name,
-      }));
-    }
-    return { precinctId: precinct.id, precinctName: precinct.name };
-  });
+  // Get the selected precinct object
+  const selectedPrecinct = selectedPrecinctId
+    ? precincts.find((p) => p.id === selectedPrecinctId)
+    : undefined;
+
+  // Get available splits for the selected precinct
+  const availableSplits =
+    selectedPrecinct && hasSplits(selectedPrecinct)
+      ? selectedPrecinct.splits
+      : [];
+
+  // Clear split selection when precinct changes
+  React.useEffect(() => {
+    setSelectedSplitId(undefined);
+  }, [selectedPrecinctId]);
 
   const filteredPrecincts = selectedPrecinct
-    ? allPrecinctsOrSplits.filter((p) => p.precinctName === selectedPrecinct)
-    : allPrecinctsOrSplits;
+    ? precincts.filter((p) => p.name === selectedPrecinct.name)
+    : precincts;
+
+  const filteredPrecinctsWithSplits = filteredPrecincts.flatMap((precinct) => {
+    if (hasSplits(precinct)) {
+      if (selectedSplitId) {
+        return precinct.splits
+          .filter((split) => split.id === selectedSplitId)
+          .map((split) => ({
+            ...precinct,
+            name: split.name,
+          }));
+      }
+      return precinct.splits.map((split) => ({
+        ...precinct,
+        name: split.name,
+      }));
+    }
+    return [
+      {
+        ...precinct,
+        splits: [] as const,
+      },
+    ];
+  });
 
   const languages = ['English', 'Spanish'];
   const parties = ['Dem', 'Rep'];
+  const types = ['Precinct', 'Absentee'];
+
+  const filteredParties = selectedParty
+    ? parties.filter((p) => p === selectedParty)
+    : parties;
+
+  const filteredLanguages = selectedLanguage
+    ? languages.filter((l) => l === selectedLanguage)
+    : languages;
+
+  const filteredTypes = selectedType ? [selectedType] : types;
+
+  const numBallots =
+    filteredPrecincts.length *
+    filteredLanguages.length *
+    filteredParties.length *
+    filteredTypes.length;
 
   return (
     <Container>
-      <FilterBox>
-        <H2>Precinct</H2>
+      <Step1Section>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <H2>Filter ballots</H2>
+          <Badge>
+            {numBallots} {numBallots === 1 ? 'Ballot Style' : 'Ballot Styles'}
+          </Badge>
+        </Row>
         <SearchSelect
           placeholder="Find precinct"
           options={[
@@ -84,43 +202,162 @@ export function PrintScreen({
               value: 'all',
             },
           ].concat(
-            allPrecinctsOrSplits.map((precinct) => ({
-              label: precinct.precinctName,
-              value: precinct.precinctName,
+            precincts.map((precinct) => ({
+              label: precinct.name,
+              value: precinct.id,
             }))
           )}
-          value={selectedPrecinct}
+          value={selectedPrecinctId}
           onChange={(value) => {
-            setSelectedPrecinct(value === 'all' ? undefined : value);
+            setSelectedPrecinctId(value === 'all' ? undefined : value);
           }}
+          style={{ marginBottom: '1rem' }}
         />
-        <H2 style={{ marginTop: '1rem' }}>Type</H2>
-        <SegmentedButton
-          label=""
-          onChange={(newValue) => {
-            setIsAbsentee(newValue === 'absentee');
-          }}
-          selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
-          options={[
-            { label: 'In-Person', id: 'precinct' },
-            { label: 'Absentee', id: 'absentee' },
-          ]}
-        />
-      </FilterBox>
-      <OptionsList>
-        {filteredPrecincts.map((precinct) =>
-          parties.map((party) =>
-            languages.map((language) => (
-              <BallotStyleCard
-                key={precinct.precinctName + party + language}
-                precinctName={precinct.precinctName}
-                party={party}
-                language={language}
-              />
-            ))
-          )
+        {availableSplits.length > 0 && (
+          <Section>
+            <H3>Split</H3>
+            <ToggleList>
+              {availableSplits.map((split) => (
+                <Toggle
+                  // style={{ width: '14rem' }}
+                  aria-selected={selectedSplitId === split.id}
+                  key={split.id}
+                  onClick={() =>
+                    setSelectedSplitId(
+                      selectedSplitId === split.id ? undefined : split.id
+                    )
+                  }
+                >
+                  {split.name}
+                </Toggle>
+              ))}
+            </ToggleList>
+          </Section>
         )}
-      </OptionsList>
+        <Section>
+          <H3>Type</H3>
+          <ToggleList>
+            <Toggle
+              aria-selected={selectedType === 'Precinct'}
+              key="precinct"
+              onClick={() =>
+                setSelectedType(
+                  selectedType === 'Precinct' ? undefined : 'Precinct'
+                )
+              }
+            >
+              Precinct
+            </Toggle>
+            <Toggle
+              aria-selected={selectedType === 'Absentee'}
+              key="absentee"
+              onClick={() =>
+                setSelectedType(
+                  selectedType === 'Absentee' ? undefined : 'Absentee'
+                )
+              }
+            >
+              Absentee
+            </Toggle>
+          </ToggleList>
+        </Section>
+        <Section>
+          <H3>Party</H3>
+          {/* <ToggleList> */}
+          <ToggleList>
+            {parties.map((party) => (
+              <Toggle
+                aria-selected={party === selectedParty}
+                key={party}
+                onClick={() =>
+                  setSelectedParty(party === selectedParty ? undefined : party)
+                }
+              >
+                {party}
+              </Toggle>
+            ))}
+          </ToggleList>
+          {/* </ToggleList> */}
+        </Section>
+        <Section>
+          <H3>Language</H3>
+          <ToggleList>
+            {languages.map((language) => (
+              <Toggle
+                aria-selected={language === selectedLanguage}
+                key={language}
+                onClick={() =>
+                  setSelectedLanguage(
+                    language === selectedLanguage ? undefined : language
+                  )
+                }
+              >
+                {language}
+              </Toggle>
+            ))}
+          </ToggleList>
+        </Section>
+        {/* <Button
+          icon="X"
+          onPress={() => {
+            setSelectedPrecinct(undefined);
+            setSelectedParty(undefined);
+            setSelectedLanguage(undefined);
+            setSelectedType(undefined);
+          }}
+          value={undefined}
+          fill="outlined"
+          style={{ marginTop: 'auto', marginBottom: '1rem' }}
+        >
+          Clear
+        </Button> */}
+      </Step1Section>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          flexGrow: '1',
+          marginRight: '1rem',
+          paddingRight: '1rem',
+          marginLeft: '1rem',
+          marginTop: '2rem',
+        }}
+      >
+        <Step2Section>
+          {filteredPrecinctsWithSplits.map((precinct) =>
+            filteredParties.map((party) =>
+              filteredLanguages.map((language) => (
+                  <Row
+                    style={{
+                      justifyContent: 'space-around',
+                      marginBottom: '2rem',
+                    }}
+                    key={precinct.name + party + language}
+                  >
+                    {filteredTypes.includes('Precinct') && (
+                      <BallotStyleCard
+                        key={`${precinct.name + party + language  }Precinct`}
+                        precinctName={precinct.name}
+                        party={party}
+                        language={language}
+                        type="Precinct"
+                      />
+                    )}
+                    {filteredTypes.includes('Absentee') && (
+                      <BallotStyleCard
+                        key={`${precinct.name + party + language  }Absentee`}
+                        precinctName={precinct.name}
+                        party={party}
+                        language={language}
+                        type="Absentee"
+                      />
+                    )}
+                  </Row>
+                ))
+            )
+          )}
+        </Step2Section>
+      </div>
     </Container>
   );
 }

@@ -9,6 +9,7 @@ export const LeftNav = styled.nav`
   background: ${(p) => p.theme.colors.inverseBackground};
   padding: 1rem 0.5rem 0.5rem;
   width: 12rem;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 

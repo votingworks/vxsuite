@@ -1,50 +1,24 @@
-import {
-  ElectionDefinition,
-  hasSplits,
-  PrecinctOrSplitId,
-} from '@votingworks/types';
+import { ElectionDefinition, hasSplits } from '@votingworks/types';
 import {
   Button,
-  DesktopPalette,
-  H2,
+  H3,
   H4,
+  RadioGroup,
   SearchSelect,
   SegmentedButton,
 } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
 
-const Toggle = styled.button`
-  background: ${(p) => p.theme.colors.background};
-  border-radius: 0.25rem;
-  border: 1px solid '#999';
-  color: '#666';
-  cursor: pointer;
-  outline-offset: 2px;
-  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
-  padding: 0.5rem;
-  position: relative;
-  transition: 120ms ease-out;
-  transition-property: background-color, border, color, outline-offset;
-  width: 12rem;
+// const Row = styled.div`
+//   display: flex;
+//   flex-wrap: nowrap;
+//   gap: 0.5rem;
+// `;
 
-  :focus,
-  :hover {
-    background-color: ${DesktopPalette.Purple10};
-    color: #000;
-  }
-
-  :active,
-  &[aria-selected='true'] {
-    background-color: ${DesktopPalette.Purple20};
-    color: #000;
-    outline-offset: 0;
-  }
-`;
-
-const Row = styled.div`
+const Column = styled.div`
   display: flex;
-  flex-wrap: nowrap;
+  flex-direction: column;
   gap: 0.5rem;
 `;
 
@@ -68,9 +42,9 @@ const Container = styled.div`
 const ContentArea = styled.div`
   flex: 1;
   overflow-y: auto;
+
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  justify-content: space-between;
 `;
 
 const PrintFooter = styled.div`
@@ -130,7 +104,10 @@ export function PrintScreenV2({
   const precincts = election.precincts || [];
   const [numCopies, setNumCopies] = React.useState(1);
 
-  const [selectedPrecinct, setSelectedPrecinct] = React.useState<
+  const [selectedPrecinctId, setSelectedPrecinctId] = React.useState<
+    string | undefined
+  >();
+  const [selectedSplitId, setSelectedSplitId] = React.useState<
     string | undefined
   >();
   const [selectedParty, setSelectedParty] = React.useState<
@@ -138,20 +115,24 @@ export function PrintScreenV2({
   >();
   const [selectedLanguage, setSelectedLanguage] = React.useState<
     string | undefined
-  >();
+  >('English');
   const [isAbsentee, setIsAbsentee] = React.useState<boolean>(false);
 
-  const allPrecinctsOrSplits: Array<
-    PrecinctOrSplitId & { precinctName: string }
-  > = precincts.flatMap((precinct) => {
-    if (hasSplits(precinct)) {
-      return precinct.splits.map((split) => ({
-        precinctId: split.id,
-        precinctName: split.name,
-      }));
-    }
-    return { precinctId: precinct.id, precinctName: precinct.name };
-  });
+  // Get the selected precinct object
+  const selectedPrecinct = selectedPrecinctId
+    ? precincts.find((p) => p.id === selectedPrecinctId)
+    : undefined;
+
+  // Get available splits for the selected precinct
+  const availableSplits =
+    selectedPrecinct && hasSplits(selectedPrecinct)
+      ? selectedPrecinct.splits
+      : [];
+
+  // Clear split selection when precinct changes
+  React.useEffect(() => {
+    setSelectedSplitId(undefined);
+  }, [selectedPrecinctId]);
 
   const languages = ['English', 'Spanish'];
   const parties = ['Dem', 'Rep'];
@@ -159,62 +140,80 @@ export function PrintScreenV2({
   return (
     <Container>
       <ContentArea>
-        <Section>
-          <H2>Precinct</H2>
-          <SearchSelect
-            style={{ width: '80%', marginLeft: '0.125rem' }}
-            placeholder="Find precinct"
-            options={[
-              {
-                label: 'All',
-                value: 'all',
-              },
-            ].concat(
-              allPrecinctsOrSplits.map((precinct) => ({
-                label: precinct.precinctName,
-                value: precinct.precinctName,
-              }))
-            )}
-            value={selectedPrecinct}
-            onChange={(value) => {
-              setSelectedPrecinct(value === 'all' ? undefined : value);
-            }}
-          />
-        </Section>
-        <Section>
-          <H2>Party</H2>
-          <Row>
-            {parties.map((party) => (
-              <Toggle
-                aria-selected={party === selectedParty}
-                key={party}
-                onClick={() =>
-                  setSelectedParty(party === selectedParty ? undefined : party)
-                }
-              >
-                {party}
-              </Toggle>
-            ))}
-          </Row>
-        </Section>
-        <Section>
-          <H2>Language</H2>
-          <Row>
-            {languages.map((language) => (
-              <Toggle
-                aria-selected={language === selectedLanguage}
-                key={language}
-                onClick={() =>
-                  setSelectedLanguage(
-                    language === selectedLanguage ? undefined : language
+        <Column style={{ width: '40%' }}>
+          <Section>
+            <H3>Precinct</H3>
+            <SearchSelect
+              placeholder="Find precinct"
+              options={[
+                {
+                  label: 'All',
+                  value: 'all',
+                },
+              ].concat(
+                precincts.map((precinct) => ({
+                  label: precinct.name,
+                  value: precinct.id,
+                }))
+              )}
+              value={selectedPrecinctId}
+              onChange={(value) => {
+                setSelectedPrecinctId(value === 'all' ? undefined : value);
+              }}
+            />
+          </Section>
+        </Column>
+        <Column style={{ width: '40%', gap: '2rem', justifySelf: 'end' }}>
+          {availableSplits.length > 0 && (
+            <Section>
+              <H3>Split</H3>
+              <RadioGroup
+                value={selectedSplitId}
+                hideLabel
+                label="Split"
+                options={availableSplits.map((split) => ({
+                  label: split.name,
+                  value: split.id,
+                }))}
+                onChange={(value: string) =>
+                  setSelectedSplitId(
+                    value === selectedSplitId ? undefined : value
                   )
                 }
-              >
-                {language}
-              </Toggle>
-            ))}
-          </Row>
-        </Section>
+              />
+            </Section>
+          )}
+          <Section>
+            <H3>Party</H3>
+            <RadioGroup
+              value={selectedParty}
+              hideLabel
+              label="Party"
+              options={parties.map((party) => ({ label: party, value: party }))}
+              onChange={(value: string) =>
+                setSelectedParty(value === selectedParty ? undefined : value)
+              }
+            />
+          </Section>
+          <Section>
+            <H3>Language</H3>
+            <RadioGroup
+              hideLabel
+              label="Language"
+              options={languages.map((language) => ({
+                label: language,
+                value: language,
+              }))}
+              value={selectedLanguage}
+              onChange={(value: string) => {
+                console.log(value);
+                setSelectedLanguage(
+                  value === selectedLanguage ? undefined : value
+                );
+              }}
+            />
+          </Section>
+        </Column>
       </ContentArea>
       <PrintFooter>
         <div

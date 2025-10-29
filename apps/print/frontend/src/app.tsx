@@ -29,9 +29,9 @@ import {
   getElectionDefinition,
   getUsbDriveStatus,
 } from './api';
-import { ElectionManagerScreen } from './screens/election_manager_screen';
+import { ElectionManagerScreen } from './routers/election_manager_screen_router';
 import { UnconfiguredElectionScreenWrapper } from './unconfigured_election_screen_wrapper';
-import { SystemAdministratorScreen } from './screens/system_administrator_screen';
+import { SystemAdministratorScreen } from './routers/system_administrator_screen_router';
 
 function AppRoot({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
