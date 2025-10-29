@@ -603,9 +603,9 @@ export async function layOutBallotsAndCreateElectionDefinition<
   // that they appear on the HMPB. (Eventually, we should use the gridLayouts
   // for that ordering instead of the election contests.)
   //
-  // For each candidate contest: if all grid layouts have the same
-  // ordering of candidates, change the election definition to also have that
-  // ordering of candidates.
+  // For each candidate contest: if all ballot styles have the same
+  // orderedCandidatesByContest ordering, change the election definition to also
+  // have that ordering of candidates.
   const contests = election.contests.map((contest) => {
     if (template.isAllBubbleBallot) return contest;
     if (contest.type !== 'candidate') return contest;

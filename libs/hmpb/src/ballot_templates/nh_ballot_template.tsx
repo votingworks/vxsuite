@@ -30,9 +30,10 @@ import {
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
-  getOrderedContests,
   getPartyForBallotStyle,
   hasSplits,
+  getContests,
+  getOrderedCandidatesForContestInBallotStyle,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -206,19 +207,15 @@ export function getCandidateOrderingSetsForNhBallot({
   contests,
   precincts,
   electionId,
-  districtIds,
   precinctsOrSplitIds,
 }: RotationParams): CandidateOrdering[] {
-  const ballotStyleContests = contests.filter((contest) =>
-    districtIds.includes(contest.districtId)
-  );
   const rotationsByPrecinct = precinctsOrSplitIds.map(
     ({ precinctId, splitId }) => {
       const orderedCandidatesByContest: Record<
         ContestId,
         OrderedCandidateOption[]
       > = {};
-      for (const contest of ballotStyleContests) {
+      for (const contest of contests) {
         switch (contest.type) {
           case 'candidate':
             orderedCandidatesByContest[contest.id] = rotateCandidates(
@@ -481,11 +478,17 @@ function CandidateContest({
   election,
   contest,
   compact,
+  ballotStyle,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   compact?: boolean;
+  ballotStyle: BallotStyle;
 }) {
+  const candidates = getOrderedCandidatesForContestInBallotStyle({
+    contest,
+    ballotStyle,
+  });
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
     2: hmpbStrings.hmpbVoteFor2,
@@ -543,7 +546,7 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {contest.candidates.map((candidate, i) => {
+        {candidates.map((candidate, i) => {
           const partyText =
             election.type === 'primary' ? undefined : (
               <CandidatePartyList
@@ -747,10 +750,12 @@ function Contest({
   compact,
   contest,
   election,
+  ballotStyle,
 }: {
   compact?: boolean;
   contest: AnyContest;
   election: Election;
+  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
 }) {
   switch (contest.type) {
@@ -760,6 +765,7 @@ function Contest({
           compact={compact}
           election={election}
           contest={contest}
+          ballotStyle={ballotStyle}
         />
       );
     case 'yesno':
@@ -857,7 +863,7 @@ async function BallotPageContent(
   );
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
-  const contests = getOrderedContests({ election, ballotStyle });
+  const contests = getContests({ election, ballotStyle });
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
@@ -882,6 +888,7 @@ async function BallotPageContent(
         contest={contest}
         election={election}
         precinctId={props.precinctId}
+        ballotStyle={ballotStyle}
       />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
@@ -962,6 +969,7 @@ async function BallotPageContent(
             election,
             compact,
             precinctId: props.precinctId,
+            ballotStyle,
           },
           ballotStyle,
           dimensions,

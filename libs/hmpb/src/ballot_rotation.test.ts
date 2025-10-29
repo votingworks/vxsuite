@@ -109,13 +109,9 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
     expect(result[2].precinctsOrSplits).toEqual([{ precinctId: precinct2.id }]);
   });
 
-  test('filters contests and skips yesno contests', () => {
+  test('skips yesno contests', () => {
     const candidateContest1 = electionGeneral.contests.find(
       (c): c is CandidateContest => c.type === 'candidate'
-    )!;
-    const candidateContest2 = electionGeneral.contests.find(
-      (c): c is CandidateContest =>
-        c.type === 'candidate' && c.id !== candidateContest1.id
     )!;
     const yesnoContest = electionGeneral.contests.find(
       (c): c is YesNoContest => c.type === 'yesno'
@@ -128,13 +124,6 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
       candidates: [{ id: '1', name: 'Alice' }],
     };
 
-    const contest2: CandidateContest = {
-      ...candidateContest2,
-      id: 'contest-2',
-      districtId: 'district-2',
-      candidates: [{ id: '2', name: 'Bob' }],
-    };
-
     const precinct: Precinct = {
       id: 'precinct-1',
       name: 'Anderson',
@@ -142,7 +131,7 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
     };
 
     const params: RotationParams = {
-      contests: [contest1, contest2, yesnoContest],
+      contests: [contest1, yesnoContest],
       precincts: [precinct],
       precinctsOrSplitIds: [{ precinctId: precinct.id }],
       districtIds: ['district-1'],

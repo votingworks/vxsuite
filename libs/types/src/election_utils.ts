@@ -10,6 +10,7 @@ import {
   BallotStyle,
   BallotStyleId,
   Candidate,
+  CandidateContest,
   Contest,
   ContestId,
   ContestLike,
@@ -53,45 +54,26 @@ export function getContests({
   );
 }
 
-/* Returns all the contests in a ballot style, ordered according to the election's defined ordering with candidates ordered as specified for that ballot style. */
-export function getOrderedContests({
+/**
+ * Gets the ordered candidates for a specific contest based on the ballot style's
+ * orderedCandidatesByContest field. Returns the candidates in the order specified
+ * for ballot rotation, or in their original order if no rotation is specified.
+ */
+export function getOrderedCandidatesForContestInBallotStyle({
+  contest,
   ballotStyle,
-  election,
 }: {
+  contest: CandidateContest;
   ballotStyle: BallotStyle;
-  election: Election;
-}): Contests {
-  const contests = getContests({ ballotStyle, election });
-  if (!ballotStyle.orderedCandidatesByContest) {
-    return contests;
+}): readonly Candidate[] {
+  const candidateOrdering =
+    ballotStyle.orderedCandidatesByContest?.[contest.id];
+  if (!candidateOrdering) {
+    return contest.candidates;
   }
-
-  const orderedContests = contests.map((orderedContest) => {
-    switch (orderedContest.type) {
-      case 'candidate': {
-        assert(orderedContest.type === 'candidate', 'Mismatched contest type');
-        assert(ballotStyle.orderedCandidatesByContest);
-        const candidateOrdering =
-          ballotStyle.orderedCandidatesByContest[orderedContest.id];
-        if (!candidateOrdering) {
-          return orderedContest;
-        }
-        return {
-          ...orderedContest,
-          candidates: candidateOrdering.map(({ id }) =>
-            assertDefined(orderedContest.candidates.find((c) => c.id === id))
-          ),
-        };
-      }
-      case 'yesno':
-        return orderedContest;
-      default: {
-        /* istanbul ignore next - @preserve */
-        return throwIllegalValue(orderedContest, 'type');
-      }
-    }
-  });
-  return orderedContests;
+  return candidateOrdering.map(({ id }) =>
+    assertDefined(contest.candidates.find((c) => c.id === id))
+  );
 }
 
 /**

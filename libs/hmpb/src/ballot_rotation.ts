@@ -1,9 +1,11 @@
-import { typedAs, throwIllegalValue, find } from '@votingworks/basics';
 import {
-  ContestId,
-  OrderedCandidateOption,
-  PrecinctOrSplitId,
-} from '@votingworks/types';
+  typedAs,
+  throwIllegalValue,
+  find,
+  groupBy,
+  uniqueDeep,
+} from '@votingworks/basics';
+import { ContestId, OrderedCandidateOption } from '@votingworks/types';
 import { CandidateOrdering, RotationParams } from './types';
 import { getCandidateOrderingSetsForNhBallot } from './ballot_templates/nh_ballot_template';
 import { BallotTemplateId } from './ballot_templates';
@@ -20,12 +22,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
   contests,
   precincts,
   precinctsOrSplitIds,
-  districtIds,
 }: RotationParams): CandidateOrdering[] {
-  const ballotStyleContests = contests.filter((contest) =>
-    districtIds.includes(contest.districtId)
-  );
-
   // Generate a separate ordering for each precinct/split
   return precinctsOrSplitIds.map((precinctOrSplit) => {
     const precinct = find(
@@ -40,7 +37,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
       OrderedCandidateOption[]
     > = {};
 
-    for (const contest of ballotStyleContests) {
+    for (const contest of contests) {
       switch (contest.type) {
         case 'yesno':
           // do nothing
@@ -93,19 +90,13 @@ export function getCandidateOrderingByPrecinctAlphabetical({
 function getDefaultCandidateOrdering({
   contests,
   precinctsOrSplitIds,
-  districtIds,
 }: RotationParams): CandidateOrdering[] {
-  // Get contests for this ballot style (filtered by district)
-  const ballotStyleContests = contests.filter((contest) =>
-    districtIds.includes(contest.districtId)
-  );
-
   const orderedCandidatesByContest: Record<
     ContestId,
     OrderedCandidateOption[]
   > = {};
 
-  for (const contest of ballotStyleContests) {
+  for (const contest of contests) {
     switch (contest.type) {
       case 'candidate':
         orderedCandidatesByContest[contest.id] = contest.candidates.map(
@@ -129,51 +120,30 @@ function getDefaultCandidateOrdering({
   return [
     {
       precinctsOrSplits: [...precinctsOrSplitIds],
-      orderedCandidatesByContest: orderedContests,
+      orderedCandidatesByContest,
     },
   ];
 }
 
 /**
- * Given an array of CandidateOrderingSets, deduplicate any that have identical orderings, combining the precincts/splits that use them.
+ * Given an array of CandidateOrderings, deduplicate any that have identical orderings, combining the precincts/splits that use them.
  */
 export function deduplicateIdenticalOrderingsAcrossPrecincts(
   orderings: CandidateOrdering[]
 ): CandidateOrdering[] {
-  const groupedByKey = new Map<string, CandidateOrdering[]>();
+  // Group all matching CandidateOrderings by their orderedCandidatesByContest field
+  const grouped = groupBy(
+    orderings,
+    (ordering) => ordering.orderedCandidatesByContest
+  );
 
-  // Group all matching CandidateOrderingSets by a key derived from orderedContests
-  for (const ordering of orderings) {
-    const key = JSON.stringify(ordering.orderedCandidatesByContest);
-    const group = groupedByKey.get(key);
-    if (group) group.push(ordering);
-    else groupedByKey.set(key, [ordering]);
-  }
-
-  // Consolidate each group into a single CandidateOrderingSet with deduplicated precincts/splits
-  const deduped: CandidateOrdering[] = [];
-  for (const [, group] of groupedByKey.entries()) {
-    const { orderedCandidatesByContest: orderedContests } = group[0];
-    const seen = new Set<string>();
-    const precinctsOrSplits: PrecinctOrSplitId[] = [];
-
-    for (const { precinctsOrSplits: precinctList } of group) {
-      for (const p of precinctList) {
-        const pk = `${p.precinctId}|${p.splitId ?? ''}`;
-        if (!seen.has(pk)) {
-          seen.add(pk);
-          precinctsOrSplits.push(p);
-        }
-      }
-    }
-
-    deduped.push({
-      orderedCandidatesByContest: orderedContests,
-      precinctsOrSplits,
-    });
-  }
-
-  return deduped;
+  // Consolidate each group into a single CandidateOrdering with deduplicated precincts/splits
+  return grouped.map(([orderedCandidatesByContest, group]) => ({
+    orderedCandidatesByContest,
+    precinctsOrSplits: uniqueDeep(
+      group.flatMap((ordering) => ordering.precinctsOrSplits)
+    ),
+  }));
 }
 
 // Helper function to get all contest rotations based on the selected ballot template

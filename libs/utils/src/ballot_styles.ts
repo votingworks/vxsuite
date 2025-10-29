@@ -27,19 +27,24 @@ const GROUP_ID_PARTS_SEPARATOR = '-';
 
 export function generateBallotStyleGroupId(params: {
   ballotStyleIndex: number;
+  rotationIndex?: number;
   party?: Party;
 }): BallotStyleGroupId {
-  return params.party
-    ? `${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}`
+  const indexString = params.rotationIndex
+    ? `${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.rotationIndex}`
     : params.ballotStyleIndex.toString();
+  return params.party
+    ? `${indexString}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}`
+    : indexString;
 }
 
 /**
  * Generates a ballot style ID based on the given parameters in the format:
- * `<index>[_<partyAbbreviation>]_<languageCode1>[_<languageCode2>...]`
+ * `<index>[.<rotationIndex>][-<partyAbbreviation>]_<languageCode1>[_<languageCode2>...]`
  */
 export function generateBallotStyleId(params: {
   ballotStyleIndex: number;
+  rotationIndex?: number;
   languages: string[];
   party?: Party;
 }): BallotStyleId {

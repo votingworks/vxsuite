@@ -295,8 +295,15 @@ describe('generateBallotStyles()', () => {
 
     expect(ballotStyles).toEqual<BallotStyle[]>([
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
-        id: generateBallotStyleId({ ballotStyleIndex: 1, languages }),
-        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 1 }),
+        id: generateBallotStyleId({
+          ballotStyleIndex: 1,
+          rotationIndex: 1,
+          languages,
+        }),
+        groupId: generateBallotStyleGroupId({
+          ballotStyleIndex: 1,
+          rotationIndex: 1,
+        }),
         districts: [district1.id],
         languages,
         precincts: [precinct1District1.id],
@@ -309,8 +316,15 @@ describe('generateBallotStyles()', () => {
         },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
-        id: generateBallotStyleId({ ballotStyleIndex: 2, languages }),
-        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 2 }),
+        id: generateBallotStyleId({
+          ballotStyleIndex: 1,
+          rotationIndex: 2,
+          languages,
+        }),
+        groupId: generateBallotStyleGroupId({
+          ballotStyleIndex: 1,
+          rotationIndex: 2,
+        }),
         districts: [district1.id],
         languages,
         precincts: [precinct3District1And2.id],
@@ -323,8 +337,8 @@ describe('generateBallotStyles()', () => {
         },
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
-        id: generateBallotStyleId({ ballotStyleIndex: 3, languages }),
-        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 3 }),
+        id: generateBallotStyleId({ ballotStyleIndex: 2, languages }),
+        groupId: generateBallotStyleGroupId({ ballotStyleIndex: 2 }),
         districts: [district1.id, district2.id],
         languages,
         precincts: [precinct3District1And2.id],
@@ -670,11 +684,13 @@ describe('generateBallotStyles()', () => {
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
           ballotStyleIndex: 1,
+          rotationIndex: 1,
           languages,
           party: partyA,
         }),
         groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 1,
+          rotationIndex: 1,
           party: partyA,
         }),
         districts: [district1.id],
@@ -697,11 +713,13 @@ describe('generateBallotStyles()', () => {
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
           ballotStyleIndex: 1,
+          rotationIndex: 1,
           languages,
           party: partyB,
         }),
         groupId: generateBallotStyleGroupId({
           ballotStyleIndex: 1,
+          rotationIndex: 1,
           party: partyB,
         }),
         districts: [district1.id],
@@ -723,12 +741,14 @@ describe('generateBallotStyles()', () => {
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
-          ballotStyleIndex: 2,
+          ballotStyleIndex: 1,
+          rotationIndex: 2,
           languages,
           party: partyA,
         }),
         groupId: generateBallotStyleGroupId({
-          ballotStyleIndex: 2,
+          ballotStyleIndex: 1,
+          rotationIndex: 2,
           party: partyA,
         }),
         districts: [district1.id],
@@ -750,12 +770,14 @@ describe('generateBallotStyles()', () => {
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
-          ballotStyleIndex: 2,
+          ballotStyleIndex: 1,
+          rotationIndex: 2,
           languages,
           party: partyB,
         }),
         groupId: generateBallotStyleGroupId({
-          ballotStyleIndex: 2,
+          ballotStyleIndex: 1,
+          rotationIndex: 2,
           party: partyB,
         }),
         districts: [district1.id],
@@ -777,12 +799,12 @@ describe('generateBallotStyles()', () => {
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
-          ballotStyleIndex: 3,
+          ballotStyleIndex: 2,
           languages,
           party: partyA,
         }),
         groupId: generateBallotStyleGroupId({
-          ballotStyleIndex: 3,
+          ballotStyleIndex: 2,
           party: partyA,
         }),
         districts: [district1.id, district2.id],
@@ -814,12 +836,12 @@ describe('generateBallotStyles()', () => {
       })),
       ...ballotLanguageConfigs.map<BallotStyle>(({ languages }) => ({
         id: generateBallotStyleId({
-          ballotStyleIndex: 3,
+          ballotStyleIndex: 2,
           languages,
           party: partyB,
         }),
         groupId: generateBallotStyleGroupId({
-          ballotStyleIndex: 3,
+          ballotStyleIndex: 2,
           party: partyB,
         }),
         districts: [district1.id, district2.id],

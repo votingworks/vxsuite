@@ -319,7 +319,7 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
     }
   });
 
-  test('filters contests by type and district', () => {
+  test('filters contests by type', () => {
     const candidateContest: CandidateContest = {
       ...electionFamousNames.contests[0],
       id: 'contest-1',
@@ -341,21 +341,10 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
       noOption: { id: 'no', label: 'No' },
     };
 
-    const contestInDifferentDistrict: CandidateContest = {
-      ...electionFamousNames.contests[0],
-      id: 'contest-2',
-      type: 'candidate',
-      districtId: 'district-2',
-      title: 'Test Contest 2',
-      seats: 1,
-      allowWriteIns: false,
-      candidates: [{ id: '2', name: 'Bob' }],
-    };
-
     const [precinct1] = electionFamousNames.precincts;
 
     const params: RotationParams = {
-      contests: [candidateContest, yesnoContest, contestInDifferentDistrict],
+      contests: [candidateContest, yesnoContest],
       precincts: electionFamousNames.precincts,
       precinctsOrSplitIds: [{ precinctId: precinct1.id }],
       districtIds: ['district-1'],
