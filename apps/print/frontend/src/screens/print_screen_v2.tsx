@@ -1,14 +1,9 @@
 import { ElectionDefinition, hasSplits } from '@votingworks/types';
-import {
-  Button,
-  H3,
-  H4,
-  RadioGroup,
-  SearchSelect,
-  SegmentedButton,
-} from '@votingworks/ui';
+import { Button, H3, H6, RadioGroup, SegmentedButton } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
+import { ExpandedSearch } from '../components/expanded_search';
+import { NumberInput } from '../components/number_input';
 
 // const Row = styled.div`
 //   display: flex;
@@ -34,10 +29,22 @@ const Container = styled.div`
   overflow-y: hidden;
   display: flex;
   gap: 1rem;
-  padding: 2rem;
   padding-bottom: 0;
   flex-direction: column;
 `;
+
+// const HeaderBar = styled.div`
+//   height: 4rem;
+//   flex-shrink: 0;
+//   border-bottom: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
+//     ${(p) => p.theme.colors.outline};
+//   background-color: ${(p) => p.theme.colors.containerLow};
+
+//   display: flex;
+//   align-items: center;
+//   justify-content: flex-end;
+//   padding-right: 2rem;
+// `;
 
 const ContentArea = styled.div`
   flex: 1;
@@ -45,37 +52,51 @@ const ContentArea = styled.div`
 
   display: flex;
   justify-content: space-between;
+
+  padding: 2rem 2rem 0.5rem 2rem;
+`;
+
+const PrintAllContainer = styled.div`
+  margin-right: auto;
+  border-right: 1px solid ${(p) => p.theme.colors.outline};
+  padding: 0.5rem 1.5rem 0.5rem 0;
+
+  // margin-top: auto;
+`;
+
+const StyledSegmentedButton = styled(SegmentedButton)`
+  // height: 70px;
+  margin-bottom: 0.75rem;
 `;
 
 const PrintFooter = styled.div`
-  height: 5.5rem;
+  height: 4rem;
   flex-shrink: 0;
 
   position: sticky;
   bottom: 0;
 
-  background-color: ${(p) => p.theme.colors.background};
+  background-color: ${(p) => p.theme.colors.container};
   border-top: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
     ${(p) => p.theme.colors.outline};
 
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: end;
 
-  // gap: 2rem;
-  padding: 0.5rem 2rem;
+  gap: 1rem;
+  padding: 0 2rem;
 `;
 
 const CopiesBar = styled.div`
-  width: 2.25rem;
+  // width: 2.25rem;
+  height: 100%;
   flex-shrink: 0;
 
   display: flex;
   align-items: center;
-  justify-content: center;
-
+  justify-content: start;
   gap: 1rem;
-  height: 100%;
 
   color: ${(p) => p.theme.colors.onBackgroundMuted};
 
@@ -84,15 +105,6 @@ const CopiesBar = styled.div`
     font-weight: 700;
     color: ${(p) => p.theme.colors.onBackground};
   }
-`;
-
-const CopiesButton = styled(Button)`
-  background-color: none;
-  border: none;
-  padding: 0;
-
-  font-size: 1.75rem;
-  font-weight: 500;
 `;
 
 export function PrintScreenV2({
@@ -104,9 +116,9 @@ export function PrintScreenV2({
   const precincts = election.precincts || [];
   const [numCopies, setNumCopies] = React.useState(1);
 
-  const [selectedPrecinctId, setSelectedPrecinctId] = React.useState<
-    string | undefined
-  >();
+  const [searchValue, setSearchValue] = React.useState<string>('');
+  const [selectedPrecinctName, setSelectedPrecinctName] =
+    React.useState<string>('');
   const [selectedSplitId, setSelectedSplitId] = React.useState<
     string | undefined
   >();
@@ -119,8 +131,8 @@ export function PrintScreenV2({
   const [isAbsentee, setIsAbsentee] = React.useState<boolean>(false);
 
   // Get the selected precinct object
-  const selectedPrecinct = selectedPrecinctId
-    ? precincts.find((p) => p.id === selectedPrecinctId)
+  const selectedPrecinct = selectedPrecinctName
+    ? precincts.find((p) => p.name === selectedPrecinctName)
     : undefined;
 
   // Get available splits for the selected precinct
@@ -132,38 +144,54 @@ export function PrintScreenV2({
   // Clear split selection when precinct changes
   React.useEffect(() => {
     setSelectedSplitId(undefined);
-  }, [selectedPrecinctId]);
+  }, [selectedPrecinctName]);
 
   const languages = ['English', 'Spanish'];
   const parties = ['Dem', 'Rep'];
 
   return (
     <Container>
+      {/* <HeaderBar></HeaderBar> */}
       <ContentArea>
         <Column style={{ width: '40%' }}>
           <Section>
-            <H3>Precinct</H3>
-            <SearchSelect
-              placeholder="Find precinct"
+            <H3 style={{ marginBottom: 0 }}>Type</H3>
+            <StyledSegmentedButton
+              label=""
+              onChange={(newValue) => {
+                setIsAbsentee(newValue === 'absentee');
+              }}
+              selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
               options={[
-                {
-                  label: 'All',
-                  value: 'all',
-                },
-              ].concat(
-                precincts.map((precinct) => ({
-                  label: precinct.name,
-                  value: precinct.id,
-                }))
-              )}
-              value={selectedPrecinctId}
-              onChange={(value) => {
-                setSelectedPrecinctId(value === 'all' ? undefined : value);
+                { label: 'Precinct', id: 'precinct' },
+                { label: 'Absentee', id: 'absentee' },
+              ]}
+            />
+          </Section>
+          <Section>
+            <H3>Precinct</H3>
+            <ExpandedSearch
+              searchResults={precincts
+                .map((p) => p.name)
+                .filter(
+                  (precinct) =>
+                    !searchValue ||
+                    precinct.toLowerCase().includes(searchValue.toLowerCase())
+                )}
+              // searchValue={searchValue}
+              selectedValue={selectedPrecinctName}
+              onSearch={(value) => {
+                setSearchValue(value);
+              }}
+              onSelect={(value) => {
+                setSelectedPrecinctName(value);
+                setSelectedSplitId(undefined);
+                setSelectedParty(undefined);
               }}
             />
           </Section>
         </Column>
-        <Column style={{ width: '40%', gap: '2rem', justifySelf: 'end' }}>
+        <Column style={{ width: '40%', gap: '1rem', justifySelf: 'end' }}>
           {availableSplits.length > 0 && (
             <Section>
               <H3>Split</H3>
@@ -216,51 +244,69 @@ export function PrintScreenV2({
         </Column>
       </ContentArea>
       <PrintFooter>
+        <PrintAllContainer>
+          <Button
+            color="neutral"
+            fill="outlined"
+            onPress={() => console.log('Print all ballot styles')}
+            style={{ width: '12rem' }}
+          >
+            Print All Ballot Styles
+          </Button>
+        </PrintAllContainer>
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'row',
             alignItems: 'center',
-            // gap: '2px',
+            justifyContent: 'center',
+            // alignSelf: 'start',
+
+            gap: '0.5rem',
           }}
         >
-          <H4>Copies</H4>
+          <H6 style={{ fontSize: '1rem' }}>Copies</H6>
           <CopiesBar>
-            <CopiesButton
+            {/* <CopiesButton
+              fill="outlined"
+              color="neutral"
               onPress={() => setNumCopies((prev) => (prev > 1 ? prev - 1 : 1))}
             >
               –
-            </CopiesButton>
-            <div>{numCopies}</div>
-            <CopiesButton
+            </CopiesButton> */}
+            <NumberInput
+              value={numCopies}
+              onChange={(value) => setNumCopies(value || 0)}
+            />
+            {/* <CopiesButton
+              fill="outlined"
               color="neutral"
               onPress={() => setNumCopies((prev) => prev + 1)}
             >
               +
-            </CopiesButton>
+            </CopiesButton> */}
           </CopiesBar>
         </div>
-        <div style={{ marginBottom: '0.5rem' }}>
-          <SegmentedButton
-            label=""
-            onChange={(newValue) => {
-              setIsAbsentee(newValue === 'absentee');
-            }}
-            selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
-            options={[
-              { label: 'Precinct', id: 'precinct' },
-              { label: 'Absentee', id: 'absentee' },
-            ]}
-          />
-        </div>
         <Button
-          onPress={() => console.log('TODO: Print Ballots')}
+          onPress={() =>
+            console.log(
+              `Printing ballot style: ${selectedPrecinctName}, ${selectedParty}, ${selectedLanguage}${
+                selectedSplitId ? `, ${selectedSplitId}` : ''
+              }`
+            )
+          }
+          disabled={
+            !selectedPrecinctName ||
+            !selectedLanguage ||
+            !selectedParty ||
+            (availableSplits.length > 0 && !selectedSplitId)
+          }
           icon="Print"
           color="primary"
           fill="filled"
-          style={{ width: '12rem' }}
+          style={{ width: '14rem' }}
         >
-          Print
+          Print Selection
         </Button>
       </PrintFooter>
     </Container>

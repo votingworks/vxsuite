@@ -80,6 +80,7 @@ interface SearchSelectBaseProps<T = string> {
   minMenuHeight?: number;
   maxMenuHeight?: number;
   noOptionsMessage?: () => React.ReactNode;
+  autoFocus?: boolean;
 }
 
 export interface SearchSelectMultiProps<T = string>
@@ -125,6 +126,7 @@ export function SearchSelect<T = string>({
   minMenuHeight,
   noOptionsMessage,
   maxMenuHeight = 600, // in px, 1/2 admin's vh
+  autoFocus,
   style = {},
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
@@ -133,6 +135,7 @@ export function SearchSelect<T = string>({
   return (
     <Select
       id={id}
+      autoFocus={autoFocus}
       isMulti={isMulti}
       isSearchable={isSearchable}
       isClearable={false}

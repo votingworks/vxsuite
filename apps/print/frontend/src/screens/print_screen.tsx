@@ -1,5 +1,5 @@
 import { ElectionDefinition, hasSplits } from '@votingworks/types';
-import { DesktopPalette, H2, H3, SearchSelect } from '@votingworks/ui';
+import { DesktopPalette, H2, H3, H6, SearchSelect } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
 import { BallotStyleCard } from '../components/ballot_style_card';
@@ -18,7 +18,6 @@ const Step1Section = styled.div`
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-  padding-top: 2rem;
 
   border-left: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
     ${(p) => p.theme.colors.outline};
@@ -26,15 +25,43 @@ const Step1Section = styled.div`
   height: 100%;
   width: 22rem;
   flex-shrink: 0;
+
+  // background-color: ${(p) => p.theme.colors.containerLow};
+`;
+
+const Step2Panel = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+`;
+
+const Step2Header = styled.div`
+  height: 100px;
+  background-color: ${(p) => p.theme.colors.containerLow};
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
+    ${(p) => p.theme.colors.outline};
+
+  align-items: center;
+  justify-content: center;
+  display: flex;
+
+  padding: 0rem 2rem;
 `;
 
 const Step2Section = styled.div`
   flex: 1 1 auto;
   overflow-y: auto;
-  height: 1080px;
+  height: 880px;
 
   // padding: 1rem;
   padding-bottom: 0rem;
+  padding-top: 1rem;
+
+  padding-right: 0.5rem;
+  margin-right: 0.5rem;
+  margin-left: 1rem;
+
+  // display: flex;
 `;
 
 const Toggle = styled.button`
@@ -93,7 +120,8 @@ const Badge = styled.div`
   padding: 0.5rem 1rem;
   font-weight: 500;
   font-size: 0.875rem;
-  height: 2rem;
+  // height: 2rem;
+  width: 12rem;
 
   display: flex;
   align-items: center;
@@ -190,12 +218,10 @@ export function PrintScreen({
       <Step1Section>
         <Row style={{ justifyContent: 'space-between' }}>
           <H2>Filter ballots</H2>
-          <Badge>
-            {numBallots} {numBallots === 1 ? 'Ballot Style' : 'Ballot Styles'}
-          </Badge>
         </Row>
         <SearchSelect
-          placeholder="Find precinct"
+          autoFocus
+          placeholder="Search for precinct"
           options={[
             {
               label: 'All',
@@ -211,7 +237,7 @@ export function PrintScreen({
           onChange={(value) => {
             setSelectedPrecinctId(value === 'all' ? undefined : value);
           }}
-          style={{ marginBottom: '1rem' }}
+          style={{ marginBottom: '1rem', backgroundColor: 'none' }}
         />
         {availableSplits.length > 0 && (
           <Section>
@@ -312,52 +338,49 @@ export function PrintScreen({
           Clear
         </Button> */}
       </Step1Section>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          flexGrow: '1',
-          marginRight: '1rem',
-          paddingRight: '1rem',
-          marginLeft: '1rem',
-          marginTop: '2rem',
-        }}
-      >
+      <Step2Panel>
+        <Step2Header>
+          <H6 style={{ marginRight: '0.5rem' }}>Click ballot to print or</H6>
+          <Badge>
+            Print All {numBallots}{' '}
+            {numBallots === 1 ? 'Ballot Style' : 'Ballot Styles'}
+          </Badge>
+        </Step2Header>
         <Step2Section>
           {filteredPrecinctsWithSplits.map((precinct) =>
             filteredParties.map((party) =>
               filteredLanguages.map((language) => (
-                  <Row
-                    style={{
-                      justifyContent: 'space-around',
-                      marginBottom: '2rem',
-                    }}
-                    key={precinct.name + party + language}
-                  >
-                    {filteredTypes.includes('Precinct') && (
-                      <BallotStyleCard
-                        key={`${precinct.name + party + language  }Precinct`}
-                        precinctName={precinct.name}
-                        party={party}
-                        language={language}
-                        type="Precinct"
-                      />
-                    )}
-                    {filteredTypes.includes('Absentee') && (
-                      <BallotStyleCard
-                        key={`${precinct.name + party + language  }Absentee`}
-                        precinctName={precinct.name}
-                        party={party}
-                        language={language}
-                        type="Absentee"
-                      />
-                    )}
-                  </Row>
-                ))
+                <Row
+                  style={{
+                    justifyContent: 'space-around',
+                    marginBottom: '2rem',
+                  }}
+                  key={precinct.name + party + language}
+                >
+                  {filteredTypes.includes('Precinct') && (
+                    <BallotStyleCard
+                      key={`${precinct.name + party + language}Precinct`}
+                      precinctName={precinct.name}
+                      party={party}
+                      language={language}
+                      type="Precinct"
+                    />
+                  )}
+                  {filteredTypes.includes('Absentee') && (
+                    <BallotStyleCard
+                      key={`${precinct.name + party + language}Absentee`}
+                      precinctName={precinct.name}
+                      party={party}
+                      language={language}
+                      type="Absentee"
+                    />
+                  )}
+                </Row>
+              ))
             )
           )}
         </Step2Section>
-      </div>
+      </Step2Panel>
     </Container>
   );
 }

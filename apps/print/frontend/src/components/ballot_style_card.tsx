@@ -13,7 +13,7 @@ const Container = styled.button`
   border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
     ${(p) => p.theme.colors.outline};
   background-color: none; //${(p) => p.theme.colors.containerLow};
-  background: none;
+  background: hsl(262, 10%, 95%);
 
   padding: 0;
   margin: 0;
@@ -105,13 +105,9 @@ export function BallotStyleCard({
     <Container
       onClick={() =>
         console.log(
-          `Printing ballot style: ${ 
-            precinctName 
-            }, ${ 
-            party 
-            }, ${ 
-            language 
-            }${type ? `, ${  type}` : ''}`
+          `Printing ballot style: ${precinctName}, ${party}, ${language}${
+            type ? `, ${type}` : ''
+          }`
         )
       }
     >
@@ -138,7 +134,7 @@ export function BallotStyleCard({
       </CopiesBar> */}
       <PrintLabel>
         <Icons.Print />
-        Print
+        {/* Print */}
       </PrintLabel>
     </Container>
   );
