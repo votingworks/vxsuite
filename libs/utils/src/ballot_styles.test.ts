@@ -11,6 +11,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import {
+  electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneral,
   readElectionTwoPartyPrimaryDefinition,
@@ -31,6 +32,8 @@ const electionGeneral = readElectionGeneral();
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
+
+const electionFamousNames = electionFamousNames2021Fixtures.readElection();
 
 const GREEN_PARTY: Party = {
   abbrev: 'G',
@@ -310,6 +313,40 @@ test('getBallotStyleGroupForPrecinctOrSplit - general election', () => {
       precinctOrSplit: { precinct: precinct2, split: precinct2.splits[1]! },
     }).map((group) => group.id)
   ).toEqual(['12']);
+});
+
+test('getBallotStyleGroupForPrecinctOrSplit - general election with rotated ballot style variations', () => {
+  const [precinct1, precinct2, precinct3, precinct4] =
+    electionFamousNames.precincts.toSorted((a, b) => a.id.localeCompare(b.id)); // ballot styles are defined in order of the precinct IDs sorted
+  assert(precinct1 && !hasSplits(precinct1));
+  assert(precinct2 && !hasSplits(precinct2));
+  assert(precinct3 && !hasSplits(precinct3));
+  assert(precinct4 && !hasSplits(precinct4));
+  expect(
+    getBallotStyleGroupsForPrecinctOrSplit({
+      election: electionFamousNames,
+      precinctOrSplit: { precinct: precinct1 },
+    }).map((group) => group.id)
+  ).toEqual(['1-1']);
+  expect(
+    getBallotStyleGroupsForPrecinctOrSplit({
+      election: electionFamousNames,
+      precinctOrSplit: { precinct: precinct2 },
+    }).map((group) => group.id)
+  ).toEqual(['1-2']);
+
+  expect(
+    getBallotStyleGroupsForPrecinctOrSplit({
+      election: electionFamousNames,
+      precinctOrSplit: { precinct: precinct3 },
+    }).map((group) => group.id)
+  ).toEqual(['1-3']);
+  expect(
+    getBallotStyleGroupsForPrecinctOrSplit({
+      election: electionFamousNames,
+      precinctOrSplit: { precinct: precinct4 },
+    }).map((group) => group.id)
+  ).toEqual(['1-4']);
 });
 
 test('getBallotStyleGroupForPrecinctOrSplit - primary election', () => {

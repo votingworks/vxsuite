@@ -183,7 +183,8 @@ export function getBallotStyleGroupsForPrecinctOrSplit({
 }): BallotStyleGroup[] {
   return getGroupedBallotStyles(election.ballotStyles).filter(
     (ballotStyleGroup) =>
-      hasMatchingDistrictIds(ballotStyleGroup, precinctOrSplit)
+      hasMatchingDistrictIds(ballotStyleGroup, precinctOrSplit) &&
+      ballotStyleGroup.precincts.includes(precinctOrSplit.precinct.id)
   );
 }
 
