@@ -213,7 +213,7 @@ export function getPrecinctsAndSplitsForBallotStyle({
         : [{ precinct }]
     )
     .filter((precinctOrSplit) =>
-      hasMatchingDistrictIds(ballotStyle, precinctOrSplit)
+      ballotStyleHasPrecinctOrSplit(ballotStyle, precinctOrSplit)
     );
 }
 
