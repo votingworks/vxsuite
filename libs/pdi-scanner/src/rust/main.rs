@@ -204,13 +204,15 @@ fn send_to_stdout(message: Message) -> color_eyre::Result<()> {
 
 fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
     match error {
-        Error::Usb(UsbError::DeviceNotFound)
-        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Disconnected))
-        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Fault))
-        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Cancelled))
-        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Stall)) => {
-            (ErrorCode::Disconnected, None)
-        }
+        Error::Usb {
+            source:
+                UsbError::DeviceNotFound
+                | UsbError::NusbTransfer(nusb::transfer::TransferError::Disconnected)
+                | UsbError::NusbTransfer(nusb::transfer::TransferError::Fault)
+                | UsbError::NusbTransfer(nusb::transfer::TransferError::Cancelled)
+                | UsbError::NusbTransfer(nusb::transfer::TransferError::Stall),
+            ..
+        } => (ErrorCode::Disconnected, None),
 
         _ => (ErrorCode::Other, Some(error.to_string())),
     }

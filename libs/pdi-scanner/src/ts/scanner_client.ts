@@ -233,7 +233,9 @@ function loggableMessage(message: PdictlMessage) {
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createPdiScannerClient() {
-  const pdictl = spawn(PDICTL_PATH);
+  const pdictl = spawn(PDICTL_PATH, {
+    env: { ...process.env, RUST_BACKTRACE: '1' },
+  });
   let pdictlIsClosed = false;
 
   const listeners = new Set<Listener>();
