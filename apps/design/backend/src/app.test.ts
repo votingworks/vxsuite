@@ -53,7 +53,7 @@ import {
   BALLOT_MODES,
 } from '@votingworks/types';
 import {
-  ballotStyleHasPrecinctSplit,
+  ballotStyleHasPrecinctOrSplit,
   BooleanEnvironmentVariableName,
   getEntries,
   getFeatureFlagMock,
@@ -3255,7 +3255,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
   const ballotStyle = assertDefined(
     ballotStyles.find((style) => {
       return (
-        ballotStyleHasPrecinctSplit(style, precinct.id, split) &&
+        ballotStyleHasPrecinctOrSplit(style, { precinct, split }) &&
         style.languages!.includes(LanguageCode.ENGLISH)
       );
     })
@@ -3330,7 +3330,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   const ballotStyle = assertDefined(
     ballotStyles.find((style) => {
       return (
-        ballotStyleHasPrecinctSplit(style, precinct.id, split) &&
+        ballotStyleHasPrecinctOrSplit(style, { precinct, split }) &&
         style.languages!.includes(LanguageCode.ENGLISH)
       );
     })

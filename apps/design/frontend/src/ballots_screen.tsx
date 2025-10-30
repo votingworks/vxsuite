@@ -22,7 +22,7 @@ import { find } from '@votingworks/basics';
 import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { ballotStyleHasPrecinctSplit } from '@votingworks/utils';
+import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import {
   getBallotsFinalizedAt,
   finalizeBallots,
@@ -360,7 +360,10 @@ function BallotStylesTab(): JSX.Element | null {
 
                 const splitRows = precinct.splits.flatMap((split) => {
                   const splitBallotStyles = ballotStyles.filter((ballotStyle) =>
-                    ballotStyleHasPrecinctSplit(ballotStyle, precinct.id, split)
+                    ballotStyleHasPrecinctOrSplit(ballotStyle, {
+                      precinct,
+                      split,
+                    })
                   );
 
                   if (splitBallotStyles.length === 0) {

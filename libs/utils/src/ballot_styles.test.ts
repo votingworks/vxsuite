@@ -25,7 +25,7 @@ import {
   getPrecinctsAndSplitsForBallotStyle,
   getRelatedBallotStyle,
   determinePartyId,
-  ballotStyleHasPrecinctSplit,
+  ballotStyleHasPrecinctOrSplit,
 } from './ballot_styles';
 
 const electionGeneral = readElectionGeneral();
@@ -465,10 +465,11 @@ test('determinePartyId - multi language election', () => {
   );
 });
 
-test('ballotStyleHasPrecinctSplit', () => {
+test('ballotStyleHasPrecinctOrSplit', () => {
   const election = electionPrimaryPrecinctSplitsFixtures.readElection();
-  const [, , , precinct4] = election.precincts;
+  const [precinct1, , , precinct4] = election.precincts;
   assert(precinct4 && hasSplits(precinct4));
+  assert(precinct1 && !hasSplits(precinct1));
   const [split1, split2] = precinct4.splits;
   assert(split1 && split2);
   const split1BallotStyle = find(
@@ -479,29 +480,57 @@ test('ballotStyleHasPrecinctSplit', () => {
     election.ballotStyles,
     (bs) => bs.id === '4-Ma_en'
   );
-  const otherPrecinctBallotStyle = find(
+  const precinct1BallotStyle = find(
     election.ballotStyles,
     (bs) => bs.id === '1-Ma_en'
   );
 
   expect(
-    ballotStyleHasPrecinctSplit(split1BallotStyle, precinct4.id, split1)
+    ballotStyleHasPrecinctOrSplit(split1BallotStyle, { precinct: precinct1 })
+  ).toEqual(false);
+  expect(
+    ballotStyleHasPrecinctOrSplit(split2BallotStyle, { precinct: precinct1 })
+  ).toEqual(false);
+  expect(
+    ballotStyleHasPrecinctOrSplit(precinct1BallotStyle, { precinct: precinct1 })
+  ).toEqual(true);
+
+  expect(
+    ballotStyleHasPrecinctOrSplit(split1BallotStyle, {
+      precinct: precinct4,
+      split: split1,
+    })
   ).toEqual(true);
   expect(
-    ballotStyleHasPrecinctSplit(split1BallotStyle, precinct4.id, split2)
+    ballotStyleHasPrecinctOrSplit(split1BallotStyle, {
+      precinct: precinct4,
+      split: split2,
+    })
   ).toEqual(false);
 
   expect(
-    ballotStyleHasPrecinctSplit(split2BallotStyle, precinct4.id, split2)
+    ballotStyleHasPrecinctOrSplit(split2BallotStyle, {
+      precinct: precinct4,
+      split: split2,
+    })
   ).toEqual(true);
   expect(
-    ballotStyleHasPrecinctSplit(split2BallotStyle, precinct4.id, split1)
+    ballotStyleHasPrecinctOrSplit(split2BallotStyle, {
+      precinct: precinct4,
+      split: split1,
+    })
   ).toEqual(false);
 
   expect(
-    ballotStyleHasPrecinctSplit(otherPrecinctBallotStyle, precinct4.id, split1)
+    ballotStyleHasPrecinctOrSplit(precinct1BallotStyle, {
+      precinct: precinct4,
+      split: split1,
+    })
   ).toEqual(false);
   expect(
-    ballotStyleHasPrecinctSplit(otherPrecinctBallotStyle, precinct4.id, split2)
+    ballotStyleHasPrecinctOrSplit(precinct1BallotStyle, {
+      precinct: precinct4,
+      split: split2,
+    })
   ).toEqual(false);
 });

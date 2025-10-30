@@ -18,8 +18,6 @@ import {
   hasSplits,
   ElectionDefinition,
   Tabulation,
-  PrecinctSplit,
-  PrecinctId,
 } from '@votingworks/types';
 
 const ID_LANGUAGES_SEPARATOR = '_';
@@ -183,8 +181,17 @@ export function getBallotStyleGroupsForPrecinctOrSplit({
 }): BallotStyleGroup[] {
   return getGroupedBallotStyles(election.ballotStyles).filter(
     (ballotStyleGroup) =>
-      hasMatchingDistrictIds(ballotStyleGroup, precinctOrSplit) &&
-      ballotStyleGroup.precincts.includes(precinctOrSplit.precinct.id)
+      ballotStyleHasPrecinctOrSplit(ballotStyleGroup, precinctOrSplit)
+  );
+}
+
+export function ballotStyleHasPrecinctOrSplit(
+  ballotStyle: Pick<BallotStyle, 'precincts' | 'districts'>,
+  precinctOrSplit: PrecinctOrSplit
+): boolean {
+  return (
+    ballotStyle.precincts.includes(precinctOrSplit.precinct.id) &&
+    hasMatchingDistrictIds(ballotStyle, precinctOrSplit)
   );
 }
 
@@ -224,15 +231,4 @@ export function determinePartyId<T>(
     ballotStyleGroupId: group.ballotStyleGroupId,
   });
   return ballotStyleGroup?.partyId;
-}
-
-export function ballotStyleHasPrecinctSplit(
-  ballotStyle: BallotStyle,
-  precinctId: PrecinctId,
-  split: PrecinctSplit
-): boolean {
-  return (
-    ballotStyle.precincts.includes(precinctId) &&
-    deepEqual(split.districtIds.toSorted(), ballotStyle.districts.toSorted())
-  );
 }
