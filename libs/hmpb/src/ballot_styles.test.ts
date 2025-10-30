@@ -12,7 +12,7 @@ import {
   BallotStyle,
 } from '@votingworks/types';
 import {
-  ballotStyleHasPrecinctSplit,
+  ballotStyleHasPrecinctOrSplit,
   generateBallotStyleGroupId,
   generateBallotStyleId,
 } from '@votingworks/utils';
@@ -925,20 +925,18 @@ describe('generateBallotStyles()', () => {
       precinct3.id,
     ]);
     expect(
-      ballotStyleHasPrecinctSplit(
-        ballotStyles[0],
-        precinct3.id,
-        precinct3.splits[0]
-      )
+      ballotStyleHasPrecinctOrSplit(ballotStyles[0], {
+        precinct: precinct3,
+        split: precinct3.splits[0],
+      })
     ).toEqual(true);
     expect(ballotStyles[1].districts).toEqual([district1.id]);
     expect(ballotStyles[1].precincts).toEqual([precinct3.id, precinct4.id]);
     expect(
-      ballotStyleHasPrecinctSplit(
-        ballotStyles[1],
-        precinct3.id,
-        precinct3.splits[1]
-      )
+      ballotStyleHasPrecinctOrSplit(ballotStyles[1], {
+        precinct: precinct3,
+        split: precinct3.splits[1],
+      })
     ).toEqual(true);
   });
 });

@@ -273,7 +273,7 @@ test('can include sheet counts', async () => {
 
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordAttributes = {
-    ballotStyleGroupId: '1' as BallotStyleGroupId,
+    ballotStyleGroupId: '1-1' as BallotStyleGroupId,
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     votingMethod: 'precinct',
@@ -307,24 +307,28 @@ test('can include sheet counts', async () => {
     },
     {
       ...mockCastVoteRecordAttributes,
+      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
       precinctId: '23',
       card: { type: 'bmd' },
       multiplier: 9,
     },
     {
       ...mockCastVoteRecordAttributes,
+      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
       precinctId: '23',
       card: { type: 'hmpb', sheetNumber: 1 },
       multiplier: 11,
     },
     {
       ...mockCastVoteRecordAttributes,
+      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
       precinctId: '23',
       card: { type: 'hmpb', sheetNumber: 2 },
       multiplier: 11,
     },
     {
       ...mockCastVoteRecordAttributes,
+      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
       precinctId: '23',
       card: { type: 'hmpb', sheetNumber: 3 },
       multiplier: 10,

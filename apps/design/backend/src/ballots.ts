@@ -11,7 +11,7 @@ import {
 } from '@votingworks/hmpb';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
-import { ballotStyleHasPrecinctSplit } from '@votingworks/utils';
+import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { sliOrgId } from './globals';
 import { normalizeState, User, UsState } from './types';
 
@@ -84,7 +84,7 @@ export function createBallotPropsForTemplate(
       (bs) => bs.id === props.ballotStyleId
     );
     const split = find(precinct.splits, (ps) =>
-      ballotStyleHasPrecinctSplit(ballotStyle, precinct.id, ps)
+      ballotStyleHasPrecinctOrSplit(ballotStyle, { precinct, split: ps })
     );
     return {
       ...props,

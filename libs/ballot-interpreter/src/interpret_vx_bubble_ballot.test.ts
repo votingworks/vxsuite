@@ -785,14 +785,14 @@ test('Ballot audit IDs', async () => {
     ballotAuditId: 'test-ballot-audit-id',
   };
   const rendererPool = await createPlaywrightRendererPool();
-  const ballotPdf = (
+  const { ballotPdfs, electionDefinition: electionDefinitionModified } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
       'vxf'
-    )
-  ).ballotPdfs[0]!;
+    );
+  const ballotPdf = ballotPdfs[0]!;
   await rendererPool.close();
   const images = asSheet(await pdfToPageImages(ballotPdf).toArray());
   expect(images).toHaveLength(2);
@@ -800,7 +800,7 @@ test('Ballot audit IDs', async () => {
   const testMode = ballotPropsWithAuditId.ballotMode === 'test';
   const [frontResult, backResult] = await interpretSheet(
     {
-      electionDefinition,
+      electionDefinition: electionDefinitionModified,
       precinctSelection: singlePrecinctSelectionFor(
         ballotPropsWithAuditId.precinctId
       ),
