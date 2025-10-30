@@ -64,8 +64,7 @@ const SideBar = styled.div`
   flex-grow: 1;
   max-height: 100%;
   overflow: hidden;
-  width: max(40%, 40ch);
-  min-width: 30ch;
+  width: 100%;
 `;
 
 const PrecinctSearchOption = styled.option`

@@ -1,5 +1,5 @@
 import { ElectionDefinition, hasSplits } from '@votingworks/types';
-import { Button, H3, H6, RadioGroup, SegmentedButton } from '@votingworks/ui';
+import { Button, RadioGroup, SegmentedButton } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
 import { ExpandedSearch } from '../components/expanded_search';
@@ -14,7 +14,7 @@ import { NumberInput } from '../components/number_input';
 const Column = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
 const Section = styled.div`
@@ -28,7 +28,7 @@ const Container = styled.div`
   width: 100%;
   overflow-y: hidden;
   display: flex;
-  gap: 1rem;
+
   padding-bottom: 0;
   flex-direction: column;
 `;
@@ -50,16 +50,17 @@ const ContentArea = styled.div`
   flex: 1;
   overflow-y: auto;
 
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 
-  padding: 2rem 2rem 0.5rem 2rem;
+  padding: 1rem;
 `;
 
 const PrintAllContainer = styled.div`
   margin-right: auto;
   border-right: 1px solid ${(p) => p.theme.colors.outline};
-  padding: 0.5rem 1.5rem 0.5rem 0;
+  padding: 0.5rem 1rem 0.5rem 0;
 
   // margin-top: auto;
 `;
@@ -70,7 +71,6 @@ const StyledSegmentedButton = styled(SegmentedButton)`
 `;
 
 const PrintFooter = styled.div`
-  height: 4rem;
   flex-shrink: 0;
 
   position: sticky;
@@ -85,12 +85,11 @@ const PrintFooter = styled.div`
   justify-content: end;
 
   gap: 1rem;
-  padding: 0 2rem;
+  padding: 0.5rem 1rem;
 `;
 
 const CopiesBar = styled.div`
   // width: 2.25rem;
-  height: 100%;
   flex-shrink: 0;
 
   display: flex;
@@ -153,9 +152,9 @@ export function PrintScreenV2({
     <Container>
       {/* <HeaderBar></HeaderBar> */}
       <ContentArea>
-        <Column style={{ width: '40%' }}>
+        <Column>
           <Section>
-            <H3 style={{ marginBottom: 0 }}>Type</H3>
+            <strong style={{ marginBottom: 0 }}>Ballot Type</strong>
             <StyledSegmentedButton
               label=""
               onChange={(newValue) => {
@@ -169,7 +168,7 @@ export function PrintScreenV2({
             />
           </Section>
           <Section>
-            <H3>Precinct</H3>
+            <strong>Precinct</strong>
             <ExpandedSearch
               searchResults={precincts
                 .map((p) => p.name)
@@ -191,10 +190,10 @@ export function PrintScreenV2({
             />
           </Section>
         </Column>
-        <Column style={{ width: '40%', gap: '1rem', justifySelf: 'end' }}>
+        <Column>
           {availableSplits.length > 0 && (
             <Section>
-              <H3>Split</H3>
+              <strong>Split</strong>
               <RadioGroup
                 value={selectedSplitId}
                 hideLabel
@@ -212,7 +211,7 @@ export function PrintScreenV2({
             </Section>
           )}
           <Section>
-            <H3>Party</H3>
+            <strong>Party</strong>
             <RadioGroup
               value={selectedParty}
               hideLabel
@@ -224,7 +223,7 @@ export function PrintScreenV2({
             />
           </Section>
           <Section>
-            <H3>Language</H3>
+            <strong>Language</strong>
             <RadioGroup
               hideLabel
               label="Language"
@@ -265,7 +264,7 @@ export function PrintScreenV2({
             gap: '0.5rem',
           }}
         >
-          <H6 style={{ fontSize: '1rem' }}>Copies</H6>
+          <strong>Copies:</strong>
           <CopiesBar>
             {/* <CopiesButton
               fill="outlined"
@@ -304,9 +303,9 @@ export function PrintScreenV2({
           icon="Print"
           color="primary"
           fill="filled"
-          style={{ width: '14rem' }}
+          style={{ width: '14rem', height: '3rem', fontSize: '1.1rem' }}
         >
-          Print Selection
+          Print Ballot
         </Button>
       </PrintFooter>
     </Container>
