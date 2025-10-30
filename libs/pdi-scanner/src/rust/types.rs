@@ -1,3 +1,4 @@
+use std::backtrace::Backtrace as Trace;
 use tokio::sync::mpsc::error::TryRecvError;
 
 #[derive(Debug, thiserror::Error)]
@@ -14,8 +15,8 @@ pub enum UsbError {
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("usb error: {0}")]
-    Usb(#[from] UsbError),
+    #[error("usb error: {source}\nBacktrace:\n{trace}")]
+    Usb { source: UsbError, trace: Trace },
 
     #[error("failed to validate request: {0}")]
     ValidateRequest(String),
@@ -33,14 +34,23 @@ pub enum Error {
     Utf8(#[from] std::str::Utf8Error),
 }
 
+impl From<UsbError> for Error {
+    fn from(err: UsbError) -> Self {
+        Self::Usb {
+            source: err,
+            trace: Trace::capture(),
+        }
+    }
+}
+
 impl From<nusb::Error> for Error {
     fn from(err: nusb::Error) -> Self {
-        Self::Usb(UsbError::Nusb(err))
+        UsbError::Nusb(err).into()
     }
 }
 impl From<nusb::transfer::TransferError> for Error {
     fn from(err: nusb::transfer::TransferError) -> Self {
-        Self::Usb(UsbError::NusbTransfer(err))
+        UsbError::NusbTransfer(err).into()
     }
 }
 

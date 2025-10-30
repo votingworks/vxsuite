@@ -7,7 +7,6 @@ use crate::{
         AutoRunOutAtEndOfScanBehavior, Direction, DoubleFeedDetectionMode, EjectPauseMode,
         FeederMode, PickOnCommandMode, Side,
     },
-    types::UsbError,
     Error, Result,
 };
 
@@ -74,16 +73,17 @@ impl<T> Client<T> {
         let id = self.id;
         self.id = self.id.wrapping_add(1);
         self.host_to_scanner_tx.send((id, packet)).map_err(|_| {
-            Error::Usb(UsbError::Nusb(nusb::Error::new(
+            Error::from(nusb::Error::new(
                 io::ErrorKind::ConnectionAborted,
                 "failed to send packet to scanner (host to scanner channel closed)",
-            )))
+            ))
         })?;
         let Some(ack_id) = self.host_to_scanner_ack_rx.recv().await else {
-            return Err(Error::Usb(UsbError::Nusb(nusb::Error::new(
+            return Err(nusb::Error::new(
                 io::ErrorKind::ConnectionAborted,
                 "failed to receive ack from scanner (host to scanner ack channel closed)",
-            ))));
+            )
+            .into());
         };
         assert_eq!(id, ack_id);
         Ok(())
