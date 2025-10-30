@@ -873,8 +873,8 @@ describe('candidate ordering', () => {
     expect(buttons).toHaveLength(2);
 
     // Check that candidates appear in ballot style 1-1 order
-    expect(within(buttons[0]).getByText('Sherlock Holmes')).toBeInTheDocument();
-    expect(within(buttons[1]).getByText('Thomas Edison')).toBeInTheDocument();
+    within(buttons[0]).getByText('Sherlock Holmes');
+    within(buttons[1]).getByText('Thomas Edison');
   });
 
   test('renders candidates in different order for different ballot style', () => {
@@ -904,8 +904,8 @@ describe('candidate ordering', () => {
     expect(buttons).toHaveLength(2);
 
     // Check that candidates appear in ballot style 1-2 order (reversed from 1-1)
-    expect(within(buttons[0]).getByText('Thomas Edison')).toBeInTheDocument();
-    expect(within(buttons[1]).getByText('Sherlock Holmes')).toBeInTheDocument();
+    within(buttons[0]).getByText('Thomas Edison');
+    within(buttons[1]).getByText('Sherlock Holmes');
   });
 
   test('renders candidates in rotated order for multi-candidate contest', () => {
@@ -933,11 +933,9 @@ describe('candidate ordering', () => {
 
     const buttons = screen.getAllByRole('option');
     expect(buttons).toHaveLength(3);
-    expect(
-      within(buttons[0]).getByText('Winston Churchill')
-    ).toBeInTheDocument();
-    expect(within(buttons[1]).getByText('Oprah Winfrey')).toBeInTheDocument();
-    expect(within(buttons[2]).getByText('Louis Armstrong')).toBeInTheDocument();
+    within(buttons[0]).getByText('Winston Churchill');
+    within(buttons[1]).getByText('Oprah Winfrey');
+    within(buttons[2]).getByText('Louis Armstrong');
   });
 
   test('uses original candidate order when no ordering specified for ballot style', () => {
@@ -983,9 +981,9 @@ describe('candidate ordering', () => {
     expect(buttons).toHaveLength(3);
 
     // Check that candidates appear in original order
-    expect(within(buttons[0]).getByText('Alice')).toBeInTheDocument();
-    expect(within(buttons[1]).getByText('Bob')).toBeInTheDocument();
-    expect(within(buttons[2]).getByText('Carol')).toBeInTheDocument();
+    within(buttons[0]).getByText('Alice');
+    within(buttons[1]).getByText('Bob');
+    within(buttons[2]).getByText('Carol');
   });
 });
 
@@ -1017,7 +1015,7 @@ describe('cross-endorsed candidates', () => {
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
-          candidatesOrderedByContest: {
+          orderedCandidatesByContest: {
             governor: [
               { id: 'alice', partyIds: ['0'] }, // Alice as Democrat
               { id: 'bob', partyIds: ['2'] },
@@ -1042,15 +1040,15 @@ describe('cross-endorsed candidates', () => {
     expect(buttons).toHaveLength(3);
 
     // Check that Alice appears twice with different party affiliations
-    expect(within(buttons[0]).getByText('Alice Anderson')).toBeInTheDocument();
-    expect(within(buttons[0]).getByText('Federalist')).toBeInTheDocument();
-    expect(within(buttons[0]).queryByText("People's")).not.toBeInTheDocument();
+    within(buttons[0]).getByText('Alice Anderson');
+    within(buttons[0]).getByText('Federalist');
+    expect(within(buttons[0]).queryByText(/People/)).not.toBeInTheDocument();
 
-    expect(within(buttons[1]).getByText('Bob Brown')).toBeInTheDocument();
-    expect(within(buttons[1]).getByText('Liberty')).toBeInTheDocument();
+    within(buttons[1]).getByText('Bob Brown');
+    within(buttons[1]).getByText('Liberty');
 
-    expect(within(buttons[2]).getByText('Alice Anderson')).toBeInTheDocument();
-    expect(within(buttons[2]).getByText("People's")).toBeInTheDocument();
+    within(buttons[2]).getByText('Alice Anderson');
+    within(buttons[2]).getByText(/People/);
     expect(
       within(buttons[2]).queryByText('Federalist')
     ).not.toBeInTheDocument();
@@ -1083,7 +1081,7 @@ describe('cross-endorsed candidates', () => {
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
-          candidatesOrderedByContest: {
+          orderedCandidatesByContest: {
             governor: [
               { id: 'alice', partyIds: ['0', '1'] }, // Alice with both parties
               { id: 'bob', partyIds: ['2'] },
@@ -1107,12 +1105,12 @@ describe('cross-endorsed candidates', () => {
     expect(buttons).toHaveLength(2);
 
     // Check that Alice appears once with both party affiliations
-    expect(within(buttons[0]).getByText('Alice Anderson')).toBeInTheDocument();
-    expect(within(buttons[0]).getByText('Federalist')).toBeInTheDocument();
-    expect(within(buttons[0]).getByText("People's")).toBeInTheDocument();
+    within(buttons[0]).getByText('Alice Anderson');
+    within(buttons[0]).getByText('Federalist');
+    within(buttons[0]).getByText(/People/);
 
-    expect(within(buttons[1]).getByText('Bob Brown')).toBeInTheDocument();
-    expect(within(buttons[1]).getByText('Liberty')).toBeInTheDocument();
+    within(buttons[1]).getByText('Bob Brown');
+    within(buttons[1]).getByText('Liberty');
   });
 
   test('selecting cross-endorsed candidate shown twice only allows one selection', () => {
@@ -1142,7 +1140,7 @@ describe('cross-endorsed candidates', () => {
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
-          candidatesOrderedByContest: {
+          orderedCandidatesByContest: {
             governor: [
               { id: 'alice', partyIds: ['0'] },
               { id: 'bob', partyIds: ['2'] },
@@ -1173,7 +1171,7 @@ describe('cross-endorsed candidates', () => {
       {
         id: 'alice',
         name: 'Alice Anderson',
-        partyIds: ['0'],
+        partyIds: ['0', '1'], // Full party IDs from candidate definition, will change in the future
       },
     ]);
   });
