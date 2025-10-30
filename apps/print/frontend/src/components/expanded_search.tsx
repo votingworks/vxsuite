@@ -41,7 +41,7 @@ const SearchBox = styled.div`
   }
 `;
 
-const StringSnippets = styled.div`
+export const StringSnippets = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
@@ -51,21 +51,22 @@ const StringSnippets = styled.div`
     inset 0 -0.15rem 0.2rem #00000008;
 `;
 
-const SideBar = styled.div`
+export const SideBar = styled.div`
   align-self: start;
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
-  border: 1px solid #ccc;
-  box-shadow:
-    0.05rem 0.075rem 0.1rem 0 #00000010,
-    0.1rem 0.15rem 0.1rem 0.05rem #00000004,
-    0.15rem 0.25rem 0.125rem 0.075rem #00000002;
+  border: 1px solid ${(p) => p.theme.colors.outline};
+  // box-shadow:
+  //   0.05rem 0.075rem 0.1rem 0 #00000010,
+  //   0.1rem 0.15rem 0.1rem 0.05rem #00000004,
+  //   0.15rem 0.25rem 0.125rem 0.075rem #00000002;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   max-height: 100%;
   overflow: hidden;
-  width: max(40%, 40ch);
-  min-width: 30ch;
+  width: 100%;
+  // width: max(40%, 40ch);
+  // min-width: 30ch;
 `;
 
 const PrecinctSearchOption = styled.option`
@@ -109,7 +110,7 @@ const PrecinctSearchOption = styled.option`
   }
 `;
 
-function Option(props: {
+export function Option(props: {
   name: string;
   iSelected: boolean;
   onClick?: (name: string) => void;
