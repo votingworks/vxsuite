@@ -28,6 +28,7 @@ import {
   getPrecinctSplitById,
   getAllPrecinctsAndSplits,
   getOrderedCandidatesForContestInBallotStyle,
+  getCandidateVoteSortedForBallotStyleRotation,
 } from './election_utils';
 import {
   election,
@@ -41,6 +42,7 @@ import {
   BallotStyleSchema,
   CandidateContest,
   CandidateSchema,
+  CandidateVote,
   ElectionDefinitionSchema,
   PartyIdSchema,
   WriteInIdSchema,
@@ -1111,6 +1113,263 @@ test('getOrderedContests handles cross-endorsed candidates represented by one op
     name: 'Carol',
     partyIds: ['party-a'],
   });
+});
+
+test('getCandidateVoteSortedForBallotStyleRotation sorts votes according to ballot style rotation', () => {
+  const testContest: CandidateContest = {
+    type: 'candidate',
+    id: 'president',
+    districtId: 'D',
+    seats: 3,
+    title: 'President',
+    allowWriteIns: false,
+    candidates: [
+      { id: 'alice', name: 'Alice' },
+      { id: 'bob', name: 'Bob' },
+      { id: 'carol', name: 'Carol' },
+      { id: 'dave', name: 'Dave' },
+    ],
+  };
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      president: [
+        { id: 'carol' },
+        { id: 'dave' },
+        { id: 'alice' },
+        { id: 'bob' },
+      ],
+    },
+  };
+
+  // Vote in original order: alice, bob, carol
+  const inputVote: CandidateVote = [
+    { id: 'alice', name: 'Alice' },
+    { id: 'bob', name: 'Bob' },
+    { id: 'carol', name: 'Carol' },
+  ];
+
+  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+    inputVote,
+    contest: testContest,
+    ballotStyle: ballotStyleWithOrdering,
+  });
+
+  // Should be sorted according to ballot style ordering: carol, alice, bob
+  expect(sortedVote.map((c) => c.id)).toEqual(['carol', 'alice', 'bob']);
+});
+
+test('getCandidateVoteSortedForBallotStyleRotation preserves order when no rotation is specified', () => {
+  const testContest: CandidateContest = {
+    type: 'candidate',
+    id: 'president',
+    districtId: 'D',
+    seats: 3,
+    title: 'President',
+    allowWriteIns: false,
+    candidates: [
+      { id: 'alice', name: 'Alice' },
+      { id: 'bob', name: 'Bob' },
+      { id: 'carol', name: 'Carol' },
+    ],
+  };
+
+  const ballotStyleNoOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+  };
+
+  const inputVote: CandidateVote = [
+    { id: 'bob', name: 'Bob' },
+    { id: 'carol', name: 'Carol' },
+    { id: 'alice', name: 'Alice' },
+  ];
+
+  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+    inputVote,
+    contest: testContest,
+    ballotStyle: ballotStyleNoOrdering,
+  });
+
+  // Should preserve original vote order since contest candidates will be in original order
+  expect(sortedVote.map((c) => c.id)).toEqual(['alice', 'bob', 'carol']);
+});
+
+test('getCandidateVoteSortedForBallotStyleRotation handles write-in candidates at the end', () => {
+  const testContest: CandidateContest = {
+    type: 'candidate',
+    id: 'president',
+    districtId: 'D',
+    seats: 3,
+    title: 'President',
+    allowWriteIns: true,
+    candidates: [
+      { id: 'alice', name: 'Alice' },
+      { id: 'bob', name: 'Bob' },
+      { id: 'carol', name: 'Carol' },
+    ],
+  };
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
+    },
+  };
+
+  // Vote includes a write-in candidate
+  const inputVote: CandidateVote = [
+    { id: 'write-in-John', name: 'John Doe', isWriteIn: true },
+    { id: 'bob', name: 'Bob' },
+    { id: 'alice', name: 'Alice' },
+  ];
+
+  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+    inputVote,
+    contest: testContest,
+    ballotStyle: ballotStyleWithOrdering,
+  });
+
+  // Should sort regular candidates by ballot style order, write-in at the end
+  expect(sortedVote.map((c) => c.id)).toEqual([
+    'alice',
+    'bob',
+    'write-in-John',
+  ]);
+});
+
+test('getCandidateVoteSortedForBallotStyleRotation handles multiple write-in candidates', () => {
+  const testContest: CandidateContest = {
+    type: 'candidate',
+    id: 'president',
+    districtId: 'D',
+    seats: 4,
+    title: 'President',
+    allowWriteIns: true,
+    candidates: [
+      { id: 'alice', name: 'Alice' },
+      { id: 'bob', name: 'Bob' },
+    ],
+  };
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      president: [{ id: 'bob' }, { id: 'alice' }],
+    },
+  };
+
+  // Vote includes multiple write-in candidates
+  const inputVote: CandidateVote = [
+    { id: 'write-in-Jane', name: 'Jane Doe', isWriteIn: true },
+    { id: 'alice', name: 'Alice' },
+    { id: 'write-in-John', name: 'John Doe', isWriteIn: true },
+    { id: 'bob', name: 'Bob' },
+  ];
+
+  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+    inputVote,
+    contest: testContest,
+    ballotStyle: ballotStyleWithOrdering,
+  });
+
+  // Regular candidates sorted by ballot style order, write-ins preserve their relative order at the end
+  expect(sortedVote.map((c) => c.id)).toEqual([
+    'bob',
+    'alice',
+    'write-in-Jane',
+    'write-in-John',
+  ]);
+});
+
+test('getCandidateVoteSortedForBallotStyleRotation handles only write-in votes', () => {
+  const testContest: CandidateContest = {
+    type: 'candidate',
+    id: 'president',
+    districtId: 'D',
+    seats: 2,
+    title: 'President',
+    allowWriteIns: true,
+    candidates: [
+      { id: 'alice', name: 'Alice' },
+      { id: 'bob', name: 'Bob' },
+    ],
+  };
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      president: [{ id: 'bob' }, { id: 'alice' }],
+    },
+  };
+
+  // Vote only contains write-in candidates
+  const inputVote: CandidateVote = [
+    { id: 'write-in-John', name: 'John Doe', isWriteIn: true },
+    { id: 'write-in-Jane', name: 'Jane Doe', isWriteIn: true },
+  ];
+
+  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+    inputVote,
+    contest: testContest,
+    ballotStyle: ballotStyleWithOrdering,
+  });
+
+  // Should preserve original order of write-ins
+  expect(sortedVote.map((c) => c.id)).toEqual([
+    'write-in-John',
+    'write-in-Jane',
+  ]);
+});
+
+test('getCandidateVoteSortedForBallotStyleRotation handles empty vote', () => {
+  const testContest: CandidateContest = {
+    type: 'candidate',
+    id: 'president',
+    districtId: 'D',
+    seats: 2,
+    title: 'President',
+    allowWriteIns: false,
+    candidates: [
+      { id: 'alice', name: 'Alice' },
+      { id: 'bob', name: 'Bob' },
+    ],
+  };
+
+  const ballotStyleWithOrdering: BallotStyle = {
+    id: '1' as BallotStyleId,
+    groupId: '1',
+    districts: ['D'],
+    precincts: ['P'],
+    orderedCandidatesByContest: {
+      president: [{ id: 'bob' }, { id: 'alice' }],
+    },
+  };
+
+  const inputVote: CandidateVote = [];
+
+  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+    inputVote,
+    contest: testContest,
+    ballotStyle: ballotStyleWithOrdering,
+  });
+
+  expect(sortedVote).toEqual([]);
 });
 
 test('election validation throws when orderedCandidatesByContest references non-existent contest', () => {

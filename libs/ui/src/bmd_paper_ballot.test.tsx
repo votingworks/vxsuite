@@ -15,6 +15,7 @@ import {
   readElectionTwoPartyPrimaryDefinition,
   readElectionWithMsEitherNeitherDefinition,
   electionPrimaryPrecinctSplitsFixtures,
+  electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
@@ -42,6 +43,8 @@ const electionPrimaryPrecinctSplitsDefinition =
   electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
 const electionWithMsEitherNeitherDefinition =
   readElectionWithMsEitherNeitherDefinition();
+const electionFamousNamesDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => ({
   ...(await importActual()),
@@ -271,6 +274,29 @@ test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
   });
 
   screen.getByText(hasTextAcrossElements(/unused votes: 1/i));
+});
+
+test('BmdPaperBallot renders choices for multi-seat contests in rotated ballot style order', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionFamousNamesDefinition,
+    ballotStyleId: '1-1' as BallotStyleId,
+    precinctId: '20',
+    votes: {
+      'board-of-alderman': [
+        'wolfgang-amadeus-mozart',
+        'nikola-tesla',
+        'pablo-picasso',
+      ],
+    },
+  });
+  const candidateElements = screen.getAllByText(
+    /Wolfgang Amadeus Mozart|Nikola Tesla|Pablo Picasso/
+  );
+
+  // Verify the candidates appear in the rotated ballot style order
+  expect(candidateElements[0]).toHaveTextContent('Nikola Tesla');
+  expect(candidateElements[1]).toHaveTextContent('Pablo Picasso');
+  expect(candidateElements[2]).toHaveTextContent('Wolfgang Amadeus Mozart');
 });
 
 test('BmdPaperBallot renders seal', () => {

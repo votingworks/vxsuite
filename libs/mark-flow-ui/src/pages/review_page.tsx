@@ -13,7 +13,13 @@ import {
 
 import { assert } from '@votingworks/basics';
 
-import { ElectionDefinition, PrecinctId, VotesDict } from '@votingworks/types';
+import {
+  BallotStyleId,
+  ElectionDefinition,
+  PrecinctId,
+  VotesDict,
+  getBallotStyle,
+} from '@votingworks/types';
 import { Review, ReviewProps } from '../components/review';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { VoterScreen } from '../components/voter_screen';
@@ -26,6 +32,7 @@ export interface ReviewPageProps {
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
   precinctId?: PrecinctId;
+  ballotStyleId?: BallotStyleId;
   printScreenUrl: string;
   returnToContest?: ReviewProps['returnToContest'];
   votes: VotesDict;
@@ -36,6 +43,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     contests,
     electionDefinition,
     precinctId,
+    ballotStyleId,
     printScreenUrl,
     returnToContest,
     votes,
@@ -49,6 +57,15 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     typeof precinctId !== 'undefined',
     'precinctId is required to render ReviewPage'
   );
+  assert(
+    typeof ballotStyleId !== 'undefined',
+    'ballotStyleId is required to render ReviewPage'
+  );
+  const ballotStyle = getBallotStyle({
+    election: electionDefinition.election,
+    ballotStyleId,
+  });
+  assert(ballotStyle, `Ballot style with id ${ballotStyleId} not found`);
 
   const printMyBallotButton = (
     <LinkButton
@@ -89,6 +106,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           precinctId={precinctId}
           votes={votes}
           returnToContest={returnToContest}
+          ballotStyle={ballotStyle}
         />
       </WithScrollButtons>
     </VoterScreen>

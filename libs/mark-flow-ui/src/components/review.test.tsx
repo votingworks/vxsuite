@@ -26,6 +26,7 @@ test('renders', () => {
       precinctId={electionGeneral.precincts[0].id}
       votes={{}}
       returnToContest={vi.fn()}
+      ballotStyle={electionGeneral.ballotStyles[0]}
     />
   );
   expect(
@@ -46,6 +47,7 @@ test('candidate contest with no votes', () => {
       precinctId={electionGeneral.precincts[0].id}
       votes={{}}
       returnToContest={vi.fn()}
+      ballotStyle={electionGeneral.ballotStyles[0]}
     />
   );
   expect(screen.getByText('You may still vote in this contest.')).toBeTruthy();
@@ -64,6 +66,7 @@ test('candidate contest interpretation result with no votes', () => {
       selectionsAreEditable={false}
       precinctId={electionGeneral.precincts[0].id}
       returnToContest={vi.fn()}
+      ballotStyle={electionGeneral.ballotStyles[0]}
       votes={{}}
     />
   );
@@ -92,10 +95,83 @@ test('candidate contest with votes but still undervoted', () => {
         [contest.id]: [contest.candidates[0]],
       }}
       returnToContest={vi.fn()}
+      ballotStyle={electionGeneral.ballotStyles[0]}
     />
   );
 
   screen.getByText(hasTextAcrossElements(/number of unused votes: 2/i));
+});
+
+test('candidate contest with multiple votes are ordered properly', () => {
+  const contest: CandidateContest = {
+    ...find(
+      electionGeneral.contests,
+      (c): c is CandidateContest => c.type === 'candidate'
+    ),
+    seats: 3,
+  };
+
+  const contests = [contest];
+  render(
+    <Review
+      election={electionGeneral}
+      contests={contests}
+      precinctId={electionGeneral.precincts[0].id}
+      votes={{
+        [contest.id]: [
+          contest.candidates[0],
+          contest.candidates[3],
+          contest.candidates[2],
+        ],
+      }}
+      returnToContest={vi.fn()}
+      ballotStyle={{
+        ...electionGeneral.ballotStyles[0],
+        orderedCandidatesByContest: {
+          [contest.id]: [
+            {
+              id: contest.candidates[3].id,
+              partyIds: contest.candidates[3].partyIds,
+            },
+            {
+              id: contest.candidates[0].id,
+              partyIds: contest.candidates[0].partyIds,
+            },
+            {
+              id: contest.candidates[2].id,
+              partyIds: contest.candidates[2].partyIds,
+            },
+            {
+              id: contest.candidates[1].id,
+              partyIds: contest.candidates[1].partyIds,
+            },
+            {
+              id: contest.candidates[4].id,
+              partyIds: contest.candidates[4].partyIds,
+            },
+            {
+              id: contest.candidates[5].id,
+              partyIds: contest.candidates[5].partyIds,
+            },
+          ],
+        },
+      }}
+    />
+  );
+
+  // Find all rendered elements that contain any of the candidate names (escaped for regex),
+  // which returns elements in DOM order so we can assert their order.
+  function escapeRegex(s: string) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  const nameRegex = new RegExp(
+    `^(${contest.candidates.map((c) => escapeRegex(c.name)).join('|')})$`
+  );
+  const candidateNames = screen.getAllByText(nameRegex);
+
+  expect(candidateNames[0]).toHaveTextContent(contest.candidates[3].name);
+  expect(candidateNames[1]).toHaveTextContent(contest.candidates[0].name);
+  expect(candidateNames[2]).toHaveTextContent(contest.candidates[2].name);
 });
 
 test('candidate contest fully voted', () => {
@@ -113,6 +189,7 @@ test('candidate contest fully voted', () => {
         [contest.id]: contest.candidates.slice(0, contest.seats),
       }}
       returnToContest={vi.fn()}
+      ballotStyle={electionGeneral.ballotStyles[0]}
     />
   );
   expect(screen.queryByText(/You may still vote/)).not.toBeInTheDocument();
@@ -132,6 +209,7 @@ test('candidate contest - write-in', () => {
     <Review
       election={electionGeneral}
       contests={contests}
+      ballotStyle={electionGeneral.ballotStyles[0]}
       precinctId={electionGeneral.precincts[0].id}
       votes={{
         [contest.id]: [
@@ -170,6 +248,7 @@ test('candidate contest with term description', () => {
       election={election}
       contests={[contest]}
       precinctId={election.precincts[0].id}
+      ballotStyle={election.ballotStyles[0]}
       votes={{}}
       returnToContest={vi.fn()}
     />
@@ -194,6 +273,7 @@ describe('yesno contest', () => {
         <Review
           election={election}
           contests={contests}
+          ballotStyle={election.ballotStyles[0]}
           precinctId={election.precincts[0].id}
           votes={{
             [contest.id]: vote ? [vote] : [],
@@ -222,6 +302,7 @@ describe('yesno contest', () => {
       <Review
         election={electionGeneral}
         contests={[contest]}
+        ballotStyle={electionGeneral.ballotStyles[0]}
         selectionsAreEditable={false}
         precinctId={electionGeneral.precincts[0].id}
         returnToContest={vi.fn()}
@@ -271,6 +352,7 @@ describe('ms-either-neither contest', () => {
       <Review
         election={election}
         contests={contests}
+        ballotStyle={election.ballotStyles[0]}
         precinctId={election.precincts[0].id}
         votes={{
           '750000015': eitherNeitherVote ? [eitherNeitherVote] : [],
@@ -309,6 +391,7 @@ describe('ms-either-neither contest', () => {
       <Review
         contests={[mergedContest]}
         election={election}
+        ballotStyle={election.ballotStyles[0]}
         selectionsAreEditable={false}
         precinctId={election.precincts[0].id}
         returnToContest={vi.fn()}
@@ -337,6 +420,7 @@ describe('keyboard navigation', () => {
           election={electionGeneral}
           contests={contests}
           precinctId={electionGeneral.precincts[0].id}
+          ballotStyle={electionGeneral.ballotStyles[0]}
           votes={{}}
           returnToContest={returnToContestStub}
         />
