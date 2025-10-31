@@ -131,6 +131,7 @@ const MAX_TRANSFER_IN_ATTEMPTS = 20;
 const MAX_USB_RECONNECTION_ATTEMPTS = 3;
 const USB_RECONNECTION_DELAY_MS = 1000;
 const USB_RECONNECTION_BACKOFF_MULTIPLIER = 2;
+const DEFAULT_LINE_SPACING = 0;
 
 export enum ReturnCodes {
   POSITIVE_ACKNOWLEDGEMENT = 0x06,
@@ -178,6 +179,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   private readonly realTimeLock = new Mutex();
   private readonly reconnectionLock = new Mutex();
   private readonly scannerConfig: ScannerConfig = getDefaultConfig();
+  // webDevice is mutable to allow reconnection after USB disconnection
   private webDevice: MinimalWebUsbDevice;
   private readonly maxPrintWidthDots: MaxPrintWidthDots;
   private isReconnecting = false;
@@ -219,10 +221,10 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     if (!(error instanceof Error)) {
       return false;
     }
-    
+
     const errorMessage = error.message.toLowerCase();
     const errorString = String(error).toLowerCase();
-    
+
     // Specific USB disconnection error patterns from libusb
     // Note: LIBUSB_ERROR_IO is intentionally excluded as it's too broad and
     // can indicate other non-disconnection I/O errors
@@ -289,7 +291,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
           try {
             // Re-initialize the device to restore settings
             await this.initializePrinter();
-            await this.setLineSpacing(0);
+            await this.setLineSpacing(DEFAULT_LINE_SPACING);
           } finally {
             this.isReconnecting = false;
           }
