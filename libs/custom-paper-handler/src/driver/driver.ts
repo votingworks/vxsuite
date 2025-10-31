@@ -299,9 +299,6 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
           debug('Successfully reconnected to USB device');
           return true;
         } catch (error) {
-          // Ensure flag is reset even if re-initialization fails
-          this.isReconnecting = false;
-          
           debug(
             `Reconnection attempt ${attempt} failed: ${
               error instanceof Error ? error.message : String(error)
