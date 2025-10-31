@@ -61,7 +61,7 @@ const Container = styled.div`
     0.15rem 0.25rem 0.125rem 0.075rem #00000002;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  // flex-grow: 1;
   max-height: 100%;
   overflow: hidden;
   width: 100%;

@@ -139,28 +139,25 @@ export function PrintScreen({
               }}
             />
           </Section>
+        </Column>
+        <Column>
           {showSplits && (
-            <Section style={{ flex: 1 }}>
-              <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
-              <ExpandedSearch
-                searchResults={availableSplits
-                  // .concat(availableSplits)
-                  .map((split) => split.name)
-                  .filter(
-                    (split) =>
-                      !searchValue ||
-                      split.toLowerCase().includes(searchValue.toLowerCase())
-                  )}
-                // searchValue={searchValue}
-                selectedValue={selectedSplitName}
-                onSelect={(value) => {
-                  setSelectedSplitName(value);
-                }}
+            <Section>
+              <strong>Split</strong>
+              <RadioGroup
+                value={selectedSplitName}
+                hideLabel
+                label="Split"
+                options={availableSplits.map((split) => ({
+                  label: split.name,
+                  value: split.name,
+                }))}
+                onChange={(value: string) =>
+                  setSelectedSplitName(value === selectedSplitName ? '' : value)
+                }
               />
             </Section>
           )}
-        </Column>
-        <Column>
           <Section>
             <strong>Party</strong>
             <RadioGroup
