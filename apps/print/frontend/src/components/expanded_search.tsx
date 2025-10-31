@@ -41,7 +41,7 @@ const SearchBox = styled.div`
   }
 `;
 
-const SearchResults = styled.div`
+const OptionList = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
@@ -61,7 +61,7 @@ const Container = styled.div`
     0.15rem 0.25rem 0.125rem 0.075rem #00000002;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  // flex-grow: 1;
   max-height: 100%;
   overflow: hidden;
   width: 100%;
@@ -135,26 +135,28 @@ export function ExpandedSearch({
 }: {
   selectedValue: string;
   searchResults: string[];
-  onSearch: (value: string) => void;
+  onSearch?: (value: string) => void;
   onSelect: (selected: string) => void;
 }): JSX.Element {
   return (
     <Container>
-      <SearchBox>
-        <Icons.Search />
-        <input
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            const newSearchString = (event.target.value || '').trim();
-            onSearch(newSearchString);
-          }}
-          placeholder="Search"
-          type="text"
-          //   defaultValue="Select precinct"
-        />
-      </SearchBox>
-      <SearchResults>
+      {onSearch && (
+        <SearchBox>
+          <Icons.Search />
+          <input
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const newSearchString = (event.target.value || '').trim();
+              onSearch(newSearchString);
+            }}
+            placeholder="Search"
+            type="text"
+            //   defaultValue="Select precinct"
+          />
+        </SearchBox>
+      )}
+      <OptionList>
         {searchResults.map((result) => (
           <Option
             key={result}
@@ -163,7 +165,7 @@ export function ExpandedSearch({
             onClick={onSelect}
           />
         ))}
-      </SearchResults>
+      </OptionList>
     </Container>
   );
 }

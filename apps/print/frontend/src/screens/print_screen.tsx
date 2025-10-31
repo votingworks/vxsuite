@@ -9,12 +9,17 @@ const Column = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+
+  overflow-y: hidden;
 `;
 
 const Section = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+
+  overflow-y: auto;
+  max-height: 100%;
 `;
 
 const Container = styled.div`
@@ -30,17 +35,13 @@ const Container = styled.div`
 const ContentArea = styled.div`
   flex: 1;
   overflow-y: auto;
+  height: calc(100% - 4rem - 2rem - 4rem);
 
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 
   padding: 1rem;
-`;
-
-const StyledSegmentedButton = styled(SegmentedButton)`
-  // height: 70px;
-  margin-bottom: 0.75rem;
 `;
 
 const PrintAllButton = styled(Button)`
@@ -86,7 +87,7 @@ export function PrintScreen({
 
   const [searchValue, setSearchValue] = useState<string>('');
   const [selectedPrecinctName, setSelectedPrecinctName] = useState<string>('');
-  const [selectedSplitId, setSelectedSplitId] = useState<string | undefined>();
+  const [selectedSplitName, setSelectedSplitName] = useState<string>('');
   const [selectedParty, setSelectedParty] = useState<string | undefined>();
   const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(
     'English'
@@ -102,9 +103,11 @@ export function PrintScreen({
       ? selectedPrecinct.splits
       : [];
 
+  const showSplits = availableSplits.length > 0;
+
   // Clear split selection when precinct changes
   useEffect(() => {
-    setSelectedSplitId(undefined);
+    setSelectedSplitName('');
   }, [selectedPrecinctName]);
 
   const languages = ['English', 'Spanish'];
@@ -114,10 +117,12 @@ export function PrintScreen({
     <Container>
       <ContentArea>
         <Column>
-          <Section>
+          <Section style={{ flex: 1.2 }}>
             <strong>Precinct</strong>
             <ExpandedSearch
               searchResults={precincts
+                // .concat(precincts)
+                // .concat(precincts)
                 .map((p) => p.name)
                 .filter(
                   (precinct) =>
@@ -131,32 +136,33 @@ export function PrintScreen({
               }}
               onSelect={(value) => {
                 setSelectedPrecinctName(value);
-                setSelectedSplitId(undefined);
+                setSelectedSplitName('');
                 setSelectedParty(undefined);
               }}
             />
           </Section>
-        </Column>
-        <Column>
-          {availableSplits.length > 0 && (
-            <Section>
-              <strong>Split</strong>
-              <RadioGroup
-                value={selectedSplitId}
-                hideLabel
-                label="Split"
-                options={availableSplits.map((split) => ({
-                  label: split.name,
-                  value: split.id,
-                }))}
-                onChange={(value: string) =>
-                  setSelectedSplitId(
-                    value === selectedSplitId ? undefined : value
-                  )
-                }
+          {showSplits && (
+            <Section style={{ flex: 1 }}>
+              <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
+              <ExpandedSearch
+                searchResults={availableSplits
+                  // .concat(availableSplits)
+                  .map((split) => split.name)
+                  .filter(
+                    (split) =>
+                      !searchValue ||
+                      split.toLowerCase().includes(searchValue.toLowerCase())
+                  )}
+                // searchValue={searchValue}
+                selectedValue={selectedSplitName}
+                onSelect={(value) => {
+                  setSelectedSplitName(value);
+                }}
               />
             </Section>
           )}
+        </Column>
+        <Column>
           <Section>
             <strong>Party</strong>
             <RadioGroup
@@ -187,8 +193,8 @@ export function PrintScreen({
             />
           </Section>
           <Section>
-            <strong style={{ marginBottom: 0 }}>Ballot Type</strong>
-            <StyledSegmentedButton
+            <strong style={{ marginBottom: '-0.25rem' }}>Ballot Type</strong>
+            <SegmentedButton
               label=""
               onChange={(newValue) => {
                 setIsAbsentee(newValue === 'absentee');
@@ -221,7 +227,7 @@ export function PrintScreen({
           onPress={() =>
             console.log(
               `Printing ballot style: ${selectedPrecinctName}, ${selectedParty}, ${selectedLanguage}${
-                selectedSplitId ? `, ${selectedSplitId}` : ''
+                selectedSplitName ? `, ${selectedSplitName}` : ''
               }`
             )
           }
@@ -229,7 +235,7 @@ export function PrintScreen({
             !selectedPrecinctName ||
             !selectedLanguage ||
             !selectedParty ||
-            (availableSplits.length > 0 && !selectedSplitId)
+            (availableSplits.length > 0 && !selectedSplitName)
           }
           icon="Print"
           color="primary"
