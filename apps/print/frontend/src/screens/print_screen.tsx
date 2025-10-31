@@ -44,12 +44,6 @@ const ContentArea = styled.div`
   padding: 1rem;
 `;
 
-const PrintAllButton = styled(Button)`
-  width: 12rem;
-  margin-right: auto;
-  padding-left: 1rem;
-`;
-
 const CopiesContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -74,6 +68,10 @@ const PrintFooter = styled.div`
 
   gap: 1rem;
   padding: 0.5rem 1rem;
+`;
+
+const StyledSegmentedButton = styled(SegmentedButton)`
+  margin-top: -0.5rem;
 `;
 
 export function PrintScreen({
@@ -192,30 +190,23 @@ export function PrintScreen({
               }}
             />
           </Section>
-          <Section>
-            <strong style={{ marginBottom: '-0.25rem' }}>Ballot Type</strong>
-            <SegmentedButton
-              label=""
-              onChange={(newValue) => {
-                setIsAbsentee(newValue === 'absentee');
-              }}
-              selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
-              options={[
-                { label: 'Precinct', id: 'precinct' },
-                { label: 'Absentee', id: 'absentee' },
-              ]}
-            />
-          </Section>
         </Column>
       </ContentArea>
       <PrintFooter>
-        <PrintAllButton
-          color="neutral"
-          fill="outlined"
-          onPress={() => console.log('Print all ballot styles')}
-        >
-          Print All Ballot Styles
-        </PrintAllButton>
+        <CopiesContainer style={{ marginRight: 'auto' }}>
+          <strong>Ballot Type:</strong>
+          <StyledSegmentedButton
+            label=""
+            onChange={(newValue) => {
+              setIsAbsentee(newValue === 'absentee');
+            }}
+            selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
+            options={[
+              { label: 'Precinct', id: 'precinct' },
+              { label: 'Absentee', id: 'absentee' },
+            ]}
+          />
+        </CopiesContainer>
         <CopiesContainer>
           <strong>Copies:</strong>
           <NumberInput

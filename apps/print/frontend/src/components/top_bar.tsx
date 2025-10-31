@@ -1,4 +1,4 @@
-import { H1, MainHeader } from '@votingworks/ui';
+import { Button, H1, MainHeader } from '@votingworks/ui';
 import styled from 'styled-components';
 
 export const ButtonRow = styled.div`
@@ -14,12 +14,28 @@ export const Header = styled(MainHeader)`
   justify-content: space-between;
   gap: 0.5rem;
   height: 4rem;
+  width: 100%;
+`;
+
+const PrintAllButton = styled(Button)`
+  width: 12rem;
+  // margin-right: auto;
+  padding-left: 1rem;
 `;
 
 export function TopBar({ title }: { title: string }): JSX.Element | null {
   return (
     <Header>
       <div>{title && <H1>{title}</H1>}</div>
+      {title === 'Print' && (
+        <PrintAllButton
+          color="neutral"
+          fill="outlined"
+          onPress={() => console.log('Print all ballot styles')}
+        >
+          Print All Ballot Styles
+        </PrintAllButton>
+      )}
     </Header>
   );
 }
