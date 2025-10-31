@@ -6,7 +6,6 @@ import {
   ElectionManagerWrapper,
 } from '../wrappers/election_manager_wrapper';
 import { PrintScreen } from '../screens/print_screen';
-import { PrintScreenV2 } from '../screens/print_screen_v2';
 import { unconfigureMachine } from '../api';
 
 export interface ElectionManagerScreenProps {
@@ -22,19 +21,6 @@ export function ElectionManagerPrintScreen({
       title="Print"
     >
       <PrintScreen electionDefinition={electionDefinition} />
-    </ElectionManagerWrapper>
-  );
-}
-
-export function ElectionManagerPrintV2Screen({
-  electionDefinition,
-}: ElectionManagerScreenProps): JSX.Element | null {
-  return (
-    <ElectionManagerWrapper
-      electionDefinition={electionDefinition}
-      title="Print"
-    >
-      <PrintScreenV2 electionDefinition={electionDefinition} />
     </ElectionManagerWrapper>
   );
 }
@@ -79,14 +65,6 @@ export function ElectionManagerScreen({
         path={electionManagerRoutes.print.path}
         render={() => (
           <ElectionManagerPrintScreen electionDefinition={electionDefinition} />
-        )}
-      />
-      <Route
-        path={electionManagerRoutes.printV2.path}
-        render={() => (
-          <ElectionManagerPrintV2Screen
-            electionDefinition={electionDefinition}
-          />
         )}
       />
       <Route

@@ -14,8 +14,7 @@ import { ElectionDefinition } from '@votingworks/types/src/election';
 import { TopBar } from '../components/top_bar';
 
 export const electionManagerRoutes = {
-  printV2: { title: 'Print', path: '/print-v2' },
-  print: { title: 'Print v3', path: '/print' },
+  print: { title: 'Print', path: '/print' },
   election: { title: 'Election', path: '/election' },
   settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
