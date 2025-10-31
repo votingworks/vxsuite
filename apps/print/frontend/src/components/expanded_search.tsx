@@ -1,6 +1,6 @@
-import { DesktopPalette, Icons } from '@votingworks/ui';
 import React from 'react';
 
+import { DesktopPalette, Icons } from '@votingworks/ui';
 import styled from 'styled-components';
 
 const SearchBox = styled.div`
@@ -41,7 +41,7 @@ const SearchBox = styled.div`
   }
 `;
 
-const StringSnippets = styled.div`
+const SearchResults = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
@@ -51,7 +51,7 @@ const StringSnippets = styled.div`
     inset 0 -0.15rem 0.2rem #00000008;
 `;
 
-const SideBar = styled.div`
+const Container = styled.div`
   align-self: start;
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   border: 1px solid #ccc;
@@ -139,7 +139,7 @@ export function ExpandedSearch({
   onSelect: (selected: string) => void;
 }): JSX.Element {
   return (
-    <SideBar>
+    <Container>
       <SearchBox>
         <Icons.Search />
         <input
@@ -154,7 +154,7 @@ export function ExpandedSearch({
           //   defaultValue="Select precinct"
         />
       </SearchBox>
-      <StringSnippets>
+      <SearchResults>
         {searchResults.map((result) => (
           <Option
             key={result}
@@ -163,7 +163,7 @@ export function ExpandedSearch({
             onClick={onSelect}
           />
         ))}
-      </StringSnippets>
-    </SideBar>
+      </SearchResults>
+    </Container>
   );
 }

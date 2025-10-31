@@ -1,15 +1,9 @@
 import { ElectionDefinition, hasSplits } from '@votingworks/types';
 import { Button, RadioGroup, SegmentedButton } from '@votingworks/ui';
-import React from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ExpandedSearch } from '../components/expanded_search';
 import { NumberInput } from '../components/number_input';
-
-// const Row = styled.div`
-//   display: flex;
-//   flex-wrap: nowrap;
-//   gap: 0.5rem;
-// `;
 
 const Column = styled.div`
   display: flex;
@@ -33,19 +27,6 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-// const HeaderBar = styled.div`
-//   height: 4rem;
-//   flex-shrink: 0;
-//   border-bottom: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
-//     ${(p) => p.theme.colors.outline};
-//   background-color: ${(p) => p.theme.colors.containerLow};
-
-//   display: flex;
-//   align-items: center;
-//   justify-content: flex-end;
-//   padding-right: 2rem;
-// `;
-
 const ContentArea = styled.div`
   flex: 1;
   overflow-y: auto;
@@ -57,17 +38,23 @@ const ContentArea = styled.div`
   padding: 1rem;
 `;
 
-const PrintAllContainer = styled.div`
-  margin-right: auto;
-  border-right: 1px solid ${(p) => p.theme.colors.outline};
-  padding: 0.5rem 1rem 0.5rem 0;
-
-  // margin-top: auto;
-`;
-
 const StyledSegmentedButton = styled(SegmentedButton)`
   // height: 70px;
   margin-bottom: 0.75rem;
+`;
+
+const PrintAllButton = styled(Button)`
+  width: 12rem;
+  margin-right: auto;
+  padding-left: 1rem;
+`;
+
+const CopiesContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 `;
 
 const PrintFooter = styled.div`
@@ -88,24 +75,6 @@ const PrintFooter = styled.div`
   padding: 0.5rem 1rem;
 `;
 
-const CopiesBar = styled.div`
-  // width: 2.25rem;
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: start;
-  gap: 1rem;
-
-  color: ${(p) => p.theme.colors.onBackgroundMuted};
-
-  div {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: ${(p) => p.theme.colors.onBackground};
-  }
-`;
-
 export function PrintScreen({
   electionDefinition,
 }: {
@@ -113,35 +82,28 @@ export function PrintScreen({
 }): JSX.Element | null {
   const { election } = electionDefinition;
   const precincts = election.precincts || [];
-  const [numCopies, setNumCopies] = React.useState(1);
+  const [numCopies, setNumCopies] = useState(1);
 
-  const [searchValue, setSearchValue] = React.useState<string>('');
-  const [selectedPrecinctName, setSelectedPrecinctName] =
-    React.useState<string>('');
-  const [selectedSplitId, setSelectedSplitId] = React.useState<
-    string | undefined
-  >();
-  const [selectedParty, setSelectedParty] = React.useState<
-    string | undefined
-  >();
-  const [selectedLanguage, setSelectedLanguage] = React.useState<
-    string | undefined
-  >('English');
-  const [isAbsentee, setIsAbsentee] = React.useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [selectedPrecinctName, setSelectedPrecinctName] = useState<string>('');
+  const [selectedSplitId, setSelectedSplitId] = useState<string | undefined>();
+  const [selectedParty, setSelectedParty] = useState<string | undefined>();
+  const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(
+    'English'
+  );
+  const [isAbsentee, setIsAbsentee] = useState<boolean>(false);
 
-  // Get the selected precinct object
   const selectedPrecinct = selectedPrecinctName
     ? precincts.find((p) => p.name === selectedPrecinctName)
     : undefined;
 
-  // Get available splits for the selected precinct
   const availableSplits =
     selectedPrecinct && hasSplits(selectedPrecinct)
       ? selectedPrecinct.splits
       : [];
 
   // Clear split selection when precinct changes
-  React.useEffect(() => {
+  useEffect(() => {
     setSelectedSplitId(undefined);
   }, [selectedPrecinctName]);
 
@@ -150,23 +112,8 @@ export function PrintScreen({
 
   return (
     <Container>
-      {/* <HeaderBar></HeaderBar> */}
       <ContentArea>
         <Column>
-          <Section>
-            <strong style={{ marginBottom: 0 }}>Ballot Type</strong>
-            <StyledSegmentedButton
-              label=""
-              onChange={(newValue) => {
-                setIsAbsentee(newValue === 'absentee');
-              }}
-              selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
-              options={[
-                { label: 'Precinct', id: 'precinct' },
-                { label: 'Absentee', id: 'absentee' },
-              ]}
-            />
-          </Section>
           <Section>
             <strong>Precinct</strong>
             <ExpandedSearch
@@ -233,59 +180,43 @@ export function PrintScreen({
               }))}
               value={selectedLanguage}
               onChange={(value: string) => {
-                console.log(value);
                 setSelectedLanguage(
                   value === selectedLanguage ? undefined : value
                 );
               }}
             />
           </Section>
+          <Section>
+            <strong style={{ marginBottom: 0 }}>Ballot Type</strong>
+            <StyledSegmentedButton
+              label=""
+              onChange={(newValue) => {
+                setIsAbsentee(newValue === 'absentee');
+              }}
+              selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
+              options={[
+                { label: 'Precinct', id: 'precinct' },
+                { label: 'Absentee', id: 'absentee' },
+              ]}
+            />
+          </Section>
         </Column>
       </ContentArea>
       <PrintFooter>
-        <PrintAllContainer>
-          <Button
-            color="neutral"
-            fill="outlined"
-            onPress={() => console.log('Print all ballot styles')}
-            style={{ width: '12rem' }}
-          >
-            Print All Ballot Styles
-          </Button>
-        </PrintAllContainer>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            // alignSelf: 'start',
-
-            gap: '0.5rem',
-          }}
+        <PrintAllButton
+          color="neutral"
+          fill="outlined"
+          onPress={() => console.log('Print all ballot styles')}
         >
+          Print All Ballot Styles
+        </PrintAllButton>
+        <CopiesContainer>
           <strong>Copies:</strong>
-          <CopiesBar>
-            {/* <CopiesButton
-              fill="outlined"
-              color="neutral"
-              onPress={() => setNumCopies((prev) => (prev > 1 ? prev - 1 : 1))}
-            >
-              –
-            </CopiesButton> */}
-            <NumberInput
-              value={numCopies}
-              onChange={(value) => setNumCopies(value || 0)}
-            />
-            {/* <CopiesButton
-              fill="outlined"
-              color="neutral"
-              onPress={() => setNumCopies((prev) => prev + 1)}
-            >
-              +
-            </CopiesButton> */}
-          </CopiesBar>
-        </div>
+          <NumberInput
+            value={numCopies}
+            onChange={(value) => setNumCopies(value || 0)}
+          />
+        </CopiesContainer>
         <Button
           onPress={() =>
             console.log(
