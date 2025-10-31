@@ -12,6 +12,7 @@ import {
 import { Link, useRouteMatch } from 'react-router-dom';
 import { ElectionDefinition } from '@votingworks/types/src/election';
 import { TopBar } from '../components/top_bar';
+import { Toolbar } from '../components/toolbar';
 
 export const electionManagerRoutes = {
   print: { title: 'Print', path: '/print' },
@@ -61,6 +62,7 @@ export function ElectionManagerWrapper({
         </div>
       </LeftNav>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+        <Toolbar />
         <TopBar title={title} />
         <Main centerChild={centerChild}>{children}</Main>
       </div>

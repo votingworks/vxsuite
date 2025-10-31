@@ -1,10 +1,5 @@
-import { H1, UsbControllerButton, Button, MainHeader } from '@votingworks/ui';
-import {
-  isSystemAdministratorAuth,
-  isElectionManagerAuth,
-} from '@votingworks/utils';
+import { H1, MainHeader } from '@votingworks/ui';
 import styled from 'styled-components';
-import { getAuthStatus, logOut } from '../api';
 
 export const ButtonRow = styled.div`
   display: flex;
@@ -22,30 +17,9 @@ export const Header = styled(MainHeader)`
 `;
 
 export function TopBar({ title }: { title: string }): JSX.Element | null {
-  const authQuery = getAuthStatus.useQuery();
-  const logOutMutation = logOut.useMutation();
-  let showButtonRow = false;
-  if (authQuery.isSuccess) {
-    showButtonRow =
-      isSystemAdministratorAuth(authQuery.data) ||
-      isElectionManagerAuth(authQuery.data);
-  }
   return (
     <Header>
       <div>{title && <H1>{title}</H1>}</div>
-      {showButtonRow && (
-        <ButtonRow>
-          <UsbControllerButton
-            usbDriveEject={() => console.log('TODO: Eject USB Drive')}
-            usbDriveStatus={{ status: 'no_drive' }}
-            usbDriveIsEjecting={false}
-          />
-          <Button onPress={logOutMutation.mutate} icon="Lock">
-            Lock Machine
-          </Button>
-          {/* <BatteryDisplay /> */}
-        </ButtonRow>
-      )}
     </Header>
   );
 }

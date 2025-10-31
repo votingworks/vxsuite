@@ -18,7 +18,7 @@ const Section = styled.div`
 `;
 
 const Container = styled.div`
-  height: calc(100vh - 4rem);
+  height: calc(100vh - 4rem - 2rem);
   width: 100%;
   overflow-y: hidden;
   display: flex;
