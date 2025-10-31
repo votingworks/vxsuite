@@ -180,6 +180,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   private readonly scannerConfig: ScannerConfig = getDefaultConfig();
   private webDevice: MinimalWebUsbDevice;
   private readonly maxPrintWidthDots: MaxPrintWidthDots;
+  private isReconnecting = false;
 
   constructor(
     _webDevice: MinimalWebUsbDevice,
@@ -222,14 +223,15 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     const errorMessage = error.message.toLowerCase();
     const errorString = String(error).toLowerCase();
     
-    // Common USB disconnection error patterns from libusb
+    // Specific USB disconnection error patterns from libusb
+    // Note: LIBUSB_ERROR_IO is intentionally excluded as it's too broad and
+    // can indicate other non-disconnection I/O errors
     const disconnectionPatterns = [
       'libusb_transfer_no_device',
       'libusb_error_no_device',
-      'libusb_error_io',
       'no_device',
       'device not found',
-      'disconnected',
+      'device disconnected',
       'not connected',
     ];
     
@@ -241,6 +243,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   /**
    * Attempts to reconnect to the USB device with exponential backoff.
    * Uses a lock to ensure only one reconnection attempt happens at a time.
+   * Sets the isReconnecting flag to prevent infinite recursion during re-initialization.
    */
   private async reconnectUsbDevice(originalError: unknown): Promise<boolean> {
     // Use a lock to prevent multiple simultaneous reconnection attempts
@@ -281,13 +284,22 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
           this.webDevice = newWebDevice;
           await this.connect();
           
-          // Re-initialize the device to restore settings
-          await this.initializePrinter();
-          await this.setLineSpacing(0);
+          // Set flag to prevent infinite recursion during re-initialization
+          this.isReconnecting = true;
+          try {
+            // Re-initialize the device to restore settings
+            await this.initializePrinter();
+            await this.setLineSpacing(0);
+          } finally {
+            this.isReconnecting = false;
+          }
           
           debug('Successfully reconnected to USB device');
           return true;
         } catch (error) {
+          // Ensure flag is reset even if re-initialization fails
+          this.isReconnecting = false;
+          
           debug(
             `Reconnection attempt ${attempt} failed: ${
               error instanceof Error ? error.message : String(error)
@@ -309,7 +321,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   /**
    * Wraps a USB operation with reconnection retry logic.
    * If the operation fails with a USB disconnection error, attempts to reconnect
-   * and retry the operation once.
+   * and retry the operation once. Skips reconnection if already in reconnection
+   * process to prevent infinite recursion.
    */
   private async withUsbReconnectionRetry<T>(
     operation: () => Promise<T>,
@@ -318,6 +331,15 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     try {
       return await operation();
     } catch (error) {
+      // If we're already reconnecting, don't trigger another reconnection
+      // This prevents infinite recursion during re-initialization
+      if (this.isReconnecting) {
+        debug(
+          `${operationName} failed during reconnection, not attempting another reconnection`
+        );
+        throw error;
+      }
+      
       if (!this.isUsbDisconnectionError(error)) {
         // Not a disconnection error, re-throw immediately
         debug(
