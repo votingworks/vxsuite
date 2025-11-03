@@ -1,8 +1,16 @@
-import { beforeEach, describe, expect, MockInstance, test, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  MockInstance,
+  test,
+  vi,
+} from 'vitest';
 import { Buffer } from 'node:buffer';
 import { arrayBufferFrom, assert, assertDefined } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
-import { findByIds, WebUSBDevice } from 'usb';
+import { Device, findByIds, WebUSBDevice } from 'usb';
 import { Uint16 } from '@votingworks/message-coder';
 import {
   GENERIC_ENDPOINT_OUT,
@@ -20,7 +28,7 @@ import {
   RealTimeRequestIds,
   MaxPrintWidthDots,
 } from './constants';
-import { setUpMockWebUsbDevice } from './test_utils';
+import { setUpMockWebUsbDevice, TEST_CONFIGURATION } from './test_utils';
 import {
   INVALID_ARGUMENT_RESPONSE_CODE,
   LoadPaperCommand,
@@ -59,6 +67,10 @@ export async function setUpMocksAndDriver(): Promise<void> {
 
 beforeEach(async () => {
   await setUpMocksAndDriver();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 test('initializePrinter sends the correct message', async () => {
@@ -705,5 +717,199 @@ describe('handleGenericCommandWithAcknowledgement', () => {
         undefined
       )
     ).toEqual(expectedValue);
+  });
+});
+
+describe('USB reconnection on disconnection', () => {
+  test('retries operation after USB disconnection', async () => {
+    vi.useFakeTimers();
+
+    const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
+
+    // First call fails with USB disconnection error
+    transferOutSpy.mockRejectedValueOnce(
+      new Error('transferOut error: Error: LIBUSB_TRANSFER_NO_DEVICE')
+    );
+
+    // Mock getPaperHandlerWebDevice to return a new device on reconnection
+    const legacyReconnectedDevice: Device = {
+      open: () => {},
+      get interfaces() {
+        return [];
+      },
+    } as unknown as Device;
+    const mockReconnectedDevice = mocks.mockWebUsbDevice();
+    mockReconnectedDevice.mockSetConfiguration(TEST_CONFIGURATION);
+    findByIdsMock.mockReturnValueOnce(legacyReconnectedDevice);
+    createInstanceMock.mockResolvedValueOnce(
+      mockReconnectedDevice as unknown as WebUSBDevice
+    );
+
+    // Spy on the new device's transferOut to track reconnection calls
+    const reconnectedTransferOutSpy = vi.spyOn(
+      mockReconnectedDevice,
+      'transferOut'
+    );
+
+    // This should trigger reconnection and retry
+    const initPromise = paperHandlerDriver.initializePrinter();
+
+    // Advance timers through the reconnection delay
+    await vi.advanceTimersByTimeAsync(1000);
+
+    await initPromise;
+
+    // Verify old device had the initial failed call
+    expect(transferOutSpy).toHaveBeenCalledTimes(1);
+
+    // Verify new device had the reconnection calls:
+    // 1. Re-initialization during reconnection (initializePrinter)
+    // 2. setLineSpacing during reconnection
+    // 3. Retry of the original operation (initializePrinter)
+    expect(reconnectedTransferOutSpy).toHaveBeenCalledTimes(3);
+  });
+
+  test('throws error after max reconnection attempts', async () => {
+    vi.useFakeTimers();
+
+    const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
+    const closeSpy = vi.spyOn(mockWebUsbDevice, 'close');
+
+    // Always fail with USB disconnection error
+    transferOutSpy.mockRejectedValue(
+      new Error('transferOut error: Error: LIBUSB_TRANSFER_NO_DEVICE')
+    );
+
+    // Mock close to resolve immediately
+    closeSpy.mockResolvedValue(undefined);
+
+    // Mock getPaperHandlerWebDevice to fail (device not found)
+    findByIdsMock.mockReturnValue(undefined);
+
+    // This should fail after max reconnection attempts
+    // Attach rejection handler immediately to prevent unhandled rejection
+    const initPromise = paperHandlerDriver
+      .initializePrinter()
+      .catch((error) => error);
+
+    // Advance timers through all reconnection attempts
+    // With 10 max attempts and 1.5x backoff capped at 5s:
+    // 1s, 1.5s, 2.25s, 3.4s, 5s, 5s, 5s, 5s, 5s, 5s ≈ 37 seconds
+    await vi.advanceTimersByTimeAsync(40000);
+
+    // Verify the error was thrown
+    const result = await initPromise;
+    expect(result).toBeInstanceOf(Error);
+    expect(result.message).toMatch(
+      /Unable to complete operation after .* attempts with reconnection/
+    );
+  });
+
+  test('retries operation multiple times with reconnections', async () => {
+    vi.useFakeTimers();
+
+    const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
+
+    // First call fails with USB disconnection error
+    transferOutSpy.mockRejectedValueOnce(
+      new Error('transferOut error: Error: LIBUSB_TRANSFER_NO_DEVICE')
+    );
+
+    // Mock first reconnected device
+    const legacyReconnectedDevice1: Device = {
+      open: () => {},
+      get interfaces() {
+        return [];
+      },
+    } as unknown as Device;
+    const mockReconnectedDevice1 = mocks.mockWebUsbDevice();
+    mockReconnectedDevice1.mockSetConfiguration(TEST_CONFIGURATION);
+    findByIdsMock.mockReturnValueOnce(legacyReconnectedDevice1);
+    createInstanceMock.mockResolvedValueOnce(
+      mockReconnectedDevice1 as unknown as WebUSBDevice
+    );
+
+    const reconnectedTransferOutSpy1 = vi.spyOn(
+      mockReconnectedDevice1,
+      'transferOut'
+    );
+
+    // After successful reconnection, the retry also fails with disconnection
+    // First two calls succeed (initializePrinter and setLineSpacing during reconnection)
+    // Third call (retry of original operation) fails
+    const usbOutTransferResult1: USBOutTransferResult = {
+      status: 'ok',
+      bytesWritten: 2,
+    };
+    const usbOutTransferResult2: USBOutTransferResult = {
+      status: 'ok',
+      bytesWritten: 2,
+    };
+    reconnectedTransferOutSpy1.mockResolvedValueOnce(usbOutTransferResult1);
+    reconnectedTransferOutSpy1.mockResolvedValueOnce(usbOutTransferResult2);
+    reconnectedTransferOutSpy1.mockRejectedValueOnce(
+      new Error('transferOut error: Error: LIBUSB_TRANSFER_NO_DEVICE')
+    );
+
+    // Mock second reconnected device
+    const legacyReconnectedDevice2: Device = {
+      open: () => {},
+      get interfaces() {
+        return [];
+      },
+    } as unknown as Device;
+    const mockReconnectedDevice2 = mocks.mockWebUsbDevice();
+    mockReconnectedDevice2.mockSetConfiguration(TEST_CONFIGURATION);
+    findByIdsMock.mockReturnValueOnce(legacyReconnectedDevice2);
+    createInstanceMock.mockResolvedValueOnce(
+      mockReconnectedDevice2 as unknown as WebUSBDevice
+    );
+
+    const reconnectedTransferOutSpy2 = vi.spyOn(
+      mockReconnectedDevice2,
+      'transferOut'
+    );
+
+    // This should trigger reconnection and retry
+    const initPromise = paperHandlerDriver.initializePrinter();
+
+    // Advance timers through first reconnection delay
+    await vi.advanceTimersByTimeAsync(1000);
+
+    // Advance timers through second reconnection delay
+    await vi.advanceTimersByTimeAsync(2000);
+
+    await initPromise;
+
+    // Verify old device had the initial failed call
+    expect(transferOutSpy).toHaveBeenCalledTimes(1);
+
+    // Verify first reconnected device had:
+    // 1. Re-initialization during reconnection (initializePrinter)
+    // 2. setLineSpacing during reconnection
+    // 3. Retry of the original operation (initializePrinter) - which fails
+    expect(reconnectedTransferOutSpy1).toHaveBeenCalledTimes(3);
+
+    // Verify second reconnected device had:
+    // 1. Re-initialization during reconnection (initializePrinter)
+    // 2. setLineSpacing during reconnection
+    // 3. Retry of the original operation (initializePrinter) - which succeeds
+    expect(reconnectedTransferOutSpy2).toHaveBeenCalledTimes(3);
+  });
+
+  test('does not retry on non-disconnection errors', async () => {
+    const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
+
+    // Fail with a non-disconnection error
+    const nonDisconnectionError = new Error('Some other USB error');
+    transferOutSpy.mockRejectedValueOnce(nonDisconnectionError);
+
+    // This should throw immediately without attempting reconnection
+    await expect(paperHandlerDriver.initializePrinter()).rejects.toThrow(
+      nonDisconnectionError
+    );
+
+    // Verify transferOut was only called once (no retry)
+    expect(transferOutSpy).toHaveBeenCalledTimes(1);
   });
 });

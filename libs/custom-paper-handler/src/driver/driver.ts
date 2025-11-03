@@ -4,6 +4,7 @@ import {
   arrayBufferFrom,
   assert,
   assertDefined,
+  extractErrorMessage,
   Optional,
   Result,
   sleep,
@@ -127,6 +128,15 @@ export const PACKET_SIZE = 65536;
 // The number of times transferInGeneric will retry after receiving unexpected data.
 const MAX_TRANSFER_IN_ATTEMPTS = 20;
 
+// USB reconnection retry configuration
+// Handles repeated USB disconnections that can occur from various causes
+// including physical disturbances, electrical interference, or device issues
+const MAX_USB_RECONNECTION_ATTEMPTS = 10;
+const USB_RECONNECTION_DELAY_MS = 1000;
+const USB_RECONNECTION_BACKOFF_MULTIPLIER = 1.5;
+const MAX_RECONNECTION_DELAY_MS = 5000; // Cap maximum delay at 5 seconds
+const DEFAULT_LINE_SPACING = 0;
+
 export enum ReturnCodes {
   POSITIVE_ACKNOWLEDGEMENT = 0x06,
   NEGATIVE_ACKNOWLEDGEMENT = 0x15,
@@ -171,9 +181,12 @@ export async function getPaperHandlerWebDevice(): Promise<
 export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   private readonly genericLock = new Mutex();
   private readonly realTimeLock = new Mutex();
+  private readonly reconnectionLock = new Mutex();
   private readonly scannerConfig: ScannerConfig = getDefaultConfig();
-  private readonly webDevice: MinimalWebUsbDevice;
+  // webDevice is mutable to allow reconnection after USB disconnection
+  private webDevice: MinimalWebUsbDevice;
   private readonly maxPrintWidthDots: MaxPrintWidthDots;
+  private isReconnecting = false;
 
   constructor(
     _webDevice: MinimalWebUsbDevice,
@@ -204,53 +217,238 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   /**
+   * Checks if an error indicates a USB device disconnection.
+   * These errors are typically thrown by the USB library when the device
+   * is physically disconnected or becomes unavailable.
+   */
+  private isUsbDisconnectionError(error: unknown): boolean {
+    if (!(error instanceof Error)) {
+      return false;
+    }
+
+    const errorMessage = extractErrorMessage(error.message).toLowerCase();
+
+    // Specific USB disconnection error patterns from libusb
+    // Note: LIBUSB_ERROR_IO is intentionally excluded as it's too broad and
+    // can indicate other non-disconnection I/O errors
+    const disconnectionPatterns = [
+      'libusb_transfer_no_device',
+      'libusb_error_no_device',
+      'no_device',
+      'device not found',
+      'device disconnected',
+      'not connected',
+    ];
+
+    return disconnectionPatterns.some((pattern) =>
+      errorMessage.includes(pattern)
+    );
+  }
+
+  /**
+   * Attempts to reconnect to the USB device once.
+   * Uses a lock to ensure only one reconnection attempt happens at a time.
+   * Sets the isReconnecting flag to prevent infinite recursion during re-initialization.
+   */
+  private async reconnectUsbDevice(
+    originalError: unknown,
+    delayMs: number
+  ): Promise<boolean> {
+    // Use a lock to prevent multiple simultaneous reconnection attempts
+    return await this.reconnectionLock.withLock(async () => {
+      debug(
+        `Attempting to reconnect to USB device after error: ${extractErrorMessage(
+          originalError
+        )}`
+      );
+
+      try {
+        // Close the current connection if still open
+        try {
+          await this.webDevice.close();
+        } catch (closeError) {
+          // Ignore errors when closing disconnected device
+          debug(`Error closing disconnected device (expected): ${closeError}`);
+        }
+
+        // Wait before attempting to reconnect
+        debug(`Waiting ${delayMs}ms before reconnection attempt`);
+        await sleep(delayMs);
+
+        // Get a new device connection
+        const newWebDevice = await getPaperHandlerWebDevice();
+        if (!newWebDevice) {
+          debug('Failed to find device');
+          return false;
+        }
+
+        // Update the webDevice and reconnect
+        this.webDevice = newWebDevice;
+        await this.connect();
+
+        // Set flag to prevent infinite recursion during re-initialization
+        this.isReconnecting = true;
+        try {
+          // Re-initialize the device to restore settings
+          await this.initializePrinter();
+          await this.setLineSpacing(DEFAULT_LINE_SPACING);
+        } finally {
+          this.isReconnecting = false;
+        }
+
+        debug('Successfully reconnected to USB device');
+        return true;
+      } catch (error) {
+        debug(`Reconnection failed: ${extractErrorMessage(error)}`);
+        return false;
+      }
+    });
+  }
+
+  /**
+   * Wraps a USB operation with reconnection retry logic.
+   * If the operation fails with a USB disconnection error, attempts to reconnect
+   * and retry the operation. Will retry up to MAX_USB_RECONNECTION_ATTEMPTS times
+   * with exponential backoff between reconnection attempts.
+   * Only retries the operation if reconnection succeeds.
+   * Skips reconnection if already in reconnection process to prevent infinite recursion.
+   */
+  private async withUsbReconnectionRetry<T>(
+    operation: () => Promise<T>,
+    operationName: string
+  ): Promise<T> {
+    let lastError: unknown;
+    let delayMs = USB_RECONNECTION_DELAY_MS;
+    let disconnected = false;
+
+    for (
+      let attempt = 0;
+      attempt <= MAX_USB_RECONNECTION_ATTEMPTS;
+      attempt += 1
+    ) {
+      // If we're in a disconnected state, try to reconnect before attempting operation
+      if (disconnected) {
+        debug(
+          `Attempting reconnection before retry ${attempt + 1}/${
+            MAX_USB_RECONNECTION_ATTEMPTS + 1
+          }`
+        );
+
+        const reconnected = await this.reconnectUsbDevice(lastError, delayMs);
+
+        // Increase delay for next reconnection attempt (exponential backoff with cap)
+        delayMs = Math.min(
+          delayMs * USB_RECONNECTION_BACKOFF_MULTIPLIER,
+          MAX_RECONNECTION_DELAY_MS
+        );
+
+        if (!reconnected) {
+          debug(`Reconnection attempt ${attempt + 1} failed, will try again`);
+          // Stay in disconnected state and continue to next iteration
+          continue;
+        }
+
+        debug(`Reconnection successful, retrying ${operationName}`);
+        disconnected = false;
+      }
+
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+
+        // If we're already reconnecting, don't trigger another reconnection
+        // This prevents infinite recursion during re-initialization
+        if (this.isReconnecting) {
+          debug(
+            `${operationName} failed during reconnection, not attempting another reconnection`
+          );
+          throw error;
+        }
+
+        if (!this.isUsbDisconnectionError(error)) {
+          // Not a disconnection error, re-throw immediately
+          debug(
+            `${operationName} failed with non-disconnection error: ${extractErrorMessage(
+              error
+            )}`
+          );
+          throw error;
+        }
+
+        // Mark as disconnected for next iteration
+        disconnected = true;
+
+        debug(
+          `USB disconnection detected during ${operationName} (attempt ${
+            attempt + 1
+          }/${MAX_USB_RECONNECTION_ATTEMPTS + 1}): ${extractErrorMessage(
+            error
+          )}`
+        );
+      }
+    }
+
+    // If we get here, all attempts failed
+    const errorMessage = `${operationName} failed: Unable to complete operation after ${
+      MAX_USB_RECONNECTION_ATTEMPTS + 1
+    } attempts with reconnection. Last error: ${extractErrorMessage(
+      lastError
+    )}`;
+    debug(errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  /**
    * Receive data or command responses on the generic bulk in endpoint.
    */
   async transferInGeneric(): Promise<USBInTransferResult> {
-    for (let i = 0; i < MAX_TRANSFER_IN_ATTEMPTS; i += 1) {
-      const result = await this.webDevice.transferIn(
-        GENERIC_ENDPOINT_IN,
-        PACKET_SIZE
-      );
-      const data = assertDefined(result.data);
-
-      // If data buffered to the Generic Transfer IN buffer contains the command code
-      // for `Real-time status transmission` (0x10 0x04 n), that command will be executed.
-      // It is executed regardless of whether the buffered data is sent as part of a
-      // different command and ignores convention that `Real-time status transmission` is
-      // expected to use the real-time channels.
-      //
-      // eg. `bufferChunk()` uses `Select image print mode` to buffer PDF data to the
-      // generic out buffer. If the PDF data contains the byte sequence `0x10 0x04 0x14`,
-      // where 0x14 is the valid 3rd byte of the command, the device will execute
-      // `Real-time status transmission` and return a 6 byte response
-      // on the generic transfer-in buffer.
-      //
-      // If the PDF data contains byte sequence `0x10 0x04 0x03`, where 0x03 is an invalid
-      // argument for `Real-time status transmission`, the printer will return 1 byte 0x12
-      // on the generic transfer-in buffer. 0x12 is an undocumented response code but
-      // presumably means "Invalid argument" or similar.
-      const IgnorableResponseCoder = oneOf(
-        RealTimeStatusTransmission,
-        InvalidArgumentErrorCode
-      );
-
-      const decodeResult = IgnorableResponseCoder.decode(
-        bufferFromDataView(data)
-      );
-      if (decodeResult.isOk()) {
-        debug(
-          'Ignored unrestricted execution of "Real-time status transmission" command. Retrying transferInGeneric.'
+    return this.withUsbReconnectionRetry(async () => {
+      for (let i = 0; i < MAX_TRANSFER_IN_ATTEMPTS; i += 1) {
+        const result = await this.webDevice.transferIn(
+          GENERIC_ENDPOINT_IN,
+          PACKET_SIZE
         );
-        continue;
+        const data = assertDefined(result.data);
+
+        // If data buffered to the Generic Transfer IN buffer contains the command code
+        // for `Real-time status transmission` (0x10 0x04 n), that command will be executed.
+        // It is executed regardless of whether the buffered data is sent as part of a
+        // different command and ignores convention that `Real-time status transmission` is
+        // expected to use the real-time channels.
+        //
+        // eg. `bufferChunk()` uses `Select image print mode` to buffer PDF data to the
+        // generic out buffer. If the PDF data contains the byte sequence `0x10 0x04 0x14`,
+        // where 0x14 is the valid 3rd byte of the command, the device will execute
+        // `Real-time status transmission` and return a 6 byte response
+        // on the generic transfer-in buffer.
+        //
+        // If the PDF data contains byte sequence `0x10 0x04 0x03`, where 0x03 is an invalid
+        // argument for `Real-time status transmission`, the printer will return 1 byte 0x12
+        // on the generic transfer-in buffer. 0x12 is an undocumented response code but
+        // presumably means "Invalid argument" or similar.
+        const IgnorableResponseCoder = oneOf(
+          RealTimeStatusTransmission,
+          InvalidArgumentErrorCode
+        );
+
+        const decodeResult = IgnorableResponseCoder.decode(
+          bufferFromDataView(data)
+        );
+        if (decodeResult.isOk()) {
+          debug(
+            'Ignored unrestricted execution of "Real-time status transmission" command. Retrying transferInGeneric.'
+          );
+          continue;
+        }
+
+        return result;
       }
 
-      return result;
-    }
-
-    // Status choices are limited but 'babble' approximately fits the context. If this point is reached,
-    // the host has received an unexpectedly large number of junk responses.
-    return new USBInTransferResult('babble');
+      // Status choices are limited but 'babble' approximately fits the context. If this point is reached,
+      // the host has received an unexpectedly large number of junk responses.
+      return new USBInTransferResult('babble');
+    }, 'transferInGeneric');
   }
 
   async clearGenericInBuffer(): Promise<void> {
@@ -270,20 +468,25 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Transfers data out on the real time bulk out endpoint.
    */
   transferOutRealTime(requestId: Uint8): Promise<USBOutTransferResult> {
-    const buf = TransferOutRealTimeRequest.encode({
-      requestId,
-    }).unsafeUnwrap();
-    return this.webDevice.transferOut(
-      REAL_TIME_ENDPOINT_OUT,
-      arrayBufferFrom(buf)
-    );
+    return this.withUsbReconnectionRetry(async () => {
+      const buf = TransferOutRealTimeRequest.encode({
+        requestId,
+      }).unsafeUnwrap();
+      return this.webDevice.transferOut(
+        REAL_TIME_ENDPOINT_OUT,
+        arrayBufferFrom(buf)
+      );
+    }, 'transferOutRealTime');
   }
 
   /**
    * Receives data from the real time bulk in endpoint.
    */
   transferInRealTime(): Promise<USBInTransferResult> {
-    return this.webDevice.transferIn(REAL_TIME_ENDPOINT_IN, PACKET_SIZE);
+    return this.withUsbReconnectionRetry(
+      async () => this.webDevice.transferIn(REAL_TIME_ENDPOINT_IN, PACKET_SIZE),
+      'transferInRealTime'
+    );
   }
 
   async handleRealTimeExchange<T>(
@@ -312,19 +515,21 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     coder: Coder<T>,
     value: T
   ): Promise<USBOutTransferResult> {
-    const encodeResult = coder.encode(value);
-    if (encodeResult.isErr()) {
-      // TODO handle this more gracefully
-      debug(
-        `Error attempting transferOutGeneric with coder value ${value}: ${encodeResult.err()}`
+    return this.withUsbReconnectionRetry(async () => {
+      const encodeResult = coder.encode(value);
+      if (encodeResult.isErr()) {
+        // TODO handle this more gracefully
+        debug(
+          `Error attempting transferOutGeneric with coder value ${value}: ${encodeResult.err()}`
+        );
+        throw new Error(encodeResult.err());
+      }
+      const data = encodeResult.unsafeUnwrap();
+      return this.webDevice.transferOut(
+        GENERIC_ENDPOINT_OUT,
+        arrayBufferFrom(data)
       );
-      throw new Error(encodeResult.err());
-    }
-    const data = encodeResult.unsafeUnwrap();
-    return this.webDevice.transferOut(
-      GENERIC_ENDPOINT_OUT,
-      arrayBufferFrom(data)
-    );
+    }, 'transferOutGeneric');
   }
 
   /**
