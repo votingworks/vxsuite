@@ -435,3 +435,255 @@ describe('keyboard navigation', () => {
     }
   );
 });
+
+describe('cross-endorsed candidates', () => {
+  test('shows single candidate once when voted for under one party', () => {
+    const contest: CandidateContest = {
+      type: 'candidate',
+      id: 'governor',
+      districtId: 'district-1',
+      title: 'Governor',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'],
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionGeneral,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            governor: [
+              { id: 'alice', partyIds: ['0'] },
+              { id: 'bob', partyIds: ['2'] },
+              { id: 'alice', partyIds: ['1'] },
+            ],
+          },
+        },
+      ],
+    };
+
+    render(
+      <Review
+        election={election}
+        contests={[contest]}
+        precinctId={election.precincts[0].id}
+        ballotStyle={election.ballotStyles[0]}
+        votes={{
+          governor: [{ id: 'alice', name: 'Alice Anderson', partyIds: ['0'] }],
+        }}
+        returnToContest={vi.fn()}
+      />
+    );
+
+    // Alice should appear once in the review
+    const aliceNames = screen.getAllByText('Alice Anderson');
+    expect(aliceNames).toHaveLength(1);
+
+    // Should show the party affiliation
+    screen.getByText('Federalist');
+  });
+
+  test('calculates remaining votes correctly with cross-endorsed candidates', () => {
+    const contest: CandidateContest = {
+      type: 'candidate',
+      id: 'council',
+      districtId: 'district-1',
+      title: 'City Council',
+      seats: 3,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'],
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+        { id: 'carol', name: 'Carol Clark', partyIds: ['0'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionGeneral,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            council: [
+              { id: 'alice', partyIds: ['0'] },
+              { id: 'bob', partyIds: ['2'] },
+              { id: 'alice', partyIds: ['1'] },
+              { id: 'carol', partyIds: ['0'] },
+            ],
+          },
+        },
+      ],
+    };
+
+    render(
+      <Review
+        election={election}
+        contests={[contest]}
+        precinctId={election.precincts[0].id}
+        ballotStyle={election.ballotStyles[0]}
+        votes={{
+          council: [
+            { id: 'alice', name: 'Alice Anderson', partyIds: ['0'] },
+            { id: 'alice', name: 'Alice Anderson', partyIds: ['1'] },
+          ],
+        }}
+        returnToContest={vi.fn()}
+      />
+    );
+
+    // Alice voted twice under different parties should count as 1 unique candidate
+    // So with 3 seats and 1 unique candidate, should show 2 unused votes
+    screen.getByText(hasTextAcrossElements(/number of unused votes: 2/i));
+  });
+
+  test('displays candidates in ballot style order with cross-endorsed candidates', () => {
+    const contest: CandidateContest = {
+      type: 'candidate',
+      id: 'governor',
+      districtId: 'district-1',
+      title: 'Governor',
+      seats: 2,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'],
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionGeneral,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            governor: [
+              { id: 'alice', partyIds: ['0'] },
+              { id: 'bob', partyIds: ['2'] },
+              { id: 'alice', partyIds: ['1'] },
+            ],
+          },
+        },
+      ],
+    };
+
+    render(
+      <Review
+        election={election}
+        contests={[contest]}
+        precinctId={election.precincts[0].id}
+        ballotStyle={election.ballotStyles[0]}
+        votes={{
+          governor: [
+            { id: 'alice', name: 'Alice Anderson', partyIds: ['1'] },
+            { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+          ],
+        }}
+        returnToContest={vi.fn()}
+      />
+    );
+
+    function escapeRegex(s: string) {
+      return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    const nameRegex = new RegExp(
+      `^(${contest.candidates.map((c) => escapeRegex(c.name)).join('|')})$`
+    );
+    const candidateNames = screen.getAllByText(nameRegex);
+
+    // Bob should appear first, then Alice (in ballot style order)
+    expect(candidateNames[0]).toHaveTextContent('Bob Brown');
+    expect(candidateNames[1]).toHaveTextContent('Alice Anderson');
+  });
+
+  test('shows separate party affiliations when candidate selected under multiple parties', () => {
+    const contest: CandidateContest = {
+      type: 'candidate',
+      id: 'governor',
+      districtId: 'district-1',
+      title: 'Governor',
+      seats: 2,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'],
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionGeneral,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            governor: [
+              { id: 'alice', partyIds: ['0'] },
+              { id: 'bob', partyIds: ['2'] },
+              { id: 'alice', partyIds: ['1'] },
+            ],
+          },
+        },
+      ],
+    };
+
+    render(
+      <Review
+        election={election}
+        contests={[contest]}
+        precinctId={election.precincts[0].id}
+        ballotStyle={election.ballotStyles[0]}
+        votes={{
+          governor: [
+            { id: 'alice', name: 'Alice Anderson', partyIds: ['0'] },
+            { id: 'alice', name: 'Alice Anderson', partyIds: ['1'] },
+          ],
+        }}
+        returnToContest={vi.fn()}
+      />
+    );
+
+    // Alice appears twice with different parties
+    const aliceNames = screen.getAllByText('Alice Anderson');
+    expect(aliceNames).toHaveLength(2);
+
+    // Should show both party affiliations
+    screen.getByText('Federalist');
+    screen.getByText(/People/);
+  });
+});
