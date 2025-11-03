@@ -236,9 +236,10 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       'device disconnected',
       'not connected',
     ];
-    
+
     return disconnectionPatterns.some(
-      (pattern) => errorMessage.includes(pattern) || errorString.includes(pattern)
+      (pattern) =>
+        errorMessage.includes(pattern) || errorString.includes(pattern)
     );
   }
 
@@ -252,28 +253,38 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     return await this.reconnectionLock.withLock(async () => {
       debug(
         `Attempting to reconnect to USB device after error: ${
-          originalError instanceof Error ? originalError.message : String(originalError)
+          originalError instanceof Error
+            ? originalError.message
+            : String(originalError)
         }`
       );
-      
+
       let delayMs = USB_RECONNECTION_DELAY_MS;
-      
-      for (let attempt = 1; attempt <= MAX_USB_RECONNECTION_ATTEMPTS; attempt++) {
+
+      for (
+        let attempt = 1;
+        attempt <= MAX_USB_RECONNECTION_ATTEMPTS;
+        attempt += 1
+      ) {
         try {
-          debug(`Reconnection attempt ${attempt}/${MAX_USB_RECONNECTION_ATTEMPTS}`);
-          
+          debug(
+            `Reconnection attempt ${attempt}/${MAX_USB_RECONNECTION_ATTEMPTS}`
+          );
+
           // Close the current connection if still open
           try {
             await this.webDevice.close();
           } catch (closeError) {
             // Ignore errors when closing disconnected device
-            debug(`Error closing disconnected device (expected): ${closeError}`);
+            debug(
+              `Error closing disconnected device (expected): ${closeError}`
+            );
           }
-          
+
           // Wait before attempting to reconnect
           debug(`Waiting ${delayMs}ms before reconnection attempt`);
           await sleep(delayMs);
-          
+
           // Get a new device connection
           const newWebDevice = await getPaperHandlerWebDevice();
           if (!newWebDevice) {
@@ -281,11 +292,11 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
             delayMs *= USB_RECONNECTION_BACKOFF_MULTIPLIER;
             continue;
           }
-          
+
           // Update the webDevice and reconnect
           this.webDevice = newWebDevice;
           await this.connect();
-          
+
           // Set flag to prevent infinite recursion during re-initialization
           this.isReconnecting = true;
           try {
@@ -295,7 +306,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
           } finally {
             this.isReconnecting = false;
           }
-          
+
           debug('Successfully reconnected to USB device');
           return true;
         } catch (error) {
@@ -305,14 +316,14 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
             }`
           );
           delayMs *= USB_RECONNECTION_BACKOFF_MULTIPLIER;
-          
+
           if (attempt === MAX_USB_RECONNECTION_ATTEMPTS) {
             debug('Max reconnection attempts reached, giving up');
             return false;
           }
         }
       }
-      
+
       return false;
     });
   }
@@ -338,7 +349,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         );
         throw error;
       }
-      
+
       if (!this.isUsbDisconnectionError(error)) {
         // Not a disconnection error, re-throw immediately
         debug(
@@ -348,13 +359,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         );
         throw error;
       }
-      
+
       debug(
         `USB disconnection detected during ${operationName}: ${
           error instanceof Error ? error.message : String(error)
         }`
       );
-      
+
       const reconnected = await this.reconnectUsbDevice(error);
       if (!reconnected) {
         const errorMessage = `${operationName} failed: Unable to reconnect to USB device after disconnection. Original error: ${
@@ -363,7 +374,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         debug(errorMessage);
         throw new Error(errorMessage);
       }
-      
+
       // Retry the operation after successful reconnection
       debug(`Retrying ${operationName} after successful reconnection`);
       return await operation();
@@ -382,36 +393,36 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         );
         const data = assertDefined(result.data);
 
-      // If data buffered to the Generic Transfer IN buffer contains the command code
-      // for `Real-time status transmission` (0x10 0x04 n), that command will be executed.
-      // It is executed regardless of whether the buffered data is sent as part of a
-      // different command and ignores convention that `Real-time status transmission` is
-      // expected to use the real-time channels.
-      //
-      // eg. `bufferChunk()` uses `Select image print mode` to buffer PDF data to the
-      // generic out buffer. If the PDF data contains the byte sequence `0x10 0x04 0x14`,
-      // where 0x14 is the valid 3rd byte of the command, the device will execute
-      // `Real-time status transmission` and return a 6 byte response
-      // on the generic transfer-in buffer.
-      //
-      // If the PDF data contains byte sequence `0x10 0x04 0x03`, where 0x03 is an invalid
-      // argument for `Real-time status transmission`, the printer will return 1 byte 0x12
-      // on the generic transfer-in buffer. 0x12 is an undocumented response code but
-      // presumably means "Invalid argument" or similar.
-      const IgnorableResponseCoder = oneOf(
-        RealTimeStatusTransmission,
-        InvalidArgumentErrorCode
-      );
-
-      const decodeResult = IgnorableResponseCoder.decode(
-        bufferFromDataView(data)
-      );
-      if (decodeResult.isOk()) {
-        debug(
-          'Ignored unrestricted execution of "Real-time status transmission" command. Retrying transferInGeneric.'
+        // If data buffered to the Generic Transfer IN buffer contains the command code
+        // for `Real-time status transmission` (0x10 0x04 n), that command will be executed.
+        // It is executed regardless of whether the buffered data is sent as part of a
+        // different command and ignores convention that `Real-time status transmission` is
+        // expected to use the real-time channels.
+        //
+        // eg. `bufferChunk()` uses `Select image print mode` to buffer PDF data to the
+        // generic out buffer. If the PDF data contains the byte sequence `0x10 0x04 0x14`,
+        // where 0x14 is the valid 3rd byte of the command, the device will execute
+        // `Real-time status transmission` and return a 6 byte response
+        // on the generic transfer-in buffer.
+        //
+        // If the PDF data contains byte sequence `0x10 0x04 0x03`, where 0x03 is an invalid
+        // argument for `Real-time status transmission`, the printer will return 1 byte 0x12
+        // on the generic transfer-in buffer. 0x12 is an undocumented response code but
+        // presumably means "Invalid argument" or similar.
+        const IgnorableResponseCoder = oneOf(
+          RealTimeStatusTransmission,
+          InvalidArgumentErrorCode
         );
-        continue;
-      }
+
+        const decodeResult = IgnorableResponseCoder.decode(
+          bufferFromDataView(data)
+        );
+        if (decodeResult.isOk()) {
+          debug(
+            'Ignored unrestricted execution of "Real-time status transmission" command. Retrying transferInGeneric.'
+          );
+          continue;
+        }
 
         return result;
       }
