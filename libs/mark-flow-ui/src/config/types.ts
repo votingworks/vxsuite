@@ -1,4 +1,5 @@
 import {
+  BallotStyle,
   BallotStyleId,
   CandidateContest,
   CandidateVote,
@@ -42,6 +43,7 @@ export interface BallotContextInterface {
 export interface CandidateContestResultInterface {
   contest: CandidateContest;
   election: Election;
+  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
   selectionsAreEditable?: boolean;
   vote: CandidateVote;

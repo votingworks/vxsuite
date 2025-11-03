@@ -25,6 +25,7 @@ import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
 import { VoterScreen } from '../components/voter_screen';
 
 export interface ContestPageProps {
+  ballotStyleId?: string;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
   accessibilityMode?: AccessibilityMode;
@@ -49,6 +50,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const isReviewMode = history.location.hash === '#review';
 
   const {
+    ballotStyleId,
     contests,
     electionDefinition,
     accessibilityMode,
@@ -79,6 +81,10 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   assert(
     typeof precinctId === 'string',
     'precinctId is required to render ContestPage'
+  );
+  assert(
+    typeof ballotStyleId === 'string',
+    'ballotStyleId is required to render ContestPage'
   );
 
   const vote = votes[contest.id];
@@ -184,6 +190,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     >
       <Contest
         key={contest.id} // Force a re-mount for every contest to reset scroll state.
+        ballotStyleId={ballotStyleId}
         election={electionDefinition.election}
         breadcrumbs={breadcrumbsMetadata}
         contest={contest}

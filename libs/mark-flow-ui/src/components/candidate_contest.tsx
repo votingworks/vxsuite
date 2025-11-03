@@ -3,11 +3,14 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import {
+  BallotStyleId,
   Candidate,
   CandidateVote,
   CandidateContest as CandidateContestInterface,
   Election,
+  getBallotStyle,
   getContestDistrict,
+  getOrderedCandidatesForContestInBallotStyle,
 } from '@votingworks/types';
 import {
   Button,
@@ -51,6 +54,7 @@ export interface WriteInCharacterLimitAcrossContests {
 
 interface Props {
   breadcrumbs?: BreadcrumbMetadata;
+  ballotStyleId: BallotStyleId;
   election: Election;
   contest: CandidateContestInterface;
   vote: CandidateVote;
@@ -93,6 +97,7 @@ function normalizeCandidateName(name: string) {
 
 export function CandidateContest({
   breadcrumbs,
+  ballotStyleId,
   election,
   contest,
   vote,
@@ -103,6 +108,12 @@ export function CandidateContest({
   writeInCharacterLimitAcrossContests,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  assert(ballotStyle);
+  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+    contest,
+    ballotStyle,
+  });
 
   const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =
     useState<Candidate>();
@@ -339,7 +350,7 @@ export function CandidateContest({
         </ContestHeader>
         <WithScrollButtons>
           <ChoicesGrid>
-            {contest.candidates.map((candidate) => {
+            {orderedCandidates.map((candidate) => {
               const isChecked = !!findCandidateById(vote, candidate.id);
               const isDisabled = hasReachedMaxSelections && !isChecked;
               function handleDisabledClick() {

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
 import {
+  BallotStyle,
   BallotStyleId,
   BallotType,
   CandidateContest,
@@ -12,6 +13,7 @@ import {
   Election,
   ElectionDefinition,
   getBallotStyle,
+  getCandidateVoteSortedForBallotStyleRotation,
   getContests,
   getPartyForBallotStyle,
   OptionalYesNoVote,
@@ -445,6 +447,7 @@ function NoSelection(props: { primaryBallotLanguage: string }): JSX.Element {
 }
 
 interface CandidateContestResultProps {
+  ballotStyle: BallotStyle;
   contest: CandidateContest;
   election: Election;
   layout: Layout;
@@ -453,6 +456,7 @@ interface CandidateContestResultProps {
 }
 
 function CandidateContestResult({
+  ballotStyle,
   contest,
   election,
   layout,
@@ -461,11 +465,17 @@ function CandidateContestResult({
 }: CandidateContestResultProps): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
 
+  const orderedVotes = getCandidateVoteSortedForBallotStyleRotation({
+    inputVote: vote,
+    contest,
+    ballotStyle,
+  });
+
   return vote === undefined || vote.length === 0 ? (
     <NoSelection primaryBallotLanguage={primaryBallotLanguage} />
   ) : (
     <React.Fragment>
-      {vote.map((candidate) => (
+      {orderedVotes.map((candidate) => (
         <VoteLine key={candidate.id}>
           <Font breakWord weight="bold">
             {candidate.isWriteIn ? (
@@ -756,6 +766,7 @@ export function BmdPaperBallot({
                     layout={ballotLayout}
                     primaryBallotLanguage={primaryBallotLanguage}
                     vote={votes[contest.id] as CandidateVote}
+                    ballotStyle={ballotStyle}
                   />
                 )}
                 {contest.type === 'yesno' && (

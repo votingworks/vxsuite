@@ -7,7 +7,7 @@ import { BallotContext } from '../contexts/ballot_context';
 
 export function ReviewScreen(): JSX.Element {
   const history = useHistory();
-  const { contests, electionDefinition, precinctId, votes } =
+  const { contests, electionDefinition, ballotStyleId, precinctId, votes } =
     useContext(BallotContext);
 
   return (
@@ -15,6 +15,7 @@ export function ReviewScreen(): JSX.Element {
       contests={contests}
       electionDefinition={electionDefinition}
       precinctId={precinctId}
+      ballotStyleId={ballotStyleId}
       printScreenUrl="/print"
       returnToContest={(contestId) => {
         history.push(

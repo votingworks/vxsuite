@@ -9,6 +9,8 @@ import {
   PrecinctId,
   getContestDistrict,
   ContestId,
+  BallotStyle,
+  getCandidateVoteSortedForBallotStyleRotation,
 } from '@votingworks/types';
 import {
   Caption,
@@ -58,6 +60,7 @@ function CandidateContestResult({
   vote = [],
   election,
   selectionsAreEditable,
+  ballotStyle,
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   const remainingChoices = contest.seats - vote.length;
@@ -65,6 +68,12 @@ function CandidateContestResult({
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()
     : appStrings.noteBallotContestNoSelection();
+
+  const orderedVotes = getCandidateVoteSortedForBallotStyleRotation({
+    inputVote: vote,
+    contest,
+    ballotStyle,
+  });
 
   return (
     <VoterContestSummary
@@ -84,7 +93,7 @@ function CandidateContestResult({
           )
         ) : undefined
       }
-      votes={vote.map(
+      votes={orderedVotes.map(
         (candidate): ContestVote => ({
           caption: candidate.isWriteIn ? (
             appStrings.labelWriteInParenthesized()
@@ -204,6 +213,7 @@ function MsEitherNeitherContestResult({
 export interface ReviewProps {
   election: Election;
   precinctId: PrecinctId;
+  ballotStyle: BallotStyle;
   contests: ContestsWithMsEitherNeither;
   votes: VotesDict;
   returnToContest?: (contestId: string) => void;
@@ -213,6 +223,7 @@ export interface ReviewProps {
 export function Review({
   election,
   precinctId,
+  ballotStyle,
   contests,
   votes,
   returnToContest,
@@ -278,6 +289,7 @@ export function Review({
                 selectionsAreEditable={selectionsAreEditable}
                 precinctId={precinctId}
                 vote={votes[contest.id] as CandidateVote}
+                ballotStyle={ballotStyle}
               />
             )}
             {contest.type === 'yesno' && (

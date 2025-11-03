@@ -33,6 +33,7 @@ import {
   PrecinctSplit,
   hasSplits,
   PrecinctOrSplit,
+  CandidateVote,
 } from './election';
 
 /**
@@ -81,6 +82,45 @@ export function getOrderedCandidatesForContestInBallotStyle({
       ...candidate,
       partyIds,
     };
+  });
+}
+
+export function getCandidateVoteSortedForBallotStyleRotation({
+  inputVote,
+  contest,
+  ballotStyle,
+}: {
+  inputVote: CandidateVote;
+  contest: CandidateContest;
+  ballotStyle: BallotStyle;
+}): CandidateVote {
+  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+    contest,
+    ballotStyle,
+  });
+  return [...inputVote].sort((a, b) => {
+    const aIndex = orderedCandidates.findIndex((c) => c.id === a.id);
+    const bIndex = orderedCandidates.findIndex((c) => c.id === b.id);
+
+    // If both are in orderedCandidates, sort by their position
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+
+    // A write in candidate is always ordered last and will not be in orderedCandidates
+
+    // If only a is in orderedCandidates, a comes first
+    if (aIndex !== -1) {
+      return -1;
+    }
+
+    // If only b is in orderedCandidates, b comes first
+    if (bIndex !== -1) {
+      return 1;
+    }
+
+    // Both are not in orderedCandidates, preserve original order
+    return 0;
   });
 }
 

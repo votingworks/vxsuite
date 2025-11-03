@@ -20,6 +20,11 @@ export interface ContestProps {
   breadcrumbs?: BreadcrumbMetadata;
 
   /**
+   * The ballot style for the voter.
+   */
+  ballotStyleId: string;
+
+  /**
    * The election the contest belongs to.
    */
   election: Election;
@@ -62,6 +67,7 @@ function countNumWriteInCharactersUsedAcrossContests(votes: VotesDict): number {
 
 export function Contest({
   breadcrumbs,
+  ballotStyleId,
   election,
   contest,
   votes,
@@ -83,6 +89,7 @@ export function Contest({
         <CandidateContest
           aria-live="assertive"
           breadcrumbs={breadcrumbs}
+          ballotStyleId={ballotStyleId}
           election={election}
           contest={contest}
           vote={(vote ?? []) as CandidateVote}

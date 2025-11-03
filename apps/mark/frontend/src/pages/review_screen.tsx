@@ -7,11 +7,12 @@ import { BallotContext } from '../contexts/ballot_context';
 
 export function ReviewScreen(): JSX.Element {
   const history = useHistory();
-  const { contests, electionDefinition, precinctId, votes } =
+  const { contests, electionDefinition, precinctId, ballotStyleId, votes } =
     useContext(BallotContext);
 
   return (
     <ReviewPage
+      ballotStyleId={ballotStyleId}
       contests={contests}
       electionDefinition={electionDefinition}
       precinctId={precinctId}

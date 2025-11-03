@@ -8,7 +8,10 @@ import {
   CandidateContest as CandidateContestData,
   Election,
 } from '@votingworks/types';
-import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import {
+  readElectionGeneralDefinition,
+  electionFamousNames2021Fixtures,
+} from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -92,6 +95,7 @@ test('shows up-to-date vote counter - single-seat contest', () => {
   const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={electionDefinition.election}
       contest={candidateContest}
       vote={[]}
@@ -105,6 +109,7 @@ test('shows up-to-date vote counter - single-seat contest', () => {
 
   rerender(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={electionDefinition.election}
       contest={candidateContest}
       vote={[candidateContest.candidates[0]]}
@@ -121,6 +126,7 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
   const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={electionDefinition.election}
       contest={candidateContestWithMultipleSeats}
       vote={[]}
@@ -134,6 +140,7 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
 
   rerender(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={electionDefinition.election}
       contest={candidateContestWithMultipleSeats}
       vote={[
@@ -154,6 +161,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[]}
@@ -181,6 +189,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[]}
@@ -208,6 +217,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[candidateContest.candidates[0]]}
@@ -242,6 +252,7 @@ describe('supports multi-seat contests', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithMultipleSeats}
         vote={[candidateContestWithMultipleSeats.candidates[0]]}
@@ -295,6 +306,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -347,6 +359,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -394,6 +407,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -420,6 +434,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[
@@ -450,6 +465,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -475,6 +491,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={Array.from({ length: candidateContestWithWriteIns.seats }).map(
@@ -528,6 +545,7 @@ describe('supports write-in candidates', () => {
       const updateVote = vi.fn();
       render(
         <CandidateContest
+          ballotStyleId={electionDefinition.election.ballotStyles[0].id}
           election={electionDefinition.election}
           contest={candidateContestWithWriteIns}
           vote={[]}
@@ -581,6 +599,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -644,6 +663,7 @@ describe('supports write-in candidates', () => {
 
     render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={contest}
         vote={votes}
@@ -694,6 +714,7 @@ describe('audio cues', () => {
 
     const { rerender } = render(
       <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={twoSeatContest}
         vote={[]}
@@ -704,6 +725,7 @@ describe('audio cues', () => {
     updateVote.mockImplementation((_, votes) => {
       rerender(
         <CandidateContest
+          ballotStyleId={electionDefinition.election.ballotStyles[0].id}
           election={electionDefinition.election}
           contest={twoSeatContest}
           vote={votes as CandidateVote}
@@ -812,6 +834,7 @@ test('shows term description, if available', () => {
 
   render(
     <CandidateContest
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       election={election}
       contest={contest}
       vote={[]}
@@ -820,4 +843,336 @@ test('shows term description, if available', () => {
   );
 
   screen.getByText(hasTextAcrossElements('4 Years'));
+});
+
+describe('candidate ordering', () => {
+  test('renders candidates in order specified by ballot style using electionFamousNames fixture', () => {
+    const famousNamesElection =
+      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElection();
+
+    // Get the mayor contest and disable write-ins for cleaner test
+    const mayorContest: CandidateContestInterface = {
+      ...(famousNamesElection.contests.find(
+        (c) => c.id === 'mayor'
+      ) as CandidateContestInterface),
+      allowWriteIns: false,
+    };
+
+    // Ballot style 1-1 has order: sherlock-holmes, thomas-edison
+    render(
+      <CandidateContest
+        ballotStyleId="1-1"
+        election={famousNamesElection}
+        contest={mayorContest}
+        vote={[]}
+        updateVote={vi.fn()}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+    expect(buttons).toHaveLength(2);
+
+    // Check that candidates appear in ballot style 1-1 order
+    within(buttons[0]).getByText('Sherlock Holmes');
+    within(buttons[1]).getByText('Thomas Edison');
+  });
+
+  test('renders candidates in different order for different ballot style', () => {
+    const famousNamesElection =
+      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElection();
+
+    // Get the mayor contest and disable write-ins for cleaner test
+    const mayorContest: CandidateContestInterface = {
+      ...(famousNamesElection.contests.find(
+        (c) => c.id === 'mayor'
+      ) as CandidateContestInterface),
+      allowWriteIns: false,
+    };
+
+    // Ballot style 1-2 has order: thomas-edison, sherlock-holmes (reversed)
+    render(
+      <CandidateContest
+        ballotStyleId="1-2"
+        election={famousNamesElection}
+        contest={mayorContest}
+        vote={[]}
+        updateVote={vi.fn()}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+    expect(buttons).toHaveLength(2);
+
+    // Check that candidates appear in ballot style 1-2 order (reversed from 1-1)
+    within(buttons[0]).getByText('Thomas Edison');
+    within(buttons[1]).getByText('Sherlock Holmes');
+  });
+
+  test('renders candidates in rotated order for multi-candidate contest', () => {
+    const famousNamesElection =
+      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElection();
+
+    // Get the controller contest (has 3 candidates) and disable write-ins
+    const controllerContest: CandidateContestInterface = {
+      ...(famousNamesElection.contests.find(
+        (c) => c.id === 'controller'
+      ) as CandidateContestInterface),
+      allowWriteIns: false,
+    };
+
+    // Ballot style 1-1 has order: winston-churchill, oprah-winfrey, louis-armstrong
+    render(
+      <CandidateContest
+        ballotStyleId="1-1"
+        election={famousNamesElection}
+        contest={controllerContest}
+        vote={[]}
+        updateVote={vi.fn()}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+    expect(buttons).toHaveLength(3);
+    within(buttons[0]).getByText('Winston Churchill');
+    within(buttons[1]).getByText('Oprah Winfrey');
+    within(buttons[2]).getByText('Louis Armstrong');
+  });
+
+  test('uses original candidate order when no ordering specified for ballot style', () => {
+    const contest: CandidateContestInterface = {
+      type: 'candidate',
+      id: 'mayor',
+      districtId: 'district-1',
+      title: 'Mayor',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [
+        { id: 'alice', name: 'Alice', partyIds: ['0'] },
+        { id: 'bob', name: 'Bob', partyIds: ['1'] },
+        { id: 'carol', name: 'Carol', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionDefinition.election,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          // No candidatesOrderedByContest specified
+        },
+      ],
+    };
+
+    render(
+      <CandidateContest
+        ballotStyleId="ballot-style-1"
+        election={election}
+        contest={contest}
+        vote={[]}
+        updateVote={vi.fn()}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+    expect(buttons).toHaveLength(3);
+
+    // Check that candidates appear in original order
+    within(buttons[0]).getByText('Alice');
+    within(buttons[1]).getByText('Bob');
+    within(buttons[2]).getByText('Carol');
+  });
+});
+
+describe('cross-endorsed candidates', () => {
+  test('renders separate bubbles when cross-endorsed candidate appears as multiple ordered options', () => {
+    const contest: CandidateContestInterface = {
+      type: 'candidate',
+      id: 'governor',
+      districtId: 'district-1',
+      title: 'Governor',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'], // Cross-endorsed by Democrat and Republican
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionDefinition.election,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            governor: [
+              { id: 'alice', partyIds: ['0'] }, // Alice as Democrat
+              { id: 'bob', partyIds: ['2'] },
+              { id: 'alice', partyIds: ['1'] }, // Alice as Republican
+            ],
+          },
+        },
+      ],
+    };
+
+    render(
+      <CandidateContest
+        ballotStyleId="ballot-style-1"
+        election={election}
+        contest={contest}
+        vote={[]}
+        updateVote={vi.fn()}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+    expect(buttons).toHaveLength(3);
+
+    // Check that Alice appears twice with different party affiliations
+    within(buttons[0]).getByText('Alice Anderson');
+    within(buttons[0]).getByText('Federalist');
+    expect(within(buttons[0]).queryByText(/People/)).not.toBeInTheDocument();
+
+    within(buttons[1]).getByText('Bob Brown');
+    within(buttons[1]).getByText('Liberty');
+
+    within(buttons[2]).getByText('Alice Anderson');
+    within(buttons[2]).getByText(/People/);
+    expect(
+      within(buttons[2]).queryByText('Federalist')
+    ).not.toBeInTheDocument();
+  });
+
+  test('renders single bubble with both parties when cross-endorsed candidate appears as one ordered option', () => {
+    const contest: CandidateContestInterface = {
+      type: 'candidate',
+      id: 'governor',
+      districtId: 'district-1',
+      title: 'Governor',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'], // Cross-endorsed by Democrat and Republican
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionDefinition.election,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            governor: [
+              { id: 'alice', partyIds: ['0', '1'] }, // Alice with both parties
+              { id: 'bob', partyIds: ['2'] },
+            ],
+          },
+        },
+      ],
+    };
+
+    render(
+      <CandidateContest
+        ballotStyleId="ballot-style-1"
+        election={election}
+        contest={contest}
+        vote={[]}
+        updateVote={vi.fn()}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+    expect(buttons).toHaveLength(2);
+
+    // Check that Alice appears once with both party affiliations
+    within(buttons[0]).getByText('Alice Anderson');
+    within(buttons[0]).getByText('Federalist');
+    within(buttons[0]).getByText(/People/);
+
+    within(buttons[1]).getByText('Bob Brown');
+    within(buttons[1]).getByText('Liberty');
+  });
+
+  test('selecting cross-endorsed candidate shown twice only allows one selection', () => {
+    const contest: CandidateContestInterface = {
+      type: 'candidate',
+      id: 'governor',
+      districtId: 'district-1',
+      title: 'Governor',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'],
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionDefinition.election,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            governor: [
+              { id: 'alice', partyIds: ['0'] },
+              { id: 'bob', partyIds: ['2'] },
+              { id: 'alice', partyIds: ['1'] },
+            ],
+          },
+        },
+      ],
+    };
+
+    const updateVote = vi.fn();
+    render(
+      <CandidateContest
+        ballotStyleId="ballot-style-1"
+        election={election}
+        contest={contest}
+        vote={[]}
+        updateVote={updateVote}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+
+    // Click first Alice option (as Democrat)
+    userEvent.click(buttons[0]);
+
+    expect(updateVote).toHaveBeenCalledWith('governor', [
+      {
+        id: 'alice',
+        name: 'Alice Anderson',
+        partyIds: ['0', '1'], // Full party IDs from candidate definition, will change in the future
+      },
+    ]);
+  });
 });
