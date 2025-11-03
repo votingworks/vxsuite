@@ -128,9 +128,12 @@ export const PACKET_SIZE = 65536;
 const MAX_TRANSFER_IN_ATTEMPTS = 20;
 
 // USB reconnection retry configuration
-const MAX_USB_RECONNECTION_ATTEMPTS = 3;
+// Handles repeated USB disconnections that can occur from various causes
+// including physical disturbances, electrical interference, or device issues
+const MAX_USB_RECONNECTION_ATTEMPTS = 10;
 const USB_RECONNECTION_DELAY_MS = 1000;
-const USB_RECONNECTION_BACKOFF_MULTIPLIER = 2;
+const USB_RECONNECTION_BACKOFF_MULTIPLIER = 1.5;
+const MAX_RECONNECTION_DELAY_MS = 5000; // Cap maximum delay at 5 seconds
 const DEFAULT_LINE_SPACING = 0;
 
 export enum ReturnCodes {
@@ -376,8 +379,11 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
           break;
         }
 
-        // Increase delay for next reconnection attempt (exponential backoff)
-        delayMs *= USB_RECONNECTION_BACKOFF_MULTIPLIER;
+        // Increase delay for next reconnection attempt (exponential backoff with cap)
+        delayMs = Math.min(
+          delayMs * USB_RECONNECTION_BACKOFF_MULTIPLIER,
+          MAX_RECONNECTION_DELAY_MS
+        );
 
         // Retry the operation after successful reconnection
         debug(
