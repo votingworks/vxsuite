@@ -331,54 +331,85 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   /**
    * Wraps a USB operation with reconnection retry logic.
    * If the operation fails with a USB disconnection error, attempts to reconnect
-   * and retry the operation once. Skips reconnection if already in reconnection
-   * process to prevent infinite recursion.
+   * and retry the operation. Will retry up to MAX_USB_RECONNECTION_ATTEMPTS times.
+   * Skips reconnection if already in reconnection process to prevent infinite recursion.
    */
   private async withUsbReconnectionRetry<T>(
     operation: () => Promise<T>,
     operationName: string
   ): Promise<T> {
-    try {
-      return await operation();
-    } catch (error) {
-      // If we're already reconnecting, don't trigger another reconnection
-      // This prevents infinite recursion during re-initialization
-      if (this.isReconnecting) {
-        debug(
-          `${operationName} failed during reconnection, not attempting another reconnection`
-        );
-        throw error;
-      }
+    let lastError: unknown;
 
-      if (!this.isUsbDisconnectionError(error)) {
-        // Not a disconnection error, re-throw immediately
+    for (
+      let attempt = 0;
+      attempt <= MAX_USB_RECONNECTION_ATTEMPTS;
+      attempt += 1
+    ) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+
+        // If we're already reconnecting, don't trigger another reconnection
+        // This prevents infinite recursion during re-initialization
+        if (this.isReconnecting) {
+          debug(
+            `${operationName} failed during reconnection, not attempting another reconnection`
+          );
+          throw error;
+        }
+
+        if (!this.isUsbDisconnectionError(error)) {
+          // Not a disconnection error, re-throw immediately
+          debug(
+            `${operationName} failed with non-disconnection error: ${
+              error instanceof Error ? error.message : String(error)
+            }`
+          );
+          throw error;
+        }
+
+        // Don't attempt reconnection after the final retry
+        if (attempt === MAX_USB_RECONNECTION_ATTEMPTS) {
+          debug(
+            `${operationName} failed on final attempt (${attempt + 1}/${
+              MAX_USB_RECONNECTION_ATTEMPTS + 1
+            })`
+          );
+          break;
+        }
+
         debug(
-          `${operationName} failed with non-disconnection error: ${
+          `USB disconnection detected during ${operationName} (attempt ${
+            attempt + 1
+          }/${MAX_USB_RECONNECTION_ATTEMPTS + 1}): ${
             error instanceof Error ? error.message : String(error)
           }`
         );
-        throw error;
+
+        const reconnected = await this.reconnectUsbDevice(error);
+        if (!reconnected) {
+          debug(`Failed to reconnect after attempt ${attempt + 1}, giving up`);
+          break;
+        }
+
+        // Retry the operation after successful reconnection
+        debug(
+          `Retrying ${operationName} after successful reconnection (attempt ${
+            attempt + 2
+          }/${MAX_USB_RECONNECTION_ATTEMPTS + 1})`
+        );
       }
-
-      debug(
-        `USB disconnection detected during ${operationName}: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-
-      const reconnected = await this.reconnectUsbDevice(error);
-      if (!reconnected) {
-        const errorMessage = `${operationName} failed: Unable to reconnect to USB device after disconnection. Original error: ${
-          error instanceof Error ? error.message : String(error)
-        }`;
-        debug(errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      // Retry the operation after successful reconnection
-      debug(`Retrying ${operationName} after successful reconnection`);
-      return await operation();
     }
+
+    // If we get here, all attempts failed
+    const errorMessage = `${operationName} failed: Unable to complete operation after ${
+      MAX_USB_RECONNECTION_ATTEMPTS + 1
+    } attempts with reconnection. Last error: ${
+      lastError instanceof Error ? lastError.message : String(lastError)
+    }`;
+    debug(errorMessage);
+    throw new Error(errorMessage);
   }
 
   /**
