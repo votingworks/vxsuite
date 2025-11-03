@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {
   BallotStyleId,
   Candidate,
+  CandidateId,
   CandidateVote,
   CandidateContest as CandidateContestInterface,
   Election,
@@ -38,7 +39,7 @@ import {
   Font,
   virtualKeyboardCommon,
 } from '@votingworks/ui';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, unique } from '@votingworks/basics';
 
 import { UpdateVoteFunction } from '../config/types';
 
@@ -87,8 +88,46 @@ const WriteInModalActionsSidebar = styled.div`
   justify-content: center;
 `;
 
-function findCandidateById(candidates: readonly Candidate[], id: string) {
-  return candidates.find((c) => c.id === id);
+/**
+ * Creates a unique choice identifier for a candidate option that includes
+ * party information to distinguish between multiple options for cross-endorsed
+ * candidates.
+ */
+function getCandidateChoiceId(
+  candidateId: CandidateId,
+  partyIds?: readonly string[]
+): string {
+  if (!partyIds || partyIds.length === 0) {
+    return candidateId;
+  }
+  // Sort party IDs to ensure consistent ordering
+  return `${candidateId}|${[...partyIds].sort().join(',')}`;
+}
+
+/**
+ * Finds a candidate in the vote array that matches both the ID and partyIds.
+ * For cross-endorsed candidates, this ensures we match the specific party
+ * version that was selected.
+ */
+function findCandidateInVote(
+  vote: readonly Candidate[],
+  candidateId: CandidateId,
+  partyIds?: readonly string[]
+): Candidate | undefined {
+  return vote.find((c) => {
+    if (c.id !== candidateId) return false;
+    return (
+      getCandidateChoiceId(c.id, c.partyIds) ===
+      getCandidateChoiceId(candidateId, partyIds)
+    );
+  });
+}
+
+function findCandidateInVoteWithAnyParty(
+  vote: readonly Candidate[],
+  candidateId: CandidateId
+): Candidate | undefined {
+  return vote.find((c) => c.id === candidateId);
 }
 
 function normalizeCandidateName(name: string) {
@@ -136,6 +175,9 @@ export function CandidateContest({
   const writeInCharacterLimitAcrossContestsIsLimitingFactor =
     writeInCharacterLimit < WRITE_IN_CANDIDATE_MAX_LENGTH;
 
+  const uniqueCandidatesSelected = unique(vote.map((c) => c.id)).length;
+  const hasReachedMaxSelections = uniqueCandidatesSelected >= contest.seats;
+
   useEffect(() => {
     if (recentlyDeselectedCandidate !== '') {
       const timer = setTimeout(() => {
@@ -154,20 +196,25 @@ export function CandidateContest({
     }
   }, [recentlySelectedCandidate]);
 
-  function addCandidateToVote(id: string) {
-    const { candidates } = contest;
-    const candidate = findCandidateById(candidates, id);
-    assert(candidate);
-    updateVote(contest.id, [...vote, candidate]);
-    setRecentlySelectedCandidate(id);
+  function addCandidateToVote(choiceId: string) {
+    // Find the candidate in orderedCandidates to get the correct partyIds
+    // for the specific option that was selected
+    const orderedCandidate = orderedCandidates.find(
+      (c) => getCandidateChoiceId(c.id, c.partyIds) === choiceId
+    );
+    assert(orderedCandidate, `Candidate not found for choice ${choiceId}`);
+
+    // Store the candidate with the specific partyIds from the selected option
+    updateVote(contest.id, [...vote, orderedCandidate]);
+    setRecentlySelectedCandidate(choiceId);
   }
 
-  function removeCandidateFromVote(id: string) {
+  function removeCandidateFromVote(choiceId: string) {
     const newVote: Candidate[] = [];
 
     let nextWriteInIndex = 0;
     for (const c of vote) {
-      if (c.id === id) continue;
+      if (getCandidateChoiceId(c.id, c.partyIds) === choiceId) continue;
 
       if (!c.isWriteIn) {
         newVote.push(c);
@@ -179,21 +226,33 @@ export function CandidateContest({
     }
 
     updateVote(contest.id, newVote);
-    setRecentlyDeselectedCandidate(id);
+    setRecentlyDeselectedCandidate(choiceId);
   }
 
-  function handleUpdateSelection(candidateId: string) {
+  function handleUpdateSelection(choiceId: string) {
     /* istanbul ignore else - @preserve */
-    if (candidateId) {
-      const candidate = findCandidateById(vote, candidateId);
-      if (candidate) {
-        if (candidate.isWriteIn) {
-          setWriteInPendingRemoval(candidate);
+    if (choiceId) {
+      // Parse choice ID to get candidate info
+      const orderedCandidate = orderedCandidates.find(
+        (c) => getCandidateChoiceId(c.id, c.partyIds) === choiceId
+      );
+
+      const candidateInVote = orderedCandidate
+        ? findCandidateInVote(
+            vote,
+            orderedCandidate.id,
+            orderedCandidate.partyIds
+          )
+        : findCandidateInVoteWithAnyParty(vote, choiceId);
+
+      if (candidateInVote) {
+        if (candidateInVote.isWriteIn) {
+          setWriteInPendingRemoval(candidateInVote);
         } else {
-          removeCandidateFromVote(candidateId);
+          removeCandidateFromVote(choiceId);
         }
       } else {
-        addCandidateToVote(candidateId);
+        addCandidateToVote(choiceId);
       }
     }
   }
@@ -299,8 +358,6 @@ export function CandidateContest({
     });
   }
 
-  const hasReachedMaxSelections = contest.seats === vote.length;
-
   const writeInModalTitle = (
     <React.Fragment>
       {appStrings.labelWriteInTitleCaseColon()}{' '}
@@ -339,7 +396,10 @@ export function CandidateContest({
           )}
           <Caption>
             {appStrings.labelNumVotesRemaining()}{' '}
-            <NumberString value={contest.seats - vote.length} weight="bold" />
+            <NumberString
+              value={contest.seats - uniqueCandidatesSelected}
+              weight="bold"
+            />
             <AudioOnly>
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}
@@ -351,19 +411,40 @@ export function CandidateContest({
         <WithScrollButtons>
           <ChoicesGrid>
             {orderedCandidates.map((candidate) => {
-              const isChecked = !!findCandidateById(vote, candidate.id);
-              const isDisabled = hasReachedMaxSelections && !isChecked;
+              const choiceId = getCandidateChoiceId(
+                candidate.id,
+                candidate.partyIds
+              );
+              const isChecked = !!findCandidateInVote(
+                vote,
+                candidate.id,
+                candidate.partyIds
+              );
+              // In the case of a cross-endorsed candidate, we consider any
+              // version of that candidate as equivalent in tabulation and the voter
+              // may select multiple versions without it impacting the number of selections / overvote trigger.
+              const isEquivalentToSelected = findCandidateInVoteWithAnyParty(
+                vote,
+                candidate.id
+              );
+              const isDisabled =
+                hasReachedMaxSelections &&
+                !isChecked &&
+                !isEquivalentToSelected;
+
               function handleDisabledClick() {
                 handleChangeVoteAlert(candidate);
               }
               let prefixAudioText: ReactNode = null;
               let suffixAudioText: ReactNode = null;
 
-              const numVotesRemaining = contest.seats - vote.length;
+              // Recalculate unique candidates after this selection/deselection
+              const numVotesRemaining =
+                contest.seats - uniqueCandidatesSelected;
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelected();
 
-                if (recentlySelectedCandidate === candidate.id) {
+                if (recentlySelectedCandidate === choiceId) {
                   suffixAudioText =
                     numVotesRemaining > 0 ? (
                       <React.Fragment>
@@ -374,7 +455,7 @@ export function CandidateContest({
                       appStrings.noteBmdContestCompleted()
                     );
                 }
-              } else if (recentlyDeselectedCandidate === candidate.id) {
+              } else if (recentlyDeselectedCandidate === choiceId) {
                 prefixAudioText = appStrings.labelDeselected();
 
                 suffixAudioText = (
@@ -387,12 +468,12 @@ export function CandidateContest({
 
               return (
                 <ContestChoiceButton
-                  key={candidate.id}
+                  key={choiceId}
                   isSelected={isChecked}
                   onPress={
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
-                  choice={candidate.id}
+                  choice={choiceId}
                   label={
                     <React.Fragment>
                       <AudioOnly>{prefixAudioText}</AudioOnly>

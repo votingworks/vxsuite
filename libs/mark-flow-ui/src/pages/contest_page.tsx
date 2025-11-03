@@ -17,7 +17,7 @@ import {
   PageNavigationButtonId,
   AccessibilityMode,
 } from '@votingworks/ui';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, throwIllegalValue, uniqueBy } from '@votingworks/basics';
 
 import { Contest, ContestProps } from '../components/contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
@@ -101,7 +101,10 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       case 'yesno':
         return !!vote;
       case 'candidate':
-        return contest.seats === ((vote as CandidateVote) ?? []).length;
+        return (
+          contest.seats ===
+          uniqueBy((vote as CandidateVote) ?? [], (c) => c.id).length
+        );
       case 'ms-either-neither':
         return (
           votes[contest.pickOneContestId]?.length === 1 ||
