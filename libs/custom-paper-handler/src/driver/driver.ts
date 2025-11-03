@@ -244,11 +244,14 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   /**
-   * Attempts to reconnect to the USB device with exponential backoff.
+   * Attempts to reconnect to the USB device once.
    * Uses a lock to ensure only one reconnection attempt happens at a time.
    * Sets the isReconnecting flag to prevent infinite recursion during re-initialization.
    */
-  private async reconnectUsbDevice(originalError: unknown): Promise<boolean> {
+  private async reconnectUsbDevice(
+    originalError: unknown,
+    delayMs: number
+  ): Promise<boolean> {
     // Use a lock to prevent multiple simultaneous reconnection attempts
     return await this.reconnectionLock.withLock(async () => {
       debug(
@@ -259,79 +262,58 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         }`
       );
 
-      let delayMs = USB_RECONNECTION_DELAY_MS;
-
-      for (
-        let attempt = 1;
-        attempt <= MAX_USB_RECONNECTION_ATTEMPTS;
-        attempt += 1
-      ) {
+      try {
+        // Close the current connection if still open
         try {
-          debug(
-            `Reconnection attempt ${attempt}/${MAX_USB_RECONNECTION_ATTEMPTS}`
-          );
-
-          // Close the current connection if still open
-          try {
-            await this.webDevice.close();
-          } catch (closeError) {
-            // Ignore errors when closing disconnected device
-            debug(
-              `Error closing disconnected device (expected): ${closeError}`
-            );
-          }
-
-          // Wait before attempting to reconnect
-          debug(`Waiting ${delayMs}ms before reconnection attempt`);
-          await sleep(delayMs);
-
-          // Get a new device connection
-          const newWebDevice = await getPaperHandlerWebDevice();
-          if (!newWebDevice) {
-            debug(`Failed to find device on attempt ${attempt}`);
-            delayMs *= USB_RECONNECTION_BACKOFF_MULTIPLIER;
-            continue;
-          }
-
-          // Update the webDevice and reconnect
-          this.webDevice = newWebDevice;
-          await this.connect();
-
-          // Set flag to prevent infinite recursion during re-initialization
-          this.isReconnecting = true;
-          try {
-            // Re-initialize the device to restore settings
-            await this.initializePrinter();
-            await this.setLineSpacing(DEFAULT_LINE_SPACING);
-          } finally {
-            this.isReconnecting = false;
-          }
-
-          debug('Successfully reconnected to USB device');
-          return true;
-        } catch (error) {
-          debug(
-            `Reconnection attempt ${attempt} failed: ${
-              error instanceof Error ? error.message : String(error)
-            }`
-          );
-          delayMs *= USB_RECONNECTION_BACKOFF_MULTIPLIER;
-
-          if (attempt === MAX_USB_RECONNECTION_ATTEMPTS) {
-            debug('Max reconnection attempts reached, giving up');
-            return false;
-          }
+          await this.webDevice.close();
+        } catch (closeError) {
+          // Ignore errors when closing disconnected device
+          debug(`Error closing disconnected device (expected): ${closeError}`);
         }
-      }
 
-      return false;
+        // Wait before attempting to reconnect
+        debug(`Waiting ${delayMs}ms before reconnection attempt`);
+        await sleep(delayMs);
+
+        // Get a new device connection
+        const newWebDevice = await getPaperHandlerWebDevice();
+        if (!newWebDevice) {
+          debug('Failed to find device');
+          return false;
+        }
+
+        // Update the webDevice and reconnect
+        this.webDevice = newWebDevice;
+        await this.connect();
+
+        // Set flag to prevent infinite recursion during re-initialization
+        this.isReconnecting = true;
+        try {
+          // Re-initialize the device to restore settings
+          await this.initializePrinter();
+          await this.setLineSpacing(DEFAULT_LINE_SPACING);
+        } finally {
+          this.isReconnecting = false;
+        }
+
+        debug('Successfully reconnected to USB device');
+        return true;
+      } catch (error) {
+        debug(
+          `Reconnection failed: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+        return false;
+      }
     });
   }
 
   /**
    * Wraps a USB operation with reconnection retry logic.
    * If the operation fails with a USB disconnection error, attempts to reconnect
-   * and retry the operation. Will retry up to MAX_USB_RECONNECTION_ATTEMPTS times.
+   * and retry the operation. Will retry up to MAX_USB_RECONNECTION_ATTEMPTS times
+   * with exponential backoff between reconnection attempts.
    * Skips reconnection if already in reconnection process to prevent infinite recursion.
    */
   private async withUsbReconnectionRetry<T>(
@@ -339,6 +321,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     operationName: string
   ): Promise<T> {
     let lastError: unknown;
+    let delayMs = USB_RECONNECTION_DELAY_MS;
 
     for (
       let attempt = 0;
@@ -387,11 +370,14 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
           }`
         );
 
-        const reconnected = await this.reconnectUsbDevice(error);
+        const reconnected = await this.reconnectUsbDevice(error, delayMs);
         if (!reconnected) {
           debug(`Failed to reconnect after attempt ${attempt + 1}, giving up`);
           break;
         }
+
+        // Increase delay for next reconnection attempt (exponential backoff)
+        delayMs *= USB_RECONNECTION_BACKOFF_MULTIPLIER;
 
         // Retry the operation after successful reconnection
         debug(
