@@ -870,11 +870,12 @@ describe('candidate ordering', () => {
     );
 
     const buttons = screen.getAllByRole('option');
-    expect(buttons).toHaveLength(2);
+    expect(buttons).toHaveLength(3);
 
     // Check that candidates appear in ballot style 1-1 order
     within(buttons[0]).getByText('Sherlock Holmes');
-    within(buttons[1]).getByText('Thomas Edison');
+    within(buttons[1]).getByText('Sherlock Holmes');
+    within(buttons[2]).getByText('Thomas Edison');
   });
 
   test('renders candidates in different order for different ballot style', () => {
@@ -889,7 +890,7 @@ describe('candidate ordering', () => {
       allowWriteIns: false,
     };
 
-    // Ballot style 1-2 has order: thomas-edison, sherlock-holmes (reversed)
+    // Ballot style 1-2 has order: sherlock-homes-liberty, thomas-edison, sherlock-holmes-dem (reversed)
     render(
       <CandidateContest
         ballotStyleId="1-2"
@@ -901,11 +902,12 @@ describe('candidate ordering', () => {
     );
 
     const buttons = screen.getAllByRole('option');
-    expect(buttons).toHaveLength(2);
+    expect(buttons).toHaveLength(3);
 
-    // Check that candidates appear in ballot style 1-2 order (reversed from 1-1)
-    within(buttons[0]).getByText('Thomas Edison');
-    within(buttons[1]).getByText('Sherlock Holmes');
+    // Check that candidates appear in ballot style 1-2 order
+    within(buttons[0]).getByText('Sherlock Holmes');
+    within(buttons[1]).getByText('Thomas Edison');
+    within(buttons[2]).getByText('Sherlock Holmes');
   });
 
   test('renders candidates in rotated order for multi-candidate contest', () => {
