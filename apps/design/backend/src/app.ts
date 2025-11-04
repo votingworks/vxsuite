@@ -349,6 +349,11 @@ export function buildApi(ctx: AppContext) {
               return {
                 ...sourceElection,
                 id: input.newId,
+                county: {
+                  ...sourceElection.county,
+                  // County ID needs to be deterministic, but doesn't actually get used anywhere
+                  countyId: `${input.newId}-county`,
+                },
                 districts,
                 precincts,
                 parties,
