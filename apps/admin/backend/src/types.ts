@@ -461,6 +461,7 @@ export interface VoteAdjudication {
 export interface CastVoteRecordVoteInfo {
   id: Id;
   electionId: Id;
+  ballotStyleGroupId: BallotStyleGroupId;
   votes: Tabulation.CastVoteRecord['votes'];
 }
 

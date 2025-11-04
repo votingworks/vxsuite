@@ -2121,6 +2121,7 @@ export class Store {
         select
           id,
           election_id as electionId,
+          ballot_style_group_id as ballotStyleGroupId,
           votes
         from cvrs
         where
@@ -2132,12 +2133,14 @@ export class Store {
     ) as {
       id: Id;
       electionId: Id;
+      ballotStyleGroupId: BallotStyleGroupId;
       votes: string;
     };
 
     return {
       id: row.id,
       electionId: row.electionId,
+      ballotStyleGroupId: row.ballotStyleGroupId,
       votes: JSON.parse(row.votes),
     };
   }
