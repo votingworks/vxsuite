@@ -46,7 +46,7 @@
         {
           "id": "sherlock-holmes",
           "name": "Sherlock Holmes",
-          "partyIds": ["0"]
+          "partyIds": ["0", "2"]
         },
         {
           "id": "thomas-edison",
@@ -318,6 +318,7 @@
       "orderedCandidatesByContest": {
         "mayor": [
           { "id": "sherlock-holmes", "partyIds": ["0"] },
+          { "id": "sherlock-holmes", "partyIds": ["2"] },
           { "id": "thomas-edison", "partyIds": ["1"] }
         ],
         "controller": [
@@ -374,6 +375,7 @@
       "districts": ["district-1"],
       "orderedCandidatesByContest": {
         "mayor": [
+          { "id": "sherlock-holmes", "partyIds": ["2"] },
           { "id": "thomas-edison", "partyIds": ["1"] },
           { "id": "sherlock-holmes", "partyIds": ["0"] }
         ],
@@ -432,7 +434,8 @@
       "orderedCandidatesByContest": {
         "mayor": [
           { "id": "sherlock-holmes", "partyIds": ["0"] },
-          { "id": "thomas-edison", "partyIds": ["1"] }
+          { "id": "thomas-edison", "partyIds": ["1"] },
+          { "id": "sherlock-holmes", "partyIds": ["2"] }
         ],
         "controller": [
           { "id": "louis-armstrong", "partyIds": ["3"] },
@@ -489,6 +492,7 @@
       "orderedCandidatesByContest": {
         "mayor": [
           { "id": "thomas-edison", "partyIds": ["1"] },
+          { "id": "sherlock-holmes", "partyIds": ["2"] },
           { "id": "sherlock-holmes", "partyIds": ["0"] }
         ],
         "controller": [
