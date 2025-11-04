@@ -18,10 +18,8 @@ test('load MS SEMS election', async () => {
     orgId: vxUser.orgId,
     upload: {
       format: 'ms-sems',
-      electionFileContents: await readFixture(
-        'ms-sems-election-general-10.csv'
-      ),
-      candidateFileContents: await readFixture(
+      electionFileContents: readFixture('ms-sems-election-general-10.csv'),
+      candidateFileContents: readFixture(
         'ms-sems-election-candidates-general-10.csv'
       ),
     },
@@ -39,10 +37,10 @@ test('returns errors when loading invalid MS SEMS election', async () => {
     upload: {
       format: 'ms-sems',
       // Corrupt the election file by truncating it prematurely
-      electionFileContents: (
-        await readFixture('ms-sems-election-general-10.csv')
+      electionFileContents: readFixture(
+        'ms-sems-election-general-10.csv'
       ).substring(0, 50),
-      candidateFileContents: await readFixture(
+      candidateFileContents: readFixture(
         'ms-sems-election-candidates-general-10.csv'
       ),
     },
