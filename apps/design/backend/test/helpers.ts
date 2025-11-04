@@ -237,6 +237,10 @@ export async function exportElectionPackage({
   const electionPackage = await apiClient.getElectionPackage({
     electionId,
   });
+  assert(
+    electionPackage.task?.error === undefined,
+    'Election package export failed with error: ' + electionPackage.task?.error
+  );
   return assertDefined(
     assertDefined(electionPackage.url).match(ELECTION_PACKAGE_FILE_NAME_REGEX)
   )[0];
