@@ -95,13 +95,18 @@ test('interpret `ImageData` objects', async () => {
       },
       {
         "contestId": "mayor",
+        "optionId": "sherlock-holmes",
+        "score": 0.5778846,
+      },
+      {
+        "contestId": "mayor",
         "optionId": "thomas-edison",
         "score": 0,
       },
       {
         "contestId": "mayor",
         "optionId": "write-in-0",
-        "score": 0.5778846,
+        "score": 0.57884616,
       },
       {
         "contestId": "controller",
@@ -394,13 +399,18 @@ test('interpret images from paths', async () => {
       },
       {
         "contestId": "mayor",
+        "optionId": "sherlock-holmes",
+        "score": 0.5778846,
+      },
+      {
+        "contestId": "mayor",
         "optionId": "thomas-edison",
         "score": 0,
       },
       {
         "contestId": "mayor",
         "optionId": "write-in-0",
-        "score": 0.5778846,
+        "score": 0.57884616,
       },
       {
         "contestId": "controller",

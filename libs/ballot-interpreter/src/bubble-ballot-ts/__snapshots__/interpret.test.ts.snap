@@ -4,7 +4,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
 [
   {
     "bounds": {
-      "height": 346,
+      "height": 454,
       "left": 102,
       "top": 665,
       "width": 480,
@@ -37,18 +37,32 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "row": 14.820113,
           "side": "front",
         },
-        "optionId": "thomas-edison",
+        "optionId": "sherlock-holmes",
       },
       {
         "bounds": {
           "height": 115,
           "left": 102,
-          "top": 896,
+          "top": 879,
           "width": 480,
         },
         "gridLocation": {
           "column": 1.7146381,
-          "row": 17.168468,
+          "row": 16.838778,
+          "side": "front",
+        },
+        "optionId": "thomas-edison",
+      },
+      {
+        "bounds": {
+          "height": 116,
+          "left": 102,
+          "top": 1003,
+          "width": 480,
+        },
+        "gridLocation": {
+          "column": 1.7146381,
+          "row": 19.187132,
           "side": "front",
         },
         "optionId": "write-in-0",
@@ -59,25 +73,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
     "bounds": {
       "height": 453,
       "left": 102,
-      "top": 1142,
+      "top": 1249,
       "width": 480,
     },
     "contestId": "controller",
     "options": [
-      {
-        "bounds": {
-          "height": 114,
-          "left": 102,
-          "top": 1142,
-          "width": 480,
-        },
-        "gridLocation": {
-          "column": 1.7146381,
-          "row": 21.79089,
-          "side": "front",
-        },
-        "optionId": "winston-churchill",
-      },
       {
         "bounds": {
           "height": 114,
@@ -90,7 +90,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "row": 23.809553,
           "side": "front",
         },
-        "optionId": "oprah-winfrey",
+        "optionId": "winston-churchill",
       },
       {
         "bounds": {
@@ -104,18 +104,32 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "row": 25.828217,
           "side": "front",
         },
+        "optionId": "oprah-winfrey",
+      },
+      {
+        "bounds": {
+          "height": 115,
+          "left": 102,
+          "top": 1463,
+          "width": 480,
+        },
+        "gridLocation": {
+          "column": 1.7146381,
+          "row": 27.846882,
+          "side": "front",
+        },
         "optionId": "louis-armstrong",
       },
       {
         "bounds": {
           "height": 114,
           "left": 102,
-          "top": 1481,
+          "top": 1588,
           "width": 480,
         },
         "gridLocation": {
           "column": 1.7146381,
-          "row": 28.17657,
+          "row": 30.195236,
           "side": "front",
         },
         "optionId": "write-in-0",
@@ -760,7 +774,7 @@ exports[`interpret images from paths 1`] = `
 [
   {
     "bounds": {
-      "height": 346,
+      "height": 454,
       "left": 102,
       "top": 665,
       "width": 480,
@@ -793,18 +807,32 @@ exports[`interpret images from paths 1`] = `
           "row": 14.820113,
           "side": "front",
         },
-        "optionId": "thomas-edison",
+        "optionId": "sherlock-holmes",
       },
       {
         "bounds": {
           "height": 115,
           "left": 102,
-          "top": 896,
+          "top": 879,
           "width": 480,
         },
         "gridLocation": {
           "column": 1.7146381,
-          "row": 17.168468,
+          "row": 16.838778,
+          "side": "front",
+        },
+        "optionId": "thomas-edison",
+      },
+      {
+        "bounds": {
+          "height": 116,
+          "left": 102,
+          "top": 1003,
+          "width": 480,
+        },
+        "gridLocation": {
+          "column": 1.7146381,
+          "row": 19.187132,
           "side": "front",
         },
         "optionId": "write-in-0",
@@ -815,25 +843,11 @@ exports[`interpret images from paths 1`] = `
     "bounds": {
       "height": 453,
       "left": 102,
-      "top": 1142,
+      "top": 1249,
       "width": 480,
     },
     "contestId": "controller",
     "options": [
-      {
-        "bounds": {
-          "height": 114,
-          "left": 102,
-          "top": 1142,
-          "width": 480,
-        },
-        "gridLocation": {
-          "column": 1.7146381,
-          "row": 21.79089,
-          "side": "front",
-        },
-        "optionId": "winston-churchill",
-      },
       {
         "bounds": {
           "height": 114,
@@ -846,7 +860,7 @@ exports[`interpret images from paths 1`] = `
           "row": 23.809553,
           "side": "front",
         },
-        "optionId": "oprah-winfrey",
+        "optionId": "winston-churchill",
       },
       {
         "bounds": {
@@ -860,18 +874,32 @@ exports[`interpret images from paths 1`] = `
           "row": 25.828217,
           "side": "front",
         },
+        "optionId": "oprah-winfrey",
+      },
+      {
+        "bounds": {
+          "height": 115,
+          "left": 102,
+          "top": 1463,
+          "width": 480,
+        },
+        "gridLocation": {
+          "column": 1.7146381,
+          "row": 27.846882,
+          "side": "front",
+        },
         "optionId": "louis-armstrong",
       },
       {
         "bounds": {
           "height": 114,
           "left": 102,
-          "top": 1481,
+          "top": 1588,
           "width": 480,
         },
         "gridLocation": {
           "column": 1.7146381,
-          "row": 28.17657,
+          "row": 30.195236,
           "side": "front",
         },
         "optionId": "write-in-0",
@@ -1518,7 +1546,7 @@ exports[`score write in areas 1`] = `
     "gridPosition": {
       "column": 1.7146381,
       "contestId": "mayor",
-      "row": 17.168468,
+      "row": 19.187132,
       "sheetNumber": 1,
       "side": "front",
       "type": "write-in",
@@ -1526,27 +1554,27 @@ exports[`score write in areas 1`] = `
         "height": 1,
         "width": 7.8,
         "x": 2.614638,
-        "y": 16.368467,
+        "y": 18.38713,
       },
       "writeInIndex": 0,
     },
-    "score": 0.05723077,
+    "score": 0.0563522,
     "shape": {
       "bottomLeft": {
         "x": 182.08185,
-        "y": 958,
+        "y": 1065.5,
       },
       "bottomRight": {
         "x": 556.71826,
-        "y": 958,
+        "y": 1065.5,
       },
       "topLeft": {
         "x": 182.08185,
-        "y": 906,
+        "y": 1013,
       },
       "topRight": {
         "x": 556.71826,
-        "y": 906,
+        "y": 1013,
       },
     },
   },
@@ -1554,7 +1582,7 @@ exports[`score write in areas 1`] = `
     "gridPosition": {
       "column": 1.7146381,
       "contestId": "controller",
-      "row": 28.17657,
+      "row": 30.195236,
       "sheetNumber": 1,
       "side": "front",
       "type": "write-in",
@@ -1562,7 +1590,7 @@ exports[`score write in areas 1`] = `
         "height": 1,
         "width": 7.8,
         "x": 2.614638,
-        "y": 27.376572,
+        "y": 29.395235,
       },
       "writeInIndex": 0,
     },
@@ -1570,19 +1598,19 @@ exports[`score write in areas 1`] = `
     "shape": {
       "bottomLeft": {
         "x": 182.08185,
-        "y": 1542.5,
+        "y": 1649.5,
       },
       "bottomRight": {
         "x": 556.71826,
-        "y": 1542.5,
+        "y": 1649.5,
       },
       "topLeft": {
         "x": 182.08185,
-        "y": 1489.5,
+        "y": 1596.5,
       },
       "topRight": {
         "x": 556.71826,
-        "y": 1489.5,
+        "y": 1596.5,
       },
     },
   },

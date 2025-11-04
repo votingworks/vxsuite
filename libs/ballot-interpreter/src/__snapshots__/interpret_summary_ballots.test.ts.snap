@@ -10,7 +10,7 @@ exports[`VX BMD interpretation > crops black headers and footers 1`] = `
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "9f738a38c676ad6a03d2",
+      "ballotHash": "346d8975d7480f2c8e0d",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -111,6 +111,7 @@ exports[`VX BMD interpretation > crops black headers and footers 1`] = `
           "name": "Sherlock Holmes",
           "partyIds": [
             "0",
+            "2",
           ],
         },
       ],
@@ -150,7 +151,7 @@ exports[`VX BMD interpretation > extracts votes encoded in a QR code 1`] = `
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "9f738a38c676ad6a03d2",
+      "ballotHash": "346d8975d7480f2c8e0d",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -251,6 +252,7 @@ exports[`VX BMD interpretation > extracts votes encoded in a QR code 1`] = `
           "name": "Sherlock Holmes",
           "partyIds": [
             "0",
+            "2",
           ],
         },
       ],
@@ -290,7 +292,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "9f738a38c676ad6a03d2",
+      "ballotHash": "346d8975d7480f2c8e0d",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -391,6 +393,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
           "name": "Sherlock Holmes",
           "partyIds": [
             "0",
+            "2",
           ],
         },
       ],
@@ -430,7 +433,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "9f738a38c676ad6a03d2",
+      "ballotHash": "346d8975d7480f2c8e0d",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -531,6 +534,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
           "name": "Sherlock Holmes",
           "partyIds": [
             "0",
+            "2",
           ],
         },
       ],
@@ -570,7 +574,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "9f738a38c676ad6a03d2",
+      "ballotHash": "346d8975d7480f2c8e0d",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -671,6 +675,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
           "name": "Sherlock Holmes",
           "partyIds": [
             "0",
+            "2",
           ],
         },
       ],
@@ -710,7 +715,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "9f738a38c676ad6a03d2",
+      "ballotHash": "346d8975d7480f2c8e0d",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -811,6 +816,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
           "name": "Sherlock Holmes",
           "partyIds": [
             "0",
+            "2",
           ],
         },
       ],
@@ -850,7 +856,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotat
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "9f738a38c676ad6a03d2",
+      "ballotHash": "346d8975d7480f2c8e0d",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -951,6 +957,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotat
           "name": "Sherlock Holmes",
           "partyIds": [
             "0",
+            "2",
           ],
         },
       ],
@@ -990,7 +997,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotat
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "9f738a38c676ad6a03d2",
+      "ballotHash": "346d8975d7480f2c8e0d",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -1091,6 +1098,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotat
           "name": "Sherlock Holmes",
           "partyIds": [
             "0",
+            "2",
           ],
         },
       ],
@@ -1130,7 +1138,7 @@ exports[`VX BMD interpretation > interpretSimplexBmdBallot 1`] = `
       "requiresAdjudication": false,
     },
     "metadata": {
-      "ballotHash": "9f738a38c676ad6a03d2",
+      "ballotHash": "346d8975d7480f2c8e0d",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -1231,6 +1239,7 @@ exports[`VX BMD interpretation > interpretSimplexBmdBallot 1`] = `
           "name": "Sherlock Holmes",
           "partyIds": [
             "0",
+            "2",
           ],
         },
       ],
