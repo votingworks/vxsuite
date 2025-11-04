@@ -65,7 +65,7 @@ export function getOrderedCandidatesForContestInBallotStyle({
   ballotStyle,
 }: {
   contest: CandidateContest;
-  ballotStyle: BallotStyle;
+  ballotStyle: BallotStyle | BallotStyleGroup;
 }): readonly Candidate[] {
   const candidateOrdering =
     ballotStyle.orderedCandidatesByContest?.[contest.id];
