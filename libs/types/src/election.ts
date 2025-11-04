@@ -768,10 +768,12 @@ export const ElectionSchema: z.ZodSchema<Election> = z
                 });
                 continue;
               }
-              const candidatePartyIds = candidate.partyIds ?? [];
-              const orderedCandidatePartyIds = [...candidateOptions].flatMap(
-                (oc) => oc.partyIds ?? []
-              );
+              const candidatePartyIds = candidate.partyIds
+                ? [...candidate.partyIds].sort()
+                : [];
+              const orderedCandidatePartyIds = [...candidateOptions]
+                .flatMap((oc) => oc.partyIds ?? [])
+                .sort();
               if (
                 JSON.stringify(candidatePartyIds) !==
                 JSON.stringify(orderedCandidatePartyIds)
