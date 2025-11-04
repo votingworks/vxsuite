@@ -224,6 +224,7 @@ export type OptionInfo =
       type: 'option';
       contestId: string;
       optionId: string;
+      partyIds?: readonly string[];
     }
   | {
       type: 'write-in';
