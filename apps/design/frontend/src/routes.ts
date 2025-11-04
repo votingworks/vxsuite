@@ -155,6 +155,10 @@ export const routes = {
           path: `${root}/reports/tally-by-precinct/${precinctId}`,
         }),
       },
+      convertResults: {
+        title: 'Convert Results',
+        path: `${root}/convert-results`,
+      },
     };
   },
 } as const;
@@ -181,5 +185,6 @@ export function electionNavRoutes(
     ...(electionSystemSettings.quickResultsReportingUrl
       ? [electionRoutes.reports.root]
       : []),
+    ...(features.MS_SEMS_CONVERSION ? [electionRoutes.convertResults] : []),
   ];
 }

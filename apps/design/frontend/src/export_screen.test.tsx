@@ -24,8 +24,6 @@ import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api';
 const electionRecord = generalElectionRecord(user.orgId);
 const electionId = electionRecord.election.id;
 
-vi.mock('js-file-download');
-
 vi.mock(import('./utils'), async (importActual) => ({
   ...(await importActual()),
   downloadFile: vi.fn(),

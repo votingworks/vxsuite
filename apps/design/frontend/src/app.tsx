@@ -32,6 +32,7 @@ import { ExportScreen } from './export_screen';
 import { ErrorScreen } from './error_screen';
 import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen';
 import { LiveReportsScreen } from './live_reports_screen';
+import { ConvertResultsScreen } from './convert_results_screen';
 
 function ElectionScreens(): JSX.Element {
   return (
@@ -60,6 +61,10 @@ function ElectionScreens(): JSX.Element {
       <Route
         path={electionParamRoutes.reports.root.path}
         component={LiveReportsScreen}
+      />
+      <Route
+        path={electionParamRoutes.convertResults.path}
+        component={ConvertResultsScreen}
       />
       <Redirect
         from={electionParamRoutes.root.path}

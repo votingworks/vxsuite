@@ -826,6 +826,13 @@ export const getElectionFeatures = {
   },
 } as const;
 
+export const convertMsResults = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.convertMsResults);
+  },
+} as const;
+
 export const decryptCvrBallotAuditIds = {
   useMutation() {
     const apiClient = useApiClient();
