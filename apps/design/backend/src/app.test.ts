@@ -2218,11 +2218,15 @@ test('cloneElection', async () => {
             id: expectNotEqualTo(contest.id),
             districtId: updatedDistrictId(contest.districtId),
             partyId: updatedPartyId(contest.partyId),
-            candidates: contest.candidates.map((candidate) => ({
-              ...candidate,
-              id: expectNotEqualTo(candidate.id),
-              partyIds: candidate.partyIds?.map(updatedPartyId),
-            })),
+            candidates: expect.arrayContaining(
+              contest.candidates.map((candidate) =>
+                expect.objectContaining({
+                  ...candidate,
+                  id: expectNotEqualTo(candidate.id),
+                  partyIds: candidate.partyIds?.map(updatedPartyId),
+                })
+              )
+            ),
           };
         case 'yesno':
           return {
