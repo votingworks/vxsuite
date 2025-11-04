@@ -331,7 +331,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   const officialOptions = useMemo(() => {
     if (!cvrVoteInfoQuery.data) {
-      return [];
+      // Return a placeholder that will be replaced once data loads
+      return isCandidateContest
+        ? contest.candidates.filter((c) => !c.isWriteIn)
+        : [contest.yesOption, contest.noOption];
     }
     const ballotStyleGroup = assertDefined(
       getBallotStyleGroup({
