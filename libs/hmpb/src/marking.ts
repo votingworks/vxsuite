@@ -3,11 +3,9 @@ import PdfDocument from 'pdfkit';
 import { assert } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
-  BallotStyle,
   Candidate,
   CandidateContest,
   Election,
-  getBallotStyle,
   GridPosition,
   GridPositionOption,
   Rect,
@@ -74,9 +72,6 @@ export function generateMarkOverlay(
   );
   assert(layout, `no grid layout found for ballot style ${ballotStyleId}`);
 
-  const ballotStyle = getBallotStyle({ election, ballotStyleId });
-  assert(ballotStyle, `no ballot style found for ${ballotStyleId}`);
-
   /**
    * Center of the top-left timing mark, potentially adjusted per
    * machine-specific calibration.
@@ -122,7 +117,7 @@ export function generateMarkOverlay(
     const contest = election.contests.find((c) => c.id === pos.contestId);
     assert(contest, `contest ${pos.contestId} not found`);
 
-    const mark = markInfo(contestVotes, pos, contest, ballotStyle, layout);
+    const mark = markInfo(contestVotes, pos, contest, layout);
     if (!mark) continue;
 
     doc.switchToPage(pageNumber - 1); // Pages are 0-indexed in `pdfkit`.
@@ -201,7 +196,6 @@ function markInfo(
   votes: Vote,
   gridPos: GridPosition,
   contest: CandidateContest | { type: 'yesno'; id: string },
-  ballotStyle: BallotStyle | undefined,
   layout: { gridPositions: readonly GridPosition[] }
 ): MarkInfo | null {
   for (const vote of votes) {
@@ -225,22 +219,11 @@ function markInfo(
       continue;
     }
 
-    // For candidate votes, use positional matching for cross-endorsed candidates
-    assert(ballotStyle, 'ballotStyle is required for candidate contests');
-
     const allGridPositions = layout.gridPositions.filter(
       (gp): gp is GridPositionOption => gp.type === 'option'
     );
 
-    if (
-      voteMatchesGridPosition(
-        candidateVote,
-        gridPos,
-        contest,
-        ballotStyle,
-        allGridPositions
-      )
-    ) {
+    if (voteMatchesGridPosition(candidateVote, gridPos, allGridPositions)) {
       return {};
     }
   }
