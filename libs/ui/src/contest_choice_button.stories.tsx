@@ -6,7 +6,7 @@ import {
   ContestChoiceButtonProps as Props,
 } from './contest_choice_button';
 
-const initialProps: Props = {
+const initialProps: Props<string> = {
   onPress: () => undefined,
   label: 'Thomas Edison',
   caption: 'Republican',
@@ -21,7 +21,7 @@ const meta: Meta<typeof Component> = {
 
 export default meta;
 
-export function ContestChoiceButton(props: Props): JSX.Element {
+export function ContestChoiceButton(props: Props<string>): JSX.Element {
   const [isSelected, setIsSelected] = React.useState<boolean>(false);
 
   return (

@@ -1,6 +1,7 @@
 import {
   assert,
   assertDefined,
+  deepEqual,
   find,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -76,6 +77,9 @@ export function getOrderedCandidatesForContestInBallotStyle({
     const candidate = assertDefined(
       contest.candidates.find((c) => c.id === id)
     );
+    if (!partyIds) {
+      return candidate;
+    }
     // If the OrderedCandidateOption has partyIds specified, return a candidate with those specific partyIds
     // This enables cross-endorsed candidates to appear multiple times with different party affiliations
     return {
@@ -99,8 +103,8 @@ export function getCandidateVoteSortedForBallotStyleRotation({
     ballotStyle,
   });
   return [...inputVote].sort((a, b) => {
-    const aIndex = orderedCandidates.findIndex((c) => c.id === a.id);
-    const bIndex = orderedCandidates.findIndex((c) => c.id === b.id);
+    const aIndex = orderedCandidates.findIndex((c) => deepEqual(a, c));
+    const bIndex = orderedCandidates.findIndex((c) => deepEqual(b, c));
 
     // If both are in orderedCandidates, sort by their position
     if (aIndex !== -1 && bIndex !== -1) {

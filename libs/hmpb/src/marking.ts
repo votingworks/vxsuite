@@ -3,6 +3,8 @@ import PdfDocument from 'pdfkit';
 import { assert } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
+  Candidate,
+  CandidateContest,
   Election,
   GridPosition,
   Rect,
@@ -18,6 +20,7 @@ import {
   timingMarkCounts,
 } from './ballot_components';
 import { PrintCalibration } from './types';
+import { voteMatchesGridPosition } from './vote_matching';
 
 // NOTE: All values used in this module are in PDF user space `pt` units.
 
@@ -110,7 +113,10 @@ export function generateMarkOverlay(
     const contestVotes = votes[pos.contestId];
     if (!contestVotes) continue;
 
-    const mark = markInfo(contestVotes, pos);
+    const contest = election.contests.find((c) => c.id === pos.contestId);
+    assert(contest, `contest ${pos.contestId} not found`);
+
+    const mark = markInfo(contestVotes, pos, contest, layout);
     if (!mark) continue;
 
     doc.switchToPage(pageNumber - 1); // Pages are 0-indexed in `pdfkit`.
@@ -177,27 +183,44 @@ type MarkInfo =
   | { writeInName?: undefined }
   | { writeInArea: Rect; writeInName: string };
 
-function markInfo(votes: Vote, gridPos: GridPosition): MarkInfo | null {
+/**
+ * Determines if this grid position should be marked based on the votes.
+ *
+ * For candidate contests with cross-endorsed candidates, we use the order of
+ * grid positions to map to the order of OrderedCandidateOptions in the ballot
+ * style. This allows us to correctly identify which specific bubble (with which
+ * party affiliation) should be marked.
+ */
+function markInfo(
+  votes: Vote,
+  gridPos: GridPosition,
+  contest: CandidateContest | { type: 'yesno'; id: string },
+  layout: { gridPositions: readonly GridPosition[] }
+): MarkInfo | null {
   for (const vote of votes) {
+    // Handle yes/no votes
+    if (contest.type === 'yesno') {
+      assert(gridPos.type === 'option');
+      if (vote === gridPos.optionId) return {};
+      continue;
+    }
+    // For candidate contests only
+    assert(contest.type === 'candidate');
+    const candidateVote = vote as Candidate;
     if (gridPos.type === 'write-in') {
-      assert(typeof vote !== 'string', 'expected candidate vote, got yes/no');
-
-      if (gridPos.writeInIndex === vote.writeInIndex) {
+      if (gridPos.writeInIndex === candidateVote.writeInIndex) {
         return {
           writeInArea: gridPos.writeInArea,
-          writeInName: vote.name,
+          writeInName: candidateVote.name,
         };
       }
 
       continue;
     }
 
-    if (typeof vote === 'string') {
-      if (vote === gridPos.optionId) return {};
-      continue;
+    if (voteMatchesGridPosition(candidateVote, gridPos, layout.gridPositions)) {
+      return {};
     }
-
-    if (vote.id === gridPos.optionId) return {};
   }
 
   return null;

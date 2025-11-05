@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {
   BallotStyleId,
   Candidate,
+  CandidateId,
   CandidateVote,
   CandidateContest as CandidateContestInterface,
   Election,
@@ -38,7 +39,7 @@ import {
   Font,
   virtualKeyboardCommon,
 } from '@votingworks/ui';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, deepEqual } from '@votingworks/basics';
 
 import { UpdateVoteFunction } from '../config/types';
 
@@ -46,6 +47,7 @@ import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { WriteInCandidateName } from './write_in_candidate_name';
+import { numVotesRemaining } from '../utils/vote';
 
 export interface WriteInCharacterLimitAcrossContests {
   numCharactersAllowed: number;
@@ -87,8 +89,32 @@ const WriteInModalActionsSidebar = styled.div`
   justify-content: center;
 `;
 
-function findCandidateById(candidates: readonly Candidate[], id: string) {
-  return candidates.find((c) => c.id === id);
+function areCandidateChoicesEqual(a: Candidate, b: Candidate): boolean {
+  const partiesA = (a.partyIds ?? []).toSorted();
+  const partiesB = (b.partyIds ?? []).toSorted();
+  return a.id === b.id && deepEqual(partiesA, partiesB);
+}
+
+/**
+ * Finds a candidate in the vote array that matches both the ID and partyIds.
+ * For cross-endorsed candidates, this ensures we match the specific party
+ * version that was selected.
+ */
+function findCandidateInVote(
+  vote: readonly Candidate[],
+  candidate: Candidate
+): Candidate | undefined {
+  return vote.find((c) => {
+    if (c.id !== candidate.id) return false;
+    return areCandidateChoicesEqual(c, candidate);
+  });
+}
+
+function findCandidateInVoteWithAnyParty(
+  vote: readonly Candidate[],
+  candidateId: CandidateId
+): Candidate | undefined {
+  return vote.find((c) => c.id === candidateId);
 }
 
 function normalizeCandidateName(name: string) {
@@ -123,9 +149,10 @@ export function CandidateContest({
     useState(false);
   const [writeInCandidateName, setWriteInCandidateName] = useState('');
   const [recentlyDeselectedCandidate, setRecentlyDeselectedCandidate] =
-    useState('');
-  const [recentlySelectedCandidate, setRecentlySelectedCandidate] =
-    useState('');
+    useState<Candidate | undefined>(undefined);
+  const [recentlySelectedCandidate, setRecentlySelectedCandidate] = useState<
+    Candidate | undefined
+  >(undefined);
 
   const screenInfo = useScreenInfo();
 
@@ -136,38 +163,38 @@ export function CandidateContest({
   const writeInCharacterLimitAcrossContestsIsLimitingFactor =
     writeInCharacterLimit < WRITE_IN_CANDIDATE_MAX_LENGTH;
 
+  const votesRemaining = numVotesRemaining(contest, vote);
+
   useEffect(() => {
-    if (recentlyDeselectedCandidate !== '') {
+    if (recentlyDeselectedCandidate) {
       const timer = setTimeout(() => {
-        setRecentlyDeselectedCandidate('');
+        setRecentlyDeselectedCandidate(undefined);
       }, 100);
       return () => clearTimeout(timer);
     }
   }, [recentlyDeselectedCandidate]);
 
   useEffect(() => {
-    if (recentlySelectedCandidate !== '') {
+    if (recentlySelectedCandidate) {
       const timer = setTimeout(() => {
-        setRecentlySelectedCandidate('');
+        setRecentlySelectedCandidate(undefined);
       }, 100);
       return () => clearTimeout(timer);
     }
   }, [recentlySelectedCandidate]);
 
-  function addCandidateToVote(id: string) {
-    const { candidates } = contest;
-    const candidate = findCandidateById(candidates, id);
-    assert(candidate);
+  function addCandidateToVote(candidate: Candidate) {
+    // Store the candidate with the specific partyIds from the selected option
     updateVote(contest.id, [...vote, candidate]);
-    setRecentlySelectedCandidate(id);
+    setRecentlySelectedCandidate(candidate);
   }
 
-  function removeCandidateFromVote(id: string) {
+  function removeCandidateFromVote(candidate: Candidate) {
     const newVote: Candidate[] = [];
 
     let nextWriteInIndex = 0;
     for (const c of vote) {
-      if (c.id === id) continue;
+      if (areCandidateChoicesEqual(c, candidate)) continue;
 
       if (!c.isWriteIn) {
         newVote.push(c);
@@ -179,22 +206,20 @@ export function CandidateContest({
     }
 
     updateVote(contest.id, newVote);
-    setRecentlyDeselectedCandidate(id);
+    setRecentlyDeselectedCandidate(candidate);
   }
 
-  function handleUpdateSelection(candidateId: string) {
-    /* istanbul ignore else - @preserve */
-    if (candidateId) {
-      const candidate = findCandidateById(vote, candidateId);
-      if (candidate) {
-        if (candidate.isWriteIn) {
-          setWriteInPendingRemoval(candidate);
-        } else {
-          removeCandidateFromVote(candidateId);
-        }
+  function handleUpdateSelection(candidate: Candidate) {
+    const candidateInVote = findCandidateInVote(vote, candidate);
+
+    if (candidateInVote) {
+      if (candidateInVote.isWriteIn) {
+        setWriteInPendingRemoval(candidateInVote);
       } else {
-        addCandidateToVote(candidateId);
+        removeCandidateFromVote(candidate);
       }
+    } else {
+      addCandidateToVote(candidate);
     }
   }
 
@@ -212,7 +237,7 @@ export function CandidateContest({
 
   function confirmRemovePendingWriteInCandidate() {
     assert(writeInPendingRemoval);
-    removeCandidateFromVote(writeInPendingRemoval.id);
+    removeCandidateFromVote(writeInPendingRemoval);
     clearWriteInPendingRemoval();
   }
 
@@ -299,8 +324,6 @@ export function CandidateContest({
     });
   }
 
-  const hasReachedMaxSelections = contest.seats === vote.length;
-
   const writeInModalTitle = (
     <React.Fragment>
       {appStrings.labelWriteInTitleCaseColon()}{' '}
@@ -339,7 +362,7 @@ export function CandidateContest({
           )}
           <Caption>
             {appStrings.labelNumVotesRemaining()}{' '}
-            <NumberString value={contest.seats - vote.length} weight="bold" />
+            <NumberString value={votesRemaining} weight="bold" />
             <AudioOnly>
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}
@@ -351,48 +374,62 @@ export function CandidateContest({
         <WithScrollButtons>
           <ChoicesGrid>
             {orderedCandidates.map((candidate) => {
-              const isChecked = !!findCandidateById(vote, candidate.id);
-              const isDisabled = hasReachedMaxSelections && !isChecked;
+              const isChecked = !!findCandidateInVote(vote, candidate);
+              // In the case of a cross-endorsed candidate, we consider any
+              // version of that candidate as equivalent in tabulation and the voter
+              // may select multiple versions without it impacting the number of selections / overvote trigger.
+              const isEquivalentToSelected = findCandidateInVoteWithAnyParty(
+                vote,
+                candidate.id
+              );
+              const isDisabled =
+                votesRemaining <= 0 && !isChecked && !isEquivalentToSelected;
+
               function handleDisabledClick() {
                 handleChangeVoteAlert(candidate);
               }
               let prefixAudioText: ReactNode = null;
               let suffixAudioText: ReactNode = null;
 
-              const numVotesRemaining = contest.seats - vote.length;
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelected();
 
-                if (recentlySelectedCandidate === candidate.id) {
+                if (
+                  recentlySelectedCandidate &&
+                  areCandidateChoicesEqual(recentlySelectedCandidate, candidate)
+                ) {
                   suffixAudioText =
-                    numVotesRemaining > 0 ? (
+                    votesRemaining > 0 ? (
                       <React.Fragment>
                         {appStrings.labelNumVotesRemaining()}{' '}
-                        <NumberString value={numVotesRemaining} weight="bold" />
+                        <NumberString value={votesRemaining} weight="bold" />
                       </React.Fragment>
                     ) : (
                       appStrings.noteBmdContestCompleted()
                     );
                 }
-              } else if (recentlyDeselectedCandidate === candidate.id) {
+              } else if (
+                recentlyDeselectedCandidate &&
+                areCandidateChoicesEqual(recentlyDeselectedCandidate, candidate)
+              ) {
                 prefixAudioText = appStrings.labelDeselected();
 
                 suffixAudioText = (
                   <React.Fragment>
                     {appStrings.labelNumVotesRemaining()}{' '}
-                    <NumberString value={numVotesRemaining} weight="bold" />
+                    <NumberString value={votesRemaining} weight="bold" />
                   </React.Fragment>
                 );
               }
 
               return (
                 <ContestChoiceButton
-                  key={candidate.id}
+                  key={candidate.id + (candidate.partyIds ?? []).join('-')}
                   isSelected={isChecked}
                   onPress={
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
-                  choice={candidate.id}
+                  choice={candidate}
                   label={
                     <React.Fragment>
                       <AudioOnly>{prefixAudioText}</AudioOnly>
@@ -418,7 +455,7 @@ export function CandidateContest({
                   <ContestChoiceButton
                     key={candidate.id}
                     isSelected
-                    choice={candidate.id}
+                    choice={candidate}
                     onPress={handleUpdateSelection}
                     label={
                       <Font breakWord>
@@ -438,7 +475,7 @@ export function CandidateContest({
                 choice="write-in"
                 isSelected={false}
                 onPress={
-                  hasReachedMaxSelections
+                  votesRemaining <= 0
                     ? handleDisabledAddWriteInClick
                     : initWriteInCandidate
                 }

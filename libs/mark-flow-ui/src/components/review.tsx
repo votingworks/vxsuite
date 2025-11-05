@@ -38,6 +38,7 @@ import {
 
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { WriteInCandidateName } from './write_in_candidate_name';
+import { numVotesRemaining } from '../utils/vote';
 
 const Contest = styled.div`
   display: block;
@@ -63,7 +64,8 @@ function CandidateContestResult({
   ballotStyle,
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
-  const remainingChoices = contest.seats - vote.length;
+
+  const remainingChoices = numVotesRemaining(contest, vote);
 
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()
@@ -104,6 +106,7 @@ function CandidateContestResult({
             />
           ),
           id: candidate.id,
+          partyIds: candidate.partyIds,
           label: candidate.isWriteIn ? (
             <Font breakWord>
               <AudioOnly>

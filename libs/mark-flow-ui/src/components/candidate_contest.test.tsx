@@ -1115,7 +1115,7 @@ describe('cross-endorsed candidates', () => {
     within(buttons[1]).getByText('Liberty');
   });
 
-  test('selecting cross-endorsed candidate shown twice only allows one selection', () => {
+  test('selecting cross-endorsed candidate stores specific party IDs from selected option', () => {
     const contest: CandidateContestInterface = {
       type: 'candidate',
       id: 'governor',
@@ -1166,15 +1166,222 @@ describe('cross-endorsed candidates', () => {
 
     const buttons = screen.getAllByRole('option');
 
-    // Click first Alice option (as Democrat)
+    // Click first Alice option (as Democrat - party 0)
     userEvent.click(buttons[0]);
 
     expect(updateVote).toHaveBeenCalledWith('governor', [
       {
         id: 'alice',
         name: 'Alice Anderson',
-        partyIds: ['0', '1'], // Full party IDs from candidate definition, will change in the future
+        partyIds: ['0'], // Only party 0, not both
       },
     ]);
+  });
+
+  test('selecting cross-endorsed candidate as different party stores different party ID', () => {
+    const contest: CandidateContestInterface = {
+      type: 'candidate',
+      id: 'governor',
+      districtId: 'district-1',
+      title: 'Governor',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'],
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionDefinition.election,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            governor: [
+              { id: 'alice', partyIds: ['0'] },
+              { id: 'bob', partyIds: ['2'] },
+              { id: 'alice', partyIds: ['1'] },
+            ],
+          },
+        },
+      ],
+    };
+
+    const updateVote = vi.fn();
+    render(
+      <CandidateContest
+        ballotStyleId="ballot-style-1"
+        election={election}
+        contest={contest}
+        vote={[]}
+        updateVote={updateVote}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+
+    // Click third Alice option (as Republican - party 1)
+    userEvent.click(buttons[2]);
+
+    expect(updateVote).toHaveBeenCalledWith('governor', [
+      {
+        id: 'alice',
+        name: 'Alice Anderson',
+        partyIds: ['1'], // Only party 1
+      },
+    ]);
+  });
+
+  test('deselecting a specific cross-endorsed option removes only that option', () => {
+    const contest: CandidateContestInterface = {
+      type: 'candidate',
+      id: 'governor',
+      districtId: 'district-1',
+      title: 'Governor',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'],
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionDefinition.election,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            governor: [
+              { id: 'alice', partyIds: ['0'] },
+              { id: 'bob', partyIds: ['2'] },
+              { id: 'alice', partyIds: ['1'] },
+            ],
+          },
+        },
+      ],
+    };
+
+    const updateVote = vi.fn();
+    render(
+      <CandidateContest
+        ballotStyleId="ballot-style-1"
+        election={election}
+        contest={contest}
+        vote={[{ id: 'alice', name: 'Alice Anderson', partyIds: ['0'] }]}
+        updateVote={updateVote}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+
+    // First Alice option should be selected
+    screen.getByRole('option', {
+      name: /Selected.*Alice Anderson.*Federalist/,
+      selected: true,
+    });
+
+    // Click to deselect
+    userEvent.click(buttons[0]);
+
+    expect(updateVote).toHaveBeenCalledWith('governor', []);
+  });
+
+  test('in multi-seat contest, cross-endorsed candidate can be selected under different parties without triggering overvote', () => {
+    const contest: CandidateContestInterface = {
+      type: 'candidate',
+      id: 'council',
+      districtId: 'district-1',
+      title: 'City Council',
+      seats: 2,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'alice',
+          name: 'Alice Anderson',
+          partyIds: ['0', '1'],
+        },
+        { id: 'bob', name: 'Bob Brown', partyIds: ['2'] },
+      ],
+    };
+
+    const election: Election = {
+      ...electionDefinition.election,
+      contests: [contest],
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          groupId: 'ballot-style-1',
+          precincts: ['precinct-1'],
+          districts: ['district-1'],
+          orderedCandidatesByContest: {
+            council: [
+              { id: 'alice', partyIds: ['0'] },
+              { id: 'bob', partyIds: ['2'] },
+              { id: 'alice', partyIds: ['1'] },
+            ],
+          },
+        },
+      ],
+    };
+
+    const updateVote = vi.fn();
+    const { rerender } = render(
+      <CandidateContest
+        ballotStyleId="ballot-style-1"
+        election={election}
+        contest={contest}
+        vote={[]}
+        updateVote={updateVote}
+      />
+    );
+
+    const buttons = screen.getAllByRole('option');
+
+    // Select Alice as Democrat
+    userEvent.click(buttons[0]);
+    expect(updateVote).toHaveBeenCalledWith('council', [
+      { id: 'alice', name: 'Alice Anderson', partyIds: ['0'] },
+    ]);
+
+    // Update the component with the vote
+    rerender(
+      <CandidateContest
+        ballotStyleId="ballot-style-1"
+        election={election}
+        contest={contest}
+        vote={[{ id: 'alice', name: 'Alice Anderson', partyIds: ['0'] }]}
+        updateVote={updateVote}
+      />
+    );
+
+    const updatedButtons = screen.getAllByRole('option');
+
+    // Alice as Republican should still be enabled (not disabled) since they count as same candidate
+    expect(updatedButtons[2]).not.toHaveAttribute('disabled');
+
+    // Should still show 1 vote remaining (not 0) because Alice is one unique candidate
+    const voteCounterElements = screen.getAllByText(
+      hasTextAcrossElements(/votes remaining in this contest: 1/i)
+    );
+    // Should find at least one element showing the vote counter
+    expect(voteCounterElements.length).toBeGreaterThan(0);
   });
 });
