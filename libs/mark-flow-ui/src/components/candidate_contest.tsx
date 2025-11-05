@@ -39,7 +39,7 @@ import {
   Font,
   virtualKeyboardCommon,
 } from '@votingworks/ui';
-import { assert, assertDefined, unique } from '@votingworks/basics';
+import { assert, assertDefined, deepEqual, unique } from '@votingworks/basics';
 
 import { UpdateVoteFunction } from '../config/types';
 
@@ -88,20 +88,10 @@ const WriteInModalActionsSidebar = styled.div`
   justify-content: center;
 `;
 
-/**
- * Creates a unique choice identifier for a candidate option that includes
- * party information to distinguish between multiple options for cross-endorsed
- * candidates.
- */
-function getCandidateChoiceId(
-  candidateId: CandidateId,
-  partyIds?: readonly string[]
-): string {
-  if (!partyIds || partyIds.length === 0) {
-    return candidateId;
-  }
-  // Sort party IDs to ensure consistent ordering
-  return `${candidateId}|${[...partyIds].sort().join(',')}`;
+function areCandidateChoicesEqual(a: Candidate, b: Candidate): boolean {
+  const partiesA = (a.partyIds ?? []).toSorted();
+  const partiesB = (b.partyIds ?? []).toSorted();
+  return a.id === b.id && deepEqual(partiesA, partiesB);
 }
 
 /**
@@ -111,15 +101,11 @@ function getCandidateChoiceId(
  */
 function findCandidateInVote(
   vote: readonly Candidate[],
-  candidateId: CandidateId,
-  partyIds?: readonly string[]
+  candidate: Candidate
 ): Candidate | undefined {
   return vote.find((c) => {
-    if (c.id !== candidateId) return false;
-    return (
-      getCandidateChoiceId(c.id, c.partyIds) ===
-      getCandidateChoiceId(candidateId, partyIds)
-    );
+    if (c.id !== candidate.id) return false;
+    return areCandidateChoicesEqual(c, candidate);
   });
 }
 
@@ -162,9 +148,10 @@ export function CandidateContest({
     useState(false);
   const [writeInCandidateName, setWriteInCandidateName] = useState('');
   const [recentlyDeselectedCandidate, setRecentlyDeselectedCandidate] =
-    useState('');
-  const [recentlySelectedCandidate, setRecentlySelectedCandidate] =
-    useState('');
+    useState<Candidate | undefined>(undefined);
+  const [recentlySelectedCandidate, setRecentlySelectedCandidate] = useState<
+    Candidate | undefined
+  >(undefined);
 
   const screenInfo = useScreenInfo();
 
@@ -179,42 +166,35 @@ export function CandidateContest({
   const hasReachedMaxSelections = uniqueCandidatesSelected >= contest.seats;
 
   useEffect(() => {
-    if (recentlyDeselectedCandidate !== '') {
+    if (recentlyDeselectedCandidate) {
       const timer = setTimeout(() => {
-        setRecentlyDeselectedCandidate('');
+        setRecentlyDeselectedCandidate(undefined);
       }, 100);
       return () => clearTimeout(timer);
     }
   }, [recentlyDeselectedCandidate]);
 
   useEffect(() => {
-    if (recentlySelectedCandidate !== '') {
+    if (recentlySelectedCandidate) {
       const timer = setTimeout(() => {
-        setRecentlySelectedCandidate('');
+        setRecentlySelectedCandidate(undefined);
       }, 100);
       return () => clearTimeout(timer);
     }
   }, [recentlySelectedCandidate]);
 
-  function addCandidateToVote(choiceId: string) {
-    // Find the candidate in orderedCandidates to get the correct partyIds
-    // for the specific option that was selected
-    const orderedCandidate = orderedCandidates.find(
-      (c) => getCandidateChoiceId(c.id, c.partyIds) === choiceId
-    );
-    assert(orderedCandidate, `Candidate not found for choice ${choiceId}`);
-
+  function addCandidateToVote(candidate: Candidate) {
     // Store the candidate with the specific partyIds from the selected option
-    updateVote(contest.id, [...vote, orderedCandidate]);
-    setRecentlySelectedCandidate(choiceId);
+    updateVote(contest.id, [...vote, candidate]);
+    setRecentlySelectedCandidate(candidate);
   }
 
-  function removeCandidateFromVote(choiceId: string) {
+  function removeCandidateFromVote(candidate: Candidate) {
     const newVote: Candidate[] = [];
 
     let nextWriteInIndex = 0;
     for (const c of vote) {
-      if (getCandidateChoiceId(c.id, c.partyIds) === choiceId) continue;
+      if (areCandidateChoicesEqual(c, candidate)) continue;
 
       if (!c.isWriteIn) {
         newVote.push(c);
@@ -226,33 +206,22 @@ export function CandidateContest({
     }
 
     updateVote(contest.id, newVote);
-    setRecentlyDeselectedCandidate(choiceId);
+    setRecentlyDeselectedCandidate(candidate);
   }
 
-  function handleUpdateSelection(choiceId: string) {
+  function handleUpdateSelection(candidate: Candidate) {
     /* istanbul ignore else - @preserve */
-    if (choiceId) {
-      // Parse choice ID to get candidate info
-      const orderedCandidate = orderedCandidates.find(
-        (c) => getCandidateChoiceId(c.id, c.partyIds) === choiceId
-      );
-
-      const candidateInVote = orderedCandidate
-        ? findCandidateInVote(
-            vote,
-            orderedCandidate.id,
-            orderedCandidate.partyIds
-          )
-        : findCandidateInVoteWithAnyParty(vote, choiceId);
+    if (candidate) {
+      const candidateInVote = findCandidateInVote(vote, candidate);
 
       if (candidateInVote) {
         if (candidateInVote.isWriteIn) {
           setWriteInPendingRemoval(candidateInVote);
         } else {
-          removeCandidateFromVote(choiceId);
+          removeCandidateFromVote(candidate);
         }
       } else {
-        addCandidateToVote(choiceId);
+        addCandidateToVote(candidate);
       }
     }
   }
@@ -271,7 +240,7 @@ export function CandidateContest({
 
   function confirmRemovePendingWriteInCandidate() {
     assert(writeInPendingRemoval);
-    removeCandidateFromVote(writeInPendingRemoval.id);
+    removeCandidateFromVote(writeInPendingRemoval);
     clearWriteInPendingRemoval();
   }
 
@@ -411,15 +380,7 @@ export function CandidateContest({
         <WithScrollButtons>
           <ChoicesGrid>
             {orderedCandidates.map((candidate) => {
-              const choiceId = getCandidateChoiceId(
-                candidate.id,
-                candidate.partyIds
-              );
-              const isChecked = !!findCandidateInVote(
-                vote,
-                candidate.id,
-                candidate.partyIds
-              );
+              const isChecked = !!findCandidateInVote(vote, candidate);
               // In the case of a cross-endorsed candidate, we consider any
               // version of that candidate as equivalent in tabulation and the voter
               // may select multiple versions without it impacting the number of selections / overvote trigger.
@@ -444,7 +405,10 @@ export function CandidateContest({
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelected();
 
-                if (recentlySelectedCandidate === choiceId) {
+                if (
+                  recentlySelectedCandidate &&
+                  areCandidateChoicesEqual(recentlySelectedCandidate, candidate)
+                ) {
                   suffixAudioText =
                     numVotesRemaining > 0 ? (
                       <React.Fragment>
@@ -455,7 +419,10 @@ export function CandidateContest({
                       appStrings.noteBmdContestCompleted()
                     );
                 }
-              } else if (recentlyDeselectedCandidate === choiceId) {
+              } else if (
+                recentlyDeselectedCandidate &&
+                areCandidateChoicesEqual(recentlyDeselectedCandidate, candidate)
+              ) {
                 prefixAudioText = appStrings.labelDeselected();
 
                 suffixAudioText = (
@@ -468,12 +435,12 @@ export function CandidateContest({
 
               return (
                 <ContestChoiceButton
-                  key={choiceId}
+                  key={candidate.id + (candidate.partyIds ?? []).join('-')}
                   isSelected={isChecked}
                   onPress={
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
-                  choice={choiceId}
+                  choice={candidate}
                   label={
                     <React.Fragment>
                       <AudioOnly>{prefixAudioText}</AudioOnly>
@@ -499,7 +466,7 @@ export function CandidateContest({
                   <ContestChoiceButton
                     key={candidate.id}
                     isSelected
-                    choice={candidate.id}
+                    choice={candidate}
                     onPress={handleUpdateSelection}
                     label={
                       <Font breakWord>

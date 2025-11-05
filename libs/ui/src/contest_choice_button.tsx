@@ -6,7 +6,7 @@ import { Button, ButtonVariant } from './button';
 import { Checkbox } from './checkbox';
 import { Caption, P } from './typography';
 
-export interface ContestChoiceButtonProps<T extends string = string> {
+export interface ContestChoiceButtonProps<T> {
   'aria-label'?: string;
   caption?: React.ReactNode;
   choice: T;
@@ -79,7 +79,7 @@ const Label = styled(P)`
   margin-bottom: 0;
 `;
 
-export function ContestChoiceButton<T extends string>(
+export function ContestChoiceButton<T>(
   props: ContestChoiceButtonProps<T>
 ): JSX.Element {
   const {
