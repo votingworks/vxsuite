@@ -19,6 +19,7 @@ export interface ContestVote {
   caption?: React.ReactNode;
   id: string;
   label: React.ReactNode;
+  partyIds?: readonly string[];
 }
 
 const ListContainer = styled.ul`
@@ -74,7 +75,9 @@ export function VoterContestSummary(
       )}
       <ListContainer>
         {votes.map((v) => (
-          <VoteInfo key={v.id}>
+          <VoteInfo
+            key={`${v.id}${v.partyIds ? `-${v.partyIds.join('-')}` : ''}`}
+          >
             <CheckboxContainer>
               <Checkbox checked />
             </CheckboxContainer>

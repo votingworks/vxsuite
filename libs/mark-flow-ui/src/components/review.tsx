@@ -109,6 +109,7 @@ function CandidateContestResult({
             />
           ),
           id: candidate.id,
+          partyIds: candidate.partyIds,
           label: candidate.isWriteIn ? (
             <Font breakWord>
               <AudioOnly>
