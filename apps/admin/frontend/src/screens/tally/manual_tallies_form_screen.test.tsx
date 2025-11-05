@@ -4,6 +4,7 @@ import { Route } from 'react-router-dom';
 
 import {
   BallotStyleGroupId,
+  Election,
   getContests,
   Tabulation,
 } from '@votingworks/types';
@@ -697,4 +698,182 @@ test('leaving overrides as is when passing through overall ballot count without 
     `${mockValidResults.ballotCount * 2}`
   );
   expect(screen.getByLabelText('Manual Tally Ballot Count')).toBeEnabled();
+});
+
+test('candidates are ordered according to ballot style rotation', async () => {
+  const testBallotStyleGroupId = '1M' as BallotStyleGroupId;
+  const mammalContestId = 'best-animal-mammal';
+
+  // Create an election with a ballot style that has orderedCandidatesByContest
+  const testElection: Election = {
+    ...election,
+    ballotStyles: election.ballotStyles.map((bs) =>
+      bs.groupId === testBallotStyleGroupId
+        ? {
+            ...bs,
+            orderedCandidatesByContest: {
+              [mammalContestId]: [
+                { id: 'fox' }, // original: horse, otter, fox
+                { id: 'otter' },
+                { id: 'horse' },
+              ],
+            },
+          }
+        : bs
+    ),
+  };
+
+  const testIdentifier: ManualResultsIdentifier = {
+    ballotStyleGroupId: testBallotStyleGroupId,
+    votingMethod: 'absentee',
+    precinctId: 'precinct-1',
+  };
+
+  const testElectionDefinition = {
+    ...electionDefinition,
+    election: testElection,
+  } as const;
+
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(testIdentifier, undefined);
+
+  renderInAppContext(
+    <Route path="/tally/manual/:ballotStyleGroupId/:votingMethod/:precinctId">
+      <ManualTalliesFormScreen />
+    </Route>,
+    {
+      history: createMemoryHistory({
+        initialEntries: [
+          `/tally/manual/${testBallotStyleGroupId}/${testIdentifier.votingMethod}/${testIdentifier.precinctId}`,
+        ],
+      }),
+      electionDefinition: testElectionDefinition,
+      apiMock,
+    }
+  );
+
+  await screen.findByRole('heading', { name: 'Edit Tallies' });
+
+  // Enter ballot count and navigate to first contest
+  userEvent.type(screen.getByLabelText('Manual Tally Ballot Count'), '10');
+  const updatedResults: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: {},
+  };
+  apiMock.expectSetManualResults({
+    ...testIdentifier,
+    manualResults: updatedResults,
+  });
+  apiMock.expectGetManualResults(testIdentifier, updatedResults);
+  apiMock.expectGetWriteInCandidates([]);
+  userEvent.click(screen.getButton('Save & Next'));
+
+  // Check that candidates appear in the rotated order
+  await screen.findByRole('heading', { name: 'Best Animal' });
+
+  // Wait for candidate inputs and get them by label
+  const foxInput = screen.getByLabelText('Fox');
+  const otterInput = screen.getByLabelText('Otter');
+  const horseInput = screen.getByLabelText('Horse');
+
+  // Get all textbox inputs to check order in DOM
+  const allInputs = screen.getAllByRole('textbox');
+  expect(allInputs[0].id).toEqual('numBallots');
+  expect(allInputs[1].id).toEqual('undervotes');
+  expect(allInputs[2].id).toEqual('overvotes');
+  expect(allInputs[3]).toEqual(foxInput);
+  expect(allInputs[4]).toEqual(otterInput);
+  expect(allInputs[5]).toEqual(horseInput);
+});
+
+test('cross-endorsed candidates appear only once in manual tallies form', async () => {
+  const testBallotStyleGroupId = '1M' as BallotStyleGroupId;
+  const mammalContestId = 'best-animal-mammal';
+
+  // Create an election with cross-endorsed candidates
+  // (a candidate appearing multiple times with different partyIds)
+  const testElection: Election = {
+    ...election,
+    ballotStyles: election.ballotStyles.map((bs) =>
+      bs.groupId === testBallotStyleGroupId
+        ? {
+            ...bs,
+            orderedCandidatesByContest: {
+              [mammalContestId]: [
+                { id: 'otter' },
+                { id: 'fox', partyIds: ['0'] },
+                { id: 'horse' },
+                { id: 'fox', partyIds: ['1'] }, // fox appears twice with different parties
+              ],
+            },
+          }
+        : bs
+    ),
+  };
+
+  const testIdentifier: ManualResultsIdentifier = {
+    ballotStyleGroupId: testBallotStyleGroupId,
+    votingMethod: 'absentee',
+    precinctId: 'precinct-1',
+  };
+
+  const testElectionDefinition = {
+    ...electionDefinition,
+    election: testElection,
+  } as const;
+
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(testIdentifier, undefined);
+
+  renderInAppContext(
+    <Route path="/tally/manual/:ballotStyleGroupId/:votingMethod/:precinctId">
+      <ManualTalliesFormScreen />
+    </Route>,
+    {
+      history: createMemoryHistory({
+        initialEntries: [
+          `/tally/manual/${testBallotStyleGroupId}/${testIdentifier.votingMethod}/${testIdentifier.precinctId}`,
+        ],
+      }),
+      electionDefinition: testElectionDefinition,
+      apiMock,
+    }
+  );
+
+  await screen.findByRole('heading', { name: 'Edit Tallies' });
+
+  // Enter ballot count and navigate to first contest
+  userEvent.type(screen.getByLabelText('Manual Tally Ballot Count'), '10');
+  const updatedResults: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: {},
+  };
+  apiMock.expectSetManualResults({
+    ...testIdentifier,
+    manualResults: updatedResults,
+  });
+  apiMock.expectGetManualResults(testIdentifier, updatedResults);
+  apiMock.expectGetWriteInCandidates([]);
+  userEvent.click(screen.getButton('Save & Next'));
+
+  // Check that fox appears only once despite being in orderedCandidatesByContest twice
+  await screen.findByRole('heading', { name: 'Best Animal' });
+
+  // Verify the inputs to appear
+  const foxInput = screen.getByLabelText('Fox');
+  const otterInput = screen.getByLabelText('Otter');
+  const horseInput = screen.getByLabelText('Horse');
+
+  // Verify fox appears only once
+  const foxInputs = screen.queryAllByLabelText('Fox');
+  expect(foxInputs).toHaveLength(1);
+
+  // Get all textbox inputs to check order in DOM, fox should appear only once in first ordered spot
+  const allInputs = screen.getAllByRole('textbox');
+  expect(allInputs[0].id).toEqual('numBallots');
+  expect(allInputs[1].id).toEqual('undervotes');
+  expect(allInputs[2].id).toEqual('overvotes');
+  expect(allInputs[3]).toEqual(otterInput);
+  expect(allInputs[4]).toEqual(foxInput);
+  expect(allInputs[5]).toEqual(horseInput);
 });
