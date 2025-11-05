@@ -1978,7 +1978,10 @@
           "column": 10.153533111357751,
           "row": 14.57647396630934,
           "contestId": "president",
-          "optionId": "hildebrand-garritty"
+          "optionId": "hildebrand-garritty",
+          "partyIds": [
+            "4"
+          ]
         },
         {
           "type": "option",
@@ -1987,7 +1990,10 @@
           "column": 10.153533111357751,
           "row": 18.1499808575804,
           "contestId": "president",
-          "optionId": "barchi-hallaren"
+          "optionId": "barchi-hallaren",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1996,7 +2002,10 @@
           "column": 10.153533111357751,
           "row": 20.95951378254211,
           "contestId": "president",
-          "optionId": "patterson-lariviere"
+          "optionId": "patterson-lariviere",
+          "partyIds": [
+            "5"
+          ]
         },
         {
           "type": "option",
@@ -2005,7 +2014,10 @@
           "column": 10.153533111357751,
           "row": 23.769046707503826,
           "contestId": "president",
-          "optionId": "boone-lian"
+          "optionId": "boone-lian",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2014,7 +2026,10 @@
           "column": 10.153533111357751,
           "row": 26.57857963246554,
           "contestId": "president",
-          "optionId": "cramer-vuocolo"
+          "optionId": "cramer-vuocolo",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2023,7 +2038,10 @@
           "column": 10.153533111357751,
           "row": 29.388112557427256,
           "contestId": "president",
-          "optionId": "court-blumhardt"
+          "optionId": "court-blumhardt",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2032,7 +2050,10 @@
           "column": 20.71944752743865,
           "row": 13.735978177641654,
           "contestId": "senator",
-          "optionId": "weiford"
+          "optionId": "weiford",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2041,7 +2062,10 @@
           "column": 20.71944752743865,
           "row": 15.781537136294027,
           "contestId": "senator",
-          "optionId": "wentworthfarthington"
+          "optionId": "wentworthfarthington",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2050,7 +2074,10 @@
           "column": 20.71944752743865,
           "row": 18.591070061255742,
           "contestId": "senator",
-          "optionId": "brown"
+          "optionId": "brown",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2059,7 +2086,10 @@
           "column": 20.71944752743865,
           "row": 20.636629019908113,
           "contestId": "senator",
-          "optionId": "garriss"
+          "optionId": "garriss",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2068,7 +2098,10 @@
           "column": 20.71944752743865,
           "row": 22.68218797856049,
           "contestId": "senator",
-          "optionId": "hewetson"
+          "optionId": "hewetson",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2077,7 +2110,10 @@
           "column": 20.71944752743865,
           "row": 24.727746937212864,
           "contestId": "senator",
-          "optionId": "martinez"
+          "optionId": "martinez",
+          "partyIds": [
+            "4"
+          ]
         },
         {
           "type": "option",
@@ -2086,7 +2122,10 @@
           "column": 20.71944752743865,
           "row": 26.773305895865235,
           "contestId": "senator",
-          "optionId": "pound"
+          "optionId": "pound",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2095,7 +2134,10 @@
           "column": 20.71944752743865,
           "row": 31.65763782542113,
           "contestId": "representative-district-6",
-          "optionId": "schott"
+          "optionId": "schott",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2104,7 +2146,10 @@
           "column": 20.71944752743865,
           "row": 33.703196784073505,
           "contestId": "representative-district-6",
-          "optionId": "tawney"
+          "optionId": "tawney",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2113,7 +2158,10 @@
           "column": 20.71944752743865,
           "row": 35.748755742725876,
           "contestId": "representative-district-6",
-          "optionId": "forrest"
+          "optionId": "forrest",
+          "partyIds": [
+            "4"
+          ]
         },
         {
           "type": "option",
@@ -2122,7 +2170,10 @@
           "column": 20.71944752743865,
           "row": 37.794314701378255,
           "contestId": "representative-district-6",
-          "optionId": "plunkard"
+          "optionId": "plunkard",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2131,7 +2182,10 @@
           "column": 20.71944752743865,
           "row": 39.83987366003063,
           "contestId": "representative-district-6",
-          "optionId": "reeder"
+          "optionId": "reeder",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2140,7 +2194,10 @@
           "column": 31.285361943519547,
           "row": 13.735978177641654,
           "contestId": "governor",
-          "optionId": "williams"
+          "optionId": "williams",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2149,7 +2206,10 @@
           "column": 31.285361943519547,
           "row": 15.781537136294027,
           "contestId": "governor",
-          "optionId": "windbeck"
+          "optionId": "windbeck",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2158,7 +2218,10 @@
           "column": 31.285361943519547,
           "row": 17.827096094946402,
           "contestId": "governor",
-          "optionId": "abcock"
+          "optionId": "abcock",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2167,7 +2230,10 @@
           "column": 31.285361943519547,
           "row": 19.872655053598773,
           "contestId": "governor",
-          "optionId": "alexander"
+          "optionId": "alexander",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2176,7 +2242,10 @@
           "column": 31.285361943519547,
           "row": 21.91821401225115,
           "contestId": "governor",
-          "optionId": "alpern"
+          "optionId": "alpern",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2185,7 +2254,10 @@
           "column": 31.285361943519547,
           "row": 23.96377297090352,
           "contestId": "governor",
-          "optionId": "ash"
+          "optionId": "ash",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2194,7 +2266,10 @@
           "column": 31.285361943519547,
           "row": 26.009331929555895,
           "contestId": "governor",
-          "optionId": "bargmann"
+          "optionId": "bargmann",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2203,7 +2278,10 @@
           "column": 31.285361943519547,
           "row": 28.054890888208266,
           "contestId": "governor",
-          "optionId": "franz"
+          "optionId": "franz",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2212,7 +2290,10 @@
           "column": 31.285361943519547,
           "row": 30.10044984686064,
           "contestId": "governor",
-          "optionId": "greher"
+          "optionId": "greher",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2221,7 +2302,10 @@
           "column": 31.285361943519547,
           "row": 32.14600880551301,
           "contestId": "governor",
-          "optionId": "harris"
+          "optionId": "harris",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2230,7 +2314,10 @@
           "column": 31.285361943519547,
           "row": 34.19156776416539,
           "contestId": "governor",
-          "optionId": "lee"
+          "optionId": "lee",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2239,7 +2326,10 @@
           "column": 31.285361943519547,
           "row": 36.23712672281776,
           "contestId": "governor",
-          "optionId": "mitchell"
+          "optionId": "mitchell",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2248,7 +2338,10 @@
           "column": 31.285361943519547,
           "row": 38.282685681470134,
           "contestId": "governor",
-          "optionId": "sharp"
+          "optionId": "sharp",
+          "partyIds": [
+            "5"
+          ]
         },
         {
           "type": "option",
@@ -2257,7 +2350,10 @@
           "column": 31.285361943519547,
           "row": 40.328244640122506,
           "contestId": "governor",
-          "optionId": "sharp-althea"
+          "optionId": "sharp-althea",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2266,7 +2362,10 @@
           "column": 31.285361943519547,
           "row": 42.373803598774884,
           "contestId": "governor",
-          "optionId": "steelloy"
+          "optionId": "steelloy",
+          "partyIds": [
+            "4"
+          ]
         },
         {
           "type": "option",
@@ -2275,7 +2374,10 @@
           "column": 31.285361943519547,
           "row": 44.419362557427256,
           "contestId": "governor",
-          "optionId": "wallace"
+          "optionId": "wallace",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2284,7 +2386,10 @@
           "column": 10.153533111357751,
           "row": 3.579106049004594,
           "contestId": "lieutenant-governor",
-          "optionId": "freeman"
+          "optionId": "freeman",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2293,7 +2398,10 @@
           "column": 10.153533111357751,
           "row": 5.624665007656968,
           "contestId": "lieutenant-governor",
-          "optionId": "garcia"
+          "optionId": "garcia",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2302,7 +2410,10 @@
           "column": 10.153533111357751,
           "row": 7.670223966309341,
           "contestId": "lieutenant-governor",
-          "optionId": "hovis"
+          "optionId": "hovis",
+          "partyIds": [
+            "4"
+          ]
         },
         {
           "type": "option",
@@ -2311,7 +2422,10 @@
           "column": 10.153533111357751,
           "row": 9.715782924961715,
           "contestId": "lieutenant-governor",
-          "optionId": "norberg"
+          "optionId": "norberg",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2320,7 +2434,10 @@
           "column": 10.153533111357751,
           "row": 11.761341883614088,
           "contestId": "lieutenant-governor",
-          "optionId": "parks"
+          "optionId": "parks",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2329,7 +2446,10 @@
           "column": 10.153533111357751,
           "row": 13.806900842266462,
           "contestId": "lieutenant-governor",
-          "optionId": "qualey"
+          "optionId": "qualey",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2338,7 +2458,10 @@
           "column": 10.153533111357751,
           "row": 15.852459800918835,
           "contestId": "lieutenant-governor",
-          "optionId": "swan"
+          "optionId": "swan",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2347,7 +2470,10 @@
           "column": 10.153533111357751,
           "row": 17.898018759571208,
           "contestId": "lieutenant-governor",
-          "optionId": "zirkle"
+          "optionId": "zirkle",
+          "partyIds": [
+            "5"
+          ]
         },
         {
           "type": "option",
@@ -2356,7 +2482,10 @@
           "column": 10.153533111357751,
           "row": 19.943577718223583,
           "contestId": "lieutenant-governor",
-          "optionId": "davis-brenda"
+          "optionId": "davis-brenda",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2365,7 +2494,10 @@
           "column": 10.153533111357751,
           "row": 24.827909647779478,
           "contestId": "secretary-of-state",
-          "optionId": "shamsi"
+          "optionId": "shamsi",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2374,7 +2506,10 @@
           "column": 10.153533111357751,
           "row": 26.873468606431853,
           "contestId": "secretary-of-state",
-          "optionId": "talarico"
+          "optionId": "talarico",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2383,7 +2518,10 @@
           "column": 10.153533111357751,
           "row": 31.757800535987748,
           "contestId": "state-senator-district-31",
-          "optionId": "shiplett"
+          "optionId": "shiplett",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2392,7 +2530,10 @@
           "column": 10.153533111357751,
           "row": 37.48262825421133,
           "contestId": "state-assembly-district-54",
-          "optionId": "keller"
+          "optionId": "keller",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2401,7 +2542,10 @@
           "column": 10.153533111357751,
           "row": 39.528187212863706,
           "contestId": "state-assembly-district-54",
-          "optionId": "rangel"
+          "optionId": "rangel",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2410,7 +2554,10 @@
           "column": 10.153533111357751,
           "row": 41.57374617151608,
           "contestId": "state-assembly-district-54",
-          "optionId": "solis"
+          "optionId": "solis",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2419,7 +2566,10 @@
           "column": 20.71944752743865,
           "row": 4.3430800153139355,
           "contestId": "county-commissioners",
-          "optionId": "altman"
+          "optionId": "altman",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2428,7 +2578,10 @@
           "column": 20.71944752743865,
           "row": 6.388638973966309,
           "contestId": "county-commissioners",
-          "optionId": "argent"
+          "optionId": "argent",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2437,7 +2590,10 @@
           "column": 20.71944752743865,
           "row": 8.434197932618682,
           "contestId": "county-commissioners",
-          "optionId": "bainbridge"
+          "optionId": "bainbridge",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2446,7 +2602,10 @@
           "column": 20.71944752743865,
           "row": 10.479756891271055,
           "contestId": "county-commissioners",
-          "optionId": "hennessey"
+          "optionId": "hennessey",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2455,7 +2614,10 @@
           "column": 20.71944752743865,
           "row": 12.52531584992343,
           "contestId": "county-commissioners",
-          "optionId": "moore"
+          "optionId": "moore",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2464,7 +2626,10 @@
           "column": 20.71944752743865,
           "row": 14.570874808575804,
           "contestId": "county-commissioners",
-          "optionId": "rangel-damian"
+          "optionId": "rangel-damian",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2473,7 +2638,10 @@
           "column": 20.71944752743865,
           "row": 16.616433767228177,
           "contestId": "county-commissioners",
-          "optionId": "savoy"
+          "optionId": "savoy",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2482,7 +2650,10 @@
           "column": 20.71944752743865,
           "row": 18.661992725880552,
           "contestId": "county-commissioners",
-          "optionId": "schreiner"
+          "optionId": "schreiner",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2491,7 +2662,10 @@
           "column": 20.71944752743865,
           "row": 20.707551684532923,
           "contestId": "county-commissioners",
-          "optionId": "tawa"
+          "optionId": "tawa",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2500,7 +2674,10 @@
           "column": 20.71944752743865,
           "row": 22.7531106431853,
           "contestId": "county-commissioners",
-          "optionId": "tawa-mary"
+          "optionId": "tawa-mary",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2509,7 +2686,10 @@
           "column": 20.71944752743865,
           "row": 24.79866960183767,
           "contestId": "county-commissioners",
-          "optionId": "witherspoonsmithson"
+          "optionId": "witherspoonsmithson",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -2578,7 +2758,10 @@
           "column": 31.285361943519547,
           "row": 3.579106049004594,
           "contestId": "county-registrar-of-wills",
-          "optionId": "ramachandrani"
+          "optionId": "ramachandrani",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "write-in",
@@ -2602,7 +2785,10 @@
           "column": 31.285361943519547,
           "row": 10.642754594180705,
           "contestId": "city-mayor",
-          "optionId": "seldon"
+          "optionId": "seldon",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2611,7 +2797,10 @@
           "column": 31.285361943519547,
           "row": 12.688313552833078,
           "contestId": "city-mayor",
-          "optionId": "white"
+          "optionId": "white",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -2635,7 +2824,10 @@
           "column": 31.285361943519547,
           "row": 20.515936064318527,
           "contestId": "city-council",
-          "optionId": "davis"
+          "optionId": "davis",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2644,7 +2836,10 @@
           "column": 31.285361943519547,
           "row": 22.561495022970902,
           "contestId": "city-council",
-          "optionId": "eagle"
+          "optionId": "eagle",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2653,7 +2848,10 @@
           "column": 31.285361943519547,
           "row": 24.607053981623277,
           "contestId": "city-council",
-          "optionId": "rupp"
+          "optionId": "rupp",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2662,7 +2860,10 @@
           "column": 31.285361943519547,
           "row": 26.65261294027565,
           "contestId": "city-council",
-          "optionId": "shry"
+          "optionId": "shry",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2671,7 +2872,10 @@
           "column": 31.285361943519547,
           "row": 28.698171898928024,
           "contestId": "city-council",
-          "optionId": "smith"
+          "optionId": "smith",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2680,7 +2884,10 @@
           "column": 31.285361943519547,
           "row": 30.743730857580395,
           "contestId": "city-council",
-          "optionId": "barker"
+          "optionId": "barker",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -2889,7 +3096,10 @@
           "column": 10.153533111357751,
           "row": 14.57647396630934,
           "contestId": "president",
-          "optionId": "hildebrand-garritty"
+          "optionId": "hildebrand-garritty",
+          "partyIds": [
+            "4"
+          ]
         },
         {
           "type": "option",
@@ -2898,7 +3108,10 @@
           "column": 10.153533111357751,
           "row": 18.1499808575804,
           "contestId": "president",
-          "optionId": "barchi-hallaren"
+          "optionId": "barchi-hallaren",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2907,7 +3120,10 @@
           "column": 10.153533111357751,
           "row": 20.95951378254211,
           "contestId": "president",
-          "optionId": "patterson-lariviere"
+          "optionId": "patterson-lariviere",
+          "partyIds": [
+            "5"
+          ]
         },
         {
           "type": "option",
@@ -2916,7 +3132,10 @@
           "column": 10.153533111357751,
           "row": 23.769046707503826,
           "contestId": "president",
-          "optionId": "boone-lian"
+          "optionId": "boone-lian",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2925,7 +3144,10 @@
           "column": 10.153533111357751,
           "row": 26.57857963246554,
           "contestId": "president",
-          "optionId": "cramer-vuocolo"
+          "optionId": "cramer-vuocolo",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2934,7 +3156,10 @@
           "column": 10.153533111357751,
           "row": 29.388112557427256,
           "contestId": "president",
-          "optionId": "court-blumhardt"
+          "optionId": "court-blumhardt",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2943,7 +3168,10 @@
           "column": 20.71944752743865,
           "row": 13.735978177641654,
           "contestId": "representative-district-6",
-          "optionId": "schott"
+          "optionId": "schott",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -2952,7 +3180,10 @@
           "column": 20.71944752743865,
           "row": 15.781537136294027,
           "contestId": "representative-district-6",
-          "optionId": "tawney"
+          "optionId": "tawney",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -2961,7 +3192,10 @@
           "column": 20.71944752743865,
           "row": 17.827096094946402,
           "contestId": "representative-district-6",
-          "optionId": "forrest"
+          "optionId": "forrest",
+          "partyIds": [
+            "4"
+          ]
         },
         {
           "type": "option",
@@ -2970,7 +3204,10 @@
           "column": 20.71944752743865,
           "row": 19.872655053598773,
           "contestId": "representative-district-6",
-          "optionId": "plunkard"
+          "optionId": "plunkard",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2979,7 +3216,10 @@
           "column": 20.71944752743865,
           "row": 21.91821401225115,
           "contestId": "representative-district-6",
-          "optionId": "reeder"
+          "optionId": "reeder",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2988,7 +3228,10 @@
           "column": 20.71944752743865,
           "row": 26.802545941807043,
           "contestId": "lieutenant-governor",
-          "optionId": "freeman"
+          "optionId": "freeman",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -2997,7 +3240,10 @@
           "column": 20.71944752743865,
           "row": 28.848104900459415,
           "contestId": "lieutenant-governor",
-          "optionId": "garcia"
+          "optionId": "garcia",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -3006,7 +3252,10 @@
           "column": 20.71944752743865,
           "row": 30.89366385911179,
           "contestId": "lieutenant-governor",
-          "optionId": "hovis"
+          "optionId": "hovis",
+          "partyIds": [
+            "4"
+          ]
         },
         {
           "type": "option",
@@ -3015,7 +3264,10 @@
           "column": 20.71944752743865,
           "row": 32.93922281776416,
           "contestId": "lieutenant-governor",
-          "optionId": "norberg"
+          "optionId": "norberg",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3024,7 +3276,10 @@
           "column": 20.71944752743865,
           "row": 34.98478177641654,
           "contestId": "lieutenant-governor",
-          "optionId": "parks"
+          "optionId": "parks",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3033,7 +3288,10 @@
           "column": 20.71944752743865,
           "row": 37.03034073506891,
           "contestId": "lieutenant-governor",
-          "optionId": "qualey"
+          "optionId": "qualey",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -3042,7 +3300,10 @@
           "column": 20.71944752743865,
           "row": 39.07589969372128,
           "contestId": "lieutenant-governor",
-          "optionId": "swan"
+          "optionId": "swan",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -3051,7 +3312,10 @@
           "column": 20.71944752743865,
           "row": 41.121458652373654,
           "contestId": "lieutenant-governor",
-          "optionId": "zirkle"
+          "optionId": "zirkle",
+          "partyIds": [
+            "5"
+          ]
         },
         {
           "type": "option",
@@ -3060,7 +3324,10 @@
           "column": 20.71944752743865,
           "row": 43.16701761102603,
           "contestId": "lieutenant-governor",
-          "optionId": "davis-brenda"
+          "optionId": "davis-brenda",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "option",
@@ -3069,7 +3336,10 @@
           "column": 31.285361943519547,
           "row": 13.735978177641654,
           "contestId": "state-senator-district-31",
-          "optionId": "shiplett"
+          "optionId": "shiplett",
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "type": "option",
@@ -3078,7 +3348,10 @@
           "column": 31.285361943519547,
           "row": 19.460805895865235,
           "contestId": "state-assembly-district-54",
-          "optionId": "keller"
+          "optionId": "keller",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3087,7 +3360,10 @@
           "column": 31.285361943519547,
           "row": 21.50636485451761,
           "contestId": "state-assembly-district-54",
-          "optionId": "rangel"
+          "optionId": "rangel",
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "type": "option",
@@ -3096,7 +3372,10 @@
           "column": 31.285361943519547,
           "row": 23.551923813169985,
           "contestId": "state-assembly-district-54",
-          "optionId": "solis"
+          "optionId": "solis",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3105,7 +3384,10 @@
           "column": 31.285361943519547,
           "row": 28.43625574272588,
           "contestId": "county-registrar-of-wills",
-          "optionId": "ramachandrani"
+          "optionId": "ramachandrani",
+          "partyIds": [
+            "6"
+          ]
         },
         {
           "type": "write-in",

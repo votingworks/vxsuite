@@ -546,7 +546,15 @@ export interface GridPositionOption {
    */
   readonly row: number;
   readonly contestId: ContestId;
+
+  /**
+   * Identifying information for the specific option this grid position represents.
+   * For candidate options this maps to a OrderedCandidateOption, a multi-endorsed candidate
+   * may have multiple grid positions / ordered candidate options for the same candidate / option id
+   * but different parties.
+   */
   readonly optionId: Id;
+  readonly partyIds?: readonly PartyId[];
 }
 export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
   z.object({
@@ -557,6 +565,7 @@ export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
     row: z.number().nonnegative(),
     contestId: ContestIdSchema,
     optionId: IdSchema,
+    partyIds: z.array(PartyIdSchema).optional(),
   });
 
 export interface GridPositionWriteIn {
@@ -759,10 +768,12 @@ export const ElectionSchema: z.ZodSchema<Election> = z
                 });
                 continue;
               }
-              const candidatePartyIds = candidate.partyIds ?? [];
-              const orderedCandidatePartyIds = [...candidateOptions].flatMap(
-                (oc) => oc.partyIds ?? []
-              );
+              const candidatePartyIds = candidate.partyIds
+                ? [...candidate.partyIds].sort()
+                : [];
+              const orderedCandidatePartyIds = [...candidateOptions]
+                .flatMap((oc) => oc.partyIds ?? [])
+                .sort();
               if (
                 JSON.stringify(candidatePartyIds) !==
                 JSON.stringify(orderedCandidatePartyIds)

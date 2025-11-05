@@ -1234,7 +1234,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1243,7 +1246,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1252,7 +1258,10 @@
           "column": 1.714638056480454,
           "row": 21.278241650294696,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1261,7 +1270,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-1-mammal",
-          "optionId": "zebra-1"
+          "optionId": "zebra-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1270,7 +1282,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-1-mammal",
-          "optionId": "lion-1"
+          "optionId": "lion-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1279,7 +1294,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-1-mammal",
-          "optionId": "kangaroo-1"
+          "optionId": "kangaroo-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1288,7 +1306,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-1-mammal",
-          "optionId": "elephant-1"
+          "optionId": "elephant-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -1341,7 +1362,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1350,7 +1374,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1359,7 +1386,10 @@
           "column": 1.714638056480454,
           "row": 21.278241650294696,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1368,7 +1398,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-1-mammal",
-          "optionId": "zebra-1"
+          "optionId": "zebra-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1377,7 +1410,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-1-mammal",
-          "optionId": "lion-1"
+          "optionId": "lion-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1386,7 +1422,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-1-mammal",
-          "optionId": "kangaroo-1"
+          "optionId": "kangaroo-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1395,7 +1434,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-1-mammal",
-          "optionId": "elephant-1"
+          "optionId": "elephant-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -1448,7 +1490,10 @@
           "column": 1.714638056480454,
           "row": 13.857441060903733,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1457,7 +1502,10 @@
           "column": 1.714638056480454,
           "row": 15.12217583497053,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1466,7 +1514,10 @@
           "column": 1.714638056480454,
           "row": 16.38691060903733,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1475,7 +1526,10 @@
           "column": 12.280552472561352,
           "row": 14.68688605108055,
           "contestId": "congressional-1-mammal",
-          "optionId": "zebra-1"
+          "optionId": "zebra-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1484,7 +1538,10 @@
           "column": 12.280552472561352,
           "row": 15.951620825147348,
           "contestId": "congressional-1-mammal",
-          "optionId": "lion-1"
+          "optionId": "lion-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1493,7 +1550,10 @@
           "column": 12.280552472561352,
           "row": 17.216355599214147,
           "contestId": "congressional-1-mammal",
-          "optionId": "kangaroo-1"
+          "optionId": "kangaroo-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1502,7 +1562,10 @@
           "column": 12.280552472561352,
           "row": 18.481090373280942,
           "contestId": "congressional-1-mammal",
-          "optionId": "elephant-1"
+          "optionId": "elephant-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -1555,7 +1618,10 @@
           "column": 1.714638056480454,
           "row": 21.086075638506877,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1564,7 +1630,10 @@
           "column": 1.714638056480454,
           "row": 22.350810412573676,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1573,7 +1642,10 @@
           "column": 1.714638056480454,
           "row": 23.61554518664047,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1582,7 +1654,10 @@
           "column": 12.280552472561352,
           "row": 21.915520628683694,
           "contestId": "congressional-1-mammal",
-          "optionId": "zebra-1"
+          "optionId": "zebra-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1591,7 +1666,10 @@
           "column": 12.280552472561352,
           "row": 23.180255402750493,
           "contestId": "congressional-1-mammal",
-          "optionId": "lion-1"
+          "optionId": "lion-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1600,7 +1678,10 @@
           "column": 12.280552472561352,
           "row": 24.44499017681729,
           "contestId": "congressional-1-mammal",
-          "optionId": "kangaroo-1"
+          "optionId": "kangaroo-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -1609,7 +1690,10 @@
           "column": 12.280552472561352,
           "row": 25.709724950884087,
           "contestId": "congressional-1-mammal",
-          "optionId": "elephant-1"
+          "optionId": "elephant-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -1662,7 +1746,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1671,7 +1758,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1680,7 +1770,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-1-fish",
-          "optionId": "manta-ray-1"
+          "optionId": "manta-ray-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1689,7 +1782,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-1-fish",
-          "optionId": "pufferfish-1"
+          "optionId": "pufferfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1698,7 +1794,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-1-fish",
-          "optionId": "rockfish-1"
+          "optionId": "rockfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1707,7 +1806,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-1-fish",
-          "optionId": "triggerfish-1"
+          "optionId": "triggerfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -1760,7 +1862,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1769,7 +1874,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1778,7 +1886,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-1-fish",
-          "optionId": "manta-ray-1"
+          "optionId": "manta-ray-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1787,7 +1898,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-1-fish",
-          "optionId": "pufferfish-1"
+          "optionId": "pufferfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1796,7 +1910,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-1-fish",
-          "optionId": "rockfish-1"
+          "optionId": "rockfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1805,7 +1922,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-1-fish",
-          "optionId": "triggerfish-1"
+          "optionId": "triggerfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -1858,7 +1978,10 @@
           "column": 1.714638056480454,
           "row": 13.857441060903733,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1867,7 +1990,10 @@
           "column": 1.714638056480454,
           "row": 15.12217583497053,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1876,7 +2002,10 @@
           "column": 12.280552472561352,
           "row": 14.68688605108055,
           "contestId": "congressional-1-fish",
-          "optionId": "manta-ray-1"
+          "optionId": "manta-ray-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1885,7 +2014,10 @@
           "column": 12.280552472561352,
           "row": 15.951620825147348,
           "contestId": "congressional-1-fish",
-          "optionId": "pufferfish-1"
+          "optionId": "pufferfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1894,7 +2026,10 @@
           "column": 12.280552472561352,
           "row": 17.216355599214147,
           "contestId": "congressional-1-fish",
-          "optionId": "rockfish-1"
+          "optionId": "rockfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1903,7 +2038,10 @@
           "column": 12.280552472561352,
           "row": 18.481090373280942,
           "contestId": "congressional-1-fish",
-          "optionId": "triggerfish-1"
+          "optionId": "triggerfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -1956,7 +2094,10 @@
           "column": 1.714638056480454,
           "row": 20.25663064833006,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1965,7 +2106,10 @@
           "column": 1.714638056480454,
           "row": 21.52136542239686,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1974,7 +2118,10 @@
           "column": 12.280552472561352,
           "row": 21.915520628683694,
           "contestId": "congressional-1-fish",
-          "optionId": "manta-ray-1"
+          "optionId": "manta-ray-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1983,7 +2130,10 @@
           "column": 12.280552472561352,
           "row": 23.180255402750493,
           "contestId": "congressional-1-fish",
-          "optionId": "pufferfish-1"
+          "optionId": "pufferfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -1992,7 +2142,10 @@
           "column": 12.280552472561352,
           "row": 24.44499017681729,
           "contestId": "congressional-1-fish",
-          "optionId": "rockfish-1"
+          "optionId": "rockfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2001,7 +2154,10 @@
           "column": 12.280552472561352,
           "row": 25.709724950884087,
           "contestId": "congressional-1-fish",
-          "optionId": "triggerfish-1"
+          "optionId": "triggerfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -2054,7 +2210,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2063,7 +2222,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2072,7 +2234,10 @@
           "column": 1.714638056480454,
           "row": 21.278241650294696,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2081,7 +2246,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-1-mammal",
-          "optionId": "zebra-1"
+          "optionId": "zebra-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2090,7 +2258,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-1-mammal",
-          "optionId": "lion-1"
+          "optionId": "lion-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2099,7 +2270,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-1-mammal",
-          "optionId": "kangaroo-1"
+          "optionId": "kangaroo-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2108,7 +2282,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-1-mammal",
-          "optionId": "elephant-1"
+          "optionId": "elephant-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -2161,7 +2338,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2170,7 +2350,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2179,7 +2362,10 @@
           "column": 1.714638056480454,
           "row": 21.278241650294696,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2188,7 +2374,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-1-mammal",
-          "optionId": "zebra-1"
+          "optionId": "zebra-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2197,7 +2386,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-1-mammal",
-          "optionId": "lion-1"
+          "optionId": "lion-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2206,7 +2398,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-1-mammal",
-          "optionId": "kangaroo-1"
+          "optionId": "kangaroo-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2215,7 +2410,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-1-mammal",
-          "optionId": "elephant-1"
+          "optionId": "elephant-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -2268,7 +2466,10 @@
           "column": 1.714638056480454,
           "row": 13.857441060903733,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2277,7 +2478,10 @@
           "column": 1.714638056480454,
           "row": 15.12217583497053,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2286,7 +2490,10 @@
           "column": 1.714638056480454,
           "row": 16.38691060903733,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2295,7 +2502,10 @@
           "column": 12.280552472561352,
           "row": 14.68688605108055,
           "contestId": "congressional-1-mammal",
-          "optionId": "zebra-1"
+          "optionId": "zebra-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2304,7 +2514,10 @@
           "column": 12.280552472561352,
           "row": 15.951620825147348,
           "contestId": "congressional-1-mammal",
-          "optionId": "lion-1"
+          "optionId": "lion-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2313,7 +2526,10 @@
           "column": 12.280552472561352,
           "row": 17.216355599214147,
           "contestId": "congressional-1-mammal",
-          "optionId": "kangaroo-1"
+          "optionId": "kangaroo-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2322,7 +2538,10 @@
           "column": 12.280552472561352,
           "row": 18.481090373280942,
           "contestId": "congressional-1-mammal",
-          "optionId": "elephant-1"
+          "optionId": "elephant-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -2375,7 +2594,10 @@
           "column": 1.714638056480454,
           "row": 21.086075638506877,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2384,7 +2606,10 @@
           "column": 1.714638056480454,
           "row": 22.350810412573676,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2393,7 +2618,10 @@
           "column": 1.714638056480454,
           "row": 23.61554518664047,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2402,7 +2630,10 @@
           "column": 12.280552472561352,
           "row": 21.915520628683694,
           "contestId": "congressional-1-mammal",
-          "optionId": "zebra-1"
+          "optionId": "zebra-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2411,7 +2642,10 @@
           "column": 12.280552472561352,
           "row": 23.180255402750493,
           "contestId": "congressional-1-mammal",
-          "optionId": "lion-1"
+          "optionId": "lion-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2420,7 +2654,10 @@
           "column": 12.280552472561352,
           "row": 24.44499017681729,
           "contestId": "congressional-1-mammal",
-          "optionId": "kangaroo-1"
+          "optionId": "kangaroo-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2429,7 +2666,10 @@
           "column": 12.280552472561352,
           "row": 25.709724950884087,
           "contestId": "congressional-1-mammal",
-          "optionId": "elephant-1"
+          "optionId": "elephant-1",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -2482,7 +2722,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2491,7 +2734,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2500,7 +2746,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-1-fish",
-          "optionId": "manta-ray-1"
+          "optionId": "manta-ray-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2509,7 +2758,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-1-fish",
-          "optionId": "pufferfish-1"
+          "optionId": "pufferfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2518,7 +2770,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-1-fish",
-          "optionId": "rockfish-1"
+          "optionId": "rockfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2527,7 +2782,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-1-fish",
-          "optionId": "triggerfish-1"
+          "optionId": "triggerfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -2580,7 +2838,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2589,7 +2850,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2598,7 +2862,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-1-fish",
-          "optionId": "manta-ray-1"
+          "optionId": "manta-ray-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2607,7 +2874,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-1-fish",
-          "optionId": "pufferfish-1"
+          "optionId": "pufferfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2616,7 +2886,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-1-fish",
-          "optionId": "rockfish-1"
+          "optionId": "rockfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2625,7 +2898,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-1-fish",
-          "optionId": "triggerfish-1"
+          "optionId": "triggerfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -2678,7 +2954,10 @@
           "column": 1.714638056480454,
           "row": 13.857441060903733,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2687,7 +2966,10 @@
           "column": 1.714638056480454,
           "row": 15.12217583497053,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2696,7 +2978,10 @@
           "column": 12.280552472561352,
           "row": 14.68688605108055,
           "contestId": "congressional-1-fish",
-          "optionId": "manta-ray-1"
+          "optionId": "manta-ray-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2705,7 +2990,10 @@
           "column": 12.280552472561352,
           "row": 15.951620825147348,
           "contestId": "congressional-1-fish",
-          "optionId": "pufferfish-1"
+          "optionId": "pufferfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2714,7 +3002,10 @@
           "column": 12.280552472561352,
           "row": 17.216355599214147,
           "contestId": "congressional-1-fish",
-          "optionId": "rockfish-1"
+          "optionId": "rockfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2723,7 +3014,10 @@
           "column": 12.280552472561352,
           "row": 18.481090373280942,
           "contestId": "congressional-1-fish",
-          "optionId": "triggerfish-1"
+          "optionId": "triggerfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -2776,7 +3070,10 @@
           "column": 1.714638056480454,
           "row": 20.25663064833006,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2785,7 +3082,10 @@
           "column": 1.714638056480454,
           "row": 21.52136542239686,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2794,7 +3094,10 @@
           "column": 12.280552472561352,
           "row": 21.915520628683694,
           "contestId": "congressional-1-fish",
-          "optionId": "manta-ray-1"
+          "optionId": "manta-ray-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2803,7 +3106,10 @@
           "column": 12.280552472561352,
           "row": 23.180255402750493,
           "contestId": "congressional-1-fish",
-          "optionId": "pufferfish-1"
+          "optionId": "pufferfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2812,7 +3118,10 @@
           "column": 12.280552472561352,
           "row": 24.44499017681729,
           "contestId": "congressional-1-fish",
-          "optionId": "rockfish-1"
+          "optionId": "rockfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -2821,7 +3130,10 @@
           "column": 12.280552472561352,
           "row": 25.709724950884087,
           "contestId": "congressional-1-fish",
-          "optionId": "triggerfish-1"
+          "optionId": "triggerfish-1",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -2874,7 +3186,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2883,7 +3198,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2892,7 +3210,10 @@
           "column": 1.714638056480454,
           "row": 21.278241650294696,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2901,7 +3222,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-2-mammal",
-          "optionId": "zebra-2"
+          "optionId": "zebra-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2910,7 +3234,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-2-mammal",
-          "optionId": "lion-2"
+          "optionId": "lion-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2919,7 +3246,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-2-mammal",
-          "optionId": "kangaroo-2"
+          "optionId": "kangaroo-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2928,7 +3258,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-2-mammal",
-          "optionId": "elephant-2"
+          "optionId": "elephant-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -2981,7 +3314,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2990,7 +3326,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -2999,7 +3338,10 @@
           "column": 1.714638056480454,
           "row": 21.278241650294696,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3008,7 +3350,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-2-mammal",
-          "optionId": "zebra-2"
+          "optionId": "zebra-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3017,7 +3362,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-2-mammal",
-          "optionId": "lion-2"
+          "optionId": "lion-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3026,7 +3374,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-2-mammal",
-          "optionId": "kangaroo-2"
+          "optionId": "kangaroo-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3035,7 +3386,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-2-mammal",
-          "optionId": "elephant-2"
+          "optionId": "elephant-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -3088,7 +3442,10 @@
           "column": 1.714638056480454,
           "row": 13.857441060903733,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3097,7 +3454,10 @@
           "column": 1.714638056480454,
           "row": 15.12217583497053,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3106,7 +3466,10 @@
           "column": 1.714638056480454,
           "row": 16.38691060903733,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3115,7 +3478,10 @@
           "column": 12.280552472561352,
           "row": 14.68688605108055,
           "contestId": "congressional-2-mammal",
-          "optionId": "zebra-2"
+          "optionId": "zebra-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3124,7 +3490,10 @@
           "column": 12.280552472561352,
           "row": 15.951620825147348,
           "contestId": "congressional-2-mammal",
-          "optionId": "lion-2"
+          "optionId": "lion-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3133,7 +3502,10 @@
           "column": 12.280552472561352,
           "row": 17.216355599214147,
           "contestId": "congressional-2-mammal",
-          "optionId": "kangaroo-2"
+          "optionId": "kangaroo-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3142,7 +3514,10 @@
           "column": 12.280552472561352,
           "row": 18.481090373280942,
           "contestId": "congressional-2-mammal",
-          "optionId": "elephant-2"
+          "optionId": "elephant-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -3195,7 +3570,10 @@
           "column": 1.714638056480454,
           "row": 21.086075638506877,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3204,7 +3582,10 @@
           "column": 1.714638056480454,
           "row": 22.350810412573676,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3213,7 +3594,10 @@
           "column": 1.714638056480454,
           "row": 23.61554518664047,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3222,7 +3606,10 @@
           "column": 12.280552472561352,
           "row": 21.915520628683694,
           "contestId": "congressional-2-mammal",
-          "optionId": "zebra-2"
+          "optionId": "zebra-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3231,7 +3618,10 @@
           "column": 12.280552472561352,
           "row": 23.180255402750493,
           "contestId": "congressional-2-mammal",
-          "optionId": "lion-2"
+          "optionId": "lion-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3240,7 +3630,10 @@
           "column": 12.280552472561352,
           "row": 24.44499017681729,
           "contestId": "congressional-2-mammal",
-          "optionId": "kangaroo-2"
+          "optionId": "kangaroo-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3249,7 +3642,10 @@
           "column": 12.280552472561352,
           "row": 25.709724950884087,
           "contestId": "congressional-2-mammal",
-          "optionId": "elephant-2"
+          "optionId": "elephant-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -3302,7 +3698,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3311,7 +3710,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3320,7 +3722,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-2-fish",
-          "optionId": "manta-ray-2"
+          "optionId": "manta-ray-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3329,7 +3734,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-2-fish",
-          "optionId": "pufferfish-2"
+          "optionId": "pufferfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3338,7 +3746,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-2-fish",
-          "optionId": "rockfish-2"
+          "optionId": "rockfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3347,7 +3758,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-2-fish",
-          "optionId": "triggerfish-2"
+          "optionId": "triggerfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -3400,7 +3814,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3409,7 +3826,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3418,7 +3838,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-2-fish",
-          "optionId": "manta-ray-2"
+          "optionId": "manta-ray-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3427,7 +3850,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-2-fish",
-          "optionId": "pufferfish-2"
+          "optionId": "pufferfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3436,7 +3862,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-2-fish",
-          "optionId": "rockfish-2"
+          "optionId": "rockfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3445,7 +3874,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-2-fish",
-          "optionId": "triggerfish-2"
+          "optionId": "triggerfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -3498,7 +3930,10 @@
           "column": 1.714638056480454,
           "row": 13.857441060903733,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3507,7 +3942,10 @@
           "column": 1.714638056480454,
           "row": 15.12217583497053,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3516,7 +3954,10 @@
           "column": 12.280552472561352,
           "row": 14.68688605108055,
           "contestId": "congressional-2-fish",
-          "optionId": "manta-ray-2"
+          "optionId": "manta-ray-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3525,7 +3966,10 @@
           "column": 12.280552472561352,
           "row": 15.951620825147348,
           "contestId": "congressional-2-fish",
-          "optionId": "pufferfish-2"
+          "optionId": "pufferfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3534,7 +3978,10 @@
           "column": 12.280552472561352,
           "row": 17.216355599214147,
           "contestId": "congressional-2-fish",
-          "optionId": "rockfish-2"
+          "optionId": "rockfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3543,7 +3990,10 @@
           "column": 12.280552472561352,
           "row": 18.481090373280942,
           "contestId": "congressional-2-fish",
-          "optionId": "triggerfish-2"
+          "optionId": "triggerfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -3596,7 +4046,10 @@
           "column": 1.714638056480454,
           "row": 20.25663064833006,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3605,7 +4058,10 @@
           "column": 1.714638056480454,
           "row": 21.52136542239686,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3614,7 +4070,10 @@
           "column": 12.280552472561352,
           "row": 21.915520628683694,
           "contestId": "congressional-2-fish",
-          "optionId": "manta-ray-2"
+          "optionId": "manta-ray-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3623,7 +4082,10 @@
           "column": 12.280552472561352,
           "row": 23.180255402750493,
           "contestId": "congressional-2-fish",
-          "optionId": "pufferfish-2"
+          "optionId": "pufferfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3632,7 +4094,10 @@
           "column": 12.280552472561352,
           "row": 24.44499017681729,
           "contestId": "congressional-2-fish",
-          "optionId": "rockfish-2"
+          "optionId": "rockfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -3641,7 +4106,10 @@
           "column": 12.280552472561352,
           "row": 25.709724950884087,
           "contestId": "congressional-2-fish",
-          "optionId": "triggerfish-2"
+          "optionId": "triggerfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -3694,7 +4162,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3703,7 +4174,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3712,7 +4186,10 @@
           "column": 1.714638056480454,
           "row": 21.278241650294696,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3721,7 +4198,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-2-mammal",
-          "optionId": "zebra-2"
+          "optionId": "zebra-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3730,7 +4210,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-2-mammal",
-          "optionId": "lion-2"
+          "optionId": "lion-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3739,7 +4222,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-2-mammal",
-          "optionId": "kangaroo-2"
+          "optionId": "kangaroo-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3748,7 +4234,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-2-mammal",
-          "optionId": "elephant-2"
+          "optionId": "elephant-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -3801,7 +4290,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3810,7 +4302,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3819,7 +4314,10 @@
           "column": 1.714638056480454,
           "row": 21.278241650294696,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3828,7 +4326,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-2-mammal",
-          "optionId": "zebra-2"
+          "optionId": "zebra-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3837,7 +4338,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-2-mammal",
-          "optionId": "lion-2"
+          "optionId": "lion-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3846,7 +4350,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-2-mammal",
-          "optionId": "kangaroo-2"
+          "optionId": "kangaroo-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3855,7 +4362,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-2-mammal",
-          "optionId": "elephant-2"
+          "optionId": "elephant-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -3908,7 +4418,10 @@
           "column": 1.714638056480454,
           "row": 13.857441060903733,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3917,7 +4430,10 @@
           "column": 1.714638056480454,
           "row": 15.12217583497053,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3926,7 +4442,10 @@
           "column": 1.714638056480454,
           "row": 16.38691060903733,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3935,7 +4454,10 @@
           "column": 12.280552472561352,
           "row": 14.68688605108055,
           "contestId": "congressional-2-mammal",
-          "optionId": "zebra-2"
+          "optionId": "zebra-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3944,7 +4466,10 @@
           "column": 12.280552472561352,
           "row": 15.951620825147348,
           "contestId": "congressional-2-mammal",
-          "optionId": "lion-2"
+          "optionId": "lion-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3953,7 +4478,10 @@
           "column": 12.280552472561352,
           "row": 17.216355599214147,
           "contestId": "congressional-2-mammal",
-          "optionId": "kangaroo-2"
+          "optionId": "kangaroo-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -3962,7 +4490,10 @@
           "column": 12.280552472561352,
           "row": 18.481090373280942,
           "contestId": "congressional-2-mammal",
-          "optionId": "elephant-2"
+          "optionId": "elephant-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -4015,7 +4546,10 @@
           "column": 1.714638056480454,
           "row": 21.086075638506877,
           "contestId": "county-leader-mammal",
-          "optionId": "horse"
+          "optionId": "horse",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -4024,7 +4558,10 @@
           "column": 1.714638056480454,
           "row": 22.350810412573676,
           "contestId": "county-leader-mammal",
-          "optionId": "otter"
+          "optionId": "otter",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -4033,7 +4570,10 @@
           "column": 1.714638056480454,
           "row": 23.61554518664047,
           "contestId": "county-leader-mammal",
-          "optionId": "fox"
+          "optionId": "fox",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -4042,7 +4582,10 @@
           "column": 12.280552472561352,
           "row": 21.915520628683694,
           "contestId": "congressional-2-mammal",
-          "optionId": "zebra-2"
+          "optionId": "zebra-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -4051,7 +4594,10 @@
           "column": 12.280552472561352,
           "row": 23.180255402750493,
           "contestId": "congressional-2-mammal",
-          "optionId": "lion-2"
+          "optionId": "lion-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -4060,7 +4606,10 @@
           "column": 12.280552472561352,
           "row": 24.44499017681729,
           "contestId": "congressional-2-mammal",
-          "optionId": "kangaroo-2"
+          "optionId": "kangaroo-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "option",
@@ -4069,7 +4618,10 @@
           "column": 12.280552472561352,
           "row": 25.709724950884087,
           "contestId": "congressional-2-mammal",
-          "optionId": "elephant-2"
+          "optionId": "elephant-2",
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "type": "write-in",
@@ -4122,7 +4674,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4131,7 +4686,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4140,7 +4698,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-2-fish",
-          "optionId": "manta-ray-2"
+          "optionId": "manta-ray-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4149,7 +4710,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-2-fish",
-          "optionId": "pufferfish-2"
+          "optionId": "pufferfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4158,7 +4722,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-2-fish",
-          "optionId": "rockfish-2"
+          "optionId": "rockfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4167,7 +4734,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-2-fish",
-          "optionId": "triggerfish-2"
+          "optionId": "triggerfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -4220,7 +4790,10 @@
           "column": 1.714638056480454,
           "row": 18.7487721021611,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4229,7 +4802,10 @@
           "column": 1.714638056480454,
           "row": 20.013506876227897,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4238,7 +4814,10 @@
           "column": 12.280552472561352,
           "row": 19.57821709233792,
           "contestId": "congressional-2-fish",
-          "optionId": "manta-ray-2"
+          "optionId": "manta-ray-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4247,7 +4826,10 @@
           "column": 12.280552472561352,
           "row": 20.842951866404714,
           "contestId": "congressional-2-fish",
-          "optionId": "pufferfish-2"
+          "optionId": "pufferfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4256,7 +4838,10 @@
           "column": 12.280552472561352,
           "row": 22.107686640471513,
           "contestId": "congressional-2-fish",
-          "optionId": "rockfish-2"
+          "optionId": "rockfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4265,7 +4850,10 @@
           "column": 12.280552472561352,
           "row": 23.372421414538312,
           "contestId": "congressional-2-fish",
-          "optionId": "triggerfish-2"
+          "optionId": "triggerfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -4318,7 +4906,10 @@
           "column": 1.714638056480454,
           "row": 13.857441060903733,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4327,7 +4918,10 @@
           "column": 1.714638056480454,
           "row": 15.12217583497053,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4336,7 +4930,10 @@
           "column": 12.280552472561352,
           "row": 14.68688605108055,
           "contestId": "congressional-2-fish",
-          "optionId": "manta-ray-2"
+          "optionId": "manta-ray-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4345,7 +4942,10 @@
           "column": 12.280552472561352,
           "row": 15.951620825147348,
           "contestId": "congressional-2-fish",
-          "optionId": "pufferfish-2"
+          "optionId": "pufferfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4354,7 +4954,10 @@
           "column": 12.280552472561352,
           "row": 17.216355599214147,
           "contestId": "congressional-2-fish",
-          "optionId": "rockfish-2"
+          "optionId": "rockfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4363,7 +4966,10 @@
           "column": 12.280552472561352,
           "row": 18.481090373280942,
           "contestId": "congressional-2-fish",
-          "optionId": "triggerfish-2"
+          "optionId": "triggerfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",
@@ -4416,7 +5022,10 @@
           "column": 1.714638056480454,
           "row": 20.25663064833006,
           "contestId": "county-leader-fish",
-          "optionId": "seahorse"
+          "optionId": "seahorse",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4425,7 +5034,10 @@
           "column": 1.714638056480454,
           "row": 21.52136542239686,
           "contestId": "county-leader-fish",
-          "optionId": "salmon"
+          "optionId": "salmon",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4434,7 +5046,10 @@
           "column": 12.280552472561352,
           "row": 21.915520628683694,
           "contestId": "congressional-2-fish",
-          "optionId": "manta-ray-2"
+          "optionId": "manta-ray-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4443,7 +5058,10 @@
           "column": 12.280552472561352,
           "row": 23.180255402750493,
           "contestId": "congressional-2-fish",
-          "optionId": "pufferfish-2"
+          "optionId": "pufferfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4452,7 +5070,10 @@
           "column": 12.280552472561352,
           "row": 24.44499017681729,
           "contestId": "congressional-2-fish",
-          "optionId": "rockfish-2"
+          "optionId": "rockfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "option",
@@ -4461,7 +5082,10 @@
           "column": 12.280552472561352,
           "row": 25.709724950884087,
           "contestId": "congressional-2-fish",
-          "optionId": "triggerfish-2"
+          "optionId": "triggerfish-2",
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "type": "write-in",

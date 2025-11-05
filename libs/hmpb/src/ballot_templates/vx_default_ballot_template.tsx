@@ -279,6 +279,7 @@ function CandidateContest({
             type: 'option',
             contestId: contest.id,
             optionId: candidate.id,
+            partyIds: candidate.partyIds,
           };
           return (
             <li

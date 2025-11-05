@@ -376,7 +376,7 @@ test('create/list/delete elections', async () => {
               expect.objectContaining({
                 ...candidate,
                 id: expectNotEqualTo(candidate.id),
-                partyIds: candidate.partyIds?.map(updatedPartyId),
+                partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
                 firstName: expect.any(String),
                 // TODO upgrade vitest to use expect.toBeOneOf
                 // middleName: expect.toBeOneOf([expect.any(String), undefined]),
@@ -2218,11 +2218,13 @@ test('cloneElection', async () => {
             id: expectNotEqualTo(contest.id),
             districtId: updatedDistrictId(contest.districtId),
             partyId: updatedPartyId(contest.partyId),
-            candidates: contest.candidates.map((candidate) => ({
-              ...candidate,
-              id: expectNotEqualTo(candidate.id),
-              partyIds: candidate.partyIds?.map(updatedPartyId),
-            })),
+            candidates: contest.candidates.map((candidate) =>
+              expect.objectContaining({
+                ...candidate,
+                id: expectNotEqualTo(candidate.id),
+                partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
+              })
+            ),
           };
         case 'yesno':
           return {

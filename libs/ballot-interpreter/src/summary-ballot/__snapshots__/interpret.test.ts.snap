@@ -2,7 +2,7 @@
 
 exports[`happy path: back, front 1`] = `
 {
-  "ballotHash": "9ba717485ecc77906360",
+  "ballotHash": "43d3a3f1c3480d45388e",
   "ballotStyleId": "1-4",
   "ballotType": "precinct",
   "isTestMode": true,
@@ -101,6 +101,7 @@ exports[`happy path: back, front 1`] = `
         "name": "Sherlock Holmes",
         "partyIds": [
           "0",
+          "2",
         ],
       },
     ],
@@ -128,7 +129,7 @@ exports[`happy path: back, front 1`] = `
 
 exports[`happy path: back, front upside down 1`] = `
 {
-  "ballotHash": "9ba717485ecc77906360",
+  "ballotHash": "43d3a3f1c3480d45388e",
   "ballotStyleId": "1-4",
   "ballotType": "precinct",
   "isTestMode": true,
@@ -227,6 +228,7 @@ exports[`happy path: back, front upside down 1`] = `
         "name": "Sherlock Holmes",
         "partyIds": [
           "0",
+          "2",
         ],
       },
     ],
@@ -254,7 +256,7 @@ exports[`happy path: back, front upside down 1`] = `
 
 exports[`happy path: front upside down, back 1`] = `
 {
-  "ballotHash": "9ba717485ecc77906360",
+  "ballotHash": "43d3a3f1c3480d45388e",
   "ballotStyleId": "1-4",
   "ballotType": "precinct",
   "isTestMode": true,
@@ -353,6 +355,7 @@ exports[`happy path: front upside down, back 1`] = `
         "name": "Sherlock Holmes",
         "partyIds": [
           "0",
+          "2",
         ],
       },
     ],
@@ -380,7 +383,7 @@ exports[`happy path: front upside down, back 1`] = `
 
 exports[`happy path: front, back 1`] = `
 {
-  "ballotHash": "9ba717485ecc77906360",
+  "ballotHash": "43d3a3f1c3480d45388e",
   "ballotStyleId": "1-4",
   "ballotType": "precinct",
   "isTestMode": true,
@@ -479,6 +482,7 @@ exports[`happy path: front, back 1`] = `
         "name": "Sherlock Holmes",
         "partyIds": [
           "0",
+          "2",
         ],
       },
     ],
