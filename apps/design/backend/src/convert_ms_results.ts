@@ -1,4 +1,9 @@
-import { Election, safeParseInt, Tabulation } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  formatBallotHash,
+  safeParseInt,
+  Tabulation,
+} from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
 import {
@@ -9,6 +14,7 @@ import {
   find,
   groupBy,
   iter,
+  lines,
   ok,
   Result,
   throwIllegalValue,
@@ -57,17 +63,38 @@ const NONPARTISAN_PARTY_ID = '0';
 const NONPARTISAN_PARTY_LABEL = 'NP';
 
 export type ConvertMsResultsError =
+  | 'wrong-election'
+  | 'wrong-tally-report'
   | 'invalid-headers'
   | 'report-precincts-mismatch'
   | 'report-contests-mismatch';
 
 export function convertMsResults(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   allPrecinctsTallyReportContents: string
 ): Result<string, ConvertMsResultsError> {
+  const { election, ballotHash } = electionDefinition;
+
+  const [reportTitle, reportElectionId] = assertDefined(
+    lines(allPrecinctsTallyReportContents).first()
+  ).split(',');
+  const [, reportBallotHash] =
+    reportElectionId.match(/^Election ID: (.+)$/) ?? [];
+  if (
+    !/^(?:TEST-)?(?:official|unofficial)-tally-report-by-precinct$/.test(
+      reportTitle
+    )
+  ) {
+    return err('wrong-tally-report');
+  }
+  if (reportBallotHash !== formatBallotHash(ballotHash)) {
+    return err('wrong-election');
+  }
+
   let allPrecinctsTallyReportRows: AllPrecinctsTallyReportRow[];
   try {
     allPrecinctsTallyReportRows = parse(allPrecinctsTallyReportContents, {
+      fromLine: 2,
       columns: (headers) => {
         if (
           !deepEqual(

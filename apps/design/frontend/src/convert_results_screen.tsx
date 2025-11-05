@@ -100,6 +100,10 @@ export function ConvertResultsScreen(): JSX.Element | null {
                       ));
                     }
                     switch (error) {
+                      case 'wrong-election':
+                        return 'This report is for a different election.';
+                      case 'wrong-tally-report':
+                        return 'This report is not the All Precincts Tally Report.';
                       case 'no-election-export-found':
                         return 'Election must be exported before converting results.';
                       case 'election-out-of-date':

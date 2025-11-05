@@ -899,12 +899,10 @@ export function buildApi(ctx: AppContext) {
       if (exportedElectionDefinitionResult.isErr()) {
         return exportedElectionDefinitionResult;
       }
-      // TODO add ballot hash to report so we can validate that
-      // ballotHash matches report
-      const { election, ballotHash } = exportedElectionDefinitionResult.ok();
+      const electionDefinition = exportedElectionDefinitionResult.ok();
       try {
         const convertedResults = convertMsResults(
-          election,
+          electionDefinition,
           input.allPrecinctsTallyReportContents
         );
         if (convertedResults.isErr()) {
@@ -912,7 +910,7 @@ export function buildApi(ctx: AppContext) {
         }
         return ok({
           convertedResults: convertedResults.ok(),
-          ballotHash: formatBallotHash(ballotHash),
+          ballotHash: formatBallotHash(electionDefinition.ballotHash),
         });
       } catch (error) {
         Sentry.captureException(error);

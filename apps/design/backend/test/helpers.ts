@@ -17,8 +17,10 @@ import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   Election,
+  ElectionDefinition,
   ElectionId,
   ElectionSerializationFormat,
+  formatBallotHash,
   LanguageCode,
 } from '@votingworks/types';
 import { Request } from 'express';
@@ -427,8 +429,21 @@ export function stringifyAllPrecinctsTallyReportRows(
   });
 }
 
-export function generateAllPrecinctsTallyReport(election: Election): string {
-  return stringifyAllPrecinctsTallyReportRows(
-    generateAllPrecinctsTallyReportRows(election)
+export function generateAllPrecinctsTallyReportMetadataRow(
+  electionDefinition: ElectionDefinition
+): string {
+  return `official-tally-report-by-precinct,Election ID: ${formatBallotHash(
+    electionDefinition.ballotHash
+  )}\n`;
+}
+
+export function generateAllPrecinctsTallyReport(
+  electionDefinition: ElectionDefinition
+): string {
+  return (
+    generateAllPrecinctsTallyReportMetadataRow(electionDefinition) +
+    stringifyAllPrecinctsTallyReportRows(
+      generateAllPrecinctsTallyReportRows(electionDefinition.election)
+    )
   );
 }
