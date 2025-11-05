@@ -22,6 +22,7 @@ import {
   determineCsvMetadataStructure,
   generateBatchLookup,
   generateCsvMetadataHeaders,
+  generateCsvTitleRow,
   getCsvMetadataRowValues,
 } from './csv_shared';
 import { tabulateManualResults } from '../tabulation/manual_results';
@@ -221,10 +222,12 @@ export async function* generateTallyReportCsv({
   store,
   filter = {},
   groupBy = {},
+  filename,
 }: {
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
+  filename: string;
 }): AsyncGenerator<string> {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
@@ -268,6 +271,7 @@ export async function* generateTallyReportCsv({
     );
 
   yield stringify([
+    generateCsvTitleRow({ filename, electionDefinition }),
     generateHeaders({
       election,
       metadataStructure,

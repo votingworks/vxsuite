@@ -4,6 +4,7 @@ import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
+  formatBallotHash,
   Tabulation,
 } from '@votingworks/types';
 import { find } from '@votingworks/basics';
@@ -13,12 +14,13 @@ import {
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
 import { generateTallyReportCsv } from './csv_tally_report';
-import { iterableToString, parseCsv } from '../../test/csv';
+import { iterableToString, mockFileName, parseCsv } from '../../test/csv';
 import { Store } from '../store';
 
 test('uses appropriate headers', async () => {
   const store = Store.memoryStore();
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { electionData, ballotHash } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -213,9 +215,14 @@ test('uses appropriate headers', async () => {
       store,
       filter: testCase.filter,
       groupBy: testCase.groupBy,
+      filename: mockFileName(),
     });
     const fileContents = await iterableToString(iterable);
-    const { headers, rows } = parseCsv(fileContents);
+    const { metadata, headers, rows } = parseCsv(fileContents);
+    expect(metadata).toEqual({
+      title: 'test-file-name',
+      ballotHash: formatBallotHash(ballotHash),
+    });
     expect(headers).toEqual([...testCase.additionalHeaders, ...SHARED_HEADERS]);
 
     const row = find(
@@ -248,6 +255,7 @@ test('includes rows for empty but known result groups', async () => {
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
+    filename: mockFileName(),
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -271,6 +279,7 @@ test('included contests are specific to each results group', async () => {
     store,
     filter: {},
     groupBy: { groupByBallotStyle: true },
+    filename: mockFileName(),
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -308,6 +317,7 @@ test('included contests are restricted by the overall export filter', async () =
   const iterable = generateTallyReportCsv({
     store,
     filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
+    filename: mockFileName(),
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -337,6 +347,7 @@ test('does not include results groups when they are excluded by the filter', asy
   const byVotingMethodIterable = generateTallyReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
+    filename: mockFileName(),
   });
   const byVotingMethodFileContents = await iterableToString(
     byVotingMethodIterable
@@ -354,6 +365,7 @@ test('does not include results groups when they are excluded by the filter', asy
     store,
     groupBy: { groupByVotingMethod: true },
     filter: { votingMethods: ['precinct'] },
+    filename: mockFileName(),
   });
   const precinctFileContests = await iterableToString(precinctIterable);
   const { rows: precinctRows } = parseCsv(precinctFileContests);
@@ -429,6 +441,7 @@ test('incorporates manual data', async () => {
 
   const iterable = generateTallyReportCsv({
     store,
+    filename: mockFileName(),
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -526,6 +539,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
     const iterable = generateTallyReportCsv({
       store,
       groupBy,
+      filename: mockFileName(),
     });
 
     const fileContents = await iterableToString(iterable);
@@ -589,6 +603,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   const iterable = generateTallyReportCsv({
     store,
     groupBy: { groupByScanner: true },
+    filename: mockFileName(),
   });
 
   const fileContents = await iterableToString(iterable);

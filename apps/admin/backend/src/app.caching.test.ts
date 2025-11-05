@@ -36,7 +36,7 @@ async function getParsedExport({
   mockUsbDrive: MockUsbDrive;
 }): Promise<ReturnType<typeof parseCsv>> {
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
-  const filename = mockFileName('pdf');
+  const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filename,
     filter: {},

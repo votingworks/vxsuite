@@ -10,7 +10,7 @@ import {
 } from '@votingworks/utils';
 import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
-import { Tabulation } from '@votingworks/types';
+import { formatBallotHash, Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { err, ok } from '@votingworks/basics';
 import { MockUsbDrive } from '@votingworks/usb-drive';
@@ -182,6 +182,10 @@ test('creates accurate ballot count reports', async () => {
       groupBy: { groupByVotingMethod: true },
     })
   ).toEqual({
+    metadata: {
+      title: 'test-file-name',
+      ballotHash: formatBallotHash(electionDefinition.ballotHash),
+    },
     headers: ['Voting Method', 'Manual', 'BMD', 'HMPB', 'Total'],
     rows: [
       {
@@ -208,6 +212,10 @@ test('creates accurate ballot count reports', async () => {
       groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
     })
   ).toEqual({
+    metadata: {
+      title: 'test-file-name',
+      ballotHash: formatBallotHash(electionDefinition.ballotHash),
+    },
     headers: [
       'Precinct',
       'Precinct ID',

@@ -7,6 +7,7 @@ import {
 import {
   BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
+  formatBallotHash,
   Tabulation,
 } from '@votingworks/types';
 import { find } from '@votingworks/basics';
@@ -15,7 +16,7 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
-import { iterableToString, parseCsv } from '../../test/csv';
+import { iterableToString, mockFileName, parseCsv } from '../../test/csv';
 import { Store } from '../store';
 import { generateBallotCountReportCsv } from './csv_ballot_count_report';
 
@@ -148,9 +149,14 @@ test('uses appropriate headers', async () => {
       filter: testCase.filter,
       groupBy: testCase.groupBy,
       includeSheetCounts: false,
+      filename: mockFileName(),
     });
     const fileContents = await iterableToString(iterable);
-    const { headers, rows } = parseCsv(fileContents);
+    const { metadata, headers, rows } = parseCsv(fileContents);
+    expect(metadata).toEqual({
+      title: 'test-file-name',
+      ballotHash: formatBallotHash(electionDefinition.ballotHash),
+    });
     expect(headers).toEqual([...testCase.expectedHeaders]);
 
     const row = find(rows, (r) => r['Total'] !== '0');
@@ -181,6 +187,7 @@ test('includes rows for empty but known result groups', async () => {
     filter: {},
     groupBy: { groupByPrecinct: true },
     includeSheetCounts: false,
+    filename: mockFileName(),
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -205,6 +212,7 @@ test('does not include results groups when they are excluded by the filter', asy
     store,
     groupBy: { groupByVotingMethod: true },
     includeSheetCounts: false,
+    filename: mockFileName(),
   });
   const byVotingMethodFileContents = await iterableToString(
     byVotingMethodIterable
@@ -223,6 +231,7 @@ test('does not include results groups when they are excluded by the filter', asy
     groupBy: { groupByVotingMethod: true },
     filter: { votingMethods: ['precinct'] },
     includeSheetCounts: false,
+    filename: mockFileName(),
   });
   const precinctFileContests = await iterableToString(precinctIterable);
   const { rows: precinctRows } = parseCsv(precinctFileContests);
@@ -251,6 +260,7 @@ test('excludes Manual column if no manual data exists', async () => {
     filter: {},
     groupBy: { groupByPrecinct: true },
     includeSheetCounts: false,
+    filename: mockFileName(),
   });
   const fileContents = await iterableToString(iterable);
   const { headers } = parseCsv(fileContents);
@@ -340,6 +350,7 @@ test('can include sheet counts', async () => {
     store,
     groupBy: { groupByPrecinct: true },
     includeSheetCounts: true,
+    filename: mockFileName(),
   });
   const fileContents = await iterableToString(iterable);
   const { headers, rows } = parseCsv(fileContents);

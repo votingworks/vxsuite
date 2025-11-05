@@ -11,7 +11,7 @@ import {
 } from '@votingworks/utils';
 import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
-import { Tabulation } from '@votingworks/types';
+import { formatBallotHash, Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { MockUsbDrive } from '@votingworks/usb-drive';
@@ -112,7 +112,11 @@ test('exports expected results for full election', async () => {
 
   const [filePath] = exportResult.unsafeUnwrap();
   const fileContent = readFileSync(filePath!, 'utf-8').toString();
-  const { headers, rows } = parseCsv(fileContent);
+  const { metadata, headers, rows } = parseCsv(fileContent);
+  expect(metadata).toEqual({
+    title: 'test-file-name',
+    ballotHash: formatBallotHash(electionDefinition.ballotHash),
+  });
   expect(headers).toEqual([
     'Contest',
     'Contest ID',
