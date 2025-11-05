@@ -35,6 +35,7 @@ import {
   PrecinctSelection,
   safeParseElection,
   BallotStyle,
+  formatBallotHash,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -119,6 +120,7 @@ import {
 import { rootDebug } from './debug';
 import * as ttsStrings from './tts_strings';
 import { convertMsElection } from './convert_ms_election';
+import { convertMsResults, ConvertMsResultsError } from './convert_ms_results';
 
 const debug = rootDebug.extend('app');
 
@@ -349,6 +351,11 @@ export function buildApi(ctx: AppContext) {
               return {
                 ...sourceElection,
                 id: input.newId,
+                county: {
+                  ...sourceElection.county,
+                  // County ID needs to be deterministic, but doesn't actually get used anywhere
+                  countyId: `${input.newId}-county`,
+                },
                 districts,
                 precincts,
                 parties,
@@ -876,6 +883,43 @@ export function buildApi(ctx: AppContext) {
     }): Promise<ElectionFeaturesConfig> {
       const election = await store.getElection(input.electionId);
       return getElectionFeaturesConfig(election);
+    },
+
+    async convertMsResults(input: {
+      electionId: ElectionId;
+      allPrecinctsTallyReportContents: string;
+    }): Promise<
+      Result<
+        { convertedResults: string; ballotHash: string },
+        GetExportedElectionError | ConvertMsResultsError | Error
+      >
+    > {
+      const exportedElectionDefinitionResult =
+        await store.getExportedElectionDefinition(input.electionId);
+      if (exportedElectionDefinitionResult.isErr()) {
+        return exportedElectionDefinitionResult;
+      }
+      // TODO add ballot hash to report so we can validate that
+      // ballotHash matches report
+      const { election, ballotHash } = exportedElectionDefinitionResult.ok();
+      try {
+        const convertedResults = convertMsResults(
+          election,
+          input.allPrecinctsTallyReportContents
+        );
+        if (convertedResults.isErr()) {
+          return convertedResults;
+        }
+        return ok({
+          convertedResults: convertedResults.ok(),
+          ballotHash: formatBallotHash(ballotHash),
+        });
+      } catch (error) {
+        Sentry.captureException(error);
+        // eslint-disable-next-line no-console
+        console.error('Error converting MS results:', error);
+        return wrapException(error);
+      }
     },
 
     async decryptCvrBallotAuditIds(input: {

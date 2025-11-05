@@ -361,8 +361,10 @@ export function convertMsElection(
         };
       }
 
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         throw new Error(`Unknown contest type: ${contestType}`);
+      }
     }
   });
 

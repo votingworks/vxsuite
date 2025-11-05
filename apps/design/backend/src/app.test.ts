@@ -2632,10 +2632,6 @@ test('Election package and ballots export', async () => {
     precincts: await apiClient.listPrecincts({ electionId }),
     parties: await apiClient.listParties({ electionId }),
     contests: await apiClient.listContests({ electionId }),
-    county: {
-      ...electionWithLegalPaper.county,
-      id: `${electionId}-county`,
-    },
 
     additionalHashInput: {
       precinctSplitSeals: expect.any(Object),

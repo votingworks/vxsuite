@@ -597,6 +597,7 @@ export class Store {
               title,
               date,
               jurisdiction,
+              jurisdiction_id as "jurisdictionId",
               state,
               seal,
               signature,
@@ -618,6 +619,7 @@ export class Store {
         title: string;
         date: Date;
         jurisdiction: string;
+        jurisdictionId: string;
         state: string;
         seal: string;
         signature: Signature | null;
@@ -865,8 +867,10 @@ export class Store {
         type: electionRow.type,
         title: electionRow.title,
         date: new DateWithoutTime(electionRow.date.toISOString().split('T')[0]),
-        // County ID needs to be deterministic, but doesn't actually get used anywhere
-        county: { id: `${electionId}-county`, name: electionRow.jurisdiction },
+        county: {
+          id: electionRow.jurisdictionId,
+          name: electionRow.jurisdiction,
+        },
         state: electionRow.state,
         seal: electionRow.seal,
         // Only include signature for the NhBallot
@@ -1034,6 +1038,7 @@ export class Store {
             title,
             date,
             jurisdiction,
+            jurisdiction_id,
             state,
             seal,
             signature,
@@ -1055,7 +1060,8 @@ export class Store {
             $10,
             $11,
             $12,
-            $13
+            $13,
+            $14
           )
         `,
           election.id,
@@ -1064,6 +1070,7 @@ export class Store {
           electionTitle,
           election.date.toISOString(),
           election.county.name,
+          election.county.id,
           election.state,
           election.seal,
           election.signature ? JSON.stringify(election.signature) : null,

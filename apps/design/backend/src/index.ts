@@ -35,6 +35,7 @@ export type {
   UserFeaturesConfig,
 } from './features';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app';
+export type { ConvertMsResultsError } from './convert_ms_results';
 
 export type { BallotTemplateId } from '@votingworks/hmpb';
 

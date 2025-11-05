@@ -3,11 +3,20 @@ import {
   makeMockGoogleCloudTranslationClient,
   VendoredTranslations,
 } from '@votingworks/backend';
-import { assertDefined, err, find, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  find,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
+  Election,
   ElectionId,
   ElectionSerializationFormat,
   LanguageCode,
@@ -32,8 +41,10 @@ import * as worker from '../src/worker/worker';
 import { createWorkspace, Workspace } from '../src/workspace';
 import { TestStore } from './test_store';
 import { getEntries, openZip, readEntry } from '@votingworks/utils/src';
-import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { stringify } from 'csv-stringify/sync';
+import { AllPrecinctsTallyReportRow } from '../src/convert_ms_results';
 
 tmp.setGracefulCleanup();
 
@@ -237,6 +248,10 @@ export async function exportElectionPackage({
   const electionPackage = await apiClient.getElectionPackage({
     electionId,
   });
+  assert(
+    electionPackage.task?.error === undefined,
+    'Election package export failed with error: ' + electionPackage.task?.error
+  );
   return assertDefined(
     assertDefined(electionPackage.url).match(ELECTION_PACKAGE_FILE_NAME_REGEX)
   )[0];
@@ -297,6 +312,123 @@ export async function exportTestDecks({
 
 const fixturesPath = `${__dirname}/../test/fixtures`;
 
-export function readFixture(filename: string): Promise<string> {
-  return readFile(join(fixturesPath, filename), 'utf8');
+export function readFixture(filename: string): string {
+  return readFileSync(join(fixturesPath, filename), 'utf8');
+}
+
+export function generateAllPrecinctsTallyReportRows(
+  election: Election
+): AllPrecinctsTallyReportRow[] {
+  return election.precincts.flatMap((precinct) =>
+    election.contests.flatMap((contest, contestIndex) => {
+      const rowBase = {
+        precinct: precinct.name,
+        precinctId: precinct.id,
+        contest: contest.title,
+        contestId: contest.id,
+      } as const;
+      const overvotesAndUndervotesRows = [
+        {
+          ...rowBase,
+          selection: 'Overvotes',
+          selectionId: 'overvotes',
+          totalVotes: `${contestIndex}`,
+        },
+        {
+          ...rowBase,
+          selection: 'Undervotes',
+          selectionId: 'undervotes',
+          totalVotes: `${contestIndex}`,
+        },
+      ];
+      switch (contest.type) {
+        case 'candidate': {
+          return [
+            ...contest.candidates.map((candidate, candidateIndex) => ({
+              ...rowBase,
+              selection: candidate.name,
+              selectionId: candidate.id,
+              totalVotes: `${candidateIndex}`,
+            })),
+            ...(contest.allowWriteIns
+              ? // Simulate a fixed number of write-ins to make sure we aggregate them correctly
+                // (even though the contest might only be vote-for-1)
+                [
+                  // Unadjudicated write-in
+                  {
+                    ...rowBase,
+                    selection: 'Unadjudicated Write-in',
+                    selectionId: 'write-in',
+                    totalVotes: '1',
+                  },
+                  // Adjudicated write-ins
+                  {
+                    ...rowBase,
+                    selection: 'some candidate (Write-In)',
+                    selectionId: '8f143904-b942-4a8e-b45d-19abc3eaa645',
+                    totalVotes: '1',
+                  },
+                  {
+                    ...rowBase,
+                    selection: 'another candidate (Write-In)',
+                    selectionId: '89f98ae8-8a8e-44f3-a2e2-0cce368e1ba2',
+                    totalVotes: '1',
+                  },
+                ]
+              : []),
+            ...overvotesAndUndervotesRows,
+          ];
+        }
+        case 'yesno': {
+          return [
+            {
+              precinct: precinct.name,
+              precinctId: precinct.id,
+              contest: contest.title,
+              contestId: contest.id,
+              selection: contest.yesOption.label,
+              selectionId: contest.yesOption.id,
+              totalVotes: `${contestIndex}`,
+            },
+            {
+              precinct: precinct.name,
+              precinctId: precinct.id,
+              contest: contest.title,
+              contestId: contest.id,
+              selection: contest.noOption.label,
+              selectionId: contest.noOption.id,
+              totalVotes: `${contestIndex + 1}`,
+            },
+            ...overvotesAndUndervotesRows,
+          ];
+        }
+        default: {
+          return throwIllegalValue(contest);
+        }
+      }
+    })
+  );
+}
+
+export function stringifyAllPrecinctsTallyReportRows(
+  rows: AllPrecinctsTallyReportRow[]
+): string {
+  return stringify(rows, {
+    header: true,
+    columns: {
+      precinct: 'Precinct',
+      precinctId: 'Precinct ID',
+      contest: 'Contest',
+      contestId: 'Contest ID',
+      selection: 'Selection',
+      selectionId: 'Selection ID',
+      totalVotes: 'Total Votes',
+    },
+  });
+}
+
+export function generateAllPrecinctsTallyReport(election: Election): string {
+  return stringifyAllPrecinctsTallyReportRows(
+    generateAllPrecinctsTallyReportRows(election)
+  );
 }
