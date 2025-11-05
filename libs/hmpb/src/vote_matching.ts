@@ -1,5 +1,9 @@
 import { assert, deepEqual } from '@votingworks/basics';
-import { Candidate, GridPositionOption } from '@votingworks/types';
+import {
+  Candidate,
+  GridPosition,
+  GridPositionOption,
+} from '@votingworks/types';
 
 /**
  * Matches a vote to a grid position.
@@ -15,11 +19,12 @@ import { Candidate, GridPositionOption } from '@votingworks/types';
 export function voteMatchesGridPosition(
   vote: Candidate,
   gridPos: GridPositionOption,
-  allGridPositions: readonly GridPositionOption[]
+  allGridPositions: readonly GridPosition[]
 ): boolean {
   // Get all grid positions for this contest and candidate ID
   const allCandidateGridPositions = allGridPositions.filter(
-    (gp) => gp.type === 'option' && gp.optionId === vote.id
+    (gp): gp is GridPositionOption =>
+      gp.type === 'option' && gp.optionId === vote.id
   );
   // If there are not multiple grid positions for this candidate, we can
   // directly match on option ID
