@@ -39,7 +39,7 @@ import {
   Font,
   virtualKeyboardCommon,
 } from '@votingworks/ui';
-import { assert, assertDefined, deepEqual, unique } from '@votingworks/basics';
+import { assert, assertDefined, deepEqual } from '@votingworks/basics';
 
 import { UpdateVoteFunction } from '../config/types';
 
@@ -47,6 +47,7 @@ import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { WriteInCandidateName } from './write_in_candidate_name';
+import { numVotesRemaining } from '../utils/vote';
 
 export interface WriteInCharacterLimitAcrossContests {
   numCharactersAllowed: number;
@@ -162,8 +163,7 @@ export function CandidateContest({
   const writeInCharacterLimitAcrossContestsIsLimitingFactor =
     writeInCharacterLimit < WRITE_IN_CANDIDATE_MAX_LENGTH;
 
-  const uniqueCandidatesSelected = unique(vote.map((c) => c.id)).length;
-  const hasReachedMaxSelections = uniqueCandidatesSelected >= contest.seats;
+  const votesRemaining = numVotesRemaining(contest, vote);
 
   useEffect(() => {
     if (recentlyDeselectedCandidate) {
@@ -210,19 +210,16 @@ export function CandidateContest({
   }
 
   function handleUpdateSelection(candidate: Candidate) {
-    /* istanbul ignore else - @preserve */
-    if (candidate) {
-      const candidateInVote = findCandidateInVote(vote, candidate);
+    const candidateInVote = findCandidateInVote(vote, candidate);
 
-      if (candidateInVote) {
-        if (candidateInVote.isWriteIn) {
-          setWriteInPendingRemoval(candidateInVote);
-        } else {
-          removeCandidateFromVote(candidate);
-        }
+    if (candidateInVote) {
+      if (candidateInVote.isWriteIn) {
+        setWriteInPendingRemoval(candidateInVote);
       } else {
-        addCandidateToVote(candidate);
+        removeCandidateFromVote(candidate);
       }
+    } else {
+      addCandidateToVote(candidate);
     }
   }
 
@@ -365,10 +362,7 @@ export function CandidateContest({
           )}
           <Caption>
             {appStrings.labelNumVotesRemaining()}{' '}
-            <NumberString
-              value={contest.seats - uniqueCandidatesSelected}
-              weight="bold"
-            />
+            <NumberString value={votesRemaining} weight="bold" />
             <AudioOnly>
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}
@@ -389,9 +383,7 @@ export function CandidateContest({
                 candidate.id
               );
               const isDisabled =
-                hasReachedMaxSelections &&
-                !isChecked &&
-                !isEquivalentToSelected;
+                votesRemaining <= 0 && !isChecked && !isEquivalentToSelected;
 
               function handleDisabledClick() {
                 handleChangeVoteAlert(candidate);
@@ -399,9 +391,6 @@ export function CandidateContest({
               let prefixAudioText: ReactNode = null;
               let suffixAudioText: ReactNode = null;
 
-              // Recalculate unique candidates after this selection/deselection
-              const numVotesRemaining =
-                contest.seats - uniqueCandidatesSelected;
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelected();
 
@@ -410,10 +399,10 @@ export function CandidateContest({
                   areCandidateChoicesEqual(recentlySelectedCandidate, candidate)
                 ) {
                   suffixAudioText =
-                    numVotesRemaining > 0 ? (
+                    votesRemaining > 0 ? (
                       <React.Fragment>
                         {appStrings.labelNumVotesRemaining()}{' '}
-                        <NumberString value={numVotesRemaining} weight="bold" />
+                        <NumberString value={votesRemaining} weight="bold" />
                       </React.Fragment>
                     ) : (
                       appStrings.noteBmdContestCompleted()
@@ -428,7 +417,7 @@ export function CandidateContest({
                 suffixAudioText = (
                   <React.Fragment>
                     {appStrings.labelNumVotesRemaining()}{' '}
-                    <NumberString value={numVotesRemaining} weight="bold" />
+                    <NumberString value={votesRemaining} weight="bold" />
                   </React.Fragment>
                 );
               }
@@ -486,7 +475,7 @@ export function CandidateContest({
                 choice="write-in"
                 isSelected={false}
                 onPress={
-                  hasReachedMaxSelections
+                  votesRemaining <= 0
                     ? handleDisabledAddWriteInClick
                     : initWriteInCandidate
                 }

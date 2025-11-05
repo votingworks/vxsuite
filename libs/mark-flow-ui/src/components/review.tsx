@@ -30,7 +30,6 @@ import {
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
-import { unique } from '@votingworks/basics';
 import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
@@ -39,6 +38,7 @@ import {
 
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { WriteInCandidateName } from './write_in_candidate_name';
+import { numVotesRemaining } from '../utils/vote';
 
 const Contest = styled.div`
   display: block;
@@ -65,10 +65,7 @@ function CandidateContestResult({
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
 
-  // Count unique candidates (cross-endorsed candidates selected multiple times
-  // count as one selection)
-  const uniqueCandidatesSelected = unique(vote.map((c) => c.id)).length;
-  const remainingChoices = contest.seats - uniqueCandidatesSelected;
+  const remainingChoices = numVotesRemaining(contest, vote);
 
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()

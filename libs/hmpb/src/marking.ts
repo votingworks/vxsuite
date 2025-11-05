@@ -7,7 +7,6 @@ import {
   CandidateContest,
   Election,
   GridPosition,
-  GridPositionOption,
   Rect,
   Vote,
   VotesDict,
@@ -219,11 +218,7 @@ function markInfo(
       continue;
     }
 
-    const allGridPositions = layout.gridPositions.filter(
-      (gp): gp is GridPositionOption => gp.type === 'option'
-    );
-
-    if (voteMatchesGridPosition(candidateVote, gridPos, allGridPositions)) {
+    if (voteMatchesGridPosition(candidateVote, gridPos, layout.gridPositions)) {
       return {};
     }
   }

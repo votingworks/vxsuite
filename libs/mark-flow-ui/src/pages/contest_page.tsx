@@ -17,12 +17,13 @@ import {
   PageNavigationButtonId,
   AccessibilityMode,
 } from '@votingworks/ui';
-import { assert, throwIllegalValue, uniqueBy } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import { Contest, ContestProps } from '../components/contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
 import { VoterScreen } from '../components/voter_screen';
+import { numVotesRemaining } from '../utils/vote';
 
 export interface ContestPageProps {
   ballotStyleId?: string;
@@ -101,10 +102,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       case 'yesno':
         return !!vote;
       case 'candidate':
-        return (
-          contest.seats ===
-          uniqueBy((vote as CandidateVote) ?? [], (c) => c.id).length
-        );
+        return vote && numVotesRemaining(contest, vote as CandidateVote) === 0;
       case 'ms-either-neither':
         return (
           votes[contest.pickOneContestId]?.length === 1 ||
