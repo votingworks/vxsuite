@@ -12,6 +12,7 @@ import {
   getPrecinctById,
   getBallotStylesByPartyId,
   getBallotStylesByPrecinctId,
+  getOptionPosition,
 } from './lookups';
 
 const electionTwoPartyPrimaryDefinition =
@@ -120,4 +121,57 @@ test('getBallotStylesByPrecinct', () => {
       (bs) => bs.id
     )
   ).toEqual(['1M', '2F']);
+});
+
+test('getOptionPosition returns correct positions for all contest options', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  // Test a few key positions to verify the lookup works correctly
+  expect(
+    getOptionPosition(electionDefinition, 'aquarium-council-fish', 'manta-ray')
+  ).toEqual(0);
+  expect(
+    getOptionPosition(electionDefinition, 'aquarium-council-fish', 'pufferfish')
+  ).toEqual(1);
+  expect(
+    getOptionPosition(electionDefinition, 'aquarium-council-fish', 'write-in-0')
+  ).toEqual(4);
+  expect(
+    getOptionPosition(electionDefinition, 'aquarium-council-fish', 'write-in-1')
+  ).toEqual(5);
+
+  // Test yes/no contest
+  expect(
+    getOptionPosition(electionDefinition, 'fishing', 'ban-fishing')
+  ).toEqual(0);
+  expect(
+    getOptionPosition(electionDefinition, 'fishing', 'allow-fishing')
+  ).toEqual(1);
+
+  // Test contest with many write-ins
+  expect(
+    getOptionPosition(electionDefinition, 'zoo-council-mammal', 'zebra')
+  ).toEqual(0);
+  expect(
+    getOptionPosition(electionDefinition, 'zoo-council-mammal', 'write-in-2')
+  ).toEqual(6);
+
+  // Verify full structure by checking all options for a contest
+  const aquariumOptions = [
+    'manta-ray',
+    'pufferfish',
+    'rockfish',
+    'triggerfish',
+    'write-in-0',
+    'write-in-1',
+  ];
+  for (let i = 0; i < aquariumOptions.length; i += 1) {
+    expect(
+      getOptionPosition(
+        electionDefinition,
+        'aquarium-council-fish',
+        aquariumOptions[i]!
+      )
+    ).toEqual(i);
+  }
 });

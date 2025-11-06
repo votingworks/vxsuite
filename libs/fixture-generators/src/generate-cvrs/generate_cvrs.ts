@@ -3,7 +3,6 @@ import {
   buildCVRContestsFromVotes,
   buildCvrImageData,
   combineImageAndLayoutHashes,
-  getOptionPosition,
 } from '@votingworks/backend';
 import {
   assertDefined,
@@ -36,6 +35,7 @@ import {
 import {
   allContestOptions,
   buildCVRSnapshotBallotTypeMetadata,
+  CachedElectionLookups,
   hasWriteIns,
 } from '@votingworks/utils';
 import {
@@ -452,10 +452,12 @@ export function* generateCvrs({
                                 return {
                                   '@type': 'CVR.CVRContestSelection',
                                   ContestSelectionId: optionId,
-                                  OptionPosition: getOptionPosition({
-                                    contest,
-                                    optionId,
-                                  }),
+                                  OptionPosition:
+                                    CachedElectionLookups.getOptionPosition(
+                                      electionDefinition,
+                                      contestId,
+                                      optionId
+                                    ),
                                   SelectionPosition: [
                                     {
                                       '@type': 'CVR.SelectionPosition',

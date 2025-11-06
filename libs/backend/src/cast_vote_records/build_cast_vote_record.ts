@@ -2,12 +2,10 @@ import {
   Optional,
   assert,
   assertDefined,
-  find,
   iter,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  AnyContest,
   BallotId,
   BallotMark,
   BallotType,
@@ -15,13 +13,11 @@ import {
   CandidateContest,
   CandidateVote,
   CVR,
-  Election,
   ElectionDefinition,
   getBallotStyle,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   MarkStatus,
-  safeParseInt,
   SheetOf,
   VotesDict,
   YesNoContest,
@@ -33,11 +29,6 @@ import {
   CachedElectionLookups,
   getMarkStatus,
 } from '@votingworks/utils';
-
-import {
-  ContestOptionPositionMap,
-  ElectionOptionPositionMap,
-} from './option_map';
 
 /**
  * The input to {@link buildCvrImageData}
@@ -149,57 +140,6 @@ function buildCVRBallotMeasureContest({
 }
 
 /**
- * Calculates the zero-indexed position of the given contest option on the
- * ballot. For candidates, this is the position of the candidate in the
- * contest's candidate lists. For HMPB write-ins with ids such as `write-in-0`,
- * it is determined from the write-in index in the ID. Do not use this method
- * for BMD write-in ids such as `write-in-(GREG)`
- */
-export function getOptionPosition({
-  contest,
-  optionId,
-}: {
-  contest: AnyContest;
-  optionId: string;
-}): number {
-  if (contest.type === 'yesno') {
-    switch (optionId) {
-      case contest.yesOption.id:
-        return 0;
-      case contest.noOption.id:
-        return 1;
-      default:
-        throw new Error('unexpected option id for ballot measure contest');
-    }
-  }
-
-  const writeInMatch = optionId.match(/^write-in-(.*)$/);
-
-  // if no write-in match, expect a candidate id
-  if (!writeInMatch) {
-    const candidateIndex = contest.candidates.findIndex(
-      (contestCandidate) => contestCandidate.id === optionId
-    );
-
-    if (candidateIndex === -1) {
-      throw new Error('option id is neither a write-in nor a candidate id');
-    }
-
-    return candidateIndex;
-  }
-
-  const writeInIndex = safeParseInt(writeInMatch[1]);
-
-  if (writeInIndex.isErr()) {
-    throw new Error(
-      'invalid write-in id, can only get option position for numerical write-in ids'
-    );
-  }
-
-  return contest.candidates.length + writeInIndex.ok();
-}
-
-/**
  * Discriminator between machine-marked ballots and hand-marked ballots.
  */
 export type BallotMarkingMode = 'hand' | 'machine';
@@ -216,13 +156,13 @@ type CVRContestRequiredBallotPageOptions =
 
 function buildCVRCandidateContest({
   contest,
-  contestOptionPositionMap,
+  electionDefinition,
   vote,
   unmarkedWriteIns,
   options,
 }: {
   contest: CandidateContest;
-  contestOptionPositionMap?: ContestOptionPositionMap;
+  electionDefinition: ElectionDefinition;
   vote: CandidateVote;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   options: CVRContestRequiredBallotPageOptions;
@@ -281,9 +221,11 @@ function buildCVRCandidateContest({
         '@type': 'CVR.CVRContestSelection',
         ContestSelectionId: candidate.id,
         // include position on the ballot per VVSG 2.0 1.1.5-C.2
-        OptionPosition: contestOptionPositionMap
-          ? contestOptionPositionMap[candidate.id]
-          : getOptionPosition({ contest, optionId: candidate.id }),
+        OptionPosition: CachedElectionLookups.getOptionPosition(
+          electionDefinition,
+          contest.id,
+          candidate.id
+        ),
         Status: overvoted
           ? [CVR.ContestSelectionStatus.InvalidatedRules]
           : isWriteIn
@@ -334,9 +276,11 @@ function buildCVRCandidateContest({
       return {
         '@type': 'CVR.CVRContestSelection',
         ContestSelectionId: unmarkedWriteIn.optionId,
-        OptionPosition: contestOptionPositionMap
-          ? contestOptionPositionMap[unmarkedWriteIn.optionId]
-          : getOptionPosition({ contest, optionId: unmarkedWriteIn.optionId }),
+        OptionPosition: CachedElectionLookups.getOptionPosition(
+          electionDefinition,
+          contest.id,
+          unmarkedWriteIn.optionId
+        ),
         Status: [CVR.ContestSelectionStatus.NeedsAdjudication],
         SelectionPosition: [
           {
@@ -381,13 +325,11 @@ export function buildCVRContestsFromVotes({
   votes,
   unmarkedWriteIns,
   electionDefinition,
-  electionOptionPositionMap,
   options,
 }: {
   votes: VotesDict;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   electionDefinition: ElectionDefinition;
-  electionOptionPositionMap?: ElectionOptionPositionMap;
   options: CVRContestRequiredBallotPageOptions;
 }): CVR.CVRContest[] {
   const cvrContests: CVR.CVRContest[] = [];
@@ -416,9 +358,7 @@ export function buildCVRContestsFromVotes({
         cvrContests.push(
           buildCVRCandidateContest({
             contest,
-            contestOptionPositionMap: electionOptionPositionMap
-              ? electionOptionPositionMap[contest.id]
-              : undefined,
+            electionDefinition,
             vote: contestVote as CandidateVote,
             unmarkedWriteIns: contestUnmarkedWriteIns,
             options,
@@ -450,15 +390,13 @@ function buildOriginalSnapshot({
   castVoteRecordId,
   marks,
   definiteMarkThreshold,
-  election,
-  electionOptionPositionMap,
+  electionDefinition,
   ballotType,
 }: {
   castVoteRecordId: string;
   marks: BallotMark[];
   definiteMarkThreshold: number;
-  election: Election;
-  electionOptionPositionMap?: ElectionOptionPositionMap;
+  electionDefinition: ElectionDefinition;
   ballotType: BallotType;
 }): CVR.CVRSnapshot {
   const marksByContest = iter(marks).toMap((mark) => mark.contestId);
@@ -476,17 +414,11 @@ function buildOriginalSnapshot({
           '@type': 'CVR.CVRContestSelection',
           ContestSelectionId: mark.optionId,
           // include position on the ballot per VVSG 2.0 1.1.5-C.2
-          OptionPosition: electionOptionPositionMap
-            ? assertDefined(electionOptionPositionMap[mark.contestId])[
-                mark.optionId
-              ]
-            : getOptionPosition({
-                optionId: mark.optionId,
-                contest: find(
-                  election.contests,
-                  (contest) => contest.id === mark.contestId
-                ),
-              }),
+          OptionPosition: CachedElectionLookups.getOptionPosition(
+            electionDefinition,
+            mark.contestId,
+            mark.optionId
+          ),
           SelectionPosition: [
             {
               '@type': 'CVR.SelectionPosition',
@@ -517,7 +449,6 @@ type BuildCastVoteRecordParams = {
   scannerId: string;
   castVoteRecordId: BallotId;
   batchId: string;
-  electionOptionPositionMap?: ElectionOptionPositionMap;
   indexInBatch?: number;
   ballotAuditId?: string;
 } & (
@@ -545,7 +476,6 @@ export function buildCastVoteRecord({
   batchId,
   indexInBatch,
   ballotAuditId,
-  electionOptionPositionMap,
   ...rest
 }: BuildCastVoteRecordParams): CVR.CVR {
   const { election } = electionDefinition;
@@ -598,7 +528,6 @@ export function buildCastVoteRecord({
             options: {
               ballotMarkingMode: 'machine',
             },
-            electionOptionPositionMap,
           }),
         },
       ],
@@ -631,7 +560,6 @@ export function buildCastVoteRecord({
           ballotMarkingMode: 'hand',
           image: images?.[0],
         },
-        electionOptionPositionMap,
       }),
       ...buildCVRContestsFromVotes({
         votes: interpretations[1].votes,
@@ -641,7 +569,6 @@ export function buildCastVoteRecord({
           ballotMarkingMode: 'hand',
           image: images?.[1],
         },
-        electionOptionPositionMap,
       }),
     ],
   };
@@ -661,8 +588,7 @@ export function buildCastVoteRecord({
           ...interpretations[1].markInfo.marks,
         ],
         definiteMarkThreshold,
-        election,
-        electionOptionPositionMap,
+        electionDefinition,
         ballotType: ballotMetadata.ballotType,
       }),
     ],

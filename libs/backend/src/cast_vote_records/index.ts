@@ -5,7 +5,6 @@ export {
   combineImageAndLayoutHashes,
   getImageHash,
   getLayoutHash,
-  getOptionPosition,
 } from './build_cast_vote_record';
 export {
   buildCastVoteRecordReportMetadata,

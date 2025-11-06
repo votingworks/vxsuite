@@ -139,3 +139,78 @@ export const getBallotStylesByPrecinctId = createElectionMetadataLookupFunction(
     return lookup;
   }
 );
+
+/**
+ * A helper type for caching option positions.
+ * Maps contestId -> optionId -> position
+ */
+type OptionPositionLookup = Record<string, Record<string, number>>;
+
+/**
+ * Builds a lookup map for option positions on the ballot for all contests.
+ * This is used internally by getOptionPosition and is cached.
+ */
+function buildOptionPositionLookup(election: Election): OptionPositionLookup {
+  const lookup: OptionPositionLookup = {};
+  for (const contest of election.contests) {
+    if (contest.type === 'yesno') {
+      lookup[contest.id] = {
+        [contest.yesOption.id]: 0,
+        [contest.noOption.id]: 1,
+      };
+    } else {
+      const contestMap: Record<string, number> = {};
+      for (const [index, candidate] of contest.candidates.entries()) {
+        contestMap[candidate.id] = index;
+      }
+      if (contest.allowWriteIns) {
+        for (let i = 0; i < contest.seats; i += 1) {
+          contestMap[`write-in-${i}`] = contest.candidates.length + i;
+        }
+      }
+      lookup[contest.id] = contestMap;
+    }
+  }
+  return lookup;
+}
+
+// Cache for option position lookups by ballot hash
+const optionPositionLookupCache: Record<string, OptionPositionLookup> = {};
+
+/**
+ * Gets the zero-indexed position of a contest option on the ballot.
+ * For candidates, this is the position in the contest's candidate list.
+ * For yes/no contests, yes=0 and no=1.
+ * For write-ins, positions are after all candidates.
+ *
+ * This function builds and caches the position map on first call for each election.
+ */
+export function getOptionPosition(
+  electionDefinition: ElectionDefinition,
+  contestId: string,
+  optionId: string
+): number {
+  const { ballotHash } = electionDefinition;
+
+  // Check if we have the lookup cached
+  let lookup = optionPositionLookupCache[ballotHash];
+  if (!lookup) {
+    // Build and cache the lookup
+    lookup = buildOptionPositionLookup(electionDefinition.election);
+    optionPositionLookupCache[ballotHash] = lookup;
+  }
+
+  const contestOptions = lookup[contestId];
+  assert(
+    contestOptions,
+    `Contest ${contestId} not found in option position lookup`
+  );
+
+  const position = contestOptions[optionId];
+  assert(
+    position !== undefined,
+    `Option ${optionId} not found in contest ${contestId}`
+  );
+
+  return position;
+}

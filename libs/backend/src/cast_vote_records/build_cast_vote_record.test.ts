@@ -21,7 +21,6 @@ import {
 import {
   buildCastVoteRecord,
   buildCVRContestsFromVotes,
-  getOptionPosition,
   combineImageAndLayoutHashes,
   getImageHash,
   getLayoutHash,
@@ -34,47 +33,6 @@ const mammalCouncilContest = find(
   election.contests,
   (contest) => contest.id === 'zoo-council-mammal'
 ) as CandidateContest;
-
-describe('getOptionPosition', () => {
-  test('handles option position for ballot measure contests', () => {
-    const contest = fishingContest;
-    expect(
-      getOptionPosition({ contest, optionId: contest.yesOption.id })
-    ).toEqual(0);
-    expect(
-      getOptionPosition({ contest, optionId: contest.noOption.id })
-    ).toEqual(1);
-    expect(() =>
-      getOptionPosition({ contest, optionId: 'other' })
-    ).toThrowError();
-  });
-
-  test('handles option position for candidate id', () => {
-    const contest = mammalCouncilContest;
-    expect(getOptionPosition({ contest, optionId: 'zebra' })).toEqual(0);
-    expect(getOptionPosition({ contest, optionId: 'elephant' })).toEqual(3);
-  });
-
-  test('handles option position for numerical write-in id', () => {
-    const contest = mammalCouncilContest;
-    expect(getOptionPosition({ contest, optionId: 'write-in-0' })).toEqual(4);
-    expect(getOptionPosition({ contest, optionId: 'write-in-2' })).toEqual(6);
-  });
-
-  test('throws error for non-numerical write-in id', () => {
-    const contest = mammalCouncilContest;
-    expect(() =>
-      getOptionPosition({ contest, optionId: 'write-in-(FISH)' })
-    ).toThrow();
-  });
-
-  test('throws error for unrecognizable id', () => {
-    const contest = mammalCouncilContest;
-    expect(() =>
-      getOptionPosition({ contest, optionId: 'seahorse' })
-    ).toThrow();
-  });
-});
 
 describe('buildCVRContestsFromVotes', () => {
   test('builds well-formed ballot measure contest (yes vote)', () => {
