@@ -126,34 +126,34 @@ effectively begin at (1, 1).
 
 The timing mark detection process consists of four main steps:
 
-1. **Shape Finding** (`libs/ballot-interpreter/src/bubble-ballot-rust/timing_marks/corners/shape_finding/mod.rs:87`):
-   The algorithm scans the ballot image column by column within a 1-inch inset
+1. **Shape Finding** ([timing_marks/corners/shape_finding/mod.rs](src/bubble-ballot-rust/timing_marks/corners/shape_finding/mod.rs)):
+   The algorithm scans the ballot image column by column within an inset region
    from each edge. For each column, it groups contiguous black pixels vertically
-   and filters groups by height (60% to 167% of expected timing mark height).
+   and filters groups by height to match expected timing mark dimensions.
    Adjacent columns with similar vertical ranges are merged into shapes. These
-   shapes are then smoothed using a median filter (8-pixel window) to eliminate
-   bumps from stray marks or debris. Finally, shapes are filtered to ensure they
-   match expected timing mark dimensions (50% to 180% of expected width/height).
+   shapes are then smoothed using a median filter to eliminate bumps from stray
+   marks or debris. Finally, shapes are filtered to ensure they match expected
+   timing mark size and aspect ratio.
 
-2. **Corner Finding** (`libs/ballot-interpreter/src/bubble-ballot-rust/timing_marks/corners/corner_finding.rs:74`):
+2. **Corner Finding** ([timing_marks/corners/corner_finding.rs](src/bubble-ballot-rust/timing_marks/corners/corner_finding.rs)):
    For each of the four corners (top-left, top-right, bottom-left, bottom-right),
    the algorithm identifies candidate corner groupings. Each grouping consists of
    three timing marks: the corner mark itself, plus one mark along the adjacent
    row and one along the adjacent column. Candidates are sorted by distance from
    the expected corner location. The algorithm selects the first grouping where
-   all three marks have a mark score of at least 80%. If no such grouping is
-   found, an error is returned.
+   all three marks meet minimum quality thresholds. If no such grouping is found,
+   an error is returned.
 
-3. **Border Finding** (`libs/ballot-interpreter/src/bubble-ballot-rust/timing_marks/corners/border_finding.rs:31`):
+3. **Border Finding** ([timing_marks/corners/border_finding.rs](src/bubble-ballot-rust/timing_marks/corners/border_finding.rs)):
    After corners are identified, the algorithm finds timing marks along each
    border by "walking" from one corner to the other. Starting at a corner mark,
    it computes a unit vector pointing toward the opposite corner with length
    equal to the expected timing mark spacing. At each step, it searches for the
-   closest candidate mark within 50% of the expected spacing. If no mark is
-   found within this tolerance, an error is returned. This continues until the
+   closest candidate mark within a tolerance of the expected spacing. If no mark
+   is found within this tolerance, an error is returned. This continues until the
    ending corner is reached.
 
-4. **Validation** (`libs/ballot-interpreter/src/bubble-ballot-rust/timing_marks/corners/border_finding.rs:92`):
+4. **Validation** ([timing_marks/corners/border_finding.rs](src/bubble-ballot-rust/timing_marks/corners/border_finding.rs)):
    The algorithm requires that each border contains exactly the expected number
    of timing marks (matching the grid dimensions from the election definition).
    If any border has an incorrect count, an error is returned. This strict
@@ -175,14 +175,14 @@ misinterpreting votes. Key aspects of error handling include:
    marks specified in the ballot's grid dimensions. There is no tolerance for
    missing or extra marks.
 
-3. **Minimum Mark Quality**: Corner timing marks must have a score of at least
-   80% to be accepted. This ensures that only high-quality, unambiguous marks
-   are used as reference points for the grid.
+3. **Minimum Mark Quality**: Corner timing marks must meet minimum quality
+   thresholds to be accepted. This ensures that only high-quality, unambiguous
+   marks are used as reference points for the grid.
 
-4. **Controlled Search Areas**: Shape finding is limited to a 1-inch inset from
-   each edge, and border finding restricts the search for each mark to within
-   50% of the expected spacing. This prevents the algorithm from incorrectly
-   identifying marks that are too far from their expected positions.
+4. **Controlled Search Areas**: Shape finding is limited to an inset region from
+   each edge, and border finding restricts the search for each mark to within a
+   tolerance of the expected spacing. This prevents the algorithm from
+   incorrectly identifying marks that are too far from their expected positions.
 
 ### Decode Metadata
 
@@ -199,8 +199,8 @@ etc.
 ### Score Bubble Marks
 
 Bubble marks are scored to determine which bubbles are filled in. The scoring
-process (`libs/ballot-interpreter/src/bubble-ballot-rust/scoring.rs:157`)
-consists of two main steps: template matching and fill scoring.
+process ([scoring.rs](src/bubble-ballot-rust/scoring.rs)) consists of two main
+steps: template matching and fill scoring.
 
 #### Bubble Localization
 
@@ -219,26 +219,23 @@ To locate a bubble at grid coordinates `(column, row)`:
 To account for stretching and other distortions in the scanned image, the
 algorithm performs template matching within a search area:
 
-1. **Search Area** (`libs/ballot-interpreter/src/bubble-ballot-rust/scoring.rs:179`):
-   Starting from the expected bubble center, the algorithm searches within a
-   7-pixel radius in all directions (default `DEFAULT_MAXIMUM_SEARCH_DISTANCE`).
+1. **Search Area**: Starting from the expected bubble center, the algorithm
+   searches within a small radius in all directions.
 
-2. **Match Score Computation** (`libs/ballot-interpreter/src/bubble-ballot-rust/scoring.rs:195`):
-   For each position in the search area:
+2. **Match Score Computation**: For each position in the search area:
    - Crop the scanned image to the bubble template size
    - Apply binary thresholding using the ballot's global threshold
    - Compute a difference image between the thresholded crop and the template
    - The match score is the percentage of pixels that are white (matching) in
      the difference image
 
-3. **Best Match Selection** (`libs/ballot-interpreter/src/bubble-ballot-rust/scoring.rs:214`):
-   The algorithm selects the position with the highest match score as the actual
-   bubble location.
+3. **Best Match Selection**: The algorithm selects the position with the highest
+   match score as the actual bubble location.
 
 #### Fill Scoring
 
 Once the best matching position is found, the algorithm computes how filled the
-bubble is (`libs/ballot-interpreter/src/bubble-ballot-rust/scoring.rs:225`):
+bubble is:
 
 1. Crop the scanned image at the best matching bounds
 2. Apply binary thresholding using the ballot's global threshold
@@ -259,8 +256,8 @@ Write-ins are scored to determine whether any have handwriting. The write-in
 area is encoded in the election definition per contest option and is a rectangle
 specified using the same grid as bubble marks.
 
-The scoring process (`libs/ballot-interpreter/src/bubble-ballot-rust/scoring.rs:287`)
-works as follows:
+The scoring process ([scoring.rs](src/bubble-ballot-rust/scoring.rs)) works as
+follows:
 
 1. **Locate Write-In Area**: The write-in area is defined as a rectangle with
    coordinates `(x, y, width, height)` in the timing mark grid. The algorithm
@@ -268,10 +265,9 @@ works as follows:
    coordinates, computing the four corners of the write-in area as a
    quadrilateral (to account for skew and distortion).
 
-2. **Score Computation** (`libs/ballot-interpreter/src/bubble-ballot-rust/scoring.rs:311`):
-   The score is the ratio of dark (foreground) pixels to total pixels within
-   the quadrilateral area. This ratio represents how much of the write-in area
-   contains ink or markings.
+2. **Score Computation**: The score is the ratio of dark (foreground) pixels to
+   total pixels within the quadrilateral area. This ratio represents how much of
+   the write-in area contains ink or markings.
 
 The score is later compared to a threshold to determine whether handwriting is
 present, but the core function simply computes the score and lets the caller
