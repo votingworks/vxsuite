@@ -55,6 +55,7 @@ import {
   faListOl,
   faListUl,
   faLock,
+  faMagnifyingGlass,
   faMagnifyingGlassMinus,
   faMagnifyingGlassPlus,
   faMinusCircle,
@@ -498,6 +499,10 @@ export const Icons = {
 
   Save(props) {
     return <FaIcon {...props} type={faFloppyDisk} />;
+  },
+
+  Search(props) {
+    return <FaIcon {...props} type={faMagnifyingGlass} />;
   },
 
   Settings(props) {
