@@ -26,11 +26,15 @@ export function buildApi(ctx: AppContext) {
 
   const methods = {
     getAuthStatus() {
-      return auth.getAuthStatus(constructAuthMachineState(workspace));
+      return auth.getAuthStatus(constructAuthMachineState(store));
     },
 
     checkPin(input: { pin: string }) {
-      return auth.checkPin(constructAuthMachineState(workspace), input);
+      return auth.checkPin(constructAuthMachineState(store), input);
+    },
+
+    logOut() {
+      return auth.logOut(constructAuthMachineState(store));
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {
@@ -45,7 +49,7 @@ export function buildApi(ctx: AppContext) {
       Result<ElectionDefinition, ElectionPackageConfigurationError>
     > {
       const authStatus = await auth.getAuthStatus(
-        constructAuthMachineState(workspace)
+        constructAuthMachineState(workspace.store)
       );
 
       const electionPackageResult = await readSignedElectionPackageFromUsb(
