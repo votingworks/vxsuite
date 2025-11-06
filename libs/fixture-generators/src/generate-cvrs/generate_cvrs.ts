@@ -304,6 +304,7 @@ export function* generateCvrs({
                     Type: CVR.CVRType.Original,
                     CVRContest: buildCVRContestsFromVotes({
                       electionDefinition,
+                      ballotStyleId,
                       votes,
                       options: {
                         ballotMarkingMode: 'machine',
@@ -396,6 +397,7 @@ export function* generateCvrs({
                       CVRContest: [
                         ...buildCVRContestsFromVotes({
                           electionDefinition,
+                          ballotStyleId,
                           votes: frontVotes,
                           options: {
                             ballotMarkingMode: 'hand',
@@ -410,6 +412,7 @@ export function* generateCvrs({
                         }),
                         ...buildCVRContestsFromVotes({
                           electionDefinition,
+                          ballotStyleId,
                           votes: backVotes,
                           options: {
                             ballotMarkingMode: 'hand',
@@ -455,6 +458,7 @@ export function* generateCvrs({
                                   OptionPosition:
                                     CachedElectionLookups.getOptionPosition(
                                       electionDefinition,
+                                      ballotStyleId,
                                       contestId,
                                       optionId
                                     ),

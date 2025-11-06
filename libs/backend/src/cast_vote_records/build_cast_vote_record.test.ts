@@ -38,6 +38,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('builds well-formed ballot measure contest (yes vote)', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [fishingContest.id]: [fishingContest.yesOption.id] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -75,6 +76,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for no vote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [fishingContest.id]: [fishingContest.noOption.id] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -97,6 +99,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for overvote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [fishingContest.id]: ['ban-fishing', 'allow-fishing'] },
       options: { ballotMarkingMode: 'hand' },
     });
@@ -127,6 +130,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for undervote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [fishingContest.id]: [] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -146,6 +150,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('builds well-formed candidate contest', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: mammalCouncilContest.candidates.slice(0, 3),
       },
@@ -219,6 +224,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information when not indicated', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [mammalCouncilContest.id]: [] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -238,6 +244,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information when undervoted', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: [mammalCouncilContest.candidates[0]!],
       },
@@ -256,6 +263,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information when overvoted', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: mammalCouncilContest.candidates.slice(0, 4),
       },
@@ -290,6 +298,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information for HMPB write-in', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: [
           {
@@ -345,6 +354,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information for BMD write-in', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: [
           {

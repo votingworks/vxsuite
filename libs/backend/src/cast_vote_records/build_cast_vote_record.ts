@@ -8,6 +8,7 @@ import {
 import {
   BallotId,
   BallotMark,
+  BallotStyleId,
   BallotType,
   Candidate,
   CandidateContest,
@@ -99,9 +100,13 @@ export function buildCvrImageData({
 function buildCVRBallotMeasureContest({
   contest,
   vote,
+  electionDefinition,
+  ballotStyleId,
 }: {
   contest: YesNoContest;
   vote: YesNoVote;
+  electionDefinition: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
 }): CVR.CVRContest {
   const overvoted = vote.length > 1;
   const undervoted = vote.length < 1;
@@ -120,7 +125,12 @@ function buildCVRBallotMeasureContest({
       '@type': 'CVR.CVRContestSelection',
       ContestSelectionId: optionId,
       // include position on the ballot per VVSG 2.0 1.1.5-C.2
-      OptionPosition: optionId === contest.yesOption.id ? 0 : 1,
+      OptionPosition: CachedElectionLookups.getOptionPosition(
+        electionDefinition,
+        ballotStyleId,
+        contest.id,
+        optionId
+      ),
       Status: overvoted
         ? [CVR.ContestSelectionStatus.InvalidatedRules]
         : undefined,
@@ -157,12 +167,14 @@ type CVRContestRequiredBallotPageOptions =
 function buildCVRCandidateContest({
   contest,
   electionDefinition,
+  ballotStyleId,
   vote,
   unmarkedWriteIns,
   options,
 }: {
   contest: CandidateContest;
   electionDefinition: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
   vote: CandidateVote;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   options: CVRContestRequiredBallotPageOptions;
@@ -223,6 +235,7 @@ function buildCVRCandidateContest({
         // include position on the ballot per VVSG 2.0 1.1.5-C.2
         OptionPosition: CachedElectionLookups.getOptionPosition(
           electionDefinition,
+          ballotStyleId,
           contest.id,
           candidate.id
         ),
@@ -278,6 +291,7 @@ function buildCVRCandidateContest({
         ContestSelectionId: unmarkedWriteIn.optionId,
         OptionPosition: CachedElectionLookups.getOptionPosition(
           electionDefinition,
+          ballotStyleId,
           contest.id,
           unmarkedWriteIn.optionId
         ),
@@ -325,11 +339,13 @@ export function buildCVRContestsFromVotes({
   votes,
   unmarkedWriteIns,
   electionDefinition,
+  ballotStyleId,
   options,
 }: {
   votes: VotesDict;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   electionDefinition: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
   options: CVRContestRequiredBallotPageOptions;
 }): CVR.CVRContest[] {
   const cvrContests: CVR.CVRContest[] = [];
@@ -351,6 +367,8 @@ export function buildCVRContestsFromVotes({
           buildCVRBallotMeasureContest({
             contest,
             vote: contestVote as YesNoVote,
+            electionDefinition,
+            ballotStyleId,
           })
         );
         break;
@@ -359,6 +377,7 @@ export function buildCVRContestsFromVotes({
           buildCVRCandidateContest({
             contest,
             electionDefinition,
+            ballotStyleId,
             vote: contestVote as CandidateVote,
             unmarkedWriteIns: contestUnmarkedWriteIns,
             options,
@@ -391,12 +410,14 @@ function buildOriginalSnapshot({
   marks,
   definiteMarkThreshold,
   electionDefinition,
+  ballotStyleId,
   ballotType,
 }: {
   castVoteRecordId: string;
   marks: BallotMark[];
   definiteMarkThreshold: number;
   electionDefinition: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
   ballotType: BallotType;
 }): CVR.CVRSnapshot {
   const marksByContest = iter(marks).toMap((mark) => mark.contestId);
@@ -416,6 +437,7 @@ function buildOriginalSnapshot({
           // include position on the ballot per VVSG 2.0 1.1.5-C.2
           OptionPosition: CachedElectionLookups.getOptionPosition(
             electionDefinition,
+            ballotStyleId,
             mark.contestId,
             mark.optionId
           ),
@@ -525,6 +547,7 @@ export function buildCastVoteRecord({
           CVRContest: buildCVRContestsFromVotes({
             votes: interpretation.votes,
             electionDefinition,
+            ballotStyleId: ballotMetadata.ballotStyleId,
             options: {
               ballotMarkingMode: 'machine',
             },
@@ -556,6 +579,7 @@ export function buildCastVoteRecord({
         votes: interpretations[0].votes,
         unmarkedWriteIns: interpretations[0].unmarkedWriteIns,
         electionDefinition,
+        ballotStyleId: ballotMetadata.ballotStyleId,
         options: {
           ballotMarkingMode: 'hand',
           image: images?.[0],
@@ -565,6 +589,7 @@ export function buildCastVoteRecord({
         votes: interpretations[1].votes,
         unmarkedWriteIns: interpretations[1].unmarkedWriteIns,
         electionDefinition,
+        ballotStyleId: ballotMetadata.ballotStyleId,
         options: {
           ballotMarkingMode: 'hand',
           image: images?.[1],
@@ -589,6 +614,7 @@ export function buildCastVoteRecord({
         ],
         definiteMarkThreshold,
         electionDefinition,
+        ballotStyleId: ballotMetadata.ballotStyleId,
         ballotType: ballotMetadata.ballotType,
       }),
     ],

@@ -11,6 +11,8 @@ import {
   Party,
   Precinct,
   PrecinctId,
+  getBallotStyle,
+  getOrderedCandidatesForContestInBallotStyle,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '../ballot_styles';
 
@@ -142,16 +144,29 @@ export const getBallotStylesByPrecinctId = createElectionMetadataLookupFunction(
 
 /**
  * A helper type for caching option positions.
- * Maps contestId -> optionId -> position
+ * Maps ballotStyleId -> contestId -> optionId -> position
  */
-type OptionPositionLookup = Record<string, Record<string, number>>;
+type OptionPositionLookup = Record<
+  BallotStyleId,
+  Record<string, Record<string, number>>
+>;
 
 /**
- * Builds a lookup map for option positions on the ballot for all contests.
+ * Builds a lookup map for option positions on the ballot for all contests
+ * in a specific ballot style. This respects ballot style-specific candidate ordering.
+ * For multi-endorsed candidates, always returns the position of the first occurrence.
  * This is used internally by getOptionPosition and is cached.
  */
-function buildOptionPositionLookup(election: Election): OptionPositionLookup {
-  const lookup: OptionPositionLookup = {};
+function buildOptionPositionLookupForBallotStyle(
+  election: Election,
+  ballotStyleId: BallotStyleId
+): Record<string, Record<string, number>> {
+  const ballotStyle = assertDefined(
+    getBallotStyle({ ballotStyleId, election }),
+    `Ballot style ${ballotStyleId} not found`
+  );
+
+  const lookup: Record<string, Record<string, number>> = {};
   for (const contest of election.contests) {
     if (contest.type === 'yesno') {
       lookup[contest.id] = {
@@ -159,13 +174,22 @@ function buildOptionPositionLookup(election: Election): OptionPositionLookup {
         [contest.noOption.id]: 1,
       };
     } else {
+      // Get the ballot-style-specific candidate ordering
+      const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+        contest,
+        ballotStyle,
+      });
+
       const contestMap: Record<string, number> = {};
-      for (const [index, candidate] of contest.candidates.entries()) {
-        contestMap[candidate.id] = index;
+      for (const [index, candidate] of orderedCandidates.entries()) {
+        // For multi-endorsed candidates, only store the first occurrence
+        if (contestMap[candidate.id] === undefined) {
+          contestMap[candidate.id] = index;
+        }
       }
       if (contest.allowWriteIns) {
         for (let i = 0; i < contest.seats; i += 1) {
-          contestMap[`write-in-${i}`] = contest.candidates.length + i;
+          contestMap[`write-in-${i}`] = orderedCandidates.length + i;
         }
       }
       lookup[contest.id] = contestMap;
@@ -174,42 +198,54 @@ function buildOptionPositionLookup(election: Election): OptionPositionLookup {
   return lookup;
 }
 
-// Cache for option position lookups by ballot hash
+// Cache for option position lookups by ballot hash and ballot style
 const optionPositionLookupCache: Record<string, OptionPositionLookup> = {};
 
 /**
- * Gets the zero-indexed position of a contest option on the ballot.
- * For candidates, this is the position in the contest's candidate list.
+ * Gets the zero-indexed position of a contest option on the ballot for a specific ballot style.
+ * For candidates, this is the position in the ballot-style-specific candidate ordering.
+ * For multi-endorsed candidates that appear multiple times, returns the first occurrence.
  * For yes/no contests, yes=0 and no=1.
  * For write-ins, positions are after all candidates.
  *
- * This function builds and caches the position map on first call for each election.
+ * This function builds and caches the position map on first call for each election and ballot style.
  */
 export function getOptionPosition(
   electionDefinition: ElectionDefinition,
+  ballotStyleId: BallotStyleId,
   contestId: string,
   optionId: string
 ): number {
   const { ballotHash } = electionDefinition;
 
-  // Check if we have the lookup cached
-  let lookup = optionPositionLookupCache[ballotHash];
-  if (!lookup) {
-    // Build and cache the lookup
-    lookup = buildOptionPositionLookup(electionDefinition.election);
-    optionPositionLookupCache[ballotHash] = lookup;
+  // Check if we have the lookup cached for this election
+  let electionLookup = optionPositionLookupCache[ballotHash];
+  if (!electionLookup) {
+    electionLookup = {};
+    optionPositionLookupCache[ballotHash] = electionLookup;
   }
 
-  const contestOptions = lookup[contestId];
+  // Check if we have the lookup cached for this ballot style
+  let ballotStyleLookup = electionLookup[ballotStyleId];
+  if (!ballotStyleLookup) {
+    // Build and cache the lookup for this ballot style
+    ballotStyleLookup = buildOptionPositionLookupForBallotStyle(
+      electionDefinition.election,
+      ballotStyleId
+    );
+    electionLookup[ballotStyleId] = ballotStyleLookup;
+  }
+
+  const contestOptions = ballotStyleLookup[contestId];
   assert(
     contestOptions,
-    `Contest ${contestId} not found in option position lookup`
+    `Contest ${contestId} not found in option position lookup for ballot style ${ballotStyleId}`
   );
 
   const position = contestOptions[optionId];
   assert(
     position !== undefined,
-    `Option ${optionId} not found in contest ${contestId}`
+    `Option ${optionId} not found in contest ${contestId} for ballot style ${ballotStyleId}`
   );
 
   return position;
