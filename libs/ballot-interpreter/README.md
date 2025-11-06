@@ -131,7 +131,7 @@ misinterpretation.
 
 #### Timing Mark Detection Algorithm
 
-The timing mark detection process consists of four main steps:
+The timing mark detection process consists of three main steps:
 
 1. **Shape Finding** ([timing_marks/corners/shape_finding/mod.rs](src/bubble-ballot-rust/timing_marks/corners/shape_finding/mod.rs)):
    The algorithm scans the ballot image column by column within an inset region
@@ -158,14 +158,11 @@ The timing mark detection process consists of four main steps:
    equal to the expected timing mark spacing. At each step, it searches for the
    closest candidate mark within a tolerance of the expected spacing. If no mark
    is found within this tolerance, an error is returned. This continues until the
-   ending corner is reached.
-
-4. **Validation** ([timing_marks/corners/border_finding.rs](src/bubble-ballot-rust/timing_marks/corners/border_finding.rs)):
-   The algorithm requires that each border contains exactly the expected number
-   of timing marks (matching the grid dimensions from the election definition).
-   If any border has an incorrect count, an error is returned. This strict
-   validation ensures the grid is complete and accurate before proceeding to
-   bubble scoring.
+   ending corner is reached. Finally, the algorithm validates that each border
+   contains exactly the expected number of timing marks (matching the grid
+   dimensions from the election definition). If any border has an incorrect
+   count, an error is returned. This strict validation ensures the grid is
+   complete and accurate before proceeding to bubble scoring.
 
 #### Error Handling
 
