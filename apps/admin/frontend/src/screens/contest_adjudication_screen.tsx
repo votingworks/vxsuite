@@ -11,6 +11,7 @@ import {
   Candidate,
   ContestOptionId,
   getContestDistrictName,
+  getOrderedCandidatesForContestInBallotStyle,
   YesNoOption,
 } from '@votingworks/types';
 import {
@@ -24,13 +25,24 @@ import {
   H1,
   P,
 } from '@votingworks/ui';
-import { assert, find, iter, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  iter,
+  throwIllegalValue,
+  uniqueBy,
+} from '@votingworks/basics';
 import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
   WriteInRecord,
 } from '@votingworks/admin-backend';
-import { allContestOptions, format } from '@votingworks/utils';
+import {
+  allContestOptions,
+  format,
+  getBallotStyleGroup,
+} from '@votingworks/utils';
 import { useHistory, useParams } from 'react-router-dom';
 import {
   getCastVoteRecordVoteInfo,
@@ -317,13 +329,29 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
 
-  const officialOptions = useMemo(
-    () =>
-      isCandidateContest
+  const officialOptions = useMemo(() => {
+    if (!cvrVoteInfoQuery.data) {
+      // Return a placeholder that will be replaced once data loads
+      return isCandidateContest
         ? contest.candidates.filter((c) => !c.isWriteIn)
-        : [contest.yesOption, contest.noOption],
-    [contest, isCandidateContest]
-  );
+        : [contest.yesOption, contest.noOption];
+    }
+    const ballotStyleGroup = assertDefined(
+      getBallotStyleGroup({
+        ballotStyleGroupId: cvrVoteInfoQuery.data.ballotStyleGroupId,
+        election,
+      })
+    );
+    return isCandidateContest
+      ? uniqueBy(
+          getOrderedCandidatesForContestInBallotStyle({
+            contest,
+            ballotStyle: ballotStyleGroup,
+          }),
+          (c) => c.id
+        ).filter((c) => !c.isWriteIn)
+      : [contest.yesOption, contest.noOption];
+  }, [contest, isCandidateContest, cvrVoteInfoQuery.data, election]);
 
   const writeInOptionIds = useMemo(
     () =>

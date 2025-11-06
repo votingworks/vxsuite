@@ -448,6 +448,10 @@ export interface BallotStyleGroup {
   readonly ballotStyles: readonly BallotStyle[];
   readonly precincts: readonly PrecinctId[];
   readonly districts: readonly DistrictId[];
+  readonly orderedCandidatesByContest?: Record<
+    ContestId,
+    OrderedCandidateOption[]
+  >;
   readonly partyId?: PartyId;
 }
 

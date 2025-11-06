@@ -34,6 +34,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   Admin,
+  BallotStyleGroupId,
   ContestId,
   ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
@@ -360,11 +361,15 @@ export function createApiMock(
 
     expectGetCastVoteRecordVoteInfo(
       input: { cvrId: Id },
-      votes: Record<ContestId, ContestOptionId[]>
+      votes: Record<ContestId, ContestOptionId[]>,
+      ballotStyleGroupId?: BallotStyleGroupId
     ) {
-      apiClient.getCastVoteRecordVoteInfo
-        .expectCallWith(input)
-        .resolves({ votes, id: input.cvrId, electionId: 'electionId' });
+      apiClient.getCastVoteRecordVoteInfo.expectCallWith(input).resolves({
+        votes,
+        id: input.cvrId,
+        electionId: 'electionId',
+        ballotStyleGroupId: ballotStyleGroupId ?? ('1M' as BallotStyleGroupId),
+      });
     },
 
     expectGetWriteIns(

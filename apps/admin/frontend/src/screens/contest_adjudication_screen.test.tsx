@@ -1,6 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { ContestId, ContestOptionId, Id } from '@votingworks/types';
+import {
+  readElectionTwoPartyPrimaryDefinition,
+  electionFamousNames2021Fixtures,
+} from '@votingworks/fixtures';
+import {
+  BallotStyleGroupId,
+  ContestId,
+  ContestOptionId,
+  Id,
+} from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { Route } from 'react-router-dom';
 import type {
@@ -1946,5 +1954,263 @@ describe('marginal mark adjudication', () => {
     await waitForBallotById('id-174');
     expect(screen.queryByText(/ambiguous write-in/i)).toBeInTheDocument();
     expect(screen.queryByText(/valid/i)).toBeInTheDocument();
+  });
+});
+
+describe('candidate ordering', () => {
+  test('candidate ordering respects ballot style rotation', async () => {
+    const famousNamesElectionDefinition =
+      electionFamousNames2021Fixtures.readElectionDefinition();
+    const testContestId = 'mayor';
+    const testCvrIds = ['id-174', 'id-175'];
+    const testCvrId1 = testCvrIds[0];
+    const testCvrId2 = testCvrIds[1];
+    const testBallotStyleGroupId1 = '1-1' as BallotStyleGroupId;
+    const testBallotStyleGroupId2 = '1-4' as BallotStyleGroupId;
+
+    const writeInRecord1: WriteInRecord = {
+      status: 'pending',
+      id: '1',
+      cvrId: testCvrId1,
+      contestId: testContestId,
+      electionId: famousNamesElectionDefinition.election.id,
+      optionId: 'write-in-0',
+    };
+
+    const writeInRecord2: WriteInRecord = {
+      status: 'pending',
+      id: '2',
+      cvrId: testCvrId2,
+      contestId: testContestId,
+      electionId: famousNamesElectionDefinition.election.id,
+      optionId: 'write-in-0',
+    };
+
+    const testCvrContestTag1: CvrContestTag = {
+      isResolved: false,
+      cvrId: testCvrId1,
+      contestId: testContestId,
+      hasWriteIn: true,
+    };
+
+    const testCvrContestTag2: CvrContestTag = {
+      isResolved: false,
+      cvrId: testCvrId2,
+      contestId: testContestId,
+      hasWriteIn: true,
+    };
+
+    // Setup for first ballot (ballot style 1-1)
+    // Order: Sherlock Holmes (party 0), Sherlock Holmes (party 2), Thomas Edison
+    apiMock.expectGetAdjudicationQueue(
+      { contestId: testContestId },
+      testCvrIds
+    );
+    apiMock.expectGetNextCvrIdForAdjudication(
+      { contestId: testContestId },
+      null
+    );
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId: testCvrId1 },
+      { [testContestId]: [] },
+      testBallotStyleGroupId1
+    );
+    apiMock.expectGetVoteAdjudications(
+      { contestId: testContestId, cvrId: testCvrId1 },
+      []
+    );
+    apiMock.expectGetWriteIns({ contestId: testContestId, cvrId: testCvrId1 }, [
+      writeInRecord1,
+    ]);
+    apiMock.expectGetBallotImageView(
+      { contestId: testContestId, cvrId: testCvrId1 },
+      false
+    );
+    apiMock.expectGetBallotImageView(
+      { contestId: testContestId, cvrId: testCvrId2 },
+      false
+    );
+    apiMock.expectGetWriteInCandidates([], testContestId);
+    apiMock.expectGetCvrContestTag(
+      { cvrId: testCvrId1, contestId: testContestId },
+      testCvrContestTag1
+    );
+    apiMock.expectGetMarginalMarks(
+      { cvrId: testCvrId1, contestId: testContestId },
+      []
+    );
+
+    renderScreen(testContestId, {
+      electionDefinition: famousNamesElectionDefinition,
+      apiMock,
+    });
+
+    await waitForBallotById('id-174');
+
+    // Verify both candidates exist using findByText
+    await screen.findByText('Sherlock Holmes');
+    await screen.findByText('Thomas Edison');
+
+    // Get all checkboxes in DOM order
+    // In ballot style 1-1, Sherlock Holmes should appear before Thomas Edison
+    const allCheckboxes = screen.getAllByRole('checkbox');
+    expect(allCheckboxes).toHaveLength(3); // Ensure there are exactly three checkboxes, two for candidates and one for write in
+    within(allCheckboxes[0]).getByText(/Sherlock Holmes/i);
+    within(allCheckboxes[1]).getByText(/Thomas Edison/i);
+    within(allCheckboxes[2]).getByText(/Write-In/i);
+
+    // Verify write-in dropdown options are also in rotated order
+    let writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
+
+    writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
+
+    const dropdownOptions = screen
+      .getAllByText(/Sherlock Holmes|Thomas Edison/i)
+      .filter((el) => el.getAttribute('aria-disabled') === 'false');
+
+    expect(dropdownOptions).toHaveLength(2);
+    // Verify the order of the dropdown options
+    within(dropdownOptions[0]).getByText(/Sherlock Holmes/i);
+    within(dropdownOptions[1]).getByText(/Thomas Edison/i);
+
+    // Close the dropdown
+    userEvent.keyboard('{Escape}');
+
+    // Navigate to second ballot with different ordering
+    // Order: Sherlock Holmes (party 0), Thomas Edison, Sherlock Holmes (party 2)
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId: testCvrId2 },
+      { [testContestId]: [] },
+      testBallotStyleGroupId2
+    );
+    apiMock.expectGetVoteAdjudications(
+      { contestId: testContestId, cvrId: testCvrId2 },
+      []
+    );
+    apiMock.expectGetWriteIns({ contestId: testContestId, cvrId: testCvrId2 }, [
+      writeInRecord2,
+    ]);
+    apiMock.expectGetCvrContestTag(
+      { cvrId: testCvrId2, contestId: testContestId },
+      testCvrContestTag2
+    );
+    apiMock.expectGetMarginalMarks(
+      { cvrId: testCvrId2, contestId: testContestId },
+      []
+    );
+
+    const skipButton = screen.getByRole('button', { name: /skip/i });
+    userEvent.click(skipButton);
+
+    await waitForBallotById('id-175');
+
+    // Verify both candidates exist
+    await screen.findByText('Sherlock Holmes');
+    await screen.findByText('Thomas Edison');
+
+    // Get checkboxes for ballot style 1-4
+    // Note: Cross-endorsed candidates appear only once, so Sherlock (party 2) is the same as Sherlock (party 0)
+    const allCheckboxes2 = screen.getAllByRole('checkbox');
+    expect(allCheckboxes2).toHaveLength(3); // Edison, Sherlock (cross-endorsed, so only one), Write-In
+    within(allCheckboxes2[0]).getByText(/Thomas Edison/i);
+    within(allCheckboxes2[1]).getByText(/Sherlock Holmes/i);
+    within(allCheckboxes2[2]).getByText(/Write-In/i);
+
+    // Verify write-in dropdown options are also in rotated order for ballot style 1-4
+    let writeInSearchSelect2 = screen.getByRole('combobox');
+    expect(writeInSearchSelect2).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.keyDown(writeInSearchSelect2, { key: 'ArrowDown' });
+
+    writeInSearchSelect2 = screen.getByRole('combobox');
+    expect(writeInSearchSelect2).toHaveAttribute('aria-expanded', 'true');
+
+    const dropdownOptions2 = screen
+      .getAllByText(/Sherlock Holmes|Thomas Edison/i)
+      .filter((el) => el.getAttribute('aria-disabled') === 'false');
+
+    expect(dropdownOptions2).toHaveLength(2);
+    // Verify the order of the dropdown options
+    within(dropdownOptions2[0]).getByText(/Thomas Edison/i);
+    within(dropdownOptions2[1]).getByText(/Sherlock Holmes/i);
+  });
+
+  test('cross-endorsed candidates appear only once in adjudication UI', async () => {
+    const famousNamesElectionDefinition =
+      electionFamousNames2021Fixtures.readElectionDefinition();
+    const testContestId = 'mayor';
+    const testCvrIds = ['id-174'];
+    const testCvrId = testCvrIds[0];
+    const testBallotStyleGroupId = '1-1' as BallotStyleGroupId;
+
+    const testCvrContestTag: CvrContestTag = {
+      isResolved: false,
+      cvrId: testCvrId,
+      contestId: testContestId,
+      hasWriteIn: false,
+    };
+
+    // Ballot style 1-1 has: Sherlock Holmes (party 0), Sherlock Holmes (party 2), Thomas Edison
+    apiMock.expectGetAdjudicationQueue(
+      { contestId: testContestId },
+      testCvrIds
+    );
+    apiMock.expectGetNextCvrIdForAdjudication(
+      { contestId: testContestId },
+      null
+    );
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId: testCvrId },
+      { [testContestId]: ['sherlock-holmes'] },
+      testBallotStyleGroupId
+    );
+    apiMock.expectGetVoteAdjudications(
+      { contestId: testContestId, cvrId: testCvrId },
+      []
+    );
+    apiMock.expectGetWriteIns(
+      { contestId: testContestId, cvrId: testCvrId },
+      []
+    );
+    apiMock.expectGetBallotImageView(
+      { contestId: testContestId, cvrId: testCvrId },
+      false
+    );
+    apiMock.expectGetWriteInCandidates([], testContestId);
+    apiMock.expectGetCvrContestTag(
+      { cvrId: testCvrId, contestId: testContestId },
+      testCvrContestTag
+    );
+    apiMock.expectGetMarginalMarks(
+      { cvrId: testCvrId, contestId: testContestId },
+      []
+    );
+
+    renderScreen(testContestId, {
+      electionDefinition: famousNamesElectionDefinition,
+      apiMock,
+    });
+
+    await waitForBallotById('id-174');
+
+    // Verify candidates exist
+    await screen.findByText('Sherlock Holmes');
+    await screen.findByText('Thomas Edison');
+
+    // Sherlock Holmes should appear exactly once despite being cross-endorsed (party 0 and party 2)
+    // Use getAllByRole to get all matching elements
+    const sherlockCheckboxes = screen.getAllByRole('checkbox', {
+      name: /Sherlock Holmes/i,
+    });
+    expect(sherlockCheckboxes).toHaveLength(1);
+    expect(sherlockCheckboxes[0]).toBeChecked();
+
+    // Verify Thomas Edison also appears once
+    const edisonCheckboxes = screen.getAllByRole('checkbox', {
+      name: /Thomas Edison/i,
+    });
+    expect(edisonCheckboxes).toHaveLength(1);
   });
 });
