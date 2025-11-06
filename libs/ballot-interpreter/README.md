@@ -122,6 +122,13 @@ and write-in areas, with the origin (0, 0) at the top left corner of the ballot.
 Because no bubbles may appear in the timing mark area, bubble coordinates
 effectively begin at (1, 1).
 
+The implementation uses a "corners" algorithm
+([timing_marks/corners/](src/bubble-ballot-rust/timing_marks/corners/)) that
+starts by identifying the four corners of the ballot grid and then walks along
+each border to find all timing marks. This approach ensures that all timing
+marks are physically detected rather than inferred, reducing the risk of
+misinterpretation.
+
 #### Timing Mark Detection Algorithm
 
 The timing mark detection process consists of four main steps:
@@ -166,10 +173,11 @@ The timing mark detection algorithm errs on the side of caution, preferring to
 reject ballots that might be interpreted incorrectly rather than risk
 misinterpreting votes. Key aspects of error handling include:
 
-1. **No Inference of Missing Marks**: Unlike some systems that interpolate
-   missing timing marks based on spacing, this implementation requires all marks
-   to be physically present and detected. Missing marks cause interpretation to
-   fail.
+1. **No Inference of Missing Marks**: A previous version of this algorithm
+   inferred missing timing marks based on spacing between detected marks, but the
+   current implementation requires all marks to be physically present and
+   detected. This change reduces the risk of misinterpretation. Missing marks
+   cause interpretation to fail.
 
 2. **Strict Count Validation**: Each border must contain exactly the number of
    marks specified in the ballot's grid dimensions. There is no tolerance for
