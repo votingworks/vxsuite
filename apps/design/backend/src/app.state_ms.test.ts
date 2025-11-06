@@ -9,6 +9,7 @@ import { assertDefined, err, ok } from '@votingworks/basics';
 import { join } from 'node:path';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   exportElectionPackage,
   generateAllPrecinctsTallyReport,
@@ -88,15 +89,11 @@ test('convert MS results', async () => {
     })
   ).unsafeUnwrap();
 
-  const { election } = await workspace.store.getElection(electionId);
-  const allPrecinctsTallyReportContents =
-    generateAllPrecinctsTallyReport(election);
-
   // Can't convert before exporting
   expect(
     await apiClient.convertMsResults({
       electionId,
-      allPrecinctsTallyReportContents,
+      allPrecinctsTallyReportContents: 'mock report contents',
     })
   ).toEqual(err('no-election-export-found'));
 
@@ -125,6 +122,9 @@ test('convert MS results', async () => {
   ).unsafeUnwrap();
 
   // Now conversion should work
+  const allPrecinctsTallyReportContents = generateAllPrecinctsTallyReport(
+    electionPackage.electionDefinition
+  );
   const convertResult = (
     await apiClient.convertMsResults({
       electionId,
@@ -133,7 +133,10 @@ test('convert MS results', async () => {
   ).unsafeUnwrap();
   expect(convertResult.convertedResults).toEqual(
     // Tested in convert_ms_results.test.ts
-    convertMsResults(election, allPrecinctsTallyReportContents).unsafeUnwrap()
+    convertMsResults(
+      electionPackage.electionDefinition,
+      allPrecinctsTallyReportContents
+    ).unsafeUnwrap()
   );
   expect(convertResult.ballotHash).toEqual(
     formatBallotHash(electionPackage.electionDefinition.ballotHash)
@@ -142,9 +145,17 @@ test('convert MS results', async () => {
   // Expected conversion errors are returned
   const expectedErrorResult = await apiClient.convertMsResults({
     electionId,
-    allPrecinctsTallyReportContents: 'wrong,headers,csv',
+    allPrecinctsTallyReportContents: 'invalid,report',
   });
-  expect(expectedErrorResult).toEqual(err('invalid-headers'));
+  expect(expectedErrorResult).toEqual(err('wrong-tally-report'));
+
+  const wrongElectionErrorResult = await apiClient.convertMsResults({
+    electionId,
+    allPrecinctsTallyReportContents: generateAllPrecinctsTallyReport(
+      readElectionGeneralDefinition()
+    ),
+  });
+  expect(wrongElectionErrorResult).toEqual(err('wrong-election'));
 
   // Unexpected conversion errors are wrapped so the frontend can show them
   // rather than crash
@@ -157,7 +168,7 @@ test('convert MS results', async () => {
     expect(
       (unexpectedErrorResult.err() as Error).message
     ).toMatchInlineSnapshot(
-      `"Invalid Record Length: columns length is 7, got 1 on line 866"`
+      `"Invalid Record Length: columns length is 7, got 1 on line 867"`
     );
   });
 });

@@ -1,6 +1,7 @@
 import {
   Election,
   ElectionDefinition,
+  formatBallotHash,
   Id,
   Tabulation,
 } from '@votingworks/types';
@@ -344,4 +345,21 @@ export function generateBatchLookup(
     lookup[batch.batchId] = batch;
   }
   return lookup;
+}
+
+/**
+ * Generates the initial title row describing the CSV export.
+ */
+export function generateCsvTitleRow({
+  filename,
+  electionDefinition,
+}: {
+  filename: string;
+  electionDefinition: ElectionDefinition;
+}): string[] {
+  const title = filename.replace(/__.*\.csv$/, '');
+  return [
+    title,
+    `Election ID: ${formatBallotHash(electionDefinition.ballotHash)}`,
+  ];
 }

@@ -19,6 +19,7 @@ import {
   determineCsvMetadataStructure,
   generateBatchLookup,
   generateCsvMetadataHeaders,
+  generateCsvTitleRow,
   getCsvMetadataRowValues,
 } from './csv_shared';
 import { tabulateFullCardCounts } from '../tabulation/card_counts';
@@ -150,11 +151,13 @@ export function* generateBallotCountReportCsv({
   filter = {},
   groupBy = {},
   includeSheetCounts,
+  filename,
 }: {
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
   includeSheetCounts?: boolean;
+  filename: string;
 }): Iterable<string> {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
@@ -181,6 +184,7 @@ export function* generateBallotCountReportCsv({
     : undefined;
 
   yield stringify([
+    generateCsvTitleRow({ filename, electionDefinition }),
     generateHeaders({
       election,
       metadataStructure,

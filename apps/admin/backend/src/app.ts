@@ -995,6 +995,7 @@ function buildApi({
           store,
           filter: convertFrontendFilter(input.filter),
           groupBy: input.groupBy,
+          filename: input.filename,
         })
       );
 
@@ -1136,6 +1137,7 @@ function buildApi({
           filter: convertFrontendFilter(input.filter),
           groupBy: input.groupBy,
           includeSheetCounts: input.includeSheetCounts,
+          filename: input.filename,
         })
       );
 

@@ -1,13 +1,20 @@
+import { generateFileTimeSuffix } from '@votingworks/utils';
 import { parse } from 'csv-parse/sync';
-import { v4 as uuid } from 'uuid';
 
 export function parseCsv(fileContents: string): {
+  metadata: {
+    title: string;
+    ballotHash: string;
+  };
   headers: string[];
   rows: Array<{ [header: string]: string }>;
 } {
+  const [title, electionId] = parse(fileContents, { to: 1 })[0];
+  const ballotHash = electionId.replace('Election ID: ', '');
   return {
-    headers: parse(fileContents, { to: 1 })[0],
-    rows: parse(fileContents, { columns: true }),
+    metadata: { title, ballotHash },
+    headers: parse(fileContents, { fromLine: 2, to: 1 })[0],
+    rows: parse(fileContents, { fromLine: 2, columns: true }),
   };
 }
 
@@ -22,5 +29,5 @@ export async function iterableToString(
 }
 
 export function mockFileName(extension = 'csv'): string {
-  return `${uuid()}.${extension}`;
+  return `test-file-name__${generateFileTimeSuffix()}.${extension}`;
 }

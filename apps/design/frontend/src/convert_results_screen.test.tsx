@@ -98,6 +98,8 @@ test('convert results flow', async () => {
 
 type ErrorCode = GetExportedElectionError | ConvertMsResultsError;
 const errorMessages: Record<ErrorCode, string> = {
+  'wrong-election': 'This report is for a different election.',
+  'wrong-tally-report': 'This report is not the All Precincts Tally Report.',
   'election-out-of-date': 'Election is out of date.',
   'no-election-export-found':
     'Election must be exported before converting results.',
