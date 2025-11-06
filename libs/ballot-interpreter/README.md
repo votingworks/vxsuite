@@ -122,52 +122,70 @@ and write-in areas, with the origin (0, 0) at the top left corner of the ballot.
 Because no bubbles may appear in the timing mark area, bubble coordinates
 effectively begin at (1, 1).
 
-#### Timing Mark Detection and Error Handling
+The implementation uses a "corners" algorithm
+([timing_marks/corners/](src/bubble-ballot-rust/timing_marks/corners/)) that
+starts by identifying the four corners of the ballot grid and then walks along
+each border to find all timing marks.
 
-Candidate timing marks are detected using a contours algorithm (similar to
-openCV's
-[`findContours`](https://docs.opencv.org/3.4/d4/d73/tutorial_py_contours_begin.html)
-function). This returns all the contiguous shapes as rectangle bounding boxes.
-We then filter these by plausibility based on size and position. We then find
-the top/bottom/left/right timing mark edges independently. This is done by
-splitting the candidate timing mark rectangles into top/bottom halves and
-left/right halves, then searching within each of those four halves for the line
-that intersects the most rectangles and is in a plausible position and angle.
+#### Timing Mark Detection Algorithm
 
-If each edge is found, we now have what the code refers to as "partial" timing
-marks. We then begin inferring any timing marks that we may have missed. We do
-this by examining the spacing between each ordered pair of timing marks and, if
-another would fit between them, we add it. When using bottom timing marks to
-encode the ballot metadata, we infer a lot of bottom timing marks because we
-expect many or even most of them to be missing. Once the inference is complete,
-we now have what the code refers to as "complete" timing marks. This is the data
-structure we use to determine the ballot layout and locate the bubbles.
+The timing mark detection process consists of three main steps:
 
-Handling errors in timing mark detection requires a balance between being too
-restrictive and rejecting too many ballots that could have been successfully
-interpreted and being too permissive and interpreting ballots incorrectly.
-Because the outcome of the former is not so bad–the voter may simply scan the
-ballot again–we err on the side of caution. We have a few strategies for
-handling errors:
+1. **Shape Finding** ([timing_marks/corners/shape_finding/mod.rs](src/bubble-ballot-rust/timing_marks/corners/shape_finding/mod.rs)):
+   The algorithm scans the ballot image column by column within an inset region
+   from each edge. For each column, it groups contiguous black pixels vertically
+   and filters groups by height to match expected timing mark dimensions.
+   Adjacent columns with similar vertical ranges are merged into shapes. These
+   shapes are then smoothed using a median filter to eliminate bumps from stray
+   marks or debris. Finally, shapes are filtered to ensure they match expected
+   timing mark size and aspect ratio.
 
-1. **Allow for some missing timing marks.** We infer missing timing marks based
-   on the spacing between known timing marks. This is especially important for
-   bottom timing marks, which may be used to encode the ballot metadata. We
-   can't allow too many missing timing marks, however, because the inference
-   process is not perfect and may introduce errors.
-2. **Require small rotation and/or skew if we've inferred any timing marks.** If
-   we didn't infer any timing marks we can be more lenient, but if we did we
-   need to be more strict about rotation and skew because they can cause the
-   inferred timing marks to be incorrect. Note that this project uses "rotation"
-   to refer to an angle by which the entire ballot is rotated, preserving the
-   equal distance of points in the grid from each other. "Skew" refers to a
-   distortion of the grid, where the distance between points in the grid is not
-   preserved, and is caused by different parts of the ballot being scanned at
-   different speeds.
-3. **Require that the number of inferred timing marks on a side matches the
-   expected number.** And that the left/right and top/bottom marks have the same
-   count. The exception to this for the top/bottom marks is when encoding
-   metadata using presence/absence of timing marks.
+2. **Corner Finding** ([timing_marks/corners/corner_finding.rs](src/bubble-ballot-rust/timing_marks/corners/corner_finding.rs)):
+   For each of the four corners (top-left, top-right, bottom-left, bottom-right),
+   the algorithm identifies candidate corner groupings. Each grouping consists of
+   three timing marks: the corner mark itself, plus one mark along the adjacent
+   row and one along the adjacent column. Candidates are sorted by distance from
+   the expected corner location. The algorithm selects the first grouping where
+   all three marks meet minimum quality thresholds. If no such grouping is found,
+   an error is returned.
+
+3. **Border Finding** ([timing_marks/corners/border_finding.rs](src/bubble-ballot-rust/timing_marks/corners/border_finding.rs)):
+   After corners are identified, the algorithm finds timing marks along each
+   border by "walking" from one corner to the other. Starting at a corner mark,
+   it computes a unit vector pointing toward the opposite corner with length
+   equal to the expected timing mark spacing. At each step, it searches for the
+   closest candidate mark within a tolerance of the expected spacing. If no mark
+   is found within this tolerance, an error is returned. This continues until the
+   ending corner is reached. Finally, the algorithm validates that each border
+   contains exactly the expected number of timing marks (matching the grid
+   dimensions from the election definition). If any border has an incorrect
+   count, an error is returned. This strict validation ensures the grid is
+   complete and accurate before proceeding to bubble scoring.
+
+#### Error Handling
+
+The timing mark detection algorithm errs on the side of caution, preferring to
+reject ballots that might be interpreted incorrectly rather than risk
+misinterpreting votes. Key aspects of error handling include:
+
+1. **No Inference of Missing Marks**: A previous version of this algorithm
+   inferred missing timing marks based on spacing between detected marks, but the
+   current implementation requires all marks to be physically present and
+   detected. This change reduces the risk of misinterpretation. Missing marks
+   cause interpretation to fail.
+
+2. **Strict Count Validation**: Each border must contain exactly the number of
+   marks specified in the ballot's grid dimensions. There is no tolerance for
+   missing or extra marks.
+
+3. **Minimum Mark Quality**: Corner timing marks must meet minimum quality
+   thresholds to be accepted. This ensures that only high-quality, unambiguous
+   marks are used as reference points for the grid.
+
+4. **Controlled Search Areas**: Shape finding is limited to an inset region from
+   each edge, and border finding restricts the search for each mark to within a
+   tolerance of the expected spacing. This prevents the algorithm from
+   incorrectly identifying marks that are too far from their expected positions.
 
 ### Decode Metadata
 
@@ -183,23 +201,81 @@ etc.
 
 ### Score Bubble Marks
 
-Bubble marks are scored to determine which bubbles are filled in. Locating the
-bubble at `(x, y)` first locates the `y`th timing mark on the left and right
-sides of the ballot. Given a line segment between the centers of these two
-timing marks, the center of the bubble is presumed to be on this line `x / N`
-percent of the way from the left timing mark to the right timing mark, where `N`
-is the number of columns of timing marks on the ballot. The bubble is then
-scored by comparing a template bubble image to the actual contents of the scan
-at the bubble location. A score is computed by computing the number of new dark
-pixels compared to the template bubble image. The score is later compared to a
-threshold to determine if the bubble is filled in, but the core function simply
+Bubble marks are scored to determine which bubbles are filled in. The scoring
+process ([scoring.rs](src/bubble-ballot-rust/scoring.rs)) consists of searching
+for the best template match starting at the expected location, then computing a
+score for how filled in the bubble is.
+
+#### Bubble Locating
+
+To compute expected bubble location within the image at grid coordinates
+`(column, row)`:
+
+1. Find the `row`th timing mark on the left and right sides of the ballot. If
+   `row` is fractional, interpolate vertically between the closest two rows.
+2. Account for timing marks being cropped during scanning or border removal by
+   adjusting the timing mark positions to use the expected width.
+3. Compute a line segment between the centers of the left and right timing marks.
+4. The expected bubble center is at position `column / (N - 1)` along this
+   segment, where `N` is the total number of columns in the grid.
+
+#### Template Matching
+
+To account for stretching and other distortions in the scanned image, the
+algorithm performs template matching against
+[a typical scanned bubble](data/bubble_scan.png) within a search area:
+
+1. **Search Area**: Starting from the expected bubble center, the algorithm
+   searches within a small radius in all directions.
+
+2. **Match Score Computation**: For each position in the search area:
+   - Crop the scanned image to the bubble template size
+   - Apply binary thresholding using the ballot's global threshold
+   - Compute a difference image between the thresholded crop and the template
+   - The match score is the percentage of pixels that are white (matching) in
+     the difference image
+
+3. **Best Match Selection**: The algorithm selects the position with the highest
+   match score as the actual bubble location.
+
+#### Fill Scoring
+
+Once the best matching position is found, the algorithm computes how filled the
+bubble is:
+
+1. Crop the scanned image at the best matching bounds
+2. Apply binary thresholding using the ballot's global threshold
+3. Compute a difference image between the template (unfilled bubble) and the
+   thresholded source image
+4. The fill score is the percentage of pixels that are black (filled) in the
+   difference image, representing new dark pixels compared to the template
+
+The fill score represents what percentage of the bubble has been filled in
+beyond what the template shows. A higher fill score indicates a more completely
+filled bubble. The score is later compared to a threshold to determine if the
+bubble should be counted as marked, but the scoring function itself simply
 computes the score and lets the caller decide how to interpret it.
 
 ### Score Write-Ins
 
 Write-ins are scored to determine whether any have handwriting. The write-in
 area is encoded in the election definition per contest option and is a rectangle
-specified using the same grid as bubble marks. The write-in area is scored by
-computing the ratio of dark pixels in the area. It is later compared to a
-threshold, but similarly to bubble scoring, the core function simply computes
-the score and lets the caller decide how to interpret it.
+specified using the same grid as bubble marks.
+
+The scoring process ([scoring.rs](src/bubble-ballot-rust/scoring.rs)) works as
+follows:
+
+1. **Locate Write-In Area**: The write-in area is defined as a rectangle with
+   coordinates `(x, y, width, height)` in the timing mark grid. The algorithm
+   uses the timing mark grid to convert these grid coordinates into pixel
+   coordinates, computing the four corners of the write-in area as a
+   quadrilateral (to account for skew and distortion).
+
+2. **Score Computation**: The score is the ratio of dark (foreground) pixels to
+   total pixels within the quadrilateral area. This ratio represents how much of
+   the write-in area contains ink or markings.
+
+The score is later compared to a threshold to determine whether handwriting is
+present, but the core function simply computes the score and lets the caller
+decide how to interpret it. This enables detection of write-in votes even when
+the corresponding bubble is not filled in.
