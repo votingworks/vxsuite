@@ -125,9 +125,7 @@ effectively begin at (1, 1).
 The implementation uses a "corners" algorithm
 ([timing_marks/corners/](src/bubble-ballot-rust/timing_marks/corners/)) that
 starts by identifying the four corners of the ballot grid and then walks along
-each border to find all timing marks. This approach ensures that all timing
-marks are physically detected rather than inferred, reducing the risk of
-misinterpretation.
+each border to find all timing marks.
 
 #### Timing Mark Detection Algorithm
 
@@ -204,12 +202,14 @@ etc.
 ### Score Bubble Marks
 
 Bubble marks are scored to determine which bubbles are filled in. The scoring
-process ([scoring.rs](src/bubble-ballot-rust/scoring.rs)) consists of two main
-steps: template matching and fill scoring.
+process ([scoring.rs](src/bubble-ballot-rust/scoring.rs)) consists of searching
+for the best template match starting at the expected location, then computing a
+score for how filled in the bubble is.
 
-#### Bubble Localization
+#### Bubble Locating
 
-To locate a bubble at grid coordinates `(column, row)`:
+To compute expected bubble location within the image at grid coordinates
+`(column, row)`:
 
 1. Find the `row`th timing mark on the left and right sides of the ballot. If
    `row` is fractional, interpolate vertically between the closest two rows.
@@ -222,7 +222,8 @@ To locate a bubble at grid coordinates `(column, row)`:
 #### Template Matching
 
 To account for stretching and other distortions in the scanned image, the
-algorithm performs template matching within a search area:
+algorithm performs template matching against
+[a typical scanned bubble](data/bubble_scan.png) within a search area:
 
 1. **Search Area**: Starting from the expected bubble center, the algorithm
    searches within a small radius in all directions.
