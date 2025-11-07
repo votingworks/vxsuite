@@ -2,6 +2,7 @@ import React from 'react';
 import {
   VoterSettingsManagerContext,
   useAudioControls,
+  useAudioEnabled,
   useCurrentLanguage,
   useLanguageControls,
 } from '@votingworks/ui';
@@ -21,41 +22,57 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
   const audioContext = useAudioControls();
   const languageContext = useLanguageControls();
   const voterSettingsContext = React.useContext(VoterSettingsManagerContext);
+  const isAudioEnabled = useAudioEnabled();
   const currentLanguage = useCurrentLanguage();
   const currentTheme = React.useContext(ThemeContext);
 
   // Voter session specific settings, saved to return to after auth-ed sessions
-  const [savedVoterSessionTheme, setSavedVoterSessionTheme] =
-    React.useState<DefaultTheme | null>(null);
+  const [savedIsAudioEnabled, setSavedIsAudioEnabled] = React.useState<
+    boolean | null
+  >(null);
   const [savedVoterSessionLanguage, setSavedVoterSessionLanguage] =
     React.useState<string | null>(null);
+  const [savedVoterSessionTheme, setSavedVoterSessionTheme] =
+    React.useState<DefaultTheme | null>(null);
 
   function startNewSession() {
     audioContext.reset();
     languageContext.reset();
     voterSettingsContext.resetThemes();
+
+    setSavedIsAudioEnabled(null);
     setSavedVoterSessionLanguage(null);
     setSavedVoterSessionTheme(null);
   }
 
   function pauseSession() {
-    setSavedVoterSessionTheme(currentTheme);
+    setSavedIsAudioEnabled(isAudioEnabled);
     setSavedVoterSessionLanguage(currentLanguage);
-    voterSettingsContext.resetThemes();
-    languageContext.reset();
+    setSavedVoterSessionTheme(currentTheme);
+
     audioContext.reset();
+    languageContext.reset();
+    voterSettingsContext.resetThemes();
   }
 
   function resumeSession() {
-    if (savedVoterSessionTheme) {
-      voterSettingsContext.setColorMode(savedVoterSessionTheme.colorMode);
-      voterSettingsContext.setSizeMode(savedVoterSessionTheme.sizeMode);
+    if (savedIsAudioEnabled !== null) {
+      audioContext.setIsEnabled(savedIsAudioEnabled);
     }
     if (savedVoterSessionLanguage) {
       languageContext.setLanguage(savedVoterSessionLanguage);
     }
-    setSavedVoterSessionTheme(null);
+    if (savedVoterSessionTheme) {
+      voterSettingsContext.setColorMode(savedVoterSessionTheme.colorMode);
+      voterSettingsContext.setSizeMode(savedVoterSessionTheme.sizeMode);
+      voterSettingsContext.setIsVisualModeDisabled(
+        savedVoterSessionTheme.isVisualModeDisabled
+      );
+    }
+
+    setSavedIsAudioEnabled(null);
     setSavedVoterSessionLanguage(null);
+    setSavedVoterSessionTheme(null);
   }
 
   return {

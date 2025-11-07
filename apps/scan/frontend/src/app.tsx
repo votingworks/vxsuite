@@ -2,7 +2,11 @@ import { BrowserRouter, Route } from 'react-router-dom';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
-import { AppErrorBoundary, handleKeyboardEvent } from '@votingworks/ui';
+import {
+  AppErrorBoundary,
+  handleKeyboardEvent,
+  VisualModeDisabledOverlay,
+} from '@votingworks/ui';
 import React from 'react';
 import { AppRoot } from './app_root';
 import { ApiClient, createApiClient, createQueryClient } from './api';
@@ -51,6 +55,7 @@ export function App({
             <Route path={Paths.APP_ROOT} exact>
               <AppRoot />
             </Route>
+            <VisualModeDisabledOverlay />
             <SessionTimeLimitTracker />
           </ApiProvider>
         </AppErrorBoundary>
