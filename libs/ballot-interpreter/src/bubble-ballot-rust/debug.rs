@@ -22,7 +22,7 @@ pub fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
-use crate::image_utils::{dark_rainbow, rainbow, BLACK};
+use crate::image_utils::{dark_rainbow, rainbow, VerticalStreak, BLACK};
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::contours::{
@@ -118,7 +118,7 @@ pub fn draw_vertical_streaks_debug_image_mut(
     canvas: &mut RgbImage,
     threshold: u8,
     x_range: Range<PixelUnit>,
-    streaks: &[(PixelPosition, UnitIntervalScore, PixelUnit)],
+    streaks: &[VerticalStreak],
 ) {
     // binarize the image since that's what the detection algorithm works with
     for px in canvas.pixels_mut() {
@@ -139,16 +139,18 @@ pub fn draw_vertical_streaks_debug_image_mut(
         }
     }
 
-    for (i, ((x, percent_black_pixels, longest_white_gap_length), color)) in
-        streaks.iter().zip(dark_rainbow()).enumerate()
-    {
-        let x = *x as PixelPosition;
+    for (i, (vertical_streak, color)) in streaks.iter().zip(dark_rainbow()).enumerate() {
+        let x_start = *vertical_streak.x_range.start();
+        let x_end = *vertical_streak.x_range.end();
         let y = 20 + (i as PixelPosition * 20);
-        draw_cross_mut(canvas, color, x, y);
+        draw_cross_mut(canvas, color, x_start, y);
         draw_text_with_background_mut(
             canvas,
-            &format!("x={x}, Black: {percent_black_pixels}, Gap: {longest_white_gap_length}"),
-            x + 5,
+            &format!("x={x_start}..={x_end}, Black: {percent_black_pixels:?}, Gap: {longest_white_gap_length:?}",
+                percent_black_pixels = vertical_streak.scores,
+                longest_white_gap_length = vertical_streak.longest_white_gaps
+            ),
+            x_end - x_start + 1,
             y,
             PxScale::from(20.0),
             &monospace_font(),
@@ -1015,8 +1017,29 @@ macro_rules! i32ify {
 /// Draws a debug image outlining all the scored bubble marks.
 pub fn draw_scored_bubble_marks_debug_image_mut(
     canvas: &mut RgbImage,
-    scored_bubble_marks: &Vec<(GridPosition, Option<ScoredBubbleMark>)>,
+    scored_bubble_marks: &[(GridPosition, Option<ScoredBubbleMark>)],
+    streaks: &[VerticalStreak],
 ) {
+    for (i, (vertical_streak, color)) in streaks.iter().zip(dark_rainbow()).enumerate() {
+        let x_start = *vertical_streak.x_range.start();
+        let x_end = *vertical_streak.x_range.end();
+        let y = 20 + (i as PixelPosition * 20);
+        draw_cross_mut(canvas, color, x_start, y);
+        draw_text_with_background_mut(
+            canvas,
+            &format!("x={x_start}..={x_end}, Black: {percent_black_pixels:?}, Gap: {longest_white_gap_length:?}",
+                percent_black_pixels = vertical_streak.scores,
+                longest_white_gap_length = vertical_streak.longest_white_gaps
+            ),
+            x_end - x_start + 1,
+            y,
+            PxScale::from(20.0),
+            &monospace_font(),
+            color,
+            WHITE_RGB,
+        );
+    }
+
     let option_color = PINK;
     let matched_bubble_color = DARK_GREEN;
     let original_bubble_color = DARK_BLUE;

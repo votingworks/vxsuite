@@ -1,4 +1,4 @@
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 use std::ops::Add;
 
 use image::{GenericImageView, GrayImage};
@@ -11,7 +11,8 @@ use types_rs::geometry::{
 };
 
 use crate::ballot_card::BallotImage;
-use crate::image_utils::{count_pixels, count_pixels_in_shape};
+use crate::image_utils::{count_pixels, count_pixels_in_shape, VerticalStreak};
+use crate::interpret::{Error, Result};
 use crate::timing_marks::TimingMarks;
 use crate::{
     debug,
@@ -64,7 +65,7 @@ impl Add for UnitIntervalScore {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScoredBubbleMark {
     /// The location of the bubble mark in the grid. Uses side/column/row, not
@@ -92,54 +93,91 @@ pub struct ScoredBubbleMark {
     pub fill_diff_image: GrayImage,
 }
 
+impl Debug for ScoredBubbleMark {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ScoredBubbleMark")
+            .field("location", &self.location)
+            .field("match_score", &self.match_score)
+            .field("fill_score", &self.fill_score)
+            .field("expected_bounds", &self.expected_bounds)
+            .field("matched_bounds", &self.matched_bounds)
+            .finish_non_exhaustive()
+    }
+}
+
 pub const DEFAULT_MAXIMUM_SEARCH_DISTANCE: u32 = 7;
 
 pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::result_large_err)]
 pub fn score_bubble_marks_from_grid_layout(
     ballot_image: &BallotImage,
+    label: &str,
     bubble_template: &GrayImage,
     timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
+    detected_vertical_streaks: &[VerticalStreak],
     sheet_number: u32,
     side: BallotSide,
-) -> ScoredBubbleMarks {
+) -> Result<ScoredBubbleMarks> {
     let scored_bubbles = grid_layout
         .grid_positions
         .par_iter()
-        .flat_map(|grid_position| {
+        .filter_map(|grid_position| {
             let location = grid_position.location();
 
             if !(grid_position.sheet_number() == sheet_number && location.side == side) {
-                return vec![];
+                return None;
             }
 
-            timing_marks
-                .point_for_location(location.column as SubGridUnit, location.row as SubGridUnit)
-                .map_or_else(
-                    || vec![(grid_position.clone(), None)],
-                    |expected_bubble_center| {
-                        vec![(
-                            grid_position.clone(),
-                            score_bubble_mark(
-                                ballot_image,
-                                bubble_template,
-                                expected_bubble_center,
-                                &location,
-                                DEFAULT_MAXIMUM_SEARCH_DISTANCE,
-                            ),
-                        )]
-                    },
-                )
+            let expected_bubble_center = timing_marks
+                .point_for_location(location.column as SubGridUnit, location.row as SubGridUnit)?;
+
+            let scored_bubble_mark = score_bubble_mark(
+                ballot_image,
+                bubble_template,
+                expected_bubble_center,
+                &location,
+                DEFAULT_MAXIMUM_SEARCH_DISTANCE,
+            );
+
+            Some((grid_position.clone(), scored_bubble_mark))
         })
-        .collect::<ScoredBubbleMarks>();
+        .collect::<Vec<_>>();
+
+    // Check for vertical streaks after collecting
+    for (_, scored_bubble_mark) in &scored_bubbles {
+        if let Some(scored_bubble_mark) = scored_bubble_mark {
+            if detected_vertical_streaks.iter().any(|streak| {
+                Rect::new(
+                    *streak.x_range.start(),
+                    0,
+                    (*streak.x_range.end() - *streak.x_range.start() + 1) as u32,
+                    ballot_image.height(),
+                )
+                .intersect(&scored_bubble_mark.matched_bounds)
+                .is_some()
+            }) {
+                return Err(Error::VerticalStreaksDetected {
+                    label: label.to_owned(),
+                    x_coordinates: detected_vertical_streaks
+                        .iter()
+                        .flat_map(|streak| streak.x_range.clone())
+                        .collect(),
+                });
+            }
+        }
+    }
 
     ballot_image.debug().write("scored_bubble_marks", |canvas| {
-        debug::draw_scored_bubble_marks_debug_image_mut(canvas, &scored_bubbles);
+        debug::draw_scored_bubble_marks_debug_image_mut(
+            canvas,
+            &scored_bubbles,
+            detected_vertical_streaks,
+        );
     });
 
-    scored_bubbles
+    Ok(scored_bubbles)
 }
 
 /// Scores a bubble mark within a scanned ballot image.

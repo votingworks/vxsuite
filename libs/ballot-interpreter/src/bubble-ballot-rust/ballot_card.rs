@@ -6,7 +6,9 @@ use serde::Serialize;
 
 use crate::{
     debug::ImageDebugWriter,
-    image_utils::{bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, BLACK},
+    image_utils::{
+        bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, VerticalStreak, BLACK,
+    },
     interpret::{BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm},
     layout::{build_interpreted_page_layout, InterpretedContestLayout},
     qr_code,
@@ -393,22 +395,10 @@ impl BallotCard {
     /// # Errors
     ///
     /// Fails if vertical streaks are detected on either side.
-    #[allow(clippy::result_large_err)]
-    pub fn detect_vertical_streaks(&self) -> Result<()> {
+    #[must_use]
+    pub fn detect_vertical_streaks(&self) -> Pair<Vec<VerticalStreak>> {
         self.as_pair()
-            .par_map(|ballot_page| {
-                let streaks = detect_vertical_streaks(ballot_page.ballot_image());
-                if streaks.is_empty() {
-                    Ok(())
-                } else {
-                    Err(Error::VerticalStreaksDetected {
-                        label: ballot_page.label().to_string(),
-                        x_coordinates: streaks,
-                    })
-                }
-            })
-            .into_result()?;
-        Ok(())
+            .par_map(|ballot_page| detect_vertical_streaks(ballot_page.ballot_image()))
     }
 
     /// Finds timing marks on the ballot card using the given timing mark
@@ -556,27 +546,39 @@ impl BallotCard {
     }
 
     /// Scores bubble marks on both ballot pages.
-    #[must_use]
+    ///
+    /// # Errors
+    ///
+    /// If the bubbles cannot be properly scored due to streaks intersecting
+    /// with them, an error will be returned.
+    #[allow(clippy::result_large_err)]
     pub fn score_bubble_marks<'a>(
         &self,
         timing_marks: impl Into<Pair<&'a TimingMarks>>,
         bubble_template: &GrayImage,
         grid_layout: &GridLayout,
+        detected_vertical_streaks: impl Into<Pair<&'a Vec<VerticalStreak>>>,
         sheet_number: u32,
-    ) -> Pair<ScoredBubbleMarks> {
+    ) -> Result<Pair<ScoredBubbleMarks>> {
         self.as_pair()
             .zip(timing_marks)
+            .zip(detected_vertical_streaks)
             .zip((BallotSide::Front, BallotSide::Back))
-            .par_map(|((ballot_page, timing_marks), side)| {
-                score_bubble_marks_from_grid_layout(
-                    ballot_page.ballot_image(),
-                    bubble_template,
-                    timing_marks,
-                    grid_layout,
-                    sheet_number,
-                    side,
-                )
-            })
+            .par_map(
+                |(((ballot_page, timing_marks), detected_vertical_streaks), side)| {
+                    score_bubble_marks_from_grid_layout(
+                        ballot_page.ballot_image(),
+                        ballot_page.label(),
+                        bubble_template,
+                        timing_marks,
+                        grid_layout,
+                        detected_vertical_streaks,
+                        sheet_number,
+                        side,
+                    )
+                },
+            )
+            .into_result()
     }
 
     /// Scores write-in areas in order to detect unmarked write-ins.
