@@ -292,6 +292,13 @@ impl VerticalStreak {
             Err((self, other))
         }
     }
+
+    pub(crate) fn rotate180(&mut self, ballot_image_width: u32) {
+        self.x_range = (ballot_image_width as i32 - 1 - *self.x_range.end())
+            ..=(ballot_image_width as i32 - 1 - *self.x_range.start());
+        self.scores.reverse();
+        self.longest_white_gaps.reverse();
+    }
 }
 
 /**

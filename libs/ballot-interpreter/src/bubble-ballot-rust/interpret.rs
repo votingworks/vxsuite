@@ -364,7 +364,7 @@ pub fn ballot_card(
     .into_result()?
     .join(BallotCard::from_pages)?;
 
-    let detected_vertical_streaks = (options.vertical_streak_detection
+    let mut detected_vertical_streaks = (options.vertical_streak_detection
         == VerticalStreakDetection::Enabled)
         .then(|| ballot_card.detect_vertical_streaks())
         .unwrap_or_default();
@@ -383,25 +383,32 @@ pub fn ballot_card(
     ballot_card
         .as_pair_mut()
         .zip(&mut timing_marks)
+        .zip(&mut detected_vertical_streaks)
         .zip(&decoded_qr_codes)
-        .map(|((ballot_page, timing_marks), (_, orientation))| {
-            // Handle rotating the image and our timing marks if necessary.
-            if matches!(orientation, Orientation::PortraitReversed) {
-                timing_marks.rotate180(ballot_page.dimensions().into());
-                ballot_page.rotate180();
-            }
+        .map(
+            |(((ballot_page, timing_marks), detected_vertical_streaks), (_, orientation))| {
+                // Handle rotating the image and our timing marks if necessary.
+                if matches!(orientation, Orientation::PortraitReversed) {
+                    timing_marks.rotate180(ballot_page.dimensions().into());
+                    ballot_page.rotate180();
+                    // TODO: add a test that fails if this is removed
+                    for streak in detected_vertical_streaks.iter_mut() {
+                        streak.rotate180(ballot_page.width());
+                    }
+                }
 
-            ballot_page.debug().write(
-                "complete_timing_marks_after_orientation_correction",
-                |canvas| {
-                    draw_timing_mark_debug_image_mut(
-                        canvas,
-                        ballot_page.geometry(),
-                        &timing_marks.clone().into(),
-                    );
-                },
-            );
-        });
+                ballot_page.debug().write(
+                    "complete_timing_marks_after_orientation_correction",
+                    |canvas| {
+                        draw_timing_mark_debug_image_mut(
+                            canvas,
+                            ballot_page.geometry(),
+                            &timing_marks.clone().into(),
+                        );
+                    },
+                );
+            },
+        );
 
     // If what we've been calling the front is actually the back, swap them.
     if decoded_qr_codes.first().0.page_number.is_back() {
