@@ -4,6 +4,7 @@ import {
   LanguageControls,
   useCurrentLanguage,
   VoterSettingsManagerContext,
+  useAudioEnabled,
 } from '@votingworks/ui';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
@@ -18,13 +19,15 @@ const mockLanguageControls: Mocked<LanguageControls> = {
   reset: vi.fn(),
   setLanguage: vi.fn(),
 };
+const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
 const mockUseCurrentLanguage = vi.mocked(useCurrentLanguage);
 
 vi.mock('@votingworks/ui', async () => ({
   ...(await vi.importActual('@votingworks/ui')),
-  useCurrentLanguage: vi.fn(),
   useAudioControls: () => mockAudioControls,
   useLanguageControls: () => mockLanguageControls,
+  useAudioEnabled: vi.fn(),
+  useCurrentLanguage: vi.fn(),
 }));
 
 const DEFAULT_THEME = {
@@ -39,22 +42,26 @@ function TestHookWrapper(props: { children: React.ReactNode }) {
       {...props}
       defaultColorMode={DEFAULT_THEME.colorMode}
       defaultSizeMode={DEFAULT_THEME.sizeMode}
-      defaultIsVisualModeDisabled={DEFAULT_THEME.isVisualModeDisabled ?? false}
+      defaultIsVisualModeDisabled={DEFAULT_THEME.isVisualModeDisabled}
       disableFontsForTests
     />
   );
 }
 
 function useTestHook() {
-  const theme = React.useContext(ThemeContext);
-  const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
+  const [mockIsAudioEnabled, setMockIsAudioEnabled] = React.useState(true);
   const [mockLanguage, setMockLanguage] = React.useState('en');
-  const voterSettingsControls = useSessionSettingsManager();
+  mockUseAudioEnabled.mockReturnValue(mockIsAudioEnabled);
   mockUseCurrentLanguage.mockReturnValue(mockLanguage);
 
+  const theme = React.useContext(ThemeContext);
+  const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
+  const voterSettingsControls = useSessionSettingsManager();
+
   return {
-    theme,
+    setMockIsAudioEnabled,
     setMockLanguage,
+    theme,
     voterSettingsManager,
     ...voterSettingsControls,
   };
@@ -74,6 +81,7 @@ it('Reset voter settings when resetVoterSettings is called', () => {
     wrapper: TestHookWrapper,
   });
 
+  expect(mockAudioControls.reset).not.toHaveBeenCalled();
   expect(mockLanguageControls.reset).not.toHaveBeenCalled();
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
 
@@ -81,11 +89,13 @@ it('Reset voter settings when resetVoterSettings is called', () => {
   act(() => {
     result.current.voterSettingsManager.setColorMode('contrastLow');
     result.current.voterSettingsManager.setSizeMode('touchExtraLarge');
+    result.current.voterSettingsManager.setIsVisualModeDisabled(true);
   });
   expect(result.current.theme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
       sizeMode: 'touchExtraLarge',
+      isVisualModeDisabled: true,
     })
   );
 
@@ -110,15 +120,18 @@ it('First cache/clear voter settings and then restore', () => {
 
   // Simulate changing session settings as voter:
   act(() => {
+    result.current.setMockIsAudioEnabled(false);
+    result.current.setMockLanguage('es-US');
     result.current.voterSettingsManager.setColorMode('contrastLow');
     result.current.voterSettingsManager.setSizeMode('touchExtraLarge');
-    result.current.setMockLanguage('es-US');
+    result.current.voterSettingsManager.setIsVisualModeDisabled(true);
   });
 
   expect(result.current.theme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
       sizeMode: 'touchExtraLarge',
+      isVisualModeDisabled: true,
     })
   );
 
@@ -129,6 +142,7 @@ it('First cache/clear voter settings and then restore', () => {
 
   // Validate settings were reset
   expect(mockAudioControls.reset).toHaveBeenCalledTimes(1);
+  expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
   expect(mockLanguageControls.reset).toHaveBeenCalledTimes(1);
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
   expect(result.current.theme).toEqual(
@@ -145,7 +159,11 @@ it('First cache/clear voter settings and then restore', () => {
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
       sizeMode: 'touchExtraLarge',
+      isVisualModeDisabled: true,
     })
   );
+  expect(mockAudioControls.setIsEnabled).toHaveBeenCalledTimes(1);
+  expect(mockAudioControls.setIsEnabled).toHaveBeenCalledWith(false);
   expect(mockLanguageControls.setLanguage).toHaveBeenCalledTimes(1);
+  expect(mockLanguageControls.setLanguage).toHaveBeenCalledWith('es-US');
 });

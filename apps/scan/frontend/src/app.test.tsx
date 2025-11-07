@@ -1261,6 +1261,27 @@ test('"Test" voter settings are not reset when voting begins', async () => {
   expect(startNewSessionMock).not.toBeCalled();
 });
 
+test('audio-only mode', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.setPrinterStatus();
+  apiMock.expectGetScannerStatus(statusNoPaper);
+
+  renderApp();
+  await screen.findByText(/Insert Your Ballot/i);
+
+  userEvent.click(screen.getByRole('button', { name: 'Settings' }));
+  userEvent.click(await screen.findByRole('tab', { name: 'Audio' }));
+  userEvent.click(
+    await screen.findByRole('button', { name: /Enable Audio-Only Mode/ })
+  );
+  userEvent.click(
+    await screen.findByRole('button', { name: /Exit Audio-Only Mode/ })
+  );
+  await screen.findByText(/Insert Your Ballot/i);
+});
+
 test.each<{
   description: string;
   systemSettings: Partial<SystemSettings>;
