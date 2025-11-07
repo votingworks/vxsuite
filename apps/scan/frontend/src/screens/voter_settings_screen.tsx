@@ -5,5 +5,5 @@ import { VoterSettings } from '@votingworks/ui';
 export function VoterSettingsScreen(): JSX.Element {
   const history = useHistory();
 
-  return <VoterSettings onClose={history.goBack} />;
+  return <VoterSettings allowAudioVideoOnlyToggles onClose={history.goBack} />;
 }
