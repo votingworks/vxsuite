@@ -87,6 +87,7 @@ pub fn get_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
 }
 
 #[derive(Debug, Clone, Copy)]
+#[must_use]
 pub enum Detector {
     Rqrr,
     Zbar,
@@ -94,6 +95,7 @@ pub enum Detector {
 
 /// Information about a QR code found in an image.
 #[derive(Debug, Clone)]
+#[must_use]
 pub struct Detected {
     detector: Detector,
     detection_areas: Vec<Rect>,
@@ -125,6 +127,7 @@ impl Detected {
     }
 
     /// Gets the data decoded from the detected QR code.
+    #[must_use]
     pub fn bytes(&self) -> &Vec<u8> {
         self.bytes.as_ref()
     }
@@ -135,6 +138,7 @@ impl Detected {
     }
 
     /// The orientation of the ballot as determined by the QR code position.
+    #[must_use]
     pub const fn orientation(&self) -> Orientation {
         self.orientation
     }
@@ -183,6 +187,10 @@ pub type Result = std::result::Result<Detected, Error>;
 ///
 /// If the data read from the QR code can be read as base64, then the decoded data will
 /// be returned instead of the original base64 data.
+///
+/// # Errors
+///
+/// Returns an `Err` if no QR codes are detected.
 pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
     let rqrr_result = rqrr::detect(img);
     let detect_result = rqrr_result.or_else(|_| zbar::detect(img));
@@ -243,12 +251,12 @@ mod test {
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
         let scan_side_a_path = fixture_path.join("scan-skewed-side-a.jpeg");
         let scan_side_b_path = fixture_path.join("scan-skewed-side-b.jpeg");
-        detect(
+        let _ = detect(
             &image::open(scan_side_a_path).unwrap().into_luma8(),
             &ImageDebugWriter::disabled(),
         )
         .expect("side A QR code should be detected");
-        detect(
+        let _ = detect(
             &image::open(scan_side_b_path).unwrap().into_luma8(),
             &ImageDebugWriter::disabled(),
         )

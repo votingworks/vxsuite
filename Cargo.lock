@@ -254,6 +254,7 @@ dependencies = [
  "bitstream-io 4.0.0",
  "clap",
  "color-eyre",
+ "crossterm",
  "divan",
  "image",
  "imageproc",
