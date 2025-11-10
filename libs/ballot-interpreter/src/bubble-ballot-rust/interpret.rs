@@ -889,6 +889,43 @@ mod test {
     }
 
     #[test]
+    fn test_fold_through_timing_mark() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "104h-2025-04",
+            (
+                "fold-through-timing-mark-front.png",
+                "fold-through-timing-mark-back.png",
+            ),
+        );
+        let interpretation = ballot_card(
+            side_a_image.clone(),
+            side_b_image.clone(),
+            &Options {
+                timing_mark_algorithm: TimingMarkAlgorithm::Corners,
+                ..options
+            },
+        )
+        .unwrap();
+
+        // All bubbles should be unmarked
+        assert_eq!(
+            interpretation
+                .front
+                .marks
+                .iter()
+                .filter(|(_, scored_bubble)| {
+                    if let Some(scored_bubble) = scored_bubble {
+                        scored_bubble.fill_score > UnitIntervalScore(0.05)
+                    } else {
+                        false
+                    }
+                })
+                .count(),
+            0
+        )
+    }
+
+    #[test]
     /// The ballot used in this test has high skew and we previously failed to
     /// find all the back side's right edge timing marks. The previous best fit
     /// line algorithm looked at all pairs of candidate timing marks and selected
