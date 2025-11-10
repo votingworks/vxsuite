@@ -16,7 +16,11 @@ import {
 import setWith from 'lodash.setwith';
 import * as Cdf from '.';
 import * as Vxf from '../../election';
-import { ballotPaperDimensions, getContests } from '../../election_utils';
+import {
+  ballotPaperDimensions,
+  getContests,
+  getOrderedCandidatesForContestInBallotStyle,
+} from '../../election_utils';
 import { Id, safeParse } from '../../generic';
 import { safeParseInt } from '../../numeric';
 import {
@@ -502,6 +506,129 @@ export function convertVxfElectionToCdfBallotDefinition(
       }
     }
 
+    function getOrderedPhysicalContestOptions(
+      contest: Vxf.AnyContest
+    ): Cdf.PhysicalContestOption[] {
+      // For candidate contests, use the ordered candidates from the ballot style
+      if (contest.type === 'candidate') {
+        const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+          contest,
+          ballotStyle,
+        });
+        const physicalOptions: Cdf.PhysicalContestOption[] = [];
+
+        // Add candidate options in the specified order
+        for (const orderedCandidate of orderedCandidates) {
+          const optionId = candidateOptionId(contest.id, orderedCandidate.id);
+          const position = gridLayout.gridPositions.find(
+            (pos) =>
+              pos.contestId === contest.id &&
+              pos.type === 'option' &&
+              optionIdForPosition(contest, pos) === optionId &&
+              // Only require partyIds to match if both are defined
+              // (handles case where grid position doesn't have partyIds set)
+              (orderedCandidate.partyIds === undefined ||
+                pos.partyIds === undefined ||
+                deepEqual(orderedCandidate.partyIds, pos.partyIds))
+          );
+          if (position) {
+            physicalOptions.push({
+              '@type': 'BallotDefinition.PhysicalContestOption',
+              ContestOptionId: optionId,
+              OptionPosition: [
+                {
+                  '@type': 'BallotDefinition.OptionPosition',
+                  Sheet: position.sheetNumber,
+                  Side: position.side as Cdf.BallotSideType,
+                  X: position.column,
+                  Y: position.row,
+                  H: 0,
+                  W: 0,
+                  NumberVotes: 1,
+                },
+              ],
+            });
+          }
+        }
+
+        // Add write-in options
+        if (contest.allowWriteIns) {
+          for (const position of gridLayout.gridPositions) {
+            if (
+              position.contestId === contest.id &&
+              position.type === 'write-in'
+            ) {
+              physicalOptions.push({
+                '@type': 'BallotDefinition.PhysicalContestOption',
+                ContestOptionId: optionIdForPosition(contest, position),
+                OptionPosition: [
+                  {
+                    '@type': 'BallotDefinition.OptionPosition',
+                    Sheet: position.sheetNumber,
+                    Side: position.side as Cdf.BallotSideType,
+                    X: position.column,
+                    Y: position.row,
+                    H: 0,
+                    W: 0,
+                    NumberVotes: 1,
+                  },
+                ],
+                WriteInPosition: [
+                  {
+                    '@type': 'BallotDefinition.WriteInPosition',
+                    Sheet: position.sheetNumber,
+                    Side: position.side as Cdf.BallotSideType,
+                    X: position.writeInArea.x,
+                    Y: position.writeInArea.y,
+                    W: position.writeInArea.width,
+                    H: position.writeInArea.height,
+                  },
+                ],
+              });
+            }
+          }
+        }
+
+        return physicalOptions;
+      }
+
+      // For other contests (yesno), use grid layout order
+      return gridLayout.gridPositions
+        .filter((position) => position.contestId === contest.id)
+        .map(
+          (position): Cdf.PhysicalContestOption => ({
+            '@type': 'BallotDefinition.PhysicalContestOption',
+            ContestOptionId: optionIdForPosition(contest, position),
+            OptionPosition: [
+              {
+                '@type': 'BallotDefinition.OptionPosition',
+                Sheet: position.sheetNumber,
+                Side: position.side as Cdf.BallotSideType,
+                X: position.column,
+                Y: position.row,
+                H: 0,
+                W: 0,
+                NumberVotes: 1,
+              },
+            ],
+            WriteInPosition:
+              position.type === 'write-in'
+                ? [
+                    {
+                      '@type': 'BallotDefinition.WriteInPosition',
+                      Sheet: position.sheetNumber,
+                      Side: position.side as Cdf.BallotSideType,
+                      X: position.writeInArea.x,
+                      Y: position.writeInArea.y,
+                      W: position.writeInArea.width,
+                      H: position.writeInArea.height,
+                    },
+                  ]
+                : undefined,
+          })
+        );
+    }
+
     const contests = getContests({ election: vxfElection, ballotStyle });
     return contests.map(
       (contest): Cdf.OrderedContest => ({
@@ -511,50 +638,7 @@ export function convertVxfElectionToCdfBallotDefinition(
           {
             '@type': 'BallotDefinition.PhysicalContest',
             BallotFormatId: 'ballot-format',
-            PhysicalContestOption: gridLayout.gridPositions
-              .filter((position) => position.contestId === contest.id)
-              .map(
-                (position): Cdf.PhysicalContestOption => ({
-                  '@type': 'BallotDefinition.PhysicalContestOption',
-                  ContestOptionId: optionIdForPosition(contest, position),
-                  OptionPosition: [
-                    {
-                      '@type': 'BallotDefinition.OptionPosition',
-                      Sheet: position.sheetNumber,
-                      Side: position.side as Cdf.BallotSideType,
-                      // Technically these should be in inches, not grid
-                      // coordinates, since that's the measurement unit
-                      // specified in the ballot format, but grid coordinates
-                      // are what our interpreter uses, and converting to inches
-                      // and back would just add arbitrary confusion.
-                      X: position.column,
-                      Y: position.row,
-                      // It's not clear what the height/width of an
-                      // OptionPosition refer to. Is it the dimensions of the
-                      // bubble? Since we don't actually use this data, just set
-                      // it to a dummy value.
-                      H: 0,
-                      W: 0,
-                      NumberVotes: 1,
-                    },
-                  ],
-                  WriteInPosition:
-                    position.type === 'write-in'
-                      ? [
-                          {
-                            '@type': 'BallotDefinition.WriteInPosition',
-                            Sheet: position.sheetNumber,
-                            Side: position.side as Cdf.BallotSideType,
-                            // Note that these are in grid coordinates
-                            X: position.writeInArea.x,
-                            Y: position.writeInArea.y,
-                            W: position.writeInArea.width,
-                            H: position.writeInArea.height,
-                          },
-                        ]
-                      : undefined,
-                })
-              ),
+            PhysicalContestOption: getOrderedPhysicalContestOptions(contest),
           },
         ],
       })
@@ -1096,6 +1180,54 @@ export function convertCdfBallotDefinitionToVxfElection(
         idParts.length === 2 &&
         idParts[1] === ballotStyle.Language[0];
 
+      // Extract orderedCandidatesByContest from OrderedContent if available
+      const orderedCandidatesByContest:
+        | Record<Vxf.ContestId, Vxf.OrderedCandidateOption[]>
+        | undefined = ballotStyle.OrderedContent
+        ? Object.fromEntries(
+            ballotStyle.OrderedContent.filter((orderedContest) => {
+              const contest = find(
+                election.Contest,
+                (c) => c['@id'] === orderedContest.ContestId
+              );
+              return contest['@type'] === 'BallotDefinition.CandidateContest';
+            }).map((orderedContest) => {
+              const contest = find(
+                election.Contest,
+                (c) => c['@id'] === orderedContest.ContestId
+              ) as Cdf.CandidateContest;
+              const candidateOptions =
+                orderedContest.Physical[0].PhysicalContestOption.filter(
+                  (option) => !option.WriteInPosition
+                ).map((option) => {
+                  const candidateId = convertOptionId(
+                    orderedContest.ContestId,
+                    option.ContestOptionId
+                  );
+                  const contestOption = find(
+                    contest.ContestOption,
+                    (o) => o['@id'] === option.ContestOptionId
+                  );
+                  const orderedOption: Vxf.OrderedCandidateOption = {
+                    id: candidateId,
+                  };
+                  // Include partyIds if this represents a cross-endorsed candidate
+                  // We will always represent multi-endorsed candidates with a single ordered candidate option
+                  // when converting from CDF to VXF
+                  if (
+                    contestOption.EndorsementPartyIds &&
+                    contestOption.EndorsementPartyIds.length > 0
+                  ) {
+                    orderedOption.partyIds =
+                      contestOption.EndorsementPartyIds as Vxf.PartyId[];
+                  }
+                  return orderedOption;
+                });
+              return [orderedContest.ContestId, candidateOptions];
+            })
+          )
+        : undefined;
+
       return {
         id: ballotStyleId,
         groupId: useExtractedGroupId ? idParts[0] : ballotStyleId,
@@ -1103,6 +1235,7 @@ export function convertCdfBallotDefinitionToVxfElection(
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0],
         languages: ballotStyle.Language,
+        orderedCandidatesByContest,
       };
     }),
 
@@ -1134,37 +1267,91 @@ export function convertCdfBallotDefinitionToVxfElection(
             bottom: 1,
           },
           gridPositions: orderedContests.flatMap(
-            (orderedContest): Vxf.GridPosition[] =>
-              orderedContest.Physical[0].PhysicalContestOption.map(
-                (option): Vxf.GridPosition => ({
-                  contestId: orderedContest.ContestId,
-                  sheetNumber: option.OptionPosition[0].Sheet,
-                  side: option.OptionPosition[0].Side,
-                  column: option.OptionPosition[0].X,
-                  row: option.OptionPosition[0].Y,
-                  ...(option.WriteInPosition
-                    ? {
-                        type: 'write-in',
-                        writeInIndex: parseWriteInIndexFromOptionId(
-                          orderedContest.ContestId,
-                          option.ContestOptionId
-                        ),
-                        writeInArea: {
-                          x: option.WriteInPosition[0].X,
-                          y: option.WriteInPosition[0].Y,
-                          width: option.WriteInPosition[0].W,
-                          height: option.WriteInPosition[0].H,
-                        },
+            (orderedContest): Vxf.GridPosition[] => {
+              const contest = find(
+                election.Contest,
+                (c) => c['@id'] === orderedContest.ContestId
+              );
+              return orderedContest.Physical[0].PhysicalContestOption.map(
+                (option): Vxf.GridPosition => {
+                  switch (contest['@type']) {
+                    case 'BallotDefinition.CandidateContest': {
+                      if (option.WriteInPosition) {
+                        return {
+                          type: 'write-in',
+                          contestId: orderedContest.ContestId,
+                          sheetNumber: option.OptionPosition[0].Sheet,
+                          side: option.OptionPosition[0].Side,
+                          column: option.OptionPosition[0].X,
+                          row: option.OptionPosition[0].Y,
+                          writeInIndex: parseWriteInIndexFromOptionId(
+                            orderedContest.ContestId,
+                            option.ContestOptionId
+                          ),
+                          writeInArea: {
+                            x: option.WriteInPosition[0].X,
+                            y: option.WriteInPosition[0].Y,
+                            width: option.WriteInPosition[0].W,
+                            height: option.WriteInPosition[0].H,
+                          },
+                        };
                       }
-                    : {
+
+                      const candidateOption = find(
+                        contest.ContestOption,
+                        (o) => o['@id'] === option.ContestOptionId
+                      );
+                      const basePosition: Vxf.GridPositionOption = {
                         type: 'option',
+                        contestId: orderedContest.ContestId,
+                        sheetNumber: option.OptionPosition[0].Sheet,
+                        side: option.OptionPosition[0].Side,
+                        column: option.OptionPosition[0].X,
+                        row: option.OptionPosition[0].Y,
                         optionId: convertOptionId(
                           orderedContest.ContestId,
                           option.ContestOptionId
                         ),
-                      }),
-                })
-              )
+                      };
+
+                      // Add partyIds if the candidate has endorsements
+                      if (
+                        candidateOption.EndorsementPartyIds &&
+                        candidateOption.EndorsementPartyIds.length > 0
+                      ) {
+                        return {
+                          ...basePosition,
+                          partyIds:
+                            candidateOption.EndorsementPartyIds as Vxf.PartyId[],
+                        };
+                      }
+
+                      return basePosition;
+                    }
+
+                    case 'BallotDefinition.BallotMeasureContest': {
+                      return {
+                        type: 'option',
+                        contestId: orderedContest.ContestId,
+                        sheetNumber: option.OptionPosition[0].Sheet,
+                        side: option.OptionPosition[0].Side,
+                        column: option.OptionPosition[0].X,
+                        row: option.OptionPosition[0].Y,
+                        optionId: convertOptionId(
+                          orderedContest.ContestId,
+                          option.ContestOptionId
+                        ),
+                      };
+                    }
+
+                    default: {
+                      /* istanbul ignore next - @preserve */
+                      return throwIllegalValue(contest, '@type');
+                    }
+                  }
+                }
+              );
+            }
           ),
         };
       });
