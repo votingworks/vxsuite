@@ -12,9 +12,9 @@ import {
   Precinct,
   PrecinctId,
   getBallotStyle,
-  getOrderedCandidatesForContestInBallotStyle,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '../ballot_styles';
+import { allContestOptionsWithMultiEndorsements } from '../hmpb/all_contest_options';
 
 /**
  * Creates a lookup function for getting some election metadata based on a key.
@@ -168,32 +168,22 @@ function buildOptionPositionLookupForBallotStyle(
 
   const lookup: Record<string, Record<string, number>> = {};
   for (const contest of election.contests) {
-    if (contest.type === 'yesno') {
-      lookup[contest.id] = {
-        [contest.yesOption.id]: 0,
-        [contest.noOption.id]: 1,
-      };
-    } else {
-      // Get the ballot-style-specific candidate ordering
-      const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
-        contest,
-        ballotStyle,
-      });
+    const contestMap: Record<string, number> = {};
+    let position = 0;
 
-      const contestMap: Record<string, number> = {};
-      for (const [index, candidate] of orderedCandidates.entries()) {
-        // For multi-endorsed candidates, only store the first occurrence
-        if (contestMap[candidate.id] === undefined) {
-          contestMap[candidate.id] = index;
-        }
+    // Iterate through all options in ballot order, including multi-endorsed duplicates
+    for (const option of allContestOptionsWithMultiEndorsements(
+      contest,
+      ballotStyle
+    )) {
+      // For multi-endorsed candidates, only store the first occurrence
+      if (contestMap[option.id] === undefined) {
+        contestMap[option.id] = position;
       }
-      if (contest.allowWriteIns) {
-        for (let i = 0; i < contest.seats; i += 1) {
-          contestMap[`write-in-${i}`] = orderedCandidates.length + i;
-        }
-      }
-      lookup[contest.id] = contestMap;
+      position += 1;
     }
+
+    lookup[contest.id] = contestMap;
   }
   return lookup;
 }
