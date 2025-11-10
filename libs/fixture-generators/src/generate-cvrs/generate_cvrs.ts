@@ -16,7 +16,6 @@ import {
   BallotPageContestOptionLayout,
   BallotPageLayout,
   ballotPaperDimensions,
-  BallotStyle,
   BallotType,
   Candidate,
   CandidateContest,
@@ -26,6 +25,7 @@ import {
   CVR,
   Election,
   ElectionDefinition,
+  getBallotStyle,
   getContests,
   mapSheet,
   Size,
@@ -134,12 +134,18 @@ interface GenerateCvrsParams {
  */
 export function generateBallotPageLayouts(
   election: Election,
-  metadata: BallotMetadata,
-  ballotStyle: BallotStyle
+  metadata: BallotMetadata
 ): readonly BallotPageLayout[] {
   if (!election.gridLayouts) {
     return [];
   }
+
+  const ballotStyle = assertDefined(
+    getBallotStyle({
+      election,
+      ballotStyleId: metadata.ballotStyleId,
+    })
+  );
 
   const gridLayout = election.gridLayouts.find(
     (layout) => layout.ballotStyleId === metadata.ballotStyleId
@@ -229,17 +235,13 @@ export function* generateCvrs({
       for (const precinctId of precinctIds) {
         const ballotPageLayouts = bmdBallots
           ? []
-          : generateBallotPageLayouts(
-              election,
-              {
-                ballotStyleId,
-                precinctId,
-                ballotHash: electionDefinition.ballotHash,
-                ballotType,
-                isTestMode: testMode,
-              },
-              ballotStyle
-            );
+          : generateBallotPageLayouts(election, {
+              ballotStyleId,
+              precinctId,
+              ballotHash: electionDefinition.ballotHash,
+              ballotType,
+              isTestMode: testMode,
+            });
         if (ballotPageLayouts.length > 2) {
           throw new Error('only single-sheet ballots are supported');
         }
