@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import { assert, find } from '@votingworks/basics';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 import {
   BallotIdSchema,
   BallotType,
@@ -21,7 +24,6 @@ import {
 import {
   buildCastVoteRecord,
   buildCVRContestsFromVotes,
-  getOptionPosition,
   combineImageAndLayoutHashes,
   getImageHash,
   getLayoutHash,
@@ -35,51 +37,11 @@ const mammalCouncilContest = find(
   (contest) => contest.id === 'zoo-council-mammal'
 ) as CandidateContest;
 
-describe('getOptionPosition', () => {
-  test('handles option position for ballot measure contests', () => {
-    const contest = fishingContest;
-    expect(
-      getOptionPosition({ contest, optionId: contest.yesOption.id })
-    ).toEqual(0);
-    expect(
-      getOptionPosition({ contest, optionId: contest.noOption.id })
-    ).toEqual(1);
-    expect(() =>
-      getOptionPosition({ contest, optionId: 'other' })
-    ).toThrowError();
-  });
-
-  test('handles option position for candidate id', () => {
-    const contest = mammalCouncilContest;
-    expect(getOptionPosition({ contest, optionId: 'zebra' })).toEqual(0);
-    expect(getOptionPosition({ contest, optionId: 'elephant' })).toEqual(3);
-  });
-
-  test('handles option position for numerical write-in id', () => {
-    const contest = mammalCouncilContest;
-    expect(getOptionPosition({ contest, optionId: 'write-in-0' })).toEqual(4);
-    expect(getOptionPosition({ contest, optionId: 'write-in-2' })).toEqual(6);
-  });
-
-  test('throws error for non-numerical write-in id', () => {
-    const contest = mammalCouncilContest;
-    expect(() =>
-      getOptionPosition({ contest, optionId: 'write-in-(FISH)' })
-    ).toThrow();
-  });
-
-  test('throws error for unrecognizable id', () => {
-    const contest = mammalCouncilContest;
-    expect(() =>
-      getOptionPosition({ contest, optionId: 'seahorse' })
-    ).toThrow();
-  });
-});
-
 describe('buildCVRContestsFromVotes', () => {
   test('builds well-formed ballot measure contest (yes vote)', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [fishingContest.id]: [fishingContest.yesOption.id] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -117,6 +79,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for no vote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [fishingContest.id]: [fishingContest.noOption.id] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -139,6 +102,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for overvote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [fishingContest.id]: ['ban-fishing', 'allow-fishing'] },
       options: { ballotMarkingMode: 'hand' },
     });
@@ -169,6 +133,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for undervote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [fishingContest.id]: [] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -188,6 +153,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('builds well-formed candidate contest', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: mammalCouncilContest.candidates.slice(0, 3),
       },
@@ -261,6 +227,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information when not indicated', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: { [mammalCouncilContest.id]: [] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -280,6 +247,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information when undervoted', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: [mammalCouncilContest.candidates[0]!],
       },
@@ -298,6 +266,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information when overvoted', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: mammalCouncilContest.candidates.slice(0, 4),
       },
@@ -332,6 +301,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information for HMPB write-in', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: [
           {
@@ -387,6 +357,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information for BMD write-in', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
+      ballotStyleId: '1M',
       votes: {
         [mammalCouncilContest.id]: [
           {
@@ -755,6 +726,136 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
         },
       },
     ],
+  });
+});
+
+describe('buildCVRContestsFromVotes with candidate rotation', () => {
+  const famousNamesElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election: famousNamesElection } = famousNamesElectionDefinition;
+
+  const mayorContest = find(
+    famousNamesElection.contests,
+    (contest) => contest.id === 'mayor'
+  ) as CandidateContest;
+
+  const boardOfAldermenContest = find(
+    famousNamesElection.contests,
+    (contest) => contest.id === 'board-of-alderman'
+  ) as CandidateContest;
+
+  test('OptionPosition reflects ballot style 1-1 rotation', () => {
+    // Ballot style 1-1 order: john-snow (position 0), mark-twain (position 1)
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: famousNamesElectionDefinition,
+      ballotStyleId: '1-1',
+      votes: {
+        [mayorContest.id]: [
+          find(mayorContest.candidates, (c) => c.id === 'sherlock-holmes')!,
+        ],
+        [boardOfAldermenContest.id]: [
+          find(
+            boardOfAldermenContest.candidates,
+            (c) => c.id === 'pablo-picasso'
+          )!,
+          find(
+            boardOfAldermenContest.candidates,
+            (c) => c.id === 'vincent-van-gogh'
+          )!,
+        ],
+      },
+      options: { ballotMarkingMode: 'hand' },
+    });
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({
+      CVRContestSelection: [
+        expect.objectContaining({
+          ContestSelectionId: 'sherlock-holmes',
+          OptionPosition: 0, // a multi-endorsed candidate will always use the first appearing position
+        }),
+      ],
+    });
+    expect(result[1]).toMatchObject({
+      CVRContestSelection: [
+        expect.objectContaining({
+          ContestSelectionId: 'pablo-picasso',
+          OptionPosition: 4,
+        }),
+        expect.objectContaining({
+          ContestSelectionId: 'vincent-van-gogh',
+          OptionPosition: 3,
+        }),
+      ],
+    });
+
+    // Make sure that a vote for a candidate after the multi-endorsed candidate has the proper index.
+    const result2 = buildCVRContestsFromVotes({
+      electionDefinition: famousNamesElectionDefinition,
+      ballotStyleId: '1-1',
+      votes: {
+        [mayorContest.id]: [
+          find(mayorContest.candidates, (c) => c.id === 'thomas-edison')!,
+        ],
+      },
+      options: { ballotMarkingMode: 'hand' },
+    });
+    expect(result2).toHaveLength(1);
+    expect(result2[0]).toMatchObject({
+      CVRContestSelection: [
+        expect.objectContaining({
+          ContestSelectionId: 'thomas-edison',
+          OptionPosition: 2,
+        }),
+      ],
+    });
+  });
+
+  test('OptionPosition reflects ballot style 1-2 rotation', () => {
+    // Ballot style 1-2 order: mark-twain (position 0), john-snow (position 1)
+    // The positions are rotated compared to ballot style 1-1
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: famousNamesElectionDefinition,
+      ballotStyleId: '1-4',
+      votes: {
+        [mayorContest.id]: [
+          find(mayorContest.candidates, (c) => c.id === 'sherlock-holmes')!,
+        ],
+        [boardOfAldermenContest.id]: [
+          find(
+            boardOfAldermenContest.candidates,
+            (c) => c.id === 'pablo-picasso'
+          )!,
+          find(
+            boardOfAldermenContest.candidates,
+            (c) => c.id === 'vincent-van-gogh'
+          )!,
+        ],
+      },
+      options: { ballotMarkingMode: 'hand' },
+    });
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({
+      CVRContestSelection: [
+        expect.objectContaining({
+          ContestSelectionId: 'sherlock-holmes',
+          OptionPosition: 1, // a multi-endorsed candidate will always use the first appearing position
+        }),
+      ],
+    });
+    expect(result[1]).toMatchObject({
+      CVRContestSelection: [
+        expect.objectContaining({
+          ContestSelectionId: 'pablo-picasso',
+          OptionPosition: 1,
+        }),
+        expect.objectContaining({
+          ContestSelectionId: 'vincent-van-gogh',
+          OptionPosition: 0,
+        }),
+      ],
+    });
   });
 });
 

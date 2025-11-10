@@ -1,9 +1,12 @@
 import { assert, iter } from '@votingworks/basics';
 import {
+  arbitraryBallotStyle,
   arbitraryCandidateContest,
   arbitraryYesNoContest,
 } from '@votingworks/test-utils';
 import {
+  BallotStyle,
+  CandidateContest,
   CandidateContestOption,
   ContestOption,
   YesNoContestOption,
@@ -16,8 +19,9 @@ test('candidate contest with no write-ins', () => {
   fc.assert(
     fc.property(
       arbitraryCandidateContest({ allowWriteIns: fc.constant(false) }),
-      (contest) => {
-        const options = Array.from(allContestOptions(contest));
+      arbitraryBallotStyle(),
+      (contest, ballotStyle) => {
+        const options = Array.from(allContestOptions(contest, ballotStyle));
         expectTypeOf(options).toEqualTypeOf<CandidateContestOption[]>();
         expect(options).toHaveLength(contest.candidates.length);
         for (const [i, option] of options.entries()) {
@@ -37,8 +41,9 @@ test('candidate contest with write-ins', () => {
   fc.assert(
     fc.property(
       arbitraryCandidateContest({ allowWriteIns: fc.constant(true) }),
-      (contest) => {
-        const options = Array.from(allContestOptions(contest));
+      arbitraryBallotStyle(),
+      (contest, ballotStyle) => {
+        const options = Array.from(allContestOptions(contest, ballotStyle));
         expect(options).toHaveLength(contest.candidates.length + contest.seats);
         for (const [i, option] of options.entries()) {
           expectTypeOf(option).toEqualTypeOf<CandidateContestOption>();
@@ -92,8 +97,9 @@ test('any contest', () => {
         arbitraryCandidateContest().filter((c) => c.candidates.length > 0),
         arbitraryYesNoContest()
       ),
-      (contest) => {
-        const options = Array.from(allContestOptions(contest));
+      arbitraryBallotStyle(),
+      (contest, ballotStyle) => {
+        const options = Array.from(allContestOptions(contest, ballotStyle));
         expectTypeOf(options).toEqualTypeOf<ContestOption[]>();
         expectTypeOf(options).not.toEqualTypeOf<YesNoContestOption[]>();
         expectTypeOf(options).not.toEqualTypeOf<CandidateContestOption[]>();
@@ -103,4 +109,88 @@ test('any contest', () => {
       }
     )
   );
+});
+
+test('candidate contest with ballot style ordering', () => {
+  // Create a contest with candidates A, B, C
+  const contest: CandidateContest = {
+    type: 'candidate',
+    id: 'contest-1',
+    title: 'Test Contest',
+    districtId: 'district-1',
+    seats: 1,
+    allowWriteIns: false,
+    candidates: [
+      { id: 'candidate-a', name: 'Alice', partyIds: [] },
+      { id: 'candidate-b', name: 'Bob', partyIds: [] },
+      { id: 'candidate-c', name: 'Charlie', partyIds: [] },
+    ],
+  };
+
+  // Create a ballot style that orders them as C, A, B
+  const ballotStyle: BallotStyle = {
+    id: 'ballot-style-1',
+    groupId: 'group-1',
+    precincts: ['precinct-1'],
+    districts: ['district-1'],
+    orderedCandidatesByContest: {
+      'contest-1': [
+        { id: 'candidate-c' },
+        { id: 'candidate-a' },
+        { id: 'candidate-b' },
+      ],
+    },
+  };
+
+  const options = Array.from(allContestOptions(contest, ballotStyle));
+
+  // Verify the order matches the ballot style ordering
+  expect(options).toHaveLength(3);
+  expect(options[0]?.id).toEqual('candidate-c');
+  expect(options[0]?.name).toEqual('Charlie');
+  expect(options[1]?.id).toEqual('candidate-a');
+  expect(options[1]?.name).toEqual('Alice');
+  expect(options[2]?.id).toEqual('candidate-b');
+  expect(options[2]?.name).toEqual('Bob');
+});
+
+test('candidate contest with multi-endorsed candidates are deduplicated', () => {
+  // Create a contest with a multi-endorsed candidate
+  const contest: CandidateContest = {
+    type: 'candidate',
+    id: 'contest-1',
+    title: 'Test Contest',
+    districtId: 'district-1',
+    seats: 1,
+    allowWriteIns: false,
+    candidates: [
+      { id: 'candidate-a', name: 'Alice', partyIds: ['party-1', 'party-2'] },
+      { id: 'candidate-b', name: 'Bob', partyIds: ['party-3'] },
+    ],
+  };
+
+  // Create a ballot style that lists the multi-endorsed candidate twice
+  // (once for each party endorsement)
+  const ballotStyle: BallotStyle = {
+    id: 'ballot-style-1',
+    groupId: 'group-1',
+    precincts: ['precinct-1'],
+    districts: ['district-1'],
+    orderedCandidatesByContest: {
+      'contest-1': [
+        { id: 'candidate-a', partyIds: ['party-1'] },
+        { id: 'candidate-b' },
+        { id: 'candidate-a', partyIds: ['party-2'] },
+      ],
+    },
+  };
+
+  const options = Array.from(allContestOptions(contest, ballotStyle));
+
+  // Verify multi-endorsed candidate appears only once (deduplicated by id)
+  expect(options).toHaveLength(2);
+  expect(options[0]?.id).toEqual('candidate-a');
+  expect(options[0]?.name).toEqual('Alice');
+  expect(options[1]?.id).toEqual('candidate-b');
+  expect(options[1]?.name).toEqual('Bob');
 });

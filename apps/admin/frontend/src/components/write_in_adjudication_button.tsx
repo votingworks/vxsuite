@@ -223,7 +223,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
                 const type = isOfficialCandidate
                   ? 'existing-official'
                   : 'existing-write-in';
-                onChange({ type, ...candidate });
+                onChange({ ...candidate, type });
               } else {
                 onChange({ type: 'new-write-in', name: val });
               }

@@ -3,7 +3,6 @@ import {
   buildCVRContestsFromVotes,
   buildCvrImageData,
   combineImageAndLayoutHashes,
-  getOptionPosition,
 } from '@votingworks/backend';
 import {
   assertDefined,
@@ -26,6 +25,7 @@ import {
   CVR,
   Election,
   ElectionDefinition,
+  getBallotStyle,
   getContests,
   mapSheet,
   Size,
@@ -36,6 +36,7 @@ import {
 import {
   allContestOptions,
   buildCVRSnapshotBallotTypeMetadata,
+  CachedElectionLookups,
   hasWriteIns,
 } from '@votingworks/utils';
 import {
@@ -139,6 +140,13 @@ export function generateBallotPageLayouts(
     return [];
   }
 
+  const ballotStyle = assertDefined(
+    getBallotStyle({
+      election,
+      ballotStyleId: metadata.ballotStyleId,
+    })
+  );
+
   const gridLayout = election.gridLayouts.find(
     (layout) => layout.ballotStyleId === metadata.ballotStyleId
   );
@@ -179,7 +187,7 @@ export function generateBallotPageLayouts(
             { x: 0, y: 100 },
             { x: 100, y: 100 },
           ],
-          options: iter(allContestOptions(contest))
+          options: iter(allContestOptions(contest, ballotStyle))
             .map(
               (option): BallotPageContestOptionLayout => ({
                 bounds: { x: 0, y: 0, width: 10, height: 10 },
@@ -304,6 +312,7 @@ export function* generateCvrs({
                     Type: CVR.CVRType.Original,
                     CVRContest: buildCVRContestsFromVotes({
                       electionDefinition,
+                      ballotStyleId,
                       votes,
                       options: {
                         ballotMarkingMode: 'machine',
@@ -353,7 +362,7 @@ export function* generateCvrs({
                 const optionIdsByContest: Record<ContestId, ContestOptionId[]> =
                   {};
                 for (const contest of contests) {
-                  const options = allContestOptions(contest);
+                  const options = allContestOptions(contest, ballotStyle);
                   optionIdsByContest[contest.id] = iter(options)
                     .map((option) => option.id)
                     .toArray();
@@ -396,6 +405,7 @@ export function* generateCvrs({
                       CVRContest: [
                         ...buildCVRContestsFromVotes({
                           electionDefinition,
+                          ballotStyleId,
                           votes: frontVotes,
                           options: {
                             ballotMarkingMode: 'hand',
@@ -410,6 +420,7 @@ export function* generateCvrs({
                         }),
                         ...buildCVRContestsFromVotes({
                           electionDefinition,
+                          ballotStyleId,
                           votes: backVotes,
                           options: {
                             ballotMarkingMode: 'hand',
@@ -452,10 +463,13 @@ export function* generateCvrs({
                                 return {
                                   '@type': 'CVR.CVRContestSelection',
                                   ContestSelectionId: optionId,
-                                  OptionPosition: getOptionPosition({
-                                    contest,
-                                    optionId,
-                                  }),
+                                  OptionPosition:
+                                    CachedElectionLookups.getOptionPosition(
+                                      electionDefinition,
+                                      ballotStyleId,
+                                      contestId,
+                                      optionId
+                                    ),
                                   SelectionPosition: [
                                     {
                                       '@type': 'CVR.SelectionPosition',

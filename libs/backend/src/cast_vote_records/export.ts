@@ -61,7 +61,6 @@ import {
   updateCreationTimestampOfDirectoryAndChildrenFiles,
 } from './file_system_utils';
 import { readCastVoteRecordExportMetadata } from './import';
-import { buildElectionOptionPositionMap } from './option_map';
 
 /**
  * An election definition and the election package hash.
@@ -315,8 +314,7 @@ async function buildCastVoteRecord(
 ): Promise<CVR.CVR> {
   const { scannerState } = exportContext;
   const { electionDefinition, markThresholds } = scannerState;
-  const { election, ballotHash: electionId } = electionDefinition;
-  const electionOptionPositionMap = buildElectionOptionPositionMap(election);
+  const { ballotHash: electionId } = electionDefinition;
   const scannerId = VX_MACHINE_ID;
 
   const { id, batchId, indexInBatch, ballotAuditId } = sheet;
@@ -342,7 +340,6 @@ async function buildCastVoteRecord(
       castVoteRecordId,
       electionDefinition,
       electionId,
-      electionOptionPositionMap,
       images,
       interpretation: canonicalizedSheet.interpretation,
       scannerId,
@@ -360,7 +357,6 @@ async function buildCastVoteRecord(
     definiteMarkThreshold: markThresholds.definite,
     electionDefinition,
     electionId,
-    electionOptionPositionMap,
     images,
     indexInBatch,
     interpretations: [frontInterpretation, backInterpretation],
