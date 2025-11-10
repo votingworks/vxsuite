@@ -1,5 +1,6 @@
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { Button } from '@votingworks/ui';
+import { assertDefined } from '@votingworks/basics';
 
 import { getElectionDefinition, unconfigureMachine } from './api';
 import { ScreenWrapper } from './components/screen_wrapper';
@@ -9,12 +10,12 @@ import { electionManagerRoutes } from './routes';
 
 function ElectionManagerElectionScreen(): JSX.Element | null {
   const electionDefinitionQuery = getElectionDefinition.useQuery();
-  const { election } = electionDefinitionQuery.data || {};
+  const { election } = assertDefined(electionDefinitionQuery.data);
 
   return (
     <div>
       <TitleBar title="Election" />
-      Configured for: <strong>{election?.title || 'None'}</strong>
+      Configured for: <strong>{election.title}</strong>
     </div>
   );
 }

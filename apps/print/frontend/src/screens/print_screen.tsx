@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { hasSplits, Precinct } from '@votingworks/types';
 import { Button, RadioGroup, SegmentedButton } from '@votingworks/ui';
+import { assertDefined } from '@votingworks/basics';
 
 import { ExpandedSelect } from '../components/expanded_select';
 import { NumberInput } from '../components/number_input';
@@ -95,7 +96,7 @@ export function PrintScreen({
     return null;
   }
 
-  const election = getElectionDefinitionQuery.data?.election;
+  const {election} = assertDefined(getElectionDefinitionQuery.data);
   const precincts: readonly Precinct[] = election?.precincts || [];
   // TODO(Nikhil): Hook up to real data
   const languages = ['English', 'Spanish'];

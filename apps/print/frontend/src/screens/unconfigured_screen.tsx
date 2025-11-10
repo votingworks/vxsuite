@@ -10,7 +10,7 @@ export function UnconfiguredScreen({
   isElectionManagerAuth,
 }: {
   isElectionManagerAuth: boolean;
-}): JSX.Element {
+}): JSX.Element | null {
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const configure = configureElectionPackageFromUsb.useMutation();
 
@@ -22,12 +22,16 @@ export function UnconfiguredScreen({
     },
   });
 
+  if (!usbDriveStatusQuery.isSuccess) {
+    return null;
+  }
+
   const backendError = configure.data?.err();
   return (
     <Screen>
       <Main centerChild>
         <UnconfiguredElectionScreen
-          usbDriveStatus={usbDriveStatusQuery.data || { status: 'no_drive' }}
+          usbDriveStatus={usbDriveStatusQuery.data}
           isElectionManagerAuth={isElectionManagerAuth}
           backendConfigError={backendError}
           machineName="VxPrint"
