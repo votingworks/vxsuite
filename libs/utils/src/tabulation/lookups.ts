@@ -12,6 +12,7 @@ import {
   Precinct,
   PrecinctId,
   getBallotStyle,
+  ContestId,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '../ballot_styles';
 import { allContestOptionsWithMultiEndorsements } from '../hmpb/all_contest_options';
@@ -148,7 +149,7 @@ export const getBallotStylesByPrecinctId = createElectionMetadataLookupFunction(
  */
 type OptionPositionLookup = Record<
   BallotStyleId,
-  Record<string, Record<string, number>>
+  Record<ContestId, Record<string, number>>
 >;
 
 /**
