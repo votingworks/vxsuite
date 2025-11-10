@@ -16,6 +16,7 @@ import {
 import { testCdfBallotDefinition, testVxfElection } from './fixtures';
 import { ElectionStringKey, UiStringsPackage, mergeUiStrings } from '../..';
 import * as Cdf from '.';
+import * as Vxf from '../../election';
 import { normalizeVxfAfterCdfConversion } from '../../../test/cdf_conversion_helpers';
 
 function languageString(content: string, language: string): Cdf.LanguageString {
@@ -304,4 +305,134 @@ test('safeParseCdfBallotDefinition', () => {
       cdfElection: testCdfBallotDefinition,
     })
   );
+});
+
+test('ballot styles with same districts but different rotations in different precincts', () => {
+  // Create an election with two precincts and two ballot styles
+  // Both ballot styles have the same districts, but different candidate orderings
+  const vxfElection: Vxf.Election = {
+    ...testVxfElection,
+    precincts: [
+      {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: ['district-1' as Vxf.DistrictId],
+      },
+      {
+        id: 'precinct-2',
+        name: 'Precinct 2',
+        districtIds: ['district-1' as Vxf.DistrictId],
+      },
+    ],
+    ballotStyles: [
+      {
+        id: 'ballot-style-1',
+        groupId: 'ballot-style-1',
+        districts: ['district-1' as Vxf.DistrictId],
+        precincts: ['precinct-1'],
+        languages: ['en'],
+        orderedCandidatesByContest: {
+          'contest-1': [
+            { id: 'candidate-1', partyIds: ['party-1' as Vxf.PartyId] },
+            { id: 'candidate-2', partyIds: ['party-2' as Vxf.PartyId] },
+          ],
+        },
+      },
+      {
+        id: 'ballot-style-2',
+        groupId: 'ballot-style-2',
+        districts: ['district-1' as Vxf.DistrictId],
+        precincts: ['precinct-2'],
+        languages: ['en'],
+        orderedCandidatesByContest: {
+          'contest-1': [
+            { id: 'candidate-2', partyIds: ['party-2' as Vxf.PartyId] },
+            { id: 'candidate-1', partyIds: ['party-1' as Vxf.PartyId] },
+          ],
+        },
+      },
+    ],
+    gridLayouts: [
+      {
+        ballotStyleId: 'ballot-style-1' as Vxf.BallotStyleId,
+        optionBoundsFromTargetMark: { top: 1, left: 1, right: 9, bottom: 1 },
+        gridPositions: [
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 12,
+            optionId: 'candidate-1',
+            partyIds: ['party-1' as Vxf.PartyId],
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 14,
+            optionId: 'candidate-2',
+            partyIds: ['party-2' as Vxf.PartyId],
+          },
+        ],
+      },
+      {
+        ballotStyleId: 'ballot-style-2' as Vxf.BallotStyleId,
+        optionBoundsFromTargetMark: { top: 1, left: 1, right: 9, bottom: 1 },
+        gridPositions: [
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 12,
+            optionId: 'candidate-2',
+            partyIds: ['party-2' as Vxf.PartyId],
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'front',
+            contestId: 'contest-1',
+            column: 2,
+            row: 14,
+            optionId: 'candidate-1',
+            partyIds: ['party-1' as Vxf.PartyId],
+          },
+        ],
+      },
+    ],
+  };
+
+  const cdf = convertVxfElectionToCdfBallotDefinition(vxfElection);
+
+  // Verify that each ballot style only references its own precinct
+  const ballotStyle1 = cdf.Election[0].BallotStyle.find(
+    (bs) => bs.ExternalIdentifier[0].Value === 'ballot-style-1'
+  );
+  const ballotStyle2 = cdf.Election[0].BallotStyle.find(
+    (bs) => bs.ExternalIdentifier[0].Value === 'ballot-style-2'
+  );
+
+  expect(ballotStyle1?.GpUnitIds).toEqual(['precinct-1']);
+  expect(ballotStyle2?.GpUnitIds).toEqual(['precinct-2']);
+
+  // Verify that the candidate ordering is different
+  const contest1InBallotStyle1 = ballotStyle1?.OrderedContent?.find(
+    (oc) => oc.ContestId === 'contest-1'
+  );
+  const contest1InBallotStyle2 = ballotStyle2?.OrderedContent?.find(
+    (oc) => oc.ContestId === 'contest-1'
+  );
+
+  expect(
+    contest1InBallotStyle1?.Physical[0].PhysicalContestOption[0].ContestOptionId
+  ).toEqual('contest-1-option-candidate-1');
+  expect(
+    contest1InBallotStyle2?.Physical[0].PhysicalContestOption[0].ContestOptionId
+  ).toEqual('contest-1-option-candidate-2');
 });

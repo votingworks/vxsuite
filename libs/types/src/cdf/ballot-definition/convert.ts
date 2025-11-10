@@ -435,8 +435,13 @@ export function convertVxfElectionToCdfBallotDefinition(
   const stateId = vxfElection.state.toLowerCase().replaceAll(' ', '-');
 
   function precinctsOrSplitsForBallotStyle(ballotStyle: Vxf.BallotStyle): Id[] {
-    return vxfElection.precincts.flatMap((precinct) => {
+    // For each precinct in the ballot style's precinct list, find the matching
+    // precinct or split in the election
+    return ballotStyle.precincts.flatMap((precinctId) => {
+      const precinct = find(vxfElection.precincts, (p) => p.id === precinctId);
+
       if (Vxf.hasSplits(precinct)) {
+        // If the precinct has splits, find the ones that match the ballot style's districts
         return precinct.splits
           .filter((split) =>
             deepEqual(
@@ -446,6 +451,8 @@ export function convertVxfElectionToCdfBallotDefinition(
           )
           .map((split) => split.id);
       }
+
+      // If the precinct doesn't have splits, verify districts match and return the precinct ID
       return deepEqual(
         precinct.districtIds.toSorted(),
         ballotStyle.districts.toSorted()
