@@ -130,7 +130,8 @@ export function parseVotersFromCsvString(
         return null;
       }
       const postalZip5 = record.postalZip5 ?? record.zip5;
-      const mailingCityTown = record.mailingCityTown ?? record.mailingTown;
+      const mailingCityTown =
+        record.mailingCityTown ?? record.mailingCity ?? record.mailingTown;
       const postalCityTown = record.postalCityTown ?? record.postalCity;
       const voter: Voter = record;
 
