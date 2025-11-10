@@ -250,8 +250,8 @@ export function GeneralElectionStatistics(): JSX.Element {
                     selectedOptionId={String(partyFilter)}
                     options={[
                       { id: 'ALL', label: 'All' },
-                      { id: 'REP', label: 'Rep' },
                       { id: 'DEM', label: 'Dem' },
+                      { id: 'REP', label: 'Rep' },
                       { id: 'UND', label: 'Und' },
                     ]}
                     onChange={(selectedId) =>
@@ -305,8 +305,8 @@ export function PrimaryElectionStatistics(): JSX.Element {
         selectedOptionId={String(partyFilter)}
         options={[
           { id: 'ALL', label: 'All' },
-          { id: 'REP', label: 'Rep' },
           { id: 'DEM', label: 'Dem' },
+          { id: 'REP', label: 'Rep' },
           { id: 'UND', label: 'Und' },
         ]}
         onChange={(selectedId) =>
