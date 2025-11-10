@@ -9,10 +9,9 @@ import React, {
 import styled from 'styled-components';
 import {
   Candidate,
+  CandidateContestOption,
   ContestOptionId,
   getContestDistrictName,
-  getOrderedCandidatesForContestInBallotStyle,
-  YesNoOption,
 } from '@votingworks/types';
 import {
   Button,
@@ -29,9 +28,7 @@ import {
   assert,
   assertDefined,
   find,
-  iter,
   throwIllegalValue,
-  uniqueBy,
 } from '@votingworks/basics';
 import type {
   AdjudicatedContestOption,
@@ -329,12 +326,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
 
-  const officialOptions = useMemo(() => {
+  const contestOptions = useMemo(() => {
     if (!cvrVoteInfoQuery.data) {
-      // Return a placeholder that will be replaced once data loads
-      return isCandidateContest
-        ? contest.candidates.filter((c) => !c.isWriteIn)
-        : [contest.yesOption, contest.noOption];
+      return [];
     }
     const ballotStyleGroup = assertDefined(
       getBallotStyleGroup({
@@ -342,26 +336,28 @@ export function ContestAdjudicationScreen(): JSX.Element {
         election,
       })
     );
-    return isCandidateContest
-      ? uniqueBy(
-          getOrderedCandidatesForContestInBallotStyle({
-            contest,
-            ballotStyle: ballotStyleGroup,
-          }),
-          (c) => c.id
-        ).filter((c) => !c.isWriteIn)
-      : [contest.yesOption, contest.noOption];
-  }, [contest, isCandidateContest, cvrVoteInfoQuery.data, election]);
+    return Array.from(allContestOptions(contest, ballotStyleGroup));
+  }, [contest, election, cvrVoteInfoQuery.data]);
 
-  const writeInOptionIds = useMemo(
-    () =>
-      isCandidateContest
-        ? iter(allContestOptions(contest))
-            .filterMap((option) => (option.isWriteIn ? option.id : undefined))
-            .toArray()
-        : [],
-    [contest, isCandidateContest]
-  );
+  const officialOptions = useMemo(() => {
+    if (!isCandidateContest) {
+      return contestOptions;
+    }
+    // When contest is a CandidateContest, contestOptions are CandidateContestOptions
+    return (contestOptions as CandidateContestOption[]).filter(
+      (c) => !c.isWriteIn
+    );
+  }, [isCandidateContest, contestOptions]);
+
+  const writeInOptionIds = useMemo(() => {
+    if (!isCandidateContest) {
+      return [];
+    }
+    // When contest is a CandidateContest, contestOptions are CandidateContestOptions
+    return (contestOptions as CandidateContestOption[])
+      .filter((option) => option.isWriteIn)
+      .map((option) => option.id);
+  }, [contestOptions, isCandidateContest]);
 
   const {
     resetState,
@@ -676,7 +672,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const currentVote = getOptionHasVote(optionId);
                 const optionLabel = isCandidateContest
                   ? (officialOption as Candidate).name
-                  : (officialOption as YesNoOption).label;
+                  : officialOption.name;
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
                 return (

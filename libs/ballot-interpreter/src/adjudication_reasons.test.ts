@@ -47,6 +47,15 @@ const ballotMeasure3 = electionTwoPartyPrimaryDefinition.election.contests.find(
   ({ id }) => id === 'fishing'
 ) as YesNoContest;
 
+const ballotStyleMammal =
+  electionTwoPartyPrimaryDefinition.election.ballotStyles.find(
+    (bs) => bs.id === '1M'
+  )!;
+const ballotStyleFish =
+  electionTwoPartyPrimaryDefinition.election.ballotStyles.find(
+    (bs) => bs.id === '2F'
+  )!;
+
 type GetAllPossibleAdjudicationReasonsOptionStatus = Parameters<
   typeof getAllPossibleAdjudicationReasons
 >[1][0];
@@ -58,12 +67,18 @@ function generateMockContestOptionScores(
     { markStatus?: MarkStatus; writeInAreaStatus?: WriteInAreaStatus }
   >
 ): GetAllPossibleAdjudicationReasonsOptionStatus[] {
-  return [...allContestOptions(contest)].map((option) => ({
-    option,
-    markStatus: overrides[option.id]?.markStatus ?? MarkStatus.Unmarked,
-    writeInAreaStatus:
-      overrides[option.id]?.writeInAreaStatus ?? WriteInAreaStatus.Ignored,
-  }));
+  return [ballotStyleMammal, ballotStyleFish].reduce(
+    (found, bs) => [
+      ...found,
+      ...[...allContestOptions(contest, bs)].map((option) => ({
+        option,
+        markStatus: overrides[option.id]?.markStatus ?? MarkStatus.Unmarked,
+        writeInAreaStatus:
+          overrides[option.id]?.writeInAreaStatus ?? WriteInAreaStatus.Ignored,
+      })),
+    ],
+    [] as GetAllPossibleAdjudicationReasonsOptionStatus[]
+  );
 }
 
 test('a ballot with no adjudication reasons', () => {
@@ -72,7 +87,8 @@ test('a ballot with no adjudication reasons', () => {
       [bestAnimalMammal],
       generateMockContestOptionScores(bestAnimalMammal, {
         [bestAnimalMammalCandidate1.id]: { markStatus: MarkStatus.Marked },
-      })
+      }),
+      ballotStyleMammal
     )
   ).toEqual([]);
 });
@@ -83,7 +99,8 @@ test('a ballot with marginal marks', () => {
     generateMockContestOptionScores(bestAnimalMammal, {
       [bestAnimalMammalCandidate1.id]: { markStatus: MarkStatus.Marked },
       [bestAnimalMammalCandidate2.id]: { markStatus: MarkStatus.Marginal },
-    })
+    }),
+    ballotStyleMammal
   );
 
   expect(reasons).toEqual<AdjudicationReasonInfo[]>([
@@ -102,7 +119,8 @@ test('a ballot with marginal marks', () => {
 test('a ballot with no marks', () => {
   const reasons = getAllPossibleAdjudicationReasons(
     [bestAnimalMammal],
-    generateMockContestOptionScores(bestAnimalMammal, {})
+    generateMockContestOptionScores(bestAnimalMammal, {}),
+    ballotStyleMammal
   );
 
   expect(reasons).toEqual<AdjudicationReasonInfo[]>([
@@ -124,7 +142,7 @@ test('a ballot with no marks', () => {
 });
 
 test('a ballot page with no contests', () => {
-  const reasons = getAllPossibleAdjudicationReasons([], []);
+  const reasons = getAllPossibleAdjudicationReasons([], [], ballotStyleMammal);
 
   // Notably, there is no BlankBallot adjudication reason.
   expect(reasons).toEqual([]);
@@ -136,7 +154,8 @@ test('a ballot with too many marks', () => {
     generateMockContestOptionScores(bestAnimalMammal, {
       [bestAnimalMammalCandidate1.id]: { markStatus: MarkStatus.Marked },
       [bestAnimalMammalCandidate2.id]: { markStatus: MarkStatus.Marked },
-    })
+    }),
+    ballotStyleMammal
   );
 
   expect(reasons).toEqual<AdjudicationReasonInfo[]>([
@@ -166,7 +185,8 @@ test('multiple contests with issues', () => {
         [zooCouncilMammalCandidate3.id]: { markStatus: MarkStatus.Marked },
         [zooCouncilMammalCandidate4.id]: { markStatus: MarkStatus.Marked },
       }),
-    ]
+    ],
+    ballotStyleMammal
   );
 
   expect(reasons).toEqual<AdjudicationReasonInfo[]>([
@@ -207,7 +227,8 @@ test('yesno contest overvotes', () => {
     generateMockContestOptionScores(ballotMeasure3, {
       'ban-fishing': { markStatus: MarkStatus.Marked },
       'allow-fishing': { markStatus: MarkStatus.Marked },
-    })
+    }),
+    ballotStyleFish
   );
 
   expect(reasons).toEqual<AdjudicationReasonInfo[]>([
@@ -229,7 +250,8 @@ test('a ballot with just a write-in', () => {
     [zooCouncilMammal],
     generateMockContestOptionScores(zooCouncilMammal, {
       'write-in-0': { markStatus: MarkStatus.Marked },
-    })
+    }),
+    ballotStyleMammal
   );
 
   // in particular, no write-in adjudication reason anymore.
@@ -248,7 +270,8 @@ test('an unmarked write-in is ignored in undervote cases', () => {
     [zooCouncilMammal],
     generateMockContestOptionScores(zooCouncilMammal, {
       'write-in-0': { writeInAreaStatus: WriteInAreaStatus.Filled },
-    })
+    }),
+    ballotStyleMammal
   );
 
   expect(reasons).toEqual([
@@ -272,7 +295,8 @@ test('an unmarked write-in can trigger the overvote reason', () => {
       [zooCouncilMammalCandidate2.id]: { markStatus: MarkStatus.Marked },
       [zooCouncilMammalCandidate3.id]: { markStatus: MarkStatus.Marked },
       'write-in-0': { writeInAreaStatus: WriteInAreaStatus.Filled },
-    })
+    }),
+    ballotStyleMammal
   );
 
   expect(reasons).toEqual([
@@ -389,7 +413,8 @@ describe('multiple marks for the same candidate', () => {
       expect(
         getAllPossibleAdjudicationReasons(
           [zooCouncilMammal],
-          [zebraOptionA, zebraOptionB, ...mockContestOptionScoresWithoutZebra]
+          [zebraOptionA, zebraOptionB, ...mockContestOptionScoresWithoutZebra],
+          ballotStyleMammal
         )
       ).toEqual(expected);
     }

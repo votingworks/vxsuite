@@ -4,7 +4,6 @@ import {
   find,
   mapObject,
   throwIllegalValue,
-  uniqueBy,
 } from '@votingworks/basics';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Route, Switch, useHistory, useParams } from 'react-router-dom';
@@ -23,7 +22,6 @@ import {
   Precinct,
   Election,
   safeParseInt,
-  getOrderedCandidatesForContestInBallotStyle,
 } from '@votingworks/types';
 import {
   Button,
@@ -47,6 +45,7 @@ import {
   format,
   getBallotStyleGroup,
   areContestResultsValid,
+  allContestOptions,
 } from '@votingworks/utils';
 
 import type {
@@ -869,13 +868,7 @@ function ContestForm({
           <ContestSection>
             {contest.type === 'candidate' && (
               <React.Fragment>
-                {uniqueBy(
-                  getOrderedCandidatesForContestInBallotStyle({
-                    contest,
-                    ballotStyle: ballotStyleGroup,
-                  }),
-                  (c) => c.id
-                ) // filter any cross-endorsed candidate options to just the first occurrence
+                {allContestOptions(contest, ballotStyleGroup)
                   .filter((c) => !c.isWriteIn)
                   .map((candidate) => (
                     <ContestDataRow key={candidate.id}>

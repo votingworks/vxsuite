@@ -2,6 +2,7 @@ import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   AnyContest,
+  BallotStyle,
   CandidateVote,
   ContestOption,
   ContestOptionId,
@@ -116,7 +117,8 @@ export function getAllPossibleAdjudicationReasons(
     option: ContestOption;
     markStatus: MarkStatus;
     writeInAreaStatus: WriteInAreaStatus;
-  }>
+  }>,
+  ballotStyle: BallotStyle
 ): AdjudicationReasonInfo[] {
   if (contests.length === 0) return [];
 
@@ -138,7 +140,7 @@ export function getAllPossibleAdjudicationReasons(
       id: ContestOption['id'];
     }> = [];
 
-    for (const option of allContestOptions(contest)) {
+    for (const option of allContestOptions(contest, ballotStyle)) {
       // there may be multiple scores for a given contest option if they have
       // multiple positions on the ballot, such as a candidate endorsed by
       // two candidates.

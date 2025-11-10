@@ -17,6 +17,7 @@ import {
   BallotMetadata,
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
+  BallotStyle,
   BallotStyleId,
   BallotTargetMark,
   BallotType,
@@ -94,10 +95,11 @@ interface ScoredContestOption {
 
 function getContestOptionForGridPosition(
   contests: Contests,
-  gridPosition: GridPosition
+  gridPosition: GridPosition,
+  ballotStyle: BallotStyle
 ): ContestOption {
   const contest = find(contests, (c) => c.id === gridPosition.contestId);
-  const option = iter(allContestOptions(contest)).find((o) =>
+  const option = iter(allContestOptions(contest, ballotStyle)).find((o) =>
     gridPosition.type === 'option'
       ? o.id === gridPosition.optionId
       : o.type === 'candidate' && o.writeInIndex === gridPosition.writeInIndex
@@ -150,14 +152,20 @@ function aggregateContestOptionScores({
   writeIns,
   contests,
   options,
+  ballotStyle,
 }: {
   marks: ScoredBubbleMarks;
   writeIns: ScoredPositionArea[];
   contests: Contests;
   options: InterpreterOptions;
+  ballotStyle: BallotStyle;
 }): ScoredContestOption[] {
   return marks.map(([gridPosition, scoredMark]) => {
-    const option = getContestOptionForGridPosition(contests, gridPosition);
+    const option = getContestOptionForGridPosition(
+      contests,
+      gridPosition,
+      ballotStyle
+    );
 
     assert(scoredMark, 'scoredMark must be defined');
     const markStatus =
@@ -302,7 +310,8 @@ export function determineAdjudicationInfoFromBmdVotes(
 export function determineAdjudicationInfoFromScoredContestOptions(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  contestOptionScores: ScoredContestOption[]
+  contestOptionScores: ScoredContestOption[],
+  ballotStyle: BallotStyle
 ): AdjudicationInfo {
   const enabledReasons = options.adjudicationReasons;
 
@@ -313,7 +322,8 @@ export function determineAdjudicationInfoFromScoredContestOptions(
   );
   const adjudicationReasonInfos = getAllPossibleAdjudicationReasons(
     contests,
-    contestOptionScores
+    contestOptionScores,
+    ballotStyle
   );
 
   const [enabledReasonInfos, ignoredReasonInfos] = iter(
@@ -330,7 +340,8 @@ export function determineAdjudicationInfoFromScoredContestOptions(
 
 function convertContestLayouts(
   contests: Contests,
-  contestLayouts: InterpretedContestLayout[]
+  contestLayouts: InterpretedContestLayout[],
+  ballotStyle: BallotStyle
 ): BallotPageContestLayout[] {
   function convertRect(rect: NextRect): Rect {
     return {
@@ -358,7 +369,7 @@ function convertContestLayouts(
     contest: AnyContest,
     { bounds, optionId }: InterpretedContestOptionLayout
   ): BallotPageContestOptionLayout {
-    const option = iter(allContestOptions(contest)).find(
+    const option = iter(allContestOptions(contest, ballotStyle)).find(
       (o) => o.id === optionId
     );
     assert(option, `option ${optionId} not found`);
@@ -394,6 +405,12 @@ function convertInterpretedBallotPage(
 ): PageInterpretation {
   const { metadata } = interpretedBallotCard[side];
 
+  const ballotStyle = assertDefined(
+    getBallotStyle({
+      ballotStyleId: metadata.ballotStyleId,
+      election: electionDefinition.election,
+    })
+  );
   const interpretation = interpretedBallotCard[side];
   const contestOptionScores: ScoredContestOption[] =
     aggregateContestOptionScores({
@@ -401,6 +418,7 @@ function convertInterpretedBallotPage(
       writeIns: interpretation.writeIns,
       contests: electionDefinition.election.contests,
       options,
+      ballotStyle,
     });
   const markInfo = convertScoredContestOptionsToMarkInfo(
     interpretation.timingMarks.geometry,
@@ -413,7 +431,8 @@ function convertInterpretedBallotPage(
     adjudicationInfo: determineAdjudicationInfoFromScoredContestOptions(
       electionDefinition,
       options,
-      contestOptionScores
+      contestOptionScores,
+      ballotStyle
     ),
     votes: convertMarksToVotesDict(
       electionDefinition.election.contests,
@@ -428,7 +447,8 @@ function convertInterpretedBallotPage(
       metadata,
       contests: convertContestLayouts(
         electionDefinition.election.contests,
-        interpretation.contestLayouts
+        interpretation.contestLayouts,
+        ballotStyle
       ),
     },
   };

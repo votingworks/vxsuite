@@ -1,40 +1,65 @@
-import { throwIllegalValue } from '@votingworks/basics';
+import {
+  assertDefined,
+  throwIllegalValue,
+  uniqueBy,
+} from '@votingworks/basics';
 import {
   AnyContest,
+  BallotStyle,
+  BallotStyleGroup,
   CandidateContest,
   CandidateContestOption,
   ContestOption,
+  getOrderedCandidatesForContestInBallotStyle,
   YesNoContest,
   YesNoContestOption,
 } from '@votingworks/types';
 
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
+ * For candidate contests, respects ballot style-specific candidate rotation, but simplifies multi-endorsed
+ * candidates to the first appearance.
  */
 export function allContestOptions(
-  contest: CandidateContest
+  contest: CandidateContest,
+  ballotStyle: BallotStyle | BallotStyleGroup
 ): Generator<CandidateContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
 export function allContestOptions(
-  contest: YesNoContest
+  contest: YesNoContest,
+  ballotStyle?: BallotStyle | BallotStyleGroup
 ): Generator<YesNoContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
+ * For candidate contests, respects ballot style-specific candidate rotation.
  */
 export function allContestOptions(
-  contest: AnyContest
+  contest: AnyContest,
+  ballotStyle: BallotStyle | BallotStyleGroup
 ): Generator<ContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
+ * For candidate contests, respects ballot style-specific candidate rotation, but simplifies multi-endorsed
+ * candidates to the first appearance.
  */
 export function* allContestOptions(
-  contest: AnyContest
+  contest: AnyContest,
+  ballotStyle?: BallotStyle | BallotStyleGroup
 ): Generator<ContestOption> {
   switch (contest.type) {
     case 'candidate': {
-      for (const candidate of contest.candidates) {
+      // ballotStyle is guaranteed to be defined for CandidateContest by the function overload
+      const orderedCandidates = uniqueBy(
+        getOrderedCandidatesForContestInBallotStyle({
+          contest,
+          ballotStyle: assertDefined(ballotStyle),
+        }),
+        (candidate) => candidate.id
+      );
+
+      for (const candidate of orderedCandidates) {
         yield {
           type: 'candidate',
           id: candidate.id,

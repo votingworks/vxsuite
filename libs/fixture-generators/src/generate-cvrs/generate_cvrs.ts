@@ -16,6 +16,7 @@ import {
   BallotPageContestOptionLayout,
   BallotPageLayout,
   ballotPaperDimensions,
+  BallotStyle,
   BallotType,
   Candidate,
   CandidateContest,
@@ -133,7 +134,8 @@ interface GenerateCvrsParams {
  */
 export function generateBallotPageLayouts(
   election: Election,
-  metadata: BallotMetadata
+  metadata: BallotMetadata,
+  ballotStyle: BallotStyle
 ): readonly BallotPageLayout[] {
   if (!election.gridLayouts) {
     return [];
@@ -179,7 +181,7 @@ export function generateBallotPageLayouts(
             { x: 0, y: 100 },
             { x: 100, y: 100 },
           ],
-          options: iter(allContestOptions(contest))
+          options: iter(allContestOptions(contest, ballotStyle))
             .map(
               (option): BallotPageContestOptionLayout => ({
                 bounds: { x: 0, y: 0, width: 10, height: 10 },
@@ -227,13 +229,17 @@ export function* generateCvrs({
       for (const precinctId of precinctIds) {
         const ballotPageLayouts = bmdBallots
           ? []
-          : generateBallotPageLayouts(election, {
-              ballotStyleId,
-              precinctId,
-              ballotHash: electionDefinition.ballotHash,
-              ballotType,
-              isTestMode: testMode,
-            });
+          : generateBallotPageLayouts(
+              election,
+              {
+                ballotStyleId,
+                precinctId,
+                ballotHash: electionDefinition.ballotHash,
+                ballotType,
+                isTestMode: testMode,
+              },
+              ballotStyle
+            );
         if (ballotPageLayouts.length > 2) {
           throw new Error('only single-sheet ballots are supported');
         }
@@ -354,7 +360,7 @@ export function* generateCvrs({
                 const optionIdsByContest: Record<ContestId, ContestOptionId[]> =
                   {};
                 for (const contest of contests) {
-                  const options = allContestOptions(contest);
+                  const options = allContestOptions(contest, ballotStyle);
                   optionIdsByContest[contest.id] = iter(options)
                     .map((option) => option.id)
                     .toArray();
