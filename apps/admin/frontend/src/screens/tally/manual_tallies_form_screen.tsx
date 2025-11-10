@@ -21,7 +21,6 @@ import {
   Contests,
   Precinct,
   Election,
-  safeParseInt,
 } from '@votingworks/types';
 import {
   Button,
@@ -40,6 +39,7 @@ import {
   Font,
   Callout,
   H3,
+  NumberInput,
 } from '@votingworks/ui';
 import {
   format,
@@ -168,56 +168,6 @@ const TallyTaskContent = styled(TaskContent)`
 const FormCard = styled(Card)`
   background: ${(p) => p.theme.colors.background};
 `;
-
-// if we used a number input here, there is default browser behavior that
-// increases and decreases the value on scroll. instead of preventing this
-// with an event handler, we just use a text input
-const StyledInput = styled.input.attrs({ type: 'text' })`
-  width: 5.5em;
-`;
-
-interface TallyInputProps {
-  id: string;
-  value: number | EmptyValue;
-  onChange: (newValue: number | EmptyValue) => void;
-  disabled?: boolean;
-  autoFocus?: boolean;
-  style?: React.CSSProperties;
-  inputRef?: React.RefObject<HTMLInputElement>;
-}
-
-function TallyInput({
-  id,
-  value,
-  onChange,
-  disabled,
-  autoFocus,
-  style = {},
-  inputRef,
-}: TallyInputProps): JSX.Element {
-  return (
-    <StyledInput
-      id={id}
-      value={value}
-      onChange={(event) => {
-        const inputValue = event.currentTarget.value;
-        if (inputValue === '') {
-          onChange('');
-          return;
-        }
-
-        const parsedInput = safeParseInt(inputValue);
-        if (parsedInput.isOk() && parsedInput.ok() >= 0) {
-          onChange(parsedInput.ok());
-        }
-      }}
-      disabled={disabled}
-      autoFocus={autoFocus}
-      style={style}
-      ref={inputRef}
-    />
-  );
-}
 
 const ContestSection = styled.div<{ fill?: 'neutral' | 'warning' }>`
   background: ${(p) =>
@@ -540,7 +490,7 @@ function BallotCountForm({
           <label htmlFor="ballotCount">
             <H3>Manual Tally Ballot Count</H3>
           </label>
-          <TallyInput
+          <NumberInput
             autoFocus
             id="ballotCount"
             value={ballotCount}
@@ -807,7 +757,7 @@ function ContestForm({
             fill={isOverridingBallotCount ? 'warning' : 'neutral'}
           >
             <ContestDataRow>
-              <TallyInput
+              <NumberInput
                 id="numBallots"
                 value={getValueForInput('numBallots')}
                 onChange={(value) => updateContestData('numBallots', value)}
@@ -847,7 +797,7 @@ function ContestForm({
 
           <ContestSection>
             <ContestDataRow>
-              <TallyInput
+              <NumberInput
                 inputRef={firstInputRef}
                 id="undervotes"
                 value={getValueForInput('undervotes')}
@@ -856,7 +806,7 @@ function ContestForm({
               <label htmlFor="undervotes">Undervotes</label>
             </ContestDataRow>
             <ContestDataRow>
-              <TallyInput
+              <NumberInput
                 id="overvotes"
                 value={getValueForInput('overvotes')}
                 onChange={(value) => updateContestData('overvotes', value)}
@@ -872,7 +822,7 @@ function ContestForm({
                   .filter((c) => !c.isWriteIn)
                   .map((candidate) => (
                     <ContestDataRow key={candidate.id}>
-                      <TallyInput
+                      <NumberInput
                         id={candidate.id}
                         value={getValueForInput(candidate.id)}
                         onChange={(value) =>
@@ -886,7 +836,7 @@ function ContestForm({
                   ))}
                 {contestWriteInCandidates.map((candidate) => (
                   <ContestDataRow key={candidate.id}>
-                    <TallyInput
+                    <NumberInput
                       id={candidate.id}
                       value={getValueForInput(candidate.id)}
                       onChange={(value) =>
@@ -900,7 +850,7 @@ function ContestForm({
                 ))}
                 {formWriteInCandidates.map((candidate) => (
                   <ContestDataRow key={candidate.id}>
-                    <TallyInput
+                    <NumberInput
                       autoFocus
                       id={candidate.id}
                       value={getValueForInput(candidate.id)}
@@ -929,7 +879,7 @@ function ContestForm({
             {contest.type === 'yesno' && (
               <React.Fragment>
                 <ContestDataRow>
-                  <TallyInput
+                  <NumberInput
                     id="yes"
                     value={getValueForInput('yesTally')}
                     onChange={(value) => updateContestData('yesTally', value)}
@@ -937,7 +887,7 @@ function ContestForm({
                   <label htmlFor="yes">{contest.yesOption.label}</label>
                 </ContestDataRow>
                 <ContestDataRow>
-                  <TallyInput
+                  <NumberInput
                     id="no"
                     value={getValueForInput('noTally')}
                     onChange={(value) => updateContestData('noTally', value)}
