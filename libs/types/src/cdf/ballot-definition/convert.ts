@@ -573,8 +573,18 @@ export function convertVxfElectionToCdfBallotDefinition(
                     '@type': 'BallotDefinition.OptionPosition',
                     Sheet: position.sheetNumber,
                     Side: position.side as Cdf.BallotSideType,
+                    // Technically these should be in inches, not grid
+                    // coordinates, since that's the measurement unit
+                    // specified in the ballot format, but grid coordinates
+                    // are what our interpreter uses, and converting to inches
+                    // and back would just add arbitrary confusion.
                     X: position.column,
                     Y: position.row,
+
+                    // It's not clear what the height/width of an
+                    // OptionPosition refer to. Is it the dimensions of the
+                    // bubble? Since we don't actually use this data, just set
+                    // it to a dummy value.
                     H: 0,
                     W: 0,
                     NumberVotes: 1,
@@ -585,6 +595,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                     '@type': 'BallotDefinition.WriteInPosition',
                     Sheet: position.sheetNumber,
                     Side: position.side as Cdf.BallotSideType,
+                    // Note that these are in grid coordinates
                     X: position.writeInArea.x,
                     Y: position.writeInArea.y,
                     W: position.writeInArea.width,
@@ -611,8 +622,19 @@ export function convertVxfElectionToCdfBallotDefinition(
                 '@type': 'BallotDefinition.OptionPosition',
                 Sheet: position.sheetNumber,
                 Side: position.side as Cdf.BallotSideType,
+
+                // Technically these should be in inches, not grid
+                // coordinates, since that's the measurement unit
+                // specified in the ballot format, but grid coordinates
+                // are what our interpreter uses, and converting to inches
+                // and back would just add arbitrary confusion.
                 X: position.column,
                 Y: position.row,
+
+                // It's not clear what the height/width of an
+                // OptionPosition refer to. Is it the dimensions of the
+                // bubble? Since we don't actually use this data, just set
+                // it to a dummy value.
                 H: 0,
                 W: 0,
                 NumberVotes: 1,
@@ -625,6 +647,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                       '@type': 'BallotDefinition.WriteInPosition',
                       Sheet: position.sheetNumber,
                       Side: position.side as Cdf.BallotSideType,
+                      // Note that these are in grid coordinates
                       X: position.writeInArea.x,
                       Y: position.writeInArea.y,
                       W: position.writeInArea.width,
