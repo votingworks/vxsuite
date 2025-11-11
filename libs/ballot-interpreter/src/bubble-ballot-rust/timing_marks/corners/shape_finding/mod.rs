@@ -102,10 +102,23 @@ fn find_timing_mark_shapes(
     let x_range = search_area.left() as u32..=search_area.right() as u32;
     let y_range = search_area.top() as u32..=search_area.bottom() as u32;
 
+    const FILTER_WINDOW_SIZE: usize = 6;
+
     for x in x_range {
+        // Apply a median filter to smooth out any noise that would interrupt
+        // vertical strips of black ink (e.g. fold lines across timing marks)
+        let column_pixel_values = median_filter(
+            &y_range
+                .clone()
+                .map(|y| ballot_image.image().get_pixel(x, y)[0])
+                .collect_vec(),
+            FILTER_WINDOW_SIZE,
+        );
         for range in y_range
             .clone()
-            .group_by(|&y| ballot_image.get_pixel(x, y).is_foreground())
+            .group_by(|&y| {
+                column_pixel_values[(y - y_range.start()) as usize] <= ballot_image.threshold()
+            })
             .into_iter()
             .filter(|(is_black, _)| *is_black)
             .filter_map(|(_, group)| {
@@ -202,19 +215,6 @@ impl TimingMarkShape {
         /// to recover from in the TRR corpus.
         const WINDOW_SIZE: usize = 8;
 
-        fn median_filter(values: &[u32]) -> Vec<u32> {
-            let half = WINDOW_SIZE / 2;
-            (0..values.len())
-                .map(|i| {
-                    let start = i.saturating_sub(half);
-                    let end = (i + half + 1).min(values.len());
-                    let mut window = values[start..end].to_vec();
-                    window.sort_unstable();
-                    window[window.len() / 2]
-                })
-                .collect()
-        }
-
         let top = median_filter(
             &self
                 .y_ranges
@@ -222,6 +222,7 @@ impl TimingMarkShape {
                 .map(RangeInclusive::start)
                 .copied()
                 .collect_vec(),
+            WINDOW_SIZE,
         );
         let bottom = median_filter(
             &self
@@ -230,6 +231,7 @@ impl TimingMarkShape {
                 .map(RangeInclusive::end)
                 .copied()
                 .collect_vec(),
+            WINDOW_SIZE,
         );
 
         Self {
@@ -287,4 +289,17 @@ impl DefaultForGeometry for Options {
             },
         }
     }
+}
+
+fn median_filter<T: Copy + Ord>(values: &[T], window_size: usize) -> Vec<T> {
+    let half = window_size / 2;
+    (0..values.len())
+        .map(|i| {
+            let start = i.saturating_sub(half);
+            let end = (i + half + 1).min(values.len());
+            let mut window = values[start..end].to_vec();
+            window.sort_unstable();
+            window[window.len() / 2]
+        })
+        .collect()
 }
