@@ -13,9 +13,13 @@ import { DevDock } from '@votingworks/dev-dock-frontend';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  isElectionManagerAuth,
+  isPollWorkerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { MachineLockedScreen } from './machine_locked_screen';
+import { MachineLockedScreen } from './screens/machine_locked_screen';
 import {
   ApiClient,
   ApiClientContext,
@@ -26,8 +30,10 @@ import {
   getElectionDefinition,
   getUsbDriveStatus,
 } from './api';
-import { ElectionManagerScreen } from './election_manager_screen';
-import { UnconfiguredElectionScreenWrapper } from './unconfigured_election_screen_wrapper';
+import { ElectionManagerApp } from './election_manager_app';
+import { UnconfiguredScreen } from './screens/unconfigured_screen';
+import { SystemAdministratorApp } from './system_administrator_app';
+import { PollWorkerApp } from './poll_worker_app';
 
 function AppRoot({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -93,19 +99,29 @@ function AppRoot({
   }
 
   if (authStatus.status === 'logged_in') {
-    if (!electionDefinition) {
-      return <UnconfiguredElectionScreenWrapper />;
+    if (isPollWorkerAuth(authStatus)) {
+      if (!electionDefinition) {
+        return <UnconfiguredScreen isElectionManagerAuth={false} />;
+      }
+      return <PollWorkerApp />;
     }
 
     if (isElectionManagerAuth(authStatus)) {
-      return <ElectionManagerScreen />;
+      if (!electionDefinition) {
+        return <UnconfiguredScreen isElectionManagerAuth />;
+      }
+      return <ElectionManagerApp />;
       // Uncomment to access ballot printing screen
       // return <BallotListScreen />;
+    }
+
+    if (isSystemAdministratorAuth(authStatus)) {
+      return <SystemAdministratorApp />;
     }
   }
 
   // if (!electionRecord) {
-  //   return <UnconfiguredElectionScreen usbDriveStatus={usbDriveStatus} />;
+  //   return <UnconfiguredScreen usbDriveStatus={usbDriveStatus} />;
   // }
 
   return (

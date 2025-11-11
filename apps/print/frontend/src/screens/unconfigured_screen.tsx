@@ -4,18 +4,14 @@ import {
   Screen,
   useQueryChangeListener,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
-import { configureElectionPackageFromUsb, getUsbDriveStatus } from './api';
+import { configureElectionPackageFromUsb, getUsbDriveStatus } from '../api';
 
-/**
- * UnconfiguredElectionScreenWrapper wraps the shared UnconfiguredElectionScreen component
- * with calls to the VxPrint backend
- */
-export function UnconfiguredElectionScreenWrapper(): JSX.Element {
+export function UnconfiguredScreen({
+  isElectionManagerAuth,
+}: {
+  isElectionManagerAuth: boolean;
+}): JSX.Element | null {
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
-  // USB drive status is guaranteed to exist because app root will not render
-  // this component until the USB drive query succeeds.
-  assert(usbDriveStatusQuery.isSuccess);
   const configure = configureElectionPackageFromUsb.useMutation();
 
   useQueryChangeListener(usbDriveStatusQuery, {
@@ -26,13 +22,17 @@ export function UnconfiguredElectionScreenWrapper(): JSX.Element {
     },
   });
 
+  if (!usbDriveStatusQuery.isSuccess) {
+    return null;
+  }
+
   const backendError = configure.data?.err();
   return (
     <Screen>
       <Main centerChild>
         <UnconfiguredElectionScreen
           usbDriveStatus={usbDriveStatusQuery.data}
-          isElectionManagerAuth
+          isElectionManagerAuth={isElectionManagerAuth}
           backendConfigError={backendError}
           machineName="VxPrint"
         />

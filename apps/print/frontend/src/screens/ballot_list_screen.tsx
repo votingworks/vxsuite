@@ -1,7 +1,7 @@
 import { Main, Screen, H1, Table, Button } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { useCallback } from 'react';
-import { getBallots, getElectionDefinition, printBallot } from './api';
+import { getBallots, getElectionDefinition, printBallot } from '../api';
 
 export function BallotListScreen(): JSX.Element | null {
   const getBallotsQuery = getBallots.useQuery();
