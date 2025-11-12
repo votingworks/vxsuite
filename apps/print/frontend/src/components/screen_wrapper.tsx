@@ -24,6 +24,7 @@ export function ScreenWrapper({
   const currentRoute = useRouteMatch();
   const getElectionDefinitionQuery = getElectionDefinition.useQuery();
   const electionDefinition = getElectionDefinitionQuery.data;
+
   return (
     <Screen flexDirection="row">
       <LeftNav>

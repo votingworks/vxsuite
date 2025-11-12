@@ -1,5 +1,4 @@
 export const systemAdministratorRoutes = {
-  election: { title: 'Election', path: '/election' },
   settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
 
