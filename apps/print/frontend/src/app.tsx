@@ -6,6 +6,7 @@ import {
   P,
   RemoveCardScreen,
   SetupCardReaderPage,
+  SystemCallContextProvider,
   UnlockMachineScreen,
 } from '@votingworks/ui';
 import { BrowserRouter } from 'react-router-dom';
@@ -29,6 +30,7 @@ import {
   getAuthStatus,
   getElectionDefinition,
   getUsbDriveStatus,
+  systemCallApi,
 } from './api';
 import { ElectionManagerApp } from './election_manager_app';
 import { UnconfiguredScreen } from './screens/unconfigured_screen';
@@ -154,9 +156,11 @@ export function App({
       >
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
-              <AppRoot logger={logger} apiClient={apiClient} />
-            </BrowserRouter>
+            <SystemCallContextProvider api={systemCallApi}>
+              <BrowserRouter>
+                <AppRoot logger={logger} apiClient={apiClient} />
+              </BrowserRouter>
+            </SystemCallContextProvider>
           </QueryClientProvider>
         </ApiClientContext.Provider>
       </AppErrorBoundary>
