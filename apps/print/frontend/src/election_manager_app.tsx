@@ -7,6 +7,7 @@ import { PrintScreen } from './screens/print_screen';
 import { TitleBar } from './components/title_bar';
 import { electionManagerRoutes } from './routes';
 import { SettingsScreen } from './screens/settings_screen';
+import { ReportsScreen } from './screens/reports_screen';
 
 function ElectionManagerElectionScreen(): JSX.Element | null {
   const electionRecordQuery = getElectionRecord.useQuery();
@@ -32,6 +33,14 @@ export function ElectionManagerApp(): JSX.Element {
         render={() => (
           <ScreenWrapper authType="election_manager">
             <PrintScreen isElectionManagerAuth />
+          </ScreenWrapper>
+        )}
+      />
+      <Route
+        path={electionManagerRoutes.reports.path}
+        render={() => (
+          <ScreenWrapper authType="election_manager">
+            <ReportsScreen />
           </ScreenWrapper>
         )}
       />
