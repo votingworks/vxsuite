@@ -138,6 +138,12 @@ export const testVxfElection: Election = {
       precincts: ['precinct-1'],
       districts: ['district-1' as DistrictId],
       languages: ['en'],
+      orderedCandidatesByContest: {
+        'contest-1': [
+          { id: 'candidate-1', partyIds: ['party-1' as PartyId] },
+          { id: 'candidate-2', partyIds: ['party-2' as PartyId] },
+        ],
+      },
     },
     {
       id: '2_en' as BallotStyleId,
@@ -145,6 +151,9 @@ export const testVxfElection: Election = {
       precincts: ['precinct-1'],
       districts: ['district-2' as DistrictId],
       languages: ['en'],
+      orderedCandidatesByContest: {
+        'contest-3': [{ id: 'candidate-3' }],
+      },
     },
     {
       id: '3_en' as BallotStyleId,
@@ -152,6 +161,13 @@ export const testVxfElection: Election = {
       precincts: ['precinct-2'],
       districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
       languages: ['en'],
+      orderedCandidatesByContest: {
+        'contest-1': [
+          { id: 'candidate-2', partyIds: ['party-2' as PartyId] },
+          { id: 'candidate-1', partyIds: ['party-1' as PartyId] },
+        ],
+        'contest-3': [{ id: 'candidate-3' }],
+      },
     },
     {
       id: '3_es-US' as BallotStyleId,
@@ -159,6 +175,13 @@ export const testVxfElection: Election = {
       precincts: ['precinct-2'],
       districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
       languages: ['es-US'],
+      orderedCandidatesByContest: {
+        'contest-1': [
+          { id: 'candidate-2', partyIds: ['party-2' as PartyId] },
+          { id: 'candidate-1', partyIds: ['party-1' as PartyId] },
+        ],
+        'contest-3': [{ id: 'candidate-3' }],
+      },
     },
   ],
   ballotLayout: {
@@ -183,6 +206,7 @@ export const testVxfElection: Election = {
           column: 2,
           row: 12,
           optionId: 'candidate-1',
+          partyIds: ['party-1' as PartyId],
         },
         {
           type: 'option',
@@ -192,6 +216,7 @@ export const testVxfElection: Election = {
           column: 2,
           row: 14,
           optionId: 'candidate-2',
+          partyIds: ['party-2' as PartyId],
         },
         {
           type: 'write-in',
@@ -264,7 +289,8 @@ export const testVxfElection: Election = {
           contestId: 'contest-1',
           column: 2,
           row: 12,
-          optionId: 'candidate-1',
+          optionId: 'candidate-2',
+          partyIds: ['party-2' as PartyId],
         },
         {
           type: 'option',
@@ -273,7 +299,8 @@ export const testVxfElection: Election = {
           contestId: 'contest-1',
           column: 2,
           row: 14,
-          optionId: 'candidate-2',
+          optionId: 'candidate-1',
+          partyIds: ['party-1' as PartyId],
         },
         {
           type: 'write-in',
@@ -335,7 +362,8 @@ export const testVxfElection: Election = {
           contestId: 'contest-1',
           column: 2,
           row: 12,
-          optionId: 'candidate-1',
+          optionId: 'candidate-2',
+          partyIds: ['party-2' as PartyId],
         },
         {
           type: 'option',
@@ -344,7 +372,8 @@ export const testVxfElection: Election = {
           contestId: 'contest-1',
           column: 2,
           row: 14,
-          optionId: 'candidate-2',
+          optionId: 'candidate-1',
+          partyIds: ['party-1' as PartyId],
         },
         {
           type: 'write-in',
@@ -849,7 +878,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                   PhysicalContestOption: [
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
-                      ContestOptionId: 'contest-1-option-candidate-1',
+                      ContestOptionId: 'contest-1-option-candidate-2',
                       OptionPosition: [
                         {
                           '@type': 'BallotDefinition.OptionPosition',
@@ -865,7 +894,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                     },
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
-                      ContestOptionId: 'contest-1-option-candidate-2',
+                      ContestOptionId: 'contest-1-option-candidate-1',
                       OptionPosition: [
                         {
                           '@type': 'BallotDefinition.OptionPosition',
@@ -1006,7 +1035,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                   PhysicalContestOption: [
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
-                      ContestOptionId: 'contest-1-option-candidate-1',
+                      ContestOptionId: 'contest-1-option-candidate-2',
                       OptionPosition: [
                         {
                           '@type': 'BallotDefinition.OptionPosition',
@@ -1022,7 +1051,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                     },
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
-                      ContestOptionId: 'contest-1-option-candidate-2',
+                      ContestOptionId: 'contest-1-option-candidate-1',
                       OptionPosition: [
                         {
                           '@type': 'BallotDefinition.OptionPosition',
