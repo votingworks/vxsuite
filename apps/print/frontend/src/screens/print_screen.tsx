@@ -16,7 +16,7 @@ import { getElectionRecord } from '../api';
 
 const Container = styled.div`
   /* Adjusted for Toolbar height */
-  height: calc(100vh - 2rem);
+  height: calc(100vh - 2.2rem);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -136,7 +136,7 @@ export function PrintScreen({
       />
       <Form>
         <Column>
-          <FormSection style={{ flex: 1.2 }}>
+          <FormSection>
             <strong>Precinct</strong>
             <ExpandedSelect
               selectedValue={selectedPrecinctName}
@@ -156,7 +156,7 @@ export function PrintScreen({
             />
           </FormSection>
           {showSplitSelection && (
-            <FormSection style={{ flex: 1 }}>
+            <FormSection>
               <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
               <ExpandedSelect
                 selectedValue={selectedSplitName}
