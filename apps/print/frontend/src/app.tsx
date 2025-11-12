@@ -28,7 +28,7 @@ import {
   createApiClient,
   createQueryClient,
   getAuthStatus,
-  getElectionDefinition,
+  getElectionRecord,
   getUsbDriveStatus,
   systemCallApi,
 } from './api';
@@ -48,19 +48,19 @@ function AppRoot({
 }): JSX.Element | null {
   const checkPinMutation = checkPin.useMutation();
   const getAuthStatusQuery = getAuthStatus.useQuery();
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const getElectionRecordQuery = getElectionRecord.useQuery();
   const getUsbDriveStatusQuery = getUsbDriveStatus.useQuery();
 
   if (
     !getAuthStatusQuery.isSuccess ||
-    !getElectionDefinitionQuery.isSuccess ||
+    !getElectionRecordQuery.isSuccess ||
     !getUsbDriveStatusQuery.isSuccess
   ) {
     return null;
   }
 
   const authStatus = getAuthStatusQuery.data;
-  const electionDefinition = getElectionDefinitionQuery.data;
+  const electionRecord = getElectionRecordQuery.data;
   const usbDriveStatus = getUsbDriveStatusQuery.data;
 
   assert(usbDriveStatus);
@@ -102,14 +102,14 @@ function AppRoot({
 
   if (authStatus.status === 'logged_in') {
     if (isPollWorkerAuth(authStatus)) {
-      if (!electionDefinition) {
+      if (!electionRecord) {
         return <UnconfiguredScreen isElectionManagerAuth={false} />;
       }
       return <PollWorkerApp />;
     }
 
     if (isElectionManagerAuth(authStatus)) {
-      if (!electionDefinition) {
+      if (!electionRecord) {
         return <UnconfiguredScreen isElectionManagerAuth />;
       }
       return <ElectionManagerApp />;

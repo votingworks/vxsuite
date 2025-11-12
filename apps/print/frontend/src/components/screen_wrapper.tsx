@@ -10,9 +10,10 @@ import {
   Main,
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
+import { assertDefined } from '@votingworks/basics';
 import { Toolbar } from './toolbar';
 import { routeMap } from '../routes';
-import { getElectionDefinition } from '../api';
+import { getElectionRecord, getMachineConfig } from '../api';
 
 export function ScreenWrapper({
   children,
@@ -20,10 +21,19 @@ export function ScreenWrapper({
 }: {
   children: React.ReactNode;
   authType: 'system_admin' | 'election_manager' | 'poll_worker';
-}): JSX.Element {
+}): JSX.Element | null {
   const currentRoute = useRouteMatch();
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
-  const electionDefinition = getElectionDefinitionQuery.data;
+  const getElectionRecordQuery = getElectionRecord.useQuery();
+  const getMachineConfigQuery = getMachineConfig.useQuery();
+
+  if (!getElectionRecordQuery.isSuccess || !getMachineConfigQuery.isSuccess) {
+    return null;
+  }
+
+  const { electionDefinition, electionPackageHash } = assertDefined(
+    getElectionRecordQuery.data
+  );
+  const machineConfig = getMachineConfigQuery.data;
 
   return (
     <Screen flexDirection="row">
@@ -46,10 +56,10 @@ export function ScreenWrapper({
         <div style={{ marginTop: 'auto' }}>
           <VerticalElectionInfoBar
             mode="admin"
-            electionDefinition={electionDefinition || undefined}
-            electionPackageHash="TBD"
-            codeVersion="TBD"
-            machineId="TBD"
+            electionDefinition={electionDefinition}
+            electionPackageHash={electionPackageHash}
+            codeVersion={machineConfig.codeVersion}
+            machineId={machineConfig.machineId}
             inverse
           />
         </div>
