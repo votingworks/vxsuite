@@ -5,7 +5,9 @@ import {
   H2,
   H3,
   H4,
+  H6,
   P,
+  PowerDownButton,
   SignedHashValidationApiClient,
   SignedHashValidationButton,
   TestModeCallout,
@@ -122,19 +124,62 @@ export function SectionSessionStart(
   );
 }
 
-export interface SectionSystemProps {
+interface SystemButtonsProps {
   apiClient: SignedHashValidationApiClient;
+  includePowerButton?: boolean;
 }
 
+function SystemButtons({
+  apiClient,
+  includePowerButton = true,
+}: SystemButtonsProps): JSX.Element {
+  return (
+    <ButtonGrid>
+      <SignedHashValidationButton apiClient={apiClient} />
+      {includePowerButton && <PowerDownButton icon="PowerOff" />}
+    </ButtonGrid>
+  );
+}
+
+export interface SectionSystemProps {
+  apiClient: SignedHashValidationApiClient;
+  /**
+   * Whether to include the Power Down button. Defaults to true.
+   */
+  includePowerButton?: boolean;
+}
+
+/**
+ * System section with H3 heading (for poll worker screen).
+ */
 export function SectionSystem(props: SectionSystemProps): JSX.Element {
-  const { apiClient } = props;
+  const { apiClient, includePowerButton } = props;
 
   return (
     <React.Fragment>
       <H3>System</H3>
-      <ButtonGrid>
-        <SignedHashValidationButton apiClient={apiClient} />
-      </ButtonGrid>
+      <SystemButtons
+        apiClient={apiClient}
+        includePowerButton={includePowerButton}
+      />
+    </React.Fragment>
+  );
+}
+
+/**
+ * System section with H6 heading (for admin screen).
+ * Uses H6 visual styling while allowing semantic heading level to be set via `as` prop.
+ */
+export function H6SectionSystem(props: SectionSystemProps): JSX.Element {
+  const { apiClient, includePowerButton } = props;
+
+  return (
+    <React.Fragment>
+      <H6 as="h2">System</H6>
+      <SystemButtons
+        apiClient={apiClient}
+        includePowerButton={includePowerButton}
+      />
     </React.Fragment>
   );
 }

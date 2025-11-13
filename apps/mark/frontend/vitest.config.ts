@@ -25,6 +25,10 @@ export default defineConfig({
         find: '@votingworks/ui',
         replacement: join(__dirname, '../../../libs/ui/src/index.ts'),
       },
+      {
+        find: '@votingworks/mark-flow-ui',
+        replacement: join(__dirname, '../../../libs/mark-flow-ui/src/index.ts'),
+      },
     ],
   },
 });

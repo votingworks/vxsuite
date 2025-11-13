@@ -31,6 +31,7 @@ import {
 } from '@votingworks/utils';
 import { PrintMode } from '@votingworks/mark-backend';
 import styled from 'styled-components';
+import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import {
   ejectUsbDrive,
   logOut,
@@ -39,6 +40,8 @@ import {
 } from '../api';
 import * as api from '../api';
 import { BubbleMarkCalibration } from '../components/bubble_mark_calibration';
+
+const { H6SectionSystem } = pollWorkerComponents;
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -76,6 +79,9 @@ export function AdminScreen({
   usbDriveStatus,
 }: AdminScreenProps): JSX.Element {
   const { election } = electionDefinition;
+
+  const apiClient = api.useApiClient();
+
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
@@ -211,6 +217,7 @@ export function AdminScreen({
           usbDriveEject={() => ejectUsbDriveMutation.mutate()}
           usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
         />
+        <H6SectionSystem apiClient={apiClient} />
       </Main>
       <ElectionInfoBar
         mode="admin"
