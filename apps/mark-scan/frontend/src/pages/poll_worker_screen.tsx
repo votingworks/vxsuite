@@ -254,7 +254,7 @@ export function PollWorkerScreen({
               })
             }
           />
-          <SectionSystem apiClient={apiClient} />
+          <SectionSystem apiClient={apiClient} includePowerButton={false} />
         </div>
       </Main>
       <EnableLiveModeModal

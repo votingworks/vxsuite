@@ -104,6 +104,13 @@ test('renders date and time settings modal', async () => {
   await screen.findByText(startDate);
 });
 
+test('renders system buttons', async () => {
+  renderScreen();
+  await screen.findByText('System');
+  screen.getByText('Power Down');
+  screen.getByText('Signed Hash Validation');
+});
+
 test('can switch the precinct', () => {
   renderScreen();
 

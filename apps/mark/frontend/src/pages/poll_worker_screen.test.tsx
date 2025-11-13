@@ -95,6 +95,7 @@ test('renders PollWorkerScreen', () => {
   expect(
     screen.getByText('Ballots Printed:').parentElement!.textContent
   ).toEqual('Ballots Printed: 0');
+  screen.getByText('Power Down');
 });
 
 test('switching out of test mode on election day', () => {
