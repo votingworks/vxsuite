@@ -28,7 +28,6 @@ import {
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { PrintCalibration } from '@votingworks/hmpb';
-import { PrintMode } from './types';
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
@@ -264,26 +263,6 @@ export class Store {
       'update election set precinct_selection = ?',
       JSON.stringify(precinctSelection)
     );
-  }
-
-  getPrintMode(): PrintMode {
-    if (!this.hasElection()) return 'summary';
-
-    const res = this.client.one('select print_mode as mode from election') as
-      | { mode: PrintMode }
-      | undefined;
-
-    return assertDefined(res?.mode);
-  }
-
-  setPrintMode(mode: PrintMode): void {
-    assert(this.hasElection(), 'Cannot set print mode without an election');
-    assert(
-      mode === 'bubble_marks' || mode === 'summary',
-      `invalid print mode: ${mode}`
-    );
-
-    this.client.run('update election set print_mode = ?', mode);
   }
 
   /**
