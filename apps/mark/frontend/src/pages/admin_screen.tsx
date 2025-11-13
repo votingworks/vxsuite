@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import {
   P,
@@ -16,7 +17,6 @@ import {
   H6,
   UnconfigureMachineButton,
   ExportLogsButton,
-  SegmentedButtonOption,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -25,21 +25,22 @@ import {
 } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
-import { PrintMode } from '@votingworks/mark-backend';
-import styled from 'styled-components';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import {
   ejectUsbDrive,
   logOut,
   setPrecinctSelection,
   setTestMode,
+  useApiClient,
 } from '../api';
 import * as api from '../api';
 import { BubbleMarkCalibration } from '../components/bubble_mark_calibration';
+
+const Section = styled.div`
+  &:not(:last-child) {
+    margin-bottom: 0.35rem;
+  }
+`;
 
 const { H6SectionSystem } = pollWorkerComponents;
 
@@ -55,18 +56,6 @@ export interface AdminScreenProps {
   usbDriveStatus: UsbDriveStatus;
 }
 
-const Section = styled.div`
-  &:not(:last-child) {
-    margin-bottom: 0.35rem;
-  }
-`;
-
-// [TODO] Finalize copy before turning on this feature.
-const PRINT_MODE_OPTIONS: Array<SegmentedButtonOption<PrintMode>> = [
-  { id: 'summary', label: 'Summary' },
-  { id: 'bubble_marks', label: 'Bubble Marks' },
-];
-
 export function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
@@ -80,15 +69,12 @@ export function AdminScreen({
 }: AdminScreenProps): JSX.Element {
   const { election } = electionDefinition;
 
-  const apiClient = api.useApiClient();
-
+  const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
-
-  const printMode = api.getPrintMode.useQuery().data;
-  const setPrintMode = api.setPrintMode.useMutation().mutate;
+  const systemSettingsQuery = api.getSystemSettings.useQuery();
 
   async function unconfigureMachineAndEjectUsb() {
     try {
@@ -169,34 +155,17 @@ export function AdminScreen({
                 Switching the mode will reset the Ballots Printed count.
               </Caption>
             </Section>
-            {isFeatureFlagEnabled(
-              BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE
-            ) && (
-              <React.Fragment>
-                <H6 as="h2">Printing Mode</H6>
-                <Section>
-                  <SegmentedButton
-                    label="Ballot Mode"
-                    hideLabel
-                    disabled={!printMode}
-                    onChange={setPrintMode}
-                    options={PRINT_MODE_OPTIONS}
-                    // istanbul ignore next
-                    selectedOptionId={printMode || 'summary'}
-                  />
-                </Section>
-                {/* istanbul ignore next - temporary @preserve */}
-                {printMode === 'bubble_marks' && (
-                  <React.Fragment>
-                    <H6 as="h2">Bubble Mark Offset Calibration</H6>
-                    <Section style={{ marginTop: '0.5rem' }}>
-                      <BubbleMarkCalibration field="offsetMmX" label="X" />
-                      <BubbleMarkCalibration field="offsetMmY" label="Y" />
-                    </Section>
-                  </React.Fragment>
-                )}
-              </React.Fragment>
-            )}
+            {systemSettingsQuery.data &&
+              systemSettingsQuery.data.bmdPrintMode ===
+                'marks_on_preprinted_ballot' && (
+                <React.Fragment>
+                  <H6 as="h2">Bubble Mark Offset Calibration</H6>
+                  <Section style={{ marginTop: '0.5rem' }}>
+                    <BubbleMarkCalibration field="offsetMmX" label="X" />
+                    <BubbleMarkCalibration field="offsetMmY" label="Y" />
+                  </Section>
+                </React.Fragment>
+              )}
           </React.Fragment>
         )}
         <H6 as="h2">Date and Time</H6>

@@ -97,10 +97,6 @@ function createMockApiClient(): MockApiClient {
 export function createApiMock() {
   const mockApiClient = createMockApiClient();
 
-  mockApiClient.getPrintMode
-    .expectOptionalRepeatedCallsWith()
-    .resolves('summary');
-
   mockApiClient.getPrintCalibration
     .expectOptionalRepeatedCallsWith()
     .resolves({ offsetMmX: 0, offsetMmY: 0 });
