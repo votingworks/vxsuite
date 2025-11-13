@@ -2,7 +2,7 @@ import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
 import { homedir } from 'node:os';
-import { isAbsolute, join } from 'node:path';
+import { isAbsolute, join, extname } from 'node:path';
 import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import {
   asSheet,
@@ -18,6 +18,10 @@ import {
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
+  openZip,
+  getEntries,
+  getFileByName,
+  readTextEntry,
 } from '@votingworks/utils';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
@@ -26,6 +30,7 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import { getMockFilePrinterHandler } from '@votingworks/printing';
 import { writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
 import { pdfToImages } from '@votingworks/image-utils';
 import { execFile } from './utils';
@@ -35,6 +40,8 @@ export type DevDockUsbDriveStatus = 'inserted' | 'removed';
 export interface DevDockElectionInfo {
   title: string;
   path: string;
+  /** The actual path to the election.json file (may be extracted from zip to temp file) */
+  resolvedPath?: string;
 }
 
 // Convert paths relative to the VxSuite root to absolute paths
@@ -77,13 +84,41 @@ interface SerializableMockSpec extends Omit<MockSpec, 'mockPdiScanner'> {
   mockPdiScanner?: boolean;
 }
 
-function setElection(path: string, devDockFilePath: string): void {
-  const electionData = fs.readFileSync(electionPathToAbsolute(path), 'utf-8');
+async function setElection(
+  path: string,
+  devDockFilePath: string
+): Promise<void> {
+  const absolutePath = electionPathToAbsolute(path);
+  let electionData: string;
+  let resolvedPath: string | undefined;
+
+  // Check if the file is a zip file
+  if (extname(absolutePath).toLowerCase() === '.zip') {
+    // Read the zip file
+    const zipContents = fs.readFileSync(absolutePath);
+    const zipFile = await openZip(zipContents);
+    const entries = getEntries(zipFile);
+
+    // Find and read election.json from the zip
+    const electionEntry = getFileByName(entries, 'election.json', path);
+    electionData = await readTextEntry(electionEntry);
+
+    // Extract election.json to a temporary file for use by other scripts
+    const tempElectionPath = join(tmpdir(), 'dev-dock-election.json');
+    fs.writeFileSync(tempElectionPath, electionData, 'utf-8');
+    resolvedPath = tempElectionPath;
+  } else {
+    // Read directly as JSON file
+    electionData = fs.readFileSync(absolutePath, 'utf-8');
+    resolvedPath = absolutePath;
+  }
+
   const electionDefinition =
     safeParseElectionDefinition(electionData).unsafeUnwrap();
   const electionInfo: DevDockElectionInfo = {
     path,
     title: electionDefinition.election.title,
+    resolvedPath,
   };
 
   writeDevDockFileContents(devDockFilePath, {
@@ -108,8 +143,8 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
       };
     },
 
-    setElection(input: { path: string }): void {
-      setElection(input.path, devDockFilePath);
+    async setElection(input: { path: string }): Promise<void> {
+      await setElection(input.path, devDockFilePath);
     },
 
     getElection(): Optional<DevDockElectionInfo> {
@@ -156,11 +191,15 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
       const { electionInfo } = readDevDockFileContents(devDockFilePath);
       assert(electionInfo !== undefined);
 
+      // Use resolvedPath if available (for zip files), otherwise use the original path
+      const electionFilePath =
+        electionInfo.resolvedPath ?? electionPathToAbsolute(electionInfo.path);
+
       await execFile(MOCK_CARD_SCRIPT_PATH, [
         '--card-type',
         input.role.replace('_', '-'),
         '--electionDefinition',
-        electionPathToAbsolute(electionInfo.path),
+        electionFilePath,
       ]);
     },
 
@@ -268,7 +307,7 @@ export function useDevDockRouter(
 
   // Set a default election if one is not already set
   if (!getElection(devDockFilePath)) {
-    setElection(
+    void setElection(
       'libs/fixtures/data/electionGeneral/election.json',
       devDockFilePath
     );

@@ -87,6 +87,11 @@ function ElectionControl(): JSX.Element | null {
     if (path === 'Pick from file...') {
       const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
         properties: ['openFile'],
+        filters: [
+          { name: 'Election Files', extensions: ['json', 'zip'] },
+          { name: 'JSON Files', extensions: ['json'] },
+          { name: 'ZIP Files', extensions: ['zip'] },
+        ],
       });
       if (dialogResult.canceled) return;
       const selectedPath = dialogResult.filePaths[0];

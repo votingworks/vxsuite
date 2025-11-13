@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import express from 'express';
 import * as fs from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import * as grout from '@votingworks/grout';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { AddressInfo } from 'node:net';
@@ -13,6 +15,7 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
+  zipFile,
 } from '@votingworks/test-utils';
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import {
@@ -189,18 +192,22 @@ test('election setting', async () => {
   const election = electionFamousNames2021Fixtures.readElection();
   const { apiClient } = setup();
   // Default election
-  await expect(apiClient.getElection()).resolves.toEqual({
+  const defaultElection = await apiClient.getElection();
+  expect(defaultElection).toMatchObject({
     title: electionGeneral.title,
     path: 'libs/fixtures/data/electionGeneral/election.json',
   });
+  expect(defaultElection?.resolvedPath).toBeDefined();
 
   await apiClient.setElection({
     path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
-  await expect(apiClient.getElection()).resolves.toEqual({
+  const updatedElection = await apiClient.getElection();
+  expect(updatedElection).toMatchObject({
     title: election.title,
     path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
+  expect(updatedElection?.resolvedPath).toBeDefined();
 
   // Changing the election should change the election for mocked cards
   await apiClient.removeCard();
@@ -214,6 +221,61 @@ test('election setting', async () => {
       }),
     },
   });
+});
+
+test('election loading from zip file', async () => {
+  const election = electionFamousNames2021Fixtures.readElection();
+  const { apiClient } = setup();
+
+  // Create a zip file containing election.json
+  const electionData = JSON.stringify(election);
+  const zipBuffer = await zipFile({
+    'election.json': electionData,
+  });
+
+  // Write the zip file to a temporary location
+  const zipPath = join(tmpdir(), 'test-election.zip');
+  fs.writeFileSync(zipPath, zipBuffer);
+
+  try {
+    // Load election from zip
+    await apiClient.setElection({ path: zipPath });
+
+    const loadedElection = await apiClient.getElection();
+    expect(loadedElection).toMatchObject({
+      title: election.title,
+      path: zipPath,
+    });
+    expect(loadedElection?.resolvedPath).toBeDefined();
+    expect(loadedElection?.resolvedPath).not.toEqual(zipPath);
+
+    // Verify the resolved path is a valid JSON file
+    const resolvedElectionData = fs.readFileSync(
+      loadedElection!.resolvedPath!,
+      'utf-8'
+    );
+    const parsedElection = JSON.parse(resolvedElectionData);
+    expect(parsedElection.title).toEqual(election.title);
+    expect(parsedElection.county).toEqual(election.county);
+
+    // Verify that insertCard works with zip-loaded elections
+    await apiClient.removeCard();
+    await apiClient.insertCard({ role: 'election_manager' });
+    await expect(apiClient.getCardStatus()).resolves.toEqual({
+      status: 'ready',
+      cardDetails: {
+        user: mockElectionManagerUser({
+          electionKey: constructElectionKey(election),
+          jurisdiction: DEV_JURISDICTION,
+        }),
+      },
+    });
+  } finally {
+    // Clean up the zip file
+    if (fs.existsSync(zipPath)) {
+      fs.unlinkSync(zipPath);
+    }
+  }
 });
 
 test('usb drive mock endpoints', async () => {
