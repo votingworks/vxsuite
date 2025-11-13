@@ -1,12 +1,12 @@
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { Button } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
 
-import { getElectionDefinition, unconfigureMachine } from './api';
+import { getElectionDefinition } from './api';
 import { ScreenWrapper } from './components/screen_wrapper';
 import { PrintScreen } from './screens/print_screen';
 import { TitleBar } from './components/title_bar';
 import { electionManagerRoutes } from './routes';
+import { SettingsScreen } from './screens/settings_screen';
 
 function ElectionManagerElectionScreen(): JSX.Element | null {
   const electionDefinitionQuery = getElectionDefinition.useQuery();
@@ -17,18 +17,6 @@ function ElectionManagerElectionScreen(): JSX.Element | null {
       <TitleBar title="Election" />
       Configured for: <strong>{election.title}</strong>
     </div>
-  );
-}
-
-function ElectionManagerSettingsScreen(): JSX.Element {
-  const unconfigureMachineMutation = unconfigureMachine.useMutation();
-  return (
-    <TitleBar
-      title="Settings"
-      actions={
-        <Button onPress={unconfigureMachineMutation.mutate}>Unconfigure</Button>
-      }
-    />
   );
 }
 
@@ -47,7 +35,7 @@ export function ElectionManagerApp(): JSX.Element {
         />
         <Route
           path={electionManagerRoutes.settings.path}
-          render={() => <ElectionManagerSettingsScreen />}
+          render={() => <SettingsScreen />}
         />
         <Redirect to={electionManagerRoutes.election.path} />
       </Switch>

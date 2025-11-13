@@ -10,6 +10,7 @@ import {
 } from '@tanstack/react-query';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
+  createSystemCallApi,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
 } from '@votingworks/ui';
@@ -135,3 +136,5 @@ export const unconfigureMachine = {
     return useMutation(apiClient.unconfigureMachine, {});
   },
 } as const;
+
+export const systemCallApi = createSystemCallApi(useApiClient);

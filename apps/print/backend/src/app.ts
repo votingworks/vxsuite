@@ -8,13 +8,18 @@ import {
   ElectionPackageConfigurationError,
   PrinterStatus,
 } from '@votingworks/types';
-import { readSignedElectionPackageFromUsb } from '@votingworks/backend';
+import {
+  createSystemCallApi,
+  readSignedElectionPackageFromUsb,
+} from '@votingworks/backend';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
+import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { AppContext } from './context';
 import { rootDebug } from './debug';
 import { constructAuthMachineState } from './util/auth';
 import { BallotPrintEntry } from './types';
+import { getMachineConfig } from './machine_config';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const debug = rootDebug.extend('app');
@@ -102,6 +107,30 @@ export function buildApi(ctx: AppContext) {
       store.deleteSystemSettings();
       store.deleteElectionRecord();
     },
+
+    /* istanbul ignore next - @preserve */
+    async generateSignedHashValidationQrCodeValue() {
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
+
+      const { codeVersion } = getMachineConfig();
+      const electionRecord = store.getElectionRecord();
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        electionRecord,
+        softwareVersion: codeVersion,
+      });
+
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+        disposition: 'success',
+      });
+      return qrCodeValue;
+    },
+
+    ...createSystemCallApi({
+      usbDrive,
+      logger,
+      machineId: getMachineConfig().machineId,
+      codeVersion: getMachineConfig().codeVersion,
+    }),
 
     getBallots(): BallotPrintEntry[] {
       return store.getBallots();
