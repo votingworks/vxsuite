@@ -45,14 +45,15 @@ fn score_timing_mark_geometry_match(
     let expected_width = geometry.timing_mark_width_pixels() as PixelUnit;
     let expected_height = geometry.timing_mark_height_pixels() as PixelUnit;
     let expected_timing_mark_rect = Rect::new(
-        timing_mark.left(),
-        timing_mark.top(),
+        (timing_mark.center().x - expected_width as f32 / 2.0) as i32,
+        (timing_mark.center().y - expected_height as f32 / 2.0) as i32,
         expected_width,
         expected_height,
     );
+
     let search_rect = Rect::new(
-        (timing_mark.center().x - expected_width as f32 / 2.0 - expected_height as f32) as i32,
-        1.5f32.mul_add(-(expected_height as f32), timing_mark.center().y) as i32,
+        expected_timing_mark_rect.left() - expected_height as i32,
+        expected_timing_mark_rect.top() - expected_height as i32,
         expected_width + 2 * expected_height,
         3 * expected_height,
     );
