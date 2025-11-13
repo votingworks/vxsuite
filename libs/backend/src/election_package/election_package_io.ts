@@ -20,6 +20,7 @@ import {
   maybeGetFileByName,
   openZip,
   readTextEntry,
+  systemLimitViolationToString,
 } from '@votingworks/utils';
 import * as fs from 'node:fs/promises';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
@@ -45,28 +46,41 @@ import {
   ElectionPackageWithHash,
   EncodedBallotEntry,
   EncodedBallotEntrySchema,
+  SystemLimitViolation,
+  SystemLimits,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { sha256 } from 'js-sha256';
+import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
 
 /**
  * An error from parsing an election package.
  */
-export interface ElectionPackageError {
-  type:
-    | 'invalid-election'
-    | 'invalid-metadata'
-    | 'invalid-system-settings'
-    | 'invalid-zip';
-  message: string;
+export type ElectionPackageError =
+  | {
+      type:
+        | 'invalid-election'
+        | 'invalid-metadata'
+        | 'invalid-system-settings'
+        | 'invalid-zip';
+    }
+  | {
+      type: 'system-limit-violation';
+      violation: SystemLimitViolation;
+    };
+
+interface ReadElectionPackageOptions {
+  checkMarkScanSystemLimits?: boolean;
+  systemLimitsOverride?: SystemLimits;
 }
 
 /**
  * Parses an package from the given buffer and hashes the raw contents.
  */
 export async function readElectionPackageFromBuffer(
-  fileContents: Buffer
+  fileContents: Buffer,
+  options?: ReadElectionPackageOptions
 ): Promise<Result<ElectionPackageWithHash, ElectionPackageError>> {
   try {
     const zipFile = await openZip(fileContents);
@@ -215,6 +229,19 @@ export async function readElectionPackageFromBuffer(
       uiStringAudioClips,
     };
 
+    if (!systemSettings.disableSystemLimitChecks) {
+      const validationResult = validateElectionDefinitionAgainstSystemLimits(
+        electionDefinition,
+        options
+      );
+      if (validationResult.isErr()) {
+        return err({
+          type: 'system-limit-violation',
+          violation: validationResult.err(),
+        });
+      }
+    }
+
     return ok({
       electionPackage,
       electionPackageHash: sha256(fileContents),
@@ -238,10 +265,11 @@ export type ElectionPackageWithFileContents = ElectionPackageWithHash & {
  * Attempts to read an election package from the given filepath and parse the contents.
  */
 export async function readElectionPackageFromFile(
-  path: string
+  path: string,
+  options?: ReadElectionPackageOptions
 ): Promise<Result<ElectionPackageWithFileContents, ElectionPackageError>> {
   const fileContents = await fs.readFile(path);
-  const result = await readElectionPackageFromBuffer(fileContents);
+  const result = await readElectionPackageFromBuffer(fileContents, options);
   return result.isErr() ? result : ok({ ...result.ok(), fileContents });
 }
 
@@ -303,7 +331,7 @@ async function getMostRecentElectionPackageFilepath(
   }
 
   if (electionPackageFilePaths.length === 0) {
-    return err('no_election_package_on_usb_drive');
+    return err({ type: 'no_election_package_on_usb_drive' });
   }
 
   const mostRecentElectionPackageFilePath = assertDefined(
@@ -327,7 +355,8 @@ async function getMostRecentElectionPackageFilepath(
 export async function readSignedElectionPackageFromUsb(
   authStatus: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus,
   usbDrive: UsbDrive,
-  logger: BaseLogger
+  logger: BaseLogger,
+  options?: ReadElectionPackageOptions
 ): Promise<Result<ElectionPackageWithHash, ElectionPackageConfigurationError>> {
   // The frontend tries to prevent election package configuration attempts until an election
   // manager has authed. But we may reach this state if a user removes their card immediately
@@ -337,7 +366,7 @@ export async function readSignedElectionPackageFromUsb(
       disposition: 'failure',
       message: 'Election package configuration was attempted before auth.',
     });
-    return err('auth_required_before_election_package_load');
+    return err({ type: 'auth_required_before_election_package_load' });
   }
 
   // The frontend should prevent non-election manager auth, so we are fine
@@ -365,12 +394,28 @@ export async function readSignedElectionPackageFromUsb(
       disposition: 'failure',
       message: 'Election package authentication erred.',
     });
-    return err('election_package_authentication_error');
+    return err({ type: 'election_package_authentication_error' });
   }
 
-  const electionPackageWithHash = (
-    await readElectionPackageFromFile(filepathResult.ok())
-  ).unsafeUnwrap();
+  const electionPackageWithHashResult = await readElectionPackageFromFile(
+    filepathResult.ok(),
+    options
+  );
+  if (electionPackageWithHashResult.isErr()) {
+    const error = electionPackageWithHashResult.err();
+    // No other cases should be possible if an election package was signed by VxAdmin and
+    // authenticated by the current machine
+    assert(error.type === 'system-limit-violation');
+    logger.log(LogEventId.ElectionPackageLoadedFromUsb, 'system', {
+      disposition: 'failure',
+      message: systemLimitViolationToString(error.violation),
+    });
+    return err({
+      type: 'system_limit_violation',
+      violation: error.violation,
+    });
+  }
+  const electionPackageWithHash = electionPackageWithHashResult.unsafeUnwrap();
   const electionKey = constructElectionKey(
     electionPackageWithHash.electionPackage.electionDefinition.election
   );
@@ -381,7 +426,7 @@ export async function readSignedElectionPackageFromUsb(
       message:
         'The election key for the authorized user and most recent election package on the USB drive did not match.',
     });
-    return err('election_key_mismatch');
+    return err({ type: 'election_key_mismatch' });
   }
 
   return ok(electionPackageWithHash);

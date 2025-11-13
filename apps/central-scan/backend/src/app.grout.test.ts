@@ -373,7 +373,7 @@ test('configure with invalid file', async () => {
     );
 
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      err('election_key_mismatch')
+      err({ type: 'election_key_mismatch' })
     );
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.ElectionConfigured,

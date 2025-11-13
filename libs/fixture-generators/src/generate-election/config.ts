@@ -1,4 +1,5 @@
 /* eslint-disable vx/gts-jsdoc */
+import { SYSTEM_LIMITS } from '@votingworks/types';
 import z from 'zod/v4';
 
 const positiveInt = z.number().int().min(1);
@@ -32,32 +33,28 @@ export type GenerateElectionConfig = z.infer<
   typeof GenerateElectionConfigSchema
 >;
 
-/**
- * TODO once we set our system limits, we should set this default config to
- * those values.
- */
 export const defaultConfig: GenerateElectionConfig = {
   numDistricts: 100,
-  numPrecincts: 1000,
-  numBallotStyles: 1000,
+  numPrecincts: SYSTEM_LIMITS.election.precincts,
+  numBallotStyles: SYSTEM_LIMITS.election.ballotStyles,
   numParties: 10,
-  numContests: 100,
-  numCandidatesPerContest: 100,
-  maxContestVoteFor: 50,
+  numContests: SYSTEM_LIMITS.election.contests,
+  numCandidatesPerContest: SYSTEM_LIMITS.contest.candidates,
+  maxContestVoteFor: SYSTEM_LIMITS.contest.seats,
   maxStringLengths: {
-    title: 100,
-    countyName: 100,
-    stateName: 100,
-    districtName: 100,
-    precinctName: 100,
-    partyShortName: 100,
-    partyFullName: 100,
-    partyAbbreviation: 10,
-    contestTitle: 100,
-    contestTermDescription: 100,
-    candidateName: 100,
-    contestBallotMeasureText: 1000,
-    contestBallotMeasureOptionLabel: 100,
+    title: SYSTEM_LIMITS.textField.characters,
+    countyName: SYSTEM_LIMITS.textField.characters,
+    stateName: SYSTEM_LIMITS.textField.characters,
+    districtName: SYSTEM_LIMITS.textField.characters,
+    precinctName: SYSTEM_LIMITS.textField.characters,
+    partyShortName: SYSTEM_LIMITS.textField.characters,
+    partyFullName: SYSTEM_LIMITS.textField.characters,
+    partyAbbreviation: SYSTEM_LIMITS.textField.characters,
+    contestTitle: SYSTEM_LIMITS.textField.characters,
+    contestTermDescription: SYSTEM_LIMITS.textField.characters,
+    candidateName: SYSTEM_LIMITS.textField.characters,
+    contestBallotMeasureText: SYSTEM_LIMITS.propositionTextField.characters,
+    contestBallotMeasureOptionLabel: SYSTEM_LIMITS.textField.characters,
   },
 };
 

@@ -6,6 +6,7 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { assertDefined } from '@votingworks/basics';
+import type { UserFeaturesConfig } from '@votingworks/design-backend';
 import { render, screen, within } from '../test/react_testing_library';
 import {
   MockApiClient,
@@ -520,7 +521,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(29);
+  expect(allControls).toHaveLength(30);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -531,68 +532,6 @@ test('all controls are disabled until clicking "Edit"', async () => {
   for (const control of allControls) {
     expect(control).not.toBeDisabled();
   }
-});
-
-describe('BMD overvote toggle', () => {
-  test('omitted when feature flag is off', async () => {
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(electionRecord.systemSettings);
-
-    mockUserFeatures(apiMock, {
-      BMD_OVERVOTE_SYSTEM_SETTING: false,
-    });
-
-    renderScreen();
-
-    await screen.findByRole('heading', { name: 'System Settings' });
-    expect(
-      screen.queryByText(/allow overvote marking/i)
-    ).not.toBeInTheDocument();
-  });
-
-  test('included when feature flag is on', async () => {
-    const mockSettingsInitial: SystemSettings = {
-      ...electionRecord.systemSettings,
-      bmdAllowOvervotes: true,
-    };
-
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(mockSettingsInitial);
-
-    mockUserFeatures(apiMock, {
-      BMD_OVERVOTE_SYSTEM_SETTING: true,
-    });
-
-    renderScreen();
-
-    await screen.findByRole('heading', { name: 'System Settings' });
-    screen.getByText(/allow overvote marking/i);
-
-    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-
-    userEvent.click(
-      screen.getByRole('checkbox', {
-        name: /allow overvote marking/i,
-        checked: true,
-      })
-    );
-
-    const mockSettingsFinal: SystemSettings = {
-      ...mockSettingsInitial,
-      bmdAllowOvervotes: undefined,
-    };
-    apiMock.updateSystemSettings
-      .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
-      .resolves();
-
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(mockSettingsFinal);
-
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
 });
 
 describe('BMD print mode', () => {
@@ -698,109 +637,96 @@ describe('BMD print mode', () => {
   });
 });
 
-describe('quick results reporting toggle', () => {
-  test('omitted when feature flag is off', async () => {
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(electionRecord.systemSettings);
-
-    mockUserFeatures(apiMock, {
-      QUICK_RESULTS_REPORTING_SYSTEM_SETTING: false,
-    });
-
-    renderScreen();
-
-    await screen.findByRole('heading', { name: 'System Settings' });
-    expect(
-      screen.queryByText(/Enable Live Reporting/i)
-    ).not.toBeInTheDocument();
-  });
-
-  test('included when feature flag is on', async () => {
-    const mockSettingsInitial: SystemSettings = {
-      ...electionRecord.systemSettings,
-      quickResultsReportingUrl: '',
-    };
-
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(mockSettingsInitial);
-
-    mockUserFeatures(apiMock, { QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true });
-
-    renderScreen();
-
-    await screen.findByRole('heading', { name: 'System Settings' });
-    screen.getByText(/Enable Live Reporting/i);
-
-    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-
-    userEvent.click(
-      screen.getByRole('checkbox', {
-        name: 'Enable Live Reporting',
-        checked: false,
-      })
-    );
-
-    const mockSettingsFinal: SystemSettings = {
-      ...mockSettingsInitial,
+test.each<{
+  userFeatures: Partial<UserFeaturesConfig>;
+  checkboxLabel: string;
+  isCheckboxExpected: boolean;
+  expectedSavedSystemSettings?: Partial<SystemSettings>;
+}>([
+  {
+    userFeatures: { BMD_OVERVOTE_SYSTEM_SETTING: false },
+    checkboxLabel: 'Allow Overvote Marking on VxMark',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { BMD_OVERVOTE_SYSTEM_SETTING: true },
+    checkboxLabel: 'Allow Overvote Marking on VxMark',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: { bmdAllowOvervotes: true },
+  },
+  {
+    userFeatures: { QUICK_RESULTS_REPORTING_SYSTEM_SETTING: false },
+    checkboxLabel: 'Enable Live Reporting',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true },
+    checkboxLabel: 'Enable Live Reporting',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: {
       quickResultsReportingUrl: 'http://test-results-url.com/report',
-    };
-    apiMock.updateSystemSettings
-      .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
-      .resolves();
-
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(mockSettingsFinal);
-
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
-});
-
-describe('VxScan alarms toggle', () => {
-  const checkboxLabel = 'Disable Alarms on VxScan';
-
-  test('omitted when feature flag is off', async () => {
+    },
+  },
+  {
+    userFeatures: { VXSCAN_ALARMS_SYSTEM_SETTING: false },
+    checkboxLabel: 'Disable Alarms on VxScan',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { VXSCAN_ALARMS_SYSTEM_SETTING: true },
+    checkboxLabel: 'Disable Alarms on VxScan',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: { precinctScanDisableAlarms: true },
+  },
+  {
+    userFeatures: { SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: false },
+    checkboxLabel: 'Disable System Limit Checks on Election Package Import',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true },
+    checkboxLabel: 'Disable System Limit Checks on Election Package Import',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: { disableSystemLimitChecks: true },
+  },
+])(
+  'feature-flagged system settings toggles - $checkboxLabel',
+  async ({
+    userFeatures,
+    checkboxLabel,
+    isCheckboxExpected,
+    expectedSavedSystemSettings,
+  }) => {
     apiMock.getSystemSettings
       .expectCallWith({ electionId })
       .resolves(electionRecord.systemSettings);
-    mockUserFeatures(apiMock, {
-      VXSCAN_ALARMS_SYSTEM_SETTING: false,
-    });
+    mockUserFeatures(apiMock, userFeatures);
     renderScreen();
 
     await screen.findByRole('heading', { name: 'System Settings' });
-    expect(screen.queryByText(checkboxLabel)).not.toBeInTheDocument();
-  });
+    if (!isCheckboxExpected) {
+      expect(screen.queryByText(checkboxLabel)).not.toBeInTheDocument();
+    } else {
+      screen.getByText(checkboxLabel);
 
-  test('included when feature flag is on', async () => {
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(electionRecord.systemSettings);
-    mockUserFeatures(apiMock, { VXSCAN_ALARMS_SYSTEM_SETTING: true });
-    renderScreen();
+      userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+      userEvent.click(
+        screen.getByRole('checkbox', { name: checkboxLabel, checked: false })
+      );
 
-    await screen.findByRole('heading', { name: 'System Settings' });
-    screen.getByText(checkboxLabel);
+      const updatedSystemSettings: SystemSettings = {
+        ...electionRecord.systemSettings,
+        ...assertDefined(expectedSavedSystemSettings),
+      };
+      apiMock.updateSystemSettings
+        .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+        .resolves();
+      apiMock.getSystemSettings
+        .expectCallWith({ electionId })
+        .resolves(updatedSystemSettings);
 
-    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    userEvent.click(
-      screen.getByRole('checkbox', { name: checkboxLabel, checked: false })
-    );
-
-    const mockSettingsFinal: SystemSettings = {
-      ...electionRecord.systemSettings,
-      precinctScanDisableAlarms: true,
-    };
-    apiMock.updateSystemSettings
-      .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
-      .resolves();
-    apiMock.getSystemSettings
-      .expectCallWith({ electionId })
-      .resolves(mockSettingsFinal);
-
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    screen.getByRole('checkbox', { name: checkboxLabel, checked: true });
-  });
-});
+      userEvent.click(screen.getByRole('button', { name: 'Save' }));
+      screen.getByRole('checkbox', { name: checkboxLabel, checked: true });
+    }
+  }
+);

@@ -109,7 +109,7 @@ test('app can load and configure from a usb stick', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.mockApiClient.configureFromElectionPackageOnUsbDrive
     .expectCallWith()
-    .resolves(err('no_election_package_on_usb_drive'));
+    .resolves(err({ type: 'no_election_package_on_usb_drive' }));
   apiMock.expectGetConfig({
     electionDefinition: undefined,
   });

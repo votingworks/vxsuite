@@ -1,6 +1,7 @@
 import { ElectionPackageConfigurationError } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { systemLimitViolationToString } from '@votingworks/utils';
 import { FullScreenIconWrapper, Icons } from './icons';
 import { UsbDriveImage } from './usb_drive_image';
 import { FullScreenMessage } from './full_screen_message';
@@ -36,7 +37,7 @@ export function UnconfiguredElectionScreen({
       return undefined;
     }
 
-    switch (backendConfigError) {
+    switch (backendConfigError.type) {
       case 'no_election_package_on_usb_drive':
         return 'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.';
       // The frontend should prevent auth_required_before_election_package_load
@@ -49,6 +50,8 @@ export function UnconfiguredElectionScreen({
         return 'The most recent election package found is for a different election.';
       case 'no_ballots':
         return 'No ballots were found in the election package.';
+      case 'system_limit_violation':
+        return systemLimitViolationToString(backendConfigError.violation);
       default: {
         /* istanbul ignore next - compile time check for completeness - @preserve */
         throwIllegalValue(backendConfigError);

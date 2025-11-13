@@ -124,6 +124,12 @@ export interface SystemSettings {
    * See {@link BmdPrintMode}.
    */
   readonly bmdPrintMode?: BmdPrintMode;
+
+  /**
+   * Disables the blocking system limit checks performed on election package import and allows
+   * usage of election packages that exceed system limits.
+   */
+  readonly disableSystemLimitChecks?: boolean;
 }
 
 const PRINT_MODES = [
@@ -162,6 +168,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   bmdAllowOvervotes: z.boolean().optional(),
   bmdPrintMode: z.enum(PRINT_MODES).optional(),
   precinctScanDisableAlarms: z.boolean().optional(),
+  disableSystemLimitChecks: z.boolean().optional(),
 });
 
 /**
