@@ -17,6 +17,7 @@ import {
 } from '../test/mock_api_client';
 import { renderInAppContext } from '../test/render_in_app_context';
 import { VoterRegistrationScreen } from './voter_registration_screen';
+import { getMockElectionManagerAuth } from '../test/auth';
 
 let apiMock: ApiMock;
 
@@ -59,6 +60,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   apiMock = createApiMock();
   apiMock.setElection(famousNamesElectionDef, '23');
+  apiMock.setAuthStatus(getMockElectionManagerAuth());
 });
 
 afterEach(() => {
@@ -164,7 +166,6 @@ test('shows duplicate name modal and allows override - single precinct election'
     electionSimpleSinglePrecinctFixtures.readElectionDefinition();
   const singlePrecinctId =
     electionSimpleSinglePrecinct.election.precincts[0].id;
-  apiMock = createApiMock();
   apiMock.setElection(electionSimpleSinglePrecinct, singlePrecinctId);
   apiMock.setPrinterStatus(true);
   apiMock.expectGetDeviceStatuses();

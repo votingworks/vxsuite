@@ -18,6 +18,7 @@ import {
   PrimaryElectionStatistics,
   ThroughputChart,
 } from './statistics_screen';
+import { getMockElectionManagerAuth } from '../test/auth';
 
 // Mock Chart.js components since they don't render properly in test environment
 vi.mock('react-chartjs-2', () => ({
@@ -94,6 +95,7 @@ const mockThroughputData: ThroughputStat[] = [
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   apiMock = createApiMock();
+  apiMock.setAuthStatus(getMockElectionManagerAuth());
 });
 
 afterEach(() => {
@@ -378,6 +380,10 @@ describe('PrimaryElectionStatistics', () => {
 });
 
 describe('ThroughputChart', () => {
+  beforeEach(() => {
+    apiMock.mockApiClient.getAuthStatus.reset();
+  });
+
   test('renders chart with data', async () => {
     const electionDefinition =
       electionSimpleSinglePrecinctFixtures.readElectionDefinition();

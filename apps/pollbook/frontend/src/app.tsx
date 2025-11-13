@@ -40,6 +40,7 @@ import { MachineLockedScreen } from './machine_locked_screen';
 import { ElectionManagerScreen } from './election_manager_screen';
 import { SystemAdministratorScreen } from './system_administrator_screen';
 import { UnconfiguredElectionManagerScreen } from './unconfigured_screen';
+import { SessionTimeLimitTracker } from './session_time_limit_tracker';
 
 function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   const apiClient = useApiClient();
@@ -172,6 +173,7 @@ export function App({
             <SystemCallContextProvider api={systemCallApi}>
               <BrowserRouter>
                 <AppRoot logger={logger} />
+                <SessionTimeLimitTracker />
               </BrowserRouter>
             </SystemCallContextProvider>
           </QueryClientProvider>
