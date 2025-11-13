@@ -90,6 +90,16 @@ export function AdminScreen({
   const printMode = api.getPrintMode.useQuery().data;
   const setPrintMode = api.setPrintMode.useMutation().mutate;
 
+  async function unconfigureMachineAndEjectUsb() {
+    try {
+      // If there is a mounted usb, eject it so that it doesn't auto reconfigure the machine.
+      await ejectUsbDriveMutation.mutateAsync();
+      await unconfigure();
+    } catch {
+      // Handled by default query client error handling
+    }
+  }
+
   return (
     <Screen>
       <Main padded>
@@ -206,7 +216,7 @@ export function AdminScreen({
         </P>
         <UnconfigureMachineButton
           isMachineConfigured
-          unconfigureMachine={unconfigure}
+          unconfigureMachine={unconfigureMachineAndEjectUsb}
         />
         <H6 as="h2">Logs</H6>
         <ExportLogsButton usbDriveStatus={usbDriveStatus} />
