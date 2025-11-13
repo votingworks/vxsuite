@@ -209,6 +209,18 @@ impl TimingMarkShape {
                     let start = i.saturating_sub(half);
                     let end = (i + half + 1).min(values.len());
                     let mut window = values[start..end].to_vec();
+                    // If the window extends past either the start or end of the
+                    // values, wrap around to the other side. This ensures that
+                    // values on the edges have the same window size as those in
+                    // the middle.
+                    if i < half {
+                        let wrap_start = values.len().saturating_sub(half - i);
+                        window.extend_from_slice(&values[wrap_start..]);
+                    }
+                    if i + half + 1 > values.len() {
+                        let wrap_end = (i + half + 1) % values.len();
+                        window.extend_from_slice(&values[0..wrap_end]);
+                    }
                     window.sort_unstable();
                     window[window.len() / 2]
                 })
