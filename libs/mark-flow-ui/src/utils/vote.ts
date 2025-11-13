@@ -5,7 +5,6 @@ export function numVotesRemaining(
   contest: CandidateContest,
   vote: CandidateVote
 ): number {
-  console.log(vote);
   const uniqueVoteIds = uniqueBy([...vote], (c) => c.id);
   return contest.seats - uniqueVoteIds.length;
 }
