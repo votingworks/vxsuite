@@ -329,6 +329,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Election Definition is loaded.');
 
   // Unconfigure the machine
+  apiMock.expectEjectUsbDrive();
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
@@ -361,12 +362,12 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Unconfigure with System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
-  userEvent.click(await screen.findByText('Unconfigure Machine'));
-  const modal = await screen.findByRole('alertdialog');
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
+  userEvent.click(await screen.findByText('Unconfigure Machine'));
+  const modal = await screen.findByRole('alertdialog');
   userEvent.click(
     within(modal).getByRole('button', {
       name: 'Delete All Election Data',
