@@ -261,7 +261,7 @@ fn print_contest_vote(contest: &Contest, vote: &ContestVote) {
             println!(
                 "   {}",
                 stringify_vote!(
-                    "YES",
+                    yesno_contest.yes_option.label.as_str(),
                     selected_option_id == Some(&yesno_contest.yes_option.id),
                     green
                 )
@@ -271,7 +271,7 @@ fn print_contest_vote(contest: &Contest, vote: &ContestVote) {
             println!(
                 "   {}",
                 stringify_vote!(
-                    "NO",
+                    yesno_contest.no_option.label.as_str(),
                     selected_option_id == Some(&yesno_contest.no_option.id),
                     red
                 )
