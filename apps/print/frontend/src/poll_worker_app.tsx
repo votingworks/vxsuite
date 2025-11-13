@@ -5,14 +5,16 @@ import { pollWorkerRoutes } from './routes';
 
 export function PollWorkerApp(): JSX.Element {
   return (
-    <ScreenWrapper authType="poll_worker">
-      <Switch>
-        <Route
-          path={pollWorkerRoutes.print.path}
-          render={() => <PrintScreen isElectionManagerAuth={false} />}
-        />
-        <Redirect to={pollWorkerRoutes.print.path} />
-      </Switch>
-    </ScreenWrapper>
+    <Switch>
+      <Route
+        path={pollWorkerRoutes.print.path}
+        render={() => (
+          <ScreenWrapper authType="poll_worker">
+            <PrintScreen isElectionManagerAuth={false} />
+          </ScreenWrapper>
+        )}
+      />
+      <Redirect to={pollWorkerRoutes.print.path} />
+    </Switch>
   );
 }

@@ -22,23 +22,33 @@ function ElectionManagerElectionScreen(): JSX.Element | null {
 
 export function ElectionManagerApp(): JSX.Element {
   return (
-    <ScreenWrapper authType="election_manager">
-      <Switch>
-        <Route
-          path={electionManagerRoutes.print.path}
-          render={() => <PrintScreen isElectionManagerAuth />}
-        />
-        <Route
-          exact
-          path={electionManagerRoutes.election.path}
-          render={() => <ElectionManagerElectionScreen />}
-        />
-        <Route
-          path={electionManagerRoutes.settings.path}
-          render={() => <SettingsScreen />}
-        />
-        <Redirect to={electionManagerRoutes.election.path} />
-      </Switch>
-    </ScreenWrapper>
+    <Switch>
+      <Route
+        path={electionManagerRoutes.print.path}
+        render={() => (
+          <ScreenWrapper authType="election_manager">
+            <PrintScreen isElectionManagerAuth />
+          </ScreenWrapper>
+        )}
+      />
+      <Route
+        exact
+        path={electionManagerRoutes.election.path}
+        render={() => (
+          <ScreenWrapper authType="election_manager">
+            <ElectionManagerElectionScreen />
+          </ScreenWrapper>
+        )}
+      />
+      <Route
+        path={electionManagerRoutes.settings.path}
+        render={() => (
+          <ScreenWrapper authType="election_manager">
+            <SettingsScreen />
+          </ScreenWrapper>
+        )}
+      />
+      <Redirect to={electionManagerRoutes.election.path} />
+    </Switch>
   );
 }

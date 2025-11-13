@@ -6,14 +6,16 @@ import { SettingsScreen } from './screens/settings_screen';
 
 export function SystemAdministratorApp(): JSX.Element {
   return (
-    <ScreenWrapper authType="system_admin">
-      <Switch>
-        <Route
-          path={systemAdministratorRoutes.settings.path}
-          render={() => <SettingsScreen />}
-        />
-        <Redirect to={systemAdministratorRoutes.settings.path} />
-      </Switch>
-    </ScreenWrapper>
+    <Switch>
+      <Route
+        path={systemAdministratorRoutes.settings.path}
+        render={() => (
+          <ScreenWrapper authType="system_admin">
+            <SettingsScreen />
+          </ScreenWrapper>
+        )}
+      />
+      <Redirect to={systemAdministratorRoutes.settings.path} />
+    </Switch>
   );
 }
