@@ -30,7 +30,6 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import { getMockFilePrinterHandler } from '@votingworks/printing';
 import { writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
 import { pdfToImages } from '@votingworks/image-utils';
 import { execFile } from './utils';
@@ -57,7 +56,10 @@ const MOCK_CARD_SCRIPT_PATH = join(
   '../../../auth/scripts/mock-card'
 );
 
+// Create a stable directory for dev-dock data
+const DEV_DOCK_DIR = join(homedir(), '.vx-dev-dock');
 export const DEV_DOCK_FILE_PATH = '/tmp/dev-dock.json';
+const DEV_DOCK_ELECTION_PATH = join(DEV_DOCK_DIR, 'election.json');
 interface DevDockFileContents {
   electionInfo?: DevDockElectionInfo;
 }
@@ -103,10 +105,12 @@ async function setElection(
     const electionEntry = getFileByName(entries, 'election.json', path);
     electionData = await readTextEntry(electionEntry);
 
-    // Extract election.json to a temporary file for use by other scripts
-    const tempElectionPath = join(tmpdir(), 'dev-dock-election.json');
-    fs.writeFileSync(tempElectionPath, electionData, 'utf-8');
-    resolvedPath = tempElectionPath;
+    // Extract election.json to a stable directory for use by other scripts
+    if (!fs.existsSync(DEV_DOCK_DIR)) {
+      fs.mkdirSync(DEV_DOCK_DIR, { recursive: true });
+    }
+    fs.writeFileSync(DEV_DOCK_ELECTION_PATH, electionData, 'utf-8');
+    resolvedPath = DEV_DOCK_ELECTION_PATH;
   } else {
     // Read directly as JSON file
     electionData = fs.readFileSync(absolutePath, 'utf-8');

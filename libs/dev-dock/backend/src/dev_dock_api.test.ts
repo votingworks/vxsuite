@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import express from 'express';
 import * as fs from 'node:fs';
-import { tmpdir } from 'node:os';
+import { tmpdir, homedir } from 'node:os';
 import { join } from 'node:path';
 import * as grout from '@votingworks/grout';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
@@ -248,6 +248,10 @@ test('election loading from zip file', async () => {
     });
     expect(loadedElection?.resolvedPath).toBeDefined();
     expect(loadedElection?.resolvedPath).not.toEqual(zipPath);
+
+    // Verify the resolved path is in the stable directory
+    const expectedPath = join(homedir(), '.vx-dev-dock', 'election.json');
+    expect(loadedElection?.resolvedPath).toEqual(expectedPath);
 
     // Verify the resolved path is a valid JSON file
     const resolvedElectionData = fs.readFileSync(
