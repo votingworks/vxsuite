@@ -22,8 +22,8 @@ const mockElection: Election = {
 describe('parseVotersFromCsvString', () => {
   test('parses basic voter CSV data correctly', () => {
     const csvString = `Voter ID,First Name,Last Name,Postal Zip5,Ward
-123,John,Doe,12345,1
-456,Jane,Smith,67890,2`;
+123,John,Doe,12345,01
+456,Jane,Smith,67890,02`;
 
     const result = parseVotersFromCsvString(csvString, mockElection);
 
@@ -50,14 +50,17 @@ describe('parseVotersFromCsvString', () => {
 
   test('throws on invalid election precinct name', () => {
     const csvString = `Voter ID,First Name,Last Name,Postal Zip5,Ward
-123,John,Doe,12345,1
-456,Jane,Smith,67890,2`;
+123,John,Doe,12345,01
+456,Jane,Smith,67890,02`;
 
     suppressingConsoleOutput(() => {
       expect(() =>
         parseVotersFromCsvString(csvString, {
           ...mockElection,
-          precincts: [{ id: 'precinct-1', name: '-', districtIds: ['ds-1'] }],
+          precincts: [
+            ...mockElection.precincts,
+            { id: 'precinct-5', name: '-', districtIds: ['ds-1'] },
+          ],
         })
       ).toThrow(
         new Error('Invalid precinct external identifier for precinct "-"')
@@ -65,9 +68,22 @@ describe('parseVotersFromCsvString', () => {
     });
   });
 
-  test('throws on valid voter precinct name that lacks a match in election precincts', () => {
+  test('allows any precinct name if only one precinct', () => {
     const csvString = `Voter ID,First Name,Last Name,Postal Zip5,Ward
-123,John,Doe,12345,1
+123,John,Doe,12345,00
+456,Jane,Smith,67890,00`;
+
+    expect(() =>
+      parseVotersFromCsvString(csvString, {
+        ...mockElection,
+        precincts: [{ id: 'precinct-5', name: '-', districtIds: ['ds-1'] }],
+      })
+    ).not.toThrow();
+  });
+
+  test('throws when ward or district id has no match election precincts', () => {
+    const csvString = `Voter ID,First Name,Last Name,Postal Zip5,Ward
+123,John,Doe,12345,01
 456,Jane,Smith,67890,99`;
 
     suppressingConsoleOutput(() => {
@@ -185,7 +201,7 @@ describe('parseVotersFromCsvString', () => {
 
   test('handles ward field mapped to precinct', () => {
     const csvString = `Voter ID,Ward
-123,5`;
+123,05`;
 
     const result = parseVotersFromCsvString(csvString, mockElection);
 
@@ -306,7 +322,7 @@ Main St,100,200,odd,Springfield Preferred,Springfield Alt`;
 
   test('maps ward field to precinct', () => {
     const csvString = `Street Name,Low Range,High Range,Side,Ward
-Main St,100,200,odd,5`;
+Main St,100,200,odd,05`;
 
     const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
@@ -323,13 +339,16 @@ Main St,100,200,odd,5`;
 
   test('throws on invalid election precinct name', () => {
     const csvString = `Street Name,Low Range,High Range,Side,Ward
-Main St,100,200,odd,5`;
+Main St,100,200,odd,05`;
 
     suppressingConsoleOutput(() => {
       expect(() =>
         parseValidStreetsFromCsvString(csvString, {
           ...mockElection,
-          precincts: [{ id: 'precinct-1', name: '-', districtIds: ['ds-1'] }],
+          precincts: [
+            ...mockElection.precincts,
+            { id: 'precinct-5', name: '-', districtIds: ['ds-1'] },
+          ],
         })
       ).toThrow(
         new Error('Invalid precinct external identifier for precinct "-"')
@@ -337,14 +356,26 @@ Main St,100,200,odd,5`;
     });
   });
 
+  test('allows any precinct name if single precinct election', () => {
+    const csvString = `Street Name,Low Range,High Range,Side,Ward
+Main St,100,200,odd,00`;
+
+    expect(() =>
+      parseValidStreetsFromCsvString(csvString, {
+        ...mockElection,
+        precincts: [{ id: 'precinct-5', name: '-', districtIds: ['ds-1'] }],
+      })
+    ).not.toThrow();
+  });
+
   test('throws if ward does not match a precinct in the election', () => {
     const csvString = `Street Name,Low Range,High Range,Side,Ward
-Main St,100,200,odd,6`;
+Main St,100,200,odd,06`;
 
     suppressingConsoleOutput(() => {
       expect(() =>
         parseValidStreetsFromCsvString(csvString, mockElection)
-      ).toThrow(new Error('Unexpected ward or district: 6'));
+      ).toThrow(new Error('Unexpected ward or district: 06'));
     });
   });
 
@@ -379,7 +410,7 @@ Oak Ave,300,400,even
 
   test('handles complete street record with all fields', () => {
     const csvString = `Street Name,Low Range,High Range,Side,Postal City/Town,Ward
-Main Street,100,999,both,Springfield,1`;
+Main Street,100,999,both,Springfield,01`;
 
     const result = parseValidStreetsFromCsvString(csvString, mockElection);
 

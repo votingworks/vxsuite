@@ -63,9 +63,32 @@ type PollbookPackageParseError =
     }
   | ReadFileError;
 
+export type ExternalToInternalPrecinctIdMapping =
+  | {
+      type: 'single-precinct';
+      precinctId: string;
+    }
+  | {
+      type: 'multi-precinct';
+      precinctIds: Record<string, string>;
+    };
+
+function trimZerosFromExternalPrecinctId(externalId: string): string {
+  const externalWardIdParseIntResult = safeParseInt(externalId);
+  if (externalWardIdParseIntResult.isErr()) {
+    throw new Error(`Non-numeric ward or district: ${externalId}`);
+  }
+
+  return externalWardIdParseIntResult.ok().toString();
+}
+
 export function getExternalPrecinctIdMappingFromElection(
   election: Election
-): Record<string, string> {
+): ExternalToInternalPrecinctIdMapping {
+  if (election.precincts.length === 1) {
+    return { type: 'single-precinct', precinctId: election.precincts[0].id };
+  }
+
   const externalIdToPrecinctId: Record<string, string> = {};
   for (const precinct of election.precincts) {
     const nameParts = precinct.name.split(/[\s-]+/);
@@ -75,16 +98,38 @@ export function getExternalPrecinctIdMappingFromElection(
         `Invalid precinct external identifier for precinct "${precinct.name}"`
       );
     }
-    externalIdToPrecinctId[externalId] = precinct.id;
+    externalIdToPrecinctId[trimZerosFromExternalPrecinctId(externalId)] =
+      precinct.id;
   }
-  return externalIdToPrecinctId;
+  return {
+    type: 'multi-precinct',
+    precinctIds: externalIdToPrecinctId,
+  };
+}
+
+function getInternalPrecinctId(
+  externalId: string,
+  externalPrecinctIdMapping: ExternalToInternalPrecinctIdMapping
+) {
+  if (externalPrecinctIdMapping.type === 'single-precinct') {
+    return externalPrecinctIdMapping.precinctId;
+  }
+
+  const precinctId =
+    externalPrecinctIdMapping.precinctIds[
+      trimZerosFromExternalPrecinctId(externalId)
+    ];
+  if (!precinctId) {
+    throw new Error(`Unexpected ward or district: ${externalId}`);
+  }
+  return precinctId;
 }
 
 export function parseValidStreetsFromCsvString(
   csvString: string,
   election: Election
 ): ValidStreetInfo[] {
-  const externalIdToPrecinctId =
+  const externalPrecinctIdMapping =
     getExternalPrecinctIdMappingFromElection(election);
   return parse(csvString, {
     columns: (header) => header.map(toCamelCase),
@@ -98,10 +143,9 @@ export function parseValidStreetsFromCsvString(
       const postalCityTown = record.postalCityTown ?? record.postalCity;
 
       const externalWardId = record.ward ?? record.district;
-      if (externalWardId && !externalIdToPrecinctId[externalWardId]) {
-        throw new Error(`Unexpected ward or district: ${externalWardId}`);
-      }
-      const precinct = externalIdToPrecinctId[externalWardId] || '';
+      const precinct = externalWardId
+        ? getInternalPrecinctId(externalWardId, externalPrecinctIdMapping)
+        : '';
 
       return {
         ...street,
@@ -119,7 +163,7 @@ export function parseVotersFromCsvString(
   csvString: string,
   election: Election
 ): Voter[] {
-  const externalIdToPrecinctId =
+  const externalPrecinctIdMapping =
     getExternalPrecinctIdMappingFromElection(election);
   let voters: Voter[] = parse(csvString, {
     columns: (header) => header.map(toCamelCase),
@@ -135,10 +179,9 @@ export function parseVotersFromCsvString(
       const voter: Voter = record;
 
       const externalWardId = record.ward ?? record.district;
-      if (externalWardId && !externalIdToPrecinctId[externalWardId]) {
-        throw new Error(`Unexpected ward or district: ${externalWardId}`);
-      }
-      const precinct = externalIdToPrecinctId[externalWardId] || '';
+      const precinct = externalWardId
+        ? getInternalPrecinctId(externalWardId, externalPrecinctIdMapping)
+        : '';
 
       return {
         ...voter,
