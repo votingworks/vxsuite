@@ -10,11 +10,12 @@ import { SettingsScreen } from './screens/settings_screen';
 
 function ElectionManagerElectionScreen(): JSX.Element | null {
   const electionRecordQuery = getElectionRecord.useQuery();
-  if (!electionRecordQuery.isSuccess) return null;
+  if (!electionRecordQuery.isSuccess) {
+    return null;
+  }
   const {
     electionDefinition: { election },
   } = assertDefined(electionRecordQuery.data);
-
   return (
     <div>
       <TitleBar title="Election" />

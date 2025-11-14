@@ -3,6 +3,7 @@ import {
   AppBase,
   AppErrorBoundary,
   H1,
+  InvalidCardScreen,
   P,
   RemoveCardScreen,
   SetupCardReaderPage,
@@ -33,7 +34,7 @@ import {
   systemCallApi,
 } from './api';
 import { ElectionManagerApp } from './election_manager_app';
-import { UnconfiguredScreen } from './screens/unconfigured_screen';
+import { UnconfiguredElectionManagerScreen } from './screens/unconfigured_election_manager_screen';
 import { SystemAdministratorApp } from './system_administrator_app';
 import { PollWorkerApp } from './poll_worker_app';
 
@@ -71,21 +72,8 @@ function AppRoot({
   ) {
     return <SetupCardReaderPage />;
   }
-  if (
-    authStatus.status === 'logged_out' &&
-    authStatus.reason === 'machine_locked'
-  ) {
-    return <MachineLockedScreen />;
-  }
 
-  if (authStatus.status === 'remove_card') {
-    return <RemoveCardScreen productName="VxPrint" />;
-  }
-
-  if (
-    authStatus.status === 'checking_pin' &&
-    ['vendor', 'system_administrator'].includes(authStatus.user.role)
-  ) {
+  if (authStatus.status === 'checking_pin') {
     return (
       <UnlockMachineScreen
         auth={authStatus}
@@ -100,31 +88,52 @@ function AppRoot({
     );
   }
 
+  if (authStatus.status === 'remove_card') {
+    return (
+      <RemoveCardScreen
+        productName="VxPollBook"
+        cardInsertionDirection="right"
+      />
+    );
+  }
+
+  if (authStatus.status === 'logged_out') {
+    if (
+      authStatus.reason === 'machine_locked' ||
+      authStatus.reason === 'machine_locked_by_session_expiry'
+    ) {
+      return <MachineLockedScreen />;
+    }
+
+    return (
+      <InvalidCardScreen
+        reasonAndContext={authStatus}
+        recommendedAction={
+          authStatus.reason === 'machine_not_configured'
+            ? 'Use a system administrator or election manager card.'
+            : 'Use a valid card.'
+        }
+        cardInsertionDirection="right"
+      />
+    );
+  }
+
   if (authStatus.status === 'logged_in') {
-    if (isPollWorkerAuth(authStatus)) {
-      if (!electionRecord) {
-        return <UnconfiguredScreen isElectionManagerAuth={false} />;
-      }
-      return <PollWorkerApp />;
+    if (isSystemAdministratorAuth(authStatus)) {
+      return <SystemAdministratorApp />;
     }
 
     if (isElectionManagerAuth(authStatus)) {
       if (!electionRecord) {
-        return <UnconfiguredScreen isElectionManagerAuth />;
+        return <UnconfiguredElectionManagerScreen />;
       }
       return <ElectionManagerApp />;
       // Uncomment to access ballot printing screen
       // return <BallotListScreen />;
     }
-
-    if (isSystemAdministratorAuth(authStatus)) {
-      return <SystemAdministratorApp />;
-    }
+    assert(isPollWorkerAuth(authStatus));
+    return <PollWorkerApp />;
   }
-
-  // if (!electionRecord) {
-  //   return <UnconfiguredScreen usbDriveStatus={usbDriveStatus} />;
-  // }
 
   return (
     <React.Fragment>
