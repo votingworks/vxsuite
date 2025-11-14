@@ -66,7 +66,7 @@ const MOCK_CARD_SCRIPT_PATH = join(
 
 // Create a stable directory for dev-dock data
 const DEV_DOCK_DIR = join(homedir(), '.vx-dev-dock');
-export const DEV_DOCK_FILE_PATH = '/tmp/dev-dock.json';
+export const DEV_DOCK_FILE_PATH = join(DEV_DOCK_DIR, 'dev-dock.json');
 export const DEV_DOCK_ELECTION_PATH = join(DEV_DOCK_DIR, 'election.json');
 interface DevDockFileContents {
   electionInfo?: DevDockElectionInfo;
