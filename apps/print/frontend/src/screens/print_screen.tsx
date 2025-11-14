@@ -28,7 +28,7 @@ const Form = styled.div`
   /* Adjusted for Toolbar, TitleBar, and Footer heights */
   height: calc(100% - 4rem - 2rem - 4rem);
   flex: 1;
-  overflow-y: auto;
+  overflow-y: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
@@ -39,14 +39,14 @@ const Column = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  overflow-y: auto;
+  overflow-y: hidden;
 `;
 
 const FormSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  overflow-y: auto;
+  overflow-y: hidden;
 `;
 
 const Footer = styled.div`
@@ -136,7 +136,7 @@ export function PrintScreen({
       />
       <Form>
         <Column>
-          <FormSection>
+          <FormSection style={{ flex: 1 }}>
             <strong>Precinct</strong>
             <ExpandedSelect
               selectedValue={selectedPrecinctName}
@@ -160,13 +160,7 @@ export function PrintScreen({
               <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
               <ExpandedSelect
                 selectedValue={selectedSplitName}
-                options={availableSplits
-                  .map((split) => split.name)
-                  .filter(
-                    (name) =>
-                      !searchValue ||
-                      name.toLowerCase().includes(searchValue.toLowerCase())
-                  )}
+                options={availableSplits.map((split) => split.name)}
                 onSelect={(value) => {
                   setSelectedSplitName(value);
                 }}
@@ -236,7 +230,7 @@ export function PrintScreen({
             console.log(
               `Printing ballot style: ${selectedPrecinctName}, ${selectedParty}, ${selectedLanguage}${
                 selectedSplitName ? `, ${selectedSplitName}` : ''
-              }`
+              }, ${isAbsentee ? 'Absentee' : 'Precinct'}, Copies: ${numCopies} `
             )
           }
           disabled={

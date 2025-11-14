@@ -11,7 +11,7 @@ export function ReportsScreen(): JSX.Element {
           marginLeft: '1rem',
         }}
       >
-        Super cool reports
+        Simple print count by ballot style reporting
       </div>
     </React.Fragment>
   );
