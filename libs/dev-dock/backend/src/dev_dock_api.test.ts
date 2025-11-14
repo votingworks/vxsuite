@@ -34,7 +34,13 @@ import {
   getMockFileFujitsuPrinterHandler,
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
-import { Api, useDevDockRouter, MockSpec } from './dev_dock_api';
+import {
+  Api,
+  useDevDockRouter,
+  MockSpec,
+  DEV_DOCK_ELECTION_PATH,
+  DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
+} from './dev_dock_api';
 
 const electionGeneral = readElectionGeneral();
 
@@ -134,58 +140,50 @@ test('card mock endpoints', async () => {
 
 test('election fixture references', async () => {
   const { apiClient } = setup();
-  await expect(
-    apiClient.getCurrentFixtureElectionPaths()
-  ).resolves.toMatchObject([
+  const expectedFixtures = [
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json'
-      ),
+      path: 'fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
       title: 'electionFamousNames2021',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionGeneral/election.json'
-      ),
+      path: 'fixtures/data/electionGeneral/election.json',
       title: 'electionGeneral',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionGridLayoutNewHampshireHudson/election.json'
-      ),
+      path: 'fixtures/data/electionGridLayoutNewHampshireHudson/election.json',
       title: 'electionGridLayoutNewHampshireHudson',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json'
-      ),
+      path: 'fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json',
       title: 'electionGridLayoutNewHampshireTestBallot',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionMultiPartyPrimary/election.json'
-      ),
+      path: 'fixtures/data/electionMultiPartyPrimary/election.json',
       title: 'electionMultiPartyPrimary',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json'
-      ),
+      path: 'fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json',
       title: 'electionPrimaryPrecinctSplits',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionSimpleSinglePrecinct/election.json'
-      ),
+      path: 'fixtures/data/electionSimpleSinglePrecinct/election.json',
       title: 'electionSimpleSinglePrecinct',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionTwoPartyPrimary/election.json'
-      ),
+      path: 'fixtures/data/electionTwoPartyPrimary/election.json',
       title: 'electionTwoPartyPrimary',
     },
-  ]);
+  ];
+
+  await expect(
+    apiClient.getCurrentFixtureElectionPaths()
+  ).resolves.toMatchObject(
+    expectedFixtures.map(({ path, title }) => ({
+      inputPath: expect.stringContaining(path),
+      title,
+      resolvedPath: expect.any(String),
+    }))
+  );
 });
 
 test('election setting', async () => {
@@ -195,19 +193,21 @@ test('election setting', async () => {
   const defaultElection = await apiClient.getElection();
   expect(defaultElection).toMatchObject({
     title: electionGeneral.title,
-    path: 'libs/fixtures/data/electionGeneral/election.json',
+    inputPath: DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
+    resolvedPath: expect.any(String),
   });
-  expect(defaultElection?.resolvedPath).toBeDefined();
 
   await apiClient.setElection({
-    path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
+    inputPath:
+      './libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
   const updatedElection = await apiClient.getElection();
   expect(updatedElection).toMatchObject({
     title: election.title,
-    path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
+    inputPath:
+      './libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
+    resolvedPath: expect.any(String),
   });
-  expect(updatedElection?.resolvedPath).toBeDefined();
 
   // Changing the election should change the election for mocked cards
   await apiClient.removeCard();
@@ -239,12 +239,13 @@ test('election loading from zip file', async () => {
 
   try {
     // Load election from zip
-    await apiClient.setElection({ path: zipPath });
+    await apiClient.setElection({ inputPath: zipPath });
 
     const loadedElection = await apiClient.getElection();
     expect(loadedElection).toMatchObject({
       title: election.title,
-      path: zipPath,
+      inputPath: zipPath,
+      resolvedPath: DEV_DOCK_ELECTION_PATH,
     });
     expect(loadedElection?.resolvedPath).toBeDefined();
     expect(loadedElection?.resolvedPath).not.toEqual(zipPath);
@@ -255,7 +256,7 @@ test('election loading from zip file', async () => {
 
     // Verify the resolved path is a valid JSON file
     const resolvedElectionData = fs.readFileSync(
-      loadedElection!.resolvedPath!,
+      loadedElection!.resolvedPath,
       'utf-8'
     );
     const parsedElection = JSON.parse(resolvedElectionData);

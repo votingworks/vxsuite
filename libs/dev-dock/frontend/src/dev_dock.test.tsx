@@ -76,20 +76,24 @@ beforeEach(() => {
   mockApiClient.getCurrentFixtureElectionPaths.expectCallWith().resolves([
     {
       title: 'electionGeneral',
-      path: 'libs/fixtures/data/electionGeneral/election.json',
+      inputPath: './libs/fixtures/data/electionGeneral/election.json',
+      resolvedPath: '/full-path',
     },
     {
       title: 'electionFamousNames2021',
-      path: 'libs/fixtures/data/electionFamousNames2021/election.json',
+      inputPath: './libs/fixtures/data/electionFamousNames2021/election.json',
+      resolvedPath: '/full-path',
     },
     {
       title: 'electionTwoPartyPrimary',
-      path: 'libs/fixtures/data/electionTwoPartyPrimary/election.json',
+      inputPath: './libs/fixtures/data/electionTwoPartyPrimary/election.json',
+      resolvedPath: '/full-path',
     },
   ]);
   mockApiClient.getElection.expectCallWith().resolves({
     title: 'Sample General Election',
-    path: 'libs/fixtures/data/electionGeneral/election.json',
+    inputPath: './libs/fixtures/data/electionGeneral/election.json',
+    resolvedPath: '/full-path',
   });
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
@@ -232,18 +236,19 @@ test('election selector', async () => {
   const electionSelector = await screen.findByRole('combobox');
   await waitFor(() => {
     expect(electionSelector).toHaveValue(
-      'libs/fixtures/data/electionGeneral/election.json'
+      './libs/fixtures/data/electionGeneral/election.json'
     );
   });
 
   mockApiClient.setElection
     .expectCallWith({
-      path: 'libs/fixtures/data/electionFamousNames2021/election.json',
+      inputPath: './libs/fixtures/data/electionFamousNames2021/election.json',
     })
     .resolves();
   mockApiClient.getElection.expectCallWith().resolves({
     title: 'Famous Names',
-    path: 'libs/fixtures/data/electionFamousNames2021/election.json',
+    inputPath: './libs/fixtures/data/electionFamousNames2021/election.json',
+    resolvedPath: '/full-path',
   });
   userEvent.selectOptions(
     electionSelector,
@@ -251,7 +256,7 @@ test('election selector', async () => {
   );
   await waitFor(() => {
     expect(electionSelector).toHaveValue(
-      'libs/fixtures/data/electionFamousNames2021/election.json'
+      './libs/fixtures/data/electionFamousNames2021/election.json'
     );
   });
 });
