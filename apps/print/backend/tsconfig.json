@@ -15,8 +15,7 @@
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noUncheckedIndexedAccess": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noUncheckedIndexedAccess": false
   },
   "references": [
     { "path": "../../../libs/auth/tsconfig.build.json" },
