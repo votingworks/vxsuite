@@ -97,6 +97,28 @@ export const configureElectionPackageFromUsb = {
   },
 } as const;
 
+export const getPrecinctSelection = {
+  queryKey(): QueryKey {
+    return ['getPrecinctSelection'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPrecinctSelection());
+  },
+} as const;
+
+export const setPrecinctSelection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPrecinctSelection, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const getBallots = {
   queryKey(): QueryKey {
     return ['getBallots'];

@@ -1,19 +1,25 @@
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'node:buffer';
 import express, { Application } from 'express';
-import { assert, err, ok, Result } from '@votingworks/basics';
+import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
   ElectionDefinition,
   ElectionPackageConfigurationError,
+  PrecinctSelection,
   PrinterStatus,
+  SinglePrecinctSelection,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
   ElectionRecord,
   readSignedElectionPackageFromUsb,
 } from '@votingworks/backend';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  getPrecinctSelectionName,
+  isElectionManagerAuth,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { AppContext } from './context';
@@ -82,6 +88,13 @@ export function buildApi(ctx: AppContext) {
       }
       assert(systemSettings);
 
+      let precinctSelection: SinglePrecinctSelection | undefined;
+      if (electionDefinition.election.precincts.length === 1) {
+        precinctSelection = singlePrecinctSelectionFor(
+          electionDefinition.election.precincts[0].id
+        );
+      }
+
       store.withTransaction(() => {
         store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
@@ -90,6 +103,9 @@ export function buildApi(ctx: AppContext) {
         });
         store.setSystemSettings(systemSettings);
         store.setBallots(ballots);
+        if (precinctSelection) {
+          store.setPrecinctSelection(precinctSelection);
+        }
       });
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
@@ -105,9 +121,28 @@ export function buildApi(ctx: AppContext) {
       return store.getElectionRecord() || null;
     },
 
+    getPrecinctSelection(): PrecinctSelection | null {
+      return store.getPrecinctSelection() || null;
+    },
+
+    async setPrecinctSelection(input: {
+      precinctSelection: PrecinctSelection;
+    }): Promise<void> {
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
+      store.setPrecinctSelection(input.precinctSelection);
+      await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+        disposition: 'success',
+        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
+          electionDefinition.election.precincts,
+          input.precinctSelection
+        )}`,
+      });
+    },
+
     unconfigureMachine(): void {
       store.deleteBallots();
       store.deleteSystemSettings();
+      store.setPrecinctSelection(undefined);
       store.deleteElectionRecord();
     },
 
