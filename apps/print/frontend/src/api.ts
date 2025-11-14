@@ -153,7 +153,13 @@ export const printBallot = {
 export const unconfigureMachine = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.unconfigureMachine, {});
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unconfigureMachine, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+        await queryClient.invalidateQueries(getElectionRecord.queryKey());
+      },
+    });
   },
 } as const;
 
