@@ -9,6 +9,7 @@ import {
   SetupCardReaderPage,
   SystemCallContextProvider,
   UnlockMachineScreen,
+  VendorScreen,
 } from '@votingworks/ui';
 import { BrowserRouter } from 'react-router-dom';
 import { DevDock } from '@votingworks/dev-dock-frontend';
@@ -19,6 +20,7 @@ import {
   isElectionManagerAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
+  isVendorAuth,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { MachineLockedScreen } from './screens/machine_locked_screen';
@@ -31,7 +33,9 @@ import {
   getAuthStatus,
   getElectionRecord,
   getUsbDriveStatus,
+  logOut,
   systemCallApi,
+  unconfigureMachine,
 } from './api';
 import { ElectionManagerApp } from './election_manager_app';
 import { UnconfiguredElectionManagerScreen } from './screens/unconfigured_election_manager_screen';
@@ -48,6 +52,8 @@ function AppRoot({
   apiClient: ApiClient;
 }): JSX.Element | null {
   const checkPinMutation = checkPin.useMutation();
+  const logOutMutation = logOut.useMutation();
+  const unconfigureMutation = unconfigureMachine.useMutation();
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getUsbDriveStatusQuery = getUsbDriveStatus.useQuery();
@@ -119,6 +125,17 @@ function AppRoot({
   }
 
   if (authStatus.status === 'logged_in') {
+    if (isVendorAuth(authStatus)) {
+      return (
+        <VendorScreen
+          logOut={logOutMutation.mutate}
+          rebootToVendorMenu={apiClient.rebootToVendorMenu}
+          unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+          isMachineConfigured={electionRecord !== null}
+        />
+      );
+    }
+
     if (isSystemAdministratorAuth(authStatus)) {
       return <SystemAdministratorApp />;
     }
