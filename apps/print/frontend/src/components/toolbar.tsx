@@ -55,6 +55,7 @@ const ToolbarContainer = styled(Row)`
   position: sticky;
   top: 0;
   width: 100%;
+  height: 2.2rem;
   gap: 1.25rem;
   justify-content: flex-end;
   align-items: center;

@@ -9,7 +9,8 @@ const Container = styled.div`
   border: 1px solid ${(p) => p.theme.colors.outline};
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   width: 100%;
-  max-height: 100%;
+  height: 100%;
+  overflow-y: auto;
 `;
 
 const SearchBox = styled.div`
@@ -53,6 +54,7 @@ const OptionList = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
+  height: 100%;
 `;
 
 const StyledOption = styled.option`
@@ -119,7 +121,9 @@ export function ExpandedSelect({
               const newSearchString = (event.target.value || '').trim();
               onSearch(newSearchString);
             }}
-            placeholder="Search"
+            placeholder={
+              selectedValue ? `Selected: ${selectedValue}` : 'Search'
+            }
             type="text"
           />
         </SearchBox>
