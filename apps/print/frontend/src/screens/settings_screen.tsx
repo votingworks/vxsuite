@@ -13,7 +13,7 @@ import styled from 'styled-components';
 import {
   logOut,
   useApiClient,
-  getElectionDefinition,
+  getElectionRecord,
   unconfigureMachine,
   getUsbDriveStatus,
 } from '../api';
@@ -30,14 +30,14 @@ export function SettingsScreen(): JSX.Element | null {
   const logOutMutation = logOut.useMutation();
 
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
-  const electionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionRecordQuery = getElectionRecord.useQuery();
   const usbStatusQuery = getUsbDriveStatus.useQuery();
 
-  if (!electionDefinitionQuery.isSuccess || !usbStatusQuery.isSuccess) {
+  if (!electionRecordQuery.isSuccess || !usbStatusQuery.isSuccess) {
     return null;
   }
 
-  const isConfigured = electionDefinitionQuery.data !== null;
+  const isConfigured = electionRecordQuery.data !== null;
   const usbStatus = usbStatusQuery.data;
   async function unconfigure() {
     try {

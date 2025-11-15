@@ -3,11 +3,13 @@ import {
   AppBase,
   AppErrorBoundary,
   H1,
+  InvalidCardScreen,
   P,
   RemoveCardScreen,
   SetupCardReaderPage,
   SystemCallContextProvider,
   UnlockMachineScreen,
+  VendorScreen,
 } from '@votingworks/ui';
 import { BrowserRouter } from 'react-router-dom';
 import { DevDock } from '@votingworks/dev-dock-frontend';
@@ -18,6 +20,7 @@ import {
   isElectionManagerAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
+  isVendorAuth,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { MachineLockedScreen } from './screens/machine_locked_screen';
@@ -28,12 +31,14 @@ import {
   createApiClient,
   createQueryClient,
   getAuthStatus,
-  getElectionDefinition,
+  getElectionRecord,
   getUsbDriveStatus,
+  logOut,
   systemCallApi,
+  unconfigureMachine,
 } from './api';
 import { ElectionManagerApp } from './election_manager_app';
-import { UnconfiguredScreen } from './screens/unconfigured_screen';
+import { UnconfiguredElectionManagerScreen } from './screens/unconfigured_election_manager_screen';
 import { SystemAdministratorApp } from './system_administrator_app';
 import { PollWorkerApp } from './poll_worker_app';
 
@@ -47,20 +52,22 @@ function AppRoot({
   apiClient: ApiClient;
 }): JSX.Element | null {
   const checkPinMutation = checkPin.useMutation();
+  const logOutMutation = logOut.useMutation();
+  const unconfigureMutation = unconfigureMachine.useMutation();
   const getAuthStatusQuery = getAuthStatus.useQuery();
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const getElectionRecordQuery = getElectionRecord.useQuery();
   const getUsbDriveStatusQuery = getUsbDriveStatus.useQuery();
 
   if (
     !getAuthStatusQuery.isSuccess ||
-    !getElectionDefinitionQuery.isSuccess ||
+    !getElectionRecordQuery.isSuccess ||
     !getUsbDriveStatusQuery.isSuccess
   ) {
     return null;
   }
 
   const authStatus = getAuthStatusQuery.data;
-  const electionDefinition = getElectionDefinitionQuery.data;
+  const electionRecord = getElectionRecordQuery.data;
   const usbDriveStatus = getUsbDriveStatusQuery.data;
 
   assert(usbDriveStatus);
@@ -71,21 +78,8 @@ function AppRoot({
   ) {
     return <SetupCardReaderPage />;
   }
-  if (
-    authStatus.status === 'logged_out' &&
-    authStatus.reason === 'machine_locked'
-  ) {
-    return <MachineLockedScreen />;
-  }
 
-  if (authStatus.status === 'remove_card') {
-    return <RemoveCardScreen productName="VxPrint" />;
-  }
-
-  if (
-    authStatus.status === 'checking_pin' &&
-    ['vendor', 'system_administrator'].includes(authStatus.user.role)
-  ) {
+  if (authStatus.status === 'checking_pin') {
     return (
       <UnlockMachineScreen
         auth={authStatus}
@@ -100,31 +94,63 @@ function AppRoot({
     );
   }
 
-  if (authStatus.status === 'logged_in') {
-    if (isPollWorkerAuth(authStatus)) {
-      if (!electionDefinition) {
-        return <UnconfiguredScreen isElectionManagerAuth={false} />;
-      }
-      return <PollWorkerApp />;
+  if (authStatus.status === 'remove_card') {
+    return (
+      <RemoveCardScreen
+        productName="VxPollBook"
+        cardInsertionDirection="right"
+      />
+    );
+  }
+
+  if (authStatus.status === 'logged_out') {
+    if (
+      authStatus.reason === 'machine_locked' ||
+      authStatus.reason === 'machine_locked_by_session_expiry'
+    ) {
+      return <MachineLockedScreen />;
     }
 
-    if (isElectionManagerAuth(authStatus)) {
-      if (!electionDefinition) {
-        return <UnconfiguredScreen isElectionManagerAuth />;
-      }
-      return <ElectionManagerApp />;
-      // Uncomment to access ballot printing screen
-      // return <BallotListScreen />;
+    return (
+      <InvalidCardScreen
+        reasonAndContext={authStatus}
+        recommendedAction={
+          authStatus.reason === 'machine_not_configured'
+            ? 'Use a system administrator or election manager card.'
+            : 'Use a valid card.'
+        }
+        cardInsertionDirection="right"
+      />
+    );
+  }
+
+  if (authStatus.status === 'logged_in') {
+    if (isVendorAuth(authStatus)) {
+      return (
+        <VendorScreen
+          logOut={logOutMutation.mutate}
+          rebootToVendorMenu={apiClient.rebootToVendorMenu}
+          unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+          isMachineConfigured={electionRecord !== null}
+        />
+      );
     }
 
     if (isSystemAdministratorAuth(authStatus)) {
       return <SystemAdministratorApp />;
     }
-  }
 
-  // if (!electionRecord) {
-  //   return <UnconfiguredScreen usbDriveStatus={usbDriveStatus} />;
-  // }
+    if (isElectionManagerAuth(authStatus)) {
+      if (!electionRecord) {
+        return <UnconfiguredElectionManagerScreen />;
+      }
+      return <ElectionManagerApp />;
+      // Uncomment to access ballot printing screen
+      // return <BallotListScreen />;
+    }
+    assert(isPollWorkerAuth(authStatus));
+    return <PollWorkerApp />;
+  }
 
   return (
     <React.Fragment>

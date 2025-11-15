@@ -10,6 +10,7 @@ import {
 } from '@votingworks/types';
 import {
   createSystemCallApi,
+  ElectionRecord,
   readSignedElectionPackageFromUsb,
 } from '@votingworks/backend';
 import { isElectionManagerAuth } from '@votingworks/utils';
@@ -30,6 +31,8 @@ export function buildApi(ctx: AppContext) {
   const { store } = workspace;
 
   const methods = {
+    getMachineConfig,
+
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(store));
     },
@@ -98,8 +101,8 @@ export function buildApi(ctx: AppContext) {
       return ok(electionDefinition);
     },
 
-    getElectionDefinition(): ElectionDefinition | null {
-      return store.getElectionRecord()?.electionDefinition || null;
+    getElectionRecord(): ElectionRecord | null {
+      return store.getElectionRecord() || null;
     },
 
     unconfigureMachine(): void {

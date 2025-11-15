@@ -63,15 +63,13 @@ export const logOut = {
   },
 } as const;
 
-export const getElectionDefinition = {
+export const getElectionRecord = {
   queryKey(): QueryKey {
-    return ['getElectionDefinition'];
+    return ['getElectionRecord'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getElectionDefinition(), {
-      refetchInterval: 100,
-    });
+    return useQuery(this.queryKey(), () => apiClient.getElectionRecord());
   },
 } as const;
 
@@ -93,7 +91,7 @@ export const configureElectionPackageFromUsb = {
     const queryClient = useQueryClient();
     return useMutation(() => apiClient.configureElectionPackageFromUsb(), {
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+        await queryClient.invalidateQueries(getElectionRecord.queryKey());
       },
     });
   },
@@ -134,6 +132,17 @@ export const unconfigureMachine = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.unconfigureMachine, {});
+  },
+} as const;
+
+export const getMachineConfig = {
+  queryKeyPrefix: 'getMachineConfig',
+  queryKey(): QueryKey {
+    return [this.queryKeyPrefix];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
   },
 } as const;
 

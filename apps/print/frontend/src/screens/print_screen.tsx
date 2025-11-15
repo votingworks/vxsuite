@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 
-import { hasSplits, Precinct } from '@votingworks/types';
+import { hasSplits } from '@votingworks/types';
 import {
   Button,
   RadioGroup,
@@ -12,7 +12,7 @@ import { assertDefined } from '@votingworks/basics';
 
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
-import { getElectionDefinition } from '../api';
+import { getElectionRecord } from '../api';
 
 const Container = styled.div`
   /* Adjusted for Toolbar height */
@@ -95,13 +95,15 @@ export function PrintScreen({
   const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
   const [isAbsentee, setIsAbsentee] = useState<boolean>(false);
 
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
-  if (!getElectionDefinitionQuery.isSuccess) {
+  const getElectionRecordQuery = getElectionRecord.useQuery();
+  if (!getElectionRecordQuery.isSuccess) {
     return null;
   }
 
-  const { election } = assertDefined(getElectionDefinitionQuery.data);
-  const precincts: readonly Precinct[] = election?.precincts || [];
+  const {
+    electionDefinition: { election },
+  } = assertDefined(getElectionRecordQuery.data);
+  const { precincts } = election;
   // TODO(Nikhil): Hook up to real data
   const languages = ['English', 'Spanish'];
   const parties = ['Dem', 'Rep'];

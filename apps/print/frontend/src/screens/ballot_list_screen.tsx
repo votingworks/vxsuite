@@ -1,11 +1,9 @@
 import { Main, Screen, H1, Table, Button } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
 import { useCallback } from 'react';
-import { getBallots, getElectionDefinition, printBallot } from '../api';
+import { getBallots, printBallot } from '../api';
 
 export function BallotListScreen(): JSX.Element | null {
   const getBallotsQuery = getBallots.useQuery();
-  const electionDefinitionQuery = getElectionDefinition.useQuery();
   const printBallotMutation = printBallot.useMutation();
   const printBallotMutateFn = printBallotMutation.mutate;
 
@@ -16,13 +14,11 @@ export function BallotListScreen(): JSX.Element | null {
     [printBallotMutateFn]
   );
 
-  if (!getBallotsQuery.isSuccess || !electionDefinitionQuery.isSuccess) {
+  if (!getBallotsQuery.isSuccess) {
     return null;
   }
 
   const ballots = getBallotsQuery.data;
-  const electionDefinition = electionDefinitionQuery.data;
-  assert(electionDefinition);
 
   return (
     <Screen>

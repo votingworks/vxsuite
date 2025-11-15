@@ -1,23 +1,22 @@
 import { H1, InsertCardImage, Main, Screen } from '@votingworks/ui';
 import React from 'react';
-import { getElectionDefinition } from '../api';
+import { getElectionRecord } from '../api';
 
 export function MachineLockedScreen(): JSX.Element | null {
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const getElectionRecordQuery = getElectionRecord.useQuery();
 
-  if (!getElectionDefinitionQuery.isSuccess) {
+  if (!getElectionRecordQuery.isSuccess) {
     return null;
   }
 
-  const electionDefinition = getElectionDefinitionQuery.data;
-
+  const electionRecord = getElectionRecordQuery.data;
   return (
     <Screen>
       <Main centerChild>
         <React.Fragment>
           <InsertCardImage cardInsertionDirection="right" />
           <H1 align="center" style={{ maxWidth: '36rem' }}>
-            {electionDefinition
+            {electionRecord
               ? 'Insert a card to unlock'
               : 'Insert a system administrator or election manager card to configure VxPrint'}
           </H1>
