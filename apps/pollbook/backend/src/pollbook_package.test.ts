@@ -81,7 +81,7 @@ describe('parseVotersFromCsvString', () => {
     ).not.toThrow();
   });
 
-  test('throws when ward or district id has no match election precincts', () => {
+  test('throws when ward or district id has no match in election precincts', () => {
     const csvString = `Voter ID,First Name,Last Name,Postal Zip5,Ward
 123,John,Doe,12345,01
 456,Jane,Smith,67890,99`;
