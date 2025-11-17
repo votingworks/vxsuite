@@ -12,6 +12,7 @@ import {
 } from '../test/mock_api_client';
 import { renderInAppContext } from '../test/render_in_app_context';
 import { ElectionManagerScreen } from './election_manager_screen';
+import { getMockElectionManagerAuth } from '../test/auth';
 
 let apiMock: ApiMock;
 const electionDefFamousNames =
@@ -24,6 +25,7 @@ let unmount: () => void;
 beforeEach(() => {
   vi.clearAllMocks();
   apiMock = createApiMock();
+  apiMock.setAuthStatus(getMockElectionManagerAuth());
   apiMock.setIsAbsenteeMode(false);
   apiMock.setElection(electionDefFamousNames);
   apiMock.expectGetDeviceStatuses();

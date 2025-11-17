@@ -392,6 +392,40 @@ describe('common functionality', () => {
     await screen.findByText('Not Checked In');
   });
 
+  test('undo check-in modal closes and does not crash if another client undoes the check-in', async () => {
+    const checkedInVoter: Voter = {
+      ...voter,
+      checkIn: {
+        identificationMethod: { type: 'default' },
+        timestamp: new Date().toISOString(),
+        isAbsentee: false,
+        receiptNumber: 0,
+        machineId: 'test-machine-01',
+        ballotParty: 'REP',
+      },
+    };
+
+    apiMock.expectGetVoter(checkedInVoter);
+    apiMock.setPrinterStatus(true);
+    apiMock.expectGetDeviceStatuses();
+
+    await renderComponent();
+
+    // Open the undo check-in modal
+    userEvent.click(await screen.findButton('Undo Check-In'));
+    await screen.findByRole('heading', { name: 'Undo Check-In' });
+
+    // Simulate another client undoing the check-in by returning voter without check-in
+    const updatedVoter: Voter = { ...checkedInVoter, checkIn: undefined };
+    apiMock.expectGetVoter(updatedVoter);
+
+    // Modal should automatically close and show "Not Checked In" status
+    await screen.findByText('Not Checked In');
+
+    // Modal should be gone
+    expect(screen.queryByRole('heading', { name: 'Undo Check-In' })).toBeNull();
+  });
+
   test('reprint check-in receipt', async () => {
     const checkedInVoter: Voter = {
       ...voter,

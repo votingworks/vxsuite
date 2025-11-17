@@ -10,6 +10,7 @@ import { screen } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
 import { SystemAdministratorScreen } from './system_administrator_screen';
 import { renderInAppContext } from '../test/render_in_app_context';
+import { getMockSystemAdministratorAuth } from '../test/auth';
 
 const nonbreakingHyphen = '‑';
 
@@ -36,6 +37,7 @@ beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
   apiMock = createApiMock();
+  apiMock.setAuthStatus(getMockSystemAdministratorAuth());
   apiMock.expectGetDeviceStatuses();
 });
 

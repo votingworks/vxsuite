@@ -1,5 +1,10 @@
 import { describe, test, expect } from 'vitest';
-import { Election, StreetSide } from '@votingworks/types';
+import {
+  Election,
+  StreetSide,
+  ValidStreetInfo,
+  Voter,
+} from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   parseVotersFromCsvString,
@@ -124,19 +129,19 @@ describe('parseVotersFromCsvString', () => {
   });
 
   test('handles alternative column names', () => {
-    const csvString = `Voter ID,Postal City,Mailing Town,Zip5
-123,Springfield,Boston,12345`;
+    const expectedAlternatives: Record<string, keyof Voter> = {
+      'Postal City': 'postalCityTown',
+      'Mailing City': 'mailingCityTown',
+      'Mailing Town': 'mailingCityTown',
+      Zip5: 'postalZip5',
+    };
 
-    const result = parseVotersFromCsvString(csvString, mockElection);
-
-    expect(result[0]).toEqual(
-      expect.objectContaining({
-        voterId: '123',
-        postalCityTown: 'Springfield',
-        mailingCityTown: 'Boston',
-        postalZip5: '12345',
-      })
-    );
+    for (const [altName, fieldName] of Object.entries(expectedAlternatives)) {
+      const csvString = `Voter ID,${altName}
+123,TestValue`;
+      const result = parseVotersFromCsvString(csvString, mockElection);
+      expect(result[0][fieldName]).toEqual('TestValue');
+    }
   });
 
   test('handles preferred column names over alternatives', () => {
@@ -282,17 +287,16 @@ Oak Ave,1,99,EVEN`;
   });
 
   test('handles alternative column names', () => {
-    const csvString = `Street Name,Low Range,High Range,Side,Postal City
-Main St,100,200,odd,Springfield`;
+    const expectedAlternatives: Record<string, keyof ValidStreetInfo> = {
+      'Postal City': 'postalCityTown',
+    };
 
-    const result = parseValidStreetsFromCsvString(csvString, mockElection);
-
-    expect(result[0]).toEqual(
-      expect.objectContaining({
-        streetName: 'Main St',
-        postalCityTown: 'Springfield',
-      })
-    );
+    for (const [altName, fieldName] of Object.entries(expectedAlternatives)) {
+      const csvString = `Street Name,Low Range,High Range,Side,${altName}
+Main St,2,10,ODD,TestValue`;
+      const result = parseValidStreetsFromCsvString(csvString, mockElection);
+      expect(result[0][fieldName]).toEqual('TestValue');
+    }
   });
 
   test('handles preferred column names over alternatives', () => {

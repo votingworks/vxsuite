@@ -143,7 +143,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
             </FullScreenIconWrapper>
           }
         >
-          Error configuring machine. Please try again.
+          <P>Error configuring machine. Please try again.</P>
         </FullScreenMessage>
       );
     }
@@ -157,7 +157,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
             </FullScreenIconWrapper>
           }
         >
-          No poll book package found on the inserted USB drive.
+          <P>No poll book package found on the inserted USB drive.</P>
         </FullScreenMessage>
       );
     }
@@ -250,7 +250,9 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
             </FullScreenIconWrapper>
           }
         >
-          The machine has been unconfigured and will now lock automatically…
+          <P>
+            The machine has been unconfigured and will now lock automatically…
+          </P>
         </FullScreenMessage>
       </Screen>
     );
@@ -285,7 +287,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
             </FullScreenIconWrapper>
           }
         >
-          Error configuring machine. Please try again.
+          <P>Error configuring machine. Please try again.</P>
         </FullScreenMessage>
       </Screen>
     );
@@ -303,9 +305,11 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
             </FullScreenIconWrapper>
           }
         >
-          VxPollBook detected other poll books on the network with conflicting
-          configurations. Make sure you unconfigure any outdated machines and
-          try again.
+          <P>
+            VxPollBook detected other poll books on the network with conflicting
+            configurations. Make sure you unconfigure any outdated machines and
+            try again.
+          </P>
         </FullScreenMessage>
       </Screen>
     );
@@ -324,8 +328,11 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
             </FullScreenIconWrapper>
           }
         >
-          VxPollBook detected other poll books, but none of them are configured
-          with a poll book package matching the current election manager card.
+          <P>
+            VxPollBook detected other poll books, but none of them are
+            configured with a poll book package matching the current election
+            manager card.
+          </P>
         </FullScreenMessage>
       </Screen>
     );
@@ -341,7 +348,10 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
           </FullScreenIconWrapper>
         }
       >
-        VxPollBook did not detect any configured poll books on the network.
+        <P>
+          VxPollBook did not detect any configured poll books on the network. To
+          configure from a USB drive, log in as a system administrator.
+        </P>
       </FullScreenMessage>
     </Screen>
   );

@@ -14,6 +14,7 @@ import {
   NavList,
   NavListItem,
   Screen,
+  SessionTimeLimitTimer,
   Table,
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
@@ -37,6 +38,7 @@ import {
   logOut,
   getElection,
   getPollbookConfigurationInformation,
+  getAuthStatus,
 } from './api';
 import { PollbookConnectionStatus } from './types';
 import { VerticalElectionInfoBar } from './election_info_bar';
@@ -425,8 +427,15 @@ export function NavScreen({
 }): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
   const getMachineInfoQuery = getPollbookConfigurationInformation.useQuery();
+  const getAuthStatusQuery = getAuthStatus.useQuery();
 
-  if (!(getElectionQuery.isSuccess && getMachineInfoQuery.isSuccess)) {
+  if (
+    !(
+      getElectionQuery.isSuccess &&
+      getMachineInfoQuery.isSuccess &&
+      getAuthStatusQuery.isSuccess
+    )
+  ) {
     return null;
   }
 
@@ -438,6 +447,7 @@ export function NavScreen({
     electionBallotHash,
     pollbookPackageHash,
   } = getMachineInfoQuery.data;
+  const auth = getAuthStatusQuery.data;
 
   return (
     <Screen flexDirection="row">
@@ -460,6 +470,7 @@ export function NavScreen({
       </LeftNav>
       <Main flexColumn>
         <DeviceStatusBar />
+        <SessionTimeLimitTimer authStatus={auth} />
         {children}
       </Main>
     </Screen>

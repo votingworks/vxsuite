@@ -16,7 +16,7 @@ import {
   P,
 } from '@votingworks/ui';
 import { useHistory, useParams } from 'react-router-dom';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { assertDefined, sleep, assert } from '@votingworks/basics';
 import { PrinterStatus, Voter } from '@votingworks/types';
 import { DateTime } from 'luxon';
@@ -59,9 +59,21 @@ function ConfirmUndoCheckInModal({
 }: {
   voter: Voter;
   onClose: () => void;
-}): JSX.Element {
+}): JSX.Element | null {
   const undoVoterCheckInMutation = undoVoterCheckIn.useMutation();
   const [reason, setReason] = useState('');
+
+  // the check-in may be undone at another poll book, or the modal may render
+  // after the check-in has been undone at the current poll book
+  useEffect(() => {
+    if (!voter.checkIn) {
+      onClose();
+    }
+  }, [voter.checkIn, onClose]);
+
+  if (!voter.checkIn) {
+    return null;
+  }
 
   return (
     <Modal
@@ -81,7 +93,7 @@ function ConfirmUndoCheckInModal({
                   <VoterName voter={voter} />
                 </H3>
               </div>
-              <CheckInDetails checkIn={assertDefined(voter.checkIn)} />
+              <CheckInDetails checkIn={voter.checkIn} />
             </Row>
           </Card>
           <Column>
