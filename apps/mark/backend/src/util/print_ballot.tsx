@@ -19,8 +19,9 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   const { printer, store, precinctId, ballotStyleId, votes, languageCode } = p;
 
   const systemSettings = assertDefined(store.getSystemSettings());
+  const printMode = systemSettings.bmdPrintMode ?? 'summary';
 
-  switch (systemSettings.bmdPrintMode) {
+  switch (printMode) {
     case 'summary':
       break;
     case 'marks_on_preprinted_ballot':
@@ -29,7 +30,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
       throw new Error('Not yet supported');
     /* istanbul ignore next  - @preserve */
     default:
-      throwIllegalValue(systemSettings.bmdPrintMode, 'bmdPrintMode');
+      throwIllegalValue(printMode, 'bmdPrintMode');
   }
 
   const { electionDefinition } = assertDefined(store.getElectionRecord());
