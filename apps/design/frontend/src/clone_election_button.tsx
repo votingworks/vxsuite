@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import type { ElectionListing } from '@votingworks/design-backend';
 import * as api from './api';
 import { OrgSelect } from './org_select';
+import { Tooltip, TooltipContainer } from './tooltip';
 
 export interface CloneElectionButtonProps {
   election: ElectionListing;
@@ -15,44 +16,6 @@ export interface CloneElectionButtonProps {
 const OrgModal = styled(Modal)`
   /* Allow modal to grow with user zoom setting and cap near screen height. */
   min-height: min(40rem, 98%);
-`;
-
-const Tooltip = styled.span`
-  /*
-   * [TODO] No easy way to use theme colors for transparency, since they're
-   * defined in 'HSL' - need to bring in the 'polished' lib used in libs/ui, or
-   * create a generalized tooltip component in libs/ui.
-   */
-  background: rgba(0, 0, 0, 75%);
-  border-radius: 0.25rem;
-  bottom: calc(100% + 0.7rem);
-  box-shadow: 0.1rem 0.1rem 0.2rem 0.05rem rgba(0, 0, 0, 25%);
-  color: #fff;
-  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
-  padding: 0.5rem 0.75rem 0.6rem;
-  position: absolute;
-  right: 0;
-  width: max-content;
-
-  &:hover {
-    /* Prevent it from sticking around when moving quickly between buttons. */
-    display: none !important;
-  }
-`;
-
-const ButtonContainer = styled.span`
-  position: relative;
-
-  ${Tooltip} {
-    display: none;
-  }
-
-  &:focus,
-  &:hover {
-    ${Tooltip} {
-      display: block;
-    }
-  }
 `;
 
 export function CloneElectionButton(
@@ -90,8 +53,10 @@ export function CloneElectionButton(
 
   return (
     <React.Fragment>
-      <ButtonContainer>
-        <Tooltip role="tooltip">{`Make a copy of ${election.title}`}</Tooltip>
+      <TooltipContainer>
+        <Tooltip alignTo="right" bold>
+          Make a copy of {election.title}
+        </Tooltip>
         <Button
           variant={variant}
           onPress={features.ACCESS_ALL_ORGS ? setModalActive : cloneElection}
@@ -101,7 +66,7 @@ export function CloneElectionButton(
         >
           <Icons.Copy />
         </Button>
-      </ButtonContainer>
+      </TooltipContainer>
       {modalActive && (
         <OrgModal
           title="Duplicate Election"
