@@ -2,6 +2,7 @@ use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf};
 
 use image::{imageops::rotate180_in_place, GenericImageView, GrayImage};
 use imageproc::contrast::{otsu_level, threshold};
+use itertools::Itertools;
 use serde::Serialize;
 
 use crate::{
@@ -248,6 +249,27 @@ impl BallotPage {
         })
     }
 
+    /// Errors if there are any vertical streaks in the timing mark inset area.
+    pub fn reject_vertical_streaks_in_timing_mark_inset(
+        &self,
+        detected_streaks: &Vec<VerticalStreak>,
+    ) -> Result<()> {
+        let timing_mark_streak_inset_size = self.geometry.canvas_width_pixels() * 0.1;
+        let left_edge_inset = timing_mark_streak_inset_size as i32;
+        let right_edge_inset =
+            (self.geometry.canvas_width_pixels() - timing_mark_streak_inset_size) as i32;
+        for streak in detected_streaks {
+            if *streak.x_range.start() < left_edge_inset || *streak.x_range.end() > right_edge_inset
+            {
+                return Err(Error::VerticalStreaksDetected {
+                    label: self.label.clone(),
+                    x_coordinates: streak.x_range.clone().collect_vec(),
+                });
+            }
+        }
+        Ok(())
+    }
+
     /// Finds timing marks in this ballot page with the specified algorithm.
     ///
     /// # Errors
@@ -390,15 +412,25 @@ impl BallotCard {
         Pair::new(&mut self.front_page, &mut self.back_page)
     }
 
-    /// Detects vertical streaks on both sides of the ballot card.
-    ///
-    /// # Errors
-    ///
-    /// Fails if vertical streaks are detected on either side.
+    /// Detects vertical streaks on both sides of the ballot card, returning
+    /// the detected streaks for each side.
     #[must_use]
     pub fn detect_vertical_streaks(&self) -> Pair<Vec<VerticalStreak>> {
         self.as_pair()
             .par_map(|ballot_page| detect_vertical_streaks(ballot_page.ballot_image()))
+    }
+
+    // Errors if there are any vertical streaks in the timing mark inset area.
+    pub fn reject_vertical_streaks_in_timing_mark_inset(
+        &self,
+        streaks: &Pair<Vec<VerticalStreak>>,
+    ) -> Result<Pair<()>> {
+        self.as_pair()
+            .zip(streaks)
+            .par_map(|(ballot_page, page_streaks)| {
+                ballot_page.reject_vertical_streaks_in_timing_mark_inset(page_streaks)
+            })
+            .into_result()
     }
 
     /// Finds timing marks on the ballot card using the given timing mark

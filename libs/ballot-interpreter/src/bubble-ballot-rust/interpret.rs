@@ -369,6 +369,8 @@ pub fn ballot_card(
         .then(|| ballot_card.detect_vertical_streaks())
         .unwrap_or_default();
 
+    ballot_card.reject_vertical_streaks_in_timing_mark_inset(&detected_vertical_streaks)?;
+
     let mut timing_marks = ballot_card.find_timing_marks(options.timing_mark_algorithm)?;
 
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {
