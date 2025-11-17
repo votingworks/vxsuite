@@ -7,6 +7,7 @@ import { generateMarkOverlay, PrintCalibration } from '@votingworks/hmpb';
 import {
   ElectionDefinition,
   HmpbBallotPaperSize,
+  SystemSettings,
   UiStringsPackage,
   VotesDict,
 } from '@votingworks/types';
@@ -33,7 +34,7 @@ vi.mock('@votingworks/ui');
 
 const electionDefBase = electionGeneralFixtures.readElectionDefinition();
 
-describe(`printMode === "bubble_marks"`, () => {
+describe(`printMode === "marks_on_preprinted_ballot"`, () => {
   const testValidSizes = test.each<'letter' | 'legal'>(['letter', 'legal']);
 
   testValidSizes('prints bubble marks - %s', async (size) => {
@@ -76,7 +77,12 @@ describe(`printMode === "bubble_marks"`, () => {
           electionPackageHash: 'unused',
         }),
         getPrintCalibration: () => mockCalibration,
-        getPrintMode: () => 'bubble_marks',
+        getSystemSettings: () => {
+          const settings: Partial<SystemSettings> = {
+            bmdPrintMode: 'marks_on_preprinted_ballot',
+          };
+          return settings as SystemSettings;
+        },
       }),
       votes: mockVotes,
     });
@@ -142,7 +148,12 @@ describe(`printMode === "summary"`, () => {
           electionDefinition,
           electionPackageHash: 'unused',
         }),
-        getPrintMode: () => 'summary',
+        getSystemSettings: () => {
+          const settings: Partial<SystemSettings> = {
+            bmdPrintMode: 'summary',
+          };
+          return settings as SystemSettings;
+        },
         getTestMode: () => false,
         getUiStringsStore: () =>
           mockUiStringsStore({
@@ -155,6 +166,36 @@ describe(`printMode === "summary"`, () => {
     expect(mockPrint.mock.calls).toEqual<Array<Parameters<PrintFunction>>>([
       [{ data: mockPdf, sides: PrintSides.OneSided }],
     ]);
+  });
+});
+
+describe(`printMode === "bubble_ballot"`, () => {
+  test('throws error for unsupported bubble_ballot mode', async () => {
+    const electionDefinition = electionDefBase;
+    const ballotStyle = electionDefinition.election.ballotStyles[0];
+    const mockVotes: VotesDict = { foo: ['yes'] };
+
+    await expect(
+      printBallot({
+        ballotStyleId: ballotStyle.id,
+        languageCode: 'unused',
+        precinctId: 'unused',
+        printer: mockPrinter({ print: vi.fn() }),
+        store: mockStore({
+          getElectionRecord: () => ({
+            electionDefinition,
+            electionPackageHash: 'unused',
+          }),
+          getSystemSettings: () => {
+            const settings: Partial<SystemSettings> = {
+              bmdPrintMode: 'bubble_ballot',
+            };
+            return settings as SystemSettings;
+          },
+        }),
+        votes: mockVotes,
+      })
+    ).rejects.toThrow('Not yet supported');
   });
 });
 

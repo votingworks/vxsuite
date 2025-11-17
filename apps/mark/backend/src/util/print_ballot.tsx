@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 
 import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { generateMarkOverlay } from '@votingworks/hmpb';
 import {
   BmdPaperBallot,
@@ -18,8 +18,19 @@ export interface PrintBallotProps extends ClientParams {
 export async function printBallot(p: PrintBallotProps): Promise<void> {
   const { printer, store, precinctId, ballotStyleId, votes, languageCode } = p;
 
-  if (store.getPrintMode() === 'bubble_marks') {
-    return printMarkOverlay(p);
+  const systemSettings = assertDefined(store.getSystemSettings());
+  const printMode = systemSettings.bmdPrintMode ?? 'summary';
+
+  switch (printMode) {
+    case 'summary':
+      break;
+    case 'marks_on_preprinted_ballot':
+      return printMarkOverlay(p);
+    case 'bubble_ballot':
+      throw new Error('Not yet supported');
+    /* istanbul ignore next  - @preserve */
+    default:
+      throwIllegalValue(printMode, 'bmdPrintMode');
   }
 
   const { electionDefinition } = assertDefined(store.getElectionRecord());

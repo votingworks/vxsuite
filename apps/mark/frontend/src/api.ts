@@ -16,7 +16,6 @@ import {
   createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
-import { PrintMode } from '@votingworks/mark-backend';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 export const ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS = 3000;
@@ -254,29 +253,6 @@ export const endCardlessVoterSession = {
 
 export const uiStringsApi = createUiStringsApi(useApiClient);
 
-export const getPrintMode = {
-  queryKey(): QueryKey {
-    return ['getPrintMode'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPrintMode());
-  },
-} as const;
-
-export const setPrintMode = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-
-    return useMutation((mode: PrintMode) => apiClient.setPrintMode({ mode }), {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getPrintMode.queryKey());
-      },
-    });
-  },
-} as const;
-
 export const getPrintCalibration = {
   queryKey: (): QueryKey => ['getPrintCalibration'],
   useQuery() {
@@ -324,7 +300,6 @@ export const unconfigureMachine = {
         await queryClient.invalidateQueries(getElectionRecord.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
         await queryClient.invalidateQueries(getElectionState.queryKey());
-        await queryClient.invalidateQueries(getPrintMode.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });

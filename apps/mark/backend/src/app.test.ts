@@ -48,7 +48,7 @@ import {
 } from '@votingworks/printing';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
-import { ElectionState, PrintCalibration, PrintMode } from '.';
+import { ElectionState, PrintCalibration } from '.';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
 
 const electionGeneralDefinition =
@@ -515,18 +515,6 @@ test('getAccessibleControllerConnected', async () => {
 
   isAccessibleControllerAttachedMock.mockReturnValue(false);
   expect(await apiClient.getAccessibleControllerConnected()).toEqual(false);
-});
-
-test('print mode get and set', async () => {
-  expect(await apiClient.getPrintMode()).toEqual<PrintMode>('summary');
-
-  await configureMachine(
-    mockUsbDrive,
-    electionFamousNames2021Fixtures.readElectionDefinition()
-  );
-  await apiClient.setPrintMode({ mode: 'bubble_marks' });
-
-  expect(await apiClient.getPrintMode()).toEqual<PrintMode>('bubble_marks');
 });
 
 test('print calibration', async () => {

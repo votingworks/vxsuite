@@ -11,6 +11,7 @@ import {
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
@@ -47,9 +48,6 @@ afterEach(() => {
 });
 
 function renderScreen(props: Partial<AdminScreenProps> = {}) {
-  apiMock.mockApiClient.getPrintMode.reset();
-  apiMock.mockApiClient.getPrintMode.expectCallWith().resolves('bubble_marks');
-
   return render(
     provideApi(
       apiMock,
@@ -72,6 +70,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
 }
 
 test('renders date and time settings modal', async () => {
+  apiMock.expectGetSystemSettings();
   renderScreen();
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
@@ -105,6 +104,7 @@ test('renders date and time settings modal', async () => {
 });
 
 test('renders system buttons', async () => {
+  apiMock.expectGetSystemSettings();
   renderScreen();
   await screen.findByText('System');
   screen.getByText('Power Down');
@@ -112,6 +112,7 @@ test('renders system buttons', async () => {
 });
 
 test('can switch the precinct', () => {
+  apiMock.expectGetSystemSettings();
   renderScreen();
 
   apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
@@ -120,6 +121,7 @@ test('can switch the precinct', () => {
 });
 
 test('precinct change disabled if polls closed', () => {
+  apiMock.expectGetSystemSettings();
   renderScreen({ pollsState: 'polls_closed_final' });
 
   const precinctSelect = screen.getByLabelText('Select a precinct…');
@@ -127,6 +129,7 @@ test('precinct change disabled if polls closed', () => {
 });
 
 test('precinct selection disabled if single precinct election', async () => {
+  apiMock.expectGetSystemSettings();
   renderScreen({
     electionDefinition:
       electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition(),
@@ -141,6 +144,7 @@ test('precinct selection disabled if single precinct election', async () => {
 });
 
 test('renders a save logs button with no usb', async () => {
+  apiMock.expectGetSystemSettings();
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
   const saveLogsButton = await screen.findByText('Save Logs');
   userEvent.click(saveLogsButton);
@@ -148,6 +152,7 @@ test('renders a save logs button with no usb', async () => {
 });
 
 test('renders a save logs button with usb mounted', async () => {
+  apiMock.expectGetSystemSettings();
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
   const saveLogsButton = await screen.findByText('Save Logs');
   userEvent.click(saveLogsButton);
@@ -155,41 +160,46 @@ test('renders a save logs button with usb mounted', async () => {
 });
 
 test('renders a USB controller button', async () => {
+  apiMock.expectGetSystemSettings();
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
   await screen.findByText('No USB');
 
+  apiMock.expectGetSystemSettings();
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
   await screen.findByText('Eject USB');
 });
 
 test('USB button calls eject', async () => {
+  apiMock.expectGetSystemSettings();
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
   const ejectButton = await screen.findByText('Eject USB');
   apiMock.expectEjectUsbDrive();
   userEvent.click(ejectButton);
 });
 
-test('print mode toggle - hidden without feature flag', () => {
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  expect(screen.queryButton('Bubble Marks')).not.toBeInTheDocument();
+test('shows bubble mark calibration when print mode is marks_on_preprinted_ballot', async () => {
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    bmdPrintMode: 'marks_on_preprinted_ballot',
+  });
+  renderScreen();
+
+  await screen.findByRole('heading', {
+    name: 'Bubble Mark Offset Calibration',
+  });
+  screen.getByText('X:');
+  screen.getByText('Y:');
 });
 
-test('print mode toggle - persists to server', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE
-  );
+test('does not show bubble mark calibration when print mode is summary', async () => {
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    bmdPrintMode: 'summary',
+  });
+  renderScreen();
 
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  await screen.findByRole('option', { selected: true, name: 'Bubble Marks' });
-
-  apiMock.mockApiClient.setPrintMode
-    .expectCallWith({ mode: 'summary' })
-    .resolves();
-  apiMock.mockApiClient.getPrintMode.expectCallWith().resolves('summary');
-
-  userEvent.click(
-    screen.getByRole('option', { selected: false, name: 'Summary' })
-  );
-
-  await screen.findByRole('option', { selected: true, name: 'Summary' });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  expect(
+    screen.queryByRole('heading', { name: 'Bubble Mark Offset Calibration' })
+  ).toBeNull();
 });

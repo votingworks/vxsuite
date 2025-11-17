@@ -41,7 +41,7 @@ import { Printer } from '@votingworks/printing';
 import { PrintCalibration } from '@votingworks/hmpb';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
-import { ElectionState, PrintBallotProps, PrintMode } from './types';
+import { ElectionState, PrintBallotProps } from './types';
 import { printBallot } from './util/print_ballot';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
 import { constructAuthMachineState } from './util/auth';
@@ -299,14 +299,6 @@ export function buildApi(
 
         throw err;
       }
-    },
-
-    getPrintMode(): PrintMode {
-      return store.getPrintMode();
-    },
-
-    setPrintMode(input: { mode: PrintMode }) {
-      store.setPrintMode(input.mode);
     },
 
     getPrintCalibration(): PrintCalibration {
