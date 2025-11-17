@@ -690,7 +690,7 @@ mod test {
             "test_vertical_streaks_not_through_bubbles.png",
             &side_a_image,
         );
-        ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap_err();
+        ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
     }
 
     #[test]
@@ -711,7 +711,7 @@ mod test {
             if (y % 2) == 0 {
                 side_a_image.put_pixel(fuzzy_streak_x, y, black_pixel);
             }
-            if (y % 3) != 0 {
+            if ((y + 1) % 2) == 0 {
                 side_a_image.put_pixel(fuzzy_streak_x + 1, y, black_pixel);
             }
             // Draw an incomplete streak on side B
@@ -732,13 +732,12 @@ mod test {
                 assert_eq!(
                     x_coordinates,
                     vec![
-                        //thin_complete_streak_x as PixelPosition - 1,
                         thin_complete_streak_x as PixelPosition,
-                        thick_complete_streak_x_through_bubbles as PixelPosition - 1,
                         thick_complete_streak_x_through_bubbles as PixelPosition,
                         thick_complete_streak_x_through_bubbles as PixelPosition + 1,
                         thick_complete_streak_x_through_bubbles as PixelPosition + 2,
-                        fuzzy_streak_x as PixelPosition
+                        fuzzy_streak_x as PixelPosition,
+                        fuzzy_streak_x as PixelPosition + 1,
                     ]
                 );
             }

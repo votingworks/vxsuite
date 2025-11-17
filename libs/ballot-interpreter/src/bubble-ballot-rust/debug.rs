@@ -150,7 +150,7 @@ pub fn draw_vertical_streaks_debug_image_mut(
                 percent_black_pixels = vertical_streak.scores,
                 longest_white_gap_length = vertical_streak.longest_white_gaps
             ),
-            x_end - x_start + 1,
+            x_end + 5,
             y,
             PxScale::from(20.0),
             &monospace_font(),

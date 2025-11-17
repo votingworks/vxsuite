@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::Add;
+use std::ops::{Add, Mul};
 
 use image::{GenericImageView, GrayImage};
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
@@ -62,6 +62,14 @@ impl Add for UnitIntervalScore {
 
     fn add(self, rhs: Self) -> Self::Output {
         self.0 + rhs.0
+    }
+}
+
+impl Mul<f32> for UnitIntervalScore {
+    type Output = Self;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Self(self.0 * rhs)
     }
 }
 
