@@ -8,7 +8,6 @@ import {
   P,
   SegmentedButton,
   SearchSelect,
-  MainContent,
   Breadcrumbs,
   TabPanel,
   RouterTabBar,
@@ -16,6 +15,7 @@ import {
   H1,
   Callout,
   H3,
+  MainContent,
 } from '@votingworks/ui';
 import {
   Redirect,

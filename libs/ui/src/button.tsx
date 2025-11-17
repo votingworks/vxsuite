@@ -67,6 +67,8 @@ type ThemedStyledButtonProps = StyledButtonProps & { theme: UiTheme };
 export type ButtonProps<T = undefined> = StyledButtonProps & {
   children?: React.ReactNode;
 
+  disableEventPropagation?: boolean;
+
   /**
    * @deprecated NOTE: Title tooltips are not accessible and should not be used
    * for important information. Consider rendering the text on or near the
@@ -450,8 +452,15 @@ export class Button<T = undefined> extends PureComponent<
     }
   };
 
-  private readonly onPress = (): void => {
-    const { onPress, value } = this.props;
+  private readonly onPress = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
+    const { disableEventPropagation, onPress, value } = this.props;
+
+    if (disableEventPropagation) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
 
     if (value === undefined) {
       (onPress as ClickHandler)?.();

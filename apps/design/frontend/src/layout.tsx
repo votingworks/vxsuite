@@ -32,14 +32,18 @@ export const FieldName = styled.div`
 `;
 
 export function InputGroup({
+  className,
   label,
   children,
+  style,
 }: {
+  className?: string;
   label: string;
   children: React.ReactNode;
+  style?: React.CSSProperties;
 }): JSX.Element {
   return (
-    <label>
+    <label className={className} style={style}>
       <FieldName>{label}</FieldName>
       {children}
     </label>
@@ -48,10 +52,6 @@ export function InputGroup({
 
 export const FormActionsRow = styled(Row)`
   gap: 0.5rem;
-
-  button {
-    min-width: 8rem;
-  }
 `;
 
 export const Table = styled(UiTable)`

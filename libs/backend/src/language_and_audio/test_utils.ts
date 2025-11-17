@@ -40,7 +40,11 @@ export function makeMockGoogleCloudTranslationClient({
 }
 
 export function mockCloudSynthesizedSpeech(text: string): string {
-  return `${text} (audio)`;
+  return `[from text] ${text} (audio)`;
+}
+
+export function mockCloudSpeechFromSsml(ssml: string): string {
+  return `[from ssml] ${ssml} (audio)`;
 }
 
 export function isMockCloudSynthesizedSpeech(audioContent: string): boolean {
@@ -50,8 +54,20 @@ export function isMockCloudSynthesizedSpeech(audioContent: string): boolean {
 const mockGoogleCloudTextToSpeechClient: MinimalGoogleCloudTextToSpeechClient =
   {
     synthesizeSpeech(input: {
-      input: { text: string };
+      input: { text: string } | { ssml: string };
     }): Promise<[{ audioContent: string | Uint8Array }, undefined, undefined]> {
+      if ('ssml' in input.input) {
+        return Promise.resolve([
+          {
+            audioContent: new TextEncoder().encode(
+              mockCloudSpeechFromSsml(input.input.ssml)
+            ),
+          },
+          undefined,
+          undefined,
+        ]);
+      }
+
       return Promise.resolve([
         {
           audioContent: new TextEncoder().encode(

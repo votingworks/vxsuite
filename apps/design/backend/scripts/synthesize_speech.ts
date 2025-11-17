@@ -42,10 +42,7 @@ async function synthesizeSpeech({
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
   });
-  const speechBase64 = await speechSynthesizer.synthesizeSpeech(
-    text,
-    languageCode
-  );
+  const speechBase64 = await speechSynthesizer.fromText(text, languageCode);
   fs.writeFileSync(outputFilePath, Buffer.from(speechBase64, 'base64'));
 }
 

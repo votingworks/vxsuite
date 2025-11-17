@@ -1,6 +1,7 @@
 import type { UserFeaturesConfig } from '@votingworks/design-backend';
 import {
   ElectionId,
+  ElectionStringKey,
   SystemSettings,
   TtsExportSource,
 } from '@votingworks/types';
@@ -63,6 +64,51 @@ export const routes = {
           }),
         },
       },
+      districts: {
+        root: {
+          title: 'Districts',
+          path: `${root}/districts`,
+        },
+        edit: {
+          title: 'Districts',
+          path: `${root}/districts/edit`,
+        },
+      },
+      precincts: {
+        root: {
+          title: 'Precincts',
+          path: `${root}/precincts`,
+        },
+        add: {
+          title: 'Precincts',
+          path: `${root}/precincts/add`,
+        },
+        edit: (precinctId: string) => ({
+          title: 'Precinct',
+          path: `${root}/precincts/${precinctId}/edit`,
+        }),
+        view: (precinctId: string) => ({
+          title: 'Precinct',
+          path: `${root}/precincts/${precinctId}`,
+        }),
+        audio: {
+          manage: (
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            precinctId: ':precinctId' | (string & {}),
+            ttsMode: TtsExportSource | ':ttsMode',
+            stringKey: ':stringKey' | ElectionStringKey,
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            subkey: ':subkey' | (string & {})
+          ) => {
+            const subpath = subkey ? `/${subkey}` : '';
+
+            return {
+              title: 'Audio',
+              path: `${root}/precincts/${precinctId}/audio/${ttsMode}/${stringKey}${subpath}`,
+            };
+          },
+        },
+      },
       contests: {
         root: {
           title: 'Contests',
@@ -97,6 +143,51 @@ export const routes = {
           }),
         },
       },
+      parties: {
+        root: {
+          title: 'Parties',
+          path: `${root}/parties`,
+        },
+        edit: {
+          title: 'Parties',
+          path: `${root}/parties/edit`,
+        },
+      },
+      contests2: {
+        root: {
+          title: 'Contests',
+          path: `${root}/contests2`,
+        },
+        add: {
+          title: 'Add Contest',
+          path: `${root}/contests2/add`,
+        },
+        edit: (contestId: string) => ({
+          title: 'Edit Contest',
+          path: `${root}/contests2/${contestId}/edit`,
+        }),
+        view: (contestId: string) => ({
+          title: 'Edit Contest',
+          path: `${root}/contests2/${contestId}`,
+        }),
+        audio: {
+          manage: (
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            contestId: ':contestId' | (string & {}),
+            ttsMode: TtsExportSource | ':ttsMode',
+            stringKey: ':stringKey' | ElectionStringKey,
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            subkey: ':subkey' | (string & {})
+          ) => {
+            const subpath = subkey ? `/${subkey}` : '';
+
+            return {
+              title: 'Audio',
+              path: `${root}/contests2/${contestId}/audio/${ttsMode}/${stringKey}${subpath}`,
+            };
+          },
+        },
+      },
       ballots: {
         root: {
           title: 'Proof Ballots',
@@ -109,7 +200,8 @@ export const routes = {
           },
           manage: (
             ttsMode: TtsExportSource | ':ttsMode',
-            stringKey: string,
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            stringKey: ':stringKey' | (string & {}),
             subkey?: string
           ) => {
             const subpath = subkey ? `/${subkey}` : '';
@@ -177,8 +269,10 @@ export function electionNavRoutes(
   const electionRoutes = routes.election(electionId);
   return [
     electionRoutes.electionInfo,
-    electionRoutes.geography.root,
-    electionRoutes.contests.root,
+    electionRoutes.districts.root,
+    electionRoutes.precincts.root,
+    electionRoutes.parties.root,
+    electionRoutes.contests2.root,
     electionRoutes.ballots.root,
     ...(features.SYSTEM_SETTINGS_SCREEN ? [electionRoutes.systemSettings] : []),
     ...(features.EXPORT_SCREEN ? [electionRoutes.export] : []),

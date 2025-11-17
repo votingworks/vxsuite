@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { useHistory, useLocation } from 'react-router-dom';
+import React from 'react';
 import { Button, ButtonProps } from './button';
 
 const StyledTabButton = styled(Button)`
@@ -31,6 +32,7 @@ const TabBar = styled.div.attrs({ role: 'tablist' })`
 `;
 
 export interface RouterTabBarProps {
+  style?: React.CSSProperties;
   tabs: Array<{ title: string; path: string }>;
 }
 
@@ -41,13 +43,13 @@ export interface RouterTabBarProps {
  *
  * To render the tab content, use the {@link TabPanel} component inside a `Switch`.
  */
-export function RouterTabBar({ tabs }: RouterTabBarProps): JSX.Element {
+export function RouterTabBar({ tabs, style }: RouterTabBarProps): JSX.Element {
   const location = useLocation();
   const history = useHistory();
   return (
-    <TabBar>
+    <TabBar style={style}>
       {tabs.map((tab) => {
-        const isActive = location.pathname === tab.path;
+        const isActive = location.pathname.startsWith(tab.path);
         return (
           <TabButton
             key={tab.path}

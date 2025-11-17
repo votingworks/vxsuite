@@ -7,7 +7,6 @@ import {
   P,
   Button,
   RadioGroup,
-  MainContent,
   TabPanel,
   RouterTabBar,
   H3,
@@ -448,6 +447,14 @@ function BallotLayoutTab(): JSX.Element | null {
     </TabPanel>
   );
 }
+
+const MainContent = styled.div`
+  overflow: auto;
+  padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+`;
 
 export function BallotsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();

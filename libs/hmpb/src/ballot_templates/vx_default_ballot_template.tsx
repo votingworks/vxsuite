@@ -238,6 +238,10 @@ function CandidateContest({
     8: hmpbStrings.hmpbVoteFor8,
     9: hmpbStrings.hmpbVoteFor9,
     10: hmpbStrings.hmpbVoteFor10,
+    11: hmpbStrings.hmpbVoteFor10,
+    12: hmpbStrings.hmpbVoteFor10,
+    13: hmpbStrings.hmpbVoteFor10,
+    14: hmpbStrings.hmpbVoteFor10,
   }[contest.seats];
   if (!voteForText) {
     throw new Error(

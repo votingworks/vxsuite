@@ -24,8 +24,6 @@ import {
 import { ElectionsScreen } from './elections_screen';
 import { electionParamRoutes, routes, resultsRoutes } from './routes';
 import { ElectionInfoScreen } from './election_info_screen';
-import { GeographyScreen } from './geography_screen';
-import { ContestsScreen } from './contests_screen';
 import { BallotsScreen } from './ballots_screen';
 import { SystemSettingsScreen } from './system_settings_screen';
 import { ExportScreen } from './export_screen';
@@ -33,6 +31,10 @@ import { ErrorScreen } from './error_screen';
 import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen';
 import { LiveReportsScreen } from './live_reports_screen';
 import { ConvertResultsScreen } from './convert_results_screen';
+import { ContestsScreen2 } from './contests_screen2';
+import { DistrictsScreen } from './districts_screen';
+import { PartiesScreen } from './parties_screen';
+import { PrecinctsScreen } from './precincts_screen';
 
 function ElectionScreens(): JSX.Element {
   return (
@@ -42,12 +44,20 @@ function ElectionScreens(): JSX.Element {
         component={ElectionInfoScreen}
       />
       <Route
-        path={electionParamRoutes.geography.root.path}
-        component={GeographyScreen}
+        path={electionParamRoutes.districts.root.path}
+        component={DistrictsScreen}
       />
       <Route
-        path={electionParamRoutes.contests.root.path}
-        component={ContestsScreen}
+        path={electionParamRoutes.precincts.root.path}
+        component={PrecinctsScreen}
+      />
+      <Route
+        path={electionParamRoutes.parties.root.path}
+        component={PartiesScreen}
+      />
+      <Route
+        path={electionParamRoutes.contests2.root.path}
+        component={ContestsScreen2}
       />
       <Route
         path={electionParamRoutes.ballots.root.path}

@@ -12,8 +12,12 @@ import {
 import {
   faCheckCircle,
   faCircleHalfStroke,
+  faCircleDown,
   faCircleLeft,
   faCircleRight,
+  faDoorClosed,
+  faDoorOpen,
+  faCircleUp,
   faDeleteLeft,
   faDisplay,
   faExclamationCircle,
@@ -31,6 +35,7 @@ import {
   faCirclePlus,
   faCircleQuestion,
   faEject,
+  faFileAudio,
   faFileArrowUp,
   faFileArrowDown,
   faChevronUp,
@@ -51,6 +56,7 @@ import {
   faImage,
   faInfoCircle,
   faItalic,
+  faKeyboard,
   faLanguage,
   faListOl,
   faListUl,
@@ -68,6 +74,7 @@ import {
   faRotateRight,
   faSimCard,
   faSort,
+  faUpDown,
   faSortDown,
   faTowerBroadcast,
   faRotate,
@@ -78,6 +85,7 @@ import {
   faStrikethrough,
   faTable,
   faTextHeight,
+  faTrash,
   faUnderline,
   faVolumeHigh,
   faVolumeMute,
@@ -86,6 +94,7 @@ import {
   faXmark,
   faCircleUser,
   faArrowRightFromBracket,
+  faQrcode,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -361,6 +370,18 @@ export const Icons = {
     return <FaIcon {...props} type={faCheckCircle} />;
   },
 
+  DoorClosed(props) {
+    return <FaIcon {...props} type={faDoorClosed} />;
+  },
+
+  DoorOpen(props) {
+    return <FaIcon {...props} type={faDoorOpen} />;
+  },
+
+  DownCircle(props) {
+    return <FaIcon {...props} type={faCircleDown} />;
+  },
+
   Edit(props) {
     return <FaIcon {...props} type={faPencil} />;
   },
@@ -387,6 +408,10 @@ export const Icons = {
 
   File(props) {
     return <FaIcon {...props} type={faFile} />;
+  },
+
+  FileAudio(props) {
+    return <FaIcon {...props} type={faFileAudio} />;
   },
 
   Flag(props) {
@@ -419,6 +444,10 @@ export const Icons = {
 
   Italic(props) {
     return <FaIcon {...props} type={faItalic} />;
+  },
+
+  Keyboard(props) {
+    return <FaIcon {...props} type={faKeyboard} />;
   },
 
   Language(props) {
@@ -485,6 +514,10 @@ export const Icons = {
     return <FaIcon {...props} type={faPowerOff} />;
   },
 
+  QrCode(props) {
+    return <FaIcon {...props} type={faQrcode} />;
+  },
+
   Question(props) {
     return <FaIcon {...props} type={faCircleQuestion} />;
   },
@@ -511,6 +544,10 @@ export const Icons = {
 
   Sort(props) {
     return <FaIcon {...props} type={faSort} />;
+  },
+
+  SortUpDown(props) {
+    return <FaIcon {...props} type={faUpDown} />;
   },
 
   SortUp(props) {
@@ -545,8 +582,16 @@ export const Icons = {
     return <FaIcon {...props} type={faTextHeight} />;
   },
 
+  Trash(props) {
+    return <FaIcon {...props} type={faTrash} />;
+  },
+
   Underline(props) {
     return <FaIcon {...props} type={faUnderline} />;
+  },
+
+  UpCircle(props) {
+    return <FaIcon {...props} type={faCircleUp} />;
   },
 
   UsbDrive(props) {

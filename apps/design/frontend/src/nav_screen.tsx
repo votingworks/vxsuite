@@ -58,6 +58,7 @@ export function Header({
       style={{
         display: 'flex',
         justifyContent: 'space-between',
+        padding: '0.75rem 1rem',
       }}
     >
       <div style={{ alignSelf: 'center' }}>{children}</div>
@@ -80,7 +81,7 @@ export function NavScreen({
 }): JSX.Element {
   return (
     <Screen flexDirection="row">
-      <LeftNav style={{ width: '14rem' }}>
+      <LeftNav style={{ width: '13rem' }}>
         <Link to="/">
           <AppLogo appName="VxDesign" />
         </Link>
@@ -113,7 +114,11 @@ export function ElectionNavScreen({
           {electionNavRoutes(electionId, features, systemSettings).map(
             ({ title, path }) => (
               <NavListItem key={path}>
-                <NavLink to={path} isActive={path === currentRoute.url}>
+                <NavLink
+                  to={path}
+                  isActive={path === currentRoute.url}
+                  style={{ padding: '0.5rem 0.8rem' }}
+                >
                   {title}
                 </NavLink>
               </NavListItem>

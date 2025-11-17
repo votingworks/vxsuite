@@ -18,6 +18,7 @@ import type { ElectionInfo } from '@votingworks/design-backend';
 import { useHistory, useParams } from 'react-router-dom';
 import { z } from 'zod/v4';
 import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
+import styled from 'styled-components';
 import {
   deleteElection,
   getBallotsFinalizedAt,
@@ -26,12 +27,18 @@ import {
   getUserFeatures,
   updateElectionInfo,
 } from './api';
-import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
+import {
+  FieldName,
+  Form,
+  FormActionsRow,
+  InputGroup as InputGroupBase,
+} from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { routes } from './routes';
 import { SealImageInput } from './seal_image_input';
 import { useTitle } from './hooks/use_title';
 import { SignatureImageInput } from './signature_image_input';
+import { InputWithAudio } from './ballot_audio/input_with_audio';
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return (
@@ -41,6 +48,10 @@ function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
     !electionInfo.seal
   );
 }
+
+const InputGroup = styled(InputGroupBase)`
+  max-width: 20rem;
+`;
 
 function ElectionInfoForm({
   savedElectionInfo,
@@ -152,7 +163,8 @@ function ElectionInfoForm({
       }}
     >
       <InputGroup label="Title">
-        <input
+        <InputWithAudio
+          editing={isEditing}
           type="text"
           value={electionInfo.title}
           onChange={onInputChange('title')}
@@ -160,6 +172,7 @@ function ElectionInfoForm({
           disabled={!isEditing}
           autoComplete="off"
           required
+          tooltipPlacement="bottom"
         />
       </InputGroup>
       <InputGroup label="Date">
@@ -193,7 +206,8 @@ function ElectionInfoForm({
         disabled={!isEditing}
       />
       <InputGroup label="State">
-        <input
+        <InputWithAudio
+          editing={isEditing}
           type="text"
           value={electionInfo.state}
           onChange={onInputChange('state')}
@@ -204,7 +218,8 @@ function ElectionInfoForm({
         />
       </InputGroup>
       <InputGroup label="Jurisdiction">
-        <input
+        <InputWithAudio
+          editing={isEditing}
           type="text"
           value={electionInfo.jurisdiction}
           onChange={onInputChange('jurisdiction')}

@@ -18,7 +18,9 @@ import {
   BallotType,
   ElectionId,
   ElectionSerializationFormat,
+  PhoneticWord,
   PrecinctSelection,
+  ssmlGenerate,
   TtsEditKey,
 } from '@votingworks/types';
 import { generateId } from './utils';
@@ -317,6 +319,23 @@ export const ttsStringDefaults = {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(electionId), () =>
       apiClient.ttsStringDefaults({ electionId })
+    );
+  },
+} as const;
+
+/* istanbul ignore next - WIP @preserve */
+export const ttsSynthesizeFromSsml = {
+  queryKey(input: { languageCode: string; words: PhoneticWord[] }): QueryKey {
+    return [
+      'ttsSynthesizeFromSsml',
+      input.languageCode,
+      ssmlGenerate(input.words),
+    ];
+  },
+  useQuery(input: { languageCode: string; words: PhoneticWord[] }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.ttsSynthesizeFromSsml(input)
     );
   },
 } as const;

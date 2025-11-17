@@ -6,6 +6,8 @@ import {
   PhoneticSyllableStress,
 } from './tts_phonemes';
 
+import * as phonemes from './tts_phonemes';
+
 /**
  * Loosely represents a distinct syllable in a word, to which stress can be
  * added to influence emphasis in synthesized speech.
@@ -32,6 +34,40 @@ export const PhoneticSyllableSchema: z.ZodType<PhoneticSyllable> = z.object({
 export interface PhoneticWord {
   syllables?: PhoneticSyllable[];
   text: string;
+}
+
+export function ssmlGenerate(words: PhoneticWord[]): string {
+  const SYLLABLE_SEPARATOR = '.';
+  const WORD_SEPARATOR = ' ';
+
+  const ssmlWords: string[] = [];
+
+  for (const word of words) {
+    if (!word.syllables) {
+      ssmlWords.push(word.text);
+      continue;
+    }
+
+    const ssmlSyllables: string[] = [];
+    for (const syllable of word.syllables) {
+      if (syllable.ipaPhonemes.length === 0) continue;
+
+      const syllableChunks: string[] = [];
+      if (syllable.stress === 'primary') {
+        syllableChunks.push(phonemes.en.stresses.primary.ipa);
+      }
+
+      for (const phoneme of syllable.ipaPhonemes) {
+        syllableChunks.push(phoneme);
+      }
+
+      ssmlSyllables.push(syllableChunks.join(''));
+    }
+
+    ssmlWords.join(SYLLABLE_SEPARATOR);
+  }
+
+  return `<speak>${ssmlWords.join(WORD_SEPARATOR)}</speak>`;
 }
 
 export const PhoneticWordSchema: z.ZodType<PhoneticWord> = z.object({
