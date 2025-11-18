@@ -369,7 +369,7 @@ pub fn ballot_card(
         .then(|| ballot_card.detect_vertical_streaks())
         .unwrap_or_default();
 
-    ballot_card.reject_vertical_streaks_in_timing_mark_inset(&detected_vertical_streaks)?;
+    ballot_card.reject_disallowed_vertical_streaks(&detected_vertical_streaks)?;
 
     let mut timing_marks = ballot_card.find_timing_marks(options.timing_mark_algorithm)?;
 
@@ -417,6 +417,7 @@ pub fn ballot_card(
         ballot_card.swap_pages();
         decoded_qr_codes.swap();
         timing_marks.swap();
+        detected_vertical_streaks.swap();
     }
 
     let ballot_style_id = decoded_qr_codes.first().0.ballot_style_id.clone();
@@ -666,16 +667,18 @@ mod test {
         let (mut side_a_image, mut side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
         let thin_complete_streak_x = side_a_image.width() / 5;
-        let thick_complete_streak_x = side_a_image.width() * 2 / 5;
+        let thick_complete_streak_x: PixelPosition = side_a_image.width() as PixelPosition * 2 / 5;
+        let thick_complete_streak_x_range =
+            (thick_complete_streak_x..(thick_complete_streak_x + 20)).collect_vec();
         let fuzzy_streak_x = side_a_image.width() * 3 / 5;
         let incomplete_streak_x = side_a_image.width() * 4 / 5;
         let cropped_streak_x = side_a_image.width() - 2;
         let black_pixel = Luma([0]);
         for y in 0..side_a_image.height() {
             side_a_image.put_pixel(thin_complete_streak_x, y, black_pixel);
-            side_a_image.put_pixel(thick_complete_streak_x, y, black_pixel);
-            side_a_image.put_pixel(thick_complete_streak_x + 1, y, black_pixel);
-            side_a_image.put_pixel(thick_complete_streak_x + 2, y, black_pixel);
+            for x in thick_complete_streak_x_range.clone() {
+                side_a_image.put_pixel(x as u32, y, black_pixel);
+            }
             if (y % 2) == 0 {
                 side_a_image.put_pixel(fuzzy_streak_x, y, black_pixel);
             }
@@ -692,7 +695,37 @@ mod test {
             "test_vertical_streaks_not_through_bubbles.png",
             &side_a_image,
         );
-        ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+        let options = Options {
+            debug_side_a_base: Some(PathBuf::from(
+                "test_vertical_streaks_not_through_bubbles_debug.png",
+            )),
+            debug_side_b_base: Some(PathBuf::from(
+                "test_vertical_streaks_not_through_bubbles_debug_b.png",
+            )),
+            ..options
+        };
+        match ballot_card(side_a_image.clone(), side_b_image.clone(), &options) {
+            Ok(_) => panic!("expected vertical streak error, not success"),
+            Err(Error::VerticalStreaksDetected {
+                label,
+                x_coordinates,
+            }) => {
+                assert_eq!(label, "side A");
+                assert_eq!(
+                    x_coordinates,
+                    [
+                        vec![thin_complete_streak_x as PixelPosition],
+                        thick_complete_streak_x_range,
+                        vec![
+                            fuzzy_streak_x as PixelPosition,
+                            fuzzy_streak_x as PixelPosition + 1
+                        ],
+                    ]
+                    .concat()
+                );
+            }
+            Err(e) => panic!("wrong error type: {e:?}"),
+        }
     }
 
     #[test]
