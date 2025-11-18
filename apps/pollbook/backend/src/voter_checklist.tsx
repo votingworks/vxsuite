@@ -14,7 +14,10 @@ import React from 'react';
 import { iter, range } from '@votingworks/basics';
 import { Election, Precinct, Voter } from '@votingworks/types';
 import { VoterGroup } from './types';
-import { getExternalPrecinctIdMappingFromElection } from './pollbook_package';
+import {
+  ExternalToInternalPrecinctIdMapping,
+  getExternalPrecinctIdMappingFromElection,
+} from './pollbook_package';
 import { padWithZeroes } from './strings';
 
 const ROWS_PER_PAGE = 16;
@@ -246,6 +249,39 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
   );
 }
 
+const DEFAULT_SINGLE_PRECINCT_EXTERNAL_ID = '00';
+type InternalToExternalPrecinctIdMapping = ExternalToInternalPrecinctIdMapping;
+
+function invertExternalToInternalPrecinctIdMapping(
+  mapping: ExternalToInternalPrecinctIdMapping
+): InternalToExternalPrecinctIdMapping {
+  if (mapping.type === 'single-precinct') {
+    return {
+      type: 'single-precinct',
+      precinctId: DEFAULT_SINGLE_PRECINCT_EXTERNAL_ID,
+    };
+  }
+
+  const invertedEntries = Object.entries(mapping.precinctIds).map(
+    ([externalId, internalId]) => [internalId, externalId]
+  );
+  return {
+    type: 'multi-precinct',
+    precinctIds: Object.fromEntries(invertedEntries),
+  };
+}
+
+function getExternalPrecinctId(
+  precinctId: string,
+  internalToExternal: InternalToExternalPrecinctIdMapping
+): string {
+  if (internalToExternal.type === 'single-precinct') {
+    return internalToExternal.precinctId;
+  }
+
+  return internalToExternal.precinctIds[precinctId];
+}
+
 export function VoterChecklistTable({
   election,
   voters,
@@ -255,11 +291,8 @@ export function VoterChecklistTable({
 }): JSX.Element {
   const precinctsExternalToInternal =
     getExternalPrecinctIdMappingFromElection(election);
-  const precinctsInternalToExternal = Object.fromEntries(
-    Object.entries(precinctsExternalToInternal).map(([external, internal]) => [
-      internal,
-      external,
-    ])
+  const precinctsInternalToExternal = invertExternalToInternalPrecinctIdMapping(
+    precinctsExternalToInternal
   );
   if (voters.length === 0) {
     return <div />;
@@ -316,7 +349,11 @@ export function VoterChecklistTable({
               <VoterMailingAddress voter={voter} />
             </td>
             <td>{`${padWithZeroes(
-              precinctsInternalToExternal[voter.precinct]
+              getExternalPrecinctId(
+                voter.precinct,
+                precinctsInternalToExternal
+              ),
+              2
             )}`}</td>
             <td>{voter.voterId}</td>
             <td>

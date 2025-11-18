@@ -411,8 +411,11 @@ function generateStreetMappings(
   for (const street of streetNames) {
     const option = randomInt(1, 4);
     const district =
-      mode === 'town' ? '1' : randomInt(1, numPrecincts || 1).toString();
-
+      mode === 'town'
+        ? '00'
+        : randomInt(1, numPrecincts || 1)
+            .toString()
+            .padStart(2, '0');
     if (option === 3) {
       for (const side of ['ODD', 'EVEN'] as Array<'ODD' | 'EVEN'>) {
         const { low, high } = generateRangeForSide(side);
