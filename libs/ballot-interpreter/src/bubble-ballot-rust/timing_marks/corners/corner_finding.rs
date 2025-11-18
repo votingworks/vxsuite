@@ -274,7 +274,7 @@ pub struct Options {
 impl DefaultForGeometry for Options {
     fn default_for_geometry(_geometry: &Geometry) -> Self {
         Self {
-            min_corner_timing_mark_score: UnitIntervalScore(0.8),
+            min_corner_timing_mark_score: UnitIntervalScore(0.9),
         }
     }
 }
