@@ -101,20 +101,31 @@ impl Default for Inference {
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq)]
 pub enum VerticalStreakDetection {
-    Enabled,
+    Enabled {
+        max_cumulative_streak_width: PixelUnit,
+    },
     Disabled,
 }
 
+pub const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH: PixelUnit = 5;
+
 impl Default for VerticalStreakDetection {
     fn default() -> Self {
-        Self::Enabled
+        Self::Enabled {
+            max_cumulative_streak_width: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+        }
     }
 }
 
 impl Display for VerticalStreakDetection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Enabled => write!(f, "enabled"),
+            Self::Enabled {
+                max_cumulative_streak_width,
+            } => write!(
+                f,
+                "enabled (max cumulative streak width: {max_cumulative_streak_width}px)",
+            ),
             Self::Disabled => write!(f, "disabled"),
         }
     }
@@ -125,7 +136,9 @@ impl FromStr for VerticalStreakDetection {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "enabled" => Ok(Self::Enabled),
+            "enabled" => Ok(Self::Enabled {
+                max_cumulative_streak_width: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+            }),
             "disabled" => Ok(Self::Disabled),
             _ => Err(format!("Unexpected vertical streak detection setting: {s}")),
         }
@@ -364,12 +377,17 @@ pub fn ballot_card(
     .into_result()?
     .join(BallotCard::from_pages)?;
 
-    let mut detected_vertical_streaks = (options.vertical_streak_detection
-        == VerticalStreakDetection::Enabled)
-        .then(|| ballot_card.detect_vertical_streaks())
-        .unwrap_or_default();
-
-    ballot_card.reject_disallowed_vertical_streaks(&detected_vertical_streaks)?;
+    let mut detected_vertical_streaks = match options.vertical_streak_detection {
+        VerticalStreakDetection::Enabled {
+            max_cumulative_streak_width,
+        } => {
+            let streaks = ballot_card.detect_vertical_streaks();
+            ballot_card
+                .reject_disallowed_vertical_streaks(&streaks, max_cumulative_streak_width)?;
+            streaks
+        }
+        VerticalStreakDetection::Disabled => Pair::default(),
+    };
 
     let mut timing_marks = ballot_card.find_timing_marks(options.timing_mark_algorithm)?;
 
@@ -535,7 +553,7 @@ mod test {
             bubble_template,
             election,
             write_in_scoring: WriteInScoring::Enabled,
-            vertical_streak_detection: VerticalStreakDetection::Enabled,
+            vertical_streak_detection: VerticalStreakDetection::default(),
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
         };
@@ -564,7 +582,7 @@ mod test {
             bubble_template,
             election,
             write_in_scoring: WriteInScoring::Enabled,
-            vertical_streak_detection: VerticalStreakDetection::Enabled,
+            vertical_streak_detection: VerticalStreakDetection::default(),
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
         };

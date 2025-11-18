@@ -56,13 +56,16 @@ function usage(out: NodeJS.WritableStream): void {
     `  -d, --debug               Output debug information (images alongside inputs).\n`
   );
   out.write(
-    '  --default-mark-thresholds           Use default mark thresholds if none provided.\n'
+    '  --default-mark-thresholds                      Use default mark thresholds if none provided.\n'
   );
   out.write(
-    '  --disable-vertical-streak-detection Disable vertical streak detection.\n'
+    '  --disable-vertical-streak-detection            Disable vertical streak detection.\n'
   );
   out.write(
-    '  --minimum-detected-scale SCALE      Reject ballots with detected scale less than SCALE.\n'
+    '  --max-cumulative-vertical-streak-width WIDTH   Reject ballots whose vertical streaks sum to wider than WIDTH pixels.\n'
+  );
+  out.write(
+    '  --minimum-detected-scale SCALE                 Reject ballots with detected scale less than SCALE.\n'
   );
   out.write(`\n`);
   out.write(chalk.bold('Examples:\n'));
@@ -180,6 +183,7 @@ async function interpretFiles(
     stderr,
     scoreWriteIns,
     disableVerticalStreakDetection,
+    maxCumulativeVerticalStreakWidth,
     minimumDetectedScale,
     json = false,
     debug = false,
@@ -189,6 +193,7 @@ async function interpretFiles(
     stderr: NodeJS.WritableStream;
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    maxCumulativeVerticalStreakWidth?: number;
     minimumDetectedScale?: number;
     json?: boolean;
     debug?: boolean;
@@ -202,6 +207,9 @@ async function interpretFiles(
     disableVerticalStreakDetection:
       disableVerticalStreakDetection ??
       systemSettings?.disableVerticalStreakDetection,
+    maxCumulativeVerticalStreakWidth:
+      maxCumulativeVerticalStreakWidth ??
+      systemSettings?.maxCumulativeVerticalStreakWidth,
     minimumDetectedScale,
     debug,
   });
@@ -323,6 +331,7 @@ async function interpretWorkspace(
     sheetIds,
     scoreWriteIns = false,
     disableVerticalStreakDetection,
+    maxCumulativeVerticalStreakWidth,
     minimumDetectedScale,
     json = false,
     debug = false,
@@ -333,6 +342,7 @@ async function interpretWorkspace(
     sheetIds: Iterable<string>;
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    maxCumulativeVerticalStreakWidth?: number;
     minimumDetectedScale?: number;
     json?: boolean;
     debug?: boolean;
@@ -436,6 +446,7 @@ async function interpretWorkspace(
         stderr,
         scoreWriteIns,
         disableVerticalStreakDetection,
+        maxCumulativeVerticalStreakWidth,
         minimumDetectedScale,
         json,
         debug,
@@ -467,6 +478,7 @@ async function interpretCastVoteRecordFolder(
     stderr,
     scoreWriteIns = false,
     disableVerticalStreakDetection,
+    maxCumulativeVerticalStreakWidth,
     minimumDetectedScale,
     json = false,
     debug = false,
@@ -476,6 +488,7 @@ async function interpretCastVoteRecordFolder(
     stderr: NodeJS.WritableStream;
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    maxCumulativeVerticalStreakWidth?: number;
     minimumDetectedScale?: number;
     json?: boolean;
     debug?: boolean;
@@ -506,6 +519,7 @@ async function interpretCastVoteRecordFolder(
             stderr,
             scoreWriteIns,
             disableVerticalStreakDetection,
+            maxCumulativeVerticalStreakWidth,
             minimumDetectedScale,
             json,
             debug,
@@ -531,6 +545,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
   let ballotPathSideB: string | undefined;
   let scoreWriteIns: boolean | undefined;
   let disableVerticalStreakDetection: boolean | undefined;
+  let maxCumulativeVerticalStreakWidth: number | undefined;
   let minimumDetectedScale: number | undefined;
   let json = false;
   let debug = false;
@@ -566,6 +581,21 @@ export async function main(args: string[], io: IO = process): Promise<number> {
 
     if (arg === '--disable-vertical-streak-detection') {
       disableVerticalStreakDetection = true;
+      continue;
+    }
+
+    if (arg === '--max-cumulative-vertical-streak-width') {
+      i += 1;
+      const rawWidth = args[i];
+      const parseWidthResult = safeParseNumber(rawWidth);
+      if (parseWidthResult.isErr()) {
+        io.stderr.write(
+          `Expected width value after ${arg} but got ${rawWidth}`
+        );
+        usage(io.stderr);
+        return 1;
+      }
+      maxCumulativeVerticalStreakWidth = parseWidthResult.ok();
       continue;
     }
 
@@ -647,6 +677,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
       json,
       scoreWriteIns,
       disableVerticalStreakDetection,
+      maxCumulativeVerticalStreakWidth,
       minimumDetectedScale,
       debug,
       useDefaultMarkThresholds,
@@ -696,6 +727,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
           stderr: io.stderr,
           scoreWriteIns,
           disableVerticalStreakDetection,
+          maxCumulativeVerticalStreakWidth,
           minimumDetectedScale,
           json,
           debug,
@@ -713,6 +745,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
           stderr: io.stderr,
           scoreWriteIns,
           disableVerticalStreakDetection,
+          maxCumulativeVerticalStreakWidth,
           minimumDetectedScale,
           json,
           debug,

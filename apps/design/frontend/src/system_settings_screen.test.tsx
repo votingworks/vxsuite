@@ -444,12 +444,20 @@ test('setting "other" system settings', async () => {
     expectUncheckedThenCheck(otherContainer, label);
   }
 
+  userEvent.type(
+    within(otherContainer).getByRole('spinbutton', {
+      name: 'Max Cumulative Vertical Streak Width',
+    }),
+    '10'
+  );
+
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     allowOfficialBallotsInTestMode: true,
     precinctScanEnableShoeshineMode: true,
     castVoteRecordsIncludeRedundantMetadata: true,
     disableVerticalStreakDetection: true,
+    maxCumulativeVerticalStreakWidth: 10,
   };
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
@@ -521,7 +529,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(30);
+  expect(allControls).toHaveLength(31);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();

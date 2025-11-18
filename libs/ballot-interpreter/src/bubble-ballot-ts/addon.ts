@@ -44,6 +44,7 @@ export function interpret(
     debugBasePathSideB?: string;
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    maxCumulativeVerticalStreakWidth?: number;
     timingMarkAlgorithm?: 'contours' | 'corners';
     inferTimingMarks?: boolean;
     minimumDetectedScale?: number;
