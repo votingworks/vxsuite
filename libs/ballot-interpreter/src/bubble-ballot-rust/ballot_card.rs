@@ -249,7 +249,9 @@ impl BallotPage {
         })
     }
 
-    /// Errors if there are any vertical streaks in the timing mark inset area.
+    /// # Errors
+    /// If there are any vertical streaks in the timing mark inset area.
+    #[allow(clippy::result_large_err)]
     pub fn reject_vertical_streaks_in_timing_mark_inset(
         &self,
         detected_streaks: &Vec<VerticalStreak>,
@@ -270,6 +272,9 @@ impl BallotPage {
         Ok(())
     }
 
+    /// # Errors
+    /// If the cumulative width of vertical streaks exceeds the allowed threshold.
+    #[allow(clippy::result_large_err)]
     pub fn reject_vertical_streaks_above_cumulative_threshold(
         &self,
         detected_streaks: &Vec<VerticalStreak>,
@@ -441,9 +446,10 @@ impl BallotCard {
             .par_map(|ballot_page| detect_vertical_streaks(ballot_page.ballot_image()))
     }
 
-    /// Errors if:
-    /// - There are any vertical streaks in the timing mark inset area
-    /// - The cumulative width of streaks exceeds the allowed threshold
+    /// # Errors
+    /// - If there are any vertical streaks in the timing mark inset area
+    /// - If the cumulative width of streaks exceeds the allowed threshold
+    #[allow(clippy::result_large_err)]
     pub fn reject_disallowed_vertical_streaks(
         &self,
         streaks: &Pair<Vec<VerticalStreak>>,

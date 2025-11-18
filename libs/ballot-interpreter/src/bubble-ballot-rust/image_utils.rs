@@ -287,12 +287,12 @@ impl VerticalStreak {
             Ok(Self {
                 x_range: *self.x_range.start()..=*other.x_range.end(),
                 scores: [
-                    &self.scores[..self.scores.len() - overlap_size + 1],
+                    &self.scores[..=self.scores.len() - overlap_size],
                     &other.scores[overlap_size..],
                 ]
                 .concat(),
                 longest_white_gaps: [
-                    &self.longest_white_gaps[..self.longest_white_gaps.len() - overlap_size + 1],
+                    &self.longest_white_gaps[..=self.longest_white_gaps.len() - overlap_size],
                     &other.longest_white_gaps[overlap_size..],
                 ]
                 .concat(),
@@ -343,7 +343,7 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
     // streaks. This relies on the invariant that there are no printed features
     // that span the entire page top to bottom without a gap greater than
     // MAX_WHITE_GAP_PIXELS.
-
+    #[allow(clippy::items_after_statements)]
     const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
 
     let (width, height) = ballot_image.dimensions();
