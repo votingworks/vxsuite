@@ -60,6 +60,10 @@ const StyledEditor = styled.div`
     ${richTextStyles}
   }
 
+  &[data-disabled='true'] {
+    cursor: not-allowed;
+  }
+
   overflow: auto;
 `;
 
@@ -117,29 +121,33 @@ const NORMALIZE_PARAMS: Readonly<images.NormalizeParams> = {
   maxWidthPx: (LETTER_PAGE_WIDTH_INCHES - 2) * PDF_PIXELS_PER_INCH,
 };
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
   return (
     <StyledToolbar>
       <ControlGroup>
         <ControlButton
+          disabled={disabled}
           icon="Bold"
           aria-label="Bold"
           isActive={editor.isActive('bold')}
           onPress={() => editor.chain().focus().toggleBold().run()}
         />
         <ControlButton
+          disabled={disabled}
           icon="Italic"
           aria-label="Italic"
           isActive={editor.isActive('italic')}
           onPress={() => editor.chain().focus().toggleItalic().run()}
         />
         <ControlButton
+          disabled={disabled}
           icon="Underline"
           aria-label="Underline"
           isActive={editor.isActive('underline')}
           onPress={() => editor.chain().focus().toggleUnderline().run()}
         />
         <ControlButton
+          disabled={disabled}
           icon="Strikethrough"
           aria-label="Strikethrough"
           isActive={editor.isActive('strike')}
@@ -148,12 +156,14 @@ function Toolbar({ editor }: { editor: Editor }) {
       </ControlGroup>
       <ControlGroup>
         <ControlButton
+          disabled={disabled}
           icon="ListUnordered"
           aria-label="Bullet List"
           isActive={editor.isActive('bulletList')}
           onPress={() => editor.chain().focus().toggleBulletList().run()}
         />
         <ControlButton
+          disabled={disabled}
           icon="ListOrdered"
           aria-label="Number List"
           isActive={editor.isActive('orderedList')}
@@ -165,6 +175,7 @@ function Toolbar({ editor }: { editor: Editor }) {
           buttonProps={{
             fill: 'transparent',
           }}
+          disabled={disabled}
           normalizeParams={NORMALIZE_PARAMS}
           onChange={(svgImage) => {
             editor
@@ -189,6 +200,7 @@ function Toolbar({ editor }: { editor: Editor }) {
 
       <ControlGroup>
         <ControlButton
+          disabled={disabled}
           icon="Table"
           aria-label="Table"
           isActive={editor.isActive('table')}
@@ -205,6 +217,7 @@ function Toolbar({ editor }: { editor: Editor }) {
         {editor.isActive('table') && (
           <React.Fragment>
             <ControlButton
+              disabled={disabled}
               icon={
                 <React.Fragment>
                   <Icons.Add />
@@ -215,6 +228,7 @@ function Toolbar({ editor }: { editor: Editor }) {
               onPress={() => editor.chain().focus().addRowAfter().run()}
             />
             <ControlButton
+              disabled={disabled}
               icon={
                 <React.Fragment>
                   <Icons.Delete />
@@ -225,6 +239,7 @@ function Toolbar({ editor }: { editor: Editor }) {
               onPress={() => editor.chain().focus().deleteRow().run()}
             />
             <ControlButton
+              disabled={disabled}
               icon={
                 <React.Fragment>
                   <Icons.Add />
@@ -235,6 +250,7 @@ function Toolbar({ editor }: { editor: Editor }) {
               onPress={() => editor.chain().focus().addColumnAfter().run()}
             />
             <ControlButton
+              disabled={disabled}
               icon={
                 <React.Fragment>
                   <Icons.Delete />
@@ -279,15 +295,18 @@ function unwrapSingleCellTablesOnPaste(slice: Slice): Slice {
 }
 
 interface RichTextEditorProps {
+  disabled?: boolean;
   initialHtmlContent: string;
   onChange: (htmlContent: string) => void;
 }
 
 export function RichTextEditor({
+  disabled,
   initialHtmlContent,
   onChange,
 }: RichTextEditorProps): JSX.Element {
   const editor = useEditor({
+    editable: !disabled,
     extensions: [
       Document,
       Text,
@@ -326,9 +345,10 @@ export function RichTextEditor({
   return (
     <StyledEditor
       data-testid="rich-text-editor"
+      data-disabled={disabled}
       onClick={() => editor?.chain().focus().run()}
     >
-      {editor && <Toolbar editor={editor} />}
+      {editor && <Toolbar disabled={disabled} editor={editor} />}
       <EditorContent editor={editor} />
     </StyledEditor>
   );
