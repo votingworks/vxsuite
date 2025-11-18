@@ -55,6 +55,9 @@ export interface ContestProps {
   accessibilityMode?: AccessibilityMode;
 
   numWriteInCharactersAllowedAcrossContests?: number;
+
+  /** See ContestPageProps.allowOvervotes */
+  allowOvervotes?: boolean;
 }
 
 function countNumWriteInCharactersUsedAcrossContests(votes: VotesDict): number {
@@ -76,6 +79,7 @@ export function Contest({
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
   numWriteInCharactersAllowedAcrossContests = Infinity,
+  allowOvervotes,
 }: ContestProps): JSX.Element {
   const vote = votes[contest.id];
   const numWriteInCharactersUsedAcrossContests = useMemo(
@@ -95,6 +99,7 @@ export function Contest({
           vote={(vote ?? []) as CandidateVote}
           updateVote={updateVote}
           accessibilityMode={accessibilityMode}
+          allowOvervotes={allowOvervotes}
           onOpenWriteInKeyboard={onOpenWriteInKeyboard}
           onCloseWriteInKeyboard={onCloseWriteInKeyboard}
           writeInCharacterLimitAcrossContests={{
@@ -112,6 +117,7 @@ export function Contest({
           contest={contest}
           vote={vote as OptionalYesNoVote}
           updateVote={updateVote}
+          allowOvervotes={allowOvervotes}
         />
       )}
       {contest.type === 'ms-either-neither' && (
