@@ -254,7 +254,7 @@ impl BallotPage {
     #[allow(clippy::result_large_err)]
     pub fn reject_vertical_streaks_in_timing_mark_inset(
         &self,
-        detected_streaks: &Vec<VerticalStreak>,
+        detected_streaks: &[VerticalStreak],
     ) -> Result<()> {
         let timing_mark_streak_inset_size = self.geometry.canvas_width_pixels() * 0.1;
         let left_edge_inset = timing_mark_streak_inset_size as i32;

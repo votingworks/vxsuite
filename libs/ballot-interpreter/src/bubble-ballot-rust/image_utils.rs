@@ -368,10 +368,11 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
             let two_column_pixels = column
                 .iter()
                 .zip(next_column.iter())
-                .map(|(is_black, is_black_next)| *is_black || *is_black_next);
+                .map(|(is_black, is_black_next)| *is_black || *is_black_next)
+                .collect_vec();
             let num_two_column_black_pixels = two_column_pixels
-                .clone()
-                .filter(|is_black| *is_black)
+                .iter()
+                .filter(|is_black| **is_black)
                 .count();
             let two_column_streak_score =
                 UnitIntervalScore(num_two_column_black_pixels as f32 / height as f32);
@@ -380,6 +381,7 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
             }
 
             let longest_white_gap_length = two_column_pixels
+                .iter()
                 .group_by(|is_black| *is_black)
                 .into_iter()
                 .filter(|(is_black, _)| !*is_black)
