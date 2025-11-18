@@ -269,7 +269,8 @@ describe('HMPB - VX Famous Names', () => {
       context.imageSmoothingEnabled = false;
       context.putImageData(frontImage, 0, 0);
       context.fillStyle = 'black';
-      context.fillRect(canvas.width / 2, 0, 1, canvas.height);
+      // Make a giant vertical streak that will trigger the cumulative streak threshold
+      context.fillRect(canvas.width / 2, 0, 6, canvas.height);
       const streakImage = context.getImageData(
         0,
         0,
