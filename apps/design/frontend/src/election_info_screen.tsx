@@ -9,7 +9,6 @@ import {
   Callout,
   CheckboxGroup,
   H1,
-  MainContent,
   Modal,
   P,
   SegmentedButton,
@@ -26,12 +25,18 @@ import {
   getUserFeatures,
   updateElectionInfo,
 } from './api';
-import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
+import { FieldName, InputGroup } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { routes } from './routes';
 import { SealImageInput } from './seal_image_input';
 import { useTitle } from './hooks/use_title';
 import { SignatureImageInput } from './signature_image_input';
+import {
+  FormBody,
+  FormErrorContainer,
+  FormFixed,
+  FormFooter,
+} from './form_fixed';
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return (
@@ -140,8 +145,11 @@ function ElectionInfoForm({
     );
   }
 
+  const disabled = updateElectionInfoMutation.isLoading || !isEditing;
+
   return (
-    <Form
+    <FormFixed
+      editing={isEditing}
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
@@ -151,202 +159,204 @@ function ElectionInfoForm({
         onReset();
       }}
     >
-      <InputGroup label="Title">
-        <input
-          type="text"
-          value={electionInfo.title}
-          onChange={onInputChange('title')}
-          onBlur={onInputBlur('title')}
-          disabled={!isEditing}
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <InputGroup label="Date">
-        <input
-          type="date"
-          value={draftDate ?? electionInfo.date.toISOString()}
-          onChange={(e) => {
-            try {
-              const newDate = new DateWithoutTime(e.target.value);
-              setElectionInfo({
-                ...electionInfo,
-                date: newDate,
-              });
-              setDraftDate(undefined);
-            } catch {
-              setDraftDate(e.target.value);
-            }
-          }}
-          disabled={!isEditing}
-          required
-        />
-      </InputGroup>
-      <SegmentedButton
-        label="Type"
-        options={[
-          { label: 'General', id: 'general' },
-          { label: 'Primary', id: 'primary' },
-        ]}
-        selectedOptionId={electionInfo.type}
-        onChange={(type) => setElectionInfo({ ...electionInfo, type })}
-        disabled={!isEditing}
-      />
-      <InputGroup label="State">
-        <input
-          type="text"
-          value={electionInfo.state}
-          onChange={onInputChange('state')}
-          onBlur={onInputBlur('state')}
-          disabled={!isEditing}
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <InputGroup label="Jurisdiction">
-        <input
-          type="text"
-          value={electionInfo.jurisdiction}
-          onChange={onInputChange('jurisdiction')}
-          onBlur={onInputBlur('jurisdiction')}
-          disabled={!isEditing}
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <div>
-        <FieldName>Seal</FieldName>
-        <div style={{ display: 'inline-flex' }}>
-          <SealImageInput
-            value={electionInfo.seal}
-            onChange={(seal = '') => setElectionInfo({ ...electionInfo, seal })}
-            disabled={!isEditing}
+      <FormBody>
+        <InputGroup label="Title">
+          <input
+            type="text"
+            value={electionInfo.title}
+            onChange={onInputChange('title')}
+            onBlur={onInputBlur('title')}
+            disabled={disabled}
+            autoComplete="off"
             required
           />
-        </div>
-      </div>
-      {showSignatureInput && (
-        <React.Fragment>
-          <div>
-            <FieldName>Signature</FieldName>
-            <SignatureImageInput
-              value={electionInfo.signatureImage ?? ''}
-              onChange={(signatureImage = '') =>
+        </InputGroup>
+        <InputGroup label="Date">
+          <input
+            type="date"
+            value={draftDate ?? electionInfo.date.toISOString()}
+            onChange={(e) => {
+              try {
+                const newDate = new DateWithoutTime(e.target.value);
                 setElectionInfo({
                   ...electionInfo,
-                  signatureImage,
-                })
+                  date: newDate,
+                });
+                setDraftDate(undefined);
+              } catch {
+                setDraftDate(e.target.value);
               }
-              disabled={!isEditing}
-              required
-            />
-          </div>
-          <InputGroup label="Signature Caption">
-            <input
-              type="text"
-              value={electionInfo.signatureCaption ?? ''}
-              onChange={onInputChange('signatureCaption')}
-              onBlur={onInputBlur('signatureCaption')}
-              disabled={!isEditing}
-              autoComplete="off"
-              required
-            />
-          </InputGroup>
-        </React.Fragment>
-      )}
-      {features.BALLOT_LANGUAGE_CONFIG && (
-        <div style={{ width: '18rem' }}>
-          <CheckboxGroup
-            disabled={!isEditing}
-            label="Ballot Languages"
-            value={electionInfo.languageCodes}
-            onChange={(value) => {
-              const languageCodes = value.map((v) => v as LanguageCode);
-              setElectionInfo({ ...electionInfo, languageCodes });
             }}
-            options={[
-              { label: 'English', value: LanguageCode.ENGLISH },
-              { label: 'Spanish', value: LanguageCode.SPANISH },
-              {
-                label: 'Chinese (Simplified)',
-                value: LanguageCode.CHINESE_SIMPLIFIED,
-              },
-              {
-                label: 'Chinese (Traditional)',
-                value: LanguageCode.CHINESE_TRADITIONAL,
-              },
-            ]}
+            disabled={disabled}
+            required
           />
-        </div>
-      )}
-
-      {errorMessage}
-
-      {isEditing ? (
-        <FormActionsRow>
-          <Button type="reset">Cancel</Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="Done"
-            disabled={updateElectionInfoMutation.isLoading}
-          >
-            Save
-          </Button>
-        </FormActionsRow>
-      ) : (
-        <React.Fragment>
-          <div>
-            <FormActionsRow>
-              <Button
-                type="reset"
-                variant="primary"
-                icon="Edit"
-                disabled={!!ballotsFinalizedAt}
-              >
-                Edit
-              </Button>
-            </FormActionsRow>
-            <FormActionsRow style={{ marginTop: '1rem' }}>
-              <Button
-                variant="danger"
-                icon="Delete"
-                onPress={onDeletePress}
-                disabled={deleteElectionMutation.isLoading}
-              >
-                Delete Election
-              </Button>
-            </FormActionsRow>
-          </div>
-          {electionInfo.electionId && isConfirmingDelete && (
-            <Modal
-              title="Delete Election"
-              onOverlayClick={onCancelDelete}
-              content={
-                <div>
-                  <P>
-                    Are you sure you want to delete this election? This action
-                    cannot be undone.
-                  </P>
-                </div>
+        </InputGroup>
+        <SegmentedButton
+          label="Type"
+          options={[
+            { label: 'General', id: 'general' },
+            { label: 'Primary', id: 'primary' },
+          ]}
+          selectedOptionId={electionInfo.type}
+          onChange={(type) => setElectionInfo({ ...electionInfo, type })}
+          disabled={disabled}
+        />
+        <InputGroup label="State">
+          <input
+            type="text"
+            value={electionInfo.state}
+            onChange={onInputChange('state')}
+            onBlur={onInputBlur('state')}
+            disabled={disabled}
+            autoComplete="off"
+            required
+          />
+        </InputGroup>
+        <InputGroup label="Jurisdiction">
+          <input
+            type="text"
+            value={electionInfo.jurisdiction}
+            onChange={onInputChange('jurisdiction')}
+            onBlur={onInputBlur('jurisdiction')}
+            disabled={disabled}
+            autoComplete="off"
+            required
+          />
+        </InputGroup>
+        <div>
+          <FieldName>Seal</FieldName>
+          <div style={{ display: 'inline-flex' }}>
+            <SealImageInput
+              value={electionInfo.seal}
+              onChange={(seal = '') =>
+                setElectionInfo({ ...electionInfo, seal })
               }
-              actions={
-                <React.Fragment>
-                  <Button
-                    onPress={() => onConfirmDeletePress()}
-                    variant="danger"
-                    autoFocus
-                  >
-                    Delete
-                  </Button>
-                  <Button onPress={onCancelDelete}>Cancel</Button>
-                </React.Fragment>
-              }
+              disabled={disabled}
+              required
             />
-          )}
-        </React.Fragment>
-      )}
-    </Form>
+          </div>
+        </div>
+        {showSignatureInput && (
+          <React.Fragment>
+            <div>
+              <FieldName>Signature</FieldName>
+              <SignatureImageInput
+                value={electionInfo.signatureImage ?? ''}
+                onChange={(signatureImage = '') =>
+                  setElectionInfo({
+                    ...electionInfo,
+                    signatureImage,
+                  })
+                }
+                disabled={disabled}
+                required
+              />
+            </div>
+            <InputGroup label="Signature Caption">
+              <input
+                type="text"
+                value={electionInfo.signatureCaption ?? ''}
+                onChange={onInputChange('signatureCaption')}
+                onBlur={onInputBlur('signatureCaption')}
+                disabled={disabled}
+                autoComplete="off"
+                required
+              />
+            </InputGroup>
+          </React.Fragment>
+        )}
+        {features.BALLOT_LANGUAGE_CONFIG && (
+          <div style={{ width: '18rem' }}>
+            <CheckboxGroup
+              disabled={disabled}
+              label="Ballot Languages"
+              value={electionInfo.languageCodes}
+              onChange={(value) => {
+                const languageCodes = value.map((v) => v as LanguageCode);
+                setElectionInfo({ ...electionInfo, languageCodes });
+              }}
+              options={[
+                { label: 'English', value: LanguageCode.ENGLISH },
+                { label: 'Spanish', value: LanguageCode.SPANISH },
+                {
+                  label: 'Chinese (Simplified)',
+                  value: LanguageCode.CHINESE_SIMPLIFIED,
+                },
+                {
+                  label: 'Chinese (Traditional)',
+                  value: LanguageCode.CHINESE_TRADITIONAL,
+                },
+              ]}
+            />
+          </div>
+        )}
+      </FormBody>
+
+      <FormErrorContainer>{errorMessage}</FormErrorContainer>
+
+      <FormFooter>
+        {isEditing ? (
+          <React.Fragment>
+            <Button type="reset">Cancel</Button>
+            <Button
+              type="submit"
+              variant="primary"
+              icon="Done"
+              disabled={updateElectionInfoMutation.isLoading}
+            >
+              Save
+            </Button>
+          </React.Fragment>
+        ) : (
+          <Button
+            type="reset"
+            variant="primary"
+            icon="Edit"
+            disabled={!!ballotsFinalizedAt}
+          >
+            Edit
+          </Button>
+        )}
+
+        <div style={{ flexGrow: 1 }} />
+
+        <Button
+          disabled={deleteElectionMutation.isLoading}
+          icon="Delete"
+          fill="outlined"
+          onPress={onDeletePress}
+          variant="danger"
+        >
+          Delete Election
+        </Button>
+        {electionInfo.electionId && isConfirmingDelete && (
+          <Modal
+            title="Delete Election"
+            onOverlayClick={onCancelDelete}
+            content={
+              <div>
+                <P>
+                  Are you sure you want to delete this election? This action
+                  cannot be undone.
+                </P>
+              </div>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  onPress={() => onConfirmDeletePress()}
+                  variant="danger"
+                  autoFocus
+                >
+                  Delete
+                </Button>
+                <Button onPress={onCancelDelete}>Cancel</Button>
+              </React.Fragment>
+            }
+          />
+        )}
+      </FormFooter>
+    </FormFixed>
   );
 }
 
@@ -373,12 +383,10 @@ export function ElectionInfoScreen(): JSX.Element | null {
       <Header>
         <H1>Election Info</H1>
       </Header>
-      <MainContent>
-        <ElectionInfoForm
-          savedElectionInfo={getElectionInfoQuery.data}
-          ballotsFinalizedAt={ballotsFinalizedAt}
-        />
-      </MainContent>
+      <ElectionInfoForm
+        savedElectionInfo={getElectionInfoQuery.data}
+        ballotsFinalizedAt={ballotsFinalizedAt}
+      />
     </ElectionNavScreen>
   );
 }
