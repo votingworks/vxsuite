@@ -156,7 +156,6 @@ export function CandidateContest({
   const [recentlySelectedCandidate, setRecentlySelectedCandidate] = useState<
     Candidate | undefined
   >(undefined);
-  // Track overvote creation moment: we show modal only when transitioning from at-capacity to first overvote.
 
   const screenInfo = useScreenInfo();
 
@@ -451,7 +450,6 @@ export function CandidateContest({
                   recentlySelectedCandidate &&
                   areCandidateChoicesEqual(recentlySelectedCandidate, candidate)
                 ) {
-                  // When in an overvote, announce votes remaining as 0 (Overvote) instead of "contest completed".
                   suffixAudioText =
                     votesExceeding > 0 ? (
                       <React.Fragment>

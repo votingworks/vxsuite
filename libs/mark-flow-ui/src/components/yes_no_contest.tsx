@@ -49,7 +49,6 @@ export function YesNoContest({
   const [overvoteSelection, setOvervoteSelection] =
     useState<Optional<YesNoContestOptionId>>();
   const [deselectedVote, setDeselectedVote] = useState('');
-  // We show modal each time user transitions from single selection to two (overvote) after any deselection.
   const isPatDeviceConnected = useIsPatDeviceConnected();
 
   useEffect(() => {
