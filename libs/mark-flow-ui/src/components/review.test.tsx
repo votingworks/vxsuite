@@ -195,6 +195,35 @@ test('candidate contest fully voted', () => {
   expect(screen.queryByText(/You may still vote/)).not.toBeInTheDocument();
 });
 
+test('candidate contest overvote warning shows exceeding count', () => {
+  const contest = find(
+    electionGeneral.contests,
+    (c): c is CandidateContest => c.type === 'candidate' && c.seats === 1
+  );
+
+  render(
+    <Review
+      election={electionGeneral}
+      contests={[contest]}
+      precinctId={electionGeneral.precincts[0].id}
+      ballotStyle={electionGeneral.ballotStyles[0]}
+      votes={{
+        [contest.id]: [
+          contest.candidates[0],
+          contest.candidates[1],
+          contest.candidates[2],
+        ],
+      }}
+      returnToContest={vi.fn()}
+    />
+  );
+  screen.getByText('Your votes in this contest will not count.');
+
+  screen.getByText(
+    hasTextAcrossElements(/votes exceeding the limit in this contest:\s*2/i)
+  );
+});
+
 test('candidate contest - write-in', () => {
   vi.mocked(WriteInCandidateName).mockImplementation((p) => (
     <span data-testid="MockWriteInAudio">{p.name}</span>
@@ -324,6 +353,24 @@ describe('yesno contest', () => {
         'No'
       )
     ).toBeNull();
+  });
+
+  test('yes/no contest overvote shows warning', () => {
+    // Select both options
+    render(
+      <Review
+        election={electionGeneral}
+        contests={[contest]}
+        ballotStyle={electionGeneral.ballotStyles[0]}
+        precinctId={electionGeneral.precincts[0].id}
+        votes={{ [contest.id]: [contest.yesOption.id, contest.noOption.id] }}
+        returnToContest={vi.fn()}
+      />
+    );
+
+    screen.getByText('Your votes in this contest will not count.');
+
+    screen.getByText(/Both options selected\./i);
   });
 });
 

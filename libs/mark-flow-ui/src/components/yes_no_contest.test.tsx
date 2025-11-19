@@ -194,3 +194,56 @@ test('renders rich text', () => {
   const contestHeader = title.parentElement!.parentElement!;
   expect(contestHeader.innerHTML).toContain(richTextContest.description);
 });
+
+test('allows overvote when enabled and shows modal', () => {
+  const updateVote = vi.fn();
+  let currentVote: string[] | undefined;
+
+  const { rerender } = render(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      vote={currentVote}
+      updateVote={updateVote}
+      allowOvervotes
+    />
+  );
+
+  const contestChoices = screen.getByTestId('contest-choices');
+  // Select YES
+  userEvent.click(within(contestChoices).getByText('YES').closest('button')!);
+  expect(updateVote).toHaveBeenCalledTimes(1);
+  currentVote = [contest.yesOption.id];
+
+  rerender(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      vote={currentVote}
+      updateVote={updateVote}
+      allowOvervotes
+    />
+  );
+
+  // Select NO -> overvote -> modal
+  userEvent.click(within(contestChoices).getByText('NO').closest('button')!);
+  expect(updateVote).toHaveBeenCalledTimes(2);
+  const modal = screen.getByRole('alertdialog');
+  within(modal).getByText(/You have selected both options/i);
+  within(modal).getByText(/Deselect an option for your vote/i);
+  userEvent.click(within(modal).getByRole('button', { name: /Continue/i }));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+  // Deselect YES
+  rerender(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      vote={[contest.noOption.id, contest.yesOption.id]}
+      updateVote={updateVote}
+      allowOvervotes
+    />
+  );
+  userEvent.click(within(contestChoices).getByText('YES').closest('button')!);
+  expect(updateVote).toHaveBeenCalledTimes(3);
+});
