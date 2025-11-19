@@ -148,7 +148,8 @@ export class Store {
   }
 
   /**
-   * Gets the current precinct `print` is configured to print ballots for for Poll Workers.
+   * Gets the current precinct VxPrint is configured to print ballots for.
+   * It is set by the Election Manager and applies to Poll Workers.
    * If set to `undefined`, configuration has not been done yet.
    */
   getPrecinctSelection(): PrecinctSelectionType | undefined {
