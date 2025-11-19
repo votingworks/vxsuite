@@ -1,14 +1,18 @@
 import * as grout from '@votingworks/grout';
-import { Buffer } from 'node:buffer';
+// import { Buffer } from 'node:buffer';
 import express, { Application } from 'express';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
   ElectionDefinition,
   ElectionPackageConfigurationError,
+  PrecinctId,
   PrecinctSelection,
   PrinterStatus,
   SinglePrecinctSelection,
+  LanguageCode,
+  Id,
+  BallotType,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
@@ -25,8 +29,9 @@ import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { AppContext } from './context';
 import { rootDebug } from './debug';
 import { constructAuthMachineState } from './util/auth';
-import { BallotPrintEntry } from './types';
+import { BallotPrintCount, BallotPrintEntry } from './types';
 import { getMachineConfig } from './machine_config';
+import { findBallotStyleId } from './util/ballot_styles';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const debug = rootDebug.extend('app');
@@ -174,31 +179,73 @@ export function buildApi(ctx: AppContext) {
       return store.getBallots();
     },
 
-    async printBallot(input: { ballotPrintId: string }) {
+    getBallotPrintCounts({
+      precinctId,
+    }: {
+      precinctId?: PrecinctId;
+    }): BallotPrintCount[] {
+      return store.getBallotPrintCounts({ precinctId });
+    },
+
+    async printBallot(input: {
+      precinctId: Id;
+      splitId?: Id;
+      partyId?: Id;
+      languageCode: LanguageCode;
+      ballotType: BallotType;
+      copies: number;
+    }) {
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
       const printerStatus = await printer.status();
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-        message: `Attempting to print ballot with internal id ${input.ballotPrintId}`,
+        message: `Attempting to print ballot with ${input.copies} copies`,
+        ballotProps: JSON.stringify({
+          precinctId: input.precinctId,
+          splitId: input.splitId,
+          partyId: input.partyId,
+          languageCode: input.languageCode,
+          ballotType: input.ballotType,
+        }),
         printConnected: printerStatus.connected,
       });
-      const ballot = store.getBallot(input.ballotPrintId);
-      if (!ballot || !ballot.encodedBallot) {
-        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-          message: `No ballot found with id ${input.ballotPrintId}`,
-          disposition: 'failure',
-        });
-        return;
-      }
 
-      await printer.print({
-        data: Buffer.from(ballot.encodedBallot, 'base64'),
+      const ballotStyleId = findBallotStyleId(electionDefinition.election, {
+        precinctId: input.precinctId,
+        splitId: input.splitId,
+        languageCode: input.languageCode,
+        partyId: input.partyId,
       });
+
+      // TODO(nikhil): Actually print ballot, increment print count within transaction
+      store.incrementBallotPrintCount({
+        precinctId: input.precinctId,
+        ballotStyleId,
+        ballotType: input.ballotType,
+        count: input.copies,
+      });
+
+      // const ballot = store.getBallot(input.ballotPrintId);
+      // if (!ballot || !ballot.encodedBallot) {
+      //   await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+      //     message: `No ballot found with id ${input.ballotPrintId}`,
+      //     disposition: 'failure',
+      //   });
+      //   return;
+      // }
+
+      // await printer.print({
+      //   data: Buffer.from(ballot.encodedBallot, 'base64'),
+      // });
+
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-        message: `Printed ballot ${input.ballotPrintId}}`,
+        message: `Printed ballot ${ballotStyleId} with ${input.copies} copies`,
         ballotProps: JSON.stringify({
-          ballotStyleId: ballot.ballotStyleId,
-          precinctId: ballot.precinctId,
-          ballotMode: ballot.ballotMode,
-          ballotType: ballot.ballotType,
+          ballotStyleId,
+          precinctId: input.precinctId,
+          splitId: input.splitId,
+          partyId: input.partyId,
+          languageCode: input.languageCode,
+          ballotType: input.ballotType,
         }),
         disposition: 'success',
       });
