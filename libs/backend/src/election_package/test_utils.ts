@@ -1,3 +1,4 @@
+// istanbul ignore file - @preserve test helpers
 import { ElectionPackage, ElectionPackageFileName } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import {
