@@ -49,6 +49,12 @@ export function createElectionPackageZipArchive(
         .join('\n');
   }
 
+  if (electionPackage.ballots && electionPackage.ballots.length > 0) {
+    zipContents[ElectionPackageFileName.BALLOTS] = electionPackage.ballots
+      .map((ballot) => JSON.stringify(ballot))
+      .join('\n');
+  }
+
   return zipFile(zipContents);
 }
 
