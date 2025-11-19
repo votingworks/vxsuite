@@ -224,15 +224,25 @@ export function buildApi(ctx: AppContext) {
         count: input.copies,
       });
 
-      // const ballot = store.getBallot(input.ballotPrintId);
+      // const ballot = store.getBallot({
+      //   ballotStyleId,
+      //   precinctId: input.precinctId,
+      //   ballotType: input.ballotType,
+      // });
       // if (!ballot || !ballot.encodedBallot) {
       //   await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-      //     message: `No ballot found with id ${input.ballotPrintId}`,
+      //     message: 'No ballot found',
+      //     ballotProps: JSON.stringify({
+      //       precinctId: input.precinctId,
+      //       splitId: input.splitId,
+      //       partyId: input.partyId,
+      //       languageCode: input.languageCode,
+      //       ballotType: input.ballotType,
+      //     }),
       //     disposition: 'failure',
       //   });
       //   return;
       // }
-
       // await printer.print({
       //   data: Buffer.from(ballot.encodedBallot, 'base64'),
       // });

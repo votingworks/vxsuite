@@ -334,20 +334,33 @@ export class Store {
     ) as BallotPrintEntry[];
   }
 
-  getBallot(ballotPrintId: string): BallotPrintEntry | null {
+  getBallot({
+    ballotStyleId,
+    precinctId,
+    ballotType,
+  }: {
+    ballotStyleId: string;
+    precinctId: string;
+    ballotType: BallotType;
+  }): BallotPrintEntry | null {
     return (this.client.one(
       `
       select
-        id as ballotPrintId,
         ballot_style_id as ballotStyleId,
         precinct_id as precinctId,
         ballot_type as ballotType,
         ballot_mode as ballotMode,
         encoded_ballot as encodedBallot
       from ballots
-      where id = ?
+      where 
+        ballot_style_id = ? and 
+        precinct_id = ? and 
+        ballot_type = ? and 
+        ballot_mode = 'official'
       `,
-      ballotPrintId
+      ballotStyleId,
+      precinctId,
+      ballotType
     ) || null) as BallotPrintEntry | null;
   }
 
