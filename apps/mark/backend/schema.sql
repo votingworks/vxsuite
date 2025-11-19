@@ -48,3 +48,12 @@ create table ui_string_audio_ids (
   data text not null, -- JSON blob - see libs/types/UiStringAudioIdsSchema
   foreign key (language_code) references languages(code)
 );
+
+create table ballots (
+  id integer primary key,
+  ballot_style_id text not null,
+  precinct_id text not null,
+  ballot_type text not null,
+  ballot_mode text not null,
+  encoded_ballot text not null -- Base64 encoded ballot
+);

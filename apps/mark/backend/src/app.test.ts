@@ -25,6 +25,8 @@ import {
   convertVxfElectionToCdfBallotDefinition,
   safeParseElectionDefinition,
   DEV_MACHINE_ID,
+  EncodedBallotEntry,
+  BallotType,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -50,6 +52,7 @@ import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { ElectionState, PrintCalibration } from '.';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
+import { Workspace } from './util/workspace';
 
 const electionGeneralDefinition =
   electionGeneralFixtures.readElectionDefinition();
@@ -72,6 +75,7 @@ let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
 let mockPrinterHandler: MemoryPrinterHandler;
 let server: Server;
+let workspace: Workspace;
 
 function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
   vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
@@ -111,8 +115,15 @@ beforeEach(() => {
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
-  ({ apiClient, mockAuth, mockUsbDrive, mockPrinterHandler, server, logger } =
-    createApp());
+  ({
+    apiClient,
+    mockAuth,
+    mockUsbDrive,
+    mockPrinterHandler,
+    server,
+    logger,
+    workspace,
+  } = createApp());
 });
 
 afterEach(() => {
@@ -178,6 +189,51 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     electionDefinition,
     electionPackageHash: expect.any(String),
   });
+});
+
+test('configureElectionPackageFromUsb stores ballots when present in election package', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+
+  mockElectionManagerAuth(electionDefinition);
+
+  const mockBallotPdfData = 'mock-pdf-data-for-test';
+  const mockBallotPdfBase64 = Buffer.from(mockBallotPdfData).toString('base64');
+
+  const ballots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1',
+      precinctId: '23',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: mockBallotPdfBase64,
+    },
+  ];
+
+  mockUsbDrive.insertUsbDrive(
+    await mockElectionPackageFileTree({
+      electionDefinition,
+      systemSettings: safeParseJson(
+        systemSettings.asText(),
+        SystemSettingsSchema
+      ).unsafeUnwrap(),
+      ballots,
+    })
+  );
+
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
+
+  // Verify that the ballots were stored in the database
+  const { store } = workspace;
+  const retrievedBallot = store.getBallot({
+    ballotStyleId: '1',
+    precinctId: '23',
+    isLiveMode: true,
+  });
+  expect(retrievedBallot).toBeDefined();
+  expect(retrievedBallot.encodedBallot).toEqual(mockBallotPdfBase64);
+  expect(retrievedBallot.ballotType).toEqual(BallotType.Precinct);
+  expect(retrievedBallot.ballotMode).toEqual('official');
 });
 
 test('unconfigureMachine deletes system settings and election definition', async () => {

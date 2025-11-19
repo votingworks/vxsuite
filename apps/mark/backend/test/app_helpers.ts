@@ -44,6 +44,7 @@ interface MockAppContents {
   mockUsbDrive: MockUsbDrive;
   mockPrinterHandler: MemoryPrinterHandler;
   server: Server;
+  workspace: Workspace;
 }
 
 export function buildMockLogger(
@@ -89,6 +90,7 @@ export function createApp(): MockAppContents {
     mockUsbDrive,
     mockPrinterHandler,
     server,
+    workspace,
   };
 }
 

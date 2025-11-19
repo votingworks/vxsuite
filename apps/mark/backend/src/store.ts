@@ -25,6 +25,9 @@ import {
   PollsStateSchema,
   ElectionKey,
   constructElectionKey,
+  BallotStyleId,
+  PrecinctId,
+  EncodedBallotEntry,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { PrintCalibration } from '@votingworks/hmpb';
@@ -390,5 +393,73 @@ export class Store {
       c.offsetMmX,
       c.offsetMmY
     );
+  }
+
+  /**
+   * Stores encoded ballots for printing.
+   */
+  setBallots(ballots: EncodedBallotEntry[]): void {
+    const insert = this.client.prepare(
+      `
+      insert into ballots (
+        ballot_style_id,
+        precinct_id,
+        ballot_type,
+        ballot_mode,
+        encoded_ballot
+      ) values (?, ?, ?, ?, ?)
+      `
+    );
+
+    for (const ballot of ballots) {
+      this.client.run(
+        insert,
+        ballot.ballotStyleId,
+        ballot.precinctId,
+        ballot.ballotType,
+        ballot.ballotMode,
+        ballot.encodedBallot
+      );
+    }
+  }
+
+  /**
+   * Deletes all stored ballots.
+   */
+  deleteBallots(): void {
+    this.client.run('delete from ballots');
+  }
+
+  /**
+   * Retrieves a ballot PDF for the given ballot style and precinct.
+   * Filters for precinct ballots with the appropriate mode based on isLiveMode.
+   */
+  getBallot({
+    ballotStyleId,
+    precinctId,
+    isLiveMode,
+  }: {
+    ballotStyleId: BallotStyleId;
+    precinctId: PrecinctId;
+    isLiveMode: boolean;
+  }): EncodedBallotEntry {
+    const ballotMode = isLiveMode ? 'official' : 'test';
+    return this.client.one(
+      `
+      select
+        ballot_style_id as ballotStyleId,
+        precinct_id as precinctId,
+        ballot_type as ballotType,
+        ballot_mode as ballotMode,
+        encoded_ballot as encodedBallot
+      from ballots
+      where ballot_style_id = ?
+        and precinct_id = ?
+        and ballot_type = 'precinct'
+        and ballot_mode = ?`,
+      ballotStyleId,
+      precinctId,
+      ballotMode
+    ) as EncodedBallotEntry;
   }
 }
