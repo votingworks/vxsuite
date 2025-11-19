@@ -14,6 +14,9 @@ import {
   ElectionKey,
   constructElectionKey,
   EncodedBallotEntry,
+  PrecinctSelection as PrecinctSelectionType,
+  safeParseJson,
+  PrecinctSelectionSchema,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { BallotPrintEntry } from './types';
@@ -142,6 +145,46 @@ export class Store {
       id: result.id,
       date: new DateWithoutTime(result.date),
     };
+  }
+
+  /**
+   * Gets the current precinct VxPrint is configured to print ballots for.
+   * It is set by the Election Manager and applies to Poll Workers.
+   * If set to `undefined`, configuration has not been done yet.
+   */
+  getPrecinctSelection(): PrecinctSelectionType | undefined {
+    const electionRow = this.client.one(
+      'select precinct_selection as rawPrecinctSelection from election'
+    ) as { rawPrecinctSelection: string } | undefined;
+
+    const rawPrecinctSelection = electionRow?.rawPrecinctSelection;
+    if (!rawPrecinctSelection) {
+      return undefined;
+    }
+
+    const precinctSelectionParseResult = safeParseJson(
+      rawPrecinctSelection,
+      PrecinctSelectionSchema
+    );
+    if (precinctSelectionParseResult.isErr()) {
+      throw new Error('Unable to parse stored precinct selection.');
+    }
+
+    return precinctSelectionParseResult.ok();
+  }
+
+  /**
+   * Sets the current precinct `print` is configured to print ballots for
+   */
+  setPrecinctSelection(precinctSelection?: PrecinctSelectionType): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set precinct selection without an election.');
+    }
+
+    this.client.run(
+      'update election set precinct_selection = ?',
+      precinctSelection ? JSON.stringify(precinctSelection) : null
+    );
   }
 
   /**

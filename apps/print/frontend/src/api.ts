@@ -97,6 +97,28 @@ export const configureElectionPackageFromUsb = {
   },
 } as const;
 
+export const getPrecinctSelection = {
+  queryKey(): QueryKey {
+    return ['getPrecinctSelection'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPrecinctSelection());
+  },
+} as const;
+
+export const setPrecinctSelection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPrecinctSelection, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const getBallots = {
   queryKey(): QueryKey {
     return ['getBallots'];
@@ -131,7 +153,13 @@ export const printBallot = {
 export const unconfigureMachine = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.unconfigureMachine, {});
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unconfigureMachine, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+        await queryClient.invalidateQueries(getElectionRecord.queryKey());
+      },
+    });
   },
 } as const;
 

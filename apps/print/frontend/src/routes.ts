@@ -3,9 +3,9 @@ export const systemAdministratorRoutes = {
 } satisfies Record<string, { title: string; path: string }>;
 
 export const electionManagerRoutes = {
+  election: { title: 'Election', path: '/election' },
   print: { title: 'Print', path: '/print' },
   reports: { title: 'Reports', path: '/reports' },
-  election: { title: 'Election', path: '/election' },
   settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
 
