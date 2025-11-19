@@ -20,5 +20,6 @@ create table ballots (
   precinct_id text not null,
   ballot_type text not null,
   ballot_mode text not null,
-  encoded_ballot text not null -- Base64 encoded ballot
+  encoded_ballot text not null, -- Base64 encoded ballot
+  print_count integer not null default 0
 );

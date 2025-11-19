@@ -1,7 +1,7 @@
-import { EncodedBallotEntry } from '@votingworks/types';
+import { EncodedBallotEntry, Id } from '@votingworks/types';
 
 export interface BallotPrintEntry extends EncodedBallotEntry {
-  ballotPrintId: string;
+  ballotPrintId: Id;
 }
 
 /**
@@ -11,4 +11,12 @@ export interface BallotPrintEntry extends EncodedBallotEntry {
 export interface MachineConfig {
   machineId: string;
   codeVersion: string;
+}
+
+export interface BallotPrintCount {
+  ballotStyleId: Id;
+  precinctId: Id;
+  absentee: number;
+  precinct: number;
+  total: number;
 }

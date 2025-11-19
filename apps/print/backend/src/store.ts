@@ -17,9 +17,10 @@ import {
   PrecinctSelection as PrecinctSelectionType,
   safeParseJson,
   PrecinctSelectionSchema,
+  BallotType,
 } from '@votingworks/types';
 import { join } from 'node:path';
-import { BallotPrintEntry } from './types';
+import { BallotPrintCount, BallotPrintEntry } from './types';
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
@@ -148,9 +149,11 @@ export class Store {
   }
 
   /**
-   * Gets the current precinct VxPrint is configured to print ballots for.
-   * It is set by the Election Manager and applies to Poll Workers.
-   * If set to `undefined`, configuration has not been done yet.
+   * Get the PrecinctSelection for VxPrint, either
+   * AllPrecincts, SinglePrecinct, or undefined. If `undefined`,
+   * configuration has not been done.
+   *
+   * Configuration is done by the Election Manager and applies to Poll Workers.
    */
   getPrecinctSelection(): PrecinctSelectionType | undefined {
     const electionRow = this.client.one(
@@ -291,6 +294,28 @@ export class Store {
     this.client.run('delete from ballots');
   }
 
+  getBallotPrintCounts({
+    precinctId,
+  }: {
+    precinctId?: string;
+  }): BallotPrintCount[] {
+    return this.client.all(
+      `
+      select
+        ballot_style_id as ballotStyleId,
+        precinct_id as precinctId,
+        sum(case when ballot_type = 'absentee' then print_count else 0 end) as absentee,
+        sum(case when ballot_type = 'precinct' then print_count else 0 end) as precinct,
+        sum(print_count) as total
+      from ballots
+      ${precinctId ? 'where precinct_id = ?' : ''}
+      group by ballot_style_id, precinct_id
+      order by total desc, precinct_id asc
+      `,
+      ...(precinctId ? [precinctId] : [])
+    ) as BallotPrintCount[];
+  }
+
   /**
    * Retrieves all stored encoded ballots.
    */
@@ -324,5 +349,36 @@ export class Store {
       `,
       ballotPrintId
     ) || null) as BallotPrintEntry | null;
+  }
+
+  /**
+   * Increments the print count for ballots matching the specified criteria.
+   */
+  incrementBallotPrintCount({
+    precinctId,
+    ballotStyleId,
+    ballotType,
+    count,
+  }: {
+    precinctId: string;
+    ballotStyleId: string;
+    ballotType: BallotType;
+    count: number;
+  }): void {
+    this.client.run(
+      `
+      update ballots
+      set print_count = print_count + ?
+      where
+        precinct_id = ? and
+        ballot_style_id = ? and
+        ballot_type = ? and
+        ballot_mode = 'official'
+      `,
+      count,
+      precinctId,
+      ballotStyleId,
+      ballotType
+    );
   }
 }
