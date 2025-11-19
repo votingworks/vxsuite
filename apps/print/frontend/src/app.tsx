@@ -145,8 +145,6 @@ function AppRoot({
         return <UnconfiguredElectionManagerScreen />;
       }
       return <ElectionManagerApp />;
-      // Uncomment to access ballot printing screen
-      // return <BallotListScreen />;
     }
     assert(isPollWorkerAuth(authStatus));
     return <PollWorkerApp />;
