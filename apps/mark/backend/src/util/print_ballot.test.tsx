@@ -1,10 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
-import Stream from 'node:stream';
 import { Buffer } from 'node:buffer';
 
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { generateMarkOverlay, PrintCalibration } from '@votingworks/hmpb';
 import {
+  BallotType,
   ElectionDefinition,
   HmpbBallotPaperSize,
   SystemSettings,
@@ -51,6 +51,9 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
       offsetMmX: 0.5,
       offsetMmY: -0.5,
     };
+
+    const mockMarkedBallotPdf = Uint8Array.of(0xca, 0xfe, 0xf0, 0x0d);
+
     vi.mocked(generateMarkOverlay).mockImplementation(
       (election, ballotStyleId, votes, calibration) => {
         expect(election).toEqual(electionDefinition.election);
@@ -58,10 +61,7 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
         expect(votes).toEqual(mockVotes);
         expect(calibration).toEqual(mockCalibration);
 
-        return Stream.Readable.from([
-          Buffer.of(0xca, 0xfe),
-          Buffer.of(0xf0, 0x0d),
-        ]);
+        return Promise.resolve(mockMarkedBallotPdf);
       }
     );
 
@@ -90,7 +90,7 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
     expect(mockPrint.mock.calls).toEqual<Array<Parameters<PrintFunction>>>([
       [
         {
-          data: Uint8Array.of(0xca, 0xfe, 0xf0, 0x0d),
+          data: mockMarkedBallotPdf,
           sides: PrintSides.TwoSidedLongEdge,
           size,
         },
@@ -170,32 +170,77 @@ describe(`printMode === "summary"`, () => {
 });
 
 describe(`printMode === "bubble_ballot"`, () => {
-  test('throws error for unsupported bubble_ballot mode', async () => {
-    const electionDefinition = electionDefBase;
-    const ballotStyle = electionDefinition.election.ballotStyles[0];
-    const mockVotes: VotesDict = { foo: ['yes'] };
+  const testValidSizes = test.each<'letter' | 'legal'>(['letter', 'legal']);
 
-    await expect(
-      printBallot({
-        ballotStyleId: ballotStyle.id,
-        languageCode: 'unused',
-        precinctId: 'unused',
-        printer: mockPrinter({ print: vi.fn() }),
-        store: mockStore({
-          getElectionRecord: () => ({
-            electionDefinition,
-            electionPackageHash: 'unused',
-          }),
-          getSystemSettings: () => {
-            const settings: Partial<SystemSettings> = {
-              bmdPrintMode: 'bubble_ballot',
-            };
-            return settings as SystemSettings;
-          },
+  testValidSizes('prints bubble ballot with marks - %s', async (size) => {
+    const electionDefinition = mockElection({
+      paperSize: size as HmpbBallotPaperSize,
+    });
+    const ballotStyle = electionDefinition.election.ballotStyles[0];
+    const mockVotes: VotesDict = {
+      foo: ['yes'],
+      bar: [{ id: 'one', name: 'Hon. One III' }],
+    };
+
+    const mockBallotPdf = Uint8Array.of(0xba, 0x11, 0x07);
+    const mockMarkedBallotPdf = Uint8Array.of(0xca, 0xfe, 0xf0, 0x0d);
+
+    vi.mocked(generateMarkOverlay).mockImplementation(
+      (election, ballotStyleId, votes, calibration, baseBallotPdf?) => {
+        expect(election).toEqual(electionDefinition.election);
+        expect(ballotStyleId).toEqual(ballotStyle.id);
+        expect(votes).toEqual(mockVotes);
+        expect(calibration).toEqual({ offsetMmX: 0, offsetMmY: 0 });
+        expect(baseBallotPdf).toEqual(mockBallotPdf);
+
+        return Promise.resolve(mockMarkedBallotPdf);
+      }
+    );
+
+    const mockPrint = vi.fn<PrintFunction>();
+    await printBallot({
+      ballotStyleId: ballotStyle.id,
+      languageCode: 'unused',
+      precinctId: 'precinct-1',
+      printer: mockPrinter({ print: mockPrint }),
+      store: mockStore({
+        getBallot: ({ ballotStyleId, precinctId, isLiveMode }) => {
+          expect(ballotStyleId).toEqual(ballotStyle.id);
+          expect(precinctId).toEqual('precinct-1');
+          expect(isLiveMode).toEqual(true);
+
+          return {
+            ballotStyleId,
+            precinctId,
+            ballotType: BallotType.Precinct,
+            ballotMode: 'official' as const,
+            encodedBallot: Buffer.from(mockBallotPdf).toString('base64'),
+          };
+        },
+        getElectionRecord: () => ({
+          electionDefinition,
+          electionPackageHash: 'unused',
         }),
-        votes: mockVotes,
-      })
-    ).rejects.toThrow('Not yet supported');
+        getSystemSettings: () => {
+          const settings: Partial<SystemSettings> = {
+            bmdPrintMode: 'bubble_ballot',
+          };
+          return settings as SystemSettings;
+        },
+        getTestMode: () => false,
+      }),
+      votes: mockVotes,
+    });
+
+    expect(mockPrint.mock.calls).toEqual<Array<Parameters<PrintFunction>>>([
+      [
+        {
+          data: mockMarkedBallotPdf,
+          sides: PrintSides.TwoSidedLongEdge,
+          size,
+        },
+      ],
+    ]);
   });
 });
 

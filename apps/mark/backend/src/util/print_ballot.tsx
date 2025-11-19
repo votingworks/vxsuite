@@ -27,7 +27,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     case 'marks_on_preprinted_ballot':
       return printMarkOverlay(p);
     case 'bubble_ballot':
-      throw new Error('Not yet supported');
+      return printBubbleBallot(p);
     /* istanbul ignore next  - @preserve */
     default:
       throwIllegalValue(printMode, 'bmdPrintMode');
@@ -59,27 +59,64 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   });
 }
 
+async function printBubbleBallot(p: PrintBallotProps): Promise<void> {
+  const { electionDefinition } = assertDefined(p.store.getElectionRecord());
+  const { election } = electionDefinition;
+
+  const size = election.ballotLayout.paperSize;
+  assert(
+    size === 'letter' || size === 'legal',
+    `${size} paper size not yet supported for bubble ballot marking`
+  );
+
+  const isLiveMode = !p.store.getTestMode();
+
+  // Get the base ballot PDF from the election package
+  const ballotEntry = p.store.getBallot({
+    ballotStyleId: p.ballotStyleId,
+    precinctId: p.precinctId,
+    isLiveMode,
+  });
+
+  assert(
+    ballotEntry,
+    `No ballot PDF found for precinct ID: ${p.precinctId} and ballot style ID: ${p.ballotStyleId}`
+  );
+
+  // Decode the base64 ballot PDF
+  const baseBallotPdf = Uint8Array.from(
+    Buffer.from(ballotEntry.encodedBallot, 'base64')
+  );
+
+  // Generate the mark overlay composited with the base ballot PDF
+  const markedBallotPdf = await generateMarkOverlay(
+    election,
+    p.ballotStyleId,
+    p.votes,
+    { offsetMmX: 0, offsetMmY: 0 }, // No calibration applied for bubble ballots
+    baseBallotPdf
+  );
+
+  return p.printer.print({
+    data: markedBallotPdf,
+    sides: PrintSides.TwoSidedLongEdge,
+    size,
+  });
+}
+
 async function printMarkOverlay(p: PrintBallotProps): Promise<void> {
   const { electionDefinition } = assertDefined(p.store.getElectionRecord());
   const { election } = electionDefinition;
 
-  const stream = generateMarkOverlay(
+  const markOverlayPdf = await generateMarkOverlay(
     election,
     p.ballotStyleId,
     p.votes,
     p.store.getPrintCalibration()
   );
 
-  const chunks: Buffer[] = [];
-  for await (const chunk of stream) {
-    assert(chunk instanceof Buffer);
-    chunks.push(chunk);
-  }
-
-  const pdf = Buffer.concat(chunks);
-
   return p.printer.print({
-    data: new Uint8Array(pdf.buffer, pdf.byteOffset, pdf.length),
+    data: markOverlayPdf,
     sides: PrintSides.TwoSidedLongEdge,
     size: election.ballotLayout.paperSize,
   });
