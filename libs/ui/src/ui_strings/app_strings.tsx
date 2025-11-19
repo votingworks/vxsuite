@@ -758,9 +758,27 @@ export const appStrings = {
     </UiString>
   ),
 
+  labelNumVotesOverLimit: () => (
+    <UiString uiStringKey="labelNumVotesOverLimit">
+      Votes exceeding the limit in this contest:
+    </UiString>
+  ),
+
   labelNumVotesUnused: () => (
     <UiString uiStringKey="labelNumVotesUnused">
       Number of unused votes:
+    </UiString>
+  ),
+
+  warningBothOptionsSelected: () => (
+    <UiString uiStringKey="warningBothOptionsSelected">
+      Both options selected.
+    </UiString>
+  ),
+
+  warningOvervoteInContest: () => (
+    <UiString uiStringKey="warningOvervoteInContest">
+      Your votes in this contest will not count.
     </UiString>
   ),
 
@@ -1503,9 +1521,30 @@ export const appStrings = {
     </UiString>
   ),
 
+  infoAllowedOvervoteCandidateContestSingular: () => (
+    <UiString uiStringKey="infoAllowedOvervoteCandidateContestSingular">
+      You have selected more candidates than allowed. Deselect a candidate for
+      your vote in this contest to count.
+    </UiString>
+  ),
+
+  infoAllowedOvervoteCandidateContestPlural: () => (
+    <UiString uiStringKey="infoAllowedOvervoteCandidateContestPlural">
+      You have selected more candidates than allowed. Deselect candidates for
+      your vote in this contest to count.
+    </UiString>
+  ),
+
   warningOvervoteYesNoContest: () => (
     <UiString uiStringKey="warningOvervoteYesNoContest">
       To change your vote, first deselect your previous vote.
+    </UiString>
+  ),
+
+  infoAllowedOvervoteYesNoContest: () => (
+    <UiString uiStringKey="infoAllowedOvervoteYesNoContest">
+      You have selected both options. Deselect an option for your vote in this
+      contest to count.
     </UiString>
   ),
 

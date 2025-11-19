@@ -47,7 +47,7 @@ import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { WriteInCandidateName } from './write_in_candidate_name';
-import { numVotesRemaining } from '../utils/vote';
+import { numVotesRemainingAndExceeding } from '../utils/vote';
 
 export interface WriteInCharacterLimitAcrossContests {
   numCharactersAllowed: number;
@@ -65,6 +65,8 @@ interface Props {
   onOpenWriteInKeyboard?: () => void;
   onCloseWriteInKeyboard?: () => void;
   writeInCharacterLimitAcrossContests?: WriteInCharacterLimitAcrossContests;
+  /** When true, allow selections beyond seats (overvotes) with a warning modal. */
+  allowOvervotes?: boolean;
 }
 
 const WriteInModalBody = styled.div`
@@ -132,6 +134,7 @@ export function CandidateContest({
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
   writeInCharacterLimitAcrossContests,
+  allowOvervotes,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
@@ -163,7 +166,12 @@ export function CandidateContest({
   const writeInCharacterLimitAcrossContestsIsLimitingFactor =
     writeInCharacterLimit < WRITE_IN_CANDIDATE_MAX_LENGTH;
 
-  const votesRemaining = numVotesRemaining(contest, vote);
+  const [votesRemaining, votesExceeding] = numVotesRemainingAndExceeding(
+    contest,
+    vote
+  );
+  const writeInCount = vote.filter((c) => c.isWriteIn).length;
+  const canAddWriteIn = contest.allowWriteIns && writeInCount < contest.seats; // You can not add more write-ins than the number of seats.
 
   useEffect(() => {
     if (recentlyDeselectedCandidate) {
@@ -213,13 +221,27 @@ export function CandidateContest({
     const candidateInVote = findCandidateInVote(vote, candidate);
 
     if (candidateInVote) {
+      // Deselect the candidate.
       if (candidateInVote.isWriteIn) {
         setWriteInPendingRemoval(candidateInVote);
       } else {
         removeCandidateFromVote(candidate);
       }
     } else {
-      addCandidateToVote(candidate);
+      // Select the candidate.
+      // If this selection would create an overvote and they're not equivalent selections,
+      // allow it only when allowOvervotes is enabled. Show a one-time warning.
+      const isEquivalentToSelected = !!findCandidateInVoteWithAnyParty(
+        vote,
+        candidate.id
+      );
+      if (allowOvervotes && votesRemaining === 0 && !isEquivalentToSelected) {
+        // We are allowing overvotes and this vote results in an overvote, add and show modal
+        addCandidateToVote(candidate);
+        handleChangeVoteAlert(candidate);
+      } else {
+        addCandidateToVote(candidate);
+      }
     }
   }
 
@@ -228,6 +250,13 @@ export function CandidateContest({
   }
 
   function closeAttemptedVoteAlert() {
+    // Re-trigger audio cue for the newly selected candidate after closing the modal
+    if (
+      attemptedOvervoteCandidate &&
+      findCandidateInVote(vote, attemptedOvervoteCandidate)
+    ) {
+      setRecentlySelectedCandidate(attemptedOvervoteCandidate);
+    }
     setAttemptedOvervoteCandidate(undefined);
   }
 
@@ -258,6 +287,9 @@ export function CandidateContest({
     const normalizedCandidateName =
       normalizeCandidateName(writeInCandidateName);
 
+    // Show modal whenever adding a write-in constitutes an overvote action (at-capacity -> over, or already over)
+    const shouldShowOvervoteAfterAdd = allowOvervotes && votesRemaining === 0;
+
     let writeInIndex = 0;
     for (const c of vote) {
       if (!c.isWriteIn) continue;
@@ -265,17 +297,21 @@ export function CandidateContest({
       writeInIndex = Math.max(writeInIndex, assertDefined(c.writeInIndex) + 1);
     }
 
-    updateVote(contest.id, [
-      ...vote,
-      {
-        id: `write-in-${camelCase(normalizedCandidateName)}`,
-        isWriteIn: true,
-        name: normalizedCandidateName,
-        writeInIndex,
-      },
-    ]);
+    const newWriteInCandidate: Candidate = {
+      id: `write-in-${camelCase(normalizedCandidateName)}`,
+      isWriteIn: true,
+      name: normalizedCandidateName,
+      writeInIndex,
+    };
+
+    updateVote(contest.id, [...vote, newWriteInCandidate]);
+    setRecentlySelectedCandidate(newWriteInCandidate);
     setWriteInCandidateName('');
     toggleWriteInCandidateModal(false);
+
+    if (shouldShowOvervoteAfterAdd) {
+      handleChangeVoteAlert(newWriteInCandidate);
+    }
   }
 
   function cancelWriteInCandidateModal() {
@@ -361,8 +397,17 @@ export function CandidateContest({
             </Font>
           )}
           <Caption>
-            {appStrings.labelNumVotesRemaining()}{' '}
-            <NumberString value={votesRemaining} weight="bold" />
+            {votesExceeding > 0 ? (
+              <React.Fragment>
+                {appStrings.labelNumVotesOverLimit()}{' '}
+                <NumberString value={votesExceeding} weight="bold" />
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                {appStrings.labelNumVotesRemaining()}{' '}
+                <NumberString value={votesRemaining} weight="bold" />
+              </React.Fragment>
+            )}
             <AudioOnly>
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}
@@ -383,7 +428,14 @@ export function CandidateContest({
                 candidate.id
               );
               const isDisabled =
-                votesRemaining <= 0 && !isChecked && !isEquivalentToSelected;
+                // We are blocking creating an overvote
+                !allowOvervotes &&
+                // An additional vote selection will create an overvote
+                votesRemaining === 0 &&
+                // This candidate option is not already selected
+                !isChecked &&
+                // This selection is not an alternative endorsement variant of a candidate that has been selected
+                !isEquivalentToSelected;
 
               function handleDisabledClick() {
                 handleChangeVoteAlert(candidate);
@@ -399,7 +451,12 @@ export function CandidateContest({
                   areCandidateChoicesEqual(recentlySelectedCandidate, candidate)
                 ) {
                   suffixAudioText =
-                    votesRemaining > 0 ? (
+                    votesExceeding > 0 ? (
+                      <React.Fragment>
+                        {appStrings.labelNumVotesOverLimit()}{' '}
+                        <NumberString value={votesExceeding} weight="bold" />
+                      </React.Fragment>
+                    ) : votesRemaining > 0 ? (
                       <React.Fragment>
                         {appStrings.labelNumVotesRemaining()}{' '}
                         <NumberString value={votesRemaining} weight="bold" />
@@ -414,12 +471,18 @@ export function CandidateContest({
               ) {
                 prefixAudioText = appStrings.labelDeselected();
 
-                suffixAudioText = (
-                  <React.Fragment>
-                    {appStrings.labelNumVotesRemaining()}{' '}
-                    <NumberString value={votesRemaining} weight="bold" />
-                  </React.Fragment>
-                );
+                suffixAudioText =
+                  votesExceeding > 0 ? (
+                    <React.Fragment>
+                      {appStrings.labelNumVotesOverLimit()}{' '}
+                      <NumberString value={votesExceeding} weight="bold" />
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      {appStrings.labelNumVotesRemaining()}{' '}
+                      <NumberString value={votesRemaining} weight="bold" />
+                    </React.Fragment>
+                  );
               }
 
               return (
@@ -470,12 +533,12 @@ export function CandidateContest({
                     caption={appStrings.labelWriteInTitleCase()}
                   />
                 ))}
-            {contest.allowWriteIns && (
+            {canAddWriteIn && (
               <ContestChoiceButton
                 choice="write-in"
                 isSelected={false}
                 onPress={
-                  votesRemaining <= 0
+                  votesRemaining <= 0 && !allowOvervotes
                     ? handleDisabledAddWriteInClick
                     : initWriteInCandidate
                 }
@@ -494,7 +557,17 @@ export function CandidateContest({
           centerContent
           content={
             <P>
-              {appStrings.warningOvervoteCandidateContest()}
+              {allowOvervotes ? (
+                votesExceeding === 1 ? (
+                  appStrings.infoAllowedOvervoteCandidateContestSingular()
+                ) : (
+                  <React.Fragment>
+                    {appStrings.infoAllowedOvervoteCandidateContestPlural()}
+                  </React.Fragment>
+                )
+              ) : (
+                appStrings.warningOvervoteCandidateContest()
+              )}
               <AudioOnly>
                 <AssistiveTechInstructions
                   controllerString={appStrings.instructionsBmdNextToContinue()}

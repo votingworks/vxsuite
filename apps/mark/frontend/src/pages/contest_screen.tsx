@@ -4,6 +4,7 @@ import { ContestPage } from '@votingworks/mark-flow-ui';
 
 import { ContestId } from '@votingworks/types';
 import { BallotContext } from '../contexts/ballot_context';
+import { getSystemSettings } from '../api';
 
 function getContestUrl(contestIndex: number) {
   return `/contests/${contestIndex}`;
@@ -31,6 +32,8 @@ export function ContestScreen(): JSX.Element {
     votes,
   } = React.useContext(BallotContext);
 
+  const systemSettings = getSystemSettings.useQuery();
+
   return (
     <ContestPage
       ballotStyleId={ballotStyleId}
@@ -42,6 +45,7 @@ export function ContestScreen(): JSX.Element {
       precinctId={precinctId}
       updateVote={updateVote}
       votes={votes}
+      allowOvervotes={systemSettings.data?.bmdAllowOvervotes}
     />
   );
 }

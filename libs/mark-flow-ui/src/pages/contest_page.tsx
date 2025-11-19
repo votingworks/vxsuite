@@ -17,19 +17,24 @@ import {
   PageNavigationButtonId,
   AccessibilityMode,
 } from '@votingworks/ui';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
 
 import { Contest, ContestProps } from '../components/contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
 import { VoterScreen } from '../components/voter_screen';
-import { numVotesRemaining } from '../utils/vote';
+import { numVotesRemainingAndExceeding } from '../utils/vote';
 
 export interface ContestPageProps {
   ballotStyleId?: string;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
   accessibilityMode?: AccessibilityMode;
+  /**
+   * When true, the UI allows selecting more options than seats (i.e. an overvote),
+   * showing a dismissable warning instead of blocking the action.
+   */
+  allowOvervotes?: boolean;
   enableWriteInAtiControllerNavigation?: boolean;
   getContestUrl: (contestIndex: number) => string;
   getStartPageUrl: () => string;
@@ -55,6 +60,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     contests,
     electionDefinition,
     accessibilityMode,
+    allowOvervotes,
     getContestUrl,
     getStartPageUrl,
     getReviewPageUrl,
@@ -100,9 +106,15 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const isVoteComplete = (() => {
     switch (contest.type) {
       case 'yesno':
-        return !!vote;
+        return !!vote && vote.length === 1;
       case 'candidate':
-        return vote && numVotesRemaining(contest, vote as CandidateVote) === 0;
+        return (
+          vote &&
+          deepEqual(
+            numVotesRemainingAndExceeding(contest, vote as CandidateVote),
+            [0, 0]
+          )
+        );
       case 'ms-either-neither':
         return (
           votes[contest.pickOneContestId]?.length === 1 ||
@@ -198,6 +210,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         votes={votes}
         updateVote={handleUpdateVote}
         accessibilityMode={accessibilityMode}
+        allowOvervotes={allowOvervotes}
         numWriteInCharactersAllowedAcrossContests={
           numWriteInCharactersAllowedAcrossContests
         }

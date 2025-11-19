@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Checkbox } from './checkbox';
 import { Icons } from './icons';
 import { Caption, Font, H5, HeadingProps, P } from './typography';
+import { appStrings } from './ui_strings';
 
 export interface VoterContestSummaryProps {
   districtName: React.ReactNode;
@@ -11,6 +12,7 @@ export interface VoterContestSummaryProps {
   title: React.ReactNode;
   titleType: HeadingProps['as'];
   undervoteWarning?: React.ReactNode;
+  overvoteWarning?: React.ReactNode;
   votes: ContestVote[];
   'data-testid'?: string;
 }
@@ -55,6 +57,7 @@ export function VoterContestSummary(
     title,
     titleType,
     undervoteWarning,
+    overvoteWarning,
     votes,
     'data-testid': testId,
   } = props;
@@ -66,6 +69,16 @@ export function VoterContestSummary(
         {title}
       </H5>
       {subtitle && <P>{subtitle}</P>}
+      {overvoteWarning && (
+        <P>
+          <Caption>
+            <Icons.Danger color="danger" />{' '}
+            {appStrings.warningOvervoteInContest()}
+            <br />
+            {overvoteWarning}
+          </Caption>
+        </P>
+      )}
       {undervoteWarning && (
         <P>
           <Caption>
