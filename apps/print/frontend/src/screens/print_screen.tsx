@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 
-import { hasSplits } from '@votingworks/types';
+import { format } from '@votingworks/utils';
+import { BallotType, hasSplits, LanguageCode } from '@votingworks/types';
 import {
   Button,
   RadioGroup,
@@ -12,7 +13,8 @@ import { assertDefined } from '@votingworks/basics';
 
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
-import { getElectionRecord } from '../api';
+import { getElectionRecord, printBallot } from '../api';
+import { getAvailableLanguages } from '../utils';
 
 const Container = styled.div`
   /* Adjusted for Toolbar height */
@@ -92,8 +94,11 @@ export function PrintScreen({
   const [selectedPrecinctName, setSelectedPrecinctName] = useState<string>('');
   const [selectedSplitName, setSelectedSplitName] = useState<string>('');
   const [selectedParty, setSelectedParty] = useState<string>('');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(
+    LanguageCode.ENGLISH
+  );
   const [isAbsentee, setIsAbsentee] = useState<boolean>(false);
+  const printBallotMutation = printBallot.useMutation();
 
   const getElectionRecordQuery = getElectionRecord.useQuery();
   if (!getElectionRecordQuery.isSuccess) {
@@ -103,14 +108,20 @@ export function PrintScreen({
   const {
     electionDefinition: { election },
   } = assertDefined(getElectionRecordQuery.data);
-  const { precincts } = election;
-  // TODO(Nikhil): Hook up to real data
-  const languages = ['English', 'Spanish'];
-  const parties = ['Dem', 'Rep'];
+  const languages = getAvailableLanguages(election);
+  const { precincts, parties } = election;
+  const hasParties = election.type === 'primary';
 
   const selectedPrecinct = selectedPrecinctName
     ? precincts.find((p) => p.name === selectedPrecinctName)
     : undefined;
+  const selectedSplitId =
+    selectedPrecinct && hasSplits(selectedPrecinct) && selectedSplitName
+      ? selectedPrecinct.splits.find((s) => s.name === selectedSplitName)?.id
+      : undefined;
+  const selectedPartyId = parties.find(
+    (party) => party.abbrev === selectedParty
+  )?.id;
 
   const availableSplits =
     selectedPrecinct && hasSplits(selectedPrecinct)
@@ -149,9 +160,10 @@ export function PrintScreen({
                 )}
               onSearch={setSearchValue}
               onSelect={(value) => {
-                setSelectedPrecinctName(value);
-                setSelectedSplitName('');
-                setSelectedParty('');
+                if (value !== selectedPrecinctName) {
+                  setSelectedPrecinctName(value);
+                  setSelectedSplitName('');
+                }
               }}
             />
           </FormSection>
@@ -169,26 +181,34 @@ export function PrintScreen({
           )}
         </Column>
         <Column>
-          <FormSection>
-            <strong>Party</strong>
-            <RadioGroup
-              label="Party"
-              value={selectedParty}
-              options={parties.map((party) => ({ label: party, value: party }))}
-              onChange={(value: string) => setSelectedParty(value)}
-              hideLabel
-            />
-          </FormSection>
+          {hasParties && (
+            <FormSection>
+              <strong>Party</strong>
+              <RadioGroup
+                label="Party"
+                value={selectedParty}
+                options={parties.map((party) => ({
+                  label: party.name,
+                  value: party.abbrev,
+                }))}
+                onChange={(value: string) => setSelectedParty(value)}
+                hideLabel
+              />
+            </FormSection>
+          )}
           <FormSection>
             <strong>Language</strong>
             <RadioGroup
               label="Language"
               value={selectedLanguage}
               options={languages.map((language) => ({
-                label: language,
+                label: format.languageDisplayName({
+                  languageCode: language,
+                  displayLanguageCode: 'en',
+                }),
                 value: language,
               }))}
-              onChange={(value: string) => {
+              onChange={(value: LanguageCode) => {
                 setSelectedLanguage(value);
               }}
               hideLabel
@@ -226,17 +246,27 @@ export function PrintScreen({
           icon="Print"
           color="primary"
           fill="filled"
-          onPress={() =>
+          onPress={() => {
+            printBallotMutation.mutate({
+              precinctId: assertDefined(selectedPrecinct).id,
+              splitId: selectedSplitId,
+              partyId: selectedPartyId,
+              languageCode: selectedLanguage,
+              ballotType: isAbsentee
+                ? BallotType.Absentee
+                : BallotType.Precinct,
+              copies: numCopies,
+            });
             console.log(
               `Printing ballot style: ${selectedPrecinctName}, ${selectedParty}, ${selectedLanguage}${
                 selectedSplitName ? `, ${selectedSplitName}` : ''
               }, ${isAbsentee ? 'Absentee' : 'Precinct'}, Copies: ${numCopies} `
-            )
-          }
+            );
+          }}
           disabled={
             !selectedPrecinctName ||
             !selectedLanguage ||
-            !selectedParty ||
+            (hasParties && !selectedParty) ||
             (availableSplits.length > 0 && !selectedSplitName)
           }
         >
