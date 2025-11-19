@@ -4751,6 +4751,9 @@ importers:
 
   libs/hmpb:
     dependencies:
+      '@pdf-lib/fontkit':
+        specifier: ^1.1.1
+        version: 1.1.1
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../ballot-encoder
@@ -11222,6 +11225,12 @@ packages:
   /@panva/asn1.js@1.0.0:
     resolution: {integrity: sha512-UdkG3mLEqXgnlKsWanWcgb6dOjUzJ+XC5f+aWw30qrtjxeNUSfKX1cd5FBzOaXQumoe9nIqeZUvrRJS03HCCtw==}
     engines: {node: '>=10.13.0'}
+    dev: false
+
+  /@pdf-lib/fontkit@1.1.1:
+    resolution: {integrity: sha512-KjMd7grNapIWS/Dm0gvfHEilSyAmeLvrEGVcqLGi0VYebuqqzTbgF29efCx7tvx+IEbG3zQciRSWl3GkUSvjZg==}
+    dependencies:
+      pako: 1.0.11
     dev: false
 
   /@pdf-lib/standard-fonts@1.0.0:
@@ -25411,7 +25420,7 @@ packages:
       '@vitest/spy': 3.1.1
       '@vitest/utils': 3.1.1
       chai: 5.2.0
-      debug: 4.4.1
+      debug: 4.4.0
       expect-type: 1.2.1
       magic-string: 0.30.17
       pathe: 2.0.3
@@ -25539,7 +25548,7 @@ packages:
       '@vitest/spy': 3.1.1
       '@vitest/utils': 3.1.1
       chai: 5.2.0
-      debug: 4.4.1
+      debug: 4.4.0
       expect-type: 1.2.1
       jsdom: 20.0.1
       magic-string: 0.30.17
