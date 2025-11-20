@@ -91,6 +91,8 @@ fn find_timing_mark_shapes(
     options: &Options,
 ) -> Vec<TimingMarkShape> {
     let allowed_timing_mark_height_range = options.timing_mark_height_range(geometry);
+    let allowed_white_gap_within_timing_mark = (geometry.timing_mark_height_pixels() / 3.0) as u32;
+
     let mut shape_list_builder = ShapeListBuilder::new();
     let image_bounds = Rect::new(0, 0, ballot_image.width(), ballot_image.height());
 
@@ -108,9 +110,23 @@ fn find_timing_mark_shapes(
             .group_by(|&y| ballot_image.get_pixel(x, y).is_foreground())
             .into_iter()
             .filter(|(is_black, _)| *is_black)
-            .filter_map(|(_, group)| {
-                let group = group.collect_vec();
-
+            .map(|(_, group)| group.collect_vec())
+            // Merge black pixel groups that have only a few pixels of white
+            // between them. This allows us to detect timing marks that have a
+            // fold line through them (fold lines sometimes expose the white
+            // paper underneath the black ink).
+            .coalesce(|group1, group2| {
+                let last_of_group1 = group1.last().expect("Pixel group can't be empty");
+                let first_of_group2 = group2.first().expect("Pixel group can't be empty");
+                if first_of_group2 - last_of_group1 - 1 <= allowed_white_gap_within_timing_mark {
+                    let mut merged = group1;
+                    merged.extend(group2);
+                    Ok(merged)
+                } else {
+                    Err((group1, group2))
+                }
+            })
+            .filter_map(|group| {
                 let [first, .., last] = group.as_slice() else {
                     return None;
                 };
