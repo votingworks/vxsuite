@@ -219,7 +219,7 @@ export const ballotImages = {
       Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath))
     ),
   completeHmpbInvalidScale: async () => {
-    const scale = 0.9;
+    const scale = 0.95;
     const sheet = await pdfToImageSheet(
       Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath)),
       {

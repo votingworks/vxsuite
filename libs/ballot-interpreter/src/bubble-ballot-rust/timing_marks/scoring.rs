@@ -44,51 +44,66 @@ fn score_timing_mark_geometry_match(
     let image_rect = Rect::new(0, 0, image.width(), image.height());
     let expected_width = geometry.timing_mark_width_pixels() as PixelUnit;
     let expected_height = geometry.timing_mark_height_pixels() as PixelUnit;
-    let expected_timing_mark_rect = Rect::new(
-        timing_mark.left(),
-        timing_mark.top(),
-        expected_width,
-        expected_height,
-    );
-    let search_rect = Rect::new(
-        (timing_mark.center().x - expected_width as f32 / 2.0 - expected_height as f32) as i32,
-        1.5f32.mul_add(-(expected_height as f32), timing_mark.center().y) as i32,
-        expected_width + 2 * expected_height,
-        3 * expected_height,
-    );
-    let mut mark_pixel_match_count = 0;
-    let mut padding_pixel_match_count = 0;
+    // To account for slight misalignments due to binarization, we jiggle the
+    // expected timing mark up or down by 1px and take the best score.
+    let y_offsets = -1..=1;
+    y_offsets
+        .map(|y_offset| {
+            let expected_timing_mark_rect = Rect::new(
+                (timing_mark.center().x - expected_width as f32 / 2.0) as i32,
+                (timing_mark.center().y - expected_height as f32 / 2.0) as i32 + y_offset,
+                expected_width,
+                expected_height,
+            );
 
-    for y in search_rect.top()..search_rect.bottom() {
-        for x in search_rect.left()..search_rect.right() {
-            let point = Point::new(x, y);
-            if image_rect.contains(point) {
-                let pixel = ballot_image.get_pixel(x as u32, y as u32);
-                let expects_mark_pixel = expected_timing_mark_rect.contains(point);
+            let search_rect = Rect::new(
+                expected_timing_mark_rect.left() - expected_height as i32,
+                expected_timing_mark_rect.top() - expected_height as i32,
+                expected_width + 2 * expected_height,
+                3 * expected_height,
+            );
+            let mut mark_pixel_match_count = 0;
+            let mut padding_pixel_match_count = 0;
 
-                if expects_mark_pixel == pixel.is_foreground() {
-                    if expects_mark_pixel {
-                        mark_pixel_match_count += 1;
-                    } else {
-                        padding_pixel_match_count += 1;
+            for y in search_rect.top()..search_rect.bottom() {
+                for x in search_rect.left()..search_rect.right() {
+                    let point = Point::new(x, y);
+                    if image_rect.contains(point) {
+                        let pixel = ballot_image.get_pixel(x as u32, y as u32);
+                        let expects_mark_pixel = expected_timing_mark_rect.contains(point);
+
+                        if expects_mark_pixel == pixel.is_foreground() {
+                            if expects_mark_pixel {
+                                mark_pixel_match_count += 1;
+                            } else {
+                                padding_pixel_match_count += 1;
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
 
-    // Note that we DO NOT use the actual width and height of the timing mark
-    // here, but the expected width and height. This is because the timing mark
-    // may be cropped and its score will be artificially inflated if we use the
-    // actual width and height.
-    let timing_mark_area = expected_width * expected_height;
-    let search_area = search_rect.width() * search_rect.height();
-    TimingMarkScore {
-        mark_score: UnitIntervalScore(mark_pixel_match_count as f32 / timing_mark_area as f32),
-        padding_score: UnitIntervalScore(
-            padding_pixel_match_count as f32 / (search_area - timing_mark_area) as f32,
-        ),
-    }
+            // Note that we DO NOT use the actual width and height of the timing mark
+            // here, but the expected width and height. This is because the timing mark
+            // may be cropped and its score will be artificially inflated if we use the
+            // actual width and height.
+            let timing_mark_area = expected_width * expected_height;
+            let search_area = search_rect.width() * search_rect.height();
+            TimingMarkScore {
+                mark_score: UnitIntervalScore(
+                    mark_pixel_match_count as f32 / timing_mark_area as f32,
+                ),
+                padding_score: UnitIntervalScore(
+                    padding_pixel_match_count as f32 / (search_area - timing_mark_area) as f32,
+                ),
+            }
+        })
+        .max_by(|a, b| {
+            a.mark_score()
+                .partial_cmp(&b.mark_score())
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
+        .expect("At least one y_offset should exist")
 }
 
 #[derive(Debug, Clone, Copy, Serialize, PartialEq)]
