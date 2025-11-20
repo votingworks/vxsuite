@@ -2,11 +2,14 @@ use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf};
 
 use image::{imageops::rotate180_in_place, GenericImageView, GrayImage};
 use imageproc::contrast::{otsu_level, threshold};
+use itertools::Itertools;
 use serde::Serialize;
 
 use crate::{
     debug::ImageDebugWriter,
-    image_utils::{bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, BLACK},
+    image_utils::{
+        bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, VerticalStreak, BLACK,
+    },
     interpret::{BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm},
     layout::{build_interpreted_page_layout, InterpretedContestLayout},
     qr_code,
@@ -246,6 +249,53 @@ impl BallotPage {
         })
     }
 
+    /// # Errors
+    /// If there are any vertical streaks in the timing mark inset area.
+    #[allow(clippy::result_large_err)]
+    pub fn reject_vertical_streaks_in_timing_mark_inset(
+        &self,
+        detected_streaks: &[VerticalStreak],
+    ) -> Result<()> {
+        let timing_mark_streak_inset_size = self.geometry.canvas_width_pixels() * 0.1;
+        let left_edge_inset = timing_mark_streak_inset_size as i32;
+        let right_edge_inset =
+            (self.geometry.canvas_width_pixels() - timing_mark_streak_inset_size) as i32;
+        for streak in detected_streaks {
+            if *streak.x_range.start() < left_edge_inset || *streak.x_range.end() > right_edge_inset
+            {
+                return Err(Error::VerticalStreaksDetected {
+                    label: self.label.clone(),
+                    x_coordinates: streak.x_range.clone().collect_vec(),
+                });
+            }
+        }
+        Ok(())
+    }
+
+    /// # Errors
+    /// If the cumulative width of vertical streaks exceeds the allowed threshold.
+    #[allow(clippy::result_large_err)]
+    pub fn reject_vertical_streaks_above_cumulative_threshold(
+        &self,
+        detected_streaks: &[VerticalStreak],
+        max_cumulative_streak_width: PixelUnit,
+    ) -> Result<()> {
+        let cumulative_streak_width: PixelUnit = detected_streaks
+            .iter()
+            .map(|streak| (streak.x_range.end() - streak.x_range.start() + 1) as PixelUnit)
+            .sum();
+        if cumulative_streak_width > max_cumulative_streak_width {
+            return Err(Error::VerticalStreaksDetected {
+                label: self.label.clone(),
+                x_coordinates: detected_streaks
+                    .iter()
+                    .flat_map(|streak| streak.x_range.clone().collect_vec())
+                    .collect(),
+            });
+        }
+        Ok(())
+    }
+
     /// Finds timing marks in this ballot page with the specified algorithm.
     ///
     /// # Errors
@@ -388,27 +438,33 @@ impl BallotCard {
         Pair::new(&mut self.front_page, &mut self.back_page)
     }
 
-    /// Detects vertical streaks on both sides of the ballot card.
-    ///
-    /// # Errors
-    ///
-    /// Fails if vertical streaks are detected on either side.
-    #[allow(clippy::result_large_err)]
-    pub fn detect_vertical_streaks(&self) -> Result<()> {
+    /// Detects vertical streaks on both sides of the ballot card, returning
+    /// the detected streaks for each side.
+    #[must_use]
+    pub fn detect_vertical_streaks(&self) -> Pair<Vec<VerticalStreak>> {
         self.as_pair()
-            .par_map(|ballot_page| {
-                let streaks = detect_vertical_streaks(ballot_page.ballot_image());
-                if streaks.is_empty() {
-                    Ok(())
-                } else {
-                    Err(Error::VerticalStreaksDetected {
-                        label: ballot_page.label().to_string(),
-                        x_coordinates: streaks,
-                    })
-                }
+            .par_map(|ballot_page| detect_vertical_streaks(ballot_page.ballot_image()))
+    }
+
+    /// # Errors
+    /// - If there are any vertical streaks in the timing mark inset area
+    /// - If the cumulative width of streaks exceeds the allowed threshold
+    #[allow(clippy::result_large_err)]
+    pub fn reject_disallowed_vertical_streaks(
+        &self,
+        streaks: &Pair<Vec<VerticalStreak>>,
+        max_cumulative_streak_width: PixelUnit,
+    ) -> Result<Pair<()>> {
+        self.as_pair()
+            .zip(streaks)
+            .par_map(|(ballot_page, page_streaks)| {
+                ballot_page.reject_vertical_streaks_in_timing_mark_inset(page_streaks)?;
+                ballot_page.reject_vertical_streaks_above_cumulative_threshold(
+                    page_streaks,
+                    max_cumulative_streak_width,
+                )
             })
-            .into_result()?;
-        Ok(())
+            .into_result()
     }
 
     /// Finds timing marks on the ballot card using the given timing mark
@@ -556,27 +612,39 @@ impl BallotCard {
     }
 
     /// Scores bubble marks on both ballot pages.
-    #[must_use]
+    ///
+    /// # Errors
+    ///
+    /// If the bubbles cannot be properly scored due to streaks intersecting
+    /// with them, an error will be returned.
+    #[allow(clippy::result_large_err)]
     pub fn score_bubble_marks<'a>(
         &self,
         timing_marks: impl Into<Pair<&'a TimingMarks>>,
         bubble_template: &GrayImage,
         grid_layout: &GridLayout,
+        detected_vertical_streaks: impl Into<Pair<&'a Vec<VerticalStreak>>>,
         sheet_number: u32,
-    ) -> Pair<ScoredBubbleMarks> {
+    ) -> Result<Pair<ScoredBubbleMarks>> {
         self.as_pair()
             .zip(timing_marks)
+            .zip(detected_vertical_streaks)
             .zip((BallotSide::Front, BallotSide::Back))
-            .par_map(|((ballot_page, timing_marks), side)| {
-                score_bubble_marks_from_grid_layout(
-                    ballot_page.ballot_image(),
-                    bubble_template,
-                    timing_marks,
-                    grid_layout,
-                    sheet_number,
-                    side,
-                )
-            })
+            .par_map(
+                |(((ballot_page, timing_marks), detected_vertical_streaks), side)| {
+                    score_bubble_marks_from_grid_layout(
+                        ballot_page.ballot_image(),
+                        ballot_page.label(),
+                        bubble_template,
+                        timing_marks,
+                        grid_layout,
+                        detected_vertical_streaks,
+                        sheet_number,
+                        side,
+                    )
+                },
+            )
+            .into_result()
     }
 
     /// Scores write-in areas in order to detect unmarked write-ins.

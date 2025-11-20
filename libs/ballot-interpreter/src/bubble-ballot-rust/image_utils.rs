@@ -1,4 +1,5 @@
 use std::mem::swap;
+use std::ops::RangeInclusive;
 
 use image::{GenericImage, GrayImage, ImageError, Luma, Rgb};
 use itertools::Itertools;
@@ -271,70 +272,145 @@ pub fn find_scanned_document_inset(
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct VerticalStreak {
+    pub(crate) x_range: RangeInclusive<PixelPosition>,
+    pub(crate) scores: Vec<UnitIntervalScore>,
+    pub(crate) longest_white_gaps: Vec<PixelUnit>,
+}
+
+impl VerticalStreak {
+    #[allow(clippy::result_large_err)]
+    fn coalesce(self, other: Self) -> Result<Self, (Self, Self)> {
+        if *self.x_range.end() + 1 >= *other.x_range.start() {
+            let overlap_size = (*self.x_range.end() + 1 - *other.x_range.start()) as usize;
+            Ok(Self {
+                x_range: *self.x_range.start()..=*other.x_range.end(),
+                scores: [
+                    &self.scores[..=self.scores.len() - overlap_size],
+                    &other.scores[overlap_size..],
+                ]
+                .concat(),
+                longest_white_gaps: [
+                    &self.longest_white_gaps[..=self.longest_white_gaps.len() - overlap_size],
+                    &other.longest_white_gaps[overlap_size..],
+                ]
+                .concat(),
+            })
+        } else {
+            Err((self, other))
+        }
+    }
+
+    pub(crate) fn rotate180(&mut self, ballot_image_width: u32) {
+        self.x_range = (ballot_image_width as i32 - 1 - *self.x_range.end())
+            ..=(ballot_image_width as i32 - 1 - *self.x_range.start());
+        self.scores.reverse();
+        self.longest_white_gaps.reverse();
+    }
+}
+
 /**
  * Detects vertical streaks in the given image (presumably resulting from debris
- * on the scanner glass). Returns a list of the x-coordinate of each streak.
+ * on the scanner glass).
  */
-pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<PixelPosition> {
-    const MIN_STREAK_SCORE: UnitIntervalScore = UnitIntervalScore(0.75);
-    const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
+pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak> {
+    // Look at each column of pixels in the image (ignoring
+    // BORDER_COLUMNS_TO_EXCLUDE on either side).
     const BORDER_COLUMNS_TO_EXCLUDE: PixelUnit = 20;
 
-    // Look at each column of pixels in the image (ignoring
-    // BORDER_COLUMNS_TO_EXCLUDE on either side), where a "column" is two pixels
-    // wide. If more than PERCENT_BLACK_PIXELS_IN_STREAK of the rows in the
-    // column have a black pixel, it might be a streak. Filter out streaks that
-    // have gaps of white that are greater than MAX_WHITE_GAP_PIXELS, since
-    // these are probably printed features, not streaks. This relies on the
-    // invariant that there are no printed features that span the entire page
-    // top to bottom without a gap greater than MAX_WHITE_GAP_PIXELS.
+    // If more than MIN_ONE_COLUMN_STREAK_SCORE percent of pixels in the column
+    // are black pixel, it might be a streak. Since some thin streaks end
+    // distributed across two columns when binarized, also check that more than
+    // MIN_TWO_COLUMN_STREAK_SCORE percent of pixels are black pixels when
+    // considering this column and the next column.
+    //
+    // Note: MIN_TWO_COLUMN_STREAK_SCORE is the main threshold that determines
+    // what constitutes a streak.  MIN_ONE_COLUMN_STREAK_SCORE helps us ensure
+    // that non-streak columns don't accidentally get included in streaks when
+    // looking at adjacent pairs of columns.
+    const MIN_ONE_COLUMN_STREAK_SCORE: UnitIntervalScore = UnitIntervalScore(0.25);
+    const MIN_TWO_COLUMN_STREAK_SCORE: UnitIntervalScore = UnitIntervalScore(0.75);
+    assert!(
+        MIN_ONE_COLUMN_STREAK_SCORE * 2.0 <= MIN_TWO_COLUMN_STREAK_SCORE,
+        "To ensure that we don't miss streaks that are distributed across two
+        columns, MIN_ONE_COLUMN_STREAK_SCORE may be at most half of
+        MIN_TWO_COLUMN_STREAK_SCORE"
+    );
+
+    // Filter out streaks that have gaps of white that are greater than
+    // MAX_WHITE_GAP_PIXELS, since these are probably printed features, not
+    // streaks. This relies on the invariant that there are no printed features
+    // that span the entire page top to bottom without a gap greater than
+    // MAX_WHITE_GAP_PIXELS.
+    #[allow(clippy::items_after_statements)]
+    const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
 
     let (width, height) = ballot_image.dimensions();
     let x_range = BORDER_COLUMNS_TO_EXCLUDE - 1..width - BORDER_COLUMNS_TO_EXCLUDE;
     let binarized_columns = x_range.clone().map(|x| {
         let binarized_column = (0..height)
-            .map(|y| {
-                ballot_image.get_pixel(x, y).is_foreground()
-                    || ballot_image.get_pixel(x + 1, y).is_foreground()
-            })
+            .map(|y| ballot_image.get_pixel(x, y).is_foreground())
             .collect::<Vec<_>>();
         (x as PixelPosition, binarized_column)
     });
 
-    let streak_columns = binarized_columns.filter_map(|(x, column)| {
-        let num_black_pixels = column.iter().filter(|is_black| **is_black).count();
-        let streak_score = UnitIntervalScore(num_black_pixels as f32 / height as f32);
-        if streak_score < MIN_STREAK_SCORE {
-            return None;
-        }
+    let streaks = binarized_columns
+        .tuple_windows()
+        .filter_map(|((x, column), (_, next_column))| {
+            let num_column_black_pixels = column.iter().filter(|is_black| **is_black).count();
+            let column_streak_score =
+                UnitIntervalScore(num_column_black_pixels as f32 / height as f32);
+            if column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
+                return None;
+            }
 
-        let longest_white_gap_length = column
-            .into_iter()
-            .group_by(|is_black| *is_black)
-            .into_iter()
-            .filter(|(is_black, _)| !*is_black)
-            .map(|(_, white_gap)| white_gap.count() as PixelUnit)
-            .max()
-            .unwrap_or(0);
-        if longest_white_gap_length <= MAX_WHITE_GAP_PIXELS {
-            Some((x, streak_score, longest_white_gap_length))
-        } else {
-            None
-        }
-    });
+            let two_column_pixels = column
+                .iter()
+                .zip(next_column.iter())
+                .map(|(is_black, is_black_next)| *is_black || *is_black_next)
+                .collect_vec();
+            let num_two_column_black_pixels = two_column_pixels
+                .iter()
+                .filter(|is_black| **is_black)
+                .count();
+            let two_column_streak_score =
+                UnitIntervalScore(num_two_column_black_pixels as f32 / height as f32);
+            if two_column_streak_score < MIN_TWO_COLUMN_STREAK_SCORE {
+                return None;
+            }
 
-    // If there are adjacent streak columns, just pick one to represent the streak.
-    let streaks = streak_columns
-        .coalesce(|column1, column2| {
-            let (x1, _, _) = column1;
-            let (x2, _, _) = column2;
-            if x2 - x1 == 1 {
-                Ok(column2)
+            let longest_white_gap_length = two_column_pixels
+                .iter()
+                .group_by(|is_black| *is_black)
+                .into_iter()
+                .filter(|(is_black, _)| !*is_black)
+                .map(|(_, white_gap)| white_gap.count() as PixelUnit)
+                .max()
+                .unwrap_or(0);
+            if longest_white_gap_length > MAX_WHITE_GAP_PIXELS {
+                return None;
+            }
+
+            let next_column_black_pixels = next_column.iter().filter(|is_black| **is_black).count();
+            let next_column_streak_score =
+                UnitIntervalScore(next_column_black_pixels as f32 / height as f32);
+            if next_column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
+                Some(VerticalStreak {
+                    x_range: x..=x,
+                    scores: vec![two_column_streak_score],
+                    longest_white_gaps: vec![longest_white_gap_length],
+                })
             } else {
-                Err((column1, column2))
+                Some(VerticalStreak {
+                    x_range: x..=x + 1,
+                    scores: vec![two_column_streak_score, next_column_streak_score],
+                    longest_white_gaps: vec![longest_white_gap_length, longest_white_gap_length],
+                })
             }
         })
-        .collect::<Vec<_>>();
+        .coalesce(VerticalStreak::coalesce)
+        .collect_vec();
 
     ballot_image.debug().write("vertical_streaks", |canvas| {
         debug::draw_vertical_streaks_debug_image_mut(
@@ -345,7 +421,7 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<PixelPosition>
         );
     });
 
-    streaks.into_iter().map(|(x, _, _)| x).collect()
+    streaks
 }
 
 #[cfg(test)]

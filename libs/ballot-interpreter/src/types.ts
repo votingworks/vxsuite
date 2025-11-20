@@ -13,6 +13,7 @@ export interface InterpreterOptions {
   electionDefinition: ElectionDefinition;
   allowOfficialBallotsInTestMode?: boolean;
   disableVerticalStreakDetection?: boolean;
+  maxCumulativeVerticalStreakWidth?: number;
   inferTimingMarks?: boolean;
   markThresholds: MarkThresholds;
   precinctSelection: PrecinctSelection;

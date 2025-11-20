@@ -101,20 +101,31 @@ impl Default for Inference {
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq)]
 pub enum VerticalStreakDetection {
-    Enabled,
+    Enabled {
+        max_cumulative_streak_width: PixelUnit,
+    },
     Disabled,
 }
 
+pub const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH: PixelUnit = 5;
+
 impl Default for VerticalStreakDetection {
     fn default() -> Self {
-        Self::Enabled
+        Self::Enabled {
+            max_cumulative_streak_width: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+        }
     }
 }
 
 impl Display for VerticalStreakDetection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Enabled => write!(f, "enabled"),
+            Self::Enabled {
+                max_cumulative_streak_width,
+            } => write!(
+                f,
+                "enabled (max cumulative streak width: {max_cumulative_streak_width}px)",
+            ),
             Self::Disabled => write!(f, "disabled"),
         }
     }
@@ -125,7 +136,9 @@ impl FromStr for VerticalStreakDetection {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "enabled" => Ok(Self::Enabled),
+            "enabled" => Ok(Self::Enabled {
+                max_cumulative_streak_width: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+            }),
             "disabled" => Ok(Self::Disabled),
             _ => Err(format!("Unexpected vertical streak detection setting: {s}")),
         }
@@ -364,9 +377,17 @@ pub fn ballot_card(
     .into_result()?
     .join(BallotCard::from_pages)?;
 
-    if options.vertical_streak_detection == VerticalStreakDetection::Enabled {
-        ballot_card.detect_vertical_streaks()?;
-    }
+    let mut detected_vertical_streaks = match options.vertical_streak_detection {
+        VerticalStreakDetection::Enabled {
+            max_cumulative_streak_width,
+        } => {
+            let streaks = ballot_card.detect_vertical_streaks();
+            ballot_card
+                .reject_disallowed_vertical_streaks(&streaks, max_cumulative_streak_width)?;
+            streaks
+        }
+        VerticalStreakDetection::Disabled => Pair::default(),
+    };
 
     let mut timing_marks = ballot_card.find_timing_marks(options.timing_mark_algorithm)?;
 
@@ -382,31 +403,39 @@ pub fn ballot_card(
     ballot_card
         .as_pair_mut()
         .zip(&mut timing_marks)
+        .zip(&mut detected_vertical_streaks)
         .zip(&decoded_qr_codes)
-        .map(|((ballot_page, timing_marks), (_, orientation))| {
-            // Handle rotating the image and our timing marks if necessary.
-            if matches!(orientation, Orientation::PortraitReversed) {
-                timing_marks.rotate180(ballot_page.dimensions().into());
-                ballot_page.rotate180();
-            }
+        .map(
+            |(((ballot_page, timing_marks), detected_vertical_streaks), (_, orientation))| {
+                // Handle rotating the image and our timing marks if necessary.
+                if matches!(orientation, Orientation::PortraitReversed) {
+                    timing_marks.rotate180(ballot_page.dimensions().into());
+                    ballot_page.rotate180();
+                    // TODO: add a test that fails if this is removed
+                    for streak in detected_vertical_streaks.iter_mut() {
+                        streak.rotate180(ballot_page.width());
+                    }
+                }
 
-            ballot_page.debug().write(
-                "complete_timing_marks_after_orientation_correction",
-                |canvas| {
-                    draw_timing_mark_debug_image_mut(
-                        canvas,
-                        ballot_page.geometry(),
-                        &timing_marks.clone().into(),
-                    );
-                },
-            );
-        });
+                ballot_page.debug().write(
+                    "complete_timing_marks_after_orientation_correction",
+                    |canvas| {
+                        draw_timing_mark_debug_image_mut(
+                            canvas,
+                            ballot_page.geometry(),
+                            &timing_marks.clone().into(),
+                        );
+                    },
+                );
+            },
+        );
 
     // If what we've been calling the front is actually the back, swap them.
     if decoded_qr_codes.first().0.page_number.is_back() {
         ballot_card.swap_pages();
         decoded_qr_codes.swap();
         timing_marks.swap();
+        detected_vertical_streaks.swap();
     }
 
     let ballot_style_id = decoded_qr_codes.first().0.ballot_style_id.clone();
@@ -426,8 +455,9 @@ pub fn ballot_card(
         &timing_marks,
         &options.bubble_template,
         grid_layout,
+        &detected_vertical_streaks,
         sheet_number,
-    );
+    )?;
 
     let contest_layouts =
         ballot_card.build_page_layout(&timing_marks, grid_layout, sheet_number)?;
@@ -523,7 +553,7 @@ mod test {
             bubble_template,
             election,
             write_in_scoring: WriteInScoring::Enabled,
-            vertical_streak_detection: VerticalStreakDetection::Enabled,
+            vertical_streak_detection: VerticalStreakDetection::default(),
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
         };
@@ -552,7 +582,7 @@ mod test {
             bubble_template,
             election,
             write_in_scoring: WriteInScoring::Enabled,
-            vertical_streak_detection: VerticalStreakDetection::Enabled,
+            vertical_streak_detection: VerticalStreakDetection::default(),
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
         };
@@ -651,20 +681,22 @@ mod test {
     }
 
     #[test]
-    fn test_vertical_streaks() {
+    fn test_vertical_streaks_not_through_bubbles() {
         let (mut side_a_image, mut side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 1);
         let thin_complete_streak_x = side_a_image.width() / 5;
-        let thick_complete_streak_x = side_a_image.width() * 2 / 5;
+        let thick_complete_streak_x: PixelPosition = side_a_image.width() as PixelPosition * 2 / 5;
+        let thick_complete_streak_x_range =
+            (thick_complete_streak_x..(thick_complete_streak_x + 20)).collect_vec();
         let fuzzy_streak_x = side_a_image.width() * 3 / 5;
         let incomplete_streak_x = side_a_image.width() * 4 / 5;
         let cropped_streak_x = side_a_image.width() - 2;
         let black_pixel = Luma([0]);
         for y in 0..side_a_image.height() {
             side_a_image.put_pixel(thin_complete_streak_x, y, black_pixel);
-            side_a_image.put_pixel(thick_complete_streak_x, y, black_pixel);
-            side_a_image.put_pixel(thick_complete_streak_x + 1, y, black_pixel);
-            side_a_image.put_pixel(thick_complete_streak_x + 2, y, black_pixel);
+            for x in thick_complete_streak_x_range.clone() {
+                side_a_image.put_pixel(x as u32, y, black_pixel);
+            }
             if (y % 2) == 0 {
                 side_a_image.put_pixel(fuzzy_streak_x, y, black_pixel);
             }
@@ -677,22 +709,93 @@ mod test {
             }
             side_a_image.put_pixel(cropped_streak_x, y, black_pixel);
         }
-        let Error::VerticalStreaksDetected {
-            label,
-            x_coordinates,
-        } = ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap_err()
-        else {
-            panic!("wrong error type");
-        };
-        assert_eq!(label, "side A");
-        assert_eq!(
-            x_coordinates,
-            vec![
-                thin_complete_streak_x as PixelPosition,
-                (thick_complete_streak_x + 2) as PixelPosition,
-                fuzzy_streak_x as PixelPosition
-            ]
+        let _debug_image = DebugImage::write(
+            "test_vertical_streaks_not_through_bubbles.png",
+            &side_a_image,
         );
+        let options = Options {
+            debug_side_a_base: Some(PathBuf::from(
+                "test_vertical_streaks_not_through_bubbles_debug.png",
+            )),
+            debug_side_b_base: Some(PathBuf::from(
+                "test_vertical_streaks_not_through_bubbles_debug_b.png",
+            )),
+            ..options
+        };
+        match ballot_card(side_a_image.clone(), side_b_image.clone(), &options) {
+            Ok(_) => panic!("expected vertical streak error, not success"),
+            Err(Error::VerticalStreaksDetected {
+                label,
+                x_coordinates,
+            }) => {
+                assert_eq!(label, "side A");
+                assert_eq!(
+                    x_coordinates,
+                    [
+                        vec![thin_complete_streak_x as PixelPosition],
+                        thick_complete_streak_x_range,
+                        vec![
+                            fuzzy_streak_x as PixelPosition,
+                            fuzzy_streak_x as PixelPosition + 1
+                        ],
+                    ]
+                    .concat()
+                );
+            }
+            Err(e) => panic!("wrong error type: {e:?}"),
+        }
+    }
+
+    #[test]
+    fn test_vertical_streaks_through_bubbles() {
+        let (mut side_a_image, mut side_b_image, options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        let thin_complete_streak_x = side_a_image.width() / 5;
+        let thick_complete_streak_x_through_bubbles = side_a_image.width() * 2 / 5 - 20;
+        let fuzzy_streak_x = side_a_image.width() * 3 / 5;
+        let incomplete_streak_x = side_a_image.width() * 4 / 5;
+        let cropped_streak_x = side_a_image.width() - 2;
+        let black_pixel = Luma([0]);
+        for y in 0..side_a_image.height() {
+            side_a_image.put_pixel(thin_complete_streak_x, y, black_pixel);
+            side_a_image.put_pixel(thick_complete_streak_x_through_bubbles, y, black_pixel);
+            side_a_image.put_pixel(thick_complete_streak_x_through_bubbles + 1, y, black_pixel);
+            side_a_image.put_pixel(thick_complete_streak_x_through_bubbles + 2, y, black_pixel);
+            if (y % 2) == 0 {
+                side_a_image.put_pixel(fuzzy_streak_x, y, black_pixel);
+            }
+            if ((y + 1) % 2) == 0 {
+                side_a_image.put_pixel(fuzzy_streak_x + 1, y, black_pixel);
+            }
+            // Draw an incomplete streak on side B
+            if y > 20 {
+                side_b_image.put_pixel(incomplete_streak_x, y, black_pixel);
+            }
+            side_a_image.put_pixel(cropped_streak_x, y, black_pixel);
+        }
+        let _debug_image =
+            DebugImage::write("test_vertical_streaks_through_bubbles.png", &side_a_image);
+        match ballot_card(side_a_image.clone(), side_b_image.clone(), &options) {
+            Ok(_) => panic!("expected vertical streak error, not success"),
+            Err(Error::VerticalStreaksDetected {
+                label,
+                x_coordinates,
+            }) => {
+                assert_eq!(label, "side A");
+                assert_eq!(
+                    x_coordinates,
+                    vec![
+                        thin_complete_streak_x as PixelPosition,
+                        thick_complete_streak_x_through_bubbles as PixelPosition,
+                        thick_complete_streak_x_through_bubbles as PixelPosition + 1,
+                        thick_complete_streak_x_through_bubbles as PixelPosition + 2,
+                        fuzzy_streak_x as PixelPosition,
+                        fuzzy_streak_x as PixelPosition + 1,
+                    ]
+                );
+            }
+            Err(e) => panic!("wrong error type: {e:?}"),
+        }
 
         // ensure that we do NOT detect streaks when the option is disabled
         ballot_card(
@@ -715,15 +818,17 @@ mod test {
         for y in 0..side_a_image.height() {
             side_a_image.put_pixel(timing_mark_x, y, black_pixel);
         }
-        let Error::VerticalStreaksDetected {
-            label,
-            x_coordinates,
-        } = ballot_card(side_a_image, side_b_image, &options).unwrap_err()
-        else {
-            panic!("wrong error type");
-        };
-        assert_eq!(label, "side A");
-        assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
+        match ballot_card(side_a_image, side_b_image, &options) {
+            Ok(_) => panic!("expected vertical streak error, not success"),
+            Err(Error::VerticalStreaksDetected {
+                label,
+                x_coordinates,
+            }) => {
+                assert_eq!(label, "side A");
+                assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
+            }
+            Err(e) => panic!("wrong error type: {e:?}"),
+        }
     }
 
     #[test]
@@ -735,15 +840,17 @@ mod test {
         for y in 0..side_a_image.height() {
             side_a_image.put_pixel(timing_mark_x, y, black_pixel);
         }
-        let Error::VerticalStreaksDetected {
-            label,
-            x_coordinates,
-        } = ballot_card(side_a_image, side_b_image, &options).unwrap_err()
-        else {
-            panic!("wrong error type");
-        };
-        assert_eq!(label, "side A");
-        assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
+        match ballot_card(side_a_image, side_b_image, &options) {
+            Ok(_) => panic!("expected vertical streak error, not success"),
+            Err(Error::VerticalStreaksDetected {
+                label,
+                x_coordinates,
+            }) => {
+                assert_eq!(label, "side A");
+                assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
+            }
+            Err(e) => panic!("wrong error type: {e:?}"),
+        }
     }
 
     #[test]
@@ -982,7 +1089,9 @@ mod test {
 
     impl Drop for DebugImage {
         fn drop(&mut self) {
-            std::fs::remove_file(&self.path).unwrap();
+            if !std::thread::panicking() {
+                std::fs::remove_file(&self.path).unwrap();
+            }
         }
     }
 }

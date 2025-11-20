@@ -67,6 +67,7 @@ async function interpretSheet(
   const {
     allowOfficialBallotsInTestMode,
     disableVerticalStreakDetection,
+    maxCumulativeVerticalStreakWidth,
     markThresholds,
     precinctScanEnableBmdBallotScanning,
     minimumDetectedBallotScaleOverride,
@@ -78,6 +79,7 @@ async function interpretSheet(
       precinctSelection: assertDefined(store.getPrecinctSelection()),
       testMode: store.getTestMode(),
       disableVerticalStreakDetection,
+      maxCumulativeVerticalStreakWidth,
       ballotImagesPath: workspace.ballotImagesPath,
       markThresholds,
       adjudicationReasons: store.getAdjudicationReasons(),
