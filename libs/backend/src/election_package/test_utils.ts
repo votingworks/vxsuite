@@ -1,3 +1,4 @@
+// istanbul ignore file - @preserve test helpers
 import { ElectionPackage, ElectionPackageFileName } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import {
@@ -47,6 +48,12 @@ export function createElectionPackageZipArchive(
       electionPackage.uiStringAudioClips
         .map((clip) => JSON.stringify(clip))
         .join('\n');
+  }
+
+  if (electionPackage.ballots && electionPackage.ballots.length > 0) {
+    zipContents[ElectionPackageFileName.BALLOTS] = electionPackage.ballots
+      .map((ballot) => JSON.stringify(ballot))
+      .join('\n');
   }
 
   return zipFile(zipContents);

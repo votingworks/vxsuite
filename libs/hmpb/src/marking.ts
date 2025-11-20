@@ -1,4 +1,14 @@
-import PdfDocument from 'pdfkit';
+import {
+  appendBezierCurve,
+  fill,
+  lineTo,
+  moveTo,
+  PDFDocument,
+  PDFPage,
+  setFillingGrayscaleColor,
+} from 'pdf-lib';
+import fontKit from '@pdf-lib/fontkit';
+import fs from 'node:fs';
 
 import { assert } from '@votingworks/basics';
 import {
@@ -21,6 +31,8 @@ import {
 } from './ballot_components';
 import { PrintCalibration } from './types';
 import { voteMatchesGridPosition } from './vote_matching';
+
+const robotoBoldTtf = fs.readFileSync(`${__dirname}/fonts/Roboto-Bold.ttf`);
 
 // NOTE: All values used in this module are in PDF user space `pt` units.
 
@@ -45,7 +57,6 @@ const markSize = [bubbleSize[0] * 1.2, bubbleSize[1] * 1.2] as const;
 const markBorderRadius = markSize[1] * 0.5;
 const markSizeHalf = [markSize[0] * 0.5, markSize[1] * 0.5] as const;
 
-const writeInFontName = 'Roboto-Bold';
 const writeInFontSizeDefault = 12;
 const writeInFontSizeReduced = 10;
 
@@ -53,14 +64,18 @@ const writeInFontSizeReduced = 10;
  * Generates a PDF with bubble marks in the expected positions for the given
  * ballot style and corresponding votes.
  *
- * Intended for printing over pre-printed HMPBs.
+ * If {@link baseBallotPdf} is specified, the marks will be composited on top
+ * of the base ballot PDF. Otherwise, a new PDF with just the marks is created.
+ *
+ * Intended for printing over pre-printed HMPBs or for bubble ballot marking.
  */
-export function generateMarkOverlay(
+export async function generateMarkOverlay(
   election: Election,
   ballotStyleId: string,
   votes: VotesDict,
-  calibration: PrintCalibration
-): NodeJS.ReadableStream {
+  calibration: PrintCalibration,
+  baseBallotPdf?: Uint8Array
+): Promise<Uint8Array> {
   assert(
     election.gridLayouts,
     'cannot generate mark overlay for election with no grid layouts'
@@ -92,22 +107,33 @@ export function generateMarkOverlay(
     pageSize[1] - 2 * pageMargins[1] - timingMarkSize[1],
   ];
 
-  const doc = new PdfDocument({
-    bufferPages: true,
-    size: pageSize as [number, number],
-    compress: false,
-  });
-  doc.registerFont(writeInFontName, `${__dirname}/fonts/Roboto-Bold.ttf`);
+  // Load base ballot PDF or create a new document
+  const doc = baseBallotPdf
+    ? await PDFDocument.load(baseBallotPdf)
+    : await PDFDocument.create();
 
-  let pageCount = 1; // First page is added automatically.
+  if (baseBallotPdf) {
+    const basePageSize = doc.getPage(0).getSize();
+    assert(
+      basePageSize.width === pageSize[0] && basePageSize.height === pageSize[1],
+      `base PDF size ([${basePageSize.width},${basePageSize.height}]) does ` +
+        `not match expected (${pageSize})`
+    );
+  }
+
+  doc.registerFontkit(fontKit);
+  const fontRobotoBold = await doc.embedFont(robotoBoldTtf);
 
   for (const pos of layout.gridPositions) {
     let pageNumber = pos.sheetNumber * 2;
     if (pos.side === 'front') pageNumber -= 1;
 
-    while (pageCount < pageNumber) {
-      doc.addPage();
-      pageCount += 1;
+    // Create pages if they don't exist (for non-base ballot case)
+    if (!baseBallotPdf) {
+      while (doc.getPageCount() < pageNumber) {
+        const page = doc.addPage();
+        page.setSize(pageSize[0], pageSize[1]);
+      }
     }
 
     const contestVotes = votes[pos.contestId];
@@ -119,27 +145,22 @@ export function generateMarkOverlay(
     const mark = markInfo(contestVotes, pos, contest, layout);
     if (!mark) continue;
 
-    doc.switchToPage(pageNumber - 1); // Pages are 0-indexed in `pdfkit`.
+    const page = doc.getPage(pageNumber - 1);
 
     const bubbleCenter = [
       gridOrigin[0] + gridSize[0] * (pos.column / (timingMarkCount.x - 1)),
       gridOrigin[1] + gridSize[1] * (pos.row / (timingMarkCount.y - 1)),
     ];
 
-    doc
-      .roundedRect(
-        bubbleCenter[0] - markSizeHalf[0],
-        bubbleCenter[1] - markSizeHalf[1],
-        markSize[0],
-        markSize[1],
-        markBorderRadius
-      )
-      .fill([0, 0, 0]);
+    // Draw bubble mark using pdf-lib
+    bubbleMark(page, [
+      bubbleCenter[0] - markSizeHalf[0],
+      pageSize[1] - bubbleCenter[1] + markSizeHalf[1],
+    ]);
 
     if (!mark.writeInName) continue;
 
-    // Add write-in candidate name within the configured search area:
-
+    // Add write-in candidate name within the configured search area
     const { writeInArea: area, writeInName: name } = mark;
     const origin = [
       gridOrigin[0] + gridSize[0] * (area.x / (timingMarkCount.x - 1)),
@@ -151,32 +172,107 @@ export function generateMarkOverlay(
     ];
 
     let fontSize = writeInFontSizeDefault;
-
-    doc.font(writeInFontName, fontSize);
-    const textHeight = doc.heightOfString(name, { width: areaSize[0] });
-
-    // Reduce font size for long write-ins.
-    if (textHeight > doc.currentLineHeight()) {
+    if (fontRobotoBold.widthOfTextAtSize(name, fontSize) > areaSize[0]) {
       fontSize = writeInFontSizeReduced;
     }
 
-    // Center the write-in text within the write-in area.
     origin[1] += 0.5 * (areaSize[1] - fontSize);
 
-    doc.font(writeInFontName, fontSize).text(name, origin[0], origin[1], {
-      align: 'left',
-      height: areaSize[1],
-      width: areaSize[0],
+    page.drawText(name, {
+      font: fontRobotoBold,
+      size: fontSize,
+      x: origin[0],
+      y: pageSize[1] - origin[1] - fontSize,
     });
   }
 
   // Make sure we have an even number of pages, to match print order of the base
   // ballot sheets (paper paths differ between simplex vs duplex printing).
-  if (pageCount % 2) doc.addPage();
+  if (doc.getPageCount() % 2) doc.addPage().setSize(pageSize[0], pageSize[1]);
 
-  process.nextTick(() => doc.end());
+  return doc.save();
+}
 
-  return doc;
+/**
+ * Radius multiplier for the distance from bezier curve control points to the
+ * start/end points required to approximate a quarter-circle arc.
+ */
+const arcControlPointDistPerRadius = (4 * (Math.sqrt(2) - 1)) / 3;
+const markControlPointDist = markBorderRadius * arcControlPointDistPerRadius;
+const markLenTop = markSize[0] - 2 * markBorderRadius;
+const markLenBottom = markSize[0] - 2 * markBorderRadius;
+
+/**
+ * Appends a filled, rounded-rectangle bubble mark path to the given page.
+ */
+function bubbleMark(page: PDFPage, originTopLeft: [number, number]): void {
+  const radius = markBorderRadius;
+  const p1: [number, number] = [originTopLeft[0] + radius, originTopLeft[1]];
+  const p2: [number, number] = [p1[0] + markLenTop, p1[1]];
+
+  page.pushOperators(setFillingGrayscaleColor(0), moveTo(...p1), lineTo(...p2));
+
+  [p1[0], p1[1]] = p2;
+  p2[0] += radius;
+  p2[1] -= radius;
+  page.pushOperators(
+    appendBezierCurve(
+      p1[0] + markControlPointDist,
+      p1[1],
+      p2[0],
+      p2[1] + markControlPointDist,
+      p2[0],
+      p2[1]
+    )
+  );
+
+  [p1[0], p1[1]] = p2;
+  p2[0] -= radius;
+  p2[1] -= radius;
+  page.pushOperators(
+    appendBezierCurve(
+      p1[0],
+      p1[1] - markControlPointDist,
+      p2[0] + markControlPointDist,
+      p2[1],
+      p2[0],
+      p2[1]
+    )
+  );
+
+  [p1[0], p1[1]] = p2;
+  p2[0] -= markLenBottom;
+  page.pushOperators(lineTo(...p2));
+
+  [p1[0], p1[1]] = p2;
+  p2[0] -= radius;
+  p2[1] += radius;
+  page.pushOperators(
+    appendBezierCurve(
+      p1[0] - markControlPointDist,
+      p1[1],
+      p2[0],
+      p2[1] - markControlPointDist,
+      p2[0],
+      p2[1]
+    )
+  );
+
+  [p1[0], p1[1]] = p2;
+  p2[0] += radius;
+  p2[1] += radius;
+  page.pushOperators(
+    appendBezierCurve(
+      p1[0],
+      p1[1] + markControlPointDist,
+      p2[0] - markControlPointDist,
+      p2[1],
+      p2[0],
+      p2[1]
+    )
+  );
+
+  page.pushOperators(fill());
 }
 
 type MarkInfo =

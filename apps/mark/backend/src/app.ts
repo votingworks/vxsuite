@@ -159,7 +159,7 @@ export function buildApi(
       assert(isElectionManagerAuth(authStatus));
       const { electionPackage, electionPackageHash } =
         electionPackageResult.ok();
-      const { electionDefinition, systemSettings } = electionPackage;
+      const { electionDefinition, systemSettings, ballots } = electionPackage;
       assert(systemSettings);
 
       workspace.store.withTransaction(() => {
@@ -169,6 +169,11 @@ export function buildApi(
           electionPackageHash,
         });
         workspace.store.setSystemSettings(systemSettings);
+
+        // Store ballot PDFs if available in the election package
+        if (ballots && ballots.length > 0) {
+          workspace.store.setBallots(ballots);
+        }
 
         // automatically set precinct for single precinct elections
         if (electionDefinition.election.precincts.length === 1) {
