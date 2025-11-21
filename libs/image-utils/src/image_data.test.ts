@@ -5,7 +5,7 @@ import fc from 'fast-check';
 import { writeFile } from 'node:fs/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { randomFillSync } from 'node:crypto';
-import { MaybePromise } from '@votingworks/basics';
+import { err, MaybePromise } from '@votingworks/basics';
 import { arbitraryImageData } from '../test/arbitraries';
 import {
   RGBA_CHANNEL_COUNT,
@@ -105,7 +105,7 @@ test('loadImage/writeImageData', async () => {
       async (imageData, format) => {
         const filePath = makeTemporaryFile({ postfix: `.${format}` });
         await writeImageData(filePath, imageData);
-        const loadedImageData = await loadImageData(filePath);
+        const loadedImageData = (await loadImageData(filePath)).unsafeUnwrap();
         expect({
           width: loadedImageData.width,
           height: loadedImageData.height,
@@ -128,7 +128,7 @@ test('loadImageData', async () => {
       async (imageData, format) => {
         const filePath = makeTemporaryFile({ postfix: `.${format}` });
         await writeImageData(filePath, imageData);
-        const loadedImageData = await loadImageData(filePath);
+        const loadedImageData = (await loadImageData(filePath)).unsafeUnwrap();
         expect({
           width: loadedImageData.width,
           height: loadedImageData.height,
@@ -143,6 +143,14 @@ test('loadImageData', async () => {
   );
 });
 
+test('loadImageData on a corrupted image', async () => {
+  const emptyFilePath = makeTemporaryFile({ postfix: '.png' });
+  const imageData = await loadImageData(emptyFilePath);
+  expect(imageData).toEqual(
+    err({ type: 'invalid-image-file', message: expect.any(String) })
+  );
+});
+
 test('toDataUrl image/png', async () => {
   await fc.assert(
     fc.asyncProperty(
@@ -150,8 +158,9 @@ test('toDataUrl image/png', async () => {
       async (imageData) => {
         const dataUrl = toDataUrl(imageData, 'image/png');
         expect(dataUrl).toMatch(/^data:image\/png;base64,/);
-        const { width: decodedWidth, height: decodedHeight } =
-          await loadImageData(dataUrl);
+        const { width: decodedWidth, height: decodedHeight } = (
+          await loadImageData(dataUrl)
+        ).unsafeUnwrap();
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
           width: imageData.width,
           height: imageData.height,
@@ -168,8 +177,9 @@ test('toDataUrl image/jpeg', async () => {
       async (imageData) => {
         const dataUrl = toDataUrl(imageData, 'image/jpeg');
         expect(dataUrl).toMatch(/^data:image\/jpeg;base64,/);
-        const { width: decodedWidth, height: decodedHeight } =
-          await loadImageData(dataUrl);
+        const { width: decodedWidth, height: decodedHeight } = (
+          await loadImageData(dataUrl)
+        ).unsafeUnwrap();
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
           width: imageData.width,
           height: imageData.height,
@@ -202,8 +212,9 @@ test('toImageBuffer', async () => {
         const buffer = toImageBuffer(imageData, format && `image/${format}`);
         const filePath = makeTemporaryFile({ postfix: `.${format}` });
         await writeFile(filePath, buffer);
-        const { width: decodedWidth, height: decodedHeight } =
-          await loadImageData(filePath);
+        const { width: decodedWidth, height: decodedHeight } = (
+          await loadImageData(filePath)
+        ).unsafeUnwrap();
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
           width: imageData.width,
           height: imageData.height,
@@ -227,8 +238,9 @@ test('encodeImageData', async () => {
           postfix: `.${mimeType === 'image/png' ? 'png' : 'jpeg'}`,
         });
         await writeFile(filePath, buffer);
-        const { width: decodedWidth, height: decodedHeight } =
-          await loadImageData(filePath);
+        const { width: decodedWidth, height: decodedHeight } = (
+          await loadImageData(filePath)
+        ).unsafeUnwrap();
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
           width: imageData.width,
           height: imageData.height,
