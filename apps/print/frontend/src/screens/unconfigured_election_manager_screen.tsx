@@ -10,8 +10,11 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element | null {
   const configure = configureElectionPackageFromUsb.useMutation();
 
   useQueryChangeListener(deviceStatusesQuery, {
-    onChange: (newDeviceStatuses) => {
-      if (newDeviceStatuses.usbDrive?.status === 'mounted') {
+    onChange: (newDeviceStatuses, previousDeviceStatuses) => {
+      if (
+        newDeviceStatuses.usbDrive?.status === 'mounted' &&
+        previousDeviceStatuses?.usbDrive?.status !== 'mounted'
+      ) {
         configure.mutate();
       }
     },

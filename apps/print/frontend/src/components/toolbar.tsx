@@ -78,11 +78,11 @@ export function Toolbar(): JSX.Element | null {
   const currentDate = useCurrentDate();
 
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  if (!getDeviceStatusesQuery.isSuccess) {
+    return null;
+  }
 
-  const { usbDrive, printer } = getDeviceStatusesQuery.data ?? {
-    usbDrive: { status: 'no_drive' },
-    printer: { connected: false },
-  };
+  const { usbDrive, printer } = getDeviceStatusesQuery.data;
 
   return (
     <ToolbarContainer>
