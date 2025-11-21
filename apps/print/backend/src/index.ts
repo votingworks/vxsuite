@@ -9,6 +9,7 @@ import { WORKSPACE } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 
 export type { Api } from './app';
+export type { BallotPrintCount } from './types';
 
 loadEnvVarsFromDotenvFiles();
 
