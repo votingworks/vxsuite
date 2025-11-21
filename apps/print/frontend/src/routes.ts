@@ -5,13 +5,13 @@ export const systemAdministratorRoutes = {
 export const electionManagerRoutes = {
   election: { title: 'Election', path: '/election' },
   print: { title: 'Print', path: '/print' },
-  reports: { title: 'Reports', path: '/reports' },
+  reports: { title: 'Report', path: '/report' },
   settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export const pollWorkerRoutes = {
   print: { title: 'Print', path: '/print' },
-  reports: { title: 'Reports', path: '/reports' },
+  reports: { title: 'Report', path: '/report' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export const routeMap = {
