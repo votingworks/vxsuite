@@ -381,27 +381,32 @@ export function createApiMock(
 
     expectGetBallotImageView(
       input: { contestId: ContestId; cvrId: Id },
-      isBmd: boolean
+      isBmd: boolean,
+      options: { isImageCorrupted?: boolean } = {}
     ) {
       const { cvrId } = input;
       if (isBmd) {
         apiClient.getBallotImageView.expectCallWith(input).resolves({
           cvrId,
-          imageUrl: `mock-image-data-${cvrId}-${0}`,
+          imageUrl: options.isImageCorrupted
+            ? null
+            : `mock-image-data-${cvrId}-${0}`,
           type: 'bmd',
           side: 'front',
         });
       } else {
         apiClient.getBallotImageView.expectCallWith(input).resolves({
           cvrId,
-          imageUrl: `mock-image-data-${cvrId}-${0}`,
+          imageUrl: options.isImageCorrupted
+            ? null
+            : `mock-image-data-${cvrId}-${0}`,
           type: 'hmpb',
           side: 'front',
           ballotCoordinates: {
             x: 0,
             y: 0,
-            width: 1000,
-            height: 1000,
+            width: options.isImageCorrupted ? 0 : 1000,
+            height: options.isImageCorrupted ? 0 : 1000,
           },
           contestCoordinates: {
             x: 200,
