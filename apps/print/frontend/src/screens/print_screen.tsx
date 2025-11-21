@@ -239,7 +239,7 @@ export function PrintScreen({
           <NumberInput
             value={numCopies}
             onChange={(value) => setNumCopies(value || 0)}
-            style={{ width: '3rem' }}
+            style={{ width: '4rem' }}
           />
         </FooterSection>
         <PrintButton
