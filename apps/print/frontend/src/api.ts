@@ -12,7 +12,7 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   createSystemCallApi,
   QUERY_CLIENT_DEFAULT_OPTIONS,
-  DEVICES_STATUS_POLLING_INTERVAL_MS,
+  USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
 } from '@votingworks/ui';
 
 export type ApiClient = grout.Client<Api>;
@@ -169,7 +169,7 @@ export const getDeviceStatuses = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getDeviceStatuses(), {
-      refetchInterval: DEVICES_STATUS_POLLING_INTERVAL_MS,
+      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
     });
   },
 } as const;
