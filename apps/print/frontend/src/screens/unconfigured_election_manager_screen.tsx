@@ -2,30 +2,35 @@ import {
   UnconfiguredElectionScreen,
   useQueryChangeListener,
 } from '@votingworks/ui';
-import { configureElectionPackageFromUsb, getUsbDriveStatus } from '../api';
+import { configureElectionPackageFromUsb, getDeviceStatuses } from '../api';
 import { ScreenWrapper } from '../components/screen_wrapper';
 
 export function UnconfiguredElectionManagerScreen(): JSX.Element | null {
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const deviceStatusesQuery = getDeviceStatuses.useQuery();
   const configure = configureElectionPackageFromUsb.useMutation();
 
-  useQueryChangeListener(usbDriveStatusQuery, {
-    onChange: (newUsbDriveStatus) => {
-      if (newUsbDriveStatus.status === 'mounted') {
+  useQueryChangeListener(deviceStatusesQuery, {
+    onChange: (newDeviceStatuses, previousDeviceStatuses) => {
+      if (
+        newDeviceStatuses.usbDrive?.status === 'mounted' &&
+        previousDeviceStatuses?.usbDrive?.status !== 'mounted'
+      ) {
         configure.mutate();
       }
     },
   });
 
-  if (!usbDriveStatusQuery.isSuccess) {
+  if (!deviceStatusesQuery.isSuccess) {
     return null;
   }
+
+  const { usbDrive } = deviceStatusesQuery.data;
 
   const backendError = configure.data?.err();
   return (
     <ScreenWrapper authType="election_manager" centerChild>
       <UnconfiguredElectionScreen
-        usbDriveStatus={usbDriveStatusQuery.data}
+        usbDriveStatus={usbDrive}
         isElectionManagerAuth
         backendConfigError={backendError}
         machineName="VxPrint"

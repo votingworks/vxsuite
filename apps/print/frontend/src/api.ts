@@ -73,18 +73,6 @@ export const getElectionRecord = {
   },
 } as const;
 
-export const getUsbDriveStatus = {
-  queryKey(): QueryKey {
-    return ['getUsbDriveStatus'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
-    });
-  },
-} as const;
-
 export const configureElectionPackageFromUsb = {
   useMutation() {
     const apiClient = useApiClient();
@@ -171,6 +159,18 @@ export const getMachineConfig = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
+  },
+} as const;
+
+export const getDeviceStatuses = {
+  queryKey(): QueryKey {
+    return ['getDeviceStatuses'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getDeviceStatuses(), {
+      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 

@@ -5,7 +5,8 @@ import { Button, Icons } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 
-import { getUsbDriveStatus, logOut } from '../api';
+import type { PrinterStatus as PrinterStatusType } from '@votingworks/types';
+import { getDeviceStatuses, logOut } from '../api';
 
 const Row = styled.div`
   display: flex;
@@ -23,6 +24,15 @@ function useCurrentDate(): Date {
   }, []);
 
   return currentDate;
+}
+
+function PrinterStatus({ status }: { status: PrinterStatusType }) {
+  return (
+    <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
+      <Icons.Print color="inverse" />
+      {!status.connected && <Icons.Warning color="inverseWarning" />}
+    </Row>
+  );
 }
 
 function UsbStatus({ status }: { status: UsbDriveStatus }) {
@@ -67,13 +77,18 @@ const ToolbarContainer = styled(Row)`
 export function Toolbar(): JSX.Element | null {
   const currentDate = useCurrentDate();
 
-  const getUsbDriveStatusQuery = getUsbDriveStatus.useQuery();
-  const usbDrive = getUsbDriveStatusQuery.data ?? { status: 'no_drive' };
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  if (!getDeviceStatusesQuery.isSuccess) {
+    return null;
+  }
+
+  const { usbDrive, printer } = getDeviceStatusesQuery.data;
 
   return (
     <ToolbarContainer>
       {format.clockDateAndTime(currentDate)}
       <UsbStatus status={usbDrive} />
+      <PrinterStatus status={printer} />
       <LogOutButton />
     </ToolbarContainer>
   );

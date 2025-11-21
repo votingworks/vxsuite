@@ -32,7 +32,6 @@ import {
   createQueryClient,
   getAuthStatus,
   getElectionRecord,
-  getUsbDriveStatus,
   logOut,
   systemCallApi,
   unconfigureMachine,
@@ -45,7 +44,7 @@ import { PollWorkerApp } from './poll_worker_app';
 function AppRoot({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   logger,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   apiClient,
 }: {
   logger: BaseLogger;
@@ -56,21 +55,13 @@ function AppRoot({
   const unconfigureMutation = unconfigureMachine.useMutation();
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const getElectionRecordQuery = getElectionRecord.useQuery();
-  const getUsbDriveStatusQuery = getUsbDriveStatus.useQuery();
 
-  if (
-    !getAuthStatusQuery.isSuccess ||
-    !getElectionRecordQuery.isSuccess ||
-    !getUsbDriveStatusQuery.isSuccess
-  ) {
+  if (!getAuthStatusQuery.isSuccess || !getElectionRecordQuery.isSuccess) {
     return null;
   }
 
   const authStatus = getAuthStatusQuery.data;
   const electionRecord = getElectionRecordQuery.data;
-  const usbDriveStatus = getUsbDriveStatusQuery.data;
-
-  assert(usbDriveStatus);
 
   if (
     authStatus.status === 'logged_out' &&

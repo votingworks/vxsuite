@@ -1,4 +1,5 @@
-import { EncodedBallotEntry, Id } from '@votingworks/types';
+import { Id, EncodedBallotEntry, PrinterStatus } from '@votingworks/types';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 
 export interface BallotPrintEntry extends EncodedBallotEntry {
   ballotPrintId: Id;
@@ -19,4 +20,9 @@ export interface BallotPrintCount {
   absentee: number;
   precinct: number;
   total: number;
+}
+
+export interface DeviceStatuses {
+  printer: PrinterStatus;
+  usbDrive: UsbDriveStatus;
 }
