@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@votingworks/ui';
+import { Button, Callout } from '@votingworks/ui';
 import styled from 'styled-components';
 import { Rect } from '@votingworks/types';
 
@@ -164,5 +164,22 @@ export function BallotStaticImageViewer({
         <img src={imageUrl} alt="Full ballot" />
       </ZoomedOutBallotImageContainer>
     </BallotImageViewerContainer>
+  );
+}
+
+const UnableToLoadImageCalloutContainer = styled.div`
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+`;
+
+export function UnableToLoadImageCallout(): JSX.Element {
+  return (
+    <UnableToLoadImageCalloutContainer>
+      <Callout color="warning" icon="Warning">
+        Unable to load image
+      </Callout>
+    </UnableToLoadImageCalloutContainer>
   );
 }
