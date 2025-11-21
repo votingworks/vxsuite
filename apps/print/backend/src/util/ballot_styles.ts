@@ -6,9 +6,19 @@ import type {
   LanguageCode,
 } from '@votingworks/types';
 
-import { assert, find, throwIllegalValue } from '@votingworks/basics';
-import { getAllPrecinctsAndSplits } from '@votingworks/types';
-import { getBallotStyleGroupsForPrecinctOrSplit } from '@votingworks/utils';
+import {
+  assert,
+  assertDefined,
+  find,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import { getAllPrecinctsAndSplits, hasSplits } from '@votingworks/types';
+import {
+  getBallotStyleGroupsForPrecinctOrSplit,
+  getPrecinctsAndSplitsForBallotStyle,
+} from '@votingworks/utils';
+import { BallotPrintCount } from '../types';
+import type { BallotPrintCountRow } from '../store';
 
 interface FindBallotStyleArgs {
   precinctId: PrecinctId;
@@ -74,4 +84,54 @@ export function findBallotStyleId(
       throwIllegalValue(election.type);
     }
   }
+}
+
+export function addBallotsPropsToPrintCountRow(
+  election: Election,
+  printCountRow: BallotPrintCountRow
+): BallotPrintCount {
+  const { ballotStyleId } = printCountRow;
+  const ballotStyle = election.ballotStyles.find(
+    (bs) => bs.id === ballotStyleId
+  );
+  assert(ballotStyle, `No ballot style found with id ${ballotStyleId}`);
+
+  const precinct = assertDefined(
+    find(election.precincts, (p) => p.id === printCountRow.precinctId)
+  );
+  const precinctHasSplits = hasSplits(precinct);
+
+  const precinctAndSplitsForBallotStyle = getPrecinctsAndSplitsForBallotStyle({
+    election,
+    ballotStyle,
+  });
+
+  const matchingPrecinctOrSplit = assertDefined(
+    precinctAndSplitsForBallotStyle.find(
+      (ps) =>
+        ps.precinct.id === precinct.id &&
+        (precinctHasSplits ? ps.split !== undefined : ps.split === undefined)
+    ),
+    'No matching precinct or split found for ballot style'
+  );
+  const precinctOrSplitName = matchingPrecinctOrSplit.split
+    ? `${matchingPrecinctOrSplit.precinct.name} - ${matchingPrecinctOrSplit.split.name}`
+    : matchingPrecinctOrSplit.precinct.name;
+
+  const languageCode = assertDefined(ballotStyle.languages)[0] as LanguageCode;
+
+  let partyName: string | undefined;
+  if (election.type === 'primary') {
+    assert(ballotStyle.partyId !== undefined);
+    const party = election.parties.find((p) => p.id === ballotStyle.partyId);
+    assert(party, `No party found with id ${ballotStyle.partyId}`);
+    ({ name: partyName } = party);
+  }
+
+  return {
+    ...printCountRow,
+    precinctOrSplitName,
+    languageCode,
+    partyName,
+  };
 }

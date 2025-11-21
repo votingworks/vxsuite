@@ -21,6 +21,12 @@ import {
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { BallotPrintCount, BallotPrintEntry } from './types';
+import { addBallotsPropsToPrintCountRow } from './util/ballot_styles';
+
+export type BallotPrintCountRow = Omit<
+  BallotPrintCount,
+  'precinctOrSplitName' | 'partyName' | 'languageCode'
+> & { precinctId: string };
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
@@ -299,21 +305,26 @@ export class Store {
   }: {
     precinctId?: string;
   }): BallotPrintCount[] {
-    return this.client.all(
+    const rows = this.client.all(
       `
       select
         ballot_style_id as ballotStyleId,
         precinct_id as precinctId,
-        sum(case when ballot_type = 'absentee' then print_count else 0 end) as absentee,
-        sum(case when ballot_type = 'precinct' then print_count else 0 end) as precinct,
-        sum(print_count) as total
+        sum(case when ballot_type = 'absentee' then print_count else 0 end) as absenteeCount,
+        sum(case when ballot_type = 'precinct' then print_count else 0 end) as precinctCount,
+        sum(print_count) as totalCount
       from ballots
       ${precinctId ? 'where precinct_id = ?' : ''}
       group by ballot_style_id, precinct_id
-      order by total desc, precinct_id asc
+      order by totalCount desc, precinct_id asc
       `,
       ...(precinctId ? [precinctId] : [])
-    ) as BallotPrintCount[];
+    ) as BallotPrintCountRow[];
+    const { election } = assertDefined(
+      this.getElectionRecord()
+    ).electionDefinition;
+
+    return rows.map((row) => addBallotsPropsToPrintCountRow(election, row));
   }
 
   /**
