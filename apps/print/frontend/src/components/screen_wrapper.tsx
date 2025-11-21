@@ -38,7 +38,7 @@ export function ScreenWrapper({
 
   return (
     <Screen flexDirection="row">
-      <LeftNav>
+      <LeftNav style={{ flexShrink: 0 }}>
         <Link to="/print">
           <AppLogo appName="VxPrint" />
         </Link>
