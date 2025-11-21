@@ -46,7 +46,7 @@ test('interprets ballot images and saves images for storage', async () => {
     'BlankPage',
   ]);
   for (const { imagePath } of result) {
-    await expect(loadImageData(imagePath)).resolves.toBeDefined();
+    (await loadImageData(imagePath)).unsafeUnwrap();
   }
 });
 
@@ -73,6 +73,6 @@ test('saves images even when interpretation fails', async () => {
     'UnreadablePage',
   ]);
   for (const { imagePath } of result) {
-    await expect(loadImageData(imagePath)).resolves.toBeDefined();
+    (await loadImageData(imagePath)).unsafeUnwrap();
   }
 });

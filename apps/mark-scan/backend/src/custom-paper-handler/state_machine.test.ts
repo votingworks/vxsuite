@@ -506,7 +506,9 @@ async function executePrintBallotAndAssert(
 
   mockInterpretResult.resolve(interpretationResult);
 
-  const scanFixtureImageData = await loadImageData(scanFixtureFilepath);
+  const scanFixtureImageData = (
+    await loadImageData(scanFixtureFilepath)
+  ).unsafeUnwrap();
   expect(interpretSimplexBmdBallot).toHaveBeenCalledTimes(1);
   const {
     calls: [[frontImage]],

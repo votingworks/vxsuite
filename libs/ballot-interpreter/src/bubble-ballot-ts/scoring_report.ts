@@ -203,12 +203,16 @@ async function generateScoringReport(
 
       const frontScoredImage = annotateBallotImageScores(
         scoreType,
-        await loadImageData(frontNormalizedImageOutputFile.name),
+        (
+          await loadImageData(frontNormalizedImageOutputFile.name)
+        ).unsafeUnwrap(),
         interpretation.front
       );
       const backScoredImage = annotateBallotImageScores(
         scoreType,
-        await loadImageData(backNormalizedImageOutputFile.name),
+        (
+          await loadImageData(backNormalizedImageOutputFile.name)
+        ).unsafeUnwrap(),
         interpretation.back
       );
       const frontOutputPath = join(outputDir, `${sheetName}-front.jpg`);

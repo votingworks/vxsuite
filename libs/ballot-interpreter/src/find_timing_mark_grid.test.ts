@@ -26,9 +26,11 @@ test('letter-sized timing mark paper', async () => {
 
 test('scanned image', async () => {
   const { topLeftMark, topRightMark } = findTimingMarkGrid(
-    await loadImageData(
-      join(__dirname, '../test/fixtures/vxqa-2024-10/skew-front.png')
-    )
+    (
+      await loadImageData(
+        join(__dirname, '../test/fixtures/vxqa-2024-10/skew-front.png')
+      )
+    ).unsafeUnwrap()
   );
 
   // We know the top-right mark is higher than the top-left mark in this fixture.
