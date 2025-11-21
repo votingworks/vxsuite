@@ -9,7 +9,7 @@ import {
   SignedHashValidationButton,
 } from '@votingworks/ui';
 import React from 'react';
-import { formatUsbDrive, getUsbDriveStatus, logOut, useApiClient } from './api';
+import { formatUsbDrive, getDeviceStatuses, logOut, useApiClient } from './api';
 
 interface SettingsScreenProps {
   showFormatUsbButton: boolean;
@@ -20,19 +20,19 @@ export function SettingsScreen({
 }: SettingsScreenProps): JSX.Element | null {
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const deviceStatusesQuery = getDeviceStatuses.useQuery();
   const formatUsbDriveMutation = formatUsbDrive.useMutation();
 
-  if (!usbDriveStatusQuery.isSuccess) {
+  if (!deviceStatusesQuery.isSuccess) {
     return null;
   }
 
-  const usbDriveStatus = usbDriveStatusQuery.data;
+  const { usbDrive } = deviceStatusesQuery.data;
 
   return (
     <MainContent>
       <H2>Logs</H2>
-      <ExportLogsButton usbDriveStatus={usbDriveStatus} />
+      <ExportLogsButton usbDriveStatus={usbDrive} />
       <H2>Date and Time</H2>
       <P>
         <CurrentDateAndTime />
@@ -47,7 +47,7 @@ export function SettingsScreen({
           <H2>USB</H2>
           <P>
             <FormatUsbButton
-              usbDriveStatus={usbDriveStatus}
+              usbDriveStatus={usbDrive}
               formatUsbDriveMutation={formatUsbDriveMutation}
             />
           </P>

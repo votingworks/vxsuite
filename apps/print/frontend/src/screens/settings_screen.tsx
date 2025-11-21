@@ -15,7 +15,7 @@ import {
   useApiClient,
   getElectionRecord,
   unconfigureMachine,
-  getUsbDriveStatus,
+  getDeviceStatuses,
 } from '../api';
 import { TitleBar } from '../components/title_bar';
 
@@ -31,14 +31,14 @@ export function SettingsScreen(): JSX.Element | null {
 
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
   const electionRecordQuery = getElectionRecord.useQuery();
-  const usbStatusQuery = getUsbDriveStatus.useQuery();
+  const deviceStatusesQuery = getDeviceStatuses.useQuery();
 
-  if (!electionRecordQuery.isSuccess || !usbStatusQuery.isSuccess) {
+  if (!electionRecordQuery.isSuccess || !deviceStatusesQuery.isSuccess) {
     return null;
   }
 
   const isConfigured = electionRecordQuery.data !== null;
-  const usbStatus = usbStatusQuery.data;
+  const { usbDrive } = deviceStatusesQuery.data;
   async function unconfigure() {
     try {
       await unconfigureMachineMutation.mutateAsync();
@@ -58,7 +58,7 @@ export function SettingsScreen(): JSX.Element | null {
           unconfigureMachine={unconfigure}
         />
         <H2>Logs</H2>
-        <ExportLogsButton usbDriveStatus={usbStatus} />
+        <ExportLogsButton usbDriveStatus={usbDrive} />
         <H2>Date and Time</H2>
         <P>
           <CurrentDateAndTime />

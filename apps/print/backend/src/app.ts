@@ -24,12 +24,11 @@ import {
   isElectionManagerAuth,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { AppContext } from './context';
 import { rootDebug } from './debug';
 import { constructAuthMachineState } from './util/auth';
-import { BallotPrintCount, BallotPrintEntry } from './types';
+import { BallotPrintCount, BallotPrintEntry, DeviceStatuses } from './types';
 import { getMachineConfig } from './machine_config';
 import { findBallotStyleId } from './util/ballot_styles';
 
@@ -58,10 +57,6 @@ export function buildApi(ctx: AppContext) {
 
     getPrinterStatus(): Promise<PrinterStatus> {
       return printer.status();
-    },
-
-    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
-      return usbDrive.status();
     },
 
     async configureElectionPackageFromUsb(): Promise<
@@ -259,6 +254,17 @@ export function buildApi(ctx: AppContext) {
         }),
         disposition: 'success',
       });
+    },
+
+    async getDeviceStatuses(): Promise<DeviceStatuses> {
+      const [usbDriveStatus, printerStatus] = await Promise.all([
+        usbDrive.status(),
+        printer.status(),
+      ]);
+      return {
+        usbDrive: usbDriveStatus,
+        printer: printerStatus,
+      };
     },
   } as const;
 
