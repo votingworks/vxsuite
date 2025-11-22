@@ -4,6 +4,7 @@ import {
   Icons,
   P,
   appStrings,
+  ERROR_SCREEN_MESSAGES,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -37,11 +38,11 @@ export function ScanErrorScreen({
   const {
     title,
     errorMessage,
-    pollWorkerMessage,
+    caption,
   }: {
     title: JSX.Element;
     errorMessage: JSX.Element;
-    pollWorkerMessage?: JSX.Element;
+    caption?: JSX.Element | string;
   } = (() => {
     if (
       restartRequired ||
@@ -55,6 +56,8 @@ export function ScanErrorScreen({
       return {
         title: appStrings.titleScannerError(),
         errorMessage: appStrings.instructionsScannerAskForRestart(),
+        // No need to translate this as it's not for the voter
+        caption: ERROR_SCREEN_MESSAGES.REACH_OUT,
       };
     }
 
@@ -64,51 +67,51 @@ export function ScanErrorScreen({
         return {
           title: appStrings.titleScannerNeedsCleaning(),
           errorMessage: appStrings.warningScannerNeedsCleaning(),
-          pollWorkerMessage: appStrings.instructionsAskForHelp(),
+          caption: appStrings.instructionsAskForHelp(),
         };
       case 'unreadable':
       case 'unknown':
         return {
           title: appStrings.titleScannerBallotUnreadable(),
           errorMessage: appStrings.warningProblemScanningBallotScanAgain(),
-          pollWorkerMessage: appStrings.noteAskPollWorkerForHelp(),
+          caption: appStrings.noteAskPollWorkerForHelp(),
         };
       case 'invalid_test_mode':
         return isTestMode
           ? {
               title: appStrings.titleScannerOfficialBallot(),
               errorMessage: appStrings.warningScannerOfficialBallotInTestMode(),
-              pollWorkerMessage: appStrings.instructionsAskForHelp(),
+              caption: appStrings.instructionsAskForHelp(),
             }
           : {
               title: appStrings.titleScannerTestBallot(),
               errorMessage: appStrings.warningScannerTestBallotInOfficialMode(),
-              pollWorkerMessage: appStrings.instructionsAskForHelp(),
+              caption: appStrings.instructionsAskForHelp(),
             };
       case 'invalid_ballot_hash':
         return {
           title: appStrings.titleScannerWrongElection(),
           errorMessage: appStrings.warningScannerMismatchedElection(),
-          pollWorkerMessage: appStrings.instructionsAskForHelp(),
+          caption: appStrings.instructionsAskForHelp(),
         };
       case 'invalid_precinct':
         return {
           title: appStrings.titleScannerWrongPrecinct(),
           errorMessage: appStrings.warningScannerMismatchedPrecinct(),
-          pollWorkerMessage: appStrings.instructionsAskForHelp(),
+          caption: appStrings.instructionsAskForHelp(),
         };
       case 'bmd_ballot_scanning_disabled':
         return {
           title: appStrings.titleScannerBmdBallot(),
           errorMessage: appStrings.warningScannerBmdBallotScanningDisabled(),
-          pollWorkerMessage: appStrings.instructionsAskForHelp(),
+          caption: appStrings.instructionsAskForHelp(),
         };
       // non-restart scanner errors
       case 'double_feed_detected':
         return {
           title: appStrings.titleScannerMultipleSheetsDetected(),
           errorMessage: appStrings.instructionsScannerRemoveDoubleSheet(),
-          pollWorkerMessage: appStrings.noteAskPollWorkerForHelp(),
+          caption: appStrings.noteAskPollWorkerForHelp(),
         };
       case 'scanning_failed':
       case 'both_sides_have_paper':
@@ -119,7 +122,7 @@ export function ScanErrorScreen({
         return {
           title: appStrings.titleScannerError(),
           errorMessage: appStrings.instructionsScannerRemoveBallotToContinue(),
-          pollWorkerMessage: appStrings.noteAskPollWorkerForHelp(),
+          caption: appStrings.noteAskPollWorkerForHelp(),
         };
       case 'invalid_scale':
         return {
@@ -149,7 +152,7 @@ export function ScanErrorScreen({
         }
       >
         <P weight="bold">{errorMessage}</P>
-        {pollWorkerMessage && <Caption>{pollWorkerMessage}</Caption>}
+        {caption && <Caption>{caption}</Caption>}
       </FullScreenPromptLayout>
     </Screen>
   );
