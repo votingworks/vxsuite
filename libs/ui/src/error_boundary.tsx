@@ -1,10 +1,10 @@
 /* eslint-disable react/sort-comp */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { extractErrorMessage } from '@votingworks/basics';
 import { Screen } from './screen';
 import { Main } from './main';
-import { H1, P } from './typography';
+import { Caption, H1, P } from './typography';
 
 type Props = React.PropsWithChildren<{
   errorMessage:
@@ -131,27 +131,80 @@ export function TestErrorBoundary({
   );
 }
 
+export const ERROR_SCREEN_MESSAGES = {
+  RESTART: 'Please restart the machine.',
+  REACH_OUT:
+    'If problems persist after restarting, ask your election official to contact VotingWorks support.',
+} as const;
+
+type AutoRestartInSeconds = 10 | 600;
+
+function ErrorScreen({
+  autoRestartInSeconds,
+  logger,
+  primaryMessage,
+  secondaryMessage,
+}: {
+  autoRestartInSeconds?: AutoRestartInSeconds;
+  logger?: BaseLogger;
+  primaryMessage?: React.ReactNode;
+  secondaryMessage?: React.ReactNode;
+}): JSX.Element {
+  useEffect(() => {
+    let timeoutId: number | undefined;
+    if (
+      // Don't auto-restart in development as doing so is disruptive
+      process.env.NODE_ENV !== 'development' &&
+      autoRestartInSeconds !== undefined
+    ) {
+      timeoutId = window.setTimeout(async () => {
+        logger?.log(LogEventId.RebootMachine, 'system', {
+          message: `Automatic restart initiated after waiting ${autoRestartInSeconds} seconds`,
+        });
+        // Use kiosk-browser rather than a backend system call to reboot as the backend may have
+        // crashed if we've reached this screen
+        await window.kiosk?.reboot();
+      }, autoRestartInSeconds * 1000);
+    }
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [autoRestartInSeconds, logger]);
+
+  return (
+    <React.Fragment>
+      <H1 align="center">Something went wrong</H1>
+      <P align="center">{primaryMessage}</P>
+      {secondaryMessage && <Caption align="center">{secondaryMessage}</Caption>}
+    </React.Fragment>
+  );
+}
+
 /**
- * Error boundary for use in embedded apps. It shows a prompt to restart and,
- * optionally, a button to restart. The restart button requires the API to work,
- * so it should only be included if the API providers enclose the error boundary.
+ * Error boundary for use in embedded apps.
  */
 export function AppErrorBoundary({
+  autoRestartInSeconds,
   children,
-  restartMessage,
   logger,
+  primaryMessage = ERROR_SCREEN_MESSAGES.RESTART,
+  secondaryMessage = ERROR_SCREEN_MESSAGES.REACH_OUT,
 }: {
+  autoRestartInSeconds?: AutoRestartInSeconds;
   children: React.ReactNode;
-  restartMessage: React.ReactNode;
   logger?: BaseLogger;
+  primaryMessage?: React.ReactNode;
+  secondaryMessage?: React.ReactNode;
 }): JSX.Element {
   return (
     <ErrorBoundary
       errorMessage={
-        <React.Fragment>
-          <H1>Something went wrong</H1>
-          <P>{restartMessage}</P>
-        </React.Fragment>
+        <ErrorScreen
+          autoRestartInSeconds={autoRestartInSeconds}
+          logger={logger}
+          primaryMessage={primaryMessage}
+          secondaryMessage={secondaryMessage}
+        />
       }
       logger={logger}
     >
