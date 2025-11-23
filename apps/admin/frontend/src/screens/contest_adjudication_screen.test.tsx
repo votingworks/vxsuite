@@ -1259,6 +1259,74 @@ describe('ballot image viewer', () => {
     });
   });
 
+  test('hmp ballot with corrupted image', async () => {
+    const contestId = 'zoo-council-mammal';
+    const cvrIds = ['id-174', 'id-175'];
+    const cvrId = cvrIds[0];
+    const cvrId2 = cvrIds[1];
+    const writeInRecords: WriteInRecord[] = [
+      {
+        status: 'pending',
+        id: '1',
+        cvrId,
+        contestId,
+        electionId,
+        optionId: 'write-in-0',
+      },
+    ];
+    const cvrContestTag: CvrContestTag = {
+      isResolved: false,
+      cvrId,
+      contestId,
+      hasWriteIn: true,
+    };
+
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId },
+      { [contestId]: ['kangaroo', 'write-in-0'] }
+    );
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false, {
+      isImageCorrupted: true,
+    });
+    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
+    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
+
+    // Prefetch of next ballot
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
+    apiMock.expectGetWriteInCandidates([], contestId);
+
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await waitForBallotById('id-174');
+    await screen.findByText('Unable to load image');
+
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId: cvrId2 },
+      { [contestId]: ['kangaroo'] }
+    );
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
+    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
+    apiMock.expectGetCvrContestTag(
+      { cvrId: cvrId2, contestId },
+      { ...cvrContestTag, cvrId: cvrId2 }
+    );
+
+    // Can still proceed to next ballot
+    userEvent.click(screen.getButton(/Skip/));
+    await screen.findByTestId('transcribe:id-175');
+    await screen.findByRole('img', {
+      name: /ballot with section highlighted/i,
+    });
+  });
+
   test('bmd ballot is not zoomable', async () => {
     const contestId = 'zoo-council-mammal';
     const cvrIds = ['id-174', 'id-175'];
@@ -1323,6 +1391,62 @@ describe('ballot image viewer', () => {
     });
     expect(ballotImage).toHaveAttribute('src', 'mock-image-data-id-175-0');
     expect(ballotImage).toHaveStyle({ width: `100%` });
+  });
+
+  test('bmd ballot with corrupted image', async () => {
+    const contestId = 'zoo-council-mammal';
+    const cvrIds = ['id-174', 'id-175'];
+    const cvrId = cvrIds[0];
+    const cvrId2 = cvrIds[1];
+    const cvrContestTag: CvrContestTag = {
+      isResolved: false,
+      cvrId,
+      contestId,
+      hasWriteIn: true,
+    };
+
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId },
+      { [contestId]: ['kangaroo'] }
+    );
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, true, {
+      isImageCorrupted: true,
+    });
+    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
+    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
+
+    // Prefetch of next ballot
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, true);
+    apiMock.expectGetWriteInCandidates([], contestId);
+
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await waitForBallotById('id-174');
+    await screen.findByText('Unable to load image');
+
+    // Can still proceed to next ballot
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId: cvrId2 },
+      { [contestId]: ['kangaroo'] }
+    );
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
+    apiMock.expectGetCvrContestTag(
+      { cvrId: cvrId2, contestId },
+      { ...cvrContestTag, cvrId: cvrId2 }
+    );
+    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
+
+    userEvent.click(screen.getButton(/Skip/));
+    await waitForBallotById('id-175');
+    await screen.findByRole('img', { name: /Full ballot/i });
   });
 });
 

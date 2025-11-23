@@ -43,7 +43,7 @@ async function printFromFile(printer: FujitsuThermalPrinter, path: string) {
     return printer.printPdf(readFileSync(path));
   }
 
-  return printer.printImageData(await loadImageData(path));
+  return printer.printImageData((await loadImageData(path)).unsafeUnwrap());
 }
 
 const fixturePath = join(

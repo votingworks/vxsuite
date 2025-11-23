@@ -112,8 +112,8 @@ export class Importer {
       ]);
       return await this.importSheet(
         batchId,
-        frontImageData,
-        backImageData,
+        frontImageData.unsafeUnwrap(),
+        backImageData.unsafeUnwrap(),
         sheetInfo.ballotAuditId
       );
     } finally {

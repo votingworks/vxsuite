@@ -375,7 +375,7 @@ async function loadMetadataAndInterpretBallot(context: {
   );
 
   return interpretSimplexBmdBallot(
-    await loadImageData(scannedBallotImagePath),
+    (await loadImageData(scannedBallotImagePath)).unsafeUnwrap(),
     {
       electionDefinition,
       precinctSelection,
@@ -1210,12 +1210,14 @@ export function buildMachine(
                   };
 
                   return interpretSimplexBmdBallot(
-                    await loadImageData(
-                      assertDefined(
-                        scannedBallotImagePath,
-                        'Expected scannedImagePaths in context'
+                    (
+                      await loadImageData(
+                        assertDefined(
+                          scannedBallotImagePath,
+                          'Expected scannedImagePaths in context'
+                        )
                       )
-                    ),
+                    ).unsafeUnwrap(),
                     {
                       electionDefinition,
                       precinctSelection,

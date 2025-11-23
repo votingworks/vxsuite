@@ -426,7 +426,7 @@ export type BallotImageView = HmpbImageView | BmdImageView;
 export interface HmpbImageView {
   readonly type: 'hmpb';
   readonly cvrId: Id;
-  readonly imageUrl: string;
+  readonly imageUrl: string | null;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly optionLayouts: readonly BallotPageContestOptionLayout[];
@@ -439,7 +439,7 @@ export interface HmpbImageView {
 export interface BmdImageView {
   readonly type: 'bmd';
   readonly cvrId: Id;
-  readonly imageUrl: string;
+  readonly imageUrl: string | null;
   readonly side: 'front'; // bmd ballots are always on the front.
 }
 

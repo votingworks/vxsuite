@@ -1,10 +1,17 @@
-import { assert } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  extractErrorMessage,
+  ok,
+  Result,
+} from '@votingworks/basics';
 import { time } from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
 import {
   loadImage as canvasLoadImage,
   createCanvas,
   createImageData,
+  Image,
   ImageData,
   JpegConfig,
   PngConfig,
@@ -52,12 +59,22 @@ export function isRgba(image: ImageData): boolean {
  */
 export async function loadImageData(
   pathOrData: string | Buffer
-): Promise<ImageData> {
-  const img = await canvasLoadImage(pathOrData);
-  const canvas = createCanvas(img.width, img.height);
+): Promise<Result<ImageData, { type: 'invalid-image-file'; message: string }>> {
+  let image: Image;
+  try {
+    image = await canvasLoadImage(pathOrData);
+  } catch (error) {
+    // canvasLoadImage will fail on a corrupted image or a file that isn't an image
+    return err({
+      type: 'invalid-image-file',
+      message: extractErrorMessage(error),
+    });
+  }
+  const canvas = createCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
-  context.drawImage(img, 0, 0);
-  return context.getImageData(0, 0, img.width, img.height);
+  context.drawImage(image, 0, 0);
+  const imageData = context.getImageData(0, 0, image.width, image.height);
+  return ok(imageData);
 }
 
 /**
@@ -173,14 +190,14 @@ export async function encodeImageData(
     if (mimeType === 'image/png') {
       canvas.toBuffer(
         /* istanbul ignore next - @preserve */
-        (err, buffer) => (err ? reject(err) : resolve(buffer)),
+        (error, buffer) => (error ? reject(error) : resolve(buffer)),
         mimeType,
         config as PngConfig
       );
     } else {
       canvas.toBuffer(
         /* istanbul ignore next - @preserve */
-        (err, buffer) => (err ? reject(err) : resolve(buffer)),
+        (error, buffer) => (error ? reject(error) : resolve(buffer)),
         mimeType,
         config as JpegConfig
       );

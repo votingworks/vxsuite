@@ -482,7 +482,7 @@ describe('VX BMD interpretation', () => {
 
     expect(interpretation).toMatchSnapshot();
 
-    const outputImage = await loadImageData(outputPath);
+    const outputImage = (await loadImageData(outputPath)).unsafeUnwrap();
     expect({
       width: outputImage.width,
       height: outputImage.height,

@@ -59,6 +59,7 @@ import { routerPaths } from '../router_paths';
 import {
   BallotStaticImageViewer,
   BallotZoomImageViewer,
+  UnableToLoadImageCallout,
 } from '../components/adjudication_ballot_image_viewer';
 import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button';
 import { NavigationScreen } from '../components/navigation_screen';
@@ -612,7 +613,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     <Screen>
       <Main flexRow data-testid={`transcribe:${currentCvrId}`}>
         <BallotPanel>
-          {isHmpb && (
+          {!ballotImage.imageUrl ? (
+            <UnableToLoadImageCallout />
+          ) : isHmpb ? (
             <BallotZoomImageViewer
               ballotBounds={ballotImage.ballotCoordinates}
               key={currentCvrId} // Reset zoom state for each write-in
@@ -621,8 +624,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 focusedCoordinates || ballotImage.contestCoordinates
               }
             />
-          )}
-          {isBmd && <BallotStaticImageViewer imageUrl={ballotImage.imageUrl} />}
+          ) : isBmd ? (
+            <BallotStaticImageViewer imageUrl={ballotImage.imageUrl} />
+          ) : null}
         </BallotPanel>
         <AdjudicationPanel>
           {focusedOptionId && <AdjudicationPanelOverlay />}

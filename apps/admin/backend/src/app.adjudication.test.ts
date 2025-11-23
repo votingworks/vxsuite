@@ -14,6 +14,7 @@ import {
 import { assert, assertDefined, find } from '@votingworks/basics';
 import { toDataUrl, loadImageData } from '@votingworks/image-utils';
 import { join } from 'node:path';
+import { writeFile } from 'node:fs/promises';
 import {
   BooleanEnvironmentVariableName,
   ContestResultsSummary,
@@ -32,6 +33,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
+import { sha256 } from 'js-sha256';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -56,6 +58,9 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
+
+const MANUAL_CAST_VOTE_RECORD_EXPORT_ID =
+  '864a2854-ee26-4223-8097-9633b7bed096';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -761,13 +766,15 @@ test('getBallotImageView on hmpb', async () => {
     optionLayouts,
   } = ballotImageView as HmpbImageView;
 
-  const expectedImage = await loadImageData(
-    join(
-      reportDirectoryPath,
-      '864a2854-ee26-4223-8097-9633b7bed096',
-      '864a2854-ee26-4223-8097-9633b7bed096-front.jpg'
+  const expectedImage = (
+    await loadImageData(
+      join(
+        reportDirectoryPath,
+        MANUAL_CAST_VOTE_RECORD_EXPORT_ID,
+        `${MANUAL_CAST_VOTE_RECORD_EXPORT_ID}-front.jpg`
+      )
     )
-  );
+  ).unsafeUnwrap();
   const expectedImageUrl = toDataUrl(expectedImage, 'image/jpeg');
   expect(actualImageUrl).toEqual(expectedImageUrl);
 
@@ -827,6 +834,84 @@ test('getBallotImageView on bmd', async () => {
     contestId,
   });
   assert(ballotImageView);
+});
+
+test('getBallotImageView when image is corrupted', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { manualCastVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  const corruptedImageFileContents = '';
+  const exportDirectoryPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        if (cvr.UniqueId !== MANUAL_CAST_VOTE_RECORD_EXPORT_ID) {
+          return cvr;
+        }
+        assert(cvr.BallotImage !== undefined);
+        assert(cvr.BallotImage[0] !== undefined);
+        assert(cvr.BallotImage[1] !== undefined);
+        assert(cvr.BallotImage[0].Hash !== undefined);
+        const hashComponents = cvr.BallotImage[0].Hash.Value.split('-');
+        assert(hashComponents.length === 2);
+        const layoutFileHash = assertDefined(hashComponents[1]);
+        return {
+          ...cvr,
+          BallotImage: [
+            {
+              ...cvr.BallotImage[0],
+              Hash: {
+                ...cvr.BallotImage[0].Hash,
+                Value: `${sha256(
+                  corruptedImageFileContents
+                )}-${layoutFileHash}`,
+              },
+            },
+            cvr.BallotImage[1],
+          ],
+        };
+      },
+    }
+  );
+  await writeFile(
+    join(
+      exportDirectoryPath,
+      MANUAL_CAST_VOTE_RECORD_EXPORT_ID,
+      `${MANUAL_CAST_VOTE_RECORD_EXPORT_ID}-front.jpg`
+    ),
+    corruptedImageFileContents
+  );
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: exportDirectoryPath,
+    })
+  ).unsafeUnwrap();
+
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  const cvrIds = await apiClient.getAdjudicationQueue({
+    contestId,
+  });
+  expect(cvrIds).toHaveLength(1);
+  const [cvrId] = cvrIds;
+  assert(cvrId !== undefined);
+
+  const ballotImageView = await apiClient.getBallotImageView({
+    cvrId,
+    contestId,
+  });
+
+  assert(ballotImageView.type === 'hmpb');
+  expect(ballotImageView.imageUrl).toBeNull();
+  expect(ballotImageView.ballotCoordinates).toEqual({
+    height: 0,
+    width: 0,
+    x: 0,
+    y: 0,
+  });
 });
 
 test('getNextCvrIdForAdjudication', async () => {

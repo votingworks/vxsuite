@@ -22,12 +22,17 @@ export async function getBallotImageView({
   const imageDetails = store.getBallotImageAndLayout({ contestId, cvrId });
   const { layout, image, side } = imageDetails;
 
+  const imageData = await loadImageData(image);
+  const imageUrl = imageData.isOk()
+    ? toDataUrl(imageData.ok(), 'image/jpeg')
+    : null;
+
   // BMD ballots do not have layouts, we do not support zoom during adjudication on these ballots.
   if (layout === undefined) {
     return {
       type: 'bmd',
       cvrId,
-      imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
+      imageUrl,
       side: 'front',
     };
   }
@@ -42,14 +47,13 @@ export async function getBallotImageView({
   }
 
   debug('created image view');
-  const imageData = await loadImageData(image);
   return {
     type: 'hmpb',
     cvrId,
-    imageUrl: toDataUrl(imageData, 'image/jpeg'),
+    imageUrl,
     ballotCoordinates: {
-      width: imageData.width,
-      height: imageData.height,
+      width: imageData.isOk() ? imageData.ok().width : 0,
+      height: imageData.isOk() ? imageData.ok().height : 0,
       x: 0,
       y: 0,
     },
