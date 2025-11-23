@@ -96,7 +96,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     authStatus.status === 'logged_out' &&
     authStatus.reason === 'no_card_reader'
   ) {
-    return <SetupCardReaderPage usePollWorkerLanguage={false} />;
+    return <SetupCardReaderPage />;
   }
 
   if (authStatus.status === 'logged_out') {

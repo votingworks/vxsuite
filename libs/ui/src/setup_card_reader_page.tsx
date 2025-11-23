@@ -1,23 +1,15 @@
+import { ERROR_SCREEN_MESSAGES } from './error_boundary';
 import { Main } from './main';
 import { Screen } from './screen';
-import { H1, P } from './typography';
+import { Caption, H1, P } from './typography';
 
-interface Props {
-  usePollWorkerLanguage?: boolean;
-}
-
-export function SetupCardReaderPage({
-  usePollWorkerLanguage = true,
-}: Props): JSX.Element {
-  const connectMessage = usePollWorkerLanguage
-    ? 'Please ask a poll worker to connect card reader.'
-    : 'Please connect the card reader to continue.';
-
+export function SetupCardReaderPage(): JSX.Element {
   return (
     <Screen>
       <Main centerChild>
         <H1>Card Reader Not Detected</H1>
-        <P>{connectMessage}</P>
+        <P>{ERROR_SCREEN_MESSAGES.RESTART}</P>
+        <Caption>{ERROR_SCREEN_MESSAGES.REACH_OUT}</Caption>
       </Main>
     </Screen>
   );
