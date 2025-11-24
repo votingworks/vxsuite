@@ -29,7 +29,7 @@ import {
   Font,
 } from '@votingworks/ui';
 
-import { assert, typedAs } from '@votingworks/basics';
+import { getSingleYesNoVote } from '@votingworks/utils';
 import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
@@ -38,7 +38,7 @@ import {
 
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { WriteInCandidateName } from './write_in_candidate_name';
-import { numVotesRemainingAndExceeding } from '../utils/vote';
+import { numVotesRemaining } from '../utils/vote';
 
 const Contest = styled.div`
   display: block;
@@ -65,10 +65,7 @@ function CandidateContestResult({
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
 
-  const [remainingChoices, exceedingChoices] = numVotesRemainingAndExceeding(
-    contest,
-    vote
-  );
+  const remainingChoices = numVotesRemaining(contest, vote);
 
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()
@@ -86,14 +83,6 @@ function CandidateContestResult({
       subtitle={contest.termDescription && electionStrings.contestTerm(contest)}
       title={electionStrings.contestTitle(contest)}
       titleType="h2"
-      overvoteWarning={
-        exceedingChoices > 0 ? (
-          <React.Fragment>
-            {appStrings.labelNumVotesOverLimit()}{' '}
-            <NumberString value={exceedingChoices} />
-          </React.Fragment>
-        ) : undefined
-      }
       undervoteWarning={
         remainingChoices > 0 ? (
           vote.length === 0 ? (
@@ -141,24 +130,22 @@ function YesNoContestResult({
   selectionsAreEditable,
 }: YesNoContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
-  const isOvervoted = vote ? vote.length > 1 : false;
-  const votes: ContestVote[] = (vote || []).map((optionId) => {
-    if (optionId === contest.yesOption.id) {
-      return typedAs<ContestVote>({
-        id: contest.yesOption.id,
-        label: electionStrings.contestOptionLabel(contest.yesOption),
-      });
-    }
+  const yesNo = getSingleYesNoVote(vote);
+  const selectedOption =
+    yesNo === contest.yesOption.id
+      ? contest.yesOption
+      : yesNo === contest.noOption.id
+      ? contest.noOption
+      : null;
 
-    assert(
-      optionId === contest.noOption.id,
-      'Invalid option ID in YesNoContestResult'
-    );
-    return typedAs<ContestVote>({
-      id: contest.noOption.id,
-      label: electionStrings.contestOptionLabel(contest.noOption),
-    });
-  });
+  const votes: ContestVote[] = selectedOption
+    ? [
+        {
+          id: selectedOption.id,
+          label: electionStrings.contestOptionLabel(selectedOption),
+        },
+      ]
+    : [];
 
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()
@@ -169,10 +156,7 @@ function YesNoContestResult({
       districtName={electionStrings.districtName(district)}
       title={electionStrings.contestTitle(contest)}
       titleType="h2"
-      undervoteWarning={votes.length === 0 ? noVotesString : undefined}
-      overvoteWarning={
-        isOvervoted ? appStrings.warningBothOptionsSelected() : undefined
-      }
+      undervoteWarning={!yesNo ? noVotesString : undefined}
       votes={votes}
     />
   );

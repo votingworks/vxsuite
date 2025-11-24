@@ -487,34 +487,23 @@ describe('supports write-in candidates', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  test('displays a warning when attempting to add a write-in that would cause an overvote with mixed selections', () => {
-    // Pre-fill the contest to capacity with a mix of regular candidates and write-ins,
-    // leaving room for no additional selections. The number of write-ins is less than the
-    // number of seats, but total selections equals the seat limit. Attempting to add another
-    // write-in should trigger the overvote warning modal (blocking when overvotes not allowed).
-    assert(candidateContestWithWriteIns.seats === 4);
+  test('displays a warning when attempting to add more write-in candidates than seats', () => {
     const updateVote = vi.fn();
-    const mixedVote: Candidate[] = [
-      candidateContestWithWriteIns.candidates[0],
-      ...Array.from({
-        length: Math.max(0, candidateContestWithWriteIns.seats - 1),
-      }).map((_, i) => ({
-        id: `write-in-lizardPeople-${i}`,
-        isWriteIn: true,
-        name: 'LIZARD PEOPLE',
-      })),
-    ];
     render(
       <CandidateContest
         ballotStyleId={electionDefinition.election.ballotStyles[0].id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
-        vote={mixedVote}
+        vote={Array.from({ length: candidateContestWithWriteIns.seats }).map(
+          (_, i) => ({
+            id: `write-in-lizardPeople-${i}`,
+            isWriteIn: true,
+            name: 'LIZARD PEOPLE',
+          })
+        )}
         updateVote={updateVote}
       />
     );
-
-    // Button should still be present because number of write-ins < seats.
     userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
@@ -523,32 +512,6 @@ describe('supports write-in candidates', () => {
     modal.getByText(/you must first deselect/i);
     userEvent.click(modal.getByText('Continue'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  });
-
-  test('does not render add write-in button when write-ins already fill all seats', () => {
-    const updateVote = vi.fn();
-    const fullWriteInVote: Candidate[] = Array.from({
-      length: candidateContestWithWriteIns.seats,
-    }).map((_, i) => ({
-      id: `write-in-filled-${i}`,
-      isWriteIn: true,
-      // Use only letters and spaces to satisfy WriteInCandidateName expectations.
-      name: 'LIZARD PEOPLE',
-    }));
-
-    render(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={candidateContestWithWriteIns}
-        vote={fullWriteInVote}
-        updateVote={updateVote}
-      />
-    );
-
-    expect(
-      screen.queryByText('add write-in candidate', { exact: false })
-    ).toBeNull();
   });
 
   test.each([
@@ -1420,241 +1383,5 @@ describe('cross-endorsed candidates', () => {
     );
     // Should find at least one element showing the vote counter
     expect(voteCounterElements.length).toBeGreaterThan(0);
-  });
-});
-
-describe('bmdAllowOvervotes behavior', () => {
-  test('allows overvote and shows allowed-overvote modal (single-seat)', () => {
-    const updateVote = vi.fn();
-    let currentVote: CandidateVote = [];
-
-    const { rerender } = render(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={candidateContest}
-        vote={currentVote}
-        updateVote={updateVote}
-        allowOvervotes
-      />
-    );
-
-    userEvent.click(
-      screen.getByText(candidateContest.candidates[0].name).closest('button')!
-    );
-    expect(updateVote).toHaveBeenCalledTimes(1);
-    currentVote = [candidateContest.candidates[0]];
-    rerender(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={candidateContest}
-        vote={currentVote}
-        updateVote={updateVote}
-        allowOvervotes
-      />
-    );
-
-    userEvent.click(
-      screen.getByText(candidateContest.candidates[1].name).closest('button')!
-    );
-    expect(updateVote).toHaveBeenCalledTimes(2);
-    currentVote = [
-      candidateContest.candidates[0],
-      candidateContest.candidates[1],
-    ];
-    rerender(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={candidateContest}
-        vote={currentVote}
-        updateVote={updateVote}
-        allowOvervotes
-      />
-    );
-
-    const modal = screen.getByRole('alertdialog');
-    within(modal).getByText(/Deselect a candidate for your vote/i);
-    userEvent.click(within(modal).getByRole('button', { name: /Continue/i }));
-    expect(screen.queryByRole('alertdialog')).toBeNull();
-
-    // After confirming, show overvote count in caption
-    screen.getAllByText(
-      hasTextAcrossElements(/votes exceeding the limit in this contest: 1/i)
-    );
-  });
-
-  test('allows overvote and shows exceeding count (multi-seat)', () => {
-    const updateVote = vi.fn();
-    // Use a 2-seat version of the standard candidate contest
-    const twoSeatContest: CandidateContestInterface = {
-      ...candidateContest,
-      seats: 2,
-    };
-
-    let currentVote: CandidateVote = [];
-    const { rerender } = render(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={twoSeatContest}
-        vote={currentVote}
-        updateVote={updateVote}
-        allowOvervotes
-      />
-    );
-
-    // Select up to the seat limit
-    userEvent.click(
-      screen.getByText(twoSeatContest.candidates[0].name).closest('button')!
-    );
-    userEvent.click(
-      screen.getByText(twoSeatContest.candidates[1].name).closest('button')!
-    );
-    currentVote = [twoSeatContest.candidates[0], twoSeatContest.candidates[1]];
-    rerender(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={twoSeatContest}
-        vote={currentVote}
-        updateVote={updateVote}
-        allowOvervotes
-      />
-    );
-
-    // One more selection causes overvote (exceeding = 1)
-    userEvent.click(
-      screen.getByText(twoSeatContest.candidates[2].name).closest('button')!
-    );
-    currentVote = [
-      twoSeatContest.candidates[0],
-      twoSeatContest.candidates[1],
-      twoSeatContest.candidates[2],
-    ];
-    rerender(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={twoSeatContest}
-        vote={currentVote}
-        updateVote={updateVote}
-        allowOvervotes
-      />
-    );
-
-    const modal = screen.getByRole('alertdialog');
-    within(modal).getByText(/Deselect a candidate for your vote/i);
-    userEvent.click(within(modal).getByRole('button', { name: /Continue/i }));
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-
-    // Verify exceeding count is shown
-    screen.getAllByText(
-      hasTextAcrossElements(/votes exceeding the limit in this contest: 1/i)
-    );
-
-    // Make another overvote selection (exceeding = 2)
-    userEvent.click(
-      screen.getByText(twoSeatContest.candidates[3].name).closest('button')!
-    );
-    currentVote = [
-      twoSeatContest.candidates[0],
-      twoSeatContest.candidates[1],
-      twoSeatContest.candidates[2],
-      twoSeatContest.candidates[3],
-    ];
-    rerender(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={twoSeatContest}
-        vote={currentVote}
-        updateVote={updateVote}
-        allowOvervotes
-      />
-    );
-    const modal2 = screen.getByRole('alertdialog');
-    userEvent.click(within(modal2).getByRole('button', { name: /Continue/i }));
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-
-    // Verify exceeding count is now 2
-    screen.getAllByText(
-      hasTextAcrossElements(/votes exceeding the limit in this contest: 2/i)
-    );
-  });
-
-  test('shows overvote alert when a write-in causes the overvote', () => {
-    const { fireKeyPressEvents } = setUpMockVirtualKeyboard();
-    const updateVote = vi.fn();
-
-    // Derive a simple write-in contest with 1 seat to overvote with a write-in
-    const writeInContest: CandidateContestInterface = {
-      ...candidateContestWithWriteIns,
-      seats: 1,
-    };
-
-    let currentVote: CandidateVote = [];
-    const { rerender } = render(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={writeInContest}
-        vote={currentVote}
-        updateVote={updateVote}
-        allowOvervotes
-      />
-    );
-
-    // Keep component in sync with updates from the component under test
-    updateVote.mockImplementation((_, votes: CandidateVote) => {
-      currentVote = votes;
-      rerender(
-        <CandidateContest
-          ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-          election={electionDefinition.election}
-          contest={writeInContest}
-          vote={currentVote}
-          updateVote={updateVote}
-          allowOvervotes
-        />
-      );
-    });
-
-    // Fill to capacity with a non-write-in
-    userEvent.click(
-      screen.getByText(writeInContest.candidates[0].name).closest('button')!
-    );
-    currentVote = [writeInContest.candidates[0]];
-    rerender(
-      <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
-        election={electionDefinition.election}
-        contest={writeInContest}
-        vote={currentVote}
-        updateVote={updateVote}
-        allowOvervotes
-      />
-    );
-
-    // Now add a write-in, which should trigger the allowed-overvote alert
-    userEvent.click(screen.getByText('add write-in candidate'));
-    const writeInModal = within(screen.getByRole('alertdialog'));
-    writeInModal.getByRole('heading', {
-      name: `Write-In: ${writeInContest.title}`,
-    });
-    fireKeyPressEvents('FOO');
-    userEvent.click(writeInModal.getByText('Accept'));
-
-    // Allowed-overvote modal appears
-    const overvoteModal = within(screen.getByRole('alertdialog'));
-    // App strings may be mocked; assert presence of the modal and Continue action
-    userEvent.click(overvoteModal.getByRole('button', { name: /Continue/i }));
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-
-    // Verify exceeding count is shown as a result of the write-in
-    screen.getAllByText(
-      hasTextAcrossElements(/votes exceeding the limit in this contest: 1/i)
-    );
   });
 });

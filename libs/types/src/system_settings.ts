@@ -157,49 +157,31 @@ const PRINT_MODES = [
  */
 export type BmdPrintMode = (typeof PRINT_MODES)[number];
 
-export const SystemSettingsSchema: z.ZodType<SystemSettings> = z
-  .object({
-    allowOfficialBallotsInTestMode: z.boolean().optional(),
-    auth: AuthSettingsSchema,
-    markThresholds: MarkThresholdsSchema,
-    bitonalThreshold: z.number().min(0).max(100).optional(),
-    adminAdjudicationReasons: z.array(z.lazy(() => AdjudicationReasonSchema)),
-    centralScanAdjudicationReasons: z.array(
-      z.lazy(() => AdjudicationReasonSchema)
-    ),
-    precinctScanAdjudicationReasons: z.array(
-      z.lazy(() => AdjudicationReasonSchema)
-    ),
-    disallowCastingOvervotes: z.boolean(),
-    precinctScanEnableShoeshineMode: z.boolean().optional(),
-    castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
-    disableVerticalStreakDetection: z.boolean().optional(),
-    quickResultsReportingUrl: z.string().optional(),
-    precinctScanEnableBallotAuditIds: z.boolean().optional(),
-    precinctScanEnableBmdBallotScanning: z.boolean().optional(),
-    minimumDetectedBallotScaleOverride: z.number().min(0.0).max(1.0).optional(),
-    bmdAllowOvervotes: z.boolean().optional(),
-    bmdPrintMode: z.enum(PRINT_MODES).optional(),
-    precinctScanDisableAlarms: z.boolean().optional(),
-    disableSystemLimitChecks: z.boolean().optional(),
-  })
-  .check((ctx) => {
-    const settings = ctx.value;
-    if (settings.bmdAllowOvervotes) {
-      const mode = settings.bmdPrintMode;
-      const valid =
-        mode === 'bubble_ballot' || mode === 'marks_on_preprinted_ballot';
-      if (!valid) {
-        ctx.issues.push({
-          code: 'custom',
-          path: ['bmdPrintMode'],
-          message:
-            "bmdPrintMode must be defined and set to 'marks_on_preprinted_ballot' or 'bubble_ballot' when bmdAllowOvervotes is true",
-          input: settings,
-        });
-      }
-    }
-  });
+export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
+  allowOfficialBallotsInTestMode: z.boolean().optional(),
+  auth: AuthSettingsSchema,
+  markThresholds: MarkThresholdsSchema,
+  bitonalThreshold: z.number().min(0).max(100).optional(),
+  adminAdjudicationReasons: z.array(z.lazy(() => AdjudicationReasonSchema)),
+  centralScanAdjudicationReasons: z.array(
+    z.lazy(() => AdjudicationReasonSchema)
+  ),
+  precinctScanAdjudicationReasons: z.array(
+    z.lazy(() => AdjudicationReasonSchema)
+  ),
+  disallowCastingOvervotes: z.boolean(),
+  precinctScanEnableShoeshineMode: z.boolean().optional(),
+  castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
+  disableVerticalStreakDetection: z.boolean().optional(),
+  quickResultsReportingUrl: z.string().optional(),
+  precinctScanEnableBallotAuditIds: z.boolean().optional(),
+  precinctScanEnableBmdBallotScanning: z.boolean().optional(),
+  minimumDetectedBallotScaleOverride: z.number().min(0.0).max(1.0).optional(),
+  bmdAllowOvervotes: z.boolean().optional(),
+  bmdPrintMode: z.enum(PRINT_MODES).optional(),
+  precinctScanDisableAlarms: z.boolean().optional(),
+  disableSystemLimitChecks: z.boolean().optional(),
+});
 
 /**
  * Parses `value` as JSON `SystemSettings` or returns an error if input is malformed

@@ -22,7 +22,10 @@ import {
   useIsPatDeviceConnected,
   RichText,
 } from '@votingworks/ui';
+
+import { getSingleYesNoVote } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
+
 import { ContestFooter, ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { UpdateVoteFunction } from '../config/types';
@@ -33,8 +36,6 @@ interface Props {
   contest: YesNoContestInterface;
   vote?: YesNoVote;
   updateVote: UpdateVoteFunction;
-  /** When true, allow selecting both YES and NO with a warning modal. */
-  allowOvervotes?: boolean;
 }
 
 export function YesNoContest({
@@ -43,12 +44,13 @@ export function YesNoContest({
   contest,
   vote,
   updateVote,
-  allowOvervotes,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
+
   const [overvoteSelection, setOvervoteSelection] =
     useState<Optional<YesNoContestOptionId>>();
   const [deselectedVote, setDeselectedVote] = useState('');
+
   const isPatDeviceConnected = useIsPatDeviceConnected();
 
   useEffect(() => {
@@ -59,25 +61,12 @@ export function YesNoContest({
   }, [deselectedVote]);
 
   function handleUpdateSelection(newVote: YesNoContestOptionId) {
-    const current = vote || [];
-    const isChecked = current.includes(newVote);
-    if (isChecked) {
-      const next = current.filter((v) => v !== newVote);
-      updateVote(contest.id, next.length > 0 ? (next as YesNoVote) : undefined);
+    if ((vote as string[] | undefined)?.includes(newVote)) {
+      updateVote(contest.id, undefined);
       setDeselectedVote(newVote);
-      return;
+    } else {
+      updateVote(contest.id, [newVote]);
     }
-
-    // Not currently selected
-    if (allowOvervotes && current.length === 1) {
-      const next: YesNoVote = [current[0], newVote];
-      updateVote(contest.id, next);
-      setOvervoteSelection(newVote); // always show when creating (1 -> 2)
-      return;
-    }
-
-    // Default behavior: replace with single selection
-    updateVote(contest.id, [newVote]);
   }
 
   function handleChangeVoteAlert(newValue: YesNoContestOptionId) {
@@ -113,11 +102,8 @@ export function YesNoContest({
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
             {[contest.yesOption, contest.noOption].map((option) => {
-              const selected = vote ?? [];
-              const isChecked = selected.includes(option.id);
-              const oneOptionChecked = selected.length === 1;
-              const isDisabled =
-                !allowOvervotes && !isChecked && selected.length > 0;
+              const isChecked = getSingleYesNoVote(vote) === option.id;
+              const isDisabled = !isChecked && !!vote;
               function handleDisabledClick() {
                 handleChangeVoteAlert(option.id);
               }
@@ -125,11 +111,7 @@ export function YesNoContest({
               let suffixAudioText: ReactNode = null;
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelectedOption();
-                if (oneOptionChecked) {
-                  suffixAudioText = appStrings.noteBmdContestCompleted();
-                } else {
-                  suffixAudioText = appStrings.warningBothOptionsSelected();
-                }
+                suffixAudioText = appStrings.noteBmdContestCompleted();
               } else if (deselectedVote === option.id) {
                 prefixAudioText = appStrings.labelDeselectedOption();
               }
@@ -162,9 +144,7 @@ export function YesNoContest({
           centerContent
           content={
             <P>
-              {allowOvervotes
-                ? appStrings.infoAllowedOvervoteYesNoContest()
-                : appStrings.warningOvervoteYesNoContest()}
+              {appStrings.warningOvervoteYesNoContest()}
               <AudioOnly>
                 <AssistiveTechInstructions
                   controllerString={appStrings.instructionsBmdNextToContinue()}
