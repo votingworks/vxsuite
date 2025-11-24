@@ -42,8 +42,6 @@ export function ContestScreen(): JSX.Element {
     api.getIsPatDeviceConnected.useQuery().data
   );
 
-  const systemSettings = api.getSystemSettings.useQuery();
-
   return (
     <ContestPage
       ballotStyleId={ballotStyleId}
@@ -65,7 +63,6 @@ export function ContestScreen(): JSX.Element {
       numWriteInCharactersAllowedAcrossContests={
         NUM_WRITE_IN_CHARACTERS_ALLOWED_ACROSS_CONTESTS
       }
-      allowOvervotes={systemSettings.data?.bmdAllowOvervotes}
     />
   );
 }

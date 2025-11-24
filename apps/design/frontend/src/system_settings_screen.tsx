@@ -558,19 +558,6 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
-            {features.BMD_OVERVOTE_SYSTEM_SETTING && (
-              <CheckboxButton
-                label="Allow Overvote Marking on VxMark"
-                isChecked={Boolean(systemSettings.bmdAllowOvervotes)}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    bmdAllowOvervotes: isChecked ? true : undefined, // Completely omit when unchecked
-                  })
-                }
-                disabled={!isEditing}
-              />
-            )}
             {features.BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING && (
               <InputGroup label="VxMark Print Mode">
                 <SearchSelect<BmdPrintMode>

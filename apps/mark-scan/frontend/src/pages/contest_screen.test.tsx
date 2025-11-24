@@ -1,4 +1,4 @@
-import { test, beforeEach, afterEach } from 'vitest';
+import { test } from 'vitest';
 import { Route } from 'react-router-dom';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -9,32 +9,13 @@ import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import { render as renderWithBallotContext } from '../../test/test_utils';
 
 import { ContestScreen } from './contest_screen';
-import {
-  ApiMock,
-  createApiMock,
-  provideApi,
-} from '../../test/helpers/mock_api_client';
 
 const electionGeneral = readElectionGeneral();
 const firstContestTitle = electionGeneral.contests[0].title;
 
-let apiMock: ApiMock;
-
-beforeEach(() => {
-  apiMock = createApiMock();
-  apiMock.expectGetSystemSettings();
-});
-
-afterEach(() => {
-  apiMock.mockApiClient.assertComplete();
-});
-
 test('Renders ContestScreen', async () => {
   renderWithBallotContext(
-    provideApi(
-      apiMock,
-      <Route path="/contests/:contestNumber" component={ContestScreen} />
-    ),
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0',
       precinctId: electionGeneral.precincts[0].id,
@@ -49,10 +30,7 @@ test('Renders ContestScreen', async () => {
 
 test('Renders ContestScreen in Landscape orientation', async () => {
   renderWithBallotContext(
-    provideApi(
-      apiMock,
-      <Route path="/contests/:contestNumber" component={ContestScreen} />
-    ),
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0',
       precinctId: electionGeneral.precincts[0].id,
@@ -65,10 +43,7 @@ test('Renders ContestScreen in Landscape orientation', async () => {
 
 test('Renders ContestScreen in Landscape orientation in Review Mode', async () => {
   renderWithBallotContext(
-    provideApi(
-      apiMock,
-      <Route path="/contests/:contestNumber" component={ContestScreen} />
-    ),
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0#review',
       precinctId: electionGeneral.precincts[0].id,
@@ -84,10 +59,7 @@ test('renders as voter screen', () => {
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
 
   renderWithBallotContext(
-    provideApi(
-      apiMock,
-      <Route path="/contests/:contestNumber" component={ContestScreen} />
-    ),
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       history,
       route: '/contests/0',

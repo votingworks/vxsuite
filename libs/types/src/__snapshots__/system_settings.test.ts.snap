@@ -107,27 +107,3 @@ exports[`disallows invalid mark thresholds 3`] = `
   }
 ]]
 `;
-
-exports[`validates bmdAllowOvervotes requires allowed bmdPrintMode 1`] = `
-[ZodError: [
-  {
-    "code": "custom",
-    "path": [
-      "bmdPrintMode"
-    ],
-    "message": "bmdPrintMode must be defined and set to 'marks_on_preprinted_ballot' or 'bubble_ballot' when bmdAllowOvervotes is true"
-  }
-]]
-`;
-
-exports[`validates bmdAllowOvervotes requires allowed bmdPrintMode 2`] = `
-[ZodError: [
-  {
-    "code": "custom",
-    "path": [
-      "bmdPrintMode"
-    ],
-    "message": "bmdPrintMode must be defined and set to 'marks_on_preprinted_ballot' or 'bubble_ballot' when bmdAllowOvervotes is true"
-  }
-]]
-`;
