@@ -243,15 +243,24 @@ export function arbitraryYesNoContest({
   id?: fc.Arbitrary<YesNoContest['id']>;
   districtId?: fc.Arbitrary<District['id']>;
 } = {}): fc.Arbitrary<YesNoContest> {
-  return fc.record({
-    type: fc.constant('yesno'),
-    title: fc.string({ minLength: 1 }),
-    description: fc.string({ minLength: 1 }),
-    id,
-    districtId,
-    yesOption: arbitraryYesNoOption({ id: arbitraryId() }),
-    noOption: arbitraryYesNoOption({ id: arbitraryId() }),
-  });
+  return fc
+    .tuple(
+      arbitraryYesNoOption({ id: arbitraryId() }),
+      arbitraryYesNoOption({ id: arbitraryId() })
+    )
+    .filter(([yesOption, noOption]) => yesOption.id !== noOption.id)
+    .map(([yesOption, noOption]) =>
+      fc.record({
+        type: fc.constant('yesno' as const),
+        title: fc.string({ minLength: 1 }),
+        description: fc.string({ minLength: 1 }),
+        id,
+        districtId,
+        yesOption: fc.constant(yesOption),
+        noOption: fc.constant(noOption),
+      })
+    )
+    .chain((x) => x);
 }
 
 /**
