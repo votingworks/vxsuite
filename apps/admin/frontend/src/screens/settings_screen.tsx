@@ -7,6 +7,7 @@ import {
   P,
   SetClockButton,
   SignedHashValidationButton,
+  ToggleUsbPortsButton,
 } from '@votingworks/ui';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 
@@ -46,6 +47,11 @@ export function SettingsScreen(): JSX.Element | null {
       <P>
         <SignedHashValidationButton apiClient={apiClient} />
       </P>
+      {isSystemAdministratorAuth(auth) && (
+        <P>
+          <ToggleUsbPortsButton />
+        </P>
+      )}
     </NavigationScreen>
   );
 }

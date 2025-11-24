@@ -7,6 +7,7 @@ import {
   SetClockButton,
   ExportLogsButton,
   SignedHashValidationButton,
+  ToggleUsbPortsButton,
 } from '@votingworks/ui';
 import { useContext } from 'react';
 import { NavigationScreen } from '../navigation_screen';
@@ -48,7 +49,12 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
         Set Date and Time
       </SetClockButton>
       <H2>Security</H2>
-      <SignedHashValidationButton apiClient={apiClient} />
+      <P>
+        <SignedHashValidationButton apiClient={apiClient} />
+      </P>
+      <P>
+        <ToggleUsbPortsButton />
+      </P>
     </NavigationScreen>
   );
 }
