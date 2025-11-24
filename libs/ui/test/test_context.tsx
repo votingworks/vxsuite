@@ -93,6 +93,8 @@ export function newTestContext(
     exportLogsToUsb: vi.fn(),
     getBatteryInfo: vi.fn(),
     getAudioInfo: vi.fn(),
+    getUsbPortStatus: vi.fn(),
+    toggleUsbPorts: vi.fn(),
   };
 
   const mockSignedHashValidationApiClient: Mocked<SignedHashValidationApiClient> =
