@@ -11,6 +11,7 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.expectGetUsbPortStatus();
 });
 
 afterEach(() => {

@@ -100,6 +100,7 @@ test('configuring with an election definition', async () => {
   );
 
   // You can view the Settings screen and save logs
+  apiMock.expectGetUsbPortStatus();
   fireEvent.click(screen.getByText('Settings'));
   fireEvent.click(screen.getByText('Save Logs'));
   await screen.findByText('No USB Drive Detected');
@@ -124,6 +125,7 @@ test('configuring with an election definition', async () => {
   );
 
   // You can view the Settings screen and save logs when there is no election.
+  apiMock.expectGetUsbPortStatus();
   fireEvent.click(screen.getByText('Settings'));
   await screen.findByText('Save Logs');
   fireEvent.click(screen.getByText('Save Logs'));
@@ -452,6 +454,7 @@ test('system administrator UI has expected nav', async () => {
   await screen.findByRole('heading', { name: 'Election' });
   userEvent.click(screen.getButton('Smart Cards'));
   await screen.findByRole('heading', { name: 'Smart Cards' });
+  apiMock.expectGetUsbPortStatus();
   userEvent.click(screen.getButton('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
   screen.getByRole('button', { name: 'Lock Machine' });
@@ -510,6 +513,7 @@ test('usb formatting flows', async () => {
   await apiMock.authenticateAsSystemAdministrator();
 
   // navigate to modal
+  apiMock.expectGetUsbPortStatus();
   userEvent.click(screen.getByText('Settings'));
   screen.getByText('USB Formatting');
   userEvent.click(screen.getButton('Format USB Drive'));

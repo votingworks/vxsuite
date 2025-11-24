@@ -204,6 +204,7 @@ test('shows internal wiring message when there is no scanner', async () => {
   await screen.findByText('Election Manager Menu');
   // System Administrator screen supersedes the internal connection problem screen.
   apiMock.removeCard();
+  apiMock.expectGetUsbPortStatus();
   apiMock.authenticateAsSystemAdministrator();
 
   await screen.findByText('System Administrator Menu');
@@ -233,6 +234,7 @@ test('shows internal wiring message when there is no printer', async () => {
   await screen.findByText('Election Manager Menu');
   // System Administrator screen supersedes the internal connection problem screen.
   apiMock.removeCard();
+  apiMock.expectGetUsbPortStatus();
   apiMock.authenticateAsSystemAdministrator();
 
   await screen.findByText('System Administrator Menu');
@@ -266,6 +268,7 @@ test('shows internal wiring message when there is no printer or scanner', async 
   await screen.findByText('Election Manager Menu');
   // System Administrator screen supersedes the internal connection problem screen.
   apiMock.removeCard();
+  apiMock.expectGetUsbPortStatus();
   apiMock.authenticateAsSystemAdministrator();
 
   await screen.findByText('System Administrator Menu');
@@ -301,6 +304,7 @@ for (const printerError of [
     await screen.findByText('Election Manager Menu');
     // System Administrator screen supersedes the internal connection problem screen.
     apiMock.removeCard();
+    apiMock.expectGetUsbPortStatus();
     apiMock.authenticateAsSystemAdministrator();
 
     await screen.findByText('System Administrator Menu');

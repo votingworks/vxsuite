@@ -318,6 +318,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Voting is complete.');
 
   // Insert System Administrator card
+  apiMock.expectGetUsbPortStatus();
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
   await screen.findByText('System Administrator Menu');
   apiMock.setAuthStatusLoggedOut();

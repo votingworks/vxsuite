@@ -209,6 +209,12 @@ export function createApiMock(
       });
       await screen.findByText('Lock Machine');
     },
+
+    expectGetUsbPortStatus() {
+      apiClient.getUsbPortStatus
+        .expectRepeatedCallsWith()
+        .resolves({ enabled: true });
+    },
   };
 }
 

@@ -388,6 +388,12 @@ export function createApiMock() {
     expectRebootToVendorMenu() {
       mockApiClient.rebootToVendorMenu.expectCallWith().resolves();
     },
+
+    expectGetUsbPortStatus() {
+      mockApiClient.getUsbPortStatus
+        .expectRepeatedCallsWith()
+        .resolves({ enabled: true });
+    },
   };
 }
 
