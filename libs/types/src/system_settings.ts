@@ -126,12 +126,6 @@ export interface SystemSettings {
   readonly minimumDetectedBallotScaleOverride?: number;
 
   /**
-   * When enabled, voters may select select additional candidates beyond the
-   * contest seat limit.
-   */
-  readonly bmdAllowOvervotes?: boolean;
-
-  /**
    * The BMD print mode for the election.
    * See {@link BmdPrintMode}.
    */
@@ -177,7 +171,6 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   precinctScanEnableBallotAuditIds: z.boolean().optional(),
   precinctScanEnableBmdBallotScanning: z.boolean().optional(),
   minimumDetectedBallotScaleOverride: z.number().min(0.0).max(1.0).optional(),
-  bmdAllowOvervotes: z.boolean().optional(),
   bmdPrintMode: z.enum(PRINT_MODES).optional(),
   precinctScanDisableAlarms: z.boolean().optional(),
   disableSystemLimitChecks: z.boolean().optional(),

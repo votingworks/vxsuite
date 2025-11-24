@@ -529,7 +529,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(31);
+  expect(allControls).toHaveLength(30);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -655,12 +655,6 @@ test.each<{
     userFeatures: { BMD_OVERVOTE_SYSTEM_SETTING: false },
     checkboxLabel: 'Allow Overvote Marking on VxMark',
     isCheckboxExpected: false,
-  },
-  {
-    userFeatures: { BMD_OVERVOTE_SYSTEM_SETTING: true },
-    checkboxLabel: 'Allow Overvote Marking on VxMark',
-    isCheckboxExpected: true,
-    expectedSavedSystemSettings: { bmdAllowOvervotes: true },
   },
   {
     userFeatures: { QUICK_RESULTS_REPORTING_SYSTEM_SETTING: false },
