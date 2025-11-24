@@ -1,7 +1,12 @@
 import React from 'react';
 
 import { Optional } from '@votingworks/basics';
-import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { SystemCallApiMethods } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 
@@ -20,6 +25,7 @@ function async(fn: () => void) {
 type SystemCallApiClient = grout.Client<grout.Api<SystemCallApiMethods>>;
 
 function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
+  const getUsbPortStatusQueryKey: QueryKey = ['getUsbPortStatus'];
   return {
     powerDown: {
       useMutation: () => {
@@ -40,24 +46,37 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
       },
     },
     getBatteryInfo: {
-      queryKey(): QueryKey {
-        return ['getBatteryInfo'];
-      },
       useQuery() {
         const apiClient = getApiClient();
-        return useQuery(this.queryKey(), () => apiClient.getBatteryInfo(), {
+        return useQuery(['getBatteryInfo'], () => apiClient.getBatteryInfo(), {
           refetchInterval: BATTERY_POLLING_INTERVAL_GROUT,
         });
       },
     },
     getAudioInfo: {
-      queryKey(): QueryKey {
-        return ['getAudioInfo'];
-      },
       useQuery() {
         const apiClient = getApiClient();
-        return useQuery(this.queryKey(), () => apiClient.getAudioInfo(), {
+        return useQuery(['getAudioInfo'], () => apiClient.getAudioInfo(), {
           refetchInterval: AUDIO_INFO_POLLING_INTERVAL_MS,
+        });
+      },
+    },
+    getUsbPortStatus: {
+      useQuery() {
+        const apiClient = getApiClient();
+        return useQuery(getUsbPortStatusQueryKey, () =>
+          apiClient.getUsbPortStatus()
+        );
+      },
+    },
+    toggleUsbPorts: {
+      useMutation() {
+        const apiClient = getApiClient();
+        const queryClient = useQueryClient();
+        return useMutation(apiClient.toggleUsbPorts, {
+          async onSuccess() {
+            await queryClient.invalidateQueries(getUsbPortStatusQueryKey);
+          },
         });
       },
     },
