@@ -231,6 +231,10 @@ pub enum EventId {
     UsbDeviceReconnectAttempted,
     #[serde(rename = "usb-device-change-detected")]
     UsbDeviceChangeDetected,
+    #[serde(rename = "usb-port-status")]
+    UsbPortStatus,
+    #[serde(rename = "usb-ports-toggled")]
+    UsbPortsToggled,
     #[serde(rename = "info")]
     Info,
     #[serde(rename = "heartbeat")]
