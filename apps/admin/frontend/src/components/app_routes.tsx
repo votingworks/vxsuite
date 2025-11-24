@@ -53,7 +53,7 @@ export function AppRoutes(): JSX.Element | null {
     auth.status === 'logged_out' && auth.reason === 'no_card_reader'
   );
   if (!hasCardReaderAttached) {
-    return <SetupCardReaderPage usePollWorkerLanguage={false} />;
+    return <SetupCardReaderPage />;
   }
 
   if (auth.status === 'checking_pin') {

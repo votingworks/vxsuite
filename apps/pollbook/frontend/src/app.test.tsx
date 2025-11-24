@@ -41,7 +41,6 @@ test('renders SetupCardReaderPage when no card reader is detected', async () => 
   });
   renderApp();
   await screen.findByText('Card Reader Not Detected');
-  await screen.findByText('Please connect the card reader to continue.');
 });
 
 test('renders UnlockMachineScreen when checking PIN', async () => {

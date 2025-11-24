@@ -1,4 +1,10 @@
-import { FullScreenIconWrapper, H1, Icons } from '@votingworks/ui';
+import {
+  FullScreenIconWrapper,
+  H1,
+  Icons,
+  P,
+  ERROR_SCREEN_MESSAGES,
+} from '@votingworks/ui';
 import { Column, Row } from './layout';
 
 export function ErrorScreen(): JSX.Element {
@@ -16,6 +22,7 @@ export function ErrorScreen(): JSX.Element {
           <Icons.Danger />
         </FullScreenIconWrapper>
         <H1>Something went wrong</H1>
+        <P>{ERROR_SCREEN_MESSAGES.RESTART}</P>
       </Column>
     </Row>
   );

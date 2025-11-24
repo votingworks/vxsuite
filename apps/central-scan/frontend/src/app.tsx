@@ -36,10 +36,7 @@ export function App({
         screenType="lenovoThinkpad15"
         showScrollBars
       >
-        <AppErrorBoundary
-          restartMessage="Please restart the machine."
-          logger={logger}
-        >
+        <AppErrorBoundary logger={logger}>
           <ApiClientContext.Provider value={apiClient}>
             <QueryClientProvider client={queryClient}>
               <SystemCallContextProvider api={systemCallApi}>

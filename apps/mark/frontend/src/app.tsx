@@ -26,9 +26,6 @@ const DEFAULT_COLOR_MODE: ColorMode = 'contrastMedium';
 const DEFAULT_SCREEN_TYPE: ScreenType = 'elo15';
 const DEFAULT_SIZE_MODE: SizeMode = 'touchMedium';
 
-const RESTART_MESSAGE =
-  'Ask a poll worker to restart the ballot marking device.';
-
 export interface Props {
   logger?: BaseLogger;
   apiClient?: ApiClient;
@@ -54,7 +51,15 @@ export function App({
       screenType={DEFAULT_SCREEN_TYPE}
     >
       <BrowserRouter>
-        <AppErrorBoundary restartMessage={RESTART_MESSAGE} logger={logger}>
+        <AppErrorBoundary
+          // Maintain the required parity with the hardware test app. But also use a longer delay
+          // so that, in most cases, the user will still manually power down and power up rather
+          // than relying on the auto-restart as the former is more likely to resolve issues than
+          // the latter.
+          autoRestartInSeconds={600}
+          logger={logger}
+          primaryMessage="Ask a poll worker to restart the ballot marking device."
+        >
           <ApiProvider
             queryClient={queryClient}
             apiClient={apiClient}

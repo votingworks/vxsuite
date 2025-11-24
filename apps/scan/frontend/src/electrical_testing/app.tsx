@@ -36,7 +36,11 @@ export function App(): JSX.Element {
       )}
       screenType="elo13"
     >
-      <AppErrorBoundary restartMessage="Restart the machine" logger={logger}>
+      <AppErrorBoundary
+        autoRestartInSeconds={10}
+        logger={logger}
+        secondaryMessage="The machine will auto-restart in 10 seconds."
+      >
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
             <SystemCallContextProvider api={systemCallApi}>

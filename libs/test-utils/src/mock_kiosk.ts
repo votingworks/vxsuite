@@ -11,5 +11,6 @@ export function mockKiosk(fn: typeof vi.fn): MockKiosk {
     log: fn(),
     captureScreenshot: fn().mockResolvedValue(Uint8Array.of()),
     showOpenDialog: fn(),
+    reboot: fn(),
   };
 }

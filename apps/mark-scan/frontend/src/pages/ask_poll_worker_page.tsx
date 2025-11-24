@@ -1,9 +1,10 @@
-import { appStrings, Caption, H6, Icons, P } from '@votingworks/ui';
+import { appStrings, Icons } from '@votingworks/ui';
 
 import { InsertedSmartCardAuth } from '@votingworks/types';
 import { isPollWorkerAuth } from '@votingworks/utils';
 import React from 'react';
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
+import { PollWorkerPrompt } from '../components/poll_worker_prompt';
 
 interface Props {
   authStatus: InsertedSmartCardAuth.AuthStatus;
@@ -29,14 +30,9 @@ export function AskPollWorkerPage(props: Props): JSX.Element {
       voterFacing
     >
       {children}
-
-      {/* Poll Worker strings - not translated: */}
-      <H6 as="h2">
-        <Icons.Info /> Poll Workers:
-      </H6>
-      <P>
-        <Caption>Insert a poll worker card to continue.</Caption>
-      </P>
+      <PollWorkerPrompt>
+        Insert a poll worker card to continue.
+      </PollWorkerPrompt>
     </CenteredCardPageLayout>
   );
 }

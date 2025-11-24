@@ -79,7 +79,7 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   const auth = getAuthStatusQuery.data;
 
   if (auth.status === 'logged_out' && auth.reason === 'no_card_reader') {
-    return <SetupCardReaderPage usePollWorkerLanguage={false} />;
+    return <SetupCardReaderPage />;
   }
 
   if (auth.status === 'checking_pin') {

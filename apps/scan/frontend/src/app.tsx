@@ -24,8 +24,6 @@ export interface AppProps {
   noAudio?: boolean;
 }
 
-const RESTART_MESSAGE = 'Ask a poll worker to restart the scanner.';
-
 export function App({
   logger = new BaseLogger(LogSource.VxScanFrontend, window.kiosk),
   apiClient = createApiClient(),
@@ -42,7 +40,15 @@ export function App({
   return (
     <ScanAppBase>
       <BrowserRouter>
-        <AppErrorBoundary restartMessage={RESTART_MESSAGE} logger={logger}>
+        <AppErrorBoundary
+          // Maintain the required parity with the hardware test app. But also use a longer delay
+          // so that, in most cases, the user will still manually power down and power up rather
+          // than relying on the auto-restart as the former is more likely to resolve issues than
+          // the latter.
+          autoRestartInSeconds={600}
+          logger={logger}
+          primaryMessage="Ask a poll worker to restart the scanner."
+        >
           <ApiProvider
             queryClient={queryClient}
             apiClient={apiClient}

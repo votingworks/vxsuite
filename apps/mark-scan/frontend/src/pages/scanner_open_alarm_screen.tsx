@@ -1,7 +1,5 @@
 import {
   appStrings,
-  Caption,
-  H6,
   Icons,
   P,
   useAudioControls,
@@ -10,6 +8,7 @@ import {
 
 import React from 'react';
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
+import { PollWorkerPrompt } from '../components/poll_worker_prompt';
 
 export function ScannerOpenAlarmScreen(): JSX.Element {
   const wasAudioEnabled = React.useRef(useAudioEnabled());
@@ -32,17 +31,10 @@ export function ScannerOpenAlarmScreen(): JSX.Element {
     >
       <P>{appStrings.instructionsBmdClosePrinterCover()}</P>
       <P>{appStrings.instructionsAskForHelp()}</P>
-
-      {/* Poll Worker strings - not translated: */}
-      <H6 as="h2">
-        <Icons.Info /> Poll Workers:
-      </H6>
-      <P>
-        <Caption>
-          Insert a poll worker card to silence the alert. Close and seal the
-          cover to resume voting.
-        </Caption>
-      </P>
+      <PollWorkerPrompt>
+        Insert a poll worker card to silence the alert. Close and seal the cover
+        to resume voting.
+      </PollWorkerPrompt>
 
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio autoPlay loop src="/sounds/alarm.mp3" />
