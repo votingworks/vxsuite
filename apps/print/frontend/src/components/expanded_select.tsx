@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { DesktopPalette, Icons } from '@votingworks/ui';
 import styled from 'styled-components';
@@ -10,7 +10,6 @@ const Container = styled.div`
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
 `;
 
 const SearchBox = styled.div`
@@ -53,8 +52,9 @@ const SearchBox = styled.div`
 const OptionList = styled.div`
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
+  overflow-y: auto;
   height: 100%;
+  position: relative;
 `;
 
 const StyledOption = styled.option`
@@ -111,6 +111,29 @@ export function ExpandedSelect({
   onSearch?: (value: string) => void;
   style?: React.CSSProperties;
 }): JSX.Element {
+  const optionListRef = useRef<HTMLDivElement>(null);
+  const selectedOptionRef = useRef<HTMLOptionElement>(null);
+
+  // Scroll to selected option if not visible
+  useEffect(() => {
+    if (selectedOptionRef.current && optionListRef.current) {
+      const option = selectedOptionRef.current;
+      const list = optionListRef.current;
+
+      const isInView =
+        option.offsetTop >= list.scrollTop &&
+        option.offsetTop + option.offsetHeight <=
+          list.scrollTop + list.clientHeight;
+
+      if (!isInView) {
+        option.scrollIntoView({
+          behavior: 'instant',
+          block: 'start',
+        });
+      }
+    }
+  }, [selectedValue]);
+
   return (
     <Container style={style}>
       {onSearch && (
@@ -128,10 +151,11 @@ export function ExpandedSelect({
           />
         </SearchBox>
       )}
-      <OptionList>
+      <OptionList ref={optionListRef}>
         {options.map((option) => (
           <StyledOption
             key={option.value}
+            ref={option.value === selectedValue ? selectedOptionRef : null}
             aria-selected={option.value === selectedValue}
             onClick={() => onSelect(option.value)}
           >
