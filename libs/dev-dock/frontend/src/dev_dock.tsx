@@ -83,34 +83,39 @@ function ElectionControl(): JSX.Element | null {
   async function onSelectElection(
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
-    const path = event.target.value;
-    if (path === 'Pick from file...') {
+    const inputPath = event.target.value;
+    if (inputPath === 'Pick from file...') {
       const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
         properties: ['openFile'],
+        filters: [
+          { name: 'Election Files', extensions: ['json', 'zip'] },
+          { name: 'JSON Files', extensions: ['json'] },
+          { name: 'ZIP Files', extensions: ['zip'] },
+        ],
       });
       if (dialogResult.canceled) return;
       const selectedPath = dialogResult.filePaths[0];
       if (selectedPath) {
-        setElectionMutation.mutate({ path: selectedPath });
+        setElectionMutation.mutate({ inputPath: selectedPath });
       }
     } else {
-      setElectionMutation.mutate({ path });
+      setElectionMutation.mutate({ inputPath });
     }
   }
 
   const elections = uniqueBy(
     fixturesElections.concat(selectedElection ?? []),
-    (election) => election.path
+    (election) => election.inputPath
   );
 
   return (
     <ElectionControlSelect
-      value={selectedElection?.path}
+      value={selectedElection?.inputPath}
       onChange={onSelectElection}
     >
       {elections.map((election) => (
-        <option key={election.path} value={election.path}>
-          {election.title} - {election.path}
+        <option key={election.inputPath} value={election.inputPath}>
+          {election.title} - {election.inputPath}
         </option>
       ))}
       {window.kiosk && <option>Pick from file...</option>}

@@ -2,7 +2,7 @@ import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
 import { homedir } from 'node:os';
-import { isAbsolute, join } from 'node:path';
+import { join, extname, isAbsolute, relative } from 'node:path';
 import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import {
   asSheet,
@@ -18,6 +18,10 @@ import {
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
+  openZip,
+  getEntries,
+  getFileByName,
+  readTextEntry,
 } from '@votingworks/utils';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
@@ -34,15 +38,25 @@ export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
 export type DevDockUsbDriveStatus = 'inserted' | 'removed';
 export interface DevDockElectionInfo {
   title: string;
-  path: string;
+  /** The path that appears in the file picker and is passed to the backend */
+  inputPath: string;
+  /** The actual path to the election.json file (may be extracted from zip to temp file) */
+  resolvedPath: string;
 }
 
+export const DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH =
+  './libs/fixtures/data/electionGeneral/election.json';
+
 // Convert paths relative to the VxSuite root to absolute paths
-function electionPathToAbsolute(path: string) {
+export function electionPathToAbsolute(path: string): string {
   return isAbsolute(path)
     ? /* istanbul ignore next */
       path
     : join(__dirname, '../../../..', path);
+}
+
+function electionAbsolutePathToRelative(absolutePath: string): string {
+  return `./${relative(join(__dirname, '../../../..'), absolutePath)}`;
 }
 
 const MOCK_CARD_SCRIPT_PATH = join(
@@ -50,7 +64,18 @@ const MOCK_CARD_SCRIPT_PATH = join(
   '../../../auth/scripts/mock-card'
 );
 
-export const DEV_DOCK_FILE_PATH = '/tmp/dev-dock.json';
+// Create a stable directory for dev-dock data
+export const DEFAULT_DEV_DOCK_DIR = join(homedir(), '.vx-dev-dock');
+export const DEV_DOCK_FILE_NAME = 'dev-dock.json';
+export const DEFAULT_DEV_DOCK_FILE_PATH = join(
+  DEFAULT_DEV_DOCK_DIR,
+  DEV_DOCK_FILE_NAME
+);
+export const DEV_DOCK_ELECTION_FILE_NAME = 'election.json';
+export const DEV_DOCK_ELECTION_PATH = join(
+  DEFAULT_DEV_DOCK_DIR,
+  'election.json'
+);
 interface DevDockFileContents {
   electionInfo?: DevDockElectionInfo;
 }
@@ -77,25 +102,59 @@ interface SerializableMockSpec extends Omit<MockSpec, 'mockPdiScanner'> {
   mockPdiScanner?: boolean;
 }
 
-function setElection(path: string, devDockFilePath: string): void {
-  const electionData = fs.readFileSync(electionPathToAbsolute(path), 'utf-8');
+async function setElection(
+  inputPath: string,
+  devDockDir: string
+): Promise<void> {
+  const inputAbsolutePath = electionPathToAbsolute(inputPath);
+  let electionData: string;
+  let resolvedPath: string | undefined;
+
+  // Check if the file is a zip file
+  if (extname(inputAbsolutePath).toLowerCase() === '.zip') {
+    // Read the zip file
+    const zipContents = fs.readFileSync(inputAbsolutePath);
+    const zipFile = await openZip(zipContents);
+    const entries = getEntries(zipFile);
+
+    // Find and read election.json from the zip
+    const electionEntry = getFileByName(
+      entries,
+      'election.json',
+      inputAbsolutePath
+    );
+    electionData = await readTextEntry(electionEntry);
+
+    // Extract election.json to a stable directory for use by other scripts
+    const devDockElectionPath = join(devDockDir, DEV_DOCK_ELECTION_FILE_NAME);
+    fs.writeFileSync(devDockElectionPath, electionData, 'utf-8');
+    resolvedPath = devDockElectionPath;
+  } else {
+    // Read directly as JSON file
+    electionData = fs.readFileSync(inputAbsolutePath, 'utf-8');
+    resolvedPath = inputAbsolutePath;
+  }
+
   const electionDefinition =
     safeParseElectionDefinition(electionData).unsafeUnwrap();
   const electionInfo: DevDockElectionInfo = {
-    path,
     title: electionDefinition.election.title,
+    inputPath,
+    resolvedPath,
   };
 
+  const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
   writeDevDockFileContents(devDockFilePath, {
     electionInfo,
   });
 }
 
-function getElection(devDockFilePath: string): Optional<DevDockElectionInfo> {
-  return readDevDockFileContents(devDockFilePath).electionInfo;
+function getElection(devDockDir: string): Optional<DevDockElectionInfo> {
+  return readDevDockFileContents(join(devDockDir, DEV_DOCK_FILE_NAME))
+    .electionInfo;
 }
 
-function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
+function buildApi(devDockDir: string, mockSpec: MockSpec) {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
@@ -108,12 +167,12 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
       };
     },
 
-    setElection(input: { path: string }): void {
-      setElection(input.path, devDockFilePath);
+    async setElection(input: { inputPath: string }): Promise<void> {
+      await setElection(input.inputPath, devDockDir);
     },
 
     getElection(): Optional<DevDockElectionInfo> {
-      return getElection(devDockFilePath);
+      return getElection(devDockDir);
     },
 
     getCurrentFixtureElectionPaths(): DevDockElectionInfo[] {
@@ -125,22 +184,15 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
         .filter((item) => item.isDirectory())
         .map((item) => {
           const filesInDir = fs.readdirSync(join(baseFixturePath, item.name));
-          const electionGeneratedFile = filesInDir.find((file) =>
-            /^electionGenerated.*\.json$/.test(file)
-          );
-          if (electionGeneratedFile) {
-            return {
-              path: join(baseFixturePath, item.name, electionGeneratedFile),
-              title: item.name,
-            };
-          }
           const electionFile = filesInDir.find((file) =>
-            /^election\.json$/.test(file)
+            /^(electionGenerated.*|election)\.json$/.test(file)
           );
           if (electionFile) {
+            const resolvedPath = join(baseFixturePath, item.name, electionFile);
             return {
-              path: join(baseFixturePath, item.name, 'election.json'),
               title: item.name,
+              inputPath: electionAbsolutePathToRelative(resolvedPath),
+              resolvedPath,
             };
           }
           return undefined;
@@ -153,6 +205,7 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
     },
 
     async insertCard(input: { role: DevDockUserRole }): Promise<void> {
+      const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
       const { electionInfo } = readDevDockFileContents(devDockFilePath);
       assert(electionInfo !== undefined);
 
@@ -160,7 +213,7 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
         '--card-type',
         input.role.replace('_', '-'),
         '--electionDefinition',
-        electionPathToAbsolute(electionInfo.path),
+        electionInfo.resolvedPath,
       ]);
     },
 
@@ -253,25 +306,27 @@ export function useDevDockRouter(
   express: typeof Express,
   mockSpec: MockSpec,
   /* istanbul ignore next */
-  devDockFilePath: string = DEV_DOCK_FILE_PATH
+  devDockDir: string = DEFAULT_DEV_DOCK_DIR
 ): void {
   if (!isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)) {
     return;
   }
 
-  // Create dev dock file if it doesn't exist so we can always read from it
-  if (!fs.existsSync(devDockFilePath)) {
-    fs.writeFileSync(devDockFilePath, '{}');
+  // Create dev dock dir and file if it doesn't exist so we can always read from it
+  if (!fs.existsSync(devDockDir)) {
+    fs.mkdirSync(devDockDir, { recursive: true });
   }
 
-  const api = buildApi(devDockFilePath, mockSpec);
+  const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
+  if (!fs.existsSync(devDockFilePath)) {
+    writeDevDockFileContents(devDockFilePath, {});
+  }
+
+  const api = buildApi(devDockDir, mockSpec);
 
   // Set a default election if one is not already set
-  if (!getElection(devDockFilePath)) {
-    setElection(
-      'libs/fixtures/data/electionGeneral/election.json',
-      devDockFilePath
-    );
+  if (!getElection(devDockDir)) {
+    void setElection(DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH, devDockDir);
   }
 
   const dockRouter = grout.buildRouter(api, express);

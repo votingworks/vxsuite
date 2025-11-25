@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import express from 'express';
 import * as fs from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import * as grout from '@votingworks/grout';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { AddressInfo } from 'node:net';
@@ -13,6 +15,7 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
+  zipFile,
 } from '@votingworks/test-utils';
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import {
@@ -24,6 +27,7 @@ import { typedAs } from '@votingworks/basics';
 import { constructElectionKey, PrinterStatus } from '@votingworks/types';
 import {
   getMockConnectedPrinterStatus,
+  getMockFilePrinterHandler,
   HP_LASER_PRINTER_CONFIG,
 } from '@votingworks/printing';
 import {
@@ -31,11 +35,17 @@ import {
   getMockFileFujitsuPrinterHandler,
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
-import { Api, useDevDockRouter, MockSpec } from './dev_dock_api';
+import {
+  Api,
+  useDevDockRouter,
+  MockSpec,
+  DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
+  DEV_DOCK_ELECTION_FILE_NAME,
+} from './dev_dock_api';
 
 const electionGeneral = readElectionGeneral();
 
-const TEST_DEV_DOCK_FILE_PATH = '/tmp/dev-dock.test.json';
+const TEST_DEV_DOCK_FILE_DIR = '/tmp/dev-dock-test';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(
@@ -49,11 +59,11 @@ vi.mock(
 let server: Server;
 
 function setup(mockSpec: MockSpec = {}) {
-  if (fs.existsSync(TEST_DEV_DOCK_FILE_PATH)) {
-    fs.unlinkSync(TEST_DEV_DOCK_FILE_PATH);
+  if (fs.existsSync(TEST_DEV_DOCK_FILE_DIR)) {
+    fs.rmSync(TEST_DEV_DOCK_FILE_DIR, { recursive: true, force: true });
   }
   const app = express();
-  useDevDockRouter(app, express, mockSpec, TEST_DEV_DOCK_FILE_PATH);
+  useDevDockRouter(app, express, mockSpec, TEST_DEV_DOCK_FILE_DIR);
   server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/dock`;
@@ -65,6 +75,8 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   );
+
+  getMockFilePrinterHandler().cleanup();
 });
 
 afterEach(() => {
@@ -131,75 +143,73 @@ test('card mock endpoints', async () => {
 
 test('election fixture references', async () => {
   const { apiClient } = setup();
-  await expect(
-    apiClient.getCurrentFixtureElectionPaths()
-  ).resolves.toMatchObject([
+  const expectedFixtures = [
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json'
-      ),
+      path: 'fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
       title: 'electionFamousNames2021',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionGeneral/election.json'
-      ),
+      path: 'fixtures/data/electionGeneral/election.json',
       title: 'electionGeneral',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionGridLayoutNewHampshireHudson/election.json'
-      ),
+      path: 'fixtures/data/electionGridLayoutNewHampshireHudson/election.json',
       title: 'electionGridLayoutNewHampshireHudson',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json'
-      ),
+      path: 'fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json',
       title: 'electionGridLayoutNewHampshireTestBallot',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionMultiPartyPrimary/election.json'
-      ),
+      path: 'fixtures/data/electionMultiPartyPrimary/election.json',
       title: 'electionMultiPartyPrimary',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json'
-      ),
+      path: 'fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json',
       title: 'electionPrimaryPrecinctSplits',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionSimpleSinglePrecinct/election.json'
-      ),
+      path: 'fixtures/data/electionSimpleSinglePrecinct/election.json',
       title: 'electionSimpleSinglePrecinct',
     },
     {
-      path: expect.stringContaining(
-        'fixtures/data/electionTwoPartyPrimary/election.json'
-      ),
+      path: 'fixtures/data/electionTwoPartyPrimary/election.json',
       title: 'electionTwoPartyPrimary',
     },
-  ]);
+  ];
+
+  await expect(
+    apiClient.getCurrentFixtureElectionPaths()
+  ).resolves.toMatchObject(
+    expectedFixtures.map(({ path, title }) => ({
+      inputPath: expect.stringContaining(path),
+      title,
+      resolvedPath: expect.any(String),
+    }))
+  );
 });
 
 test('election setting', async () => {
   const election = electionFamousNames2021Fixtures.readElection();
   const { apiClient } = setup();
   // Default election
-  await expect(apiClient.getElection()).resolves.toEqual({
+  const defaultElection = await apiClient.getElection();
+  expect(defaultElection).toMatchObject({
     title: electionGeneral.title,
-    path: 'libs/fixtures/data/electionGeneral/election.json',
+    inputPath: DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
+    resolvedPath: expect.any(String),
   });
 
   await apiClient.setElection({
-    path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
+    inputPath:
+      './libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
-  await expect(apiClient.getElection()).resolves.toEqual({
+  const updatedElection = await apiClient.getElection();
+  expect(updatedElection).toMatchObject({
     title: election.title,
-    path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
+    inputPath:
+      './libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
+    resolvedPath: expect.any(String),
   });
 
   // Changing the election should change the election for mocked cards
@@ -214,6 +224,69 @@ test('election setting', async () => {
       }),
     },
   });
+});
+
+test('election loading from zip file', async () => {
+  const election = electionFamousNames2021Fixtures.readElection();
+  const { apiClient } = setup();
+
+  // Create a zip file containing election.json
+  const electionData = JSON.stringify(election);
+  const zipBuffer = await zipFile({
+    'election.json': electionData,
+  });
+
+  // Write the zip file to a temporary location
+  const zipPath = join(tmpdir(), 'test-election.zip');
+  fs.writeFileSync(zipPath, zipBuffer);
+
+  try {
+    // Load election from zip
+    await apiClient.setElection({ inputPath: zipPath });
+
+    const loadedElection = await apiClient.getElection();
+    const expectedElectionPath = join(
+      TEST_DEV_DOCK_FILE_DIR,
+      DEV_DOCK_ELECTION_FILE_NAME
+    );
+    expect(loadedElection).toMatchObject({
+      title: election.title,
+      inputPath: zipPath,
+      resolvedPath: expectedElectionPath,
+    });
+    expect(loadedElection?.resolvedPath).toBeDefined();
+    expect(loadedElection?.resolvedPath).not.toEqual(zipPath);
+
+    // Verify the resolved path is in the stable directory
+    expect(loadedElection?.resolvedPath).toEqual(expectedElectionPath);
+
+    // Verify the resolved path is a valid JSON file
+    const resolvedElectionData = fs.readFileSync(
+      loadedElection!.resolvedPath,
+      'utf-8'
+    );
+    const parsedElection = JSON.parse(resolvedElectionData);
+    expect(parsedElection.title).toEqual(election.title);
+    expect(parsedElection.county).toEqual(election.county);
+
+    // Verify that insertCard works with zip-loaded elections
+    await apiClient.removeCard();
+    await apiClient.insertCard({ role: 'election_manager' });
+    await expect(apiClient.getCardStatus()).resolves.toEqual({
+      status: 'ready',
+      cardDetails: {
+        user: mockElectionManagerUser({
+          electionKey: constructElectionKey(election),
+          jurisdiction: DEV_JURISDICTION,
+        }),
+      },
+    });
+  } finally {
+    // Clean up the zip file
+    if (fs.existsSync(zipPath)) {
+      fs.unlinkSync(zipPath);
+    }
+  }
 });
 
 test('usb drive mock endpoints', async () => {
