@@ -44,7 +44,13 @@ function MisvoteWarningScreen({
 }: MisvoteWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
+  const [hasCastBallot, setHasCastBallot] = React.useState(false);
   const allowCastingOvervotes = !systemSettings.disallowCastingOvervotes;
+
+  function onCastBallot() {
+    setHasCastBallot(true);
+    acceptBallotMutation.mutate();
+  }
 
   const { contests } = electionDefinition.election;
 
@@ -96,6 +102,7 @@ function MisvoteWarningScreen({
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
             onPress={() => returnBallotMutation.mutate()}
+            disabled={hasCastBallot}
           >
             {appStrings.buttonReturnBallot()}
           </Button>
@@ -103,7 +110,8 @@ function MisvoteWarningScreen({
           {(allowCastingOvervotes || overvoteContests.length === 0) && (
             <Button
               id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-              onPress={() => acceptBallotMutation.mutate()}
+              onPress={onCastBallot}
+              disabled={hasCastBallot}
             >
               {appStrings.buttonCastBallot()}
             </Button>
@@ -138,6 +146,13 @@ function BlankBallotWarningScreen({
 }: BlankBallotWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
+  const [hasCastBallot, setHasCastBallot] = React.useState(false);
+
+  function onCastBallot() {
+    setHasCastBallot(true);
+    acceptBallotMutation.mutate();
+  }
+
   return (
     <Screen
       actionButtons={
@@ -146,12 +161,14 @@ function BlankBallotWarningScreen({
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
             onPress={() => returnBallotMutation.mutate()}
+            disabled={hasCastBallot}
           >
             {appStrings.buttonReturnBallot()}
           </Button>
           <Button
             id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            onPress={() => acceptBallotMutation.mutate()}
+            onPress={onCastBallot}
+            disabled={hasCastBallot}
           >
             {appStrings.buttonCastBallot()}
           </Button>
@@ -186,6 +203,13 @@ function OtherReasonWarningScreen({
 }: OtherReasonWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
+  const [hasCastBallot, setHasCastBallot] = React.useState(false);
+
+  function onCastBallot() {
+    setHasCastBallot(true);
+    acceptBallotMutation.mutate();
+  }
+
   return (
     <Screen
       actionButtons={
@@ -194,12 +218,14 @@ function OtherReasonWarningScreen({
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
             onPress={() => returnBallotMutation.mutate()}
+            disabled={hasCastBallot}
           >
             {appStrings.buttonReturnBallot()}
           </Button>
           <Button
             id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            onPress={() => acceptBallotMutation.mutate()}
+            onPress={onCastBallot}
+            disabled={hasCastBallot}
           >
             {appStrings.buttonCastBallot()}
           </Button>
