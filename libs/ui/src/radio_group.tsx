@@ -10,7 +10,7 @@ import { useCurrentTheme } from './hooks/use_current_theme';
 type RadioGroupValue = string | number;
 
 /** Data schema for a single option in the RadioGroup component. */
-interface RadioGroupOption<T extends RadioGroupValue> {
+export interface RadioGroupOption<T extends RadioGroupValue> {
   value: T;
   label: React.ReactNode;
 }
