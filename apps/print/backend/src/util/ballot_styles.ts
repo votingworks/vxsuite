@@ -12,7 +12,7 @@ import {
   find,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { getAllPrecinctsAndSplits, hasSplits } from '@votingworks/types';
+import { getAllPrecinctsAndSplits } from '@votingworks/types';
 import {
   getBallotStyleGroupsForPrecinctOrSplit,
   getPrecinctsAndSplitsForBallotStyle,
@@ -31,17 +31,17 @@ export function findBallotStyleId(
   election: Election,
   { precinctId, splitId, languageCode, partyId }: FindBallotStyleArgs
 ): BallotStyleId {
-  const selectedPrecinctOrSplitId = splitId ?? precinctId;
+  const precinctOrSplitId = splitId || precinctId;
   const allPrecinctsOrSplits = getAllPrecinctsAndSplits(election);
+
   const precinctOrSplit = find(
     allPrecinctsOrSplits,
     (ps) =>
-      ps.split?.id === selectedPrecinctOrSplitId ||
-      ps.precinct.id === selectedPrecinctOrSplitId
+      ps.split?.id === precinctOrSplitId || ps.precinct.id === precinctOrSplitId
   );
   assert(
     precinctOrSplit,
-    `No precinct or split with id ${selectedPrecinctOrSplitId} found`
+    `No precinct or split with id ${precinctOrSplitId} found`
   );
 
   const ballotStyleGroups = getBallotStyleGroupsForPrecinctOrSplit({
@@ -99,18 +99,18 @@ export function addBallotsPropsToPrintCountRow(
   const precinct = assertDefined(
     find(election.precincts, (p) => p.id === printCountRow.precinctId)
   );
-  const precinctHasSplits = hasSplits(precinct);
 
   const precinctAndSplitsForBallotStyle = getPrecinctsAndSplitsForBallotStyle({
     election,
     ballotStyle,
   });
 
+  // getPrecinctsAndSplitsForBallotStyle will return at most one matching precinct or split
+  // per precinctId, as splits within a precinct cannot share ballot styles, so we
+  // can find the matching precinct or split by precinct id alone
   const matchingPrecinctOrSplit = assertDefined(
     precinctAndSplitsForBallotStyle.find(
-      (ps) =>
-        ps.precinct.id === precinct.id &&
-        (precinctHasSplits ? ps.split !== undefined : ps.split === undefined)
+      (ps) => ps.precinct.id === precinct.id
     ),
     'No matching precinct or split found for ballot style'
   );
@@ -118,6 +118,7 @@ export function addBallotsPropsToPrintCountRow(
     ? `${matchingPrecinctOrSplit.precinct.name} - ${matchingPrecinctOrSplit.split.name}`
     : matchingPrecinctOrSplit.precinct.name;
 
+  // Todo(nikhil): verify if we need to support the case of multiple languages per ballot style
   const languageCode = assertDefined(ballotStyle.languages)[0] as LanguageCode;
 
   let partyName: string | undefined;
