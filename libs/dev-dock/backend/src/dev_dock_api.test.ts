@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import express from 'express';
 import * as fs from 'node:fs';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import * as grout from '@votingworks/grout';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
@@ -27,6 +27,7 @@ import { typedAs } from '@votingworks/basics';
 import { constructElectionKey, PrinterStatus } from '@votingworks/types';
 import {
   getMockConnectedPrinterStatus,
+  getMockFilePrinterHandler,
   HP_LASER_PRINTER_CONFIG,
 } from '@votingworks/printing';
 import {
@@ -38,13 +39,13 @@ import {
   Api,
   useDevDockRouter,
   MockSpec,
-  DEV_DOCK_ELECTION_PATH,
   DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
+  DEV_DOCK_ELECTION_FILE_NAME,
 } from './dev_dock_api';
 
 const electionGeneral = readElectionGeneral();
 
-const TEST_DEV_DOCK_FILE_PATH = '/tmp/dev-dock.test.json';
+const TEST_DEV_DOCK_FILE_DIR = '/tmp/dev-dock-test';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(
@@ -58,11 +59,11 @@ vi.mock(
 let server: Server;
 
 function setup(mockSpec: MockSpec = {}) {
-  if (fs.existsSync(TEST_DEV_DOCK_FILE_PATH)) {
-    fs.unlinkSync(TEST_DEV_DOCK_FILE_PATH);
+  if (fs.existsSync(TEST_DEV_DOCK_FILE_DIR)) {
+    fs.rmSync(TEST_DEV_DOCK_FILE_DIR, { recursive: true, force: true });
   }
   const app = express();
-  useDevDockRouter(app, express, mockSpec, TEST_DEV_DOCK_FILE_PATH);
+  useDevDockRouter(app, express, mockSpec, TEST_DEV_DOCK_FILE_DIR);
   server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/dock`;
@@ -74,6 +75,8 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   );
+
+  getMockFilePrinterHandler().cleanup();
 });
 
 afterEach(() => {
@@ -242,17 +245,20 @@ test('election loading from zip file', async () => {
     await apiClient.setElection({ inputPath: zipPath });
 
     const loadedElection = await apiClient.getElection();
+    const expectedElectionPath = join(
+      TEST_DEV_DOCK_FILE_DIR,
+      DEV_DOCK_ELECTION_FILE_NAME
+    );
     expect(loadedElection).toMatchObject({
       title: election.title,
       inputPath: zipPath,
-      resolvedPath: DEV_DOCK_ELECTION_PATH,
+      resolvedPath: expectedElectionPath,
     });
     expect(loadedElection?.resolvedPath).toBeDefined();
     expect(loadedElection?.resolvedPath).not.toEqual(zipPath);
 
     // Verify the resolved path is in the stable directory
-    const expectedPath = join(homedir(), '.vx-dev-dock', 'election.json');
-    expect(loadedElection?.resolvedPath).toEqual(expectedPath);
+    expect(loadedElection?.resolvedPath).toEqual(expectedElectionPath);
 
     // Verify the resolved path is a valid JSON file
     const resolvedElectionData = fs.readFileSync(

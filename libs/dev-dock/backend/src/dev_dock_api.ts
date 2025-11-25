@@ -65,9 +65,17 @@ const MOCK_CARD_SCRIPT_PATH = join(
 );
 
 // Create a stable directory for dev-dock data
-const DEV_DOCK_DIR = join(homedir(), '.vx-dev-dock');
-export const DEV_DOCK_FILE_PATH = join(DEV_DOCK_DIR, 'dev-dock.json');
-export const DEV_DOCK_ELECTION_PATH = join(DEV_DOCK_DIR, 'election.json');
+export const DEFAULT_DEV_DOCK_DIR = join(homedir(), '.vx-dev-dock');
+export const DEV_DOCK_FILE_NAME = 'dev-dock.json';
+export const DEFAULT_DEV_DOCK_FILE_PATH = join(
+  DEFAULT_DEV_DOCK_DIR,
+  DEV_DOCK_FILE_NAME
+);
+export const DEV_DOCK_ELECTION_FILE_NAME = 'election.json';
+export const DEV_DOCK_ELECTION_PATH = join(
+  DEFAULT_DEV_DOCK_DIR,
+  'election.json'
+);
 interface DevDockFileContents {
   electionInfo?: DevDockElectionInfo;
 }
@@ -96,7 +104,7 @@ interface SerializableMockSpec extends Omit<MockSpec, 'mockPdiScanner'> {
 
 async function setElection(
   inputPath: string,
-  devDockFilePath: string
+  devDockDir: string
 ): Promise<void> {
   const inputAbsolutePath = electionPathToAbsolute(inputPath);
   let electionData: string;
@@ -118,11 +126,9 @@ async function setElection(
     electionData = await readTextEntry(electionEntry);
 
     // Extract election.json to a stable directory for use by other scripts
-    if (!fs.existsSync(DEV_DOCK_DIR)) {
-      fs.mkdirSync(DEV_DOCK_DIR, { recursive: true });
-    }
-    fs.writeFileSync(DEV_DOCK_ELECTION_PATH, electionData, 'utf-8');
-    resolvedPath = DEV_DOCK_ELECTION_PATH;
+    const devDockElectionPath = join(devDockDir, DEV_DOCK_ELECTION_FILE_NAME);
+    fs.writeFileSync(devDockElectionPath, electionData, 'utf-8');
+    resolvedPath = devDockElectionPath;
   } else {
     // Read directly as JSON file
     electionData = fs.readFileSync(inputAbsolutePath, 'utf-8');
@@ -137,16 +143,18 @@ async function setElection(
     resolvedPath,
   };
 
+  const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
   writeDevDockFileContents(devDockFilePath, {
     electionInfo,
   });
 }
 
-function getElection(devDockFilePath: string): Optional<DevDockElectionInfo> {
-  return readDevDockFileContents(devDockFilePath).electionInfo;
+function getElection(devDockDir: string): Optional<DevDockElectionInfo> {
+  return readDevDockFileContents(join(devDockDir, DEV_DOCK_FILE_NAME))
+    .electionInfo;
 }
 
-function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
+function buildApi(devDockDir: string, mockSpec: MockSpec) {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
@@ -160,11 +168,11 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
     },
 
     async setElection(input: { inputPath: string }): Promise<void> {
-      await setElection(input.inputPath, devDockFilePath);
+      await setElection(input.inputPath, devDockDir);
     },
 
     getElection(): Optional<DevDockElectionInfo> {
-      return getElection(devDockFilePath);
+      return getElection(devDockDir);
     },
 
     getCurrentFixtureElectionPaths(): DevDockElectionInfo[] {
@@ -197,6 +205,7 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
     },
 
     async insertCard(input: { role: DevDockUserRole }): Promise<void> {
+      const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
       const { electionInfo } = readDevDockFileContents(devDockFilePath);
       assert(electionInfo !== undefined);
 
@@ -297,22 +306,27 @@ export function useDevDockRouter(
   express: typeof Express,
   mockSpec: MockSpec,
   /* istanbul ignore next */
-  devDockFilePath: string = DEV_DOCK_FILE_PATH
+  devDockDir: string = DEFAULT_DEV_DOCK_DIR
 ): void {
   if (!isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)) {
     return;
   }
 
-  // Create dev dock file if it doesn't exist so we can always read from it
-  if (!fs.existsSync(devDockFilePath)) {
-    fs.writeFileSync(devDockFilePath, '{}');
+  // Create dev dock dir and file if it doesn't exist so we can always read from it
+  if (!fs.existsSync(devDockDir)) {
+    fs.mkdirSync(devDockDir, { recursive: true });
   }
 
-  const api = buildApi(devDockFilePath, mockSpec);
+  const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
+  if (!fs.existsSync(devDockFilePath)) {
+    writeDevDockFileContents(devDockFilePath, {});
+  }
+
+  const api = buildApi(devDockDir, mockSpec);
 
   // Set a default election if one is not already set
-  if (!getElection(devDockFilePath)) {
-    void setElection(DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH, devDockFilePath);
+  if (!getElection(devDockDir)) {
+    void setElection(DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH, devDockDir);
   }
 
   const dockRouter = grout.buildRouter(api, express);
