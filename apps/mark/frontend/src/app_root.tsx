@@ -30,6 +30,11 @@ import {
   useQueryChangeListener,
   VendorScreen,
   handleKeyboardEvent,
+  PatDeviceContextProvider,
+  usePatCalibration,
+  PatDeviceCalibrationContent,
+  Button,
+  appStrings,
 } from '@votingworks/ui';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -38,6 +43,7 @@ import {
   CastBallotPage,
   useSessionSettingsManager,
   useBallotStyleManager,
+  VoterScreen,
 } from '@votingworks/mark-flow-ui';
 import type { ElectionState } from '@votingworks/mark-backend';
 import {
@@ -71,6 +77,8 @@ import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election
 export interface VotingState {
   votes?: VotesDict;
   showPostVotingInstructions?: boolean;
+  showPatCalibration?: boolean;
+  hasCompletedPatCalibration?: boolean;
 }
 
 export const stateStorageKey = 'state';
@@ -86,19 +94,31 @@ export const initialElectionState: Readonly<ElectionState> = {
 const initialVotingState: Readonly<VotingState> = {
   votes: undefined,
   showPostVotingInstructions: undefined,
+  showPatCalibration: false,
+  hasCompletedPatCalibration: false,
 };
 
 // Sets State. All side effects done outside: storage, fetching, etc
 type VotingAction =
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
-  | { type: 'resetBallot'; showPostVotingInstructions?: boolean };
+  | { type: 'resetBallot'; showPostVotingInstructions?: boolean }
+  | { type: 'showPatCalibration' }
+  | { type: 'hidePatCalibration' };
 
 function votingStateReducer(
   state: VotingState,
   action: VotingAction
 ): VotingState {
   switch (action.type) {
+    case 'showPatCalibration':
+      return { ...state, showPatCalibration: true };
+    case 'hidePatCalibration':
+      return {
+        ...state,
+        showPatCalibration: false,
+        hasCompletedPatCalibration: true,
+      };
     case 'unconfigure':
       return {
         ...state,
@@ -126,13 +146,55 @@ function votingStateReducer(
   }
 }
 
+/**
+ * PAT device calibration screen for VxMark. Wraps the shared calibration
+ * content in a VoterScreen with appropriate action buttons.
+ */
+function PatCalibrationScreen({
+  onComplete,
+}: {
+  onComplete: () => void;
+}): JSX.Element {
+  const { step, onAllInputsIdentified, onGoBack } = usePatCalibration();
+
+  const actionButtons =
+    step === 'complete' ? (
+      <React.Fragment>
+        <Button icon="Previous" onPress={onGoBack}>
+          {appStrings.buttonBack()}
+        </Button>
+        <Button variant="primary" rightIcon="Next" onPress={onComplete}>
+          {appStrings.buttonContinue()}
+        </Button>
+      </React.Fragment>
+    ) : (
+      <Button onPress={onComplete}>
+        {appStrings.buttonBmdSkipPatCalibration()}
+      </Button>
+    );
+
+  return (
+    <VoterScreen centerContent actionButtons={actionButtons}>
+      <PatDeviceCalibrationContent
+        step={step}
+        onAllInputsIdentified={onAllInputsIdentified}
+      />
+    </VoterScreen>
+  );
+}
+
 export function AppRoot(): JSX.Element | null {
   const PostVotingInstructionsTimeout = useRef(0);
   const [votingState, dispatchVotingState] = useReducer(
     votingStateReducer,
     initialVotingState
   );
-  const { showPostVotingInstructions, votes } = votingState;
+  const {
+    showPostVotingInstructions,
+    votes,
+    showPatCalibration,
+    hasCompletedPatCalibration,
+  } = votingState;
 
   const history = useHistory();
 
@@ -345,17 +407,44 @@ export function AppRoot(): JSX.Element | null {
     },
   });
 
+  // Handle PAT device detection
+  const handlePatInput = useCallback(() => {
+    // Block PAT navigation while calibration is showing
+    if (votingState.showPatCalibration) {
+      return true; // Block navigation during calibration
+    }
+
+    // Trigger calibration during cardless voter session if not already completed
+    if (
+      isCardlessVoterAuth(authStatus) &&
+      !votingState.hasCompletedPatCalibration
+    ) {
+      dispatchVotingState({ type: 'showPatCalibration' });
+      return true; // Block navigation while showing calibration
+    }
+    return false; // Normal PAT navigation should proceed
+  }, [
+    authStatus,
+    votingState.showPatCalibration,
+    votingState.hasCompletedPatCalibration,
+  ]);
+
   // Handle Keyboard Input
   useEffect(() => {
     document.documentElement.setAttribute(
       'data-useragent',
       navigator.userAgent
     );
-    document.addEventListener('keydown', handleKeyboardEvent);
+
+    function handleKeyboard(event: KeyboardEvent) {
+      handleKeyboardEvent(event, { onPatInput: handlePatInput });
+    }
+
+    document.addEventListener('keydown', handleKeyboard);
     return () => {
-      document.removeEventListener('keydown', handleKeyboardEvent);
+      document.removeEventListener('keydown', handleKeyboard);
     };
-  }, []);
+  }, [handlePatInput]);
 
   useBallotStyleManager({
     currentBallotStyleId: ballotStyleId,
@@ -485,6 +574,16 @@ export function AppRoot(): JSX.Element | null {
     }
     if (pollsState === 'polls_open') {
       if (isCardlessVoterAuth(authStatus)) {
+        if (showPatCalibration) {
+          return (
+            <PatCalibrationScreen
+              onComplete={() =>
+                dispatchVotingState({ type: 'hidePatCalibration' })
+              }
+            />
+          );
+        }
+
         return (
           <BallotContext.Provider
             value={{
@@ -501,7 +600,11 @@ export function AppRoot(): JSX.Element | null {
               votes: votes ?? blankBallotVotes,
             }}
           >
-            <Ballot />
+            <PatDeviceContextProvider
+              isPatDeviceConnected={hasCompletedPatCalibration ?? false}
+            >
+              <Ballot />
+            </PatDeviceContextProvider>
           </BallotContext.Provider>
         );
       }

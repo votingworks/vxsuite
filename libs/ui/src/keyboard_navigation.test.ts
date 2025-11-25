@@ -118,6 +118,67 @@ test('PAT select', () => {
   document.removeEventListener('click', onClick);
 });
 
+test('onPatInput callback invoked for PAT_MOVE', () => {
+  const onPatInput = vi.fn().mockReturnValue(false);
+  const { event } = createEvent({ key: Keybinding.PAT_MOVE });
+
+  handleKeyboardEvent(event, { onPatInput });
+
+  expect(onPatInput).toHaveBeenCalledOnce();
+  expect(mockAdvanceFocus).toHaveBeenCalledWith(1);
+});
+
+test('onPatInput callback invoked for PAT_SELECT', () => {
+  const onPatInput = vi.fn().mockReturnValue(false);
+  const { event } = createEvent({ key: Keybinding.PAT_SELECT });
+  const onClick = vi.fn();
+  document.addEventListener('click', onClick);
+
+  handleKeyboardEvent(event, { onPatInput });
+
+  expect(onPatInput).toHaveBeenCalledOnce();
+  expect(onClick).toHaveBeenCalledOnce();
+
+  document.removeEventListener('click', onClick);
+});
+
+test('onPatInput callback not invoked for non-PAT keys', () => {
+  const onPatInput = vi.fn();
+
+  handleKeyboardEvent(createEvent({ key: Keybinding.FOCUS_NEXT }).event, {
+    onPatInput,
+  });
+  handleKeyboardEvent(createEvent({ key: Keybinding.PAGE_NEXT }).event, {
+    onPatInput,
+  });
+
+  expect(onPatInput).not.toHaveBeenCalled();
+});
+
+test('PAT_MOVE blocked when onPatInput returns true', () => {
+  const onPatInput = vi.fn().mockReturnValue(true);
+  const { event } = createEvent({ key: Keybinding.PAT_MOVE });
+
+  handleKeyboardEvent(event, { onPatInput });
+
+  expect(onPatInput).toHaveBeenCalledOnce();
+  expect(mockAdvanceFocus).not.toHaveBeenCalled();
+});
+
+test('PAT_SELECT blocked when onPatInput returns true', () => {
+  const onPatInput = vi.fn().mockReturnValue(true);
+  const { event } = createEvent({ key: Keybinding.PAT_SELECT });
+  const onClick = vi.fn();
+  document.addEventListener('click', onClick);
+
+  handleKeyboardEvent(event, { onPatInput });
+
+  expect(onPatInput).toHaveBeenCalledOnce();
+  expect(onClick).not.toHaveBeenCalled();
+
+  document.removeEventListener('click', onClick);
+});
+
 test('miscellaneous ignored key', () => {
   handleKeyboardEvent({ key: 'G' } as unknown as KeyboardEvent);
 
