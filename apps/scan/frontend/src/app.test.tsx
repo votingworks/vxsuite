@@ -813,6 +813,7 @@ test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
+  apiMock.expectGetUsbPortStatus();
   renderApp();
 
   apiMock.authenticateAsSystemAdministrator();
@@ -860,6 +861,7 @@ test('system administrator sees system administrator screen after logging in to 
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
+  apiMock.expectGetUsbPortStatus();
   apiMock.authenticateAsSystemAdministrator();
   renderApp();
 
@@ -872,6 +874,7 @@ test('system administrator sees log export button', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
+  apiMock.expectGetUsbPortStatus();
   apiMock.authenticateAsSystemAdministrator();
   renderApp();
 
@@ -884,6 +887,7 @@ test('system administrator can reset polls to paused', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
+  apiMock.expectGetUsbPortStatus();
   renderApp();
   await screen.findByText('Polls Closed');
 
@@ -912,6 +916,7 @@ test('system administrator can set date and time', async () => {
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.authenticateAsSystemAdministrator();
   apiMock.setPrinterStatus();
+  apiMock.expectGetUsbPortStatus();
   renderApp();
 
   await screen.findByRole('button', { name: 'Set Date and Time' });
@@ -923,6 +928,7 @@ test('system administrator open diagnostics screen', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
+  apiMock.expectGetUsbPortStatus();
 
   apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
@@ -1105,6 +1111,7 @@ test('image sensor calibration success', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
+  apiMock.expectGetUsbPortStatus();
   renderApp();
 
   apiMock.authenticateAsSystemAdministrator();
@@ -1146,6 +1153,7 @@ test('image sensor calibration failure', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus();
+  apiMock.expectGetUsbPortStatus();
   renderApp();
 
   apiMock.authenticateAsSystemAdministrator();

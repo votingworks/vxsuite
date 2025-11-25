@@ -435,6 +435,16 @@ eventId = "usb-device-change-detected"
 eventType = "system-status"
 documentationMessage = "A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected."
 
+[Events.UsbPortStatus]
+eventId = "usb-port-status"
+eventType = "system-status"
+documentationMessage = "The status of the USB ports on the machine, either enabled or disabled."
+
+[Events.UsbPortsToggled]
+eventId = "usb-ports-toggled"
+eventType = "user-action"
+documentationMessage = "The user has either enabled or disabled USB ports."
+
 [Events.Info]
 eventId = "info"
 eventType = "system-status"

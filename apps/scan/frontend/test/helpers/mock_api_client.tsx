@@ -348,6 +348,12 @@ export function createApiMock() {
         .expectOptionalRepeatedCallsWith()
         .resolves(urls);
     },
+
+    expectGetUsbPortStatus() {
+      mockApiClient.getUsbPortStatus
+        .expectRepeatedCallsWith()
+        .resolves({ enabled: true });
+    },
   };
 }
 

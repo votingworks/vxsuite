@@ -164,6 +164,7 @@ test('can reset polls to paused with system administrator card', async () => {
 
   renderApp();
   await screen.findByText('Polls Closed');
+  apiMock.expectGetUsbPortStatus();
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
   apiMock.expectSetPollsState('polls_paused');
   apiMock.expectGetElectionState({

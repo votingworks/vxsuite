@@ -11,7 +11,7 @@ export function SystemAdministratorApp(): JSX.Element {
         path={systemAdministratorRoutes.settings.path}
         render={() => (
           <ScreenWrapper authType="system_admin">
-            <SettingsScreen />
+            <SettingsScreen includeToggleUsbPortsButton />
           </ScreenWrapper>
         )}
       />

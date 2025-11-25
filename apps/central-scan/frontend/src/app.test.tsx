@@ -294,6 +294,7 @@ test('authentication works', async () => {
 test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetUsbPortStatus();
 
   render(<App apiClient={apiMock.apiClient} />);
 
@@ -351,6 +352,7 @@ test('error boundary', async () => {
 test('battery display and alert', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetUsbPortStatus();
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsSystemAdministrator();

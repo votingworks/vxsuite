@@ -246,6 +246,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)
 **Description:** A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.
 **Machines:** All
+### usb-port-status
+**Type:** [system-status](#system-status)
+**Description:** The status of the USB ports on the machine, either enabled or disabled.
+**Machines:** All
+### usb-ports-toggled
+**Type:** [user-action](#user-action)
+**Description:** The user has either enabled or disabled USB ports.
+**Machines:** All
 ### info
 **Type:** [system-status](#system-status)
 **Description:** The process is reporting general status.

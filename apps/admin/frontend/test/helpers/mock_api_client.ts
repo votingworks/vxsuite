@@ -823,6 +823,10 @@ export function createApiMock(
     expectRebootToVendorMenu() {
       apiClient.rebootToVendorMenu.expectCallWith().resolves();
     },
+
+    expectGetUsbPortStatus(): void {
+      apiClient.getUsbPortStatus.expectCallWith().resolves({ enabled: true });
+    },
   };
 }
 

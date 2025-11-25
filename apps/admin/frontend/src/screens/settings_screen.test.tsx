@@ -41,6 +41,7 @@ describe('as System Admin', () => {
   };
 
   test('Setting current date and time', async () => {
+    apiMock.expectGetUsbPortStatus();
     renderInAppContext(<SettingsScreen />, { apiMock, auth });
 
     screen.getByRole('heading', { name: 'Date and Time' });
@@ -64,6 +65,7 @@ describe('as System Admin', () => {
   });
 
   test('Exporting logs', async () => {
+    apiMock.expectGetUsbPortStatus();
     renderInAppContext(<SettingsScreen />, {
       apiMock,
       auth,

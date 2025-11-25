@@ -29,6 +29,8 @@ const mockApiClient: Mocked<SystemCallApiClient> = {
   exportLogsToUsb: vi.fn(),
   getBatteryInfo: vi.fn(),
   getAudioInfo: vi.fn(),
+  getUsbPortStatus: vi.fn(),
+  toggleUsbPorts: vi.fn(),
 };
 const api = createSystemCallApi(() => mockApiClient);
 

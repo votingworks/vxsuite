@@ -124,6 +124,8 @@ export enum LogEventId {
   MachineShutdownComplete = 'machine-shutdown-complete',
   UsbDeviceReconnectAttempted = 'usb-device-reconnect-attempted',
   UsbDeviceChangeDetected = 'usb-device-change-detected',
+  UsbPortStatus = 'usb-port-status',
+  UsbPortsToggled = 'usb-ports-toggled',
   Info = 'info',
   Heartbeat = 'heartbeat',
   ProcessStarted = 'process-started',
@@ -619,6 +621,19 @@ const UsbDeviceChangeDetected: LogDetails = {
   eventType: LogEventType.SystemStatus,
   documentationMessage:
     'A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.',
+};
+
+const UsbPortStatus: LogDetails = {
+  eventId: LogEventId.UsbPortStatus,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'The status of the USB ports on the machine, either enabled or disabled.',
+};
+
+const UsbPortsToggled: LogDetails = {
+  eventId: LogEventId.UsbPortsToggled,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'The user has either enabled or disabled USB ports.',
 };
 
 const Info: LogDetails = {
@@ -1516,6 +1531,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return UsbDeviceReconnectAttempted;
     case LogEventId.UsbDeviceChangeDetected:
       return UsbDeviceChangeDetected;
+    case LogEventId.UsbPortStatus:
+      return UsbPortStatus;
+    case LogEventId.UsbPortsToggled:
+      return UsbPortsToggled;
     case LogEventId.Info:
       return Info;
     case LogEventId.Heartbeat:

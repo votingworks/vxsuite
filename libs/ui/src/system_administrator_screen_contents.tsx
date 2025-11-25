@@ -9,6 +9,7 @@ import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 import { P } from './typography';
 import { SetClockButton } from './set_clock';
 import { ExportLogsButton } from './export_logs_modal';
+import { ToggleUsbPortsButton } from './toggle_usb_ports_button';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
@@ -74,6 +75,7 @@ export function SystemAdministratorScreenContents({
         <ExportLogsButton usbDriveStatus={usbDriveStatus} />
         <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
         {additionalButtons}
+        <ToggleUsbPortsButton />
         {isVxDev() && (
           <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
         )}

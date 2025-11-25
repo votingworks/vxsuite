@@ -8,6 +8,11 @@ import { setClock } from './set_clock';
 import { getBatteryInfo } from './get_battery_info';
 import { getAudioInfo } from './get_audio_info';
 import { NODE_ENV } from '../scan_globals';
+import {
+  getUsbPortStatus,
+  toggleUsbPorts,
+  UsbPortAction,
+} from './usb_port_status';
 
 function buildApi({
   usbDrive,
@@ -34,6 +39,10 @@ function buildApi({
     setClock,
     getBatteryInfo: async () => getBatteryInfo({ logger }),
     getAudioInfo: async () => getAudioInfo({ logger, nodeEnv: NODE_ENV }),
+    getUsbPortStatus: async () =>
+      getUsbPortStatus({ logger, nodeEnv: NODE_ENV }),
+    toggleUsbPorts: async (input: { action: UsbPortAction }) =>
+      toggleUsbPorts({ action: input.action, logger, nodeEnv: NODE_ENV }),
   };
 }
 

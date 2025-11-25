@@ -82,6 +82,7 @@ export * from './themes/make_theme';
 export * from './themes/render_with_themes';
 export * from './themes/vx_theme_provider';
 export * from './timer';
+export * from './toggle_usb_ports_button';
 export * from './touch_text_input';
 export * from './typography';
 export * from './usbcontroller_button';

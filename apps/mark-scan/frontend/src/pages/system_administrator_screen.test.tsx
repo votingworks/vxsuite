@@ -59,6 +59,7 @@ test('SystemAdministratorScreen renders expected contents', () => {
 });
 
 test('Can set date and time', async () => {
+  apiMock.expectGetUsbPortStatus();
   render(
     provideApi(
       apiMock,
@@ -92,6 +93,7 @@ test('Can set date and time', async () => {
 });
 
 test('navigates to Diagnostics screen', async () => {
+  apiMock.expectGetUsbPortStatus();
   render(
     provideApi(
       apiMock,

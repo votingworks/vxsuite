@@ -21,6 +21,7 @@ const { render, mockApiClient } = newTestContext({ skipUiStringsApi: true });
 beforeEach(() => {
   vi.mocked(isVxDev).mockImplementation(() => false);
   window.kiosk = undefined;
+  mockApiClient.getUsbPortStatus.mockResolvedValue({ enabled: true });
 });
 
 const renderTestCases: Array<{

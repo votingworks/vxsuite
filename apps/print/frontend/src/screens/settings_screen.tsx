@@ -5,6 +5,7 @@ import {
   P,
   SetClockButton,
   SignedHashValidationButton,
+  ToggleUsbPortsButton,
   UnconfigureMachineButton,
 } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
@@ -23,7 +24,11 @@ const Content = styled.div`
   padding: 1rem;
 `;
 
-export function SettingsScreen(): JSX.Element | null {
+export function SettingsScreen({
+  includeToggleUsbPortsButton,
+}: {
+  includeToggleUsbPortsButton?: boolean;
+}): JSX.Element | null {
   const history = useHistory();
 
   const apiClient = useApiClient();
@@ -67,7 +72,14 @@ export function SettingsScreen(): JSX.Element | null {
           Set Date and Time
         </SetClockButton>
         <H2>Security</H2>
-        <SignedHashValidationButton apiClient={apiClient} />
+        <P>
+          <SignedHashValidationButton apiClient={apiClient} />
+        </P>
+        {includeToggleUsbPortsButton && (
+          <P>
+            <ToggleUsbPortsButton />
+          </P>
+        )}
       </Content>
     </div>
   );
