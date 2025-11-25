@@ -1,6 +1,6 @@
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { PrintScreen } from './screens/print_screen';
-import { ReportsScreen } from './screens/reports_screen';
+import { ReportScreen } from './screens/report_screen';
 import { ScreenWrapper } from './components/screen_wrapper';
 import { pollWorkerRoutes } from './routes';
 
@@ -19,7 +19,7 @@ export function PollWorkerApp(): JSX.Element {
         path={pollWorkerRoutes.reports.path}
         render={() => (
           <ScreenWrapper authType="poll_worker">
-            <ReportsScreen />
+            <ReportScreen />
           </ScreenWrapper>
         )}
       />

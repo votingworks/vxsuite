@@ -3,7 +3,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { ScreenWrapper } from './components/screen_wrapper';
 import { PrintScreen } from './screens/print_screen';
 import { SettingsScreen } from './screens/settings_screen';
-import { ReportsScreen } from './screens/reports_screen';
+import { ReportScreen } from './screens/report_screen';
 import { ElectionScreen } from './screens/election_screen';
 import { electionManagerRoutes } from './routes';
 
@@ -22,7 +22,7 @@ export function ElectionManagerApp(): JSX.Element {
         path={electionManagerRoutes.reports.path}
         render={() => (
           <ScreenWrapper authType="election_manager">
-            <ReportsScreen />
+            <ReportScreen />
           </ScreenWrapper>
         )}
       />
