@@ -8,13 +8,17 @@ import {
   RadioGroup,
   SegmentedButton,
   NumberInput,
+  Modal,
+  Loading,
 } from '@votingworks/ui';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, sleep } from '@votingworks/basics';
 
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
 import { getElectionRecord, getPrecinctSelection, printBallot } from '../api';
 import { getAvailableLanguages } from '../utils';
+
+const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
 const Container = styled.div`
   /* Adjusted for Toolbar height */
@@ -103,6 +107,8 @@ export function PrintScreen({
   const getConfiguredPrecinctQuery = getPrecinctSelection.useQuery();
   const configuredPrecinct = getConfiguredPrecinctQuery.data;
 
+  const [isShowingPrintingModal, setIsShowingPrintingModal] = useState(false);
+
   // Default to the configured precinct. Election Managers are still
   // able to select other precincts.
   useEffect(() => {
@@ -138,6 +144,25 @@ export function PrintScreen({
       ? selectedPrecinct.splits
       : [];
   const hideSplitSelection = availableSplits.length === 0;
+
+  async function handlePrint() {
+    setIsShowingPrintingModal(true);
+    printBallotMutation.mutate({
+      precinctId: assertDefined(selectedPrecinct).id,
+      splitId: selectedSplitId,
+      partyId: selectedPartyId,
+      languageCode: selectedLanguageCode,
+      ballotType: isAbsentee ? BallotType.Absentee : BallotType.Precinct,
+      copies: numCopies,
+    });
+    console.log(
+      `Printing ballot style: ${selectedPrecinct?.name}, ${selectedPartyId}, ${selectedLanguageCode}${
+        selectedSplitId ? `, ${selectedSplitId}` : ''
+      }, ${isAbsentee ? 'Absentee' : 'Precinct'}, Copies: ${numCopies} `
+    );
+    await sleep(DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
+    setIsShowingPrintingModal(false);
+  }
 
   return (
     <Container>
@@ -280,23 +305,7 @@ export function PrintScreen({
           icon="Print"
           color="primary"
           fill="filled"
-          onPress={() => {
-            printBallotMutation.mutate({
-              precinctId: assertDefined(selectedPrecinct).id,
-              splitId: selectedSplitId,
-              partyId: selectedPartyId,
-              languageCode: selectedLanguageCode,
-              ballotType: isAbsentee
-                ? BallotType.Absentee
-                : BallotType.Precinct,
-              copies: numCopies,
-            });
-            console.log(
-              `Printing ballot style: ${selectedPrecinct?.name}, ${selectedPartyId}, ${selectedLanguageCode}${
-                selectedSplitId ? `, ${selectedSplitId}` : ''
-              }, ${isAbsentee ? 'Absentee' : 'Precinct'}, Copies: ${numCopies} `
-            );
-          }}
+          onPress={handlePrint}
           disabled={
             !selectedPrecinct ||
             !selectedLanguageCode ||
@@ -307,6 +316,9 @@ export function PrintScreen({
           Print Ballot
         </PrintButton>
       </Footer>
+      {isShowingPrintingModal && (
+        <Modal centerContent content={<Loading>Printing</Loading>} />
+      )}
     </Container>
   );
 }
