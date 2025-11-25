@@ -1,5 +1,8 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { H1, Icons, P, ReadOnLoad, appStrings } from '@votingworks/ui';
+import { H1, P } from '../../typography';
+import { Icons } from '../../icons';
+import { ReadOnLoad } from '../../ui_strings';
+import { appStrings } from '../../ui_strings';
 import { throwIllegalValue } from '@votingworks/basics';
 import { behaviorToKeypressMap, validKeypressValues } from './constants';
 import { PortraitStepInnerContainer } from './portrait_step_inner_container';

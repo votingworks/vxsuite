@@ -1,21 +1,11 @@
-import React from 'react';
-import {
-  H1,
-  P,
-  Button,
-  Icons,
-  ReadOnLoad,
-  appStrings,
-  Font,
-} from '@votingworks/ui';
-import { VoterScreen } from '@votingworks/mark-flow-ui';
+import { H1, P, Font } from '../../typography';
+import { Icons } from '../../icons';
+import { ReadOnLoad, appStrings } from '../../ui_strings';
 import styled from 'styled-components';
-import { DiagnosticScreenHeader } from '../diagnostics/diagnostic_screen_components';
+import { DiagnosticScreenHeader } from './pat_device_identification_page';
 
-interface Props {
+export interface ConfirmExitPatDeviceIdentificationPageProps {
   isDiagnostic?: boolean;
-  onPressBack: () => void;
-  onPressContinue: () => void;
 }
 
 export const ExitStepInnerContainer = styled.div`
@@ -33,36 +23,17 @@ export const ExitStepInnerContainer = styled.div`
   }
 `;
 
+/**
+ * Confirmation screen shown after PAT device inputs have been identified.
+ * This component renders just the success content - the consuming app is
+ * responsible for wrapping this in an appropriate screen layout with any
+ * needed buttons.
+ */
 export function ConfirmExitPatDeviceIdentificationPage({
   isDiagnostic,
-  onPressBack,
-  onPressContinue,
-}: Props): JSX.Element {
+}: ConfirmExitPatDeviceIdentificationPageProps): JSX.Element {
   return (
-    <VoterScreen
-      centerContent
-      hideMenuButtons={isDiagnostic}
-      actionButtons={
-        isDiagnostic ? (
-          <Button variant="primary" onPress={onPressContinue}>
-            Exit
-          </Button>
-        ) : (
-          <React.Fragment>
-            <Button icon="Previous" onPress={onPressBack}>
-              {appStrings.buttonBack()}
-            </Button>
-            <Button
-              variant="primary"
-              rightIcon="Next"
-              onPress={onPressContinue}
-            >
-              {appStrings.buttonContinue()}
-            </Button>
-          </React.Fragment>
-        )
-      }
-    >
+    <div>
       <DiagnosticScreenHeader>
         <P>
           <Font weight="bold">
@@ -86,6 +57,6 @@ export function ConfirmExitPatDeviceIdentificationPage({
           </P>
         </ReadOnLoad>
       </ExitStepInnerContainer>
-    </VoterScreen>
+    </div>
   );
 }

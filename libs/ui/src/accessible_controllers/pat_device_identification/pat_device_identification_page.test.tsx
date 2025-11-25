@@ -5,13 +5,9 @@ import { PatDeviceIdentificationPage } from './pat_device_identification_page';
 
 test('advances to next step', () => {
   const onAllInputsIdentified = vi.fn();
-  const onExitCalibration = vi.fn();
 
   render(
-    <PatDeviceIdentificationPage
-      onAllInputsIdentified={onAllInputsIdentified}
-      onExitCalibration={onExitCalibration}
-    />
+    <PatDeviceIdentificationPage onAllInputsIdentified={onAllInputsIdentified} />
   );
 
   screen.getByText('Personal Assistive Technology Device Identification');
