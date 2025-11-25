@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   AdjudicationReason,
   CandidateContest,
@@ -15,11 +15,8 @@ import {
   Caption,
   FullScreenIconWrapper,
   Icons,
-  Modal,
-  ModalWidth,
   P,
   PageNavigationButtonId,
-  WithScrollButtons,
   appStrings,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
@@ -28,52 +25,7 @@ import { Screen } from '../components/layout';
 
 import { acceptBallot, getConfig, returnBallot } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
-import {
-  MisvoteWarnings,
-  WarningDetails as MisvoteWarningDetails,
-} from '../components/misvote_warnings';
-
-interface ConfirmModalProps {
-  content?: React.ReactNode;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
-
-function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
-  const [confirmed, setConfirmed] = useState(false);
-
-  return (
-    <Modal
-      modalWidth={ModalWidth.Wide}
-      title={appStrings.titleModalConfirmYourVotes()}
-      content={content}
-      actions={
-        <React.Fragment>
-          <Button
-            id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            variant="primary"
-            icon="Done"
-            onPress={() => {
-              setConfirmed(true);
-              onConfirm();
-            }}
-            disabled={confirmed}
-          >
-            {appStrings.buttonCastBallot()}
-          </Button>
-          <Button
-            id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
-            onPress={onCancel}
-            disabled={confirmed}
-          >
-            {appStrings.buttonCancel()}
-          </Button>
-        </React.Fragment>
-      }
-      onOverlayClick={onCancel}
-    />
-  );
-}
+import { MisvoteWarnings } from '../components/misvote_warnings';
 
 interface MisvoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
@@ -93,7 +45,6 @@ function MisvoteWarningScreen({
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
   const allowCastingOvervotes = !systemSettings.disallowCastingOvervotes;
-  const [confirmTabulate, setConfirmTabulate] = useState(false);
 
   const { contests } = electionDefinition.election;
 
@@ -152,7 +103,7 @@ function MisvoteWarningScreen({
           {(allowCastingOvervotes || overvoteContests.length === 0) && (
             <Button
               id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-              onPress={() => setConfirmTabulate(true)}
+              onPress={() => acceptBallotMutation.mutate()}
             >
               {appStrings.buttonCastBallot()}
             </Button>
@@ -174,23 +125,6 @@ function MisvoteWarningScreen({
         overvoteContests={overvoteContests}
         partiallyVotedContests={partiallyVotedContests}
       />
-      {confirmTabulate && (
-        <ConfirmModal
-          content={
-            // TODO: Check whether the accessible input is a tactile controller vs. a PAT and only
-            // set focusable to true when using a PAT
-            <WithScrollButtons focusable>
-              <MisvoteWarningDetails
-                blankContests={blankContests}
-                overvoteContests={overvoteContests}
-                partiallyVotedContests={partiallyVotedContests}
-              />
-            </WithScrollButtons>
-          }
-          onConfirm={() => acceptBallotMutation.mutate()}
-          onCancel={() => setConfirmTabulate(false)}
-        />
-      )}
     </Screen>
   );
 }
@@ -204,7 +138,6 @@ function BlankBallotWarningScreen({
 }: BlankBallotWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
-  const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <Screen
       actionButtons={
@@ -218,7 +151,7 @@ function BlankBallotWarningScreen({
           </Button>
           <Button
             id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            onPress={() => setConfirmTabulate(true)}
+            onPress={() => acceptBallotMutation.mutate()}
           >
             {appStrings.buttonCastBallot()}
           </Button>
@@ -240,13 +173,6 @@ function BlankBallotWarningScreen({
         <P>{appStrings.warningScannerNoVotesFound()}</P>
         <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
       </FullScreenPromptLayout>
-      {confirmTabulate && (
-        <ConfirmModal
-          content={<P>{appStrings.warningScannerBlankBallotSubmission()}</P>}
-          onConfirm={() => acceptBallotMutation.mutate()}
-          onCancel={() => setConfirmTabulate(false)}
-        />
-      )}
     </Screen>
   );
 }
@@ -260,7 +186,6 @@ function OtherReasonWarningScreen({
 }: OtherReasonWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
-  const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <Screen
       actionButtons={
@@ -274,7 +199,7 @@ function OtherReasonWarningScreen({
           </Button>
           <Button
             id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            onPress={() => setConfirmTabulate(true)}
+            onPress={() => acceptBallotMutation.mutate()}
           >
             {appStrings.buttonCastBallot()}
           </Button>
@@ -296,13 +221,6 @@ function OtherReasonWarningScreen({
         <P>{appStrings.warningProblemScanningBallot()}</P>
         <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
       </FullScreenPromptLayout>
-      {confirmTabulate && (
-        <ConfirmModal
-          content={<P>{appStrings.warningScannerBlankBallotSubmission()}</P>}
-          onConfirm={() => acceptBallotMutation.mutate()}
-          onCancel={() => setConfirmTabulate(false)}
-        />
-      )}
     </Screen>
   );
 }

@@ -448,8 +448,6 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   apiMock.expectPlaySound('warning');
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('No votes were found when scanning this ballot.');
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
-  await screen.findByText('Confirm Your Votes');
 
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   apiMock.expectGetScannerStatus(

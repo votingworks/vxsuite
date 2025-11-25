@@ -97,22 +97,6 @@ test('overvote', async () => {
   );
 
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
-
-  screen.getByTestId('mockMisvoteWarningDetails');
-  expect(vi.mocked(MisvoteWarningDetails)).toBeCalledWith(
-    {
-      blankContests: [],
-      overvoteContests: [contest],
-      partiallyVotedContests: [],
-    },
-    {}
-  );
-
-  const confirmButton = screen.getByRole('button', {
-    name: 'Cast Ballot',
-  });
-  userEvent.click(confirmButton);
-  expect(confirmButton).toBeDisabled();
 });
 
 test('overvote when casting overvotes is disallowed', async () => {
@@ -166,11 +150,6 @@ test('blank ballot', async () => {
   });
   screen.getByText('No votes were found when scanning this ballot.');
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
-  const confirmButton = screen.getByRole('button', {
-    name: 'Cast Ballot',
-  });
-  userEvent.click(confirmButton);
-  expect(confirmButton).toBeDisabled();
 });
 
 test('undervote no votes', async () => {
@@ -202,22 +181,6 @@ test('undervote no votes', async () => {
   );
 
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
-
-  screen.getByTestId('mockMisvoteWarningDetails');
-  expect(vi.mocked(MisvoteWarningDetails)).toBeCalledWith(
-    {
-      blankContests: [contest],
-      overvoteContests: [],
-      partiallyVotedContests: [],
-    },
-    {}
-  );
-
-  const confirmButton = screen.getByRole('button', {
-    name: 'Cast Ballot',
-  });
-  userEvent.click(confirmButton);
-  expect(confirmButton).toBeDisabled();
 });
 
 test('undervote by 1', async () => {
@@ -251,18 +214,6 @@ test('undervote by 1', async () => {
   );
 
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
-
-  screen.getByTestId('mockMisvoteWarningDetails');
-  expect(vi.mocked(MisvoteWarningDetails)).toBeCalledWith(
-    {
-      blankContests: [],
-      overvoteContests: [],
-      partiallyVotedContests: [contest],
-    },
-    {}
-  );
-
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
 });
 
 test('multiple undervotes', async () => {
@@ -283,17 +234,6 @@ test('multiple undervotes', async () => {
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByTestId('mockMisvoteWarnings');
   expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
-    {
-      blankContests: [],
-      overvoteContests: [],
-      partiallyVotedContests: contests,
-    },
-    {}
-  );
-
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
-  screen.getByTestId('mockMisvoteWarningDetails');
-  expect(vi.mocked(MisvoteWarningDetails)).toBeCalledWith(
     {
       blankContests: [],
       overvoteContests: [],
