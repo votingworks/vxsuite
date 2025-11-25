@@ -7,7 +7,9 @@ test('advances to next step', () => {
   const onAllInputsIdentified = vi.fn();
 
   render(
-    <PatDeviceIdentificationPage onAllInputsIdentified={onAllInputsIdentified} />
+    <PatDeviceIdentificationPage
+      onAllInputsIdentified={onAllInputsIdentified}
+    />
   );
 
   screen.getByText('Personal Assistive Technology Device Identification');

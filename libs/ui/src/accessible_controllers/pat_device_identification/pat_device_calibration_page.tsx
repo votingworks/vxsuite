@@ -58,7 +58,9 @@ export function PatDeviceCalibrationContent({
   onAllInputsIdentified,
 }: PatDeviceCalibrationContentProps): JSX.Element {
   if (step === 'complete') {
-    return <ConfirmExitPatDeviceIdentificationPage isDiagnostic={isDiagnostic} />;
+    return (
+      <ConfirmExitPatDeviceIdentificationPage isDiagnostic={isDiagnostic} />
+    );
   }
 
   return (

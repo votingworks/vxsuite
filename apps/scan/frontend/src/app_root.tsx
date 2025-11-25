@@ -3,6 +3,11 @@ import {
   UnlockMachineScreen,
   useQueryChangeListener,
   VendorScreen,
+  handleKeyboardEvent,
+  usePatCalibration,
+  PatDeviceCalibrationContent,
+  Button,
+  appStrings,
 } from '@votingworks/ui';
 import {
   isSystemAdministratorAuth,
@@ -12,7 +17,7 @@ import {
 } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
-import { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
@@ -45,12 +50,68 @@ import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_fee
 import { useSessionSettingsManager } from './utils/use_session_settings_manager';
 import { ScannerImageSensorCalibrationScreen } from './screens/scanner_image_sensor_calibration_screen';
 import { AccessibilityInputDisconnectedScreen } from './screens/accessibility_input_disconnected_screen';
+import { Screen } from './components/layout';
+import { FullScreenPromptLayout } from './components/full_screen_prompt_layout';
+
+/**
+ * PAT device calibration screen for VxScan. Wraps the shared calibration
+ * content in the VxScan Screen component with appropriate action buttons.
+ */
+function PatCalibrationScreen({
+  onComplete,
+  isTestMode,
+  scannedBallotCount,
+}: {
+  onComplete: () => void;
+  isTestMode: boolean;
+  scannedBallotCount: number;
+}): JSX.Element {
+  const { step, onAllInputsIdentified, onGoBack } = usePatCalibration();
+
+  const actionButtons =
+    step === 'complete' ? (
+      <React.Fragment>
+        <Button icon="Previous" onPress={onGoBack}>
+          {appStrings.buttonBack()}
+        </Button>
+        <Button variant="primary" rightIcon="Next" onPress={onComplete}>
+          {appStrings.buttonContinue()}
+        </Button>
+      </React.Fragment>
+    ) : (
+      <Button onPress={onComplete}>
+        {appStrings.buttonBmdSkipPatCalibration()}
+      </Button>
+    );
+
+  return (
+    <Screen
+      centerContent
+      voterFacing
+      showTestModeBanner={isTestMode}
+      ballotCountOverride={scannedBallotCount}
+      actionButtons={actionButtons}
+    >
+      <FullScreenPromptLayout title={null} image={null}>
+        <PatDeviceCalibrationContent
+          step={step}
+          onAllInputsIdentified={onAllInputsIdentified}
+        />
+      </FullScreenPromptLayout>
+    </Screen>
+  );
+}
 
 export function AppRoot(): JSX.Element | null {
   const [
     shouldStayOnCastVoteRecordSyncRequiredScreen,
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
   ] = useState(false);
+
+  // PAT device calibration state
+  const [showPatCalibration, setShowPatCalibration] = useState(false);
+  const [hasCompletedPatCalibration, setHasCompletedPatCalibration] =
+    useState(false);
 
   const apiClient = useApiClient();
   const authStatusQuery = getAuthStatus.useQuery();
@@ -115,6 +176,50 @@ export function AppRoot(): JSX.Element | null {
       }
     },
   });
+
+  // Reset PAT calibration state when a voter finishes (ballot accepted)
+  useQueryChangeListener(scannerStatusQuery, {
+    select: ({ state }) => state,
+    onChange: (newState, previousState) => {
+      // Reset PAT calibration when transitioning to no_paper after a ballot is accepted
+      if (
+        previousState &&
+        previousState !== 'no_paper' &&
+        previousState !== 'paused' &&
+        newState === 'no_paper'
+      ) {
+        setShowPatCalibration(false);
+        setHasCompletedPatCalibration(false);
+      }
+    },
+  });
+
+  // Handle PAT device detection via keyboard input
+  const handlePatInput = useCallback(() => {
+    // Block PAT navigation while calibration is showing
+    if (showPatCalibration) {
+      return true; // Block navigation during calibration
+    }
+
+    // Trigger calibration during voter session if not already completed
+    if (!hasCompletedPatCalibration) {
+      setShowPatCalibration(true);
+      return true; // Block navigation while showing calibration
+    }
+    return false; // Normal PAT navigation should proceed
+  }, [showPatCalibration, hasCompletedPatCalibration]);
+
+  // Handle Keyboard Input for PAT detection
+  useEffect(() => {
+    function handleKeyboard(event: KeyboardEvent) {
+      handleKeyboardEvent(event, { onPatInput: handlePatInput });
+    }
+
+    document.addEventListener('keydown', handleKeyboard);
+    return () => {
+      document.removeEventListener('keydown', handleKeyboard);
+    };
+  }, [handlePatInput]);
 
   if (
     !(
@@ -346,6 +451,20 @@ export function AppRoot(): JSX.Element | null {
     return (
       <AccessibilityInputDisconnectedScreen
         disableAlarm={Boolean(systemSettings.precinctScanDisableAlarms)}
+      />
+    );
+  }
+
+  // Show PAT calibration screen if triggered during voter session
+  if (showPatCalibration) {
+    return (
+      <PatCalibrationScreen
+        onComplete={() => {
+          setShowPatCalibration(false);
+          setHasCompletedPatCalibration(true);
+        }}
+        isTestMode={isTestMode}
+        scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
   }
