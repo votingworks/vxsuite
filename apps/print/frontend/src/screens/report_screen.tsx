@@ -13,7 +13,7 @@ import {
 } from '@votingworks/ui';
 import { hasSplits } from '@votingworks/types';
 import { format } from '@votingworks/utils';
-import { assertDefined } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 
 import { getElectionRecord, getBallotPrintCounts } from '../api';
 import { Row } from '../layout';
@@ -76,10 +76,10 @@ export function ReportScreen(): JSX.Element | null {
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const [filterText, setFilterText] = useState('');
   const electionRecord = getElectionRecordQuery.data;
-  const { precincts } = electionRecord?.electionDefinition.election || {};
+  const election = electionRecord?.electionDefinition.election;
   const electionHasSplits = useMemo(
-    () => precincts?.some((precinct) => hasSplits(precinct)),
-    [precincts]
+    () => election?.precincts.some((precinct) => hasSplits(precinct)),
+    [election]
   );
 
   if (
@@ -89,8 +89,8 @@ export function ReportScreen(): JSX.Element | null {
     return null;
   }
 
+  assert(election !== undefined);
   const ballotPrintCounts = getBallotPrintCountsQuery.data;
-  const { election } = assertDefined(electionRecord).electionDefinition;
   const hasParties = election.type === 'primary';
 
   return (

@@ -126,7 +126,7 @@ export function addBallotsPropsToPrintCountRow(
     assert(ballotStyle.partyId !== undefined);
     const party = election.parties.find((p) => p.id === ballotStyle.partyId);
     assert(party, `No party found with id ${ballotStyle.partyId}`);
-    ({ name: partyName } = party);
+    partyName = party.name;
   }
 
   return {
