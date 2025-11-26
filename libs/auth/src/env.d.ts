@@ -10,6 +10,7 @@ declare namespace NodeJS {
       | 'mark'
       | 'mark-scan'
       | 'poll-book'
-      | 'scan';
+      | 'scan'
+      | 'print';
   }
 }

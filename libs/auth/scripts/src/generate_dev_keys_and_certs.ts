@@ -175,6 +175,7 @@ async function generateDevKeysAndCerts({
     'mark',
     'mark-scan',
     'scan',
+    'print',
   ];
   for (const machineType of nonCardProgrammingMachineTypes) {
     const machinePrivateKeyPath = `${outputDir}/vx-${machineType}-private-key.pem`;
@@ -423,6 +424,8 @@ async function generateDevKeysAndCerts({
  * - VxMarkScan cert
  * - VxScan private key
  * - VxScan cert
+ * - VxPrint private key
+ * - VxPrint cert
  *
  * If run with --for-tests, the script will additionally:
  * - Save the VxAdmin cert authority cert in DER format
