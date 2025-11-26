@@ -52,14 +52,6 @@ export function advanceElementFocus(direction: 1 | -1): void {
   const currentIndex = focusableElements.indexOf(activeElement as HTMLElement);
   const nextIndex = (currentIndex + 1) % focusableElements.length;
 
-  // eslint-disable-next-line no-console
-  console.log('DEBUG focus change:', {
-    currentIndex,
-    nextIndex,
-    currentText: (activeElement as HTMLElement)?.textContent,
-    nextText: focusableElements[nextIndex]?.textContent,
-  });
-
   focusableElements[nextIndex].focus();
 }
 
