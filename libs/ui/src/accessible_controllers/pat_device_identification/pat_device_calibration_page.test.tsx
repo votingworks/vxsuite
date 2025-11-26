@@ -1,23 +1,28 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import React from 'react';
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { Keybinding } from '@votingworks/ui';
 import { render, screen } from '../../../test/react_testing_library';
+import { Keybinding } from '../../keybindings';
 import {
   PatDeviceCalibrationPage,
   PatDeviceCalibrationPageProps,
 } from './pat_device_calibration_page';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { ApiProvider } from '../../api_provider';
 
-let apiMock: ApiMock;
-
-beforeEach(() => {
-  apiMock = createApiMock();
-});
-
-afterEach(() => {
-  apiMock.mockApiClient.assertComplete();
-});
+// Simple mock screen wrapper for testing
+function MockScreenWrapper({
+  children,
+  actionButtons,
+}: {
+  children: React.ReactNode;
+  actionButtons?: React.ReactNode;
+}): JSX.Element {
+  return (
+    <div data-testid="mock-screen-wrapper">
+      {children}
+      {actionButtons}
+    </div>
+  );
+}
 
 function identifyInputs(): void {
   // Continue past instructions
@@ -35,11 +40,19 @@ function identifyInputs(): void {
 }
 
 function renderComponent(props: Partial<PatDeviceCalibrationPageProps> = {}) {
-  render(
-    <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
-      <PatDeviceCalibrationPage {...props} />
-    </ApiProvider>
+  const onSuccessfulCalibration = props.onSuccessfulCalibration ?? vi.fn();
+  const onSkipCalibration = props.onSkipCalibration ?? vi.fn();
+
+  const renderResult = render(
+    <PatDeviceCalibrationPage
+      onSuccessfulCalibration={onSuccessfulCalibration}
+      onSkipCalibration={onSkipCalibration}
+      ScreenWrapper={MockScreenWrapper}
+      {...props}
+    />
   );
+
+  return { ...renderResult, onSuccessfulCalibration, onSkipCalibration };
 }
 
 test('can restart the device ID flow', () => {
@@ -53,41 +66,19 @@ test('can restart the device ID flow', () => {
   screen.getByText('Test Your Device');
 });
 
-test('sets backend calibration state if "Skip" button is pressed', () => {
-  renderComponent();
+test('calls onSkipCalibration if "Skip" button is pressed', () => {
+  const { onSkipCalibration } = renderComponent();
 
   screen.getByText('Personal Assistive Technology Device Identification');
-  apiMock.expectSetPatDeviceIsCalibrated();
   userEvent.click(screen.getByText('Skip Identification'));
+  expect(onSkipCalibration).toHaveBeenCalledTimes(1);
 });
-
-test('calls optional passed function if "Skip" button is pressed', () => {
-  const skipFn = vi.fn();
-  renderComponent({ onSkipCalibration: skipFn });
-
-  screen.getByText('Personal Assistive Technology Device Identification');
-  apiMock.expectSetPatDeviceIsCalibrated();
-  userEvent.click(screen.getByText('Skip Identification'));
-  expect(skipFn).toHaveBeenCalledTimes(1);
-});
-
-test('sets backend calibration state if "Continue " button is pressed', () => {
-  renderComponent();
+test('calls onSuccessfulCalibration if "Continue" button is pressed', () => {
+  const { onSuccessfulCalibration } = renderComponent();
 
   screen.getByText('Personal Assistive Technology Device Identification');
 
   identifyInputs();
-  apiMock.expectSetPatDeviceIsCalibrated();
   userEvent.click(screen.getByText('Continue'));
-});
-
-test('calls optional passed function if "Continue" button is pressed', () => {
-  const continueFn = vi.fn();
-  renderComponent({ onSuccessfulCalibration: continueFn });
-
-  screen.getByText('Personal Assistive Technology Device Identification');
-  identifyInputs();
-  apiMock.expectSetPatDeviceIsCalibrated();
-  userEvent.click(screen.getByText('Continue'));
-  expect(continueFn).toHaveBeenCalledTimes(1);
+  expect(onSuccessfulCalibration).toHaveBeenCalledTimes(1);
 });

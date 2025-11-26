@@ -326,7 +326,6 @@ export function AppRoot(): JSX.Element | null {
     );
 
     document.addEventListener('keydown', handleKeyboardEvent);
-
     return () => {
       document.removeEventListener('keydown', handleKeyboardEvent);
     };

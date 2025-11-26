@@ -28,7 +28,7 @@ import {
 } from '../../api';
 import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen';
 import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen';
-import { PatDeviceCalibrationPage } from '../pat_device_identification/pat_device_calibration_page';
+import { PatDeviceCalibrationPageWrapper } from '../pat_device_calibration_page_wrapper';
 
 export interface DiagnosticsScreenProps {
   onBackButtonPress: () => void;
@@ -71,7 +71,6 @@ export function DiagnosticsScreen({
     'uninterruptible-power-supply'
   );
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
-
   const history = useHistory();
 
   if (
@@ -243,7 +242,7 @@ export function DiagnosticsScreen({
         />
       </Route>
       <Route path="/pat-input">
-        <PatDeviceCalibrationPage
+        <PatDeviceCalibrationPageWrapper
           isDiagnostic
           onSuccessfulCalibration={() => {
             addPatDiagnosticRecordMutation.mutate({

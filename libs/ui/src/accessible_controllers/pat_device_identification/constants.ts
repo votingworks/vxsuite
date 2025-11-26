@@ -1,4 +1,4 @@
-import { Keybinding } from '@votingworks/ui';
+import { Keybinding } from '../../keybindings';
 
 export const behaviorToKeypressMap = {
   Move: Keybinding.PAT_MOVE,

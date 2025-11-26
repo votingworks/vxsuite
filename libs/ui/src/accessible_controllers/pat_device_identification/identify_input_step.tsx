@@ -1,6 +1,9 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { H1, Icons, P, ReadOnLoad, appStrings } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
+
+import { H1, P } from '../../typography';
+import { Icons } from '../../icons';
+import { ReadOnLoad, appStrings } from '../../ui_strings';
 import { behaviorToKeypressMap, validKeypressValues } from './constants';
 import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
@@ -54,6 +57,8 @@ export function IdentifyInputStep({
       }
 
       event.preventDefault();
+      // Stop other listeners (e.g., app-level PAT handlers) from also handling this event
+      event.stopImmediatePropagation();
 
       if (event.key === behaviorToKeypressMap[inputName]) {
         switch (inputIdentificationPhase) {
@@ -86,10 +91,12 @@ export function IdentifyInputStep({
   );
 
   useEffect(() => {
-    document.addEventListener('keydown', handleInput);
+    // Use capture phase so this handler runs BEFORE app-level handlers,
+    // allowing stopImmediatePropagation to prevent them from firing
+    document.addEventListener('keydown', handleInput, { capture: true });
 
     return () => {
-      document.removeEventListener('keydown', handleInput);
+      document.removeEventListener('keydown', handleInput, { capture: true });
     };
   }, [handleInput]);
 

@@ -20,7 +20,7 @@ import { Ballot } from './components/ballot';
 import { ValidateBallotPage } from './pages/validate_ballot_page';
 import { BallotContext } from './contexts/ballot_context';
 import * as api from './api';
-import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
+import { PatDeviceCalibrationPageWrapper } from './pages/pat_device_calibration_page_wrapper';
 import {
   BallotReinsertionFlow,
   isBallotReinsertionState,
@@ -49,7 +49,7 @@ export function VoterFlow(props: VoterFlowProps): React.ReactNode {
   const { shouldShowControllerSandbox } = useAccessibleControllerHelpTrigger();
 
   if (stateMachineState === 'pat_device_connected') {
-    return <PatDeviceCalibrationPage />;
+    return <PatDeviceCalibrationPageWrapper />;
   }
 
   if (shouldShowControllerSandbox) {

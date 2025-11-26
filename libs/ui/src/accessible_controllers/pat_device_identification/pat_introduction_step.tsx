@@ -1,5 +1,8 @@
 import React, { useEffect, useCallback } from 'react';
-import { Font, H1, Icons, P, appStrings } from '@votingworks/ui';
+
+import { Font, H1, P } from '../../typography';
+import { Icons } from '../../icons';
+import { appStrings } from '../../ui_strings';
 import { validKeypressValues } from './constants';
 import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
@@ -14,6 +17,8 @@ export function PatIntroductionStep({
     (event: KeyboardEvent) => {
       if (validKeypressValues.includes(event.key)) {
         event.preventDefault();
+        // Stop other listeners (e.g., app-level PAT handlers) from also handling this event
+        event.stopImmediatePropagation();
         onStepCompleted();
       }
     },
@@ -21,10 +26,12 @@ export function PatIntroductionStep({
   );
 
   useEffect(() => {
-    document.addEventListener('keydown', handleInput);
+    // Use capture phase so this handler runs BEFORE app-level handlers,
+    // allowing stopImmediatePropagation to prevent them from firing
+    document.addEventListener('keydown', handleInput, { capture: true });
 
     return () => {
-      document.removeEventListener('keydown', handleInput);
+      document.removeEventListener('keydown', handleInput, { capture: true });
     };
   }, [handleInput]);
 

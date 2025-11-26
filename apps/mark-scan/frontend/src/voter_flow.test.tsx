@@ -10,7 +10,7 @@ import { act, render, screen } from '../test/react_testing_library';
 import { VoterFlow, VoterFlowProps } from './voter_flow';
 import { mockMachineConfig } from '../test/helpers/mock_machine_config';
 import { Ballot } from './components/ballot';
-import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
+import { PatDeviceCalibrationPageWrapper } from './pages/pat_device_calibration_page_wrapper';
 import { createApiMock } from '../test/helpers/mock_api_client';
 import { ApiProvider } from './api_provider';
 
@@ -38,9 +38,7 @@ vi.mock(import('./components/ballot.js'), async (importActual) => ({
   Ballot: vi.fn(),
 }));
 
-vi.mock(
-  import('./pages/pat_device_identification/pat_device_calibration_page.js')
-);
+vi.mock(import('./pages/pat_device_calibration_page_wrapper.js'));
 
 const MOCK_INVALID_BALLOT_SCREEN_CONTENTS = 'MockInvalidBallotScreen';
 vi.mock(
@@ -116,7 +114,7 @@ test('replaces screen with accessible controller sandbox when triggered', () => 
 
 test('replaces screen with PAT device calibration when connected', () => {
   vi.mocked(Ballot).mockReturnValue(<div data-testid="mockBallotScreen" />);
-  vi.mocked(PatDeviceCalibrationPage).mockReturnValue(
+  vi.mocked(PatDeviceCalibrationPageWrapper).mockReturnValue(
     <div data-testid="mockPatCalibrationScreen" />
   );
 

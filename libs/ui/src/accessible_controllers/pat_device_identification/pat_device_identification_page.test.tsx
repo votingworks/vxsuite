@@ -1,7 +1,17 @@
+import React from 'react';
 import { test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library';
 import { PatDeviceIdentificationPage } from './pat_device_identification_page';
+
+// Simple mock screen wrapper for testing
+function MockScreenWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  return <div data-testid="mock-screen-wrapper">{children}</div>;
+}
 
 test('advances to next step', () => {
   const onAllInputsIdentified = vi.fn();
@@ -11,6 +21,7 @@ test('advances to next step', () => {
     <PatDeviceIdentificationPage
       onAllInputsIdentified={onAllInputsIdentified}
       onExitCalibration={onExitCalibration}
+      ScreenWrapper={MockScreenWrapper}
     />
   );
 

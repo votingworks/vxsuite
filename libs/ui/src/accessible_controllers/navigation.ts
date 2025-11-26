@@ -39,6 +39,7 @@ export function advanceElementFocus(direction: 1 | -1): void {
   const focusableElements = Array.from(allTabEnabledElements).filter(
     (e) => !tabEnabledElementsInHiddenBlocks.has(e)
   );
+
   if (focusableElements.length === 0) {
     return;
   }
@@ -50,6 +51,14 @@ export function advanceElementFocus(direction: 1 | -1): void {
   const { activeElement } = document;
   const currentIndex = focusableElements.indexOf(activeElement as HTMLElement);
   const nextIndex = (currentIndex + 1) % focusableElements.length;
+
+  // eslint-disable-next-line no-console
+  console.log('DEBUG focus change:', {
+    currentIndex,
+    nextIndex,
+    currentText: (activeElement as HTMLElement)?.textContent,
+    nextText: focusableElements[nextIndex]?.textContent,
+  });
 
   focusableElements[nextIndex].focus();
 }

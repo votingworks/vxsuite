@@ -1,21 +1,27 @@
 import React from 'react';
-import {
-  H1,
-  P,
-  Button,
-  Icons,
-  ReadOnLoad,
-  appStrings,
-  Font,
-} from '@votingworks/ui';
-import { VoterScreen } from '@votingworks/mark-flow-ui';
 import styled from 'styled-components';
-import { DiagnosticScreenHeader } from '../diagnostics/diagnostic_screen_components';
 
-interface Props {
+import { H1, P, Font } from '../../typography';
+import { Icons } from '../../icons';
+import { Button } from '../../button';
+import { ReadOnLoad, appStrings } from '../../ui_strings';
+import { DiagnosticScreenHeader } from './pat_device_identification_page';
+
+interface ConfirmExitPatDeviceIdentificationPageProps {
   isDiagnostic?: boolean;
   onPressBack: () => void;
   onPressContinue: () => void;
+  /**
+   * Wrapper component to render the screen layout. Should accept children,
+   * centerContent, hideMenuButtons, and actionButtons props.
+   * In VxMarkScan, this is typically VoterScreen from @votingworks/mark-flow-ui.
+   */
+  ScreenWrapper: React.ComponentType<{
+    children: React.ReactNode;
+    centerContent?: boolean;
+    hideMenuButtons?: boolean;
+    actionButtons?: React.ReactNode;
+  }>;
 }
 
 export const ExitStepInnerContainer = styled.div`
@@ -37,9 +43,10 @@ export function ConfirmExitPatDeviceIdentificationPage({
   isDiagnostic,
   onPressBack,
   onPressContinue,
-}: Props): JSX.Element {
+  ScreenWrapper,
+}: ConfirmExitPatDeviceIdentificationPageProps): JSX.Element {
   return (
-    <VoterScreen
+    <ScreenWrapper
       centerContent
       hideMenuButtons={isDiagnostic}
       actionButtons={
@@ -48,18 +55,21 @@ export function ConfirmExitPatDeviceIdentificationPage({
             Exit
           </Button>
         ) : (
-          <React.Fragment>
-            <Button icon="Previous" onPress={onPressBack}>
-              {appStrings.buttonBack()}
-            </Button>
+          // Using array instead of React.Fragment for better compatibility
+          // with VxScan's ButtonBar grid layout
+          [
             <Button
+              key="continue"
               variant="primary"
               rightIcon="Next"
               onPress={onPressContinue}
             >
               {appStrings.buttonContinue()}
-            </Button>
-          </React.Fragment>
+            </Button>,
+            <Button key="back" icon="Previous" onPress={onPressBack}>
+              {appStrings.buttonBack()}
+            </Button>,
+          ]
         )
       }
     >
@@ -86,6 +96,6 @@ export function ConfirmExitPatDeviceIdentificationPage({
           </P>
         </ReadOnLoad>
       </ExitStepInnerContainer>
-    </VoterScreen>
+    </ScreenWrapper>
   );
 }
