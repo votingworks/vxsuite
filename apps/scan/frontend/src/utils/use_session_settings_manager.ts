@@ -12,6 +12,14 @@ export interface SessionSettingsManagerProps {
   startNewSession: () => void;
   pauseSession: () => void;
   resumeSession: () => void;
+  /** Whether the PAT calibration tutorial is currently being shown */
+  showingPatCalibration: boolean;
+  /** Set whether the PAT calibration tutorial is being shown */
+  setShowingPatCalibration: (showing: boolean) => void;
+  /** Whether PAT calibration has been completed for this session */
+  isPatCalibrationComplete: boolean;
+  /** Mark PAT calibration as complete for this session */
+  setIsPatCalibrationComplete: (complete: boolean) => void;
 }
 
 /**
@@ -35,6 +43,15 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
   const [savedVoterSessionTheme, setSavedVoterSessionTheme] =
     React.useState<DefaultTheme | null>(null);
 
+  // PAT device calibration state
+  const [showingPatCalibration, setShowingPatCalibration] =
+    React.useState(false);
+  const [isPatCalibrationComplete, setIsPatCalibrationComplete] =
+    React.useState(false);
+  // Save calibration completion state to restore after election official interruption
+  const [savedIsPatCalibrationComplete, setSavedIsPatCalibrationComplete] =
+    React.useState<boolean | null>(null);
+
   function startNewSession() {
     audioContext.reset();
     languageContext.reset();
@@ -43,6 +60,11 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
     setSavedIsAudioEnabled(null);
     setSavedVoterSessionLanguage(null);
     setSavedVoterSessionTheme(null);
+
+    // Reset PAT calibration state for new session
+    setShowingPatCalibration(false);
+    setIsPatCalibrationComplete(false);
+    setSavedIsPatCalibrationComplete(null);
   }
 
   function pauseSession() {
@@ -50,9 +72,15 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
     setSavedVoterSessionLanguage(currentLanguage);
     setSavedVoterSessionTheme(currentTheme);
 
+    // Save PAT calibration completion state (so voter doesn't redo tutorial after interruption)
+    setSavedIsPatCalibrationComplete(isPatCalibrationComplete);
+
     audioContext.reset();
     languageContext.reset();
     voterSettingsContext.resetThemes();
+
+    // Hide PAT calibration during pause (election official session)
+    setShowingPatCalibration(false);
   }
 
   function resumeSession() {
@@ -70,14 +98,24 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
       );
     }
 
+    // Restore PAT calibration completion state
+    if (savedIsPatCalibrationComplete !== null) {
+      setIsPatCalibrationComplete(savedIsPatCalibrationComplete);
+    }
+
     setSavedIsAudioEnabled(null);
     setSavedVoterSessionLanguage(null);
     setSavedVoterSessionTheme(null);
+    setSavedIsPatCalibrationComplete(null);
   }
 
   return {
     startNewSession,
     pauseSession,
     resumeSession,
+    showingPatCalibration,
+    setShowingPatCalibration,
+    isPatCalibrationComplete,
+    setIsPatCalibrationComplete,
   };
 }

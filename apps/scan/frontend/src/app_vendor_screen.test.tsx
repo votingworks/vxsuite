@@ -31,6 +31,10 @@ beforeEach(() => {
     startNewSession: startNewSessionMock,
     pauseSession: pauseSessionMock,
     resumeSession: resumeSessionMock,
+    isPatCalibrationComplete: false,
+    showingPatCalibration: false,
+    setShowingPatCalibration: vi.fn(),
+    setIsPatCalibrationComplete: vi.fn(),
   });
 });
 

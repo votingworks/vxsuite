@@ -59,6 +59,10 @@ beforeEach(() => {
     startNewSession: startNewSessionMock,
     pauseSession: pauseSessionMock,
     resumeSession: resumeSessionMock,
+    setShowingPatCalibration: vi.fn(),
+    setIsPatCalibrationComplete: vi.fn(),
+    showingPatCalibration: false,
+    isPatCalibrationComplete: false,
   });
 });
 
@@ -1429,4 +1433,80 @@ test('accessibility input alarm does not trigger if accessibility input was not 
   renderApp();
 
   await screen.findByText('Insert Your Ballot');
+});
+
+test('PAT device tutorial is shown when PAT key is pressed and can be completed', async () => {
+  const setShowingPatCalibrationMock = vi.fn();
+  const setIsPatCalibrationCompleteMock = vi.fn();
+  vi.mocked(useSessionSettingsManager).mockReturnValue({
+    startNewSession: startNewSessionMock,
+    pauseSession: pauseSessionMock,
+    resumeSession: resumeSessionMock,
+    setShowingPatCalibration: setShowingPatCalibrationMock,
+    setIsPatCalibrationComplete: setIsPatCalibrationCompleteMock,
+    showingPatCalibration: false,
+    isPatCalibrationComplete: false,
+  });
+
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+  renderApp();
+
+  await screen.findByText('Insert Your Ballot');
+
+  // Press PAT key '1' (PAT_MOVE) to trigger PAT tutorial
+  userEvent.keyboard('1');
+  expect(setShowingPatCalibrationMock).toHaveBeenCalledWith(true);
+});
+
+test('PAT device tutorial is displayed when showingPatCalibration is true', async () => {
+  vi.mocked(useSessionSettingsManager).mockReturnValue({
+    startNewSession: startNewSessionMock,
+    pauseSession: pauseSessionMock,
+    resumeSession: resumeSessionMock,
+    setShowingPatCalibration: vi.fn(),
+    setIsPatCalibrationComplete: vi.fn(),
+    showingPatCalibration: true,
+    isPatCalibrationComplete: false,
+  });
+
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+  renderApp();
+
+  await screen.findByText(
+    'Personal Assistive Technology Device Identification'
+  );
+});
+
+test('PAT device tutorial is not triggered when calibration is already complete', async () => {
+  const setShowingPatCalibrationMock = vi.fn();
+  vi.mocked(useSessionSettingsManager).mockReturnValue({
+    startNewSession: startNewSessionMock,
+    pauseSession: pauseSessionMock,
+    resumeSession: resumeSessionMock,
+    setShowingPatCalibration: setShowingPatCalibrationMock,
+    setIsPatCalibrationComplete: vi.fn(),
+    showingPatCalibration: false,
+    isPatCalibrationComplete: true,
+  });
+
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+  renderApp();
+
+  await screen.findByText('Insert Your Ballot');
+
+  // Press PAT key - should NOT trigger tutorial since calibration is already complete
+  userEvent.keyboard('1');
+  expect(setShowingPatCalibrationMock).not.toHaveBeenCalled();
 });
