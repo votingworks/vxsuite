@@ -10,7 +10,8 @@ import {
   combineGroupSpecifierAndFilter,
   getBallotCount,
   getMaxSheetsPerBallot,
-  getHmpbBallotCount,
+  getScannedBallotCount,
+  getScannedBallotCountForSheet,
   groupMapToGroupList,
 } from '@votingworks/utils';
 import { Store } from '../store';
@@ -41,13 +42,13 @@ function generateHeaders({
     headers.push('Manual');
   }
 
-  headers.push('BMD');
-
-  headers.push('HMPB');
   if (maxSheetsPerBallot) {
+    headers.push('Scanned');
     for (let i = 2; i <= maxSheetsPerBallot; i += 1) {
-      headers.push(`HMPB Sheet ${i}`);
+      headers.push(`Scanned Sheet ${i}`);
     }
+  } else if (hasManualTallies) {
+    headers.push('Scanned');
   }
 
   headers.push('Total');
@@ -71,24 +72,18 @@ function buildRow({
   const counts: number[] = [];
   /* istanbul ignore next - trivial fallthrough case @preserve */
   const manual = cardCounts.manual ?? 0;
-  const { bmd } = cardCounts;
   const total = getBallotCount(cardCounts);
 
   if (hasManualTallies) {
     counts.push(manual);
   }
 
-  counts.push(bmd);
-
   if (maxSheetsPerBallot) {
     for (let i = 0; i < maxSheetsPerBallot; i += 1) {
-      /* istanbul ignore next - trivial fallthrough case @preserve */
-      const currentSheetCount = cardCounts.hmpb[i] ?? 0;
-      counts.push(currentSheetCount);
+      counts.push(getScannedBallotCountForSheet(cardCounts, i));
     }
-  } else {
-    const hmpb = getHmpbBallotCount(cardCounts);
-    counts.push(hmpb);
+  } else if (hasManualTallies) {
+    counts.push(getScannedBallotCount(cardCounts));
   }
 
   counts.push(total);
