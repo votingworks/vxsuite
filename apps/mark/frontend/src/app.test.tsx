@@ -9,6 +9,8 @@ import {
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
 import { BallotStyleId } from '@votingworks/types';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import userEvent from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { render } from '../test/test_utils';
@@ -135,4 +137,99 @@ test('uses ballot style management hook', async () => {
       electionDefinition: electionGeneralDefinition,
     })
   );
+});
+
+const CENTER_SPRINGFIELD_PRECINCT_SELECTION = singlePrecinctSelectionFor('23');
+
+test('PAT device tutorial is shown when PAT key is pressed during voter session', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollsState: 'polls_open',
+  });
+
+  // Start as cardless voter
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12' as BallotStyleId,
+    precinctId: '23',
+  });
+
+  render(<App apiClient={apiMock.mockApiClient} />);
+
+  // Wait for voter screen to appear
+  await screen.findByText('Start Voting');
+
+  // Pressing a non PAT button doesn't trigger the PAT tutorial
+  userEvent.keyboard('0');
+  // No page change
+  await screen.findByText('Start Voting');
+
+  // Press PAT key '1' (PAT_MOVE) to trigger PAT tutorial
+  userEvent.keyboard('1');
+
+  // PAT calibration page should be shown
+  await screen.findByText(
+    'Personal Assistive Technology Device Identification'
+  );
+});
+
+test('PAT device tutorial can be skipped', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollsState: 'polls_open',
+  });
+
+  // Start as cardless voter
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12' as BallotStyleId,
+    precinctId: '23',
+  });
+
+  render(<App apiClient={apiMock.mockApiClient} />);
+
+  // Wait for voter screen to appear
+  await screen.findByText('Start Voting');
+
+  // Press PAT key to trigger PAT tutorial
+  userEvent.keyboard('2');
+
+  // PAT calibration page should be shown
+  await screen.findByText(
+    'Personal Assistive Technology Device Identification'
+  );
+
+  // Skip the tutorial
+  userEvent.click(screen.getByRole('button', { name: /skip/i }));
+
+  // Should return to voter screen
+  await screen.findByText('Start Voting');
+});
+
+test('PAT device tutorial is not triggered when not in voter session', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
+    pollsState: 'polls_open',
+  });
+
+  render(<App apiClient={apiMock.mockApiClient} />);
+
+  // Wait for insert card screen (no voter logged in)
+  await screen.findByText('Insert Card');
+
+  // Press PAT key - should NOT trigger tutorial since not in voter session
+  userEvent.keyboard('1');
+
+  // Should still be on insert card screen (no PAT calibration page)
+  expect(
+    screen.queryByText('Personal Assistive Technology Device Identification')
+  ).not.toBeInTheDocument();
+  screen.getByText('Insert Card');
 });

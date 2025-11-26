@@ -30,6 +30,9 @@ import {
   useQueryChangeListener,
   VendorScreen,
   handleKeyboardEvent,
+  PatDeviceContextProvider,
+  PatDeviceCalibrationPage,
+  Keybinding,
 } from '@votingworks/ui';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -38,6 +41,7 @@ import {
   CastBallotPage,
   useSessionSettingsManager,
   useBallotStyleManager,
+  VoterScreen,
 } from '@votingworks/mark-flow-ui';
 import type { ElectionState } from '@votingworks/mark-backend';
 import {
@@ -71,6 +75,8 @@ import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election
 export interface VotingState {
   votes?: VotesDict;
   showPostVotingInstructions?: boolean;
+  showingPatCalibration?: boolean;
+  isPatCalibrationComplete?: boolean;
 }
 
 export const stateStorageKey = 'state';
@@ -86,13 +92,17 @@ export const initialElectionState: Readonly<ElectionState> = {
 const initialVotingState: Readonly<VotingState> = {
   votes: undefined,
   showPostVotingInstructions: undefined,
+  showingPatCalibration: undefined,
+  isPatCalibrationComplete: undefined,
 };
 
 // Sets State. All side effects done outside: storage, fetching, etc
 type VotingAction =
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
-  | { type: 'resetBallot'; showPostVotingInstructions?: boolean };
+  | { type: 'resetBallot'; showPostVotingInstructions?: boolean }
+  | { type: 'showPatCalibration' }
+  | { type: 'completePatCalibration' };
 
 function votingStateReducer(
   state: VotingState,
@@ -119,6 +129,17 @@ function votingStateReducer(
         ...initialVotingState,
         showPostVotingInstructions: action.showPostVotingInstructions,
       };
+    case 'showPatCalibration':
+      return {
+        ...state,
+        showingPatCalibration: true,
+      };
+    case 'completePatCalibration':
+      return {
+        ...state,
+        showingPatCalibration: false,
+        isPatCalibrationComplete: true,
+      };
     default: {
       /* istanbul ignore next - compile time check for completeness - @preserve */
       throwIllegalValue(action);
@@ -132,7 +153,12 @@ export function AppRoot(): JSX.Element | null {
     votingStateReducer,
     initialVotingState
   );
-  const { showPostVotingInstructions, votes } = votingState;
+  const {
+    showPostVotingInstructions,
+    votes,
+    showingPatCalibration,
+    isPatCalibrationComplete,
+  } = votingState;
 
   const history = useHistory();
 
@@ -345,12 +371,51 @@ export function AppRoot(): JSX.Element | null {
     },
   });
 
-  // Handle Keyboard Input
+  // Callback for PAT tutorial completion
+  const onPatCalibrationComplete = useCallback(() => {
+    dispatchVotingState({ type: 'completePatCalibration' });
+  }, []);
+
+  // Intercept PAT key presses to show tutorial if not yet calibrated.
+  // Uses capture phase so it runs before the main keyboard handler.
+  useEffect(() => {
+    function patTutorialHandler(event: KeyboardEvent) {
+      /* istanbul ignore next - @preserve */
+      if (event.repeat) return;
+
+      const isPatKey =
+        event.key === Keybinding.PAT_MOVE ||
+        event.key === Keybinding.PAT_SELECT;
+
+      if (!isPatKey) return;
+
+      // Show calibration if during voter session, not yet calibrated, and not already showing
+      if (
+        isCardlessVoterAuth(authStatus) &&
+        !isPatCalibrationComplete &&
+        !showingPatCalibration
+      ) {
+        dispatchVotingState({ type: 'showPatCalibration' });
+        // Prevent the main keyboard handler from also processing this key
+        event.stopImmediatePropagation();
+      }
+    }
+
+    document.addEventListener('keydown', patTutorialHandler, { capture: true });
+    return () => {
+      document.removeEventListener('keydown', patTutorialHandler, {
+        capture: true,
+      });
+    };
+  }, [authStatus, isPatCalibrationComplete, showingPatCalibration]);
+
+  // Handle Keyboard Input for accessible navigation
   useEffect(() => {
     document.documentElement.setAttribute(
       'data-useragent',
       navigator.userAgent
     );
+
     document.addEventListener('keydown', handleKeyboardEvent);
     return () => {
       document.removeEventListener('keydown', handleKeyboardEvent);
@@ -485,6 +550,17 @@ export function AppRoot(): JSX.Element | null {
     }
     if (pollsState === 'polls_open') {
       if (isCardlessVoterAuth(authStatus)) {
+        // Show PAT tutorial if PAT input was detected and not yet calibrated
+        if (showingPatCalibration) {
+          return (
+            <PatDeviceCalibrationPage
+              onSuccessfulCalibration={onPatCalibrationComplete}
+              onSkipCalibration={onPatCalibrationComplete}
+              ScreenWrapper={VoterScreen}
+            />
+          );
+        }
+
         return (
           <BallotContext.Provider
             value={{
@@ -501,7 +577,11 @@ export function AppRoot(): JSX.Element | null {
               votes: votes ?? blankBallotVotes,
             }}
           >
-            <Ballot />
+            <PatDeviceContextProvider
+              isPatDeviceConnected={Boolean(isPatCalibrationComplete)}
+            >
+              <Ballot />
+            </PatDeviceContextProvider>
           </BallotContext.Provider>
         );
       }
