@@ -6,69 +6,62 @@ import {
   TD,
   LinkButton,
   P,
-  SegmentedButton,
   SearchSelect,
-  MainContent,
   Breadcrumbs,
-  TabPanel,
-  RouterTabBar,
-  Modal,
   H1,
-  Callout,
   H3,
+  MainContent,
 } from '@votingworks/ui';
-import {
-  Redirect,
-  Route,
-  Switch,
-  useHistory,
-  useParams,
-} from 'react-router-dom';
-import {
-  AnyContest,
-  Candidate,
-  CandidateContestSchema,
-  CandidateId,
-  ContestId,
-  Contests,
-  DistrictId,
-  ElectionId,
-  Party,
-  PartyId,
-  safeParse,
-  YesNoContestSchema,
-} from '@votingworks/types';
-import { Result, throwIllegalValue } from '@votingworks/basics';
+import { Route, Switch, useParams } from 'react-router-dom';
+import { AnyContest, ContestId, Contests } from '@votingworks/types';
 import styled from 'styled-components';
 import { Flipper, Flipped } from 'react-flip-toolkit';
-import { z } from 'zod/v4';
-import {
-  FieldName,
-  Form,
-  FormActionsRow,
-  InputGroup,
-  Row,
-  TableActionsRow,
-} from './layout';
+import { Row, TableActionsRow } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
-  createContest,
-  createParty,
-  deleteContest,
-  deleteParty,
   getBallotsFinalizedAt,
   getElectionInfo,
   listContests,
   listDistricts,
   listParties,
   reorderContests,
-  updateContest,
-  updateParty,
 } from './api';
-import { generateId, reorderElement, replaceAtIndex } from './utils';
-import { RichTextEditor } from './rich_text_editor';
+import { reorderElement } from './utils';
 import { useTitle } from './hooks/use_title';
+import { ContestForm } from './contest_form';
+
+export function ContestsScreen(): JSX.Element {
+  const { electionId } = useParams<ElectionIdParams>();
+  const contestParamRoutes = electionParamRoutes.contests;
+
+  useTitle(routes.election(electionId).contests.root.title);
+
+  return (
+    <ElectionNavScreen electionId={electionId}>
+      <Switch>
+        <Route
+          path={contestParamRoutes.addContest.path}
+          exact
+          component={AddContestForm}
+        />
+        <Route
+          path={contestParamRoutes.editContest(':contestId').path}
+          exact
+          component={EditContestForm}
+        />
+        <Route path={contestParamRoutes.root.path}>
+          <Header>
+            <H1>Contests</H1>
+          </Header>
+          <MainContent>
+            <ContestList />
+          </MainContent>
+        </Route>
+      </Switch>
+    </ElectionNavScreen>
+  );
+}
 
 const ReorderableTr = styled.tr<{ isReordering: boolean }>`
   &:hover {
@@ -79,102 +72,7 @@ const ReorderableTr = styled.tr<{ isReordering: boolean }>`
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
 
-interface DraftCandidate {
-  id: CandidateId;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  partyIds?: PartyId[];
-}
-
-interface DraftCandidateContest {
-  id: ContestId;
-  type: 'candidate';
-  districtId?: DistrictId;
-  title: string;
-  termDescription?: string;
-  seats: number;
-  allowWriteIns: boolean;
-  candidates: DraftCandidate[];
-  partyId?: PartyId;
-}
-
-interface DraftYesNoContest {
-  id: ContestId;
-  type: 'yesno';
-  districtId?: DistrictId;
-  title: string;
-  description: string;
-  yesOption: { id: string; label: string };
-  noOption: { id: string; label: string };
-}
-
-type DraftContest = DraftCandidateContest | DraftYesNoContest;
-
-function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
-  let firstName = candidate.firstName ?? '';
-  let middleName = candidate.middleName ?? '';
-  let lastName = candidate.lastName ?? '';
-
-  if (!firstName && !middleName && !lastName) {
-    const [firstPart, ...middleParts] = candidate.name.split(' ');
-    firstName = firstPart ?? '';
-    lastName = middleParts.pop() ?? '';
-    middleName = middleParts.join(' ');
-  }
-
-  return {
-    id: candidate.id,
-    firstName,
-    middleName,
-    lastName,
-    partyIds: candidate.partyIds?.slice(),
-  };
-}
-
-function draftContestFromContest(contest: AnyContest): DraftContest {
-  switch (contest.type) {
-    case 'candidate':
-      return {
-        ...contest,
-        candidates: contest.candidates.map(draftCandidateFromCandidate),
-      };
-    case 'yesno':
-      return { ...contest };
-    default: {
-      /* istanbul ignore next - @preserve */
-      throwIllegalValue(contest, 'type');
-    }
-  }
-}
-
-function tryContestFromDraftContest(
-  draftContest: DraftContest
-): Result<AnyContest, z.ZodError> {
-  switch (draftContest.type) {
-    case 'candidate':
-      return safeParse(CandidateContestSchema, {
-        ...draftContest,
-        candidates: draftContest.candidates.map((candidate) => ({
-          ...candidate,
-          name: [candidate.firstName, candidate.middleName, candidate.lastName]
-            .map((part) => part.trim())
-            .filter((part) => part)
-            .join(' '),
-        })),
-      });
-
-    case 'yesno':
-      return safeParse(YesNoContestSchema, draftContest);
-
-    default: {
-      /* istanbul ignore next - @preserve */
-      throwIllegalValue(draftContest, 'type');
-    }
-  }
-}
-
-function ContestsTab(): JSX.Element | null {
+function ContestList(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const listContestsQuery = listContests.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
@@ -203,7 +101,7 @@ function ContestsTab(): JSX.Element | null {
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-  const contestRoutes = routes.election(electionId).contests.contests;
+  const contestRoutes = routes.election(electionId).contests;
 
   const filteredContests = contests.filter((contest) => {
     const matchesDistrict =
@@ -251,7 +149,7 @@ function ContestsTab(): JSX.Element | null {
   }
 
   return (
-    <TabPanel>
+    <React.Fragment>
       {contests.length === 0 && (
         <P>You haven&apos;t added any contests to this election yet.</P>
       )}
@@ -481,616 +379,19 @@ function ContestsTab(): JSX.Element | null {
               ))}
           </React.Fragment>
         ))}
-    </TabPanel>
-  );
-}
-
-function createBlankCandidateContest(): DraftCandidateContest {
-  return {
-    id: generateId(),
-    type: 'candidate',
-    title: '',
-    seats: 1,
-    allowWriteIns: true,
-    candidates: [],
-  };
-}
-
-function createBlankYesNoContest(): DraftYesNoContest {
-  return {
-    id: generateId(),
-    type: 'yesno',
-    title: '',
-    description: '',
-    yesOption: {
-      id: generateId(),
-      label: 'Yes',
-    },
-    noOption: {
-      id: generateId(),
-      label: 'No',
-    },
-  };
-}
-
-function createBlankCandidate(): DraftCandidate {
-  return {
-    id: generateId(),
-    firstName: '',
-    middleName: '',
-    lastName: '',
-  };
-}
-
-function ContestForm({
-  electionId,
-  savedContest,
-}: {
-  electionId: ElectionId;
-  savedContest?: AnyContest;
-}): JSX.Element | null {
-  const [contest, setContest] = useState<DraftContest>(
-    savedContest
-      ? draftContestFromContest(savedContest)
-      : // To make mocked IDs predictable in tests, we pass a function here
-        // so it will only be called on initial render.
-        createBlankCandidateContest
-  );
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const listPartiesQuery = listParties.useQuery(electionId);
-  const createContestMutation = createContest.useMutation();
-  const updateContestMutation = updateContest.useMutation();
-  const deleteContestMutation = deleteContest.useMutation();
-  const history = useHistory();
-  const contestRoutes = routes.election(electionId).contests;
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const [validationErrorMessage, setValidationErrorMessage] = useState<
-    string | null
-  >(null);
-
-  /* istanbul ignore next - @preserve */
-  if (
-    !(
-      getElectionInfoQuery.isSuccess &&
-      listDistrictsQuery.isSuccess &&
-      listPartiesQuery.isSuccess
-    )
-  ) {
-    return null;
-  }
-  const electionInfo = getElectionInfoQuery.data;
-  const districts = listDistrictsQuery.data;
-  const parties = listPartiesQuery.data;
-
-  function goBackToContestsList() {
-    history.push(contestRoutes.root.path);
-  }
-
-  function onSubmit() {
-    const formContestResult = tryContestFromDraftContest(contest);
-    if (formContestResult.isErr()) {
-      setValidationErrorMessage(
-        formContestResult
-          .err()
-          .issues.map((i) => i.message)
-          .join(', ')
-      );
-      return;
-    }
-
-    setValidationErrorMessage(null);
-
-    const formContest = formContestResult.ok();
-    if (savedContest) {
-      updateContestMutation.mutate(
-        { electionId, updatedContest: formContest },
-        {
-          onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToContestsList();
-            }
-          },
-        }
-      );
-    } else {
-      createContestMutation.mutate(
-        { electionId, newContest: formContest },
-        {
-          onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToContestsList();
-            }
-          },
-        }
-      );
-    }
-  }
-
-  function onDelete() {
-    deleteContestMutation.mutate(
-      { electionId, contestId: contest.id },
-      { onSuccess: goBackToContestsList }
-    );
-  }
-
-  function onNameChange(
-    contestToUpdate: DraftCandidateContest,
-    candidate: DraftCandidate,
-    index: number,
-    nameParts: {
-      first?: string;
-      middle?: string;
-      last?: string;
-    }
-  ) {
-    const {
-      first = candidate.firstName,
-      middle = candidate.middleName,
-      last = candidate.lastName,
-    } = nameParts;
-    setContest({
-      ...contestToUpdate,
-      candidates: replaceAtIndex(contestToUpdate.candidates, index, {
-        ...candidate,
-        firstName: first,
-        middleName: middle,
-        lastName: last,
-      }),
-    });
-  }
-
-  const someMutationIsLoading =
-    createContestMutation.isLoading ||
-    updateContestMutation.isLoading ||
-    deleteContestMutation.isLoading;
-
-  const error =
-    createContestMutation.data?.err() || updateContestMutation.data?.err();
-  const errorMessage = validationErrorMessage ? (
-    <Callout icon="Danger" color="danger">
-      {validationErrorMessage}
-    </Callout>
-  ) : error ? (
-    (() => {
-      switch (error) {
-        case 'duplicate-contest':
-          return (
-            <Callout icon="Danger" color="danger">
-              {contest.type === 'candidate' ? (
-                <React.Fragment>
-                  There is already a contest with the same district, title,
-                  seats, and term.
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  There is already a contest with the same district and title.
-                </React.Fragment>
-              )}
-            </Callout>
-          );
-        case 'duplicate-candidate':
-          return (
-            <Callout icon="Danger" color="danger">
-              Candidates must have different names.
-            </Callout>
-          );
-        case 'duplicate-option':
-          return (
-            <Callout icon="Danger" color="danger">
-              Options must have different labels.
-            </Callout>
-          );
-        default: {
-          /* istanbul ignore next - @preserve */
-          throwIllegalValue(error);
-        }
-      }
-    })()
-  ) : null;
-
-  return (
-    <Form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      onReset={(e) => {
-        e.preventDefault();
-        goBackToContestsList();
-      }}
-    >
-      <InputGroup label="Title">
-        <input
-          type="text"
-          value={contest.title}
-          onChange={(e) => setContest({ ...contest, title: e.target.value })}
-          onBlur={(e) =>
-            setContest({ ...contest, title: e.target.value.trim() })
-          }
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <InputGroup label="District">
-        <SearchSelect
-          aria-label="District"
-          value={contest.districtId || undefined}
-          onChange={(value) => {
-            setContest({ ...contest, districtId: value || undefined });
-          }}
-          options={[
-            { value: '' as DistrictId, label: '' },
-            ...districts.map((district) => ({
-              value: district.id,
-              label: district.name,
-            })),
-          ]}
-          required
-        />
-      </InputGroup>
-      <SegmentedButton
-        label="Type"
-        options={[
-          { id: 'candidate', label: 'Candidate Contest' },
-          { id: 'yesno', label: 'Ballot Measure' },
-        ]}
-        selectedOptionId={contest.type}
-        onChange={(type) =>
-          setContest({
-            ...(type === 'candidate'
-              ? createBlankCandidateContest()
-              : createBlankYesNoContest()),
-            id: contest.id,
-            title: contest.title,
-            districtId: contest.districtId,
-          })
-        }
-      />
-
-      {contest.type === 'candidate' && (
-        <React.Fragment>
-          {electionInfo.type === 'primary' && (
-            <InputGroup label="Party">
-              <SearchSelect
-                aria-label="Party"
-                options={[
-                  { value: '' as PartyId, label: 'No Party Affiliation' },
-                  ...parties.map((party) => ({
-                    value: party.id,
-                    label: party.name,
-                  })),
-                ]}
-                value={contest.partyId}
-                onChange={(value) =>
-                  setContest({
-                    ...contest,
-                    partyId: value || undefined,
-                  })
-                }
-              />
-            </InputGroup>
-          )}
-          <InputGroup label="Seats">
-            <input
-              type="number"
-              // If user clears input, valueAsNumber will be NaN, so we convert
-              // back to empty string to avoid NaN warning
-              value={Number.isNaN(contest.seats) ? '' : contest.seats}
-              onChange={(e) =>
-                setContest({ ...contest, seats: e.target.valueAsNumber })
-              }
-              min={1}
-              max={50}
-              step={1}
-              style={{ width: '4rem' }}
-              maxLength={2}
-            />
-          </InputGroup>
-          <InputGroup label="Term">
-            <input
-              type="text"
-              value={contest.termDescription ?? ''}
-              onChange={(e) =>
-                setContest({ ...contest, termDescription: e.target.value })
-              }
-              onBlur={(e) =>
-                setContest({
-                  ...contest,
-                  termDescription: e.target.value.trim() || undefined,
-                })
-              }
-              autoComplete="off"
-            />
-          </InputGroup>
-          <SegmentedButton
-            label="Write-Ins Allowed?"
-            options={[
-              { id: 'yes', label: 'Yes' },
-              { id: 'no', label: 'No' },
-            ]}
-            selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
-            onChange={(value) =>
-              setContest({ ...contest, allowWriteIns: value === 'yes' })
-            }
-          />
-          <div>
-            <FieldName>Candidates</FieldName>
-            {contest.candidates.length === 0 && (
-              <P style={{ marginTop: '0.5rem' }}>
-                You haven&apos;t added any candidates to this contest yet.
-              </P>
-            )}
-            {contest.candidates.length > 0 && (
-              <Table>
-                <thead>
-                  <tr>
-                    <TH>First Name</TH>
-                    <TH>Middle Name</TH>
-                    <TH>Last Name</TH>
-                    <TH>Party</TH>
-                    <TH />
-                  </tr>
-                </thead>
-                <tbody>
-                  {contest.candidates.map((candidate, index) => (
-                    <tr key={candidate.id}>
-                      <TD>
-                        <input
-                          aria-label={`Candidate ${index + 1} First Name`}
-                          type="text"
-                          value={candidate.firstName}
-                          // eslint-disable-next-line jsx-a11y/no-autofocus
-                          autoFocus
-                          onChange={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: e.target.value,
-                            })
-                          }
-                          onBlur={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: e.target.value.trim() || undefined,
-                              middle: candidate.middleName,
-                              last: candidate.lastName,
-                            })
-                          }
-                          autoComplete="off"
-                          required
-                        />
-                      </TD>
-                      <TD>
-                        <input
-                          aria-label={`Candidate ${index + 1} Middle Name`}
-                          type="text"
-                          value={candidate.middleName || ''}
-                          onChange={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: candidate.firstName,
-                              middle: e.target.value,
-                              last: candidate.lastName,
-                            })
-                          }
-                          onBlur={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: candidate.firstName,
-                              middle: e.target.value.trim() || undefined,
-                              last: candidate.lastName,
-                            })
-                          }
-                          autoComplete="off"
-                        />
-                      </TD>
-                      <TD>
-                        <input
-                          aria-label={`Candidate ${index + 1} Last Name`}
-                          type="text"
-                          value={candidate.lastName || ''}
-                          onChange={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: candidate.firstName,
-                              middle: candidate.middleName,
-                              last: e.target.value,
-                            })
-                          }
-                          onBlur={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: candidate.firstName,
-                              middle: candidate.middleName,
-                              last: e.target.value.trim() || undefined,
-                            })
-                          }
-                          autoComplete="off"
-                          required
-                        />
-                      </TD>
-                      <TD>
-                        <SearchSelect
-                          aria-label={`Candidate ${index + 1} Party`}
-                          options={[
-                            {
-                              value: '' as PartyId,
-                              label: 'No Party Affiliation',
-                            },
-                            ...parties.map((party) => ({
-                              value: party.id,
-                              label: party.name,
-                            })),
-                          ]}
-                          // Only support one party per candidate for now
-                          value={candidate.partyIds?.[0]}
-                          onChange={(value) =>
-                            setContest({
-                              ...contest,
-                              candidates: replaceAtIndex(
-                                contest.candidates,
-                                index,
-                                {
-                                  ...candidate,
-                                  partyIds: value ? [value] : undefined,
-                                }
-                              ),
-                            })
-                          }
-                          style={{ minWidth: '12rem !important' }}
-                        />
-                      </TD>
-                      <TD>
-                        <Button
-                          icon="Delete"
-                          variant="danger"
-                          fill="transparent"
-                          onPress={() =>
-                            setContest({
-                              ...contest,
-                              candidates: contest.candidates.filter(
-                                (_, i) => i !== index
-                              ),
-                            })
-                          }
-                        >
-                          Remove
-                        </Button>
-                      </TD>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )}
-            <Row style={{ marginTop: '0.5rem' }}>
-              <Button
-                icon="Add"
-                onPress={() =>
-                  setContest({
-                    ...contest,
-                    candidates: [...contest.candidates, createBlankCandidate()],
-                  })
-                }
-              >
-                Add Candidate
-              </Button>
-            </Row>
-          </div>
-        </React.Fragment>
-      )}
-
-      {contest.type === 'yesno' && (
-        <React.Fragment>
-          <div>
-            <FieldName>Description</FieldName>
-            <RichTextEditor
-              initialHtmlContent={contest.description}
-              onChange={(htmlContent) =>
-                setContest({ ...contest, description: htmlContent })
-              }
-            />
-          </div>
-
-          <InputGroup label="First Option Label">
-            <input
-              type="text"
-              value={contest.yesOption.label}
-              onChange={(e) =>
-                setContest({
-                  ...contest,
-                  yesOption: { ...contest.yesOption, label: e.target.value },
-                })
-              }
-              autoComplete="off"
-              style={{ width: '4rem' }}
-            />
-          </InputGroup>
-
-          <InputGroup label="Second Option Label">
-            <input
-              type="text"
-              value={contest.noOption.label}
-              onChange={(e) =>
-                setContest({
-                  ...contest,
-                  noOption: { ...contest.noOption, label: e.target.value },
-                })
-              }
-              autoComplete="off"
-              style={{ width: '4rem' }}
-            />
-          </InputGroup>
-        </React.Fragment>
-      )}
-
-      {errorMessage}
-      <div>
-        <FormActionsRow>
-          <Button type="reset">Cancel</Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="Done"
-            disabled={someMutationIsLoading}
-          >
-            Save
-          </Button>
-        </FormActionsRow>
-        {savedContest && (
-          <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button
-              variant="danger"
-              icon="Delete"
-              onPress={() => setIsConfirmingDelete(true)}
-              disabled={someMutationIsLoading}
-            >
-              Delete Contest
-            </Button>
-          </FormActionsRow>
-        )}
-        {savedContest && isConfirmingDelete && (
-          <Modal
-            title="Delete Contest"
-            content={
-              <div>
-                <P>
-                  Are you sure you want to delete this contest? This action
-                  cannot be undone.
-                </P>
-              </div>
-            }
-            actions={
-              <React.Fragment>
-                <Button
-                  onPress={onDelete}
-                  variant="danger"
-                  autoFocus
-                  disabled={someMutationIsLoading}
-                >
-                  Delete Contest
-                </Button>
-                <Button onPress={() => setIsConfirmingDelete(false)}>
-                  Cancel
-                </Button>
-              </React.Fragment>
-            }
-            onOverlayClick={
-              /* istanbul ignore next - @preserve */
-              () => setIsConfirmingDelete(false)
-            }
-          />
-        )}
-      </div>
-    </Form>
+    </React.Fragment>
   );
 }
 
 function AddContestForm(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const contestRoutes = routes.election(electionId).contests;
-  const { title } = contestRoutes.contests.addContest;
+  const { title } = contestRoutes.addContest;
 
   return (
     <React.Fragment>
       <Header>
-        <Breadcrumbs
-          currentTitle={title}
-          parentRoutes={[contestRoutes.contests.root]}
-        />
+        <Breadcrumbs currentTitle={title} parentRoutes={[contestRoutes.root]} />
         <H1>{title}</H1>
       </Header>
       <MainContent>
@@ -1122,392 +423,17 @@ function EditContestForm(): JSX.Element | null {
     return null;
   }
 
-  const { title } = contestRoutes.contests.editContest(contestId);
+  const { title } = contestRoutes.editContest(contestId);
 
   return (
     <React.Fragment>
       <Header>
-        <Breadcrumbs
-          currentTitle={title}
-          parentRoutes={[contestRoutes.contests.root]}
-        />
+        <Breadcrumbs currentTitle={title} parentRoutes={[contestRoutes.root]} />
         <H1>{title}</H1>
       </Header>
       <MainContent>
         <ContestForm electionId={electionId} savedContest={savedContest} />
       </MainContent>
     </React.Fragment>
-  );
-}
-
-function PartiesTab(): JSX.Element | null {
-  const { electionId } = useParams<ElectionIdParams>();
-  const listPartiesQuery = listParties.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-
-  /* istanbul ignore next - @preserve */
-  if (!(listPartiesQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)) {
-    return null;
-  }
-
-  const parties = listPartiesQuery.data;
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-  const partyRoutes = routes.election(electionId).contests.parties;
-
-  return (
-    <TabPanel>
-      {parties.length === 0 && (
-        <P>You haven&apos;t added any parties to this election yet.</P>
-      )}
-      <TableActionsRow>
-        <LinkButton
-          icon="Add"
-          variant="primary"
-          to={partyRoutes.addParty.path}
-          disabled={!!ballotsFinalizedAt}
-        >
-          Add Party
-        </LinkButton>
-      </TableActionsRow>
-      {parties.length > 0 && (
-        <Table>
-          <thead>
-            <tr>
-              <TH>Name</TH>
-              <TH>Abbreviation</TH>
-              <TH />
-            </tr>
-          </thead>
-          <tbody>
-            {parties.map((party) => (
-              <tr key={party.id}>
-                <TD>{party.fullName}</TD>
-                <TD>{party.abbrev}</TD>
-                <TD>
-                  <LinkButton
-                    icon="Edit"
-                    to={partyRoutes.editParty(party.id).path}
-                    disabled={!!ballotsFinalizedAt}
-                  >
-                    Edit
-                  </LinkButton>
-                </TD>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
-    </TabPanel>
-  );
-}
-
-function createBlankParty(): Party {
-  return {
-    id: generateId(),
-    name: '',
-    fullName: '',
-    abbrev: '',
-  };
-}
-
-function PartyForm({
-  electionId,
-  savedParty,
-}: {
-  electionId: ElectionId;
-  savedParty?: Party;
-}): JSX.Element {
-  const [party, setParty] = useState<Party>(
-    savedParty ??
-      // To make mocked IDs predictable in tests, we pass a function here
-      // so it will only be called on initial render.
-      createBlankParty
-  );
-  const createPartyMutation = createParty.useMutation();
-  const updatePartyMutation = updateParty.useMutation();
-  const deletePartyMutation = deleteParty.useMutation();
-  const history = useHistory();
-  const partyRoutes = routes.election(electionId).contests.parties;
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-
-  function goBackToPartiesList() {
-    history.push(partyRoutes.root.path);
-  }
-
-  function onSubmit() {
-    if (savedParty) {
-      updatePartyMutation.mutate(
-        { electionId, updatedParty: party },
-        {
-          onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToPartiesList();
-            }
-          },
-        }
-      );
-    } else {
-      createPartyMutation.mutate(
-        { electionId, newParty: party },
-        {
-          onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToPartiesList();
-            }
-          },
-        }
-      );
-    }
-  }
-
-  function onDelete() {
-    deletePartyMutation.mutate(
-      { electionId, partyId: party.id },
-      { onSuccess: goBackToPartiesList }
-    );
-  }
-
-  const someMutationIsLoading =
-    createPartyMutation.isLoading ||
-    updatePartyMutation.isLoading ||
-    deletePartyMutation.isLoading;
-
-  const error =
-    createPartyMutation.data?.err() || updatePartyMutation.data?.err();
-  const errorMessage =
-    error &&
-    (() => {
-      switch (error) {
-        case 'duplicate-name':
-          return (
-            <Callout icon="Danger" color="danger">
-              There is already a party with the same short name.
-            </Callout>
-          );
-        case 'duplicate-full-name':
-          return (
-            <Callout icon="Danger" color="danger">
-              There is already a party with the same full name.
-            </Callout>
-          );
-        case 'duplicate-abbrev':
-          return (
-            <Callout icon="Danger" color="danger">
-              There is already a party with the same abbreviation.
-            </Callout>
-          );
-        default: {
-          /* istanbul ignore next - @preserve */
-          return throwIllegalValue(error);
-        }
-      }
-    })();
-
-  return (
-    <Form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      onReset={(e) => {
-        e.preventDefault();
-        goBackToPartiesList();
-      }}
-    >
-      <InputGroup label="Full Name">
-        <input
-          type="text"
-          value={party.fullName}
-          onChange={(e) => setParty({ ...party, fullName: e.target.value })}
-          onBlur={(e) =>
-            setParty({ ...party, fullName: e.target.value.trim() })
-          }
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <InputGroup label="Short Name">
-        <input
-          type="text"
-          value={party.name}
-          onChange={(e) => setParty({ ...party, name: e.target.value })}
-          onBlur={(e) => setParty({ ...party, name: e.target.value.trim() })}
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <InputGroup label="Abbreviation">
-        <input
-          type="text"
-          value={party.abbrev}
-          onChange={(e) => setParty({ ...party, abbrev: e.target.value })}
-          onBlur={(e) => setParty({ ...party, abbrev: e.target.value.trim() })}
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      {errorMessage}
-      <div>
-        <FormActionsRow>
-          <Button type="reset">Cancel</Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="Done"
-            disabled={someMutationIsLoading}
-          >
-            Save
-          </Button>
-        </FormActionsRow>
-        {savedParty && (
-          <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button
-              variant="danger"
-              icon="Delete"
-              onPress={() => setIsConfirmingDelete(true)}
-              disabled={someMutationIsLoading}
-            >
-              Delete Party
-            </Button>
-          </FormActionsRow>
-        )}
-        {savedParty && isConfirmingDelete && (
-          <Modal
-            title="Delete Party"
-            content={
-              <P>
-                Are you sure you want to delete this party? This action cannot
-                be undone.
-              </P>
-            }
-            actions={
-              <React.Fragment>
-                <Button onPress={onDelete} variant="danger" autoFocus>
-                  Delete Party
-                </Button>
-                <Button onPress={() => setIsConfirmingDelete(false)}>
-                  Cancel
-                </Button>
-              </React.Fragment>
-            }
-            onOverlayClick={
-              /* istanbul ignore next - @preserve */
-              () => setIsConfirmingDelete(false)
-            }
-          />
-        )}
-      </div>
-    </Form>
-  );
-}
-
-function AddPartyForm(): JSX.Element | null {
-  const { electionId } = useParams<ElectionIdParams>();
-  const partyRoutes = routes.election(electionId).contests.parties;
-  const { title } = partyRoutes.addParty;
-
-  return (
-    <React.Fragment>
-      <Header>
-        <Breadcrumbs currentTitle={title} parentRoutes={[partyRoutes.root]} />
-        <H1>{title}</H1>
-      </Header>
-      <MainContent>
-        <PartyForm electionId={electionId} />
-      </MainContent>
-    </React.Fragment>
-  );
-}
-
-function EditPartyForm(): JSX.Element | null {
-  const { electionId, partyId } = useParams<
-    ElectionIdParams & { partyId: string }
-  >();
-  const listPartiesQuery = listParties.useQuery(electionId);
-  const partyRoutes = routes.election(electionId).contests.parties;
-
-  /* istanbul ignore next - @preserve */
-  if (!listPartiesQuery.isSuccess) {
-    return null;
-  }
-
-  const parties = listPartiesQuery.data;
-  const savedParty = parties.find((p) => p.id === partyId);
-  const { title } = partyRoutes.editParty(partyId);
-
-  // If the party was just deleted, this form may still render momentarily.
-  // Ignore it.
-  /* istanbul ignore next - @preserve */
-  if (!savedParty) {
-    return null;
-  }
-
-  return (
-    <React.Fragment>
-      <Header>
-        <Breadcrumbs currentTitle={title} parentRoutes={[partyRoutes.root]} />
-        <H1>{title}</H1>
-      </Header>
-      <MainContent>
-        <PartyForm electionId={electionId} savedParty={savedParty} />
-      </MainContent>
-    </React.Fragment>
-  );
-}
-
-export function ContestsScreen(): JSX.Element {
-  const { electionId } = useParams<ElectionIdParams>();
-  const contestParamRoutes = electionParamRoutes.contests;
-  const contestRoutes = routes.election(electionId).contests;
-  useTitle(routes.election(electionId).contests.root.title);
-  return (
-    <ElectionNavScreen electionId={electionId}>
-      <Switch>
-        <Route
-          path={contestParamRoutes.contests.addContest.path}
-          exact
-          component={AddContestForm}
-        />
-        <Route
-          path={contestParamRoutes.contests.editContest(':contestId').path}
-          exact
-          component={EditContestForm}
-        />
-        <Route
-          path={contestParamRoutes.parties.addParty.path}
-          exact
-          component={AddPartyForm}
-        />
-        <Route
-          path={contestParamRoutes.parties.editParty(':partyId').path}
-          exact
-          component={EditPartyForm}
-        />
-        <Route path={contestParamRoutes.root.path}>
-          <Header>
-            <H1>Contests</H1>
-          </Header>
-          <MainContent>
-            <RouterTabBar
-              tabs={[contestRoutes.contests.root, contestRoutes.parties.root]}
-            />
-            <Switch>
-              <Route
-                path={contestParamRoutes.contests.root.path}
-                component={ContestsTab}
-              />
-              <Route
-                path={contestParamRoutes.parties.root.path}
-                component={PartiesTab}
-              />
-              <Redirect
-                from={contestParamRoutes.root.path}
-                to={contestParamRoutes.contests.root.path}
-              />
-            </Switch>
-          </MainContent>
-        </Route>
-      </Switch>
-    </ElectionNavScreen>
   );
 }
