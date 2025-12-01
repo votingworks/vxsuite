@@ -39,6 +39,7 @@ export function advanceElementFocus(direction: 1 | -1): void {
   const focusableElements = Array.from(allTabEnabledElements).filter(
     (e) => !tabEnabledElementsInHiddenBlocks.has(e)
   );
+
   if (focusableElements.length === 0) {
     return;
   }

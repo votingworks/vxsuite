@@ -3,6 +3,10 @@ import {
   UnlockMachineScreen,
   useQueryChangeListener,
   VendorScreen,
+  handleKeyboardEvent,
+  PatDeviceCalibrationPage,
+  PatDeviceContextProvider,
+  Keybinding,
 } from '@votingworks/ui';
 import {
   isSystemAdministratorAuth,
@@ -12,7 +16,7 @@ import {
 } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
@@ -45,6 +49,7 @@ import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_fee
 import { useSessionSettingsManager } from './utils/use_session_settings_manager';
 import { ScannerImageSensorCalibrationScreen } from './screens/scanner_image_sensor_calibration_screen';
 import { AccessibilityInputDisconnectedScreen } from './screens/accessibility_input_disconnected_screen';
+import { PatCalibrationScreenWrapper } from './components/pat_calibration_screen_wrapper';
 
 export function AppRoot(): JSX.Element | null {
   const [
@@ -80,7 +85,7 @@ export function AppRoot(): JSX.Element | null {
     },
   });
 
-  // Reset to default settings when a voter finishes
+  // Reset to default settings and PAT calibration state when a voter finishes
   useQueryChangeListener(scannerStatusQuery, {
     select: ({ state }) => state,
     onChange: (newState, previousState) => {
@@ -115,6 +120,50 @@ export function AppRoot(): JSX.Element | null {
       }
     },
   });
+
+  // Callback for PAT tutorial completion
+  const onPatCalibrationComplete = useCallback(() => {
+    sessionSettingsManager.setShowingPatCalibration(false);
+    sessionSettingsManager.setIsPatCalibrationComplete(true);
+  }, [sessionSettingsManager]);
+
+  // Intercept PAT key presses to show tutorial if not yet calibrated.
+  // Uses capture phase so it runs before the main keyboard handler.
+  useEffect(() => {
+    function patTutorialHandler(event: KeyboardEvent) {
+      if (event.repeat) return;
+
+      const isPatKey =
+        event.key === Keybinding.PAT_MOVE ||
+        event.key === Keybinding.PAT_SELECT;
+      if (!isPatKey) return;
+
+      // Show calibration if not yet calibrated and not already showing
+      if (
+        !sessionSettingsManager.isPatCalibrationComplete &&
+        !sessionSettingsManager.showingPatCalibration
+      ) {
+        sessionSettingsManager.setShowingPatCalibration(true);
+        // Prevent the main keyboard handler from also processing this key
+        event.stopImmediatePropagation();
+      }
+    }
+
+    document.addEventListener('keydown', patTutorialHandler, { capture: true });
+    return () => {
+      document.removeEventListener('keydown', patTutorialHandler, {
+        capture: true,
+      });
+    };
+  }, [sessionSettingsManager]);
+
+  // Handle Keyboard Input for accessible navigation
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyboardEvent);
+    return () => {
+      document.removeEventListener('keydown', handleKeyboardEvent);
+    };
+  }, []);
 
   if (
     !(
@@ -350,12 +399,27 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
+  // Show PAT tutorial if PAT input was detected and not yet calibrated
+  if (sessionSettingsManager.showingPatCalibration) {
+    return (
+      <PatDeviceCalibrationPage
+        onSuccessfulCalibration={onPatCalibrationComplete}
+        onSkipCalibration={onPatCalibrationComplete}
+        ScreenWrapper={PatCalibrationScreenWrapper}
+      />
+    );
+  }
+
   return (
-    <VoterScreen
-      electionDefinition={electionDefinition}
-      systemSettings={systemSettings}
-      isTestMode={isTestMode}
-      isSoundMuted={isSoundMuted}
-    />
+    <PatDeviceContextProvider
+      isPatDeviceConnected={sessionSettingsManager.isPatCalibrationComplete}
+    >
+      <VoterScreen
+        electionDefinition={electionDefinition}
+        systemSettings={systemSettings}
+        isTestMode={isTestMode}
+        isSoundMuted={isSoundMuted}
+      />
+    </PatDeviceContextProvider>
   );
 }

@@ -3,6 +3,7 @@ import React from 'react';
 import { ContestPage } from '@votingworks/mark-flow-ui';
 
 import { ContestId } from '@votingworks/types';
+import { AccessibilityMode, useIsPatDeviceConnected } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context';
 
 function getContestUrl(contestIndex: number) {
@@ -31,6 +32,8 @@ export function ContestScreen(): JSX.Element {
     votes,
   } = React.useContext(BallotContext);
 
+  const isPatDeviceConnected = useIsPatDeviceConnected();
+
   return (
     <ContestPage
       ballotStyleId={ballotStyleId}
@@ -39,9 +42,16 @@ export function ContestScreen(): JSX.Element {
       getContestUrl={getContestUrl}
       getReviewPageUrl={getReviewPageUrl}
       getStartPageUrl={getStartPageUrl}
+      isPatDeviceConnected={isPatDeviceConnected}
       precinctId={precinctId}
       updateVote={updateVote}
       votes={votes}
+      accessibilityMode={
+        // Simultaneous PAT and controller usage is not supported
+        isPatDeviceConnected
+          ? AccessibilityMode.SWITCH_SCANNING
+          : AccessibilityMode.ATI_CONTROLLER
+      }
     />
   );
 }

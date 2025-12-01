@@ -1,26 +1,44 @@
-import {
-  P,
-  Font,
-  Button,
-  ReadOnLoad as BaseReadOnLoad,
-  appStrings,
-  Icons,
-} from '@votingworks/ui';
-import { useCallback, useState, useEffect } from 'react';
-import { VoterScreen } from '@votingworks/mark-flow-ui';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import {
-  DiagnosticScreenHeader,
-  PatStepContainer,
-} from '../diagnostics/diagnostic_screen_components';
+
+import { P, Font } from '../../typography';
+import { Icons } from '../../icons';
+import { Button } from '../../button';
+import { ReadOnLoad as BaseReadOnLoad, appStrings } from '../../ui_strings';
 import { PatIntroductionStep } from './pat_introduction_step';
 import { IdentifyInputStep } from './identify_input_step';
-import { handleKeyboardEvent } from '../../lib/assistive_technology';
 
-export interface Props {
+export const DiagnosticScreenHeader = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+  padding: 40px;
+`;
+
+export const PatStepContainer = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 1080px;
+  width: 100%;
+`;
+
+export interface PatDeviceIdentificationPageProps {
   isDiagnostic?: boolean;
   onAllInputsIdentified: () => void;
   onExitCalibration: () => void;
+  /**
+   * Wrapper component to render the screen layout. Should accept children,
+   * centerContent, hideMenuButtons, and actionButtons props.
+   * In VxMarkScan, this is typically VoterScreen from @votingworks/mark-flow-ui.
+   */
+  ScreenWrapper: React.ComponentType<{
+    children: React.ReactNode;
+    centerContent?: boolean;
+    hideMenuButtons?: boolean;
+    actionButtons?: React.ReactNode;
+  }>;
 }
 
 // Using explicit step IDs instead of a numeric index to ensure that the
@@ -42,21 +60,9 @@ export function PatDeviceIdentificationPage({
   isDiagnostic,
   onAllInputsIdentified,
   onExitCalibration,
-}: Props): JSX.Element {
+  ScreenWrapper,
+}: PatDeviceIdentificationPageProps): JSX.Element {
   const [currentStepId, setCurrentStepId] = useState(StepId.ONE);
-
-  useEffect(() => {
-    // During PAT identification the voter triggers PAT inputs to identify them. We don't
-    // want PAT input to actually navigate focus or select elements as random navigate +
-    // select events could accidentally exit PAT calibration early.
-    document.removeEventListener('keydown', handleKeyboardEvent);
-
-    // On cleanup, re-enable the listener once devices are identified and the user is prompted
-    // to select the "Continue with Voting" button
-    return () => {
-      document.addEventListener('keydown', handleKeyboardEvent);
-    };
-  }, []);
 
   const goToStep2 = useCallback(() => setCurrentStepId(StepId.TWO), []);
   const goToStep3 = useCallback(() => setCurrentStepId(StepId.THREE), []);
@@ -84,7 +90,7 @@ export function PatDeviceIdentificationPage({
   };
 
   return (
-    <VoterScreen
+    <ScreenWrapper
       centerContent
       hideMenuButtons={isDiagnostic}
       actionButtons={
@@ -113,6 +119,6 @@ export function PatDeviceIdentificationPage({
         </DiagnosticScreenHeader>
         <PatStepContainer>{steps[currentStepId]}</PatStepContainer>
       </ReadOnLoad>
-    </VoterScreen>
+    </ScreenWrapper>
   );
 }

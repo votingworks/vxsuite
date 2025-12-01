@@ -2,12 +2,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
-import {
-  AppErrorBoundary,
-  handleKeyboardEvent,
-  VisualModeDisabledOverlay,
-} from '@votingworks/ui';
-import React from 'react';
+import { AppErrorBoundary, VisualModeDisabledOverlay } from '@votingworks/ui';
 import { AppRoot } from './app_root';
 import { ApiClient, createApiClient, createQueryClient } from './api';
 import { ScanAppBase } from './scan_app_base';
@@ -31,11 +26,8 @@ export function App({
   enableStringTranslation,
   noAudio,
 }: AppProps): JSX.Element {
-  // Handle navigation key events from the tactile controller/keyboard.
-  React.useEffect(() => {
-    document.addEventListener('keydown', handleKeyboardEvent);
-    return () => document.removeEventListener('keydown', handleKeyboardEvent);
-  }, []);
+  // Note: Keyboard navigation for PAT devices is handled in app_root.tsx
+  // with support for PAT device calibration flow.
 
   return (
     <ScanAppBase>
