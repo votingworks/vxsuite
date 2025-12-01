@@ -68,13 +68,13 @@ export function createApp(): MockAppContents {
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
 
-  const app = buildApp(
-    mockAuth,
+  const app = buildApp({
+    auth: mockAuth,
     logger,
     workspace,
-    mockUsbDrive.usbDrive,
-    mockPrinterHandler.printer
-  );
+    usbDrive: mockUsbDrive.usbDrive,
+    printer: mockPrinterHandler.printer,
+  });
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;

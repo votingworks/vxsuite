@@ -142,6 +142,13 @@ export interface SystemSettings {
    * for cert but also believe that they are superfluous and clutter the screen.
    */
   readonly disableVoterHelpButtons?: boolean;
+
+  /**
+   * Enables QR barcode scanning to activate ballot styles on VxMark. When enabled,
+   * scanning a QR code will automatically start a voter session with the first
+   * available ballot style for the configured precinct.
+   */
+  readonly bmdEnableQrBallotActivation?: boolean;
 }
 
 const PRINT_MODES = [
@@ -181,6 +188,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   precinctScanDisableAlarms: z.boolean().optional(),
   disableSystemLimitChecks: z.boolean().optional(),
   disableVoterHelpButtons: z.boolean().optional(),
+  bmdEnableQrBallotActivation: z.boolean().optional(),
 });
 
 /**

@@ -60,13 +60,13 @@ afterEach(() => {
 
 runUiStringApiTests({
   api: () =>
-    buildApi(
-      mockAuth,
-      createMockUsbDrive().usbDrive,
-      createMockPrinterHandler().printer,
-      buildMockLogger(mockAuth, workspace),
-      workspace
-    ).methods(),
+    buildApi({
+      auth: mockAuth,
+      usbDrive: createMockUsbDrive().usbDrive,
+      printer: createMockPrinterHandler().printer,
+      logger: buildMockLogger(mockAuth, workspace),
+      workspace,
+    }).methods(),
   store: store.getUiStringsStore(),
   beforeEach,
   afterEach,
@@ -86,13 +86,13 @@ describe('configureElectionPackageFromUsb', () => {
     );
 
     mockUsbDrive = createMockUsbDrive();
-    api = buildApi(
-      mockAuth,
-      mockUsbDrive.usbDrive,
-      createMockPrinterHandler().printer,
-      buildMockLogger(mockAuth, workspace),
-      workspace
-    );
+    api = buildApi({
+      auth: mockAuth,
+      usbDrive: mockUsbDrive.usbDrive,
+      printer: createMockPrinterHandler().printer,
+      logger: buildMockLogger(mockAuth, workspace),
+      workspace,
+    });
 
     mockAuth.getAuthStatus.mockImplementation(() =>
       Promise.resolve({
@@ -118,13 +118,13 @@ describe('configureElectionPackageFromUsb', () => {
 describe('unconfigureMachine', () => {
   runUiStringMachineDeconfigurationTests({
     runUnconfigureMachine: () =>
-      buildApi(
-        mockAuth,
-        createMockUsbDrive().usbDrive,
-        createMockPrinterHandler().printer,
-        buildMockLogger(mockAuth, workspace),
-        workspace
-      )
+      buildApi({
+        auth: mockAuth,
+        usbDrive: createMockUsbDrive().usbDrive,
+        printer: createMockPrinterHandler().printer,
+        logger: buildMockLogger(mockAuth, workspace),
+        workspace,
+      })
         .methods()
         .unconfigureMachine(),
     store: store.getUiStringsStore(),
