@@ -529,7 +529,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(30);
+  expect(allControls).toHaveLength(31);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -690,6 +690,17 @@ test.each<{
     checkboxLabel: 'Disable System Limit Checks on Election Package Import',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { disableSystemLimitChecks: true },
+  },
+  {
+    userFeatures: { VOTER_HELP_BUTTONS_SYSTEM_SETTING: false },
+    checkboxLabel: 'Disable Voter Help Buttons',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { VOTER_HELP_BUTTONS_SYSTEM_SETTING: true },
+    checkboxLabel: 'Disable Voter Help Buttons',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: { disableVoterHelpButtons: true },
   },
 ])(
   'feature-flagged system settings toggles - $checkboxLabel',
