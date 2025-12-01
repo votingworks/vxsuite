@@ -261,19 +261,32 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
   async startCardlessVoterSession(
     machineState: InsertedSmartCardAuthMachineState,
-    input: { ballotStyleId: BallotStyleId; precinctId: PrecinctId }
+    input: {
+      ballotStyleId: BallotStyleId;
+      precinctId: PrecinctId;
+      skipPollWorkerCheck?: boolean;
+    }
   ): Promise<void> {
     assert(this.config.allowCardlessVoterSessions);
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
+
+    const isPollWorkerLoggedIn =
+      this.authStatus.status === 'logged_in' &&
+      this.authStatus.user.role === 'poll_worker';
+    const isNoCardMode =
+      this.authStatus.status === 'logged_out' &&
+      this.authStatus.reason === 'no_card';
+
+    // Allow if poll worker is logged in, or if skipPollWorkerCheck is true and no card is inserted
     if (
-      this.authStatus.status !== 'logged_in' ||
-      this.authStatus.user.role !== 'poll_worker'
+      !(isPollWorkerLoggedIn || (input.skipPollWorkerCheck && isNoCardMode))
     ) {
       return;
     }
 
     this.cardlessVoterUser = {
-      ...input,
+      ballotStyleId: input.ballotStyleId,
+      precinctId: input.precinctId,
       sessionId: uuid(),
       role: 'cardless_voter',
     };

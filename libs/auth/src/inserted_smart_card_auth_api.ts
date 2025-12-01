@@ -37,7 +37,15 @@ export interface InsertedSmartCardAuthApi {
 
   startCardlessVoterSession(
     machineState: InsertedSmartCardAuthMachineState,
-    input: { ballotStyleId: BallotStyleId; precinctId: PrecinctId }
+    input: {
+      ballotStyleId: BallotStyleId;
+      precinctId: PrecinctId;
+      /**
+       * When true, starts a cardless voter session without requiring a poll worker
+       * to be logged in. This is used for features like QR code ballot activation.
+       */
+      skipPollWorkerCheck?: boolean;
+    }
   ): Promise<void>;
   updateCardlessVoterBallotStyle(input: { ballotStyleId: BallotStyleId }): void;
   endCardlessVoterSession(
