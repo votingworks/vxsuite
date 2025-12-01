@@ -1738,7 +1738,7 @@ export const appStrings = {
   voterHelpScreenContentSettingsScreenResetAndDone: () => (
     <UiString uiStringKey="voterHelpScreenContentSettingsScreenResetAndDone">
       To reset all settings to their defaults, select the “Reset” button. Select
-      the “Done” button to return to your ballot.
+      the “Done” button to leave the settings screen.
     </UiString>
   ),
 
@@ -1785,10 +1785,24 @@ export const appStrings = {
     </UiString>
   ),
 
+  voterHelpScreenContentAudioScan: () => (
+    <UiString uiStringKey="voterHelpScreenContentAudioScan">
+      Select the “Mute Audio” button to mute the audio. Select “Enable
+      Audio-Only Mode” to hide the on-screen display of ballot warnings.
+    </UiString>
+  ),
+
   voterHelpScreenContentAudioOnlyMode: () => (
     <UiString uiStringKey="voterHelpScreenContentAudioOnlyMode">
       Select the “Exit Audio-Only Mode” button to re-enable the on-screen
       display of your ballot.
+    </UiString>
+  ),
+
+  voterHelpScreenContentAudioOnlyModeScan: () => (
+    <UiString uiStringKey="voterHelpScreenContentAudioOnlyModeScan">
+      Select the “Exit Audio-Only Mode” button to re-enable the on-screen
+      display of ballot warnings.
     </UiString>
   ),
 
@@ -1910,7 +1924,7 @@ export const appStrings = {
       If any of your selections are incorrect, you may select the “My Ballot is
       Incorrect” button. Your ballot will not be cast. Instead, with a poll
       worker’s help, your current ballot will be spoiled and you may restart
-      voting from the beginning with a new ballot.
+      voting with a new ballot.
     </UiString>
   ),
 

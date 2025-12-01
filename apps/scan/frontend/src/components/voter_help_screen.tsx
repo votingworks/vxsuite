@@ -30,10 +30,10 @@ export function VoterHelpScreen({
       <P>{appStrings.voterHelpScreenContentTextSizeScan()}</P>
 
       <H3>{appStrings.voterHelpScreenHeadingAudio()}</H3>
-      <P>{appStrings.voterHelpScreenContentAudio()}</P>
+      <P>{appStrings.voterHelpScreenContentAudioScan()}</P>
 
       <H3>{appStrings.voterHelpScreenHeadingAudioOnlyMode()}</H3>
-      <P>{appStrings.voterHelpScreenContentAudioOnlyMode()}</P>
+      <P>{appStrings.voterHelpScreenContentAudioOnlyModeScan()}</P>
 
       <H2>{appStrings.voterHelpScreenHeadingBallotReviewScreens()}</H2>
 
