@@ -95,9 +95,14 @@ const PortraitButtonGrid = styled(ButtonGrid)`
     grid-template-columns: 1fr 1fr;
   }
 
-  /* Three buttons */
+  /**
+   * Three buttons
+   * Note: When using the XL text size, three buttons aren't guaranteed to fit in a row so we still
+   * use a two-column layout for that case.
+   */
   &:has(> :first-child:nth-last-child(3)) {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: ${(p) =>
+      p.theme.sizeMode === 'touchExtraLarge' ? '1fr 1fr' : '1fr 1fr 1fr'};
   }
 `;
 
