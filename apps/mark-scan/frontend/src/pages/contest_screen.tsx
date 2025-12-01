@@ -1,11 +1,12 @@
 import React from 'react';
 
-import { ContestPage } from '@votingworks/mark-flow-ui';
+import { ContestPage, useIsReviewMode } from '@votingworks/mark-flow-ui';
 import { ContestId } from '@votingworks/types';
 
 import { AccessibilityMode } from '@votingworks/ui';
 import * as api from '../api';
 import { BallotContext } from '../contexts/ballot_context';
+import { useVoterHelpScreen } from './use_voter_help_screen';
 
 /**
  * A cap to ensure that the summary ballot QR code remains readable
@@ -37,6 +38,10 @@ export function ContestScreen(): JSX.Element {
     updateVote,
     votes,
   } = React.useContext(BallotContext);
+  const isReviewMode = useIsReviewMode();
+  const VoterHelpScreen = useVoterHelpScreen(
+    isReviewMode ? 'ContestReviewScreen' : 'ContestScreen'
+  );
 
   const isPatDeviceConnected = Boolean(
     api.getIsPatDeviceConnected.useQuery().data
@@ -63,6 +68,7 @@ export function ContestScreen(): JSX.Element {
       numWriteInCharactersAllowedAcrossContests={
         NUM_WRITE_IN_CHARACTERS_ALLOWED_ACROSS_CONTESTS
       }
+      VoterHelpScreen={VoterHelpScreen}
     />
   );
 }

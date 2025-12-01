@@ -25,6 +25,7 @@ import {
 } from '../api';
 
 import { BallotContext } from '../contexts/ballot_context';
+import { useVoterHelpScreen } from './use_voter_help_screen';
 
 const ContentHeader = styled(ReadOnLoad)`
   padding: 0.5rem 0.75rem 0;
@@ -36,6 +37,7 @@ export function ValidateBallotPage(): JSX.Element | null {
   // We use the contest data stored in BallotContext but vote data from the interpreted ballot
   const { contests, precinctId, ballotStyleId, resetBallot } =
     React.useContext(BallotContext);
+  const VoterHelpScreen = useVoterHelpScreen('PostPrintReviewScreen');
 
   assert(
     typeof precinctId !== 'undefined',
@@ -99,6 +101,7 @@ export function ValidateBallotPage(): JSX.Element | null {
           </Button>
         </React.Fragment>
       }
+      VoterHelpScreen={VoterHelpScreen}
     >
       <ContentHeader>
         <H1>{appStrings.titleBmdReviewScreen()}</H1>

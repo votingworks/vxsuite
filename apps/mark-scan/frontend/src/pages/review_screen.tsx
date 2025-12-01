@@ -4,11 +4,13 @@ import { ReviewPage } from '@votingworks/mark-flow-ui';
 import { useHistory } from 'react-router-dom';
 
 import { BallotContext } from '../contexts/ballot_context';
+import { useVoterHelpScreen } from './use_voter_help_screen';
 
 export function ReviewScreen(): JSX.Element {
   const history = useHistory();
   const { contests, electionDefinition, ballotStyleId, precinctId, votes } =
     useContext(BallotContext);
+  const VoterHelpScreen = useVoterHelpScreen('PrePrintReviewScreen');
 
   return (
     <ReviewPage
@@ -23,6 +25,7 @@ export function ReviewScreen(): JSX.Element {
         );
       }}
       votes={votes}
+      VoterHelpScreen={VoterHelpScreen}
     />
   );
 }
