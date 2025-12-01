@@ -38,14 +38,20 @@ const Footer = styled.div`
 
 export const VoterHelpScreenH2 = styled(H2)`
   font-size: 1em;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 `;
 
 export const VoterHelpScreenH3 = styled(H3)`
   font-size: 0.75em;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 `;
 
 export const VoterHelpScreenP = styled(P)`
   font-size: 0.75em;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 `;
 
 export function VoterHelpScreen({
@@ -61,7 +67,7 @@ export function VoterHelpScreen({
     <StyledScreen>
       <Header>{appStrings.voterHelpScreenHeading()}</Header>
       <Content>
-        <WithScrollButtons focusable={scrollButtonsFocusable}>
+        <WithScrollButtons focusable={scrollButtonsFocusable} noPadding>
           <ReadOnLoad>{children}</ReadOnLoad>
         </WithScrollButtons>
       </Content>

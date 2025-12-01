@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { extractErrorMessage } from '@votingworks/basics';
+import styled from 'styled-components';
 import { Screen } from './screen';
 import { Main } from './main';
 import { Caption, H1, P } from './typography';
@@ -139,6 +140,12 @@ export const ERROR_SCREEN_MESSAGES = {
 
 type AutoRestartInSeconds = 10 | 600;
 
+const ErrorScreenContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+`;
+
 function ErrorScreen({
   autoRestartInSeconds,
   logger,
@@ -172,11 +179,11 @@ function ErrorScreen({
   }, [autoRestartInSeconds, logger]);
 
   return (
-    <React.Fragment>
+    <ErrorScreenContainer>
       <H1 align="center">Something went wrong</H1>
       <P align="center">{primaryMessage}</P>
       {secondaryMessage && <Caption align="center">{secondaryMessage}</Caption>}
-    </React.Fragment>
+    </ErrorScreenContainer>
   );
 }
 
