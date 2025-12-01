@@ -133,6 +133,8 @@ export const appStrings = {
     </UiString>
   ),
 
+  buttonHelp: () => <UiString uiStringKey="buttonHelp">Help</UiString>,
+
   buttonMore: () => <UiString uiStringKey="buttonMore">More</UiString>,
 
   buttonNext: () => <UiString uiStringKey="buttonNext">Next</UiString>,
@@ -1591,6 +1593,365 @@ export const appStrings = {
     <UiString uiStringKey="warningBallotPrintedAtInvalidScale">
       The ballot is printed at the wrong scale. Ballots must be printed
       full-scale.
+    </UiString>
+  ),
+
+  voterHelpScreenHeading: () => (
+    <UiString uiStringKey="voterHelpScreenHeading">Voter Instructions</UiString>
+  ),
+
+  voterHelpScreenHeadingStartScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingStartScreen">
+      Start Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingBallotLanguageScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingBallotLanguageScreen">
+      Ballot Language Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingSettingsScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingSettingsScreen">
+      Settings Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingColor: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingColor">Color</UiString>
+  ),
+
+  voterHelpScreenHeadingTextSize: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingTextSize">Text Size</UiString>
+  ),
+
+  voterHelpScreenHeadingAudio: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingAudio">Audio</UiString>
+  ),
+
+  voterHelpScreenHeadingAudioOnlyMode: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingAudioOnlyMode">
+      Audio-Only Mode
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingContestScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingContestScreen">
+      Contest Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingWriteInScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingWriteInScreen">
+      Write-In Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingPrePrintReviewScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingPrePrintReviewScreen">
+      Pre-Print Review Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingContestReviewScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingContestReviewScreen">
+      Contest Review Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingPostPrintReviewScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingPostPrintReviewScreen">
+      Post-Print Review Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingInsertBallotScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingInsertBallotScreen">
+      Insert Ballot Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingBallotReviewScreens: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingBallotReviewScreens">
+      Ballot Review Screens
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingBlankBallotScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingBlankBallotScreen">
+      Blank Ballot Screen
+    </UiString>
+  ),
+
+  voterHelpScreenHeadingMisvoteScreen: () => (
+    <UiString uiStringKey="voterHelpScreenHeadingMisvoteScreen">
+      Misvote Screen
+    </UiString>
+  ),
+
+  voterHelpScreenContentStartScreen: () => (
+    <UiString uiStringKey="voterHelpScreenContentStartScreen">
+      Tap the “Start Voting” button to start voting. If using the accessible
+      controller, simply press the right arrow button. If using a personal
+      assistive device, use the move input to navigate to the “Start Voting”
+      button and then use the select input.
+    </UiString>
+  ),
+
+  voterHelpScreenContentChangeSettings: () => (
+    <UiString uiStringKey="voterHelpScreenContentChangeSettings">
+      To change your ballot language, select the current language button. To
+      change your display or audio settings, select the “Settings” button.
+    </UiString>
+  ),
+
+  voterHelpScreenContentBallotLanguageScreen: () => (
+    <UiString uiStringKey="voterHelpScreenContentBallotLanguageScreen">
+      Tap a language in the list to set your ballot language. All instructions,
+      contest titles, and contest options will be shown and read in the selected
+      language. Your printed ballot will include your selections in both English
+      and the selected language. If using the accessible controller, press the
+      up and down arrow buttons to navigate to your preferred language and then
+      press the select button. If using a personal assistive device, use the
+      move input to navigate to your preferred language and then use the select
+      input.
+    </UiString>
+  ),
+
+  voterHelpScreenContentBallotLanguageScreenDone: () => (
+    <UiString uiStringKey="voterHelpScreenContentBallotLanguageScreenDone">
+      Tap the “Done” button to return to your ballot. If using the accessible
+      controller, simply press the right arrow button. If using a personal
+      assistive device, use the move input to navigate to the “Done” button and
+      then use the select input.
+    </UiString>
+  ),
+
+  voterHelpScreenContentSettingsScreen: () => (
+    <UiString uiStringKey="voterHelpScreenContentSettingsScreen">
+      To change your color, text size, or audio settings, select the
+      corresponding button.
+    </UiString>
+  ),
+
+  voterHelpScreenContentSettingsScreenResetAndDone: () => (
+    <UiString uiStringKey="voterHelpScreenContentSettingsScreenResetAndDone">
+      To reset all settings to their defaults, select the “Reset” button. Select
+      the “Done” button to return to your ballot.
+    </UiString>
+  ),
+
+  voterHelpScreenContentColor: () => (
+    <UiString uiStringKey="voterHelpScreenContentColor">
+      Tap one of the listed color options to change your text and background
+      color. All screens will be displayed with the selected color option. If
+      using the accessible controller, press the up and down arrow buttons to
+      navigate to your preferred color setting and then press the select button.
+      If using a personal assistive device, use the move input to navigate to
+      your preferred color setting and then use the select input.
+    </UiString>
+  ),
+
+  voterHelpScreenContentColorScan: () => (
+    <UiString uiStringKey="voterHelpScreenContentColorScan">
+      Select one of the listed color options to change your text and background
+      color. All screens will be displayed with the selected color option.
+    </UiString>
+  ),
+
+  voterHelpScreenContentTextSize: () => (
+    <UiString uiStringKey="voterHelpScreenContentTextSize">
+      Tap one of the listed size options to change your text size. All screens
+      will be displayed with the selected text size. If using the accessible
+      controller, press the up and down arrow buttons to navigate to your
+      preferred size option and then press the select button. If using a
+      personal assistive device, use the move input to navigate to your
+      preferred size option and then use the select input.
+    </UiString>
+  ),
+
+  voterHelpScreenContentTextSizeScan: () => (
+    <UiString uiStringKey="voterHelpScreenContentTextSizeScan">
+      Select one of the listed size options to change your text size. All
+      screens will be displayed with the selected text size.
+    </UiString>
+  ),
+
+  voterHelpScreenContentAudio: () => (
+    <UiString uiStringKey="voterHelpScreenContentAudio">
+      Select the “Mute Audio” button to mute the audio. Select “Enable
+      Audio-Only Mode” to hide the on-screen display of your ballot.
+    </UiString>
+  ),
+
+  voterHelpScreenContentAudioOnlyMode: () => (
+    <UiString uiStringKey="voterHelpScreenContentAudioOnlyMode">
+      Select the “Exit Audio-Only Mode” button to re-enable the on-screen
+      display of your ballot.
+    </UiString>
+  ),
+
+  voterHelpScreenContentContestScreenAddVote: () => (
+    <UiString uiStringKey="voterHelpScreenContentContestScreenAddVote">
+      Tap a candidate name or ballot measure option to vote for it. If all the
+      choices do not fit on one screen, tap the “More” button or swipe to
+      navigate the list. If using the accessible controller, press the up and
+      down arrow buttons to navigate to your choice and then press the select
+      button. If using a personal assistive device, use the move input to
+      navigate to your choice and then use the select input.
+    </UiString>
+  ),
+
+  voterHelpScreenContentContestScreenRemoveVote: () => (
+    <UiString uiStringKey="voterHelpScreenContentContestScreenRemoveVote">
+      To remove a vote, select the candidate name or ballot measure option just
+      as you did to add the vote.
+    </UiString>
+  ),
+
+  voterHelpScreenContentContestScreenNext: () => (
+    <UiString uiStringKey="voterHelpScreenContentContestScreenNext">
+      Select the “Next” button to continue to the next contest. If using the
+      accessible controller, simply press the right arrow button.
+    </UiString>
+  ),
+
+  voterHelpScreenContentContestScreenBack: () => (
+    <UiString uiStringKey="voterHelpScreenContentContestScreenBack">
+      Select the “Back” button to return to the previous contest to review or
+      edit your selections. If using the accessible controller, simply press the
+      left arrow button.
+    </UiString>
+  ),
+
+  voterHelpScreenContentWriteInScreen: () => (
+    <UiString uiStringKey="voterHelpScreenContentWriteInScreen">
+      Tap the keys of the on-screen keyboard to spell out your write-in
+      candidate’s name. If using the accessible controller, press the up, down,
+      left, and right arrow buttons to navigate the keyboard and press the
+      select button to confirm a letter. If using a personal assistive device,
+      use the move input to navigate through the rows of the keyboard and the
+      select input to confirm a row. Then, use the move input to navigate
+      through the sections of the row and the select input to confirm a section.
+      Finally, use the move input to navigate within the section and the select
+      input to confirm a letter.
+    </UiString>
+  ),
+
+  voterHelpScreenContentWriteInScreenDone: () => (
+    <UiString uiStringKey="voterHelpScreenContentWriteInScreenDone">
+      Select the “Cancel” button to return to your ballot without voting for a
+      write-in candidate. Select the “Accept” button to confirm your vote for
+      the write-in as spelled.
+    </UiString>
+  ),
+
+  voterHelpScreenContentPrePrintReviewScreen: () => (
+    <UiString uiStringKey="voterHelpScreenContentPrePrintReviewScreen">
+      Review your votes to confirm that you marked all your intended selections.
+      Tap the “More” button or swipe to navigate the list of contests. If using
+      the accessible controller, press the up and down arrow buttons to navigate
+      the list of contests. If using a personal assistive device, use the move
+      input to navigate through the list.
+    </UiString>
+  ),
+
+  voterHelpScreenContentPrePrintReviewScreenEdit: () => (
+    <UiString uiStringKey="voterHelpScreenContentPrePrintReviewScreenEdit">
+      If you want to edit your selections for a contest, select that contest.
+    </UiString>
+  ),
+
+  voterHelpScreenContentPrePrintReviewScreenDone: () => (
+    <UiString uiStringKey="voterHelpScreenContentPrePrintReviewScreenDone">
+      When you are done reviewing your ballot, select the “Print My Ballot”
+      button. Your paper ballot will be printed to your right for your
+      verification.
+    </UiString>
+  ),
+
+  voterHelpScreenContentContestReviewScreenReturn: () => (
+    <UiString uiStringKey="voterHelpScreenContentContestReviewScreenReturn">
+      Select the “Review” button to return to the review screen. If using the
+      accessible controller, simply press the right arrow button.
+    </UiString>
+  ),
+
+  voterHelpScreenContentPostPrintReviewScreenPaper: () => (
+    <UiString uiStringKey="voterHelpScreenContentPostPrintReviewScreenPaper">
+      Your paper ballot should be to your right. Do not remove the ballot from
+      the printer. Inspect the paper ballot to confirm that all your intended
+      selections are included.
+    </UiString>
+  ),
+
+  voterHelpScreenContentPostPrintReviewScreenDigital: () => (
+    <UiString uiStringKey="voterHelpScreenContentPostPrintReviewScreenDigital">
+      The screen shows your selections in each contest as they will be counted
+      when your ballot is scanned. If you are unable to inspect your paper
+      ballot, you may instead review the selections on screen. Tap the “More”
+      button or swipe to navigate the list of contests. If using the accessible
+      controller, press the up and down arrow buttons to navigate the list of
+      contests. If using a personal assistive device, use the move input to
+      navigate through the list.
+    </UiString>
+  ),
+
+  voterHelpScreenContentPostPrintReviewScreenCast: () => (
+    <UiString uiStringKey="voterHelpScreenContentPostPrintReviewScreenCast">
+      If all your selections are correct, select the “Cast My Ballot” button.
+      Your ballot will then be deposited into the ballot box.
+    </UiString>
+  ),
+
+  voterHelpScreenContentPostPrintReviewScreenSpoil: () => (
+    <UiString uiStringKey="voterHelpScreenContentPostPrintReviewScreenSpoil">
+      If any of your selections are incorrect, you may select the “My Ballot is
+      Incorrect” button. Your ballot will not be cast. Instead, with a poll
+      worker’s help, your current ballot will be spoiled and you may restart
+      voting from the beginning with a new ballot.
+    </UiString>
+  ),
+
+  voterHelpScreenContentInsertBallotScreen: () => (
+    <UiString uiStringKey="voterHelpScreenContentInsertBallotScreen">
+      Insert your ballot into the scanner to cast your ballot. Scan one sheet at
+      a time.
+    </UiString>
+  ),
+
+  voterHelpScreenContentBlankBallotScreen: () => (
+    <UiString uiStringKey="voterHelpScreenContentBlankBallotScreen">
+      The scanner did not detect any marks when scanning your ballot. You may
+      have marked your ballot in a way that the scanner cannot recognize. Select
+      “Return Ballot” to return your paper ballot for your review. When marking
+      your ballot, follow the instructions at the beginning of the ballot.
+    </UiString>
+  ),
+
+  voterHelpScreenContentBlankBallotScreenCast: () => (
+    <UiString uiStringKey="voterHelpScreenContentBlankBallotScreenCast">
+      If allowed in your jurisdiction, you may select “Cast Ballot” to cast your
+      ballot without any votes.
+    </UiString>
+  ),
+
+  voterHelpScreenContentMisvoteScreen: () => (
+    <UiString uiStringKey="voterHelpScreenContentMisvoteScreen">
+      There were potential issues detected on your ballot. The screen lists the
+      contests which have overvotes, undervotes, or no votes at all. If there
+      are many contests, you may have to select “View Contests” to view the full
+      list. If you want to make changes on your ballot, press “Return Ballot” to
+      return your paper ballot for your review. When marking your ballot, follow
+      the instructions at the beginning of the ballot.
+    </UiString>
+  ),
+
+  voterHelpScreenContentMisvoteScreenCast: () => (
+    <UiString uiStringKey="voterHelpScreenContentMisvoteScreenCast">
+      If you do not want to make changes to your ballot and your jurisdiction
+      allows it, you may select “Cast Ballot” to cast your ballot as-is.
     </UiString>
   ),
 } as const;
