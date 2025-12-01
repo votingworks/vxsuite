@@ -136,6 +136,12 @@ export interface SystemSettings {
    * usage of election packages that exceed system limits.
    */
   readonly disableSystemLimitChecks?: boolean;
+
+  /**
+   * Disables the help buttons on voter-facing screens. We are required to include these buttons
+   * for cert but also believe that they are superfluous and clutter the screen.
+   */
+  readonly disableVoterHelpButtons?: boolean;
 }
 
 const PRINT_MODES = [
@@ -174,6 +180,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   bmdPrintMode: z.enum(PRINT_MODES).optional(),
   precinctScanDisableAlarms: z.boolean().optional(),
   disableSystemLimitChecks: z.boolean().optional(),
+  disableVoterHelpButtons: z.boolean().optional(),
 });
 
 /**

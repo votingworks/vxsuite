@@ -628,6 +628,19 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
+            {features.VOTER_HELP_BUTTONS_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Disable Voter Help Buttons"
+                isChecked={Boolean(systemSettings.disableVoterHelpButtons)}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    disableVoterHelpButtons: isChecked ? true : undefined, // Completely omit when unchecked
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
           </Column>
         </Card>
       </Row>
