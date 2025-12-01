@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { afterEach, beforeEach, test } from 'vitest';
 import { Route } from 'react-router-dom';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -9,14 +9,27 @@ import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import { render as renderWithBallotContext } from '../../test/test_utils';
 
 import { ContestScreen } from './contest_screen';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 const electionGeneral = readElectionGeneral();
 const firstContestTitle = electionGeneral.contests[0].title;
+
+let apiMock: ApiMock;
+
+beforeEach(() => {
+  apiMock = createApiMock();
+  apiMock.expectGetSystemSettings();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
 
 test('Renders ContestScreen', async () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
+      apiMock,
       route: '/contests/0',
       precinctId: electionGeneral.precincts[0].id,
       ballotStyleId: electionGeneral.ballotStyles[0].id,
@@ -32,6 +45,7 @@ test('Renders ContestScreen in Landscape orientation', async () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
+      apiMock,
       route: '/contests/0',
       precinctId: electionGeneral.precincts[0].id,
       ballotStyleId: electionGeneral.ballotStyles[0].id,
@@ -45,6 +59,7 @@ test('Renders ContestScreen in Landscape orientation in Review Mode', async () =
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
+      apiMock,
       route: '/contests/0#review',
       precinctId: electionGeneral.precincts[0].id,
       ballotStyleId: electionGeneral.ballotStyles[0].id,
@@ -61,6 +76,7 @@ test('renders as voter screen', () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
+      apiMock,
       history,
       route: '/contests/0',
       precinctId: electionGeneral.precincts[0].id,

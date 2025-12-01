@@ -122,3 +122,27 @@ test('renders voter settings button/screen', () => {
   screen.getByTestId('mockVoterSettingsButton');
   expect(screen.queryByText('Voter Settings Screen')).not.toBeInTheDocument();
 });
+
+test('renders voter help button if relevant input is provided', () => {
+  function VoterHelpScreen({ onClose }: { onClose: () => void }): JSX.Element {
+    return (
+      <div>
+        <H1>Voter Help Screen</H1>
+        <Button onPress={onClose}>Close</Button>
+      </div>
+    );
+  }
+  render(
+    <VoterScreen VoterHelpScreen={VoterHelpScreen}>
+      <H1>Voter Screen</H1>
+    </VoterScreen>
+  );
+
+  screen.getByRole('heading', { name: 'Voter Screen' });
+  userEvent.click(screen.getByRole('button', { name: 'Help' }));
+  screen.getByRole('heading', { name: 'Voter Help Screen' });
+  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  expect(
+    screen.queryByRole('heading', { name: 'Voter Help Screen' })
+  ).not.toBeInTheDocument();
+});

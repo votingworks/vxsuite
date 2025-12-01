@@ -13,6 +13,7 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.expectGetSystemSettings();
 });
 
 afterEach(() => {
