@@ -26,7 +26,7 @@ import {
 } from '@votingworks/types';
 import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-import { VoterScreen } from '../components/voter_screen';
+import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
 
 const wobbleKeyframes = keyframes`
   0%, 93% { transform: rotate(0deg); }
@@ -60,6 +60,7 @@ export interface StartPageProps {
   electionDefinition?: ElectionDefinition;
   onStart: () => void;
   precinctId?: PrecinctId;
+  VoterHelpScreen?: VoterHelpScreenType;
 }
 
 export function StartPage(props: StartPageProps): JSX.Element {
@@ -70,6 +71,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
     introAudioText,
     precinctId,
     onStart,
+    VoterHelpScreen,
   } = props;
 
   assert(
@@ -144,7 +146,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
   );
 
   return (
-    <VoterScreen padded>
+    <VoterScreen padded VoterHelpScreen={VoterHelpScreen}>
       <div style={{ margin: 'auto', padding: '0.5rem' }}>
         <ReadOnLoad>
           {electionInfo}

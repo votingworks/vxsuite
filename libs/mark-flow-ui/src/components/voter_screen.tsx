@@ -8,12 +8,19 @@ import {
   LanguageSettingsScreen,
   Main,
   Screen,
+  VoterHelpButton,
   VoterSettings,
   useScreenInfo,
 } from '@votingworks/ui';
 import { SizeMode } from '@votingworks/types';
 
+import { assert } from '@votingworks/basics';
 import { VoterSettingsButton } from './voter_settings_button';
+
+export interface VoterHelpScreenProps {
+  onClose: () => void;
+}
+export type VoterHelpScreenType = React.ComponentType<VoterHelpScreenProps>;
 
 export interface VoterScreenProps {
   actionButtons?: React.ReactNode;
@@ -22,6 +29,7 @@ export interface VoterScreenProps {
   centerContent?: boolean;
   padded?: boolean;
   hideMenuButtons?: boolean;
+  VoterHelpScreen?: VoterHelpScreenType;
 }
 
 export const MARK_FLOW_UI_VOTER_SCREEN_TEST_ID = 'markFlowUiVoterScreen';
@@ -79,15 +87,17 @@ const ButtonGrid = styled.div`
 `;
 
 const PortraitButtonGrid = styled(ButtonGrid)`
-  grid-template-columns: 1fr 1fr;
+  /* One button */
+  grid-template-columns: 1fr;
 
-  /*
-   * For single-button grids, expand the button to fill out the whole row.
-   * Particularly useful for avoiding unnecessary button text wrapping at larger
-   * display size settings.
-   */
-  & > *:first-child:last-child {
-    grid-column: 1 / span 2;
+  /* Two buttons */
+  &:has(> :first-child:nth-last-child(2)) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Three buttons */
+  &:has(> :first-child:nth-last-child(3)) {
+    grid-template-columns: 1fr 1fr 1fr;
   }
 `;
 
@@ -112,10 +122,12 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
     children,
     padded,
     hideMenuButtons,
+    VoterHelpScreen,
   } = props;
 
   const [showLanguageSettings, setShowLanguageSettings] = React.useState(false);
   const [showVoterSettings, setShowVoterSettings] = React.useState(false);
+  const [showVoterHelpScreen, setShowVoterHelpScreen] = React.useState(false);
 
   const screenInfo = useScreenInfo();
 
@@ -134,6 +146,11 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
     );
   }
 
+  if (showVoterHelpScreen) {
+    assert(VoterHelpScreen !== undefined);
+    return <VoterHelpScreen onClose={() => setShowVoterHelpScreen(false)} />;
+  }
+
   const optionalBreadcrumbs = breadcrumbs && (
     <BreadcrumbsContainer>{breadcrumbs}</BreadcrumbsContainer>
   );
@@ -142,6 +159,9 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
     <React.Fragment>
       <LanguageSettingsButton onPress={() => setShowLanguageSettings(true)} />
       <VoterSettingsButton onPress={() => setShowVoterSettings(true)} />
+      {VoterHelpScreen && (
+        <VoterHelpButton onPress={() => setShowVoterHelpScreen(true)} />
+      )}
     </React.Fragment>
   );
 
