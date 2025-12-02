@@ -103,14 +103,16 @@ export function ExpandedSelect({
   options,
   onSelect,
   onSearch,
+  style,
 }: {
   selectedValue: string;
-  options: string[];
+  options: Array<{ value: string; label: string }>;
   onSelect: (selected: string) => void;
   onSearch?: (value: string) => void;
+  style?: React.CSSProperties;
 }): JSX.Element {
   return (
-    <Container>
+    <Container style={style}>
       {onSearch && (
         <SearchBox>
           <Icons.Search />
@@ -121,9 +123,7 @@ export function ExpandedSelect({
               const newSearchString = (event.target.value || '').trim();
               onSearch(newSearchString);
             }}
-            placeholder={
-              selectedValue ? `Selected: ${selectedValue}` : 'Search'
-            }
+            placeholder="Search"
             type="text"
           />
         </SearchBox>
@@ -131,11 +131,11 @@ export function ExpandedSelect({
       <OptionList>
         {options.map((option) => (
           <StyledOption
-            key={option}
-            aria-selected={option === selectedValue}
-            onClick={() => onSelect(option)}
+            key={option.value}
+            aria-selected={option.value === selectedValue}
+            onClick={() => onSelect(option.value)}
           >
-            {option}
+            {option.label}
           </StyledOption>
         ))}
       </OptionList>
