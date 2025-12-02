@@ -31,14 +31,30 @@ import React from 'react';
 import { Buffer } from 'node:buffer';
 import { ImageInputButton } from './image_input';
 
-const StyledEditor = styled.div`
+const ControlGroup = styled.div`
+  display: flex;
+  gap: 0.125rem;
+  border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+    ${(p) => p.theme.colors.outline};
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+
+  > button,
+  > label /* Image input button is rendered as a label */ {
+    border: 0;
+  }
+`;
+
+export const StyledRichTextEditor = styled.div`
+  --rich-text-editor-padding: 0.5rem;
+
   cursor: text;
   border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
     ${(p) => p.theme.colors.outline};
   background: ${(p) => p.theme.colors.containerLow};
-  padding: 0.5rem;
+  padding: var(--rich-text-editor-padding);
   line-height: ${(p) => p.theme.sizes.lineHeight};
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+  max-width: calc(75ch + (2 * var(--rich-text-editor-padding)));
 
   &:focus-within {
     background: none;
@@ -61,7 +77,12 @@ const StyledEditor = styled.div`
   }
 
   &[data-disabled='true'] {
+    border-style: dashed;
     cursor: not-allowed;
+
+    ${ControlGroup} {
+      border-style: dashed;
+    }
   }
 
   overflow: auto;
@@ -76,14 +97,6 @@ const StyledToolbar = styled.div`
     padding: 0.25rem 0.5rem;
     gap: 0.25rem;
   }
-`;
-
-const ControlGroup = styled.div`
-  display: flex;
-  gap: 0.125rem;
-  border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
-    ${(p) => p.theme.colors.outline};
-  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
 `;
 
 function ControlButton({
@@ -343,13 +356,13 @@ export function RichTextEditor({
     },
   });
   return (
-    <StyledEditor
+    <StyledRichTextEditor
       data-testid="rich-text-editor"
       data-disabled={disabled}
       onClick={() => editor?.chain().focus().run()}
     >
       {editor && <Toolbar disabled={disabled} editor={editor} />}
       <EditorContent editor={editor} />
-    </StyledEditor>
+    </StyledRichTextEditor>
   );
 }

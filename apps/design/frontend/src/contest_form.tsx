@@ -1,50 +1,121 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  Table,
-  TH,
-  TD,
-  P,
-  SegmentedButton,
-  SearchSelect,
-  Modal,
-  Callout,
-} from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
+import { z } from 'zod/v4';
+
+import { Result, throwIllegalValue } from '@votingworks/basics';
 import {
+  ElectionId,
   AnyContest,
+  DistrictId,
+  PartyId,
   Candidate,
   CandidateContestSchema,
   CandidateId,
   ContestId,
-  DistrictId,
-  ElectionId,
-  PartyId,
   safeParse,
   YesNoContestSchema,
 } from '@votingworks/types';
-import { Result, throwIllegalValue } from '@votingworks/basics';
-import { z } from 'zod/v4';
-import { FieldName, Form, FormActionsRow, InputGroup, Row } from './layout';
-import { routes } from './routes';
 import {
-  createContest,
-  deleteContest,
+  Callout,
+  SearchSelect,
+  SegmentedButton,
+  P,
+  TH,
+  TD,
+  Button,
+  Modal,
+  DesktopPalette,
+  Table,
+} from '@votingworks/ui';
+
+import {
+  getBallotsFinalizedAt,
   getElectionInfo,
   listDistricts,
   listParties,
+  createContest,
   updateContest,
+  deleteContest,
 } from './api';
+import {
+  FormFixed,
+  FormBody,
+  FormErrorContainer,
+  FormFooter,
+} from './form_fixed';
+import { InputGroup, Row, FieldName } from './layout';
+import { routes } from './routes';
+import { TooltipContainer, Tooltip } from './tooltip';
 import { generateId, replaceAtIndex } from './utils';
 import { RichTextEditor } from './rich_text_editor';
 
+const Form = styled(FormFixed)`
+  .search-select,
+  input[type='text'] {
+    max-width: 20rem;
+    min-width: 5rem;
+    width: 100%;
+  }
+
+  .icon-button {
+    background: ${(p) => p.theme.colors.background};
+    border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+      ${(p) => p.theme.colors.outline};
+    padding: 0.6rem 0.75rem;
+  }
+`;
+
+const InputRow = styled.div`
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+`;
+
+const CandidateInputTable = styled(Table)`
+  max-width: 70rem;
+
+  td,
+  th {
+    border: 0;
+    padding: 0.35rem;
+
+    :first-child {
+      padding-left: 0;
+    }
+
+    :last-child {
+      padding-right: 0;
+
+      /* Make the last cell shrink to fit the action button: */
+      width: 1px;
+    }
+  }
+
+  th {
+    font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+    padding-top: 0;
+  }
+
+  tr {
+    :focus-within,
+    :hover {
+      td {
+        background: ${DesktopPalette.Purple10};
+      }
+    }
+  }
+`;
+
 export interface ContestFormProps {
+  editing: boolean;
   electionId: ElectionId;
   savedContest?: AnyContest;
 }
 
 export function ContestForm(props: ContestFormProps): React.ReactNode {
-  const { electionId, savedContest } = props;
+  const { editing, electionId, savedContest } = props;
   const [contest, setContest] = useState<DraftContest>(
     savedContest
       ? draftContestFromContest(savedContest)
@@ -52,6 +123,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         // so it will only be called on initial render.
         createBlankCandidateContest
   );
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
@@ -67,20 +139,32 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
 
   /* istanbul ignore next - @preserve */
   if (
-    !(
-      getElectionInfoQuery.isSuccess &&
-      listDistrictsQuery.isSuccess &&
-      listPartiesQuery.isSuccess
-    )
+    !getElectionInfoQuery.isSuccess ||
+    !listDistrictsQuery.isSuccess ||
+    !getBallotsFinalizedAtQuery.isSuccess ||
+    !listPartiesQuery.isSuccess
   ) {
     return null;
   }
   const electionInfo = getElectionInfoQuery.data;
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
+  const isFinalized = !!getBallotsFinalizedAtQuery.data;
 
   function goBackToContestsList() {
-    history.push(contestRoutes.root.path);
+    history.replace(contestRoutes.root.path);
+  }
+
+  function setEditing(switchToEdit: boolean) {
+    if (!savedContest) return goBackToContestsList();
+
+    history.replace(
+      switchToEdit
+        ? contestRoutes.edit(savedContest.id).path
+        : // [TODO] Go to contestRoutes.view() instead once the contest list is
+          // co-located with the form.
+          contestRoutes.root.path
+    );
   }
 
   function onSubmit() {
@@ -103,9 +187,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         { electionId, updatedContest: formContest },
         {
           onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToContestsList();
-            }
+            if (result.isOk()) setEditing(false);
           },
         }
       );
@@ -115,7 +197,9 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         {
           onSuccess: (result) => {
             if (result.isOk()) {
-              goBackToContestsList();
+              // [TODO] Go to contestRoutes.view() for the new contest instead
+              // once the contest list is co-located with the form.
+              setEditing(false);
             }
           },
         }
@@ -205,393 +289,466 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
     })()
   ) : null;
 
+  const disabled = !editing || someMutationIsLoading;
+
   return (
     <Form
+      editing={editing}
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
       }}
       onReset={(e) => {
         e.preventDefault();
-        goBackToContestsList();
+        setContest(
+          savedContest
+            ? draftContestFromContest(savedContest)
+            : createBlankCandidateContest
+        );
+        setEditing(!editing);
       }}
     >
-      <InputGroup label="Title">
-        <input
-          type="text"
-          value={contest.title}
-          onChange={(e) => setContest({ ...contest, title: e.target.value })}
-          onBlur={(e) =>
-            setContest({ ...contest, title: e.target.value.trim() })
-          }
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <InputGroup label="District">
-        <SearchSelect
-          aria-label="District"
-          value={contest.districtId || undefined}
-          onChange={(value) => {
-            setContest({ ...contest, districtId: value || undefined });
-          }}
-          options={[
-            { value: '' as DistrictId, label: '' },
-            ...districts.map((district) => ({
-              value: district.id,
-              label: district.name,
-            })),
-          ]}
-          required
-        />
-      </InputGroup>
-      <SegmentedButton
-        label="Type"
-        options={[
-          { id: 'candidate', label: 'Candidate Contest' },
-          { id: 'yesno', label: 'Ballot Measure' },
-        ]}
-        selectedOptionId={contest.type}
-        onChange={(type) =>
-          setContest({
-            ...(type === 'candidate'
-              ? createBlankCandidateContest()
-              : createBlankYesNoContest()),
-            id: contest.id,
-            title: contest.title,
-            districtId: contest.districtId,
-          })
-        }
-      />
-
-      {contest.type === 'candidate' && (
-        <React.Fragment>
-          {electionInfo.type === 'primary' && (
-            <InputGroup label="Party">
-              <SearchSelect
-                aria-label="Party"
-                options={[
-                  { value: '' as PartyId, label: 'No Party Affiliation' },
-                  ...parties.map((party) => ({
-                    value: party.id,
-                    label: party.name,
-                  })),
-                ]}
-                value={contest.partyId}
-                onChange={(value) =>
-                  setContest({
-                    ...contest,
-                    partyId: value || undefined,
-                  })
-                }
-              />
-            </InputGroup>
-          )}
-          <InputGroup label="Seats">
-            <input
-              type="number"
-              // If user clears input, valueAsNumber will be NaN, so we convert
-              // back to empty string to avoid NaN warning
-              value={Number.isNaN(contest.seats) ? '' : contest.seats}
-              onChange={(e) =>
-                setContest({ ...contest, seats: e.target.valueAsNumber })
-              }
-              min={1}
-              max={50}
-              step={1}
-              style={{ width: '4rem' }}
-              maxLength={2}
-            />
-          </InputGroup>
-          <InputGroup label="Term">
-            <input
-              type="text"
-              value={contest.termDescription ?? ''}
-              onChange={(e) =>
-                setContest({ ...contest, termDescription: e.target.value })
-              }
-              onBlur={(e) =>
-                setContest({
-                  ...contest,
-                  termDescription: e.target.value.trim() || undefined,
-                })
-              }
-              autoComplete="off"
-            />
-          </InputGroup>
-          <SegmentedButton
-            label="Write-Ins Allowed?"
+      <FormBody>
+        <InputGroup label="Title">
+          <input
+            disabled={disabled}
+            type="text"
+            value={contest.title}
+            onChange={(e) => setContest({ ...contest, title: e.target.value })}
+            onBlur={(e) =>
+              setContest({ ...contest, title: e.target.value.trim() })
+            }
+            autoComplete="off"
+            required
+          />
+        </InputGroup>
+        <InputGroup label="District">
+          <SearchSelect
+            aria-label="District"
+            disabled={disabled}
+            value={contest.districtId || undefined}
+            onChange={(value) => {
+              setContest({ ...contest, districtId: value || undefined });
+            }}
             options={[
-              { id: 'yes', label: 'Yes' },
-              { id: 'no', label: 'No' },
+              { value: '' as DistrictId, label: '' },
+              ...districts.map((district) => ({
+                value: district.id,
+                label: district.name,
+              })),
             ]}
-            selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
-            onChange={(value) =>
-              setContest({ ...contest, allowWriteIns: value === 'yes' })
+            required
+          />
+        </InputGroup>
+        <InputRow>
+          <SegmentedButton
+            disabled={disabled}
+            label="Type"
+            options={[
+              { id: 'candidate', label: 'Candidate Contest' },
+              { id: 'yesno', label: 'Ballot Measure' },
+            ]}
+            selectedOptionId={contest.type}
+            onChange={(type) =>
+              setContest({
+                ...(type === 'candidate'
+                  ? createBlankCandidateContest()
+                  : createBlankYesNoContest()),
+                id: contest.id,
+                title: contest.title,
+                districtId: contest.districtId,
+              })
             }
           />
-          <div>
-            <FieldName>Candidates</FieldName>
-            {contest.candidates.length === 0 && (
-              <P style={{ marginTop: '0.5rem' }}>
-                You haven&apos;t added any candidates to this contest yet.
-              </P>
+          {contest.type === 'candidate' && (
+            <SegmentedButton
+              disabled={disabled}
+              label="Write-Ins Allowed?"
+              options={[
+                { id: 'yes', label: 'Yes' },
+                { id: 'no', label: 'No' },
+              ]}
+              selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
+              onChange={(value) =>
+                setContest({ ...contest, allowWriteIns: value === 'yes' })
+              }
+            />
+          )}
+        </InputRow>
+
+        {contest.type === 'candidate' && (
+          <React.Fragment>
+            {electionInfo.type === 'primary' && (
+              <InputGroup label="Party">
+                <SearchSelect
+                  aria-label="Party"
+                  disabled={disabled}
+                  options={[
+                    { value: '' as PartyId, label: 'No Party Affiliation' },
+                    ...parties.map((party) => ({
+                      value: party.id,
+                      label: party.name,
+                    })),
+                  ]}
+                  value={contest.partyId}
+                  onChange={(value) =>
+                    setContest({
+                      ...contest,
+                      partyId: value || undefined,
+                    })
+                  }
+                />
+              </InputGroup>
             )}
-            {contest.candidates.length > 0 && (
-              <Table>
-                <thead>
-                  <tr>
-                    <TH>First Name</TH>
-                    <TH>Middle Name</TH>
-                    <TH>Last Name</TH>
-                    <TH>Party</TH>
-                    <TH />
-                  </tr>
-                </thead>
-                <tbody>
-                  {contest.candidates.map((candidate, index) => (
-                    <tr key={candidate.id}>
-                      <TD>
-                        <input
-                          aria-label={`Candidate ${index + 1} First Name`}
-                          type="text"
-                          value={candidate.firstName}
-                          // eslint-disable-next-line jsx-a11y/no-autofocus
-                          autoFocus
-                          onChange={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: e.target.value,
-                            })
-                          }
-                          onBlur={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: e.target.value.trim() || undefined,
-                              middle: candidate.middleName,
-                              last: candidate.lastName,
-                            })
-                          }
-                          autoComplete="off"
-                          required
-                        />
-                      </TD>
-                      <TD>
-                        <input
-                          aria-label={`Candidate ${index + 1} Middle Name`}
-                          type="text"
-                          value={candidate.middleName || ''}
-                          onChange={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: candidate.firstName,
-                              middle: e.target.value,
-                              last: candidate.lastName,
-                            })
-                          }
-                          onBlur={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: candidate.firstName,
-                              middle: e.target.value.trim() || undefined,
-                              last: candidate.lastName,
-                            })
-                          }
-                          autoComplete="off"
-                        />
-                      </TD>
-                      <TD>
-                        <input
-                          aria-label={`Candidate ${index + 1} Last Name`}
-                          type="text"
-                          value={candidate.lastName || ''}
-                          onChange={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: candidate.firstName,
-                              middle: candidate.middleName,
-                              last: e.target.value,
-                            })
-                          }
-                          onBlur={(e) =>
-                            onNameChange(contest, candidate, index, {
-                              first: candidate.firstName,
-                              middle: candidate.middleName,
-                              last: e.target.value.trim() || undefined,
-                            })
-                          }
-                          autoComplete="off"
-                          required
-                        />
-                      </TD>
-                      <TD>
-                        <SearchSelect
-                          aria-label={`Candidate ${index + 1} Party`}
-                          options={[
-                            {
-                              value: '' as PartyId,
-                              label: 'No Party Affiliation',
-                            },
-                            ...parties.map((party) => ({
-                              value: party.id,
-                              label: party.name,
-                            })),
-                          ]}
-                          // Only support one party per candidate for now
-                          value={candidate.partyIds?.[0]}
-                          onChange={(value) =>
-                            setContest({
-                              ...contest,
-                              candidates: replaceAtIndex(
-                                contest.candidates,
-                                index,
-                                {
-                                  ...candidate,
-                                  partyIds: value ? [value] : undefined,
-                                }
-                              ),
-                            })
-                          }
-                          style={{ minWidth: '12rem !important' }}
-                        />
-                      </TD>
-                      <TD>
-                        <Button
-                          icon="Delete"
-                          variant="danger"
-                          fill="transparent"
-                          onPress={() =>
-                            setContest({
-                              ...contest,
-                              candidates: contest.candidates.filter(
-                                (_, i) => i !== index
-                              ),
-                            })
-                          }
-                        >
-                          Remove
-                        </Button>
-                      </TD>
+            <InputRow>
+              <InputGroup label="Seats">
+                <input
+                  disabled={disabled}
+                  type="number"
+                  // If user clears input, valueAsNumber will be NaN, so we convert
+                  // back to empty string to avoid NaN warning
+                  value={Number.isNaN(contest.seats) ? '' : contest.seats}
+                  onChange={(e) =>
+                    setContest({ ...contest, seats: e.target.valueAsNumber })
+                  }
+                  min={1}
+                  max={50}
+                  step={1}
+                  style={{ width: '4rem' }}
+                  maxLength={2}
+                />
+              </InputGroup>
+              <InputGroup label="Term">
+                <input
+                  disabled={disabled}
+                  type="text"
+                  value={contest.termDescription ?? ''}
+                  onChange={(e) =>
+                    setContest({
+                      ...contest,
+                      termDescription: e.target.value,
+                    })
+                  }
+                  onBlur={(e) =>
+                    setContest({
+                      ...contest,
+                      termDescription: e.target.value.trim() || undefined,
+                    })
+                  }
+                  autoComplete="off"
+                />
+              </InputGroup>
+            </InputRow>
+            <div>
+              <P weight="bold">Candidates</P>
+              {contest.candidates.length === 0 && (
+                <P style={{ marginTop: '0.5rem' }}>
+                  You haven&apos;t added any candidates to this contest yet.
+                </P>
+              )}
+              {contest.candidates.length > 0 && (
+                <CandidateInputTable>
+                  <thead>
+                    <tr>
+                      <TH>First Name</TH>
+                      <TH>Middle Name</TH>
+                      <TH>Last Name</TH>
+                      <TH>Party</TH>
+                      <TH />
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )}
-            <Row style={{ marginTop: '0.5rem' }}>
-              <Button
-                icon="Add"
-                onPress={() =>
+                  </thead>
+                  <tbody>
+                    {contest.candidates.map((candidate, index) => (
+                      <tr key={candidate.id}>
+                        <TD>
+                          <input
+                            aria-label={`Candidate ${index + 1} First Name`}
+                            disabled={disabled}
+                            type="text"
+                            value={candidate.firstName}
+                            // eslint-disable-next-line jsx-a11y/no-autofocus
+                            autoFocus={
+                              index === contest.candidates.length - 1 &&
+                              candidate.firstName === ''
+                            }
+                            onChange={(e) =>
+                              onNameChange(contest, candidate, index, {
+                                first: e.target.value,
+                              })
+                            }
+                            onBlur={(e) =>
+                              onNameChange(contest, candidate, index, {
+                                first: e.target.value.trim() || undefined,
+                                middle: candidate.middleName,
+                                last: candidate.lastName,
+                              })
+                            }
+                            autoComplete="off"
+                            required
+                          />
+                        </TD>
+                        <TD>
+                          <input
+                            aria-label={`Candidate ${index + 1} Middle Name`}
+                            disabled={disabled}
+                            type="text"
+                            value={candidate.middleName || ''}
+                            onChange={(e) =>
+                              onNameChange(contest, candidate, index, {
+                                first: candidate.firstName,
+                                middle: e.target.value,
+                                last: candidate.lastName,
+                              })
+                            }
+                            onBlur={(e) =>
+                              onNameChange(contest, candidate, index, {
+                                first: candidate.firstName,
+                                middle: e.target.value.trim() || undefined,
+                                last: candidate.lastName,
+                              })
+                            }
+                            autoComplete="off"
+                          />
+                        </TD>
+                        <TD>
+                          <input
+                            aria-label={`Candidate ${index + 1} Last Name`}
+                            disabled={disabled}
+                            type="text"
+                            value={candidate.lastName || ''}
+                            onChange={(e) =>
+                              onNameChange(contest, candidate, index, {
+                                first: candidate.firstName,
+                                middle: candidate.middleName,
+                                last: e.target.value,
+                              })
+                            }
+                            onBlur={(e) =>
+                              onNameChange(contest, candidate, index, {
+                                first: candidate.firstName,
+                                middle: candidate.middleName,
+                                last: e.target.value.trim() || undefined,
+                              })
+                            }
+                            autoComplete="off"
+                            required
+                          />
+                        </TD>
+                        <TD>
+                          <SearchSelect
+                            aria-label={`Candidate ${index + 1} Party`}
+                            disabled={disabled}
+                            options={[
+                              {
+                                value: '' as PartyId,
+                                label: 'No Party Affiliation',
+                              },
+                              ...parties.map((party) => ({
+                                value: party.id,
+                                label: party.name,
+                              })),
+                            ]}
+                            // Only support one party per candidate for now
+                            value={candidate.partyIds?.[0]}
+                            onChange={(value) =>
+                              setContest({
+                                ...contest,
+                                candidates: replaceAtIndex(
+                                  contest.candidates,
+                                  index,
+                                  {
+                                    ...candidate,
+                                    partyIds: value ? [value] : undefined,
+                                  }
+                                ),
+                              })
+                            }
+                          />
+                        </TD>
+                        <TD>
+                          {/* [TODO] Show audio edit button when not editing. */}
+                          {editing && (
+                            <TooltipContainer style={{ width: 'min-content' }}>
+                              <Button
+                                aria-label={`Remove Candidate ${joinCandidateName(
+                                  candidate
+                                )}`}
+                                className="icon-button"
+                                disabled={disabled}
+                                icon="Trash"
+                                variant="danger"
+                                fill="transparent"
+                                onPress={() =>
+                                  setContest({
+                                    ...contest,
+                                    candidates: contest.candidates.filter(
+                                      (_, i) => i !== index
+                                    ),
+                                  })
+                                }
+                              />
+                              <Tooltip alignTo="right" bold>
+                                Remove Candidate
+                                <br />
+                                {joinCandidateName(candidate)}
+                              </Tooltip>
+                            </TooltipContainer>
+                          )}
+                        </TD>
+                      </tr>
+                    ))}
+                  </tbody>
+                </CandidateInputTable>
+              )}
+
+              {editing && (
+                <Row style={{ marginTop: '0.5rem' }}>
+                  <Button
+                    disabled={disabled}
+                    icon="Add"
+                    onPress={() =>
+                      setContest({
+                        ...contest,
+                        candidates: [
+                          ...contest.candidates,
+                          createBlankCandidate(),
+                        ],
+                      })
+                    }
+                  >
+                    Add Candidate
+                  </Button>
+                </Row>
+              )}
+            </div>
+          </React.Fragment>
+        )}
+
+        {contest.type === 'yesno' && (
+          <React.Fragment>
+            <div>
+              <FieldName>Description</FieldName>
+              <RichTextEditor
+                disabled={disabled}
+                initialHtmlContent={contest.description}
+                onChange={(htmlContent) =>
+                  setContest({ ...contest, description: htmlContent })
+                }
+              />
+            </div>
+
+            <InputGroup label="First Option Label">
+              <input
+                disabled={disabled}
+                type="text"
+                value={contest.yesOption.label}
+                onChange={(e) =>
                   setContest({
                     ...contest,
-                    candidates: [...contest.candidates, createBlankCandidate()],
+                    yesOption: { ...contest.yesOption, label: e.target.value },
                   })
                 }
-              >
-                Add Candidate
-              </Button>
-            </Row>
-          </div>
-        </React.Fragment>
-      )}
+                autoComplete="off"
+              />
+            </InputGroup>
 
-      {contest.type === 'yesno' && (
-        <React.Fragment>
-          <div>
-            <FieldName>Description</FieldName>
-            <RichTextEditor
-              initialHtmlContent={contest.description}
-              onChange={(htmlContent) =>
-                setContest({ ...contest, description: htmlContent })
-              }
-            />
-          </div>
+            <InputGroup label="Second Option Label">
+              <input
+                disabled={disabled}
+                type="text"
+                value={contest.noOption.label}
+                onChange={(e) =>
+                  setContest({
+                    ...contest,
+                    noOption: { ...contest.noOption, label: e.target.value },
+                  })
+                }
+                autoComplete="off"
+              />
+            </InputGroup>
+          </React.Fragment>
+        )}
+      </FormBody>
 
-          <InputGroup label="First Option Label">
-            <input
-              type="text"
-              value={contest.yesOption.label}
-              onChange={(e) =>
-                setContest({
-                  ...contest,
-                  yesOption: { ...contest.yesOption, label: e.target.value },
-                })
-              }
-              autoComplete="off"
-              style={{ width: '4rem' }}
-            />
-          </InputGroup>
+      <FormErrorContainer>{errorMessage}</FormErrorContainer>
 
-          <InputGroup label="Second Option Label">
-            <input
-              type="text"
-              value={contest.noOption.label}
-              onChange={(e) =>
-                setContest({
-                  ...contest,
-                  noOption: { ...contest.noOption, label: e.target.value },
-                })
-              }
-              autoComplete="off"
-              style={{ width: '4rem' }}
-            />
-          </InputGroup>
-        </React.Fragment>
-      )}
+      {!isFinalized && (
+        <FormFooter style={{ justifyContent: 'space-between' }}>
+          <PrimaryFormActions disabled={disabled} editing={editing} />
 
-      {errorMessage}
-      <div>
-        <FormActionsRow>
-          <Button type="reset">Cancel</Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="Done"
-            disabled={someMutationIsLoading}
-          >
-            Save
-          </Button>
-        </FormActionsRow>
-        {savedContest && (
-          <FormActionsRow style={{ marginTop: '1rem' }}>
+          {savedContest && (
             <Button
               variant="danger"
+              fill="outlined"
               icon="Delete"
               onPress={() => setIsConfirmingDelete(true)}
               disabled={someMutationIsLoading}
             >
               Delete Contest
             </Button>
-          </FormActionsRow>
-        )}
-        {savedContest && isConfirmingDelete && (
-          <Modal
-            title="Delete Contest"
-            content={
-              <div>
-                <P>
-                  Are you sure you want to delete this contest? This action
-                  cannot be undone.
-                </P>
-              </div>
-            }
-            actions={
-              <React.Fragment>
-                <Button
-                  onPress={onDelete}
-                  variant="danger"
-                  autoFocus
-                  disabled={someMutationIsLoading}
-                >
-                  Delete Contest
-                </Button>
-                <Button onPress={() => setIsConfirmingDelete(false)}>
-                  Cancel
-                </Button>
-              </React.Fragment>
-            }
-            onOverlayClick={
-              /* istanbul ignore next - @preserve */
-              () => setIsConfirmingDelete(false)
-            }
-          />
-        )}
-      </div>
+          )}
+        </FormFooter>
+      )}
+
+      {savedContest && isConfirmingDelete && (
+        <Modal
+          title="Delete Contest"
+          content={
+            <div>
+              <P>
+                Are you sure you want to delete this contest? This action cannot
+                be undone.
+              </P>
+            </div>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                onPress={onDelete}
+                variant="danger"
+                autoFocus
+                disabled={someMutationIsLoading}
+              >
+                Delete Contest
+              </Button>
+              <Button
+                disabled={someMutationIsLoading}
+                onPress={() => setIsConfirmingDelete(false)}
+              >
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={
+            /* istanbul ignore next - @preserve */
+            () => setIsConfirmingDelete(false)
+          }
+        />
+      )}
     </Form>
+  );
+}
+
+function PrimaryFormActions(props: { disabled: boolean; editing: boolean }) {
+  const { disabled, editing } = props;
+
+  if (!editing) {
+    return (
+      <Button icon="Edit" type="reset" variant="primary">
+        Edit
+      </Button>
+    );
+  }
+
+  return (
+    <Row style={{ flexWrap: 'wrap-reverse', gap: '0.5rem' }}>
+      <Button disabled={disabled} type="reset">
+        Cancel
+      </Button>
+      <Button type="submit" variant="primary" icon="Done" disabled={disabled}>
+        Save
+      </Button>
+    </Row>
   );
 }
 
@@ -673,10 +830,7 @@ function tryContestFromDraftContest(
         ...draftContest,
         candidates: draftContest.candidates.map((candidate) => ({
           ...candidate,
-          name: [candidate.firstName, candidate.middleName, candidate.lastName]
-            .map((part) => part.trim())
-            .filter((part) => part)
-            .join(' '),
+          name: joinCandidateName(candidate),
         })),
       });
 
@@ -725,4 +879,11 @@ function createBlankCandidate(): DraftCandidate {
     middleName: '',
     lastName: '',
   };
+}
+
+function joinCandidateName(candidate: DraftCandidate) {
+  return [candidate.firstName, candidate.middleName, candidate.lastName]
+    .map((part) => part.trim())
+    .filter((part) => part)
+    .join(' ');
 }

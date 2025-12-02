@@ -41,12 +41,17 @@ export function ContestsScreen(): JSX.Element {
     <ElectionNavScreen electionId={electionId}>
       <Switch>
         <Route
-          path={contestParamRoutes.addContest.path}
+          path={contestParamRoutes.add.path}
           exact
           component={AddContestForm}
         />
         <Route
-          path={contestParamRoutes.editContest(':contestId').path}
+          path={contestParamRoutes.edit(':contestId').path}
+          exact
+          component={EditContestForm}
+        />
+        <Route
+          path={contestParamRoutes.view(':contestId').path}
           exact
           component={EditContestForm}
         />
@@ -157,7 +162,7 @@ function ContestList(): JSX.Element | null {
         <LinkButton
           variant="primary"
           icon="Add"
-          to={contestRoutes.addContest.path}
+          to={contestRoutes.add.path}
           disabled={isReordering || !!ballotsFinalizedAt}
         >
           Add Contest
@@ -357,10 +362,7 @@ function ContestList(): JSX.Element | null {
                                     ) : (
                                       <LinkButton
                                         icon="Edit"
-                                        to={
-                                          contestRoutes.editContest(contest.id)
-                                            .path
-                                        }
+                                        to={contestRoutes.edit(contest.id).path}
                                         disabled={!!ballotsFinalizedAt}
                                       >
                                         Edit
@@ -386,7 +388,7 @@ function ContestList(): JSX.Element | null {
 function AddContestForm(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const contestRoutes = routes.election(electionId).contests;
-  const { title } = contestRoutes.addContest;
+  const { title } = contestRoutes.add;
 
   return (
     <React.Fragment>
@@ -394,9 +396,7 @@ function AddContestForm(): JSX.Element | null {
         <Breadcrumbs currentTitle={title} parentRoutes={[contestRoutes.root]} />
         <H1>{title}</H1>
       </Header>
-      <MainContent>
-        <ContestForm electionId={electionId} />
-      </MainContent>
+      <ContestForm electionId={electionId} editing />
     </React.Fragment>
   );
 }
@@ -406,10 +406,12 @@ function EditContestForm(): JSX.Element | null {
     ElectionIdParams & { contestId: ContestId }
   >();
   const listContestsQuery = listContests.useQuery(electionId);
+  const finalizedAt = getBallotsFinalizedAt.useQuery(electionId);
+  const contestParamRoutes = electionParamRoutes.contests;
   const contestRoutes = routes.election(electionId).contests;
 
   /* istanbul ignore next - @preserve */
-  if (!listContestsQuery.isSuccess) {
+  if (!listContestsQuery.isSuccess || !finalizedAt.isSuccess) {
     return null;
   }
 
@@ -423,7 +425,8 @@ function EditContestForm(): JSX.Element | null {
     return null;
   }
 
-  const { title } = contestRoutes.editContest(contestId);
+  const { title } = contestRoutes.edit(contestId);
+  const canEdit = !finalizedAt.data;
 
   return (
     <React.Fragment>
@@ -431,9 +434,26 @@ function EditContestForm(): JSX.Element | null {
         <Breadcrumbs currentTitle={title} parentRoutes={[contestRoutes.root]} />
         <H1>{title}</H1>
       </Header>
-      <MainContent>
-        <ContestForm electionId={electionId} savedContest={savedContest} />
-      </MainContent>
+      <Switch>
+        {canEdit && (
+          <Route path={contestParamRoutes.edit(':contestId').path} exact>
+            <ContestForm
+              electionId={electionId}
+              key={contestId}
+              editing
+              savedContest={savedContest}
+            />
+          </Route>
+        )}
+        <Route path={contestParamRoutes.view(':contestId').path}>
+          <ContestForm
+            editing={false}
+            electionId={electionId}
+            key={contestId}
+            savedContest={savedContest}
+          />
+        </Route>
+      </Switch>
     </React.Fragment>
   );
 }
