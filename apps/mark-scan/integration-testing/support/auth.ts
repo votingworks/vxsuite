@@ -1,5 +1,6 @@
 import { Page } from '@playwright/test';
 import {
+  INTEGRATION_TEST_DEFAULT_PIN,
   mockElectionManagerCardInsertion,
   mockPollWorkerCardInsertion,
   mockSystemAdministratorCardInsertion,
@@ -11,8 +12,8 @@ import { Election } from '@votingworks/types';
  */
 export async function enterPin(page: Page): Promise<void> {
   await page.getByText('Enter Card PIN').waitFor();
-  for (let i = 0; i < 6; i += 1) {
-    await page.getByText('0').click();
+  for (const digit of INTEGRATION_TEST_DEFAULT_PIN) {
+    await page.getByText(digit).click();
   }
 }
 
@@ -37,7 +38,7 @@ export async function logInAsElectionManager(
 }
 
 /**
- * Logs in as election manager.
+ * Logs in as poll worker.
  */
 export async function logInAsPollWorker(
   page: Page,

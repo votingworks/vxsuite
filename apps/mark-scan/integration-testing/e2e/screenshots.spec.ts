@@ -60,9 +60,6 @@ test('screenshots', async ({ page }) => {
     await screenshot('diagnostics-menu-full');
   });
 
-  // navigate back to diagnostics
-  await page.getByText('Diagnostics').click();
-
   await page.getByText('Test Accessible Controller').click();
   await page.getByText('Accessible Controller Test').waitFor();
   await screenshot('accessible-controller-test');
