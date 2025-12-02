@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link, useRouteMatch } from 'react-router-dom';
+
 import {
   Screen,
   LeftNav,
@@ -9,10 +11,14 @@ import {
   VerticalElectionInfoBar,
   Main,
 } from '@votingworks/ui';
-import { Link, useRouteMatch } from 'react-router-dom';
+
 import { Toolbar } from './toolbar';
 import { routeMap } from '../routes';
-import { getElectionRecord, getMachineConfig } from '../api';
+import {
+  getElectionRecord,
+  getMachineConfig,
+  getPrecinctSelection,
+} from '../api';
 
 export function ScreenWrapper({
   children,
@@ -26,13 +32,19 @@ export function ScreenWrapper({
   const currentRoute = useRouteMatch();
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
+  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
 
-  if (!getElectionRecordQuery.isSuccess || !getMachineConfigQuery.isSuccess) {
+  if (
+    !getElectionRecordQuery.isSuccess ||
+    !getMachineConfigQuery.isSuccess ||
+    !getPrecinctSelectionQuery.isSuccess
+  ) {
     return null;
   }
 
   const electionRecord = getElectionRecordQuery.data;
   const machineConfig = getMachineConfigQuery.data;
+  const precinctSelection = getPrecinctSelectionQuery.data;
 
   const showNavItems = electionRecord !== null || authType === 'system_admin';
 
@@ -63,6 +75,7 @@ export function ScreenWrapper({
             codeVersion={machineConfig.codeVersion}
             machineId={machineConfig.machineId}
             inverse
+            precinctSelection={precinctSelection || undefined}
           />
         </div>
       </LeftNav>
