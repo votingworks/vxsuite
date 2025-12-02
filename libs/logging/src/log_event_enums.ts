@@ -115,7 +115,7 @@ export enum LogEventId {
   DatabaseCreateInit = 'database-create-init',
   DatabaseCreateComplete = 'database-create-complete',
   DatabaseResetInit = 'database-reset-init',
-  DatabaseResetComplete = 'database-destroy-complete',
+  DatabaseResetComplete = 'database-reset-complete',
   FileReadError = 'file-read-error',
   DmVerityBoot = 'dmverity-boot',
   MachineBootInit = 'machine-boot-init',
@@ -390,6 +390,12 @@ const TogglingTestMode: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'User has initiated toggling between test mode and live mode in the current application.',
+  restrictInDocumentationToApps: [
+    AppName.VxCentralScan,
+    AppName.VxMark,
+    AppName.VxMarkScan,
+    AppName.VxScan,
+  ],
 };
 
 const ToggledTestMode: LogDetails = {

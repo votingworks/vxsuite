@@ -213,7 +213,7 @@ pub enum EventId {
     DatabaseCreateComplete,
     #[serde(rename = "database-reset-init")]
     DatabaseResetInit,
-    #[serde(rename = "database-destroy-complete")]
+    #[serde(rename = "database-reset-complete")]
     DatabaseResetComplete,
     #[serde(rename = "file-read-error")]
     FileReadError,

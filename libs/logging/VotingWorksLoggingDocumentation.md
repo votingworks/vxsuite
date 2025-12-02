@@ -105,7 +105,7 @@ IDs are logged with each log to identify the log being written.
 ### toggle-test-mode-init
 **Type:** [user-action](#user-action)
 **Description:** User has initiated toggling between test mode and live mode in the current application.
-**Machines:** All
+**Machines:** vx-central-scan, vx-mark, vx-mark-scan, vx-scan
 ### toggled-test-mode
 **Type:** [user-action](#user-action)
 **Description:** User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.
@@ -210,7 +210,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-action](#system-action)
 **Description:** Initiating reset of the database.
 **Machines:** All
-### database-destroy-complete
+### database-reset-complete
 **Type:** [system-action](#system-action)
 **Description:** Database reset. Success or failure indicated by disposition.
 **Machines:** All

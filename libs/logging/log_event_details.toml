@@ -252,6 +252,12 @@ documentationMessage = "Message from the backend service about how it is configu
 eventId = "toggle-test-mode-init"
 eventType = "user-action"
 documentationMessage = "User has initiated toggling between test mode and live mode in the current application."
+restrictInDocumentationToApps = [
+  "vx-central-scan",
+  "vx-mark",
+  "vx-mark-scan",
+  "vx-scan",
+]
 
 [Events.ToggledTestMode]
 eventId = "toggled-test-mode"
@@ -390,7 +396,7 @@ eventType = "system-action"
 documentationMessage = "Initiating reset of the database."
 
 [Events.DatabaseResetComplete]
-eventId = "database-destroy-complete"
+eventId = "database-reset-complete"
 eventType = "system-action"
 documentationMessage = "Database reset. Success or failure indicated by disposition."
 
