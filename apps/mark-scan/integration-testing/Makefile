@@ -2,6 +2,10 @@ APP := ..
 export PIPENV_VENV_IN_PROJECT=1
 export MARK_SCAN_WORKSPACE=/tmp/mark-scan-integration-testing
 
+# Load environment variables from .env file
+include .env
+export
+
 build-frontend:
 	make -C $(APP)/frontend install; \
 	make -C $(APP)/frontend build; \
