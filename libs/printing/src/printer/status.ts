@@ -167,7 +167,9 @@ export async function getPrinterRichStatus(
   printerIppUri = CUPS_DEFAULT_IPP_URI
 ): Promise<Optional<PrinterRichStatus>> {
   const attributes = await getPrinterIppAttributes(printerIppUri);
-  if (!attributes) return undefined;
+  if (!attributes) {
+    return undefined;
+  }
 
   const state = attributes['printer-state'] as IppPrinterState;
   let stateReasons = wrapWithArray(
