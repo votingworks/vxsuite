@@ -153,19 +153,18 @@ export function getAllPossibleCandidateOrderings(
   ballotStyleTemplateId: BallotTemplateId,
   params: RotationParams
 ): CandidateOrdering[] {
-  let orderings: CandidateOrdering[] = [];
-  switch (ballotStyleTemplateId) {
-    case 'NhBallot':
-      orderings = getCandidateOrderingSetsForNhBallot(params);
-      break;
-    case 'VxDefaultBallot':
-      orderings = getDefaultCandidateOrdering(params);
-      break;
-    default: {
-      /* istanbul ignore next - @preserve */
-      throwIllegalValue(ballotStyleTemplateId);
+  const orderings = (() => {
+    switch (ballotStyleTemplateId) {
+      case 'NhBallot':
+        return getCandidateOrderingSetsForNhBallot(params);
+      case 'VxDefaultBallot':
+      case 'MsBallot':
+        return getDefaultCandidateOrdering(params);
+      default: {
+        /* istanbul ignore next - @preserve */
+        throwIllegalValue(ballotStyleTemplateId);
+      }
     }
-  }
-
+  })();
   return deduplicateIdenticalOrderingsAcrossPrecincts(orderings);
 }
