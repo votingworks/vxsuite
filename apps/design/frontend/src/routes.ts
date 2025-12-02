@@ -82,11 +82,15 @@ export const routes = {
           title: 'Contests',
           path: `${root}/contests`,
         },
-        addContest: {
+        add: {
           title: 'Add Contest',
           path: `${root}/contests/add`,
         },
-        editContest: (contestId: string) => ({
+        edit: (contestId: string) => ({
+          title: 'Edit Contest',
+          path: `${root}/contests/${contestId}/edit`,
+        }),
+        view: (contestId: string) => ({
           title: 'Edit Contest',
           path: `${root}/contests/${contestId}`,
         }),

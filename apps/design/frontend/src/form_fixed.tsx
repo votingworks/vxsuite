@@ -1,5 +1,7 @@
 import { DesktopPalette } from '@votingworks/ui';
 import styled, { css } from 'styled-components';
+import { cssThemedScrollbars } from './scrollbars';
+import { StyledRichTextEditor } from './rich_text_editor';
 
 export const FormBody = styled.div`
   display: flex;
@@ -9,6 +11,8 @@ export const FormBody = styled.div`
   height: 100%;
   overflow: auto;
   padding: 1rem;
+
+  ${cssThemedScrollbars}
 
   input[type='text'] {
     min-width: 18rem;
@@ -52,9 +56,10 @@ export interface FormFixedProps {
  */
 const cssFormViewMode = css`
   input,
-  .search-select > div {
-    background-color: ${(p) => p.theme.colors.background};
-    color: ${(p) => p.theme.colors.onBackground};
+  .search-select > div,
+  ${StyledRichTextEditor} {
+    background-color: ${(p) => p.theme.colors.background} !important;
+    color: ${(p) => p.theme.colors.onBackground} !important;
   }
 `;
 

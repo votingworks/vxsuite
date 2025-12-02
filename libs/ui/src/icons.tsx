@@ -78,6 +78,7 @@ import {
   faStrikethrough,
   faTable,
   faTextHeight,
+  faTrash,
   faUnderline,
   faVolumeHigh,
   faVolumeMute,
@@ -543,6 +544,10 @@ export const Icons = {
 
   TextSize(props) {
     return <FaIcon {...props} type={faTextHeight} />;
+  },
+
+  Trash(props) {
+    return <FaIcon {...props} type={faTrash} />;
   },
 
   Underline(props) {
