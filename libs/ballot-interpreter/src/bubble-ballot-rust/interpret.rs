@@ -122,10 +122,7 @@ impl Display for VerticalStreakDetection {
         match self {
             Self::Enabled {
                 max_cumulative_streak_width,
-            } => write!(
-                f,
-                "enabled (max cumulative streak width: {max_cumulative_streak_width}px)",
-            ),
+            } => write!(f, "enabled:{max_cumulative_streak_width}px",),
             Self::Disabled => write!(f, "disabled"),
         }
     }
@@ -140,7 +137,18 @@ impl FromStr for VerticalStreakDetection {
                 max_cumulative_streak_width: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
             }),
             "disabled" => Ok(Self::Disabled),
-            _ => Err(format!("Unexpected vertical streak detection setting: {s}")),
+            _ => match s.split_once(':') {
+                Some(("enabled", pixels)) => {
+                    let pixels_str = pixels.strip_suffix("px").unwrap_or(pixels);
+                    let max_cumulative_streak_width = pixels_str
+                        .parse()
+                        .map_err(|e| format!("Invalid pixel value '{pixels_str}': {e}"))?;
+                    Ok(Self::Enabled {
+                        max_cumulative_streak_width,
+                    })
+                }
+                _ => Err(format!("Unexpected vertical streak detection setting: {s}")),
+            },
         }
     }
 }
