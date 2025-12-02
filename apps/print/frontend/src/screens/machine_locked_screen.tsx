@@ -15,10 +15,10 @@ export function MachineLockedScreen(): JSX.Element | null {
       <Main centerChild>
         <React.Fragment>
           <InsertCardImage cardInsertionDirection="right" />
-          <H1 align="center" style={{ maxWidth: '36rem' }}>
+          <H1 align="center" style={{ maxWidth: '50rem' }}>
             {electionRecord
               ? 'Insert a card to unlock'
-              : 'Insert a system administrator or election manager card to configure VxPrint'}
+              : 'Insert an election manager card to configure VxPrint'}
           </H1>
         </React.Fragment>
       </Main>

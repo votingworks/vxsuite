@@ -87,10 +87,7 @@ function AppRoot({
 
   if (authStatus.status === 'remove_card') {
     return (
-      <RemoveCardScreen
-        productName="VxPollBook"
-        cardInsertionDirection="right"
-      />
+      <RemoveCardScreen productName="VxPrint" cardInsertionDirection="right" />
     );
   }
 
