@@ -198,14 +198,6 @@ export function VerticalElectionInfoBar({
           <Font weight="bold" maxLines={4}>
             {electionStrings.electionTitle(election)}
           </Font>
-          {precinctSelection && (
-            <Font maxLines={4}>
-              <PrecinctSelectionName
-                electionPrecincts={precincts}
-                precinctSelection={precinctSelection}
-              />
-            </Font>
-          )}
 
           <div>
             <Font maxLines={4}>
@@ -240,6 +232,18 @@ export function VerticalElectionInfoBar({
             )}
           </Font>
         </div>
+
+        {precinctSelection && (
+          <div>
+            Precinct:{' '}
+            <Font weight="semiBold">
+              <PrecinctSelectionName
+                electionPrecincts={precincts}
+                precinctSelection={precinctSelection}
+              />
+            </Font>
+          </div>
+        )}
       </Caption>
     </VerticalBar>
   );
