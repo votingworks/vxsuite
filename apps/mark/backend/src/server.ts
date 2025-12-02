@@ -22,6 +22,7 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
+import { Client as BarcodeClient } from './barcodes';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -62,7 +63,17 @@ export async function start({
 
   await initializeSystemAudio();
 
-  const app = buildApp(resolvedAuth, logger, workspace, usbDrive, printer);
+  // Only create barcode client in production or when explicitly enabled via env variable
+  const barcodeClient = new BarcodeClient(baseLogger);
+
+  const app = buildApp({
+    auth: resolvedAuth,
+    barcodeClient,
+    logger,
+    workspace,
+    usbDrive,
+    printer,
+  });
 
   useDevDockRouter(app, express, { printerConfig: HP_LASER_PRINTER_CONFIG });
 

@@ -1361,6 +1361,93 @@ test('Attempting to start a cardless voter session when not a poll worker', asyn
   });
 });
 
+test('Starting a cardless voter session with skipPollWorkerCheck in no_card mode', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: { ...defaultConfig, allowCardlessVoterSessions: true },
+    logger: mockLogger,
+  });
+
+  mockCardStatus({ status: 'no_card' });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_out',
+    reason: 'no_card',
+  });
+
+  // With skipPollWorkerCheck in no_card mode, we can start a session
+  await auth.startCardlessVoterSession(defaultMachineState, {
+    ballotStyleId: cardlessVoterUser.ballotStyleId,
+    precinctId: cardlessVoterUser.precinctId,
+    skipPollWorkerCheck: true,
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_in',
+    user: {
+      ...cardlessVoterUser,
+      sessionId: expect.any(String),
+    },
+    sessionExpiresAt: expect.any(Date),
+  });
+  expect(mockLogger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogin,
+    'cardless_voter',
+    {
+      disposition: LogDispositionStandardTypes.Success,
+      message: 'Cardless voter session started.',
+    }
+  );
+});
+
+test('skipPollWorkerCheck still allows poll worker to start session', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: { ...defaultConfig, allowCardlessVoterSessions: true },
+    logger: mockLogger,
+  });
+
+  await logInAsPollWorker(auth);
+
+  // skipPollWorkerCheck should still allow poll worker to start session
+  await auth.startCardlessVoterSession(defaultMachineState, {
+    ballotStyleId: cardlessVoterUser.ballotStyleId,
+    precinctId: cardlessVoterUser.precinctId,
+    skipPollWorkerCheck: true,
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_in',
+    user: pollWorkerUser,
+    sessionExpiresAt: expect.any(Date),
+    cardlessVoterUser: {
+      ...cardlessVoterUser,
+      sessionId: expect.any(String),
+    },
+  });
+});
+
+test('skipPollWorkerCheck does not work when logged in as non-poll-worker', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: { ...defaultConfig, allowCardlessVoterSessions: true },
+    logger: mockLogger,
+  });
+
+  await logInAsElectionManager(auth);
+
+  // skipPollWorkerCheck should NOT work when logged in as election manager
+  await auth.startCardlessVoterSession(defaultMachineState, {
+    ballotStyleId: cardlessVoterUser.ballotStyleId,
+    precinctId: cardlessVoterUser.precinctId,
+    skipPollWorkerCheck: true,
+  });
+
+  // Should still be logged in as election manager, session should NOT have started
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_in',
+    user: electionManagerUser,
+    sessionExpiresAt: expect.any(Date),
+  });
+});
+
 test('Attempting to start a cardless voter session when not allowed by config', async () => {
   const auth = new InsertedSmartCardAuth({
     card: mockCard,
