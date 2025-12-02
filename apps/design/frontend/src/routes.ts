@@ -91,16 +91,6 @@ export const routes = {
           path: `${root}/contests/${contestId}`,
         }),
       },
-      parties2: {
-        root: {
-          title: 'Parties',
-          path: `${root}/parties2`,
-        },
-        edit: {
-          title: 'Parties',
-          path: `${root}/parties2/edit`,
-        },
-      },
       ballots: {
         root: {
           title: 'Proof Ballots',
