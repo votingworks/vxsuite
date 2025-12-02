@@ -456,6 +456,14 @@ test.each<{
       '/1.3.6.1.4.1.59817.1=scan' +
       `/1.3.6.1.4.1.59817.6=${DEV_MACHINE_ID}/`,
   },
+  {
+    machineType: 'print',
+    jurisdiction: undefined,
+    expectedSubject:
+      '/C=US/ST=CA/O=VotingWorks' +
+      '/1.3.6.1.4.1.59817.1=print' +
+      `/1.3.6.1.4.1.59817.6=${DEV_MACHINE_ID}/`,
+  },
 ])(
   'constructMachineCertSubject - $machineType',
   ({ machineType, jurisdiction: testCaseJurisdiction, expectedSubject }) => {
@@ -502,6 +510,11 @@ test.each<{
   {
     description: 'provided unneeded jurisdiction for VxScan',
     machineType: 'scan',
+    jurisdiction,
+  },
+  {
+    description: 'provided unneeded jurisdiction for VxPrint',
+    machineType: 'print',
     jurisdiction,
   },
 ])(

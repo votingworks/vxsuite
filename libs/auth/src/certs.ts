@@ -186,6 +186,12 @@ const VxPollBookCustomCertFieldsSchema: z.ZodSchema<VxPollBookCustomCertFields> 
     jurisdiction: z.string(),
   });
 
+const VxPrintCustomCertFieldsSchema: z.ZodSchema<VxPrintCustomCertFields> =
+  z.strictObject({
+    component: z.literal('print'),
+    machineId: z.string(),
+  });
+
 const VendorCardCustomCertFieldsSchema: z.ZodSchema<VendorCardCustomCertFields> =
   z.strictObject({
     component: z.literal('card'),
@@ -229,6 +235,7 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.union([
   VxMarkScanCustomCertFieldsSchema,
   VxScanCustomCertFieldsSchema,
   VxPollBookCustomCertFieldsSchema,
+  VxPrintCustomCertFieldsSchema,
   CardCustomCertFieldsSchema,
 ]);
 
