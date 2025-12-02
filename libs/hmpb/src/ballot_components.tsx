@@ -539,36 +539,66 @@ export function PrecinctOrSplitName({
     : electionStrings.precinctName(precinctOrSplit.precinct);
 }
 
-export function Footer({
-  election,
-  ballotStyleId,
-  precinctId,
+export const FooterRow = styled.div`
+  display: flex;
+  gap: 0.75rem;
+`;
+
+export const FooterBox = styled(Box).attrs({ fill: 'tinted' })`
+  padding: 0.25rem 0.5rem;
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export function FooterPageNumber({
   pageNumber,
   totalPages,
-  electionTitleOverride,
 }: {
-  election: Election;
-  ballotStyleId: BallotStyleId;
-  precinctId: PrecinctId;
   pageNumber: number;
   totalPages?: number;
-  electionTitleOverride?: React.ReactNode;
-}): JSX.Element {
-  const party = getPartyForBallotStyle({ election, ballotStyleId });
+}): JSX.Element | null {
+  if (totalPages === undefined) {
+    return null;
+  }
 
-  const languageCode = primaryLanguageCode(
-    assertDefined(getBallotStyle({ election, ballotStyleId }))
+  return (
+    <div>
+      <div style={{ fontSize: '0.85rem' }}>
+        <DualLanguageText delimiter="/">
+          {hmpbStrings.hmpbPage}
+        </DualLanguageText>
+      </div>
+      <h1>
+        {pageNumber}/{totalPages}
+      </h1>
+    </div>
   );
-  const languageText = unique([languageCode, 'en'])
-    .map((code) =>
-      format.languageDisplayName({
-        languageCode: code,
-        displayLanguageCode: 'en',
-      })
-    )
-    .join(' / ');
+}
 
-  const continueVoting = (
+export function FooterVoterInstruction({
+  pageNumber,
+  totalPages,
+}: {
+  pageNumber: number;
+  totalPages?: number;
+}): JSX.Element | null {
+  if (totalPages === undefined) {
+    return null;
+  }
+
+  if (pageNumber === totalPages) {
+    return (
+      <div style={{ textAlign: 'right' }}>
+        <DualLanguageText>
+          <h3>{hmpbStrings.hmpbVotingComplete}</h3>
+        </DualLanguageText>
+      </div>
+    );
+  }
+
+  return (
     <div
       style={{
         display: 'flex',
@@ -588,90 +618,109 @@ export function Footer({
       <ArrowRightCircle style={{ height: '2rem' }} />
     </div>
   );
-  const ballotComplete = (
-    <div style={{ textAlign: 'right' }}>
-      <DualLanguageText>
-        <h3>{hmpbStrings.hmpbVotingComplete}</h3>
-      </DualLanguageText>
-    </div>
-  );
+}
 
-  let endOfPageInstruction;
-  if (totalPages !== undefined) {
-    endOfPageInstruction =
-      pageNumber === totalPages ? ballotComplete : continueVoting;
-  }
+export function FooterMetadata({
+  election,
+  ballotStyleId,
+  precinctId,
+  electionTitleOverride,
+}: {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  electionTitleOverride?: React.ReactNode;
+}): JSX.Element {
+  const party = getPartyForBallotStyle({ election, ballotStyleId });
+
+  const languageCode = primaryLanguageCode(
+    assertDefined(getBallotStyle({ election, ballotStyleId }))
+  );
+  const languageText = unique([languageCode, 'en'])
+    .map((code) =>
+      format.languageDisplayName({
+        languageCode: code,
+        displayLanguageCode: 'en',
+      })
+    )
+    .join(' / ');
 
   return (
-    <div>
-      <div style={{ display: 'flex', gap: '0.75rem' }}>
-        <QrCodeSlot />
-        <Box
-          fill="tinted"
-          style={{
-            padding: '0.25rem 0.5rem',
-            flex: 1,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <div>
-            {totalPages !== undefined && (
-              <div>
-                <div style={{ fontSize: '0.85rem' }}>
-                  <DualLanguageText delimiter="/">
-                    {hmpbStrings.hmpbPage}
-                  </DualLanguageText>
-                </div>
-                <h1>
-                  {pageNumber}/{totalPages}
-                </h1>
-              </div>
-            )}
-          </div>
-          <div>{endOfPageInstruction}</div>
-        </Box>
-      </div>
-      <InEnglish>
-        <div
-          style={{
-            fontSize: '8pt',
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '0.5rem',
-            borderWidth: '1px',
-            marginTop: '0.325rem',
-            // There's padding at the bottom of the timing mark grid that we
-            // want to eat into a little bit here.
-            marginBottom: '-0.075in',
-            fontWeight: 'bold',
-          }}
-        >
-          <div>
-            <BallotHashSlot /> &bull;{' '}
-            {electionTitleOverride ?? electionStrings.electionTitle(election)},{' '}
-            {electionStrings.electionDate(election)} &bull;{' '}
-            {electionStrings.countyName(election.county)},{' '}
-            {electionStrings.stateName(election)}
-          </div>
-          <div>
-            <PrecinctOrSplitName
-              election={election}
-              precinctId={precinctId}
-              ballotStyleId={ballotStyleId}
-            />{' '}
-            &bull;
-            {party && (
-              <React.Fragment>
-                {' '}
-                {electionStrings.partyName(party)} &bull;
-              </React.Fragment>
-            )}{' '}
-            {languageText}
-          </div>
+    <InEnglish>
+      <div
+        style={{
+          fontSize: '8pt',
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '0.5rem',
+          borderWidth: '1px',
+          marginTop: '0.325rem',
+          // There's padding at the bottom of the timing mark grid that we
+          // want to eat into a little bit here.
+          marginBottom: '-0.075in',
+          fontWeight: 'bold',
+        }}
+      >
+        <div>
+          <BallotHashSlot /> &bull;{' '}
+          {electionTitleOverride ?? electionStrings.electionTitle(election)},{' '}
+          {electionStrings.electionDate(election)} &bull;{' '}
+          {electionStrings.countyName(election.county)},{' '}
+          {electionStrings.stateName(election)}
         </div>
-      </InEnglish>
+        <div>
+          <PrecinctOrSplitName
+            election={election}
+            precinctId={precinctId}
+            ballotStyleId={ballotStyleId}
+          />{' '}
+          &bull;
+          {party && (
+            <React.Fragment>
+              {' '}
+              {electionStrings.partyName(party)} &bull;
+            </React.Fragment>
+          )}{' '}
+          {languageText}
+        </div>
+      </div>
+    </InEnglish>
+  );
+}
+
+export function Footer({
+  election,
+  ballotStyleId,
+  precinctId,
+  pageNumber,
+  totalPages,
+  electionTitleOverride,
+}: {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  pageNumber: number;
+  totalPages?: number;
+  electionTitleOverride?: React.ReactNode;
+}): JSX.Element {
+  return (
+    <div>
+      <FooterRow>
+        <QrCodeSlot />
+        <FooterBox>
+          <FooterPageNumber pageNumber={pageNumber} totalPages={totalPages} />
+          <FooterVoterInstruction
+            pageNumber={pageNumber}
+            totalPages={totalPages}
+          />
+        </FooterBox>
+      </FooterRow>
+      <FooterMetadata
+        election={election}
+        ballotStyleId={ballotStyleId}
+        precinctId={precinctId}
+        electionTitleOverride={electionTitleOverride}
+      />
     </div>
   );
 }

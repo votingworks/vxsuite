@@ -18,6 +18,7 @@ import {
   BaseBallotProps,
   CandidateContest as CandidateContestStruct,
   Election,
+  PrecinctId,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
@@ -46,7 +47,6 @@ import {
   DualLanguageText,
   primaryLanguageCode,
   Instructions,
-  Footer,
   Box,
   ContestHeader,
   Colors,
@@ -56,6 +56,12 @@ import {
   ContestTitle,
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
+  FooterBox,
+  FooterMetadata,
+  FooterPageNumber,
+  FooterRow,
+  FooterVoterInstruction,
+  QrCodeSlot,
 } from '../ballot_components';
 import { PixelDimensions } from '../types';
 import { layOutInColumns } from '../layout_in_columns';
@@ -133,6 +139,48 @@ function Header({
           </div>
         </div>
       </DualLanguageText>
+    </div>
+  );
+}
+
+export function Footer({
+  election,
+  ballotStyleId,
+  precinctId,
+  pageNumber,
+  totalPages,
+  electionTitleOverride,
+}: {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  pageNumber: number;
+  totalPages?: number;
+  electionTitleOverride?: React.ReactNode;
+}): JSX.Element {
+  return (
+    <div>
+      <FooterRow>
+        <QrCodeSlot />
+        {pageNumber % 2 === 0 && (
+          <Box style={{ padding: '0.125rem' }}>
+            <div style={{ fontSize: '8pt' }}>Initialing Manager</div>
+          </Box>
+        )}
+        <FooterBox>
+          <FooterPageNumber pageNumber={pageNumber} totalPages={totalPages} />
+          <FooterVoterInstruction
+            pageNumber={pageNumber}
+            totalPages={totalPages}
+          />
+        </FooterBox>
+      </FooterRow>
+      <FooterMetadata
+        election={election}
+        ballotStyleId={ballotStyleId}
+        precinctId={precinctId}
+        electionTitleOverride={electionTitleOverride}
+      />
     </div>
   );
 }
