@@ -259,7 +259,7 @@ export async function getTopCpuProcesses(
 export function startCpuMetricsLogging(
   logger: BaseLogger,
   {
-    interval = 30_000, // 30 seconds
+    interval = 60_000, // 60 seconds
     topProcessCount = 5,
   } = {}
 ): { stop(): void } {
@@ -272,8 +272,11 @@ export function startCpuMetricsLogging(
 
       const processInfo = topProcesses
         .map((p) => {
-          const cwdInfo = p.cwd ? ` [${p.cwd}]` : '';
-          return `${p.command} (${p.user}, ${p.cpu}%)${cwdInfo}`;
+          const details = [`user=${p.user}`];
+          if (p.cwd) {
+            details.push(`cwd=${p.cwd}`);
+          }
+          return `${p.command} (${p.cpu}%) (${details.join(', ')})`;
         })
         .join(', ');
 
