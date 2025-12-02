@@ -9,6 +9,7 @@ import {
 } from './all_bubble_ballot_fixtures';
 import {
   calibrationSheetFixtures,
+  msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   timingMarkPaperFixtures,
   vxFamousNamesFixtures,
@@ -129,6 +130,18 @@ async function generateNhGeneralElectionFixtures(rendererPool: RendererPool) {
   }
 }
 
+async function generateMsGeneralElectionFixtures(rendererPool: RendererPool) {
+  const fixtures = msGeneralElectionFixtures;
+  const generated = await fixtures.generate(rendererPool);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
+  );
+  await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+  await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
+}
+
 async function generateTimingMarkPaperFixtures(
   renderer: Renderer,
   paperSize: HmpbBallotPaperSize,
@@ -178,6 +191,7 @@ type Fixture =
   | 'vx-general-election'
   | 'vx-primary-election'
   | 'nh-general-election'
+  | 'ms-general-election'
   | 'calibration-sheet';
 
 export async function main(): Promise<number> {
@@ -271,6 +285,14 @@ export async function main(): Promise<number> {
       force: true,
     });
     await generateNhGeneralElectionFixtures(rendererPool);
+  }
+
+  if (fixtures.size === 0 || fixtures.has('ms-general-election')) {
+    await rm(msGeneralElectionFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateMsGeneralElectionFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('timing-mark-paper')) {
