@@ -1,7 +1,7 @@
 APP := ..
 export PIPENV_VENV_IN_PROJECT=1
 export SCAN_WORKSPACE=/tmp/central-scan-integration-testing
-export MOCK_SCANNER_FILES=../../../libs/hmpb/fixtures/vx-famous-names/blank-ballot-p1.jpg,../../../libs/hmpb/fixtures/vx-famous-names/blank-ballot-p2.jpg
+export MOCK_SCANNER_FILES=../../../libs/hmpb/fixtures/vx-famous-names/marked-ballot-p1.jpg,../../../libs/hmpb/fixtures/vx-famous-names/marked-ballot-p2.jpg
 
 build-frontend:
 	make -C $(APP)/frontend install; \
