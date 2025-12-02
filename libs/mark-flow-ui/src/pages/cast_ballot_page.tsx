@@ -10,7 +10,7 @@ import {
   VerifyBallotImage,
   appStrings,
 } from '@votingworks/ui';
-import { VoterScreen } from '../components/voter_screen';
+import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
 
 const Instructions = styled.ol`
   display: flex;
@@ -56,11 +56,13 @@ const InstructionImageContainer = styled.div`
 interface Props {
   hidePostVotingInstructions: () => void;
   printingCompleted?: boolean;
+  VoterHelpScreen?: VoterHelpScreenType;
 }
 
 export function CastBallotPage({
   hidePostVotingInstructions,
   printingCompleted,
+  VoterHelpScreen,
 }: Props): JSX.Element {
   return (
     <VoterScreen
@@ -74,6 +76,7 @@ export function CastBallotPage({
         </Button>
       }
       padded
+      VoterHelpScreen={VoterHelpScreen}
     >
       <ReadOnLoad>
         <H1>{appStrings.titleBmdCastBallotScreen()}</H1>

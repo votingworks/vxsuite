@@ -69,6 +69,11 @@ export enum UserFeature {
    * Requires the system settings screen to be enabled.
    */
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING = 'SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING',
+  /**
+   * Allow the user to toggle voter help buttons.
+   * Requires the system settings screen to be enabled.
+   */
+  VOTER_HELP_BUTTONS_SYSTEM_SETTING = 'VOTER_HELP_BUTTONS_SYSTEM_SETTING',
 
   //
   // Other features
@@ -136,6 +141,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
+  VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
 
   ACCESS_ALL_ORGS: true,
   BALLOT_LANGUAGE_CONFIG: true,

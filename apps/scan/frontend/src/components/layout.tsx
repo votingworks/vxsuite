@@ -10,12 +10,14 @@ import {
   ReadOnLoad,
   AudioOnly,
   TestModeCallout,
+  VoterHelpButton,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
 import { getConfig, getMachineConfig, getScannerStatus } from '../api';
 import { ScannedBallotCount } from './scanned_ballot_count';
 import { VoterSettingsButton } from './voter_settings_button';
+import { VoterHelpScreen } from './voter_help_screen';
 
 /**
  * At larger text sizes, the election info bar takes up too much valuable screen
@@ -107,6 +109,8 @@ export function Screen(props: ScreenProps): JSX.Element | null {
 
   const [shouldShowLanguageSettings, setShouldShowLanguageSettings] =
     React.useState(false);
+  const [shouldShowVoterHelpScreen, setShouldShowVoterHelpScreen] =
+    React.useState(false);
 
   const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
@@ -122,13 +126,23 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     );
   }
 
+  if (shouldShowVoterHelpScreen) {
+    return (
+      <VoterHelpScreen onClose={() => setShouldShowVoterHelpScreen(false)} />
+    );
+  }
+
   if (!(machineConfigQuery.isSuccess && configQuery.isSuccess)) {
     return null;
   }
 
   const { codeVersion, machineId } = machineConfigQuery.data;
-  const { electionDefinition, electionPackageHash, precinctSelection } =
-    configQuery.data;
+  const {
+    electionDefinition,
+    electionPackageHash,
+    precinctSelection,
+    systemSettings,
+  } = configQuery.data;
 
   const ballotCount =
     ballotCountOverride ?? scannerStatusQuery.data?.ballotsCounted;
@@ -152,6 +166,12 @@ export function Screen(props: ScreenProps): JSX.Element | null {
               onPress={() => setShouldShowLanguageSettings(true)}
             />
             <VoterSettingsButton disabled={disableSettingsButtons} />
+            {!systemSettings.disableVoterHelpButtons && (
+              <VoterHelpButton
+                disabled={disableSettingsButtons}
+                onPress={() => setShouldShowVoterHelpScreen(true)}
+              />
+            )}
           </SettingsButtons>
           {showTestModeBanner && <TestModeCallout />}
           {ballotCountElement}

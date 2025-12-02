@@ -21,8 +21,8 @@ export function WarningDetailsModalButton(
       <Modal
         modalWidth={ModalWidth.Wide}
         content={
-          // TODO: Check whether the accessible input is a tactile controller vs. a PAT and only
-          // set focusable to true when using a PAT
+          // TODO: Check whether the accessible input is a tactile controller vs. a PAT device and
+          // only make the scroll buttons focusable when using a PAT device
           <WithScrollButtons focusable>
             <WarningDetails
               blankContests={blankContests}

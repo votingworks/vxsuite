@@ -108,6 +108,8 @@ export * from './virtual_keyboard/scan_panel_virtual_keyboard';
 export * from './virtual_keyboard/virtual_keyboard';
 export * from './virtual_keyboard/types';
 export * from './voter_contest_summary';
+export * from './voter_help_button';
+export * from './voter_help_screen';
 export * from './with_scroll_buttons';
 export * from './search_select';
 export * from './checkbox';

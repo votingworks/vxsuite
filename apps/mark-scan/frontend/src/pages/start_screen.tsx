@@ -4,11 +4,13 @@ import { useHistory } from 'react-router-dom';
 import { StartPage } from '@votingworks/mark-flow-ui';
 import { AssistiveTechInstructions, appStrings } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context';
+import { useVoterHelpScreen } from './use_voter_help_screen';
 
 export function StartScreen(): JSX.Element {
   const history = useHistory();
   const { ballotStyleId, contests, electionDefinition, precinctId } =
     useContext(BallotContext);
+  const VoterHelpScreen = useVoterHelpScreen('StartScreen');
 
   function onStart() {
     history.push('/contests/0');
@@ -27,6 +29,7 @@ export function StartScreen(): JSX.Element {
         />
       }
       precinctId={precinctId}
+      VoterHelpScreen={VoterHelpScreen}
     />
   );
 }

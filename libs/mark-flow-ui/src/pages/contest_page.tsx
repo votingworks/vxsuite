@@ -22,7 +22,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Contest, ContestProps } from '../components/contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
-import { VoterScreen } from '../components/voter_screen';
+import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
 import { numVotesRemaining } from '../utils/vote';
 
 export interface ContestPageProps {
@@ -39,16 +39,21 @@ export interface ContestPageProps {
   updateVote: ContestProps['updateVote'];
   votes: VotesDict;
   numWriteInCharactersAllowedAcrossContests?: number;
+  VoterHelpScreen?: VoterHelpScreenType;
 }
 
 interface ContestParams {
   contestNumber: string;
 }
 
+export function useIsReviewMode(): boolean {
+  const history = useHistory();
+  return history.location.hash === '#review';
+}
+
 export function ContestPage(props: ContestPageProps): JSX.Element {
   const { contestNumber } = useParams<ContestParams>();
-  const history = useHistory();
-  const isReviewMode = history.location.hash === '#review';
+  const isReviewMode = useIsReviewMode();
 
   const {
     ballotStyleId,
@@ -63,6 +68,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     updateVote,
     votes,
     numWriteInCharactersAllowedAcrossContests,
+    VoterHelpScreen,
   } = props;
 
   // eslint-disable-next-line vx/gts-safe-number-parse
@@ -188,6 +194,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       breadcrumbs={
         breadcrumbsMetadata && <Breadcrumbs {...breadcrumbsMetadata} />
       }
+      VoterHelpScreen={VoterHelpScreen}
     >
       <Contest
         key={contest.id} // Force a re-mount for every contest to reset scroll state.

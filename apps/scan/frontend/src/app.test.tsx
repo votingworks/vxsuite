@@ -1510,3 +1510,42 @@ test('PAT device tutorial is not triggered when calibration is already complete'
   userEvent.keyboard('1');
   expect(setShowingPatCalibrationMock).not.toHaveBeenCalled();
 });
+
+test('voter help button', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+  renderApp();
+
+  const voterHelpScreenHeading = 'Voter Instructions';
+  await screen.findByText('Insert Your Ballot');
+  expect(screen.queryAllByRole('button')).toHaveLength(2);
+  userEvent.click(screen.getByRole('button', { name: 'Help' }));
+  await screen.findByRole('heading', { name: voterHelpScreenHeading });
+  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  expect(
+    screen.queryByRole('heading', { name: voterHelpScreenHeading })
+  ).not.toBeInTheDocument();
+});
+
+test('voter help button hidden when relevant system setting is set', async () => {
+  apiMock.expectGetConfig({
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      disableVoterHelpButtons: true,
+    },
+  });
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+  renderApp();
+
+  await screen.findByText('Insert Your Ballot');
+  expect(screen.queryAllByRole('button')).toHaveLength(1);
+  expect(
+    screen.queryByRole('button', { name: 'Help' })
+  ).not.toBeInTheDocument();
+});

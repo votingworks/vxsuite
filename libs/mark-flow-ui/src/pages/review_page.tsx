@@ -22,7 +22,7 @@ import {
 } from '@votingworks/types';
 import { Review, ReviewProps } from '../components/review';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-import { VoterScreen } from '../components/voter_screen';
+import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
 
 const ContentHeader = styled(ReadOnLoad)`
   padding: 0.5rem 0.75rem 0;
@@ -36,6 +36,7 @@ export interface ReviewPageProps {
   printScreenUrl: string;
   returnToContest?: ReviewProps['returnToContest'];
   votes: VotesDict;
+  VoterHelpScreen?: VoterHelpScreenType;
 }
 
 export function ReviewPage(props: ReviewPageProps): JSX.Element {
@@ -47,6 +48,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     printScreenUrl,
     returnToContest,
     votes,
+    VoterHelpScreen,
   } = props;
 
   assert(
@@ -85,7 +87,10 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
   );
 
   return (
-    <VoterScreen actionButtons={printMyBallotButton}>
+    <VoterScreen
+      actionButtons={printMyBallotButton}
+      VoterHelpScreen={VoterHelpScreen}
+    >
       <ContentHeader>
         <H1>{appStrings.titleBmdReviewScreen()}</H1>
         <AudioOnly>

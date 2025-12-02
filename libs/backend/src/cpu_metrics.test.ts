@@ -307,7 +307,7 @@ test('startCpuMetricsLogging happy path', async () => {
     memoryUsedBytes: 9507823616,
     temperatureCelsius: 39,
     topProcesses:
-      'qemu-system-x86 (libvirt+, 46.3%) [CWD], chromium (brian, 11%) [CWD], qemu-system-x86 (libvirt+, 4.7%) [CWD], ghostty (brian, 3.3%) [CWD], chromium (brian, 2.7%) [CWD]',
+      'qemu-system-x86 (46.3%) (user=libvirt+, cwd=CWD), chromium (11%) (user=brian, cwd=CWD), qemu-system-x86 (4.7%) (user=libvirt+, cwd=CWD), ghostty (3.3%) (user=brian, cwd=CWD), chromium (2.7%) (user=brian, cwd=CWD)',
   });
 });
 
@@ -557,7 +557,7 @@ test('startCpuMetricsLogging VX_TEMPERATURE_FILE_PATH valid', async () => {
     memoryUsedBytes: 9507823616,
     temperatureCelsius: 89,
     topProcesses:
-      'qemu-system-x86 (libvirt+, 46.3%), chromium (brian, 11%), qemu-system-x86 (libvirt+, 4.7%), ghostty (brian, 3.3%), chromium (brian, 2.7%)',
+      'qemu-system-x86 (46.3%) (user=libvirt+), chromium (11%) (user=brian), qemu-system-x86 (4.7%) (user=libvirt+), ghostty (3.3%) (user=brian), chromium (2.7%) (user=brian)',
   });
 });
 
@@ -655,7 +655,7 @@ test('startCpuMetricsLogging VX_TEMPERATURE_FILE_PATH invalid', async () => {
     memoryUsedBytes: 9507823616,
     temperatureCelsius: 39,
     topProcesses:
-      'qemu-system-x86 (libvirt+, 46.3%), chromium (brian, 11%), qemu-system-x86 (libvirt+, 4.7%), ghostty (brian, 3.3%), chromium (brian, 2.7%)',
+      'qemu-system-x86 (46.3%) (user=libvirt+), chromium (11%) (user=brian), qemu-system-x86 (4.7%) (user=libvirt+), ghostty (3.3%) (user=brian), chromium (2.7%) (user=brian)',
   });
 });
 
