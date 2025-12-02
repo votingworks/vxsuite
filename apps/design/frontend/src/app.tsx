@@ -33,6 +33,7 @@ import { ErrorScreen } from './error_screen';
 import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen';
 import { LiveReportsScreen } from './live_reports_screen';
 import { ConvertResultsScreen } from './convert_results_screen';
+import { PartiesScreen } from './parties_screen';
 
 function ElectionScreens(): JSX.Element {
   return (
@@ -44,6 +45,10 @@ function ElectionScreens(): JSX.Element {
       <Route
         path={electionParamRoutes.geography.root.path}
         component={GeographyScreen}
+      />
+      <Route
+        path={electionParamRoutes.parties.root.path}
+        component={PartiesScreen}
       />
       <Route
         path={electionParamRoutes.contests.root.path}

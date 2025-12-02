@@ -63,39 +63,33 @@ export const routes = {
           }),
         },
       },
+      parties: {
+        root: {
+          title: 'Parties',
+          path: `${root}/parties`,
+        },
+        addParty: {
+          title: 'Add Party',
+          path: `${root}/parties/add`,
+        },
+        editParty: (partyId: string) => ({
+          title: 'Edit Party',
+          path: `${root}/parties/${partyId}`,
+        }),
+      },
       contests: {
         root: {
           title: 'Contests',
           path: `${root}/contests`,
         },
-        contests: {
-          root: {
-            title: 'Contests',
-            path: `${root}/contests/contests`,
-          },
-          addContest: {
-            title: 'Add Contest',
-            path: `${root}/contests/contests/add`,
-          },
-          editContest: (contestId: string) => ({
-            title: 'Edit Contest',
-            path: `${root}/contests/contests/${contestId}`,
-          }),
+        addContest: {
+          title: 'Add Contest',
+          path: `${root}/contests/add`,
         },
-        parties: {
-          root: {
-            title: 'Parties',
-            path: `${root}/contests/parties`,
-          },
-          addParty: {
-            title: 'Add Party',
-            path: `${root}/contests/parties/add`,
-          },
-          editParty: (partyId: string) => ({
-            title: 'Edit Party',
-            path: `${root}/contests/parties/${partyId}`,
-          }),
-        },
+        editContest: (contestId: string) => ({
+          title: 'Edit Contest',
+          path: `${root}/contests/${contestId}`,
+        }),
       },
       ballots: {
         root: {
@@ -178,6 +172,7 @@ export function electionNavRoutes(
   return [
     electionRoutes.electionInfo,
     electionRoutes.geography.root,
+    electionRoutes.parties.root,
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
     ...(features.SYSTEM_SETTINGS_SCREEN ? [electionRoutes.systemSettings] : []),
