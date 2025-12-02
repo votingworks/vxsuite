@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { format } from '@votingworks/utils';
-import { BallotType, hasSplits, LanguageCode } from '@votingworks/types';
+import { BallotType, hasSplits, Id, LanguageCode } from '@votingworks/types';
 import {
   Button,
   RadioGroup,
@@ -13,7 +13,7 @@ import { assertDefined } from '@votingworks/basics';
 
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
-import { getElectionRecord, printBallot } from '../api';
+import { getElectionRecord, getPrecinctSelection, printBallot } from '../api';
 import { getAvailableLanguages } from '../utils';
 
 const Container = styled.div`
@@ -91,17 +91,30 @@ export function PrintScreen({
 }): JSX.Element | null {
   const [numCopies, setNumCopies] = useState(1);
   const [searchValue, setSearchValue] = useState<string>('');
-  const [selectedPrecinctName, setSelectedPrecinctName] = useState<string>('');
-  const [selectedSplitName, setSelectedSplitName] = useState<string>('');
-  const [selectedParty, setSelectedParty] = useState<string>('');
-  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(
-    LanguageCode.ENGLISH
-  );
+  const [selectedPrecinctId, setSelectedPrecinctId] = useState<Id>('');
+  const [selectedSplitId, setSelectedSplitId] = useState<Id>('');
+  const [selectedPartyId, setSelectedPartyId] = useState<Id>('');
+  const [selectedLanguageCode, setSelectedLanguageCode] =
+    useState<LanguageCode>(LanguageCode.ENGLISH);
   const [isAbsentee, setIsAbsentee] = useState<boolean>(false);
   const printBallotMutation = printBallot.useMutation();
 
   const getElectionRecordQuery = getElectionRecord.useQuery();
-  if (!getElectionRecordQuery.isSuccess) {
+  const getConfiguredPrecinctQuery = getPrecinctSelection.useQuery();
+  const configuredPrecinct = getConfiguredPrecinctQuery.data;
+
+  // Default to the configured precinct. Election Managers are still
+  // able to select other precincts.
+  useEffect(() => {
+    if (configuredPrecinct?.kind === 'SinglePrecinct') {
+      setSelectedPrecinctId(configuredPrecinct.precinctId);
+    }
+  }, [configuredPrecinct]);
+
+  if (
+    !getElectionRecordQuery.isSuccess ||
+    !getConfiguredPrecinctQuery.isSuccess
+  ) {
     return null;
   }
 
@@ -112,22 +125,19 @@ export function PrintScreen({
   const { precincts, parties } = election;
   const hasParties = election.type === 'primary';
 
-  const selectedPrecinct = selectedPrecinctName
-    ? precincts.find((p) => p.name === selectedPrecinctName)
+  // If VxPrint is configured for a single precinct, hide the precinct
+  // selection for Poll Workers and default to the configured precinct
+  const hidePrecinctSelection =
+    configuredPrecinct?.kind === 'SinglePrecinct' && !isElectionManagerAuth;
+  const selectedPrecinct = selectedPrecinctId
+    ? precincts.find((p) => p.id === selectedPrecinctId)
     : undefined;
-  const selectedSplitId =
-    selectedPrecinct && hasSplits(selectedPrecinct) && selectedSplitName
-      ? selectedPrecinct.splits.find((s) => s.name === selectedSplitName)?.id
-      : undefined;
-  const selectedPartyId = parties.find(
-    (party) => party.abbrev === selectedParty
-  )?.id;
 
   const availableSplits =
     selectedPrecinct && hasSplits(selectedPrecinct)
       ? selectedPrecinct.splits
       : [];
-  const showSplitSelection = availableSplits.length > 0;
+  const hideSplitSelection = availableSplits.length === 0;
 
   return (
     <Container>
@@ -147,35 +157,61 @@ export function PrintScreen({
       />
       <Form>
         <Column>
-          <FormSection style={{ flex: 1 }}>
+          <FormSection
+            style={{
+              // Grow to fill space when precinct selection is shown
+              flex: hidePrecinctSelection ? undefined : 1,
+              // Provide buffer for alignment when precinct selection is hidden
+              marginBottom: hidePrecinctSelection ? '2.75rem' : undefined,
+            }}
+          >
             <strong>Precinct</strong>
-            <ExpandedSelect
-              selectedValue={selectedPrecinctName}
-              options={precincts
-                .map((p) => p.name)
-                .filter(
-                  (name) =>
-                    !searchValue ||
-                    name.toLowerCase().includes(searchValue.toLowerCase())
-                )}
-              onSearch={setSearchValue}
-              onSelect={(value) => {
-                if (value !== selectedPrecinctName) {
-                  setSelectedPrecinctName(value);
-                  setSelectedSplitName('');
-                }
-              }}
-            />
+            {hidePrecinctSelection ? (
+              /* We still show the ExpandedSelect for ui consistency, but lock it to the configured precinct */
+              <ExpandedSelect
+                selectedValue={configuredPrecinct.precinctId}
+                options={[
+                  {
+                    value: configuredPrecinct.precinctId,
+                    label: assertDefined(
+                      precincts.find(
+                        (p) => p.id === configuredPrecinct.precinctId
+                      )
+                    ).name,
+                  },
+                ]}
+                onSelect={() => null}
+              />
+            ) : (
+              <ExpandedSelect
+                selectedValue={selectedPrecinctId}
+                options={precincts
+                  .map((p) => ({ value: p.id, label: p.name }))
+                  .filter(
+                    (o) =>
+                      !searchValue ||
+                      o.label.toLowerCase().includes(searchValue.toLowerCase())
+                  )}
+                onSearch={setSearchValue}
+                onSelect={(value) => {
+                  if (value !== selectedPrecinctId) {
+                    setSelectedPrecinctId(value);
+                    setSelectedSplitId('');
+                  }
+                }}
+              />
+            )}
           </FormSection>
-          {showSplitSelection && (
+          {!hideSplitSelection && (
             <FormSection>
               <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
               <ExpandedSelect
-                selectedValue={selectedSplitName}
-                options={availableSplits.map((split) => split.name)}
-                onSelect={(value) => {
-                  setSelectedSplitName(value);
-                }}
+                selectedValue={selectedSplitId}
+                options={availableSplits.map((split) => ({
+                  value: split.id,
+                  label: split.name,
+                }))}
+                onSelect={setSelectedSplitId}
               />
             </FormSection>
           )}
@@ -186,12 +222,12 @@ export function PrintScreen({
               <strong>Party</strong>
               <RadioGroup
                 label="Party"
-                value={selectedParty}
+                value={selectedPartyId}
                 options={parties.map((party) => ({
                   label: party.name,
-                  value: party.abbrev,
+                  value: party.id,
                 }))}
-                onChange={(value: string) => setSelectedParty(value)}
+                onChange={setSelectedPartyId}
                 hideLabel
               />
             </FormSection>
@@ -200,7 +236,7 @@ export function PrintScreen({
             <strong>Language</strong>
             <RadioGroup
               label="Language"
-              value={selectedLanguage}
+              value={selectedLanguageCode}
               options={languages.map((language) => ({
                 label: format.languageDisplayName({
                   languageCode: language,
@@ -208,9 +244,7 @@ export function PrintScreen({
                 }),
                 value: language,
               }))}
-              onChange={(value: LanguageCode) => {
-                setSelectedLanguage(value);
-              }}
+              onChange={setSelectedLanguageCode}
               hideLabel
             />
           </FormSection>
@@ -251,23 +285,23 @@ export function PrintScreen({
               precinctId: assertDefined(selectedPrecinct).id,
               splitId: selectedSplitId,
               partyId: selectedPartyId,
-              languageCode: selectedLanguage,
+              languageCode: selectedLanguageCode,
               ballotType: isAbsentee
                 ? BallotType.Absentee
                 : BallotType.Precinct,
               copies: numCopies,
             });
             console.log(
-              `Printing ballot style: ${selectedPrecinctName}, ${selectedParty}, ${selectedLanguage}${
-                selectedSplitName ? `, ${selectedSplitName}` : ''
+              `Printing ballot style: ${selectedPrecinct?.name}, ${selectedPartyId}, ${selectedLanguageCode}${
+                selectedSplitId ? `, ${selectedSplitId}` : ''
               }, ${isAbsentee ? 'Absentee' : 'Precinct'}, Copies: ${numCopies} `
             );
           }}
           disabled={
-            !selectedPrecinctName ||
-            !selectedLanguage ||
-            (hasParties && !selectedParty) ||
-            (availableSplits.length > 0 && !selectedSplitName)
+            !selectedPrecinct ||
+            !selectedLanguageCode ||
+            (hasParties && !selectedPartyId) ||
+            (availableSplits.length > 0 && !selectedSplitId)
           }
         >
           Print Ballot
