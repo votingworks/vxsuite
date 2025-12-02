@@ -40,16 +40,13 @@ pub struct Options {
     pub minimum_detected_scale: Option<UnitIntervalScore>,
 }
 
-#[derive(Debug, Clone, Copy, DeserializeFromStr)]
+#[derive(Debug, Clone, Copy, DeserializeFromStr, Default)]
 pub enum TimingMarkAlgorithm {
-    Contours { inference: Inference },
+    Contours {
+        inference: Inference,
+    },
+    #[default]
     Corners,
-}
-
-impl Default for TimingMarkAlgorithm {
-    fn default() -> Self {
-        Self::Corners
-    }
 }
 
 impl Display for TimingMarkAlgorithm {
@@ -75,8 +72,9 @@ impl FromStr for TimingMarkAlgorithm {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub enum Inference {
+    #[default]
     Enabled,
     Disabled,
 }
@@ -90,12 +88,6 @@ impl FromStr for Inference {
             "no" | "disabled" | "noinfer" | "no-infer" => Ok(Self::Disabled),
             _ => Err(format!("Unexpected inference: {s}")),
         }
-    }
-}
-
-impl Default for Inference {
-    fn default() -> Self {
-        Self::Enabled
     }
 }
 
