@@ -115,7 +115,7 @@ export enum LogEventId {
   DatabaseCreateInit = 'database-create-init',
   DatabaseCreateComplete = 'database-create-complete',
   DatabaseResetInit = 'database-reset-init',
-  DatabaseResetComplete = 'database-destroy-complete',
+  DatabaseResetComplete = 'database-reset-complete',
   FileReadError = 'file-read-error',
   DmVerityBoot = 'dmverity-boot',
   MachineBootInit = 'machine-boot-init',

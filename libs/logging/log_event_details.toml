@@ -396,7 +396,7 @@ eventType = "system-action"
 documentationMessage = "Initiating reset of the database."
 
 [Events.DatabaseResetComplete]
-eventId = "database-destroy-complete"
+eventId = "database-reset-complete"
 eventType = "system-action"
 documentationMessage = "Database reset. Success or failure indicated by disposition."
 

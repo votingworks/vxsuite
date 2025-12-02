@@ -210,7 +210,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-action](#system-action)
 **Description:** Initiating reset of the database.
 **Machines:** All
-### database-destroy-complete
+### database-reset-complete
 **Type:** [system-action](#system-action)
 **Description:** Database reset. Success or failure indicated by disposition.
 **Machines:** All
