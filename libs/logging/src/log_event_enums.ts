@@ -390,6 +390,12 @@ const TogglingTestMode: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'User has initiated toggling between test mode and live mode in the current application.',
+  restrictInDocumentationToApps: [
+    AppName.VxCentralScan,
+    AppName.VxMark,
+    AppName.VxMarkScan,
+    AppName.VxScan,
+  ],
 };
 
 const ToggledTestMode: LogDetails = {
