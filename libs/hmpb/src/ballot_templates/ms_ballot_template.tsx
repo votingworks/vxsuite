@@ -650,7 +650,7 @@ async function BallotPageContent(
   });
 }
 
-export const vxDefaultBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
+export const msBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
   stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
