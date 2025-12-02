@@ -440,7 +440,7 @@
   "voterHelpScreenContentPrePrintReviewScreenDone": "When you are done reviewing your ballot, select the “Print My Ballot” button. Your paper ballot will be printed to your right for your verification.",
   "voterHelpScreenContentPrePrintReviewScreenEdit": "If you want to edit your selections for a contest, select that contest.",
   "voterHelpScreenContentSettingsScreen": "To change your color, text size, or audio settings, select the corresponding button.",
-  "voterHelpScreenContentSettingsScreenResetAndDone": "To reset all settings to their defaults, select the “Reset” button. Select the “Done” button to return to your ballot.",
+  "voterHelpScreenContentSettingsScreenResetAndDone": "To reset all settings to their defaults, select the “Reset” button. Select the “Done” button to leave the settings screen.",
   "voterHelpScreenContentStartScreen": "Tap the “Start Voting” button to start voting. If using the accessible controller, simply press the right arrow button. If using a personal assistive device, use the move input to navigate to the “Start Voting” button and then use the select input.",
   "voterHelpScreenContentTextSize": "Tap one of the listed size options to change your text size. All screens will be displayed with the selected text size. If using the accessible controller, press the up and down arrow buttons to navigate to your preferred size option and then press the select button. If using a personal assistive device, use the move input to navigate to your preferred size option and then use the select input.",
   "voterHelpScreenContentTextSizeScan": "Select one of the listed size options to change your text size. All screens will be displayed with the selected text size.",
