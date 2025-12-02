@@ -1021,7 +1021,7 @@ mod test {
                 })
                 .count(),
             0
-        )
+        );
     }
 
     #[test]
