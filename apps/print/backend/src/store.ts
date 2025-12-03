@@ -22,6 +22,7 @@ import {
 import { join } from 'node:path';
 import { BallotPrintCount, BallotPrintEntry } from './types';
 import { addBallotsPropsToPrintCountRow } from './util/ballot_styles';
+import { sortBallotPrintCounts } from './util/sort';
 
 export type BallotPrintCountRow = Omit<
   BallotPrintCount,
@@ -324,7 +325,9 @@ export class Store {
       this.getElectionRecord()
     ).electionDefinition;
 
-    return rows.map((row) => addBallotsPropsToPrintCountRow(election, row));
+    return rows
+      .map((row) => addBallotsPropsToPrintCountRow(election, row))
+      .sort(sortBallotPrintCounts);
   }
 
   /**
