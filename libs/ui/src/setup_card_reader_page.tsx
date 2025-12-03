@@ -6,10 +6,10 @@ import { Caption, H1, P } from './typography';
 export function SetupCardReaderPage(): JSX.Element {
   return (
     <Screen>
-      <Main centerChild>
-        <H1>Card Reader Not Detected</H1>
-        <P>{ERROR_SCREEN_MESSAGES.RESTART}</P>
-        <Caption>{ERROR_SCREEN_MESSAGES.REACH_OUT}</Caption>
+      <Main centerChild padded>
+        <H1 align="center">Card Reader Not Detected</H1>
+        <P align="center">{ERROR_SCREEN_MESSAGES.RESTART}</P>
+        <Caption align="center">{ERROR_SCREEN_MESSAGES.REACH_OUT}</Caption>
       </Main>
     </Screen>
   );
