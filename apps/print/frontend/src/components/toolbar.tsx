@@ -144,7 +144,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
     );
   }
 
-  return <BasePrinterStatus icon={<Icons.Done color="success" />} />;
+  return <BasePrinterStatus />;
 }
 
 function UsbStatus({ status }: { status: UsbDriveStatus }) {
