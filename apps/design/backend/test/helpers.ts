@@ -123,12 +123,11 @@ export function testSetupHelpers() {
   async function setupApp(orgs: Org[]) {
     const store = testStore.getStore();
     await testStore.init();
-
+    for (const org of orgs) {
+      await store.createOrganization(org);
+    }
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
-
     const auth0 = new MockAuth0Client();
-    auth0.setOrgs(orgs);
-    await store.syncOrganizationsCache(orgs);
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
