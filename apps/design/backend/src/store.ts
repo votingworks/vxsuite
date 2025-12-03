@@ -593,14 +593,16 @@ export class Store {
   }
 
   async listElections(input: {
-    orgId?: string;
+    orgIds?: string[];
   }): Promise<Array<Omit<ElectionListing, 'orgName'>>> {
     let whereClause = '';
     const params: Bindable[] = [];
 
-    if (input.orgId) {
-      whereClause = 'where org_id = $1';
-      params.push(input.orgId);
+    if (input.orgIds) {
+      whereClause = `where org_id in (${input.orgIds
+        .map((_, i) => `$${i + 1}`)
+        .join(', ')})`;
+      params.push(...input.orgIds);
     }
 
     return (
