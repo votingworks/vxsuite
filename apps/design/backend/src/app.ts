@@ -276,7 +276,7 @@ export function buildApi(ctx: AppContext) {
           {
             methodName,
             input: JSON.stringify(input),
-            userAuth0Id: context.user?.auth0Id,
+            userId: context.user?.id,
             userOrgId: context.user?.orgId,
             ...outcome,
           },
