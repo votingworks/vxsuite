@@ -1,5 +1,5 @@
 import * as grout from '@votingworks/grout';
-// import { Buffer } from 'node:buffer';
+import { Buffer } from 'node:buffer';
 import express, { Application } from 'express';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
@@ -216,36 +216,38 @@ export function buildApi(ctx: AppContext) {
         partyId: input.partyId,
       });
 
-      // TODO(nikhil): Actually print ballot, increment print count within transaction
+      const ballot = store.getBallot({
+        ballotStyleId,
+        precinctId: input.precinctId,
+        ballotType: input.ballotType,
+      });
+      if (!ballot || !ballot.encodedBallot) {
+        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+          message: 'No ballot found',
+          ballotProps: JSON.stringify({
+            precinctId: input.precinctId,
+            splitId: input.splitId,
+            partyId: input.partyId,
+            languageCode: input.languageCode,
+            ballotType: input.ballotType,
+          }),
+          disposition: 'failure',
+        });
+        return;
+      }
+
+      for (let i = 0; i < input.copies; i += 1) {
+        await printer.print({
+          data: Buffer.from(ballot.encodedBallot, 'base64'),
+        });
+      }
+
       store.incrementBallotPrintCount({
         precinctId: input.precinctId,
         ballotStyleId,
         ballotType: input.ballotType,
         count: input.copies,
       });
-
-      // const ballot = store.getBallot({
-      //   ballotStyleId,
-      //   precinctId: input.precinctId,
-      //   ballotType: input.ballotType,
-      // });
-      // if (!ballot || !ballot.encodedBallot) {
-      //   await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-      //     message: 'No ballot found',
-      //     ballotProps: JSON.stringify({
-      //       precinctId: input.precinctId,
-      //       splitId: input.splitId,
-      //       partyId: input.partyId,
-      //       languageCode: input.languageCode,
-      //       ballotType: input.ballotType,
-      //     }),
-      //     disposition: 'failure',
-      //   });
-      //   return;
-      // }
-      // await printer.print({
-      //   data: Buffer.from(ballot.encodedBallot, 'base64'),
-      // });
 
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
         message: `Printed ballot ${ballotStyleId} with ${input.copies} copies`,
