@@ -36,13 +36,16 @@ export interface Auth0User {
   org_name: string;
   picture?: string;
   sid: string;
+  /**
+   * The user's unique ID in Auth0.
+   */
   sub: string;
   updated_at: Date;
 }
 
 export interface Auth0ClientInterface {
   allOrgs(): Promise<Org[]>;
-  userFromRequest(req: Express.Request): User | undefined;
+  userIdFromRequest(req: Express.Request): string | undefined;
 
   // [TODO] `Auth0Client` methods that are currently only used in the user
   // management scripts aren't included here yet. Flesh this out, along with
@@ -255,14 +258,10 @@ export class Auth0Client implements Auth0ClientInterface {
     };
   }
 
-  userFromRequest(req: Express.Request): User | undefined {
+  userIdFromRequest(req: Express.Request): string | undefined {
     const auth0User = req.oidc.user as unknown as Auth0User | undefined;
     if (!auth0User) return;
-    return {
-      name: auth0User.name,
-      auth0Id: auth0User.sub,
-      orgId: auth0User.org_id,
-    };
+    return auth0User.sub;
   }
 
   async userOrgs(userEmail: string): Promise<Org[]> {
@@ -306,12 +305,8 @@ export class Auth0Client implements Auth0ClientInterface {
       },
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      userFromRequest(_: Express.Request) {
-        return {
-          name: 'Dev User',
-          auth0Id: 'auth0|devuser',
-          orgId: votingWorksOrgId(),
-        };
+      userIdFromRequest(_: Express.Request) {
+        return 'auth0|devuser';
       },
     } as const as Auth0Client;
   }

@@ -207,11 +207,15 @@ export function buildApi(ctx: AppContext) {
 
   const middlewares: grout.Middlewares<ApiContext> = {
     before: [
-      function loadUser({ request, context }) {
-        const user = auth0.userFromRequest(request);
-        if (!user) {
+      async function loadUser({ request, context }) {
+        const userId = auth0.userIdFromRequest(request);
+        if (!userId) {
           throw new AuthError('auth:unauthorized');
         }
+        const user = assertDefined(
+          await store.getUser(userId),
+          `Auth0 user ${userId} not found in database`
+        );
         return { ...context, user };
       },
 
@@ -1293,10 +1297,11 @@ export function buildApp(context: AppContext): Application {
 
   app.get('/files/:orgId/:fileName', async (req, res, next) => {
     try {
-      const user = context.auth0.userFromRequest(req);
-      if (!user) {
+      const userId = context.auth0.userIdFromRequest(req);
+      if (!userId) {
         throw new AuthError('auth:unauthorized');
       }
+      const user = assertDefined(await context.workspace.store.getUser(userId));
       const { orgId, fileName } = req.params;
       requireOrgAccess(user, orgId);
 
