@@ -11,7 +11,7 @@ import {
   Modal,
   Loading,
 } from '@votingworks/ui';
-import { assertDefined, sleep } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
@@ -145,8 +145,11 @@ export function PrintScreen({
       : [];
   const hideSplitSelection = availableSplits.length === 0;
 
-  async function handlePrint() {
+  function handlePrint() {
     setIsShowingPrintingModal(true);
+    setTimeout(() => {
+      setIsShowingPrintingModal(false);
+    }, DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
     printBallotMutation.mutate({
       precinctId: assertDefined(selectedPrecinct).id,
       splitId: selectedSplitId,
@@ -155,13 +158,6 @@ export function PrintScreen({
       ballotType: isAbsentee ? BallotType.Absentee : BallotType.Precinct,
       copies: numCopies,
     });
-    console.log(
-      `Printing ballot style: ${selectedPrecinct?.name}, ${selectedPartyId}, ${selectedLanguageCode}${
-        selectedSplitId ? `, ${selectedSplitId}` : ''
-      }, ${isAbsentee ? 'Absentee' : 'Precinct'}, Copies: ${numCopies} `
-    );
-    await sleep(DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
-    setIsShowingPrintingModal(false);
   }
 
   return (
