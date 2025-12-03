@@ -280,9 +280,16 @@ export const appStrings = {
     <UiString uiStringKey="instructionsBmdBallotNavigationMark">
       When voting with the text-to-speech audio, use the accessible controller
       to navigate your ballot. To navigate through the contests, use the left
-      and right buttons. To navigate through contest choices, use the up and
-      down buttons. To select or unselect a contest choice as your vote, use the
-      select button. Press the right button now to advance to the first contest.
+      and right arrow buttons. To navigate through contest choices, use the up
+      and down arrow buttons. To select or unselect a contest choice as your
+      vote, use the select button in the center of the arrow buttons. Below the
+      arrow keys are headphone volume and audio rate controls. To the left of
+      the headphone jack are two buttons for volume control: select the upper
+      button with two lines to increase volume or the lower button with one line
+      to decrease volume. Below the headphone jack are two buttons to adjust the
+      rate of speech: select the left button with one dot to slow the rate of
+      speech or the right button with three dots to increase the rate of speech.
+      Press the right arrow button now to advance to the first contest.
     </UiString>
   ),
 
