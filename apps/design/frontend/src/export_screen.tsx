@@ -69,6 +69,7 @@ function TaskProgressCard({
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
   NhBallot: 'New Hampshire Ballot',
+  MsBallot: 'Mississippi Ballot',
 } satisfies Record<BallotTemplateId, string>;
 
 export function ExportScreen(): JSX.Element | null {

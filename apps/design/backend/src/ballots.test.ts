@@ -31,6 +31,13 @@ test('createBallotPropsForTemplate', () => {
     expect(props.compact).toEqual(false);
   }
 
+  const msBallotProps = createBallotPropsForTemplate(
+    'MsBallot',
+    election,
+    false
+  );
+  expect(msBallotProps).toEqual(vxDefaultBallotProps);
+
   const nhBallotProps = createBallotPropsForTemplate(
     'NhBallot',
     election,

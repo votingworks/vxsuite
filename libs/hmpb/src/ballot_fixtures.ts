@@ -34,6 +34,7 @@ import {
 } from './ballot_templates/nh_ballot_template';
 import { convertPdfToCmyk } from './pdf_conversion';
 import { generateBallotStyles } from './ballot_styles';
+import { msBallotTemplate } from './ballot_templates/ms_ballot_template';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
@@ -625,6 +626,82 @@ export const nhGeneralElectionFixtures = (() => {
       }
 
       return iter(specs).async().map(generateFixtures).toArray();
+    },
+  };
+})();
+
+export const msGeneralElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'ms-general-election');
+  const electionPath = join(dir, 'election.json');
+  const blankBallotPath = join(dir, 'blank-ballot.pdf');
+  const markedBallotPath = join(dir, 'marked-ballot.pdf');
+
+  const election = readElectionGeneral();
+  const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.map(
+      (precinctId): BaseBallotProps => ({
+        election,
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+      })
+    )
+  );
+  const blankBallotProps = allBallotProps[0];
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
+  );
+  const contests = getContests({ election, ballotStyle });
+  const { votes } = createTestVotes(contests);
+
+  return {
+    dir,
+    electionPath,
+    blankBallotPath,
+    markedBallotPath,
+    allBallotProps,
+    ...blankBallotProps,
+    votes,
+
+    async generate(rendererPool: RendererPool) {
+      debug(`Generating: ${blankBallotPath}`);
+      const { ballotContents, electionDefinition } =
+        await layOutBallotsAndCreateElectionDefinition(
+          rendererPool,
+          msBallotTemplate,
+          allBallotProps,
+          'vxf'
+        );
+
+      const blankBallotContents = ballotContents[0];
+      const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
+        async (renderer) => {
+          const ballotDocument =
+            await renderer.loadDocumentFromContent(blankBallotContents);
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+            allBallotProps[0],
+            ballotDocument,
+            electionDefinition
+          );
+
+          debug(`Generating: ${markedBallotPath}`);
+          await markBallotDocument(ballotDocument, votes);
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const markedBallotPdf = await ballotDocument.renderToPdf();
+
+          return { blankBallotPdf, markedBallotPdf };
+        }
+      );
+
+      return {
+        electionDefinition,
+        blankBallotPath,
+        markedBallotPath,
+        blankBallotPdf,
+        markedBallotPdf,
+      };
     },
   };
 })();
