@@ -27,6 +27,23 @@ interface FindBallotStyleArgs {
   partyId?: Id;
 }
 
+export function getLanguageForBallotStyle({
+  ballotStyleId,
+  election,
+}: {
+  ballotStyleId: BallotStyleId;
+  election: Election;
+}): LanguageCode {
+  const ballotStyle = find(
+    election.ballotStyles,
+    (bs) => bs.id === ballotStyleId
+  );
+  return assertDefined(
+    ballotStyle.languages,
+    `No languages found for ballot style ${ballotStyleId}`
+  )[0] as LanguageCode;
+}
+
 export function findBallotStyleId(
   election: Election,
   { precinctId, splitId, languageCode, partyId }: FindBallotStyleArgs
