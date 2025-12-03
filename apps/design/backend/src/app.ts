@@ -289,12 +289,14 @@ export function buildApi(ctx: AppContext) {
   };
 
   const methods = {
-    listOrganizations(_input: undefined, context: ApiContext): Promise<Org[]> {
+    async listOrganizations(
+      _input: undefined,
+      context: ApiContext
+    ): Promise<Org[]> {
       const userFeaturesConfig = getUserFeaturesConfig(context.user);
-      if (!userFeaturesConfig.ACCESS_ALL_ORGS) {
-        throw new AuthError('auth:forbidden');
-      }
-      return store.listOrganizations();
+      return userFeaturesConfig.ACCESS_ALL_ORGS
+        ? await store.listOrganizations()
+        : context.user.organizations;
     },
 
     async listElections(

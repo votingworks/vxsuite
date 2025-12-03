@@ -6,9 +6,10 @@ export interface OrgSelectProps {
   disabled?: boolean;
   onChange: (selectedOrgId?: string) => void;
   selectedOrgId?: string;
+  style?: React.CSSProperties;
 }
 export function OrgSelect(props: OrgSelectProps): JSX.Element {
-  const { disabled, onChange, selectedOrgId } = props;
+  const { disabled, onChange, selectedOrgId, style } = props;
 
   const orgs = api.listOrganizations.useQuery().data;
 
@@ -29,6 +30,7 @@ export function OrgSelect(props: OrgSelectProps): JSX.Element {
       disabled={disabled}
       isSearchable
       value={selectedOrgId}
+      style={style}
     />
   );
 }

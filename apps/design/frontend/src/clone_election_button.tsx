@@ -27,7 +27,9 @@ export function CloneElectionButton(
   const getUserFeaturesQuery = api.getUserFeatures.useQuery();
   const user = api.getUser.useQuery().data;
 
-  const [orgId, setOrgId] = React.useState<string | undefined>(user?.orgId);
+  const [orgId, setOrgId] = React.useState<string | undefined>(
+    user?.organizations[0]?.id
+  );
   const [modalActive, setModalActive] = React.useState(false);
 
   const cloneMutation = api.cloneElection.useMutation();
@@ -59,7 +61,11 @@ export function CloneElectionButton(
         </Tooltip>
         <Button
           variant={variant}
-          onPress={features.ACCESS_ALL_ORGS ? setModalActive : cloneElection}
+          onPress={
+            features.ACCESS_ALL_ORGS || (user?.organizations || []).length > 1
+              ? setModalActive
+              : cloneElection
+          }
           aria-label={`Make a copy of ${election.title}`}
           value
           disabled={cloneMutation.isLoading || modalActive}

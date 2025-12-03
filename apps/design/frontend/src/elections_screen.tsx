@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue, unique } from '@votingworks/basics';
 import {
   H1,
   Icons,
@@ -295,11 +295,13 @@ function AllOrgsElectionsList({
   );
 }
 
-function SingleOrgElectionsList({
+function ElectionsList({
   elections,
 }: {
   elections: ElectionListing[];
 }): JSX.Element | null {
+  const showOrganization =
+    unique(elections.map((election) => election.orgId)).length > 1;
   return (
     <Table>
       <thead>
@@ -307,7 +309,7 @@ function SingleOrgElectionsList({
           <th>Title</th>
           <th>Date</th>
           <th>Jurisdiction</th>
-          <th>State</th>
+          {showOrganization && <th>Organization</th>}
           <th />
         </tr>
       </thead>
@@ -327,7 +329,9 @@ function SingleOrgElectionsList({
 
             <LinkCell election={election}>{election.jurisdiction}</LinkCell>
 
-            <LinkCell election={election}>{election.state}</LinkCell>
+            {showOrganization && (
+              <LinkCell election={election}>{election.orgName}</LinkCell>
+            )}
 
             <ActionIconButtonCell>
               <CloneElectionButton election={election} />
@@ -430,7 +434,7 @@ export function ElectionsScreen({
             {features.ACCESS_ALL_ORGS ? (
               <AllOrgsElectionsList elections={filteredElections} />
             ) : (
-              <SingleOrgElectionsList elections={filteredElections} />
+              <ElectionsList elections={filteredElections} />
             )}
           </div>
         </Column>
