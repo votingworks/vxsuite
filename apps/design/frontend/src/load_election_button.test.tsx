@@ -129,7 +129,7 @@ test('MS SEMS upload flow in modal', async () => {
   within(modal).getByRole('heading', { name: 'Load Election' });
   // Switch to MS SEMS format
   userEvent.click(within(modal).getByText('VotingWorks'));
-  userEvent.click(within(modal).getByText('Mississippi SEMS'));
+  userEvent.click(screen.getByText('Mississippi SEMS'));
 
   const loadButton = within(modal).getByRole('button', {
     name: 'Load Election',
