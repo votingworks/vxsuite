@@ -498,6 +498,48 @@ export class Store {
     });
   }
 
+  async getOrganization(orgId: string): Promise<Optional<Org>> {
+    return this.db.withClient(
+      async (client) =>
+        (
+          await client.query(
+            `
+            select id, name
+            from organizations
+            where id = $1
+            `,
+            orgId
+          )
+        ).rows[0]
+    );
+  }
+
+  async createUser(user: Omit<User, 'organizations'>): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          insert into users (id, name)
+          values ($1, $2)
+          `,
+        user.id,
+        user.name
+      )
+    );
+  }
+
+  async addUserToOrganization(userId: string, orgId: string): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+        insert into users_organizations (user_id, organization_id)
+        values ($1, $2)
+        `,
+        userId,
+        orgId
+      )
+    );
+  }
+
   async getUser(userId: string): Promise<Optional<User>> {
     return this.db.withClient(async (client) => {
       const userRow = (
@@ -528,6 +570,25 @@ export class Store {
         ...userRow,
         organizations: orgRows,
       };
+    });
+  }
+
+  async getUserIdByEmail(email: string): Promise<Optional<string>> {
+    return this.db.withClient(async (client) => {
+      const userRow = (
+        await client.query(
+          `
+          select id
+          from users
+          where name = $1
+          `,
+          email
+        )
+      ).rows[0] as { id: string } | undefined;
+      if (!userRow) {
+        return undefined;
+      }
+      return userRow.id;
     });
   }
 

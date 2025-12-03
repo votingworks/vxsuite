@@ -1,12 +1,18 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
-import { Auth0Client } from '../src/auth0_client';
+import { assertDefined } from '@votingworks/basics';
+import { BaseLogger, LogSource } from '@votingworks/logging';
+import { resolve } from 'node:path';
+import { WORKSPACE } from '../src/globals';
+import { createWorkspace } from '../src/workspace';
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
 
-  const auth = Auth0Client.init();
-  const orgs = await auth.allOrgs();
-
+  const workspace = createWorkspace(
+    resolve(assertDefined(WORKSPACE)),
+    new BaseLogger(LogSource.VxDesignService)
+  );
+  const orgs = await workspace.store.listOrganizations();
   console.log('✅ Orgs:', orgs);
 }
 
