@@ -69,6 +69,7 @@ import {
   GetExportedElectionError,
   Org,
   QuickReportedPollStatus,
+  User,
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
@@ -494,6 +495,39 @@ export class Store {
         org.id,
         org.name
       );
+    });
+  }
+
+  async getUser(userId: string): Promise<Optional<User>> {
+    return this.db.withClient(async (client) => {
+      const userRow = (
+        await client.query(
+          `
+          select id, name
+          from users
+          where id = $1
+          `,
+          userId
+        )
+      ).rows[0] as { id: string; name: string } | undefined;
+      if (!userRow) {
+        return undefined;
+      }
+      const orgRows = (
+        await client.query(
+          `
+          select organizations.id, organizations.name
+          from organizations
+          join users_organizations on users_organizations.organization_id = organizations.id
+          where users_organizations.user_id = $1
+          `,
+          userId
+        )
+      ).rows as Org[];
+      return {
+        ...userRow,
+        organizations: orgRows,
+      };
     });
   }
 
