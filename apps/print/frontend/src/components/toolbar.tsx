@@ -87,7 +87,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
       return (
         <BasePrinterStatus
           icon={<Icons.Danger color="danger" />}
-          labelText="Jammed"
+          labelText="Paper Jam"
         />
       );
     }
@@ -102,7 +102,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
       return (
         <BasePrinterStatus
           icon={<Icons.Danger color="danger" />}
-          labelText="Tray Full"
+          labelText="Output Bin Full"
         />
       );
     }
@@ -144,7 +144,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
     );
   }
 
-  return <BasePrinterStatus />;
+  return <PrinterConnectionStatus connected={connected} />;
 }
 
 function UsbStatus({ status }: { status: UsbDriveStatus }) {
