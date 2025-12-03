@@ -28,6 +28,10 @@ import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { AppContext } from './context';
 import { rootDebug } from './debug';
 import { constructAuthMachineState } from './util/auth';
+import {
+  printBallotsPrintedReport,
+  exportBallotsPrintedReportPdf,
+} from './reports/ballots_printed_report';
 import { BallotPrintCount, BallotPrintEntry, DeviceStatuses } from './types';
 import { getMachineConfig } from './machine_config';
 import { findBallotStyleId } from './util/ballot_styles';
@@ -253,6 +257,22 @@ export function buildApi(ctx: AppContext) {
           ballotType: input.ballotType,
         }),
         disposition: 'success',
+      });
+    },
+
+    async printBallotsPrintedReport(): Promise<void> {
+      await printBallotsPrintedReport({
+        printer,
+        logger,
+        store,
+      });
+    },
+
+    async exportBallotsPrintedReportPdf(): Promise<void> {
+      await exportBallotsPrintedReportPdf({
+        usbDrive,
+        logger,
+        store,
       });
     },
 

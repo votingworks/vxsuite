@@ -192,4 +192,18 @@ export const getDeviceStatuses = {
   },
 } as const;
 
+export const printBallotsPrintedReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printBallotsPrintedReport);
+  },
+} as const;
+
+export const exportBallotsPrintedReportPdf = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportBallotsPrintedReportPdf);
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);
