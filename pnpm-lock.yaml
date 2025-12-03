@@ -1860,6 +1860,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../../../libs/basics
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures

@@ -24,6 +24,9 @@ export function buildIntegrationTestHelper(page: Page) {
       .getByRole('button', { name: buttonText })
       .or(
         page.getByRole('alertdialog').getByRole('option', { name: buttonText })
+      )
+      .or(
+        page.getByRole('alertdialog').getByRole('radio', { name: buttonText })
       );
 
     const button =
@@ -31,7 +34,8 @@ export function buildIntegrationTestHelper(page: Page) {
         ? buttonInDialog
         : page
             .getByRole('button', { name: buttonText })
-            .or(page.getByRole('option', { name: buttonText }));
+            .or(page.getByRole('option', { name: buttonText }))
+            .or(page.getByRole('radio', { name: buttonText }));
 
     await button.evaluate((el) => {
       // Get button's position and size

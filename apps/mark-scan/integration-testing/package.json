@@ -17,6 +17,7 @@
     "@playwright/test": "^1.48.1",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
+    "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/test-utils": "workspace:*",

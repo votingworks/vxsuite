@@ -1,6 +1,8 @@
+/* eslint-disable vx/gts-jsdoc */
 import { Page } from '@playwright/test';
 import {
   INTEGRATION_TEST_DEFAULT_PIN,
+  mockCardRemoval,
   mockElectionManagerCardInsertion,
   mockPollWorkerCardInsertion,
   mockSystemAdministratorCardInsertion,
@@ -46,4 +48,27 @@ export async function logInAsPollWorker(
 ): Promise<void> {
   mockPollWorkerCardInsertion({ election });
   await enterPin(page);
+}
+
+export async function forceUnconfigure(page: Page): Promise<void> {
+  await page.goto('/');
+  mockCardRemoval();
+  await page.waitForTimeout(100);
+
+  await logInAsSystemAdministrator(page);
+  await page.getByText('System Administrator Menu').waitFor();
+  const unconfigureButton = page.getByRole('button', {
+    name: 'Unconfigure Machine',
+  });
+  if (await unconfigureButton.isEnabled()) {
+    await unconfigureButton.click();
+    const confirmButton = page.getByRole('button', {
+      name: 'Delete All Election Data',
+    });
+    await confirmButton.click();
+  }
+  mockCardRemoval();
+  await page
+    .getByText('Insert an election manager card to configure VxMarkScan')
+    .waitFor();
 }
