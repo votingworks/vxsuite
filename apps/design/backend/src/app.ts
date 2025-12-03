@@ -110,6 +110,7 @@ import {
   getBallotPdfFileName,
   regenerateElectionIds,
   splitCandidateName,
+  userBelongsToOrg,
 } from './utils';
 import {
   ElectionFeaturesConfig,
@@ -190,7 +191,7 @@ class AuthError extends grout.UserError {
 
 function requireOrgAccess(user: User, orgId: string) {
   const userFeatures = getUserFeaturesConfig(user);
-  if (!(user.orgId === orgId || userFeatures.ACCESS_ALL_ORGS)) {
+  if (!(userBelongsToOrg(user, orgId) || userFeatures.ACCESS_ALL_ORGS)) {
     throw new AuthError('auth:forbidden');
   }
 }
@@ -277,7 +278,8 @@ export function buildApi(ctx: AppContext) {
             methodName,
             input: JSON.stringify(input),
             userId: context.user?.id,
-            userOrgId: context.user?.orgId,
+            userOrgIds:
+              context.user?.organizations.map((org) => org.id).join(',') ?? '',
             ...outcome,
           },
           debug
@@ -302,7 +304,9 @@ export function buildApi(ctx: AppContext) {
       const { user } = context;
       const userFeatures = getUserFeaturesConfig(user);
       const elections = await store.listElections({
-        orgId: userFeatures.ACCESS_ALL_ORGS ? undefined : user.orgId,
+        orgIds: userFeatures.ACCESS_ALL_ORGS
+          ? undefined
+          : user.organizations.map((org) => org.id),
       });
       const orgs = await store.listOrganizations();
       return elections.map((election) => ({

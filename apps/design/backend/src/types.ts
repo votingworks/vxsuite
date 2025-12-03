@@ -39,7 +39,7 @@ export interface User {
    */
   name: string;
   id: string;
-  orgId: string;
+  organizations: Org[];
 }
 
 export interface Org {

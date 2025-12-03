@@ -1,6 +1,7 @@
 import { sliOrgId, votingWorksOrgId, vxDemosOrgId } from './globals';
 import { ElectionRecord } from './store';
 import { User } from './types';
+import { userBelongsToOrg } from './utils';
 
 export function isVxOrSliOrg(orgId: string): boolean {
   return orgId === votingWorksOrgId() || orgId === sliOrgId();
@@ -181,13 +182,13 @@ export const electionFeatureConfigs = {
 } satisfies Record<string, ElectionFeaturesConfig>;
 
 export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
-  if (user.orgId === votingWorksOrgId()) {
+  if (userBelongsToOrg(user, votingWorksOrgId())) {
     return userFeatureConfigs.vx;
   }
-  if (user.orgId === sliOrgId()) {
+  if (userBelongsToOrg(user, sliOrgId())) {
     return userFeatureConfigs.sli;
   }
-  if (user.orgId === vxDemosOrgId()) {
+  if (userBelongsToOrg(user, vxDemosOrgId())) {
     return userFeatureConfigs.demos;
   }
   return userFeatureConfigs.nh;
