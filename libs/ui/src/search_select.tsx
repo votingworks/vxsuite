@@ -220,7 +220,7 @@ export function SearchSelect<T = string>({
         }),
         menuPortal: (baseStyles) => ({
           ...baseStyles,
-          zIndex: 10,
+          zIndex: 1000, // above react-modal z-index 999
         }),
         menu: (baseStyles) => ({
           ...baseStyles,
