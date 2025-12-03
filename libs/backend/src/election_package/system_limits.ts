@@ -11,7 +11,10 @@ import {
   mapContestIdsToContests,
 } from '@votingworks/utils';
 
-import { extractElectionStrings } from '../language_and_audio';
+import {
+  extractElectionStrings,
+  stripImagesFromRichText,
+} from '../language_and_audio';
 
 /**
  * Validates an {@link ElectionDefinition} against system limits, returning the first violation if
@@ -110,14 +113,17 @@ export function validateElectionDefinitionAgainstSystemLimits(
     include: [ElectionStringKey.CONTEST_DESCRIPTION],
   });
   for (const textField of propositionTextFields) {
+    const stringInEnglishWithoutImages = stripImagesFromRichText(
+      textField.stringInEnglish
+    );
     if (
-      textField.stringInEnglish.length >
+      stringInEnglishWithoutImages.length >
       systemLimits.propositionTextField.characters
     ) {
       return err({
         limitScope: 'propositionTextField',
         limitType: 'characters',
-        valueExceedingLimit: textField.stringInEnglish.length,
+        valueExceedingLimit: stringInEnglishWithoutImages.length,
         fieldValue: textField.stringInEnglish,
       });
     }

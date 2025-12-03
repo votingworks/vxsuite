@@ -10,10 +10,9 @@ import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
 const REGEX_IMAGE_ELEMENTS = /(<svg.*?>(.|\n)*?<\/svg>|<img (.|\n)*?>)/gi;
 
 /**
- * Strips image elements from text to create a version suitable for caching.
- * Images are replaced with placeholders that can be restored later.
+ * Strips images from rich text. Images are replaced with placeholders that can be restored later.
  */
-export function stripImagesForCaching(text: string): string {
+export function stripImagesFromRichText(text: string): string {
   let placeholderIndex = 0;
   return text.replace(REGEX_IMAGE_ELEMENTS, () => {
     const id = placeholderIndex;
@@ -104,7 +103,7 @@ export class GoogleCloudTranslator implements Translator {
     // rich text directly to the API. However, it has a max string length limit,
     // so image elements are generally too long to include.
     // We strip them out in order and replace them after translating.
-    const textArrayWithoutImages = textArray.map(stripImagesForCaching);
+    const textArrayWithoutImages = textArray.map(stripImagesFromRichText);
 
     const [response] = await this.translationClient.translateText({
       contents: textArrayWithoutImages,
