@@ -375,7 +375,9 @@ describe('tts_strings', () => {
   };
 
   async function setUpOrgs(store: Store, ids: string[] = [key.orgId]) {
-    await store.syncOrganizationsCache(ids.map((id) => ({ id, name: id })));
+    for (const id of ids) {
+      await store.createOrganization({ id, name: id });
+    }
   }
 
   test('ttsStringsGet returns null if absent', async () => {

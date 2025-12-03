@@ -4,7 +4,7 @@ import './configure_sentry'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
-import { authEnabled, NODE_ENV, WORKSPACE } from './globals';
+import { authEnabled, WORKSPACE } from './globals';
 import * as server from './server';
 import { createWorkspace } from './workspace';
 import { GoogleCloudTranslatorWithDbCache } from './translator';
@@ -56,24 +56,6 @@ async function main(): Promise<number> {
   const { store } = workspace;
 
   const auth0 = authEnabled() ? Auth0Client.init() : Auth0Client.dev();
-  // We want to sync organizations in all cases except when using a prod db
-  // backup for local debugging, in which case auth should be disabled and there
-  // will already be orgs in the db.
-  if (authEnabled() || (await store.listOrganizations()).length === 0) {
-    try {
-      await store.syncOrganizationsCache(await auth0.allOrgs());
-    } catch (error) {
-      if (NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.warn(
-          'Error syncing the auth organizations to the local database.',
-          'Are you using a production database backup in development?',
-          'If so, set AUTH_ENABLED=false and ORG_ID_VOTINGWORKS=<prod_Auth0_VX_org_id>.'
-        );
-      }
-      throw error;
-    }
-  }
 
   // We reuse the VxSuite logging library, but it doesn't matter if we meet VVSG
   // requirements in VxDesign, so we can use it a bit loosely. For example, the
