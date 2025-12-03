@@ -67,8 +67,6 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
 
   const { richStatus } = status;
 
-  console.log(richStatus);
-
   if (richStatus.state === 'stopped') {
     if (
       richStatus.stateReasons.find((reason) => reason === 'media-empty-error')
@@ -94,7 +92,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
       );
     }
 
-    // Printer output is obstructed
+    // Printer output bin is obstructed
     if (
       richStatus.stateReasons.find(
         (reason) =>
@@ -104,7 +102,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
       return (
         <BasePrinterStatus
           icon={<Icons.Danger color="danger" />}
-          labelText="Output Full"
+          labelText="Tray Full"
         />
       );
     }
@@ -116,7 +114,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
       return (
         <BasePrinterStatus
           icon={<Icons.Danger color="danger" />}
-          labelText="See Printer Screen"
+          labelText="See Printer Display"
         />
       );
     }
@@ -200,9 +198,9 @@ export function Toolbar(): JSX.Element | null {
 
   return (
     <ToolbarContainer>
-      {format.clockDateAndTime(currentDate)}
-      <UsbStatus status={usbDrive} />
       <PrinterStatus status={printer} />
+      <UsbStatus status={usbDrive} />
+      {format.clockDateAndTime(currentDate)}
       <LogOutButton />
     </ToolbarContainer>
   );
