@@ -11,7 +11,7 @@ vi.mock(import('@votingworks/backend'), async (importActual) => ({
   initializeSystemAudio: vi.fn(),
 }));
 
-test('can start server', async () => {
+test('can start server', () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const baseLogger = mockBaseLogger({ fn: vi.fn });
   const workspace = createWorkspace(
@@ -19,7 +19,7 @@ test('can start server', async () => {
     mockBaseLogger({ fn: vi.fn })
   );
 
-  const server = await start({
+  const server = start({
     auth,
     baseLogger,
     // pick an available port
