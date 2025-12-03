@@ -95,10 +95,11 @@ export function validateElectionDefinitionAgainstSystemLimits(
     });
   }
 
-  const textFieldsExcludingPropositionText = extractElectionStrings(election, {
-    exclude: [ElectionStringKey.CONTEST_DESCRIPTION],
-  });
-  for (const textField of textFieldsExcludingPropositionText) {
+  const textFieldsExcludingPropositionDescriptions = extractElectionStrings(
+    election,
+    { exclude: [ElectionStringKey.CONTEST_DESCRIPTION] }
+  );
+  for (const textField of textFieldsExcludingPropositionDescriptions) {
     if (textField.stringInEnglish.length > systemLimits.textField.characters) {
       return err({
         limitScope: 'textField',
@@ -109,22 +110,22 @@ export function validateElectionDefinitionAgainstSystemLimits(
     }
   }
 
-  const propositionTextFields = extractElectionStrings(election, {
+  const propositionDescriptions = extractElectionStrings(election, {
     include: [ElectionStringKey.CONTEST_DESCRIPTION],
   });
-  for (const textField of propositionTextFields) {
-    const stringInEnglishWithoutImages = stripImagesFromRichText(
-      textField.stringInEnglish
+  for (const propositionDescription of propositionDescriptions) {
+    const propositionDescriptionWithoutImages = stripImagesFromRichText(
+      propositionDescription.stringInEnglish
     );
     if (
-      stringInEnglishWithoutImages.length >
-      systemLimits.propositionTextField.characters
+      propositionDescriptionWithoutImages.length >
+      systemLimits.propositionDescription.characters
     ) {
       return err({
-        limitScope: 'propositionTextField',
+        limitScope: 'propositionDescription',
         limitType: 'characters',
-        valueExceedingLimit: stringInEnglishWithoutImages.length,
-        fieldValue: textField.stringInEnglish,
+        valueExceedingLimit: propositionDescriptionWithoutImages.length,
+        fieldValue: propositionDescriptionWithoutImages,
       });
     }
   }

@@ -41,8 +41,8 @@ export function systemLimitViolationToString(
         return `ballot style ${violation.ballotStyleId}`;
       case 'markScanContest':
         return `contest ${violation.contestId}`;
-      case 'propositionTextField':
-        return `proposition text field ${violation.fieldValue.slice(0, 49)}…`;
+      case 'propositionDescription':
+        return `proposition description ${violation.fieldValue.slice(0, 49)}…`;
       case 'textField':
         return `text field ${violation.fieldValue.slice(0, 49)}…`;
       /* istanbul ignore next - @preserve */
@@ -60,8 +60,8 @@ export function systemLimitViolationToString(
         return SYSTEM_LIMITS.markScanBallotStyle[limitType];
       case 'markScanContest':
         return SYSTEM_LIMITS.markScanContest[limitType];
-      case 'propositionTextField':
-        return SYSTEM_LIMITS.propositionTextField[limitType];
+      case 'propositionDescription':
+        return SYSTEM_LIMITS.propositionDescription[limitType];
       case 'textField':
         return SYSTEM_LIMITS.textField[limitType];
       /* istanbul ignore next - @preserve */
