@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import { LabeledValue, ReportMetadata } from './report_header';
 
-export function AdminReportMetadata({
+export function ReportGeneratedMetadata({
   generatedAtTime,
   electionDefinition,
   electionPackageHash,

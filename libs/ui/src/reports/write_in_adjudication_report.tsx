@@ -22,7 +22,7 @@ import {
   ReportTitle,
   TestModeBanner,
 } from './report_header';
-import { AdminReportMetadata } from './admin_report_metadata';
+import { ReportGeneratedMetadata } from './report_generated_metadata';
 
 function getEmptyContestWriteInSummary(
   contest: AnyContest
@@ -91,7 +91,7 @@ export function WriteInAdjudicationReport({
                 </ReportTitle>
                 {partyLabel && <ReportSubtitle>{partyLabel}</ReportSubtitle>}
                 <ReportElectionInfo election={election} />
-                <AdminReportMetadata
+                <ReportGeneratedMetadata
                   generatedAtTime={generatedAtTime}
                   electionDefinition={electionDefinition}
                   electionPackageHash={electionPackageHash}

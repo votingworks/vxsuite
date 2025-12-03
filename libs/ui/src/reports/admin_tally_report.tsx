@@ -24,7 +24,7 @@ import {
   TestModeBanner,
   ReportSubtitle,
 } from './report_header';
-import { AdminReportMetadata } from './admin_report_metadata';
+import { ReportGeneratedMetadata } from './report_generated_metadata';
 
 export interface AdminTallyReportProps {
   title: string;
@@ -90,7 +90,7 @@ export function AdminTallyReport({
             />
           )}
           <ReportElectionInfo election={election} />
-          <AdminReportMetadata
+          <ReportGeneratedMetadata
             generatedAtTime={generatedAtTime}
             electionDefinition={electionDefinition}
             electionPackageHash={electionPackageHash}
