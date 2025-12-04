@@ -62,13 +62,11 @@ function MultiValueRemove(
 function Option(props: OptionProps<unknown, true>): JSX.Element {
   return (
     <components.Option
-      {...{
-        ...props,
-        innerProps: {
-          // eslint-disable-next-line react/destructuring-assignment
-          ...props.innerProps,
-          role: 'option',
-        },
+      {...props}
+      innerProps={{
+        // eslint-disable-next-line react/destructuring-assignment
+        ...props.innerProps,
+        role: 'option',
       }}
     />
   );
