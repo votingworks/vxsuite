@@ -3,6 +3,7 @@ import Select, {
   components,
   DropdownIndicatorProps,
   MultiValueRemoveProps,
+  OptionProps,
   StylesConfig,
 } from 'react-select';
 import { useTheme } from 'styled-components';
@@ -55,6 +56,21 @@ function MultiValueRemove(
         }}
       />
     </components.MultiValueRemove>
+  );
+}
+
+function Option(props: OptionProps<unknown, true>): JSX.Element {
+  return (
+    <components.Option
+      {...{
+        ...props,
+        innerProps: {
+          // eslint-disable-next-line react/destructuring-assignment
+          ...props.innerProps,
+          role: 'option',
+        },
+      }}
+    />
   );
 }
 
@@ -158,7 +174,7 @@ export function SearchSelect<T = string>({
       required={required}
       aria-label={ariaLabel}
       unstyled
-      components={{ DropdownIndicator, MultiValueRemove }}
+      components={{ DropdownIndicator, MultiValueRemove, Option }}
       className="search-select"
       menuPlacement="auto"
       menuPortalTarget={menuPortalTarget}
