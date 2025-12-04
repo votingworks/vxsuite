@@ -9,7 +9,10 @@ use crate::{
     image_utils::{rainbow, Inset},
     impl_edgewise,
     timing_marks::{
-        corners::{shape_finding::shape_list_builder::ShapeListBuilder, util::EdgeWise},
+        corners::{
+            shape_finding::shape_list_builder::ShapeListBuilder,
+            util::{median_filter, EdgeWise},
+        },
         rect_could_be_timing_mark, CandidateTimingMark, DefaultForGeometry,
     },
 };
@@ -218,31 +221,6 @@ impl TimingMarkShape {
         /// to recover from in the TRR corpus.
         const WINDOW_SIZE: usize = 8;
 
-        fn median_filter(values: &[u32]) -> Vec<u32> {
-            let half = WINDOW_SIZE / 2;
-            (0..values.len())
-                .map(|i| {
-                    let start = i.saturating_sub(half);
-                    let end = (i + half + 1).min(values.len());
-                    let mut window = values[start..end].to_vec();
-                    // If the window extends past either the start or end of the
-                    // values, wrap around to the other side. This ensures that
-                    // values on the edges have the same window size as those in
-                    // the middle.
-                    if i < half {
-                        let wrap_start = values.len().saturating_sub(half - i);
-                        window.extend_from_slice(&values[wrap_start..]);
-                    }
-                    if i + half + 1 > values.len() {
-                        let wrap_end = (i + half + 1) % values.len();
-                        window.extend_from_slice(&values[0..wrap_end]);
-                    }
-                    window.sort_unstable();
-                    window[window.len() / 2]
-                })
-                .collect()
-        }
-
         let top = median_filter(
             &self
                 .y_ranges
@@ -250,6 +228,7 @@ impl TimingMarkShape {
                 .map(RangeInclusive::start)
                 .copied()
                 .collect_vec(),
+            WINDOW_SIZE,
         );
         let bottom = median_filter(
             &self
@@ -258,6 +237,7 @@ impl TimingMarkShape {
                 .map(RangeInclusive::end)
                 .copied()
                 .collect_vec(),
+            WINDOW_SIZE,
         );
 
         Self {
