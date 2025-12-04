@@ -15,6 +15,9 @@ export default defineConfig({
         'src/diagnostics/test_utils.ts',
         '**/*.stories.ts',
         '**/*.stories.tsx',
+        // Covered in VxAdmin
+        // TODO (Kevin) move coverage to this library
+        'src/printer_alert.tsx',
         // Purely presentational components:
         'src/voter_settings/theme_label.tsx',
         'src/voter_settings/theme_preview.tsx',
