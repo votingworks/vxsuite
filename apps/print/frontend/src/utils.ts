@@ -1,4 +1,4 @@
-import { assertDefined } from '@votingworks/basics';
+import { find } from '@votingworks/basics';
 import { Election, LanguageCode, Party } from '@votingworks/types';
 
 function sortLanguages(
@@ -36,10 +36,7 @@ export function getPartyOptions(election: Election): Party[] {
       .filter((partyId) => partyId !== undefined)
   );
   const parties = Array.from(uniquePartyIds).map((partyId) =>
-    assertDefined(
-      election.parties.find((p) => p.id === partyId),
-      `Party not found: ${  partyId}`
-    )
+    find(election.parties, (p) => p.id === partyId)
   );
   return parties;
 }
