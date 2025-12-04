@@ -4,9 +4,7 @@ use itertools::Itertools;
 use serde::Serialize;
 use types_rs::{
     bubble_ballot,
-    geometry::{
-        GridUnit, PixelPosition, PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
-    },
+    geometry::{GridUnit, PixelPosition, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit},
 };
 
 use crate::ballot_card::Geometry;
@@ -110,9 +108,7 @@ impl TimingMarks {
     /// 1. Finding the left and right timing marks for the given row (if given a
     ///    fractional row index, then interpolating vertically between the closest
     ///    two rows).
-    /// 2. Correcting the left/right timing mark position to account for
-    ///    the marks being cropped during scanning or border removal
-    /// 3. Interpolating horizontally between the left/right timing mark
+    /// 2. Interpolating horizontally between the left/right timing mark
     ///    positions based on the given column index.
     #[must_use]
     pub fn point_for_location(
@@ -154,18 +150,7 @@ impl TimingMarks {
             right_before.rect().height(),
         );
 
-        // account for marks being cropped during scanning or border removal
-        let timing_mark_width = self.geometry.timing_mark_width_pixels().round() as PixelUnit;
-        let corrected_left = Rect::new(
-            left.right() - timing_mark_width as PixelPosition,
-            left.top(),
-            timing_mark_width,
-            left.height(),
-        );
-        let corrected_right =
-            Rect::new(right.left(), right.top(), timing_mark_width, right.height());
-
-        let horizontal_segment = Segment::new(corrected_left.center(), corrected_right.center());
+        let horizontal_segment = Segment::new(left.center(), right.center());
         let distance_percentage = column / (self.geometry.grid_size.width - 1) as f32;
         let Segment {
             start: _,
