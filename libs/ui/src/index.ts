@@ -59,6 +59,7 @@ export * from './logo_mark';
 export * from './main';
 export * from './modal';
 export * from './number_pad';
+export * from './printer_alert';
 export * from './printing_ballot_image';
 export * from './progress_ellipsis';
 export * from './qrcode';
