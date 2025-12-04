@@ -3546,17 +3546,11 @@ test('listOrganizations', async () => {
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.listOrganizations()).toEqual(orgs);
   auth0.setLoggedInUser(nonVxUser);
-  await suppressingConsoleOutput(() =>
-    expect(apiClient.listOrganizations()).rejects.toThrow('auth:forbidden')
-  );
+  expect(await apiClient.listOrganizations()).toEqual([nonVxOrg]);
   auth0.setLoggedInUser(sliUser);
-  await suppressingConsoleOutput(() =>
-    expect(apiClient.listOrganizations()).rejects.toThrow('auth:forbidden')
-  );
+  expect(await apiClient.listOrganizations()).toEqual([sliOrg]);
   auth0.setLoggedInUser(vxDemosUser);
-  await suppressingConsoleOutput(() =>
-    expect(apiClient.listOrganizations()).rejects.toThrow('auth:forbidden')
-  );
+  expect(await apiClient.listOrganizations()).toEqual([vxDemosOrg]);
 });
 
 test('feature configs', async () => {
