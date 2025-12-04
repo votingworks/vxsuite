@@ -1079,7 +1079,7 @@ mod test {
 
         // On a blank ballot, every bubble should have an extremely low fill score.
         // The bug causes many empty bubbles to have elevated scores.
-        for (_grid_position, maybe_bubble) in interpretation.front.marks.iter() {
+        for (_grid_position, maybe_bubble) in &interpretation.front.marks {
             if let Some(bubble) = maybe_bubble {
                 assert!(
                     bubble.fill_score.0 < 0.02,

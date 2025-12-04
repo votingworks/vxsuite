@@ -53,7 +53,7 @@ impl BallotGridBorders {
                 .left
                 .iter()
                 .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
-                .cloned()
+                .copied()
                 .collect_vec(),
             (top_left, bottom_left),
         )?;
@@ -66,7 +66,7 @@ impl BallotGridBorders {
                 .right
                 .iter()
                 .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
-                .cloned()
+                .copied()
                 .collect_vec(),
             (top_right, bottom_right),
         )?;
@@ -78,13 +78,13 @@ impl BallotGridBorders {
             .top
             .iter()
             .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
-            .cloned()
+            .copied()
             .collect_vec();
         let mut bottom_candidates = candidates
             .bottom
             .iter()
             .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
-            .cloned()
+            .copied()
             .collect_vec();
         top_candidates.extend_from_slice(&[*top_left, *top_right]);
         bottom_candidates.extend_from_slice(&[*bottom_left, *bottom_right]);

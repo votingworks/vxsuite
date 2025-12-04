@@ -476,7 +476,7 @@ mod tests {
         for x in 0..expected_width {
             builder.add_slice(x, 0..=10);
         }
-        for x in (expected_width + 1)..(expected_width * 2 + 1) {
+        for x in (expected_width + 1)..=(expected_width * 2) {
             builder.add_slice(x, 0..=10);
         }
 
