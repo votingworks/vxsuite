@@ -58,3 +58,11 @@ export const orgs: Org[] = [
   sliOrg,
   vxDemosOrg,
 ];
+
+export const users: User[] = [
+  vxUser,
+  nonVxUser,
+  anotherNonVxUser,
+  sliUser,
+  vxDemosUser,
+];

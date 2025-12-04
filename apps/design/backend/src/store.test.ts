@@ -43,6 +43,7 @@ const nonVxUser: User = {
   organizations: [nonVxOrg],
 };
 const testOrgs: Org[] = [vxOrg, nonVxOrg];
+const testUsers: User[] = [nonVxUser];
 
 // Spy on the ballot rendering function so we can check that it's called with the
 // right arguments.
@@ -465,8 +466,10 @@ test('getExportedElectionDefinition returns the exported election including reor
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
-  const { apiClient, auth0, workspace, fileStorageClient } =
-    await setupApp(testOrgs);
+  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+    orgs: testOrgs,
+    users: testUsers,
+  });
   auth0.setLoggedInUser(nonVxUser);
 
   const electionId = (
@@ -590,8 +593,10 @@ test('getExportedElection returns election-out-of-date error when election data 
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
-  const { apiClient, auth0, workspace, fileStorageClient } =
-    await setupApp(testOrgs);
+  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+    orgs: testOrgs,
+    users: testUsers,
+  });
   auth0.setLoggedInUser(nonVxUser);
 
   const electionId = (
