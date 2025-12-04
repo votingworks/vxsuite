@@ -40,10 +40,6 @@ function mockApiResponse<T>(data: Partial<T>): ApiResponse<T> {
   return { data: data as unknown as T } as unknown as ApiResponse<T>;
 }
 
-function mockApiResponseVoid(): ApiResponse<void> {
-  return {} as unknown as ApiResponse<void>;
-}
-
 function newClient() {
   return new Auth0Client(mockDatabase, mockUsers);
 }
@@ -69,8 +65,6 @@ test('createUser', async () => {
     })
   );
 
-  mockOrganizations.addMembers.mockResolvedValueOnce(mockApiResponseVoid());
-
   mockRandomBytes.mockImplementation(() => Buffer.from('top-secret'));
 
   const result = await newClient().createUser({
@@ -80,18 +74,11 @@ test('createUser', async () => {
 
   expect(result).toEqual('new-user');
 
-  expect(mockOrganizations.get).toHaveBeenCalledWith({ id: 'vx' });
-
   expect(mockUsers.create).toHaveBeenCalledWith<[UserCreate]>({
     connection: CONNECTION_USERNAME_PASSWORD.name,
     email: 'alice@example.com',
     password: Buffer.from('top-secret').toString('base64'),
   });
-
-  expect(mockOrganizations.addMembers).toHaveBeenCalledWith(
-    { id: 'vx' },
-    { members: ['new-user'] }
-  );
 });
 
 test('sendWelcomeEmail', async () => {
