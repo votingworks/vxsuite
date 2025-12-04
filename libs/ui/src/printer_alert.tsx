@@ -9,13 +9,14 @@ import { Icons } from './icons';
 import { P } from './typography';
 import { Button } from './button';
 
-// TODO handle election manager or {election manager, poll worker} gating in the caller
 export function PrinterAlert({
   printerStatus,
 }: {
   printerStatus?: PrinterStatus;
 }): JSX.Element | null {
   const [alertStatus, setAlertStatus] = useState<PrinterRichStatus>();
+
+  console.log(alertStatus);
 
   useEffect(() => {
     if (

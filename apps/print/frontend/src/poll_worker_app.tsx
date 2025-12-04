@@ -3,6 +3,7 @@ import { PrintScreen } from './screens/print_screen';
 import { ReportScreen } from './screens/report_screen';
 import { ScreenWrapper } from './components/screen_wrapper';
 import { pollWorkerRoutes } from './routes';
+import { PrinterAlertWrapper } from './components/printer_alert_wrapper';
 
 export function PollWorkerApp(): JSX.Element {
   return (
@@ -24,6 +25,7 @@ export function PollWorkerApp(): JSX.Element {
         )}
       />
       <Redirect to={pollWorkerRoutes.print.path} />
+      <PrinterAlertWrapper />
     </Switch>
   );
 }
