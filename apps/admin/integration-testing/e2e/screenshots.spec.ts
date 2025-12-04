@@ -1,4 +1,4 @@
-import { expect, Page, PageScreenshotOptions, test } from '@playwright/test';
+import { expect, Page, test } from '@playwright/test';
 import {
   getMockFileUsbDriveHandler,
   MockFileUsbDriveHandler,
@@ -18,8 +18,8 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { assertDefined, find } from '@votingworks/basics';
-import { zipFile } from '@votingworks/test-utils';
+import { assertDefined, find, iter } from '@votingworks/basics';
+import { buildIntegrationTestHelper, zipFile } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   CVR,
@@ -37,6 +37,7 @@ import {
 } from '@votingworks/auth';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import { copyFile, mkdir } from 'node:fs/promises';
+import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
@@ -55,38 +56,33 @@ import {
   waitForReportToLoad,
 } from './support/navigation';
 
-function makeScreenshotHelpers(page: Page, dir: string) {
-  async function screenshot(name: string, args: PageScreenshotOptions = {}) {
-    await page.screenshot({
-      ...args,
-      animations: 'disabled',
-      path: `./test-results/screenshots/${dir}/${name}.png`,
-    });
-  }
+async function saveLastExportedReport({
+  usbHandler,
+  filename,
+}: {
+  usbHandler: MockFileUsbDriveHandler;
+  filename: string;
+}) {
+  const usbDataPath = usbHandler.getDataPath();
+  if (!usbDataPath) return;
 
-  async function screenshotModal(
-    name: string,
-    args: PageScreenshotOptions = {}
-  ) {
-    await page.getByRole('alertdialog').screenshot({
-      ...args,
-      animations: 'disabled',
-      path: `./test-results/screenshots/${dir}/${name}.png`,
-    });
-  }
+  const files = iter(listDirectoryRecursive(usbDataPath));
+  const mostRecentFile = await files
+    .filterMap((file) => (file.isOk() ? file.ok() : null))
+    .filter((file) => file.type !== FileSystemEntryType.Directory)
+    .maxBy((file) => file.mtime.getTime());
+  if (!mostRecentFile) return;
 
-  return { screenshot, screenshotModal };
+  await copyFile(mostRecentFile.path, `./test-results/screenshots/${filename}`);
 }
 
 async function printAndSaveReport({
   page,
   printerHandler,
-  dir,
   filename,
 }: {
   page: Page;
   printerHandler: MockFilePrinterHandler;
-  dir: string;
   filename: string;
 }) {
   await page.getByText('Print Report').click();
@@ -97,7 +93,7 @@ async function printAndSaveReport({
   const lastPrintPath = printerHandler.getLastPrintPath();
   await copyFile(
     assertDefined(lastPrintPath),
-    `./test-results/screenshots/${dir}/${filename}`
+    `./test-results/screenshots/${filename}`
   );
 }
 
@@ -122,8 +118,12 @@ test('system administrator', async ({ page }) => {
   });
   const electionPackageFileName = 'election-package.zip';
 
-  const { screenshot } = makeScreenshotHelpers(page, 'sys-admin');
+  const { screenshot, screenshotWithFocusHighlight } =
+    buildIntegrationTestHelper(page);
 
+  /**
+   * configuration
+   */
   await page.goto('/');
   await screenshot('machine-locked-unconfigured');
 
@@ -151,18 +151,43 @@ test('system administrator', async ({ page }) => {
   await page.getByRole('heading', { name: election.title }).waitFor();
   await screenshot('election-screen-configured');
 
+  await screenshotWithFocusHighlight('Lock Machine', 'lock-machine-button');
+
+  await screenshotWithFocusHighlight(
+    'Unconfigure Machine',
+    'unconfigure-button'
+  );
+
+  await page.getByText('Unconfigure Machine').click();
+  await page.getByRole('heading', { name: 'Unconfigure Machine' }).waitFor();
+  await screenshotWithFocusHighlight(
+    'Delete All Election Data',
+    'confirm-unconfigure-button'
+  );
+
+  await page.getByText('Cancel').click();
+  await screenshotWithFocusHighlight(
+    'Save Election Package',
+    'sa-save-election-package-button'
+  );
   await page.getByText('Save Election Package').click();
   await page.getByRole('heading', { name: 'Save Election Package' }).waitFor();
-  await screenshot('save-election-package');
+  await screenshotWithFocusHighlight(
+    'Save',
+    'sa-confirm-save-election-package-button'
+  );
 
   await page.getByRole('button', { name: 'Save' }).click();
   await page.getByRole('heading', { name: 'Election Package Saved' }).waitFor();
-  await screenshot('election-package-saved');
+  await screenshot('sa-election-package-saved');
   await page.getByText('Close').click();
 
+  /**
+   * smart cards
+   */
   await page.getByText('Smart Cards').click();
   await page.getByRole('heading', { name: 'Smart Cards' }).waitFor();
-  await screenshot('smart-cards-screen');
+  await screenshot('smart-cards-no-card');
 
   async function removeCard() {
     mockCardRemoval();
@@ -171,7 +196,7 @@ test('system administrator', async ({ page }) => {
 
   mockBlankCard();
   await page.getByText('Blank Card').waitFor();
-  await screenshot('smart-cards-blank');
+  await screenshot('smart-cards-blank-card');
 
   // program SA card
   await removeCard();
@@ -243,15 +268,18 @@ test('system administrator', async ({ page }) => {
   await screenshot('smart-cards-pw-wrong-election');
   await removeCard();
 
+  /**
+   * settings
+   */
   await page.getByText('Settings').click();
   await page.getByRole('heading', { name: 'Settings' }).waitFor();
   await screenshot('settings-screen');
 
-  // app must find a logs dir for saving logs to be successful
-  await mkdir('/var/log/votingworks', { recursive: true });
+  await mkdir('/var/log/votingworks', { recursive: true }); // app must find a logs dir for saving logs to be successful
+  await screenshotWithFocusHighlight('Save Logs', 'sa-save-logs-button');
   await page.getByText('Save Logs').click();
   await page.getByRole('heading', { name: 'Save Logs' }).waitFor();
-  await screenshot('save-logs');
+  await screenshotWithFocusHighlight('Save', 'sa-confirm-save-logs-button');
 
   await page.getByRole('button', { name: 'Save' }).click();
   await page.getByRole('heading', { name: 'Logs Saved' }).waitFor();
@@ -263,10 +291,17 @@ test('system administrator', async ({ page }) => {
   await screenshot('set-date-and-time');
   await page.getByText('Cancel').click();
 
+  // format USB drive flow
+  await screenshotWithFocusHighlight(
+    'Format USB Drive',
+    'format-usb-drive-button'
+  );
   await page.getByText('Format USB Drive').click();
   await page.getByRole('heading', { name: 'Format USB Drive' }).waitFor();
-  await screenshot('format-usb-drive');
-
+  await screenshotWithFocusHighlight(
+    'Format USB Drive',
+    'confirm-format-usb-drive-button'
+  );
   await page.getByRole('button', { name: 'Format USB Drive' }).click();
   await page.getByRole('heading', { name: 'USB Drive Formatted' }).waitFor();
   await screenshot('usb-drive-formatted');
@@ -281,34 +316,44 @@ test('system administrator', async ({ page }) => {
   await screenshot('signed-hash-validation');
   await page.getByText('Done').click();
 
+  /**
+   * diagnostics
+   */
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   await page.getByText('Diagnostics').click();
   await page.getByRole('heading', { name: 'Diagnostics' }).waitFor();
   await screenshot('diagnostics-screen');
 
+  await screenshotWithFocusHighlight(
+    'Print Test Page',
+    'print-test-page-button'
+  );
   await page.getByRole('button', { name: 'Print Test Page' }).click();
   await page.clock.fastForward(3000);
   await page.getByText('Test Page Printed').waitFor();
   await screenshot('test-page-printed');
   await page.getByText('Cancel').click();
 
+  await screenshotWithFocusHighlight(
+    'Save Readiness Report',
+    'save-readiness-report-button'
+  );
   await page.getByRole('button', { name: 'Save Readiness Report' }).click();
   await page.getByRole('heading', { name: 'Save Readiness Report' }).waitFor();
-  await screenshot('save-readiness-report');
 
+  await screenshotWithFocusHighlight(
+    'Save',
+    'confirm-save-readiness-report-button'
+  );
   await page.getByRole('button', { name: 'Save' }).click();
   await page.getByRole('heading', { name: 'Readiness Report Saved' }).waitFor();
   await screenshot('readiness-report-saved');
   await page.getByRole('button', { name: 'Close' }).click();
 
-  await page.getByText('Election', { exact: true }).click();
-  await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
-  await page.getByRole('button', { name: 'Unconfigure Machine' }).click();
-  await page.getByRole('heading', { name: 'Unconfigure Machine' }).waitFor();
-  await screenshot('unconfigure-machine');
-
-  await page.getByRole('button', { name: 'Delete All Election Data' }).click();
-  await page.getByText(/Select an election package/).waitFor();
+  await saveLastExportedReport({
+    usbHandler,
+    filename: 'readiness-report.pdf',
+  });
 });
 
 async function configureMachine({
@@ -387,7 +432,7 @@ test('results', async ({ page }) => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { screenshot } = makeScreenshotHelpers(page, 'results');
+  const { screenshot } = buildIntegrationTestHelper(page);
 
   await page.goto('/');
   await configureMachine({
@@ -503,7 +548,6 @@ test('results', async ({ page }) => {
   await printAndSaveReport({
     page,
     printerHandler,
-    dir: 'results',
     filename: 'full-election-report.pdf',
   });
 
@@ -540,7 +584,6 @@ test('results', async ({ page }) => {
   await printAndSaveReport({
     page,
     printerHandler,
-    dir: 'results',
     filename: 'ballot-count-report-voting-method.pdf',
   });
 
@@ -554,7 +597,6 @@ test('results', async ({ page }) => {
   await printAndSaveReport({
     page,
     printerHandler,
-    dir: 'results',
     filename: 'write-in-adjudication-report.pdf',
   });
 
@@ -616,7 +658,7 @@ test('adjudication', async ({ page }) => {
     }
   );
 
-  const { screenshot } = makeScreenshotHelpers(page, 'adjudication');
+  const { screenshot } = buildIntegrationTestHelper(page);
 
   await page.goto('/');
   await configureMachine({
@@ -673,7 +715,7 @@ test('manual results', async ({ page }) => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { screenshot } = makeScreenshotHelpers(page, 'manual');
+  const { screenshot } = buildIntegrationTestHelper(page);
 
   await page.goto('/');
   await configureMachine({
@@ -753,7 +795,6 @@ test('manual results', async ({ page }) => {
   await printAndSaveReport({
     page,
     printerHandler,
-    dir: 'manual',
     filename: 'manual-results-tally-report.pdf',
   });
 });

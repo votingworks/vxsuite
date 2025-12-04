@@ -303,5 +303,7 @@ export function getBooleanEnvVarConfig(
  * NODE_ENV=production to ensure that they're mimicking production as closely as possible.
  */
 export function isIntegrationTest(): boolean {
-  return asBoolean(process.env.IS_INTEGRATION_TEST);
+  return asBoolean(
+    process.env.REACT_APP_IS_INTEGRATION_TEST || process.env.IS_INTEGRATION_TEST
+  );
 }
