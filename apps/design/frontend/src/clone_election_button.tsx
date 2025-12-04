@@ -2,7 +2,6 @@ import { assert } from '@votingworks/basics';
 import { P, Button, Modal, ButtonVariant, Icons, Font } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
 import type { ElectionListing } from '@votingworks/design-backend';
 import * as api from './api';
 import { OrgSelect } from './org_select';
@@ -12,11 +11,6 @@ export interface CloneElectionButtonProps {
   election: ElectionListing;
   variant?: ButtonVariant;
 }
-
-const OrgModal = styled(Modal)`
-  /* Allow modal to grow with user zoom setting and cap near screen height. */
-  min-height: min(40rem, 98%);
-`;
 
 export function CloneElectionButton(
   props: CloneElectionButtonProps
@@ -74,7 +68,7 @@ export function CloneElectionButton(
         </Button>
       </TooltipContainer>
       {modalActive && (
-        <OrgModal
+        <Modal
           title="Duplicate Election"
           actions={
             <React.Fragment>
