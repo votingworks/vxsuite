@@ -24,6 +24,7 @@ export function OrgSelect(props: OrgSelectProps): JSX.Element {
 
   return (
     <SearchSelect
+      aria-label="Organization"
       menuPortalTarget={document.body}
       options={options}
       onChange={onChange}

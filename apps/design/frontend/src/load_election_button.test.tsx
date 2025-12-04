@@ -6,7 +6,9 @@ import { err, ok } from '@votingworks/basics';
 import { within } from '@testing-library/react';
 import {
   MockApiClient,
+  multiOrgUser,
   org,
+  org2,
   user,
   provideApi,
   createMockApiClient,
@@ -82,12 +84,14 @@ test('opens file picker for VXF when MS_SEMS_CONVERSION disabled', async () => {
 
 test('VXF upload flow in modal', async () => {
   mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: true });
+  apiMock.listOrganizations.expectCallWith().resolves([org]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
   userEvent.click(button);
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Load Election' });
+  within(modal).getByText(org.name);
   within(modal).getByText('VotingWorks');
 
   const loadButton = within(modal).getByRole('button', {
@@ -122,6 +126,7 @@ test('VXF upload flow in modal', async () => {
 
 test('MS SEMS upload flow in modal', async () => {
   mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: true });
+  apiMock.listOrganizations.expectCallWith().resolves([org]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
   userEvent.click(button);
@@ -175,8 +180,53 @@ test('MS SEMS upload flow in modal', async () => {
   expect(history.location.pathname).toEqual(`/elections/${newId}`);
 });
 
+test('multi-org user sees org selector', async () => {
+  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
+  apiMock.listOrganizations.expectCallWith().resolves([org, org2]);
+  apiMock.getUser.reset();
+  apiMock.getUser.expectCallWith().resolves(multiOrgUser);
+  renderButton();
+
+  const button = await screen.findByRole('button', { name: 'Load Election' });
+  userEvent.click(button);
+
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Load Election' });
+  const orgSelect = within(modal).getByRole('combobox', {
+    name: 'Organization',
+  });
+  within(modal).getByText(org.name);
+  userEvent.click(orgSelect);
+  const orgOptions = await screen.findAllByRole('option');
+  expect(orgOptions.map((o) => o.textContent)).toEqual([org.name, org2.name]);
+  userEvent.click(orgOptions[1]);
+
+  apiMock.loadElection
+    .expectCallWith({
+      newId: 'test-random-id-1',
+      orgId: org2.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: mockElectionData,
+      },
+    })
+    .resolves(ok('test-random-id-1'));
+
+  const electionFileInput = within(modal).getByLabelText(
+    'Select Election File…'
+  );
+  userEvent.upload(electionFileInput, mockElectionFile);
+
+  userEvent.click(within(modal).getByRole('button', { name: 'Load Election' }));
+
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+});
+
 test('close modal', async () => {
   mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: true });
+  apiMock.listOrganizations.expectCallWith().resolves([org]);
   renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
   userEvent.click(button);
