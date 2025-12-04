@@ -13,7 +13,7 @@ import {
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { detectPrinter } from '@votingworks/printing';
+import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { Workspace } from './util/workspace';
@@ -67,7 +67,9 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
   };
   const app = buildApp(context);
 
-  useDevDockRouter(app, express, {});
+  useDevDockRouter(app, express, {
+    printerConfig: HP_LASER_PRINTER_CONFIG,
+  });
 
   app.listen(PORT, () => {
     // eslint-disable-next-line no-console
