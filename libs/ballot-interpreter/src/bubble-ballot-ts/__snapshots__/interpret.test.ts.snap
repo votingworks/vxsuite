@@ -5,18 +5,18 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 454,
-      "left": 102,
+      "left": 104,
       "top": 665,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "mayor",
     "options": [
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 665,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -28,9 +28,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 772,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -42,9 +42,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 879,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -56,9 +56,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 116,
-          "left": 102,
+          "left": 104,
           "top": 1003,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -72,18 +72,18 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 453,
-      "left": 102,
+      "left": 104,
       "top": 1249,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "controller",
     "options": [
       {
         "bounds": {
           "height": 114,
-          "left": 102,
+          "left": 104,
           "top": 1249,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -95,9 +95,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 1356,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -109,9 +109,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 1463,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -123,9 +123,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 114,
-          "left": 102,
+          "left": 104,
           "top": 1588,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -139,18 +139,18 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 346,
-      "left": 610,
+      "left": 611,
       "top": 665,
-      "width": 479,
+      "width": 478,
     },
     "contestId": "attorney",
     "options": [
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 665,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -162,9 +162,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 772,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -176,9 +176,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 896,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -192,18 +192,18 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 453,
-      "left": 610,
+      "left": 611,
       "top": 1142,
-      "width": 479,
+      "width": 478,
     },
     "contestId": "public-works-director",
     "options": [
       {
         "bounds": {
           "height": 114,
-          "left": 610,
+          "left": 611,
           "top": 1142,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -215,9 +215,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 114,
-          "left": 610,
+          "left": 611,
           "top": 1249,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -229,9 +229,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 1356,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -243,9 +243,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 114,
-          "left": 610,
+          "left": 611,
           "top": 1481,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -261,7 +261,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       "height": 561,
       "left": 1117,
       "top": 665,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "chief-of-police",
     "options": [
@@ -270,7 +270,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "height": 115,
           "left": 1117,
           "top": 665,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -284,7 +284,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "height": 115,
           "left": 1117,
           "top": 772,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -298,7 +298,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "height": 115,
           "left": 1117,
           "top": 879,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -312,7 +312,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "height": 116,
           "left": 1117,
           "top": 986,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -326,7 +326,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "height": 115,
           "left": 1117,
           "top": 1111,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -345,18 +345,18 @@ exports[`interpret \`ImageData\` objects 2`] = `
   {
     "bounds": {
       "height": 560,
-      "left": 102,
+      "left": 104,
       "top": 218,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "parks-and-recreation-director",
     "options": [
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 218,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -368,9 +368,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 325,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -382,9 +382,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 114,
-          "left": 102,
+          "left": 104,
           "top": 432,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -396,9 +396,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 116,
-          "left": 102,
+          "left": 104,
           "top": 538,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -410,9 +410,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 663,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -426,18 +426,18 @@ exports[`interpret \`ImageData\` objects 2`] = `
   {
     "bounds": {
       "height": 1157,
-      "left": 610,
+      "left": 611,
       "top": 174,
-      "width": 479,
+      "width": 478,
     },
     "contestId": "board-of-alderman",
     "options": [
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 174,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -449,9 +449,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 281,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -463,9 +463,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 388,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -477,9 +477,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 495,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -491,9 +491,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 602,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -505,9 +505,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 709,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -519,9 +519,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 873,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -533,9 +533,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 116,
-          "left": 610,
+          "left": 611,
           "top": 987,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -547,9 +547,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 1102,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -561,9 +561,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 1216,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -579,7 +579,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       "height": 1437,
       "left": 1117,
       "top": 174,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "city-council",
     "options": [
@@ -588,7 +588,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 115,
           "left": 1117,
           "top": 174,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -602,7 +602,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 115,
           "left": 1117,
           "top": 281,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -616,7 +616,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 115,
           "left": 1117,
           "top": 388,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -630,7 +630,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 115,
           "left": 1117,
           "top": 495,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -644,7 +644,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 115,
           "left": 1117,
           "top": 602,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -658,7 +658,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 115,
           "left": 1117,
           "top": 709,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -672,7 +672,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 114,
           "left": 1117,
           "top": 816,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -686,7 +686,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 116,
           "left": 1117,
           "top": 922,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -700,7 +700,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 115,
           "left": 1117,
           "top": 1030,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -714,7 +714,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 115,
           "left": 1117,
           "top": 1154,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -728,7 +728,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 115,
           "left": 1117,
           "top": 1268,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -742,7 +742,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 116,
           "left": 1117,
           "top": 1382,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -756,7 +756,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "height": 114,
           "left": 1117,
           "top": 1497,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -775,18 +775,18 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 454,
-      "left": 102,
+      "left": 104,
       "top": 665,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "mayor",
     "options": [
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 665,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -798,9 +798,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 772,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -812,9 +812,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 879,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -826,9 +826,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 116,
-          "left": 102,
+          "left": 104,
           "top": 1003,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -842,18 +842,18 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 453,
-      "left": 102,
+      "left": 104,
       "top": 1249,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "controller",
     "options": [
       {
         "bounds": {
           "height": 114,
-          "left": 102,
+          "left": 104,
           "top": 1249,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -865,9 +865,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 1356,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -879,9 +879,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 1463,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -893,9 +893,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 114,
-          "left": 102,
+          "left": 104,
           "top": 1588,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -909,18 +909,18 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 346,
-      "left": 610,
+      "left": 611,
       "top": 665,
-      "width": 479,
+      "width": 478,
     },
     "contestId": "attorney",
     "options": [
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 665,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -932,9 +932,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 772,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -946,9 +946,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 896,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -962,18 +962,18 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 453,
-      "left": 610,
+      "left": 611,
       "top": 1142,
-      "width": 479,
+      "width": 478,
     },
     "contestId": "public-works-director",
     "options": [
       {
         "bounds": {
           "height": 114,
-          "left": 610,
+          "left": 611,
           "top": 1142,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -985,9 +985,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 114,
-          "left": 610,
+          "left": 611,
           "top": 1249,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -999,9 +999,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 1356,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1013,9 +1013,9 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 114,
-          "left": 610,
+          "left": 611,
           "top": 1481,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1031,7 +1031,7 @@ exports[`interpret images from paths 1`] = `
       "height": 561,
       "left": 1117,
       "top": 665,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "chief-of-police",
     "options": [
@@ -1040,7 +1040,7 @@ exports[`interpret images from paths 1`] = `
           "height": 115,
           "left": 1117,
           "top": 665,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1054,7 +1054,7 @@ exports[`interpret images from paths 1`] = `
           "height": 115,
           "left": 1117,
           "top": 772,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1068,7 +1068,7 @@ exports[`interpret images from paths 1`] = `
           "height": 115,
           "left": 1117,
           "top": 879,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1082,7 +1082,7 @@ exports[`interpret images from paths 1`] = `
           "height": 116,
           "left": 1117,
           "top": 986,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1096,7 +1096,7 @@ exports[`interpret images from paths 1`] = `
           "height": 115,
           "left": 1117,
           "top": 1111,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1115,18 +1115,18 @@ exports[`interpret images from paths 2`] = `
   {
     "bounds": {
       "height": 560,
-      "left": 102,
+      "left": 104,
       "top": 218,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "parks-and-recreation-director",
     "options": [
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 218,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -1138,9 +1138,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 325,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -1152,9 +1152,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 114,
-          "left": 102,
+          "left": 104,
           "top": 432,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -1166,9 +1166,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 116,
-          "left": 102,
+          "left": 104,
           "top": 538,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -1180,9 +1180,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 102,
+          "left": 104,
           "top": 663,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 1.7146381,
@@ -1196,18 +1196,18 @@ exports[`interpret images from paths 2`] = `
   {
     "bounds": {
       "height": 1157,
-      "left": 610,
+      "left": 611,
       "top": 174,
-      "width": 479,
+      "width": 478,
     },
     "contestId": "board-of-alderman",
     "options": [
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 174,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1219,9 +1219,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 281,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1233,9 +1233,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 388,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1247,9 +1247,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 495,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1261,9 +1261,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 602,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1275,9 +1275,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 709,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1289,9 +1289,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 873,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1303,9 +1303,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 116,
-          "left": 610,
+          "left": 611,
           "top": 987,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1317,9 +1317,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 1102,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1331,9 +1331,9 @@ exports[`interpret images from paths 2`] = `
       {
         "bounds": {
           "height": 115,
-          "left": 610,
+          "left": 611,
           "top": 1216,
-          "width": 479,
+          "width": 478,
         },
         "gridLocation": {
           "column": 12.280553,
@@ -1349,7 +1349,7 @@ exports[`interpret images from paths 2`] = `
       "height": 1437,
       "left": 1117,
       "top": 174,
-      "width": 480,
+      "width": 479,
     },
     "contestId": "city-council",
     "options": [
@@ -1358,7 +1358,7 @@ exports[`interpret images from paths 2`] = `
           "height": 115,
           "left": 1117,
           "top": 174,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1372,7 +1372,7 @@ exports[`interpret images from paths 2`] = `
           "height": 115,
           "left": 1117,
           "top": 281,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1386,7 +1386,7 @@ exports[`interpret images from paths 2`] = `
           "height": 115,
           "left": 1117,
           "top": 388,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1400,7 +1400,7 @@ exports[`interpret images from paths 2`] = `
           "height": 115,
           "left": 1117,
           "top": 495,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1414,7 +1414,7 @@ exports[`interpret images from paths 2`] = `
           "height": 115,
           "left": 1117,
           "top": 602,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1428,7 +1428,7 @@ exports[`interpret images from paths 2`] = `
           "height": 115,
           "left": 1117,
           "top": 709,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1442,7 +1442,7 @@ exports[`interpret images from paths 2`] = `
           "height": 114,
           "left": 1117,
           "top": 816,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1456,7 +1456,7 @@ exports[`interpret images from paths 2`] = `
           "height": 116,
           "left": 1117,
           "top": 922,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1470,7 +1470,7 @@ exports[`interpret images from paths 2`] = `
           "height": 115,
           "left": 1117,
           "top": 1030,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1484,7 +1484,7 @@ exports[`interpret images from paths 2`] = `
           "height": 115,
           "left": 1117,
           "top": 1154,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1498,7 +1498,7 @@ exports[`interpret images from paths 2`] = `
           "height": 115,
           "left": 1117,
           "top": 1268,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1512,7 +1512,7 @@ exports[`interpret images from paths 2`] = `
           "height": 116,
           "left": 1117,
           "top": 1382,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1526,7 +1526,7 @@ exports[`interpret images from paths 2`] = `
           "height": 114,
           "left": 1117,
           "top": 1497,
-          "width": 480,
+          "width": 479,
         },
         "gridLocation": {
           "column": 22.846466,
@@ -1561,19 +1561,19 @@ exports[`score write in areas 1`] = `
     "score": 0.0563522,
     "shape": {
       "bottomLeft": {
-        "x": 182.08185,
+        "x": 183.4234,
         "y": 1065.5,
       },
       "bottomRight": {
-        "x": 556.71826,
+        "x": 557.58704,
         "y": 1065.5,
       },
       "topLeft": {
-        "x": 182.08185,
+        "x": 183.4234,
         "y": 1013,
       },
       "topRight": {
-        "x": 556.71826,
+        "x": 557.58704,
         "y": 1013,
       },
     },
@@ -1597,19 +1597,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 182.08185,
+        "x": 183.4234,
         "y": 1649.5,
       },
       "bottomRight": {
-        "x": 556.71826,
+        "x": 557.58704,
         "y": 1649.5,
       },
       "topLeft": {
-        "x": 182.08185,
+        "x": 183.4234,
         "y": 1596.5,
       },
       "topRight": {
-        "x": 556.71826,
+        "x": 557.58704,
         "y": 1596.5,
       },
     },
@@ -1633,19 +1633,19 @@ exports[`score write in areas 1`] = `
     "score": 0.056252573,
     "shape": {
       "bottomLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 958,
       },
       "bottomRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 958,
       },
       "topLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 906,
       },
       "topRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 906,
       },
     },
@@ -1669,19 +1669,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 1542.5,
       },
       "bottomRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 1542.5,
       },
       "topLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 1489.5,
       },
       "topRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 1489.5,
       },
     },
@@ -1702,22 +1702,22 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.05499371,
+    "score": 0.055140752,
     "shape": {
       "bottomLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1172.5,
       },
       "bottomRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1172.5,
       },
       "topLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1120.5,
       },
       "topRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1120.5,
       },
     },
@@ -1746,19 +1746,19 @@ exports[`score write in areas 2`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 182.08185,
+        "x": 183.4234,
         "y": 726.5,
       },
       "bottomRight": {
-        "x": 556.71826,
+        "x": 557.58704,
         "y": 726.5,
       },
       "topLeft": {
-        "x": 182.08185,
+        "x": 183.4234,
         "y": 672.5,
       },
       "topRight": {
-        "x": 556.71826,
+        "x": 557.58704,
         "y": 672.5,
       },
     },
@@ -1782,19 +1782,19 @@ exports[`score write in areas 2`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 935,
       },
       "bottomRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 935,
       },
       "topLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 883,
       },
       "topRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 883,
       },
     },
@@ -1818,19 +1818,19 @@ exports[`score write in areas 2`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 1049.5,
       },
       "bottomRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 1049.5,
       },
       "topLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 997,
       },
       "topRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 997,
       },
     },
@@ -1854,19 +1854,19 @@ exports[`score write in areas 2`] = `
     "score": 0.056991484,
     "shape": {
       "bottomLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 1163.5,
       },
       "bottomRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 1163.5,
       },
       "topLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 1110.5,
       },
       "topRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 1110.5,
       },
     },
@@ -1890,19 +1890,19 @@ exports[`score write in areas 2`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 1278,
       },
       "bottomRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 1278,
       },
       "topLeft": {
-        "x": 689.566,
+        "x": 690.26715,
         "y": 1225,
       },
       "topRight": {
-        "x": 1064.2023,
+        "x": 1064.4307,
         "y": 1225,
       },
     },
@@ -1926,19 +1926,19 @@ exports[`score write in areas 2`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1217,
       },
       "bottomRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1217,
       },
       "topLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1163.5,
       },
       "topRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1163.5,
       },
     },
@@ -1962,19 +1962,19 @@ exports[`score write in areas 2`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1331,
       },
       "bottomRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1331,
       },
       "topLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1278,
       },
       "topRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1278,
       },
     },
@@ -1998,19 +1998,19 @@ exports[`score write in areas 2`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1445,
       },
       "bottomRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1445,
       },
       "topLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1391,
       },
       "topRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1391,
       },
     },
@@ -2034,19 +2034,19 @@ exports[`score write in areas 2`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1558.5,
       },
       "bottomRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1558.5,
       },
       "topLeft": {
-        "x": 1197.05,
+        "x": 1197.1108,
         "y": 1505.5,
       },
       "topRight": {
-        "x": 1571.6864,
+        "x": 1571.2744,
         "y": 1505.5,
       },
     },
