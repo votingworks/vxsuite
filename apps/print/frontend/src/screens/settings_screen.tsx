@@ -19,6 +19,7 @@ import {
   getDeviceStatuses,
 } from '../api';
 import { TitleBar } from '../components/title_bar';
+import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 
 const Content = styled.div`
   padding: 1rem;
@@ -58,6 +59,9 @@ export function SettingsScreen({
       <TitleBar title="Settings" />
       <Content>
         <H2>Election</H2>
+        <P>
+          <ToggleTestModeButton />
+        </P>
         <UnconfigureMachineButton
           isMachineConfigured={isConfigured}
           unconfigureMachine={unconfigure}
