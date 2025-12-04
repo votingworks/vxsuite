@@ -182,6 +182,7 @@ pub fn score_bubble_marks_from_grid_layout(
             canvas,
             &scored_bubbles,
             detected_vertical_streaks,
+            timing_marks,
         );
     });
 

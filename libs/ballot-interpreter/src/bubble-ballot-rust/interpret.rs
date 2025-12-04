@@ -1117,15 +1117,15 @@ mod test {
         // Create an image of the original size with a white background,
         // then draw the scaled image in its center.
         let mut side_a_image = GrayImage::from_pixel(width, height, Luma([0xff]));
-        let _debug_side_a_image = DebugImage::write(
-            "test_reject_scaled_down_ballots__side_a_image.png",
-            &side_a_image,
-        );
         let x = (width - scaled_down_side_a_image.width()) / 2;
         let y = (height - scaled_down_side_a_image.height()) / 2;
         side_a_image
             .copy_from(&scaled_down_side_a_image, x, y)
             .unwrap();
+        let _debug_side_a_image = DebugImage::write(
+            "test_reject_scaled_down_ballots__side_a_image.png",
+            &side_a_image,
+        );
 
         // Interpret the scaled down side A and normal side B.
         let error = ballot_card(side_a_image, side_b_image, &options).unwrap_err();

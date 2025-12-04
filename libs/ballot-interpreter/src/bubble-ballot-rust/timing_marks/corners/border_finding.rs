@@ -158,16 +158,15 @@ impl GridBorder {
         candidate_timing_marks: &[CandidateTimingMark],
         corners: (&CandidateTimingMark, &CandidateTimingMark),
     ) -> Result<Self, Error> {
+        let (starting_mark, ending_mark) = corners;
         assert!(
-            candidate_timing_marks.contains(corners.0),
+            candidate_timing_marks.contains(starting_mark),
             "Starting corner must be a candidate timing mark"
         );
         assert!(
-            candidate_timing_marks.contains(corners.1),
+            candidate_timing_marks.contains(ending_mark),
             "Ending corner must be a candidate timing mark"
         );
-
-        let (starting_mark, ending_mark) = corners;
 
         let corner_to_corner_segment =
             Segment::new(starting_mark.rect().center(), ending_mark.rect().center());

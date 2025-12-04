@@ -1019,6 +1019,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
     canvas: &mut RgbImage,
     scored_bubble_marks: &[(GridPosition, Option<ScoredBubbleMark>)],
     streaks: &[VerticalStreak],
+    timing_marks: &TimingMarks,
 ) {
     for (i, (vertical_streak, color)) in streaks.iter().zip(dark_rainbow()).enumerate() {
         let x_start = *vertical_streak.x_range.start();
@@ -1062,9 +1063,22 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                 fill_score_color,
                 "Bubble Fill Score (0% = no fill, 100% = perfect fill)",
             ),
+            (GREEN, "Timing Mark Centers"),
         ],
         Point::new(10, 10),
     );
+
+    // Draw timing mark centers as bright green crosses
+    for mark in timing_marks
+        .top_marks
+        .iter()
+        .chain(timing_marks.bottom_marks.iter())
+        .chain(timing_marks.left_marks.iter())
+        .chain(timing_marks.right_marks.iter())
+    {
+        let center = mark.rect().center();
+        draw_cross_mut(canvas, GREEN, center.x as i32, center.y as i32);
+    }
 
     for (grid_position, scored_bubble_mark) in scored_bubble_marks {
         if let Some(scored_bubble_mark) = scored_bubble_mark {
