@@ -74,14 +74,18 @@ const TestModeBannerContainer = styled(Box)`
   }
 `;
 
-export function TestModeBanner(): JSX.Element {
+export function TestModeBanner({
+  overrideText,
+}: {
+  overrideText?: string;
+}): JSX.Element {
   return (
     <TestModeBannerContainer>
       <h2>
         <Icons.Warning /> Test Report
       </h2>
-      This report was generated using test ballots and does not contain actual
-      election results.
+      {overrideText ??
+        'This report was generated using test ballots and does not contain actual election results.'}
     </TestModeBannerContainer>
   );
 }

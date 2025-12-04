@@ -10,7 +10,12 @@ import { throwIllegalValue } from '@votingworks/basics';
 
 import { PrintedReport, reportColors, printedReportThemeFn } from './layout';
 import { LogoMark } from '../logo_mark';
-import { ReportHeader, ReportTitle, ReportElectionInfo } from './report_header';
+import {
+  ReportHeader,
+  ReportTitle,
+  ReportElectionInfo,
+  TestModeBanner,
+} from './report_header';
 import { ReportGeneratedMetadata } from './report_generated_metadata';
 import { FillerColumn } from './ballot_count_report';
 
@@ -354,6 +359,7 @@ export interface BallotsPrintedReportProps {
   electionPackageHash?: string;
   printCounts: BallotPrintCount[];
   generatedAtTime?: Date;
+  isTestMode: boolean;
 }
 
 export function BallotsPrintedReport({
@@ -361,11 +367,15 @@ export function BallotsPrintedReport({
   electionPackageHash,
   printCounts,
   generatedAtTime = new Date(),
+  isTestMode,
 }: BallotsPrintedReportProps): JSX.Element {
   const { election } = electionDefinition;
   return (
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport>
+        {isTestMode && (
+          <TestModeBanner overrideText="This report was generated in test mode and reflects test ballot print counts only." />
+        )}
         <LogoMark />
         <ReportHeader style={{ marginBottom: '1em' }}>
           <ReportTitle>Ballots Printed Report</ReportTitle>
