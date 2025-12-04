@@ -1,8 +1,14 @@
 /* istanbul ignore file - @preserve */
-import { ElectricalTestingScreen, Icons, InputControls } from '@votingworks/ui';
-import { useState } from 'react';
+import {
+  CpuMetricsDisplay,
+  ElectricalTestingScreen,
+  Icons,
+  InputControls,
+} from '@votingworks/ui';
+import React, { useState } from 'react';
 import useInterval from 'use-interval';
 import {
+  getCpuMetrics,
   getElectricalTestingStatuses,
   setCardReaderTaskRunning,
   setUsbDriveTaskRunning,
@@ -15,6 +21,7 @@ const SOUND_INTERVAL_SECONDS = 5;
 export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusesQuery =
     getElectricalTestingStatuses.useQuery();
+  const getCpuMetricsQuery = getCpuMetrics.useQuery();
   const setCardReaderTaskRunningMutation =
     setCardReaderTaskRunning.useMutation();
   const setUsbDriveTaskRunningMutation = setUsbDriveTaskRunning.useMutation();
@@ -49,44 +56,50 @@ export function AppRoot(): JSX.Element {
   const usbDriveStatus = getElectricalTestingStatusesQuery.data?.usbDrive;
 
   return (
-    <ElectricalTestingScreen
-      tasks={[
-        {
-          id: 'card',
-          icon: <Icons.SimCard />,
-          title: 'Card Reader',
-          statusMessage: cardStatus?.statusMessage ?? 'Unknown',
-          isRunning: cardStatus?.taskStatus === 'running',
-          toggleIsRunning: toggleCardReaderTaskRunning,
-          updatedAt: cardStatus?.updatedAt,
-        },
-        {
-          id: 'usbDrive',
-          icon: <Icons.UsbDrive />,
-          title: 'USB Drive',
-          statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
-          isRunning: usbDriveStatus?.taskStatus === 'running',
-          toggleIsRunning: toggleUsbDriveTaskRunning,
-          updatedAt: usbDriveStatus?.updatedAt,
-        },
-        {
-          id: 'sound',
-          icon: isSoundEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
-          title: 'Sound',
-          body: isSoundEnabled ? 'Enabled' : 'Disabled',
-          isRunning: isSoundEnabled,
-          toggleIsRunning: toggleSoundEnabled,
-        },
-        {
-          id: 'inputs',
-          icon: <Icons.Mouse />,
-          title: 'Inputs',
-          body: <InputControls />,
-        },
-      ]}
-      perRow={1}
-      powerDown={powerDown}
-      usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
-    />
+    <React.Fragment>
+      <CpuMetricsDisplay
+        metrics={getCpuMetricsQuery.data}
+        orientation="portrait"
+      />
+      <ElectricalTestingScreen
+        tasks={[
+          {
+            id: 'card',
+            icon: <Icons.SimCard />,
+            title: 'Card Reader',
+            statusMessage: cardStatus?.statusMessage ?? 'Unknown',
+            isRunning: cardStatus?.taskStatus === 'running',
+            toggleIsRunning: toggleCardReaderTaskRunning,
+            updatedAt: cardStatus?.updatedAt,
+          },
+          {
+            id: 'usbDrive',
+            icon: <Icons.UsbDrive />,
+            title: 'USB Drive',
+            statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
+            isRunning: usbDriveStatus?.taskStatus === 'running',
+            toggleIsRunning: toggleUsbDriveTaskRunning,
+            updatedAt: usbDriveStatus?.updatedAt,
+          },
+          {
+            id: 'sound',
+            icon: isSoundEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
+            title: 'Sound',
+            body: isSoundEnabled ? 'Enabled' : 'Disabled',
+            isRunning: isSoundEnabled,
+            toggleIsRunning: toggleSoundEnabled,
+          },
+          {
+            id: 'inputs',
+            icon: <Icons.Mouse />,
+            title: 'Inputs',
+            body: <InputControls />,
+          },
+        ]}
+        perRow={1}
+        powerDown={powerDown}
+        usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
+      />
+    </React.Fragment>
   );
 }

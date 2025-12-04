@@ -1,5 +1,9 @@
 /* istanbul ignore file - @preserve */
-import { createSystemCallApi } from '@votingworks/backend';
+import {
+  createSystemCallApi,
+  getCpuMetrics,
+  CpuMetrics,
+} from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
 import { ServerContext } from './context';
@@ -59,6 +63,10 @@ function buildApi({
       } else {
         usbDriveTask.pause();
       }
+    },
+
+    async getCpuMetrics(): Promise<CpuMetrics> {
+      return getCpuMetrics();
     },
 
     ...createSystemCallApi({

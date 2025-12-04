@@ -109,4 +109,16 @@ export const setUsbDriveTaskRunning = {
   },
 } as const;
 
+export const getCpuMetrics = {
+  queryKey(): QueryKey {
+    return ['getCpuMetrics'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getCpuMetrics(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);
