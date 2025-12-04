@@ -2,7 +2,6 @@ import { assert } from '@votingworks/basics';
 import { P, Button, Modal, ButtonVariant } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
 import { generateId } from './utils';
 import * as api from './api';
 import { OrgSelect } from './org_select';
@@ -11,11 +10,6 @@ export interface CreateElectionButtonProps {
   variant?: ButtonVariant;
   disabled: boolean;
 }
-
-const OrgModal = styled(Modal)`
-  /* Allow modal to grow with user zoom setting and cap near screen height.  */
-  min-height: min(40rem, 98%);
-`;
 
 export function CreateElectionButton(
   props: CreateElectionButtonProps
@@ -75,7 +69,7 @@ export function CreateElectionButton(
         Create Election
       </Button>
       {modalActive && (
-        <OrgModal
+        <Modal
           title="Create Election"
           actions={
             <React.Fragment>

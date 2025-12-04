@@ -103,7 +103,7 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   const modal = screen.getByRole('alertdialog');
 
   userEvent.click(within(modal).getByRole('combobox'));
-  userEvent.click(within(modal).getByText(NON_VX_ORG.name));
+  userEvent.click(screen.getByText(NON_VX_ORG.name));
 
   const newElectionId = 'new-election' as ElectionId;
   mockGenerateId.mockReturnValue(newElectionId);

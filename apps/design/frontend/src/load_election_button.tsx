@@ -163,7 +163,7 @@ export function LoadElectionButton({
         <Modal
           title="Load Election"
           content={
-            <Column style={{ gap: '1rem', overflow: 'visible' }}>
+            <Column style={{ gap: '1rem' }}>
               <InputGroup label="Format">
                 <SearchSelect<ElectionUpload['format']>
                   style={{ width: '100%' }}
@@ -175,6 +175,7 @@ export function LoadElectionButton({
                   onChange={(value) =>
                     setModalFormState({ format: assertDefined(value) })
                   }
+                  menuPortalTarget={document.body}
                 />
               </InputGroup>
               {modalFormState.format === 'vxf' && (
