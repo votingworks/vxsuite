@@ -512,6 +512,33 @@ export function buildApi(ctx: AppContext) {
       await store.deleteDistrict(input.electionId, input.districtId);
     },
 
+    async updateDistricts(input: {
+      electionId: ElectionId;
+      deletedDistrictIds: string[];
+      newDistricts: District[];
+      updatedDistricts: District[];
+    }): Promise<Result<void, DuplicateDistrictError>> {
+      for (const d of input.updatedDistricts) {
+        const district = unsafeParse(DistrictSchema, d);
+        const res = await store.updateDistrict(input.electionId, district);
+
+        if (res.isErr()) return res;
+      }
+
+      for (const id of input.deletedDistrictIds) {
+        await store.deleteDistrict(input.electionId, id);
+      }
+
+      for (const d of input.newDistricts) {
+        const district = unsafeParse(DistrictSchema, d);
+        const res = await store.createDistrict(input.electionId, district);
+
+        if (res.isErr()) return res;
+      }
+
+      return ok();
+    },
+
     async listPrecincts(input: {
       electionId: ElectionId;
     }): Promise<readonly Precinct[]> {
@@ -567,6 +594,33 @@ export function buildApi(ctx: AppContext) {
     }): Promise<Result<void, DuplicatePartyError>> {
       const party = unsafeParse(PartySchema, input.updatedParty);
       return store.updateParty(input.electionId, party);
+    },
+
+    async updateParties(input: {
+      electionId: ElectionId;
+      deletedPartyIds: string[];
+      newParties: Party[];
+      updatedParties: Party[];
+    }): Promise<Result<void, DuplicatePartyError>> {
+      for (const p of input.updatedParties) {
+        const party = unsafeParse(PartySchema, p);
+        const res = await store.updateParty(input.electionId, party);
+
+        if (res.isErr()) return res;
+      }
+
+      for (const id of input.deletedPartyIds) {
+        await store.deleteParty(input.electionId, id);
+      }
+
+      for (const p of input.newParties) {
+        const party = unsafeParse(PartySchema, p);
+        const res = await store.createParty(input.electionId, party);
+
+        if (res.isErr()) return res;
+      }
+
+      return ok();
     },
 
     async deleteParty(input: {

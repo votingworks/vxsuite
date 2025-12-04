@@ -1,21 +1,21 @@
 import React from 'react';
+import { LinkButton, H1 } from '@votingworks/ui';
+import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { Switch, Route, Redirect, useParams } from 'react-router-dom';
-
-import { H1, LinkButton } from '@votingworks/ui';
-
+import { FixedViewport, ListActionsRow } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { getBallotsFinalizedAt, listPrecincts } from './api';
 import { useTitle } from './hooks/use_title';
-import { PrecinctForm } from './precincts_form';
-import { PrecinctList } from './precincts_list';
-import { FixedViewport, ListActionsRow } from './layout';
+import { PrecinctAudioPanel } from './precinct_audio_panel';
+import { PrecinctForm } from './precinct_form2';
+import { PrecinctList } from './precincts_list2';
+import * as api from './api';
 
-export function PrecinctsScreen(): JSX.Element {
+export function PrecinctsScreen2(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
-  const precinctParamRoutes = electionParamRoutes.precincts;
-  useTitle(routes.election(electionId).precincts.root.title);
+  const precinctParamRoutes = electionParamRoutes.precincts2;
+  useTitle(routes.election(electionId).precincts2.root.title);
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -39,11 +39,6 @@ const Viewport = styled(FixedViewport)`
   grid-template-rows: min-content 1fr;
 `;
 
-const EditPanel = styled.div`
-  height: 100%;
-  overflow: hidden;
-`;
-
 const Body = styled.div`
   display: flex;
   height: 100%;
@@ -51,15 +46,21 @@ const Body = styled.div`
   width: 100%;
 
   /* Sidebar */
-  > :first-child:not(:last-child) {
-    max-width: min(25%, 17rem);
+  > :first-child {
     min-width: min-content;
+    max-width: min(25%, 17rem);
     width: 100%;
   }
 
-  > ${EditPanel} {
+  /* Content pane */
+  > :last-child {
     flex-grow: 1;
   }
+`;
+
+const EditPanel = styled.div`
+  height: 100%;
+  overflow: hidden;
 `;
 
 function Content(): React.ReactNode {
@@ -67,13 +68,13 @@ function Content(): React.ReactNode {
     ElectionIdParams & { precinctId?: string }
   >();
 
-  const precincts = listPrecincts.useQuery(electionId);
-  const ballotsFinalizedAt = getBallotsFinalizedAt.useQuery(electionId);
+  const precincts = api.listPrecincts.useQuery(electionId);
+  const ballotsFinalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
 
   if (!precincts.isSuccess || !ballotsFinalizedAt.isSuccess) return null;
 
-  const precinctRoutes = routes.election(electionId).precincts;
-  const precinctParamRoutes = electionParamRoutes.precincts;
+  const precinctRoutes = routes.election(electionId).precincts2;
+  const precinctParamRoutes = electionParamRoutes.precincts2;
 
   /**
    * Used as a route redirect, to auto-select the first available contest for
@@ -101,8 +102,18 @@ function Content(): React.ReactNode {
 
       <Body>
         <PrecinctList />
+
         <Switch>
-          {/* [TODO] Add audio panel route */}
+          <Route
+            path={precinctParamRoutes.audio(
+              ':precinctId',
+              ':ttsMode',
+              ':stringKey',
+              ':subkey'
+            )}
+            exact
+            component={PrecinctAudioPanel}
+          />
 
           <Route
             path={precinctParamRoutes.add.path}
@@ -121,9 +132,9 @@ function Content(): React.ReactNode {
   );
 }
 
-function AddPrecinctForm(): JSX.Element | null {
+function AddPrecinctForm() {
   const { electionId } = useParams<ElectionIdParams>();
-  const precinctRoutes = routes.election(electionId).precincts;
+  const precinctRoutes = routes.election(electionId).precincts2;
   const { title } = precinctRoutes.add;
 
   return (
@@ -133,20 +144,19 @@ function AddPrecinctForm(): JSX.Element | null {
   );
 }
 
-function EditPrecinctForm(): JSX.Element | null {
+function EditPrecinctForm(): React.ReactNode {
   type RouteParams = ElectionIdParams & { precinctId: string };
   const { electionId, precinctId } = useParams<RouteParams>();
-
   const listPrecinctsQuery = listPrecincts.useQuery(electionId);
   const finalizedAt = getBallotsFinalizedAt.useQuery(electionId);
 
-  const precinctParamRoutes = electionParamRoutes.precincts;
-  const precinctRoutes = routes.election(electionId).precincts;
+  const precinctParamRoutes = electionParamRoutes.precincts2;
+  const precinctRoutes = routes.election(electionId).precincts2;
 
   if (!listPrecinctsQuery.isSuccess) return null;
 
   const precincts = listPrecinctsQuery.data;
-  const savedPrecinct = precincts.find((p) => p.id === precinctId);
+  const savedPrecinct = precincts.find((c) => c.id === precinctId);
   const canEdit = !finalizedAt.data && !!savedPrecinct;
 
   return (
@@ -155,9 +165,9 @@ function EditPrecinctForm(): JSX.Element | null {
         {canEdit && (
           <Route path={precinctParamRoutes.edit(':precinctId').path} exact>
             <PrecinctForm
-              editing
               electionId={electionId}
               key={precinctId}
+              editing
               savedPrecinct={savedPrecinct}
               title="Edit Precinct"
             />

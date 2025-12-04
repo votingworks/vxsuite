@@ -18,7 +18,9 @@ import {
   BallotType,
   ElectionId,
   ElectionSerializationFormat,
+  PhoneticWord,
   PrecinctSelection,
+  ssmlGenerate,
   TtsEditKey,
 } from '@votingworks/types';
 import { generateId } from './utils';
@@ -327,6 +329,23 @@ export const ttsStringDefaults = {
 } as const;
 
 /* istanbul ignore next - WIP @preserve */
+export const ttsSynthesizeFromSsml = {
+  queryKey(input: { languageCode: string; words: PhoneticWord[] }): QueryKey {
+    return [
+      'ttsSynthesizeFromSsml',
+      input.languageCode,
+      ssmlGenerate(input.words),
+    ];
+  },
+  useQuery(input: { languageCode: string; words: PhoneticWord[] }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.ttsSynthesizeFromSsml(input)
+    );
+  },
+} as const;
+
+/* istanbul ignore next - WIP @preserve */
 export const ttsSynthesizeFromText = {
   queryKey(input: { languageCode: string; text: string }): QueryKey {
     return ['ttsSynthesizeFromText', input.languageCode, input.text];
@@ -467,6 +486,20 @@ export const deleteDistrict = {
   },
 } as const;
 
+export const updateDistricts = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateDistricts, {
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+        }
+      },
+    });
+  },
+} as const;
+
 export const createPrecinct = {
   useMutation() {
     const apiClient = useApiClient();
@@ -528,6 +561,20 @@ export const updateParty = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateParty, {
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+        }
+      },
+    });
+  },
+} as const;
+
+export const updateParties = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateParties, {
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);

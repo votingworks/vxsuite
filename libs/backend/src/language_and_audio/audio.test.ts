@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, Mocked, test, vi } from 'vitest';
 import {
   ElectionStringKey,
   LanguageCode,
+  PhoneticWord,
+  ssmlGenerate,
   UiStringsPackage,
 } from '@votingworks/types';
 import { getFeatureFlagMock } from '@votingworks/utils';
@@ -79,9 +81,10 @@ describe('extractAndTranslateElectionStrings', () => {
 
   test('overrides election strings with TTS edits', async () => {
     const mockSynthesizer: Mocked<SpeechSynthesizer> = {
-      synthesizeSpeech: vi.fn((text, lang) =>
-        Promise.resolve(`audio-${lang}-${text}`)
+      fromSsml: vi.fn((words, lang) =>
+        Promise.resolve(`audio-${lang}-${ssmlGenerate(words)}`)
       ),
+      fromText: vi.fn((text, lang) => Promise.resolve(`audio-${lang}-${text}`)),
     };
 
     const { ENGLISH, SPANISH } = LanguageCode;
@@ -93,10 +96,19 @@ describe('extractAndTranslateElectionStrings', () => {
     const electionStrings: UiStringsPackage = {
       [ENGLISH]: {
         electionTitle: 'CA Primary',
+        precinctName1: 'La Jolla',
         stateName: 'CA',
         contestOption4: 'CA', // Should not result in duplicate audio clip.
       },
     };
+
+    const laJollaPhonetic: PhoneticWord[] = [
+      { syllables: [{ ipaPhonemes: ['l', 'ə'] }], text: 'La' },
+      {
+        syllables: [{ ipaPhonemes: ['h', 'ɔː', 'iː', 'ə'], stress: 'primary' }],
+        text: 'Jolla',
+      },
+    ];
 
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
       appStrings,
@@ -105,10 +117,19 @@ describe('extractAndTranslateElectionStrings', () => {
         {
           languageCode: ENGLISH,
           original: 'CA Primary',
-          text: 'California Primary',
+          text: '[edit] California Primary',
 
           exportSource: 'text',
           phonetic: [],
+        },
+
+        {
+          languageCode: ENGLISH,
+          original: 'La Jolla',
+
+          exportSource: 'phonetic',
+          phonetic: laJollaPhonetic,
+          text: 'La Jolla',
         },
 
         // Ignored - no language match:
@@ -150,10 +171,8 @@ describe('extractAndTranslateElectionStrings', () => {
 
     const { promise, reject, resolve } = deferred<void>();
     uiStringAudioClips.on('end', () => {
-      const parsedClips = clips.map((c) => JSON.parse(c));
-
       try {
-        expect(parsedClips).toMatchObject([
+        expect(clips.map((c) => JSON.parse(c))).toMatchObject([
           // buttonYes
           {
             id: audioIdForText(SPANISH, 'Claro'),
@@ -165,7 +184,14 @@ describe('extractAndTranslateElectionStrings', () => {
           {
             id: audioIdForText(ENGLISH, 'CA Primary'),
             languageCode: ENGLISH,
-            dataBase64: `audio-${ENGLISH}-California Primary`,
+            dataBase64: `audio-${ENGLISH}-[edit] California Primary`,
+          },
+
+          // precinctName1
+          {
+            id: audioIdForText(ENGLISH, 'La Jolla'),
+            languageCode: ENGLISH,
+            dataBase64: `audio-${ENGLISH}-${ssmlGenerate(laJollaPhonetic)}`,
           },
 
           // stateName, contestOption4
@@ -187,9 +213,10 @@ describe('extractAndTranslateElectionStrings', () => {
 
   test('matches contest description edits based on sanitized strings', async () => {
     const mockSynthesizer: Mocked<SpeechSynthesizer> = {
-      synthesizeSpeech: vi.fn((text, lang) =>
-        Promise.resolve(`audio-${lang}-${text}`)
+      fromSsml: vi.fn((words, lang) =>
+        Promise.resolve(`audio-${lang}-${ssmlGenerate(words)}`)
       ),
+      fromText: vi.fn((text, lang) => Promise.resolve(`audio-${lang}-${text}`)),
     };
 
     const { ENGLISH } = LanguageCode;
@@ -233,10 +260,8 @@ describe('extractAndTranslateElectionStrings', () => {
 
     const { promise, reject, resolve } = deferred<void>();
     uiStringAudioClips.on('end', () => {
-      const parsedClips = clips.map((c) => JSON.parse(c));
-
       try {
-        expect(parsedClips).toMatchObject([
+        expect(clips.map((c) => JSON.parse(c))).toMatchObject([
           {
             id: audioIdForText(ENGLISH, sanitizedString),
             languageCode: ENGLISH,

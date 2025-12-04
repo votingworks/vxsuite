@@ -31,8 +31,12 @@ export const routes = {
         path: root,
       },
       electionInfo: {
-        title: 'Election Info',
-        path: `${root}/info`,
+        root: {
+          title: 'Election Info',
+          path: `${root}/info`,
+        },
+        audio: (p: { stringKey: ':stringKey' | ElectionStringKey }) =>
+          `${root}/info/audio/${p.stringKey}`,
       },
       districts: {
         root: {
@@ -59,21 +63,71 @@ export const routes = {
         },
         edit: (precinctId: string) => ({
           title: 'Edit Precinct',
+          path: `${root}/precincts/${precinctId}/edit`,
+        }),
+        view: (precinctId: string) => ({
+          title: 'Edit Precinct',
           path: `${root}/precincts/${precinctId}`,
         }),
+      },
+      districts2: {
+        root: {
+          title: 'Districts',
+          path: `${root}/districts2`,
+        },
+        edit: {
+          title: 'Districts',
+          path: `${root}/districts2/edit`,
+        },
+        audio: (p: {
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) => {
+          const subpath = p.subkey ? `/${p.subkey}` : '';
+          return `${root}/districts2/audio/${p.stringKey}${subpath}`;
+        },
+      },
+      precincts2: {
+        root: {
+          title: 'Precincts',
+          path: `${root}/precincts2`,
+        },
+        add: {
+          title: 'Precincts',
+          path: `${root}/precincts2/add`,
+        },
+        edit: (precinctId: string) => ({
+          title: 'Precinct',
+          path: `${root}/precincts2/${precinctId}/edit`,
+        }),
+        view: (precinctId: string) => ({
+          title: 'Precinct',
+          path: `${root}/precincts2/${precinctId}`,
+        }),
+        audio: (
+          precinctId: ':precinctId' | (string & {}),
+          ttsMode: ':ttsMode' | TtsExportSource,
+          stringKey: ':stringKey' | ElectionStringKey,
+          subkey: ':subkey' | (string & {})
+        ) => {
+          const precinctsRoot = `${root}/precincts2/${precinctId}`;
+          const subpath = subkey ? `/${subkey}` : '';
+
+          return `${precinctsRoot}/audio/${ttsMode}/${stringKey}${subpath}`;
+        },
       },
       parties: {
         root: {
           title: 'Parties',
-          path: `${root}/parties`,
+          path: `${root}/parties-old`,
         },
         addParty: {
           title: 'Add Party',
-          path: `${root}/parties/add`,
+          path: `${root}/parties-old/add`,
         },
         editParty: (partyId: string) => ({
           title: 'Edit Party',
-          path: `${root}/parties/${partyId}`,
+          path: `${root}/parties-old/${partyId}`,
         }),
       },
       contests: {
@@ -102,6 +156,23 @@ export const routes = {
           path: `${root}/contests/${contestId}`,
         }),
       },
+      parties2: {
+        root: {
+          title: 'Parties',
+          path: `${root}/parties`,
+        },
+        edit: {
+          title: 'Parties',
+          path: `${root}/parties/edit`,
+        },
+        audio: (p: {
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) => {
+          const subpath = p.subkey ? `/${p.subkey}` : '';
+          return `${root}/parties/audio/${p.stringKey}${subpath}`;
+        },
+      },
       ballots: {
         root: {
           title: 'Proof Ballots',
@@ -114,15 +185,11 @@ export const routes = {
           },
           manage: (
             ttsMode: TtsExportSource | ':ttsMode',
-            stringKey: string,
+            stringKey: ':stringKey' | (string & {}),
             subkey?: string
           ) => {
             const subpath = subkey ? `/${subkey}` : '';
-
-            return {
-              title: 'Audio',
-              path: `${root}/ballots/audio/${ttsMode}/${stringKey}${subpath}`,
-            };
+            return `${root}/ballots/audio/${ttsMode}/${stringKey}${subpath}`;
           },
         },
         ballotStyles: {
@@ -182,10 +249,13 @@ export function electionNavRoutes(
 ): Route[] {
   const electionRoutes = routes.election(electionId);
   return [
-    electionRoutes.electionInfo,
+    electionRoutes.electionInfo.root,
     electionRoutes.districts.root,
     electionRoutes.precincts.root,
-    electionRoutes.parties.root,
+    electionRoutes.districts2.root,
+    electionRoutes.precincts2.root,
+    // electionRoutes.parties.root,
+    electionRoutes.parties2.root,
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
     ...(userFeatures.SYSTEM_SETTINGS_SCREEN

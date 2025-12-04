@@ -328,7 +328,9 @@ export function BallotScreen(): JSX.Element | null {
                         <span>
                           Missing signature. Upload a signature in{' '}
                           <Link
-                            to={routes.election(electionId).electionInfo.path}
+                            to={
+                              routes.election(electionId).electionInfo.root.path
+                            }
                           >
                             Election Info
                           </Link>

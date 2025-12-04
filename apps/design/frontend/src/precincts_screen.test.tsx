@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ElectionRecord } from '@votingworks/design-backend';
 import { Buffer } from 'node:buffer';
-import { createMemoryHistory } from 'history';
+import { createMemoryHistory, MemoryHistory } from 'history';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionId,
@@ -27,6 +27,11 @@ import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { PrecinctsScreen } from './precincts_screen';
+import { PrecinctList } from './precincts_list';
+
+vi.mock('./precincts_list.js');
+const MockPrecinctList = vi.mocked(PrecinctList);
+const PRECINCT_LIST_TEST_ID = 'MockPrecinctList';
 
 let apiMock: MockApiClient;
 
@@ -50,16 +55,19 @@ function renderScreen(electionId: ElectionId) {
     provideApi(
       apiMock,
       withRoute(<PrecinctsScreen />, {
+        history,
         paramPath: routes.election(':electionId').precincts.root.path,
         path,
       })
     )
   );
+
   return history;
 }
 
 const { election } = generalElectionRecord(jurisdiction.id);
 const electionId = election.id;
+const precinctRoutes = routes.election(electionId).precincts;
 
 beforeEach(() => {
   mockStateFeatures(apiMock, electionId);
@@ -67,6 +75,8 @@ beforeEach(() => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
+
+  MockPrecinctList.mockReturnValue(<div data-testid={PRECINCT_LIST_TEST_ID} />);
 });
 
 test('adding a precinct', async () => {
@@ -80,19 +90,16 @@ test('adding a precinct', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  renderScreen(electionId);
+
+  const history = renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Precincts' });
-  await screen.findByText(
-    "You haven't added any precincts to this election yet."
-  );
+  expect(history.location.pathname).toEqual(precinctRoutes.root.path);
+  expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  screen.getByTestId(PRECINCT_LIST_TEST_ID);
 
   userEvent.click(screen.getByRole('button', { name: 'Add Precinct' }));
   await screen.findByRole('heading', { name: 'Add Precinct' });
-  expect(screen.getByRole('link', { name: 'Precincts' })).toHaveAttribute(
-    'href',
-    `/elections/${electionId}/precincts`
-  );
 
   userEvent.type(screen.getByLabelText('Name'), newPrecinct.name);
 
@@ -110,28 +117,16 @@ test('adding a precinct', async () => {
       newPrecinct,
     })
     .resolves(ok());
-  apiMock.listPrecincts.expectCallWith({ electionId }).resolves([newPrecinct]);
+  apiMock.listPrecincts
+    .expectRepeatedCallsWith({ electionId })
+    .resolves([newPrecinct]);
   // Districts haven't changed, but we are using coarse-grained invalidation
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-  await screen.findByRole('heading', { name: 'Precincts' });
-  expect(
-    (await screen.findAllByRole('columnheader')).map((th) => th.textContent)
-  ).toEqual(['Name', 'Districts', '']);
-  const rows = screen.getAllByRole('row');
-  expect(rows).toHaveLength(2);
-  expect(
-    within(rows[1])
-      .getAllByRole('cell')
-      .map((td) => td.textContent)
-  ).toEqual([
-    newPrecinct.name,
-    `${election.districts[0].name}, ${election.districts[1].name}`,
-    'Edit',
-  ]);
+  await expectViewModePrecinct(history, newPrecinct);
 });
 
 test('editing a precinct - adding splits in NH', async () => {
@@ -188,33 +183,12 @@ test('editing a precinct - adding splits in NH', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Precincts' });
-  await screen.findByText(savedPrecinct.name);
-  const rows = screen.getAllByRole('row');
-  expect(rows).toHaveLength(
-    election.precincts.length + 2 /* precinct splits */ + 1
-  );
+  const history = renderScreen(electionId);
+  await navigateToPrecinctView(history, savedPrecinct.id);
 
-  const savedPrecinctRow = screen.getByText(savedPrecinct.name).closest('tr')!;
-  expect(
-    within(savedPrecinctRow)
-      .getAllByRole('cell')
-      .map((td) => td.textContent)
-  ).toEqual([
-    savedPrecinct.name,
-    `${election.districts[0].name}, ${election.districts[1].name}`,
-    'Edit',
-  ]);
-  userEvent.click(
-    within(savedPrecinctRow).getByRole('button', { name: 'Edit' })
-  );
+  userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Precinct' });
-  expect(screen.getByRole('link', { name: 'Precincts' })).toHaveAttribute(
-    'href',
-    `/elections/${electionId}/precincts`
-  );
 
   const nameInput = screen.getByLabelText('Name');
   expect(nameInput).toHaveValue(savedPrecinct.name);
@@ -339,28 +313,7 @@ test('editing a precinct - adding splits in NH', async () => {
     .resolves(election.districts);
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-  await screen.findByRole('heading', { name: 'Precincts' });
-  expect(screen.getAllByRole('row')).toHaveLength(
-    election.precincts.length + 4 /* precinct splits */ + 1
-  );
-  const changedPrecinctRow = screen
-    .getByText(changedPrecinct.name)
-    .closest('tr')!;
-  expect(
-    within(changedPrecinctRow)
-      .getAllByRole('cell')
-      .map((td) => td.textContent)
-  ).toEqual([changedPrecinct.name, '', 'Edit']);
-  expect(
-    within(changedPrecinctRow.nextSibling as HTMLTableRowElement)
-      .getAllByRole('cell')
-      .map((td) => td.textContent)
-  ).toEqual([changedPrecinct.splits[0].name, election.districts[0].name, '']);
-  expect(
-    within(changedPrecinctRow.nextSibling!.nextSibling as HTMLTableRowElement)
-      .getAllByRole('cell')
-      .map((td) => td.textContent)
-  ).toEqual([changedPrecinct.splits[1].name, election.districts[1].name, '']);
+  await expectViewModePrecinct(history, changedPrecinct);
 });
 
 test('editing a precinct - removing splits', async () => {
@@ -379,16 +332,9 @@ test('editing a precinct - removing splits', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Precincts' });
-  const savedPrecinctRow = (
-    await screen.findByText(savedPrecinct.name)
-  ).closest('tr')!;
-  userEvent.click(
-    within(savedPrecinctRow).getByRole('button', { name: 'Edit' })
-  );
-  await screen.findByRole('heading', { name: 'Edit Precinct' });
+  const history = renderScreen(electionId);
+  await navigateToPrecinctEdit(history, savedPrecinct.id);
 
   const splitCards = screen
     .getAllByRole('button', { name: 'Remove Split' })
@@ -431,18 +377,7 @@ test('editing a precinct - removing splits', async () => {
     .resolves(election.districts);
   userEvent.type(screen.getByLabelText('Name'), '{enter}');
 
-  await screen.findByRole('heading', { name: 'Precincts' });
-  expect(screen.getAllByRole('row')).toHaveLength(
-    election.precincts.length + 1
-  );
-  const changedPrecinctRow = screen
-    .getByText(changedPrecinct.name)
-    .closest('tr')!;
-  expect(
-    within(changedPrecinctRow)
-      .getAllByRole('cell')
-      .map((td) => td.textContent)
-  ).toEqual([changedPrecinct.name, 'District 1, District 2', 'Edit']);
+  await expectViewModePrecinct(history, changedPrecinct);
 });
 
 test('deleting a precinct', async () => {
@@ -455,17 +390,9 @@ test('deleting a precinct', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Precincts' });
-  const savedPrecinctRow = (
-    await screen.findByText(savedPrecinct.name)
-  ).closest('tr')!;
-  userEvent.click(
-    within(savedPrecinctRow).getByRole('button', { name: 'Edit' })
-  );
-
-  await screen.findByRole('heading', { name: 'Edit Precinct' });
+  const history = renderScreen(electionId);
+  await navigateToPrecinctEdit(history, savedPrecinct.id);
 
   apiMock.deletePrecinct
     .expectCallWith({
@@ -473,23 +400,24 @@ test('deleting a precinct', async () => {
       precinctId: savedPrecinct.id,
     })
     .resolves();
+
+  const remainingPrecincts = election.precincts.slice(1);
   apiMock.listPrecincts
     .expectCallWith({ electionId })
-    .resolves(election.precincts.slice(1));
+    .resolves(remainingPrecincts);
+
   // Districts haven't changed, but we are using coarse-grained invalidation
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
+
   // Initiate the deletion
   userEvent.click(screen.getByRole('button', { name: 'Delete Precinct' }));
+
   // Confirm the deletion in the modal
   userEvent.click(screen.getByRole('button', { name: 'Delete Precinct' }));
 
-  await screen.findByRole('heading', { name: 'Precincts' });
-  expect(screen.getAllByRole('row')).toHaveLength(
-    election.precincts.length + 2 /* precinct splits */
-  );
-  expect(screen.queryByText(savedPrecinct.name)).not.toBeInTheDocument();
+  await expectViewModePrecinct(history, remainingPrecincts[0]);
 });
 
 test('editing or adding a precinct is disabled when ballots are finalized', async () => {
@@ -503,12 +431,24 @@ test('editing or adding a precinct is disabled when ballots are finalized', asyn
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Precincts' });
-  await screen.findByText(election.precincts[0].name);
-  expect(screen.getAllByRole('button', { name: 'Edit' })[0]).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Add Precinct' })).toBeDisabled();
+  const history = renderScreen(electionId);
+
+  await expectViewModePrecinct(history, election.precincts[0]);
+  expect(screen.queryButton('Edit')).not.toBeInTheDocument();
+  expect(screen.queryButton('Save')).not.toBeInTheDocument();
+  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
+  expect(screen.queryButton('Delete Precinct')).not.toBeInTheDocument();
+
+  const precinct2 = election.precincts[1];
+
+  // Accessing `/edit` route when finalized should redirect to "view" route:
+  history.replace(precinctRoutes.edit(precinct2.id).path);
+  await waitFor(() => expectViewModePrecinct(history, precinct2));
+  expect(screen.queryButton('Edit')).not.toBeInTheDocument();
+  expect(screen.queryButton('Save')).not.toBeInTheDocument();
+  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
+  expect(screen.queryButton('Delete Precinct')).not.toBeInTheDocument();
 });
 
 test('cancelling', async () => {
@@ -518,25 +458,24 @@ test('cancelling', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Precincts' });
-  userEvent.click((await screen.findAllByRole('button', { name: 'Edit' }))[0]);
+  const history = renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Edit Precinct' });
+  const precinct1 = election.precincts[0];
+  await navigateToPrecinctEdit(history, precinct1.id);
+
   userEvent.click(screen.getByRole('button', { name: 'Delete Precinct' }));
   await screen.findByRole('heading', { name: 'Delete Precinct' });
   // Cancel in confirm delete modal
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  await waitFor(() =>
-    expect(
-      screen.queryByRole('heading', { name: 'Delete Precinct' })
-    ).not.toBeInTheDocument()
-  );
+  await screen.findByRole('heading', { name: 'Edit Precinct' });
+  expect(
+    screen.queryByRole('heading', { name: 'Delete Precinct' })
+  ).not.toBeInTheDocument();
 
   // Cancel edit precinct
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  await screen.findByRole('heading', { name: 'Precincts' });
+  await expectViewModePrecinct(history, precinct1);
 });
 
 test('error message for duplicate precinct name', async () => {
@@ -546,7 +485,8 @@ test('error message for duplicate precinct name', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  renderScreen(electionId);
+
+  const history = renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Precincts' });
 
   userEvent.click(await screen.findByRole('button', { name: 'Add Precinct' }));
@@ -567,10 +507,8 @@ test('error message for duplicate precinct name', async () => {
   await screen.findByText('There is already a precinct with the same name.');
 
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  await screen.findByRole('heading', { name: 'Precincts' });
-  userEvent.click((await screen.findAllByRole('button', { name: 'Edit' }))[0]);
 
-  await screen.findByRole('heading', { name: 'Edit Precinct' });
+  await navigateToPrecinctEdit(history, election.precincts[0].id);
   const nameInput = screen.getByLabelText('Name');
   expect(nameInput).toHaveValue(election.precincts[0].name);
   userEvent.clear(nameInput);
@@ -599,7 +537,8 @@ test('error message for duplicate precinct split name', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  renderScreen(electionId);
+
+  const history = renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Precincts' });
   userEvent.click(await screen.findByRole('button', { name: 'Add Precinct' }));
@@ -639,13 +578,8 @@ test('error message for duplicate precinct split name', async () => {
   await screen.findByText('Precinct splits must have different names.');
 
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  const savedPrecinctRow = (
-    await screen.findByText(savedPrecinct.name)
-  ).closest('tr')!;
-  userEvent.click(
-    within(savedPrecinctRow).getByRole('button', { name: 'Edit' })
-  );
-  await screen.findByRole('heading', { name: 'Edit Precinct' });
+
+  await navigateToPrecinctEdit(history, savedPrecinct.id);
   const savedSplitCards = screen
     .getAllByRole('button', { name: 'Remove Split' })
     .map((button) => button.closest('div')!);
@@ -685,6 +619,7 @@ test('error message for splits with the same districts', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
+
   renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Precincts' });
@@ -726,3 +661,32 @@ test('error message for splits with the same districts', async () => {
     'Each precinct split must have a different set of districts.'
   );
 });
+
+async function expectViewModePrecinct(
+  history: MemoryHistory,
+  precinct: Precinct
+) {
+  await screen.findByRole('heading', { name: 'Precinct Info' });
+  screen.getByTestId(PRECINCT_LIST_TEST_ID);
+  expect(history.location.pathname).toEqual(
+    precinctRoutes.view(precinct.id).path
+  );
+}
+
+async function navigateToPrecinctEdit(
+  history: MemoryHistory,
+  precinctId: string
+) {
+  history.replace(precinctRoutes.edit(precinctId).path);
+  await screen.findByRole('heading', { name: 'Edit Precinct' });
+  screen.getByTestId(PRECINCT_LIST_TEST_ID);
+}
+
+async function navigateToPrecinctView(
+  history: MemoryHistory,
+  precinctId: string
+) {
+  history.replace(precinctRoutes.view(precinctId).path);
+  await screen.findByRole('heading', { name: 'Precinct Info' });
+  screen.getByTestId(PRECINCT_LIST_TEST_ID);
+}

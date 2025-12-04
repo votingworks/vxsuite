@@ -25,7 +25,7 @@ export class GoogleCloudSpeechSynthesizerWithDbCache extends GoogleCloudSpeechSy
     this.store = input.store;
   }
 
-  async synthesizeSpeechSanitized(
+  async fromTextSanitized(
     text: string,
     languageCode: LanguageCode
   ): Promise<string> {
@@ -39,9 +39,9 @@ export class GoogleCloudSpeechSynthesizerWithDbCache extends GoogleCloudSpeechSy
       return audioClipBase64FromCache;
     }
 
-    debug(`🔉 Synthesizing speech: ${text.slice(0, 20)}...`);
+    debug(`🔉 Synthesizing speech from text: ${text.slice(0, 20)}...`);
 
-    const audioClipBase64 = await this.synthesizeSpeechWithGoogleCloud(
+    const audioClipBase64 = await this.fromTextWithGoogleCloud(
       text,
       languageCode
     );
@@ -52,6 +52,38 @@ export class GoogleCloudSpeechSynthesizerWithDbCache extends GoogleCloudSpeechSy
         audioClipBase64,
       });
     }
+    return audioClipBase64;
+  }
+
+  async fromSsmlString(
+    ssml: string,
+    languageCode: LanguageCode
+  ): Promise<string> {
+    const audioClipBase64FromCache =
+      await this.store.getAudioClipBase64FromCache({
+        languageCode,
+        text: ssml,
+      });
+    if (audioClipBase64FromCache) {
+      debug(`🔉 Using cached speech: ${ssml.slice(0, 20)}...`);
+      return audioClipBase64FromCache;
+    }
+
+    debug(`🔉 Synthesizing speech from SSML: ${ssml.slice(0, 20)}...`);
+
+    const audioClipBase64 = await this.fromSsmlWithGoogleCloud(
+      ssml,
+      languageCode
+    );
+
+    if (isValidPrimaryKey(ssml)) {
+      await this.store.addSpeechSynthesisCacheEntry({
+        languageCode,
+        text: ssml,
+        audioClipBase64,
+      });
+    }
+
     return audioClipBase64;
   }
 }

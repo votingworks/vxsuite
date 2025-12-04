@@ -1,34 +1,34 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-
 import {
   Button,
-  Callout,
   P,
+  Modal,
+  Callout,
   Card,
   CheckboxGroup,
-  Modal,
 } from '@votingworks/ui';
+import { useHistory } from 'react-router-dom';
 import {
   ElectionId,
+  ElectionStringKey,
   hasSplits,
   PrecinctSplit,
   Precinct,
   District,
 } from '@votingworks/types';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-
+import { Column, FieldName, InputGroup, Row } from './layout';
 import { routes } from './routes';
-import { Row, Column, InputGroup, FieldName } from './layout';
 import {
-  listDistricts,
-  getStateFeatures,
-  updatePrecinct,
   createPrecinct,
   deletePrecinct,
   getBallotsFinalizedAt,
+  listDistricts,
+  updatePrecinct,
 } from './api';
 import { generateId, replaceAtIndex } from './utils';
+import { InputWithAudio } from './ballot_audio/input_with_audio';
+import * as api from './api';
 import { SealImageInput } from './seal_image_input';
 import { SignatureImageInput } from './signature_image_input';
 import {
@@ -38,14 +38,6 @@ import {
   FormFooter,
   FormTitle,
 } from './form_fixed';
-
-function createBlankPrecinct(): Precinct {
-  return {
-    name: '',
-    id: generateId(),
-    districtIds: [],
-  };
-}
 
 export interface PrecinctFormProps {
   editing: boolean;
@@ -57,7 +49,7 @@ export interface PrecinctFormProps {
 export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const { editing, electionId, savedPrecinct, title } = props;
 
-  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
@@ -73,7 +65,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const deletePrecinctMutation = deletePrecinct.useMutation();
 
   const history = useHistory();
-  const precinctRoutes = routes.election(electionId).precincts;
+  const precinctRoutes = routes.election(electionId).precincts2;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   if (!(getStateFeaturesQuery.isSuccess && listDistrictsQuery.isSuccess)) {
@@ -254,16 +246,25 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       <FormBody>
         <FormTitle>{title}</FormTitle>
         <InputGroup label="Name">
-          <input
+          <InputWithAudio
+            audioScreenUrl={precinctRoutes.audio(
+              precinct.id,
+              'text',
+              ElectionStringKey.PRECINCT_NAME,
+              precinct.id
+            )}
+            autoComplete="off"
+            autoFocus={!precinct.name}
             disabled={disabled}
-            type="text"
-            value={precinct.name}
-            onChange={(e) => setPrecinct({ ...precinct, name: e.target.value })}
+            editing={editing}
             onBlur={(e) =>
               setPrecinct({ ...precinct, name: e.target.value.trim() })
             }
-            autoComplete="off"
+            onChange={(e) => setPrecinct({ ...precinct, name: e.target.value })}
             required
+            style={{ maxWidth: '20rem' }}
+            type="text"
+            value={precinct.name}
           />
         </InputGroup>
         <div>
@@ -275,8 +276,16 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                   <Card key={split.id}>
                     <Column style={{ gap: '1rem', height: '100%' }}>
                       <InputGroup label="Name">
-                        <input
+                        <InputWithAudio
+                          audioScreenUrl={precinctRoutes.audio(
+                            precinct.id,
+                            'text',
+                            ElectionStringKey.PRECINCT_SPLIT_NAME,
+                            split.id
+                          )}
+                          autoFocus={!split.name}
                           disabled={disabled}
+                          editing={editing}
                           type="text"
                           value={split.name}
                           onChange={(e) =>
@@ -292,19 +301,18 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           required
                         />
                       </InputGroup>
-
                       <DistrictList
                         disabled={disabled}
                         districts={districts}
                         editing={editing}
                         noDistrictsCallout={noDistrictsCallout}
-                        value={[...split.districtIds]}
                         onChange={(districtIds) =>
                           setSplit(index, {
                             ...split,
                             districtIds,
                           })
                         }
+                        value={[...split.districtIds]}
                       />
 
                       {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
@@ -418,8 +426,10 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       <FormErrorContainer>{errorMessage}</FormErrorContainer>
 
       {!finalized && (
-        <FormFooter style={{ justifyContent: 'space-between' }}>
+        <FormFooter>
           <PrimaryFormActions disabled={disabled} editing={editing} />
+
+          <div style={{ flexGrow: 1 }} />
 
           {savedPrecinct && (
             <Button
@@ -451,14 +461,18 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
           actions={
             <React.Fragment>
               <Button
-                variant="danger"
                 onPress={onDelete}
+                variant="danger"
                 autoFocus
                 disabled={someMutationIsLoading}
               >
                 Delete Precinct
               </Button>
-              <Button onPress={() => setIsConfirmingDelete(false)}>
+              <Button
+                disabled={someMutationIsLoading}
+                onPress={setIsConfirmingDelete}
+                value={false}
+              >
                 Cancel
               </Button>
             </React.Fragment>
@@ -504,6 +518,14 @@ function DistrictList(props: {
   );
 }
 
+function createBlankPrecinct(): Precinct {
+  return {
+    name: '',
+    id: generateId(),
+    districtIds: [],
+  };
+}
+
 function PrimaryFormActions(props: { disabled?: boolean; editing?: boolean }) {
   const { disabled, editing } = props;
 
@@ -516,13 +538,13 @@ function PrimaryFormActions(props: { disabled?: boolean; editing?: boolean }) {
   }
 
   return (
-    <Row style={{ flexWrap: 'wrap-reverse', gap: '0.5rem' }}>
+    <React.Fragment>
       <Button disabled={disabled} type="reset">
         Cancel
       </Button>
       <Button type="submit" variant="primary" icon="Done" disabled={disabled}>
         Save
       </Button>
-    </Row>
+    </React.Fragment>
   );
 }

@@ -818,8 +818,9 @@ export class Store {
       assert(electionRow, 'Election not found');
 
       const districts = (
-        await client.query(
-          `
+        (
+          await client.query(
+            `
             select
               id,
               name
@@ -827,9 +828,13 @@ export class Store {
             where election_id = $1
             order by name
           `,
-          electionId
-        )
-      ).rows as District[];
+            electionId
+          )
+        ).rows as District[]
+      ).sort((a, b) =>
+        // [TODO] Set sort order locale at the DB level.
+        a.name.localeCompare(b.name, 'en-US', { numeric: true })
+      );
 
       const precinctRows = (
         await client.query(
@@ -876,19 +881,24 @@ export class Store {
         nhOptions: NhPrecinctSplitOptions;
         districtIds: DistrictId[];
       }>;
-      const precincts: Precinct[] = precinctRows.map((row) => {
-        const splits = precinctSplitRows
-          .filter((split) => split.precinctId === row.id)
-          .map((split) => ({
-            id: split.id,
-            name: split.name,
-            districtIds: split.districtIds,
-            ...split.nhOptions,
-          }));
-        return splits.length > 0
-          ? { id: row.id, name: row.name, splits }
-          : { id: row.id, name: row.name, districtIds: row.districtIds };
-      });
+      const precincts: Precinct[] = precinctRows
+        .map((row) => {
+          const splits = precinctSplitRows
+            .filter((split) => split.precinctId === row.id)
+            .map((split) => ({
+              id: split.id,
+              name: split.name,
+              districtIds: split.districtIds,
+              ...split.nhOptions,
+            }));
+          return splits.length > 0
+            ? { id: row.id, name: row.name, splits }
+            : { id: row.id, name: row.name, districtIds: row.districtIds };
+        })
+        .sort((a, b) =>
+          // [TODO] Set sort order locale at the DB level.
+          a.name.localeCompare(b.name, 'en-US', { numeric: true })
+        );
 
       const parties = (
         await client.query(
@@ -1423,7 +1433,7 @@ export class Store {
     electionId: ElectionId,
     districtId: DistrictId
   ): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
+    await this.db.withClient((client) =>
       client.query(
         `
           delete from districts
@@ -1433,7 +1443,6 @@ export class Store {
         electionId
       )
     );
-    assert(rowCount === 1, 'District not found');
   }
 
   async listPrecincts(electionId: ElectionId): Promise<readonly Precinct[]> {
@@ -1572,26 +1581,31 @@ export class Store {
 
   async updateParty(
     electionId: ElectionId,
-    party: Party
+    party: Party,
+    client?: Client
   ): Promise<Result<void, DuplicatePartyError>> {
-    try {
-      const { rowCount } = await this.db.withClient((client) =>
-        client.query(
-          `
-          update parties
-          set
-            name = $1,
-            full_name = $2,
-            abbrev = $3
-          where id = $4 and election_id = $5
-        `,
-          party.name,
-          party.fullName,
-          party.abbrev,
-          party.id,
-          electionId
-        )
+    async function update(c: Client) {
+      return c.query(
+        `
+        update parties
+        set
+          name = $1,
+          full_name = $2,
+          abbrev = $3
+        where id = $4 and election_id = $5
+      `,
+        party.name,
+        party.fullName,
+        party.abbrev,
+        party.id,
+        electionId
       );
+    }
+
+    try {
+      const { rowCount } = client
+        ? await update(client)
+        : await this.db.withClient(update);
       assert(rowCount === 1, 'Party not found');
       return ok();
     } catch (error) {
@@ -1600,7 +1614,7 @@ export class Store {
   }
 
   async deleteParty(electionId: ElectionId, partyId: string): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
+    await this.db.withClient((client) =>
       client.query(
         `
           delete from parties
@@ -1610,7 +1624,35 @@ export class Store {
         electionId
       )
     );
-    assert(rowCount === 1, 'Party not found');
+  }
+
+  async updateParties(input: {
+    electionId: ElectionId;
+    deletedPartyIds: string[];
+    newParties: Party[];
+    updatedParties: Party[];
+  }): Promise<Result<void, DuplicatePartyError>> {
+    // return this.db.withClient((client) =>
+    //   client.withTransaction(() => {
+    for (const p of input.updatedParties) {
+      const res = await this.updateParty(input.electionId, p);
+
+      if (res.isErr()) return res;
+    }
+
+    for (const id of input.deletedPartyIds) {
+      await this.deleteParty(input.electionId, id);
+    }
+
+    for (const p of input.newParties) {
+      const res = await this.createParty(input.electionId, p);
+
+      if (res.isErr()) return res;
+    }
+
+    return ok();
+    // })
+    // );
   }
 
   async listContests(electionId: ElectionId): Promise<readonly AnyContest[]> {
