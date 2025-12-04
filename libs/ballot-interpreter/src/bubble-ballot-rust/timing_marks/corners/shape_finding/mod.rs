@@ -229,7 +229,11 @@ impl TimingMarkShape {
     }
 
     /// The median topmost y coordinate this timing mark shape contains.
+    ///
+    /// # Panics
+    /// Panics if `self.y_ranges` is empty.
     pub fn median_top(&self) -> u32 {
+        assert!(!self.y_ranges.is_empty(), "y_ranges must not be empty");
         let mut tops: Vec<u32> = self
             .y_ranges
             .iter()
@@ -241,7 +245,11 @@ impl TimingMarkShape {
     }
 
     /// The median bottommost y coordinate this timing mark shape contains.
+    ///
+    /// # Panics
+    /// Panics if `self.y_ranges` is empty.
     pub fn median_bottom(&self) -> u32 {
+        assert!(!self.y_ranges.is_empty(), "y_ranges must not be empty");
         let mut bottoms: Vec<u32> = self
             .y_ranges
             .iter()

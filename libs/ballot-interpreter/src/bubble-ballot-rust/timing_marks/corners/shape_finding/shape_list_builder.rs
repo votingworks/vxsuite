@@ -9,7 +9,7 @@ use super::TimingMarkShape;
 /// Builds `TimingMarkShape`s by joining vertical slices of timing marks.
 pub struct ShapeListBuilder {
     geometry: Geometry,
-    pub shapes: Vec<TimingMarkShape>,
+    shapes: Vec<TimingMarkShape>,
 }
 
 impl ShapeListBuilder {
@@ -136,7 +136,7 @@ impl ShapeListBuilder {
             if let Some(left_shape) = combined_shapes
                 .iter_mut()
                 .filter(|s| {
-                    let x_gap = shape.left().saturating_sub(s.right());
+                    let x_gap = shape.left().saturating_sub(s.right() + 1);
                     let top_offset = shape_median_top.abs_diff(s.median_top());
                     let bottom_offset = shape_median_bottom.abs_diff(s.median_bottom());
                     // Only select shapes to the left, within max_x_gap, and within max_y_offset
@@ -146,10 +146,9 @@ impl ShapeListBuilder {
                         && (bottom_offset as usize) <= max_y_offset
                 })
                 .min_by(|a, b| {
-                    let a_x_gap = shape.left().saturating_sub(a.right());
-                    let b_x_gap = shape.left().saturating_sub(b.right());
+                    let a_x_gap = shape.left().saturating_sub(a.right() + 1);
+                    let b_x_gap = shape.left().saturating_sub(b.right() + 1);
                     a_x_gap.cmp(&b_x_gap).then_with(|| {
-                        // TODO: Replace `top` and `bottom` with a better metric for vertical alignment, like the median y value.
                         let a_top_offset = shape_median_top.abs_diff(a.median_top());
                         let b_top_offset = shape_median_top.abs_diff(b.median_top());
                         let a_bottom_offset = shape_median_bottom.abs_diff(a.median_bottom());
