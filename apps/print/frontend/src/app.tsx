@@ -40,7 +40,6 @@ import { ElectionManagerApp } from './election_manager_app';
 import { UnconfiguredElectionManagerScreen } from './screens/unconfigured_election_manager_screen';
 import { SystemAdministratorApp } from './system_administrator_app';
 import { PollWorkerApp } from './poll_worker_app';
-import { PrinterAlertWrapper } from './components/printer_alert_wrapper';
 
 function AppRoot({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -133,20 +132,10 @@ function AppRoot({
       if (!electionRecord) {
         return <UnconfiguredElectionManagerScreen />;
       }
-      return (
-        <React.Fragment>
-          <ElectionManagerApp />
-          <PrinterAlertWrapper />
-        </React.Fragment>
-      );
+      return <ElectionManagerApp />;
     }
     assert(isPollWorkerAuth(authStatus));
-    return (
-      <React.Fragment>
-        <PollWorkerApp />
-        <PrinterAlertWrapper />
-      </React.Fragment>
-    );
+    return <PollWorkerApp />;
   }
 
   return (
