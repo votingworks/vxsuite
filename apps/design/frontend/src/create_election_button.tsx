@@ -8,7 +8,7 @@ import { OrgSelect } from './org_select';
 
 export interface CreateElectionButtonProps {
   variant?: ButtonVariant;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
 export function CreateElectionButton(

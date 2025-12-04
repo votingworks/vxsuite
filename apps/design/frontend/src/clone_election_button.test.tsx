@@ -3,10 +3,12 @@ import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { ElectionId } from '@votingworks/types';
 import { sleep } from '@votingworks/basics';
+import type { User } from '@votingworks/design-backend';
 import {
   createMockApiClient,
   MockApiClient,
   mockUserFeatures,
+  multiOrgUser,
   org,
   user,
   provideApi,
@@ -27,7 +29,8 @@ const mockGenerateId = vi.mocked(generateId);
 
 let apiMock: MockApiClient;
 
-function renderButton(element: React.ReactElement) {
+// eslint-disable-next-line @typescript-eslint/no-shadow
+function renderButton(element: React.ReactElement, user: User) {
   const history = createMemoryHistory();
 
   const ui = withRoute(element, {
@@ -59,7 +62,8 @@ test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
   const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const { history } = renderButton(
-    <CloneElectionButton election={electionListing(electionRecord)} />
+    <CloneElectionButton election={electionListing(electionRecord)} />,
+    user
   );
 
   const newElectionId = 'new-election' as ElectionId;
@@ -92,7 +96,8 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const { history, queryClient } = renderButton(
-    <CloneElectionButton election={electionListing(electionRecord)} />
+    <CloneElectionButton election={electionListing(electionRecord)} />,
+    user
   );
 
   queryClient.setQueryData(api.listOrganizations.queryKey(), [
@@ -119,4 +124,23 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   userEvent.click(screen.getButton('Confirm'));
   await sleep(0); // Allow redirect to resolve
   expect(history.location.pathname).toEqual(`/elections/${newElectionId}`);
+});
+
+test('shows org picker for multi-org user', async () => {
+  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
+  const electionRecord = generalElectionRecord(org.id);
+  const { election } = electionRecord;
+  const { queryClient } = renderButton(
+    <CloneElectionButton election={electionListing(electionRecord)} />,
+    multiOrgUser
+  );
+
+  queryClient.setQueryData(api.listOrganizations.queryKey(), [
+    VX_ORG,
+    NON_VX_ORG,
+  ]);
+
+  userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
+  const modal = screen.getByRole('alertdialog');
+  within(modal).getByRole('combobox', { name: 'Organization' });
 });

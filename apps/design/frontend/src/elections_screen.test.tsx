@@ -5,11 +5,13 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import { ElectionListing } from '@votingworks/design-backend';
+import { format } from '@votingworks/utils';
 import {
   MockApiClient,
   createMockApiClient,
   mockUserFeatures,
   org,
+  org2,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -448,7 +450,6 @@ test('single org elections list', async () => {
     'Title',
     'Date',
     'Jurisdiction',
-    'State',
     '', // Clone button column
   ]);
 
@@ -461,14 +462,48 @@ test('single org elections list', async () => {
   expect(firstRowCells[0]).toHaveTextContent(general.election.title);
   expect(firstRowCells[1]).toHaveTextContent('Nov 3, 2020');
   expect(firstRowCells[2]).toHaveTextContent(general.election.county.name);
-  expect(firstRowCells[3]).toHaveTextContent(general.election.state);
 
   // Check second election row content
   const secondRowCells = within(rows[1]).getAllByRole('cell');
   expect(secondRowCells[0]).toHaveTextContent(primary.election.title);
   expect(secondRowCells[1]).toHaveTextContent('Sep 8, 2021');
   expect(secondRowCells[2]).toHaveTextContent(primary.election.county.name);
-  expect(secondRowCells[3]).toHaveTextContent(primary.election.state);
+});
+
+test('elections list for user with multiple orgs', async () => {
+  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
+
+  const generalOrg1 = generalElectionRecord(org.id);
+  const generalOrg2 = blankElectionRecord(org2.id);
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listElections
+    .expectCallWith()
+    .resolves([electionListing(generalOrg1), electionListing(generalOrg2)]);
+
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Elections' });
+
+  const table = screen.getByRole('table');
+
+  const headers = within(table).getAllByRole('columnheader');
+  expect(headers.map((header) => header.textContent)).toEqual([
+    'Title',
+    'Date',
+    'Jurisdiction',
+    'Organization',
+    '', // Clone button column
+  ]);
+
+  const rows = within(table).getAllByRole('row').slice(1);
+  expect(rows).toHaveLength(2);
+
+  const firstRowCells = within(rows[0]).getAllByRole('cell');
+  expect(firstRowCells[3]).toHaveTextContent('org1 Name');
+  const secondRowCells = within(rows[1]).getAllByRole('cell');
+  expect(secondRowCells[0]).toHaveTextContent('Untitled Election');
+  expect(secondRowCells[1]).toHaveTextContent(format.localeDate(new Date()));
+  expect(secondRowCells[2]).toHaveTextContent('');
+  expect(secondRowCells[3]).toHaveTextContent('org2 Name');
 });
 
 test('shows error message when loading election fails', async () => {
