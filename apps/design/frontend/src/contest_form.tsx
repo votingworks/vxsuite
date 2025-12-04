@@ -27,6 +27,7 @@ import {
   Modal,
   DesktopPalette,
   Table,
+  H2,
 } from '@votingworks/ui';
 
 import {
@@ -66,6 +67,15 @@ const Form = styled(FormFixed)`
   }
 `;
 
+const Title = styled(H2)`
+  /*
+   * Offset the vertical flex gap a bit to keep this visually attached to the
+   * rest of the form body.
+   */
+  margin-bottom: -0.25rem;
+  padding: 0;
+`;
+
 const InputRow = styled.div`
   align-items: center;
   display: flex;
@@ -74,7 +84,7 @@ const InputRow = styled.div`
 `;
 
 const CandidateInputTable = styled(Table)`
-  max-width: 70rem;
+  max-width: 50rem;
 
   td,
   th {
@@ -112,10 +122,11 @@ export interface ContestFormProps {
   editing: boolean;
   electionId: ElectionId;
   savedContest?: AnyContest;
+  title: React.ReactNode;
 }
 
 export function ContestForm(props: ContestFormProps): React.ReactNode {
-  const { editing, electionId, savedContest } = props;
+  const { editing, electionId, savedContest, title } = props;
   const [contest, setContest] = useState<DraftContest>(
     savedContest
       ? draftContestFromContest(savedContest)
@@ -161,9 +172,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
     history.replace(
       switchToEdit
         ? contestRoutes.edit(savedContest.id).path
-        : // [TODO] Go to contestRoutes.view() instead once the contest list is
-          // co-located with the form.
-          contestRoutes.root.path
+        : contestRoutes.view(savedContest.id).path
     );
   }
 
@@ -197,9 +206,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         {
           onSuccess: (result) => {
             if (result.isOk()) {
-              // [TODO] Go to contestRoutes.view() for the new contest instead
-              // once the contest list is co-located with the form.
-              setEditing(false);
+              history.replace(contestRoutes.view(formContest.id).path);
             }
           },
         }
@@ -309,6 +316,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
       }}
     >
       <FormBody>
+        <Title>{title}</Title>
+
         <InputGroup label="Title">
           <input
             disabled={disabled}

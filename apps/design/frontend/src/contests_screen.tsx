@@ -1,22 +1,14 @@
 import React, { useState } from 'react';
+import { Button, LinkButton, SearchSelect, H1, Callout } from '@votingworks/ui';
+import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import {
-  Button,
-  Table,
-  TH,
-  TD,
-  LinkButton,
-  P,
-  SearchSelect,
-  Breadcrumbs,
-  H1,
-  H3,
-  MainContent,
-} from '@votingworks/ui';
-import { Route, Switch, useParams } from 'react-router-dom';
-import { AnyContest, ContestId, Contests } from '@votingworks/types';
+  CandidateContest,
+  ContestId,
+  Contests,
+  YesNoContest,
+} from '@votingworks/types';
 import styled from 'styled-components';
-import { Flipper, Flipped } from 'react-flip-toolkit';
-import { Row, TableActionsRow } from './layout';
+import { FixedViewport, Row } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
@@ -30,6 +22,7 @@ import {
 import { reorderElement } from './utils';
 import { useTitle } from './hooks/use_title';
 import { ContestForm } from './contest_form';
+import { ContestList } from './contest_list';
 
 export function ContestsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
@@ -39,52 +32,79 @@ export function ContestsScreen(): JSX.Element {
 
   return (
     <ElectionNavScreen electionId={electionId}>
+      <Header>
+        <H1>Contests</H1>
+      </Header>
       <Switch>
         <Route
-          path={contestParamRoutes.add.path}
-          exact
-          component={AddContestForm}
-        />
-        <Route
-          path={contestParamRoutes.edit(':contestId').path}
-          exact
-          component={EditContestForm}
-        />
-        <Route
           path={contestParamRoutes.view(':contestId').path}
-          exact
-          component={EditContestForm}
+          component={Content}
         />
-        <Route path={contestParamRoutes.root.path}>
-          <Header>
-            <H1>Contests</H1>
-          </Header>
-          <MainContent>
-            <ContestList />
-          </MainContent>
-        </Route>
+        <Route path={contestParamRoutes.root.path} component={Content} />
+        <Redirect to={contestParamRoutes.root.path} />
       </Switch>
     </ElectionNavScreen>
   );
 }
 
-const ReorderableTr = styled.tr<{ isReordering: boolean }>`
-  &:hover {
-    background-color: ${(p) => p.isReordering && p.theme.colors.containerLow};
-  }
-`;
-
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
 
-function ContestList(): JSX.Element | null {
-  const { electionId } = useParams<ElectionIdParams>();
+const Viewport = styled(FixedViewport)`
+  display: grid;
+  grid-template-rows: min-content 1fr;
+`;
+
+const ListActionsRow = styled.div`
+  border-bottom: 1px solid #aaa;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+`;
+
+const Body = styled.div`
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+
+  /* Sidebar */
+  > :first-child {
+    min-width: min-content;
+    max-width: min(25%, 25rem);
+    width: 100%;
+  }
+
+  /* Content pane */
+  > :last-child {
+    flex-grow: 1;
+  }
+`;
+
+const NoContests = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+`;
+
+const EditPanel = styled.div`
+  height: 100%;
+  overflow: hidden;
+`;
+
+function Content(): JSX.Element | null {
+  const { contestId, electionId } = useParams<
+    ElectionIdParams & { contestId?: string }
+  >();
+
   const listContestsQuery = listContests.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const reorderContestsMutation = reorderContests.useMutation();
+
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
   const [filterPartyId, setFilterPartyId] = useState(FILTER_ALL);
   const [reorderedContests, setReorderedContests] = useState<Contests>();
@@ -106,7 +126,9 @@ function ContestList(): JSX.Element | null {
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+
   const contestRoutes = routes.election(electionId).contests;
+  const contestParamRoutes = electionParamRoutes.contests;
 
   const filteredContests = contests.filter((contest) => {
     const matchesDistrict =
@@ -128,16 +150,22 @@ function ContestList(): JSX.Element | null {
   const isReordering = reorderedContests !== undefined;
 
   const contestsToShow = isReordering ? reorderedContests : filteredContests;
-  const contestsToShowByType = contestsToShow.reduce((map, contest) => {
-    const existing = map.get(contest.type) || [];
-    map.set(contest.type, [...existing, contest]);
-    return map;
-  }, new Map<string, AnyContest[]>());
+  const candidateContests: CandidateContest[] = [];
+  const yesNoContests: YesNoContest[] = [];
 
-  const districtIdToName = new Map(
-    districts.map((district) => [district.id, district.name])
-  );
-  const partyIdToName = new Map(parties.map((party) => [party.id, party.name]));
+  for (const c of contestsToShow) {
+    if (c.type === 'candidate') candidateContests.push(c);
+    else yesNoContests.push(c);
+  }
+
+  /**
+   * Used as a route redirect, to auto-select the first available contest for
+   * convenience, when navigating to the root route:
+   */
+  const defaultContestRoute =
+    !contestId && contestsToShow.length > 0
+      ? contestRoutes.view(contestsToShow[0].id).path
+      : null;
 
   function onSaveReorderedContests(updatedContests: Contests) {
     reorderContestsMutation.mutate(
@@ -154,11 +182,8 @@ function ContestList(): JSX.Element | null {
   }
 
   return (
-    <React.Fragment>
-      {contests.length === 0 && (
-        <P>You haven&apos;t added any contests to this election yet.</P>
-      )}
-      <TableActionsRow>
+    <Viewport>
+      <ListActionsRow>
         <LinkButton
           variant="primary"
           icon="Add"
@@ -167,6 +192,7 @@ function ContestList(): JSX.Element | null {
         >
           Add Contest
         </LinkButton>
+
         {contests.length > 0 && (
           <React.Fragment>
             <SearchSelect
@@ -200,6 +226,7 @@ function ContestList(): JSX.Element | null {
             )}
           </React.Fragment>
         )}
+
         <div style={{ marginLeft: 'auto' }}>
           {isReordering ? (
             <Row style={{ gap: '0.5rem' }}>
@@ -217,19 +244,13 @@ function ContestList(): JSX.Element | null {
             </Row>
           ) : (
             <Button
+              icon="Sort"
               onPress={() =>
                 // We require candidate contests to appear before yesno,
                 // but elections were created prior to this restriction.
                 // To ensure all new reorders follow this, we initiate
                 // the reordering with the requirement enforced
-                setReorderedContests(
-                  [...contests].sort((a, b) => {
-                    // Candidate contests come before ballot measures (yesno)
-                    if (a.type === 'candidate' && b.type === 'yesno') return -1;
-                    if (a.type === 'yesno' && b.type === 'candidate') return 1;
-                    return 0; // Same type, maintain relative order
-                  })
-                )
+                setReorderedContests([...candidateContests, ...yesNoContests])
               }
               disabled={!canReorder}
             >
@@ -237,168 +258,73 @@ function ContestList(): JSX.Element | null {
             </Button>
           )}
         </div>
-      </TableActionsRow>
-      {contests.length > 0 &&
-        (contestsToShow.length === 0 ? (
-          <React.Fragment>
-            <P>
-              There are no contests for the district
-              {electionInfo.type === 'primary' ? '/party' : ''} you selected.
-            </P>
-            <P>
-              <Button
-                onPress={() => {
-                  setFilterDistrictId(FILTER_ALL);
-                  setFilterPartyId(FILTER_ALL);
-                }}
-              >
-                Clear Selection
-              </Button>
-            </P>
-          </React.Fragment>
+      </ListActionsRow>
+
+      <Body>
+        {contestsToShow.length === 0 ? (
+          contests.length === 0 ? (
+            <NoContests>
+              <Callout color="neutral" icon="Info">
+                You haven&apos;t added any contests to this election yet.
+              </Callout>
+            </NoContests>
+          ) : (
+            <NoContests>
+              <Callout color="neutral" icon="Info">
+                There are no contests for the district
+                {electionInfo.type === 'primary' ? '/party' : ''} you selected.
+              </Callout>
+              <div>
+                <Button
+                  icon="X"
+                  onPress={() => {
+                    setFilterDistrictId(FILTER_ALL);
+                    setFilterPartyId(FILTER_ALL);
+                  }}
+                >
+                  Clear Selection
+                </Button>
+              </div>
+            </NoContests>
+          )
         ) : (
-          <React.Fragment>
-            {[...contestsToShowByType]
-              .sort(([a]) => (a === 'candidate' ? -1 : 1)) // Candidate table first
-              .map(([contestType, contestsOfType]) => (
-                <div key={contestType} style={{ marginBottom: '2rem' }}>
-                  <H3 as="h2" style={{ marginBottom: '1rem', fontWeight: 600 }}>
-                    {contestType === 'candidate'
-                      ? 'Candidate Contests'
-                      : 'Ballot Measures'}
-                  </H3>
-                  {/* Flipper/Flip are used to animate the reordering of contest rows */}
-                  {/* @ts-expect-error: TS doesn't think Flipper is a valid component */}
-                  <Flipper
-                    flipKey={contestsOfType
-                      .map((contest) => contest.id)
-                      .join(',')}
-                    // Custom spring parameters to speed up the duration of the animation
-                    // See https://github.com/aholachek/react-flip-toolkit/issues/100#issuecomment-551056183
-                    spring={{ stiffness: 439, damping: 42 }}
-                  >
-                    <Table>
-                      <thead>
-                        <tr>
-                          <TH style={{ width: '40%' }}>Title</TH>
-                          <TH style={{ width: '30%' }}>District</TH>
-                          {electionInfo.type === 'primary' && (
-                            <TH style={{ width: '20%' }}>Party</TH>
-                          )}
-                          <TH
-                            style={{
-                              width:
-                                electionInfo.type === 'primary' ? '10%' : '30%',
-                            }}
-                          />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {contestsOfType.map((contest, index) => {
-                          const indexInFullList = contestsToShow.findIndex(
-                            (c) => c.id === contest.id
-                          );
-                          return (
-                            <Flipped
-                              key={contest.id}
-                              flipId={contest.id}
-                              shouldFlip={() => isReordering}
-                            >
-                              <ReorderableTr
-                                key={contest.id}
-                                isReordering={isReordering}
-                              >
-                                <TD>{contest.title}</TD>
-                                <TD nowrap>
-                                  {districtIdToName.get(contest.districtId)}
-                                </TD>
-                                {electionInfo.type === 'primary' && (
-                                  <TD nowrap>
-                                    {contest.type === 'candidate' &&
-                                      contest.partyId !== undefined &&
-                                      partyIdToName.get(contest.partyId)}
-                                  </TD>
-                                )}
-                                <TD nowrap style={{ height: '3rem' }}>
-                                  <Row
-                                    style={{
-                                      gap: '0.5rem',
-                                      justifyContent: 'flex-end',
-                                    }}
-                                  >
-                                    {isReordering ? (
-                                      <React.Fragment>
-                                        <Button
-                                          aria-label="Move Up"
-                                          icon="ChevronUp"
-                                          disabled={index === 0}
-                                          onPress={() =>
-                                            setReorderedContests(
-                                              reorderElement(
-                                                reorderedContests,
-                                                indexInFullList,
-                                                indexInFullList - 1
-                                              )
-                                            )
-                                          }
-                                        />
-                                        <Button
-                                          aria-label="Move Down"
-                                          icon="ChevronDown"
-                                          disabled={
-                                            index === contestsOfType.length - 1
-                                          }
-                                          onPress={() =>
-                                            setReorderedContests(
-                                              reorderElement(
-                                                reorderedContests,
-                                                indexInFullList,
-                                                indexInFullList + 1
-                                              )
-                                            )
-                                          }
-                                        />
-                                      </React.Fragment>
-                                    ) : (
-                                      <LinkButton
-                                        icon="Edit"
-                                        to={contestRoutes.edit(contest.id).path}
-                                        disabled={!!ballotsFinalizedAt}
-                                      >
-                                        Edit
-                                      </LinkButton>
-                                    )}
-                                  </Row>
-                                </TD>
-                              </ReorderableTr>
-                            </Flipped>
-                          );
-                        })}
-                      </tbody>
-                    </Table>
-                  </Flipper>
-                </div>
-              ))}
-          </React.Fragment>
-        ))}
-    </React.Fragment>
+          <ContestList
+            candidateContests={candidateContests}
+            reordering={isReordering}
+            reorder={(params) => {
+              if (!isReordering) return;
+
+              const idx = contestsToShow.findIndex((c) => c.id === params.id);
+              setReorderedContests(
+                reorderElement(reorderedContests, idx, idx + params.direction)
+              );
+            }}
+            yesNoContests={yesNoContests}
+          />
+        )}
+
+        <EditPanel>
+          <Switch>
+            {/* [TODO] Add route for audio preview/edit panel */}
+            <Route
+              path={contestParamRoutes.add.path}
+              component={AddContestForm}
+            />
+            <Route
+              path={contestParamRoutes.view(':contestId').path}
+              component={EditContestForm}
+            />
+            {defaultContestRoute && <Redirect to={defaultContestRoute} />}
+          </Switch>
+        </EditPanel>
+      </Body>
+    </Viewport>
   );
 }
 
 function AddContestForm(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const contestRoutes = routes.election(electionId).contests;
-  const { title } = contestRoutes.add;
-
-  return (
-    <React.Fragment>
-      <Header>
-        <Breadcrumbs currentTitle={title} parentRoutes={[contestRoutes.root]} />
-        <H1>{title}</H1>
-      </Header>
-      <ContestForm electionId={electionId} editing />
-    </React.Fragment>
-  );
+  return <ContestForm electionId={electionId} editing title="Add Contest" />;
 }
 
 function EditContestForm(): JSX.Element | null {
@@ -407,6 +333,7 @@ function EditContestForm(): JSX.Element | null {
   >();
   const listContestsQuery = listContests.useQuery(electionId);
   const finalizedAt = getBallotsFinalizedAt.useQuery(electionId);
+
   const contestParamRoutes = electionParamRoutes.contests;
   const contestRoutes = routes.election(electionId).contests;
 
@@ -417,43 +344,45 @@ function EditContestForm(): JSX.Element | null {
 
   const contests = listContestsQuery.data;
   const savedContest = contests.find((c) => c.id === contestId);
-
-  // If the contest was just deleted, this form may still render momentarily.
-  // Ignore it.
-  /* istanbul ignore next - @preserve */
-  if (!savedContest) {
-    return null;
-  }
-
-  const { title } = contestRoutes.edit(contestId);
-  const canEdit = !finalizedAt.data;
+  const canEdit = !finalizedAt.data && !!savedContest;
 
   return (
-    <React.Fragment>
-      <Header>
-        <Breadcrumbs currentTitle={title} parentRoutes={[contestRoutes.root]} />
-        <H1>{title}</H1>
-      </Header>
-      <Switch>
-        {canEdit && (
-          <Route path={contestParamRoutes.edit(':contestId').path} exact>
-            <ContestForm
-              electionId={electionId}
-              key={contestId}
-              editing
-              savedContest={savedContest}
-            />
-          </Route>
-        )}
-        <Route path={contestParamRoutes.view(':contestId').path}>
+    <Switch>
+      {canEdit && (
+        <Route path={contestParamRoutes.edit(':contestId').path} exact>
+          <ContestForm
+            electionId={electionId}
+            key={contestId}
+            editing
+            savedContest={savedContest}
+            title="Edit Contest"
+          />
+        </Route>
+      )}
+
+      {/*
+       * If there's no `savedContest`, it may have just been deleted (or we
+       * have a stale tab), so we fall through to the redirect below.
+       */}
+      {savedContest && (
+        <Route exact path={contestParamRoutes.view(':contestId').path}>
           <ContestForm
             editing={false}
             electionId={electionId}
             key={contestId}
             savedContest={savedContest}
+            title="Contest Info"
           />
         </Route>
-      </Switch>
-    </React.Fragment>
+      )}
+
+      <Redirect
+        to={
+          savedContest
+            ? contestRoutes.view(contestId).path
+            : contestRoutes.root.path
+        }
+      />
+    </Switch>
   );
 }

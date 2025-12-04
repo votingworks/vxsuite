@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { createMemoryHistory } from 'history';
+import { createMemoryHistory, MemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import {
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
   CandidateContest,
+  Contest,
+  Contests,
   DEFAULT_SYSTEM_SETTINGS,
   DistrictIdSchema,
   Election,
@@ -36,6 +38,7 @@ import {
   makeElectionRecord,
 } from '../test/fixtures';
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -46,35 +49,23 @@ import { withRoute } from '../test/routing_helpers';
 import { ContestsScreen } from './contests_screen';
 import { routes } from './routes';
 import { makeIdFactory } from '../test/id_helpers';
+import { ContestList, ContestListProps, ReorderParams } from './contest_list';
+
+vi.mock('./contest_list.js');
+const MockContestList = vi.mocked(ContestList);
+const MOCK_CONTEST_LIST_ID = 'MockContestList';
 
 let apiMock: MockApiClient;
 
 const idFactory = makeIdFactory();
-
-function getContestTableRows(contestType: 'candidate' | 'yesno') {
-  const headingText =
-    contestType === 'candidate' ? 'Candidate Contests' : 'Ballot Measures';
-  const heading = screen.getByText(headingText);
-  const table = heading.parentElement!.querySelector('table')!;
-  return within(table).getAllByRole('row');
-}
-
-function getAllContestRows() {
-  // Get all tables and sum up their rows (excluding headers)
-  const tables = screen.getAllByRole('table');
-  let allRows: HTMLElement[] = [];
-  for (const table of tables) {
-    const rows = within(table).getAllByRole('row');
-    allRows = allRows.concat(rows);
-  }
-  return allRows;
-}
 
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
+
+  MockContestList.mockReturnValue(<div data-testid={MOCK_CONTEST_LIST_ID} />);
 });
 
 afterEach(() => {
@@ -184,6 +175,43 @@ function expectOtherElectionApiCalls(election: Election) {
   apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
 }
 
+test('auto-selects first available contest, if any', async () => {
+  const { election } = generalElectionRecord(user.orgId);
+  const { contests } = election;
+  const electionId = election.id;
+
+  apiMock.listContests.expectCallWith({ electionId }).resolves(contests);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  expectOtherElectionApiCalls(election);
+
+  const history = renderScreen(electionId);
+  await expectViewModeContest(history, electionId, contests[0]);
+});
+
+test('renders contest list on all sub-views', async () => {
+  const { election } = generalElectionRecord(user.orgId);
+  const { contests } = election;
+  const electionId = election.id;
+
+  apiMock.listContests.expectCallWith({ electionId }).resolves(contests);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  expectOtherElectionApiCalls(election);
+
+  const history = renderScreen(electionId);
+
+  await expectViewModeContest(history, electionId, contests[0]);
+  expectContestListItems(contests);
+
+  userEvent.click(screen.getButton('Add Contest'));
+  await screen.findByRole('heading', { name: 'Add Contest' });
+  expectContestListItems(contests);
+
+  await navigateToContestEdit(history, electionId, election.contests[2].id);
+  expectContestListItems(contests);
+
+  // [TODO] Add assertion for audio editor view.
+});
+
 test('adding a candidate contest (general election)', async () => {
   const { election } = electionWithNoContestsRecord;
   const electionId = election.id;
@@ -225,7 +253,8 @@ test('adding a candidate contest (general election)', async () => {
   apiMock.listContests.expectCallWith({ electionId }).resolves([]);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
+
+  const history = renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Contests' });
   screen.getByText("You haven't added any contests to this election yet.");
@@ -233,10 +262,6 @@ test('adding a candidate contest (general election)', async () => {
   // Add contest
   userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
   await screen.findByRole('heading', { name: 'Add Contest' });
-  expect(screen.getByRole('link', { name: 'Contests' })).toHaveAttribute(
-    'href',
-    `/elections/${electionId}/contests`
-  );
 
   // Set title
   userEvent.type(screen.getByLabelText('Title'), newContest.title);
@@ -303,22 +328,15 @@ test('adding a candidate contest (general election)', async () => {
   apiMock.createContest
     .expectCallWith({ electionId, newContest })
     .resolves(ok());
-  apiMock.listContests.expectCallWith({ electionId }).resolves([newContest]);
+  apiMock.listContests
+    .expectRepeatedCallsWith({ electionId })
+    .resolves([newContest]);
   expectOtherElectionApiCalls(election);
   const saveButton = screen.getByRole('button', { name: 'Save' });
   userEvent.click(saveButton);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  screen.getByRole('columnheader', { name: 'Title' });
-  screen.getByRole('columnheader', { name: 'District' });
-
-  const candidateRows = getContestTableRows('candidate');
-  expect(candidateRows).toHaveLength(2); // header + 1 contest row
-  expect(
-    within(candidateRows[1])
-      .getAllByRole('cell')
-      .map((cell) => cell.textContent)
-  ).toEqual([newContest.title, election.districts[0].name, 'Edit']);
+  await expectViewModeContest(history, electionId, newContest);
+  expectContestListItems([newContest]);
 });
 
 test('editing a candidate contest (primary election)', async () => {
@@ -473,37 +491,14 @@ test('editing a candidate contest (primary election)', async () => {
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  screen.getByRole('columnheader', { name: 'Title' });
-  screen.getByRole('columnheader', { name: 'District' });
-  screen.getByRole('columnheader', { name: 'Party' });
+  const history = renderScreen(electionId);
 
-  // Count total rows across all tables
-  const allRows = getAllContestRows();
-  // We expect a header per table + candidate contest rows + ballot measure rows
-  const candidateContests = election.contests.filter(
-    (c) => c.type === 'candidate'
-  );
-  const ballotMeasures = election.contests.filter((c) => c.type === 'yesno');
-  const expectedRowCount =
-    (candidateContests.length > 0 ? candidateContests.length + 1 : 0) +
-    (ballotMeasures.length > 0 ? ballotMeasures.length + 1 : 0);
-  expect(allRows).toHaveLength(expectedRowCount);
+  await navigateToContestView(history, electionId, savedContest.id);
+  expectContestListItems(election.contests);
 
-  const savedContestRow = screen.getByText(savedContest.title).closest('tr')!;
-  within(savedContestRow).getByText(savedDistrict.name);
-  within(savedContestRow).getByText(savedParty.name);
-  userEvent.click(
-    within(savedContestRow).getByRole('button', { name: 'Edit' })
-  );
-
+  userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Contest' });
-  expect(screen.getByRole('link', { name: 'Contests' })).toHaveAttribute(
-    'href',
-    `/elections/${electionId}/contests`
-  );
 
   // Change title
   const titleInput = screen.getByLabelText('Title');
@@ -612,13 +607,8 @@ test('editing a candidate contest (primary election)', async () => {
   const saveButton = screen.getByRole('button', { name: 'Save' });
   userEvent.click(saveButton);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-
-  const updatedContestRow = screen
-    .getByText(updatedContest.title)
-    .closest('tr')!;
-  within(updatedContestRow).getByText(updatedDistrict.name);
-  within(updatedContestRow).getByText(updatedParty.name);
+  await expectViewModeContest(history, electionId, updatedContest);
+  expectContestListItems([updatedContest]);
 });
 
 interface NameTestSpec {
@@ -677,7 +667,8 @@ test.each(nameTestSpecs)(
     apiMock.listContests.expectCallWith({ electionId }).resolves([]);
     expectOtherElectionApiCalls(election);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-    renderScreen(electionId);
+
+    const history = renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
     screen.getByText("You haven't added any contests to this election yet.");
@@ -738,22 +729,15 @@ test.each(nameTestSpecs)(
     apiMock.createContest
       .expectCallWith({ electionId, newContest })
       .resolves(ok());
-    apiMock.listContests.expectCallWith({ electionId }).resolves([newContest]);
+    apiMock.listContests
+      .expectRepeatedCallsWith({ electionId })
+      .resolves([newContest]);
     expectOtherElectionApiCalls(election);
     const saveButton = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveButton);
 
-    await screen.findByRole('heading', { name: 'Contests' });
-    screen.getByRole('columnheader', { name: 'Title' });
-    screen.getByRole('columnheader', { name: 'District' });
-
-    const contestRows = getContestTableRows('candidate');
-    expect(contestRows).toHaveLength(2); // header + 1 contest row
-    expect(
-      within(contestRows[1])
-        .getAllByRole('cell')
-        .map((cell) => cell.textContent)
-    ).toEqual([newContest.title, election.districts[0].name, 'Edit']);
+    await expectViewModeContest(history, electionId, newContest);
+    expectContestListItems([newContest]);
   }
 );
 
@@ -784,10 +768,14 @@ test('adding a ballot measure', async () => {
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
+  const history = renderScreen(electionId);
+
+  await expectViewModeContest(history, electionId, election.contests[0]);
+  expectContestListItems(election.contests);
+
   userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
+  await screen.findByRole('heading', { name: 'Add Contest' });
 
   // Set title
   userEvent.type(screen.getByLabelText('Title'), newContest.title);
@@ -827,27 +815,18 @@ test('adding a ballot measure', async () => {
   apiMock.createContest
     .expectCallWith({ electionId, newContest: newContestWithDescriptionHtml })
     .resolves(ok());
+
+  const updatedContests = [...election.contests, newContestWithDescriptionHtml];
   apiMock.listContests
-    .expectCallWith({ electionId })
-    .resolves([...election.contests, newContestWithDescriptionHtml]);
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(updatedContests);
+
   expectOtherElectionApiCalls(election);
   const saveButton = screen.getByRole('button', { name: 'Save' });
   userEvent.click(saveButton);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-
-  const ballotMeasureRows = getContestTableRows('yesno');
-  // We expect existing ballot measures + 1 new + 1 header
-  const existingBallotMeasures = election.contests.filter(
-    (c) => c.type === 'yesno'
-  ).length;
-  expect(ballotMeasureRows).toHaveLength(existingBallotMeasures + 1 + 1);
-  const lastRow = ballotMeasureRows.at(-1)!;
-  expect(
-    within(lastRow)
-      .getAllByRole('cell')
-      .map((cell) => cell.textContent)
-  ).toEqual([newContest.title, election.districts[0].name, 'Edit']);
+  await expectViewModeContest(history, electionId, newContest);
+  expectContestListItems(updatedContests);
 });
 
 test('editing a ballot measure', async () => {
@@ -883,15 +862,13 @@ test('editing a ballot measure', async () => {
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  const savedContestRow = screen.getByText(savedContest.title).closest('tr')!;
-  within(savedContestRow).getByText(savedDistrict.name);
-  userEvent.click(
-    within(savedContestRow).getByRole('button', { name: 'Edit' })
-  );
+  const history = renderScreen(electionId);
 
+  await navigateToContestView(history, electionId, savedContest.id);
+  expectContestListItems(election.contests);
+
+  userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Contest' });
 
   // Change title
@@ -938,106 +915,82 @@ test('editing a ballot measure', async () => {
       updatedContest: updatedContestWithDescriptionHtml,
     })
     .resolves(ok());
+
+  const updatedContestList = election.contests.map((contest) =>
+    contest.id === savedContest.id ? updatedContestWithDescriptionHtml : contest
+  );
   apiMock.listContests
     .expectCallWith({ electionId })
-    .resolves(
-      election.contests.map((contest) =>
-        contest.id === savedContest.id
-          ? updatedContestWithDescriptionHtml
-          : contest
-      )
-    );
+    .resolves(updatedContestList);
   expectOtherElectionApiCalls(election);
   const saveButton = screen.getByRole('button', { name: 'Save' });
   userEvent.click(saveButton);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  const updatedContestRow = screen
-    .getByText(updatedContest.title)
-    .closest('tr')!;
-  within(updatedContestRow).getByText(updatedDistrict.name);
+  await expectViewModeContest(history, electionId, updatedContest);
+  expectContestListItems(updatedContestList);
 });
 
 test('reordering contests', async () => {
   const electionRecord = generalElectionRecord(user.orgId);
   const { election } = electionRecord;
   const electionId = election.id;
-  // Mock needed for react-flip-toolkit
-  window.matchMedia = vi.fn().mockImplementation(() => ({
-    matches: false,
-  }));
 
   apiMock.listContests
     .expectCallWith({ electionId })
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
+  let reorder: ((params: ReorderParams) => void) | undefined;
+  MockContestList.mockImplementation((props) => {
+    reorder = props.reorder;
 
-  function getRowOrder() {
-    return screen
-      .getAllByRole('row')
-      .slice(1) // Skip header row
-      .map((row) => row.childNodes[0].textContent);
-  }
+    return <div data-testid={MOCK_CONTEST_LIST_ID} />;
+  });
 
-  const originalOrder = getRowOrder();
+  const history = renderScreen(electionId);
+
+  await expectViewModeContest(history, electionId, election.contests[0]);
+  assert(reorder);
 
   userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
   expect(screen.getByRole('button', { name: 'Add Contest' })).toBeDisabled();
+  expectContestListItems(election.contests);
 
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  expect(getRowOrder()).toEqual(originalOrder);
+  expectContestListItems(election.contests);
 
   userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
 
-  const [contest1Title, contest2Title, contest3Title] = originalOrder;
-  const contest1Row = screen.getByText(contest1Title!).closest('tr')!;
-  expect(
-    within(contest1Row).getByRole('button', { name: 'Move Up' })
-  ).toBeDisabled();
-  userEvent.click(
-    within(contest1Row).getByRole('button', { name: 'Move Down' })
-  );
-
-  const contest3Row = screen.getByText(contest3Title!).closest('tr')!;
-  userEvent.click(within(contest3Row).getByRole('button', { name: 'Move Up' }));
-
-  const lastContestRow = screen.getAllByRole('row').at(-1)!;
-  expect(
-    within(lastContestRow).getByRole('button', { name: 'Move Down' })
-  ).toBeDisabled();
-
-  const newOrder = [
-    contest2Title,
-    contest3Title,
-    contest1Title,
-    ...originalOrder.slice(3),
-  ];
-  expect(getRowOrder()).toEqual(newOrder);
+  const [contest1, contest2, contest3] = election.contests;
+  act(() => reorder!({ id: contest1.id, direction: 1 }));
+  act(() => reorder!({ id: contest3.id, direction: -1 }));
 
   const reorderedContests = [
-    election.contests[1],
-    election.contests[2],
-    election.contests[0],
+    contest2,
+    contest3,
+    contest1,
     ...election.contests.slice(3),
   ];
+  expectContestListItems(reorderedContests);
+
   apiMock.reorderContests
     .expectCallWith({
       electionId,
       contestIds: reorderedContests.map((contest) => contest.id),
     })
     .resolves();
+
   apiMock.listContests
     .expectCallWith({ electionId })
     .resolves(reorderedContests);
+
   expectOtherElectionApiCalls(election);
+
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Reorder Contests' });
-  expect(getRowOrder()).toEqual(newOrder);
+  expectContestListItems(reorderedContests);
 }, 20000);
 
 test('deleting a contest', async () => {
@@ -1051,11 +1004,11 @@ test('deleting a contest', async () => {
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  const contestRow = screen.getByText(savedContest.title).closest('tr')!;
-  userEvent.click(within(contestRow).getByRole('button', { name: 'Edit' }));
+  const history = renderScreen(electionId);
+
+  const contestRoutes = routes.election(electionId).contests;
+  history.replace(contestRoutes.edit(savedContest.id).path);
   await screen.findByRole('heading', { name: 'Edit Contest' });
 
   apiMock.deleteContest
@@ -1070,19 +1023,13 @@ test('deleting a contest', async () => {
   // Confirm the deletion in the modal
   userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
 
-  await screen.findByRole('heading', { name: 'Contests' });
+  await screen.findByRole('heading', { name: 'Contest Info' });
 
-  const allRows = getAllContestRows();
   const remainingContests = election.contests.slice(1);
-  const candidateContests = remainingContests.filter(
-    (c) => c.type === 'candidate'
-  );
-  const ballotMeasures = remainingContests.filter((c) => c.type === 'yesno');
-  const expectedRowCount =
-    (candidateContests.length > 0 ? candidateContests.length + 1 : 0) +
-    (ballotMeasures.length > 0 ? ballotMeasures.length + 1 : 0);
-  expect(allRows).toHaveLength(expectedRowCount);
-  expect(screen.queryByText(savedContest.title)).not.toBeInTheDocument();
+  expectContestListItems(election.contests.slice(1));
+
+  // Should auto-select the first of the remaining contests:
+  await expectViewModeContest(history, electionId, remainingContests[0]);
 });
 
 test('changing contests is disabled when ballots are finalized', async () => {
@@ -1101,7 +1048,8 @@ test('changing contests is disabled when ballots are finalized', async () => {
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
     .resolves(new Date());
-  renderScreen(electionId);
+
+  const history = renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Contests' });
 
@@ -1110,13 +1058,22 @@ test('changing contests is disabled when ballots are finalized', async () => {
   ).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Add Contest' })).toBeDisabled();
 
-  const savedContest = election.contests.find(
-    (contest): contest is CandidateContest => contest.type === 'candidate'
-  )!;
-  const savedContestRow = screen.getByText(savedContest.title).closest('tr')!;
-  expect(
-    within(savedContestRow).getByRole('button', { name: 'Edit' })
-  ).toBeDisabled();
+  const contestRoutes = routes.election(electionId).contests;
+  const [, contest2, contest3] = election.contests;
+
+  await navigateToContestView(history, electionId, contest2.id);
+  expect(screen.queryButton('Edit')).not.toBeInTheDocument();
+  expect(screen.queryButton('Save')).not.toBeInTheDocument();
+  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
+  expect(screen.queryButton('Delete Contest')).not.toBeInTheDocument();
+
+  // Accessing `/edit` route when finalized should redirect to "view" route:
+  history.replace(contestRoutes.edit(contest3.id).path);
+  await waitFor(() => expectViewModeContest(history, electionId, contest3));
+  expect(screen.queryButton('Edit')).not.toBeInTheDocument();
+  expect(screen.queryButton('Save')).not.toBeInTheDocument();
+  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
+  expect(screen.queryButton('Delete Contest')).not.toBeInTheDocument();
 });
 
 test('cancelling', async () => {
@@ -1129,13 +1086,17 @@ test('cancelling', async () => {
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
+  const history = renderScreen(electionId);
+
+  await expectViewModeContest(history, electionId, election.contests[0]);
+
+  userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Contest' });
+
   userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
   await screen.findByRole('heading', { name: 'Delete Contest' });
+
   // Cancel delete contest confirmation modal
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await waitFor(() => {
@@ -1159,11 +1120,9 @@ test('error messages for duplicate candidate contest/candidates', async () => {
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[1]);
-  await screen.findByRole('heading', { name: 'Edit Contest' });
+  const history = renderScreen(electionId);
+  await navigateToContestEdit(history, electionId, election.contests[1].id);
 
   // Mock the duplicate contest error, even though we didn't actually change anything
   apiMock.updateContest
@@ -1204,15 +1163,9 @@ test('error messages for duplicate ballot measure', async () => {
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  userEvent.click(
-    within(
-      screen.getByText(ballotMeasureContest.title).closest('tr')!
-    ).getByRole('button', { name: 'Edit' })
-  );
-  await screen.findByRole('heading', { name: 'Edit Contest' });
+  const history = renderScreen(electionId);
+  await navigateToContestEdit(history, electionId, ballotMeasureContest.id);
 
   // Mock the duplicate contest error, even though we didn't actually change anything
   apiMock.updateContest
@@ -1253,16 +1206,9 @@ test('error messages for candidate contest with no candidates and write-ins disa
     .resolves(election.contests);
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Contests' });
-  userEvent.click(
-    within(screen.getByText(candidateContest.title).closest('tr')!).getByRole(
-      'button',
-      { name: 'Edit' }
-    )
-  );
-  await screen.findByRole('heading', { name: 'Edit Contest' });
+  const history = renderScreen(electionId);
+  await navigateToContestEdit(history, electionId, candidateContest.id);
 
   // Remove all candidates
   for (const row of screen.getAllByRole('row').slice(1)) {
@@ -1295,11 +1241,7 @@ test('disables form and shows edit button when in "view" mode', async () => {
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
-  history.replace(
-    routes.election(electionId).contests.view(savedContest.id).path
-  );
-
-  await screen.findByRole('heading', { name: 'Edit Contest' });
+  await navigateToContestView(history, electionId, savedContest.id);
 
   // Initial "view" state:
 
@@ -1327,30 +1269,44 @@ test('disables form and shows edit button when in "view" mode', async () => {
   expect(screen.queryButton('Edit')).not.toBeInTheDocument();
 });
 
-test('form actions omitted when election is finalized', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
-  const { election } = electionRecord;
-  const electionId = election.id;
-  const [savedContest] = election.contests;
+function expectContestListItems(contests: Contests) {
+  expectContestListProps({
+    candidateContests: contests.filter((c) => c.type === 'candidate'),
+    yesNoContests: contests.filter((c) => c.type === 'yesno'),
+  });
+}
 
-  apiMock.listContests
-    .expectCallWith({ electionId })
-    .resolves(election.contests);
+function expectContestListProps(partialProps: Partial<ContestListProps>) {
+  screen.getByTestId(MOCK_CONTEST_LIST_ID);
+  expect(MockContestList.mock.lastCall?.[0]).toMatchObject(partialProps);
+}
 
-  expectOtherElectionApiCalls(election);
-
-  apiMock.getBallotsFinalizedAt
-    .expectCallWith({ electionId })
-    .resolves(new Date());
-
-  const history = renderScreen(electionId);
-  history.replace(
-    routes.election(electionId).contests.view(savedContest.id).path
+async function expectViewModeContest(
+  history: MemoryHistory,
+  electionId: string,
+  contest: Contest
+) {
+  await screen.findByRole('heading', { name: 'Contest Info' });
+  expect(screen.getByLabelText('Title')).toHaveValue(contest.title);
+  expect(history.location.pathname).toEqual(
+    routes.election(electionId).contests.view(contest.id).path
   );
+}
 
+async function navigateToContestEdit(
+  history: MemoryHistory,
+  electionId: string,
+  contestId: string
+) {
+  history.replace(routes.election(electionId).contests.edit(contestId).path);
   await screen.findByRole('heading', { name: 'Edit Contest' });
-  expect(screen.queryButton('Edit')).not.toBeInTheDocument();
-  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
-  expect(screen.queryButton('Save')).not.toBeInTheDocument();
-  expect(screen.queryButton('Delete Contest')).not.toBeInTheDocument();
-});
+}
+
+async function navigateToContestView(
+  history: MemoryHistory,
+  electionId: string,
+  contestId: string
+) {
+  history.replace(routes.election(electionId).contests.view(contestId).path);
+  await screen.findByRole('heading', { name: 'Contest Info' });
+}

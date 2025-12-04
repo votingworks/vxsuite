@@ -77,7 +77,7 @@ export const NavDivider = styled.div`
   margin: 0.5rem 0;
 `;
 
-const LogoContainer = styled.div`
+export const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
