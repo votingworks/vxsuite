@@ -198,11 +198,7 @@ export function Sublist(props: {
     selectedContestRef.current.scrollIntoView({ block: 'nearest' });
   }, [selectedId]);
 
-  function onClickContest(e: React.MouseEvent) {
-    onActivateContest(e.currentTarget);
-  }
-
-  function onKeyDownContest(e: React.KeyboardEvent) {
+  function onKeyDownContest(e: React.KeyboardEvent, id: string) {
     if (e.repeat) return;
 
     // [TODO] Handle arrow key interaction a la W3C listbox pattern.
@@ -216,14 +212,7 @@ export function Sublist(props: {
     }
 
     e.preventDefault();
-    onActivateContest(e.currentTarget);
-  }
-
-  function onActivateContest(containerTarget: unknown) {
-    if (!(containerTarget instanceof HTMLElement)) return;
-
-    const id = containerTarget.getAttribute('data-contest-id');
-    if (id) onSelect(id);
+    onSelect(id);
   }
 
   return (
@@ -244,9 +233,8 @@ export function Sublist(props: {
             <Item
               key={c.id}
               aria-selected={selectedId === c.id}
-              data-contest-id={c.id}
-              onClick={onClickContest}
-              onKeyDown={onKeyDownContest}
+              onClick={() => onSelect(c.id)}
+              onKeyDown={(e) => onKeyDownContest(e, c.id)}
               ref={selectedId === c.id ? selectedContestRef : undefined}
               role="option"
               tabIndex={0}
