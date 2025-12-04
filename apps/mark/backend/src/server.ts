@@ -13,10 +13,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
-import {
-  initializeSystemAudio,
-  startCpuMetricsLogging,
-} from '@votingworks/backend';
+import { startCpuMetricsLogging } from '@votingworks/backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApp } from './app';
@@ -34,12 +31,12 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
-export async function start({
+export function start({
   auth,
   baseLogger,
   port,
   workspace,
-}: StartOptions): Promise<Server> {
+}: StartOptions): Server {
   /* istanbul ignore next - @preserve */
   const resolvedAuth =
     auth ??
@@ -60,8 +57,6 @@ export async function start({
   );
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
-
-  await initializeSystemAudio();
 
   // Only create barcode client in production or when explicitly enabled via env variable
   const barcodeClient = new BarcodeClient(baseLogger);
