@@ -111,11 +111,17 @@ export function testSetupHelpers() {
   });
   const testStore = new TestStore(baseLogger);
 
-  async function setupApp(orgs: Org[]) {
+  async function setupApp({ orgs, users }: { orgs: Org[]; users: User[] }) {
     const store = testStore.getStore();
     await testStore.init();
     for (const org of orgs) {
       await store.createOrganization(org);
+    }
+    for (const user of users) {
+      await store.createUser(user);
+      for (const organization of user.organizations) {
+        await store.addUserToOrganization(user.id, organization.id);
+      }
     }
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
     const auth0 = new MockAuth0Client();
