@@ -87,7 +87,12 @@ export function opensslKeyParams(
 ): Array<string | Buffer> {
   switch (key.source) {
     case 'file': {
-      return [opensslParam, key.path];
+      return [
+        opensslParam,
+        key.path,
+        '-passin',
+        `pass:${process.env['VX_PRIVATE_KEY_PASS_PHRASE']}`,
+      ];
     }
     case 'inline': {
       return [opensslParam, Buffer.from(key.content, 'utf-8')];
