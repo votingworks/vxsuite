@@ -11,7 +11,10 @@ import {
   mapContestIdsToContests,
 } from '@votingworks/utils';
 
-import { extractElectionStrings } from '../language_and_audio';
+import {
+  extractElectionStrings,
+  stripImagesFromRichText,
+} from '../language_and_audio';
 
 /**
  * Validates an {@link ElectionDefinition} against system limits, returning the first violation if
@@ -92,10 +95,11 @@ export function validateElectionDefinitionAgainstSystemLimits(
     });
   }
 
-  const textFieldsExcludingPropositionText = extractElectionStrings(election, {
-    exclude: [ElectionStringKey.CONTEST_DESCRIPTION],
-  });
-  for (const textField of textFieldsExcludingPropositionText) {
+  const textFieldsExcludingPropositionDescriptions = extractElectionStrings(
+    election,
+    { exclude: [ElectionStringKey.CONTEST_DESCRIPTION] }
+  );
+  for (const textField of textFieldsExcludingPropositionDescriptions) {
     if (textField.stringInEnglish.length > systemLimits.textField.characters) {
       return err({
         limitScope: 'textField',
@@ -106,19 +110,22 @@ export function validateElectionDefinitionAgainstSystemLimits(
     }
   }
 
-  const propositionTextFields = extractElectionStrings(election, {
+  const propositionDescriptions = extractElectionStrings(election, {
     include: [ElectionStringKey.CONTEST_DESCRIPTION],
   });
-  for (const textField of propositionTextFields) {
+  for (const propositionDescription of propositionDescriptions) {
+    const propositionDescriptionWithoutImages = stripImagesFromRichText(
+      propositionDescription.stringInEnglish
+    );
     if (
-      textField.stringInEnglish.length >
-      systemLimits.propositionTextField.characters
+      propositionDescriptionWithoutImages.length >
+      systemLimits.propositionDescription.characters
     ) {
       return err({
-        limitScope: 'propositionTextField',
+        limitScope: 'propositionDescription',
         limitType: 'characters',
-        valueExceedingLimit: textField.stringInEnglish.length,
-        fieldValue: textField.stringInEnglish,
+        valueExceedingLimit: propositionDescriptionWithoutImages.length,
+        fieldValue: propositionDescriptionWithoutImages,
       });
     }
   }

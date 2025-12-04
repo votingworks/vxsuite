@@ -72,13 +72,15 @@ test.each<{ violation: SystemLimitViolation; expectedString: string }>([
   },
   {
     violation: {
-      limitScope: 'propositionTextField',
+      limitScope: 'propositionDescription',
       limitType: 'characters',
-      valueExceedingLimit: SYSTEM_LIMITS.propositionTextField.characters + 1,
-      fieldValue: 'A'.repeat(SYSTEM_LIMITS.propositionTextField.characters + 1),
+      valueExceedingLimit: SYSTEM_LIMITS.propositionDescription.characters + 1,
+      fieldValue: 'A'.repeat(
+        SYSTEM_LIMITS.propositionDescription.characters + 1
+      ),
     },
     expectedString:
-      'Number of characters in proposition text field AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA… (10001) exceeds system limit of 10000.',
+      'Number of characters in proposition description AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA… (10001) exceeds system limit of 10000.',
   },
   {
     violation: {

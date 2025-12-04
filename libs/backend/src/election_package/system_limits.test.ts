@@ -118,13 +118,13 @@ test.each<{
   {
     systemLimits: {
       ...SYSTEM_LIMITS,
-      propositionTextField: {
-        ...SYSTEM_LIMITS.propositionTextField,
+      propositionDescription: {
+        ...SYSTEM_LIMITS.propositionDescription,
         characters: 0,
       },
     },
     expectedValidationResult: err({
-      limitScope: 'propositionTextField',
+      limitScope: 'propositionDescription',
       limitType: 'characters',
       valueExceedingLimit: expect.any(Number),
       fieldValue:

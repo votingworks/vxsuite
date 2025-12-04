@@ -44,6 +44,7 @@ import {
   groupMapToGroupList,
   isIntegrationTest,
   isSystemAdministratorAuth,
+  systemLimitViolationToString,
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import {
@@ -458,10 +459,14 @@ function buildApi({
       })();
 
       if (electionPackageResult.isErr()) {
+        const errorDetails = electionPackageResult.err();
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
           message: `Error configuring machine.`,
           disposition: 'failure',
-          errorDetails: JSON.stringify(electionPackageResult.err()),
+          errorDetails:
+            errorDetails.type === 'system-limit-violation'
+              ? systemLimitViolationToString(errorDetails.violation)
+              : JSON.stringify(errorDetails),
         });
         return electionPackageResult;
       }

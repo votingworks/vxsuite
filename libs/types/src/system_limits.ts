@@ -15,7 +15,7 @@ export const SYSTEM_LIMITS = {
   textField: {
     characters: 100,
   },
-  propositionTextField: {
+  propositionDescription: {
     characters: 10000,
   },
   markScanBallotStyle: {
@@ -49,8 +49,8 @@ type ContestSystemLimitViolation = SystemLimitViolationBase<'contest'> & {
 type TextFieldSystemLimitViolation = SystemLimitViolationBase<'textField'> & {
   fieldValue: string;
 };
-type PropositionTextFieldSystemLimitViolation =
-  SystemLimitViolationBase<'propositionTextField'> & {
+type PropositionDescriptionFieldSystemLimitViolation =
+  SystemLimitViolationBase<'propositionDescription'> & {
     fieldValue: string;
   };
 type MarkScanBallotStyleSystemLimitViolation =
@@ -66,6 +66,6 @@ export type SystemLimitViolation =
   | ElectionSystemLimitViolation
   | ContestSystemLimitViolation
   | TextFieldSystemLimitViolation
-  | PropositionTextFieldSystemLimitViolation
+  | PropositionDescriptionFieldSystemLimitViolation
   | MarkScanBallotStyleSystemLimitViolation
   | MarkScanContestSystemLimitViolation;

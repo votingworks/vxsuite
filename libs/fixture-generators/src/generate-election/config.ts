@@ -53,7 +53,7 @@ export const defaultConfig: GenerateElectionConfig = {
     contestTitle: SYSTEM_LIMITS.textField.characters,
     contestTermDescription: SYSTEM_LIMITS.textField.characters,
     candidateName: SYSTEM_LIMITS.textField.characters,
-    contestBallotMeasureText: SYSTEM_LIMITS.propositionTextField.characters,
+    contestBallotMeasureText: SYSTEM_LIMITS.propositionDescription.characters,
     contestBallotMeasureOptionLabel: SYSTEM_LIMITS.textField.characters,
   },
 };

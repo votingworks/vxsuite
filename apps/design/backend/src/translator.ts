@@ -3,7 +3,7 @@ import {
   MinimalGoogleCloudTranslationClient,
   parseVendoredTranslations,
   VendoredTranslations,
-  stripImagesForCaching,
+  stripImagesFromRichText,
   restoreImagesInTranslation,
 } from '@votingworks/backend';
 import { NonEnglishLanguageCode } from '@votingworks/types';
@@ -59,7 +59,7 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
       }
 
       // Check cache using the stripped text as the key
-      const strippedText = stripImagesForCaching(text);
+      const strippedText = stripImagesFromRichText(text);
       const translatedTextFromCache =
         await this.store.getTranslatedTextFromCache(
           strippedText,
@@ -94,9 +94,9 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
       const { index: originalIndex, text } = cacheMisses[i];
       translatedTextArray[originalIndex] = translatedText;
       // Store in cache using the stripped text as the key
-      const strippedText = stripImagesForCaching(text);
+      const strippedText = stripImagesFromRichText(text);
       if (isValidPrimaryKey(strippedText)) {
-        const strippedTranslatedText = stripImagesForCaching(translatedText);
+        const strippedTranslatedText = stripImagesFromRichText(translatedText);
         await this.store.addTranslationCacheEntry({
           text: strippedText,
           targetLanguageCode,
