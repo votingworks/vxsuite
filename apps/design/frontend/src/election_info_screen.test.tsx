@@ -40,13 +40,13 @@ afterEach(() => {
 });
 
 function renderScreen(electionId: ElectionId) {
-  const { path } = routes.election(electionId).electionInfo;
+  const { path } = routes.election(electionId).electionInfo.root;
   const history = createMemoryHistory({ initialEntries: [path] });
   render(
     provideApi(
       apiMock,
       withRoute(<ElectionInfoScreen />, {
-        paramPath: routes.election(':electionId').electionInfo.path,
+        paramPath: routes.election(':electionId').electionInfo.root.path,
         history,
       })
     )

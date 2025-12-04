@@ -23,7 +23,7 @@ test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
     textToSpeechClient,
   });
 
-  const audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
+  const audioClipBase64 = await speechSynthesizer.fromText(
     'Do you like apples?',
     LanguageCode.ENGLISH
   );

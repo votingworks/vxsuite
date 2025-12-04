@@ -69,6 +69,7 @@ export const FormFixed = styled.form<FormFixedProps>`
   height: 100%;
   overflow: hidden;
   position: relative;
+  width: 100%;
 
   input:disabled {
     cursor: not-allowed;

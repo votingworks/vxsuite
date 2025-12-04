@@ -12,8 +12,12 @@ import {
 import {
   faCheckCircle,
   faCircleHalfStroke,
+  faCircleDown,
   faCircleLeft,
   faCircleRight,
+  faDoorClosed,
+  faDoorOpen,
+  faCircleUp,
   faDeleteLeft,
   faDisplay,
   faExclamationCircle,
@@ -31,6 +35,7 @@ import {
   faCirclePlus,
   faCircleQuestion,
   faEject,
+  faFileAudio,
   faFileArrowUp,
   faFileArrowDown,
   faChevronUp,
@@ -51,6 +56,7 @@ import {
   faImage,
   faInfoCircle,
   faItalic,
+  faKeyboard,
   faLanguage,
   faListOl,
   faListUl,
@@ -68,6 +74,7 @@ import {
   faRotateRight,
   faSimCard,
   faSort,
+  faUpDown,
   faSortDown,
   faTowerBroadcast,
   faRotate,
@@ -87,6 +94,7 @@ import {
   faXmark,
   faCircleUser,
   faArrowRightFromBracket,
+  faArrowsSplitUpAndLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -113,6 +121,7 @@ export type IconColor = (typeof ICON_COLORS)[number];
 
 export interface IconProps {
   color?: IconColor;
+  fixedWidth?: boolean;
   style?: React.CSSProperties;
 }
 
@@ -149,7 +158,7 @@ function iconColor(theme: UiTheme, color?: IconColor) {
 }
 
 function FaIcon(props: InnerProps): JSX.Element {
-  const { pulse, spin, type, color, style = {} } = props;
+  const { fixedWidth, pulse, spin, type, color, style = {} } = props;
   const theme = useTheme();
 
   /**
@@ -202,6 +211,7 @@ function FaIcon(props: InnerProps): JSX.Element {
 
   return (
     <FontAwesomeIcon
+      fixedWidth={fixedWidth}
       icon={type}
       spin={spin}
       pulse={pulse}
@@ -362,6 +372,18 @@ export const Icons = {
     return <FaIcon {...props} type={faCheckCircle} />;
   },
 
+  DoorClosed(props) {
+    return <FaIcon {...props} type={faDoorClosed} />;
+  },
+
+  DoorOpen(props) {
+    return <FaIcon {...props} type={faDoorOpen} />;
+  },
+
+  DownCircle(props) {
+    return <FaIcon {...props} type={faCircleDown} />;
+  },
+
   Edit(props) {
     return <FaIcon {...props} type={faPencil} />;
   },
@@ -388,6 +410,10 @@ export const Icons = {
 
   File(props) {
     return <FaIcon {...props} type={faFile} />;
+  },
+
+  FileAudio(props) {
+    return <FaIcon {...props} type={faFileAudio} />;
   },
 
   Flag(props) {
@@ -420,6 +446,10 @@ export const Icons = {
 
   Italic(props) {
     return <FaIcon {...props} type={faItalic} />;
+  },
+
+  Keyboard(props) {
+    return <FaIcon {...props} type={faKeyboard} />;
   },
 
   Language(props) {
@@ -514,6 +544,10 @@ export const Icons = {
     return <FaIcon {...props} type={faSort} />;
   },
 
+  SortUpDown(props) {
+    return <FaIcon {...props} type={faUpDown} />;
+  },
+
   SortUp(props) {
     return <FaIcon {...props} type={faSortUp} />;
   },
@@ -528,6 +562,10 @@ export const Icons = {
 
   SoundOn(props) {
     return <FaIcon {...props} type={faVolumeHigh} />;
+  },
+
+  Split(props) {
+    return <FaIcon {...props} type={faArrowsSplitUpAndLeft} />;
   },
 
   Square(props) {
@@ -552,6 +590,10 @@ export const Icons = {
 
   Underline(props) {
     return <FaIcon {...props} type={faUnderline} />;
+  },
+
+  UpCircle(props) {
+    return <FaIcon {...props} type={faCircleUp} />;
   },
 
   UsbDrive(props) {

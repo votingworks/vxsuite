@@ -15,6 +15,7 @@ import {
   ContestId,
   safeParse,
   YesNoContestSchema,
+  ElectionStringKey,
 } from '@votingworks/types';
 import {
   Callout,
@@ -49,7 +50,9 @@ import { InputGroup, Row, FieldName } from './layout';
 import { routes } from './routes';
 import { TooltipContainer, Tooltip } from './tooltip';
 import { generateId, replaceAtIndex } from './utils';
-import { RichTextEditor } from './rich_text_editor';
+import { InputWithAudio } from './ballot_audio/input_with_audio';
+import { AudioLinkButton } from './ballot_audio/audio_link_button';
+import { RichTextEditorWithAudio } from './ballot_audio/rich_text_editor_with_audio';
 
 const Form = styled(FormFixed)`
   .search-select,
@@ -319,8 +322,16 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         <Title>{title}</Title>
 
         <InputGroup label="Title">
-          <input
+          <InputWithAudio
+            audioScreenUrl={
+              contestRoutes.audio.manage({
+                contestId: contest.id,
+                stringKey: ElectionStringKey.CONTEST_TITLE,
+                subkey: contest.id,
+              }).path
+            }
             disabled={disabled}
+            editing={editing}
             type="text"
             value={contest.title}
             onChange={(e) => setContest({ ...contest, title: e.target.value })}
@@ -428,8 +439,16 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                 />
               </InputGroup>
               <InputGroup label="Term">
-                <input
+                <InputWithAudio
+                  audioScreenUrl={
+                    contestRoutes.audio.manage({
+                      contestId: contest.id,
+                      stringKey: ElectionStringKey.CONTEST_TERM,
+                      subkey: contest.id,
+                    }).path
+                  }
                   disabled={disabled}
+                  editing={editing}
                   type="text"
                   value={contest.termDescription ?? ''}
                   onChange={(e) =>
@@ -575,8 +594,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                           />
                         </TD>
                         <TD>
-                          {/* [TODO] Show audio edit button when not editing. */}
-                          {editing && (
+                          {editing ? (
                             <TooltipContainer style={{ width: 'min-content' }}>
                               <Button
                                 aria-label={`Remove Candidate ${joinCandidateName(
@@ -600,6 +618,28 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                                 Remove Candidate
                                 <br />
                                 {joinCandidateName(candidate)}
+                              </Tooltip>
+                            </TooltipContainer>
+                          ) : (
+                            <TooltipContainer style={{ width: 'min-content' }}>
+                              <AudioLinkButton
+                                className="icon-button"
+                                to={
+                                  contestRoutes.audio.manage({
+                                    contestId: contest.id,
+                                    stringKey: ElectionStringKey.CANDIDATE_NAME,
+                                    subkey: candidate.id,
+                                  }).path
+                                }
+                              />
+                              <Tooltip alignTo="right" bold>
+                                Preview/Edit Audio
+                                <br />
+                                {candidate.firstName}{' '}
+                                {candidate.middleName
+                                  ? `${candidate.middleName} `
+                                  : ''}
+                                {candidate.lastName}
                               </Tooltip>
                             </TooltipContainer>
                           )}
@@ -637,8 +677,16 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
           <React.Fragment>
             <div>
               <FieldName>Description</FieldName>
-              <RichTextEditor
+              <RichTextEditorWithAudio
+                audioScreenUrl={
+                  contestRoutes.audio.manage({
+                    contestId: contest.id,
+                    stringKey: ElectionStringKey.CONTEST_DESCRIPTION,
+                    subkey: contest.id,
+                  }).path
+                }
                 disabled={disabled}
+                editing={editing}
                 initialHtmlContent={contest.description}
                 onChange={(htmlContent) =>
                   setContest({ ...contest, description: htmlContent })
@@ -647,8 +695,16 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             </div>
 
             <InputGroup label="First Option Label">
-              <input
+              <InputWithAudio
+                audioScreenUrl={
+                  contestRoutes.audio.manage({
+                    contestId: contest.id,
+                    stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
+                    subkey: contest.yesOption.id,
+                  }).path
+                }
                 disabled={disabled}
+                editing={editing}
                 type="text"
                 value={contest.yesOption.label}
                 onChange={(e) =>
@@ -662,8 +718,16 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             </InputGroup>
 
             <InputGroup label="Second Option Label">
-              <input
+              <InputWithAudio
+                audioScreenUrl={
+                  contestRoutes.audio.manage({
+                    contestId: contest.id,
+                    stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
+                    subkey: contest.noOption.id,
+                  }).path
+                }
                 disabled={disabled}
+                editing={editing}
                 type="text"
                 value={contest.noOption.label}
                 onChange={(e) =>

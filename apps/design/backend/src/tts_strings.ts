@@ -3,6 +3,7 @@ import {
   ElectionStringKey,
   hasSplits,
   LanguageCode,
+  PhoneticWord,
   TtsEdit,
   TtsEditKey,
 } from '@votingworks/types';
@@ -141,24 +142,17 @@ export function apiMethods(ctx: TtsApiContext) {
               text: convertHtmlToAudioCues(contest.description),
             });
 
-            // NOTE: Default yes/no option labels are excluded below, since the
-            // current focus for TTS editing is on user-provided strings:
+            strings.push({
+              key: ElectionStringKey.CONTEST_OPTION_LABEL,
+              subkey: contest.yesOption.id,
+              text: contest.yesOption.label,
+            });
 
-            if (contest.yesOption.label.toLowerCase() !== 'yes') {
-              strings.push({
-                key: ElectionStringKey.CONTEST_OPTION_LABEL,
-                subkey: contest.yesOption.id,
-                text: contest.yesOption.label,
-              });
-            }
-
-            if (contest.noOption.label.toLowerCase() !== 'no') {
-              strings.push({
-                key: ElectionStringKey.CONTEST_OPTION_LABEL,
-                subkey: contest.noOption.id,
-                text: contest.noOption.label,
-              });
-            }
+            strings.push({
+              key: ElectionStringKey.CONTEST_OPTION_LABEL,
+              subkey: contest.noOption.id,
+              text: contest.noOption.label,
+            });
 
             break;
 
@@ -177,11 +171,23 @@ export function apiMethods(ctx: TtsApiContext) {
       );
     },
 
+    async ttsSynthesizeFromSsml(input: {
+      words: PhoneticWord[];
+      languageCode: string;
+    }): Promise<DataUrl> {
+      const base64Data = await ctx.speechSynthesizer.fromSsml(
+        input.words,
+        input.languageCode as LanguageCode
+      );
+
+      return `data:audio/mp3;base64,${base64Data}`;
+    },
+
     async ttsSynthesizeFromText(input: {
       text: string;
       languageCode: string;
     }): Promise<DataUrl> {
-      const base64Data = await ctx.speechSynthesizer.synthesizeSpeech(
+      const base64Data = await ctx.speechSynthesizer.fromText(
         input.text,
         input.languageCode as LanguageCode
       );

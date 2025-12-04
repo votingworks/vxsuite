@@ -50,6 +50,7 @@ export function AudioEditorPanel(
       )}
 
       <AudioEditor
+        electionId={electionId}
         languageCode={languageCode}
         orgId={orgId}
         ttsDefault={ttsDefault}

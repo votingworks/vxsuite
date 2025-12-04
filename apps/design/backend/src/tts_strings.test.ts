@@ -13,17 +13,16 @@ import { ElectionRecord, Store } from './store';
 
 test('ttsSynthesizeFromText', async () => {
   const mockSynthesizer: Mocked<SpeechSynthesizer> = {
-    synthesizeSpeech: vi.fn(),
+    fromSsml: vi.fn(),
+    fromText: vi.fn(),
   };
 
-  mockSynthesizer.synthesizeSpeech.mockImplementationOnce(
-    (text, languageCode) => {
-      expect(text).toEqual('hola');
-      expect(languageCode).toEqual('es-US');
+  mockSynthesizer.fromText.mockImplementationOnce((text, languageCode) => {
+    expect(text).toEqual('hola');
+    expect(languageCode).toEqual('es-US');
 
-      return Promise.resolve('audio_data');
-    }
-  );
+    return Promise.resolve('audio_data');
+  });
 
   const api = newApi({ speechSynthesizer: mockSynthesizer });
   const result = await api.ttsSynthesizeFromText({

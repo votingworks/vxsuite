@@ -9,7 +9,6 @@ import {
   ElectionStringKey,
 } from '@votingworks/types';
 
-import { assert } from '@votingworks/basics';
 import { SpeechSynthesizer } from './speech_synthesizer';
 import {
   audioIdForText,
@@ -113,18 +112,17 @@ export function generateAudioIdsAndClips(ctx: {
     ctx.emitProgress?.(i, ttsStrings.size);
 
     for (const [audioId, str] of ttsStrings.entries()) {
-      // [TODO](https://github.com/votingworks/vxsuite/issues/7264): Support
-      // synthesis from phonetic edits.
-      assert(
-        str.exportSource === 'text',
-        'phonetic-based TTS not yet implemented'
-      );
-
       const clip: UiStringAudioClip = {
-        dataBase64: await ctx.speechSynthesizer.synthesizeSpeech(
-          str.text,
-          str.languageCode as LanguageCode
-        ),
+        dataBase64:
+          str.exportSource === 'phonetic'
+            ? await ctx.speechSynthesizer.fromSsml(
+                str.phonetic,
+                str.languageCode as LanguageCode
+              )
+            : await ctx.speechSynthesizer.fromText(
+                str.text,
+                str.languageCode as LanguageCode
+              ),
         id: audioId,
         languageCode: str.languageCode,
       };

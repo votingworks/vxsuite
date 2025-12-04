@@ -5,7 +5,7 @@ import {
 } from '@google-cloud/text-to-speech';
 import { assert } from '@votingworks/basics';
 
-import { LanguageCode } from '@votingworks/types';
+import { LanguageCode, PhoneticWord, ssmlGenerate } from '@votingworks/types';
 import { convertHtmlToAudioCues } from './rich_text';
 
 /**
@@ -48,7 +48,8 @@ export interface MinimalGoogleCloudTextToSpeechClient {
  * Interface for synthesizing speech.
  */
 export interface SpeechSynthesizer {
-  synthesizeSpeech(text: string, languageCode: LanguageCode): Promise<string>;
+  fromSsml(ssml: PhoneticWord[], languageCode: LanguageCode): Promise<string>;
+  fromText(text: string, languageCode: LanguageCode): Promise<string>;
 }
 
 /**
@@ -68,31 +69,54 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
       /* istanbul ignore next - @preserve */ new GoogleCloudTextToSpeechClient();
   }
 
-  async synthesizeSpeech(
-    text: string,
+  async fromSsml(
+    words: PhoneticWord[],
     languageCode: LanguageCode
   ): Promise<string> {
-    const sanitizedText = convertHtmlToAudioCues(text);
-    return await this.synthesizeSpeechSanitized(sanitizedText, languageCode);
+    return await this.fromSsmlString(ssmlGenerate(words), languageCode);
   }
 
-  protected async synthesizeSpeechSanitized(
+  async fromText(text: string, languageCode: LanguageCode): Promise<string> {
+    const sanitizedText = convertHtmlToAudioCues(text);
+    return await this.fromTextSanitized(sanitizedText, languageCode);
+  }
+
+  protected async fromSsmlString(
+    ssml: string,
+    languageCode: LanguageCode
+  ): Promise<string> {
+    return await this.fromSsmlWithGoogleCloud(ssml, languageCode);
+  }
+
+  protected async fromTextSanitized(
     sanitizedText: string,
     languageCode: LanguageCode
   ): Promise<string> {
-    return await this.synthesizeSpeechWithGoogleCloud(
-      sanitizedText,
-      languageCode
-    );
+    return await this.fromTextWithGoogleCloud(sanitizedText, languageCode);
   }
 
-  protected async synthesizeSpeechWithGoogleCloud(
+  protected async fromTextWithGoogleCloud(
     sanitizedText: string,
     languageCode: LanguageCode
   ): Promise<string> {
     const [response] = await this.textToSpeechClient.synthesizeSpeech({
       audioConfig: { audioEncoding: 'MP3' },
       input: { text: sanitizedText },
+      voice: GoogleCloudVoices[languageCode],
+    });
+
+    assert(response.audioContent instanceof Uint8Array);
+
+    return Buffer.from(response.audioContent.buffer).toString('base64');
+  }
+
+  protected async fromSsmlWithGoogleCloud(
+    ssml: string,
+    languageCode: LanguageCode
+  ): Promise<string> {
+    const [response] = await this.textToSpeechClient.synthesizeSpeech({
+      audioConfig: { audioEncoding: 'MP3' },
+      input: { ssml },
       voice: GoogleCloudVoices[languageCode],
     });
 

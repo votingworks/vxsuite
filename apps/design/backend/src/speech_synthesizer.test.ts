@@ -5,8 +5,9 @@ import {
   GoogleCloudVoices,
   mockCloudSynthesizedSpeech,
   makeMockGoogleCloudTextToSpeechClient,
+  mockCloudSpeechFromSsml,
 } from '@votingworks/backend';
-import { LanguageCode } from '@votingworks/types';
+import { LanguageCode, PhoneticWord, ssmlGenerate } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
 import { TestStore } from '../test/test_store';
@@ -23,7 +24,7 @@ afterAll(async () => {
   await testStore.cleanUp();
 });
 
-test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
+test('GoogleCloudSpeechSynthesizerWithDbCache.fromText()', async () => {
   const store = testStore.getStore();
   const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
     fn: vi.fn,
@@ -33,7 +34,7 @@ test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
     textToSpeechClient,
   });
 
-  let audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
+  let audioClipBase64 = await speechSynthesizer.fromText(
     'Do you like apples?',
     LanguageCode.ENGLISH
   );
@@ -51,7 +52,7 @@ test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
   textToSpeechClient.synthesizeSpeech.mockClear();
 
   // Expect a cache hit
-  audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
+  audioClipBase64 = await speechSynthesizer.fromText(
     'Do you like apples?',
     LanguageCode.ENGLISH
   );
@@ -61,7 +62,7 @@ test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
   expect(textToSpeechClient.synthesizeSpeech).not.toHaveBeenCalled();
 });
 
-test('GoogleCloudSpeechSynthesizerWithDbCache does not cache extremely large strings', async () => {
+test('GoogleCloudSpeechSynthesizerWithDbCache.fromText() does not cache extremely large strings', async () => {
   const store = testStore.getStore();
   const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
     fn: vi.fn,
@@ -77,7 +78,7 @@ test('GoogleCloudSpeechSynthesizerWithDbCache does not cache extremely large str
   const smallString = 'Small string';
 
   // First synthesis, both strings get synthesized
-  let audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
+  let audioClipBase64 = await speechSynthesizer.fromText(
     largeString,
     LanguageCode.ENGLISH
   );
@@ -86,7 +87,7 @@ test('GoogleCloudSpeechSynthesizerWithDbCache does not cache extremely large str
   );
   expect(textToSpeechClient.synthesizeSpeech).toHaveBeenCalledTimes(1);
 
-  audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
+  audioClipBase64 = await speechSynthesizer.fromText(
     smallString,
     LanguageCode.ENGLISH
   );
@@ -98,7 +99,7 @@ test('GoogleCloudSpeechSynthesizerWithDbCache does not cache extremely large str
   textToSpeechClient.synthesizeSpeech.mockClear();
 
   // Second synthesis, large string gets synthesized again, small string should be cached
-  audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
+  audioClipBase64 = await speechSynthesizer.fromText(
     largeString,
     LanguageCode.ENGLISH
   );
@@ -107,7 +108,7 @@ test('GoogleCloudSpeechSynthesizerWithDbCache does not cache extremely large str
   );
   expect(textToSpeechClient.synthesizeSpeech).toHaveBeenCalledTimes(1);
 
-  audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
+  audioClipBase64 = await speechSynthesizer.fromText(
     smallString,
     LanguageCode.ENGLISH
   );
@@ -116,4 +117,48 @@ test('GoogleCloudSpeechSynthesizerWithDbCache does not cache extremely large str
   );
   // Small string was cached, no additional call
   expect(textToSpeechClient.synthesizeSpeech).toHaveBeenCalledTimes(1);
+});
+
+test('GoogleCloudSpeechSynthesizerWithDbCache.fromSsml()', async () => {
+  const store = testStore.getStore();
+  const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
+    fn: vi.fn,
+  });
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
+    store,
+    textToSpeechClient,
+  });
+
+  const phoneticWords: PhoneticWord[] = [
+    { text: 'one', syllables: [{ ipaPhonemes: ['w', 'ə', 'n'] }] },
+    { text: 'two', syllables: [{ ipaPhonemes: ['t', 'uː'] }] },
+  ];
+  const ssmlString = ssmlGenerate(phoneticWords);
+
+  let audioClipBase64 = await speechSynthesizer.fromSsml(
+    phoneticWords,
+    LanguageCode.ENGLISH
+  );
+  expect(Buffer.from(audioClipBase64, 'base64').toString('utf-8')).toEqual(
+    mockCloudSpeechFromSsml(ssmlString)
+  );
+  expect(textToSpeechClient.synthesizeSpeech).toHaveBeenCalledTimes(1);
+  expect(textToSpeechClient.synthesizeSpeech).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining({
+      input: { text: 'Do you like apples?' },
+      voice: GoogleCloudVoices[LanguageCode.ENGLISH],
+    })
+  );
+  textToSpeechClient.synthesizeSpeech.mockClear();
+
+  // Expect a cache hit
+  audioClipBase64 = await speechSynthesizer.fromSsml(
+    phoneticWords,
+    LanguageCode.ENGLISH
+  );
+  expect(Buffer.from(audioClipBase64, 'base64').toString('utf-8')).toEqual(
+    mockCloudSpeechFromSsml(ssmlString)
+  );
+  expect(textToSpeechClient.synthesizeSpeech).not.toHaveBeenCalled();
 });

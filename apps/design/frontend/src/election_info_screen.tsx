@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   ElectionIdSchema,
+  ElectionStringKey,
   LanguageCode,
   unsafeParse,
 } from '@votingworks/types';
@@ -14,9 +15,10 @@ import {
   SegmentedButton,
 } from '@votingworks/ui';
 import type { ElectionInfo } from '@votingworks/design-backend';
-import { useHistory, useParams } from 'react-router-dom';
+import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 import { z } from 'zod/v4';
 import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
+import styled from 'styled-components';
 import {
   deleteElection,
   getBallotsFinalizedAt,
@@ -25,18 +27,83 @@ import {
   getUserFeatures,
   updateElectionInfo,
 } from './api';
-import { FieldName, InputGroup } from './layout';
+import { FieldName, FixedViewport, InputGroup } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
-import { routes } from './routes';
+import { ElectionIdParams, routes } from './routes';
 import { SealImageInput } from './seal_image_input';
 import { useTitle } from './hooks/use_title';
 import { SignatureImageInput } from './signature_image_input';
+import { InputWithAudio } from './ballot_audio/input_with_audio';
 import {
   FormBody,
   FormErrorContainer,
   FormFixed,
   FormFooter,
 } from './form_fixed';
+import { ElectionInfoAudioPanel } from './election_info_audio_panel';
+
+const Viewport = styled(FixedViewport)`
+  display: flex;
+  flex-direction: row;
+
+  /* Party List */
+  > :first-child:not(:only-child) {
+    min-width: 15rem;
+    max-width: min(30%, 30rem);
+    width: 100%;
+  }
+
+  /* Audio Panel */
+  > :last-child:not(:only-child) {
+    flex-grow: 1;
+  }
+
+  .icon-button {
+    background: ${(p) => p.theme.colors.background};
+    border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+      ${(p) => p.theme.colors.outline};
+    padding: 0.6rem 0.75rem;
+  }
+`;
+
+export function ElectionInfoScreen(): JSX.Element | null {
+  const params = useParams<{ electionId: string }>();
+  const { electionId } = unsafeParse(
+    z.object({ electionId: ElectionIdSchema }),
+    params
+  );
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  useTitle(routes.election(electionId).electionInfo.root.title);
+  const infoParamRoutes = routes.election(':electionId').electionInfo;
+
+  if (
+    !getElectionInfoQuery.isSuccess ||
+    !getBallotsFinalizedAtQuery.isSuccess
+  ) {
+    return null;
+  }
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+
+  return (
+    <ElectionNavScreen electionId={electionId}>
+      <Header>
+        <H1>Election Info</H1>
+      </Header>
+      <Viewport>
+        <ElectionInfoForm
+          savedElectionInfo={getElectionInfoQuery.data}
+          ballotsFinalizedAt={ballotsFinalizedAt}
+        />
+        <Switch>
+          <Route path={infoParamRoutes.audio({ stringKey: ':stringKey' })}>
+            <ElectionInfoAudioPanel />
+          </Route>
+        </Switch>
+      </Viewport>
+    </ElectionNavScreen>
+  );
+}
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return (
@@ -46,6 +113,13 @@ function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
     !electionInfo.seal
   );
 }
+
+const Form = styled(FormFixed)`
+  input,
+  .search-select {
+    max-width: 18rem;
+  }
+`;
 
 function ElectionInfoForm({
   savedElectionInfo,
@@ -68,6 +142,9 @@ function ElectionInfoForm({
   const ballotTemplateIdQuery = getBallotTemplate.useQuery(
     savedElectionInfo.electionId
   );
+
+  const { electionId } = useParams<ElectionIdParams>();
+  const infoRoutes = routes.election(electionId).electionInfo;
 
   /* istanbul ignore next - @preserve */
   if (!getUserFeaturesQuery.isSuccess || !ballotTemplateIdQuery.isSuccess) {
@@ -148,7 +225,7 @@ function ElectionInfoForm({
   const disabled = updateElectionInfoMutation.isLoading || !isEditing;
 
   return (
-    <FormFixed
+    <Form
       editing={isEditing}
       onSubmit={(e) => {
         e.preventDefault();
@@ -161,7 +238,11 @@ function ElectionInfoForm({
     >
       <FormBody>
         <InputGroup label="Title">
-          <input
+          <InputWithAudio
+            audioScreenUrl={infoRoutes.audio({
+              stringKey: ElectionStringKey.ELECTION_TITLE,
+            })}
+            editing={isEditing}
             type="text"
             value={electionInfo.title}
             onChange={onInputChange('title')}
@@ -169,6 +250,7 @@ function ElectionInfoForm({
             disabled={disabled}
             autoComplete="off"
             required
+            tooltipPlacement="bottom"
           />
         </InputGroup>
         <InputGroup label="Date">
@@ -202,7 +284,11 @@ function ElectionInfoForm({
           disabled={disabled}
         />
         <InputGroup label="State">
-          <input
+          <InputWithAudio
+            audioScreenUrl={infoRoutes.audio({
+              stringKey: ElectionStringKey.STATE_NAME,
+            })}
+            editing={isEditing}
             type="text"
             value={electionInfo.state}
             onChange={onInputChange('state')}
@@ -213,7 +299,11 @@ function ElectionInfoForm({
           />
         </InputGroup>
         <InputGroup label="Jurisdiction">
-          <input
+          <InputWithAudio
+            audioScreenUrl={infoRoutes.audio({
+              stringKey: ElectionStringKey.COUNTY_NAME,
+            })}
+            editing={isEditing}
             type="text"
             value={electionInfo.jurisdiction}
             onChange={onInputChange('jurisdiction')}
@@ -356,37 +446,6 @@ function ElectionInfoForm({
           />
         )}
       </FormFooter>
-    </FormFixed>
-  );
-}
-
-export function ElectionInfoScreen(): JSX.Element | null {
-  const params = useParams<{ electionId: string }>();
-  const { electionId } = unsafeParse(
-    z.object({ electionId: ElectionIdSchema }),
-    params
-  );
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  useTitle(routes.election(electionId).electionInfo.title);
-
-  if (
-    !getElectionInfoQuery.isSuccess ||
-    !getBallotsFinalizedAtQuery.isSuccess
-  ) {
-    return null;
-  }
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-
-  return (
-    <ElectionNavScreen electionId={electionId}>
-      <Header>
-        <H1>Election Info</H1>
-      </Header>
-      <ElectionInfoForm
-        savedElectionInfo={getElectionInfoQuery.data}
-        ballotsFinalizedAt={ballotsFinalizedAt}
-      />
-    </ElectionNavScreen>
+    </Form>
   );
 }

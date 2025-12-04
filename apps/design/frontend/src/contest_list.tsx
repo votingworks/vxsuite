@@ -50,6 +50,11 @@ const Item = styled.li`
 const Container = styled.ul`
   --contest-list-border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${DesktopPalette.Gray30};
+  --contest-list-title-size: 1.25rem;
+  --contest-list-title-padding-y: 0.75rem;
+  --contest-list-scroll-padding: calc(
+    var(--contest-list-title-size) + (2 * var(--contest-list-title-padding-y))
+  );
 
   display: flex;
   flex-direction: column;
@@ -58,16 +63,19 @@ const Container = styled.ul`
   list-style: none;
   margin: 0;
   overflow-y: auto;
-  position: relative;
   padding: 0 0.125rem 0 0;
-  scroll-padding: 5rem;
+  position: relative;
+  scroll-padding: var(--contest-list-scroll-padding);
 
   h2 {
     background-color: ${(p) => p.theme.colors.containerLow};
     border-bottom: var(--contest-list-border);
     border-right: var(--contest-list-border);
+    border-bottom-width: ${(p) => p.theme.sizes.bordersRem.medium}rem;
+    font-size: var(--contest-list-title-size);
+    line-height: 1;
     margin: 0;
-    padding: 1rem;
+    padding: var(--contest-list-title-padding-y) 1rem;
     position: sticky;
     top: 0;
     white-space: nowrap;

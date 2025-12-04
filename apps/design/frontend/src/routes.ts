@@ -1,6 +1,7 @@
 import type { UserFeaturesConfig } from '@votingworks/design-backend';
 import {
   ElectionId,
+  ElectionStringKey,
   SystemSettings,
   TtsExportSource,
 } from '@votingworks/types';
@@ -26,8 +27,14 @@ export const routes = {
         path: root,
       },
       electionInfo: {
-        title: 'Election Info',
-        path: `${root}/info`,
+        root: {
+          title: 'Election Info',
+          path: `${root}/info`,
+        },
+        audio: (p: {
+          // ttsMode: ':ttsMode' | 'default' | TtsExportSource;
+          stringKey: ':stringKey' | ElectionStringKey;
+        }) => `${root}/info/audio/${p.stringKey}`,
       },
       geography: {
         root: {
@@ -63,18 +70,76 @@ export const routes = {
           }),
         },
       },
+      districts: {
+        root: {
+          title: 'Districts',
+          path: `${root}/districts`,
+        },
+        edit: {
+          title: 'Districts',
+          path: `${root}/districts/edit`,
+        },
+        audio: (p: {
+          // ttsMode: ':ttsMode' | 'default' | TtsExportSource;
+          stringKey: ':stringKey' | ElectionStringKey;
+          // eslint-disable-next-line @typescript-eslint/ban-types
+          subkey: ':subkey' | (string & {});
+        }) => {
+          const subpath = p.subkey ? `/${p.subkey}` : '';
+
+          return {
+            path: `${root}/districts/audio/${p.stringKey}${subpath}`,
+          };
+        },
+      },
+      precincts: {
+        root: {
+          title: 'Precincts',
+          path: `${root}/precincts`,
+        },
+        add: {
+          title: 'Precincts',
+          path: `${root}/precincts/add`,
+        },
+        edit: (precinctId: string) => ({
+          title: 'Precinct',
+          path: `${root}/precincts/${precinctId}/edit`,
+        }),
+        view: (precinctId: string) => ({
+          title: 'Precinct',
+          path: `${root}/precincts/${precinctId}`,
+        }),
+        audio: {
+          manage: (
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            precinctId: ':precinctId' | (string & {}),
+            ttsMode: ':ttsMode' | TtsExportSource,
+            stringKey: ':stringKey' | ElectionStringKey,
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            subkey: ':subkey' | (string & {})
+          ) => {
+            const precinctsRoot = `${root}/precincts/${precinctId}`;
+            const subpath = subkey ? `/${subkey}` : '';
+
+            return {
+              title: 'Precinct Audio',
+              path: `${precinctsRoot}/audio/${ttsMode}/${stringKey}${subpath}`,
+            };
+          },
+        },
+      },
       parties: {
         root: {
           title: 'Parties',
-          path: `${root}/parties`,
+          path: `${root}/parties-old`,
         },
         addParty: {
           title: 'Add Party',
-          path: `${root}/parties/add`,
+          path: `${root}/parties-old/add`,
         },
         editParty: (partyId: string) => ({
           title: 'Edit Party',
-          path: `${root}/parties/${partyId}`,
+          path: `${root}/parties-old/${partyId}`,
         }),
       },
       contests: {
@@ -86,6 +151,22 @@ export const routes = {
           title: 'Add Contest',
           path: `${root}/contests/add`,
         },
+        audio: {
+          manage: (p: {
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            contestId: ':contestId' | (string & {});
+            // ttsMode: ':ttsMode' | 'default' | TtsExportSource;
+            stringKey: ':stringKey' | ElectionStringKey;
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            subkey: ':subkey' | (string & {});
+          }) => {
+            const subpath = p.subkey ? `/${p.subkey}` : '';
+
+            return {
+              path: `${root}/contests/${p.contestId}/audio/${p.stringKey}${subpath}`,
+            };
+          },
+        },
         edit: (contestId: string) => ({
           title: 'Edit Contest',
           path: `${root}/contests/${contestId}/edit`,
@@ -94,6 +175,28 @@ export const routes = {
           title: 'Edit Contest',
           path: `${root}/contests/${contestId}`,
         }),
+      },
+      parties2: {
+        root: {
+          title: 'Parties',
+          path: `${root}/parties`,
+        },
+        edit: {
+          title: 'Parties',
+          path: `${root}/parties/edit`,
+        },
+        audio: (p: {
+          // ttsMode: ':ttsMode' | 'default' | TtsExportSource;
+          stringKey: ':stringKey' | ElectionStringKey;
+          // eslint-disable-next-line @typescript-eslint/ban-types
+          subkey: ':subkey' | (string & {});
+        }) => {
+          const subpath = p.subkey ? `/${p.subkey}` : '';
+
+          return {
+            path: `${root}/parties/audio/${p.stringKey}${subpath}`,
+          };
+        },
       },
       ballots: {
         root: {
@@ -107,7 +210,8 @@ export const routes = {
           },
           manage: (
             ttsMode: TtsExportSource | ':ttsMode',
-            stringKey: string,
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            stringKey: ':stringKey' | (string & {}),
             subkey?: string
           ) => {
             const subpath = subkey ? `/${subkey}` : '';
@@ -174,9 +278,12 @@ export function electionNavRoutes(
 ): Route[] {
   const electionRoutes = routes.election(electionId);
   return [
-    electionRoutes.electionInfo,
-    electionRoutes.geography.root,
-    electionRoutes.parties.root,
+    electionRoutes.electionInfo.root,
+    // electionRoutes.geography.root,
+    // electionRoutes.parties.root,
+    electionRoutes.districts.root,
+    electionRoutes.precincts.root,
+    electionRoutes.parties2.root,
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
     ...(features.SYSTEM_SETTINGS_SCREEN ? [electionRoutes.systemSettings] : []),

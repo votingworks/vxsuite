@@ -7,7 +7,6 @@ import {
   P,
   Button,
   RadioGroup,
-  MainContent,
   TabPanel,
   RouterTabBar,
   H3,
@@ -449,6 +448,16 @@ function BallotLayoutTab(): JSX.Element | null {
   );
 }
 
+const MainContent = styled.div`
+  overflow: auto;
+  padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const AUDIO_SCREEN_READY = false;
+
 export function BallotsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const ballotsParamRoutes = electionParamRoutes.ballots;
@@ -474,7 +483,7 @@ export function BallotsScreen(): JSX.Element | null {
           <MainContent>
             <RouterTabBar
               tabs={
-                features?.AUDIO_PROOFING
+                features?.AUDIO_PROOFING && AUDIO_SCREEN_READY
                   ? [
                       ballotsRoutes.ballotStyles,
                       ballotsRoutes.ballotLayout,
@@ -492,7 +501,7 @@ export function BallotsScreen(): JSX.Element | null {
                 path={ballotsParamRoutes.ballotLayout.path}
                 component={BallotLayoutTab}
               />
-              {features?.AUDIO_PROOFING && (
+              {features?.AUDIO_PROOFING && AUDIO_SCREEN_READY && (
                 <Route
                   path={
                     ballotsParamRoutes.audio.manage(
@@ -504,7 +513,7 @@ export function BallotsScreen(): JSX.Element | null {
                   component={BallotAudioScreen}
                 />
               )}
-              {features?.AUDIO_PROOFING && (
+              {features?.AUDIO_PROOFING && AUDIO_SCREEN_READY && (
                 <Route
                   path={ballotsParamRoutes.audio.root.path}
                   component={BallotAudioScreen}

@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { LinkButton } from '@votingworks/ui';
-
 import { Tooltip, TooltipContainer, TooltipProps } from '../tooltip';
+import { AudioLinkButton } from './audio_link_button';
+import * as api from '../api';
 
 export type InputWithAudioProps = {
   audioScreenUrl: string;
@@ -38,6 +38,10 @@ const InputWithAudioContainer = styled.div`
 const ButtonContainer = styled(TooltipContainer)`
   display: flex;
 
+  :empty {
+    display: none;
+  }
+
   > button {
     border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
       ${(p) => p.theme.colors.outline};
@@ -60,7 +64,11 @@ export function InputWithAudio(props: InputWithAudioProps): JSX.Element {
     tooltipPlacement,
     ...rest
   } = props;
-  const audioEnabled = !editing && !!(rest.value || rest.defaultValue);
+
+  const features = api.getUserFeatures.useQuery().data;
+
+  const audioEnabled =
+    features?.AUDIO_PROOFING && !editing && !!(rest.value || rest.defaultValue);
 
   return (
     <InputWithAudioContainer>
@@ -68,12 +76,9 @@ export function InputWithAudio(props: InputWithAudioProps): JSX.Element {
 
       {audioEnabled && (
         <ButtonContainer>
-          <LinkButton
+          <AudioLinkButton
             aria-label="Preview or Edit Audio"
-            fill="transparent"
-            icon="VolumeUp"
             to={audioScreenHref}
-            variant="primary"
           />
 
           <Tooltip alignTo="right" attachTo={tooltipPlacement} bold>

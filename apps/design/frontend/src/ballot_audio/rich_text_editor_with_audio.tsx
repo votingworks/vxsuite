@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { LinkButton } from '@votingworks/ui';
-
 import { RichTextEditor } from '../rich_text_editor';
 import { Tooltip, TooltipContainer, TooltipProps } from '../tooltip';
+import { AudioLinkButton } from './audio_link_button';
 
 export type RickTextEditorWithAudioProps = {
   audioScreenUrl: string;
@@ -78,12 +77,9 @@ export function RichTextEditorWithAudio(
 
       {audioEnabled && (
         <ButtonContainer>
-          <LinkButton
+          <AudioLinkButton
             aria-label="Preview or Edit Audio"
-            fill="transparent"
-            icon="VolumeUp"
             to={audioScreenHref}
-            variant="primary"
           />
 
           <Tooltip alignTo="right" attachTo={tooltipPlacement} bold>

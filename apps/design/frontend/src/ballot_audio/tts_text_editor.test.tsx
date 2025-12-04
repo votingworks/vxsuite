@@ -32,6 +32,7 @@ test('renders TTS defaults if no edits exist', async () => {
   const { container } = renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
       orgId={orgId}
       original={original}
@@ -66,6 +67,7 @@ test('renders saved edits if available', async () => {
   const { container } = renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
       orgId={orgId}
       original={original}
@@ -91,7 +93,12 @@ test('enables save and reset button when applicable', async () => {
 
   renderEditor(
     mockApi,
-    <TtsTextEditor languageCode={languageCode} orgId={orgId} original="CA" />
+    <TtsTextEditor
+      editable
+      languageCode={languageCode}
+      orgId={orgId}
+      original="CA"
+    />
   );
 
   await screen.findByText(/edit the text below/i);
@@ -132,6 +139,7 @@ test('reset button restores saved state', async () => {
   renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
       orgId={orgId}
       original={original}
@@ -166,6 +174,7 @@ test('save button updates backend data, refreshes content', async () => {
   const { container } = renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
       orgId={orgId}
       original={original}
