@@ -31,8 +31,11 @@ import {
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { PrintCalibration } from '@votingworks/hmpb';
+import { DateTime } from 'luxon';
 
 const SchemaPath = join(__dirname, '../schema.sql');
+
+export type ElectricalTestingComponent = 'card' | 'usbDrive';
 
 export interface ElectionRecord {
   electionDefinition: ElectionDefinition;
@@ -461,5 +464,47 @@ export class Store {
       precinctId,
       ballotMode
     ) as EncodedBallotEntry;
+  }
+
+  getElectricalTestingStatusMessages(): Array<{
+    component: ElectricalTestingComponent;
+    statusMessage: string;
+    updatedAt: DateTime;
+  }> {
+    return (
+      this.client.all(
+        `
+      select
+        component,
+        status_message as statusMessage,
+        updated_at as updatedAt
+      from electrical_testing_status_messages
+      order by component asc
+      `
+      ) as Array<{
+        component: ElectricalTestingComponent;
+        statusMessage: string;
+        updatedAt: string;
+      }>
+    ).map((record) => ({
+      ...record,
+      updatedAt: DateTime.fromSQL(record.updatedAt).toUTC(),
+    }));
+  }
+
+  setElectricalTestingStatusMessage(
+    component: ElectricalTestingComponent,
+    statusMessage: string
+  ): void {
+    this.client.run(
+      `
+      insert or replace into electrical_testing_status_messages (
+        component,
+        status_message
+      ) values (?, ?)
+      `,
+      component,
+      statusMessage
+    );
   }
 }

@@ -2118,6 +2118,9 @@ importers:
       use-interval:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
+      use-sound:
+        specifier: 5.0.0
+        version: 5.0.0(react@18.3.1)
       util:
         specifier: ^0.12.4
         version: 0.12.4

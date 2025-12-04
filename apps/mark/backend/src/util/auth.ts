@@ -1,10 +1,31 @@
 import {
+  InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
+  JavaCard,
+  MockFileCard,
 } from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { LoggingUserRole } from '@votingworks/logging';
+import { BaseLogger, LoggingUserRole } from '@votingworks/logging';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  isIntegrationTest,
+} from '@votingworks/utils';
 import { Workspace } from './workspace';
+
+/* istanbul ignore next - @preserve */
+export function getDefaultAuth(logger: BaseLogger): InsertedSmartCardAuth {
+  return new InsertedSmartCardAuth({
+    card:
+      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+      isIntegrationTest()
+        ? new MockFileCard()
+        : new JavaCard(),
+    config: { allowCardlessVoterSessions: true },
+    logger,
+  });
+}
 
 export function constructAuthMachineState(
   workspace: Workspace

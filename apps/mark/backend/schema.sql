@@ -57,3 +57,9 @@ create table ballots (
   ballot_mode text not null,
   encoded_ballot text not null -- Base64 encoded ballot
 );
+
+create table electrical_testing_status_messages (
+  component text primary key,
+  status_message text not null,
+  updated_at datetime default current_timestamp not null
+);
