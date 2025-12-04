@@ -8,6 +8,7 @@ import {
   MockApiClient,
   createMockApiClient,
   mockUserFeatures,
+  org,
   user,
 } from '../test/api_helpers';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
@@ -46,7 +47,7 @@ test('API errors show an error screen', async () => {
     mockUserFeatures(apiMock, {});
     apiMock.listOrganizations.expectCallWith().resolves([
       {
-        id: user.orgId,
+        id: org.id,
         name: 'Non-Vx Org',
       },
     ]);
@@ -58,7 +59,7 @@ test('API errors show an error screen', async () => {
 
     apiMock.createElection
       .expectCallWith({
-        orgId: user.orgId,
+        orgId: org.id,
         id: 'test-random-id-1' as ElectionId,
       })
       .throws(new Error('API error'));
@@ -90,7 +91,7 @@ test('API forbidden errors show a page not found error screen', async () => {
     mockUserFeatures(apiMock, {});
     apiMock.listOrganizations.expectCallWith().resolves([
       {
-        id: user.orgId,
+        id: org.id,
         name: 'Non-Vx Org',
       },
     ]);
@@ -101,7 +102,7 @@ test('API forbidden errors show a page not found error screen', async () => {
     await screen.findByRole('heading', { name: 'Elections' });
     apiMock.createElection
       .expectCallWith({
-        orgId: user.orgId,
+        orgId: org.id,
         id: 'test-random-id-1' as ElectionId,
       })
       .throws({ message: typedAs<AuthErrorCode>('auth:forbidden') });

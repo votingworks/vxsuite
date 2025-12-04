@@ -60,7 +60,6 @@ const vendoredTranslations: VendoredTranslations = {
 
 class MockAuth0Client implements Auth0ClientInterface {
   private loggedInUser: User | undefined;
-  private orgs: readonly Org[] = [];
 
   setLoggedInUser(user: User) {
     this.loggedInUser = user;
@@ -70,16 +69,8 @@ class MockAuth0Client implements Auth0ClientInterface {
     this.loggedInUser = undefined;
   }
 
-  setOrgs(orgs: readonly Org[]) {
-    this.orgs = orgs;
-  }
-
-  async allOrgs(): Promise<Org[]> {
-    return this.orgs.slice();
-  }
-
-  userFromRequest(_req: Request) {
-    return this.loggedInUser;
+  userIdFromRequest(_req: Request) {
+    return this.loggedInUser?.id;
   }
 }
 

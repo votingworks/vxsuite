@@ -7,6 +7,7 @@ import {
   createMockApiClient,
   MockApiClient,
   mockUserFeatures,
+  org,
   user,
   provideApi,
 } from '../test/api_helpers';
@@ -55,7 +56,7 @@ afterEach(() => {
 
 test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const { history } = renderButton(
     <CloneElectionButton election={electionListing(electionRecord)} />
@@ -67,7 +68,7 @@ test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
     .expectCallWith({
       electionId: election.id,
       destElectionId: newElectionId,
-      destOrgId: user.orgId,
+      destOrgId: org.id,
     })
     .resolves(newElectionId);
 
@@ -88,7 +89,7 @@ const NON_VX_ORG = {
 
 test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: true });
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const { history, queryClient } = renderButton(
     <CloneElectionButton election={electionListing(electionRecord)} />

@@ -23,6 +23,7 @@ import {
   MockApiClient,
   createMockApiClient,
   mockUserFeatures,
+  org,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -32,8 +33,8 @@ import { LiveReportsScreen } from './live_reports_screen';
 import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
 import { VXQR_REFETCH_INTERVAL_MS } from './api';
 
-const electionRecord = generalElectionRecord(user.orgId);
-const primaryElectionRecordGenerated = primaryElectionRecord(user.orgId);
+const electionRecord = generalElectionRecord(org.id);
+const primaryElectionRecordGenerated = primaryElectionRecord(org.id);
 const electionId = electionRecord.election.id;
 const { election } = electionRecord;
 const primaryElection = primaryElectionRecordGenerated.election;

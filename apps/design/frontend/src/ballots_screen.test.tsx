@@ -10,6 +10,7 @@ import {
   provideApi,
   createMockApiClient,
   MockApiClient,
+  org,
   user,
   mockUserFeatures,
 } from '../test/api_helpers';
@@ -71,7 +72,7 @@ function expectElectionApiCalls(electionRecord: ElectionRecord) {
 
 describe('Ballot styles tab', () => {
   test('General election with splits', async () => {
-    const electionRecord = generalElectionRecord(user.orgId);
+    const electionRecord = generalElectionRecord(org.id);
     const electionId = electionRecord.election.id;
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
@@ -106,7 +107,7 @@ describe('Ballot styles tab', () => {
   });
 
   test('Primary election with splits', async () => {
-    const electionRecord = primaryElectionRecord(user.orgId);
+    const electionRecord = primaryElectionRecord(org.id);
     const electionId = electionRecord.election.id;
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
@@ -148,7 +149,7 @@ describe('Ballot styles tab', () => {
   });
 
   test('Precincts/splits with no ballot styles show a message', async () => {
-    const record = generalElectionRecord(user.orgId);
+    const record = generalElectionRecord(org.id);
     const electionRecord: ElectionRecord = {
       ...record,
       election: {
@@ -184,7 +185,7 @@ describe('Ballot styles tab', () => {
   });
 
   test('Finalizing ballots', async () => {
-    const electionRecord = generalElectionRecord(user.orgId);
+    const electionRecord = generalElectionRecord(org.id);
     const electionId = electionRecord.election.id;
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt
@@ -224,7 +225,7 @@ describe('Ballot styles tab', () => {
 });
 
 describe('Ballot layout tab', () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
 
@@ -369,7 +370,7 @@ describe('Ballot layout tab', () => {
 });
 
 describe('audio tab', () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
 
