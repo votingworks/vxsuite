@@ -1,6 +1,6 @@
 use ab_glyph::PxScale;
 use image::RgbImage;
-use imageproc::drawing::{draw_filled_rect_mut, draw_text_mut};
+use imageproc::drawing::{draw_filled_rect_mut, draw_text_mut, text_size};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::{
@@ -44,27 +44,86 @@ impl BallotGridCandidateMarks {
     }
 
     pub fn debug_draw(&self, canvas: &mut RgbImage) {
-        for (mark, color) in self
-            .left
-            .iter()
-            .chain(self.right.iter())
-            .chain(self.top.iter())
-            .chain(self.bottom.iter())
-            .zip(rainbow())
-        {
+        let scale = PxScale::from(12.0);
+        let font = monospace_font();
+        let padding = 3;
+
+        // Helper function to format score as percentage, omitting decimal point if all zeros after it
+        let format_score = |score: f32| -> String {
+            let percentage = score * 100.0;
+            let formatted = format!("{percentage:.2}");
+            // Remove trailing zeros and decimal point if not needed
+            let trimmed = formatted.trim_end_matches('0').trim_end_matches('.');
+            format!("{trimmed}%")
+        };
+
+        // Left edge - text on the right (inside the grid)
+        for (mark, color) in self.left.iter().zip(rainbow()) {
             let rect = mark.rect();
             draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
 
-            let scale = PxScale::from(20.0);
-            let font = monospace_font();
+            let text = format_score(mark.scores().mark_score().0);
             draw_text_mut(
                 canvas,
                 color,
-                rect.right(),
+                rect.right() + padding,
                 rect.top(),
                 scale,
                 &font,
-                &format!("{:?}", mark.scores()),
+                &text,
+            );
+        }
+
+        // Right edge - text on the left (inside the grid)
+        for (mark, color) in self.right.iter().zip(rainbow()) {
+            let rect = mark.rect();
+            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
+
+            let text = format_score(mark.scores().mark_score().0);
+            let (text_width, _) = text_size(scale, &font, &text);
+            draw_text_mut(
+                canvas,
+                color,
+                rect.left() - text_width as i32 - padding,
+                rect.top(),
+                scale,
+                &font,
+                &text,
+            );
+        }
+
+        // Top edge - text below (inside the grid)
+        for (mark, color) in self.top.iter().zip(rainbow()) {
+            let rect = mark.rect();
+            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
+
+            let text = format_score(mark.scores().mark_score().0);
+            draw_text_mut(
+                canvas,
+                color,
+                rect.left(),
+                rect.bottom() + padding,
+                scale,
+                &font,
+                &text,
+            );
+        }
+
+        // Bottom edge - text above (inside the grid)
+        for (mark, color) in self.bottom.iter().zip(rainbow()) {
+            let rect = mark.rect();
+            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
+
+            let text = format_score(mark.scores().mark_score().0);
+            let (_, text_height) = text_size(scale, &font, &text);
+            draw_text_mut(
+                canvas,
+                color,
+                rect.left(),
+                rect.top() - text_height as i32 - padding,
+                scale,
+                &font,
+                &text,
             );
         }
     }
