@@ -16,7 +16,12 @@ import { assertDefined } from '@votingworks/basics';
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
 import { PrintAllButton } from '../components/print_all_button';
-import { getElectionRecord, getPrecinctSelection, printBallot } from '../api';
+import {
+  getDeviceStatuses,
+  getElectionRecord,
+  getPrecinctSelection,
+  printBallot,
+} from '../api';
 import { getLanguageOptions, getPartyOptions } from '../utils';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
@@ -112,6 +117,7 @@ export function PrintScreen({
 
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getConfiguredPrecinctQuery = getPrecinctSelection.useQuery();
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const configuredPrecinct = getConfiguredPrecinctQuery.data;
 
   const [isShowingPrintingModal, setIsShowingPrintingModal] = useState(false);
@@ -126,7 +132,8 @@ export function PrintScreen({
 
   if (
     !getElectionRecordQuery.isSuccess ||
-    !getConfiguredPrecinctQuery.isSuccess
+    !getConfiguredPrecinctQuery.isSuccess ||
+    !getDeviceStatusesQuery.isSuccess
   ) {
     return null;
   }
@@ -137,6 +144,7 @@ export function PrintScreen({
   const languages = getLanguageOptions(election);
   const parties = getPartyOptions(election);
   const { precincts } = election;
+  const { printer } = getDeviceStatusesQuery.data;
   const hasParties = election.type === 'primary';
 
   // If VxPrint is configured for a single precinct, hide the precinct
@@ -172,7 +180,11 @@ export function PrintScreen({
     <Container>
       <TitleBar
         title="Print"
-        actions={isElectionManagerAuth ? <PrintAllButton /> : undefined}
+        actions={
+          isElectionManagerAuth ? (
+            <PrintAllButton disabled={!printer.connected} />
+          ) : undefined
+        }
       />
       <Form>
         <Column>
@@ -304,7 +316,8 @@ export function PrintScreen({
             !selectedPrecinct ||
             !selectedLanguageCode ||
             (hasParties && !selectedPartyId) ||
-            (availableSplits.length > 0 && !selectedSplitId)
+            (availableSplits.length > 0 && !selectedSplitId) ||
+            !printer.connected
           }
         >
           Print Ballot

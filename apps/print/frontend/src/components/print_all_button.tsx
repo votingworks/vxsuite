@@ -150,12 +150,17 @@ function PrintAllModal({
   );
 }
 
-export function PrintAllButton(): JSX.Element {
+export function PrintAllButton({
+  disabled,
+}: {
+  disabled: boolean;
+}): JSX.Element {
   const [isShowingModal, setIsShowingModal] = useState(false);
 
   return (
     <React.Fragment>
       <StyledButton
+        disabled={disabled}
         color="neutral"
         fill="outlined"
         onPress={() => setIsShowingModal(true)}
