@@ -35,7 +35,11 @@ import { DateTime } from 'luxon';
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
-export type ElectricalTestingComponent = 'card' | 'usbDrive';
+export type ElectricalTestingComponent =
+  | 'card'
+  | 'usbDrive'
+  | 'printer'
+  | 'barcodeScanner';
 
 export interface ElectionRecord {
   electionDefinition: ElectionDefinition;

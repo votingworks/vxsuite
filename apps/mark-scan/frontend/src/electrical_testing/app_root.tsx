@@ -73,6 +73,7 @@ export function AppRoot(): JSX.Element {
         orientation="portrait"
       />
       <ElectricalTestingScreen
+        topOffset="100px"
         tasks={[
           {
             id: 'paperHandler',

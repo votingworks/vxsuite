@@ -102,4 +102,73 @@ export const getCpuMetrics = {
   },
 } as const;
 
+export const getPrinterStatus = {
+  queryKey(): QueryKey {
+    return ['getPrinterStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPrinterStatus(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
+export const getPrinterTaskStatus = {
+  queryKey(): QueryKey {
+    return ['getPrinterTaskStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPrinterTaskStatus(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
+export const setPrinterTaskRunning = {
+  queryKey(): QueryKey {
+    return ['setPrinterTaskRunning'];
+  },
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (running: boolean) => apiClient.setPrinterTaskRunning({ running }),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(getPrinterTaskStatus.queryKey());
+        },
+      }
+    );
+  },
+} as const;
+
+export const printTestPage = {
+  queryKey(): QueryKey {
+    return ['printTestPage'];
+  },
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(() => apiClient.printTestPage(), {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(getPrinterStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const getBarcodeStatus = {
+  queryKey(): QueryKey {
+    return ['getBarcodeStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getBarcodeStatus(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

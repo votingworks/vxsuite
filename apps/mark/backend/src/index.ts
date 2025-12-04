@@ -10,6 +10,7 @@ import {
   TaskController,
 } from '@votingworks/backend';
 import { detectUsbDrive } from '@votingworks/usb-drive';
+import { detectPrinter } from '@votingworks/printing';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -19,10 +20,14 @@ import { MARK_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { startElectricalTestingServer } from './electrical_testing/server';
 import { getDefaultAuth, getUserRole } from './util/auth';
+import { Client as BarcodeClient } from './barcodes';
 
 export type { Api } from './app';
 export type { PrintCalibration } from '@votingworks/hmpb';
-export type { ElectricalTestingApi } from './electrical_testing/app';
+export type {
+  ElectricalTestingApi,
+  BarcodeStatus,
+} from './electrical_testing/app';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();
@@ -57,13 +62,18 @@ function main(): number {
     const auth = getDefaultAuth(baseLogger);
     const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
     const usbDrive = detectUsbDrive(logger);
+    const printer = detectPrinter(logger);
+    const barcodeClient = new BarcodeClient(baseLogger);
     startElectricalTestingServer({
       auth,
       cardTask: TaskController.started(),
       usbDriveTask: TaskController.started(),
+      printerTask: TaskController.started(),
       usbDrive,
       logger,
       workspace,
+      printer,
+      barcodeClient,
     });
     return 0;
   }

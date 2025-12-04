@@ -144,18 +144,24 @@ export function ElectricalTestingScreen<Id extends React.Key>({
   modals,
   powerDown,
   usbDriveStatus,
+  topOffset,
 }: {
   tasks: ReadonlyArray<Task<Id>>;
   perRow: number;
   modals?: React.ReactNode;
   powerDown: () => void;
   usbDriveStatus?: UsbDriveStatus;
+  /** Optional top offset (e.g., '80px') to account for a fixed top bar */
+  topOffset?: string;
 }): JSX.Element {
   const [isSaveLogsModalOpen, setIsSaveLogsModalOpen] = React.useState(false);
 
   return (
     <Screen>
-      <Main centerChild>
+      <Main
+        centerChild
+        style={topOffset ? { paddingTop: topOffset } : undefined}
+      >
         <Column style={{ height: '100%' }}>
           <Column
             style={{
