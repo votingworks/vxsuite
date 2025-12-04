@@ -64,7 +64,7 @@ export async function printBallotsPrintedReport({
   try {
     await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
-      message: `User printed a Ballots Printed Report.`,
+      message: 'User printed a Ballots Printed Report.',
       disposition: 'success',
     });
   } catch (error) {
