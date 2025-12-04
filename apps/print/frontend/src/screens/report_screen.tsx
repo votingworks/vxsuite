@@ -10,16 +10,24 @@ import {
   TD,
   Callout,
   P,
+  Modal,
+  Loading,
 } from '@votingworks/ui';
 import { hasSplits } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
-import { getElectionRecord, getBallotPrintCounts } from '../api';
+import {
+  getElectionRecord,
+  getBallotPrintCounts,
+  printBallotsPrintedReport,
+} from '../api';
 import { Row } from '../layout';
 import { TitleBar } from '../components/title_bar';
-import { sortBallotPrintCounts } from '../utils';
 import { Filter } from '../components/filter';
+import { ExportReportButton } from '../components/export_report_button';
+
+const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
 const Container = styled.div`
   height: calc(100vh - 2.2rem);
@@ -74,6 +82,7 @@ const TableRow = styled.tr`
 export function ReportScreen(): JSX.Element | null {
   const getBallotPrintCountsQuery = getBallotPrintCounts.useQuery();
   const getElectionRecordQuery = getElectionRecord.useQuery();
+  const printReportMutation = printBallotsPrintedReport.useMutation();
   const [filterText, setFilterText] = useState('');
   const electionRecord = getElectionRecordQuery.data;
   const election = electionRecord?.electionDefinition.election;
@@ -81,6 +90,16 @@ export function ReportScreen(): JSX.Element | null {
     () => election?.precincts.some((precinct) => hasSplits(precinct)),
     [election]
   );
+
+  const [isShowingPrintingModal, setIsShowingPrintingModal] = useState(false);
+
+  function handlePrint() {
+    setIsShowingPrintingModal(true);
+    setTimeout(() => {
+      setIsShowingPrintingModal(false);
+    }, DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
+    printReportMutation.mutate();
+  }
 
   if (
     !getBallotPrintCountsQuery.isSuccess ||
@@ -99,12 +118,8 @@ export function ReportScreen(): JSX.Element | null {
         title="Report"
         actions={
           <React.Fragment>
-            <Button onPress={() => console.log('Saving report')}>
-              Save PDF Report
-            </Button>
-            <Button onPress={() => console.log('Printing report')}>
-              Print Report
-            </Button>
+            <Button onPress={handlePrint}>Print Report</Button>
+            <ExportReportButton />
           </React.Fragment>
         }
       />
@@ -155,7 +170,9 @@ export function ReportScreen(): JSX.Element | null {
             <thead>
               <TableRow>
                 <TH style={{ width: hasParties ? '25%' : '35%' }}>
-                  {electionHasSplits ? 'Precinct/Split Name' : 'Precinct Name'}
+                  {electionHasSplits
+                    ? 'Precinct / Split Name'
+                    : 'Precinct Name'}
                 </TH>
                 {hasParties && <TH style={{ width: '19%' }}>Party</TH>}
                 <TH style={{ width: hasParties ? '20%' : '25%' }}>Language</TH>
@@ -177,7 +194,6 @@ export function ReportScreen(): JSX.Element | null {
                       .toLowerCase()
                       .includes(filterText.toLowerCase())
                 )
-                .sort(sortBallotPrintCounts)
                 .map((counts) => (
                   <TableRow
                     key={`${counts.ballotStyleId}-${counts.precinctOrSplitName}`}
@@ -203,6 +219,9 @@ export function ReportScreen(): JSX.Element | null {
           </Table>
         </ScrollableTableContainer>
       </Content>
+      {isShowingPrintingModal && (
+        <Modal centerContent content={<Loading>Printing</Loading>} />
+      )}
     </Container>
   );
 }

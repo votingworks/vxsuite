@@ -30,6 +30,7 @@ export default defineConfig({
         'src/voter_contest_summary.tsx',
         'src/reports/tally_report.tsx',
         'src/double_feed_calibration_images.tsx',
+        'src/reports/ballots_printed_report.tsx',
       ],
     },
   },

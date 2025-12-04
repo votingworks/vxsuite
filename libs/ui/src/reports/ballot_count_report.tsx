@@ -35,7 +35,7 @@ import {
   ReportTitle,
   TestModeBanner,
 } from './report_header';
-import { AdminReportMetadata } from './admin_report_metadata';
+import { ReportGeneratedMetadata } from './report_generated_metadata';
 
 export const ATTRIBUTE_COLUMNS = [
   'precinct',
@@ -66,7 +66,7 @@ interface SheetCountColumn {
 // filler columns provide flex spacing in the grid
 export const FILLER_COLUMNS = ['center', 'right'] as const;
 type FillerColumnId = (typeof FILLER_COLUMNS)[number];
-interface FillerColumn {
+export interface FillerColumn {
   type: 'filler';
   id: FillerColumnId;
 }
@@ -637,7 +637,7 @@ export function BallotCountReport({
             />
           )}
           <ReportElectionInfo election={election} />
-          <AdminReportMetadata
+          <ReportGeneratedMetadata
             generatedAtTime={generatedAtTime}
             electionDefinition={electionDefinition}
             electionPackageHash={electionPackageHash}
