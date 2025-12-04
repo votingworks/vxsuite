@@ -1,7 +1,5 @@
-import { Button, ElectricalTestingScreen, Icons } from '@votingworks/ui';
-import { DateTime } from 'luxon';
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { ElectricalTestingScreen, Icons, InputControls } from '@votingworks/ui';
+import { useState } from 'react';
 import useInterval from 'use-interval';
 import {
   getElectricalTestingStatuses,
@@ -13,34 +11,6 @@ import {
 import { useSound } from '../hooks/use_sound';
 
 const SOUND_INTERVAL_SECONDS = 5;
-
-function CounterButton() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <Button
-      onPress={() => setCount((prev) => prev + 1)}
-      style={{ transform: 'scale(0.5)' }}
-    >
-      Tap Count: {count}
-    </Button>
-  );
-}
-
-const Column = styled.div<{ gap?: string }>`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: ${({ gap = 0 }) => gap};
-`;
-
-const Small = styled.span`
-  font-size: 0.45rem;
-`;
-
-function formatTimestamp(timestamp: DateTime): string {
-  return timestamp.toLocal().toFormat('h:mm:ss a MM/dd/yyyy');
-}
 
 export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusesQuery =
@@ -54,24 +24,6 @@ export function AppRoot(): JSX.Element {
 
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const playSound = useSound('success-5s');
-  const [lastKeyPress, setLastKeyPress] = useState<{
-    key: string;
-    pressedAt: DateTime;
-  }>();
-
-  useEffect(() => {
-    function handleKeyboardEvent(e: KeyboardEvent) {
-      setLastKeyPress({
-        key: e.key === ' ' ? 'Space' : e.key,
-        pressedAt: DateTime.now(),
-      });
-    }
-
-    document.addEventListener('keydown', handleKeyboardEvent);
-    return () => {
-      document.removeEventListener('keydown', handleKeyboardEvent);
-    };
-  }, []);
 
   function togglePaperHandlerTaskRunning() {
     setPaperHandlerTaskRunningMutation.mutate(
@@ -149,23 +101,7 @@ export function AppRoot(): JSX.Element {
           id: 'inputs',
           icon: <Icons.Mouse />,
           title: 'Inputs',
-          body: (
-            <Column>
-              <CounterButton />
-
-              <Small>
-                Last key press:{' '}
-                {lastKeyPress ? (
-                  <React.Fragment>
-                    <code>{lastKeyPress.key}</code> at{' '}
-                    {formatTimestamp(lastKeyPress.pressedAt)}
-                  </React.Fragment>
-                ) : (
-                  'n/a'
-                )}
-              </Small>
-            </Column>
-          ),
+          body: <InputControls />,
         },
       ]}
       perRow={1}
