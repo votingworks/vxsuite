@@ -50,18 +50,27 @@ export async function printBallotsPrintedReport({
   store: Store;
 }): Promise<void> {
   const report = buildBallotsPrintedReport({ store });
+  const renderResult = await renderToPdf({ document: report });
+  if (renderResult.isErr()) {
+    const error = renderResult.err();
+    await logger.logAsCurrentRole(LogEventId.FileSaved, {
+      disposition: 'failure',
+      message: `Failed to render Ballots Printed Report PDF file: ${error}`,
+    });
+    return;
+  }
 
+  const data = renderResult.ok();
   try {
-    const data = (await renderToPdf({ document: report })).unsafeUnwrap();
     await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
-      message: `User printed a ballots printed report.`,
+      message: `User printed a Ballots Printed Report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
-      message: `Error in attempting to print ballots printed report: ${error.message}`,
+      message: `Error in attempting to print Ballots Printed Report: ${error.message}`,
       disposition: 'failure',
     });
   }
@@ -77,8 +86,17 @@ export async function exportBallotsPrintedReportPdf({
   store: Store;
 }): Promise<void> {
   const report = buildBallotsPrintedReport({ store });
-  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const renderResult = await renderToPdf({ document: report });
+  if (renderResult.isErr()) {
+    const error = renderResult.err();
+    await logger.logAsCurrentRole(LogEventId.FileSaved, {
+      disposition: 'failure',
+      message: `Failed to render Ballots Printed Report PDF file: ${error}`,
+    });
+    return;
+  }
 
+  const data = renderResult.ok();
   const electionRecord = assertDefined(store.getElectionRecord());
   const { electionDefinition } = electionRecord;
   const reportsDirectoryPath = generateReportsDirectoryPath(electionDefinition);
@@ -100,11 +118,7 @@ export async function exportBallotsPrintedReportPdf({
     disposition: exportFileResult.isOk() ? 'success' : 'failure',
     message: `${
       exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-    } ballots printed report PDF file to ${reportPath} on the USB drive.`,
+    } Ballots Printed Report PDF file to ${reportPath} on the USB drive.`,
     path: reportPath,
   });
-
-  if (exportFileResult.isErr()) {
-    throw exportFileResult.err();
-  }
 }

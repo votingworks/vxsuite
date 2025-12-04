@@ -18,9 +18,10 @@ import {
   safeParseJson,
   PrecinctSelectionSchema,
   BallotType,
+  BallotPrintCount,
 } from '@votingworks/types';
 import { join } from 'node:path';
-import { BallotPrintCount, BallotPrintEntry } from './types';
+import { BallotPrintEntry } from './types';
 import { addBallotsPropsToPrintCountRow } from './util/ballot_styles';
 import { sortBallotPrintCounts } from './util/sort';
 

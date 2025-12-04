@@ -2,8 +2,8 @@ import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import {
   ElectionDefinition,
-  LanguageCode,
   hasSplits,
+  BallotPrintCount,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import { throwIllegalValue } from '@votingworks/basics';
@@ -14,23 +14,11 @@ import { ReportHeader, ReportTitle, ReportElectionInfo } from './report_header';
 import { ReportGeneratedMetadata } from './report_generated_metadata';
 import { FillerColumn } from './ballot_count_report';
 
-interface BallotsPrintedRow {
-  ballotStyleId: string;
-  precinctOrSplitName: string;
-  partyName?: string;
-  languageCode: LanguageCode;
-  absenteeCount: number;
-  precinctCount: number;
-  totalCount: number;
-}
-
-const ATTRIBUTE_COLUMNS = [
-  'precinctName',
-  'precinctSplitName',
-  'party',
-  'language',
-] as const;
-type AttributeColumnId = (typeof ATTRIBUTE_COLUMNS)[number];
+type AttributeColumnId =
+  | 'precinctName'
+  | 'precinctSplitName'
+  | 'party'
+  | 'language';
 interface AttributeColumn {
   type: 'attribute';
   id: AttributeColumnId;
@@ -168,10 +156,7 @@ function getColumnKey(column: Column): string {
   return `${column.type}-${column.id}`;
 }
 
-function getFormattedCount(
-  row: BallotsPrintedRow,
-  column: CountColumn
-): string {
+function getFormattedCount(row: BallotPrintCount, column: CountColumn): string {
   const number = (() => {
     switch (column.id) {
       case 'absentee':
@@ -237,7 +222,7 @@ function getCellContent({
   row,
 }: {
   column: Column;
-  row: BallotsPrintedRow;
+  row: BallotPrintCount;
 }): string {
   switch (column.type) {
     case 'attribute':
@@ -270,7 +255,7 @@ function BallotsPrintedTable({
   printCounts,
 }: {
   electionDefinition: ElectionDefinition;
-  printCounts: BallotsPrintedRow[];
+  printCounts: BallotPrintCount[];
 }): JSX.Element {
   const { election } = electionDefinition;
   const hasPrecinctSplits = election.precincts.some((p) => hasSplits(p));
@@ -367,7 +352,7 @@ function BallotsPrintedTable({
 export interface BallotsPrintedReportProps {
   electionDefinition: ElectionDefinition;
   electionPackageHash?: string;
-  printCounts: BallotsPrintedRow[];
+  printCounts: BallotPrintCount[];
   generatedAtTime?: Date;
 }
 

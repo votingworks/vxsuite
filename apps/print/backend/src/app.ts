@@ -13,6 +13,7 @@ import {
   LanguageCode,
   Id,
   BallotType,
+  BallotPrintCount,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
@@ -32,7 +33,7 @@ import {
   printBallotsPrintedReport,
   exportBallotsPrintedReportPdf,
 } from './reports/ballots_printed_report';
-import { BallotPrintCount, BallotPrintEntry, DeviceStatuses } from './types';
+import { BallotPrintEntry, DeviceStatuses } from './types';
 import { getMachineConfig } from './machine_config';
 import { findBallotStyleId } from './util/ballot_styles';
 

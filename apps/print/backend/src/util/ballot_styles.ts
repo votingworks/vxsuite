@@ -4,6 +4,7 @@ import type {
   Id,
   PrecinctId,
   LanguageCode,
+  BallotPrintCount,
 } from '@votingworks/types';
 
 import {
@@ -17,7 +18,6 @@ import {
   getBallotStyleGroupsForPrecinctOrSplit,
   getPrecinctsAndSplitsForBallotStyle,
 } from '@votingworks/utils';
-import { BallotPrintCount } from '../types';
 import type { BallotPrintCountRow } from '../store';
 
 interface FindBallotStyleArgs {

@@ -1,5 +1,4 @@
-import { LanguageCode } from '@votingworks/types';
-import { BallotPrintCount } from '../types';
+import { LanguageCode, BallotPrintCount } from '@votingworks/types';
 
 function sortLanguages(
   languageA: LanguageCode,
