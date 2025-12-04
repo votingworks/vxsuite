@@ -16,7 +16,7 @@ import {
   getElectionRecord,
   printAllBallotStyles,
 } from '../api';
-import { getAvailableLanguages } from '../utils';
+import { getLanguageOptions } from '../utils';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
@@ -66,7 +66,7 @@ function PrintAllModal({
   const { election } = assertDefined(
     getElectionRecordQuery.data
   ).electionDefinition;
-  const languages = getAvailableLanguages(election);
+  const languages = getLanguageOptions(election);
   const numberOfBallotStyles = getDistinctBallotStylesCountQuery.data;
 
   function handlePrint() {
