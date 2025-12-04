@@ -110,6 +110,7 @@ import {
   getBallotPdfFileName,
   regenerateElectionIds,
   splitCandidateName,
+  userBelongsToOrg,
 } from './utils';
 import {
   ElectionFeaturesConfig,
@@ -190,7 +191,7 @@ class AuthError extends grout.UserError {
 
 function requireOrgAccess(user: User, orgId: string) {
   const userFeatures = getUserFeaturesConfig(user);
-  if (!(user.orgId === orgId || userFeatures.ACCESS_ALL_ORGS)) {
+  if (!(userBelongsToOrg(user, orgId) || userFeatures.ACCESS_ALL_ORGS)) {
     throw new AuthError('auth:forbidden');
   }
 }
@@ -207,11 +208,15 @@ export function buildApi(ctx: AppContext) {
 
   const middlewares: grout.Middlewares<ApiContext> = {
     before: [
-      function loadUser({ request, context }) {
-        const user = auth0.userFromRequest(request);
-        if (!user) {
+      async function loadUser({ request, context }) {
+        const userId = auth0.userIdFromRequest(request);
+        if (!userId) {
           throw new AuthError('auth:unauthorized');
         }
+        const user = assertDefined(
+          await store.getUser(userId),
+          `Auth0 user ${userId} not found in database`
+        );
         return { ...context, user };
       },
 
@@ -272,8 +277,9 @@ export function buildApi(ctx: AppContext) {
           {
             methodName,
             input: JSON.stringify(input),
-            userAuth0Id: context.user?.auth0Id,
-            userOrgId: context.user?.orgId,
+            userId: context.user?.id,
+            userOrgIds:
+              context.user?.organizations.map((org) => org.id).join(',') ?? '',
             ...outcome,
           },
           debug
@@ -283,12 +289,14 @@ export function buildApi(ctx: AppContext) {
   };
 
   const methods = {
-    listOrganizations(_input: undefined, context: ApiContext): Promise<Org[]> {
+    async listOrganizations(
+      _input: undefined,
+      context: ApiContext
+    ): Promise<Org[]> {
       const userFeaturesConfig = getUserFeaturesConfig(context.user);
-      if (!userFeaturesConfig.ACCESS_ALL_ORGS) {
-        throw new AuthError('auth:forbidden');
-      }
-      return store.listOrganizations();
+      return userFeaturesConfig.ACCESS_ALL_ORGS
+        ? await store.listOrganizations()
+        : context.user.organizations;
     },
 
     async listElections(
@@ -298,7 +306,9 @@ export function buildApi(ctx: AppContext) {
       const { user } = context;
       const userFeatures = getUserFeaturesConfig(user);
       const elections = await store.listElections({
-        orgId: userFeatures.ACCESS_ALL_ORGS ? undefined : user.orgId,
+        orgIds: userFeatures.ACCESS_ALL_ORGS
+          ? undefined
+          : user.organizations.map((org) => org.id),
       });
       const orgs = await store.listOrganizations();
       return elections.map((election) => ({
@@ -1293,10 +1303,11 @@ export function buildApp(context: AppContext): Application {
 
   app.get('/files/:orgId/:fileName', async (req, res, next) => {
     try {
-      const user = context.auth0.userFromRequest(req);
-      if (!user) {
+      const userId = context.auth0.userIdFromRequest(req);
+      if (!userId) {
         throw new AuthError('auth:unauthorized');
       }
+      const user = assertDefined(await context.workspace.store.getUser(userId));
       const { orgId, fileName } = req.params;
       requireOrgAccess(user, orgId);
 

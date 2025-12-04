@@ -16,7 +16,7 @@ const org: Org = {
 
 beforeAll(async () => {
   await testStore.init();
-  await store.syncOrganizationsCache([org]);
+  await store.createOrganization(org);
 });
 
 afterAll(async () => {

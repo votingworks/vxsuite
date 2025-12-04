@@ -2,7 +2,6 @@ import { assert } from '@votingworks/basics';
 import { P, Button, Modal, ButtonVariant, Icons, Font } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
 import type { ElectionListing } from '@votingworks/design-backend';
 import * as api from './api';
 import { OrgSelect } from './org_select';
@@ -13,11 +12,6 @@ export interface CloneElectionButtonProps {
   variant?: ButtonVariant;
 }
 
-const OrgModal = styled(Modal)`
-  /* Allow modal to grow with user zoom setting and cap near screen height. */
-  min-height: min(40rem, 98%);
-`;
-
 export function CloneElectionButton(
   props: CloneElectionButtonProps
 ): React.ReactNode {
@@ -27,7 +21,9 @@ export function CloneElectionButton(
   const getUserFeaturesQuery = api.getUserFeatures.useQuery();
   const user = api.getUser.useQuery().data;
 
-  const [orgId, setOrgId] = React.useState<string | undefined>(user?.orgId);
+  const [orgId, setOrgId] = React.useState<string | undefined>(
+    user?.organizations[0]?.id
+  );
   const [modalActive, setModalActive] = React.useState(false);
 
   const cloneMutation = api.cloneElection.useMutation();
@@ -59,7 +55,11 @@ export function CloneElectionButton(
         </Tooltip>
         <Button
           variant={variant}
-          onPress={features.ACCESS_ALL_ORGS ? setModalActive : cloneElection}
+          onPress={
+            features.ACCESS_ALL_ORGS || (user?.organizations || []).length > 1
+              ? setModalActive
+              : cloneElection
+          }
           aria-label={`Make a copy of ${election.title}`}
           value
           disabled={cloneMutation.isLoading || modalActive}
@@ -68,7 +68,7 @@ export function CloneElectionButton(
         </Button>
       </TooltipContainer>
       {modalActive && (
-        <OrgModal
+        <Modal
           title="Duplicate Election"
           actions={
             <React.Fragment>

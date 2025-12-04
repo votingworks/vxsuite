@@ -13,6 +13,7 @@ import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import type { ElectionUpload } from '@votingworks/design-backend';
 import { getUser, getUserFeatures, loadElection } from './api';
 import { Column, InputGroup, Row } from './layout';
+import { OrgSelect } from './org_select';
 
 interface VxUploadFormState {
   format: 'vxf';
@@ -25,7 +26,9 @@ interface MsSemsUploadFormState {
   candidateFile?: File;
 }
 
-type UploadFormState = VxUploadFormState | MsSemsUploadFormState;
+type UploadFormState = (VxUploadFormState | MsSemsUploadFormState) & {
+  orgId: string;
+};
 
 function isFormStateComplete(formState: UploadFormState): boolean {
   switch (formState.format) {
@@ -125,7 +128,7 @@ export function LoadElectionButton({
   async function submitUpload(formState: UploadFormState) {
     const upload = await loadFileContents(formState);
     loadElectionMutation.mutate(
-      { upload, orgId: user.orgId },
+      { upload, orgId: formState.orgId },
       {
         onSuccess: (result) => {
           setModalFormState(undefined);
@@ -140,10 +143,15 @@ export function LoadElectionButton({
 
   return (
     <React.Fragment>
-      {features.MS_SEMS_CONVERSION ? (
+      {features.MS_SEMS_CONVERSION || user.organizations.length > 1 ? (
         <Button
           disabled={disabled}
-          onPress={() => setModalFormState({ format: 'vxf' })}
+          onPress={() =>
+            setModalFormState({
+              format: 'vxf',
+              orgId: user.organizations[0].id,
+            })
+          }
         >
           Load Election
         </Button>
@@ -152,7 +160,11 @@ export function LoadElectionButton({
           accept=".json"
           onChange={async (event) => {
             const file = getFile(event);
-            await submitUpload({ format: 'vxf', electionFile: file });
+            await submitUpload({
+              format: 'vxf',
+              electionFile: file,
+              orgId: user.organizations[0].id,
+            });
           }}
           disabled={loadElectionMutation.isLoading}
         >
@@ -164,6 +176,20 @@ export function LoadElectionButton({
           title="Load Election"
           content={
             <Column style={{ gap: '1rem' }}>
+              {(user.organizations.length > 1 || features.ACCESS_ALL_ORGS) && (
+                <InputGroup label="Organization">
+                  <OrgSelect
+                    style={{ width: '100%' }}
+                    selectedOrgId={modalFormState.orgId}
+                    onChange={(orgId) =>
+                      setModalFormState({
+                        ...modalFormState,
+                        orgId: assertDefined(orgId),
+                      })
+                    }
+                  />
+                </InputGroup>
+              )}
               <InputGroup label="Format">
                 <SearchSelect<ElectionUpload['format']>
                   style={{ width: '100%' }}
@@ -173,7 +199,10 @@ export function LoadElectionButton({
                   ]}
                   value={modalFormState.format}
                   onChange={(value) =>
-                    setModalFormState({ format: assertDefined(value) })
+                    setModalFormState({
+                      ...modalFormState,
+                      format: assertDefined(value),
+                    })
                   }
                   menuPortalTarget={document.body}
                 />
@@ -185,6 +214,7 @@ export function LoadElectionButton({
                   value={modalFormState.electionFile}
                   onChange={(file) =>
                     setModalFormState({
+                      ...modalFormState,
                       format: 'vxf',
                       electionFile: file,
                     })

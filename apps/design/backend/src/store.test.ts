@@ -39,10 +39,11 @@ const nonVxOrg: Org = {
 };
 const nonVxUser: User = {
   name: 'non.vx.user@example.com',
-  auth0Id: 'auth0|non-vx-user-id',
-  orgId: nonVxOrg.id,
+  id: 'auth0|non-vx-user-id',
+  organizations: [nonVxOrg],
 };
 const testOrgs: Org[] = [vxOrg, nonVxOrg];
+const testUsers: User[] = [nonVxUser];
 
 // Spy on the ballot rendering function so we can check that it's called with the
 // right arguments.
@@ -375,7 +376,9 @@ describe('tts_strings', () => {
   };
 
   async function setUpOrgs(store: Store, ids: string[] = [key.orgId]) {
-    await store.syncOrganizationsCache(ids.map((id) => ({ id, name: id })));
+    for (const id of ids) {
+      await store.createOrganization({ id, name: id });
+    }
   }
 
   test('ttsStringsGet returns null if absent', async () => {
@@ -463,14 +466,16 @@ test('getExportedElectionDefinition returns the exported election including reor
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
-  const { apiClient, auth0, workspace, fileStorageClient } =
-    await setupApp(testOrgs);
+  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+    orgs: testOrgs,
+    users: testUsers,
+  });
   auth0.setLoggedInUser(nonVxUser);
 
   const electionId = (
     await apiClient.loadElection({
       newId: 'test-nh-election-id' as ElectionId,
-      orgId: nonVxUser.orgId,
+      orgId: nonVxOrg.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(baseElectionDefinition.election),
@@ -588,14 +593,16 @@ test('getExportedElection returns election-out-of-date error when election data 
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
-  const { apiClient, auth0, workspace, fileStorageClient } =
-    await setupApp(testOrgs);
+  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+    orgs: testOrgs,
+    users: testUsers,
+  });
   auth0.setLoggedInUser(nonVxUser);
 
   const electionId = (
     await apiClient.loadElection({
       newId: 'test-election-parse-error' as ElectionId,
-      orgId: nonVxUser.orgId,
+      orgId: nonVxOrg.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(baseElectionDefinition.election),

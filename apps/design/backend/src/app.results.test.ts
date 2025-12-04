@@ -45,8 +45,8 @@ const nonVxOrg: Org = {
 };
 const nonVxUser: User = {
   name: 'non.vx.user@example.com',
-  auth0Id: 'auth0|non-vx-user-id',
-  orgId: nonVxOrg.id,
+  id: 'auth0|non-vx-user-id',
+  organizations: [nonVxOrg],
 };
 afterAll(cleanup);
 
@@ -97,7 +97,7 @@ async function setUpElectionInSystem(
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxUser.orgId,
+      orgId: nonVxOrg.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(
@@ -131,7 +131,7 @@ async function setUpElectionInSystem(
     workspace,
   });
   const contents = assertDefined(
-    fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
+    fileStorageClient.getRawFile(join(nonVxOrg.id, electionPackageFilePath))
   );
   const { electionPackageContents } =
     await unzipElectionPackageAndBallots(contents);
@@ -150,7 +150,7 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
     workspace,
     fileStorageClient,
     auth0,
-  } = await setupApp([nonVxOrg]);
+  } = await setupApp({ orgs: [nonVxOrg], users: [nonVxUser] });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
@@ -188,7 +188,7 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
 });
 
 test('processQRCodeReport returns "invalid-signature" when authenticating the signature and certificate fails', async () => {
-  const { unauthenticatedApiClient } = await setupApp([]);
+  const { unauthenticatedApiClient } = await setupApp({ orgs: [], users: [] });
   // You can call processQrCodeReport without authentication
   const mockCompressedTally = [
     [0, 4, 5, 6, 1],
@@ -217,7 +217,7 @@ test('processQRCodeReport returns "invalid-signature" when authenticating the si
 });
 
 test('processQRCodeReport returns no election found where there is no election for the given ballot hash', async () => {
-  const { unauthenticatedApiClient } = await setupApp([]);
+  const { unauthenticatedApiClient } = await setupApp({ orgs: [], users: [] });
   // You can call processQrCodeReport without authentication
   const mockCompressedTally = [
     [0, 4, 5, 6, 1],
@@ -250,7 +250,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     workspace,
     fileStorageClient,
     auth0,
-  } = await setupApp([nonVxOrg]);
+  } = await setupApp({ orgs: [nonVxOrg], users: [nonVxUser] });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
@@ -545,7 +545,7 @@ test('quick results reporting works for polls open reporting', async () => {
     workspace,
     fileStorageClient,
     auth0,
-  } = await setupApp([nonVxOrg]);
+  } = await setupApp({ orgs: [nonVxOrg], users: [nonVxUser] });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
@@ -807,7 +807,7 @@ test('quick results reporting works as expected end to end with single precinct 
     workspace,
     fileStorageClient,
     auth0,
-  } = await setupApp([nonVxOrg]);
+  } = await setupApp({ orgs: [nonVxOrg], users: [nonVxUser] });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
@@ -1197,7 +1197,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
     workspace,
     fileStorageClient,
     auth0,
-  } = await setupApp([nonVxOrg]);
+  } = await setupApp({ orgs: [nonVxOrg], users: [nonVxUser] });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
@@ -1343,7 +1343,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     workspace,
     fileStorageClient,
     auth0,
-  } = await setupApp([nonVxOrg]);
+  } = await setupApp({ orgs: [nonVxOrg], users: [nonVxUser] });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
@@ -1506,7 +1506,7 @@ test('quick results reporting clears previous partial reports on numPages change
     workspace,
     fileStorageClient,
     auth0,
-  } = await setupApp([nonVxOrg]);
+  } = await setupApp({ orgs: [nonVxOrg], users: [nonVxUser] });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
@@ -1708,7 +1708,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     workspace,
     fileStorageClient,
     auth0,
-  } = await setupApp([nonVxOrg]);
+  } = await setupApp({ orgs: [nonVxOrg], users: [nonVxUser] });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
@@ -1865,14 +1865,14 @@ test('LiveReports uses modified exported election, not original vxdesign electio
     workspace,
     fileStorageClient,
     auth0,
-  } = await setupApp([nonVxOrg]);
+  } = await setupApp({ orgs: [nonVxOrg], users: [nonVxUser] });
   auth0.setLoggedInUser(nonVxUser);
 
   // Load the base election
   const electionId = (
     await apiClient.loadElection({
       newId: 'reordered-election-id' as ElectionId,
-      orgId: nonVxUser.orgId,
+      orgId: nonVxOrg.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(
@@ -1941,7 +1941,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   });
 
   const contents = assertDefined(
-    fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
+    fileStorageClient.getRawFile(join(nonVxOrg.id, electionPackageFilePath))
   );
   const { electionPackageContents } =
     await unzipElectionPackageAndBallots(contents);

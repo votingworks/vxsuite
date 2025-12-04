@@ -14,6 +14,7 @@ import {
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
+import { User } from './types';
 
 export function getBallotPdfFileName(
   precinctName: string,
@@ -148,4 +149,8 @@ export function splitCandidateName(
     lastName: middleParts.pop() ?? '',
     middleName: middleParts.join(' '),
   };
+}
+
+export function userBelongsToOrg(user: User, orgId: string): boolean {
+  return user.organizations.some((org) => org.id === orgId);
 }

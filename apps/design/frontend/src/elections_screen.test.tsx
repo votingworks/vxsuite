@@ -5,10 +5,13 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import { ElectionListing } from '@votingworks/design-backend';
+import { format } from '@votingworks/utils';
 import {
   MockApiClient,
   createMockApiClient,
   mockUserFeatures,
+  org,
+  org2,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -46,7 +49,7 @@ vi.mock(import('./clone_election_button.js'), async (importActual) => ({
 }));
 
 const VX_ORG = {
-  id: user.orgId,
+  id: org.id,
   name: 'VotingWorks',
 } as const;
 
@@ -93,10 +96,10 @@ test('with no elections, creating a new election', async () => {
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
-  const electionRecord = blankElectionRecord(user.orgId);
+  const electionRecord = blankElectionRecord(org.id);
   apiMock.createElection
     .expectCallWith({
-      orgId: user.orgId,
+      orgId: org.id,
       id: ELECTION_ID,
     })
     .resolves(ok(ELECTION_ID));
@@ -115,7 +118,7 @@ test('with no elections, creating a new election', async () => {
 });
 
 test('with no elections, loading an election', async () => {
-  const electionRecord = primaryElectionRecord(user.orgId);
+  const electionRecord = primaryElectionRecord(org.id);
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections.expectCallWith().resolves([]);
   const { history } = renderScreen();
@@ -124,7 +127,7 @@ test('with no elections, loading an election', async () => {
   const electionData = JSON.stringify(electionRecord.election);
   apiMock.loadElection
     .expectCallWith({
-      orgId: user.orgId,
+      orgId: org.id,
       newId: ELECTION_ID,
       upload: {
         format: 'vxf',
@@ -151,8 +154,8 @@ test('with no elections, loading an election', async () => {
 
 test('with elections', async () => {
   const [general, primary] = [
-    generalElectionRecord(user.orgId),
-    primaryElectionRecord(user.orgId),
+    generalElectionRecord(org.id),
+    primaryElectionRecord(org.id),
   ];
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections
@@ -237,9 +240,9 @@ test('with elections', async () => {
 
 test('sorting elections by status, org, and jurisdiction', async () => {
   // Create elections with different statuses and orgs
-  const generalElection = generalElectionRecord(user.orgId);
-  const primaryElection = primaryElectionRecord(user.orgId);
-  const blankElection = blankElectionRecord(user.orgId);
+  const generalElection = generalElectionRecord(org.id);
+  const primaryElection = primaryElectionRecord(org.id);
+  const blankElection = blankElectionRecord(org.id);
 
   const elections = [
     // Election with inProgress status
@@ -403,8 +406,8 @@ test('sorting elections by status, org, and jurisdiction', async () => {
 
 test('clone buttons are rendered', async () => {
   const [general, primary] = [
-    generalElectionRecord(user.orgId),
-    primaryElectionRecord(user.orgId),
+    generalElectionRecord(org.id),
+    primaryElectionRecord(org.id),
   ];
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections
@@ -428,8 +431,8 @@ test('single org elections list', async () => {
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
 
   const [general, primary] = [
-    generalElectionRecord(user.orgId),
-    primaryElectionRecord(user.orgId),
+    generalElectionRecord(org.id),
+    primaryElectionRecord(org.id),
   ];
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections
@@ -447,7 +450,6 @@ test('single org elections list', async () => {
     'Title',
     'Date',
     'Jurisdiction',
-    'State',
     '', // Clone button column
   ]);
 
@@ -460,18 +462,52 @@ test('single org elections list', async () => {
   expect(firstRowCells[0]).toHaveTextContent(general.election.title);
   expect(firstRowCells[1]).toHaveTextContent('Nov 3, 2020');
   expect(firstRowCells[2]).toHaveTextContent(general.election.county.name);
-  expect(firstRowCells[3]).toHaveTextContent(general.election.state);
 
   // Check second election row content
   const secondRowCells = within(rows[1]).getAllByRole('cell');
   expect(secondRowCells[0]).toHaveTextContent(primary.election.title);
   expect(secondRowCells[1]).toHaveTextContent('Sep 8, 2021');
   expect(secondRowCells[2]).toHaveTextContent(primary.election.county.name);
-  expect(secondRowCells[3]).toHaveTextContent(primary.election.state);
+});
+
+test('elections list for user with multiple orgs', async () => {
+  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
+
+  const generalOrg1 = generalElectionRecord(org.id);
+  const generalOrg2 = blankElectionRecord(org2.id);
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listElections
+    .expectCallWith()
+    .resolves([electionListing(generalOrg1), electionListing(generalOrg2)]);
+
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Elections' });
+
+  const table = screen.getByRole('table');
+
+  const headers = within(table).getAllByRole('columnheader');
+  expect(headers.map((header) => header.textContent)).toEqual([
+    'Title',
+    'Date',
+    'Jurisdiction',
+    'Organization',
+    '', // Clone button column
+  ]);
+
+  const rows = within(table).getAllByRole('row').slice(1);
+  expect(rows).toHaveLength(2);
+
+  const firstRowCells = within(rows[0]).getAllByRole('cell');
+  expect(firstRowCells[3]).toHaveTextContent('org1 Name');
+  const secondRowCells = within(rows[1]).getAllByRole('cell');
+  expect(secondRowCells[0]).toHaveTextContent('Untitled Election');
+  expect(secondRowCells[1]).toHaveTextContent(format.localeDate(new Date()));
+  expect(secondRowCells[2]).toHaveTextContent('');
+  expect(secondRowCells[3]).toHaveTextContent('org2 Name');
 });
 
 test('shows error message when loading election fails', async () => {
-  const electionRecord = primaryElectionRecord(user.orgId);
+  const electionRecord = primaryElectionRecord(org.id);
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections.expectCallWith().resolves([]);
 
@@ -481,7 +517,7 @@ test('shows error message when loading election fails', async () => {
   const electionData = JSON.stringify(electionRecord.election);
   apiMock.loadElection
     .expectCallWith({
-      orgId: user.orgId,
+      orgId: org.id,
       upload: {
         format: 'vxf',
         electionFileContents: electionData,
