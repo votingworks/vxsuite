@@ -17,7 +17,7 @@ const CLASS_SUBLIST_ITEMS = 'contestSublistItems';
 const Item = styled.li`
   align-items: center;
   border-bottom: var(--contest-list-border);
-  border-bottom-style: dashed;
+  border-color: ${DesktopPalette.Gray10};
   cursor: pointer;
   display: flex;
   gap: 0.5rem;
