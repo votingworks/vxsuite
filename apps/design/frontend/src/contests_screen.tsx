@@ -56,7 +56,8 @@ const Viewport = styled(FixedViewport)`
 `;
 
 const ListActionsRow = styled.div`
-  border-bottom: 1px solid #aaa;
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.outline};
   display: flex;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
