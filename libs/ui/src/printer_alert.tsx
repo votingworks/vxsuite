@@ -16,8 +16,6 @@ export function PrinterAlert({
 }): JSX.Element | null {
   const [alertStatus, setAlertStatus] = useState<PrinterRichStatus>();
 
-  console.log(alertStatus);
-
   useEffect(() => {
     if (
       printerStatus &&
