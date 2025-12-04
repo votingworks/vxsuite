@@ -222,7 +222,7 @@ export function Sublist(props: {
   function onActivateContest(containerTarget: unknown) {
     if (!(containerTarget instanceof HTMLElement)) return;
 
-    const id = containerTarget.getAttribute('data-contestId');
+    const id = containerTarget.getAttribute('data-contest-id');
     if (id) onSelect(id);
   }
 
@@ -244,7 +244,7 @@ export function Sublist(props: {
             <Item
               key={c.id}
               aria-selected={selectedId === c.id}
-              data-contestId={c.id}
+              data-contest-id={c.id}
               onClick={onClickContest}
               onKeyDown={onKeyDownContest}
               ref={selectedId === c.id ? selectedContestRef : undefined}

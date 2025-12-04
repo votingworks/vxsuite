@@ -82,6 +82,40 @@ test('renders labelled candidate and ballot measure sublists', async () => {
   ]);
 });
 
+test('navigates on select', async () => {
+  mockApi = newMockApi({ districts: [district1, district2] });
+  const candidateContests = [candidateContest1, candidateContest2];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
+  const history = newHistory();
+
+  renderList(mockApi, history, {
+    candidateContests,
+    reorder: vi.fn(),
+    reordering: false,
+    yesNoContests,
+  });
+
+  await screen.findAllByText(district1.name);
+  mockApi.assertComplete();
+
+  expect(
+    screen.queryByRole('option', { selected: true })
+  ).not.toBeInTheDocument();
+
+  userEvent.click(getOption(yesNoContest2, district2));
+  getOption(yesNoContest2, district2, { selected: true });
+  expect(history.location.pathname).toEqual(
+    contestRoutes.view(yesNoContest2.id).path
+  );
+
+  userEvent.click(getOption(candidateContest1, district1));
+  getOption(candidateContest1, district1, { selected: true });
+  getOption(yesNoContest2, district2, { selected: false });
+  expect(history.location.pathname).toEqual(
+    contestRoutes.view(candidateContest1.id).path
+  );
+});
+
 test('omits ballot measure section if empty', async () => {
   mockApi = newMockApi({ districts: [district2, district1] });
   const candidateContests = [candidateContest1, candidateContest2];
@@ -206,8 +240,13 @@ function getHeading(name: string) {
   return screen.getByRole('heading', { name });
 }
 
-function getOption(contest: Contest, district: District) {
+function getOption(
+  contest: Contest,
+  district: District,
+  opts: { selected?: boolean } = {}
+) {
   return screen.getByRole('option', {
+    ...opts,
     name: `${district.name} ${contest.title}`,
   });
 }
@@ -239,10 +278,10 @@ function renderList(
     provideApi(
       api,
       <Router history={history}>
-        <Route path={contestParamRoutes.view(':contestId').path}>
+        <Route exact path={contestParamRoutes.view(':contestId').path}>
           <ContestList {...props} />
         </Route>
-        <Route path={contestParamRoutes.root.path}>
+        <Route exact path={contestParamRoutes.root.path}>
           <ContestList {...props} />
         </Route>
       </Router>
