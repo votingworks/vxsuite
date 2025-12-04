@@ -39,8 +39,8 @@ const nonVxOrg: Org = {
 };
 const nonVxUser: User = {
   name: 'non.vx.user@example.com',
-  auth0Id: 'auth0|non-vx-user-id',
-  orgId: nonVxOrg.id,
+  id: 'auth0|non-vx-user-id',
+  organizations: [nonVxOrg],
 };
 const testOrgs: Org[] = [vxOrg, nonVxOrg];
 
@@ -472,7 +472,7 @@ test('getExportedElectionDefinition returns the exported election including reor
   const electionId = (
     await apiClient.loadElection({
       newId: 'test-nh-election-id' as ElectionId,
-      orgId: nonVxUser.orgId,
+      orgId: nonVxOrg.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(baseElectionDefinition.election),
@@ -597,7 +597,7 @@ test('getExportedElection returns election-out-of-date error when election data 
   const electionId = (
     await apiClient.loadElection({
       newId: 'test-election-parse-error' as ElectionId,
-      orgId: nonVxUser.orgId,
+      orgId: nonVxOrg.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(baseElectionDefinition.election),

@@ -17,7 +17,7 @@ import {
   testSetupHelpers,
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
-import { orgs, vxUser } from '../test/mocks';
+import { orgs, vxOrg, vxUser } from '../test/mocks';
 import { convertMsResults } from './convert_ms_results';
 
 vi.setConfig({ testTimeout: 30_000 });
@@ -33,7 +33,7 @@ test('load MS SEMS election', async () => {
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   const result = await apiClient.loadElection({
     newId: electionId,
-    orgId: vxUser.orgId,
+    orgId: vxOrg.id,
     upload: {
       format: 'ms-sems',
       electionFileContents: readFixture('ms-sems-election-general-10.csv'),
@@ -51,7 +51,7 @@ test('returns errors when loading invalid MS SEMS election', async () => {
 
   const result = await apiClient.loadElection({
     newId: unsafeParse(ElectionIdSchema, 'election-2'),
-    orgId: vxUser.orgId,
+    orgId: vxOrg.id,
     upload: {
       format: 'ms-sems',
       // Corrupt the election file by truncating it prematurely
@@ -78,7 +78,7 @@ test('convert MS results', async () => {
   (
     await apiClient.loadElection({
       newId: electionId,
-      orgId: vxUser.orgId,
+      orgId: vxOrg.id,
       upload: {
         format: 'ms-sems',
         electionFileContents: readFixture('ms-sems-election-general-10.csv'),
@@ -113,7 +113,7 @@ test('convert MS results', async () => {
     shouldExportSampleBallots: false,
   });
   const contents = assertDefined(
-    fileStorageClient.getRawFile(join(vxUser.orgId, electionPackageFilePath))
+    fileStorageClient.getRawFile(join(vxOrg.id, electionPackageFilePath))
   );
   const { electionPackageContents } =
     await unzipElectionPackageAndBallots(contents);

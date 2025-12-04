@@ -27,6 +27,7 @@ import {
   MockApiClient,
   createMockApiClient,
   mockUserFeatures,
+  org,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -99,7 +100,7 @@ function renderScreen(electionId: ElectionId) {
 
 const electionWithNoContestsRecord = makeElectionRecord(
   {
-    id: generalElectionRecord(user.orgId).election.id,
+    id: generalElectionRecord(org.id).election.id,
     title: 'Test General Election',
     type: 'general',
     date: DateWithoutTime.today(),
@@ -165,7 +166,7 @@ const electionWithNoContestsRecord = makeElectionRecord(
     ],
     seal: '',
   },
-  user.orgId
+  org.id
 );
 
 // Since we coarsely invalidate all election data on contest changes, there
@@ -426,7 +427,7 @@ test('editing a candidate contest (primary election)', async () => {
       },
       ballotStrings: {},
     },
-    user.orgId
+    org.id
   );
   const { election } = electionRecord;
   const electionId = election.id;
@@ -758,7 +759,7 @@ test.each(nameTestSpecs)(
 );
 
 test('adding a ballot measure', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
   const id = idFactory.next();
@@ -851,7 +852,7 @@ test('adding a ballot measure', async () => {
 });
 
 test('editing a ballot measure', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
   const savedContest = election.contests.find(
@@ -959,7 +960,7 @@ test('editing a ballot measure', async () => {
 });
 
 test('reordering contests', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
   // Mock needed for react-flip-toolkit
@@ -1041,7 +1042,7 @@ test('reordering contests', async () => {
 }, 20000);
 
 test('deleting a contest', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
   const [savedContest] = election.contests;
@@ -1086,7 +1087,7 @@ test('deleting a contest', async () => {
 });
 
 test('changing contests is disabled when ballots are finalized', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
   // Mock needed for react-flip-toolkit
@@ -1120,7 +1121,7 @@ test('changing contests is disabled when ballots are finalized', async () => {
 });
 
 test('cancelling', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
 
@@ -1150,7 +1151,7 @@ test('cancelling', async () => {
 });
 
 test('error messages for duplicate candidate contest/candidates', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
 
@@ -1191,7 +1192,7 @@ test('error messages for duplicate candidate contest/candidates', async () => {
 });
 
 test('error messages for duplicate ballot measure', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
   const ballotMeasureContest = find(
@@ -1240,7 +1241,7 @@ test('error messages for duplicate ballot measure', async () => {
 });
 
 test('error messages for candidate contest with no candidates and write-ins disallowed', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
   const candidateContest = find(
@@ -1282,7 +1283,7 @@ test('error messages for candidate contest with no candidates and write-ins disa
 });
 
 test('disables form and shows edit button when in "view" mode', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
   const [savedContest] = election.contests;
@@ -1328,7 +1329,7 @@ test('disables form and shows edit button when in "view" mode', async () => {
 });
 
 test('form actions omitted when election is finalized', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(org.id);
   const { election } = electionRecord;
   const electionId = election.id;
   const [savedContest] = election.contests;

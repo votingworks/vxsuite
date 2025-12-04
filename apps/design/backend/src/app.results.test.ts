@@ -45,8 +45,8 @@ const nonVxOrg: Org = {
 };
 const nonVxUser: User = {
   name: 'non.vx.user@example.com',
-  auth0Id: 'auth0|non-vx-user-id',
-  orgId: nonVxOrg.id,
+  id: 'auth0|non-vx-user-id',
+  organizations: [nonVxOrg],
 };
 afterAll(cleanup);
 
@@ -97,7 +97,7 @@ async function setUpElectionInSystem(
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxUser.orgId,
+      orgId: nonVxOrg.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(
@@ -131,7 +131,7 @@ async function setUpElectionInSystem(
     workspace,
   });
   const contents = assertDefined(
-    fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
+    fileStorageClient.getRawFile(join(nonVxOrg.id, electionPackageFilePath))
   );
   const { electionPackageContents } =
     await unzipElectionPackageAndBallots(contents);
@@ -1872,7 +1872,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   const electionId = (
     await apiClient.loadElection({
       newId: 'reordered-election-id' as ElectionId,
-      orgId: nonVxUser.orgId,
+      orgId: nonVxOrg.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(
@@ -1941,7 +1941,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   });
 
   const contents = assertDefined(
-    fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
+    fileStorageClient.getRawFile(join(nonVxOrg.id, electionPackageFilePath))
   );
   const { electionPackageContents } =
     await unzipElectionPackageAndBallots(contents);

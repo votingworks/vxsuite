@@ -6,6 +6,7 @@ import { err, ok } from '@votingworks/basics';
 import { within } from '@testing-library/react';
 import {
   MockApiClient,
+  org,
   user,
   provideApi,
   createMockApiClient,
@@ -65,7 +66,7 @@ test('opens file picker for VXF when MS_SEMS_CONVERSION disabled', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId,
-      orgId: user.orgId,
+      orgId: org.id,
       upload: {
         format: 'vxf',
         electionFileContents: mockElectionData,
@@ -104,7 +105,7 @@ test('VXF upload flow in modal', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId,
-      orgId: user.orgId,
+      orgId: org.id,
       upload: {
         format: 'vxf',
         electionFileContents: mockElectionData,
@@ -158,7 +159,7 @@ test('MS SEMS upload flow in modal', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId,
-      orgId: user.orgId,
+      orgId: org.id,
       upload: {
         format: 'ms-sems',
         electionFileContents: mockElectionData,
@@ -198,7 +199,7 @@ test('shows error message on upload failure', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId,
-      orgId: user.orgId,
+      orgId: org.id,
       upload: {
         format: 'vxf',
         electionFileContents: mockElectionData,
