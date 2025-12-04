@@ -96,7 +96,7 @@ fn find_timing_mark_shapes(
     let allowed_timing_mark_height_range = options.timing_mark_height_range(geometry);
     let allowed_white_gap_within_timing_mark = (geometry.timing_mark_height_pixels() / 3.0) as u32;
 
-    let mut shape_list_builder = ShapeListBuilder::new();
+    let mut shape_list_builder = ShapeListBuilder::new(geometry.clone());
     let image_bounds = Rect::new(0, 0, ballot_image.width(), ballot_image.height());
 
     // Restrict `search_area` to within the image bounds.
@@ -144,6 +144,13 @@ fn find_timing_mark_shapes(
             shape_list_builder.add_slice(x, range);
         }
     }
+
+    // These values were chosen based on experimentation to merge timing mark
+    // shapes that were split due to streaks. Because streaks are vertical, we
+    // don't expect much vertical displacement between the split shapes, so we
+    // use a small vertical tolerance and a horizontal tolerance as large as an
+    // expected streak width.
+    shape_list_builder.combine_adjacent_shapes(4, 2);
 
     shape_list_builder
         .into_iter()
@@ -209,6 +216,45 @@ impl TimingMarkShape {
         let width = self.y_ranges.len() as u32;
 
         Rect::new(self.x as i32, min_y as i32, width, max_y - min_y + 1)
+    }
+
+    /// The leftmost x coordinate this timing mark shape contains.
+    pub fn left(&self) -> u32 {
+        self.x
+    }
+
+    /// The rightmost x coordinate this timing mark shape contains.
+    pub fn right(&self) -> u32 {
+        self.x + self.y_ranges.len() as u32 - 1
+    }
+
+    /// The median topmost y coordinate this timing mark shape contains.
+    pub fn median_top(&self) -> u32 {
+        let mut tops: Vec<u32> = self
+            .y_ranges
+            .iter()
+            .map(RangeInclusive::start)
+            .copied()
+            .collect();
+        tops.sort_unstable();
+        tops[tops.len() / 2]
+    }
+
+    /// The median bottommost y coordinate this timing mark shape contains.
+    pub fn median_bottom(&self) -> u32 {
+        let mut bottoms: Vec<u32> = self
+            .y_ranges
+            .iter()
+            .map(RangeInclusive::end)
+            .copied()
+            .collect();
+        bottoms.sort_unstable();
+        bottoms[bottoms.len() / 2]
+    }
+
+    /// The width of this timing mark shape in pixels.
+    pub fn width(&self) -> u32 {
+        self.right() - self.left() + 1
     }
 
     /// Builds a new `TimingMarkShape` with the same range of `x` values but

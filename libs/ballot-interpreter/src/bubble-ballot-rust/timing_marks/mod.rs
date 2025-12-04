@@ -377,18 +377,21 @@ impl FromStr for BorderAxis {
 /// Determines whether a rect could be a timing mark based on its rect.
 #[must_use]
 pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
+    const MIN_RATIO: f32 = 0.75;
+    const MAX_RATIO: f32 = 1.5;
+
     let timing_mark_width = geometry.timing_mark_width_pixels();
     let timing_mark_height = geometry.timing_mark_height_pixels();
 
-    let min_timing_mark_width = (timing_mark_width * 0.5).floor() as u32;
-    let min_timing_mark_height = (timing_mark_height * 0.5).floor() as u32;
+    let min_timing_mark_width = (timing_mark_width * MIN_RATIO).floor() as u32;
+    let min_timing_mark_height = (timing_mark_height * MIN_RATIO).floor() as u32;
 
     // Skew/rotation can cause the height of timing marks to be slightly larger
     // than expected, so allow for a small amount of extra height when
     // determining if a rect could be a timing mark. This applies to width as
     // well, but to a lesser extent.
-    let max_timing_mark_width = (timing_mark_width * 1.80).round() as u32;
-    let max_timing_mark_height = (timing_mark_height * 1.80).round() as u32;
+    let max_timing_mark_width = (timing_mark_width * MAX_RATIO).round() as u32;
+    let max_timing_mark_height = (timing_mark_height * MAX_RATIO).round() as u32;
 
     rect.width() >= min_timing_mark_width
         && rect.width() <= max_timing_mark_width
