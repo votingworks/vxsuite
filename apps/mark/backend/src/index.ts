@@ -1,14 +1,28 @@
-import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
+import {
+  BaseLogger,
+  LogSource,
+  LogEventId,
+  Logger,
+} from '@votingworks/logging';
 import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
+  TaskController,
 } from '@votingworks/backend';
+import { detectUsbDrive } from '@votingworks/usb-drive';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import * as server from './server';
 import { MARK_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
+import { startElectricalTestingServer } from './electrical_testing/server';
+import { getDefaultAuth, getUserRole } from './util/auth';
 
 export type { Api } from './app';
 export type { PrintCalibration } from '@votingworks/hmpb';
+export type { ElectricalTestingApi } from './electrical_testing/app';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();
@@ -34,6 +48,26 @@ function main(): number {
   handleUncaughtExceptions(baseLogger);
 
   const workspace = resolveWorkspace();
+
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
+    )
+  ) {
+    const auth = getDefaultAuth(baseLogger);
+    const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
+    const usbDrive = detectUsbDrive(logger);
+    startElectricalTestingServer({
+      auth,
+      cardTask: TaskController.started(),
+      usbDriveTask: TaskController.started(),
+      usbDrive,
+      logger,
+      workspace,
+    });
+    return 0;
+  }
+
   server.start({ port: PORT, baseLogger, workspace });
   return 0;
 }

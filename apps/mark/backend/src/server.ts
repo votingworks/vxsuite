@@ -1,24 +1,14 @@
 import express from 'express';
 import { Server } from 'node:http';
-import {
-  InsertedSmartCardAuth,
-  InsertedSmartCardAuthApi,
-  JavaCard,
-  MockFileCard,
-} from '@votingworks/auth';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-  isIntegrationTest,
-} from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { startCpuMetricsLogging } from '@votingworks/backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
-import { getUserRole } from './util/auth';
+import { getDefaultAuth, getUserRole } from './util/auth';
 import { Client as BarcodeClient } from './barcodes';
 
 export interface StartOptions {
@@ -38,17 +28,7 @@ export function start({
   workspace,
 }: StartOptions): Server {
   /* istanbul ignore next - @preserve */
-  const resolvedAuth =
-    auth ??
-    new InsertedSmartCardAuth({
-      card:
-        isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-        isIntegrationTest()
-          ? new MockFileCard()
-          : new JavaCard(),
-      config: { allowCardlessVoterSessions: true },
-      logger: baseLogger,
-    });
+  const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
 
   const logger = Logger.from(
     baseLogger,
