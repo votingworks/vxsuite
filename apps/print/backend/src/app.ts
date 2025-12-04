@@ -246,11 +246,10 @@ export function buildApi(ctx: AppContext) {
         return;
       }
 
-      for (let i = 0; i < input.copies; i += 1) {
-        await printer.print({
-          data: Buffer.from(ballot.encodedBallot, 'base64'),
-        });
-      }
+      await printer.print({
+        data: Buffer.from(ballot.encodedBallot, 'base64'),
+        copies: input.copies,
+      });
 
       store.incrementBallotPrintCount({
         precinctId: input.precinctId,
@@ -295,13 +294,11 @@ export function buildApi(ctx: AppContext) {
 
       let totalPrintCount = 0;
       for (const ballot of ballots) {
-        for (let i = 0; i < input.copiesPerStyle; i += 1) {
-          await printer.print({
-            data: Buffer.from(ballot.encodedBallot, 'base64'),
-          });
-          totalPrintCount += 1;
-        }
-
+        await printer.print({
+          data: Buffer.from(ballot.encodedBallot, 'base64'),
+          copies: input.copiesPerStyle,
+        });
+        totalPrintCount += input.copiesPerStyle;
         store.incrementBallotPrintCount({
           precinctId: ballot.precinctId,
           ballotStyleId: ballot.ballotStyleId,
