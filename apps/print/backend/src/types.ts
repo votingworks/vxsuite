@@ -1,4 +1,9 @@
-import { Id, EncodedBallotEntry, PrinterStatus } from '@votingworks/types';
+import {
+  Id,
+  EncodedBallotEntry,
+  PrinterStatus,
+  BallotMode as FullBallotMode,
+} from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 
 export interface BallotPrintEntry extends EncodedBallotEntry {
@@ -18,3 +23,5 @@ export interface DeviceStatuses {
   printer: PrinterStatus;
   usbDrive: UsbDriveStatus;
 }
+
+export type BallotMode = Exclude<FullBallotMode, 'sample'>;

@@ -24,7 +24,7 @@ import {
   PrecinctId,
 } from '@votingworks/types';
 import { join } from 'node:path';
-import { BallotPrintEntry } from './types';
+import { BallotPrintEntry, BallotMode } from './types';
 import {
   addBallotsPropsToPrintCountRow,
   getLanguageForBallotStyle,
@@ -309,8 +309,10 @@ export class Store {
   }
 
   getBallotPrintCounts({
+    ballotMode,
     precinctId,
   }: {
+    ballotMode: BallotMode;
     precinctId?: string;
   }): BallotPrintCount[] {
     const rows = this.client.all(
@@ -322,11 +324,12 @@ export class Store {
         sum(case when ballot_type = 'precinct' then print_count else 0 end) as precinctCount,
         sum(print_count) as totalCount
       from ballots
-      where ballot_mode = 'official'
+      where ballot_mode = ?
       ${precinctId ? 'and precinct_id = ?' : ''}
       group by ballot_style_id, precinct_id
       order by totalCount desc, precinct_id asc
       `,
+      ballotMode,
       ...(precinctId ? [precinctId] : [])
     ) as BallotPrintCountRow[];
     const { election } = assertDefined(
@@ -342,11 +345,15 @@ export class Store {
    * Retrieves all stored encoded ballots.
    */
   getBallots(input: {
+    ballotMode: BallotMode;
     ballotType?: BallotType;
     languageCode?: LanguageCode;
   }): BallotPrintEntry[] {
-    const conditions: string[] = [`ballot_mode = 'official'`];
+    const conditions: string[] = [];
     const params: string[] = [];
+
+    conditions.push('ballot_mode = ?');
+    params.push(input.ballotMode);
 
     if (input.ballotType) {
       conditions.push('ballot_type = ?');
@@ -390,10 +397,12 @@ export class Store {
     ballotStyleId,
     precinctId,
     ballotType,
+    ballotMode,
   }: {
     ballotStyleId: string;
     precinctId: string;
     ballotType: BallotType;
+    ballotMode: BallotMode;
   }): BallotPrintEntry | null {
     return (this.client.one(
       `
@@ -408,18 +417,21 @@ export class Store {
         ballot_style_id = ? and 
         precinct_id = ? and 
         ballot_type = ? and 
-        ballot_mode = 'official'
+        ballot_mode = ?
       `,
       ballotStyleId,
       precinctId,
-      ballotType
+      ballotType,
+      ballotMode
     ) || null) as BallotPrintEntry | null;
   }
 
   getDistinctBallotStylesCount({
+    ballotMode,
     ballotType,
     languageCode,
   }: {
+    ballotMode: BallotMode;
     ballotType: BallotType;
     languageCode: LanguageCode;
   }): number {
@@ -436,9 +448,10 @@ export class Store {
       from ballots
       where
         ballot_type = ? and
-        ballot_mode = 'official'
+        ballot_mode = ?
       `,
-      ballotType
+      ballotType,
+      ballotMode
     ) as Array<{ ballotStyleId: BallotStyleId; precinctId: PrecinctId }>;
     const { election } = electionRecord.electionDefinition;
     const filteredRows = rows.filter(
@@ -458,11 +471,13 @@ export class Store {
     precinctId,
     ballotStyleId,
     ballotType,
+    ballotMode,
     count,
   }: {
     precinctId: string;
     ballotStyleId: string;
     ballotType: BallotType;
+    ballotMode: BallotMode;
     count: number;
   }): void {
     this.client.run(
@@ -473,12 +488,47 @@ export class Store {
         precinct_id = ? and
         ballot_style_id = ? and
         ballot_type = ? and
-        ballot_mode = 'official'
+        ballot_mode = ?
       `,
       count,
       precinctId,
       ballotStyleId,
-      ballotType
+      ballotType,
+      ballotMode
     );
+  }
+
+  /**
+   * Gets the current test mode setting value.
+   */
+  getTestMode(): boolean {
+    const electionRow = this.client.one(
+      'select is_test_mode as isTestMode from election'
+    ) as { isTestMode: number } | undefined;
+
+    if (!electionRow) {
+      // official mode will be the default once an election is defined
+      return false;
+    }
+
+    return Boolean(electionRow.isTestMode);
+  }
+
+  /**
+   * Sets the current test mode setting value.
+   */
+  setTestMode(testMode: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set test mode without an election.');
+    }
+
+    this.client.run('update election set is_test_mode = ?', testMode ? 1 : 0);
+  }
+
+  /**
+   * Resets all ballot print counts to zero.
+   */
+  resetBallotPrintCounts(): void {
+    this.client.run('update ballots set print_count = 0');
   }
 }

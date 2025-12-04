@@ -144,6 +144,27 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
+    getTestMode(): boolean {
+      return store.getTestMode();
+    },
+
+    async setTestMode(input: { testMode: boolean }): Promise<void> {
+      const { testMode } = input;
+      await logger.logAsCurrentRole(LogEventId.TogglingTestMode, {
+        message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,
+      });
+      store.withTransaction(() => {
+        store.resetBallotPrintCounts();
+        store.setTestMode(testMode);
+      });
+      await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
+        disposition: 'success',
+        message: `Successfully toggled to ${
+          testMode ? 'Test' : 'Official'
+        } Ballot Mode`,
+      });
+    },
+
     unconfigureMachine(): void {
       store.deleteBallots();
       store.deleteSystemSettings();
@@ -179,7 +200,13 @@ export function buildApi(ctx: AppContext) {
       ballotType?: BallotType;
       languageCode?: LanguageCode;
     }): BallotPrintEntry[] {
-      return store.getBallots(input);
+      const isTestMode = store.getTestMode();
+      const ballotMode = isTestMode ? 'test' : 'official';
+
+      return store.getBallots({
+        ballotMode,
+        ...input,
+      });
     },
 
     getBallotPrintCounts({
@@ -187,14 +214,20 @@ export function buildApi(ctx: AppContext) {
     }: {
       precinctId?: PrecinctId;
     }): BallotPrintCount[] {
-      return store.getBallotPrintCounts({ precinctId });
+      const isTestMode = store.getTestMode();
+      const ballotMode = isTestMode ? 'test' : 'official';
+
+      return store.getBallotPrintCounts({ ballotMode, precinctId });
     },
 
     getDistinctBallotStylesCount(input: {
       ballotType: BallotType;
       languageCode: LanguageCode;
     }): number {
-      return store.getDistinctBallotStylesCount(input);
+      const isTestMode = store.getTestMode();
+      const ballotMode = isTestMode ? 'test' : 'official';
+
+      return store.getDistinctBallotStylesCount({ ballotMode, ...input });
     },
 
     async printBallot(input: {
@@ -226,10 +259,14 @@ export function buildApi(ctx: AppContext) {
         partyId: input.partyId,
       });
 
+      const isTestMode = store.getTestMode();
+      const ballotMode = isTestMode ? 'test' : 'official';
+
       const ballot = store.getBallot({
         ballotStyleId,
         precinctId: input.precinctId,
         ballotType: input.ballotType,
+        ballotMode,
       });
       if (!ballot || !ballot.encodedBallot) {
         await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
@@ -240,6 +277,7 @@ export function buildApi(ctx: AppContext) {
             partyId: input.partyId,
             languageCode: input.languageCode,
             ballotType: input.ballotType,
+            ballotMode,
           }),
           disposition: 'failure',
         });
@@ -255,11 +293,12 @@ export function buildApi(ctx: AppContext) {
         precinctId: input.precinctId,
         ballotStyleId,
         ballotType: input.ballotType,
+        ballotMode,
         count: input.copies,
       });
 
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-        message: `Printed ballot ${ballotStyleId} with ${input.copies} copies`,
+        message: `Printed ${ballotMode} ballot ${ballotStyleId} with ${input.copies} copies`,
         ballotProps: JSON.stringify({
           ballotStyleId,
           precinctId: input.precinctId,
@@ -267,6 +306,7 @@ export function buildApi(ctx: AppContext) {
           partyId: input.partyId,
           languageCode: input.languageCode,
           ballotType: input.ballotType,
+          ballotMode,
         }),
         disposition: 'success',
       });
@@ -287,7 +327,11 @@ export function buildApi(ctx: AppContext) {
         printConnected: printerStatus.connected,
       });
 
+      const isTestMode = store.getTestMode();
+      const ballotMode = isTestMode ? 'test' : 'official';
+
       const ballots = store.getBallots({
+        ballotMode,
         languageCode: input.languageCode,
         ballotType: input.ballotType,
       });
@@ -303,6 +347,7 @@ export function buildApi(ctx: AppContext) {
           precinctId: ballot.precinctId,
           ballotStyleId: ballot.ballotStyleId,
           ballotType: input.ballotType,
+          ballotMode,
           count: input.copiesPerStyle,
         });
       }

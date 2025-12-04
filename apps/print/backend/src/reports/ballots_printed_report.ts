@@ -30,13 +30,17 @@ function buildBallotsPrintedReport({ store }: { store: Store }): JSX.Element {
   const electionRecord = assertDefined(store.getElectionRecord());
   const { electionDefinition, electionPackageHash } = electionRecord;
 
-  const printCounts = store.getBallotPrintCounts({});
+  const isTestMode = store.getTestMode();
+  const ballotMode = isTestMode ? 'test' : 'official';
+
+  const printCounts = store.getBallotPrintCounts({ ballotMode });
 
   return BallotsPrintedReport({
     electionDefinition,
     electionPackageHash,
     printCounts,
     generatedAtTime: new Date(),
+    isTestMode,
   });
 }
 
