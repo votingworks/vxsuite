@@ -15,6 +15,7 @@ import { assertDefined } from '@votingworks/basics';
 
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
+import { PrintAllButton } from '../components/print_all_button';
 import { getElectionRecord, getPrecinctSelection, printBallot } from '../api';
 import { getAvailableLanguages } from '../utils';
 
@@ -82,10 +83,6 @@ const PrintButton = styled(Button)`
   width: 14rem;
   height: 3rem;
   font-size: 1.1rem;
-`;
-
-const PrintAllButton = styled(Button)`
-  width: 12rem;
 `;
 
 export function PrintScreen({
@@ -164,17 +161,7 @@ export function PrintScreen({
     <Container>
       <TitleBar
         title="Print"
-        actions={
-          isElectionManagerAuth ? (
-            <PrintAllButton
-              color="neutral"
-              fill="outlined"
-              onPress={() => console.log('Print all ballot styles')}
-            >
-              Print All Ballot Styles
-            </PrintAllButton>
-          ) : undefined
-        }
+        actions={isElectionManagerAuth ? <PrintAllButton /> : undefined}
       />
       <Form>
         <Column>
