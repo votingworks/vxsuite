@@ -713,15 +713,6 @@ mod test {
             "test_vertical_streaks_not_through_bubbles.png",
             &side_a_image,
         );
-        let options = Options {
-            debug_side_a_base: Some(PathBuf::from(
-                "test_vertical_streaks_not_through_bubbles_debug.png",
-            )),
-            debug_side_b_base: Some(PathBuf::from(
-                "test_vertical_streaks_not_through_bubbles_debug_b.png",
-            )),
-            ..options
-        };
         match ballot_card(side_a_image.clone(), side_b_image.clone(), &options) {
             Ok(_) => panic!("expected vertical streak error, not success"),
             Err(Error::VerticalStreaksDetected {
@@ -1054,6 +1045,49 @@ mod test {
             ),
         );
         ballot_card(side_a_image, side_b_image, &options).unwrap();
+    }
+
+    #[test]
+    /// Regression test: drawing a vertical line through most right-side timing marks
+    /// should not cause empty bubbles to receive non-trivial scores.
+    fn test_partial_streak_through_timing_marks() {
+        // Load a blank HMPB fixture (no marks expected on bubbles).
+        let (mut side_a_image, side_b_image, options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        // First, interpret the clean image to get timing marks.
+        let clean_interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options)
+                .expect("clean interpretation should succeed");
+
+        // Draw a continuous vertical bar across the right border intersecting
+        // all but the top two and bottom two right timing marks. This preserves
+        // some marks so timing detection still succeeds but simulates a streak
+        // that breaks bubble scoring in the buggy behavior.
+        let right_marks = &clean_interpretation.front.timing_marks.right_marks;
+        let black = Luma([0u8]);
+        if right_marks.len() > 4 {
+            let first_mark = &right_marks[2];
+            let last_mark = &right_marks[right_marks.len() - 4];
+            let line_x = first_mark.rect().left()
+                + (last_mark.rect().right() - first_mark.rect().left()) / 3;
+            for y in first_mark.rect().top()..last_mark.rect().bottom() {
+                side_a_image.put_pixel(line_x as u32, y as u32, black);
+            }
+        }
+
+        let interpretation = ballot_card(side_a_image, side_b_image, &options).unwrap();
+
+        // On a blank ballot, every bubble should have an extremely low fill score.
+        // The bug causes many empty bubbles to have elevated scores.
+        for (_grid_position, maybe_bubble) in interpretation.front.marks.iter() {
+            if let Some(bubble) = maybe_bubble {
+                assert!(
+                    bubble.fill_score.0 < 0.02,
+                    "Unexpected non-zero bubble score on blank ballot: {}",
+                    bubble.fill_score.0
+                );
+            }
+        }
     }
 
     #[test]
