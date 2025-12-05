@@ -2,7 +2,7 @@ import React from 'react';
 import { ElectionId } from '@votingworks/types';
 import {
   AppLogo,
-  LeftNav,
+  LeftNav as LeftNavBase,
   LinkButton,
   Main,
   NavDivider,
@@ -13,6 +13,7 @@ import {
   Icons,
   MainHeader,
   Button,
+  LogoContainer,
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
@@ -24,6 +25,16 @@ const UserInfo = styled.div`
   display: flex;
   gap: 0.5rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+`;
+
+const LeftNav = styled(LeftNavBase)`
+  ${LogoContainer} {
+    /*
+     * Adjusted up from the libs/ui default to match <MainHeader> adjustment
+     * below and keep logo roughly in line with page titles.
+     */
+    margin-top: -0.25rem;
+  }
 `;
 
 function UserInfoAndLogoutButton(): JSX.Element | null {
@@ -58,6 +69,7 @@ export function Header({
       style={{
         display: 'flex',
         justifyContent: 'space-between',
+        padding: '0.75rem 1rem',
       }}
     >
       <div style={{ alignSelf: 'center' }}>{children}</div>

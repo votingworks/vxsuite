@@ -462,6 +462,34 @@ describe('Button', () => {
     userEvent.click(screen.getButton('Reset'));
     expect(onReset).not.toHaveBeenCalled();
   });
+
+  test('prevents event propagation when requested', () => {
+    const onClickParent = vi.fn();
+
+    render(
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+      <div onClick={onClickParent}>
+        <Button onPress={vi.fn()}>Propagate</Button>
+      </div>
+    );
+
+    userEvent.click(screen.getButton('Propagate'));
+    expect(onClickParent).toHaveBeenCalled();
+
+    onClickParent.mockReset();
+
+    render(
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+      <div onClick={onClickParent}>
+        <Button disableEventPropagation onPress={vi.fn()}>
+          No Propagate
+        </Button>
+      </div>
+    );
+
+    userEvent.click(screen.getButton('No Propagate'));
+    expect(onClickParent).not.toHaveBeenCalled();
+  });
 });
 
 describe('LoadingButton', () => {

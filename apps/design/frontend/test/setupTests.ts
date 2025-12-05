@@ -60,5 +60,11 @@ HTMLElement.prototype.getClientRects = (): DOMRectList => new FakeDOMRectList();
 Range.prototype.getBoundingClientRect = getBoundingClientRect;
 Range.prototype.getClientRects = (): DOMRectList => new FakeDOMRectList();
 
+// Not implemented in jsdom:
+HTMLElement.prototype.scrollIntoView = vi.fn();
+
+// Mock needed for react-flip-toolkit:
+window.matchMedia = vi.fn().mockImplementation(() => ({ matches: false }));
+
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);
