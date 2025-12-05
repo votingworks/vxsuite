@@ -29,6 +29,11 @@ const ToolbarButton = styled(Button)`
   padding: 0.25rem 0.75rem;
 `;
 
+const StatusCaption = styled(Caption)`
+  font-size: 0.8rem;
+  font-weight: 500;
+`;
+
 function useCurrentDate(): Date {
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -53,7 +58,7 @@ function BasePrinterStatus({
     <Row style={{ gap: '0.25rem', justifyContent: 'end' }}>
       <Icons.Print color="inverse" />
       {icon}
-      {labelText && <Caption>{labelText}</Caption>}
+      {labelText && <StatusCaption>{labelText}</StatusCaption>}
     </Row>
   );
 }
@@ -65,7 +70,7 @@ function PrinterConnectionStatus({ connected }: { connected: boolean }) {
 
   return (
     <BasePrinterStatus
-      icon={<Icons.Disabled color="inverseWarning" />}
+      icon={<Icons.Warning color="inverseWarning" />}
       labelText="Not Connected"
     />
   );
@@ -81,7 +86,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
 
   if (richStatus.state === 'stopped') {
     if (
-      richStatus.stateReasons.find((reason) => reason === 'media-empty-error')
+      richStatus.stateReasons.find((reason) => reason !== 'media-empty-error')
     ) {
       // No paper and paper tray open both return the same error, so we can't
       // differentiate the error message
@@ -180,7 +185,7 @@ const buttonIconAndText: Record<ExtendedUsbDriveStatus, [IconName, string]> = {
   error: ['Disabled', 'No USB'],
   mounted: ['Eject', 'Eject USB'],
   ejecting: ['Eject', 'Ejecting...'],
-  ejected: ['Disabled', 'No USB'],
+  ejected: ['Disabled', 'USB Ejected'],
 };
 
 function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
