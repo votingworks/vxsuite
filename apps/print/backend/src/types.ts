@@ -4,6 +4,7 @@ import {
   PrinterStatus,
   BallotMode as FullBallotMode,
 } from '@votingworks/types';
+import { BatteryInfo } from '@votingworks/backend';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 
 export interface BallotPrintEntry extends EncodedBallotEntry {
@@ -22,6 +23,7 @@ export interface MachineConfig {
 export interface DeviceStatuses {
   printer: PrinterStatus;
   usbDrive: UsbDriveStatus;
+  battery?: BatteryInfo;
 }
 
 export type BallotMode = Exclude<FullBallotMode, 'sample'>;

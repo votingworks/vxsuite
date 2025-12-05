@@ -18,6 +18,7 @@ import {
 import {
   createSystemCallApi,
   ElectionRecord,
+  getBatteryInfo,
   readSignedElectionPackageFromUsb,
 } from '@votingworks/backend';
 import {
@@ -380,14 +381,20 @@ export function buildApi(ctx: AppContext) {
     },
 
     async getDeviceStatuses(): Promise<DeviceStatuses> {
-      const [usbDriveStatus, printerStatus] = await Promise.all([
+      const [usbDriveStatus, printerStatus, batteryStatus] = await Promise.all([
         usbDrive.status(),
         printer.status(),
+        getBatteryInfo({ logger }),
       ]);
       return {
         usbDrive: usbDriveStatus,
         printer: printerStatus,
+        battery: batteryStatus ?? undefined,
       };
+    },
+
+    async ejectUsbDrive(): Promise<void> {
+      await usbDrive.eject();
     },
   } as const;
 

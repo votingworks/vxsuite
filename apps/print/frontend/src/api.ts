@@ -245,6 +245,18 @@ export const getDeviceStatuses = {
   },
 } as const;
 
+export const ejectUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.ejectUsbDrive, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getDeviceStatuses.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const printBallotsPrintedReport = {
   useMutation() {
     const apiClient = useApiClient();

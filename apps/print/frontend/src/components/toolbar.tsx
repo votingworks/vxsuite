@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { Button, Caption, Icons } from '@votingworks/ui';
+import {
+  Button,
+  Caption,
+  getBatteryIcon,
+  IconName,
+  Icons,
+} from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { BatteryInfo } from '@votingworks/backend';
 
 import { type PrinterStatus as PrinterStatusType } from '@votingworks/types';
-import { getDeviceStatuses, logOut } from '../api';
+import { ejectUsbDrive, getDeviceStatuses, logOut } from '../api';
 
 // The printer is set to default to 2%, but we warn at 5%
 // to be extra careful about low toner making ballots unscannable
@@ -15,6 +22,16 @@ const LOW_TONER_LEVEL = 5;
 const Row = styled.div`
   display: flex;
   flex-direction: row;
+`;
+
+const ToolbarButton = styled(Button)`
+  font-size: 0.8rem;
+  padding: 0.25rem 0.75rem;
+`;
+
+const StatusCaption = styled(Caption)`
+  font-size: 0.8rem;
+  font-weight: 500;
 `;
 
 function useCurrentDate(): Date {
@@ -41,7 +58,7 @@ function BasePrinterStatus({
     <Row style={{ gap: '0.25rem', justifyContent: 'end' }}>
       <Icons.Print color="inverse" />
       {icon}
-      {labelText && <Caption>{labelText}</Caption>}
+      {labelText && <StatusCaption>{labelText}</StatusCaption>}
     </Row>
   );
 }
@@ -53,7 +70,7 @@ function PrinterConnectionStatus({ connected }: { connected: boolean }) {
 
   return (
     <BasePrinterStatus
-      icon={<Icons.Disabled color="inverseWarning" />}
+      icon={<Icons.Warning color="inverseWarning" />}
       labelText="Not Connected"
     />
   );
@@ -69,7 +86,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
 
   if (richStatus.state === 'stopped') {
     if (
-      richStatus.stateReasons.find((reason) => reason === 'media-empty-error')
+      richStatus.stateReasons.find((reason) => reason !== 'media-empty-error')
     ) {
       // No paper and paper tray open both return the same error, so we can't
       // differentiate the error message
@@ -147,29 +164,61 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
   return <PrinterConnectionStatus connected={connected} />;
 }
 
-function UsbStatus({ status }: { status: UsbDriveStatus }) {
+function BatteryStatus({ status }: { status?: BatteryInfo }) {
   return (
     <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
-      <Icons.UsbDrive color="inverse" />
-      {status.status !== 'mounted' && <Icons.Warning color="inverseWarning" />}
+      {getBatteryIcon(status, true)}
+      {status && !status.discharging && (
+        <Icons.Bolt style={{ fontSize: '0.8em' }} color="inverse" />
+      )}
+      {status && format.percent(status.level)}
+      {status && status.level < 0.25 && status.discharging && (
+        <Icons.Warning color="inverseWarning" />
+      )}
     </Row>
   );
 }
 
-function LogOutButton(): JSX.Element {
+type ExtendedUsbDriveStatus = UsbDriveStatus['status'] | 'ejecting';
+const buttonIconAndText: Record<ExtendedUsbDriveStatus, [IconName, string]> = {
+  no_drive: ['Disabled', 'No USB'],
+  error: ['Disabled', 'No USB'],
+  mounted: ['Eject', 'Eject USB'],
+  ejecting: ['Eject', 'Ejecting...'],
+  ejected: ['Disabled', 'USB Ejected'],
+};
+
+function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
+  const ejectUsbMutation = ejectUsbDrive.useMutation();
+  const isEjecting = ejectUsbMutation.isLoading;
+  const extendedUsbDriveStatus: ExtendedUsbDriveStatus = isEjecting
+    ? 'ejecting'
+    : status.status;
+  const [icon, text] = buttonIconAndText[extendedUsbDriveStatus];
+  return (
+    <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
+      <ToolbarButton
+        icon={icon}
+        onPress={() => ejectUsbMutation.mutate()}
+        color="inverseNeutral"
+        disabled={extendedUsbDriveStatus !== 'mounted' || isEjecting}
+      >
+        {text}
+      </ToolbarButton>
+    </Row>
+  );
+}
+
+function LockMachineButton(): JSX.Element {
   const logOutMutation = logOut.useMutation();
   return (
-    <Button
+    <ToolbarButton
       icon="Lock"
       onPress={() => logOutMutation.mutate()}
       color="inverseNeutral"
-      style={{
-        fontSize: '0.8rem',
-        padding: '0.25rem 0.75rem',
-      }}
     >
       Lock Machine
-    </Button>
+    </ToolbarButton>
   );
 }
 
@@ -194,14 +243,15 @@ export function Toolbar(): JSX.Element | null {
     return null;
   }
 
-  const { usbDrive, printer } = getDeviceStatusesQuery.data;
+  const { usbDrive, printer, battery } = getDeviceStatusesQuery.data;
 
   return (
     <ToolbarContainer>
       <PrinterStatus status={printer} />
-      <UsbStatus status={usbDrive} />
+      <BatteryStatus status={battery} />
       {format.clockDateAndTime(currentDate)}
-      <LogOutButton />
+      <UsbControllerButton status={usbDrive} />
+      <LockMachineButton />
     </ToolbarContainer>
   );
 }
