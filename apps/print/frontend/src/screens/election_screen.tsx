@@ -12,11 +12,13 @@ import { format } from '@votingworks/utils';
 import { Precinct, PrecinctSelection } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import styled from 'styled-components';
+import { useHistory } from 'react-router-dom';
 import {
   getElectionRecord,
   setPrecinctSelection,
   getPrecinctSelection,
   unconfigureMachine,
+  ejectUsbDrive,
 } from '../api';
 import { TitleBar } from '../components/title_bar';
 
@@ -37,10 +39,22 @@ const Content = styled(MainContent)`
 const ALL_PRECINCTS_KEY = '\0all-precincts';
 
 export function ElectionScreen(): JSX.Element | null {
+  const history = useHistory();
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const selectedPrecinctQuery = getPrecinctSelection.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const unconfigureMutation = unconfigureMachine.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
+
+  async function unconfigure() {
+    try {
+      await ejectUsbDriveMutation.mutateAsync();
+      await unconfigureMutation.mutateAsync();
+      history.replace('/');
+    } catch {
+      // Handled by default query client error handling
+    }
+  }
 
   if (!getElectionRecordQuery.isSuccess || !selectedPrecinctQuery.isSuccess) {
     return null;
@@ -115,7 +129,7 @@ export function ElectionScreen(): JSX.Element | null {
             />
           )}
           <UnconfigureMachineButton
-            unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+            unconfigureMachine={unconfigure}
             isMachineConfigured
           />
         </Row>

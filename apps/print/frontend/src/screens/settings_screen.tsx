@@ -36,6 +36,7 @@ export function SettingsScreen({
   const logOutMutation = logOut.useMutation();
 
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
+  const ejectUsbDriveMutation = unconfigureMachine.useMutation();
   const electionRecordQuery = getElectionRecord.useQuery();
   const deviceStatusesQuery = getDeviceStatuses.useQuery();
 
@@ -47,6 +48,7 @@ export function SettingsScreen({
   const { usbDrive } = deviceStatusesQuery.data;
   async function unconfigure() {
     try {
+      await ejectUsbDriveMutation.mutateAsync();
       await unconfigureMachineMutation.mutateAsync();
       history.replace('/');
     } catch {
