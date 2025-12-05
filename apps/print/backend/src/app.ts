@@ -339,30 +339,14 @@ export function buildApi(ctx: AppContext) {
       const isTestMode = store.getTestMode();
       const ballotMode = isTestMode ? 'test' : 'official';
 
-      const ballotPrintCounts = store.getBallotPrintCounts({
-        ballotMode,
-      });
-
-      const ballots = store
-        .getBallots({
+      // BallotPrintCounts are hydrated with precinct/split names
+      // and part names, so we use them to get the sorted order
+      const ballotOrder = new Map<string, number>();
+      const sortedPrintCounts = store
+        .getBallotPrintCounts({
           ballotMode,
-          languageCode: input.languageCode,
-          ballotType: input.ballotType,
         })
-        // Sort using the names from ballotPrintCounts for consistency
-        .sort((a, b) => {
-          const printCountA = ballotPrintCounts.find(
-            (count) =>
-              count.ballotStyleId === a.ballotStyleId &&
-              count.precinctId === a.precinctId
-          );
-          const printCountB = ballotPrintCounts.find(
-            (count) =>
-              count.ballotStyleId === b.ballotStyleId &&
-              count.precinctId === b.precinctId
-          );
-          assert(printCountA);
-          assert(printCountB);
+        .sort((printCountA, printCountB) => {
           if (
             printCountA.precinctOrSplitName !== printCountB.precinctOrSplitName
           ) {
@@ -375,6 +359,26 @@ export function buildApi(ctx: AppContext) {
           }
           return 0;
         });
+      for (let i = 0; i < sortedPrintCounts.length; i += 1) {
+        const printCount = sortedPrintCounts[i];
+        const key = `${printCount.precinctId}-${printCount.ballotStyleId}`;
+        ballotOrder.set(key, i);
+      }
+
+      const ballots = store
+        .getBallots({
+          ballotMode,
+          languageCode: input.languageCode,
+          ballotType: input.ballotType,
+        })
+        // Sort using the names from ballotPrintCounts for consistency
+        .sort(
+          (a, b) =>
+            assertDefined(
+              ballotOrder.get(`${a.precinctId}-${a.ballotStyleId}`)
+            ) -
+            assertDefined(ballotOrder.get(`${b.precinctId}-${b.ballotStyleId}`))
+        );
 
       let totalPrintCount = 0;
       for (const ballot of ballots) {
