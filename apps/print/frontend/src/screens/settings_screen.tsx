@@ -26,9 +26,9 @@ const Content = styled.div`
 `;
 
 export function SettingsScreen({
-  includeToggleUsbPortsButton,
+  isSystemAdministrator,
 }: {
-  includeToggleUsbPortsButton?: boolean;
+  isSystemAdministrator?: boolean;
 }): JSX.Element | null {
   const history = useHistory();
 
@@ -59,9 +59,16 @@ export function SettingsScreen({
       <TitleBar title="Settings" />
       <Content>
         <H2>Election</H2>
-        <P>
-          <ToggleTestModeButton />
-        </P>
+        {isSystemAdministrator ? (
+          <P>
+            To adjust settings for the current election, please insert an
+            election manager card.
+          </P>
+        ) : (
+          <P>
+            <ToggleTestModeButton />
+          </P>
+        )}
         <UnconfigureMachineButton
           isMachineConfigured={isConfigured}
           unconfigureMachine={unconfigure}
@@ -79,7 +86,7 @@ export function SettingsScreen({
         <P>
           <SignedHashValidationButton apiClient={apiClient} />
         </P>
-        {includeToggleUsbPortsButton && (
+        {isSystemAdministrator && (
           <P>
             <ToggleUsbPortsButton />
           </P>
