@@ -17,7 +17,7 @@ import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
 import { PrintAllButton } from '../components/print_all_button';
 import { getElectionRecord, getPrecinctSelection, printBallot } from '../api';
-import { getAvailableLanguages } from '../utils';
+import { getLanguageOptions, getPartyOptions } from '../utils';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
@@ -124,8 +124,9 @@ export function PrintScreen({
   const {
     electionDefinition: { election },
   } = assertDefined(getElectionRecordQuery.data);
-  const languages = getAvailableLanguages(election);
-  const { precincts, parties } = election;
+  const languages = getLanguageOptions(election);
+  const parties = getPartyOptions(election);
+  const { precincts } = election;
   const hasParties = election.type === 'primary';
 
   // If VxPrint is configured for a single precinct, hide the precinct
