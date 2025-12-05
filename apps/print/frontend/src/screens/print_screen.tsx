@@ -43,8 +43,8 @@ const Form = styled.div`
   overflow-y: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  padding: 1rem;
+  gap: 0.75rem;
+  padding: 1rem 0.75rem 1rem 1rem;
 `;
 
 const Column = styled.div`
@@ -60,9 +60,14 @@ const FormSection = styled.div`
   gap: 0.5rem;
   overflow-y: hidden;
 
-  /* Ensure RadioGroups can scroll if they overflow and that focus state isn't clipped */
   > fieldset {
+    /* Ensure RadioGroups can scroll if they overflow */
     overflow-y: auto;
+
+    /* Extra padding to prevent clipping of focus outline.
+     * The gap is slightly reduced on FormSection's with RadioGroups
+     * to compensate.
+     */
     padding: 0.25rem;
   }
 
@@ -252,7 +257,7 @@ export function PrintScreen({
         </Column>
         <Column>
           {hidePartySelection ? null : (
-            <FormSection>
+            <FormSection style={{ gap: '0.25rem' }}>
               <strong>Party</strong>
               <RadioGroup
                 label="Party"
@@ -267,7 +272,7 @@ export function PrintScreen({
             </FormSection>
           )}
           {hideLanguageSelection ? null : (
-            <FormSection>
+            <FormSection style={{ gap: '0.25rem' }}>
               <strong>Language</strong>
               <RadioGroup
                 label="Language"
