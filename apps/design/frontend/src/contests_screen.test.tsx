@@ -991,7 +991,7 @@ test('reordering contests', async () => {
 
   await screen.findByRole('button', { name: 'Reorder Contests' });
   expectContestListItems(reorderedContests);
-}, 20000);
+});
 
 test('deleting a contest', async () => {
   const electionRecord = generalElectionRecord(user.orgId);
@@ -1014,22 +1014,22 @@ test('deleting a contest', async () => {
   apiMock.deleteContest
     .expectCallWith({ electionId, contestId: savedContest.id })
     .resolves();
+
+  const remainingContests = election.contests.slice(1);
   apiMock.listContests
     .expectCallWith({ electionId })
-    .resolves(election.contests.slice(1));
+    .resolves(remainingContests);
+
   expectOtherElectionApiCalls(election);
+
   // Initiate the deletion
   userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
   // Confirm the deletion in the modal
   userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
 
-  await screen.findByRole('heading', { name: 'Contest Info' });
-
-  const remainingContests = election.contests.slice(1);
-  expectContestListItems(election.contests.slice(1));
-
   // Should auto-select the first of the remaining contests:
   await expectViewModeContest(history, electionId, remainingContests[0]);
+  expectContestListItems(remainingContests);
 });
 
 test('changing contests is disabled when ballots are finalized', async () => {
