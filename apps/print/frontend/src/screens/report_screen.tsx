@@ -21,6 +21,7 @@ import {
   getElectionRecord,
   getBallotPrintCounts,
   printBallotsPrintedReport,
+  getDeviceStatuses,
 } from '../api';
 import { Row } from '../layout';
 import { TitleBar } from '../components/title_bar';
@@ -83,6 +84,7 @@ export function ReportScreen(): JSX.Element | null {
   const getBallotPrintCountsQuery = getBallotPrintCounts.useQuery();
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const printReportMutation = printBallotsPrintedReport.useMutation();
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const [filterText, setFilterText] = useState('');
   const electionRecord = getElectionRecordQuery.data;
   const election = electionRecord?.electionDefinition.election;
@@ -103,7 +105,8 @@ export function ReportScreen(): JSX.Element | null {
 
   if (
     !getBallotPrintCountsQuery.isSuccess ||
-    !getElectionRecordQuery.isSuccess
+    !getElectionRecordQuery.isSuccess ||
+    !getDeviceStatusesQuery.isSuccess
   ) {
     return null;
   }
@@ -111,6 +114,7 @@ export function ReportScreen(): JSX.Element | null {
   assert(election !== undefined);
   const ballotPrintCounts = getBallotPrintCountsQuery.data;
   const hasParties = election.type === 'primary';
+  const { printer } = getDeviceStatusesQuery.data;
 
   return (
     <Container>
@@ -118,7 +122,9 @@ export function ReportScreen(): JSX.Element | null {
         title="Report"
         actions={
           <React.Fragment>
-            <Button onPress={handlePrint}>Print Report</Button>
+            <Button disabled={!printer.connected} onPress={handlePrint}>
+              Print Report
+            </Button>
             <ExportReportButton />
           </React.Fragment>
         }
