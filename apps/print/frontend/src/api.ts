@@ -108,6 +108,16 @@ export const setPrecinctSelection = {
   },
 } as const;
 
+export const getTestMode = {
+  queryKey(): QueryKey {
+    return ['getTestMode'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getTestMode());
+  },
+} as const;
+
 export const getBallots = {
   queryKey(): QueryKey {
     return ['getBallots'];
@@ -183,14 +193,30 @@ export const getDistinctBallotStylesCount = {
   },
 } as const;
 
+export const setTestMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setTestMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getTestMode.queryKey());
+        await queryClient.invalidateQueries(getBallotPrintCounts.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const unconfigureMachine = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.unconfigureMachine, {
       async onSuccess() {
-        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
-        await queryClient.invalidateQueries(getElectionRecord.queryKey());
+        // If we configure with a different election, any data in the cache will
+        // correspond to the previous election, so we don't just invalidate, but
+        // reset all queries to clear their cached data, since invalidated
+        // queries may still return stale data while refetching.
+        await queryClient.resetQueries();
       },
     });
   },

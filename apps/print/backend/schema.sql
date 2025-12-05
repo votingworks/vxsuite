@@ -5,7 +5,8 @@ create table election (
   election_package_hash text not null,
   jurisdiction text not null,
   created_at timestamp not null default current_timestamp,
-  precinct_selection text
+  precinct_selection text,
+  is_test_mode boolean not null default false
 );
 
 create table system_settings (
