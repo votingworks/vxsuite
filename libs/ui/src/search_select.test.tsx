@@ -78,7 +78,7 @@ test('single and not searchable', () => {
     })
   );
   for (const option of options) {
-    screen.getByText(option.label);
+    screen.getByRole('option', { name: option.label });
   }
 
   // close dropdown using arrow
@@ -96,7 +96,7 @@ test('single and not searchable', () => {
   // open dropdown by clicking input
   userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
-    screen.getByText(option.label);
+    screen.getByRole('option', { name: option.label });
   }
 
   // make selection, which should close dropdown and hide other options
@@ -110,7 +110,7 @@ test('single and not searchable', () => {
   expect(screen.queryByText('Papaya')).not.toBeInTheDocument();
 
   // make another selection
-  userEvent.click(screen.getByText('Banana'));
+  userEvent.click(screen.getByRole('option', { name: 'Banana' }));
   expect(screen.queryByText('Apple')).not.toBeInTheDocument();
   screen.getByText('Banana');
 });
@@ -132,7 +132,7 @@ test('single and searchable', async () => {
   // open dropdown
   userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
-    await screen.findByText(option.label);
+    await screen.findByRole('option', { name: option.label });
   }
 
   // narrow search
@@ -197,7 +197,7 @@ test('multi and not searchable', () => {
   // open dropdown
   userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
-    screen.getByText(option.label);
+    screen.getByRole('option', { name: option.label });
   }
 
   // make selection, which should close dropdown and show selection
@@ -235,7 +235,7 @@ test('multi and searchable', async () => {
   // open dropdown
   userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
-    await screen.findByText(option.label);
+    await screen.findByRole('option', { name: option.label });
   }
 
   // narrow search
