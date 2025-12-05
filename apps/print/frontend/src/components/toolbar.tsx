@@ -86,7 +86,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
 
   if (richStatus.state === 'stopped') {
     if (
-      richStatus.stateReasons.find((reason) => reason !== 'media-empty-error')
+      richStatus.stateReasons.find((reason) => reason === 'media-empty-error')
     ) {
       // No paper and paper tray open both return the same error, so we can't
       // differentiate the error message
