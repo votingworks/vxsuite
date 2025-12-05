@@ -18,6 +18,7 @@ import {
   getElectionRecord,
   unconfigureMachine,
   getDeviceStatuses,
+  ejectUsbDrive,
 } from '../api';
 import { TitleBar } from '../components/title_bar';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
@@ -37,6 +38,7 @@ export function SettingsScreen({
   const logOutMutation = logOut.useMutation();
 
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const electionRecordQuery = getElectionRecord.useQuery();
   const deviceStatusesQuery = getDeviceStatuses.useQuery();
 
@@ -48,6 +50,7 @@ export function SettingsScreen({
   const { usbDrive } = deviceStatusesQuery.data;
   async function unconfigure() {
     try {
+      await ejectUsbDriveMutation.mutateAsync();
       await unconfigureMachineMutation.mutateAsync();
       history.replace('/');
     } catch {

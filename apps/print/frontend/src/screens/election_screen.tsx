@@ -17,6 +17,7 @@ import {
   setPrecinctSelection,
   getPrecinctSelection,
   unconfigureMachine,
+  ejectUsbDrive,
 } from '../api';
 import { TitleBar } from '../components/title_bar';
 
@@ -41,6 +42,7 @@ export function ElectionScreen(): JSX.Element | null {
   const selectedPrecinctQuery = getPrecinctSelection.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const unconfigureMutation = unconfigureMachine.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   if (!getElectionRecordQuery.isSuccess || !selectedPrecinctQuery.isSuccess) {
     return null;
@@ -68,6 +70,15 @@ export function ElectionScreen(): JSX.Element | null {
     selectedPrecinct?.kind === 'AllPrecincts'
       ? ALL_PRECINCTS_KEY
       : selectedPrecinct?.precinctId;
+
+  async function unconfigure(): Promise<void> {
+    try {
+      await ejectUsbDriveMutation.mutateAsync();
+      await unconfigureMutation.mutateAsync();
+    } catch {
+      // Handled by default query client error handling
+    }
+  };
 
   return (
     <React.Fragment>
@@ -115,7 +126,7 @@ export function ElectionScreen(): JSX.Element | null {
             />
           )}
           <UnconfigureMachineButton
-            unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+            unconfigureMachine={unconfigure}
             isMachineConfigured
           />
         </Row>
