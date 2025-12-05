@@ -54,6 +54,16 @@ const FormSection = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   overflow-y: hidden;
+
+  /* Ensure RadioGroups can scroll if they overflow and that focus state isn't clipped */
+  > fieldset {
+    overflow-y: auto;
+    padding: 0.25rem;
+  }
+
+  > strong {
+    padding-left: 0.25rem;
+  }
 `;
 
 const Footer = styled.div`
