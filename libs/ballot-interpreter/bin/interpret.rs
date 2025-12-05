@@ -108,8 +108,10 @@ fn main() -> color_eyre::Result<()> {
             interpret_bubble_ballot(&options, election, side_a_image)?
         };
 
-    let duration = start.elapsed();
-    println!("⚡ {duration:.2?}");
+    if !options.json {
+        let duration = start.elapsed();
+        println!("⚡ {duration:.2?}");
+    }
 
     process::exit(exit_code)
 }

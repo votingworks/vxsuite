@@ -4,6 +4,7 @@ use crate::{
     image_utils::rainbow,
     impl_edgewise,
     interpret::Error,
+    scoring::UnitIntervalScore,
     timing_marks::{
         corners::{
             corner_finding::BallotGridCorners, util::mark_distances_to_point,
@@ -14,6 +15,7 @@ use crate::{
 };
 use image::RgbImage;
 use imageproc::drawing::draw_filled_rect_mut;
+use itertools::Itertools;
 use types_rs::geometry::{Segment, SubPixelUnit};
 
 /// Represents the four borders of a ballot grid.
@@ -47,7 +49,12 @@ impl BallotGridBorders {
             vertical_timing_mark_center_to_center_distance,
             maximum_timing_mark_center_distance_error,
             Border::Left,
-            &candidates.left,
+            &candidates
+                .left
+                .iter()
+                .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
+                .copied()
+                .collect_vec(),
             (top_left, bottom_left),
         )?;
 
@@ -55,15 +62,30 @@ impl BallotGridBorders {
             vertical_timing_mark_center_to_center_distance,
             maximum_timing_mark_center_distance_error,
             Border::Right,
-            &candidates.right,
+            &candidates
+                .right
+                .iter()
+                .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
+                .copied()
+                .collect_vec(),
             (top_right, bottom_right),
         )?;
 
         // Look for the top and bottom borders by finding the appropriate marks
         // between the corners we used to find the left and right borders. This
         // ensures that all four borders are congruent.
-        let mut top_candidates = candidates.top.clone();
-        let mut bottom_candidates = candidates.bottom.clone();
+        let mut top_candidates = candidates
+            .top
+            .iter()
+            .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
+            .copied()
+            .collect_vec();
+        let mut bottom_candidates = candidates
+            .bottom
+            .iter()
+            .filter(|m| m.scores().mark_score() >= options.min_border_timing_mark_score)
+            .copied()
+            .collect_vec();
         top_candidates.extend_from_slice(&[*top_left, *top_right]);
         bottom_candidates.extend_from_slice(&[*bottom_left, *bottom_right]);
 
@@ -217,6 +239,7 @@ impl GridBorder {
 pub struct Options {
     pub maximum_vertical_timing_mark_center_distance_error_ratio: f32,
     pub maximum_horizontal_timing_mark_center_distance_error_ratio: f32,
+    pub min_border_timing_mark_score: UnitIntervalScore,
 }
 
 impl DefaultForGeometry for Options {
@@ -224,6 +247,7 @@ impl DefaultForGeometry for Options {
         Self {
             maximum_vertical_timing_mark_center_distance_error_ratio: 0.5,
             maximum_horizontal_timing_mark_center_distance_error_ratio: 0.5,
+            min_border_timing_mark_score: UnitIntervalScore(0.8),
         }
     }
 }
