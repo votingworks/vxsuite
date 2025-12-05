@@ -339,11 +339,31 @@ export function buildApi(ctx: AppContext) {
       const isTestMode = store.getTestMode();
       const ballotMode = isTestMode ? 'test' : 'official';
 
-      const ballots = store.getBallots({
+      const ballotPrintCounts = store.getBallotPrintCounts({
         ballotMode,
-        languageCode: input.languageCode,
-        ballotType: input.ballotType,
       });
+
+      const ballots = store
+        .getBallots({
+          ballotMode,
+          languageCode: input.languageCode,
+          ballotType: input.ballotType,
+        })
+        // Sort by index in ballotPrintCounts to ensure
+        // consistent order as those are pre-sorted
+        .sort((a, b) => {
+          const indexA = ballotPrintCounts.findIndex(
+            (count) =>
+              count.ballotStyleId === a.ballotStyleId &&
+              count.precinctId === a.precinctId
+          );
+          const indexB = ballotPrintCounts.findIndex(
+            (count) =>
+              count.ballotStyleId === b.ballotStyleId &&
+              count.precinctId === b.precinctId
+          );
+          return indexA - indexB;
+        });
 
       let totalPrintCount = 0;
       for (const ballot of ballots) {

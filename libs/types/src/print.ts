@@ -4,6 +4,7 @@ import { LanguageCode } from './language_code';
 export interface BallotPrintCount {
   ballotStyleId: Id;
   precinctOrSplitName: string;
+  precinctId: Id;
   partyName?: string;
   languageCode: LanguageCode;
   absenteeCount: number;
