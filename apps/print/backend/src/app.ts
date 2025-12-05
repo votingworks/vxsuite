@@ -349,20 +349,31 @@ export function buildApi(ctx: AppContext) {
           languageCode: input.languageCode,
           ballotType: input.ballotType,
         })
-        // Sort by index in ballotPrintCounts to ensure
-        // consistent order as those are pre-sorted
+        // Sort using the names from ballotPrintCounts for consistency
         .sort((a, b) => {
-          const indexA = ballotPrintCounts.findIndex(
+          const printCountA = ballotPrintCounts.find(
             (count) =>
               count.ballotStyleId === a.ballotStyleId &&
               count.precinctId === a.precinctId
           );
-          const indexB = ballotPrintCounts.findIndex(
+          const printCountB = ballotPrintCounts.find(
             (count) =>
               count.ballotStyleId === b.ballotStyleId &&
               count.precinctId === b.precinctId
           );
-          return indexA - indexB;
+          assert(printCountA);
+          assert(printCountB);
+          if (
+            printCountA.precinctOrSplitName !== printCountB.precinctOrSplitName
+          ) {
+            return printCountA.precinctOrSplitName.localeCompare(
+              printCountB.precinctOrSplitName
+            );
+          }
+          if (printCountA.partyName && printCountB.partyName) {
+            return printCountA.partyName.localeCompare(printCountB.partyName);
+          }
+          return 0;
         });
 
       let totalPrintCount = 0;
