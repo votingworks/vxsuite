@@ -27,6 +27,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
+import { PrintProps, PrintSides } from '@votingworks/printing';
 import { AppContext } from './context';
 import { rootDebug } from './debug';
 import { constructAuthMachineState } from './util/auth';
@@ -45,6 +46,13 @@ const debug = rootDebug.extend('app');
 export function buildApi(ctx: AppContext) {
   const { auth, usbDrive, logger, workspace, printer } = ctx;
   const { store } = workspace;
+
+  function printBallots(options: PrintProps) {
+    return printer.print({
+      ...options,
+      sides: PrintSides.TwoSidedLongEdge,
+    });
+  }
 
   const methods = {
     getMachineConfig,
@@ -285,7 +293,7 @@ export function buildApi(ctx: AppContext) {
         return;
       }
 
-      await printer.print({
+      await printBallots({
         data: Buffer.from(ballot.encodedBallot, 'base64'),
         copies: input.copies,
       });
@@ -339,7 +347,7 @@ export function buildApi(ctx: AppContext) {
 
       let totalPrintCount = 0;
       for (const ballot of ballots) {
-        await printer.print({
+        await printBallots({
           data: Buffer.from(ballot.encodedBallot, 'base64'),
           copies: input.copiesPerStyle,
         });
