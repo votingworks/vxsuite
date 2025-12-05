@@ -247,7 +247,7 @@ impl DefaultForGeometry for Options {
         Self {
             maximum_vertical_timing_mark_center_distance_error_ratio: 0.5,
             maximum_horizontal_timing_mark_center_distance_error_ratio: 0.5,
-            min_border_timing_mark_score: UnitIntervalScore(0.5),
+            min_border_timing_mark_score: UnitIntervalScore(0.8),
         }
     }
 }

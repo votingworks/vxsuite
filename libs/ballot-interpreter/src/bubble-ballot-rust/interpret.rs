@@ -1091,6 +1091,38 @@ mod test {
     }
 
     #[test]
+    fn test_wide_streak_through_timing_marks() {
+        // Load a blank HMPB fixture (no marks expected on bubbles).
+        let (mut side_a_image, side_b_image, options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        // First, interpret the clean image to get timing marks.
+        let clean_interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options)
+                .expect("clean interpretation should succeed");
+
+        // Draw a continuous vertical bar across the right border intersecting
+        // all but the top two and bottom two right timing marks. This preserves
+        // some marks so timing detection can find the corners, but fails because
+        // the streak is too wide.
+        let right_marks = &clean_interpretation.front.timing_marks.right_marks;
+        let black = Luma([0u8]);
+        if right_marks.len() > 4 {
+            let first_mark = &right_marks[2];
+            let last_mark = &right_marks[right_marks.len() - 4];
+            let line_x = first_mark.rect().left()
+                + (last_mark.rect().right() - first_mark.rect().left()) / 3;
+            for y in first_mark.rect().top()..last_mark.rect().bottom() {
+                for dx in 0..5 {
+                    side_a_image.put_pixel((line_x + dx) as u32, y as u32, black);
+                }
+            }
+        }
+
+        let error = ballot_card(side_a_image, side_b_image, &options).unwrap_err();
+        assert!(matches!(error, Error::MissingTimingMarks { .. }));
+    }
+
+    #[test]
     fn test_reject_scaled_down_ballots() {
         let (side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 3);

@@ -135,27 +135,30 @@ impl ShapeListBuilder {
             // Find the best matching shape to the left within the given gaps.
             if let Some(left_shape) = combined_shapes
                 .iter_mut()
-                .filter(|s| {
+                .filter_map(|s| {
                     let x_gap = shape.left().saturating_sub(s.right() + 1);
                     let top_offset = shape_median_top.abs_diff(s.median_top());
                     let bottom_offset = shape_median_bottom.abs_diff(s.median_bottom());
                     // Only select shapes to the left, within max_x_gap, and within max_y_offset
-                    shape.left() > s.right()
+                    if shape.left() > s.right()
                         && (x_gap as usize) <= max_x_gap
                         && (top_offset as usize) <= max_y_offset
                         && (bottom_offset as usize) <= max_y_offset
+                    {
+                        Some((s, x_gap, top_offset, bottom_offset))
+                    } else {
+                        None
+                    }
                 })
-                .min_by(|a, b| {
-                    let a_x_gap = shape.left().saturating_sub(a.right() + 1);
-                    let b_x_gap = shape.left().saturating_sub(b.right() + 1);
-                    a_x_gap.cmp(&b_x_gap).then_with(|| {
-                        let a_top_offset = shape_median_top.abs_diff(a.median_top());
-                        let b_top_offset = shape_median_top.abs_diff(b.median_top());
-                        let a_bottom_offset = shape_median_bottom.abs_diff(a.median_bottom());
-                        let b_bottom_offset = shape_median_bottom.abs_diff(b.median_bottom());
-                        (a_top_offset + a_bottom_offset).cmp(&(b_top_offset + b_bottom_offset))
-                    })
-                })
+                .min_by(
+                    |(_, a_x_gap, a_top_offset, a_bottom_offset),
+                     (_, b_x_gap, b_top_offset, b_bottom_offset)| {
+                        a_x_gap.cmp(&b_x_gap).then_with(|| {
+                            (a_top_offset + a_bottom_offset).cmp(&(b_top_offset + b_bottom_offset))
+                        })
+                    },
+                )
+                .map(|(s, _, _, _)| s)
             {
                 let merged_shape_width = shape.right() - left_shape.left() + 1;
                 let shape_width_error = shape.width().abs_diff(expected_timing_mark_width);
