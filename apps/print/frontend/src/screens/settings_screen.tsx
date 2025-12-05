@@ -8,6 +8,7 @@ import {
   ToggleUsbPortsButton,
   UnconfigureMachineButton,
 } from '@votingworks/ui';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -58,21 +59,27 @@ export function SettingsScreen({
     <div>
       <TitleBar title="Settings" />
       <Content>
-        <H2>Election</H2>
         {isSystemAdministrator ? (
-          <P>
-            To adjust settings for the current election, please insert an
-            election manager card.
-          </P>
+          <React.Fragment>
+            <H2>Election</H2>
+            <P>
+              To adjust settings for the current election, please insert an
+              election manager card.
+            </P>
+            <UnconfigureMachineButton
+              isMachineConfigured={isConfigured}
+              unconfigureMachine={unconfigure}
+            />
+          </React.Fragment>
         ) : (
-          <P>
-            <ToggleTestModeButton />
-          </P>
+          <React.Fragment>
+            <H2>Ballot Mode</H2>
+            <P>
+              <ToggleTestModeButton />
+            </P>
+          </React.Fragment>
         )}
-        <UnconfigureMachineButton
-          isMachineConfigured={isConfigured}
-          unconfigureMachine={unconfigure}
-        />
+
         <H2>Logs</H2>
         <ExportLogsButton usbDriveStatus={usbDrive} />
         <H2>Date and Time</H2>
