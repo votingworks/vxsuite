@@ -9,7 +9,7 @@ const Container = styled.div`
   border: 1px solid ${(p) => p.theme.colors.outline};
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   width: 100%;
-  height: 100%;
+  flex: 1;
   overflow: hidden;
 `;
 
@@ -54,8 +54,8 @@ const OptionList = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  height: 100%;
   position: relative;
+  flex: 1;
 `;
 
 const StyledOption = styled.option`

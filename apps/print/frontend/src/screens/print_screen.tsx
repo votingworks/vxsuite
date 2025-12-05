@@ -205,7 +205,7 @@ export function PrintScreen({
         <Column>
           <FormSection
             style={{
-              // Grow to fill space when precinct selection is shown
+              // Grow to fill space when precinct selection is enabled
               flex: hidePrecinctSelection ? undefined : 1,
               // Provide buffer for alignment when precinct selection is hidden
               marginBottom: hidePrecinctSelection ? '2.75rem' : undefined,
