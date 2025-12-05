@@ -19,10 +19,16 @@ import {
   PrecinctSelectionSchema,
   BallotType,
   BallotPrintCount,
+  LanguageCode,
+  BallotStyleId,
+  PrecinctId,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { BallotPrintEntry } from './types';
-import { addBallotsPropsToPrintCountRow } from './util/ballot_styles';
+import {
+  addBallotsPropsToPrintCountRow,
+  getLanguageForBallotStyle,
+} from './util/ballot_styles';
 import { sortBallotPrintCounts } from './util/sort';
 
 export type BallotPrintCountRow = Omit<
@@ -316,7 +322,8 @@ export class Store {
         sum(case when ballot_type = 'precinct' then print_count else 0 end) as precinctCount,
         sum(print_count) as totalCount
       from ballots
-      ${precinctId ? 'where precinct_id = ?' : ''}
+      where ballot_mode = 'official'
+      ${precinctId ? 'and precinct_id = ?' : ''}
       group by ballot_style_id, precinct_id
       order by totalCount desc, precinct_id asc
       `,
@@ -334,8 +341,21 @@ export class Store {
   /**
    * Retrieves all stored encoded ballots.
    */
-  getBallots(): BallotPrintEntry[] {
-    return this.client.all(
+  getBallots(input: {
+    ballotType?: BallotType;
+    languageCode?: LanguageCode;
+  }): BallotPrintEntry[] {
+    const conditions: string[] = [`ballot_mode = 'official'`];
+    const params: string[] = [];
+
+    if (input.ballotType) {
+      conditions.push('ballot_type = ?');
+      params.push(input.ballotType);
+    }
+
+    const whereClause = `where ${conditions.join(' and ')}`;
+
+    const rows = this.client.all(
       `
       select
         id as ballotPrintId,
@@ -345,8 +365,25 @@ export class Store {
         ballot_mode as ballotMode,
         encoded_ballot as encodedBallot
       from ballots
-      `
+      ${whereClause}
+      `,
+      ...params
     ) as BallotPrintEntry[];
+
+    if (input.languageCode) {
+      const electionRecord = assertDefined(this.getElectionRecord());
+      const { election } = electionRecord.electionDefinition;
+      return rows.filter((row) => {
+        const ballotStyle = election.ballotStyles.find(
+          (bs) => bs.id === row.ballotStyleId
+        );
+        return assertDefined(ballotStyle).languages?.includes(
+          assertDefined(input.languageCode)
+        );
+      });
+    }
+
+    return rows;
   }
 
   getBallot({
@@ -377,6 +414,41 @@ export class Store {
       precinctId,
       ballotType
     ) || null) as BallotPrintEntry | null;
+  }
+
+  getDistinctBallotStylesCount({
+    ballotType,
+    languageCode,
+  }: {
+    ballotType: BallotType;
+    languageCode: LanguageCode;
+  }): number {
+    const electionRecord = this.getElectionRecord();
+    if (!electionRecord) {
+      return 0;
+    }
+
+    const rows = this.client.all(
+      `
+      select
+        ballot_style_id as ballotStyleId, 
+        precinct_id as precinctId
+      from ballots
+      where
+        ballot_type = ? and
+        ballot_mode = 'official'
+      `,
+      ballotType
+    ) as Array<{ ballotStyleId: BallotStyleId; precinctId: PrecinctId }>;
+    const { election } = electionRecord.electionDefinition;
+    const filteredRows = rows.filter(
+      (row) =>
+        getLanguageForBallotStyle({
+          election,
+          ballotStyleId: row.ballotStyleId,
+        }) === languageCode
+    );
+    return filteredRows.length;
   }
 
   /**

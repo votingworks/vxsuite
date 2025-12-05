@@ -1,5 +1,5 @@
 import * as grout from '@votingworks/grout';
-// import { Buffer } from 'node:buffer';
+import { Buffer } from 'node:buffer';
 import express, { Application } from 'express';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
@@ -175,8 +175,11 @@ export function buildApi(ctx: AppContext) {
       codeVersion: getMachineConfig().codeVersion,
     }),
 
-    getBallots(): BallotPrintEntry[] {
-      return store.getBallots();
+    getBallots(input: {
+      ballotType?: BallotType;
+      languageCode?: LanguageCode;
+    }): BallotPrintEntry[] {
+      return store.getBallots(input);
     },
 
     getBallotPrintCounts({
@@ -185,6 +188,13 @@ export function buildApi(ctx: AppContext) {
       precinctId?: PrecinctId;
     }): BallotPrintCount[] {
       return store.getBallotPrintCounts({ precinctId });
+    },
+
+    getDistinctBallotStylesCount(input: {
+      ballotType: BallotType;
+      languageCode: LanguageCode;
+    }): number {
+      return store.getDistinctBallotStylesCount(input);
     },
 
     async printBallot(input: {
@@ -216,36 +226,37 @@ export function buildApi(ctx: AppContext) {
         partyId: input.partyId,
       });
 
-      // TODO(nikhil): Actually print ballot, increment print count within transaction
+      const ballot = store.getBallot({
+        ballotStyleId,
+        precinctId: input.precinctId,
+        ballotType: input.ballotType,
+      });
+      if (!ballot || !ballot.encodedBallot) {
+        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+          message: 'No ballot found',
+          ballotProps: JSON.stringify({
+            precinctId: input.precinctId,
+            splitId: input.splitId,
+            partyId: input.partyId,
+            languageCode: input.languageCode,
+            ballotType: input.ballotType,
+          }),
+          disposition: 'failure',
+        });
+        return;
+      }
+
+      await printer.print({
+        data: Buffer.from(ballot.encodedBallot, 'base64'),
+        copies: input.copies,
+      });
+
       store.incrementBallotPrintCount({
         precinctId: input.precinctId,
         ballotStyleId,
         ballotType: input.ballotType,
         count: input.copies,
       });
-
-      // const ballot = store.getBallot({
-      //   ballotStyleId,
-      //   precinctId: input.precinctId,
-      //   ballotType: input.ballotType,
-      // });
-      // if (!ballot || !ballot.encodedBallot) {
-      //   await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-      //     message: 'No ballot found',
-      //     ballotProps: JSON.stringify({
-      //       precinctId: input.precinctId,
-      //       splitId: input.splitId,
-      //       partyId: input.partyId,
-      //       languageCode: input.languageCode,
-      //       ballotType: input.ballotType,
-      //     }),
-      //     disposition: 'failure',
-      //   });
-      //   return;
-      // }
-      // await printer.print({
-      //   data: Buffer.from(ballot.encodedBallot, 'base64'),
-      // });
 
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
         message: `Printed ballot ${ballotStyleId} with ${input.copies} copies`,
@@ -256,6 +267,52 @@ export function buildApi(ctx: AppContext) {
           partyId: input.partyId,
           languageCode: input.languageCode,
           ballotType: input.ballotType,
+        }),
+        disposition: 'success',
+      });
+    },
+
+    async printAllBallotStyles(input: {
+      languageCode: LanguageCode;
+      ballotType: BallotType;
+      copiesPerStyle: number;
+    }): Promise<void> {
+      const printerStatus = await printer.status();
+      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+        message: `Attempting to print all ballot styles with ${input.copiesPerStyle} copies`,
+        ballotProps: JSON.stringify({
+          languageCode: input.languageCode,
+          ballotType: input.ballotType,
+        }),
+        printConnected: printerStatus.connected,
+      });
+
+      const ballots = store.getBallots({
+        languageCode: input.languageCode,
+        ballotType: input.ballotType,
+      });
+
+      let totalPrintCount = 0;
+      for (const ballot of ballots) {
+        await printer.print({
+          data: Buffer.from(ballot.encodedBallot, 'base64'),
+          copies: input.copiesPerStyle,
+        });
+        totalPrintCount += input.copiesPerStyle;
+        store.incrementBallotPrintCount({
+          precinctId: ballot.precinctId,
+          ballotStyleId: ballot.ballotStyleId,
+          ballotType: input.ballotType,
+          count: input.copiesPerStyle,
+        });
+      }
+
+      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+        message: `Printed all ballot styles with ${input.copiesPerStyle} copies – ${totalPrintCount} ballots printed`,
+        requestProps: JSON.stringify({
+          languageCode: input.languageCode,
+          ballotType: input.ballotType,
+          copiesPerStyle: input.copiesPerStyle,
         }),
         disposition: 'success',
       });

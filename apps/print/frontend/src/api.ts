@@ -14,7 +14,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
 } from '@votingworks/ui';
-import { PrecinctId } from '@votingworks/types';
+import { BallotType, LanguageCode, PrecinctId } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -114,7 +114,7 @@ export const getBallots = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getBallots());
+    return useQuery(this.queryKey(), () => apiClient.getBallots({}));
   },
 } as const;
 
@@ -153,6 +153,33 @@ export const printBallot = {
         await queryClient.invalidateQueries(getBallotPrintCounts.queryKey());
       },
     });
+  },
+} as const;
+
+export const printAllBallotStyles = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.printAllBallotStyles, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getBallotPrintCounts.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const getDistinctBallotStylesCount = {
+  queryKey(input: {
+    ballotType: BallotType;
+    languageCode: LanguageCode;
+  }): QueryKey {
+    return ['getDistinctBallotStylesCount', input];
+  },
+  useQuery(input: { ballotType: BallotType; languageCode: LanguageCode }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getDistinctBallotStylesCount(input)
+    );
   },
 } as const;
 
