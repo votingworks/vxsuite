@@ -110,8 +110,9 @@ export function PrintScreen({
   const [selectedPrecinctId, setSelectedPrecinctId] = useState<Id>('');
   const [selectedSplitId, setSelectedSplitId] = useState<Id>('');
   const [selectedPartyId, setSelectedPartyId] = useState<Id>('');
-  const [selectedLanguageCode, setSelectedLanguageCode] =
-    useState<LanguageCode>(LanguageCode.ENGLISH);
+  const [selectedLanguageCode, setSelectedLanguageCode] = useState(
+    LanguageCode.ENGLISH
+  );
   const [isAbsentee, setIsAbsentee] = useState<boolean>(false);
   const printBallotMutation = printBallot.useMutation();
 
@@ -142,10 +143,12 @@ export function PrintScreen({
     electionDefinition: { election },
   } = assertDefined(getElectionRecordQuery.data);
   const languages = getLanguageOptions(election);
+  const hideLanguageSelection = languages.length === 1;
+
   const parties = getPartyOptions(election);
   const { precincts } = election;
   const { printer } = getDeviceStatusesQuery.data;
-  const hasParties = election.type === 'primary';
+  const hidePartySelection = election.type !== 'primary';
 
   // If VxPrint is configured for a single precinct, hide the precinct
   // selection for Poll Workers and default to the configured precinct
@@ -190,7 +193,7 @@ export function PrintScreen({
         <Column>
           <FormSection
             style={{
-              // Grow to fill space when precinct selection is shown
+              // Grow to fill space when precinct selection is enabled
               flex: hidePrecinctSelection ? undefined : 1,
               // Provide buffer for alignment when precinct selection is hidden
               marginBottom: hidePrecinctSelection ? '2.75rem' : undefined,
@@ -233,7 +236,7 @@ export function PrintScreen({
               />
             )}
           </FormSection>
-          {!hideSplitSelection && (
+          {hideSplitSelection ? null : (
             <FormSection>
               <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
               <ExpandedSelect
@@ -248,7 +251,7 @@ export function PrintScreen({
           )}
         </Column>
         <Column>
-          {hasParties && (
+          {hidePartySelection ? null : (
             <FormSection>
               <strong>Party</strong>
               <RadioGroup
@@ -263,22 +266,24 @@ export function PrintScreen({
               />
             </FormSection>
           )}
-          <FormSection>
-            <strong>Language</strong>
-            <RadioGroup
-              label="Language"
-              value={selectedLanguageCode}
-              options={languages.map((language) => ({
-                label: format.languageDisplayName({
-                  languageCode: language,
-                  displayLanguageCode: 'en',
-                }),
-                value: language,
-              }))}
-              onChange={setSelectedLanguageCode}
-              hideLabel
-            />
-          </FormSection>
+          {hideLanguageSelection ? null : (
+            <FormSection>
+              <strong>Language</strong>
+              <RadioGroup
+                label="Language"
+                value={selectedLanguageCode}
+                options={languages.map((language) => ({
+                  label: format.languageDisplayName({
+                    languageCode: language,
+                    displayLanguageCode: 'en',
+                  }),
+                  value: language,
+                }))}
+                onChange={setSelectedLanguageCode}
+                hideLabel
+              />
+            </FormSection>
+          )}
         </Column>
       </Form>
       <Footer>
@@ -315,8 +320,8 @@ export function PrintScreen({
           disabled={
             !selectedPrecinct ||
             !selectedLanguageCode ||
-            (hasParties && !selectedPartyId) ||
-            (availableSplits.length > 0 && !selectedSplitId) ||
+            (!hidePartySelection && !selectedPartyId) ||
+            (!hideSplitSelection && !selectedSplitId) ||
             !printer.connected
           }
         >

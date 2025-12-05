@@ -25,7 +25,8 @@ const StyledButton = styled(Button)`
 `;
 
 const Section = styled.div`
-  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -33,7 +34,6 @@ const Section = styled.div`
 
 const Label = styled.div`
   font-weight: bold;
-  width: 10rem;
 `;
 
 const Input = styled.div`
@@ -49,9 +49,7 @@ function PrintAllModal({
   const [isAbsentee, setIsAbsentee] = useState(false);
   const ballotType = isAbsentee ? BallotType.Absentee : BallotType.Precinct;
   const [numCopies, setNumCopies] = useState(1);
-  const [languageCode, setLanguageCode] = useState<LanguageCode>(
-    LanguageCode.ENGLISH
-  );
+  const [languageCode, setLanguageCode] = useState(LanguageCode.ENGLISH);
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getDistinctBallotStylesCountQuery =
     getDistinctBallotStylesCount.useQuery({ ballotType, languageCode });
@@ -67,6 +65,7 @@ function PrintAllModal({
     getElectionRecordQuery.data
   ).electionDefinition;
   const languages = getLanguageOptions(election);
+  const hideLanguageSelection = languages.length === 1;
   const numberOfBallotStyles = getDistinctBallotStylesCountQuery.data;
 
   function handlePrint() {
@@ -90,24 +89,26 @@ function PrintAllModal({
       title="Print All Ballot Styles"
       content={
         <React.Fragment>
-          <Section>
-            <Label>Language</Label>
-            <Input>
-              <RadioGroup
-                label="Language"
-                value={languageCode}
-                options={languages.map((language) => ({
-                  label: format.languageDisplayName({
-                    languageCode: language,
-                    displayLanguageCode: 'en',
-                  }),
-                  value: language,
-                }))}
-                onChange={setLanguageCode}
-                hideLabel
-              />
-            </Input>
-          </Section>
+          {hideLanguageSelection ? null : (
+            <Section>
+              <Label>Language</Label>
+              <Input>
+                <RadioGroup
+                  label="Language"
+                  value={languageCode}
+                  options={languages.map((language) => ({
+                    label: format.languageDisplayName({
+                      languageCode: language,
+                      displayLanguageCode: 'en',
+                    }),
+                    value: language,
+                  }))}
+                  onChange={setLanguageCode}
+                  hideLabel
+                />
+              </Input>
+            </Section>
+          )}
           <Section>
             <Label>Ballot Type</Label>
             <Input>
