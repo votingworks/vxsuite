@@ -25,7 +25,6 @@ import {
 import { getLanguageOptions, getPartyOptions } from '../utils';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
-const DEFAULT_LANGUAGE = LanguageCode.ENGLISH;
 
 const Container = styled.div`
   /* Adjusted for Toolbar height */
@@ -111,8 +110,9 @@ export function PrintScreen({
   const [selectedPrecinctId, setSelectedPrecinctId] = useState<Id>('');
   const [selectedSplitId, setSelectedSplitId] = useState<Id>('');
   const [selectedPartyId, setSelectedPartyId] = useState<Id>('');
-  const [selectedLanguageCode, setSelectedLanguageCode] =
-    useState<LanguageCode>(DEFAULT_LANGUAGE);
+  const [selectedLanguageCode, setSelectedLanguageCode] = useState(
+    LanguageCode.ENGLISH
+  );
   const [isAbsentee, setIsAbsentee] = useState<boolean>(false);
   const printBallotMutation = printBallot.useMutation();
 
@@ -130,18 +130,6 @@ export function PrintScreen({
       setSelectedPrecinctId(configuredPrecinct.precinctId);
     }
   }, [configuredPrecinct]);
-
-  // Default to valid language selection in case the election doesn't support English
-  useEffect(() => {
-    if (getElectionRecordQuery.data) {
-      const languages = getLanguageOptions(
-        getElectionRecordQuery.data.electionDefinition.election
-      );
-      if (!languages.includes(DEFAULT_LANGUAGE)) {
-        setSelectedLanguageCode(languages[0]);
-      }
-    }
-  }, [getElectionRecordQuery.data]);
 
   if (
     !getElectionRecordQuery.isSuccess ||
