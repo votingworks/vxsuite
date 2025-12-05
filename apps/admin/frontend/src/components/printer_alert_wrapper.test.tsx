@@ -12,7 +12,7 @@ import {
   createApiMock,
 } from '../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { PrinterAlert } from './printer_alert';
+import { PrinterAlertWrapper } from './printer_alert_wrapper';
 import { screen } from '../../test/react_testing_library';
 
 vi.useFakeTimers({
@@ -61,7 +61,7 @@ function setSystemAdministratorAuth() {
 test('shows alert with message which can be dismissed', async () => {
   setElectionManagerAuth();
   apiMock.setPrinterStatus(ALERT_STATUS);
-  renderInAppContext(<PrinterAlert />, { apiMock });
+  renderInAppContext(<PrinterAlertWrapper />, { apiMock });
   await screen.findByText('Printer Alert');
   await screen.findByText(
     "The printer's door is open. Close the printer's door."
@@ -73,7 +73,7 @@ test('shows alert with message which can be dismissed', async () => {
 test('shows alert only when printer is stopped', async () => {
   setElectionManagerAuth();
   apiMock.setPrinterStatus(ALERT_STATUS);
-  renderInAppContext(<PrinterAlert />, { apiMock });
+  renderInAppContext(<PrinterAlertWrapper />, { apiMock });
   await screen.findByText('Printer Alert');
 
   // doesn't show when disconnected
@@ -129,7 +129,7 @@ test('shows alert only when printer is stopped', async () => {
 test('alert does not show for system administrators or when logged out', async () => {
   setElectionManagerAuth();
   apiMock.setPrinterStatus(ALERT_STATUS);
-  renderInAppContext(<PrinterAlert />, { apiMock });
+  renderInAppContext(<PrinterAlertWrapper />, { apiMock });
   await screen.findByText('Printer Alert');
 
   // doesn't show for system administrators

@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { PrinterRichStatus } from '@votingworks/types';
+import { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
 import {
-  Button,
   IPP_PRINTER_STATE_REASON_MESSAGES,
-  Icons,
-  Modal,
-  P,
   parseHighestPriorityIppPrinterStateReason,
-} from '@votingworks/ui';
-import { isElectionManagerAuth } from '@votingworks/utils';
-import { getAuthStatus, getPrinterStatus } from '../api';
+} from './diagnostics';
+import { Modal } from './modal';
+import { Icons } from './icons';
+import { P } from './typography';
+import { Button } from './button';
 
-export function PrinterAlert(): JSX.Element | null {
-  const printerStatusQuery = getPrinterStatus.useQuery();
-  const authStatusQuery = getAuthStatus.useQuery();
+export function PrinterAlert({
+  printerStatus,
+}: {
+  printerStatus?: PrinterStatus;
+}): JSX.Element | null {
   const [alertStatus, setAlertStatus] = useState<PrinterRichStatus>();
 
-  const printerStatus = printerStatusQuery.data;
   useEffect(() => {
     if (
       printerStatus &&
@@ -29,17 +28,6 @@ export function PrinterAlert(): JSX.Element | null {
       setAlertStatus(undefined);
     }
   }, [printerStatus]);
-
-  // We only show alerts to election managers. We don't need to show alerts
-  // when not logged in and we don't want to show alerts to system
-  // administrators because they already see the same information on the
-  // diagnostics page.
-  if (
-    !authStatusQuery.isSuccess ||
-    !isElectionManagerAuth(authStatusQuery.data)
-  ) {
-    return null;
-  }
 
   if (!alertStatus) {
     return null;

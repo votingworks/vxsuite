@@ -53,7 +53,7 @@ function PrinterConnectionStatus({ connected }: { connected: boolean }) {
 
   return (
     <BasePrinterStatus
-      icon={<Icons.Disabled color="danger" />}
+      icon={<Icons.Disabled color="inverseWarning" />}
       labelText="Not Connected"
     />
   );
@@ -75,7 +75,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
       // differentiate the error message
       return (
         <BasePrinterStatus
-          icon={<Icons.Danger color="danger" />}
+          icon={<Icons.Warning color="inverseWarning" />}
           labelText="No Paper"
         />
       );
@@ -86,7 +86,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
     ) {
       return (
         <BasePrinterStatus
-          icon={<Icons.Danger color="danger" />}
+          icon={<Icons.Warning color="inverseWarning" />}
           labelText="Paper Jam"
         />
       );
@@ -101,7 +101,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
     ) {
       return (
         <BasePrinterStatus
-          icon={<Icons.Danger color="danger" />}
+          icon={<Icons.Warning color="inverseWarning" />}
           labelText="Output Bin Full"
         />
       );
@@ -113,7 +113,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
     if (richStatus.stateReasons.find((reason) => reason === 'other-error')) {
       return (
         <BasePrinterStatus
-          icon={<Icons.Danger color="danger" />}
+          icon={<Icons.Warning color="inverseWarning" />}
           labelText="See Printer Display"
         />
       );

@@ -3,7 +3,7 @@ import './App.css';
 import { BatteryLowAlert } from '@votingworks/ui';
 import { AppRoot } from './app_root';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
-import { PrinterAlert } from './components/printer_alert';
+import { PrinterAlertWrapper } from './components/printer_alert_wrapper';
 
 export function App(): JSX.Element {
   return (
@@ -11,7 +11,7 @@ export function App(): JSX.Element {
       <AppRoot />
       <SessionTimeLimitTracker />
       <BatteryLowAlert />
-      <PrinterAlert />
+      <PrinterAlertWrapper />
     </BrowserRouter>
   );
 }
