@@ -25,6 +25,7 @@ import {
 import { getLanguageOptions, getPartyOptions } from '../utils';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
+const DEFAULT_LANGUAGE = LanguageCode.ENGLISH;
 
 const Container = styled.div`
   /* Adjusted for Toolbar height */
@@ -111,7 +112,7 @@ export function PrintScreen({
   const [selectedSplitId, setSelectedSplitId] = useState<Id>('');
   const [selectedPartyId, setSelectedPartyId] = useState<Id>('');
   const [selectedLanguageCode, setSelectedLanguageCode] =
-    useState<LanguageCode>(LanguageCode.ENGLISH);
+    useState<LanguageCode>(DEFAULT_LANGUAGE);
   const [isAbsentee, setIsAbsentee] = useState<boolean>(false);
   const printBallotMutation = printBallot.useMutation();
 
@@ -130,6 +131,18 @@ export function PrintScreen({
     }
   }, [configuredPrecinct]);
 
+  // Default to valid language selection in case the election doesn't support English
+  useEffect(() => {
+    if (getElectionRecordQuery.data) {
+      const languages = getLanguageOptions(
+        getElectionRecordQuery.data.electionDefinition.election
+      );
+      if (!languages.includes(DEFAULT_LANGUAGE)) {
+        setSelectedLanguageCode(languages[0]);
+      }
+    }
+  }, [getElectionRecordQuery.data]);
+
   if (
     !getElectionRecordQuery.isSuccess ||
     !getConfiguredPrecinctQuery.isSuccess ||
@@ -142,10 +155,12 @@ export function PrintScreen({
     electionDefinition: { election },
   } = assertDefined(getElectionRecordQuery.data);
   const languages = getLanguageOptions(election);
+  const hideLanguageSelection = languages.length === 1;
+
   const parties = getPartyOptions(election);
   const { precincts } = election;
   const { printer } = getDeviceStatusesQuery.data;
-  const hasParties = election.type === 'primary';
+  const hidePartySelection = election.type !== 'primary';
 
   // If VxPrint is configured for a single precinct, hide the precinct
   // selection for Poll Workers and default to the configured precinct
@@ -233,7 +248,7 @@ export function PrintScreen({
               />
             )}
           </FormSection>
-          {!hideSplitSelection && (
+          {hideSplitSelection ? null : (
             <FormSection>
               <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
               <ExpandedSelect
@@ -248,7 +263,7 @@ export function PrintScreen({
           )}
         </Column>
         <Column>
-          {hasParties && (
+          {hidePartySelection ? null : (
             <FormSection>
               <strong>Party</strong>
               <RadioGroup
@@ -263,22 +278,24 @@ export function PrintScreen({
               />
             </FormSection>
           )}
-          <FormSection>
-            <strong>Language</strong>
-            <RadioGroup
-              label="Language"
-              value={selectedLanguageCode}
-              options={languages.map((language) => ({
-                label: format.languageDisplayName({
-                  languageCode: language,
-                  displayLanguageCode: 'en',
-                }),
-                value: language,
-              }))}
-              onChange={setSelectedLanguageCode}
-              hideLabel
-            />
-          </FormSection>
+          {hideLanguageSelection ? null : (
+            <FormSection>
+              <strong>Language</strong>
+              <RadioGroup
+                label="Language"
+                value={selectedLanguageCode}
+                options={languages.map((language) => ({
+                  label: format.languageDisplayName({
+                    languageCode: language,
+                    displayLanguageCode: 'en',
+                  }),
+                  value: language,
+                }))}
+                onChange={setSelectedLanguageCode}
+                hideLabel
+              />
+            </FormSection>
+          )}
         </Column>
       </Form>
       <Footer>
@@ -315,8 +332,8 @@ export function PrintScreen({
           disabled={
             !selectedPrecinct ||
             !selectedLanguageCode ||
-            (hasParties && !selectedPartyId) ||
-            (availableSplits.length > 0 && !selectedSplitId) ||
+            (!hidePartySelection && !selectedPartyId) ||
+            (!hideSplitSelection && !selectedSplitId) ||
             !printer.connected
           }
         >

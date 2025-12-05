@@ -10,6 +10,7 @@ const Container = styled.div`
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 `;
 
 const SearchBox = styled.div`
