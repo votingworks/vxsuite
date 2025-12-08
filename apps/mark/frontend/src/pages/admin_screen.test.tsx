@@ -7,14 +7,13 @@ import {
   ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
-  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { screen, within } from '../../test/react_testing_library';
+import { act, screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
-import { election, defaultPrecinctId } from '../../test/helpers/election';
+import { election } from '../../test/helpers/election';
 
 import { AdminScreen, AdminScreenProps } from './admin_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
@@ -52,7 +51,6 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
     provideApi(
       apiMock,
       <AdminScreen
-        appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
         ballotsPrintedCount={0}
         electionDefinition={asElectionDefinition(election)}
         electionPackageHash="test-election-package-hash"
@@ -70,16 +68,13 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
 }
 
 test('renders date and time settings modal', async () => {
-  apiMock.expectGetSystemSettings();
-  renderScreen();
-
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM AKDT';
-  await screen.findByText(startDate);
 
-  // Open Modal and change date
-  userEvent.click(screen.getButton('Set Date and Time'));
+  apiMock.expectGetSystemSettings();
+  renderScreen();
+  userEvent.click(await screen.findButton('Set Date and Time'));
 
   within(screen.getByTestId('modal')).getByText(startDate);
 
@@ -96,11 +91,10 @@ test('renders date and time settings modal', async () => {
     })
     .resolves();
   apiMock.expectLogOut();
-
-  userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
-
-  // Date is reset to system time after save
-  await screen.findByText(startDate);
+  // eslint-disable-next-line @typescript-eslint/require-await
+  await act(async () => {
+    userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
+  });
 });
 
 test('renders system buttons', async () => {
@@ -128,19 +122,16 @@ test('precinct change disabled if polls closed', () => {
   expect(precinctSelect).toBeDisabled();
 });
 
-test('precinct selection disabled if single precinct election', async () => {
+test('precinct selection absent if single precinct election', async () => {
   apiMock.expectGetSystemSettings();
   renderScreen({
     electionDefinition:
       electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition(),
-    appPrecinct: singlePrecinctSelectionFor('precinct-1'),
   });
 
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-  expect(screen.getByLabelText('Select a precinct…')).toBeDisabled();
-  screen.getByText(
-    'Precinct cannot be changed because there is only one precinct configured for this election.'
-  );
+  screen.getByText('Election Manager Menu');
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
 });
 
 test('renders a save logs button with no usb', async () => {
@@ -159,22 +150,15 @@ test('renders a save logs button with usb mounted', async () => {
   await screen.findByText('Select a log format:');
 });
 
-test('renders a USB controller button', async () => {
+test('unconfigure will eject usb', async () => {
   apiMock.expectGetSystemSettings();
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
-  await screen.findByText('No USB');
-
-  apiMock.expectGetSystemSettings();
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  await screen.findByText('Eject USB');
-});
-
-test('USB button calls eject', async () => {
-  apiMock.expectGetSystemSettings();
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  const ejectButton = await screen.findByText('Eject USB');
+  renderScreen({
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+  const unconfigureButton = await screen.findByText('Unconfigure Machine');
   apiMock.expectEjectUsbDrive();
-  userEvent.click(ejectButton);
+  userEvent.click(unconfigureButton);
+  userEvent.click(screen.getButton('Delete All Election Data'));
 });
 
 test('shows bubble mark calibration when print mode is marks_on_preprinted_ballot', async () => {
@@ -198,8 +182,58 @@ test('does not show bubble mark calibration when print mode is summary', async (
   });
   renderScreen();
 
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
   expect(
     screen.queryByRole('heading', { name: 'Bubble Mark Offset Calibration' })
   ).toBeNull();
+});
+
+test('switching to official ballot mode with ballots printed', async () => {
+  apiMock.expectGetSystemSettings();
+  renderScreen({
+    ballotsPrintedCount: 1,
+    isTestMode: true,
+  });
+
+  userEvent.click(screen.getByRole('option', { name: 'Official Ballot Mode' }));
+  const modal = await screen.findByRole('alertdialog');
+
+  apiMock.expectSetTestMode(false);
+  userEvent.click(within(modal).getButton('Switch to Official Ballot Mode'));
+});
+
+test('switching to test ballot mode with ballots printed', async () => {
+  apiMock.expectGetSystemSettings();
+  renderScreen({
+    ballotsPrintedCount: 1,
+    isTestMode: false,
+  });
+
+  userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
+  const modal = await screen.findByRole('alertdialog');
+
+  apiMock.expectSetTestMode(true);
+  userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
+});
+
+test('switching to official ballot mode without ballots printed', () => {
+  apiMock.expectGetSystemSettings();
+  renderScreen({
+    ballotsPrintedCount: 0,
+    isTestMode: true,
+  });
+
+  apiMock.expectSetTestMode(false);
+  userEvent.click(screen.getByRole('option', { name: 'Official Ballot Mode' }));
+});
+
+test('switching to test ballot mode without ballots printed', () => {
+  apiMock.expectGetSystemSettings();
+  renderScreen({
+    ballotsPrintedCount: 0,
+    isTestMode: false,
+  });
+
+  apiMock.expectSetTestMode(true);
+  userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
 });
