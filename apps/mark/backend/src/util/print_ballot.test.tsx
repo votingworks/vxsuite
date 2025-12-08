@@ -35,11 +35,13 @@ vi.mock('@votingworks/ui');
 const electionDefBase = electionGeneralFixtures.readElectionDefinition();
 
 describe(`printMode === "marks_on_preprinted_ballot"`, () => {
-  const testValidSizes = test.each<'letter' | 'legal'>(['letter', 'legal']);
+  const testValidSizes = test.each<HmpbBallotPaperSize>(
+    Object.values(HmpbBallotPaperSize)
+  );
 
   testValidSizes('prints bubble marks - %s', async (size) => {
     const electionDefinition = mockElection({
-      paperSize: size as HmpbBallotPaperSize,
+      paperSize: size,
     });
     const ballotStyle = electionDefinition.election.ballotStyles[0];
     const mockVotes: VotesDict = {
@@ -170,11 +172,13 @@ describe(`printMode === "summary"`, () => {
 });
 
 describe(`printMode === "bubble_ballot"`, () => {
-  const testValidSizes = test.each<'letter' | 'legal'>(['letter', 'legal']);
+  const testValidSizes = test.each<HmpbBallotPaperSize>(
+    Object.values(HmpbBallotPaperSize)
+  );
 
   testValidSizes('prints bubble ballot with marks - %s', async (size) => {
     const electionDefinition = mockElection({
-      paperSize: size as HmpbBallotPaperSize,
+      paperSize: size,
     });
     const ballotStyle = electionDefinition.election.ballotStyles[0];
     const mockVotes: VotesDict = {
