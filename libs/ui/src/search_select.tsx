@@ -2,7 +2,9 @@ import { deepEqual, typedAs } from '@votingworks/basics';
 import Select, {
   components,
   DropdownIndicatorProps,
+  MenuProps,
   MultiValueRemoveProps,
+  OptionProps,
   StylesConfig,
 } from 'react-select';
 import { useTheme } from 'styled-components';
@@ -55,6 +57,33 @@ function MultiValueRemove(
         }}
       />
     </components.MultiValueRemove>
+  );
+}
+
+function Option(props: OptionProps<unknown, true>): JSX.Element {
+  const { isSelected, innerProps } = props;
+  return (
+    <components.Option
+      {...props}
+      innerProps={{
+        ...innerProps,
+        'aria-selected': isSelected,
+        role: 'option',
+      }}
+    />
+  );
+}
+
+function Menu(props: MenuProps<unknown, true>): JSX.Element {
+  const { innerProps } = props;
+  return (
+    <components.Menu
+      {...props}
+      innerProps={{
+        ...innerProps,
+        role: 'listbox',
+      }}
+    />
   );
 }
 
@@ -158,7 +187,7 @@ export function SearchSelect<T = string>({
       required={required}
       aria-label={ariaLabel}
       unstyled
-      components={{ DropdownIndicator, MultiValueRemove }}
+      components={{ DropdownIndicator, MultiValueRemove, Option, Menu }}
       className="search-select"
       menuPlacement="auto"
       menuPortalTarget={menuPortalTarget}
