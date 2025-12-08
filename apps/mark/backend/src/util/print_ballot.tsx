@@ -63,12 +63,6 @@ async function printBubbleBallot(p: PrintBallotProps): Promise<void> {
   const { electionDefinition } = assertDefined(p.store.getElectionRecord());
   const { election } = electionDefinition;
 
-  const size = election.ballotLayout.paperSize;
-  assert(
-    size === 'letter' || size === 'legal',
-    `${size} paper size not yet supported for bubble ballot marking`
-  );
-
   const isLiveMode = !p.store.getTestMode();
 
   // Get the base ballot PDF from the election package
@@ -100,7 +94,7 @@ async function printBubbleBallot(p: PrintBallotProps): Promise<void> {
   return p.printer.print({
     data: markedBallotPdf,
     sides: PrintSides.TwoSidedLongEdge,
-    size,
+    size: election.ballotLayout.paperSize,
   });
 }
 
