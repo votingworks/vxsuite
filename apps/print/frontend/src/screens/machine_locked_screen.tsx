@@ -1,7 +1,14 @@
 import styled from 'styled-components';
-import { ElectionInfoBar, H1, H3, Main, Screen } from '@votingworks/ui';
+import {
+  ElectionInfoBar,
+  Font,
+  H1,
+  H3,
+  InsertCardImage,
+  Main,
+  Screen,
+} from '@votingworks/ui';
 import { getElectionRecord, getMachineConfig } from '../api';
-import { Column } from '../layout';
 
 const LockedImage = styled.img`
   margin-right: auto;
@@ -24,15 +31,20 @@ export function MachineLockedScreen(): JSX.Element | null {
   return (
     <Screen>
       <Main centerChild>
-        <Column style={{ alignItems: 'center' }}>
-          <LockedImage src="/locked.svg" alt="Locked Icon" />
-          <H1 style={{ marginTop: '0' }}>VxPrint Locked</H1>
-          <H3 style={{ fontWeight: 'normal' }}>
-            {electionDefinition
-              ? 'Insert card to unlock.'
-              : 'Insert an election manager card to configure VxPrint.'}
-          </H3>
-        </Column>
+        {electionDefinition ? (
+          <Font align="center">
+            <LockedImage src="/locked.svg" alt="Locked Icon" />
+            <H1 style={{ marginTop: '0' }}>VxPrint Locked</H1>
+            <H3 style={{ fontWeight: 'normal' }}>Insert card to unlock.</H3>
+          </Font>
+        ) : (
+          <Font align="center">
+            <InsertCardImage cardInsertionDirection="right" />
+            <H1 style={{ maxWidth: '27rem', marginTop: '0' }}>
+              Insert an election manager card to configure VxPrint.
+            </H1>
+          </Font>
+        )}
       </Main>
       <ElectionInfoBar
         mode="admin"
