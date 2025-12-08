@@ -26,7 +26,7 @@ export async function configureFromUsbThenRemove(
   apiMock.expectGetElectionState();
 
   // Remove USB after configuration is done
-  await vi.waitFor(() => screen.getByText('Election Definition is loaded.'));
+  await vi.waitFor(() => screen.getByText('Election Manager Menu'));
 
   apiMock.setUsbDriveStatus({ status: 'no_drive' });
 }

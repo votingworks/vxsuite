@@ -118,6 +118,6 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
 
     // expect to see election manager screen
-    await screen.findByRole('heading', { name: 'Election Manager Settings' });
+    await screen.findByRole('heading', { name: 'Election Manager Menu' });
   });
 });
