@@ -57,7 +57,7 @@ function PrintAllModal({
 
   if (
     !getElectionRecordQuery.isSuccess ||
-    !getDistinctBallotStylesCountQuery.isSuccess
+    getDistinctBallotStylesCountQuery.data === undefined
   ) {
     return null;
   }
@@ -141,7 +141,12 @@ function PrintAllModal({
       onOverlayClick={onClose}
       actions={
         <React.Fragment>
-          <Button icon="Print" variant="primary" onPress={handlePrint}>
+          <Button
+            icon="Print"
+            variant="primary"
+            onPress={handlePrint}
+            disabled={!getDistinctBallotStylesCountQuery.isSuccess}
+          >
             Print {numberOfBallotStyles} Ballot Styles
           </Button>
           <Button onPress={onClose}>Cancel</Button>
