@@ -47,9 +47,13 @@ export function buildApi(ctx: AppContext) {
   const { auth, usbDrive, logger, workspace, printer } = ctx;
   const { store } = workspace;
 
-  function printBallots(options: PrintProps) {
+  function printBallots(
+    electionDefinition: ElectionDefinition,
+    options: PrintProps
+  ) {
     return printer.print({
       ...options,
+      size: electionDefinition.election.ballotLayout.paperSize,
       sides: PrintSides.TwoSidedLongEdge,
     });
   }
@@ -293,7 +297,7 @@ export function buildApi(ctx: AppContext) {
         return;
       }
 
-      await printBallots({
+      await printBallots(electionDefinition, {
         data: Buffer.from(ballot.encodedBallot, 'base64'),
         copies: input.copies,
       });
@@ -326,6 +330,7 @@ export function buildApi(ctx: AppContext) {
       ballotType: BallotType;
       copiesPerStyle: number;
     }): Promise<void> {
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
       const printerStatus = await printer.status();
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
         message: `Attempting to print all ballot styles with ${input.copiesPerStyle} copies`,
@@ -382,7 +387,7 @@ export function buildApi(ctx: AppContext) {
 
       let totalPrintCount = 0;
       for (const ballot of ballots) {
-        await printBallots({
+        await printBallots(electionDefinition, {
           data: Buffer.from(ballot.encodedBallot, 'base64'),
           copies: input.copiesPerStyle,
         });
