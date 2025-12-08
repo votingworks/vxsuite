@@ -1,9 +1,5 @@
 import path from 'node:path';
-import {
-  isIntegrationTest,
-  isStagingDeploy,
-  isVxDev,
-} from '@votingworks/utils';
+import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 
 import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
 import { FileKey, RemoteKey, TpmKey } from './keys';
@@ -26,12 +22,7 @@ export const PROD_VX_CERT_AUTHORITY_CERT_PATH = path.join(
 );
 
 function shouldUseProdCerts(): boolean {
-  return (
-    isNodeEnvProduction() &&
-    !isVxDev() &&
-    !isIntegrationTest() &&
-    !isStagingDeploy()
-  );
+  return isNodeEnvProduction() && !isVxDev() && !isIntegrationTest();
 }
 /**
  * Gets the path to the VxCertAuthorityCert
