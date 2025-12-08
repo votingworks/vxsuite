@@ -7,8 +7,8 @@ export const vxOrg: Org = {
 };
 export const vxUser: User = {
   name: 'vx.user@example.com',
-  auth0Id: 'auth0|vx-user-id',
-  orgId: vxOrg.id,
+  id: 'auth0|vx-user-id',
+  organizations: [vxOrg],
 };
 
 export const nonVxOrg: Org = {
@@ -17,8 +17,8 @@ export const nonVxOrg: Org = {
 };
 export const nonVxUser: User = {
   name: 'non.vx.user@example.com',
-  auth0Id: 'auth0|non-vx-user-id',
-  orgId: nonVxOrg.id,
+  id: 'auth0|non-vx-user-id',
+  organizations: [nonVxOrg],
 };
 
 export const anotherNonVxOrg: Org = {
@@ -27,8 +27,8 @@ export const anotherNonVxOrg: Org = {
 };
 export const anotherNonVxUser: User = {
   ...nonVxUser,
-  auth0Id: 'auth0|another-non-vx-user-id',
-  orgId: anotherNonVxOrg.id,
+  id: 'auth0|another-non-vx-user-id',
+  organizations: [anotherNonVxOrg],
 };
 
 export const sliOrg: Org = {
@@ -37,8 +37,8 @@ export const sliOrg: Org = {
 };
 export const sliUser: User = {
   name: 'sli.user@example.com',
-  auth0Id: 'auth0|sli-user-id',
-  orgId: sliOrg.id,
+  id: 'auth0|sli-user-id',
+  organizations: [sliOrg],
 };
 
 export const vxDemosOrg: Org = {
@@ -47,8 +47,8 @@ export const vxDemosOrg: Org = {
 };
 export const vxDemosUser: User = {
   name: 'vx.demos.user@example.com',
-  auth0Id: 'auth0|vx-demos-user-id',
-  orgId: vxDemosOrg.id,
+  id: 'auth0|vx-demos-user-id',
+  organizations: [vxDemosOrg],
 };
 
 export const orgs: Org[] = [
@@ -57,4 +57,12 @@ export const orgs: Org[] = [
   anotherNonVxOrg,
   sliOrg,
   vxDemosOrg,
+];
+
+export const users: User[] = [
+  vxUser,
+  nonVxUser,
+  anotherNonVxUser,
+  sliUser,
+  vxDemosUser,
 ];

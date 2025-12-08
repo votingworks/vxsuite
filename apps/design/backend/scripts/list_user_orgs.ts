@@ -1,6 +1,10 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
-import { Auth0Client } from '../src/auth0_client';
+import { assertDefined } from '@votingworks/basics';
+import { resolve } from 'node:path';
+import { BaseLogger, LogSource } from '@votingworks/logging';
+import { createWorkspace } from '../src/workspace';
+import { WORKSPACE } from '../src/globals';
 
 const USAGE = `Usage: pnpm list-user-orgs <email address>`;
 
@@ -18,10 +22,17 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  const auth = Auth0Client.init();
-  const orgs = await auth.userOrgs(userEmail);
+  const workspace = createWorkspace(
+    resolve(assertDefined(WORKSPACE)),
+    new BaseLogger(LogSource.VxDesignService)
+  );
+  const userId = await workspace.store.getUserIdByEmail(userEmail);
+  if (!userId) {
+    throw new Error(`No user found with email address ${userEmail}`);
+  }
+  const user = assertDefined(await workspace.store.getUser(userId));
 
-  console.log(`✅ Org memberships for ${userEmail}:`, orgs);
+  console.log(`✅ Org memberships for ${userEmail}:`, user.organizations);
 }
 
 main()

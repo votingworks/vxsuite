@@ -1,13 +1,13 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
-import { ManagementApiError } from 'auth0';
+import { assertDefined } from '@votingworks/basics';
+import { resolve } from 'node:path';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { Auth0Client } from '../src/auth0_client';
+import { createWorkspace } from '../src/workspace';
+import { WORKSPACE } from '../src/globals';
 
 const USAGE = `Usage: pnpm create-user --orgId=<string> <email address>`;
-
-enum ErrorCode {
-  ALREADY_EXISTS = 409,
-}
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
@@ -26,26 +26,31 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  const auth = Auth0Client.init();
-  try {
-    await auth.createUser({ orgId, userEmail });
+  const workspace = createWorkspace(
+    resolve(assertDefined(WORKSPACE)),
+    new BaseLogger(LogSource.VxDesignService)
+  );
 
-    console.log(`✅ User created and added to org ${orgId}`);
-  } catch (error) {
-    if (!(error instanceof ManagementApiError)) {
-      throw error;
-    }
-
-    // [TODO] move this fallback logic into the auth client layer. We can
-    // decouple user creation and org membership, so that `createUser` is
-    // idempotent.
-    if ((error.statusCode as ErrorCode) === ErrorCode.ALREADY_EXISTS) {
-      console.log('User already exists. Attempting to add to org...');
-      await auth.addOrgMember({ orgId, userEmail });
-
-      console.log(`✅ Existing user added to org ${orgId}`);
-    }
+  const org = await workspace.store.getOrganization(orgId);
+  if (!org) {
+    throw new Error(`Organization with ID ${orgId} does not exist`);
   }
+
+  const auth = Auth0Client.init();
+
+  const existingUserId = await workspace.store.getUserIdByEmail(userEmail);
+  if (existingUserId) {
+    console.log('User already exists. Attempting to add to org...');
+    await workspace.store.addUserToOrganization(existingUserId, orgId);
+    console.log(`✅ Existing user added to org ${orgId}`);
+    return;
+  }
+
+  const userId = await auth.createUser({ userEmail });
+  await workspace.store.createUser({ id: userId, name: userEmail });
+  await workspace.store.addUserToOrganization(userId, orgId);
+
+  console.log(`✅ User created and added to org ${orgId}`);
 }
 
 main()

@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { P, Button, Modal, ButtonVariant } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { OrgSelect } from './org_select';
 
 export interface CreateElectionButtonProps {
   variant?: ButtonVariant;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
 export function CreateElectionButton(
@@ -27,7 +27,7 @@ export function CreateElectionButton(
   const user = userQuery.data;
   React.useEffect(() => {
     if (user) {
-      setOrgId(user.orgId);
+      setOrgId(assertDefined(user.organizations[0]).id);
     }
   }, [user]);
 
@@ -62,7 +62,11 @@ export function CreateElectionButton(
       <Button
         variant={variant}
         icon="Add"
-        onPress={features.ACCESS_ALL_ORGS ? setModalActive : createElection}
+        onPress={
+          features.ACCESS_ALL_ORGS || (user?.organizations || []).length > 1
+            ? setModalActive
+            : createElection
+        }
         value
         disabled={modalActive || disabled}
       >

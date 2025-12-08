@@ -69,6 +69,7 @@ import {
   GetExportedElectionError,
   Org,
   QuickReportedPollStatus,
+  User,
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
@@ -470,45 +471,6 @@ export class Store {
     return new Store(new Db(logger), logger);
   }
 
-  /**
-   * Takes the organizations from Auth0 (the source of truth) and caches them in
-   * the database, adding/removing/updating records as necessary.
-   */
-  async syncOrganizationsCache(organizations: Org[]): Promise<void> {
-    await this.db.withClient((client) =>
-      client.withTransaction(async () => {
-        // Add new orgs or update existing orgs
-        // Relies on invariant that Auth0 org IDs never change
-        for (const org of organizations) {
-          const { rowCount } = await client.query(
-            `
-            insert into organizations (id, name)
-            values ($1, $2)
-            on conflict (id) do update
-            set name = excluded.name
-            `,
-            org.id,
-            org.name
-          );
-          assert(rowCount === 1, `Failed to insert or update org ${org.id}`);
-        }
-
-        if (organizations.length > 0) {
-          // Delete orgs that are no longer in Auth0
-          await client.query(
-            `
-            delete from organizations
-            where not (id = any ($1))
-            `,
-            organizations.map((org) => org.id)
-          );
-        }
-
-        return true;
-      })
-    );
-  }
-
   async listOrganizations(): Promise<Org[]> {
     return await this.db.withClient(async (client) => {
       const orgRows = (
@@ -523,15 +485,124 @@ export class Store {
     });
   }
 
+  async createOrganization(org: Org): Promise<void> {
+    await this.db.withClient(async (client) => {
+      await client.query(
+        `
+        insert into organizations (id, name)
+        values ($1, $2)
+        `,
+        org.id,
+        org.name
+      );
+    });
+  }
+
+  async getOrganization(orgId: string): Promise<Optional<Org>> {
+    return this.db.withClient(
+      async (client) =>
+        (
+          await client.query(
+            `
+            select id, name
+            from organizations
+            where id = $1
+            `,
+            orgId
+          )
+        ).rows[0]
+    );
+  }
+
+  async createUser(user: Omit<User, 'organizations'>): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          insert into users (id, name)
+          values ($1, $2)
+          `,
+        user.id,
+        user.name
+      )
+    );
+  }
+
+  async addUserToOrganization(userId: string, orgId: string): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+        insert into users_organizations (user_id, organization_id)
+        values ($1, $2)
+        `,
+        userId,
+        orgId
+      )
+    );
+  }
+
+  async getUser(userId: string): Promise<Optional<User>> {
+    return this.db.withClient(async (client) => {
+      const userRow = (
+        await client.query(
+          `
+          select id, name
+          from users
+          where id = $1
+          `,
+          userId
+        )
+      ).rows[0] as { id: string; name: string } | undefined;
+      if (!userRow) {
+        return undefined;
+      }
+      const orgRows = (
+        await client.query(
+          `
+          select organizations.id, organizations.name
+          from organizations
+          join users_organizations on users_organizations.organization_id = organizations.id
+          where users_organizations.user_id = $1
+          `,
+          userId
+        )
+      ).rows as Org[];
+      return {
+        ...userRow,
+        organizations: orgRows,
+      };
+    });
+  }
+
+  async getUserIdByEmail(email: string): Promise<Optional<string>> {
+    return this.db.withClient(async (client) => {
+      const userRow = (
+        await client.query(
+          `
+          select id
+          from users
+          where name = $1
+          `,
+          email
+        )
+      ).rows[0] as { id: string } | undefined;
+      if (!userRow) {
+        return undefined;
+      }
+      return userRow.id;
+    });
+  }
+
   async listElections(input: {
-    orgId?: string;
+    orgIds?: string[];
   }): Promise<Array<Omit<ElectionListing, 'orgName'>>> {
     let whereClause = '';
     const params: Bindable[] = [];
 
-    if (input.orgId) {
-      whereClause = 'where org_id = $1';
-      params.push(input.orgId);
+    if (input.orgIds) {
+      whereClause = `where org_id in (${input.orgIds
+        .map((_, i) => `$${i + 1}`)
+        .join(', ')})`;
+      params.push(...input.orgIds);
     }
 
     return (

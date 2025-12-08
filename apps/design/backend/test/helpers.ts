@@ -60,7 +60,6 @@ const vendoredTranslations: VendoredTranslations = {
 
 class MockAuth0Client implements Auth0ClientInterface {
   private loggedInUser: User | undefined;
-  private orgs: readonly Org[] = [];
 
   setLoggedInUser(user: User) {
     this.loggedInUser = user;
@@ -70,16 +69,8 @@ class MockAuth0Client implements Auth0ClientInterface {
     this.loggedInUser = undefined;
   }
 
-  setOrgs(orgs: readonly Org[]) {
-    this.orgs = orgs;
-  }
-
-  async allOrgs(): Promise<Org[]> {
-    return this.orgs.slice();
-  }
-
-  userFromRequest(_req: Request) {
-    return this.loggedInUser;
+  userIdFromRequest(_req: Request) {
+    return this.loggedInUser?.id;
   }
 }
 
@@ -120,15 +111,20 @@ export function testSetupHelpers() {
   });
   const testStore = new TestStore(baseLogger);
 
-  async function setupApp(orgs: Org[]) {
+  async function setupApp({ orgs, users }: { orgs: Org[]; users: User[] }) {
     const store = testStore.getStore();
     await testStore.init();
-
+    for (const org of orgs) {
+      await store.createOrganization(org);
+    }
+    for (const user of users) {
+      await store.createUser(user);
+      for (const organization of user.organizations) {
+        await store.addUserToOrganization(user.id, organization.id);
+      }
+    }
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
-
     const auth0 = new MockAuth0Client();
-    auth0.setOrgs(orgs);
-    await store.syncOrganizationsCache(orgs);
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,

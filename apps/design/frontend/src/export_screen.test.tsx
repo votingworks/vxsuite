@@ -11,6 +11,7 @@ import {
   createMockApiClient,
   MockApiClient,
   mockUserFeatures,
+  org,
   user,
 } from '../test/api_helpers';
 import { render, screen, waitFor } from '../test/react_testing_library';
@@ -21,7 +22,7 @@ import { downloadFile } from './utils';
 import { generalElectionRecord } from '../test/fixtures';
 import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api';
 
-const electionRecord = generalElectionRecord(user.orgId);
+const electionRecord = generalElectionRecord(org.id);
 const electionId = electionRecord.election.id;
 
 vi.mock(import('./utils'), async (importActual) => ({
