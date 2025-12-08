@@ -240,7 +240,11 @@ export function Toolbar(): JSX.Element | null {
 
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   if (!getDeviceStatusesQuery.isSuccess) {
-    return null;
+    return (
+      <ToolbarContainer>
+        <LockMachineButton />
+      </ToolbarContainer>
+    );
   }
 
   const { usbDrive, printer, battery } = getDeviceStatusesQuery.data;

@@ -187,8 +187,10 @@ export const getDistinctBallotStylesCount = {
   },
   useQuery(input: { ballotType: BallotType; languageCode: LanguageCode }) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getDistinctBallotStylesCount(input)
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getDistinctBallotStylesCount(input),
+      { keepPreviousData: true }
     );
   },
 } as const;
