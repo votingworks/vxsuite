@@ -62,7 +62,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
   );
 
   // Election Manager: set precinct
-  await page.getByText('Precinct', { exact: true }).waitFor();
+  await page.getByText('Election Manager Menu', { exact: true }).waitFor();
   await page.getByText('Select a precinct…').click({ force: true });
   await page.getByText('Center Springfield', { exact: true }).click();
 
