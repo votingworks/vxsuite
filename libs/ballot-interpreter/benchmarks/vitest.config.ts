@@ -5,5 +5,6 @@ export default defineConfig({
   test: {
     include: ['**/*.bench.ts'],
     maxConcurrency: 1,
+    testTimeout: 30_000,
   },
 });
