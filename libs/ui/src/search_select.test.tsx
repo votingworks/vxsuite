@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import {
   SearchSelect,
   SearchSelectProps,
@@ -313,4 +313,26 @@ test('complex value type uses deep equality', () => {
   userEvent.click(screen.getByText('Green Apple'));
   screen.getByText('Green Apple');
   expect(screen.queryByText('Red Apple')).not.toBeInTheDocument();
+});
+
+test('a11y', () => {
+  render(
+    <ControlledSingleSelect options={options} aria-label="Choose Fruit" />
+  );
+
+  const combobox = screen.getByRole('combobox', { name: 'Choose Fruit' });
+  userEvent.click(combobox);
+  const listbox = screen.getByRole('listbox');
+  expect(combobox).toHaveAttribute('aria-expanded', 'true');
+  expect(combobox).toHaveAttribute('aria-controls', listbox.id);
+  expect(within(listbox).getAllByRole('option').length).toEqual(options.length);
+
+  const appleOption = within(listbox).getByRole('option', {
+    name: 'Apple',
+    selected: false,
+  });
+  userEvent.click(appleOption);
+  expect(combobox).toHaveAttribute('aria-expanded', 'false');
+  // Note: since menu is closed, options are removed from DOM, so we can't test
+  // aria-selected="true" here
 });
