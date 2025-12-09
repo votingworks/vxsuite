@@ -33,6 +33,7 @@ const TTS_MODE_OPTIONS: Array<RadioGroupOption<TtsExportSource>> = [
 ];
 
 export interface AudioEditorProps {
+  electionId: string;
   languageCode: string;
   orgId: string;
   ttsDefault: TtsStringDefault;
@@ -46,19 +47,22 @@ export interface AudioEditorProps {
 }
 
 export function AudioEditor(props: AudioEditorProps): React.ReactNode {
-  const { languageCode, orgId, phoneticEnabled, ttsDefault } = props;
+  const { electionId, languageCode, orgId, phoneticEnabled, ttsDefault } =
+    props;
   const [mode, setMode] = React.useState<TtsExportSource | null>(null);
 
+  const ballotsFinalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
   const savedEdit = api.ttsEditsGet.useQuery({
     orgId,
     languageCode,
     original: ttsDefault.text,
   });
 
-  if (!savedEdit.isSuccess) return null;
+  if (!savedEdit.isSuccess || !ballotsFinalizedAt.isSuccess) return null;
 
   const defaultMode = savedEdit.data?.exportSource || 'text';
   const currentMode = mode || defaultMode;
+  const editable = !ballotsFinalizedAt.data;
 
   // Phonetic editing isn't supported for ballot measures at the moment, given
   // how long/complex they can get.
@@ -74,6 +78,7 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
     <React.Fragment>
       <ModeContainer>
         <RadioGroup
+          disabled={!editable}
           label="Audio Source"
           hideLabel
           numColumns={2}
@@ -88,6 +93,7 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
           case 'text':
             return (
               <TtsTextEditor
+                editable={editable}
                 languageCode={languageCode}
                 orgId={orgId}
                 original={ttsDefault.text}
