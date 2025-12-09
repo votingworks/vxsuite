@@ -80,7 +80,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
     date: election.date,
     type: election.type,
     state: election.state,
-    jurisdiction: election.county.name,
+    countyName: election.county.name,
     seal: election.seal,
     signatureImage: election.signature?.image,
     signatureCaption: election.signature?.caption,
@@ -107,7 +107,7 @@ export function electionListing(
     date: election.date,
     type: election.type,
     state: election.state,
-    jurisdiction: election.county.name,
+    countyName: election.county.name,
     status: 'inProgress',
   };
 }

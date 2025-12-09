@@ -56,7 +56,7 @@ export interface ElectionListing {
   title: string;
   date: DateWithoutTime;
   type: ElectionType;
-  jurisdiction: string;
+  countyName: string;
   state: string;
   status: ElectionStatus;
 }
@@ -68,7 +68,7 @@ export interface ElectionInfo {
   date: DateWithoutTime;
   title: string;
   state: string;
-  jurisdiction: string;
+  countyName: string;
   seal: string;
   languageCodes: LanguageCode[];
   signatureImage?: string;

@@ -42,7 +42,7 @@ function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return (
     !electionInfo.title &&
     !electionInfo.state &&
-    !electionInfo.jurisdiction &&
+    !electionInfo.countyName &&
     !electionInfo.seal
   );
 }
@@ -215,9 +215,9 @@ function ElectionInfoForm({
         <InputGroup label="Jurisdiction">
           <input
             type="text"
-            value={electionInfo.jurisdiction}
-            onChange={onInputChange('jurisdiction')}
-            onBlur={onInputBlur('jurisdiction')}
+            value={electionInfo.countyName}
+            onChange={onInputChange('countyName')}
+            onBlur={onInputBlur('countyName')}
             disabled={disabled}
             autoComplete="off"
             required

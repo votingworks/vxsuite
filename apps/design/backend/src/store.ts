@@ -618,7 +618,7 @@ export class Store {
                 elections.type,
                 elections.title,
                 elections.date,
-                elections.jurisdiction,
+                elections.county_name as "countyName",
                 elections.state,
                 elections.ballots_finalized_at as "ballotsFinalizedAt",
                 count(contests.id)::int as "contestCount"
@@ -646,7 +646,7 @@ export class Store {
       type: row.type,
       title: row.title,
       date: new DateWithoutTime(row.date.toISOString().split('T')[0]),
-      jurisdiction: row.jurisdiction,
+      countyName: row.countyName,
       state: row.state,
       status: (() => {
         if (row.contestCount === 0) {
@@ -670,8 +670,8 @@ export class Store {
               type,
               title,
               date,
-              jurisdiction,
-              jurisdiction_id as "jurisdictionId",
+              county_name as "countyName",
+              county_id as "countyId",
               state,
               seal,
               signature,
@@ -692,8 +692,8 @@ export class Store {
         type: ElectionType;
         title: string;
         date: Date;
-        jurisdiction: string;
-        jurisdictionId: string;
+        countyName: string;
+        countyId: string;
         state: string;
         seal: string;
         signature: Signature | null;
@@ -942,8 +942,8 @@ export class Store {
         title: electionRow.title,
         date: new DateWithoutTime(electionRow.date.toISOString().split('T')[0]),
         county: {
-          id: electionRow.jurisdictionId,
-          name: electionRow.jurisdiction,
+          id: electionRow.countyId,
+          name: electionRow.countyName,
         },
         state: electionRow.state,
         seal: electionRow.seal,
@@ -1111,8 +1111,8 @@ export class Store {
             type,
             title,
             date,
-            jurisdiction,
-            jurisdiction_id,
+            county_name,
+            county_id,
             state,
             seal,
             signature,
@@ -1215,7 +1215,7 @@ export class Store {
             type = $1,
             title = $2,
             date = $3,
-            jurisdiction = $4,
+            county_name = $4,
             state = $5,
             seal = $6,
             signature = $7,
@@ -1225,7 +1225,7 @@ export class Store {
           electionInfo.type,
           electionInfo.title,
           electionInfo.date.toISOString(),
-          electionInfo.jurisdiction,
+          electionInfo.countyName,
           electionInfo.state,
           electionInfo.seal,
           electionInfo.signatureImage

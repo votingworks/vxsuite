@@ -176,7 +176,7 @@ function AllOrgsElectionsList({
         case 'Org':
           return election.orgName;
         case 'Jurisdiction':
-          return election.jurisdiction;
+          return election.countyName;
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(field);
@@ -271,7 +271,7 @@ function AllOrgsElectionsList({
             <LinkCell election={election}>{election.orgName}</LinkCell>
 
             {showJurisdiction && (
-              <LinkCell election={election}>{election.jurisdiction}</LinkCell>
+              <LinkCell election={election}>{election.countyName}</LinkCell>
             )}
 
             <LinkCell election={election}>
@@ -327,7 +327,7 @@ function ElectionsList({
                 )}
             </LinkCell>
 
-            <LinkCell election={election}>{election.jurisdiction}</LinkCell>
+            <LinkCell election={election}>{election.countyName}</LinkCell>
 
             {showOrganization && (
               <LinkCell election={election}>{election.orgName}</LinkCell>
