@@ -27,7 +27,6 @@ import {
   useAudioControls,
   useLanguageControls,
   InvalidCardScreen,
-  useQueryChangeListener,
   VendorScreen,
   handleKeyboardEvent,
   PatDeviceContextProvider,
@@ -361,15 +360,6 @@ export function AppRoot(): JSX.Element | null {
       // Handled by default query client error handling
     }
   }, [endCardlessVoterSessionMutateAsync]);
-
-  // Reset the ballot if the printer is disconnected mid-voting
-  useQueryChangeListener(printerStatusQuery, {
-    onChange: (currentPrinterStatus, previousPrinterStatus) => {
-      if (previousPrinterStatus?.connected && !currentPrinterStatus.connected) {
-        resetBallot();
-      }
-    },
-  });
 
   // Callback for PAT tutorial completion
   const onPatCalibrationComplete = useCallback(() => {
