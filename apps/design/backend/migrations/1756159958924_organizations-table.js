@@ -34,11 +34,11 @@ exports.up = async (pgm) => {
       );
     }
   } else {
-    // In dev mode, create the default dev organization
+    // In dev mode, create the default dev organization (use VotingWorks org ID to get full features)
     pgm.sql(`
       INSERT INTO organizations (id, name) VALUES (
-        'org_devorg',
-        'Dev Organization'
+        'votingworks',
+        'VotingWorks'
       );
     `);
   }

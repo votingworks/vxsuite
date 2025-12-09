@@ -78,11 +78,11 @@ exports.up = async (pgm) => {
       );
     `);
 
-    // Add the dev user to the dev organization
+    // Add the dev user to the dev organization (use VotingWorks org ID to get full features)
     pgm.sql(`
       INSERT INTO users_organizations (user_id, organization_id) VALUES (
         'auth0|devuser',
-        'org_devorg'
+        'votingworks'
       );
     `);
   }
