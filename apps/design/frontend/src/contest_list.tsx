@@ -2,8 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 
-import { Button, H2, Caption, Font, DesktopPalette } from '@votingworks/ui';
-import { Contest } from '@votingworks/types';
+import {
+  Button,
+  H2,
+  Caption,
+  Font,
+  DesktopPalette,
+  useCurrentTheme,
+} from '@votingworks/ui';
+import { AnyContest, Party } from '@votingworks/types';
 
 import { useHistory, useParams } from 'react-router-dom';
 import { Column, Row } from './layout';
@@ -50,6 +57,11 @@ const Item = styled.li`
 const Container = styled.ul`
   --contest-list-border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${DesktopPalette.Gray30};
+  --contest-list-title-size: 1.25rem;
+  --contest-list-title-padding-y: 0.75rem;
+  --contest-list-scroll-padding: calc(
+    var(--contest-list-title-size) + (2 * var(--contest-list-title-padding-y))
+  );
 
   display: flex;
   flex-direction: column;
@@ -58,16 +70,19 @@ const Container = styled.ul`
   list-style: none;
   margin: 0;
   overflow-y: auto;
-  position: relative;
   padding: 0 0.125rem 0 0;
-  scroll-padding: 5rem;
+  position: relative;
+  scroll-padding: var(--contest-list-scroll-padding);
 
   h2 {
     background-color: ${(p) => p.theme.colors.containerLow};
     border-bottom: var(--contest-list-border);
     border-right: var(--contest-list-border);
+    border-bottom-width: ${(p) => p.theme.sizes.bordersRem.medium}rem;
+    font-size: var(--contest-list-title-size);
+    line-height: 1;
     margin: 0;
-    padding: 1rem;
+    padding: var(--contest-list-title-padding-y) 1rem;
     position: sticky;
     top: 0;
     white-space: nowrap;
@@ -114,10 +129,10 @@ export interface ReorderParams {
 }
 
 export interface ContestListProps {
-  candidateContests: Contest[];
+  candidateContests: AnyContest[];
   reordering: boolean;
   reorder: (params: ReorderParams) => void;
-  yesNoContests: Contest[];
+  yesNoContests: AnyContest[];
 }
 
 // [TODO] Might make sense, visually and functionally, to move the controls for
@@ -134,7 +149,9 @@ export function ContestList(props: ContestListProps): React.ReactNode {
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
 
+  const parties = api.listParties.useQuery(electionId);
   const districts = api.listDistricts.useQuery(electionId);
+
   const districtIdToName = React.useMemo(
     () => new Map((districts.data || []).map((d) => [d.id, d.name])),
     [districts.data]
@@ -144,6 +161,8 @@ export function ContestList(props: ContestListProps): React.ReactNode {
     history.push(contestRoutes.view(id).path);
   }
 
+  if (!parties.isSuccess || !districts.isSuccess) return null;
+
   return (
     <Container role="listbox">
       {candidateContests.length > 0 && (
@@ -151,6 +170,7 @@ export function ContestList(props: ContestListProps): React.ReactNode {
           contests={candidateContests}
           districtIdToName={districtIdToName}
           onSelect={onSelect}
+          parties={parties.data}
           reordering={reordering}
           reorder={reorder}
           selectedId={contestId}
@@ -163,6 +183,7 @@ export function ContestList(props: ContestListProps): React.ReactNode {
           contests={yesNoContests}
           districtIdToName={districtIdToName}
           onSelect={onSelect}
+          parties={parties.data}
           reordering={reordering}
           reorder={reorder}
           selectedId={contestId}
@@ -174,9 +195,10 @@ export function ContestList(props: ContestListProps): React.ReactNode {
 }
 
 export function Sublist(props: {
-  contests: Contest[];
+  contests: AnyContest[];
   districtIdToName: Map<string, string>;
   onSelect: (contestId: string) => void;
+  parties: readonly Party[];
   reorder: (params: ReorderParams) => void;
   reordering: boolean;
   selectedId: string | null;
@@ -186,9 +208,10 @@ export function Sublist(props: {
     contests,
     districtIdToName,
     onSelect,
-    selectedId,
+    parties,
     reorder,
     reordering,
+    selectedId,
     title,
   } = props;
   const selectedContestRef = React.useRef<HTMLLIElement>(null);
@@ -240,17 +263,12 @@ export function Sublist(props: {
               tabIndex={0}
             >
               <Column style={{ flexGrow: 1 }}>
-                <Caption
-                  style={{
-                    color:
-                      selectedId === c.id
-                        ? DesktopPalette.Gray90
-                        : DesktopPalette.Gray70,
-                  }}
-                  weight="regular"
-                >
+                <ContestCaption bold selected={selectedId === c.id}>
+                  {partyName(c, parties)}
+                </ContestCaption>
+                <ContestCaption selected={selectedId === c.id}>
                   {districtIdToName.get(c.districtId)}
-                </Caption>
+                </ContestCaption>
                 <Font weight={selectedId === c.id ? 'bold' : 'regular'}>
                   {c.title}
                 </Font>
@@ -283,5 +301,30 @@ export function Sublist(props: {
         ))}
       </Flipper>
     </React.Fragment>
+  );
+}
+
+function partyName(contest: AnyContest, parties: readonly Party[]) {
+  if (contest.type !== 'candidate' || !contest.partyId) return undefined;
+
+  return parties.find((p) => p.id === contest.partyId)?.fullName;
+}
+
+function ContestCaption(props: {
+  children: React.ReactNode;
+  bold?: boolean;
+  selected: boolean;
+}) {
+  const { bold, children, selected } = props;
+
+  const { colors } = useCurrentTheme();
+  const color = selected ? colors.onBackground : colors.onBackgroundMuted;
+
+  if (React.Children.count(children) === 0) return null;
+
+  return (
+    <Caption style={{ color }} weight={bold ? 'semiBold' : 'regular'}>
+      {children}
+    </Caption>
   );
 }
