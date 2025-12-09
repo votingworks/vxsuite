@@ -8,8 +8,19 @@ import { ReportScreen } from './screens/report_screen';
 import { ElectionScreen } from './screens/election_screen';
 import { electionManagerRoutes } from './routes';
 import { PrinterAlertWrapper } from './components/printer_alert_wrapper';
+import { getElectionRecord, getPrecinctSelection } from './api';
 
-export function ElectionManagerApp(): JSX.Element {
+export function ElectionManagerApp(): JSX.Element | null {
+  const electionRecordQuery = getElectionRecord.useQuery();
+  const precinctSelectionQuery = getPrecinctSelection.useQuery();
+
+  if (!electionRecordQuery.isSuccess || !precinctSelectionQuery.isSuccess) {
+    return null;
+  }
+
+  const isMachineConfigured =
+    electionRecordQuery.data !== null && precinctSelectionQuery.data !== null;
+
   return (
     <React.Fragment>
       <Switch>
@@ -46,7 +57,13 @@ export function ElectionManagerApp(): JSX.Element {
             </ScreenWrapper>
           )}
         />
-        <Redirect to={electionManagerRoutes.election.path} />
+        <Redirect
+          to={
+            isMachineConfigured
+              ? electionManagerRoutes.election.path
+              : electionManagerRoutes.print.path
+          }
+        />
       </Switch>
       <PrinterAlertWrapper />
     </React.Fragment>
