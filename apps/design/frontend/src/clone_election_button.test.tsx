@@ -100,7 +100,7 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
     user
   );
 
-  queryClient.setQueryData(api.listOrganizations.queryKey(), [
+  queryClient.setQueryData(api.listJurisdictions.queryKey(), [
     VX_ORG,
     NON_VX_ORG,
   ]);
@@ -135,7 +135,7 @@ test('shows org picker for multi-org user', async () => {
     multiOrgUser
   );
 
-  queryClient.setQueryData(api.listOrganizations.queryKey(), [
+  queryClient.setQueryData(api.listJurisdictions.queryKey(), [
     VX_ORG,
     NON_VX_ORG,
   ]);

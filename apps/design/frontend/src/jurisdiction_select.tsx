@@ -13,7 +13,7 @@ export function JurisdictionSelect(
 ): JSX.Element {
   const { disabled, onChange, selectedJurisdictionId, style } = props;
 
-  const jurisdictions = api.listOrganizations.useQuery().data;
+  const jurisdictions = api.listJurisdictions.useQuery().data;
 
   const options = React.useMemo(
     () =>

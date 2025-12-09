@@ -90,9 +90,9 @@ export const getUser = {
 } as const;
 
 /* istanbul ignore next - @preserve */
-export const listOrganizations = {
+export const listJurisdictions = {
   queryKey(): QueryKey {
-    return ['listOrganizations'];
+    return ['listJurisdictions'];
   },
   useQuery() {
     const apiClient = useApiClient();
