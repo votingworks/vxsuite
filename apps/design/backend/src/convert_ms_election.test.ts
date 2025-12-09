@@ -3,20 +3,20 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { Election, safeParseElection } from '@votingworks/types';
 import { convertMsElection } from './convert_ms_election';
 import { TestStore } from '../test/test_store';
-import { Org } from './types';
+import { Jurisdiction } from './types';
 import { readFixture } from '../test/helpers';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
 const store = testStore.getStore();
-const org: Org = {
-  id: 'test-org-id',
-  name: 'Test Org',
+const jurisdiction: Jurisdiction = {
+  id: 'test-jurisdiction-id',
+  name: 'Test Jurisdiction',
 };
 
 beforeAll(async () => {
   await testStore.init();
-  await store.createOrganization(org);
+  await store.createJurisdiction(jurisdiction);
 });
 
 afterAll(async () => {
@@ -24,7 +24,7 @@ afterAll(async () => {
 });
 
 async function expectValidElection(election: Election) {
-  await store.createElection(org.id, election, 'VxDefaultBallot');
+  await store.createElection(jurisdiction.id, election, 'VxDefaultBallot');
   expect(
     safeParseElection((await store.getElection(election.id)).election).err()
   ).toBeUndefined();

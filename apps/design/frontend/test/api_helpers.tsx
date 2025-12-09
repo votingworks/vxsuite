@@ -7,7 +7,7 @@ import type {
   User,
   UserFeature,
   UserFeaturesConfig,
-  Org,
+  Jurisdiction,
 } from '@votingworks/design-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { AppBase, TestErrorBoundary } from '@votingworks/ui';
@@ -94,24 +94,24 @@ export function provideApi(
   );
 }
 
-export const org: Org = {
-  id: 'org1',
-  name: 'Test Organization',
+export const jurisdiction: Jurisdiction = {
+  id: 'jurisdiction1',
+  name: 'Test Jurisdiction',
 };
 
-export const org2: Org = {
-  id: 'org2',
-  name: 'Another Organization',
+export const jurisdiction2: Jurisdiction = {
+  id: 'jurisdiction2',
+  name: 'Another Jurisdiction',
 };
 
 export const user: User = {
   name: 'Test User',
   id: 'auth0|123456789',
-  organizations: [org],
+  jurisdictions: [jurisdiction],
 };
 
-export const multiOrgUser: User = {
-  name: 'Multi Org User',
+export const multiJurisdictionUser: User = {
+  name: 'Multi Jurisdiction User',
   id: 'auth0|987654321',
-  organizations: [org, org2],
+  jurisdictions: [jurisdiction, jurisdiction2],
 };

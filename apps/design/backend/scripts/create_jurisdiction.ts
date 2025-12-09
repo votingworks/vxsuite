@@ -6,9 +6,9 @@ import { assertDefined } from '@votingworks/basics';
 import { createWorkspace } from '../src/workspace';
 import { WORKSPACE } from '../src/globals';
 import { generateId } from '../src/utils';
-import { Org } from '../src/types';
+import { Jurisdiction } from '../src/types';
 
-const USAGE = `Usage: pnpm create-org "<name>"`;
+const USAGE = `Usage: pnpm create-jurisdiction "<name>"`;
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
@@ -28,14 +28,14 @@ async function main(): Promise<void> {
     new BaseLogger(LogSource.VxDesignService)
   );
 
-  const org: Org = {
+  const jurisdiction: Jurisdiction = {
     id: generateId(),
     name,
   };
 
-  await workspace.store.createOrganization(org);
+  await workspace.store.createJurisdiction(jurisdiction);
 
-  console.log('✅ Org created:', org);
+  console.log('✅ Jurisdiction created:', jurisdiction);
 }
 
 main()

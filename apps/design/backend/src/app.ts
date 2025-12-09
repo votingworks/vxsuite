@@ -89,7 +89,7 @@ import {
   ElectionListing,
   GetExportedElectionError,
   ElectionUpload,
-  Org,
+  Jurisdiction,
   ReceivedReportInfo,
   ResultsReportingError,
   User,
@@ -110,7 +110,7 @@ import {
   getBallotPdfFileName,
   regenerateElectionIds,
   splitCandidateName,
-  userBelongsToOrg,
+  userBelongsToJurisdiction,
 } from './utils';
 import {
   ElectionFeaturesConfig,
@@ -161,7 +161,7 @@ const UpdateElectionInfoInputSchema = z.object({
   date: DateWithoutTimeSchema,
   title: TextInput,
   state: TextInput,
-  jurisdiction: TextInput,
+  countyName: TextInput,
   seal: z.string(),
   signatureImage: z.string().optional(),
   signatureCaption: z.string().optional(),
@@ -189,9 +189,14 @@ class AuthError extends grout.UserError {
   }
 }
 
-function requireOrgAccess(user: User, orgId: string) {
+function requireJurisdictionAccess(user: User, jurisdictionId: string) {
   const userFeatures = getUserFeaturesConfig(user);
-  if (!(userBelongsToOrg(user, orgId) || userFeatures.ACCESS_ALL_ORGS)) {
+  if (
+    !(
+      userBelongsToJurisdiction(user, jurisdictionId) ||
+      userFeatures.ACCESS_ALL_ORGS
+    )
+  ) {
     throw new AuthError('auth:forbidden');
   }
 }
@@ -202,8 +207,9 @@ export function buildApi(ctx: AppContext) {
   const { store } = workspace;
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
-    const electionOrgId = await store.getElectionOrgId(electionId);
-    requireOrgAccess(user, electionOrgId);
+    const electionJurisdictionId =
+      await store.getElectionJurisdictionId(electionId);
+    requireJurisdictionAccess(user, electionJurisdictionId);
   }
 
   const middlewares: grout.Middlewares<ApiContext> = {
@@ -222,10 +228,10 @@ export function buildApi(ctx: AppContext) {
 
       /**
        * All methods should check authorization. This middleware checks
-       * authorization automatically for methods that have either `electionId` or
-       * `orgId` in their input. If a method doesn't have either of or has some
-       * other reason to handle authorization separately, it must be listed in
-       * `methodsThatHandleAuthThemselves` within this function.
+       * authorization automatically for methods that have either `electionId`
+       * or `jurisdictionId` in their input. If a method doesn't have either of
+       * or has some other reason to handle authorization separately, it must be
+       * listed in `methodsThatHandleAuthThemselves` within this function.
        */
       async function checkAuthorization({ methodName, input, context }) {
         if (input) {
@@ -237,13 +243,16 @@ export function buildApi(ctx: AppContext) {
             );
             return;
           }
-          if ('orgId' in input) {
-            requireOrgAccess(context.user, input.orgId as string);
+          if ('jurisdictionId' in input) {
+            requireJurisdictionAccess(
+              context.user,
+              input.jurisdictionId as string
+            );
             return;
           }
         }
         const methodsThatHandleAuthThemselves = [
-          'listOrganizations',
+          'listJurisdictions',
           'listElections',
           'getUser',
           'getUserFeatures',
@@ -256,7 +265,7 @@ export function buildApi(ctx: AppContext) {
           `Auth info missing from input for API method \`${methodName}\`.
           Options:
             - Add (or move) an electionId field to the top-level input object.
-            - Add (or move) an orgId field to the top-level input object.
+            - Add (or move) an jurisdictionId field to the top-level input object.
             - Add '${methodName}' to the \`methodsThatHandleAuthThemselves\`
               array in src/app.ts.
         `
@@ -278,8 +287,10 @@ export function buildApi(ctx: AppContext) {
             methodName,
             input: JSON.stringify(input),
             userId: context.user?.id,
-            userOrgIds:
-              context.user?.organizations.map((org) => org.id).join(',') ?? '',
+            userJurisdictionIds:
+              context.user?.jurisdictions
+                .map((jurisdiction) => jurisdiction.id)
+                .join(',') ?? '',
             ...outcome,
           },
           debug
@@ -289,14 +300,14 @@ export function buildApi(ctx: AppContext) {
   };
 
   const methods = {
-    async listOrganizations(
+    async listJurisdictions(
       _input: undefined,
       context: ApiContext
-    ): Promise<Org[]> {
+    ): Promise<Jurisdiction[]> {
       const userFeaturesConfig = getUserFeaturesConfig(context.user);
       return userFeaturesConfig.ACCESS_ALL_ORGS
-        ? await store.listOrganizations()
-        : context.user.organizations;
+        ? await store.listJurisdictions()
+        : context.user.jurisdictions;
     },
 
     async listElections(
@@ -306,9 +317,9 @@ export function buildApi(ctx: AppContext) {
       const { user } = context;
       const userFeatures = getUserFeaturesConfig(user);
       return store.listElections({
-        orgIds: userFeatures.ACCESS_ALL_ORGS
+        jurisdictionIds: userFeatures.ACCESS_ALL_ORGS
           ? undefined
-          : user.organizations.map((org) => org.id),
+          : user.jurisdictions.map((jurisdiction) => jurisdiction.id),
       });
     },
 
@@ -316,7 +327,7 @@ export function buildApi(ctx: AppContext) {
       input: {
         upload: ElectionUpload;
         newId: ElectionId;
-        orgId: string;
+        jurisdictionId: string;
       },
       context: ApiContext
     ): Promise<Result<ElectionId, Error>> {
@@ -388,7 +399,7 @@ export function buildApi(ctx: AppContext) {
           }
         })();
         await store.createElection(
-          input.orgId,
+          input.jurisdictionId,
           election,
           defaultBallotTemplate(election.state, context.user)
         );
@@ -401,13 +412,13 @@ export function buildApi(ctx: AppContext) {
     async createElection(
       input: {
         id: ElectionId;
-        orgId: string;
+        jurisdictionId: string;
       },
       context: ApiContext
     ): Promise<Result<ElectionId, Error>> {
       const election = createBlankElection(input.id);
       await store.createElection(
-        input.orgId,
+        input.jurisdictionId,
         election,
         // For now, default all elections to NH ballot template. In the future
         // we can make this a setting based on the user's organization.
@@ -420,7 +431,7 @@ export function buildApi(ctx: AppContext) {
       input: {
         electionId: ElectionId;
         destElectionId: ElectionId;
-        destOrgId: string;
+        destJurisdictionId: string;
       },
       context: ApiContext
     ): Promise<ElectionId> {
@@ -430,12 +441,12 @@ export function buildApi(ctx: AppContext) {
         systemSettings,
       } = await store.getElection(input.electionId);
 
-      requireOrgAccess(context.user, input.destOrgId);
+      requireJurisdictionAccess(context.user, input.destJurisdictionId);
 
       const { districts, precincts, parties, contests } =
         regenerateElectionIds(sourceElection);
       await store.createElection(
-        input.destOrgId,
+        input.destJurisdictionId,
         {
           ...sourceElection,
           id: input.destElectionId,
@@ -453,16 +464,16 @@ export function buildApi(ctx: AppContext) {
     async getElectionInfo(input: {
       electionId: ElectionId;
     }): Promise<ElectionInfo> {
-      const { election, ballotLanguageConfigs, orgId } =
+      const { election, ballotLanguageConfigs, jurisdictionId } =
         await store.getElection(input.electionId);
       return {
-        orgId,
+        jurisdictionId,
         electionId: election.id,
         title: election.title,
         date: election.date,
         type: election.type,
         state: election.state,
-        jurisdiction: election.county.name,
+        countyName: election.county.name,
         seal: election.seal,
         signatureImage: election.signature?.image,
         signatureCaption: election.signature?.caption,
@@ -1295,18 +1306,18 @@ export function buildApp(context: AppContext): Application {
     );
   }
 
-  app.get('/files/:orgId/:fileName', async (req, res, next) => {
+  app.get('/files/:jurisdictionId/:fileName', async (req, res, next) => {
     try {
       const userId = context.auth0.userIdFromRequest(req);
       if (!userId) {
         throw new AuthError('auth:unauthorized');
       }
       const user = assertDefined(await context.workspace.store.getUser(userId));
-      const { orgId, fileName } = req.params;
-      requireOrgAccess(user, orgId);
+      const { jurisdictionId, fileName } = req.params;
+      requireJurisdictionAccess(user, jurisdictionId);
 
       const readResult = await context.fileStorageClient.readFile(
-        join(orgId, fileName)
+        join(jurisdictionId, fileName)
       );
       const file = readResult.unsafeUnwrap();
       file.pipe(res);

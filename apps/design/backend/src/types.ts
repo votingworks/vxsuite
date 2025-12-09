@@ -39,10 +39,10 @@ export interface User {
    */
   name: string;
   id: string;
-  organizations: Org[];
+  jurisdictions: Jurisdiction[];
 }
 
-export interface Org {
+export interface Jurisdiction {
   name: string;
   id: string;
 }
@@ -50,25 +50,25 @@ export interface Org {
 export type ElectionStatus = 'notStarted' | 'inProgress' | 'ballotsFinalized';
 
 export interface ElectionListing {
-  orgId: string;
-  orgName: string;
+  jurisdictionId: string;
+  jurisdictionName: string;
   electionId: ElectionId;
   title: string;
   date: DateWithoutTime;
   type: ElectionType;
-  jurisdiction: string;
+  countyName: string;
   state: string;
   status: ElectionStatus;
 }
 
 export interface ElectionInfo {
-  orgId: string;
+  jurisdictionId: string;
   electionId: ElectionId;
   type: ElectionType;
   date: DateWithoutTime;
   title: string;
   state: string;
-  jurisdiction: string;
+  countyName: string;
   seal: string;
   languageCodes: LanguageCode[];
   signatureImage?: string;

@@ -151,6 +151,11 @@ export function splitCandidateName(
   };
 }
 
-export function userBelongsToOrg(user: User, orgId: string): boolean {
-  return user.organizations.some((org) => org.id === orgId);
+export function userBelongsToJurisdiction(
+  user: User,
+  jurisdictionId: string
+): boolean {
+  return user.jurisdictions.some(
+    (jurisdiction) => jurisdiction.id === jurisdictionId
+  );
 }

@@ -162,15 +162,15 @@ const FormButtons = styled.div`
 export interface TtsTextEditorProps {
   editable: boolean;
   languageCode: string;
-  orgId: string;
+  jurisdictionId: string;
   original: string;
 }
 
 export function TtsTextEditor(props: TtsTextEditorProps): React.ReactNode {
-  const { languageCode, orgId, original } = props;
+  const { languageCode, jurisdictionId, original } = props;
 
   const savedEdit = api.ttsEditsGet.useQuery({
-    orgId,
+    jurisdictionId,
     languageCode,
     original,
   });
@@ -184,7 +184,7 @@ export function TtsTextEditor(props: TtsTextEditorProps): React.ReactNode {
 function EditorImpl(
   props: TtsTextEditorProps & { savedEdit: TtsEdit | null }
 ): JSX.Element {
-  const { editable, languageCode, orgId, original, savedEdit } = props;
+  const { editable, languageCode, jurisdictionId, original, savedEdit } = props;
   const [edit, setEdit] = React.useState<string | null>(null);
 
   const defaultValue = savedEdit?.text || original;
@@ -203,7 +203,7 @@ function EditorImpl(
 
     save(
       {
-        orgId: assertDefined(orgId),
+        jurisdictionId: assertDefined(jurisdictionId),
         original,
         languageCode,
         data: {

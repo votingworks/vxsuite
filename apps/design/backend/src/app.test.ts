@@ -99,16 +99,16 @@ import { LogEventId } from '@votingworks/logging';
 import { buildApi } from './app';
 import { readdir, readFile } from 'node:fs/promises';
 import {
-  orgs,
+  jurisdictions,
   users,
-  vxDemosOrg,
+  vxDemosJurisdiction,
   vxUser,
   nonVxUser,
-  nonVxOrg,
-  vxOrg,
+  nonVxJurisdiction,
+  vxJurisdiction,
   anotherNonVxUser,
-  anotherNonVxOrg,
-  sliOrg,
+  anotherNonVxJurisdiction,
+  sliJurisdiction,
   sliUser,
   vxDemosUser,
 } from '../test/mocks';
@@ -214,7 +214,10 @@ afterEach(() => {
 });
 
 test('all methods require authentication', async () => {
-  const { apiClient, baseUrl, ...context } = await setupApp({ orgs, users });
+  const { apiClient, baseUrl, ...context } = await setupApp({
+    jurisdictions,
+    users,
+  });
   await suppressingConsoleOutput(async () => {
     const apiMethodNames = Object.keys(buildApi(context).methods());
     for (const apiMethodName of apiMethodNames) {
@@ -228,14 +231,16 @@ test('all methods require authentication', async () => {
     }
 
     // Special case for the /files endpoint, which doesn't go through the Grout API
-    const response = await fetch(`${baseUrl}/files/some-org-id/some-file-path`);
+    const response = await fetch(
+      `${baseUrl}/files/some-jurisdiction-id/some-file-path`
+    );
     expect(response.status).toEqual(400);
     expect(await response.json()).toEqual({ message: 'auth:unauthorized' });
   });
 });
 
 test('create/list/delete elections', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
 
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.listElections()).toEqual([]);
@@ -244,19 +249,19 @@ test('create/list/delete elections', async () => {
   const electionId = (
     await apiClient.createElection({
       id: expectedElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
     })
   ).unsafeUnwrap();
   expect(electionId).toEqual(expectedElectionId);
 
   const expectedElectionListing: ElectionListing = {
-    orgId: nonVxOrg.id,
-    orgName: nonVxOrg.name,
+    jurisdictionId: nonVxJurisdiction.id,
+    jurisdictionName: nonVxJurisdiction.name,
     electionId: expectedElectionId,
     title: '',
     date: DateWithoutTime.today(),
     type: 'general',
-    jurisdiction: '',
+    countyName: '',
     state: '',
     status: 'notStarted',
   };
@@ -274,7 +279,7 @@ test('create/list/delete elections', async () => {
   const electionId2 = (
     await apiClient.loadElection({
       newId: importedElectionNewId,
-      orgId: vxOrg.id,
+      jurisdictionId: vxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: election2Definition.electionData,
@@ -284,13 +289,13 @@ test('create/list/delete elections', async () => {
   expect(electionId2).toEqual(importedElectionNewId);
 
   const expectedElection2Listing: ElectionListing = {
-    orgId: vxOrg.id,
-    orgName: vxOrg.name,
+    jurisdictionId: vxJurisdiction.id,
+    jurisdictionName: vxJurisdiction.name,
     electionId: importedElectionNewId,
     title: election2.title,
     date: election2.date,
     type: election2.type,
-    jurisdiction: election2.county.name,
+    countyName: election2.county.name,
     state: election2.state,
     status: 'inProgress',
   };
@@ -299,12 +304,12 @@ test('create/list/delete elections', async () => {
     expectedElectionListing,
   ]);
 
-  // Permissions should restrict accessing elections across orgs
+  // Permissions should restrict accessing elections across jurisdictions
   auth0.setLoggedInUser(nonVxUser);
   expect(await apiClient.listElections()).toEqual([expectedElectionListing]);
   await suppressingConsoleOutput(async () => {
     await expect(
-      apiClient.createElection({ id: 'id', orgId: vxOrg.id })
+      apiClient.createElection({ id: 'id', jurisdictionId: vxJurisdiction.id })
     ).rejects.toThrow('auth:forbidden');
     await expect(
       apiClient.deleteElection({ electionId: importedElectionNewId })
@@ -319,10 +324,10 @@ test('create/list/delete elections', async () => {
   expect(
     await apiClient.getElectionInfo({ electionId: electionId2 })
   ).toEqual<ElectionInfo>({
-    orgId: vxOrg.id,
+    jurisdictionId: vxJurisdiction.id,
     electionId: importedElectionNewId,
     title: election2.title,
-    jurisdiction: election2.county.name,
+    countyName: election2.county.name,
     date: election2.date,
     languageCodes: [LanguageCode.ENGLISH],
     state: election2.state,
@@ -436,7 +441,7 @@ test('create/list/delete elections', async () => {
   const duplicateElectionId = (
     await apiClient.loadElection({
       newId: unsafeParse(ElectionIdSchema, 'duplicate-election-id'),
-      orgId: vxOrg.id,
+      jurisdictionId: vxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: election2Definition.electionData,
@@ -452,7 +457,7 @@ test('create/list/delete elections', async () => {
   const duplicateElectionId2 = (
     await apiClient.loadElection({
       newId: unsafeParse(ElectionIdSchema, 'duplicate-election-id-2'),
-      orgId: vxOrg.id,
+      jurisdictionId: vxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: election2Definition.electionData,
@@ -468,7 +473,7 @@ test('create/list/delete elections', async () => {
   const duplicateElectionId3 = (
     await apiClient.loadElection({
       newId: unsafeParse(ElectionIdSchema, 'duplicate-election-id-3'),
-      orgId: vxOrg.id,
+      jurisdictionId: vxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: election2Definition.electionData,
@@ -486,7 +491,7 @@ test('create/list/delete elections', async () => {
   const blankElectionId = (
     await apiClient.createElection({
       id: unsafeParse(ElectionIdSchema, 'blank-election-id'),
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
     })
   ).unsafeUnwrap();
   const blankElection = await apiClient.getElectionInfo({
@@ -496,7 +501,7 @@ test('create/list/delete elections', async () => {
   const duplicateBlankElectionId = (
     await apiClient.createElection({
       id: unsafeParse(ElectionIdSchema, 'duplicate-blank-election-id'),
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
     })
   ).unsafeUnwrap();
   const duplicateBlankElection = await apiClient.getElectionInfo({
@@ -507,13 +512,13 @@ test('create/list/delete elections', async () => {
 });
 
 test('update election info', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
 
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   (
     await apiClient.createElection({
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       id: electionId,
     })
   ).unsafeUnwrap();
@@ -521,10 +526,10 @@ test('update election info', async () => {
   // Default election info should be blank
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: '',
-      jurisdiction: '',
+      countyName: '',
       state: '',
       seal: '',
       type: 'general',
@@ -535,11 +540,11 @@ test('update election info', async () => {
 
   // Update election info
   const electionInfoUpdate: ElectionInfo = {
-    orgId: nonVxOrg.id,
+    jurisdictionId: nonVxJurisdiction.id,
     electionId,
     // trim text values
     title: '   Updated Election  ',
-    jurisdiction: '   New Hampshire   ',
+    countyName: '   New Hampshire   ',
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
     type: 'primary',
@@ -549,10 +554,10 @@ test('update election info', async () => {
   await apiClient.updateElectionInfo(electionInfoUpdate);
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: 'Updated Election',
-      jurisdiction: 'New Hampshire',
+      countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'primary',
@@ -570,10 +575,10 @@ test('update election info', async () => {
   // Election info should be unchanged at first
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: 'Updated Election',
-      jurisdiction: 'New Hampshire',
+      countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'primary',
@@ -583,10 +588,10 @@ test('update election info', async () => {
   );
 
   const electionInfoUpdateWithSignature: ElectionInfo = {
-    orgId: nonVxOrg.id,
+    jurisdictionId: nonVxJurisdiction.id,
     electionId,
     title: '   Updated Election  ',
-    jurisdiction: '   New Hampshire   ',
+    countyName: '   New Hampshire   ',
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
     type: 'primary',
@@ -600,10 +605,10 @@ test('update election info', async () => {
   // Signature should be included in response
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: 'Updated Election',
-      jurisdiction: 'New Hampshire',
+      countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'primary',
@@ -623,10 +628,10 @@ test('update election info', async () => {
   // Signature should no longer be included in response
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: 'Updated Election',
-      jurisdiction: 'New Hampshire',
+      countyName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'primary',
@@ -639,7 +644,7 @@ test('update election info', async () => {
   const electionId2 = unsafeParse(ElectionIdSchema, 'election-2');
   (
     await apiClient.createElection({
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       id: electionId2,
     })
   ).unsafeUnwrap();
@@ -654,11 +659,11 @@ test('update election info', async () => {
     // Empty string values are rejected
     await expect(
       apiClient.updateElectionInfo({
-        orgId: nonVxOrg.id,
+        jurisdictionId: nonVxJurisdiction.id,
         electionId,
         type: 'primary',
         title: '',
-        jurisdiction: '  ',
+        countyName: '  ',
         state: '',
         seal: '',
         date: new DateWithoutTime('2022-01-01'),
@@ -678,11 +683,11 @@ test('update election info', async () => {
 });
 
 test('CRUD districts', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.createElection({
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       id: unsafeParse(ElectionIdSchema, 'election-1'),
     })
   ).unsafeUnwrap();
@@ -821,12 +826,12 @@ test('CRUD districts', async () => {
 test('deleting a district updates associated precincts', async () => {
   const baseElectionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: baseElectionDefinition.electionData,
@@ -869,11 +874,11 @@ test('deleting a district updates associated precincts', async () => {
 });
 
 test('CRUD precincts', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.createElection({
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       id: unsafeParse(ElectionIdSchema, 'election-1'),
     })
   ).unsafeUnwrap();
@@ -1168,11 +1173,11 @@ test('CRUD precincts', async () => {
 });
 
 test('CRUD parties', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.createElection({
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       id: unsafeParse(ElectionIdSchema, 'election-1'),
     })
   ).unsafeUnwrap();
@@ -1346,12 +1351,12 @@ test('CRUD parties', async () => {
 test('deleting a party updates associated contests', async () => {
   const baseElectionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: baseElectionDefinition.electionData,
@@ -1380,11 +1385,11 @@ test('deleting a party updates associated contests', async () => {
 });
 
 test('CRUD contests', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.createElection({
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       id: unsafeParse(ElectionIdSchema, 'election-1'),
     })
   ).unsafeUnwrap();
@@ -1870,12 +1875,12 @@ test('CRUD contests', async () => {
 });
 
 test('reordering contests', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents:
@@ -1922,12 +1927,12 @@ test('reordering contests', async () => {
 });
 
 test('get/update ballot layout', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   (
     await apiClient.createElection({
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       id: electionId,
     })
   ).unsafeUnwrap();
@@ -1975,12 +1980,12 @@ test('get/update ballot layout', async () => {
 });
 
 test('get/update system settings', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   (
     await apiClient.createElection({
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       id: electionId,
     })
   ).unsafeUnwrap();
@@ -2043,12 +2048,12 @@ test('get/update system settings', async () => {
 });
 
 test('Finalize ballots', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents:
@@ -2087,7 +2092,7 @@ test('Finalize ballots', async () => {
 });
 
 test('cloneElection', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
 
   const srcElectionId = 'election-1' as ElectionId;
   const nonDefaultSystemSettings: SystemSettings = {
@@ -2106,7 +2111,7 @@ test('cloneElection', async () => {
         electionFamousNames2021Fixtures.electionJson.asText(),
     },
     newId: srcElectionId,
-    orgId: nonVxOrg.id,
+    jurisdictionId: nonVxJurisdiction.id,
   });
   await apiClient.updateSystemSettings({
     electionId: srcElectionId,
@@ -2118,18 +2123,18 @@ test('cloneElection', async () => {
   });
   await apiClient.finalizeBallots({ electionId: srcElectionId });
 
-  // Vx user can clone from any org to another:
+  // Vx user can clone from any jurisdiction to another:
   const newElectionId = await apiClient.cloneElection({
     electionId: srcElectionId,
     destElectionId: 'election-clone-1' as ElectionId,
-    destOrgId: anotherNonVxOrg.id,
+    destJurisdictionId: anotherNonVxJurisdiction.id,
   });
   expect(newElectionId).toEqual('election-clone-1');
 
   // Ensure cloned election has the same data with new IDs
   const elections = await apiClient.listElections();
   expect(elections[0].electionId).toEqual(newElectionId);
-  expect(elections[0].orgId).toEqual(anotherNonVxOrg.id);
+  expect(elections[0].jurisdictionId).toEqual(anotherNonVxJurisdiction.id);
 
   const srcElectionInfo = await apiClient.getElectionInfo({
     electionId: srcElectionId,
@@ -2139,7 +2144,7 @@ test('cloneElection', async () => {
   });
   expect(destElectionInfo).toEqual({
     ...srcElectionInfo,
-    orgId: anotherNonVxOrg.id,
+    jurisdictionId: anotherNonVxJurisdiction.id,
     electionId: newElectionId,
   });
 
@@ -2263,17 +2268,17 @@ test('cloneElection', async () => {
     await apiClient.getBallotsFinalizedAt({ electionId: newElectionId })
   ).toBeNull();
 
-  // Non-Vx user can clone from and to their own org:
+  // Non-Vx user can clone from and to their own jurisdiction:
   auth0.setLoggedInUser(nonVxUser);
   await expect(
     apiClient.cloneElection({
       electionId: srcElectionId,
       destElectionId: 'election-clone-2' as ElectionId,
-      destOrgId: nonVxOrg.id,
+      destJurisdictionId: nonVxJurisdiction.id,
     })
   ).resolves.toEqual('election-clone-2');
 
-  // Election title has copy prefix if same org
+  // Election title has copy prefix if same jurisdiction
   expect(
     (await apiClient.getElectionInfo({ electionId: 'election-clone-2' })).title
   ).toEqual('(Copy) ' + srcElectionInfo.title);
@@ -2283,33 +2288,33 @@ test('cloneElection', async () => {
     apiClient.cloneElection({
       electionId: 'election-clone-2' as ElectionId,
       destElectionId: 'election-clone-3' as ElectionId,
-      destOrgId: nonVxOrg.id,
+      destJurisdictionId: nonVxJurisdiction.id,
     })
   ).resolves.toEqual('election-clone-3');
   expect(
     (await apiClient.getElectionInfo({ electionId: 'election-clone-3' })).title
   ).toEqual('(Copy) (Copy) ' + srcElectionInfo.title);
 
-  // Non-VX user can't clone from another org:
+  // Non-VX user can't clone from another jurisdiction:
   auth0.setLoggedInUser(anotherNonVxUser);
   await suppressingConsoleOutput(() =>
     expect(
       apiClient.cloneElection({
         electionId: srcElectionId,
         destElectionId: 'election-clone-3' as ElectionId,
-        destOrgId: nonVxOrg.id,
+        destJurisdictionId: nonVxJurisdiction.id,
       })
     ).rejects.toThrow('auth:forbidden')
   );
 
-  // Non-VX user can't clone from their org to another:
+  // Non-VX user can't clone from their jurisdiction to another:
   auth0.setLoggedInUser(nonVxUser);
   await suppressingConsoleOutput(() =>
     expect(
       apiClient.cloneElection({
         electionId: srcElectionId,
         destElectionId: 'election-clone-3' as ElectionId,
-        destOrgId: anotherNonVxOrg.id,
+        destJurisdictionId: anotherNonVxJurisdiction.id,
       })
     ).rejects.toThrow('auth:forbidden')
   );
@@ -2319,13 +2324,13 @@ test('Election package management', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0, baseUrl } =
-    await setupApp({ orgs, users });
+    await setupApp({ jurisdictions, users });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: baseElectionDefinition.electionData,
@@ -2447,7 +2452,7 @@ test('Election package management', async () => {
     },
     url: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
   });
-  expect(electionPackageAfterExport.url).toContain(nonVxOrg.id);
+  expect(electionPackageAfterExport.url).toContain(nonVxJurisdiction.id);
 
   // Check that the correct package was returned by the files API endpoint
   const electionPackageUrl = `${baseUrl}${electionPackageAfterExport.url}`;
@@ -2469,12 +2474,12 @@ test('Election package management', async () => {
     });
   });
 
-  // Check that other org users can't access the package
+  // Check that other jurisdiction users can't access the package
   await suppressingConsoleOutput(async () => {
     auth0.setLoggedInUser(anotherNonVxUser);
-    const otherOrgResponse = await fetch(electionPackageUrl);
-    expect(otherOrgResponse.status).toEqual(400);
-    expect(await otherOrgResponse.json()).toEqual({
+    const otherJurisdictionResponse = await fetch(electionPackageUrl);
+    expect(otherJurisdictionResponse.status).toEqual(400);
+    expect(await otherJurisdictionResponse.json()).toEqual({
       message: 'auth:forbidden',
     });
   });
@@ -2542,7 +2547,7 @@ test('Election package and ballots export', async () => {
     ],
   };
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
-    orgs,
+    jurisdictions,
     users,
   });
 
@@ -2550,7 +2555,7 @@ test('Election package and ballots export', async () => {
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(electionWithLegalPaper),
@@ -2574,7 +2579,9 @@ test('Election package and ballots export', async () => {
     shouldExportSampleBallots: true,
   });
   const contents = assertDefined(
-    fileStorageClient.getRawFile(join(nonVxOrg.id, electionPackageFilePath))
+    fileStorageClient.getRawFile(
+      join(nonVxJurisdiction.id, electionPackageFilePath)
+    )
   );
   const { electionPackageContents, ballotsContents } =
     await unzipElectionPackageAndBallots(contents);
@@ -2892,7 +2899,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
-    orgs,
+    jurisdictions,
     users,
   });
 
@@ -2900,7 +2907,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: baseElectionDefinition.electionData,
@@ -2910,10 +2917,10 @@ test('Election package export with VxDefaultBallot drops signature field', async
 
   // Set a signature in the election info
   await apiClient.updateElectionInfo({
-    orgId: nonVxOrg.id,
+    jurisdictionId: nonVxJurisdiction.id,
     electionId,
     title: baseElectionDefinition.election.title,
-    jurisdiction: baseElectionDefinition.election.county.name,
+    countyName: baseElectionDefinition.election.county.name,
     state: baseElectionDefinition.election.state,
     seal: baseElectionDefinition.election.seal,
     type: baseElectionDefinition.election.type,
@@ -2940,7 +2947,9 @@ test('Election package export with VxDefaultBallot drops signature field', async
   });
 
   const contents = assertDefined(
-    fileStorageClient.getRawFile(join(nonVxOrg.id, electionPackageFilePath))
+    fileStorageClient.getRawFile(
+      join(nonVxJurisdiction.id, electionPackageFilePath)
+    )
   );
   const { electionPackageContents } =
     await unzipElectionPackageAndBallots(contents);
@@ -2955,7 +2964,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
 test('Export test decks', async () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
-    orgs,
+    jurisdictions,
     users,
   });
 
@@ -2963,7 +2972,7 @@ test('Export test decks', async () => {
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: electionDefinition.electionData,
@@ -2979,7 +2988,7 @@ test('Export test decks', async () => {
     electionSerializationFormat: 'vxf',
   });
 
-  const filepath = join(nonVxOrg.id, filename);
+  const filepath = join(nonVxJurisdiction.id, filename);
   const zipContents = assertDefined(
     fileStorageClient.getRawFile(filepath),
     `No file found in mock FileStorageClient for ${filepath}`
@@ -3056,7 +3065,7 @@ test('Consistency of ballot hash across exports', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
-    orgs,
+    jurisdictions,
     users,
   });
 
@@ -3064,7 +3073,7 @@ test('Consistency of ballot hash across exports', async () => {
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: baseElectionDefinition.electionData,
@@ -3091,7 +3100,7 @@ test('Consistency of ballot hash across exports', async () => {
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(
-      join(nonVxOrg.id, electionPackageAndBallotsFilePath)
+      join(nonVxJurisdiction.id, electionPackageAndBallotsFilePath)
     )
   );
   const { electionPackageContents, electionPackageFileName, ballotsFileName } =
@@ -3121,7 +3130,7 @@ test('CDF exports', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
-    orgs,
+    jurisdictions,
     users,
   });
 
@@ -3129,7 +3138,7 @@ test('CDF exports', async () => {
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: baseElectionDefinition.electionData,
@@ -3156,7 +3165,7 @@ test('CDF exports', async () => {
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(
-      join(nonVxOrg.id, electionPackageAndBallotsFilePath)
+      join(nonVxJurisdiction.id, electionPackageAndBallotsFilePath)
     )
   );
   const { electionPackageContents } =
@@ -3181,7 +3190,7 @@ test('export ballots with audit IDs', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
-    orgs,
+    jurisdictions,
     users,
   });
 
@@ -3189,7 +3198,7 @@ test('export ballots with audit IDs', async () => {
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: baseElectionDefinition.electionData,
@@ -3209,7 +3218,9 @@ test('export ballots with audit IDs', async () => {
     numAuditIdBallots,
   });
   const contents = assertDefined(
-    fileStorageClient.getRawFile(join(nonVxOrg.id, electionPackageFilePath))
+    fileStorageClient.getRawFile(
+      join(nonVxJurisdiction.id, electionPackageFilePath)
+    )
   );
   const { ballotsContents } = await unzipElectionPackageAndBallots(contents);
   const zip = await JsZip.loadAsync(new Uint8Array(ballotsContents));
@@ -3247,13 +3258,13 @@ test('export ballots with audit IDs', async () => {
 test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async () => {
   const baseElectionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: baseElectionDefinition.electionData,
@@ -3312,13 +3323,13 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
       image: 'Image To Be Overwritten',
     },
   };
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(election),
@@ -3365,13 +3376,13 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
 test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: baseElectionDefinition.electionData,
@@ -3419,13 +3430,13 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
       caption: 'Test Image Caption',
     },
   };
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(election),
@@ -3466,14 +3477,14 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
-    orgs,
+    jurisdictions,
     users,
   });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: electionDefinition.electionData,
@@ -3528,7 +3539,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
 });
 
 test('getUser', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   await suppressingConsoleOutput(() =>
     expect(apiClient.getUser()).rejects.toThrow('auth:unauthorized')
   );
@@ -3538,23 +3549,23 @@ test('getUser', async () => {
   expect(await apiClient.getUser()).toEqual(nonVxUser);
 });
 
-test('listOrganizations', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+test('listJurisdiction', async () => {
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   await suppressingConsoleOutput(() =>
-    expect(apiClient.listOrganizations()).rejects.toThrow('auth:unauthorized')
+    expect(apiClient.listJurisdictions()).rejects.toThrow('auth:unauthorized')
   );
   auth0.setLoggedInUser(vxUser);
-  expect(await apiClient.listOrganizations()).toEqual(orgs);
+  expect(await apiClient.listJurisdictions()).toEqual(jurisdictions);
   auth0.setLoggedInUser(nonVxUser);
-  expect(await apiClient.listOrganizations()).toEqual([nonVxOrg]);
+  expect(await apiClient.listJurisdictions()).toEqual([nonVxJurisdiction]);
   auth0.setLoggedInUser(sliUser);
-  expect(await apiClient.listOrganizations()).toEqual([sliOrg]);
+  expect(await apiClient.listJurisdictions()).toEqual([sliJurisdiction]);
   auth0.setLoggedInUser(vxDemosUser);
-  expect(await apiClient.listOrganizations()).toEqual([vxDemosOrg]);
+  expect(await apiClient.listJurisdictions()).toEqual([vxDemosJurisdiction]);
 });
 
 test('feature configs', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.getUserFeatures()).toEqual(userFeatureConfigs.vx);
   auth0.setLoggedInUser(nonVxUser);
@@ -3568,25 +3579,25 @@ test('feature configs', async () => {
   const vxElectionId = (
     await apiClient.createElection({
       id: 'vx-election-id' as ElectionId,
-      orgId: vxOrg.id,
+      jurisdictionId: vxJurisdiction.id,
     })
   ).unsafeUnwrap();
   const nonVxElectionId = (
     await apiClient.createElection({
       id: 'non-vx-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
     })
   ).unsafeUnwrap();
   const sliElectionId = (
     await apiClient.createElection({
       id: 'sli-election-id' as ElectionId,
-      orgId: sliOrg.id,
+      jurisdictionId: sliJurisdiction.id,
     })
   ).unsafeUnwrap();
   const vxDemosElectionId = (
     await apiClient.createElection({
       id: 'vx-demos-election-id' as ElectionId,
-      orgId: vxDemosOrg.id,
+      jurisdictionId: vxDemosJurisdiction.id,
     })
   ).unsafeUnwrap();
   expect(
@@ -3608,7 +3619,10 @@ test('getBaseUrl', async () => {
     ...process.env,
     BASE_URL: 'https://test-base-url.com',
   };
-  const { apiClient, auth0, baseUrl } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
   auth0.setLoggedInUser(nonVxUser);
@@ -3620,7 +3634,7 @@ test('getBaseUrl', async () => {
 });
 
 test('api call logging', async () => {
-  const { apiClient, logger, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, logger, auth0 } = await setupApp({ jurisdictions, users });
   await expect(apiClient.getUser()).rejects.toThrow('auth:unauthorized');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ApiCall,
@@ -3636,7 +3650,7 @@ test('api call logging', async () => {
   auth0.setLoggedInUser(vxUser);
   await apiClient.createElection({
     id: 'election-id' as ElectionId,
-    orgId: vxOrg.id,
+    jurisdictionId: vxJurisdiction.id,
   });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ApiCall,
@@ -3645,9 +3659,9 @@ test('api call logging', async () => {
       methodName: 'createElection',
       input: JSON.stringify({
         id: 'election-id',
-        orgId: vxOrg.id,
+        jurisdictionId: vxJurisdiction.id,
       }),
-      userOrgIds: vxOrg.id,
+      userJurisdictionIds: vxJurisdiction.id,
       userId: vxUser.id,
       disposition: 'success',
     })
@@ -3678,7 +3692,7 @@ test('decryptCvrBallotAuditIds', async () => {
   await execFile('zip', ['-r', cvrZipPath, '.'], { cwd: cvrDirectoryPath });
   const cvrZipFileContents = await readFile(cvrZipPath);
 
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
   auth0.setLoggedInUser(nonVxUser);
 
   const decryptedCvrZipContents = await apiClient.decryptCvrBallotAuditIds({

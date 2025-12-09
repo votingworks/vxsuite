@@ -24,14 +24,15 @@ export interface AudioEditorPanelProps {
   electionId: string;
   header: React.ReactNode;
   languageCode: string;
-  orgId: string;
+  jurisdictionId: string;
   ttsDefault: TtsStringDefault;
 }
 
 export function AudioEditorPanel(
   props: AudioEditorPanelProps
 ): React.ReactNode {
-  const { electionId, header, languageCode, orgId, ttsDefault } = props;
+  const { electionId, header, languageCode, jurisdictionId, ttsDefault } =
+    props;
 
   return (
     <Container>
@@ -52,7 +53,7 @@ export function AudioEditorPanel(
       <AudioEditor
         electionId={electionId}
         languageCode={languageCode}
-        orgId={orgId}
+        jurisdictionId={jurisdictionId}
         ttsDefault={ttsDefault}
       />
     </Container>

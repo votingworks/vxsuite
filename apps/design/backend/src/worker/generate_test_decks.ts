@@ -47,7 +47,7 @@ export async function generateTestDecks(
   emitProgress: EmitProgressFunction
 ): Promise<void> {
   const { store } = workspace;
-  const { election, ballotLanguageConfigs, ballotTemplateId, orgId } =
+  const { election, ballotLanguageConfigs, ballotTemplateId, jurisdictionId } =
     await store.getElection(electionId);
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
@@ -131,11 +131,11 @@ export async function generateTestDecks(
   )}.zip`;
 
   const writeResult = await fileStorageClient.writeFile(
-    path.join(orgId, zipFilename),
+    path.join(jurisdictionId, zipFilename),
     zipContents
   );
   writeResult.unsafeUnwrap();
-  const testDecksUrl = `/files/${orgId}/${zipFilename}`;
+  const testDecksUrl = `/files/${jurisdictionId}/${zipFilename}`;
 
   await store.setTestDecksUrl({
     electionId,

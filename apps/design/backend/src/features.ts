@@ -1,14 +1,21 @@
-import { sliOrgId, votingWorksOrgId, vxDemosOrgId } from './globals';
+import {
+  sliJurisdictionId,
+  votingWorksJurisdictionId,
+  vxDemosJurisdictionId,
+} from './globals';
 import { ElectionRecord } from './store';
 import { User } from './types';
-import { userBelongsToOrg } from './utils';
+import { userBelongsToJurisdiction } from './utils';
 
-export function isVxOrSliOrg(orgId: string): boolean {
-  return orgId === votingWorksOrgId() || orgId === sliOrgId();
+export function isVxOrSliJurisdiction(jurisdictionId: string): boolean {
+  return (
+    jurisdictionId === votingWorksJurisdictionId() ||
+    jurisdictionId === sliJurisdictionId()
+  );
 }
 
 /**
- * Features that should be enabled based on the user's organization - i.e.
+ * Features that should be enabled based on the user's jurisdiction - i.e.
  * differentiating between what VX support users can do and what election
  * officials can do.
  */
@@ -103,7 +110,7 @@ export enum UserFeature {
 }
 
 /**
- * Features that should be enabled based on the organization of the election
+ * Features that should be enabled based on the jurisdiction of the election
  * currently being viewed. VX support users and election officials should all
  * have the same functionality for these features when viewing a specific
  * election.
@@ -182,13 +189,13 @@ export const electionFeatureConfigs = {
 } satisfies Record<string, ElectionFeaturesConfig>;
 
 export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
-  if (userBelongsToOrg(user, votingWorksOrgId())) {
+  if (userBelongsToJurisdiction(user, votingWorksJurisdictionId())) {
     return userFeatureConfigs.vx;
   }
-  if (userBelongsToOrg(user, sliOrgId())) {
+  if (userBelongsToJurisdiction(user, sliJurisdictionId())) {
     return userFeatureConfigs.sli;
   }
-  if (userBelongsToOrg(user, vxDemosOrgId())) {
+  if (userBelongsToJurisdiction(user, vxDemosJurisdictionId())) {
     return userFeatureConfigs.demos;
   }
   return userFeatureConfigs.nh;
@@ -197,13 +204,13 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
 export function getElectionFeaturesConfig(
   election: ElectionRecord
 ): ElectionFeaturesConfig {
-  if (election.orgId === votingWorksOrgId()) {
+  if (election.jurisdictionId === votingWorksJurisdictionId()) {
     return electionFeatureConfigs.vx;
   }
-  if (election.orgId === sliOrgId()) {
+  if (election.jurisdictionId === sliJurisdictionId()) {
     return electionFeatureConfigs.sli;
   }
-  if (election.orgId === vxDemosOrgId()) {
+  if (election.jurisdictionId === vxDemosJurisdictionId()) {
     return electionFeatureConfigs.vx;
   }
   return electionFeatureConfigs.nh;

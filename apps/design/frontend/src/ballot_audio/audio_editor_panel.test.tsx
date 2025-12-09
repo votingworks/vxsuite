@@ -21,7 +21,7 @@ vi.mock('./audio_editor.js');
 const EDITOR_TEST_ID = 'TtsTextEditor';
 
 const electionId = 'election-1';
-const orgId = 'org-1';
+const jurisdictionId = 'jurisdiction-1';
 const languageCode = 'en';
 
 test('renders editor, along with a preview of the original text', () => {
@@ -31,11 +31,17 @@ test('renders editor, along with a preview of the original text', () => {
   };
 
   const mockApi = createMockApiClient();
-  setUpEditorMock({ electionId, languageCode, orgId, ttsDefault });
+  setUpEditorMock({ electionId, languageCode, jurisdictionId, ttsDefault });
 
   const header = <h1>Election Audio: State</h1>;
 
-  renderPanel(mockApi, { electionId, header, languageCode, orgId, ttsDefault });
+  renderPanel(mockApi, {
+    electionId,
+    header,
+    languageCode,
+    jurisdictionId,
+    ttsDefault,
+  });
 
   mockApi.assertComplete();
   screen.getByRole('heading', { name: 'Election Audio: State' });
@@ -60,13 +66,13 @@ test('renders contest descriptions using original, unstripped HTML', async () =>
     subkey: mockContest.id,
     text: 'Do you agree?',
   };
-  setUpEditorMock({ electionId, languageCode, orgId, ttsDefault });
+  setUpEditorMock({ electionId, languageCode, jurisdictionId, ttsDefault });
 
   renderPanel(mockApi, {
     electionId,
     header: null,
     languageCode,
-    orgId,
+    jurisdictionId,
     ttsDefault,
   });
 

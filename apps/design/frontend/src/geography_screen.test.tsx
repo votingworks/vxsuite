@@ -19,7 +19,7 @@ import {
   createMockApiClient,
   mockElectionFeatures,
   mockUserFeatures,
-  org,
+  jurisdiction,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -306,7 +306,7 @@ describe('Districts tab', () => {
 });
 
 describe('Precincts tab', () => {
-  const { election } = generalElectionRecord(org.id);
+  const { election } = generalElectionRecord(jurisdiction.id);
   const electionId = election.id;
 
   beforeEach(() => {
@@ -387,7 +387,7 @@ describe('Precincts tab', () => {
   });
 
   test('editing a precinct - adding splits in NH', async () => {
-    const general = generalElectionRecord(org.id);
+    const general = generalElectionRecord(jurisdiction.id);
     const nhElectionRecord: ElectionRecord = {
       ...general,
       election: { ...general.election, state: 'New Hampshire' },

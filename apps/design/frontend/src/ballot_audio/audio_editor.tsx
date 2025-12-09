@@ -35,7 +35,7 @@ const TTS_MODE_OPTIONS: Array<RadioGroupOption<TtsExportSource>> = [
 export interface AudioEditorProps {
   electionId: string;
   languageCode: string;
-  orgId: string;
+  jurisdictionId: string;
   ttsDefault: TtsStringDefault;
 
   /**
@@ -47,13 +47,18 @@ export interface AudioEditorProps {
 }
 
 export function AudioEditor(props: AudioEditorProps): React.ReactNode {
-  const { electionId, languageCode, orgId, phoneticEnabled, ttsDefault } =
-    props;
+  const {
+    electionId,
+    languageCode,
+    jurisdictionId,
+    phoneticEnabled,
+    ttsDefault,
+  } = props;
   const [mode, setMode] = React.useState<TtsExportSource | null>(null);
 
   const ballotsFinalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
   const savedEdit = api.ttsEditsGet.useQuery({
-    orgId,
+    jurisdictionId,
     languageCode,
     original: ttsDefault.text,
   });
@@ -95,7 +100,7 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
               <TtsTextEditor
                 editable={editable}
                 languageCode={languageCode}
-                orgId={orgId}
+                jurisdictionId={jurisdictionId}
                 original={ttsDefault.text}
               />
             );

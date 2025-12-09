@@ -6,7 +6,7 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 import { createWorkspace } from '../src/workspace';
 import { WORKSPACE } from '../src/globals';
 
-const USAGE = `Usage: pnpm list-user-orgs <email address>`;
+const USAGE = `Usage: pnpm list-user-jurisdictions <email address>`;
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
@@ -32,7 +32,10 @@ async function main(): Promise<void> {
   }
   const user = assertDefined(await workspace.store.getUser(userId));
 
-  console.log(`✅ Org memberships for ${userEmail}:`, user.organizations);
+  console.log(
+    `✅ Jurisdiction memberships for ${userEmail}:`,
+    user.jurisdictions
+  );
 }
 
 main()

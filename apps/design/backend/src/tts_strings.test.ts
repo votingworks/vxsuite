@@ -40,7 +40,7 @@ test('ttsEditsGet', async () => {
   };
 
   const input: TtsEditKey = {
-    orgId: 'vx',
+    jurisdictionId: 'vx',
     languageCode: 'en',
     original: 'ratatouille',
   };
@@ -73,7 +73,7 @@ test('ttsEditsSet', async () => {
 
   const api = newApi({ workspace: { store: mockStore } });
   const input: Parameters<typeof api.ttsEditsSet>[0] = {
-    orgId: 'nh',
+    jurisdictionId: 'nh',
     languageCode: 'en',
     original: 'ratatouille',
     data: {

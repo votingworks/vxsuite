@@ -10,8 +10,8 @@ import {
   MockApiClient,
   createMockApiClient,
   mockUserFeatures,
-  org,
-  org2,
+  jurisdiction,
+  jurisdiction2,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -47,11 +47,6 @@ vi.mock(import('./clone_election_button.js'), async (importActual) => ({
     </div>
   ),
 }));
-
-const VX_ORG = {
-  id: org.id,
-  name: 'VotingWorks',
-} as const;
 
 let apiMock: MockApiClient;
 
@@ -91,15 +86,15 @@ function renderScreen() {
 
 test('with no elections, creating a new election', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.listOrganizations.expectCallWith().resolves([VX_ORG]);
+  apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   apiMock.listElections.expectCallWith().resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
-  const electionRecord = blankElectionRecord(org.id);
+  const electionRecord = blankElectionRecord(jurisdiction.id);
   apiMock.createElection
     .expectCallWith({
-      orgId: org.id,
+      jurisdictionId: jurisdiction.id,
       id: ELECTION_ID,
     })
     .resolves(ok(ELECTION_ID));
@@ -118,7 +113,7 @@ test('with no elections, creating a new election', async () => {
 });
 
 test('with no elections, loading an election', async () => {
-  const electionRecord = primaryElectionRecord(org.id);
+  const electionRecord = primaryElectionRecord(jurisdiction.id);
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections.expectCallWith().resolves([]);
   const { history } = renderScreen();
@@ -127,7 +122,7 @@ test('with no elections, loading an election', async () => {
   const electionData = JSON.stringify(electionRecord.election);
   apiMock.loadElection
     .expectCallWith({
-      orgId: org.id,
+      jurisdictionId: jurisdiction.id,
       newId: ELECTION_ID,
       upload: {
         format: 'vxf',
@@ -154,8 +149,8 @@ test('with no elections, loading an election', async () => {
 
 test('with elections', async () => {
   const [general, primary] = [
-    generalElectionRecord(org.id),
-    primaryElectionRecord(org.id),
+    generalElectionRecord(jurisdiction.id),
+    primaryElectionRecord(jurisdiction.id),
   ];
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections
@@ -168,7 +163,6 @@ test('with elections', async () => {
   const headers = within(table).getAllByRole('columnheader');
   expect(headers.map((header) => header.textContent)).toEqual([
     'Status',
-    'Org',
     'Jurisdiction',
     'Title',
     'Date',
@@ -184,16 +178,14 @@ test('with elections', async () => {
   ).toEqual([
     [
       'In progress',
-      'org1 Name',
-      general.election.county.name,
+      'jurisdiction1 Name',
       general.election.title,
       'Nov 3, 2020',
       getCloneButtonText(electionListing(general)),
     ],
     [
       'In progress',
-      'org1 Name',
-      primary.election.county.name,
+      'jurisdiction1 Name',
       primary.election.title,
       'Sep 8, 2021',
       getCloneButtonText(electionListing(primary)),
@@ -213,9 +205,9 @@ test('with elections', async () => {
     within(filteredRows[0]).getByText(general.election.title)
   ).toBeInTheDocument();
 
-  // Search for non-existent org
+  // Search for non-existent jurisdiction
   userEvent.clear(filterInput);
-  userEvent.type(filterInput, 'org0');
+  userEvent.type(filterInput, 'jurisdiction0');
   filteredRows = within(table).getAllByRole('row').slice(1);
   expect(filteredRows).toHaveLength(0);
 
@@ -238,33 +230,33 @@ test('with elections', async () => {
   });
 });
 
-test('sorting elections by status, org, and jurisdiction', async () => {
-  // Create elections with different statuses and orgs
-  const generalElection = generalElectionRecord(org.id);
-  const primaryElection = primaryElectionRecord(org.id);
-  const blankElection = blankElectionRecord(org.id);
+test('sorting elections by status and jurisdiction', async () => {
+  // Create elections with different statuses and jurisdictions
+  const generalElection = generalElectionRecord(jurisdiction.id);
+  const primaryElection = primaryElectionRecord(jurisdiction.id);
+  const blankElection = blankElectionRecord(jurisdiction.id);
 
-  const elections = [
+  const elections: ElectionListing[] = [
     // Election with inProgress status
     {
       ...electionListing(primaryElection),
       status: 'inProgress' as const,
-      orgName: 'Alpha Org',
-      jurisdiction: 'County B',
+      jurisdictionName: 'Alpha Jurisdiction',
+      jurisdictionId: 'County B',
     },
     // Election with ballotsFinalized status
     {
       ...electionListing(generalElection),
       status: 'ballotsFinalized' as const,
-      orgName: 'VotingWorks',
-      jurisdiction: 'County A',
+      jurisdictionName: 'VotingWorks',
+      jurisdictionId: 'County A',
     },
     // Election with notStarted status
     {
       ...electionListing(blankElection),
       status: 'notStarted' as const,
-      orgName: 'Zeta Org',
-      jurisdiction: 'County C',
+      jurisdictionName: 'Zeta Jurisdiction',
+      jurisdictionId: 'County C',
     },
   ];
 
@@ -335,44 +327,6 @@ test('sorting elections by status, org, and jurisdiction', async () => {
     'Not started'
   );
 
-  // Test sorting by Org (ascending)
-  const orgHeader = within(table).getByRole('button', { name: /org/i });
-  userEvent.click(orgHeader);
-
-  rows = within(table).getAllByRole('row').slice(1);
-  // Alpha Org, VotingWorks, Zeta Org (alphabetical)
-  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
-    'Alpha Org'
-  );
-  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
-    'VotingWorks'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent('Zeta Org');
-
-  // Test sorting by Org (descending)
-  userEvent.click(orgHeader);
-  rows = within(table).getAllByRole('row').slice(1);
-  // Reverse alphabetical order
-  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent('Zeta Org');
-  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
-    'VotingWorks'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent(
-    'Alpha Org'
-  );
-
-  // Test sorting by Org (third click - unsorted, back to original order)
-  userEvent.click(orgHeader);
-  rows = within(table).getAllByRole('row').slice(1);
-  // Back to original order
-  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
-    'Alpha Org'
-  );
-  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
-    'VotingWorks'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent('Zeta Org');
-
   // Test sorting by Jurisdiction (ascending)
   const jurisdictionHeader = within(table).getByRole('button', {
     name: /jurisdiction/i,
@@ -380,34 +334,50 @@ test('sorting elections by status, org, and jurisdiction', async () => {
   userEvent.click(jurisdictionHeader);
 
   rows = within(table).getAllByRole('row').slice(1);
-  // County A, County B, County C (alphabetical)
-  expect(within(rows[0]).getAllByRole('cell')[2]).toHaveTextContent('County A');
-  expect(within(rows[1]).getAllByRole('cell')[2]).toHaveTextContent('County B');
-  expect(within(rows[2]).getAllByRole('cell')[2]).toHaveTextContent('County C');
+  // Alpha Jurisdiction, VotingWorks, Zeta Jurisdiction (alphabetical)
+  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Alpha Jurisdiction'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
+    'VotingWorks'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Zeta Jurisdiction'
+  );
 
   // Test sorting by Jurisdiction (descending)
   userEvent.click(jurisdictionHeader);
-
   rows = within(table).getAllByRole('row').slice(1);
   // Reverse alphabetical order
-  expect(within(rows[0]).getAllByRole('cell')[2]).toHaveTextContent('County C');
-  expect(within(rows[1]).getAllByRole('cell')[2]).toHaveTextContent('County B');
-  expect(within(rows[2]).getAllByRole('cell')[2]).toHaveTextContent('County A');
+  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Zeta Jurisdiction'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
+    'VotingWorks'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Alpha Jurisdiction'
+  );
 
   // Test sorting by Jurisdiction (third click - unsorted, back to original order)
   userEvent.click(jurisdictionHeader);
-
   rows = within(table).getAllByRole('row').slice(1);
   // Back to original order
-  expect(within(rows[0]).getAllByRole('cell')[2]).toHaveTextContent('County B');
-  expect(within(rows[1]).getAllByRole('cell')[2]).toHaveTextContent('County A');
-  expect(within(rows[2]).getAllByRole('cell')[2]).toHaveTextContent('County C');
+  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Alpha Jurisdiction'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
+    'VotingWorks'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Zeta Jurisdiction'
+  );
 });
 
 test('clone buttons are rendered', async () => {
   const [general, primary] = [
-    generalElectionRecord(org.id),
-    primaryElectionRecord(org.id),
+    generalElectionRecord(jurisdiction.id),
+    primaryElectionRecord(jurisdiction.id),
   ];
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections
@@ -426,13 +396,13 @@ test('clone buttons are rendered', async () => {
   ]);
 });
 
-test('single org elections list', async () => {
+test('single jurisdiction elections list', async () => {
   // Mock features with ACCESS_ALL_ORGS disabled
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
 
   const [general, primary] = [
-    generalElectionRecord(org.id),
-    primaryElectionRecord(org.id),
+    generalElectionRecord(jurisdiction.id),
+    primaryElectionRecord(jurisdiction.id),
   ];
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections
@@ -444,12 +414,11 @@ test('single org elections list', async () => {
 
   const table = screen.getByRole('table');
 
-  // Verify the single org table headers (no Status or Org columns)
+  // Verify the single jurisdiction table headers (no Status or Jurisdiction columns)
   const headers = within(table).getAllByRole('columnheader');
   expect(headers.map((header) => header.textContent)).toEqual([
     'Title',
     'Date',
-    'Jurisdiction',
     '', // Clone button column
   ]);
 
@@ -461,24 +430,25 @@ test('single org elections list', async () => {
   const firstRowCells = within(rows[0]).getAllByRole('cell');
   expect(firstRowCells[0]).toHaveTextContent(general.election.title);
   expect(firstRowCells[1]).toHaveTextContent('Nov 3, 2020');
-  expect(firstRowCells[2]).toHaveTextContent(general.election.county.name);
 
   // Check second election row content
   const secondRowCells = within(rows[1]).getAllByRole('cell');
   expect(secondRowCells[0]).toHaveTextContent(primary.election.title);
   expect(secondRowCells[1]).toHaveTextContent('Sep 8, 2021');
-  expect(secondRowCells[2]).toHaveTextContent(primary.election.county.name);
 });
 
-test('elections list for user with multiple orgs', async () => {
+test('elections list for user with multiple jurisdictions', async () => {
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
 
-  const generalOrg1 = generalElectionRecord(org.id);
-  const generalOrg2 = blankElectionRecord(org2.id);
+  const generalJurisdiction1 = generalElectionRecord(jurisdiction.id);
+  const generalJurisdiction2 = blankElectionRecord(jurisdiction2.id);
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections
     .expectCallWith()
-    .resolves([electionListing(generalOrg1), electionListing(generalOrg2)]);
+    .resolves([
+      electionListing(generalJurisdiction1),
+      electionListing(generalJurisdiction2),
+    ]);
 
   renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
@@ -490,7 +460,6 @@ test('elections list for user with multiple orgs', async () => {
     'Title',
     'Date',
     'Jurisdiction',
-    'Organization',
     '', // Clone button column
   ]);
 
@@ -498,16 +467,15 @@ test('elections list for user with multiple orgs', async () => {
   expect(rows).toHaveLength(2);
 
   const firstRowCells = within(rows[0]).getAllByRole('cell');
-  expect(firstRowCells[3]).toHaveTextContent('org1 Name');
+  expect(firstRowCells[2]).toHaveTextContent('jurisdiction1 Name');
   const secondRowCells = within(rows[1]).getAllByRole('cell');
   expect(secondRowCells[0]).toHaveTextContent('Untitled Election');
   expect(secondRowCells[1]).toHaveTextContent(format.localeDate(new Date()));
-  expect(secondRowCells[2]).toHaveTextContent('');
-  expect(secondRowCells[3]).toHaveTextContent('org2 Name');
+  expect(secondRowCells[2]).toHaveTextContent('jurisdiction2 Name');
 });
 
 test('shows error message when loading election fails', async () => {
-  const electionRecord = primaryElectionRecord(org.id);
+  const electionRecord = primaryElectionRecord(jurisdiction.id);
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections.expectCallWith().resolves([]);
 
@@ -517,7 +485,7 @@ test('shows error message when loading election fails', async () => {
   const electionData = JSON.stringify(electionRecord.election);
   apiMock.loadElection
     .expectCallWith({
-      orgId: org.id,
+      jurisdictionId: jurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: electionData,

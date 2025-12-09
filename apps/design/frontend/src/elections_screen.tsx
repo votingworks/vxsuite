@@ -156,7 +156,7 @@ function AllOrgsElectionsList({
 }): JSX.Element | null {
   const [sortState, setSortState] = useQueryParamsState<
     | {
-        field: 'Status' | 'Org' | 'Jurisdiction';
+        field: 'Status' | 'Jurisdiction';
         direction: SortDirection;
       }
     | undefined
@@ -173,10 +173,8 @@ function AllOrgsElectionsList({
       switch (field) {
         case 'Status':
           return election.status;
-        case 'Org':
-          return election.orgName;
         case 'Jurisdiction':
-          return election.jurisdiction;
+          return election.jurisdictionName;
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(field);
@@ -197,8 +195,6 @@ function AllOrgsElectionsList({
       throw new Error('Unexpected field value types');
     });
   })();
-
-  const showJurisdiction = process.env.NODE_ENV !== 'production';
 
   return (
     <Table>
@@ -223,39 +219,21 @@ function AllOrgsElectionsList({
           <th>
             <SortHeaderButton
               direction={
-                sortState?.field === 'Org' ? sortState.direction : undefined
+                sortState?.field === 'Jurisdiction'
+                  ? sortState.direction
+                  : undefined
               }
               onPress={(direction) => {
                 if (direction) {
-                  setSortState({ field: 'Org', direction });
+                  setSortState({ field: 'Jurisdiction', direction });
                 } else {
                   setSortState(undefined);
                 }
               }}
             >
-              Org
+              Jurisdiction
             </SortHeaderButton>
           </th>
-          {showJurisdiction && (
-            <th>
-              <SortHeaderButton
-                direction={
-                  sortState?.field === 'Jurisdiction'
-                    ? sortState.direction
-                    : undefined
-                }
-                onPress={(direction) => {
-                  if (direction) {
-                    setSortState({ field: 'Jurisdiction', direction });
-                  } else {
-                    setSortState(undefined);
-                  }
-                }}
-              >
-                Jurisdiction
-              </SortHeaderButton>
-            </th>
-          )}
           <th>Title</th>
           <th>Date</th>
           <th />
@@ -268,11 +246,7 @@ function AllOrgsElectionsList({
               {STATUS_ELEMENTS[election.status]}
             </LinkCell>
 
-            <LinkCell election={election}>{election.orgName}</LinkCell>
-
-            {showJurisdiction && (
-              <LinkCell election={election}>{election.jurisdiction}</LinkCell>
-            )}
+            <LinkCell election={election}>{election.jurisdictionName}</LinkCell>
 
             <LinkCell election={election}>
               {election.title || 'Untitled Election'}
@@ -300,16 +274,15 @@ function ElectionsList({
 }: {
   elections: ElectionListing[];
 }): JSX.Element | null {
-  const showOrganization =
-    unique(elections.map((election) => election.orgId)).length > 1;
+  const showJurisdiction =
+    unique(elections.map((election) => election.jurisdictionId)).length > 1;
   return (
     <Table>
       <thead>
         <tr>
           <th>Title</th>
           <th>Date</th>
-          <th>Jurisdiction</th>
-          {showOrganization && <th>Organization</th>}
+          {showJurisdiction && <th>Jurisdiction</th>}
           <th />
         </tr>
       </thead>
@@ -327,10 +300,10 @@ function ElectionsList({
                 )}
             </LinkCell>
 
-            <LinkCell election={election}>{election.jurisdiction}</LinkCell>
-
-            {showOrganization && (
-              <LinkCell election={election}>{election.orgName}</LinkCell>
+            {showJurisdiction && (
+              <LinkCell election={election}>
+                {election.jurisdictionName}
+              </LinkCell>
             )}
 
             <ActionIconButtonCell>
@@ -365,11 +338,11 @@ export function ElectionsScreen({
   }
   const features = getUserFeaturesQuery.data;
   const elections = listElectionsQuery.data;
-  // Filter by matching organization (if user has access to all orgs) or election title
+  // Filter by matching jurisdiction (if user has access to all orgs) or election title
   const filteredElections = elections.filter(
     (e) =>
       (features.ACCESS_ALL_ORGS &&
-        e.orgName.toLowerCase().includes(filterText.toLowerCase())) ||
+        e.jurisdictionName.toLowerCase().includes(filterText.toLowerCase())) ||
       e.title.toLowerCase().includes(filterText.toLowerCase())
   );
 
@@ -400,7 +373,7 @@ export function ElectionsScreen({
                 aria-label="Filter elections"
                 placeholder={
                   features.ACCESS_ALL_ORGS
-                    ? 'Filter by organization or election title'
+                    ? 'Filter by jurisdiction or election title'
                     : 'Filter by election title'
                 }
                 value={filterText}

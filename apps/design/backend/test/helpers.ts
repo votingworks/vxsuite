@@ -38,7 +38,7 @@ import {
 } from '../src/file_storage_client';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
-import { Org, User } from '../src/types';
+import { Jurisdiction, User } from '../src/types';
 import * as worker from '../src/worker/worker';
 import { createWorkspace, Workspace } from '../src/workspace';
 import { TestStore } from './test_store';
@@ -111,16 +111,22 @@ export function testSetupHelpers() {
   });
   const testStore = new TestStore(baseLogger);
 
-  async function setupApp({ orgs, users }: { orgs: Org[]; users: User[] }) {
+  async function setupApp({
+    jurisdictions: jurisdictions,
+    users,
+  }: {
+    jurisdictions: Jurisdiction[];
+    users: User[];
+  }) {
     const store = testStore.getStore();
     await testStore.init();
-    for (const org of orgs) {
-      await store.createOrganization(org);
+    for (const jurisdiction of jurisdictions) {
+      await store.createJurisdiction(jurisdiction);
     }
     for (const user of users) {
       await store.createUser(user);
-      for (const organization of user.organizations) {
-        await store.addUserToOrganization(user.id, organization.id);
+      for (const jurisdiction of user.jurisdictions) {
+        await store.addUserToJurisdiction(user.id, jurisdiction.id);
       }
     }
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);

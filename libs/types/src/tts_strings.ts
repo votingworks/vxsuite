@@ -46,13 +46,13 @@ export const PhoneticWordsSchema = z.array(PhoneticWordSchema);
  */
 export interface TtsEditKey {
   languageCode: string;
-  orgId: string;
+  jurisdictionId: string;
   original: string;
 }
 
 export const TtsEditKeySchema: z.ZodType<TtsEditKey> = z.object({
   languageCode: z.string(),
-  orgId: z.string(),
+  jurisdictionId: z.string(),
   original: z.string(),
 });
 

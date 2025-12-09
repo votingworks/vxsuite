@@ -17,7 +17,7 @@ import {
   testSetupHelpers,
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
-import { orgs, users, vxOrg, vxUser } from '../test/mocks';
+import { jurisdictions, users, vxJurisdiction, vxUser } from '../test/mocks';
 import { convertMsResults } from './convert_ms_results';
 
 vi.setConfig({ testTimeout: 30_000 });
@@ -27,13 +27,16 @@ const { setupApp, cleanup } = testSetupHelpers();
 afterAll(cleanup);
 
 test('load MS SEMS election', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(vxUser);
 
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   const result = await apiClient.loadElection({
     newId: electionId,
-    orgId: vxOrg.id,
+    jurisdictionId: vxJurisdiction.id,
     upload: {
       format: 'ms-sems',
       electionFileContents: readFixture('ms-sems-election-general-10.csv'),
@@ -46,12 +49,15 @@ test('load MS SEMS election', async () => {
 });
 
 test('returns errors when loading invalid MS SEMS election', async () => {
-  const { apiClient, auth0 } = await setupApp({ orgs, users });
+  const { apiClient, auth0 } = await setupApp({
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(vxUser);
 
   const result = await apiClient.loadElection({
     newId: unsafeParse(ElectionIdSchema, 'election-2'),
-    orgId: vxOrg.id,
+    jurisdictionId: vxJurisdiction.id,
     upload: {
       format: 'ms-sems',
       // Corrupt the election file by truncating it prematurely
@@ -70,7 +76,7 @@ test('returns errors when loading invalid MS SEMS election', async () => {
 
 test('convert MS results', async () => {
   const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
-    orgs,
+    jurisdictions,
     users,
   });
   auth0.setLoggedInUser(vxUser);
@@ -80,7 +86,7 @@ test('convert MS results', async () => {
   (
     await apiClient.loadElection({
       newId: electionId,
-      orgId: vxOrg.id,
+      jurisdictionId: vxJurisdiction.id,
       upload: {
         format: 'ms-sems',
         electionFileContents: readFixture('ms-sems-election-general-10.csv'),
@@ -115,7 +121,9 @@ test('convert MS results', async () => {
     shouldExportSampleBallots: false,
   });
   const contents = assertDefined(
-    fileStorageClient.getRawFile(join(vxOrg.id, electionPackageFilePath))
+    fileStorageClient.getRawFile(
+      join(vxJurisdiction.id, electionPackageFilePath)
+    )
   );
   const { electionPackageContents } =
     await unzipElectionPackageAndBallots(contents);

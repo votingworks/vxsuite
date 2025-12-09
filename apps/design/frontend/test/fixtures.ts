@@ -34,7 +34,7 @@ function splitCandidateName(candidate: Candidate): Candidate {
 
 export function makeElectionRecord(
   baseElection: Election,
-  orgId: Id
+  jurisdictionId: Id
 ): ElectionRecord {
   const ballotLanguageConfigs: BallotLanguageConfigs = [
     { languages: [LanguageCode.ENGLISH] },
@@ -68,19 +68,19 @@ export function makeElectionRecord(
     ballotLanguageConfigs,
     ballotTemplateId: 'VxDefaultBallot',
     ballotsFinalizedAt: null,
-    orgId,
+    jurisdictionId,
   };
 }
 
 export function electionInfoFromElection(election: Election): ElectionInfo {
   return {
-    orgId: `org-${election.id}`,
+    jurisdictionId: `jurisdiction-${election.id}`,
     electionId: election.id,
     title: election.title,
     date: election.date,
     type: election.type,
     state: election.state,
-    jurisdiction: election.county.name,
+    countyName: election.county.name,
     seal: election.seal,
     signatureImage: election.signature?.image,
     signatureCaption: election.signature?.caption,
@@ -91,42 +91,42 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
 export function electionInfoFromRecord(record: ElectionRecord): ElectionInfo {
   return {
     ...electionInfoFromElection(record.election),
-    orgId: record.orgId,
+    jurisdictionId: record.jurisdictionId,
   };
 }
 
 export function electionListing(
   electionRecord: ElectionRecord
 ): ElectionListing {
-  const { election, orgId } = electionRecord;
+  const { election, jurisdictionId } = electionRecord;
   return {
-    orgId,
-    orgName: `${orgId} Name`,
+    jurisdictionId,
+    jurisdictionName: `${jurisdictionId} Name`,
     electionId: election.id,
     title: election.title,
     date: election.date,
     type: election.type,
     state: election.state,
-    jurisdiction: election.county.name,
+    countyName: election.county.name,
     status: 'inProgress',
   };
 }
 
-export function blankElectionRecord(orgId: Id): ElectionRecord {
-  return makeElectionRecord(createBlankElection(generateId()), orgId);
+export function blankElectionRecord(jurisdictionId: Id): ElectionRecord {
+  return makeElectionRecord(createBlankElection(generateId()), jurisdictionId);
 }
-export function blankElectionInfo(orgId: Id): ElectionInfo {
-  return electionInfoFromElection(blankElectionRecord(orgId).election);
+export function blankElectionInfo(jurisdictionId: Id): ElectionInfo {
+  return electionInfoFromElection(blankElectionRecord(jurisdictionId).election);
 }
-export function generalElectionRecord(orgId: Id): ElectionRecord {
-  return makeElectionRecord(readElectionGeneral(), orgId);
+export function generalElectionRecord(jurisdictionId: Id): ElectionRecord {
+  return makeElectionRecord(readElectionGeneral(), jurisdictionId);
 }
-export function primaryElectionRecord(orgId: Id): ElectionRecord {
+export function primaryElectionRecord(jurisdictionId: Id): ElectionRecord {
   return makeElectionRecord(
     electionPrimaryPrecinctSplitsFixtures.readElection(),
-    orgId
+    jurisdictionId
   );
 }
-export function generalElectionInfo(orgId: Id): ElectionInfo {
-  return electionInfoFromRecord(generalElectionRecord(orgId));
+export function generalElectionInfo(jurisdictionId: Id): ElectionInfo {
+  return electionInfoFromRecord(generalElectionRecord(jurisdictionId));
 }
