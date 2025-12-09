@@ -16,11 +16,11 @@ import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status';
 const debug = rootDebug.extend('manager');
 
 /**
- * With the thermal receipt printer, the printer will register as disconnected
- * from the CUPS server for a period after each print. We give the printer this
- * much time to reconnect before we consider it disconnected.
+ * The printer may register as disconnected from the CUPS server for
+ * a period after each print. We give the printer this much time to
+ * reconnect before we consider it disconnected.
  */
-const POST_PRINT_DISCONNECT_ALLOWANCE = 3000;
+export const POST_PRINT_DISCONNECT_ALLOWANCE = 5000;
 
 interface PrinterDevice {
   uri?: string;
@@ -40,10 +40,13 @@ export function detectPrinter(logger: BaseLogger): Printer {
       const connectedUris = await getConnectedDeviceUris();
 
       if (printerDevice.uri) {
+        debug('device uri configured: %s', printerDevice.uri);
         const justPrinted =
           Date.now() - printerDevice.lastPrint <
           POST_PRINT_DISCONNECT_ALLOWANCE;
+        debug('just printed: %s', justPrinted);
         const printerDetected = connectedUris.includes(printerDevice.uri);
+        debug('printer detected: %s', printerDetected);
 
         // check if the printer was disconnected
         if (!justPrinted && !printerDetected) {
@@ -59,6 +62,7 @@ export function detectPrinter(logger: BaseLogger): Printer {
       if (!printerDevice.uri) {
         // check if a supported printer is attached
         for (const uri of connectedUris) {
+          debug('checking connected printer uri: %s', uri);
           const config = getPrinterConfig(uri);
           if (config) {
             debug('supported printer attached: %s', uri);
@@ -75,6 +79,7 @@ export function detectPrinter(logger: BaseLogger): Printer {
       }
 
       if (!printerDevice.uri) {
+        debug('no printer connected or memory of previous printer');
         return { connected: false };
       }
 
