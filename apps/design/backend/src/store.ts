@@ -614,7 +614,7 @@ export class Store {
               select
                 elections.id as "electionId",
                 elections.org_id as "jurisdictionId",
-                organizations.name as "orgName",
+                organizations.name as "jurisdictionName",
                 elections.type,
                 elections.title,
                 elections.date,
@@ -642,7 +642,7 @@ export class Store {
     ).map((row) => ({
       electionId: row.electionId,
       jurisdictionId: row.jurisdictionId,
-      orgName: row.orgName,
+      jurisdictionName: row.jurisdictionName,
       type: row.type,
       title: row.title,
       date: new DateWithoutTime(row.date.toISOString().split('T')[0]),

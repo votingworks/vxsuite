@@ -174,7 +174,7 @@ function AllOrgsElectionsList({
         case 'Status':
           return election.status;
         case 'Org':
-          return election.orgName;
+          return election.jurisdictionName;
         case 'Jurisdiction':
           return election.countyName;
         default: {
@@ -268,7 +268,7 @@ function AllOrgsElectionsList({
               {STATUS_ELEMENTS[election.status]}
             </LinkCell>
 
-            <LinkCell election={election}>{election.orgName}</LinkCell>
+            <LinkCell election={election}>{election.jurisdictionName}</LinkCell>
 
             {showJurisdiction && (
               <LinkCell election={election}>{election.countyName}</LinkCell>
@@ -330,7 +330,9 @@ function ElectionsList({
             <LinkCell election={election}>{election.countyName}</LinkCell>
 
             {showOrganization && (
-              <LinkCell election={election}>{election.orgName}</LinkCell>
+              <LinkCell election={election}>
+                {election.jurisdictionName}
+              </LinkCell>
             )}
 
             <ActionIconButtonCell>
@@ -369,7 +371,7 @@ export function ElectionsScreen({
   const filteredElections = elections.filter(
     (e) =>
       (features.ACCESS_ALL_ORGS &&
-        e.orgName.toLowerCase().includes(filterText.toLowerCase())) ||
+        e.jurisdictionName.toLowerCase().includes(filterText.toLowerCase())) ||
       e.title.toLowerCase().includes(filterText.toLowerCase())
   );
 

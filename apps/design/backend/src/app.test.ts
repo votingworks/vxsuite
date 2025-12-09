@@ -251,7 +251,7 @@ test('create/list/delete elections', async () => {
 
   const expectedElectionListing: ElectionListing = {
     jurisdictionId: nonVxOrg.id,
-    orgName: nonVxOrg.name,
+    jurisdictionName: nonVxOrg.name,
     electionId: expectedElectionId,
     title: '',
     date: DateWithoutTime.today(),
@@ -285,7 +285,7 @@ test('create/list/delete elections', async () => {
 
   const expectedElection2Listing: ElectionListing = {
     jurisdictionId: vxOrg.id,
-    orgName: vxOrg.name,
+    jurisdictionName: vxOrg.name,
     electionId: importedElectionNewId,
     title: election2.title,
     date: election2.date,

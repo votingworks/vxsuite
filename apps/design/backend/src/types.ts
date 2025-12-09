@@ -51,7 +51,7 @@ export type ElectionStatus = 'notStarted' | 'inProgress' | 'ballotsFinalized';
 
 export interface ElectionListing {
   jurisdictionId: string;
-  orgName: string;
+  jurisdictionName: string;
   electionId: ElectionId;
   title: string;
   date: DateWithoutTime;

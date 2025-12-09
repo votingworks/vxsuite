@@ -244,27 +244,27 @@ test('sorting elections by status, org, and jurisdiction', async () => {
   const primaryElection = primaryElectionRecord(org.id);
   const blankElection = blankElectionRecord(org.id);
 
-  const elections = [
+  const elections: ElectionListing[] = [
     // Election with inProgress status
     {
       ...electionListing(primaryElection),
       status: 'inProgress' as const,
-      orgName: 'Alpha Org',
-      jurisdiction: 'County B',
+      jurisdictionName: 'Alpha Org',
+      jurisdictionId: 'County B',
     },
     // Election with ballotsFinalized status
     {
       ...electionListing(generalElection),
       status: 'ballotsFinalized' as const,
-      orgName: 'VotingWorks',
-      jurisdiction: 'County A',
+      jurisdictionName: 'VotingWorks',
+      jurisdictionId: 'County A',
     },
     // Election with notStarted status
     {
       ...electionListing(blankElection),
       status: 'notStarted' as const,
-      orgName: 'Zeta Org',
-      jurisdiction: 'County C',
+      jurisdictionName: 'Zeta Org',
+      jurisdictionId: 'County C',
     },
   ];
 
