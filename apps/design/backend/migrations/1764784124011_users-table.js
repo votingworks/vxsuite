@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { ManagementClient } = require('auth0');
 const basics = require('@votingworks/basics');
+const { votingWorksOrgId } = require('../build/globals');
 
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
@@ -82,7 +83,7 @@ exports.up = async (pgm) => {
     pgm.sql(`
       INSERT INTO users_organizations (user_id, organization_id) VALUES (
         'auth0|devuser',
-        'votingworks'
+        '${votingWorksOrgId()}'
       );
     `);
   }

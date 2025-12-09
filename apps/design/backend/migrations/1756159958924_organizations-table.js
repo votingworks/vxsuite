@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { ManagementClient } = require('auth0');
 const { assertDefined } = require('@votingworks/basics');
+const { votingWorksOrgId } = require('../build/globals');
 
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
@@ -37,7 +38,7 @@ exports.up = async (pgm) => {
     // In dev mode, create the default dev organization (use VotingWorks org ID to get full features)
     pgm.sql(`
       INSERT INTO organizations (id, name) VALUES (
-        'votingworks',
+        '${votingWorksOrgId()}',
         'VotingWorks'
       );
     `);
