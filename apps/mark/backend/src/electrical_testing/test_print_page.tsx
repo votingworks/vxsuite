@@ -1,6 +1,4 @@
-/* istanbul ignore file - @preserve */
 import { DateTime } from 'luxon';
-import React from 'react';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 
 export interface TestPrintPageProps {

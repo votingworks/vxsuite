@@ -1,4 +1,3 @@
-/* istanbul ignore file - @preserve */
 import {
   createSystemCallApi,
   getCpuMetrics,

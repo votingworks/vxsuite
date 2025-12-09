@@ -1,4 +1,3 @@
-/* istanbul ignore file - @preserve */
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { TaskController } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';

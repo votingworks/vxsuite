@@ -1,4 +1,3 @@
-/* istanbul ignore file - @preserve */
 import { LogEventId } from '@votingworks/logging';
 
 import { cleanupCachedBrowser } from '@votingworks/printing';

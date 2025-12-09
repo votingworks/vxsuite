@@ -1,4 +1,3 @@
-/* istanbul ignore file - @preserve */
 import React from 'react';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
