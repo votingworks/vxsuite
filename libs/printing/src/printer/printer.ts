@@ -16,9 +16,9 @@ import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status';
 const debug = rootDebug.extend('manager');
 
 /**
- * With the thermal receipt printer, the printer will register as disconnected
- * from the CUPS server for a period after each print. We give the printer this
- * much time to reconnect before we consider it disconnected.
+ * The printer may register as disconnected from the CUPS server for
+ * a period after each print. We give the printer this much time to
+ * reconnect before we consider it disconnected.
  */
 export const POST_PRINT_DISCONNECT_ALLOWANCE = 5000;
 
