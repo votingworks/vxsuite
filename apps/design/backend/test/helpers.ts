@@ -121,12 +121,12 @@ export function testSetupHelpers() {
     const store = testStore.getStore();
     await testStore.init();
     for (const org of orgs) {
-      await store.createOrganization(org);
+      await store.createJurisdiction(org);
     }
     for (const user of users) {
       await store.createUser(user);
       for (const organization of user.jurisdictions) {
-        await store.addUserToOrganization(user.id, organization.id);
+        await store.addUserToJurisdiction(user.id, organization.id);
       }
     }
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);

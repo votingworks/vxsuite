@@ -12,7 +12,7 @@ async function main(): Promise<void> {
     resolve(assertDefined(WORKSPACE)),
     new BaseLogger(LogSource.VxDesignService)
   );
-  const orgs = await workspace.store.listOrganizations();
+  const orgs = await workspace.store.listJurisdictions();
   console.log('✅ Orgs:', orgs);
 }
 

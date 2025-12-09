@@ -377,7 +377,7 @@ describe('tts_strings', () => {
 
   async function setUpOrgs(store: Store, ids: string[] = [key.jurisdictionId]) {
     for (const id of ids) {
-      await store.createOrganization({ id, name: id });
+      await store.createJurisdiction({ id, name: id });
     }
   }
 

@@ -471,9 +471,9 @@ export class Store {
     return new Store(new Db(logger), logger);
   }
 
-  async listOrganizations(): Promise<Jurisdiction[]> {
+  async listJurisdictions(): Promise<Jurisdiction[]> {
     return await this.db.withClient(async (client) => {
-      const orgRows = (
+      const rows = (
         await client.query(
           `
           select id, name
@@ -481,24 +481,26 @@ export class Store {
           `
         )
       ).rows as Array<{ id: string; name: string }>;
-      return orgRows;
+      return rows;
     });
   }
 
-  async createOrganization(org: Jurisdiction): Promise<void> {
+  async createJurisdiction(jurisdiction: Jurisdiction): Promise<void> {
     await this.db.withClient(async (client) => {
       await client.query(
         `
         insert into jurisdictions (id, name)
         values ($1, $2)
         `,
-        org.id,
-        org.name
+        jurisdiction.id,
+        jurisdiction.name
       );
     });
   }
 
-  async getOrganization(orgId: string): Promise<Optional<Jurisdiction>> {
+  async getJurisdiction(
+    jurisdictionId: string
+  ): Promise<Optional<Jurisdiction>> {
     return this.db.withClient(
       async (client) =>
         (
@@ -508,7 +510,7 @@ export class Store {
             from jurisdictions
             where id = $1
             `,
-            orgId
+            jurisdictionId
           )
         ).rows[0]
     );
@@ -527,7 +529,10 @@ export class Store {
     );
   }
 
-  async addUserToOrganization(userId: string, orgId: string): Promise<void> {
+  async addUserToJurisdiction(
+    userId: string,
+    jurisdictionId: string
+  ): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
         `
@@ -535,7 +540,7 @@ export class Store {
         values ($1, $2)
         `,
         userId,
-        orgId
+        jurisdictionId
       )
     );
   }
@@ -555,7 +560,7 @@ export class Store {
       if (!userRow) {
         return undefined;
       }
-      const orgRows = (
+      const jurisdictionRows = (
         await client.query(
           `
           select jurisdictions.id, jurisdictions.name
@@ -568,7 +573,7 @@ export class Store {
       ).rows as Jurisdiction[];
       return {
         ...userRow,
-        jurisdictions: orgRows,
+        jurisdictions: jurisdictionRows,
       };
     });
   }
@@ -593,16 +598,16 @@ export class Store {
   }
 
   async listElections(input: {
-    orgIds?: string[];
+    jurisdictionIds?: string[];
   }): Promise<ElectionListing[]> {
     let whereClause = '';
     const params: Bindable[] = [];
 
-    if (input.orgIds) {
-      whereClause = `where jurisdiction_id in (${input.orgIds
+    if (input.jurisdictionIds) {
+      whereClause = `where jurisdiction_id in (${input.jurisdictionIds
         .map((_, i) => `$${i + 1}`)
         .join(', ')})`;
-      params.push(...input.orgIds);
+      params.push(...input.jurisdictionIds);
     }
 
     return (
@@ -614,7 +619,7 @@ export class Store {
               select
                 elections.id as "electionId",
                 elections.jurisdiction_id as "jurisdictionId",
-                organizations.name as "jurisdictionName",
+                jurisdictions.name as "jurisdictionName",
                 elections.type,
                 elections.title,
                 elections.date,
@@ -623,10 +628,10 @@ export class Store {
                 elections.ballots_finalized_at as "ballotsFinalizedAt",
                 count(contests.id)::int as "contestCount"
               from elections
-              join organizations on elections.org_id = organizations.id
+              join jurisdictions on elections.jurisdiction_id = jurisdictions.id
               left join contests on elections.id = contests.election_id
               ${whereClause}
-              group by elections.id, organizations.name
+              group by elections.id, jurisdictions.name
               order by elections.created_at desc
               `,
               ...params
@@ -1041,7 +1046,7 @@ export class Store {
     return ok(electionDefinition);
   }
 
-  async getElectionOrgId(electionId: ElectionId): Promise<string> {
+  async getElectionJurisdictionId(electionId: ElectionId): Promise<string> {
     const row = (
       await this.db.withClient((client) =>
         client.query(
@@ -1060,7 +1065,7 @@ export class Store {
 
   private async generateUniqueElectionCopyTitle(
     client: Client,
-    orgId: string,
+    jurisdictionId: string,
     election: Election
   ): Promise<string> {
     if (election.title === '') {
@@ -1077,7 +1082,7 @@ export class Store {
             where jurisdiction_id = $1 and title = $2 and date = $3
           )
         `,
-          orgId,
+          jurisdictionId,
           electionTitle,
           election.date.toISOString()
         )
@@ -1091,7 +1096,7 @@ export class Store {
   }
 
   async createElection(
-    orgId: string,
+    jurisdictionId: string,
     election: Election,
     ballotTemplateId: BallotTemplateId,
     systemSettings = DEFAULT_SYSTEM_SETTINGS
@@ -1100,7 +1105,7 @@ export class Store {
       client.withTransaction(async () => {
         const electionTitle = await this.generateUniqueElectionCopyTitle(
           client,
-          orgId,
+          jurisdictionId,
           election
         );
         await client.query(
@@ -1139,7 +1144,7 @@ export class Store {
           )
         `,
           election.id,
-          orgId,
+          jurisdictionId,
           election.type,
           electionTitle,
           election.date.toISOString(),

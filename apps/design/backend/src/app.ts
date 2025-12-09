@@ -202,7 +202,7 @@ export function buildApi(ctx: AppContext) {
   const { store } = workspace;
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
-    const electionOrgId = await store.getElectionOrgId(electionId);
+    const electionOrgId = await store.getElectionJurisdictionId(electionId);
     requireOrgAccess(user, electionOrgId);
   }
 
@@ -295,7 +295,7 @@ export function buildApi(ctx: AppContext) {
     ): Promise<Jurisdiction[]> {
       const userFeaturesConfig = getUserFeaturesConfig(context.user);
       return userFeaturesConfig.ACCESS_ALL_ORGS
-        ? await store.listOrganizations()
+        ? await store.listJurisdictions()
         : context.user.jurisdictions;
     },
 
@@ -306,7 +306,7 @@ export function buildApi(ctx: AppContext) {
       const { user } = context;
       const userFeatures = getUserFeaturesConfig(user);
       return store.listElections({
-        orgIds: userFeatures.ACCESS_ALL_ORGS
+        jurisdictionIds: userFeatures.ACCESS_ALL_ORGS
           ? undefined
           : user.jurisdictions.map((org) => org.id),
       });

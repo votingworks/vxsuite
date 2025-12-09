@@ -31,7 +31,7 @@ async function main(): Promise<void> {
     new BaseLogger(LogSource.VxDesignService)
   );
 
-  const org = await workspace.store.getOrganization(orgId);
+  const org = await workspace.store.getJurisdiction(orgId);
   if (!org) {
     throw new Error(`Organization with ID ${orgId} does not exist`);
   }
@@ -41,14 +41,14 @@ async function main(): Promise<void> {
   const existingUserId = await workspace.store.getUserIdByEmail(userEmail);
   if (existingUserId) {
     console.log('User already exists. Attempting to add to org...');
-    await workspace.store.addUserToOrganization(existingUserId, orgId);
+    await workspace.store.addUserToJurisdiction(existingUserId, orgId);
     console.log(`✅ Existing user added to org ${orgId}`);
     return;
   }
 
   const userId = await auth.createUser({ userEmail });
   await workspace.store.createUser({ id: userId, name: userEmail });
-  await workspace.store.addUserToOrganization(userId, orgId);
+  await workspace.store.addUserToJurisdiction(userId, orgId);
 
   console.log(`✅ User created and added to org ${orgId}`);
 }

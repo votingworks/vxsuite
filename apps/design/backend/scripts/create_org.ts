@@ -33,7 +33,7 @@ async function main(): Promise<void> {
     name,
   };
 
-  await workspace.store.createOrganization(org);
+  await workspace.store.createJurisdiction(org);
 
   console.log('✅ Org created:', org);
 }

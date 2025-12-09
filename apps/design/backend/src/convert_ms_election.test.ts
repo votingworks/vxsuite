@@ -16,7 +16,7 @@ const org: Jurisdiction = {
 
 beforeAll(async () => {
   await testStore.init();
-  await store.createOrganization(org);
+  await store.createJurisdiction(org);
 });
 
 afterAll(async () => {
