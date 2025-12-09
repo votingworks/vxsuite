@@ -305,17 +305,11 @@ export function buildApi(ctx: AppContext) {
     ): Promise<ElectionListing[]> {
       const { user } = context;
       const userFeatures = getUserFeaturesConfig(user);
-      const elections = await store.listElections({
+      return store.listElections({
         orgIds: userFeatures.ACCESS_ALL_ORGS
           ? undefined
           : user.organizations.map((org) => org.id),
       });
-      const orgs = await store.listOrganizations();
-      return elections.map((election) => ({
-        ...election,
-        orgName:
-          orgs.find((org) => org.id === election.orgId)?.name ?? election.orgId,
-      }));
     },
 
     async loadElection(

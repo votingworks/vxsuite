@@ -594,7 +594,7 @@ export class Store {
 
   async listElections(input: {
     orgIds?: string[];
-  }): Promise<Array<Omit<ElectionListing, 'orgName'>>> {
+  }): Promise<ElectionListing[]> {
     let whereClause = '';
     const params: Bindable[] = [];
 
@@ -614,6 +614,7 @@ export class Store {
               select
                 elections.id as "electionId",
                 elections.org_id as "orgId",
+                organizations.name as "orgName",
                 elections.type,
                 elections.title,
                 elections.date,
@@ -622,15 +623,16 @@ export class Store {
                 elections.ballots_finalized_at as "ballotsFinalizedAt",
                 count(contests.id)::int as "contestCount"
               from elections
+              join organizations on elections.org_id = organizations.id
               left join contests on elections.id = contests.election_id
               ${whereClause}
-              group by elections.id
+              group by elections.id, organizations.name
               order by elections.created_at desc
               `,
               ...params
             )
           ).rows as Array<
-            Omit<ElectionListing, 'orgName' | 'status'> & {
+            Omit<ElectionListing, 'status'> & {
               date: Date;
               ballotsFinalizedAt: Date | null;
               contestCount: number;
@@ -640,6 +642,7 @@ export class Store {
     ).map((row) => ({
       electionId: row.electionId,
       orgId: row.orgId,
+      orgName: row.orgName,
       type: row.type,
       title: row.title,
       date: new DateWithoutTime(row.date.toISOString().split('T')[0]),
