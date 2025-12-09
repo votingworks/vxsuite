@@ -4,7 +4,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { generateId } from './utils';
 import * as api from './api';
-import { OrgSelect } from './org_select';
+import { JurisdictionSelect } from './jurisdiction_select';
 
 export interface CreateElectionButtonProps {
   variant?: ButtonVariant;
@@ -18,7 +18,7 @@ export function CreateElectionButton(
   const createMutation = api.createElection.useMutation();
   const getUserFeaturesQuery = api.getUserFeatures.useQuery();
 
-  const [orgId, setOrgId] = React.useState<string>();
+  const [jurisdictionId, setJurisdictionId] = React.useState<string>();
   const [modalActive, setModalActive] = React.useState(false);
 
   const history = useHistory();
@@ -27,16 +27,16 @@ export function CreateElectionButton(
   const user = userQuery.data;
   React.useEffect(() => {
     if (user) {
-      setOrgId(assertDefined(user.organizations[0]).id);
+      setJurisdictionId(assertDefined(user.jurisdictions[0]).id);
     }
   }, [user]);
 
   const mutateCreateElection = createMutation.mutate;
   const createElection = React.useCallback(() => {
-    assert(!!orgId);
+    assert(!!jurisdictionId);
 
     mutateCreateElection(
-      { id: generateId(), orgId },
+      { id: generateId(), jurisdictionId },
       {
         onSuccess(result) {
           if (result.isOk()) {
@@ -49,7 +49,7 @@ export function CreateElectionButton(
         },
       }
     );
-  }, [history, mutateCreateElection, orgId]);
+  }, [history, mutateCreateElection, jurisdictionId]);
 
   /* istanbul ignore next - @preserve */
   if (!getUserFeaturesQuery.isSuccess) {
@@ -63,7 +63,7 @@ export function CreateElectionButton(
         variant={variant}
         icon="Add"
         onPress={
-          features.ACCESS_ALL_ORGS || (user?.organizations || []).length > 1
+          features.ACCESS_ALL_ORGS || (user?.jurisdictions || []).length > 1
             ? setModalActive
             : createElection
         }
@@ -96,11 +96,11 @@ export function CreateElectionButton(
           onOverlayClick={() => setModalActive(false)}
           content={
             <React.Fragment>
-              <P>Select an organization for the new election:</P>
-              <OrgSelect
+              <P>Select a jurisdiction for the new election:</P>
+              <JurisdictionSelect
                 disabled={createMutation.isLoading}
-                onChange={setOrgId}
-                selectedOrgId={orgId}
+                onChange={setJurisdictionId}
+                selectedJurisdictionId={jurisdictionId}
               />
             </React.Fragment>
           }

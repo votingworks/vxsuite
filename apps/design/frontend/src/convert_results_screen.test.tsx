@@ -11,7 +11,7 @@ import {
   createMockApiClient,
   MockApiClient,
   mockUserFeatures,
-  org,
+  jurisdiction,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -23,7 +23,7 @@ import { generalElectionRecord } from '../test/fixtures';
 
 vi.mock('js-file-download');
 
-const electionRecord = generalElectionRecord(org.id);
+const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
 
 const allPrecinctsTallyReportContents = 'mock tally report csv contents';

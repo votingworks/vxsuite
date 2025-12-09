@@ -13,7 +13,7 @@ import {
   provideApi,
 } from '../../test/api_helpers';
 
-const orgId = 'org-1';
+const jurisdictionId = 'jurisdiction-1';
 const languageCode = 'en';
 
 test('renders TTS defaults if no edits exist', async () => {
@@ -22,7 +22,7 @@ test('renders TTS defaults if no edits exist', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original })
+    .expectCallWith({ jurisdictionId, languageCode, original })
     .resolves(null);
 
   mockApi.ttsSynthesizeFromText
@@ -32,8 +32,9 @@ test('renders TTS defaults if no edits exist', async () => {
   const { container } = renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
-      orgId={orgId}
+      jurisdictionId={jurisdictionId}
       original={original}
     />
   );
@@ -55,7 +56,7 @@ test('renders saved edits if available', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original })
+    .expectCallWith({ jurisdictionId, languageCode, original })
     .resolves(savedEdit);
 
   const mockAudio = 'audioData';
@@ -66,8 +67,9 @@ test('renders saved edits if available', async () => {
   const { container } = renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
-      orgId={orgId}
+      jurisdictionId={jurisdictionId}
       original={original}
     />
   );
@@ -82,7 +84,7 @@ test('renders saved edits if available', async () => {
 test('enables save and reset button when applicable', async () => {
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original: 'CA' })
+    .expectCallWith({ jurisdictionId, languageCode, original: 'CA' })
     .resolves(null);
 
   mockApi.ttsSynthesizeFromText
@@ -91,7 +93,12 @@ test('enables save and reset button when applicable', async () => {
 
   renderEditor(
     mockApi,
-    <TtsTextEditor languageCode={languageCode} orgId={orgId} original="CA" />
+    <TtsTextEditor
+      editable
+      languageCode={languageCode}
+      jurisdictionId={jurisdictionId}
+      original="CA"
+    />
   );
 
   await screen.findByText(/edit the text below/i);
@@ -122,7 +129,7 @@ test('reset button restores saved state', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original })
+    .expectCallWith({ jurisdictionId, languageCode, original })
     .resolves(savedEdit);
 
   mockApi.ttsSynthesizeFromText
@@ -132,8 +139,9 @@ test('reset button restores saved state', async () => {
   renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
-      orgId={orgId}
+      jurisdictionId={jurisdictionId}
       original={original}
     />
   );
@@ -156,7 +164,7 @@ test('save button updates backend data, refreshes content', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original })
+    .expectCallWith({ jurisdictionId, languageCode, original })
     .resolves(null);
 
   mockApi.ttsSynthesizeFromText
@@ -166,8 +174,9 @@ test('save button updates backend data, refreshes content', async () => {
   const { container } = renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
-      orgId={orgId}
+      jurisdictionId={jurisdictionId}
       original={original}
     />
   );
@@ -191,7 +200,12 @@ test('save button updates backend data, refreshes content', async () => {
 
   const deferredSet = deferred<void>();
   mockApi.ttsEditsSet
-    .expectCallWith({ data: expectedEdit, languageCode, original, orgId })
+    .expectCallWith({
+      data: expectedEdit,
+      languageCode,
+      original,
+      jurisdictionId,
+    })
     .returns(deferredSet.promise);
 
   userEvent.click(screen.getButton(/save/i));
@@ -207,7 +221,7 @@ test('save button updates backend data, refreshes content', async () => {
   //
 
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original })
+    .expectCallWith({ jurisdictionId, languageCode, original })
     .resolves(expectedEdit);
 
   const newAudioData = 'newAudioDta';
@@ -223,6 +237,39 @@ test('save button updates backend data, refreshes content', async () => {
   expect(screen.getButton(/reset/i)).toBeDisabled();
 
   mockApi.assertComplete();
+});
+
+test('omits form actions if not editable', async () => {
+  const original = 'CA';
+  const mockAudio = 'audioData';
+
+  const mockApi = createMockApiClient();
+  mockApi.ttsEditsGet
+    .expectCallWith({ jurisdictionId, languageCode, original })
+    .resolves(null);
+
+  mockApi.ttsSynthesizeFromText
+    .expectCallWith({ languageCode, text: original })
+    .resolves(mockAudio);
+
+  const { container } = renderEditor(
+    mockApi,
+    <TtsTextEditor
+      editable={false}
+      languageCode={languageCode}
+      jurisdictionId={jurisdictionId}
+      original={original}
+    />
+  );
+
+  await screen.findByText(/audio will be generated from the following text/i);
+  mockApi.assertComplete();
+
+  expect(screen.getByRole('textbox')).toHaveValue('CA');
+  expect(screen.getByRole('textbox')).toBeDisabled();
+  expectAudioPlayerData(container, mockAudio);
+  expect(screen.queryButton(/save/i)).not.toBeInTheDocument();
+  expect(screen.queryButton(/reset/i)).not.toBeInTheDocument();
 });
 
 function expectAudioPlayerData(container: HTMLElement, data: string) {

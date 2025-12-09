@@ -12,7 +12,7 @@ import {
   MockApiClient,
   createMockApiClient,
   mockUserFeatures,
-  org,
+  jurisdiction,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -21,7 +21,7 @@ import { routes } from './routes';
 import { SystemSettingsScreen } from './system_settings_screen';
 import { generalElectionRecord } from '../test/fixtures';
 
-const electionRecord = generalElectionRecord(org.id);
+const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
 
 let apiMock: MockApiClient;

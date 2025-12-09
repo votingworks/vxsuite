@@ -1,62 +1,66 @@
-import { votingWorksOrgId, sliOrgId, vxDemosOrgId } from '../src/globals';
-import { Org, User } from '../src/types';
+import {
+  votingWorksJurisdictionId,
+  sliJurisdictionId,
+  vxDemosJurisdictionId,
+} from '../src/globals';
+import { Jurisdiction, User } from '../src/types';
 
-export const vxOrg: Org = {
-  id: votingWorksOrgId(),
+export const vxJurisdiction: Jurisdiction = {
+  id: votingWorksJurisdictionId(),
   name: 'VotingWorks',
 };
 export const vxUser: User = {
   name: 'vx.user@example.com',
   id: 'auth0|vx-user-id',
-  organizations: [vxOrg],
+  jurisdictions: [vxJurisdiction],
 };
 
-export const nonVxOrg: Org = {
-  id: 'other-org-id',
-  name: 'Other Org',
+export const nonVxJurisdiction: Jurisdiction = {
+  id: 'other-jurisdiction-id',
+  name: 'Other Jurisdiction',
 };
 export const nonVxUser: User = {
   name: 'non.vx.user@example.com',
   id: 'auth0|non-vx-user-id',
-  organizations: [nonVxOrg],
+  jurisdictions: [nonVxJurisdiction],
 };
 
-export const anotherNonVxOrg: Org = {
-  id: 'another-org-id',
-  name: 'Another Org',
+export const anotherNonVxJurisdiction: Jurisdiction = {
+  id: 'another-jurisdiction-id',
+  name: 'Another Jurisdiction',
 };
 export const anotherNonVxUser: User = {
   ...nonVxUser,
   id: 'auth0|another-non-vx-user-id',
-  organizations: [anotherNonVxOrg],
+  jurisdictions: [anotherNonVxJurisdiction],
 };
 
-export const sliOrg: Org = {
-  id: sliOrgId(),
+export const sliJurisdiction: Jurisdiction = {
+  id: sliJurisdictionId(),
   name: 'SLI',
 };
 export const sliUser: User = {
   name: 'sli.user@example.com',
   id: 'auth0|sli-user-id',
-  organizations: [sliOrg],
+  jurisdictions: [sliJurisdiction],
 };
 
-export const vxDemosOrg: Org = {
-  id: vxDemosOrgId(),
+export const vxDemosJurisdiction: Jurisdiction = {
+  id: vxDemosJurisdictionId(),
   name: 'VX Demos',
 };
 export const vxDemosUser: User = {
   name: 'vx.demos.user@example.com',
   id: 'auth0|vx-demos-user-id',
-  organizations: [vxDemosOrg],
+  jurisdictions: [vxDemosJurisdiction],
 };
 
-export const orgs: Org[] = [
-  vxOrg,
-  nonVxOrg,
-  anotherNonVxOrg,
-  sliOrg,
-  vxDemosOrg,
+export const jurisdictions: Jurisdiction[] = [
+  vxJurisdiction,
+  nonVxJurisdiction,
+  anotherNonVxJurisdiction,
+  sliJurisdiction,
+  vxDemosJurisdiction,
 ];
 
 export const users: User[] = [

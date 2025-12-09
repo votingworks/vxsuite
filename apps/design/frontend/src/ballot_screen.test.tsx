@@ -9,7 +9,7 @@ import userEvent from '@testing-library/user-event';
 import {
   MockApiClient,
   createMockApiClient,
-  org,
+  jurisdiction,
   provideApi,
 } from '../test/api_helpers';
 import {
@@ -21,7 +21,7 @@ import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { BallotScreen } from './ballot_screen';
 
-const electionRecord = generalElectionRecord(org.id);
+const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
 const ballotStyle = electionRecord.election.ballotStyles[0];
 const precinct = electionRecord.election.precincts[0];

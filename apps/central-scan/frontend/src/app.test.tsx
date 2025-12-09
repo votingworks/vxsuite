@@ -53,7 +53,7 @@ function expectConfigureFromElectionPackageOnUsbDrive() {
 }
 
 export async function authenticateAsVendor(
-  lockScreenText = 'VxCentralScan is Locked'
+  lockScreenText = 'VxCentralScan Locked'
 ): Promise<void> {
   // First verify that we're logged out
   await screen.findByText(lockScreenText);
@@ -67,7 +67,7 @@ export async function authenticateAsVendor(
 }
 
 export async function authenticateAsSystemAdministrator(
-  lockScreenText = 'VxCentralScan is Locked'
+  lockScreenText = 'VxCentralScan Locked'
 ): Promise<void> {
   // First verify that we're logged out
   await screen.findByText(lockScreenText);
@@ -84,7 +84,7 @@ export async function authenticateAsSystemAdministrator(
 export async function authenticateAsElectionManager(
   // eslint-disable-next-line @typescript-eslint/no-shadow
   electionDefinition: ElectionDefinition,
-  lockScreenText = 'VxCentralScan is Locked',
+  lockScreenText = 'VxCentralScan Locked',
   postAuthText = 'Lock Machine'
 ): Promise<void> {
   // First verify that we're logged out
@@ -201,7 +201,7 @@ test('authentication works', async () => {
 
   render(<App apiClient={apiMock.apiClient} />);
 
-  await screen.findByText('VxCentralScan is Locked');
+  await screen.findByText('VxCentralScan Locked');
 
   // Disconnect card reader
   apiMock.setAuthStatus({
@@ -213,7 +213,7 @@ test('authentication works', async () => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  await screen.findByText('VxCentralScan is Locked');
+  await screen.findByText('VxCentralScan Locked');
 
   // Insert an election manager card and enter the wrong PIN.
   apiMock.setAuthStatus({
@@ -240,7 +240,7 @@ test('authentication works', async () => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  await screen.findByText('VxCentralScan is Locked');
+  await screen.findByText('VxCentralScan Locked');
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'user_role_not_allowed',
@@ -288,7 +288,7 @@ test('authentication works', async () => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  await screen.findByText('VxCentralScan is Locked');
+  await screen.findByText('VxCentralScan Locked');
 });
 
 test('system administrator can log in and unconfigure machine', async () => {
@@ -322,7 +322,7 @@ test('election manager cannot auth onto machine with different election', async 
 
   render(<App apiClient={apiMock.apiClient} />);
 
-  await screen.findByText('VxCentralScan is Locked');
+  await screen.findByText('VxCentralScan Locked');
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'wrong_election',

@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { ManagementClient } = require('auth0');
 const { assertDefined } = require('@votingworks/basics');
+const { loadEnvVarsFromDotenvFiles } = require('@votingworks/backend');
 const { votingWorksOrgId } = require('../build/globals');
+
+loadEnvVarsFromDotenvFiles();
 
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}

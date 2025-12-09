@@ -12,15 +12,15 @@ import {
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
-import { sliOrgId } from './globals';
+import { sliJurisdictionId } from './globals';
 import { normalizeState, User, UsState } from './types';
-import { userBelongsToOrg } from './utils';
+import { userBelongsToJurisdiction } from './utils';
 
 export function defaultBallotTemplate(
   state: string,
   user: User
 ): BallotTemplateId {
-  if (userBelongsToOrg(user, sliOrgId())) {
+  if (userBelongsToJurisdiction(user, sliJurisdictionId())) {
     return 'VxDefaultBallot';
   }
 

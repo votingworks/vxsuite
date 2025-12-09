@@ -4,7 +4,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import type { ElectionListing } from '@votingworks/design-backend';
 import * as api from './api';
-import { OrgSelect } from './org_select';
+import { JurisdictionSelect } from './jurisdiction_select';
 import { Tooltip, TooltipContainer } from './tooltip';
 
 export interface CloneElectionButtonProps {
@@ -21,25 +21,25 @@ export function CloneElectionButton(
   const getUserFeaturesQuery = api.getUserFeatures.useQuery();
   const user = api.getUser.useQuery().data;
 
-  const [orgId, setOrgId] = React.useState<string | undefined>(
-    user?.organizations[0]?.id
-  );
+  const [jurisdictionId, setJurisdictionId] = React.useState<
+    string | undefined
+  >(user?.jurisdictions[0]?.id);
   const [modalActive, setModalActive] = React.useState(false);
 
   const cloneMutation = api.cloneElection.useMutation();
   const mutateCloneElection = cloneMutation.mutate;
   const cloneElection = React.useCallback(() => {
-    assert(!!orgId);
+    assert(!!jurisdictionId);
 
     mutateCloneElection(
-      { id: election.electionId, orgId },
+      { id: election.electionId, jurisdictionId },
       {
         onSuccess(electionId) {
           history.push(`/elections/${electionId}`);
         },
       }
     );
-  }, [election, history, mutateCloneElection, orgId]);
+  }, [election, history, mutateCloneElection, jurisdictionId]);
 
   /* istanbul ignore next - @preserve */
   if (!getUserFeaturesQuery.isSuccess) {
@@ -56,7 +56,7 @@ export function CloneElectionButton(
         <Button
           variant={variant}
           onPress={
-            features.ACCESS_ALL_ORGS || (user?.organizations || []).length > 1
+            features.ACCESS_ALL_ORGS || (user?.jurisdictions || []).length > 1
               ? setModalActive
               : cloneElection
           }
@@ -95,11 +95,11 @@ export function CloneElectionButton(
                 You are making a copy of{' '}
                 <Font weight="bold">{election.title}</Font>.
               </P>
-              <P>Select an organization for the new election:</P>
-              <OrgSelect
+              <P>Select a jurisdiction for the new election:</P>
+              <JurisdictionSelect
                 disabled={cloneMutation.isLoading}
-                onChange={setOrgId}
-                selectedOrgId={orgId}
+                onChange={setJurisdictionId}
+                selectedJurisdictionId={jurisdictionId}
               />
             </React.Fragment>
           }

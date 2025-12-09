@@ -18,7 +18,7 @@ import {
   provideUnauthenticatedApi,
 } from '../test/unauthenticated_api_helpers';
 
-const electionRecord = generalElectionRecord('test-org');
+const electionRecord = generalElectionRecord('test-jurisdiction');
 const { election } = electionRecord;
 
 let apiMock: MockUnauthenticatedApiClient;

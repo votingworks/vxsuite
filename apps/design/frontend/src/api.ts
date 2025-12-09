@@ -90,13 +90,13 @@ export const getUser = {
 } as const;
 
 /* istanbul ignore next - @preserve */
-export const listOrganizations = {
+export const listJurisdictions = {
   queryKey(): QueryKey {
-    return ['listOrganizations'];
+    return ['listJurisdictions'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.listOrganizations());
+    return useQuery(this.queryKey(), () => apiClient.listJurisdictions());
   },
 } as const;
 
@@ -282,7 +282,12 @@ export const getBallotTemplate = {
 /* istanbul ignore next - WIP @preserve */
 export const ttsEditsGet = {
   queryKey(params: TtsEditKey): QueryKey {
-    return ['ttsEditsGet', params.orgId, params.languageCode, params.original];
+    return [
+      'ttsEditsGet',
+      params.jurisdictionId,
+      params.languageCode,
+      params.original,
+    ];
   },
   useQuery(params: TtsEditKey, opts: { enabled?: boolean } = {}) {
     const apiClient = useApiClient();
@@ -355,7 +360,7 @@ export const loadElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (input: { upload: ElectionUpload; orgId: string }) =>
+      (input: { upload: ElectionUpload; jurisdictionId: string }) =>
         apiClient.loadElection({
           ...input,
           newId: generateId(),
@@ -376,7 +381,7 @@ export const createElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (input: { id: ElectionId; orgId: string }) =>
+      (input: { id: ElectionId; jurisdictionId: string }) =>
         apiClient.createElection(input),
       {
         async onSuccess() {
@@ -392,11 +397,11 @@ export const cloneElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (input: { id: ElectionId; orgId: string }) =>
+      (input: { id: ElectionId; jurisdictionId: string }) =>
         apiClient.cloneElection({
           electionId: input.id,
           destElectionId: generateId(),
-          destOrgId: input.orgId,
+          destJurisdictionId: input.jurisdictionId,
         }),
       {
         async onSuccess() {

@@ -1,8 +1,8 @@
-import { Contest, District } from '@votingworks/types';
+import { AnyContest, Contest, District, Party } from '@votingworks/types';
 import { afterEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
   createMockApiClient,
@@ -16,31 +16,47 @@ import { routes } from './routes';
 const district1: District = { id: 'district1', name: 'District 1' };
 const district2: District = { id: 'district2', name: 'District 2' };
 
-const candidateContest1: Contest = {
+const party1: Party = {
+  id: 'party-1',
+  abbrev: '1',
+  fullName: 'Party 1',
+  name: 'P1',
+};
+
+const party2: Party = {
+  id: 'party-2',
+  abbrev: '2',
+  fullName: 'Party 2',
+  name: 'P2',
+};
+
+const candidateContest1 = typedAs<Contest>({
   id: 'candidateContest1',
   title: 'Candidate Contest 1',
   districtId: district1.id,
   type: 'candidate',
-};
-const candidateContest2: Contest = {
+}) as AnyContest;
+
+const candidateContest2 = typedAs<Contest>({
   id: 'candidateContest2',
   title: 'Candidate Contest 2',
   districtId: district2.id,
   type: 'candidate',
-};
+}) as AnyContest;
 
-const yesNoContest1: Contest = {
+const yesNoContest1 = typedAs<Contest>({
   id: 'yesNoContest1',
   title: 'YesNo Contest 1',
   districtId: district1.id,
   type: 'yesno',
-};
-const yesNoContest2: Contest = {
+}) as AnyContest;
+
+const yesNoContest2 = typedAs<Contest>({
   id: 'yesNoContest2',
   title: 'YesNo Contest Contest 2',
   districtId: district2.id,
   type: 'yesno',
-};
+}) as AnyContest;
 
 const electionId = 'election1';
 const contestRoutes = routes.election(electionId).contests;
@@ -73,6 +89,44 @@ test('renders labelled candidate and ballot measure sublists', async () => {
   expect(getSublist(list.item(1))).toEqual([
     getOption(candidateContest1, district1),
     getOption(candidateContest2, district2),
+  ]);
+
+  expect(list.item(2)).toEqual(getHeading('Ballot Measures'));
+  expect(getSublist(list.item(3))).toEqual([
+    getOption(yesNoContest1, district1),
+    getOption(yesNoContest2, district2),
+  ]);
+});
+
+test('renders primary election contest parties, when available', async () => {
+  mockApi = newMockApi({
+    districts: [district1, district2],
+    parties: [party1, party2],
+  });
+
+  const party1Contest = withParty(candidateContest1, party1);
+  const party2Contest = withParty(candidateContest2, party2);
+
+  const candidateContests = [party1Contest, party2Contest];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
+
+  renderList(mockApi, newHistory(), {
+    candidateContests,
+    reorder: vi.fn(),
+    reordering: false,
+    yesNoContests,
+  });
+
+  await screen.findAllByText(district1.name);
+  mockApi.assertComplete();
+
+  const list = screen.getByRole('listbox').children;
+  expect(list).toHaveLength(4);
+
+  expect(list.item(0)).toEqual(getHeading('Candidate Contests'));
+  expect(getSublist(list.item(1))).toEqual([
+    getOption(party1Contest, district1, { party: party1 }),
+    getOption(party2Contest, district2, { party: party2 }),
   ]);
 
   expect(list.item(2)).toEqual(getHeading('Ballot Measures'));
@@ -241,14 +295,15 @@ function getHeading(name: string) {
 }
 
 function getOption(
-  contest: Contest,
+  contest: AnyContest,
   district: District,
-  opts: { selected?: boolean } = {}
+  opts: { party?: Party; selected?: boolean } = {}
 ) {
-  return screen.getByRole('option', {
-    ...opts,
-    name: `${district.name} ${contest.title}`,
-  });
+  const name: string[] = [];
+  if (opts.party) name.push(opts.party.fullName);
+  name.push(district.name, contest.title);
+
+  return screen.getByRole('option', { ...opts, name: name.join(' ') });
 }
 
 function getSublist(container: Element | null) {
@@ -262,9 +317,10 @@ function newHistory(initialRoute?: string) {
   });
 }
 
-function newMockApi(p: { districts: District[] }) {
+function newMockApi(p: { districts: District[]; parties?: Party[] }) {
   mockApi = createMockApiClient();
   mockApi.listDistricts.expectCallWith({ electionId }).resolves(p.districts);
+  mockApi.listParties.expectCallWith({ electionId }).resolves(p.parties || []);
 
   return mockApi;
 }
@@ -287,4 +343,9 @@ function renderList(
       </Router>
     )
   );
+}
+
+function withParty(contest: AnyContest, party: Party) {
+  assert(contest.type === 'candidate');
+  return { ...contest, partyId: party.id };
 }

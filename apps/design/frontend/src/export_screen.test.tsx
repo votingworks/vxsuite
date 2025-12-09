@@ -11,7 +11,7 @@ import {
   createMockApiClient,
   MockApiClient,
   mockUserFeatures,
-  org,
+  jurisdiction,
   user,
 } from '../test/api_helpers';
 import { render, screen, waitFor } from '../test/react_testing_library';
@@ -22,7 +22,7 @@ import { downloadFile } from './utils';
 import { generalElectionRecord } from '../test/fixtures';
 import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api';
 
-const electionRecord = generalElectionRecord(org.id);
+const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
 
 vi.mock(import('./utils'), async (importActual) => ({
@@ -104,7 +104,7 @@ async function exportTestDecksAndExpectDownload(
     width: '50%',
   });
 
-  const fileUrl = `https://mock-file-storage/${electionRecord.orgId}/test-decks-1234567890.zip`;
+  const fileUrl = `https://mock-file-storage/${electionRecord.jurisdictionId}/test-decks-1234567890.zip`;
   apiMock.getTestDecks.expectCallWith({ electionId }).resolves({
     task: {
       ...testDecksTask,
@@ -182,7 +182,7 @@ test('export election package and ballots', async () => {
     width: '50%',
   });
 
-  const fileUrl = `https://mock-file-storage/${electionRecord.orgId}/election-package-1234567890.zip`;
+  const fileUrl = `https://mock-file-storage/${electionRecord.jurisdictionId}/election-package-1234567890.zip`;
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: {
       ...electionPackageTask,

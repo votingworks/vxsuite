@@ -12,10 +12,10 @@ pnpm cancel-background-task
 This will mark the currently running background task as canceled in the
 database. Then, restart the worker. It won't pick up the canceled task again.
 
-## User/Org Management
+## User/Jurisdiction Management
 
-Until we build out our support tooling, auth scripts for user and org management
-have been added for common operations.
+Until we build out our support tooling, auth scripts for user and jurisdiction
+management have been added for common operations.
 
 To run:
 
@@ -31,40 +31,40 @@ AUTH0_SECRET='xxxxx
 
 Once that's done, the following scripts can bbe run from `apps/design/backend`.
 
-### Create new org
+### Create New Jurisdiction
 
-This will create a new org and print out the new org ID and short name to the
-console:
+This will create a new jurisdiction and print out the new jurisdiction ID and
+name to the console:
 
 ```sh
-pnpm create-org "City of Vx"
+pnpm create-jurisdiction "City of Vx"
 ```
 
 ```sh
 # Output:
 
-✅ Org created: {
-  id: 'org_TUPNZLFFyBgzxdeH',
+✅ Jurisdiction created: {
+  id: 'TUPNZLFFyBgzxdeH',
   name: 'City of Vx',
 }
 ```
 
-### List All Existing Orgs
+### List Jurisdictions
 
 ```sh
-pnpm list-orgs
+pnpm list-jurisdictions
 ```
 
 ```sh
 # Output:
 
-✅ Orgs: [
+✅ Jurisdictions: [
   {
-    id: 'org_TUPNZLFFyBgzxdeH',
+    id: 'TUPNZLFFyBgzxdeH',
     name: 'City of Vx',
   },
   {
-    id: 'org_Ug9eDziiLfqKelKi',
+    id: 'Ug9eDziiLfqKelKi',
     name: 'VotingWorks',
   },
 ]
@@ -72,34 +72,34 @@ pnpm list-orgs
 
 ### Create User
 
-This will create a new user and add to the organization. If a user already
+This will create a new user and add to the jurisdiction. If a user already
 exists with the same email address, they will just get added to the specified
-org, which will also be idempotent.
+jurisdiction, which will also be idempotent.
 
 **NOTE:** This doesn't send out an email to the user - see next section.
 
 ```sh
-pnpm create-user --orgId="org_TUPNZLFFyBgzxdeH" "someone@example.com"
+pnpm create-user --jurisdictionId="TUPNZLFFyBgzxdeH" "someone@example.com"
 ```
 
 ```sh
 # Output:
 
-✅ User created and added to org 'City of Vx'
+✅ User created and added to jurisdiction 'City of Vx'
 ```
 
-### List User Orgs
+### List User Jurisdictions
 
 ```sh
-pnpm list-user-orgs "someone@example.com"
+pnpm list-user-jurisdictions "someone@example.com"
 ```
 
 ```sh
 # Output:
 
-✅ Org memberships for someone@example.com: [
+✅ Jurisdiction memberships for someone@example.com: [
   {
-    id: 'org_TUPNZLFFyBgzxdeH',
+    id: 'TUPNZLFFyBgzxdeH',
     name: 'City of Vx',
   }
 ]
@@ -115,7 +115,7 @@ already set their password and logged in, so this is best used new users (or for
 users we know haven't logged in since their initial "welcome" email was sent).
 
 ```sh
-pnpm send-welcome-email --orgId="org_TUPNZLFFyBgzxdeH" "someone@example.com"
+pnpm send-welcome-email "someone@example.com"
 ```
 
 ```sh

@@ -12,8 +12,8 @@ async function main(): Promise<void> {
     resolve(assertDefined(WORKSPACE)),
     new BaseLogger(LogSource.VxDesignService)
   );
-  const orgs = await workspace.store.listOrganizations();
-  console.log('✅ Orgs:', orgs);
+  const jurisdictions = await workspace.store.listJurisdictions();
+  console.log('✅ Jurisdictions:', jurisdictions);
 }
 
 main()

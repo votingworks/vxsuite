@@ -2,7 +2,7 @@ import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
 import { Auth0Client } from '../src/auth0_client';
 
-const USAGE = `Usage: pnpm send-welcome-email --orgId=<string> <email address>`;
+const USAGE = `Usage: pnpm send-welcome-email <email address>`;
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();

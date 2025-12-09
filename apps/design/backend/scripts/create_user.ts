@@ -7,21 +7,21 @@ import { Auth0Client } from '../src/auth0_client';
 import { createWorkspace } from '../src/workspace';
 import { WORKSPACE } from '../src/globals';
 
-const USAGE = `Usage: pnpm create-user --orgId=<string> <email address>`;
+const USAGE = `Usage: pnpm create-user --jurisdictionId=<string> <email address>`;
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
   const {
     positionals: [userEmail],
-    values: { orgId },
+    values: { jurisdictionId },
   } = util.parseArgs({
     allowPositionals: true,
     args: process.argv.slice(2),
     options: {
-      orgId: { type: 'string' },
+      jurisdictionId: { type: 'string' },
     },
   });
-  if (!userEmail || !orgId) {
+  if (!userEmail || !jurisdictionId) {
     console.log(USAGE);
     process.exit(0);
   }
@@ -31,26 +31,26 @@ async function main(): Promise<void> {
     new BaseLogger(LogSource.VxDesignService)
   );
 
-  const org = await workspace.store.getOrganization(orgId);
-  if (!org) {
-    throw new Error(`Organization with ID ${orgId} does not exist`);
+  const jurisdiction = await workspace.store.getJurisdiction(jurisdictionId);
+  if (!jurisdiction) {
+    throw new Error(`Jurisdiction with ID ${jurisdictionId} does not exist`);
   }
 
   const auth = Auth0Client.init();
 
   const existingUserId = await workspace.store.getUserIdByEmail(userEmail);
   if (existingUserId) {
-    console.log('User already exists. Attempting to add to org...');
-    await workspace.store.addUserToOrganization(existingUserId, orgId);
-    console.log(`✅ Existing user added to org ${orgId}`);
+    console.log('User already exists. Attempting to add to jurisdiction...');
+    await workspace.store.addUserToJurisdiction(existingUserId, jurisdictionId);
+    console.log(`✅ Existing user added to jurisdiction ${jurisdictionId}`);
     return;
   }
 
   const userId = await auth.createUser({ userEmail });
   await workspace.store.createUser({ id: userId, name: userEmail });
-  await workspace.store.addUserToOrganization(userId, orgId);
+  await workspace.store.addUserToJurisdiction(userId, jurisdictionId);
 
-  console.log(`✅ User created and added to org ${orgId}`);
+  console.log(`✅ User created and added to jurisdiction ${jurisdictionId}`);
 }
 
 main()

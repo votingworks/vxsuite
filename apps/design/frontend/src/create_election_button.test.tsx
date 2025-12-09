@@ -7,9 +7,9 @@ import {
   createMockApiClient,
   MockApiClient,
   mockUserFeatures,
-  multiOrgUser,
-  org,
-  org2,
+  multiJurisdictionUser,
+  jurisdiction,
+  jurisdiction2,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -50,7 +50,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('creates election for single org user', async () => {
+test('creates election for single jurisdiction user', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
   const history = renderButton();
@@ -58,7 +58,7 @@ test('creates election for single org user', async () => {
   const newId = idFactory.next();
   apiMock.createElection
     .expectCallWith({
-      orgId: org.id,
+      jurisdictionId: jurisdiction.id,
       id: newId,
     })
     .resolves(ok(newId));
@@ -71,10 +71,12 @@ test('creates election for single org user', async () => {
   );
 });
 
-test('shows modal with org selector for multi-org user', async () => {
-  apiMock.getUser.expectCallWith().resolves(multiOrgUser);
+test('shows modal with jurisdiction selector for multi-jurisdiction user', async () => {
+  apiMock.getUser.expectCallWith().resolves(multiJurisdictionUser);
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
-  apiMock.listOrganizations.expectCallWith().resolves([org, org2]);
+  apiMock.listJurisdictions
+    .expectCallWith()
+    .resolves([jurisdiction, jurisdiction2]);
   const history = renderButton();
 
   const button = await screen.findByRole('button', { name: 'Create Election' });
@@ -82,19 +84,22 @@ test('shows modal with org selector for multi-org user', async () => {
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Create Election' });
-  const orgSelect = within(modal).getByRole('combobox', {
-    name: 'Organization',
+  const jurisdictionSelect = within(modal).getByRole('combobox', {
+    name: 'Jurisdiction',
   });
-  within(modal).getByText(org.name);
-  userEvent.click(orgSelect);
-  const orgOptions = await screen.findAllByRole('option');
-  expect(orgOptions.map((o) => o.textContent)).toEqual([org.name, org2.name]);
-  userEvent.click(orgOptions[1]);
+  within(modal).getByText(jurisdiction.name);
+  userEvent.click(jurisdictionSelect);
+  const jurisdictionOptions = await screen.findAllByRole('option');
+  expect(jurisdictionOptions.map((o) => o.textContent)).toEqual([
+    jurisdiction.name,
+    jurisdiction2.name,
+  ]);
+  userEvent.click(jurisdictionOptions[1]);
 
   const newId = idFactory.next();
   apiMock.createElection
     .expectCallWith({
-      orgId: org2.id,
+      jurisdictionId: jurisdiction2.id,
       id: newId,
     })
     .resolves(ok(newId));
@@ -112,12 +117,14 @@ test('shows modal with org selector for multi-org user', async () => {
 test('shows modal when ACCESS_ALL_ORGS feature is enabled', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: true });
-  apiMock.listOrganizations.expectCallWith().resolves([org, org2]);
+  apiMock.listJurisdictions
+    .expectCallWith()
+    .resolves([jurisdiction, jurisdiction2]);
   renderButton();
 
   const button = await screen.findByRole('button', { name: 'Create Election' });
   userEvent.click(button);
 
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('combobox', { name: 'Organization' });
+  within(modal).getByRole('combobox', { name: 'Jurisdiction' });
 });

@@ -40,6 +40,13 @@ const TextMirror = styled.pre`
   /* stylelint-disable no-empty-source */
 `;
 
+const TextArea = styled.textarea<{ editable: boolean }>`
+  :disabled {
+    color: ${(p) => !p.editable && p.theme.colors.onBackground};
+    background: ${(p) => !p.editable && p.theme.colors.background};
+  }
+`;
+
 const Editor = styled.div`
   --tts-editor-border-width: ${(p) => p.theme.sizes.bordersRem.thin}rem;
   --tts-editor-line-height: 1.4;
@@ -50,7 +57,7 @@ const Editor = styled.div`
   position: relative;
   width: 100%;
 
-  > textarea {
+  > ${TextArea} {
     border-width: var(--tts-editor-border-width);
     display: block;
     height: 100%;
@@ -153,16 +160,17 @@ const FormButtons = styled.div`
 `;
 
 export interface TtsTextEditorProps {
+  editable: boolean;
   languageCode: string;
-  orgId: string;
+  jurisdictionId: string;
   original: string;
 }
 
 export function TtsTextEditor(props: TtsTextEditorProps): React.ReactNode {
-  const { languageCode, orgId, original } = props;
+  const { languageCode, jurisdictionId, original } = props;
 
   const savedEdit = api.ttsEditsGet.useQuery({
-    orgId,
+    jurisdictionId,
     languageCode,
     original,
   });
@@ -176,7 +184,7 @@ export function TtsTextEditor(props: TtsTextEditorProps): React.ReactNode {
 function EditorImpl(
   props: TtsTextEditorProps & { savedEdit: TtsEdit | null }
 ): JSX.Element {
-  const { languageCode, orgId, original, savedEdit } = props;
+  const { editable, languageCode, jurisdictionId, original, savedEdit } = props;
   const [edit, setEdit] = React.useState<string | null>(null);
 
   const defaultValue = savedEdit?.text || original;
@@ -195,7 +203,7 @@ function EditorImpl(
 
     save(
       {
-        orgId: assertDefined(orgId),
+        jurisdictionId: assertDefined(jurisdictionId),
         original,
         languageCode,
         data: {
@@ -224,8 +232,10 @@ function EditorImpl(
   return (
     <Container>
       <Header>
-        <Icons.ChevronRight /> Edit the text below to change the corresponding
-        audio:
+        <Icons.ChevronRight />{' '}
+        {editable
+          ? 'Edit the text below to change the corresponding audio:'
+          : 'Audio will be generated from the following text:'}
       </Header>
 
       <Form onReset={() => setEdit(null)} onSubmit={onSubmit}>
@@ -241,10 +251,10 @@ function EditorImpl(
            */}
           <TextMirror>{value}.</TextMirror>
 
-          <textarea
-            // eslint-disable-next-line jsx-a11y/no-autofocus
+          <TextArea
             autoFocus
-            disabled={saving}
+            editable={editable}
+            disabled={saving || !editable}
             id="ttsTextEditor"
             name="ttsText"
             onChange={(event) => setEdit(event.target.value)}
@@ -271,19 +281,21 @@ function EditorImpl(
               </PlayerOverlay>
             </PlayerContainer>
 
-            <FormButtons>
-              <Button disabled={resetDisabled} type="reset">
-                Reset
-              </Button>
-              <Button
-                disabled={saveDisabled}
-                icon={saving ? 'Loading' : 'Save'}
-                type="submit"
-                variant={saveDisabled ? 'neutral' : 'primary'}
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </FormButtons>
+            {editable && (
+              <FormButtons>
+                <Button disabled={resetDisabled} type="reset">
+                  Reset
+                </Button>
+                <Button
+                  disabled={saveDisabled}
+                  icon={saving ? 'Loading' : 'Save'}
+                  type="submit"
+                  variant={saveDisabled ? 'neutral' : 'primary'}
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </FormButtons>
+            )}
           </Controls>
         </Footer>
       </Form>
