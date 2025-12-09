@@ -112,21 +112,21 @@ export function testSetupHelpers() {
   const testStore = new TestStore(baseLogger);
 
   async function setupApp({
-    orgs,
+    jurisdictions: jurisdictions,
     users,
   }: {
-    orgs: Jurisdiction[];
+    jurisdictions: Jurisdiction[];
     users: User[];
   }) {
     const store = testStore.getStore();
     await testStore.init();
-    for (const org of orgs) {
-      await store.createJurisdiction(org);
+    for (const jurisdiction of jurisdictions) {
+      await store.createJurisdiction(jurisdiction);
     }
     for (const user of users) {
       await store.createUser(user);
-      for (const organization of user.jurisdictions) {
-        await store.addUserToJurisdiction(user.id, organization.id);
+      for (const jurisdiction of user.jurisdictions) {
+        await store.addUserToJurisdiction(user.id, jurisdiction.id);
       }
     }
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);

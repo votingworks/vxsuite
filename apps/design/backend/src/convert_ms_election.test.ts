@@ -9,14 +9,14 @@ import { readFixture } from '../test/helpers';
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
 const store = testStore.getStore();
-const org: Jurisdiction = {
-  id: 'test-org-id',
-  name: 'Test Org',
+const jurisdiction: Jurisdiction = {
+  id: 'test-jurisdiction-id',
+  name: 'Test Jurisdiction',
 };
 
 beforeAll(async () => {
   await testStore.init();
-  await store.createJurisdiction(org);
+  await store.createJurisdiction(jurisdiction);
 });
 
 afterAll(async () => {
@@ -24,7 +24,7 @@ afterAll(async () => {
 });
 
 async function expectValidElection(election: Election) {
-  await store.createElection(org.id, election, 'VxDefaultBallot');
+  await store.createElection(jurisdiction.id, election, 'VxDefaultBallot');
   expect(
     safeParseElection((await store.getElection(election.id)).election).err()
   ).toBeUndefined();

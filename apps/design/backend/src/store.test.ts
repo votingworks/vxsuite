@@ -24,25 +24,11 @@ import {
   testSetupHelpers,
 } from '../test/helpers';
 import { Jurisdiction, User } from './types';
-import { votingWorksJurisdictionId } from './globals';
+import { nonVxJurisdiction, nonVxUser, vxJurisdiction } from '../test/mocks';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
-const vxOrg: Jurisdiction = {
-  id: votingWorksJurisdictionId(),
-  name: 'VotingWorks',
-};
-
-const nonVxOrg: Jurisdiction = {
-  id: 'other-org-id',
-  name: 'Other Org',
-};
-const nonVxUser: User = {
-  name: 'non.vx.user@example.com',
-  id: 'auth0|non-vx-user-id',
-  jurisdictions: [nonVxOrg],
-};
-const testOrgs: Jurisdiction[] = [vxOrg, nonVxOrg];
+const testJurisdictions: Jurisdiction[] = [vxJurisdiction, nonVxJurisdiction];
 const testUsers: User[] = [nonVxUser];
 
 // Spy on the ballot rendering function so we can check that it's called with the
@@ -375,7 +361,10 @@ describe('tts_strings', () => {
     languageCode: 'en',
   };
 
-  async function setUpOrgs(store: Store, ids: string[] = [key.jurisdictionId]) {
+  async function setUpJurisdictions(
+    store: Store,
+    ids: string[] = [key.jurisdictionId]
+  ) {
     for (const id of ids) {
       await store.createJurisdiction({ id, name: id });
     }
@@ -383,13 +372,13 @@ describe('tts_strings', () => {
 
   test('ttsStringsGet returns null if absent', async () => {
     const store = testStore.getStore();
-    await setUpOrgs(store);
+    await setUpJurisdictions(store);
     await expect(store.ttsEditsGet(key)).resolves.toBeNull();
   });
 
   test('ttsStringsSet inserts if absent, updates if present', async () => {
     const store = testStore.getStore();
-    await setUpOrgs(store);
+    await setUpJurisdictions(store);
 
     await store.ttsEditsSet(key, {
       exportSource: 'phonetic',
@@ -423,27 +412,38 @@ describe('tts_strings', () => {
   });
 
   test('ttsStringsAll', async () => {
-    const orgId = 'election-1';
-    const orgIdOther = 'election-2';
-
     const store = testStore.getStore();
-    await setUpOrgs(store, [orgId, orgIdOther]);
+    await setUpJurisdictions(store, [vxJurisdiction.id, nonVxJurisdiction.id]);
 
     await store.ttsEditsSet(
-      { jurisdictionId: orgId, languageCode: 'en', original: 'one two' },
+      {
+        jurisdictionId: vxJurisdiction.id,
+        languageCode: 'en',
+        original: 'one two',
+      },
       { exportSource: 'text', phonetic: [], text: 'wun too' }
     );
     await store.ttsEditsSet(
-      { jurisdictionId: orgId, languageCode: 'es', original: 'three four' },
+      {
+        jurisdictionId: vxJurisdiction.id,
+        languageCode: 'es',
+        original: 'three four',
+      },
       { exportSource: 'text', phonetic: [], text: 'three foar' }
     );
 
     await store.ttsEditsSet(
-      { jurisdictionId: orgIdOther, languageCode: 'en', original: 'five six' },
+      {
+        jurisdictionId: nonVxJurisdiction.id,
+        languageCode: 'en',
+        original: 'five six',
+      },
       { exportSource: 'text', phonetic: [], text: 'fayv six' }
     );
 
-    await expect(store.ttsEditsAll({ orgId })).resolves.toEqual([
+    await expect(
+      store.ttsEditsAll({ jurisdictionId: vxJurisdiction.id })
+    ).resolves.toEqual([
       {
         exportSource: 'text',
         languageCode: 'en',
@@ -467,7 +467,7 @@ test('getExportedElectionDefinition returns the exported election including reor
     electionFamousNames2021Fixtures.readElectionDefinition();
 
   const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
-    orgs: testOrgs,
+    jurisdictions: testJurisdictions,
     users: testUsers,
   });
   auth0.setLoggedInUser(nonVxUser);
@@ -475,7 +475,7 @@ test('getExportedElectionDefinition returns the exported election including reor
   const electionId = (
     await apiClient.loadElection({
       newId: 'test-nh-election-id' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(baseElectionDefinition.election),
@@ -594,7 +594,7 @@ test('getExportedElection returns election-out-of-date error when election data 
     electionFamousNames2021Fixtures.readElectionDefinition();
 
   const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
-    orgs: testOrgs,
+    jurisdictions: testJurisdictions,
     users: testUsers,
   });
   auth0.setLoggedInUser(nonVxUser);
@@ -602,7 +602,7 @@ test('getExportedElection returns election-out-of-date error when election data 
   const electionId = (
     await apiClient.loadElection({
       newId: 'test-election-parse-error' as ElectionId,
-      orgId: nonVxOrg.id,
+      jurisdictionId: nonVxJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(baseElectionDefinition.election),

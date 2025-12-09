@@ -1,11 +1,9 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import {
   Connection,
   ApiResponse,
-  OrganizationsManager,
   Database,
   UsersManager,
-  GetOrganizations200ResponseOneOfInner,
   GetUsers200ResponseOneOfInner,
   UserCreate,
   ChangePasswordRequest,
@@ -13,17 +11,12 @@ import {
 import crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { Auth0Client, ConnectionType } from './auth0_client';
-import { sliJurisdictionId, votingWorksJurisdictionId } from './globals';
 
 vi.mock(import('auth0'));
 vi.mock(import('node:crypto'));
 vi.mock(import('./globals.js'));
 
-const SLI_ORG_ID = 'sli';
-const VX_ORG_ID = 'vx';
-
 const mockDatabase = vi.mocked(Database.prototype);
-const mockOrganizations = vi.mocked(OrganizationsManager.prototype);
 const mockUsers = vi.mocked(UsersManager.prototype);
 
 const mockRandomBytes = vi.mocked(crypto.randomBytes);
@@ -44,20 +37,7 @@ function newClient() {
   return new Auth0Client(mockDatabase, mockUsers);
 }
 
-beforeEach(() => {
-  vi.mocked(sliJurisdictionId).mockReturnValue(SLI_ORG_ID);
-  vi.mocked(votingWorksJurisdictionId).mockReturnValue(VX_ORG_ID);
-});
-
 test('createUser', async () => {
-  mockOrganizations.get.mockResolvedValueOnce(
-    mockApiResponse<GetOrganizations200ResponseOneOfInner>({
-      display_name: 'VotingWorks',
-      id: VX_ORG_ID,
-      name: 'votingworks',
-    })
-  );
-
   mockUsers.create.mockResolvedValueOnce(
     mockApiResponse<GetUsers200ResponseOneOfInner>({
       user_id: 'new-user',
