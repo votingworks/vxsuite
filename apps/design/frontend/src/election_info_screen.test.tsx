@@ -201,7 +201,7 @@ test('edit and save election', async () => {
   userEvent.click(spanishBallotLanguageCheckbox);
 
   const updatedElectionInfo: ElectionInfo = {
-    orgId: electionRecord.orgId,
+    jurisdictionId: electionRecord.orgId,
     electionId,
     title: 'New Title',
     date: new DateWithoutTime('2023-09-06'),
@@ -267,7 +267,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
   expect(signatureCaptionInput).toHaveValue('New Signature Caption');
 
   const updatedElectionInfo: ElectionInfo = {
-    orgId: electionRecord.orgId,
+    jurisdictionId: electionRecord.orgId,
     electionId,
     title: election.title,
     date: election.date,

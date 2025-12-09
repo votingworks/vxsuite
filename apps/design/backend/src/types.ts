@@ -62,7 +62,7 @@ export interface ElectionListing {
 }
 
 export interface ElectionInfo {
-  orgId: string;
+  jurisdictionId: string;
   electionId: ElectionId;
   type: ElectionType;
   date: DateWithoutTime;

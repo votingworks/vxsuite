@@ -74,7 +74,7 @@ export function makeElectionRecord(
 
 export function electionInfoFromElection(election: Election): ElectionInfo {
   return {
-    orgId: `org-${election.id}`,
+    jurisdictionId: `org-${election.id}`,
     electionId: election.id,
     title: election.title,
     date: election.date,
@@ -91,7 +91,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
 export function electionInfoFromRecord(record: ElectionRecord): ElectionInfo {
   return {
     ...electionInfoFromElection(record.election),
-    orgId: record.orgId,
+    jurisdictionId: record.orgId,
   };
 }
 

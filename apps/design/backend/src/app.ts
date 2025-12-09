@@ -456,7 +456,7 @@ export function buildApi(ctx: AppContext) {
       const { election, ballotLanguageConfigs, orgId } =
         await store.getElection(input.electionId);
       return {
-        orgId,
+        jurisdictionId: orgId,
         electionId: election.id,
         title: election.title,
         date: election.date,
