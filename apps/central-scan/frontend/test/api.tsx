@@ -197,7 +197,7 @@ export function createApiMock(
     },
 
     async authenticateAsVendor(
-      lockScreenText = 'VxCentralScan is Locked'
+      lockScreenText = 'VxCentralScan Locked'
     ): Promise<void> {
       // First verify that we're logged out
       await screen.findByText(lockScreenText);
