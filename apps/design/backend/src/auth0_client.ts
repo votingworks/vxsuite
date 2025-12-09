@@ -22,8 +22,6 @@ export interface Auth0User {
   email: string;
   name: string;
   nickname?: string;
-  org_id: string;
-  org_name: string;
   picture?: string;
   sid: string;
   /**
@@ -91,18 +89,13 @@ export class Auth0Client implements Auth0ClientInterface {
   async sendWelcomeEmail(params: {
     connectionType?: ConnectionType;
     userEmail: string;
-    orgId: string;
   }): Promise<void> {
-    const {
-      connectionType = 'Username-Password-Authentication',
-      userEmail,
-      orgId,
-    } = params;
+    const { connectionType = 'Username-Password-Authentication', userEmail } =
+      params;
 
     await this.database.changePassword({
       connection: connectionType,
       email: userEmail,
-      organization: orgId,
     });
   }
 
