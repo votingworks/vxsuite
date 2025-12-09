@@ -8,21 +8,17 @@ async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
   const {
     positionals: [userEmail],
-    values: { orgId },
   } = util.parseArgs({
     allowPositionals: true,
     args: process.argv.slice(2),
-    options: {
-      orgId: { type: 'string' },
-    },
   });
-  if (!userEmail || !orgId) {
+  if (!userEmail) {
     console.log(USAGE);
     process.exit(0);
   }
 
   const auth = Auth0Client.init();
-  await auth.sendWelcomeEmail({ orgId, userEmail });
+  await auth.sendWelcomeEmail({ userEmail });
 
   console.log(`✅ Welcome email sent to ${userEmail}`);
 }

@@ -88,7 +88,6 @@ test('sendWelcomeEmail', async () => {
 
   await newClient().sendWelcomeEmail({
     connectionType: 'Username-Password-Authentication',
-    orgId: 'vx-city',
     userEmail: 'bob@example.com',
   });
 
@@ -97,6 +96,5 @@ test('sendWelcomeEmail', async () => {
   >({
     connection: 'Username-Password-Authentication',
     email: 'bob@example.com',
-    organization: 'vx-city',
   });
 });
