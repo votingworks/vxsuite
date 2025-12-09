@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+read -sp "Enter pass phrase: " PASS_PHRASE
+echo
+
+cat machine-ids.txt | VX_PRIVATE_KEY_PASS_PHRASE="${PASS_PHRASE}" xargs -I {} ./scripts/generate-machine-label-qr-code-contents \
+	--private-key-path /media/psf/Shared/keys/vx-label-qr-codes-private-key.pem \
+	--serial-number {} > machine-label-qr-code-contents.txt
