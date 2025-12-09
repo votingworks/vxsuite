@@ -14,6 +14,7 @@ import {
 } from '@votingworks/utils';
 import { Workspace } from './workspace';
 
+/* istanbul ignore next - @preserve */
 export function getDefaultAuth(logger: BaseLogger): InsertedSmartCardAuth {
   return new InsertedSmartCardAuth({
     card:
