@@ -2,7 +2,7 @@
 const { ManagementClient } = require('auth0');
 const basics = require('@votingworks/basics');
 const { loadEnvVarsFromDotenvFiles } = require('@votingworks/backend');
-const { votingWorksOrgId } = require('../build/globals');
+const { votingWorksJurisdictionId } = require('../build/globals');
 
 loadEnvVarsFromDotenvFiles();
 
@@ -86,7 +86,7 @@ exports.up = async (pgm) => {
     pgm.sql(`
       INSERT INTO users_organizations (user_id, organization_id) VALUES (
         'auth0|devuser',
-        '${votingWorksOrgId()}'
+        '${votingWorksJurisdictionId()}'
       );
     `);
   }

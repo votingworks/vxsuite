@@ -2,7 +2,7 @@
 const { ManagementClient } = require('auth0');
 const { assertDefined } = require('@votingworks/basics');
 const { loadEnvVarsFromDotenvFiles } = require('@votingworks/backend');
-const { votingWorksOrgId } = require('../build/globals');
+const { votingWorksJurisdictionId } = require('../build/globals');
 
 loadEnvVarsFromDotenvFiles();
 
@@ -41,7 +41,7 @@ exports.up = async (pgm) => {
     // In dev mode, create the default dev organization (use VotingWorks org ID to get full features)
     pgm.sql(`
       INSERT INTO organizations (id, name) VALUES (
-        '${votingWorksOrgId()}',
+        '${votingWorksJurisdictionId()}',
         'VotingWorks'
       );
     `);
