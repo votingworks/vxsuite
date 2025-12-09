@@ -110,7 +110,7 @@ import {
   getBallotPdfFileName,
   regenerateElectionIds,
   splitCandidateName,
-  userBelongsToOrg,
+  userBelongsToJurisdiction,
 } from './utils';
 import {
   ElectionFeaturesConfig,
@@ -191,7 +191,9 @@ class AuthError extends grout.UserError {
 
 function requireOrgAccess(user: User, orgId: string) {
   const userFeatures = getUserFeaturesConfig(user);
-  if (!(userBelongsToOrg(user, orgId) || userFeatures.ACCESS_ALL_ORGS)) {
+  if (
+    !(userBelongsToJurisdiction(user, orgId) || userFeatures.ACCESS_ALL_ORGS)
+  ) {
     throw new AuthError('auth:forbidden');
   }
 }
