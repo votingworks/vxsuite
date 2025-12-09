@@ -13,7 +13,7 @@ import {
   MockApiClient,
   createMockApiClient,
   mockUserFeatures,
-  org,
+  jurisdiction,
   provideApi,
   user,
 } from '../test/api_helpers';
@@ -56,7 +56,7 @@ function renderScreen(electionId: ElectionId) {
 }
 
 test('newly created election starts in edit mode', async () => {
-  const electionRecord = blankElectionRecord(org.id);
+  const electionRecord = blankElectionRecord(jurisdiction.id);
   const electionId = electionRecord.election.id;
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -109,7 +109,7 @@ test('newly created election starts in edit mode', async () => {
 });
 
 test('edit and save election', async () => {
-  const electionRecord = generalElectionRecord(org.id);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
   const electionId = election.id;
   apiMock.getSystemSettings
@@ -223,7 +223,7 @@ test('edit and save election', async () => {
 });
 
 test('edit and save election - nhBallotTemplate signature upload', async () => {
-  const electionRecord = generalElectionRecord(org.id);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
   electionRecord.ballotTemplateId = 'NhBallot';
   const { election } = electionRecord;
   const electionId = election.id;
@@ -289,7 +289,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
 });
 
 test('cancel update', async () => {
-  const electionRecord = generalElectionRecord(org.id);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
   const electionId = electionRecord.election.id;
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -316,7 +316,7 @@ test('cancel update', async () => {
 });
 
 test('delete election', async () => {
-  const electionRecord = generalElectionRecord(org.id);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
   const electionId = electionRecord.election.id;
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -347,7 +347,7 @@ test('delete election', async () => {
 });
 
 test('edit election disabled when ballots are finalized', async () => {
-  const electionRecord = generalElectionRecord(org.id);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
   const electionId = electionRecord.election.id;
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -370,7 +370,7 @@ test('edit election disabled when ballots are finalized', async () => {
 });
 
 test('handles duplicate title+date error', async () => {
-  const electionRecord = generalElectionRecord(org.id);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
   const electionId = electionRecord.election.id;
   apiMock.getSystemSettings
     .expectCallWith({ electionId })

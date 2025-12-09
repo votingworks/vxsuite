@@ -74,7 +74,7 @@ export function makeElectionRecord(
 
 export function electionInfoFromElection(election: Election): ElectionInfo {
   return {
-    jurisdictionId: `org-${election.id}`,
+    jurisdictionId: `jurisdiction-${election.id}`,
     electionId: election.id,
     title: election.title,
     date: election.date,
@@ -112,21 +112,21 @@ export function electionListing(
   };
 }
 
-export function blankElectionRecord(orgId: Id): ElectionRecord {
-  return makeElectionRecord(createBlankElection(generateId()), orgId);
+export function blankElectionRecord(jurisdictionId: Id): ElectionRecord {
+  return makeElectionRecord(createBlankElection(generateId()), jurisdictionId);
 }
-export function blankElectionInfo(orgId: Id): ElectionInfo {
-  return electionInfoFromElection(blankElectionRecord(orgId).election);
+export function blankElectionInfo(jurisdictionId: Id): ElectionInfo {
+  return electionInfoFromElection(blankElectionRecord(jurisdictionId).election);
 }
-export function generalElectionRecord(orgId: Id): ElectionRecord {
-  return makeElectionRecord(readElectionGeneral(), orgId);
+export function generalElectionRecord(jurisdictionId: Id): ElectionRecord {
+  return makeElectionRecord(readElectionGeneral(), jurisdictionId);
 }
-export function primaryElectionRecord(orgId: Id): ElectionRecord {
+export function primaryElectionRecord(jurisdictionId: Id): ElectionRecord {
   return makeElectionRecord(
     electionPrimaryPrecinctSplitsFixtures.readElection(),
-    orgId
+    jurisdictionId
   );
 }
-export function generalElectionInfo(orgId: Id): ElectionInfo {
-  return electionInfoFromRecord(generalElectionRecord(orgId));
+export function generalElectionInfo(jurisdictionId: Id): ElectionInfo {
+  return electionInfoFromRecord(generalElectionRecord(jurisdictionId));
 }

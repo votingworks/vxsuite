@@ -18,7 +18,7 @@ vi.mock('./tts_text_editor.js');
 const TEXT_EDITOR_TEST_ID = 'TtsTextEditor';
 const PHONETIC_EDITOR_PLACEHOLDER = 'TODO: Phonetic Editor';
 
-const jurisdictionId = 'org-1';
+const jurisdictionId = 'jurisdiction-1';
 const electionId = 'election-1';
 const languageCode = 'en';
 

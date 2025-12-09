@@ -13,7 +13,7 @@ import {
   provideApi,
 } from '../../test/api_helpers';
 
-const jurisdictionId = 'org-1';
+const jurisdictionId = 'jurisdiction-1';
 const languageCode = 'en';
 
 test('renders TTS defaults if no edits exist', async () => {

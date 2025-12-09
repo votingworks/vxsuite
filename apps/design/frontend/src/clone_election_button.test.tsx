@@ -8,10 +8,11 @@ import {
   createMockApiClient,
   MockApiClient,
   mockUserFeatures,
-  multiOrgUser,
-  org,
+  multiJurisdictionUser,
+  jurisdiction,
   user,
   provideApi,
+  jurisdiction2,
 } from '../test/api_helpers';
 import { electionListing, generalElectionRecord } from '../test/fixtures';
 import { render, screen, within } from '../test/react_testing_library';
@@ -59,7 +60,7 @@ afterEach(() => {
 
 test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
-  const electionRecord = generalElectionRecord(org.id);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
   const { history } = renderButton(
     <CloneElectionButton election={electionListing(electionRecord)} />,
@@ -72,7 +73,7 @@ test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
     .expectCallWith({
       electionId: election.id,
       destElectionId: newElectionId,
-      destJurisdictionId: org.id,
+      destJurisdictionId: jurisdiction.id,
     })
     .resolves(newElectionId);
 
@@ -81,19 +82,9 @@ test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
   expect(history.location.pathname).toEqual(`/elections/${newElectionId}`);
 });
 
-const VX_ORG = {
-  id: 'votingworks-org',
-  name: 'VotingWorks',
-} as const;
-
-const NON_VX_ORG = {
-  id: 'not-votingworks-org',
-  name: 'Not VotingWorks',
-} as const;
-
-test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
+test('shows jurisdiction picker when ACCESS_ALL_ORGS feature enabled', async () => {
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: true });
-  const electionRecord = generalElectionRecord(org.id);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
   const { history, queryClient } = renderButton(
     <CloneElectionButton election={electionListing(electionRecord)} />,
@@ -101,15 +92,15 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   );
 
   queryClient.setQueryData(api.listJurisdictions.queryKey(), [
-    VX_ORG,
-    NON_VX_ORG,
+    jurisdiction,
+    jurisdiction2,
   ]);
 
   userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
   const modal = screen.getByRole('alertdialog');
 
   userEvent.click(within(modal).getByRole('combobox'));
-  userEvent.click(screen.getByText(NON_VX_ORG.name));
+  userEvent.click(screen.getByText(jurisdiction2.name));
 
   const newElectionId = 'new-election' as ElectionId;
   mockGenerateId.mockReturnValue(newElectionId);
@@ -117,7 +108,7 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
     .expectCallWith({
       electionId: election.id,
       destElectionId: newElectionId,
-      destJurisdictionId: NON_VX_ORG.id,
+      destJurisdictionId: jurisdiction2.id,
     })
     .resolves(newElectionId);
 
@@ -126,21 +117,21 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   expect(history.location.pathname).toEqual(`/elections/${newElectionId}`);
 });
 
-test('shows org picker for multi-org user', async () => {
+test('shows jurisdiction picker for multi-jurisdiction user', async () => {
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
-  const electionRecord = generalElectionRecord(org.id);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
   const { queryClient } = renderButton(
     <CloneElectionButton election={electionListing(electionRecord)} />,
-    multiOrgUser
+    multiJurisdictionUser
   );
 
   queryClient.setQueryData(api.listJurisdictions.queryKey(), [
-    VX_ORG,
-    NON_VX_ORG,
+    jurisdiction,
+    jurisdiction2,
   ]);
 
   userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
   const modal = screen.getByRole('alertdialog');
-  within(modal).getByRole('combobox', { name: 'Organization' });
+  within(modal).getByRole('combobox', { name: 'Jurisdiction' });
 });

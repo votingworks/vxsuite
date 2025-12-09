@@ -8,7 +8,7 @@ import {
   MockApiClient,
   createMockApiClient,
   mockUserFeatures,
-  org,
+  jurisdiction,
   user,
 } from '../test/api_helpers';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
@@ -47,8 +47,8 @@ test('API errors show an error screen', async () => {
     mockUserFeatures(apiMock, {});
     apiMock.listJurisdictions.expectCallWith().resolves([
       {
-        id: org.id,
-        name: 'Non-Vx Org',
+        id: jurisdiction.id,
+        name: 'Non-Vx Jurisdiction',
       },
     ]);
     apiMock.listElections.expectCallWith().resolves([]);
@@ -59,12 +59,12 @@ test('API errors show an error screen', async () => {
 
     apiMock.createElection
       .expectCallWith({
-        jurisdictionId: org.id,
+        jurisdictionId: jurisdiction.id,
         id: 'test-random-id-1' as ElectionId,
       })
       .throws(new Error('API error'));
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
-    userEvent.type(screen.getByRole('combobox'), 'Non-Vx Org[Enter]');
+    userEvent.type(screen.getByRole('combobox'), 'Non-Vx Jurisdiction[Enter]');
     userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
     await screen.findByText('Something went wrong');
@@ -91,8 +91,8 @@ test('API forbidden errors show a page not found error screen', async () => {
     mockUserFeatures(apiMock, {});
     apiMock.listJurisdictions.expectCallWith().resolves([
       {
-        id: org.id,
-        name: 'Non-Vx Org',
+        id: jurisdiction.id,
+        name: 'Non-Vx Jurisdiction',
       },
     ]);
     apiMock.listElections.expectCallWith().resolves([]);
@@ -102,12 +102,12 @@ test('API forbidden errors show a page not found error screen', async () => {
     await screen.findByRole('heading', { name: 'Elections' });
     apiMock.createElection
       .expectCallWith({
-        jurisdictionId: org.id,
+        jurisdictionId: jurisdiction.id,
         id: 'test-random-id-1' as ElectionId,
       })
       .throws({ message: typedAs<AuthErrorCode>('auth:forbidden') });
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
-    userEvent.type(screen.getByRole('combobox'), 'Non-Vx Org[Enter]');
+    userEvent.type(screen.getByRole('combobox'), 'Non-Vx Jurisdiction[Enter]');
     userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
     await screen.findByText('Page not found');
   });

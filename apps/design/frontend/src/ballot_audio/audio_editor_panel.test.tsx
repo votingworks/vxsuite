@@ -21,7 +21,7 @@ vi.mock('./audio_editor.js');
 const EDITOR_TEST_ID = 'TtsTextEditor';
 
 const electionId = 'election-1';
-const jurisdictionId = 'org-1';
+const jurisdictionId = 'jurisdiction-1';
 const languageCode = 'en';
 
 test('renders editor, along with a preview of the original text', () => {
