@@ -32,7 +32,7 @@ export function CloneElectionButton(
     assert(!!orgId);
 
     mutateCloneElection(
-      { id: election.electionId, orgId },
+      { id: election.electionId, jurisdictionId: orgId },
       {
         onSuccess(electionId) {
           history.push(`/elections/${electionId}`);

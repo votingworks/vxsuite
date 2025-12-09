@@ -72,7 +72,7 @@ test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
     .expectCallWith({
       electionId: election.id,
       destElectionId: newElectionId,
-      destOrgId: org.id,
+      destJurisdictionId: org.id,
     })
     .resolves(newElectionId);
 
@@ -117,7 +117,7 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
     .expectCallWith({
       electionId: election.id,
       destElectionId: newElectionId,
-      destOrgId: NON_VX_ORG.id,
+      destJurisdictionId: NON_VX_ORG.id,
     })
     .resolves(newElectionId);
 

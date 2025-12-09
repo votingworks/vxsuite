@@ -3541,16 +3541,16 @@ test('getUser', async () => {
 test('listOrganizations', async () => {
   const { apiClient, auth0 } = await setupApp({ orgs, users });
   await suppressingConsoleOutput(() =>
-    expect(apiClient.listOrganizations()).rejects.toThrow('auth:unauthorized')
+    expect(apiClient.listJurisdictions()).rejects.toThrow('auth:unauthorized')
   );
   auth0.setLoggedInUser(vxUser);
-  expect(await apiClient.listOrganizations()).toEqual(orgs);
+  expect(await apiClient.listJurisdictions()).toEqual(orgs);
   auth0.setLoggedInUser(nonVxUser);
-  expect(await apiClient.listOrganizations()).toEqual([nonVxOrg]);
+  expect(await apiClient.listJurisdictions()).toEqual([nonVxOrg]);
   auth0.setLoggedInUser(sliUser);
-  expect(await apiClient.listOrganizations()).toEqual([sliOrg]);
+  expect(await apiClient.listJurisdictions()).toEqual([sliOrg]);
   auth0.setLoggedInUser(vxDemosUser);
-  expect(await apiClient.listOrganizations()).toEqual([vxDemosOrg]);
+  expect(await apiClient.listJurisdictions()).toEqual([vxDemosOrg]);
 });
 
 test('feature configs', async () => {

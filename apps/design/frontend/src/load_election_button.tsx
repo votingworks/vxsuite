@@ -128,7 +128,7 @@ export function LoadElectionButton({
   async function submitUpload(formState: UploadFormState) {
     const upload = await loadFileContents(formState);
     loadElectionMutation.mutate(
-      { upload, orgId: formState.orgId },
+      { upload, jurisdictionId: formState.orgId },
       {
         onSuccess: (result) => {
           setModalFormState(undefined);

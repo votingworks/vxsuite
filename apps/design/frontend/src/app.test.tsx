@@ -45,7 +45,7 @@ test('Shows user info and logout button', async () => {
 test('API errors show an error screen', async () => {
   await suppressingConsoleOutput(async () => {
     mockUserFeatures(apiMock, {});
-    apiMock.listOrganizations.expectCallWith().resolves([
+    apiMock.listJurisdictions.expectCallWith().resolves([
       {
         id: org.id,
         name: 'Non-Vx Org',
@@ -59,7 +59,7 @@ test('API errors show an error screen', async () => {
 
     apiMock.createElection
       .expectCallWith({
-        orgId: org.id,
+        jurisdictionId: org.id,
         id: 'test-random-id-1' as ElectionId,
       })
       .throws(new Error('API error'));
@@ -89,7 +89,7 @@ test('API unauthorized errors redirect to login', async () => {
 test('API forbidden errors show a page not found error screen', async () => {
   await suppressingConsoleOutput(async () => {
     mockUserFeatures(apiMock, {});
-    apiMock.listOrganizations.expectCallWith().resolves([
+    apiMock.listJurisdictions.expectCallWith().resolves([
       {
         id: org.id,
         name: 'Non-Vx Org',
@@ -102,7 +102,7 @@ test('API forbidden errors show a page not found error screen', async () => {
     await screen.findByRole('heading', { name: 'Elections' });
     apiMock.createElection
       .expectCallWith({
-        orgId: org.id,
+        jurisdictionId: org.id,
         id: 'test-random-id-1' as ElectionId,
       })
       .throws({ message: typedAs<AuthErrorCode>('auth:forbidden') });

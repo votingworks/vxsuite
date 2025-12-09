@@ -36,7 +36,7 @@ export function CreateElectionButton(
     assert(!!orgId);
 
     mutateCreateElection(
-      { id: generateId(), orgId },
+      { id: generateId(), jurisdictionId: orgId },
       {
         onSuccess(result) {
           if (result.isOk()) {

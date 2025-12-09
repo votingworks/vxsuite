@@ -91,7 +91,7 @@ function renderScreen() {
 
 test('with no elections, creating a new election', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.listOrganizations.expectCallWith().resolves([VX_ORG]);
+  apiMock.listJurisdictions.expectCallWith().resolves([VX_ORG]);
   apiMock.listElections.expectCallWith().resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
@@ -99,7 +99,7 @@ test('with no elections, creating a new election', async () => {
   const electionRecord = blankElectionRecord(org.id);
   apiMock.createElection
     .expectCallWith({
-      orgId: org.id,
+      jurisdictionId: org.id,
       id: ELECTION_ID,
     })
     .resolves(ok(ELECTION_ID));
@@ -127,7 +127,7 @@ test('with no elections, loading an election', async () => {
   const electionData = JSON.stringify(electionRecord.election);
   apiMock.loadElection
     .expectCallWith({
-      orgId: org.id,
+      jurisdictionId: org.id,
       newId: ELECTION_ID,
       upload: {
         format: 'vxf',
@@ -517,7 +517,7 @@ test('shows error message when loading election fails', async () => {
   const electionData = JSON.stringify(electionRecord.election);
   apiMock.loadElection
     .expectCallWith({
-      orgId: org.id,
+      jurisdictionId: org.id,
       upload: {
         format: 'vxf',
         electionFileContents: electionData,

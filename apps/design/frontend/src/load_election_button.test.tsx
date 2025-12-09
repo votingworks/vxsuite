@@ -68,7 +68,7 @@ test('opens file picker for VXF when MS_SEMS_CONVERSION disabled', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId,
-      orgId: org.id,
+      jurisdictionId: org.id,
       upload: {
         format: 'vxf',
         electionFileContents: mockElectionData,
@@ -84,7 +84,7 @@ test('opens file picker for VXF when MS_SEMS_CONVERSION disabled', async () => {
 
 test('VXF upload flow in modal', async () => {
   mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: true });
-  apiMock.listOrganizations.expectCallWith().resolves([org]);
+  apiMock.listJurisdictions.expectCallWith().resolves([org]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
   userEvent.click(button);
@@ -109,7 +109,7 @@ test('VXF upload flow in modal', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId,
-      orgId: org.id,
+      jurisdictionId: org.id,
       upload: {
         format: 'vxf',
         electionFileContents: mockElectionData,
@@ -126,7 +126,7 @@ test('VXF upload flow in modal', async () => {
 
 test('MS SEMS upload flow in modal', async () => {
   mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: true });
-  apiMock.listOrganizations.expectCallWith().resolves([org]);
+  apiMock.listJurisdictions.expectCallWith().resolves([org]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
   userEvent.click(button);
@@ -164,7 +164,7 @@ test('MS SEMS upload flow in modal', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId,
-      orgId: org.id,
+      jurisdictionId: org.id,
       upload: {
         format: 'ms-sems',
         electionFileContents: mockElectionData,
@@ -182,7 +182,7 @@ test('MS SEMS upload flow in modal', async () => {
 
 test('multi-org user sees org selector', async () => {
   mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
-  apiMock.listOrganizations.expectCallWith().resolves([org, org2]);
+  apiMock.listJurisdictions.expectCallWith().resolves([org, org2]);
   apiMock.getUser.reset();
   apiMock.getUser.expectCallWith().resolves(multiOrgUser);
   renderButton();
@@ -204,7 +204,7 @@ test('multi-org user sees org selector', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId: 'test-random-id-1',
-      orgId: org2.id,
+      jurisdictionId: org2.id,
       upload: {
         format: 'vxf',
         electionFileContents: mockElectionData,
@@ -226,7 +226,7 @@ test('multi-org user sees org selector', async () => {
 
 test('close modal', async () => {
   mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: true });
-  apiMock.listOrganizations.expectCallWith().resolves([org]);
+  apiMock.listJurisdictions.expectCallWith().resolves([org]);
   renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
   userEvent.click(button);
@@ -249,7 +249,7 @@ test('shows error message on upload failure', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId,
-      orgId: org.id,
+      jurisdictionId: org.id,
       upload: {
         format: 'vxf',
         electionFileContents: mockElectionData,

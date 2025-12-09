@@ -96,7 +96,7 @@ export const listOrganizations = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.listOrganizations());
+    return useQuery(this.queryKey(), () => apiClient.listJurisdictions());
   },
 } as const;
 
@@ -360,7 +360,7 @@ export const loadElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (input: { upload: ElectionUpload; orgId: string }) =>
+      (input: { upload: ElectionUpload; jurisdictionId: string }) =>
         apiClient.loadElection({
           ...input,
           newId: generateId(),
@@ -381,7 +381,7 @@ export const createElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (input: { id: ElectionId; orgId: string }) =>
+      (input: { id: ElectionId; jurisdictionId: string }) =>
         apiClient.createElection(input),
       {
         async onSuccess() {
@@ -397,11 +397,11 @@ export const cloneElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (input: { id: ElectionId; orgId: string }) =>
+      (input: { id: ElectionId; jurisdictionId: string }) =>
         apiClient.cloneElection({
           electionId: input.id,
           destElectionId: generateId(),
-          destOrgId: input.orgId,
+          destJurisdictionId: input.jurisdictionId,
         }),
       {
         async onSuccess() {
