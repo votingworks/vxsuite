@@ -75,7 +75,7 @@ import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
 
 export interface ElectionRecord {
-  orgId: string;
+  jurisdictionId: string;
   election: Election;
   systemSettings: SystemSettings;
   createdAt: Iso8601Timestamp;
@@ -666,7 +666,7 @@ export class Store {
         await client.query(
           `
             select
-              org_id as "orgId",
+              org_id as "jurisdictionId",
               type,
               title,
               date,
@@ -688,7 +688,7 @@ export class Store {
           electionId
         )
       ).rows[0] as {
-        orgId: string;
+        jurisdictionId: string;
         type: ElectionType;
         title: string;
         date: Date;
@@ -977,7 +977,7 @@ export class Store {
         createdAt: electionRow.createdAt.toISOString(),
         ballotLanguageConfigs,
         ballotsFinalizedAt: electionRow.ballotsFinalizedAt,
-        orgId: electionRow.orgId,
+        jurisdictionId: electionRow.jurisdictionId,
         lastExportedBallotHash: electionRow.lastExportedBallotHash || undefined,
       };
     });

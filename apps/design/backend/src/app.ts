@@ -453,10 +453,10 @@ export function buildApi(ctx: AppContext) {
     async getElectionInfo(input: {
       electionId: ElectionId;
     }): Promise<ElectionInfo> {
-      const { election, ballotLanguageConfigs, orgId } =
+      const { election, ballotLanguageConfigs, jurisdictionId } =
         await store.getElection(input.electionId);
       return {
-        jurisdictionId: orgId,
+        jurisdictionId,
         electionId: election.id,
         title: election.title,
         date: election.date,

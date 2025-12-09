@@ -104,7 +104,7 @@ async function exportTestDecksAndExpectDownload(
     width: '50%',
   });
 
-  const fileUrl = `https://mock-file-storage/${electionRecord.orgId}/test-decks-1234567890.zip`;
+  const fileUrl = `https://mock-file-storage/${electionRecord.jurisdictionId}/test-decks-1234567890.zip`;
   apiMock.getTestDecks.expectCallWith({ electionId }).resolves({
     task: {
       ...testDecksTask,
@@ -182,7 +182,7 @@ test('export election package and ballots', async () => {
     width: '50%',
   });
 
-  const fileUrl = `https://mock-file-storage/${electionRecord.orgId}/election-package-1234567890.zip`;
+  const fileUrl = `https://mock-file-storage/${electionRecord.jurisdictionId}/election-package-1234567890.zip`;
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: {
       ...electionPackageTask,

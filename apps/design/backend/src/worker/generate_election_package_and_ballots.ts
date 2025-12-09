@@ -103,7 +103,7 @@ export async function generateElectionPackageAndBallots(
   const { store } = workspace;
 
   const electionRecord = await store.getElection(electionId);
-  const { ballotLanguageConfigs, election, ballotTemplateId, orgId } =
+  const { ballotLanguageConfigs, election, ballotTemplateId, jurisdictionId } =
     electionRecord;
   let { systemSettings } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
@@ -197,7 +197,7 @@ export async function generateElectionPackageAndBallots(
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
       appStrings,
       electionStrings,
-      electionTtsEdits: await store.ttsEditsAll({ orgId }),
+      electionTtsEdits: await store.ttsEditsAll({ orgId: jurisdictionId }),
       speechSynthesizer,
       emitProgress: (progress, total) =>
         emitProgress('Generating audio', progress, total),
@@ -289,11 +289,11 @@ export async function generateElectionPackageAndBallots(
     streamFiles: true,
   });
   const writeResult = await fileStorageClient.writeFile(
-    path.join(orgId, combinedFileName),
+    path.join(jurisdictionId, combinedFileName),
     combinedZipContents
   );
   writeResult.unsafeUnwrap();
-  const electionPackageUrl = `/files/${orgId}/${combinedFileName}`;
+  const electionPackageUrl = `/files/${jurisdictionId}/${combinedFileName}`;
 
   await store.setElectionPackageExportInformation({
     electionId,

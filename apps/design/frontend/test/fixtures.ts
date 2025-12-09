@@ -34,7 +34,7 @@ function splitCandidateName(candidate: Candidate): Candidate {
 
 export function makeElectionRecord(
   baseElection: Election,
-  orgId: Id
+  jurisdictionId: Id
 ): ElectionRecord {
   const ballotLanguageConfigs: BallotLanguageConfigs = [
     { languages: [LanguageCode.ENGLISH] },
@@ -68,7 +68,7 @@ export function makeElectionRecord(
     ballotLanguageConfigs,
     ballotTemplateId: 'VxDefaultBallot',
     ballotsFinalizedAt: null,
-    orgId,
+    jurisdictionId,
   };
 }
 
@@ -91,17 +91,17 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
 export function electionInfoFromRecord(record: ElectionRecord): ElectionInfo {
   return {
     ...electionInfoFromElection(record.election),
-    jurisdictionId: record.orgId,
+    jurisdictionId: record.jurisdictionId,
   };
 }
 
 export function electionListing(
   electionRecord: ElectionRecord
 ): ElectionListing {
-  const { election, orgId } = electionRecord;
+  const { election, jurisdictionId } = electionRecord;
   return {
-    jurisdictionId: orgId,
-    orgName: `${orgId} Name`,
+    jurisdictionId,
+    orgName: `${jurisdictionId} Name`,
     electionId: election.id,
     title: election.title,
     date: election.date,

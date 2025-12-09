@@ -197,13 +197,13 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
 export function getElectionFeaturesConfig(
   election: ElectionRecord
 ): ElectionFeaturesConfig {
-  if (election.orgId === votingWorksOrgId()) {
+  if (election.jurisdictionId === votingWorksOrgId()) {
     return electionFeatureConfigs.vx;
   }
-  if (election.orgId === sliOrgId()) {
+  if (election.jurisdictionId === sliOrgId()) {
     return electionFeatureConfigs.sli;
   }
-  if (election.orgId === vxDemosOrgId()) {
+  if (election.jurisdictionId === vxDemosOrgId()) {
     return electionFeatureConfigs.vx;
   }
   return electionFeatureConfigs.nh;
