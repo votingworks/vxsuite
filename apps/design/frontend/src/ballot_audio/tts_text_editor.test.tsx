@@ -32,6 +32,7 @@ test('renders TTS defaults if no edits exist', async () => {
   const { container } = renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
       orgId={orgId}
       original={original}
@@ -66,6 +67,7 @@ test('renders saved edits if available', async () => {
   const { container } = renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
       orgId={orgId}
       original={original}
@@ -91,7 +93,12 @@ test('enables save and reset button when applicable', async () => {
 
   renderEditor(
     mockApi,
-    <TtsTextEditor languageCode={languageCode} orgId={orgId} original="CA" />
+    <TtsTextEditor
+      editable
+      languageCode={languageCode}
+      orgId={orgId}
+      original="CA"
+    />
   );
 
   await screen.findByText(/edit the text below/i);
@@ -132,6 +139,7 @@ test('reset button restores saved state', async () => {
   renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
       orgId={orgId}
       original={original}
@@ -166,6 +174,7 @@ test('save button updates backend data, refreshes content', async () => {
   const { container } = renderEditor(
     mockApi,
     <TtsTextEditor
+      editable
       languageCode={languageCode}
       orgId={orgId}
       original={original}
@@ -223,6 +232,39 @@ test('save button updates backend data, refreshes content', async () => {
   expect(screen.getButton(/reset/i)).toBeDisabled();
 
   mockApi.assertComplete();
+});
+
+test('omits form actions if not editable', async () => {
+  const original = 'CA';
+  const mockAudio = 'audioData';
+
+  const mockApi = createMockApiClient();
+  mockApi.ttsEditsGet
+    .expectCallWith({ orgId, languageCode, original })
+    .resolves(null);
+
+  mockApi.ttsSynthesizeFromText
+    .expectCallWith({ languageCode, text: original })
+    .resolves(mockAudio);
+
+  const { container } = renderEditor(
+    mockApi,
+    <TtsTextEditor
+      editable={false}
+      languageCode={languageCode}
+      orgId={orgId}
+      original={original}
+    />
+  );
+
+  await screen.findByText(/audio will be generated from the following text/i);
+  mockApi.assertComplete();
+
+  expect(screen.getByRole('textbox')).toHaveValue('CA');
+  expect(screen.getByRole('textbox')).toBeDisabled();
+  expectAudioPlayerData(container, mockAudio);
+  expect(screen.queryButton(/save/i)).not.toBeInTheDocument();
+  expect(screen.queryButton(/reset/i)).not.toBeInTheDocument();
 });
 
 function expectAudioPlayerData(container: HTMLElement, data: string) {
