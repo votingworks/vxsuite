@@ -96,6 +96,5 @@ test('sendWelcomeEmail', async () => {
   >({
     connection: 'Username-Password-Authentication',
     email: 'bob@example.com',
-    organization: 'vx-city',
   });
 });
