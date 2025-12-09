@@ -38,7 +38,7 @@ import {
 } from '../src/file_storage_client';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
-import { Jurisdiction, User } from '../src/types';
+import { Jurisdiction, Organization, User } from '../src/types';
 import * as worker from '../src/worker/worker';
 import { createWorkspace, Workspace } from '../src/workspace';
 import { TestStore } from './test_store';
@@ -112,14 +112,19 @@ export function testSetupHelpers() {
   const testStore = new TestStore(baseLogger);
 
   async function setupApp({
-    jurisdictions: jurisdictions,
+    organizations,
+    jurisdictions,
     users,
   }: {
+    organizations: Organization[];
     jurisdictions: Jurisdiction[];
     users: User[];
   }) {
     const store = testStore.getStore();
     await testStore.init();
+    for (const organization of organizations) {
+      await store.createOrganization(organization);
+    }
     for (const jurisdiction of jurisdictions) {
       await store.createJurisdiction(jurisdiction);
     }

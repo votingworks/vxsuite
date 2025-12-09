@@ -5,6 +5,7 @@ import { convertMsElection } from './convert_ms_election';
 import { TestStore } from '../test/test_store';
 import { Jurisdiction } from './types';
 import { readFixture } from '../test/helpers';
+import { vxOrganization } from '../test/mocks';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
@@ -12,10 +13,13 @@ const store = testStore.getStore();
 const jurisdiction: Jurisdiction = {
   id: 'test-jurisdiction-id',
   name: 'Test Jurisdiction',
+  stateCode: 'MS',
+  organization: vxOrganization,
 };
 
 beforeAll(async () => {
   await testStore.init();
+  await store.createOrganization(vxOrganization);
   await store.createJurisdiction(jurisdiction);
 });
 

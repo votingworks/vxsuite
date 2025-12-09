@@ -24,10 +24,17 @@ import {
   testSetupHelpers,
 } from '../test/helpers';
 import { Jurisdiction, User } from './types';
-import { nonVxJurisdiction, nonVxUser, vxJurisdiction } from '../test/mocks';
+import {
+  nonVxJurisdiction,
+  nonVxOrganization,
+  nonVxUser,
+  vxJurisdiction,
+  vxOrganization,
+} from '../test/mocks';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
+const testOrganizations = [vxOrganization, nonVxOrganization];
 const testJurisdictions: Jurisdiction[] = [vxJurisdiction, nonVxJurisdiction];
 const testUsers: User[] = [nonVxUser];
 
@@ -365,8 +372,14 @@ describe('tts_strings', () => {
     store: Store,
     ids: string[] = [key.jurisdictionId]
   ) {
+    await store.createOrganization(nonVxOrganization);
     for (const id of ids) {
-      await store.createJurisdiction({ id, name: id });
+      await store.createJurisdiction({
+        id,
+        name: id,
+        stateCode: 'DEMO',
+        organization: nonVxOrganization,
+      });
     }
   }
 
@@ -467,6 +480,7 @@ test('getExportedElectionDefinition returns the exported election including reor
     electionFamousNames2021Fixtures.readElectionDefinition();
 
   const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+    organizations: testOrganizations,
     jurisdictions: testJurisdictions,
     users: testUsers,
   });
@@ -594,6 +608,7 @@ test('getExportedElection returns election-out-of-date error when election data 
     electionFamousNames2021Fixtures.readElectionDefinition();
 
   const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+    organizations: testOrganizations,
     jurisdictions: testJurisdictions,
     users: testUsers,
   });
