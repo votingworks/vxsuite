@@ -69,7 +69,7 @@ exports.up = async (pgm) => {
         `);
       }
     }
-  } else {
+  } else if (process.env.NODE_ENV !== 'test') {
     // In dev mode, create the default dev user
     pgm.sql(`
       INSERT INTO users (id, name) VALUES (

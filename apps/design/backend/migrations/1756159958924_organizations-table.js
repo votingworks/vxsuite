@@ -33,7 +33,7 @@ exports.up = async (pgm) => {
       )`
       );
     }
-  } else {
+  } else if (process.env.NODE_ENV !== 'test') {
     // In dev mode, create the default dev organization (use VotingWorks org ID to get full features)
     pgm.sql(`
       INSERT INTO organizations (id, name) VALUES (
