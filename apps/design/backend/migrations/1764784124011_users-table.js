@@ -69,5 +69,21 @@ exports.up = async (pgm) => {
         `);
       }
     }
+  } else {
+    // In dev mode, create the default dev user
+    pgm.sql(`
+      INSERT INTO users (id, name) VALUES (
+        'auth0|devuser',
+        'Dev User'
+      );
+    `);
+
+    // Add the dev user to the dev organization
+    pgm.sql(`
+      INSERT INTO users_organizations (user_id, organization_id) VALUES (
+        'auth0|devuser',
+        'org_devorg'
+      );
+    `);
   }
 };

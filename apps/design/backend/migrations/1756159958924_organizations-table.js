@@ -33,6 +33,14 @@ exports.up = async (pgm) => {
       )`
       );
     }
+  } else {
+    // In dev mode, create the default dev organization
+    pgm.sql(`
+      INSERT INTO organizations (id, name) VALUES (
+        'org_devorg',
+        'Dev Organization'
+      );
+    `);
   }
 
   pgm.addConstraint('elections', null, {
