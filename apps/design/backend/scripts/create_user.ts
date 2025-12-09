@@ -47,7 +47,11 @@ async function main(): Promise<void> {
   }
 
   const userId = await auth.createUser({ userEmail });
-  await workspace.store.createUser({ id: userId, name: userEmail });
+  await workspace.store.createUser({
+    id: userId,
+    name: userEmail,
+    organization: jurisdiction.organization,
+  });
   await workspace.store.addUserToJurisdiction(userId, jurisdictionId);
 
   console.log(`✅ User created and added to jurisdiction ${jurisdictionId}`);
