@@ -13,7 +13,7 @@ import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import type { ElectionUpload } from '@votingworks/design-backend';
 import { getUser, getUserFeatures, loadElection } from './api';
 import { Column, InputGroup, Row } from './layout';
-import { OrgSelect } from './org_select';
+import { JurisdictionSelect } from './jurisdiction_select';
 
 interface VxUploadFormState {
   format: 'vxf';
@@ -178,9 +178,9 @@ export function LoadElectionButton({
             <Column style={{ gap: '1rem' }}>
               {(user.jurisdictions.length > 1 || features.ACCESS_ALL_ORGS) && (
                 <InputGroup label="Organization">
-                  <OrgSelect
+                  <JurisdictionSelect
                     style={{ width: '100%' }}
-                    selectedOrgId={modalFormState.orgId}
+                    selectedJurisdictionId={modalFormState.orgId}
                     onChange={(orgId) =>
                       setModalFormState({
                         ...modalFormState,

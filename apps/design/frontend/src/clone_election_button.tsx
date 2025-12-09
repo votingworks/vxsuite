@@ -4,7 +4,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import type { ElectionListing } from '@votingworks/design-backend';
 import * as api from './api';
-import { OrgSelect } from './org_select';
+import { JurisdictionSelect } from './jurisdiction_select';
 import { Tooltip, TooltipContainer } from './tooltip';
 
 export interface CloneElectionButtonProps {
@@ -96,10 +96,10 @@ export function CloneElectionButton(
                 <Font weight="bold">{election.title}</Font>.
               </P>
               <P>Select an organization for the new election:</P>
-              <OrgSelect
+              <JurisdictionSelect
                 disabled={cloneMutation.isLoading}
                 onChange={setOrgId}
-                selectedOrgId={orgId}
+                selectedJurisdictionId={orgId}
               />
             </React.Fragment>
           }

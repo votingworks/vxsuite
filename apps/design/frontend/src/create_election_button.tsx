@@ -4,7 +4,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { generateId } from './utils';
 import * as api from './api';
-import { OrgSelect } from './org_select';
+import { JurisdictionSelect } from './jurisdiction_select';
 
 export interface CreateElectionButtonProps {
   variant?: ButtonVariant;
@@ -97,10 +97,10 @@ export function CreateElectionButton(
           content={
             <React.Fragment>
               <P>Select an organization for the new election:</P>
-              <OrgSelect
+              <JurisdictionSelect
                 disabled={createMutation.isLoading}
                 onChange={setOrgId}
-                selectedOrgId={orgId}
+                selectedJurisdictionId={orgId}
               />
             </React.Fragment>
           }
