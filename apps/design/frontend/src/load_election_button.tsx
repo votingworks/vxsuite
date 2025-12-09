@@ -27,7 +27,7 @@ interface MsSemsUploadFormState {
 }
 
 type UploadFormState = (VxUploadFormState | MsSemsUploadFormState) & {
-  orgId: string;
+  jurisdictionId: string;
 };
 
 function isFormStateComplete(formState: UploadFormState): boolean {
@@ -128,7 +128,7 @@ export function LoadElectionButton({
   async function submitUpload(formState: UploadFormState) {
     const upload = await loadFileContents(formState);
     loadElectionMutation.mutate(
-      { upload, jurisdictionId: formState.orgId },
+      { upload, jurisdictionId: formState.jurisdictionId },
       {
         onSuccess: (result) => {
           setModalFormState(undefined);
@@ -149,7 +149,7 @@ export function LoadElectionButton({
           onPress={() =>
             setModalFormState({
               format: 'vxf',
-              orgId: user.jurisdictions[0].id,
+              jurisdictionId: user.jurisdictions[0].id,
             })
           }
         >
@@ -163,7 +163,7 @@ export function LoadElectionButton({
             await submitUpload({
               format: 'vxf',
               electionFile: file,
-              orgId: user.jurisdictions[0].id,
+              jurisdictionId: user.jurisdictions[0].id,
             });
           }}
           disabled={loadElectionMutation.isLoading}
@@ -177,14 +177,14 @@ export function LoadElectionButton({
           content={
             <Column style={{ gap: '1rem' }}>
               {(user.jurisdictions.length > 1 || features.ACCESS_ALL_ORGS) && (
-                <InputGroup label="Organization">
+                <InputGroup label="Jurisdiction">
                   <JurisdictionSelect
                     style={{ width: '100%' }}
-                    selectedJurisdictionId={modalFormState.orgId}
-                    onChange={(orgId) =>
+                    selectedJurisdictionId={modalFormState.jurisdictionId}
+                    onChange={(jurisdictionId) =>
                       setModalFormState({
                         ...modalFormState,
-                        orgId: assertDefined(orgId),
+                        jurisdictionId: assertDefined(jurisdictionId),
                       })
                     }
                   />

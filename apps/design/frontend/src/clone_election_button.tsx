@@ -21,25 +21,25 @@ export function CloneElectionButton(
   const getUserFeaturesQuery = api.getUserFeatures.useQuery();
   const user = api.getUser.useQuery().data;
 
-  const [orgId, setOrgId] = React.useState<string | undefined>(
-    user?.jurisdictions[0]?.id
-  );
+  const [jurisdictionId, setJurisdictionId] = React.useState<
+    string | undefined
+  >(user?.jurisdictions[0]?.id);
   const [modalActive, setModalActive] = React.useState(false);
 
   const cloneMutation = api.cloneElection.useMutation();
   const mutateCloneElection = cloneMutation.mutate;
   const cloneElection = React.useCallback(() => {
-    assert(!!orgId);
+    assert(!!jurisdictionId);
 
     mutateCloneElection(
-      { id: election.electionId, jurisdictionId: orgId },
+      { id: election.electionId, jurisdictionId },
       {
         onSuccess(electionId) {
           history.push(`/elections/${electionId}`);
         },
       }
     );
-  }, [election, history, mutateCloneElection, orgId]);
+  }, [election, history, mutateCloneElection, jurisdictionId]);
 
   /* istanbul ignore next - @preserve */
   if (!getUserFeaturesQuery.isSuccess) {
@@ -95,11 +95,11 @@ export function CloneElectionButton(
                 You are making a copy of{' '}
                 <Font weight="bold">{election.title}</Font>.
               </P>
-              <P>Select an organization for the new election:</P>
+              <P>Select a jurisdiction for the new election:</P>
               <JurisdictionSelect
                 disabled={cloneMutation.isLoading}
-                onChange={setOrgId}
-                selectedJurisdictionId={orgId}
+                onChange={setJurisdictionId}
+                selectedJurisdictionId={jurisdictionId}
               />
             </React.Fragment>
           }
