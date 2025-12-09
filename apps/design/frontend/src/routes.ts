@@ -29,39 +29,33 @@ export const routes = {
         title: 'Election Info',
         path: `${root}/info`,
       },
-      geography: {
+      districts: {
         root: {
-          title: 'Geography',
-          path: `${root}/geography`,
+          title: 'Districts',
+          path: `${root}/districts`,
         },
-        districts: {
-          root: {
-            title: 'Districts',
-            path: `${root}/geography/districts`,
-          },
-          addDistrict: {
-            title: 'Add District',
-            path: `${root}/geography/districts/add`,
-          },
-          editDistrict: (districtId: string) => ({
-            title: 'Edit District',
-            path: `${root}/geography/districts/${districtId}`,
-          }),
+        add: {
+          title: 'Add District',
+          path: `${root}/districts/add`,
         },
-        precincts: {
-          root: {
-            title: 'Precincts',
-            path: `${root}/geography/precincts`,
-          },
-          addPrecinct: {
-            title: 'Add Precinct',
-            path: `${root}/geography/precincts/add`,
-          },
-          editPrecinct: (precinctId: string) => ({
-            title: 'Edit Precinct',
-            path: `${root}/geography/precincts/${precinctId}`,
-          }),
+        edit: (districtId: string) => ({
+          title: 'Edit District',
+          path: `${root}/districts/${districtId}`,
+        }),
+      },
+      precincts: {
+        root: {
+          title: 'Precincts',
+          path: `${root}/precincts`,
         },
+        add: {
+          title: 'Add Precinct',
+          path: `${root}/precincts/add`,
+        },
+        edit: (precinctId: string) => ({
+          title: 'Edit Precinct',
+          path: `${root}/precincts/${precinctId}`,
+        }),
       },
       parties: {
         root: {
@@ -175,7 +169,8 @@ export function electionNavRoutes(
   const electionRoutes = routes.election(electionId);
   return [
     electionRoutes.electionInfo,
-    electionRoutes.geography.root,
+    electionRoutes.districts.root,
+    electionRoutes.precincts.root,
     electionRoutes.parties.root,
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
