@@ -477,7 +477,7 @@ export class Store {
         await client.query(
           `
           select id, name
-          from organizations
+          from jurisdictions
           `
         )
       ).rows as Array<{ id: string; name: string }>;
@@ -489,7 +489,7 @@ export class Store {
     await this.db.withClient(async (client) => {
       await client.query(
         `
-        insert into organizations (id, name)
+        insert into jurisdictions (id, name)
         values ($1, $2)
         `,
         org.id,
@@ -505,7 +505,7 @@ export class Store {
           await client.query(
             `
             select id, name
-            from organizations
+            from jurisdictions
             where id = $1
             `,
             orgId
@@ -531,7 +531,7 @@ export class Store {
     await this.db.withClient((client) =>
       client.query(
         `
-        insert into users_organizations (user_id, organization_id)
+        insert into users_jurisdictions (user_id, jurisdiction_id)
         values ($1, $2)
         `,
         userId,
@@ -558,10 +558,10 @@ export class Store {
       const orgRows = (
         await client.query(
           `
-          select organizations.id, organizations.name
-          from organizations
-          join users_organizations on users_organizations.organization_id = organizations.id
-          where users_organizations.user_id = $1
+          select jurisdictions.id, jurisdictions.name
+          from jurisdictions
+          join users_jurisdictions on users_jurisdictions.jurisdiction_id = jurisdictions.id
+          where users_jurisdictions.user_id = $1
           `,
           userId
         )
@@ -599,7 +599,7 @@ export class Store {
     const params: Bindable[] = [];
 
     if (input.orgIds) {
-      whereClause = `where org_id in (${input.orgIds
+      whereClause = `where jurisdiction_id in (${input.orgIds
         .map((_, i) => `$${i + 1}`)
         .join(', ')})`;
       params.push(...input.orgIds);
@@ -613,7 +613,7 @@ export class Store {
               `
               select
                 elections.id as "electionId",
-                elections.org_id as "jurisdictionId",
+                elections.jurisdiction_id as "jurisdictionId",
                 organizations.name as "jurisdictionName",
                 elections.type,
                 elections.title,
@@ -666,7 +666,7 @@ export class Store {
         await client.query(
           `
             select
-              org_id as "jurisdictionId",
+              jurisdiction_id as "jurisdictionId",
               type,
               title,
               date,
@@ -1046,16 +1046,16 @@ export class Store {
       await this.db.withClient((client) =>
         client.query(
           `
-          select org_id as "orgId"
+          select jurisdiction_id as "jurisdictionId"
           from elections
           where id = $1
         `,
           electionId
         )
       )
-    ).rows[0];
+    ).rows[0] as { jurisdictionId: string } | undefined;
     assert(row, 'Election not found');
-    return row.orgId;
+    return row.jurisdictionId;
   }
 
   private async generateUniqueElectionCopyTitle(
@@ -1074,7 +1074,7 @@ export class Store {
           `
           select exists(
             select 1 from elections
-            where org_id = $1 and title = $2 and date = $3
+            where jurisdiction_id = $1 and title = $2 and date = $3
           )
         `,
           orgId,
@@ -1107,7 +1107,7 @@ export class Store {
           `
           insert into elections (
             id,
-            org_id,
+            jurisdiction_id,
             type,
             title,
             date,
@@ -1242,7 +1242,10 @@ export class Store {
       return ok();
     } catch (error) {
       if (
-        isDuplicateKeyError(error, 'elections_org_id_title_date_unique_index')
+        isDuplicateKeyError(
+          error,
+          'elections_jurisdiction_id_title_date_unique_index'
+        )
       ) {
         return err('duplicate-title-and-date');
       }
@@ -2140,7 +2143,7 @@ export class Store {
             phonetic,
             text
           from tts_edits
-          where org_id = $1
+          where jurisdiction_id = $1
         `,
         params.orgId
       );
@@ -2165,7 +2168,7 @@ export class Store {
             text
           from tts_edits
           where
-            org_id = $1 and
+            jurisdiction_id = $1 and
             language_code = $2 and
             original = $3
         `,
@@ -2194,7 +2197,7 @@ export class Store {
       await client.query(
         `
             insert into tts_edits (
-              org_id,
+              jurisdiction_id,
               language_code,
               original,
               export_source,
@@ -2202,7 +2205,7 @@ export class Store {
               text
             )
             values ($1, $2, $3, $4, $5, $6)
-            on conflict (org_id, language_code, original) do update set
+            on conflict (jurisdiction_id, language_code, original) do update set
               export_source = EXCLUDED.export_source,
               phonetic = EXCLUDED.phonetic,
               text = EXCLUDED.text
