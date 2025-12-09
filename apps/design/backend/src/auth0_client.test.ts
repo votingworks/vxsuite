@@ -13,7 +13,7 @@ import {
 import crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { Auth0Client, ConnectionType } from './auth0_client';
-import { sliOrgId, votingWorksOrgId } from './globals';
+import { sliJurisdictionId, votingWorksJurisdictionId } from './globals';
 
 vi.mock(import('auth0'));
 vi.mock(import('node:crypto'));
@@ -45,8 +45,8 @@ function newClient() {
 }
 
 beforeEach(() => {
-  vi.mocked(sliOrgId).mockReturnValue(SLI_ORG_ID);
-  vi.mocked(votingWorksOrgId).mockReturnValue(VX_ORG_ID);
+  vi.mocked(sliJurisdictionId).mockReturnValue(SLI_ORG_ID);
+  vi.mocked(votingWorksJurisdictionId).mockReturnValue(VX_ORG_ID);
 });
 
 test('createUser', async () => {

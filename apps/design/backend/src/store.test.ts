@@ -24,12 +24,12 @@ import {
   testSetupHelpers,
 } from '../test/helpers';
 import { Jurisdiction, User } from './types';
-import { votingWorksOrgId } from './globals';
+import { votingWorksJurisdictionId } from './globals';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
 const vxOrg: Jurisdiction = {
-  id: votingWorksOrgId(),
+  id: votingWorksJurisdictionId(),
   name: 'VotingWorks',
 };
 
