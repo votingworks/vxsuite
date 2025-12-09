@@ -1,24 +1,23 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
+import { assertDefined } from '@votingworks/basics';
 import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { assertDefined } from '@votingworks/basics';
 import { createWorkspace } from '../src/workspace';
 import { WORKSPACE } from '../src/globals';
-import { generateId } from '../src/utils';
-import { Jurisdiction } from '../src/types';
 
-const USAGE = `Usage: pnpm create-org "<name>"`;
+const USAGE = `Usage: pnpm list-user-jurisdictions <email address>`;
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
   const {
-    positionals: [name],
+    positionals: [userEmail],
   } = util.parseArgs({
     allowPositionals: true,
     args: process.argv.slice(2),
   });
-  if (!name) {
+
+  if (!userEmail) {
     console.log(USAGE);
     process.exit(0);
   }
@@ -27,15 +26,16 @@ async function main(): Promise<void> {
     resolve(assertDefined(WORKSPACE)),
     new BaseLogger(LogSource.VxDesignService)
   );
+  const userId = await workspace.store.getUserIdByEmail(userEmail);
+  if (!userId) {
+    throw new Error(`No user found with email address ${userEmail}`);
+  }
+  const user = assertDefined(await workspace.store.getUser(userId));
 
-  const org: Jurisdiction = {
-    id: generateId(),
-    name,
-  };
-
-  await workspace.store.createJurisdiction(org);
-
-  console.log('✅ Org created:', org);
+  console.log(
+    `✅ Jurisdiction memberships for ${userEmail}:`,
+    user.jurisdictions
+  );
 }
 
 main()
