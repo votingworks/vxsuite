@@ -22,7 +22,7 @@ export function CloneElectionButton(
   const user = api.getUser.useQuery().data;
 
   const [orgId, setOrgId] = React.useState<string | undefined>(
-    user?.organizations[0]?.id
+    user?.jurisdictions[0]?.id
   );
   const [modalActive, setModalActive] = React.useState(false);
 
@@ -56,7 +56,7 @@ export function CloneElectionButton(
         <Button
           variant={variant}
           onPress={
-            features.ACCESS_ALL_ORGS || (user?.organizations || []).length > 1
+            features.ACCESS_ALL_ORGS || (user?.jurisdictions || []).length > 1
               ? setModalActive
               : cloneElection
           }

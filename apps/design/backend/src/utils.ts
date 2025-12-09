@@ -152,5 +152,5 @@ export function splitCandidateName(
 }
 
 export function userBelongsToOrg(user: User, orgId: string): boolean {
-  return user.organizations.some((org) => org.id === orgId);
+  return user.jurisdictions.some((org) => org.id === orgId);
 }

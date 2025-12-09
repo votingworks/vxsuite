@@ -27,7 +27,7 @@ export function CreateElectionButton(
   const user = userQuery.data;
   React.useEffect(() => {
     if (user) {
-      setOrgId(assertDefined(user.organizations[0]).id);
+      setOrgId(assertDefined(user.jurisdictions[0]).id);
     }
   }, [user]);
 
@@ -63,7 +63,7 @@ export function CreateElectionButton(
         variant={variant}
         icon="Add"
         onPress={
-          features.ACCESS_ALL_ORGS || (user?.organizations || []).length > 1
+          features.ACCESS_ALL_ORGS || (user?.jurisdictions || []).length > 1
             ? setModalActive
             : createElection
         }

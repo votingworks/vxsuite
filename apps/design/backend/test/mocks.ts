@@ -8,7 +8,7 @@ export const vxOrg: Jurisdiction = {
 export const vxUser: User = {
   name: 'vx.user@example.com',
   id: 'auth0|vx-user-id',
-  organizations: [vxOrg],
+  jurisdictions: [vxOrg],
 };
 
 export const nonVxOrg: Jurisdiction = {
@@ -18,7 +18,7 @@ export const nonVxOrg: Jurisdiction = {
 export const nonVxUser: User = {
   name: 'non.vx.user@example.com',
   id: 'auth0|non-vx-user-id',
-  organizations: [nonVxOrg],
+  jurisdictions: [nonVxOrg],
 };
 
 export const anotherNonVxOrg: Jurisdiction = {
@@ -28,7 +28,7 @@ export const anotherNonVxOrg: Jurisdiction = {
 export const anotherNonVxUser: User = {
   ...nonVxUser,
   id: 'auth0|another-non-vx-user-id',
-  organizations: [anotherNonVxOrg],
+  jurisdictions: [anotherNonVxOrg],
 };
 
 export const sliOrg: Jurisdiction = {
@@ -38,7 +38,7 @@ export const sliOrg: Jurisdiction = {
 export const sliUser: User = {
   name: 'sli.user@example.com',
   id: 'auth0|sli-user-id',
-  organizations: [sliOrg],
+  jurisdictions: [sliOrg],
 };
 
 export const vxDemosOrg: Jurisdiction = {
@@ -48,7 +48,7 @@ export const vxDemosOrg: Jurisdiction = {
 export const vxDemosUser: User = {
   name: 'vx.demos.user@example.com',
   id: 'auth0|vx-demos-user-id',
-  organizations: [vxDemosOrg],
+  jurisdictions: [vxDemosOrg],
 };
 
 export const orgs: Jurisdiction[] = [

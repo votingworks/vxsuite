@@ -32,7 +32,7 @@ async function main(): Promise<void> {
   }
   const user = assertDefined(await workspace.store.getUser(userId));
 
-  console.log(`✅ Org memberships for ${userEmail}:`, user.organizations);
+  console.log(`✅ Org memberships for ${userEmail}:`, user.jurisdictions);
 }
 
 main()

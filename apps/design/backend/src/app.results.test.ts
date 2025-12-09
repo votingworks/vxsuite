@@ -46,7 +46,7 @@ const nonVxOrg: Jurisdiction = {
 const nonVxUser: User = {
   name: 'non.vx.user@example.com',
   id: 'auth0|non-vx-user-id',
-  organizations: [nonVxOrg],
+  jurisdictions: [nonVxOrg],
 };
 afterAll(cleanup);
 

@@ -39,7 +39,7 @@ export interface User {
    */
   name: string;
   id: string;
-  organizations: Jurisdiction[];
+  jurisdictions: Jurisdiction[];
 }
 
 export interface Jurisdiction {

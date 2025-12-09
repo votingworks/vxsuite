@@ -514,7 +514,7 @@ export class Store {
     );
   }
 
-  async createUser(user: Omit<User, 'organizations'>): Promise<void> {
+  async createUser(user: Omit<User, 'jurisdictions'>): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
         `
@@ -568,7 +568,7 @@ export class Store {
       ).rows as Jurisdiction[];
       return {
         ...userRow,
-        organizations: orgRows,
+        jurisdictions: orgRows,
       };
     });
   }

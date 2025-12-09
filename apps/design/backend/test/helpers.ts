@@ -125,7 +125,7 @@ export function testSetupHelpers() {
     }
     for (const user of users) {
       await store.createUser(user);
-      for (const organization of user.organizations) {
+      for (const organization of user.jurisdictions) {
         await store.addUserToOrganization(user.id, organization.id);
       }
     }

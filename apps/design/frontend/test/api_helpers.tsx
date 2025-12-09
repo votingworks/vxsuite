@@ -107,11 +107,11 @@ export const org2: Jurisdiction = {
 export const user: User = {
   name: 'Test User',
   id: 'auth0|123456789',
-  organizations: [org],
+  jurisdictions: [org],
 };
 
 export const multiOrgUser: User = {
   name: 'Multi Org User',
   id: 'auth0|987654321',
-  organizations: [org, org2],
+  jurisdictions: [org, org2],
 };

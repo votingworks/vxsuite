@@ -279,7 +279,7 @@ export function buildApi(ctx: AppContext) {
             input: JSON.stringify(input),
             userId: context.user?.id,
             userOrgIds:
-              context.user?.organizations.map((org) => org.id).join(',') ?? '',
+              context.user?.jurisdictions.map((org) => org.id).join(',') ?? '',
             ...outcome,
           },
           debug
@@ -296,7 +296,7 @@ export function buildApi(ctx: AppContext) {
       const userFeaturesConfig = getUserFeaturesConfig(context.user);
       return userFeaturesConfig.ACCESS_ALL_ORGS
         ? await store.listOrganizations()
-        : context.user.organizations;
+        : context.user.jurisdictions;
     },
 
     async listElections(
@@ -308,7 +308,7 @@ export function buildApi(ctx: AppContext) {
       return store.listElections({
         orgIds: userFeatures.ACCESS_ALL_ORGS
           ? undefined
-          : user.organizations.map((org) => org.id),
+          : user.jurisdictions.map((org) => org.id),
       });
     },
 

@@ -143,13 +143,13 @@ export function LoadElectionButton({
 
   return (
     <React.Fragment>
-      {features.MS_SEMS_CONVERSION || user.organizations.length > 1 ? (
+      {features.MS_SEMS_CONVERSION || user.jurisdictions.length > 1 ? (
         <Button
           disabled={disabled}
           onPress={() =>
             setModalFormState({
               format: 'vxf',
-              orgId: user.organizations[0].id,
+              orgId: user.jurisdictions[0].id,
             })
           }
         >
@@ -163,7 +163,7 @@ export function LoadElectionButton({
             await submitUpload({
               format: 'vxf',
               electionFile: file,
-              orgId: user.organizations[0].id,
+              orgId: user.jurisdictions[0].id,
             });
           }}
           disabled={loadElectionMutation.isLoading}
@@ -176,7 +176,7 @@ export function LoadElectionButton({
           title="Load Election"
           content={
             <Column style={{ gap: '1rem' }}>
-              {(user.organizations.length > 1 || features.ACCESS_ALL_ORGS) && (
+              {(user.jurisdictions.length > 1 || features.ACCESS_ALL_ORGS) && (
                 <InputGroup label="Organization">
                   <OrgSelect
                     style={{ width: '100%' }}
