@@ -100,7 +100,7 @@ export function electionListing(
 ): ElectionListing {
   const { election, orgId } = electionRecord;
   return {
-    orgId,
+    jurisdictionId: orgId,
     orgName: `${orgId} Name`,
     electionId: election.id,
     title: election.title,

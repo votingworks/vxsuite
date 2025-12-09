@@ -250,7 +250,7 @@ test('create/list/delete elections', async () => {
   expect(electionId).toEqual(expectedElectionId);
 
   const expectedElectionListing: ElectionListing = {
-    orgId: nonVxOrg.id,
+    jurisdictionId: nonVxOrg.id,
     orgName: nonVxOrg.name,
     electionId: expectedElectionId,
     title: '',
@@ -284,7 +284,7 @@ test('create/list/delete elections', async () => {
   expect(electionId2).toEqual(importedElectionNewId);
 
   const expectedElection2Listing: ElectionListing = {
-    orgId: vxOrg.id,
+    jurisdictionId: vxOrg.id,
     orgName: vxOrg.name,
     electionId: importedElectionNewId,
     title: election2.title,
@@ -2129,7 +2129,7 @@ test('cloneElection', async () => {
   // Ensure cloned election has the same data with new IDs
   const elections = await apiClient.listElections();
   expect(elections[0].electionId).toEqual(newElectionId);
-  expect(elections[0].orgId).toEqual(anotherNonVxOrg.id);
+  expect(elections[0].jurisdictionId).toEqual(anotherNonVxOrg.id);
 
   const srcElectionInfo = await apiClient.getElectionInfo({
     electionId: srcElectionId,

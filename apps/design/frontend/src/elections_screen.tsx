@@ -301,7 +301,7 @@ function ElectionsList({
   elections: ElectionListing[];
 }): JSX.Element | null {
   const showOrganization =
-    unique(elections.map((election) => election.orgId)).length > 1;
+    unique(elections.map((election) => election.jurisdictionId)).length > 1;
   return (
     <Table>
       <thead>

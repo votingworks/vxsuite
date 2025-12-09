@@ -613,7 +613,7 @@ export class Store {
               `
               select
                 elections.id as "electionId",
-                elections.org_id as "orgId",
+                elections.org_id as "jurisdictionId",
                 organizations.name as "orgName",
                 elections.type,
                 elections.title,
@@ -641,7 +641,7 @@ export class Store {
       )
     ).map((row) => ({
       electionId: row.electionId,
-      orgId: row.orgId,
+      jurisdictionId: row.jurisdictionId,
       orgName: row.orgName,
       type: row.type,
       title: row.title,

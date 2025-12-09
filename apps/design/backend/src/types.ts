@@ -50,7 +50,7 @@ export interface Jurisdiction {
 export type ElectionStatus = 'notStarted' | 'inProgress' | 'ballotsFinalized';
 
 export interface ElectionListing {
-  orgId: string;
+  jurisdictionId: string;
   orgName: string;
   electionId: ElectionId;
   title: string;
