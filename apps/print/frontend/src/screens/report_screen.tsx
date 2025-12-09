@@ -27,6 +27,7 @@ import { Row } from '../layout';
 import { TitleBar } from '../components/title_bar';
 import { Filter } from '../components/filter';
 import { ExportReportButton } from '../components/export_report_button';
+import { getLanguageOptions } from '../utils';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
@@ -80,6 +81,36 @@ const TableRow = styled.tr`
   }
 `;
 
+interface ColumnWidths {
+  precinctName: number;
+  attribute: number;
+  count: number;
+  rightPadding: number;
+}
+
+type AttributeColumnCount = 0 | 1 | 2;
+
+const COLUMN_WIDTH_MAP: Record<AttributeColumnCount, ColumnWidths> = {
+  0: {
+    precinctName: 68, // 100 - 30 - 2 = 68
+    attribute: 0, // 0
+    count: 10, // 10 * 3 = 30
+    rightPadding: 2, // 2
+  },
+  1: {
+    precinctName: 38, // 100 - 30 - 30 - 2 = 38
+    attribute: 30, // 30 * 1 = 30
+    count: 10, // 10 * 3 = 30
+    rightPadding: 2, // 2
+  },
+  2: {
+    precinctName: 30, // 100 - 38 - 30 - 2 = 30
+    attribute: 19, // 19 * 2 = 38
+    count: 10, // 10 * 3 = 30
+    rightPadding: 2, // 2
+  },
+};
+
 export function ReportScreen(): JSX.Element | null {
   const getBallotPrintCountsQuery = getBallotPrintCounts.useQuery();
   const getElectionRecordQuery = getElectionRecord.useQuery();
@@ -112,9 +143,14 @@ export function ReportScreen(): JSX.Element | null {
   }
 
   assert(election !== undefined);
-  const ballotPrintCounts = getBallotPrintCountsQuery.data;
   const hasParties = election.type === 'primary';
+  const showLanguage = getLanguageOptions(election).length > 1;
+  const ballotPrintCounts = getBallotPrintCountsQuery.data;
   const { printer } = getDeviceStatusesQuery.data;
+
+  const attributeColumnCount = ((hasParties ? 1 : 0) +
+    (showLanguage ? 1 : 0)) as AttributeColumnCount;
+  const columnWidths = COLUMN_WIDTH_MAP[attributeColumnCount];
 
   return (
     <Container>
@@ -175,16 +211,28 @@ export function ReportScreen(): JSX.Element | null {
           <Table style={{ tableLayout: 'fixed', width: '100%' }}>
             <thead>
               <TableRow>
-                <TH style={{ width: hasParties ? '25%' : '35%' }}>
+                <TH style={{ width: `${columnWidths.precinctName}%` }}>
                   {electionHasSplits
                     ? 'Precinct / Split Name'
                     : 'Precinct Name'}
                 </TH>
-                {hasParties && <TH style={{ width: '19%' }}>Party</TH>}
-                <TH style={{ width: hasParties ? '20%' : '25%' }}>Language</TH>
-                <TH style={{ width: '12%' }}>Total</TH>
-                <TH style={{ width: '12%' }}>Precinct</TH>
-                <TH style={{ width: '12%' }}>Absentee</TH>
+                {hasParties && (
+                  <TH style={{ width: `${columnWidths.attribute}%` }}>Party</TH>
+                )}
+                {showLanguage && (
+                  <TH style={{ width: `${columnWidths.attribute}%` }}>
+                    Language
+                  </TH>
+                )}
+                <TH style={{ width: `${columnWidths.count}%` }}>Total</TH>
+                <TH style={{ width: `${columnWidths.count}%` }}>Precinct</TH>
+                <TH
+                  style={{
+                    width: `${columnWidths.count + columnWidths.rightPadding}%`,
+                  }}
+                >
+                  Absentee
+                </TH>
               </TableRow>
             </thead>
           </Table>
@@ -204,21 +252,37 @@ export function ReportScreen(): JSX.Element | null {
                   <TableRow
                     key={`${counts.ballotStyleId}-${counts.precinctOrSplitName}`}
                   >
-                    <TD style={{ width: hasParties ? '25%' : '35%' }}>
+                    <TD style={{ width: `${columnWidths.precinctName}%` }}>
                       {counts.precinctOrSplitName}
                     </TD>
                     {hasParties && (
-                      <TD style={{ width: '19%' }}>{counts.partyName}</TD>
+                      <TD style={{ width: `${columnWidths.attribute}%` }}>
+                        {counts.partyName}
+                      </TD>
                     )}
-                    <TD style={{ width: hasParties ? '20%' : '25%' }}>
-                      {format.languageDisplayName({
-                        languageCode: counts.languageCode,
-                        displayLanguageCode: 'en',
-                      })}
+                    {showLanguage && (
+                      <TD style={{ width: `${columnWidths.attribute}%` }}>
+                        {format.languageDisplayName({
+                          languageCode: counts.languageCode,
+                          displayLanguageCode: 'en',
+                        })}
+                      </TD>
+                    )}
+                    <TD style={{ width: `${columnWidths.count}%` }}>
+                      {counts.totalCount}
                     </TD>
-                    <TD style={{ width: '12%' }}>{counts.totalCount}</TD>
-                    <TD style={{ width: '12%' }}>{counts.precinctCount}</TD>
-                    <TD style={{ width: '12%' }}>{counts.absenteeCount}</TD>
+                    <TD style={{ width: `${columnWidths.count}%` }}>
+                      {counts.precinctCount}
+                    </TD>
+                    <TD
+                      style={{
+                        width: `${
+                          columnWidths.count + columnWidths.rightPadding
+                        }%`,
+                      }}
+                    >
+                      {counts.absenteeCount}
+                    </TD>
                   </TableRow>
                 ))}
             </tbody>
