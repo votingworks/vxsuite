@@ -2,6 +2,7 @@
 const { ManagementClient } = require('auth0');
 const { assertDefined } = require('@votingworks/basics');
 const { loadEnvVarsFromDotenvFiles } = require('@votingworks/backend');
+const { votingWorksJurisdictionId } = require('../build/globals');
 
 loadEnvVarsFromDotenvFiles();
 
@@ -36,6 +37,14 @@ exports.up = async (pgm) => {
       )`
       );
     }
+  } else if (process.env.NODE_ENV !== 'test') {
+    // In dev mode, create the default dev organization (use VotingWorks org ID to get full features)
+    pgm.sql(`
+      INSERT INTO organizations (id, name) VALUES (
+        '${votingWorksJurisdictionId()}',
+        'VotingWorks'
+      );
+    `);
   }
 
   pgm.addConstraint('elections', null, {
