@@ -18,7 +18,7 @@ vi.mock('./tts_text_editor.js');
 const TEXT_EDITOR_TEST_ID = 'TtsTextEditor';
 const PHONETIC_EDITOR_PLACEHOLDER = 'TODO: Phonetic Editor';
 
-const orgId = 'org-1';
+const jurisdictionId = 'org-1';
 const electionId = 'election-1';
 const languageCode = 'en';
 
@@ -30,7 +30,7 @@ test('defaults to plain text editor if no saved edits exist', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original: ttsDefault.text })
+    .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
     .resolves(null);
 
   mockApi.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
@@ -38,14 +38,14 @@ test('defaults to plain text editor if no saved edits exist', async () => {
   setUpTextEditorMock({
     editable: true,
     languageCode,
-    orgId,
+    jurisdictionId,
     original: ttsDefault.text,
   });
 
   renderEditor(mockApi, {
     electionId,
     languageCode,
-    orgId,
+    jurisdictionId,
     ttsDefault,
     phoneticEnabled: true,
   });
@@ -62,7 +62,7 @@ test('picks initial editor based on saved edits', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original: ttsDefault.text })
+    .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
     .resolves({ exportSource: 'phonetic', phonetic: [], text: 'CA' });
 
   mockApi.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
@@ -70,14 +70,14 @@ test('picks initial editor based on saved edits', async () => {
   setUpTextEditorMock({
     editable: true,
     languageCode,
-    orgId,
+    jurisdictionId,
     original: ttsDefault.text,
   });
 
   renderEditor(mockApi, {
     electionId,
     languageCode,
-    orgId,
+    jurisdictionId,
     ttsDefault,
     phoneticEnabled: true,
   });
@@ -95,7 +95,7 @@ test('supports switching between text and phonetic editing', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original: ttsDefault.text })
+    .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
     .resolves({ exportSource: 'phonetic', phonetic: [], text: 'CA' });
 
   mockApi.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
@@ -103,14 +103,14 @@ test('supports switching between text and phonetic editing', async () => {
   setUpTextEditorMock({
     editable: true,
     languageCode,
-    orgId,
+    jurisdictionId,
     original: ttsDefault.text,
   });
 
   renderEditor(mockApi, {
     electionId,
     languageCode,
-    orgId,
+    jurisdictionId,
     ttsDefault,
     phoneticEnabled: true,
   });
@@ -141,7 +141,7 @@ test('only supports text editing for contest descriptions', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original: ttsDefault.text })
+    .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
     .resolves(null);
 
   mockApi.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
@@ -149,14 +149,14 @@ test('only supports text editing for contest descriptions', async () => {
   setUpTextEditorMock({
     editable: true,
     languageCode,
-    orgId,
+    jurisdictionId,
     original: ttsDefault.text,
   });
 
   renderEditor(mockApi, {
     electionId,
     languageCode,
-    orgId,
+    jurisdictionId,
     ttsDefault,
     phoneticEnabled: true,
   });
@@ -175,7 +175,7 @@ test('omits phonetic editor when not enabled', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original: ttsDefault.text })
+    .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
     .resolves(null);
 
   mockApi.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
@@ -183,7 +183,7 @@ test('omits phonetic editor when not enabled', async () => {
   setUpTextEditorMock({
     editable: true,
     languageCode,
-    orgId,
+    jurisdictionId,
     original: ttsDefault.text,
   });
 
@@ -191,7 +191,7 @@ test('omits phonetic editor when not enabled', async () => {
   renderEditor(mockApi, {
     electionId,
     languageCode,
-    orgId,
+    jurisdictionId,
     ttsDefault,
   });
 
@@ -208,7 +208,7 @@ test('text mode - not editable after ballots are finalized', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original: ttsDefault.text })
+    .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
     .resolves(null);
 
   const now = new Date();
@@ -217,14 +217,14 @@ test('text mode - not editable after ballots are finalized', async () => {
   setUpTextEditorMock({
     editable: false,
     languageCode,
-    orgId,
+    jurisdictionId,
     original: ttsDefault.text,
   });
 
   renderEditor(mockApi, {
     electionId,
     languageCode,
-    orgId,
+    jurisdictionId,
     ttsDefault,
     phoneticEnabled: true,
   });
@@ -244,7 +244,7 @@ test('phonetic mode - not editable after ballots are finalized', async () => {
 
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
-    .expectCallWith({ orgId, languageCode, original: ttsDefault.text })
+    .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
     .resolves({ exportSource: 'phonetic', phonetic: [], text: 'CA' });
 
   const now = new Date();
@@ -253,7 +253,7 @@ test('phonetic mode - not editable after ballots are finalized', async () => {
   renderEditor(mockApi, {
     electionId,
     languageCode,
-    orgId,
+    jurisdictionId,
     ttsDefault,
     phoneticEnabled: true,
   });

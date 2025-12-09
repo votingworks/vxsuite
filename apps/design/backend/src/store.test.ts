@@ -370,12 +370,12 @@ test('Background task processing - requeuing interrupted tasks', async () => {
 
 describe('tts_strings', () => {
   const key: TtsEditKey = {
-    orgId: 'vx',
+    jurisdictionId: 'vx',
     original: 'one two',
     languageCode: 'en',
   };
 
-  async function setUpOrgs(store: Store, ids: string[] = [key.orgId]) {
+  async function setUpOrgs(store: Store, ids: string[] = [key.jurisdictionId]) {
     for (const id of ids) {
       await store.createOrganization({ id, name: id });
     }
@@ -430,16 +430,16 @@ describe('tts_strings', () => {
     await setUpOrgs(store, [orgId, orgIdOther]);
 
     await store.ttsEditsSet(
-      { orgId, languageCode: 'en', original: 'one two' },
+      { jurisdictionId: orgId, languageCode: 'en', original: 'one two' },
       { exportSource: 'text', phonetic: [], text: 'wun too' }
     );
     await store.ttsEditsSet(
-      { orgId, languageCode: 'es', original: 'three four' },
+      { jurisdictionId: orgId, languageCode: 'es', original: 'three four' },
       { exportSource: 'text', phonetic: [], text: 'three foar' }
     );
 
     await store.ttsEditsSet(
-      { orgId: orgIdOther, languageCode: 'en', original: 'five six' },
+      { jurisdictionId: orgIdOther, languageCode: 'en', original: 'five six' },
       { exportSource: 'text', phonetic: [], text: 'fayv six' }
     );
 

@@ -282,7 +282,12 @@ export const getBallotTemplate = {
 /* istanbul ignore next - WIP @preserve */
 export const ttsEditsGet = {
   queryKey(params: TtsEditKey): QueryKey {
-    return ['ttsEditsGet', params.orgId, params.languageCode, params.original];
+    return [
+      'ttsEditsGet',
+      params.jurisdictionId,
+      params.languageCode,
+      params.original,
+    ];
   },
   useQuery(params: TtsEditKey, opts: { enabled?: boolean } = {}) {
     const apiClient = useApiClient();

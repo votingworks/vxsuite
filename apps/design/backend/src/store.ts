@@ -2132,7 +2132,9 @@ export class Store {
     );
   }
 
-  async ttsEditsAll(params: { orgId: string }): Promise<TtsEditEntry[]> {
+  async ttsEditsAll(params: {
+    jurisdictionId: string;
+  }): Promise<TtsEditEntry[]> {
     return this.db.withClient(async (client) => {
       const res = await client.query(
         `
@@ -2145,7 +2147,7 @@ export class Store {
           from tts_edits
           where jurisdiction_id = $1
         `,
-        params.orgId
+        params.jurisdictionId
       );
 
       return res.rows.map<TtsEditEntry>((row) => ({
@@ -2172,7 +2174,7 @@ export class Store {
             language_code = $2 and
             original = $3
         `,
-        key.orgId,
+        key.jurisdictionId,
         key.languageCode,
         key.original
       );
@@ -2210,7 +2212,7 @@ export class Store {
               phonetic = EXCLUDED.phonetic,
               text = EXCLUDED.text
           `,
-        key.orgId,
+        key.jurisdictionId,
         key.languageCode,
         key.original,
         data.exportSource,
