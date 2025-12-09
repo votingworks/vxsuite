@@ -39,10 +39,10 @@ export interface User {
    */
   name: string;
   id: string;
-  organizations: Org[];
+  organizations: Jurisdiction[];
 }
 
-export interface Org {
+export interface Jurisdiction {
   name: string;
   id: string;
 }

@@ -3,13 +3,13 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { Election, safeParseElection } from '@votingworks/types';
 import { convertMsElection } from './convert_ms_election';
 import { TestStore } from '../test/test_store';
-import { Org } from './types';
+import { Jurisdiction } from './types';
 import { readFixture } from '../test/helpers';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
 const store = testStore.getStore();
-const org: Org = {
+const org: Jurisdiction = {
   id: 'test-org-id',
   name: 'Test Org',
 };

@@ -67,7 +67,7 @@ import {
   ElectionInfo,
   ElectionListing,
   GetExportedElectionError,
-  Org,
+  Jurisdiction,
   QuickReportedPollStatus,
   User,
 } from './types';
@@ -471,7 +471,7 @@ export class Store {
     return new Store(new Db(logger), logger);
   }
 
-  async listOrganizations(): Promise<Org[]> {
+  async listOrganizations(): Promise<Jurisdiction[]> {
     return await this.db.withClient(async (client) => {
       const orgRows = (
         await client.query(
@@ -485,7 +485,7 @@ export class Store {
     });
   }
 
-  async createOrganization(org: Org): Promise<void> {
+  async createOrganization(org: Jurisdiction): Promise<void> {
     await this.db.withClient(async (client) => {
       await client.query(
         `
@@ -498,7 +498,7 @@ export class Store {
     });
   }
 
-  async getOrganization(orgId: string): Promise<Optional<Org>> {
+  async getOrganization(orgId: string): Promise<Optional<Jurisdiction>> {
     return this.db.withClient(
       async (client) =>
         (
@@ -565,7 +565,7 @@ export class Store {
           `,
           userId
         )
-      ).rows as Org[];
+      ).rows as Jurisdiction[];
       return {
         ...userRow,
         organizations: orgRows,

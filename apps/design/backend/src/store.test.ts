@@ -23,17 +23,17 @@ import {
   processNextBackgroundTaskIfAny,
   testSetupHelpers,
 } from '../test/helpers';
-import { Org, User } from './types';
+import { Jurisdiction, User } from './types';
 import { votingWorksOrgId } from './globals';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
-const vxOrg: Org = {
+const vxOrg: Jurisdiction = {
   id: votingWorksOrgId(),
   name: 'VotingWorks',
 };
 
-const nonVxOrg: Org = {
+const nonVxOrg: Jurisdiction = {
   id: 'other-org-id',
   name: 'Other Org',
 };
@@ -42,7 +42,7 @@ const nonVxUser: User = {
   id: 'auth0|non-vx-user-id',
   organizations: [nonVxOrg],
 };
-const testOrgs: Org[] = [vxOrg, nonVxOrg];
+const testOrgs: Jurisdiction[] = [vxOrg, nonVxOrg];
 const testUsers: User[] = [nonVxUser];
 
 // Spy on the ballot rendering function so we can check that it's called with the

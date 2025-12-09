@@ -1,7 +1,7 @@
 import { votingWorksOrgId, sliOrgId, vxDemosOrgId } from '../src/globals';
-import { Org, User } from '../src/types';
+import { Jurisdiction, User } from '../src/types';
 
-export const vxOrg: Org = {
+export const vxOrg: Jurisdiction = {
   id: votingWorksOrgId(),
   name: 'VotingWorks',
 };
@@ -11,7 +11,7 @@ export const vxUser: User = {
   organizations: [vxOrg],
 };
 
-export const nonVxOrg: Org = {
+export const nonVxOrg: Jurisdiction = {
   id: 'other-org-id',
   name: 'Other Org',
 };
@@ -21,7 +21,7 @@ export const nonVxUser: User = {
   organizations: [nonVxOrg],
 };
 
-export const anotherNonVxOrg: Org = {
+export const anotherNonVxOrg: Jurisdiction = {
   id: 'another-org-id',
   name: 'Another Org',
 };
@@ -31,7 +31,7 @@ export const anotherNonVxUser: User = {
   organizations: [anotherNonVxOrg],
 };
 
-export const sliOrg: Org = {
+export const sliOrg: Jurisdiction = {
   id: sliOrgId(),
   name: 'SLI',
 };
@@ -41,7 +41,7 @@ export const sliUser: User = {
   organizations: [sliOrg],
 };
 
-export const vxDemosOrg: Org = {
+export const vxDemosOrg: Jurisdiction = {
   id: vxDemosOrgId(),
   name: 'VX Demos',
 };
@@ -51,7 +51,7 @@ export const vxDemosUser: User = {
   organizations: [vxDemosOrg],
 };
 
-export const orgs: Org[] = [
+export const orgs: Jurisdiction[] = [
   vxOrg,
   nonVxOrg,
   anotherNonVxOrg,

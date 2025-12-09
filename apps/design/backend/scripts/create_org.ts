@@ -6,7 +6,7 @@ import { assertDefined } from '@votingworks/basics';
 import { createWorkspace } from '../src/workspace';
 import { WORKSPACE } from '../src/globals';
 import { generateId } from '../src/utils';
-import { Org } from '../src/types';
+import { Jurisdiction } from '../src/types';
 
 const USAGE = `Usage: pnpm create-org "<name>"`;
 
@@ -28,7 +28,7 @@ async function main(): Promise<void> {
     new BaseLogger(LogSource.VxDesignService)
   );
 
-  const org: Org = {
+  const org: Jurisdiction = {
     id: generateId(),
     name,
   };

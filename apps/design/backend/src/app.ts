@@ -89,7 +89,7 @@ import {
   ElectionListing,
   GetExportedElectionError,
   ElectionUpload,
-  Org,
+  Jurisdiction,
   ReceivedReportInfo,
   ResultsReportingError,
   User,
@@ -292,7 +292,7 @@ export function buildApi(ctx: AppContext) {
     async listOrganizations(
       _input: undefined,
       context: ApiContext
-    ): Promise<Org[]> {
+    ): Promise<Jurisdiction[]> {
       const userFeaturesConfig = getUserFeaturesConfig(context.user);
       return userFeaturesConfig.ACCESS_ALL_ORGS
         ? await store.listOrganizations()

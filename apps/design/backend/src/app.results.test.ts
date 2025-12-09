@@ -32,14 +32,14 @@ import {
   testSetupHelpers,
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
-import { ALL_PRECINCTS_REPORT_KEY, Org, User } from './types';
+import { ALL_PRECINCTS_REPORT_KEY, Jurisdiction, User } from './types';
 import { Workspace } from './workspace';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
 const { setupApp, cleanup } = testSetupHelpers();
 
-const nonVxOrg: Org = {
+const nonVxOrg: Jurisdiction = {
   id: 'other-org-id',
   name: 'Other Org',
 };
