@@ -7,7 +7,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { PrinterRichStatus } from '@votingworks/types';
-import { detectPrinter } from './printer';
+import { detectPrinter, POST_PRINT_DISCONNECT_ALLOWANCE } from './printer';
 import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
 import { MockFilePrinter } from './mocks/file_printer';
 
@@ -135,7 +135,7 @@ test('status and configuration', async () => {
     config,
   });
 
-  vi.advanceTimersByTime(3000);
+  vi.advanceTimersByTime(POST_PRINT_DISCONNECT_ALLOWANCE);
   // printer detached is detected
   mockGetConnectedDeviceUris.expectCallWith().returns([]);
   expect(await printer.status()).toEqual({
