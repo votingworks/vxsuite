@@ -136,6 +136,32 @@ test.each<{
       ...SYSTEM_LIMITS,
       markScanBallotStyle: {
         ...SYSTEM_LIMITS.markScanBallotStyle,
+        contests: 0,
+      },
+    },
+    expectedValidationResult: ok(),
+  },
+  {
+    systemLimits: {
+      ...SYSTEM_LIMITS,
+      markScanBallotStyle: {
+        ...SYSTEM_LIMITS.markScanBallotStyle,
+        contests: 0,
+      },
+    },
+    checkMarkScanSystemLimits: true,
+    expectedValidationResult: err({
+      limitScope: 'markScanBallotStyle',
+      limitType: 'contests',
+      valueExceedingLimit: expect.any(Number),
+      ballotStyleId: '12',
+    }),
+  },
+  {
+    systemLimits: {
+      ...SYSTEM_LIMITS,
+      markScanBallotStyle: {
+        ...SYSTEM_LIMITS.markScanBallotStyle,
         candidatesSummedAcrossContests: 0,
       },
     },
