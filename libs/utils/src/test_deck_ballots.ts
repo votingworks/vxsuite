@@ -117,30 +117,36 @@ export function generateTestDeckBallots({
         });
       }
 
-      if (includeOvervotedBallots && ballotType === 'bubble') {
-        // Generates a minimally overvoted ballot - a single overvote in the
-        // first contest where an overvote is possible. Does not overvote
-        // candidate contests where you must select a write-in to overvote. See
-        // discussion: https://github.com/votingworks/vxsuite/issues/1711.
-        const overvoteContest = contests.find(
-          (contest) =>
-            contest.type === 'yesno' ||
-            contest.candidates.length > contest.seats
-        );
-        if (overvoteContest) {
-          ballots.push({
-            ballotStyleId: ballotStyle.id,
-            precinctId: currentPrecinctId,
-            ballotType,
-            votes: {
-              [overvoteContest.id]:
-                overvoteContest.type === 'yesno'
-                  ? [overvoteContest.yesOption.id, overvoteContest.noOption.id]
-                  : iter(overvoteContest.candidates)
-                      .take(overvoteContest.seats + 1)
-                      .toArray(),
-            },
-          });
+      // Overvote and blank ballots only make sense for HMPB test decks
+      if (ballotType === 'bubble') {
+        if (includeOvervotedBallots) {
+          // Generates a minimally overvoted ballot - a single overvote in the
+          // first contest where an overvote is possible. Does not overvote
+          // candidate contests where you must select a write-in to overvote. See
+          // discussion: https://github.com/votingworks/vxsuite/issues/1711.
+          const overvoteContest = contests.find(
+            (contest) =>
+              contest.type === 'yesno' ||
+              contest.candidates.length > contest.seats
+          );
+          if (overvoteContest) {
+            ballots.push({
+              ballotStyleId: ballotStyle.id,
+              precinctId: currentPrecinctId,
+              ballotType,
+              votes: {
+                [overvoteContest.id]:
+                  overvoteContest.type === 'yesno'
+                    ? [
+                        overvoteContest.yesOption.id,
+                        overvoteContest.noOption.id,
+                      ]
+                    : iter(overvoteContest.candidates)
+                        .take(overvoteContest.seats + 1)
+                        .toArray(),
+              },
+            });
+          }
         }
 
         if (includeBlankBallots) {

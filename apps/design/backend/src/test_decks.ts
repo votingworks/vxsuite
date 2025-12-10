@@ -21,8 +21,9 @@ import {
   TestDeckBallot as TestDeckBallotSpec,
 } from '@votingworks/utils';
 import { renderToPdf } from '@votingworks/printing';
+import React from 'react';
 
-import { AdminTallyReportByParty } from '@votingworks/ui';
+import { AdminTallyReportByParty, BmdPaperBallot } from '@votingworks/ui';
 import {
   markBallotDocument,
   concatenatePdfs,
@@ -74,6 +75,46 @@ export async function createPrecinctTestDeck({
     emitProgress
   );
   return await concatenatePdfs(markedBallots);
+}
+
+/**
+ * Creates a test deck of summary BMD ballots for a precinct and the given ballot specs.
+ */
+export async function createPrecinctSummaryBallotTestDeck({
+  electionDefinition,
+  ballotSpecs,
+  isLiveMode,
+  emitProgress,
+}: {
+  electionDefinition: ElectionDefinition;
+  ballotSpecs: TestDeckBallotSpec[];
+  isLiveMode: boolean;
+  emitProgress?: (ballotsRendered: number) => void;
+}): Promise<Uint8Array | undefined> {
+  if (ballotSpecs.length === 0) {
+    return undefined;
+  }
+
+  const ballotPdfs: Uint8Array[] = [];
+  let renderedCount = 0;
+
+  for (const ballotSpec of ballotSpecs) {
+    const ballot = React.createElement(BmdPaperBallot, {
+      electionDefinition,
+      ballotStyleId: ballotSpec.ballotStyleId,
+      precinctId: ballotSpec.precinctId,
+      votes: ballotSpec.votes,
+      isLiveMode,
+      machineType: 'mark',
+    });
+
+    const pdfResult = await renderToPdf({ document: ballot });
+    ballotPdfs.push(pdfResult.unsafeUnwrap());
+    renderedCount += 1;
+    emitProgress?.(renderedCount);
+  }
+
+  return await concatenatePdfs(ballotPdfs);
 }
 
 /**
