@@ -470,8 +470,8 @@ def calculate_top_section_layout(config, top_space, fonts):
     }
 
 
-def calculate_textbox3_metrics(config, fonts, available_height, gap_from_textbox2):
-    """Calculate font size and metrics for textbox3 (bottom section)."""
+def calculate_textbox3_metrics(config, fonts, available_height, gap_from_textbox2, font_size_from_textbox2):
+    """Calculate metrics for textbox3 using font size from textbox2."""
     dims = config['dimensions']
     layout = config['layout']
     text_config = config['text']
@@ -484,26 +484,15 @@ def calculate_textbox3_metrics(config, fonts, available_height, gap_from_textbox
     bottom_margin_mm = w * bottom_margin
     available_width = w - 2 * bottom_margin_mm
     
-    # Reserve space for bottom margin
-    textbox3_bottom_margin_mm = h * textbox3_bottom_margin
-    max_height = available_height - gap_from_textbox2 - textbox3_bottom_margin_mm
+    # Use font size from textbox2
+    font_size = font_size_from_textbox2
     
     warning_text = text_config.get('warning_text', '')
+    lines = wrap_text_to_width(warning_text, available_width, fonts['arial'], font_size, is_bold=False)
     
-    def textbox3_metrics(fs):
-        lines = wrap_text_to_width(warning_text, available_width, fonts['arial'], fs, is_bold=False)
-        if len(lines) > 2:
-            return (lines, float('inf'), float('inf'))
-        max_w = max(get_text_width_mm(line, fonts['arial'], fs, is_bold=False) 
-                   for line in lines) if lines else 0
-        return (lines, max_w, fs * LINE_HEIGHT_MULTIPLIER * len(lines))
-    
-    # Limit max font size to textbox2's font size
-    font_size = calculate_max_font_size(textbox3_metrics, available_width, 
-                                       max_height=max_height,
-                                       max_font_size=MAX_FONT_SIZE)
-    
-    lines, _, height = textbox3_metrics(font_size)
+    max_w = max(get_text_width_mm(line, fonts['arial'], font_size, is_bold=False) 
+               for line in lines) if lines else 0
+    height = font_size * LINE_HEIGHT_MULTIPLIER * len(lines)
     
     return {
         'font_size': font_size,
@@ -657,8 +646,8 @@ def build_svg(config, fonts):
     top_content_bottom = top_layout['textbox1']['y']
     gap1 = textbox2_y - top_content_bottom
     
-    # Step 5: Calculate textbox3 using same gap
-    textbox3_metrics = calculate_textbox3_metrics(config, fonts, bottom_space, gap1)
+    # Step 5: Calculate textbox3 using same font size as textbox2
+    textbox3_metrics = calculate_textbox3_metrics(config, fonts, bottom_space, gap1, textbox2_metrics['font_size'])
     textbox3_y = textbox2_y + textbox2_metrics['height'] + gap1
     
     # Build SVG
