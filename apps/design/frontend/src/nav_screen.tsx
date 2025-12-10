@@ -18,7 +18,12 @@ import {
 import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { electionNavRoutes } from './routes';
-import { getSystemSettings, getUser, getUserFeatures } from './api';
+import {
+  getStateFeatures,
+  getSystemSettings,
+  getUser,
+  getUserFeatures,
+} from './api';
 import { Row } from './layout';
 
 const UserInfo = styled.div`
@@ -112,25 +117,34 @@ export function ElectionNavScreen({
 }): JSX.Element | null {
   const currentRoute = useRouteMatch();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
+  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
-  if (!getUserFeaturesQuery.isSuccess || !getSystemSettingsQuery.isSuccess) {
+  if (
+    !getUserFeaturesQuery.isSuccess ||
+    !getStateFeaturesQuery.isSuccess ||
+    !getSystemSettingsQuery.isSuccess
+  ) {
     return null;
   }
-  const features = getUserFeaturesQuery.data;
+  const userFeatures = getUserFeaturesQuery.data;
+  const stateFeatures = getStateFeaturesQuery.data;
   const systemSettings = getSystemSettingsQuery.data;
   return (
     <NavScreen
       navContent={
         <NavList>
-          {electionNavRoutes(electionId, features, systemSettings).map(
-            ({ title, path }) => (
-              <NavListItem key={path}>
-                <NavLink to={path} isActive={path === currentRoute.url}>
-                  {title}
-                </NavLink>
-              </NavListItem>
-            )
-          )}
+          {electionNavRoutes(
+            electionId,
+            userFeatures,
+            stateFeatures,
+            systemSettings
+          ).map(({ title, path }) => (
+            <NavListItem key={path}>
+              <NavLink to={path} isActive={path === currentRoute.url}>
+                {title}
+              </NavLink>
+            </NavListItem>
+          ))}
           <NavDivider />
           <NavListItem>
             <LinkButton

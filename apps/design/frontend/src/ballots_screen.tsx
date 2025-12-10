@@ -26,13 +26,13 @@ import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import {
   getBallotsFinalizedAt,
   finalizeBallots,
-  getUserFeatures,
   getBallotLayoutSettings,
   updateBallotLayoutSettings,
   listBallotStyles,
   listPrecincts,
   getElectionInfo,
   listParties,
+  getStateFeatures,
 } from './api';
 import { Column, Form, FormActionsRow, NestedTr, Row } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
@@ -58,13 +58,13 @@ function BallotDesignForm({
 
   const updateBallotLayoutSettingsMutation =
     updateBallotLayoutSettings.useMutation();
-  const getUserFeaturesQuery = getUserFeatures.useQuery();
+  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
 
   /* istanbul ignore next - @preserve */
-  if (!getUserFeaturesQuery.isSuccess) {
+  if (!getStateFeaturesQuery.isSuccess) {
     return null;
   }
-  const features = getUserFeaturesQuery.data;
+  const features = getStateFeaturesQuery.data;
 
   function onSubmit() {
     updateBallotLayoutSettingsMutation.mutate(
@@ -455,7 +455,7 @@ export function BallotsScreen(): JSX.Element | null {
   const ballotsRoutes = routes.election(electionId).ballots;
   useTitle(routes.election(electionId).ballots.root.title);
 
-  const features = getUserFeatures.useQuery().data;
+  const features = getStateFeatures.useQuery(electionId).data;
 
   return (
     <Switch>

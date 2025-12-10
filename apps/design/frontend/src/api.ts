@@ -819,14 +819,14 @@ export const getBaseUrl = {
   },
 } as const;
 
-export const getElectionFeatures = {
+export const getStateFeatures = {
   queryKey(electionId: ElectionId): QueryKey {
-    return ['getElectionFeatures', electionId];
+    return ['getStateFeatures', electionId];
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(electionId), () =>
-      apiClient.getElectionFeatures({ electionId })
+      apiClient.getStateFeatures({ electionId })
     );
   },
 } as const;
