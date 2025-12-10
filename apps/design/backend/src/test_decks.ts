@@ -155,14 +155,28 @@ function getBallotContestLayouts(
 }
 
 function generateTestDeckCastVoteRecords(
-  election: Election
+  election: Election,
+  options: { includeSummaryBallots: boolean }
 ): Tabulation.CastVoteRecord[] {
-  const ballotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
+  const { includeSummaryBallots = false } = options;
+
+  // Generate HMPB ballot specs
+  const hmpbBallotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
     election,
     ballotType: 'bubble',
     includeBlankBallots: false,
     includeOvervotedBallots: false,
   });
+
+  // Generate summary ballot specs if configured
+  const summaryBallotSpecs: TestDeckBallotSpec[] = includeSummaryBallots
+    ? generateTestDeckBallots({
+        election,
+        ballotType: 'summary',
+        includeBlankBallots: false,
+        includeOvervotedBallots: false,
+      })
+    : [];
 
   const ballotContestLayouts: BallotContestLayout[] = getBallotContestLayouts(
     assertDefined(election.gridLayouts)
@@ -171,7 +185,9 @@ function generateTestDeckCastVoteRecords(
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
   const cvrs: Tabulation.CastVoteRecord[] = [];
-  for (const ballotSpec of ballotSpecs) {
+
+  // Process HMPB ballots
+  for (const ballotSpec of hmpbBallotSpecs) {
     const ballotStyleGroupId = getGroupIdFromBallotStyleId({
       ballotStyleId: ballotSpec.ballotStyleId,
       election,
@@ -206,13 +222,37 @@ function generateTestDeckCastVoteRecords(
     }
   }
 
+  // Process summary ballots
+  for (const ballotSpec of summaryBallotSpecs) {
+    const ballotStyleGroupId = getGroupIdFromBallotStyleId({
+      ballotStyleId: ballotSpec.ballotStyleId,
+      election,
+    });
+    const CVR_ATTRIBUTES = {
+      precinctId: ballotSpec.precinctId,
+      ballotStyleGroupId,
+      partyId: ballotStyleIdPartyIdLookup[ballotStyleGroupId],
+      scannerId: 'test-deck',
+      batchId: 'test-deck',
+      votingMethod: 'precinct',
+    } as const;
+
+    // Summary/BMD ballots contain all votes on a single "sheet" (the QR code)
+    cvrs.push({
+      votes: convertVotesDictToTabulationVotes(ballotSpec.votes),
+      card: { type: 'bmd' },
+      ...CVR_ATTRIBUTES,
+    });
+  }
+
   return cvrs;
 }
 
 export async function getTallyReportResults(
-  election: Election
+  election: Election,
+  options: { includeSummaryBallots: boolean }
 ): Promise<Admin.TallyReportResults> {
-  const cvrs = generateTestDeckCastVoteRecords(election);
+  const cvrs = generateTestDeckCastVoteRecords(election, options);
 
   if (election.type === 'general') {
     const [electionResults] = groupMapToGroupList(
@@ -264,13 +304,17 @@ export async function getTallyReportResults(
 export async function createTestDeckTallyReport({
   electionDefinition,
   generatedAtTime,
+  includeSummaryBallots,
 }: {
   electionDefinition: ElectionDefinition;
   generatedAtTime?: Date;
+  includeSummaryBallots: boolean;
 }): Promise<Uint8Array> {
   const { election } = electionDefinition;
 
-  const tallyReportResults = await getTallyReportResults(election);
+  const tallyReportResults = await getTallyReportResults(election, {
+    includeSummaryBallots,
+  });
 
   return (
     await renderToPdf({

@@ -182,7 +182,10 @@ export async function generateTestDecks(
     }
   }
 
-  const tallyReport = await createTestDeckTallyReport({ electionDefinition });
+  const tallyReport = await createTestDeckTallyReport({
+    electionDefinition,
+    includeSummaryBallots: shouldGenerateSummaryBallots,
+  });
 
   zip.file(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, tallyReport);
   const zipContents = await zip.generateAsync({ type: 'nodebuffer' });
