@@ -149,6 +149,18 @@ export function validateElectionDefinitionAgainstSystemLimits(
         electionDefinition,
         getContestIdsForBallotStyle(electionDefinition, ballotStyle.id)
       );
+
+      if (
+        ballotStyleContests.length > systemLimits.markScanBallotStyle.contests
+      ) {
+        return err({
+          limitScope: 'markScanBallotStyle',
+          limitType: 'contests',
+          valueExceedingLimit: ballotStyleContests.length,
+          ballotStyleId: ballotStyle.id,
+        });
+      }
+
       let seatsSummedAcrossContests = 0;
       let candidatesSummedAcrossContests = 0;
       for (const contest of ballotStyleContests) {

@@ -85,6 +85,16 @@ test.each<{ violation: SystemLimitViolation; expectedString: string }>([
   {
     violation: {
       limitScope: 'markScanBallotStyle',
+      limitType: 'contests',
+      valueExceedingLimit: SYSTEM_LIMITS.markScanBallotStyle.contests + 1,
+      ballotStyleId: 'ballot-style-1',
+    },
+    expectedString:
+      'Number of contests in ballot style ballot-style-1 (26) exceeds VxMarkScan system limit of 25.',
+  },
+  {
+    violation: {
+      limitScope: 'markScanBallotStyle',
       limitType: 'candidatesSummedAcrossContests',
       valueExceedingLimit:
         SYSTEM_LIMITS.markScanBallotStyle.candidatesSummedAcrossContests + 1,

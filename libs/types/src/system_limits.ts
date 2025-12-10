@@ -19,6 +19,7 @@ export const SYSTEM_LIMITS = {
     characters: 10000,
   },
   markScanBallotStyle: {
+    contests: 25,
     candidatesSummedAcrossContests: 135,
     seatsSummedAcrossContests: 75,
   },
