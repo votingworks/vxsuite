@@ -24,7 +24,6 @@ import {
 import { ElectionsScreen } from './elections_screen';
 import { electionParamRoutes, routes, resultsRoutes } from './routes';
 import { ElectionInfoScreen } from './election_info_screen';
-import { GeographyScreen } from './geography_screen';
 import { ContestsScreen } from './contests_screen';
 import { BallotsScreen } from './ballots_screen';
 import { SystemSettingsScreen } from './system_settings_screen';
@@ -34,6 +33,8 @@ import { ReportingResultsConfirmationScreen } from './reporting_results_confirma
 import { LiveReportsScreen } from './live_reports_screen';
 import { ConvertResultsScreen } from './convert_results_screen';
 import { PartiesScreen } from './parties_screen';
+import { DistrictsScreen } from './districts_screen';
+import { PrecinctsScreen } from './precincts_screen';
 
 function ElectionScreens(): JSX.Element {
   return (
@@ -43,8 +44,12 @@ function ElectionScreens(): JSX.Element {
         component={ElectionInfoScreen}
       />
       <Route
-        path={electionParamRoutes.geography.root.path}
-        component={GeographyScreen}
+        path={electionParamRoutes.districts.root.path}
+        component={DistrictsScreen}
+      />
+      <Route
+        path={electionParamRoutes.precincts.root.path}
+        component={PrecinctsScreen}
       />
       <Route
         path={electionParamRoutes.parties.root.path}
