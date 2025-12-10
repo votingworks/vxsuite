@@ -335,10 +335,17 @@ def calculate_textbox2_metrics(config, fonts):
     w = float(dims['width'])
     cdist = float(dims['hole_center_distance'])
     middle_margin = layout.get('middle_section_margin', 0.10)
+    max_font_ratio = layout.get('textbox2_max_font_size_ratio', 0.08)
+    
+    # Get which lines to include
+    enabled_lines = layout.get('textbox2_lines', ['product_line', 'serial_line', 'rating_line'])
     
     middle_margin_mm = w * middle_margin
     available_width = w - 2 * middle_margin_mm
     max_width = min(available_width, cdist * 0.9)
+    
+    # Calculate max font size from width
+    max_font_from_width = w * max_font_ratio
     
     def get_line_width(line_config, fs):
         width = 0
@@ -358,7 +365,7 @@ def calculate_textbox2_metrics(config, fonts):
         line_count = 0
         max_w = 0
         
-        for line_key in ['product_line', 'version_line', 'serial_line', 'rating_line']:
+        for line_key in enabled_lines:
             line_config = text_config.get(line_key, {})
             if line_config.get('label') or line_config.get('value'):
                 line_count += 1
@@ -367,7 +374,8 @@ def calculate_textbox2_metrics(config, fonts):
         
         return (line_count, max_w, fs * LINE_HEIGHT_MULTIPLIER * line_count)
     
-    font_size = calculate_max_font_size(textbox2_metrics, max_width)
+    font_size = calculate_max_font_size(textbox2_metrics, max_width, 
+                                       max_font_size=max_font_from_width)
     _, _, height = textbox2_metrics(font_size)
     
     return {
@@ -562,18 +570,23 @@ def render_middle_section(svg_parts, config, textbox2_metrics, y_start, fonts):
     """Render the middle section (product info)."""
     line_height = textbox2_metrics['font_size'] * LINE_HEIGHT_MULTIPLIER
     text_config = config['text']
+    layout = config['layout']
     x_start = textbox2_metrics['x_start']
+    
+    # Get which lines to include
+    enabled_lines = layout.get('textbox2_lines', ['product_line', 'serial_line', 'rating_line'])
     
     lines_data = []
     line_ids = ['product-line', 'serial-line', 'rating-line']
     id_index = 0
     
-    for line_key in ['product_line', 'version_line', 'serial_line', 'rating_line']:
+    for line_key in enabled_lines:  # Changed from hardcoded list
         line_config = text_config.get(line_key, {})
         if line_config.get('label') or line_config.get('value'):
             if id_index < len(line_ids):
                 lines_data.append((line_ids[id_index], line_config))
                 id_index += 1
+
     
     if not lines_data:
         return
@@ -742,7 +755,7 @@ def prompt_configuration(base_config=None):
     config['layout']['logo_padding_horizontal'] = prompt_float(
         "Logo horizontal padding (ratio)", 
         default=config.get('layout', {}).get('logo_padding_horizontal', 0.10),
-        min_val=0.0, max_val=0.5)
+        min_val=-0.2, max_val=0.5)
     
     config['layout']['logo_padding_vertical'] = prompt_float(
         "Logo vertical padding (ratio)", 
@@ -757,7 +770,7 @@ def prompt_configuration(base_config=None):
     config['layout']['square_padding_right'] = prompt_float(
         "Square right padding (ratio)", 
         default=config.get('layout', {}).get('square_padding_right', 0.0),
-        min_val=0.0, max_val=0.5)
+        min_val=-0.2, max_val=0.5)
     
     config['layout']['textbox1_logo_overlap'] = prompt_float(
         "Textbox1 overlap with logo (negative=overlap, positive=gap)", 
@@ -781,42 +794,48 @@ def prompt_configuration(base_config=None):
     print("\n--- Text Content ---")
     config['text']['company_name'] = prompt_string("Company name", 
                                                   default=config['text']['company_name'])
+    print("\nTextbox2 Lines (choose which lines to include):")
+    print("  Available: product_line, serial_line, rating_line")
+    textbox2_lines_input = prompt_string("  Lines to include (comma-separated)", 
+                                     default=','.join(config.get('layout', {}).get('textbox2_lines', 
+                                                     ['product_line', 'serial_line', 'rating_line'])))
+    config['layout']['textbox2_lines'] = [line.strip() for line in textbox2_lines_input.split(',')]
     
-    print("\nProduct Line:")
-    config['text']['product_line']['label'] = prompt_string("  Label", 
-                                                           default=config['text']['product_line']['label'])
-    config['text']['product_line']['value'] = prompt_string("  Value", 
-                                                           default=config['text']['product_line']['value'])
-    if config['text']['product_line']['label']:
-        config['text']['product_line']['label_bold'] = prompt_boolean("  Label bold?", 
-                                                                     default=config['text']['product_line']['label_bold'])
-    if config['text']['product_line']['value']:
-        config['text']['product_line']['value_bold'] = prompt_boolean("  Value bold?", 
-                                                                     default=config['text']['product_line']['value_bold'])
+    # print("\nProduct Line:")
+    # config['text']['product_line']['label'] = prompt_string("  Label", 
+    #                                                        default=config['text']['product_line']['label'])
+    # config['text']['product_line']['value'] = prompt_string("  Value", 
+    #                                                        default=config['text']['product_line']['value'])
+    # if config['text']['product_line']['label']:
+    #     config['text']['product_line']['label_bold'] = prompt_boolean("  Label bold?", 
+    #                                                                  default=config['text']['product_line']['label_bold'])
+    # if config['text']['product_line']['value']:
+    #     config['text']['product_line']['value_bold'] = prompt_boolean("  Value bold?", 
+    #                                                                  default=config['text']['product_line']['value_bold'])
     
-    print("\nSerial Line:")
-    config['text']['serial_line']['label'] = prompt_string("  Label", 
-                                                          default=config['text']['serial_line']['label'])
-    config['text']['serial_line']['value'] = prompt_string("  Value", 
-                                                          default=config['text']['serial_line']['value'])
-    if config['text']['serial_line']['label']:
-        config['text']['serial_line']['label_bold'] = prompt_boolean("  Label bold?", 
-                                                                    default=config['text']['serial_line']['label_bold'])
-    if config['text']['serial_line']['value']:
-        config['text']['serial_line']['value_bold'] = prompt_boolean("  Value bold?", 
-                                                                    default=config['text']['serial_line']['value_bold'])
+    # print("\nSerial Line:")
+    # config['text']['serial_line']['label'] = prompt_string("  Label", 
+    #                                                       default=config['text']['serial_line']['label'])
+    # config['text']['serial_line']['value'] = prompt_string("  Value", 
+    #                                                       default=config['text']['serial_line']['value'])
+    # if config['text']['serial_line']['label']:
+    #     config['text']['serial_line']['label_bold'] = prompt_boolean("  Label bold?", 
+    #                                                                 default=config['text']['serial_line']['label_bold'])
+    # if config['text']['serial_line']['value']:
+    #     config['text']['serial_line']['value_bold'] = prompt_boolean("  Value bold?", 
+    #                                                                 default=config['text']['serial_line']['value_bold'])
     
-    print("\nRating Line:")
-    config['text']['rating_line']['label'] = prompt_string("  Label", 
-                                                          default=config['text']['rating_line']['label'])
-    config['text']['rating_line']['value'] = prompt_string("  Value", 
-                                                          default=config['text']['rating_line']['value'])
-    if config['text']['rating_line']['label']:
-        config['text']['rating_line']['label_bold'] = prompt_boolean("  Label bold?", 
-                                                                    default=config['text']['rating_line']['label_bold'])
-    if config['text']['rating_line']['value']:
-        config['text']['rating_line']['value_bold'] = prompt_boolean("  Value bold?", 
-                                                                    default=config['text']['rating_line']['value_bold'])
+    # print("\nRating Line:")
+    # config['text']['rating_line']['label'] = prompt_string("  Label", 
+    #                                                       default=config['text']['rating_line']['label'])
+    # config['text']['rating_line']['value'] = prompt_string("  Value", 
+    #                                                       default=config['text']['rating_line']['value'])
+    # if config['text']['rating_line']['label']:
+    #     config['text']['rating_line']['label_bold'] = prompt_boolean("  Label bold?", 
+    #                                                                 default=config['text']['rating_line']['label_bold'])
+    # if config['text']['rating_line']['value']:
+    #     config['text']['rating_line']['value_bold'] = prompt_boolean("  Value bold?", 
+    #                                                                 default=config['text']['rating_line']['value_bold'])
     
     config['text']['warning_text'] = prompt_string("\nWarning text", 
                                                   default=config['text']['warning_text'])
