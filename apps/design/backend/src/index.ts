@@ -20,6 +20,7 @@ export type { ElectionRecord, BackgroundTask } from './store';
 export type {
   User,
   Jurisdiction,
+  Organization,
   ElectionStatus,
   ElectionListing,
   ElectionInfo,

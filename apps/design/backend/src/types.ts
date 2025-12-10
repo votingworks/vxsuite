@@ -9,6 +9,7 @@ import {
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
+import { z } from 'zod/v4';
 
 export enum UsState {
   NEW_HAMPSHIRE = 'New Hampshire',
@@ -31,20 +32,32 @@ export function normalizeState(state: string): UsState {
   }
 }
 
+export const StateCodes = ['DEMO', 'MS', 'NH'] as const;
+export type StateCode = (typeof StateCodes)[number];
+export const StateCodeSchema: z.ZodType<StateCode> = z.enum(StateCodes);
+
+export interface Organization {
+  id: string;
+  name: string;
+}
+
+export interface Jurisdiction {
+  id: string;
+  name: string;
+  stateCode: StateCode;
+  organization: Organization;
+}
+
 export interface User {
+  id: string;
   /**
    * The user's name is generally defaulted to their email address due to the
    * way we create users, but we still use the name field to make it clear that
    * this is what should be displayed as their identity.
    */
   name: string;
-  id: string;
+  organization: Organization;
   jurisdictions: Jurisdiction[];
-}
-
-export interface Jurisdiction {
-  name: string;
-  id: string;
 }
 
 export type ElectionStatus = 'notStarted' | 'inProgress' | 'ballotsFinalized';

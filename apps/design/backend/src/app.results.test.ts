@@ -34,7 +34,7 @@ import {
 } from '../test/helpers';
 import { ALL_PRECINCTS_REPORT_KEY } from './types';
 import { Workspace } from './workspace';
-import { nonVxJurisdiction, nonVxUser } from '../test/mocks';
+import { nonVxJurisdiction, nonVxUser, organizations } from '../test/mocks';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -145,6 +145,7 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
     fileStorageClient,
     auth0,
   } = await setupApp({
+    organizations,
     jurisdictions: [nonVxJurisdiction],
     users: [nonVxUser],
   });
@@ -186,6 +187,7 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
 
 test('processQRCodeReport returns "invalid-signature" when authenticating the signature and certificate fails', async () => {
   const { unauthenticatedApiClient } = await setupApp({
+    organizations,
     jurisdictions: [],
     users: [],
   });
@@ -218,6 +220,7 @@ test('processQRCodeReport returns "invalid-signature" when authenticating the si
 
 test('processQRCodeReport returns no election found where there is no election for the given ballot hash', async () => {
   const { unauthenticatedApiClient } = await setupApp({
+    organizations,
     jurisdictions: [],
     users: [],
   });
@@ -254,6 +257,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     fileStorageClient,
     auth0,
   } = await setupApp({
+    organizations,
     jurisdictions: [nonVxJurisdiction],
     users: [nonVxUser],
   });
@@ -552,6 +556,7 @@ test('quick results reporting works for polls open reporting', async () => {
     fileStorageClient,
     auth0,
   } = await setupApp({
+    organizations,
     jurisdictions: [nonVxJurisdiction],
     users: [nonVxUser],
   });
@@ -817,6 +822,7 @@ test('quick results reporting works as expected end to end with single precinct 
     fileStorageClient,
     auth0,
   } = await setupApp({
+    organizations,
     jurisdictions: [nonVxJurisdiction],
     users: [nonVxUser],
   });
@@ -1210,6 +1216,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
     fileStorageClient,
     auth0,
   } = await setupApp({
+    organizations,
     jurisdictions: [nonVxJurisdiction],
     users: [nonVxUser],
   });
@@ -1359,6 +1366,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     fileStorageClient,
     auth0,
   } = await setupApp({
+    organizations,
     jurisdictions: [nonVxJurisdiction],
     users: [nonVxUser],
   });
@@ -1525,6 +1533,7 @@ test('quick results reporting clears previous partial reports on numPages change
     fileStorageClient,
     auth0,
   } = await setupApp({
+    organizations,
     jurisdictions: [nonVxJurisdiction],
     users: [nonVxUser],
   });
@@ -1730,6 +1739,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     fileStorageClient,
     auth0,
   } = await setupApp({
+    organizations,
     jurisdictions: [nonVxJurisdiction],
     users: [nonVxUser],
   });
@@ -1890,6 +1900,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
     fileStorageClient,
     auth0,
   } = await setupApp({
+    organizations,
     jurisdictions: [nonVxJurisdiction],
     users: [nonVxUser],
   });

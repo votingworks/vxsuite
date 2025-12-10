@@ -99,6 +99,7 @@ import { LogEventId } from '@votingworks/logging';
 import { buildApi } from './app';
 import { readdir, readFile } from 'node:fs/promises';
 import {
+  organizations,
   jurisdictions,
   users,
   vxDemosJurisdiction,
@@ -215,6 +216,7 @@ afterEach(() => {
 
 test('all methods require authentication', async () => {
   const { apiClient, baseUrl, ...context } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -240,7 +242,11 @@ test('all methods require authentication', async () => {
 });
 
 test('create/list/delete elections', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
 
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.listElections()).toEqual([]);
@@ -512,7 +518,11 @@ test('create/list/delete elections', async () => {
 });
 
 test('update election info', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
 
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
@@ -683,7 +693,11 @@ test('update election info', async () => {
 });
 
 test('CRUD districts', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.createElection({
@@ -826,7 +840,11 @@ test('CRUD districts', async () => {
 test('deleting a district updates associated precincts', async () => {
   const baseElectionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
@@ -874,7 +892,11 @@ test('deleting a district updates associated precincts', async () => {
 });
 
 test('CRUD precincts', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.createElection({
@@ -1173,7 +1195,11 @@ test('CRUD precincts', async () => {
 });
 
 test('CRUD parties', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.createElection({
@@ -1351,7 +1377,11 @@ test('CRUD parties', async () => {
 test('deleting a party updates associated contests', async () => {
   const baseElectionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
@@ -1385,7 +1415,11 @@ test('deleting a party updates associated contests', async () => {
 });
 
 test('CRUD contests', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.createElection({
@@ -1875,7 +1909,11 @@ test('CRUD contests', async () => {
 });
 
 test('reordering contests', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
@@ -1927,7 +1965,11 @@ test('reordering contests', async () => {
 });
 
 test('get/update ballot layout', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   (
@@ -1980,7 +2022,11 @@ test('get/update ballot layout', async () => {
 });
 
 test('get/update system settings', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   (
@@ -2048,7 +2094,11 @@ test('get/update system settings', async () => {
 });
 
 test('Finalize ballots', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.loadElection({
@@ -2092,7 +2142,11 @@ test('Finalize ballots', async () => {
 });
 
 test('cloneElection', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
 
   const srcElectionId = 'election-1' as ElectionId;
   const nonDefaultSystemSettings: SystemSettings = {
@@ -2324,7 +2378,7 @@ test('Election package management', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0, baseUrl } =
-    await setupApp({ jurisdictions, users });
+    await setupApp({ organizations, jurisdictions, users });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
@@ -2547,6 +2601,7 @@ test('Election package and ballots export', async () => {
     ],
   };
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -2899,6 +2954,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -2964,6 +3020,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
 test('Export test decks', async () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -3065,6 +3122,7 @@ test('Consistency of ballot hash across exports', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -3130,6 +3188,7 @@ test('CDF exports', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -3190,6 +3249,7 @@ test('export ballots with audit IDs', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -3258,7 +3318,11 @@ test('export ballots with audit IDs', async () => {
 test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async () => {
   const baseElectionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
@@ -3323,7 +3387,11 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
       image: 'Image To Be Overwritten',
     },
   };
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
@@ -3376,7 +3444,11 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
 test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
@@ -3430,7 +3502,11 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
       caption: 'Test Image Caption',
     },
   };
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
@@ -3477,6 +3553,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -3539,7 +3616,11 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
 });
 
 test('getUser', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   await suppressingConsoleOutput(() =>
     expect(apiClient.getUser()).rejects.toThrow('auth:unauthorized')
   );
@@ -3550,7 +3631,11 @@ test('getUser', async () => {
 });
 
 test('listJurisdiction', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   await suppressingConsoleOutput(() =>
     expect(apiClient.listJurisdictions()).rejects.toThrow('auth:unauthorized')
   );
@@ -3565,7 +3650,11 @@ test('listJurisdiction', async () => {
 });
 
 test('feature configs', async () => {
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.getUserFeatures()).toEqual(userFeatureConfigs.vx);
   auth0.setLoggedInUser(nonVxUser);
@@ -3620,6 +3709,7 @@ test('getBaseUrl', async () => {
     BASE_URL: 'https://test-base-url.com',
   };
   const { apiClient, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -3634,7 +3724,11 @@ test('getBaseUrl', async () => {
 });
 
 test('api call logging', async () => {
-  const { apiClient, logger, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, logger, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   await expect(apiClient.getUser()).rejects.toThrow('auth:unauthorized');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ApiCall,
@@ -3692,7 +3786,11 @@ test('decryptCvrBallotAuditIds', async () => {
   await execFile('zip', ['-r', cvrZipPath, '.'], { cwd: cvrDirectoryPath });
   const cvrZipFileContents = await readFile(cvrZipPath);
 
-  const { apiClient, auth0 } = await setupApp({ jurisdictions, users });
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
   auth0.setLoggedInUser(nonVxUser);
 
   const decryptedCvrZipContents = await apiClient.decryptCvrBallotAuditIds({

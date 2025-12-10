@@ -17,7 +17,13 @@ import {
   testSetupHelpers,
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
-import { jurisdictions, users, vxJurisdiction, vxUser } from '../test/mocks';
+import {
+  jurisdictions,
+  organizations,
+  users,
+  vxJurisdiction,
+  vxUser,
+} from '../test/mocks';
 import { convertMsResults } from './convert_ms_results';
 
 vi.setConfig({ testTimeout: 30_000 });
@@ -28,6 +34,7 @@ afterAll(cleanup);
 
 test('load MS SEMS election', async () => {
   const { apiClient, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -50,6 +57,7 @@ test('load MS SEMS election', async () => {
 
 test('returns errors when loading invalid MS SEMS election', async () => {
   const { apiClient, auth0 } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
@@ -76,6 +84,7 @@ test('returns errors when loading invalid MS SEMS election', async () => {
 
 test('convert MS results', async () => {
   const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+    organizations,
     jurisdictions,
     users,
   });
