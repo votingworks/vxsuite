@@ -299,8 +299,13 @@ def process_nameplates(nameplate_folder, laser_settings, outline_dims):
             nameplate_index += 1
             slots_filled += 1
         
-        # Save grid with prefix
-        output_path = os.path.join(output_dir, f"{prefix}-grid-{grid_num}.svg")
+        output_filename = (
+            f"{prefix}-grid-{grid_num}of{num_grids}_"
+            f"{int(laser_settings['width'])}x{int(laser_settings['height'])}_"
+            f"{laser_settings['kerf']}_"
+            f"{int(laser_settings['margin'])}_{int(laser_settings['padding'])}.svg"
+        )
+        output_path = os.path.join(output_dir, output_filename)
         grid_tree.write(output_path, encoding='utf-8', xml_declaration=True)
         print(f"  Saved: {output_path} ({slots_filled} nameplates)")
     
