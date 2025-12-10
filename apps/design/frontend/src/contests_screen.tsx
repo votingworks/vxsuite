@@ -8,7 +8,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import styled from 'styled-components';
-import { FixedViewport, Row } from './layout';
+import { FixedViewport, ListActionsRow, Row } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
@@ -53,14 +53,6 @@ const FILTER_NONPARTISAN = 'nonpartisan';
 const Viewport = styled(FixedViewport)`
   display: grid;
   grid-template-rows: min-content 1fr;
-`;
-
-const ListActionsRow = styled.div`
-  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.outline};
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
 `;
 
 const Body = styled.div`

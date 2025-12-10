@@ -2,123 +2,27 @@ import React from 'react';
 import styled from 'styled-components';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 
-import {
-  Button,
-  H2,
-  Caption,
-  Font,
-  DesktopPalette,
-  useCurrentTheme,
-} from '@votingworks/ui';
+import { Button } from '@votingworks/ui';
 import { AnyContest, Party } from '@votingworks/types';
 
 import { useHistory, useParams } from 'react-router-dom';
 import { Column, Row } from './layout';
 import * as api from './api';
-import { cssThemedScrollbars } from './scrollbars';
 import { ElectionIdParams, routes } from './routes';
+import { EntityList } from './entity_list';
 
 const CLASS_REORDER_BUTTON = 'contestReorderButton';
-const CLASS_SUBLIST_ITEMS = 'contestSublistItems';
 
-const Item = styled.li`
-  align-items: center;
-  border-bottom: var(--contest-list-border);
-  border-color: ${DesktopPalette.Gray10};
-  cursor: pointer;
-  display: flex;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0.75rem 1.25rem;
-  text-decoration: none;
-  transition-duration: 100ms;
-  transition-property: background, border, box-shadow, color;
-  transition-timing-function: ease-out;
-
-  :focus,
-  :hover {
-    background: ${(p) => p.theme.colors.containerLow};
-    box-shadow: inset 0.25rem 0 0 ${DesktopPalette.Purple50};
-    color: inherit;
-    outline: none;
-  }
-
-  :active,
-  &[aria-selected='true'] {
-    background-color: ${DesktopPalette.Purple10};
-    box-shadow: inset 0.35rem 0 0 ${DesktopPalette.Purple60};
-  }
-
+const Item = styled(EntityList.Item)`
   .${CLASS_REORDER_BUTTON} {
     padding: 0.55rem;
   }
 `;
 
-const Container = styled.ul`
-  --contest-list-border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${DesktopPalette.Gray30};
-  --contest-list-title-size: 1.25rem;
-  --contest-list-title-padding-y: 0.75rem;
-  --contest-list-scroll-padding: calc(
-    var(--contest-list-title-size) + (2 * var(--contest-list-title-padding-y))
-  );
-
-  display: flex;
-  flex-direction: column;
-  grid-area: contests;
-  height: 100%;
-  list-style: none;
-  margin: 0;
-  overflow-y: auto;
-  padding: 0 0.125rem 0 0;
-  position: relative;
-  scroll-padding: var(--contest-list-scroll-padding);
-
-  h2 {
-    background-color: ${(p) => p.theme.colors.containerLow};
-    border-bottom: var(--contest-list-border);
-    border-right: var(--contest-list-border);
-    border-bottom-width: ${(p) => p.theme.sizes.bordersRem.medium}rem;
-    font-size: var(--contest-list-title-size);
-    line-height: 1;
-    margin: 0;
-    padding: var(--contest-list-title-padding-y) 1rem;
-    position: sticky;
-    top: 0;
-    white-space: nowrap;
-
-    :not(:first-child) {
-      border-top: var(--contest-list-border);
-      margin: 0;
-
-      /*
-       * The top border is only applied to the second sublist header for visual
-       * separation from the first sublist.
-       * Nudge it up to tuck its border under the list actions row border when
-       * it sticks at the top:
-       */
-      top: -${(p) => p.theme.sizes.bordersRem.hairline}rem;
-    }
-  }
-
-  > :last-child {
-    flex-grow: 1;
-  }
-
-  ${cssThemedScrollbars}
-
-  .${CLASS_SUBLIST_ITEMS} {
-    border-right: var(--contest-list-border);
-    min-height: max-content;
-
-    :not(:last-child) {
-      ${Item}:last-child {
-        border-bottom: none;
-      }
-    }
-
-    :last-child {
-      padding-bottom: 1rem;
+const Items = styled(EntityList.Items)`
+  :not(:last-child) {
+    ${Item}:last-child {
+      border-bottom: none;
     }
   }
 `;
@@ -164,7 +68,7 @@ export function ContestList(props: ContestListProps): React.ReactNode {
   if (!parties.isSuccess || !districts.isSuccess) return null;
 
   return (
-    <Container role="listbox">
+    <EntityList.Box>
       {candidateContests.length > 0 && (
         <Sublist
           contests={candidateContests}
@@ -190,7 +94,7 @@ export function ContestList(props: ContestListProps): React.ReactNode {
           title="Ballot Measures"
         />
       )}
-    </Container>
+    </EntityList.Box>
   );
 }
 
@@ -214,38 +118,15 @@ export function Sublist(props: {
     selectedId,
     title,
   } = props;
-  const selectedContestRef = React.useRef<HTMLLIElement>(null);
-
-  React.useLayoutEffect(() => {
-    if (!selectedContestRef.current) return;
-    selectedContestRef.current.scrollIntoView({ block: 'nearest' });
-  }, [selectedId]);
-
-  function onKeyDownContest(e: React.KeyboardEvent, id: string) {
-    if (e.repeat) return;
-
-    // [TODO] Handle arrow key interaction a la W3C listbox pattern.
-    switch (e.key) {
-      case 'Enter':
-      case ' ':
-        break;
-
-      default:
-        return;
-    }
-
-    e.preventDefault();
-    onSelect(id);
-  }
 
   return (
     <React.Fragment>
-      <H2>{title}</H2>
+      <EntityList.Header>{title}</EntityList.Header>
 
       {/* Flipper/Flip are used to animate the reordering of contest rows */}
-      {/* @ts-expect-error: TS doesn't think Flipper is a valid component */}
-      <Flipper
-        className={CLASS_SUBLIST_ITEMS}
+      <Items
+        // @ts-expect-error: TS doesn't think Flipper is a valid component
+        as={Flipper}
         flipKey={contests.map((c) => c.id).join(',')}
         // Custom spring parameters to speed up the duration of the animation
         // See https://github.com/aholachek/react-flip-toolkit/issues/100#issuecomment-551056183
@@ -254,24 +135,21 @@ export function Sublist(props: {
         {contests.map((c, index) => (
           <Flipped key={c.id} flipId={c.id} shouldFlip={() => reordering}>
             <Item
+              id={c.id}
               key={c.id}
-              aria-selected={selectedId === c.id}
-              onClick={() => onSelect(c.id)}
-              onKeyDown={(e) => onKeyDownContest(e, c.id)}
-              ref={selectedId === c.id ? selectedContestRef : undefined}
-              role="option"
-              tabIndex={0}
+              selected={selectedId === c.id}
+              onSelect={onSelect}
             >
               <Column style={{ flexGrow: 1 }}>
-                <ContestCaption bold selected={selectedId === c.id}>
+                <EntityList.Caption weight="semiBold">
                   {partyName(c, parties)}
-                </ContestCaption>
-                <ContestCaption selected={selectedId === c.id}>
+                </EntityList.Caption>
+
+                <EntityList.Caption>
                   {districtIdToName.get(c.districtId)}
-                </ContestCaption>
-                <Font weight={selectedId === c.id ? 'bold' : 'regular'}>
-                  {c.title}
-                </Font>
+                </EntityList.Caption>
+
+                <EntityList.Label>{c.title}</EntityList.Label>
               </Column>
 
               {reordering && (
@@ -299,7 +177,7 @@ export function Sublist(props: {
             </Item>
           </Flipped>
         ))}
-      </Flipper>
+      </Items>
     </React.Fragment>
   );
 }
@@ -308,23 +186,4 @@ function partyName(contest: AnyContest, parties: readonly Party[]) {
   if (contest.type !== 'candidate' || !contest.partyId) return undefined;
 
   return parties.find((p) => p.id === contest.partyId)?.fullName;
-}
-
-function ContestCaption(props: {
-  children: React.ReactNode;
-  bold?: boolean;
-  selected: boolean;
-}) {
-  const { bold, children, selected } = props;
-
-  const { colors } = useCurrentTheme();
-  const color = selected ? colors.onBackground : colors.onBackgroundMuted;
-
-  if (React.Children.count(children) === 0) return null;
-
-  return (
-    <Caption style={{ color }} weight={bold ? 'semiBold' : 'regular'}>
-      {children}
-    </Caption>
-  );
 }

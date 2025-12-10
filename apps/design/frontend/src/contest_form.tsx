@@ -27,7 +27,6 @@ import {
   Modal,
   DesktopPalette,
   Table,
-  H2,
 } from '@votingworks/ui';
 
 import {
@@ -44,6 +43,7 @@ import {
   FormBody,
   FormErrorContainer,
   FormFooter,
+  FormTitle,
 } from './form_fixed';
 import { InputGroup, Row, FieldName } from './layout';
 import { routes } from './routes';
@@ -65,15 +65,6 @@ const Form = styled(FormFixed)`
       ${(p) => p.theme.colors.outline};
     padding: 0.6rem 0.75rem;
   }
-`;
-
-const Title = styled(H2)`
-  /*
-   * Offset the vertical flex gap a bit to keep this visually attached to the
-   * rest of the form body.
-   */
-  margin-bottom: -0.25rem;
-  padding: 0;
 `;
 
 const InputRow = styled.div`
@@ -316,7 +307,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
       }}
     >
       <FormBody>
-        <Title>{title}</Title>
+        <FormTitle>{title}</FormTitle>
 
         <InputGroup label="Title">
           <input
