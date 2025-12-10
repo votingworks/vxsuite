@@ -5,7 +5,7 @@ import {
   hasSplits,
   BallotPrintCount,
 } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { format, getLanguageOptions } from '@votingworks/utils';
 import { throwIllegalValue } from '@votingworks/basics';
 
 import { PrintedReport, reportColors, printedReportThemeFn } from './layout';
@@ -264,6 +264,7 @@ function BallotsPrintedTable({
 }): JSX.Element {
   const { election } = electionDefinition;
   const hasPrecinctSplits = election.precincts.some((p) => hasSplits(p));
+  const hasMultipleLanguages = getLanguageOptions(election).length > 1;
 
   const columns: Column[] = [];
 
@@ -276,7 +277,9 @@ function BallotsPrintedTable({
     columns.push({ type: 'attribute', id: 'party' });
   }
 
-  columns.push({ type: 'attribute', id: 'language' });
+  if (hasMultipleLanguages) {
+    columns.push({ type: 'attribute', id: 'language' });
+  }
 
   columns.push({ type: 'filler', id: 'center' });
 
