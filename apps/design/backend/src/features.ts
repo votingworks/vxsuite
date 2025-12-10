@@ -3,8 +3,7 @@ import {
   votingWorksJurisdictionId,
   vxDemosJurisdictionId,
 } from './globals';
-import { ElectionRecord } from './store';
-import { User } from './types';
+import { Jurisdiction, StateCode, User } from './types';
 import { userBelongsToJurisdiction } from './utils';
 
 export function isVxOrSliJurisdiction(jurisdictionId: string): boolean {
@@ -91,6 +90,15 @@ export enum UserFeature {
    * Allow the user to access all elections across all organizations.
    */
   ACCESS_ALL_ORGS = 'ACCESS_ALL_ORGS',
+}
+
+/**
+ * Features that should be enabled based on the state of the election
+ * currently being viewed. VX support users and election officials should all
+ * have the same functionality for these features when viewing a specific
+ * election.
+ */
+export enum StateFeature {
   /**
    * Only allow selecting letter and legal paper sizes for ballots.
    */
@@ -107,15 +115,6 @@ export enum UserFeature {
    * Enable the ability to convert Mississippi SEMS election files.
    */
   MS_SEMS_CONVERSION = 'MS_SEMS_CONVERSION',
-}
-
-/**
- * Features that should be enabled based on the jurisdiction of the election
- * currently being viewed. VX support users and election officials should all
- * have the same functionality for these features when viewing a specific
- * election.
- */
-export enum ElectionFeature {
   /**
    * Add a field to override the election title for a precinct split.
    */
@@ -135,7 +134,7 @@ export enum ElectionFeature {
 }
 
 export type UserFeaturesConfig = Partial<Record<UserFeature, boolean>>;
-export type ElectionFeaturesConfig = Partial<Record<ElectionFeature, boolean>>;
+export type StateFeaturesConfig = Partial<Record<StateFeature, boolean>>;
 
 const vxUserFeaturesConfig: UserFeaturesConfig = {
   EXPORT_SCREEN: true,
@@ -152,9 +151,6 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
 
   ACCESS_ALL_ORGS: true,
-  BALLOT_LANGUAGE_CONFIG: true,
-  AUDIO_PROOFING: true,
-  MS_SEMS_CONVERSION: true,
 };
 
 export const userFeatureConfigs = {
@@ -165,28 +161,27 @@ export const userFeatureConfigs = {
   sli: {
     EXPORT_SCREEN: true,
     SYSTEM_SETTINGS_SCREEN: true,
-    BALLOT_LANGUAGE_CONFIG: true,
-  },
-
-  nh: {
-    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
-export const electionFeatureConfigs = {
-  // VX sandbox elections should have not have any state-specific features
-  // enabled
-  vx: {},
+export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
+  DEMO: {
+    AUDIO_PROOFING: true,
+    BALLOT_LANGUAGE_CONFIG: true,
+  },
 
-  sli: {},
+  MS: {
+    MS_SEMS_CONVERSION: true,
+  },
 
-  nh: {
+  NH: {
+    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,
     PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
   },
-} satisfies Record<string, ElectionFeaturesConfig>;
+};
 
 export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
   if (userBelongsToJurisdiction(user, votingWorksJurisdictionId())) {
@@ -198,20 +193,11 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
   if (userBelongsToJurisdiction(user, vxDemosJurisdictionId())) {
     return userFeatureConfigs.demos;
   }
-  return userFeatureConfigs.nh;
+  return {};
 }
 
-export function getElectionFeaturesConfig(
-  election: ElectionRecord
-): ElectionFeaturesConfig {
-  if (election.jurisdictionId === votingWorksJurisdictionId()) {
-    return electionFeatureConfigs.vx;
-  }
-  if (election.jurisdictionId === sliJurisdictionId()) {
-    return electionFeatureConfigs.sli;
-  }
-  if (election.jurisdictionId === vxDemosJurisdictionId()) {
-    return electionFeatureConfigs.vx;
-  }
-  return electionFeatureConfigs.nh;
+export function getStateFeaturesConfig(
+  jurisdiction: Jurisdiction
+): StateFeaturesConfig {
+  return stateFeatureConfigs[jurisdiction.stateCode];
 }

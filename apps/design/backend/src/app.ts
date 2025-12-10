@@ -113,8 +113,8 @@ import {
   userBelongsToJurisdiction,
 } from './utils';
 import {
-  ElectionFeaturesConfig,
-  getElectionFeaturesConfig,
+  StateFeaturesConfig,
+  getStateFeaturesConfig,
   getUserFeaturesConfig,
   UserFeaturesConfig,
 } from './features';
@@ -893,11 +893,14 @@ export function buildApi(ctx: AppContext) {
       );
     },
 
-    async getElectionFeatures(input: {
+    async getStateFeatures(input: {
       electionId: ElectionId;
-    }): Promise<ElectionFeaturesConfig> {
-      const election = await store.getElection(input.electionId);
-      return getElectionFeaturesConfig(election);
+    }): Promise<StateFeaturesConfig> {
+      const jurisdictionId = await store.getElectionJurisdictionId(
+        input.electionId
+      );
+      const jurisdiction = await store.getJurisdiction(jurisdictionId);
+      return getStateFeaturesConfig(assertDefined(jurisdiction));
     },
 
     async convertMsResults(input: {
