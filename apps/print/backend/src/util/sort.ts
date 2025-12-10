@@ -1,19 +1,5 @@
-import { LanguageCode, BallotPrintCount } from '@votingworks/types';
-
-function sortLanguages(
-  languageA: LanguageCode,
-  languageB: LanguageCode
-): number {
-  const languageOrder: LanguageCode[] = [
-    LanguageCode.ENGLISH,
-    LanguageCode.SPANISH,
-    LanguageCode.CHINESE_SIMPLIFIED,
-    LanguageCode.CHINESE_TRADITIONAL,
-  ];
-  const indexA = languageOrder.indexOf(languageA);
-  const indexB = languageOrder.indexOf(languageB);
-  return indexA - indexB;
-}
+import { BallotPrintCount } from '@votingworks/types';
+import { languageSort } from '@votingworks/utils';
 
 // sortBallotPrintCounts sort order: totalCount, precinctOrSplitName, partyName, languageCode
 export function sortBallotPrintCounts(
@@ -41,7 +27,7 @@ export function sortBallotPrintCounts(
     }
   }
 
-  return sortLanguages(
+  return languageSort(
     ballotPrintCountA.languageCode,
     ballotPrintCountB.languageCode
   );

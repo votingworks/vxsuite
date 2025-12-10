@@ -14,7 +14,7 @@ import {
   Loading,
 } from '@votingworks/ui';
 import { hasSplits } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { format, getLanguageOptions } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
 import {
@@ -27,7 +27,6 @@ import { Row } from '../layout';
 import { TitleBar } from '../components/title_bar';
 import { Filter } from '../components/filter';
 import { ExportReportButton } from '../components/export_report_button';
-import { getLanguageOptions } from '../utils';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
