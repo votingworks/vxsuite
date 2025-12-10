@@ -92,7 +92,7 @@ export async function generateTestDecks(
       generateTestDeckBallots({
         election,
         precinctId: precinct.id,
-        markingMethod: 'hand',
+        ballotType: 'bubble',
       }),
     ]);
 

@@ -118,7 +118,7 @@ function generateTestDeckCastVoteRecords(
 ): Tabulation.CastVoteRecord[] {
   const ballotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
     election,
-    markingMethod: 'hand',
+    ballotType: 'bubble',
     includeBlankBallots: false,
     includeOvervotedBallots: false,
   });
@@ -143,9 +143,6 @@ function generateTestDeckCastVoteRecords(
       batchId: 'test-deck',
       votingMethod: 'precinct',
     } as const;
-
-    // test decks do not currently include BMD ballots
-    assert(ballotSpec.markingMethod === 'hand');
 
     const ballotContestLayout = find(
       ballotContestLayouts,

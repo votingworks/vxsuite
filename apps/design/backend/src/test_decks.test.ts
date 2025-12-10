@@ -75,7 +75,7 @@ describe('createPrecinctTestDeck', () => {
     const ballotSpecs = generateTestDeckBallots({
       election,
       precinctId,
-      markingMethod: 'hand',
+      ballotType: 'bubble',
     });
     const testDeckDocument = await createPrecinctTestDeck({
       rendererPool,
@@ -129,7 +129,7 @@ describe('createPrecinctTestDeck', () => {
     const ballotSpecs = generateTestDeckBallots({
       election,
       precinctId: precinct.id,
-      markingMethod: 'hand',
+      ballotType: 'bubble',
     });
     const testDeckDocument = await createPrecinctTestDeck({
       rendererPool,

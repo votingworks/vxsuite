@@ -11,10 +11,17 @@ import {
   BallotStyleId,
 } from '@votingworks/types';
 
+/**
+ * The type of ballot in a test deck:
+ * - `hmpb`: Hand-marked paper ballot (bubble ballot)
+ * - `summary`: Summary ballot with QR-encoded votes
+ */
+export type TestDeckBallotType = 'bubble' | 'summary';
+
 export interface TestDeckBallot {
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
-  markingMethod: 'hand' | 'machine';
+  ballotType: TestDeckBallotType;
   votes: VotesDict;
 }
 
@@ -50,7 +57,7 @@ export function getTestDeckCandidateAtIndex(
 interface GenerateTestDeckParams {
   election: Election;
   precinctId?: PrecinctId;
-  markingMethod: TestDeckBallot['markingMethod'];
+  ballotType: TestDeckBallotType;
   includeOvervotedBallots?: boolean;
   includeBlankBallots?: boolean;
 }
@@ -58,7 +65,7 @@ interface GenerateTestDeckParams {
 export function generateTestDeckBallots({
   election,
   precinctId,
-  markingMethod,
+  ballotType,
   includeOvervotedBallots = true,
   includeBlankBallots = true,
 }: GenerateTestDeckParams): TestDeckBallot[] {
@@ -105,12 +112,12 @@ export function generateTestDeckBallots({
         ballots.push({
           ballotStyleId: ballotStyle.id,
           precinctId: currentPrecinctId,
-          markingMethod,
+          ballotType,
           votes,
         });
       }
 
-      if (includeOvervotedBallots && markingMethod === 'hand') {
+      if (includeOvervotedBallots && ballotType === 'bubble') {
         // Generates a minimally overvoted ballot - a single overvote in the
         // first contest where an overvote is possible. Does not overvote
         // candidate contests where you must select a write-in to overvote. See
@@ -124,7 +131,7 @@ export function generateTestDeckBallots({
           ballots.push({
             ballotStyleId: ballotStyle.id,
             precinctId: currentPrecinctId,
-            markingMethod,
+            ballotType,
             votes: {
               [overvoteContest.id]:
                 overvoteContest.type === 'yesno'
@@ -140,13 +147,13 @@ export function generateTestDeckBallots({
           ballots.push({
             ballotStyleId: ballotStyle.id,
             precinctId: currentPrecinctId,
-            markingMethod,
+            ballotType,
             votes: {},
           });
           ballots.push({
             ballotStyleId: ballotStyle.id,
             precinctId: currentPrecinctId,
-            markingMethod,
+            ballotType,
             votes: {},
           });
         }
