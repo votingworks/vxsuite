@@ -900,7 +900,7 @@ export function buildApi(ctx: AppContext) {
         input.electionId
       );
       const jurisdiction = await store.getJurisdiction(jurisdictionId);
-      return getStateFeaturesConfig(assertDefined(jurisdiction));
+      return getStateFeaturesConfig(jurisdiction);
     },
 
     async convertMsResults(input: {

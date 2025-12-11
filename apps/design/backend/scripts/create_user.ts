@@ -32,9 +32,6 @@ async function main(): Promise<void> {
   );
 
   const jurisdiction = await workspace.store.getJurisdiction(jurisdictionId);
-  if (!jurisdiction) {
-    throw new Error(`Jurisdiction with ID ${jurisdictionId} does not exist`);
-  }
 
   const auth = Auth0Client.init();
 

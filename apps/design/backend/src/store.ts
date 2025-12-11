@@ -572,9 +572,7 @@ export class Store {
     });
   }
 
-  async getJurisdiction(
-    jurisdictionId: string
-  ): Promise<Optional<Jurisdiction>> {
+  async getJurisdiction(jurisdictionId: string): Promise<Jurisdiction> {
     return this.db.withClient(async (client) => {
       const row = (
         await client.query(
@@ -584,8 +582,8 @@ export class Store {
           `,
           jurisdictionId
         )
-      ).rows[0] as JurisdictionRow | undefined;
-      if (!row) return undefined;
+      ).rows[0] as JurisdictionRow;
+      assert(row, 'Jurisdiction not found');
       return rowToJurisdiction(row);
     });
   }
