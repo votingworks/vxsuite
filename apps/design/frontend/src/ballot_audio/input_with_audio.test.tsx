@@ -2,15 +2,24 @@ import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { assert } from '@votingworks/basics';
-import { createMemoryHistory } from 'history';
-import { Router } from 'react-router-dom';
 import { render, screen } from '../../test/react_testing_library';
 import { InputWithAudio } from './input_with_audio';
+import { AudioLinkButton, AudioLinkButtonProps } from './audio_link_button';
+
+vi.mock('./audio_link_button.js');
 
 test('passes through input props', () => {
   const onChange = vi.fn((event: React.ChangeEvent<HTMLInputElement>) => {
     assert(event.target instanceof HTMLInputElement);
     expect(event.target.value).toEqual('hello!');
+  });
+
+  mockButtonComponent({
+    'aria-label': 'Preview or Edit Audio',
+    className: expect.any(String),
+    to: '/audio/edit',
+    tooltip: 'Preview/Edit Audio',
+    tooltipPlacement: 'bottom',
   });
 
   render(
@@ -20,6 +29,7 @@ test('passes through input props', () => {
       name="test_input"
       onChange={onChange}
       title="test_input"
+      tooltipPlacement="bottom"
       value="hello"
     />
   );
@@ -57,32 +67,14 @@ test('omits button when empty', () => {
   expect(screen.queryButton('Preview or Edit Audio')).not.toBeInTheDocument();
 });
 
-test('audio button navigates to given href', () => {
-  const history = createMemoryHistory({ initialEntries: ['/'] });
+function mockButtonComponent(
+  expectedProps: AudioLinkButtonProps & React.HTMLAttributes<HTMLButtonElement>
+) {
+  const testId = 'MockAudioLinkButton';
+  vi.mocked(AudioLinkButton).mockImplementation((props) => {
+    expect(props).toEqual(expectedProps);
+    return <span data-testid={testId} />;
+  });
 
-  render(
-    <Router history={history}>
-      <InputWithAudio
-        audioScreenUrl="/audio/edit"
-        defaultValue="General Election"
-        editing={false}
-      />
-    </Router>
-  );
-
-  userEvent.click(screen.getButton('Preview or Edit Audio'));
-  expect(history.location.pathname).toEqual('/audio/edit');
-});
-
-test('shows button tooltip on hover', () => {
-  render(
-    <InputWithAudio
-      audioScreenUrl="/audio/edit"
-      defaultValue="General Election"
-      editing={false}
-    />
-  );
-
-  userEvent.hover(screen.getButton('Preview or Edit Audio'));
-  screen.getByText('Preview/Edit Audio');
-});
+  return { testId };
+}

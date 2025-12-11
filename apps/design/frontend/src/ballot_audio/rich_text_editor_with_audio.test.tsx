@@ -1,14 +1,21 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
 import { sleep } from '@votingworks/basics';
-import { createMemoryHistory } from 'history';
-import { Router } from 'react-router-dom';
 import { fireEvent, render, screen } from '../../test/react_testing_library';
 import { RichTextEditorWithAudio } from './rich_text_editor_with_audio';
+import { AudioLinkButtonProps, AudioLinkButton } from './audio_link_button';
+
+vi.mock('./audio_link_button.js');
 
 test('passes through editor props', async () => {
   const onChange = vi.fn((content: string) => {
     expect(content).toEqual('<p>hello!</p>');
+  });
+
+  mockButtonComponent({
+    'aria-label': 'Preview or Edit Audio',
+    to: '/audio/edit',
+    tooltip: 'Preview/Edit Audio',
+    tooltipPlacement: 'bottom',
   });
 
   render(
@@ -17,6 +24,7 @@ test('passes through editor props', async () => {
       editing={false}
       onChange={onChange}
       initialHtmlContent="<p>hello</p>"
+      tooltipPlacement="bottom"
     />
   );
 
@@ -59,34 +67,14 @@ test('omits button when empty', () => {
   expect(screen.queryButton('Preview or Edit Audio')).not.toBeInTheDocument();
 });
 
-test('audio button navigates to given href', () => {
-  const history = createMemoryHistory({ initialEntries: ['/'] });
+function mockButtonComponent(
+  expectedProps: AudioLinkButtonProps & React.HTMLAttributes<HTMLButtonElement>
+) {
+  const testId = 'MockAudioLinkButton';
+  vi.mocked(AudioLinkButton).mockImplementation((props) => {
+    expect(props).toEqual(expectedProps);
+    return <span data-testid={testId} />;
+  });
 
-  render(
-    <Router history={history}>
-      <RichTextEditorWithAudio
-        audioScreenUrl="/audio/edit"
-        editing={false}
-        initialHtmlContent="hello"
-        onChange={vi.fn()}
-      />
-    </Router>
-  );
-
-  userEvent.click(screen.getButton('Preview or Edit Audio'));
-  expect(history.location.pathname).toEqual('/audio/edit');
-});
-
-test('shows button tooltip on hover', () => {
-  render(
-    <RichTextEditorWithAudio
-      audioScreenUrl="/audio/edit"
-      editing={false}
-      initialHtmlContent="hello"
-      onChange={vi.fn()}
-    />
-  );
-
-  userEvent.hover(screen.getButton('Preview or Edit Audio'));
-  screen.getByText('Preview/Edit Audio');
-});
+  return { testId };
+}
