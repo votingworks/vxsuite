@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import type {
   StateFeaturesConfig,
   UserFeaturesConfig,
 } from '@votingworks/design-backend';
 import {
   ElectionId,
+  ElectionStringKey,
   SystemSettings,
   TtsExportSource,
 } from '@votingworks/types';
@@ -82,6 +84,14 @@ export const routes = {
         add: {
           title: 'Add Contest',
           path: `${root}/contests/add`,
+        },
+        audio: (p: {
+          contestId: ':contestId' | (string & {});
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) => {
+          const subpath = p.subkey ? `/${p.subkey}` : '';
+          return `${root}/contests/${p.contestId}/audio/${p.stringKey}${subpath}`;
         },
         edit: (contestId: string) => ({
           title: 'Edit Contest',
