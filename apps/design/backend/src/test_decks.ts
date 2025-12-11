@@ -95,24 +95,24 @@ export async function createPrecinctSummaryBallotTestDeck({
     return undefined;
   }
 
-  const ballotPdfs: Uint8Array[] = [];
-  let renderedCount = 0;
-
-  for (const ballotSpec of ballotSpecs) {
-    const ballot = React.createElement(BmdPaperBallot, {
+  // Create all ballot React elements
+  const reactDocuments = ballotSpecs.map((ballotSpec) => ({
+    document: React.createElement(BmdPaperBallot, {
       electionDefinition,
       ballotStyleId: ballotSpec.ballotStyleId,
       precinctId: ballotSpec.precinctId,
       votes: ballotSpec.votes,
       isLiveMode,
-      machineType: 'mark',
-    });
+      machineType: 'mark' as const,
+    }),
+  }));
 
-    const pdfResult = await renderToPdf({ document: ballot });
-    ballotPdfs.push(pdfResult.unsafeUnwrap());
-    renderedCount += 1;
-    emitProgress?.(renderedCount);
-  }
+  // Render all ballots in a single batch call for better performance
+  const pdfResults = await renderToPdf(reactDocuments);
+  const ballotPdfs = pdfResults.unsafeUnwrap();
+
+  // Emit progress after all ballots are rendered
+  emitProgress?.(ballotSpecs.length);
 
   return await concatenatePdfs(ballotPdfs);
 }
