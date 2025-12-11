@@ -34,6 +34,12 @@ export const vxUser: User = {
 export const nonVxJurisdiction: Jurisdiction = {
   id: 'other-jurisdiction-id',
   name: 'Other Jurisdiction',
+  stateCode: 'DEMO',
+  organization: nonVxOrganization,
+};
+export const nhJurisdiction: Jurisdiction = {
+  id: 'nh-jurisdiction-id',
+  name: 'New Hampshire Jurisdiction',
   stateCode: 'NH',
   organization: nonVxOrganization,
 };
@@ -41,7 +47,7 @@ export const nonVxUser: User = {
   name: 'non.vx.user@example.com',
   id: 'auth0|non-vx-user-id',
   organization: nonVxOrganization,
-  jurisdictions: [nonVxJurisdiction],
+  jurisdictions: [nonVxJurisdiction, nhJurisdiction],
 };
 
 export const anotherNonVxJurisdiction: Jurisdiction = {
@@ -94,6 +100,7 @@ export const jurisdictions: Jurisdiction[] = [
   anotherNonVxJurisdiction,
   sliJurisdiction,
   vxDemosJurisdiction,
+  nhJurisdiction,
 ];
 
 export const users: User[] = [

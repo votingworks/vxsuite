@@ -113,6 +113,8 @@ import {
   sliUser,
   vxDemosUser,
   vxOrganization,
+  nonVxOrganization,
+  nhJurisdiction,
 } from '../test/mocks';
 
 vi.setConfig({
@@ -3398,7 +3400,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      jurisdictionId: nonVxJurisdiction.id,
+      jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(election),
@@ -3513,7 +3515,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      jurisdictionId: nonVxJurisdiction.id,
+      jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(election),
@@ -3643,7 +3645,10 @@ test('listJurisdiction', async () => {
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.listJurisdictions()).toEqual(jurisdictions);
   auth0.setLoggedInUser(nonVxUser);
-  expect(await apiClient.listJurisdictions()).toEqual([nonVxJurisdiction]);
+  expect(await apiClient.listJurisdictions()).toEqual([
+    nonVxJurisdiction,
+    nhJurisdiction,
+  ]);
   auth0.setLoggedInUser(sliUser);
   expect(await apiClient.listJurisdictions()).toEqual([sliJurisdiction]);
   auth0.setLoggedInUser(vxDemosUser);
@@ -3681,16 +3686,16 @@ test('feature configs', async () => {
       jurisdictionId: vxJurisdiction.id,
     })
   ).unsafeUnwrap();
-  const nonVxElectionId = (
-    await apiClient.createElection({
-      id: 'non-vx-election-id' as ElectionId,
-      jurisdictionId: nonVxJurisdiction.id,
-    })
-  ).unsafeUnwrap();
   const sliElectionId = (
     await apiClient.createElection({
       id: 'sli-election-id' as ElectionId,
       jurisdictionId: sliJurisdiction.id,
+    })
+  ).unsafeUnwrap();
+  const nhElectionId = (
+    await apiClient.createElection({
+      id: 'nh-election-id' as ElectionId,
+      jurisdictionId: nhJurisdiction.id,
     })
   ).unsafeUnwrap();
   const msElectionId = (
@@ -3703,11 +3708,11 @@ test('feature configs', async () => {
     await apiClient.getStateFeatures({ electionId: vxElectionId })
   ).toEqual(stateFeatureConfigs.DEMO);
   expect(
-    await apiClient.getStateFeatures({ electionId: nonVxElectionId })
-  ).toEqual(stateFeatureConfigs.NH);
-  expect(
     await apiClient.getStateFeatures({ electionId: sliElectionId })
   ).toEqual(stateFeatureConfigs.DEMO);
+  expect(
+    await apiClient.getStateFeatures({ electionId: nhElectionId })
+  ).toEqual(stateFeatureConfigs.NH);
   expect(
     await apiClient.getStateFeatures({ electionId: msElectionId })
   ).toEqual(stateFeatureConfigs.MS);
