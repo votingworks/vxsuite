@@ -269,7 +269,6 @@ test('shows error message on upload failure', async () => {
       },
     })
     .resolves(err(new Error('mock error message')));
-  screen.debug();
   userEvent.click(within(modal).getByRole('button', { name: 'Load Election' }));
 
   await screen.findByRole('heading', { name: 'Error Loading Election' });
