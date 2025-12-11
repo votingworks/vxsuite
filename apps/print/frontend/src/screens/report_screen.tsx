@@ -89,24 +89,31 @@ interface ColumnWidths {
 
 type AttributeColumnCount = 0 | 1 | 2;
 
+// Column width percentages for different numbers of attribute columns.
+// precinctName -> precinct name column, adjusts based on number of attribute columns
+// attribute -> optional attribute columns (Party, Language)
+// count -> three count columns (Total, Precinct, Absentee), fixed width
+// rightPadding -> extra padding to make space for the scrollbar, fixed width
+const COUNT_COLUMN_WIDTH = 10; // Each count column is 10% of the table's width
+const RIGHT_PADDING_WIDTH = 2; // Right padding to accommodate scrollbar
 const COLUMN_WIDTH_MAP: Record<AttributeColumnCount, ColumnWidths> = {
   0: {
-    precinctName: 68, // 100 - 30 - 2 = 68
-    attribute: 0, // 0
-    count: 10, // 10 * 3 = 30
-    rightPadding: 2, // 2
+    precinctName: 68, // 100% - COUNT_COLUMN_WIDTH * 3 - RIGHT_PADDING_WIDTH = 68
+    attribute: 0,
+    count: COUNT_COLUMN_WIDTH,
+    rightPadding: RIGHT_PADDING_WIDTH,
   },
   1: {
-    precinctName: 38, // 100 - 30 - 30 - 2 = 38
-    attribute: 30, // 30 * 1 = 30
-    count: 10, // 10 * 3 = 30
-    rightPadding: 2, // 2
+    precinctName: 38, // 100 - attributeWidth - COUNT_COLUMN_WIDTH * 3 - RIGHT_PADDING_WIDTH = 38
+    attribute: 30, // Measured by eye
+    count: COUNT_COLUMN_WIDTH,
+    rightPadding: RIGHT_PADDING_WIDTH,
   },
   2: {
-    precinctName: 30, // 100 - 38 - 30 - 2 = 30
-    attribute: 19, // 19 * 2 = 38
-    count: 10, // 10 * 3 = 30
-    rightPadding: 2, // 2
+    precinctName: 30, // 100 - attributeWidth * 2 - COUNT_COLUMN_WIDTH * 3 - RIGHT_PADDING_WIDTH = 38
+    attribute: 19, // Measured by eye
+    count: COUNT_COLUMN_WIDTH,
+    rightPadding: RIGHT_PADDING_WIDTH,
   },
 };
 
