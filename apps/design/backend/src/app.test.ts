@@ -3170,6 +3170,7 @@ test.each([
 
     const electionDefinition = readElectionTwoPartyPrimaryDefinition();
     const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
+      organizations,
       jurisdictions,
       users,
     });
