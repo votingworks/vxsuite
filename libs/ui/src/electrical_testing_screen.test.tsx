@@ -28,6 +28,7 @@ test('single task', async () => {
       ]}
       powerDown={powerDown}
       perRow={1}
+      apiClient={mockApiClient}
     />
   );
 
@@ -39,6 +40,10 @@ test('single task', async () => {
   expect(powerDownButton).toHaveTextContent('Power Down');
   const saveLogsButton = buttons.pop();
   expect(saveLogsButton).toHaveTextContent('Save Logs');
+  const signedHashValidationButton = buttons.pop();
+  expect(signedHashValidationButton).toHaveTextContent(
+    'Signed Hash Validation'
+  );
   expect(buttons).toHaveLength(1);
 
   // Toggle the task once.
@@ -75,6 +80,7 @@ test('multiple tasks', async () => {
       ]}
       powerDown={powerDown}
       perRow={1}
+      apiClient={mockApiClient}
     />
   );
 
@@ -85,6 +91,10 @@ test('multiple tasks', async () => {
   expect(powerDownButton).toHaveTextContent('Power Down');
   const saveLogsButton = buttons.pop();
   expect(saveLogsButton).toHaveTextContent('Save Logs');
+  const signedHashValidationButton = buttons.pop();
+  expect(signedHashValidationButton).toHaveTextContent(
+    'Signed Hash Validation'
+  );
   expect(buttons).toHaveLength(2);
 
   // Toggle the second task once.
@@ -114,6 +124,7 @@ test('power down', async () => {
       ]}
       powerDown={powerDown}
       perRow={1}
+      apiClient={mockApiClient}
     />
   );
 
@@ -133,6 +144,7 @@ test('save logs', async () => {
       powerDown={vi.fn()}
       perRow={1}
       usbDriveStatus={{ status: 'mounted', mountPoint: '/media/vx/usb-drive' }}
+      apiClient={mockApiClient}
     />
   );
 

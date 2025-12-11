@@ -202,10 +202,22 @@ export const getCpuMetrics = {
   },
   useQuery() {
     const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getCpuMetrics(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
+export const generateSignedHashValidationQrCodeValue = {
+  queryKey(): QueryKey {
+    return ['generateSignedHashValidationQrCodeValue'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
     return useQuery(
       this.queryKey(),
-      () => apiClient.getCpuMetrics(),
-      { refetchInterval: 1000 }
+      () => apiClient.generateSignedHashValidationQrCodeValue(),
+      { cacheTime: 0 }
     );
   },
 } as const;

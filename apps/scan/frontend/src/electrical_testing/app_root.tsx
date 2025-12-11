@@ -10,6 +10,7 @@ import {
   Main,
   RadioGroup,
   Screen,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { DateTime } from 'luxon';
@@ -21,6 +22,7 @@ import { mapSheet, SheetOf } from '@votingworks/types';
 import type { HWTA } from '@votingworks/scan-backend';
 import { useSound } from '../utils/use_sound';
 import * as api from './api';
+import { useApiClient } from './api';
 
 const SOUND_INTERVAL_SECONDS = 5;
 
@@ -536,6 +538,7 @@ function ScannedSheetImages({ urls }: { urls?: SheetOf<string> }): JSX.Element {
 }
 
 export function AppRoot(): JSX.Element {
+  const apiClient = useApiClient();
   const getElectricalTestingStatusMessagesQuery =
     api.getElectricalTestingStatuses.useQuery();
   const getCpuMetricsQuery = api.getCpuMetrics.useQuery();
@@ -651,6 +654,7 @@ export function AppRoot(): JSX.Element {
             />
           </Row>
           <Row gap="1rem" center style={{ height: '200px' }}>
+            <SignedHashValidationButton apiClient={apiClient} />
             <Button
               icon={<Icons.Save />}
               onPress={() => setIsSaveLogsModalOpen(true)}

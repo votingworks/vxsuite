@@ -4,7 +4,8 @@ import {
   CpuMetrics,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
-import { mapSheet } from '@votingworks/types';
+import { mapSheet, SignedHashValidationQrCodeValue } from '@votingworks/types';
+import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import express, { Application } from 'express';
 import { basename, join } from 'node:path';
 import { Player as AudioPlayer, SoundName } from '../audio/player';
@@ -148,6 +149,14 @@ function buildApi({
 
     async getCpuMetrics(): Promise<CpuMetrics> {
       return await getCpuMetrics();
+    },
+
+    async generateSignedHashValidationQrCodeValue(): Promise<SignedHashValidationQrCodeValue> {
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        electionRecord: undefined,
+        softwareVersion: getMachineConfig().codeVersion,
+      });
+      return qrCodeValue;
     },
 
     ...createSystemCallApi({

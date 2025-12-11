@@ -4,6 +4,8 @@ import {
   CpuMetrics,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
+import { SignedHashValidationQrCodeValue } from '@votingworks/types';
+import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import express, { Application } from 'express';
 import { ServerContext } from './context';
 import { getMachineConfig } from '../machine_config';
@@ -85,6 +87,14 @@ function buildApi({
 
     async getCpuMetrics(): Promise<CpuMetrics> {
       return getCpuMetrics();
+    },
+
+    async generateSignedHashValidationQrCodeValue(): Promise<SignedHashValidationQrCodeValue> {
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        electionRecord: undefined,
+        softwareVersion: getMachineConfig().codeVersion,
+      });
+      return qrCodeValue;
     },
 
     ...createSystemCallApi({

@@ -172,3 +172,17 @@ export const getBarcodeStatus = {
 } as const;
 
 export const systemCallApi = createSystemCallApi(useApiClient);
+
+export const generateSignedHashValidationQrCodeValue = {
+  queryKey(): QueryKey {
+    return ['generateSignedHashValidationQrCodeValue'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.generateSignedHashValidationQrCodeValue(),
+      { cacheTime: 0 }
+    );
+  },
+} as const;
