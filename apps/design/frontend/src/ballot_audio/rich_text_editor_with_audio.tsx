@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { LinkButton } from '@votingworks/ui';
-
 import { RichTextEditor } from '../rich_text_editor';
-import { Tooltip, TooltipContainer, TooltipProps } from '../tooltip';
+import { TooltipProps } from '../tooltip';
+import { AudioLinkButton } from './audio_link_button';
 
 export type RickTextEditorWithAudioProps = {
   audioScreenUrl: string;
@@ -41,7 +40,7 @@ const RichTextEditorWithAudioContainer = styled.div`
   }
 `;
 
-const ButtonContainer = styled(TooltipContainer)`
+const ButtonContainer = styled.div`
   border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
     ${(p) => p.theme.colors.outline};
   border-bottom-right-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
@@ -51,7 +50,7 @@ const ButtonContainer = styled(TooltipContainer)`
   flex-direction: column;
   min-height: 100%;
 
-  > button {
+  button {
     border-bottom: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
       ${(p) => p.theme.colors.outline};
     border-bottom-left-radius: 0;
@@ -63,13 +62,9 @@ const ButtonContainer = styled(TooltipContainer)`
 
 export function RichTextEditorWithAudio(
   props: RickTextEditorWithAudioProps
-): JSX.Element {
-  const {
-    editing,
-    audioScreenUrl: audioScreenHref,
-    tooltipPlacement,
-    ...rest
-  } = props;
+): React.ReactNode {
+  const { editing, audioScreenUrl, tooltipPlacement, ...rest } = props;
+
   const audioEnabled = !editing && !!rest.initialHtmlContent;
 
   return (
@@ -78,17 +73,12 @@ export function RichTextEditorWithAudio(
 
       {audioEnabled && (
         <ButtonContainer>
-          <LinkButton
+          <AudioLinkButton
             aria-label="Preview or Edit Audio"
-            fill="transparent"
-            icon="VolumeUp"
-            to={audioScreenHref}
-            variant="primary"
+            to={audioScreenUrl}
+            tooltipPlacement={tooltipPlacement}
+            tooltip="Preview/Edit Audio"
           />
-
-          <Tooltip alignTo="right" attachTo={tooltipPlacement} bold>
-            Preview/Edit Audio
-          </Tooltip>
         </ButtonContainer>
       )}
     </RichTextEditorWithAudioContainer>

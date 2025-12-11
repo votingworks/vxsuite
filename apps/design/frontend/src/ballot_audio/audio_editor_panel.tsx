@@ -5,6 +5,7 @@ import { assertDefined } from '@votingworks/basics';
 import { TtsStringDefault } from '@votingworks/design-backend';
 import { ElectionStringKey, YesNoContest } from '@votingworks/types';
 
+import { LinkButton, LinkButtonProps } from '@votingworks/ui';
 import * as api from '../api';
 import { UiStringPreview } from './ui_string_preview';
 import { AudioEditor } from './audio_editor';
@@ -58,6 +59,26 @@ export function AudioEditorPanel(
       />
     </Container>
   );
+}
+
+const ExitLink = styled(LinkButton)`
+  font-size: 0.8rem;
+  gap: 0.25rem;
+  margin-bottom: 0.3rem;
+  padding: 0;
+
+  &:active,
+  &:focus,
+  &:hover {
+    background: none !important;
+    text-decoration: underline;
+    text-decoration-thickness: ${(p) => p.theme.sizes.bordersRem.medium}rem;
+    text-underline-offset: ${(p) => p.theme.sizes.bordersRem.medium}rem;
+  }
+`;
+
+export function AudioEditorExitLink(props: LinkButtonProps): React.ReactNode {
+  return <ExitLink {...props} fill="transparent" variant="primary" />;
 }
 
 /**

@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { LinkButton } from '@votingworks/ui';
-
-import { Tooltip, TooltipContainer, TooltipProps } from '../tooltip';
+import { TooltipProps } from '../tooltip';
+import { AudioLinkButton } from './audio_link_button';
 
 export type InputWithAudioProps = {
   audioScreenUrl: string;
@@ -35,7 +34,7 @@ const InputWithAudioContainer = styled.div`
   }
 `;
 
-const ButtonContainer = styled(TooltipContainer)`
+const AudioButton = styled(AudioLinkButton)`
   display: flex;
 
   > button {
@@ -53,13 +52,9 @@ const ButtonContainer = styled(TooltipContainer)`
   }
 `;
 
-export function InputWithAudio(props: InputWithAudioProps): JSX.Element {
-  const {
-    editing,
-    audioScreenUrl: audioScreenHref,
-    tooltipPlacement,
-    ...rest
-  } = props;
+export function InputWithAudio(props: InputWithAudioProps): React.ReactNode {
+  const { editing, audioScreenUrl, tooltipPlacement, ...rest } = props;
+
   const audioEnabled = !editing && !!(rest.value || rest.defaultValue);
 
   return (
@@ -67,19 +62,12 @@ export function InputWithAudio(props: InputWithAudioProps): JSX.Element {
       <input {...rest} />
 
       {audioEnabled && (
-        <ButtonContainer>
-          <LinkButton
-            aria-label="Preview or Edit Audio"
-            fill="transparent"
-            icon="VolumeUp"
-            to={audioScreenHref}
-            variant="primary"
-          />
-
-          <Tooltip alignTo="right" attachTo={tooltipPlacement} bold>
-            Preview/Edit Audio
-          </Tooltip>
-        </ButtonContainer>
+        <AudioButton
+          aria-label="Preview or Edit Audio"
+          to={audioScreenUrl}
+          tooltip="Preview/Edit Audio"
+          tooltipPlacement={tooltipPlacement}
+        />
       )}
     </InputWithAudioContainer>
   );
