@@ -14,7 +14,7 @@ import {
   Loading,
 } from '@votingworks/ui';
 import { hasSplits } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { format, getLanguageOptions } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
 import {
@@ -80,6 +80,43 @@ const TableRow = styled.tr`
   }
 `;
 
+interface ColumnWidths {
+  precinctName: number;
+  attribute: number;
+  count: number;
+  rightPadding: number;
+}
+
+type AttributeColumnCount = 0 | 1 | 2;
+
+// Column width percentages for different numbers of attribute columns.
+// precinctName -> precinct name column, adjusts based on number of attribute columns
+// attribute -> optional attribute columns (Party, Language)
+// count -> three count columns (Total, Precinct, Absentee), fixed width
+// rightPadding -> extra padding to make space for the scrollbar, fixed width
+const COUNT_COLUMN_WIDTH = 10; // Each count column is 10% of the table's width
+const RIGHT_PADDING_WIDTH = 2; // Right padding to accommodate scrollbar
+const COLUMN_WIDTH_MAP: Record<AttributeColumnCount, ColumnWidths> = {
+  0: {
+    precinctName: 68, // 100% - COUNT_COLUMN_WIDTH * 3 - RIGHT_PADDING_WIDTH = 68
+    attribute: 0,
+    count: COUNT_COLUMN_WIDTH,
+    rightPadding: RIGHT_PADDING_WIDTH,
+  },
+  1: {
+    precinctName: 38, // 100 - attributeWidth - COUNT_COLUMN_WIDTH * 3 - RIGHT_PADDING_WIDTH = 38
+    attribute: 30, // Measured by eye
+    count: COUNT_COLUMN_WIDTH,
+    rightPadding: RIGHT_PADDING_WIDTH,
+  },
+  2: {
+    precinctName: 30, // 100 - attributeWidth * 2 - COUNT_COLUMN_WIDTH * 3 - RIGHT_PADDING_WIDTH = 38
+    attribute: 19, // Measured by eye
+    count: COUNT_COLUMN_WIDTH,
+    rightPadding: RIGHT_PADDING_WIDTH,
+  },
+};
+
 export function ReportScreen(): JSX.Element | null {
   const getBallotPrintCountsQuery = getBallotPrintCounts.useQuery();
   const getElectionRecordQuery = getElectionRecord.useQuery();
@@ -112,9 +149,14 @@ export function ReportScreen(): JSX.Element | null {
   }
 
   assert(election !== undefined);
-  const ballotPrintCounts = getBallotPrintCountsQuery.data;
   const hasParties = election.type === 'primary';
+  const showLanguage = getLanguageOptions(election).length > 1;
+  const ballotPrintCounts = getBallotPrintCountsQuery.data;
   const { printer } = getDeviceStatusesQuery.data;
+
+  const attributeColumnCount = ((hasParties ? 1 : 0) +
+    (showLanguage ? 1 : 0)) as AttributeColumnCount;
+  const columnWidths = COLUMN_WIDTH_MAP[attributeColumnCount];
 
   return (
     <Container>
@@ -175,16 +217,28 @@ export function ReportScreen(): JSX.Element | null {
           <Table style={{ tableLayout: 'fixed', width: '100%' }}>
             <thead>
               <TableRow>
-                <TH style={{ width: hasParties ? '25%' : '35%' }}>
+                <TH style={{ width: `${columnWidths.precinctName}%` }}>
                   {electionHasSplits
                     ? 'Precinct / Split Name'
                     : 'Precinct Name'}
                 </TH>
-                {hasParties && <TH style={{ width: '19%' }}>Party</TH>}
-                <TH style={{ width: hasParties ? '20%' : '25%' }}>Language</TH>
-                <TH style={{ width: '12%' }}>Total</TH>
-                <TH style={{ width: '12%' }}>Precinct</TH>
-                <TH style={{ width: '12%' }}>Absentee</TH>
+                {hasParties && (
+                  <TH style={{ width: `${columnWidths.attribute}%` }}>Party</TH>
+                )}
+                {showLanguage && (
+                  <TH style={{ width: `${columnWidths.attribute}%` }}>
+                    Language
+                  </TH>
+                )}
+                <TH style={{ width: `${columnWidths.count}%` }}>Total</TH>
+                <TH style={{ width: `${columnWidths.count}%` }}>Precinct</TH>
+                <TH
+                  style={{
+                    width: `${columnWidths.count + columnWidths.rightPadding}%`,
+                  }}
+                >
+                  Absentee
+                </TH>
               </TableRow>
             </thead>
           </Table>
@@ -204,21 +258,37 @@ export function ReportScreen(): JSX.Element | null {
                   <TableRow
                     key={`${counts.ballotStyleId}-${counts.precinctOrSplitName}`}
                   >
-                    <TD style={{ width: hasParties ? '25%' : '35%' }}>
+                    <TD style={{ width: `${columnWidths.precinctName}%` }}>
                       {counts.precinctOrSplitName}
                     </TD>
                     {hasParties && (
-                      <TD style={{ width: '19%' }}>{counts.partyName}</TD>
+                      <TD style={{ width: `${columnWidths.attribute}%` }}>
+                        {counts.partyName}
+                      </TD>
                     )}
-                    <TD style={{ width: hasParties ? '20%' : '25%' }}>
-                      {format.languageDisplayName({
-                        languageCode: counts.languageCode,
-                        displayLanguageCode: 'en',
-                      })}
+                    {showLanguage && (
+                      <TD style={{ width: `${columnWidths.attribute}%` }}>
+                        {format.languageDisplayName({
+                          languageCode: counts.languageCode,
+                          displayLanguageCode: 'en',
+                        })}
+                      </TD>
+                    )}
+                    <TD style={{ width: `${columnWidths.count}%` }}>
+                      {counts.totalCount}
                     </TD>
-                    <TD style={{ width: '12%' }}>{counts.totalCount}</TD>
-                    <TD style={{ width: '12%' }}>{counts.precinctCount}</TD>
-                    <TD style={{ width: '12%' }}>{counts.absenteeCount}</TD>
+                    <TD style={{ width: `${columnWidths.count}%` }}>
+                      {counts.precinctCount}
+                    </TD>
+                    <TD
+                      style={{
+                        width: `${
+                          columnWidths.count + columnWidths.rightPadding
+                        }%`,
+                      }}
+                    >
+                      {counts.absenteeCount}
+                    </TD>
                   </TableRow>
                 ))}
             </tbody>

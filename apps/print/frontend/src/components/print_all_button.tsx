@@ -10,13 +10,12 @@ import {
 } from '@votingworks/ui';
 import { BallotType, LanguageCode } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import { format } from '@votingworks/utils';
+import { format, getLanguageOptions } from '@votingworks/utils';
 import {
   getDistinctBallotStylesCount,
   getElectionRecord,
   printAllBallotStyles,
 } from '../api';
-import { getLanguageOptions } from '../utils';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 

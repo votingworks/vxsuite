@@ -13,6 +13,7 @@ import {
 } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
 
+import { getLanguageOptions } from '@votingworks/utils';
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
 import { PrintAllButton } from '../components/print_all_button';
@@ -22,7 +23,7 @@ import {
   getPrecinctSelection,
   printBallot,
 } from '../api';
-import { getLanguageOptions, getPartyOptions } from '../utils';
+import { getPartyOptions } from '../utils';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
