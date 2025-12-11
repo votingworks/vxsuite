@@ -15,7 +15,7 @@ import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
-  mockElectionFeatures,
+  mockStateFeatures,
   mockUserFeatures,
   jurisdiction,
   provideApi,
@@ -62,6 +62,7 @@ const { election } = generalElectionRecord(jurisdiction.id);
 const electionId = election.id;
 
 beforeEach(() => {
+  mockStateFeatures(apiMock, electionId);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -75,7 +76,6 @@ test('adding a precinct', async () => {
     districtIds: [election.districts[0].id, election.districts[1].id],
   };
 
-  mockElectionFeatures(apiMock, electionId, {});
   apiMock.listPrecincts.expectCallWith({ electionId }).resolves([]);
   apiMock.listDistricts
     .expectCallWith({ electionId })
@@ -176,7 +176,7 @@ test('editing a precinct - adding splits in NH', async () => {
     ],
   };
 
-  mockElectionFeatures(apiMock, electionId, {
+  mockStateFeatures(apiMock, electionId, {
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: true,
     PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
@@ -373,7 +373,6 @@ test('editing a precinct - removing splits', async () => {
     districtIds: savedPrecinct.splits[1].districtIds,
   };
 
-  mockElectionFeatures(apiMock, electionId, {});
   apiMock.listPrecincts
     .expectCallWith({ electionId })
     .resolves(election.precincts);
@@ -450,7 +449,6 @@ test('deleting a precinct', async () => {
   assert(election.precincts.length === 3);
   const [savedPrecinct] = election.precincts;
 
-  mockElectionFeatures(apiMock, electionId, {});
   apiMock.listPrecincts
     .expectCallWith({ electionId })
     .resolves(election.precincts);
@@ -514,7 +512,6 @@ test('editing or adding a precinct is disabled when ballots are finalized', asyn
 });
 
 test('cancelling', async () => {
-  mockElectionFeatures(apiMock, electionId, {});
   apiMock.listPrecincts
     .expectCallWith({ electionId })
     .resolves(election.precincts);
@@ -543,7 +540,6 @@ test('cancelling', async () => {
 });
 
 test('error message for duplicate precinct name', async () => {
-  mockElectionFeatures(apiMock, electionId, {});
   apiMock.listPrecincts
     .expectCallWith({ electionId })
     .resolves(election.precincts);
@@ -597,7 +593,6 @@ test('error message for duplicate precinct split name', async () => {
   const savedPrecinct = election.precincts.find(hasSplits)!;
   assert(savedPrecinct.splits.length === 2);
 
-  mockElectionFeatures(apiMock, electionId, {});
   apiMock.listPrecincts
     .expectCallWith({ electionId })
     .resolves(election.precincts);
@@ -684,7 +679,6 @@ test('error message for splits with the same districts', async () => {
   const savedPrecinct = election.precincts.find(hasSplits)!;
   assert(savedPrecinct.splits.length === 2);
 
-  mockElectionFeatures(apiMock, electionId, {});
   apiMock.listPrecincts
     .expectCallWith({ electionId })
     .resolves(election.precincts);

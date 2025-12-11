@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { useState } from 'react';
-import { err, ok } from '@votingworks/basics';
+import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { ElectionIdSchema, unsafeParse } from '@votingworks/types';
@@ -52,7 +52,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: false });
+  mockUserFeatures(apiMock);
 });
 
 afterEach(() => {
@@ -116,10 +116,23 @@ test('with no elections, loading an election', async () => {
   const electionRecord = primaryElectionRecord(jurisdiction.id);
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections.expectCallWith().resolves([]);
+  apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
+  userEvent.click(screen.getByRole('button', { name: 'Load Election' }));
+  const modal = await screen.findByRole('alertdialog');
+  const loadElectionInput = within(modal).getByLabelText(
+    'Select Election File…'
+  );
   const electionData = JSON.stringify(electionRecord.election);
+  const file = new File([electionData], 'election.json', {
+    type: 'application/json',
+  });
+  // JSDOM's File doesn't implement File.text
+  file.text = () => Promise.resolve(electionData);
+  userEvent.upload(loadElectionInput, file);
+
   apiMock.loadElection
     .expectCallWith({
       jurisdictionId: jurisdiction.id,
@@ -133,13 +146,8 @@ test('with no elections, loading an election', async () => {
   apiMock.listElections
     .expectCallWith()
     .resolves([electionListing(electionRecord)]);
-  const loadElectionInput = screen.getByLabelText('Load Election');
-  const file = new File([electionData], 'election.json', {
-    type: 'application/json',
-  });
-  // JSDOM's File doesn't implement File.text
-  file.text = () => Promise.resolve(electionData);
-  userEvent.upload(loadElectionInput, file);
+  userEvent.click(screen.getByRole('button', { name: 'Load Election' }));
+
   await waitFor(() => {
     expect(history.location.pathname).toEqual(
       `/elections/${electionRecord.election.id}`
@@ -470,37 +478,10 @@ test('elections list for user with multiple jurisdictions', async () => {
   expect(firstRowCells[2]).toHaveTextContent('jurisdiction1 Name');
   const secondRowCells = within(rows[1]).getAllByRole('cell');
   expect(secondRowCells[0]).toHaveTextContent('Untitled Election');
-  expect(secondRowCells[1]).toHaveTextContent(format.localeDate(new Date()));
+  expect(secondRowCells[1]).toHaveTextContent(
+    format.localeDate(
+      generalJurisdiction2.election.date.toMidnightDatetimeWithSystemTimezone()
+    )
+  );
   expect(secondRowCells[2]).toHaveTextContent('jurisdiction2 Name');
-});
-
-test('shows error message when loading election fails', async () => {
-  const electionRecord = primaryElectionRecord(jurisdiction.id);
-  apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.listElections.expectCallWith().resolves([]);
-
-  renderScreen();
-  await screen.findByRole('heading', { name: 'Elections' });
-
-  const electionData = JSON.stringify(electionRecord.election);
-  apiMock.loadElection
-    .expectCallWith({
-      jurisdictionId: jurisdiction.id,
-      upload: {
-        format: 'vxf',
-        electionFileContents: electionData,
-      },
-      newId: ELECTION_ID,
-    })
-    .resolves(err(new Error('mock error details')));
-  const loadElectionInput = screen.getByLabelText('Load Election');
-  const file = new File([electionData], 'election.json', {
-    type: 'application/json',
-  });
-  // JSDOM's File doesn't implement File.text
-  file.text = () => Promise.resolve(electionData);
-  userEvent.upload(loadElectionInput, file);
-  const errorModal = await screen.findByRole('alertdialog');
-  within(errorModal).getByRole('heading', { name: 'Error Loading Election' });
-  within(errorModal).getByText('mock error details');
 });

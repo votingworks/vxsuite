@@ -32,6 +32,7 @@ import {
   jurisdiction,
   provideApi,
   user,
+  mockStateFeatures,
 } from '../test/api_helpers';
 import {
   electionInfoFromElection,
@@ -76,6 +77,7 @@ afterEach(() => {
 function renderScreen(electionId: ElectionId) {
   const { path } = routes.election(electionId).contests.root;
   const history = createMemoryHistory({ initialEntries: [path] });
+  mockStateFeatures(apiMock, electionId);
   render(
     provideApi(
       apiMock,

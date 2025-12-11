@@ -15,6 +15,7 @@ import {
   jurisdiction,
   provideApi,
   user,
+  mockStateFeatures,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -31,6 +32,7 @@ beforeEach(() => {
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getBaseUrl.expectCallWith().resolves('http://test-results-url.com');
   mockUserFeatures(apiMock);
+  mockStateFeatures(apiMock, electionId);
 });
 
 afterEach(() => {
