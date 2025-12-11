@@ -85,7 +85,9 @@ import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
   exportTestDecks,
+  generateAllPrecinctsTallyReport,
   processNextBackgroundTaskIfAny,
+  readFixture,
   testSetupHelpers,
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
@@ -115,6 +117,7 @@ import {
   vxOrganization,
   nonVxOrganization,
   nhJurisdiction,
+  msJurisdiction,
 } from '../test/mocks';
 
 vi.setConfig({
@@ -3656,18 +3659,9 @@ test('listJurisdiction', async () => {
 });
 
 test('feature configs', async () => {
-  const msJurisdictionId = 'ms-jurisdiction-id';
   const { apiClient, auth0 } = await setupApp({
     organizations,
-    jurisdictions: [
-      ...jurisdictions,
-      {
-        id: msJurisdictionId,
-        name: 'Mississippi Jurisdiction',
-        organization: vxOrganization,
-        stateCode: 'MS',
-      },
-    ],
+    jurisdictions,
     users,
   });
   auth0.setLoggedInUser(vxUser);
@@ -3701,7 +3695,7 @@ test('feature configs', async () => {
   const msElectionId = (
     await apiClient.createElection({
       id: 'ms-election-id' as ElectionId,
-      jurisdictionId: msJurisdictionId,
+      jurisdictionId: msJurisdiction.id,
     })
   ).unsafeUnwrap();
   expect(
@@ -3832,4 +3826,68 @@ test('decryptCvrBallotAuditIds', async () => {
     const contents = JSON.parse(await cvrFileEntry.async('text'));
     expect(contents.CVR[0]).toEqual(cvr.castVoteRecord);
   }
+});
+
+test('MS election and results SEMS conversion', async () => {
+  const { apiClient, auth0, fileStorageClient, workspace } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(anotherNonVxUser);
+
+  // Load election
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'ms-election-id' as ElectionId,
+      jurisdictionId: msJurisdiction.id,
+      upload: {
+        format: 'ms-sems',
+        electionFileContents: readFixture(
+          'ms-sems-election-general-ballot-measures-10.csv'
+        ),
+        candidateFileContents: readFixture(
+          'ms-sems-election-candidates-general-ballot-measures-10.csv'
+        ),
+      },
+    })
+  ).unsafeUnwrap();
+  expect(await apiClient.getBallotTemplate({ electionId })).toEqual('MsBallot');
+
+  // Can't convert results before exporting election package
+  expect(
+    await apiClient.convertMsResults({
+      electionId,
+      allPrecinctsTallyReportContents: '',
+    })
+  ).toEqual(err('no-election-export-found'));
+
+  // Export election package
+  const electionPackageFilePath = await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: true,
+    shouldExportSampleBallots: true,
+  });
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(
+      join(msJurisdiction.id, electionPackageFilePath)
+    )
+  );
+  const { electionPackageContents } =
+    await unzipElectionPackageAndBallots(contents);
+  const { electionPackage } = (
+    await readElectionPackageFromBuffer(electionPackageContents)
+  ).unsafeUnwrap();
+
+  // Convert results
+  await apiClient.convertMsResults({
+    electionId,
+    allPrecinctsTallyReportContents: generateAllPrecinctsTallyReport(
+      electionPackage.electionDefinition
+    ),
+  });
 });
