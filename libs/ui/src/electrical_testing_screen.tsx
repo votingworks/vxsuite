@@ -10,6 +10,10 @@ import { Main } from './main';
 import { Screen } from './screen';
 import { Caption, H6 } from './typography';
 import { ExportLogsModal } from './export_logs_modal';
+import {
+  SignedHashValidationApiClient,
+  SignedHashValidationButton,
+} from './signed_hash_validation_button';
 
 const Row = styled.div<{ gap?: string }>`
   display: flex;
@@ -30,6 +34,10 @@ const Small = styled.span`
 `;
 
 const SmallButton = styled(Button)`
+  transform: scale(0.5);
+`;
+
+const SmallButtonContainer = styled.div`
   transform: scale(0.5);
 `;
 
@@ -145,6 +153,7 @@ export function ElectricalTestingScreen<Id extends React.Key>({
   powerDown,
   usbDriveStatus,
   topOffset,
+  apiClient,
 }: {
   tasks: ReadonlyArray<Task<Id>>;
   perRow: number;
@@ -153,6 +162,8 @@ export function ElectricalTestingScreen<Id extends React.Key>({
   usbDriveStatus?: UsbDriveStatus;
   /** Optional top offset (e.g., '80px') to account for a fixed top bar */
   topOffset?: string;
+  /** API client for signed hash validation */
+  apiClient: SignedHashValidationApiClient;
 }): JSX.Element {
   const [isSaveLogsModalOpen, setIsSaveLogsModalOpen] = React.useState(false);
 
@@ -194,6 +205,9 @@ export function ElectricalTestingScreen<Id extends React.Key>({
               .toArray()}
           </Column>
           <Row style={{ justifyContent: 'center' }}>
+            <SmallButtonContainer>
+              <SignedHashValidationButton apiClient={apiClient} />
+            </SmallButtonContainer>
             <SmallButton
               icon={<Icons.Save />}
               onPress={() => setIsSaveLogsModalOpen(true)}
