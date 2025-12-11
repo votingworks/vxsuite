@@ -4,6 +4,7 @@ import { File as NodeFile } from 'node:buffer';
 import { afterEach, beforeEach, test, expect } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { within } from '@testing-library/react';
+import { Jurisdiction, User } from '@votingworks/design-backend';
 import {
   MockApiClient,
   multiJurisdictionUser,
@@ -12,7 +13,7 @@ import {
   user,
   provideApi,
   createMockApiClient,
-  mockUserFeatures,
+  organization,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -45,7 +46,6 @@ function renderButton(props?: React.ComponentProps<typeof LoadElectionButton>) {
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  apiMock.getUser.expectCallWith().resolves(user);
   idFactory.reset();
 });
 
@@ -58,32 +58,20 @@ const mockElectionFile = new File([mockElectionData], 'election.json', {
   type: 'application/json',
 });
 
-test('opens file picker for VXF when MS_SEMS_CONVERSION disabled', async () => {
-  mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: false });
-  const history = renderButton();
-  const input = await screen.findByLabelText('Load Election');
+const msJurisdiction: Jurisdiction = {
+  id: 'ms-jurisdiction-1',
+  name: 'Mississippi Jurisdiction',
+  stateCode: 'MS',
+  organization,
+};
 
-  const newId = idFactory.next();
-  idFactory.reset();
-  apiMock.loadElection
-    .expectCallWith({
-      newId,
-      jurisdictionId: jurisdiction.id,
-      upload: {
-        format: 'vxf',
-        electionFileContents: mockElectionData,
-      },
-    })
-    .resolves(ok(newId));
-  userEvent.upload(input, mockElectionFile);
-  await waitFor(() =>
-    expect(history.location.pathname).toEqual(`/elections/${newId}`)
-  );
-  global.File = File;
-});
+const msUser: User = {
+  ...user,
+  jurisdictions: [msJurisdiction],
+};
 
-test('VXF upload flow in modal', async () => {
-  mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: true });
+test('single jurisdiction: VXF', async () => {
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
@@ -91,8 +79,10 @@ test('VXF upload flow in modal', async () => {
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Load Election' });
-  within(modal).getByText(jurisdiction.name);
-  within(modal).getByText('VotingWorks');
+  expect(
+    within(modal).queryByLabelText('Jurisdiction')
+  ).not.toBeInTheDocument();
+  expect(within(modal).queryByLabelText('Format')).not.toBeInTheDocument();
 
   const loadButton = within(modal).getByRole('button', {
     name: 'Load Election',
@@ -124,18 +114,21 @@ test('VXF upload flow in modal', async () => {
   expect(history.location.pathname).toEqual(`/elections/${newId}`);
 });
 
-test('MS SEMS upload flow in modal', async () => {
-  mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: true });
-  apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
+test('single jurisdiction: MS SEMS', async () => {
+  apiMock.getUser.expectCallWith().resolves(msUser);
+  apiMock.listJurisdictions.expectCallWith().resolves([msJurisdiction]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
   userEvent.click(button);
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Load Election' });
-  // Switch to MS SEMS format
-  userEvent.click(within(modal).getByText('VotingWorks'));
-  userEvent.click(screen.getByText('Mississippi SEMS'));
+  expect(
+    within(modal).queryByLabelText('Jurisdiction')
+  ).not.toBeInTheDocument();
+  // Defaults to MS SEMS format, with option to select VXF
+  userEvent.click(within(modal).getByText('Mississippi SEMS'));
+  screen.getByText('VotingWorks');
 
   const loadButton = within(modal).getByRole('button', {
     name: 'Load Election',
@@ -164,7 +157,7 @@ test('MS SEMS upload flow in modal', async () => {
   apiMock.loadElection
     .expectCallWith({
       newId,
-      jurisdictionId: jurisdiction.id,
+      jurisdictionId: msJurisdiction.id,
       upload: {
         format: 'ms-sems',
         electionFileContents: mockElectionData,
@@ -181,12 +174,13 @@ test('MS SEMS upload flow in modal', async () => {
 });
 
 test('multi-jurisdiction user sees jurisdiction selector', async () => {
-  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
+  apiMock.getUser.expectCallWith().resolves({
+    ...multiJurisdictionUser,
+    jurisdictions: [...multiJurisdictionUser.jurisdictions, msJurisdiction],
+  });
   apiMock.listJurisdictions
     .expectCallWith()
-    .resolves([jurisdiction, jurisdiction2]);
-  apiMock.getUser.reset();
-  apiMock.getUser.expectCallWith().resolves(multiJurisdictionUser);
+    .resolves([jurisdiction, jurisdiction2, msJurisdiction]);
   renderButton();
 
   const button = await screen.findByRole('button', { name: 'Load Election' });
@@ -195,7 +189,7 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Load Election' });
   const jurisdictionSelect = within(modal).getByRole('combobox', {
-    name: 'Jurisdiction',
+    name: /Jurisdiction/,
   });
   within(modal).getByText(jurisdiction.name);
   userEvent.click(jurisdictionSelect);
@@ -203,13 +197,20 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
   expect(jurisdictionOptions.map((o) => o.textContent)).toEqual([
     jurisdiction.name,
     jurisdiction2.name,
+    msJurisdiction.name,
   ]);
-  userEvent.click(jurisdictionOptions[1]);
+  // Select MS jurisdiction to show format selector
+  userEvent.click(jurisdictionOptions[2]);
+
+  // Format selector defaults to MS SEMS. Switch to VXF.
+  within(modal).getByRole('combobox', { name: /Format/ });
+  userEvent.click(within(modal).getByText('Mississippi SEMS'));
+  userEvent.click(screen.getByRole('option', { name: 'VotingWorks' }));
 
   apiMock.loadElection
     .expectCallWith({
       newId: 'test-random-id-1',
-      jurisdictionId: jurisdiction2.id,
+      jurisdictionId: msJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: mockElectionData,
@@ -230,7 +231,7 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
 });
 
 test('close modal', async () => {
-  mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: true });
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
@@ -244,9 +245,16 @@ test('close modal', async () => {
 });
 
 test('shows error message on upload failure', async () => {
-  mockUserFeatures(apiMock, { MS_SEMS_CONVERSION: false });
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   const history = renderButton();
-  const input = await screen.findByLabelText('Load Election');
+
+  userEvent.click(await screen.findByRole('button', { name: 'Load Election' }));
+  const modal = await screen.findByRole('alertdialog');
+  const electionFileInput = within(modal).getByLabelText(
+    'Select Election File…'
+  );
+  userEvent.upload(electionFileInput, mockElectionFile);
 
   const newId = idFactory.next();
   idFactory.reset();
@@ -261,11 +269,11 @@ test('shows error message on upload failure', async () => {
       },
     })
     .resolves(err(new Error('mock error message')));
+  screen.debug();
+  userEvent.click(within(modal).getByRole('button', { name: 'Load Election' }));
 
-  userEvent.upload(input, mockElectionFile);
-
-  const errorModal = await screen.findByRole('alertdialog');
-  within(errorModal).getByRole('heading', { name: 'Error Loading Election' });
+  await screen.findByRole('heading', { name: 'Error Loading Election' });
+  const errorModal = screen.getByRole('alertdialog');
   within(errorModal).getByText('Invalid election file');
   within(errorModal).getByText(errorMessage);
 
@@ -278,7 +286,7 @@ test('shows error message on upload failure', async () => {
 });
 
 test('disabled', async () => {
-  mockUserFeatures(apiMock);
+  apiMock.getUser.expectCallWith().resolves(user);
   renderButton({ disabled: true });
   const button = await screen.findByRole('button', { name: 'Load Election' });
   expect(button).toBeDisabled();
