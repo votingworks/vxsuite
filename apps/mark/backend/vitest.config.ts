@@ -21,6 +21,7 @@ export default defineConfig({
         '**/*.test.ts',
         'test/**/*',
         'src/util/accessible_controller.ts',
+        'src/electrical_testing/**',
       ],
     },
     // Ensure only one instance of each library is loaded by loading the TS

@@ -1,4 +1,6 @@
+/* istanbul ignore file - @preserve */
 import {
+  Button,
   CpuMetricsDisplay,
   ElectricalTestingScreen,
   Icons,
@@ -7,10 +9,14 @@ import {
 import React, { useState } from 'react';
 import useInterval from 'use-interval';
 import {
+  getBarcodeStatus,
   getCpuMetrics,
   getElectricalTestingStatuses,
+  getPrinterStatus,
+  getPrinterTaskStatus,
+  printTestPage,
   setCardReaderTaskRunning,
-  setPaperHandlerTaskRunning,
+  setPrinterTaskRunning,
   setUsbDriveTaskRunning,
   systemCallApi,
 } from './api';
@@ -18,26 +24,69 @@ import { useSound } from '../hooks/use_sound';
 
 const SOUND_INTERVAL_SECONDS = 5;
 
+function formatPrinterStatus(
+  printerStatus: Awaited<ReturnType<typeof getPrinterStatus.useQuery>>['data'],
+  taskStatus: Awaited<ReturnType<typeof getPrinterTaskStatus.useQuery>>['data']
+): string {
+  if (!printerStatus) {
+    return 'Unknown';
+  }
+
+  if (!printerStatus.connected) {
+    return 'Not Connected';
+  }
+
+  const status = printerStatus.richStatus?.state ?? 'Connected';
+  const taskState =
+    taskStatus?.taskStatus === 'running' ? 'Auto-print ON' : 'Auto-print OFF';
+  return `${status} (${taskState})`;
+}
+
+function formatBarcodeStatus(
+  barcodeStatus: Awaited<ReturnType<typeof getBarcodeStatus.useQuery>>['data']
+): React.ReactNode {
+  if (!barcodeStatus) {
+    return 'Unknown';
+  }
+
+  if (!barcodeStatus.connected) {
+    return 'Not Connected';
+  }
+
+  if (barcodeStatus.lastScan) {
+    const timestamp = barcodeStatus.lastScanTimestamp
+      ? barcodeStatus.lastScanTimestamp.toLocaleTimeString()
+      : '';
+    return (
+      <span>
+        Connected
+        <br />
+        Last scan ({timestamp}):
+        <br />
+        Data: {barcodeStatus.lastScan.data}
+      </span>
+    );
+  }
+
+  return 'Connected - No scans yet';
+}
+
 export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusesQuery =
     getElectricalTestingStatuses.useQuery();
   const getCpuMetricsQuery = getCpuMetrics.useQuery();
-  const setPaperHandlerTaskRunningMutation =
-    setPaperHandlerTaskRunning.useMutation();
+  const getPrinterStatusQuery = getPrinterStatus.useQuery();
+  const getPrinterTaskStatusQuery = getPrinterTaskStatus.useQuery();
+  const getBarcodeStatusQuery = getBarcodeStatus.useQuery();
   const setCardReaderTaskRunningMutation =
     setCardReaderTaskRunning.useMutation();
   const setUsbDriveTaskRunningMutation = setUsbDriveTaskRunning.useMutation();
+  const setPrinterTaskRunningMutation = setPrinterTaskRunning.useMutation();
+  const printTestPageMutation = printTestPage.useMutation();
   const powerDownMutation = systemCallApi.powerDown.useMutation();
 
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const playSound = useSound('success-5s');
-
-  function togglePaperHandlerTaskRunning() {
-    setPaperHandlerTaskRunningMutation.mutate(
-      getElectricalTestingStatusesQuery.data?.paperHandler?.taskStatus ===
-        'paused'
-    );
-  }
 
   function toggleCardReaderTaskRunning() {
     setCardReaderTaskRunningMutation.mutate(
@@ -48,6 +97,12 @@ export function AppRoot(): JSX.Element {
   function toggleUsbDriveTaskRunning() {
     setUsbDriveTaskRunningMutation.mutate(
       getElectricalTestingStatusesQuery.data?.usbDrive?.taskStatus === 'paused'
+    );
+  }
+
+  function togglePrinterTaskRunning() {
+    setPrinterTaskRunningMutation.mutate(
+      getPrinterTaskStatusQuery.data?.taskStatus === 'paused'
     );
   }
 
@@ -62,8 +117,6 @@ export function AppRoot(): JSX.Element {
   useInterval(playSound, isSoundEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null);
 
   const cardStatus = getElectricalTestingStatusesQuery.data?.card;
-  const paperHandlerStatus =
-    getElectricalTestingStatusesQuery.data?.paperHandler;
   const usbDriveStatus = getElectricalTestingStatusesQuery.data?.usbDrive;
 
   return (
@@ -76,15 +129,6 @@ export function AppRoot(): JSX.Element {
         topOffset="100px"
         tasks={[
           {
-            id: 'paperHandler',
-            icon: <Icons.File />,
-            title: 'Paper Handler',
-            statusMessage: paperHandlerStatus?.statusMessage ?? 'Unknown',
-            isRunning: paperHandlerStatus?.taskStatus === 'running',
-            toggleIsRunning: togglePaperHandlerTaskRunning,
-            updatedAt: paperHandlerStatus?.updatedAt,
-          },
-          {
             id: 'card',
             icon: <Icons.SimCard />,
             title: 'Card Reader',
@@ -95,12 +139,46 @@ export function AppRoot(): JSX.Element {
           },
           {
             id: 'usbDrive',
-            icon: <Icons.Print />,
+            icon: <Icons.UsbDrive />,
             title: 'USB Drive',
             statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
             isRunning: usbDriveStatus?.taskStatus === 'running',
             toggleIsRunning: toggleUsbDriveTaskRunning,
             updatedAt: usbDriveStatus?.updatedAt,
+          },
+          {
+            id: 'printer',
+            icon: <Icons.Print />,
+            title: 'Printer',
+            body: (
+              <React.Fragment>
+                {formatPrinterStatus(
+                  getPrinterStatusQuery.data,
+                  getPrinterTaskStatusQuery.data
+                )}
+                <br />
+                <Button
+                  style={{ transform: 'scale(0.5)' }}
+                  onPress={() => printTestPageMutation.mutate()}
+                  disabled={
+                    printTestPageMutation.isLoading ||
+                    !getPrinterStatusQuery.data?.connected
+                  }
+                >
+                  {printTestPageMutation.isLoading
+                    ? 'Printing...'
+                    : 'Print Test Page'}
+                </Button>
+              </React.Fragment>
+            ),
+            isRunning: getPrinterTaskStatusQuery.data?.taskStatus === 'running',
+            toggleIsRunning: togglePrinterTaskRunning,
+          },
+          {
+            id: 'barcodeScanner',
+            icon: <Icons.Search />,
+            title: 'Barcode Scanner',
+            body: formatBarcodeStatus(getBarcodeStatusQuery.data),
           },
           {
             id: 'sound',

@@ -2,16 +2,18 @@ import {
   Button,
   Caption,
   CheckboxButton,
+  CpuMetricsDisplay,
   ExportLogsModal,
   H6,
   Icons,
+  InputControls,
   Main,
   RadioGroup,
   Screen,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import useInterval from 'use-interval';
 import { iter } from '@votingworks/basics';
@@ -19,19 +21,8 @@ import { mapSheet, SheetOf } from '@votingworks/types';
 import type { HWTA } from '@votingworks/scan-backend';
 import { useSound } from '../utils/use_sound';
 import * as api from './api';
-import { CpuMetricsDisplay } from './cpu_metrics_display';
 
 const SOUND_INTERVAL_SECONDS = 5;
-
-function CounterButton() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <Button onPress={() => setCount((prev) => prev + 1)}>
-      Tap Count: {count}
-    </Button>
-  );
-}
 
 const Row = styled.div<{ gap?: string; center?: boolean }>`
   display: flex;
@@ -508,54 +499,6 @@ function AudioControls({
   );
 }
 
-function InputControls(): JSX.Element {
-  const [lastKeyPress, setLastKeyPress] = useState<{
-    key: string;
-    pressedAt: DateTime;
-  }>();
-
-  useEffect(() => {
-    function handleKeyboardEvent(e: KeyboardEvent) {
-      setLastKeyPress({
-        key: e.key === ' ' ? 'Space' : e.key,
-        pressedAt: DateTime.now(),
-      });
-    }
-
-    document.addEventListener('keydown', handleKeyboardEvent);
-    return () => {
-      document.removeEventListener('keydown', handleKeyboardEvent);
-    };
-  }, []);
-
-  return (
-    <Column gap="0.5rem">
-      <Column>
-        <H6>
-          <Icons.Mouse /> Inputs
-        </H6>
-        <Caption style={{ flexGrow: 1 }}>
-          <Column>
-            <CounterButton />
-
-            <Small>
-              Last key press:{' '}
-              {lastKeyPress ? (
-                <React.Fragment>
-                  <code>{lastKeyPress.key}</code> at{' '}
-                  {formatTimestamp(lastKeyPress.pressedAt)}
-                </React.Fragment>
-              ) : (
-                'n/a'
-              )}
-            </Small>
-          </Column>
-        </Caption>
-      </Column>
-    </Column>
-  );
-}
-
 function ScannedSheetImage({
   url,
   label,
@@ -595,6 +538,7 @@ function ScannedSheetImages({ urls }: { urls?: SheetOf<string> }): JSX.Element {
 export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusMessagesQuery =
     api.getElectricalTestingStatuses.useQuery();
+  const getCpuMetricsQuery = api.getCpuMetrics.useQuery();
   const setCardReaderTaskRunningMutation =
     api.setCardReaderTaskRunning.useMutation();
   const setUsbDriveTaskRunningMutation =
@@ -646,7 +590,7 @@ export function AppRoot(): JSX.Element {
 
   return (
     <Screen>
-      <CpuMetricsDisplay />
+      <CpuMetricsDisplay metrics={getCpuMetricsQuery.data} />
       <Main centerChild style={{ paddingTop: '70px' }}>
         <Column center style={{ width: '80%' }}>
           <Row gap="2rem" style={{ flexGrow: 1, maxHeight: '70%' }}>
@@ -669,7 +613,16 @@ export function AppRoot(): JSX.Element {
                 isHeadphonesEnabled={headphonesEnabled}
                 setIsHeadphonesEnabled={setHeadphonesEnabled}
               />
-              <InputControls />
+              <Column gap="0.5rem">
+                <Column>
+                  <H6>
+                    <Icons.Mouse /> Inputs
+                  </H6>
+                  <Caption style={{ flexGrow: 1 }}>
+                    <InputControls />
+                  </Caption>
+                </Column>
+              </Column>
               <PrinterControls
                 status={printerStatus}
                 setIsEnabled={(isEnabled) =>

@@ -186,3 +186,42 @@ test('get/set/delete ballots', () => {
   });
   expect(deletedBallot).toBeUndefined();
 });
+
+test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage', () => {
+  const store = Store.memoryStore();
+
+  // Initially should be empty
+  expect(store.getElectricalTestingStatusMessages()).toEqual([]);
+
+  store.setElectricalTestingStatusMessage('card', 'Success');
+  expect(store.getElectricalTestingStatusMessages()).toEqual([
+    expect.objectContaining({
+      component: 'card',
+      statusMessage: 'Success',
+    }),
+  ]);
+
+  store.setElectricalTestingStatusMessage('usbDrive', 'Success');
+  expect(store.getElectricalTestingStatusMessages()).toEqual([
+    expect.objectContaining({
+      component: 'card',
+      statusMessage: 'Success',
+    }),
+    expect.objectContaining({
+      component: 'usbDrive',
+      statusMessage: 'Success',
+    }),
+  ]);
+
+  store.setElectricalTestingStatusMessage('card', 'Error: No card');
+  expect(store.getElectricalTestingStatusMessages()).toEqual([
+    expect.objectContaining({
+      component: 'card',
+      statusMessage: 'Error: No card',
+    }),
+    expect.objectContaining({
+      component: 'usbDrive',
+      statusMessage: 'Success',
+    }),
+  ]);
+});
