@@ -31,8 +31,8 @@ export type {
   GetExportedElectionError,
 } from './types';
 export type {
-  ElectionFeature,
-  ElectionFeaturesConfig,
+  StateFeature,
+  StateFeaturesConfig,
   UserFeature,
   UserFeaturesConfig,
 } from './features';

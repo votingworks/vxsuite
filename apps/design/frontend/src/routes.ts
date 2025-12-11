@@ -1,4 +1,7 @@
-import type { UserFeaturesConfig } from '@votingworks/design-backend';
+import type {
+  StateFeaturesConfig,
+  UserFeaturesConfig,
+} from '@votingworks/design-backend';
 import {
   ElectionId,
   SystemSettings,
@@ -163,7 +166,8 @@ export const electionParamRoutes = routes.election(':electionId');
 export const rootNavRoutes: Route[] = [];
 export function electionNavRoutes(
   electionId: ElectionId,
-  features: UserFeaturesConfig,
+  userFeatures: UserFeaturesConfig,
+  stateFeatures: StateFeaturesConfig,
   electionSystemSettings: SystemSettings
 ): Route[] {
   const electionRoutes = routes.election(electionId);
@@ -174,11 +178,15 @@ export function electionNavRoutes(
     electionRoutes.parties.root,
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
-    ...(features.SYSTEM_SETTINGS_SCREEN ? [electionRoutes.systemSettings] : []),
-    ...(features.EXPORT_SCREEN ? [electionRoutes.export] : []),
+    ...(userFeatures.SYSTEM_SETTINGS_SCREEN
+      ? [electionRoutes.systemSettings]
+      : []),
+    ...(userFeatures.EXPORT_SCREEN ? [electionRoutes.export] : []),
     ...(electionSystemSettings.quickResultsReportingUrl
       ? [electionRoutes.reports.root]
       : []),
-    ...(features.MS_SEMS_CONVERSION ? [electionRoutes.convertResults] : []),
+    ...(stateFeatures.MS_SEMS_CONVERSION
+      ? [electionRoutes.convertResults]
+      : []),
   ];
 }

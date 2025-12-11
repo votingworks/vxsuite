@@ -94,7 +94,7 @@ import { ElectionInfo, ElectionListing, ElectionStatus } from './types';
 import { generateBallotStyles } from '@votingworks/hmpb';
 import { BackgroundTaskMetadata } from './store';
 import { join } from 'node:path';
-import { electionFeatureConfigs, userFeatureConfigs } from './features';
+import { stateFeatureConfigs, userFeatureConfigs } from './features';
 import { LogEventId } from '@votingworks/logging';
 import { buildApi } from './app';
 import { readdir, readFile } from 'node:fs/promises';
@@ -112,6 +112,7 @@ import {
   sliJurisdiction,
   sliUser,
   vxDemosUser,
+  vxOrganization,
 } from '../test/mocks';
 
 vi.setConfig({
@@ -3650,15 +3651,24 @@ test('listJurisdiction', async () => {
 });
 
 test('feature configs', async () => {
+  const msJurisdictionId = 'ms-jurisdiction-id';
   const { apiClient, auth0 } = await setupApp({
     organizations,
-    jurisdictions,
+    jurisdictions: [
+      ...jurisdictions,
+      {
+        id: msJurisdictionId,
+        name: 'Mississippi Jurisdiction',
+        organization: vxOrganization,
+        stateCode: 'MS',
+      },
+    ],
     users,
   });
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.getUserFeatures()).toEqual(userFeatureConfigs.vx);
   auth0.setLoggedInUser(nonVxUser);
-  expect(await apiClient.getUserFeatures()).toEqual(userFeatureConfigs.nh);
+  expect(await apiClient.getUserFeatures()).toEqual({});
   auth0.setLoggedInUser(sliUser);
   expect(await apiClient.getUserFeatures()).toEqual(userFeatureConfigs.sli);
   auth0.setLoggedInUser(vxDemosUser);
@@ -3683,24 +3693,24 @@ test('feature configs', async () => {
       jurisdictionId: sliJurisdiction.id,
     })
   ).unsafeUnwrap();
-  const vxDemosElectionId = (
+  const msElectionId = (
     await apiClient.createElection({
-      id: 'vx-demos-election-id' as ElectionId,
-      jurisdictionId: vxDemosJurisdiction.id,
+      id: 'ms-election-id' as ElectionId,
+      jurisdictionId: msJurisdictionId,
     })
   ).unsafeUnwrap();
   expect(
-    await apiClient.getElectionFeatures({ electionId: vxElectionId })
-  ).toEqual(electionFeatureConfigs.vx);
+    await apiClient.getStateFeatures({ electionId: vxElectionId })
+  ).toEqual(stateFeatureConfigs.DEMO);
   expect(
-    await apiClient.getElectionFeatures({ electionId: nonVxElectionId })
-  ).toEqual(electionFeatureConfigs.nh);
+    await apiClient.getStateFeatures({ electionId: nonVxElectionId })
+  ).toEqual(stateFeatureConfigs.NH);
   expect(
-    await apiClient.getElectionFeatures({ electionId: sliElectionId })
-  ).toEqual(electionFeatureConfigs.sli);
+    await apiClient.getStateFeatures({ electionId: sliElectionId })
+  ).toEqual(stateFeatureConfigs.DEMO);
   expect(
-    await apiClient.getElectionFeatures({ electionId: vxDemosElectionId })
-  ).toEqual(electionFeatureConfigs.vx);
+    await apiClient.getStateFeatures({ electionId: msElectionId })
+  ).toEqual(stateFeatureConfigs.MS);
 });
 
 test('getBaseUrl', async () => {

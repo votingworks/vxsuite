@@ -28,7 +28,7 @@ import {
 } from './layout';
 import {
   listDistricts,
-  getElectionFeatures,
+  getStateFeatures,
   updatePrecinct,
   createPrecinct,
   deletePrecinct,
@@ -52,7 +52,7 @@ export interface PrecinctFormProps {
 
 export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const { electionId, savedPrecinct } = props;
-  const getElectionFeaturesQuery = getElectionFeatures.useQuery(electionId);
+  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const [precinct, setPrecinct] = useState<Precinct>(
     savedPrecinct ??
@@ -67,11 +67,11 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const precinctRoutes = routes.election(electionId).precincts;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-  if (!(getElectionFeaturesQuery.isSuccess && listDistrictsQuery.isSuccess)) {
+  if (!(getStateFeaturesQuery.isSuccess && listDistrictsQuery.isSuccess)) {
     return null;
   }
 
-  const electionFeatures = getElectionFeaturesQuery.data;
+  const features = getStateFeaturesQuery.data;
   const districts = listDistrictsQuery.data;
 
   function goBackToPrecinctsList() {
@@ -279,7 +279,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       }
                     />
 
-                    {electionFeatures.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
+                    {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
                       <InputGroup label="Election Title Override">
                         <input
                           type="text"
@@ -294,7 +294,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       </InputGroup>
                     )}
 
-                    {electionFeatures.PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE && (
+                    {features.PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE && (
                       <InputGroup label="Election Seal Override">
                         <SealImageInput
                           value={split.electionSealOverride}
@@ -308,7 +308,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       </InputGroup>
                     )}
 
-                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE && (
+                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE && (
                       <div>
                         <FieldName>Signature Image</FieldName>
                         <SignatureImageInput
@@ -323,7 +323,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       </div>
                     )}
 
-                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE && (
+                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE && (
                       <InputGroup label="Signature Caption">
                         <input
                           type="text"

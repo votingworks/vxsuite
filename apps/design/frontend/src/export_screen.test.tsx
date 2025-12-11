@@ -13,6 +13,7 @@ import {
   mockUserFeatures,
   jurisdiction,
   user,
+  mockStateFeatures,
 } from '../test/api_helpers';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
@@ -47,6 +48,7 @@ beforeEach(() => {
     .resolves('VxDefaultBallot');
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
+  mockStateFeatures(apiMock, electionId);
 });
 
 afterEach(() => {

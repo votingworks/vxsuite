@@ -2,8 +2,7 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type {
   Api,
-  ElectionFeature,
-  ElectionFeaturesConfig,
+  StateFeaturesConfig,
   User,
   UserFeature,
   UserFeaturesConfig,
@@ -36,22 +35,11 @@ const allUserFeaturesOnConfig: Record<UserFeature, boolean> = {
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
 
   ACCESS_ALL_ORGS: true,
-  ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
-  BALLOT_LANGUAGE_CONFIG: true,
-  AUDIO_PROOFING: true,
-  MS_SEMS_CONVERSION: true,
-};
-
-const allElectionFeaturesOffConfig: Record<ElectionFeature, boolean> = {
-  PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: false,
-  PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: false,
-  PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: false,
-  PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: false,
 };
 
 export function mockUserFeatures(
   apiClient: MockApiClient,
-  features?: Partial<UserFeaturesConfig>
+  features?: UserFeaturesConfig
 ): void {
   if (features) {
     apiClient.getUserFeatures.reset();
@@ -62,15 +50,17 @@ export function mockUserFeatures(
   });
 }
 
-export function mockElectionFeatures(
+export function mockStateFeatures(
   apiClient: MockApiClient,
   electionId: ElectionId,
-  features: Partial<ElectionFeaturesConfig>
+  features?: StateFeaturesConfig
 ): void {
-  apiClient.getElectionFeatures.expectCallWith({ electionId }).resolves({
-    ...allElectionFeaturesOffConfig,
-    ...features,
-  });
+  if (features) {
+    apiClient.getStateFeatures.reset();
+  }
+  apiClient.getStateFeatures
+    .expectCallWith({ electionId })
+    .resolves(features ?? {});
 }
 
 export function provideApi(

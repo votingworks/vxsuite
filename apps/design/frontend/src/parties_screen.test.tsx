@@ -7,6 +7,7 @@ import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   MockApiClient,
   createMockApiClient,
+  mockStateFeatures,
   mockUserFeatures,
   provideApi,
   user,
@@ -51,8 +52,8 @@ const election = readElectionGeneral();
 const electionId = election.id;
 
 beforeEach(() => {
+  mockStateFeatures(apiMock, electionId);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);

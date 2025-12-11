@@ -21,8 +21,8 @@ import {
   deleteElection,
   getBallotsFinalizedAt,
   getBallotTemplate,
+  getStateFeatures,
   getElectionInfo,
-  getUserFeatures,
   updateElectionInfo,
 } from './api';
 import { FieldName, InputGroup } from './layout';
@@ -64,16 +64,18 @@ function ElectionInfoForm({
   const updateElectionInfoMutation = updateElectionInfo.useMutation();
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
-  const getUserFeaturesQuery = getUserFeatures.useQuery();
+  const getStateFeaturesQuery = getStateFeatures.useQuery(
+    savedElectionInfo.electionId
+  );
   const ballotTemplateIdQuery = getBallotTemplate.useQuery(
     savedElectionInfo.electionId
   );
 
   /* istanbul ignore next - @preserve */
-  if (!getUserFeaturesQuery.isSuccess || !ballotTemplateIdQuery.isSuccess) {
+  if (!getStateFeaturesQuery.isSuccess || !ballotTemplateIdQuery.isSuccess) {
     return null;
   }
-  const features = getUserFeaturesQuery.data;
+  const features = getStateFeaturesQuery.data;
   const ballotTemplateId = ballotTemplateIdQuery.data;
   const showSignatureInput = ballotTemplateId === 'NhBallot';
 

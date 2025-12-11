@@ -13,6 +13,7 @@ import {
   jurisdiction,
   user,
   mockUserFeatures,
+  mockStateFeatures,
 } from '../test/api_helpers';
 import {
   electionInfoFromElection,
@@ -53,6 +54,7 @@ function renderScreen(electionId: ElectionId) {
 
 function expectElectionApiCalls(electionRecord: ElectionRecord) {
   const { id: electionId } = electionRecord.election;
+  mockStateFeatures(apiMock, electionId);
   apiMock.listBallotStyles
     .expectCallWith({ electionId })
     .resolves(electionRecord.election.ballotStyles);
@@ -235,7 +237,7 @@ describe('Ballot layout tab', () => {
   });
 
   test('has form to update paper size and density', async () => {
-    mockUserFeatures(apiMock, {
+    mockStateFeatures(apiMock, electionId, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     });
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
@@ -311,7 +313,7 @@ describe('Ballot layout tab', () => {
   });
 
   test('with ONLY_LETTER_AND_LEGAL_PAPER_SIZES feature flag enabled', async () => {
-    mockUserFeatures(apiMock, {
+    mockStateFeatures(apiMock, electionId, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     });
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
@@ -380,7 +382,7 @@ describe('audio tab', () => {
   });
 
   test('excluded if AUDIO_PROOFING feature is off', async () => {
-    mockUserFeatures(apiMock, { AUDIO_PROOFING: false });
+    mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: false });
 
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
@@ -391,7 +393,7 @@ describe('audio tab', () => {
   });
 
   test('included if AUDIO_PROOFING feature is on', async () => {
-    mockUserFeatures(apiMock, { AUDIO_PROOFING: true });
+    mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: true });
     vi.mocked(BallotAudioScreen).mockImplementation(() => (
       <div data-testid="Audio Screen" />
     ));

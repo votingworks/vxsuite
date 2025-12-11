@@ -26,6 +26,7 @@ import {
   jurisdiction,
   provideApi,
   user,
+  mockStateFeatures,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -45,6 +46,7 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectRepeatedCallsWith().resolves(user);
   mockUserFeatures(apiMock);
+  mockStateFeatures(apiMock, electionId);
 });
 
 afterEach(() => {
@@ -892,6 +894,7 @@ describe('Results navigation and display', () => {
   });
 
   test('can view results properly for all precincts primary election', async () => {
+    mockStateFeatures(apiMock, primaryElection.id, {});
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(mockSystemSettingsWithUrl);
@@ -985,6 +988,7 @@ describe('Results navigation and display', () => {
   });
 
   test('can view results properly for single precinct primary election', async () => {
+    mockStateFeatures(apiMock, primaryElection.id, {});
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(mockSystemSettingsWithUrl);
