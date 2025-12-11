@@ -3002,11 +3002,13 @@ test('Export test decks', async () => {
       ballotStyle.precincts.includes(precinct.id)
     )
   );
+  // Default system settings have bmdPrintMode=undefined which includes summary ballots
   expect(Object.keys(zip.files).sort()).toEqual(
     [
-      ...precinctsWithBallots.map(
-        (precinct) => `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
-      ),
+      ...precinctsWithBallots.flatMap((precinct) => [
+        `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
+        `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
+      ]),
       FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
     ].sort()
   );
@@ -3060,6 +3062,92 @@ test('Export test decks', async () => {
     ).rejects.toThrow('auth:forbidden');
   });
 });
+
+test.each([
+  { bmdPrintMode: undefined, shouldIncludeSummaryBallots: true },
+  { bmdPrintMode: 'summary' as const, shouldIncludeSummaryBallots: true },
+  {
+    bmdPrintMode: 'bubble_ballot' as const,
+    shouldIncludeSummaryBallots: false,
+  },
+  {
+    bmdPrintMode: 'marks_on_preprinted_ballot' as const,
+    shouldIncludeSummaryBallots: false,
+  },
+])(
+  'bmdPrintMode=$bmdPrintMode should include summary ballots: $shouldIncludeSummaryBallots',
+  async ({ bmdPrintMode, shouldIncludeSummaryBallots }) => {
+    const electionDefinition = readElectionTwoPartyPrimaryDefinition();
+    const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
+      jurisdictions,
+      users,
+    });
+
+    auth0.setLoggedInUser(nonVxUser);
+    const electionId = (
+      await apiClient.loadElection({
+        newId: 'test-bmd-print-mode-election' as ElectionId,
+        jurisdictionId: nonVxJurisdiction.id,
+        upload: {
+          format: 'vxf',
+          electionFileContents: electionDefinition.electionData,
+        },
+      })
+    ).unsafeUnwrap();
+
+    // Set the bmdPrintMode system setting
+    if (bmdPrintMode !== undefined) {
+      await apiClient.updateSystemSettings({
+        electionId,
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          bmdPrintMode,
+        },
+      });
+    }
+
+    const filename = await exportTestDecks({
+      apiClient,
+      electionId,
+      fileStorageClient,
+      workspace,
+      electionSerializationFormat: 'vxf',
+    });
+
+    const filepath = join(nonVxJurisdiction.id, filename);
+    const zipContents = assertDefined(
+      fileStorageClient.getRawFile(filepath),
+      `No file found in mock FileStorageClient for ${filepath}`
+    );
+    const zip = await JsZip.loadAsync(new Uint8Array(zipContents));
+
+    const ballotStyles = await apiClient.listBallotStyles({ electionId });
+    const precincts = await apiClient.listPrecincts({ electionId });
+    const precinctsWithBallots = precincts.filter((precinct) =>
+      ballotStyles.some((ballotStyle) =>
+        ballotStyle.precincts.includes(precinct.id)
+      )
+    );
+
+    const expectedFiles = shouldIncludeSummaryBallots
+      ? [
+          ...precinctsWithBallots.flatMap((precinct) => [
+            `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
+            `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
+          ]),
+          FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+        ]
+      : [
+          ...precinctsWithBallots.map(
+            (precinct) =>
+              `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
+          ),
+          FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+        ];
+
+    expect(Object.keys(zip.files).sort()).toEqual(expectedFiles.sort());
+  }
+);
 
 test('Consistency of ballot hash across exports', async () => {
   const baseElectionDefinition =
