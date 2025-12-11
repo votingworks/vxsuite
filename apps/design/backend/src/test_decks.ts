@@ -21,8 +21,9 @@ import {
   TestDeckBallot as TestDeckBallotSpec,
 } from '@votingworks/utils';
 import { renderToPdf } from '@votingworks/printing';
+import React from 'react';
 
-import { AdminTallyReportByParty } from '@votingworks/ui';
+import { AdminTallyReportByParty, BmdPaperBallot } from '@votingworks/ui';
 import {
   markBallotDocument,
   concatenatePdfs,
@@ -77,6 +78,46 @@ export async function createPrecinctTestDeck({
 }
 
 /**
+ * Creates a test deck of summary BMD ballots for a precinct and the given ballot specs.
+ */
+export async function createPrecinctSummaryBallotTestDeck({
+  electionDefinition,
+  ballotSpecs,
+  isLiveMode,
+  emitProgress,
+}: {
+  electionDefinition: ElectionDefinition;
+  ballotSpecs: TestDeckBallotSpec[];
+  isLiveMode: boolean;
+  emitProgress?: (ballotsRendered: number) => void;
+}): Promise<Uint8Array | undefined> {
+  if (ballotSpecs.length === 0) {
+    return undefined;
+  }
+
+  // Create all ballot React elements
+  const reactDocuments = ballotSpecs.map((ballotSpec) => ({
+    document: React.createElement(BmdPaperBallot, {
+      electionDefinition,
+      ballotStyleId: ballotSpec.ballotStyleId,
+      precinctId: ballotSpec.precinctId,
+      votes: ballotSpec.votes,
+      isLiveMode,
+      machineType: 'mark' as const,
+    }),
+  }));
+
+  // Render all ballots in a single batch call for better performance
+  const pdfResults = await renderToPdf(reactDocuments);
+  const ballotPdfs = pdfResults.unsafeUnwrap();
+
+  // Emit progress after all ballots are rendered
+  emitProgress?.(ballotSpecs.length);
+
+  return await concatenatePdfs(ballotPdfs);
+}
+
+/**
  * In order to generate CVRs per sheet, we want to know how contests are
  * arranged by sheet so we can arrange the votes accordingly.
  */
@@ -114,14 +155,28 @@ function getBallotContestLayouts(
 }
 
 function generateTestDeckCastVoteRecords(
-  election: Election
+  election: Election,
+  options: { includeSummaryBallots: boolean }
 ): Tabulation.CastVoteRecord[] {
-  const ballotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
+  const { includeSummaryBallots = false } = options;
+
+  // Generate HMPB ballot specs
+  const hmpbBallotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
     election,
-    markingMethod: 'hand',
+    ballotFormat: 'bubble',
     includeBlankBallots: false,
     includeOvervotedBallots: false,
   });
+
+  // Generate summary ballot specs if configured
+  const summaryBallotSpecs: TestDeckBallotSpec[] = includeSummaryBallots
+    ? generateTestDeckBallots({
+        election,
+        ballotFormat: 'summary',
+        includeBlankBallots: false,
+        includeOvervotedBallots: false,
+      })
+    : [];
 
   const ballotContestLayouts: BallotContestLayout[] = getBallotContestLayouts(
     assertDefined(election.gridLayouts)
@@ -130,7 +185,9 @@ function generateTestDeckCastVoteRecords(
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
   const cvrs: Tabulation.CastVoteRecord[] = [];
-  for (const ballotSpec of ballotSpecs) {
+
+  // Process HMPB ballots
+  for (const ballotSpec of hmpbBallotSpecs) {
     const ballotStyleGroupId = getGroupIdFromBallotStyleId({
       ballotStyleId: ballotSpec.ballotStyleId,
       election,
@@ -143,9 +200,6 @@ function generateTestDeckCastVoteRecords(
       batchId: 'test-deck',
       votingMethod: 'precinct',
     } as const;
-
-    // test decks do not currently include BMD ballots
-    assert(ballotSpec.markingMethod === 'hand');
 
     const ballotContestLayout = find(
       ballotContestLayouts,
@@ -168,13 +222,37 @@ function generateTestDeckCastVoteRecords(
     }
   }
 
+  // Process summary ballots
+  for (const ballotSpec of summaryBallotSpecs) {
+    const ballotStyleGroupId = getGroupIdFromBallotStyleId({
+      ballotStyleId: ballotSpec.ballotStyleId,
+      election,
+    });
+    const CVR_ATTRIBUTES = {
+      precinctId: ballotSpec.precinctId,
+      ballotStyleGroupId,
+      partyId: ballotStyleIdPartyIdLookup[ballotStyleGroupId],
+      scannerId: 'test-deck',
+      batchId: 'test-deck',
+      votingMethod: 'precinct',
+    } as const;
+
+    // Summary/BMD ballots contain all votes on a single "sheet" (the QR code)
+    cvrs.push({
+      votes: convertVotesDictToTabulationVotes(ballotSpec.votes),
+      card: { type: 'bmd' },
+      ...CVR_ATTRIBUTES,
+    });
+  }
+
   return cvrs;
 }
 
 export async function getTallyReportResults(
-  election: Election
+  election: Election,
+  options: { includeSummaryBallots: boolean }
 ): Promise<Admin.TallyReportResults> {
-  const cvrs = generateTestDeckCastVoteRecords(election);
+  const cvrs = generateTestDeckCastVoteRecords(election, options);
 
   if (election.type === 'general') {
     const [electionResults] = groupMapToGroupList(
@@ -226,13 +304,17 @@ export async function getTallyReportResults(
 export async function createTestDeckTallyReport({
   electionDefinition,
   generatedAtTime,
+  includeSummaryBallots,
 }: {
   electionDefinition: ElectionDefinition;
   generatedAtTime?: Date;
+  includeSummaryBallots: boolean;
 }): Promise<Uint8Array> {
   const { election } = electionDefinition;
 
-  const tallyReportResults = await getTallyReportResults(election);
+  const tallyReportResults = await getTallyReportResults(election, {
+    includeSummaryBallots,
+  });
 
   return (
     await renderToPdf({

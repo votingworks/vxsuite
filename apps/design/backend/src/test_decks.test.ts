@@ -25,6 +25,7 @@ import {
 } from '@votingworks/types';
 import {
   createPrecinctTestDeck,
+  createPrecinctSummaryBallotTestDeck,
   createTestDeckTallyReport,
   getTallyReportResults,
 } from './test_decks';
@@ -75,7 +76,7 @@ describe('createPrecinctTestDeck', () => {
     const ballotSpecs = generateTestDeckBallots({
       election,
       precinctId,
-      markingMethod: 'hand',
+      ballotFormat: 'bubble',
     });
     const testDeckDocument = await createPrecinctTestDeck({
       rendererPool,
@@ -129,7 +130,7 @@ describe('createPrecinctTestDeck', () => {
     const ballotSpecs = generateTestDeckBallots({
       election,
       precinctId: precinct.id,
-      markingMethod: 'hand',
+      ballotFormat: 'bubble',
     });
     const testDeckDocument = await createPrecinctTestDeck({
       rendererPool,
@@ -156,12 +157,49 @@ describe('createPrecinctTestDeck', () => {
   });
 });
 
+describe('createPrecinctSummaryBallotTestDeck', () => {
+  test('generates summary BMD ballots for a precinct', async () => {
+    const { electionDefinition } = vxFamousNamesFixtures;
+    const { election } = electionDefinition;
+    const precinctId = election.precincts[0].id;
+
+    const ballotSpecs = generateTestDeckBallots({
+      election,
+      precinctId,
+      ballotFormat: 'summary',
+    });
+
+    const summaryBallotPdf = await createPrecinctSummaryBallotTestDeck({
+      electionDefinition,
+      ballotSpecs,
+      isLiveMode: false,
+    });
+
+    expect(summaryBallotPdf).toBeDefined();
+    await expect(summaryBallotPdf).toMatchPdfSnapshot();
+  });
+
+  test('returns undefined for empty ballot specs', async () => {
+    const { electionDefinition } = vxFamousNamesFixtures;
+
+    const summaryBallotPdf = await createPrecinctSummaryBallotTestDeck({
+      electionDefinition,
+      ballotSpecs: [],
+      isLiveMode: false,
+    });
+
+    expect(summaryBallotPdf).toBeUndefined();
+  });
+});
+
 describe('getTallyReportResults', () => {
-  test('general', async () => {
+  test('general election without summary ballots', async () => {
     const { electionDefinition } = vxFamousNamesFixtures;
     const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults(election);
+    const tallyReportResults = await getTallyReportResults(election, {
+      includeSummaryBallots: false,
+    });
 
     expect(tallyReportResults.hasPartySplits).toEqual(false);
     expect(tallyReportResults.contestIds).toEqual(
@@ -169,6 +207,7 @@ describe('getTallyReportResults', () => {
     );
     expect(tallyReportResults.manualResults).toBeUndefined();
     const { scannedResults } = tallyReportResults;
+    // Without summary ballots, only HMPB counts
     expect(scannedResults.cardCounts).toEqual({
       bmd: 0,
       hmpb: [52],
@@ -198,11 +237,53 @@ describe('getTallyReportResults', () => {
     );
   });
 
-  test('primary', async () => {
+  test('general election with summary ballots doubles the counts', async () => {
+    const { electionDefinition } = vxFamousNamesFixtures;
+    const { election } = electionDefinition;
+
+    const tallyReportResults = await getTallyReportResults(election, {
+      includeSummaryBallots: true,
+    });
+
+    expect(tallyReportResults.hasPartySplits).toEqual(false);
+    const { scannedResults } = tallyReportResults;
+    // With summary ballots, we have both HMPB and BMD counts (doubled)
+    expect(scannedResults.cardCounts).toEqual({
+      bmd: 52,
+      hmpb: [52],
+    });
+
+    // check one contest - tallies should be doubled
+    expect(scannedResults.contestResults['board-of-alderman']).toEqual(
+      buildContestResultsFixture({
+        contest: find(election.contests, (c) => c.id === 'board-of-alderman'),
+        contestResultsSummary: {
+          type: 'candidate',
+          ballots: 104, // doubled
+          overvotes: 0,
+          undervotes: 312, // doubled
+          officialOptionTallies: {
+            'helen-keller': 16, // doubled
+            'nikola-tesla': 16,
+            'pablo-picasso': 8,
+            'steve-jobs': 16,
+            'vincent-van-gogh': 8,
+            'wolfgang-amadeus-mozart': 8,
+            'write-in': 32,
+          },
+        },
+        includeGenericWriteIn: true,
+      })
+    );
+  });
+
+  test('primary election without summary ballots', async () => {
     const { electionDefinition } = vxPrimaryElectionFixtures;
     const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults(election);
+    const tallyReportResults = await getTallyReportResults(election, {
+      includeSummaryBallots: false,
+    });
 
     expect(tallyReportResults.hasPartySplits).toEqual(true);
     expect(tallyReportResults.contestIds).toEqual(
@@ -250,20 +331,91 @@ describe('getTallyReportResults', () => {
       })
     );
   });
+
+  test('primary election with summary ballots doubles the counts', async () => {
+    const { electionDefinition } = vxPrimaryElectionFixtures;
+    const { election } = electionDefinition;
+
+    const tallyReportResults = await getTallyReportResults(election, {
+      includeSummaryBallots: true,
+    });
+
+    expect(tallyReportResults.hasPartySplits).toEqual(true);
+    expect(
+      tallyReportResults.hasPartySplits && tallyReportResults.cardCountsByParty
+    ).toEqual({
+      '0': {
+        bmd: 100,
+        hmpb: [100],
+      },
+      '1': {
+        bmd: 100,
+        hmpb: [100],
+      },
+    });
+    const { scannedResults } = tallyReportResults;
+    expect(scannedResults.cardCounts).toEqual({
+      bmd: 200,
+      hmpb: [200],
+      manual: 0,
+    });
+
+    // check one contest - tallies should be doubled
+    expect(scannedResults.contestResults['county-leader-mammal']).toEqual(
+      buildContestResultsFixture({
+        contest: find(
+          election.contests,
+          (c) => c.id === 'county-leader-mammal'
+        ),
+        contestResultsSummary: {
+          type: 'candidate',
+          ballots: 200, // doubled
+          overvotes: 0,
+          undervotes: 0,
+          officialOptionTallies: {
+            fox: 40, // doubled
+            horse: 80,
+            otter: 80,
+          },
+        },
+        includeGenericWriteIn: false,
+      })
+    );
+  });
 });
 
-test('createTestDeckTallyReport', async () => {
-  const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
-  const electionDefinition = (
-    await readElection(fixtures.electionPath)
-  ).unsafeUnwrap();
+describe('createTestDeckTallyReport', () => {
+  test('without summary ballots', async () => {
+    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
+    const electionDefinition = (
+      await readElection(fixtures.electionPath)
+    ).unsafeUnwrap();
 
-  const reportDocumentBuffer = await createTestDeckTallyReport({
-    electionDefinition,
-    generatedAtTime: new Date('2021-01-01T00:00:00.000'),
+    const reportDocumentBuffer = await createTestDeckTallyReport({
+      electionDefinition,
+      generatedAtTime: new Date('2021-01-01T00:00:00.000'),
+      includeSummaryBallots: false,
+    });
+
+    await expect(reportDocumentBuffer).toMatchPdfSnapshot({
+      failureThreshold: 0.0001,
+    });
   });
 
-  await expect(reportDocumentBuffer).toMatchPdfSnapshot({
-    failureThreshold: 0.0001,
+  test('with summary ballots', async () => {
+    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
+    const electionDefinition = (
+      await readElection(fixtures.electionPath)
+    ).unsafeUnwrap();
+
+    const reportDocumentBuffer = await createTestDeckTallyReport({
+      electionDefinition,
+      generatedAtTime: new Date('2021-01-01T00:00:00.000'),
+      includeSummaryBallots: true,
+    });
+
+    await expect(reportDocumentBuffer).toMatchPdfSnapshot({
+      failureThreshold: 0.0001,
+    });
   });
 });

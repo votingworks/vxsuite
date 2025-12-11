@@ -89,7 +89,12 @@ import {
   testSetupHelpers,
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
-import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
+import {
+  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+  createPrecinctTestDeck,
+  createPrecinctSummaryBallotTestDeck,
+  createTestDeckTallyReport,
+} from './test_decks';
 import { ElectionInfo, ElectionListing, ElectionStatus } from './types';
 import { generateBallotStyles } from '@votingworks/hmpb';
 import { BackgroundTaskMetadata } from './store';
@@ -161,6 +166,19 @@ vi.mock('@votingworks/auth', async (importActual) => {
   };
 });
 
+// Spy on test deck functions so we can mock them in specific tests
+vi.mock(import('./test_decks.js'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    createPrecinctTestDeck: vi.fn(original.createPrecinctTestDeck),
+    createPrecinctSummaryBallotTestDeck: vi.fn(
+      original.createPrecinctSummaryBallotTestDeck
+    ),
+    createTestDeckTallyReport: vi.fn(original.createTestDeckTallyReport),
+  };
+});
+
 const { setupApp, cleanup } = testSetupHelpers();
 
 const MOCK_READINESS_REPORT_CONTENTS = '%PDF - MockReadinessReport';
@@ -213,6 +231,9 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockRestore();
+  vi.mocked(createPrecinctTestDeck).mockRestore();
+  vi.mocked(createPrecinctSummaryBallotTestDeck).mockRestore();
+  vi.mocked(createTestDeckTallyReport).mockRestore();
 });
 
 test('all methods require authentication', async () => {
@@ -3060,11 +3081,13 @@ test('Export test decks', async () => {
       ballotStyle.precincts.includes(precinct.id)
     )
   );
+  // Default system settings have bmdPrintMode=undefined which includes summary ballots
   expect(Object.keys(zip.files).sort()).toEqual(
     [
-      ...precinctsWithBallots.map(
-        (precinct) => `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
-      ),
+      ...precinctsWithBallots.flatMap((precinct) => [
+        `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
+        `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
+      ]),
       FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
     ].sort()
   );
@@ -3118,6 +3141,104 @@ test('Export test decks', async () => {
     ).rejects.toThrow('auth:forbidden');
   });
 });
+
+test.each([
+  { bmdPrintMode: undefined, shouldIncludeSummaryBallots: true },
+  { bmdPrintMode: 'summary' as const, shouldIncludeSummaryBallots: true },
+  {
+    bmdPrintMode: 'bubble_ballot' as const,
+    shouldIncludeSummaryBallots: false,
+  },
+  {
+    bmdPrintMode: 'marks_on_preprinted_ballot' as const,
+    shouldIncludeSummaryBallots: false,
+  },
+])(
+  'bmdPrintMode=$bmdPrintMode should include summary ballots: $shouldIncludeSummaryBallots',
+  async ({ bmdPrintMode, shouldIncludeSummaryBallots }) => {
+    // Mock PDF rendering functions to return simple placeholder PDFs for faster test execution
+    const mockPdfContent = new TextEncoder().encode('%PDF-mock');
+    vi.mocked(createPrecinctTestDeck).mockImplementation(
+      async ({ ballotSpecs }) =>
+        ballotSpecs.length > 0 ? mockPdfContent : undefined
+    );
+    vi.mocked(createPrecinctSummaryBallotTestDeck).mockImplementation(
+      async ({ ballotSpecs }) =>
+        ballotSpecs.length > 0 ? mockPdfContent : undefined
+    );
+    vi.mocked(createTestDeckTallyReport).mockResolvedValue(mockPdfContent);
+
+    const electionDefinition = readElectionTwoPartyPrimaryDefinition();
+    const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
+      jurisdictions,
+      users,
+    });
+
+    auth0.setLoggedInUser(nonVxUser);
+    const electionId = (
+      await apiClient.loadElection({
+        newId: 'test-bmd-print-mode-election' as ElectionId,
+        jurisdictionId: nonVxJurisdiction.id,
+        upload: {
+          format: 'vxf',
+          electionFileContents: electionDefinition.electionData,
+        },
+      })
+    ).unsafeUnwrap();
+
+    // Set the bmdPrintMode system setting
+    if (bmdPrintMode !== undefined) {
+      await apiClient.updateSystemSettings({
+        electionId,
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          bmdPrintMode,
+        },
+      });
+    }
+
+    const filename = await exportTestDecks({
+      apiClient,
+      electionId,
+      fileStorageClient,
+      workspace,
+      electionSerializationFormat: 'vxf',
+    });
+
+    const filepath = join(nonVxJurisdiction.id, filename);
+    const zipContents = assertDefined(
+      fileStorageClient.getRawFile(filepath),
+      `No file found in mock FileStorageClient for ${filepath}`
+    );
+    const zip = await JsZip.loadAsync(new Uint8Array(zipContents));
+
+    const ballotStyles = await apiClient.listBallotStyles({ electionId });
+    const precincts = await apiClient.listPrecincts({ electionId });
+    const precinctsWithBallots = precincts.filter((precinct) =>
+      ballotStyles.some((ballotStyle) =>
+        ballotStyle.precincts.includes(precinct.id)
+      )
+    );
+
+    const expectedFiles = shouldIncludeSummaryBallots
+      ? [
+          ...precinctsWithBallots.flatMap((precinct) => [
+            `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
+            `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
+          ]),
+          FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+        ]
+      : [
+          ...precinctsWithBallots.map(
+            (precinct) =>
+              `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
+          ),
+          FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+        ];
+
+    expect(Object.keys(zip.files).sort()).toEqual(expectedFiles.sort());
+  }
+);
 
 test('Consistency of ballot hash across exports', async () => {
   const baseElectionDefinition =

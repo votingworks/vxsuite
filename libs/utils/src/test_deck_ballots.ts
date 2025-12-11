@@ -11,10 +11,17 @@ import {
   BallotStyleId,
 } from '@votingworks/types';
 
+/**
+ * The type of ballot in a test deck:
+ * - `bubble`: Bubble ballot (hmpb)
+ * - `summary`: Summary ballot with QR-encoded votes
+ */
+export type TestDeckBallotFormat = 'bubble' | 'summary';
+
 export interface TestDeckBallot {
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
-  markingMethod: 'hand' | 'machine';
+  ballotFormat: TestDeckBallotFormat;
   votes: VotesDict;
 }
 
@@ -50,7 +57,7 @@ export function getTestDeckCandidateAtIndex(
 interface GenerateTestDeckParams {
   election: Election;
   precinctId?: PrecinctId;
-  markingMethod: TestDeckBallot['markingMethod'];
+  ballotFormat: TestDeckBallotFormat;
   includeOvervotedBallots?: boolean;
   includeBlankBallots?: boolean;
 }
@@ -58,7 +65,7 @@ interface GenerateTestDeckParams {
 export function generateTestDeckBallots({
   election,
   precinctId,
-  markingMethod,
+  ballotFormat,
   includeOvervotedBallots = true,
   includeBlankBallots = true,
 }: GenerateTestDeckParams): TestDeckBallot[] {
@@ -105,48 +112,54 @@ export function generateTestDeckBallots({
         ballots.push({
           ballotStyleId: ballotStyle.id,
           precinctId: currentPrecinctId,
-          markingMethod,
+          ballotFormat,
           votes,
         });
       }
 
-      if (includeOvervotedBallots && markingMethod === 'hand') {
-        // Generates a minimally overvoted ballot - a single overvote in the
-        // first contest where an overvote is possible. Does not overvote
-        // candidate contests where you must select a write-in to overvote. See
-        // discussion: https://github.com/votingworks/vxsuite/issues/1711.
-        const overvoteContest = contests.find(
-          (contest) =>
-            contest.type === 'yesno' ||
-            contest.candidates.length > contest.seats
-        );
-        if (overvoteContest) {
-          ballots.push({
-            ballotStyleId: ballotStyle.id,
-            precinctId: currentPrecinctId,
-            markingMethod,
-            votes: {
-              [overvoteContest.id]:
-                overvoteContest.type === 'yesno'
-                  ? [overvoteContest.yesOption.id, overvoteContest.noOption.id]
-                  : iter(overvoteContest.candidates)
-                      .take(overvoteContest.seats + 1)
-                      .toArray(),
-            },
-          });
+      // Overvote and blank ballots only make sense for HMPB test decks
+      if (ballotFormat === 'bubble') {
+        if (includeOvervotedBallots) {
+          // Generates a minimally overvoted ballot - a single overvote in the
+          // first contest where an overvote is possible. Does not overvote
+          // candidate contests where you must select a write-in to overvote. See
+          // discussion: https://github.com/votingworks/vxsuite/issues/1711.
+          const overvoteContest = contests.find(
+            (contest) =>
+              contest.type === 'yesno' ||
+              contest.candidates.length > contest.seats
+          );
+          if (overvoteContest) {
+            ballots.push({
+              ballotStyleId: ballotStyle.id,
+              precinctId: currentPrecinctId,
+              ballotFormat,
+              votes: {
+                [overvoteContest.id]:
+                  overvoteContest.type === 'yesno'
+                    ? [
+                        overvoteContest.yesOption.id,
+                        overvoteContest.noOption.id,
+                      ]
+                    : iter(overvoteContest.candidates)
+                        .take(overvoteContest.seats + 1)
+                        .toArray(),
+              },
+            });
+          }
         }
 
         if (includeBlankBallots) {
           ballots.push({
             ballotStyleId: ballotStyle.id,
             precinctId: currentPrecinctId,
-            markingMethod,
+            ballotFormat,
             votes: {},
           });
           ballots.push({
             ballotStyleId: ballotStyle.id,
             precinctId: currentPrecinctId,
-            markingMethod,
+            ballotFormat,
             votes: {},
           });
         }

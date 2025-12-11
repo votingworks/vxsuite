@@ -26,6 +26,7 @@ import {
 } from '../ballots';
 import {
   createPrecinctTestDeck,
+  createPrecinctSummaryBallotTestDeck,
   createTestDeckTallyReport,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
 } from '../test_decks';
@@ -47,9 +48,19 @@ export async function generateTestDecks(
   emitProgress: EmitProgressFunction
 ): Promise<void> {
   const { store } = workspace;
-  const { election, ballotLanguageConfigs, ballotTemplateId, jurisdictionId } =
-    await store.getElection(electionId);
+  const {
+    election,
+    ballotLanguageConfigs,
+    ballotTemplateId,
+    jurisdictionId,
+    systemSettings,
+  } = await store.getElection(electionId);
   const { compact } = await store.getBallotLayoutSettings(electionId);
+
+  // Check if summary BMD ballots should be generated
+  const shouldGenerateSummaryBallots =
+    systemSettings.bmdPrintMode === 'summary' ||
+    systemSettings.bmdPrintMode === undefined;
 
   const ballotStrings = await translateBallotStrings(
     translator,
@@ -86,22 +97,43 @@ export async function generateTestDecks(
 
   const zip = new JsZip();
 
-  const precinctBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
+  // Generate HMPB test deck ballot specs
+  const precinctHmpbBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
     election.precincts.map((precinct) => [
       precinct,
       generateTestDeckBallots({
         election,
         precinctId: precinct.id,
-        markingMethod: 'hand',
+        ballotFormat: 'bubble',
       }),
     ]);
 
-  const totalTestDeckBallots = iter(precinctBallotSpecs)
+  // Generate summary ballot specs if configured
+  const precinctSummaryBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
+    shouldGenerateSummaryBallots
+      ? election.precincts.map((precinct) => [
+          precinct,
+          generateTestDeckBallots({
+            election,
+            precinctId: precinct.id,
+            ballotFormat: 'summary',
+          }),
+        ])
+      : [];
+
+  // Calculate total ballots
+  const hmpbBallotCount = iter(precinctHmpbBallotSpecs)
     .map(([, specs]) => specs.length)
     .sum();
+  const summaryBallotCount = iter(precinctSummaryBallotSpecs)
+    .map(([, specs]) => specs.length)
+    .sum();
+  const totalTestDeckBallots = hmpbBallotCount + summaryBallotCount;
   emitProgress('Rendering test decks', 0, totalTestDeckBallots);
   let renderedBallots = 0;
-  for (const [precinct, ballotSpecs] of precinctBallotSpecs) {
+
+  for (const [precinct, ballotSpecs] of precinctHmpbBallotSpecs) {
+    // Generate HMPB test deck
     const testDeckPdf = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition,
@@ -117,12 +149,43 @@ export async function generateTestDecks(
       },
     });
     renderedBallots += ballotSpecs.length;
-    if (!testDeckPdf) continue;
-    const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
-    zip.file(fileName, testDeckPdf);
+    /* istanbul ignore else - @preserve */
+    if (testDeckPdf) {
+      const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
+      zip.file(fileName, testDeckPdf);
+    }
   }
 
-  const tallyReport = await createTestDeckTallyReport({ electionDefinition });
+  // Generate summary BMD ballot test decks if configured
+  for (const [precinct, ballotSpecs] of precinctSummaryBallotSpecs) {
+    const summaryBallotPdf = await createPrecinctSummaryBallotTestDeck({
+      electionDefinition,
+      ballotSpecs,
+      isLiveMode: false, // Test decks are always in test mode
+      // eslint-disable-next-line no-loop-func
+      emitProgress: (ballotsRendered) => {
+        emitProgress(
+          `Rendering test decks`,
+          renderedBallots + ballotsRendered,
+          totalTestDeckBallots
+        );
+      },
+    });
+    renderedBallots += ballotSpecs.length;
+    /* istanbul ignore else - @preserve */
+    if (summaryBallotPdf) {
+      const summaryFileName = `${precinct.name.replaceAll(
+        ' ',
+        '_'
+      )}-summary-ballots.pdf`;
+      zip.file(summaryFileName, summaryBallotPdf);
+    }
+  }
+
+  const tallyReport = await createTestDeckTallyReport({
+    electionDefinition,
+    includeSummaryBallots: shouldGenerateSummaryBallots,
+  });
 
   zip.file(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, tallyReport);
   const zipContents = await zip.generateAsync({ type: 'nodebuffer' });
