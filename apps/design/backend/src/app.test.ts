@@ -89,7 +89,12 @@ import {
   testSetupHelpers,
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
-import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
+import {
+  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+  createPrecinctTestDeck,
+  createPrecinctSummaryBallotTestDeck,
+  createTestDeckTallyReport,
+} from './test_decks';
 import { ElectionInfo, ElectionListing, ElectionStatus } from './types';
 import { generateBallotStyles } from '@votingworks/hmpb';
 import { BackgroundTaskMetadata } from './store';
@@ -159,6 +164,19 @@ vi.mock('@votingworks/auth', async (importActual) => {
   };
 });
 
+// Spy on test deck functions so we can mock them in specific tests
+vi.mock(import('./test_decks.js'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    createPrecinctTestDeck: vi.fn(original.createPrecinctTestDeck),
+    createPrecinctSummaryBallotTestDeck: vi.fn(
+      original.createPrecinctSummaryBallotTestDeck
+    ),
+    createTestDeckTallyReport: vi.fn(original.createTestDeckTallyReport),
+  };
+});
+
 const { setupApp, cleanup } = testSetupHelpers();
 
 const MOCK_READINESS_REPORT_CONTENTS = '%PDF - MockReadinessReport';
@@ -211,6 +229,9 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockRestore();
+  vi.mocked(createPrecinctTestDeck).mockRestore();
+  vi.mocked(createPrecinctSummaryBallotTestDeck).mockRestore();
+  vi.mocked(createTestDeckTallyReport).mockRestore();
 });
 
 test('all methods require authentication', async () => {
@@ -3077,6 +3098,18 @@ test.each([
 ])(
   'bmdPrintMode=$bmdPrintMode should include summary ballots: $shouldIncludeSummaryBallots',
   async ({ bmdPrintMode, shouldIncludeSummaryBallots }) => {
+    // Mock PDF rendering functions to return simple placeholder PDFs for faster test execution
+    const mockPdfContent = new TextEncoder().encode('%PDF-mock');
+    vi.mocked(createPrecinctTestDeck).mockImplementation(
+      async ({ ballotSpecs }) =>
+        ballotSpecs.length > 0 ? mockPdfContent : undefined
+    );
+    vi.mocked(createPrecinctSummaryBallotTestDeck).mockImplementation(
+      async ({ ballotSpecs }) =>
+        ballotSpecs.length > 0 ? mockPdfContent : undefined
+    );
+    vi.mocked(createTestDeckTallyReport).mockResolvedValue(mockPdfContent);
+
     const electionDefinition = readElectionTwoPartyPrimaryDefinition();
     const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
       jurisdictions,
