@@ -11,27 +11,6 @@ import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import { z } from 'zod/v4';
 
-export enum UsState {
-  NEW_HAMPSHIRE = 'New Hampshire',
-  MISSISSIPPI = 'Mississippi',
-  UNKNOWN = 'Unknown',
-}
-
-export function normalizeState(state: string): UsState {
-  switch (state.toLowerCase()) {
-    case 'nh':
-    case 'new hampshire':
-    case 'state of new hampshire':
-      return UsState.NEW_HAMPSHIRE;
-    case 'ms':
-    case 'mississippi':
-    case 'state of mississippi':
-      return UsState.MISSISSIPPI;
-    default:
-      return UsState.UNKNOWN;
-  }
-}
-
 export const StateCodes = ['DEMO', 'MS', 'NH'] as const;
 export type StateCode = (typeof StateCodes)[number];
 export const StateCodeSchema: z.ZodType<StateCode> = z.enum(StateCodes);
