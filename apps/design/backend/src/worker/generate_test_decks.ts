@@ -104,7 +104,7 @@ export async function generateTestDecks(
       generateTestDeckBallots({
         election,
         precinctId: precinct.id,
-        ballotType: 'bubble',
+        ballotFormat: 'bubble',
       }),
     ]);
 
@@ -116,7 +116,7 @@ export async function generateTestDecks(
           generateTestDeckBallots({
             election,
             precinctId: precinct.id,
-            ballotType: 'summary',
+            ballotFormat: 'summary',
           }),
         ])
       : [];

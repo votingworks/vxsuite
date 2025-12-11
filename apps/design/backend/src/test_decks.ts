@@ -163,7 +163,7 @@ function generateTestDeckCastVoteRecords(
   // Generate HMPB ballot specs
   const hmpbBallotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
     election,
-    ballotType: 'bubble',
+    ballotFormat: 'bubble',
     includeBlankBallots: false,
     includeOvervotedBallots: false,
   });
@@ -172,7 +172,7 @@ function generateTestDeckCastVoteRecords(
   const summaryBallotSpecs: TestDeckBallotSpec[] = includeSummaryBallots
     ? generateTestDeckBallots({
         election,
-        ballotType: 'summary',
+        ballotFormat: 'summary',
         includeBlankBallots: false,
         includeOvervotedBallots: false,
       })

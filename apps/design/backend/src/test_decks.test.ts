@@ -76,7 +76,7 @@ describe('createPrecinctTestDeck', () => {
     const ballotSpecs = generateTestDeckBallots({
       election,
       precinctId,
-      ballotType: 'bubble',
+      ballotFormat: 'bubble',
     });
     const testDeckDocument = await createPrecinctTestDeck({
       rendererPool,
@@ -130,7 +130,7 @@ describe('createPrecinctTestDeck', () => {
     const ballotSpecs = generateTestDeckBallots({
       election,
       precinctId: precinct.id,
-      ballotType: 'bubble',
+      ballotFormat: 'bubble',
     });
     const testDeckDocument = await createPrecinctTestDeck({
       rendererPool,
@@ -166,7 +166,7 @@ describe('createPrecinctSummaryBallotTestDeck', () => {
     const ballotSpecs = generateTestDeckBallots({
       election,
       precinctId,
-      ballotType: 'summary',
+      ballotFormat: 'summary',
     });
 
     const summaryBallotPdf = await createPrecinctSummaryBallotTestDeck({

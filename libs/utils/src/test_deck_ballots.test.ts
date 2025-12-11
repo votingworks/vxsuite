@@ -83,7 +83,7 @@ describe('generateTestDeckBallots', () => {
     const ballots = generateTestDeckBallots({
       election: electionGeneral,
       precinctId: '23',
-      ballotType: 'bubble',
+      ballotFormat: 'bubble',
     });
     const votes = ballots.map((b) => b.votes);
     const ballotStyle = getBallotStyle({
@@ -205,7 +205,7 @@ describe('generateTestDeckBallots', () => {
     const ballots = generateTestDeckBallots({
       election: electionWithOnlyYesNoContests,
       precinctId: electionWithOnlyYesNoContests.precincts[0]!.id,
-      ballotType: 'bubble',
+      ballotFormat: 'bubble',
     });
     const overvotedBallots = ballots.filter((ballot) =>
       Object.values(ballot.votes).some((vote) => vote && vote.length > 1)
@@ -216,7 +216,7 @@ describe('generateTestDeckBallots', () => {
   test('generates ballots for all precincts if no precinctId is provided', () => {
     const ballots = generateTestDeckBallots({
       election: electionGeneral,
-      ballotType: 'summary',
+      ballotFormat: 'summary',
     });
     const precinctsWithBallotStyles = electionGeneral.precincts.filter((p) =>
       electionGeneral.ballotStyles.some((bs) => bs.precincts.includes(p.id))

@@ -13,15 +13,15 @@ import {
 
 /**
  * The type of ballot in a test deck:
- * - `hmpb`: Hand-marked paper ballot (bubble ballot)
+ * - `bubble`: Bubble ballot (hmpb)
  * - `summary`: Summary ballot with QR-encoded votes
  */
-export type TestDeckBallotType = 'bubble' | 'summary';
+export type TestDeckBallotFormat = 'bubble' | 'summary';
 
 export interface TestDeckBallot {
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
-  ballotType: TestDeckBallotType;
+  ballotFormat: TestDeckBallotFormat;
   votes: VotesDict;
 }
 
@@ -57,7 +57,7 @@ export function getTestDeckCandidateAtIndex(
 interface GenerateTestDeckParams {
   election: Election;
   precinctId?: PrecinctId;
-  ballotType: TestDeckBallotType;
+  ballotFormat: TestDeckBallotFormat;
   includeOvervotedBallots?: boolean;
   includeBlankBallots?: boolean;
 }
@@ -65,7 +65,7 @@ interface GenerateTestDeckParams {
 export function generateTestDeckBallots({
   election,
   precinctId,
-  ballotType,
+  ballotFormat,
   includeOvervotedBallots = true,
   includeBlankBallots = true,
 }: GenerateTestDeckParams): TestDeckBallot[] {
@@ -112,13 +112,13 @@ export function generateTestDeckBallots({
         ballots.push({
           ballotStyleId: ballotStyle.id,
           precinctId: currentPrecinctId,
-          ballotType,
+          ballotFormat,
           votes,
         });
       }
 
       // Overvote and blank ballots only make sense for HMPB test decks
-      if (ballotType === 'bubble') {
+      if (ballotFormat === 'bubble') {
         if (includeOvervotedBallots) {
           // Generates a minimally overvoted ballot - a single overvote in the
           // first contest where an overvote is possible. Does not overvote
@@ -133,7 +133,7 @@ export function generateTestDeckBallots({
             ballots.push({
               ballotStyleId: ballotStyle.id,
               precinctId: currentPrecinctId,
-              ballotType,
+              ballotFormat,
               votes: {
                 [overvoteContest.id]:
                   overvoteContest.type === 'yesno'
@@ -153,13 +153,13 @@ export function generateTestDeckBallots({
           ballots.push({
             ballotStyleId: ballotStyle.id,
             precinctId: currentPrecinctId,
-            ballotType,
+            ballotFormat,
             votes: {},
           });
           ballots.push({
             ballotStyleId: ballotStyle.id,
             precinctId: currentPrecinctId,
-            ballotType,
+            ballotFormat,
             votes: {},
           });
         }
