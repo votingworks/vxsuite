@@ -55,7 +55,7 @@ function formatBarcodeStatus(
 
   if (barcodeStatus.lastScan) {
     const timestamp = barcodeStatus.lastScanTimestamp
-      ? new Date(barcodeStatus.lastScanTimestamp).toLocaleTimeString()
+      ? barcodeStatus.lastScanTimestamp.toLocaleTimeString()
       : '';
     return (
       <span>

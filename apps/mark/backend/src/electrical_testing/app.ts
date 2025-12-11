@@ -32,7 +32,7 @@ export interface BarcodeStatus {
     data: string;
     raw: string;
   };
-  lastScanTimestamp?: number;
+  lastScanTimestamp?: Date;
 }
 
 function buildApi({
@@ -49,7 +49,7 @@ function buildApi({
 
   // Track barcode scanner state
   let lastBarcodeScan: { data: string; raw: string } | undefined;
-  let lastBarcodeScanTimestamp: number | undefined;
+  let lastBarcodeScanTimestamp: Date | undefined;
 
   if (barcodeClient) {
     barcodeClient.on('scan', (scanData: Uint8Array) => {
@@ -59,7 +59,7 @@ function buildApi({
         data: raw,
         raw,
       };
-      lastBarcodeScanTimestamp = Date.now();
+      lastBarcodeScanTimestamp = new Date();
     });
   }
 
