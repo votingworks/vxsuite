@@ -12,25 +12,22 @@ import {
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
-import { sliJurisdictionId } from './globals';
-import { normalizeState, User, UsState } from './types';
-import { userBelongsToJurisdiction } from './utils';
+import { Jurisdiction } from './types';
 
 export function defaultBallotTemplate(
-  state: string,
-  user: User
+  jurisdiction: Jurisdiction
 ): BallotTemplateId {
-  if (userBelongsToJurisdiction(user, sliJurisdictionId())) {
-    return 'VxDefaultBallot';
-  }
-
-  switch (normalizeState(state)) {
-    case UsState.NEW_HAMPSHIRE:
-      return 'NhBallot';
-    case UsState.MISSISSIPPI:
-    case UsState.UNKNOWN:
-    default:
+  switch (jurisdiction.stateCode) {
+    case 'DEMO':
       return 'VxDefaultBallot';
+    case 'MS':
+      return 'MsBallot';
+    case 'NH':
+      return 'NhBallot';
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(jurisdiction.stateCode);
+    }
   }
 }
 
