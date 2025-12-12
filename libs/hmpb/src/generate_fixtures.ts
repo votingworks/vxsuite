@@ -43,6 +43,14 @@ async function generateVxFamousNamesFixtures(rendererPool: RendererPool) {
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
   await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
+  await writeFile(
+    fixtures.blankOfficialBallotPath,
+    generated.blankOfficialBallotPdf
+  );
+  await writeFile(
+    fixtures.markedOfficialBallotPath,
+    generated.markedOfficialBallotPdf
+  );
   for (const { pdfPath, images } of [
     {
       pdfPath: generated.blankBallotPath,
@@ -51,6 +59,14 @@ async function generateVxFamousNamesFixtures(rendererPool: RendererPool) {
     {
       pdfPath: generated.markedBallotPath,
       images: generated.markedBallotPageImages,
+    },
+    {
+      pdfPath: generated.blankOfficialBallotPath,
+      images: generated.blankOfficialBallotPageImages,
+    },
+    {
+      pdfPath: generated.markedOfficialBallotPath,
+      images: generated.markedOfficialBallotPageImages,
     },
   ]) {
     if (images) {

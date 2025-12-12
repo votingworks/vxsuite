@@ -10,7 +10,8 @@ import { asElectionDefinition } from '../util';
 export const electionJson = builders.election(
   'data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json'
 );
-export const { readElection, readElectionDefinition } = electionJson;
+export const { readElection, readElectionDefinition, toElectionPackage } =
+  electionJson;
 
 export const electionPackage = builders.file(
   'data/electionFamousNames2021/election-package-default-system-settings.zip'

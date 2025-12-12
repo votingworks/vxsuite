@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test';
 import {
   INTEGRATION_TEST_DEFAULT_PIN,
-  mockCard,
+  mockCardRemoval,
   mockElectionManagerCardInsertion,
   mockSystemAdministratorCardInsertion,
 } from '@votingworks/auth';
@@ -17,17 +17,6 @@ export async function enterPin(page: Page): Promise<void> {
     await page.getByRole('button', { name: digit }).click();
   }
   await page.getByText('Remove card to unlock VxCentralScan').waitFor(); // avoid flaky auth from premature card removal
-}
-
-/**
- * Mocks the card being removed.
- */
-export function mockCardRemoval(): void {
-  mockCard({
-    cardStatus: {
-      status: 'no_card',
-    },
-  });
 }
 
 /**
@@ -54,10 +43,19 @@ export async function logInAsElectionManager(
 }
 
 /**
- * Logs out of the application, bypassing the UI.
+ * Logs out the user via the UI. Assumes the "Lock Machine" button is visible.
+ */
+export async function logOut(page: Page): Promise<void> {
+  await page.getByText('Lock Machine').click();
+  await page.getByText('VxCentralScan Locked').waitFor();
+}
+
+/**
+ * Logs out of the application forcibly, bypassing the UI. Used between tests
+ * for cleanup.
  */
 export async function forceLogOut(page: Page): Promise<void> {
-  await page.request.post(methodUrl('logOut', '/api'), {
+  await page.request.post(methodUrl('logOut', 'http://localhost:3000/api'), {
     data: '{}',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -66,13 +64,28 @@ export async function forceLogOut(page: Page): Promise<void> {
 /**
  * Logs out and resets the application by removing the election definition.
  */
-export async function forceReset(page: Page): Promise<void> {
-  await page.request.post(methodUrl('unconfigure', '/api'), {
-    data: JSON.stringify({
-      ignoreBackupRequirement: true,
-    }),
-    headers: { 'Content-Type': 'application/json' },
-  });
+export async function forceLogOutAndResetElectionDefinition(
+  page: Page
+): Promise<void> {
   await forceLogOut(page);
   await page.goto('/');
+
+  await logInAsSystemAdministrator(page);
+
+  const unconfigureMachineButton = page.getByRole('button', {
+    name: 'Unconfigure Machine',
+  });
+
+  if (
+    (await unconfigureMachineButton.isVisible()) &&
+    (await unconfigureMachineButton.isEnabled())
+  ) {
+    await unconfigureMachineButton.click();
+    const modal = page.getByRole('alertdialog');
+    await modal
+      .getByRole('button', { name: 'Delete All Election Data' })
+      .click();
+  }
+
+  await forceLogOut(page);
 }

@@ -16,6 +16,7 @@ export const {
   asBuffer,
   asFilePath,
   asText,
+  toElectionPackage,
 } = builders.election(
   'data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json'
 );
