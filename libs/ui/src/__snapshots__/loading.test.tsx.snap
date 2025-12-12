@@ -4,7 +4,7 @@ exports[`Renders Loading with defaults 1`] = `
 <div>
   <h1
     aria-label="Loading."
-    class="sc-aXZVg fIqjUo"
+    class="sc-aXZVg jaMnWf"
   >
     Loading
   </h1>

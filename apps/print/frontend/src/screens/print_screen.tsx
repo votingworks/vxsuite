@@ -335,7 +335,14 @@ export function PrintScreen({
         </PrintButton>
       </Footer>
       {isShowingPrintingModal && (
-        <Modal centerContent content={<Loading>Printing</Loading>} />
+        <Modal
+          centerContent
+          content={
+            <Loading animationDurationS={DEFAULT_PROGRESS_MODAL_DELAY_SECONDS}>
+              Printing
+            </Loading>
+          }
+        />
       )}
     </Container>
   );
