@@ -59,6 +59,10 @@ export const routes = {
         },
         edit: (precinctId: string) => ({
           title: 'Edit Precinct',
+          path: `${root}/precincts/${precinctId}/edit`,
+        }),
+        view: (precinctId: string) => ({
+          title: 'Precinct Info',
           path: `${root}/precincts/${precinctId}`,
         }),
       },

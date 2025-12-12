@@ -14,28 +14,30 @@ import {
   hasSplits,
   PrecinctSplit,
   Precinct,
+  District,
 } from '@votingworks/types';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 
 import { routes } from './routes';
-import {
-  Form,
-  FormActionsRow,
-  Row,
-  Column,
-  InputGroup,
-  FieldName,
-} from './layout';
+import { Row, Column, InputGroup, FieldName } from './layout';
 import {
   listDistricts,
   getStateFeatures,
   updatePrecinct,
   createPrecinct,
   deletePrecinct,
+  getBallotsFinalizedAt,
 } from './api';
 import { generateId, replaceAtIndex } from './utils';
 import { SealImageInput } from './seal_image_input';
 import { SignatureImageInput } from './signature_image_input';
+import {
+  FormBody,
+  FormErrorContainer,
+  FormFixed,
+  FormFooter,
+  FormTitle,
+} from './form_fixed';
 
 function createBlankPrecinct(): Precinct {
   return {
@@ -46,23 +48,30 @@ function createBlankPrecinct(): Precinct {
 }
 
 export interface PrecinctFormProps {
+  editing: boolean;
   electionId: ElectionId;
   savedPrecinct?: Precinct;
+  title: React.ReactNode;
 }
 
 export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
-  const { electionId, savedPrecinct } = props;
+  const { editing, electionId, savedPrecinct, title } = props;
+
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+
   const [precinct, setPrecinct] = useState<Precinct>(
     savedPrecinct ??
       // To make mocked IDs predictable in tests, we pass a function here
       // so it will only be called on initial render.
       createBlankPrecinct
   );
+
   const createPrecinctMutation = createPrecinct.useMutation();
   const updatePrecinctMutation = updatePrecinct.useMutation();
   const deletePrecinctMutation = deletePrecinct.useMutation();
+
   const history = useHistory();
   const precinctRoutes = routes.election(electionId).precincts;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
@@ -73,9 +82,20 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
 
   const features = getStateFeaturesQuery.data;
   const districts = listDistrictsQuery.data;
+  const finalized = !!getBallotsFinalizedAtQuery.data;
 
   function goBackToPrecinctsList() {
     history.push(precinctRoutes.root.path);
+  }
+
+  function setIsEditing(switchToEdit: boolean) {
+    if (!savedPrecinct) return history.replace(precinctRoutes.root.path);
+
+    history.replace(
+      switchToEdit
+        ? precinctRoutes.edit(savedPrecinct.id).path
+        : precinctRoutes.view(savedPrecinct.id).path
+    );
   }
 
   function onSubmit() {
@@ -84,9 +104,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         { electionId, updatedPrecinct: precinct },
         {
           onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToPrecinctsList();
-            }
+            if (result.isErr()) return;
+            setIsEditing(false);
           },
         }
       );
@@ -95,9 +114,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         { electionId, newPrecinct: precinct },
         {
           onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToPrecinctsList();
-            }
+            if (result.isErr()) return;
+            history.replace(precinctRoutes.view(precinct.id).path);
           },
         }
       );
@@ -143,6 +161,9 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         },
       ]);
     }
+
+    // If adding to an existing precinct in view mode, switch to edit mode:
+    if (savedPrecinct) setIsEditing(true);
   }
 
   function onRemoveSplitPress(index: number) {
@@ -215,230 +236,293 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     }
   })();
 
+  const disabled = !editing || someMutationIsLoading;
+
   return (
-    <Form
+    <FormFixed
+      editing={editing}
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
       }}
       onReset={(e) => {
         e.preventDefault();
-        goBackToPrecinctsList();
+        setPrecinct(savedPrecinct || createBlankPrecinct);
+        setIsEditing(!editing);
       }}
     >
-      <InputGroup label="Name">
-        <input
-          type="text"
-          value={precinct.name}
-          onChange={(e) => setPrecinct({ ...precinct, name: e.target.value })}
-          onBlur={(e) =>
-            setPrecinct({ ...precinct, name: e.target.value.trim() })
-          }
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <div>
-        <FieldName>{hasSplits(precinct) ? 'Splits' : 'Districts'}</FieldName>
-        <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
-          {hasSplits(precinct) ? (
-            <React.Fragment>
-              {precinct.splits.map((split, index) => (
-                <Card key={split.id}>
-                  <Column style={{ gap: '1rem', height: '100%' }}>
-                    <InputGroup label="Name">
-                      <input
-                        type="text"
-                        value={split.name}
-                        onChange={(e) =>
-                          setSplit(index, { ...split, name: e.target.value })
-                        }
-                        onBlur={(e) =>
+      <FormBody>
+        <FormTitle>{title}</FormTitle>
+        <InputGroup label="Name">
+          <input
+            disabled={disabled}
+            type="text"
+            value={precinct.name}
+            onChange={(e) => setPrecinct({ ...precinct, name: e.target.value })}
+            onBlur={(e) =>
+              setPrecinct({ ...precinct, name: e.target.value.trim() })
+            }
+            autoComplete="off"
+            required
+          />
+        </InputGroup>
+        <div>
+          <FieldName>{hasSplits(precinct) ? 'Splits' : 'Districts'}</FieldName>
+          <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
+            {hasSplits(precinct) ? (
+              <React.Fragment>
+                {precinct.splits.map((split, index) => (
+                  <Card key={split.id}>
+                    <Column style={{ gap: '1rem', height: '100%' }}>
+                      <InputGroup label="Name">
+                        <input
+                          disabled={disabled}
+                          type="text"
+                          value={split.name}
+                          onChange={(e) =>
+                            setSplit(index, { ...split, name: e.target.value })
+                          }
+                          onBlur={(e) =>
+                            setSplit(index, {
+                              ...split,
+                              name: e.target.value.trim(),
+                            })
+                          }
+                          autoComplete="off"
+                          required
+                        />
+                      </InputGroup>
+
+                      <DistrictList
+                        disabled={disabled}
+                        districts={districts}
+                        editing={editing}
+                        noDistrictsCallout={noDistrictsCallout}
+                        value={[...split.districtIds]}
+                        onChange={(districtIds) =>
                           setSplit(index, {
                             ...split,
-                            name: e.target.value.trim(),
+                            districtIds,
                           })
                         }
-                        autoComplete="off"
-                        required
                       />
-                    </InputGroup>
-                    <CheckboxGroup
-                      label="Districts"
-                      noOptionsMessage={noDistrictsCallout}
-                      options={districts.map((district) => ({
-                        value: district.id,
-                        label: district.name,
-                      }))}
-                      value={[...split.districtIds]}
-                      onChange={(districtIds) =>
-                        setSplit(index, {
-                          ...split,
-                          districtIds,
-                        })
-                      }
-                    />
 
-                    {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
-                      <InputGroup label="Election Title Override">
-                        <input
-                          type="text"
-                          value={split.electionTitleOverride ?? ''}
-                          onChange={(e) =>
-                            setSplit(index, {
-                              ...split,
-                              electionTitleOverride: e.target.value,
-                            })
-                          }
-                        />
-                      </InputGroup>
-                    )}
+                      {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
+                        <InputGroup label="Election Title Override">
+                          <input
+                            type="text"
+                            value={split.electionTitleOverride ?? ''}
+                            onChange={(e) =>
+                              setSplit(index, {
+                                ...split,
+                                electionTitleOverride: e.target.value,
+                              })
+                            }
+                          />
+                        </InputGroup>
+                      )}
 
-                    {features.PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE && (
-                      <InputGroup label="Election Seal Override">
-                        <SealImageInput
-                          value={split.electionSealOverride}
-                          onChange={(value) =>
-                            setSplit(index, {
-                              ...split,
-                              electionSealOverride: value,
-                            })
-                          }
-                        />
-                      </InputGroup>
-                    )}
+                      {features.PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE && (
+                        <InputGroup label="Election Seal Override">
+                          <SealImageInput
+                            value={split.electionSealOverride}
+                            onChange={(value) =>
+                              setSplit(index, {
+                                ...split,
+                                electionSealOverride: value,
+                              })
+                            }
+                          />
+                        </InputGroup>
+                      )}
 
-                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE && (
-                      <div>
-                        <FieldName>Signature Image</FieldName>
-                        <SignatureImageInput
-                          value={split.clerkSignatureImage}
-                          onChange={(value) =>
-                            setSplit(index, {
-                              ...split,
-                              clerkSignatureImage: value,
-                            })
-                          }
-                        />
-                      </div>
-                    )}
+                      {features.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE && (
+                        <div>
+                          <FieldName>Signature Image</FieldName>
+                          <SignatureImageInput
+                            value={split.clerkSignatureImage}
+                            onChange={(value) =>
+                              setSplit(index, {
+                                ...split,
+                                clerkSignatureImage: value,
+                              })
+                            }
+                          />
+                        </div>
+                      )}
 
-                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE && (
-                      <InputGroup label="Signature Caption">
-                        <input
-                          type="text"
-                          value={split.clerkSignatureCaption ?? ''}
-                          onChange={(e) =>
-                            setSplit(index, {
-                              ...split,
-                              clerkSignatureCaption: e.target.value,
-                            })
-                          }
-                        />
-                      </InputGroup>
-                    )}
-                    <Button
-                      style={{ marginTop: 'auto' }}
-                      onPress={() => onRemoveSplitPress(index)}
-                    >
-                      Remove Split
+                      {features.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE && (
+                        <InputGroup label="Signature Caption">
+                          <input
+                            type="text"
+                            value={split.clerkSignatureCaption ?? ''}
+                            onChange={(e) =>
+                              setSplit(index, {
+                                ...split,
+                                clerkSignatureCaption: e.target.value,
+                              })
+                            }
+                          />
+                        </InputGroup>
+                      )}
+                      {editing && (
+                        <Button
+                          style={{ marginTop: 'auto' }}
+                          onPress={onRemoveSplitPress}
+                          value={index}
+                        >
+                          Remove Split
+                        </Button>
+                      )}
+                    </Column>
+                  </Card>
+                ))}
+                {!finalized && (
+                  <div>
+                    <Button icon="Add" onPress={onAddSplitPress}>
+                      Add Split
                     </Button>
-                  </Column>
-                </Card>
-              ))}
-              <div>
-                <Button icon="Add" onPress={onAddSplitPress}>
-                  Add Split
-                </Button>
-              </div>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <div style={{ minWidth: '12rem' }}>
-                <CheckboxGroup
-                  label="Districts"
-                  hideLabel
-                  noOptionsMessage={noDistrictsCallout}
-                  options={districts.map((district) => ({
-                    value: district.id,
-                    label: district.name,
-                  }))}
-                  value={[...precinct.districtIds]}
-                  onChange={(districtIds) =>
-                    setPrecinct({
-                      ...precinct,
-                      districtIds,
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <Button icon="Add" onPress={onAddSplitPress}>
-                  Add Split
-                </Button>
-              </div>
-            </React.Fragment>
-          )}
-        </Row>
-      </div>
-      {errorMessage}
-      <div>
-        <FormActionsRow>
-          <Button type="reset">Cancel</Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="Done"
-            disabled={someMutationIsLoading}
-          >
-            Save
-          </Button>
-        </FormActionsRow>
-        {savedPrecinct && (
-          <FormActionsRow style={{ marginTop: '1rem' }}>
+                  </div>
+                )}
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <div style={{ minWidth: '12rem' }}>
+                  <DistrictList
+                    disabled={disabled}
+                    districts={districts}
+                    editing={editing}
+                    noDistrictsCallout={noDistrictsCallout}
+                    onChange={(districtIds) =>
+                      setPrecinct({
+                        ...precinct,
+                        districtIds,
+                      })
+                    }
+                    value={[...precinct.districtIds]}
+                  />
+                </div>
+                {!finalized && (
+                  <div>
+                    <Button icon="Add" onPress={onAddSplitPress}>
+                      Add Split
+                    </Button>
+                  </div>
+                )}
+              </React.Fragment>
+            )}
+          </Row>
+        </div>
+      </FormBody>
+
+      <FormErrorContainer>{errorMessage}</FormErrorContainer>
+
+      {!finalized && (
+        <FormFooter style={{ justifyContent: 'space-between' }}>
+          <PrimaryFormActions disabled={disabled} editing={editing} />
+
+          {savedPrecinct && (
             <Button
               variant="danger"
+              fill="outlined"
               icon="Delete"
-              onPress={() => setIsConfirmingDelete(true)}
+              onPress={setIsConfirmingDelete}
               disabled={someMutationIsLoading}
+              // eslint-disable-next-line react/jsx-boolean-value
+              value={true}
             >
               Delete Precinct
             </Button>
-          </FormActionsRow>
-        )}
-        {savedPrecinct && isConfirmingDelete && (
-          <Modal
-            title="Delete Precinct"
-            content={
-              <div>
-                <P>
-                  Are you sure you want to delete this precinct? This action
-                  cannot be undone.
-                </P>
-              </div>
-            }
-            actions={
-              <React.Fragment>
-                <Button
-                  variant="danger"
-                  onPress={onDelete}
-                  autoFocus
-                  disabled={someMutationIsLoading}
-                >
-                  Delete Precinct
-                </Button>
-                <Button onPress={() => setIsConfirmingDelete(false)}>
-                  Cancel
-                </Button>
-              </React.Fragment>
-            }
-            onOverlayClick={
-              /* istanbul ignore next - @preserve */
-              () => setIsConfirmingDelete(false)
-            }
-          />
-        )}
-      </div>
-    </Form>
+          )}
+        </FormFooter>
+      )}
+
+      {savedPrecinct && isConfirmingDelete && (
+        <Modal
+          title="Delete Precinct"
+          content={
+            <div>
+              <P>
+                Are you sure you want to delete this precinct? This action
+                cannot be undone.
+              </P>
+            </div>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                variant="danger"
+                onPress={onDelete}
+                autoFocus
+                disabled={someMutationIsLoading}
+              >
+                Delete Precinct
+              </Button>
+              <Button onPress={() => setIsConfirmingDelete(false)}>
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={
+            /* istanbul ignore next - @preserve */
+            () => setIsConfirmingDelete(false)
+          }
+        />
+      )}
+    </FormFixed>
+  );
+}
+
+function DistrictList(props: {
+  disabled?: boolean;
+  districts: readonly District[];
+  editing?: boolean;
+  noDistrictsCallout?: React.ReactNode;
+  onChange: (districtIds: string[]) => void;
+  value: string[];
+}) {
+  const { disabled, districts, editing, noDistrictsCallout, onChange, value } =
+    props;
+
+  const filteredDistricts = editing
+    ? districts
+    : districts.filter((d) => value.includes(d.id));
+
+  return (
+    <CheckboxGroup
+      disabled={disabled}
+      label="Districts"
+      hideLabel
+      noOptionsMessage={noDistrictsCallout}
+      options={filteredDistricts.map((district) => ({
+        value: district.id,
+        label: district.name,
+      }))}
+      value={value}
+      onChange={onChange}
+    />
+  );
+}
+
+function PrimaryFormActions(props: { disabled?: boolean; editing?: boolean }) {
+  const { disabled, editing } = props;
+
+  if (!editing) {
+    return (
+      <Button icon="Edit" type="reset" variant="primary">
+        Edit
+      </Button>
+    );
+  }
+
+  return (
+    <Row style={{ flexWrap: 'wrap-reverse', gap: '0.5rem' }}>
+      <Button disabled={disabled} type="reset">
+        Cancel
+      </Button>
+      <Button type="submit" variant="primary" icon="Done" disabled={disabled}>
+        Save
+      </Button>
+    </Row>
   );
 }
