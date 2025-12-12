@@ -1,7 +1,12 @@
 import styled from 'styled-components';
 
 const ellipsisWidth = '1em';
-export const ProgressEllipsis = styled.span`
+
+interface ProgressEllipsisProps {
+  animationDurationS?: number;
+}
+
+export const ProgressEllipsis = styled.span<ProgressEllipsisProps>`
   margin-left: -${ellipsisWidth};
   text-align: center;
   white-space: nowrap;
@@ -14,7 +19,9 @@ export const ProgressEllipsis = styled.span`
     vertical-align: bottom;
     text-align: left;
     content: '…';
-    animation: loading-ellipsis steps(4, end) 2s infinite;
+    animation: loading-ellipsis steps(4, end)
+      ${(p) => (p.animationDurationS ? `${p.animationDurationS}s` : '2s')}
+      infinite;
   }
 
   &::before {
