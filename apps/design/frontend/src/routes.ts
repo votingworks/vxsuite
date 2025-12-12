@@ -250,8 +250,8 @@ export function electionNavRoutes(
   const electionRoutes = routes.election(electionId);
   return [
     electionRoutes.electionInfo.root,
-    electionRoutes.districts.root,
-    electionRoutes.precincts.root,
+    // electionRoutes.districts.root,
+    // electionRoutes.precincts.root,
     electionRoutes.districts2.root,
     electionRoutes.precincts2.root,
     // electionRoutes.parties.root,
