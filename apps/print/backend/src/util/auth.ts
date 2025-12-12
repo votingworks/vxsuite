@@ -14,12 +14,13 @@ export function constructAuthMachineState(
   const machineType = 'print';
   const systemSettings = store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   const jurisdiction = store.getJurisdiction();
+  const requiresPrecinctSelection = store.getPrecinctSelection() === undefined;
   return {
     ...systemSettings.auth,
     electionKey,
     jurisdiction,
     machineType,
-    isConfigured: !!electionKey, // TODO(Nikhil): Add check for configuredPrecinctId
+    isConfigured: !!electionKey && !requiresPrecinctSelection,
   };
 }
 
