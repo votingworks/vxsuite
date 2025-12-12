@@ -23,6 +23,7 @@ import { reorderElement } from './utils';
 import { useTitle } from './hooks/use_title';
 import { ContestForm } from './contest_form';
 import { ContestList } from './contest_list';
+import { ContestAudioPanel } from './contest_audio_panel';
 
 export function ContestsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
@@ -298,7 +299,14 @@ function Content(): JSX.Element | null {
 
         <EditPanel>
           <Switch>
-            {/* [TODO] Add route for audio preview/edit panel */}
+            <Route
+              path={contestParamRoutes.audio({
+                contestId: ':contestId',
+                stringKey: ':stringKey',
+                subkey: ':subkey',
+              })}
+              component={ContestAudioPanel}
+            />
             <Route
               path={contestParamRoutes.add.path}
               component={AddContestForm}

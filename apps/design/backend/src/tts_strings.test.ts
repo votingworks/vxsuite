@@ -165,6 +165,8 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
     contestOptionLabel: [
       { subkey: 'option_agree', text: 'Agree' },
       { subkey: 'option_disagree', text: 'Agree to Disagree' },
+      { subkey: 'option_no', text: 'NO' },
+      { subkey: 'option_yes', text: 'YES' },
     ],
     contestTerm: [{ subkey: 'contest2', text: '10 Years' }],
     contestTitle: [
