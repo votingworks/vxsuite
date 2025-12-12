@@ -104,7 +104,7 @@ function AppRoot({
         reasonAndContext={authStatus}
         recommendedAction={
           authStatus.reason === 'machine_not_configured'
-            ? 'Use a system administrator or election manager card.'
+            ? 'Use an election manager card and select a precinct to finish configuration.'
             : 'Use a valid card.'
         }
         cardInsertionDirection="right"
