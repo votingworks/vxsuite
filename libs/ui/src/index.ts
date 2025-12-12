@@ -129,3 +129,4 @@ export * from './save_readiness_report_button';
 export * from './tabs';
 export * from './progress_bar';
 export * from './number_input';
+export * from './unconfigured_precinct_screen';

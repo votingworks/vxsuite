@@ -26,7 +26,7 @@ import { CardErrorScreen } from './screens/card_error_screen';
 import { InternalConnectionProblemScreen } from './screens/internal_connection_problem_screen';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
-import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
+import { UnconfiguredPrecinctScreenWrapper } from './screens/unconfigured_precinct_screen_wrapper';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
 import {
   checkPin,
@@ -338,7 +338,7 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
+  if (!precinctSelection) return <UnconfiguredPrecinctScreenWrapper />;
 
   if (isPollWorkerAuth(authStatus)) {
     return (

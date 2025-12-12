@@ -26,7 +26,7 @@ import * as ScanJamScreen from './screens/scan_jam_screen';
 import * as ScanBusyScreen from './screens/scan_busy_screen';
 import * as SetupScannerScreen from './screens/internal_connection_problem_screen';
 import * as UnconfiguredElectionScreenWrapper from './screens/unconfigured_election_screen_wrapper';
-import * as UnconfiguredPrecinctScreen from './screens/unconfigured_precinct_screen';
+import * as UnconfiguredPrecinctScreenWrapper from './screens/unconfigured_precinct_screen_wrapper';
 import { ScanAppBase } from './scan_app_base';
 
 export function PreviewApp(): JSX.Element {
@@ -61,7 +61,7 @@ export function PreviewApp(): JSX.Element {
           ScanBusyScreen,
           SetupScannerScreen,
           UnconfiguredElectionScreenWrapper,
-          UnconfiguredPrecinctScreen,
+          UnconfiguredPrecinctScreenWrapper,
         ]}
       />
     </ScanAppBase>
