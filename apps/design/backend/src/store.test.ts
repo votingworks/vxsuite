@@ -23,20 +23,18 @@ import {
   processNextBackgroundTaskIfAny,
   testSetupHelpers,
 } from '../test/helpers';
-import { Jurisdiction, User } from './types';
 import {
+  jurisdictions,
   nonVxJurisdiction,
   nonVxOrganization,
   nonVxUser,
+  organizations,
+  users,
   vxJurisdiction,
-  vxOrganization,
 } from '../test/mocks';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
-const testOrganizations = [vxOrganization, nonVxOrganization];
-const testJurisdictions: Jurisdiction[] = [vxJurisdiction, nonVxJurisdiction];
-const testUsers: User[] = [nonVxUser];
 
 // Spy on the ballot rendering function so we can check that it's called with the
 // right arguments.
@@ -480,9 +478,9 @@ test('getExportedElectionDefinition returns the exported election including reor
     electionFamousNames2021Fixtures.readElectionDefinition();
 
   const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
-    organizations: testOrganizations,
-    jurisdictions: testJurisdictions,
-    users: testUsers,
+    organizations,
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
 
@@ -608,9 +606,9 @@ test('getExportedElection returns election-out-of-date error when election data 
     electionFamousNames2021Fixtures.readElectionDefinition();
 
   const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
-    organizations: testOrganizations,
-    jurisdictions: testJurisdictions,
-    users: testUsers,
+    organizations,
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
 

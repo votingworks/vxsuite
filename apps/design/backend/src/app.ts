@@ -93,7 +93,6 @@ import {
   ReceivedReportInfo,
   ResultsReportingError,
   User,
-  UsState,
 } from './types';
 import { AppContext } from './context';
 import {
@@ -323,14 +322,11 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    async loadElection(
-      input: {
-        upload: ElectionUpload;
-        newId: ElectionId;
-        jurisdictionId: string;
-      },
-      context: ApiContext
-    ): Promise<Result<ElectionId, Error>> {
+    async loadElection(input: {
+      upload: ElectionUpload;
+      newId: ElectionId;
+      jurisdictionId: string;
+    }): Promise<Result<ElectionId, Error>> {
       try {
         const election: Election = (() => {
           switch (input.upload.format) {
@@ -398,10 +394,11 @@ export function buildApi(ctx: AppContext) {
             }
           }
         })();
+        const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
         await store.createElection(
           input.jurisdictionId,
           election,
-          defaultBallotTemplate(election.state, context.user)
+          defaultBallotTemplate(jurisdiction)
         );
         return ok(election.id);
       } catch (error) {
@@ -409,20 +406,16 @@ export function buildApi(ctx: AppContext) {
       }
     },
 
-    async createElection(
-      input: {
-        id: ElectionId;
-        jurisdictionId: string;
-      },
-      context: ApiContext
-    ): Promise<Result<ElectionId, Error>> {
+    async createElection(input: {
+      id: ElectionId;
+      jurisdictionId: string;
+    }): Promise<Result<ElectionId, Error>> {
       const election = createBlankElection(input.id);
+      const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
       await store.createElection(
         input.jurisdictionId,
         election,
-        // For now, default all elections to NH ballot template. In the future
-        // we can make this a setting based on the user's organization.
-        defaultBallotTemplate(UsState.NEW_HAMPSHIRE, context.user)
+        defaultBallotTemplate(jurisdiction)
       );
       return ok(election.id);
     },
@@ -900,7 +893,7 @@ export function buildApi(ctx: AppContext) {
         input.electionId
       );
       const jurisdiction = await store.getJurisdiction(jurisdictionId);
-      return getStateFeaturesConfig(assertDefined(jurisdiction));
+      return getStateFeaturesConfig(jurisdiction);
     },
 
     async convertMsResults(input: {

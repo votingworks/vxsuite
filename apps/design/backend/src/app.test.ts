@@ -85,7 +85,9 @@ import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
   exportTestDecks,
+  generateAllPrecinctsTallyReport,
   processNextBackgroundTaskIfAny,
+  readFixture,
   testSetupHelpers,
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
@@ -118,6 +120,9 @@ import {
   sliUser,
   vxDemosUser,
   vxOrganization,
+  nonVxOrganization,
+  nhJurisdiction,
+  msJurisdiction,
 } from '../test/mocks';
 
 vi.setConfig({
@@ -3520,7 +3525,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      jurisdictionId: nonVxJurisdiction.id,
+      jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(election),
@@ -3635,7 +3640,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
-      jurisdictionId: nonVxJurisdiction.id,
+      jurisdictionId: nhJurisdiction.id,
       upload: {
         format: 'vxf',
         electionFileContents: JSON.stringify(election),
@@ -3765,7 +3770,10 @@ test('listJurisdiction', async () => {
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.listJurisdictions()).toEqual(jurisdictions);
   auth0.setLoggedInUser(nonVxUser);
-  expect(await apiClient.listJurisdictions()).toEqual([nonVxJurisdiction]);
+  expect(await apiClient.listJurisdictions()).toEqual([
+    nonVxJurisdiction,
+    nhJurisdiction,
+  ]);
   auth0.setLoggedInUser(sliUser);
   expect(await apiClient.listJurisdictions()).toEqual([sliJurisdiction]);
   auth0.setLoggedInUser(vxDemosUser);
@@ -3773,18 +3781,9 @@ test('listJurisdiction', async () => {
 });
 
 test('feature configs', async () => {
-  const msJurisdictionId = 'ms-jurisdiction-id';
   const { apiClient, auth0 } = await setupApp({
     organizations,
-    jurisdictions: [
-      ...jurisdictions,
-      {
-        id: msJurisdictionId,
-        name: 'Mississippi Jurisdiction',
-        organization: vxOrganization,
-        stateCode: 'MS',
-      },
-    ],
+    jurisdictions,
     users,
   });
   auth0.setLoggedInUser(vxUser);
@@ -3803,33 +3802,33 @@ test('feature configs', async () => {
       jurisdictionId: vxJurisdiction.id,
     })
   ).unsafeUnwrap();
-  const nonVxElectionId = (
-    await apiClient.createElection({
-      id: 'non-vx-election-id' as ElectionId,
-      jurisdictionId: nonVxJurisdiction.id,
-    })
-  ).unsafeUnwrap();
   const sliElectionId = (
     await apiClient.createElection({
       id: 'sli-election-id' as ElectionId,
       jurisdictionId: sliJurisdiction.id,
     })
   ).unsafeUnwrap();
+  const nhElectionId = (
+    await apiClient.createElection({
+      id: 'nh-election-id' as ElectionId,
+      jurisdictionId: nhJurisdiction.id,
+    })
+  ).unsafeUnwrap();
   const msElectionId = (
     await apiClient.createElection({
       id: 'ms-election-id' as ElectionId,
-      jurisdictionId: msJurisdictionId,
+      jurisdictionId: msJurisdiction.id,
     })
   ).unsafeUnwrap();
   expect(
     await apiClient.getStateFeatures({ electionId: vxElectionId })
   ).toEqual(stateFeatureConfigs.DEMO);
   expect(
-    await apiClient.getStateFeatures({ electionId: nonVxElectionId })
-  ).toEqual(stateFeatureConfigs.NH);
-  expect(
     await apiClient.getStateFeatures({ electionId: sliElectionId })
   ).toEqual(stateFeatureConfigs.DEMO);
+  expect(
+    await apiClient.getStateFeatures({ electionId: nhElectionId })
+  ).toEqual(stateFeatureConfigs.NH);
   expect(
     await apiClient.getStateFeatures({ electionId: msElectionId })
   ).toEqual(stateFeatureConfigs.MS);
@@ -3949,4 +3948,68 @@ test('decryptCvrBallotAuditIds', async () => {
     const contents = JSON.parse(await cvrFileEntry.async('text'));
     expect(contents.CVR[0]).toEqual(cvr.castVoteRecord);
   }
+});
+
+test('MS election and results SEMS conversion', async () => {
+  const { apiClient, auth0, fileStorageClient, workspace } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(anotherNonVxUser);
+
+  // Load election
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'ms-election-id' as ElectionId,
+      jurisdictionId: msJurisdiction.id,
+      upload: {
+        format: 'ms-sems',
+        electionFileContents: readFixture(
+          'ms-sems-election-general-ballot-measures-10.csv'
+        ),
+        candidateFileContents: readFixture(
+          'ms-sems-election-candidates-general-ballot-measures-10.csv'
+        ),
+      },
+    })
+  ).unsafeUnwrap();
+  expect(await apiClient.getBallotTemplate({ electionId })).toEqual('MsBallot');
+
+  // Can't convert results before exporting election package
+  expect(
+    await apiClient.convertMsResults({
+      electionId,
+      allPrecinctsTallyReportContents: '',
+    })
+  ).toEqual(err('no-election-export-found'));
+
+  // Export election package
+  const electionPackageFilePath = await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: true,
+    shouldExportSampleBallots: true,
+  });
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(
+      join(msJurisdiction.id, electionPackageFilePath)
+    )
+  );
+  const { electionPackageContents } =
+    await unzipElectionPackageAndBallots(contents);
+  const { electionPackage } = (
+    await readElectionPackageFromBuffer(electionPackageContents)
+  ).unsafeUnwrap();
+
+  // Convert results
+  await apiClient.convertMsResults({
+    electionId,
+    allPrecinctsTallyReportContents: generateAllPrecinctsTallyReport(
+      electionPackage.electionDefinition
+    ),
+  });
 });

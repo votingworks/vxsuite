@@ -34,7 +34,13 @@ import {
 } from '../test/helpers';
 import { ALL_PRECINCTS_REPORT_KEY } from './types';
 import { Workspace } from './workspace';
-import { nonVxJurisdiction, nonVxUser, organizations } from '../test/mocks';
+import {
+  jurisdictions,
+  nonVxJurisdiction,
+  nonVxUser,
+  organizations,
+  users,
+} from '../test/mocks';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -146,8 +152,8 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
     auth0,
   } = await setupApp({
     organizations,
-    jurisdictions: [nonVxJurisdiction],
-    users: [nonVxUser],
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
@@ -258,8 +264,8 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     auth0,
   } = await setupApp({
     organizations,
-    jurisdictions: [nonVxJurisdiction],
-    users: [nonVxUser],
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
@@ -557,8 +563,8 @@ test('quick results reporting works for polls open reporting', async () => {
     auth0,
   } = await setupApp({
     organizations,
-    jurisdictions: [nonVxJurisdiction],
-    users: [nonVxUser],
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
@@ -823,8 +829,8 @@ test('quick results reporting works as expected end to end with single precinct 
     auth0,
   } = await setupApp({
     organizations,
-    jurisdictions: [nonVxJurisdiction],
-    users: [nonVxUser],
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
@@ -1217,8 +1223,8 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
     auth0,
   } = await setupApp({
     organizations,
-    jurisdictions: [nonVxJurisdiction],
-    users: [nonVxUser],
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
@@ -1367,8 +1373,8 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     auth0,
   } = await setupApp({
     organizations,
-    jurisdictions: [nonVxJurisdiction],
-    users: [nonVxUser],
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
@@ -1534,8 +1540,8 @@ test('quick results reporting clears previous partial reports on numPages change
     auth0,
   } = await setupApp({
     organizations,
-    jurisdictions: [nonVxJurisdiction],
-    users: [nonVxUser],
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
@@ -1740,8 +1746,8 @@ test('quick results clears previous partial reports when precinctSelection chang
     auth0,
   } = await setupApp({
     organizations,
-    jurisdictions: [nonVxJurisdiction],
-    users: [nonVxUser],
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
@@ -1901,8 +1907,8 @@ test('LiveReports uses modified exported election, not original vxdesign electio
     auth0,
   } = await setupApp({
     organizations,
-    jurisdictions: [nonVxJurisdiction],
-    users: [nonVxUser],
+    jurisdictions,
+    users,
   });
   auth0.setLoggedInUser(nonVxUser);
 

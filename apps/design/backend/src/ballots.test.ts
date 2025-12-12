@@ -1,7 +1,6 @@
-import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   DistrictId,
-  Election,
   ElectionStringKey,
   hasSplits,
   Precinct,
@@ -9,17 +8,13 @@ import {
 } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import { expect, test } from 'vitest';
-import { assertDefined, find } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from './ballots';
-import { UsState } from './types';
 
-const election: Election = {
-  ...electionGridLayoutNewHampshireHudsonFixtures.readElection(),
-  state: UsState.NEW_HAMPSHIRE,
-};
+const election = readElectionGeneral();
 
 test('createBallotPropsForTemplate', () => {
   const vxDefaultBallotProps = createBallotPropsForTemplate(
@@ -43,6 +38,7 @@ test('createBallotPropsForTemplate', () => {
     election,
     true
   );
+  assert(election.precincts.some((p) => hasSplits(p)));
   for (const props of nhBallotProps) {
     expect(props.compact).toEqual(true);
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);
