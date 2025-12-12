@@ -141,24 +141,17 @@ export function apiMethods(ctx: TtsApiContext) {
               text: convertHtmlToAudioCues(contest.description),
             });
 
-            // NOTE: Default yes/no option labels are excluded below, since the
-            // current focus for TTS editing is on user-provided strings:
+            strings.push({
+              key: ElectionStringKey.CONTEST_OPTION_LABEL,
+              subkey: contest.yesOption.id,
+              text: contest.yesOption.label,
+            });
 
-            if (contest.yesOption.label.toLowerCase() !== 'yes') {
-              strings.push({
-                key: ElectionStringKey.CONTEST_OPTION_LABEL,
-                subkey: contest.yesOption.id,
-                text: contest.yesOption.label,
-              });
-            }
-
-            if (contest.noOption.label.toLowerCase() !== 'no') {
-              strings.push({
-                key: ElectionStringKey.CONTEST_OPTION_LABEL,
-                subkey: contest.noOption.id,
-                text: contest.noOption.label,
-              });
-            }
+            strings.push({
+              key: ElectionStringKey.CONTEST_OPTION_LABEL,
+              subkey: contest.noOption.id,
+              text: contest.noOption.label,
+            });
 
             break;
 
