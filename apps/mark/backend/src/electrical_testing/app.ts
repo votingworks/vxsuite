@@ -4,7 +4,11 @@ import {
   CpuMetrics,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
-import { PrinterStatus } from '@votingworks/types';
+import {
+  PrinterStatus,
+  SignedHashValidationQrCodeValue,
+} from '@votingworks/types';
+import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import * as hid from 'node-hid';
 import express, { Application } from 'express';
 import { ServerContext } from './context';
@@ -151,6 +155,14 @@ function buildApi({
         lastScan: lastBarcodeScan,
         lastScanTimestamp: lastBarcodeScanTimestamp,
       };
+    },
+
+    async generateSignedHashValidationQrCodeValue(): Promise<SignedHashValidationQrCodeValue> {
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        electionRecord: undefined,
+        softwareVersion: getMachineConfig().codeVersion,
+      });
+      return qrCodeValue;
     },
 
     ...createSystemCallApi({
