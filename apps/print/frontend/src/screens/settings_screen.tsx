@@ -22,15 +22,16 @@ import {
 } from '../api';
 import { TitleBar } from '../components/title_bar';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
+import { ScreenWrapper } from '../components/screen_wrapper';
 
 const Content = styled.div`
   padding: 1rem;
 `;
 
 export function SettingsScreen({
-  isSystemAdministrator,
+  isSystemAdminAuth,
 }: {
-  isSystemAdministrator?: boolean;
+  isSystemAdminAuth?: boolean;
 }): JSX.Element | null {
   const history = useHistory();
 
@@ -59,10 +60,12 @@ export function SettingsScreen({
   }
 
   return (
-    <div>
+    <ScreenWrapper
+      authType={isSystemAdminAuth ? 'system_admin' : 'election_manager'}
+    >
       <TitleBar title="Settings" />
       <Content>
-        {isSystemAdministrator ? (
+        {isSystemAdminAuth ? (
           <React.Fragment>
             <H2>Election</H2>
             <P>
@@ -96,12 +99,12 @@ export function SettingsScreen({
         <P>
           <SignedHashValidationButton apiClient={apiClient} />
         </P>
-        {isSystemAdministrator && (
+        {isSystemAdminAuth && (
           <P>
             <ToggleUsbPortsButton />
           </P>
         )}
       </Content>
-    </div>
+    </ScreenWrapper>
   );
 }
