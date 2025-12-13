@@ -1,7 +1,6 @@
+import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
-import React from 'react';
-import { ScreenWrapper } from './components/screen_wrapper';
 import { PrintScreen } from './screens/print_screen';
 import { SettingsScreen } from './screens/settings_screen';
 import { ReportScreen } from './screens/report_screen';
@@ -15,36 +14,20 @@ export function ElectionManagerApp(): JSX.Element {
       <Switch>
         <Route
           path={electionManagerRoutes.print.path}
-          render={() => (
-            <ScreenWrapper authType="election_manager">
-              <PrintScreen isElectionManagerAuth />
-            </ScreenWrapper>
-          )}
+          render={() => <PrintScreen isElectionManagerAuth />}
         />
         <Route
           path={electionManagerRoutes.reports.path}
-          render={() => (
-            <ScreenWrapper authType="election_manager">
-              <ReportScreen />
-            </ScreenWrapper>
-          )}
+          render={() => <ReportScreen isElectionManagerAuth />}
         />
         <Route
           exact
           path={electionManagerRoutes.election.path}
-          render={() => (
-            <ScreenWrapper authType="election_manager">
-              <ElectionScreen />
-            </ScreenWrapper>
-          )}
+          render={() => <ElectionScreen />}
         />
         <Route
           path={electionManagerRoutes.settings.path}
-          render={() => (
-            <ScreenWrapper authType="election_manager">
-              <SettingsScreen />
-            </ScreenWrapper>
-          )}
+          render={() => <SettingsScreen />}
         />
         <Redirect to={electionManagerRoutes.election.path} />
       </Switch>
