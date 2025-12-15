@@ -519,11 +519,9 @@ export class Store {
     );
   }
 
-  async getOrganization(
-    organizationId: string
-  ): Promise<Optional<Organization>> {
-    return this.db.withClient(
-      async (client) =>
+  async getOrganization(organizationId: string): Promise<Organization> {
+    return this.db.withClient(async (client) =>
+      assertDefined(
         (
           await client.query(
             `
@@ -533,7 +531,9 @@ export class Store {
             `,
             organizationId
           )
-        ).rows[0]
+        ).rows[0],
+        'Organization not found'
+      )
     );
   }
 
