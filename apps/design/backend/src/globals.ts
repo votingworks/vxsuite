@@ -111,10 +111,6 @@ export function sliOrganizationId(): string {
   return requiredProdEnvVar('ORG_ID_SLI', 'sli');
 }
 
-export function vxDemosOrganizationId(): string {
-  return requiredProdEnvVar('ORG_ID_VX_DEMOS', 'vx-demos');
-}
-
 /**
  * Where should the database go?
  */
