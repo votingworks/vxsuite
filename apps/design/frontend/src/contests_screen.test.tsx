@@ -1,7 +1,8 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import {
+  AnyContest,
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
   CandidateContest,
@@ -11,6 +12,7 @@ import {
   DistrictIdSchema,
   Election,
   ElectionId,
+  ElectionStringKey,
   HmpbBallotPaperSize,
   PartyIdSchema,
   PrecinctIdSchema,
@@ -25,6 +27,7 @@ import {
   find,
   ok,
 } from '@votingworks/basics';
+import { StateFeaturesConfig } from '@votingworks/design-backend';
 import {
   MockApiClient,
   createMockApiClient,
@@ -52,10 +55,15 @@ import { ContestsScreen } from './contests_screen';
 import { routes } from './routes';
 import { makeIdFactory } from '../test/id_helpers';
 import { ContestList, ContestListProps, ReorderParams } from './contest_list';
+import { ContestAudioPanel } from './contest_audio_panel';
 
 vi.mock('./contest_list.js');
 const MockContestList = vi.mocked(ContestList);
 const MOCK_CONTEST_LIST_ID = 'MockContestList';
+
+vi.mock('./contest_audio_panel.js');
+const MockContestAudioPanel = vi.mocked(ContestAudioPanel);
+const MOCK_AUDIO_PANEL_ID = 'MockContestAudioPanel';
 
 let apiMock: MockApiClient;
 
@@ -68,16 +76,20 @@ beforeEach(() => {
   mockUserFeatures(apiMock);
 
   MockContestList.mockReturnValue(<div data-testid={MOCK_CONTEST_LIST_ID} />);
+
+  MockContestAudioPanel.mockReturnValue(
+    <div data-testid={MOCK_AUDIO_PANEL_ID} />
+  );
 });
 
 afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen(electionId: ElectionId) {
+function renderScreen(electionId: ElectionId, features?: StateFeaturesConfig) {
   const { path } = routes.election(electionId).contests.root;
   const history = createMemoryHistory({ initialEntries: [path] });
-  mockStateFeatures(apiMock, electionId);
+  mockStateFeatures(apiMock, electionId, features);
   render(
     provideApi(
       apiMock,
@@ -1270,6 +1282,149 @@ test('disables form and shows edit button when in "view" mode', async () => {
   screen.getButton('Cancel');
   screen.getButton('Delete Contest');
   expect(screen.queryButton('Edit')).not.toBeInTheDocument();
+});
+
+describe('audio editing', () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const { election } = electionRecord;
+  const electionId = election.id;
+
+  const candidateContest: CandidateContest = {
+    ...find(
+      election.contests,
+      (contest): contest is CandidateContest => contest.type === 'candidate'
+    ),
+    candidates: [
+      {
+        id: 'candidate-1',
+        name: 'Candidate M. One',
+
+        firstName: 'Candidate',
+        middleName: 'No.',
+        lastName: 'One',
+      },
+      {
+        id: 'candidate-2',
+        name: 'Candidate Two',
+
+        firstName: 'Candidate',
+        lastName: 'Two',
+      },
+    ],
+    termDescription: '2 Years',
+  };
+
+  const yesNoContest = find(
+    election.contests,
+    (contest): contest is YesNoContest => contest.type === 'yesno'
+  );
+
+  test(`configures audio edit buttons for candidates`, async () => {
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    expectOtherElectionApiCalls(election);
+
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves([candidateContest]);
+
+    const history = renderScreen(electionId, { AUDIO_PROOFING: true });
+
+    const labelText = await screen.findByText('Candidates');
+    const group = within(assertDefined(labelText.parentElement));
+
+    group.getButton('Preview or Edit Audio: Candidate No. One');
+    userEvent.click(group.getButton('Preview or Edit Audio: Candidate Two'));
+
+    await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
+    expect(history.location.pathname).toEqual(
+      routes.election(electionId).contests.audio({
+        contestId: candidateContest.id,
+        stringKey: ElectionStringKey.CANDIDATE_NAME,
+        subkey: 'candidate-2',
+      })
+    );
+  });
+
+  interface AudioEnabledInputSpec {
+    contest: AnyContest;
+    inputLabel: string;
+    stringKey: ElectionStringKey;
+    subkey: string;
+  }
+
+  for (const spec of [
+    {
+      inputLabel: 'Title',
+      contest: candidateContest,
+      stringKey: ElectionStringKey.CONTEST_TITLE,
+      subkey: candidateContest.id,
+    },
+    {
+      inputLabel: 'Term',
+      contest: candidateContest,
+      stringKey: ElectionStringKey.CONTEST_TERM,
+      subkey: candidateContest.id,
+    },
+    {
+      inputLabel: 'Term',
+      contest: candidateContest,
+      stringKey: ElectionStringKey.CONTEST_TERM,
+      subkey: candidateContest.id,
+    },
+
+    {
+      inputLabel: 'Title',
+      contest: yesNoContest,
+      stringKey: ElectionStringKey.CONTEST_TITLE,
+      subkey: yesNoContest.id,
+    },
+    {
+      inputLabel: 'Description',
+      contest: yesNoContest,
+      stringKey: ElectionStringKey.CONTEST_DESCRIPTION,
+      subkey: yesNoContest.id,
+    },
+    {
+      inputLabel: 'First Option Label',
+      contest: yesNoContest,
+      stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
+      subkey: yesNoContest.yesOption.id,
+    },
+    {
+      inputLabel: 'Second Option Label',
+      contest: yesNoContest,
+      stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
+      subkey: yesNoContest.noOption.id,
+    },
+  ] as AudioEnabledInputSpec[]) {
+    test(`configures audio edit button for ${spec.inputLabel}`, async () => {
+      expectOtherElectionApiCalls(election);
+      apiMock.getBallotsFinalizedAt
+        .expectCallWith({ electionId })
+        .resolves(null);
+
+      apiMock.listContests
+        .expectCallWith({ electionId })
+        .resolves([spec.contest]);
+
+      const history = renderScreen(electionId, { AUDIO_PROOFING: true });
+
+      const labelText = await screen.findByText(spec.inputLabel);
+      const inputGroup = assertDefined(labelText.parentElement);
+      const button = within(inputGroup).getButton(/preview or edit audio/i);
+
+      userEvent.click(button);
+
+      await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
+      expect(history.location.pathname).toEqual(
+        routes.election(electionId).contests.audio({
+          contestId: spec.contest.id,
+          stringKey: spec.stringKey,
+          subkey: spec.subkey,
+        })
+      );
+    });
+  }
 });
 
 function expectContestListItems(contests: Contests) {

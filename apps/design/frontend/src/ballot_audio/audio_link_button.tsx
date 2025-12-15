@@ -8,6 +8,7 @@ import { Tooltip, TooltipContainer, TooltipProps } from '../tooltip';
 import { ElectionIdParams } from '../routes';
 
 export interface AudioLinkButtonProps {
+  buttonClassName?: string;
   className?: string;
   to: string;
   tooltip: ReactNode;
@@ -15,7 +16,8 @@ export interface AudioLinkButtonProps {
 }
 
 export function AudioLinkButton(props: AudioLinkButtonProps): React.ReactNode {
-  const { className, to, tooltip, tooltipPlacement, ...rest } = props;
+  const { buttonClassName, className, to, tooltip, tooltipPlacement, ...rest } =
+    props;
 
   const { electionId } = useParams<ElectionIdParams>();
 
@@ -26,6 +28,7 @@ export function AudioLinkButton(props: AudioLinkButtonProps): React.ReactNode {
     <TooltipContainer className={className}>
       <LinkButton
         {...rest}
+        className={buttonClassName}
         icon="VolumeUp"
         fill="transparent"
         variant="primary"
