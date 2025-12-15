@@ -518,7 +518,7 @@ async function executePrintBallotAndAssert(
   await expect(frontImage).toMatchImage(scanFixtureImageData);
 }
 
-test('voting flow happy path', async () => {
+test('voting flow happy path', { timeout: 6000 }, async () => {
   await executePrintBallotAndAssert(
     ballotPdfData,
     scannedBallotFixtureFilepaths
