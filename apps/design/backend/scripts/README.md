@@ -31,13 +31,27 @@ AUTH0_SECRET='xxxxx
 
 Once that's done, the following scripts can bbe run from `apps/design/backend`.
 
+### List Organizations
+
+```sh
+pnpm list-organizations
+```
+
+```sh
+# Output:
+
+✅ Organizations: [
+  { id: 'nfpn8pkbhr46', name: 'VotingWorks' },
+]
+```
+
 ### Create New Jurisdiction
 
 This will create a new jurisdiction and print out the new jurisdiction ID and
 name to the console:
 
 ```sh
-pnpm create-jurisdiction "City of Vx"
+pnpm create-jurisdiction --organizationId="nfpn8pkbhr46" --stateCode="DEMO" "City of Vx"
 ```
 
 ```sh
@@ -46,6 +60,8 @@ pnpm create-jurisdiction "City of Vx"
 ✅ Jurisdiction created: {
   id: 'TUPNZLFFyBgzxdeH',
   name: 'City of Vx',
+  stateCode: 'DEMO',
+  organization: { id: 'nfpn8pkbhr46', name: 'VotingWorks' },
 }
 ```
 
@@ -62,10 +78,14 @@ pnpm list-jurisdictions
   {
     id: 'TUPNZLFFyBgzxdeH',
     name: 'City of Vx',
+    stateCode: 'DEMO',
+    organization: { id: 'nfpn8pkbhr46', name: 'VotingWorks' },
   },
   {
     id: 'Ug9eDziiLfqKelKi',
     name: 'VotingWorks',
+    stateCode: 'DEMO',
+    organization: { id: 'nfpn8pkbhr46', name: 'VotingWorks' },
   },
 ]
 ```
@@ -101,6 +121,8 @@ pnpm list-user-jurisdictions "someone@example.com"
   {
     id: 'TUPNZLFFyBgzxdeH',
     name: 'City of Vx',
+    stateCode: 'DEMO',
+    organization: { id: 'nfpn8pkbhr46', name: 'VotingWorks' },
   }
 ]
 ```
