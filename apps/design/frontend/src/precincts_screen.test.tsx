@@ -1,10 +1,11 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ElectionRecord } from '@votingworks/design-backend';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionId,
+  ElectionStringKey,
   Precinct,
   PrecinctWithSplits,
   PrecinctWithoutSplits,
@@ -28,10 +29,15 @@ import { routes } from './routes';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { PrecinctsScreen } from './precincts_screen';
 import { PrecinctList } from './precincts_list';
+import { PrecinctAudioPanel } from './precinct_audio_panel';
 
 vi.mock('./precincts_list.js');
 const MockPrecinctList = vi.mocked(PrecinctList);
 const PRECINCT_LIST_TEST_ID = 'MockPrecinctList';
+
+vi.mock('./precinct_audio_panel.js');
+const MockPrecinctAudioPanel = vi.mocked(PrecinctAudioPanel);
+const MOCK_AUDIO_PANEL_ID = 'MockPrecinctAudioPanel';
 
 let apiMock: MockApiClient;
 
@@ -77,6 +83,10 @@ beforeEach(() => {
     .resolves(DEFAULT_SYSTEM_SETTINGS);
 
   MockPrecinctList.mockReturnValue(<div data-testid={PRECINCT_LIST_TEST_ID} />);
+
+  MockPrecinctAudioPanel.mockReturnValue(
+    <div data-testid={MOCK_AUDIO_PANEL_ID} />
+  );
 });
 
 test('adding a precinct', async () => {
@@ -660,6 +670,68 @@ test('error message for splits with the same districts', async () => {
   await screen.findByText(
     'Each precinct split must have a different set of districts.'
   );
+});
+
+describe('audio editing', () => {
+  const precinct: Precinct = {
+    id: 'precinct-1',
+    name: 'Precinct With Splits',
+    splits: [
+      { id: 'split-1', name: 'Split 1', districtIds: [] },
+      { id: 'split-2', name: 'Split 2', districtIds: [] },
+    ],
+  };
+
+  interface AudioEnabledInputSpec {
+    inputValue: string;
+    stringKey: ElectionStringKey;
+    subkey: string;
+    testLabel: string;
+  }
+
+  for (const spec of [
+    {
+      testLabel: 'precinct name',
+      inputValue: precinct.name,
+      stringKey: ElectionStringKey.PRECINCT_NAME,
+      subkey: precinct.id,
+    },
+    {
+      testLabel: 'first precinct split',
+      inputValue: precinct.splits[0].name,
+      stringKey: ElectionStringKey.PRECINCT_SPLIT_NAME,
+      subkey: precinct.splits[0].id,
+    },
+    {
+      testLabel: 'second precinct split',
+      inputValue: precinct.splits[1].name,
+      stringKey: ElectionStringKey.PRECINCT_SPLIT_NAME,
+      subkey: precinct.splits[1].id,
+    },
+  ] as AudioEnabledInputSpec[]) {
+    test(`configures audio edit button for ${spec.testLabel}`, async () => {
+      apiMock.listPrecincts.expectCallWith({ electionId }).resolves([precinct]);
+      apiMock.listDistricts.expectCallWith({ electionId }).resolves([]);
+
+      mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: true });
+      const history = renderScreen(electionId);
+
+      const input = await screen.findByDisplayValue(spec.inputValue);
+      const inputGroup = assertDefined(input.closest('label'));
+      const button = within(inputGroup).getButton(/preview or edit audio/i);
+
+      userEvent.click(button);
+
+      await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
+      expect(history.location.pathname).toEqual(
+        routes.election(electionId).precincts.audio({
+          precinctId: precinct.id,
+          stringKey: spec.stringKey,
+          subkey: spec.subkey,
+        })
+      );
+    });
+  }
 });
 
 async function expectViewModePrecinct(

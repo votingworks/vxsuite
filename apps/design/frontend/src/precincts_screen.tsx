@@ -11,6 +11,7 @@ import { useTitle } from './hooks/use_title';
 import { PrecinctForm } from './precincts_form';
 import { PrecinctList } from './precincts_list';
 import { FixedViewport, ListActionsRow } from './layout';
+import { PrecinctAudioPanel } from './precinct_audio_panel';
 
 export function PrecinctsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
@@ -102,7 +103,14 @@ function Content(): React.ReactNode {
       <Body>
         <PrecinctList />
         <Switch>
-          {/* [TODO] Add audio panel route */}
+          <Route
+            path={precinctParamRoutes.audio({
+              precinctId: ':precinctId',
+              stringKey: ':stringKey',
+              subkey: ':subkey',
+            })}
+            component={PrecinctAudioPanel}
+          />
 
           <Route
             path={precinctParamRoutes.add.path}
