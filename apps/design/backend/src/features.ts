@@ -1,8 +1,4 @@
-import {
-  sliOrganizationId,
-  votingWorksOrganizationId,
-  vxDemosOrganizationId,
-} from './globals';
+import { sliOrganizationId, votingWorksOrganizationId } from './globals';
 import { Jurisdiction, StateCode, User } from './types';
 import { userBelongsToOrganization } from './utils';
 
@@ -149,8 +145,6 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
 export const userFeatureConfigs = {
   vx: vxUserFeaturesConfig,
 
-  demos: { ...vxUserFeaturesConfig, ACCESS_ALL_ORGS: false },
-
   sli: {
     EXPORT_SCREEN: true,
     SYSTEM_SETTINGS_SCREEN: true,
@@ -183,9 +177,6 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
   }
   if (userBelongsToOrganization(user, sliOrganizationId())) {
     return userFeatureConfigs.sli;
-  }
-  if (userBelongsToOrganization(user, vxDemosOrganizationId())) {
-    return userFeatureConfigs.demos;
   }
   return {};
 }

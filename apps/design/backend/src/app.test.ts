@@ -117,9 +117,6 @@ import {
   anotherNonVxJurisdiction,
   sliJurisdiction,
   sliUser,
-  vxDemosUser,
-  vxOrganization,
-  nonVxOrganization,
   nhJurisdiction,
   msJurisdiction,
 } from '../test/mocks';
@@ -3789,8 +3786,6 @@ test('feature configs', async () => {
   expect(await apiClient.getUserFeatures()).toEqual({});
   auth0.setLoggedInUser(sliUser);
   expect(await apiClient.getUserFeatures()).toEqual(userFeatureConfigs.sli);
-  auth0.setLoggedInUser(vxDemosUser);
-  expect(await apiClient.getUserFeatures()).toEqual(userFeatureConfigs.demos);
 
   auth0.setLoggedInUser(vxUser);
   const vxElectionId = (
@@ -3846,8 +3841,6 @@ test('getBaseUrl', async () => {
   auth0.setLoggedInUser(nonVxUser);
   expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
   auth0.setLoggedInUser(sliUser);
-  expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
-  auth0.setLoggedInUser(vxDemosUser);
   expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
 });
 
