@@ -103,8 +103,6 @@ export function auth0Secret(): string {
   return requiredProdEnvVar('AUTH0_SECRET', '');
 }
 
-// NOTE: these will be removed shortly once we have Organizations in the
-// database, so no need to rename the env vars
 export function votingWorksOrganizationId(): string {
   return requiredProdEnvVar('ORG_ID_VOTINGWORKS', 'votingworks');
 }
