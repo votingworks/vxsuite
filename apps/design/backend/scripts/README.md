@@ -29,7 +29,7 @@ AUTH0_CLIENT_DOMAIN='vxdesign.us.auth0.com'
 AUTH0_SECRET='xxxxx
 ```
 
-Once that's done, the following scripts can bbe run from `apps/design/backend`.
+Once that's done, the following scripts can be run from `apps/design/backend`.
 
 ### List Organizations
 
