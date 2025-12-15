@@ -109,7 +109,6 @@ import {
   organizations,
   jurisdictions,
   users,
-  vxDemosJurisdiction,
   vxUser,
   nonVxUser,
   nonVxJurisdiction,
@@ -3776,8 +3775,6 @@ test('listJurisdiction', async () => {
   ]);
   auth0.setLoggedInUser(sliUser);
   expect(await apiClient.listJurisdictions()).toEqual([sliJurisdiction]);
-  auth0.setLoggedInUser(vxDemosUser);
-  expect(await apiClient.listJurisdictions()).toEqual([vxDemosJurisdiction]);
 });
 
 test('feature configs', async () => {

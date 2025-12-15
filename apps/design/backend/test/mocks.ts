@@ -1,12 +1,12 @@
 import {
-  votingWorksJurisdictionId,
-  sliJurisdictionId,
-  vxDemosJurisdictionId,
+  votingWorksOrganizationId,
+  sliOrganizationId,
+  vxDemosOrganizationId,
 } from '../src/globals';
 import { Jurisdiction, Organization, User } from '../src/types';
 
 export const vxOrganization: Organization = {
-  id: 'votingworks-org-id',
+  id: votingWorksOrganizationId(),
   name: 'VotingWorks Organization',
 };
 export const nonVxOrganization: Organization = {
@@ -14,12 +14,16 @@ export const nonVxOrganization: Organization = {
   name: 'Other Organization',
 };
 export const sliOrganization: Organization = {
-  id: 'sli-org-id',
+  id: sliOrganizationId(),
   name: 'SLI Organization',
+};
+export const vxDemosOrganization: Organization = {
+  id: vxDemosOrganizationId(),
+  name: 'VX Demos',
 };
 
 export const vxJurisdiction: Jurisdiction = {
-  id: votingWorksJurisdictionId(),
+  id: 'vx-jurisdiction-id',
   name: 'VotingWorks',
   stateCode: 'DEMO',
   organization: vxOrganization,
@@ -69,7 +73,7 @@ export const anotherNonVxUser: User = {
 };
 
 export const sliJurisdiction: Jurisdiction = {
-  id: sliJurisdictionId(),
+  id: 'sli-jurisdiction-id',
   name: 'SLI',
   stateCode: 'DEMO',
   organization: sliOrganization,
@@ -81,23 +85,18 @@ export const sliUser: User = {
   jurisdictions: [sliJurisdiction],
 };
 
-export const vxDemosJurisdiction: Jurisdiction = {
-  id: vxDemosJurisdictionId(),
-  name: 'VX Demos',
-  stateCode: 'DEMO',
-  organization: vxOrganization,
-};
 export const vxDemosUser: User = {
   name: 'vx.demos.user@example.com',
   id: 'auth0|vx-demos-user-id',
-  organization: vxOrganization,
-  jurisdictions: [vxDemosJurisdiction],
+  organization: vxDemosOrganization,
+  jurisdictions: [],
 };
 
 export const organizations: Organization[] = [
   vxOrganization,
   nonVxOrganization,
   sliOrganization,
+  vxDemosOrganization,
 ];
 
 export const jurisdictions: Jurisdiction[] = [
@@ -105,7 +104,6 @@ export const jurisdictions: Jurisdiction[] = [
   nonVxJurisdiction,
   anotherNonVxJurisdiction,
   sliJurisdiction,
-  vxDemosJurisdiction,
   nhJurisdiction,
   msJurisdiction,
 ];
