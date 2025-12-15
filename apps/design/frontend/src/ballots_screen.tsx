@@ -39,7 +39,6 @@ import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
 import { useTitle } from './hooks/use_title';
-import { BallotAudioScreen } from './ballot_audio/screen';
 
 function BallotDesignForm({
   electionId,
@@ -455,8 +454,6 @@ export function BallotsScreen(): JSX.Element | null {
   const ballotsRoutes = routes.election(electionId).ballots;
   useTitle(routes.election(electionId).ballots.root.title);
 
-  const features = getStateFeatures.useQuery(electionId).data;
-
   return (
     <Switch>
       <Route
@@ -473,15 +470,7 @@ export function BallotsScreen(): JSX.Element | null {
           </Header>
           <MainContent>
             <RouterTabBar
-              tabs={
-                features?.AUDIO_PROOFING
-                  ? [
-                      ballotsRoutes.ballotStyles,
-                      ballotsRoutes.ballotLayout,
-                      ballotsRoutes.audio.root,
-                    ]
-                  : [ballotsRoutes.ballotStyles, ballotsRoutes.ballotLayout]
-              }
+              tabs={[ballotsRoutes.ballotStyles, ballotsRoutes.ballotLayout]}
             />
             <Switch>
               <Route
@@ -492,24 +481,6 @@ export function BallotsScreen(): JSX.Element | null {
                 path={ballotsParamRoutes.ballotLayout.path}
                 component={BallotLayoutTab}
               />
-              {features?.AUDIO_PROOFING && (
-                <Route
-                  path={
-                    ballotsParamRoutes.audio.manage(
-                      ':ttsMode',
-                      ':stringKey',
-                      ':subkey?'
-                    ).path
-                  }
-                  component={BallotAudioScreen}
-                />
-              )}
-              {features?.AUDIO_PROOFING && (
-                <Route
-                  path={ballotsParamRoutes.audio.root.path}
-                  component={BallotAudioScreen}
-                />
-              )}
               <Redirect
                 from={ballotsParamRoutes.root.path}
                 to={ballotsParamRoutes.ballotStyles.path}
