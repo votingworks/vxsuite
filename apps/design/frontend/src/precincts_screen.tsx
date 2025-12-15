@@ -76,7 +76,7 @@ function Content(): React.ReactNode {
   const precinctParamRoutes = electionParamRoutes.precincts;
 
   /**
-   * Used as a route redirect, to auto-select the first available contest for
+   * Used as a route redirect, to auto-select the first available precinct for
    * convenience, when navigating to the root route:
    */
   const defaultPrecinctRoute =
