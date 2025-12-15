@@ -27,6 +27,18 @@ heroku run bash -a <app-name>
 /vx/code/vxsuite/apps/design/backend $ pnpm <script-name>
 ```
 
+### Create Organization
+
+```sh
+pnpm create-organization "VotingWorks"
+```
+
+```sh
+# Output:
+
+✅ Organization created: { id: 'nfpn8pkbhr46', name: 'VotingWorks' }
+```
+
 ### List Organizations
 
 ```sh
