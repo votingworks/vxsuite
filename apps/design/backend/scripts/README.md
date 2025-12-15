@@ -17,19 +17,15 @@ database. Then, restart the worker. It won't pick up the canceled task again.
 Until we build out our support tooling, auth scripts for user and jurisdiction
 management have been added for common operations.
 
-To run:
-
-- Add relevant env vars to `.env.local`:
+To ensure these scripts have access to the correct environment variables, run
+them in Heroku for the appropriate app (`vxdesign-staging` or
+`vxdesign-production`):
 
 ```sh
-# Details in the 'vxdesign' tenant in the Auth0 dashboard
-AUTH_ENABLED=TRUE
-AUTH0_CLIENT_ID='xxxxx'
-AUTH0_CLIENT_DOMAIN='vxdesign.us.auth0.com'
-AUTH0_SECRET='xxxxx
+heroku run bash -a <app-name>
+/vx/code/vxsuite $ cd apps/design/backend/
+/vx/code/vxsuite/apps/design/backend $ pnpm <script-name>
 ```
-
-Once that's done, the following scripts can be run from `apps/design/backend`.
 
 ### List Organizations
 
