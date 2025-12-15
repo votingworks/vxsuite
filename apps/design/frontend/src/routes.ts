@@ -56,6 +56,12 @@ export const routes = {
           title: 'Add Precinct',
           path: `${root}/precincts/add`,
         },
+        audio: (p: {
+          precinctId: ':precinctId' | (string & {});
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) =>
+          `${root}/precincts/${p.precinctId}/audio/${p.stringKey}/${p.subkey}`,
         edit: (precinctId: string) => ({
           title: 'Edit Precinct',
           path: `${root}/precincts/${precinctId}/edit`,
@@ -92,10 +98,8 @@ export const routes = {
           contestId: ':contestId' | (string & {});
           stringKey: ':stringKey' | ElectionStringKey;
           subkey: ':subkey' | (string & {});
-        }) => {
-          const subpath = p.subkey ? `/${p.subkey}` : '';
-          return `${root}/contests/${p.contestId}/audio/${p.stringKey}${subpath}`;
-        },
+        }) =>
+          `${root}/contests/${p.contestId}/audio/${p.stringKey}/${p.subkey}`,
         edit: (contestId: string) => ({
           title: 'Edit Contest',
           path: `${root}/contests/${contestId}/edit`,

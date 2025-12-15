@@ -15,6 +15,7 @@ import {
   PrecinctSplit,
   Precinct,
   District,
+  ElectionStringKey,
 } from '@votingworks/types';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 
@@ -38,6 +39,7 @@ import {
   FormFooter,
   FormTitle,
 } from './form_fixed';
+import { InputWithAudio } from './ballot_audio/input_with_audio';
 
 function createBlankPrecinct(): Precinct {
   return {
@@ -254,8 +256,14 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
       <FormBody>
         <FormTitle>{title}</FormTitle>
         <InputGroup label="Name">
-          <input
+          <InputWithAudio
+            audioScreenUrl={precinctRoutes.audio({
+              precinctId: precinct.id,
+              stringKey: ElectionStringKey.PRECINCT_NAME,
+              subkey: precinct.id,
+            })}
             disabled={disabled}
+            editing={editing}
             type="text"
             value={precinct.name}
             onChange={(e) => setPrecinct({ ...precinct, name: e.target.value })}
@@ -264,6 +272,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
             }
             autoComplete="off"
             required
+            style={{ maxWidth: '18rem' }}
           />
         </InputGroup>
         <div>
@@ -275,8 +284,14 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                   <Card key={split.id}>
                     <Column style={{ gap: '1rem', height: '100%' }}>
                       <InputGroup label="Name">
-                        <input
+                        <InputWithAudio
+                          audioScreenUrl={precinctRoutes.audio({
+                            precinctId: precinct.id,
+                            stringKey: ElectionStringKey.PRECINCT_SPLIT_NAME,
+                            subkey: split.id,
+                          })}
                           disabled={disabled}
+                          editing={editing}
                           type="text"
                           value={split.name}
                           onChange={(e) =>
