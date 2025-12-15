@@ -87,6 +87,7 @@ import {
   faXmark,
   faCircleUser,
   faArrowRightFromBracket,
+  faArrowsSplitUpAndLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -112,6 +113,7 @@ export const ICON_COLORS = [
 export type IconColor = (typeof ICON_COLORS)[number];
 
 export interface IconProps {
+  className?: string;
   color?: IconColor;
   style?: React.CSSProperties;
 }
@@ -149,7 +151,7 @@ function iconColor(theme: UiTheme, color?: IconColor) {
 }
 
 function FaIcon(props: InnerProps): JSX.Element {
-  const { pulse, spin, type, color, style = {} } = props;
+  const { className, pulse, spin, type, color, style = {} } = props;
   const theme = useTheme();
 
   /**
@@ -202,6 +204,7 @@ function FaIcon(props: InnerProps): JSX.Element {
 
   return (
     <FontAwesomeIcon
+      className={className}
       icon={type}
       spin={spin}
       pulse={pulse}
@@ -528,6 +531,10 @@ export const Icons = {
 
   SoundOn(props) {
     return <FaIcon {...props} type={faVolumeHigh} />;
+  },
+
+  Split(props) {
+    return <FaIcon {...props} type={faArrowsSplitUpAndLeft} />;
   },
 
   Square(props) {

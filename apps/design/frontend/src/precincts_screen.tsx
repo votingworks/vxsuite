@@ -1,7 +1,8 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Switch, Route, Redirect, useParams } from 'react-router-dom';
 
-import { H1, MainContent, Breadcrumbs } from '@votingworks/ui';
+import { H1, LinkButton } from '@votingworks/ui';
 
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -9,6 +10,7 @@ import { getBallotsFinalizedAt, listPrecincts } from './api';
 import { useTitle } from './hooks/use_title';
 import { PrecinctForm } from './precincts_form';
 import { PrecinctList } from './precincts_list';
+import { FixedViewport, ListActionsRow } from './layout';
 
 export function PrecinctsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
@@ -17,27 +19,105 @@ export function PrecinctsScreen(): JSX.Element {
 
   return (
     <ElectionNavScreen electionId={electionId}>
+      <Header>
+        <H1>Precincts</H1>
+      </Header>
       <Switch>
         <Route
-          path={precinctParamRoutes.add.path}
-          exact
-          component={AddPrecinctForm}
+          path={precinctParamRoutes.view(':precinctId').path}
+          component={Content}
         />
-        <Route
-          path={precinctParamRoutes.edit(':precinctId').path}
-          exact
-          component={EditPrecinctForm}
-        />
-        <Route path={precinctParamRoutes.root.path}>
-          <Header>
-            <H1>Precincts</H1>
-          </Header>
-          <MainContent>
-            <PrecinctList />
-          </MainContent>
-        </Route>
+        <Route path={precinctParamRoutes.root.path} component={Content} />
+        <Redirect to={precinctParamRoutes.root.path} />
       </Switch>
     </ElectionNavScreen>
+  );
+}
+
+const Viewport = styled(FixedViewport)`
+  display: grid;
+  grid-template-rows: min-content 1fr;
+`;
+
+const EditPanel = styled.div`
+  height: 100%;
+  overflow: hidden;
+`;
+
+const Body = styled.div`
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+
+  /* Sidebar */
+  > :first-child:not(:last-child) {
+    max-width: min(25%, 17rem);
+    min-width: min-content;
+    width: 100%;
+  }
+
+  > ${EditPanel} {
+    flex-grow: 1;
+  }
+`;
+
+function Content(): React.ReactNode {
+  const { electionId, precinctId } = useParams<
+    ElectionIdParams & { precinctId?: string }
+  >();
+
+  const precincts = listPrecincts.useQuery(electionId);
+  const ballotsFinalizedAt = getBallotsFinalizedAt.useQuery(electionId);
+
+  if (!precincts.isSuccess || !ballotsFinalizedAt.isSuccess) return null;
+
+  const precinctRoutes = routes.election(electionId).precincts;
+  const precinctParamRoutes = electionParamRoutes.precincts;
+
+  /**
+   * Used as a route redirect, to auto-select the first available precinct for
+   * convenience, when navigating to the root route:
+   */
+  const defaultPrecinctRoute =
+    !precinctId && precincts.data.length > 0
+      ? precinctRoutes.view(precincts.data[0].id).path
+      : null;
+
+  const ballotsFinalized = !!ballotsFinalizedAt.data;
+
+  return (
+    <Viewport>
+      <ListActionsRow>
+        <LinkButton
+          variant="primary"
+          icon="Add"
+          to={precinctRoutes.add.path}
+          disabled={ballotsFinalized}
+        >
+          Add Precinct
+        </LinkButton>
+      </ListActionsRow>
+
+      <Body>
+        <PrecinctList />
+        <Switch>
+          {/* [TODO] Add audio panel route */}
+
+          <Route
+            path={precinctParamRoutes.add.path}
+            component={AddPrecinctForm}
+          />
+
+          <Route
+            path={precinctParamRoutes.view(':precinctId').path}
+            component={EditPrecinctForm}
+          />
+
+          {defaultPrecinctRoute && <Redirect to={defaultPrecinctRoute} />}
+        </Switch>
+      </Body>
+    </Viewport>
   );
 }
 
@@ -47,18 +127,9 @@ function AddPrecinctForm(): JSX.Element | null {
   const { title } = precinctRoutes.add;
 
   return (
-    <React.Fragment>
-      <Header>
-        <Breadcrumbs
-          currentTitle={title}
-          parentRoutes={[precinctRoutes.root]}
-        />
-        <H1>{title}</H1>
-      </Header>
-      <MainContent>
-        <PrecinctForm electionId={electionId} />
-      </MainContent>
-    </React.Fragment>
+    <EditPanel>
+      <PrecinctForm editing electionId={electionId} title={title} />
+    </EditPanel>
   );
 }
 
@@ -78,32 +149,41 @@ function EditPrecinctForm(): JSX.Element | null {
   const savedPrecinct = precincts.find((p) => p.id === precinctId);
   const canEdit = !finalizedAt.data && !!savedPrecinct;
 
-  const { title } = precinctRoutes.edit(precinctId);
-
   return (
-    <Switch>
-      {canEdit && (
-        <Route path={precinctParamRoutes.edit(':precinctId').path} exact>
-          <Header>
-            <Breadcrumbs
-              currentTitle={title}
-              parentRoutes={[precinctRoutes.root]}
+    <EditPanel>
+      <Switch>
+        {canEdit && (
+          <Route path={precinctParamRoutes.edit(':precinctId').path} exact>
+            <PrecinctForm
+              editing
+              electionId={electionId}
+              key={precinctId}
+              savedPrecinct={savedPrecinct}
+              title="Edit Precinct"
             />
-            <H1>{title}</H1>
-          </Header>
-          <MainContent>
+          </Route>
+        )}
+
+        {savedPrecinct && (
+          <Route path={precinctParamRoutes.view(':precinctId').path} exact>
             <PrecinctForm
               electionId={electionId}
+              editing={false}
+              key={precinctId}
               savedPrecinct={savedPrecinct}
+              title="Precinct Info"
             />
-          </MainContent>
-        </Route>
-      )}
+          </Route>
+        )}
 
-      {/* [TODO] Add a `/view` route */}
-
-      {/* [TODO] Redirect to `/view` if a saved precinct exists: */}
-      <Redirect to={precinctRoutes.root.path} />
-    </Switch>
+        <Redirect
+          to={
+            savedPrecinct
+              ? precinctRoutes.view(precinctId).path
+              : precinctRoutes.root.path
+          }
+        />
+      </Switch>
+    </EditPanel>
   );
 }

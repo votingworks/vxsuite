@@ -1,101 +1,81 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { Table, TH, TD, LinkButton, P } from '@votingworks/ui';
+import { Icons, DesktopPalette, Callout } from '@votingworks/ui';
 import { hasSplits } from '@votingworks/types';
 
 import { ElectionIdParams, routes } from './routes';
-import { NestedTr, TableActionsRow } from './layout';
-import { getBallotsFinalizedAt, listDistricts, listPrecincts } from './api';
+import { Column } from './layout';
+import * as api from './api';
+import { EntityList } from './entity_list';
+
+const NoPrecincts = styled.div`
+  padding: 1rem;
+`;
+
+const SplitIcon = styled(Icons.Split)<{ selected: boolean }>`
+  color: ${(p) =>
+    p.selected ? p.theme.colors.primary : DesktopPalette.Purple60};
+  transform: rotate(-90deg) scale(1, -1);
+`;
 
 export function PrecinctList(): React.ReactNode {
-  const { electionId } = useParams<ElectionIdParams>();
+  const { electionId, precinctId } = useParams<
+    ElectionIdParams & { precinctId?: string }
+  >();
   const precinctRoutes = routes.election(electionId).precincts;
-  const listPrecinctsQuery = listPrecincts.useQuery(electionId);
-  const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const precincts = api.listPrecincts.useQuery(electionId);
 
-  if (
-    !listPrecinctsQuery.isSuccess ||
-    !listDistrictsQuery.isSuccess ||
-    !getBallotsFinalizedAtQuery.isSuccess
-  ) {
-    return null;
+  const history = useHistory();
+
+  if (!precincts.isSuccess) return null;
+
+  function onSelect(id: string) {
+    history.push(precinctRoutes.view(id).path);
   }
 
-  const precincts = listPrecinctsQuery.data;
-  const districts = listDistrictsQuery.data;
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-
-  const districtIdToName = new Map(
-    districts.map((district) => [district.id, district.name])
-  );
+  const { Box, Caption, Item, Items, Label } = EntityList;
 
   return (
     <React.Fragment>
-      {precincts.length === 0 && (
-        <P>You haven&apos;t added any precincts to this election yet.</P>
+      {precincts.data.length === 0 && (
+        <NoPrecincts>
+          <Callout color="neutral" icon="Info">
+            You haven&apos;t added any precincts to this election yet.
+          </Callout>
+        </NoPrecincts>
       )}
-      <TableActionsRow>
-        <LinkButton
-          variant="primary"
-          icon="Add"
-          to={precinctRoutes.add.path}
-          disabled={!!ballotsFinalizedAt}
-        >
-          Add Precinct
-        </LinkButton>
-      </TableActionsRow>
-      {precincts.length > 0 && (
-        <Table>
-          <thead>
-            <tr>
-              <TH>Name</TH>
-              <TH>Districts</TH>
-              <TH />
-            </tr>
-          </thead>
-          <tbody>
-            {precincts.flatMap((precinct) => {
-              const precinctRow = (
-                <tr key={precinct.id}>
-                  <TD>{precinct.name}</TD>
-                  <TD>
-                    {'districtIds' in precinct &&
-                      precinct.districtIds
-                        .map((districtId) => districtIdToName.get(districtId))
-                        .join(', ')}
-                  </TD>
-                  <TD>
-                    <LinkButton
-                      icon="Edit"
-                      to={precinctRoutes.edit(precinct.id).path}
-                      disabled={!!ballotsFinalizedAt}
-                    >
-                      Edit
-                    </LinkButton>
-                  </TD>
-                </tr>
-              );
-              if (!hasSplits(precinct)) {
-                return [precinctRow];
-              }
+      {precincts.data.length > 0 && (
+        <Box>
+          <Items>
+            {precincts.data.map((p) => (
+              <Item
+                id={p.id}
+                key={p.id}
+                onSelect={onSelect}
+                selected={p.id === precinctId}
+              >
+                <Column>
+                  <Label>{p.name}</Label>
 
-              const splitRows = precinct.splits.map((split) => (
-                <NestedTr key={split.id}>
-                  <TD>{split.name}</TD>
-                  <TD>
-                    {split.districtIds
-                      .map((districtId) => districtIdToName.get(districtId))
-                      .join(', ')}
-                  </TD>
-                  <TD />
-                </NestedTr>
-              ));
-              return [precinctRow, ...splitRows];
-            })}
-          </tbody>
-        </Table>
+                  {hasSplits(p) ? (
+                    <Caption noWrap weight="bold">
+                      <SplitIcon selected={p.id === precinctId} />{' '}
+                      {p.splits.length} Splits
+                    </Caption>
+                  ) : (
+                    <Caption noWrap>
+                      {p.districtIds.length === 1
+                        ? `${p.districtIds.length} District`
+                        : `${p.districtIds.length} Districts`}
+                    </Caption>
+                  )}
+                </Column>
+              </Item>
+            ))}
+          </Items>
+        </Box>
       )}
     </React.Fragment>
   );
