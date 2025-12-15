@@ -72,6 +72,7 @@ import {
   QuickReportedPollStatus,
   StateCode,
   User,
+  UserType,
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
@@ -592,10 +593,11 @@ export class Store {
     await this.db.withClient((client) =>
       client.query(
         `
-        insert into users (id, name, organization_id)
-        values ($1, $2, $3)
+        insert into users (id, type, name, organization_id)
+        values ($1, $2, $3, $4)
         `,
         user.id,
+        user.type,
         user.name,
         user.organization.id
       )
@@ -611,9 +613,9 @@ export class Store {
         // Ensure jurisdiction belongs to user's organization
         const result = await client.query(
           `
-          select 1
-          from jurisdictions
-          join users on users.organization_id = jurisdictions.organization_id
+          select type
+          from users
+          join jurisdictions on jurisdictions.organization_id = users.organization_id
           where users.id = $1 and jurisdictions.id = $2
           `,
           userId,
@@ -622,6 +624,10 @@ export class Store {
         assert(
           result.rowCount === 1,
           `Jurisdiction does not belong to user's organization`
+        );
+        assert(
+          result.rows[0].type === 'jurisdiction_user',
+          `User is not a jurisdiction user`
         );
         await client.query(
           `
@@ -643,6 +649,7 @@ export class Store {
           `
           select
             users.id,
+            users.type,
             users.name,
             users.organization_id as "organizationId",
             organizations.name as "organizationName"
@@ -655,31 +662,50 @@ export class Store {
       ).rows[0] as
         | {
             id: string;
+            type: UserType;
             name: string;
             organizationId: string;
             organizationName: string;
           }
         | undefined;
       if (!userRow) return undefined;
-      const jurisdictionRows = (
-        await client.query(
-          `
-          ${selectJurisdictionsBaseQuery}
-          join users_jurisdictions on users_jurisdictions.jurisdiction_id = jurisdictions.id
-          where users_jurisdictions.user_id = $1
-          `,
-          userId
-        )
-      ).rows as JurisdictionRow[];
-      return {
+
+      const userBase = {
         id: userRow.id,
         name: userRow.name,
         organization: {
           id: userRow.organizationId,
           name: userRow.organizationName,
         },
-        jurisdictions: jurisdictionRows.map(rowToJurisdiction),
-      };
+      } as const;
+
+      switch (userRow.type) {
+        case 'jurisdiction_user': {
+          const jurisdictionRows = (
+            await client.query(
+              `
+              ${selectJurisdictionsBaseQuery}
+              join users_jurisdictions on users_jurisdictions.jurisdiction_id = jurisdictions.id
+              where users_jurisdictions.user_id = $1
+              `,
+              userId
+            )
+          ).rows as JurisdictionRow[];
+          return {
+            ...userBase,
+            type: userRow.type,
+            jurisdictions: jurisdictionRows.map(rowToJurisdiction),
+          };
+        }
+
+        case 'organization_user':
+          return { ...userBase, type: userRow.type };
+
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(userRow.type);
+        }
+      }
     });
   }
 
