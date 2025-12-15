@@ -151,6 +151,13 @@ export function splitCandidateName(
   };
 }
 
+export function userBelongsToOrganization(
+  user: User,
+  organizationId: string
+): boolean {
+  return user.organization.id === organizationId;
+}
+
 export function userBelongsToJurisdiction(
   user: User,
   jurisdictionId: string

@@ -1,20 +1,13 @@
 import {
-  sliJurisdictionId,
-  votingWorksJurisdictionId,
-  vxDemosJurisdictionId,
+  sliOrganizationId,
+  votingWorksOrganizationId,
+  vxDemosOrganizationId,
 } from './globals';
 import { Jurisdiction, StateCode, User } from './types';
-import { userBelongsToJurisdiction } from './utils';
-
-export function isVxOrSliJurisdiction(jurisdictionId: string): boolean {
-  return (
-    jurisdictionId === votingWorksJurisdictionId() ||
-    jurisdictionId === sliJurisdictionId()
-  );
-}
+import { userBelongsToOrganization } from './utils';
 
 /**
- * Features that should be enabled based on the user's jurisdiction - i.e.
+ * Features that should be enabled based on the user's organization - i.e.
  * differentiating between what VX support users can do and what election
  * officials can do.
  */
@@ -185,13 +178,13 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
 };
 
 export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
-  if (userBelongsToJurisdiction(user, votingWorksJurisdictionId())) {
+  if (userBelongsToOrganization(user, votingWorksOrganizationId())) {
     return userFeatureConfigs.vx;
   }
-  if (userBelongsToJurisdiction(user, sliJurisdictionId())) {
+  if (userBelongsToOrganization(user, sliOrganizationId())) {
     return userFeatureConfigs.sli;
   }
-  if (userBelongsToJurisdiction(user, vxDemosJurisdictionId())) {
+  if (userBelongsToOrganization(user, vxDemosOrganizationId())) {
     return userFeatureConfigs.demos;
   }
   return {};
