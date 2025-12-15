@@ -171,6 +171,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
   },
 
   MS: {
+    AUDIO_PROOFING: true,
     MS_SEMS_CONVERSION: true,
   },
 
