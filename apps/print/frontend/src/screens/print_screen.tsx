@@ -24,6 +24,7 @@ import {
   printBallot,
 } from '../api';
 import { getPartyOptions } from '../utils';
+import { ScreenWrapper } from '../components/screen_wrapper';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
@@ -109,7 +110,7 @@ const PrintButton = styled(Button)`
 export function PrintScreen({
   isElectionManagerAuth,
 }: {
-  isElectionManagerAuth: boolean;
+  isElectionManagerAuth?: boolean;
 }): JSX.Element | null {
   const [numCopies, setNumCopies] = useState(1);
   const [searchValue, setSearchValue] = useState<string>('');
@@ -186,164 +187,172 @@ export function PrintScreen({
   }
 
   return (
-    <Container>
-      <TitleBar
-        title="Print"
-        actions={
-          isElectionManagerAuth ? (
-            <PrintAllButton disabled={!printer.connected} />
-          ) : undefined
-        }
-      />
-      <Form>
-        <Column>
-          <FormSection
-            style={{
-              // Grow to fill space when precinct selection is enabled
-              flex: hidePrecinctSelection ? undefined : 1,
-              // Provide buffer for alignment when precinct selection is hidden
-              marginBottom: hidePrecinctSelection ? '2.75rem' : undefined,
-            }}
-          >
-            <strong>Precinct</strong>
-            {hidePrecinctSelection ? (
-              /* We still show the ExpandedSelect for ui consistency, but lock it to the configured precinct */
-              <ExpandedSelect
-                selectedValue={configuredPrecinct.precinctId}
-                options={[
-                  {
-                    value: configuredPrecinct.precinctId,
-                    label: assertDefined(
-                      precincts.find(
-                        (p) => p.id === configuredPrecinct.precinctId
-                      )
-                    ).name,
-                  },
-                ]}
-                onSelect={() => null}
-              />
-            ) : (
-              <ExpandedSelect
-                selectedValue={selectedPrecinctId}
-                options={precincts
-                  .map((p) => ({ value: p.id, label: p.name }))
-                  .filter(
-                    (o) =>
-                      !searchValue ||
-                      o.label.toLowerCase().includes(searchValue.toLowerCase())
-                  )}
-                onSearch={setSearchValue}
-                onSelect={(value) => {
-                  if (value !== selectedPrecinctId) {
-                    setSelectedPrecinctId(value);
-                    setSelectedSplitId('');
-                  }
-                }}
-              />
-            )}
-          </FormSection>
-          {hideSplitSelection ? null : (
-            <FormSection>
-              <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
-              <ExpandedSelect
-                selectedValue={selectedSplitId}
-                options={availableSplits.map((split) => ({
-                  value: split.id,
-                  label: split.name,
-                }))}
-                onSelect={setSelectedSplitId}
-              />
-            </FormSection>
-          )}
-        </Column>
-        <Column>
-          {hidePartySelection ? null : (
-            <FormSection style={{ gap: '0.25rem' }}>
-              <strong>Party</strong>
-              <RadioGroup
-                label="Party"
-                value={selectedPartyId}
-                options={parties.map((party) => ({
-                  label: party.name,
-                  value: party.id,
-                }))}
-                onChange={setSelectedPartyId}
-                hideLabel
-              />
-            </FormSection>
-          )}
-          {hideLanguageSelection ? null : (
-            <FormSection style={{ gap: '0.25rem' }}>
-              <strong>Language</strong>
-              <RadioGroup
-                label="Language"
-                value={selectedLanguageCode}
-                options={languages.map((language) => ({
-                  label: format.languageDisplayName({
-                    languageCode: language,
-                    displayLanguageCode: 'en',
-                  }),
-                  value: language,
-                }))}
-                onChange={setSelectedLanguageCode}
-                hideLabel
-              />
-            </FormSection>
-          )}
-        </Column>
-      </Form>
-      <Footer>
-        {isElectionManagerAuth && (
-          <FooterSection style={{ marginRight: 'auto' }}>
-            <strong>Ballot Type:</strong>
-            <SegmentedButton
-              label="Precinct or Absentee"
-              selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
-              options={[
-                { label: 'Precinct', id: 'precinct' },
-                { label: 'Absentee', id: 'absentee' },
-              ]}
-              onChange={(newValue) => {
-                setIsAbsentee(newValue === 'absentee');
-              }}
-              hideLabel
-            />
-          </FooterSection>
-        )}
-        <FooterSection>
-          <strong>Copies:</strong>
-          <NumberInput
-            value={numCopies}
-            onChange={(value) => setNumCopies(value || 0)}
-            style={{ width: '4rem' }}
-          />
-        </FooterSection>
-        <PrintButton
-          icon="Print"
-          color="primary"
-          fill="filled"
-          onPress={handlePrint}
-          disabled={
-            !selectedPrecinct ||
-            !selectedLanguageCode ||
-            (!hidePartySelection && !selectedPartyId) ||
-            (!hideSplitSelection && !selectedSplitId) ||
-            !printer.connected
-          }
-        >
-          Print Ballot
-        </PrintButton>
-      </Footer>
-      {isShowingPrintingModal && (
-        <Modal
-          centerContent
-          content={
-            <Loading animationDurationS={DEFAULT_PROGRESS_MODAL_DELAY_SECONDS}>
-              Printing
-            </Loading>
+    <ScreenWrapper
+      authType={isElectionManagerAuth ? 'election_manager' : 'poll_worker'}
+    >
+      <Container>
+        <TitleBar
+          title="Print"
+          actions={
+            isElectionManagerAuth ? (
+              <PrintAllButton disabled={!printer.connected} />
+            ) : undefined
           }
         />
-      )}
-    </Container>
+        <Form>
+          <Column>
+            <FormSection
+              style={{
+                // Grow to fill space when precinct selection is enabled
+                flex: hidePrecinctSelection ? undefined : 1,
+                // Provide buffer for alignment when precinct selection is hidden
+                marginBottom: hidePrecinctSelection ? '2.75rem' : undefined,
+              }}
+            >
+              <strong>Precinct</strong>
+              {hidePrecinctSelection ? (
+                /* We still show the ExpandedSelect for ui consistency, but lock it to the configured precinct */
+                <ExpandedSelect
+                  selectedValue={configuredPrecinct.precinctId}
+                  options={[
+                    {
+                      value: configuredPrecinct.precinctId,
+                      label: assertDefined(
+                        precincts.find(
+                          (p) => p.id === configuredPrecinct.precinctId
+                        )
+                      ).name,
+                    },
+                  ]}
+                  onSelect={() => null}
+                />
+              ) : (
+                <ExpandedSelect
+                  selectedValue={selectedPrecinctId}
+                  options={precincts
+                    .map((p) => ({ value: p.id, label: p.name }))
+                    .filter(
+                      (o) =>
+                        !searchValue ||
+                        o.label
+                          .toLowerCase()
+                          .includes(searchValue.toLowerCase())
+                    )}
+                  onSearch={setSearchValue}
+                  onSelect={(value) => {
+                    if (value !== selectedPrecinctId) {
+                      setSelectedPrecinctId(value);
+                      setSelectedSplitId('');
+                    }
+                  }}
+                />
+              )}
+            </FormSection>
+            {hideSplitSelection ? null : (
+              <FormSection>
+                <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
+                <ExpandedSelect
+                  selectedValue={selectedSplitId}
+                  options={availableSplits.map((split) => ({
+                    value: split.id,
+                    label: split.name,
+                  }))}
+                  onSelect={setSelectedSplitId}
+                />
+              </FormSection>
+            )}
+          </Column>
+          <Column>
+            {hidePartySelection ? null : (
+              <FormSection style={{ gap: '0.25rem' }}>
+                <strong>Party</strong>
+                <RadioGroup
+                  label="Party"
+                  value={selectedPartyId}
+                  options={parties.map((party) => ({
+                    label: party.name,
+                    value: party.id,
+                  }))}
+                  onChange={setSelectedPartyId}
+                  hideLabel
+                />
+              </FormSection>
+            )}
+            {hideLanguageSelection ? null : (
+              <FormSection style={{ gap: '0.25rem' }}>
+                <strong>Language</strong>
+                <RadioGroup
+                  label="Language"
+                  value={selectedLanguageCode}
+                  options={languages.map((language) => ({
+                    label: format.languageDisplayName({
+                      languageCode: language,
+                      displayLanguageCode: 'en',
+                    }),
+                    value: language,
+                  }))}
+                  onChange={setSelectedLanguageCode}
+                  hideLabel
+                />
+              </FormSection>
+            )}
+          </Column>
+        </Form>
+        <Footer>
+          {isElectionManagerAuth && (
+            <FooterSection style={{ marginRight: 'auto' }}>
+              <strong>Ballot Type:</strong>
+              <SegmentedButton
+                label="Precinct or Absentee"
+                selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
+                options={[
+                  { label: 'Precinct', id: 'precinct' },
+                  { label: 'Absentee', id: 'absentee' },
+                ]}
+                onChange={(newValue) => {
+                  setIsAbsentee(newValue === 'absentee');
+                }}
+                hideLabel
+              />
+            </FooterSection>
+          )}
+          <FooterSection>
+            <strong>Copies:</strong>
+            <NumberInput
+              value={numCopies}
+              onChange={(value) => setNumCopies(value || 0)}
+              style={{ width: '4rem' }}
+            />
+          </FooterSection>
+          <PrintButton
+            icon="Print"
+            color="primary"
+            fill="filled"
+            onPress={handlePrint}
+            disabled={
+              !selectedPrecinct ||
+              !selectedLanguageCode ||
+              (!hidePartySelection && !selectedPartyId) ||
+              (!hideSplitSelection && !selectedSplitId) ||
+              !printer.connected
+            }
+          >
+            Print Ballot
+          </PrintButton>
+        </Footer>
+        {isShowingPrintingModal && (
+          <Modal
+            centerContent
+            content={
+              <Loading
+                animationDurationS={DEFAULT_PROGRESS_MODAL_DELAY_SECONDS}
+              >
+                Printing
+              </Loading>
+            }
+          />
+        )}
+      </Container>
+    </ScreenWrapper>
   );
 }

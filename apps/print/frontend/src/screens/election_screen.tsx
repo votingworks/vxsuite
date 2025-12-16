@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Card,
   H2,
@@ -20,6 +19,7 @@ import {
   ejectUsbDrive,
 } from '../api';
 import { TitleBar } from '../components/title_bar';
+import { ScreenWrapper } from '../components/screen_wrapper';
 
 const Row = styled.div`
   display: flex;
@@ -78,10 +78,10 @@ export function ElectionScreen(): JSX.Element | null {
     } catch {
       // Handled by default query client error handling
     }
-  };
+  }
 
   return (
-    <React.Fragment>
+    <ScreenWrapper authType="election_manager">
       <TitleBar title="Election" />
       <Content>
         <Card color="neutral">
@@ -131,6 +131,6 @@ export function ElectionScreen(): JSX.Element | null {
           />
         </Row>
       </Content>
-    </React.Fragment>
+    </ScreenWrapper>
   );
 }

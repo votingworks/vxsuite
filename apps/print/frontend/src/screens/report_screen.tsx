@@ -27,6 +27,7 @@ import { Row } from '../layout';
 import { TitleBar } from '../components/title_bar';
 import { Filter } from '../components/filter';
 import { ExportReportButton } from '../components/export_report_button';
+import { ScreenWrapper } from '../components/screen_wrapper';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
@@ -117,7 +118,11 @@ const COLUMN_WIDTH_MAP: Record<AttributeColumnCount, ColumnWidths> = {
   },
 };
 
-export function ReportScreen(): JSX.Element | null {
+export function ReportScreen({
+  isElectionManagerAuth,
+}: {
+  isElectionManagerAuth?: boolean;
+}): JSX.Element | null {
   const getBallotPrintCountsQuery = getBallotPrintCounts.useQuery();
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const printReportMutation = printBallotsPrintedReport.useMutation();
@@ -159,152 +164,162 @@ export function ReportScreen(): JSX.Element | null {
   const columnWidths = COLUMN_WIDTH_MAP[attributeColumnCount];
 
   return (
-    <Container>
-      <TitleBar
-        title="Report"
-        actions={
-          <React.Fragment>
-            <Button disabled={!printer.connected} onPress={handlePrint}>
-              Print Report
-            </Button>
-            <ExportReportButton />
-          </React.Fragment>
-        }
-      />
-      <Content>
-        <Row style={{ gap: '1rem' }}>
-          <Filter filterText={filterText} setFilterText={setFilterText} />
-          <PrintCountCallout color="neutral">
-            <P>
-              Total Prints:
-              <Font weight="bold" style={{ fontSize: '1.5rem' }}>
-                {' '}
-                {format.count(
-                  ballotPrintCounts.reduce(
-                    (acc, count) => acc + count.totalCount,
-                    0
-                  )
-                )}
-              </Font>
-            </P>
-            <P>
-              Precinct:
-              <Font weight="bold" style={{ fontSize: '1.5rem' }}>
-                {' '}
-                {format.count(
-                  ballotPrintCounts.reduce(
-                    (acc, count) => acc + count.precinctCount,
-                    0
-                  )
-                )}
-              </Font>
-            </P>
-            <P>
-              Absentee:
-              <Font weight="bold" style={{ fontSize: '1.5rem' }}>
-                {' '}
-                {format.count(
-                  ballotPrintCounts.reduce(
-                    (acc, count) => acc + count.absenteeCount,
-                    0
-                  )
-                )}
-              </Font>
-            </P>
-          </PrintCountCallout>
-        </Row>
-        <FixedTableHeader>
-          <Table style={{ tableLayout: 'fixed', width: '100%' }}>
-            <thead>
-              <TableRow>
-                <TH style={{ width: `${columnWidths.precinctName}%` }}>
-                  {electionHasSplits
-                    ? 'Precinct / Split Name'
-                    : 'Precinct Name'}
-                </TH>
-                {hasParties && (
-                  <TH style={{ width: `${columnWidths.attribute}%` }}>Party</TH>
-                )}
-                {showLanguage && (
-                  <TH style={{ width: `${columnWidths.attribute}%` }}>
-                    Language
-                  </TH>
-                )}
-                <TH style={{ width: `${columnWidths.count}%` }}>Total</TH>
-                <TH style={{ width: `${columnWidths.count}%` }}>Precinct</TH>
-                <TH
-                  style={{
-                    width: `${columnWidths.count + columnWidths.rightPadding}%`,
-                  }}
-                >
-                  Absentee
-                </TH>
-              </TableRow>
-            </thead>
-          </Table>
-        </FixedTableHeader>
-        <ScrollableTableContainer>
-          <Table style={{ tableLayout: 'fixed', width: '100%' }}>
-            <tbody>
-              {ballotPrintCounts
-                .filter(
-                  (count) =>
-                    filterText === '' ||
-                    count.precinctOrSplitName
-                      .toLowerCase()
-                      .includes(filterText.toLowerCase())
-                )
-                .map((counts) => (
-                  <TableRow
-                    key={`${counts.ballotStyleId}-${counts.precinctOrSplitName}`}
-                  >
-                    <TD style={{ width: `${columnWidths.precinctName}%` }}>
-                      {counts.precinctOrSplitName}
-                    </TD>
-                    {hasParties && (
-                      <TD style={{ width: `${columnWidths.attribute}%` }}>
-                        {counts.partyName}
-                      </TD>
-                    )}
-                    {showLanguage && (
-                      <TD style={{ width: `${columnWidths.attribute}%` }}>
-                        {format.languageDisplayName({
-                          languageCode: counts.languageCode,
-                          displayLanguageCode: 'en',
-                        })}
-                      </TD>
-                    )}
-                    <TD style={{ width: `${columnWidths.count}%` }}>
-                      {counts.totalCount}
-                    </TD>
-                    <TD style={{ width: `${columnWidths.count}%` }}>
-                      {counts.precinctCount}
-                    </TD>
-                    <TD
-                      style={{
-                        width: `${
-                          columnWidths.count + columnWidths.rightPadding
-                        }%`,
-                      }}
-                    >
-                      {counts.absenteeCount}
-                    </TD>
-                  </TableRow>
-                ))}
-            </tbody>
-          </Table>
-        </ScrollableTableContainer>
-      </Content>
-      {isShowingPrintingModal && (
-        <Modal
-          centerContent
-          content={
-            <Loading animationDurationS={DEFAULT_PROGRESS_MODAL_DELAY_SECONDS}>
-              Printing
-            </Loading>
+    <ScreenWrapper
+      authType={isElectionManagerAuth ? 'election_manager' : 'poll_worker'}
+    >
+      <Container>
+        <TitleBar
+          title="Report"
+          actions={
+            <React.Fragment>
+              <Button disabled={!printer.connected} onPress={handlePrint}>
+                Print Report
+              </Button>
+              <ExportReportButton />
+            </React.Fragment>
           }
         />
-      )}
-    </Container>
+        <Content>
+          <Row style={{ gap: '1rem' }}>
+            <Filter filterText={filterText} setFilterText={setFilterText} />
+            <PrintCountCallout color="neutral">
+              <P>
+                Total Prints:
+                <Font weight="bold" style={{ fontSize: '1.5rem' }}>
+                  {' '}
+                  {format.count(
+                    ballotPrintCounts.reduce(
+                      (acc, count) => acc + count.totalCount,
+                      0
+                    )
+                  )}
+                </Font>
+              </P>
+              <P>
+                Precinct:
+                <Font weight="bold" style={{ fontSize: '1.5rem' }}>
+                  {' '}
+                  {format.count(
+                    ballotPrintCounts.reduce(
+                      (acc, count) => acc + count.precinctCount,
+                      0
+                    )
+                  )}
+                </Font>
+              </P>
+              <P>
+                Absentee:
+                <Font weight="bold" style={{ fontSize: '1.5rem' }}>
+                  {' '}
+                  {format.count(
+                    ballotPrintCounts.reduce(
+                      (acc, count) => acc + count.absenteeCount,
+                      0
+                    )
+                  )}
+                </Font>
+              </P>
+            </PrintCountCallout>
+          </Row>
+          <FixedTableHeader>
+            <Table style={{ tableLayout: 'fixed', width: '100%' }}>
+              <thead>
+                <TableRow>
+                  <TH style={{ width: `${columnWidths.precinctName}%` }}>
+                    {electionHasSplits
+                      ? 'Precinct / Split Name'
+                      : 'Precinct Name'}
+                  </TH>
+                  {hasParties && (
+                    <TH style={{ width: `${columnWidths.attribute}%` }}>
+                      Party
+                    </TH>
+                  )}
+                  {showLanguage && (
+                    <TH style={{ width: `${columnWidths.attribute}%` }}>
+                      Language
+                    </TH>
+                  )}
+                  <TH style={{ width: `${columnWidths.count}%` }}>Total</TH>
+                  <TH style={{ width: `${columnWidths.count}%` }}>Precinct</TH>
+                  <TH
+                    style={{
+                      width: `${
+                        columnWidths.count + columnWidths.rightPadding
+                      }%`,
+                    }}
+                  >
+                    Absentee
+                  </TH>
+                </TableRow>
+              </thead>
+            </Table>
+          </FixedTableHeader>
+          <ScrollableTableContainer>
+            <Table style={{ tableLayout: 'fixed', width: '100%' }}>
+              <tbody>
+                {ballotPrintCounts
+                  .filter(
+                    (count) =>
+                      filterText === '' ||
+                      count.precinctOrSplitName
+                        .toLowerCase()
+                        .includes(filterText.toLowerCase())
+                  )
+                  .map((counts) => (
+                    <TableRow
+                      key={`${counts.ballotStyleId}-${counts.precinctOrSplitName}`}
+                    >
+                      <TD style={{ width: `${columnWidths.precinctName}%` }}>
+                        {counts.precinctOrSplitName}
+                      </TD>
+                      {hasParties && (
+                        <TD style={{ width: `${columnWidths.attribute}%` }}>
+                          {counts.partyName}
+                        </TD>
+                      )}
+                      {showLanguage && (
+                        <TD style={{ width: `${columnWidths.attribute}%` }}>
+                          {format.languageDisplayName({
+                            languageCode: counts.languageCode,
+                            displayLanguageCode: 'en',
+                          })}
+                        </TD>
+                      )}
+                      <TD style={{ width: `${columnWidths.count}%` }}>
+                        {counts.totalCount}
+                      </TD>
+                      <TD style={{ width: `${columnWidths.count}%` }}>
+                        {counts.precinctCount}
+                      </TD>
+                      <TD
+                        style={{
+                          width: `${
+                            columnWidths.count + columnWidths.rightPadding
+                          }%`,
+                        }}
+                      >
+                        {counts.absenteeCount}
+                      </TD>
+                    </TableRow>
+                  ))}
+              </tbody>
+            </Table>
+          </ScrollableTableContainer>
+        </Content>
+        {isShowingPrintingModal && (
+          <Modal
+            centerContent
+            content={
+              <Loading
+                animationDurationS={DEFAULT_PROGRESS_MODAL_DELAY_SECONDS}
+              >
+                Printing
+              </Loading>
+            }
+          />
+        )}
+      </Container>
+    </ScreenWrapper>
   );
 }
