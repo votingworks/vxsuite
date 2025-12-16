@@ -5,6 +5,7 @@ import {
   Logger,
 } from '@votingworks/logging';
 import {
+  audio,
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
   TaskController,
@@ -16,11 +17,12 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import * as server from './server';
-import { MARK_WORKSPACE, PORT } from './globals';
+import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { startElectricalTestingServer } from './electrical_testing/server';
 import { getDefaultAuth, getUserRole } from './util/auth';
 import { Client as BarcodeClient } from './barcodes';
+import { Player as AudioPlayer } from './audio/player';
 
 export type { Api } from './app';
 export type { PrintCalibration } from '@votingworks/hmpb';
@@ -49,7 +51,7 @@ function resolveWorkspace(): Workspace {
   return createWorkspace(workspacePath, baseLogger);
 }
 
-function main(): number {
+async function main(): Promise<number> {
   handleUncaughtExceptions(baseLogger);
 
   const workspace = resolveWorkspace();
@@ -64,7 +66,30 @@ function main(): number {
     const usbDrive = detectUsbDrive(logger);
     const printer = detectPrinter(logger);
     const barcodeClient = new BarcodeClient(baseLogger);
+
+    // Initialize audio for electrical testing
+    let audioPlayer: AudioPlayer | undefined;
+    try {
+      const detectedAudioInfo = await audio.getAudioInfo({
+        logger,
+        nodeEnv: NODE_ENV,
+      });
+      if (detectedAudioInfo.builtin) {
+        audioPlayer = new AudioPlayer(
+          NODE_ENV,
+          logger,
+          detectedAudioInfo.builtin.name
+        );
+      }
+    } catch (error) {
+      logger.log(LogEventId.Info, 'system', {
+        message: `Failed to initialize audio: ${error}`,
+        disposition: 'failure',
+      });
+    }
+
     startElectricalTestingServer({
+      audioPlayer,
       auth,
       cardTask: TaskController.started(),
       usbDriveTask: TaskController.started(),
@@ -78,18 +103,20 @@ function main(): number {
     return 0;
   }
 
-  server.start({ port: PORT, baseLogger, workspace });
+  await server.start({ port: PORT, baseLogger, workspace });
   return 0;
 }
 
 if (require.main === module) {
-  try {
-    process.exitCode = main();
-  } catch (error) {
-    void baseLogger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `Error in starting VxMark backend: ${(error as Error).stack}`,
-      disposition: 'failure',
+  main()
+    .then((exitCode) => {
+      process.exitCode = exitCode;
+    })
+    .catch((error) => {
+      void baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+        message: `Error in starting VxMark backend: ${(error as Error).stack}`,
+        disposition: 'failure',
+      });
+      process.exitCode = 1;
     });
-    process.exitCode = 1;
-  }
 }

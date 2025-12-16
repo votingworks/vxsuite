@@ -1,10 +1,10 @@
 import { AudioPlayer as SharedAudioPlayer } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 
-export type SoundName = 'alarm' | 'error' | 'success' | 'warning';
+export type SoundName = 'alarm' | 'chime' | 'error' | 'success' | 'warning';
 
 /**
- * Audio player for VxScan that plays sounds through the builtin speaker.
+ * Audio player for VxMark that plays sounds through the builtin speaker.
  */
 export class Player {
   private readonly sharedPlayer: SharedAudioPlayer;

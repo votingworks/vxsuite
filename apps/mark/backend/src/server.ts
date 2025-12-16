@@ -3,13 +3,20 @@ import { Server } from 'node:http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
 import { detectUsbDrive } from '@votingworks/usb-drive';
-import { startCpuMetricsLogging } from '@votingworks/backend';
+import {
+  getAudioInfoWithRetry,
+  setAudioVolume,
+  setDefaultAudio,
+  startCpuMetricsLogging,
+} from '@votingworks/backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getDefaultAuth, getUserRole } from './util/auth';
 import { Client as BarcodeClient } from './barcodes';
+import { NODE_ENV } from './globals';
+import { Player as AudioPlayer } from './audio/player';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -21,12 +28,12 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
-export function start({
+export async function start({
   auth,
   baseLogger,
   port,
   workspace,
-}: StartOptions): Server {
+}: StartOptions): Promise<Server> {
   /* istanbul ignore next - @preserve */
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
 
@@ -41,7 +48,40 @@ export function start({
   // Only create barcode client in production or when explicitly enabled via env variable
   const barcodeClient = new BarcodeClient(baseLogger);
 
+  const audioInfo = await getAudioInfoWithRetry({
+    baseRetryDelayMs: 2000,
+    logger,
+    maxAttempts: 4,
+    nodeEnv: NODE_ENV,
+  });
+
+  if (audioInfo.usb) {
+    const resultDefaultAudio = await setDefaultAudio(audioInfo.usb.name, {
+      logger,
+      nodeEnv: NODE_ENV,
+    });
+    resultDefaultAudio.assertOk('unable to set USB audio as default output');
+
+    // Screen reader volume levels are calibrated against a maximum system
+    // volume setting:
+    const resultVolume = await setAudioVolume({
+      logger,
+      nodeEnv: NODE_ENV,
+      sinkName: audioInfo.usb.name,
+      volumePct: 100,
+    });
+    resultVolume.assertOk('unable to set USB audio volume');
+  } else {
+    void logger.logAsCurrentRole(LogEventId.AudioDeviceMissing, {
+      message: 'USB audio device not detected.',
+      disposition: 'failure',
+    });
+  }
+
+  const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
+
   const app = buildApp({
+    audioPlayer,
     auth: resolvedAuth,
     barcodeClient,
     logger,
@@ -55,7 +95,7 @@ export function start({
   // Start periodic CPU metrics logging
   startCpuMetricsLogging(logger);
 
-  return app.listen(
+  const server = app.listen(
     port,
     /* istanbul ignore next - @preserve */
     () => {
@@ -63,6 +103,14 @@ export function start({
         message: `VxMark backend running at http://localhost:${port}/`,
         disposition: 'success',
       });
+
+      if (NODE_ENV === 'production') {
+        // Play startup chime after a slight delay to allow kiosk-browser to
+        // spin up first:
+        setTimeout(() => void audioPlayer?.play('chime'), 2 * 1000);
+      }
     }
   );
+
+  return server;
 }

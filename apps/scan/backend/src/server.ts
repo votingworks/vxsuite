@@ -4,6 +4,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import {
   detectDevices,
+  getAudioInfoWithRetry,
   setAudioVolume,
   setDefaultAudio,
   startCpuMetricsLogging,
@@ -28,7 +29,6 @@ import { Workspace } from './util/workspace';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as pdiStateMachine from './scanners/pdi/state_machine';
 import { Player as AudioPlayer } from './audio/player';
-import { getAudioInfo } from './audio/info';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;
@@ -83,7 +83,7 @@ export async function start({
   // Clear any cached data
   workspace.clearUploads();
 
-  const audioInfo = await getAudioInfo({
+  const audioInfo = await getAudioInfoWithRetry({
     baseRetryDelayMs: 2000,
     logger,
     maxAttempts: 4,

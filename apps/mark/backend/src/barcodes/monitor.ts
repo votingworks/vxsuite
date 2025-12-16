@@ -22,6 +22,9 @@ const PRODUCT_ID = 0x10d3;
 
 const logger = new BaseLogger(LogSource.VxMarkBackend);
 
+// Track the active scanner connection so we can close it on shutdown
+let activeScanner: hid.HID | undefined;
+
 function connect() {
   const devices = hid.devices(VENDOR_ID, PRODUCT_ID);
 
@@ -36,7 +39,7 @@ function connect() {
 
   devEnsureDeviceAccess(devices[0].path);
 
-  const scanner = new hid.HID(devices[0].vendorId, devices[0].productId)
+  activeScanner = new hid.HID(devices[0].vendorId, devices[0].productId)
     .on('data', onData)
     .on('error', onError);
 
@@ -45,7 +48,7 @@ function connect() {
     message: 'barcode scanner connection established',
   });
 
-  if (CONFIGURE_ON_STARTUP) void configure(scanner);
+  if (CONFIGURE_ON_STARTUP) void configure(activeScanner);
 }
 
 const CARRIAGE_RETURN = '\r'.charCodeAt(0);
@@ -103,5 +106,24 @@ function devEnsureDeviceAccess(devicePath?: string) {
   execFileSync('sudo', ['chmod', '777', devicePath]);
 }
 
+function shutdown() {
+  logger.log(LogEventId.Info, 'system', {
+    message: 'barcode monitor: shutting down',
+  });
+  usb.removeAllListeners('attach');
+  if (activeScanner) {
+    activeScanner.removeAllListeners();
+    activeScanner.close();
+    activeScanner = undefined;
+  }
+}
+
 connect();
 usb.on('attach', onAttach);
+
+// Listen for shutdown message from parent thread
+parentPort?.on('message', (msg) => {
+  if (msg === 'shutdown') {
+    shutdown();
+  }
+});

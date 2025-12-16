@@ -2,6 +2,7 @@ import { extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import {
+  getAudioInfoWithRetry,
   setAudioVolume,
   setDefaultAudio,
   startCpuMetricsLogging,
@@ -12,7 +13,6 @@ import { runPrintAndScanTask } from './tasks/print_and_scan_task';
 import { ServerContext } from './context';
 import { runCardReadAndUsbDriveWriteTask } from './tasks/card_read_and_usb_drive_write_task';
 import { Player as AudioPlayer } from '../audio/player';
-import { getAudioInfo } from '../audio/info';
 
 export async function startElectricalTestingServer(
   context: ServerContext
@@ -97,7 +97,7 @@ export async function startElectricalTestingServer(
 }
 
 async function configureAudio(logger: Logger): Promise<AudioPlayer> {
-  const audioInfo = await getAudioInfo({
+  const audioInfo = await getAudioInfoWithRetry({
     baseRetryDelayMs: 2000,
     logger,
     maxAttempts: 4,
