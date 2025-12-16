@@ -40,7 +40,7 @@ function ElectionScreens(): JSX.Element {
   return (
     <Switch>
       <Route
-        path={electionParamRoutes.electionInfo.path}
+        path={electionParamRoutes.electionInfo.root.path}
         component={ElectionInfoScreen}
       />
       <Route
@@ -78,7 +78,7 @@ function ElectionScreens(): JSX.Element {
       />
       <Redirect
         from={electionParamRoutes.root.path}
-        to={electionParamRoutes.electionInfo.path}
+        to={electionParamRoutes.electionInfo.root.path}
       />
     </Switch>
   );
