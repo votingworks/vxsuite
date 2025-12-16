@@ -136,7 +136,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
         <Header>
           <H1>{title}</H1>
           {isTestMode && isElectionManagerAuth(auth) && electionDefinition && (
-            <TestModeCallout forDesktop />
+            <TestModeCallout viewMode="desktop" />
           )}
           <HeaderActions>
             {(isSystemAdministratorAuth(auth) ||

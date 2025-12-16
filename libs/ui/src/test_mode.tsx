@@ -71,13 +71,13 @@ function TestModeCalloutDesktop({
 }
 
 export function TestModeCallout({
-  forDesktop,
+  viewMode,
   style,
 }: {
-  forDesktop?: boolean;
+  viewMode: 'touch' | 'desktop';
   style?: React.CSSProperties;
 }): JSX.Element {
-  if (forDesktop) {
+  if (viewMode === 'desktop') {
     return <TestModeCalloutDesktop style={style} />;
   }
 

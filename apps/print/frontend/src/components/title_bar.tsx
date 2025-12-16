@@ -48,7 +48,7 @@ export function TitleBar({
     <Header>
       <H1>{title}</H1>
       <BannerSection>
-        {isTestMode && isConfigured && <TestModeCallout forDesktop />}
+        {isTestMode && isConfigured && <TestModeCallout viewMode="desktop" />}
       </BannerSection>
       <RightSection>
         {actions && <ButtonRow as="div">{actions}</ButtonRow>}

@@ -273,7 +273,7 @@ function LiveReportsSummaryScreen({
             Live Reports
           </H1>
           {allEntries.length > 0 && !pollsStatusData.isLive && (
-            <TestModeCallout forDesktop />
+            <TestModeCallout viewMode="desktop" />
           )}
         </Row>
       </Header>
