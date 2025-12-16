@@ -74,6 +74,7 @@ import { VoterFlow } from './voter_flow';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { ScannerOpenAlarmScreen } from './pages/scanner_open_alarm_screen';
 import { UnrecoverableErrorPage } from './pages/unrecoverable_error_page';
+import { UnconfiguredPrecinctScreen } from './pages/unconfigured_precinct_screen';
 
 /**
  * These states require the poll worker to stay logged in until the voter
@@ -469,7 +470,16 @@ export function AppRoot(): JSX.Element | null {
     return <PollWorkerAuthEndedUnexpectedlyPage />;
   }
 
-  if (electionDefinition && precinctSelection) {
+  if (electionDefinition) {
+    if (!precinctSelection) {
+      return (
+        <UnconfiguredPrecinctScreen
+          electionDefinition={electionDefinition}
+          electionPackageHash={assertDefined(electionPackageHash)}
+        />
+      );
+    }
+
     if (stateMachineState === 'empty_ballot_box') {
       return <EmptyBallotBoxPage authStatus={authStatus} />;
     }
