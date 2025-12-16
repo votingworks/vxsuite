@@ -1,9 +1,9 @@
-import { audio } from '@votingworks/backend';
 import { expect, test, vi } from 'vitest';
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import { getAudioInfo } from './info';
+import { getAudioInfoWithRetry } from './get_audio_info_with_retry';
+import * as audio from '../system_call/get_audio_info';
 
-vi.mock('@votingworks/backend');
+vi.mock('../system_call/get_audio_info');
 
 vi.useFakeTimers();
 
@@ -14,7 +14,7 @@ test('retries with increasing delays', async () => {
 
   const baseRetryDelayMs = 500;
   const logger = mockLogger({ fn: vi.fn });
-  const deferredAudioInfo = getAudioInfo({
+  const deferredAudioInfo = getAudioInfoWithRetry({
     baseRetryDelayMs,
     logger,
     maxAttempts: 4,
@@ -63,7 +63,7 @@ test('throws last error after last retry', async () => {
   mockGetAudioInfo.mockRejectedValueOnce('first failure');
 
   const baseRetryDelayMs = 500;
-  const deferredAudioInfo = getAudioInfo({
+  const deferredAudioInfo = getAudioInfoWithRetry({
     baseRetryDelayMs,
     logger: mockLogger({ fn: vi.fn }),
     maxAttempts: 3,

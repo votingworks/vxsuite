@@ -28,12 +28,18 @@ test('Player uses correct sounds directory (__dirname)', () => {
   });
 });
 
-test('Player supports all VxScan sound names', async () => {
+test('Player supports all VxMark sound names', async () => {
   const logger = mockLogger({ fn: vi.fn });
   const player = new Player('development', logger, 'test.output');
 
-  // VxScan supports: alarm, error, success, warning (no chime)
-  const soundNames: SoundName[] = ['alarm', 'error', 'success', 'warning'];
+  // VxMark supports: alarm, chime, error, success, warning
+  const soundNames: SoundName[] = [
+    'alarm',
+    'chime',
+    'error',
+    'success',
+    'warning',
+  ];
 
   for (const soundName of soundNames) {
     await player.play(soundName);

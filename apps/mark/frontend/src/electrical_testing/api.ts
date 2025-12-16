@@ -171,4 +171,14 @@ export const getBarcodeStatus = {
   },
 } as const;
 
+export const playSpeakerSound = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(
+      (name: 'alarm' | 'chime' | 'error' | 'success' | 'warning') =>
+        apiClient.playSpeakerSound({ name })
+    );
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

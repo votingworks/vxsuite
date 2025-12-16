@@ -1,27 +1,36 @@
-import { audio } from '@votingworks/backend';
 import { sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { NODE_ENV } from '../globals';
+import * as audio from '../system_call/get_audio_info';
 
-type ScanAudioInfo = audio.AudioInfo & {
+/**
+ * Audio info with a guaranteed builtin audio device.
+ */
+export type AudioInfoWithBuiltin = audio.AudioInfo & {
   builtin: audio.BuiltinAudio;
 };
 
 /**
- * Intended to be run at machine startup. Since the PulseAudio service may not
- * be fully up and running yet, we retry with increasing wait times until
- * `ctx.maxAttempts` is reached.
+ * Options for configuring audio info retry behavior.
  */
-export async function getAudioInfo(ctx: {
+export interface GetAudioInfoWithRetryOptions {
   /**
    * Initial delay before the first retry. Will be increased for each successive
    * retry.
    */
   baseRetryDelayMs: number;
   logger: Logger;
-  nodeEnv: typeof NODE_ENV;
+  nodeEnv: 'production' | 'development' | 'test';
   maxAttempts: number;
-}): Promise<ScanAudioInfo> {
+}
+
+/**
+ * Intended to be run at machine startup. Since the PulseAudio service may not
+ * be fully up and running yet, we retry with increasing wait times until
+ * `maxAttempts` is reached.
+ */
+export async function getAudioInfoWithRetry(
+  ctx: GetAudioInfoWithRetryOptions
+): Promise<AudioInfoWithBuiltin> {
   let lastError: unknown;
   for (let i = 0; i < ctx.maxAttempts; i += 1) {
     if (i > 0) {
@@ -41,7 +50,7 @@ export async function getAudioInfo(ctx: {
         continue;
       }
 
-      return audioInfo as ScanAudioInfo;
+      return audioInfo as AudioInfoWithBuiltin;
     } catch (error) {
       lastError = error;
     }
