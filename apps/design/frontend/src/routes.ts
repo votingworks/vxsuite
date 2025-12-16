@@ -30,8 +30,12 @@ export const routes = {
         path: root,
       },
       electionInfo: {
-        title: 'Election Info',
-        path: `${root}/info`,
+        root: {
+          title: 'Election Info',
+          path: `${root}/info`,
+        },
+        audio: (p: { stringKey: ':stringKey' | ElectionStringKey }) =>
+          `${root}/info/audio/${p.stringKey}`,
       },
       districts: {
         root: {
@@ -171,7 +175,7 @@ export function electionNavRoutes(
 ): Route[] {
   const electionRoutes = routes.election(electionId);
   return [
-    electionRoutes.electionInfo,
+    electionRoutes.electionInfo.root,
     electionRoutes.districts.root,
     electionRoutes.precincts.root,
     electionRoutes.parties.root,

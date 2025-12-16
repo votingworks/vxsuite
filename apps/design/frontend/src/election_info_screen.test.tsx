@@ -1,13 +1,14 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionId,
+  ElectionStringKey,
   LanguageCode,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
-import { DateWithoutTime, err, ok } from '@votingworks/basics';
+import { assertDefined, DateWithoutTime, err, ok } from '@votingworks/basics';
 import { ElectionInfo } from '@votingworks/design-backend';
 import {
   MockApiClient,
@@ -28,6 +29,11 @@ import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ElectionInfoScreen } from './election_info_screen';
 import { routes } from './routes';
+import { ElectionInfoAudioPanel } from './election_info_audio_panel';
+
+vi.mock('./election_info_audio_panel.js');
+const MockAudioPanel = vi.mocked(ElectionInfoAudioPanel);
+const MOCK_AUDIO_PANEL_ID = 'MockElectionInfoAudioPanel';
 
 let apiMock: MockApiClient;
 
@@ -35,6 +41,8 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
+
+  MockAudioPanel.mockReturnValue(<div data-testid={MOCK_AUDIO_PANEL_ID} />);
 });
 
 afterEach(() => {
@@ -42,13 +50,13 @@ afterEach(() => {
 });
 
 function renderScreen(electionId: ElectionId) {
-  const { path } = routes.election(electionId).electionInfo;
+  const { path } = routes.election(electionId).electionInfo.root;
   const history = createMemoryHistory({ initialEntries: [path] });
   render(
     provideApi(
       apiMock,
       withRoute(<ElectionInfoScreen />, {
-        paramPath: routes.election(':electionId').electionInfo.path,
+        paramPath: routes.election(':electionId').electionInfo.root.path,
         history,
       })
     )
@@ -407,4 +415,56 @@ test('handles duplicate title+date error', async () => {
   expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
   expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
+});
+
+describe('audio editing', () => {
+  const { election } = generalElectionRecord(jurisdiction.id);
+  const electionId = election.id;
+
+  interface AudioEnabledInputSpec {
+    inputValue: string;
+    stringKey: ElectionStringKey;
+  }
+
+  const Key = ElectionStringKey;
+  for (const spec of [
+    { inputValue: election.county.name, stringKey: Key.COUNTY_NAME },
+    { inputValue: election.title, stringKey: Key.ELECTION_TITLE },
+    { inputValue: election.state, stringKey: Key.STATE_NAME },
+  ] as AudioEnabledInputSpec[]) {
+    test(`configures audio edit button for ${spec.stringKey}`, async () => {
+      mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: true });
+
+      apiMock.getSystemSettings
+        .expectCallWith({ electionId })
+        .resolves(DEFAULT_SYSTEM_SETTINGS);
+
+      apiMock.getElectionInfo
+        .expectCallWith({ electionId })
+        .resolves(electionInfoFromElection(election));
+
+      apiMock.getBallotsFinalizedAt
+        .expectCallWith({ electionId })
+        .resolves(null);
+
+      apiMock.getBallotTemplate
+        .expectCallWith({ electionId })
+        .resolves('VxDefaultBallot');
+
+      const history = renderScreen(electionId);
+
+      const input = await screen.findByDisplayValue(spec.inputValue);
+      const inputGroup = assertDefined(input.closest('label'));
+      const button = within(inputGroup).getButton(/preview or edit audio/i);
+
+      userEvent.click(button);
+
+      await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
+      expect(history.location.pathname).toEqual(
+        routes.election(electionId).electionInfo.audio({
+          stringKey: spec.stringKey,
+        })
+      );
+    });
+  }
 });
