@@ -9,6 +9,7 @@ import {
   Button,
   Callout,
   CheckboxGroup,
+  DesktopPalette,
   H1,
   Modal,
   P,
@@ -397,8 +398,13 @@ const Viewport = styled(FixedViewport)`
     width: 100%;
 
     :not(:only-child) {
+      border-right: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+        ${DesktopPalette.Gray30};
       min-width: 15rem;
       max-width: min(45%, 30rem);
+
+      /* Add separation between the border and potential scrollbar */
+      padding-right: 0.25rem;
     }
   }
 
