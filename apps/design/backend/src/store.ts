@@ -550,10 +550,19 @@ export class Store {
     });
   }
 
-  async listJurisdictions(): Promise<Jurisdiction[]> {
+  async listJurisdictions(input?: {
+    organizationId: string;
+  }): Promise<Jurisdiction[]> {
     return await this.db.withClient(async (client) => {
-      const rows = (await client.query(selectJurisdictionsBaseQuery))
-        .rows as JurisdictionRow[];
+      const [whereClause, params] = input?.organizationId
+        ? ['where jurisdictions.organization_id = $1', [input.organizationId]]
+        : ['', []];
+      const rows = (
+        await client.query(
+          `${selectJurisdictionsBaseQuery} ${whereClause}`,
+          ...params
+        )
+      ).rows as JurisdictionRow[];
       return rows.map(rowToJurisdiction);
     });
   }
@@ -1177,21 +1186,21 @@ export class Store {
     return ok(electionDefinition);
   }
 
-  async getElectionJurisdictionId(electionId: ElectionId): Promise<string> {
+  async getElectionJurisdiction(electionId: ElectionId): Promise<Jurisdiction> {
     const row = (
       await this.db.withClient((client) =>
         client.query(
           `
-          select jurisdiction_id as "jurisdictionId"
-          from elections
-          where id = $1
+          ${selectJurisdictionsBaseQuery}
+          join elections on elections.jurisdiction_id = jurisdictions.id
+          where elections.id = $1
         `,
           electionId
         )
       )
-    ).rows[0] as { jurisdictionId: string } | undefined;
+    ).rows[0] as JurisdictionRow;
     assert(row, 'Election not found');
-    return row.jurisdictionId;
+    return rowToJurisdiction(row);
   }
 
   private async generateUniqueElectionCopyTitle(

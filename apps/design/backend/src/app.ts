@@ -109,7 +109,7 @@ import {
   getBallotPdfFileName,
   regenerateElectionIds,
   splitCandidateName,
-  userBelongsToJurisdiction,
+  userCanAccessJurisdiction,
 } from './utils';
 import {
   StateFeaturesConfig,
@@ -188,11 +188,11 @@ class AuthError extends grout.UserError {
   }
 }
 
-function requireJurisdictionAccess(user: User, jurisdictionId: string) {
+function requireJurisdictionAccess(user: User, jurisdiction: Jurisdiction) {
   const userFeatures = getUserFeaturesConfig(user);
   if (
     !(
-      userBelongsToJurisdiction(user, jurisdictionId) ||
+      userCanAccessJurisdiction(user, jurisdiction) ||
       userFeatures.ACCESS_ALL_ORGS
     )
   ) {
@@ -206,9 +206,9 @@ export function buildApi(ctx: AppContext) {
   const { store } = workspace;
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
-    const electionJurisdictionId =
-      await store.getElectionJurisdictionId(electionId);
-    requireJurisdictionAccess(user, electionJurisdictionId);
+    const electionJurisdiction =
+      await store.getElectionJurisdiction(electionId);
+    requireJurisdictionAccess(user, electionJurisdiction);
   }
 
   const middlewares: grout.Middlewares<ApiContext> = {
@@ -235,18 +235,18 @@ export function buildApi(ctx: AppContext) {
       async function checkAuthorization({ methodName, input, context }) {
         if (input) {
           assert(context.user);
-          if ('electionId' in input) {
-            await requireElectionAccess(
-              context.user,
-              input.electionId as string
-            );
+          if ('electionId' in input && typeof input.electionId === 'string') {
+            await requireElectionAccess(context.user, input.electionId);
             return;
           }
-          if ('jurisdictionId' in input) {
-            requireJurisdictionAccess(
-              context.user,
-              input.jurisdictionId as string
+          if (
+            'jurisdictionId' in input &&
+            typeof input.jurisdictionId === 'string'
+          ) {
+            const jurisdiction = await store.getJurisdiction(
+              input.jurisdictionId
             );
+            requireJurisdictionAccess(context.user, jurisdiction);
             return;
           }
         }
@@ -286,10 +286,14 @@ export function buildApi(ctx: AppContext) {
             methodName,
             input: JSON.stringify(input),
             userId: context.user?.id,
+            userOrganizationId: context.user?.organization.id,
+            userType: context.user?.type,
             userJurisdictionIds:
-              context.user?.jurisdictions
-                .map((jurisdiction) => jurisdiction.id)
-                .join(',') ?? '',
+              context.user?.type === 'jurisdiction_user'
+                ? context.user.jurisdictions
+                    .map((jurisdiction) => jurisdiction.id)
+                    .join(',')
+                : '',
             ...outcome,
           },
           debug
@@ -304,21 +308,30 @@ export function buildApi(ctx: AppContext) {
       context: ApiContext
     ): Promise<Jurisdiction[]> {
       const userFeaturesConfig = getUserFeaturesConfig(context.user);
-      return userFeaturesConfig.ACCESS_ALL_ORGS
-        ? await store.listJurisdictions()
-        : context.user.jurisdictions;
+      if (userFeaturesConfig.ACCESS_ALL_ORGS) {
+        return store.listJurisdictions();
+      }
+      switch (context.user.type) {
+        case 'organization_user':
+          return store.listJurisdictions({
+            organizationId: context.user.organization.id,
+          });
+        case 'jurisdiction_user':
+          return context.user.jurisdictions;
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(context.user);
+        }
+      }
     },
 
     async listElections(
       _input: undefined,
       context: ApiContext
     ): Promise<ElectionListing[]> {
-      const { user } = context;
-      const userFeatures = getUserFeaturesConfig(user);
+      const jurisdictions = await methods.listJurisdictions(undefined, context);
       return store.listElections({
-        jurisdictionIds: userFeatures.ACCESS_ALL_ORGS
-          ? undefined
-          : user.jurisdictions.map((jurisdiction) => jurisdiction.id),
+        jurisdictionIds: jurisdictions.map((jurisdiction) => jurisdiction.id),
       });
     },
 
@@ -434,7 +447,10 @@ export function buildApi(ctx: AppContext) {
         systemSettings,
       } = await store.getElection(input.electionId);
 
-      requireJurisdictionAccess(context.user, input.destJurisdictionId);
+      const destJurisdiction = await store.getJurisdiction(
+        input.destJurisdictionId
+      );
+      requireJurisdictionAccess(context.user, destJurisdiction);
 
       const { districts, precincts, parties, contests } =
         regenerateElectionIds(sourceElection);
@@ -889,10 +905,9 @@ export function buildApi(ctx: AppContext) {
     async getStateFeatures(input: {
       electionId: ElectionId;
     }): Promise<StateFeaturesConfig> {
-      const jurisdictionId = await store.getElectionJurisdictionId(
+      const jurisdiction = await store.getElectionJurisdiction(
         input.electionId
       );
-      const jurisdiction = await store.getJurisdiction(jurisdictionId);
       return getStateFeaturesConfig(jurisdiction);
     },
 
@@ -1310,7 +1325,9 @@ export function buildApp(context: AppContext): Application {
       }
       const user = assertDefined(await context.workspace.store.getUser(userId));
       const { jurisdictionId, fileName } = req.params;
-      requireJurisdictionAccess(user, jurisdictionId);
+      const jurisdiction =
+        await context.workspace.store.getJurisdiction(jurisdictionId);
+      requireJurisdictionAccess(user, jurisdiction);
 
       const readResult = await context.fileStorageClient.readFile(
         join(jurisdictionId, fileName)

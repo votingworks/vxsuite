@@ -14,7 +14,7 @@ import {
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
-import { User } from './types';
+import { Jurisdiction, User } from './types';
 
 export function getBallotPdfFileName(
   precinctName: string,
@@ -158,11 +158,19 @@ export function userBelongsToOrganization(
   return user.organization.id === organizationId;
 }
 
-export function userBelongsToJurisdiction(
+export function userCanAccessJurisdiction(
   user: User,
-  jurisdictionId: string
+  jurisdiction: Jurisdiction
 ): boolean {
-  return user.jurisdictions.some(
-    (jurisdiction) => jurisdiction.id === jurisdictionId
-  );
+  switch (user.type) {
+    case 'organization_user': {
+      return user.organization.id === jurisdiction.organization.id;
+    }
+    case 'jurisdiction_user':
+      return user.jurisdictions.some((j) => j.id === jurisdiction.id);
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(user);
+    }
+  }
 }
