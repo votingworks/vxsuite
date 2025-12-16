@@ -1,5 +1,6 @@
 import { sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
+import { isIntegrationTest } from '@votingworks/utils';
 import * as audio from '../system_call/get_audio_info';
 
 /**
@@ -23,6 +24,10 @@ export interface GetAudioInfoWithRetryOptions {
   maxAttempts: number;
 }
 
+const MOCK_AUDIO_INFO: AudioInfoWithBuiltin = {
+  builtin: { headphonesActive: false, name: 'mock.builtin.stereo' },
+};
+
 /**
  * Intended to be run at machine startup. Since the PulseAudio service may not
  * be fully up and running yet, we retry with increasing wait times until
@@ -31,6 +36,10 @@ export interface GetAudioInfoWithRetryOptions {
 export async function getAudioInfoWithRetry(
   ctx: GetAudioInfoWithRetryOptions
 ): Promise<AudioInfoWithBuiltin> {
+  if (isIntegrationTest()) {
+    return MOCK_AUDIO_INFO;
+  }
+
   let lastError: unknown;
   for (let i = 0; i < ctx.maxAttempts; i += 1) {
     if (i > 0) {

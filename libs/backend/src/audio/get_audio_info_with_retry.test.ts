@@ -5,6 +5,12 @@ import * as audio from '../system_call/get_audio_info';
 
 vi.mock('../system_call/get_audio_info');
 
+let mockIsIntegrationTest = false;
+vi.mock('@votingworks/utils', async (importActual) => ({
+  ...(await importActual()),
+  isIntegrationTest: () => mockIsIntegrationTest,
+}));
+
 vi.useFakeTimers();
 
 const mockGetAudioInfo = vi.mocked(audio.getAudioInfo);
@@ -84,4 +90,25 @@ test('throws last error after last retry', async () => {
   await expect(deferredAudioInfo).rejects.toThrow(
     'builtin audio device not found'
   );
+});
+
+test('returns mock audio info during integration tests', async () => {
+  mockIsIntegrationTest = true;
+
+  const logger = mockLogger({ fn: vi.fn });
+  const audioInfo = await getAudioInfoWithRetry({
+    baseRetryDelayMs: 500,
+    logger,
+    maxAttempts: 4,
+    nodeEnv: 'development',
+  });
+
+  expect(audioInfo).toEqual({
+    builtin: { headphonesActive: false, name: 'mock.builtin.stereo' },
+  });
+
+  // Should not call the real getAudioInfo during integration tests:
+  expect(mockGetAudioInfo).not.toHaveBeenCalled();
+
+  mockIsIntegrationTest = false;
 });
