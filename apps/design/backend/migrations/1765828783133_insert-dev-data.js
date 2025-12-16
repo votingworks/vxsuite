@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { votingWorksOrganizationId } = require('../build/globals');
+const {
+  votingWorksOrganizationId,
+  authEnabled,
+  NODE_ENV,
+} = require('../build/globals');
 
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
@@ -14,10 +18,7 @@ exports.shorthands = undefined;
 exports.up = (pgm) => {
   // Seed the database with the dev data needed to bypass Auth0 in development
   // when AUTH_ENABLED=false (using the hardcoded dev user).
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    process.env.NODE_ENV !== 'test'
-  ) {
+  if (NODE_ENV !== 'production' && NODE_ENV !== 'test' && !authEnabled()) {
     // Create the default dev organization (use VotingWorks org ID to get full features)
     pgm.sql(`
       INSERT INTO organizations (id, name) VALUES (
