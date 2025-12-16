@@ -66,7 +66,10 @@ export function InsertCardScreen({
   return (
     <Screen>
       {!isLiveMode && (
-        <TestModeCallout style={{ alignSelf: 'center', marginTop: '0.5rem' }} />
+        <TestModeCallout
+          viewMode="touch"
+          style={{ alignSelf: 'center', marginTop: '0.5rem' }}
+        />
       )}
       <Main centerChild>
         <P>

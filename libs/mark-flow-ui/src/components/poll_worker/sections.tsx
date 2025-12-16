@@ -46,7 +46,7 @@ export function SectionHeader(props: HeaderProps): JSX.Element {
         }}
       >
         <H2 as="h1">Poll Worker Menu</H2>
-        {!isLiveMode && <TestModeCallout />}
+        {!isLiveMode && <TestModeCallout viewMode="touch" />}
       </div>
       <P>Remove the poll worker card to leave this screen.</P>
       <P style={{ fontSize: '1.2em' }}>

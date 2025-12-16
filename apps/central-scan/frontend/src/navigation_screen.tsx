@@ -2,9 +2,7 @@ import {
   AppLogo,
   BatteryDisplay,
   Button,
-  Card,
   H1,
-  Icons,
   LeftNav,
   Main,
   MainContent,
@@ -14,6 +12,7 @@ import {
   NavListItem,
   Screen,
   SessionTimeLimitTimer,
+  TestModeCallout,
   UsbControllerButton,
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
@@ -44,17 +43,6 @@ const HeaderActions = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  flex-shrink: 0;
-`;
-
-const TestModeCallout = styled(Card).attrs({ color: 'warning' })`
-  font-size: ${(p) => p.theme.sizes.headingsRem.h3}rem;
-  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
-
-  > div {
-    padding: 0.5rem 1rem;
-  }
-
   flex-shrink: 0;
 `;
 
@@ -148,9 +136,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
         <Header>
           <H1>{title}</H1>
           {isTestMode && isElectionManagerAuth(auth) && electionDefinition && (
-            <TestModeCallout>
-              <Icons.Warning color="warning" /> Test Ballot Mode
-            </TestModeCallout>
+            <TestModeCallout viewMode="desktop" />
           )}
           <HeaderActions>
             {(isSystemAdministratorAuth(auth) ||

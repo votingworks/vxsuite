@@ -1,9 +1,10 @@
-import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
 import { makeTheme, TouchscreenPalette } from './themes/make_theme';
 import { Icons } from './icons';
 import { TextOnly } from './ui_strings';
+import { Card } from './card';
 
-const TestModeCard = styled.div`
+const TestModeCardTouch = styled.div`
   font-size: ${(p) => p.theme.sizes.fontDefault}px;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   padding: 0.125em 0.5em;
@@ -14,12 +15,10 @@ const TestModeCard = styled.div`
   background-color: ${(p) => p.theme.colors.background};
 `;
 
-export function TestModeCallout({
+function TestModeCalloutTouch({
   style,
-  themeOverride,
 }: {
   style?: React.CSSProperties;
-  themeOverride?: DefaultTheme;
 }): JSX.Element {
   return (
     <TextOnly>
@@ -27,15 +26,13 @@ export function TestModeCallout({
         theme={(theme) =>
           // Lock to "medium" size mode to keep things from getting out of hand at
           // larger text sizes.
-          makeTheme(
-            themeOverride || {
-              ...theme,
-              sizeMode: 'touchMedium',
-            }
-          )
+          makeTheme({
+            ...theme,
+            sizeMode: 'touchMedium',
+          })
         }
       >
-        <TestModeCard style={style}>
+        <TestModeCardTouch style={style}>
           <Icons.Warning
             style={{
               // We always want a bright orange, even if the color mode is
@@ -44,8 +41,45 @@ export function TestModeCallout({
             }}
           />{' '}
           Test Ballot Mode
-        </TestModeCard>
+        </TestModeCardTouch>
       </ThemeProvider>
     </TextOnly>
   );
+}
+
+const TestModeCardDesktop = styled(Card)`
+  font-size: ${(p) => p.theme.sizes.headingsRem.h3}rem;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+
+  > div {
+    padding: 0.5rem 1rem;
+  }
+
+  flex-shrink: 0;
+`;
+
+function TestModeCalloutDesktop({
+  style,
+}: {
+  style?: React.CSSProperties;
+}): JSX.Element {
+  return (
+    <TestModeCardDesktop style={style} color="warning">
+      <Icons.Warning color="warning" /> Test Ballot Mode
+    </TestModeCardDesktop>
+  );
+}
+
+export function TestModeCallout({
+  viewMode,
+  style,
+}: {
+  viewMode: 'touch' | 'desktop';
+  style?: React.CSSProperties;
+}): JSX.Element {
+  if (viewMode === 'desktop') {
+    return <TestModeCalloutDesktop style={style} />;
+  }
+
+  return <TestModeCalloutTouch style={style} />;
 }
