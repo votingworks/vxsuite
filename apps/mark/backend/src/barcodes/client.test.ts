@@ -6,6 +6,10 @@ vi.mock('node:worker_threads', async () => {
   const { EventEmitter: EE } = await import('node:events');
 
   class Worker extends EE {
+    postMessage(): void {
+      // No-op for testing
+    }
+
     terminate(): Promise<number> {
       return Promise.resolve(0);
     }
@@ -182,7 +186,9 @@ describe('Client', () => {
   test('shutDown terminates the worker', async () => {
     const client = new Client(logger);
 
-    const exitCode = await client.shutDown();
+    const shutDownPromise = client.shutDown();
+    await vi.advanceTimersByTimeAsync(100);
+    const exitCode = await shutDownPromise;
 
     expect(exitCode).toEqual(0);
   });
@@ -195,7 +201,9 @@ describe('Client', () => {
     // Override terminate to return undefined
     worker.terminate = vi.fn().mockResolvedValue(undefined);
 
-    const exitCode = await client.shutDown();
+    const shutDownPromise = client.shutDown();
+    await vi.advanceTimersByTimeAsync(100);
+    const exitCode = await shutDownPromise;
 
     expect(exitCode).toEqual(0);
   });

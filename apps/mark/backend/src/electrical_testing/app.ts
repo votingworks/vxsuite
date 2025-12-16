@@ -10,6 +10,7 @@ import express, { Application } from 'express';
 import { ServerContext } from './context';
 import { getMachineConfig } from '../machine_config';
 import { sendTestPrint } from './background';
+import { SoundName } from '../audio/player';
 
 // Honeywell CM4680SR (AKA Metrologic Instruments CM4680SR):
 const BARCODE_SCANNER_VENDOR_ID = 0x0c2e;
@@ -36,6 +37,7 @@ export interface BarcodeStatus {
 }
 
 function buildApi({
+  audioPlayer,
   workspace,
   usbDrive,
   logger,
@@ -151,6 +153,10 @@ function buildApi({
         lastScan: lastBarcodeScan,
         lastScanTimestamp: lastBarcodeScanTimestamp,
       };
+    },
+
+    async playSpeakerSound(input: { name: SoundName }): Promise<void> {
+      await audioPlayer?.play(input.name);
     },
 
     ...createSystemCallApi({

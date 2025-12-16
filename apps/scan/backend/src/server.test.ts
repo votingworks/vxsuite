@@ -11,6 +11,7 @@ import { Application } from 'express';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
+  getAudioInfoWithRetry,
   setAudioVolume,
   setDefaultAudio,
   testDetectDevices,
@@ -21,21 +22,20 @@ import { NODE_ENV, PORT } from './globals';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildMockLogger } from '../test/helpers/shared_helpers';
-import { getAudioInfo } from './audio/info';
 import { Player as AudioPlayer } from './audio/player';
 
 vi.mock('./app');
-vi.mock('./audio/info');
 vi.mock('./audio/player');
 
 vi.mock('@votingworks/backend', async (importActual) => ({
   ...(await importActual()),
+  getAudioInfoWithRetry: vi.fn(),
   setAudioVolume: vi.fn(),
   setDefaultAudio: vi.fn(),
 }));
 
 const buildAppMock = buildApp as MockedFunction<typeof buildApp>;
-const mockGetAudioInfo = vi.mocked(getAudioInfo);
+const mockGetAudioInfoWithRetry = vi.mocked(getAudioInfoWithRetry);
 const mockAudioPlayerClass = vi.mocked(AudioPlayer);
 const mockSetAudioVolume = vi.mocked(setAudioVolume);
 const mockSetDefaultAudio = vi.mocked(setDefaultAudio);
@@ -59,7 +59,7 @@ test('start passes context to `buildApp`', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfo.mockResolvedValueOnce({
+  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
     builtin: { headphonesActive: false, name: 'pci.stereo' },
   });
 
@@ -85,7 +85,7 @@ test('start passes context to `buildApp`', async () => {
   });
   expect(listen).toHaveBeenNthCalledWith(1, PORT, expect.any(Function));
 
-  expect(mockGetAudioInfo).toHaveBeenCalledWith({
+  expect(mockGetAudioInfoWithRetry).toHaveBeenCalledWith({
     baseRetryDelayMs: expect.toSatisfy(
       (delay: number) => delay >= 500,
       'should be at least 500ms'
@@ -127,7 +127,7 @@ test('configures USB audio device, if present', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfo.mockResolvedValueOnce({
+  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
     builtin: { headphonesActive: false, name: 'pci.stereo' },
     usb: { name: 'usb.stereo' },
   });
@@ -159,7 +159,7 @@ test('logs if unable to detect USB audio device', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfo.mockResolvedValueOnce({
+  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
     builtin: { headphonesActive: false, name: 'pci.stereo' },
   });
 
@@ -184,7 +184,7 @@ test('throws if unable to set USB audio as default', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfo.mockResolvedValueOnce({
+  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
     builtin: { headphonesActive: false, name: 'pci.stereo' },
     usb: { name: 'telepathy.stereo' },
   });
@@ -210,7 +210,7 @@ test('throws if unable to set USB volume', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfo.mockResolvedValueOnce({
+  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
     builtin: { headphonesActive: false, name: 'pci.stereo' },
     usb: { name: 'telepathy.stereo' },
   });
@@ -235,7 +235,7 @@ test('logs device attach/unattach events', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  mockGetAudioInfo.mockResolvedValueOnce({
+  mockGetAudioInfoWithRetry.mockResolvedValueOnce({
     builtin: { headphonesActive: false, name: 'pci.stereo' },
   });
 

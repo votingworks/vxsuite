@@ -1,19 +1,23 @@
 /* istanbul ignore file - @preserve */
 import {
   Button,
+  CheckboxButton,
   CpuMetricsDisplay,
   ElectricalTestingScreen,
   Icons,
   InputControls,
+  useHeadphonesPluggedIn,
 } from '@votingworks/ui';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import useInterval from 'use-interval';
+import styled from 'styled-components';
 import {
   getBarcodeStatus,
   getCpuMetrics,
   getElectricalTestingStatuses,
   getPrinterStatus,
   getPrinterTaskStatus,
+  playSpeakerSound,
   printTestPage,
   setCardReaderTaskRunning,
   setPrinterTaskRunning,
@@ -71,6 +75,48 @@ function formatBarcodeStatus(
   return 'Connected - No scans yet';
 }
 
+const AudioControlsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transform: scale(0.5);
+  transform-origin: top left;
+`;
+
+function AudioControls({
+  speakerEnabled,
+  setSpeakerEnabled,
+  headphonesEnabled,
+  setHeadphonesEnabled,
+  headphonesAvailable,
+}: {
+  speakerEnabled: boolean;
+  setSpeakerEnabled: (enabled: boolean) => void;
+  headphonesEnabled: boolean;
+  setHeadphonesEnabled: (enabled: boolean) => void;
+  headphonesAvailable: boolean;
+}): JSX.Element {
+  return (
+    <AudioControlsContainer>
+      <CheckboxButton
+        label="Speaker"
+        isChecked={speakerEnabled}
+        onChange={setSpeakerEnabled}
+      />
+      <CheckboxButton
+        label={
+          headphonesAvailable
+            ? 'Headphones'
+            : 'Headphones (No USB audio detected)'
+        }
+        isChecked={headphonesEnabled && headphonesAvailable}
+        onChange={setHeadphonesEnabled}
+        disabled={!headphonesAvailable}
+      />
+    </AudioControlsContainer>
+  );
+}
+
 export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusesQuery =
     getElectricalTestingStatuses.useQuery();
@@ -84,9 +130,52 @@ export function AppRoot(): JSX.Element {
   const setPrinterTaskRunningMutation = setPrinterTaskRunning.useMutation();
   const printTestPageMutation = printTestPage.useMutation();
   const powerDownMutation = systemCallApi.powerDown.useMutation();
+  const playSpeakerSoundMutation = playSpeakerSound.useMutation().mutate;
 
-  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const playSound = useSound('success-5s');
+  const [speakerEnabled, setSpeakerEnabled] = useState(true);
+  const [headphonesEnabled, setHeadphonesEnabled] = useState(true);
+
+  // Track which output to play next for alternating
+  const nextOutputRef = useRef<'speaker' | 'headphones'>('speaker');
+
+  // Headphones play through the frontend (USB audio device)
+  const playSoundHeadphones = useSound('success-5s');
+
+  const headphonesAvailable = useHeadphonesPluggedIn();
+
+  // Alternating sound playback
+  useInterval(
+    () => {
+      const canPlaySpeaker = speakerEnabled;
+      const canPlayHeadphones = headphonesEnabled && headphonesAvailable;
+
+      if (!canPlaySpeaker && !canPlayHeadphones) {
+        return;
+      }
+
+      // If only one output is available, use that
+      if (canPlaySpeaker && !canPlayHeadphones) {
+        playSpeakerSoundMutation('success');
+        return;
+      }
+      if (!canPlaySpeaker && canPlayHeadphones) {
+        playSoundHeadphones();
+        return;
+      }
+
+      // Both are available, alternate
+      if (nextOutputRef.current === 'speaker') {
+        playSpeakerSoundMutation('success');
+        nextOutputRef.current = 'headphones';
+      } else {
+        playSoundHeadphones();
+        nextOutputRef.current = 'speaker';
+      }
+    },
+    speakerEnabled || (headphonesEnabled && headphonesAvailable)
+      ? SOUND_INTERVAL_SECONDS * 1000
+      : null
+  );
 
   function toggleCardReaderTaskRunning() {
     setCardReaderTaskRunningMutation.mutate(
@@ -106,15 +195,9 @@ export function AppRoot(): JSX.Element {
     );
   }
 
-  function toggleSoundEnabled() {
-    setIsSoundEnabled((prev) => !prev);
-  }
-
   function powerDown() {
     powerDownMutation.mutate();
   }
-
-  useInterval(playSound, isSoundEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null);
 
   const cardStatus = getElectricalTestingStatusesQuery.data?.card;
   const usbDriveStatus = getElectricalTestingStatusesQuery.data?.usbDrive;
@@ -182,11 +265,22 @@ export function AppRoot(): JSX.Element {
           },
           {
             id: 'sound',
-            icon: isSoundEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
+            icon:
+              speakerEnabled || headphonesEnabled ? (
+                <Icons.VolumeUp />
+              ) : (
+                <Icons.VolumeMute />
+              ),
             title: 'Sound',
-            body: isSoundEnabled ? 'Enabled' : 'Disabled',
-            isRunning: isSoundEnabled,
-            toggleIsRunning: toggleSoundEnabled,
+            body: (
+              <AudioControls
+                speakerEnabled={speakerEnabled}
+                setSpeakerEnabled={setSpeakerEnabled}
+                headphonesEnabled={headphonesEnabled}
+                setHeadphonesEnabled={setHeadphonesEnabled}
+                headphonesAvailable={headphonesAvailable}
+              />
+            ),
           },
           {
             id: 'inputs',

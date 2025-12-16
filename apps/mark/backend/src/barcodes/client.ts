@@ -75,6 +75,10 @@ export class Client extends EventEmitter<{
 
   async shutDown(): Promise<number> {
     this.worker.removeAllListeners();
+    // Send shutdown message to worker to close HID connection gracefully
+    this.worker.postMessage('shutdown');
+    // Give the worker a moment to clean up before terminating
+    await sleep(100);
     return (await this.worker.terminate()) ?? 0;
   }
 }

@@ -9,8 +9,10 @@ import { SystemSettings, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { Client } from './client';
 import { Workspace } from '../util/workspace';
 import { constructAuthMachineState } from '../util/auth';
+import { Player as AudioPlayer } from '../audio/player';
 
 interface Context {
+  audioPlayer?: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
   barcodeClient?: Client;
   logger: Logger;
@@ -131,6 +133,8 @@ export function setUpBarcodeActivation(ctx: Context): void {
         message: 'voter session started successfully',
         disposition: 'success',
       });
+
+      void ctx.audioPlayer?.play('success');
     } catch (error) {
       ctx.logger.log(LogEventId.UnknownError, 'system', {
         message: 'failed to start voter session',

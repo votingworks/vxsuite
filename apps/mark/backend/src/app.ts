@@ -48,8 +48,10 @@ import { constructAuthMachineState } from './util/auth';
 import { ElectionRecord } from './store';
 import * as barcodes from './barcodes';
 import { setUpBarcodeActivation } from './barcodes/activation';
+import { Player as AudioPlayer } from './audio/player';
 
 interface Context {
+  audioPlayer?: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
   barcodeClient?: barcodes.Client;
   logger: Logger;

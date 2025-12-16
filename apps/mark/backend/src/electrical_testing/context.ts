@@ -5,8 +5,10 @@ import { UsbDrive } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
 import { Workspace } from '../util/workspace';
 import * as barcodes from '../barcodes';
+import { Player as AudioPlayer } from '../audio/player';
 
 export interface ServerContext {
+  audioPlayer?: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
   cardTask: TaskController<void, string>;
   usbDriveTask: TaskController<void, string>;

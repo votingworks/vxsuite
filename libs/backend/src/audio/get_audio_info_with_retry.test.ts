@@ -1,9 +1,15 @@
-import { audio } from '@votingworks/backend';
 import { expect, test, vi } from 'vitest';
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import { getAudioInfo } from './info';
+import { getAudioInfoWithRetry } from './get_audio_info_with_retry';
+import * as audio from '../system_call/get_audio_info';
 
-vi.mock('@votingworks/backend');
+vi.mock('../system_call/get_audio_info');
+
+let mockIsIntegrationTest = false;
+vi.mock('@votingworks/utils', async (importActual) => ({
+  ...(await importActual()),
+  isIntegrationTest: () => mockIsIntegrationTest,
+}));
 
 vi.useFakeTimers();
 
@@ -14,7 +20,7 @@ test('retries with increasing delays', async () => {
 
   const baseRetryDelayMs = 500;
   const logger = mockLogger({ fn: vi.fn });
-  const deferredAudioInfo = getAudioInfo({
+  const deferredAudioInfo = getAudioInfoWithRetry({
     baseRetryDelayMs,
     logger,
     maxAttempts: 4,
@@ -63,7 +69,7 @@ test('throws last error after last retry', async () => {
   mockGetAudioInfo.mockRejectedValueOnce('first failure');
 
   const baseRetryDelayMs = 500;
-  const deferredAudioInfo = getAudioInfo({
+  const deferredAudioInfo = getAudioInfoWithRetry({
     baseRetryDelayMs,
     logger: mockLogger({ fn: vi.fn }),
     maxAttempts: 3,
@@ -84,4 +90,25 @@ test('throws last error after last retry', async () => {
   await expect(deferredAudioInfo).rejects.toThrow(
     'builtin audio device not found'
   );
+});
+
+test('returns mock audio info during integration tests', async () => {
+  mockIsIntegrationTest = true;
+
+  const logger = mockLogger({ fn: vi.fn });
+  const audioInfo = await getAudioInfoWithRetry({
+    baseRetryDelayMs: 500,
+    logger,
+    maxAttempts: 4,
+    nodeEnv: 'development',
+  });
+
+  expect(audioInfo).toEqual({
+    builtin: { headphonesActive: false, name: 'mock.builtin.stereo' },
+  });
+
+  // Should not call the real getAudioInfo during integration tests:
+  expect(mockGetAudioInfo).not.toHaveBeenCalled();
+
+  mockIsIntegrationTest = false;
 });
