@@ -135,7 +135,7 @@ export function addBallotsPropsToPrintCountRow(
     ? `${matchingPrecinctOrSplit.precinct.name} - ${matchingPrecinctOrSplit.split.name}`
     : matchingPrecinctOrSplit.precinct.name;
 
-  // Todo(nikhil): verify if we need to support the case of multiple languages per ballot style
+  // We only support one language per ballot style
   const languageCode = assertDefined(ballotStyle.languages)[0] as LanguageCode;
 
   let partyName: string | undefined;

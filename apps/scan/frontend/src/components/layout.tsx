@@ -173,13 +173,15 @@ export function Screen(props: ScreenProps): JSX.Element | null {
               />
             )}
           </SettingsButtons>
-          {showTestModeBanner && <TestModeCallout />}
+          {showTestModeBanner && <TestModeCallout viewMode="touch" />}
           {ballotCountElement}
         </HeaderRow>
       )}
       <HeaderRow>
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
-        {!voterFacing && showTestModeBanner && <TestModeCallout />}
+        {!voterFacing && showTestModeBanner && (
+          <TestModeCallout viewMode="touch" />
+        )}
         {!voterFacing && ballotCountElement}
       </HeaderRow>
       {voterFacing ? (
