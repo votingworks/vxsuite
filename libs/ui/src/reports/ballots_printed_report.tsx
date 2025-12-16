@@ -6,7 +6,7 @@ import {
   BallotPrintCount,
 } from '@votingworks/types';
 import { format, getLanguageOptions } from '@votingworks/utils';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 
 import { PrintedReport, reportColors, printedReportThemeFn } from './layout';
 import { LogoMark } from '../logo_mark';
@@ -54,8 +54,10 @@ function getColumnLabel(column: Column): string {
       return COLUMN_LABELS[column.id];
     case 'filler':
       return '';
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(column);
+    }
   }
 }
 
@@ -67,8 +69,10 @@ function getColumnWidth(column: Column): string {
       return 'max-content';
     case 'filler':
       return '1fr';
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(column);
+    }
   }
 }
 
@@ -170,8 +174,10 @@ function getFormattedCount(row: BallotPrintCount, column: CountColumn): string {
         return row.precinctCount;
       case 'total':
         return row.totalCount;
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(column.id);
+      }
     }
   })();
 
@@ -236,22 +242,26 @@ function getCellContent({
         case 'precinctSplitName':
           return row.precinctOrSplitName;
         case 'party':
-          return row.partyName ?? '';
+          return assertDefined(row.partyName);
         case 'language':
           return format.languageDisplayName({
             languageCode: row.languageCode,
             displayLanguageCode: 'en',
           });
-        default:
+        default: {
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(column);
+        }
       }
     // eslint-disable-next-line no-fallthrough
     case 'filler':
       return '';
     case 'count':
       return getFormattedCount(row, column);
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(column);
+    }
   }
 }
 
@@ -348,8 +358,10 @@ function BallotsPrintedTable({
               return (
                 <span key={key} className={getCellClass(column, 'footer')} />
               );
-            default:
+            default: {
+              /* istanbul ignore next - @preserve */
               return throwIllegalValue(column);
+            }
           }
         })}
       </React.Fragment>
@@ -359,9 +371,9 @@ function BallotsPrintedTable({
 
 export interface BallotsPrintedReportProps {
   electionDefinition: ElectionDefinition;
-  electionPackageHash?: string;
+  electionPackageHash: string;
   printCounts: BallotPrintCount[];
-  generatedAtTime?: Date;
+  generatedAtTime: Date;
   isTestMode: boolean;
 }
 
@@ -369,7 +381,7 @@ export function BallotsPrintedReport({
   electionDefinition,
   electionPackageHash,
   printCounts,
-  generatedAtTime = new Date(),
+  generatedAtTime,
   isTestMode,
 }: BallotsPrintedReportProps): JSX.Element {
   const { election } = electionDefinition;
