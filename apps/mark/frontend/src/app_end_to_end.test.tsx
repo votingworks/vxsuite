@@ -110,7 +110,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Remove card and expect not configured because precinct not selected
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
-    'Insert an election manager card to configure VxMark'
+    'Insert an election manager card to select a precinct.'
   );
 
   // ---------------
@@ -358,7 +358,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Election Manager Menu');
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
-    'Insert an election manager card to configure VxMark'
+    'Insert an election manager card to select a precinct.'
   );
 
   // Unconfigure with System Administrator card
