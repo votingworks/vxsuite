@@ -1,30 +1,27 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
+import { assert, assertDefined } from '@votingworks/basics';
 import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { assertDefined } from '@votingworks/basics';
-import { safeParse } from '@votingworks/types';
+import { Auth0Client } from '../src/auth0_client';
 import { createWorkspace } from '../src/workspace';
 import { WORKSPACE } from '../src/globals';
-import { generateId } from '../src/utils';
-import { Jurisdiction, StateCodeSchema } from '../src/types';
 
-const USAGE = `Usage: pnpm create-jurisdiction --organizationId=<organizationId> --stateCode=<stateCode> "<name>"`;
+const USAGE = `Usage: pnpm create-organization-user --organizationId=<string> <email address>`;
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
   const {
-    positionals: [name],
-    values: { organizationId, stateCode },
+    positionals: [userEmail],
+    values: { organizationId },
   } = util.parseArgs({
     allowPositionals: true,
     args: process.argv.slice(2),
     options: {
       organizationId: { type: 'string' },
-      stateCode: { type: 'string' },
     },
   });
-  if (!(name && organizationId && stateCode)) {
+  if (!userEmail || !organizationId) {
     console.log(USAGE);
     process.exit(0);
   }
@@ -36,20 +33,20 @@ async function main(): Promise<void> {
 
   const organization = await workspace.store.getOrganization(organizationId);
 
-  const stateCodeParsed = safeParse(StateCodeSchema, stateCode).assertOk(
-    'Invalid state code'
-  );
+  const auth = Auth0Client.init();
 
-  const jurisdiction: Jurisdiction = {
-    id: generateId(),
-    name,
-    stateCode: stateCodeParsed,
+  const existingUserId = await workspace.store.getUserIdByEmail(userEmail);
+  assert(!existingUserId, 'User already exists');
+
+  const userId = await auth.createUser({ userEmail });
+  await workspace.store.createUser({
+    id: userId,
+    type: 'organization_user',
+    name: userEmail,
     organization,
-  };
+  });
 
-  await workspace.store.createJurisdiction(jurisdiction);
-
-  console.log('✅ Jurisdiction created:', jurisdiction);
+  console.log(`✅ User created and added to organization ${organization.name}`);
 }
 
 main()

@@ -98,16 +98,33 @@ pnpm list-jurisdictions
 ]
 ```
 
-### Create User
+### Create Organization User
 
-This will create a new user and add to the jurisdiction. If a user already
-exists with the same email address, they will just get added to the specified
-jurisdiction, which will also be idempotent.
+This will create a new organization-level user, who can access all jurisdictions
+within the organization.
 
-**NOTE:** This doesn't send out an email to the user - see next section.
+**NOTE:** This doesn't send out an email to the user - see below.
 
 ```sh
-pnpm create-user --jurisdictionId="TUPNZLFFyBgzxdeH" "someone@example.com"
+pnpm create-organization-user --organizationId="nfpn8pkbhr46" "someone@example.com"
+```
+
+```sh
+# Output:
+
+✅ User created and added to organization 'VotingWorks'
+```
+
+### Create Jurisdiction User
+
+This will create a new jurisdiction-level user and add to the jurisdiction. If a
+user already exists with the same email address, they will just get added to the
+specified jurisdiction, which will also be idempotent.
+
+**NOTE:** This doesn't send out an email to the user - see below.
+
+```sh
+pnpm create-jurisdiction-user --jurisdictionId="TUPNZLFFyBgzxdeH" "someone@example.com"
 ```
 
 ```sh

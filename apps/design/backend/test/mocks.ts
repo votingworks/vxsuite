@@ -1,5 +1,11 @@
+import {
+  OrganizationUser,
+  Jurisdiction,
+  JurisdictionUser,
+  Organization,
+  User,
+} from '../src/types';
 import { votingWorksOrganizationId, sliOrganizationId } from '../src/globals';
-import { Jurisdiction, Organization, User } from '../src/types';
 
 export const vxOrganization: Organization = {
   id: votingWorksOrganizationId(),
@@ -20,7 +26,8 @@ export const vxJurisdiction: Jurisdiction = {
   stateCode: 'DEMO',
   organization: vxOrganization,
 };
-export const vxUser: User = {
+export const vxUser: JurisdictionUser = {
+  type: 'jurisdiction_user',
   name: 'vx.user@example.com',
   id: 'auth0|vx-user-id',
   organization: vxOrganization,
@@ -39,11 +46,12 @@ export const nhJurisdiction: Jurisdiction = {
   stateCode: 'NH',
   organization: nonVxOrganization,
 };
-export const nonVxUser: User = {
+export const nonVxUser: JurisdictionUser = {
+  type: 'jurisdiction_user',
   name: 'non.vx.user@example.com',
   id: 'auth0|non-vx-user-id',
   organization: nonVxOrganization,
-  jurisdictions: [nonVxJurisdiction, nhJurisdiction],
+  jurisdictions: [nhJurisdiction, nonVxJurisdiction],
 };
 
 export const anotherNonVxJurisdiction: Jurisdiction = {
@@ -58,10 +66,17 @@ export const msJurisdiction: Jurisdiction = {
   stateCode: 'MS',
   organization: nonVxOrganization,
 };
-export const anotherNonVxUser: User = {
+export const anotherNonVxUser: JurisdictionUser = {
   ...nonVxUser,
   id: 'auth0|another-non-vx-user-id',
-  jurisdictions: [anotherNonVxJurisdiction, msJurisdiction],
+  jurisdictions: [msJurisdiction, anotherNonVxJurisdiction],
+};
+
+export const nonVxOrganizationUser: OrganizationUser = {
+  type: 'organization_user',
+  name: 'non.vx.organization.user@example.com',
+  id: 'auth0|non-vx-organization-user-id',
+  organization: nonVxOrganization,
 };
 
 export const sliJurisdiction: Jurisdiction = {
@@ -70,7 +85,8 @@ export const sliJurisdiction: Jurisdiction = {
   stateCode: 'DEMO',
   organization: sliOrganization,
 };
-export const sliUser: User = {
+export const sliUser: JurisdictionUser = {
+  type: 'jurisdiction_user',
   name: 'sli.user@example.com',
   id: 'auth0|sli-user-id',
   organization: sliOrganization,
@@ -92,4 +108,10 @@ export const jurisdictions: Jurisdiction[] = [
   msJurisdiction,
 ];
 
-export const users: User[] = [vxUser, nonVxUser, anotherNonVxUser, sliUser];
+export const users: User[] = [
+  vxUser,
+  nonVxUser,
+  anotherNonVxUser,
+  nonVxOrganizationUser,
+  sliUser,
+];

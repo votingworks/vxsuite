@@ -7,7 +7,7 @@ import { Auth0Client } from '../src/auth0_client';
 import { createWorkspace } from '../src/workspace';
 import { WORKSPACE } from '../src/globals';
 
-const USAGE = `Usage: pnpm create-user --jurisdictionId=<string> <email address>`;
+const USAGE = `Usage: pnpm create-jurisdiction-user --jurisdictionId=<string> <email address>`;
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
@@ -39,19 +39,20 @@ async function main(): Promise<void> {
   if (existingUserId) {
     console.log('User already exists. Attempting to add to jurisdiction...');
     await workspace.store.addUserToJurisdiction(existingUserId, jurisdictionId);
-    console.log(`✅ Existing user added to jurisdiction ${jurisdictionId}`);
+    console.log(`✅ Existing user added to jurisdiction ${jurisdiction.name}`);
     return;
   }
 
   const userId = await auth.createUser({ userEmail });
   await workspace.store.createUser({
     id: userId,
+    type: 'jurisdiction_user',
     name: userEmail,
     organization: jurisdiction.organization,
   });
   await workspace.store.addUserToJurisdiction(userId, jurisdictionId);
 
-  console.log(`✅ User created and added to jurisdiction ${jurisdictionId}`);
+  console.log(`✅ User created and added to jurisdiction ${jurisdiction.name}`);
 }
 
 main()
