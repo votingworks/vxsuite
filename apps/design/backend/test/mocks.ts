@@ -1,10 +1,11 @@
-import { votingWorksOrganizationId, sliOrganizationId } from '../src/globals';
 import {
+  OrganizationUser,
   Jurisdiction,
   JurisdictionUser,
   Organization,
   User,
 } from '../src/types';
+import { votingWorksOrganizationId, sliOrganizationId } from '../src/globals';
 
 export const vxOrganization: Organization = {
   id: votingWorksOrganizationId(),
@@ -50,7 +51,7 @@ export const nonVxUser: JurisdictionUser = {
   name: 'non.vx.user@example.com',
   id: 'auth0|non-vx-user-id',
   organization: nonVxOrganization,
-  jurisdictions: [nonVxJurisdiction, nhJurisdiction],
+  jurisdictions: [nhJurisdiction, nonVxJurisdiction],
 };
 
 export const anotherNonVxJurisdiction: Jurisdiction = {
@@ -68,7 +69,14 @@ export const msJurisdiction: Jurisdiction = {
 export const anotherNonVxUser: JurisdictionUser = {
   ...nonVxUser,
   id: 'auth0|another-non-vx-user-id',
-  jurisdictions: [anotherNonVxJurisdiction, msJurisdiction],
+  jurisdictions: [msJurisdiction, anotherNonVxJurisdiction],
+};
+
+export const nonVxOrganizationUser: OrganizationUser = {
+  type: 'organization_user',
+  name: 'non.vx.organization.user@example.com',
+  id: 'auth0|non-vx-organization-user-id',
+  organization: nonVxOrganization,
 };
 
 export const sliJurisdiction: Jurisdiction = {
@@ -100,4 +108,10 @@ export const jurisdictions: Jurisdiction[] = [
   msJurisdiction,
 ];
 
-export const users: User[] = [vxUser, nonVxUser, anotherNonVxUser, sliUser];
+export const users: User[] = [
+  vxUser,
+  nonVxUser,
+  anotherNonVxUser,
+  nonVxOrganizationUser,
+  sliUser,
+];

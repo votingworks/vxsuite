@@ -119,6 +119,7 @@ import {
   sliUser,
   nhJurisdiction,
   msJurisdiction,
+  nonVxOrganizationUser,
 } from '../test/mocks';
 
 vi.setConfig({
@@ -274,19 +275,19 @@ test('create/list/delete elections', async () => {
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.listElections()).toEqual([]);
 
-  const expectedElectionId = unsafeParse(ElectionIdSchema, 'election-1');
-  const electionId = (
+  const expectedNonVxElectionId = unsafeParse(ElectionIdSchema, 'election-1');
+  const nonVxElectionId = (
     await apiClient.createElection({
-      id: expectedElectionId,
+      id: expectedNonVxElectionId,
       jurisdictionId: nonVxJurisdiction.id,
     })
   ).unsafeUnwrap();
-  expect(electionId).toEqual(expectedElectionId);
+  expect(nonVxElectionId).toEqual(expectedNonVxElectionId);
 
-  const expectedElectionListing: ElectionListing = {
+  const expectedNonVxElectionListing: ElectionListing = {
     jurisdictionId: nonVxJurisdiction.id,
     jurisdictionName: nonVxJurisdiction.name,
-    electionId: expectedElectionId,
+    electionId: expectedNonVxElectionId,
     title: '',
     date: DateWithoutTime.today(),
     type: 'general',
@@ -295,47 +296,102 @@ test('create/list/delete elections', async () => {
     status: 'notStarted',
   };
 
-  expect(await apiClient.listElections()).toEqual([expectedElectionListing]);
-  auth0.setLoggedInUser(nonVxUser);
-  expect(await apiClient.listElections()).toEqual([expectedElectionListing]);
+  auth0.setLoggedInUser(nonVxOrganizationUser);
+  const expectedNonVxElectionId2 = unsafeParse(ElectionIdSchema, 'election-2');
+  const nonVxElectionId2 = (
+    await apiClient.createElection({
+      id: expectedNonVxElectionId2,
+      jurisdictionId: anotherNonVxJurisdiction.id,
+    })
+  ).unsafeUnwrap();
+  expect(nonVxElectionId2).toEqual(expectedNonVxElectionId2);
 
-  const election2Definition =
+  const expectedNonVxElectionListing2: ElectionListing = {
+    ...expectedNonVxElectionListing,
+    jurisdictionId: anotherNonVxJurisdiction.id,
+    jurisdictionName: anotherNonVxJurisdiction.name,
+    electionId: expectedNonVxElectionId2,
+  };
+
+  // Jurisdiction user should only see elections in their jurisdictions
+  auth0.setLoggedInUser(nonVxUser);
+  expect(await apiClient.listElections()).toEqual([
+    expectedNonVxElectionListing,
+  ]);
+  auth0.setLoggedInUser(anotherNonVxUser);
+  expect(await apiClient.listElections()).toEqual([
+    expectedNonVxElectionListing2,
+  ]);
+  // Organization user should see elections in all jurisdictions in the organization
+  auth0.setLoggedInUser(nonVxOrganizationUser);
+  expect(await apiClient.listElections()).toEqual([
+    expectedNonVxElectionListing2,
+    expectedNonVxElectionListing,
+  ]);
+
+  const vxElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const election2 = election2Definition.election;
+  const vxElection = vxElectionDefinition.election;
 
   const importedElectionNewId = 'new-election-id' as ElectionId;
   auth0.setLoggedInUser(vxUser);
-  const electionId2 = (
+  const vxElectionId = (
     await apiClient.loadElection({
       newId: importedElectionNewId,
       jurisdictionId: vxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: election2Definition.electionData,
+        electionFileContents: vxElectionDefinition.electionData,
       },
     })
   ).unsafeUnwrap();
-  expect(electionId2).toEqual(importedElectionNewId);
+  expect(vxElectionId).toEqual(importedElectionNewId);
 
-  const expectedElection2Listing: ElectionListing = {
+  const expectedVxElectionListing: ElectionListing = {
     jurisdictionId: vxJurisdiction.id,
     jurisdictionName: vxJurisdiction.name,
     electionId: importedElectionNewId,
-    title: election2.title,
-    date: election2.date,
-    type: election2.type,
-    countyName: election2.county.name,
-    state: election2.state,
+    title: vxElection.title,
+    date: vxElection.date,
+    type: vxElection.type,
+    countyName: vxElection.county.name,
+    state: vxElection.state,
     status: 'inProgress',
   };
+
+  // VX user should have access to all elections
+  auth0.setLoggedInUser(vxUser);
   expect(await apiClient.listElections()).toEqual([
-    expectedElection2Listing,
-    expectedElectionListing,
+    expectedVxElectionListing,
+    expectedNonVxElectionListing2,
+    expectedNonVxElectionListing,
   ]);
 
-  // Permissions should restrict accessing elections across jurisdictions
+  // Permissions should restrict jurisdiction users accessing elections outside their jurisdictions
+  auth0.setLoggedInUser(anotherNonVxUser);
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      apiClient.createElection({
+        id: 'id',
+        jurisdictionId: nonVxJurisdiction.id,
+      })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.deleteElection({ electionId: nonVxElectionId })
+    ).rejects.toThrow('auth:forbidden');
+  });
+
+  // Permissions should restrict accessing elections across organizations
   auth0.setLoggedInUser(nonVxUser);
-  expect(await apiClient.listElections()).toEqual([expectedElectionListing]);
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      apiClient.createElection({ id: 'id', jurisdictionId: vxJurisdiction.id })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.deleteElection({ electionId: importedElectionNewId })
+    ).rejects.toThrow('auth:forbidden');
+  });
+  auth0.setLoggedInUser(nonVxOrganizationUser);
   await suppressingConsoleOutput(async () => {
     await expect(
       apiClient.createElection({ id: 'id', jurisdictionId: vxJurisdiction.id })
@@ -346,64 +402,67 @@ test('create/list/delete elections', async () => {
   });
 
   auth0.setLoggedInUser(vxUser);
-  await apiClient.deleteElection({ electionId });
-  expect(await apiClient.listElections()).toEqual([expectedElection2Listing]);
+  await apiClient.deleteElection({ electionId: nonVxElectionId });
+  expect(await apiClient.listElections()).toEqual([
+    expectedVxElectionListing,
+    expectedNonVxElectionListing2,
+  ]);
 
   // Check that election was loaded correctly
   expect(
-    await apiClient.getElectionInfo({ electionId: electionId2 })
+    await apiClient.getElectionInfo({ electionId: vxElectionId })
   ).toEqual<ElectionInfo>({
     jurisdictionId: vxJurisdiction.id,
     electionId: importedElectionNewId,
-    title: election2.title,
-    countyName: election2.county.name,
-    date: election2.date,
+    title: vxElection.title,
+    countyName: vxElection.county.name,
+    date: vxElection.date,
     languageCodes: [LanguageCode.ENGLISH],
-    state: election2.state,
-    seal: election2.seal,
-    type: election2.type,
+    state: vxElection.state,
+    seal: vxElection.seal,
+    type: vxElection.type,
   });
   const election2Districts = await apiClient.listDistricts({
-    electionId: electionId2,
+    electionId: vxElectionId,
   });
   expect(election2Districts).toEqual(
-    election2.districts.map((district) => ({
+    vxElection.districts.map((district) => ({
       ...district,
       id: expectNotEqualTo(district.id),
     }))
   );
   const election2Precincts = await apiClient.listPrecincts({
-    electionId: electionId2,
+    electionId: vxElectionId,
   });
   expect(election2Precincts).toEqual(
-    election2.precincts.toSorted(compareName).map((precinct) => ({
+    vxElection.precincts.toSorted(compareName).map((precinct) => ({
       id: expectNotEqualTo(precinct.id),
       name: precinct.name,
       districtIds: [election2Districts[0].id],
     }))
   );
   const election2Parties = await apiClient.listParties({
-    electionId: electionId2,
+    electionId: vxElectionId,
   });
   expect(election2Parties).toEqual(
-    election2.parties.toSorted(compareName).map((party) => ({
+    vxElection.parties.toSorted(compareName).map((party) => ({
       ...party,
       id: expectNotEqualTo(party.id),
     }))
   );
   const election2Contests = await apiClient.listContests({
-    electionId: electionId2,
+    electionId: vxElectionId,
   });
   function updatedPartyId(originalPartyId: PartyId) {
     const originalParty = find(
-      election2.parties,
+      vxElection.parties,
       (party) => party.id === originalPartyId
     );
     return find(election2Parties, (party) => party.name === originalParty.name)
       .id;
   }
   expect(election2Contests).toEqual(
-    election2.contests.map((contest) => ({
+    vxElection.contests.map((contest) => ({
       ...contest,
       id: expectNotEqualTo(contest.id),
       districtId: election2Districts[0].id,
@@ -433,35 +492,37 @@ test('create/list/delete elections', async () => {
           }),
     }))
   );
-  expect(await apiClient.listBallotStyles({ electionId: electionId2 })).toEqual(
+  expect(
+    await apiClient.listBallotStyles({ electionId: vxElectionId })
+  ).toEqual(
     generateBallotStyles({
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       contests: election2Contests,
-      electionType: election2.type,
+      electionType: vxElection.type,
       parties: election2Parties,
       precincts: [...election2Precincts],
       ballotTemplateId: 'VxDefaultBallot',
-      electionId: electionId2,
+      electionId: vxElectionId,
     })
   );
   expect(
-    await apiClient.getBallotLayoutSettings({ electionId: electionId2 })
+    await apiClient.getBallotLayoutSettings({ electionId: vxElectionId })
   ).toEqual({
-    paperSize: election2.ballotLayout.paperSize,
+    paperSize: vxElection.ballotLayout.paperSize,
     compact: false,
   });
   expect(
-    await apiClient.getSystemSettings({ electionId: electionId2 })
+    await apiClient.getSystemSettings({ electionId: vxElectionId })
   ).toEqual(DEFAULT_SYSTEM_SETTINGS);
   expect(
-    await apiClient.getBallotTemplate({ electionId: electionId2 })
+    await apiClient.getBallotTemplate({ electionId: vxElectionId })
   ).toEqual('VxDefaultBallot');
   expect(
-    await apiClient.getBallotsFinalizedAt({ electionId: electionId2 })
+    await apiClient.getBallotsFinalizedAt({ electionId: vxElectionId })
   ).toEqual(null);
 
   // Finalize ballots and check status
-  await apiClient.finalizeBallots({ electionId: electionId2 });
+  await apiClient.finalizeBallots({ electionId: vxElectionId });
   expect((await apiClient.listElections())[0].status).toEqual<ElectionStatus>(
     'ballotsFinalized'
   );
@@ -473,7 +534,7 @@ test('create/list/delete elections', async () => {
       jurisdictionId: vxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: election2Definition.electionData,
+        electionFileContents: vxElectionDefinition.electionData,
       },
     })
   ).unsafeUnwrap();
@@ -481,7 +542,7 @@ test('create/list/delete elections', async () => {
     electionId: duplicateElectionId,
   });
   expect(duplicateElection.title).toEqual(
-    `(Copy) ${election2Definition.election.title}`
+    `(Copy) ${vxElectionDefinition.election.title}`
   );
   const duplicateElectionId2 = (
     await apiClient.loadElection({
@@ -489,7 +550,7 @@ test('create/list/delete elections', async () => {
       jurisdictionId: vxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: election2Definition.electionData,
+        electionFileContents: vxElectionDefinition.electionData,
       },
     })
   ).unsafeUnwrap();
@@ -497,7 +558,7 @@ test('create/list/delete elections', async () => {
     electionId: duplicateElectionId2,
   });
   expect(duplicateElection2.title).toEqual(
-    `(Copy 2) ${election2Definition.election.title}`
+    `(Copy 2) ${vxElectionDefinition.election.title}`
   );
   const duplicateElectionId3 = (
     await apiClient.loadElection({
@@ -505,7 +566,7 @@ test('create/list/delete elections', async () => {
       jurisdictionId: vxJurisdiction.id,
       upload: {
         format: 'vxf',
-        electionFileContents: election2Definition.electionData,
+        electionFileContents: vxElectionDefinition.electionData,
       },
     })
   ).unsafeUnwrap();
@@ -513,7 +574,7 @@ test('create/list/delete elections', async () => {
     electionId: duplicateElectionId3,
   });
   expect(duplicateElection3.title).toEqual(
-    `(Copy 3) ${election2Definition.election.title}`
+    `(Copy 3) ${vxElectionDefinition.election.title}`
   );
 
   // Creating a two blank elections with empty titles is allowed
@@ -3752,9 +3813,11 @@ test('getUser', async () => {
   expect(await apiClient.getUser()).toEqual(vxUser);
   auth0.setLoggedInUser(nonVxUser);
   expect(await apiClient.getUser()).toEqual(nonVxUser);
+  auth0.setLoggedInUser(nonVxOrganizationUser);
+  expect(await apiClient.getUser()).toEqual(nonVxOrganizationUser);
 });
 
-test('listJurisdiction', async () => {
+test('listJurisdictions', async () => {
   const { apiClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
@@ -3764,11 +3827,20 @@ test('listJurisdiction', async () => {
     expect(apiClient.listJurisdictions()).rejects.toThrow('auth:unauthorized')
   );
   auth0.setLoggedInUser(vxUser);
-  expect(await apiClient.listJurisdictions()).toEqual(jurisdictions);
+  expect(await apiClient.listJurisdictions()).toEqual(
+    jurisdictions.toSorted((j1, j2) => j1.name.localeCompare(j2.name))
+  );
   auth0.setLoggedInUser(nonVxUser);
   expect(await apiClient.listJurisdictions()).toEqual([
-    nonVxJurisdiction,
     nhJurisdiction,
+    nonVxJurisdiction,
+  ]);
+  auth0.setLoggedInUser(nonVxOrganizationUser);
+  expect(await apiClient.listJurisdictions()).toEqual([
+    anotherNonVxJurisdiction,
+    msJurisdiction,
+    nhJurisdiction,
+    nonVxJurisdiction,
   ]);
   auth0.setLoggedInUser(sliUser);
   expect(await apiClient.listJurisdictions()).toEqual([sliJurisdiction]);
