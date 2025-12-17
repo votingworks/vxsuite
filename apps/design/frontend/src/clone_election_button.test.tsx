@@ -11,6 +11,7 @@ import {
   user,
   provideApi,
   jurisdiction2,
+  organizationUser,
 } from '../test/api_helpers';
 import { electionListing, generalElectionRecord } from '../test/fixtures';
 import { render, screen, within } from '../test/react_testing_library';
@@ -106,4 +107,18 @@ test('shows jurisdiction picker when user has more than one jurisdiction', async
   userEvent.click(screen.getButton('Confirm'));
   await sleep(0); // Allow redirect to resolve
   expect(history.location.pathname).toEqual(`/elections/${newElectionId}`);
+});
+
+test('shows jurisdiction picker for organization users', async () => {
+  apiMock.getUser.expectCallWith().resolves(organizationUser);
+  apiMock.listJurisdictions
+    .expectCallWith()
+    .resolves([jurisdiction, jurisdiction2]);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const { election } = electionRecord;
+  renderButton(
+    <CloneElectionButton election={electionListing(electionRecord)} />
+  );
+  userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
+  await screen.findByRole('alertdialog');
 });

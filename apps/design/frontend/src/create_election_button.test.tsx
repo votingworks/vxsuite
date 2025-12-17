@@ -11,6 +11,7 @@ import {
   jurisdiction2,
   provideApi,
   user,
+  organizationUser,
 } from '../test/api_helpers';
 import { CreateElectionButton } from './create_election_button';
 import { routes } from './routes';
@@ -108,4 +109,15 @@ test('shows modal with jurisdiction selector for multi-jurisdiction user', async
   await waitFor(() =>
     expect(history.location.pathname).toEqual(`/elections/${newId}`)
   );
+});
+
+test('shows modal with jurisdiction selector for organization user', async () => {
+  apiMock.getUser.expectCallWith().resolves(organizationUser);
+  apiMock.listJurisdictions
+    .expectCallWith()
+    .resolves([jurisdiction, jurisdiction2]);
+  renderButton();
+  const button = await screen.findByRole('button', { name: 'Create Election' });
+  userEvent.click(button);
+  await screen.findByRole('alertdialog');
 });

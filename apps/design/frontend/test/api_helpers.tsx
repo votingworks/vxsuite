@@ -8,6 +8,7 @@ import type {
   Jurisdiction,
   Organization,
   JurisdictionUser,
+  OrganizationUser,
 } from '@votingworks/design-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { AppBase, TestErrorBoundary } from '@votingworks/ui';
@@ -118,4 +119,11 @@ export const multiJurisdictionUser: JurisdictionUser = {
   id: 'auth0|987654321',
   organization,
   jurisdictions: [jurisdiction, jurisdiction2],
+};
+
+export const organizationUser: OrganizationUser = {
+  type: 'organization_user',
+  name: 'Organization User',
+  id: 'auth0|organizationuser',
+  organization,
 };
