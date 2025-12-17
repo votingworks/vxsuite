@@ -3,11 +3,9 @@ import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { ElectionId } from '@votingworks/types';
 import { sleep } from '@votingworks/basics';
-import type { User } from '@votingworks/design-backend';
 import {
   createMockApiClient,
   MockApiClient,
-  mockUserFeatures,
   multiJurisdictionUser,
   jurisdiction,
   user,
@@ -30,8 +28,7 @@ const mockGenerateId = vi.mocked(generateId);
 
 let apiMock: MockApiClient;
 
-// eslint-disable-next-line @typescript-eslint/no-shadow
-function renderButton(element: React.ReactElement, user: User) {
+function renderButton(element: React.ReactElement) {
   const history = createMemoryHistory();
 
   const ui = withRoute(element, {
@@ -41,8 +38,6 @@ function renderButton(element: React.ReactElement, user: User) {
   });
 
   const queryClient = api.createQueryClient();
-  queryClient.setQueryData(api.getUser.queryKey(), user);
-
   return {
     ...render(provideApi(apiMock, ui, queryClient)),
     history,
@@ -58,13 +53,12 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
-  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
+test('clones immediately when user has exactly one jurisdiction', async () => {
+  apiMock.getUser.expectCallWith().resolves(user);
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
   const { history } = renderButton(
-    <CloneElectionButton election={electionListing(electionRecord)} />,
-    user
+    <CloneElectionButton election={electionListing(electionRecord)} />
   );
 
   const newElectionId = 'new-election' as ElectionId;
@@ -82,22 +76,19 @@ test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
   expect(history.location.pathname).toEqual(`/elections/${newElectionId}`);
 });
 
-test('shows jurisdiction picker when ACCESS_ALL_ORGS feature enabled', async () => {
-  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: true });
+test('shows jurisdiction picker when user has more than one jurisdiction', async () => {
+  apiMock.getUser.expectCallWith().resolves(multiJurisdictionUser);
+  apiMock.listJurisdictions
+    .expectCallWith()
+    .resolves(multiJurisdictionUser.jurisdictions);
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
-  const { history, queryClient } = renderButton(
-    <CloneElectionButton election={electionListing(electionRecord)} />,
-    user
+  const { history } = renderButton(
+    <CloneElectionButton election={electionListing(electionRecord)} />
   );
 
-  queryClient.setQueryData(api.listJurisdictions.queryKey(), [
-    jurisdiction,
-    jurisdiction2,
-  ]);
-
   userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
-  const modal = screen.getByRole('alertdialog');
+  const modal = await screen.findByRole('alertdialog');
 
   userEvent.click(within(modal).getByRole('combobox'));
   userEvent.click(screen.getByText(jurisdiction2.name));
@@ -115,23 +106,4 @@ test('shows jurisdiction picker when ACCESS_ALL_ORGS feature enabled', async () 
   userEvent.click(screen.getButton('Confirm'));
   await sleep(0); // Allow redirect to resolve
   expect(history.location.pathname).toEqual(`/elections/${newElectionId}`);
-});
-
-test('shows jurisdiction picker for multi-jurisdiction user', async () => {
-  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
-  const electionRecord = generalElectionRecord(jurisdiction.id);
-  const { election } = electionRecord;
-  const { queryClient } = renderButton(
-    <CloneElectionButton election={electionListing(electionRecord)} />,
-    multiJurisdictionUser
-  );
-
-  queryClient.setQueryData(api.listJurisdictions.queryKey(), [
-    jurisdiction,
-    jurisdiction2,
-  ]);
-
-  userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
-  const modal = screen.getByRole('alertdialog');
-  within(modal).getByRole('combobox', { name: 'Jurisdiction' });
 });

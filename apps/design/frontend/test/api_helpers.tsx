@@ -3,11 +3,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type {
   Api,
   StateFeaturesConfig,
-  User,
   UserFeature,
   UserFeaturesConfig,
   Jurisdiction,
   Organization,
+  JurisdictionUser,
 } from '@votingworks/design-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { AppBase, TestErrorBoundary } from '@votingworks/ui';
@@ -104,14 +104,16 @@ export const jurisdiction2: Jurisdiction = {
   organization,
 };
 
-export const user: User = {
+export const user: JurisdictionUser = {
+  type: 'jurisdiction_user',
   name: 'Test User',
   id: 'auth0|123456789',
   organization,
   jurisdictions: [jurisdiction],
 };
 
-export const multiJurisdictionUser: User = {
+export const multiJurisdictionUser: JurisdictionUser = {
+  type: 'jurisdiction_user',
   name: 'Multi Jurisdiction User',
   id: 'auth0|987654321',
   organization,

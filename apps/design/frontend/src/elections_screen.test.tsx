@@ -86,7 +86,6 @@ function renderScreen() {
 
 test('with no elections, creating a new election', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   apiMock.listElections.expectCallWith().resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
@@ -105,8 +104,6 @@ test('with no elections, creating a new election', async () => {
     name: 'Create Election',
   });
   userEvent.click(createElectionButton);
-  userEvent.type(screen.getByRole('combobox'), 'VotingWorks[Enter]');
-  userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
   await waitFor(() => {
     expect(history.location.pathname).toEqual(`/elections/${ELECTION_ID}`);
   });
