@@ -48,7 +48,7 @@ import { constructAuthMachineState } from './util/auth';
 import { ElectionRecord } from './store';
 import * as barcodes from './barcodes';
 import { setUpBarcodeActivation } from './barcodes/activation';
-import { Player as AudioPlayer } from './audio/player';
+import { Player as AudioPlayer, SoundName } from './audio/player';
 
 interface Context {
   audioPlayer?: AudioPlayer;
@@ -320,6 +320,14 @@ export function buildApi(ctx: Context) {
 
     setPrintCalibration(input: PrintCalibration) {
       store.setPrintCalibration(input);
+    },
+
+    playSound(input: { name: SoundName }): Promise<void> {
+      const { audioPlayer } = ctx;
+      if (!audioPlayer) {
+        return Promise.resolve();
+      }
+      return audioPlayer.play(input.name);
     },
   });
 }

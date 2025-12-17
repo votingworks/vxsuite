@@ -112,8 +112,8 @@ describe('Displays setup warning messages and errors screens', () => {
       apiMock.setPrinterStatus({ connected: false });
     });
     await advanceTimersAndPromises();
-    // When polls are open, the alarm screen is shown with internationalized text
-    await screen.findByText('Internal Connection Problem');
+    // When polls are open but no cardless voter session is active, show non-voter-facing message
+    await screen.findByRole('heading', { name: 'No Printer Detected' });
 
     // Insert election manager card
     apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);

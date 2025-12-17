@@ -514,6 +514,7 @@ export function AppRoot(): JSX.Element | null {
       return (
         <SetupPrinterPage
           isPollWorkerAuth={isPollWorkerAuth(authStatus)}
+          isCardlessVoterAuth={isCardlessVoterAuth(authStatus)}
           pollsState={pollsState}
         />
       );

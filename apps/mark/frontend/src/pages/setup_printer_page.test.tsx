@@ -1,8 +1,15 @@
-import { expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { useAudioEnabled } from '@votingworks/ui';
 import { render, screen } from '../../test/react_testing_library';
 import { SetupPrinterPage } from './setup_printer_page';
+import {
+  ApiMock,
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
+
+vi.useFakeTimers({ shouldAdvanceTime: true });
 
 const audioControlsMock = mockUseAudioControls(vi.fn);
 vi.mock(import('@votingworks/ui'), async (importActual) => ({
@@ -11,105 +18,161 @@ vi.mock(import('@votingworks/ui'), async (importActual) => ({
   useAudioControls: () => audioControlsMock,
 }));
 
-test('displays alarm and poll worker prompt when polls are open and not poll worker auth', () => {
+let apiMock: ApiMock;
+
+beforeEach(() => {
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
+
+function renderInAppContext(ui: React.ReactNode) {
+  return render(provideApi(apiMock, ui));
+}
+
+test('displays alarm and poll worker prompt when cardless voter session is active', () => {
   const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
   mockUseAudioEnabled.mockReturnValue(true);
 
-  render(<SetupPrinterPage isPollWorkerAuth={false} pollsState="polls_open" />);
+  // Expect at least one playSound call for alarm
+  apiMock.mockApiClient.playSound
+    .expectRepeatedCallsWith({ name: 'alarm' })
+    .resolves();
 
-  screen.getByText('Internal Connection Problem');
-  screen.getByText('Printer is disconnected.');
+  renderInAppContext(
+    <SetupPrinterPage isCardlessVoterAuth pollsState="polls_open" />
+  );
+
+  screen.getByRole('heading', { name: 'No Printer Detected' });
   screen.getByText('Please ask a poll worker for help.');
   screen.getByText('Poll Workers:');
   screen.getByText(
     'Insert a poll worker card to silence the alert. Connect the printer to resume voting.'
   );
 
-  // Verify alarm audio element is present
-  const audioElement = document.querySelector('audio');
-  expect(audioElement).toBeTruthy();
-  expect(audioElement?.getAttribute('src')).toEqual('/sounds/alarm.mp3');
-  expect(audioElement?.hasAttribute('autoplay')).toEqual(true);
-  expect(audioElement?.hasAttribute('loop')).toEqual(true);
+  // Advance time to trigger alarm plays
+  vi.advanceTimersByTime(5000);
 });
 
-test('displays alarm when polls are paused', () => {
+test('displays alarm when polls are paused and cardless voter session is active', () => {
   const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
   mockUseAudioEnabled.mockReturnValue(true);
 
-  render(
-    <SetupPrinterPage isPollWorkerAuth={false} pollsState="polls_paused" />
+  // Expect at least one playSound call for alarm
+  apiMock.mockApiClient.playSound
+    .expectRepeatedCallsWith({ name: 'alarm' })
+    .resolves();
+
+  renderInAppContext(
+    <SetupPrinterPage isCardlessVoterAuth pollsState="polls_paused" />
   );
 
-  screen.getByText('Internal Connection Problem');
-  screen.getByText('Printer is disconnected.');
+  screen.getByRole('heading', { name: 'No Printer Detected' });
 
-  // Verify alarm audio element is present
-  const audioElement = document.querySelector('audio');
-  expect(audioElement).toBeTruthy();
+  // Advance time to trigger alarm plays
+  vi.advanceTimersByTime(5000);
 });
 
 test('does not display alarm when poll worker auth', () => {
   const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
   mockUseAudioEnabled.mockReturnValue(true);
 
-  render(<SetupPrinterPage isPollWorkerAuth pollsState="polls_open" />);
+  // No playSound expected
+  renderInAppContext(
+    <SetupPrinterPage isPollWorkerAuth pollsState="polls_open" />
+  );
 
-  screen.getByText('No Printer Detected');
-  screen.getByText('Please ask a poll worker to connect printer.');
-
-  // Verify alarm audio element is NOT present
-  const audioElement = document.querySelector('audio');
-  expect(audioElement).toBeFalsy();
+  screen.getByRole('heading', { name: 'No Printer Detected' });
+  screen.getByText('Connect the printer to continue.');
   expect(screen.queryByText('Poll Workers:')).toBeFalsy();
+
+  // Advance time - no alarm should play
+  vi.advanceTimersByTime(5000);
+});
+
+test('displays alarm but not voter-facing when polls are open but no cardless voter session', () => {
+  const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
+  mockUseAudioEnabled.mockReturnValue(true);
+
+  // Alarm plays when polls are open/paused even without active voter session
+  apiMock.mockApiClient.playSound
+    .expectRepeatedCallsWith({ name: 'alarm' })
+    .resolves();
+
+  renderInAppContext(
+    <SetupPrinterPage
+      isPollWorkerAuth={false}
+      isCardlessVoterAuth={false}
+      pollsState="polls_open"
+    />
+  );
+
+  screen.getByRole('heading', { name: 'No Printer Detected' });
+  screen.getByText('Connect the printer to continue.');
+  // Poll worker prompt shown but not the voter-facing "ask for help" text
+  screen.getByText('Poll Workers:');
+  expect(screen.queryByText('Please ask a poll worker for help.')).toBeFalsy();
+
+  // Advance time to trigger alarm plays
+  vi.advanceTimersByTime(5000);
 });
 
 test('does not display alarm when polls are closed initial', () => {
   const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
   mockUseAudioEnabled.mockReturnValue(true);
 
-  render(
+  // No playSound expected
+  renderInAppContext(
     <SetupPrinterPage
-      isPollWorkerAuth={false}
+      isCardlessVoterAuth={false}
       pollsState="polls_closed_initial"
     />
   );
 
-  screen.getByText('No Printer Detected');
-  screen.getByText('Please ask a poll worker to connect printer.');
+  screen.getByRole('heading', { name: 'No Printer Detected' });
+  screen.getByText('Connect the printer to continue.');
 
-  // Verify alarm audio element is NOT present
-  const audioElement = document.querySelector('audio');
-  expect(audioElement).toBeFalsy();
+  // Advance time - no alarm should play
+  vi.advanceTimersByTime(5000);
 });
 
 test('does not display alarm when polls are closed final', () => {
   const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
   mockUseAudioEnabled.mockReturnValue(true);
 
-  render(
+  // No playSound expected
+  renderInAppContext(
     <SetupPrinterPage
-      isPollWorkerAuth={false}
+      isCardlessVoterAuth={false}
       pollsState="polls_closed_final"
     />
   );
 
-  screen.getByText('No Printer Detected');
-  screen.getByText('Please ask a poll worker to connect printer.');
+  screen.getByRole('heading', { name: 'No Printer Detected' });
+  screen.getByText('Connect the printer to continue.');
 
-  // Verify alarm audio element is NOT present
-  const audioElement = document.querySelector('audio');
-  expect(audioElement).toBeFalsy();
+  // Advance time - no alarm should play
+  vi.advanceTimersByTime(5000);
 });
 
 test('mutes audio on render when alarm plays, unmutes on unmount', () => {
   const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
   mockUseAudioEnabled.mockReturnValue(true);
 
-  const { unmount } = render(
-    <SetupPrinterPage isPollWorkerAuth={false} pollsState="polls_open" />
+  // Expect playSound calls for alarm
+  apiMock.mockApiClient.playSound
+    .expectRepeatedCallsWith({ name: 'alarm' })
+    .resolves();
+
+  const { unmount } = renderInAppContext(
+    <SetupPrinterPage isCardlessVoterAuth pollsState="polls_open" />
   );
   expect(audioControlsMock.setIsEnabled).toHaveBeenLastCalledWith(false);
+
+  // Advance time to trigger alarm plays before unmount
+  vi.advanceTimersByTime(5000);
 
   unmount();
   expect(audioControlsMock.setIsEnabled).toHaveBeenLastCalledWith(true);
@@ -120,20 +183,28 @@ test('does not mute audio when poll worker is authenticated', () => {
   mockUseAudioEnabled.mockReturnValue(true);
   audioControlsMock.setIsEnabled.mockClear();
 
-  render(<SetupPrinterPage isPollWorkerAuth pollsState="polls_open" />);
+  // No playSound expected
+  renderInAppContext(
+    <SetupPrinterPage isPollWorkerAuth pollsState="polls_open" />
+  );
   expect(audioControlsMock.setIsEnabled).not.toHaveBeenCalled();
 });
 
-test('does not mute audio when polls are closed', () => {
+test('mutes audio when polls open even without cardless voter session', () => {
   const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
   mockUseAudioEnabled.mockReturnValue(true);
   audioControlsMock.setIsEnabled.mockClear();
 
-  render(
-    <SetupPrinterPage
-      isPollWorkerAuth={false}
-      pollsState="polls_closed_final"
-    />
+  // Alarm plays when polls are open
+  apiMock.mockApiClient.playSound
+    .expectRepeatedCallsWith({ name: 'alarm' })
+    .resolves();
+
+  renderInAppContext(
+    <SetupPrinterPage isCardlessVoterAuth={false} pollsState="polls_open" />
   );
-  expect(audioControlsMock.setIsEnabled).not.toHaveBeenCalled();
+  // Audio is muted when alarm plays
+  expect(audioControlsMock.setIsEnabled).toHaveBeenLastCalledWith(false);
+
+  vi.advanceTimersByTime(5000);
 });
