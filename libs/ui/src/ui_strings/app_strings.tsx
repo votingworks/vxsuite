@@ -1047,6 +1047,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteNoPrinterConnected: () => (
+    <UiString uiStringKey="noteNoPrinterConnected">
+      No Printer Detected
+    </UiString>
+  ),
+
   notePrinterHardwareError: () => (
     <UiString uiStringKey="notePrinterHardwareError">
       The printer has experienced an unknown error.
