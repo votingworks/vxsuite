@@ -511,7 +511,12 @@ export function AppRoot(): JSX.Element | null {
   }
   if (electionDefinition && appPrecinct) {
     if (!hasPrinterAttached) {
-      return <SetupPrinterPage />;
+      return (
+        <SetupPrinterPage
+          isPollWorkerAuth={isPollWorkerAuth(authStatus)}
+          pollsState={pollsState}
+        />
+      );
     }
 
     if (isPollWorkerAuth(authStatus)) {

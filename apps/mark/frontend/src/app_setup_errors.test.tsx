@@ -95,7 +95,7 @@ describe('Displays setup warning messages and errors screens', () => {
     await screen.findByText(insertCardScreenText);
   });
 
-  test('Admin screen trumps "No Printer Detected" error', async () => {
+  test('Admin screen trumps "Printer Disconnected" error', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
@@ -112,7 +112,8 @@ describe('Displays setup warning messages and errors screens', () => {
       apiMock.setPrinterStatus({ connected: false });
     });
     await advanceTimersAndPromises();
-    await screen.findByText('No Printer Detected');
+    // When polls are open, the alarm screen is shown with internationalized text
+    await screen.findByText('Internal Connection Problem');
 
     // Insert election manager card
     apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
