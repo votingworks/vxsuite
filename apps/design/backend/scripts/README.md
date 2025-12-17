@@ -106,7 +106,7 @@ within the organization.
 **NOTE:** This doesn't send out an email to the user - see below.
 
 ```sh
-pnpm create-user --organizationId="nfpn8pkbhr46" "someone@example.com"
+pnpm create-organization-user --organizationId="nfpn8pkbhr46" "someone@example.com"
 ```
 
 ```sh
