@@ -45,7 +45,6 @@ test('Shows user info and logout button', async () => {
 test('API errors show an error screen', async () => {
   await suppressingConsoleOutput(async () => {
     mockUserFeatures(apiMock, {});
-    apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
     apiMock.listElections.expectCallWith().resolves([]);
     apiMock.getUser.expectCallWith().resolves(user);
     render(<App apiClient={apiMock} />);
@@ -59,7 +58,6 @@ test('API errors show an error screen', async () => {
       })
       .throws(new Error('API error'));
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
-    userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
     await screen.findByText('Something went wrong');
     const appLink = screen.getByRole('link', { name: 'VxDesign' });
@@ -83,7 +81,6 @@ test('API unauthorized errors redirect to login', async () => {
 test('API forbidden errors show a page not found error screen', async () => {
   await suppressingConsoleOutput(async () => {
     mockUserFeatures(apiMock, {});
-    apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
     apiMock.listElections.expectCallWith().resolves([]);
     apiMock.getUser.expectCallWith().resolves(user);
     render(<App apiClient={apiMock} />);
@@ -96,7 +93,6 @@ test('API forbidden errors show a page not found error screen', async () => {
       })
       .throws({ message: typedAs<AuthErrorCode>('auth:forbidden') });
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
-    userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
     await screen.findByText('Page not found');
   });
 });

@@ -1,10 +1,76 @@
-import { assert, assertDefined } from '@votingworks/basics';
-import { P, Button, Modal, ButtonVariant } from '@votingworks/ui';
+import { assertDefined } from '@votingworks/basics';
+import { P, Button, Modal, ButtonVariant, SearchSelect } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
+import type { Jurisdiction } from '@votingworks/design-backend';
 import { generateId } from './utils';
 import * as api from './api';
-import { JurisdictionSelect } from './jurisdiction_select';
+
+function CreateElectionModalForm({
+  jurisdictions,
+  createElection,
+  onClose,
+}: {
+  jurisdictions: Jurisdiction[];
+  createElection: (jurisdictionId: string) => void;
+  onClose: () => void;
+}): React.ReactNode {
+  const createElectionMutation = api.createElection.useMutation();
+  const [jurisdictionId, setJurisdictionId] = React.useState<string>(
+    jurisdictions[0].id
+  );
+
+  return (
+    <Modal
+      title="Create Election"
+      actions={
+        <React.Fragment>
+          <Button
+            disabled={createElectionMutation.isLoading}
+            onPress={() => createElection(jurisdictionId)}
+            variant="primary"
+          >
+            Confirm
+          </Button>
+          <Button disabled={createElectionMutation.isLoading} onPress={onClose}>
+            Cancel
+          </Button>
+        </React.Fragment>
+      }
+      onOverlayClick={onClose}
+      content={
+        <React.Fragment>
+          <P>Select a jurisdiction for the new election:</P>
+          <SearchSelect
+            aria-label="Jurisdiction"
+            options={jurisdictions.map((jurisdiction) => ({
+              label: jurisdiction.name,
+              value: jurisdiction.id,
+            }))}
+            value={jurisdictionId}
+            onChange={(value) => setJurisdictionId(assertDefined(value))}
+            disabled={createElectionMutation.isLoading}
+            menuPortalTarget={document.body}
+          />
+        </React.Fragment>
+      }
+    />
+  );
+}
+
+function CreateElectionModal(props: {
+  createElection: (jurisdictionId: string) => void;
+  onClose: () => void;
+}): React.ReactNode {
+  const listJurisdictionsQuery = api.listJurisdictions.useQuery();
+
+  if (!listJurisdictionsQuery.isSuccess) {
+    return null;
+  }
+  const jurisdictions = listJurisdictionsQuery.data;
+
+  return <CreateElectionModalForm {...props} jurisdictions={jurisdictions} />;
+}
 
 export interface CreateElectionButtonProps {
   variant?: ButtonVariant;
@@ -15,27 +81,14 @@ export function CreateElectionButton(
   props: CreateElectionButtonProps
 ): React.ReactNode {
   const { variant, disabled } = props;
-  const createMutation = api.createElection.useMutation();
-  const getUserFeaturesQuery = api.getUserFeatures.useQuery();
-
-  const [jurisdictionId, setJurisdictionId] = React.useState<string>();
-  const [modalActive, setModalActive] = React.useState(false);
-
+  const createElectionMutation = api.createElection.useMutation();
+  const userQuery = api.getUser.useQuery();
   const history = useHistory();
 
-  const userQuery = api.getUser.useQuery();
-  const user = userQuery.data;
-  React.useEffect(() => {
-    if (user) {
-      setJurisdictionId(assertDefined(user.jurisdictions[0]).id);
-    }
-  }, [user]);
+  const [modalActive, setModalActive] = React.useState(false);
 
-  const mutateCreateElection = createMutation.mutate;
-  const createElection = React.useCallback(() => {
-    assert(!!jurisdictionId);
-
-    mutateCreateElection(
+  function createElection(jurisdictionId: string) {
+    createElectionMutation.mutate(
       { id: generateId(), jurisdictionId },
       {
         onSuccess(result) {
@@ -49,13 +102,13 @@ export function CreateElectionButton(
         },
       }
     );
-  }, [history, mutateCreateElection, jurisdictionId]);
+  }
 
   /* istanbul ignore next - @preserve */
-  if (!getUserFeaturesQuery.isSuccess) {
+  if (!userQuery.isSuccess) {
     return null;
   }
-  const features = getUserFeaturesQuery.data;
+  const user = userQuery.data;
 
   return (
     <React.Fragment>
@@ -63,47 +116,18 @@ export function CreateElectionButton(
         variant={variant}
         icon="Add"
         onPress={
-          features.ACCESS_ALL_ORGS || (user?.jurisdictions || []).length > 1
-            ? setModalActive
-            : createElection
+          user.type === 'jurisdiction_user' && user.jurisdictions.length === 1
+            ? () => createElection(user.jurisdictions[0].id)
+            : () => setModalActive(true)
         }
-        value
         disabled={modalActive || disabled}
       >
         Create Election
       </Button>
       {modalActive && (
-        <Modal
-          title="Create Election"
-          actions={
-            <React.Fragment>
-              <Button
-                disabled={createMutation.isLoading}
-                onPress={createElection}
-                variant="primary"
-              >
-                Confirm
-              </Button>
-              <Button
-                disabled={createMutation.isLoading}
-                onPress={setModalActive}
-                value={false}
-              >
-                Cancel
-              </Button>
-            </React.Fragment>
-          }
-          onOverlayClick={() => setModalActive(false)}
-          content={
-            <React.Fragment>
-              <P>Select a jurisdiction for the new election:</P>
-              <JurisdictionSelect
-                disabled={createMutation.isLoading}
-                onChange={setJurisdictionId}
-                selectedJurisdictionId={jurisdictionId}
-              />
-            </React.Fragment>
-          }
+        <CreateElectionModal
+          createElection={createElection}
+          onClose={() => setModalActive(false)}
         />
       )}
     </React.Fragment>

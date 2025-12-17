@@ -1,11 +1,94 @@
-import { assert } from '@votingworks/basics';
-import { P, Button, Modal, ButtonVariant, Icons, Font } from '@votingworks/ui';
+import { assertDefined } from '@votingworks/basics';
+import {
+  P,
+  Button,
+  Modal,
+  ButtonVariant,
+  Icons,
+  Font,
+  SearchSelect,
+} from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import type { ElectionListing } from '@votingworks/design-backend';
+import type {
+  ElectionListing,
+  Jurisdiction,
+} from '@votingworks/design-backend';
 import * as api from './api';
-import { JurisdictionSelect } from './jurisdiction_select';
 import { Tooltip, TooltipContainer } from './tooltip';
+
+function CloneElectionModalForm({
+  jurisdictions,
+  election,
+  cloneElection,
+  onClose,
+}: {
+  jurisdictions: Jurisdiction[];
+  election: ElectionListing;
+  cloneElection: (jurisdictionId: string) => void;
+  onClose: () => void;
+}): React.ReactNode {
+  const cloneMutation = api.cloneElection.useMutation();
+  const [jurisdictionId, setJurisdictionId] = React.useState<string>(
+    jurisdictions[0].id
+  );
+
+  return (
+    <Modal
+      title="Duplicate Election"
+      actions={
+        <React.Fragment>
+          <Button
+            disabled={cloneMutation.isLoading}
+            onPress={() => cloneElection(jurisdictionId)}
+            variant="primary"
+          >
+            Confirm
+          </Button>
+          <Button disabled={cloneMutation.isLoading} onPress={onClose}>
+            Cancel
+          </Button>
+        </React.Fragment>
+      }
+      onOverlayClick={onClose}
+      content={
+        <React.Fragment>
+          <P>
+            You are making a copy of <Font weight="bold">{election.title}</Font>
+            .
+          </P>
+          <P>Select a jurisdiction for the new election:</P>
+          <SearchSelect
+            aria-label="Jurisdiction"
+            options={jurisdictions.map((jurisdiction) => ({
+              label: jurisdiction.name,
+              value: jurisdiction.id,
+            }))}
+            value={jurisdictionId}
+            onChange={(value) => setJurisdictionId(assertDefined(value))}
+            disabled={cloneMutation.isLoading}
+            menuPortalTarget={document.body}
+          />
+        </React.Fragment>
+      }
+    />
+  );
+}
+
+function CloneElectionModal(props: {
+  election: ElectionListing;
+  cloneElection: (jurisdictionId: string) => void;
+  onClose: () => void;
+}): React.ReactNode {
+  const listJurisdictionsQuery = api.listJurisdictions.useQuery();
+
+  if (!listJurisdictionsQuery.isSuccess) {
+    return null;
+  }
+  const jurisdictions = listJurisdictionsQuery.data;
+
+  return <CloneElectionModalForm {...props} jurisdictions={jurisdictions} />;
+}
 
 export interface CloneElectionButtonProps {
   election: ElectionListing;
@@ -18,20 +101,13 @@ export function CloneElectionButton(
   const { election, variant } = props;
 
   const history = useHistory();
-  const getUserFeaturesQuery = api.getUserFeatures.useQuery();
-  const user = api.getUser.useQuery().data;
+  const cloneMutation = api.cloneElection.useMutation();
+  const userQuery = api.getUser.useQuery();
 
-  const [jurisdictionId, setJurisdictionId] = React.useState<
-    string | undefined
-  >(user?.jurisdictions[0]?.id);
   const [modalActive, setModalActive] = React.useState(false);
 
-  const cloneMutation = api.cloneElection.useMutation();
-  const mutateCloneElection = cloneMutation.mutate;
-  const cloneElection = React.useCallback(() => {
-    assert(!!jurisdictionId);
-
-    mutateCloneElection(
+  function cloneElection(jurisdictionId: string) {
+    cloneMutation.mutate(
       { id: election.electionId, jurisdictionId },
       {
         onSuccess(electionId) {
@@ -39,70 +115,39 @@ export function CloneElectionButton(
         },
       }
     );
-  }, [election, history, mutateCloneElection, jurisdictionId]);
+  }
 
   /* istanbul ignore next - @preserve */
-  if (!getUserFeaturesQuery.isSuccess) {
+  if (!userQuery.isSuccess) {
     return null;
   }
-  const features = getUserFeaturesQuery.data;
+  const user = userQuery.data;
 
+  const buttonLabel = `Make a copy of ${election.title}`;
   return (
     <React.Fragment>
       <TooltipContainer>
         <Tooltip alignTo="right" bold>
-          Make a copy of {election.title}
+          {buttonLabel}
         </Tooltip>
         <Button
           variant={variant}
           onPress={
-            features.ACCESS_ALL_ORGS || (user?.jurisdictions || []).length > 1
-              ? setModalActive
-              : cloneElection
+            user.type === 'jurisdiction_user' && user.jurisdictions.length === 1
+              ? () => cloneElection(user.jurisdictions[0].id)
+              : () => setModalActive(true)
           }
-          aria-label={`Make a copy of ${election.title}`}
-          value
+          aria-label={buttonLabel}
           disabled={cloneMutation.isLoading || modalActive}
         >
           <Icons.Copy />
         </Button>
       </TooltipContainer>
       {modalActive && (
-        <Modal
-          title="Duplicate Election"
-          actions={
-            <React.Fragment>
-              <Button
-                disabled={cloneMutation.isLoading}
-                onPress={cloneElection}
-                variant="primary"
-              >
-                Confirm
-              </Button>
-              <Button
-                disabled={cloneMutation.isLoading}
-                onPress={setModalActive}
-                value={false}
-              >
-                Cancel
-              </Button>
-            </React.Fragment>
-          }
-          onOverlayClick={() => setModalActive(false)}
-          content={
-            <React.Fragment>
-              <P>
-                You are making a copy of{' '}
-                <Font weight="bold">{election.title}</Font>.
-              </P>
-              <P>Select a jurisdiction for the new election:</P>
-              <JurisdictionSelect
-                disabled={cloneMutation.isLoading}
-                onChange={setJurisdictionId}
-                selectedJurisdictionId={jurisdictionId}
-              />
-            </React.Fragment>
-          }
+        <CloneElectionModal
+          election={election}
+          cloneElection={cloneElection}
+          onClose={() => setModalActive(false)}
         />
       )}
     </React.Fragment>

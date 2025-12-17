@@ -1,6 +1,6 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { createWorkspace } from '../src/workspace';
@@ -32,10 +32,24 @@ async function main(): Promise<void> {
   }
   const user = assertDefined(await workspace.store.getUser(userId));
 
-  console.log(
-    `✅ Jurisdiction memberships for ${userEmail}:`,
-    user.jurisdictions
-  );
+  switch (user.type) {
+    case 'jurisdiction_user':
+      console.log(
+        `✅ Jurisdiction user ${userEmail} has access to:`,
+        user.jurisdictions
+      );
+      break;
+    case 'organization_user':
+      console.log(
+        `✅ Organization user ${userEmail} has access to all jurisdictions in organization ${user.organization.name}:`,
+        await workspace.store.listJurisdictions({
+          organizationId: user.organization.id,
+        })
+      );
+      break;
+    default:
+      throwIllegalValue(user);
+  }
 }
 
 main()

@@ -27,7 +27,9 @@ export interface Jurisdiction {
   organization: Organization;
 }
 
-export interface User {
+export type UserType = 'jurisdiction_user' | 'organization_user';
+
+interface UserBase {
   id: string;
   /**
    * The user's name is generally defaulted to their email address due to the
@@ -36,8 +38,18 @@ export interface User {
    */
   name: string;
   organization: Organization;
+}
+
+export interface JurisdictionUser extends UserBase {
+  type: 'jurisdiction_user';
   jurisdictions: Jurisdiction[];
 }
+
+export interface OrganizationUser extends UserBase {
+  type: 'organization_user';
+}
+
+export type User = JurisdictionUser | OrganizationUser;
 
 export type ElectionStatus = 'notStarted' | 'inProgress' | 'ballotsFinalized';
 

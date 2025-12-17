@@ -15,13 +15,9 @@ import {
   find,
   throwIllegalValue,
 } from '@votingworks/basics';
-import type {
-  ElectionUpload,
-  Jurisdiction,
-  User,
-} from '@votingworks/design-backend';
+import type { ElectionUpload, Jurisdiction } from '@votingworks/design-backend';
 import styled from 'styled-components';
-import { getUser, listJurisdictions, loadElection } from './api';
+import { listJurisdictions, loadElection } from './api';
 import { Column, InputGroup, Row } from './layout';
 
 interface VxUploadFormState {
@@ -47,9 +43,10 @@ function isFormStateComplete(formState: UploadFormState): boolean {
       return (
         Boolean(formState.electionFile) && Boolean(formState.candidateFile)
       );
-    default:
+    default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(formState);
+    }
   }
 }
 
@@ -136,24 +133,19 @@ const TopAnchoredModal = styled(Modal)`
   margin-top: 10%;
 `;
 
-export function LoadElectionModal({
-  user,
+function LoadElectionModalForm({
+  jurisdictions,
   onClose,
 }: {
-  user: User;
+  jurisdictions: Jurisdiction[];
   onClose: () => void;
-}): JSX.Element | null {
+}): JSX.Element {
   const history = useHistory();
   const loadElectionMutation = loadElection.useMutation();
   const [formState, setFormState] = useState<UploadFormState>(
-    defaultFormState(user.jurisdictions[0])
+    defaultFormState(jurisdictions[0])
   );
-  const listJurisdictionsQuery = listJurisdictions.useQuery();
 
-  if (!listJurisdictionsQuery.isSuccess) {
-    return null;
-  }
-  const jurisdictions = listJurisdictionsQuery.data;
   const jurisdiction = find(
     jurisdictions,
     (j) => j.id === formState.jurisdictionId
@@ -312,19 +304,29 @@ export function LoadElectionModal({
   );
 }
 
+export function LoadElectionModal({
+  onClose,
+}: {
+  onClose: () => void;
+}): JSX.Element | null {
+  const listJurisdictionsQuery = listJurisdictions.useQuery();
+
+  if (!listJurisdictionsQuery.isSuccess) {
+    return null;
+  }
+  const jurisdictions = listJurisdictionsQuery.data;
+
+  return (
+    <LoadElectionModalForm jurisdictions={jurisdictions} onClose={onClose} />
+  );
+}
+
 export function LoadElectionButton({
   disabled,
 }: {
   disabled?: boolean;
 }): JSX.Element | null {
-  const getUserQuery = getUser.useQuery();
   const [modalIsOpen, setModalIsOpen] = useState(false);
-
-  /* istanbul ignore next - @preserve */
-  if (!getUserQuery.isSuccess) {
-    return null;
-  }
-  const user = getUserQuery.data;
 
   return (
     <React.Fragment>
@@ -332,7 +334,7 @@ export function LoadElectionButton({
         Load Election
       </Button>
       {modalIsOpen && (
-        <LoadElectionModal user={user} onClose={() => setModalIsOpen(false)} />
+        <LoadElectionModal onClose={() => setModalIsOpen(false)} />
       )}
     </React.Fragment>
   );

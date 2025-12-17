@@ -130,8 +130,10 @@ export function testSetupHelpers() {
     }
     for (const user of users) {
       await store.createUser(user);
-      for (const jurisdiction of user.jurisdictions) {
-        await store.addUserToJurisdiction(user.id, jurisdiction.id);
+      if (user.type === 'jurisdiction_user') {
+        for (const jurisdiction of user.jurisdictions) {
+          await store.addUserToJurisdiction(user.id, jurisdiction.id);
+        }
       }
     }
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);

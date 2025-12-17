@@ -4,13 +4,11 @@ import { File as NodeFile } from 'node:buffer';
 import { afterEach, beforeEach, test, expect } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { within } from '@testing-library/react';
-import { Jurisdiction, User } from '@votingworks/design-backend';
+import { Jurisdiction } from '@votingworks/design-backend';
 import {
   MockApiClient,
-  multiJurisdictionUser,
   jurisdiction,
   jurisdiction2,
-  user,
   provideApi,
   createMockApiClient,
   organization,
@@ -65,13 +63,7 @@ const msJurisdiction: Jurisdiction = {
   organization,
 };
 
-const msUser: User = {
-  ...user,
-  jurisdictions: [msJurisdiction],
-};
-
 test('single jurisdiction: VXF', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
@@ -115,7 +107,6 @@ test('single jurisdiction: VXF', async () => {
 });
 
 test('single jurisdiction: MS SEMS', async () => {
-  apiMock.getUser.expectCallWith().resolves(msUser);
   apiMock.listJurisdictions.expectCallWith().resolves([msJurisdiction]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
@@ -174,10 +165,6 @@ test('single jurisdiction: MS SEMS', async () => {
 });
 
 test('multi-jurisdiction user sees jurisdiction selector', async () => {
-  apiMock.getUser.expectCallWith().resolves({
-    ...multiJurisdictionUser,
-    jurisdictions: [...multiJurisdictionUser.jurisdictions, msJurisdiction],
-  });
   apiMock.listJurisdictions
     .expectCallWith()
     .resolves([jurisdiction, jurisdiction2, msJurisdiction]);
@@ -231,7 +218,6 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
 });
 
 test('close modal', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
@@ -245,7 +231,6 @@ test('close modal', async () => {
 });
 
 test('shows error message on upload failure', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   const history = renderButton();
 
@@ -285,7 +270,6 @@ test('shows error message on upload failure', async () => {
 });
 
 test('disabled', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   renderButton({ disabled: true });
   const button = await screen.findByRole('button', { name: 'Load Election' });
   expect(button).toBeDisabled();

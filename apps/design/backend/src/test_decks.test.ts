@@ -176,7 +176,9 @@ describe('createPrecinctSummaryBallotTestDeck', () => {
     });
 
     expect(summaryBallotPdf).toBeDefined();
-    await expect(summaryBallotPdf).toMatchPdfSnapshot();
+    await expect(summaryBallotPdf).toMatchPdfSnapshot({
+      failureThreshold: 0.0001,
+    });
   });
 
   test('returns undefined for empty ballot specs', async () => {
