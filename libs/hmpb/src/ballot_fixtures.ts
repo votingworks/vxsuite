@@ -44,9 +44,11 @@ export const vxFamousNamesFixtures = (() => {
   const dir = join(fixturesDir, 'vx-famous-names');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
+  const blankOfficialBallotPath = join(dir, 'blank-official-ballot.pdf');
+  const markedOfficialBallotPath = join(dir, 'marked-official-ballot.pdf');
 
   const election = electionFamousNames2021Fixtures.readElection();
-  const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+  const allBallotPropsTest = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
         election,
@@ -57,6 +59,19 @@ export const vxFamousNamesFixtures = (() => {
       })
     )
   );
+  const allBallotPropsOfficial = election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.map(
+      (precinctId): BaseBallotProps => ({
+        election,
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official',
+      })
+    )
+  );
+  // For backwards compatibility, use test mode as default
+  const allBallotProps = allBallotPropsTest;
   const blankBallotProps = allBallotProps[0];
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
@@ -72,7 +87,11 @@ export const vxFamousNamesFixtures = (() => {
     electionDefinition,
     blankBallotPath,
     markedBallotPath,
+    blankOfficialBallotPath,
+    markedOfficialBallotPath,
     allBallotProps,
+    allBallotPropsTest,
+    allBallotPropsOfficial,
     ...blankBallotProps,
     votes,
 
@@ -80,47 +99,101 @@ export const vxFamousNamesFixtures = (() => {
       rendererPool: RendererPool,
       { generatePageImages = false } = {}
     ) {
+      // Generate test mode ballots
       debug(`Generating: ${blankBallotPath}`);
-      const layouts = await layOutBallotsAndCreateElectionDefinition(
+      const layoutsTest = await layOutBallotsAndCreateElectionDefinition(
         rendererPool,
         vxDefaultBallotTemplate,
-        allBallotProps,
+        allBallotPropsTest,
         'vxf'
       );
 
       assert(
-        layouts.electionDefinition.ballotHash === electionDefinition.ballotHash,
+        layoutsTest.electionDefinition.ballotHash ===
+          electionDefinition.ballotHash,
         'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
       );
 
-      const blankBallotContents = layouts.ballotContents[0];
-      const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
-        async (renderer) => {
-          const ballotDocument =
-            await renderer.loadDocumentFromContent(blankBallotContents);
-          // eslint-disable-next-line @typescript-eslint/no-shadow
-          const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
-            allBallotProps[0],
-            ballotDocument,
-            electionDefinition
-          );
-
-          debug(`Generating: ${markedBallotPath}`);
-          await markBallotDocument(ballotDocument, votes);
-          // eslint-disable-next-line @typescript-eslint/no-shadow
-          const markedBallotPdf = await ballotDocument.renderToPdf();
-
-          return { blankBallotPdf, markedBallotPdf };
-        }
+      // Generate official mode ballots
+      debug(`Generating: ${blankOfficialBallotPath}`);
+      const layoutsOfficial = await layOutBallotsAndCreateElectionDefinition(
+        rendererPool,
+        vxDefaultBallotTemplate,
+        allBallotPropsOfficial,
+        'vxf'
       );
+
+      assert(
+        layoutsOfficial.electionDefinition.ballotHash ===
+          electionDefinition.ballotHash,
+        'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
+      );
+
+      const blankBallotContents = layoutsTest.ballotContents[0];
+      const blankOfficialBallotContents = layoutsOfficial.ballotContents[0];
+
+      const {
+        blankBallotPdf,
+        markedBallotPdf,
+        blankOfficialBallotPdf,
+        markedOfficialBallotPdf,
+      } = await rendererPool.runTask(async (renderer) => {
+        // Generate test mode ballots
+        const ballotDocument =
+          await renderer.loadDocumentFromContent(blankBallotContents);
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+          allBallotPropsTest[0],
+          ballotDocument,
+          electionDefinition
+        );
+
+        debug(`Generating: ${markedBallotPath}`);
+        await markBallotDocument(ballotDocument, votes);
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const markedBallotPdf = await ballotDocument.renderToPdf();
+
+        // Generate official mode ballots
+        const officialBallotDocument = await renderer.loadDocumentFromContent(
+          blankOfficialBallotContents
+        );
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const blankOfficialBallotPdf = await renderBallotPdfWithMetadataQrCode(
+          allBallotPropsOfficial[0],
+          officialBallotDocument,
+          electionDefinition
+        );
+
+        debug(`Generating: ${markedOfficialBallotPath}`);
+        await markBallotDocument(officialBallotDocument, votes);
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const markedOfficialBallotPdf =
+          await officialBallotDocument.renderToPdf();
+
+        return {
+          blankBallotPdf,
+          markedBallotPdf,
+          blankOfficialBallotPdf,
+          markedOfficialBallotPdf,
+        };
+      });
 
       let blankBallotPageImages: Optional<ImageData[]>;
       let markedBallotPageImages: Optional<ImageData[]>;
+      let blankOfficialBallotPageImages: Optional<ImageData[]>;
+      let markedOfficialBallotPageImages: Optional<ImageData[]>;
       if (generatePageImages) {
-        [blankBallotPageImages, markedBallotPageImages] = await Promise.all(
+        [
+          blankBallotPageImages,
+          markedBallotPageImages,
+          blankOfficialBallotPageImages,
+          markedOfficialBallotPageImages,
+        ] = await Promise.all(
           [
             { path: blankBallotPath, pdf: blankBallotPdf },
             { path: markedBallotPath, pdf: markedBallotPdf },
+            { path: blankOfficialBallotPath, pdf: blankOfficialBallotPdf },
+            { path: markedOfficialBallotPath, pdf: markedOfficialBallotPdf },
           ].map(async ({ path, pdf }) => {
             debug(`Generating page images for: ${path}`);
             return await iter(
@@ -138,10 +211,16 @@ export const vxFamousNamesFixtures = (() => {
         electionDefinition,
         blankBallotPath,
         markedBallotPath,
+        blankOfficialBallotPath,
+        markedOfficialBallotPath,
         blankBallotPdf,
         markedBallotPdf,
+        blankOfficialBallotPdf,
+        markedOfficialBallotPdf,
         blankBallotPageImages,
         markedBallotPageImages,
+        blankOfficialBallotPageImages,
+        markedOfficialBallotPageImages,
       };
     },
   };

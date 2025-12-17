@@ -3,6 +3,7 @@ declare namespace NodeJS {
     NODE_ENV: 'development' | 'production' | 'test';
     DEPLOY_ENV?: string;
     IS_INTEGRATION_TEST?: string;
+    REACT_APP_IS_INTEGRATION_TEST?: string;
     REACT_APP_VX_DEV?: string;
     REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION?: string;
     REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION?: string;
