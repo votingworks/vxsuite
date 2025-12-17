@@ -559,7 +559,11 @@ export class Store {
         : ['', []];
       const rows = (
         await client.query(
-          `${selectJurisdictionsBaseQuery} ${whereClause}`,
+          `
+          ${selectJurisdictionsBaseQuery}
+          ${whereClause}
+          order by jurisdictions.name
+          `,
           ...params
         )
       ).rows as JurisdictionRow[];
@@ -696,6 +700,7 @@ export class Store {
               ${selectJurisdictionsBaseQuery}
               join users_jurisdictions on users_jurisdictions.jurisdiction_id = jurisdictions.id
               where users_jurisdictions.user_id = $1
+              order by jurisdictions.name
               `,
               userId
             )
