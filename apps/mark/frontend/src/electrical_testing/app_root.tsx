@@ -23,6 +23,7 @@ import {
   setPrinterTaskRunning,
   setUsbDriveTaskRunning,
   systemCallApi,
+  useApiClient,
 } from './api';
 import { useSound } from '../hooks/use_sound';
 
@@ -118,6 +119,7 @@ function AudioControls({
 }
 
 export function AppRoot(): JSX.Element {
+  const apiClient = useApiClient();
   const getElectricalTestingStatusesQuery =
     getElectricalTestingStatuses.useQuery();
   const getCpuMetricsQuery = getCpuMetrics.useQuery();
@@ -292,6 +294,7 @@ export function AppRoot(): JSX.Element {
         perRow={1}
         powerDown={powerDown}
         usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
+        apiClient={apiClient}
       />
     </React.Fragment>
   );
