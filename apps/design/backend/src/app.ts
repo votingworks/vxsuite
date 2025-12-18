@@ -78,8 +78,10 @@ import {
   BackgroundTaskMetadata,
   DuplicateContestError,
   DuplicateDistrictError,
+  DuplicateDistrictErrorCode,
   DuplicateElectionError,
   DuplicatePartyError,
+  DuplicatePartyErrorCode,
   DuplicatePrecinctError,
 } from './store';
 import {
@@ -505,27 +507,43 @@ export function buildApi(ctx: AppContext) {
       return store.listDistricts(input.electionId);
     },
 
+    // [TODO] Remove after client is moved to batch editing.
     async createDistrict(input: {
       electionId: ElectionId;
       newDistrict: District;
-    }): Promise<Result<void, DuplicateDistrictError>> {
+    }): Promise<Result<void, DuplicateDistrictErrorCode>> {
       const district = unsafeParse(DistrictSchema, input.newDistrict);
-      return store.createDistrict(input.electionId, district);
+      const res = await store.createDistrict(input.electionId, district);
+
+      return res.isErr() ? err(res.err().code) : res;
     },
 
+    // [TODO] Remove after client is moved to batch editing.
     async updateDistrict(input: {
       electionId: ElectionId;
       updatedDistrict: District;
-    }): Promise<Result<void, DuplicateDistrictError>> {
+    }): Promise<Result<void, DuplicateDistrictErrorCode>> {
       const district = unsafeParse(DistrictSchema, input.updatedDistrict);
-      return store.updateDistrict(input.electionId, district);
+      const res = await store.updateDistrict(input.electionId, district);
+
+      return res.isErr() ? err(res.err().code) : res;
     },
 
+    // [TODO] Remove after client is moved to batch editing.
     async deleteDistrict(input: {
       electionId: ElectionId;
       districtId: DistrictId;
     }): Promise<void> {
       await store.deleteDistrict(input.electionId, input.districtId);
+    },
+
+    async updateDistricts(input: {
+      electionId: ElectionId;
+      deletedDistrictIds?: string[];
+      newDistricts?: District[];
+      updatedDistricts?: District[];
+    }): Promise<Result<void, DuplicateDistrictError>> {
+      return store.updateDistricts(input);
     },
 
     async listPrecincts(input: {
@@ -569,27 +587,43 @@ export function buildApi(ctx: AppContext) {
       return store.listParties(input.electionId);
     },
 
+    // [TODO] Remove after client is moved to batch editing.
     async createParty(input: {
       electionId: ElectionId;
       newParty: Party;
-    }): Promise<Result<void, DuplicatePartyError>> {
+    }): Promise<Result<void, DuplicatePartyErrorCode>> {
       const party = unsafeParse(PartySchema, input.newParty);
-      return store.createParty(input.electionId, party);
+      const res = await store.createParty(input.electionId, party);
+
+      return res.isErr() ? err(res.err().code) : res;
     },
 
+    // [TODO] Remove after client is moved to batch editing.
     async updateParty(input: {
       electionId: ElectionId;
       updatedParty: Party;
-    }): Promise<Result<void, DuplicatePartyError>> {
+    }): Promise<Result<void, DuplicatePartyErrorCode>> {
       const party = unsafeParse(PartySchema, input.updatedParty);
-      return store.updateParty(input.electionId, party);
+      const res = await store.updateParty(input.electionId, party);
+
+      return res.isErr() ? err(res.err().code) : res;
     },
 
+    // [TODO] Remove after client is moved to batch editing.
     async deleteParty(input: {
       electionId: ElectionId;
       partyId: string;
     }): Promise<void> {
       await store.deleteParty(input.electionId, input.partyId);
+    },
+
+    async updateParties(input: {
+      electionId: ElectionId;
+      deletedPartyIds?: string[];
+      newParties?: Party[];
+      updatedParties?: Party[];
+    }): Promise<Result<void, DuplicatePartyError>> {
+      return store.updateParties(input);
     },
 
     async listContests(input: {
