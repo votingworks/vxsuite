@@ -72,8 +72,8 @@ export function findBallotStyleId(
         ballotStyleGroups.length === 1,
         'General elections should have exactly one ballot style group per precinct or split'
       );
-      const ballotStyle = ballotStyleGroups[0].ballotStyles.find(
-        (bs) => bs.languages?.includes(languageCode)
+      const ballotStyle = ballotStyleGroups[0].ballotStyles.find((bs) =>
+        assertDefined(bs.languages).includes(languageCode)
       );
       assert(ballotStyle, `No ballot style found for language ${languageCode}`);
       return ballotStyle.id;
@@ -90,8 +90,8 @@ export function findBallotStyleId(
         ballotStyleGroup,
         `No ballot style group found for party ${partyId}`
       );
-      const ballotStyle = ballotStyleGroup.ballotStyles.find(
-        (bs) => bs.languages?.includes(languageCode)
+      const ballotStyle = ballotStyleGroup.ballotStyles.find((bs) =>
+        assertDefined(bs.languages).includes(languageCode)
       );
       assert(ballotStyle, `No ballot style found for language ${languageCode}`);
       return ballotStyle.id;

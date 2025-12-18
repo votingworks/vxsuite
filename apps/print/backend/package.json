@@ -20,7 +20,7 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "start": "node ./build/index.js",
-    "test": "echo TODO",
+    "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=America/Anchorage vitest run --coverage",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:notdummy": "is-ci test:ci test:watch",
