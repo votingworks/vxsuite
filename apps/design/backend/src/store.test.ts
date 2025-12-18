@@ -29,6 +29,7 @@ import {
   nonVxOrganization,
   nonVxUser,
   organizations,
+  supportUser,
   users,
   vxJurisdiction,
 } from '../test/mocks';
@@ -661,4 +662,15 @@ test('getExportedElection returns election-out-of-date error when election data 
   // Restore the mock
   safeParseElectionSpy.mockRestore();
   await cleanup();
+});
+
+test('support users must have @voting.works email', async () => {
+  const store = testStore.getStore();
+  await testStore.init();
+  await expect(
+    store.createUser({
+      ...supportUser,
+      name: 'support.user@example.com',
+    })
+  ).rejects.toThrow('Support users must have a voting.works email');
 });
