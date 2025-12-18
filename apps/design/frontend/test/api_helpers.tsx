@@ -13,6 +13,7 @@ import type {
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { AppBase, TestErrorBoundary } from '@votingworks/ui';
 import { ElectionId } from '@votingworks/types';
+import { SupportUser } from '@votingworks/design-backend';
 import { ApiClientContext, createQueryClient } from '../src/api';
 
 export type MockApiClient = MockClient<Api>;
@@ -34,8 +35,6 @@ const allUserFeaturesOnConfig: Record<UserFeature, boolean> = {
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
-
-  ACCESS_ALL_ORGS: true,
 };
 
 export function mockUserFeatures(
@@ -125,5 +124,12 @@ export const organizationUser: OrganizationUser = {
   type: 'organization_user',
   name: 'Organization User',
   id: 'auth0|organizationuser',
+  organization,
+};
+
+export const supportUser: SupportUser = {
+  type: 'support_user',
+  name: 'Support User',
+  id: 'auth0|supportuser',
   organization,
 };

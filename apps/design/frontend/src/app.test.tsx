@@ -7,7 +7,6 @@ import { AuthErrorCode } from '@votingworks/design-backend';
 import {
   MockApiClient,
   createMockApiClient,
-  mockUserFeatures,
   jurisdiction,
   user,
 } from '../test/api_helpers';
@@ -25,7 +24,6 @@ afterEach(() => {
 });
 
 test('Shows user info and logout button', async () => {
-  mockUserFeatures(apiMock, {});
   apiMock.listElections.expectCallWith().resolves([]);
   apiMock.getUser.expectCallWith().resolves(user);
   render(<App apiClient={apiMock} />);
@@ -44,7 +42,6 @@ test('Shows user info and logout button', async () => {
 
 test('API errors show an error screen', async () => {
   await suppressingConsoleOutput(async () => {
-    mockUserFeatures(apiMock, {});
     apiMock.listElections.expectCallWith().resolves([]);
     apiMock.getUser.expectCallWith().resolves(user);
     render(<App apiClient={apiMock} />);
@@ -80,7 +77,6 @@ test('API unauthorized errors redirect to login', async () => {
 
 test('API forbidden errors show a page not found error screen', async () => {
   await suppressingConsoleOutput(async () => {
-    mockUserFeatures(apiMock, {});
     apiMock.listElections.expectCallWith().resolves([]);
     apiMock.getUser.expectCallWith().resolves(user);
     render(<App apiClient={apiMock} />);
