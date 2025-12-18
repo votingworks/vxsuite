@@ -183,6 +183,7 @@ export class Store {
       rawPrecinctSelection,
       PrecinctSelectionSchema
     );
+    /* istanbul ignore next - @preserve */
     if (precinctSelectionParseResult.isErr()) {
       throw new Error('Unable to parse stored precinct selection.');
     }
@@ -310,10 +311,8 @@ export class Store {
 
   getBallotPrintCounts({
     ballotMode,
-    precinctId,
   }: {
     ballotMode: BallotMode;
-    precinctId?: string;
   }): BallotPrintCount[] {
     const rows = this.client.all(
       `
@@ -325,12 +324,10 @@ export class Store {
         sum(print_count) as totalCount
       from ballots
       where ballot_mode = ?
-      ${precinctId ? 'and precinct_id = ?' : ''}
       group by ballot_style_id, precinct_id
       order by totalCount desc, precinct_id asc
       `,
-      ballotMode,
-      ...(precinctId ? [precinctId] : [])
+      ballotMode
     ) as BallotPrintCountRow[];
     const { election } = assertDefined(
       this.getElectionRecord()
