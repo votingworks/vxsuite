@@ -40,6 +40,7 @@ export type {
 } from './features';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app';
 export type { ConvertMsResultsError } from './convert_ms_results';
+export type { DuplicateDistrictError, DuplicatePartyError } from './store';
 
 export type { BallotTemplateId } from '@votingworks/hmpb';
 

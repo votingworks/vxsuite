@@ -50,6 +50,9 @@ import {
   safeParseElectionDefinition,
   ElectionDefinition,
   BallotStyle,
+  unsafeParse,
+  DistrictSchema,
+  PartySchema,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -182,17 +185,27 @@ function isDuplicateKeyError(
 
 export type DuplicateElectionError = 'duplicate-title-and-date';
 
-export type DuplicateDistrictError = 'duplicate-name';
+export type DuplicateDistrictErrorCode = 'duplicate-name';
+
+export interface DuplicateDistrictError {
+  code: DuplicateDistrictErrorCode;
+  districtId: string;
+}
 
 export type DuplicatePrecinctError =
   | 'duplicate-precinct-name'
   | 'duplicate-split-name'
   | 'duplicate-split-districts';
 
-export type DuplicatePartyError =
+export type DuplicatePartyErrorCode =
   | 'duplicate-name'
   | 'duplicate-full-name'
   | 'duplicate-abbrev';
+
+export interface DuplicatePartyError {
+  code: DuplicatePartyErrorCode;
+  partyId: string;
+}
 
 export type DuplicateContestError =
   | 'duplicate-contest'
@@ -1411,18 +1424,21 @@ export class Store {
 
   async createDistrict(
     electionId: ElectionId,
-    district: District
+    district: District,
+    client?: Client
   ): Promise<Result<void, DuplicateDistrictError>> {
+    async function exec(c: Client) {
+      await insertDistrict(c, electionId, district);
+    }
+
     try {
-      await this.db.withClient(async (client) =>
-        insertDistrict(client, electionId, district)
-      );
+      await (client ? exec(client) : this.db.withClient(exec));
       return ok();
     } catch (error) {
       if (
         isDuplicateKeyError(error, 'districts_election_id_name_unique_index')
       ) {
-        return err('duplicate-name');
+        return err({ code: 'duplicate-name', districtId: district.id });
       }
       /* istanbul ignore next - @preserve */
       throw error;
@@ -1431,28 +1447,35 @@ export class Store {
 
   async updateDistrict(
     electionId: ElectionId,
-    district: District
+    district: District,
+    client?: Client
   ): Promise<Result<void, DuplicateDistrictError>> {
-    try {
-      const { rowCount } = await this.db.withClient((client) =>
-        client.query(
-          `
+    function exec(c: Client) {
+      return c.query(
+        `
           update districts
           set name = $1
           where id = $2 and election_id = $3
         `,
-          district.name,
-          district.id,
-          electionId
-        )
+        district.name,
+        district.id,
+        electionId
       );
+    }
+
+    try {
+      const { rowCount } = client
+        ? await exec(client)
+        : await this.db.withClient(exec);
+
       assert(rowCount === 1, 'District not found');
+
       return ok();
     } catch (error) {
       if (
         isDuplicateKeyError(error, 'districts_election_id_name_unique_index')
       ) {
-        return err('duplicate-name');
+        return err({ code: 'duplicate-name', districtId: district.id });
       }
       /* istanbul ignore next - @preserve */
       throw error;
@@ -1461,19 +1484,60 @@ export class Store {
 
   async deleteDistrict(
     electionId: ElectionId,
-    districtId: DistrictId
+    districtId: DistrictId,
+    client?: Client
   ): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      client.query(
+    async function exec(c: Client) {
+      await c.query(
         `
           delete from districts
           where id = $1 and election_id = $2
         `,
         districtId,
         electionId
-      )
-    );
-    assert(rowCount === 1, 'District not found');
+      );
+    }
+
+    return client ? exec(client) : this.db.withClient(exec);
+  }
+
+  async updateDistricts(input: {
+    electionId: ElectionId;
+    deletedDistrictIds?: string[];
+    newDistricts?: District[];
+    updatedDistricts?: District[];
+  }): Promise<Result<void, DuplicateDistrictError>> {
+    const { electionId } = input;
+
+    return this.db.withClient(async (client) => {
+      let res: Result<void, DuplicateDistrictError> | undefined;
+
+      await client.withTransaction(async () => {
+        for (const id of input.deletedDistrictIds || []) {
+          await this.deleteDistrict(electionId, id, client);
+        }
+
+        for (const d of input.updatedDistricts || []) {
+          const district = unsafeParse(DistrictSchema, d);
+          res = await this.updateDistrict(electionId, district, client);
+
+          if (res.isErr()) return false;
+        }
+
+        for (const d of input.newDistricts || []) {
+          const district = unsafeParse(DistrictSchema, d);
+          res = await this.createDistrict(electionId, district, client);
+
+          if (res.isErr()) return false;
+        }
+
+        res = ok();
+
+        return true;
+      });
+
+      return assertDefined(res);
+    });
   }
 
   async listPrecincts(electionId: ElectionId): Promise<readonly Precinct[]> {
@@ -1581,43 +1645,49 @@ export class Store {
     return election.parties;
   }
 
-  private handlePartyError(error: unknown): Result<void, DuplicatePartyError> {
+  private handlePartyError(
+    partyId: string,
+    error: unknown
+  ): Result<void, DuplicatePartyError> {
     if (isDuplicateKeyError(error, 'parties_election_id_name_unique_index')) {
-      return err('duplicate-name');
+      return err({ code: 'duplicate-name', partyId });
     }
     if (
       isDuplicateKeyError(error, 'parties_election_id_full_name_unique_index')
     ) {
-      return err('duplicate-full-name');
+      return err({ code: 'duplicate-full-name', partyId });
     }
     if (isDuplicateKeyError(error, 'parties_election_id_abbrev_unique_index')) {
-      return err('duplicate-abbrev');
+      return err({ code: 'duplicate-abbrev', partyId });
     }
     throw error;
   }
 
   async createParty(
     electionId: ElectionId,
-    party: Party
+    party: Party,
+    client?: Client
   ): Promise<Result<void, DuplicatePartyError>> {
+    function exec(c: Client) {
+      return insertParty(c, electionId, party);
+    }
+
     try {
-      await this.db.withClient((client) =>
-        insertParty(client, electionId, party)
-      );
+      await (client ? exec(client) : this.db.withClient(exec));
       return ok();
     } catch (error) {
-      return this.handlePartyError(error);
+      return this.handlePartyError(party.id, error);
     }
   }
 
   async updateParty(
     electionId: ElectionId,
-    party: Party
+    party: Party,
+    client?: Client
   ): Promise<Result<void, DuplicatePartyError>> {
-    try {
-      const { rowCount } = await this.db.withClient((client) =>
-        client.query(
-          `
+    function exec(c: Client) {
+      return c.query(
+        `
           update parties
           set
             name = $1,
@@ -1625,32 +1695,85 @@ export class Store {
             abbrev = $3
           where id = $4 and election_id = $5
         `,
-          party.name,
-          party.fullName,
-          party.abbrev,
-          party.id,
-          electionId
-        )
+        party.name,
+        party.fullName,
+        party.abbrev,
+        party.id,
+        electionId
       );
+    }
+
+    try {
+      const { rowCount } = client
+        ? await exec(client)
+        : await this.db.withClient(exec);
+
       assert(rowCount === 1, 'Party not found');
+
       return ok();
     } catch (error) {
-      return this.handlePartyError(error);
+      return this.handlePartyError(party.id, error);
     }
   }
 
-  async deleteParty(electionId: ElectionId, partyId: string): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      client.query(
+  async deleteParty(
+    electionId: ElectionId,
+    partyId: string,
+    client?: Client
+  ): Promise<void> {
+    function exec(c: Client) {
+      return c.query(
         `
           delete from parties
           where id = $1 and election_id = $2
         `,
         partyId,
         electionId
-      )
+      );
+    }
+
+    if (client) {
+      await exec(client);
+    } else {
+      await this.db.withClient(exec);
+    }
+  }
+
+  async updateParties(input: {
+    electionId: ElectionId;
+    deletedPartyIds?: string[];
+    newParties?: Party[];
+    updatedParties?: Party[];
+  }): Promise<Result<void, DuplicatePartyError>> {
+    let res: Result<void, DuplicatePartyError> | undefined;
+
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        for (const id of input.deletedPartyIds || []) {
+          await this.deleteParty(input.electionId, id, client);
+        }
+
+        for (const p of input.updatedParties || []) {
+          const party = unsafeParse(PartySchema, p);
+          res = await this.updateParty(input.electionId, party, client);
+
+          if (res.isErr()) return false;
+        }
+
+        for (const p of input.newParties || []) {
+          const party = unsafeParse(PartySchema, p);
+          res = await this.createParty(input.electionId, party, client);
+
+          if (res.isErr()) return false;
+        }
+
+        res = ok();
+
+        return true;
+      })
     );
-    assert(rowCount === 1, 'Party not found');
+
+    return assertDefined(res);
   }
 
   async listContests(electionId: ElectionId): Promise<readonly AnyContest[]> {

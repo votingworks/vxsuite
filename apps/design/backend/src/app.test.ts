@@ -4,6 +4,7 @@ import JsZip from 'jszip';
 import get from 'lodash.get';
 import {
   DateWithoutTime,
+  Result,
   assert,
   assertDefined,
   deferred,
@@ -99,7 +100,11 @@ import {
 } from './test_decks';
 import { ElectionInfo, ElectionListing, ElectionStatus } from './types';
 import { generateBallotStyles } from '@votingworks/hmpb';
-import { BackgroundTaskMetadata } from './store';
+import {
+  BackgroundTaskMetadata,
+  DuplicateDistrictError,
+  DuplicatePartyError,
+} from './store';
 import { join } from 'node:path';
 import { stateFeatureConfigs, userFeatureConfigs } from './features';
 import { LogEventId } from '@votingworks/logging';
@@ -887,14 +892,6 @@ test('CRUD districts', async () => {
       })
     ).rejects.toThrow();
 
-    // Try to delete a district that doesn't exist
-    await expect(
-      apiClient.deleteDistrict({
-        electionId,
-        districtId: unsafeParse(DistrictIdSchema, 'invalid-id'),
-      })
-    ).rejects.toThrow();
-
     // Check permissions
     auth0.setLoggedInUser(anotherNonVxUser);
     await expect(apiClient.listDistricts({ electionId })).rejects.toThrow(
@@ -921,15 +918,243 @@ test('CRUD districts', async () => {
   });
 });
 
+test('updateDistricts', async () => {
+  const { apiClient: api, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = (
+    await api.createElection({
+      jurisdictionId: nonVxJurisdiction.id,
+      id: 'election-1',
+    })
+  ).unsafeUnwrap();
+
+  async function expectStoredDistricts(expected: District[]) {
+    expect(await api.listDistricts({ electionId })).toEqual(expected);
+  }
+
+  async function expectResult(
+    expectedResult: Result<void, DuplicateDistrictError>,
+    input: {
+      electionId: ElectionId;
+      deletedDistrictIds?: string[];
+      newDistricts?: District[];
+      updatedDistricts?: District[];
+    }
+  ) {
+    expect(await api.updateDistricts(input)).toEqual(expectedResult);
+  }
+
+  await expectStoredDistricts([]);
+
+  // No-op for empty op list:
+  await expectResult(ok(), { electionId });
+  await expectStoredDistricts([]);
+
+  // No-op when deleting already-deleted district:
+  await expectResult(ok(), { electionId, deletedDistrictIds: ['old-id'] });
+  await expectStoredDistricts([]);
+
+  //
+  // Fail add on first invalid district and roll back:
+  //
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.updateDistricts({
+        electionId,
+        newDistricts: [
+          { id: 'd1', name: 'district 1' },
+          { id: 'd2', name: '' },
+          //                ^^
+        ],
+      })
+    ).rejects.toThrow(/too small/i);
+
+    await expectStoredDistricts([]);
+  });
+
+  //
+  // Successful batch add:
+  //
+  await expectResult(ok(), {
+    electionId,
+    newDistricts: [
+      { id: 'd1', name: 'district 1' },
+      { id: 'd2', name: 'district 2' },
+    ],
+  });
+  await expectStoredDistricts([
+    { id: 'd1', name: 'district 1' },
+    { id: 'd2', name: 'district 2' },
+  ]);
+
+  //
+  // Fail update on first invalid district data and roll back:
+  //
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.updateDistricts({
+        electionId,
+        updatedDistricts: [
+          { id: 'd1', name: 'district 1' },
+          { id: 'd2', name: '' },
+          //                ^^
+        ],
+      })
+    ).rejects.toThrow(/too small/i);
+
+    await expectStoredDistricts([
+      { id: 'd1', name: 'district 1' },
+      { id: 'd2', name: 'district 2' },
+    ]);
+  });
+
+  //
+  // Fail update on first non-existent district ID and roll back:
+  //
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.updateDistricts({
+        electionId,
+        updatedDistricts: [
+          { id: 'd1', name: 'district 1' },
+          { id: 'NA', name: 'district 2' },
+          //    ^^^^
+        ],
+      })
+    ).rejects.toThrow(/not found/i);
+
+    await expectStoredDistricts([
+      { id: 'd1', name: 'district 1' },
+      { id: 'd2', name: 'district 2' },
+    ]);
+  });
+
+  //
+  // Fail update on first conflict in batch add and roll back:
+  //
+  await expectResult(err({ code: 'duplicate-name', districtId: 'd2' }), {
+    electionId,
+    updatedDistricts: [
+      { id: 'd1', name: 'district 1a' },
+      { id: 'd2', name: 'district 1a' },
+      //                ^^^^^^^^^^^^^
+    ],
+  });
+  await expectResult(err({ code: 'duplicate-name', districtId: 'd2' }), {
+    electionId,
+    updatedDistricts: [
+      { id: 'd2', name: 'district 1' },
+      //                ^^^^^^^^^^^^^
+    ],
+  });
+  await expectStoredDistricts([
+    { id: 'd1', name: 'district 1' },
+    { id: 'd2', name: 'district 2' },
+  ]);
+
+  //
+  // Fail add on first conflict in batch add and roll back:
+  //
+  await expectResult(err({ code: 'duplicate-name', districtId: 'd4' }), {
+    electionId,
+    newDistricts: [
+      { id: 'd3', name: 'district 3' },
+      { id: 'd4', name: 'district 1' },
+      //                ^^^^^^^^^^^^^ belongs to d1
+    ],
+  });
+  await expectResult(err({ code: 'duplicate-name', districtId: 'd4' }), {
+    electionId,
+    newDistricts: [
+      { id: 'd3', name: 'district 3' },
+      { id: 'd4', name: 'district 3' },
+      //                ^^^^^^^^^^^^^
+    ],
+  });
+  await expectStoredDistricts([
+    { id: 'd1', name: 'district 1' },
+    { id: 'd2', name: 'district 2' },
+  ]);
+
+  //
+  // Can add district with conflicting name if original is deleted in same batch:
+  //
+  await expectResult(ok(), {
+    electionId,
+    deletedDistrictIds: ['d1'],
+    newDistricts: [{ id: 'd4', name: 'district 1' }],
+  });
+  await expectStoredDistricts([
+    { id: 'd4', name: 'district 1' }, // Expect alphabetical re-ordering.
+    { id: 'd2', name: 'district 2' },
+  ]);
+
+  //
+  // Can add district with conflicting name if original is updated in same batch:
+  //
+  await expectResult(ok(), {
+    electionId,
+    updatedDistricts: [{ id: 'd4', name: 'district 4' }],
+    newDistricts: [{ id: 'd5', name: 'district 1' }],
+  });
+  await expectStoredDistricts([
+    { id: 'd5', name: 'district 1' },
+    { id: 'd2', name: 'district 2' },
+    { id: 'd4', name: 'district 4' },
+  ]);
+
+  //
+  // Add/update/delete in single batch:
+  //
+  await expectResult(ok(), {
+    electionId,
+    deletedDistrictIds: ['d2'],
+    updatedDistricts: [{ id: 'd5', name: 'district 5' }],
+    newDistricts: [{ id: 'd6', name: 'district 6' }],
+  });
+  await expectStoredDistricts([
+    { id: 'd4', name: 'district 4' },
+    { id: 'd5', name: 'district 5' },
+    { id: 'd6', name: 'district 6' },
+  ]);
+
+  //
+  // Block ops from unauthorized users:
+  //
+  auth0.setLoggedInUser(anotherNonVxUser);
+  await expect(
+    api.updateDistricts({
+      electionId,
+      deletedDistrictIds: ['d4'],
+    })
+  ).rejects.toThrow('auth:forbidden');
+
+  auth0.setLoggedInUser(nonVxUser);
+  await expectStoredDistricts([
+    { id: 'd4', name: 'district 4' },
+    { id: 'd5', name: 'district 5' },
+    { id: 'd6', name: 'district 6' },
+  ]);
+});
+
 test('deleting a district updates associated precincts', async () => {
   const baseElectionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+
   const { apiClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
+
   auth0.setLoggedInUser(nonVxUser);
+
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
@@ -945,15 +1170,18 @@ test('deleting a district updates associated precincts', async () => {
   const precincts = await apiClient.listPrecincts({ electionId });
   const precinctWithSplits = precincts.find(hasSplits)!;
   const split = precinctWithSplits.splits[0];
-  await apiClient.deleteDistrict({
+
+  await apiClient.updateDistricts({
     electionId,
-    districtId: split.districtIds[0],
+    deletedDistrictIds: [split.districtIds[0]],
   });
+
   let updatedPrecincts = await apiClient.listPrecincts({ electionId });
   let updatedPrecinct = updatedPrecincts.find(
     (p) => p.id === precinctWithSplits.id
   )!;
   assert(hasSplits(updatedPrecinct));
+
   const updatedSplit = updatedPrecinct.splits[0];
   expect(updatedSplit.districtIds).not.toContain(split.districtIds[0]);
 
@@ -961,10 +1189,12 @@ test('deleting a district updates associated precincts', async () => {
   const precinctWithoutSplits = updatedPrecincts.find(
     (p) => !hasSplits(p)
   ) as PrecinctWithoutSplits;
-  await apiClient.deleteDistrict({
+
+  await apiClient.updateDistricts({
     electionId,
-    districtId: precinctWithoutSplits.districtIds[0],
+    deletedDistrictIds: [precinctWithoutSplits.districtIds[0]],
   });
+
   updatedPrecincts = await apiClient.listPrecincts({ electionId });
   updatedPrecinct = updatedPrecincts.find(
     (p) => p.id === precinctWithoutSplits.id
@@ -1424,14 +1654,6 @@ test('CRUD parties', async () => {
       })
     ).rejects.toThrow();
 
-    // Try to delete a party that doesn't exist
-    await expect(
-      apiClient.deleteParty({
-        electionId,
-        partyId: unsafeParse(PartyIdSchema, 'invalid-id'),
-      })
-    ).rejects.toThrow();
-
     // Check permissions
     auth0.setLoggedInUser(anotherNonVxUser);
     await expect(apiClient.listParties({ electionId })).rejects.toThrow(
@@ -1458,15 +1680,264 @@ test('CRUD parties', async () => {
   });
 });
 
+test('updateParties', async () => {
+  const { apiClient: api, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = (
+    await api.createElection({
+      jurisdictionId: nonVxJurisdiction.id,
+      id: 'election-1',
+    })
+  ).unsafeUnwrap();
+
+  async function expectStoredParties(expected: Party[]) {
+    expect(await api.listParties({ electionId })).toEqual(expected);
+  }
+
+  async function expectResult(
+    expectedResult: Result<void, DuplicatePartyError>,
+    input: {
+      electionId: ElectionId;
+      deletedPartyIds?: string[];
+      newParties?: Party[];
+      updatedParties?: Party[];
+    }
+  ) {
+    expect(await api.updateParties(input)).toEqual(expectedResult);
+  }
+
+  await expectStoredParties([]);
+
+  // No-op for empty op list:
+  await expectResult(ok(), { electionId });
+  await expectStoredParties([]);
+
+  // No-op when deleting already-deleted party:
+  await expectResult(ok(), { electionId, deletedPartyIds: ['old-id'] });
+  await expectStoredParties([]);
+
+  //
+  // Fail add on first invalid party data and roll back:
+  //
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.updateParties({
+        electionId,
+        newParties: [
+          { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+          { id: 'p2', abbrev: '', fullName: 'party 2', name: 'p2' },
+          //                  ^^
+        ],
+      })
+    ).rejects.toThrow(/too small/i);
+
+    await expectStoredParties([]);
+  });
+
+  //
+  // Successful batch add:
+  //
+  await expectResult(ok(), {
+    electionId,
+    newParties: [
+      { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+      { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+    ],
+  });
+  await expectStoredParties([
+    { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+    { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+  ]);
+
+  //
+  // Fail update on first invalid party data and roll back:
+  //
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.updateParties({
+        electionId,
+        updatedParties: [
+          { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+          { id: 'p2', abbrev: '', fullName: 'party 2', name: 'p2' },
+          //                  ^^
+        ],
+      })
+    ).rejects.toThrow(/too small/i);
+
+    await expectStoredParties([
+      { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+      { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+    ]);
+  });
+
+  //
+  // Fail update on first non-existent party ID and roll back:
+  //
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      api.updateParties({
+        electionId,
+        updatedParties: [
+          { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+          { id: 'NA', abbrev: '2', fullName: 'party 2', name: 'p2' },
+          //    ^^^^
+        ],
+      })
+    ).rejects.toThrow(/not found/i);
+
+    await expectStoredParties([
+      { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+      { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+    ]);
+  });
+
+  //
+  // Fail update on first conflict in batch and roll back:
+  //
+  await expectResult(err({ code: 'duplicate-abbrev', partyId: 'p2' }), {
+    electionId,
+    updatedParties: [
+      { id: 'p1', abbrev: '1', fullName: 'party 1a', name: 'p1a' },
+      { id: 'p2', abbrev: '1', fullName: 'party 2b', name: 'p2b' },
+      //                  ^^^
+    ],
+  });
+  await expectResult(err({ code: 'duplicate-full-name', partyId: 'p2' }), {
+    electionId,
+    updatedParties: [
+      { id: 'p1', abbrev: '1', fullName: 'party 1a', name: 'p1a' },
+      { id: 'p2', abbrev: '2', fullName: 'party 1a', name: 'p2b' },
+      //                                 ^^^^^^^^^
+    ],
+  });
+  await expectResult(err({ code: 'duplicate-name', partyId: 'p2' }), {
+    electionId,
+    updatedParties: [
+      { id: 'p1', abbrev: '1', fullName: 'party 1a', name: 'p1a' },
+      { id: 'p2', abbrev: '2', fullName: 'party 2b', name: 'p1a' },
+      //                                                   ^^^^^
+    ],
+  });
+  await expectStoredParties([
+    { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+    { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+  ]);
+
+  //
+  // Fail add on first conflict in batch and roll back:
+  //
+  await expectResult(err({ code: 'duplicate-abbrev', partyId: 'p4' }), {
+    electionId,
+    newParties: [
+      { id: 'p3', abbrev: '3', fullName: 'party 3', name: 'p3' },
+      { id: 'p4', abbrev: '1', fullName: 'party 4', name: 'p4' },
+      //                  ^^^ belongs to p1
+    ],
+  });
+  await expectResult(err({ code: 'duplicate-full-name', partyId: 'p4' }), {
+    electionId,
+    newParties: [
+      { id: 'p3', abbrev: '3', fullName: 'party 3', name: 'p3' },
+      { id: 'p4', abbrev: '4', fullName: 'party 3', name: 'p4' },
+      //                                 ^^^^^^^^^
+    ],
+  });
+  await expectResult(err({ code: 'duplicate-name', partyId: 'p4' }), {
+    electionId,
+    newParties: [
+      { id: 'p3', abbrev: '3', fullName: 'party 3', name: 'p3' },
+      { id: 'p4', abbrev: '4', fullName: 'party 4', name: 'p1' },
+      //                                                  ^^^^
+    ],
+  });
+  await expectStoredParties([
+    { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+    { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+  ]);
+
+  //
+  // Can add party with conflicting name if original is deleted in same batch:
+  //
+  await expectResult(ok(), {
+    electionId,
+    deletedPartyIds: ['p1'],
+    newParties: [{ id: 'p4', abbrev: '1', fullName: 'party 4', name: 'p4' }],
+  });
+  await expectStoredParties([
+    { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+    { id: 'p4', abbrev: '1', fullName: 'party 4', name: 'p4' },
+  ]);
+
+  //
+  // Can add party with conflicting name if original is updated in same batch:
+  //
+  await expectResult(ok(), {
+    electionId,
+    updatedParties: [
+      { id: 'p4', abbrev: '4', fullName: 'party 4', name: 'p4' },
+    ],
+    newParties: [{ id: 'p5', abbrev: '1', fullName: 'party 5', name: 'p5' }],
+  });
+  await expectStoredParties([
+    { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+    { id: 'p4', abbrev: '4', fullName: 'party 4', name: 'p4' },
+    { id: 'p5', abbrev: '1', fullName: 'party 5', name: 'p5' },
+  ]);
+
+  //
+  // Add/update/delete in single batch:
+  //
+  await expectResult(ok(), {
+    electionId,
+    deletedPartyIds: ['p2'],
+    updatedParties: [
+      { id: 'p5', abbrev: '5', fullName: 'party 5', name: 'p5' },
+    ],
+    newParties: [{ id: 'p6', abbrev: '6', fullName: 'party 6', name: 'p6' }],
+  });
+  await expectStoredParties([
+    { id: 'p4', abbrev: '4', fullName: 'party 4', name: 'p4' },
+    { id: 'p5', abbrev: '5', fullName: 'party 5', name: 'p5' },
+    { id: 'p6', abbrev: '6', fullName: 'party 6', name: 'p6' },
+  ]);
+
+  //
+  // Block ops from unauthorized users:
+  //
+  auth0.setLoggedInUser(anotherNonVxUser);
+  await expect(
+    api.updateParties({
+      electionId,
+      deletedPartyIds: ['p4'],
+    })
+  ).rejects.toThrow('auth:forbidden');
+
+  auth0.setLoggedInUser(nonVxUser);
+  await expectStoredParties([
+    { id: 'p4', abbrev: '4', fullName: 'party 4', name: 'p4' },
+    { id: 'p5', abbrev: '5', fullName: 'party 5', name: 'p5' },
+    { id: 'p6', abbrev: '6', fullName: 'party 6', name: 'p6' },
+  ]);
+});
+
 test('deleting a party updates associated contests', async () => {
   const baseElectionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+
   const { apiClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
+
   auth0.setLoggedInUser(nonVxUser);
+
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
@@ -1485,9 +1956,10 @@ test('deleting a party updates associated contests', async () => {
       c.type === 'candidate' && c.partyId !== undefined
   )!;
   assert(contestWithParty.candidates.every((c) => c.partyIds?.length === 1));
-  await apiClient.deleteParty({
+
+  await apiClient.updateParties({
     electionId,
-    partyId: contestWithParty.partyId!,
+    deletedPartyIds: [contestWithParty.partyId!],
   });
 
   const updatedContests = await apiClient.listContests({ electionId });
