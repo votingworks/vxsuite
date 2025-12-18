@@ -70,15 +70,6 @@ export enum UserFeature {
    * Requires the system settings screen to be enabled.
    */
   VOTER_HELP_BUTTONS_SYSTEM_SETTING = 'VOTER_HELP_BUTTONS_SYSTEM_SETTING',
-
-  //
-  // Other features
-  //
-
-  /**
-   * Allow the user to access all elections across all organizations.
-   */
-  ACCESS_ALL_ORGS = 'ACCESS_ALL_ORGS',
 }
 
 /**
@@ -138,8 +129,6 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
-
-  ACCESS_ALL_ORGS: true,
 };
 
 export const userFeatureConfigs = {

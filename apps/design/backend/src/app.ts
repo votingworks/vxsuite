@@ -189,13 +189,7 @@ class AuthError extends grout.UserError {
 }
 
 function requireJurisdictionAccess(user: User, jurisdiction: Jurisdiction) {
-  const userFeatures = getUserFeaturesConfig(user);
-  if (
-    !(
-      userCanAccessJurisdiction(user, jurisdiction) ||
-      userFeatures.ACCESS_ALL_ORGS
-    )
-  ) {
+  if (!userCanAccessJurisdiction(user, jurisdiction)) {
     throw new AuthError('auth:forbidden');
   }
 }
@@ -307,10 +301,6 @@ export function buildApi(ctx: AppContext) {
       _input: undefined,
       context: ApiContext
     ): Promise<Jurisdiction[]> {
-      const userFeaturesConfig = getUserFeaturesConfig(context.user);
-      if (userFeaturesConfig.ACCESS_ALL_ORGS) {
-        return store.listJurisdictions();
-      }
       switch (context.user.type) {
         case 'jurisdiction_user':
           return context.user.jurisdictions;
