@@ -312,12 +312,14 @@ export function buildApi(ctx: AppContext) {
         return store.listJurisdictions();
       }
       switch (context.user.type) {
+        case 'jurisdiction_user':
+          return context.user.jurisdictions;
         case 'organization_user':
           return store.listJurisdictions({
             organizationId: context.user.organization.id,
           });
-        case 'jurisdiction_user':
-          return context.user.jurisdictions;
+        case 'support_user':
+          return store.listJurisdictions();
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(context.user);
