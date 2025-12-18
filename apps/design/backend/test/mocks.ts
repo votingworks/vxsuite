@@ -4,6 +4,7 @@ import {
   JurisdictionUser,
   Organization,
   User,
+  SupportUser,
 } from '../src/types';
 import { votingWorksOrganizationId, sliOrganizationId } from '../src/globals';
 
@@ -93,6 +94,13 @@ export const sliUser: JurisdictionUser = {
   jurisdictions: [sliJurisdiction],
 };
 
+export const supportUser: SupportUser = {
+  type: 'support_user',
+  name: 'support.user@voting.works',
+  id: 'auth0|support-user-id',
+  organization: vxOrganization,
+};
+
 export const organizations: Organization[] = [
   vxOrganization,
   nonVxOrganization,
@@ -114,4 +122,5 @@ export const users: User[] = [
   anotherNonVxUser,
   nonVxOrganizationUser,
   sliUser,
+  supportUser,
 ];

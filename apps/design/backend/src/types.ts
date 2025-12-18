@@ -27,8 +27,6 @@ export interface Jurisdiction {
   organization: Organization;
 }
 
-export type UserType = 'jurisdiction_user' | 'organization_user';
-
 interface UserBase {
   id: string;
   /**
@@ -49,7 +47,12 @@ export interface OrganizationUser extends UserBase {
   type: 'organization_user';
 }
 
-export type User = JurisdictionUser | OrganizationUser;
+export interface SupportUser extends UserBase {
+  type: 'support_user';
+}
+
+export type User = JurisdictionUser | OrganizationUser | SupportUser;
+export type UserType = User['type'];
 
 export type ElectionStatus = 'notStarted' | 'inProgress' | 'ballotsFinalized';
 

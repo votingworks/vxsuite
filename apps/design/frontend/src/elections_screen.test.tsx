@@ -9,11 +9,11 @@ import { format } from '@votingworks/utils';
 import {
   MockApiClient,
   createMockApiClient,
-  mockUserFeatures,
   jurisdiction,
   jurisdiction2,
   provideApi,
   user,
+  supportUser,
 } from '../test/api_helpers';
 import {
   blankElectionRecord,
@@ -52,7 +52,6 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  mockUserFeatures(apiMock);
 });
 
 afterEach(() => {
@@ -152,12 +151,12 @@ test('with no elections, loading an election', async () => {
   });
 });
 
-test('with elections', async () => {
+test('support user, with elections', async () => {
   const [general, primary] = [
     generalElectionRecord(jurisdiction.id),
     primaryElectionRecord(jurisdiction.id),
   ];
-  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getUser.expectCallWith().resolves(supportUser);
   apiMock.listElections
     .expectCallWith()
     .resolves([electionListing(general), electionListing(primary)]);
@@ -235,7 +234,7 @@ test('with elections', async () => {
   });
 });
 
-test('sorting elections by status and jurisdiction', async () => {
+test('support user, sort elections by status and jurisdiction', async () => {
   // Create elections with different statuses and jurisdictions
   const generalElection = generalElectionRecord(jurisdiction.id);
   const primaryElection = primaryElectionRecord(jurisdiction.id);
@@ -265,7 +264,7 @@ test('sorting elections by status and jurisdiction', async () => {
     },
   ];
 
-  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getUser.expectCallWith().resolves(supportUser);
   apiMock.listElections.expectCallWith().resolves(elections);
 
   renderScreen();
@@ -402,9 +401,6 @@ test('clone buttons are rendered', async () => {
 });
 
 test('single jurisdiction elections list', async () => {
-  // Mock features with ACCESS_ALL_ORGS disabled
-  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
-
   const [general, primary] = [
     generalElectionRecord(jurisdiction.id),
     primaryElectionRecord(jurisdiction.id),
@@ -443,8 +439,6 @@ test('single jurisdiction elections list', async () => {
 });
 
 test('elections list for user with multiple jurisdictions', async () => {
-  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
-
   const generalJurisdiction1 = generalElectionRecord(jurisdiction.id);
   const generalJurisdiction2 = blankElectionRecord(jurisdiction2.id);
   apiMock.getUser.expectCallWith().resolves(user);
@@ -481,4 +475,13 @@ test('elections list for user with multiple jurisdictions', async () => {
     )
   );
   expect(secondRowCells[2]).toHaveTextContent('jurisdiction2 Name');
+
+  // Can filter by jurisdiction name
+  const filterInput = screen.getByLabelText(/filter elections/i);
+  userEvent.type(filterInput, 'jurisdiction2 Name');
+
+  const filteredRows = within(table).getAllByRole('row').slice(1);
+  expect(filteredRows).toHaveLength(1);
+  const filteredRowCells = within(filteredRows[0]).getAllByRole('cell');
+  expect(filteredRowCells[2]).toHaveTextContent('jurisdiction2 Name');
 });

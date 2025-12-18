@@ -163,11 +163,13 @@ export function userCanAccessJurisdiction(
   jurisdiction: Jurisdiction
 ): boolean {
   switch (user.type) {
+    case 'jurisdiction_user':
+      return user.jurisdictions.some((j) => j.id === jurisdiction.id);
     case 'organization_user': {
       return user.organization.id === jurisdiction.organization.id;
     }
-    case 'jurisdiction_user':
-      return user.jurisdictions.some((j) => j.id === jurisdiction.id);
+    case 'support_user':
+      return true;
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(user);

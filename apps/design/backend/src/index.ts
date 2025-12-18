@@ -21,6 +21,7 @@ export type {
   User,
   JurisdictionUser,
   OrganizationUser,
+  SupportUser,
   Jurisdiction,
   Organization,
   ElectionStatus,

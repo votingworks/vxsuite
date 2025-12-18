@@ -47,6 +47,12 @@ async function main(): Promise<void> {
         })
       );
       break;
+    case 'support_user':
+      console.log(
+        `✅ Support user ${userEmail} has access to all jurisdictions:`,
+        await workspace.store.listJurisdictions()
+      );
+      break;
     default:
       throwIllegalValue(user);
   }

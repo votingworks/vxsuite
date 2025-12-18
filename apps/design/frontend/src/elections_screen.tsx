@@ -15,12 +15,7 @@ import type {
   ElectionListing,
   ElectionStatus,
 } from '@votingworks/design-backend';
-import {
-  listElections,
-  createElection,
-  loadElection,
-  getUserFeatures,
-} from './api';
+import { listElections, createElection, loadElection, getUser } from './api';
 import { Column, Row } from './layout';
 import { Header, NavScreen } from './nav_screen';
 import { CreateElectionButton } from './create_election_button';
@@ -271,18 +266,18 @@ function AllOrgsElectionsList({
 
 function ElectionsList({
   elections,
+  hasMultipleJurisdictions,
 }: {
   elections: ElectionListing[];
+  hasMultipleJurisdictions: boolean;
 }): JSX.Element | null {
-  const showJurisdiction =
-    unique(elections.map((election) => election.jurisdictionId)).length > 1;
   return (
     <Table>
       <thead>
         <tr>
           <th>Title</th>
           <th>Date</th>
-          {showJurisdiction && <th>Jurisdiction</th>}
+          {hasMultipleJurisdictions && <th>Jurisdiction</th>}
           <th />
         </tr>
       </thead>
@@ -300,7 +295,7 @@ function ElectionsList({
                 )}
             </LinkCell>
 
-            {showJurisdiction && (
+            {hasMultipleJurisdictions && (
               <LinkCell election={election}>
                 {election.jurisdictionName}
               </LinkCell>
@@ -329,19 +324,21 @@ export function ElectionsScreen({
   const listElectionsQuery = listElections.useQuery();
   const createElectionMutation = createElection.useMutation();
   const loadElectionMutation = loadElection.useMutation();
-  const getUserFeaturesQuery = getUserFeatures.useQuery();
+  const getUserQuery = getUser.useQuery();
   const filterRef = useRef<HTMLInputElement>(null);
 
   /* istanbul ignore next - @preserve */
-  if (!(listElectionsQuery.isSuccess && getUserFeaturesQuery.isSuccess)) {
+  if (!(listElectionsQuery.isSuccess && getUserQuery.isSuccess)) {
     return null;
   }
-  const features = getUserFeaturesQuery.data;
+  const user = getUserQuery.data;
   const elections = listElectionsQuery.data;
-  // Filter by matching jurisdiction (if user has access to all orgs) or election title
+  const hasMultipleJurisdictions =
+    unique(elections.map((e) => e.jurisdictionId)).length > 1;
+  // Filter by matching jurisdiction (if multiple) or election title
   const filteredElections = elections.filter(
     (e) =>
-      (features.ACCESS_ALL_ORGS &&
+      (hasMultipleJurisdictions &&
         e.jurisdictionName.toLowerCase().includes(filterText.toLowerCase())) ||
       e.title.toLowerCase().includes(filterText.toLowerCase())
   );
@@ -372,7 +369,7 @@ export function ElectionsScreen({
                 type="text"
                 aria-label="Filter elections"
                 placeholder={
-                  features.ACCESS_ALL_ORGS
+                  hasMultipleJurisdictions
                     ? 'Filter by jurisdiction or election title'
                     : 'Filter by election title'
                 }
@@ -404,10 +401,13 @@ export function ElectionsScreen({
           </Row>
 
           <div style={{ overflow: 'auto' }}>
-            {features.ACCESS_ALL_ORGS ? (
+            {user.type === 'support_user' ? (
               <AllOrgsElectionsList elections={filteredElections} />
             ) : (
-              <ElectionsList elections={filteredElections} />
+              <ElectionsList
+                elections={filteredElections}
+                hasMultipleJurisdictions={hasMultipleJurisdictions}
+              />
             )}
           </div>
         </Column>
