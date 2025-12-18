@@ -603,6 +603,12 @@ export class Store {
   }
 
   async createUser(user: Omit<User, 'jurisdictions'>): Promise<void> {
+    if (user.type === 'support_user') {
+      assert(
+        user.name.endsWith('@voting.works'),
+        'Support users must have a voting.works email'
+      );
+    }
     await this.db.withClient((client) =>
       client.query(
         `
@@ -713,6 +719,7 @@ export class Store {
         }
 
         case 'organization_user':
+        case 'support_user':
           return { ...userBase, type: userRow.type };
 
         default: {
