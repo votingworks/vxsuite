@@ -320,6 +320,16 @@ export function createApiMock() {
         .expectRepeatedCallsWith()
         .resolves({ enabled: true });
     },
+
+    expectPlaySound(name: 'alarm' | 'chime' | 'error' | 'success' | 'warning') {
+      mockApiClient.playSound.expectCallWith({ name }).resolves();
+    },
+
+    expectPlaySoundRepeated(
+      name: 'alarm' | 'chime' | 'error' | 'success' | 'warning'
+    ) {
+      mockApiClient.playSound.expectRepeatedCallsWith({ name }).resolves();
+    },
   };
 }
 

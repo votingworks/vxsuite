@@ -35,6 +35,7 @@ import { ok } from '@votingworks/basics';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import { getUserRole } from '../src/util/auth';
+import { Player as AudioPlayer } from '../src/audio/player';
 
 interface MockAppContents {
   apiClient: grout.Client<Api>;
@@ -43,6 +44,7 @@ interface MockAppContents {
   mockAuth: InsertedSmartCardAuthApi;
   mockUsbDrive: MockUsbDrive;
   mockPrinterHandler: MemoryPrinterHandler;
+  mockAudioPlayer?: AudioPlayer;
   server: Server;
   workspace: Workspace;
 }
@@ -58,7 +60,9 @@ export function buildMockLogger(
   });
 }
 
-export function createApp(): MockAppContents {
+export function createApp(options?: {
+  audioPlayer?: AudioPlayer;
+}): MockAppContents {
   const workspace = createWorkspace(
     tmp.dirSync().name,
     mockBaseLogger({ fn: vi.fn })
@@ -69,6 +73,7 @@ export function createApp(): MockAppContents {
   const mockPrinterHandler = createMockPrinterHandler();
 
   const app = buildApp({
+    audioPlayer: options?.audioPlayer,
     auth: mockAuth,
     logger,
     workspace,
@@ -89,6 +94,7 @@ export function createApp(): MockAppContents {
     mockAuth,
     mockUsbDrive,
     mockPrinterHandler,
+    mockAudioPlayer: options?.audioPlayer,
     server,
     workspace,
   };

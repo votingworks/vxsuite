@@ -3,8 +3,10 @@ import { appStrings, Icons } from '@votingworks/ui';
 import { InsertedSmartCardAuth } from '@votingworks/types';
 import { isPollWorkerAuth } from '@votingworks/utils';
 import React from 'react';
-import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import { PollWorkerPrompt } from '../components/poll_worker_prompt';
+import {
+  CenteredCardPageLayout,
+  PollWorkerPrompt,
+} from '@votingworks/mark-flow-ui';
 
 interface Props {
   authStatus: InsertedSmartCardAuth.AuthStatus;

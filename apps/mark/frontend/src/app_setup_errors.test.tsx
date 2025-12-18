@@ -112,7 +112,9 @@ describe('Displays setup warning messages and errors screens', () => {
       apiMock.setPrinterStatus({ connected: false });
     });
     await advanceTimersAndPromises();
-    await screen.findByText('No Printer Detected');
+    // When polls are open but no cardless voter session is active, non-voter-facing message
+    await screen.findByRole('heading', { name: 'No Printer Detected' });
+    await screen.findByText('Please ask a poll worker for help.');
 
     // Insert election manager card
     apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);

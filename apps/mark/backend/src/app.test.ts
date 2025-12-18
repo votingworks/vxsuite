@@ -43,7 +43,7 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
 import {
   HP_LASER_PRINTER_CONFIG,
   MemoryPrinterHandler,
@@ -53,6 +53,7 @@ import { Api } from './app';
 import { ElectionState, PrintCalibration } from '.';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
 import { Workspace } from './util/workspace';
+import { Player } from './audio/player';
 
 const electionGeneralDefinition =
   electionGeneralFixtures.readElectionDefinition();
@@ -68,6 +69,8 @@ vi.mock(import('./util/accessible_controller.js'), async (importActual) => ({
   ...(await importActual()),
   isAccessibleControllerAttached: vi.fn().mockResolvedValue(true),
 }));
+
+vi.mock('./audio/player');
 
 let apiClient: grout.Client<Api>;
 let logger: Logger;
@@ -584,4 +587,22 @@ test('print calibration', async () => {
     offsetMmX: 1.5,
     offsetMmY: 0.5,
   });
+});
+
+test('playSound() uses configured audio player', async () => {
+  const mockAudioPlayer = vi.mocked(
+    new Player('development', mockLogger({ fn: vi.fn() }), 'builtin')
+  );
+  mockAudioPlayer.play.mockResolvedValueOnce();
+
+  const app = createApp({ audioPlayer: mockAudioPlayer });
+  server = app.server;
+
+  await app.apiClient.playSound({ name: 'alarm' });
+  expect(mockAudioPlayer.play).toHaveBeenCalledWith('alarm');
+});
+
+test('playSound does nothing when audio player is not present', async () => {
+  // The default createApp() does not include an audio player
+  await expect(apiClient.playSound({ name: 'alarm' })).resolves.toBeUndefined();
 });

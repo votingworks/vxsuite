@@ -354,4 +354,11 @@ export const setPrecinctSelection = {
   },
 } as const;
 
+export const playSound = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.playSound);
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

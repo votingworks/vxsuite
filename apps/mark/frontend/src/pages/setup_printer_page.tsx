@@ -1,14 +1,77 @@
-import { Main, Screen, H1, P } from '@votingworks/ui';
+import React from 'react';
+import {
+  appStrings,
+  Icons,
+  P,
+  useAudioControls,
+  useAudioEnabled,
+} from '@votingworks/ui';
+import {
+  CenteredCardPageLayout,
+  PollWorkerPrompt,
+} from '@votingworks/mark-flow-ui';
+import type { PollsState } from '@votingworks/types';
+import { useAlarm } from '../utils/use_alarm';
 
-export function SetupPrinterPage(): JSX.Element {
+export interface SetupPrinterPageProps {
+  isPollWorkerAuth?: boolean;
+  isCardlessVoterAuth?: boolean;
+  pollsState?: PollsState;
+}
+
+export function SetupPrinterPage({
+  isPollWorkerAuth,
+  isCardlessVoterAuth,
+  pollsState,
+}: SetupPrinterPageProps): JSX.Element {
+  const wasAudioEnabled = React.useRef(useAudioEnabled());
+  const { setIsEnabled: setAudioEnabled } = useAudioControls();
+
+  // Play alarm when polls are open or paused (active voting period)
+  const shouldPlayAlarm =
+    !isPollWorkerAuth &&
+    (pollsState === 'polls_open' || pollsState === 'polls_paused');
+
+  // Play alarm through system speakers (not headphones) via backend
+  useAlarm(shouldPlayAlarm);
+
+  // Disable TTS audio while alarm is playing to avoid confusion
+  React.useEffect(() => {
+    if (!shouldPlayAlarm) return;
+
+    setAudioEnabled(false);
+
+    function restoreAudioOnExit() {
+      setAudioEnabled(wasAudioEnabled.current);
+    }
+    return restoreAudioOnExit;
+  }, [setAudioEnabled, shouldPlayAlarm]);
+
+  // Voter-facing alarm state when there's an active cardless voter session
+  if (shouldPlayAlarm) {
+    return (
+      <CenteredCardPageLayout
+        icon={<Icons.Danger color="danger" />}
+        title={appStrings.noteNoPrinterConnected()}
+        voterFacing={Boolean(isCardlessVoterAuth)}
+      >
+        <P>{appStrings.instructionsAskForHelp()}</P>
+        <PollWorkerPrompt>
+          Insert a poll worker card to silence the alert. Connect the printer to
+          resume voting.
+        </PollWorkerPrompt>
+      </CenteredCardPageLayout>
+    );
+  }
+
+  // Non-alarm state (poll worker auth, no active voter session, or polls not open/paused)
   return (
-    <Screen>
-      <Main padded centerChild>
-        <div>
-          <H1>No Printer Detected</H1>
-          <P>Please ask a poll worker to connect printer.</P>
-        </div>
-      </Main>
-    </Screen>
+    <CenteredCardPageLayout
+      icon={<Icons.Danger color="danger" />}
+      title={appStrings.noteNoPrinterConnected()}
+      voterFacing={false}
+    >
+      <P>Connect the printer to continue.</P>
+    </CenteredCardPageLayout>
   );
 }

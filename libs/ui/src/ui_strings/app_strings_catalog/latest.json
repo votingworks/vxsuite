@@ -200,6 +200,7 @@
   "noteBmdReloadSheetAfterPaperJam": "Please ask a poll worker to load a new ballot sheet.",
   "noteBmdScanningReinsertedBallot": "Please wait while the votes on your ballot are scanned.",
   "noteBmdSessionRestart": "Your voting session will restart shortly.",
+  "noteNoPrinterConnected": "No Printer Detected",
   "notePrinterDisconnected": "Printer is disconnected.",
   "notePrinterHardwareError": "The printer has experienced an unknown error.",
   "noteScannerBlankContestsCardPlural": "Did you mean to leave these contests blank?",
