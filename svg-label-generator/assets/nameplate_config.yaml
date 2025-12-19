@@ -50,14 +50,14 @@ products:
       hole_diameter: 4.0
       hole_center_distance: 82.0
     layout:
-      top_section_margin: 0.05
-      middle_section_margin: 0.12
-      bottom_section_margin: 0.05
-      logo_padding_horizontal: -0.1
+      top_section_margin: 0.1
+      middle_section_margin: 0.1
+      bottom_section_margin: 0.1
+      logo_padding_horizontal: 0
       logo_padding_vertical: 0.15
-      square_padding_top: 0.1
-      square_padding_right: 0.05
-      textbox1_logo_overlap: 0.005
+      square_padding_top: 0.05
+      square_padding_right: 0.02
+      textbox1_logo_overlap: -0.02
       textbox1_to_square_padding: 0
       textbox1_height_ratio: 0.52
       textbox3_bottom_margin: 0.5
