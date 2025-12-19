@@ -15,13 +15,15 @@ import { assertDefined } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
 import { BallotsPrintedReport } from './ballots_printed_report';
 
-test('renders report with test mode banner', () => {
-  const electionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+const electionDefinitionPrimary =
+  electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+const electionDefinitionSimple =
+  electionSimpleSinglePrecinctFixtures.readElectionDefinition();
 
+test('renders report with test mode banner', () => {
   render(
     <BallotsPrintedReport
-      electionDefinition={electionDefinition}
+      electionDefinition={electionDefinitionPrimary}
       electionPackageHash="test-election-package-hash"
       generatedAtTime={new Date()}
       printCounts={[]}
@@ -31,7 +33,7 @@ test('renders report with test mode banner', () => {
 
   // Check for report header
   screen.getByText('Ballots Printed Report');
-  screen.getByText(new RegExp(electionDefinition.election.title));
+  screen.getByText(new RegExp(electionDefinitionPrimary.election.title));
   screen.getByText(/Report Generated/i);
 
   // Check for test mode banner
@@ -39,12 +41,9 @@ test('renders report with test mode banner', () => {
 });
 
 test('renders report without test mode banner', () => {
-  const electionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-
   render(
     <BallotsPrintedReport
-      electionDefinition={electionDefinition}
+      electionDefinition={electionDefinitionPrimary}
       electionPackageHash="test-election-package-hash"
       generatedAtTime={new Date()}
       printCounts={[]}
@@ -56,9 +55,7 @@ test('renders report without test mode banner', () => {
 });
 
 test('renders report for Primary Election with precinct splits, parties, multiple languages', () => {
-  const electionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const { election } = electionDefinition;
+  const { election } = electionDefinitionPrimary;
 
   const splitPrecinct = assertDefined(
     election.precincts.find((p): p is PrecinctWithSplits => hasSplits(p))
@@ -125,7 +122,7 @@ test('renders report for Primary Election with precinct splits, parties, multipl
 
   render(
     <BallotsPrintedReport
-      electionDefinition={electionDefinition}
+      electionDefinition={electionDefinitionPrimary}
       electionPackageHash="test-election-package-hash"
       generatedAtTime={new Date()}
       printCounts={ballotPrintCounts}
@@ -166,9 +163,7 @@ test('renders report for Primary Election with precinct splits, parties, multipl
 });
 
 test('renders report for General Election with no parties, precincts, single language', () => {
-  const electionDefinition =
-    electionSimpleSinglePrecinctFixtures.readElectionDefinition();
-  const { election } = electionDefinition;
+  const { election } = electionDefinitionSimple;
 
   const precinct = election.precincts[0];
   const ballotStyleId = election.ballotStyles[0].id;
@@ -187,7 +182,7 @@ test('renders report for General Election with no parties, precincts, single lan
 
   render(
     <BallotsPrintedReport
-      electionDefinition={electionDefinition}
+      electionDefinition={electionDefinitionSimple}
       electionPackageHash="test-election-package-hash"
       generatedAtTime={new Date()}
       printCounts={ballotPrintCounts}
@@ -216,9 +211,7 @@ test('renders report for General Election with no parties, precincts, single lan
 });
 
 test('sums totals across multiple rows', () => {
-  const electionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const { election } = electionDefinition;
+  const { election } = electionDefinitionPrimary;
 
   const splitPrecinct = assertDefined(
     election.precincts.find((p): p is PrecinctWithSplits => hasSplits(p))
@@ -279,7 +272,7 @@ test('sums totals across multiple rows', () => {
 
   render(
     <BallotsPrintedReport
-      electionDefinition={electionDefinition}
+      electionDefinition={electionDefinitionPrimary}
       electionPackageHash="test-election-package-hash"
       generatedAtTime={new Date()}
       printCounts={ballotPrintCounts}
@@ -294,9 +287,7 @@ test('sums totals across multiple rows', () => {
 });
 
 test('renders count columns', () => {
-  const electionDefinition =
-    electionSimpleSinglePrecinctFixtures.readElectionDefinition();
-  const { election } = electionDefinition;
+  const { election } = electionDefinitionSimple;
   const precinct = election.precincts[0];
   const ballotStyleId = election.ballotStyles[0].id;
 
@@ -314,7 +305,7 @@ test('renders count columns', () => {
 
   render(
     <BallotsPrintedReport
-      electionDefinition={electionDefinition}
+      electionDefinition={electionDefinitionSimple}
       electionPackageHash="test-election-package-hash"
       generatedAtTime={new Date()}
       printCounts={ballotPrintCounts}
