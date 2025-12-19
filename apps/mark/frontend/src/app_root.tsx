@@ -70,6 +70,7 @@ import { SetupPrinterPage } from './pages/setup_printer_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
+import { UnconfiguredPrecinctScreen } from './pages/unconfigured_precinct_screen';
 
 export interface VotingState {
   votes?: VotesDict;
@@ -509,7 +510,16 @@ export function AppRoot(): JSX.Element | null {
       />
     );
   }
-  if (electionDefinition && appPrecinct) {
+  if (electionDefinition) {
+    if (!appPrecinct) {
+      return (
+        <UnconfiguredPrecinctScreen
+          electionDefinition={electionDefinition}
+          electionPackageHash={assertDefined(electionPackageHash)}
+        />
+      );
+    }
+
     if (!hasPrinterAttached) {
       return <SetupPrinterPage />;
     }
