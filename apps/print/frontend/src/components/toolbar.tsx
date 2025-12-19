@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import {
@@ -211,10 +212,19 @@ function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
 
 function LockMachineButton(): JSX.Element {
   const logOutMutation = logOut.useMutation();
+  const history = useHistory();
   return (
     <ToolbarButton
       icon="Lock"
-      onPress={() => logOutMutation.mutate()}
+      onPress={() => {
+        logOutMutation.mutate(undefined, {
+          onSuccess: () => {
+            // Navigate to the root path to ensure on the next login the
+            // user reopens on the home screen, not the previous screen
+            history.replace('/');
+          },
+        });
+      }}
       color="inverseNeutral"
     >
       Lock Machine
