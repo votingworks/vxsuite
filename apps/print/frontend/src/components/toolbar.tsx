@@ -221,7 +221,7 @@ function LockMachineButton(): JSX.Element {
           onSuccess: () => {
             // Navigate to the root path to ensure on the next login the
             // user reopens on the home screen, not the previous screen
-            history.push('/');
+            history.replace('/');
           },
         });
       }}
