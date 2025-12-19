@@ -8,7 +8,6 @@ import {
   ElectionPackageConfigurationError,
   PrecinctId,
   PrecinctSelection,
-  PrinterStatus,
   SinglePrecinctSelection,
   LanguageCode,
   Id,
@@ -71,10 +70,6 @@ export function buildApi(ctx: AppContext) {
 
     logOut() {
       return auth.logOut(constructAuthMachineState(store));
-    },
-
-    getPrinterStatus(): Promise<PrinterStatus> {
-      return printer.status();
     },
 
     async configureElectionPackageFromUsb(): Promise<
