@@ -473,8 +473,12 @@ export function buildApi(ctx: AppContext) {
     async getElectionInfo(input: {
       electionId: ElectionId;
     }): Promise<ElectionInfo> {
-      const { election, ballotLanguageConfigs, jurisdictionId } =
-        await store.getElection(input.electionId);
+      const {
+        election,
+        ballotLanguageConfigs,
+        jurisdictionId,
+        externalSource,
+      } = await store.getElection(input.electionId);
       return {
         jurisdictionId,
         electionId: election.id,
@@ -489,6 +493,7 @@ export function buildApi(ctx: AppContext) {
         // Not optimal: store.getElection converts from LanguageCode[] to BallotLanguageConfig.
         // This line converts from BallotLanguageConfig to LanguageCode[]
         languageCodes: getAllBallotLanguages(ballotLanguageConfigs),
+        externalSource,
       };
     },
 
