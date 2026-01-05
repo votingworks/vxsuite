@@ -409,6 +409,8 @@ export function buildApi(ctx: AppContext) {
           jurisdictionId: input.jurisdictionId,
           election,
           ballotTemplateId: defaultBallotTemplate(jurisdiction),
+          externalSource:
+            input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
         });
         return ok(election.id);
       } catch (error) {

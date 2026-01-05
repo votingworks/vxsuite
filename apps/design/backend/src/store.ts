@@ -1265,11 +1265,13 @@ export class Store {
     election,
     ballotTemplateId,
     systemSettings = DEFAULT_SYSTEM_SETTINGS,
+    externalSource,
   }: {
     jurisdictionId: string;
     election: Election;
     ballotTemplateId: BallotTemplateId;
     systemSettings?: SystemSettings;
+    externalSource?: ExternalElectionSource;
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
@@ -1294,7 +1296,8 @@ export class Store {
             ballot_paper_size,
             ballot_template_id,
             ballot_language_codes,
-            system_settings_data
+            system_settings_data,
+            external_source
           )
           values (
             $1,
@@ -1310,7 +1313,8 @@ export class Store {
             $11,
             $12,
             $13,
-            $14
+            $14,
+            $15
           )
         `,
           election.id,
@@ -1326,7 +1330,8 @@ export class Store {
           election.ballotLayout.paperSize,
           ballotTemplateId,
           DEFAULT_LANGUAGE_CODES,
-          JSON.stringify(systemSettings)
+          JSON.stringify(systemSettings),
+          externalSource
         );
         for (const district of election.districts) {
           await insertDistrict(client, election.id, district);
