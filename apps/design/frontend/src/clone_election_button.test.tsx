@@ -13,7 +13,11 @@ import {
   jurisdiction2,
   organizationUser,
 } from '../test/api_helpers';
-import { electionListing, generalElectionRecord } from '../test/fixtures';
+import {
+  blankElectionRecord,
+  electionListing,
+  generalElectionRecord,
+} from '../test/fixtures';
 import { render, screen, within } from '../test/react_testing_library';
 import { CloneElectionButton } from './clone_election_button';
 import { generateId } from './utils';
@@ -121,4 +125,30 @@ test('shows jurisdiction picker for organization users', async () => {
   );
   userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
   await screen.findByRole('alertdialog');
+});
+
+test('label says Untitled Election for elections without a title', async () => {
+  apiMock.getUser.expectCallWith().resolves(user);
+  const electionRecord = blankElectionRecord(jurisdiction);
+  renderButton(
+    <CloneElectionButton election={electionListing(electionRecord)} />
+  );
+  await screen.findButton('Make a copy of Untitled Election');
+});
+
+test('disables button for elections with external source', async () => {
+  apiMock.getUser.expectCallWith().resolves(user);
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  renderButton(
+    <CloneElectionButton
+      election={{
+        ...electionListing(electionRecord),
+        externalSource: 'ms-sems',
+      }}
+    />
+  );
+  const button = await screen.findButton(
+    'Cannot copy election loaded from an external source'
+  );
+  expect(button).toBeDisabled();
 });
