@@ -1260,12 +1260,17 @@ export class Store {
     return electionTitle;
   }
 
-  async createElection(
-    jurisdictionId: string,
-    election: Election,
-    ballotTemplateId: BallotTemplateId,
-    systemSettings = DEFAULT_SYSTEM_SETTINGS
-  ): Promise<void> {
+  async createElection({
+    jurisdictionId,
+    election,
+    ballotTemplateId,
+    systemSettings = DEFAULT_SYSTEM_SETTINGS,
+  }: {
+    jurisdictionId: string;
+    election: Election;
+    ballotTemplateId: BallotTemplateId;
+    systemSettings?: SystemSettings;
+  }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         const electionTitle = await this.generateUniqueElectionCopyTitle(

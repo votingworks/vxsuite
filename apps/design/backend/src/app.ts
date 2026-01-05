@@ -405,11 +405,11 @@ export function buildApi(ctx: AppContext) {
           }
         })();
         const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
-        await store.createElection(
-          input.jurisdictionId,
+        await store.createElection({
+          jurisdictionId: input.jurisdictionId,
           election,
-          defaultBallotTemplate(jurisdiction)
-        );
+          ballotTemplateId: defaultBallotTemplate(jurisdiction),
+        });
         return ok(election.id);
       } catch (error) {
         return wrapException(error);
@@ -422,11 +422,11 @@ export function buildApi(ctx: AppContext) {
     }): Promise<Result<ElectionId, Error>> {
       const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
       const election = createBlankElection(input.id, jurisdiction);
-      await store.createElection(
-        input.jurisdictionId,
+      await store.createElection({
+        jurisdictionId: input.jurisdictionId,
         election,
-        defaultBallotTemplate(jurisdiction)
-      );
+        ballotTemplateId: defaultBallotTemplate(jurisdiction),
+      });
       return ok(election.id);
     },
 
@@ -451,19 +451,20 @@ export function buildApi(ctx: AppContext) {
 
       const { districts, precincts, parties, contests } =
         regenerateElectionIds(sourceElection);
-      await store.createElection(
-        input.destJurisdictionId,
-        {
-          ...sourceElection,
-          id: input.destElectionId,
-          districts,
-          precincts,
-          parties,
-          contests,
-        },
+      const election: Election = {
+        ...sourceElection,
+        id: input.destElectionId,
+        districts,
+        precincts,
+        parties,
+        contests,
+      };
+      await store.createElection({
+        jurisdictionId: input.destJurisdictionId,
+        election,
         ballotTemplateId,
-        systemSettings
-      );
+        systemSettings,
+      });
       return input.destElectionId;
     },
 
