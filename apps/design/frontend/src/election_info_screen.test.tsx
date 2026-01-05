@@ -65,7 +65,7 @@ function renderScreen(electionId: ElectionId) {
 }
 
 test('newly created election starts in edit mode', async () => {
-  const electionRecord = blankElectionRecord(jurisdiction.id);
+  const electionRecord = blankElectionRecord(jurisdiction);
   const electionId = electionRecord.election.id;
   mockStateFeatures(apiMock, electionId);
   apiMock.getSystemSettings
@@ -98,11 +98,11 @@ test('newly created election starts in edit mode', async () => {
   ).toBeEnabled();
 
   const stateInput = screen.getByLabelText('State');
-  expect(stateInput).toHaveValue('');
+  expect(stateInput).toHaveValue(electionRecord.election.state);
   expect(stateInput).toBeEnabled();
 
   const jurisdictionInput = screen.getByLabelText('Jurisdiction');
-  expect(jurisdictionInput).toHaveValue('');
+  expect(jurisdictionInput).toHaveValue(electionRecord.election.county.name);
   expect(jurisdictionInput).toBeEnabled();
 
   const sealInput = screen.getByText('Seal').parentElement!;

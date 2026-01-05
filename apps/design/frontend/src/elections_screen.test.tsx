@@ -89,7 +89,7 @@ test('with no elections, creating a new election', async () => {
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
-  const electionRecord = blankElectionRecord(jurisdiction.id);
+  const electionRecord = blankElectionRecord(jurisdiction);
   apiMock.createElection
     .expectCallWith({
       jurisdictionId: jurisdiction.id,
@@ -238,7 +238,7 @@ test('support user, sort elections by status and jurisdiction', async () => {
   // Create elections with different statuses and jurisdictions
   const generalElection = generalElectionRecord(jurisdiction.id);
   const primaryElection = primaryElectionRecord(jurisdiction.id);
-  const blankElection = blankElectionRecord(jurisdiction.id);
+  const blankElection = blankElectionRecord(jurisdiction);
 
   const elections: ElectionListing[] = [
     // Election with inProgress status
@@ -440,7 +440,7 @@ test('single jurisdiction elections list', async () => {
 
 test('elections list for user with multiple jurisdictions', async () => {
   const generalJurisdiction1 = generalElectionRecord(jurisdiction.id);
-  const generalJurisdiction2 = blankElectionRecord(jurisdiction2.id);
+  const generalJurisdiction2 = blankElectionRecord(jurisdiction2);
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections
     .expectCallWith()
