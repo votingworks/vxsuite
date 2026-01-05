@@ -44,12 +44,7 @@ import {
 import { ElectionInfoAudioPanel } from './election_info_audio_panel';
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
-  return (
-    !electionInfo.title &&
-    !electionInfo.state &&
-    !electionInfo.countyName &&
-    !electionInfo.seal
-  );
+  return !electionInfo.title && !electionInfo.seal;
 }
 
 const Form = styled(FormFixed)`

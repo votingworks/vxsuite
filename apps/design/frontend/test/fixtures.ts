@@ -2,6 +2,7 @@ import type {
   ElectionInfo,
   ElectionListing,
   ElectionRecord,
+  Jurisdiction,
 } from '@votingworks/design-backend';
 import { createBlankElection } from '@votingworks/design-backend';
 import {
@@ -112,11 +113,16 @@ export function electionListing(
   };
 }
 
-export function blankElectionRecord(jurisdictionId: Id): ElectionRecord {
-  return makeElectionRecord(createBlankElection(generateId()), jurisdictionId);
+export function blankElectionRecord(
+  jurisdiction: Jurisdiction
+): ElectionRecord {
+  return makeElectionRecord(
+    createBlankElection(generateId(), jurisdiction),
+    jurisdiction.id
+  );
 }
-export function blankElectionInfo(jurisdictionId: Id): ElectionInfo {
-  return electionInfoFromElection(blankElectionRecord(jurisdictionId).election);
+export function blankElectionInfo(jurisdiction: Jurisdiction): ElectionInfo {
+  return electionInfoFromElection(blankElectionRecord(jurisdiction).election);
 }
 export function generalElectionRecord(jurisdictionId: Id): ElectionRecord {
   return makeElectionRecord(readElectionGeneral(), jurisdictionId);
