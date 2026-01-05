@@ -43,7 +43,10 @@ import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { ElectionState, PrintBallotProps } from './types';
 import { printBallot } from './util/print_ballot';
-import { isAccessibleControllerAttached } from './util/accessible_controller';
+import {
+  isAccessibleControllerAttached,
+  isPatInputAttached,
+} from './util/accessible_controller';
 import { constructAuthMachineState } from './util/auth';
 import { ElectionRecord } from './store';
 import * as barcodes from './barcodes';
@@ -53,7 +56,7 @@ import { Player as AudioPlayer, SoundName } from './audio/player';
 interface Context {
   audioPlayer?: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
-  barcodeClient?: barcodes.Client;
+  barcodeClient: barcodes.BarcodeReader;
   logger: Logger;
   workspace: Workspace;
   usbDrive: UsbDrive;
@@ -62,7 +65,7 @@ interface Context {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(ctx: Context) {
-  const { auth, logger, printer, usbDrive, workspace } = ctx;
+  const { auth, logger, printer, usbDrive, workspace, barcodeClient } = ctx;
   const { store } = workspace;
 
   return grout.createApi({
@@ -94,8 +97,16 @@ export function buildApi(ctx: Context) {
       return printer.status();
     },
 
+    getBarcodeConnected(): boolean {
+      return barcodeClient.getConnectionStatus();
+    },
+
     getAccessibleControllerConnected(): boolean {
       return isAccessibleControllerAttached();
+    },
+
+    getPatInputConnected(): boolean {
+      return isPatInputAttached();
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
@@ -250,8 +261,8 @@ export function buildApi(ctx: Context) {
               return LogEventId.PollsOpened;
             }
             return LogEventId.VotingResumed;
+          /* istanbul ignore next - @preserve */
           default: {
-            /* istanbul ignore next - @preserve */
             throwIllegalValue(newPollsState);
           }
         }

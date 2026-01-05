@@ -26,9 +26,10 @@ import { buildMockLogger } from '../test/app_helpers';
 vi.mock('./app');
 vi.mock('./audio/player');
 vi.mock('./barcodes', () => ({
-  Client: vi.fn().mockImplementation(() => ({
+  BarcodeClient: vi.fn().mockImplementation(() => ({
     on: vi.fn(),
     shutDown: vi.fn().mockResolvedValue(undefined),
+    getConnectionStatus: vi.fn().mockReturnValue(false),
   })),
 }));
 

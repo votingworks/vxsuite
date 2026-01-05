@@ -13,7 +13,7 @@ import { AccessibleControllerDiagnosticScreen } from './accessible_controller_di
 import { ApiProvider } from '../api_provider';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { advanceTimersAndPromises } from '../../test/helpers/timers';
-import { ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS } from '../api';
+import { INTERNAL_HARDWARE_POLLING_INTERVAL_MS } from '../api';
 
 export const MOCK_MARKER_INFO: IppMarkerInfo = {
   color: '#000000',
@@ -151,7 +151,7 @@ describe('Diagnostics screen: Accessible Controller section', () => {
       apiMock.setAccessibleControllerConnected(false);
     });
     await advanceTimersAndPromises(
-      ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS / 1000
+      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
     );
 
     const disconnectedText = await screen.findByText(

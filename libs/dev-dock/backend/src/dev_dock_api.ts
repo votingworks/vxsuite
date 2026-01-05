@@ -96,10 +96,30 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
 export interface MockSpec {
   printerConfig?: PrinterConfig | 'fujitsu';
   mockPdiScanner?: MockScanner;
+  // Optional hardware mocks provided by the host app
+  getBarcodeConnected?: () => boolean;
+  setBarcodeConnected?: (connected: boolean) => void;
+  getPatInputConnected?: () => boolean;
+  setPatInputConnected?: (connected: boolean) => void;
+  getAccessibleControllerConnected?: () => boolean;
+  setAccessibleControllerConnected?: (connected: boolean) => void;
 }
 
-interface SerializableMockSpec extends Omit<MockSpec, 'mockPdiScanner'> {
+interface SerializableMockSpec
+  extends Omit<
+    MockSpec,
+    | 'mockPdiScanner'
+    | 'setBarcodeConnected'
+    | 'setAccessibleControllerConnected'
+    | 'setPatInputConnected'
+    | 'getBarcodeConnected'
+    | 'getAccessibleControllerConnected'
+    | 'getPatInputConnected'
+  > {
   mockPdiScanner?: boolean;
+  hasBarcodeMock?: boolean;
+  hasPatInputMock?: boolean;
+  hasAccessibleControllerMock?: boolean;
 }
 
 async function setElection(
@@ -162,8 +182,17 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
   return grout.createApi({
     getMockSpec(): SerializableMockSpec {
       return {
-        ...mockSpec,
+        printerConfig: mockSpec.printerConfig,
         mockPdiScanner: Boolean(mockSpec.mockPdiScanner),
+        hasBarcodeMock:
+          Boolean(mockSpec.getBarcodeConnected) &&
+          Boolean(mockSpec.setBarcodeConnected),
+        hasAccessibleControllerMock:
+          Boolean(mockSpec.getAccessibleControllerConnected) &&
+          Boolean(mockSpec.setAccessibleControllerConnected),
+        hasPatInputMock:
+          Boolean(mockSpec.getPatInputConnected) &&
+          Boolean(mockSpec.setPatInputConnected),
       };
     },
 
@@ -271,6 +300,41 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
 
     setFujitsuPrinterStatus(status: FujitsuPrinterStatus): void {
       fujitsuPrinterHandler.setStatus(status);
+    },
+
+    // Hardware mock controls: barcode + accessible PAT controller
+    getHardwareMockStatus(): {
+      barcodeConnected: boolean;
+      accessibleControllerConnected: boolean;
+      patInputConnected: boolean;
+    } {
+      const barcodeConnected = mockSpec.getBarcodeConnected
+        ? mockSpec.getBarcodeConnected()
+        : false;
+      const accessibleControllerConnected =
+        mockSpec.getAccessibleControllerConnected
+          ? mockSpec.getAccessibleControllerConnected()
+          : false;
+      const patInputConnected = mockSpec.getPatInputConnected
+        ? mockSpec.getPatInputConnected()
+        : false;
+      return {
+        barcodeConnected,
+        accessibleControllerConnected,
+        patInputConnected,
+      };
+    },
+
+    setBarcodeConnected(input: { connected: boolean }): void {
+      mockSpec.setBarcodeConnected?.(input.connected);
+    },
+
+    setAccessibleControllerConnected(input: { connected: boolean }): void {
+      mockSpec.setAccessibleControllerConnected?.(input.connected);
+    },
+
+    setPatInputConnected(input: { connected: boolean }): void {
+      mockSpec.setPatInputConnected?.(input.connected);
     },
 
     pdiScannerGetSheetStatus(): MockSheetStatus {

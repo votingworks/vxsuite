@@ -36,6 +36,7 @@ import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import { getUserRole } from '../src/util/auth';
 import { Player as AudioPlayer } from '../src/audio/player';
+import { MockBarcodeClient } from '../src/barcodes/mock_client';
 
 interface MockAppContents {
   apiClient: grout.Client<Api>;
@@ -47,6 +48,7 @@ interface MockAppContents {
   mockAudioPlayer?: AudioPlayer;
   server: Server;
   workspace: Workspace;
+  mockBarcodeClient: MockBarcodeClient;
 }
 
 export function buildMockLogger(
@@ -60,6 +62,10 @@ export function buildMockLogger(
   });
 }
 
+function createMockBarcodeClient(): MockBarcodeClient {
+  return new MockBarcodeClient();
+}
+
 export function createApp(options?: {
   audioPlayer?: AudioPlayer;
 }): MockAppContents {
@@ -71,6 +77,7 @@ export function createApp(options?: {
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
+  const mockBarcodeClient = createMockBarcodeClient();
 
   const app = buildApp({
     audioPlayer: options?.audioPlayer,
@@ -79,6 +86,7 @@ export function createApp(options?: {
     workspace,
     usbDrive: mockUsbDrive.usbDrive,
     printer: mockPrinterHandler.printer,
+    barcodeClient: mockBarcodeClient,
   });
 
   const server = app.listen();
@@ -97,6 +105,7 @@ export function createApp(options?: {
     mockAudioPlayer: options?.audioPlayer,
     server,
     workspace,
+    mockBarcodeClient,
   };
 }
 

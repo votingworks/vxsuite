@@ -3,15 +3,19 @@ import { Worker } from 'node:worker_threads';
 import { EventEmitter } from 'node:stream';
 import util from 'node:util';
 
-import { sleep } from '@votingworks/basics';
-import { ScanEvent } from './types';
+import { sleep, throwIllegalValue } from '@votingworks/basics';
+import { BarcodeReader, WorkerMessage } from './types';
 
-export class Client extends EventEmitter<{
-  error: [Error];
-  scan: [Uint8Array];
-}> {
+export class BarcodeClient
+  extends EventEmitter<{
+    error: [Error];
+    scan: [Uint8Array];
+  }>
+  implements BarcodeReader
+{
   private worker: Worker;
   private restartAttemptCount = 0;
+  private isConnected = false;
 
   constructor(private readonly logger: BaseLogger) {
     super();
@@ -37,17 +41,26 @@ export class Client extends EventEmitter<{
   };
 
   private readonly onMessage = (payload: unknown) => {
-    if (!isValidPayload(payload)) {
+    if (!isWorkerMessage(payload)) {
       this.logger.log(LogEventId.BackgroundTaskStatus, 'system', {
         disposition: 'failure',
         message: `barcode monitor: ignoring unexpected message from worker`,
         payload: util.inspect(payload),
       });
-
       return;
     }
 
-    this.emit('scan', payload.data);
+    switch (payload.type) {
+      case 'status':
+        this.isConnected = payload.connected;
+        break;
+      case 'scan':
+        this.emit('scan', payload.data);
+        break;
+      /* istanbul ignore next - @preserve should be unreachable due to type guard */
+      default:
+        throwIllegalValue(payload, 'type');
+    }
   };
 
   private readonly onMessageError = (error: Error) => {
@@ -81,13 +94,22 @@ export class Client extends EventEmitter<{
     await sleep(100);
     return (await this.worker.terminate()) ?? 0;
   }
+
+  getConnectionStatus(): boolean {
+    return this.isConnected;
+  }
 }
 
-function isValidPayload(payload: unknown): payload is ScanEvent {
+function isWorkerMessage(payload: unknown): payload is WorkerMessage {
   return (
     !!payload &&
     typeof payload === 'object' &&
-    'data' in payload &&
-    payload.data instanceof Uint8Array
+    'type' in payload &&
+    ((payload.type === 'status' &&
+      'connected' in payload &&
+      typeof payload.connected === 'boolean') ||
+      (payload.type === 'scan' &&
+        'data' in payload &&
+        payload.data instanceof Uint8Array))
   );
 }

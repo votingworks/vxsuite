@@ -6,7 +6,7 @@ import { isCardlessVoterAuth } from '@votingworks/utils';
 import { find } from '@votingworks/basics';
 import { SystemSettings, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 
-import { Client } from './client';
+import { BarcodeReader } from './types';
 import { Workspace } from '../util/workspace';
 import { constructAuthMachineState } from '../util/auth';
 import { Player as AudioPlayer } from '../audio/player';
@@ -14,7 +14,7 @@ import { Player as AudioPlayer } from '../audio/player';
 interface Context {
   audioPlayer?: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
-  barcodeClient?: Client;
+  barcodeClient?: BarcodeReader;
   logger: Logger;
   workspace: Workspace;
 }

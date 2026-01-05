@@ -29,7 +29,7 @@ import {
 import { setUpBarcodeActivation } from './activation';
 import { createWorkspace, Workspace } from '../util/workspace';
 import { getUserRole } from '../util/auth';
-import { Client } from './client';
+import { BarcodeReader } from './types';
 
 // Mock the Client class to avoid actually starting worker threads
 type MockBarcodeClient = EventEmitter<{
@@ -54,7 +54,7 @@ function buildMockLogger(
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
-  barcodeClient?: Client;
+  barcodeClient?: BarcodeReader;
   logger: Logger;
   workspace: Workspace;
 }
@@ -94,7 +94,7 @@ describe('setUpBarcodeActivation', () => {
   test('sets up listeners when barcodeClient is provided', () => {
     const ctx: Context = {
       auth: mockAuth,
-      barcodeClient: mockBarcodeClient as unknown as Client,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
     };
@@ -109,7 +109,7 @@ describe('setUpBarcodeActivation', () => {
   test('logs error events from barcode client', () => {
     const ctx: Context = {
       auth: mockAuth,
-      barcodeClient: mockBarcodeClient as unknown as Client,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
     };
@@ -131,7 +131,7 @@ describe('setUpBarcodeActivation', () => {
   test('ignores empty barcode scans', async () => {
     const ctx: Context = {
       auth: mockAuth,
-      barcodeClient: mockBarcodeClient as unknown as Client,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
     };
@@ -166,7 +166,7 @@ describe('setUpBarcodeActivation', () => {
 
     const ctx: Context = {
       auth: mockAuth,
-      barcodeClient: mockBarcodeClient as unknown as Client,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
     };
@@ -208,7 +208,7 @@ describe('setUpBarcodeActivation', () => {
 
     const ctx: Context = {
       auth: mockAuth,
-      barcodeClient: mockBarcodeClient as unknown as Client,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
     };
@@ -254,7 +254,7 @@ describe('setUpBarcodeActivation', () => {
 
     const ctx: Context = {
       auth: mockAuth,
-      barcodeClient: mockBarcodeClient as unknown as Client,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
     };
@@ -317,7 +317,7 @@ describe('setUpBarcodeActivation', () => {
 
     const ctx: Context = {
       auth: mockAuth,
-      barcodeClient: mockBarcodeClient as unknown as Client,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
     };
@@ -373,7 +373,7 @@ describe('setUpBarcodeActivation', () => {
 
     const ctx: Context = {
       auth: mockAuth,
-      barcodeClient: mockBarcodeClient as unknown as Client,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
     };
@@ -428,7 +428,7 @@ describe('setUpBarcodeActivation', () => {
 
     const ctx: Context = {
       auth: mockAuth,
-      barcodeClient: mockBarcodeClient as unknown as Client,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
     };

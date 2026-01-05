@@ -11,7 +11,6 @@ import {
   InsertCardImage,
   H1,
   P,
-  Caption,
   TestModeCallout,
 } from '@votingworks/ui';
 
@@ -23,7 +22,6 @@ interface Props {
   electionPackageHash: string;
   isLiveMode: boolean;
   pollsState: PollsState;
-  showNoAccessibleControllerWarning: boolean;
 }
 
 export function InsertCardScreen({
@@ -32,7 +30,6 @@ export function InsertCardScreen({
   electionPackageHash,
   isLiveMode,
   pollsState,
-  showNoAccessibleControllerWarning,
 }: Props): JSX.Element {
   const mainText = (() => {
     switch (pollsState) {
@@ -79,11 +76,6 @@ export function InsertCardScreen({
           <InsertCardImage />
         </P>
         {mainText}
-        {showNoAccessibleControllerWarning && (
-          <Caption>
-            Voting with an accessible controller is not currently available.
-          </Caption>
-        )}
       </Main>
       <ElectionInfoBar
         electionDefinition={electionDefinition}

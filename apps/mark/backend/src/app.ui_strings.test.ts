@@ -28,6 +28,7 @@ import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
 import { Api, buildApi } from './app';
 import { buildMockLogger } from '../test/app_helpers';
+import { MockBarcodeClient } from './barcodes/mock_client';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -65,6 +66,7 @@ runUiStringApiTests({
       usbDrive: createMockUsbDrive().usbDrive,
       printer: createMockPrinterHandler().printer,
       logger: buildMockLogger(mockAuth, workspace),
+      barcodeClient: new MockBarcodeClient(),
       workspace,
     }).methods(),
   store: store.getUiStringsStore(),
@@ -91,6 +93,7 @@ describe('configureElectionPackageFromUsb', () => {
       usbDrive: mockUsbDrive.usbDrive,
       printer: createMockPrinterHandler().printer,
       logger: buildMockLogger(mockAuth, workspace),
+      barcodeClient: new MockBarcodeClient(),
       workspace,
     });
 
@@ -123,6 +126,7 @@ describe('unconfigureMachine', () => {
         usbDrive: createMockUsbDrive().usbDrive,
         printer: createMockPrinterHandler().printer,
         logger: buildMockLogger(mockAuth, workspace),
+        barcodeClient: new MockBarcodeClient(),
         workspace,
       })
         .methods()

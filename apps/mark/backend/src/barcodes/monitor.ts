@@ -34,6 +34,9 @@ function connect() {
       message: 'barcode scanner not available - waiting for connection...',
     });
 
+    // inform parent thread of current connection status
+    parentPort?.postMessage({ type: 'status', connected: false });
+
     return;
   }
 
@@ -47,6 +50,9 @@ function connect() {
     disposition: 'success',
     message: 'barcode scanner connection established',
   });
+
+  // inform parent thread of current connection status
+  parentPort?.postMessage({ type: 'status', connected: true });
 
   if (CONFIGURE_ON_STARTUP) void configure(activeScanner);
 }
@@ -69,7 +75,7 @@ function onData(data: Buffer) {
   // Ignore newline outputs after each real payload.
   if (data[0] === CARRIAGE_RETURN) return;
 
-  const event: ScanEvent = { data };
+  const event: ScanEvent = { type: 'scan', data };
   parentPort?.postMessage(event, [data.buffer as ArrayBuffer]);
 }
 
@@ -79,6 +85,8 @@ function onError(error: unknown) {
     message: 'unexpected barcode scanner error',
     error: util.inspect(error),
   });
+  // in case of error, report disconnected status
+  parentPort?.postMessage({ type: 'status', connected: false });
 }
 
 enum Cmd {

@@ -18,7 +18,7 @@ import {
 } from '@votingworks/ui';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
-export const ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS = 3000;
+export const INTERNAL_HARDWARE_POLLING_INTERVAL_MS = 3000;
 
 export type ApiClient = grout.Client<Api>;
 
@@ -106,9 +106,33 @@ export const getAccessibleControllerConnected = {
       this.queryKey(),
       () => apiClient.getAccessibleControllerConnected(),
       {
-        refetchInterval: ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS,
+        refetchInterval: INTERNAL_HARDWARE_POLLING_INTERVAL_MS,
       }
     );
+  },
+} as const;
+
+export const getPatInputConnected = {
+  queryKey(): QueryKey {
+    return ['getPatInputConnected'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPatInputConnected(), {
+      refetchInterval: INTERNAL_HARDWARE_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
+export const getBarcodeConnected = {
+  queryKey(): QueryKey {
+    return ['getBarcodeConnected'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getBarcodeConnected(), {
+      refetchInterval: INTERNAL_HARDWARE_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 

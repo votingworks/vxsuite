@@ -28,7 +28,9 @@ export function startElectricalTestingServer(context: ServerContext): void {
     logger.log(LogEventId.ApplicationStartup, 'system', {
       message: 'Shutting down VxMark electrical testing backend',
     });
-    await barcodeClient?.shutDown();
+    if (barcodeClient) {
+      await barcodeClient.shutDown();
+    }
     await cleanupCachedBrowser();
     server.close();
   }

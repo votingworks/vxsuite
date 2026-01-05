@@ -33,11 +33,22 @@ export enum BooleanEnvironmentVariableName {
    * Real printers will not connect when this flag is enabled.
    */
   USE_MOCK_PRINTER = 'REACT_APP_VX_USE_MOCK_PRINTER',
+
+  /** Use a mock barcode reader instead of a real one. Dev/testing only. */
+  USE_MOCK_BARCODE_READER = 'REACT_APP_VX_USE_MOCK_BARCODE_READER',
+
   /**
    * Use a mock PDI scanner instead of a real scanner. Meant for development and integration tests.
    * Real scanners will not work when this flag is enabled.
    */
   USE_MOCK_PDI_SCANNER = 'REACT_APP_VX_USE_MOCK_PDI_SCANNER',
+
+  /** Use mock X-keys PAT input instead of the real device. Dev/testing only. */
+  USE_MOCK_XKEYS = 'REACT_APP_VX_USE_MOCK_XKEYS',
+
+  /** Use mock Accessible Controller instead of the real device. Dev/testing only. */
+  USE_MOCK_ACCESSIBLE_CONTROLLER = 'REACT_APP_VX_USE_MOCK_ACCESSIBLE_CONTROLLER',
+
   /**
    * Skips ballot hash checks when importing CVRs to allow using old fixtures
    * in development even as their respective election definitions change.
@@ -135,8 +146,14 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_USE_MOCK_USB_DRIVE;
     case BooleanEnvironmentVariableName.USE_MOCK_PRINTER:
       return process.env.REACT_APP_VX_USE_MOCK_PRINTER;
+    case BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER:
+      return process.env.REACT_APP_VX_USE_MOCK_BARCODE_READER;
     case BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER:
       return process.env.REACT_APP_VX_USE_MOCK_PDI_SCANNER;
+    case BooleanEnvironmentVariableName.USE_MOCK_XKEYS:
+      return process.env.REACT_APP_VX_USE_MOCK_XKEYS;
+    case BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER:
+      return process.env.REACT_APP_VX_USE_MOCK_ACCESSIBLE_CONTROLLER;
     case BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK:
       return process.env.REACT_APP_VX_SKIP_CVR_BALLOT_HASH_CHECK;
     case BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION:
@@ -218,7 +235,25 @@ export function getBooleanEnvVarConfig(
         allowInProduction: false,
         autoEnableInDevelopment: false,
       };
+    case BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
     case BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.USE_MOCK_XKEYS:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER:
       return {
         name,
         allowInProduction: false,
