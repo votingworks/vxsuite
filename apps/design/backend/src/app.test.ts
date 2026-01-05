@@ -297,8 +297,8 @@ test('create/list/delete elections', async () => {
     title: '',
     date: DateWithoutTime.today(),
     type: 'general',
-    countyName: '',
-    state: '',
+    countyName: nonVxJurisdiction.name,
+    state: 'DEMO',
     status: 'notStarted',
   };
 
@@ -317,6 +317,7 @@ test('create/list/delete elections', async () => {
     jurisdictionId: anotherNonVxJurisdiction.id,
     jurisdictionName: anotherNonVxJurisdiction.name,
     electionId: expectedNonVxElectionId2,
+    countyName: anotherNonVxJurisdiction.name,
   };
 
   // Jurisdiction user should only see elections in their jurisdictions
@@ -624,14 +625,14 @@ test('update election info', async () => {
     })
   ).unsafeUnwrap();
 
-  // Default election info should be blank
+  // Default election info should be blank with some default values
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
       jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: '',
-      countyName: '',
-      state: '',
+      countyName: nonVxJurisdiction.name,
+      state: nonVxJurisdiction.stateCode,
       seal: '',
       type: 'general',
       date: DateWithoutTime.today(),

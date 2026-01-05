@@ -126,16 +126,19 @@ import { convertMsResults, ConvertMsResultsError } from './convert_ms_results';
 
 const debug = rootDebug.extend('app');
 
-export function createBlankElection(id: ElectionId): Election {
+export function createBlankElection(
+  id: ElectionId,
+  jurisdiction: Jurisdiction
+): Election {
   return {
     id,
     type: 'general',
     title: '',
     date: DateWithoutTime.today(),
-    state: '',
+    state: jurisdiction.stateCode,
     county: {
       id: 'county-id',
-      name: '',
+      name: jurisdiction.name,
     },
     seal: '',
     districts: [],
@@ -417,8 +420,8 @@ export function buildApi(ctx: AppContext) {
       id: ElectionId;
       jurisdictionId: string;
     }): Promise<Result<ElectionId, Error>> {
-      const election = createBlankElection(input.id);
       const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
+      const election = createBlankElection(input.id, jurisdiction);
       await store.createElection(
         input.jurisdictionId,
         election,
