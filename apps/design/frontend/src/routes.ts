@@ -46,6 +46,10 @@ export const routes = {
           title: 'Add District',
           path: `${root}/districts/add`,
         },
+        audio: (p: {
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) => `${root}/districts2/audio/${p.stringKey}/${p.subkey}`,
         edit: (districtId: string) => ({
           title: 'Edit District',
           path: `${root}/districts/${districtId}`,
@@ -84,6 +88,10 @@ export const routes = {
           title: 'Add Party',
           path: `${root}/parties/add`,
         },
+        audio: (p: {
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) => `${root}/parties/audio/${p.stringKey}/${p.subkey}`,
         editParty: (partyId: string) => ({
           title: 'Edit Party',
           path: `${root}/parties/${partyId}`,
