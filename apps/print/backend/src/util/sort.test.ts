@@ -16,6 +16,7 @@ function makeBallotPrintCount(
     absenteeCount: 0,
     precinctCount: 10,
     totalCount: 10,
+    partyName: 'Green Party',
     ...overrides,
   };
 }
@@ -74,7 +75,6 @@ describe('sortBallotPrintCounts', () => {
 
     const sorted = [...counts].sort(sortBallotPrintCounts);
 
-    // languageSort puts English first, then other languages
     expect(sorted.map((c) => c.languageCode)).toEqual([
       LanguageCode.ENGLISH,
       LanguageCode.SPANISH,
@@ -82,7 +82,7 @@ describe('sortBallotPrintCounts', () => {
     ]);
   });
 
-  test('handles missing partyName', () => {
+  test('handles general election ballots (no party)', () => {
     const counts: BallotPrintCount[] = [
       makeBallotPrintCount({
         partyName: undefined,

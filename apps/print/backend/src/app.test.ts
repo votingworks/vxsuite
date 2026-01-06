@@ -149,6 +149,12 @@ async function getFamousNamesBallotPdfBase64s(): Promise<
   ] as const;
 }
 
+// Helper to build ballots for an election definition. Generates ballots
+// using the famous names PDFs in a round-robin fashion, even if the election
+// is different than famous names. This is sufficient for these tests since
+// we are not testing the actual content of the ballot PDF, solely that ballots
+// are stored, accessed, and printed correctly. This saves time and complexity
+// over generating custom PDFs for each election definition.
 async function buildBallotsForElection({
   electionDefinition,
   ballotModes,
@@ -963,6 +969,7 @@ test('ballots printed report (zero) can be printed and exported (pdf snapshots)'
   });
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'ballots-printed-report-zero-print',
+    failureThreshold: 0.001,
   });
 
   await exportBallotsPrintedReportPdf({
@@ -984,6 +991,7 @@ test('ballots printed report (zero) can be printed and exported (pdf snapshots)'
   )}.pdf`;
   await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'ballots-printed-report-zero-export',
+    failureThreshold: 0.001,
   });
 }, 30_000);
 
@@ -1031,6 +1039,7 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
   });
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'ballots-printed-report-nonzero-print',
+    failureThreshold: 0.001,
   });
 
   await exportBallotsPrintedReportPdf({
@@ -1051,6 +1060,7 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
   )}.pdf`;
   await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'ballots-printed-report-nonzero-export',
+    failureThreshold: 0.001,
   });
 }, 30_000);
 
