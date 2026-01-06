@@ -23,7 +23,12 @@ export function HomeScreen({
       );
 
     case 'support_user':
-      return <SupportHomeScreen />;
+      return (
+        <SupportHomeScreen
+          filterText={electionsFilterText}
+          setFilterText={setElectionsFilterText}
+        />
+      );
 
     default: {
       /* istanbul ignore next - @preserve */
