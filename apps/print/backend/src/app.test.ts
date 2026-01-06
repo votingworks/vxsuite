@@ -1,9 +1,8 @@
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { err, ok } from '@votingworks/basics';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
 import { BatteryInfo, mockElectionPackageFileTree } from '@votingworks/backend';
 import {
   BallotType,
@@ -13,15 +12,12 @@ import {
   LanguageCode,
   PrinterStatus,
   safeParseElectionDefinition,
-  safeParseJson,
-  SystemSettingsSchema,
   testCdfBallotDefinition,
 } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
-  systemSettings,
 } from '@votingworks/fixtures';
 import { LogEventId, MockLogger } from '@votingworks/logging';
 import {
@@ -30,12 +26,10 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
   getMockMultiLanguageElectionDefinition,
-  generateFileTimeSuffix,
 } from '@votingworks/utils';
 import {
   getMockConnectedPrinterStatus,
   HP_LASER_PRINTER_CONFIG,
-  renderToPdf,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { Server } from 'node:http';
@@ -44,16 +38,12 @@ import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
-  configureFromUsb,
+  configureMachine,
   mockElectionManagerAuth,
+  buildBallotsForElection,
 } from '../test/app';
 import { Api } from './app';
 import { Workspace } from './util/workspace';
-import {
-  exportBallotsPrintedReportPdf,
-  generateReportsDirectoryPath,
-  printBallotsPrintedReport,
-} from './reports/ballots_printed_report';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -74,14 +64,6 @@ vi.mock(
     },
   })
 );
-
-vi.mock(import('@votingworks/printing'), async (importActual) => {
-  const original = await importActual();
-  return {
-    ...original,
-    renderToPdf: vi.fn(original.renderToPdf),
-  } as unknown as typeof import('@votingworks/printing');
-});
 
 // Pre-built election definitions and ballots for common test scenarios
 interface SharedFixtures {
@@ -128,73 +110,6 @@ afterEach(() => {
   server = undefined;
 });
 
-async function getFamousNamesBallotPdfBase64s(): Promise<
-  readonly [string, string, string, string]
-> {
-  const baseDir = resolve(
-    process.cwd(),
-    '../../../libs/hmpb/fixtures/vx-famous-names'
-  );
-  const [pdf1, pdf2, pdf3, pdf4] = await Promise.all([
-    readFile(join(baseDir, 'blank-ballot.pdf')),
-    readFile(join(baseDir, 'marked-ballot.pdf')),
-    readFile(join(baseDir, 'blank-official-ballot.pdf')),
-    readFile(join(baseDir, 'marked-official-ballot.pdf')),
-  ]);
-  return [
-    pdf1.toString('base64'),
-    pdf2.toString('base64'),
-    pdf3.toString('base64'),
-    pdf4.toString('base64'),
-  ] as const;
-}
-
-// Helper to build ballots for an election definition. Generates ballots
-// using the famous names PDFs in a round-robin fashion, even if the election
-// is different than famous names. This is sufficient for these tests since
-// we are not testing the actual content of the ballot PDF, solely that ballots
-// are stored, accessed, and printed correctly. This saves time and complexity
-// over generating custom PDFs for each election definition.
-async function buildBallotsForElection({
-  electionDefinition,
-  ballotModes,
-}: {
-  electionDefinition: ElectionDefinition;
-  ballotModes: ReadonlyArray<'official' | 'test'>;
-}): Promise<EncodedBallotEntry[]> {
-  const { ballotStyles } = electionDefinition.election;
-  const pdfBase64s = await getFamousNamesBallotPdfBase64s();
-
-  const ballots: EncodedBallotEntry[] = [];
-  for (const [index, ballotStyle] of ballotStyles.entries()) {
-    const precinctId = ballotStyle.precincts[0];
-    if (!precinctId) {
-      throw new Error(`Ballot style ${ballotStyle.id} has no precincts`);
-    }
-    const encodedBallot = pdfBase64s[index % pdfBase64s.length];
-    for (const ballotMode of ballotModes) {
-      ballots.push(
-        {
-          ballotStyleId: ballotStyle.id,
-          precinctId,
-          ballotType: BallotType.Precinct,
-          ballotMode,
-          encodedBallot,
-        },
-        {
-          ballotStyleId: ballotStyle.id,
-          precinctId,
-          ballotType: BallotType.Absentee,
-          ballotMode,
-          encodedBallot,
-        }
-      );
-    }
-  }
-
-  return ballots;
-}
-
 // Build shared fixtures once before all tests
 beforeAll(async () => {
   const famousNamesMultiLangElectionDefinition =
@@ -239,48 +154,6 @@ beforeAll(async () => {
 
 function sha256(data: Buffer): string {
   return createHash('sha256').update(data).digest('hex');
-}
-
-/**
- * Helper to configure the machine through the USB API.
- * This parallels the pattern used in mark backend tests.
- */
-async function configureMachine({
-  electionDefinition,
-  ballots,
-}: {
-  electionDefinition: ElectionDefinition;
-  ballots?: EncodedBallotEntry[];
-}): Promise<void> {
-  mockElectionManagerAuth(auth, electionDefinition);
-  mockUsbDrive.insertUsbDrive(
-    await mockElectionPackageFileTree({
-      electionDefinition,
-      systemSettings: safeParseJson(
-        systemSettings.asText(),
-        SystemSettingsSchema
-      ).unsafeUnwrap(),
-      ballots,
-    })
-  );
-  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
-  mockUsbDrive.removeUsbDrive();
-}
-
-async function expectPrintedJobsMatchBallotsInOrder({
-  ballots,
-  printJobHistoryPaths,
-}: {
-  ballots: ReadonlyArray<{ encodedBallot: string }>;
-  printJobHistoryPaths: readonly string[];
-}): Promise<void> {
-  const expectedHashes = ballots.map((b) =>
-    sha256(Buffer.from(b.encodedBallot, 'base64'))
-  );
-  const actualHashes = await Promise.all(
-    printJobHistoryPaths.map(async (p) => sha256(await readFile(p)))
-  );
-  expect(actualHashes).toEqual(expectedHashes);
 }
 
 test('uses machine config from env', async () => {
@@ -354,10 +227,6 @@ test('getDeviceStatuses and ejectUsbDrive', async () => {
 test('configureElectionPackageFromUsb reads to and writes from store', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const parsedSystemSettings = safeParseJson(
-    systemSettings.asText(),
-    SystemSettingsSchema
-  ).unsafeUnwrap();
 
   const ballotStyleId = electionDefinition.election.ballotStyles[0]!.id;
   const precinctId = electionDefinition.election.precincts[0]!.id;
@@ -375,7 +244,6 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
   mockUsbDrive.insertUsbDrive(
     await mockElectionPackageFileTree({
       electionDefinition,
-      systemSettings: parsedSystemSettings,
       ballots,
     })
   );
@@ -464,7 +332,6 @@ test('configureElectionPackageFromUsb will automatically set precinct for single
   const result = await apiClient.configureElectionPackageFromUsb();
   expect(result).toEqual(ok(expect.anything()));
 
-  // Verify precinct was automatically set
   expect(await apiClient.getPrecinctSelection()).toEqual(
     singlePrecinctSelectionFor(precinctId)
   );
@@ -479,7 +346,13 @@ test('setting precinct', async () => {
   });
   expect(await apiClient.getPrecinctSelection()).toBeNull();
 
-  await configureMachine({ electionDefinition, ballots });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
 
   expect(await apiClient.getPrecinctSelection()).toBeNull();
 
@@ -507,14 +380,20 @@ test('setting precinct', async () => {
   );
 });
 
-test('mode', async () => {
+test('mode toggling', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const ballots = await buildBallotsForElection({
     electionDefinition,
     ballotModes: ['official'],
   });
-  await configureMachine({ electionDefinition, ballots });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
 
   expect(await apiClient.getTestMode()).toEqual(false);
 
@@ -536,6 +415,7 @@ test('mode', async () => {
 });
 
 test('unconfigureMachine clears election configuration', async () => {
+  // Test with a cdf election for coverage
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(testCdfBallotDefinition)
   ).unsafeUnwrap();
@@ -543,13 +423,15 @@ test('unconfigureMachine clears election configuration', async () => {
     electionDefinition,
     ballotModes: ['official'],
   });
-  await configureMachine({ electionDefinition, ballots });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
 
-  // Ensure we have some additional state to clear.
   expect(await apiClient.getElectionRecord()).not.toBeNull();
-
-  // // Verify getElectionKey works with CDF election (exercises the fallback path)
-  // expect(workspace.store.getElectionKey()).toBeDefined();
 
   await apiClient.setPrecinctSelection({
     precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -573,18 +455,21 @@ test('printBallot logs when ballot is not found', async () => {
     famousNamesMultiLangOfficialBallots,
   } = sharedFixtures;
 
-  // Only set official ballots, no test ballots
+  // Only configure official ballots so that printing in test mode will result in ballot not found
   await configureMachine({
     electionDefinition: famousNamesMultiLangElectionDefinition,
     ballots: famousNamesMultiLangOfficialBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
   });
+
   await apiClient.setPrecinctSelection({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-  // Switch to test mode - no test ballots are configured so getBallot will return null
   await apiClient.setTestMode({ testMode: true });
 
   const precinctId =
@@ -616,6 +501,9 @@ test('end-to-end printing flow updates getBallotPrintCounts', async () => {
   await configureMachine({
     electionDefinition: famousNamesMultiLangElectionDefinition,
     ballots: famousNamesMultiLangOfficialBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
   });
   await apiClient.setPrecinctSelection({
     precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -684,7 +572,13 @@ test('end-to-end printing flow updates getBallotPrintCounts for primary election
     electionDefinition,
     ballotModes: ['official'],
   });
-  await configureMachine({ electionDefinition, ballots });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
   await apiClient.setPrecinctSelection({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
@@ -755,6 +649,9 @@ test('end-to-end printing flow handles precinct splits correctly', async () => {
   await configureMachine({
     electionDefinition: primaryPrecinctSplitsMultiLangElectionDefinition,
     ballots: primaryPrecinctSplitsMultiLangOfficialBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
   });
   await apiClient.setPrecinctSelection({
     precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -794,8 +691,24 @@ test('end-to-end printing flow handles precinct splits correctly', async () => {
     partyName: 'Mammal',
   });
   // Verify the split name format: "Precinct Name - Split Name"
-  expect(splitRow!.precinctOrSplitName).toMatch(/Precinct 4.*Split 1/);
+  expect(splitRow!.precinctOrSplitName).toMatch(/Precinct 4 - Split 1/);
 });
+
+async function expectPrintedJobsMatchBallotsInOrder({
+  ballots,
+  printJobHistoryPaths,
+}: {
+  ballots: ReadonlyArray<{ encodedBallot: string }>;
+  printJobHistoryPaths: readonly string[];
+}): Promise<void> {
+  const expectedHashes = ballots.map((b) =>
+    sha256(Buffer.from(b.encodedBallot, 'base64'))
+  );
+  const actualHashes = await Promise.all(
+    printJobHistoryPaths.map(async (p) => sha256(await readFile(p)))
+  );
+  expect(actualHashes).toEqual(expectedHashes);
+}
 
 test('printAllBallotStyles prints every style and updates counts in a stable order', async () => {
   // Use primary election to cover party name sorting logic
@@ -807,6 +720,9 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
   await configureMachine({
     electionDefinition: primaryPrecinctSplitsMultiLangElectionDefinition,
     ballots: primaryPrecinctSplitsMultiLangOfficialBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
   });
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
@@ -814,7 +730,6 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
   expect(initialCounts.length).toBeGreaterThan(0);
   expect(initialCounts.every((c) => c.totalCount === 0)).toEqual(true);
 
-  // Expected print order is derived from precinct/split name and party name.
   const ballotOrder = new Map<string, number>();
   const sortedCounts = [...initialCounts].sort((a, b) => {
     if (a.precinctOrSplitName !== b.precinctOrSplitName) {
@@ -830,7 +745,7 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     ballotOrder.set(`${c.precinctId}-${c.ballotStyleId}`, i);
   }
 
-  const ballotsPrecinct = (
+  const allPrecinctBallots = (
     await apiClient.getBallots({
       ballotType: BallotType.Precinct,
       languageCode: LanguageCode.ENGLISH,
@@ -839,8 +754,8 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     .slice()
     .sort(
       (a, b) =>
-        (ballotOrder.get(`${a.precinctId}-${a.ballotStyleId}`) ?? 0) -
-        (ballotOrder.get(`${b.precinctId}-${b.ballotStyleId}`) ?? 0)
+        assertDefined(ballotOrder.get(`${a.precinctId}-${a.ballotStyleId}`)) -
+        assertDefined(ballotOrder.get(`${b.precinctId}-${b.ballotStyleId}`))
     );
 
   const jobsBeforePrecinct = mockPrinterHandler.getPrintJobHistory().length;
@@ -851,11 +766,11 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
   });
   const jobsAfterPrecinct = mockPrinterHandler.getPrintJobHistory().length;
   expect(jobsAfterPrecinct - jobsBeforePrecinct).toEqual(
-    ballotsPrecinct.length
+    allPrecinctBallots.length
   );
 
   await expectPrintedJobsMatchBallotsInOrder({
-    ballots: ballotsPrecinct,
+    ballots: allPrecinctBallots,
     printJobHistoryPaths: mockPrinterHandler
       .getPrintJobHistory()
       .slice(jobsBeforePrecinct, jobsAfterPrecinct)
@@ -869,7 +784,7 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     expect(c.totalCount).toEqual(1);
   }
 
-  const ballotsAbsentee = (
+  const allAbsenteeBallots = (
     await apiClient.getBallots({
       ballotType: BallotType.Absentee,
       languageCode: LanguageCode.ENGLISH,
@@ -878,8 +793,8 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     .slice()
     .sort(
       (a, b) =>
-        (ballotOrder.get(`${a.precinctId}-${a.ballotStyleId}`) ?? 0) -
-        (ballotOrder.get(`${b.precinctId}-${b.ballotStyleId}`) ?? 0)
+        assertDefined(ballotOrder.get(`${a.precinctId}-${a.ballotStyleId}`)) -
+        assertDefined(ballotOrder.get(`${b.precinctId}-${b.ballotStyleId}`))
     );
 
   const jobsBeforeAbsentee = mockPrinterHandler.getPrintJobHistory().length;
@@ -890,11 +805,11 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
   });
   const jobsAfterAbsentee = mockPrinterHandler.getPrintJobHistory().length;
   expect(jobsAfterAbsentee - jobsBeforeAbsentee).toEqual(
-    ballotsAbsentee.length
+    allAbsenteeBallots.length
   );
 
   await expectPrintedJobsMatchBallotsInOrder({
-    ballots: ballotsAbsentee,
+    ballots: allAbsenteeBallots,
     printJobHistoryPaths: mockPrinterHandler
       .getPrintJobHistory()
       .slice(jobsBeforeAbsentee, jobsAfterAbsentee)
@@ -918,6 +833,9 @@ test('getDistinctBallotStylesCount returns correct counts in official and test m
   await configureMachine({
     electionDefinition: famousNamesMultiLangElectionDefinition,
     ballots: famousNamesMultiLangOfficialAndTestBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
   });
 
   expect(
@@ -937,271 +855,5 @@ test('getDistinctBallotStylesCount returns correct counts in official and test m
     })
   ).toEqual(
     famousNamesMultiLangElectionDefinition.election.ballotStyles.length
-  );
-});
-
-test('ballots printed report (zero) can be printed and exported (pdf snapshots)', async () => {
-  const fixedNow = new Date('2025-12-18T12:00:00.000Z');
-  const electionDefinition = getMockMultiLanguageElectionDefinition(
-    electionFamousNames2021Fixtures.readElectionDefinition(),
-    [LanguageCode.ENGLISH]
-  );
-  const parsedSystemSettings = safeParseJson(
-    systemSettings.asText(),
-    SystemSettingsSchema
-  ).unsafeUnwrap();
-  const ballots = await buildBallotsForElection({
-    electionDefinition,
-    ballotModes: ['official'],
-  });
-  await configureFromUsb(apiClient, auth, mockUsbDrive, {
-    electionDefinition,
-    systemSettings: parsedSystemSettings,
-    ballots,
-  });
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  await printBallotsPrintedReport({
-    printer: mockPrinterHandler.printer,
-    logger,
-    store: workspace.store,
-    generatedAtTime: fixedNow,
-  });
-  await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'ballots-printed-report-zero-print',
-    failureThreshold: 0.001,
-  });
-
-  await exportBallotsPrintedReportPdf({
-    usbDrive: mockUsbDrive.usbDrive,
-    logger,
-    store: workspace.store,
-    generatedAtTime: fixedNow,
-  });
-  const usbStatus = await mockUsbDrive.usbDrive.status();
-  expect(usbStatus.status).toEqual('mounted');
-  const { mountPoint } = usbStatus as { status: 'mounted'; mountPoint: string };
-
-  const reportsDir = join(
-    mountPoint,
-    generateReportsDirectoryPath(electionDefinition)
-  );
-  const exportedFilename = `ballots-printed-report__${generateFileTimeSuffix(
-    fixedNow
-  )}.pdf`;
-  await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'ballots-printed-report-zero-export',
-    failureThreshold: 0.001,
-  });
-}, 30_000);
-
-test('ballots printed report (non-zero) can be printed and exported (pdf snapshots)', async () => {
-  const fixedNow = new Date('2025-12-18T12:05:00.000Z');
-  const electionDefinition = getMockMultiLanguageElectionDefinition(
-    electionFamousNames2021Fixtures.readElectionDefinition(),
-    [LanguageCode.ENGLISH]
-  );
-  const parsedSystemSettings = safeParseJson(
-    systemSettings.asText(),
-    SystemSettingsSchema
-  ).unsafeUnwrap();
-  const ballots = await buildBallotsForElection({
-    electionDefinition,
-    ballotModes: ['official'],
-  });
-  await configureFromUsb(apiClient, auth, mockUsbDrive, {
-    electionDefinition,
-    systemSettings: parsedSystemSettings,
-    ballots,
-  });
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  const styleA = electionDefinition.election.ballotStyles[0]!;
-  const precinctA = styleA.precincts[0]!;
-  await apiClient.printBallot({
-    precinctId: precinctA,
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Precinct,
-    copies: 2,
-  });
-  await apiClient.printBallot({
-    precinctId: precinctA,
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Absentee,
-    copies: 1,
-  });
-
-  await printBallotsPrintedReport({
-    printer: mockPrinterHandler.printer,
-    logger,
-    store: workspace.store,
-    generatedAtTime: fixedNow,
-  });
-  await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'ballots-printed-report-nonzero-print',
-    failureThreshold: 0.001,
-  });
-
-  await exportBallotsPrintedReportPdf({
-    usbDrive: mockUsbDrive.usbDrive,
-    logger,
-    store: workspace.store,
-    generatedAtTime: fixedNow,
-  });
-  const usbStatus = await mockUsbDrive.usbDrive.status();
-  expect(usbStatus.status).toEqual('mounted');
-  const { mountPoint } = usbStatus as { status: 'mounted'; mountPoint: string };
-  const reportsDir = join(
-    mountPoint,
-    generateReportsDirectoryPath(electionDefinition)
-  );
-  const exportedFilename = `ballots-printed-report__${generateFileTimeSuffix(
-    fixedNow
-  )}.pdf`;
-  await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'ballots-printed-report-nonzero-export',
-    failureThreshold: 0.001,
-  });
-}, 30_000);
-
-test('printBallotsPrintedReport logs error when renderToPdf fails', async () => {
-  const {
-    famousNamesMultiLangElectionDefinition,
-    famousNamesMultiLangOfficialBallots,
-  } = sharedFixtures;
-
-  await configureMachine({
-    electionDefinition: famousNamesMultiLangElectionDefinition,
-    ballots: famousNamesMultiLangOfficialBallots,
-  });
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-
-  const renderToPdfMock = vi.mocked(renderToPdf);
-  renderToPdfMock.mockResolvedValueOnce(err('content-too-large'));
-
-  await apiClient.printBallotsPrintedReport();
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.FileSaved,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'failure',
-      message: expect.stringContaining(
-        'Failed to render Ballots Printed Report PDF file'
-      ),
-    })
-  );
-});
-
-test('printBallotsPrintedReport logs error when printer.print throws', async () => {
-  const {
-    famousNamesMultiLangElectionDefinition,
-    famousNamesMultiLangOfficialBallots,
-  } = sharedFixtures;
-
-  await configureMachine({
-    electionDefinition: famousNamesMultiLangElectionDefinition,
-    ballots: famousNamesMultiLangOfficialBallots,
-  });
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-
-  const printSpy = vi
-    .spyOn(mockPrinterHandler.printer, 'print')
-    .mockRejectedValueOnce(new Error('Printer jam'));
-
-  await apiClient.printBallotsPrintedReport();
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ElectionReportPrinted,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'failure',
-      message: expect.stringContaining('Printer jam'),
-    })
-  );
-
-  printSpy.mockRestore();
-});
-
-test('exportBallotsPrintedReportPdf logs error when renderToPdf fails', async () => {
-  const {
-    famousNamesMultiLangElectionDefinition,
-    famousNamesMultiLangOfficialBallots,
-  } = sharedFixtures;
-
-  await configureMachine({
-    electionDefinition: famousNamesMultiLangElectionDefinition,
-    ballots: famousNamesMultiLangOfficialBallots,
-  });
-
-  const renderToPdfMock = vi.mocked(renderToPdf);
-  renderToPdfMock.mockResolvedValueOnce(err('content-too-large'));
-
-  await apiClient.exportBallotsPrintedReportPdf();
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.FileSaved,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'failure',
-      message: expect.stringContaining(
-        'Failed to render Ballots Printed Report PDF file'
-      ),
-    })
-  );
-});
-
-test('exportBallotsPrintedReportPdf logs failure when USB export fails', async () => {
-  const {
-    famousNamesMultiLangElectionDefinition,
-    famousNamesMultiLangOfficialBallots,
-  } = sharedFixtures;
-
-  await configureMachine({
-    electionDefinition: famousNamesMultiLangElectionDefinition,
-    ballots: famousNamesMultiLangOfficialBallots,
-  });
-
-  // Simulate USB drive not mounted
-  mockUsbDrive.removeUsbDrive();
-
-  await apiClient.exportBallotsPrintedReportPdf();
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.FileSaved,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'failure',
-      message: expect.stringContaining('Failed to save'),
-    })
-  );
-});
-
-test('printBallotsPrintedReport works in test mode', async () => {
-  const {
-    famousNamesMultiLangElectionDefinition,
-    famousNamesMultiLangOfficialAndTestBallots,
-  } = sharedFixtures;
-
-  await configureMachine({
-    electionDefinition: famousNamesMultiLangElectionDefinition,
-    ballots: famousNamesMultiLangOfficialAndTestBallots,
-  });
-
-  // Enable test mode
-  await apiClient.setTestMode({ testMode: true });
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-
-  await apiClient.printBallotsPrintedReport();
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ElectionReportPrinted,
-    expect.any(String),
-    expect.objectContaining({
-      disposition: 'success',
-    })
   );
 });
