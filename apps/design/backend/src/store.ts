@@ -67,6 +67,7 @@ import { DatabaseError } from 'pg';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import {
   ALL_PRECINCTS_REPORT_KEY,
+  ExternalElectionSource,
   ElectionInfo,
   ElectionListing,
   GetExportedElectionError,
@@ -89,6 +90,7 @@ export interface ElectionRecord {
   ballotTemplateId: BallotTemplateId;
   ballotsFinalizedAt: Date | null;
   lastExportedBallotHash?: string;
+  externalSource?: ExternalElectionSource;
 }
 
 export type TaskName = 'generate_election_package' | 'generate_test_decks';
@@ -791,6 +793,7 @@ export class Store {
                 elections.county_name as "countyName",
                 elections.state,
                 elections.ballots_finalized_at as "ballotsFinalizedAt",
+                elections.external_source as "externalSource",
                 count(contests.id)::int as "contestCount"
               from elections
               join jurisdictions on elections.jurisdiction_id = jurisdictions.id
@@ -818,6 +821,7 @@ export class Store {
       date: new DateWithoutTime(row.date.toISOString().split('T')[0]),
       countyName: row.countyName,
       state: row.state,
+      externalSource: row.externalSource || undefined,
       status: (() => {
         if (row.contestCount === 0) {
           return 'notStarted';
@@ -851,7 +855,8 @@ export class Store {
               ballots_finalized_at as "ballotsFinalizedAt",
               created_at as "createdAt",
               ballot_language_codes as "ballotLanguageCodes",
-              last_exported_ballot_hash as "lastExportedBallotHash"
+              last_exported_ballot_hash as "lastExportedBallotHash",
+              external_source as "externalSource"
             from elections
             where id = $1
           `,
@@ -874,6 +879,7 @@ export class Store {
         createdAt: Date;
         ballotLanguageCodes: LanguageCode[];
         lastExportedBallotHash: string | null;
+        externalSource: ExternalElectionSource | null;
       };
       assert(electionRow, 'Election not found');
 
@@ -1149,6 +1155,7 @@ export class Store {
         ballotsFinalizedAt: electionRow.ballotsFinalizedAt,
         jurisdictionId: electionRow.jurisdictionId,
         lastExportedBallotHash: electionRow.lastExportedBallotHash || undefined,
+        externalSource: electionRow.externalSource || undefined,
       };
     });
   }
@@ -1260,12 +1267,19 @@ export class Store {
     return electionTitle;
   }
 
-  async createElection(
-    jurisdictionId: string,
-    election: Election,
-    ballotTemplateId: BallotTemplateId,
-    systemSettings = DEFAULT_SYSTEM_SETTINGS
-  ): Promise<void> {
+  async createElection({
+    jurisdictionId,
+    election,
+    ballotTemplateId,
+    systemSettings = DEFAULT_SYSTEM_SETTINGS,
+    externalSource,
+  }: {
+    jurisdictionId: string;
+    election: Election;
+    ballotTemplateId: BallotTemplateId;
+    systemSettings?: SystemSettings;
+    externalSource?: ExternalElectionSource;
+  }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         const electionTitle = await this.generateUniqueElectionCopyTitle(
@@ -1289,7 +1303,8 @@ export class Store {
             ballot_paper_size,
             ballot_template_id,
             ballot_language_codes,
-            system_settings_data
+            system_settings_data,
+            external_source
           )
           values (
             $1,
@@ -1305,7 +1320,8 @@ export class Store {
             $11,
             $12,
             $13,
-            $14
+            $14,
+            $15
           )
         `,
           election.id,
@@ -1321,7 +1337,8 @@ export class Store {
           election.ballotLayout.paperSize,
           ballotTemplateId,
           DEFAULT_LANGUAGE_CODES,
-          JSON.stringify(systemSettings)
+          JSON.stringify(systemSettings),
+          externalSource
         );
         for (const district of election.districts) {
           await insertDistrict(client, election.id, district);

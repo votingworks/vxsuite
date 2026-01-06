@@ -4513,6 +4513,10 @@ test('MS election and results SEMS conversion', async () => {
       },
     })
   ).unsafeUnwrap();
+  expect(await apiClient.getElectionInfo({ electionId })).toMatchObject({
+    title: 'Mock General Election Greenwood 2020',
+    externalSource: 'ms-sems',
+  });
   expect(await apiClient.getBallotTemplate({ electionId })).toEqual('MsBallot');
 
   // Can't convert results before exporting election package

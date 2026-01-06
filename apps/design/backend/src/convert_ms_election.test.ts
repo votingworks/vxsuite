@@ -28,7 +28,11 @@ afterAll(async () => {
 });
 
 async function expectValidElection(election: Election) {
-  await store.createElection(jurisdiction.id, election, 'VxDefaultBallot');
+  await store.createElection({
+    jurisdictionId: jurisdiction.id,
+    election,
+    ballotTemplateId: 'VxDefaultBallot',
+  });
   expect(
     safeParseElection((await store.getElection(election.id)).election).err()
   ).toBeUndefined();

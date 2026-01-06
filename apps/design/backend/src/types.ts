@@ -54,6 +54,8 @@ export interface SupportUser extends UserBase {
 export type User = JurisdictionUser | OrganizationUser | SupportUser;
 export type UserType = User['type'];
 
+export type ExternalElectionSource = 'ms-sems';
+
 export type ElectionStatus = 'notStarted' | 'inProgress' | 'ballotsFinalized';
 
 export interface ElectionListing {
@@ -66,6 +68,7 @@ export interface ElectionListing {
   countyName: string;
   state: string;
   status: ElectionStatus;
+  externalSource?: ExternalElectionSource;
 }
 
 export interface ElectionInfo {
@@ -80,6 +83,7 @@ export interface ElectionInfo {
   languageCodes: LanguageCode[];
   signatureImage?: string;
   signatureCaption?: string;
+  externalSource?: ExternalElectionSource;
 }
 
 export type ElectionUpload =

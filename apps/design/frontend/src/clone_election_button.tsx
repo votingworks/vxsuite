@@ -123,7 +123,9 @@ export function CloneElectionButton(
   }
   const user = userQuery.data;
 
-  const buttonLabel = `Make a copy of ${election.title}`;
+  const buttonLabel = election.externalSource
+    ? 'Cannot copy election loaded from an external source'
+    : `Make a copy of ${election.title || 'Untitled Election'}`;
   return (
     <React.Fragment>
       <TooltipContainer>
@@ -138,7 +140,11 @@ export function CloneElectionButton(
               : () => setModalActive(true)
           }
           aria-label={buttonLabel}
-          disabled={cloneMutation.isLoading || modalActive}
+          disabled={
+            Boolean(election.externalSource) ||
+            cloneMutation.isLoading ||
+            modalActive
+          }
         >
           <Icons.Copy />
         </Button>
