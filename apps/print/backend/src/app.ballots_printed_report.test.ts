@@ -116,7 +116,7 @@ test('ballots printed report (zero) can be printed and exported (pdf snapshots)'
   });
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'ballots-printed-report-zero-print',
-    failureThreshold: 0.001,
+    failureThreshold: 0.00001,
   });
 
   mockUsbDrive.insertUsbDrive({});
@@ -139,7 +139,7 @@ test('ballots printed report (zero) can be printed and exported (pdf snapshots)'
   )}.pdf`;
   await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'ballots-printed-report-zero-export',
-    failureThreshold: 0.001,
+    failureThreshold: 0.00001,
   });
 }, 30_000);
 
@@ -155,7 +155,9 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   const styleA = electionDefinition.election.ballotStyles[0]!;
+  const styleB = electionDefinition.election.ballotStyles[1]!;
   const precinctA = styleA.precincts[0]!;
+  const precinctB = styleB.precincts[0]!;
   await apiClient.printBallot({
     precinctId: precinctA,
     languageCode: LanguageCode.ENGLISH,
@@ -168,6 +170,18 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
     ballotType: BallotType.Absentee,
     copies: 1,
   });
+  await apiClient.printBallot({
+    precinctId: precinctB,
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Precinct,
+    copies: 3,
+  });
+  await apiClient.printBallot({
+    precinctId: precinctB,
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Absentee,
+    copies: 4,
+  });
 
   await printBallotsPrintedReport({
     printer: mockPrinterHandler.printer,
@@ -177,7 +191,7 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
   });
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'ballots-printed-report-nonzero-print',
-    failureThreshold: 0.001,
+    failureThreshold: 0.00001,
   });
 
   mockUsbDrive.insertUsbDrive({});
@@ -199,7 +213,7 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
   )}.pdf`;
   await expect(join(reportsDir, exportedFilename)).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'ballots-printed-report-nonzero-export',
-    failureThreshold: 0.001,
+    failureThreshold: 0.00001,
   });
 }, 30_000);
 
