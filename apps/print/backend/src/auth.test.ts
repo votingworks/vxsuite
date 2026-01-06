@@ -4,7 +4,7 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
-  SystemSettings,
+  EncodedBallotEntry,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
@@ -12,31 +12,18 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-
-import { buildTestEnvironment, configureFromUsb } from '../test/app';
+import {
+  buildTestEnvironment,
+  configureMachine,
+  buildBallotsForElection,
+} from '../test/app';
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'print';
 const electionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
+let ballots: EncodedBallotEntry[];
 const electionKey = constructElectionKey(electionDefinition.election);
-
-const systemSettingsForAuthTests: SystemSettings = {
-  ...DEFAULT_SYSTEM_SETTINGS,
-  auth: {
-    arePollWorkerCardPinsEnabled: true,
-    inactiveSessionTimeLimitMinutes: 10,
-    overallSessionTimeLimitHours: 1,
-    numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
-    startingCardLockoutDurationSeconds: 15,
-  },
-};
-
-beforeAll(() => {
-  expect(systemSettingsForAuthTests.auth).not.toEqual(
-    DEFAULT_SYSTEM_SETTINGS.auth
-  );
-});
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -44,6 +31,14 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
+
+// Build shared fixtures once before all tests
+beforeAll(async () => {
+  ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official'],
+  });
+});
 
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
@@ -63,26 +58,24 @@ test('getAuthStatus', async () => {
   server = env.server;
   const { apiClient, auth, mockUsbDrive, workspace } = env;
 
-  await configureFromUsb(apiClient, auth, mockUsbDrive, {
+  await configureMachine({
     electionDefinition,
-    systemSettings: systemSettingsForAuthTests,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
   });
 
-  // check that auth.getAuthStatus is called with isConfigured: false
+  workspace.store.setPrecinctSelection(
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
+  );
 
-  // Ensure machine is configured (print requires precinct selection).
-  if (!workspace.store.getPrecinctSelection()) {
-    workspace.store.setPrecinctSelection(
-      singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
-    );
-  }
-
-  vi.mocked(auth.getAuthStatus).mockClear(); // Clear mock calls from configureFromUsb
+  vi.mocked(auth.getAuthStatus).mockClear(); // Clear mock calls from configureMachine
 
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    ...systemSettingsForAuthTests.auth,
+    ...DEFAULT_SYSTEM_SETTINGS.auth,
     electionKey,
     jurisdiction,
     machineType,
@@ -95,23 +88,23 @@ test('checkPin', async () => {
   server = env.server;
   const { apiClient, auth, mockUsbDrive, workspace } = env;
 
-  await configureFromUsb(apiClient, auth, mockUsbDrive, {
+  await configureMachine({
     electionDefinition,
-    systemSettings: systemSettingsForAuthTests,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
   });
 
-  if (!workspace.store.getPrecinctSelection()) {
-    workspace.store.setPrecinctSelection(
-      singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
-    );
-  }
-
+  workspace.store.setPrecinctSelection(
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
+  );
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
     {
-      ...systemSettingsForAuthTests.auth,
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
       electionKey,
       jurisdiction,
       machineType,
@@ -126,21 +119,21 @@ test('logOut', async () => {
   server = env.server;
   const { apiClient, auth, mockUsbDrive, workspace } = env;
 
-  await configureFromUsb(apiClient, auth, mockUsbDrive, {
+  await configureMachine({
     electionDefinition,
-    systemSettings: systemSettingsForAuthTests,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
   });
 
-  if (!workspace.store.getPrecinctSelection()) {
-    workspace.store.setPrecinctSelection(
-      singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
-    );
-  }
-
+  workspace.store.setPrecinctSelection(
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
+  );
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
-    ...systemSettingsForAuthTests.auth,
+    ...DEFAULT_SYSTEM_SETTINGS.auth,
     electionKey,
     jurisdiction,
     machineType,
