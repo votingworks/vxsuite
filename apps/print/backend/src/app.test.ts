@@ -4,7 +4,7 @@ import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { BatteryInfo } from '@votingworks/backend';
+import { BatteryInfo, mockElectionPackageFileTree } from '@votingworks/backend';
 import {
   BallotType,
   DEV_MACHINE_ID,
@@ -23,7 +23,7 @@ import {
   electionTwoPartyPrimaryFixtures,
   systemSettings,
 } from '@votingworks/fixtures';
-import { LogEventId } from '@votingworks/logging';
+import { LogEventId, MockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -36,14 +36,12 @@ import {
   getMockConnectedPrinterStatus,
   HP_LASER_PRINTER_CONFIG,
   renderToPdf,
+  MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { Server } from 'node:http';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { MockLogger } from '@votingworks/logging';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { MemoryPrinterHandler } from '@votingworks/printing';
 import {
   buildTestEnvironment,
   configureFromUsb,
@@ -77,12 +75,13 @@ vi.mock(
   })
 );
 
-vi.mock(import('@votingworks/printing'), async (importActual) => ({
-  ...(await importActual()),
-  renderToPdf: vi.fn(
-    (await importActual<typeof import('@votingworks/printing')>()).renderToPdf
-  ),
-}));
+vi.mock(import('@votingworks/printing'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    renderToPdf: vi.fn(original.renderToPdf),
+  } as unknown as typeof import('@votingworks/printing');
+});
 
 // Pre-built election definitions and ballots for common test scenarios
 interface SharedFixtures {

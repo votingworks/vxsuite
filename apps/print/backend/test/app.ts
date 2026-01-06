@@ -25,6 +25,7 @@ import {
   ElectionDefinition,
   SystemSettings,
   TEST_JURISDICTION,
+  BallotType,
 } from '@votingworks/types';
 import {
   mockElectionManagerUser,
@@ -32,7 +33,6 @@ import {
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { ok } from '@votingworks/basics';
-import { BallotType } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { getUserRole } from '../src/util/auth';
 import { createWorkspace, Workspace } from '../src/util/workspace';
