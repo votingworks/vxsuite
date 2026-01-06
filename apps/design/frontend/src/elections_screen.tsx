@@ -1,6 +1,6 @@
 import { unique } from '@votingworks/basics';
-import { H1, MainContent, Table, Button } from '@votingworks/ui';
-import React, { useRef } from 'react';
+import { H1, MainContent, Table } from '@votingworks/ui';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
@@ -18,6 +18,7 @@ import { useTitle } from './hooks/use_title';
 import { routes } from './routes';
 import { CloneElectionButton } from './clone_election_button';
 import { LoadElectionButton } from './load_election_button';
+import { FilterInput } from './filter_input';
 
 export const ElectionRow = styled.tr`
   & td {
@@ -113,7 +114,6 @@ export function ElectionsScreen({
   const createElectionMutation = createElection.useMutation();
   const loadElectionMutation = loadElection.useMutation();
   const cloneElectionMutation = cloneElection.useMutation();
-  const filterRef = useRef<HTMLInputElement>(null);
 
   /* istanbul ignore next - @preserve */
   if (!listElectionsQuery.isSuccess) {
@@ -150,38 +150,18 @@ export function ElectionsScreen({
               margin: '0.125rem',
             }}
           >
-            <div style={{ position: 'relative', flexGrow: 1 }}>
-              <input
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                ref={filterRef}
-                type="text"
-                aria-label="Filter elections"
-                placeholder={
-                  hasMultipleJurisdictions
-                    ? 'Filter by jurisdiction or election title'
-                    : 'Filter by election title'
-                }
-                value={filterText}
-                style={{ width: '100%' }}
-                onChange={(e) => setFilterText(e.target.value)}
-              />
-              <Button
-                style={{
-                  position: 'absolute',
-                  right: '0.125rem',
-                  top: '0.125rem',
-                  padding: '0.5rem',
-                }}
-                fill="transparent"
-                icon="X"
-                aria-label="Clear"
-                onPress={() => {
-                  setFilterText('');
-                  filterRef.current?.focus();
-                }}
-              />
-            </div>
+            <FilterInput
+              value={filterText}
+              onChange={setFilterText}
+              autoFocus
+              aria-label="Filter elections"
+              placeholder={
+                hasMultipleJurisdictions
+                  ? 'Filter by jurisdiction or election title'
+                  : 'Filter by election title'
+              }
+              style={{ flexGrow: 1 }}
+            />
             <CreateElectionButton
               disabled={anyMutationIsLoading}
               variant={elections.length === 0 ? 'primary' : undefined}
