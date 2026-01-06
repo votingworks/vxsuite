@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { format } from '@votingworks/utils';
+import { format, getLanguageOptions } from '@votingworks/utils';
 import { BallotType, hasSplits, Id, LanguageCode } from '@votingworks/types';
 import {
   Button,
@@ -12,8 +12,6 @@ import {
   Loading,
 } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
-
-import { getLanguageOptions } from '@votingworks/utils';
 import { ExpandedSelect } from '../components/expanded_select';
 import { TitleBar } from '../components/title_bar';
 import { PrintAllButton } from '../components/print_all_button';

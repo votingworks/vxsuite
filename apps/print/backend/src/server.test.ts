@@ -1,9 +1,15 @@
-import { beforeEach, expect, test, vi, MockedFunction } from 'vitest';
+import {
+  beforeEach,
+  expect,
+  test,
+  vi,
+  MockedFunction,
+  afterEach,
+} from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { Application } from 'express';
-import { afterEach } from 'vitest';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { PORT } from './globals';
