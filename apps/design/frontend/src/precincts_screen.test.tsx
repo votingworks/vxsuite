@@ -734,6 +734,64 @@ describe('audio editing', () => {
   }
 });
 
+test('form controls are disabled in "view" mode', async () => {
+  const srcPrecinct = election.precincts.find(hasSplits)!;
+  assert(srcPrecinct.splits.length === 2);
+
+  const savedPrecinct: Precinct = {
+    ...srcPrecinct,
+    splits: [
+      srcPrecinct.splits[0],
+      {
+        ...srcPrecinct.splits[1],
+        clerkSignatureImage: 'abc123',
+        electionSealOverride: 'def456',
+      },
+    ],
+  };
+
+  mockStateFeatures(apiMock, electionId, {
+    PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
+    PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: true,
+    PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
+    PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,
+  });
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([savedPrecinct]);
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+
+  const history = renderScreen(electionId);
+  await navigateToPrecinctView(history, savedPrecinct.id);
+
+  expect(screen.getButton('Edit')).not.toBeDisabled();
+  expect(screen.getButton('Delete Precinct')).not.toBeDisabled();
+
+  const inputs = screen.getAllByRole('textbox');
+  expect(inputs).toHaveLength(
+    // Precinct name:
+    1 +
+      // Split name + election title override + signature caption:
+      savedPrecinct.splits.length * 3
+  );
+  for (const input of inputs) expect(input).toBeDisabled();
+
+  for (const upload of screen.getAllByLabelText('Upload Seal Image')) {
+    expect(upload).toBeDisabled();
+  }
+  for (const upload of screen.getAllButtons('Remove Seal Image')) {
+    expect(upload).toBeDisabled();
+  }
+  for (const upload of screen.getAllByLabelText('Upload Signature Image')) {
+    expect(upload).toBeDisabled();
+  }
+  for (const upload of screen.getAllButtons('Remove Signature Image')) {
+    expect(upload).toBeDisabled();
+  }
+});
+
 async function expectViewModePrecinct(
   history: MemoryHistory,
   precinct: Precinct

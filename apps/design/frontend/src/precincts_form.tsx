@@ -325,6 +325,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
                         <InputGroup label="Election Title Override">
                           <input
+                            disabled={disabled}
                             type="text"
                             value={split.electionTitleOverride ?? ''}
                             onChange={(e) =>
@@ -338,8 +339,10 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       )}
 
                       {features.PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE && (
-                        <InputGroup label="Election Seal Override">
+                        <div>
+                          <FieldName>Election Seal Override</FieldName>
                           <SealImageInput
+                            disabled={disabled}
                             value={split.electionSealOverride}
                             onChange={(value) =>
                               setSplit(index, {
@@ -348,13 +351,14 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                               })
                             }
                           />
-                        </InputGroup>
+                        </div>
                       )}
 
                       {features.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE && (
                         <div>
                           <FieldName>Signature Image</FieldName>
                           <SignatureImageInput
+                            disabled={disabled}
                             value={split.clerkSignatureImage}
                             onChange={(value) =>
                               setSplit(index, {
@@ -369,6 +373,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       {features.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE && (
                         <InputGroup label="Signature Caption">
                           <input
+                            disabled={disabled}
                             type="text"
                             value={split.clerkSignatureCaption ?? ''}
                             onChange={(e) =>
