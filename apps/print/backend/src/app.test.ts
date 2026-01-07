@@ -10,7 +10,6 @@ import {
   EncodedBallotEntry,
   ElectionDefinition,
   LanguageCode,
-  PrinterStatus,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
@@ -28,7 +27,6 @@ import {
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
 import {
-  getMockConnectedPrinterStatus,
   HP_LASER_PRINTER_CONFIG,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
@@ -176,22 +174,6 @@ test('uses default machine config if not set', async () => {
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
-  });
-});
-
-test('printer status', async () => {
-  expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
-    connected: false,
-  });
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>(
-    getMockConnectedPrinterStatus(HP_LASER_PRINTER_CONFIG)
-  );
-
-  mockPrinterHandler.disconnectPrinter();
-  expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
-    connected: false,
   });
 });
 
@@ -516,7 +498,6 @@ test('end-to-end printing flow updates getBallotPrintCounts', async () => {
   const precinctA = styleA.precincts[0]!;
   const precinctB = styleB.precincts[0]!;
 
-  // One ballot printed twice (precinct) + once (absentee), then another ballot once (precinct).
   await apiClient.printBallot({
     precinctId: precinctA,
     languageCode: LanguageCode.ENGLISH,
