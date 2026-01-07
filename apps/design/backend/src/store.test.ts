@@ -664,13 +664,16 @@ test('getExportedElection returns election-out-of-date error when election data 
   await cleanup();
 });
 
-test('support users must have @voting.works email', async () => {
+test('support users must have @voting.works or @vx.support email', async () => {
   const store = testStore.getStore();
   await testStore.init();
+
   await expect(
     store.createUser({
       ...supportUser,
       name: 'support.user@example.com',
     })
-  ).rejects.toThrow('Support users must have a voting.works email');
+  ).rejects.toThrow(
+    'Support users must have a @voting.works or @vx.support email'
+  );
 });
