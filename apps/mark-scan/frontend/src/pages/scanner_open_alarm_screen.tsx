@@ -7,8 +7,10 @@ import {
 } from '@votingworks/ui';
 
 import React from 'react';
-import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import { PollWorkerPrompt } from '../components/poll_worker_prompt';
+import {
+  CenteredCardPageLayout,
+  PollWorkerPrompt,
+} from '@votingworks/mark-flow-ui';
 
 export function ScannerOpenAlarmScreen(): JSX.Element {
   const wasAudioEnabled = React.useRef(useAudioEnabled());

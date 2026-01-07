@@ -521,7 +521,13 @@ export function AppRoot(): JSX.Element | null {
     }
 
     if (!hasPrinterAttached) {
-      return <SetupPrinterPage />;
+      return (
+        <SetupPrinterPage
+          isPollWorkerAuth={isPollWorkerAuth(authStatus)}
+          isCardlessVoterAuth={isCardlessVoterAuth(authStatus)}
+          pollsState={pollsState}
+        />
+      );
     }
 
     if (isPollWorkerAuth(authStatus)) {

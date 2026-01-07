@@ -1,11 +1,8 @@
+import { P, appStrings, Icons, ERROR_SCREEN_MESSAGES } from '@votingworks/ui';
 import {
-  P,
-  appStrings,
-  Icons,
-  ERROR_SCREEN_MESSAGES,
-} from '@votingworks/ui';
-import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import { PollWorkerPrompt } from '../components/poll_worker_prompt';
+  CenteredCardPageLayout,
+  PollWorkerPrompt,
+} from '@votingworks/mark-flow-ui';
 
 export function UnrecoverableErrorPage(): JSX.Element {
   return (
@@ -15,9 +12,7 @@ export function UnrecoverableErrorPage(): JSX.Element {
       voterFacing
     >
       <P>{appStrings.instructionsBmdAskForRestart()}</P>
-      <PollWorkerPrompt>
-        {ERROR_SCREEN_MESSAGES.REACH_OUT}
-      </PollWorkerPrompt>
+      <PollWorkerPrompt>{ERROR_SCREEN_MESSAGES.REACH_OUT}</PollWorkerPrompt>
     </CenteredCardPageLayout>
   );
 }
