@@ -89,6 +89,7 @@ test('adding districts to empty list', async () => {
 
   await screen.findByRole('heading', { name: 'Districts' });
   screen.getByText("You haven't added any districts to this election yet.");
+  expect(screen.getButton('Edit Districts')).toBeDisabled();
 
   // Add first district:
   userEvent.click(screen.getByRole('button', { name: 'Add District' }));
@@ -97,7 +98,7 @@ test('adding districts to empty list', async () => {
   userEvent.type(screen.getByRole('textbox'), newDistrict1.name);
 
   // Add second district:
-  userEvent.click(screen.getAllButtons('Add District')[1]);
+  userEvent.click(screen.getButton('Add District'));
   {
     const inputs = screen.getAllByRole('textbox');
     expect(inputs).toHaveLength(2);
@@ -167,7 +168,7 @@ test('editing existing district list', async () => {
   }
 
   // Add new district:
-  userEvent.click(screen.getAllButtons('Add District')[1]);
+  userEvent.click(screen.getButton('Add District'));
   {
     const inputs = screen.getAllByRole('textbox');
     expect(inputs).toHaveLength(3);
@@ -202,8 +203,11 @@ test('editing or adding a district is disabled when ballots are finalized', asyn
 
   renderScreen(electionId);
 
-  expect(await screen.findButton('Edit Districts')).toBeDisabled();
+  await screen.findByDisplayValue(election.districts[0].name);
   expect(screen.getButton('Add District')).toBeDisabled();
+  expect(screen.queryButton('Edit Districts')).not.toBeInTheDocument();
+  expect(screen.queryButton('Save')).not.toBeInTheDocument();
+  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
 });
 
 test('cancelling', async () => {
@@ -222,7 +226,7 @@ test('cancelling', async () => {
   expectDistrictInputs(savedDistricts);
 
   userEvent.click(screen.getButton(`Delete District Saved District 2`));
-  userEvent.click(screen.getAllButtons('Add District')[1]);
+  userEvent.click(screen.getButton('Add District'));
 
   const inputs = screen.getAllByRole('textbox');
   userEvent.type(inputs[1], ' (Updated)');
@@ -252,7 +256,7 @@ test('error message for duplicate district name', async () => {
   renderScreen(electionId);
 
   userEvent.click(await screen.findButton('Edit Districts'));
-  userEvent.click(screen.getAllButtons('Add District')[1]);
+  userEvent.click(screen.getButton('Add District'));
   userEvent.type(screen.getAllByRole('textbox')[1], newDistrict.name);
 
   expectUpdate(apiMock, {

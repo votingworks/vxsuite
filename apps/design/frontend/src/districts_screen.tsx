@@ -258,47 +258,34 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                 />
               ))}
             </DistrictList>
-
-            {editing && (
-              <div>
-                <Button
-                  icon="Add"
-                  disabled={disabled}
-                  onPress={() => {
-                    setNewDistricts([...newDistricts, createBlankDistrict()]);
-                    setEditing(true);
-                  }}
-                >
-                  Add District
-                </Button>
-              </div>
-            )}
           </FormBody>
 
-          <FormFooter>
-            {editing ? (
-              <React.Fragment>
-                <Button type="reset">Cancel</Button>
+          {!ballotsFinalized && (
+            <FormFooter>
+              {editing ? (
+                <React.Fragment>
+                  <Button type="reset">Cancel</Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    icon="Done"
+                    disabled={disabled}
+                  >
+                    Save
+                  </Button>
+                </React.Fragment>
+              ) : (
                 <Button
-                  type="submit"
-                  variant="primary"
-                  icon="Done"
-                  disabled={disabled}
+                  disabled={savedDistricts.length === 0}
+                  icon="Edit"
+                  type="reset"
+                  variant={savedDistricts.length > 0 ? 'primary' : 'neutral'}
                 >
-                  Save
+                  Edit Districts
                 </Button>
-              </React.Fragment>
-            ) : (
-              <Button
-                disabled={ballotsFinalized}
-                icon="Edit"
-                type="reset"
-                variant="primary"
-              >
-                Edit Districts
-              </Button>
-            )}
-          </FormFooter>
+              )}
+            </FormFooter>
+          )}
         </FormFixed>
 
         <Switch>
