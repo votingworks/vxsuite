@@ -22,6 +22,7 @@
     "create-jurisdiction-user": "node -r esbuild-runner/register ./scripts/create_jurisdiction_user.ts",
     "create-organization": "node -r esbuild-runner/register ./scripts/create_organization.ts",
     "create-organization-user": "node -r esbuild-runner/register ./scripts/create_organization_user.ts",
+    "create-support-user": "node -r esbuild-runner/register ./scripts/create_support_user.ts",
     "db:migrations:ci-validate": "./scripts/ci-validate-migrations.sh",
     "db:migrations:create": "node-pg-migrate create",
     "db:migrations:run": "node-pg-migrate up",
