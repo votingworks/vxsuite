@@ -620,8 +620,9 @@ export class Store {
   async createUser(user: Omit<User, 'jurisdictions'>): Promise<void> {
     if (user.type === 'support_user') {
       assert(
-        user.name.endsWith('@voting.works'),
-        'Support users must have a voting.works email'
+        user.name.endsWith('@voting.works') ||
+          user.name.endsWith('@vx.support'),
+        'Support users must have a @voting.works or @vx.support email'
       );
     }
     await this.db.withClient((client) =>

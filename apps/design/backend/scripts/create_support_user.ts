@@ -7,7 +7,7 @@ import { Auth0Client } from '../src/auth0_client';
 import { createWorkspace } from '../src/workspace';
 import { WORKSPACE } from '../src/globals';
 
-const USAGE = `Usage: pnpm create-support-user <email address>; Support users must have a voting.works email`;
+const USAGE = `Usage: pnpm create-support-user <email address>; Support users must have a @voting.works or @vx.support email`;
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
@@ -18,7 +18,10 @@ async function main(): Promise<void> {
     args: process.argv.slice(2),
     options: {},
   });
-  if (!userEmail || !userEmail.endsWith('@voting.works')) {
+  if (
+    !userEmail ||
+    (!userEmail.endsWith('@voting.works') && !userEmail.endsWith('@vx.support'))
+  ) {
     console.log(USAGE);
     process.exit(0);
   }
