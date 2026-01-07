@@ -1,12 +1,13 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   District,
   ElectionId,
+  ElectionStringKey,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { assert, err, ok } from '@votingworks/basics';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   MockApiClient,
@@ -19,25 +20,19 @@ import {
 import { makeIdFactory } from '../test/id_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { DistrictsScreen } from './districts_screen';
+import { DistrictAudioPanel } from './district_audio_panel';
+
+vi.mock('./district_audio_panel.js');
+const MockAudioPanel = vi.mocked(DistrictAudioPanel);
+const MOCK_AUDIO_PANEL_ID = 'MockDistrictAudioPanel';
 
 let apiMock: MockApiClient;
 
 const idFactory = makeIdFactory();
 
 const electionGeneral = readElectionGeneral();
-
-beforeEach(() => {
-  apiMock = createMockApiClient();
-  idFactory.reset();
-  apiMock.getUser.expectCallWith().resolves(user);
-  mockUserFeatures(apiMock);
-});
-
-afterEach(() => {
-  apiMock.assertComplete();
-});
 
 function renderScreen(electionId: ElectionId) {
   const { path } = routes.election(electionId).districts.root;
@@ -46,6 +41,7 @@ function renderScreen(electionId: ElectionId) {
     provideApi(
       apiMock,
       withRoute(<DistrictsScreen />, {
+        history,
         paramPath: routes.election(':electionId').districts.root.path,
         path,
       })
@@ -56,139 +52,147 @@ function renderScreen(electionId: ElectionId) {
 
 const election = electionGeneral;
 const electionId = election.id;
+const districtRoutes = routes.election(electionId).districts;
+
 beforeEach(() => {
+  apiMock = createMockApiClient();
+  idFactory.reset();
+  apiMock.getUser.expectCallWith().resolves(user);
+  mockUserFeatures(apiMock);
+
   mockStateFeatures(apiMock, electionId);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
+
+  MockAudioPanel.mockReturnValue(<div data-testid={MOCK_AUDIO_PANEL_ID} />);
 });
 
-test('adding a district', async () => {
-  const newDistrict: District = {
+afterEach(() => {
+  apiMock.assertComplete();
+});
+
+test('adding districts to empty list', async () => {
+  const newDistrict1: District = {
     id: idFactory.next(),
-    name: 'New District',
+    name: 'New District 1',
+  };
+  const newDistrict2: District = {
+    id: idFactory.next(),
+    name: 'New District 2',
   };
 
   apiMock.listDistricts.expectCallWith({ electionId }).resolves([]);
-  renderScreen(electionId);
+
+  const history = renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Districts' });
   screen.getByText("You haven't added any districts to this election yet.");
+  expect(screen.getButton('Edit Districts')).toBeDisabled();
 
+  // Add first district:
   userEvent.click(screen.getByRole('button', { name: 'Add District' }));
-  await screen.findByRole('heading', { name: 'Add District' });
-  expect(screen.getByRole('link', { name: 'Districts' })).toHaveAttribute(
-    'href',
-    `/elections/${electionId}/districts`
+  await screen.findButton('Save');
+  expect(history.location.pathname).toEqual(districtRoutes.edit.path);
+  userEvent.type(screen.getByRole('textbox'), newDistrict1.name);
+
+  // Add second district:
+  userEvent.click(screen.getButton('Add District'));
+  {
+    const inputs = screen.getAllByRole('textbox');
+    expect(inputs).toHaveLength(2);
+    userEvent.type(inputs[1], newDistrict2.name);
+  }
+
+  const updatedList = [newDistrict1, newDistrict2];
+  expectDistrictInputs(updatedList);
+
+  // Save and verify:
+
+  expectUpdate(apiMock, { electionId, newDistricts: updatedList }).resolves(
+    ok()
   );
 
-  userEvent.type(screen.getByLabelText('Name'), newDistrict.name);
+  apiMock.listDistricts.expectCallWith({ electionId }).resolves(updatedList);
 
-  apiMock.createDistrict
-    .expectCallWith({ electionId, newDistrict })
-    .resolves(ok());
-  apiMock.listDistricts.expectCallWith({ electionId }).resolves([newDistrict]);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  userEvent.click(screen.getButton('Save'));
 
-  await screen.findByRole('heading', { name: 'Districts' });
-  expect(
-    screen.getAllByRole('columnheader').map((th) => th.textContent)
-  ).toEqual(['Name', '']);
-  const rows = screen.getAllByRole('row');
-  expect(rows).toHaveLength(2);
-  expect(
-    within(rows[1])
-      .getAllByRole('cell')
-      .map((td) => td.textContent)
-  ).toEqual([newDistrict.name, 'Edit']);
+  await screen.findButton('Edit Districts');
+  expectDistrictInputs(updatedList);
+  expect(history.location.pathname).toEqual(districtRoutes.root.path);
+
+  const inputs = screen.getAllByRole('textbox');
+  expect(inputs).toHaveLength(2);
+  expect(inputs[0]).toHaveValue(newDistrict1.name);
+  expect(inputs[1]).toHaveValue(newDistrict2.name);
 });
 
-test('editing a district', async () => {
-  const savedDistrict = election.districts[0];
+test('editing existing district list', async () => {
+  const savedDistricts: District[] = [
+    { id: 'saved-district-1', name: 'Saved District 1' },
+    { id: 'saved-district-2', name: 'Saved District 2' },
+    { id: 'saved-district-3', name: 'Saved District 3' },
+  ];
+
+  const preservedDistrict = savedDistricts[0];
+  const deletedDistrict = savedDistricts[1];
+  const newDistrict: District = { id: idFactory.next(), name: 'New District' };
   const updatedDistrict: District = {
-    ...savedDistrict,
-    name: 'Updated District',
+    ...savedDistricts[2],
+    name: 'Saved District 3 (Updated)',
   };
 
-  apiMock.listDistricts
-    .expectCallWith({ electionId })
-    .resolves(election.districts);
+  apiMock.listDistricts.expectCallWith({ electionId }).resolves(savedDistricts);
+
   renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Districts' });
-  const rows = screen.getAllByRole('row');
-  expect(rows).toHaveLength(election.districts.length + 1);
+  await screen.findButton('Edit Districts');
+  expectDistrictInputs(savedDistricts);
 
-  const savedDistrictRow = screen.getByText(savedDistrict.name).closest('tr')!;
-  const contestRowIndex = rows.indexOf(savedDistrictRow);
-  userEvent.click(
-    within(savedDistrictRow).getByRole('button', { name: 'Edit' })
-  );
+  userEvent.click(screen.getButton('Edit Districts'));
+  expect(screen.queryButton('Edit Districts')).not.toBeInTheDocument();
 
-  await screen.findByRole('heading', { name: 'Edit District' });
-  expect(screen.getByRole('link', { name: 'Districts' })).toHaveAttribute(
-    'href',
-    `/elections/${electionId}/districts`
-  );
+  // Delete second saved district:
+  {
+    const { name } = savedDistricts[1];
+    userEvent.click(screen.getButton(`Delete District ${name}`));
+    expectDistrictInputs([savedDistricts[0], savedDistricts[2]]);
+  }
 
-  const nameInput = screen.getByLabelText('Name');
-  expect(nameInput).toHaveValue(savedDistrict.name);
-  userEvent.clear(nameInput);
-  userEvent.type(nameInput, updatedDistrict.name);
+  // Update third saved district:
+  {
+    const input = screen.getByDisplayValue(savedDistricts[2].name);
+    userEvent.clear(input);
+    userEvent.type(input, updatedDistrict.name);
+  }
 
-  apiMock.updateDistrict
-    .expectCallWith({ electionId, updatedDistrict })
-    .resolves(ok());
-  apiMock.listDistricts
-    .expectCallWith({ electionId })
-    .resolves([updatedDistrict, ...election.districts.slice(1)]);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  // Add new district:
+  userEvent.click(screen.getButton('Add District'));
+  {
+    const inputs = screen.getAllByRole('textbox');
+    expect(inputs).toHaveLength(3);
+    userEvent.type(inputs[2], newDistrict.name);
+  }
 
-  await screen.findByRole('heading', { name: 'Districts' });
+  const updatedList = [preservedDistrict, updatedDistrict, newDistrict];
+  expectDistrictInputs(updatedList);
 
-  const updatedDistrictRow = screen.getAllByRole('row')[contestRowIndex];
-  within(updatedDistrictRow).getByText(updatedDistrict.name);
-});
+  expectUpdate(apiMock, {
+    electionId,
+    deletedDistrictIds: [deletedDistrict.id],
+    newDistricts: [newDistrict],
+    updatedDistricts: [preservedDistrict, updatedDistrict],
+  }).resolves(ok());
 
-test('deleting a district', async () => {
-  assert(election.districts.length === 3);
+  apiMock.listDistricts.expectCallWith({ electionId }).resolves(updatedList);
 
-  const [savedDistrict, remainingDistrict, unusedDistrict] = election.districts;
-
-  apiMock.listDistricts
-    .expectCallWith({ electionId })
-    .resolves(election.districts);
-  renderScreen(electionId);
-
-  await screen.findByRole('heading', { name: 'Districts' });
-  const rows = screen.getAllByRole('row');
-  expect(rows).toHaveLength(election.districts.length + 1);
-  const savedDistrictRow = screen.getByText(savedDistrict.name).closest('tr')!;
-  userEvent.click(
-    within(savedDistrictRow).getByRole('button', { name: 'Edit' })
-  );
-
-  await screen.findByRole('heading', { name: 'Edit District' });
-
-  apiMock.deleteDistrict
-    .expectCallWith({ electionId, districtId: savedDistrict.id })
-    .resolves();
-  apiMock.listDistricts
-    .expectCallWith({ electionId })
-    .resolves([remainingDistrict, unusedDistrict]);
-  // Initiate the deletion
-  userEvent.click(screen.getByRole('button', { name: 'Delete District' }));
-  // Confirm the deletion in the modal
-  userEvent.click(screen.getByRole('button', { name: 'Delete District' }));
-
-  await screen.findByRole('heading', { name: 'Districts' });
-  expect(screen.getAllByRole('row')).toHaveLength(election.districts.length);
-  expect(screen.queryByText(savedDistrict.name)).not.toBeInTheDocument();
+  userEvent.click(screen.getButton('Save'));
+  await screen.findButton('Edit Districts');
+  expectDistrictInputs(updatedList);
 });
 
 test('editing or adding a district is disabled when ballots are finalized', async () => {
-  const savedDistrict = election.districts[0];
   apiMock.getBallotsFinalizedAt.reset();
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
@@ -196,86 +200,129 @@ test('editing or adding a district is disabled when ballots are finalized', asyn
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
+
   renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Districts' });
-  const rows = screen.getAllByRole('row');
-  expect(rows).toHaveLength(election.districts.length + 1);
-
-  const savedDistrictRow = screen.getByText(savedDistrict.name).closest('tr')!;
-  expect(
-    within(savedDistrictRow).getByRole('button', { name: 'Edit' })
-  ).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Add District' })).toBeDisabled();
+  await screen.findByDisplayValue(election.districts[0].name);
+  expect(screen.getButton('Add District')).toBeDisabled();
+  expect(screen.queryButton('Edit Districts')).not.toBeInTheDocument();
+  expect(screen.queryButton('Save')).not.toBeInTheDocument();
+  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
 });
 
 test('cancelling', async () => {
-  apiMock.listDistricts
-    .expectCallWith({ electionId })
-    .resolves(election.districts);
-  renderScreen(electionId);
+  const newDistrictId = idFactory.next();
+  const savedDistricts: District[] = [
+    { id: 'saved-district-1', name: 'Saved District 1' },
+    { id: 'saved-district-2', name: 'Saved District 2' },
+    { id: 'saved-district-3', name: 'Saved District 3' },
+  ];
 
-  await screen.findByRole('heading', { name: 'Districts' });
-  userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
+  apiMock.listDistricts.expectCallWith({ electionId }).resolves(savedDistricts);
 
-  await screen.findByRole('heading', { name: 'Edit District' });
-  userEvent.click(screen.getByRole('button', { name: 'Delete District' }));
-  await screen.findByRole('heading', { name: 'Delete District' });
-  // Cancel in confirm delete modal
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  await waitFor(() =>
-    expect(
-      screen.queryByRole('heading', { name: 'Delete District' })
-    ).not.toBeInTheDocument()
-  );
+  const history = renderScreen(electionId);
 
-  // Cancel edit district
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  await screen.findByRole('heading', { name: 'Districts' });
+  userEvent.click(await screen.findButton('Edit Districts'));
+  expectDistrictInputs(savedDistricts);
+
+  userEvent.click(screen.getButton(`Delete District Saved District 2`));
+  userEvent.click(screen.getButton('Add District'));
+
+  const inputs = screen.getAllByRole('textbox');
+  userEvent.type(inputs[1], ' (Updated)');
+  userEvent.type(inputs[2], 'New District');
+
+  expectDistrictInputs([
+    { id: 'saved-district-1', name: 'Saved District 1' },
+    { id: 'saved-district-3', name: 'Saved District 3 (Updated)' },
+    { id: newDistrictId, name: 'New District' },
+  ]);
+
+  userEvent.click(screen.getButton('Cancel'));
+
+  await screen.findButton('Edit Districts');
+  expectDistrictInputs(savedDistricts);
+  expect(history.location.pathname).toEqual(districtRoutes.root.path);
 });
 
 test('error message for duplicate district name', async () => {
+  const savedDistrict: District = { id: 'd1', name: 'District 1' };
+  const newDistrict: District = { id: idFactory.next(), name: 'District 1' };
+
   apiMock.listDistricts
     .expectCallWith({ electionId })
-    .resolves(election.districts);
+    .resolves([savedDistrict]);
+
   renderScreen(electionId);
-  await screen.findByRole('heading', { name: 'Districts' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Add District' }));
-  await screen.findByRole('heading', { name: 'Add District' });
-  userEvent.type(screen.getByLabelText('Name'), election.districts[0].name);
+  userEvent.click(await screen.findButton('Edit Districts'));
+  userEvent.click(screen.getButton('Add District'));
+  userEvent.type(screen.getAllByRole('textbox')[1], newDistrict.name);
 
-  apiMock.createDistrict
-    .expectCallWith({
-      electionId,
-      newDistrict: {
-        id: idFactory.next(),
-        name: election.districts[0].name,
-      },
-    })
-    .resolves(err('duplicate-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  expectUpdate(apiMock, {
+    electionId,
+    newDistricts: [newDistrict],
+    updatedDistricts: [savedDistrict],
+  }).resolves(err({ code: 'duplicate-name', districtId: newDistrict.id }));
+
+  userEvent.click(screen.getButton('Save'));
+
   await screen.findByText('There is already a district with the same name.');
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  await screen.findByRole('heading', { name: 'Districts' });
-  userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
-
-  await screen.findByRole('heading', { name: 'Edit District' });
-  const nameInput = screen.getByLabelText('Name');
-  expect(nameInput).toHaveValue(election.districts[0].name);
-  userEvent.clear(nameInput);
-  userEvent.type(nameInput, election.districts[1].name);
-
-  apiMock.updateDistrict
-    .expectCallWith({
-      electionId,
-      updatedDistrict: {
-        id: election.districts[0].id,
-        name: election.districts[1].name,
-      },
-    })
-    .resolves(err('duplicate-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await screen.findByText('There is already a district with the same name.');
+  // Editing the problem district should clear the error:
+  userEvent.type(screen.getAllByRole('textbox')[1], ' (edit)');
+  expect(screen.queryByText(/with the same name/i)).not.toBeInTheDocument();
 });
+
+test('audio editing', async () => {
+  const { districts } = election;
+  apiMock.listDistricts.expectCallWith({ electionId }).resolves(districts);
+  mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: true });
+
+  const history = renderScreen(electionId);
+  const editButton = await screen.findButton('Edit Districts');
+
+  for (const district of districts) {
+    const input = await screen.findByDisplayValue(district.name);
+    const container = assertDefined(input.parentElement);
+    const button = within(container).getButton(/preview or edit audio/i);
+
+    userEvent.click(button);
+
+    await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
+    expect(history.location.pathname).toEqual(
+      districtRoutes.audio({
+        stringKey: ElectionStringKey.DISTRICT_NAME,
+        subkey: district.id,
+      })
+    );
+  }
+
+  userEvent.click(editButton);
+  expect(screen.queryByTestId(MOCK_AUDIO_PANEL_ID)).not.toBeInTheDocument();
+  expect(screen.queryButton(/preview or edit audio/i)).not.toBeInTheDocument();
+});
+
+function expectDistrictInputs(districts: District[]) {
+  const inputs = screen.getAllByRole('textbox');
+  const inputValues = inputs.map((i) => (i as HTMLInputElement).value);
+  const districtNames = districts.map((d) => d.name);
+  expect(inputValues).toEqual(districtNames);
+}
+
+function expectUpdate(
+  mockApi: MockApiClient,
+  input: {
+    electionId: string;
+    newDistricts?: District[];
+    updatedDistricts?: District[];
+    deletedDistrictIds?: string[];
+  }
+) {
+  return mockApi.updateDistricts.expectCallWith({
+    newDistricts: [],
+    deletedDistrictIds: [],
+    updatedDistricts: [],
+    ...input,
+  });
+}

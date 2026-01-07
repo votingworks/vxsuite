@@ -42,18 +42,14 @@ export const routes = {
           title: 'Districts',
           path: `${root}/districts`,
         },
-        add: {
-          title: 'Add District',
-          path: `${root}/districts/add`,
-        },
         audio: (p: {
           stringKey: ':stringKey' | ElectionStringKey;
           subkey: ':subkey' | (string & {});
-        }) => `${root}/districts2/audio/${p.stringKey}/${p.subkey}`,
-        edit: (districtId: string) => ({
+        }) => `${root}/districts/audio/${p.stringKey}/${p.subkey}`,
+        edit: {
           title: 'Edit District',
-          path: `${root}/districts/${districtId}`,
-        }),
+          path: `${root}/districts/edit`,
+        },
       },
       precincts: {
         root: {
