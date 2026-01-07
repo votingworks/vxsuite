@@ -1,7 +1,15 @@
 import { AudioPlayer as SharedAudioPlayer } from '@votingworks/backend';
+import { assert } from '@votingworks/basics';
 import { Logger } from '@votingworks/logging';
 
-export type SoundName = 'alarm' | 'chime' | 'error' | 'success' | 'warning';
+export const SoundNameValues = [
+  'alarm',
+  'chime',
+  'error',
+  'success',
+  'warning',
+] as const;
+export type SoundName = (typeof SoundNameValues)[number];
 
 /**
  * Audio player for VxMark that plays sounds through the builtin speaker.
@@ -23,6 +31,7 @@ export class Player {
   }
 
   async play(soundName: SoundName): Promise<void> {
+    assert(SoundNameValues.includes(soundName));
     return await this.sharedPlayer.play(soundName);
   }
 }
