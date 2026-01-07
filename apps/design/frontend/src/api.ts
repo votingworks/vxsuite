@@ -426,42 +426,15 @@ export const updateElectionInfo = {
   },
 } as const;
 
-export const createDistrict = {
+export const updateDistricts = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.createDistrict, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-          await queryClient.refetchQueries(listDistricts.queryKey(electionId));
-        }
-      },
-    });
-  },
-} as const;
-
-export const updateDistrict = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateDistrict, {
+    return useMutation(apiClient.updateDistricts, {
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
         }
-      },
-    });
-  },
-} as const;
-
-export const deleteDistrict = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteDistrict, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
       },
     });
   },

@@ -1,123 +1,94 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Button,
   Callout,
-  Table,
-  TH,
-  TD,
   H1,
-  LinkButton,
-  P,
-  MainContent,
-  Breadcrumbs,
-  Modal,
+  DesktopPalette,
+  useCurrentTheme,
 } from '@votingworks/ui';
 import { Switch, Route, useParams, useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { District, DistrictId, ElectionId } from '@votingworks/types';
-import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { District, ElectionStringKey } from '@votingworks/types';
 
+import { DuplicateDistrictError } from '@votingworks/design-backend';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { Form, TableActionsRow, FormActionsRow, InputGroup } from './layout';
-import {
-  createDistrict,
-  deleteDistrict,
-  getBallotsFinalizedAt,
-  listDistricts,
-  updateDistrict,
-} from './api';
+import { FixedViewport, ListActionsRow } from './layout';
+import { getBallotsFinalizedAt, listDistricts, updateDistricts } from './api';
 import { generateId } from './utils';
 import { useTitle } from './hooks/use_title';
+import { InputWithAudio } from './ballot_audio/input_with_audio';
+import { DistrictAudioPanel } from './district_audio_panel';
+import { FormFixed, FormBody, FormFooter } from './form_fixed';
+import { TooltipContainer, Tooltip } from './tooltip';
 
 export function DistrictsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
   const districtParamRoutes = electionParamRoutes.districts;
-  useTitle(routes.election(electionId).districts.root.title);
+
+  const { title } = districtParamRoutes.root;
+  useTitle(title);
 
   return (
     <ElectionNavScreen electionId={electionId}>
+      <Header>
+        <H1>{title}</H1>
+      </Header>
       <Switch>
-        <Route
-          path={districtParamRoutes.add.path}
-          exact
-          component={AddDistrictForm}
-        />
-        <Route
-          path={districtParamRoutes.edit(':districtId').path}
-          exact
-          component={EditDistrictForm}
-        />
+        <Route path={districtParamRoutes.edit.path}>
+          <Contents editing />
+        </Route>
         <Route path={districtParamRoutes.root.path}>
-          <Header>
-            <H1>Districts</H1>
-          </Header>
-          <MainContent>
-            <Contents />
-          </MainContent>
+          <Contents editing={false} />
         </Route>
       </Switch>
     </ElectionNavScreen>
   );
 }
 
-function Contents(): JSX.Element | null {
-  const { electionId } = useParams<ElectionIdParams>();
-  const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+const Viewport = styled(FixedViewport)`
+  display: grid;
+  grid-template-rows: min-content 1fr;
+`;
 
-  if (!(listDistrictsQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)) {
-    return null;
+const Body = styled.div`
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+
+  /* Districts Form */
+  > :first-child:not(:only-child) {
+    border-right: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+      ${DesktopPalette.Gray30};
+    min-width: 15rem;
+    max-width: min(30%, 28em);
+    width: 100%;
   }
 
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-  const districts = listDistrictsQuery.data;
-  const districtsRoutes = routes.election(electionId).districts;
+  /* Audio Panel */
+  > :last-child:not(:only-child) {
+    flex-grow: 1;
+  }
+`;
 
-  return (
-    <React.Fragment>
-      {districts.length === 0 && (
-        <P>You haven&apos;t added any districts to this election yet.</P>
-      )}
-      <TableActionsRow>
-        <LinkButton
-          icon="Add"
-          variant="primary"
-          to={districtsRoutes.add.path}
-          disabled={!!ballotsFinalizedAt}
-        >
-          Add District
-        </LinkButton>
-      </TableActionsRow>
-      {districts.length > 0 && (
-        <Table>
-          <thead>
-            <tr>
-              <TH>Name</TH>
-              <TH />
-            </tr>
-          </thead>
-          <tbody>
-            {districts.map((district) => (
-              <tr key={district.id}>
-                <TD>{district.name}</TD>
-                <TD>
-                  <LinkButton
-                    icon="Edit"
-                    to={districtsRoutes.edit(district.id).path}
-                    disabled={!!ballotsFinalizedAt}
-                  >
-                    Edit
-                  </LinkButton>
-                </TD>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
-    </React.Fragment>
-  );
-}
+const NoDistrictsCallout = styled(Callout)`
+  max-width: 55ch;
+  width: max-content;
+`;
+
+const DistrictList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 25rem;
+  width: 100%;
+
+  :empty {
+    display: none;
+  }
+`;
 
 function createBlankDistrict(): District {
   return {
@@ -126,226 +97,311 @@ function createBlankDistrict(): District {
   };
 }
 
-function DistrictForm({
-  electionId,
-  savedDistrict,
-}: {
-  electionId: ElectionId;
-  savedDistrict?: District;
-}): JSX.Element | null {
-  const [district, setDistrict] = useState<District>(
-    savedDistrict ??
-      // To make mocked IDs predictable in tests, we pass a function here
-      // so it will only be called on initial render.
-      createBlankDistrict
-  );
-  const updateDistrictMutation = updateDistrict.useMutation();
-  const createDistrictMutation = createDistrict.useMutation();
-  const deleteDistrictMutation = deleteDistrict.useMutation();
-  const history = useHistory();
-  const districtRoutes = routes.election(electionId).districts;
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+function Contents(props: { editing: boolean }): React.ReactNode {
+  const { editing } = props;
+  const { electionId } = useParams<ElectionIdParams>();
 
-  function goBackToDistrictsList() {
-    history.push(districtRoutes.root.path);
+  const [deletedIds, setDeletedDistrictIds] = React.useState(new Set<string>());
+  const [newDistricts, setNewDistricts] = React.useState<District[]>([]);
+  const [updatedDistricts, setUpdatedDistricts] = React.useState<District[]>(
+    []
+  );
+
+  const history = useHistory();
+  const districtsRoutes = routes.election(electionId).districts;
+  const districtsParamRoutes = electionParamRoutes.districts;
+
+  const ballotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const savedDistrictsQuery = listDistricts.useQuery(electionId);
+
+  React.useEffect(() => {
+    if (!savedDistrictsQuery.data) return;
+    setUpdatedDistricts([...savedDistrictsQuery.data]);
+  }, [savedDistrictsQuery.data]);
+
+  const updateDistrictsMutation = updateDistricts.useMutation();
+  const error = updateDistrictsMutation.data?.err();
+
+  if (!savedDistrictsQuery.isSuccess || !ballotsFinalizedAtQuery.isSuccess) {
+    return null;
   }
 
   function onSubmit() {
-    if (savedDistrict) {
-      updateDistrictMutation.mutate(
-        { electionId, updatedDistrict: district },
-        {
-          onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToDistrictsList();
-            }
-          },
-        }
-      );
-    } else {
-      createDistrictMutation.mutate(
-        { electionId, newDistrict: district },
-        {
-          onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToDistrictsList();
-            }
-          },
-        }
-      );
-    }
-  }
-
-  function onDelete() {
-    deleteDistrictMutation.mutate(
-      { electionId, districtId: assertDefined(savedDistrict).id },
-      { onSuccess: goBackToDistrictsList }
+    updateDistrictsMutation.mutate(
+      {
+        electionId,
+        deletedDistrictIds: [...deletedIds],
+        newDistricts,
+        updatedDistricts,
+      },
+      {
+        onSuccess: (result) => {
+          if (result.isErr()) return;
+          reset();
+          setEditing(false);
+        },
+      }
     );
   }
 
-  const someMutationIsLoading =
-    createDistrictMutation.isLoading ||
-    updateDistrictMutation.isLoading ||
-    deleteDistrictMutation.isLoading;
+  function setEditing(switchToEdit: boolean) {
+    history.replace(
+      switchToEdit ? districtsRoutes.edit.path : districtsRoutes.root.path
+    );
+  }
 
-  const errorMessage = (() => {
+  function onListChange(
+    list: District[],
+    updateList: (d: District[]) => void,
+    index: number,
+    district: District
+  ) {
     if (
-      createDistrictMutation.data?.isErr() ||
-      updateDistrictMutation.data?.isErr()
+      error?.districtId === district.id &&
+      district.name.trim() !== list[index].name.trim()
     ) {
-      const error = assertDefined(
-        createDistrictMutation.data?.err() || updateDistrictMutation.data?.err()
-      );
-      /* istanbul ignore next - @preserve */
-      if (error !== 'duplicate-name') throwIllegalValue(error);
-      return (
-        <Callout icon="Danger" color="danger">
-          There is already a district with the same name.
-        </Callout>
-      );
+      updateDistrictsMutation.reset();
     }
-  })();
+
+    const copy = [...list];
+    copy[index] = district;
+    updateList(copy);
+  }
+
+  const savedDistricts = savedDistrictsQuery.data;
+  const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
+  const updating = updateDistrictsMutation.isLoading;
+  const disabled = ballotsFinalized || !editing || updating;
+
+  function reset() {
+    setDeletedDistrictIds(new Set());
+    setNewDistricts([]);
+    setUpdatedDistricts([...savedDistricts]);
+    updateDistrictsMutation.reset();
+  }
 
   return (
-    <Form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      onReset={(e) => {
-        e.preventDefault();
-        goBackToDistrictsList();
-      }}
-    >
-      <InputGroup label="Name">
-        <input
-          type="text"
-          value={district.name}
-          onChange={(e) => setDistrict({ ...district, name: e.target.value })}
-          onBlur={(e) =>
-            setDistrict({ ...district, name: e.target.value.trim() })
-          }
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      {errorMessage}
-      <div>
-        <FormActionsRow>
-          <Button type="reset">Cancel</Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="Done"
-            disabled={someMutationIsLoading}
-          >
-            Save
-          </Button>
-        </FormActionsRow>
-        {savedDistrict && (
-          <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button
-              variant="danger"
-              icon="Delete"
-              onPress={() => setIsConfirmingDelete(true)}
-              disabled={someMutationIsLoading}
-            >
-              Delete District
-            </Button>
-          </FormActionsRow>
-        )}
-        {savedDistrict && isConfirmingDelete && (
-          <Modal
-            title="Delete District"
-            content={
+    <Viewport>
+      <ListActionsRow>
+        <Button
+          disabled={updating || ballotsFinalized}
+          icon="Add"
+          onPress={() => {
+            setNewDistricts([...newDistricts, createBlankDistrict()]);
+            setEditing(true);
+          }}
+          variant="primary"
+        >
+          Add District
+        </Button>
+      </ListActionsRow>
+
+      <Body>
+        <FormFixed
+          editing={editing}
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit();
+          }}
+          onReset={(e) => {
+            e.preventDefault();
+            reset();
+            setEditing(!editing);
+          }}
+        >
+          <FormBody>
+            {savedDistricts.length + newDistricts.length === 0 && (
+              <NoDistrictsCallout color="neutral" icon="Info">
+                You haven&apos;t added any districts to this election yet.
+              </NoDistrictsCallout>
+            )}
+
+            <DistrictList>
+              {updatedDistricts.map((district, i) => (
+                <DistrictRow
+                  disabled={disabled}
+                  district={district}
+                  editing={editing}
+                  error={error}
+                  isFirst={i === 0}
+                  key={district.id}
+                  onChange={(d) =>
+                    onListChange(updatedDistricts, setUpdatedDistricts, i, d)
+                  }
+                  onDelete={() => {
+                    setUpdatedDistricts(
+                      updatedDistricts.filter((d) => d.id !== district.id)
+                    );
+                    setDeletedDistrictIds(
+                      new Set([...deletedIds, district.id])
+                    );
+                  }}
+                />
+              ))}
+
+              {newDistricts.map((district, i) => (
+                <DistrictRow
+                  disabled={disabled}
+                  district={district}
+                  editing={editing}
+                  error={error}
+                  isFirst={updatedDistricts.length + i === 0}
+                  key={district.id}
+                  onChange={(d) =>
+                    onListChange(newDistricts, setNewDistricts, i, d)
+                  }
+                  onDelete={() => {
+                    setNewDistricts(
+                      newDistricts.filter((d) => d.id !== district.id)
+                    );
+                  }}
+                />
+              ))}
+            </DistrictList>
+
+            {editing && (
               <div>
-                <P>
-                  Are you sure you want to delete this district? This action
-                  cannot be undone.
-                </P>
-              </div>
-            }
-            actions={
-              <React.Fragment>
                 <Button
-                  variant="danger"
-                  onPress={onDelete}
-                  autoFocus
-                  disabled={someMutationIsLoading}
+                  icon="Add"
+                  disabled={disabled}
+                  onPress={() => {
+                    setNewDistricts([...newDistricts, createBlankDistrict()]);
+                    setEditing(true);
+                  }}
                 >
-                  Delete District
+                  Add District
                 </Button>
-                <Button onPress={() => setIsConfirmingDelete(false)}>
-                  Cancel
+              </div>
+            )}
+          </FormBody>
+
+          <FormFooter>
+            {editing ? (
+              <React.Fragment>
+                <Button type="reset">Cancel</Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  icon="Done"
+                  disabled={disabled}
+                >
+                  Save
                 </Button>
               </React.Fragment>
-            }
-            onOverlayClick={
-              /* istanbul ignore next - @preserve */
-              () => setIsConfirmingDelete(false)
-            }
+            ) : (
+              <Button
+                disabled={ballotsFinalized}
+                icon="Edit"
+                type="reset"
+                variant="primary"
+              >
+                Edit Districts
+              </Button>
+            )}
+          </FormFooter>
+        </FormFixed>
+
+        <Switch>
+          <Route
+            path={districtsParamRoutes.audio({
+              stringKey: ':stringKey',
+              subkey: ':subkey',
+            })}
+            exact
+            component={DistrictAudioPanel}
           />
-        )}
-      </div>
-    </Form>
+        </Switch>
+      </Body>
+    </Viewport>
   );
 }
 
-function AddDistrictForm(): JSX.Element | null {
+const DistrictRowContainer = styled.div`
+  display: flex;
+  width: 100%;
+
+  > :has(button):not(:first-child) {
+    margin-left: 0.5rem;
+  }
+
+  .icon-button {
+    background: ${(p) => p.theme.colors.background};
+    border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+      ${(p) => p.theme.colors.outline};
+    padding: 0.6rem 0.75rem;
+  }
+`;
+
+function DistrictRow(props: {
+  disabled?: boolean;
+  district: District;
+  editing: boolean;
+  error?: DuplicateDistrictError;
+  isFirst?: boolean;
+  onChange: (district: District) => void;
+  onDelete: (districtId: string) => void;
+}) {
+  const { disabled, district, editing, error, isFirst, onChange, onDelete } =
+    props;
+
   const { electionId } = useParams<ElectionIdParams>();
-  const districtRoutes = routes.election(electionId).districts;
-  const { title } = districtRoutes.add;
+  const theme = useCurrentTheme();
+
+  const errorRef = React.useRef<HTMLDivElement>(null);
+  const hasError = error?.districtId === district.id;
+
+  React.useLayoutEffect(() => {
+    errorRef.current?.scrollIntoView({ block: 'end' });
+  }, [hasError]);
 
   return (
     <React.Fragment>
-      <Header>
-        <Breadcrumbs
-          currentTitle={title}
-          parentRoutes={[districtRoutes.root]}
+      <DistrictRowContainer key={district.id}>
+        <InputWithAudio
+          audioScreenUrl={routes.election(electionId).districts.audio({
+            stringKey: ElectionStringKey.DISTRICT_NAME,
+            subkey: district.id,
+          })}
+          autoFocus={district.name === ''}
+          disabled={disabled}
+          editing={editing}
+          type="text"
+          value={district.name}
+          onBlur={(e) => onChange({ ...district, name: e.target.value.trim() })}
+          onChange={(e) => onChange({ ...district, name: e.target.value })}
+          autoComplete="off"
+          required
+          style={{
+            borderColor: hasError ? theme.colors.dangerAccent : undefined,
+          }}
+          tooltipPlacement={isFirst ? 'bottom' : 'top'}
         />
-        <H1>{title}</H1>
-      </Header>
-      <MainContent>
-        <DistrictForm electionId={electionId} />
-      </MainContent>
-    </React.Fragment>
-  );
-}
 
-function EditDistrictForm(): JSX.Element | null {
-  const { electionId, districtId } = useParams<
-    ElectionIdParams & { districtId: DistrictId }
-  >();
-  const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const districtRoutes = routes.election(electionId).districts;
+        {editing && (
+          <TooltipContainer as="div" style={{ width: 'min-content' }}>
+            <Button
+              aria-label={`Delete District ${district.name}`}
+              className="icon-button"
+              disabled={disabled}
+              icon="Trash"
+              variant="danger"
+              fill="transparent"
+              onPress={() => onDelete(district.id)}
+            />
+            <Tooltip alignTo="right" attachTo={isFirst ? 'bottom' : 'top'} bold>
+              Delete District
+            </Tooltip>
+          </TooltipContainer>
+        )}
+      </DistrictRowContainer>
 
-  if (!listDistrictsQuery.isSuccess) {
-    return null;
-  }
-
-  const districts = listDistrictsQuery.data;
-  const savedDistrict = districts.find((d) => d.id === districtId);
-  const { title } = districtRoutes.edit(districtId);
-
-  // If the district was just deleted, this form may still render momentarily.
-  // Ignore it.
-  /* istanbul ignore next - @preserve */
-  if (!savedDistrict) {
-    return null;
-  }
-
-  return (
-    <React.Fragment>
-      <Header>
-        <Breadcrumbs
-          currentTitle={title}
-          parentRoutes={[districtRoutes.root]}
-        />
-        <H1>{title}</H1>
-      </Header>
-      <MainContent>
-        <DistrictForm electionId={electionId} savedDistrict={savedDistrict} />
-      </MainContent>
+      {hasError && (
+        <div ref={errorRef} style={{ scrollMargin: '1rem' }}>
+          <Callout icon="Danger" color="danger">
+            There is already a district with the same name.
+          </Callout>
+        </div>
+      )}
     </React.Fragment>
   );
 }
