@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -9,7 +9,7 @@ import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS } from './api';
+import { INTERNAL_HARDWARE_POLLING_INTERVAL_MS } from './api';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
@@ -30,7 +30,7 @@ afterEach(() => {
 const insertCardScreenText = 'Insert Card';
 
 describe('Displays setup warning messages and errors screens', () => {
-  test('Displays warning if Accessible Controller connection is lost', async () => {
+  test('Displays internal connection problem if Accessible Controller connection is lost', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
@@ -39,23 +39,19 @@ describe('Displays setup warning messages and errors screens', () => {
     });
 
     render(<App apiClient={apiMock.mockApiClient} />);
-    const accessibleControllerWarningText =
-      'Voting with an accessible controller is not currently available.';
-
     // Start on Insert Card screen
     await screen.findByText(insertCardScreenText);
-    expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
 
     // Disconnect Accessible Controller
     act(() => {
       apiMock.setAccessibleControllerConnected(false);
     });
     await advanceTimersAndPromises(
-      ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS / 1000
+      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
     );
     await vi.waitFor(() => {
-      screen.getByText(accessibleControllerWarningText);
-      screen.getByText(insertCardScreenText);
+      screen.getByRole('heading', { name: /Internal Connection Problem/i });
+      screen.getByText(/Accessible controller is disconnected\./i);
     });
 
     // Reconnect Accessible Controller
@@ -63,10 +59,45 @@ describe('Displays setup warning messages and errors screens', () => {
       apiMock.setAccessibleControllerConnected(true);
     });
     await advanceTimersAndPromises(
-      ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS / 1000
+      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
     );
     await vi.waitFor(() => {
-      expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
+      screen.getByText(insertCardScreenText);
+    });
+  });
+
+  test('Displays internal connection problem if PAT input connection is lost', async () => {
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_open',
+    });
+
+    render(<App apiClient={apiMock.mockApiClient} />);
+    // Start on Insert Card screen
+    await screen.findByText(insertCardScreenText);
+
+    // Disconnect Accessible Controller
+    act(() => {
+      apiMock.setPatInputConnected(false);
+    });
+    await advanceTimersAndPromises(
+      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
+    );
+    await vi.waitFor(() => {
+      screen.getByRole('heading', { name: /Internal Connection Problem/i });
+      screen.getByText(/PAT input is disconnected\./i);
+    });
+
+    // Reconnect Accessible Controller
+    act(() => {
+      apiMock.setPatInputConnected(true);
+    });
+    await advanceTimersAndPromises(
+      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
+    );
+    await vi.waitFor(() => {
       screen.getByText(insertCardScreenText);
     });
   });
@@ -121,5 +152,79 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // expect to see election manager screen
     await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  });
+
+  test('Displays internal connection problem when Barcode Reader connection is lost', async () => {
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_open',
+    });
+
+    render(<App apiClient={apiMock.mockApiClient} />);
+
+    // Start on Insert Card screen
+    await screen.findByText(insertCardScreenText);
+
+    // Disconnect Barcode Reader
+    act(() => {
+      apiMock.setBarcodeConnected(false);
+    });
+    await advanceTimersAndPromises(
+      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
+    );
+
+    // Should see Internal Connection Problem screen with barcode message
+    await vi.waitFor(() => {
+      screen.getByRole('heading', { name: /Internal Connection Problem/i });
+      screen.getByText(/Barcode reader is disconnected\./i);
+    });
+
+    // Reconnect Barcode Reader
+    act(() => {
+      apiMock.setBarcodeConnected(true);
+    });
+    await advanceTimersAndPromises(
+      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
+    );
+    await screen.findByText(insertCardScreenText);
+  });
+
+  test('Displays internal connection problem when Accessible Controller connection is lost', async () => {
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_open',
+    });
+
+    render(<App apiClient={apiMock.mockApiClient} />);
+
+    // Start on Insert Card screen
+    await screen.findByText(insertCardScreenText);
+
+    // Disconnect Accessible Controller
+    act(() => {
+      apiMock.setAccessibleControllerConnected(false);
+    });
+    await advanceTimersAndPromises(
+      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
+    );
+
+    // Should see Internal Connection Problem screen with accessible controller message
+    await vi.waitFor(() => {
+      screen.getByRole('heading', { name: /Internal Connection Problem/i });
+      screen.getByText(/Accessible controller is disconnected\./i);
+    });
+
+    // Reconnect Accessible Controller
+    act(() => {
+      apiMock.setAccessibleControllerConnected(true);
+    });
+    await advanceTimersAndPromises(
+      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
+    );
+    await screen.findByText(insertCardScreenText);
   });
 });

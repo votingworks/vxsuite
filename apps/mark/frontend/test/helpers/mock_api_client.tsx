@@ -58,6 +58,8 @@ type MockApiClient = Omit<
   | 'getUsbDriveStatus'
   | 'getPrinterStatus'
   | 'getAccessibleControllerConnected'
+  | 'getBarcodeConnected'
+  | 'getPatInputConnected'
 > & {
   // Because this is polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -65,6 +67,8 @@ type MockApiClient = Omit<
   getPrinterStatus: Mock;
   getUsbDriveStatus: Mock;
   getAccessibleControllerConnected: Mock;
+  getBarcodeConnected: Mock;
+  getPatInputConnected: Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -85,6 +89,12 @@ function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.getAccessibleControllerConnected as unknown as Mock) = vi.fn(
     () => Promise.resolve(true)
+  );
+  (mockApiClient.getBarcodeConnected as unknown as Mock) = vi.fn(() =>
+    Promise.resolve(true)
+  );
+  (mockApiClient.getPatInputConnected as unknown as Mock) = vi.fn(() =>
+    Promise.resolve(true)
   );
   return mockApiClient as unknown as MockApiClient;
 }
@@ -129,6 +139,18 @@ export function createApiMock() {
     );
   }
 
+  function setPatInputConnected(connected: boolean): void {
+    mockApiClient.getPatInputConnected.mockImplementation(() =>
+      Promise.resolve(connected)
+    );
+  }
+
+  function setBarcodeConnected(connected: boolean): void {
+    mockApiClient.getBarcodeConnected.mockImplementation(() =>
+      Promise.resolve(connected)
+    );
+  }
+
   const electionStateRef: { current: ElectionState } = {
     current: initialElectionState,
   };
@@ -141,6 +163,10 @@ export function createApiMock() {
     setUsbDriveStatus,
 
     setAccessibleControllerConnected,
+
+    setPatInputConnected,
+
+    setBarcodeConnected,
 
     setAuthStatus,
 

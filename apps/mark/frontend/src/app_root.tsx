@@ -58,6 +58,8 @@ import {
   getPrinterStatus,
   getAccessibleControllerConnected,
   useApiClient,
+  getBarcodeConnected,
+  getPatInputConnected,
 } from './api';
 
 import { Ballot } from './components/ballot';
@@ -71,6 +73,7 @@ import { UnconfiguredScreen } from './pages/unconfigured_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 import { UnconfiguredPrecinctScreen } from './pages/unconfigured_precinct_screen';
+import { InternalConnectionProblemScreen } from './pages/internal_connection_problem_screen';
 
 export interface VotingState {
   votes?: VotesDict;
@@ -141,7 +144,7 @@ function votingStateReducer(
         isPatCalibrationComplete: true,
       };
     default: {
-      /* istanbul ignore next - compile time check for completeness - @preserve */
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(action);
     }
   }
@@ -185,6 +188,10 @@ export function AppRoot(): JSX.Element | null {
   const accessibleControllerConnected = Boolean(
     accessibleControllerConnectedQuery.data
   );
+  const barcodeConnectedQuery = getBarcodeConnected.useQuery();
+  const barcodeConnected = Boolean(barcodeConnectedQuery.data ?? true);
+  const patInputConnectedQuery = getPatInputConnected.useQuery();
+  const patInputConnected = Boolean(patInputConnectedQuery.data);
 
   const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =
@@ -491,6 +498,22 @@ export function AppRoot(): JSX.Element | null {
       />
     );
   }
+
+  if (
+    !barcodeConnected ||
+    !patInputConnected ||
+    !accessibleControllerConnected
+  ) {
+    return (
+      <InternalConnectionProblemScreen
+        missingBarcode={!barcodeConnected}
+        missingPatInput={!patInputConnected}
+        missingAccessibleController={!accessibleControllerConnected}
+        isPollWorkerAuth={isPollWorkerAuth(authStatus)}
+      />
+    );
+  }
+
   if (isElectionManagerAuth(authStatus)) {
     if (!electionDefinition) {
       return <UnconfiguredElectionScreenWrapper />;
@@ -598,7 +621,6 @@ export function AppRoot(): JSX.Element | null {
         appPrecinct={appPrecinct}
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
-        showNoAccessibleControllerWarning={!accessibleControllerConnected}
         isLiveMode={!isTestMode}
         pollsState={pollsState}
       />

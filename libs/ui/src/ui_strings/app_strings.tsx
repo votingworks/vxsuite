@@ -1053,6 +1053,24 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteBarcodeReaderDisconnected: () => (
+    <UiString uiStringKey="noteBarcodeReaderDisconnected">
+      Barcode reader is disconnected.
+    </UiString>
+  ),
+
+  notePatInputDisconnected: () => (
+    <UiString uiStringKey="notePatInputDisconnected">
+      PAT input is disconnected.
+    </UiString>
+  ),
+
+  noteAccessibleControllerDisconnected: () => (
+    <UiString uiStringKey="noteAccessibleControllerDisconnected">
+      Accessible controller is disconnected.
+    </UiString>
+  ),
+
   notePrinterHardwareError: () => (
     <UiString uiStringKey="notePrinterHardwareError">
       The printer has experienced an unknown error.

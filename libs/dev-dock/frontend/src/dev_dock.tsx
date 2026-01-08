@@ -23,7 +23,10 @@ import {
   faCaretDown,
   faCaretUp,
   faCircleDown,
+  faGamepad,
   faPrint,
+  faQrcode,
+  faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   isFeatureFlagEnabled,
@@ -44,6 +47,13 @@ const Row = styled.div`
 const Column = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 15px;
+`;
+
+const IconsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 80px);
+  grid-auto-rows: 80px;
   gap: 15px;
 `;
 
@@ -600,6 +610,129 @@ function PrinterMockControl() {
   );
 }
 
+const HardwareIconButton = styled.button<{ isConnected: boolean }>`
+  position: relative;
+  background-color: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border: ${(props) =>
+    props.isConnected
+      ? `4px solid ${Colors.ACTIVE}`
+      : `1px solid ${Colors.BORDER}`};
+  color: ${(props) => (props.isConnected ? Colors.ACTIVE : Colors.TEXT)};
+  &:disabled {
+    color: ${Colors.DISABLED};
+    border-color: ${Colors.DISABLED};
+  }
+`;
+
+function HardwareMockControls() {
+  const queryClient = useQueryClient();
+  const apiClient = useApiClient();
+  const getHardwareMockStatusQuery = useQuery(
+    ['getHardwareMockStatus'],
+    () => apiClient.getHardwareMockStatus(),
+    { refetchInterval: 1000 }
+  );
+  const setBarcodeConnectedMutation = useMutation(
+    apiClient.setBarcodeConnected,
+    {
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['getHardwareMockStatus']),
+    }
+  );
+  const setPatInputConnectedMutation = useMutation(
+    apiClient.setPatInputConnected,
+    {
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['getHardwareMockStatus']),
+    }
+  );
+  const setAccessibleConnectedMutation = useMutation(
+    apiClient.setAccessibleControllerConnected,
+    {
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['getHardwareMockStatus']),
+    }
+  );
+  const isXkeysMockEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_XKEYS
+  );
+  const isBarcodeMockEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+  const isAccessibleControllerMockEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER
+  );
+
+  const status = getHardwareMockStatusQuery.data ?? {
+    barcodeConnected: false,
+    patInputConnected: false,
+    accessibleControllerConnected: false,
+  };
+  return (
+    <>
+      <HardwareIconButton
+        isConnected={status.barcodeConnected}
+        disabled={!isBarcodeMockEnabled}
+        onClick={() =>
+          setBarcodeConnectedMutation.mutate({
+            connected: !status.barcodeConnected,
+          })
+        }
+        aria-label="Barcode Reader"
+      >
+        <FontAwesomeIcon icon={faQrcode} size="2xl" />
+        {!isBarcodeMockEnabled && (
+          <UsbMocksDisabledMessage>
+            <p>Hardware mock disabled</p>
+          </UsbMocksDisabledMessage>
+        )}
+      </HardwareIconButton>
+      <HardwareIconButton
+        isConnected={status.patInputConnected}
+        disabled={!isXkeysMockEnabled}
+        onClick={() =>
+          setPatInputConnectedMutation.mutate({
+            connected: !status.patInputConnected,
+          })
+        }
+        aria-label="PAT Input"
+      >
+        <FontAwesomeIcon icon={faXmark} size="2xl" />
+        {!isAccessibleControllerMockEnabled && (
+          <UsbMocksDisabledMessage>
+            <p>Hardware mock disabled</p>
+          </UsbMocksDisabledMessage>
+        )}
+      </HardwareIconButton>
+      <HardwareIconButton
+        isConnected={status.accessibleControllerConnected}
+        disabled={!isAccessibleControllerMockEnabled}
+        onClick={() =>
+          setAccessibleConnectedMutation.mutate({
+            connected: !status.accessibleControllerConnected,
+          })
+        }
+        aria-label="Accessible Controller"
+      >
+        <FontAwesomeIcon icon={faGamepad} size="2xl" />
+        {!isAccessibleControllerMockEnabled && (
+          <UsbMocksDisabledMessage>
+            <p>Hardware mock disabled</p>
+          </UsbMocksDisabledMessage>
+        )}
+      </HardwareIconButton>
+    </>
+  );
+}
+
 const ScannerButton = styled.button`
   background-color: white;
   padding: 8px 22px;
@@ -803,10 +936,14 @@ function DevDock() {
             <UsbDriveMockControls />
           </Column>
           <Column>
-            <ScreenshotControls containerRef={containerRef} />
-            {mockSpec.printerConfig && mockSpec.printerConfig !== 'fujitsu' && (
-              <PrinterMockControl />
-            )}
+            <IconsGrid>
+              <ScreenshotControls containerRef={containerRef} />
+              {mockSpec.printerConfig &&
+                mockSpec.printerConfig !== 'fujitsu' && <PrinterMockControl />}
+              {(mockSpec.hasBarcodeMock || mockSpec.hasPatInputMock) && (
+                <HardwareMockControls />
+              )}
+            </IconsGrid>
           </Column>
         </Row>
         <Row style={{ justifyContent: 'space-between' }}>

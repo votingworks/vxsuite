@@ -409,6 +409,118 @@ test('printer mock when disabled', async () => {
   userEvent.click(printerButton);
 });
 
+test('hardware mock controls: toggle barcode, PAT input, and accessible controller', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_XKEYS
+  );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER
+  );
+
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec.expectCallWith().resolves({
+    hasBarcodeMock: true,
+    hasPatInputMock: true,
+    hasAccessibleControllerMock: true,
+  });
+
+  // Initial hardware status: all disconnected, then updated as we toggle
+  mockApiClient.getHardwareMockStatus.expectRepeatedCallsWith().resolves({
+    barcodeConnected: false,
+    patInputConnected: false,
+    accessibleControllerConnected: false,
+  });
+
+  render(<DevDock apiClient={mockApiClient} />);
+
+  const barcodeButton = await screen.findByRole('button', {
+    name: 'Barcode Reader',
+  });
+  const patButton = screen.getByRole('button', { name: 'PAT Input' });
+  const accessibleButton = screen.getByRole('button', {
+    name: 'Accessible Controller',
+  });
+
+  // Toggle barcode
+  mockApiClient.setBarcodeConnected
+    .expectCallWith({ connected: true })
+    .resolves();
+  mockApiClient.getHardwareMockStatus.expectRepeatedCallsWith().resolves({
+    barcodeConnected: true,
+    patInputConnected: false,
+    accessibleControllerConnected: false,
+  });
+  userEvent.click(barcodeButton);
+  await waitFor(() => mockApiClient.assertComplete());
+
+  // Toggle PAT input
+  mockApiClient.setPatInputConnected
+    .expectCallWith({ connected: true })
+    .resolves();
+  mockApiClient.getHardwareMockStatus.expectRepeatedCallsWith().resolves({
+    barcodeConnected: true,
+    patInputConnected: true,
+    accessibleControllerConnected: false,
+  });
+  userEvent.click(patButton);
+  await waitFor(() => mockApiClient.assertComplete());
+
+  // Toggle Accessible Controller
+  mockApiClient.setAccessibleControllerConnected
+    .expectCallWith({ connected: true })
+    .resolves();
+  mockApiClient.getHardwareMockStatus.expectRepeatedCallsWith().resolves({
+    barcodeConnected: true,
+    patInputConnected: true,
+    accessibleControllerConnected: true,
+  });
+  userEvent.click(accessibleButton);
+  await waitFor(() => mockApiClient.assertComplete());
+});
+
+test('hardware mock controls disabled when feature flags disabled', async () => {
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_XKEYS
+  );
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER
+  );
+
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec.expectCallWith().resolves({
+    hasBarcodeMock: true,
+    hasPatInputMock: true,
+    hasAccessibleControllerMock: true,
+  });
+  mockApiClient.getHardwareMockStatus.expectRepeatedCallsWith().resolves({
+    barcodeConnected: false,
+    patInputConnected: false,
+    accessibleControllerConnected: false,
+  });
+
+  render(<DevDock apiClient={mockApiClient} />);
+
+  const barcodeButton = await screen.findByRole('button', {
+    name: 'Barcode Reader',
+  });
+  const patButton = screen.getByRole('button', { name: 'PAT Input' });
+  const accessibleButton = screen.getByRole('button', {
+    name: 'Accessible Controller',
+  });
+
+  expect(barcodeButton).toBeDisabled();
+  expect(patButton).toBeDisabled();
+  expect(accessibleButton).toBeDisabled();
+  // At least one disabled overlay should be visible
+  await screen.findAllByText('Hardware mock disabled');
+});
+
 describe('fujitsu printer mock', () => {
   test('when disabled', async () => {
     featureFlagMock.disableFeatureFlag(

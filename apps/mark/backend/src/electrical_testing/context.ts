@@ -17,5 +17,5 @@ export interface ServerContext {
   usbDrive: UsbDrive;
   workspace: Workspace;
   printer: Printer;
-  barcodeClient?: barcodes.Client;
+  barcodeClient?: barcodes.BarcodeReader;
 }

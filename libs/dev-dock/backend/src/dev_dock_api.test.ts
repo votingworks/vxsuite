@@ -309,10 +309,114 @@ test('usb drive mock endpoints', async () => {
 });
 
 test('mock spec', async () => {
-  const { apiClient: apiClientMark } = setup({ printerConfig: 'fujitsu' });
-  expect(await apiClientMark.getMockSpec()).toEqual({
+  const { apiClient: apiClient1 } = setup({ printerConfig: 'fujitsu' });
+  expect(await apiClient1.getMockSpec()).toEqual({
     mockPdiScanner: false,
     printerConfig: 'fujitsu',
+    hasAccessibleControllerMock: false,
+    hasBarcodeMock: false,
+    hasPatInputMock: false,
+  });
+
+  const { apiClient: apiClient2 } = setup({
+    printerConfig: 'fujitsu',
+    getAccessibleControllerConnected: vi.fn(),
+    setAccessibleControllerConnected: vi.fn(),
+    getBarcodeConnected: vi.fn(),
+    setBarcodeConnected: vi.fn(),
+    getPatInputConnected: vi.fn(),
+    setPatInputConnected: vi.fn(),
+  });
+  expect(await apiClient2.getMockSpec()).toEqual({
+    mockPdiScanner: false,
+    printerConfig: 'fujitsu',
+    hasAccessibleControllerMock: true,
+    hasBarcodeMock: true,
+    hasPatInputMock: true,
+  });
+});
+
+test('hardware mock status endpoints for barcode, accessible controller, and pat', async () => {
+  let barcodeConnected = false;
+  let accessibleControllerConnected = false;
+  let patInputConnected = false;
+
+  const { apiClient } = setup({
+    printerConfig: 'fujitsu',
+    getBarcodeConnected: () => barcodeConnected,
+    setBarcodeConnected: (connected: boolean) => {
+      barcodeConnected = connected;
+    },
+    getAccessibleControllerConnected: () => accessibleControllerConnected,
+    setAccessibleControllerConnected: (connected: boolean) => {
+      accessibleControllerConnected = connected;
+    },
+    getPatInputConnected: () => patInputConnected,
+    setPatInputConnected: (connected: boolean) => {
+      patInputConnected = connected;
+    },
+  });
+
+  // Initial state: all disconnected
+  await expect(apiClient.getHardwareMockStatus()).resolves.toEqual({
+    barcodeConnected: false,
+    accessibleControllerConnected: false,
+    patInputConnected: false,
+  });
+
+  // Toggle barcode
+  await apiClient.setBarcodeConnected({ connected: true });
+  await expect(apiClient.getHardwareMockStatus()).resolves.toEqual({
+    barcodeConnected: true,
+    accessibleControllerConnected: false,
+    patInputConnected: false,
+  });
+
+  // Toggle accessible controller
+  await apiClient.setAccessibleControllerConnected({ connected: true });
+  await expect(apiClient.getHardwareMockStatus()).resolves.toEqual({
+    barcodeConnected: true,
+    accessibleControllerConnected: true,
+    patInputConnected: false,
+  });
+
+  // Toggle PAT input
+  await apiClient.setPatInputConnected({ connected: true });
+  await expect(apiClient.getHardwareMockStatus()).resolves.toEqual({
+    barcodeConnected: true,
+    accessibleControllerConnected: true,
+    patInputConnected: true,
+  });
+
+  // Toggle some back to false
+  await apiClient.setBarcodeConnected({ connected: false });
+  await apiClient.setPatInputConnected({ connected: false });
+  await expect(apiClient.getHardwareMockStatus()).resolves.toEqual({
+    barcodeConnected: false,
+    accessibleControllerConnected: true,
+    patInputConnected: false,
+  });
+});
+
+test('getHardwareMockStatus returns all false when no getters provided', async () => {
+  const { apiClient } = setup({ printerConfig: 'fujitsu' });
+  await expect(apiClient.getHardwareMockStatus()).resolves.toEqual({
+    barcodeConnected: false,
+    accessibleControllerConnected: false,
+    patInputConnected: false,
+  });
+});
+
+test('getHardwareMockStatus handles partial mocks and false values', async () => {
+  const { apiClient } = setup({
+    printerConfig: 'fujitsu',
+    getBarcodeConnected: () => false,
+    // Others undefined to exercise fallback path
+  });
+  await expect(apiClient.getHardwareMockStatus()).resolves.toEqual({
+    barcodeConnected: false,
+    accessibleControllerConnected: false,
+    patInputConnected: false,
   });
 });
 

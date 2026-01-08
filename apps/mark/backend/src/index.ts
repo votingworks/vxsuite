@@ -21,7 +21,8 @@ import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { startElectricalTestingServer } from './electrical_testing/server';
 import { getDefaultAuth, getUserRole } from './util/auth';
-import { Client as BarcodeClient } from './barcodes';
+import { BarcodeClient } from './barcodes';
+import { MockBarcodeClient } from './barcodes/mock_client';
 import { Player as AudioPlayer } from './audio/player';
 
 export type { Api } from './app';
@@ -65,7 +66,12 @@ async function main(): Promise<number> {
     const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
     const usbDrive = detectUsbDrive(logger);
     const printer = detectPrinter(logger);
-    const barcodeClient = new BarcodeClient(baseLogger);
+    const useMockBarcode = isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+    );
+    const barcodeClient = useMockBarcode
+      ? new MockBarcodeClient()
+      : new BarcodeClient(baseLogger);
 
     // Initialize audio for electrical testing
     let audioPlayer: AudioPlayer | undefined;

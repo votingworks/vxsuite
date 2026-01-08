@@ -20,7 +20,7 @@ vi.mock('node:worker_threads', async () => {
 
 // Import after mocking
 // eslint-disable-next-line import/first
-import { Client } from './client';
+import { BarcodeClient } from './client';
 
 describe('Client', () => {
   let logger: BaseLogger;
@@ -36,7 +36,7 @@ describe('Client', () => {
   });
 
   test('creates a worker and sets up event listeners on construction', () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
 
     // The client should have been created successfully
     expect(client).toBeDefined();
@@ -45,8 +45,8 @@ describe('Client', () => {
     void client.shutDown();
   });
 
-  test('emits scan event when worker sends valid message', () => {
-    const client = new Client(logger);
+  test('emits scan event when worker sends valid scan message', () => {
+    const client = new BarcodeClient(logger);
     const scanHandler = vi.fn();
     client.on('scan', scanHandler);
 
@@ -54,15 +54,35 @@ describe('Client', () => {
     // @ts-expect-error - accessing private property for testing
     const { worker } = client;
     const testData = new Uint8Array([1, 2, 3, 4]);
-    worker.emit('message', { data: testData });
+    worker.emit('message', { type: 'scan', data: testData });
 
     expect(scanHandler).toHaveBeenCalledWith(testData);
 
     void client.shutDown();
   });
 
+  test('updates connection status when worker sends status message', () => {
+    const client = new BarcodeClient(logger);
+
+    // @ts-expect-error - accessing private property for testing
+    const { worker } = client;
+
+    // Initially disconnected
+    expect(client.getConnectionStatus()).toEqual(false);
+
+    // Receive connected status
+    worker.emit('message', { type: 'status', connected: true });
+    expect(client.getConnectionStatus()).toEqual(true);
+
+    // Receive disconnected status
+    worker.emit('message', { type: 'status', connected: false });
+    expect(client.getConnectionStatus()).toEqual(false);
+
+    void client.shutDown();
+  });
+
   test('ignores invalid messages from worker - null', () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
     const scanHandler = vi.fn();
     client.on('scan', scanHandler);
 
@@ -85,7 +105,7 @@ describe('Client', () => {
   });
 
   test('ignores invalid messages from worker - undefined', () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
     const scanHandler = vi.fn();
     client.on('scan', scanHandler);
 
@@ -99,30 +119,38 @@ describe('Client', () => {
     void client.shutDown();
   });
 
-  test('ignores invalid messages from worker - missing data property', () => {
-    const client = new Client(logger);
+  test('ignores invalid messages from worker - missing type property', () => {
+    const client = new BarcodeClient(logger);
     const scanHandler = vi.fn();
     client.on('scan', scanHandler);
 
     // @ts-expect-error - accessing private property for testing
     const { worker } = client;
 
-    worker.emit('message', { notData: 'invalid' });
+    worker.emit('message', { data: new Uint8Array([1, 2, 3]) });
 
     expect(scanHandler).not.toHaveBeenCalled();
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.any(String),
+      'system',
+      expect.objectContaining({
+        disposition: 'failure',
+        message: 'barcode monitor: ignoring unexpected message from worker',
+      })
+    );
 
     void client.shutDown();
   });
 
-  test('ignores invalid messages from worker - data is not Uint8Array', () => {
-    const client = new Client(logger);
+  test('ignores invalid messages from worker - invalid type', () => {
+    const client = new BarcodeClient(logger);
     const scanHandler = vi.fn();
     client.on('scan', scanHandler);
 
     // @ts-expect-error - accessing private property for testing
     const { worker } = client;
 
-    worker.emit('message', { data: 'not a uint8array' });
+    worker.emit('message', { type: 'unknown', data: 'something' });
 
     expect(scanHandler).not.toHaveBeenCalled();
 
@@ -130,7 +158,7 @@ describe('Client', () => {
   });
 
   test('emits error event when worker encounters an error', () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
     const errorHandler = vi.fn();
     client.on('error', errorHandler);
 
@@ -145,7 +173,7 @@ describe('Client', () => {
   });
 
   test('logs when worker starts successfully', () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
 
     // @ts-expect-error - accessing private property for testing
     const { worker } = client;
@@ -164,7 +192,7 @@ describe('Client', () => {
   });
 
   test('logs message errors from worker', () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
 
     // @ts-expect-error - accessing private property for testing
     const { worker } = client;
@@ -184,7 +212,7 @@ describe('Client', () => {
   });
 
   test('shutDown terminates the worker', async () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
 
     const shutDownPromise = client.shutDown();
     await vi.advanceTimersByTimeAsync(100);
@@ -194,7 +222,7 @@ describe('Client', () => {
   });
 
   test('shutDown returns 0 when terminate returns undefined', async () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
 
     // @ts-expect-error - accessing private property for testing
     const { worker } = client;
@@ -209,7 +237,7 @@ describe('Client', () => {
   });
 
   test('logs when worker exits unexpectedly', () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
 
     // @ts-expect-error - accessing private property for testing
     const { worker } = client;
@@ -228,7 +256,7 @@ describe('Client', () => {
   });
 
   test('restarts worker after exit and resets counter', async () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
 
     // @ts-expect-error - accessing private property for testing
     const initialWorker = client.worker;
@@ -248,7 +276,7 @@ describe('Client', () => {
   });
 
   test('stops restarting worker after 3 consecutive failures', async () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
 
     // @ts-expect-error - accessing private property for testing
     const { worker: initialWorker } = client;
@@ -278,7 +306,7 @@ describe('Client', () => {
   });
 
   test('resets restart counter after successful restart', async () => {
-    const client = new Client(logger);
+    const client = new BarcodeClient(logger);
 
     // @ts-expect-error - accessing private property for testing
     const { worker: initialWorker } = client;

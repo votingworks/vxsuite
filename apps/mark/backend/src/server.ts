@@ -11,12 +11,25 @@ import {
 } from '@votingworks/backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getDefaultAuth, getUserRole } from './util/auth';
-import { Client as BarcodeClient } from './barcodes';
+import { BarcodeClient } from './barcodes';
+import { MockBarcodeClient } from './barcodes/mock_client';
+import {
+  getMockPatInputConnected,
+  setMockPatInputConnected,
+} from './util/mock_pat_input';
 import { NODE_ENV } from './globals';
 import { Player as AudioPlayer } from './audio/player';
+import {
+  getMockAccessibleControllerConnected,
+  setMockAccessibleControllerConnected,
+} from './util/mock_accessible_controller';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -45,8 +58,14 @@ export async function start({
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
 
-  // Only create barcode client in production or when explicitly enabled via env variable
-  const barcodeClient = new BarcodeClient(baseLogger);
+  // Skip creating real barcode client when mock barcode is enabled
+  const useMockBarcode = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+  /* istanbul ignore next - @preserve */
+  const barcodeClient = useMockBarcode
+    ? new MockBarcodeClient()
+    : new BarcodeClient(baseLogger);
 
   const audioInfo = await getAudioInfoWithRetry({
     baseRetryDelayMs: 2000,
@@ -90,7 +109,23 @@ export async function start({
     printer,
   });
 
-  useDevDockRouter(app, express, { printerConfig: HP_LASER_PRINTER_CONFIG });
+  /* istanbul ignore next - @preserve  internal dev use only */
+  useDevDockRouter(app, express, {
+    printerConfig: HP_LASER_PRINTER_CONFIG,
+    getBarcodeConnected: () => Boolean(barcodeClient?.getConnectionStatus?.()),
+    setBarcodeConnected: (connected: boolean) => {
+      if (barcodeClient instanceof MockBarcodeClient) {
+        barcodeClient.setConnected(connected);
+      }
+    },
+    getAccessibleControllerConnected: () =>
+      getMockAccessibleControllerConnected(),
+    setAccessibleControllerConnected: (connected: boolean) =>
+      setMockAccessibleControllerConnected(connected),
+    getPatInputConnected: () => getMockPatInputConnected(),
+    setPatInputConnected: (connected: boolean) =>
+      setMockPatInputConnected(connected),
+  });
 
   // Start periodic CPU metrics logging
   startCpuMetricsLogging(logger);

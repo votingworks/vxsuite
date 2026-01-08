@@ -51,9 +51,13 @@ import {
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { ElectionState, PrintCalibration } from '.';
-import { isAccessibleControllerAttached } from './util/accessible_controller';
+import {
+  isAccessibleControllerAttached,
+  isPatInputAttached,
+} from './util/accessible_controller';
 import { Workspace } from './util/workspace';
 import { Player } from './audio/player';
+import { MockBarcodeClient } from './barcodes/mock_client';
 
 const electionGeneralDefinition =
   electionGeneralFixtures.readElectionDefinition();
@@ -68,6 +72,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 vi.mock(import('./util/accessible_controller.js'), async (importActual) => ({
   ...(await importActual()),
   isAccessibleControllerAttached: vi.fn().mockResolvedValue(true),
+  isPatInputAttached: vi.fn().mockResolvedValue(true),
 }));
 
 vi.mock('./audio/player');
@@ -79,6 +84,7 @@ let mockUsbDrive: MockUsbDrive;
 let mockPrinterHandler: MemoryPrinterHandler;
 let server: Server;
 let workspace: Workspace;
+let mockBarcodeClient: MockBarcodeClient;
 
 function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
   vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
@@ -123,6 +129,7 @@ beforeEach(() => {
     mockAuth,
     mockUsbDrive,
     mockPrinterHandler,
+    mockBarcodeClient,
     server,
     logger,
     workspace,
@@ -574,6 +581,24 @@ test('getAccessibleControllerConnected', async () => {
 
   isAccessibleControllerAttachedMock.mockReturnValue(false);
   expect(await apiClient.getAccessibleControllerConnected()).toEqual(false);
+});
+
+test('getPatInputConnected', async () => {
+  const isPatInputAttachedMock = vi.mocked(isPatInputAttached);
+
+  isPatInputAttachedMock.mockReturnValue(true);
+  expect(await apiClient.getPatInputConnected()).toEqual(true);
+
+  isPatInputAttachedMock.mockReturnValue(false);
+  expect(await apiClient.getPatInputConnected()).toEqual(false);
+});
+
+test('getBarcodeConnected', async () => {
+  // defaults to connected for ease in dev
+  expect(await apiClient.getBarcodeConnected()).toEqual(true);
+  mockBarcodeClient.setConnected(false);
+
+  expect(await apiClient.getBarcodeConnected()).toEqual(false);
 });
 
 test('print calibration', async () => {
