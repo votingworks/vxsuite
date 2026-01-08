@@ -6,7 +6,7 @@ import { H1, LinkButton } from '@votingworks/ui';
 
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { getBallotsFinalizedAt, listPrecincts } from './api';
+import { getBallotsFinalizedAt, getElectionInfo, listPrecincts } from './api';
 import { useTitle } from './hooks/use_title';
 import { PrecinctForm } from './precincts_form';
 import { PrecinctList } from './precincts_list';
@@ -35,9 +35,9 @@ export function PrecinctsScreen(): JSX.Element {
   );
 }
 
-const Viewport = styled(FixedViewport)`
+const Viewport = styled(FixedViewport)<{ hasActionsRow: boolean }>`
   display: grid;
-  grid-template-rows: min-content 1fr;
+  grid-template-rows: ${(p) => (p.hasActionsRow ? 'min-content 1fr' : '1fr')};
 `;
 
 const EditPanel = styled.div`
@@ -70,8 +70,13 @@ function Content(): React.ReactNode {
 
   const precincts = listPrecincts.useQuery(electionId);
   const ballotsFinalizedAt = getBallotsFinalizedAt.useQuery(electionId);
+  const electionInfoQuery = getElectionInfo.useQuery(electionId);
 
-  if (!precincts.isSuccess || !ballotsFinalizedAt.isSuccess) return null;
+  if (
+    !precincts.isSuccess ||
+    !ballotsFinalizedAt.isSuccess ||
+    !electionInfoQuery.isSuccess
+  ) return null;
 
   const precinctRoutes = routes.election(electionId).precincts;
   const precinctParamRoutes = electionParamRoutes.precincts;
@@ -86,19 +91,22 @@ function Content(): React.ReactNode {
       : null;
 
   const ballotsFinalized = !!ballotsFinalizedAt.data;
+  const hasExternalSource = Boolean(electionInfoQuery.data.externalSource);
 
   return (
-    <Viewport>
-      <ListActionsRow>
-        <LinkButton
-          variant="primary"
-          icon="Add"
-          to={precinctRoutes.add.path}
-          disabled={ballotsFinalized}
-        >
-          Add Precinct
-        </LinkButton>
-      </ListActionsRow>
+    <Viewport hasActionsRow={!hasExternalSource}>
+      {!hasExternalSource && (
+        <ListActionsRow>
+          <LinkButton
+            variant="primary"
+            icon="Add"
+            to={precinctRoutes.add.path}
+            disabled={ballotsFinalized}
+          >
+            Add Precinct
+          </LinkButton>
+        </ListActionsRow>
+      )}
 
       <Body>
         <PrecinctList />
