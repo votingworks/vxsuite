@@ -481,42 +481,15 @@ export const deletePrecinct = {
   },
 } as const;
 
-export const createParty = {
+export const updateParties = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.createParty, {
-      async onSuccess(result, { electionId }) {
-        if (result.isOk()) {
-          await invalidateElectionQueries(queryClient, electionId);
-          await queryClient.refetchQueries(listParties.queryKey(electionId));
-        }
-      },
-    });
-  },
-} as const;
-
-export const updateParty = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateParty, {
+    return useMutation(apiClient.updateParties, {
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
         }
-      },
-    });
-  },
-} as const;
-
-export const deleteParty = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteParty, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
       },
     });
   },
