@@ -22,7 +22,10 @@ import {
   provideApi,
   user,
 } from '../test/api_helpers';
-import { generalElectionRecord } from '../test/fixtures';
+import {
+  electionInfoFromElection,
+  generalElectionRecord,
+} from '../test/fixtures';
 import { makeIdFactory } from '../test/id_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -78,6 +81,9 @@ const precinctRoutes = routes.election(electionId).precincts;
 beforeEach(() => {
   mockStateFeatures(apiMock, electionId);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getElectionInfo
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(electionInfoFromElection(election));
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
@@ -459,6 +465,41 @@ test('editing or adding a precinct is disabled when ballots are finalized', asyn
   expect(screen.queryButton('Save')).not.toBeInTheDocument();
   expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
   expect(screen.queryButton('Delete Precinct')).not.toBeInTheDocument();
+});
+
+test('add/delete of precincts and splits is disabled for elections with external source', async () => {
+  const precinctWithSplits = election.precincts.find(hasSplits)!;
+
+  apiMock.getElectionInfo.reset();
+  apiMock.getElectionInfo.expectRepeatedCallsWith({ electionId }).resolves({
+    ...electionInfoFromElection(election),
+    externalSource: 'ms-sems',
+  });
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves(election.precincts);
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+
+  const history = renderScreen(electionId);
+
+  await navigateToPrecinctView(history, precinctWithSplits.id);
+
+  // Add Precinct button should not be visible
+  expect(screen.queryButton('Add Precinct')).not.toBeInTheDocument();
+
+  // Delete Precinct button should not be visible
+  expect(screen.queryButton('Delete Precinct')).not.toBeInTheDocument();
+
+  userEvent.click(screen.getButton('Edit'));
+  await screen.findByRole('heading', { name: 'Edit Precinct' });
+
+  // Add Split button should not be visible
+  expect(screen.queryButton('Add Split')).not.toBeInTheDocument();
+
+  // Remove Split buttons should not be visible
+  expect(screen.queryButton('Remove Split')).not.toBeInTheDocument();
 });
 
 test('cancelling', async () => {

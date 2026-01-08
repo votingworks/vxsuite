@@ -28,6 +28,7 @@ import {
   createPrecinct,
   deletePrecinct,
   getBallotsFinalizedAt,
+  getElectionInfo,
 } from './api';
 import { generateId, replaceAtIndex } from './utils';
 import { SealImageInput } from './seal_image_input';
@@ -62,6 +63,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
 
   const [precinct, setPrecinct] = useState<Precinct>(
     savedPrecinct ??
@@ -78,13 +80,21 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const precinctRoutes = routes.election(electionId).precincts;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-  if (!(getStateFeaturesQuery.isSuccess && listDistrictsQuery.isSuccess)) {
+  if (
+    !(
+      getStateFeaturesQuery.isSuccess &&
+      listDistrictsQuery.isSuccess &&
+      getBallotsFinalizedAtQuery.isSuccess &&
+      getElectionInfoQuery.isSuccess
+    )
+  ) {
     return null;
   }
 
   const features = getStateFeaturesQuery.data;
   const districts = listDistrictsQuery.data;
   const finalized = !!getBallotsFinalizedAtQuery.data;
+  const hasExternalSource = Boolean(getElectionInfoQuery.data.externalSource);
 
   function goBackToPrecinctsList() {
     history.push(precinctRoutes.root.path);
@@ -385,7 +395,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           />
                         </InputGroup>
                       )}
-                      {editing && (
+                      {editing && !hasExternalSource && (
                         <Button
                           style={{ marginTop: 'auto' }}
                           onPress={onRemoveSplitPress}
@@ -397,7 +407,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                     </Column>
                   </Card>
                 ))}
-                {!finalized && (
+                {!finalized && !hasExternalSource && (
                   <div>
                     <Button icon="Add" onPress={onAddSplitPress}>
                       Add Split
@@ -422,7 +432,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                     value={[...precinct.districtIds]}
                   />
                 </div>
-                {!finalized && (
+                {!finalized && !hasExternalSource && (
                   <div>
                     <Button icon="Add" onPress={onAddSplitPress}>
                       Add Split
@@ -441,7 +451,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         <FormFooter style={{ justifyContent: 'space-between' }}>
           <PrimaryFormActions disabled={disabled} editing={editing} />
 
-          {savedPrecinct && (
+          {savedPrecinct && !hasExternalSource && (
             <Button
               variant="danger"
               fill="outlined"
