@@ -1,9 +1,15 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
-import { DEFAULT_SYSTEM_SETTINGS, ElectionId, Party } from '@votingworks/types';
-import { err, ok } from '@votingworks/basics';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionId,
+  ElectionStringKey,
+  Party,
+} from '@votingworks/types';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
+import { DuplicatePartyError } from '@votingworks/design-backend';
 import {
   MockApiClient,
   createMockApiClient,
@@ -12,181 +18,196 @@ import {
   provideApi,
   user,
 } from '../test/api_helpers';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { makeIdFactory } from '../test/id_helpers';
 import { PartiesScreen } from './parties_screen';
+import { PartyAudioPanel } from './party_audio_panel';
+
+vi.mock('./party_audio_panel.js');
+const MockAudioPanel = vi.mocked(PartyAudioPanel);
+const MOCK_AUDIO_PANEL_ID = 'MockPartyAudioPanel';
 
 let apiMock: MockApiClient;
 
 const idFactory = makeIdFactory();
+function renderScreen(electionId: ElectionId) {
+  const { path } = routes.election(electionId).parties.root;
+  const history = createMemoryHistory({ initialEntries: [path] });
+
+  render(
+    provideApi(
+      apiMock,
+      withRoute(<PartiesScreen />, {
+        history,
+        paramPath: routes.election(':electionId').parties.root.path,
+        path,
+      })
+    )
+  );
+
+  return history;
+}
+
+const election = readElectionGeneral();
+const electionId = election.id;
+const partyRoutes = routes.election(electionId).parties;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
+
+  mockStateFeatures(apiMock, electionId);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
+
+  MockAudioPanel.mockReturnValue(<div data-testid={MOCK_AUDIO_PANEL_ID} />);
 });
 
 afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen(electionId: ElectionId) {
-  const { path } = routes.election(electionId).parties.root;
-  const history = createMemoryHistory({ initialEntries: [path] });
-  render(
-    provideApi(
-      apiMock,
-      withRoute(<PartiesScreen />, {
-        paramPath: routes.election(':electionId').parties.root.path,
-        path,
-      })
-    )
-  );
-  return history;
-}
-
-const election = readElectionGeneral();
-const electionId = election.id;
-
-beforeEach(() => {
-  mockStateFeatures(apiMock, electionId);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  apiMock.getSystemSettings
-    .expectCallWith({ electionId })
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
-});
-
-test('adding a party', async () => {
-  const newParty: Party = {
+test('adding a parties to empty list', async () => {
+  const newParty1: Party = {
     id: idFactory.next(),
-    name: 'New Party',
-    fullName: 'New Party Full Name',
-    abbrev: 'NP',
+    name: 'New Party 1',
+    fullName: 'New Party Full Name 1',
+    abbrev: 'NP1',
+  };
+  const newParty2: Party = {
+    id: idFactory.next(),
+    name: 'New Party 2',
+    fullName: 'New Party Full Name 2',
+    abbrev: 'NP2',
   };
 
   apiMock.listParties.expectCallWith({ electionId }).resolves([]);
-  renderScreen(electionId);
+
+  const history = renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Parties' });
   await screen.findByText(
     "You haven't added any parties to this election yet."
   );
+  expect(screen.getButton('Edit Parties')).toBeDisabled();
 
   userEvent.click(screen.getByRole('button', { name: 'Add Party' }));
-  await screen.findByRole('heading', { name: 'Add Party' });
-  expect(screen.getByRole('link', { name: 'Parties' })).toHaveAttribute(
-    'href',
-    `/elections/${electionId}/parties`
-  );
+  await screen.findButton('Save');
+  expect(history.location.pathname).toEqual(partyRoutes.edit.path);
 
-  userEvent.type(screen.getByLabelText('Full Name'), newParty.fullName);
-  userEvent.type(screen.getByLabelText('Short Name'), newParty.name);
-  userEvent.type(screen.getByLabelText('Abbreviation'), newParty.abbrev);
+  // Add first party:
+  {
+    const inputs = getInputsByRow(0);
+    userEvent.type(inputs[0], newParty1.fullName);
+    userEvent.type(inputs[1], newParty1.name);
+    userEvent.type(inputs[2], newParty1.abbrev);
+  }
 
-  apiMock.createParty.expectCallWith({ electionId, newParty }).resolves(ok());
-  apiMock.listParties.expectCallWith({ electionId }).resolves([newParty]);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  // Add second party:
+  userEvent.click(screen.getButton('Add Party'));
+  {
+    const inputs = getInputsByRow(1);
+    userEvent.type(inputs[0], newParty2.fullName);
+    userEvent.type(inputs[1], newParty2.name);
+    userEvent.type(inputs[2], newParty2.abbrev);
+  }
 
-  await screen.findByRole('heading', { name: 'Parties' });
-  expect(
-    screen.getAllByRole('columnheader').map((th) => th.textContent)
-  ).toEqual(['Name', 'Abbreviation', '']);
-  const rows = screen.getAllByRole('row');
-  expect(rows).toHaveLength(2);
-  expect(
-    within(rows[1])
-      .getAllByRole('cell')
-      .map((cell) => cell.textContent)
-  ).toEqual([newParty.fullName, newParty.abbrev, 'Edit']);
+  // Add and delete third party:
+  userEvent.click(screen.getButton('Add Party'));
+  {
+    const inputs = getInputsByRow(2);
+    userEvent.type(inputs[0], 'Temporary Party');
+    userEvent.click(screen.getButton('Delete Party Temporary Party'));
+  }
+
+  const newParties = [newParty1, newParty2];
+  expectPartyInputs(newParties);
+
+  // Save and verify:
+  expectUpdate(apiMock, { electionId, newParties }).resolves(ok());
+  apiMock.listParties.expectCallWith({ electionId }).resolves(newParties);
+
+  userEvent.click(screen.getButton('Save'));
+
+  await screen.findButton('Edit Parties');
+  expectPartyInputs(newParties);
+  expect(history.location.pathname).toEqual(partyRoutes.root.path);
 });
 
-test('editing a party', async () => {
-  const savedParty = election.parties[0];
+test('editing existing party list', async () => {
+  const savedParties: Party[] = [
+    { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+    { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+    { id: 'p3', abbrev: '3', fullName: 'party 3', name: 'p3' },
+  ];
+
+  const preservedParty = savedParties[0];
+  const deletedParty = savedParties[1];
   const updatedParty: Party = {
-    ...savedParty,
-    name: 'Updated Party',
-    fullName: 'Updated Party Full Name',
-    abbrev: 'UP',
+    id: savedParties[2].id,
+    abbrev: '3 (edit)',
+    fullName: 'party 3 (edit)',
+    name: 'p3 (edit)',
+  };
+  const newParty: Party = {
+    id: idFactory.next(),
+    fullName: 'new party',
+    abbrev: 'n',
+    name: 'new',
   };
 
-  apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
+  apiMock.listParties.expectCallWith({ electionId }).resolves(savedParties);
+
   renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Parties' });
-  const savedPartyRow = (await screen.findByText(savedParty.fullName)).closest(
-    'tr'
-  )!;
-  userEvent.click(within(savedPartyRow).getByRole('button', { name: 'Edit' }));
-  await screen.findByRole('heading', { name: 'Edit Party' });
-  expect(screen.getByRole('link', { name: 'Parties' })).toHaveAttribute(
-    'href',
-    `/elections/${electionId}/parties`
-  );
+  await screen.findButton('Edit Parties');
+  expectPartyInputs(savedParties);
 
-  const fullNameInput = screen.getByLabelText('Full Name');
-  expect(fullNameInput).toHaveValue(savedParty.fullName);
-  userEvent.clear(fullNameInput);
-  userEvent.type(fullNameInput, updatedParty.fullName);
+  userEvent.click(screen.getButton('Edit Parties'));
+  expect(screen.queryButton('Edit Parties')).not.toBeInTheDocument();
 
-  const shortNameInput = screen.getByLabelText('Short Name');
-  expect(shortNameInput).toHaveValue(savedParty.name);
-  userEvent.clear(shortNameInput);
-  userEvent.type(shortNameInput, updatedParty.name);
+  // Delete second saved party:
+  userEvent.click(screen.getButton(`Delete Party ${deletedParty.fullName}`));
+  expectPartyInputs([savedParties[0], savedParties[2]]);
 
-  const abbrevInput = screen.getByLabelText('Abbreviation');
-  expect(abbrevInput).toHaveValue(savedParty.abbrev);
-  userEvent.clear(abbrevInput);
-  userEvent.type(abbrevInput, updatedParty.abbrev);
+  // Update third saved party (now at row index 1):
+  {
+    const inputs = getInputsByRow(1);
+    userEvent.type(inputs[0], ' (edit)');
+    userEvent.type(inputs[1], ' (edit)');
+    userEvent.type(inputs[2], ' (edit)');
+  }
 
-  apiMock.updateParty
-    .expectCallWith({ electionId, updatedParty })
-    .resolves(ok());
-  apiMock.listParties
-    .expectCallWith({ electionId })
-    .resolves([updatedParty, ...election.parties.slice(1)]);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  // Add new party:
+  userEvent.click(screen.getButton('Add Party'));
+  {
+    const inputs = getInputsByRow(2);
+    userEvent.type(inputs[0], newParty.fullName);
+    userEvent.type(inputs[1], newParty.name);
+    userEvent.type(inputs[2], newParty.abbrev);
+  }
 
-  await screen.findByRole('heading', { name: 'Parties' });
-  const updatedPartyRow = screen
-    .getByText(updatedParty.fullName)
-    .closest('tr')!;
-  expect(
-    within(updatedPartyRow)
-      .getAllByRole('cell')
-      .map((cell) => cell.textContent)
-  ).toEqual([updatedParty.fullName, updatedParty.abbrev, 'Edit']);
-});
+  const updatedList = [preservedParty, updatedParty, newParty];
+  expectPartyInputs(updatedList);
 
-test('deleting a party', async () => {
-  const [savedParty] = election.parties;
+  expectUpdate(apiMock, {
+    electionId,
+    deletedPartyIds: [deletedParty.id],
+    newParties: [newParty],
+    updatedParties: [preservedParty, updatedParty],
+  }).resolves(ok());
 
-  apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
-  renderScreen(electionId);
+  apiMock.listParties.expectCallWith({ electionId }).resolves(updatedList);
 
-  await screen.findByRole('heading', { name: 'Parties' });
-  const savedPartyRow = (await screen.findByText(savedParty.fullName)).closest(
-    'tr'
-  )!;
-  userEvent.click(within(savedPartyRow).getByRole('button', { name: 'Edit' }));
-  await screen.findByRole('heading', { name: 'Edit Party' });
-
-  apiMock.deleteParty
-    .expectCallWith({ electionId, partyId: savedParty.id })
-    .resolves();
-  apiMock.listParties
-    .expectCallWith({ electionId })
-    .resolves(election.parties.slice(1));
-  // Initiate the deletion
-  userEvent.click(screen.getByRole('button', { name: 'Delete Party' }));
-  // Confirm the deletion in the modal
-  userEvent.click(screen.getByRole('button', { name: 'Delete Party' }));
-
-  await screen.findByRole('heading', { name: 'Parties' });
-  expect(screen.getAllByRole('row')).toHaveLength(election.parties.length);
-  expect(screen.queryByText(savedParty.fullName)).not.toBeInTheDocument();
+  userEvent.click(screen.getButton('Save'));
+  await screen.findButton('Edit Parties');
+  expectPartyInputs(updatedList);
 });
 
 test('editing or adding a party is disabled when ballots are finalized', async () => {
@@ -195,121 +216,176 @@ test('editing or adding a party is disabled when ballots are finalized', async (
     .expectCallWith({ electionId })
     .resolves(new Date());
   apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
+
   renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Parties' });
-  await screen.findByText(election.parties[0].fullName);
-  expect(screen.getAllByRole('button', { name: 'Edit' })[0]).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Add Party' })).toBeDisabled();
+  await screen.findByDisplayValue(election.parties[0].name);
+  expect(screen.getButton('Add Party')).toBeDisabled();
+  expect(screen.queryButton('Edit Parties')).not.toBeInTheDocument();
+  expect(screen.queryButton('Save')).not.toBeInTheDocument();
+  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
 });
 
 test('cancelling', async () => {
-  apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
-  renderScreen(electionId);
+  const savedParties: Party[] = [
+    { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+    { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+    { id: 'p3', abbrev: '3', fullName: 'party 3', name: 'p3' },
+  ];
+  apiMock.listParties.expectCallWith({ electionId }).resolves(savedParties);
 
-  await screen.findByRole('heading', { name: 'Parties' });
-  userEvent.click((await screen.findAllByRole('button', { name: 'Edit' }))[0]);
+  const history = renderScreen(electionId);
 
-  await screen.findByRole('heading', { name: 'Edit Party' });
-  userEvent.click(screen.getByRole('button', { name: 'Delete Party' }));
-  await screen.findByRole('heading', { name: 'Delete Party' });
-  // Cancel in confirm delete modal
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  await waitFor(() =>
-    expect(
-      screen.queryByRole('heading', { name: 'Delete Party' })
-    ).not.toBeInTheDocument()
-  );
+  userEvent.click(await screen.findButton('Edit Parties'));
+  expectPartyInputs(savedParties);
 
-  // Cancel edit party
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  await screen.findByRole('heading', { name: 'Parties' });
-  expect(screen.getAllButtons('Edit')).toHaveLength(election.parties.length);
+  userEvent.click(screen.getButton(`Delete Party ${savedParties[1].fullName}`));
+  userEvent.type(getInputsByRow(1)[0], ' (edit)');
+  userEvent.click(screen.getButton('Add Party'));
+  {
+    const inputs = getInputsByRow(2);
+    userEvent.type(inputs[0], 'new party');
+    userEvent.type(inputs[1], 'new');
+    userEvent.type(inputs[2], 'n');
+  }
+
+  userEvent.click(screen.getButton('Cancel'));
+
+  await screen.findButton('Edit Parties');
+  expectPartyInputs(savedParties);
+  expect(history.location.pathname).toEqual(partyRoutes.root.path);
 });
 
-test('error messages for duplicate party full name/short name/abbrev', async () => {
-  const [savedParty1, savedParty2] = election.parties;
-  apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
-  renderScreen(electionId);
+describe('error messages', () => {
+  interface Spec {
+    inputIndex: number;
+    fieldName: keyof Party;
+    code: DuplicatePartyError['code'];
+    expectedMessage: string;
+  }
 
-  await screen.findByRole('heading', { name: 'Parties' });
-  expect(screen.getAllButtons('Edit')).toHaveLength(election.parties.length);
-  userEvent.click(await screen.findByRole('button', { name: 'Add Party' }));
+  const specs: Spec[] = [
+    {
+      code: 'duplicate-abbrev',
+      expectedMessage: 'There is already a party with the same abbreviation.',
+      fieldName: 'abbrev',
+      inputIndex: 2,
+    },
+    {
+      code: 'duplicate-full-name',
+      expectedMessage: 'There is already a party with the same full name.',
+      fieldName: 'fullName',
+      inputIndex: 0,
+    },
+    {
+      code: 'duplicate-name',
+      expectedMessage: 'There is already a party with the same short name.',
+      fieldName: 'name',
+      inputIndex: 1,
+    },
+  ];
 
-  await screen.findByRole('heading', { name: 'Add Party' });
-  userEvent.type(screen.getByLabelText('Full Name'), savedParty1.fullName);
-  userEvent.type(screen.getByLabelText('Short Name'), savedParty1.name);
-  userEvent.type(screen.getByLabelText('Abbreviation'), savedParty1.abbrev);
+  for (const spec of specs) {
+    test(`${spec.code}`, async () => {
+      const savedParties: Party[] = [
+        { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+        { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+      ];
 
-  const id = idFactory.next();
-  apiMock.createParty
-    .expectCallWith({
-      electionId,
-      newParty: { ...savedParty1, id },
-    })
-    .resolves(err('duplicate-full-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await screen.findByText('There is already a party with the same full name.');
+      apiMock.listParties.expectCallWith({ electionId }).resolves(savedParties);
 
-  apiMock.createParty
-    .expectCallWith({
-      electionId,
-      newParty: { ...savedParty1, id },
-    })
-    .resolves(err('duplicate-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await screen.findByText('There is already a party with the same short name.');
+      renderScreen(electionId);
+      userEvent.click(await screen.findButton('Edit Parties'));
 
-  apiMock.createParty
-    .expectCallWith({
-      electionId,
-      newParty: { ...savedParty1, id },
-    })
-    .resolves(err('duplicate-abbrev'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await screen.findByText(
-    'There is already a party with the same abbreviation.'
-  );
+      expectUpdate(apiMock, {
+        electionId,
+        updatedParties: savedParties,
+      }).resolves(err({ code: spec.code, partyId: savedParties[0].id }));
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  await screen.findByRole('heading', { name: 'Parties' });
-  const party2Row = screen.getByText(savedParty2.fullName).closest('tr')!;
-  userEvent.click(within(party2Row).getByRole('button', { name: 'Edit' }));
-  await screen.findByRole('heading', { name: 'Edit Party' });
+      userEvent.click(screen.getButton('Save'));
 
-  userEvent.clear(screen.getByLabelText('Full Name'));
-  userEvent.type(screen.getByLabelText('Full Name'), savedParty1.fullName);
-  userEvent.clear(screen.getByLabelText('Short Name'));
-  userEvent.type(screen.getByLabelText('Short Name'), savedParty1.name);
-  userEvent.clear(screen.getByLabelText('Abbreviation'));
-  userEvent.type(screen.getByLabelText('Abbreviation'), savedParty1.abbrev);
+      await screen.findByText(spec.expectedMessage);
 
-  apiMock.updateParty
-    .expectCallWith({
-      electionId,
-      updatedParty: { ...savedParty1, id: savedParty2.id },
-    })
-    .resolves(err('duplicate-full-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await screen.findByText('There is already a party with the same full name.');
+      // [TODO] Assert that the error is positioned under the relevant row.
 
-  apiMock.updateParty
-    .expectCallWith({
-      electionId,
-      updatedParty: { ...savedParty1, id: savedParty2.id },
-    })
-    .resolves(err('duplicate-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await screen.findByText('There is already a party with the same short name.');
-
-  apiMock.updateParty
-    .expectCallWith({
-      electionId,
-      updatedParty: { ...savedParty1, id: savedParty2.id },
-    })
-    .resolves(err('duplicate-abbrev'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await screen.findByText(
-    'There is already a party with the same abbreviation.'
-  );
+      // Editing the problem district should clear the error:
+      const input = getInputsByRow(0)[spec.inputIndex];
+      userEvent.type(input, ' (edit)');
+      expect(screen.queryByText(spec.expectedMessage)).not.toBeInTheDocument();
+    });
+  }
 });
+
+test('audio editing', async () => {
+  const { parties } = election;
+  apiMock.listParties.expectCallWith({ electionId }).resolves(parties);
+  mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: true });
+
+  const history = renderScreen(electionId);
+  const editButton = await screen.findButton('Edit Parties');
+
+  async function assertAudioLink(
+    partyId: string,
+    inputValue: string,
+    key: ElectionStringKey
+  ) {
+    const input = screen.getByDisplayValue(inputValue);
+    const container = assertDefined(input.parentElement);
+    const button = within(container).getButton(/preview or edit audio/i);
+
+    userEvent.click(button);
+
+    await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
+    expect(history.location.pathname).toEqual(
+      partyRoutes.audio({ stringKey: key, subkey: partyId })
+    );
+  }
+
+  // Expect audio buttons for each full name and short name input:
+  expect(await screen.findAllButtons(/preview or edit audio/i)).toHaveLength(
+    election.parties.length * 2
+  );
+
+  // Audio buttons should link to the right routes:
+  const Key = ElectionStringKey;
+  for (const party of parties) {
+    await assertAudioLink(party.id, party.fullName, Key.PARTY_FULL_NAME);
+    await assertAudioLink(party.id, party.name, Key.PARTY_NAME);
+  }
+
+  // Switching to "edit" mode should close the audio panel:
+  userEvent.click(editButton);
+  expect(screen.queryByTestId(MOCK_AUDIO_PANEL_ID)).not.toBeInTheDocument();
+  expect(screen.queryButton(/preview or edit audio/i)).not.toBeInTheDocument();
+});
+
+function expectPartyInputs(parties: readonly Party[]) {
+  const inputs = screen.getAllByRole('textbox');
+  const inputValues = inputs.map((i) => (i as HTMLInputElement).value);
+  const partyValues = parties.flatMap((p) => [p.fullName, p.name, p.abbrev]);
+  expect(inputValues).toEqual(partyValues);
+}
+
+function expectUpdate(
+  mockApi: MockApiClient,
+  input: {
+    electionId: string;
+    newParties?: Party[];
+    updatedParties?: Party[];
+    deletedPartyIds?: string[];
+  }
+) {
+  return mockApi.updateParties.expectCallWith({
+    newParties: [],
+    deletedPartyIds: [],
+    updatedParties: [],
+    ...input,
+  });
+}
+
+function getInputsByRow(rowIndex: number) {
+  const inputsPerRow = 3;
+  const inputIndex = rowIndex * inputsPerRow;
+
+  return screen.getAllByRole('textbox').slice(inputIndex, inputIndex + 3);
+}

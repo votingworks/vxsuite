@@ -1,376 +1,435 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Table,
-  TH,
-  TD,
-  LinkButton,
-  P,
-  Breadcrumbs,
   H1,
-  MainContent,
   Button,
-  Modal,
   Callout,
+  DesktopPalette,
+  Font,
+  useCurrentTheme,
 } from '@votingworks/ui';
 import { Route, Switch, useParams, useHistory } from 'react-router-dom';
-import { ElectionId, Party } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/basics';
-import { TableActionsRow, Form, FormActionsRow, InputGroup } from './layout';
+import { ElectionStringKey, Party } from '@votingworks/types';
+import { DuplicatePartyError } from '@votingworks/design-backend';
+import styled from 'styled-components';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import {
-  getBallotsFinalizedAt,
-  listParties,
-  createParty,
-  deleteParty,
-  updateParty,
-} from './api';
+import { getBallotsFinalizedAt, listParties } from './api';
 import { useTitle } from './hooks/use_title';
 import { generateId } from './utils';
+import * as api from './api';
+import { InputWithAudio } from './ballot_audio/input_with_audio';
+import { FormFixed, FormBody, FormFooter } from './form_fixed';
+import { FixedViewport, ListActionsRow } from './layout';
+import { PartyAudioPanel } from './party_audio_panel';
+import { TooltipContainer, Tooltip } from './tooltip';
 
 export function PartiesScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
-  const partyParamRoutes = electionParamRoutes.parties;
+  const partiesParamRoutes = electionParamRoutes.parties;
 
-  useTitle(routes.election(electionId).parties.root.title);
+  const { title } = partiesParamRoutes.root;
+  useTitle(title);
 
   return (
     <ElectionNavScreen electionId={electionId}>
+      <Header>
+        <H1>{title}</H1>
+      </Header>
       <Switch>
-        <Route
-          path={partyParamRoutes.addParty.path}
-          exact
-          component={AddPartyForm}
-        />
-        <Route
-          path={partyParamRoutes.editParty(':partyId').path}
-          exact
-          component={EditPartyForm}
-        />
-        <Route path={partyParamRoutes.root.path}>
-          <Header>
-            <H1>Parties</H1>
-          </Header>
-          <MainContent>
-            <PartyList />
-          </MainContent>
+        <Route path={partiesParamRoutes.edit.path}>
+          <Contents editing />
+        </Route>
+        <Route path={partiesParamRoutes.root.path}>
+          <Contents editing={false} />
         </Route>
       </Switch>
     </ElectionNavScreen>
   );
 }
 
-export function PartyList(): React.ReactNode {
+const Viewport = styled(FixedViewport)`
+  display: grid;
+  grid-template-rows: min-content 1fr;
+`;
+
+const Body = styled.div`
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+
+  /* Parties Form */
+  > :first-child:not(:only-child) {
+    border-right: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+      ${DesktopPalette.Gray30};
+    min-width: 25rem;
+    max-width: min(50%, 42rem);
+    width: 100%;
+  }
+
+  /* Audio Panel */
+  > :last-child:not(:only-child) {
+    flex-grow: 1;
+  }
+`;
+
+const NoPartiesCallout = styled(Callout)`
+  max-width: 55ch;
+  width: max-content;
+`;
+
+const PartyList = styled.div`
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-columns: 3fr 2fr 1fr min-content;
+  width: 100%;
+  max-width: 40rem;
+
+  .icon-button {
+    background: ${(p) => p.theme.colors.background};
+    border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+      ${(p) => p.theme.colors.outline};
+    padding: 0.6rem 0.75rem;
+  }
+`;
+
+function Contents(props: { editing: boolean }): React.ReactNode {
+  const { editing } = props;
   const { electionId } = useParams<ElectionIdParams>();
-  const listPartiesQuery = listParties.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  /* istanbul ignore next - @preserve */
-  if (!(listPartiesQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)) {
-    return null;
-  }
+  const [deletedIds, setDeletedPartyIds] = React.useState(new Set<string>());
+  const [newParties, setNewParties] = React.useState<Party[]>([]);
+  const [updatedParties, setUpdatedParties] = React.useState<Party[]>([]);
 
-  const parties = listPartiesQuery.data;
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-  const partyRoutes = routes.election(electionId).parties;
-
-  return (
-    <React.Fragment>
-      {parties.length === 0 && (
-        <P>You haven&apos;t added any parties to this election yet.</P>
-      )}
-      <TableActionsRow>
-        <LinkButton
-          icon="Add"
-          variant="primary"
-          to={partyRoutes.addParty.path}
-          disabled={!!ballotsFinalizedAt}
-        >
-          Add Party
-        </LinkButton>
-      </TableActionsRow>
-      {parties.length > 0 && (
-        <Table>
-          <thead>
-            <tr>
-              <TH>Name</TH>
-              <TH>Abbreviation</TH>
-              <TH />
-            </tr>
-          </thead>
-          <tbody>
-            {parties.map((party) => (
-              <tr key={party.id}>
-                <TD>{party.fullName}</TD>
-                <TD>{party.abbrev}</TD>
-                <TD>
-                  <LinkButton
-                    icon="Edit"
-                    to={partyRoutes.editParty(party.id).path}
-                    disabled={!!ballotsFinalizedAt}
-                  >
-                    Edit
-                  </LinkButton>
-                </TD>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
-    </React.Fragment>
-  );
-}
-
-function AddPartyForm(): JSX.Element | null {
-  const { electionId } = useParams<ElectionIdParams>();
-  const partyRoutes = routes.election(electionId).parties;
-  const { title } = partyRoutes.addParty;
-
-  return (
-    <React.Fragment>
-      <Header>
-        <Breadcrumbs currentTitle={title} parentRoutes={[partyRoutes.root]} />
-        <H1>{title}</H1>
-      </Header>
-      <MainContent>
-        <PartyForm electionId={electionId} />
-      </MainContent>
-    </React.Fragment>
-  );
-}
-
-function EditPartyForm(): JSX.Element | null {
-  const { electionId, partyId } = useParams<
-    ElectionIdParams & { partyId: string }
-  >();
-  const listPartiesQuery = listParties.useQuery(electionId);
-  const partyRoutes = routes.election(electionId).parties;
-
-  /* istanbul ignore next - @preserve */
-  if (!listPartiesQuery.isSuccess) {
-    return null;
-  }
-
-  const parties = listPartiesQuery.data;
-  const savedParty = parties.find((p) => p.id === partyId);
-  const { title } = partyRoutes.editParty(partyId);
-
-  // If the party was just deleted, this form may still render momentarily.
-  // Ignore it.
-  /* istanbul ignore next - @preserve */
-  if (!savedParty) {
-    return null;
-  }
-
-  return (
-    <React.Fragment>
-      <Header>
-        <Breadcrumbs currentTitle={title} parentRoutes={[partyRoutes.root]} />
-        <H1>{title}</H1>
-      </Header>
-      <MainContent>
-        <PartyForm electionId={electionId} savedParty={savedParty} />
-      </MainContent>
-    </React.Fragment>
-  );
-}
-
-interface PartyFormProps {
-  electionId: ElectionId;
-  savedParty?: Party;
-}
-
-function PartyForm(props: PartyFormProps): JSX.Element {
-  const { electionId, savedParty } = props;
-  const [party, setParty] = useState<Party>(
-    savedParty ??
-      // To make mocked IDs predictable in tests, we pass a function here
-      // so it will only be called on initial render.
-      createBlankParty
-  );
-  const createPartyMutation = createParty.useMutation();
-  const updatePartyMutation = updateParty.useMutation();
-  const deletePartyMutation = deleteParty.useMutation();
   const history = useHistory();
-  const partyRoutes = routes.election(electionId).parties;
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const partiesRoutes = routes.election(electionId).parties;
+  const partyParamRoutes = routes.election(':electionId').parties;
 
-  function goBackToPartiesList() {
-    history.push(partyRoutes.root.path);
+  const savedPartiesQuery = listParties.useQuery(electionId);
+  const ballotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+
+  React.useEffect(() => {
+    if (!savedPartiesQuery.data) return;
+    setUpdatedParties([...savedPartiesQuery.data]);
+  }, [savedPartiesQuery.data]);
+
+  const updatePartiesMutation = api.updateParties.useMutation();
+  const error = updatePartiesMutation.data?.err();
+
+  if (!(savedPartiesQuery.isSuccess && ballotsFinalizedAtQuery.isSuccess)) {
+    return null;
   }
 
   function onSubmit() {
-    if (savedParty) {
-      updatePartyMutation.mutate(
-        { electionId, updatedParty: party },
-        {
-          onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToPartiesList();
-            }
-          },
-        }
-      );
-    } else {
-      createPartyMutation.mutate(
-        { electionId, newParty: party },
-        {
-          onSuccess: (result) => {
-            if (result.isOk()) {
-              goBackToPartiesList();
-            }
-          },
-        }
-      );
-    }
-  }
-
-  function onDelete() {
-    deletePartyMutation.mutate(
-      { electionId, partyId: party.id },
-      { onSuccess: goBackToPartiesList }
+    updatePartiesMutation.mutate(
+      {
+        electionId,
+        deletedPartyIds: [...deletedIds],
+        newParties,
+        updatedParties,
+      },
+      {
+        onSuccess: (result) => {
+          if (result.isErr()) return;
+          reset();
+          setEditing(false);
+        },
+      }
     );
   }
 
-  const someMutationIsLoading =
-    createPartyMutation.isLoading ||
-    updatePartyMutation.isLoading ||
-    deletePartyMutation.isLoading;
+  function setEditing(switchToEdit: boolean) {
+    history.replace(
+      switchToEdit ? partiesRoutes.edit.path : partiesRoutes.root.path
+    );
+  }
 
-  const error =
-    createPartyMutation.data?.err() || updatePartyMutation.data?.err();
-  const errorMessage =
-    error &&
-    (() => {
-      switch (error) {
-        case 'duplicate-name':
-          return (
-            <Callout icon="Danger" color="danger">
-              There is already a party with the same short name.
-            </Callout>
-          );
-        case 'duplicate-full-name':
-          return (
-            <Callout icon="Danger" color="danger">
-              There is already a party with the same full name.
-            </Callout>
-          );
-        case 'duplicate-abbrev':
-          return (
-            <Callout icon="Danger" color="danger">
-              There is already a party with the same abbreviation.
-            </Callout>
-          );
-        default: {
-          /* istanbul ignore next - @preserve */
-          return throwIllegalValue(error);
-        }
-      }
-    })();
+  function onListChange(
+    list: Party[],
+    updateList: (d: Party[]) => void,
+    index: number,
+    party: Party
+  ) {
+    if (error?.partyId === party.id && isChanged(list[index], party)) {
+      updatePartiesMutation.reset();
+    }
+
+    const copy = [...list];
+    copy[index] = party;
+    updateList(copy);
+  }
+
+  const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
+  const savedParties = savedPartiesQuery.data;
+  const updating = updatePartiesMutation.isLoading;
+  const disabled = ballotsFinalized || !editing || updating;
+
+  function reset() {
+    setNewParties([]);
+    setUpdatedParties([...savedParties]);
+    setDeletedPartyIds(new Set());
+    updatePartiesMutation.reset();
+  }
 
   return (
-    <Form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}
-      onReset={(e) => {
-        e.preventDefault();
-        goBackToPartiesList();
-      }}
-    >
-      <InputGroup label="Full Name">
-        <input
-          type="text"
-          value={party.fullName}
-          onChange={(e) => setParty({ ...party, fullName: e.target.value })}
-          onBlur={(e) =>
-            setParty({ ...party, fullName: e.target.value.trim() })
-          }
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <InputGroup label="Short Name">
-        <input
-          type="text"
-          value={party.name}
-          onChange={(e) => setParty({ ...party, name: e.target.value })}
-          onBlur={(e) => setParty({ ...party, name: e.target.value.trim() })}
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      <InputGroup label="Abbreviation">
-        <input
-          type="text"
-          value={party.abbrev}
-          onChange={(e) => setParty({ ...party, abbrev: e.target.value })}
-          onBlur={(e) => setParty({ ...party, abbrev: e.target.value.trim() })}
-          autoComplete="off"
-          required
-        />
-      </InputGroup>
-      {errorMessage}
-      <div>
-        <FormActionsRow>
-          <Button type="reset">Cancel</Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="Done"
-            disabled={someMutationIsLoading}
-          >
-            Save
-          </Button>
-        </FormActionsRow>
-        {savedParty && (
-          <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button
-              variant="danger"
-              icon="Delete"
-              onPress={() => setIsConfirmingDelete(true)}
-              disabled={someMutationIsLoading}
-            >
-              Delete Party
-            </Button>
-          </FormActionsRow>
-        )}
-        {savedParty && isConfirmingDelete && (
-          <Modal
-            title="Delete Party"
-            content={
-              <P>
-                Are you sure you want to delete this party? This action cannot
-                be undone.
-              </P>
-            }
-            actions={
-              <React.Fragment>
-                <Button onPress={onDelete} variant="danger" autoFocus>
-                  Delete Party
+    <Viewport>
+      <ListActionsRow>
+        <Button
+          disabled={updating || ballotsFinalized}
+          icon="Add"
+          onPress={() => {
+            setNewParties([...newParties, createBlankParty()]);
+            setEditing(true);
+          }}
+          variant="primary"
+        >
+          Add Party
+        </Button>
+      </ListActionsRow>
+
+      <Body>
+        <FormFixed
+          editing={editing}
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit();
+          }}
+          onReset={(e) => {
+            e.preventDefault();
+            reset();
+            setEditing(!editing);
+          }}
+        >
+          <FormBody>
+            {savedParties.length + newParties.length === 0 && (
+              <NoPartiesCallout color="neutral" icon="Info">
+                You haven&apos;t added any parties to this election yet.
+              </NoPartiesCallout>
+            )}
+
+            {updatedParties.length + newParties.length > 0 && (
+              <PartyList>
+                <Font weight="bold">Full Name</Font>
+                <Font weight="bold">Short Name</Font>
+                <Font weight="bold">Abbreviation</Font>
+                <div /> {/* Delete/Audio button column */}
+                {updatedParties.map((party, i) => (
+                  <PartyRow
+                    disabled={disabled}
+                    editing={editing}
+                    key={party.id}
+                    onChange={(p) =>
+                      onListChange(updatedParties, setUpdatedParties, i, p)
+                    }
+                    onDelete={() => {
+                      setUpdatedParties(
+                        updatedParties.filter((p) => p.id !== party.id)
+                      );
+                      setDeletedPartyIds(new Set([...deletedIds, party.id]));
+                    }}
+                    party={party}
+                    updateError={error}
+                  />
+                ))}
+                {newParties.map((party, i) => (
+                  <PartyRow
+                    disabled={disabled}
+                    editing={editing}
+                    key={party.id}
+                    onChange={(p) =>
+                      onListChange(newParties, setNewParties, i, p)
+                    }
+                    onDelete={() => {
+                      setNewParties(
+                        newParties.filter((p) => p.id !== party.id)
+                      );
+                    }}
+                    party={party}
+                    updateError={error}
+                  />
+                ))}
+              </PartyList>
+            )}
+          </FormBody>
+
+          {!ballotsFinalized && (
+            <FormFooter>
+              {editing ? (
+                <React.Fragment>
+                  <Button disabled={updating} type="reset">
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    icon="Done"
+                    disabled={updating}
+                  >
+                    Save
+                  </Button>
+                </React.Fragment>
+              ) : (
+                <Button
+                  disabled={savedParties.length === 0}
+                  icon="Edit"
+                  type="reset"
+                  variant={savedParties.length === 0 ? 'neutral' : 'primary'}
+                >
+                  Edit Parties
                 </Button>
-                <Button onPress={() => setIsConfirmingDelete(false)}>
-                  Cancel
-                </Button>
-              </React.Fragment>
-            }
-            onOverlayClick={
-              /* istanbul ignore next - @preserve */
-              () => setIsConfirmingDelete(false)
-            }
+              )}
+            </FormFooter>
+          )}
+        </FormFixed>
+
+        <Switch>
+          <Route
+            path={partyParamRoutes.audio({
+              stringKey: ':stringKey',
+              subkey: ':subkey',
+            })}
+            exact
+            component={PartyAudioPanel}
           />
-        )}
-      </div>
-    </Form>
+        </Switch>
+      </Body>
+    </Viewport>
+  );
+}
+
+const ERROR_MESSAGE: Record<DuplicatePartyError['code'], string> = {
+  'duplicate-abbrev': 'There is already a party with the same abbreviation.',
+  'duplicate-full-name': 'There is already a party with the same full name.',
+  'duplicate-name': 'There is already a party with the same short name.',
+};
+
+function PartyRow(props: {
+  disabled?: boolean;
+  editing: boolean;
+  onChange: (party: Party) => void;
+  onDelete: (partyId: string) => void;
+  party: Party;
+  // eslint-disable-next-line vx/gts-use-optionals -- require explicit prop
+  updateError: DuplicatePartyError | undefined;
+}) {
+  const { disabled, editing, updateError, onChange, onDelete, party } = props;
+  const { electionId } = useParams<ElectionIdParams>();
+  const partiesRoutes = routes.election(electionId).parties;
+
+  const hasErr = updateError?.partyId === party.id;
+  const hasAbbrevErr = hasErr && updateError.code === 'duplicate-abbrev';
+  const hasFullNameErr = hasErr && updateError.code === 'duplicate-full-name';
+  const hasNameErr = hasErr && updateError.code === 'duplicate-name';
+
+  const errorRef = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    errorRef.current?.scrollIntoView({ block: 'end' });
+  }, [updateError]);
+
+  const theme = useCurrentTheme();
+
+  return (
+    <React.Fragment key={party.id}>
+      <InputWithAudio
+        audioScreenUrl={partiesRoutes.audio({
+          stringKey: ElectionStringKey.PARTY_FULL_NAME,
+          subkey: party.id,
+        })}
+        autoComplete="off"
+        autoFocus={party.fullName === ''}
+        editing={editing}
+        disabled={disabled}
+        type="text"
+        value={party.fullName}
+        onBlur={(e) => onChange({ ...party, fullName: e.target.value.trim() })}
+        onChange={(e) => onChange({ ...party, fullName: e.target.value })}
+        required
+        style={{
+          borderColor: hasFullNameErr ? theme.colors.dangerAccent : undefined,
+          minWidth: '4rem',
+        }}
+      />
+
+      <InputWithAudio
+        audioScreenUrl={partiesRoutes.audio({
+          stringKey: ElectionStringKey.PARTY_NAME,
+          subkey: party.id,
+        })}
+        autoComplete="off"
+        disabled={disabled}
+        type="text"
+        value={party.name}
+        editing={editing}
+        onBlur={(e) => onChange({ ...party, name: e.target.value.trim() })}
+        onChange={(e) => onChange({ ...party, name: e.target.value })}
+        required
+        style={{
+          borderColor: hasNameErr ? theme.colors.dangerAccent : undefined,
+          minWidth: '4rem',
+        }}
+      />
+
+      <input
+        autoComplete="off"
+        disabled={disabled}
+        type="text"
+        value={party.abbrev}
+        onBlur={(e) => onChange({ ...party, abbrev: e.target.value.trim() })}
+        onChange={(e) => onChange({ ...party, abbrev: e.target.value })}
+        required
+        style={{
+          borderColor: hasAbbrevErr ? theme.colors.dangerAccent : undefined,
+          minWidth: '4rem',
+        }}
+      />
+
+      {editing ? (
+        <TooltipContainer as="div" style={{ width: 'min-content' }}>
+          <Button
+            aria-label={`Delete Party ${party.fullName}`}
+            className="icon-button"
+            disabled={disabled}
+            icon="Trash"
+            variant="danger"
+            fill="transparent"
+            onPress={onDelete}
+            value={party.id}
+          />
+          <Tooltip alignTo="right" bold>
+            Delete Party
+          </Tooltip>
+        </TooltipContainer>
+      ) : (
+        <div />
+      )}
+
+      {hasErr && (
+        <div
+          ref={errorRef}
+          style={{ gridColumn: '1 / -1', scrollMargin: '1rem' }}
+        >
+          <Callout icon="Danger" color="danger">
+            {ERROR_MESSAGE[updateError.code]}
+          </Callout>
+        </div>
+      )}
+    </React.Fragment>
   );
 }
 
 function createBlankParty(): Party {
   return {
+    abbrev: '',
+    fullName: '',
     id: generateId(),
     name: '',
-    fullName: '',
-    abbrev: '',
   };
+}
+
+function isChanged(original: Party, updated: Party) {
+  return (
+    original.fullName.trim() !== updated.fullName.trim() ||
+    original.name.trim() !== updated.name.trim() ||
+    original.abbrev.trim() !== updated.abbrev.trim()
+  );
 }

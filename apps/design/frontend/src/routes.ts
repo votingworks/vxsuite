@@ -80,18 +80,14 @@ export const routes = {
           title: 'Parties',
           path: `${root}/parties`,
         },
-        addParty: {
-          title: 'Add Party',
-          path: `${root}/parties/add`,
-        },
         audio: (p: {
           stringKey: ':stringKey' | ElectionStringKey;
           subkey: ':subkey' | (string & {});
         }) => `${root}/parties/audio/${p.stringKey}/${p.subkey}`,
-        editParty: (partyId: string) => ({
-          title: 'Edit Party',
-          path: `${root}/parties/${partyId}`,
-        }),
+        edit: {
+          title: 'Parties',
+          path: `${root}/parties/edit`,
+        },
       },
       contests: {
         root: {
