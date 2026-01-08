@@ -15,7 +15,12 @@ import { DuplicateDistrictError } from '@votingworks/design-backend';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { FixedViewport, ListActionsRow } from './layout';
-import { getBallotsFinalizedAt, listDistricts, updateDistricts } from './api';
+import {
+  getBallotsFinalizedAt,
+  getElectionInfo,
+  listDistricts,
+  updateDistricts,
+} from './api';
 import { generateId } from './utils';
 import { useTitle } from './hooks/use_title';
 import { InputWithAudio } from './ballot_audio/input_with_audio';
@@ -47,9 +52,9 @@ export function DistrictsScreen(): JSX.Element {
   );
 }
 
-const Viewport = styled(FixedViewport)`
+const Viewport = styled(FixedViewport)<{ hasActionsRow: boolean }>`
   display: grid;
-  grid-template-rows: min-content 1fr;
+  grid-template-rows: ${(p) => (p.hasActionsRow ? 'min-content 1fr' : '1fr')};
 `;
 
 const Body = styled.div`
@@ -112,6 +117,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const districtsParamRoutes = electionParamRoutes.districts;
 
   const ballotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const electionInfoQuery = getElectionInfo.useQuery(electionId);
   const savedDistrictsQuery = listDistricts.useQuery(electionId);
 
   React.useEffect(() => {
@@ -122,7 +128,11 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const updateDistrictsMutation = updateDistricts.useMutation();
   const error = updateDistrictsMutation.data?.err();
 
-  if (!savedDistrictsQuery.isSuccess || !ballotsFinalizedAtQuery.isSuccess) {
+  if (
+    !savedDistrictsQuery.isSuccess ||
+    !ballotsFinalizedAtQuery.isSuccess ||
+    !electionInfoQuery.isSuccess
+  ) {
     return null;
   }
 
@@ -172,6 +182,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
   const updating = updateDistrictsMutation.isLoading;
   const disabled = ballotsFinalized || !editing || updating;
+  const hasExternalSource = Boolean(electionInfoQuery.data.externalSource);
 
   function reset() {
     setDeletedDistrictIds(new Set());
@@ -181,21 +192,22 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   }
 
   return (
-    <Viewport>
-      <ListActionsRow>
-        <Button
-          disabled={updating || ballotsFinalized}
-          icon="Add"
-          onPress={() => {
-            setNewDistricts([...newDistricts, createBlankDistrict()]);
-            setEditing(true);
-          }}
-          variant="primary"
-        >
-          Add District
-        </Button>
-      </ListActionsRow>
-
+    <Viewport hasActionsRow={!hasExternalSource}>
+      {!hasExternalSource && (
+        <ListActionsRow>
+          <Button
+            disabled={updating || ballotsFinalized}
+            icon="Add"
+            onPress={() => {
+              setNewDistricts([...newDistricts, createBlankDistrict()]);
+              setEditing(true);
+            }}
+            variant="primary"
+          >
+            Add District
+          </Button>
+        </ListActionsRow>
+      )}
       <Body>
         <FormFixed
           editing={editing}
@@ -224,6 +236,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                   editing={editing}
                   error={error}
                   isFirst={i === 0}
+                  canDelete={!hasExternalSource}
                   key={district.id}
                   onChange={(d) =>
                     onListChange(updatedDistricts, setUpdatedDistricts, i, d)
@@ -246,6 +259,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                   editing={editing}
                   error={error}
                   isFirst={updatedDistricts.length + i === 0}
+                  canDelete={!hasExternalSource}
                   key={district.id}
                   onChange={(d) =>
                     onListChange(newDistricts, setNewDistricts, i, d)
@@ -325,11 +339,20 @@ function DistrictRow(props: {
   editing: boolean;
   error?: DuplicateDistrictError;
   isFirst?: boolean;
+  canDelete?: boolean;
   onChange: (district: District) => void;
   onDelete: (districtId: string) => void;
 }) {
-  const { disabled, district, editing, error, isFirst, onChange, onDelete } =
-    props;
+  const {
+    disabled,
+    district,
+    editing,
+    error,
+    isFirst,
+    canDelete,
+    onChange,
+    onDelete,
+  } = props;
 
   const { electionId } = useParams<ElectionIdParams>();
   const theme = useCurrentTheme();
@@ -364,7 +387,7 @@ function DistrictRow(props: {
           tooltipPlacement={isFirst ? 'bottom' : 'top'}
         />
 
-        {editing && (
+        {editing && canDelete && (
           <TooltipContainer as="div" style={{ width: 'min-content' }}>
             <Button
               aria-label={`Delete District ${district.name}`}
