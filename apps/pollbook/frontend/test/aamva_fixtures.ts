@@ -16,7 +16,7 @@ const mockExactSearchParams: VoterSearchParams = {
   middleName: mockAamvaDocument.middleName,
   lastName: mockAamvaDocument.lastName,
   suffix: mockAamvaDocument.nameSuffix,
-  exactMatch: true,
+  strictMatch: true,
 };
 
 export function getMockAamvaDocument(

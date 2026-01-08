@@ -90,7 +90,7 @@ function getDefaultExpectedVoterSearchParams(
     middleName: input.middleName || '',
     lastName: input.lastName || '',
     suffix: input.suffix || '',
-    exactMatch: input.exactMatch || false,
+    strictMatch: input.strictMatch || false,
   };
 }
 

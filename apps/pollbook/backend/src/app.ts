@@ -309,7 +309,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         return null;
       }
 
-      if (searchParams.exactMatch) {
+      if (searchParams.strictMatch) {
         return store.findVotersWithName(searchParams);
       }
 
