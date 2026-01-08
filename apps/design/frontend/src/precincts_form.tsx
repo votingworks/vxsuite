@@ -319,9 +319,9 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       </InputGroup>
 
                       <DistrictList
-                        disabled={disabled}
+                        disabled={disabled || hasExternalSource}
                         districts={districts}
-                        editing={editing}
+                        editing={editing && !hasExternalSource}
                         noDistrictsCallout={noDistrictsCallout}
                         value={[...split.districtIds]}
                         onChange={(districtIds) =>
@@ -419,9 +419,9 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
               <React.Fragment>
                 <div style={{ minWidth: '12rem' }}>
                   <DistrictList
-                    disabled={disabled}
+                    disabled={disabled || hasExternalSource}
                     districts={districts}
-                    editing={editing}
+                    editing={editing && !hasExternalSource}
                     noDistrictsCallout={noDistrictsCallout}
                     onChange={(districtIds) =>
                       setPrecinct({

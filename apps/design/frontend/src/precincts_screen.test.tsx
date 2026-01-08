@@ -467,7 +467,8 @@ test('editing or adding a precinct is disabled when ballots are finalized', asyn
   expect(screen.queryButton('Delete Precinct')).not.toBeInTheDocument();
 });
 
-test('add/delete of precincts and splits is disabled for elections with external source', async () => {
+test('add/delete/editing associated districts of precincts/splits is disabled for elections with external source', async () => {
+  const precinctWithoutSplits = election.precincts.find((p) => !hasSplits(p))!;
   const precinctWithSplits = election.precincts.find(hasSplits)!;
 
   apiMock.getElectionInfo.reset();
@@ -484,7 +485,8 @@ test('add/delete of precincts and splits is disabled for elections with external
 
   const history = renderScreen(electionId);
 
-  await navigateToPrecinctView(history, precinctWithSplits.id);
+  // --- Test precinct without splits ---
+  await navigateToPrecinctView(history, precinctWithoutSplits.id);
 
   // Add Precinct button should not be visible
   expect(screen.queryButton('Add Precinct')).not.toBeInTheDocument();
@@ -498,8 +500,29 @@ test('add/delete of precincts and splits is disabled for elections with external
   // Add Split button should not be visible
   expect(screen.queryButton('Add Split')).not.toBeInTheDocument();
 
+  // District checkboxes should be disabled
+  let checkboxes = screen.getAllByRole('checkbox');
+  for (const checkbox of checkboxes) {
+    expect(checkbox).toBeDisabled();
+  }
+
+  // --- Test precinct with splits ---
+  await navigateToPrecinctView(history, precinctWithSplits.id);
+
+  userEvent.click(screen.getButton('Edit'));
+  await screen.findByRole('heading', { name: 'Edit Precinct' });
+
+  // Add Split button should not be visible
+  expect(screen.queryButton('Add Split')).not.toBeInTheDocument();
+
   // Remove Split buttons should not be visible
   expect(screen.queryButton('Remove Split')).not.toBeInTheDocument();
+
+  // District checkboxes should be disabled (for each split)
+  checkboxes = screen.getAllByRole('checkbox');
+  for (const checkbox of checkboxes) {
+    expect(checkbox).toBeDisabled();
+  }
 });
 
 test('cancelling', async () => {
