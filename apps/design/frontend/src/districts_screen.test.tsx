@@ -17,6 +17,7 @@ import {
   provideApi,
   user,
 } from '../test/api_helpers';
+import { electionInfoFromElection } from '../test/fixtures';
 import { makeIdFactory } from '../test/id_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -62,6 +63,9 @@ beforeEach(() => {
 
   mockStateFeatures(apiMock, electionId);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getElectionInfo
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(electionInfoFromElection(election));
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
@@ -272,6 +276,30 @@ test('error message for duplicate district name', async () => {
   // Editing the problem district should clear the error:
   userEvent.type(screen.getAllByRole('textbox')[1], ' (edit)');
   expect(screen.queryByText(/with the same name/i)).not.toBeInTheDocument();
+});
+
+test('add/delete disabled for elections with external source', async () => {
+  apiMock.getElectionInfo.reset();
+  apiMock.getElectionInfo.expectRepeatedCallsWith({ electionId }).resolves({
+    ...electionInfoFromElection(election),
+    externalSource: 'ms-sems',
+  });
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+
+  renderScreen(electionId);
+
+  await screen.findByDisplayValue(election.districts[0].name);
+
+  // Add District button should not be visible
+  expect(screen.queryButton('Add District')).not.toBeInTheDocument();
+
+  // Edit should be available but delete buttons should not be visible
+  userEvent.click(screen.getButton('Edit Districts'));
+  await screen.findButton('Save');
+
+  expect(screen.queryButton(/Delete District/i)).not.toBeInTheDocument();
 });
 
 test('audio editing', async () => {
