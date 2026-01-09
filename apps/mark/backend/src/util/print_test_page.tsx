@@ -7,9 +7,10 @@ import {
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
+import { getCurrentTime } from './get_current_time';
 
 function getMockElectionDefinition(): ElectionDefinition {
-  const today = new Date();
+  const today = getCurrentTime();
   return {
     ballotHash: '00000000000000000000',
     electionData: 'test-election-data',
@@ -23,7 +24,7 @@ function getMockElectionDefinition(): ElectionDefinition {
       title: 'Test Election',
       type: 'general',
       date: new DateWithoutTime(
-        assertDefined(today.toISOString().split('T')[0])
+        assertDefined(new Date(today).toISOString().split('T')[0])
       ),
       seal: '',
       parties: [],

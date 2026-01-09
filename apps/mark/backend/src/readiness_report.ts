@@ -15,6 +15,7 @@ import {
   isPatInputAttached,
 } from './util/accessible_controller';
 import * as barcodes from './barcodes';
+import { getCurrentTime } from './util/get_current_time';
 
 /**
  * Saves the VxMark hardware readiness report to the USB drive.
@@ -33,7 +34,7 @@ export async function saveReadinessReport({
   barcodeClient: barcodes.BarcodeReader;
 }): Promise<ExportDataResult> {
   const { store } = workspace;
-  const generatedAtTime = new Date();
+  const generatedAtTime = new Date(getCurrentTime());
   const { electionDefinition, electionPackageHash } =
     store.getElectionRecord() ?? {};
   const precinctSelection = store.getPrecinctSelection();
