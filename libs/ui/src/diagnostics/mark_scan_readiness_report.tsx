@@ -69,7 +69,7 @@ export function MarkScanReadinessReportContents(
       <MarkScanDeviceDiagnosticSection
         {...headphoneInputProps}
         diagnosticType="mark-scan-headphone-input"
-        title={DiagnosticSectionTitle.HeadphoneInput}
+        title={DiagnosticSectionTitle.FrontHeadphoneInput}
       />
       <MarkScanDeviceDiagnosticSection
         {...upsProps}
