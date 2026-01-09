@@ -57,7 +57,7 @@ describe('Voters tab', () => {
       {
         firstName: 'ABI',
         lastName: 'AD',
-        exactMatch: false,
+        strictMatch: false,
       },
       [voter]
     );

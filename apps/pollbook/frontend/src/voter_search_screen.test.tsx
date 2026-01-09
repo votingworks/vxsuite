@@ -232,7 +232,7 @@ test('an ID scan with first and last name only can still render "Edit Search" bu
 
   await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
 
-  // Should render disabled input and "Edit Search" because `exactMatch` search param is set,
+  // Should render disabled input and "Edit Search" because `strictMatch` search param is set,
   // even if we have no hidden name fields
   await screen.findByText('Scanned ID');
   const input = screen.getByTestId('scanned-id-input');
@@ -280,7 +280,7 @@ test('closes the error modal if a valid ID is scanned', async () => {
     middleName: document.middleName,
     lastName: document.lastName,
     suffix: document.nameSuffix,
-    exactMatch: true,
+    strictMatch: true,
   };
   const mockVoter: Voter = {
     ...createMockVoter('123', document.firstName, document.lastName),

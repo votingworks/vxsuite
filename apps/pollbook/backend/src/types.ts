@@ -132,7 +132,7 @@ export interface VoterSearchParams {
   middleName: string;
   firstName: string;
   suffix: string;
-  exactMatch?: boolean;
+  strictMatch?: boolean;
 }
 
 export interface PollbookPackage {
