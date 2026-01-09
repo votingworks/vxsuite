@@ -108,8 +108,12 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const savedPartiesQuery = listParties.useQuery(electionId);
   const ballotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
+  // Reset form on initial and post-save fetches:
   React.useEffect(() => {
     if (!savedPartiesQuery.data) return;
+
+    setNewParties([]);
+    setDeletedPartyIds(new Set());
     setUpdatedParties([...savedPartiesQuery.data]);
   }, [savedPartiesQuery.data]);
 
@@ -130,9 +134,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
       },
       {
         onSuccess: (result) => {
-          if (result.isErr()) return;
-          reset();
-          setEditing(false);
+          if (result.isOk()) setEditing(false);
         },
       }
     );

@@ -120,8 +120,12 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const electionInfoQuery = getElectionInfo.useQuery(electionId);
   const savedDistrictsQuery = listDistricts.useQuery(electionId);
 
+  // Reset form on initial and post-save fetches:
   React.useEffect(() => {
     if (!savedDistrictsQuery.data) return;
+
+    setNewDistricts([]);
+    setDeletedDistrictIds(new Set());
     setUpdatedDistricts([...savedDistrictsQuery.data]);
   }, [savedDistrictsQuery.data]);
 
@@ -146,9 +150,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
       },
       {
         onSuccess: (result) => {
-          if (result.isErr()) return;
-          reset();
-          setEditing(false);
+          if (result.isOk()) setEditing(false);
         },
       }
     );
