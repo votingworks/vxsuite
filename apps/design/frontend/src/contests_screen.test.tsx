@@ -1047,6 +1047,120 @@ test('deleting a contest', async () => {
   expectContestListItems(remainingContests);
 });
 
+test('editing contests is restricted for elections with external source', async () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const { election } = electionRecord;
+  const electionId = election.id;
+
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+  const yesNoContest = election.contests.find(
+    (c): c is YesNoContest => c.type === 'yesno'
+  )!;
+
+  apiMock.listContests
+    .expectCallWith({ electionId })
+    .resolves(election.contests);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+
+  // Override getElectionInfo to return an election with external source
+  apiMock.getElectionInfo.expectRepeatedCallsWith({ electionId }).resolves({
+    ...electionInfoFromElection(election),
+    externalSource: 'ms-sems',
+  });
+
+  apiMock.getSystemSettings
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+  apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
+
+  const history = renderScreen(electionId);
+
+  await screen.findByRole('heading', { name: 'Contest Info' });
+
+  // --- Verify Add Contest and Reorder buttons are hidden ---
+  expect(screen.queryButton('Add Contest')).not.toBeInTheDocument();
+  expect(screen.queryButton('Reorder Contests')).not.toBeInTheDocument();
+
+  // --- Test candidate contest restrictions ---
+  await navigateToContestView(history, electionId, candidateContest.id);
+
+  userEvent.click(screen.getButton('Edit'));
+  await screen.findByRole('heading', { name: 'Edit Contest' });
+
+  // District select should be disabled
+  const districtSelect = screen.getByLabelText('District');
+  expect(districtSelect).toBeDisabled();
+
+  // Type toggle should only show the current type option
+  const typeOptions = screen.getAllByRole('option');
+  const candidateOption = typeOptions.find(
+    (o) => o.textContent === 'Candidate Contest'
+  );
+  const ballotMeasureOption = typeOptions.find(
+    (o) => o.textContent === 'Ballot Measure'
+  );
+  expect(candidateOption).toBeDefined();
+  expect(ballotMeasureOption).toBeUndefined();
+
+  // Candidate name inputs should be disabled
+  const candidateRows = screen.getAllByRole('row').slice(1); // Skip header row
+  for (let i = 0; i < candidateContest.candidates.length; i += 1) {
+    const row = candidateRows[i];
+    expect(
+      within(row).getByLabelText(`Candidate ${i + 1} First Name`)
+    ).toBeDisabled();
+    expect(
+      within(row).getByLabelText(`Candidate ${i + 1} Middle Name`)
+    ).toBeDisabled();
+    expect(
+      within(row).getByLabelText(`Candidate ${i + 1} Last Name`)
+    ).toBeDisabled();
+  }
+
+  // Add Candidate button should not be visible
+  expect(screen.queryButton('Add Candidate')).not.toBeInTheDocument();
+
+  // Remove Candidate buttons should not be visible
+  expect(
+    screen.queryByRole('button', { name: /Remove Candidate/i })
+  ).not.toBeInTheDocument();
+
+  // Delete Contest button should not be visible
+  expect(screen.queryButton('Delete Contest')).not.toBeInTheDocument();
+
+  // --- Test ballot measure contest restrictions ---
+  await navigateToContestView(history, electionId, yesNoContest.id);
+
+  userEvent.click(screen.getButton('Edit'));
+  await screen.findByRole('heading', { name: 'Edit Contest' });
+
+  // Type toggle should only show the current type option (Ballot Measure)
+  const ballotMeasureTypeOptions = screen.getAllByRole('option');
+  const ballotMeasureOptionVisible = ballotMeasureTypeOptions.find(
+    (o) => o.textContent === 'Ballot Measure'
+  );
+  const candidateOptionHidden = ballotMeasureTypeOptions.find(
+    (o) => o.textContent === 'Candidate Contest'
+  );
+  expect(ballotMeasureOptionVisible).toBeDefined();
+  expect(candidateOptionHidden).toBeUndefined();
+
+  // Option label inputs should be disabled
+  const yesOptionInput = screen.getByLabelText('First Option Label');
+  expect(yesOptionInput).toBeDisabled();
+
+  const noOptionInput = screen.getByLabelText('Second Option Label');
+  expect(noOptionInput).toBeDisabled();
+
+  // Delete Contest button should not be visible
+  expect(screen.queryButton('Delete Contest')).not.toBeInTheDocument();
+});
+
 test('changing contests is disabled when ballots are finalized', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;

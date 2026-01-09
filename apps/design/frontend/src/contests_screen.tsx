@@ -120,6 +120,7 @@ function Content(): JSX.Element | null {
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+  const hasExternalSource = Boolean(electionInfo.externalSource);
 
   const contestRoutes = routes.election(electionId).contests;
   const contestParamRoutes = electionParamRoutes.contests;
@@ -140,7 +141,8 @@ function Content(): JSX.Element | null {
     filterDistrictId === FILTER_ALL &&
     filterPartyId === FILTER_ALL &&
     contests.length > 0 &&
-    !ballotsFinalizedAt;
+    !ballotsFinalizedAt &&
+    !hasExternalSource;
   const isReordering = reorderedContests !== undefined;
 
   const contestsToShow = isReordering ? reorderedContests : filteredContests;
@@ -178,15 +180,16 @@ function Content(): JSX.Element | null {
   return (
     <Viewport>
       <ListActionsRow>
-        <LinkButton
-          variant="primary"
-          icon="Add"
-          to={contestRoutes.add.path}
-          disabled={isReordering || !!ballotsFinalizedAt}
-        >
-          Add Contest
-        </LinkButton>
-
+        {!hasExternalSource && (
+          <LinkButton
+            variant="primary"
+            icon="Add"
+            to={contestRoutes.add.path}
+            disabled={isReordering || !!ballotsFinalizedAt}
+          >
+            Add Contest
+          </LinkButton>
+        )}
         {contests.length > 0 && (
           <React.Fragment>
             <SearchSelect
@@ -220,38 +223,39 @@ function Content(): JSX.Element | null {
             )}
           </React.Fragment>
         )}
-
-        <div style={{ marginLeft: 'auto' }}>
-          {isReordering ? (
-            <Row style={{ gap: '0.5rem' }}>
-              <Button onPress={() => setReorderedContests(undefined)}>
-                Cancel
-              </Button>
+        {!hasExternalSource && (
+          <div style={{ marginLeft: 'auto' }}>
+            {isReordering ? (
+              <Row style={{ gap: '0.5rem' }}>
+                <Button onPress={() => setReorderedContests(undefined)}>
+                  Cancel
+                </Button>
+                <Button
+                  onPress={() => onSaveReorderedContests(reorderedContests)}
+                  variant="primary"
+                  icon="Done"
+                  disabled={reorderContestsMutation.isLoading}
+                >
+                  Save
+                </Button>
+              </Row>
+            ) : (
               <Button
-                onPress={() => onSaveReorderedContests(reorderedContests)}
-                variant="primary"
-                icon="Done"
-                disabled={reorderContestsMutation.isLoading}
+                icon="Sort"
+                onPress={() =>
+                  // We require candidate contests to appear before yesno,
+                  // but elections were created prior to this restriction.
+                  // To ensure all new reorders follow this, we initiate
+                  // the reordering with the requirement enforced
+                  setReorderedContests([...candidateContests, ...yesNoContests])
+                }
+                disabled={!canReorder}
               >
-                Save
+                Reorder Contests
               </Button>
-            </Row>
-          ) : (
-            <Button
-              icon="Sort"
-              onPress={() =>
-                // We require candidate contests to appear before yesno,
-                // but elections were created prior to this restriction.
-                // To ensure all new reorders follow this, we initiate
-                // the reordering with the requirement enforced
-                setReorderedContests([...candidateContests, ...yesNoContests])
-              }
-              disabled={!canReorder}
-            >
-              Reorder Contests
-            </Button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </ListActionsRow>
 
       <Body>
