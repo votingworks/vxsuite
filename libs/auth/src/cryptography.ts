@@ -61,7 +61,11 @@ AwEHoUQDQgAEHAj1wCr6aDNph19ibxPgmkbLTAje0o7XhrQIlmmgFMS06wxaP8NA
 -----END EC PRIVATE KEY-----
 `;
 
-type OpensslParam = string | Buffer;
+interface CryptographicMaterial {
+  asPemFilePathOrContents(): string | Uint8Array;
+}
+
+type OpensslParam = string | Buffer | Uint8Array | CryptographicMaterial;
 
 /**
  * A convenience function for OpenSSL shell commands. For file params, accepts Buffers containing
@@ -78,17 +82,24 @@ type OpensslParam = string | Buffer;
 export async function openssl(
   params: OpensslParam[],
   { stdin }: { stdin?: Stream } = {}
-): Promise<Buffer> {
+): Promise<Uint8Array> {
   const processedParams: string[] = [];
   const tempFileResults: FileResult[] = [];
   for (const param of params) {
-    if (Buffer.isBuffer(param)) {
+    const filePathOrContents =
+      typeof param === 'object' && 'asPemFilePathOrContents' in param
+        ? param.asPemFilePathOrContents()
+        : param;
+    if (
+      Buffer.isBuffer(filePathOrContents) ||
+      filePathOrContents instanceof Uint8Array
+    ) {
       const tempFile = fileSync();
-      await fs.writeFile(tempFile.name, param);
+      await fs.writeFile(tempFile.name, filePathOrContents);
       processedParams.push(tempFile.name);
       tempFileResults.push(tempFile);
     } else {
-      processedParams.push(param);
+      processedParams.push(filePathOrContents);
     }
   }
 
@@ -100,7 +111,7 @@ export async function openssl(
       tempFile.removeCallback();
     }
   }
-  return stdout;
+  return new Uint8Array(stdout);
 }
 
 /**
@@ -115,122 +126,122 @@ export function getConfigFilePath({ usingTpm }: { usingTpm: boolean }): string {
 /**
  * An alias for clarity
  */
-type FilePathOrBuffer = string | Buffer;
+// type FilePathOrBuffer = string | Buffer;
 
-/**
- * Converts a cert in DER format to PEM format
- */
-export function certDerToPem(cert: FilePathOrBuffer): Promise<Buffer> {
-  return openssl(['x509', '-inform', 'DER', '-outform', 'PEM', '-in', cert]);
-}
+// /**
+//  * Converts a cert in DER format to PEM format
+//  */
+// export function certDerToPem(cert: FilePathOrBuffer): Promise<Buffer> {
+//   return openssl(['x509', '-inform', 'DER', '-outform', 'PEM', '-in', cert]);
+// }
 
-/**
- * Converts a cert in PEM format to DER format
- */
-export function certPemToDer(cert: FilePathOrBuffer): Promise<Buffer> {
-  return openssl(['x509', '-inform', 'PEM', '-outform', 'DER', '-in', cert]);
-}
+// /**
+//  * Converts a cert in PEM format to DER format
+//  */
+// export function certPemToDer(cert: FilePathOrBuffer): Promise<Buffer> {
+//   return openssl(['x509', '-inform', 'PEM', '-outform', 'DER', '-in', cert]);
+// }
 
-/**
- * Converts an ECC public key in DER format to PEM format
- */
-export function publicKeyDerToPem(
-  publicKey: FilePathOrBuffer
-): Promise<Buffer> {
-  return openssl([
-    'ec',
-    '-inform',
-    'DER',
-    '-outform',
-    'PEM',
-    '-pubin',
-    '-in',
-    publicKey,
-  ]);
-}
+// /**
+//  * Converts an ECC public key in DER format to PEM format
+//  */
+// export function publicKeyDerToPem(
+//   publicKey: FilePathOrBuffer
+// ): Promise<Buffer> {
+//   return openssl([
+//     'ec',
+//     '-inform',
+//     'DER',
+//     '-outform',
+//     'PEM',
+//     '-pubin',
+//     '-in',
+//     publicKey,
+//   ]);
+// }
 
-/**
- * Converts an ECC public key in PEM format to DER format
- */
-// Only used in a script so doesn't get covered by java_card.test.ts
-/* istanbul ignore next - @preserve */
-export function publicKeyPemToDer(
-  publicKey: FilePathOrBuffer
-): Promise<Buffer> {
-  return openssl([
-    'ec',
-    '-inform',
-    'PEM',
-    '-outform',
-    'DER',
-    '-pubin',
-    '-in',
-    publicKey,
-  ]);
-}
+// /**
+//  * Converts an ECC public key in PEM format to DER format
+//  */
+// // Only used in a script so doesn't get covered by java_card.test.ts
+// /* istanbul ignore next - @preserve */
+// export function publicKeyPemToDer(
+//   publicKey: FilePathOrBuffer
+// ): Promise<Buffer> {
+//   return openssl([
+//     'ec',
+//     '-inform',
+//     'PEM',
+//     '-outform',
+//     'DER',
+//     '-pubin',
+//     '-in',
+//     publicKey,
+//   ]);
+// }
 
-/**
- * Extracts a public key (in PEM format) from a cert (also in PEM format)
- */
-export function extractPublicKeyFromCert(
-  cert: FilePathOrBuffer
-): Promise<Buffer> {
-  return openssl(['x509', '-noout', '-pubkey', '-in', cert]);
-}
+// /**
+//  * Extracts a public key (in PEM format) from a cert (also in PEM format)
+//  */
+// export function extractPublicKeyFromCert(
+//   cert: FilePathOrBuffer
+// ): Promise<Buffer> {
+//   return openssl(['x509', '-noout', '-pubkey', '-in', cert]);
+// }
 
-const VERIFICATION_TIME_MARGIN_MINUTES = 10;
+// const VERIFICATION_TIME_MARGIN_MINUTES = 10;
 
-/**
- * Verifies that the first cert was signed by the second cert. Both certs should be in PEM format.
- * Throws an error if signature verification fails.
- */
-export function verifyFirstCertWasSignedBySecondCert(
-  cert1: FilePathOrBuffer,
-  cert2: FilePathOrBuffer
-): Promise<Buffer> {
-  return openssl([
-    'verify',
-    // Setting an -attime in the future allows for verification of certs issued on machines with
-    // clocks slightly ahead of the current machine's. Such certs would otherwise be temporarily
-    // rejected, until the current machine's clock catches up to the cert start time.
-    '-attime',
-    `${Math.floor(Date.now() / 1000) + VERIFICATION_TIME_MARGIN_MINUTES * 60}`,
-    // -partial_chain allows for verification without a full cert chain, i.e., a chain of certs that
-    // ends with a self-signed cert.
-    '-partial_chain',
-    '-CAfile',
-    cert2,
-    cert1,
-  ]);
-}
+// /**
+//  * Verifies that the first cert was signed by the second cert. Both certs should be in PEM format.
+//  * Throws an error if signature verification fails.
+//  */
+// export function verifyFirstCertWasSignedBySecondCert(
+//   cert1: FilePathOrBuffer,
+//   cert2: FilePathOrBuffer
+// ): Promise<Buffer> {
+//   return openssl([
+//     'verify',
+//     // Setting an -attime in the future allows for verification of certs issued on machines with
+//     // clocks slightly ahead of the current machine's. Such certs would otherwise be temporarily
+//     // rejected, until the current machine's clock catches up to the cert start time.
+//     '-attime',
+//     `${Math.floor(Date.now() / 1000) + VERIFICATION_TIME_MARGIN_MINUTES * 60}`,
+//     // -partial_chain allows for verification without a full cert chain, i.e., a chain of certs that
+//     // ends with a self-signed cert.
+//     '-partial_chain',
+//     '-CAfile',
+//     cert2,
+//     cert1,
+//   ]);
+// }
 
-/**
- * Verifies a message signature against an original message using a public key (in PEM format).
- * Throws an error if signature verification fails.
- */
-export async function verifySignature({
-  message,
-  messageSignature,
-  publicKey,
-}: {
-  message: FilePathOrBuffer | Stream;
-  messageSignature: FilePathOrBuffer;
-  publicKey: FilePathOrBuffer;
-}): Promise<void> {
-  const params = [
-    'dgst',
-    '-sha256',
-    '-verify',
-    publicKey,
-    '-signature',
-    messageSignature,
-  ];
-  if (typeof message === 'string' || Buffer.isBuffer(message)) {
-    await openssl([...params, message]);
-    return;
-  }
-  await openssl(params, { stdin: message });
-}
+// /**
+//  * Verifies a message signature against an original message using a public key (in PEM format).
+//  * Throws an error if signature verification fails.
+//  */
+// export async function verifySignature({
+//   message,
+//   messageSignature,
+//   publicKey,
+// }: {
+//   message: FilePathOrBuffer | Stream;
+//   messageSignature: FilePathOrBuffer;
+//   publicKey: FilePathOrBuffer;
+// }): Promise<void> {
+//   const params = [
+//     'dgst',
+//     '-sha256',
+//     '-verify',
+//     publicKey,
+//     '-signature',
+//     messageSignature,
+//   ];
+//   if (typeof message === 'string' || Buffer.isBuffer(message)) {
+//     await openssl([...params, message]);
+//     return;
+//   }
+//   await openssl(params, { stdin: message });
+// }
 
 //
 // Cert creation functions
@@ -238,28 +249,28 @@ export async function verifySignature({
 
 type CertType = 'cert_authority_cert' | 'standard_cert';
 
-/**
- * Creates a cert signing request, or CSR
- */
-export async function createCertSigningRequest({
-  certKey,
-  certSubject,
-}: {
-  certKey: FileKey | InlineKey | TpmKey;
-  certSubject: string;
-}): Promise<Buffer> {
-  const usingTpm = certKey.source === 'tpm';
-  const certSigningRequest = await openssl([
-    'req',
-    '-config',
-    getConfigFilePath({ usingTpm }),
-    '-new',
-    ...opensslKeyParams('-key', certKey),
-    '-subj',
-    certSubject,
-  ]);
-  return certSigningRequest;
-}
+// /**
+//  * Creates a cert signing request, or CSR
+//  */
+// export async function createCertSigningRequest({
+//   certKey,
+//   certSubject,
+// }: {
+//   certKey: FileKey | InlineKey | TpmKey;
+//   certSubject: string;
+// }): Promise<Buffer> {
+//   const usingTpm = certKey.source === 'tpm';
+//   const certSigningRequest = await openssl([
+//     'req',
+//     '-config',
+//     getConfigFilePath({ usingTpm }),
+//     '-new',
+//     ...opensslKeyParams('-key', certKey),
+//     '-subj',
+//     certSubject,
+//   ]);
+//   return certSigningRequest;
+// }
 
 /**
  * A wrapper function for the manage-openssl-config script. See the script for more details.
@@ -280,67 +291,67 @@ export async function manageOpensslConfig(
   );
 }
 
-/**
- * Creates a cert given a cert signing request, or CSR. Supports overriding the cert public key if
- * the private key of the public key to certify was unavailable at the time of CSR creation, and a
- * throwaway private key was used.
- */
-export async function createCertGivenCertSigningRequest({
-  certPublicKeyOverride,
-  certSigningRequest,
-  certType = 'standard_cert',
-  expiryInDays,
-  signingCertAuthorityCertPath,
-  signingPrivateKey,
-}: {
-  certPublicKeyOverride?: Buffer;
-  certSigningRequest: Buffer;
-  certType?: CertType;
-  expiryInDays: number;
-  signingCertAuthorityCertPath: string;
-  signingPrivateKey: FileKey | TpmKey;
-}): Promise<Buffer> {
-  const usingTpm = signingPrivateKey.source === 'tpm';
-  let cert: Buffer;
-  try {
-    // The `openssl x509` command doesn't support the -config flag or OPENSSL_CONF environment
-    // variable, so to use the TPM, we have to temporarily swap the default OpenSSL config file. We take
-    // great care to restore the default config, using a finally block plus a fallback reset on
-    // boot.
-    // Note that we tried switching to the `openssl ca` command, which does support the -config
-    // flag, but it doesn't support the -force_pubkey flag, which we need for card cert creation
-    // because we don't have access to the card private keys nor is there an obvious API for
-    // getting the card private keys to sign a CSR.
-    if (usingTpm) {
-      await manageOpensslConfig('override-for-tpm-use');
-    }
-    cert = await openssl([
-      'x509',
-      '-req',
-      '-CA',
-      signingCertAuthorityCertPath,
-      ...opensslKeyParams('-CAkey', signingPrivateKey),
-      '-CAcreateserial',
-      '-CAserial',
-      '/tmp/serial.txt',
-      '-in',
-      certSigningRequest,
-      '-days',
-      `${expiryInDays}`,
-      ...(certPublicKeyOverride
-        ? ['-force_pubkey', certPublicKeyOverride]
-        : []),
-      ...(certType === 'cert_authority_cert'
-        ? ['-extfile', getConfigFilePath({ usingTpm }), '-extensions', 'v3_ca']
-        : []),
-    ]);
-  } finally {
-    if (usingTpm) {
-      await manageOpensslConfig('restore-default');
-    }
-  }
-  return cert;
-}
+// /**
+//  * Creates a cert given a cert signing request, or CSR. Supports overriding the cert public key if
+//  * the private key of the public key to certify was unavailable at the time of CSR creation, and a
+//  * throwaway private key was used.
+//  */
+// export async function createCertGivenCertSigningRequest({
+//   certPublicKeyOverride,
+//   certSigningRequest,
+//   certType = 'standard_cert',
+//   expiryInDays,
+//   signingCertAuthorityCertPath,
+//   signingPrivateKey,
+// }: {
+//   certPublicKeyOverride?: Buffer;
+//   certSigningRequest: Buffer;
+//   certType?: CertType;
+//   expiryInDays: number;
+//   signingCertAuthorityCertPath: string;
+//   signingPrivateKey: FileKey | TpmKey;
+// }): Promise<Buffer> {
+//   const usingTpm = signingPrivateKey.source === 'tpm';
+//   let cert: Buffer;
+//   try {
+//     // The `openssl x509` command doesn't support the -config flag or OPENSSL_CONF environment
+//     // variable, so to use the TPM, we have to temporarily swap the default OpenSSL config file. We take
+//     // great care to restore the default config, using a finally block plus a fallback reset on
+//     // boot.
+//     // Note that we tried switching to the `openssl ca` command, which does support the -config
+//     // flag, but it doesn't support the -force_pubkey flag, which we need for card cert creation
+//     // because we don't have access to the card private keys nor is there an obvious API for
+//     // getting the card private keys to sign a CSR.
+//     if (usingTpm) {
+//       await manageOpensslConfig('override-for-tpm-use');
+//     }
+//     cert = await openssl([
+//       'x509',
+//       '-req',
+//       '-CA',
+//       signingCertAuthorityCertPath,
+//       ...opensslKeyParams('-CAkey', signingPrivateKey),
+//       '-CAcreateserial',
+//       '-CAserial',
+//       '/tmp/serial.txt',
+//       '-in',
+//       certSigningRequest,
+//       '-days',
+//       `${expiryInDays}`,
+//       ...(certPublicKeyOverride
+//         ? ['-force_pubkey', certPublicKeyOverride]
+//         : []),
+//       ...(certType === 'cert_authority_cert'
+//         ? ['-extfile', getConfigFilePath({ usingTpm }), '-extensions', 'v3_ca']
+//         : []),
+//     ]);
+//   } finally {
+//     if (usingTpm) {
+//       await manageOpensslConfig('restore-default');
+//     }
+//   }
+//   return cert;
+// }
 
 /**
  * The input to createCert. All file keys, inline keys, and certs should be in PEM format.
@@ -496,7 +507,7 @@ export function parseSignMessageInputExcludingMessage(
  */
 export async function signMessageHelper({
   signingPrivateKey,
-}: SignMessageInputExcludingMessage): Promise<Buffer> {
+}: SignMessageInputExcludingMessage): Promise<Uint8Array> {
   // While it's possible to hash and sign with a single OpenSSL command, we separate the two
   // actions. Hashing large inputs with the TPM can be extremely slow, so in production, we hash
   // using the main processor and only sign using the TPM. We perform the hashing with OpenSSL and

@@ -20,6 +20,7 @@ import {
   VendorUser,
 } from '@votingworks/types';
 
+import { Readable } from 'node:stream';
 import {
   CardCommand,
   constructTlv,
@@ -50,17 +51,17 @@ import {
   constructJavaCardConfig,
   JavaCardConfig,
 } from './config';
-import {
-  certDerToPem,
-  certPemToDer,
-  createCert,
-  CreateCertInput,
-  extractPublicKeyFromCert,
-  PUBLIC_KEY_IN_DER_FORMAT_HEADER,
-  publicKeyDerToPem,
-  verifyFirstCertWasSignedBySecondCert,
-  verifySignature,
-} from './cryptography';
+// import {
+//   certDerToPem,
+//   certPemToDer,
+//   createCert,
+//   CreateCertInput,
+//   extractPublicKeyFromCert,
+//   PUBLIC_KEY_IN_DER_FORMAT_HEADER,
+//   publicKeyDerToPem,
+//   verifyFirstCertWasSignedBySecondCert,
+//   verifySignature,
+// } from './cryptography';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
@@ -74,6 +75,8 @@ import {
   RESET_RETRY_COUNTER,
   VERIFY,
 } from './piv';
+import { Cert } from './cryptography3';
+import { CreateCertInput } from './cryptography';
 
 /**
  * The OpenFIPS201 applet ID
@@ -229,7 +232,7 @@ export class JavaCard implements Card {
   // See TestJavaCard in test/utils.ts to understand why this is protected instead of private
   protected cardStatus: CardStatus;
   private readonly generateChallenge: () => string;
-  private readonly vxCertAuthorityCertPath: string;
+  private readonly vxCertAuthorityCert: Cert;
 
   constructor(
     // Support specifying a custom config for tests
@@ -244,7 +247,7 @@ export class JavaCard implements Card {
       config.generateChallengeOverride ??
       /* istanbul ignore next - @preserve */ (() =>
         `VotingWorks/${new Date().toISOString()}/${uuid()}`);
-    this.vxCertAuthorityCertPath = config.vxCertAuthorityCertPath;
+    this.vxCertAuthorityCert = config.vxCertAuthorityCert;
 
     this.cardReader = new CardReader({
       onReaderStatusChange: async (readerStatus) => {
@@ -361,10 +364,7 @@ export class JavaCard implements Card {
     // Verify that the card has been run through the initial card configuration script for the
     // correct environment before proceeding with programming commands
     const cardVxCert = await this.retrieveCert(CARD_VX_CERT.OBJECT_ID);
-    await verifyFirstCertWasSignedBySecondCert(
-      cardVxCert,
-      this.vxCertAuthorityCertPath
-    );
+    await cardVxCert.verifyIssuedBy(this.vxCertAuthorityCert);
     await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_ID, cardVxCert);
 
     await this.resetPinAndInvalidateCard(pin);
@@ -407,13 +407,13 @@ export class JavaCard implements Card {
       certSubject: constructCardCertSubject(cardDetails),
     };
 
-    let cardIdentityCert: Buffer;
+    let cardIdentityCert: Cert;
     if (user.role === 'vendor') {
       assert(this.cardProgrammingConfig.configType === 'vx');
       const { vxPrivateKey } = this.cardProgrammingConfig;
-      assert(
-        vxPrivateKey.source === 'file' || vxPrivateKey.source === 'remote'
-      );
+      // assert(
+      //   vxPrivateKey.source === 'file' || vxPrivateKey.source === 'remote'
+      // );
 
       // Store card identity cert
       if (vxPrivateKey.source === 'remote') {
@@ -689,7 +689,7 @@ export class JavaCard implements Card {
   /**
    * Retrieves a cert in PEM format
    */
-  private async retrieveCert(certObjectId: Buffer): Promise<Buffer> {
+  private async retrieveCert(certObjectId: Buffer): Promise<Cert> {
     const data = await this.getData(certObjectId);
     const [{ value: certInDerFormat }, certInDerFormatRemainder] =
       parseTlvPartial(PUT_DATA.CERT_TAG, data);
@@ -709,18 +709,15 @@ export class JavaCard implements Card {
       certErrorDetectionCode.length === 0,
       'Expected no error detection code'
     );
-    return await certDerToPem(certInDerFormat);
+    return await Cert.fromDerContents(certInDerFormat);
   }
 
   /**
    * Stores a cert. The cert should be in PEM format, but it will be stored in DER format as per
    * PIV standards and Java conventions.
    */
-  private async storeCert(
-    certObjectId: Buffer,
-    certInPemFormat: Buffer
-  ): Promise<void> {
-    const certInDerFormat = await certPemToDer(certInPemFormat);
+  private async storeCert(certObjectId: Buffer, cert: Cert): Promise<void> {
+    const certInDerFormat = await cert.asDerContents();
     await this.putData(
       certObjectId,
       Buffer.concat([
@@ -747,7 +744,7 @@ export class JavaCard implements Card {
    */
   private async verifyCardPrivateKey(
     privateKeyId: Byte,
-    cert: Buffer,
+    cert: Cert,
     pin?: string
   ): Promise<void> {
     if (pin) {
@@ -783,11 +780,10 @@ export class JavaCard implements Card {
     );
 
     // Use the cert's public key to verify the generated signature
-    const certPublicKey = await extractPublicKeyFromCert(cert);
-    await verifySignature({
-      message: Buffer.from(challenge, 'utf-8'),
+    const certPublicKey = await cert.extractPublicKey();
+    await certPublicKey.verifySignature({
+      message: Readable.from(challenge), // Check
       messageSignature: challengeSignature,
-      publicKey: certPublicKey,
     });
   }
 

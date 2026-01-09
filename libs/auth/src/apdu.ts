@@ -250,7 +250,7 @@ export class CardCommand {
  */
 export function constructTlv(
   tagAsByteOrBuffer: Byte | Buffer,
-  value: Buffer
+  value: Buffer | Uint8Array
 ): Buffer {
   const tag = Buffer.isBuffer(tagAsByteOrBuffer)
     ? tagAsByteOrBuffer

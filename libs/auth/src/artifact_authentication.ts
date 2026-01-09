@@ -25,13 +25,14 @@ import {
   ArtifactAuthenticationConfig,
   constructArtifactAuthenticationConfig,
 } from './config';
-import {
-  extractPublicKeyFromCert,
-  signMessage,
-  verifyFirstCertWasSignedBySecondCert,
-  verifySignature,
-} from './cryptography';
+// import {
+//   extractPublicKeyFromCert,
+//   signMessage,
+//   verifyFirstCertWasSignedBySecondCert,
+//   verifySignature,
+// } from './cryptography';
 import { constructPrefixedMessage } from './signatures';
+import { Cert } from './cryptography3';
 
 /**
  * The file extension for VotingWorks signature files
@@ -74,8 +75,8 @@ export type ArtifactToImport = CastVoteRecordsToImport | ElectionPackage;
 export type Artifact = CastVoteRecords | ElectionPackage;
 
 interface ArtifactSignatureBundle {
-  signature: Buffer;
-  signingMachineCert: Buffer;
+  signature: Uint8Array;
+  signingMachineCert: Cert;
 }
 
 //
@@ -132,23 +133,23 @@ async function constructArtifactSignatureBundle(
   artifact: Artifact
 ): Promise<ArtifactSignatureBundle> {
   const { message } = constructMessage(artifact);
-  const messageSignature = await signMessage({
-    message,
-    signingPrivateKey: config.signingMachinePrivateKey,
-  });
-  const signingMachineCert = await fs.readFile(config.signingMachineCertPath);
-  return { signature: messageSignature, signingMachineCert };
+  const messageSignature =
+    await config.signingMachinePrivateKey.signMessage(message);
+  return {
+    signature: messageSignature,
+    signingMachineCert: config.signingMachineCert,
+  };
 }
 
-function serializeArtifactSignatureBundle(
+async function serializeArtifactSignatureBundle(
   artifactSignatureBundle: ArtifactSignatureBundle
-): Buffer {
+): Promise<Uint8Array> {
   const { signature, signingMachineCert } = artifactSignatureBundle;
   return Buffer.concat([
     // ECC signature length can vary ever so slightly, hence the need to persist length metadata
     Buffer.of(signature.length),
     signature,
-    signingMachineCert,
+    await signingMachineCert.contents(),
   ]);
 }
 
@@ -166,7 +167,10 @@ function deserializeArtifactSignatureBundle(
     `Signature length should be between 60 and 72, received ${signatureLength}`
   );
   const signature = buffer.subarray(1, signatureLength + 1);
-  const signingMachineCert = buffer.subarray(signatureLength + 1);
+  const signingMachineCert = new Cert({
+    source: 'memory',
+    contents: buffer.subarray(signatureLength + 1),
+  });
   return { signature, signingMachineCert };
 }
 
@@ -175,13 +179,12 @@ function deserializeArtifactSignatureBundle(
  */
 async function validateSigningMachineCert(
   config: ArtifactAuthenticationConfig,
-  signingMachineCert: Buffer
+  signingMachineCert: Cert
 ): Promise<MachineCustomCertFields> {
-  await verifyFirstCertWasSignedBySecondCert(
-    signingMachineCert,
-    config.vxCertAuthorityCertPath
+  await signingMachineCert.verifyIssuedBy(config.vxCertAuthorityCert);
+  const signingMachineCertDetails = await parseCert(
+    await signingMachineCert.contents()
   );
-  const signingMachineCertDetails = await parseCert(signingMachineCert);
   assert(signingMachineCertDetails.component !== 'card');
   return signingMachineCertDetails;
 }
@@ -202,12 +205,10 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
       config,
       signingMachineCert
     );
-    const signingMachinePublicKey =
-      await extractPublicKeyFromCert(signingMachineCert);
-    await verifySignature({
+    const signingMachinePublicKey = await signingMachineCert.extractPublicKey();
+    await signingMachinePublicKey.verifySignature({
       message,
       messageSignature,
-      publicKey: signingMachinePublicKey,
     });
     return signingMachineCertDetails;
   } finally {
@@ -338,7 +339,7 @@ async function performArtifactSpecificAuthenticationChecks(
 export async function prepareSignatureFile(
   artifact: ArtifactToExport,
   configOverride?: ArtifactAuthenticationConfig
-): Promise<{ fileContents: Buffer; fileName: string }> {
+): Promise<{ fileContents: Uint8Array; fileName: string }> {
   const config =
     configOverride ??
     /* istanbul ignore next - @preserve */ constructArtifactAuthenticationConfig();
@@ -347,7 +348,9 @@ export async function prepareSignatureFile(
     artifact
   );
   return {
-    fileContents: serializeArtifactSignatureBundle(artifactSignatureBundle),
+    fileContents: await serializeArtifactSignatureBundle(
+      artifactSignatureBundle
+    ),
     fileName: constructSignatureFileName(artifact),
   };
 }

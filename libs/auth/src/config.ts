@@ -6,7 +6,8 @@ import {
 } from '@votingworks/utils';
 
 import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
-import { FileKey, RemoteKey, TpmKey } from './keys';
+import { RemoteKey } from './keys';
+import { Cert, PrivateKey } from './cryptography3';
 
 /**
  * The path to the dev root cert
@@ -36,15 +37,18 @@ function shouldUseProdCerts(): boolean {
 /**
  * Gets the path to the VxCertAuthorityCert
  */
-export function getVxCertAuthorityCertPath(): string {
-  return shouldUseProdCerts()
-    ? PROD_VX_CERT_AUTHORITY_CERT_PATH
-    : DEV_VX_CERT_AUTHORITY_CERT_PATH;
+export function getVxCertAuthorityCert(): Cert {
+  return new Cert({
+    source: 'file',
+    path: shouldUseProdCerts()
+      ? PROD_VX_CERT_AUTHORITY_CERT_PATH
+      : DEV_VX_CERT_AUTHORITY_CERT_PATH,
+  });
 }
 
-function getMachineCertPathAndPrivateKey(): {
-  certPath: string;
-  privateKey: FileKey | TpmKey;
+function getMachineCertAndPrivateKey(): {
+  cert: Cert;
+  privateKey: PrivateKey;
 } {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
   const machineCertFileName =
@@ -54,32 +58,38 @@ function getMachineCertPathAndPrivateKey(): {
   if (shouldUseProdCerts()) {
     const configRoot = getRequiredEnvVar('VX_CONFIG_ROOT');
     return {
-      certPath: path.join(configRoot, machineCertFileName),
-      privateKey: { source: 'tpm' },
+      cert: new Cert({
+        source: 'file',
+        path: path.join(configRoot, machineCertFileName),
+      }),
+      privateKey: new PrivateKey({ source: 'tpm' }),
     };
   }
   return {
-    certPath: path.join(__dirname, '../certs/dev', machineCertFileName),
-    privateKey: {
+    cert: new Cert({
+      source: 'file',
+      path: path.join(__dirname, '../certs/dev', machineCertFileName),
+    }),
+    privateKey: new PrivateKey({
       source: 'file',
       path: path.join(
         __dirname,
         '../certs/dev',
         `vx-${machineType}-private-key.pem`
       ),
-    },
+    }),
   };
 }
 
 interface MachineCardProgrammingConfig {
   configType: 'machine';
-  machineCertAuthorityCertPath: string;
-  machinePrivateKey: FileKey | TpmKey;
+  machineCertAuthorityCert: Cert;
+  machinePrivateKey: PrivateKey;
 }
 
 interface VxCardProgrammingConfig {
   configType: 'vx';
-  vxPrivateKey: FileKey | RemoteKey;
+  vxPrivateKey: PrivateKey | RemoteKey;
 }
 
 /**
@@ -96,7 +106,7 @@ export interface JavaCardConfig {
   /** For card programming */
   cardProgrammingConfig?: CardProgrammingConfig;
   /** The path to the VotingWorks cert authority cert */
-  vxCertAuthorityCertPath: string;
+  vxCertAuthorityCert: Cert;
 
   /** Only tests should provide this param, to make challenge generation non-random */
   generateChallengeOverride?: () => string;
@@ -109,16 +119,16 @@ export function constructJavaCardConfig(): JavaCardConfig {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
   let cardProgrammingConfig: CardProgrammingConfig | undefined;
   if (machineType === 'admin' || machineType === 'poll-book') {
-    const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
+    const { cert, privateKey } = getMachineCertAndPrivateKey();
     cardProgrammingConfig = {
       configType: 'machine',
-      machineCertAuthorityCertPath: certPath,
+      machineCertAuthorityCert: cert,
       machinePrivateKey: privateKey,
     };
   }
   return {
     cardProgrammingConfig,
-    vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
+    vxCertAuthorityCert: getVxCertAuthorityCert(),
   };
 }
 
@@ -136,9 +146,9 @@ export function constructJavaCardConfigForVxProgramming(): JavaCardConfig {
       vxPrivateKey:
         vxPrivateKeyPath === 'remote'
           ? { source: 'remote' }
-          : { source: 'file', path: vxPrivateKeyPath },
+          : new PrivateKey({ source: 'file', path: vxPrivateKeyPath }),
     },
-    vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
+    vxCertAuthorityCert: getVxCertAuthorityCert(),
   };
 }
 
@@ -146,20 +156,20 @@ export function constructJavaCardConfigForVxProgramming(): JavaCardConfig {
  * Config params for artifact authentication
  */
 export interface ArtifactAuthenticationConfig {
-  signingMachineCertPath: string;
-  signingMachinePrivateKey: FileKey | TpmKey;
-  vxCertAuthorityCertPath: string;
+  signingMachineCert: Cert;
+  signingMachinePrivateKey: PrivateKey;
+  vxCertAuthorityCert: Cert;
 }
 
 /**
  * Constructs an artifact authentication config given relevant env vars
  */
 export function constructArtifactAuthenticationConfig(): ArtifactAuthenticationConfig {
-  const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
+  const { cert, privateKey } = getMachineCertAndPrivateKey();
   return {
-    signingMachineCertPath: certPath,
+    signingMachineCert: cert,
     signingMachinePrivateKey: privateKey,
-    vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
+    vxCertAuthorityCert: getVxCertAuthorityCert(),
   };
 }
 
@@ -167,17 +177,17 @@ export function constructArtifactAuthenticationConfig(): ArtifactAuthenticationC
  * Config params for a signed hash validation instance
  */
 export interface SignedHashValidationConfig {
-  machineCertPath: string;
-  machinePrivateKey: FileKey | TpmKey;
+  machineCert: Cert;
+  machinePrivateKey: PrivateKey;
 }
 
 /**
  * Constructs a signed hash validation config given relevant env vars
  */
 export function constructSignedHashValidationConfig(): SignedHashValidationConfig {
-  const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
+  const { cert, privateKey } = getMachineCertAndPrivateKey();
   return {
-    machineCertPath: certPath,
+    machineCert: cert,
     machinePrivateKey: privateKey,
   };
 }
@@ -186,17 +196,17 @@ export function constructSignedHashValidationConfig(): SignedHashValidationConfi
  * Config params for a signed quick results reporting instance
  */
 export interface SignedQuickResultsReportingConfig {
-  machineCertPath: string;
-  machinePrivateKey: FileKey | TpmKey;
+  machineCert: Cert;
+  machinePrivateKey: PrivateKey;
 }
 
 /**
  * Constructs a signed quick results reporting config given relevant env vars
  */
 export function constructSignedQuickResultsReportingConfig(): SignedQuickResultsReportingConfig {
-  const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
+  const { cert, privateKey } = getMachineCertAndPrivateKey();
   return {
-    machineCertPath: certPath,
+    machineCert: cert,
     machinePrivateKey: privateKey,
   };
 }
