@@ -22,6 +22,9 @@ import {
   PollsState,
   PrecinctSelection,
   PrinterStatus,
+  DiagnosticRecord,
+  DiagnosticType,
+  DiagnosticOutcome,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -34,6 +37,8 @@ import {
   readSignedElectionPackageFromUsb,
   configureUiStrings,
   createSystemCallApi,
+  DiskSpaceSummary,
+  ExportDataResult,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -52,6 +57,12 @@ import { ElectionRecord } from './store';
 import * as barcodes from './barcodes';
 import { setUpBarcodeActivation } from './barcodes/activation';
 import { Player as AudioPlayer, SoundName } from './audio/player';
+import { saveReadinessReport } from './readiness_report';
+import { printTestPage } from './util/print_test_page';
+
+const TEST_UPS_USER_PASS_REASON = 'UPS connected and fully charged per user.';
+const TEST_UPS_USER_FAIL_REASON =
+  'UPS not connected or not fully charged per user.';
 
 interface Context {
   audioPlayer?: AudioPlayer;
@@ -63,10 +74,20 @@ interface Context {
   printer: Printer;
 }
 
+// Track last barcode scan for diagnostics
+let lastBarcodeScanData: string | undefined;
+let lastBarcodeScanTimestamp: Date | undefined;
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(ctx: Context) {
   const { auth, logger, printer, usbDrive, workspace, barcodeClient } = ctx;
   const { store } = workspace;
+
+  // Set up barcode scan tracking for diagnostics
+  barcodeClient.on('scan', (scanData: Uint8Array) => {
+    lastBarcodeScanData = new TextDecoder().decode(scanData);
+    lastBarcodeScanTimestamp = new Date();
+  });
 
   return grout.createApi({
     getMachineConfig,
@@ -99,6 +120,24 @@ export function buildApi(ctx: Context) {
 
     getBarcodeConnected(): boolean {
       return barcodeClient.getConnectionStatus();
+    },
+
+    getMostRecentBarcodeScan(): {
+      data: string;
+      timestamp: Date;
+    } | null {
+      if (!lastBarcodeScanData || !lastBarcodeScanTimestamp) {
+        return null;
+      }
+      return {
+        data: lastBarcodeScanData,
+        timestamp: lastBarcodeScanTimestamp,
+      };
+    },
+
+    clearLastBarcodeScan(): void {
+      lastBarcodeScanData = undefined;
+      lastBarcodeScanTimestamp = undefined;
     },
 
     getAccessibleControllerConnected(): boolean {
@@ -331,6 +370,58 @@ export function buildApi(ctx: Context) {
 
     setPrintCalibration(input: PrintCalibration) {
       store.setPrintCalibration(input);
+    },
+
+    getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+      return workspace.getDiskSpaceSummary();
+    },
+
+    getMostRecentDiagnostic(input: {
+      diagnosticType: DiagnosticType;
+    }): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord(input.diagnosticType) ?? null;
+    },
+
+    addDiagnosticRecord(input: Omit<DiagnosticRecord, 'timestamp'>): void {
+      store.addDiagnosticRecord(input);
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition: input.outcome === 'pass' ? 'success' : 'failure',
+        message: `Diagnostic (${input.type}) completed with outcome: ${input.outcome}.`,
+        type: input.type,
+      });
+    },
+
+    async saveReadinessReport(): Promise<ExportDataResult> {
+      return saveReadinessReport({
+        workspace,
+        usbDrive,
+        logger,
+        printer,
+        barcodeClient,
+      });
+    },
+
+    async printTestPage(): Promise<void> {
+      await printTestPage({ printer, logger });
+    },
+
+    logUpsDiagnosticOutcome(input: { outcome: DiagnosticOutcome }): void {
+      store.addDiagnosticRecord({
+        type: 'uninterruptible-power-supply',
+        outcome: input.outcome,
+        message:
+          input.outcome === 'pass'
+            ? TEST_UPS_USER_PASS_REASON
+            : TEST_UPS_USER_FAIL_REASON,
+      });
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition: input.outcome === 'pass' ? 'success' : 'failure',
+        message:
+          input.outcome === 'pass'
+            ? TEST_UPS_USER_PASS_REASON
+            : TEST_UPS_USER_FAIL_REASON,
+        type: 'uninterruptible-power-supply',
+      });
     },
 
     playSound(input: { name: SoundName }): Promise<void> {

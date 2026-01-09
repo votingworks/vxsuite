@@ -58,6 +58,14 @@ create table ballots (
   encoded_ballot text not null -- Base64 encoded ballot
 );
 
+create table diagnostics (
+  id integer primary key,
+  type text not null,
+  outcome text not null check (outcome = 'pass' or outcome = 'fail'),
+  message text,
+  timestamp number not null
+);
+
 create table electrical_testing_status_messages (
   component text primary key,
   status_message text not null,
