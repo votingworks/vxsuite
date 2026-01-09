@@ -181,6 +181,76 @@ test('findVotersWithName works as expected - voters without name changes', () =>
   );
 });
 
+test('findVotersWithName middle name relaxed matching', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  const voters = [
+    createVoter('100', 'John', 'Kennedy', { middleName: 'F', suffix: '' }),
+    createVoter('101', 'John', 'Kennedy', {
+      middleName: 'Fitzgerald',
+      suffix: '',
+    }),
+    createVoter('102', 'John', 'Kennedy', { middleName: '', suffix: '' }),
+    createVoter('103', 'John', 'Kennedy', {
+      middleName: 'Salvatore',
+      suffix: '',
+    }),
+  ];
+
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+
+  const johnF = voters[0].voterId;
+  const johnFitzgerald = voters[1].voterId;
+  const johnNoMiddle = voters[2].voterId;
+  const johnSalvatore = voters[3].voterId;
+
+  function expectExactMatches(
+    search: {
+      firstName: string;
+      lastName: string;
+      middleName: string;
+      suffix: string;
+    },
+    expectedVoterIds: string[]
+  ) {
+    const results = localStore.findVotersWithName(search);
+    const ids = results.map((v) => v.voterId).sort();
+    expect(ids).toEqual([...expectedVoterIds].sort());
+  }
+
+  // Full middle name should match F initial, full match, and no middle
+  // Should not match S initial
+  expectExactMatches(
+    {
+      firstName: 'John',
+      lastName: 'Kennedy',
+      middleName: 'Fitzgerald',
+      suffix: '',
+    },
+    [johnF, johnFitzgerald, johnNoMiddle]
+  );
+
+  // Middle name initial-only should match F initial, full match, and no middle
+  // Should not match S initial
+  expectExactMatches(
+    { firstName: 'John', lastName: 'Kennedy', middleName: 'F', suffix: '' },
+    [johnF, johnFitzgerald, johnNoMiddle]
+  );
+
+  // No middle name should match all
+  expectExactMatches(
+    { firstName: 'John', lastName: 'Kennedy', middleName: '', suffix: '' },
+    [johnF, johnFitzgerald, johnNoMiddle, johnSalvatore]
+  );
+});
+
 test('findVoterWithName works as expected - voters with name changes', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
@@ -210,7 +280,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
     ])
   );
 
-  // Should not match because middle name is excluded
+  // Blank middle name should not constrain matching
   expect(
     localStore.findVotersWithName({
       firstName: 'John',
@@ -218,7 +288,11 @@ test('findVoterWithName works as expected - voters with name changes', () => {
       middleName: '',
       suffix: 'Sr',
     })
-  ).toEqual([]);
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[0].voterId }),
+    ])
+  );
 
   // Should not match because suffix is excluded
   expect(

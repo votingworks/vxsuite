@@ -95,6 +95,69 @@ function toPatternMatches(raw: string): string {
   )}${ignoredPunctuation}*$`;
 }
 
+function escapeRegexLiteral(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Build a regex to apply to the DB middle-name field
+ * based on the search middle name.
+ *
+ * - DB empty middle name always matches
+ * - If search middle is blank -> match anything (including blank)
+ * - If search middle is an initial -> match blank OR that initial (optional '.') OR any DB entry's middle name starting with that letter
+ * - If search middle is a full name (>=2 chars) -> match blank OR exact complete middle name OR the initial ("F"/"F.") in DB
+ */
+function toMiddleNameSearchPattern(searchMiddle?: string): string {
+  const raw = (searchMiddle ?? '').trim();
+
+  if (!raw) {
+    return '.*';
+  }
+
+  const cleaned = raw.replace(/[^A-Za-z0-9]/g, '').trim();
+
+  if (!cleaned) {
+    return '.*';
+  }
+
+  const initial = escapeRegexLiteral(cleaned[0]);
+
+  // Regex that matches an empty DB middle-name field.
+  // Empty middle names are always considered compatible.
+  const allowBlank = '^$';
+
+  // Initial character case eg. "F"
+  if (cleaned.length === 1) {
+    // Match any of:
+    //  - empty DB middle name
+    //  - exact initial, allowing optional punctuation ("F", "F.", "F   ")
+    //  - any longer DB middle name starting with that letter
+    return `^(?:${allowBlank}|${initial}\\.?(?:\\s*)|${initial}[A-Za-z].*)$`;
+  }
+
+  // Full middle name search case (e.g. "Franklin", "mid")
+  // Build a pattern that matches the full middle name while allowing
+  // arbitrary non-alphanumeric characters between letters:
+  //
+  //   "mid" -> "m[^A-Za-z0-9]*i[^A-Za-z0-9]*d"
+  //
+  // This allows:
+  //   "mid"   <-> "MiD"
+  //   "mid"   <-> "m id"
+  //   "mid"   <-> "m-i.d"
+  const full = cleaned
+    .split('')
+    .map((ch) => escapeRegexLiteral(ch))
+    .join('[^A-Za-z0-9]*');
+
+  // Match any of:
+  //  - empty DB middle name
+  //  - full middle name
+  //  - initial-only DB middle name ("F" or "F.")
+  return `^(?:${allowBlank}|${full}|${initial}\\.?)$`;
+}
+
 export class LocalStore extends Store {
   private nextEventId?: number;
 
@@ -397,7 +460,7 @@ export class LocalStore extends Store {
   findVotersWithName(nameData: VoterNameChangeRequest): Voter[] {
     const lastNamePattern = toPatternMatches(nameData.lastName);
     const firstNamePattern = toPatternMatches(nameData.firstName);
-    const middleNamePattern = toPatternMatches(nameData.middleName);
+    const middleNamePattern = toMiddleNameSearchPattern(nameData.middleName);
     const suffixPattern = toPatternMatches(nameData.suffix);
     const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
 

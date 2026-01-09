@@ -76,28 +76,30 @@ export function ThroughputChart({
 
   return (
     <TitledCard
-      title=<Row
-        style={{
-          gap: '1rem',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <H4>Precinct Voter Throughput</H4>
-        <SmallSegmentedControl
-          label="Interval"
-          hideLabel
-          selectedOptionId={String(intervalMin)}
-          options={[
-            { id: '15', label: '15m' },
-            { id: '30', label: '30m' },
-            { id: '60', label: '1h' },
-          ]}
-          onChange={(selectedId) =>
-            setIntervalMin(safeParseInt(selectedId).unsafeUnwrap())
-          }
-        />
-      </Row>
+      title={
+        <Row
+          style={{
+            gap: '1rem',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <H4>Precinct Voter Throughput</H4>
+          <SmallSegmentedControl
+            label="Interval"
+            hideLabel
+            selectedOptionId={String(intervalMin)}
+            options={[
+              { id: '15', label: '15m' },
+              { id: '30', label: '30m' },
+              { id: '60', label: '1h' },
+            ]}
+            onChange={(selectedId) =>
+              setIntervalMin(safeParseInt(selectedId).unsafeUnwrap())
+            }
+          />
+        </Row>
+      }
     >
       <div style={{ height: '17rem' }}>
         <Bar
