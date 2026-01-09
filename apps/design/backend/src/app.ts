@@ -19,11 +19,8 @@ import {
   getAllBallotLanguages,
   Precinct,
   District,
-  DistrictSchema,
-  DistrictId,
   PrecinctId,
   Party,
-  PartySchema,
   AnyContest,
   AnyContestSchema,
   HmpbBallotPaperSizeSchema,
@@ -78,10 +75,8 @@ import {
   BackgroundTaskMetadata,
   DuplicateContestError,
   DuplicateDistrictError,
-  DuplicateDistrictErrorCode,
   DuplicateElectionError,
   DuplicatePartyError,
-  DuplicatePartyErrorCode,
   DuplicatePrecinctError,
 } from './store';
 import {
@@ -510,36 +505,6 @@ export function buildApi(ctx: AppContext) {
       return store.listDistricts(input.electionId);
     },
 
-    // [TODO] Remove after client is moved to batch editing.
-    async createDistrict(input: {
-      electionId: ElectionId;
-      newDistrict: District;
-    }): Promise<Result<void, DuplicateDistrictErrorCode>> {
-      const district = unsafeParse(DistrictSchema, input.newDistrict);
-      const res = await store.createDistrict(input.electionId, district);
-
-      return res.isErr() ? err(res.err().code) : res;
-    },
-
-    // [TODO] Remove after client is moved to batch editing.
-    async updateDistrict(input: {
-      electionId: ElectionId;
-      updatedDistrict: District;
-    }): Promise<Result<void, DuplicateDistrictErrorCode>> {
-      const district = unsafeParse(DistrictSchema, input.updatedDistrict);
-      const res = await store.updateDistrict(input.electionId, district);
-
-      return res.isErr() ? err(res.err().code) : res;
-    },
-
-    // [TODO] Remove after client is moved to batch editing.
-    async deleteDistrict(input: {
-      electionId: ElectionId;
-      districtId: DistrictId;
-    }): Promise<void> {
-      await store.deleteDistrict(input.electionId, input.districtId);
-    },
-
     async updateDistricts(input: {
       electionId: ElectionId;
       deletedDistrictIds?: string[];
@@ -588,36 +553,6 @@ export function buildApi(ctx: AppContext) {
       electionId: ElectionId;
     }): Promise<readonly Party[]> {
       return store.listParties(input.electionId);
-    },
-
-    // [TODO] Remove after client is moved to batch editing.
-    async createParty(input: {
-      electionId: ElectionId;
-      newParty: Party;
-    }): Promise<Result<void, DuplicatePartyErrorCode>> {
-      const party = unsafeParse(PartySchema, input.newParty);
-      const res = await store.createParty(input.electionId, party);
-
-      return res.isErr() ? err(res.err().code) : res;
-    },
-
-    // [TODO] Remove after client is moved to batch editing.
-    async updateParty(input: {
-      electionId: ElectionId;
-      updatedParty: Party;
-    }): Promise<Result<void, DuplicatePartyErrorCode>> {
-      const party = unsafeParse(PartySchema, input.updatedParty);
-      const res = await store.updateParty(input.electionId, party);
-
-      return res.isErr() ? err(res.err().code) : res;
-    },
-
-    // [TODO] Remove after client is moved to batch editing.
-    async deleteParty(input: {
-      electionId: ElectionId;
-      partyId: string;
-    }): Promise<void> {
-      await store.deleteParty(input.electionId, input.partyId);
     },
 
     async updateParties(input: {

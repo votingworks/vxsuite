@@ -784,143 +784,6 @@ test('update election info', async () => {
   });
 });
 
-test('CRUD districts', async () => {
-  const { apiClient, auth0 } = await setupApp({
-    organizations,
-    jurisdictions,
-    users,
-  });
-  auth0.setLoggedInUser(nonVxUser);
-  const electionId = (
-    await apiClient.createElection({
-      jurisdictionId: nonVxJurisdiction.id,
-      id: unsafeParse(ElectionIdSchema, 'election-1'),
-    })
-  ).unsafeUnwrap();
-
-  // No districts initially
-  expect(await apiClient.listDistricts({ electionId })).toEqual([]);
-
-  // Create a district
-  const district1: District = {
-    id: unsafeParse(DistrictIdSchema, 'district-1'),
-    name: 'District 1',
-  };
-  await apiClient.createDistrict({
-    electionId,
-    newDistrict: district1,
-  });
-  expect(await apiClient.listDistricts({ electionId })).toEqual([district1]);
-
-  // Can't create a district with an existing name
-  expect(
-    await apiClient.createDistrict({
-      electionId,
-      newDistrict: {
-        id: unsafeParse(DistrictIdSchema, 'district-3'),
-        name: 'District 1',
-      },
-    })
-  ).toEqual(err('duplicate-name'));
-
-  // Create another district
-  const district2: District = {
-    id: unsafeParse(DistrictIdSchema, 'district-2'),
-    name: 'District 2',
-  };
-  await apiClient.createDistrict({
-    electionId,
-    newDistrict: district2,
-  });
-  expect(await apiClient.listDistricts({ electionId })).toEqual([
-    district1,
-    district2,
-  ]);
-
-  // Update a district
-  const updatedDistrict1: District = {
-    ...district1,
-    name: 'Updated District 1',
-  };
-  await apiClient.updateDistrict({
-    electionId,
-    updatedDistrict: updatedDistrict1,
-  });
-  // Expect districts to be reordered alphabetically due to name change
-  expect(await apiClient.listDistricts({ electionId })).toEqual([
-    district2,
-    updatedDistrict1,
-  ]);
-
-  // Can't update a district to an existing name
-  expect(
-    await apiClient.updateDistrict({
-      electionId,
-      updatedDistrict: {
-        ...district2,
-        name: 'Updated District 1',
-      },
-    })
-  ).toEqual(err('duplicate-name'));
-
-  // Delete a district
-  await apiClient.deleteDistrict({
-    electionId,
-    districtId: district2.id,
-  });
-  expect(await apiClient.listDistricts({ electionId })).toEqual([
-    updatedDistrict1,
-  ]);
-
-  await suppressingConsoleOutput(async () => {
-    // Try to create an invalid district
-    await expect(
-      apiClient.createDistrict({
-        electionId,
-        newDistrict: {
-          id: unsafeParse(DistrictIdSchema, 'district-1'),
-          name: '',
-        },
-      })
-    ).rejects.toThrow();
-
-    // Try to update a district that doesn't exist
-    await expect(
-      apiClient.updateDistrict({
-        electionId,
-        updatedDistrict: {
-          ...district1,
-          id: unsafeParse(DistrictIdSchema, 'invalid-id'),
-        },
-      })
-    ).rejects.toThrow();
-
-    // Check permissions
-    auth0.setLoggedInUser(anotherNonVxUser);
-    await expect(apiClient.listDistricts({ electionId })).rejects.toThrow(
-      'auth:forbidden'
-    );
-    await expect(
-      apiClient.createDistrict({
-        electionId,
-        newDistrict: district1,
-      })
-    ).rejects.toThrow('auth:forbidden');
-    await expect(
-      apiClient.updateDistrict({
-        electionId,
-        updatedDistrict: updatedDistrict1,
-      })
-    ).rejects.toThrow('auth:forbidden');
-    await expect(
-      apiClient.deleteDistrict({
-        electionId,
-        districtId: updatedDistrict1.id,
-      })
-    ).rejects.toThrow('auth:forbidden');
-  });
-});
-
 test('updateDistricts', async () => {
   const { apiClient: api, auth0 } = await setupApp({
     organizations,
@@ -1254,9 +1117,9 @@ test('CRUD precincts', async () => {
     id: unsafeParse(DistrictIdSchema, 'district-1'),
     name: 'District 1',
   };
-  await apiClient.createDistrict({
+  await apiClient.updateDistricts({
     electionId,
-    newDistrict: district1,
+    newDistricts: [district1],
   });
   const updatedPrecinct1: PrecinctWithoutSplits = {
     ...precinct1,
@@ -1312,9 +1175,9 @@ test('CRUD precincts', async () => {
     id: unsafeParse(DistrictIdSchema, 'district-2'),
     name: 'District 2',
   };
-  await apiClient.createDistrict({
+  await apiClient.updateDistricts({
     electionId,
-    newDistrict: district2,
+    newDistricts: [district2],
   });
   const updatedPrecinct2: PrecinctWithSplits = {
     ...precinct2,
@@ -1506,178 +1369,6 @@ test('CRUD precincts', async () => {
       apiClient.deletePrecinct({
         electionId,
         precinctId: updatedPrecinct1.id,
-      })
-    ).rejects.toThrow('auth:forbidden');
-  });
-});
-
-test('CRUD parties', async () => {
-  const { apiClient, auth0 } = await setupApp({
-    organizations,
-    jurisdictions,
-    users,
-  });
-  auth0.setLoggedInUser(nonVxUser);
-  const electionId = (
-    await apiClient.createElection({
-      jurisdictionId: nonVxJurisdiction.id,
-      id: unsafeParse(ElectionIdSchema, 'election-1'),
-    })
-  ).unsafeUnwrap();
-
-  // No parties initially
-  expect(await apiClient.listParties({ electionId })).toEqual([]);
-
-  // Create a party
-  const party1: Party = {
-    id: unsafeParse(PartyIdSchema, 'party-1'),
-    name: 'Party 1',
-    abbrev: 'P1',
-    fullName: 'Party 1 Full Name',
-  };
-  await apiClient.createParty({ electionId, newParty: party1 });
-  expect(await apiClient.listParties({ electionId })).toEqual([party1]);
-
-  const party2: Party = {
-    id: unsafeParse(PartyIdSchema, 'party-2'),
-    name: 'Party 2',
-    abbrev: 'P2',
-    fullName: 'Party 2 Full Name',
-  };
-
-  // Can't create a party with an existing name
-  expect(
-    await apiClient.createParty({
-      electionId,
-      newParty: {
-        ...party2,
-        name: party1.name,
-      },
-    })
-  ).toEqual(err('duplicate-name'));
-
-  // Can't create a party with an existing full name
-  expect(
-    await apiClient.createParty({
-      electionId,
-      newParty: {
-        ...party2,
-        fullName: party1.fullName,
-      },
-    })
-  ).toEqual(err('duplicate-full-name'));
-
-  // Can't create a party with an existing abbrev
-  expect(
-    await apiClient.createParty({
-      electionId,
-      newParty: {
-        ...party2,
-        abbrev: party1.abbrev,
-      },
-    })
-  ).toEqual(err('duplicate-abbrev'));
-
-  // Create another party
-  await apiClient.createParty({ electionId, newParty: party2 });
-  expect(await apiClient.listParties({ electionId })).toEqual([party1, party2]);
-
-  // Update a party
-  const updatedParty1: Party = {
-    ...party1,
-    name: 'Updated Party 1',
-    fullName: 'Updated Party 1 Full Name',
-  };
-  await apiClient.updateParty({ electionId, updatedParty: updatedParty1 });
-  // Expect parties to be reordered alphabetically due to name change
-  expect(await apiClient.listParties({ electionId })).toEqual([
-    party2,
-    updatedParty1,
-  ]);
-
-  // Can't update a party to an existing name
-  expect(
-    await apiClient.updateParty({
-      electionId,
-      updatedParty: {
-        ...party2,
-        name: updatedParty1.name,
-      },
-    })
-  ).toEqual(err('duplicate-name'));
-
-  // Can't update a party to an existing full name
-  expect(
-    await apiClient.updateParty({
-      electionId,
-      updatedParty: {
-        ...party2,
-        fullName: updatedParty1.fullName,
-      },
-    })
-  ).toEqual(err('duplicate-full-name'));
-
-  // Can't update a party to an existing abbrev
-  expect(
-    await apiClient.updateParty({
-      electionId,
-      updatedParty: {
-        ...party2,
-        abbrev: updatedParty1.abbrev,
-      },
-    })
-  ).toEqual(err('duplicate-abbrev'));
-
-  // Delete a party
-  await apiClient.deleteParty({ electionId, partyId: party2.id });
-  expect(await apiClient.listParties({ electionId })).toEqual([updatedParty1]);
-
-  await suppressingConsoleOutput(async () => {
-    // Try to create an invalid party
-    await expect(
-      apiClient.createParty({
-        electionId,
-        newParty: {
-          id: unsafeParse(PartyIdSchema, 'party-1'),
-          name: '',
-          abbrev: '',
-          fullName: '',
-        },
-      })
-    ).rejects.toThrow();
-
-    // Try to update a party that doesn't exist
-    await expect(
-      apiClient.updateParty({
-        electionId,
-        updatedParty: {
-          ...party1,
-          id: unsafeParse(PartyIdSchema, 'invalid-id'),
-        },
-      })
-    ).rejects.toThrow();
-
-    // Check permissions
-    auth0.setLoggedInUser(anotherNonVxUser);
-    await expect(apiClient.listParties({ electionId })).rejects.toThrow(
-      'auth:forbidden'
-    );
-    await expect(
-      apiClient.createParty({
-        electionId,
-        newParty: party1,
-      })
-    ).rejects.toThrow('auth:forbidden');
-    await expect(
-      apiClient.updateParty({
-        electionId,
-        updatedParty: updatedParty1,
-      })
-    ).rejects.toThrow('auth:forbidden');
-    await expect(
-      apiClient.deleteParty({
-        electionId,
-        partyId: updatedParty1.id,
       })
     ).rejects.toThrow('auth:forbidden');
   });
@@ -2000,26 +1691,28 @@ test('CRUD contests', async () => {
     id: unsafeParse(DistrictIdSchema, 'district-1'),
     name: 'District 1',
   };
-  await apiClient.createDistrict({ electionId, newDistrict: district1 });
   const district2: District = {
     id: unsafeParse(DistrictIdSchema, 'district-2'),
     name: 'District 2',
   };
-  await apiClient.createDistrict({ electionId, newDistrict: district2 });
+  await apiClient.updateDistricts({
+    electionId,
+    newDistricts: [district1, district2],
+  });
+
   const party1: Party = {
     id: unsafeParse(PartyIdSchema, 'party-1'),
     name: 'Party 1',
     abbrev: 'P1',
     fullName: 'Party 1 Full Name',
   };
-  await apiClient.createParty({ electionId, newParty: party1 });
   const party2: Party = {
     id: unsafeParse(PartyIdSchema, 'party-2'),
     name: 'Party 2',
     abbrev: 'P2',
     fullName: 'Party 2 Full Name',
   };
-  await apiClient.createParty({ electionId, newParty: party2 });
+  await apiClient.updateParties({ electionId, newParties: [party1, party2] });
 
   // Create a candidate contest
   const contest1: CandidateContest = {
