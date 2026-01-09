@@ -115,7 +115,7 @@ function toMiddleNameSearchPattern(searchMiddle?: string): string {
     return '.*';
   }
 
-  const cleaned = raw.replace(/[^A-Za-z0-9]/g, '').trim();
+  const cleaned = raw.replace(/[^A-Za-z0-9]/g, '');
 
   if (!cleaned) {
     return '.*';
