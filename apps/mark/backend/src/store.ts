@@ -3,7 +3,12 @@
 //
 
 import util from 'node:util';
-import { UiStringsStore, createUiStringStore } from '@votingworks/backend';
+import {
+  UiStringsStore,
+  createUiStringStore,
+  addDiagnosticRecord,
+  getMostRecentDiagnosticRecord,
+} from '@votingworks/backend';
 import {
   assert,
   assertDefined,
@@ -28,6 +33,8 @@ import {
   BallotStyleId,
   PrecinctId,
   EncodedBallotEntry,
+  DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { PrintCalibration } from '@votingworks/hmpb';
@@ -468,6 +475,22 @@ export class Store {
       precinctId,
       ballotMode
     ) as EncodedBallotEntry;
+  }
+
+  /**
+   * Adds a diagnostic record to the store.
+   */
+  addDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>): void {
+    addDiagnosticRecord(this.client, record);
+  }
+
+  /**
+   * Gets the most recent diagnostic record of a given type.
+   */
+  getMostRecentDiagnosticRecord(
+    type: DiagnosticType
+  ): DiagnosticRecord | undefined {
+    return getMostRecentDiagnosticRecord(this.client, type);
   }
 
   getElectricalTestingStatusMessages(): Array<{

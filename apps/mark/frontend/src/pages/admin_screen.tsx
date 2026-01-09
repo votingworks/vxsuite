@@ -16,6 +16,7 @@ import {
   Font,
   SignedHashValidationButton,
   PowerDownButton,
+  Button,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -35,6 +36,7 @@ import {
 import * as api from '../api';
 import { BubbleMarkCalibration } from '../components/bubble_mark_calibration';
 import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal';
+import { DiagnosticsScreen } from './diagnostics_screen';
 
 const Section = styled.div`
   &:not(:last-child) {
@@ -87,6 +89,15 @@ export function AdminScreen({
   const setTestModeMutation = setTestMode.useMutation();
   const systemSettingsQuery = api.getSystemSettings.useQuery();
   const [isConfirmingModeSwitch, setIsConfirmingModeSwitch] = useState(false);
+  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
+
+  if (isDiagnosticsScreenOpen) {
+    return (
+      <DiagnosticsScreen
+        onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
+      />
+    );
+  }
 
   async function unconfigureMachineAndEjectUsb() {
     try {
@@ -173,6 +184,9 @@ export function AdminScreen({
           <SetClockButton logOut={() => logOutMutation.mutate()}>
             Set Date and Time
           </SetClockButton>
+          <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+            Diagnostics
+          </Button>
           <SignedHashValidationButton apiClient={apiClient} />
           <PowerDownButton icon="PowerOff" />
         </ButtonGrid>

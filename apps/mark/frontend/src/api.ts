@@ -16,6 +16,7 @@ import {
   createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
+import { DiagnosticType } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 export const INTERNAL_HARDWARE_POLLING_INTERVAL_MS = 3000;
@@ -132,6 +133,38 @@ export const getBarcodeConnected = {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getBarcodeConnected(), {
       refetchInterval: INTERNAL_HARDWARE_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
+const BARCODE_SCAN_POLLING_INTERVAL_MS = 200;
+
+export const getMostRecentBarcodeScan = {
+  queryKey(): QueryKey {
+    return ['getMostRecentBarcodeScan'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getMostRecentBarcodeScan(),
+      {
+        refetchInterval: BARCODE_SCAN_POLLING_INTERVAL_MS,
+      }
+    );
+  },
+} as const;
+
+export const clearLastBarcodeScan = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.clearLastBarcodeScan, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentBarcodeScan.queryKey()
+        );
+      },
     });
   },
 } as const;
@@ -382,6 +415,74 @@ export const playSound = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.playSound);
+  },
+} as const;
+
+export const getDiskSpaceSummary = {
+  queryKey(): QueryKey {
+    return ['getDiskSpaceSummary'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getDiskSpaceSummary(), {
+      // disk space availability could change between queries for a variety
+      // reasons, so always treat it as stale
+      staleTime: 0,
+    });
+  },
+} as const;
+
+export const getMostRecentDiagnostic = {
+  queryKey(diagnosticType: DiagnosticType): QueryKey {
+    return ['getMostRecentDiagnostic', diagnosticType];
+  },
+  useQuery(diagnosticType: DiagnosticType) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(diagnosticType), () =>
+      apiClient.getMostRecentDiagnostic({ diagnosticType })
+    );
+  },
+} as const;
+
+export const addDiagnosticRecord = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.addDiagnosticRecord, {
+      async onSuccess(_, input) {
+        await queryClient.invalidateQueries(
+          getMostRecentDiagnostic.queryKey(input.type)
+        );
+      },
+    });
+  },
+} as const;
+
+export const saveReadinessReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.saveReadinessReport);
+  },
+} as const;
+
+export const printTestPage = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTestPage);
+  },
+} as const;
+
+export const logUpsDiagnosticOutcome = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.logUpsDiagnosticOutcome, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentDiagnostic.queryKey('uninterruptible-power-supply')
+        );
+      },
+    });
   },
 } as const;
 

@@ -619,6 +619,7 @@ export function BmdPaperBallot({
     ballotHash,
   } = electionDefinition;
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  console.log('ballotStyle', ballotStyle);
   assert(ballotStyle);
   const primaryBallotLanguage = ballotStyle.languages?.[0] || 'en';
   const contests = getContests({ ballotStyle, election });
@@ -626,6 +627,7 @@ export function BmdPaperBallot({
     getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),
     ({ precinct }) => precinct.id === precinctId
   );
+  console.log('precinctOrSplit', precinctOrSplit);
   const precinctOrSplitName = precinctOrSplit.split
     ? electionStrings.precinctSplitName(precinctOrSplit.split)
     : electionStrings.precinctName(precinctOrSplit.precinct);
