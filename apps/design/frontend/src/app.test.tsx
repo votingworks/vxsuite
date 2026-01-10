@@ -8,6 +8,8 @@ import {
   MockApiClient,
   createMockApiClient,
   jurisdiction,
+  organizationUser,
+  supportUser,
   user,
 } from '../test/api_helpers';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
@@ -91,4 +93,28 @@ test('API forbidden errors show a page not found error screen', async () => {
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
     await screen.findByText('Page not found');
   });
+});
+
+test('jurisdiction users see elections screen', async () => {
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listElections.expectCallWith().resolves([]);
+  render(<App apiClient={apiMock} />);
+
+  await screen.findByRole('heading', { name: 'Elections' });
+});
+
+test('organization users see elections screen', async () => {
+  apiMock.getUser.expectCallWith().resolves(organizationUser);
+  apiMock.listElections.expectCallWith().resolves([]);
+  render(<App apiClient={apiMock} />);
+
+  await screen.findByRole('heading', { name: 'Elections' });
+});
+
+test('support users see support tools screen', async () => {
+  apiMock.getUser.expectCallWith().resolves(supportUser);
+  apiMock.listElections.expectCallWith().resolves([]);
+  render(<App apiClient={apiMock} />);
+
+  await screen.findByRole('heading', { name: 'Support Tools' });
 });
