@@ -1448,16 +1448,12 @@ export class Store {
   }
 
   async createDistrict(
+    client: Client,
     electionId: ElectionId,
-    district: District,
-    client?: Client
+    district: District
   ): Promise<Result<void, DuplicateDistrictError>> {
-    async function exec(c: Client) {
-      await insertDistrict(c, electionId, district);
-    }
-
     try {
-      await (client ? exec(client) : this.db.withClient(exec));
+      await insertDistrict(client, electionId, district);
       return ok();
     } catch (error) {
       if (
@@ -1471,12 +1467,12 @@ export class Store {
   }
 
   async updateDistrict(
+    client: Client,
     electionId: ElectionId,
-    district: District,
-    client?: Client
+    district: District
   ): Promise<Result<void, DuplicateDistrictError>> {
-    function exec(c: Client) {
-      return c.query(
+    try {
+      const { rowCount } = await client.query(
         `
           update districts
           set name = $1
@@ -1486,12 +1482,6 @@ export class Store {
         district.id,
         electionId
       );
-    }
-
-    try {
-      const { rowCount } = client
-        ? await exec(client)
-        : await this.db.withClient(exec);
 
       assert(rowCount === 1, 'District not found');
 
@@ -1508,22 +1498,18 @@ export class Store {
   }
 
   async deleteDistrict(
+    client: Client,
     electionId: ElectionId,
-    districtId: DistrictId,
-    client?: Client
+    districtId: DistrictId
   ): Promise<void> {
-    async function exec(c: Client) {
-      await c.query(
-        `
-          delete from districts
-          where id = $1 and election_id = $2
-        `,
-        districtId,
-        electionId
-      );
-    }
-
-    return client ? exec(client) : this.db.withClient(exec);
+    await client.query(
+      `
+        delete from districts
+        where id = $1 and election_id = $2
+      `,
+      districtId,
+      electionId
+    );
   }
 
   async updateDistricts(input: {
@@ -1539,19 +1525,19 @@ export class Store {
 
       await client.withTransaction(async () => {
         for (const id of input.deletedDistrictIds || []) {
-          await this.deleteDistrict(electionId, id, client);
+          await this.deleteDistrict(client, electionId, id);
         }
 
         for (const d of input.updatedDistricts || []) {
           const district = unsafeParse(DistrictSchema, d);
-          res = await this.updateDistrict(electionId, district, client);
+          res = await this.updateDistrict(client, electionId, district);
 
           if (res.isErr()) return false;
         }
 
         for (const d of input.newDistricts || []) {
           const district = unsafeParse(DistrictSchema, d);
-          res = await this.createDistrict(electionId, district, client);
+          res = await this.createDistrict(client, electionId, district);
 
           if (res.isErr()) return false;
         }
@@ -1689,16 +1675,12 @@ export class Store {
   }
 
   async createParty(
+    client: Client,
     electionId: ElectionId,
-    party: Party,
-    client?: Client
+    party: Party
   ): Promise<Result<void, DuplicatePartyError>> {
-    function exec(c: Client) {
-      return insertParty(c, electionId, party);
-    }
-
     try {
-      await (client ? exec(client) : this.db.withClient(exec));
+      await insertParty(client, electionId, party);
       return ok();
     } catch (error) {
       return this.handlePartyError(party.id, error);
@@ -1706,12 +1688,12 @@ export class Store {
   }
 
   async updateParty(
+    client: Client,
     electionId: ElectionId,
-    party: Party,
-    client?: Client
+    party: Party
   ): Promise<Result<void, DuplicatePartyError>> {
-    function exec(c: Client) {
-      return c.query(
+    try {
+      const { rowCount } = await client.query(
         `
           update parties
           set
@@ -1726,12 +1708,6 @@ export class Store {
         party.id,
         electionId
       );
-    }
-
-    try {
-      const { rowCount } = client
-        ? await exec(client)
-        : await this.db.withClient(exec);
 
       assert(rowCount === 1, 'Party not found');
 
@@ -1742,26 +1718,18 @@ export class Store {
   }
 
   async deleteParty(
+    client: Client,
     electionId: ElectionId,
-    partyId: string,
-    client?: Client
+    partyId: string
   ): Promise<void> {
-    function exec(c: Client) {
-      return c.query(
-        `
-          delete from parties
-          where id = $1 and election_id = $2
-        `,
-        partyId,
-        electionId
-      );
-    }
-
-    if (client) {
-      await exec(client);
-    } else {
-      await this.db.withClient(exec);
-    }
+    await client.query(
+      `
+        delete from parties
+        where id = $1 and election_id = $2
+      `,
+      partyId,
+      electionId
+    );
   }
 
   async updateParties(input: {
@@ -1775,19 +1743,19 @@ export class Store {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         for (const id of input.deletedPartyIds || []) {
-          await this.deleteParty(input.electionId, id, client);
+          await this.deleteParty(client, input.electionId, id);
         }
 
         for (const p of input.updatedParties || []) {
           const party = unsafeParse(PartySchema, p);
-          res = await this.updateParty(input.electionId, party, client);
+          res = await this.updateParty(client, input.electionId, party);
 
           if (res.isErr()) return false;
         }
 
         for (const p of input.newParties || []) {
           const party = unsafeParse(PartySchema, p);
-          res = await this.createParty(input.electionId, party, client);
+          res = await this.createParty(client, input.electionId, party);
 
           if (res.isErr()) return false;
         }
