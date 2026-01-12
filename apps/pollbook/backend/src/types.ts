@@ -132,7 +132,8 @@ export interface VoterSearchParams {
   middleName: string;
   firstName: string;
   suffix: string;
-  strictMatch?: boolean;
+  strictMatch?: boolean /* Enforces a strict but not exact match on name fields */;
+  ignoreSuffix?: boolean /* Ignores the suffix field when matching */;
 }
 
 export interface PollbookPackage {
