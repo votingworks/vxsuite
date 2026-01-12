@@ -35,6 +35,8 @@ export interface Auth0ClientInterface {
   userIdFromRequest(req: Express.Request): string | undefined;
 }
 
+export const DEV_USER_ID = 'auth0|devuser';
+
 export class Auth0Client implements Auth0ClientInterface {
   constructor(
     private readonly database: Database,
@@ -111,7 +113,7 @@ export class Auth0Client implements Auth0ClientInterface {
     return {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       userIdFromRequest(_: Express.Request) {
-        return 'auth0|devuser';
+        return DEV_USER_ID;
       },
     } as const as Auth0Client;
   }
