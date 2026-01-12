@@ -384,6 +384,49 @@ test('edit election disabled when ballots are finalized', async () => {
   expect(editButton).toBeDisabled();
 });
 
+test('elections with external source have limited editable fields', async () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  electionRecord.ballotTemplateId = 'MsBallot';
+  const { election } = electionRecord;
+  const electionId = election.id;
+  mockStateFeatures(apiMock, electionId, { BALLOT_LANGUAGE_CONFIG: true });
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.getElectionInfo.expectCallWith({ electionId }).resolves({
+    ...electionInfoFromRecord(electionRecord),
+    externalSource: 'ms-sems',
+  });
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotTemplate.expectCallWith({ electionId }).resolves('MsBallot');
+  renderScreen(electionId);
+  await screen.findByRole('heading', { name: 'Election Info' });
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  // Title, State, and Jurisdiction should be editable
+  const titleInput = screen.getByLabelText('Title');
+  expect(titleInput).toBeEnabled();
+
+  const stateInput = screen.getByLabelText('State');
+  expect(stateInput).toBeEnabled();
+
+  const jurisdictionInput = screen.getByLabelText('Jurisdiction');
+  expect(jurisdictionInput).toBeEnabled();
+
+  // Remaining fields (Date, Type, and Seal for MS template) should be disabled
+  const dateInput = screen.getByLabelText('Date');
+  expect(dateInput).toBeDisabled();
+
+  const typeInput = screen.getByRole('listbox', { name: 'Type' });
+  for (const option of within(typeInput).getAllByRole('option')) {
+    expect(option).toBeDisabled();
+  }
+
+  const sealInput = screen.getByText('Seal').parentElement!;
+  expect(within(sealInput).getByLabelText('Upload Seal Image')).toBeDisabled();
+});
+
 test('handles duplicate title+date error', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const electionId = electionRecord.election.id;

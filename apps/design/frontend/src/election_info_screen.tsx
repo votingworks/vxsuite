@@ -160,6 +160,8 @@ function ElectionInfoForm({
     );
   }
 
+  // Elections with an external source cannot have certain fields edited
+  const hasExternalSource = Boolean(savedElectionInfo.externalSource);
   const disabled = updateElectionInfoMutation.isLoading || !isEditing;
 
   return (
@@ -207,7 +209,7 @@ function ElectionInfoForm({
                 setDraftDate(e.target.value);
               }
             }}
-            disabled={disabled}
+            disabled={disabled || hasExternalSource}
             required
           />
         </InputGroup>
@@ -219,7 +221,7 @@ function ElectionInfoForm({
           ]}
           selectedOptionId={electionInfo.type}
           onChange={(type) => setElectionInfo({ ...electionInfo, type })}
-          disabled={disabled}
+          disabled={disabled || hasExternalSource}
         />
         <InputGroup label="State">
           <InputWithAudio
@@ -259,7 +261,7 @@ function ElectionInfoForm({
               onChange={(seal = '') =>
                 setElectionInfo({ ...electionInfo, seal })
               }
-              disabled={disabled}
+              disabled={disabled || hasExternalSource}
               required
             />
           </div>
@@ -276,7 +278,7 @@ function ElectionInfoForm({
                     signatureImage,
                   })
                 }
-                disabled={disabled}
+                disabled={disabled || hasExternalSource}
                 required
               />
             </div>
@@ -286,7 +288,7 @@ function ElectionInfoForm({
                 value={electionInfo.signatureCaption ?? ''}
                 onChange={onInputChange('signatureCaption')}
                 onBlur={onInputBlur('signatureCaption')}
-                disabled={disabled}
+                disabled={disabled || hasExternalSource}
                 autoComplete="off"
                 required
               />
@@ -296,7 +298,7 @@ function ElectionInfoForm({
         {features.BALLOT_LANGUAGE_CONFIG && (
           <div style={{ width: '18rem' }}>
             <CheckboxGroup
-              disabled={disabled}
+              disabled={disabled || hasExternalSource}
               label="Ballot Languages"
               value={electionInfo.languageCodes}
               onChange={(value) => {
