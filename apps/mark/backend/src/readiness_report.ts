@@ -42,7 +42,12 @@ export async function saveReadinessReport({
 
   const report = MarkReadinessReport({
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
-    accessibleControllerConnected: isAccessibleControllerAttached(),
+    accessibleControllerProps: {
+      isDeviceConnected: isAccessibleControllerAttached(),
+      mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
+        'mark-accessible-controller'
+      ),
+    },
     patInputProps: {
       isDeviceConnected: isPatInputAttached(),
       mostRecentDiagnosticRecord:
@@ -52,6 +57,10 @@ export async function saveReadinessReport({
       mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
         'mark-headphone-input'
       ),
+    },
+    systemAudioProps: {
+      mostRecentDiagnosticRecord:
+        store.getMostRecentDiagnosticRecord('mark-system-audio'),
     },
     barcodeReaderProps: {
       isDeviceConnected: barcodeClient.getConnectionStatus(),

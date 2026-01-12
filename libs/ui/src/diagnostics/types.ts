@@ -10,4 +10,5 @@ export enum DiagnosticSectionTitle {
   BarcodeReader = 'Barcode Reader',
   Ups = 'Uninterruptible Power Supply',
   Printer = 'Printer',
+  SystemAudio = 'System Audio',
 }

@@ -1,5 +1,4 @@
 import { ThemeProvider } from 'styled-components';
-import { DiagnosticRecord } from '@votingworks/types';
 import {
   ConfigurationSection,
   ConfigurationSectionProps,
@@ -25,7 +24,7 @@ type NonpresentationalSectionProps = Omit<
   'diagnosticType' | 'title'
 >;
 
-type HeadphoneInputSectionProps = Omit<
+type AudioDeviceInputProps = Omit<
   NonpresentationalSectionProps,
   'isDeviceConnected'
 >;
@@ -35,22 +34,22 @@ interface ReportContentsProps
     StorageSectionProps,
     PrinterSectionProps,
     UpsSectionProps {
-  accessibleControllerConnected: boolean;
-  mostRecentAccessibleControllerDiagnostic?: DiagnosticRecord;
+  accessibleControllerProps: NonpresentationalSectionProps;
   patInputProps: NonpresentationalSectionProps;
-  headphoneInputProps: HeadphoneInputSectionProps;
   barcodeReaderProps: NonpresentationalSectionProps;
+  headphoneInputProps: AudioDeviceInputProps;
+  systemAudioProps: AudioDeviceInputProps;
 }
 
 export function MarkReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
   const {
-    accessibleControllerConnected,
-    mostRecentAccessibleControllerDiagnostic,
-    headphoneInputProps,
+    accessibleControllerProps,
     patInputProps,
     barcodeReaderProps,
+    headphoneInputProps,
+    systemAudioProps,
   } = props;
   return (
     <ReportContents>
@@ -58,8 +57,7 @@ export function MarkReadinessReportContents(
       <StorageSection {...props} />
       <PrinterSection {...props} />
       <MarkScanDeviceDiagnosticSection
-        isDeviceConnected={accessibleControllerConnected}
-        mostRecentDiagnosticRecord={mostRecentAccessibleControllerDiagnostic}
+        {...accessibleControllerProps}
         diagnosticType="mark-accessible-controller"
         title={DiagnosticSectionTitle.AccessibleController}
       />
@@ -79,6 +77,11 @@ export function MarkReadinessReportContents(
         {...headphoneInputProps}
         diagnosticType="mark-headphone-input"
         title={DiagnosticSectionTitle.HeadphoneInput}
+      />
+      <MarkScanDeviceDiagnosticSection
+        {...systemAudioProps}
+        diagnosticType="mark-system-audio"
+        title={DiagnosticSectionTitle.SystemAudio}
       />
       <UninterruptiblePowerSupplySection {...props} />
     </ReportContents>

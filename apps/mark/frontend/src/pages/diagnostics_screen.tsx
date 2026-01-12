@@ -28,6 +28,7 @@ import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_scr
 import { BarcodeReaderDiagnosticScreen } from './barcode_reader_diagnostic_screen';
 import { PatInputDiagnosticScreen } from './pat_input_diagnostic_screen';
 import { PrintTestPageButton } from '../components/print_diagnostic_button';
+import { SystemAudioDiagnosticScreen } from './system_audio_diagnostic_screen';
 
 export interface DiagnosticsScreenProps {
   onBackButtonPress: () => void;
@@ -61,6 +62,8 @@ export function DiagnosticsScreen({
   const headphoneInputDiagnosticQuery = getMostRecentDiagnostic.useQuery(
     'mark-headphone-input'
   );
+  const systemAudioDiagnosticQuery =
+    getMostRecentDiagnostic.useQuery('mark-system-audio');
   const barcodeReaderDiagnosticQuery = getMostRecentDiagnostic.useQuery(
     'mark-barcode-reader'
   );
@@ -87,7 +90,8 @@ export function DiagnosticsScreen({
     !headphoneInputDiagnosticQuery.isSuccess ||
     !barcodeReaderDiagnosticQuery.isSuccess ||
     !upsDiagnosticQuery.isSuccess ||
-    !printerDiagnosticQuery.isSuccess
+    !printerDiagnosticQuery.isSuccess ||
+    !systemAudioDiagnosticQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -115,6 +119,8 @@ export function DiagnosticsScreen({
     patInputDiagnosticQuery.data ?? undefined;
   const mostRecentHeadphoneInputDiagnostic =
     headphoneInputDiagnosticQuery.data ?? undefined;
+  const mostRecentSystemAudioDiagnostic =
+    systemAudioDiagnosticQuery.data ?? undefined;
   const mostRecentBarcodeReaderDiagnostic =
     barcodeReaderDiagnosticQuery.data ?? undefined;
   const mostRecentUpsDiagnostic = upsDiagnosticQuery.data ?? undefined;
@@ -154,10 +160,11 @@ export function DiagnosticsScreen({
                   logOutcome={logUpsDiagnosticOutcomeMutation.mutate}
                 />
               }
-              accessibleControllerConnected={accessibleControllerConnected}
-              mostRecentAccessibleControllerDiagnostic={
-                mostRecentAccessibleControllerDiagnostic
-              }
+              accessibleControllerProps={{
+                isDeviceConnected: accessibleControllerConnected,
+                mostRecentDiagnosticRecord:
+                  mostRecentAccessibleControllerDiagnostic,
+              }}
               patInputProps={{
                 isDeviceConnected: patDeviceConnected,
                 mostRecentDiagnosticRecord: mostRecentPatInputDiagnostic,
@@ -184,6 +191,14 @@ export function DiagnosticsScreen({
                   </Button>
                 ),
               }}
+              systemAudioProps={{
+                mostRecentDiagnosticRecord: mostRecentSystemAudioDiagnostic,
+                children: (
+                  <Button onPress={() => history.push('/system-audio')}>
+                    Test System Audio
+                  </Button>
+                ),
+              }}
             />
           </Main>
         </Screen>
@@ -202,6 +217,12 @@ export function DiagnosticsScreen({
       </Route>
       <Route path="/headphone-input">
         <HeadphoneInputDiagnosticScreen
+          onComplete={() => history.push('/')}
+          onCancel={() => history.push('/')}
+        />
+      </Route>
+      <Route path="/system-audio">
+        <SystemAudioDiagnosticScreen
           onComplete={() => history.push('/')}
           onCancel={() => history.push('/')}
         />
