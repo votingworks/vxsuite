@@ -1251,6 +1251,7 @@ test('error messages for duplicate candidate contest/candidates', async () => {
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
+  await expectViewModeContest(history, electionId, election.contests[0]);
   await navigateToContestEdit(history, electionId, election.contests[1].id);
 
   // Mock the duplicate contest error, even though we didn't actually change anything
@@ -1294,6 +1295,7 @@ test('error messages for duplicate ballot measure', async () => {
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
+  await expectViewModeContest(history, electionId, election.contests[0]);
   await navigateToContestEdit(history, electionId, ballotMeasureContest.id);
 
   // Mock the duplicate contest error, even though we didn't actually change anything
@@ -1337,6 +1339,7 @@ test('error messages for candidate contest with no candidates and write-ins disa
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
+  await expectViewModeContest(history, electionId, election.contests[0]);
   await navigateToContestEdit(history, electionId, candidateContest.id);
 
   // Remove all candidates

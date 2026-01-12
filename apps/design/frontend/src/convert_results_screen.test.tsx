@@ -14,13 +14,15 @@ import {
   jurisdiction,
   provideApi,
   user,
-  mockStateFeatures,
 } from '../test/api_helpers';
 import { render, screen } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ConvertResultsScreen } from './convert_results_screen';
 import { routes } from './routes';
-import { generalElectionRecord } from '../test/fixtures';
+import {
+  electionInfoFromRecord,
+  generalElectionRecord,
+} from '../test/fixtures';
 
 vi.mock('js-file-download');
 
@@ -43,7 +45,9 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
-  mockStateFeatures(apiMock, electionId, { MS_SEMS_CONVERSION: true });
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromRecord(electionRecord));
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);

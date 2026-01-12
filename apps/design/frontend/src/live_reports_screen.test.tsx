@@ -26,12 +26,15 @@ import {
   jurisdiction,
   provideApi,
   user,
-  mockStateFeatures,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { LiveReportsScreen } from './live_reports_screen';
-import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
+import {
+  electionInfoFromRecord,
+  generalElectionRecord,
+  primaryElectionRecord,
+} from '../test/fixtures';
 import { VXQR_REFETCH_INTERVAL_MS } from './api';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
@@ -46,7 +49,6 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectRepeatedCallsWith().resolves(user);
   mockUserFeatures(apiMock);
-  mockStateFeatures(apiMock, electionId);
 });
 
 afterEach(() => {
@@ -57,6 +59,9 @@ afterEach(() => {
 function renderScreen(
   electionIdParam: ElectionId = electionId
 ): ReturnType<typeof createMemoryHistory> {
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId: electionIdParam })
+    .resolves(electionInfoFromRecord(electionRecord));
   const { path } = routes.election(electionIdParam).reports.root;
   const paramPath = routes.election(':electionId').reports.root.path;
   const history = createMemoryHistory({ initialEntries: [path] });
@@ -894,7 +899,6 @@ describe('Results navigation and display', () => {
   });
 
   test('can view results properly for all precincts primary election', async () => {
-    mockStateFeatures(apiMock, primaryElection.id, {});
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(mockSystemSettingsWithUrl);
@@ -988,7 +992,6 @@ describe('Results navigation and display', () => {
   });
 
   test('can view results properly for single precinct primary election', async () => {
-    mockStateFeatures(apiMock, primaryElection.id, {});
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId: primaryElection.id })
       .resolves(mockSystemSettingsWithUrl);

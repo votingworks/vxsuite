@@ -13,14 +13,16 @@ import {
   mockUserFeatures,
   jurisdiction,
   user,
-  mockStateFeatures,
 } from '../test/api_helpers';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ExportScreen } from './export_screen';
 import { routes } from './routes';
 import { downloadFile } from './utils';
-import { generalElectionRecord } from '../test/fixtures';
+import {
+  electionInfoFromRecord,
+  generalElectionRecord,
+} from '../test/fixtures';
 import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
@@ -37,6 +39,9 @@ vi.useFakeTimers({ shouldAdvanceTime: true });
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromRecord(electionRecord));
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
   apiMock.getTestDecks.expectCallWith({ electionId }).resolves({});
   apiMock.getSystemSettings
@@ -48,7 +53,6 @@ beforeEach(() => {
     .resolves('VxDefaultBallot');
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
-  mockStateFeatures(apiMock, electionId);
 });
 
 afterEach(() => {
