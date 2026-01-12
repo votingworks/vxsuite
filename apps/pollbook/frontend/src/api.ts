@@ -499,4 +499,28 @@ export const formatUsbDrive = {
   },
 } as const;
 
+export const getActiveAnomalies = {
+  queryKey(): QueryKey {
+    return ['getActiveAnomalies'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getActiveAnomalies(), {
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+    });
+  },
+} as const;
+
+export const dismissAnomaly = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.dismissAnomaly, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getActiveAnomalies.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

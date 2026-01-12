@@ -364,3 +364,60 @@ export function isBarcodeScannerError(
 }
 
 export type PartyFilterAbbreviation = 'ALL' | PartyAbbreviation;
+
+export type AnomalyType = 'DuplicateCheckIn';
+
+export interface DuplicateCheckInDetails {
+  voterId: string;
+  checkInEvents: Array<{
+    machineId: string;
+    timestamp: string;
+  }>;
+  message: string;
+}
+
+export const DuplicateCheckInDetailsSchema: z.ZodSchema<DuplicateCheckInDetails> =
+  z.strictObject({
+    voterId: z.string(),
+    checkInEvents: z.array(
+      z.strictObject({
+        machineId: z.string(),
+        timestamp: z.string(),
+      })
+    ),
+    message: z.string(),
+  });
+
+export type AnomalyDetails = DuplicateCheckInDetails;
+
+export const AnomalyDetailsSchema = DuplicateCheckInDetailsSchema;
+
+export interface Anomaly {
+  anomalyId: number;
+  anomalyType: AnomalyType;
+  detectedAt: Date;
+  voterId?: string;
+  anomalyDetails: AnomalyDetails;
+  dismissedAt?: Date;
+  dismissed: boolean;
+}
+
+export const AnomalySchema: z.ZodSchema<Anomaly> = z.strictObject({
+  anomalyId: z.number(),
+  anomalyType: z.enum(['DuplicateCheckIn']),
+  detectedAt: z.date(),
+  voterId: z.string().optional(),
+  anomalyDetails: AnomalyDetailsSchema,
+  dismissedAt: z.date().optional(),
+  dismissed: z.boolean(),
+});
+
+export interface AnomalyDbRow {
+  anomaly_id: number;
+  anomaly_type: AnomalyType;
+  detected_at: number;
+  voter_id?: string;
+  anomaly_details: string;
+  dismissed_at?: number;
+  dismissed: number;
+}
