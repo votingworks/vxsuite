@@ -155,6 +155,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
   const isFinalized = !!getBallotsFinalizedAtQuery.data;
+  const hasExternalSource = Boolean(electionInfo.externalSource);
 
   function goBackToContestsList() {
     history.replace(contestRoutes.root.path);
@@ -334,7 +335,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         <InputGroup label="District">
           <SearchSelect
             aria-label="District"
-            disabled={disabled}
+            disabled={disabled || hasExternalSource}
             value={contest.districtId || undefined}
             onChange={(value) => {
               setContest({ ...contest, districtId: value || undefined });
@@ -351,12 +352,19 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         </InputGroup>
         <InputRow>
           <SegmentedButton
-            disabled={disabled}
+            disabled={disabled || hasExternalSource}
             label="Type"
-            options={[
-              { id: 'candidate', label: 'Candidate Contest' },
-              { id: 'yesno', label: 'Ballot Measure' },
-            ]}
+            options={
+              hasExternalSource
+                ? [
+                    { id: 'candidate', label: 'Candidate Contest' },
+                    { id: 'yesno', label: 'Ballot Measure' },
+                  ].filter((o) => o.id === contest.type)
+                : [
+                    { id: 'candidate', label: 'Candidate Contest' },
+                    { id: 'yesno', label: 'Ballot Measure' },
+                  ]
+            }
             selectedOptionId={contest.type}
             onChange={(type) =>
               setContest({
@@ -391,7 +399,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
               <InputGroup label="Party">
                 <SearchSelect
                   aria-label="Party"
-                  disabled={disabled}
+                  disabled={disabled || hasExternalSource}
                   options={[
                     { value: '' as PartyId, label: 'No Party Affiliation' },
                     ...parties.map((party) => ({
@@ -478,7 +486,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                         <TD>
                           <input
                             aria-label={`Candidate ${index + 1} First Name`}
-                            disabled={disabled}
+                            disabled={disabled || hasExternalSource}
                             type="text"
                             value={candidate.firstName}
                             // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -505,7 +513,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                         <TD>
                           <input
                             aria-label={`Candidate ${index + 1} Middle Name`}
-                            disabled={disabled}
+                            disabled={disabled || hasExternalSource}
                             type="text"
                             value={candidate.middleName || ''}
                             onChange={(e) =>
@@ -528,7 +536,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                         <TD>
                           <input
                             aria-label={`Candidate ${index + 1} Last Name`}
-                            disabled={disabled}
+                            disabled={disabled || hasExternalSource}
                             type="text"
                             value={candidate.lastName || ''}
                             onChange={(e) =>
@@ -552,7 +560,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                         <TD>
                           <SearchSelect
                             aria-label={`Candidate ${index + 1} Party`}
-                            disabled={disabled}
+                            disabled={disabled || hasExternalSource}
                             options={[
                               {
                                 value: '' as PartyId,
@@ -581,7 +589,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                           />
                         </TD>
                         <TD>
-                          {editing ? (
+                          {editing && !hasExternalSource ? (
                             <TooltipContainer style={{ width: 'min-content' }}>
                               <Button
                                 aria-label={`Remove Candidate ${joinCandidateName(
@@ -634,7 +642,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                 </CandidateInputTable>
               )}
 
-              {editing && (
+              {editing && !hasExternalSource && (
                 <Row style={{ marginTop: '0.5rem' }}>
                   <Button
                     disabled={disabled}
@@ -683,7 +691,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                   stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
                   subkey: contest.yesOption.id,
                 })}
-                disabled={disabled}
+                disabled={disabled || hasExternalSource}
                 editing={editing}
                 type="text"
                 value={contest.yesOption.label}
@@ -704,7 +712,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                   stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
                   subkey: contest.noOption.id,
                 })}
-                disabled={disabled}
+                disabled={disabled || hasExternalSource}
                 editing={editing}
                 type="text"
                 value={contest.noOption.label}
@@ -727,7 +735,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         <FormFooter style={{ justifyContent: 'space-between' }}>
           <PrimaryFormActions disabled={disabled} editing={editing} />
 
-          {savedContest && (
+          {savedContest && !hasExternalSource && (
             <Button
               variant="danger"
               fill="outlined"
