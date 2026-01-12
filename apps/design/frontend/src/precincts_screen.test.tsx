@@ -289,8 +289,9 @@ test('editing a precinct - adding splits in NH', async () => {
     )
   );
 
-  const split3ClerkSignatureCaption =
-    within(split3Card).getByLabelText('Signature Caption');
+  const split3ClerkSignatureCaption = within(split3Card).getByLabelText(
+    'Signature Caption Override'
+  );
   expect(split3ClerkSignatureCaption).toHaveValue('');
   userEvent.type(
     split3ClerkSignatureCaption,

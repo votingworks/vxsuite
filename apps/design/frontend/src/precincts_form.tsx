@@ -366,7 +366,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
 
                       {features.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE && (
                         <div>
-                          <FieldName>Signature Image</FieldName>
+                          <FieldName>Signature Image Override</FieldName>
                           <SignatureImageInput
                             disabled={disabled}
                             value={split.clerkSignatureImage}
@@ -381,7 +381,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       )}
 
                       {features.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE && (
-                        <InputGroup label="Signature Caption">
+                        <InputGroup label="Signature Caption Override">
                           <input
                             disabled={disabled}
                             type="text"
