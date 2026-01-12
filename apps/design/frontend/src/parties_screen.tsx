@@ -13,7 +13,7 @@ import { DuplicatePartyError } from '@votingworks/design-backend';
 import styled from 'styled-components';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { getBallotsFinalizedAt, listParties } from './api';
+import { getBallotsFinalizedAt, getElectionInfo, listParties } from './api';
 import { useTitle } from './hooks/use_title';
 import { generateId } from './utils';
 import * as api from './api';
@@ -47,9 +47,9 @@ export function PartiesScreen(): JSX.Element {
   );
 }
 
-const Viewport = styled(FixedViewport)`
+const Viewport = styled(FixedViewport)<{ hasActionsRow: boolean }>`
   display: grid;
-  grid-template-rows: min-content 1fr;
+  grid-template-rows: ${(p) => (p.hasActionsRow ? 'min-content 1fr' : '1fr')};
 `;
 
 const Body = styled.div`
@@ -107,6 +107,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
 
   const savedPartiesQuery = listParties.useQuery(electionId);
   const ballotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
 
   // Reset form on initial and post-save fetches:
   React.useEffect(() => {
@@ -120,7 +121,13 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const updatePartiesMutation = api.updateParties.useMutation();
   const error = updatePartiesMutation.data?.err();
 
-  if (!(savedPartiesQuery.isSuccess && ballotsFinalizedAtQuery.isSuccess)) {
+  if (
+    !(
+      savedPartiesQuery.isSuccess &&
+      ballotsFinalizedAtQuery.isSuccess &&
+      getElectionInfoQuery.isSuccess
+    )
+  ) {
     return null;
   }
 
@@ -162,6 +169,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   }
 
   const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
+  const hasExternalSource = Boolean(getElectionInfoQuery.data.externalSource);
   const savedParties = savedPartiesQuery.data;
   const updating = updatePartiesMutation.isLoading;
   const disabled = ballotsFinalized || !editing || updating;
@@ -174,21 +182,22 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   }
 
   return (
-    <Viewport>
-      <ListActionsRow>
-        <Button
-          disabled={updating || ballotsFinalized}
-          icon="Add"
-          onPress={() => {
-            setNewParties([...newParties, createBlankParty()]);
-            setEditing(true);
-          }}
-          variant="primary"
-        >
-          Add Party
-        </Button>
-      </ListActionsRow>
-
+    <Viewport hasActionsRow={!hasExternalSource}>
+      {!hasExternalSource && (
+        <ListActionsRow>
+          <Button
+            disabled={updating || ballotsFinalized}
+            icon="Add"
+            onPress={() => {
+              setNewParties([...newParties, createBlankParty()]);
+              setEditing(true);
+            }}
+            variant="primary"
+          >
+            Add Party
+          </Button>
+        </ListActionsRow>
+      )}
       <Body>
         <FormFixed
           editing={editing}
@@ -254,7 +263,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
             )}
           </FormBody>
 
-          {!ballotsFinalized && (
+          {!ballotsFinalized && !hasExternalSource && (
             <FormFooter>
               {editing ? (
                 <React.Fragment>

@@ -18,6 +18,7 @@ import {
   provideApi,
   user,
 } from '../test/api_helpers';
+import { electionInfoFromElection } from '../test/fixtures';
 import { render, screen, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -65,6 +66,9 @@ beforeEach(() => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.getElectionInfo
+    .expectRepeatedCallsWith({ electionId })
+    .resolves(electionInfoFromElection(election));
 
   MockAudioPanel.mockReturnValue(<div data-testid={MOCK_AUDIO_PANEL_ID} />);
 });
@@ -224,6 +228,30 @@ test('editing or adding a party is disabled when ballots are finalized', async (
   expect(screen.queryButton('Edit Parties')).not.toBeInTheDocument();
   expect(screen.queryButton('Save')).not.toBeInTheDocument();
   expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
+});
+
+test('adding, editing, or deleting a party is disabled for elections with external source', async () => {
+  const savedParties: Party[] = [
+    { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
+    { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
+  ];
+
+  apiMock.getElectionInfo.reset();
+  apiMock.getElectionInfo.expectRepeatedCallsWith({ electionId }).resolves({
+    ...electionInfoFromElection(election),
+    externalSource: 'ms-sems',
+  });
+  apiMock.listParties.expectCallWith({ electionId }).resolves(savedParties);
+
+  renderScreen(electionId);
+
+  await screen.findByDisplayValue(savedParties[0].name);
+
+  // Add Party button should not be visible
+  expect(screen.queryButton('Add Party')).not.toBeInTheDocument();
+
+  // Edit Parties button should not be visible
+  expect(screen.queryButton('Edit Parties')).not.toBeInTheDocument();
 });
 
 test('cancelling', async () => {
