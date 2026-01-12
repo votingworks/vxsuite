@@ -200,6 +200,7 @@ export function arbitraryDateTime({
         const result = DateTime.fromObject(parts, {
           zone: zoneName,
         });
+        /* istanbul ignore else - @preserve */
         if (
           result.year === parts.year &&
           result.month === parts.month &&
