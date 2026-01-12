@@ -230,7 +230,7 @@ test('editing or adding a party is disabled when ballots are finalized', async (
   expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
 });
 
-test('adding or deleting a party is disabled for elections with external source', async () => {
+test('adding, editing, or deleting a party is disabled for elections with external source', async () => {
   const savedParties: Party[] = [
     { id: 'p1', abbrev: '1', fullName: 'party 1', name: 'p1' },
     { id: 'p2', abbrev: '2', fullName: 'party 2', name: 'p2' },
@@ -250,11 +250,8 @@ test('adding or deleting a party is disabled for elections with external source'
   // Add Party button should not be visible
   expect(screen.queryButton('Add Party')).not.toBeInTheDocument();
 
-  // Edit should be available but delete buttons should not be visible
-  userEvent.click(screen.getButton('Edit Parties'));
-  await screen.findButton('Save');
-
-  expect(screen.queryButton(/Delete Party/i)).not.toBeInTheDocument();
+  // Edit Parties button should not be visible
+  expect(screen.queryButton('Edit Parties')).not.toBeInTheDocument();
 });
 
 test('cancelling', async () => {

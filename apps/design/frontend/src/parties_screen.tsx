@@ -227,7 +227,6 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                 {updatedParties.map((party, i) => (
                   <PartyRow
                     disabled={disabled}
-                    canDelete={!hasExternalSource}
                     editing={editing}
                     key={party.id}
                     onChange={(p) =>
@@ -246,7 +245,6 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                 {newParties.map((party, i) => (
                   <PartyRow
                     disabled={disabled}
-                    canDelete={!hasExternalSource}
                     editing={editing}
                     key={party.id}
                     onChange={(p) =>
@@ -265,7 +263,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
             )}
           </FormBody>
 
-          {!ballotsFinalized && (
+          {!ballotsFinalized && !hasExternalSource && (
             <FormFooter>
               {editing ? (
                 <React.Fragment>
@@ -318,7 +316,6 @@ const ERROR_MESSAGE: Record<DuplicatePartyError['code'], string> = {
 
 function PartyRow(props: {
   disabled?: boolean;
-  canDelete: boolean;
   editing: boolean;
   onChange: (party: Party) => void;
   onDelete: (partyId: string) => void;
@@ -326,15 +323,7 @@ function PartyRow(props: {
   // eslint-disable-next-line vx/gts-use-optionals -- require explicit prop
   updateError: DuplicatePartyError | undefined;
 }) {
-  const {
-    disabled,
-    canDelete,
-    editing,
-    updateError,
-    onChange,
-    onDelete,
-    party,
-  } = props;
+  const { disabled, editing, updateError, onChange, onDelete, party } = props;
   const { electionId } = useParams<ElectionIdParams>();
   const partiesRoutes = routes.election(electionId).parties;
 
@@ -405,7 +394,7 @@ function PartyRow(props: {
         }}
       />
 
-      {editing && canDelete ? (
+      {editing ? (
         <TooltipContainer as="div" style={{ width: 'min-content' }}>
           <Button
             aria-label={`Delete Party ${party.fullName}`}
