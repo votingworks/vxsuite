@@ -20,15 +20,16 @@ exports.shorthands = undefined;
 exports.up = async (pgm) => {
   const electionsMissingRequiredSignature = await pgm.db.select({
     text: `
-SELECT id
-FROM elections
-WHERE ballot_template_id = 'NhBallot' AND signature IS NULL
+SELECT e.id, e.title, j.name AS "jurisdictionName"
+FROM elections e
+JOIN jurisdictions j ON e.jurisdiction_id = j.id
+WHERE e.ballot_template_id = 'NhBallot' AND e.signature IS NULL
 `,
   });
   for (const election of electionsMissingRequiredSignature) {
     const townPrecinctSplits = await pgm.db.select({
       text: `
-SELECT ps.id, ps.name, ps.nh_options
+SELECT ps.id, ps.name, ps.nh_options as "nhOptions"
 FROM precinct_splits ps
 JOIN precincts p ON ps.precinct_id = p.id
 WHERE p.election_id = $1 AND ps.name ILIKE '%TOWN%' AND ps.nh_options IS NOT NULL
@@ -36,7 +37,7 @@ WHERE p.election_id = $1 AND ps.name ILIKE '%TOWN%' AND ps.nh_options IS NOT NUL
       values: [election.id],
     });
     if (townPrecinctSplits.length === 1) {
-      const nhOptions = townPrecinctSplits[0].nh_options;
+      const { nhOptions } = townPrecinctSplits[0];
       if (!nhOptions.clerkSignatureImage || !nhOptions.clerkSignatureCaption) {
         continue;
       }
@@ -66,6 +67,11 @@ WHERE p.election_id = $1 AND ps.name ILIKE '%TOWN%' AND ps.nh_options IS NOT NUL
           townPrecinctSplits[0].id,
         ],
       });
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `Moved town clerk signature for ${election.jurisdictionName} ${election.title}`
+      );
     }
   }
 };
