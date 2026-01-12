@@ -237,3 +237,53 @@ test('switching to test ballot mode without ballots printed', () => {
   apiMock.expectSetTestMode(true);
   userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
 });
+
+test('navigates to diagnostics screen and back', async () => {
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetMachineConfig();
+  apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
+  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+    precinctSelection: undefined,
+    pollsState: 'polls_closed_initial',
+    ballotsPrintedCount: 0,
+    isTestMode: true,
+  });
+  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+    available: 1_000_000_000,
+    used: 1_000_000_000,
+    total: 2_000_000_000,
+  });
+  apiMock.expectGetMostRecentDiagnostic('mark-accessible-controller');
+  apiMock.expectGetMostRecentDiagnostic('mark-pat-input');
+  apiMock.expectGetMostRecentDiagnostic('mark-headphone-input');
+  apiMock.expectGetMostRecentDiagnostic('mark-system-audio');
+  apiMock.expectGetMostRecentDiagnostic('mark-barcode-reader');
+  apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
+  apiMock.expectGetMostRecentDiagnostic('test-print');
+
+  renderScreen();
+
+  // Navigate to diagnostics
+  userEvent.click(await screen.findButton('Diagnostics'));
+  await screen.findByRole('heading', { name: 'System Diagnostics' });
+
+  // Navigate back
+  userEvent.click(screen.getByRole('button', { name: /back/i }));
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+});
+
+test('unconfigure handles error gracefully', async () => {
+  apiMock.expectGetSystemSettings();
+  renderScreen({
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+
+  const unconfigureButton = await screen.findByText('Unconfigure Machine');
+  apiMock.expectEjectUsbDriveToError();
+
+  userEvent.click(unconfigureButton);
+  userEvent.click(screen.getButton('Delete All Election Data'));
+
+  // The error should be caught and handled, no crash
+  await screen.findByText('Election Manager Menu');
+});

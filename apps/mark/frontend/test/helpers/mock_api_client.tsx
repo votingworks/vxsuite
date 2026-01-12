@@ -21,6 +21,8 @@ import {
   PrinterStatus,
   PrinterConfig,
   constructElectionKey,
+  DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import {
   mockCardlessVoterUser,
@@ -298,6 +300,10 @@ export function createApiMock() {
       mockApiClient.ejectUsbDrive.expectCallWith().resolves();
     },
 
+    expectEjectUsbDriveToError() {
+      mockApiClient.ejectUsbDrive.expectCallWith().throws('eject_error');
+    },
+
     expectGetElectionState(electionState?: Partial<ElectionState>) {
       electionStateRef.current = electionState
         ? {
@@ -355,6 +361,37 @@ export function createApiMock() {
       name: 'alarm' | 'chime' | 'error' | 'success' | 'warning'
     ) {
       mockApiClient.playSound.expectRepeatedCallsWith({ name }).resolves();
+    },
+
+    expectAddDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>) {
+      mockApiClient.addDiagnosticRecord.expectCallWith(record).resolves();
+    },
+
+    expectGetMostRecentDiagnostic(
+      diagnosticType: DiagnosticType,
+      record?: DiagnosticRecord
+    ) {
+      mockApiClient.getMostRecentDiagnostic
+        .expectCallWith({ diagnosticType })
+        .resolves(record ?? null);
+    },
+
+    expectClearLastBarcodeScan() {
+      mockApiClient.clearLastBarcodeScan.expectCallWith().resolves();
+    },
+
+    expectGetMostRecentBarcodeScan(
+      scan?: { data: string; timestamp: string } | null
+    ) {
+      mockApiClient.getMostRecentBarcodeScan
+        .expectRepeatedCallsWith()
+        .resolves(scan ?? null);
+    },
+
+    expectLogUpsDiagnosticOutcome(outcome: 'pass' | 'fail') {
+      mockApiClient.logUpsDiagnosticOutcome
+        .expectCallWith({ outcome })
+        .resolves();
     },
   };
 }
