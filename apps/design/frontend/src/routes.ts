@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import type {
-  StateFeaturesConfig,
+  ElectionInfo,
   UserFeaturesConfig,
 } from '@votingworks/design-backend';
 import {
@@ -168,12 +168,11 @@ export const electionParamRoutes = routes.election(':electionId');
 
 export const rootNavRoutes: Route[] = [];
 export function electionNavRoutes(
-  electionId: ElectionId,
+  electionInfo: ElectionInfo,
   userFeatures: UserFeaturesConfig,
-  stateFeatures: StateFeaturesConfig,
   electionSystemSettings: SystemSettings
 ): Route[] {
-  const electionRoutes = routes.election(electionId);
+  const electionRoutes = routes.election(electionInfo.electionId);
   return [
     electionRoutes.electionInfo.root,
     electionRoutes.districts.root,
@@ -188,7 +187,7 @@ export function electionNavRoutes(
     ...(electionSystemSettings.quickResultsReportingUrl
       ? [electionRoutes.reports.root]
       : []),
-    ...(stateFeatures.MS_SEMS_CONVERSION
+    ...(electionInfo.externalSource === 'ms-sems'
       ? [electionRoutes.convertResults]
       : []),
   ];

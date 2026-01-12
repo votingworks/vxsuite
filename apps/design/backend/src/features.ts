@@ -92,10 +92,6 @@ export enum StateFeature {
    */
   AUDIO_PROOFING = 'AUDIO_PROOFING',
   /**
-   * Enable the ability to convert Mississippi SEMS election files.
-   */
-  MS_SEMS_CONVERSION = 'MS_SEMS_CONVERSION',
-  /**
    * Add a field to override the election title for a precinct split.
    */
   PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE = 'PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE',
@@ -148,7 +144,6 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
 
   MS: {
     AUDIO_PROOFING: true,
-    MS_SEMS_CONVERSION: true,
   },
 
   NH: {
