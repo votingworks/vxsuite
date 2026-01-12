@@ -21,7 +21,6 @@ import {
   UnauthenticatedApiClient,
   UnauthenticatedApiClientContext,
 } from './public_api';
-import { ElectionsScreen } from './elections_screen';
 import { electionParamRoutes, routes, resultsRoutes } from './routes';
 import { ElectionInfoScreen } from './election_info_screen';
 import { ContestsScreen } from './contests_screen';
@@ -35,6 +34,7 @@ import { ConvertResultsScreen } from './convert_results_screen';
 import { PartiesScreen } from './parties_screen';
 import { DistrictsScreen } from './districts_screen';
 import { PrecinctsScreen } from './precincts_screen';
+import { HomeScreen } from './home_screen';
 
 function ElectionScreens(): JSX.Element {
   return (
@@ -129,9 +129,9 @@ export function App({
               <ApiClientContext.Provider value={apiClient}>
                 <WaitForUserInfo>
                   <Route path={routes.root.path} exact>
-                    <ElectionsScreen
-                      filterText={electionsFilterText}
-                      setFilterText={setElectionsFilterText}
+                    <HomeScreen
+                      electionsFilterText={electionsFilterText}
+                      setElectionsFilterText={setElectionsFilterText}
                     />
                   </Route>
                   <Route

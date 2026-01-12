@@ -65,12 +65,15 @@ function UserInfoAndLogoutButton(): JSX.Element | null {
 }
 
 export function Header({
+  className,
   children,
 }: {
+  className?: string;
   children: React.ReactNode;
 }): JSX.Element {
   return (
     <MainHeader
+      className={className}
       style={{
         display: 'flex',
         justifyContent: 'space-between',
