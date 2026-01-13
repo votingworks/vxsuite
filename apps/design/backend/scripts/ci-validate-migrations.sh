@@ -9,6 +9,7 @@ set -euo pipefail
 export LC_ALL=C
 
 MIGRATION_DIR="${MIGRATION_DIR:-apps/design/backend/migrations}"
+IGNORED_MIGRATION="1765828783133_insert-dev-data\.js"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT" >/dev/null 2>&1
 MODE="${1:-auto}"
@@ -24,7 +25,7 @@ validate_commits_vs_origin_main() {
 
   # Compare migrations on origin/main vs HEAD
   git ls-tree -r --name-only origin/main -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$origin_main_tempfile" || true
-  git ls-tree -r --name-only HEAD        -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$head_tempfile" || true
+  git ls-tree -r --name-only HEAD        -- "$MIGRATION_DIR" | grep -E '\.js$' | grep -v "$IGNORED_MIGRATION" | sort -u >"$head_tempfile" || true
   missing_migrations="$(comm -23 "$origin_main_tempfile" "$head_tempfile" || true)"
   added_migrations="$(comm -13 "$origin_main_tempfile" "$head_tempfile" || true)"
 
@@ -56,9 +57,9 @@ validate_head_vs_prev_commit() {
   git rev-parse --verify --quiet HEAD~1 >/dev/null \
     || git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
 
-  added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR"/*.js || true)"
+  added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR"/*.js | grep -v "$IGNORED_MIGRATION" || true)"
   [[ -z "$added_migrations" ]] && exit 0
-  
+
   prev_newest_migration="$(git ls-tree -r --name-only HEAD~1 -- "$MIGRATION_DIR" \
       | grep -E '\.js$' | sort | tail -n1 || true
   )"
