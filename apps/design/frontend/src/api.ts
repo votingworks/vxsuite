@@ -755,13 +755,13 @@ export const getUserFeatures = {
   },
 } as const;
 
-export const getBaseUrl = {
+export const getResultsReportingUrl = {
   queryKey(): QueryKey {
-    return ['getBaseUrl'];
+    return ['getResultsReportingUrl'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getBaseUrl());
+    return useQuery(this.queryKey(), () => apiClient.getResultsReportingUrl());
   },
 } as const;
 

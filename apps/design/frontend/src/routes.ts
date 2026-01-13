@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import { typedAs } from '@votingworks/basics';
 import type {
   ElectionInfo,
   UserFeaturesConfig,
 } from '@votingworks/design-backend';
+import { ResultsReportingPath } from '@votingworks/design-backend';
 import {
   ElectionId,
   ElectionStringKey,
@@ -13,7 +15,7 @@ import { Route } from '@votingworks/ui';
 export const resultsRoutes = {
   root: {
     title: 'Results Reported',
-    path: '/report',
+    path: typedAs<ResultsReportingPath>('/report'),
   },
 } as const;
 

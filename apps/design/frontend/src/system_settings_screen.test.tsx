@@ -32,7 +32,9 @@ let apiMock: MockApiClient;
 beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.getBaseUrl.expectCallWith().resolves('http://test-results-url.com');
+  apiMock.getResultsReportingUrl
+    .expectCallWith()
+    .resolves('http://test-results-url.com/report');
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromRecord(electionRecord));

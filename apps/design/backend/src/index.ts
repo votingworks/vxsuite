@@ -32,6 +32,7 @@ export type {
   ReceivedReportInfo,
   QuickReportedPollStatus,
   GetExportedElectionError,
+  ResultsReportingPath,
 } from './types';
 export type {
   StateFeature,
