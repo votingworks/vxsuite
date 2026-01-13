@@ -451,13 +451,6 @@ test('setting "other" system settings', async () => {
     expectUncheckedThenCheck(otherContainer, label);
   }
 
-  userEvent.type(
-    within(otherContainer).getByRole('spinbutton', {
-      name: 'Max Cumulative Vertical Streak Width',
-    }),
-    '10'
-  );
-
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     allowOfficialBallotsInTestMode: true,
@@ -535,7 +528,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(31);
+  expect(allControls).toHaveLength(30);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
