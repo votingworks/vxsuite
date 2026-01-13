@@ -1,10 +1,13 @@
 import { z } from 'zod/v4';
 
-export type PollsState =
-  | 'polls_closed_initial'
-  | 'polls_open'
-  | 'polls_paused'
-  | 'polls_closed_final';
+export const PollsStateSchema = z.union([
+  z.literal('polls_closed_initial'),
+  z.literal('polls_open'),
+  z.literal('polls_paused'),
+  z.literal('polls_closed_final'),
+]);
+
+export type PollsState = z.infer<typeof PollsStateSchema>;
 
 export type PollsStateSupportsLiveReporting =
   | 'polls_open'
@@ -16,25 +19,27 @@ export function doesPollsStateSupportLiveReporting(
   return state === 'polls_open' || state === 'polls_closed_final';
 }
 
-export const PollsStateSchema: z.ZodSchema<PollsState> = z.union([
-  z.literal('polls_closed_initial'),
-  z.literal('polls_open'),
-  z.literal('polls_paused'),
-  z.literal('polls_closed_final'),
+export const StandardPollsTransitionTypeSchema = z.union([
+  z.literal('open_polls'),
+  z.literal('close_polls'),
 ]);
 
-export type StandardPollsTransitionType = 'open_polls' | 'close_polls';
-export type PollsSuspensionTransitionType = 'pause_voting' | 'resume_voting';
-export type PollsTransitionType =
-  | StandardPollsTransitionType
-  | PollsSuspensionTransitionType;
+export type StandardPollsTransitionType = z.infer<
+  typeof StandardPollsTransitionTypeSchema
+>;
 
-export const StandardPollsTransitionTypeSchema: z.ZodSchema<StandardPollsTransitionType> =
-  z.union([z.literal('open_polls'), z.literal('close_polls')]);
-export const PollsSuspensionTransitionTypeSchema: z.ZodSchema<PollsSuspensionTransitionType> =
-  z.union([z.literal('pause_voting'), z.literal('resume_voting')]);
-export const PollsTransitionTypeSchema: z.ZodSchema<PollsTransitionType> =
-  z.union([
-    StandardPollsTransitionTypeSchema,
-    PollsSuspensionTransitionTypeSchema,
-  ]);
+export const PollsSuspensionTransitionTypeSchema = z.union([
+  z.literal('pause_voting'),
+  z.literal('resume_voting'),
+]);
+
+export type PollsSuspensionTransitionType = z.infer<
+  typeof PollsSuspensionTransitionTypeSchema
+>;
+
+export const PollsTransitionTypeSchema = z.union([
+  StandardPollsTransitionTypeSchema,
+  PollsSuspensionTransitionTypeSchema,
+]);
+
+export type PollsTransitionType = z.infer<typeof PollsTransitionTypeSchema>;
