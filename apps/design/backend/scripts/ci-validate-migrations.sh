@@ -28,11 +28,11 @@ validate_commits_vs_origin_main() {
   missing_migrations="$(comm -23 "$origin_main_tempfile" "$head_tempfile" || true)"
   added_migrations="$(comm -13 "$origin_main_tempfile" "$head_tempfile" || true)"
 
-  # Check: If branch adds migrations and is missing ones from main → fail
-  if [[ -n "$added_migrations" && -n "$missing_migrations" ]]; then
-    echo "Branch adds migrations but is missing migration(s) from main:"
+  # Check: migrations from main must not be deleted
+  if [[ -n "$missing_migrations" ]]; then
+    echo "Branch deletes migration(s) from main:"
     printf "%s\n" "$missing_migrations"
-    echo "Regenerate the added migration(s) with a current timestamp."
+    echo "Migrations must not be deleted once merged to main."
     exit 1
   fi
 
@@ -56,7 +56,17 @@ validate_head_vs_prev_commit() {
   git rev-parse --verify --quiet HEAD~1 >/dev/null \
     || git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
 
-  added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR"/*.js || true)"
+  # Check: migrations from previous commit must not be deleted or renamed
+  # Use directory path (not glob) since deleted/renamed files don't exist on disk
+  deleted_or_renamed="$(git diff --diff-filter=DR --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.js$' || true)"
+  if [[ -n "$deleted_or_renamed" ]]; then
+    echo "Commit deletes or renames migration(s):"
+    printf "%s\n" "$deleted_or_renamed"
+    echo "Migrations must not be deleted or renamed once merged to main."
+    exit 1
+  fi
+
+  added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.js$' || true)"
   [[ -z "$added_migrations" ]] && exit 0
 
   prev_newest_migration="$(git ls-tree -r --name-only HEAD~1 -- "$MIGRATION_DIR" \
