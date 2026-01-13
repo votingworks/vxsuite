@@ -56,16 +56,17 @@ validate_head_vs_prev_commit() {
   git rev-parse --verify --quiet HEAD~1 >/dev/null \
     || git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
 
-  # Check: migrations from previous commit must not be deleted
-  deleted_migrations="$(git diff --diff-filter=D --name-only HEAD~1..HEAD -- "$MIGRATION_DIR"/*.js || true)"
-  if [[ -n "$deleted_migrations" ]]; then
-    echo "Commit deletes migration(s):"
-    printf "%s\n" "$deleted_migrations"
-    echo "Migrations must not be deleted once merged to main."
+  # Check: migrations from previous commit must not be deleted or renamed
+  # Use directory path (not glob) since deleted/renamed files don't exist on disk
+  deleted_or_renamed="$(git diff --diff-filter=DR --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.js$' || true)"
+  if [[ -n "$deleted_or_renamed" ]]; then
+    echo "Commit deletes or renames migration(s):"
+    printf "%s\n" "$deleted_or_renamed"
+    echo "Migrations must not be deleted or renamed once merged to main."
     exit 1
   fi
 
-  added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR"/*.js || true)"
+  added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.js$' || true)"
   [[ -z "$added_migrations" ]] && exit 0
 
   prev_newest_migration="$(git ls-tree -r --name-only HEAD~1 -- "$MIGRATION_DIR" \
