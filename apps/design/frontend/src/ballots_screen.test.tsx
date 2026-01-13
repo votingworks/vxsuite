@@ -53,7 +53,6 @@ function renderScreen(electionId: ElectionId) {
 
 function expectElectionApiCalls(electionRecord: ElectionRecord) {
   const { id: electionId } = electionRecord.election;
-  mockStateFeatures(apiMock, electionId);
   apiMock.listBallotStyles
     .expectCallWith({ electionId })
     .resolves(electionRecord.election.ballotStyles);
@@ -345,6 +344,7 @@ describe('Ballot layout tab', () => {
   });
 
   test('cancelling', async () => {
+    mockStateFeatures(apiMock, electionId, {});
     mockUserFeatures(apiMock, {});
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,

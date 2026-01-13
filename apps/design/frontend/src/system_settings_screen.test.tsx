@@ -15,12 +15,14 @@ import {
   jurisdiction,
   provideApi,
   user,
-  mockStateFeatures,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { SystemSettingsScreen } from './system_settings_screen';
-import { generalElectionRecord } from '../test/fixtures';
+import {
+  electionInfoFromRecord,
+  generalElectionRecord,
+} from '../test/fixtures';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
@@ -31,8 +33,10 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getBaseUrl.expectCallWith().resolves('http://test-results-url.com');
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromRecord(electionRecord));
   mockUserFeatures(apiMock);
-  mockStateFeatures(apiMock, electionId);
 });
 
 afterEach(() => {
