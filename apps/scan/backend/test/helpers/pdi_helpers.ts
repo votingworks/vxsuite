@@ -42,10 +42,7 @@ import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { createCanvas } from 'canvas';
 import { Api, buildApp } from '../../src/app';
 import { Player as AudioPlayer } from '../../src/audio/player';
-import {
-  createPrecinctScannerStateMachine,
-  delays,
-} from '../../src/scanners/state_machine';
+import { createPrecinctScannerStateMachine, delays } from '../../src/scanner';
 import { Store } from '../../src/store';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import {

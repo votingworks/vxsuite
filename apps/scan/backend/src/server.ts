@@ -25,7 +25,7 @@ import {
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
-import * as stateMachine from './scanners/state_machine';
+import * as scanner from './scanner';
 import { Player as AudioPlayer } from './audio/player';
 
 export interface StartOptions {
@@ -58,8 +58,8 @@ export async function start({
       createMockPdiScanner()
     : undefined;
 
-  const precinctScannerStateMachine =
-    stateMachine.createPrecinctScannerStateMachine({
+  const precinctScannerStateMachine = scanner.createPrecinctScannerStateMachine(
+    {
       scannerClient:
         /* istanbul ignore next - @preserve */
         mockPdiScanner?.client ?? createPdiScannerClient(),
@@ -67,7 +67,8 @@ export async function start({
       usbDrive: resolvedUsbDrive,
       auth,
       logger,
-    });
+    }
+  );
 
   // Clear any cached data
   workspace.clearUploads();

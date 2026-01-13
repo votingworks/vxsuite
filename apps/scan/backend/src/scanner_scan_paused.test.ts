@@ -8,9 +8,9 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { withApp } from '../../test/helpers/pdi_helpers';
-import { configureApp, waitForStatus } from '../../test/helpers/shared_helpers';
-import { delays } from './state_machine';
+import { withApp } from '../test/helpers/pdi_helpers';
+import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
+import { delays } from './scanner';
 
 vi.setConfig({ testTimeout: 20_000 });
 
