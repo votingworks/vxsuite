@@ -28,11 +28,11 @@ validate_commits_vs_origin_main() {
   missing_migrations="$(comm -23 "$origin_main_tempfile" "$head_tempfile" || true)"
   added_migrations="$(comm -13 "$origin_main_tempfile" "$head_tempfile" || true)"
 
-  # Check: If branch adds migrations and is missing ones from main → fail
-  if [[ -n "$added_migrations" && -n "$missing_migrations" ]]; then
-    echo "Branch adds migrations but is missing migration(s) from main:"
+  # Check: migrations from main must not be deleted
+  if [[ -n "$missing_migrations" ]]; then
+    echo "Branch deletes migration(s) from main:"
     printf "%s\n" "$missing_migrations"
-    echo "Regenerate the added migration(s) with a current timestamp."
+    echo "Migrations must not be deleted once merged to main."
     exit 1
   fi
 
@@ -55,6 +55,15 @@ validate_head_vs_prev_commit() {
   # Ensure we have the previous commit
   git rev-parse --verify --quiet HEAD~1 >/dev/null \
     || git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
+
+  # Check: migrations from previous commit must not be deleted
+  deleted_migrations="$(git diff --diff-filter=D --name-only HEAD~1..HEAD -- "$MIGRATION_DIR"/*.js || true)"
+  if [[ -n "$deleted_migrations" ]]; then
+    echo "Commit deletes migration(s):"
+    printf "%s\n" "$deleted_migrations"
+    echo "Migrations must not be deleted once merged to main."
+    exit 1
+  fi
 
   added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR"/*.js || true)"
   [[ -z "$added_migrations" ]] && exit 0
