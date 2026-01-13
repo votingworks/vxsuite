@@ -29,10 +29,10 @@ export function ScanErrorScreen({
 }: Props): JSX.Element {
   assert(
     error !== 'double_feed_calibration_timed_out' && // Only used in double feed calibration
-      error !== 'image_sensor_calibration_timed_out' && // Only used in image sensor calibration
-      error !== 'image_sensor_calibration_failed' && // Only used in image sensor calibration
-      error !== 'scanner_diagnostic_failed' && // Only used in ScannerDiagnosticScreen
-      error !== 'outfeed_blocked' // Only used in ScanJamScreen
+    error !== 'image_sensor_calibration_timed_out' && // Only used in image sensor calibration
+    error !== 'image_sensor_calibration_failed' && // Only used in image sensor calibration
+    error !== 'scanner_diagnostic_failed' && // Only used in ScannerDiagnosticScreen
+    error !== 'outfeed_blocked' // Only used in ScanJamScreen
   );
 
   const {
@@ -47,9 +47,7 @@ export function ScanErrorScreen({
     if (
       restartRequired ||
       !error ||
-      error === 'paper_status_timed_out' ||
       error === 'scanning_timed_out' ||
-      error === 'unexpected_paper_status' ||
       error === 'unexpected_event' ||
       error === 'client_error'
     ) {
@@ -79,15 +77,15 @@ export function ScanErrorScreen({
       case 'invalid_test_mode':
         return isTestMode
           ? {
-              title: appStrings.titleScannerOfficialBallot(),
-              errorMessage: appStrings.warningScannerOfficialBallotInTestMode(),
-              caption: appStrings.instructionsAskForHelp(),
-            }
+            title: appStrings.titleScannerOfficialBallot(),
+            errorMessage: appStrings.warningScannerOfficialBallotInTestMode(),
+            caption: appStrings.instructionsAskForHelp(),
+          }
           : {
-              title: appStrings.titleScannerTestBallot(),
-              errorMessage: appStrings.warningScannerTestBallotInOfficialMode(),
-              caption: appStrings.instructionsAskForHelp(),
-            };
+            title: appStrings.titleScannerTestBallot(),
+            errorMessage: appStrings.warningScannerTestBallotInOfficialMode(),
+            caption: appStrings.instructionsAskForHelp(),
+          };
       case 'invalid_ballot_hash':
         return {
           title: appStrings.titleScannerWrongElection(),
@@ -114,11 +112,8 @@ export function ScanErrorScreen({
           caption: appStrings.noteAskPollWorkerForHelp(),
         };
       case 'scanning_failed':
-      case 'both_sides_have_paper':
       case 'paper_in_front_after_reconnect':
       case 'paper_in_back_after_reconnect':
-      case 'paper_in_back_after_accept':
-      case 'paper_in_both_sides_after_reconnect':
         return {
           title: appStrings.titleScannerError(),
           errorMessage: appStrings.instructionsScannerRemoveBallotToContinue(),
@@ -225,17 +220,6 @@ export function UnknownInterpretationErrorPreview(): JSX.Element {
 }
 
 /* istanbul ignore next - @preserve */
-export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      error="both_sides_have_paper"
-      scannedBallotCount={42}
-    />
-  );
-}
-
-/* istanbul ignore next - @preserve */
 export function AfterReconnectBallotInFrontPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -252,17 +236,6 @@ export function AfterReconnectBallotInBackPreview(): JSX.Element {
     <ScanErrorScreen
       isTestMode={false}
       error="paper_in_back_after_reconnect"
-      scannedBallotCount={42}
-    />
-  );
-}
-
-/* istanbul ignore next - @preserve */
-export function BallotNotDroppedAfterAcceptPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      error="paper_in_back_after_accept"
       scannedBallotCount={42}
     />
   );
