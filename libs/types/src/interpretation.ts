@@ -26,150 +26,112 @@ import {
 } from './generic';
 import { BallotPageLayout, BallotPageLayoutSchema, SheetOf } from './hmpb';
 
-export interface BlankPage {
-  type: 'BlankPage';
-}
-export const BlankPageSchema: z.ZodSchema<BlankPage> = z.object({
+export const BlankPageSchema = z.object({
   type: z.literal('BlankPage'),
 });
 
-export interface InterpretedBmdPage {
-  type: 'InterpretedBmdPage';
-  metadata: BallotMetadata;
-  votes: VotesDict;
-  adjudicationInfo: AdjudicationInfo;
-}
-export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
-  z.object({
-    type: z.literal('InterpretedBmdPage'),
-    metadata: BallotMetadataSchema,
-    votes: VotesDictSchema,
-    adjudicationInfo: AdjudicationInfoSchema,
-  });
+export interface BlankPage extends z.infer<typeof BlankPageSchema> {}
 
-export interface UnmarkedWriteIn {
-  contestId: ContestId;
-  optionId: WriteInId;
-}
+export const InterpretedBmdPageSchema = z.object({
+  type: z.literal('InterpretedBmdPage'),
+  metadata: BallotMetadataSchema,
+  votes: VotesDictSchema,
+  adjudicationInfo: AdjudicationInfoSchema,
+});
 
-export const UnmarkedWriteInSchema: z.ZodSchema<UnmarkedWriteIn> = z.object({
+export interface InterpretedBmdPage
+  extends z.infer<typeof InterpretedBmdPageSchema> {}
+
+export const UnmarkedWriteInSchema = z.object({
   contestId: ContestIdSchema,
   optionId: WriteInIdSchema,
 });
 
-export interface InterpretedHmpbPage {
-  type: 'InterpretedHmpbPage';
-  metadata: HmpbBallotPageMetadata;
-  markInfo: MarkInfo;
-  unmarkedWriteIns?: UnmarkedWriteIn[];
-  votes: VotesDict;
-  adjudicationInfo: AdjudicationInfo;
-  layout: BallotPageLayout;
-}
-export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> =
-  z.object({
-    type: z.literal('InterpretedHmpbPage'),
-    metadata: HmpbBallotPageMetadataSchema,
-    markInfo: MarkInfoSchema,
-    unmarkedWriteIns: z.array(UnmarkedWriteInSchema).optional(),
-    votes: VotesDictSchema,
-    adjudicationInfo: AdjudicationInfoSchema,
-    layout: BallotPageLayoutSchema,
-  });
+export interface UnmarkedWriteIn
+  extends z.infer<typeof UnmarkedWriteInSchema> {}
 
-export interface InvalidBallotHashPage {
-  type: 'InvalidBallotHashPage';
-  expectedBallotHash: string;
-  actualBallotHash: string;
-}
-export const InvalidBallotHashPageSchema: z.ZodSchema<InvalidBallotHashPage> =
-  z.object({
-    type: z.literal('InvalidBallotHashPage'),
-    expectedBallotHash: z.string(),
-    actualBallotHash: z.string(),
-  });
+export const InterpretedHmpbPageSchema = z.object({
+  type: z.literal('InterpretedHmpbPage'),
+  metadata: HmpbBallotPageMetadataSchema,
+  markInfo: MarkInfoSchema,
+  unmarkedWriteIns: z.array(UnmarkedWriteInSchema).optional(),
+  votes: VotesDictSchema,
+  adjudicationInfo: AdjudicationInfoSchema,
+  layout: BallotPageLayoutSchema,
+});
 
-export interface InvalidTestModePage {
-  type: 'InvalidTestModePage';
-  metadata: BallotMetadata | HmpbBallotPageMetadata;
-}
-export const InvalidTestModePageSchema: z.ZodSchema<InvalidTestModePage> =
-  z.object({
-    type: z.literal('InvalidTestModePage'),
-    metadata: z.union([BallotMetadataSchema, HmpbBallotPageMetadataSchema]),
-  });
+export interface InterpretedHmpbPage
+  extends z.infer<typeof InterpretedHmpbPageSchema> {}
 
-export interface InvalidPrecinctPage {
-  type: 'InvalidPrecinctPage';
-  metadata: BallotMetadata | HmpbBallotPageMetadata;
-}
-export const InvalidPrecinctPageSchema: z.ZodSchema<InvalidPrecinctPage> =
-  z.object({
-    type: z.literal('InvalidPrecinctPage'),
-    metadata: z.union([BallotMetadataSchema, HmpbBallotPageMetadataSchema]),
-  });
+export const InvalidBallotHashPageSchema = z.object({
+  type: z.literal('InvalidBallotHashPage'),
+  expectedBallotHash: z.string(),
+  actualBallotHash: z.string(),
+});
 
-export interface UnreadablePage {
-  type: 'UnreadablePage';
-  reason?: string;
-}
-export const UnreadablePageSchema: z.ZodSchema<UnreadablePage> = z.object({
+export interface InvalidBallotHashPage
+  extends z.infer<typeof InvalidBallotHashPageSchema> {}
+
+export const InvalidTestModePageSchema = z.object({
+  type: z.literal('InvalidTestModePage'),
+  metadata: z.union([BallotMetadataSchema, HmpbBallotPageMetadataSchema]),
+});
+
+export interface InvalidTestModePage
+  extends z.infer<typeof InvalidTestModePageSchema> {}
+
+export const InvalidPrecinctPageSchema = z.object({
+  type: z.literal('InvalidPrecinctPage'),
+  metadata: z.union([BallotMetadataSchema, HmpbBallotPageMetadataSchema]),
+});
+
+export interface InvalidPrecinctPage
+  extends z.infer<typeof InvalidPrecinctPageSchema> {}
+
+export const UnreadablePageSchema = z.object({
   type: z.literal('UnreadablePage'),
   reason: z.string().optional(),
 });
 
-export type PageInterpretation =
-  | BlankPage
-  | InterpretedBmdPage
-  | InterpretedHmpbPage
-  | InvalidBallotHashPage
-  | InvalidTestModePage
-  | InvalidPrecinctPage
-  | UnreadablePage;
-export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
-  z.union([
-    BlankPageSchema,
-    InterpretedBmdPageSchema,
-    InterpretedHmpbPageSchema,
-    InvalidBallotHashPageSchema,
-    InvalidTestModePageSchema,
-    InvalidPrecinctPageSchema,
-    UnreadablePageSchema,
-  ]);
+export interface UnreadablePage extends z.infer<typeof UnreadablePageSchema> {}
+
+export const PageInterpretationSchema = z.union([
+  BlankPageSchema,
+  InterpretedBmdPageSchema,
+  InterpretedHmpbPageSchema,
+  InvalidBallotHashPageSchema,
+  InvalidTestModePageSchema,
+  InvalidPrecinctPageSchema,
+  UnreadablePageSchema,
+]);
+
+export type PageInterpretation = z.infer<typeof PageInterpretationSchema>;
 
 export type PageInterpretationType = PageInterpretation['type'];
 
-export interface PageInterpretationWithFiles {
-  imagePath: string;
-  interpretation: PageInterpretation;
-}
-export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWithFiles> =
-  z.object({
-    imagePath: z.string(),
-    interpretation: PageInterpretationSchema,
-  });
+export const PageInterpretationWithFilesSchema = z.object({
+  imagePath: z.string(),
+  interpretation: PageInterpretationSchema,
+});
 
-export interface BallotPageInfo {
-  interpretation: PageInterpretation;
-  adjudicationFinishedAt?: Iso8601Timestamp;
-}
-export const BallotPageInfoSchema: z.ZodSchema<BallotPageInfo> = z.object({
+export interface PageInterpretationWithFiles
+  extends z.infer<typeof PageInterpretationWithFilesSchema> {}
+
+export const BallotPageInfoSchema = z.object({
   interpretation: PageInterpretationSchema,
   adjudicationFinishedAt: Iso8601TimestampSchema.optional(),
 });
 
-export interface BallotSheetInfo {
-  id: Id;
-  front: BallotPageInfo;
-  back: BallotPageInfo;
-  adjudicationReason?: AdjudicationReason;
-}
-export const BallotSheetInfoSchema: z.ZodSchema<BallotSheetInfo> = z.object({
+export interface BallotPageInfo extends z.infer<typeof BallotPageInfoSchema> {}
+
+export const BallotSheetInfoSchema = z.object({
   id: IdSchema,
   front: BallotPageInfoSchema,
   back: BallotPageInfoSchema,
   adjudicationReason: AdjudicationReasonSchema.optional(),
 });
+
+export interface BallotSheetInfo extends z.infer<typeof BallotSheetInfoSchema> {}
 
 export type InvalidInterpretationReason =
   | 'bmd_ballot_scanning_disabled'
