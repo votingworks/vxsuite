@@ -55,44 +55,6 @@ export const VoterCheckInSchema = z.object({
 
 export interface VoterCheckIn extends z.infer<typeof VoterCheckInSchema> {}
 
-export interface Voter {
-  voterId: string;
-  lastName: string;
-  suffix: string;
-  firstName: string;
-  middleName: string;
-  streetNumber: string;
-  addressSuffix: string;
-  houseFractionNumber: string;
-  streetName: string;
-  apartmentUnitNumber: string;
-  addressLine2: string;
-  addressLine3: string;
-  postalCityTown: string;
-  state: string;
-  postalZip5: string;
-  zip4: string;
-  mailingStreetNumber: string;
-  mailingSuffix: string;
-  mailingHouseFractionNumber: string;
-  mailingStreetName: string;
-  mailingApartmentUnitNumber: string;
-  mailingAddressLine2: string;
-  mailingAddressLine3: string;
-  mailingCityTown: string;
-  mailingState: string;
-  mailingZip5: string;
-  mailingZip4: string;
-  party: PartyAbbreviation;
-  precinct: string;
-  nameChange?: VoterNameChange;
-  addressChange?: VoterAddressChange;
-  mailingAddressChange?: VoterMailingAddressChange;
-  registrationEvent?: VoterRegistration;
-  checkIn?: VoterCheckIn;
-  isInactive: boolean;
-}
-
 export interface VoterAddressChangeRequest {
   streetNumber: string;
   streetName: string;
@@ -107,9 +69,6 @@ export interface VoterAddressChangeRequest {
   precinct: string;
 }
 
-export interface VoterAddressChange extends VoterAddressChangeRequest {
-  timestamp: string;
-}
 
 const VoterAddressChangeSchemaInternal = z.object({
   streetNumber: z
@@ -162,10 +121,6 @@ export interface VoterMailingAddressChangeRequest {
   mailingZip4: string;
 }
 
-export interface VoterMailingAddressChange
-  extends VoterMailingAddressChangeRequest {
-  timestamp: string;
-}
 
 export function truncateToMaxLength(value: string, maxLength: number): string {
   return value.length > maxLength ? value.slice(0, maxLength) : value;
@@ -231,9 +186,6 @@ export interface VoterNameChangeRequest {
   middleName: string;
 }
 
-export interface VoterNameChange extends VoterNameChangeRequest {
-  timestamp: string;
-}
 
 const VoterNameChangeSchemaInternal = z.object({
   lastName: z
@@ -270,12 +222,6 @@ export interface VoterRegistrationRequest
   party: PartyAbbreviation | '';
 }
 
-export interface VoterRegistration extends VoterRegistrationRequest {
-  party: PartyAbbreviation;
-  timestamp: string;
-  voterId: string;
-  precinct: string;
-}
 
 export const VoterRegistrationSchema =
   VoterAddressChangeSchemaInternal.merge(VoterNameChangeSchemaInternal).extend({
