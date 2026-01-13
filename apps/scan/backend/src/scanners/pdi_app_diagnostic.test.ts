@@ -11,12 +11,12 @@ import { ballotPaperDimensions, HmpbBallotPaperSize } from '@votingworks/types';
 import { iter } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
-import { ballotImages, withApp } from '../../../test/helpers/pdi_helpers';
+import { ballotImages, withApp } from '../../test/helpers/pdi_helpers';
 import {
   configureApp,
   expectStatus,
   waitForStatus,
-} from '../../../test/helpers/shared_helpers';
+} from '../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
 
 vi.setConfig({ testTimeout: 20_000 });

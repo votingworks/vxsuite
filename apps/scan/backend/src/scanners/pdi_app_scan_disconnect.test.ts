@@ -24,14 +24,14 @@ import {
   createMockPdiScannerClient,
   simulateScan,
   withApp,
-} from '../../../test/helpers/pdi_helpers';
+} from '../../test/helpers/pdi_helpers';
 import {
   buildMockLogger,
   configureApp,
   expectStatus,
   waitForStatus,
-} from '../../../test/helpers/shared_helpers';
-import { createWorkspace } from '../../util/workspace';
+} from '../../test/helpers/shared_helpers';
+import { createWorkspace } from '../util/workspace';
 import { createPrecinctScannerStateMachine, delays } from './state_machine';
 
 vi.setConfig({ testTimeout: 20_000 });

@@ -45,7 +45,7 @@ import { Player as AudioPlayer } from '../../src/audio/player';
 import {
   createPrecinctScannerStateMachine,
   delays,
-} from '../../src/scanners/pdi/state_machine';
+} from '../../src/scanners/state_machine';
 import { Store } from '../../src/store';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import {

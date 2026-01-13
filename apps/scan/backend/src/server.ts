@@ -25,7 +25,7 @@ import {
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
-import * as pdiStateMachine from './scanners/pdi/state_machine';
+import * as stateMachine from './scanners/state_machine';
 import { Player as AudioPlayer } from './audio/player';
 
 export interface StartOptions {
@@ -59,7 +59,7 @@ export async function start({
     : undefined;
 
   const precinctScannerStateMachine =
-    pdiStateMachine.createPrecinctScannerStateMachine({
+    stateMachine.createPrecinctScannerStateMachine({
       scannerClient:
         /* istanbul ignore next - @preserve */
         mockPdiScanner?.client ?? createPdiScannerClient(),

@@ -13,11 +13,8 @@ import {
   ballotImages,
   simulateScan,
   withApp,
-} from '../../../test/helpers/pdi_helpers';
-import {
-  configureApp,
-  waitForStatus,
-} from '../../../test/helpers/shared_helpers';
+} from '../../test/helpers/pdi_helpers';
+import { configureApp, waitForStatus } from '../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
 
 vi.setConfig({ testTimeout: 20_000 });

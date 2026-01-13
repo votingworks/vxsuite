@@ -5,12 +5,9 @@ import {
 } from '@votingworks/utils';
 import { Result, deferred, ok } from '@votingworks/basics';
 import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
-import {
-  configureApp,
-  waitForStatus,
-} from '../../../test/helpers/shared_helpers';
+import { configureApp, waitForStatus } from '../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
-import { withApp } from '../../../test/helpers/pdi_helpers';
+import { withApp } from '../../test/helpers/pdi_helpers';
 
 vi.setConfig({ testTimeout: 20_000 });
 
