@@ -10,7 +10,6 @@ import {
   startCpuMetricsLogging,
 } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import * as customScanner from '@votingworks/custom-scanner';
 import {
   createMockPdiScanner,
   createPdiScannerClient,
@@ -26,7 +25,6 @@ import {
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
-import * as customStateMachine from './scanners/custom/state_machine';
 import * as pdiStateMachine from './scanners/pdi/state_machine';
 import { Player as AudioPlayer } from './audio/player';
 
@@ -60,25 +58,16 @@ export async function start({
       createMockPdiScanner()
     : undefined;
 
-  const precinctScannerStateMachine = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER
-  )
-    ? customStateMachine.createPrecinctScannerStateMachine({
-        createCustomClient: customScanner.openScanner,
-        auth,
-        workspace,
-        logger,
-        usbDrive: resolvedUsbDrive,
-      })
-    : pdiStateMachine.createPrecinctScannerStateMachine({
-        scannerClient:
-          /* istanbul ignore next - @preserve */
-          mockPdiScanner?.client ?? createPdiScannerClient(),
-        workspace,
-        usbDrive: resolvedUsbDrive,
-        auth,
-        logger,
-      });
+  const precinctScannerStateMachine =
+    pdiStateMachine.createPrecinctScannerStateMachine({
+      scannerClient:
+        /* istanbul ignore next - @preserve */
+        mockPdiScanner?.client ?? createPdiScannerClient(),
+      workspace,
+      usbDrive: resolvedUsbDrive,
+      auth,
+      logger,
+    });
 
   // Clear any cached data
   workspace.clearUploads();
