@@ -119,6 +119,7 @@ import {
   getStateFeaturesConfig,
   getUserFeaturesConfig,
   UserFeaturesConfig,
+  defaultSystemSettings,
 } from './features';
 import { rootDebug } from './debug';
 import * as ttsStrings from './tts_strings';
@@ -412,6 +413,7 @@ export function buildApi(ctx: AppContext) {
           ballotTemplateId: defaultBallotTemplate(jurisdiction),
           externalSource:
             input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
+          systemSettings: defaultSystemSettings(jurisdiction),
         });
         return ok(election.id);
       } catch (error) {
@@ -429,6 +431,7 @@ export function buildApi(ctx: AppContext) {
         jurisdictionId: input.jurisdictionId,
         election,
         ballotTemplateId: defaultBallotTemplate(jurisdiction),
+        systemSettings: defaultSystemSettings(jurisdiction),
       });
       return ok(election.id);
     },
@@ -441,11 +444,8 @@ export function buildApi(ctx: AppContext) {
       },
       context: ApiContext
     ): Promise<ElectionId> {
-      const {
-        election: sourceElection,
-        ballotTemplateId,
-        systemSettings,
-      } = await store.getElection(input.electionId);
+      const { election: sourceElection, ballotTemplateId } =
+        await store.getElection(input.electionId);
 
       const destJurisdiction = await store.getJurisdiction(
         input.destJurisdictionId
@@ -466,7 +466,7 @@ export function buildApi(ctx: AppContext) {
         jurisdictionId: input.destJurisdictionId,
         election,
         ballotTemplateId,
-        systemSettings,
+        systemSettings: defaultSystemSettings(destJurisdiction),
       });
       return input.destElectionId;
     },
