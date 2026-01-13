@@ -464,7 +464,6 @@ test('setting "other" system settings', async () => {
     precinctScanEnableShoeshineMode: true,
     castVoteRecordsIncludeRedundantMetadata: true,
     disableVerticalStreakDetection: true,
-    maxCumulativeVerticalStreakWidth: 10,
   };
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })

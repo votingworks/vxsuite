@@ -12,7 +12,7 @@ use types_rs::election::Election;
 use crate::ballot_card::{load_ballot_scan_bubble_image, BallotPage, PaperInfo};
 use crate::interpret::{
     self, ballot_card, Inference, InterpretedBallotCard, Options, TimingMarkAlgorithm,
-    VerticalStreakDetection, WriteInScoring, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+    VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::TimingMarks;
@@ -28,7 +28,6 @@ struct JsInterpretOptions {
     minimum_detected_scale: Option<f64>,
     score_write_ins: Option<bool>,
     disable_vertical_streak_detection: Option<bool>,
-    max_cumulative_vertical_streak_width: Option<u32>,
     infer_timing_marks: Option<bool>,
 }
 
@@ -76,11 +75,7 @@ fn interpret(
             {
                 VerticalStreakDetection::Disabled
             } else {
-                VerticalStreakDetection::Enabled {
-                    max_cumulative_streak_width: options
-                        .max_cumulative_vertical_streak_width
-                        .unwrap_or(DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH),
-                }
+                VerticalStreakDetection::Enabled
             },
             timing_mark_algorithm: match options.timing_mark_algorithm.unwrap_or_default() {
                 TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {

@@ -81,18 +81,6 @@ export interface SystemSettings {
   readonly disableVerticalStreakDetection?: boolean;
 
   /**
-   * Sets the threshold for the maximum cumulative width of vertical streaks
-   * when scanning. Ballots with streaks whose width sum to more than this value
-   * will be rejected with a cleaning warning. If unspecified, a default value
-   * will be used.
-   *
-   * Note that regardless of what this value is set to, streaks that go through
-   * timing marks or bubbles will still cause a ballot to be rejected. To disable all
-   * vertical streak detection, use {@link SystemSettings.disableVerticalStreakDetection}.
-   */
-  readonly maxCumulativeVerticalStreakWidth?: number;
-
-  /**
    * Enables quick results reporting and provides the server URL to post results to.
    */
   readonly quickResultsReportingUrl?: string;

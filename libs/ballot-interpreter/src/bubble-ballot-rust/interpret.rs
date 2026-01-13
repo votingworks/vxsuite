@@ -93,28 +93,20 @@ impl FromStr for Inference {
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq)]
 pub enum VerticalStreakDetection {
-    Enabled {
-        max_cumulative_streak_width: PixelUnit,
-    },
+    Enabled,
     Disabled,
 }
 
-pub const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH: PixelUnit = 5;
-
 impl Default for VerticalStreakDetection {
     fn default() -> Self {
-        Self::Enabled {
-            max_cumulative_streak_width: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
-        }
+        Self::Enabled
     }
 }
 
 impl Display for VerticalStreakDetection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Enabled {
-                max_cumulative_streak_width,
-            } => write!(f, "enabled:{max_cumulative_streak_width}px",),
+            Self::Enabled => write!(f, "enabled",),
             Self::Disabled => write!(f, "disabled"),
         }
     }
@@ -125,22 +117,9 @@ impl FromStr for VerticalStreakDetection {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "enabled" => Ok(Self::Enabled {
-                max_cumulative_streak_width: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
-            }),
+            "enabled" => Ok(Self::Enabled),
             "disabled" => Ok(Self::Disabled),
-            _ => match s.split_once(':') {
-                Some(("enabled", pixels)) => {
-                    let pixels_str = pixels.strip_suffix("px").unwrap_or(pixels);
-                    let max_cumulative_streak_width = pixels_str
-                        .parse()
-                        .map_err(|e| format!("Invalid pixel value '{pixels_str}': {e}"))?;
-                    Ok(Self::Enabled {
-                        max_cumulative_streak_width,
-                    })
-                }
-                _ => Err(format!("Unexpected vertical streak detection setting: {s}")),
-            },
+            _ => Err(format!("Unexpected vertical streak detection setting: {s}")),
         }
     }
 }
@@ -378,12 +357,9 @@ pub fn ballot_card(
     .join(BallotCard::from_pages)?;
 
     let mut detected_vertical_streaks = match options.vertical_streak_detection {
-        VerticalStreakDetection::Enabled {
-            max_cumulative_streak_width,
-        } => {
+        VerticalStreakDetection::Enabled => {
             let streaks = ballot_card.detect_vertical_streaks();
-            ballot_card
-                .reject_disallowed_vertical_streaks(&streaks, max_cumulative_streak_width)?;
+            ballot_card.reject_disallowed_vertical_streaks(&streaks)?;
             streaks
         }
         VerticalStreakDetection::Disabled => Pair::default(),

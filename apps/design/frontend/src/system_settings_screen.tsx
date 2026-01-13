@@ -496,25 +496,6 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
-            <InputGroup label="Max Cumulative Vertical Streak Width">
-              <input
-                type="number"
-                value={systemSettings.maxCumulativeVerticalStreakWidth ?? ''}
-                onChange={(e) => {
-                  const value = e.target.valueAsNumber;
-                  setSystemSettings({
-                    ...systemSettings,
-                    maxCumulativeVerticalStreakWidth: Number.isNaN(value)
-                      ? undefined
-                      : value,
-                  });
-                }}
-                step={1}
-                min={0}
-                max={1_000}
-                disabled={!isEditing}
-              />
-            </InputGroup>
             <CheckboxButton
               label="Enable Shoeshine Mode on VxScan"
               isChecked={Boolean(

@@ -153,7 +153,7 @@ impl ShapeListBuilder {
                 .min_by(
                     |(_, a_x_gap, a_top_offset, a_bottom_offset),
                      (_, b_x_gap, b_top_offset, b_bottom_offset)| {
-                        a_x_gap.cmp(&b_x_gap).then_with(|| {
+                        a_x_gap.cmp(b_x_gap).then_with(|| {
                             (a_top_offset + a_bottom_offset).cmp(&(b_top_offset + b_bottom_offset))
                         })
                     },
