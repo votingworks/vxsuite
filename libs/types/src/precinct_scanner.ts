@@ -4,9 +4,7 @@ export const PRECINCT_SCANNER_STATES = [
   'connecting',
   'disconnected',
   'no_paper',
-  'hardware_ready_to_scan',
   'scanning',
-  'returning_to_rescan',
   'accepting',
   'accepted',
   'needs_review',
@@ -18,8 +16,6 @@ export const PRECINCT_SCANNER_STATES = [
   'jammed',
   'cover_open',
   'both_sides_have_paper',
-  'recovering_from_error',
-  'double_sheet_jammed',
   'unrecoverable_error',
   'paused',
   'calibrating_double_feed_detection.double_sheet',
@@ -34,17 +30,12 @@ export const PRECINCT_SCANNER_STATES = [
 export type PrecinctScannerState = (typeof PRECINCT_SCANNER_STATES)[number];
 
 export type PrecinctScannerErrorType =
-  | 'paper_status_timed_out'
   | 'scanning_timed_out'
   | 'scanning_failed'
-  | 'both_sides_have_paper'
   | 'double_feed_detected'
   | 'outfeed_blocked'
-  | 'paper_in_back_after_accept'
-  | 'paper_in_front_after_reconnect'
   | 'paper_in_back_after_reconnect'
-  | 'paper_in_both_sides_after_reconnect'
-  | 'unexpected_paper_status'
+  | 'paper_in_front_after_reconnect'
   | 'unexpected_event'
   | 'client_error'
   | 'double_feed_calibration_timed_out'

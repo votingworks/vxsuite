@@ -18,7 +18,7 @@ const STATE_SOUND_MAPPING: Array<{
   { state: 'both_sides_have_paper', sound: 'warning' },
   { state: 'rejecting', sound: 'error' },
   { state: 'jammed', sound: 'error' },
-  { state: 'double_sheet_jammed', sound: 'error' },
+  { state: 'jammed', sound: 'error' },
   { state: 'unrecoverable_error', sound: 'error' },
 ];
 

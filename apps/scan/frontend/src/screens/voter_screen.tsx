@@ -12,7 +12,6 @@ import { ScanProcessingScreen } from './scan_processing_screen';
 import { ScanReturnedBallotScreen } from './scan_returned_ballot_screen';
 import { ScanSuccessScreen } from './scan_success_screen';
 import { ScanWarningScreen } from './scan_warning_screen';
-import { ScanDoubleSheetScreen } from './scan_double_sheet_screen';
 import { useScanFeedbackAudio } from '../utils/use_scan_feedback_audio';
 
 /**
@@ -124,10 +123,8 @@ export function VoterScreen({
       }
       return <InsertBallotScreen {...sharedScreenProps} />;
     }
-    case 'hardware_ready_to_scan':
     case 'scanning':
     case 'accepting':
-    case 'returning_to_rescan':
       return <ScanProcessingScreen {...sharedScreenProps} />;
     case 'accepted':
       return <ScanSuccessScreen {...sharedScreenProps} />;
@@ -161,12 +158,8 @@ export function VoterScreen({
       return (
         <ScanJamScreen error={scannerStatus.error} {...sharedScreenProps} />
       );
-    case 'double_sheet_jammed':
-      return <ScanDoubleSheetScreen {...sharedScreenProps} />;
     case 'both_sides_have_paper':
       return <ScanBusyScreen {...sharedScreenProps} />;
-    case 'recovering_from_error':
-      return <ScanProcessingScreen {...sharedScreenProps} />;
     case 'unrecoverable_error':
       return (
         <ScanErrorScreen
