@@ -1227,7 +1227,7 @@ test('"Test" voter settings are cached when election official logs in and restor
   expect(startNewSessionMock).not.toBeCalled();
 });
 
-test('"Test" voter settings are not reset when scanner status changes from paused to no_paper', async () => {
+test('"Test" voter settings are not reset when scanner status changes from paused to waiting_for_ballot', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');

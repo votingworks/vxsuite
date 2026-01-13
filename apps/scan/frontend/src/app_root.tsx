@@ -89,7 +89,8 @@ export function AppRoot(): JSX.Element | null {
   useQueryChangeListener(scannerStatusQuery, {
     select: ({ state }) => state,
     onChange: (newState, previousState) => {
-      // If we transition from paused to no_paper we are just returning from an election official screen
+      // If we transition from paused to waiting_for_ballot we are just returning
+      // from an election official screen
       if (
         previousState &&
         previousState !== 'waiting_for_ballot' &&
