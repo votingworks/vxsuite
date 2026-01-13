@@ -49,12 +49,7 @@ export const PartySchema = z.object({
   abbrev: z.string().nonempty(),
 });
 
-export interface Party extends z.infer<typeof PartySchema> {
-  readonly id: PartyId;
-  readonly name: string;
-  readonly fullName: string;
-  readonly abbrev: string;
-}
+export interface Party extends z.infer<typeof PartySchema> {}
 
 export type Parties = readonly Party[];
 export const PartiesSchema: z.ZodSchema<Parties> = z
@@ -78,10 +73,7 @@ export const DistrictSchema = z.object({
   name: z.string().nonempty(),
 });
 
-export interface District extends z.infer<typeof DistrictSchema> {
-  readonly id: DistrictId;
-  readonly name: string;
-}
+export interface District extends z.infer<typeof DistrictSchema> {}
 export const DistrictsSchema = z
   .array(DistrictSchema)
   .nonempty()
