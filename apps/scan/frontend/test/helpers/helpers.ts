@@ -4,7 +4,7 @@ export function scannerStatus(
   props: Partial<PrecinctScannerStatus> = {}
 ): PrecinctScannerStatus {
   return {
-    state: 'no_paper',
+    state: 'waiting_for_ballot',
     ballotsCounted: 0,
     ...props,
   };

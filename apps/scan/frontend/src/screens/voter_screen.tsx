@@ -12,7 +12,6 @@ import { ScanProcessingScreen } from './scan_processing_screen';
 import { ScanReturnedBallotScreen } from './scan_returned_ballot_screen';
 import { ScanSuccessScreen } from './scan_success_screen';
 import { ScanWarningScreen } from './scan_warning_screen';
-import { ScanDoubleSheetScreen } from './scan_double_sheet_screen';
 import { useScanFeedbackAudio } from '../utils/use_scan_feedback_audio';
 
 /**
@@ -55,9 +54,9 @@ export function VoterScreen({
   // When a ballot is accepted, show the accepted screen for a few seconds.
   // Once we're sure that the accepted screen is shown, tell the backend to
   // re-enable scanning (in case a user wants to insert another ballot right
-  // away). This will transition the scanner to the `no_paper` state, so we use
-  // a separate local state variable to track how long to show the accepted
-  // screen.
+  // away). This will transition the scanner to the `waiting_for_ballot` state,
+  // so we use a separate local state variable to track how long to show the
+  // accepted screen.
   const readyForNextBallotMutation = readyForNextBallot.useMutation();
   const [isShowingAcceptedScreen, setIsShowingAcceptedScreen] = useState(false);
   const acceptedScreenTimeoutRef = useRef<number>();
@@ -113,21 +112,19 @@ export function VoterScreen({
       return null;
     // When a user (e.g. poll worker) removes their card, there may be a slight
     // delay between when the auth status changes and the scanner returns to
-    // no_paper, so we may see the `paused` or `scanner_diagnostic` states here
-    // briefly.
+    // waiting_for_ballot, so we may see the `paused` or `scanner_diagnostic`
+    // states here briefly.
     case 'paused':
     case 'scanner_diagnostic.running':
     case 'scanner_diagnostic.done':
-    case 'no_paper': {
+    case 'waiting_for_ballot': {
       if (isShowingAcceptedScreen) {
         return <ScanSuccessScreen {...sharedScreenProps} />;
       }
       return <InsertBallotScreen {...sharedScreenProps} />;
     }
-    case 'hardware_ready_to_scan':
     case 'scanning':
     case 'accepting':
-    case 'returning_to_rescan':
       return <ScanProcessingScreen {...sharedScreenProps} />;
     case 'accepted':
       return <ScanSuccessScreen {...sharedScreenProps} />;
@@ -161,12 +158,8 @@ export function VoterScreen({
       return (
         <ScanJamScreen error={scannerStatus.error} {...sharedScreenProps} />
       );
-    case 'double_sheet_jammed':
-      return <ScanDoubleSheetScreen {...sharedScreenProps} />;
     case 'both_sides_have_paper':
       return <ScanBusyScreen {...sharedScreenProps} />;
-    case 'recovering_from_error':
-      return <ScanProcessingScreen {...sharedScreenProps} />;
     case 'unrecoverable_error':
       return (
         <ScanErrorScreen

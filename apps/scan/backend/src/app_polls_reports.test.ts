@@ -6,7 +6,7 @@ import {
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { configureApp } from '../test/helpers/shared_helpers';
-import { scanBallot, withApp } from '../test/helpers/pdi_helpers';
+import { scanBallot, withApp } from '../test/helpers/scanner_helpers';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

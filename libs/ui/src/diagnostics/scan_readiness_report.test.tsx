@@ -19,7 +19,7 @@ test('ScanReadinessReport', () => {
         available: 500_000_000,
         used: 500_000_000,
       }}
-      scannerStatus={{ state: 'no_paper' }}
+      scannerStatus={{ state: 'waiting_for_ballot' }}
       printerStatus={{
         state: 'idle',
       }}

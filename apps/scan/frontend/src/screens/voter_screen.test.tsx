@@ -70,7 +70,7 @@ test('renders useScanFeedbackAudio hook', async () => {
     expect(useScanFeedbackAudioMock).toHaveBeenLastCalledWith<
       [UseScanFeedbackAudioInput]
     >({
-      currentState: 'no_paper',
+      currentState: 'waiting_for_ballot',
       isSoundMuted: false,
       playSound: expect.anything(),
     })

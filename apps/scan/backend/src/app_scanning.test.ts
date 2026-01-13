@@ -8,9 +8,9 @@ import {
 } from '@votingworks/utils';
 import { readFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { simulateScan, withApp } from '../test/helpers/pdi_helpers';
+import { simulateScan, withApp } from '../test/helpers/scanner_helpers';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
-import { delays } from './scanners/pdi/state_machine';
+import { delays } from './scanner';
 
 vi.setConfig({
   testTimeout: 10_000,
@@ -78,7 +78,7 @@ test('scanBatch with streaked page', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
         doubleFeedDetectionEnabled: true,
         paperLengthInches: 11,
@@ -123,7 +123,7 @@ test('scanBatch with streaked page', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
         doubleFeedDetectionEnabled: true,
         paperLengthInches: 11,

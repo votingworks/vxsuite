@@ -398,7 +398,7 @@ export function DefaultPreview(): JSX.Element {
     <ElectionManagerScreen
       electionDefinition={electionDefinition}
       scannerStatus={{
-        state: 'no_paper',
+        state: 'waiting_for_ballot',
         ballotsCounted: 1234,
       }}
       usbDrive={{ status: 'no_drive' }}

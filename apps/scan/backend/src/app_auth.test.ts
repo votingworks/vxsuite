@@ -12,7 +12,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { withApp } from '../test/helpers/pdi_helpers';
+import { withApp } from '../test/helpers/scanner_helpers';
 import { configureApp } from '../test/helpers/shared_helpers';
 
 const jurisdiction = TEST_JURISDICTION;

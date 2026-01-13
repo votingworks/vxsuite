@@ -18,7 +18,6 @@ const STATE_SOUND_MAPPING: Array<{
   { state: 'both_sides_have_paper', sound: 'warning' },
   { state: 'rejecting', sound: 'error' },
   { state: 'jammed', sound: 'error' },
-  { state: 'double_sheet_jammed', sound: 'error' },
   { state: 'unrecoverable_error', sound: 'error' },
 ];
 
@@ -27,7 +26,7 @@ test.each(STATE_SOUND_MAPPING)(
   ({ sound, state }) => {
     const result = renderHook(useScanFeedbackAudio, {
       initialProps: {
-        currentState: 'no_paper',
+        currentState: 'waiting_for_ballot',
         isSoundMuted: false,
         playSound,
       },
@@ -51,7 +50,11 @@ const STATES_WITH_SOUND = STATE_SOUND_MAPPING.map((m) => m.state);
 
 test.each(STATES_WITH_SOUND)("no '%s' sound when system is muted", (state) => {
   const result = renderHook(useScanFeedbackAudio, {
-    initialProps: { currentState: 'no_paper', isSoundMuted: false, playSound },
+    initialProps: {
+      currentState: 'waiting_for_ballot',
+      isSoundMuted: false,
+      playSound,
+    },
   });
 
   result.rerender({ currentState: state, isSoundMuted: true, playSound });
@@ -60,7 +63,11 @@ test.each(STATES_WITH_SOUND)("no '%s' sound when system is muted", (state) => {
 
 test('no sound for all other states', () => {
   const result = renderHook(useScanFeedbackAudio, {
-    initialProps: { currentState: 'no_paper', isSoundMuted: false, playSound },
+    initialProps: {
+      currentState: 'waiting_for_ballot',
+      isSoundMuted: false,
+      playSound,
+    },
   });
 
   for (const state of PRECINCT_SCANNER_STATES) {

@@ -32,7 +32,6 @@ export function useScanFeedbackAudio(input: UseScanFeedbackAudioInput): void {
 
     case 'rejecting':
     case 'jammed':
-    case 'double_sheet_jammed':
     case 'unrecoverable_error': {
       playSound({ name: 'error' });
       break;

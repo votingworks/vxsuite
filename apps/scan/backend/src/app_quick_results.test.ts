@@ -6,7 +6,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { configureApp } from '../test/helpers/shared_helpers';
-import { withApp } from '../test/helpers/pdi_helpers';
+import { withApp } from '../test/helpers/scanner_helpers';
 import { PrecinctScannerPollsInfo } from '.';
 
 const mockFeatureFlagger = getFeatureFlagMock();
