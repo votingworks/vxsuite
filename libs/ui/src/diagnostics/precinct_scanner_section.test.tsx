@@ -3,8 +3,10 @@ import { expectTextWithIcon } from '../../test/expect_text_with_icon';
 import { render } from '../../test/react_testing_library';
 import { PrecinctScannerSection } from './precinct_scanner_section';
 
-test('State: no_paper', async () => {
-  render(<PrecinctScannerSection scannerStatus={{ state: 'no_paper' }} />);
+test('State: waiting_for_ballot', async () => {
+  render(
+    <PrecinctScannerSection scannerStatus={{ state: 'waiting_for_ballot' }} />
+  );
   await expectTextWithIcon('The scanner is connected.', 'square-check');
 });
 
@@ -42,7 +44,7 @@ test('State: unrecoverable_error', async () => {
 test('no "test" scan on record', async () => {
   render(
     <PrecinctScannerSection
-      scannerStatus={{ state: 'no_paper' }}
+      scannerStatus={{ state: 'waiting_for_ballot' }}
       mostRecentScannerDiagnostic={undefined}
     />
   );
@@ -55,7 +57,7 @@ const timestamp = new Date('2024-01-01T00:00:00').getTime();
 test('"test" scan failed', async () => {
   render(
     <PrecinctScannerSection
-      scannerStatus={{ state: 'no_paper' }}
+      scannerStatus={{ state: 'waiting_for_ballot' }}
       mostRecentScannerDiagnostic={{
         type: 'blank-sheet-scan',
         outcome: 'fail',
@@ -73,7 +75,7 @@ test('"test" scan failed', async () => {
 test('"test" scan successful', async () => {
   render(
     <PrecinctScannerSection
-      scannerStatus={{ state: 'no_paper' }}
+      scannerStatus={{ state: 'waiting_for_ballot' }}
       mostRecentScannerDiagnostic={{
         type: 'blank-sheet-scan',
         outcome: 'pass',
