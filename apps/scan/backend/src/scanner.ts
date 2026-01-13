@@ -20,6 +20,7 @@ import {
   HmpbBallotPaperSize,
   Id,
   InsertedSmartCardAuth,
+  PrecinctScannerState,
   PrecinctScannerError,
   PrecinctScannerMachineStatus,
   SheetInterpretation,
@@ -58,10 +59,6 @@ import { Workspace } from './util/workspace';
 import { constructAuthMachineState } from './util/auth';
 import { Store } from './store';
 import { encryptBallotAuditId } from './export';
-
-// ============================================================================
-// Utilities
-// ============================================================================
 
 const debug = rootDebug.extend('state-machine');
 
@@ -240,10 +237,6 @@ export function cleanLogData(key: string, value: unknown): unknown {
   }
   return value;
 }
-
-// ============================================================================
-// PDI Scanner State Machine
-// ============================================================================
 
 let scanAndInterpretTimer: Timer | undefined;
 
@@ -1494,7 +1487,7 @@ export function createPrecinctScannerStateMachine({
   return {
     status: (): PrecinctScannerMachineStatus => {
       const { state } = machineService;
-      const scannerState = (() => {
+      const scannerState: PrecinctScannerState = (() => {
         // We use state.matches as recommended by the XState docs. This allows
         // us to add new substates to a state without breaking this switch.
         switch (true) {
@@ -1504,7 +1497,7 @@ export function createPrecinctScannerStateMachine({
           case state.matches('disconnected'):
             return 'disconnected';
           case state.matches('waitingForBallot'):
-            return 'no_paper';
+            return 'waiting_for_ballot';
           case state.matches('paused'):
             return 'paused';
           case state.matches('scanning'):

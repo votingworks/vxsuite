@@ -317,7 +317,7 @@ test('election manager and poll worker configuration', async () => {
 });
 
 const statusBallotCounted = scannerStatus({
-  state: 'no_paper',
+  state: 'waiting_for_ballot',
   ballotsCounted: 1,
 });
 
@@ -463,7 +463,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 
   vi.advanceTimersByTime(DELAY_ACCEPTED_SCREEN_MS);
   apiMock.expectGetScannerStatus(
-    scannerStatus({ state: 'no_paper', ballotsCounted: 1 })
+    scannerStatus({ state: 'waiting_for_ballot', ballotsCounted: 1 })
   );
   await screen.findByText(/Insert Your Ballot/i);
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');

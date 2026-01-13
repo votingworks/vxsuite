@@ -59,7 +59,7 @@ test('configure and scan hmpb', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
         doubleFeedDetectionEnabled: true,
         paperLengthInches: 11,
@@ -86,7 +86,10 @@ test('configure and scan hmpb', async () => {
       });
 
       await apiClient.readyForNextBallot();
-      await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
+      await waitForStatus(apiClient, {
+        state: 'waiting_for_ballot',
+        ballotsCounted: 1,
+      });
 
       // Do some basic logging checks to ensure that we're logging state machine changes
       // Make sure we got a transition
@@ -135,7 +138,7 @@ test('configure and scan bmd ballot', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
         doubleFeedDetectionEnabled: true,
         paperLengthInches: 11,
@@ -187,7 +190,7 @@ test('ballot needs review - return', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -220,7 +223,7 @@ test('ballot needs review - return', async () => {
       // Simulate voter removing ballot
       mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-      await expectStatus(apiClient, { state: 'no_paper' });
+      await expectStatus(apiClient, { state: 'waiting_for_ballot' });
 
       // Make sure the ballot was still recorded in the db for backup purposes
       expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
@@ -243,7 +246,7 @@ test('ballot needs review - accept', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -294,7 +297,7 @@ test('ballot with wrong election rejected', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -318,7 +321,7 @@ test('ballot with wrong election rejected', async () => {
       // Simulate voter removing ballot
       mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-      await expectStatus(apiClient, { state: 'no_paper' });
+      await expectStatus(apiClient, { state: 'waiting_for_ballot' });
 
       // Make sure the ballot was still recorded in the db for backup purposes
       expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
@@ -335,7 +338,7 @@ test('ballot with wrong precinct rejected', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -374,7 +377,7 @@ test('BMD ballot rejected when BMD ballot scanning disabled', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -413,7 +416,7 @@ test('ballot printed at an invalid scale is rejected', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -443,7 +446,7 @@ test('blank sheet rejected', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -473,7 +476,7 @@ test('if scan fails, ballot rejected', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
@@ -504,7 +507,7 @@ test('if ballot removed during scan, returns to waiting for ballots', async () =
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
@@ -515,7 +518,7 @@ test('if ballot removed during scan, returns to waiting for ballots', async () =
       });
 
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
     }
   );
 });
@@ -526,7 +529,7 @@ test('if ballot teased and jam error code occurs, tries to reject ballot', async
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
@@ -561,7 +564,7 @@ test('if interpretation throws an exception, show unrecoverable error', async ()
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
@@ -603,7 +606,7 @@ test('if scanning times out, show unrecoverable error', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       mockScanner.emitEvent({ event: 'scanStart' });

@@ -49,7 +49,7 @@ test('shoeshine mode scans the same ballot repeatedly', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
 
       await simulateScan(
@@ -101,7 +101,7 @@ test('handles error on eject for rescan', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
 
       await simulateScan(

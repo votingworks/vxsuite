@@ -33,7 +33,7 @@ test('if election manager card inserted, scanning paused', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
 
       // Insert election manager card
@@ -56,7 +56,7 @@ test('if election manager card inserted, scanning paused', async () => {
 
       // Scanning should be unpaused
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
     }
   );
@@ -68,7 +68,7 @@ test('if poll worker card inserted, scanning paused', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
 
       // Insert poll worker card
@@ -91,7 +91,7 @@ test('if poll worker card inserted, scanning paused', async () => {
 
       // Scanning should be unpaused
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
     }
   );

@@ -92,9 +92,9 @@ export function AppRoot(): JSX.Element | null {
       // If we transition from paused to no_paper we are just returning from an election official screen
       if (
         previousState &&
-        previousState !== 'no_paper' &&
+        previousState !== 'waiting_for_ballot' &&
         previousState !== 'paused' &&
-        newState === 'no_paper'
+        newState === 'waiting_for_ballot'
       ) {
         sessionSettingsManager.startNewSession();
       }

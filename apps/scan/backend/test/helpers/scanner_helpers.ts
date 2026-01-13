@@ -278,7 +278,7 @@ export async function scanBallot(
 ): Promise<void> {
   clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
   await waitForStatus(apiClient, {
-    state: 'no_paper',
+    state: 'waiting_for_ballot',
     ballotsCounted: initialBallotsCounted,
   });
   await simulateScan(
@@ -302,7 +302,7 @@ export async function scanBallot(
   });
   await apiClient.readyForNextBallot();
   await waitForStatus(apiClient, {
-    state: 'no_paper',
+    state: 'waiting_for_ballot',
     ballotsCounted: initialBallotsCounted + 1,
   });
 

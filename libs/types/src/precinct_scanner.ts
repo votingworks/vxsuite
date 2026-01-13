@@ -3,7 +3,7 @@ import { SheetInterpretation } from './interpretation';
 export const PRECINCT_SCANNER_STATES = [
   'connecting',
   'disconnected',
-  'no_paper',
+  'waiting_for_ballot',
   'scanning',
   'accepting',
   'accepted',

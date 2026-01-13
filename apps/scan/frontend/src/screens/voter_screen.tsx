@@ -117,7 +117,7 @@ export function VoterScreen({
     case 'paused':
     case 'scanner_diagnostic.running':
     case 'scanner_diagnostic.done':
-    case 'no_paper': {
+    case 'waiting_for_ballot': {
       if (isShowingAcceptedScreen) {
         return <ScanSuccessScreen {...sharedScreenProps} />;
       }

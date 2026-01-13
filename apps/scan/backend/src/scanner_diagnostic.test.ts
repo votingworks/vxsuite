@@ -194,7 +194,7 @@ test('removing card cancels diagnostic', async () => {
       reason: 'no_card',
     });
     clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL);
-    await waitForStatus(apiClient, { state: 'no_paper' });
+    await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
     expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();
   });

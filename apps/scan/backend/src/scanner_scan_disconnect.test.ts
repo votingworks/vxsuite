@@ -101,7 +101,7 @@ test('scanner disconnected while waiting for ballots', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       simulateDisconnect(mockScanner);
       await waitForStatus(apiClient, { state: 'disconnected' });
@@ -111,7 +111,7 @@ test('scanner disconnected while waiting for ballots', async () => {
 
       simulateReconnect(mockScanner);
       clock.increment(delays.DELAY_RECONNECT);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
     }
   );
 });
@@ -122,7 +122,7 @@ test('scanner disconnected while scanning', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
@@ -162,7 +162,7 @@ test('scanner disconnected while accepting', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -202,7 +202,7 @@ test('scanner disconnected while accepting - ejectDocument fails', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -237,7 +237,7 @@ test('scanner disconnected after accepting', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -269,7 +269,7 @@ test('scanner disconnected after accepting', async () => {
       simulateReconnect(mockScanner, mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_RECONNECT);
       await waitForStatus(apiClient, {
-        state: 'no_paper',
+        state: 'waiting_for_ballot',
         ballotsCounted: 1,
       });
     }
@@ -282,7 +282,7 @@ test('scanner disconnected while rejecting', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -321,7 +321,7 @@ test('scanner disconnected while rejecting - ejectDocument fails', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.client.ejectDocument.mockResolvedValueOnce(
         err({ code: 'disconnected' })
@@ -353,7 +353,7 @@ test('scanner disconnected while returning', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -398,7 +398,7 @@ test('scanner disconnected after rejecting', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -436,7 +436,7 @@ test('scanner error on reconnect', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       simulateDisconnect(mockScanner);
       await waitForStatus(apiClient, { state: 'disconnected' });

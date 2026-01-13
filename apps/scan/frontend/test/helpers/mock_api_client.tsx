@@ -56,7 +56,7 @@ const defaultConfig: PrecinctScannerConfig = {
 };
 
 export const statusNoPaper: PrecinctScannerStatus = {
-  state: 'no_paper',
+  state: 'waiting_for_ballot',
   ballotsCounted: 0,
 };
 

@@ -55,7 +55,7 @@ test('insert second ballot after scan', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
@@ -107,7 +107,7 @@ test('insert second ballot before accept', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -149,7 +149,7 @@ test('insert second ballot during accept', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -198,7 +198,7 @@ test('insert second ballot before accept after review', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -248,7 +248,7 @@ test('insert second ballot after accept, should be scanned', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       await simulateScan(
         apiClient,
@@ -279,7 +279,7 @@ test('insert second ballot after accept, should be scanned', async () => {
 
       await apiClient.readyForNextBallot();
       await waitForStatus(apiClient, {
-        state: 'no_paper',
+        state: 'waiting_for_ballot',
         ballotsCounted,
       });
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
@@ -304,7 +304,7 @@ test('insert two sheets back-to-back as if they were one long sheet', async () =
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
@@ -322,7 +322,7 @@ test('insert two sheets back-to-back as if they were one long sheet', async () =
 
       mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
     }
   );
 });
@@ -333,7 +333,7 @@ test('insert two sheets at once - scanFailed event', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
@@ -350,7 +350,7 @@ test('insert two sheets at once - scanFailed event', async () => {
 
       mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
     }
   );
 });
@@ -361,7 +361,7 @@ test('insert two sheets at once - scanComplete event', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
@@ -383,7 +383,7 @@ test('insert two sheets at once - scanComplete event', async () => {
 
       mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
     }
   );
 });
@@ -412,7 +412,7 @@ test('disabling double feed detection', async () => {
       );
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith(
         expect.objectContaining({
           doubleFeedDetectionEnabled: false,
@@ -440,7 +440,7 @@ test('disabling double feed detection', async () => {
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith(
         expect.objectContaining({
           doubleFeedDetectionEnabled: true,
