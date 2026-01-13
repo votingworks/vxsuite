@@ -16,7 +16,7 @@ import {
   ballotImages,
   simulateScan,
   withApp,
-} from '../test/helpers/pdi_helpers';
+} from '../test/helpers/scanner_helpers';
 import {
   configureApp,
   expectStatus,

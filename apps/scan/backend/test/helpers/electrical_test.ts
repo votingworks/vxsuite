@@ -8,7 +8,7 @@ import {
 } from '../../src/electrical_testing/context';
 import { ScanningSession } from '../../src/electrical_testing/analysis/scan';
 import { SimpleScannerClient } from '../../src/electrical_testing/simple_scanner_client';
-import { AppContext, withApp } from './pdi_helpers';
+import { AppContext, withApp } from './scanner_helpers';
 
 function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
   return {

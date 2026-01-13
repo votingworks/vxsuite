@@ -24,7 +24,7 @@ import {
   createMockPdiScannerClient,
   simulateScan,
   withApp,
-} from '../test/helpers/pdi_helpers';
+} from '../test/helpers/scanner_helpers';
 import {
   buildMockLogger,
   configureApp,

@@ -7,7 +7,7 @@ import { err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { DiagnosticRecord } from '@votingworks/types';
 import { DiskSpaceSummary, getDiskSpaceSummary } from '@votingworks/backend';
-import { withApp } from '../test/helpers/pdi_helpers';
+import { withApp } from '../test/helpers/scanner_helpers';
 import {
   TEST_PRINT_USER_FAIL_REASON,
   TEST_UPS_USER_FAIL_REASON,

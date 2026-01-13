@@ -8,7 +8,7 @@ import {
 } from '@votingworks/utils';
 import { readFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { simulateScan, withApp } from '../test/helpers/pdi_helpers';
+import { simulateScan, withApp } from '../test/helpers/scanner_helpers';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
 import { delays } from './scanner';
 

@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { withApp } from '../test/helpers/pdi_helpers';
+import { withApp } from '../test/helpers/scanner_helpers';
 
 vi.mock('./audio/player');
 

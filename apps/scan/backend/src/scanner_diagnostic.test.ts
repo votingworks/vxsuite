@@ -11,7 +11,7 @@ import { ballotPaperDimensions, HmpbBallotPaperSize } from '@votingworks/types';
 import { iter } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
-import { ballotImages, withApp } from '../test/helpers/pdi_helpers';
+import { ballotImages, withApp } from '../test/helpers/scanner_helpers';
 import {
   configureApp,
   expectStatus,
