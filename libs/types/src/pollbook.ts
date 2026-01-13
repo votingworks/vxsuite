@@ -36,16 +36,7 @@ export const CheckInBallotPartySchema = z.union([
   z.literal('NOT_APPLICABLE'),
 ]);
 
-export interface VoterCheckIn {
-  identificationMethod: VoterIdentificationMethod;
-  isAbsentee: boolean;
-  timestamp: string;
-  machineId: string;
-  receiptNumber: number;
-  ballotParty: CheckInBallotParty;
-}
-
-export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
+export const VoterCheckInSchema = z.object({
   identificationMethod: z.union([
     z.object({
       type: z.literal('default'),
@@ -61,6 +52,8 @@ export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
   receiptNumber: z.number(),
   ballotParty: CheckInBallotPartySchema,
 });
+
+export interface VoterCheckIn extends z.infer<typeof VoterCheckInSchema> {}
 
 export interface Voter {
   voterId: string;
@@ -150,8 +143,10 @@ const VoterAddressChangeSchemaInternal = z.object({
   precinct: z.string(),
 });
 
-export const VoterAddressChangeSchema: z.ZodSchema<VoterAddressChange> =
-  VoterAddressChangeSchemaInternal;
+export const VoterAddressChangeSchema = VoterAddressChangeSchemaInternal;
+
+export interface VoterAddressChange
+  extends z.infer<typeof VoterAddressChangeSchema> {}
 
 export interface VoterMailingAddressChangeRequest {
   mailingStreetNumber: string;
@@ -223,8 +218,11 @@ const VoterMailingAddressChangeSchemaInternal = z.object({
   timestamp: z.string(),
 });
 
-export const VoterMailingAddressChangeSchema: z.ZodSchema<VoterMailingAddressChange> =
+export const VoterMailingAddressChangeSchema =
   VoterMailingAddressChangeSchemaInternal;
+
+export interface VoterMailingAddressChange
+  extends z.infer<typeof VoterMailingAddressChangeSchema> {}
 
 export interface VoterNameChangeRequest {
   lastName: string;
@@ -261,8 +259,10 @@ const VoterNameChangeSchemaInternal = z.object({
   timestamp: z.string(),
 });
 
-export const VoterNameChangeSchema: z.ZodSchema<VoterNameChange> =
-  VoterNameChangeSchemaInternal;
+export const VoterNameChangeSchema = VoterNameChangeSchemaInternal;
+
+export interface VoterNameChange
+  extends z.infer<typeof VoterNameChangeSchema> {}
 
 export interface VoterRegistrationRequest
   extends VoterAddressChangeRequest,
@@ -277,7 +277,7 @@ export interface VoterRegistration extends VoterRegistrationRequest {
   precinct: string;
 }
 
-export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> =
+export const VoterRegistrationSchema =
   VoterAddressChangeSchemaInternal.merge(VoterNameChangeSchemaInternal).extend({
     party: PartyAbbreviationSchema,
     timestamp: z.string(),
@@ -285,7 +285,10 @@ export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> =
     precinct: z.string(),
   });
 
-export const VoterSchema: z.ZodSchema<Voter> = z.object({
+export interface VoterRegistration
+  extends z.infer<typeof VoterRegistrationSchema> {}
+
+export const VoterSchema = z.object({
   voterId: z.string(),
   lastName: z
     .string()
@@ -373,42 +376,35 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   registrationEvent: VoterRegistrationSchema.optional(),
   addressChange: VoterAddressChangeSchema.optional(),
   nameChange: VoterNameChangeSchema.optional(),
+  mailingAddressChange: VoterMailingAddressChangeSchema.optional(),
   isInactive: z.boolean().default(false),
 });
 
+export interface Voter extends z.infer<typeof VoterSchema> {}
+
 export type StreetSide = 'even' | 'odd' | 'all';
 
-export interface ValidStreetInfo {
-  streetName: string;
-  side: StreetSide;
-  lowRange: number;
-  highRange: number;
-  postalCityTown: string;
-  precinct: string;
-  city?: string;
-  zip5: string;
-  zip4: string;
-}
+const ValidStreetInfoItemSchema = z.object({
+  streetName: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetName)),
+  side: z.union([z.literal('even'), z.literal('odd'), z.literal('all')]),
+  lowRange: z.number(),
+  highRange: z.number(),
+  postalCityTown: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.cityTown)),
+  city: z.string().optional(),
+  zip5: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5)),
+  zip4: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip4)),
+  precinct: z.string(),
+});
 
-export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
-  z.object({
-    streetName: z
-      .string()
-      .transform((value) =>
-        value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetName)
-      ),
-    side: z.union([z.literal('even'), z.literal('odd'), z.literal('all')]),
-    lowRange: z.number(),
-    highRange: z.number(),
-    postalCityTown: z
-      .string()
-      .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.cityTown)),
-    zip5: z
-      .string()
-      .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5)),
-    zip4: z
-      .string()
-      .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip4)),
-    precinct: z.string(),
-  })
-);
+export interface ValidStreetInfo
+  extends z.infer<typeof ValidStreetInfoItemSchema> {}
+
+export const ValidStreetInfoSchema = z.array(ValidStreetInfoItemSchema);

@@ -18,13 +18,12 @@ import { Iso8601Timestamp, Iso8601TimestampSchema } from './generic';
 import { SheetOf } from './hmpb';
 import { PageInterpretation } from './interpretation';
 
-export interface CVRSnapshotOtherStatus {
-  ballotType: BallotType;
-}
-export const CVRSnapshotOtherStatusSchema: z.ZodSchema<CVRSnapshotOtherStatus> =
-  z.object({
-    ballotType: BallotTypeSchema,
-  });
+export const CVRSnapshotOtherStatusSchema = z.object({
+  ballotType: BallotTypeSchema,
+});
+
+export interface CVRSnapshotOtherStatus
+  extends z.infer<typeof CVRSnapshotOtherStatusSchema> {}
 
 export enum CastVoteRecordExportFileName {
   CAST_VOTE_RECORD_REPORT = 'cast-vote-record-report.json',
@@ -32,30 +31,17 @@ export enum CastVoteRecordExportFileName {
   REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
 }
 
-export interface CastVoteRecordBatchMetadata {
-  readonly id: string;
-  readonly label: string;
-
-  /**
-   * The ordinal number of the batch in the tabulator's sequence of batches in a given election.
-   */
-  readonly batchNumber: number;
-
-  /**
-   * The start time of the batch. On a precinct scanner, the start time is when the polls are opened or voting is resumed. On a central scanner, the start time is when the user initiates scanning a batch.
-   */
-  readonly startTime: Iso8601Timestamp;
-  /**
-   * The end time of the batch. On a precinct scanner, the end time is when the polls are closed or voting is paused. On a central scanner, the end time is when a batch scan is complete
-   */
-  readonly endTime?: Iso8601Timestamp;
-
-  readonly sheetCount: number;
-  readonly scannerId: string;
-}
-
-export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchMetadata> =
-  z.object({
+/**
+ * The ordinal number of the batch in the tabulator's sequence of batches in a given election.
+ */
+/**
+ * The start time of the batch. On a precinct scanner, the start time is when the polls are opened or voting is resumed. On a central scanner, the start time is when the user initiates scanning a batch.
+ */
+/**
+ * The end time of the batch. On a precinct scanner, the end time is when the polls are closed or voting is paused. On a central scanner, the end time is when a batch scan is complete
+ */
+export const CastVoteRecordBatchMetadataSchema = z
+  .object({
     id: z.string(),
     label: z.string(),
     batchNumber: z.number().positive(),
@@ -63,41 +49,37 @@ export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchM
     endTime: Iso8601TimestampSchema.optional(),
     sheetCount: z.number(),
     scannerId: z.string(),
-  });
+  })
+  .readonly();
+
+export interface CastVoteRecordBatchMetadata
+  extends z.infer<typeof CastVoteRecordBatchMetadataSchema> {}
 
 /**
  * Metadata stored in the top-level metadata file for a cast vote record export
  */
-export interface CastVoteRecordExportMetadata {
-  arePollsClosed?: boolean;
-  /** A summary of batches in a cast vote record export */
-  batchManifest: CastVoteRecordBatchMetadata[];
-  /** Global data relevant to all cast vote records in an export, e.g. election info */
-  castVoteRecordReportMetadata: CastVoteRecordReport;
-  /** A hash of all cast vote record files in an export */
-  castVoteRecordRootHash: string;
-}
+/** A summary of batches in a cast vote record export */
+/** Global data relevant to all cast vote records in an export, e.g. election info */
+/** A hash of all cast vote record files in an export */
+export const CastVoteRecordExportMetadataSchema = z.object({
+  arePollsClosed: z.boolean().optional(),
+  batchManifest: z.array(CastVoteRecordBatchMetadataSchema),
+  castVoteRecordReportMetadata: CastVoteRecordReportSchema,
+  castVoteRecordRootHash: z.string(),
+});
 
-export const CastVoteRecordExportMetadataSchema: z.ZodSchema<CastVoteRecordExportMetadata> =
-  z.object({
-    arePollsClosed: z.boolean().optional(),
-    batchManifest: z.array(CastVoteRecordBatchMetadataSchema),
-    castVoteRecordReportMetadata: CastVoteRecordReportSchema,
-    castVoteRecordRootHash: z.string(),
-  });
+export interface CastVoteRecordExportMetadata
+  extends z.infer<typeof CastVoteRecordExportMetadataSchema> {}
 
 /**
  * A cast vote record report without metadata
  */
-export type CastVoteRecordReportWithoutMetadata = Pick<
-  CastVoteRecordReport,
-  'CVR'
->;
+export const CastVoteRecordReportWithoutMetadataSchema = z.object({
+  CVR: z.array(CVRSchema).optional(),
+});
 
-export const CastVoteRecordReportWithoutMetadataSchema: z.ZodSchema<CastVoteRecordReportWithoutMetadata> =
-  z.object({
-    CVR: z.array(CVRSchema).optional(),
-  });
+export interface CastVoteRecordReportWithoutMetadata
+  extends z.infer<typeof CastVoteRecordReportWithoutMetadataSchema> {}
 
 /**
  * An error encountered while validating a sheet
