@@ -16,3 +16,5 @@ sudo -u postgres psql -c "create user design superuser password 'design';" || ex
 sudo -u postgres psql -c "create database design with owner design;" || exit 1
 
 pnpm db:migrations:run-dev
+
+pnpm insert-dev-data

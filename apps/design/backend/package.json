@@ -34,6 +34,7 @@
     "db:schema": "pg_dump --schema-only -d",
     "db:schema-dev": "pg_dump --schema-only 'postgres://design:design@localhost:5432/design'",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "insert-dev-data": "node -r esbuild-runner/register ./scripts/insert_dev_data.ts",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "list-jurisdictions": "node -r esbuild-runner/register ./scripts/list_jurisdictions.ts",

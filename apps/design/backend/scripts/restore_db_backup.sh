@@ -12,18 +12,9 @@ fi
 
 DB_BACKUP="${1}"
 
-SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
-"${SCRIPTS_DIRECTORY}/db_reset_dev.sh"
-
+PGPASSWORD=design dropdb -h localhost -U design design
+PGPASSWORD=design createdb -h localhost -U design design
 PGPASSWORD=design pg_restore --verbose --clean --no-acl --no-owner -h localhost -U design -d design "${DB_BACKUP}"
 
-# Insert the dev user used for local development when AUTH_ENABLED=FALSE
-PGPASSWORD=design psql -h localhost -U design -d design -c "
-  INSERT INTO users (id, type, name, organization_id)
-  VALUES (
-    'auth0|devuser',
-    'support_user',
-    'Dev User',
-    (SELECT id FROM organizations WHERE name = 'VotingWorks')
-  );
-"
+# Recreate the dev user used for local development when AUTH_ENABLED=FALSE
+pnpm insert-dev-data
