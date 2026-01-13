@@ -313,7 +313,7 @@ test('audio editing', async () => {
   for (const district of districts) {
     const input = await screen.findByDisplayValue(district.name);
     const container = assertDefined(input.parentElement);
-    const button = within(container).getButton(/preview or edit audio/i);
+    const button = await within(container).findButton(/preview or edit audio/i);
 
     userEvent.click(button);
 
