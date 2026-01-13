@@ -211,7 +211,6 @@ export class Importer {
     const {
       allowOfficialBallotsInTestMode,
       disableVerticalStreakDetection,
-      maxCumulativeVerticalStreakWidth,
       markThresholds,
       minimumDetectedBallotScaleOverride,
     } = assertDefined(store.getSystemSettings());
@@ -223,7 +222,6 @@ export class Importer {
           precinctSelection: ALL_PRECINCTS_SELECTION,
           testMode: store.getTestMode(),
           disableVerticalStreakDetection,
-          maxCumulativeVerticalStreakWidth,
           adjudicationReasons: store.getAdjudicationReasons(),
           markThresholds,
           allowOfficialBallotsInTestMode,

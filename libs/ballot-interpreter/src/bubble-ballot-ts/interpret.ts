@@ -35,7 +35,6 @@ function normalizeOptionsForBridge(options: {
   ballotImages: SheetOf<string> | SheetOf<ImageData>;
   scoreWriteIns?: boolean;
   disableVerticalStreakDetection?: boolean;
-  maxCumulativeVerticalStreakWidth?: number;
   timingMarkAlgorithm?: 'contours' | 'corners';
   inferTimingMarks?: boolean;
   minimumDetectedScale?: number;
@@ -69,8 +68,6 @@ function normalizeOptionsForBridge(options: {
       scoreWriteIns: options.scoreWriteIns,
       timingMarkAlgorithm: options.timingMarkAlgorithm,
       disableVerticalStreakDetection: options.disableVerticalStreakDetection,
-      maxCumulativeVerticalStreakWidth:
-        options.maxCumulativeVerticalStreakWidth,
       inferTimingMarks: options.inferTimingMarks,
       minimumDetectedScale: options.minimumDetectedScale,
       frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
@@ -87,7 +84,6 @@ export function interpret(options: {
   ballotImages: SheetOf<string> | SheetOf<ImageData>;
   scoreWriteIns?: boolean;
   disableVerticalStreakDetection?: boolean;
-  maxCumulativeVerticalStreakWidth?: number;
   timingMarkAlgorithm?: 'contours' | 'corners';
   inferTimingMarks?: boolean;
   minimumDetectedScale?: number;

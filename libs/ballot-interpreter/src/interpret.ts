@@ -566,7 +566,6 @@ function interpretHmpb(
     ballotImages: sheet,
     scoreWriteIns: shouldScoreWriteIns(options),
     disableVerticalStreakDetection: options.disableVerticalStreakDetection,
-    maxCumulativeVerticalStreakWidth: options.maxCumulativeVerticalStreakWidth,
     inferTimingMarks: options.inferTimingMarks,
     minimumDetectedScale: options.minimumDetectedScale,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
