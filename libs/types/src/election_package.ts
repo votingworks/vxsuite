@@ -58,22 +58,20 @@ export interface BallotConfig extends BallotStyleData {
   isAbsentee: boolean;
 }
 
-export interface EncodedBallotEntry extends Omit<BaseBallotProps, 'election'> {
-  encodedBallot: string; // A base64-encoded ballot PDF
-}
-
 /**
  * A single ballot record in the ballots JSONL file in an election package.
  */
-export const EncodedBallotEntrySchema: z.ZodType<EncodedBallotEntry> = z.object(
-  {
-    ballotStyleId: BallotStyleIdSchema,
-    precinctId: PrecinctIdSchema,
-    ballotType: BallotTypeSchema,
-    ballotMode: z.enum(BALLOT_MODES),
-    watermark: z.string().optional(),
-    compact: z.boolean().optional(),
-    ballotAuditId: z.string().optional(),
-    encodedBallot: z.string(),
-  }
-);
+export const EncodedBallotEntrySchema = z.object({
+  ballotStyleId: BallotStyleIdSchema,
+  precinctId: PrecinctIdSchema,
+  ballotType: BallotTypeSchema,
+  ballotMode: z.enum(BALLOT_MODES),
+  watermark: z.string().optional(),
+  compact: z.boolean().optional(),
+  ballotAuditId: z.string().optional(),
+  // A base64-encoded ballot PDF
+  encodedBallot: z.string(),
+});
+
+export interface EncodedBallotEntry
+  extends z.infer<typeof EncodedBallotEntrySchema> {}

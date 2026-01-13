@@ -1,49 +1,57 @@
 import { z } from 'zod/v4';
 
-export interface Point {
-  readonly x: number;
-  readonly y: number;
-}
-export const PointSchema: z.ZodSchema<Point> = z.object({
-  x: z.number(),
-  y: z.number(),
-});
+export const PointSchema = z
+  .object({
+    x: z.number(),
+    y: z.number(),
+  })
+  .readonly();
 
-export interface Offset {
-  readonly x: number;
-  readonly y: number;
-}
-export const OffsetSchema: z.ZodSchema<Offset> = z.object({
-  x: z.number(),
-  y: z.number(),
-});
+export interface Point extends z.infer<typeof PointSchema> {}
 
-export interface Rect {
-  readonly x: number;
-  readonly y: number;
-  readonly width: number;
-  readonly height: number;
-}
-export const RectSchema: z.ZodSchema<Rect> = z.object({
-  x: z.number(),
-  y: z.number(),
-  width: z.number(),
-  height: z.number(),
-});
+export const OffsetSchema = z
+  .object({
+    x: z.number(),
+    y: z.number(),
+  })
+  .readonly();
 
-export interface Outset<T extends number = number> {
+export interface Offset extends z.infer<typeof OffsetSchema> {}
+
+export const RectSchema = z
+  .object({
+    x: z.number(),
+    y: z.number(),
+    width: z.number(),
+    height: z.number(),
+  })
+  .readonly();
+
+export interface Rect extends z.infer<typeof RectSchema> {}
+
+export const OutsetSchema = z
+  .object({
+    top: z.number(),
+    right: z.number(),
+    bottom: z.number(),
+    left: z.number(),
+  })
+  .readonly();
+
+export interface Outset<T extends number = number>
+  extends z.infer<typeof OutsetSchema> {
   readonly top: T;
   readonly right: T;
   readonly bottom: T;
   readonly left: T;
 }
 
-export const OutsetSchema: z.ZodSchema<Outset> = z.object({
-  top: z.number(),
-  right: z.number(),
-  bottom: z.number(),
-  left: z.number(),
-});
+export const CornersSchema = z.tuple([
+  PointSchema,
+  PointSchema,
+  PointSchema,
+  PointSchema,
+]);
 
 export type Corners = readonly [
   topLeft: Point,
@@ -51,18 +59,12 @@ export type Corners = readonly [
   bottomLeft: Point,
   bottomRight: Point,
 ];
-export const CornersSchema: z.ZodSchema<Corners> = z.tuple([
-  PointSchema,
-  PointSchema,
-  PointSchema,
-  PointSchema,
-]);
 
-export interface Size {
-  readonly width: number;
-  readonly height: number;
-}
-export const SizeSchema: z.ZodSchema<Size> = z.object({
-  width: z.number(),
-  height: z.number(),
-});
+export const SizeSchema = z
+  .object({
+    width: z.number(),
+    height: z.number(),
+  })
+  .readonly();
+
+export interface Size extends z.infer<typeof SizeSchema> {}

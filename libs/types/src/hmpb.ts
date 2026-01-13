@@ -46,66 +46,54 @@ export interface BaseBallotProps {
 export type BallotPageMetadata = HmpbBallotPageMetadata;
 export const BallotPageMetadataSchema = HmpbBallotPageMetadataSchema;
 
-export interface BallotImage {
-  imageData: ImageData;
-  metadata: BallotPageMetadata;
-}
-export const BallotImageSchema: z.ZodSchema<BallotImage> = z.object({
+export const BallotImageSchema = z.object({
   imageData: ImageDataSchema,
   metadata: BallotPageMetadataSchema,
 });
 
-export interface BallotPageContestOptionLayout {
-  definition?: ContestOption;
-  bounds: Rect;
-  target: TargetShape;
-}
-export const BallotPageContestOptionLayoutSchema: z.ZodSchema<BallotPageContestOptionLayout> =
-  z.object({
-    definition: ContestOptionSchema.optional(),
-    bounds: RectSchema,
-    target: TargetShapeSchema,
-  });
+export interface BallotImage extends z.infer<typeof BallotImageSchema> {}
 
-export interface BallotPageContestLayout {
-  contestId: ContestId;
-  bounds: Rect;
-  corners: Corners;
-  options: readonly BallotPageContestOptionLayout[];
-}
-export const BallotPageContestLayoutSchema: z.ZodSchema<BallotPageContestLayout> =
-  z.object({
-    contestId: IdSchema,
-    bounds: RectSchema,
-    corners: CornersSchema,
-    options: z.array(BallotPageContestOptionLayoutSchema),
-  });
+export const BallotPageContestOptionLayoutSchema = z.object({
+  definition: ContestOptionSchema.optional(),
+  bounds: RectSchema,
+  target: TargetShapeSchema,
+});
 
-export interface BallotPageLayout {
-  pageSize: Size;
-  metadata: BallotPageMetadata;
-  contests: readonly BallotPageContestLayout[];
-}
-export const BallotPageLayoutSchema: z.ZodSchema<BallotPageLayout> = z.object({
+export interface BallotPageContestOptionLayout
+  extends z.infer<typeof BallotPageContestOptionLayoutSchema> {}
+
+export const BallotPageContestLayoutSchema = z.object({
+  contestId: IdSchema,
+  bounds: RectSchema,
+  corners: CornersSchema,
+  options: z.array(BallotPageContestOptionLayoutSchema),
+});
+
+export interface BallotPageContestLayout
+  extends z.infer<typeof BallotPageContestLayoutSchema> {}
+
+export const BallotPageLayoutSchema = z.object({
   pageSize: SizeSchema,
   metadata: BallotPageMetadataSchema,
   contests: z.array(BallotPageContestLayoutSchema),
 });
+
+export interface BallotPageLayout
+  extends z.infer<typeof BallotPageLayoutSchema> {}
 
 export enum MarkStatus {
   Marked = 'marked',
   Unmarked = 'unmarked',
   Marginal = 'marginal',
 }
-export const MarkStatusSchema: z.ZodSchema<MarkStatus> = z.enum(MarkStatus);
+export const MarkStatusSchema = z.enum(MarkStatus);
 
 export enum WriteInAreaStatus {
   Filled = 'filled',
   Unfilled = 'unfilled',
   Ignored = 'ignored',
 }
-export const WriteInAreaStatusSchema: z.ZodSchema<WriteInAreaStatus> =
-  z.enum(WriteInAreaStatus);
+export const WriteInAreaStatusSchema = z.enum(WriteInAreaStatus);
 
 export type SheetOf<T> = readonly [T, T];
 

@@ -31,31 +31,24 @@ export enum ElectionStringKey {
  * Follows i18next key schema and supports one level of nesting.
  * See: https://www.i18next.com/misc/json-format
  */
-export type UiStringTranslations = Dictionary<string | Dictionary<string>>;
+export const UiStringTranslationsSchema = z.record(
+  z.string(),
+  z.union([z.string(), z.record(z.string(), z.string())])
+);
 
-/**
- * Map of UI string key to related translation in a given language.
- *
- * Follows i18next key schema and supports one level of nesting.
- * See: https://www.i18next.com/misc/json-format
- */
-export const UiStringTranslationsSchema: z.ZodType<UiStringTranslations> =
-  z.record(z.string(), z.union([z.string(), z.record(z.string(), z.string())]));
+export interface UiStringTranslations
+  extends z.infer<typeof UiStringTranslationsSchema> {}
 
 /**
  * Map of language code to {@link UiStringTranslations}.
  */
-export interface UiStringsPackage {
-  [key: string]: UiStringTranslations;
-}
-
-/**
- * Map of language code to {@link UiStringTranslations}.
- */
-export const UiStringsPackageSchema: z.ZodType<UiStringsPackage> = z.record(
+export const UiStringsPackageSchema = z.record(
   z.string(),
   UiStringTranslationsSchema
 );
+
+export interface UiStringsPackage
+  extends z.infer<typeof UiStringsPackageSchema> {}
 
 /**
  * Combines two UI strings packages, returning a new package. The second package
