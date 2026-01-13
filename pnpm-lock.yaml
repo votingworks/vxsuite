@@ -1499,9 +1499,6 @@ importers:
       '@votingworks/custom-paper-handler':
         specifier: workspace:*
         version: link:../../../libs/custom-paper-handler
-      '@votingworks/custom-scanner':
-        specifier: workspace:*
-        version: link:../../../libs/custom-scanner
       '@votingworks/db':
         specifier: workspace:*
         version: link:../../../libs/db
@@ -4013,9 +4010,6 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      '@votingworks/custom-scanner':
-        specifier: workspace:*
-        version: link:../custom-scanner
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils

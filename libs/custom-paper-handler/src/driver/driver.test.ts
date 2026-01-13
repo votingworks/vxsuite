@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, MockInstance, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { arrayBufferFrom, assert, assertDefined } from '@votingworks/basics';
-import { mocks } from '@votingworks/custom-scanner';
 import { findByIds, WebUSBDevice } from 'usb';
 import { Uint16 } from '@votingworks/message-coder';
+import { MockWebUsbDevice } from '../test-utils';
 import {
   GENERIC_ENDPOINT_OUT,
   REAL_TIME_ENDPOINT_IN,
@@ -28,8 +28,6 @@ import {
   PrinterStatusRealTimeExchangeResponse,
   SensorStatusRealTimeExchangeResponse,
 } from './coders';
-
-type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
 vi.mock('usb');
 const findByIdsMock = vi.mocked(findByIds);

@@ -1,14 +1,12 @@
 import { Device, WebUSBDevice, findByIds } from 'usb';
-import { mocks } from '@votingworks/custom-scanner';
 import { MockedFunction } from 'vitest';
+import { MockWebUsbDevice } from '../test-utils';
 import {
   REAL_TIME_ENDPOINT_IN,
   REAL_TIME_ENDPOINT_OUT,
   PACKET_SIZE,
 } from './driver';
 import { PaperHandlerStatus } from './coders';
-
-type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
 const TEST_ALTERNATE_INTERFACE: USBAlternateInterface = {
   alternateSetting: 3,
@@ -75,7 +73,7 @@ export function setUpMockWebUsbDevice(
   } as unknown as Device;
   findByIdsMock.mockReturnValueOnce(legacyDevice);
 
-  const mockWebUsbDevice = mocks.mockWebUsbDevice();
+  const mockWebUsbDevice = new MockWebUsbDevice();
   createInstanceMock.mockResolvedValueOnce(
     mockWebUsbDevice as unknown as WebUSBDevice
   );

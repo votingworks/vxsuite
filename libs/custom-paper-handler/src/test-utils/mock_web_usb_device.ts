@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
-import { debug as baseDebug } from '../debug';
+import makeDebug from 'debug';
 
-const debug = baseDebug.extend('mock-usb-device');
+const debug = makeDebug('custom-paper-handler:mock-usb-device');
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
