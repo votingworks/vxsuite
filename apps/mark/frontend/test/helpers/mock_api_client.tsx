@@ -381,7 +381,7 @@ export function createApiMock() {
     },
 
     expectGetMostRecentBarcodeScan(
-      scan?: { data: string; timestamp: string } | null
+      scan?: { data: string; timestamp: Date } | null
     ) {
       mockApiClient.getMostRecentBarcodeScan
         .expectRepeatedCallsWith()

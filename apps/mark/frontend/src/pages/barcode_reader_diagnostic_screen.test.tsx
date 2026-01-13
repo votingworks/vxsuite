@@ -65,7 +65,7 @@ test('auto-passes test when barcode is detected', async () => {
   // Return a barcode scan with timestamp after test start
   apiMock.expectGetMostRecentBarcodeScan({
     data: 'test-barcode-data',
-    timestamp: new Date('2022-03-23T11:23:01.000').toISOString(),
+    timestamp: new Date('2022-03-23T11:23:01.000'),
   });
   apiMock.expectAddDiagnosticRecord({
     type: 'mark-barcode-reader',
@@ -83,7 +83,7 @@ test('shows barcode detected message when scan occurs', async () => {
   apiMock.expectClearLastBarcodeScan();
   apiMock.expectGetMostRecentBarcodeScan({
     data: 'test-barcode-data',
-    timestamp: new Date('2022-03-23T11:23:01.000').toISOString(),
+    timestamp: new Date('2022-03-23T11:23:01.000'),
   });
   apiMock.expectAddDiagnosticRecord({
     type: 'mark-barcode-reader',
@@ -131,7 +131,7 @@ test('ignores barcode scans from before test started', async () => {
   // Return a barcode scan with timestamp before test start
   apiMock.expectGetMostRecentBarcodeScan({
     data: 'old-barcode-data',
-    timestamp: new Date('2022-03-23T11:22:59.000').toISOString(),
+    timestamp: new Date('2022-03-23T11:22:59.000'),
   });
 
   renderScreen();
