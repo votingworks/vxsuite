@@ -1,5 +1,10 @@
+import {
+  AdjudicationReason,
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+} from '@votingworks/types';
 import { sliOrganizationId, votingWorksOrganizationId } from './globals';
-import { Jurisdiction, StateCode, User } from './types';
+import { Jurisdiction, StateCode, User, resultsReportingUrl } from './types';
 import { userBelongsToOrganization } from './utils';
 
 /**
@@ -169,4 +174,85 @@ export function getStateFeaturesConfig(
   jurisdiction: Jurisdiction
 ): StateFeaturesConfig {
   return stateFeatureConfigs[jurisdiction.stateCode];
+}
+
+export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
+  DEMO: {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    quickResultsReportingUrl: resultsReportingUrl(),
+  },
+
+  MS: {
+    auth: DEFAULT_SYSTEM_SETTINGS.auth,
+    precinctScanAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.Undervote,
+      AdjudicationReason.BlankBallot,
+    ],
+    disallowCastingOvervotes: false,
+    centralScanAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.BlankBallot,
+    ],
+    adminAdjudicationReasons: [],
+    markThresholds: {
+      definite: 0.7,
+      marginal: 0.5,
+      writeInTextArea: 0.5,
+    },
+    precinctScanEnableBmdBallotScanning: true,
+    bmdPrintMode: 'summary',
+    precinctScanDisableAlarms: true,
+    quickResultsReportingUrl: resultsReportingUrl(),
+    disableSystemLimitChecks: true,
+    disableVoterHelpButtons: true,
+  },
+
+  NH: {
+    auth: DEFAULT_SYSTEM_SETTINGS.auth,
+    precinctScanAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.UnmarkedWriteIn,
+    ],
+    disallowCastingOvervotes: true,
+    centralScanAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.UnmarkedWriteIn,
+    ],
+    adminAdjudicationReasons: [],
+    markThresholds: {
+      definite: 0.7,
+      marginal: 0.5,
+      writeInTextArea: 0.5,
+    },
+    allowOfficialBallotsInTestMode: true,
+    precinctScanEnableBmdBallotScanning: true,
+    bmdPrintMode: 'bubble_ballot',
+    precinctScanDisableAlarms: true,
+    disableSystemLimitChecks: true,
+    disableVoterHelpButtons: true,
+  },
+};
+
+export const SLI_DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
+  auth: DEFAULT_SYSTEM_SETTINGS.auth,
+  precinctScanAdjudicationReasons: [],
+  disallowCastingOvervotes: false,
+  centralScanAdjudicationReasons: [],
+  adminAdjudicationReasons: [],
+  markThresholds: {
+    definite: 0.7,
+    marginal: 0.5,
+    writeInTextArea: 0.5,
+  },
+  bmdPrintMode: 'bubble_ballot',
+};
+
+export function defaultSystemSettings(
+  jurisdiction: Jurisdiction
+): SystemSettings {
+  if (jurisdiction.organization.id === sliOrganizationId()) {
+    return SLI_DEFAULT_SYSTEM_SETTINGS;
+  }
+  return stateDefaultSystemSettings[jurisdiction.stateCode];
 }

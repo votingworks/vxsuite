@@ -1,6 +1,6 @@
 import { Result } from '@votingworks/basics';
 import { z } from 'zod/v4';
-import { AdjudicationReasonSchema } from './election';
+import { AdjudicationReason, AdjudicationReasonSchema } from './election';
 import {
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -175,7 +175,7 @@ export function safeParseSystemSettings(
 
 export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
   marginal: 0.05,
-  definite: 0.07,
+  definite: 0.1,
   writeInTextArea: 0.05,
 };
 
@@ -197,9 +197,20 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
       DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   },
   markThresholds: DEFAULT_MARK_THRESHOLDS,
-  precinctScanAdjudicationReasons: [],
+  precinctScanAdjudicationReasons: [
+    AdjudicationReason.Overvote,
+    AdjudicationReason.BlankBallot,
+    AdjudicationReason.UnmarkedWriteIn,
+  ],
   disallowCastingOvervotes: false,
-  centralScanAdjudicationReasons: [],
-  adminAdjudicationReasons: [],
+  centralScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
+  adminAdjudicationReasons: [
+    AdjudicationReason.Overvote,
+    AdjudicationReason.MarginalMark,
+  ],
   precinctScanEnableBmdBallotScanning: true,
+  bmdPrintMode: 'bubble_ballot',
+  precinctScanDisableAlarms: true,
+  disableSystemLimitChecks: true,
+  disableVoterHelpButtons: true,
 };
