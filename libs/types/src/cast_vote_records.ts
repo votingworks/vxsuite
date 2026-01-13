@@ -32,20 +32,23 @@ export enum CastVoteRecordExportFileName {
 }
 
 /**
- * The ordinal number of the batch in the tabulator's sequence of batches in a given election.
- */
-/**
- * The start time of the batch. On a precinct scanner, the start time is when the polls are opened or voting is resumed. On a central scanner, the start time is when the user initiates scanning a batch.
- */
-/**
- * The end time of the batch. On a precinct scanner, the end time is when the polls are closed or voting is paused. On a central scanner, the end time is when a batch scan is complete
+ * Metadata for a batch of cast vote records.
  */
 export const CastVoteRecordBatchMetadataSchema = z
   .object({
     id: z.string(),
     label: z.string(),
+    /**
+     * The ordinal number of the batch in the tabulator's sequence of batches in a given election.
+     */
     batchNumber: z.number().positive(),
+    /**
+     * The start time of the batch. On a precinct scanner, the start time is when the polls are opened or voting is resumed. On a central scanner, the start time is when the user initiates scanning a batch.
+     */
     startTime: Iso8601TimestampSchema,
+    /**
+     * The end time of the batch. On a precinct scanner, the end time is when the polls are closed or voting is paused. On a central scanner, the end time is when a batch scan is complete
+     */
     endTime: Iso8601TimestampSchema.optional(),
     sheetCount: z.number(),
     scannerId: z.string(),

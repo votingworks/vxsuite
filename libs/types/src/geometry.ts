@@ -39,7 +39,7 @@ export const OutsetSchema = z
   .readonly();
 
 export interface Outset<T extends number = number>
-  extends z.infer<typeof OutsetSchema> {
+  extends Omit<z.infer<typeof OutsetSchema>, 'top' | 'right' | 'bottom' | 'left'> {
   readonly top: T;
   readonly right: T;
   readonly bottom: T;

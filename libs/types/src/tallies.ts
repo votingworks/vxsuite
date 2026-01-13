@@ -10,13 +10,9 @@ export const YesNoContestCompressedTallySchema = z.tuple([
   nonnegativeInteger,
 ]);
 
-export type YesNoContestCompressedTally = [
-  undervotes: number,
-  overvotes: number,
-  ballotsCast: number,
-  yes: number,
-  no: number,
-];
+export type YesNoContestCompressedTally = z.infer<
+  typeof YesNoContestCompressedTallySchema
+>;
 export const CandidateContestWithWriteInsCompressedTallySchema = z
   .array(nonnegativeInteger)
   .min(
@@ -60,4 +56,4 @@ export const CompressedTallySchema = z.array(
   ])
 );
 
-export type CompressedTally = CompressedTallyEntry[];
+export type CompressedTally = z.infer<typeof CompressedTallySchema>;
