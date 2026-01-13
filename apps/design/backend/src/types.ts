@@ -10,6 +10,7 @@ import {
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import { z } from 'zod/v4';
+import { baseUrl } from './globals';
 
 export const StateCodes = ['DEMO', 'MS', 'NH'] as const;
 export type StateCode = (typeof StateCodes)[number];
@@ -167,3 +168,10 @@ export type ResultsReportingError =
   | 'invalid-payload'
   | 'invalid-signature'
   | GetExportedElectionError;
+
+export const RESULTS_REPORTING_PATH = '/report';
+export type ResultsReportingPath = typeof RESULTS_REPORTING_PATH;
+
+export function resultsReportingUrl(): string {
+  return new URL(RESULTS_REPORTING_PATH, baseUrl()).toString();
+}

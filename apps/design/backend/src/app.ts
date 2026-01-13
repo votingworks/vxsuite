@@ -95,6 +95,7 @@ import {
   ReceivedReportInfo,
   ResultsReportingError,
   User,
+  resultsReportingUrl,
 } from './types';
 import { AppContext } from './context';
 import {
@@ -254,7 +255,7 @@ export function buildApi(ctx: AppContext) {
           'listElections',
           'getUser',
           'getUserFeatures',
-          'getBaseUrl',
+          'getResultsReportingUrl', // Doesn't need authorization, nothing private accessed
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
           ...ttsStrings.methodsThatHandleAuthThemselves,
         ];
@@ -864,8 +865,8 @@ export function buildApi(ctx: AppContext) {
       return getUserFeaturesConfig(context.user);
     },
 
-    getBaseUrl(): string {
-      return baseUrl();
+    getResultsReportingUrl(): string {
+      return resultsReportingUrl();
     },
 
     async getLiveReportsSummary(input: {

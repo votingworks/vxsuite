@@ -4375,7 +4375,7 @@ test('feature configs', async () => {
   ).toEqual(stateFeatureConfigs.MS);
 });
 
-test('getBaseUrl', async () => {
+test('getResultsReportingUrl', async () => {
   process.env = {
     ...process.env,
     BASE_URL: 'https://test-base-url.com',
@@ -4386,11 +4386,17 @@ test('getBaseUrl', async () => {
     users,
   });
   auth0.setLoggedInUser(vxUser);
-  expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
+  expect(await apiClient.getResultsReportingUrl()).toEqual(
+    'https://test-base-url.com/report'
+  );
   auth0.setLoggedInUser(nonVxUser);
-  expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
+  expect(await apiClient.getResultsReportingUrl()).toEqual(
+    'https://test-base-url.com/report'
+  );
   auth0.setLoggedInUser(sliUser);
-  expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
+  expect(await apiClient.getResultsReportingUrl()).toEqual(
+    'https://test-base-url.com/report'
+  );
 });
 
 test('api call logging', async () => {

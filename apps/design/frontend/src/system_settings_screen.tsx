@@ -36,12 +36,12 @@ import {
 import { z } from 'zod/v4';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, resultsRoutes, routes } from './routes';
+import { ElectionIdParams, routes } from './routes';
 import {
   updateSystemSettings,
   getUserFeatures,
   getSystemSettings,
-  getBaseUrl,
+  getResultsReportingUrl,
 } from './api';
 import { useTitle } from './hooks/use_title';
 
@@ -118,10 +118,13 @@ export function SystemSettingsForm({
     useState<SystemSettings>(savedSystemSettings);
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
-  const getBaseUrlQuery = getBaseUrl.useQuery();
+  const getResultsReportingUrlQuery = getResultsReportingUrl.useQuery();
 
   /* istanbul ignore next - @preserve */
-  if (!getUserFeaturesQuery.isSuccess || !getBaseUrlQuery.isSuccess) {
+  if (
+    !getUserFeaturesQuery.isSuccess ||
+    !getResultsReportingUrlQuery.isSuccess
+  ) {
     return null;
   }
   const features = getUserFeaturesQuery.data;
@@ -589,7 +592,7 @@ export function SystemSettingsForm({
                   setSystemSettings({
                     ...systemSettings,
                     quickResultsReportingUrl: isChecked
-                      ? `${getBaseUrlQuery.data}${resultsRoutes.root.path}`
+                      ? getResultsReportingUrlQuery.data
                       : undefined,
                   })
                 }
