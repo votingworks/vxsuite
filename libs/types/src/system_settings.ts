@@ -1,6 +1,6 @@
 import { Result } from '@votingworks/basics';
 import { z } from 'zod/v4';
-import { AdjudicationReason, AdjudicationReasonSchema } from './election';
+import { AdjudicationReasonSchema } from './election';
 import {
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -51,94 +51,6 @@ export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
     'marginal mark threshold must be less than or equal to definite mark threshold'
   );
 
-/**
- * Settings for various parts of the system that are not part of the election
- * definition. These settings can be changed without changing the ballot hash
- * (and therefore not needing to reprint ballots, for example).
- */
-export interface SystemSettings {
-  readonly allowOfficialBallotsInTestMode?: boolean;
-  readonly auth: AuthSettings;
-  readonly markThresholds: MarkThresholds;
-  readonly bitonalThreshold?: number;
-  readonly adminAdjudicationReasons: readonly AdjudicationReason[];
-  readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
-  readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
-  readonly disallowCastingOvervotes: boolean;
-  readonly precinctScanEnableShoeshineMode?: boolean;
-
-  /**
-   * Includes redundant metadata in cast vote record reports, increasing export size and
-   * import/export time (required for CDF).
-   */
-  readonly castVoteRecordsIncludeRedundantMetadata?: boolean;
-
-  /**
-   * Disables vertical streak detection when scanning. This should only be used
-   * as a workaround in case the ballots have a design that triggers false
-   * positives.
-   */
-  readonly disableVerticalStreakDetection?: boolean;
-
-  /**
-   * Enables quick results reporting and provides the server URL to post results to.
-   */
-  readonly quickResultsReportingUrl?: string;
-
-  /**
-   * Turns on the VxScan feature to read ballot IDs from HMPB QR codes, encrypt
-   * them, and export them to CVRs (to be used for post-election auditing).
-   */
-  readonly precinctScanEnableBallotAuditIds?: boolean;
-
-  /**
-   * Enables BMD ballot scanning on VxScan. If unspecified, BMD ballots will be rejected on VxScan.
-   */
-  readonly precinctScanEnableBmdBallotScanning?: boolean;
-
-  /**
-   * Disables the VxScan alarms triggered when USB drives are removed or the scanner cover is
-   * opened while polls are open. These alarms can be silenced by inserting a smart card, but
-   * forgetting to do so before performing a routine action like scanner cleaning could cause
-   * unnecessary worry in a polling place. We're accordingly giving election officials the option
-   * to disable these alarms completely.
-   */
-  readonly precinctScanDisableAlarms?: boolean;
-
-  /**
-   * We detect the print scale of ballots and reject those with a detected scale less than
-   * {@link DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE} to prevent issues with bubble scoring on ballots
-   * that are printed at too low of a scale. This setting allows overriding that default value. The
-   * check can be essentially disabled by setting this value to 0.
-   */
-  readonly minimumDetectedBallotScaleOverride?: number;
-
-  /**
-   * The BMD print mode for the election.
-   * See {@link BmdPrintMode}.
-   */
-  readonly bmdPrintMode?: BmdPrintMode;
-
-  /**
-   * Disables the blocking system limit checks performed on election package import and allows
-   * usage of election packages that exceed system limits.
-   */
-  readonly disableSystemLimitChecks?: boolean;
-
-  /**
-   * Disables the help buttons on voter-facing screens. We are required to include these buttons
-   * for cert but also believe that they are superfluous and clutter the screen.
-   */
-  readonly disableVoterHelpButtons?: boolean;
-
-  /**
-   * Enables QR barcode scanning to activate ballot styles on VxMark. When enabled,
-   * scanning a QR code will automatically start a voter session with the first
-   * available ballot style for the configured precinct.
-   */
-  readonly bmdEnableQrBallotActivation?: boolean;
-}
-
 const PRINT_MODES = [
   'bubble_ballot',
   'marks_on_preprinted_ballot',
@@ -152,32 +64,105 @@ const PRINT_MODES = [
  */
 export type BmdPrintMode = (typeof PRINT_MODES)[number];
 
-export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
-  allowOfficialBallotsInTestMode: z.boolean().optional(),
-  auth: AuthSettingsSchema,
-  markThresholds: MarkThresholdsSchema,
-  bitonalThreshold: z.number().min(0).max(100).optional(),
-  adminAdjudicationReasons: z.array(z.lazy(() => AdjudicationReasonSchema)),
-  centralScanAdjudicationReasons: z.array(
-    z.lazy(() => AdjudicationReasonSchema)
-  ),
-  precinctScanAdjudicationReasons: z.array(
-    z.lazy(() => AdjudicationReasonSchema)
-  ),
-  disallowCastingOvervotes: z.boolean(),
-  precinctScanEnableShoeshineMode: z.boolean().optional(),
-  castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
-  disableVerticalStreakDetection: z.boolean().optional(),
-  quickResultsReportingUrl: z.string().optional(),
-  precinctScanEnableBallotAuditIds: z.boolean().optional(),
-  precinctScanEnableBmdBallotScanning: z.boolean().optional(),
-  minimumDetectedBallotScaleOverride: z.number().min(0.0).max(1.0).optional(),
-  bmdPrintMode: z.enum(PRINT_MODES).optional(),
-  precinctScanDisableAlarms: z.boolean().optional(),
-  disableSystemLimitChecks: z.boolean().optional(),
-  disableVoterHelpButtons: z.boolean().optional(),
-  bmdEnableQrBallotActivation: z.boolean().optional(),
-});
+export const SystemSettingsSchema = z
+  .object({
+    allowOfficialBallotsInTestMode: z.boolean().optional(),
+    auth: AuthSettingsSchema,
+    markThresholds: MarkThresholdsSchema,
+    bitonalThreshold: z.number().min(0).max(100).optional(),
+    adminAdjudicationReasons: z.array(z.lazy(() => AdjudicationReasonSchema)),
+    centralScanAdjudicationReasons: z.array(
+      z.lazy(() => AdjudicationReasonSchema)
+    ),
+    precinctScanAdjudicationReasons: z.array(
+      z.lazy(() => AdjudicationReasonSchema)
+    ),
+    disallowCastingOvervotes: z.boolean(),
+    precinctScanEnableShoeshineMode: z.boolean().optional(),
+
+    /**
+     * Includes redundant metadata in cast vote record reports, increasing export size and
+     * import/export time (required for CDF).
+     */
+    castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
+
+    /**
+     * Disables vertical streak detection when scanning. This should only be used
+     * as a workaround in case the ballots have a design that triggers false
+     * positives.
+     */
+    disableVerticalStreakDetection: z.boolean().optional(),
+
+    /**
+     * Enables quick results reporting and provides the server URL to post results to.
+     */
+    quickResultsReportingUrl: z.string().optional(),
+
+    /**
+     * Turns on the VxScan feature to read ballot IDs from HMPB QR codes, encrypt
+     * them, and export them to CVRs (to be used for post-election auditing).
+     */
+    precinctScanEnableBallotAuditIds: z.boolean().optional(),
+
+    /**
+     * Enables BMD ballot scanning on VxScan. If unspecified, BMD ballots will be rejected on VxScan.
+     */
+    precinctScanEnableBmdBallotScanning: z.boolean().optional(),
+
+    /**
+     * We detect the print scale of ballots and reject those with a detected scale less than
+     * {@link DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE} to prevent issues with bubble scoring on ballots
+     * that are printed at too low of a scale. This setting allows overriding that default value. The
+     * check can be essentially disabled by setting this value to 0.
+     */
+    minimumDetectedBallotScaleOverride: z.number().min(0.0).max(1.0).optional(),
+
+    /**
+     * The BMD print mode for the election.
+     * See {@link BmdPrintMode}.
+     */
+    bmdPrintMode: z.enum(PRINT_MODES).optional(),
+
+    /**
+     * Disables the VxScan alarms triggered when USB drives are removed or the scanner cover is
+     * opened while polls are open. These alarms can be silenced by inserting a smart card, but
+     * forgetting to do so before performing a routine action like scanner cleaning could cause
+     * unnecessary worry in a polling place. We're accordingly giving election officials the option
+     * to disable these alarms completely.
+     */
+    precinctScanDisableAlarms: z.boolean().optional(),
+
+    /**
+     * Disables the blocking system limit checks performed on election package import and allows
+     * usage of election packages that exceed system limits.
+     */
+    disableSystemLimitChecks: z.boolean().optional(),
+
+    /**
+     * Disables the help buttons on voter-facing screens. We are required to include these buttons
+     * for cert but also believe that they are superfluous and clutter the screen.
+     */
+    disableVoterHelpButtons: z.boolean().optional(),
+
+    /**
+     * Enables QR barcode scanning to activate ballot styles on VxMark. When enabled,
+     * scanning a QR code will automatically start a voter session with the first
+     * available ballot style for the configured precinct.
+     */
+    bmdEnableQrBallotActivation: z.boolean().optional(),
+  })
+  .readonly();
+
+/**
+ * Settings for various parts of the system that are not part of the election
+ * definition. These settings can be changed without changing the ballot hash
+ * (and therefore not needing to reprint ballots, for example).
+ */
+export interface SystemSettings extends z.infer<typeof SystemSettingsSchema> {}
+// To enforce that this type matches its schema exactly, we infer the type from
+// the schema rather than defining them in parallel. We use this approach for
+// top-level schemas for input to the certified system to ensure that the data
+// exported from VxDesign exactly matches what the machines parse as input.
 
 /**
  * Parses `value` as JSON `SystemSettings` or returns an error if input is malformed
