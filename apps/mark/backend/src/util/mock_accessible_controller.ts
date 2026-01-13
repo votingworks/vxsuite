@@ -1,3 +1,8 @@
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+
 /* istanbul ignore file - @preserve used only in internal dev and testing */
 let mockAccessibleControllerConnected = true;
 
@@ -6,5 +11,12 @@ export function setMockAccessibleControllerConnected(connected: boolean): void {
 }
 
 export function getMockAccessibleControllerConnected(): boolean {
-  return mockAccessibleControllerConnected;
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER
+    )
+  ) {
+    return mockAccessibleControllerConnected;
+  }
+  return false;
 }

@@ -25,7 +25,6 @@ export function isPatInputAttached(): boolean {
   if (getMockPatInputConnected()) {
     return true;
   }
-
   return isDeviceAttached(
     (device) =>
       device.deviceDescriptor.idProduct === PAT_INPUT_PRODUCT_ID &&
