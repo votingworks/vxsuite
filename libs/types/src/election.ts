@@ -42,18 +42,19 @@ function* findDuplicateIds<T extends { id: unknown }>(
 
 export type PartyId = string;
 export const PartyIdSchema = IdSchema as unknown as z.ZodSchema<PartyId>;
-export interface Party {
-  readonly id: PartyId;
-  readonly name: string;
-  readonly fullName: string;
-  readonly abbrev: string;
-}
-export const PartySchema: z.ZodSchema<Party> = z.object({
+export const PartySchema = z.object({
   id: PartyIdSchema,
   name: z.string().nonempty(),
   fullName: z.string().nonempty(),
   abbrev: z.string().nonempty(),
 });
+
+export interface Party extends z.infer<typeof PartySchema> {
+  readonly id: PartyId;
+  readonly name: string;
+  readonly fullName: string;
+  readonly abbrev: string;
+}
 
 export type Parties = readonly Party[];
 export const PartiesSchema: z.ZodSchema<Parties> = z
@@ -72,14 +73,15 @@ export const PartiesSchema: z.ZodSchema<Parties> = z
 
 export type DistrictId = string;
 export const DistrictIdSchema = IdSchema as unknown as z.ZodSchema<DistrictId>;
-export interface District {
-  readonly id: DistrictId;
-  readonly name: string;
-}
-export const DistrictSchema: z.ZodSchema<District> = z.object({
+export const DistrictSchema = z.object({
   id: DistrictIdSchema,
   name: z.string().nonempty(),
 });
+
+export interface District extends z.infer<typeof DistrictSchema> {
+  readonly id: DistrictId;
+  readonly name: string;
+}
 export const DistrictsSchema = z
   .array(DistrictSchema)
   .nonempty()
@@ -109,22 +111,12 @@ export const CandidateIdSchema: z.ZodSchema<CandidateId> = z.union([
   IdSchema,
   WriteInIdSchema,
 ]);
-export interface Candidate {
-  readonly id: CandidateId;
-  readonly name: string;
-  readonly partyIds?: readonly PartyId[];
-  readonly isWriteIn?: boolean;
-  readonly writeInIndex?: number;
-  // Structured name properties are supported only in VxDesign.
-  readonly firstName?: string;
-  readonly middleName?: string;
-  readonly lastName?: string;
-}
-export const CandidateSchema: z.ZodSchema<Candidate> = z
+// Structured name properties are supported only in VxDesign.
+export const CandidateSchema = z
   .object({
     id: CandidateIdSchema,
     name: z.string().min(1),
-    partyIds: z.array(PartyIdSchema).optional(),
+    partyIds: z.array(PartyIdSchema).readonly().optional(),
     isWriteIn: z.boolean().optional(),
     writeInIndex: z.number().int().nonnegative().optional(),
     firstName: z
@@ -145,20 +137,18 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z
     `Non-write-in candidate IDs must not start with 'write-in'`
   );
 
-export interface WriteInCandidate {
-  readonly id: WriteInId;
-  readonly name: string;
-  readonly isWriteIn: true;
-  readonly writeInIndex?: number;
-  readonly partyIds?: readonly PartyId[];
-}
-export const WriteInCandidateSchema: z.ZodSchema<WriteInCandidate> = z.object({
+export interface Candidate extends z.infer<typeof CandidateSchema> {}
+
+export const WriteInCandidateSchema = z.object({
   id: WriteInIdSchema,
   name: z.string().nonempty(),
   isWriteIn: z.literal(true),
   writeInIndex: z.number().int().nonnegative().optional(),
-  partyIds: z.array(PartyIdSchema).optional(),
+  partyIds: z.array(PartyIdSchema).readonly().optional(),
 });
+
+export interface WriteInCandidate
+  extends z.infer<typeof WriteInCandidateSchema> {}
 
 export type OptionalCandidate = Optional<Candidate>;
 export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> =
