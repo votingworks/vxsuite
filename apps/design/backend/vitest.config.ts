@@ -26,5 +26,9 @@ export default defineConfig({
         replacement: join(__dirname, '../../../libs/ui/src/index.ts'),
       },
     ],
+    env: {
+      // Vite automatically sets it to '/', which we don't want in tests
+      BASE_URL: process.env.BASE_URL,
+    },
   },
 });

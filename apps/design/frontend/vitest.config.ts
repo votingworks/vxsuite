@@ -29,5 +29,9 @@ export default defineConfig({
         replacement: join(__dirname, '../../../libs/ui/src/index.ts'),
       },
     ],
+    env: {
+      // Vite automatically sets it to '/', which messes up some backend imports that we use in tests
+      BASE_URL: process.env.BASE_URL,
+    },
   },
 });

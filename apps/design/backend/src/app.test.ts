@@ -106,7 +106,13 @@ import {
   DuplicatePartyError,
 } from './store';
 import { join } from 'node:path';
-import { stateFeatureConfigs, userFeatureConfigs } from './features';
+import {
+  defaultSystemSettings,
+  SLI_DEFAULT_SYSTEM_SETTINGS,
+  stateDefaultSystemSettings,
+  stateFeatureConfigs,
+  userFeatureConfigs,
+} from './features';
 import { LogEventId } from '@votingworks/logging';
 import { buildApi } from './app';
 import { readdir, readFile } from 'node:fs/promises';
@@ -521,7 +527,7 @@ test('create/list/delete elections', async () => {
   });
   expect(
     await apiClient.getSystemSettings({ electionId: sliElectionId })
-  ).toEqual(DEFAULT_SYSTEM_SETTINGS);
+  ).toEqual(SLI_DEFAULT_SYSTEM_SETTINGS);
   expect(
     await apiClient.getBallotTemplate({ electionId: sliElectionId })
   ).toEqual('VxDefaultBallot');
@@ -2597,7 +2603,7 @@ test('get/update system settings', async () => {
 
   // Default system settings
   expect(await apiClient.getSystemSettings({ electionId })).toEqual(
-    DEFAULT_SYSTEM_SETTINGS
+    stateDefaultSystemSettings.DEMO
   );
 
   // Update system settings
@@ -2708,14 +2714,6 @@ test('cloneElection', async () => {
   });
 
   const srcElectionId = 'election-1' as ElectionId;
-  const nonDefaultSystemSettings: SystemSettings = {
-    ...DEFAULT_SYSTEM_SETTINGS,
-    auth: {
-      ...DEFAULT_SYSTEM_SETTINGS.auth,
-      arePollWorkerCardPinsEnabled: true,
-    },
-  };
-
   auth0.setLoggedInUser(supportUser);
   await apiClient.loadElection({
     upload: {
@@ -2726,10 +2724,22 @@ test('cloneElection', async () => {
     newId: srcElectionId,
     jurisdictionId: nonVxJurisdiction.id,
   });
+  const srcSystemSettings = await apiClient.getSystemSettings({
+    electionId: srcElectionId,
+  });
+  const modifiedSystemSettings: SystemSettings = {
+    ...srcSystemSettings,
+    auth: {
+      ...srcSystemSettings.auth,
+      arePollWorkerCardPinsEnabled: true,
+    },
+  };
+  expect(modifiedSystemSettings).not.toEqual(srcSystemSettings);
   await apiClient.updateSystemSettings({
     electionId: srcElectionId,
-    systemSettings: nonDefaultSystemSettings,
+    systemSettings: modifiedSystemSettings,
   });
+
   await apiClient.setBallotTemplate({
     electionId: srcElectionId,
     ballotTemplateId: 'VxDefaultBallot',
@@ -2865,9 +2875,10 @@ test('cloneElection', async () => {
     })
   );
 
+  // Should have default system settings for destination jurisdiction
   expect(
     await apiClient.getSystemSettings({ electionId: newElectionId })
-  ).toEqual(nonDefaultSystemSettings);
+  ).toEqual(stateDefaultSystemSettings.DEMO);
   expect(
     await apiClient.getBallotTemplate({ electionId: newElectionId })
   ).toEqual(await apiClient.getBallotTemplate({ electionId: srcElectionId }));
@@ -3618,12 +3629,11 @@ test('Export test decks', async () => {
       ballotStyle.precincts.includes(precinct.id)
     )
   );
-  // Default system settings have bmdPrintMode=undefined which includes summary ballots
+  // Default system settings have bmdPrintMode=bubble_ballot which does not include summary ballots
   expect(Object.keys(zip.files).sort()).toEqual(
     [
       ...precinctsWithBallots.flatMap((precinct) => [
         `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
-        `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
       ]),
       FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
     ].sort()
@@ -3725,15 +3735,13 @@ test.each([
     ).unsafeUnwrap();
 
     // Set the bmdPrintMode system setting
-    if (bmdPrintMode !== undefined) {
-      await apiClient.updateSystemSettings({
-        electionId,
-        systemSettings: {
-          ...DEFAULT_SYSTEM_SETTINGS,
-          bmdPrintMode,
-        },
-      });
-    }
+    await apiClient.updateSystemSettings({
+      electionId,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        bmdPrintMode,
+      },
+    });
 
     const filename = await exportTestDecks({
       apiClient,
@@ -4323,7 +4331,7 @@ test('listJurisdictions', async () => {
   expect(await apiClient.listJurisdictions()).toEqual([sliJurisdiction]);
 });
 
-test('feature configs', async () => {
+test('feature configs and default system settings', async () => {
   const { apiClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
@@ -4343,36 +4351,52 @@ test('feature configs', async () => {
       jurisdictionId: vxJurisdiction.id,
     })
   ).unsafeUnwrap();
+  expect(
+    await apiClient.getStateFeatures({ electionId: vxElectionId })
+  ).toEqual(stateFeatureConfigs.DEMO);
+  expect(
+    await apiClient.getSystemSettings({ electionId: vxElectionId })
+  ).toEqual(stateDefaultSystemSettings.DEMO);
+
   const sliElectionId = (
     await apiClient.createElection({
       id: 'sli-election-id' as ElectionId,
       jurisdictionId: sliJurisdiction.id,
     })
   ).unsafeUnwrap();
+  expect(
+    await apiClient.getStateFeatures({ electionId: sliElectionId })
+  ).toEqual(stateFeatureConfigs.DEMO);
+  expect(
+    await apiClient.getSystemSettings({ electionId: sliElectionId })
+  ).toEqual(SLI_DEFAULT_SYSTEM_SETTINGS);
+
   const nhElectionId = (
     await apiClient.createElection({
       id: 'nh-election-id' as ElectionId,
       jurisdictionId: nhJurisdiction.id,
     })
   ).unsafeUnwrap();
+  expect(
+    await apiClient.getStateFeatures({ electionId: nhElectionId })
+  ).toEqual(stateFeatureConfigs.NH);
+  expect(
+    await apiClient.getSystemSettings({ electionId: nhElectionId })
+  ).toEqual(stateDefaultSystemSettings.NH);
+
   const msElectionId = (
     await apiClient.createElection({
       id: 'ms-election-id' as ElectionId,
       jurisdictionId: msJurisdiction.id,
     })
   ).unsafeUnwrap();
-  expect(
-    await apiClient.getStateFeatures({ electionId: vxElectionId })
-  ).toEqual(stateFeatureConfigs.DEMO);
-  expect(
-    await apiClient.getStateFeatures({ electionId: sliElectionId })
-  ).toEqual(stateFeatureConfigs.DEMO);
-  expect(
-    await apiClient.getStateFeatures({ electionId: nhElectionId })
-  ).toEqual(stateFeatureConfigs.NH);
+
   expect(
     await apiClient.getStateFeatures({ electionId: msElectionId })
   ).toEqual(stateFeatureConfigs.MS);
+  expect(
+    await apiClient.getSystemSettings({ electionId: msElectionId })
+  ).toEqual(stateDefaultSystemSettings.MS);
 });
 
 test('getResultsReportingUrl', async () => {
