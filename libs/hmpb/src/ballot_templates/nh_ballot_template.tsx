@@ -782,7 +782,12 @@ async function splitLongBallotMeasureAcrossPages(
   ballotStyle: BallotStyle,
   dimensions: PixelDimensions,
   scratchpad: RenderScratchpad
-) {
+): Promise<
+  Result<
+    { firstContestElement: JSX.Element; restContest: YesNoContest },
+    BallotLayoutError
+  >
+> {
   const columnWidthPx = dimensions.width;
   const contestElement = (
     <BackendLanguageContextProvider
@@ -809,6 +814,17 @@ async function splitLongBallotMeasureAcrossPages(
       dimensions.height
   );
   assert(firstOverflowingChildIndex !== -1, 'No overflowing child found');
+
+  // If a given child, e.g., paragraph, is itself too tall to fit on the page, we can't proceed and
+  // need the user to try a longer paper size or higher density, or add a line break to their
+  // content.
+  if (firstOverflowingChildIndex === 0) {
+    return err({
+      error: 'contestTooLong',
+      contest: tooLongContest,
+    });
+  }
+
   const descriptionHtmlNode = parseHtml(tooLongContest.description);
   for (const overflowingChild of descriptionHtmlNode.childNodes.slice(
     firstOverflowingChildIndex
@@ -841,10 +857,10 @@ async function splitLongBallotMeasureAcrossPages(
     description: restDescription,
   };
 
-  return {
+  return ok({
     firstContestElement,
     restContest,
-  };
+  });
 }
 
 async function BallotPageContent(
@@ -963,19 +979,22 @@ async function BallotPageContent(
   if (contests.length > 0 && contestsLeftToLayout.length === contests.length) {
     const tooLongContest = assertDefined(contestsLeftToLayout.shift());
     if (tooLongContest.type === 'yesno') {
-      const { firstContestElement, restContest } =
-        await splitLongBallotMeasureAcrossPages(
-          tooLongContest,
-          {
-            election,
-            compact,
-            precinctId: props.precinctId,
-            ballotStyle,
-          },
+      const splitResult = await splitLongBallotMeasureAcrossPages(
+        tooLongContest,
+        {
+          election,
+          compact,
+          precinctId: props.precinctId,
           ballotStyle,
-          dimensions,
-          scratchpad
-        );
+        },
+        ballotStyle,
+        dimensions,
+        scratchpad
+      );
+      if (splitResult.isErr()) {
+        return splitResult;
+      }
+      const { firstContestElement, restContest } = splitResult.ok();
       pageSections.push(<div key="section-1">{firstContestElement}</div>);
       contestsLeftToLayout.unshift(restContest);
     } else {

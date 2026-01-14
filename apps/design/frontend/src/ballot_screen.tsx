@@ -351,7 +351,10 @@ export function BallotScreen(): JSX.Element | null {
                       <Callout color="danger" icon="Danger">
                         <span>
                           Contest &quot;{err.contest.title}&quot; was too long
-                          to fit on the page. Try a longer paper size.
+                          to fit on the page.{' '}
+                          {err.contest.type === 'yesno'
+                            ? 'Try a longer paper size or higher density, or add a line break to your content.'
+                            : 'Try a longer paper size or higher density.'}
                         </span>
                       </Callout>
                     </Row>
