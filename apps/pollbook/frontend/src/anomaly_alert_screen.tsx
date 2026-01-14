@@ -51,9 +51,9 @@ export function AnomalyAlertScreen({
               <strong>Voter Name:</strong> {voterName}
             </P>
             <P>
-              <strong>Check-In Records:</strong>
+              <strong>Check-In Records</strong>
             </P>
-            <Table>
+            <Table style={{ margin: '1em 0' }}>
               <thead>
                 <tr>
                   <th>Machine ID</th>
@@ -91,10 +91,10 @@ export function AnomalyAlertScreen({
   return (
     <Screen>
       <Main centerChild>
-        <div style={{ textAlign: 'center', maxWidth: '600px' }}>
+        <div style={{ maxWidth: '800px' }}>
           <H1>{getAnomalyTitle()}</H1>
           {getAnomalyContent()}
-          <P>
+          <P style={{ marginTop: '1em' }}>
             <Button
               variant="primary"
               onPress={handleDismiss}
