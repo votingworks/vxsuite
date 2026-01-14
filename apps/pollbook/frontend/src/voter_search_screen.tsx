@@ -91,14 +91,14 @@ export function validateUsState(aamvaIssuingJurisdiction: string): string {
 }
 
 export function createEmptySearchParams(
-  exactMatch: boolean
+  strictMatch: boolean
 ): VoterSearchParams {
   return {
     lastName: '',
     middleName: '',
     firstName: '',
     suffix: '',
-    exactMatch,
+    strictMatch,
   };
 }
 
@@ -143,7 +143,7 @@ export function VoterSearch({
     const merged: VoterSearchParams = {
       ...search,
       ...newSearch,
-      exactMatch: false,
+      strictMatch: false,
     };
     setSearch(merged);
     updateDebouncedSearch(merged);
@@ -173,7 +173,7 @@ export function VoterSearch({
         /* istanbul ignore next - @preserve - voterSearchParams.lastName being falsy is extremely unlikely */
         '',
       suffix: '',
-      exactMatch: false,
+      strictMatch: false,
     };
     setSearch(merged);
     setVoterSearchParams(merged);
@@ -182,7 +182,7 @@ export function VoterSearch({
   const hiddenSearchParamsExist =
     voterSearchParams.middleName ||
     voterSearchParams.suffix ||
-    voterSearchParams.exactMatch;
+    voterSearchParams.strictMatch;
 
   useEffect(() => {
     if (barcodeScannerError?.message === 'unknown_document_type') {
@@ -198,7 +198,7 @@ export function VoterSearch({
         middleName: scannedIdDocument.middleName,
         lastName: scannedIdDocument.lastName,
         suffix: scannedIdDocument.nameSuffix,
-        exactMatch: true,
+        strictMatch: true,
       };
       setDisplayUnknownScanError(false);
       setSearch(merged);
@@ -215,7 +215,7 @@ export function VoterSearch({
       documentMatchesParams(scannedIdDocument, voterSearchParams) &&
       searchVotersQuery.isSuccess &&
       searchVotersQuery.data &&
-      voterSearchParams.exactMatch
+      voterSearchParams.strictMatch
     ) {
       const searchResult = searchVotersQuery.data;
 
