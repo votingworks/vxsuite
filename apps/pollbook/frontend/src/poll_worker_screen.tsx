@@ -111,7 +111,7 @@ export function VoterCheckInSuccessScreen({
 export function VoterCheckInScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<CheckInFlowState>({
     step: 'search',
-    search: createEmptySearchParams(false),
+    search: createEmptySearchParams({ strictMatch: false }),
   });
   const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
     useState<ReturnType<typeof setTimeout>>();
@@ -126,7 +126,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
     clearTimeout(timeoutIdForFlowStateReset);
     setFlowState({
       step: 'search',
-      search: createEmptySearchParams(false),
+      search: createEmptySearchParams({ strictMatch: false }),
     });
   }, [timeoutIdForFlowStateReset]);
 
@@ -152,7 +152,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
   );
 
   const onCancel = useCallback(() => {
-    let search = createEmptySearchParams(false);
+    let search = createEmptySearchParams({ strictMatch: false });
     if (
       flowState.step === 'confirm_identity' ||
       flowState.step === 'select_party'

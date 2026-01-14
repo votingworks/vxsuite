@@ -90,15 +90,20 @@ export function validateUsState(aamvaIssuingJurisdiction: string): string {
   throw new Error(`Unhandled ID jurisdiction: ${aamvaIssuingJurisdiction}`);
 }
 
-export function createEmptySearchParams(
-  strictMatch: boolean
-): VoterSearchParams {
+export function createEmptySearchParams({
+  strictMatch,
+  ignoreSuffix,
+}: {
+  strictMatch: boolean;
+  ignoreSuffix?: boolean;
+}): VoterSearchParams {
   return {
     lastName: '',
     middleName: '',
     firstName: '',
     suffix: '',
     strictMatch,
+    ignoreSuffix: ignoreSuffix || false,
   };
 }
 
@@ -174,6 +179,7 @@ export function VoterSearch({
         '',
       suffix: '',
       strictMatch: false,
+      ignoreSuffix: false, // There's no manual suffix input so this field is irrelevant for now
     };
     setSearch(merged);
     setVoterSearchParams(merged);
@@ -182,7 +188,8 @@ export function VoterSearch({
   const hiddenSearchParamsExist =
     voterSearchParams.middleName ||
     voterSearchParams.suffix ||
-    voterSearchParams.strictMatch;
+    voterSearchParams.strictMatch ||
+    voterSearchParams.ignoreSuffix;
 
   useEffect(() => {
     if (barcodeScannerError?.message === 'unknown_document_type') {
@@ -199,6 +206,7 @@ export function VoterSearch({
         lastName: scannedIdDocument.lastName,
         suffix: scannedIdDocument.nameSuffix,
         strictMatch: true,
+        ignoreSuffix: true,
       };
       setDisplayUnknownScanError(false);
       setSearch(merged);

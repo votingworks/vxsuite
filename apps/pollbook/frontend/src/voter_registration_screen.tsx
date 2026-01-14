@@ -18,6 +18,7 @@ import {
   Election,
   PartyAbbreviation,
   Voter,
+  VoterNameChangeRequest,
   VoterRegistrationRequest,
 } from '@votingworks/types';
 import {
@@ -54,6 +55,16 @@ function createBlankVoter(): VoterRegistrationRequest {
   };
 }
 
+function normalizeName(name: VoterNameChangeRequest): string {
+  const nameParts: string[] = [
+    name.firstName,
+    name.middleName,
+    name.lastName,
+    name.suffix,
+  ];
+  return nameParts.filter(Boolean).join(' ');
+}
+
 function RegistrationDuplicateNameMessage({
   inputtedVoter,
   duplicateError,
@@ -66,13 +77,10 @@ function RegistrationDuplicateNameMessage({
   currentlyConfiguredPrecinctId: string;
 }): JSX.Element | null {
   const isSinglePrecinctElection = election.precincts.length === 1;
-  const inputtedNameParts: string[] = [
-    inputtedVoter.firstName,
-    inputtedVoter.middleName,
-    inputtedVoter.lastName,
-    inputtedVoter.suffix,
-  ];
-  const inputtedName = inputtedNameParts.filter(Boolean).join(' ');
+  const inputtedName = normalizeName(inputtedVoter);
+  const matchingName = duplicateError.matchingVoters[0]
+    ? normalizeName(duplicateError.matchingVoters[0])
+    : inputtedName;
   const currentPrecinct = election.precincts.find(
     (p) => p.id === currentlyConfiguredPrecinctId
   );
@@ -80,7 +88,7 @@ function RegistrationDuplicateNameMessage({
   if (isSinglePrecinctElection) {
     return (
       <span>
-        There is already a voter with the name {inputtedName}. Please confirm
+        There is already a voter with the name {matchingName}. Please confirm
         this is not a duplicate registration.
       </span>
     );
@@ -91,7 +99,7 @@ function RegistrationDuplicateNameMessage({
   if (hasDuplicatesInCurrentPrecinct) {
     return (
       <span>
-        There is already a voter with the name {inputtedName} in{' '}
+        There is already a voter with the name {matchingName} in{' '}
         {currentPrecinct.name}. Please confirm this is not a duplicate
         registration.
       </span>
@@ -113,7 +121,7 @@ function RegistrationDuplicateNameMessage({
   assert(voterPrecinct !== undefined);
   return (
     <span>
-      There is already a voter with the name {inputtedName} in{' '}
+      There is already a voter with the name {matchingName} in{' '}
       {voterPrecinct.name}. Please confirm that the voter has moved between
       precincts or is a different person.
     </span>
@@ -347,7 +355,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
               title="Duplicate Name Detected"
               content={
                 <RegistrationDuplicateNameMessage
-                  inputtedVoter={voter}
+                  inputtedVoter={{ ...voter }}
                   election={election}
                   currentlyConfiguredPrecinctId={configuredPrecinctId}
                   duplicateError={flowState.duplicateError}
