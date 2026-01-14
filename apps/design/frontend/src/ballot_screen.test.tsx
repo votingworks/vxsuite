@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, test, vi, describe } from 'vitest';
-import { BallotType, CandidateContest } from '@votingworks/types';
+import { BallotType, CandidateContest, YesNoContest } from '@votingworks/types';
 import { DocumentProps, PageProps } from 'react-pdf';
 import { useEffect } from 'react';
 import { ok, err } from '@votingworks/basics';
@@ -295,8 +295,7 @@ describe('Ballot rendering error handling', () => {
     screen.getByRole('link', { name: 'Election Info' });
   });
 
-  test('Contest too long error shows appropriate message', async () => {
-    // Create a contest with many candidates to trigger contestTooLong error
+  test('Contest too long error shows appropriate message for candidate contest', async () => {
     const longContest: CandidateContest = {
       id: 'long-contest',
       type: 'candidate',
@@ -311,8 +310,6 @@ describe('Ballot rendering error handling', () => {
       })),
       allowWriteIns: false,
     };
-
-    // Mock the ballot preview API to return contest too long error
     apiMock.getBallotPreviewPdf
       .expectCallWith({
         electionId,
@@ -330,6 +327,42 @@ describe('Ballot rendering error handling', () => {
 
     renderScreen();
 
-    await screen.findByText(/contest.*was too long/i);
+    await screen.findByText(
+      'Contest "Very Long Contest with Many Candidates" was too long to fit on the page. ' +
+        'Try a longer paper size or higher density.'
+    );
+  });
+
+  test('Contest too long error shows appropriate message for ballot measure', async () => {
+    const longContest: YesNoContest = {
+      id: 'long-contest',
+      type: 'yesno',
+      title: 'Very Long Ballot Measure',
+      districtId: electionRecord.election.districts[0].id,
+      description: '',
+      yesOption: { id: 'yes', label: 'Yes' },
+      noOption: { id: 'no', label: 'No' },
+    };
+    apiMock.getBallotPreviewPdf
+      .expectCallWith({
+        electionId,
+        ballotStyleId: ballotStyle.id,
+        precinctId: precinct.id,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official',
+      })
+      .resolves(
+        err({
+          error: 'contestTooLong',
+          contest: longContest,
+        })
+      );
+
+    renderScreen();
+
+    await screen.findByText(
+      'Contest "Very Long Ballot Measure" was too long to fit on the page. ' +
+        'Try a longer paper size or higher density, or add a line break to your content.'
+    );
   });
 });
