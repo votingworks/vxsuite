@@ -76,6 +76,7 @@ import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals';
 import { generateVoterHistoryCsvContent } from './voter_history';
 import { getCurrentTime } from './get_current_time';
 import { MarkInactiveReceipt } from './receipts/mark_inactive_receipt';
+import { InvalidateRegistrationReceipt } from './receipts/invalidate_registration_receipt';
 import { BarcodeScannerClient } from './barcode_scanner/client';
 import { securityHeadersMiddleware } from './security_middleware';
 
@@ -576,6 +577,45 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing marked inactive receipt for voter %s', voter.voterId);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
+      return ok();
+    },
+
+    async invalidateRegistration(input: {
+      voterId: string;
+    }): Promise<Result<void, 'voter_checked_in' | 'not_a_registration'>> {
+      const election = assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to invalidate registration'
+      );
+      const originalVoter: Voter = store.getVoter(input.voterId);
+      if (originalVoter.checkIn) {
+        return err('voter_checked_in');
+      }
+      if (!originalVoter.registrationEvent) {
+        return err('not_a_registration');
+      }
+      const { voter, receiptNumber } = store.invalidateRegistration(
+        input.voterId
+      );
+      const printerStatus = await printer.status();
+      // This flow does not require a printer to be connected, only print a receipt opportunistically.
+      if (!printerStatus.connected) {
+        return ok();
+      }
+      const receipt = React.createElement(InvalidateRegistrationReceipt, {
+        voter,
+        machineId,
+        receiptNumber,
+        election,
+      });
+      debug(
+        'Printing invalidate registration receipt for voter %s',
+        voter.voterId
+      );
       await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return ok();
     },

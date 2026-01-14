@@ -23,6 +23,8 @@ export function AnomalyAlertScreen({
     switch (anomaly.anomalyType) {
       case 'DuplicateCheckIn':
         return 'Duplicate Check-In Detected';
+      case 'InvalidRegistrationCheckIn':
+        return 'Check-In for Invalid Registration';
       default:
         /* istanbul ignore next - @preserve */
         throwIllegalValue(anomaly.anomalyType);
@@ -79,6 +81,54 @@ export function AnomalyAlertScreen({
               total. If this occurred because two different voters were checked
               in under the same record, please check in the missing voter.
             </P>
+          </React.Fragment>
+        );
+      }
+      case 'InvalidRegistrationCheckIn': {
+        const details = anomaly.anomalyDetails;
+        const { voter } = details;
+        const voterName = [
+          voter.firstName,
+          voter.middleName,
+          voter.lastName,
+          voter.suffix,
+        ]
+          .filter(Boolean)
+          .join(' ');
+        return (
+          <React.Fragment>
+            <P>
+              <strong>Voter ID:</strong> {details.voterId}
+            </P>
+            <P>
+              <strong>Voter Name:</strong> {voterName}
+            </P>
+            <P>
+              A check-in was recorded for a voter registration that was
+              previously marked as invalid. This may indicate a synchronization
+              issue across poll books. The check-in has been counted, but this
+              situation requires review.
+            </P>
+            <Table style={{ margin: '1em 0' }}>
+              <thead>
+                <tr>
+                  <th>Machine ID</th>
+                  <th>Check-In Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {details.checkInEvents.map((checkIn) => (
+                  <tr key={checkIn.machineId}>
+                    <td>{checkIn.machineId}</td>
+                    <td>
+                      {formatFullDateTimeZone(
+                        DateTime.fromJSDate(new Date(checkIn.timestamp))
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
           </React.Fragment>
         );
       }

@@ -80,6 +80,7 @@ export function createMockVoter(
     party,
     precinct: precinctId,
     isInactive: false,
+    isInvalidatedRegistration: false,
   };
 }
 

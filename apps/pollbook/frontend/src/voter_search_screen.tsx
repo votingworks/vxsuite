@@ -126,6 +126,7 @@ export function VoterSearch({
   onBarcodeScanMatch,
   renderAction,
   election,
+  hideInvalidatedRegistrations = false,
 }: {
   search: VoterSearchParams;
   setSearch: (search: VoterSearchParams) => void;
@@ -135,6 +136,7 @@ export function VoterSearch({
   ) => void;
   renderAction: (voter: Voter) => React.ReactNode;
   election: Election;
+  hideInvalidatedRegistrations?: boolean;
 }): JSX.Element {
   const queryClient = useQueryClient();
   const [voterSearchParams, setVoterSearchParams] =
@@ -349,53 +351,84 @@ export function VoterSearch({
               further to view results.
             </div>
           </Callout>
-        ) : searchVotersQuery.data.length === 0 ? (
-          <Callout icon="Info" color="neutral">
-            No voters matched.
-          </Callout>
         ) : (
-          <React.Fragment>
-            <div>Voters matched: {searchVotersQuery.data.length}</div>
-            <VoterTableWrapper>
-              <VoterTable>
-                <tbody>
-                  {searchVotersQuery.data.map((voter) => (
-                    <tr
-                      key={voter.voterId}
-                      data-testid={`voter-row#${voter.voterId}`}
-                    >
-                      <td>
-                        {voter.nameChange && <Caption>Updated Name</Caption>}
-                        <H2 style={{ margin: 0 }}>
-                          <VoterName voter={voter} lastNameFirst />
-                        </H2>
-                        <PartyName party={voter.party} />
-                        {election.precincts.length > 1 && (
-                          <span>
-                            {' • '}
-                            <PrecinctName
-                              precinctId={getVoterPrecinct(voter)}
-                              election={election}
-                            />
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        {voter.addressChange ? (
-                          <LabelledText label="Updated Address">
-                            <AddressChange address={voter.addressChange} />
-                          </LabelledText>
-                        ) : (
-                          <VoterAddress voter={voter} />
-                        )}
-                      </td>
-                      <td style={{ width: '1%' }}>{renderAction(voter)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </VoterTable>
-            </VoterTableWrapper>
-          </React.Fragment>
+          (() => {
+            const filteredVoters = hideInvalidatedRegistrations
+              ? searchVotersQuery.data.filter(
+                  (v) => !v.isInvalidatedRegistration
+                )
+              : searchVotersQuery.data;
+            return filteredVoters.length === 0 ? (
+              <Callout icon="Info" color="neutral">
+                No voters matched.
+              </Callout>
+            ) : (
+              <React.Fragment>
+                <div>Voters matched: {filteredVoters.length}</div>
+                <VoterTableWrapper>
+                  <VoterTable>
+                    <tbody>
+                      {filteredVoters.map((voter) => {
+                        const isInvalidated = voter.isInvalidatedRegistration;
+                        const invalidatedStyle = isInvalidated
+                          ? {
+                              opacity: 0.5,
+                              textDecoration: 'line-through' as const,
+                            }
+                          : {};
+                        return (
+                          <tr
+                            key={voter.voterId}
+                            data-testid={`voter-row#${voter.voterId}`}
+                          >
+                            <td style={isInvalidated ? { opacity: 0.5 } : {}}>
+                              {voter.isInvalidatedRegistration && (
+                                <Caption>
+                                  <Icons.Delete /> Invalid Registration
+                                </Caption>
+                              )}
+                              {voter.nameChange && (
+                                <Caption>Updated Name</Caption>
+                              )}
+                              <H2 style={{ margin: 0, ...invalidatedStyle }}>
+                                <VoterName voter={voter} lastNameFirst />
+                              </H2>
+                              <span style={invalidatedStyle}>
+                                <PartyName party={voter.party} />
+                                {election.precincts.length > 1 && (
+                                  <span>
+                                    {' • '}
+                                    <PrecinctName
+                                      precinctId={getVoterPrecinct(voter)}
+                                      election={election}
+                                    />
+                                  </span>
+                                )}
+                              </span>
+                            </td>
+                            <td style={isInvalidated ? { opacity: 0.5 } : {}}>
+                              {voter.addressChange ? (
+                                <LabelledText label="Updated Address">
+                                  <AddressChange
+                                    address={voter.addressChange}
+                                  />
+                                </LabelledText>
+                              ) : (
+                                <VoterAddress voter={voter} />
+                              )}
+                            </td>
+                            <td style={{ width: '1%' }}>
+                              {renderAction(voter)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </VoterTable>
+                </VoterTableWrapper>
+              </React.Fragment>
+            );
+          })()
         ))}
     </Column>
   );
@@ -489,6 +522,7 @@ export function VoterSearchScreen({
             setSearch={setSearch}
             onBarcodeScanMatch={onBarcodeScanMatch}
             election={election}
+            hideInvalidatedRegistrations
             renderAction={(voter) =>
               voter.checkIn ? (
                 <CheckInDetails checkIn={voter.checkIn} />

@@ -26,6 +26,7 @@ import {
   getVoter,
   reprintVoterReceipt,
   markVoterInactive,
+  invalidateRegistration,
   undoVoterCheckIn,
   getPollbookConfigurationInformation,
   getElection,
@@ -188,6 +189,60 @@ function ConfirmMarkInactiveModal({
   );
 }
 
+function ConfirmInvalidateRegistrationModal({
+  voter,
+  onClose,
+}: {
+  voter: Voter;
+  onClose: () => void;
+}): JSX.Element {
+  const invalidateRegistrationMutation = invalidateRegistration.useMutation();
+  const [errorMessage, setErrorMessage] = useState('');
+
+  if (errorMessage) {
+    const errorContent =
+      errorMessage === 'voter_checked_in'
+        ? 'This voter is already checked in and cannot be marked as invalid.'
+        : 'This voter is not a same-day registration.';
+    return (
+      <Modal
+        title={<React.Fragment>Error Marking Invalid</React.Fragment>}
+        content={errorContent}
+        actions={<Button onPress={onClose}>Cancel</Button>}
+        onOverlayClick={onClose}
+      />
+    );
+  }
+  return (
+    <Modal
+      title={<React.Fragment>Mark Registration Invalid</React.Fragment>}
+      content="This voter’s information will be permanently deleted and removed from all related counts."
+      actions={
+        <React.Fragment>
+          <Button
+            icon="Delete"
+            variant="danger"
+            onPress={async () => {
+              const result = await invalidateRegistrationMutation.mutateAsync({
+                voterId: voter.voterId,
+              });
+              if (result.isOk()) {
+                onClose();
+              } else {
+                setErrorMessage(result.err());
+              }
+            }}
+          >
+            Mark Invalid
+          </Button>
+          <Button onPress={onClose}>Cancel</Button>
+        </React.Fragment>
+      }
+      onOverlayClick={onClose}
+    />
+  );
+}
+
 function VoterDetailsScreenLayout({
   children,
 }: React.PropsWithChildren): JSX.Element {
@@ -250,6 +305,8 @@ export function VoterDetailsScreen(): JSX.Element | null {
   const [showUpdateNameFlow, setShowUpdateNameFlow] = useState(false);
   const [showUndoCheckinFlow, setShowUndoCheckinFlow] = useState(false);
   const [showMarkInactiveFlow, setShowMarkInactiveFlow] = useState(false);
+  const [showInvalidateRegistrationFlow, setShowInvalidateRegistrationFlow] =
+    useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [reprintErrorMessage, setReprintErrorMessage] = useState('');
   const reprintVoterReceiptMutation = reprintVoterReceipt.useMutation();
@@ -358,6 +415,12 @@ export function VoterDetailsScreen(): JSX.Element | null {
         <ConfirmMarkInactiveModal
           voter={voter}
           onClose={() => setShowMarkInactiveFlow(false)}
+        />
+      )}
+      {showInvalidateRegistrationFlow && (
+        <ConfirmInvalidateRegistrationModal
+          voter={voter}
+          onClose={() => setShowInvalidateRegistrationFlow(false)}
         />
       )}
       {showUndoCheckinFlow && (
@@ -511,11 +574,18 @@ export function VoterDetailsScreen(): JSX.Element | null {
                 <Icons.Flag /> Inactive
               </H2>
             )}
-            {!voter.checkIn && !voter.isInactive && (
+            {voter.isInvalidatedRegistration && !voter.checkIn && (
               <H2 style={{ marginTop: 0, marginBottom: 0 }}>
-                <Icons.Info /> Not Checked In
+                <Icons.Delete /> Registration Invalid
               </H2>
             )}
+            {!voter.checkIn &&
+              !voter.isInactive &&
+              !voter.isInvalidatedRegistration && (
+                <H2 style={{ marginTop: 0, marginBottom: 0 }}>
+                  <Icons.Info /> Not Checked In
+                </H2>
+              )}
             {voter.checkIn && (
               <React.Fragment>
                 <H2 style={{ marginTop: 0 }}>
@@ -555,19 +625,37 @@ export function VoterDetailsScreen(): JSX.Element | null {
               </React.Fragment>
             )}
           </Card>
-          {!voter.checkIn && !voter.isInactive && (
-            <Button
-              icon="Flag"
-              color="danger"
-              disabled={
-                !configuredPrecinctId ||
-                configuredPrecinctId !== getVoterPrecinct(voter)
-              }
-              onPress={() => setShowMarkInactiveFlow(true)}
-            >
-              Flag Voter as Inactive
-            </Button>
-          )}
+          {!voter.checkIn &&
+            !voter.isInactive &&
+            !voter.isInvalidatedRegistration &&
+            !voter.registrationEvent && (
+              <Button
+                icon="Flag"
+                color="danger"
+                disabled={
+                  !configuredPrecinctId ||
+                  configuredPrecinctId !== getVoterPrecinct(voter)
+                }
+                onPress={() => setShowMarkInactiveFlow(true)}
+              >
+                Flag Voter as Inactive
+              </Button>
+            )}
+          {!voter.checkIn &&
+            !voter.isInvalidatedRegistration &&
+            voter.registrationEvent && (
+              <Button
+                icon="Delete"
+                color="danger"
+                disabled={
+                  !configuredPrecinctId ||
+                  configuredPrecinctId !== getVoterPrecinct(voter)
+                }
+                onPress={() => setShowInvalidateRegistrationFlow(true)}
+              >
+                Mark Invalid
+              </Button>
+            )}
           {voter.checkIn && (
             <Row style={{ gap: '1rem' }}>
               <Button

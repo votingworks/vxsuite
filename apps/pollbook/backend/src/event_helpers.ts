@@ -16,6 +16,7 @@ import {
   VoterCheckInEvent,
   UndoVoterCheckInEvent,
   VoterRegistrationEvent,
+  VoterRegistrationInvalidatedEvent,
   PollbookEvent,
   VoterAddressChangeEvent,
   VoterMailingAddressChangeEvent,
@@ -100,6 +101,11 @@ export function convertDbRowsToPollbookEvents(
             ...eventBase,
             type: EventType.MarkInactive,
           });
+        case EventType.InvalidateRegistration:
+          return typedAs<VoterRegistrationInvalidatedEvent>({
+            ...eventBase,
+            type: EventType.InvalidateRegistration,
+          });
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(event.event_type);
@@ -145,6 +151,7 @@ export function createVoterFromRegistrationData(
     mailingZip4: '',
     precinct: registrationEvent.precinct || '',
     isInactive: false,
+    isInvalidatedRegistration: false,
     registrationEvent,
   };
 }
@@ -222,6 +229,18 @@ export function applyPollbookEventsToVoters(
         updatedVoters[event.voterId] = {
           ...voter,
           isInactive: true,
+        };
+        break;
+      }
+      case EventType.InvalidateRegistration: {
+        const voter = updatedVoters[event.voterId];
+        if (!voter) {
+          debug('Voter %s not found', event.voterId);
+          continue;
+        }
+        updatedVoters[event.voterId] = {
+          ...voter,
+          isInvalidatedRegistration: true,
         };
         break;
       }

@@ -98,6 +98,7 @@ export interface Voter {
   registrationEvent?: VoterRegistration;
   checkIn?: VoterCheckIn;
   isInactive: boolean;
+  isInvalidatedRegistration: boolean;
 }
 
 export interface VoterAddressChangeRequest {
@@ -374,6 +375,7 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   addressChange: VoterAddressChangeSchema.optional(),
   nameChange: VoterNameChangeSchema.optional(),
   isInactive: z.boolean().default(false),
+  isInvalidatedRegistration: z.boolean().default(false),
 });
 
 export type StreetSide = 'even' | 'odd' | 'all';

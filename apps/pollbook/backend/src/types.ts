@@ -62,6 +62,7 @@ export enum EventType {
   VoterNameChange = 'VoterNameChange',
   VoterRegistration = 'VoterRegistration',
   MarkInactive = 'MarkInactive',
+  InvalidateRegistration = 'InvalidateRegistration',
 }
 
 export type VectorClock = Record<string, number>;
@@ -119,6 +120,11 @@ export interface VoterInactivatedEvent extends PollbookEventBase {
   voterId: string;
 }
 
+export interface VoterRegistrationInvalidatedEvent extends PollbookEventBase {
+  type: EventType.InvalidateRegistration;
+  voterId: string;
+}
+
 export type PollbookEvent =
   | VoterCheckInEvent
   | UndoVoterCheckInEvent
@@ -126,7 +132,8 @@ export type PollbookEvent =
   | VoterMailingAddressChangeEvent
   | VoterNameChangeEvent
   | VoterInactivatedEvent
-  | VoterRegistrationEvent;
+  | VoterRegistrationEvent
+  | VoterRegistrationInvalidatedEvent;
 
 export interface VoterSearchParams {
   lastName: string;
@@ -367,7 +374,7 @@ export function isBarcodeScannerError(
 
 export type PartyFilterAbbreviation = 'ALL' | PartyAbbreviation;
 
-export type AnomalyType = 'DuplicateCheckIn';
+export type AnomalyType = 'DuplicateCheckIn' | 'InvalidRegistrationCheckIn';
 
 // Database storage format - only stores voterId, not the full voter object
 export interface DuplicateCheckInDetailsDb {
@@ -427,7 +434,7 @@ export interface Anomaly {
 
 export const AnomalySchema: z.ZodSchema<Anomaly> = z.strictObject({
   anomalyId: z.number(),
-  anomalyType: z.enum(['DuplicateCheckIn']),
+  anomalyType: z.enum(['DuplicateCheckIn', 'InvalidRegistrationCheckIn']),
   detectedAt: z.date(),
   anomalyDetails: AnomalyDetailsSchema,
   dismissedAt: z.date().optional(),

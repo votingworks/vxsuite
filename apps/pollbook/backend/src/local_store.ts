@@ -41,6 +41,7 @@ import {
   VoterInactivatedEvent,
   VoterNameChangeEvent,
   VoterRegistrationEvent,
+  VoterRegistrationInvalidatedEvent,
   VoterSearchParams,
   PartyFilterAbbreviation,
   PrimarySummaryStatistics,
@@ -311,7 +312,8 @@ export class LocalStore extends Store {
           (v) => v.registrationEvent === undefined
         );
         const newRegistrations = votersForLetter.filter(
-          (v) => v.registrationEvent !== undefined
+          (v) =>
+            v.registrationEvent !== undefined && !v.isInvalidatedRegistration
         );
         return [letter, { existingVoters, newRegistrations }];
       })
@@ -724,6 +726,37 @@ export class LocalStore extends Store {
     return { voter: updatedVoter, receiptNumber };
   }
 
+  invalidateRegistration(voterId: string): {
+    voter: Voter;
+    receiptNumber: number;
+  } {
+    debug(`Invalidating registration for ${voterId}`);
+    const voter = this.getVoter(voterId);
+    assert(voter);
+    assert(voter.registrationEvent, 'Voter must have a registration event');
+
+    const updatedVoter: Voter = {
+      ...voter,
+      isInvalidatedRegistration: true,
+    };
+
+    const timestamp = this.incrementClock();
+    const receiptNumber = this.getNextEventId();
+    this.client.transaction(() => {
+      this.saveEvent(
+        typedAs<VoterRegistrationInvalidatedEvent>({
+          type: EventType.InvalidateRegistration,
+          machineId: this.machineId,
+          voterId,
+          timestamp,
+          receiptNumber,
+        })
+      );
+    });
+
+    return { voter: updatedVoter, receiptNumber };
+  }
+
   getThroughputStatistics(
     throughputInterval: number,
     partyFilter: PartyFilterAbbreviation
@@ -837,7 +870,7 @@ export class LocalStore extends Store {
       (v) => v.checkIn && v.checkIn.isAbsentee
     ).length;
     const totalNewRegistrations = Object.values(votersMatchingParty).filter(
-      (v) => v.registrationEvent !== undefined
+      (v) => v.registrationEvent !== undefined && !v.isInvalidatedRegistration
     ).length;
     const totalCheckIns = Object.values(votersWithCheckIn).length;
 
@@ -907,7 +940,7 @@ export class LocalStore extends Store {
       votersWithCheckInMatchingParty
     ).filter((v) => v.checkIn && v.checkIn.isAbsentee).length;
     const totalNewRegistrations = Object.values(votersMatchingParty).filter(
-      (v) => v.registrationEvent !== undefined
+      (v) => v.registrationEvent !== undefined && !v.isInvalidatedRegistration
     ).length;
     const totalCheckIns = Object.values(votersWithCheckInMatchingParty).length;
 
