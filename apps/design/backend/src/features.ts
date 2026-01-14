@@ -178,8 +178,29 @@ export function getStateFeaturesConfig(
 
 export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
   DEMO: {
-    ...DEFAULT_SYSTEM_SETTINGS,
+    auth: DEFAULT_SYSTEM_SETTINGS.auth,
+    markThresholds: {
+      definite: 0.1,
+      marginal: 0.05,
+      writeInTextArea: 0.05,
+    },
+    precinctScanAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.BlankBallot,
+      AdjudicationReason.UnmarkedWriteIn,
+    ],
+    disallowCastingOvervotes: false,
+    centralScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
+    adminAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.MarginalMark,
+    ],
+    precinctScanEnableBmdBallotScanning: true,
+    bmdPrintMode: 'bubble_ballot',
+    precinctScanDisableAlarms: true,
     quickResultsReportingUrl: resultsReportingUrl(),
+    disableSystemLimitChecks: true,
+    disableVoterHelpButtons: true,
   },
 
   MS: {
@@ -196,9 +217,9 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     ],
     adminAdjudicationReasons: [],
     markThresholds: {
-      definite: 0.7,
-      marginal: 0.5,
-      writeInTextArea: 0.5,
+      definite: 0.07,
+      marginal: 0.05,
+      writeInTextArea: 0.05,
     },
     precinctScanEnableBmdBallotScanning: true,
     bmdPrintMode: 'summary',
@@ -221,9 +242,9 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     ],
     adminAdjudicationReasons: [],
     markThresholds: {
-      definite: 0.7,
-      marginal: 0.5,
-      writeInTextArea: 0.5,
+      definite: 0.07,
+      marginal: 0.05,
+      writeInTextArea: 0.05,
     },
     allowOfficialBallotsInTestMode: true,
     precinctScanEnableBmdBallotScanning: true,
@@ -241,9 +262,9 @@ export const SLI_DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   centralScanAdjudicationReasons: [],
   adminAdjudicationReasons: [],
   markThresholds: {
-    definite: 0.7,
-    marginal: 0.5,
-    writeInTextArea: 0.5,
+    definite: 0.07,
+    marginal: 0.05,
+    writeInTextArea: 0.05,
   },
   bmdPrintMode: 'bubble_ballot',
 };
