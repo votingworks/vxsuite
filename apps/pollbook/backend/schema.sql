@@ -67,7 +67,6 @@ CREATE TABLE anomalies (
     anomaly_id INTEGER PRIMARY KEY AUTOINCREMENT,
     anomaly_type TEXT NOT NULL, -- AnomalyType enum: 'DuplicateCheckIn', etc.
     detected_at INTEGER NOT NULL, -- timestamp when anomaly was detected
-    voter_id TEXT, -- voter_id related to the anomaly, if applicable
     anomaly_details TEXT NOT NULL, -- JSON blob with additional details
     dismissed_at INTEGER, -- timestamp when anomaly was dismissed, null if not dismissed
     dismissed BOOLEAN NOT NULL DEFAULT 0 -- whether the anomaly has been dismissed

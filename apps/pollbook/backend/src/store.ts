@@ -26,8 +26,8 @@ import {
   Anomaly,
   AnomalyDbRow,
   AnomalyType,
-  AnomalyDetails,
-  DuplicateCheckInDetails,
+  AnomalyDetailsDb,
+  DuplicateCheckInDetailsDb,
 } from './types';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import {
@@ -386,19 +386,14 @@ export abstract class Store {
               );
 
               // Record the anomaly in the database
-              const duplicateCheckInDetails: DuplicateCheckInDetails = {
+              const duplicateCheckInDetails: DuplicateCheckInDetailsDb = {
                 voterId: pollbookEvent.voterId,
                 checkInEvents: checkInEventsNotUndone.map((e) => ({
                   machineId: e.machineId,
                   timestamp: new Date(e.timestamp.physical).toISOString(),
                 })),
-                message,
               };
-              this.recordAnomaly(
-                'DuplicateCheckIn',
-                duplicateCheckInDetails,
-                pollbookEvent.voterId
-              );
+              this.recordAnomaly('DuplicateCheckIn', duplicateCheckInDetails);
             }
           }
           this.client.run(
@@ -718,8 +713,7 @@ export abstract class Store {
   // Anomaly management methods
   recordAnomaly(
     anomalyType: AnomalyType,
-    anomalyDetails: AnomalyDetails,
-    voterId?: string
+    anomalyDetails: AnomalyDetailsDb
   ): void {
     const detectedAt = Date.now();
     this.client.run(
@@ -727,14 +721,12 @@ export abstract class Store {
       INSERT INTO anomalies (
         anomaly_type,
         detected_at,
-        voter_id,
         anomaly_details,
         dismissed
-      ) VALUES (?, ?, ?, ?, 0)
+      ) VALUES (?, ?, ?, 0)
       `,
       anomalyType,
       detectedAt,
-      voterId ?? null,
       JSON.stringify(anomalyDetails)
     );
   }
@@ -749,15 +741,22 @@ export abstract class Store {
       `
     ) as AnomalyDbRow[];
 
-    return rows.map((row) => ({
-      anomalyId: row.anomaly_id,
-      anomalyType: row.anomaly_type,
-      detectedAt: new Date(row.detected_at),
-      voterId: row.voter_id,
-      anomalyDetails: JSON.parse(row.anomaly_details) as AnomalyDetails,
-      dismissedAt: row.dismissed_at ? new Date(row.dismissed_at) : undefined,
-      dismissed: row.dismissed === 1,
-    }));
+    return rows.map((row) => {
+      const dbDetails = JSON.parse(row.anomaly_details) as AnomalyDetailsDb;
+      const voter = this.getVoter(dbDetails.voterId);
+
+      return {
+        anomalyId: row.anomaly_id,
+        anomalyType: row.anomaly_type,
+        detectedAt: new Date(row.detected_at),
+        anomalyDetails: {
+          ...dbDetails,
+          voter,
+        },
+        dismissedAt: row.dismissed_at ? new Date(row.dismissed_at) : undefined,
+        dismissed: row.dismissed === 1,
+      };
+    });
   }
 
   dismissAnomaly(anomalyId: number): void {
