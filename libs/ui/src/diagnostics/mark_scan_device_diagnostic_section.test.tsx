@@ -61,7 +61,7 @@ describe('most recent diagnostic', () => {
     });
 
     await expectTextWithIcon(
-      'Test failed, 1/1/2021, 12:00:00 AM — up button not working.',
+      'Accessible Controller test failed, 1/1/2021, 12:00:00 AM — up button not working.',
       'triangle-exclamation'
     );
   });
@@ -77,7 +77,7 @@ describe('most recent diagnostic', () => {
     });
 
     await expectTextWithIcon(
-      'Test failed, 1/1/2021, 12:00:00 AM',
+      'Accessible Controller test failed, 1/1/2021, 12:00:00 AM',
       'triangle-exclamation'
     );
   });
@@ -93,7 +93,7 @@ describe('most recent diagnostic', () => {
     });
 
     await expectTextWithIcon(
-      'Test passed, 1/1/2021, 12:00:00 AM',
+      'Accessible Controller test passed, 1/1/2021, 12:00:00 AM',
       'square-check'
     );
   });
