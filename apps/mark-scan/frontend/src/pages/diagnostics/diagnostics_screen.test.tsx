@@ -125,11 +125,13 @@ test('data from API is passed to screen contents', async () => {
     DiagnosticSectionTitle.PatInput,
     'Available'
   );
-  screen.getByText('Test passed, 3/23/2022, 11:20:00 AM');
-  screen.getByText('Test passed, 3/23/2022, 11:15:00 AM');
-  screen.getByText('Test passed, 3/23/2022, 11:10:00 AM');
-  screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
-  screen.getByText('Test passed, 3/23/2022, 11:00:00 AM');
+  screen.getByText(
+    'Uninterruptible Power Supply test passed, 3/23/2022, 11:20:00 AM'
+  );
+  screen.getByText('Front Headphone Input test passed, 3/23/2022, 11:15:00 AM');
+  screen.getByText('PAT Input test passed, 3/23/2022, 11:10:00 AM');
+  screen.getByText('Printer-Scanner test passed, 3/23/2022, 11:05:00 AM');
+  screen.getByText('Accessible Controller test passed, 3/23/2022, 11:00:00 AM');
 });
 
 test('BMD 155 falls back to PAT device connection status', async () => {
@@ -179,7 +181,9 @@ test('accessible controller diagnostic - pass', async () => {
   }
 
   screen.getByRole('heading', { name: 'Diagnostics' });
-  await screen.findByText('Test passed, 3/23/2022, 11:23:00 AM');
+  await screen.findByText(
+    'Accessible Controller test passed, 3/23/2022, 11:23:00 AM'
+  );
 });
 
 test('accessible controller diagnostic - cancel', async () => {
@@ -211,7 +215,7 @@ test('accessible controller diagnostic - fail', async () => {
 
   screen.getByRole('heading', { name: 'Diagnostics' });
   await screen.findByText(
-    'Test failed, 3/23/2022, 11:23:00 AM — up button is not working.'
+    'Accessible Controller test failed, 3/23/2022, 11:23:00 AM — up button is not working.'
   );
 });
 
@@ -272,7 +276,7 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
   });
   userEvent.click(await screen.findButton('Exit'));
 
-  await screen.findByText(/Test passed/);
+  await screen.findByText(/test passed/);
   expectDiagnosticResult(
     expect,
     screen,

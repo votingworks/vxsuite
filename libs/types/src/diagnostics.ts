@@ -8,6 +8,11 @@ export type DiagnosticType =
   | 'mark-scan-paper-handler'
   | 'mark-scan-pat-input'
   | 'mark-scan-headphone-input'
+  | 'mark-accessible-controller'
+  | 'mark-pat-input'
+  | 'mark-headphone-input'
+  | 'mark-system-audio'
+  | 'mark-barcode-reader'
   | 'scan-audio'
   | 'uninterruptible-power-supply';
 

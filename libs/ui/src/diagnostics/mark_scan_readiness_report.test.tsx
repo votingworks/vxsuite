@@ -105,13 +105,13 @@ test('MarkScanReadinessReport', () => {
   expectDiagnosticResult(
     expect,
     screen,
-    DiagnosticSectionTitle.HeadphoneInput,
+    DiagnosticSectionTitle.FrontHeadphoneInput,
     true
   );
   expectDiagnosticResult(
     expect,
     screen,
-    DiagnosticSectionTitle.HeadphoneInput,
+    DiagnosticSectionTitle.FrontHeadphoneInput,
     true
   );
   expectDiagnosticResult(expect, screen, DiagnosticSectionTitle.Ups, true);

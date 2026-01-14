@@ -40,6 +40,6 @@ export function expectDiagnosticResult(
     expect,
     screen,
     headerText,
-    passed ? /Test passed/ : /Test failed/
+    passed ? /test passed/ : /test failed/
   );
 }

@@ -13,76 +13,82 @@ import {
 import { ReportContents } from './components';
 import { DiagnosticSectionTitle } from './types';
 import { StorageSection, StorageSectionProps } from './storage_section';
+import {
+  UninterruptiblePowerSupplySection,
+  UpsSectionProps,
+} from './uninterruptible_power_supply_section';
+import { PrinterSection, PrinterSectionProps } from './printer_section';
 
 type NonpresentationalSectionProps = Omit<
   MarkScanDeviceDiagnosticSectionProps,
   'diagnosticType' | 'title'
 >;
 
-type HeadphoneInputSectionProps = Omit<
+type AudioDeviceInputProps = Omit<
   NonpresentationalSectionProps,
   'isDeviceConnected'
 >;
 
-type UpsSectionProps = Omit<NonpresentationalSectionProps, 'isDeviceConnected'>;
+interface ReportContentsProps
+  extends ConfigurationSectionProps,
+    StorageSectionProps,
+    PrinterSectionProps,
+    UpsSectionProps {
+  accessibleControllerProps: NonpresentationalSectionProps;
+  patInputProps: NonpresentationalSectionProps;
+  barcodeReaderProps: NonpresentationalSectionProps;
+  headphoneInputProps: AudioDeviceInputProps;
+  systemAudioProps: AudioDeviceInputProps;
+}
 
-type ReportContentsProps = ConfigurationSectionProps &
-  StorageSectionProps & {
-    accessibleControllerProps: NonpresentationalSectionProps;
-    paperHandlerProps: NonpresentationalSectionProps;
-    patInputProps: NonpresentationalSectionProps;
-    headphoneInputProps: HeadphoneInputSectionProps;
-    upsProps: UpsSectionProps;
-  };
-
-export function MarkScanReadinessReportContents(
+export function MarkReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
   const {
     accessibleControllerProps,
-    headphoneInputProps,
-    paperHandlerProps,
     patInputProps,
-    upsProps,
+    barcodeReaderProps,
+    headphoneInputProps,
+    systemAudioProps,
   } = props;
   return (
     <ReportContents>
-      <ConfigurationSection {...props} expectPrecinctSelection />
+      <ConfigurationSection {...props} />
       <StorageSection {...props} />
+      <PrinterSection {...props} />
       <MarkScanDeviceDiagnosticSection
         {...accessibleControllerProps}
-        diagnosticType="mark-scan-accessible-controller"
+        diagnosticType="mark-accessible-controller"
         title={DiagnosticSectionTitle.AccessibleController}
       />
       <MarkScanDeviceDiagnosticSection
-        {...paperHandlerProps}
-        diagnosticType="mark-scan-paper-handler"
-        title={DiagnosticSectionTitle.PaperHandler}
-      />
-      <MarkScanDeviceDiagnosticSection
         {...patInputProps}
-        diagnosticType="mark-scan-pat-input"
+        diagnosticType="mark-pat-input"
         title={DiagnosticSectionTitle.PatInput}
         connectedText="Available"
         notConnectedText="Not available"
       />
       <MarkScanDeviceDiagnosticSection
-        {...headphoneInputProps}
-        diagnosticType="mark-scan-headphone-input"
-        title={DiagnosticSectionTitle.FrontHeadphoneInput}
+        {...barcodeReaderProps}
+        diagnosticType="mark-barcode-reader"
+        title={DiagnosticSectionTitle.BarcodeReader}
       />
       <MarkScanDeviceDiagnosticSection
-        {...upsProps}
-        diagnosticType="uninterruptible-power-supply"
-        title={DiagnosticSectionTitle.Ups}
-        connectedText="Fully charged"
-        notConnectedText="Not fully charged"
+        {...headphoneInputProps}
+        diagnosticType="mark-headphone-input"
+        title={DiagnosticSectionTitle.HeadphoneInput}
       />
+      <MarkScanDeviceDiagnosticSection
+        {...systemAudioProps}
+        diagnosticType="mark-system-audio"
+        title={DiagnosticSectionTitle.SystemAudio}
+      />
+      <UninterruptiblePowerSupplySection {...props} />
     </ReportContents>
   );
 }
 
-export function MarkScanReadinessReport({
+export function MarkReadinessReport({
   generatedAtTime,
   machineId,
   ...contentProps
@@ -100,11 +106,11 @@ export function MarkScanReadinessReport({
     >
       <PrintedReport>
         <ReadinessReportHeader
-          reportType="VxMarkScan"
+          reportType="VxMark"
           generatedAtTime={generatedAtTime}
           machineId={machineId}
         />
-        <MarkScanReadinessReportContents {...contentProps} />
+        <MarkReadinessReportContents {...contentProps} />
       </PrintedReport>
     </ThemeProvider>
   );

@@ -1,6 +1,10 @@
 import { ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'node:path';
 import { BaseLogger } from '@votingworks/logging';
+import {
+  getDiskSpaceSummary as baseGetDiskSpaceSummary,
+  DiskSpaceSummary,
+} from '@votingworks/backend';
 import { Store } from '../store';
 
 export interface Workspace {
@@ -19,6 +23,11 @@ export interface Workspace {
    * as deleting the workspace and recreating it.
    */
   reset(): void;
+
+  /**
+   * Gets a summary of disk space usage.
+   */
+  getDiskSpaceSummary(): Promise<DiskSpaceSummary>;
 }
 
 export function createWorkspace(
@@ -38,5 +47,6 @@ export function createWorkspace(
     reset() {
       store.reset();
     },
+    getDiskSpaceSummary: () => baseGetDiskSpaceSummary([resolvedRoot]),
   };
 }

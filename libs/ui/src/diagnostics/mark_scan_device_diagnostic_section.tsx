@@ -55,7 +55,7 @@ export function MarkScanDeviceDiagnosticSection({
         </P>
       ) : mostRecentDiagnosticRecord.outcome === 'fail' ? (
         <P>
-          <WarningIcon /> Test failed,{' '}
+          <WarningIcon /> {title} test failed,{' '}
           {new Date(mostRecentDiagnosticRecord.timestamp).toLocaleString()}
           {mostRecentDiagnosticRecord.message
             ? ` — ${mostRecentDiagnosticRecord.message}`
@@ -63,7 +63,7 @@ export function MarkScanDeviceDiagnosticSection({
         </P>
       ) : (
         <P>
-          <SuccessIcon /> Test passed,{' '}
+          <SuccessIcon /> {title} test passed,{' '}
           {new Date(mostRecentDiagnosticRecord.timestamp).toLocaleString()}
         </P>
       )}
