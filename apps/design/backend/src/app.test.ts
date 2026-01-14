@@ -106,13 +106,7 @@ import {
   DuplicatePartyError,
 } from './store';
 import { join } from 'node:path';
-import {
-  defaultSystemSettings,
-  SLI_DEFAULT_SYSTEM_SETTINGS,
-  stateDefaultSystemSettings,
-  stateFeatureConfigs,
-  userFeatureConfigs,
-} from './features';
+import { stateFeatureConfigs, userFeatureConfigs } from './features';
 import { LogEventId } from '@votingworks/logging';
 import { buildApi } from './app';
 import { readdir, readFile } from 'node:fs/promises';
@@ -133,6 +127,10 @@ import {
   nonVxOrganizationUser,
   supportUser,
 } from '../test/mocks';
+import {
+  SLI_DEFAULT_SYSTEM_SETTINGS,
+  stateDefaultSystemSettings,
+} from './system_settings';
 
 vi.setConfig({
   testTimeout: 120_000,

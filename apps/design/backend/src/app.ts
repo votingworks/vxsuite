@@ -119,12 +119,12 @@ import {
   getStateFeaturesConfig,
   getUserFeaturesConfig,
   UserFeaturesConfig,
-  defaultSystemSettings,
 } from './features';
 import { rootDebug } from './debug';
 import * as ttsStrings from './tts_strings';
 import { convertMsElection } from './convert_ms_election';
 import { convertMsResults, ConvertMsResultsError } from './convert_ms_results';
+import { defaultSystemSettings } from './system_settings';
 
 const debug = rootDebug.extend('app');
 
