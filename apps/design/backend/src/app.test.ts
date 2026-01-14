@@ -4209,6 +4209,110 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
   await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
 });
 
+test.each<{
+  description: string;
+  ballotMeasureDescription: string;
+  isRenderSuccessful: boolean;
+}>([
+  {
+    description: 'Many short paragraphs',
+    ballotMeasureDescription: '<p>Text</p>'.repeat(50),
+    isRenderSuccessful: true,
+  },
+  {
+    description: 'One long paragraph',
+    ballotMeasureDescription: `<p>${'Text '.repeat(10000)}</p>`,
+    isRenderSuccessful: false,
+  },
+  {
+    description: 'One short paragraph followed by one long paragraph',
+    ballotMeasureDescription: `<p>Text</p><p>${'Text '.repeat(10000)}</p>`,
+    isRenderSuccessful: false,
+  },
+])(
+  'splitting long ballot measures across pages when using NH template - $description',
+  async ({ ballotMeasureDescription, isRenderSuccessful }) => {
+    const baseElectionDefinition =
+      electionFamousNames2021Fixtures.readElectionDefinition();
+    const election: Election = {
+      ...baseElectionDefinition.election,
+      contests: [
+        ...baseElectionDefinition.election.contests,
+        {
+          id: 'long-ballot-measure',
+          type: 'yesno',
+          title: 'Long Ballot Measure',
+          description: ballotMeasureDescription,
+          yesOption: { id: 'yes-option', label: 'Yes' },
+          noOption: { id: 'no-option', label: 'No' },
+          districtId: baseElectionDefinition.election.districts[0].id,
+        },
+      ],
+      signature: {
+        image: readFileSync('./test/mockSignature.svg').toString(),
+        caption: 'Caption',
+      },
+    };
+    const { apiClient, auth0 } = await setupApp({
+      organizations,
+      jurisdictions,
+      users,
+    });
+
+    auth0.setLoggedInUser(nonVxUser);
+    const electionId = (
+      await apiClient.loadElection({
+        newId: 'new-election-id' as ElectionId,
+        jurisdictionId: nhJurisdiction.id,
+        upload: {
+          format: 'vxf',
+          electionFileContents: JSON.stringify(election),
+        },
+      })
+    ).unsafeUnwrap();
+
+    // IDs are updated after loading into VxDesign so we can't refer to the original election
+    // definition IDs
+    const contests = await apiClient.listContests({ electionId });
+    const precincts = await apiClient.listPrecincts({ electionId });
+    const ballotStyles = await apiClient.listBallotStyles({ electionId });
+
+    const contest = assertDefined(
+      contests.find((c) => c.title === 'Long Ballot Measure')
+    );
+    const precinctId = assertDefined(
+      precincts.find(
+        (p) => 'districtIds' in p && p.districtIds.includes(contest.districtId)
+      )
+    ).id;
+    const ballotStyleId = assertDefined(
+      ballotStyles.find((bs) => bs.districts.includes(contest.districtId))
+    ).id;
+
+    const result = await apiClient.getBallotPreviewPdf({
+      electionId,
+      precinctId,
+      ballotStyleId,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    });
+
+    if (isRenderSuccessful) {
+      expect(result.isOk()).toEqual(true);
+      const { pdfData } = result.unsafeUnwrap();
+      await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
+    } else {
+      expect(result.isOk()).toEqual(false);
+      expect(result).toEqual(
+        err({
+          error: 'contestTooLong',
+          contest: expect.objectContaining({ id: contest.id }),
+        })
+      );
+    }
+  }
+);
+
 test('setBallotTemplate changes the ballot template used to render ballots', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
