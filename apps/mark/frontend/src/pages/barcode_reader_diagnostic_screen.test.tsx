@@ -60,7 +60,7 @@ test('clears last barcode scan on mount', async () => {
   await screen.findByRole('heading', { name: 'Barcode Reader Test' });
 });
 
-test('auto-passes test when barcode is detected', async () => {
+test('passes test when barcode is detected', async () => {
   apiMock.expectClearLastBarcodeScan();
   // Return a barcode scan with timestamp after test start
   apiMock.expectGetMostRecentBarcodeScan({
@@ -73,27 +73,12 @@ test('auto-passes test when barcode is detected', async () => {
   });
 
   renderScreen();
+  await screen.findByText('Barcode scan data received successfully.');
+  userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
   await waitFor(() => {
     expect(onComplete).toHaveBeenCalledTimes(1);
   });
-});
-
-test('shows barcode detected message when scan occurs', async () => {
-  apiMock.expectClearLastBarcodeScan();
-  apiMock.expectGetMostRecentBarcodeScan({
-    data: 'test-barcode-data',
-    timestamp: new Date('2022-03-23T11:23:01.000'),
-  });
-  apiMock.expectAddDiagnosticRecord({
-    type: 'mark-barcode-reader',
-    outcome: 'pass',
-  });
-
-  renderScreen();
-
-  await screen.findByText('Barcode detected!');
-  await screen.findByText('Test passed.');
 });
 
 test('user marks barcode reader as not working - fails test', async () => {
