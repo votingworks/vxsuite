@@ -519,8 +519,16 @@ export class LocalStore extends Store {
     const events = convertDbRowsToPollbookEvents(eventRows);
     const updatedVoters = applyPollbookEventsToVoters(voters, events);
 
+    // Filter out any new registration voters that have been marked invalid.
+    const validVoters = Object.fromEntries(
+      Object.entries(updatedVoters).filter(
+        ([, voter]) =>
+          !voter.registrationEvent || !voter.isInvalidatedRegistration
+      )
+    );
+
     return sortedByVoterNameAndMatchingPrecinct(
-      Object.values(updatedVoters),
+      Object.values(validVoters),
       configuredPrecinctId
     );
   }
