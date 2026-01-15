@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { images } from '@votingworks/ui';
 import { ImageInput, ImageInputProps } from './image_input';
+import { NormalizeParams } from './image_normalization';
 
 const StyledImageInput = styled(ImageInput)`
   img {
@@ -27,7 +27,7 @@ const MIN_SEAL_SIZE_PX =
 const MAX_SEAL_SIZE_PX =
   VXMARK_MAX_SEAL_DISPLAY_SIZE_REM * VXMARK_MAX_FONT_SIZE_PX;
 
-const NORMALIZE_PARAMS: Readonly<images.NormalizeParams> = {
+const NORMALIZE_PARAMS: Readonly<NormalizeParams> = {
   maxHeightPx: MAX_SEAL_SIZE_PX,
   maxWidthPx: MAX_SEAL_SIZE_PX,
   minHeightPx: MIN_SEAL_SIZE_PX,

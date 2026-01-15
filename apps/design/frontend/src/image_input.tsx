@@ -6,7 +6,6 @@ import {
   Callout,
   FileInputButton,
   FileInputButtonProps,
-  images,
 } from '@votingworks/ui';
 import {
   assert,
@@ -16,6 +15,12 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import React, { useEffect, useRef, useState } from 'react';
+import {
+  NormalizedImage,
+  NormalizeError,
+  normalizeFile,
+  NormalizeParams,
+} from './image_normalization';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 
@@ -99,7 +104,7 @@ interface SvgImageWithMetadata {
   height: number;
 }
 
-function bitmapImageToSvg(img: images.NormalizedImage): SvgImageWithMetadata {
+function bitmapImageToSvg(img: NormalizedImage): SvgImageWithMetadata {
   const { dataUrl: imageDataUrl, heightPx: height, widthPx: width } = img;
 
   return {
@@ -111,13 +116,13 @@ function bitmapImageToSvg(img: images.NormalizedImage): SvgImageWithMetadata {
   };
 }
 
-type NormalizeToSvgResult = Result<SvgImageWithMetadata, images.NormalizeError>;
+type NormalizeToSvgResult = Result<SvgImageWithMetadata, NormalizeError>;
 
 async function normalizeToSvg(
   file: File,
-  params: images.NormalizeParams
+  params: NormalizeParams
 ): Promise<NormalizeToSvgResult> {
-  const normalizeResult = await images.normalizeFile(file, params);
+  const normalizeResult = await normalizeFile(file, params);
   if (normalizeResult.isErr()) {
     return normalizeResult;
   }
@@ -130,7 +135,7 @@ interface ImageInputButtonProps
   onChange: (svgImage: string) => void;
   onError: (error: Error) => void;
   required?: boolean;
-  normalizeParams: images.NormalizeParams;
+  normalizeParams: NormalizeParams;
 }
 
 export function ImageInputButton({
@@ -231,7 +236,7 @@ export interface ImageInputProps {
   disabled?: boolean;
   className?: string;
   required?: boolean;
-  normalizeParams: images.NormalizeParams;
+  normalizeParams: NormalizeParams;
 }
 
 export function ImageInput({
