@@ -14,7 +14,6 @@ import {
   Id,
   Iso8601Timestamp,
   Election,
-  DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
   safeParseSystemSettings,
   ElectionSerializationFormat,
@@ -1272,13 +1271,13 @@ export class Store {
     jurisdictionId,
     election,
     ballotTemplateId,
-    systemSettings = DEFAULT_SYSTEM_SETTINGS,
+    systemSettings,
     externalSource,
   }: {
     jurisdictionId: string;
     election: Election;
     ballotTemplateId: BallotTemplateId;
-    systemSettings?: SystemSettings;
+    systemSettings: SystemSettings;
     externalSource?: ExternalElectionSource;
   }): Promise<void> {
     await this.db.withClient((client) =>

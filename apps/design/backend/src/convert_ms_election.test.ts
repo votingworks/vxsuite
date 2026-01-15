@@ -6,6 +6,7 @@ import { TestStore } from '../test/test_store';
 import { Jurisdiction } from './types';
 import { readFixture } from '../test/helpers';
 import { vxOrganization } from '../test/mocks';
+import { defaultSystemSettings } from './system_settings';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
@@ -32,6 +33,7 @@ async function expectValidElection(election: Election) {
     jurisdictionId: jurisdiction.id,
     election,
     ballotTemplateId: 'VxDefaultBallot',
+    systemSettings: defaultSystemSettings(jurisdiction),
   });
   expect(
     safeParseElection((await store.getElection(election.id)).election).err()
