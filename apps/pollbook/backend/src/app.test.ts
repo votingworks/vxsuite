@@ -1375,6 +1375,179 @@ test('voter search results prioritize voters from configured precinct', async ()
   });
 });
 
+test('invalidate a voter registration', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      mockStreetNames,
+      []
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    // Register a voter
+    const registrationData: VoterRegistrationRequest = {
+      firstName: 'Helena',
+      lastName: 'Eagen',
+      middleName: 'A',
+      suffix: '',
+      streetNumber: '15',
+      streetName: 'MAIN ST',
+      streetSuffix: '',
+      apartmentUnitNumber: '',
+      houseFractionNumber: '',
+      addressLine2: '',
+      addressLine3: '',
+      city: 'Manchester',
+      state: 'NH',
+      zipCode: '03101',
+      party: 'REP',
+      precinct: currentPrecinctId,
+    };
+
+    const registerResult = await localApiClient.registerVoter({
+      registrationData,
+      overrideNameMatchWarning: false,
+    });
+    const registerOk = registerResult.unsafeUnwrap();
+    expect(registerOk).toMatchObject({
+      firstName: 'Helena',
+      lastName: 'Eagen',
+    });
+
+    // Invalidate the registration
+    const invalidateResult = await localApiClient.invalidateRegistration({
+      voterId: registerOk.voterId,
+    });
+    expect(invalidateResult.ok()).toEqual(undefined);
+
+    // Verify receipt was printed
+    const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
+    expect(receiptPdfPath).toBeDefined();
+    await expect(receiptPdfPath).toMatchPdfSnapshot();
+
+    // Verify the voter is now marked as invalidated
+    const voter = await localApiClient.getVoter({
+      voterId: registerOk.voterId,
+    });
+    expect(voter.isInvalidatedRegistration).toEqual(true);
+
+    // Cannot invalidate a voter that is not a registration - throws since the voter doesn't exist
+    await suppressingConsoleOutput(async () => {
+      await expect(
+        localApiClient.invalidateRegistration({ voterId: 'abigail1' })
+      ).rejects.toThrow();
+    });
+  });
+});
+
+test('cannot invalidate a voter that has already checked in', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      mockStreetNames,
+      []
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    // Register a voter
+    const registrationData: VoterRegistrationRequest = {
+      firstName: 'Helena',
+      lastName: 'Eagen',
+      middleName: 'A',
+      suffix: '',
+      streetNumber: '15',
+      streetName: 'MAIN ST',
+      streetSuffix: '',
+      apartmentUnitNumber: '',
+      houseFractionNumber: '',
+      addressLine2: '',
+      addressLine3: '',
+      city: 'Manchester',
+      state: 'NH',
+      zipCode: '03101',
+      party: 'REP',
+      precinct: currentPrecinctId,
+    };
+
+    const registerResult = await localApiClient.registerVoter({
+      registrationData,
+      overrideNameMatchWarning: false,
+    });
+    const registerOk = registerResult.unsafeUnwrap();
+
+    // Check in the registered voter
+    const checkInResult = await localApiClient.checkInVoter({
+      voterId: registerOk.voterId,
+      identificationMethod: { type: 'default' },
+      ballotParty: 'NOT_APPLICABLE',
+    });
+    expect(checkInResult.ok()).toEqual(undefined);
+
+    // Try to invalidate - should fail because voter is checked in
+    const invalidateResult = await localApiClient.invalidateRegistration({
+      voterId: registerOk.voterId,
+    });
+    expect(invalidateResult.err()).toEqual('voter_checked_in');
+  });
+});
+
+test('register a voter - duplicate name check excludes invalidated registrations', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      mockStreetNames,
+      []
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    const registrationData: VoterRegistrationRequest = {
+      firstName: 'Helena',
+      lastName: 'Eagen',
+      middleName: 'A',
+      suffix: '',
+      streetNumber: '15',
+      streetName: 'MAIN ST',
+      streetSuffix: '',
+      apartmentUnitNumber: '',
+      houseFractionNumber: '',
+      addressLine2: '',
+      addressLine3: '',
+      city: 'Manchester',
+      state: 'NH',
+      zipCode: '03101',
+      party: 'REP',
+      precinct: currentPrecinctId,
+    };
+
+    // Register first voter
+    const registerResult1 = await localApiClient.registerVoter({
+      registrationData,
+      overrideNameMatchWarning: false,
+    });
+    const registerOk1 = registerResult1.unsafeUnwrap();
+
+    // Invalidate the registration
+    const invalidateResult = await localApiClient.invalidateRegistration({
+      voterId: registerOk1.voterId,
+    });
+    expect(invalidateResult.ok()).toEqual(undefined);
+
+    // Now try to register another voter with the same name - should NOT be flagged as duplicate
+    const registerResult2 = await localApiClient.registerVoter({
+      registrationData: { ...registrationData, streetNumber: '17' },
+      overrideNameMatchWarning: false,
+    });
+    // Should succeed without duplicate warning since the first registration was invalidated
+    expect(registerResult2.ok()).toMatchObject({
+      firstName: 'Helena',
+      lastName: 'Eagen',
+    });
+  });
+});
+
 test('voter search results consider address changes for precinct prioritization', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     // Set up election with voters from different precincts
