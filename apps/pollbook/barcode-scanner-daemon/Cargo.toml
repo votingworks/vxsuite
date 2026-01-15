@@ -6,7 +6,7 @@ license.workspace = true
 
 [[bin]]
 name = "barcodescannerd"
-path = "src/unitech_ts100_daemon.rs"
+path = "src/cino_s680_daemon.rs"
 
 [dependencies]
 chrono = { workspace = true, features = ["serde"] }

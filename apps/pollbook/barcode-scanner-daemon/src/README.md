@@ -1,4 +1,4 @@
-# Unitech TS100 Barcode Scanner Daemon
+# Cino Fuzzyscan S680 Barcode Scanner Daemon
 
 ## Usage
 
@@ -10,27 +10,12 @@ make build
 make run
 ```
 
-## Device Configuration
-
-USB COM Port Emulation must be enabled on the device. You can enable it by
-scanning the barcode under "2.7 USB COM Port Emulation" in the
-[TS100 User Manual](https://www.ute.com/en/products/detail/TS100) v1.8.
-
 ## Permission Configuration
 
-Add these `udev` rules to `/etc/udev/rules`. These will give the `plugdev` and
-`dialout` groups access to the barcode scanner device.
-
 ```
-# /etc/udev/rules.d/70-plugdev-usb.rules
-# Needed for `nusb` crate to access device.
-SUBSYSTEM=="usb", MODE="0660", GROUP="plugdev", ATTRS{idVendor}=="2745", ATTRS{idProduct}=="300a"
-```
-
-```
-# /etc/udev/rules.d/99-ts100-barcode-scanner.rules
+# /etc/udev/rules.d/98-cino-s680-barcode-scanner.rules
 # Creates a stable address for the serialport device at `/dev/barcode_scanner`. Needed for `serialport` crate to access device.
-SUBSYSTEM=="tty", ACTION=="add", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="2745", ATTRS{idProduct}=="300a", MODE="0660", GROUP="dialout", SYMLINK+="barcode_scanner"
+SUBSYSTEM=="tty", ACTION=="add", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="1fbb", ATTRS{idProduct}=="3850", MODE="0660", GROUP="dialout", SYMLINK+="barcode_scanner"
 ```
 
 Apply the `udev` rules:
