@@ -216,7 +216,7 @@ function ConfirmInvalidateRegistrationModal({
   return (
     <Modal
       title={<React.Fragment>Mark Registration Invalid</React.Fragment>}
-      content="This voter’s information will be permanently deleted and removed from all related counts."
+      content="This voter's registration will be marked invalid and excluded from all counts. You will no longer be able to check in a voter using this record."
       actions={
         <React.Fragment>
           <Button

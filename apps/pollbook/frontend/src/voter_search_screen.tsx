@@ -385,12 +385,13 @@ export function VoterSearch({
                             <td style={inactiveStyle ? { opacity: 0.5 } : {}}>
                               {voter.isInvalidatedRegistration && (
                                 <Caption>
-                                  <Icons.Delete /> Invalid Registration
+                                  <Icons.Delete /> Registration Marked as
+                                  Invalid
                                 </Caption>
                               )}
                               {voter.isInactive && (
                                 <Caption>
-                                  <Icons.Delete /> Inactive Voter
+                                  <Icons.Delete /> Voter Marked as Inactive
                                 </Caption>
                               )}
                               {voter.nameChange && (

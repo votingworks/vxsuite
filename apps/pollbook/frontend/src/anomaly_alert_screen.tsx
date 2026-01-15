@@ -98,16 +98,18 @@ export function AnomalyAlertScreen({
         return (
           <React.Fragment>
             <P>
+              A check in was detected for a voter registration that has been
+              marked as invalid.
+            </P>
+            <P>
               <strong>Voter ID:</strong> {details.voterId}
             </P>
             <P>
               <strong>Voter Name:</strong> {voterName}
             </P>
             <P>
-              A check-in was recorded for a voter registration that was
-              previously marked as invalid. This may indicate a synchronization
-              issue across poll books. The check-in has been counted, but this
-              situation requires review.
+              The check in will be counted. An election manager should undo the
+              check in if this was done in error.
             </P>
             <Table style={{ margin: '1em 0' }}>
               <thead>
