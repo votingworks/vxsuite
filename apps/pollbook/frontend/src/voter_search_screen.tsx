@@ -369,8 +369,9 @@ export function VoterSearch({
                   <VoterTable>
                     <tbody>
                       {filteredVoters.map((voter) => {
-                        const isInvalidated = voter.isInvalidatedRegistration;
-                        const invalidatedStyle = isInvalidated
+                        const inactiveStyle =
+                          voter.isInactive || voter.isInvalidatedRegistration;
+                        const invalidatedStyle = inactiveStyle
                           ? {
                               opacity: 0.5,
                               textDecoration: 'line-through' as const,
@@ -381,10 +382,15 @@ export function VoterSearch({
                             key={voter.voterId}
                             data-testid={`voter-row#${voter.voterId}`}
                           >
-                            <td style={isInvalidated ? { opacity: 0.5 } : {}}>
+                            <td style={inactiveStyle ? { opacity: 0.5 } : {}}>
                               {voter.isInvalidatedRegistration && (
                                 <Caption>
                                   <Icons.Delete /> Invalid Registration
+                                </Caption>
+                              )}
+                              {voter.isInactive && (
+                                <Caption>
+                                  <Icons.Delete /> Inactive Voter
                                 </Caption>
                               )}
                               {voter.nameChange && (
@@ -406,7 +412,7 @@ export function VoterSearch({
                                 )}
                               </span>
                             </td>
-                            <td style={isInvalidated ? { opacity: 0.5 } : {}}>
+                            <td style={inactiveStyle ? { opacity: 0.5 } : {}}>
                               {voter.addressChange ? (
                                 <LabelledText label="Updated Address">
                                   <AddressChange
