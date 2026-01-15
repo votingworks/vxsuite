@@ -275,7 +275,7 @@ describe('PollWorkerScreen', () => {
     await vi.waitFor(() => screen.getByText('Voter Check-In'));
 
     const mockAamvaDocument = getMockAamvaDocument();
-    const mockSearchParams = getMockExactSearchParams();
+    const mockSearchParams = getMockExactSearchParams({ ignoreSuffix: true });
 
     const mockVoter: Voter = {
       ...createMockVoter(
@@ -346,7 +346,7 @@ describe('PollWorkerScreen', () => {
       const mockAamvaDocument = getMockAamvaDocument({
         issuingJurisdiction: usState,
       });
-      const mockSearchParams = getMockExactSearchParams();
+      const mockSearchParams = getMockExactSearchParams({ ignoreSuffix: true });
 
       const mockVoter: Voter = {
         ...createMockVoter(

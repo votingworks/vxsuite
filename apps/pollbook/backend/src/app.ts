@@ -520,7 +520,11 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         'Precinct must be configured to register voter'
       );
       if (!input.overrideNameMatchWarning) {
-        const matchingVoters = store.findVotersWithName(input.registrationData);
+        const searchParams: VoterSearchParams = {
+          ...input.registrationData,
+          ignoreSuffix: true,
+        };
+        const matchingVoters = store.findVotersWithName(searchParams);
         if (matchingVoters.length > 0) {
           return err({
             type: 'duplicate-voter',

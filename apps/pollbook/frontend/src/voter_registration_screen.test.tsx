@@ -146,7 +146,7 @@ test('shows duplicate name modal and allows override', async () => {
   userEvent.click(screen.getByTestId('add-voter-btn'));
   await screen.findByText('Duplicate Name Detected');
   screen.getByText(
-    /There is already a voter with the name JANE SMITH in North Lincoln/
+    /There is already a voter with the name Jane Smith in North Lincoln/
   );
 
   // Simulate override
@@ -199,7 +199,7 @@ test('shows duplicate name modal and allows override - single precinct election'
   userEvent.click(screen.getByTestId('add-voter-btn'));
   await screen.findByText('Duplicate Name Detected');
   screen.getByText(
-    /There is already a voter with the name JANE SMITH. Please confirm this is not a duplicate registration./
+    /There is already a voter with the name Jane Smith. Please confirm this is not a duplicate registration./
   );
 
   // Simulate override
@@ -243,7 +243,7 @@ test('shows duplicate name modal and allows override - many matches include prec
   userEvent.click(screen.getButton('Add Voter'));
   await screen.findByText('Duplicate Name Detected');
   screen.getByText(
-    /There is already a voter with the name JANE SMITH in North Lincoln/
+    /There is already a voter with the name Jane Smith in North Lincoln/
   );
 
   // Simulate override
@@ -282,7 +282,7 @@ test('shows duplicate name modal and allows override - one match out of precinct
   userEvent.click(screen.getButton('Add Voter'));
   await screen.findByText('Duplicate Name Detected');
   screen.getByText(
-    /There is already a voter with the name JANE SMITH in South Lincoln/
+    /There is already a voter with the name Jane Smith in South Lincoln/
   );
 
   // Simulate override

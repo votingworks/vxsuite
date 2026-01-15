@@ -32,6 +32,13 @@ let apiMock: ApiMock;
 let unmount: () => void;
 const election = electionSimpleSinglePrecinctFixtures.readElection();
 
+function getModifiedSearchParams(params: VoterSearchParams): VoterSearchParams {
+  return {
+    ...params,
+    ignoreSuffix: true,
+  };
+}
+
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   apiMock = createApiMock();
@@ -54,7 +61,7 @@ test('shows a message when no voters are matched', async () => {
 
   const result = renderInAppContext(
     <VoterSearch
-      search={createEmptySearchParams(false)}
+      search={createEmptySearchParams({ strictMatch: false })}
       setSearch={vi.fn()}
       // Function to call when exactly one voter is matched by scanning an ID
       onBarcodeScanMatch={vi.fn()}
@@ -78,7 +85,7 @@ test('shows a message when the barcode scanner client reports an unknown documen
 
   const result = renderInAppContext(
     <VoterSearch
-      search={createEmptySearchParams(false)}
+      search={createEmptySearchParams({ strictMatch: false })}
       setSearch={vi.fn()}
       onBarcodeScanMatch={vi.fn()}
       renderAction={() => null}
@@ -106,7 +113,7 @@ test('shows a message when the barcode scanner client reports an unknown documen
 
 test('after an ID scan with "hidden" fields, shows full name and "Edit Search" button', async () => {
   const mockDocument = getMockAamvaDocument();
-  const mockSearchParams = getMockExactSearchParams();
+  const mockSearchParams = getMockExactSearchParams({ ignoreSuffix: true });
   // Voter who exactly matches the scanned ID
   const mockVoter: Voter = {
     ...createMockVoter(
@@ -170,7 +177,7 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
   apiMock.expectGetScannedIdDocument();
   apiMock.expectSearchVotersWithResults(
     {
-      ...createEmptySearchParams(false),
+      ...createEmptySearchParams({ strictMatch: false }),
       firstName: mockDocument.firstName,
       lastName: mockDocument.lastName,
     },
@@ -199,6 +206,7 @@ test('an ID scan with first and last name only can still render "Edit Search" bu
   const mockSearchParams = getMockExactSearchParams({
     middleName: '',
     suffix: '',
+    ignoreSuffix: true,
   });
   // Voters who exactly match first/last name of the scanned ID.
   const mockVoters: Voter[] = ['123', '456'].map((id) => ({
@@ -214,7 +222,10 @@ test('an ID scan with first and last name only can still render "Edit Search" bu
 
   // Mock out search that happens when an ID is scanned
   apiMock.expectGetScannedIdDocument(mockDocument);
-  apiMock.expectSearchVotersWithResults(mockSearchParams, mockVoters);
+  apiMock.expectSearchVotersWithResults(
+    getModifiedSearchParams(mockSearchParams),
+    mockVoters
+  );
 
   const result = renderInAppContext(
     <VoterSearch
@@ -249,7 +260,9 @@ test('closes the error modal if a valid ID is scanned', async () => {
   const setSearchSpy = vi.fn();
   const result = renderInAppContext(
     <VoterSearch
-      search={createEmptySearchParams(false)}
+      search={createEmptySearchParams({
+        strictMatch: false,
+      })}
       setSearch={setSearchSpy}
       onBarcodeScanMatch={vi.fn()}
       renderAction={() => null}
@@ -281,6 +294,7 @@ test('closes the error modal if a valid ID is scanned', async () => {
     lastName: document.lastName,
     suffix: document.nameSuffix,
     strictMatch: true,
+    ignoreSuffix: true,
   };
   const mockVoter: Voter = {
     ...createMockVoter('123', document.firstName, document.lastName),
@@ -290,9 +304,11 @@ test('closes the error modal if a valid ID is scanned', async () => {
 
   apiMock.expectGetScannedIdDocument(document);
 
-  apiMock.expectSearchVotersWithResultsToChangeFromEmpty({}, searchParams, [
-    mockVoter,
-  ]);
+  apiMock.expectSearchVotersWithResultsToChangeFromEmpty(
+    {},
+    getModifiedSearchParams(searchParams),
+    [mockVoter]
+  );
   await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
 
   // Recommended pattern to check for element absence per github.com/vitest-dev/vitest/discussions/6560
@@ -310,7 +326,7 @@ test('closes the error modal if a valid ID is scanned', async () => {
 
 test('onBarcodeScanMatch is called when exactly one voter matches', async () => {
   const mockDocument = getMockAamvaDocument();
-  const mockSearchParams = getMockExactSearchParams();
+  const mockSearchParams = getMockExactSearchParams({ ignoreSuffix: true });
   const mockVoter: Voter = {
     ...createMockVoter(
       '123',
@@ -324,7 +340,10 @@ test('onBarcodeScanMatch is called when exactly one voter matches', async () => 
 
   // Mock out search that happens when an ID is scanned
   apiMock.expectGetScannedIdDocument(mockDocument);
-  apiMock.expectSearchVotersWithResults(mockSearchParams, [mockVoter]);
+  apiMock.expectSearchVotersWithResults(
+    getModifiedSearchParams(mockSearchParams),
+    [mockVoter]
+  );
 
   const onBarcodeScanMatch = vi.fn();
   const renderAction = vi.fn();
@@ -354,7 +373,7 @@ test('onBarcodeScanMatch is called when exactly one voter matches', async () => 
 
 test('onBarcodeScanMatch not called if more than 1 voter matches', async () => {
   const mockDocument = getMockAamvaDocument();
-  const mockSearchParams = getMockExactSearchParams();
+  const mockSearchParams = getMockExactSearchParams({ ignoreSuffix: true });
   const mockVoters = ['123', '456'].map((voterId) => ({
     ...createMockVoter(
       voterId,
@@ -368,7 +387,10 @@ test('onBarcodeScanMatch not called if more than 1 voter matches', async () => {
 
   // Mock out search that happens when an ID is scanned
   apiMock.expectGetScannedIdDocument(mockDocument);
-  apiMock.expectSearchVotersWithResults(mockSearchParams, mockVoters);
+  apiMock.expectSearchVotersWithResults(
+    getModifiedSearchParams(mockSearchParams),
+    mockVoters
+  );
 
   const onBarcodeScanMatch = vi.fn();
   const renderAction = vi.fn();

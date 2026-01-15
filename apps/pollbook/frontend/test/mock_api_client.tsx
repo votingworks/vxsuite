@@ -91,6 +91,7 @@ function getDefaultExpectedVoterSearchParams(
     lastName: input.lastName || '',
     suffix: input.suffix || '',
     strictMatch: input.strictMatch || false,
+    ignoreSuffix: input.ignoreSuffix || false,
   };
 }
 
