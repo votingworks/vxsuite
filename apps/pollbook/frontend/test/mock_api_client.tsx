@@ -501,6 +501,27 @@ export function createApiMock() {
         .resolves(err('voter_checked_in'));
     },
 
+    expectInvalidateRegistration(voter: Voter) {
+      mockApiClient.invalidateRegistration.reset();
+      mockApiClient.invalidateRegistration
+        .expectCallWith({
+          voterId: voter.voterId,
+        })
+        .resolves(ok());
+    },
+
+    expectInvalidateRegistrationError(
+      voter: Voter,
+      errorType: 'voter_checked_in' | 'not_a_registration'
+    ) {
+      mockApiClient.invalidateRegistration.reset();
+      mockApiClient.invalidateRegistration
+        .expectCallWith({
+          voterId: voter.voterId,
+        })
+        .resolves(err(errorType));
+    },
+
     expectGetValidStreetInfo(streetInfo: ValidStreetInfo[]) {
       mockApiClient.getValidStreetInfo.reset();
       mockApiClient.getValidStreetInfo

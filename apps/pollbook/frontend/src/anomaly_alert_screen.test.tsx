@@ -161,3 +161,85 @@ test('displays instructional message about duplicate check-ins', async () => {
     screen.getByText(/Only one check-in for this voter will count/)
   ).toBeInTheDocument();
 });
+
+test('renders InvalidRegistrationCheckIn anomaly correctly', async () => {
+  const mockVoter = createMockVoter('voter-invalid', 'Invalid', 'Registration');
+  const anomaly: Anomaly = {
+    anomalyId: 2,
+    anomalyType: 'InvalidRegistrationCheckIn',
+    detectedAt: new Date('2025-01-01T10:00:00Z'),
+    anomalyDetails: {
+      voterId: 'voter-invalid',
+      voter: mockVoter,
+      checkInEvents: [
+        {
+          machineId: 'machine-1',
+          timestamp: '2025-01-01T09:30:00Z',
+        },
+      ],
+    },
+    dismissed: false,
+  };
+
+  const result = renderInAppContext(<AnomalyAlertScreen anomaly={anomaly} />, {
+    apiMock,
+  });
+  unmount = result.unmount;
+
+  // Check title is displayed
+  await screen.findByText('Check-In for Invalid Registration');
+
+  // Check voter details are displayed
+  expect(screen.getByText('voter-invalid')).toBeInTheDocument();
+  expect(screen.getByText('Invalid Registration')).toBeInTheDocument();
+
+  // Check the instructional message is displayed
+  expect(
+    screen.getByText(
+      /A check in was detected for a voter registration that has been marked as invalid/
+    )
+  ).toBeInTheDocument();
+  expect(screen.getByText(/The check in will be counted/)).toBeInTheDocument();
+
+  // Check machine ID is displayed in the table
+  expect(screen.getByText('machine-1')).toBeInTheDocument();
+});
+
+test('clicking Dismiss button dismisses InvalidRegistrationCheckIn anomaly', async () => {
+  const mockVoter = createMockVoter('voter-invalid', 'Invalid', 'Registration');
+  const anomaly: Anomaly = {
+    anomalyId: 3,
+    anomalyType: 'InvalidRegistrationCheckIn',
+    detectedAt: new Date('2025-01-01T10:00:00Z'),
+    anomalyDetails: {
+      voterId: 'voter-invalid',
+      voter: mockVoter,
+      checkInEvents: [
+        {
+          machineId: 'machine-1',
+          timestamp: '2025-01-01T09:30:00Z',
+        },
+      ],
+    },
+    dismissed: false,
+  };
+
+  apiMock.expectDismissAnomaly(anomaly.anomalyId);
+
+  const result = renderInAppContext(<AnomalyAlertScreen anomaly={anomaly} />, {
+    apiMock,
+  });
+  unmount = result.unmount;
+
+  await screen.findByText('Check-In for Invalid Registration');
+
+  const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
+  expect(dismissButton).toBeInTheDocument();
+
+  userEvent.click(dismissButton);
+
+  // Wait for the mutation to be called
+  await waitFor(() => {
+    apiMock.mockApiClient.assertComplete();
+  });
+});

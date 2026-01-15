@@ -6,6 +6,7 @@ import {
   VoterAddressChangeRequest,
   VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
+  VoterRegistrationRequest,
 } from '@votingworks/types';
 import { Route, Switch } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
@@ -28,6 +29,25 @@ let apiMock: ApiMock;
 let unmount: () => void;
 const mockVoterId = '123';
 let voter: Voter;
+
+const registrationData: VoterRegistrationRequest = {
+  streetNumber: '1000',
+  streetName: 'MAIN ST',
+  city: 'CITYVILLE',
+  state: 'NH',
+  zipCode: '12345',
+  lastName: 'LAST',
+  firstName: 'FIRST',
+  party: 'REP',
+  streetSuffix: '',
+  apartmentUnitNumber: '',
+  houseFractionNumber: '',
+  addressLine2: '',
+  addressLine3: '',
+  suffix: '',
+  middleName: '',
+  precinct: 'precinct-1',
+};
 
 async function renderComponent() {
   const renderResult = renderInAppContext(
@@ -548,6 +568,132 @@ describe('common functionality', () => {
     userEvent.click(confirmButton);
 
     await screen.findByText('Error Flagging Inactive');
+  });
+
+  test('mark registration invalid - happy path', async () => {
+    // Create a voter that is a same-day registration (has registrationEvent)
+    const registeredVoter: Voter = {
+      ...voter,
+      registrationEvent: {
+        ...registrationData,
+        voterId: mockVoterId,
+        timestamp: new Date().toISOString(),
+        precinct: 'precinct-1',
+        party: 'UND',
+      },
+    };
+    apiMock.expectGetVoter(registeredVoter);
+    apiMock.expectGetDeviceStatuses();
+
+    await renderComponent();
+
+    const markInvalidButton = screen.getButton('Mark Invalid');
+    userEvent.click(markInvalidButton);
+    await screen.findByText(/This voter's registration will be marked invalid/);
+
+    apiMock.expectInvalidateRegistration(registeredVoter);
+    apiMock.expectGetVoter({
+      ...registeredVoter,
+      isInvalidatedRegistration: true,
+    });
+
+    // Get the modal and find the button within it
+    const modal = screen.getByRole('alertdialog');
+    const confirmButton = within(modal).getByRole('button', {
+      name: 'Mark Invalid',
+    });
+    userEvent.click(confirmButton);
+
+    await screen.findByText('Registration Invalid');
+  });
+
+  test('mark registration invalid - error (voter already checked in)', async () => {
+    // Create a voter that is a same-day registration (has registrationEvent)
+    const registeredVoter: Voter = {
+      ...voter,
+      registrationEvent: {
+        ...registrationData,
+        voterId: mockVoterId,
+        timestamp: new Date().toISOString(),
+        precinct: 'precinct-1',
+        party: 'UND',
+      },
+    };
+    apiMock.expectGetVoter(registeredVoter);
+    apiMock.expectGetDeviceStatuses();
+
+    await renderComponent();
+
+    const markInvalidButton = screen.getButton('Mark Invalid');
+    userEvent.click(markInvalidButton);
+    await screen.findByText(/This voter's registration will be marked invalid/);
+
+    apiMock.expectInvalidateRegistrationError(
+      registeredVoter,
+      'voter_checked_in'
+    );
+    apiMock.expectGetVoter(registeredVoter);
+
+    // Get the modal and find the button within it
+    const modal = screen.getByRole('alertdialog');
+    const confirmButton = within(modal).getByRole('button', {
+      name: 'Mark Invalid',
+    });
+    userEvent.click(confirmButton);
+
+    await screen.findByText('Error Marking Invalid');
+    await screen.findByText(
+      'This voter is already checked in and cannot be marked as invalid.'
+    );
+  });
+
+  test('mark invalid button only appears for same-day registrations', async () => {
+    // Normal voter without registrationEvent should NOT show Mark Invalid button
+    apiMock.expectGetVoter(voter);
+    apiMock.expectGetDeviceStatuses();
+
+    await renderComponent();
+
+    // Should show Flag Voter as Inactive for normal voters
+    expect(
+      screen.queryByRole('button', { name: 'Flag Voter as Inactive' })
+    ).toBeInTheDocument();
+    // Should NOT show Mark Invalid for normal voters
+    expect(
+      screen.queryByRole('button', { name: 'Mark Invalid' })
+    ).not.toBeInTheDocument();
+  });
+
+  test('invalidated registration shows correct status', async () => {
+    // Create a voter that has been marked as invalid
+    const invalidatedVoter: Voter = {
+      ...voter,
+      isInvalidatedRegistration: true,
+      registrationEvent: {
+        ...registrationData,
+        voterId: mockVoterId,
+        timestamp: new Date().toISOString(),
+        precinct: 'precinct-1',
+        party: 'UND',
+      },
+    };
+    apiMock.expectGetVoter(invalidatedVoter);
+    apiMock.expectGetDeviceStatuses();
+
+    await renderComponent();
+
+    // Should show the invalidated status
+    await screen.findByText('Registration Invalid');
+
+    // Should NOT show the Mark Invalid button since already invalidated
+    expect(
+      screen.queryByRole('button', { name: 'Mark Invalid' })
+    ).not.toBeInTheDocument();
+
+    // Should NOT show Flag Voter as Inactive since it's invalidated
+    expect(
+      screen.queryByRole('button', { name: 'Flag Voter as Inactive' })
+    ).not.toBeInTheDocument();
   });
 
   test('actions are disabled when precinct not configured', async () => {
