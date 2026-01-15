@@ -807,13 +807,20 @@ async function splitLongBallotMeasureAcrossPages(
     contestElement,
     '.contestDescription > *'
   );
-  const contestFooterHeight = 30; // "Continues on next page" caption
-  const firstOverflowingChildIndex = childMeasurements.findIndex(
+  const continuesFooterHeight = 30; // "Continues on next page" caption
+  let firstOverflowingChildIndex = childMeasurements.findIndex(
     (child) =>
-      child.y - contestMeasurements.y + child.height + contestFooterHeight >=
+      child.y - contestMeasurements.y + child.height + continuesFooterHeight >=
       dimensions.height
   );
-  assert(firstOverflowingChildIndex !== -1, 'No overflowing child found');
+
+  // If no child explicitly overflows with the continues footer, it means the
+  // contest overflows due to the Yes/No options (which are larger than the
+  // continues footer). In this case, we split before the last child to be safe.
+  // This function is only called when the contest is known to be too long.
+  if (firstOverflowingChildIndex === -1) {
+    firstOverflowingChildIndex = childMeasurements.length - 1;
+  }
 
   // If a given child, e.g., paragraph, is itself too tall to fit on the page, we can't proceed and
   // need the user to try a longer paper size or higher density, or add a line break to their
