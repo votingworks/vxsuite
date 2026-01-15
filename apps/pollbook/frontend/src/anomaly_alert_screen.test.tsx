@@ -132,7 +132,7 @@ test('clicking Acknowledge button dismisses the anomaly', async () => {
 
   await screen.findByText('Duplicate Check-In Detected');
 
-  const acknowledgeButton = screen.getByRole('button', { name: 'Acknowledge' });
+  const acknowledgeButton = screen.getByRole('button', { name: 'Dismiss' });
   expect(acknowledgeButton).toBeInTheDocument();
 
   userEvent.click(acknowledgeButton);
@@ -155,9 +155,9 @@ test('displays instructional message about duplicate check-ins', async () => {
 
   // Check the instructional message is displayed
   expect(
-    screen.getByText(/Please verify the voter's check-in status/)
+    screen.getByText('This voter was checked in more than once.')
   ).toBeInTheDocument();
   expect(
-    screen.getByText(/Only one check-in for this voter will be counted/)
+    screen.getByText(/Only one check-in for this voter will count/)
   ).toBeInTheDocument();
 });
