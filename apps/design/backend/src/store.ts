@@ -1893,7 +1893,7 @@ export class Store {
         ).rows.map((row) => row.id);
         assert(
           contestIds.length === existingContestIds.length,
-          'Invalid contest IDs'
+          'Contest list is out of date'
         );
         for (const contestId of contestIds) {
           const { rowCount } = await client.query(
