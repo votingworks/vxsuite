@@ -148,8 +148,10 @@ export function ImageInputButton({
           );
         }
 
-        default:
+        default: {
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(error, 'code');
+        }
       }
     }
 

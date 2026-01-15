@@ -75,6 +75,7 @@ export async function normalizeImageToSvg(
     const dataUrl = await loadBitmapImage(file);
     return normalizeBitmapToSvg(dataUrl, params);
   } catch (error) {
+    /* istanbul ignore next - @preserve */
     return err({ code: 'unexpected', error });
   }
 }
@@ -126,6 +127,7 @@ async function normalizeDataUrl(
       const scaleY = (params.maxHeightPx || img.height) / img.height;
       const scale = Math.min(scaleX, scaleY);
 
+      /* istanbul ignore else - @preserve */
       if (scale >= 1) {
         return resolve(
           ok({
@@ -136,25 +138,30 @@ async function normalizeDataUrl(
         );
       }
 
-      const canvas = document.createElement('canvas');
-      const context = assertDefined(canvas.getContext('2d'));
+      /* istanbul ignore next - @preserve - Manually tested */
+      {
+        const canvas = document.createElement('canvas');
+        const context = assertDefined(canvas.getContext('2d'));
 
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
-      context.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        context.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      resolve(
-        ok({
-          dataUrl: await canvasToDataUrl(canvas, mimeType),
-          heightPx: canvas.height,
-          widthPx: canvas.width,
-        })
-      );
+        resolve(
+          ok({
+            dataUrl: await canvasToDataUrl(canvas, mimeType),
+            heightPx: canvas.height,
+            widthPx: canvas.width,
+          })
+        );
+      }
     } catch (error) {
+      /* istanbul ignore next - @preserve */
       resolve(err({ code: 'unexpected', error }));
     }
   }
 
+  /* istanbul ignore next - @preserve */
   function onError(event: ErrorEvent) {
     img.removeEventListener('load', onLoad);
 
@@ -177,6 +184,7 @@ async function normalizeDataUrl(
   return promise;
 }
 
+/* istanbul ignore next - @preserve */
 async function canvasToDataUrl(
   canvas: HTMLCanvasElement,
   mimeType?: ImageType
@@ -206,6 +214,7 @@ async function loadBitmapImage(blob: Blob): Promise<string> {
   function onRead() {
     reader.removeEventListener('error', onError);
 
+    /* istanbul ignore next - @preserve */
     if (typeof reader.result !== 'string') {
       return reject(
         new Error(`Expected image data URL, got ${typeof reader.result}`)
@@ -215,6 +224,7 @@ async function loadBitmapImage(blob: Blob): Promise<string> {
     resolve(reader.result);
   }
 
+  /* istanbul ignore next - @preserve */
   function onError(event: ProgressEvent<FileReader>) {
     reader.removeEventListener('load', onRead);
 
