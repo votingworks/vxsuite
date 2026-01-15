@@ -15,6 +15,7 @@ import {
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   AamvaDocument,
+  Anomaly,
   Api,
   ConfigurationError,
   ConfigurationStatus,
@@ -611,6 +612,18 @@ export function createApiMock() {
       mockApiClient.getScannedIdDocument
         .expectOptionalRepeatedCallsWith()
         .resolves(err(new Error('unknown_document_type')));
+    },
+
+    expectGetActiveAnomalies(anomalies: Anomaly[]) {
+      mockApiClient.getActiveAnomalies.reset();
+      mockApiClient.getActiveAnomalies
+        .expectOptionalRepeatedCallsWith()
+        .resolves(anomalies);
+    },
+
+    expectDismissAnomaly(anomalyId: number) {
+      mockApiClient.dismissAnomaly.reset();
+      mockApiClient.dismissAnomaly.expectCallWith({ anomalyId }).resolves();
     },
   };
 }

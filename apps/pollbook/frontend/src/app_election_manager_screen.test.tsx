@@ -28,6 +28,7 @@ beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
   apiMock = createApiMock();
+  apiMock.expectGetActiveAnomalies([]);
   apiMock.setElection(undefined);
   apiMock.setIsAbsenteeMode(false);
   apiMock.expectHaveElectionEventsOccurred();

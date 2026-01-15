@@ -43,6 +43,7 @@ describe('PollWorkerScreen', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.clearAllMocks();
     apiMock = createApiMock();
+    apiMock.expectGetActiveAnomalies([]);
     apiMock.setElection(undefined);
   });
 

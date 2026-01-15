@@ -95,6 +95,7 @@ const mockThroughputData: ThroughputStat[] = [
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   apiMock = createApiMock();
+  apiMock.expectGetActiveAnomalies([]);
   apiMock.setAuthStatus(getMockElectionManagerAuth());
 });
 

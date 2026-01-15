@@ -23,6 +23,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   apiMock = createApiMock();
   apiMock.setElection(undefined);
+  apiMock.expectGetActiveAnomalies([]);
 });
 
 afterEach(() => {
