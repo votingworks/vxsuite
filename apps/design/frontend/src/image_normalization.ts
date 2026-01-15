@@ -1,6 +1,11 @@
-/* istanbul ignore file - [TODO] Adding browser tests in future PRs. @preserve */
-
-import { assertDefined, deferred, err, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  deferred,
+  err,
+  ok,
+  Result,
+} from '@votingworks/basics';
 
 export type NormalizeResult = Result<NormalizedImage, NormalizeError>;
 
@@ -11,6 +16,7 @@ export interface NormalizedImage {
 }
 
 export type NormalizeError =
+  | { code: 'invalidSvg' }
   | { code: 'belowMinHeight'; heightPx: number }
   | { code: 'belowMinWidth'; widthPx: number }
   | { code: 'unsupportedImageType' }
@@ -24,38 +30,79 @@ export type NormalizeParams = {
   | { maxHeightPx?: number; maxWidthPx: number }
 );
 
-/**
- * Normalizes an image, potentially resizing it to fit within the given bounds,
- * and returns a serialized data URL version of the final image with the same
- * encoding as the original.
- *
- * If minimum dimensions are specified, an error is returned for images that
- * fall below the given thresholds (see {@link NormlaizeError}).
- */
-export async function normalizeFile(
-  image: File,
-  params: NormalizeParams
-): Promise<NormalizeResult> {
-  const mimeType = image.type;
-  if (!isSupportedMimeType(mimeType)) {
-    return err({ code: 'unsupportedImageType' });
-  }
-
-  return normalizeDataUrl(await serialize(image), mimeType, params);
-}
-
 const SUPPORTED_MIME_TYPES = ['image/png', 'image/jpeg'] as const;
 export type ImageType = (typeof SUPPORTED_MIME_TYPES)[number];
 
+function isSupportedMimeType(mimeType: string): mimeType is ImageType {
+  return SUPPORTED_MIME_TYPES.includes(mimeType as ImageType);
+}
+
+type NormalizeToSvgResult = Result<string, NormalizeError>;
+
 /**
- * Normalizes an image, potentially resizing it to fit within the given bounds,
- * and returns a serialized data URL version of the final image with the same
- * encoding as the original.
+ * Normalizes an image as follows:
+ *
+ * - Vector SVG images: returned with no normalization, since vector SVGs can be
+ * arbitrarily scaled later.
+ *
+ * - Bitmap images (PNG/JPG): Resized to fit within the given bounds if
+ * necessary, then wrapped as an SVG.
+ *
+ * - SVG images that wrap a bitmap image:  Wrapped bitmap image is extracted,
+ * resized, and then rewrapped as an SVG.
  *
  * If minimum dimensions are specified, an error is returned for images that
  * fall below the given thresholds (see {@link NormalizeError}).
  */
-export async function normalizeDataUrl(
+export async function normalizeImageToSvg(
+  file: File,
+  params: NormalizeParams
+): Promise<NormalizeToSvgResult> {
+  try {
+    if (file.type === 'image/svg+xml') {
+      const svgImageText = await loadSvgImage(file);
+      const bitmapDataUrlResult = unwrapBitmapImageFromSvg(svgImageText);
+      if (bitmapDataUrlResult.isErr()) {
+        return bitmapDataUrlResult;
+      }
+      const bitmapDataUrl = bitmapDataUrlResult.ok();
+      if (!bitmapDataUrl) {
+        return ok(svgImageText);
+      }
+      return normalizeBitmapToSvg(bitmapDataUrl, params);
+    }
+
+    const dataUrl = await loadBitmapImage(file);
+    return normalizeBitmapToSvg(dataUrl, params);
+  } catch (error) {
+    return err({ code: 'unexpected', error });
+  }
+}
+
+async function normalizeBitmapToSvg(
+  dataUrl: string,
+  params: NormalizeParams
+): Promise<NormalizeToSvgResult> {
+  const mimeType = dataUrl.split(',')[0].match(/:(.*?);/)?.[1];
+  if (!(mimeType && isSupportedMimeType(mimeType))) {
+    return err({ code: 'unsupportedImageType' });
+  }
+  const normalizeResult = await normalizeDataUrl(dataUrl, mimeType, params);
+  if (normalizeResult.isErr()) {
+    return normalizeResult;
+  }
+  return ok(wrapBitmapImageAsSvg(normalizeResult.ok()));
+}
+
+/**
+ * Normalizes a bitmap image, potentially resizing it to fit within the given
+ * bounds, and returns a serialized data URL version of the final image with the
+ * same encoding as the original.
+ *
+ * If minimum dimensions are specified, an error is returned for images that
+ * fall below the given thresholds (see {@link NormalizeError}).
+ */
+async function normalizeDataUrl(
   imageDataUrl: string,
   mimeType: ImageType,
   params: NormalizeParams
@@ -142,7 +189,7 @@ async function canvasToDataUrl(
     }
 
     try {
-      resolve(await serialize(blob));
+      resolve(await loadBitmapImage(blob));
     } catch (error) {
       reject(error);
     }
@@ -151,7 +198,7 @@ async function canvasToDataUrl(
   return promise;
 }
 
-async function serialize(blob: Blob): Promise<string> {
+async function loadBitmapImage(blob: Blob): Promise<string> {
   const { promise, reject, resolve } = deferred<string>();
 
   const reader = new FileReader();
@@ -185,6 +232,52 @@ async function serialize(blob: Blob): Promise<string> {
   return promise;
 }
 
-function isSupportedMimeType(mimeType: string): mimeType is ImageType {
-  return SUPPORTED_MIME_TYPES.includes(mimeType as ImageType);
+async function loadSvgImage(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      /* istanbul ignore next - @preserve */
+      const contents = e.target?.result;
+      assert(typeof contents === 'string');
+      resolve(contents);
+    };
+    reader.readAsText(file);
+  });
+}
+
+function wrapBitmapImageAsSvg(img: NormalizedImage): string {
+  const { dataUrl: imageDataUrl, heightPx: height, widthPx: width } = img;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+    <image href="${imageDataUrl}" width="${width}" height="${height}" />
+  </svg>`;
+}
+
+/**
+ * Detects if an SVG is a wrapper around a single bitmap image. If so, returns
+ * the data url of the wrapped image along with its mime type. If not, returns
+ * undefined.
+ */
+function unwrapBitmapImageFromSvg(
+  svgImageText: string
+): Result<string | undefined, NormalizeError> {
+  const parser = new DOMParser();
+  const document = parser.parseFromString(svgImageText, 'image/svg+xml');
+  const svgNode = document.querySelector('svg');
+  if (!svgNode) {
+    return err({ code: 'invalidSvg' });
+  }
+  const imageNodes = svgNode.querySelectorAll('image');
+  if (imageNodes.length > 1) {
+    return err({ code: 'invalidSvg' });
+  }
+  if (imageNodes.length === 0) {
+    return ok(undefined);
+  }
+  const [imageNode] = imageNodes;
+  const href = imageNode.getAttribute('href');
+  if (!href) {
+    return err({ code: 'invalidSvg' });
+  }
+  return ok(href);
 }

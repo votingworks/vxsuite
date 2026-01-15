@@ -1,8 +1,7 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
-import { images } from '@votingworks/ui';
-import { err, ok } from '@votingworks/basics';
+import { err } from '@votingworks/basics';
 import {
   fireEvent,
   render,
@@ -10,27 +9,12 @@ import {
   waitFor,
 } from '../test/react_testing_library';
 import { ImageInput } from './image_input';
+import { NormalizeError, normalizeImageToSvg } from './image_normalization';
 
-vi.mock(import('@votingworks/ui'), async (importActual) => {
-  const actual = await importActual();
-  return {
-    ...actual,
-    images: { ...actual.images, normalizeFile: vi.fn() },
-  };
-});
-
-const mockNormalizeFile = vi.mocked(images.normalizeFile);
-const MOCK_NORMALIZED_IMAGE: Readonly<images.NormalizedImage> = {
-  dataUrl: 'very_normal_image',
-  heightPx: 300,
-  widthPx: 300,
-};
+vi.mock('./image_normalization', { spy: true });
+const mockNormalizeImageToSvg = vi.mocked(normalizeImageToSvg);
 
 describe('ImageInput', () => {
-  beforeEach(() => {
-    mockNormalizeFile.mockResolvedValue(ok(MOCK_NORMALIZED_IMAGE));
-  });
-
   test('accepts and sanitizes SVGs', async () => {
     const onChange = vi.fn();
     const unsafeContents = '<svg><script>alert("unsafe")</script></svg>';
@@ -121,17 +105,30 @@ describe('ImageInput', () => {
     const onChange = vi.fn();
 
     const imageContents = 'test image contents';
+    const imageWidth = 50;
+    const imageHeight = 100;
     const imageFile = new File([imageContents], `image.${imageType}`, {
       type: `image/${imageType}`,
     });
+    const imageDataUrl = `data:image/${imageType};base64,${Buffer.from(
+      imageContents
+    ).toString('base64')}`;
 
-    const { dataUrl, heightPx, widthPx } = MOCK_NORMALIZED_IMAGE;
-    const svgViewBox = `0 0 ${widthPx} ${heightPx}`;
-    const svgDimensions = `width="${widthPx}" height="${heightPx}"`;
-
-    const svgContents = `<svg xmlns="http://www.w3.org/2000/svg" ${svgDimensions} viewBox="${svgViewBox}">
-    <image href="${dataUrl}" ${svgDimensions}></image>
-  </svg>`;
+    // Mock the Image src setter to simulate loading the image
+    const originalImageSrc = Object.getOwnPropertyDescriptor(
+      global.Image.prototype,
+      'src'
+    );
+    Object.defineProperty(global.Image.prototype, 'src', {
+      set(src: string) {
+        expect(src).toEqual(imageDataUrl);
+        setImmediate(() => {
+          this.width = imageWidth;
+          this.height = imageHeight;
+          this.dispatchEvent(new Event('load'));
+        });
+      },
+    });
 
     render(
       <ImageInput
@@ -139,17 +136,22 @@ describe('ImageInput', () => {
         onChange={onChange}
         buttonLabel="Upload"
         removeButtonLabel="Remove"
-        normalizeParams={{ maxWidthPx: 300 }}
+        normalizeParams={{ maxWidthPx: imageWidth, maxHeightPx: imageHeight }}
       />
     );
 
     const input = screen.getByLabelText('Upload');
     userEvent.upload(input, imageFile);
-    await waitFor(() => expect(onChange).toHaveBeenCalledWith(svgContents));
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${imageWidth}" height="${imageHeight}" viewBox="0 0 ${imageWidth} ${imageHeight}">
+    <image href="${imageDataUrl}" width="${imageWidth}" height="${imageHeight}"></image>
+  </svg>`
+      )
+    );
 
-    expect(mockNormalizeFile).toHaveBeenCalledWith(imageFile, {
-      maxWidthPx: 300,
-    });
+    // Restore the original Image src property
+    Object.defineProperty(global.Image.prototype, 'src', originalImageSrc!);
   });
 
   test('displays validation errors', async () => {
@@ -170,16 +172,19 @@ describe('ImageInput', () => {
     const input = screen.getByLabelText<HTMLInputElement>('Upload');
 
     async function expectDisplayedError(
-      error: images.NormalizeError,
+      error: NormalizeError,
       msg: string | RegExp
     ) {
-      mockNormalizeFile.mockResolvedValueOnce(err(error));
-
+      mockNormalizeImageToSvg.mockResolvedValueOnce(err(error));
       const file = new File([''], 'image.png', { type: 'image/png' });
       userEvent.upload(input, file);
-
       await waitFor(() => expect(input.validationMessage).toMatch(msg));
     }
+
+    await expectDisplayedError(
+      { code: 'invalidSvg' },
+      'This image is not a valid SVG.'
+    );
 
     await expectDisplayedError(
       { code: 'belowMinHeight', heightPx: 200 },
