@@ -12,6 +12,15 @@ make run
 
 ## Permission Configuration
 
+Add these `udev` rules to `/etc/udev/rules`. These will give the `plugdev` and
+`dialout` groups access to the barcode scanner device.
+
+```
+# /etc/udev/rules.d/70-plugdev-usb.rules
+# Needed for `nusb` crate to access device.
+SUBSYSTEM=="usb", MODE="0660", GROUP="plugdev", ATTRS{idVendor}=="1fbb", ATTRS{idProduct}=="3850"
+```
+
 ```
 # /etc/udev/rules.d/98-cino-s680-barcode-scanner.rules
 # Creates a stable address for the serialport device at `/dev/barcode_scanner`. Needed for `serialport` crate to access device.
