@@ -122,7 +122,8 @@ const LETTER_PAGE_WIDTH_INCHES = 8.5;
  *
  * The subtracted margins are inexact and can be tweaked if needed. Last tested
  * with "full-height" and "full-width" images rendering without error on
- * letter-sized pages.
+ * letter-sized pages. The height margin accounts for the worst-case of a
+ * header, footer, and instructions on page 1.
  *
  * [TODO] The max width should really be the VxMark screen size (1080px), since
  * that's the largest render surface for these images, but we need to add image
@@ -130,7 +131,7 @@ const LETTER_PAGE_WIDTH_INCHES = 8.5;
  * contest box.
  */
 const NORMALIZE_PARAMS: Readonly<images.NormalizeParams> = {
-  maxHeightPx: (LETTER_PAGE_HEIGHT_INCHES - 3) * PDF_PIXELS_PER_INCH,
+  maxHeightPx: (LETTER_PAGE_HEIGHT_INCHES - 5) * PDF_PIXELS_PER_INCH,
   maxWidthPx: (LETTER_PAGE_WIDTH_INCHES - 2) * PDF_PIXELS_PER_INCH,
 };
 
