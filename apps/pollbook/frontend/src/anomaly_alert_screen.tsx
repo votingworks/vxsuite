@@ -44,6 +44,7 @@ export function AnomalyAlertScreen({
           .join(' ');
         return (
           <React.Fragment>
+            <P>This voter was checked in more than once.</P>
             <P>
               <strong>Voter ID:</strong> {details.voterId}
             </P>
@@ -74,10 +75,9 @@ export function AnomalyAlertScreen({
               </tbody>
             </Table>
             <P>
-              Please verify the voter&apos;s check-in status and take
-              appropriate action if needed. Only one check-in for this voter
-              will be counted. If the wrong voter was checked in, please
-              check-in the missing voter.
+              Only one check-in for this voter will count toward the check-in
+              total. If this occurred because two different voters were checked
+              in under the same record, please check in the missing voter.
             </P>
           </React.Fragment>
         );
@@ -100,7 +100,7 @@ export function AnomalyAlertScreen({
               onPress={handleDismiss}
               disabled={dismissAnomalyMutation.isLoading}
             >
-              Acknowledge
+              Dismiss
             </Button>
           </P>
         </div>
