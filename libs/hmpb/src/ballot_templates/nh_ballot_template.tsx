@@ -807,11 +807,28 @@ async function splitLongBallotMeasureAcrossPages(
     contestElement,
     '.contestDescription > *'
   );
-  const contestFooterHeight = 30; // "Continues on next page" caption
+  const [optionsMeasurements] = await scratchpad.measureElements(
+    contestElement,
+    `.${BALLOT_MEASURE_OPTION_CLASS}`
+  );
+  const optionsHeight =
+    contestMeasurements.height -
+    (optionsMeasurements.y - contestMeasurements.y);
+  const continuesFooterHeight = 30; // "Continues on next page" caption
+
+  // Find where to split. For each child, we check if including it would overflow.
+  // The "footer" we need to fit depends on whether there are more children after:
+  // - If more children remain, use continuesFooterHeight
+  // - If this is the last child, use optionsHeight
   const firstOverflowingChildIndex = childMeasurements.findIndex(
-    (child) =>
-      child.y - contestMeasurements.y + child.height + contestFooterHeight >=
-      dimensions.height
+    (child, index) => {
+      const isLastChild = index === childMeasurements.length - 1;
+      const footerHeight = isLastChild ? optionsHeight : continuesFooterHeight;
+      return (
+        child.y - contestMeasurements.y + child.height + footerHeight >=
+        dimensions.height
+      );
+    }
   );
   assert(firstOverflowingChildIndex !== -1, 'No overflowing child found');
 
