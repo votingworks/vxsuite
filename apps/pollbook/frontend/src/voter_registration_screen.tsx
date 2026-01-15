@@ -355,7 +355,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
               title="Duplicate Name Detected"
               content={
                 <RegistrationDuplicateNameMessage
-                  inputtedVoter={{ ...voter }}
+                  inputtedVoter={voter}
                   election={election}
                   currentlyConfiguredPrecinctId={configuredPrecinctId}
                   duplicateError={flowState.duplicateError}
