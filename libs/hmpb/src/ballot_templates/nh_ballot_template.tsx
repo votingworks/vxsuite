@@ -807,30 +807,20 @@ async function splitLongBallotMeasureAcrossPages(
     contestElement,
     '.contestDescription > *'
   );
-  const [optionsMeasurements] = await scratchpad.measureElements(
-    contestElement,
-    `.${BALLOT_MEASURE_OPTION_CLASS}`
-  );
-  const optionsHeight =
-    contestMeasurements.height -
-    (optionsMeasurements.y - contestMeasurements.y);
   const continuesFooterHeight = 30; // "Continues on next page" caption
-
-  // Find where to split. For each child, we check if including it would overflow.
-  // The "footer" we need to fit depends on whether there are more children after:
-  // - If more children remain, use continuesFooterHeight
-  // - If this is the last child, use optionsHeight
-  const firstOverflowingChildIndex = childMeasurements.findIndex(
-    (child, index) => {
-      const isLastChild = index === childMeasurements.length - 1;
-      const footerHeight = isLastChild ? optionsHeight : continuesFooterHeight;
-      return (
-        child.y - contestMeasurements.y + child.height + footerHeight >=
-        dimensions.height
-      );
-    }
+  let firstOverflowingChildIndex = childMeasurements.findIndex(
+    (child) =>
+      child.y - contestMeasurements.y + child.height + continuesFooterHeight >=
+      dimensions.height
   );
-  assert(firstOverflowingChildIndex !== -1, 'No overflowing child found');
+
+  // If no child explicitly overflows with the continues footer, it means the
+  // contest overflows due to the Yes/No options (which are larger than the
+  // continues footer). In this case, we split before the last child to be safe.
+  // This function is only called when the contest is known to be too long.
+  if (firstOverflowingChildIndex === -1) {
+    firstOverflowingChildIndex = childMeasurements.length - 1;
+  }
 
   // If a given child, e.g., paragraph, is itself too tall to fit on the page, we can't proceed and
   // need the user to try a longer paper size or higher density, or add a line break to their
