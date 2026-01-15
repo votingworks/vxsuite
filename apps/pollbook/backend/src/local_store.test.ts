@@ -563,6 +563,98 @@ test('searchVoters ignores punctuation', () => {
   }
 });
 
+test('searchVoters with no suffix matches voters with and without suffixes', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  const voters = [
+    createVoter('1', 'John', 'Smith', {
+      middleName: '',
+      suffix: '',
+      precinct: 'precinct-1',
+    }),
+    createVoter('2', 'John', 'Smith', {
+      middleName: '',
+      suffix: 'Jr.',
+      precinct: 'precinct-1',
+    }),
+    createVoter('3', 'John', 'Smith', {
+      middleName: '',
+      suffix: 'III',
+      precinct: 'precinct-1',
+    }),
+  ];
+
+  const streets = [createValidStreetInfo('MAIN', 'all', 1, 100)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+
+  localStore.setConfiguredPrecinct('precinct-1');
+
+  // Expect matches for suffixed voters even without `ignoreSuffix` IFF search suffix is blank
+  const searchResults = localStore.searchVoters({
+    lastName: 'Smith',
+    firstName: 'John',
+    middleName: '',
+    suffix: '',
+  });
+
+  expect(Array.isArray(searchResults)).toEqual(true);
+  const results = searchResults as Voter[];
+  expect(results).toHaveLength(3);
+  expect(results.map((v) => v.voterId).sort()).toEqual(['1', '2', '3']);
+});
+
+test('searchVoters - when ignoreSuffix is passed', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  const voters = [
+    createVoter('1', 'John', 'Smith', {
+      middleName: '',
+      suffix: '',
+      precinct: 'precinct-1',
+    }),
+    createVoter('2', 'John', 'Smith', {
+      middleName: '',
+      suffix: 'Jr.',
+      precinct: 'precinct-1',
+    }),
+    createVoter('3', 'John', 'Smith', {
+      middleName: '',
+      suffix: 'III',
+      precinct: 'precinct-1',
+    }),
+  ];
+
+  const streets = [createValidStreetInfo('MAIN', 'all', 1, 100)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+
+  localStore.setConfiguredPrecinct('precinct-1');
+
+  const searchResults = localStore.searchVoters({
+    lastName: 'Smith',
+    firstName: 'John',
+    middleName: '',
+    suffix: 'Someothersuffix',
+    ignoreSuffix: true,
+  });
+
+  expect(Array.isArray(searchResults)).toEqual(true);
+  const results = searchResults as Voter[];
+  expect(results).toHaveLength(3);
+  expect(results.map((v) => v.voterId).sort()).toEqual(['1', '2', '3']);
+});
+
 test('registerVoter and findVoterWithName integration', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
@@ -1781,4 +1873,141 @@ test('getThroughputStatistics with fake timers across multiple hours and interva
 
   // Restore real timers
   vi.useRealTimers();
+});
+test('findVotersWithName with ignoreSuffix - voters without name changes', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  const voters = [
+    createVoter('30', 'John', 'Smith', {
+      middleName: 'Allen',
+      suffix: '',
+    }),
+    createVoter('31', 'John', 'Smith', {
+      middleName: 'Allen',
+      suffix: 'Jr',
+    }),
+    createVoter('32', 'John', 'Smith', {
+      middleName: 'Allen',
+      suffix: 'III',
+    }),
+  ];
+
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+
+  // Without ignoreSuffix, empty suffix only matches voter with no suffix
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'John',
+      lastName: 'Smith',
+      middleName: 'Allen',
+      suffix: '',
+    })
+  ).toEqual([expect.objectContaining({ voterId: '30' })]);
+
+  // Without ignoreSuffix, specific suffix only matches that voter
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'John',
+      lastName: 'Smith',
+      middleName: 'Allen',
+      suffix: 'Jr',
+    })
+  ).toEqual([expect.objectContaining({ voterId: '31' })]);
+
+  // With ignoreSuffix, all matching voters are returned regardless of suffix
+  const results = localStore.findVotersWithName({
+    firstName: 'John',
+    lastName: 'Smith',
+    middleName: 'Allen',
+    suffix: 'Anothersuffix',
+    ignoreSuffix: true,
+  });
+  expect(results).toHaveLength(3);
+  expect(results.map((v) => v.voterId).sort()).toEqual(['30', '31', '32']);
+});
+
+test('findVotersWithName with ignoreSuffix - voters with name changes', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  const voters = [
+    createVoter('40', 'Jane', 'Doe', {
+      middleName: 'Marie',
+      suffix: '',
+    }),
+    createVoter('41', 'Jane', 'Doe', {
+      middleName: 'Marie',
+      suffix: 'Sr',
+    }),
+  ];
+
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+
+  // Change names for both voters to the same name but different suffixes
+  localStore.changeVoterName('40', {
+    firstName: 'Jane',
+    lastName: 'Doe',
+    middleName: 'Marie',
+    suffix: 'Jr',
+  });
+  localStore.changeVoterName('41', {
+    firstName: 'Jane',
+    lastName: 'Doe',
+    middleName: 'Marie',
+    suffix: 'III',
+  });
+
+  // Without ignoreSuffix, specific suffix only matches that voter
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'Jane',
+      lastName: 'Doe',
+      middleName: 'Marie',
+      suffix: 'Jr',
+    })
+  ).toEqual([expect.objectContaining({ voterId: '40' })]);
+
+  // Without ignoreSuffix, empty suffix matches neither (both have suffixes now)
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'Jane',
+      lastName: 'Doe',
+      middleName: 'Marie',
+      suffix: '',
+    })
+  ).toEqual([]);
+
+  // With ignoreSuffix, all matching voters are returned regardless of suffix
+  const results = localStore.findVotersWithName({
+    firstName: 'Jane',
+    lastName: 'Doe',
+    middleName: 'Marie',
+    suffix: 'Anothersuffix',
+    ignoreSuffix: true,
+  });
+  expect(results).toHaveLength(2);
+  expect(results.map((v) => v.voterId).sort()).toEqual(['40', '41']);
+
+  // Original names should not match
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'Jane',
+      lastName: 'Doe',
+      middleName: 'Marie',
+      suffix: 'Sr',
+    })
+  ).toEqual([]);
 });

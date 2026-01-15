@@ -333,7 +333,9 @@ export class LocalStore extends Store {
     const lastNamePattern = toPatternStartsWith(lastName);
     const middleNamePattern = toPatternStartsWith(middleName);
     const firstNamePattern = toPatternStartsWith(firstName);
-    const suffixPattern = toPatternStartsWith(suffix);
+    const suffixPattern = searchParams.ignoreSuffix
+      ? '^.*$'
+      : toPatternStartsWith(suffix);
     const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
 
     // Query the database for voters matching the search criteria
@@ -457,11 +459,15 @@ export class LocalStore extends Store {
     return { voter, receiptNumber };
   }
 
-  findVotersWithName(nameData: VoterNameChangeRequest): Voter[] {
-    const lastNamePattern = toPatternMatches(nameData.lastName);
-    const firstNamePattern = toPatternMatches(nameData.firstName);
-    const middleNamePattern = toMiddleNameSearchPattern(nameData.middleName);
-    const suffixPattern = toPatternMatches(nameData.suffix);
+  findVotersWithName(searchParams: VoterSearchParams): Voter[] {
+    const lastNamePattern = toPatternMatches(searchParams.lastName);
+    const firstNamePattern = toPatternMatches(searchParams.firstName);
+    const middleNamePattern = toMiddleNameSearchPattern(
+      searchParams.middleName
+    );
+    const suffixPattern = searchParams.ignoreSuffix
+      ? '^.*$'
+      : toPatternMatches(searchParams.suffix);
     const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
 
     // Query the database for voters matching the first and last name criteria, we don't track the updated suffix/middle name
