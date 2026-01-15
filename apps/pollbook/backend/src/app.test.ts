@@ -1571,3 +1571,120 @@ test('searchVoters considers address changes for precinct matching', async () =>
     expect(result[1].addressChange?.precinct).toEqual(currentPrecinctId);
   });
 });
+
+test('getActiveAnomalies returns empty array when no anomalies', async () => {
+  await withApp(async ({ localApiClient, workspace }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      mockStreetNames,
+      mockVoters
+    );
+
+    const anomalies = await localApiClient.getActiveAnomalies();
+    expect(anomalies).toEqual([]);
+  });
+});
+
+test('getActiveAnomalies returns anomalies with voter details', async () => {
+  await withApp(async ({ localApiClient, workspace }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      mockStreetNames,
+      mockVoters
+    );
+
+    // Directly record an anomaly via store for testing
+    workspace.store.recordAnomaly('DuplicateCheckIn', {
+      voterId: mockVoters[0].voterId,
+      checkInEvents: [
+        { machineId: 'machine-1', timestamp: '2024-01-01T10:00:00.000Z' },
+        { machineId: 'machine-2', timestamp: '2024-01-01T10:01:00.000Z' },
+      ],
+    });
+
+    const anomalies = await localApiClient.getActiveAnomalies();
+    expect(anomalies).toHaveLength(1);
+    expect(anomalies[0].anomalyType).toEqual('DuplicateCheckIn');
+    expect(anomalies[0].dismissed).toEqual(false);
+    expect(anomalies[0].anomalyDetails.voterId).toEqual(mockVoters[0].voterId);
+    expect(anomalies[0].anomalyDetails.voter).toBeDefined();
+    expect(anomalies[0].anomalyDetails.voter.firstName).toEqual('Abigail');
+    expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+  });
+});
+
+test('dismissAnomaly removes anomaly from active list', async () => {
+  await withApp(async ({ localApiClient, workspace }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      mockStreetNames,
+      mockVoters
+    );
+
+    // Record an anomaly
+    workspace.store.recordAnomaly('DuplicateCheckIn', {
+      voterId: mockVoters[0].voterId,
+      checkInEvents: [
+        { machineId: 'machine-1', timestamp: '2024-01-01T10:00:00.000Z' },
+      ],
+    });
+
+    // Verify it exists
+    const anomaliesBefore = await localApiClient.getActiveAnomalies();
+    expect(anomaliesBefore).toHaveLength(1);
+
+    // Dismiss it
+    await localApiClient.dismissAnomaly({
+      anomalyId: anomaliesBefore[0].anomalyId,
+    });
+
+    // Verify it's gone
+    const anomaliesAfter = await localApiClient.getActiveAnomalies();
+    expect(anomaliesAfter).toHaveLength(0);
+  });
+});
+
+test('duplicate check-in via API creates anomaly', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      mockStreetNames,
+      mockVoters
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    const voter = mockVoters[0];
+
+    // First check-in should succeed without creating anomaly
+    const checkInResult1 = await localApiClient.checkInVoter({
+      voterId: voter.voterId,
+      identificationMethod: { type: 'default' },
+      ballotParty: 'NOT_APPLICABLE',
+    });
+    expect(checkInResult1.ok()).toEqual(undefined);
+
+    let anomalies = await localApiClient.getActiveAnomalies();
+    expect(anomalies).toHaveLength(0);
+
+    // Undo the check-in
+    await localApiClient.undoVoterCheckIn({
+      voterId: voter.voterId,
+      reason: 'Testing',
+    });
+
+    // Check in again - should be fine
+    const checkInResult2 = await localApiClient.checkInVoter({
+      voterId: voter.voterId,
+      identificationMethod: { type: 'default' },
+      ballotParty: 'NOT_APPLICABLE',
+    });
+    expect(checkInResult2.ok()).toEqual(undefined);
+
+    anomalies = await localApiClient.getActiveAnomalies();
+    expect(anomalies).toHaveLength(0);
+  });
+});
