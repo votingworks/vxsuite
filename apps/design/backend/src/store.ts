@@ -155,7 +155,10 @@ function backgroundTaskRowToBackgroundTask(
 
 export interface BackgroundTaskMetadata {
   task?: BackgroundTask;
-  url?: string;
+  url?: string; // [TODO] Rename to electionPackageUrl
+  officialBallotsUrl?: string;
+  sampleBallotsUrl?: string;
+  testBallotsUrl?: string;
 }
 
 /**
@@ -1990,6 +1993,9 @@ export class Store {
           `
             select
               election_package_task_id as "taskId",
+              official_ballots_url as "officialBallotsUrl",
+              sample_ballots_url as "sampleBallotsUrl",
+              test_ballots_url as "testBallotsUrl",
               election_package_url as "url"
             from elections
             where id = $1
@@ -2000,12 +2006,18 @@ export class Store {
     ).rows[0] as Optional<{
       taskId: string | null;
       url: string | null;
+      officialBallotsUrl: string | null;
+      sampleBallotsUrl: string | null;
+      testBallotsUrl: string | null;
     }>;
     return {
       task: electionPackage?.taskId
         ? await this.getBackgroundTask(electionPackage.taskId)
         : undefined,
       url: electionPackage?.url ?? undefined,
+      officialBallotsUrl: electionPackage?.officialBallotsUrl || undefined,
+      sampleBallotsUrl: electionPackage?.sampleBallotsUrl || undefined,
+      testBallotsUrl: electionPackage?.testBallotsUrl || undefined,
     };
   }
 
@@ -2049,31 +2061,36 @@ export class Store {
     );
   }
 
-  async setElectionPackageExportInformation({
-    electionId,
-    electionPackageUrl,
-    ballotHash,
-    electionData,
-  }: {
+  async setElectionPackageExportInformation(p: {
     electionId: ElectionId;
     electionPackageUrl: string;
     ballotHash: string;
     electionData: string;
+    officialBallotsUrl?: string; // [TODO] Make required when worker is updated.
+    sampleBallotsUrl?: string;
+    testBallotsUrl?: string;
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         await client.query(
           `
             update elections
-            set election_package_url = $1,
-                last_exported_ballot_hash = $2,
-                last_exported_election_data = $3
-            where id = $4
+            set
+              election_package_url = $1,
+              last_exported_ballot_hash = $2,
+              last_exported_election_data = $3,
+              official_ballots_url = $4,
+              sample_ballots_url = $5,
+              test_ballots_url = $6
+            where id = $7
           `,
-          electionPackageUrl,
-          ballotHash,
-          electionData,
-          electionId
+          p.electionPackageUrl,
+          p.ballotHash,
+          p.electionData,
+          p.officialBallotsUrl,
+          p.sampleBallotsUrl,
+          p.testBallotsUrl,
+          p.electionId
         );
 
         return true;
@@ -2154,6 +2171,32 @@ export class Store {
         `,
         testDecksUrl,
         electionId
+      )
+    );
+  }
+
+  async getBallotsApprovedAt(electionId: ElectionId): Promise<Date | null> {
+    const row: { ballots_approved_at: Date } | undefined = (
+      await this.db.withClient((client) =>
+        client.query(
+          `select ballots_approved_at from elections where id = $1`,
+          electionId
+        )
+      )
+    ).rows[0];
+
+    return row?.ballots_approved_at || null;
+  }
+
+  async setBallotsApprovedAt(p: {
+    approvedAt: Date | null;
+    electionId: ElectionId;
+  }): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `update elections set ballots_approved_at = $1 where id = $2`,
+        p.approvedAt,
+        p.electionId
       )
     );
   }
