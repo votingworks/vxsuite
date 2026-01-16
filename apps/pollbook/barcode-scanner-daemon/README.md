@@ -22,7 +22,7 @@ SUBSYSTEM=="usb", MODE="0660", GROUP="plugdev", ATTRS{idVendor}=="1fbb", ATTRS{i
 ```
 
 ```
-# /etc/udev/rules.d/98-cino-s680-barcode-scanner.rules
+# /etc/udev/rules.d/99-cino-s680-barcode-scanner.rules
 # Creates a stable address for the serialport device at `/dev/barcode_scanner`. Needed for `serialport` crate to access device.
 SUBSYSTEM=="tty", ACTION=="add", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="1fbb", ATTRS{idProduct}=="3850", MODE="0660", GROUP="dialout", SYMLINK+="barcode_scanner"
 ```
