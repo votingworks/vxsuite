@@ -654,10 +654,30 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    unfinalizeBallots(input: { electionId: ElectionId }): Promise<void> {
-      return store.setBallotsFinalizedAt({
+    async unfinalizeBallots(input: { electionId: ElectionId }): Promise<void> {
+      await store.setBallotsApprovedAt({
+        approvedAt: null,
+        electionId: input.electionId,
+      });
+      await store.setBallotsFinalizedAt({
         electionId: input.electionId,
         finalizedAt: null,
+      });
+    },
+
+    getBallotsApprovedAt(input: {
+      electionId: ElectionId;
+    }): Promise<Date | null> {
+      return store.getBallotsApprovedAt(input.electionId);
+    },
+
+    async approveBallots(input: { electionId: ElectionId }): Promise<void> {
+      const finalizedAt = await store.getBallotsFinalizedAt(input.electionId);
+      assert(finalizedAt, 'Ballots cannot be approved before being finalized');
+
+      return store.setBallotsApprovedAt({
+        approvedAt: new Date(),
+        electionId: input.electionId,
       });
     },
 

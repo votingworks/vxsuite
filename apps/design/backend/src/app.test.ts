@@ -2397,6 +2397,62 @@ test('Finalize ballots', async () => {
   });
 });
 
+test('approve ballots', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents:
+          electionFamousNames2021Fixtures.electionJson.asText(),
+      },
+    })
+  ).unsafeUnwrap();
+
+  expect(await apiClient.getBallotsApprovedAt({ electionId })).toEqual(null);
+
+  await suppressingConsoleOutput(async () => {
+    await expect(apiClient.approveBallots({ electionId })).rejects.toThrow(
+      /ballots cannot be approved before being finalized/i
+    );
+  });
+
+  await apiClient.finalizeBallots({ electionId });
+
+  const now = new Date();
+  {
+    vi.useFakeTimers({ now });
+    await apiClient.approveBallots({ electionId });
+    vi.useRealTimers();
+  }
+  expect(await apiClient.getBallotsApprovedAt({ electionId })).toEqual(now);
+
+  await apiClient.unfinalizeBallots({ electionId });
+  expect(await apiClient.getBallotsApprovedAt({ electionId })).toEqual(null);
+
+  // Check permissions:
+  await suppressingConsoleOutput(async () => {
+    auth0.setLoggedInUser(anotherNonVxUser);
+
+    await expect(
+      apiClient.getBallotsApprovedAt({ electionId })
+    ).rejects.toThrow('auth:forbidden');
+
+    await expect(apiClient.approveBallots({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+  });
+});
+
 test('cloneElection', async () => {
   const { apiClient, auth0 } = await setupApp({
     organizations,
@@ -2768,6 +2824,11 @@ test('Election package management', async () => {
     url: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
   });
   expect(electionPackageAfterExport.url).toContain(nonVxJurisdiction.id);
+
+  // [TODO] Update worker to split up exports and verify these are set:
+  expect(electionPackageAfterExport.officialBallotsUrl).toBeUndefined();
+  expect(electionPackageAfterExport.testBallotsUrl).toBeUndefined();
+  expect(electionPackageAfterExport.sampleBallotsUrl).toBeUndefined();
 
   // Check that the correct package was returned by the files API endpoint
   const electionPackageUrl = `${baseUrl}${electionPackageAfterExport.url}`;
