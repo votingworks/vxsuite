@@ -115,11 +115,11 @@ async function normalizeDataUrl(
     img.removeEventListener('error', onError);
 
     if (params.minHeightPx && img.height < params.minHeightPx) {
-      resolve(err({ code: 'belowMinHeight', heightPx: img.height }));
+      return resolve(err({ code: 'belowMinHeight', heightPx: img.height }));
     }
 
     if (params.minWidthPx && img.width < params.minWidthPx) {
-      resolve(err({ code: 'belowMinWidth', widthPx: img.width }));
+      return resolve(err({ code: 'belowMinWidth', widthPx: img.width }));
     }
 
     try {
