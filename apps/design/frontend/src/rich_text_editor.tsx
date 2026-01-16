@@ -22,14 +22,16 @@ import { Slice } from '@tiptap/pm/model';
 import {
   Button,
   ButtonProps,
+  Callout,
   Icons,
   images,
   richTextStyles,
 } from '@votingworks/ui';
 import styled from 'styled-components';
-import React from 'react';
+import React, { useState } from 'react';
 import { Buffer } from 'node:buffer';
 import { ImageInputButton } from './image_input';
+import { Column } from './layout';
 
 const ControlGroup = styled.div`
   display: flex;
@@ -42,6 +44,11 @@ const ControlGroup = styled.div`
   > label /* Image input button is rendered as a label */ {
     border: 0;
   }
+`;
+
+const StyledCallout = styled(Callout)`
+  max-width: calc(75ch + 1rem);
+  margin-bottom: 0.5rem;
 `;
 
 export const StyledRichTextEditor = styled.div`
@@ -135,7 +142,17 @@ const NORMALIZE_PARAMS: Readonly<images.NormalizeParams> = {
   maxWidthPx: (LETTER_PAGE_WIDTH_INCHES - 2) * PDF_PIXELS_PER_INCH,
 };
 
-function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
+function Toolbar({
+  disabled,
+  editor,
+  onImageError,
+  onImageSuccess,
+}: {
+  disabled?: boolean;
+  editor: Editor;
+  onImageError: (error: Error) => void;
+  onImageSuccess: () => void;
+}) {
   return (
     <StyledToolbar>
       <ControlGroup>
@@ -192,6 +209,7 @@ function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
           disabled={disabled}
           normalizeParams={NORMALIZE_PARAMS}
           onChange={(svgImage) => {
+            onImageSuccess();
             editor
               .chain()
               .focus()
@@ -202,10 +220,7 @@ function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
               })
               .run();
           }}
-          // [TODO] Display a user-friendly error instead.
-          onError={(err) => {
-            throw err;
-          }}
+          onError={onImageError}
           aria-label="Insert Image"
         >
           <Icons.Image />
@@ -319,6 +334,8 @@ export function RichTextEditor({
   initialHtmlContent,
   onChange,
 }: RichTextEditorProps): JSX.Element {
+  const [imageError, setImageError] = useState<Error>();
+
   const editor = useEditor({
     editable: !disabled,
     extensions: [
@@ -357,13 +374,27 @@ export function RichTextEditor({
     },
   });
   return (
-    <StyledRichTextEditor
-      data-testid="rich-text-editor"
-      data-disabled={disabled}
-      onClick={() => editor?.chain().focus().run()}
-    >
-      {editor && <Toolbar disabled={disabled} editor={editor} />}
-      <EditorContent editor={editor} />
-    </StyledRichTextEditor>
+    <Column>
+      {imageError && (
+        <StyledCallout icon="Warning" color="warning">
+          {imageError.message}
+        </StyledCallout>
+      )}
+      <StyledRichTextEditor
+        data-testid="rich-text-editor"
+        data-disabled={disabled}
+        onClick={() => editor?.chain().focus().run()}
+      >
+        {editor && (
+          <Toolbar
+            disabled={disabled}
+            editor={editor}
+            onImageError={setImageError}
+            onImageSuccess={() => setImageError(undefined)}
+          />
+        )}
+        <EditorContent editor={editor} />
+      </StyledRichTextEditor>
+    </Column>
   );
 }
