@@ -191,6 +191,21 @@ test('image', async () => {
   );
 });
 
+test('image too big error', async () => {
+  render(<RichTextEditor initialHtmlContent="Content" onChange={vi.fn()} />);
+  await screen.findByText('Content');
+
+  // Create a file that exceeds the 5 MB limit
+  const largeContent = 'x'.repeat(6 * 1_000 * 1_000);
+  const largeFile = new File([largeContent], 'large.svg', {
+    type: 'image/svg+xml',
+  });
+  const input = screen.getByLabelText('Insert Image');
+  userEvent.upload(input, largeFile);
+
+  await screen.findByText('Image file size must be less than 5 MB');
+});
+
 test('unwraps single cell tables on paste', async () => {
   const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
