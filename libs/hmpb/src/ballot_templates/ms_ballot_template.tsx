@@ -62,6 +62,7 @@ import {
   FooterRow,
   FooterVoterInstruction,
   QrCodeSlot,
+  PrecinctOrSplitName,
 } from '../ballot_components';
 import { PixelDimensions } from '../types';
 import { layOutInColumns } from '../layout_in_columns';
@@ -71,11 +72,13 @@ import { BaseStyles } from '../base_styles';
 
 function Header({
   election,
+  precinctId,
   ballotStyleId,
   ballotType,
   ballotMode,
 }: {
   election: Election;
+  precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
@@ -104,6 +107,8 @@ function Header({
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
 
+  const showPrecinctName = election.precincts.length > 1;
+
   return (
     <div
       style={{
@@ -130,6 +135,13 @@ function Header({
           {party && <h1>{electionStrings.partyFullName(party)}</h1>}
           <h2>{electionStrings.electionTitle(election)}</h2>
           <h2>{electionStrings.electionDate(election)}</h2>
+          {showPrecinctName && (
+            <PrecinctOrSplitName
+              election={election}
+              precinctId={precinctId}
+              ballotStyleId={ballotStyleId}
+            />
+          )}
           <div>
             {/* TODO comma-delimiting the components of a location doesn't
             necessarily work in all languages. We need to figure out a
@@ -231,6 +243,7 @@ function BallotPageFrame({
               <>
                 <Header
                   election={election}
+                  precinctId={precinctId}
                   ballotStyleId={ballotStyleId}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
