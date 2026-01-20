@@ -264,7 +264,9 @@ export async function exportElectionPackage({
     'Election package export failed with error: ' + electionPackage.task?.error
   );
   return assertDefined(
-    assertDefined(electionPackage.url).match(ELECTION_PACKAGE_FILE_NAME_REGEX)
+    assertDefined(electionPackage.electionPackageUrl).match(
+      ELECTION_PACKAGE_FILE_NAME_REGEX
+    )
   )[0];
 }
 

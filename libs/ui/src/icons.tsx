@@ -31,6 +31,7 @@ import {
   faCirclePlus,
   faCircleQuestion,
   faEject,
+  faDownload,
   faFileArrowUp,
   faFileArrowDown,
   faChevronUp,
@@ -363,6 +364,10 @@ export const Icons = {
 
   Done(props) {
     return <FaIcon {...props} type={faCheckCircle} />;
+  },
+
+  Download(props) {
+    return <FaIcon {...props} type={faDownload} />;
   },
 
   Edit(props) {
