@@ -7,7 +7,8 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { PrinterRichStatus } from '@votingworks/types';
-import { detectPrinter, POST_PRINT_DISCONNECT_ALLOWANCE } from './printer';
+import { isDeviceAttached } from '@votingworks/backend';
+import { detectPrinter } from './printer';
 import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
 import { MockFilePrinter } from './mocks/file_printer';
 
@@ -36,6 +37,13 @@ vi.mock(
   })
 );
 
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  isDeviceAttached: vi.fn(),
+}));
+
+const isDeviceAttachedMock = vi.mocked(isDeviceAttached);
+
 const mockGetPrinterRichStatus = mockFunction('mockGetPrinterRichStatus');
 vi.mock(
   import('./status.js'),
@@ -59,6 +67,7 @@ beforeEach(() => {
   mockGetConnectedDeviceUris.reset();
   mockGetPrinterRichStatus.reset();
   mockPrintData.reset();
+  isDeviceAttachedMock.mockReturnValue(true);
 });
 
 afterEach(() => {
@@ -128,19 +137,17 @@ test('status and configuration', async () => {
     config,
   });
 
-  // printer detached is not registered until timeout passes
+  // printer detached is not registered if isDeviceAttached shows it is still on USB bus
   mockGetConnectedDeviceUris.expectCallWith().returns([]);
   expect(await printer.status()).toEqual({
     connected: true,
     config,
   });
 
-  vi.advanceTimersByTime(POST_PRINT_DISCONNECT_ALLOWANCE);
-  // printer detached is detected
+  // printer detached is registered when isDeviceAttached shows it is gone
   mockGetConnectedDeviceUris.expectCallWith().returns([]);
-  expect(await printer.status()).toEqual({
-    connected: false,
-  });
+  isDeviceAttachedMock.mockReturnValue(false);
+  expect(await printer.status()).toEqual({ connected: false });
   expect(logger.log).toHaveBeenCalledTimes(2);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.PrinterConfigurationRemoved,
@@ -150,6 +157,7 @@ test('status and configuration', async () => {
       uri: supportedPrinterUri1,
     }
   );
+  vi.useRealTimers();
 });
 
 test('uses mock file printer when feature flag is set', () => {
