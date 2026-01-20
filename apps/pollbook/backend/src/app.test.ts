@@ -1647,7 +1647,7 @@ test('dismissAnomaly removes anomaly from active list', async () => {
   });
 });
 
-test('duplicate check-in via API creates anomaly', async () => {
+test('duplicate check-in after undo is allowed and does not create anomaly', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
