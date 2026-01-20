@@ -6,16 +6,10 @@ import {
   Callout,
   FileInputButton,
   FileInputButtonProps,
-  images,
 } from '@votingworks/ui';
-import {
-  assert,
-  err,
-  ok,
-  Result,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import React, { useEffect, useRef, useState } from 'react';
+import { NormalizeParams, normalizeImageToSvg } from './image_normalization';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 
@@ -80,57 +74,12 @@ function sanitizeSvg(svg: string): string {
   });
 }
 
-async function loadSvgImage(file: File): Promise<string> {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      /* istanbul ignore next - @preserve */
-      const contents = e.target?.result;
-      assert(typeof contents === 'string');
-      resolve(contents);
-    };
-    reader.readAsText(file);
-  });
-}
-
-interface SvgImageWithMetadata {
-  svgImage: string;
-  width: number;
-  height: number;
-}
-
-function bitmapImageToSvg(img: images.NormalizedImage): SvgImageWithMetadata {
-  const { dataUrl: imageDataUrl, heightPx: height, widthPx: width } = img;
-
-  return {
-    width,
-    height,
-    svgImage: `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-    <image href="${imageDataUrl}" width="${width}" height="${height}" />
-  </svg>`,
-  };
-}
-
-type NormalizeToSvgResult = Result<SvgImageWithMetadata, images.NormalizeError>;
-
-async function normalizeToSvg(
-  file: File,
-  params: images.NormalizeParams
-): Promise<NormalizeToSvgResult> {
-  const normalizeResult = await images.normalizeFile(file, params);
-  if (normalizeResult.isErr()) {
-    return normalizeResult;
-  }
-
-  return ok(bitmapImageToSvg(normalizeResult.ok()));
-}
-
 interface ImageInputButtonProps
   extends Pick<FileInputButtonProps, 'disabled' | 'buttonProps' | 'children'> {
   onChange: (svgImage: string) => void;
   onError: (error: Error) => void;
   required?: boolean;
-  normalizeParams: images.NormalizeParams;
+  normalizeParams: NormalizeParams;
 }
 
 export function ImageInputButton({
@@ -162,21 +111,15 @@ export function ImageInputButton({
       );
     }
 
-    if (file.type === 'image/svg+xml') {
-      return onChange(sanitizeSvg(await loadSvgImage(file)));
-    }
-
-    let svgResult: NormalizeToSvgResult;
-    try {
-      svgResult = await normalizeToSvg(file, normalizeParams);
-    } catch (error) {
-      svgResult = err({ code: 'unexpected', error });
-    }
+    const svgResult = await normalizeImageToSvg(file, normalizeParams);
 
     if (svgResult.isErr()) {
       const error = svgResult.err();
 
       switch (error.code) {
+        case 'invalidSvg':
+          return handleError('This image is not a valid SVG.');
+
         case 'belowMinHeight':
           return handleError(
             `Image height (${error.heightPx}px) is smaller than minimum ` +
@@ -205,12 +148,14 @@ export function ImageInputButton({
           );
         }
 
-        default:
+        default: {
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(error, 'code');
+        }
       }
     }
 
-    onChange(sanitizeSvg(svgResult.ok().svgImage));
+    onChange(sanitizeSvg(svgResult.ok()));
   }
 
   return (
@@ -231,7 +176,7 @@ export interface ImageInputProps {
   disabled?: boolean;
   className?: string;
   required?: boolean;
-  normalizeParams: images.NormalizeParams;
+  normalizeParams: NormalizeParams;
 }
 
 export function ImageInput({

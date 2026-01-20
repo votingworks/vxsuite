@@ -24,7 +24,6 @@ import {
   ButtonProps,
   Callout,
   Icons,
-  images,
   richTextStyles,
 } from '@votingworks/ui';
 import styled from 'styled-components';
@@ -32,6 +31,7 @@ import React, { useState } from 'react';
 import { Buffer } from 'node:buffer';
 import { ImageInputButton } from './image_input';
 import { Column } from './layout';
+import { NormalizeParams } from './image_normalization';
 
 const ControlGroup = styled.div`
   display: flex;
@@ -137,7 +137,7 @@ const LETTER_PAGE_WIDTH_INCHES = 8.5;
  * scaling to the ballot renderer first, to limit them to the bounds of the
  * contest box.
  */
-const NORMALIZE_PARAMS: Readonly<images.NormalizeParams> = {
+const NORMALIZE_PARAMS: Readonly<NormalizeParams> = {
   maxHeightPx: (LETTER_PAGE_HEIGHT_INCHES - 5) * PDF_PIXELS_PER_INCH,
   maxWidthPx: (LETTER_PAGE_WIDTH_INCHES - 2) * PDF_PIXELS_PER_INCH,
 };
