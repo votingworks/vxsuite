@@ -347,10 +347,14 @@ export function createApiMock() {
       mockApiClient.rebootToVendorMenu.expectCallWith().resolves();
     },
 
-    expectGetUsbPortStatus() {
+    expectGetUsbPortStatus(enabled = true) {
       mockApiClient.getUsbPortStatus
         .expectRepeatedCallsWith()
-        .resolves({ enabled: true });
+        .resolves({ enabled });
+    },
+
+    expectToggleUsbPorts(action: 'disable' | 'enable') {
+      mockApiClient.toggleUsbPorts.expectCallWith({ action }).resolves();
     },
 
     expectPlaySound(name: 'alarm' | 'chime' | 'error' | 'success' | 'warning') {

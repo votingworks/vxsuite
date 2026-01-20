@@ -54,6 +54,7 @@ test('SystemAdministratorScreen renders expected contents', () => {
   // These buttons are further tested in libs/ui
   screen.getByRole('button', { name: 'Unconfigure Machine' });
   screen.getByRole('button', { name: 'Save Logs' });
+  screen.getByRole('button', { name: 'Disable USB Ports' });
   screen.getByText('Power Down');
 
   screen.getByText(election.title);
