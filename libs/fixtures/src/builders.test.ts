@@ -48,7 +48,7 @@ test('election allows reading the election', () => {
 test('election allows reading the election definition', () => {
   const election = builders.election('data/electionGeneral/election.json');
   expect(election.readElectionDefinition().ballotHash).toMatchInlineSnapshot(
-    `"9d83f1f735ad86be900a346421c275164b24bd270b94736832864535920bce90"`
+    `"42bc6bb12fb6f3aa42706640d2a061cda7f6f24328c22886e17a1191286658c5"`
   );
 });
 
