@@ -16,7 +16,14 @@ import {
 } from './file_storage_client';
 
 export type { TtsStringDefault } from './tts_strings';
-export type { ElectionRecord, BackgroundTask } from './store';
+export type {
+  BackgroundTask,
+  DuplicateDistrictError,
+  DuplicatePartyError,
+  ElectionRecord,
+  MainExportTaskMetadata,
+  TestDecksTaskMetadata,
+} from './store';
 export type {
   User,
   JurisdictionUser,
@@ -42,7 +49,6 @@ export type {
 } from './features';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app';
 export type { ConvertMsResultsError } from './convert_ms_results';
-export type { DuplicateDistrictError, DuplicatePartyError } from './store';
 
 export type { BallotTemplateId } from '@votingworks/hmpb';
 

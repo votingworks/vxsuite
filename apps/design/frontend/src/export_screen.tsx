@@ -110,7 +110,11 @@ export function ExportScreen(): JSX.Element | null {
         if (error) {
           setExportError(error);
         } else {
-          downloadFile(assertDefined(currentElectionPackage.url));
+          // [TODO] Replace automatic download with download cards for separate
+          // election package/ballot archives.
+          downloadFile(
+            assertDefined(currentElectionPackage.electionPackageUrl)
+          );
         }
       }
     },

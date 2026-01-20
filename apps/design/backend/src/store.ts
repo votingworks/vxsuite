@@ -152,12 +152,17 @@ function backgroundTaskRowToBackgroundTask(
   };
 }
 
-export interface BackgroundTaskMetadata {
+export interface MainExportTaskMetadata {
   task?: BackgroundTask;
-  url?: string; // [TODO] Rename to electionPackageUrl
+  electionPackageUrl?: string;
   officialBallotsUrl?: string;
   sampleBallotsUrl?: string;
   testBallotsUrl?: string;
+}
+
+export interface TestDecksTaskMetadata {
+  task?: BackgroundTask;
+  url?: string;
 }
 
 /**
@@ -1953,7 +1958,7 @@ export class Store {
 
   async getElectionPackage(
     electionId: ElectionId
-  ): Promise<BackgroundTaskMetadata> {
+  ): Promise<MainExportTaskMetadata> {
     const electionPackage = (
       await this.db.withClient((client) =>
         client.query(
@@ -1981,7 +1986,7 @@ export class Store {
       task: electionPackage?.taskId
         ? await this.getBackgroundTask(electionPackage.taskId)
         : undefined,
-      url: electionPackage?.url ?? undefined,
+      electionPackageUrl: electionPackage?.url ?? undefined,
       officialBallotsUrl: electionPackage?.officialBallotsUrl || undefined,
       sampleBallotsUrl: electionPackage?.sampleBallotsUrl || undefined,
       testBallotsUrl: electionPackage?.testBallotsUrl || undefined,
@@ -2065,7 +2070,7 @@ export class Store {
     );
   }
 
-  async getTestDecks(electionId: ElectionId): Promise<BackgroundTaskMetadata> {
+  async getTestDecks(electionId: ElectionId): Promise<TestDecksTaskMetadata> {
     const testDecks = (
       await this.db.withClient((client) =>
         client.query(

@@ -101,7 +101,7 @@ import {
 import { ElectionInfo, ElectionListing, ElectionStatus } from './types';
 import { generateBallotStyles } from '@votingworks/hmpb';
 import {
-  BackgroundTaskMetadata,
+  MainExportTaskMetadata,
   DuplicateDistrictError,
   DuplicatePartyError,
 } from './store';
@@ -2730,7 +2730,7 @@ test('Election package management', async () => {
   });
   const electionPackageAfterInitiatingExport =
     await apiClient.getElectionPackage({ electionId });
-  expect(electionPackageAfterInitiatingExport).toEqual<BackgroundTaskMetadata>({
+  expect(electionPackageAfterInitiatingExport).toEqual<MainExportTaskMetadata>({
     task: {
       createdAt: expect.any(Date),
       id: expect.any(String),
@@ -2807,7 +2807,7 @@ test('Election package management', async () => {
   const electionPackageAfterExport = await apiClient.getElectionPackage({
     electionId,
   });
-  expect(electionPackageAfterExport).toEqual<BackgroundTaskMetadata>({
+  expect(electionPackageAfterExport).toEqual<MainExportTaskMetadata>({
     task: {
       completedAt: expect.any(Date),
       createdAt: expect.any(Date),
@@ -2821,9 +2821,11 @@ test('Election package management', async () => {
         total: 10,
       },
     },
-    url: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
+    electionPackageUrl: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
   });
-  expect(electionPackageAfterExport.url).toContain(nonVxJurisdiction.id);
+  expect(electionPackageAfterExport.electionPackageUrl).toContain(
+    nonVxJurisdiction.id
+  );
 
   // [TODO] Update worker to split up exports and verify these are set:
   expect(electionPackageAfterExport.officialBallotsUrl).toBeUndefined();
@@ -2831,7 +2833,7 @@ test('Election package management', async () => {
   expect(electionPackageAfterExport.sampleBallotsUrl).toBeUndefined();
 
   // Check that the correct package was returned by the files API endpoint
-  const electionPackageUrl = `${baseUrl}${electionPackageAfterExport.url}`;
+  const electionPackageUrl = `${baseUrl}${electionPackageAfterExport.electionPackageUrl}`;
   const response = await fetch(electionPackageUrl);
   const body = Buffer.from(await response.arrayBuffer());
   const { electionPackageFileName } =
@@ -2839,7 +2841,9 @@ test('Election package management', async () => {
   const electionHashes = electionPackageFileName.match(
     /^election-package-(.+)\.zip$/
   )![1];
-  expect(electionPackageAfterExport.url).toContain(electionHashes);
+  expect(electionPackageAfterExport.electionPackageUrl).toContain(
+    electionHashes
+  );
 
   // Check that a bad URL returns an error
   await suppressingConsoleOutput(async () => {
@@ -2872,14 +2876,14 @@ test('Election package management', async () => {
     await apiClient.getElectionPackage({ electionId });
   expect(
     electionPackageAfterInitiatingSecondExport
-  ).toEqual<BackgroundTaskMetadata>({
+  ).toEqual<MainExportTaskMetadata>({
     task: {
       createdAt: expect.any(Date),
       id: expect.any(String),
       payload: expectedPayload,
       taskName: 'generate_election_package',
     },
-    url: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
+    electionPackageUrl: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
   });
   const secondTaskId = assertDefined(
     electionPackageAfterInitiatingSecondExport.task

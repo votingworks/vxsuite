@@ -72,12 +72,13 @@ import {
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
 import {
-  BackgroundTaskMetadata,
+  MainExportTaskMetadata,
   DuplicateContestError,
   DuplicateDistrictError,
   DuplicateElectionError,
   DuplicatePartyError,
   DuplicatePrecinctError,
+  TestDecksTaskMetadata,
 } from './store';
 import {
   AggregatedReportedPollsStatus,
@@ -752,7 +753,7 @@ export function buildApi(ctx: AppContext) {
       electionId,
     }: {
       electionId: ElectionId;
-    }): Promise<BackgroundTaskMetadata> {
+    }): Promise<MainExportTaskMetadata> {
       return store.getElectionPackage(electionId);
     },
 
@@ -782,7 +783,7 @@ export function buildApi(ctx: AppContext) {
       electionId,
     }: {
       electionId: ElectionId;
-    }): Promise<BackgroundTaskMetadata> {
+    }): Promise<TestDecksTaskMetadata> {
       return store.getTestDecks(electionId);
     },
 

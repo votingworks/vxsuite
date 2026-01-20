@@ -195,7 +195,7 @@ test('export election package and ballots', async () => {
       completedAt: new Date(taskCreatedAt.getTime() + 2000),
       progress: { label: 'Rendering ballot PDFs', progress: 100, total: 100 },
     },
-    url: fileUrl,
+    electionPackageUrl: fileUrl,
   });
   vi.advanceTimersByTime(BACKGROUND_TASK_POLLING_INTERVAL_MS);
 
