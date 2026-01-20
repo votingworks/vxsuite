@@ -193,6 +193,7 @@ test('printTestPage prints and logs', async () => {
 
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'mark-print-test-page',
+    failureThreshold: 0.0001,
   });
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(

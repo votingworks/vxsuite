@@ -532,13 +532,11 @@ function CandidateContest({
           <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
         <DualLanguageText delimiter="/">
-          <div>{voteForText}</div>
+          <div>
+            {voteForText}
+            {willBeElectedText && <>; {willBeElectedText}</>}
+          </div>
         </DualLanguageText>
-        {willBeElectedText && (
-          <DualLanguageText delimiter="/">
-            <div>{willBeElectedText}</div>
-          </DualLanguageText>
-        )}
         {contest.termDescription && (
           <DualLanguageText delimiter="/">
             <div>{electionStrings.contestTerm(contest)}</div>

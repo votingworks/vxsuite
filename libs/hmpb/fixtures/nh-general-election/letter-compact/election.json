@@ -173,15 +173,15 @@
       "stateName": "State of Hamilton",
       "ballotLanguage": "English",
       "electionDate": "November 3, 2020",
-      "hmpb10WillBeElected": "10 will be elected",
-      "hmpb2WillBeElected": "2 will be elected",
-      "hmpb3WillBeElected": "3 will be elected",
-      "hmpb4WillBeElected": "4 will be elected",
-      "hmpb5WillBeElected": "5 will be elected",
-      "hmpb6WillBeElected": "6 will be elected",
-      "hmpb7WillBeElected": "7 will be elected",
-      "hmpb8WillBeElected": "8 will be elected",
-      "hmpb9WillBeElected": "9 will be elected",
+      "hmpb10WillBeElected": "Ten will be elected",
+      "hmpb2WillBeElected": "Two will be elected",
+      "hmpb3WillBeElected": "Three will be elected",
+      "hmpb4WillBeElected": "Four will be elected",
+      "hmpb5WillBeElected": "Five will be elected",
+      "hmpb6WillBeElected": "Six will be elected",
+      "hmpb7WillBeElected": "Seven will be elected",
+      "hmpb8WillBeElected": "Eight will be elected",
+      "hmpb9WillBeElected": "Nine will be elected",
       "hmpbContinueVotingOnBack": "Turn ballot over and continue voting",
       "hmpbContinueVotingOnNextSheet": "Continue voting on next ballot sheet",
       "hmpbInstructions": "Instructions",
@@ -2564,7 +2564,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 3.50012278978389,
+          "row": 2.9242387033398822,
           "contestId": "county-commissioners",
           "optionId": "altman",
           "partyIds": [
@@ -2576,7 +2576,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 5.0841110019646365,
+          "row": 4.508226915520629,
           "contestId": "county-commissioners",
           "optionId": "argent",
           "partyIds": [
@@ -2588,7 +2588,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 6.668099214145383,
+          "row": 6.092215127701375,
           "contestId": "county-commissioners",
           "optionId": "bainbridge",
           "partyIds": [
@@ -2600,7 +2600,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 8.25208742632613,
+          "row": 7.676203339882122,
           "contestId": "county-commissioners",
           "optionId": "hennessey",
           "partyIds": [
@@ -2612,7 +2612,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 9.836075638506877,
+          "row": 9.260191552062869,
           "contestId": "county-commissioners",
           "optionId": "moore",
           "partyIds": [
@@ -2624,7 +2624,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 11.420063850687622,
+          "row": 10.844179764243615,
           "contestId": "county-commissioners",
           "optionId": "rangel-damian",
           "partyIds": [
@@ -2636,7 +2636,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 13.00405206286837,
+          "row": 12.428167976424362,
           "contestId": "county-commissioners",
           "optionId": "savoy",
           "partyIds": [
@@ -2648,7 +2648,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 14.588040275049117,
+          "row": 14.012156188605108,
           "contestId": "county-commissioners",
           "optionId": "schreiner",
           "partyIds": [
@@ -2660,7 +2660,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 16.172028487229863,
+          "row": 15.596144400785855,
           "contestId": "county-commissioners",
           "optionId": "tawa",
           "partyIds": [
@@ -2672,7 +2672,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 17.75601669941061,
+          "row": 17.180132612966602,
           "contestId": "county-commissioners",
           "optionId": "tawa-mary",
           "partyIds": [
@@ -2684,7 +2684,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 19.340004911591357,
+          "row": 18.764120825147348,
           "contestId": "county-commissioners",
           "optionId": "witherspoonsmithson",
           "partyIds": [
@@ -2696,12 +2696,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 21.19904223968566,
+          "row": 20.62315815324165,
           "contestId": "county-commissioners",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 12.136108028116908,
-            "y": 20.49904223968566,
+            "y": 19.92315815324165,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2711,12 +2711,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 22.956164047151276,
+          "row": 22.38027996070727,
           "contestId": "county-commissioners",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 12.136108028116908,
-            "y": 22.256164047151277,
+            "y": 21.68027996070727,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2726,12 +2726,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 24.713285854616895,
+          "row": 24.13740176817289,
           "contestId": "county-commissioners",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 12.136108028116908,
-            "y": 24.013285854616896,
+            "y": 23.43740176817289,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2741,12 +2741,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.836108028116907,
-          "row": 26.470407662082515,
+          "row": 25.89452357563851,
           "contestId": "county-commissioners",
           "writeInIndex": 3,
           "writeInArea": {
             "x": 12.136108028116908,
-            "y": 25.770407662082516,
+            "y": 25.19452357563851,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2822,7 +2822,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34437045258355,
-          "row": 16.095898821218075,
+          "row": 15.520014734774067,
           "contestId": "city-council",
           "optionId": "davis",
           "partyIds": [
@@ -2834,7 +2834,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34437045258355,
-          "row": 17.67988703339882,
+          "row": 17.104002946954814,
           "contestId": "city-council",
           "optionId": "eagle",
           "partyIds": [
@@ -2846,7 +2846,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34437045258355,
-          "row": 19.26387524557957,
+          "row": 18.68799115913556,
           "contestId": "city-council",
           "optionId": "rupp",
           "partyIds": [
@@ -2858,7 +2858,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34437045258355,
-          "row": 20.847863457760315,
+          "row": 20.271979371316306,
           "contestId": "city-council",
           "optionId": "shry",
           "partyIds": [
@@ -2870,7 +2870,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34437045258355,
-          "row": 22.43185166994106,
+          "row": 21.855967583497055,
           "contestId": "city-council",
           "optionId": "smith",
           "partyIds": [
@@ -2882,7 +2882,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34437045258355,
-          "row": 24.015839882121806,
+          "row": 23.4399557956778,
           "contestId": "city-council",
           "optionId": "barker",
           "partyIds": [
@@ -2894,12 +2894,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34437045258355,
-          "row": 25.87487721021611,
+          "row": 25.298993123772103,
           "contestId": "city-council",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 22.64437045258355,
-            "y": 25.17487721021611,
+            "y": 24.598993123772104,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2909,12 +2909,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34437045258355,
-          "row": 27.63199901768173,
+          "row": 27.056114931237722,
           "contestId": "city-council",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 22.64437045258355,
-            "y": 26.93199901768173,
+            "y": 26.356114931237723,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2924,12 +2924,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34437045258355,
-          "row": 29.389120825147348,
+          "row": 28.813236738703342,
           "contestId": "city-council",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 22.64437045258355,
-            "y": 28.68912082514735,
+            "y": 28.113236738703343,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
