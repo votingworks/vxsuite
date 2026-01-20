@@ -12,9 +12,15 @@ import {
   Voter,
 } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { BaseLogger } from '@votingworks/logging';
 import { HlcTimestamp } from '../src/hybrid_logical_clock';
 import { Store } from '../src/store';
-import { VoterCheckInEvent, EventType, PollbookEventBase } from '../src/types';
+import {
+  VoterCheckInEvent,
+  UndoVoterCheckInEvent,
+  EventType,
+  PollbookEventBase,
+} from '../src/types';
 import { PeerStore } from '../src/peer_store';
 
 interface OptionalMockVoterParams {
@@ -105,6 +111,23 @@ export function createVoterCheckInEvent(
       receiptNumber,
       ballotParty,
     },
+  };
+}
+
+export function createUndoCheckInEvent(
+  receiptNumber: number,
+  machineId: string,
+  voterId: string,
+  hlcTimestamp: HlcTimestamp,
+  reason: string = 'Test undo'
+): UndoVoterCheckInEvent {
+  return {
+    type: EventType.UndoVoterCheckIn,
+    machineId,
+    receiptNumber,
+    timestamp: hlcTimestamp,
+    voterId,
+    reason,
   };
 }
 
@@ -247,4 +270,27 @@ export function setupTestElectionAndVoters(
     testStreetInfo,
     testVoters
   );
+}
+
+interface CreateTestPeerStoreOptions {
+  machineId?: string;
+  voterCount?: number;
+}
+
+/**
+ * Creates a memory-backed PeerStore with test voters for unit testing.
+ */
+export function createTestPeerStore(
+  logger: BaseLogger,
+  options: CreateTestPeerStoreOptions = {}
+): PeerStore {
+  const { machineId = 'test-machine', voterCount = 10 } = options;
+  const store = PeerStore.memoryStore(logger, machineId);
+  const voters = Array.from({ length: voterCount }, (_, i) =>
+    createVoter(`voter-${i}`, `FirstName${i}`, `LastName${i}`)
+  );
+  const testElection = getTestElectionDefinition();
+  store.setElectionAndVoters(testElection, 'mock-package-hash', [], voters);
+  store.setConfiguredPrecinct(testElection.election.precincts[0].id);
+  return store;
 }

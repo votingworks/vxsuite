@@ -10,10 +10,12 @@ import {
 import {
   createValidStreetInfo,
   createVoter,
+  createVoterCheckInEvent,
   getTestElectionDefinition,
   syncEventsForAllPollbooks,
   syncEventsFromTo,
 } from '../test/test_helpers';
+import { HybridLogicalClock } from './hybrid_logical_clock';
 import { LocalStore } from './local_store';
 import { PeerStore } from './peer_store';
 
@@ -1595,5 +1597,157 @@ test('can check in after mark inactive event is synced', () => {
     const v = store.getVoter('ina');
     expect(v.isInactive).toEqual(true);
     expect(v.checkIn).toBeDefined();
+  }
+});
+
+// Multi-node anomaly detection tests
+test('check-in on different machines for same voter creates anomaly after sync', async () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+
+  const testElectionDefinition = getTestElectionDefinition();
+  const voters = Array.from({ length: 10 }, (_, i) =>
+    createVoter(`voter-${i}`, `FirstName${i}`, `LastName${i}`)
+  );
+
+  for (const store of [localA, localB]) {
+    store.setElectionAndVoters(
+      testElectionDefinition,
+      'mock-package-hash',
+      [],
+      voters
+    );
+    store.setConfiguredPrecinct(
+      testElectionDefinition.election.precincts[0].id
+    );
+  }
+
+  const clockA = new HybridLogicalClock('pollbook-a');
+  const clockB = new HybridLogicalClock('pollbook-b');
+
+  // Check-in on machine A
+  peerA.saveEvent(
+    createVoterCheckInEvent(1, 'pollbook-a', 'voter-1', clockA.tick())
+  );
+
+  await sleep(10);
+
+  // Check-in on machine B (before sync)
+  peerB.saveEvent(
+    createVoterCheckInEvent(1, 'pollbook-b', 'voter-1', clockB.tick())
+  );
+
+  // Neither should have anomalies yet
+  expect(peerA.getActiveAnomalies()).toHaveLength(0);
+  expect(peerB.getActiveAnomalies()).toHaveLength(0);
+
+  // Sync events from A to B
+  syncEventsFromTo(peerA, peerB);
+
+  // Machine B should now detect the duplicate
+  const anomalies = peerB.getActiveAnomalies();
+  expect(anomalies).toHaveLength(1);
+  expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+
+  // Verify both machines are recorded
+  const machineIds = anomalies[0].anomalyDetails.checkInEvents.map(
+    (e) => e.machineId
+  );
+  expect(machineIds).toContain('pollbook-a');
+  expect(machineIds).toContain('pollbook-b');
+});
+
+test('syncing check-in to machine with existing check-in creates anomaly on receiving machine', () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+
+  const testElectionDefinition = getTestElectionDefinition();
+  const voters = Array.from({ length: 10 }, (_, i) =>
+    createVoter(`voter-${i}`, `FirstName${i}`, `LastName${i}`)
+  );
+
+  for (const store of [localA, localB]) {
+    store.setElectionAndVoters(
+      testElectionDefinition,
+      'mock-package-hash',
+      [],
+      voters
+    );
+    store.setConfiguredPrecinct(
+      testElectionDefinition.election.precincts[0].id
+    );
+  }
+
+  const clockA = new HybridLogicalClock('pollbook-a');
+  const clockB = new HybridLogicalClock('pollbook-b');
+
+  // Check-in on machine B first
+  peerB.saveEvent(
+    createVoterCheckInEvent(1, 'pollbook-b', 'voter-1', clockB.tick())
+  );
+
+  // Check-in on machine A
+  peerA.saveEvent(
+    createVoterCheckInEvent(1, 'pollbook-a', 'voter-1', clockA.tick())
+  );
+
+  // Neither should have anomalies yet
+  expect(peerA.getActiveAnomalies()).toHaveLength(0);
+  expect(peerB.getActiveAnomalies()).toHaveLength(0);
+
+  // Sync from A to B
+  syncEventsFromTo(peerA, peerB);
+
+  // Machine B should now see the anomaly
+  const anomalies = peerB.getActiveAnomalies();
+  expect(anomalies).toHaveLength(1);
+});
+
+test('anomaly records correct timestamps from different machines', async () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+
+  const testElectionDefinition = getTestElectionDefinition();
+  const voters = Array.from({ length: 10 }, (_, i) =>
+    createVoter(`voter-${i}`, `FirstName${i}`, `LastName${i}`)
+  );
+
+  for (const store of [localA, localB]) {
+    store.setElectionAndVoters(
+      testElectionDefinition,
+      'mock-package-hash',
+      [],
+      voters
+    );
+    store.setConfiguredPrecinct(
+      testElectionDefinition.election.precincts[0].id
+    );
+  }
+
+  const clockA = new HybridLogicalClock('pollbook-a');
+  const clockB = new HybridLogicalClock('pollbook-b');
+
+  peerA.saveEvent(
+    createVoterCheckInEvent(1, 'pollbook-a', 'voter-1', clockA.tick())
+  );
+
+  await sleep(50);
+
+  peerB.saveEvent(
+    createVoterCheckInEvent(1, 'pollbook-b', 'voter-1', clockB.tick())
+  );
+
+  // Sync to machine B
+  syncEventsFromTo(peerA, peerB);
+
+  const anomalies = peerB.getActiveAnomalies();
+  expect(anomalies).toHaveLength(1);
+
+  const { checkInEvents } = anomalies[0].anomalyDetails;
+  expect(checkInEvents).toHaveLength(2);
+
+  // Timestamps should be valid ISO strings
+  for (const event of checkInEvents) {
+    expect(new Date(event.timestamp).toISOString()).toEqual(event.timestamp);
   }
 });

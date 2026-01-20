@@ -18,6 +18,7 @@ beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
   apiMock = createApiMock();
+  apiMock.expectGetActiveAnomalies([]);
 });
 
 afterEach(() => {

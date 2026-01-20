@@ -23,6 +23,11 @@ import {
   PollbookConfigurationInformation,
   ConfigurationError,
   ConfigurationStatus,
+  Anomaly,
+  AnomalyDbRow,
+  AnomalyType,
+  AnomalyDetailsDb,
+  DuplicateCheckInDetailsDb,
 } from './types';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import {
@@ -359,24 +364,36 @@ export abstract class Store {
 
             // Check if there is more than one check-in event detected for the same voter, log a warning
             if (checkInEventsNotUndone.length > 1) {
+              const message = `Multiple check-in events detected for voter ${
+                pollbookEvent.voterId
+              }. Check in times by machine: ${checkInEventsNotUndone
+                .map(
+                  (e) =>
+                    `${e.machineId} : ${new Date(
+                      e.timestamp.physical
+                    ).toISOString()}`
+                )
+                .join(', ')}`;
+
               this.logger.log(
                 LogEventId.PollbookDuplicateCheckInDetected,
                 'system',
                 {
-                  message: `Multiple check-in events detected for voter ${
-                    pollbookEvent.voterId
-                  }. Check in times by machine: ${checkInEventsNotUndone
-                    .map(
-                      (e) =>
-                        `${e.machineId} : ${new Date(
-                          e.timestamp.physical
-                        ).toISOString()}`
-                    )
-                    .join(', ')}`,
+                  message,
                   voterId: pollbookEvent.voterId,
                   disposition: 'failure',
                 }
               );
+
+              // Record the anomaly in the database
+              const duplicateCheckInDetails: DuplicateCheckInDetailsDb = {
+                voterId: pollbookEvent.voterId,
+                checkInEvents: checkInEventsNotUndone.map((e) => ({
+                  machineId: e.machineId,
+                  timestamp: new Date(e.timestamp.physical).toISOString(),
+                })),
+              };
+              this.recordAnomaly('DuplicateCheckIn', duplicateCheckInDetails);
             }
           }
           this.client.run(
@@ -691,5 +708,67 @@ export abstract class Store {
       lastEventSyncedPerNode[row.machine_id] = row.max_event_id;
     }
     return lastEventSyncedPerNode;
+  }
+
+  // Anomaly management methods
+  recordAnomaly(
+    anomalyType: AnomalyType,
+    anomalyDetails: AnomalyDetailsDb
+  ): void {
+    const detectedAt = Date.now();
+    this.client.run(
+      `
+      INSERT INTO anomalies (
+        anomaly_type,
+        detected_at,
+        anomaly_details,
+        dismissed
+      ) VALUES (?, ?, ?, 0)
+      `,
+      anomalyType,
+      detectedAt,
+      JSON.stringify(anomalyDetails)
+    );
+  }
+
+  getActiveAnomalies(): Anomaly[] {
+    const rows = this.client.all(
+      `
+      SELECT *
+      FROM anomalies
+      WHERE dismissed = 0
+      ORDER BY detected_at DESC
+      `
+    ) as AnomalyDbRow[];
+
+    return rows.map((row) => {
+      const dbDetails = JSON.parse(row.anomaly_details) as AnomalyDetailsDb;
+      const voter = this.getVoter(dbDetails.voterId);
+
+      return {
+        anomalyId: row.anomaly_id,
+        anomalyType: row.anomaly_type,
+        detectedAt: new Date(row.detected_at),
+        anomalyDetails: {
+          ...dbDetails,
+          voter,
+        },
+        dismissedAt: row.dismissed_at ? new Date(row.dismissed_at) : undefined,
+        dismissed: row.dismissed === 1,
+      };
+    });
+  }
+
+  dismissAnomaly(anomalyId: number): void {
+    const dismissedAt = Date.now();
+    this.client.run(
+      `
+      UPDATE anomalies
+      SET dismissed = 1, dismissed_at = ?
+      WHERE anomaly_id = ?
+      `,
+      dismissedAt,
+      anomalyId
+    );
   }
 }

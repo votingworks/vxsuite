@@ -29,6 +29,7 @@ beforeEach(() => {
   apiMock.setIsAbsenteeMode(false);
   apiMock.setElection(electionDefFamousNames);
   apiMock.expectGetDeviceStatuses();
+  apiMock.expectGetActiveAnomalies([]);
   apiMock.expectHaveElectionEventsOccurred(false);
   apiMock.expectGetScannedIdDocument();
 });

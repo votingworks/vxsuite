@@ -1,4 +1,5 @@
 import './polyfills';
+import { useEffect, useMemo } from 'react';
 import {
   AppBase,
   ErrorBoundary,
@@ -20,7 +21,6 @@ import {
   isVendorAuth,
 } from '@votingworks/utils';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
-import { useEffect, useMemo } from 'react';
 import {
   ApiClient,
   ApiClientContext,
@@ -29,6 +29,7 @@ import {
   createQueryClient,
   getAuthStatus,
   getElection,
+  getActiveAnomalies,
   logOut,
   systemCallApi,
   unconfigure,
@@ -41,6 +42,7 @@ import { ElectionManagerScreen } from './election_manager_screen';
 import { SystemAdministratorScreen } from './system_administrator_screen';
 import { UnconfiguredElectionManagerScreen } from './unconfigured_screen';
 import { SessionTimeLimitTracker } from './session_time_limit_tracker';
+import { AnomalyAlertScreen } from './anomaly_alert_screen';
 
 function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   const apiClient = useApiClient();
@@ -49,6 +51,7 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   const unconfigureMutation = unconfigure.useMutation();
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const getElectionQuery = getElection.useQuery({ refetchInterval: 100 });
+  const getActiveAnomaliesQuery = getActiveAnomalies.useQuery();
   const history = useHistory();
 
   const loggableUserName = useMemo(
@@ -77,6 +80,15 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
     return null;
   }
   const auth = getAuthStatusQuery.data;
+
+  // Show anomaly screen if there are active anomalies and user is authenticated
+  if (
+    getActiveAnomaliesQuery.isSuccess &&
+    getActiveAnomaliesQuery.data.length > 0 &&
+    auth.status === 'logged_in'
+  ) {
+    return <AnomalyAlertScreen anomaly={getActiveAnomaliesQuery.data[0]} />;
+  }
 
   if (auth.status === 'logged_out' && auth.reason === 'no_card_reader') {
     return <SetupCardReaderPage />;

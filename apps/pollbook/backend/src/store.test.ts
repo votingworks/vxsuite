@@ -1,8 +1,10 @@
-import { expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { assert, sleep } from '@votingworks/basics';
 import { mockBaseLogger } from '@votingworks/logging';
 import { HybridLogicalClock } from './hybrid_logical_clock';
 import {
+  createTestPeerStore,
+  createUndoCheckInEvent,
   createVoter,
   createVoterCheckInEvent,
   getTestElectionDefinition,
@@ -12,6 +14,7 @@ import {
   sortedByVoterName,
   sortedByVoterNameAndMatchingPrecinct,
 } from './store';
+import { DuplicateCheckInDetailsDb } from './types';
 
 export const myMachineId = 'machine-1';
 const otherMachineId = 'machine-2';
@@ -465,4 +468,494 @@ test('sortedByVoterNameAndMatchingPrecinct respects useOriginalName option', () 
   expect(
     sorted.map((v) => `${v.firstName} ${v.lastName} (${v.precinct})`)
   ).toEqual(['Charlie Brown (precinct-1)', 'Alice Brown (precinct-2)']);
+});
+
+describe('Anomaly Management - Store Methods', () => {
+  describe('recordAnomaly', () => {
+    test('stores anomaly in database with correct fields', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const anomalyDetails: DuplicateCheckInDetailsDb = {
+        voterId: 'voter-1',
+        checkInEvents: [
+          { machineId: 'machine-1', timestamp: '2024-01-01T10:00:00.000Z' },
+          { machineId: 'machine-2', timestamp: '2024-01-01T10:01:00.000Z' },
+        ],
+      };
+
+      store.recordAnomaly('DuplicateCheckIn', anomalyDetails);
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(1);
+      expect(anomalies[0].anomalyType).toEqual('DuplicateCheckIn');
+      expect(anomalies[0].dismissed).toEqual(false);
+      expect(anomalies[0].dismissedAt).toBeUndefined();
+      expect(anomalies[0].anomalyDetails.voterId).toEqual('voter-1');
+      expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+    });
+
+    test('sets detected_at to current time', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const beforeTime = Date.now();
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-1',
+        checkInEvents: [
+          { machineId: 'machine-1', timestamp: '2024-01-01T10:00:00.000Z' },
+        ],
+      });
+
+      const afterTime = Date.now();
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies[0].detectedAt.getTime()).toBeGreaterThanOrEqual(
+        beforeTime
+      );
+      expect(anomalies[0].detectedAt.getTime()).toBeLessThanOrEqual(afterTime);
+    });
+
+    test('can record multiple anomalies', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-1',
+        checkInEvents: [
+          { machineId: 'machine-1', timestamp: '2024-01-01T10:00:00.000Z' },
+        ],
+      });
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-2',
+        checkInEvents: [
+          { machineId: 'machine-1', timestamp: '2024-01-01T10:05:00.000Z' },
+        ],
+      });
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(2);
+    });
+  });
+
+  describe('getActiveAnomalies', () => {
+    test('returns empty array when no anomalies exist', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toEqual([]);
+    });
+
+    test('returns only non-dismissed anomalies', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-1',
+        checkInEvents: [],
+      });
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-2',
+        checkInEvents: [],
+      });
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(2);
+
+      // Find and dismiss the voter-1 anomaly
+      const voter1Anomaly = anomalies.find(
+        (a) => a.anomalyDetails.voterId === 'voter-1'
+      );
+      expect(voter1Anomaly).toBeDefined();
+      store.dismissAnomaly(voter1Anomaly!.anomalyId);
+
+      const activeAnomalies = store.getActiveAnomalies();
+      expect(activeAnomalies).toHaveLength(1);
+      expect(activeAnomalies[0].anomalyDetails.voterId).toEqual('voter-2');
+    });
+
+    test('returns anomalies ordered by detected_at DESC (most recent first)', async () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-1',
+        checkInEvents: [],
+      });
+
+      await sleep(10);
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-2',
+        checkInEvents: [],
+      });
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(2);
+      // Most recent first
+      expect(anomalies[0].anomalyDetails.voterId).toEqual('voter-2');
+      expect(anomalies[1].anomalyDetails.voterId).toEqual('voter-1');
+      expect(anomalies[0].detectedAt.getTime()).toBeGreaterThan(
+        anomalies[1].detectedAt.getTime()
+      );
+    });
+
+    test('enriches anomaly with full voter object', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-1',
+        checkInEvents: [
+          { machineId: 'machine-1', timestamp: '2024-01-01T10:00:00.000Z' },
+        ],
+      });
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies[0].anomalyDetails.voter).toBeDefined();
+      expect(anomalies[0].anomalyDetails.voter.voterId).toEqual('voter-1');
+      expect(anomalies[0].anomalyDetails.voter.firstName).toEqual('FirstName1');
+      expect(anomalies[0].anomalyDetails.voter.lastName).toEqual('LastName1');
+    });
+
+    test('converts timestamp integers to Date objects', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-1',
+        checkInEvents: [],
+      });
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies[0].detectedAt).toBeInstanceOf(Date);
+    });
+  });
+
+  describe('dismissAnomaly', () => {
+    test('marks anomaly as dismissed', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-1',
+        checkInEvents: [],
+      });
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(1);
+
+      store.dismissAnomaly(anomalies[0].anomalyId);
+
+      const activeAnomalies = store.getActiveAnomalies();
+      expect(activeAnomalies).toHaveLength(0);
+    });
+
+    test('dismissing non-existent anomaly does not throw', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      expect(() => store.dismissAnomaly(999999)).not.toThrow();
+    });
+
+    test('dismissed anomaly no longer appears in getActiveAnomalies', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-1',
+        checkInEvents: [],
+      });
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-2',
+        checkInEvents: [],
+      });
+      store.recordAnomaly('DuplicateCheckIn', {
+        voterId: 'voter-3',
+        checkInEvents: [],
+      });
+
+      const allAnomalies = store.getActiveAnomalies();
+      expect(allAnomalies).toHaveLength(3);
+
+      // Dismiss the middle one (voter-2)
+      const voter2Anomaly = allAnomalies.find(
+        (a) => a.anomalyDetails.voterId === 'voter-2'
+      );
+      expect(voter2Anomaly).toBeDefined();
+      store.dismissAnomaly(voter2Anomaly!.anomalyId);
+
+      const remainingAnomalies = store.getActiveAnomalies();
+      expect(remainingAnomalies).toHaveLength(2);
+      expect(
+        remainingAnomalies.find((a) => a.anomalyDetails.voterId === 'voter-2')
+      ).toBeUndefined();
+    });
+  });
+});
+
+describe('Duplicate Check-In Detection', () => {
+  describe('single machine scenarios', () => {
+    test('single check-in does not create anomaly', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      const event = createVoterCheckInEvent(
+        1,
+        myMachineId,
+        'voter-1',
+        clock.tick()
+      );
+      store.saveEvent(event);
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(0);
+    });
+
+    test('two check-ins for same voter creates anomaly', async () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      const event1 = createVoterCheckInEvent(
+        1,
+        myMachineId,
+        'voter-1',
+        clock.tick()
+      );
+      store.saveEvent(event1);
+
+      await sleep(10);
+
+      const event2 = createVoterCheckInEvent(
+        2,
+        myMachineId,
+        'voter-1',
+        clock.tick()
+      );
+      store.saveEvent(event2);
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(1);
+      expect(anomalies[0].anomalyType).toEqual('DuplicateCheckIn');
+      expect(anomalies[0].anomalyDetails.voterId).toEqual('voter-1');
+      expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+    });
+
+    test('check-ins for different voters do not create anomaly', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      store.saveEvent(
+        createVoterCheckInEvent(1, myMachineId, 'voter-1', clock.tick())
+      );
+      store.saveEvent(
+        createVoterCheckInEvent(2, myMachineId, 'voter-2', clock.tick())
+      );
+      store.saveEvent(
+        createVoterCheckInEvent(3, myMachineId, 'voter-3', clock.tick())
+      );
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(0);
+    });
+
+    test('three check-ins for same voter records all events in anomaly', async () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      store.saveEvent(
+        createVoterCheckInEvent(1, myMachineId, 'voter-1', clock.tick())
+      );
+      await sleep(5);
+      store.saveEvent(
+        createVoterCheckInEvent(2, myMachineId, 'voter-1', clock.tick())
+      );
+      await sleep(5);
+      store.saveEvent(
+        createVoterCheckInEvent(3, myMachineId, 'voter-1', clock.tick())
+      );
+
+      const anomalies = store.getActiveAnomalies();
+      // Each duplicate creates a new anomaly when detected
+      expect(anomalies.length).toBeGreaterThanOrEqual(1);
+
+      // The most recent anomaly should have all check-in events
+      const latestAnomaly = anomalies[0];
+      expect(latestAnomaly.anomalyDetails.checkInEvents).toHaveLength(3);
+    });
+  });
+
+  describe('undo check-in behavior', () => {
+    test('check-in after undo does not create anomaly', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      // First check-in
+      store.saveEvent(
+        createVoterCheckInEvent(1, myMachineId, 'voter-1', clock.tick())
+      );
+
+      // Undo the check-in
+      store.saveEvent(
+        createUndoCheckInEvent(100, myMachineId, 'voter-1', clock.tick())
+      );
+
+      // Check-in again
+      store.saveEvent(
+        createVoterCheckInEvent(2, myMachineId, 'voter-1', clock.tick())
+      );
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(0);
+    });
+
+    test('two check-ins after undo creates anomaly', async () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      // First check-in
+      store.saveEvent(
+        createVoterCheckInEvent(1, myMachineId, 'voter-1', clock.tick())
+      );
+
+      // Undo the check-in
+      store.saveEvent(
+        createUndoCheckInEvent(100, myMachineId, 'voter-1', clock.tick())
+      );
+
+      // Check-in again (should be fine)
+      store.saveEvent(
+        createVoterCheckInEvent(2, myMachineId, 'voter-1', clock.tick())
+      );
+
+      await sleep(5);
+
+      // Another check-in (should trigger anomaly)
+      store.saveEvent(
+        createVoterCheckInEvent(3, myMachineId, 'voter-1', clock.tick())
+      );
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies).toHaveLength(1);
+      expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+    });
+
+    test('undo clears duplicate detection state', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      // First check-in
+      store.saveEvent(
+        createVoterCheckInEvent(1, myMachineId, 'voter-1', clock.tick())
+      );
+
+      // Second check-in (creates anomaly)
+      store.saveEvent(
+        createVoterCheckInEvent(2, myMachineId, 'voter-1', clock.tick())
+      );
+
+      expect(store.getActiveAnomalies()).toHaveLength(1);
+
+      // Undo
+      store.saveEvent(
+        createUndoCheckInEvent(100, myMachineId, 'voter-1', clock.tick())
+      );
+
+      // Single new check-in after undo should not create NEW anomaly
+      // (old anomaly still exists)
+      const anomaliesBefore = store.getActiveAnomalies().length;
+      store.saveEvent(
+        createVoterCheckInEvent(3, myMachineId, 'voter-1', clock.tick())
+      );
+      const anomaliesAfter = store.getActiveAnomalies().length;
+
+      // No new anomaly should be created
+      expect(anomaliesAfter).toEqual(anomaliesBefore);
+    });
+  });
+
+  describe('anomaly details', () => {
+    test('anomaly contains correct voter ID', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      store.saveEvent(
+        createVoterCheckInEvent(1, myMachineId, 'voter-5', clock.tick())
+      );
+      store.saveEvent(
+        createVoterCheckInEvent(2, myMachineId, 'voter-5', clock.tick())
+      );
+
+      const anomalies = store.getActiveAnomalies();
+      expect(anomalies[0].anomalyDetails.voterId).toEqual('voter-5');
+    });
+
+    test('anomaly includes voter details', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      store.saveEvent(
+        createVoterCheckInEvent(1, myMachineId, 'voter-3', clock.tick())
+      );
+      store.saveEvent(
+        createVoterCheckInEvent(2, myMachineId, 'voter-3', clock.tick())
+      );
+
+      const anomalies = store.getActiveAnomalies();
+      const { voter } = anomalies[0].anomalyDetails;
+      expect(voter.voterId).toEqual('voter-3');
+      expect(voter.firstName).toEqual('FirstName3');
+      expect(voter.lastName).toEqual('LastName3');
+    });
+
+    test('check-in events include machine ID and timestamp', () => {
+      const store = createTestPeerStore(mockBaseLogger({ fn: vi.fn }), {
+        machineId: myMachineId,
+      });
+      const clock = new HybridLogicalClock(myMachineId);
+
+      store.saveEvent(
+        createVoterCheckInEvent(1, myMachineId, 'voter-1', clock.tick())
+      );
+      store.saveEvent(
+        createVoterCheckInEvent(2, myMachineId, 'voter-1', clock.tick())
+      );
+
+      const anomalies = store.getActiveAnomalies();
+      const { checkInEvents } = anomalies[0].anomalyDetails;
+
+      for (const event of checkInEvents) {
+        expect(event.machineId).toEqual(myMachineId);
+        expect(event.timestamp).toBeDefined();
+        expect(typeof event.timestamp).toEqual('string');
+      }
+    });
+  });
 });

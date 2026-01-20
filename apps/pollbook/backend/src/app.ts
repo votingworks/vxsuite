@@ -59,6 +59,7 @@ import {
   isBarcodeScannerError,
   PartyFilterAbbreviation,
   PrimarySummaryStatistics,
+  Anomaly,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -134,6 +135,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
           'getUsbDriveStatus',
           'getVoter',
           'searchVoters',
+          'getUndismissedAnomalies',
         ];
         if (silenceMethods.includes(methodName)) {
           return;
@@ -696,6 +698,14 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     async resetNetwork(): Promise<boolean> {
       await workspace.peerApiClient.resetNetwork();
       return true;
+    },
+
+    getActiveAnomalies(): Anomaly[] {
+      return store.getActiveAnomalies();
+    },
+
+    dismissAnomaly(input: { anomalyId: number }): void {
+      store.dismissAnomaly(input.anomalyId);
     },
 
     ...createSystemCallApi({

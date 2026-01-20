@@ -11,6 +11,7 @@ import {
   VoterNameChange as VoterNameChangeType,
   VoterRegistration as VoterRegistrationType,
   PartyAbbreviation,
+  VoterSchema,
 } from '@votingworks/types';
 import { BatteryInfo } from '@votingworks/backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -365,3 +366,79 @@ export function isBarcodeScannerError(
 }
 
 export type PartyFilterAbbreviation = 'ALL' | PartyAbbreviation;
+
+export type AnomalyType = 'DuplicateCheckIn';
+
+// Database storage format - only stores voterId, not the full voter object
+export interface DuplicateCheckInDetailsDb {
+  voterId: string;
+  checkInEvents: Array<{
+    machineId: string;
+    timestamp: string;
+  }>;
+}
+
+export const DuplicateCheckInDetailsDbSchema: z.ZodSchema<DuplicateCheckInDetailsDb> =
+  z.strictObject({
+    voterId: z.string(),
+    checkInEvents: z.array(
+      z.strictObject({
+        machineId: z.string(),
+        timestamp: z.string(),
+      })
+    ),
+  });
+
+// API response format - includes full voter object for UI display
+export interface DuplicateCheckInDetails {
+  voterId: string;
+  voter: Voter;
+  checkInEvents: Array<{
+    machineId: string;
+    timestamp: string;
+  }>;
+}
+
+export const DuplicateCheckInDetailsSchema: z.ZodSchema<DuplicateCheckInDetails> =
+  z.strictObject({
+    voterId: z.string(),
+    voter: VoterSchema,
+    checkInEvents: z.array(
+      z.strictObject({
+        machineId: z.string(),
+        timestamp: z.string(),
+      })
+    ),
+  });
+
+export type AnomalyDetailsDb = DuplicateCheckInDetailsDb;
+export type AnomalyDetails = DuplicateCheckInDetails;
+
+export const AnomalyDetailsSchema = DuplicateCheckInDetailsSchema;
+
+export interface Anomaly {
+  anomalyId: number;
+  anomalyType: AnomalyType;
+  detectedAt: Date;
+  anomalyDetails: AnomalyDetails;
+  dismissedAt?: Date;
+  dismissed: boolean;
+}
+
+export const AnomalySchema: z.ZodSchema<Anomaly> = z.strictObject({
+  anomalyId: z.number(),
+  anomalyType: z.enum(['DuplicateCheckIn']),
+  detectedAt: z.date(),
+  anomalyDetails: AnomalyDetailsSchema,
+  dismissedAt: z.date().optional(),
+  dismissed: z.boolean(),
+});
+
+export interface AnomalyDbRow {
+  anomaly_id: number;
+  anomaly_type: AnomalyType;
+  detected_at: number;
+  anomaly_details: string;
+  dismissed_at?: number;
+  dismissed: number;
+}
