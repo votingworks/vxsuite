@@ -43,7 +43,7 @@ export function Downloads(): React.ReactNode {
   const mainTask = api.getElectionPackage.useQuery(electionId);
   const testDecks = api.getTestDecks.useQuery(electionId);
 
-  if (!testDecks.isSuccess || !testDecks.isSuccess) return null;
+  if (!mainTask.isSuccess || !testDecks.isSuccess) return null;
 
   return (
     <DownloadsContainer>
@@ -56,9 +56,9 @@ export function Downloads(): React.ReactNode {
   );
 }
 
-function ElectionPackage(props: { meta?: MainExportTaskMetadata }) {
+function ElectionPackage(props: { meta: MainExportTaskMetadata }) {
   const { meta } = props;
-  return !meta ? null : (
+  return (
     <DownloadCard title="Election Package" url={meta.electionPackageUrl}>
       Save this package to a USB drive and use it to configure the VxAdmin
       laptop.
@@ -66,36 +66,36 @@ function ElectionPackage(props: { meta?: MainExportTaskMetadata }) {
   );
 }
 
-function OfficialBallots(props: { meta?: MainExportTaskMetadata }) {
+function OfficialBallots(props: { meta: MainExportTaskMetadata }) {
   const { meta } = props;
-  return !meta ? null : (
+  return (
     <DownloadCard title="Official Ballots" url={meta.officialBallotsUrl}>
       Official precinct and absentee ballots, ready for printing.
     </DownloadCard>
   );
 }
 
-function SampleBallots(props: { meta?: MainExportTaskMetadata }) {
+function SampleBallots(props: { meta: MainExportTaskMetadata }) {
   const { meta } = props;
-  return !meta ? null : (
+  return (
     <DownloadCard title="Sample Ballots" url={meta.sampleBallotsUrl}>
       Sample copies of all official precinct and absentee ballots.
     </DownloadCard>
   );
 }
 
-function TestBallots(props: { meta?: MainExportTaskMetadata }) {
+function TestBallots(props: { meta: MainExportTaskMetadata }) {
   const { meta } = props;
-  return !meta ? null : (
+  return (
     <DownloadCard title="Test Ballots" url={meta.testBallotsUrl}>
       Unofficial ballots for use with VotingWorks machines in Test Mode.
     </DownloadCard>
   );
 }
 
-function TestDecks(props: { meta?: TestDecksTaskMetadata }) {
+function TestDecks(props: { meta: TestDecksTaskMetadata }) {
   const { meta } = props;
-  return !meta ? null : (
+  return (
     <DownloadCard title="L&A Test Decks" url={meta.url}>
       Marked ballots for Logic and Accuracy testing.
     </DownloadCard>
@@ -134,8 +134,7 @@ function DownloadCard(props: DownloadCardProps): React.ReactNode {
   const action = (
     <Button
       icon="Download"
-      color="primary"
-      fill="tinted"
+      variant="secondary"
       onPress={downloadFile}
       value={url}
     >
@@ -144,7 +143,7 @@ function DownloadCard(props: DownloadCardProps): React.ReactNode {
   );
 
   return (
-    <Card footerAlign="right">
+    <Card>
       <DownloadCardContents>
         <div>
           <H3>{title}</H3>
