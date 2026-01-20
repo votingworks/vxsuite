@@ -9,6 +9,7 @@ import {
   ElectionIdSchema,
   BallotStyleIdSchema,
   PrecinctIdSchema,
+  AnyContest,
 } from '@votingworks/types';
 import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -27,8 +28,10 @@ import {
 } from '@votingworks/ui';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { format } from '@votingworks/utils';
+import type { BallotTemplateId } from '@votingworks/design-backend';
 import {
   getBallotPreviewPdf,
+  getBallotTemplate,
   getElectionInfo,
   listPrecincts,
   getBallotLayoutSettings,
@@ -218,6 +221,18 @@ export const paperSizeLabels: Record<HmpbBallotPaperSize, string> = {
   [HmpbBallotPaperSize.Custom22]: '8.5 x 22 inches',
 };
 
+function formContestTooLongErrorMessage(
+  contest: AnyContest,
+  ballotTemplateId: BallotTemplateId
+): string {
+  const baseMessage = `Contest "${contest.title}" was too long to fit on the page. Try a longer paper size or higher density`;
+  // Only the NH template supports flowing ballot measure content onto another page
+  if (contest.type === 'yesno' && ballotTemplateId === 'NhBallot') {
+    return `${baseMessage}, or add a line break to your content.`;
+  }
+  return `${baseMessage}.`;
+}
+
 export function BallotScreen(): JSX.Element | null {
   const params = useParams<{
     electionId: string;
@@ -239,6 +254,7 @@ export function BallotScreen(): JSX.Element | null {
   const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotLayoutSettingsQuery =
     getBallotLayoutSettings.useQuery(electionId);
+  const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');
   const printIframeRef = useRef<HTMLIFrameElement>(null);
@@ -276,7 +292,8 @@ export function BallotScreen(): JSX.Element | null {
       listPrecinctsQuery.isSuccess &&
       listBallotStylesQuery.isSuccess &&
       listPartiesQuery.isSuccess &&
-      getBallotLayoutSettingsQuery.isSuccess
+      getBallotLayoutSettingsQuery.isSuccess &&
+      getBallotTemplateQuery.isSuccess
     )
   ) {
     return null; // Initial loading state
@@ -287,6 +304,7 @@ export function BallotScreen(): JSX.Element | null {
   const ballotStyles = listBallotStylesQuery.data;
   const parties = listPartiesQuery.data;
   const { paperSize } = getBallotLayoutSettingsQuery.data;
+  const ballotTemplateId = getBallotTemplateQuery.data;
   const precinct = find(precincts, (p) => p.id === precinctId);
   const ballotStyle = find(ballotStyles, (bs) => bs.id === ballotStyleId);
 
@@ -350,11 +368,10 @@ export function BallotScreen(): JSX.Element | null {
                     >
                       <Callout color="danger" icon="Danger">
                         <span>
-                          Contest &quot;{err.contest.title}&quot; was too long
-                          to fit on the page.{' '}
-                          {err.contest.type === 'yesno'
-                            ? 'Try a longer paper size or higher density, or add a line break to your content.'
-                            : 'Try a longer paper size or higher density.'}
+                          {formContestTooLongErrorMessage(
+                            err.contest,
+                            ballotTemplateId
+                          )}
                         </span>
                       </Callout>
                     </Row>
