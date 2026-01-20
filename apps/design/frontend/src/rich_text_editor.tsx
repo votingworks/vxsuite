@@ -327,12 +327,14 @@ interface RichTextEditorProps {
   disabled?: boolean;
   initialHtmlContent: string;
   onChange: (htmlContent: string) => void;
+  className?: string;
 }
 
 export function RichTextEditor({
   disabled,
   initialHtmlContent,
   onChange,
+  className,
 }: RichTextEditorProps): JSX.Element {
   const [imageError, setImageError] = useState<Error>();
 
@@ -384,6 +386,7 @@ export function RichTextEditor({
         data-testid="rich-text-editor"
         data-disabled={disabled}
         onClick={() => editor?.chain().focus().run()}
+        className={className}
       >
         {editor && (
           <Toolbar

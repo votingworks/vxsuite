@@ -17,27 +17,16 @@ const RichTextEditorWithAudioContainer = styled.div`
   > div:first-child {
     flex-grow: 1;
   }
+`;
 
-  > div:not(:last-child) {
-    border-bottom-right-radius: 0;
-    border-right: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
-      ${(p) => p.theme.colors.outline};
+const StyledRichTextEditor = styled(RichTextEditor)<{ audioEnabled?: boolean }>`
+  ${(p) =>
+    p.audioEnabled &&
+    `
     border-top-right-radius: 0;
-  }
-
-  :has(button) {
-    > div:not(:last-child) {
-      border-bottom-right-radius: 0;
-      border-right: 0;
-      border-top-right-radius: 0;
-    }
-  }
-
-  &[aria-disabled='true'] {
-    > div:not(:last-child) {
-      border-style: dashed;
-    }
-  }
+    border-bottom-right-radius: 0;
+    border-right-width: 0;
+    `}
 `;
 
 const ButtonContainer = styled.div`
@@ -69,7 +58,7 @@ export function RichTextEditorWithAudio(
 
   return (
     <RichTextEditorWithAudioContainer aria-disabled={rest.disabled}>
-      <RichTextEditor {...rest} />
+      <StyledRichTextEditor {...rest} audioEnabled={audioEnabled} />
 
       {audioEnabled && (
         <ButtonContainer>
