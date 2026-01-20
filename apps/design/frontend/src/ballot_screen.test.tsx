@@ -83,6 +83,9 @@ beforeEach(() => {
     paperSize: electionRecord.election.ballotLayout.paperSize,
     compact: false,
   });
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('VxDefaultBallot');
 });
 
 afterEach(() => {
@@ -274,6 +277,10 @@ test('changes tabulation mode', async () => {
 
 describe('Ballot rendering error handling', () => {
   test('NH ballot template with missing signature shows appropriate error', async () => {
+    apiMock.getBallotTemplate.reset();
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('NhBallot');
     // Mock the ballot preview API to return missing signature error
     apiMock.getBallotPreviewPdf
       .expectCallWith({
@@ -333,7 +340,7 @@ describe('Ballot rendering error handling', () => {
     );
   });
 
-  test('Contest too long error shows appropriate message for ballot measure', async () => {
+  test('Contest too long error shows appropriate message for ballot measure with default template', async () => {
     const longContest: YesNoContest = {
       id: 'long-contest',
       type: 'yesno',
@@ -361,8 +368,43 @@ describe('Ballot rendering error handling', () => {
     renderScreen();
 
     await screen.findByText(
-      'Contest "Very Long Ballot Measure" was too long to fit on the page. ' +
-        'Try a longer paper size or higher density, or add a line break to your content.'
+      'Contest "Very Long Ballot Measure" was too long to fit on the page. Try a longer paper size or higher density.'
+    );
+  });
+
+  test('Contest too long error shows appropriate message for ballot measure with NH template', async () => {
+    apiMock.getBallotTemplate.reset();
+    apiMock.getBallotTemplate
+      .expectCallWith({ electionId })
+      .resolves('NhBallot');
+    const longContest: YesNoContest = {
+      id: 'long-contest',
+      type: 'yesno',
+      title: 'Very Long Ballot Measure',
+      districtId: electionRecord.election.districts[0].id,
+      description: '',
+      yesOption: { id: 'yes', label: 'Yes' },
+      noOption: { id: 'no', label: 'No' },
+    };
+    apiMock.getBallotPreviewPdf
+      .expectCallWith({
+        electionId,
+        ballotStyleId: ballotStyle.id,
+        precinctId: precinct.id,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official',
+      })
+      .resolves(
+        err({
+          error: 'contestTooLong',
+          contest: longContest,
+        })
+      );
+
+    renderScreen();
+
+    await screen.findByText(
+      'Contest "Very Long Ballot Measure" was too long to fit on the page. Try a longer paper size or higher density, or add a line break to your content.'
     );
   });
 });
