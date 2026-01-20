@@ -117,15 +117,15 @@
         "es-US": "Spanish (US)"
       },
       "electionDate": "September 8, 2021",
-      "hmpb10WillBeElected": "10 will be elected",
-      "hmpb2WillBeElected": "2 will be elected",
-      "hmpb3WillBeElected": "3 will be elected",
-      "hmpb4WillBeElected": "4 will be elected",
-      "hmpb5WillBeElected": "5 will be elected",
-      "hmpb6WillBeElected": "6 will be elected",
-      "hmpb7WillBeElected": "7 will be elected",
-      "hmpb8WillBeElected": "8 will be elected",
-      "hmpb9WillBeElected": "9 will be elected",
+      "hmpb10WillBeElected": "Ten will be elected",
+      "hmpb2WillBeElected": "Two will be elected",
+      "hmpb3WillBeElected": "Three will be elected",
+      "hmpb4WillBeElected": "Four will be elected",
+      "hmpb5WillBeElected": "Five will be elected",
+      "hmpb6WillBeElected": "Six will be elected",
+      "hmpb7WillBeElected": "Seven will be elected",
+      "hmpb8WillBeElected": "Eight will be elected",
+      "hmpb9WillBeElected": "Nine will be elected",
       "hmpbContinueVotingOnBack": "Turn ballot over and continue voting",
       "hmpbContinueVotingOnNextSheet": "Continue voting on next ballot sheet",
       "hmpbInstructions": "Instructions",
@@ -160,8 +160,8 @@
     },
     "zh-Hans": {
       "contestDescription": {
-        "water-1-fishing": "是否应该禁止在所有城市湖泊和河流中钓鱼？",
-        "water-2-fishing": "是否应该禁止在所有城市湖泊和河流中钓鱼？"
+        "water-1-fishing": "是否应该禁止在所有城市拥有的湖泊和河流中捕鱼？",
+        "water-2-fishing": "是否应该禁止在所有城市拥有的湖泊和河流中捕鱼？"
       },
       "contestOptionLabel": {
         "water-1-fishing-ban-fishing": "是的",
@@ -171,21 +171,21 @@
       },
       "contestTitle": {
         "county-leader-mammal": "县领导哺乳动物",
-        "county-leader-fish": "县领导鱼",
-        "congressional-1-mammal": "国会 1 位代表 - 哺乳动物",
-        "congressional-1-fish": "国会 1 位代表 - 菲什",
-        "congressional-2-mammal": "国会 2 代表 - 哺乳动物",
+        "county-leader-fish": "县级领袖鱼",
+        "congressional-1-mammal": "国会代表 1 - 哺乳动物",
+        "congressional-1-fish": "国会众议员1 - 菲什",
+        "congressional-2-mammal": "国会第二代表 - 哺乳动物",
         "congressional-2-fish": "国会第二代表 - 菲什",
-        "water-1-fishing": "水区 1 钓鱼",
-        "water-2-fishing": "水区 2 钓鱼"
+        "water-1-fishing": "第一水区垂钓",
+        "water-2-fishing": "第二水区垂钓"
       },
       "countyName": "样本县",
       "districtName": {
         "county": "县",
         "congressional-1": "第一国会选区",
         "congressional-2": "第二国会选区",
-        "water-1": "水区 1",
-        "water-2": "水区2"
+        "water-1": "第一水务区",
+        "water-2": "第二水务区"
       },
       "electionTitle": "初选示例",
       "partyFullName": {
@@ -199,14 +199,14 @@
       "precinctName": {
         "precinct-c1-w1-1": "第1选区",
         "precinct-c1-w1-2": "第2选区",
-        "precinct-c1-w2": "第 3 区",
+        "precinct-c1-w2": "第三选区",
         "precinct-c2": "第四区"
       },
       "precinctSplitName": {
-        "precinct-c2-split-1": "第 4 区 - 第 1 分区",
-        "precinct-c2-split-2": "第四区 - 第二分区"
+        "precinct-c2-split-1": "第四选区 - 分裂 1",
+        "precinct-c2-split-2": "第四选区 - 分裂 2"
       },
-      "stateName": "样品状态",
+      "stateName": "样本状态",
       "ballotLanguage": {
         "zh-Hans": "简体中文",
         "zh-Hant": "繁体中文",
@@ -214,15 +214,15 @@
         "es-US": "西班牙语（美国）"
       },
       "electionDate": "2021年9月8日",
-      "hmpb10WillBeElected": "10人将当选",
-      "hmpb2WillBeElected": "2人将当选",
-      "hmpb3WillBeElected": "3人将当选",
-      "hmpb4WillBeElected": "4人将当选",
-      "hmpb5WillBeElected": "5人将当选",
-      "hmpb6WillBeElected": "6人将当选",
-      "hmpb7WillBeElected": "7人将当选",
-      "hmpb8WillBeElected": "8人将当选",
-      "hmpb9WillBeElected": "9人将当选",
+      "hmpb10WillBeElected": "将选出十人。",
+      "hmpb2WillBeElected": "将选出两人。",
+      "hmpb3WillBeElected": "将选出三人。",
+      "hmpb4WillBeElected": "将选出四名候选人。",
+      "hmpb5WillBeElected": "将选出五人。",
+      "hmpb6WillBeElected": "将选出六人。",
+      "hmpb7WillBeElected": "将选出七人。",
+      "hmpb8WillBeElected": "将选出八人。",
+      "hmpb9WillBeElected": "将选出九人。",
       "hmpbContinueVotingOnBack": "将选票翻过来，继续投票",
       "hmpbContinueVotingOnNextSheet": "在下一张选票上继续投票",
       "hmpbInstructions": "说明",
@@ -251,14 +251,14 @@
       "hmpbVoteFor7": "最多投7票",
       "hmpbVoteFor8": "最多投8票",
       "hmpbVoteFor9": "最多投9票",
-      "hmpbVoteForNotMoreThan1": "投票数不超过 1",
+      "hmpbVoteForNotMoreThan1": "最多只能选1人",
       "hmpbVotingComplete": "您已完成投票。",
       "hmpbWriteIn": "写入候选人"
     },
     "zh-Hant": {
       "contestDescription": {
-        "water-1-fishing": "是否應該禁止在所有城市湖泊和河流中釣魚？",
-        "water-2-fishing": "是否應該禁止在所有城市湖泊和河流中釣魚？"
+        "water-1-fishing": "是否應該禁止在所有城市擁有的湖泊和河流中捕魚？",
+        "water-2-fishing": "是否應該禁止在所有城市擁有的湖泊和河流中捕魚？"
       },
       "contestOptionLabel": {
         "water-1-fishing-ban-fishing": "是的",
@@ -268,21 +268,21 @@
       },
       "contestTitle": {
         "county-leader-mammal": "縣領導哺乳動物",
-        "county-leader-fish": "縣領導魚",
-        "congressional-1-mammal": "國會 1 位代表 - 哺乳動物",
-        "congressional-1-fish": "國會 1 位代表 - 菲什",
-        "congressional-2-mammal": "國會 2 代表 - 哺乳動物",
+        "county-leader-fish": "縣級領袖魚",
+        "congressional-1-mammal": "國會代表 1 - 哺乳動物",
+        "congressional-1-fish": "國會眾議員1 - 菲什",
+        "congressional-2-mammal": "國會第二代表 - 哺乳動物",
         "congressional-2-fish": "國會第二代表 - 菲什",
-        "water-1-fishing": "水區 1 釣魚",
-        "water-2-fishing": "水區 2 釣魚"
+        "water-1-fishing": "第一水區釣魚",
+        "water-2-fishing": "第二水區釣"
       },
       "countyName": "樣本縣",
       "districtName": {
         "county": "縣",
         "congressional-1": "第一國會選區",
         "congressional-2": "第二國會選區",
-        "water-1": "水區 1",
-        "water-2": "水區2"
+        "water-1": "第一水務區",
+        "water-2": "第二水務區"
       },
       "electionTitle": "初選範例",
       "partyFullName": {
@@ -296,14 +296,14 @@
       "precinctName": {
         "precinct-c1-w1-1": "第1選區",
         "precinct-c1-w1-2": "第2選區",
-        "precinct-c1-w2": "第 3 區",
+        "precinct-c1-w2": "第三選區",
         "precinct-c2": "第四區"
       },
       "precinctSplitName": {
-        "precinct-c2-split-1": "第 4 區 - 第 1 分區",
-        "precinct-c2-split-2": "第四區 - 第二分區"
+        "precinct-c2-split-1": "第四選區 - 分裂 1",
+        "precinct-c2-split-2": "第四選區 - 分裂 2"
       },
-      "stateName": "樣品狀態",
+      "stateName": "樣本狀態",
       "ballotLanguage": {
         "zh-Hans": "簡體中文",
         "zh-Hant": "繁體中文",
@@ -311,15 +311,15 @@
         "es-US": "西班牙文（美國）"
       },
       "electionDate": "2021年9月8日",
-      "hmpb10WillBeElected": "10人將當選",
-      "hmpb2WillBeElected": "2人將當選",
-      "hmpb3WillBeElected": "3人將當選",
-      "hmpb4WillBeElected": "4人將當選",
-      "hmpb5WillBeElected": "5人將當選",
-      "hmpb6WillBeElected": "6人將當選",
-      "hmpb7WillBeElected": "7人將當選",
-      "hmpb8WillBeElected": "8人將當選",
-      "hmpb9WillBeElected": "9人將當選",
+      "hmpb10WillBeElected": "將選出十人。",
+      "hmpb2WillBeElected": "將選出兩人。",
+      "hmpb3WillBeElected": "將選出三人。",
+      "hmpb4WillBeElected": "將選出四名候選人。",
+      "hmpb5WillBeElected": "將選出五人。",
+      "hmpb6WillBeElected": "將選出六人。",
+      "hmpb7WillBeElected": "將選出七人。",
+      "hmpb8WillBeElected": "將選出八人。",
+      "hmpb9WillBeElected": "將選出九人。",
       "hmpbContinueVotingOnBack": "將選票翻過來，繼續投票",
       "hmpbContinueVotingOnNextSheet": "在下一張選票上繼續投票",
       "hmpbInstructions": "說明",
@@ -348,7 +348,7 @@
       "hmpbVoteFor7": "最多投7票",
       "hmpbVoteFor8": "最多投8票",
       "hmpbVoteFor9": "最多投9票",
-      "hmpbVoteForNotMoreThan1": "投票數不超過 1",
+      "hmpbVoteForNotMoreThan1": "最多只能選1人",
       "hmpbVotingComplete": "您已完成投票。",
       "hmpbWriteIn": "寫入候選人"
     },
@@ -368,7 +368,7 @@
         "county-leader-fish": "Líder del condado Fish",
         "congressional-1-mammal": "1 Representante del Congreso - Mamífero",
         "congressional-1-fish": "1 Representante del Congreso - Pescado",
-        "congressional-2-mammal": "2.º Representante del Congreso - Mamífero",
+        "congressional-2-mammal": "2 Representantes del Congreso - Mamífero",
         "congressional-2-fish": "Representante del Congreso 2 - Pescado",
         "water-1-fishing": "Distrito de Agua 1 Pesca",
         "water-2-fishing": "Pesca en el Distrito Acuático 2"
@@ -408,15 +408,15 @@
         "es-US": "español (EE. UU.)"
       },
       "electionDate": "8 de septiembre de 2021",
-      "hmpb10WillBeElected": "10 serán elegidos",
-      "hmpb2WillBeElected": "2 serán elegidos",
-      "hmpb3WillBeElected": "3 serán elegidos",
-      "hmpb4WillBeElected": "4 serán elegidos",
-      "hmpb5WillBeElected": "5 serán elegidos",
-      "hmpb6WillBeElected": "6 serán elegidos",
-      "hmpb7WillBeElected": "7 serán elegidos",
-      "hmpb8WillBeElected": "8 serán elegidos",
-      "hmpb9WillBeElected": "9 serán elegidos",
+      "hmpb10WillBeElected": "Serán elegidos diez",
+      "hmpb2WillBeElected": "Serán dos los elegidos",
+      "hmpb3WillBeElected": "Serán elegidos tres",
+      "hmpb4WillBeElected": "Serán elegidos cuatro",
+      "hmpb5WillBeElected": "Serán elegidos cinco",
+      "hmpb6WillBeElected": "Serán elegidos seis",
+      "hmpb7WillBeElected": "Siete serán elegidos",
+      "hmpb8WillBeElected": "Ocho serán elegidos",
+      "hmpb9WillBeElected": "Nueve serán elegidos",
       "hmpbContinueVotingOnBack": "Voltea la boleta y continúa votando",
       "hmpbContinueVotingOnNextSheet": "Continúa votando en la siguiente hoja de la boleta",
       "hmpbInstructions": "Instrucciones",
@@ -1331,7 +1331,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -1340,7 +1340,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -1459,7 +1459,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -1468,7 +1468,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -1831,7 +1831,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -1840,7 +1840,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -1947,7 +1947,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -1956,7 +1956,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -2307,7 +2307,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -2316,7 +2316,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -2435,7 +2435,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -2444,7 +2444,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -2807,7 +2807,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -2816,7 +2816,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -2923,7 +2923,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -2932,7 +2932,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -3283,7 +3283,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -3292,7 +3292,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -3411,7 +3411,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -3420,7 +3420,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -3783,7 +3783,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -3792,7 +3792,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -3899,7 +3899,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -3908,7 +3908,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -4259,7 +4259,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -4268,7 +4268,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -4387,7 +4387,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -4396,7 +4396,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -4759,7 +4759,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -4768,7 +4768,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -4875,7 +4875,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 32.236615913555994,
+          "row": 32.990545186640475,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -4884,7 +4884,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 33.50135068762279,
+          "row": 34.25527996070727,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
