@@ -305,7 +305,7 @@ test('add/delete disabled for elections with external source', async () => {
 test('audio editing', async () => {
   const { districts } = election;
   apiMock.listDistricts.expectCallWith({ electionId }).resolves(districts);
-  mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: true });
+  mockStateFeatures(apiMock, electionId, { AUDIO_ENABLED: true });
 
   const history = renderScreen(electionId);
   const editButton = await screen.findButton('Edit Districts');

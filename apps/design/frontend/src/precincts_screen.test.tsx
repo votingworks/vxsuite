@@ -778,7 +778,7 @@ describe('audio editing', () => {
       apiMock.listPrecincts.expectCallWith({ electionId }).resolves([precinct]);
       apiMock.listDistricts.expectCallWith({ electionId }).resolves([]);
 
-      mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: true });
+      mockStateFeatures(apiMock, electionId, { AUDIO_ENABLED: true });
       const history = renderScreen(electionId);
 
       const input = await screen.findByDisplayValue(spec.inputValue);

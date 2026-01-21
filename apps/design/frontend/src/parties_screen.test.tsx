@@ -347,7 +347,7 @@ describe('error messages', () => {
 test('audio editing', async () => {
   const { parties } = election;
   apiMock.listParties.expectCallWith({ electionId }).resolves(parties);
-  mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: true });
+  mockStateFeatures(apiMock, electionId, { AUDIO_ENABLED: true });
 
   const history = renderScreen(electionId);
   const editButton = await screen.findButton('Edit Parties');

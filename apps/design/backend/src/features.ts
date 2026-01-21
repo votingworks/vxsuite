@@ -88,9 +88,9 @@ export enum StateFeature {
    */
   BALLOT_LANGUAGE_CONFIG = 'BALLOT_LANGUAGE_CONFIG',
   /**
-   * Enable audio-proofing UI.
+   * Enable audio exports and audio-proofing UI.
    */
-  AUDIO_PROOFING = 'AUDIO_PROOFING',
+  AUDIO_ENABLED = 'AUDIO_ENABLED',
   /**
    * Add a field to override the election title for a precinct split.
    */
@@ -107,6 +107,14 @@ export enum StateFeature {
    * Add a field to enter a caption for the clerk signature image for a precinct split.
    */
   PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE = 'PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE',
+  /**
+   * Include sample ballots in exports.
+   */
+  EXPORT_SAMPLE_BALLOTS = 'EXPORT_SAMPLE_BALLOTS',
+  /**
+   * Include test mode ballots in exports.
+   */
+  EXPORT_TEST_BALLOTS = 'EXPORT_TEST_BALLOTS',
 }
 
 export type UserFeaturesConfig = Partial<Record<UserFeature, boolean>>;
@@ -138,15 +146,18 @@ export const userFeatureConfigs = {
 
 export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
   DEMO: {
-    AUDIO_PROOFING: true,
+    AUDIO_ENABLED: true,
     BALLOT_LANGUAGE_CONFIG: true,
+    EXPORT_TEST_BALLOTS: true,
   },
 
   MS: {
-    AUDIO_PROOFING: true,
+    AUDIO_ENABLED: true,
+    EXPORT_TEST_BALLOTS: true,
   },
 
   NH: {
+    EXPORT_SAMPLE_BALLOTS: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,
     PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,

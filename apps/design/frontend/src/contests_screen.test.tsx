@@ -1444,7 +1444,7 @@ describe('audio editing', () => {
       .expectCallWith({ electionId })
       .resolves([candidateContest]);
 
-    const history = renderScreen(electionId, { AUDIO_PROOFING: true });
+    const history = renderScreen(electionId, { AUDIO_ENABLED: true });
 
     const labelText = await screen.findByText('Candidates');
     const group = within(assertDefined(labelText.parentElement));
@@ -1524,7 +1524,7 @@ describe('audio editing', () => {
         .expectCallWith({ electionId })
         .resolves([spec.contest]);
 
-      const history = renderScreen(electionId, { AUDIO_PROOFING: true });
+      const history = renderScreen(electionId, { AUDIO_ENABLED: true });
 
       const labelText = await screen.findByText(spec.inputLabel);
       const inputGroup = assertDefined(labelText.parentElement);
