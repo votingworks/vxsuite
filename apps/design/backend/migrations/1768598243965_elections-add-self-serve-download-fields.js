@@ -1,7 +1,4 @@
-/**
- * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
- */
-exports.shorthands = undefined;
+exports.shorthands = /** @type {import('node-pg-migrate').ColumnDefinitions | undefined} */ (undefined);
 
 /**
  * @param pgm {import('node-pg-migrate').MigrationBuilder}

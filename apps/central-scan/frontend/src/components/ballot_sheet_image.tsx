@@ -84,7 +84,7 @@ export function BallotSheetImage({
       return;
     }
 
-    const blob = new Blob([imageBuffer]);
+    const blob = new Blob([new Uint8Array(imageBuffer)]);
     const objectUrl = URL.createObjectURL(blob);
     setImageSrc(objectUrl);
 

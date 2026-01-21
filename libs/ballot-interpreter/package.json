@@ -16,9 +16,9 @@
     "build:dev": "pnpm --filter $npm_package_name... build:self",
     "build:self": "pnpm install:rust-addon && pnpm build:rust-addon && pnpm build:ts",
     "build:rust-addon": "cargo-cp-artifact -nc build/addon.node -- cargo build --message-format=json-render-diagnostics --release --offline",
-    "build:ts": "tsc --build tsconfig.build.json",
+    "build:ts": "tsgo --build tsconfig.build.json",
     "clean": "pnpm --filter $npm_package_name... clean:self",
-    "clean:self": "cargo clean --release --package $npm_package_name && rm -rf build && tsc --build --clean tsconfig.build.json",
+    "clean:self": "cargo clean --release --package $npm_package_name && rm -rf build && tsgo --build --clean tsconfig.build.json",
     "install:rust-addon": "cargo fetch",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
@@ -29,7 +29,7 @@
     "test:ts": "is-ci test:ci test:ts:watch",
     "test:ts:coverage": "vitest --coverage",
     "test:ts:watch": "vitest",
-    "type-check": "tsc --build"
+    "type-check": "tsgo --build"
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
