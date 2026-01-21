@@ -1218,7 +1218,11 @@ test('cancelling', async () => {
 
   const history = renderScreen(electionId);
 
-  await expectViewModeContest(history, electionId, election.contests[0]);
+  const contest = election.contests.find(
+    (c): c is YesNoContest => c.type === 'yesno'
+  )!;
+  await navigateToContestView(history, electionId, contest.id);
+  await expectViewModeContest(history, electionId, contest);
 
   userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Contest' });
@@ -1234,8 +1238,27 @@ test('cancelling', async () => {
     ).not.toBeInTheDocument();
   });
 
+  // Make sure we reset to saved contest state after making edits
+  userEvent.type(screen.getByLabelText('Title'), ' - Edited');
+  let descriptionEditor = within(
+    screen.getByText('Description').parentElement!
+  ).getByTestId('rich-text-editor');
+  // userEvent.type doesn't work for updating the content for some reason
+  fireEvent.change(descriptionEditor.querySelector('.tiptap p')!, {
+    target: { textContent: 'Edited Description' },
+  });
+  await within(descriptionEditor).findByText('Edited Description');
+
   // Cancel edit contest
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  expect(history.location.pathname).toEqual(
+    routes.election(electionId).contests.view(contest.id).path
+  );
+  expect(screen.getByLabelText('Title')).toHaveValue(contest.title);
+  descriptionEditor = within(
+    screen.getByText('Description').parentElement!
+  ).getByTestId('rich-text-editor');
+  within(descriptionEditor).getByText(contest.description);
   await screen.findByRole('heading', { name: 'Contests' });
 });
 

@@ -670,6 +670,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             <div>
               <FieldName>Description</FieldName>
               <RichTextEditorWithAudio
+                // Reset editor to saved content after canceling
+                key={`description-${editing}`}
                 audioScreenUrl={contestRoutes.audio({
                   contestId: contest.id,
                   stringKey: ElectionStringKey.CONTEST_DESCRIPTION,
