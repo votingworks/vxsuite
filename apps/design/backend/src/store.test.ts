@@ -366,6 +366,73 @@ test('Background task processing - requeuing interrupted tasks', async () => {
   await expectTaskToBeQueued(task4Id);
 });
 
+test('Background task processing - concurrent workers claim different tasks', async () => {
+  const store = testStore.getStore();
+  const taskName = 'some_task_name' as TaskName;
+
+  // Create 5 tasks
+  const taskIds = await Promise.all([
+    store.createBackgroundTask(taskName, { id: 1 }),
+    store.createBackgroundTask(taskName, { id: 2 }),
+    store.createBackgroundTask(taskName, { id: 3 }),
+    store.createBackgroundTask(taskName, { id: 4 }),
+    store.createBackgroundTask(taskName, { id: 5 }),
+  ]);
+
+  // Simulate 5 concurrent workers all trying to claim tasks at the same time
+  const claimedTasks = await Promise.all([
+    store.claimOldestQueuedBackgroundTask(),
+    store.claimOldestQueuedBackgroundTask(),
+    store.claimOldestQueuedBackgroundTask(),
+    store.claimOldestQueuedBackgroundTask(),
+    store.claimOldestQueuedBackgroundTask(),
+  ]);
+
+  // All tasks should have been claimed
+  expect(claimedTasks.every((task) => task !== undefined)).toBe(true);
+
+  // Extract the IDs of claimed tasks
+  const claimedTaskIds = claimedTasks.map((task) => task!.id);
+
+  // All claimed tasks should be unique (no task claimed twice)
+  const uniqueClaimedTaskIds = new Set(claimedTaskIds);
+  expect(uniqueClaimedTaskIds.size).toBe(5);
+
+  // All created tasks should have been claimed
+  expect(uniqueClaimedTaskIds).toEqual(new Set(taskIds));
+
+  // All claimed tasks should have startedAt set
+  for (const task of claimedTasks) {
+    expect(task!.startedAt).toBeDefined();
+  }
+
+  // Attempting to claim again should return undefined (no tasks left)
+  expect(await store.claimOldestQueuedBackgroundTask()).toBeUndefined();
+});
+
+test('Background task processing - tasks are claimed in FIFO order', async () => {
+  const store = testStore.getStore();
+  const taskName = 'some_task_name' as TaskName;
+
+  // Create tasks with specific payloads to track order
+  const task1Id = await store.createBackgroundTask(taskName, { order: 1 });
+  const task2Id = await store.createBackgroundTask(taskName, { order: 2 });
+  const task3Id = await store.createBackgroundTask(taskName, { order: 3 });
+
+  // Claim tasks one by one
+  const claimed1 = await store.claimOldestQueuedBackgroundTask();
+  const claimed2 = await store.claimOldestQueuedBackgroundTask();
+  const claimed3 = await store.claimOldestQueuedBackgroundTask();
+
+  // Tasks should be claimed in the order they were created
+  expect(claimed1!.id).toBe(task1Id);
+  expect(claimed1!.payload).toBe('{"order":1}');
+  expect(claimed2!.id).toBe(task2Id);
+  expect(claimed2!.payload).toBe('{"order":2}');
+  expect(claimed3!.id).toBe(task3Id);
+  expect(claimed3!.payload).toBe('{"order":3}');
+});
+
 describe('tts_strings', () => {
   const key: TtsEditKey = {
     jurisdictionId: 'vx',

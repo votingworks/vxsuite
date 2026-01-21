@@ -8,4 +8,5 @@ release:
   image: web
 run:
   web: ./run-vxdesign web
+  # Workers use atomic task claiming and can safely run multiple instances concurrently
   worker: ./run-vxdesign worker

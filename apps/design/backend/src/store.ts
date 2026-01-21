@@ -92,16 +92,27 @@ export interface ElectionRecord {
   externalSource?: ExternalElectionSource;
 }
 
+/**
+ * Supported background task types. Tasks are processed by worker instances
+ * that can run concurrently without conflicts.
+ */
 export type TaskName = 'generate_election_package' | 'generate_test_decks';
 
+/**
+ * Represents a background task in the queue. Tasks are claimed atomically
+ * by workers to ensure no task is processed by multiple workers simultaneously.
+ */
 export interface BackgroundTask {
   id: Id;
   taskName: TaskName;
   payload: string;
   createdAt: Date;
+  /** Set when a worker claims this task. Null for queued tasks. */
   startedAt?: Date;
+  /** Set when task processing finishes (successfully or with error). */
   completedAt?: Date;
   progress?: BackgroundTaskProgress;
+  /** Error message if task processing failed. */
   error?: string;
 }
 
