@@ -30,7 +30,6 @@ import styled from 'styled-components';
 import React, { useState } from 'react';
 import { Buffer } from 'node:buffer';
 import { ImageInputButton } from './image_input';
-import { Column } from './layout';
 import { NormalizeParams } from './image_normalization';
 
 const ControlGroup = styled.div`
@@ -44,11 +43,6 @@ const ControlGroup = styled.div`
   > label /* Image input button is rendered as a label */ {
     border: 0;
   }
-`;
-
-const StyledCallout = styled(Callout)`
-  max-width: calc(75ch + 1rem);
-  margin-bottom: 0.5rem;
 `;
 
 export const StyledRichTextEditor = styled.div`
@@ -97,12 +91,20 @@ export const StyledRichTextEditor = styled.div`
 
 const StyledToolbar = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 0.25rem;
 
   button,
   label {
     padding: 0.25rem 0.5rem;
     gap: 0.25rem;
+  }
+`;
+
+const ToolbarErrorCallout = styled(Callout)`
+  > div {
+    padding: 0.25rem 0.5rem;
+    align-items: center;
   }
 `;
 
@@ -142,17 +144,8 @@ const NORMALIZE_PARAMS: Readonly<NormalizeParams> = {
   maxWidthPx: (LETTER_PAGE_WIDTH_INCHES - 2) * PDF_PIXELS_PER_INCH,
 };
 
-function Toolbar({
-  disabled,
-  editor,
-  onImageError,
-  onImageSuccess,
-}: {
-  disabled?: boolean;
-  editor: Editor;
-  onImageError: (error: Error) => void;
-  onImageSuccess: () => void;
-}) {
+function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
+  const [imageError, setImageError] = useState<Error>();
   return (
     <StyledToolbar>
       <ControlGroup>
@@ -209,7 +202,7 @@ function Toolbar({
           disabled={disabled}
           normalizeParams={NORMALIZE_PARAMS}
           onChange={(svgImage) => {
-            onImageSuccess();
+            setImageError(undefined);
             editor
               .chain()
               .focus()
@@ -220,7 +213,7 @@ function Toolbar({
               })
               .run();
           }}
-          onError={onImageError}
+          onError={(error) => setImageError(error)}
           aria-label="Insert Image"
         >
           <Icons.Image />
@@ -292,6 +285,11 @@ function Toolbar({
           </React.Fragment>
         )}
       </ControlGroup>
+      {imageError && (
+        <ToolbarErrorCallout color="warning" icon="Warning">
+          {imageError.message}
+        </ToolbarErrorCallout>
+      )}
     </StyledToolbar>
   );
 }
@@ -327,15 +325,15 @@ interface RichTextEditorProps {
   disabled?: boolean;
   initialHtmlContent: string;
   onChange: (htmlContent: string) => void;
+  className?: string;
 }
 
 export function RichTextEditor({
   disabled,
   initialHtmlContent,
   onChange,
+  className,
 }: RichTextEditorProps): JSX.Element {
-  const [imageError, setImageError] = useState<Error>();
-
   const editor = useEditor({
     editable: !disabled,
     extensions: [
@@ -374,27 +372,14 @@ export function RichTextEditor({
     },
   });
   return (
-    <Column>
-      {imageError && (
-        <StyledCallout icon="Warning" color="warning">
-          {imageError.message}
-        </StyledCallout>
-      )}
-      <StyledRichTextEditor
-        data-testid="rich-text-editor"
-        data-disabled={disabled}
-        onClick={() => editor?.chain().focus().run()}
-      >
-        {editor && (
-          <Toolbar
-            disabled={disabled}
-            editor={editor}
-            onImageError={setImageError}
-            onImageSuccess={() => setImageError(undefined)}
-          />
-        )}
-        <EditorContent editor={editor} />
-      </StyledRichTextEditor>
-    </Column>
+    <StyledRichTextEditor
+      data-testid="rich-text-editor"
+      data-disabled={disabled}
+      onClick={() => editor?.chain().focus().run()}
+      className={className}
+    >
+      {editor && <Toolbar disabled={disabled} editor={editor} />}
+      <EditorContent editor={editor} />
+    </StyledRichTextEditor>
   );
 }
