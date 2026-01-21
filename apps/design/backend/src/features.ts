@@ -115,6 +115,10 @@ export enum StateFeature {
    * Include test mode ballots in exports.
    */
   EXPORT_TEST_BALLOTS = 'EXPORT_TEST_BALLOTS',
+  /**
+   * Enable adding/editing headers for ballot contest sections.
+   */
+  CONTEST_SECTION_HEADERS = 'CONTEST_SECTION_HEADERS',
 }
 
 export type UserFeaturesConfig = Partial<Record<UserFeature, boolean>>;
@@ -163,6 +167,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
+    CONTEST_SECTION_HEADERS: true,
   },
 };
 

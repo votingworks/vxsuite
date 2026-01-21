@@ -150,6 +150,12 @@ export function Sublist(props: {
   } = props;
   const [isEditingSectionHeader, setIsEditingSectionHeader] =
     React.useState(false);
+  const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
+
+  if (!getStateFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getStateFeaturesQuery.data;
 
   return (
     <React.Fragment>
@@ -163,14 +169,16 @@ export function Sublist(props: {
         >
           {sectionNames[contestType]}
         </Row>
-        <Row>
-          <OpenSectionHeaderFormButton
-            icon={sectionHeader ? 'Edit' : 'Add'}
-            onPress={() => setIsEditingSectionHeader(true)}
-          >
-            {sectionHeader ? 'Edit' : 'Add'} ballot header
-          </OpenSectionHeaderFormButton>
-        </Row>
+        {features.CONTEST_SECTION_HEADERS && (
+          <Row>
+            <OpenSectionHeaderFormButton
+              icon={sectionHeader ? 'Edit' : 'Add'}
+              onPress={() => setIsEditingSectionHeader(true)}
+            >
+              {sectionHeader ? 'Edit' : 'Add'} ballot header
+            </OpenSectionHeaderFormButton>
+          </Row>
+        )}
       </EntityList.Header>
 
       {/* Flipper/Flip are used to animate the reordering of contest rows */}
