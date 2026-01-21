@@ -730,8 +730,12 @@ export function buildApi(ctx: AppContext) {
     }): Promise<
       Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
     > {
-      const { election, ballotLanguageConfigs, ballotTemplateId } =
-        await store.getElection(input.electionId);
+      const {
+        election,
+        ballotLanguageConfigs,
+        ballotTemplateId,
+        contestSectionHeaders,
+      } = await store.getElection(input.electionId);
       const { compact } = await store.getBallotLayoutSettings(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
@@ -746,7 +750,8 @@ export function buildApi(ctx: AppContext) {
       const allBallotProps = createBallotPropsForTemplate(
         ballotTemplateId,
         electionWithBallotStrings,
-        compact
+        compact,
+        contestSectionHeaders
       );
       const ballotProps = find(
         allBallotProps,
