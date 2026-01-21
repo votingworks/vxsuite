@@ -2352,6 +2352,50 @@ export class Store {
     return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
   }
 
+  /**
+   * Atomically claims and returns the oldest queued background task, if any.
+   * Uses PostgreSQL's FOR UPDATE SKIP LOCKED to safely support concurrent workers.
+   * If a task is already being processed by another worker, it will be skipped.
+   */
+  async claimOldestQueuedBackgroundTask(): Promise<Optional<BackgroundTask>> {
+    return await this.db.withClient(async (client) => {
+      // Start a transaction to ensure atomicity
+      await client.query('begin');
+      try {
+        // Select and lock the oldest queued task, skipping any already locked by other workers
+        const selectSql = `${getBackgroundTasksBaseQuery}
+          where started_at is null
+          order by created_at asc
+          limit 1
+          for update skip locked
+        `;
+        const selectResult = await client.query(selectSql);
+        const row = selectResult.rows[0] as Optional<BackgroundTaskRow>;
+
+        if (!row) {
+          await client.query('commit');
+          return undefined;
+        }
+
+        // Mark the task as started
+        await client.query(
+          `
+            update background_tasks
+            set started_at = current_timestamp
+            where id = $1
+          `,
+          row.id
+        );
+
+        await client.query('commit');
+        return backgroundTaskRowToBackgroundTask(row);
+      } catch (error) {
+        await client.query('rollback');
+        throw error;
+      }
+    });
+  }
+
   async getBackgroundTask(taskId: Id): Promise<Optional<BackgroundTask>> {
     const sql = `${getBackgroundTasksBaseQuery}
       where id = $1

@@ -8,14 +8,14 @@ export async function processNextBackgroundTaskIfAny(
 ): Promise<{ wasTaskProcessed: boolean }> {
   const { store } = context.workspace;
 
-  const nextTask = await store.getOldestQueuedBackgroundTask();
+  // Atomically claim the next task (safe for concurrent workers)
+  const nextTask = await store.claimOldestQueuedBackgroundTask();
 
   if (!nextTask) {
     return { wasTaskProcessed: false };
   }
 
   /* eslint-disable no-console */
-  await store.startBackgroundTask(nextTask.id);
   console.log(`⏳ Processing background task ${nextTask.id}...`);
   try {
     await processBackgroundTask(context, nextTask);
@@ -44,8 +44,8 @@ export async function processNextBackgroundTaskIfAny(
 }
 
 /**
- * Starts the VxDesign background worker. Note that, as currently implemented, it's only safe to
- * run one instance of the worker.
+ * Starts the VxDesign background worker. Multiple worker instances can run concurrently
+ * and will safely process different tasks without conflicts using atomic task claiming.
  */
 export async function start(context: WorkerContext): Promise<void> {
   // Requeue any tasks that were previously interrupted, say, because the worker process crashed
