@@ -122,17 +122,15 @@ export interface BackgroundTaskProgress {
   total: number;
 }
 
-const getBackgroundTasksBaseQuery = `
-  select
-    id,
-    task_name as "taskName",
-    payload,
-    created_at as "createdAt",
-    started_at as "startedAt",
-    completed_at as "completedAt",
-    progress,
-    error
-  from background_tasks
+const backgroundTasksColumns = `
+  id,
+  task_name as "taskName",
+  payload,
+  created_at as "createdAt",
+  started_at as "startedAt",
+  completed_at as "completedAt",
+  progress,
+  error
 `;
 
 const DEFAULT_LANGUAGE_CODES = [LanguageCode.ENGLISH];
@@ -2363,13 +2361,14 @@ export class Store {
       await client.query('begin');
       try {
         // Select and lock the oldest queued task, skipping any already locked by other workers
-        const selectSql = `${getBackgroundTasksBaseQuery}
+        const selectResult = await client.query(`
+          select ${backgroundTasksColumns}
+          from background_tasks
           where started_at is null
           order by created_at asc
           limit 1
           for update skip locked
-        `;
-        const selectResult = await client.query(selectSql);
+        `);
         const row = selectResult.rows[0] as Optional<BackgroundTaskRow>;
 
         if (!row) {
@@ -2377,18 +2376,20 @@ export class Store {
           return undefined;
         }
 
-        // Mark the task as started
-        await client.query(
+        // Mark the task as started and return the updated row
+        const updateResult = await client.query(
           `
             update background_tasks
             set started_at = current_timestamp
             where id = $1
+            returning ${backgroundTasksColumns}
           `,
           row.id
         );
 
         await client.query('commit');
-        return backgroundTaskRowToBackgroundTask(row);
+        const updatedRow = updateResult.rows[0] as BackgroundTaskRow;
+        return backgroundTaskRowToBackgroundTask(updatedRow);
       } catch (error) {
         await client.query('rollback');
         throw error;
@@ -2397,12 +2398,16 @@ export class Store {
   }
 
   async getBackgroundTask(taskId: Id): Promise<Optional<BackgroundTask>> {
-    const sql = `${getBackgroundTasksBaseQuery}
-      where id = $1
-    `;
     const row = (
-      await this.db.withClient(
-        async (client) => await client.query(sql, taskId)
+      await this.db.withClient(async (client) =>
+        client.query(
+          `
+            select ${backgroundTasksColumns}
+            from background_tasks
+            where id = $1
+          `,
+          taskId
+        )
       )
     ).rows[0] as Optional<BackgroundTaskRow>;
     return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
