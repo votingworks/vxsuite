@@ -295,6 +295,21 @@ function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
 }
 
 /**
+ * Strip trailing &nbsp; before closing tags to prevent horizontal page stretch.
+ */
+const CLOSING_TAGS = '(?:p|li|td|th|h[1-6]|blockquote|pre)';
+// Match &nbsp; and Unicode non-breaking space (\u00A0)
+const NBSP_PATTERN = '(?:&nbsp;|\\u00A0)';
+// Require 2+ to avoid stripping intentional single &nbsp; (e.g., empty table cells)
+const TRAILING_NBSP_RE = new RegExp(
+  `${NBSP_PATTERN}{2,}(\\s*)(<\\/${CLOSING_TAGS}>)`,
+  'gi'
+);
+export function stripTrailingSpaces(html: string): string {
+  return html.replace(TRAILING_NBSP_RE, '$1$2');
+}
+
+/**
  * If a user pastes a table with a single cell, they probably just wanted to
  * paste the cell contents, so we unwrap the table, table row, and table cell.
  */
@@ -368,7 +383,7 @@ export function RichTextEditor({
     },
     content: initialHtmlContent,
     onUpdate: (update) => {
-      onChange(update.editor.getHTML());
+      onChange(stripTrailingSpaces(update.editor.getHTML()));
     },
   });
   return (
