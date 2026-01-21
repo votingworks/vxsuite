@@ -93,6 +93,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: 6.7.0
         version: 6.7.0(eslint@8.57.0)(typescript@5.8.3)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260120.1
+        version: 7.0.0-dev.20260120.1
       eslint:
         specifier: 8.57.0
         version: 8.57.0
@@ -4062,70 +4065,6 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      vitest:
-        specifier: ^3.1.1
-        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.17.31)
-
-  libs/custom-scanner:
-    dependencies:
-      '@votingworks/basics':
-        specifier: workspace:*
-        version: link:../basics
-      '@votingworks/message-coder':
-        specifier: workspace:*
-        version: link:../message-coder
-      '@votingworks/types':
-        specifier: workspace:*
-        version: link:../types
-      '@votingworks/utils':
-        specifier: workspace:*
-        version: link:../utils
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
-      chalk:
-        specifier: 4.1.2
-        version: 4.1.2
-      debug:
-        specifier: 4.3.4
-        version: 4.3.4(supports-color@5.5.0)
-      usb:
-        specifier: 2.15.0
-        version: 2.15.0
-    devDependencies:
-      '@types/debug':
-        specifier: 4.1.8
-        version: 4.1.8
-      '@types/node':
-        specifier: 20.17.31
-        version: 20.17.31
-      '@types/w3c-web-usb':
-        specifier: 1.0.8
-        version: 1.0.8
-      '@vitest/coverage-istanbul':
-        specifier: ^3.1.1
-        version: 3.1.1(vitest@3.1.1)
-      '@votingworks/test-utils':
-        specifier: workspace:*
-        version: link:../test-utils
-      esbuild:
-        specifier: 0.21.2
-        version: 0.21.2
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.21.2)
-      eslint-plugin-vx:
-        specifier: workspace:*
-        version: link:../eslint-plugin-vx
-      fast-check:
-        specifier: 2.23.2
-        version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
-      vite:
-        specifier: 4.5.2
-        version: 4.5.2(@types/node@20.17.31)
       vitest:
         specifier: ^3.1.1
         version: 3.1.1(@types/debug@4.1.8)(@types/node@20.17.31)
@@ -14917,6 +14856,75 @@ packages:
     dependencies:
       '@typescript-eslint/types': 7.18.0
       eslint-visitor-keys: 3.4.3
+    dev: true
+
+  /@typescript/native-preview-darwin-arm64@7.0.0-dev.20260120.1:
+    resolution: {integrity: sha512-r3pWFuR2H7mn6ScwpH5jJljKQqKto0npVuJSk6pRwFwexpTyxOGmJTZJ1V0AWiisaNxU2+CNAqWFJSJYIE/QTg==}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@typescript/native-preview-darwin-x64@7.0.0-dev.20260120.1:
+    resolution: {integrity: sha512-cuC1+wLbUP+Ip2UT94G134fqRdp5w3b3dhcCO6/FQ4yXxvRNyv/WK+upHBUFDaeSOeHgDTyO9/QFYUWwC4If1A==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@typescript/native-preview-linux-arm64@7.0.0-dev.20260120.1:
+    resolution: {integrity: sha512-zZGvEGY7wcHYefMZ87KNmvjN3NLIhsCMHEpHZiGCS3khKf+8z6ZsanrzCjOTodvL01VPyBzHxV1EtkSxAcLiQg==}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@typescript/native-preview-linux-arm@7.0.0-dev.20260120.1:
+    resolution: {integrity: sha512-vN6OYVySol/kQZjJGmAzd6L30SyVlCgmCXS8WjUYtE5clN0YrzQHop16RK29fYZHMxpkOniVBtRPxUYQANZBlQ==}
+    cpu: [arm]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@typescript/native-preview-linux-x64@7.0.0-dev.20260120.1:
+    resolution: {integrity: sha512-JBfNhWd/asd5MDeS3VgRvE24pGKBkmvLub6tsux6ypr+Yhy+o0WaAEzVpmlRYZUqss2ai5tvOu4dzPBXzZAtFw==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@typescript/native-preview-win32-arm64@7.0.0-dev.20260120.1:
+    resolution: {integrity: sha512-tTndRtYCq2xwgE0VkTi9ACNiJaV43+PqvBqCxk8ceYi3X36Ve+CCnwlZfZJ4k9NxZthtrAwF/kUmpC9iIYbq1w==}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@typescript/native-preview-win32-x64@7.0.0-dev.20260120.1:
+    resolution: {integrity: sha512-oZia7hFL6k9pVepfonuPI86Jmyz6WlJKR57tWCDwRNmpA7odxuTq1PbvcYgy1z4+wHF1nnKKJY0PMAiq6ac18w==}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@typescript/native-preview@7.0.0-dev.20260120.1:
+    resolution: {integrity: sha512-nnEf37C9ue7OBRnF2zmV/OCBmV5Y7T/K4mCHa+nxgiXcF/1w8sA0cgdFl+gHQ0mysqUJ+Bu5btAMeWgpLyjrgg==}
+    hasBin: true
+    optionalDependencies:
+      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260120.1
+      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260120.1
+      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260120.1
+      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260120.1
+      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260120.1
+      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260120.1
+      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260120.1
     dev: true
 
   /@ungap/structured-clone@1.2.0:
