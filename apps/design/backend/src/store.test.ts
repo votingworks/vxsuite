@@ -389,14 +389,14 @@ test('Background task processing - concurrent workers claim different tasks', as
   ]);
 
   // All tasks should have been claimed
-  expect(claimedTasks.every((task) => task !== undefined)).toBe(true);
+  expect(claimedTasks.every((task) => task !== undefined)).toEqual(true);
 
   // Extract the IDs of claimed tasks
   const claimedTaskIds = claimedTasks.map((task) => task!.id);
 
   // All claimed tasks should be unique (no task claimed twice)
   const uniqueClaimedTaskIds = new Set(claimedTaskIds);
-  expect(uniqueClaimedTaskIds.size).toBe(5);
+  expect(uniqueClaimedTaskIds.size).toEqual(5);
 
   // All created tasks should have been claimed
   expect(uniqueClaimedTaskIds).toEqual(new Set(taskIds));
@@ -425,12 +425,12 @@ test('Background task processing - tasks are claimed in FIFO order', async () =>
   const claimed3 = await store.claimOldestQueuedBackgroundTask();
 
   // Tasks should be claimed in the order they were created
-  expect(claimed1!.id).toBe(task1Id);
-  expect(claimed1!.payload).toBe('{"order":1}');
-  expect(claimed2!.id).toBe(task2Id);
-  expect(claimed2!.payload).toBe('{"order":2}');
-  expect(claimed3!.id).toBe(task3Id);
-  expect(claimed3!.payload).toBe('{"order":3}');
+  expect(claimed1!.id).toEqual(task1Id);
+  expect(claimed1!.payload).toEqual('{"order":1}');
+  expect(claimed2!.id).toEqual(task2Id);
+  expect(claimed2!.payload).toEqual('{"order":2}');
+  expect(claimed3!.id).toEqual(task3Id);
+  expect(claimed3!.payload).toEqual('{"order":3}');
 });
 
 describe('tts_strings', () => {
