@@ -244,7 +244,7 @@ export async function exportElectionPackage({
   shouldExportAudio: boolean;
   shouldExportSampleBallots: boolean;
   shouldExportTestBallots: boolean;
-  numAuditIdBallots: number;
+  numAuditIdBallots: number | undefined;
 }): Promise<string> {
   await apiClient.exportElectionPackage({
     electionId,

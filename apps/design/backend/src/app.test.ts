@@ -2964,6 +2964,7 @@ test('Election package and ballots export', async () => {
     shouldExportAudio: true,
     shouldExportSampleBallots: true,
     shouldExportTestBallots: true,
+    numAuditIdBallots: undefined,
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(
@@ -3333,6 +3334,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
     shouldExportAudio: false,
     shouldExportSampleBallots: false,
     shouldExportTestBallots: true,
+    numAuditIdBallots: undefined,
   });
 
   const contents = assertDefined(
@@ -3586,6 +3588,8 @@ test('Consistency of ballot hash across exports', async () => {
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
     shouldExportSampleBallots: true,
+    shouldExportTestBallots: false,
+    numAuditIdBallots: undefined,
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(
@@ -3653,6 +3657,7 @@ test('CDF exports', async () => {
     shouldExportAudio: false,
     shouldExportSampleBallots: false,
     shouldExportTestBallots: true,
+    numAuditIdBallots: undefined,
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(
@@ -4129,6 +4134,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     shouldExportAudio: false,
     shouldExportSampleBallots: true,
     shouldExportTestBallots: true,
+    numAuditIdBallots: undefined,
   });
   expect(renderAllBallotPdfsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
@@ -4437,6 +4443,7 @@ test('MS election and results SEMS conversion', async () => {
     shouldExportAudio: true,
     shouldExportSampleBallots: true,
     shouldExportTestBallots: true,
+    numAuditIdBallots: undefined,
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(

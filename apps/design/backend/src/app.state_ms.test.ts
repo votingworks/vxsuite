@@ -128,6 +128,8 @@ test('convert MS results', async () => {
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
     shouldExportSampleBallots: false,
+    shouldExportTestBallots: false,
+    numAuditIdBallots: undefined,
   });
   const contents = assertDefined(
     fileStorageClient.getRawFile(
