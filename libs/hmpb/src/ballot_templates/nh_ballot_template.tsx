@@ -34,6 +34,8 @@ import {
   hasSplits,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
+  ContestSectionHeader as ContestSectionHeaderStruct,
+  ContestSectionHeaders,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -774,6 +776,28 @@ function Contest({
   }
 }
 
+function ContestSectionHeader({
+  title,
+  description,
+}: ContestSectionHeaderStruct) {
+  return (
+    <Box fill="tinted" style={{ padding: '0.5rem' }}>
+      <h2>{title}</h2>
+      {description && (
+        <div>
+          <RichText
+            tableBorderWidth={'1px'}
+            tableBorderColor={Colors.DARKER_GRAY}
+            tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
+          >
+            <div dangerouslySetInnerHTML={{ __html: description }} />
+          </RichText>
+        </div>
+      )}
+    </Box>
+  );
+}
+
 async function splitLongBallotMeasureAcrossPages(
   tooLongContest: YesNoContest,
   contestProps: Omit<Parameters<typeof Contest>[0], 'contest'>,
@@ -880,7 +904,14 @@ async function BallotPageContent(
     });
   }
 
-  const { compact, election, ballotStyleId, dimensions, ...restProps } = props;
+  const {
+    compact,
+    election,
+    ballotStyleId,
+    dimensions,
+    contestSectionHeaders,
+    ...restProps
+  } = props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -904,6 +935,25 @@ async function BallotPageContent(
   const verticalGapPx = horizontalGapPx;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
+    const headerProps = contestSectionHeaders?.[section[0].type];
+    const sectionHeader = headerProps ? (
+      <ContestSectionHeader {...headerProps} />
+    ) : undefined;
+    const [sectionHeaderMeasurements] = sectionHeader
+      ? await scratchpad.measureElements(
+          <BackendLanguageContextProvider
+            currentLanguageCode={primaryLanguageCode(ballotStyle)}
+            uiStringsPackage={election.ballotStrings}
+          >
+            <div className="sectionHeader">{sectionHeader}</div>
+          </BackendLanguageContextProvider>,
+          '.sectionHeader'
+        )
+      : [];
+    const sectionHeaderHeight = sectionHeader
+      ? sectionHeaderMeasurements.height + verticalGapPx
+      : 0;
+
     const contestElements = section.map((contest) => (
       <Contest
         key={contest.id}
@@ -942,7 +992,7 @@ async function BallotPageContent(
     const { columns, height } = await layOutInColumns({
       elements: measuredContests,
       numColumns,
-      maxColumnHeight: dimensions.height - heightUsed,
+      maxColumnHeight: dimensions.height - heightUsed - sectionHeaderHeight,
       elementGap: verticalGapPx,
     });
 
@@ -958,27 +1008,38 @@ async function BallotPageContent(
     }
 
     // Add vertical gap to account for space between sections
-    heightUsed += height + verticalGapPx;
+    heightUsed += height + verticalGapPx + sectionHeaderHeight;
     pageSections.push(
       <div
         key={`section-${pageSections.length + 1}`}
-        style={{ display: 'flex', gap: `${horizontalGapPx}px` }}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: `${verticalGapPx}px`,
+        }}
       >
-        {columns.map((column, i) => (
-          <div
-            key={`column-${i}`}
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: `${verticalGapPx}px`,
-            }}
-          >
-            {column.map(({ element }) => element)}
-          </div>
-        ))}
+        {sectionHeader}
+        <div style={{ display: 'flex', gap: `${horizontalGapPx}px` }}>
+          {columns.map((column, i) => (
+            <div
+              key={`column-${i}`}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: `${verticalGapPx}px`,
+              }}
+            >
+              {column.map(({ element }) => element)}
+            </div>
+          ))}
+        </div>
       </div>
     );
+    // Don't show section header again on subsequent pages
+    if (contestSectionHeaders) {
+      contestSectionHeaders[section[0].type] = undefined;
+    }
   }
 
   const contestsLeftToLayout = contestSections.flat();
@@ -1001,6 +1062,7 @@ async function BallotPageContent(
         return splitResult;
       }
       const { firstContestElement, restContest } = splitResult.ok();
+      // TODO do we need to account for section headers here?
       pageSections.push(<div key="section-1">{firstContestElement}</div>);
       contestsLeftToLayout.unshift(restContest);
     } else {
@@ -1035,6 +1097,7 @@ async function BallotPageContent(
             ...election,
             contests: contestsLeftToLayout,
           },
+          contestSectionHeaders,
         }
       : undefined;
 
@@ -1044,7 +1107,8 @@ async function BallotPageContent(
   });
 }
 
-export type NhBallotProps = BaseBallotProps & NhPrecinctSplitOptions;
+export type NhBallotProps = BaseBallotProps &
+  NhPrecinctSplitOptions & { contestSectionHeaders?: ContestSectionHeaders };
 
 export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
   stylesComponent: BaseStyles,
