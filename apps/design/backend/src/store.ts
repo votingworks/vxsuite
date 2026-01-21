@@ -1993,30 +1993,25 @@ export class Store {
     };
   }
 
-  async createElectionPackageBackgroundTask(
-    electionId: ElectionId,
-    electionSerializationFormat: ElectionSerializationFormat,
-    shouldExportAudio: boolean,
-    shouldExportSampleBallots: boolean,
-    numAuditIdBallots?: number
-  ): Promise<void> {
+  async createElectionPackageBackgroundTask(p: {
+    electionId: ElectionId;
+    electionSerializationFormat: ElectionSerializationFormat;
+    shouldExportAudio?: boolean;
+    shouldExportSampleBallots?: boolean;
+    shouldExportTestBallots?: boolean;
+    numAuditIdBallots?: number;
+  }): Promise<void> {
     await this.db.withClient(async (client) =>
       client.withTransaction(async () => {
         // If a task is already in progress, don't create a new one
-        const { task } = await this.getElectionPackage(electionId);
+        const { task } = await this.getElectionPackage(p.electionId);
         if (task && !task.completedAt) {
           return false;
         }
 
         const taskId = await this.createBackgroundTask(
           'generate_election_package',
-          {
-            electionId,
-            electionSerializationFormat,
-            shouldExportAudio,
-            shouldExportSampleBallots,
-            numAuditIdBallots,
-          }
+          p
         );
         await client.query(
           `
@@ -2025,7 +2020,7 @@ export class Store {
             where id = $2
           `,
           taskId,
-          electionId
+          p.electionId
         );
 
         return true;

@@ -1,11 +1,14 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionSerializationFormat,
 } from '@votingworks/types';
 import { Buffer, File as NodeFile } from 'node:buffer';
-import type { BackgroundTask } from '@votingworks/design-backend';
+import type {
+  BackgroundTask,
+  StateFeaturesConfig,
+} from '@votingworks/design-backend';
 import {
   provideApi,
   createMockApiClient,
@@ -13,6 +16,7 @@ import {
   mockUserFeatures,
   jurisdiction,
   user,
+  mockStateFeatures,
 } from '../test/api_helpers';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
@@ -53,6 +57,7 @@ beforeEach(() => {
     .resolves('VxDefaultBallot');
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
+  mockStateFeatures(apiMock, electionId);
 });
 
 afterEach(() => {
@@ -153,6 +158,7 @@ test('export election package and ballots', async () => {
       electionSerializationFormat: 'vxf',
       shouldExportAudio: false,
       shouldExportSampleBallots: false,
+      shouldExportTestBallots: false,
       numAuditIdBallots: undefined,
     })
     .resolves();
@@ -231,6 +237,7 @@ test('with audio export checked', async () => {
       electionSerializationFormat: 'vxf',
       shouldExportAudio: true,
       shouldExportSampleBallots: false,
+      shouldExportTestBallots: false,
       numAuditIdBallots: undefined,
     })
     .resolves();
@@ -259,6 +266,7 @@ test('export election package error handling', async () => {
       electionSerializationFormat: 'vxf',
       shouldExportAudio: false,
       shouldExportSampleBallots: false,
+      shouldExportTestBallots: false,
       numAuditIdBallots: undefined,
     })
     .resolves();
@@ -324,6 +332,7 @@ test('with sample ballots export checked', async () => {
       electionSerializationFormat: 'vxf',
       shouldExportAudio: false,
       shouldExportSampleBallots: true,
+      shouldExportTestBallots: false,
       numAuditIdBallots: undefined,
     })
     .resolves();
@@ -339,6 +348,42 @@ test('with sample ballots export checked', async () => {
 
   await screen.findByText('Exporting Election Package and Ballots');
   // 'export election package and ballots' fully covers export flow
+});
+
+test('with test ballots export checked', async () => {
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  userEvent.click(
+    screen.getByRole('checkbox', {
+      name: 'Include test ballots',
+      checked: false,
+    })
+  );
+  screen.getByRole('checkbox', {
+    name: 'Include test ballots',
+    checked: true,
+  });
+
+  apiMock.exportElectionPackage
+    .expectCallWith({
+      electionId,
+      electionSerializationFormat: 'vxf',
+      shouldExportAudio: false,
+      shouldExportSampleBallots: false,
+      shouldExportTestBallots: true,
+      numAuditIdBallots: undefined,
+    })
+    .resolves();
+  apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
+    task: {
+      createdAt: new Date(),
+      id: '1',
+      payload: '',
+      taskName: 'generate_election_package',
+    },
+  });
+  userEvent.click(screen.getButton('Export Election Package and Ballots'));
 });
 
 test('using CDF', async () => {
@@ -365,6 +410,7 @@ test('using CDF', async () => {
       electionSerializationFormat: 'cdf',
       shouldExportAudio: false,
       shouldExportSampleBallots: false,
+      shouldExportTestBallots: false,
       numAuditIdBallots: undefined,
     })
     .resolves();
@@ -404,6 +450,7 @@ test('export ballots with audit ballot IDs', async () => {
       electionSerializationFormat: 'vxf',
       shouldExportAudio: false,
       shouldExportSampleBallots: false,
+      shouldExportTestBallots: false,
       numAuditIdBallots: 10,
     })
     .resolves();
@@ -524,4 +571,25 @@ test('view ballot proofing status and unfinalize ballots', async () => {
   await screen.findByText('Ballots not finalized');
 
   expect(select).not.toBeDisabled();
+});
+
+describe('state defaults', () => {
+  interface Spec {
+    feat: StateFeaturesConfig;
+    name: string;
+  }
+
+  const specs: Spec[] = [
+    { name: 'Include audio', feat: { AUDIO_ENABLED: true } },
+    { name: 'Include sample ballots', feat: { EXPORT_SAMPLE_BALLOTS: true } },
+    { name: 'Include test ballots', feat: { EXPORT_TEST_BALLOTS: true } },
+  ];
+
+  for (const { feat: features, name } of specs) {
+    test(`enables "${name}" based on feature flag`, async () => {
+      mockStateFeatures(apiMock, electionId, features);
+      renderScreen();
+      await screen.findByRole('checkbox', { name, checked: true });
+    });
+  }
 });

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import {
   H1,
   P,
@@ -35,6 +35,7 @@ import {
   getTestDecks,
   getBallotTemplate,
   decryptCvrBallotAuditIds,
+  getStateFeatures,
 } from './api';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
@@ -77,8 +78,10 @@ export function ExportScreen(): JSX.Element | null {
   const [shouldExportAudio, setShouldExportAudio] = useState(false);
   const [shouldExportSampleBallots, setShouldExportSampleBallots] =
     useState(false);
+  const [shouldExportTestBallots, setShouldExportTestBallots] = useState(false);
   useTitle(routes.election(electionId).export.title);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
+  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
   const testDecksQuery = getTestDecks.useQuery(electionId);
@@ -97,6 +100,15 @@ export function ExportScreen(): JSX.Element | null {
   const [ballotAuditIdSecretKey, setBallotAuditIdSecretKey] =
     useState<string>();
   const [exportError, setExportError] = useState<string>();
+
+  React.useEffect(() => {
+    if (!getStateFeaturesQuery.data) return;
+
+    const f = getStateFeaturesQuery.data;
+    setShouldExportAudio(!!f.AUDIO_ENABLED);
+    setShouldExportSampleBallots(!!f.EXPORT_SAMPLE_BALLOTS);
+    setShouldExportTestBallots(!!f.EXPORT_TEST_BALLOTS);
+  }, [getStateFeaturesQuery.data]);
 
   useQueryChangeListener(electionPackageQuery, {
     onChange: (currentElectionPackage, previousElectionPackage) => {
@@ -150,6 +162,7 @@ export function ExportScreen(): JSX.Element | null {
       electionSerializationFormat,
       shouldExportAudio,
       shouldExportSampleBallots,
+      shouldExportTestBallots,
       numAuditIdBallots,
     });
   }
@@ -160,6 +173,7 @@ export function ExportScreen(): JSX.Element | null {
       testDecksQuery.isSuccess &&
       getBallotsFinalizedAtQuery.isSuccess &&
       getBallotTemplateQuery.isSuccess &&
+      getStateFeaturesQuery.isSuccess &&
       getUserFeaturesQuery.isSuccess
     )
   ) {
@@ -304,6 +318,12 @@ export function ExportScreen(): JSX.Element | null {
             label="Include sample ballots"
             isChecked={shouldExportSampleBallots}
             onChange={(isChecked) => setShouldExportSampleBallots(isChecked)}
+          />
+
+          <CheckboxButton
+            label="Include test ballots"
+            isChecked={shouldExportTestBallots}
+            onChange={(isChecked) => setShouldExportTestBallots(isChecked)}
           />
 
           <CheckboxButton

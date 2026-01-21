@@ -557,6 +557,7 @@ test('getExportedElectionDefinition returns the exported election including reor
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
     shouldExportSampleBallots: true,
+    shouldExportTestBallots: true,
   });
 
   await processNextBackgroundTaskIfAny({
@@ -637,6 +638,7 @@ test('getExportedElection returns election-out-of-date error when election data 
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
     shouldExportSampleBallots: true,
+    shouldExportTestBallots: true,
   });
 
   await processNextBackgroundTaskIfAny({
