@@ -233,6 +233,7 @@ export async function exportElectionPackage({
   electionSerializationFormat,
   shouldExportAudio,
   shouldExportSampleBallots,
+  shouldExportTestBallots,
   numAuditIdBallots,
 }: {
   apiClient: ApiClient;
@@ -242,13 +243,15 @@ export async function exportElectionPackage({
   electionSerializationFormat: ElectionSerializationFormat;
   shouldExportAudio: boolean;
   shouldExportSampleBallots: boolean;
-  numAuditIdBallots?: number;
+  shouldExportTestBallots: boolean;
+  numAuditIdBallots: number | undefined;
 }): Promise<string> {
   await apiClient.exportElectionPackage({
     electionId,
     electionSerializationFormat,
     shouldExportAudio,
     shouldExportSampleBallots,
+    shouldExportTestBallots,
     numAuditIdBallots,
   });
   await processNextBackgroundTaskIfAny({

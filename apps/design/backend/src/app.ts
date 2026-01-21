@@ -757,26 +757,15 @@ export function buildApi(ctx: AppContext) {
       return store.getElectionPackage(electionId);
     },
 
-    exportElectionPackage({
-      electionId,
-      electionSerializationFormat,
-      shouldExportAudio,
-      shouldExportSampleBallots,
-      numAuditIdBallots,
-    }: {
+    exportElectionPackage(input: {
       electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
-      shouldExportAudio: boolean;
-      shouldExportSampleBallots: boolean;
+      shouldExportAudio?: boolean;
+      shouldExportSampleBallots?: boolean;
+      shouldExportTestBallots?: boolean;
       numAuditIdBallots?: number;
     }): Promise<void> {
-      return store.createElectionPackageBackgroundTask(
-        electionId,
-        electionSerializationFormat,
-        shouldExportAudio,
-        shouldExportSampleBallots,
-        numAuditIdBallots
-      );
+      return store.createElectionPackageBackgroundTask(input);
     },
 
     getTestDecks({

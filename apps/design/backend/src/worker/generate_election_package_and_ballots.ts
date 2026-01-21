@@ -28,7 +28,13 @@ import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
-import { assertDefined, find, iter, range } from '@votingworks/basics';
+import {
+  assertDefined,
+  find,
+  iter,
+  range,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import z from 'zod/v4';
 import { Readable } from 'node:stream';
 import { EmitProgressFunction, WorkerContext } from './context';
@@ -45,8 +51,9 @@ import {
 interface GenerateElectionPackageAndBallotsPayload {
   electionId: ElectionId;
   electionSerializationFormat: ElectionSerializationFormat;
-  shouldExportAudio: boolean;
-  shouldExportSampleBallots: boolean;
+  shouldExportAudio?: boolean;
+  shouldExportSampleBallots?: boolean;
+  shouldExportTestBallots?: boolean;
   numAuditIdBallots?: number;
 }
 
@@ -54,8 +61,9 @@ export const GenerateElectionPackageAndBallotsPayloadSchema: z.ZodType<GenerateE
   z.object({
     electionId: ElectionIdSchema,
     electionSerializationFormat: ElectionSerializationFormatSchema,
-    shouldExportAudio: z.boolean(),
-    shouldExportSampleBallots: z.boolean(),
+    shouldExportAudio: z.boolean().optional(),
+    shouldExportSampleBallots: z.boolean().optional(),
+    shouldExportTestBallots: z.boolean().optional(),
     numAuditIdBallots: z.number().optional(),
   });
 
@@ -96,6 +104,7 @@ export async function generateElectionPackageAndBallots(
     electionSerializationFormat,
     shouldExportAudio,
     shouldExportSampleBallots,
+    shouldExportTestBallots,
     numAuditIdBallots,
   }: GenerateElectionPackageAndBallotsPayload,
   emitProgress: EmitProgressFunction
@@ -142,11 +151,24 @@ export async function generateElectionPackageAndBallots(
     formattedElection,
     compact
   );
-  if (!shouldExportSampleBallots) {
-    allBallotProps = allBallotProps.filter(
-      (props) => props.ballotMode !== 'sample'
-    );
-  }
+  // eslint-disable-next-line array-callback-return
+  allBallotProps = allBallotProps.filter((props) => {
+    switch (props.ballotMode) {
+      case 'official':
+        return true;
+
+      case 'sample':
+        return shouldExportSampleBallots;
+
+      case 'test':
+        return shouldExportTestBallots;
+
+      default: {
+        /* istanbul ignore next - @preserve */
+        throwIllegalValue(props.ballotMode);
+      }
+    }
+  });
 
   // If we're exporting ballots with ballot audit IDs...
   if (numAuditIdBallots) {

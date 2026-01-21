@@ -16,7 +16,7 @@ const electionId = 'election-1';
 
 test('navigates to given href', async () => {
   const { history } = renderInContext(
-    { AUDIO_PROOFING: true },
+    { AUDIO_ENABLED: true },
     <AudioLinkButton
       aria-label="Preview or Edit Audio"
       to="/audio/edit"
@@ -30,7 +30,7 @@ test('navigates to given href', async () => {
 
 test('shows tooltip on hover', async () => {
   renderInContext(
-    { AUDIO_PROOFING: true },
+    { AUDIO_ENABLED: true },
     <AudioLinkButton
       aria-label="Preview or Edit Audio"
       to="/audio/edit"
@@ -44,7 +44,7 @@ test('shows tooltip on hover', async () => {
 
 test('is omitted when audio proofing feature is turned off', async () => {
   renderInContext(
-    { AUDIO_PROOFING: false },
+    { AUDIO_ENABLED: false },
     <AudioLinkButton
       aria-label="Preview or Edit Audio"
       to="/audio/edit"

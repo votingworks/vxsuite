@@ -22,7 +22,7 @@ export function AudioLinkButton(props: AudioLinkButtonProps): React.ReactNode {
   const { electionId } = useParams<ElectionIdParams>();
 
   const features = api.getStateFeatures.useQuery(electionId).data;
-  if (!features?.AUDIO_PROOFING) return null;
+  if (!features?.AUDIO_ENABLED) return null;
 
   return (
     <TooltipContainer className={className}>

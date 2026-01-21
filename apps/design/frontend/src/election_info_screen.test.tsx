@@ -476,7 +476,7 @@ describe('audio editing', () => {
     { inputValue: election.state, stringKey: Key.STATE_NAME },
   ] as AudioEnabledInputSpec[]) {
     test(`configures audio edit button for ${spec.stringKey}`, async () => {
-      mockStateFeatures(apiMock, electionId, { AUDIO_PROOFING: true });
+      mockStateFeatures(apiMock, electionId, { AUDIO_ENABLED: true });
 
       apiMock.getSystemSettings
         .expectCallWith({ electionId })
