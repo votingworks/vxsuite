@@ -186,7 +186,9 @@ export function ExportScreen(): JSX.Element | null {
         onSuccess: (outputFileContents) => {
           downloadFile(
             URL.createObjectURL(
-              new Blob([outputFileContents], { type: 'application/zip' })
+              new Blob([new Uint8Array(outputFileContents)], {
+                type: 'application/zip',
+              })
             ),
             'decrypted-cvrs.zip'
           );

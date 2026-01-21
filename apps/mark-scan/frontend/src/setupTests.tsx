@@ -28,3 +28,8 @@ afterEach(() => {
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
+
+// PointerEvent is not available in jsdom, so we polyfill it with MouseEvent
+if (typeof globalThis.PointerEvent === 'undefined') {
+  globalThis.PointerEvent = MouseEvent as typeof PointerEvent;
+}

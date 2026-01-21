@@ -269,7 +269,9 @@ export function BallotScreen(): JSX.Element | null {
 
   const pdfFile = useMemo(() => {
     if (!ballotPreview) return;
-    const blob = new Blob([ballotPreview.pdfData], { type: 'application/pdf' });
+    const blob = new Blob([new Uint8Array(ballotPreview.pdfData)], {
+      type: 'application/pdf',
+    });
     return URL.createObjectURL(blob);
   }, [ballotPreview]);
 

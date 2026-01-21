@@ -77,7 +77,7 @@ test('prevents context menus from appearing', async () => {
   const { oncontextmenu } = window;
 
   if (oncontextmenu) {
-    const event = new MouseEvent('contextmenu');
+    const event = new PointerEvent('contextmenu');
 
     vi.spyOn(event, 'preventDefault');
     oncontextmenu.call(window, event);
