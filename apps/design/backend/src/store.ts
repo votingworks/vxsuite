@@ -2341,17 +2341,6 @@ export class Store {
   // Background task processing
   //
 
-  async getOldestQueuedBackgroundTask(): Promise<Optional<BackgroundTask>> {
-    const sql = `${getBackgroundTasksBaseQuery}
-      where started_at is null
-      order by created_at asc limit 1
-    `;
-    const row = (
-      await this.db.withClient(async (client) => await client.query(sql))
-    ).rows[0] as Optional<BackgroundTaskRow>;
-    return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
-  }
-
   /**
    * Atomically claims and returns the oldest queued background task, if any.
    * Uses PostgreSQL's FOR UPDATE SKIP LOCKED to safely support concurrent workers.
@@ -2428,19 +2417,6 @@ export class Store {
       )
     );
     return taskId;
-  }
-
-  async startBackgroundTask(taskId: Id): Promise<void> {
-    await this.db.withClient((client) =>
-      client.query(
-        `
-          update background_tasks
-          set started_at = current_timestamp
-          where id = $1
-        `,
-        taskId
-      )
-    );
   }
 
   async completeBackgroundTask(taskId: Id, error?: string): Promise<void> {
