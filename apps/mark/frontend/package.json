@@ -27,7 +27,7 @@
     "test:ci": "TZ=America/Anchorage CI=true vitest run --coverage",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:watch": "TZ=America/Anchorage vitest --watch",
-    "type-check": "tsc --build"
+    "type-check": "tsgo --build"
   },
   "browserslist": {
     "production": [

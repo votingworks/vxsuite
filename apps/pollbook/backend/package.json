@@ -26,7 +26,7 @@
     "test:ci": "TZ=America/Anchorage vitest run --coverage",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:watch": "TZ=America/Anchorage vitest",
-    "type-check": "tsc --build"
+    "type-check": "tsgo --build"
   },
   "dependencies": {
     "@types/luxon": "^3.0.0",

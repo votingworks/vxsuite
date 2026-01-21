@@ -9,7 +9,7 @@
     "cvr-fixture-generator": "bin/generate-cvrs"
   },
   "scripts": {
-    "type-check": "tsc --build",
+    "type-check": "tsgo --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",

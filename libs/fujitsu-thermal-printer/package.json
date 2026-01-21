@@ -19,7 +19,7 @@
     "test:ci": "pnpm build && pnpm test:coverage --run",
     "test:coverage": "vitest --coverage",
     "test:watch": "vitest",
-    "type-check": "tsc --build"
+    "type-check": "tsgo --build"
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",

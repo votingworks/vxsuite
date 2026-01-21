@@ -26,7 +26,7 @@
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:notdummy": "is-ci test:ci test:watch",
     "test:watch": "TZ=America/Anchorage vitest",
-    "type-check": "tsc --build"
+    "type-check": "tsgo --build"
   },
   "browserslist": {
     "production": [

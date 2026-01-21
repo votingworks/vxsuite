@@ -47,7 +47,7 @@
     "test:ci": "pnpm db:migrations:ci-validate && TZ=America/Anchorage ./scripts/test_ci.sh",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:watch": "TZ=America/Anchorage vitest",
-    "type-check": "tsc --build"
+    "type-check": "tsgo --build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.735.0",

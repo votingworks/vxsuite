@@ -20,7 +20,7 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:watch": "vitest",
-    "type-check": "tsc --build"
+    "type-check": "tsgo --build"
   },
   "dependencies": {
     "@votingworks/test-utils": "workspace:*"
