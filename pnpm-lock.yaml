@@ -1970,6 +1970,9 @@ importers:
       usb:
         specifier: 2.15.0
         version: 2.15.0
+      uuid:
+        specifier: 9.0.1
+        version: 9.0.1
       zod:
         specifier: 3.25.42
         version: 3.25.42
@@ -2001,6 +2004,9 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
+      '@types/uuid':
+        specifier: 9.0.5
+        version: 9.0.5
       '@vitest/coverage-istanbul':
         specifier: ^3.1.1
         version: 3.1.1(vitest@3.1.1)

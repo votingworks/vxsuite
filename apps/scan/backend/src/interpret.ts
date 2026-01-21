@@ -6,6 +6,7 @@ import { ok, Result } from '@votingworks/basics';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
+  InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   PageInterpretationWithFiles,
   SheetInterpretation,
@@ -23,7 +24,7 @@ export function combinePageInterpretationsForSheet(
   const frontType = front.interpretation.type;
   const backType = back.interpretation.type;
 
-  // Exactly one side can be printed on a BMD ballot.
+  // Exactly one side can be printed on a BMD ballot (single-page).
   if (
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
     (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
@@ -31,6 +32,27 @@ export function combinePageInterpretationsForSheet(
     /* istanbul ignore next - @preserve */
     const printedPage = frontType === 'InterpretedBmdPage' ? front : back;
     const interpretation = printedPage.interpretation as InterpretedBmdPage;
+
+    if (interpretation.adjudicationInfo.requiresAdjudication) {
+      return {
+        type: 'NeedsReviewSheet',
+        reasons: [...interpretation.adjudicationInfo.enabledReasonInfos],
+      };
+    }
+
+    return { type: 'ValidSheet' };
+  }
+
+  // Multi-page BMD ballot (one page of a multi-page ballot).
+  if (
+    (frontType === 'InterpretedBmdMultiPagePage' && backType === 'BlankPage') ||
+    (backType === 'InterpretedBmdMultiPagePage' && frontType === 'BlankPage')
+  ) {
+    /* istanbul ignore next - @preserve */
+    const printedPage =
+      frontType === 'InterpretedBmdMultiPagePage' ? front : back;
+    const interpretation =
+      printedPage.interpretation as InterpretedBmdMultiPagePage;
 
     if (interpretation.adjudicationInfo.requiresAdjudication) {
       return {

@@ -21,6 +21,7 @@ import {
   BallotStyleId,
   BallotTargetMark,
   BallotType,
+  BmdMultiPageBallotPageMetadata,
   ContestOption,
   Contests,
   Corners,
@@ -29,6 +30,7 @@ import {
   getContests,
   GridPosition,
   Id,
+  InterpretedBmdMultiPagePage,
   InterpretedHmpbPage,
   InvalidBallotHashPage,
   InvalidPrecinctPage,
@@ -658,26 +660,48 @@ async function interpretBmdBallot(
     }
   }
 
-  const { ballot, summaryBallotImage, blankPageImage } = interpretResult.ok();
-  const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
-    electionDefinition,
-    options,
-    ballot.votes,
-    ballot.ballotStyleId
-  );
+  const result = interpretResult.ok();
+  const { summaryBallotImage, blankPageImage } = result;
 
-  const front: PageInterpretation = {
-    type: 'InterpretedBmdPage',
-    metadata: {
-      ballotHash: ballot.ballotHash,
-      ballotType: BallotType.Precinct,
-      ballotStyleId: ballot.ballotStyleId,
-      precinctId: ballot.precinctId,
-      isTestMode: ballot.isTestMode,
-    },
-    votes: ballot.votes,
-    adjudicationInfo,
-  };
+  let front: PageInterpretation;
+  if (result.type === 'multi-page') {
+    // Multi-page BMD ballot
+    const { metadata, votes } = result;
+    const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
+      electionDefinition,
+      options,
+      votes,
+      metadata.ballotStyleId
+    );
+    front = {
+      type: 'InterpretedBmdMultiPagePage',
+      metadata,
+      votes,
+      adjudicationInfo,
+    };
+  } else {
+    // Single-page BMD ballot
+    const { ballot } = result;
+    const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
+      electionDefinition,
+      options,
+      ballot.votes,
+      ballot.ballotStyleId
+    );
+    front = {
+      type: 'InterpretedBmdPage',
+      metadata: {
+        ballotHash: ballot.ballotHash,
+        ballotType: BallotType.Precinct,
+        ballotStyleId: ballot.ballotStyleId,
+        precinctId: ballot.precinctId,
+        isTestMode: ballot.isTestMode,
+      },
+      votes: ballot.votes,
+      adjudicationInfo,
+    };
+  }
+
   const back: PageInterpretation = {
     type: 'BlankPage',
   };
@@ -723,7 +747,9 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
 
   if (
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
-    (frontType === 'BlankPage' && backType === 'InterpretedBmdPage')
+    (frontType === 'BlankPage' && backType === 'InterpretedBmdPage') ||
+    (frontType === 'InterpretedBmdMultiPagePage' && backType === 'BlankPage') ||
+    (frontType === 'BlankPage' && backType === 'InterpretedBmdMultiPagePage')
   ) {
     return 0;
   }

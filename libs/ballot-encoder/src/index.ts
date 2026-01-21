@@ -1,11 +1,14 @@
 import {
+  AnyContest,
   BallotIdSchema,
   BallotStyleId,
   BallotType,
   BallotTypeMaximumValue,
+  BmdMultiPageBallotPageMetadata,
   Candidate,
   CandidateVote,
   CompletedBallot,
+  ContestId,
   Contests,
   Election,
   getBallotStyle,
@@ -86,13 +89,36 @@ export const HmpbPrelude: readonly Uint8[] = [
 ];
 
 /**
+ * The bytes we expect a multi-page BMD ballot to start with.
+ */
+export const BmdMultiPagePrelude: readonly Uint8[] = [
+  /* V */ 86, /* B = BMD multi-page */ 66, /* version = */ 1,
+];
+
+/**
  * Detect whether `data` is a votingworks encoded ballot / metadata.
+ * Recognizes both single-page BMD (VX) and multi-page BMD (VB) preludes.
  */
 export function isVxBallot(data: Uint8Array): boolean {
   const prelude = data.slice(0, BmdPrelude.length);
+  if (prelude.length !== BmdPrelude.length) {
+    return false;
+  }
+  // Check for VX (single-page BMD) or VB (multi-page BMD) prelude
   return (
-    prelude.length === BmdPrelude.length &&
-    prelude.every((byte, i) => byte === BmdPrelude[i])
+    prelude.every((byte, i) => byte === BmdPrelude[i]) ||
+    prelude.every((byte, i) => byte === BmdMultiPagePrelude[i])
+  );
+}
+
+/**
+ * Detect whether `data` is a multi-page BMD ballot.
+ */
+export function isBmdMultiPageBallot(data: Uint8Array): boolean {
+  const prelude = data.slice(0, BmdMultiPagePrelude.length);
+  return (
+    prelude.length === BmdMultiPagePrelude.length &&
+    prelude.every((byte, i) => byte === BmdMultiPagePrelude[i])
   );
 }
 
@@ -483,7 +509,11 @@ export function decodeBallot(
 export function decodeBallotHashFromReader(
   bits: BitReader
 ): string | undefined {
-  if (bits.skipUint8(...BmdPrelude) || bits.skipUint8(...HmpbPrelude)) {
+  if (
+    bits.skipUint8(...BmdPrelude) ||
+    bits.skipUint8(...HmpbPrelude) ||
+    bits.skipUint8(...BmdMultiPagePrelude)
+  ) {
     return bits.readString({
       encoding: HexEncoding,
       length: BALLOT_HASH_ENCODING_LENGTH,
@@ -549,4 +579,252 @@ export function encodeHmpbBallotPageMetadata(
     metadata,
     new BitWriter()
   ).toUint8Array();
+}
+
+/**
+ * Maximum number of pages in a multi-page BMD ballot (same as HMPB).
+ */
+export const MAXIMUM_BMD_MULTI_PAGE_PAGES = MAXIMUM_PAGE_NUMBERS;
+
+/**
+ * Data for a single page of a multi-page BMD ballot.
+ */
+export interface BmdMultiPageBallotPage {
+  ballotHash: string;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  isTestMode: boolean;
+  ballotType: BallotType;
+  pageNumber: number;
+  totalPages: number;
+  ballotAuditId: string;
+  /** The contests included on this page */
+  contests: Contests;
+  /** Votes for the contests on this page */
+  votes: VotesDict;
+}
+
+/**
+ * Encodes a multi-page BMD ballot config (with page info) into the given bit writer.
+ */
+function encodeBmdMultiPageBallotConfigInto(
+  election: Election,
+  {
+    ballotStyleId,
+    ballotType,
+    isTestMode,
+    precinctId,
+    pageNumber,
+    totalPages,
+    ballotAuditId,
+  }: Omit<BmdMultiPageBallotPage, 'contests' | 'votes' | 'ballotHash'>,
+  bits: BitWriter
+): BitWriter {
+  const { precincts, ballotStyles } = election;
+  const precinctIndex = precincts.findIndex((p) => p.id === precinctId);
+  const ballotStyleIndex = ballotStyles.findIndex(
+    (bs) => bs.id === ballotStyleId
+  );
+
+  if (precinctIndex === -1) {
+    throw new Error(`precinct ID not found: ${precinctId}`);
+  }
+
+  if (ballotStyleIndex === -1) {
+    throw new Error(`ballot style ID not found: ${ballotStyleId}`);
+  }
+
+  bits
+    .writeUint(precinctIndex, { max: MAXIMUM_PRECINCTS })
+    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLES })
+    .writeUint(pageNumber, { max: MAXIMUM_BMD_MULTI_PAGE_PAGES })
+    .writeUint(totalPages, { max: MAXIMUM_BMD_MULTI_PAGE_PAGES })
+    .writeBoolean(isTestMode);
+
+  const ballotTypeIndex = Object.values(BallotType).indexOf(ballotType);
+  bits.writeUint(ballotTypeIndex, { max: BallotTypeMaximumValue });
+
+  // Ballot audit ID is required for multi-page BMD ballots
+  bits.writeString(ballotAuditId);
+
+  return bits;
+}
+
+/**
+ * Encodes a single page of a multi-page BMD ballot into a bit writer.
+ */
+export function encodeBmdMultiPageBallotInto(
+  election: Election,
+  {
+    ballotHash,
+    ballotStyleId,
+    precinctId,
+    isTestMode,
+    ballotType,
+    pageNumber,
+    totalPages,
+    ballotAuditId,
+    contests,
+    votes,
+  }: BmdMultiPageBallotPage,
+  bits: BitWriter
+): BitWriter {
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  assert(ballotStyle, `ballot style not found: ${ballotStyleId}`);
+  const allContests = getContests({ ballotStyle, election });
+
+  // Encode which contests are on this page as a bitmap
+  // One bit per contest in the ballot style, true if contest is on this page
+  const contestsOnPage = new Set(contests.map((c) => c.id));
+
+  return bits
+    .writeUint8(...BmdMultiPagePrelude)
+    .writeString(sliceBallotHashForEncoding(ballotHash), {
+      encoding: HexEncoding,
+      includeLength: false,
+      length: BALLOT_HASH_ENCODING_LENGTH,
+    })
+    .with(() =>
+      encodeBmdMultiPageBallotConfigInto(
+        election,
+        {
+          ballotStyleId,
+          precinctId,
+          isTestMode,
+          ballotType,
+          pageNumber,
+          totalPages,
+          ballotAuditId,
+        },
+        bits
+      )
+    )
+    .with(() => {
+      // Write contest bitmap: which contests are on this page
+      for (const contest of allContests) {
+        bits.writeBoolean(contestsOnPage.has(contest.id));
+      }
+      return bits;
+    })
+    .with(() => encodeBallotVotesInto(contests, votes, bits));
+}
+
+/**
+ * Encodes a single page of a multi-page BMD ballot as a byte array.
+ */
+export function encodeBmdMultiPageBallot(
+  election: Election,
+  page: BmdMultiPageBallotPage
+): Uint8Array {
+  const bits = new BitWriter();
+  encodeBmdMultiPageBallotInto(election, page, bits);
+  return bits.toUint8Array();
+}
+
+/**
+ * Decodes a multi-page BMD ballot config from a bit reader.
+ */
+function decodeBmdMultiPageBallotConfigFromReader(
+  election: Election,
+  bits: BitReader
+): Omit<BmdMultiPageBallotPageMetadata, 'ballotHash' | 'contestIds'> {
+  const { precincts, ballotStyles } = election;
+
+  const precinctIndex = bits.readUint({ max: MAXIMUM_PRECINCTS });
+  const ballotStyleIndex = bits.readUint({ max: MAXIMUM_BALLOT_STYLES });
+  const pageNumber = bits.readUint({ max: MAXIMUM_BMD_MULTI_PAGE_PAGES });
+  const totalPages = bits.readUint({ max: MAXIMUM_BMD_MULTI_PAGE_PAGES });
+  const isTestMode = bits.readBoolean();
+
+  const ballotTypeIndex = bits.readUint({ max: BallotTypeMaximumValue });
+  const ballotType = Object.values(BallotType)[ballotTypeIndex];
+  assert(ballotType, `ballot type index ${ballotTypeIndex} is invalid`);
+
+  // Ballot audit ID is required for multi-page BMD ballots
+  const ballotAuditId = unsafeParse(BallotIdSchema, bits.readString());
+
+  const ballotStyle = ballotStyles[ballotStyleIndex];
+  const precinct = precincts[precinctIndex];
+
+  assert(ballotStyle, `ballot style index ${ballotStyleIndex} is invalid`);
+  assert(precinct, `precinct index ${precinctIndex} is invalid`);
+
+  return {
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    pageNumber,
+    totalPages,
+    isTestMode,
+    ballotType,
+    ballotAuditId,
+  };
+}
+
+/**
+ * Result of decoding a multi-page BMD ballot page.
+ */
+export interface DecodedBmdMultiPageBallotPage {
+  metadata: BmdMultiPageBallotPageMetadata;
+  votes: VotesDict;
+}
+
+/**
+ * Decodes a single page of a multi-page BMD ballot from a bit reader.
+ */
+export function decodeBmdMultiPageBallotFromReader(
+  election: Election,
+  bits: BitReader
+): DecodedBmdMultiPageBallotPage {
+  if (!bits.skipUint8(...BmdMultiPagePrelude)) {
+    throw new Error(
+      "expected leading prelude 'V' 'B' 0b00000001 but it was not found"
+    );
+  }
+
+  const ballotHash = bits.readString({
+    encoding: HexEncoding,
+    length: BALLOT_HASH_ENCODING_LENGTH,
+  });
+
+  const config = decodeBmdMultiPageBallotConfigFromReader(election, bits);
+  const { ballotStyleId } = config;
+
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  assert(ballotStyle, `invalid ballot style id: ${ballotStyleId}`);
+
+  const allContests = getContests({ ballotStyle, election });
+
+  // Read contest bitmap: which contests are on this page
+  const contestIds: ContestId[] = [];
+  const contestsOnThisPage: AnyContest[] = [];
+  for (const contest of allContests) {
+    if (bits.readBoolean()) {
+      contestIds.push(contest.id);
+      contestsOnThisPage.push(contest);
+    }
+  }
+
+  // Decode votes for only the contests on this page
+  const votes = decodeBallotVotes(contestsOnThisPage, bits);
+
+  readPaddingToEnd(bits);
+
+  return {
+    metadata: {
+      ballotHash,
+      ...config,
+      contestIds,
+    },
+    votes,
+  };
+}
+
+/**
+ * Decodes a single page of a multi-page BMD ballot from a byte array.
+ */
+export function decodeBmdMultiPageBallot(
+  election: Election,
+  data: Uint8Array
+): DecodedBmdMultiPageBallotPage {
+  return decodeBmdMultiPageBallotFromReader(election, new BitReader(data));
 }

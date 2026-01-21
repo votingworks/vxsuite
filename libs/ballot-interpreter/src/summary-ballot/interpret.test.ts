@@ -60,7 +60,9 @@ test('happy path: front, back', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition(),
     card
   );
-  const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
+  const interpretation = result.unsafeUnwrap();
+  assert(interpretation.type === 'single-page');
+  const { ballot, summaryBallotImage, blankPageImage } = interpretation;
   expect(ballot).toMatchSnapshot();
 
   expect(summaryBallotImage.width).toBeLessThanOrEqual(card[0].width);
@@ -75,7 +77,9 @@ test('happy path: back, front', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition(),
     [card[1], card[0]]
   );
-  const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
+  const interpretation = result.unsafeUnwrap();
+  assert(interpretation.type === 'single-page');
+  const { ballot, summaryBallotImage, blankPageImage } = interpretation;
   expect(ballot).toMatchSnapshot();
 
   expect(summaryBallotImage.width).toBeLessThanOrEqual(card[0].width);
@@ -95,12 +99,16 @@ test('happy path: front upside down, back', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition(),
     cardOriginal
   );
+  const interpretationFlipped = resultFlipped.unsafeUnwrap();
+  assert(interpretationFlipped.type === 'single-page');
   const {
     ballot: ballotFlipped,
     summaryBallotImage: summaryBallotImageFlipped,
     blankPageImage: blankPageImageFlipped,
-  } = resultFlipped.unsafeUnwrap();
-  const { ballot: ballotOriginal } = resultOriginal.unsafeUnwrap();
+  } = interpretationFlipped;
+  const interpretationOriginal = resultOriginal.unsafeUnwrap();
+  assert(interpretationOriginal.type === 'single-page');
+  const { ballot: ballotOriginal } = interpretationOriginal;
   expect(ballotFlipped).toMatchSnapshot();
   expect(ballotFlipped).toEqual(ballotOriginal);
 
@@ -138,12 +146,16 @@ test('happy path: back, front upside down', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition(),
     cardOriginal
   );
+  const interpretationFlipped = resultFlipped.unsafeUnwrap();
+  assert(interpretationFlipped.type === 'single-page');
   const {
     ballot: ballotFlipped,
     summaryBallotImage: summaryBallotImageFlipped,
     blankPageImage: blankPageImageFlipped,
-  } = resultFlipped.unsafeUnwrap();
-  const { ballot: ballotOriginal } = resultOriginal.unsafeUnwrap();
+  } = interpretationFlipped;
+  const interpretationOriginal = resultOriginal.unsafeUnwrap();
+  assert(interpretationOriginal.type === 'single-page');
+  const { ballot: ballotOriginal } = interpretationOriginal;
   expect(ballotFlipped).toMatchSnapshot();
   expect(ballotFlipped).toEqual(ballotOriginal);
 
