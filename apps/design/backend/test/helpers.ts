@@ -241,10 +241,10 @@ export async function exportElectionPackage({
   fileStorageClient: FileStorageClient;
   workspace: Workspace;
   electionSerializationFormat: ElectionSerializationFormat;
-  shouldExportAudio?: boolean;
-  shouldExportSampleBallots?: boolean;
-  shouldExportTestBallots?: boolean;
-  numAuditIdBallots?: number;
+  shouldExportAudio: boolean;
+  shouldExportSampleBallots: boolean;
+  shouldExportTestBallots: boolean;
+  numAuditIdBallots: number;
 }): Promise<string> {
   await apiClient.exportElectionPackage({
     electionId,
