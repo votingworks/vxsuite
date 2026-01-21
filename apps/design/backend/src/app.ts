@@ -33,6 +33,9 @@ import {
   safeParseElection,
   BallotStyle,
   formatBallotHash,
+  ContestSectionHeaders,
+  ContestTypes,
+  ContestSectionHeader,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -601,6 +604,24 @@ export function buildApi(ctx: AppContext) {
       contestId: string;
     }): Promise<void> {
       await store.deleteContest(input.electionId, input.contestId);
+    },
+
+    async getContestSectionHeaders(input: {
+      electionId: ElectionId;
+    }): Promise<ContestSectionHeaders> {
+      return store.getContestSectionHeaders(input.electionId);
+    },
+
+    async updateContestSectionHeader(input: {
+      electionId: ElectionId;
+      contestType: ContestTypes;
+      updatedHeader: ContestSectionHeader;
+    }): Promise<void> {
+      await store.updateContestSectionHeader(
+        input.electionId,
+        input.contestType,
+        input.updatedHeader
+      );
     },
 
     async getBallotLayoutSettings(input: {
