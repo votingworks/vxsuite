@@ -37,16 +37,16 @@ const UDS_PATH: &str = "/tmp/barcodescannerd.sock";
 /*
  * Barcode scanner config
  */
-/// Vendor ID for TS100 barcode scanner manufacturer
-const UNITECH_VENDOR_ID: u16 = 0x2745;
-/// Product ID for TS100 barcode scanner
-const TS100_PRODUCT_ID: u16 = 0x300a;
+/// Vendor ID for Fuzzyscan S680 barcode scanner manufacturer
+const CINO_VENDOR_ID: u16 = 0x1fbb;
+/// Product ID for Fuzzyscan S680 barcode scanner
+const FUZZYSCAN_S680_PRODUCT_ID: u16 = 0x3850;
 /// Path to serialport device as set by udev rule
-const TS100_PORT_NAME: &str = "/dev/barcode_scanner";
+const S680_PORT_NAME: &str = "/dev/barcode_scanner";
 /// Default baud rate, used for connecting to serialport device
-const TS100_BAUD_RATE: u32 = 115_200;
-/// Character at the end of each data chunk sent by the TS100
-const TS100_DATA_TERMINATOR: u8 = b'\r';
+const S680_BAUD_RATE: u32 = 115_200;
+/// Character at the end of each data chunk sent by the S680
+const S680_DATA_TERMINATOR: u8 = b'\r';
 
 /// The string denoting the start of an AAMVA-encoded document.
 /// 3 ASCII chars '@', 'line feed', 'record separator' expected per "D.12.3 Header" AAMVA 2020 p.50
@@ -72,18 +72,18 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
     (NON_DATA_BYTES + 1) * MAX_NUM_ELEMENTS + SUM_ALL_ELEMENTS_SIZE
 };
 
-// Resets the TS100 barcode scanner
+// Resets the S680 barcode scanner
 async fn reset_scanner(device: DeviceInfo) -> Result<(), nusb::Error> {
     device.open()?.reset()?;
     sleep(std::time::Duration::from_millis(500)).await;
     Ok(())
 }
 
-// Connects to TS100 barcode scanner
+// Connects to S680 barcode scanner
 async fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<SerialStream> {
-    match nusb::list_devices()?
-        .find(|dev| dev.vendor_id() == UNITECH_VENDOR_ID && dev.product_id() == TS100_PRODUCT_ID)
-    {
+    match nusb::list_devices()?.find(|dev| {
+        dev.vendor_id() == CINO_VENDOR_ID && dev.product_id() == FUZZYSCAN_S680_PRODUCT_ID
+    }) {
         Some(device) => {
             // We have experienced difficulty reconnecting the scanner when the daemon
             // is stopped and started multiple times. Resetting the scanner solves the issue.
@@ -203,7 +203,7 @@ where
     loop {
         buf.clear();
 
-        match reader.read_until(TS100_DATA_TERMINATOR, &mut buf).await {
+        match reader.read_until(S680_DATA_TERMINATOR, &mut buf).await {
             Ok(0) => {
                 // EOF; it's possible connection to scanner was lost
                 return Err(Error::new(ErrorKind::BrokenPipe, "Scanner disconnected"));
@@ -340,7 +340,7 @@ async fn main() -> color_eyre::Result<()> {
     loop {
         // Race opening the port against user hitting ctrl+c
         let maybe_port = tokio::select! {
-            port_result = init_port(TS100_PORT_NAME, TS100_BAUD_RATE) => {
+            port_result = init_port(S680_PORT_NAME, S680_BAUD_RATE) => {
                 Some(port_result)
             }
             _ = &mut signal => None,
@@ -367,7 +367,7 @@ async fn main() -> color_eyre::Result<()> {
 
         log!(
             event_id: EventId::DeviceAttached,
-            message: format!("Connected to TS100 barcode scanner at {TS100_PORT_NAME}..."),
+            message: format!("Connected to S680 barcode scanner at {S680_PORT_NAME}..."),
             event_type: EventType::SystemStatus,
             disposition: Disposition::Success
         );
@@ -421,7 +421,7 @@ mod tests {
         set_source(SOURCE);
 
         let mut compliance_bytes = COMPLIANCE_INDICATOR.to_vec();
-        compliance_bytes.push(TS100_DATA_TERMINATOR);
+        compliance_bytes.push(S680_DATA_TERMINATOR);
 
         let mock_reader = Builder::new()
             .read(&compliance_bytes)
@@ -447,7 +447,7 @@ mod tests {
         set_source(SOURCE);
 
         let mut oversized_buf = vec![0u8; MAX_AAMVA_DOCUMENT_SIZE + 1];
-        oversized_buf.push(TS100_DATA_TERMINATOR);
+        oversized_buf.push(S680_DATA_TERMINATOR);
 
         let mock_reader = Builder::new()
             .read(&oversized_buf)
@@ -472,7 +472,7 @@ mod tests {
     async fn run_read_write_loop_skips_empty_input() {
         set_source(SOURCE);
 
-        let empty_buf = vec![TS100_DATA_TERMINATOR];
+        let empty_buf = vec![S680_DATA_TERMINATOR];
 
         let mock_reader = Builder::new()
             .read(&empty_buf)
@@ -498,7 +498,7 @@ mod tests {
         set_source(SOURCE);
 
         let mut compliance_bytes = COMPLIANCE_INDICATOR.to_vec();
-        compliance_bytes.push(TS100_DATA_TERMINATOR);
+        compliance_bytes.push(S680_DATA_TERMINATOR);
 
         let mut valid_aamva = "\
 ANSI 636039090001DL00310485DLDAQNHL12345678
@@ -509,7 +509,7 @@ DCUJR
 "
         .as_bytes()
         .to_vec();
-        valid_aamva.push(TS100_DATA_TERMINATOR);
+        valid_aamva.push(S680_DATA_TERMINATOR);
 
         let mock_reader = Builder::new()
             .read(&compliance_bytes)
@@ -556,7 +556,7 @@ DCUJR
         set_source(SOURCE);
 
         let mut other_barcode_data = "12345".as_bytes().to_vec();
-        other_barcode_data.push(TS100_DATA_TERMINATOR);
+        other_barcode_data.push(S680_DATA_TERMINATOR);
 
         let mock_reader = Builder::new()
             .read(&other_barcode_data)
