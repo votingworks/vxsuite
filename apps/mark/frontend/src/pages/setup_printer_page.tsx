@@ -3,8 +3,10 @@ import {
   appStrings,
   Icons,
   P,
+  ToggleUsbPortsButton,
   useAudioControls,
   useAudioEnabled,
+  useSystemCallApi,
 } from '@votingworks/ui';
 import {
   CenteredCardPageLayout,
@@ -27,13 +29,47 @@ export function SetupPrinterPage({
   const wasAudioEnabled = React.useRef(useAudioEnabled());
   const { setIsEnabled: setAudioEnabled } = useAudioControls();
 
-  // Play alarm when polls are open or paused (active voting period)
+  // USB port management
+  const systemCallApi = useSystemCallApi();
+  const usbPortStatusQuery = systemCallApi.getUsbPortStatus.useQuery();
+  const toggleUsbPortsMutation = systemCallApi.toggleUsbPorts.useMutation();
+  const areUsbPortsEnabled = usbPortStatusQuery.data?.enabled ?? true;
+
+  // Track if we've auto-disabled during this alarm session
+  const hasAutoDisabledRef = React.useRef(false);
+
+  // Play alarm when polls are open or paused (active voting period) and no authorized user present
   const shouldPlayAlarm =
     !isPollWorkerAuth &&
     (pollsState === 'polls_open' || pollsState === 'polls_paused');
 
   // Play alarm through system speakers (not headphones) via backend
   useAlarm(shouldPlayAlarm);
+
+  // Auto-disable USB ports when entering alarm state for security
+  // Wait for USB port status query to load before making any decisions
+  const usbPortStatusLoaded = usbPortStatusQuery.isSuccess;
+  React.useEffect(() => {
+    if (
+      shouldPlayAlarm &&
+      usbPortStatusLoaded &&
+      areUsbPortsEnabled &&
+      !hasAutoDisabledRef.current
+    ) {
+      toggleUsbPortsMutation.mutate({ action: 'disable' });
+      hasAutoDisabledRef.current = true;
+    }
+
+    // Reset the flag when alarm stops (e.g., poll worker auth or printer reconnects)
+    if (!shouldPlayAlarm) {
+      hasAutoDisabledRef.current = false;
+    }
+  }, [
+    shouldPlayAlarm,
+    usbPortStatusLoaded,
+    areUsbPortsEnabled,
+    toggleUsbPortsMutation,
+  ]);
 
   // Disable TTS audio while alarm is playing to avoid confusion
   React.useEffect(() => {
@@ -64,7 +100,6 @@ export function SetupPrinterPage({
     );
   }
 
-  // Non-alarm state (poll worker auth, no active voter session, or polls not open/paused)
   return (
     <CenteredCardPageLayout
       icon={<Icons.Danger color="danger" />}
@@ -72,6 +107,15 @@ export function SetupPrinterPage({
       voterFacing={false}
     >
       <P>Connect the printer to continue.</P>
+      {isPollWorkerAuth && !areUsbPortsEnabled && (
+        <React.Fragment>
+          <P>
+            USB ports were automatically disabled for security when the printer
+            disconnected during voting.
+          </P>
+          <ToggleUsbPortsButton onlyShowWhenDisabled />
+        </React.Fragment>
+      )}
     </CenteredCardPageLayout>
   );
 }

@@ -73,6 +73,7 @@ test('renders date and time settings modal', async () => {
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM AKDT';
 
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen();
   userEvent.click(await screen.findButton('Set Date and Time'));
 
@@ -99,6 +100,7 @@ test('renders date and time settings modal', async () => {
 
 test('renders system buttons', async () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen();
   await screen.findByText('System');
   screen.getByText('Power Down');
@@ -107,6 +109,7 @@ test('renders system buttons', async () => {
 
 test('can switch the precinct', () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen();
 
   apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
@@ -116,6 +119,7 @@ test('can switch the precinct', () => {
 
 test('precinct change disabled if polls closed', () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({ pollsState: 'polls_closed_final' });
 
   const precinctSelect = screen.getByLabelText('Select a precinct…');
@@ -124,6 +128,7 @@ test('precinct change disabled if polls closed', () => {
 
 test('precinct selection absent if single precinct election', async () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({
     electionDefinition:
       electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition(),
@@ -136,6 +141,7 @@ test('precinct selection absent if single precinct election', async () => {
 
 test('renders a save logs button with no usb', async () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
   const saveLogsButton = await screen.findByText('Save Logs');
   userEvent.click(saveLogsButton);
@@ -144,6 +150,7 @@ test('renders a save logs button with no usb', async () => {
 
 test('renders a save logs button with usb mounted', async () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
   const saveLogsButton = await screen.findByText('Save Logs');
   userEvent.click(saveLogsButton);
@@ -152,6 +159,7 @@ test('renders a save logs button with usb mounted', async () => {
 
 test('unconfigure will eject usb', async () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
@@ -166,6 +174,7 @@ test('shows bubble mark calibration when print mode is marks_on_preprinted_ballo
     ...DEFAULT_SYSTEM_SETTINGS,
     bmdPrintMode: 'marks_on_preprinted_ballot',
   });
+  apiMock.expectGetUsbPortStatus();
   renderScreen();
 
   await screen.findByRole('heading', {
@@ -180,6 +189,7 @@ test('does not show bubble mark calibration when print mode is summary', async (
     ...DEFAULT_SYSTEM_SETTINGS,
     bmdPrintMode: 'summary',
   });
+  apiMock.expectGetUsbPortStatus();
   renderScreen();
 
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
@@ -190,6 +200,7 @@ test('does not show bubble mark calibration when print mode is summary', async (
 
 test('switching to official ballot mode with ballots printed', async () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({
     ballotsPrintedCount: 1,
     isTestMode: true,
@@ -204,6 +215,7 @@ test('switching to official ballot mode with ballots printed', async () => {
 
 test('switching to test ballot mode with ballots printed', async () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({
     ballotsPrintedCount: 1,
     isTestMode: false,
@@ -218,6 +230,7 @@ test('switching to test ballot mode with ballots printed', async () => {
 
 test('switching to official ballot mode without ballots printed', () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -229,6 +242,7 @@ test('switching to official ballot mode without ballots printed', () => {
 
 test('switching to test ballot mode without ballots printed', () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({
     ballotsPrintedCount: 0,
     isTestMode: false,
@@ -240,6 +254,7 @@ test('switching to test ballot mode without ballots printed', () => {
 
 test('navigates to diagnostics screen and back', async () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
   apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
@@ -274,6 +289,7 @@ test('navigates to diagnostics screen and back', async () => {
 
 test('unconfigure handles error gracefully', async () => {
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
   renderScreen({
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
@@ -286,4 +302,23 @@ test('unconfigure handles error gracefully', async () => {
 
   // The error should be caught and handled, no crash
   await screen.findByText('Election Manager Menu');
+});
+
+test('shows enable USB ports button when USB ports are disabled', async () => {
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus(false);
+  renderScreen();
+
+  await screen.findByRole('button', { name: 'Enable USB Ports' });
+});
+
+test('does not show enable USB ports button when USB ports are enabled', async () => {
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus(true);
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  expect(
+    screen.queryByRole('button', { name: 'Enable USB Ports' })
+  ).not.toBeInTheDocument();
 });

@@ -5,13 +5,28 @@ import { Modal } from './modal';
 import { useSystemCallApi } from './system_call_api';
 import { P } from './typography';
 
-export function ToggleUsbPortsButton(): JSX.Element {
+export interface ToggleUsbPortsButtonProps {
+  /**
+   * When true, the button will only be rendered when USB ports are currently disabled.
+   * This is useful for showing a "Re-enable USB Ports" button only when needed.
+   */
+  onlyShowWhenDisabled?: boolean;
+}
+
+export function ToggleUsbPortsButton({
+  onlyShowWhenDisabled,
+}: ToggleUsbPortsButtonProps): JSX.Element | null {
   const systemCallApi = useSystemCallApi();
   const usbPortStatusQuery = systemCallApi.getUsbPortStatus.useQuery();
   const toggleUsbPortsMutation = systemCallApi.toggleUsbPorts.useMutation();
   const usbPortStatus = usbPortStatusQuery.data;
   const areUsbPortsEnabled = usbPortStatus?.enabled ?? true;
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+
+  // When onlyShowWhenDisabled is true, hide the button when USB ports are enabled
+  if (onlyShowWhenDisabled && areUsbPortsEnabled) {
+    return null;
+  }
 
   function disableUsbPorts() {
     toggleUsbPortsMutation.mutate({ action: 'disable' });

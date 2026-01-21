@@ -17,6 +17,7 @@ import {
   SignedHashValidationButton,
   PowerDownButton,
   Button,
+  ToggleUsbPortsButton,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -188,6 +189,7 @@ export function AdminScreen({
             Diagnostics
           </Button>
           <SignedHashValidationButton apiClient={apiClient} />
+          <ToggleUsbPortsButton onlyShowWhenDisabled />
           <PowerDownButton icon="PowerOff" />
         </ButtonGrid>
       </Main>
