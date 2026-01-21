@@ -69,14 +69,17 @@ afterEach(() => {
 
 test('renders labelled candidate and ballot measure sublists', async () => {
   mockApi = newMockApi({ districts: [district1, district2] });
-  const candidateContests = [candidateContest1, candidateContest2];
-  const yesNoContests = [yesNoContest1, yesNoContest2];
+  const contests = [
+    candidateContest1,
+    candidateContest2,
+    yesNoContest1,
+    yesNoContest2,
+  ];
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
+    contests,
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests,
   });
 
   await screen.findAllByText(district1.name);
@@ -107,14 +110,12 @@ test('renders primary election contest parties, when available', async () => {
   const party1Contest = withParty(candidateContest1, party1);
   const party2Contest = withParty(candidateContest2, party2);
 
-  const candidateContests = [party1Contest, party2Contest];
-  const yesNoContests = [yesNoContest1, yesNoContest2];
+  const contests = [party1Contest, party2Contest, yesNoContest1, yesNoContest2];
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
+    contests,
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests,
   });
 
   await screen.findAllByText(district1.name);
@@ -138,15 +139,18 @@ test('renders primary election contest parties, when available', async () => {
 
 test('navigates on select', async () => {
   mockApi = newMockApi({ districts: [district1, district2] });
-  const candidateContests = [candidateContest1, candidateContest2];
-  const yesNoContests = [yesNoContest1, yesNoContest2];
+  const contests = [
+    candidateContest1,
+    candidateContest2,
+    yesNoContest1,
+    yesNoContest2,
+  ];
   const history = newHistory();
 
   renderList(mockApi, history, {
-    candidateContests,
+    contests,
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests,
   });
 
   await screen.findAllByText(district1.name);
@@ -172,13 +176,12 @@ test('navigates on select', async () => {
 
 test('omits ballot measure section if empty', async () => {
   mockApi = newMockApi({ districts: [district2, district1] });
-  const candidateContests = [candidateContest1, candidateContest2];
+  const contests = [candidateContest1, candidateContest2];
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
+    contests,
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests: [],
   });
 
   await screen.findAllByText(district1.name);
@@ -196,13 +199,12 @@ test('omits ballot measure section if empty', async () => {
 
 test('omits candidate section if empty', async () => {
   mockApi = newMockApi({ districts: [district1, district2] });
-  const yesNoContests = [yesNoContest2, yesNoContest1];
+  const contests = [yesNoContest2, yesNoContest1];
 
   renderList(mockApi, newHistory(), {
-    candidateContests: [],
+    contests,
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests,
   });
 
   await screen.findAllByText(district1.name);
@@ -220,15 +222,14 @@ test('omits candidate section if empty', async () => {
 
 test('omits reordering when not enabled', async () => {
   mockApi = newMockApi({ districts: [district2] });
-  const candidateContests = [candidateContest2];
+  const contests = [candidateContest2];
 
   const reorder = vi.fn();
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
+    contests,
     reorder,
     reordering: false,
-    yesNoContests: [],
   });
 
   await screen.findAllByText(district2.name);
@@ -239,16 +240,19 @@ test('omits reordering when not enabled', async () => {
 
 test('supports reordering', async () => {
   mockApi = newMockApi({ districts: [district1, district2] });
-  const candidateContests = [candidateContest1, candidateContest2];
-  const yesNoContests = [yesNoContest1, yesNoContest2];
+  const contests = [
+    candidateContest1,
+    candidateContest2,
+    yesNoContest1,
+    yesNoContest2,
+  ];
 
   const reorder = vi.fn();
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
+    contests,
     reorder,
     reordering: true,
-    yesNoContests,
   });
 
   await screen.findAllByText(district2.name);

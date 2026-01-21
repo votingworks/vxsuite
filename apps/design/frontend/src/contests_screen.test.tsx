@@ -1568,10 +1568,7 @@ describe('audio editing', () => {
 });
 
 function expectContestListItems(contests: Contests) {
-  expectContestListProps({
-    candidateContests: contests.filter((c) => c.type === 'candidate'),
-    yesNoContests: contests.filter((c) => c.type === 'yesno'),
-  });
+  expectContestListProps({ contests });
 }
 
 function expectContestListProps(partialProps: Partial<ContestListProps>) {
