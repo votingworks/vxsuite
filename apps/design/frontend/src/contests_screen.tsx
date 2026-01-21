@@ -287,7 +287,7 @@ function Content(): JSX.Element | null {
           )
         ) : (
           <ContestList
-            candidateContests={candidateContests}
+            contests={contestsToShow}
             reordering={isReordering}
             reorder={(params) => {
               if (!isReordering) return;
@@ -297,7 +297,6 @@ function Content(): JSX.Element | null {
                 reorderElement(reorderedContests, idx, idx + params.direction)
               );
             }}
-            yesNoContests={yesNoContests}
           />
         )}
 

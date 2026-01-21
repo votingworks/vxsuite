@@ -1,15 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Flipped, Flipper } from 'react-flip-toolkit';
-
-import { Button } from '@votingworks/ui';
-import { AnyContest, Party } from '@votingworks/types';
-
+import { Button, Modal } from '@votingworks/ui';
+import {
+  AnyContest,
+  ContestTypes,
+  Party,
+  ElectionId,
+  ContestSectionHeader,
+} from '@votingworks/types';
 import { useHistory, useParams } from 'react-router-dom';
-import { Column, Row } from './layout';
+import { Column, FieldName, InputGroup, Row } from './layout';
 import * as api from './api';
 import { ElectionIdParams, routes } from './routes';
 import { EntityList } from './entity_list';
+import { RichTextEditor } from './rich_text_editor';
 
 const CLASS_REORDER_BUTTON = 'contestReorderButton';
 
@@ -27,16 +32,20 @@ const Items = styled(EntityList.Items)`
   }
 `;
 
+const sectionNames: Record<ContestTypes, string> = {
+  candidate: 'Candidate Contests',
+  yesno: 'Ballot Measures',
+};
+
 export interface ReorderParams {
   id: string;
   direction: -1 | 1;
 }
 
 export interface ContestListProps {
-  candidateContests: AnyContest[];
+  contests: readonly AnyContest[];
   reordering: boolean;
   reorder: (params: ReorderParams) => void;
-  yesNoContests: AnyContest[];
 }
 
 // [TODO] Might make sense, visually and functionally, to move the controls for
@@ -44,8 +53,7 @@ export interface ContestListProps {
 // footer. With recent changes the "reorder" button is a bit too far off now and
 // there may be plans to add support for custom contest grouping down the line.
 export function ContestList(props: ContestListProps): React.ReactNode {
-  const { candidateContests, reorder, reordering, yesNoContests } = props;
-
+  const { contests, reorder, reordering } = props;
   const { contestId = null, electionId } = useParams<
     ElectionIdParams & { contestId?: string }
   >();
@@ -55,6 +63,8 @@ export function ContestList(props: ContestListProps): React.ReactNode {
 
   const parties = api.listParties.useQuery(electionId);
   const districts = api.listDistricts.useQuery(electionId);
+  const getContestSectionHeadersQuery =
+    api.getContestSectionHeaders.useQuery(electionId);
 
   const districtIdToName = React.useMemo(
     () => new Map((districts.data || []).map((d) => [d.id, d.name])),
@@ -65,40 +75,57 @@ export function ContestList(props: ContestListProps): React.ReactNode {
     history.push(contestRoutes.view(id).path);
   }
 
-  if (!parties.isSuccess || !districts.isSuccess) return null;
+  if (
+    !parties.isSuccess ||
+    !districts.isSuccess ||
+    !getContestSectionHeadersQuery.isSuccess
+  ) {
+    return null;
+  }
+
+  const contestSectionHeaders = getContestSectionHeadersQuery.data;
 
   return (
     <EntityList.Box>
-      {candidateContests.length > 0 && (
+      {Object.keys(sectionNames).map((contestType) => (
         <Sublist
-          contests={candidateContests}
+          key={contestType}
+          electionId={electionId}
+          contests={contests.filter((c) => c.type === contestType)}
           districtIdToName={districtIdToName}
           onSelect={onSelect}
           parties={parties.data}
           reordering={reordering}
           reorder={reorder}
           selectedId={contestId}
-          title="Candidate Contests"
+          contestType={contestType as ContestTypes}
+          sectionHeader={contestSectionHeaders[contestType as ContestTypes]}
         />
-      )}
-
-      {yesNoContests.length > 0 && (
-        <Sublist
-          contests={yesNoContests}
-          districtIdToName={districtIdToName}
-          onSelect={onSelect}
-          parties={parties.data}
-          reordering={reordering}
-          reorder={reorder}
-          selectedId={contestId}
-          title="Ballot Measures"
-        />
-      )}
+      ))}
     </EntityList.Box>
   );
 }
 
+const OpenSectionHeaderFormButton = styled(Button).attrs({
+  fill: 'transparent',
+})`
+  font-size: 0.8rem;
+  gap: 0.25rem;
+  padding: 0;
+
+  &:active,
+  &:hover {
+    background: none !important;
+    text-decoration: underline;
+    text-decoration-thickness: ${(p) => p.theme.sizes.bordersRem.thin}rem;
+    text-underline-offset: ${(p) => p.theme.sizes.bordersRem.thin}rem;
+  }
+
+  color: ${(p) => p.theme.colors.onBackgroundMuted};
+`;
+
 export function Sublist(props: {
+  electionId: ElectionId;
   contests: AnyContest[];
   districtIdToName: Map<string, string>;
   onSelect: (contestId: string) => void;
@@ -106,9 +133,11 @@ export function Sublist(props: {
   reorder: (params: ReorderParams) => void;
   reordering: boolean;
   selectedId: string | null;
-  title: string;
+  contestType: ContestTypes;
+  sectionHeader?: ContestSectionHeader;
 }): React.ReactNode {
   const {
+    electionId,
     contests,
     districtIdToName,
     onSelect,
@@ -116,12 +145,33 @@ export function Sublist(props: {
     reorder,
     reordering,
     selectedId,
-    title,
+    contestType,
+    sectionHeader,
   } = props;
+  const [isEditingSectionHeader, setIsEditingSectionHeader] =
+    React.useState(false);
 
   return (
     <React.Fragment>
-      <EntityList.Header>{title}</EntityList.Header>
+      <EntityList.Header>
+        <Row
+          style={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
+          {sectionNames[contestType]}
+        </Row>
+        <Row>
+          <OpenSectionHeaderFormButton
+            icon={sectionHeader ? 'Edit' : 'Add'}
+            onPress={() => setIsEditingSectionHeader(true)}
+          >
+            {sectionHeader ? 'Edit' : 'Add'} ballot header
+          </OpenSectionHeaderFormButton>
+        </Row>
+      </EntityList.Header>
 
       {/* Flipper/Flip are used to animate the reordering of contest rows */}
       <Items
@@ -178,6 +228,15 @@ export function Sublist(props: {
           </Flipped>
         ))}
       </Items>
+
+      {isEditingSectionHeader && (
+        <EditSectionHeaderModalForm
+          electionId={electionId}
+          contestType={contestType}
+          savedSectionHeader={sectionHeader}
+          onClose={() => setIsEditingSectionHeader(false)}
+        />
+      )}
     </React.Fragment>
   );
 }
@@ -186,4 +245,73 @@ function partyName(contest: AnyContest, parties: readonly Party[]) {
   if (contest.type !== 'candidate' || !contest.partyId) return undefined;
 
   return parties.find((p) => p.id === contest.partyId)?.fullName;
+}
+
+function EditSectionHeaderModalForm({
+  electionId,
+  contestType,
+  savedSectionHeader,
+  onClose,
+}: {
+  electionId: ElectionId;
+  contestType: ContestTypes;
+  savedSectionHeader?: ContestSectionHeader;
+  onClose: () => void;
+}): React.ReactNode {
+  const updateContestSectionHeaderMutation =
+    api.updateContestSectionHeader.useMutation();
+  const [sectionHeader, setSectionHeader] =
+    React.useState<ContestSectionHeader>(savedSectionHeader ?? { title: '' });
+
+  function saveSectionHeader() {
+    updateContestSectionHeaderMutation.mutate(
+      { electionId, contestType, updatedHeader: sectionHeader },
+      { onSuccess: onClose }
+    );
+  }
+
+  return (
+    <Modal
+      title={`Edit Ballot Header - ${sectionNames[contestType]}`}
+      onOverlayClick={onClose}
+      content={
+        <Column style={{ gap: '1rem' }}>
+          <InputGroup label="Title">
+            <input
+              type="text"
+              value={sectionHeader.title}
+              onChange={(e) =>
+                setSectionHeader({
+                  ...sectionHeader,
+                  title: e.target.value.trim(),
+                })
+              }
+              style={{ width: '100%' }}
+            />
+          </InputGroup>
+
+          <div>
+            <FieldName>Description</FieldName>
+            <RichTextEditor
+              initialHtmlContent={sectionHeader.description || ''}
+              onChange={(value) =>
+                setSectionHeader({
+                  ...sectionHeader,
+                  description: value.trim() === '' ? undefined : value.trim(),
+                })
+              }
+            />
+          </div>
+        </Column>
+      }
+      actions={
+        <React.Fragment>
+          <Button icon="Done" onPress={saveSectionHeader} variant="primary">
+            Save
+          </Button>
+          <Button onPress={onClose}>Cancel</Button>
+        </React.Fragment>
+      }
+    />
+  );
 }
