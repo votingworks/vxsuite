@@ -26,6 +26,10 @@ export enum UserFeature {
    * Requires the export screen to be enabled.
    */
   EXPORT_TEST_DECKS = 'EXPORT_TEST_DECKS',
+  /**
+   * Requires {@link EXPORT_SCREEN}.
+   */
+  UNFINALIZE_BALLOTS = 'UNFINALIZE_BALLOTS',
 
   //
   // System settings screen features
@@ -124,6 +128,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   EXPORT_SCREEN: true,
   CHOOSE_BALLOT_TEMPLATE: true,
   EXPORT_TEST_DECKS: true,
+  UNFINALIZE_BALLOTS: true,
 
   SYSTEM_SETTINGS_SCREEN: true,
   VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
@@ -141,6 +146,7 @@ export const userFeatureConfigs = {
   sli: {
     EXPORT_SCREEN: true,
     SYSTEM_SETTINGS_SCREEN: true,
+    UNFINALIZE_BALLOTS: true,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 

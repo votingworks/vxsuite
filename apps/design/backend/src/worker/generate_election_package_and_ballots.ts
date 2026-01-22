@@ -1,5 +1,4 @@
 import JsZip from 'jszip';
-import path from 'node:path';
 import { Buffer } from 'node:buffer';
 import {
   ElectionSerializationFormat,
@@ -10,12 +9,12 @@ import {
   LATEST_METADATA,
   ElectionId,
   getPrecinctById,
-  formatBallotHash,
   BallotType,
   ElectionIdSchema,
   ElectionSerializationFormatSchema,
   EncodedBallotEntry,
   BaseBallotProps,
+  formatBallotHash,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
@@ -93,12 +92,7 @@ function generateEncodedBallots(
 }
 
 export async function generateElectionPackageAndBallots(
-  {
-    fileStorageClient,
-    speechSynthesizer,
-    translator,
-    workspace,
-  }: WorkerContext,
+  ctx: WorkerContext,
   {
     electionId,
     electionSerializationFormat,
@@ -109,6 +103,7 @@ export async function generateElectionPackageAndBallots(
   }: GenerateElectionPackageAndBallotsPayload,
   emitProgress: EmitProgressFunction
 ): Promise<void> {
+  const { speechSynthesizer, translator, workspace } = ctx;
   const { store } = workspace;
 
   const electionRecord = await store.getElection(electionId);
@@ -117,11 +112,10 @@ export async function generateElectionPackageAndBallots(
   let { systemSettings } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
-  // This function makes separate zips for ballot package and election package
-  // then wraps both in an outer zip for export.
-  const ballotsZip = new JsZip();
+  const officialBallotsZip = new JsZip();
+  const sampleBallotsZip = new JsZip();
+  const testBallotsZip = new JsZip();
   const electionPackageZip = new JsZip();
-  const combinedZip = new JsZip();
 
   // Make election package
   const metadata: ElectionPackageMetadata = LATEST_METADATA;
@@ -151,6 +145,7 @@ export async function generateElectionPackageAndBallots(
     formattedElection,
     compact
   );
+
   // eslint-disable-next-line array-callback-return
   allBallotProps = allBallotProps.filter((props) => {
     switch (props.ballotMode) {
@@ -163,10 +158,9 @@ export async function generateElectionPackageAndBallots(
       case 'test':
         return shouldExportTestBallots;
 
-      default: {
+      default:
         /* istanbul ignore next - @preserve */
         throwIllegalValue(props.ballotMode);
-      }
     }
   });
 
@@ -263,16 +257,13 @@ export async function generateElectionPackageAndBallots(
     electionDefinition.ballotHash,
     electionPackageHash
   );
-  const electionPackageFileName = `election-package-${combinedHash}.zip`;
 
   electionPackageZip.file(
     ElectionPackageFileName.APP_STRINGS,
     JSON.stringify(appStrings, null, 2)
   );
 
-  combinedZip.file(electionPackageFileName, electionPackageZipContents);
-
-  // Make ballot zip
+  // Add ballots to ZIP files, grouped by type:
   for (const { props, ballotPdf } of normalizedBallotPdfs) {
     const { precinctId, ballotStyleId, ballotType, ballotMode, ballotAuditId } =
       props;
@@ -284,43 +275,115 @@ export async function generateElectionPackageAndBallots(
       ballotMode,
       ballotAuditId
     );
-    ballotsZip.file(fileName, ballotPdf);
+
+    switch (props.ballotMode) {
+      case 'official':
+        officialBallotsZip.file(fileName, ballotPdf);
+        break;
+
+      case 'sample':
+        sampleBallotsZip.file(fileName, ballotPdf);
+        break;
+
+      case 'test':
+        testBallotsZip.file(fileName, ballotPdf);
+        break;
+
+      default:
+        throwIllegalValue(props.ballotMode);
+    }
   }
+
   const calibrationSheetPdf = await rendererPool.runTask((renderer) =>
     renderCalibrationSheetPdf(renderer, election.ballotLayout.paperSize)
   );
-  ballotsZip.file('VxScan-calibration-sheet.pdf', calibrationSheetPdf);
+  officialBallotsZip.file('VxScan-calibration-sheet.pdf', calibrationSheetPdf);
+  if (shouldExportTestBallots) {
+    testBallotsZip.file('VxScan-calibration-sheet.pdf', calibrationSheetPdf);
+  }
 
   // eslint-disable-next-line no-console
   rendererPool.close().catch(console.error);
 
-  // Add ballot package to combined zip
-  const ballotZipContents = await ballotsZip.generateAsync({
-    type: 'nodebuffer',
-    streamFiles: true,
-  });
-  const ballotZipFileName = `ballots-${formatBallotHash(
-    electionDefinition.ballotHash
-  )}.zip`;
-  combinedZip.file(ballotZipFileName, ballotZipContents);
+  const ballotHash = formatBallotHash(electionDefinition.ballotHash);
+  const [
+    electionPackageUrl,
+    officialBallotsUrl,
+    sampleBallotsUrl,
+    testBallotsUrl,
+  ] = await Promise.all([
+    writeZipFile(ctx, {
+      jurisdictionId,
+      contents: electionPackageZipContents,
+      name: `election-package-${combinedHash}.zip`,
+    }),
 
-  // Write combined zip to file storage
-  const combinedFileName = `election-package-and-ballots-${combinedHash}.zip`;
-  const combinedZipContents = await combinedZip.generateAsync({
-    type: 'nodebuffer',
-    streamFiles: true,
-  });
-  const writeResult = await fileStorageClient.writeFile(
-    path.join(jurisdictionId, combinedFileName),
-    combinedZipContents
-  );
-  writeResult.unsafeUnwrap();
-  const electionPackageUrl = `/files/${jurisdictionId}/${combinedFileName}`;
+    writeBallotsZip(ctx, {
+      jurisdictionId,
+      name: `official-ballots-${ballotHash}.zip`,
+      zip: officialBallotsZip,
+    }),
+
+    shouldExportSampleBallots
+      ? writeBallotsZip(ctx, {
+          jurisdictionId,
+          name: `sample-ballots-${ballotHash}.zip`,
+          zip: sampleBallotsZip,
+        })
+      : undefined,
+
+    shouldExportTestBallots
+      ? writeBallotsZip(ctx, {
+          jurisdictionId,
+          name: `test-ballots-${ballotHash}.zip`,
+          zip: testBallotsZip,
+        })
+      : undefined,
+  ]);
 
   await store.setElectionPackageExportInformation({
     electionId,
     ballotHash: electionDefinition.ballotHash,
     electionPackageUrl,
     electionData: electionDefinition.electionData,
+    officialBallotsUrl,
+    sampleBallotsUrl,
+    testBallotsUrl,
   });
+}
+
+async function writeBallotsZip(
+  ctx: WorkerContext,
+  p: {
+    jurisdictionId: string;
+    name: string;
+    zip: JsZip;
+  }
+) {
+  return writeZipFile(ctx, {
+    contents: await p.zip.generateAsync({
+      type: 'nodebuffer',
+      streamFiles: true,
+    }),
+    jurisdictionId: p.jurisdictionId,
+    name: p.name,
+  });
+}
+
+async function writeZipFile(
+  ctx: WorkerContext,
+  p: {
+    contents: Buffer;
+    jurisdictionId: string;
+    name: string;
+  }
+) {
+  const relativePath = `${p.jurisdictionId}/${p.name}`;
+  const result = await ctx.fileStorageClient.writeFile(
+    relativePath,
+    p.contents
+  );
+  result.unsafeUnwrap();
+
+  return `/files/${relativePath}`;
 }

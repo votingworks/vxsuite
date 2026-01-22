@@ -19,6 +19,7 @@ import { routes } from './routes';
 import { CloneElectionButton } from './clone_election_button';
 import { LoadElectionButton } from './load_election_button';
 import { FilterInput } from './filter_input';
+import { ElectionDownloadLinkButton } from './election_download_link_button';
 
 export const ElectionRow = styled.tr`
   & td {
@@ -31,6 +32,8 @@ export const ElectionRow = styled.tr`
 `;
 
 export const ActionIconButtonCell = styled.td`
+  display: flex;
+  gap: 0.5rem;
   text-align: center;
 `;
 
@@ -92,6 +95,7 @@ function ElectionsList({
 
             <ActionIconButtonCell>
               <CloneElectionButton election={election} />
+              <ElectionDownloadLinkButton election={election} />
             </ActionIconButtonCell>
           </ElectionRow>
         ))}

@@ -141,6 +141,10 @@ export const routes = {
         title: 'Export',
         path: `${root}/export`,
       },
+      downloads: {
+        title: 'Downloads',
+        path: `${root}/downloads`,
+      },
       reports: {
         root: {
           title: 'Live Reports',
@@ -169,28 +173,26 @@ export interface ElectionIdParams {
 export const electionParamRoutes = routes.election(':electionId');
 
 export const rootNavRoutes: Route[] = [];
-export function electionNavRoutes(
-  electionInfo: ElectionInfo,
-  userFeatures: UserFeaturesConfig,
-  electionSystemSettings: SystemSettings
-): Route[] {
-  const electionRoutes = routes.election(electionInfo.electionId);
-  return [
-    electionRoutes.electionInfo.root,
-    electionRoutes.districts.root,
-    electionRoutes.precincts.root,
-    electionRoutes.parties.root,
-    electionRoutes.contests.root,
-    electionRoutes.ballots.root,
-    ...(userFeatures.SYSTEM_SETTINGS_SCREEN
-      ? [electionRoutes.systemSettings]
-      : []),
-    ...(userFeatures.EXPORT_SCREEN ? [electionRoutes.export] : []),
-    ...(electionSystemSettings.quickResultsReportingUrl
-      ? [electionRoutes.reports.root]
-      : []),
-    ...(electionInfo.externalSource === 'ms-sems'
-      ? [electionRoutes.convertResults]
-      : []),
+export function electionNavRoutes(p: {
+  electionInfo: ElectionInfo;
+  userFeatures: UserFeaturesConfig;
+  ballotsApproved: boolean;
+  systemSettings: SystemSettings;
+}): Route[] {
+  const r = routes.election(p.electionInfo.electionId);
+  const nav: Array<Route | undefined | false> = [
+    r.electionInfo.root,
+    r.districts.root,
+    r.precincts.root,
+    r.parties.root,
+    r.contests.root,
+    r.ballots.root,
+    p.ballotsApproved && r.downloads,
+    p.userFeatures.SYSTEM_SETTINGS_SCREEN && r.systemSettings,
+    p.userFeatures.EXPORT_SCREEN && r.export,
+    !!p.systemSettings.quickResultsReportingUrl && r.reports.root,
+    p.electionInfo.externalSource === 'ms-sems' && r.convertResults,
   ];
+
+  return nav.filter((route) => !!route);
 }

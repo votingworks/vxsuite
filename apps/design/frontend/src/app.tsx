@@ -35,6 +35,7 @@ import { PartiesScreen } from './parties_screen';
 import { DistrictsScreen } from './districts_screen';
 import { PrecinctsScreen } from './precincts_screen';
 import { HomeScreen } from './home_screen';
+import { DownloadsScreen } from './downloads_screen';
 
 function ElectionScreens(): JSX.Element {
   return (
@@ -68,6 +69,10 @@ function ElectionScreens(): JSX.Element {
         component={SystemSettingsScreen}
       />
       <Route path={electionParamRoutes.export.path} component={ExportScreen} />
+      <Route
+        path={electionParamRoutes.downloads.path}
+        component={DownloadsScreen}
+      />
       <Route
         path={electionParamRoutes.reports.root.path}
         component={LiveReportsScreen}

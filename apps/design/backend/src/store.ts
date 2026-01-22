@@ -76,6 +76,7 @@ import {
   StateCode,
   User,
   UserType,
+  ElectionStatus,
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
@@ -801,6 +802,7 @@ export class Store {
                 elections.county_name as "countyName",
                 elections.state,
                 elections.ballots_finalized_at as "ballotsFinalizedAt",
+                elections.ballots_approved_at as "ballotsApprovedAt",
                 elections.external_source as "externalSource",
                 count(contests.id)::int as "contestCount"
               from elections
@@ -816,6 +818,7 @@ export class Store {
             Omit<ElectionListing, 'status'> & {
               date: Date;
               ballotsFinalizedAt: Date | null;
+              ballotsApprovedAt: Date | null;
               contestCount: number;
             }
           >
@@ -830,14 +833,11 @@ export class Store {
       countyName: row.countyName,
       state: row.state,
       externalSource: row.externalSource || undefined,
-      status: (() => {
-        if (row.contestCount === 0) {
-          return 'notStarted';
-        }
-        if (!row.ballotsFinalizedAt) {
-          return 'inProgress';
-        }
-        return 'ballotsFinalized';
+      status: ((): ElectionStatus => {
+        if (row.contestCount === 0) return 'notStarted';
+        if (row.ballotsApprovedAt) return 'ballotsApproved';
+        if (row.ballotsFinalizedAt) return 'ballotsFinalized';
+        return 'inProgress';
       })(),
     }));
   }
@@ -2016,10 +2016,19 @@ export class Store {
         await client.query(
           `
             update elections
-            set election_package_task_id = $1
-            where id = $2
+            set
+              election_package_task_id = $1,
+              election_package_url = $2,
+              official_ballots_url = $3,
+              sample_ballots_url = $4,
+              test_ballots_url = $5
+            where id = $6
           `,
           taskId,
+          null,
+          null,
+          null,
+          null,
           p.electionId
         );
 
@@ -2110,10 +2119,13 @@ export class Store {
         await client.query(
           `
             update elections
-            set test_decks_task_id = $1
-            where id = $2
+            set
+              test_decks_task_id = $1,
+              test_decks_url = $2
+            where id = $3
           `,
           taskId,
+          null,
           electionId
         );
 

@@ -26,6 +26,7 @@ const allUserFeaturesOnConfig: Record<UserFeature, boolean> = {
   EXPORT_SCREEN: true,
   CHOOSE_BALLOT_TEMPLATE: true,
   EXPORT_TEST_DECKS: true,
+  UNFINALIZE_BALLOTS: true,
 
   SYSTEM_SETTINGS_SCREEN: true,
   VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,

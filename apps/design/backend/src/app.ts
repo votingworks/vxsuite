@@ -252,6 +252,7 @@ export function buildApi(ctx: AppContext) {
           'listElections',
           'getUser',
           'getUserFeatures',
+          'getBaseUrl', // Doesn't need authorization, nothing private accessed
           'getResultsReportingUrl', // Doesn't need authorization, nothing private accessed
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
           ...ttsStrings.methodsThatHandleAuthThemselves,
@@ -648,8 +649,25 @@ export function buildApi(ctx: AppContext) {
       return store.getBallotsFinalizedAt(input.electionId);
     },
 
-    finalizeBallots(input: { electionId: ElectionId }): Promise<void> {
-      return store.setBallotsFinalizedAt({
+    async finalizeBallots(input: { electionId: ElectionId }): Promise<void> {
+      const jurisdiction = await store.getElectionJurisdiction(
+        input.electionId
+      );
+      const stateFeatures = getStateFeaturesConfig(jurisdiction);
+
+      await store.createElectionPackageBackgroundTask({
+        electionId: input.electionId,
+        electionSerializationFormat: 'vxf',
+        shouldExportAudio: !!stateFeatures.AUDIO_ENABLED,
+        shouldExportSampleBallots: !!stateFeatures.EXPORT_SAMPLE_BALLOTS,
+        shouldExportTestBallots: !!stateFeatures.EXPORT_TEST_BALLOTS,
+      });
+
+      if (stateFeatures.EXPORT_TEST_BALLOTS) {
+        await store.createTestDecksBackgroundTask(input.electionId, 'vxf');
+      }
+
+      await store.setBallotsFinalizedAt({
         electionId: input.electionId,
         finalizedAt: new Date(),
       });
@@ -1004,6 +1022,10 @@ export function buildApi(ctx: AppContext) {
           outputZipPath,
         ]);
       }
+    },
+
+    getBaseUrl(): string {
+      return baseUrl();
     },
 
     ...ttsStrings.apiMethods(ctx),

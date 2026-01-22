@@ -24,6 +24,7 @@ import {
 import { CreateElectionButton } from '../create_election_button';
 import { LoadElectionButton } from '../load_election_button';
 import { FilterInput } from '../filter_input';
+import { ElectionDownloadLinkButton } from '../election_download_link_button';
 
 const SupportHeader = styled(Header)`
   background-color: ${(p) => p.theme.colors.warningContainer};
@@ -112,6 +113,11 @@ const STATUS_ELEMENTS: Readonly<Record<ElectionStatus, JSX.Element>> = {
   ballotsFinalized: (
     <span>
       <Icons.Done color="primary" /> Ballots finalized
+    </span>
+  ),
+  ballotsApproved: (
+    <span>
+      <Icons.Done color="success" /> Ballots Approved
     </span>
   ),
 };
@@ -228,6 +234,7 @@ function AllOrgsElectionsList({
 
             <ActionIconButtonCell>
               <CloneElectionButton election={election} />
+              <ElectionDownloadLinkButton election={election} />
             </ActionIconButtonCell>
           </ElectionRow>
         ))}

@@ -19,6 +19,7 @@ import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { electionNavRoutes } from './routes';
 import {
+  getBallotsApprovedAt,
   getElectionInfo,
   getSystemSettings,
   getUser,
@@ -38,7 +39,9 @@ const LeftNav = styled(LeftNavBase)`
      * Adjusted up from the libs/ui default to match <MainHeader> adjustment
      * below and keep logo roughly in line with page titles.
      */
-    margin-top: -0.25rem;
+
+    /* margin-top: -0.25rem; */
+    padding-left: 0.75rem;
   }
 `;
 
@@ -100,9 +103,9 @@ export function NavScreen({
 }): JSX.Element {
   return (
     <Screen flexDirection="row">
-      <LeftNav style={{ width: '14rem' }}>
+      <LeftNav style={{ width: '12.5rem' }}>
         <Link to="/">
-          <AppLogo appName="VxDesign" />
+          <AppLogo appName="VxHub" />
         </Link>
         {navContent}
       </LeftNav>
@@ -122,9 +125,11 @@ export function ElectionNavScreen({
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const ballotsApprovedQuery = getBallotsApprovedAt.useQuery(electionId);
   if (
     !getElectionInfoQuery.isSuccess ||
     !getUserFeaturesQuery.isSuccess ||
+    !ballotsApprovedQuery.isSuccess ||
     !getSystemSettingsQuery.isSuccess
   ) {
     return null;
@@ -132,19 +137,24 @@ export function ElectionNavScreen({
   const electionInfo = getElectionInfoQuery.data;
   const userFeatures = getUserFeaturesQuery.data;
   const systemSettings = getSystemSettingsQuery.data;
+  const routes = electionNavRoutes({
+    electionInfo,
+    userFeatures,
+    systemSettings,
+    ballotsApproved: !!ballotsApprovedQuery.data,
+  });
+
   return (
     <NavScreen
       navContent={
         <NavList>
-          {electionNavRoutes(electionInfo, userFeatures, systemSettings).map(
-            ({ title, path }) => (
-              <NavListItem key={path}>
-                <NavLink to={path} isActive={path === currentRoute.url}>
-                  {title}
-                </NavLink>
-              </NavListItem>
-            )
-          )}
+          {routes.map(({ title, path }) => (
+            <NavListItem key={path}>
+              <NavLink to={path} isActive={path === currentRoute.url}>
+                {title}
+              </NavLink>
+            </NavListItem>
+          ))}
           <NavDivider />
           <NavListItem>
             <LinkButton
