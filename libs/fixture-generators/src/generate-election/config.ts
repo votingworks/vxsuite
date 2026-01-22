@@ -34,13 +34,13 @@ export type GenerateElectionConfig = z.infer<
 >;
 
 export const defaultConfig: GenerateElectionConfig = {
-  numDistricts: 100,
-  numPrecincts: SYSTEM_LIMITS.election.precincts,
-  numBallotStyles: SYSTEM_LIMITS.election.ballotStyles,
+  numDistricts: 1,
+  numPrecincts: 1,
+  numBallotStyles: 1,
   numParties: 10,
-  numContests: SYSTEM_LIMITS.election.contests,
-  numCandidatesPerContest: SYSTEM_LIMITS.contest.candidates,
-  maxContestVoteFor: SYSTEM_LIMITS.contest.seats,
+  numContests: 50,
+  numCandidatesPerContest: 10, // SYSTEM_LIMITS.contest.candidates,
+  maxContestVoteFor: 2,
   maxStringLengths: {
     title: SYSTEM_LIMITS.textField.characters,
     countyName: SYSTEM_LIMITS.textField.characters,

@@ -1,19 +1,38 @@
 import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 
-import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
+import {
+  PrintSides,
+  Printer,
+  renderToPdf,
+  SummaryBallotLayoutRenderer,
+} from '@votingworks/printing';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { generateMarkOverlay } from '@votingworks/hmpb';
 import { getBallotStyle, getContests } from '@votingworks/types';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
-  needsMultiplePages,
-  splitContestsForPages,
   filterVotesForContests,
 } from '@votingworks/ui';
 import { Store } from '../store';
 import { PrintBallotProps as ClientParams } from '../types';
+
+/**
+ * Shared renderer instance for measuring ballot layouts.
+ * Initialized lazily on first use.
+ */
+let sharedRenderer: SummaryBallotLayoutRenderer | null = null;
+
+/**
+ * Closes the shared renderer. Call this on application shutdown.
+ */
+export async function closeLayoutRenderer(): Promise<void> {
+  if (sharedRenderer) {
+    await sharedRenderer.close();
+    sharedRenderer = null;
+  }
+}
 
 export interface PrintBallotProps extends ClientParams {
   printer: Printer;
@@ -42,38 +61,62 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   const { election } = electionDefinition;
   const isLiveMode = !store.getTestMode();
 
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  assert(ballotStyle, `invalid ballot style: ${ballotStyleId}`);
-  const contests = getContests({ ballotStyle, election });
+  // Initialize renderer if needed
+  if (!sharedRenderer) {
+    sharedRenderer = new SummaryBallotLayoutRenderer();
+  }
+
+  // Compute page breaks based on actual votes being displayed
+  const pageBreaks = await sharedRenderer.computePageBreaks(
+    electionDefinition,
+    ballotStyleId,
+    precinctId,
+    votes,
+    'mark'
+  );
+
+  // Helper to get contests for a specific page
+  function getPageContests(pageNumber: number) {
+    const page = pageBreaks.pages.find((pg) => pg.pageNumber === pageNumber);
+    assert(page, `Page ${pageNumber} not found`);
+    const ballotStyle = getBallotStyle({ ballotStyleId, election });
+    assert(ballotStyle);
+    const allContests = getContests({ ballotStyle, election });
+    const contestIdSet = new Set(page.contestIds);
+    return allContests.filter((c) => contestIdSet.has(c.id));
+  }
 
   // Check if this ballot needs multiple pages
-  if (needsMultiplePages(contests)) {
+  if (pageBreaks.totalPages > 1) {
     // Multi-page ballot flow
-    const pageSplits = splitContestsForPages(contests);
-    const totalPages = pageSplits.length;
     const ballotAuditId = uuid();
 
     // Render all pages
-    const pages = pageSplits.map((pageContests, index) => (
-      <BackendLanguageContextProvider
-        key={index}
-        currentLanguageCode={languageCode}
-        uiStringsPackage={store.getUiStringsStore().getAllUiStrings()}
-      >
-        <BmdPaperBallot
-          electionDefinition={electionDefinition}
-          ballotStyleId={ballotStyleId}
-          precinctId={precinctId}
-          votes={filterVotesForContests(votes, pageContests)}
-          isLiveMode={isLiveMode}
-          machineType="mark"
-          pageNumber={index + 1}
-          totalPages={totalPages}
-          ballotAuditId={ballotAuditId}
-          contestsForPage={pageContests}
-        />
-      </BackendLanguageContextProvider>
-    ));
+    const pages = pageBreaks.pages.map((pageBreak) => {
+      const pageContests = getPageContests(pageBreak.pageNumber);
+
+      return (
+        <BackendLanguageContextProvider
+          key={pageBreak.pageNumber}
+          currentLanguageCode={languageCode}
+          uiStringsPackage={store.getUiStringsStore().getAllUiStrings()}
+        >
+          <BmdPaperBallot
+            electionDefinition={electionDefinition}
+            ballotStyleId={ballotStyleId}
+            precinctId={precinctId}
+            votes={filterVotesForContests(votes, pageContests)}
+            isLiveMode={isLiveMode}
+            machineType="mark"
+            pageNumber={pageBreak.pageNumber}
+            totalPages={pageBreaks.totalPages}
+            ballotAuditId={ballotAuditId}
+            contestsForPage={pageContests}
+            layout={pageBreak.layout}
+          />
+        </BackendLanguageContextProvider>
+      );
+    });
 
     // Render each page to PDF and combine
     const pdfParts: Uint8Array[] = [];
