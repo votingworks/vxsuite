@@ -592,6 +592,32 @@ export const deleteElection = {
   },
 } as const;
 
+export const getBallotsApprovedAt = {
+  queryKey(electionId: ElectionId): QueryKey {
+    return ['getBallotsApprovedAt', electionId];
+  },
+  useQuery(electionId: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId), () =>
+      apiClient.getBallotsApprovedAt({ electionId })
+    );
+  },
+} as const;
+
+export const approveBallots = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.approveBallots, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getBallotsApprovedAt.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
 export const getBallotsFinalizedAt = {
   queryKey(electionId: ElectionId): QueryKey {
     return ['getBallotsFinalizedAt', electionId];
@@ -610,9 +636,14 @@ export const finalizeBallots = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.finalizeBallots, {
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotsFinalizedAt.queryKey(electionId)
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(
+            getBallotsApprovedAt.queryKey(electionId)
+          ),
+          queryClient.invalidateQueries(
+            getBallotsFinalizedAt.queryKey(electionId)
+          ),
+        ]);
       },
     });
   },
@@ -624,9 +655,14 @@ export const unfinalizeBallots = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.unfinalizeBallots, {
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotsFinalizedAt.queryKey(electionId)
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(
+            getBallotsApprovedAt.queryKey(electionId)
+          ),
+          queryClient.invalidateQueries(
+            getBallotsFinalizedAt.queryKey(electionId)
+          ),
+        ]);
       },
     });
   },
@@ -788,5 +824,15 @@ export const decryptCvrBallotAuditIds = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.decryptCvrBallotAuditIds);
+  },
+} as const;
+
+export const getBaseUrl = {
+  queryKey(): QueryKey {
+    return ['getBaseUrl'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getBaseUrl());
   },
 } as const;
