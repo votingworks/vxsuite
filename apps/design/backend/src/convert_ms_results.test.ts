@@ -7,6 +7,7 @@ import {
   generateAllPrecinctsTallyReport,
   generateAllPrecinctsTallyReportMetadataRow,
   generateAllPrecinctsTallyReportRows,
+  generateAllPrecinctsTallyReportWithManualTallies,
   readFixture,
   stringifyAllPrecinctsTallyReportRows,
 } from '../test/helpers';
@@ -69,6 +70,25 @@ test('convert general election results', () => {
       expect(row.voteCount).toEqual('3');
     }
   }
+});
+
+test('convert general election results with manual tallies', () => {
+  const allPrecinctsTallyReportContents = generateAllPrecinctsTallyReport(
+    generalElectionDefinition
+  );
+  const allPrecinctsTallyReportContentsWithManualTallies =
+    generateAllPrecinctsTallyReportWithManualTallies(generalElectionDefinition);
+
+  const resultsCsv = convertMsResults(
+    generalElectionDefinition,
+    allPrecinctsTallyReportContents
+  ).unsafeUnwrap();
+  const resultsCsvWithManualTallies = convertMsResults(
+    generalElectionDefinition,
+    allPrecinctsTallyReportContentsWithManualTallies
+  ).unsafeUnwrap();
+
+  expect(resultsCsv).toEqual(resultsCsvWithManualTallies);
 });
 
 test('convert primary election results', () => {
