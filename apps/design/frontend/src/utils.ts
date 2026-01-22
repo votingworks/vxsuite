@@ -62,3 +62,31 @@ export function useSound(sound: SoundType): () => void {
   const [playSound] = useSoundLib(`/sounds/${sound}.mp3`);
   return playSound;
 }
+
+// Find the last text node in a given root node
+function findLastTextNode(root: Node): Text | null {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let last: Text | null = null;
+  while (walker.nextNode()) last = walker.currentNode as Text;
+  return last;
+}
+
+// Remove trailing NBSPs and any trailing whitespace, if there is at least one nbsp (unicode U+00A0)
+function stripTrailingNbsp(text: string): string {
+  return text.replace(/[\u00A0\s]+$/, '');
+}
+
+// HTML_BLOCKS includes the HTML elements that most commonly have unintended trailing
+// non-breaking spaces when pasting content from external sources
+const HTML_BLOCKS = ['p', 'li', 'td', 'th'] as const;
+export function sanitizeTrailingNbspOnPaste(html: string): string {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  doc.body.querySelectorAll(HTML_BLOCKS.join(',')).forEach((block) => {
+    const lastText = findLastTextNode(block);
+    if (lastText?.nodeValue) {
+      lastText.nodeValue = stripTrailingNbsp(lastText.nodeValue);
+    }
+  });
+
+  return doc.body.innerHTML;
+}

@@ -1,8 +1,8 @@
-import { expect, test, vi, describe } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
 import { fireEvent, render, screen } from '../test/react_testing_library';
-import { RichTextEditor, stripTrailingSpaces } from './rich_text_editor';
+import { RichTextEditor } from './rich_text_editor';
 
 // We mostly test that the buttons in the toolbar work as expected and that
 // `onChange` works. We rely on tiptap working correctly for the actual text
@@ -237,67 +237,4 @@ test('doesnt unwrap multiple cell tables on paste', async () => {
   expect(onChange).toHaveBeenLastCalledWith(
     '<table style="min-width: 0px"><colgroup><col><col></colgroup><tbody><tr><td colspan="1" rowspan="1"><p>Cell 1 contents</p></td><td colspan="1" rowspan="1"><p>Cell 2 contents</p></td></tr></tbody></table>'
   );
-});
-
-describe('stripTrailingSpaces', () => {
-  test('strips 2+ trailing &nbsp; from paragraphs', () => {
-    expect(stripTrailingSpaces('<p>text&nbsp;&nbsp;</p>')).toEqual(
-      '<p>text</p>'
-    );
-  });
-
-  test('preserves single trailing &nbsp;', () => {
-    expect(stripTrailingSpaces('<td>&nbsp;</td>')).toEqual('<td>&nbsp;</td>');
-  });
-
-  test('preserves trailing regular spaces', () => {
-    expect(stripTrailingSpaces('<p>text   </p>')).toEqual('<p>text   </p>');
-  });
-
-  test('strips &nbsp; but preserves following regular spaces', () => {
-    expect(stripTrailingSpaces('<p>text&nbsp;&nbsp; </p>')).toEqual(
-      '<p>text </p>'
-    );
-  });
-
-  test('strips trailing &nbsp; from list items', () => {
-    expect(stripTrailingSpaces('<li>item&nbsp;&nbsp;</li>')).toEqual(
-      '<li>item</li>'
-    );
-  });
-
-  test('strips 2+ trailing &nbsp; from table cells', () => {
-    expect(
-      stripTrailingSpaces(
-        '<td>cell&nbsp;&nbsp;</td><th>header&nbsp;&nbsp;</th>'
-      )
-    ).toEqual('<td>cell</td><th>header</th>');
-  });
-
-  test('preserves &nbsp; in the middle of content', () => {
-    expect(stripTrailingSpaces('<p>text&nbsp;more&nbsp;text</p>')).toEqual(
-      '<p>text&nbsp;more&nbsp;text</p>'
-    );
-  });
-
-  test('handles multiple paragraphs with trailing &nbsp;', () => {
-    expect(
-      stripTrailingSpaces('<p>para1&nbsp;&nbsp;</p><p>para2&nbsp;&nbsp;</p>')
-    ).toEqual('<p>para1</p><p>para2</p>');
-  });
-
-  test('handles real-world copy-paste from table', () => {
-    const input =
-      '<p>Year 2025-2026&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $96,336&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>';
-    expect(stripTrailingSpaces(input)).toEqual(
-      '<p>Year 2025-2026&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $96,336 </p>'
-    );
-  });
-
-  test('strips Unicode non-breaking spaces (\\u00A0)', () => {
-    // Use actual Unicode NBSP character (\u00A0) not the HTML entity
-    expect(stripTrailingSpaces('<p>text   </p>')).toEqual(
-      '<p>text</p>'
-    );
-  });
 });
