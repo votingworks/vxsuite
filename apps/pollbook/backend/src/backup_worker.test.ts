@@ -125,6 +125,27 @@ test('can export paper backup checklist for multi precinct election', async () =
     ballotParty: 'REP',
   });
 
+  // Register a voter and then invalidate the registration - should not appear in backup
+  const { voter: invalidatedVoter } = store.registerVoter({
+    firstName: 'Invalidated',
+    middleName: '',
+    lastName: 'Registration',
+    suffix: '',
+    streetNumber: '2',
+    streetSuffix: '',
+    streetName: 'MAIN',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Somewhere',
+    state: 'NH',
+    zipCode: '12345',
+    party: 'DEM',
+    precinct: 'precinct-1',
+  });
+  store.invalidateRegistration(invalidatedVoter.voterId);
+
   // Create mock events from other pollbooks to simulate a populated cover page.
   const remoteEvents: VoterRegistrationEvent[] = Array.from(
     { length: 20 },

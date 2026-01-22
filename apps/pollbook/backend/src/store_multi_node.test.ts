@@ -1751,3 +1751,161 @@ test('anomaly records correct timestamps from different machines', async () => {
     expect(new Date(event.timestamp).toISOString()).toEqual(event.timestamp);
   }
 });
+
+// Test for InvalidRegistrationCheckIn anomaly: check-in occurs before invalidation is synced
+test('InvalidRegistrationCheckIn anomaly - check in before invalidation sync', async () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElectionDefinition = getTestElectionDefinition();
+  const streets = [
+    createValidStreetInfo('MAIN', 'all', 0, 100, '', '', 'precinct-0'),
+  ];
+
+  for (const store of [localA, localB]) {
+    store.setElectionAndVoters(
+      testElectionDefinition,
+      'mock-package-hash',
+      streets,
+      []
+    );
+    store.setConfiguredPrecinct(
+      testElectionDefinition.election.precincts[0].id
+    );
+  }
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // Register a voter on A
+  const { voter } = localA.registerVoter({
+    firstName: 'Invalid',
+    middleName: '',
+    lastName: 'Reg',
+    suffix: '',
+    streetNumber: '10',
+    streetSuffix: '',
+    streetName: 'MAIN',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    party: 'DEM',
+    precinct: 'precinct-0',
+  });
+
+  // Sync registration to B
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // Pollbook B goes offline
+  // Invalidate the registration on A
+  localA.invalidateRegistration(voter.voterId);
+
+  // Wait to ensure different timestamp
+  await sleep(10);
+
+  // Check in on B while offline (before invalidation is synced)
+  localB.recordVoterCheckIn({
+    voterId: voter.voterId,
+    identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
+  });
+
+  // Bring B online and sync
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // Both should see voter as invalidated AND checked in
+  for (const store of [localA, localB]) {
+    const v = store.getVoter(voter.voterId);
+    expect(v.isInvalidatedRegistration).toEqual(true);
+    expect(v.checkIn).toBeDefined();
+    expect(store.getCheckInCount()).toEqual(1);
+  }
+
+  // Both should have an InvalidRegistrationCheckIn anomaly
+  for (const store of [localA, localB]) {
+    const anomalies = store.getActiveAnomalies();
+    expect(anomalies).toHaveLength(1);
+    expect(anomalies[0].anomalyType).toEqual('InvalidRegistrationCheckIn');
+    expect(anomalies[0].anomalyDetails.voterId).toEqual(voter.voterId);
+  }
+});
+
+// Test for InvalidRegistrationCheckIn anomaly: invalidation occurs after check-in
+test('InvalidRegistrationCheckIn anomaly - invalidation after check in', async () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElectionDefinition = getTestElectionDefinition();
+  const streets = [
+    createValidStreetInfo('MAIN', 'all', 0, 100, '', '', 'precinct-0'),
+  ];
+
+  for (const store of [localA, localB]) {
+    store.setElectionAndVoters(
+      testElectionDefinition,
+      'mock-package-hash',
+      streets,
+      []
+    );
+    store.setConfiguredPrecinct(
+      testElectionDefinition.election.precincts[0].id
+    );
+  }
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // Register a voter on A
+  const { voter } = localA.registerVoter({
+    firstName: 'Invalid',
+    middleName: '',
+    lastName: 'Reg',
+    suffix: '',
+    streetNumber: '10',
+    streetSuffix: '',
+    streetName: 'MAIN',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    party: 'DEM',
+    precinct: 'precinct-0',
+  });
+
+  // Sync registration to B
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // Pollbook A goes offline
+  // Check in on B
+  localB.recordVoterCheckIn({
+    voterId: voter.voterId,
+    identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
+  });
+
+  // Wait to ensure different timestamp
+  await sleep(10);
+
+  // Invalidate the registration on A while offline (after check-in happened)
+  localA.invalidateRegistration(voter.voterId);
+
+  // Bring A online and sync
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // Both should see voter as invalidated AND checked in
+  for (const store of [localA, localB]) {
+    const v = store.getVoter(voter.voterId);
+    expect(v.isInvalidatedRegistration).toEqual(true);
+    expect(v.checkIn).toBeDefined();
+    expect(store.getCheckInCount()).toEqual(1);
+  }
+
+  // Both should have an InvalidRegistrationCheckIn anomaly
+  for (const store of [localA, localB]) {
+    const anomalies = store.getActiveAnomalies();
+    expect(anomalies).toHaveLength(1);
+    expect(anomalies[0].anomalyType).toEqual('InvalidRegistrationCheckIn');
+    expect(anomalies[0].anomalyDetails.voterId).toEqual(voter.voterId);
+  }
+});

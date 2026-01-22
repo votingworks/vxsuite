@@ -74,6 +74,7 @@ export function createVoter(
     party: optionalMockVoterParams.party || 'UND',
     precinct: optionalMockVoterParams.precinct || 'Precinct',
     isInactive: false,
+    isInvalidatedRegistration: false,
   };
 }
 

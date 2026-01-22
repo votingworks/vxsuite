@@ -1339,6 +1339,51 @@ test('getPrimarySummaryStatistics throws error when called with general election
   });
 });
 
+test('getGeneralSummaryStatistics excludes invalidated registrations from totalNewRegistrations', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    []
+  );
+  localStore.setConfiguredPrecinct('precinct-1');
+
+  // Register a voter
+  const registration: VoterRegistrationRequest = {
+    firstName: 'Invalid',
+    lastName: 'Registration',
+    middleName: '',
+    suffix: '',
+    party: 'DEM',
+    streetNumber: '7',
+    streetName: 'PEGASUS',
+    streetSuffix: '',
+    houseFractionNumber: '',
+    apartmentUnitNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    precinct: 'precinct-1',
+  };
+  const { voter } = localStore.registerVoter(registration);
+
+  // Verify registration is counted before invalidation
+  let stats = localStore.getGeneralSummaryStatistics('ALL');
+  expect(stats.totalNewRegistrations).toEqual(1);
+
+  // Invalidate the registration
+  localStore.invalidateRegistration(voter.voterId);
+
+  // Verify registration is NOT counted after invalidation
+  stats = localStore.getGeneralSummaryStatistics('ALL');
+  expect(stats.totalNewRegistrations).toEqual(0);
+});
+
 test('getThroughputStatistics returns empty array for UND party filter', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();

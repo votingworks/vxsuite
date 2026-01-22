@@ -440,6 +440,18 @@ export const markVoterInactive = {
   },
 } as const;
 
+export const invalidateRegistration = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.invalidateRegistration, {
+      async onSuccess() {
+        await invalidateVoterQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
 export const unconfigure = {
   useMutation() {
     const apiClient = useApiClient();

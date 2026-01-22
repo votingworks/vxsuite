@@ -271,6 +271,8 @@ export abstract class Store {
             return {};
           case EventType.MarkInactive:
             return {};
+          case EventType.InvalidateRegistration:
+            return {};
           case EventType.VoterAddressChange:
             return pollbookEvent.addressChangeData;
           case EventType.VoterMailingAddressChange:
@@ -338,8 +340,32 @@ export abstract class Store {
       // Update any materialized views necessary for the given event. Refetching the voter ensures
       // that the event is handled in proper order by hlc timestamp with other events.
       switch (pollbookEvent.type) {
-        // MarkInactive is included here as it can theoretically cause an "undo" of a check in a rare syncing race condition.
+        // MarkInactive and InvalidateRegistration are included here as they can theoretically cause an "undo" of a check in a rare syncing race condition.
         case EventType.MarkInactive:
+        case EventType.InvalidateRegistration: {
+          const { voter } = this.getVoterWithAllEvents(pollbookEvent.voterId);
+          if (voter.checkIn) {
+            this.logger.log(
+              LogEventId.PollbookDuplicateCheckInDetected,
+              'system',
+              {
+                message: `Invalidated registration for voter ${pollbookEvent.voterId} who was already checked in`,
+                voterId: pollbookEvent.voterId,
+                disposition: 'failure',
+              }
+            );
+            this.recordAnomaly('InvalidRegistrationCheckIn', {
+              voterId: pollbookEvent.voterId,
+              checkInEvents: [
+                {
+                  machineId: voter.checkIn.machineId,
+                  timestamp: voter.checkIn.timestamp,
+                },
+              ],
+            });
+          }
+          break;
+        }
         case EventType.UndoVoterCheckIn:
         case EventType.VoterCheckIn: {
           // If we are saving a check in or undo update the materialized check_in_status table.
@@ -350,6 +376,30 @@ export abstract class Store {
           // If we are saving a check in event, we want to ensure that there is only one check in event for the voter.
           // Check if we have multiple events and log a warning if so.
           if (pollbookEvent.type === EventType.VoterCheckIn) {
+            // Check if this is a check-in for an invalidated registration
+            if (voter.isInvalidatedRegistration) {
+              this.logger.log(
+                LogEventId.PollbookDuplicateCheckInDetected,
+                'system',
+                {
+                  message: `Check-in detected for invalidated registration for voter ${pollbookEvent.voterId}`,
+                  voterId: pollbookEvent.voterId,
+                  disposition: 'failure',
+                }
+              );
+              this.recordAnomaly('InvalidRegistrationCheckIn', {
+                voterId: pollbookEvent.voterId,
+                checkInEvents: [
+                  {
+                    machineId: pollbookEvent.machineId,
+                    timestamp: new Date(
+                      pollbookEvent.timestamp.physical
+                    ).toISOString(),
+                  },
+                ],
+              });
+            }
+
             // Find the index of the last UndoVoterCheckIn event
             const lastUndoIndex = orderedEvents.findLastIndex(
               (e) => e.type === EventType.UndoVoterCheckIn
