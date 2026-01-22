@@ -31,8 +31,24 @@ const ALL_PRECINCTS_TALLY_REPORT_COLUMNS = [
   { name: 'Total Votes', key: 'totalVotes' },
 ] as const;
 
+const ALL_PRECINCTS_TALLY_REPORT_COLUMNS_WITH_MANUAL_TALLIES = [
+  { name: 'Precinct', key: 'precinct' },
+  { name: 'Precinct ID', key: 'precinctId' },
+  { name: 'Contest', key: 'contest' },
+  { name: 'Contest ID', key: 'contestId' },
+  { name: 'Selection', key: 'selection' },
+  { name: 'Selection ID', key: 'selectionId' },
+  { name: 'Manual Votes', key: 'manualVotes' },
+  { name: 'Scanned Votes', key: 'scannedVotes' },
+  { name: 'Total Votes', key: 'totalVotes' },
+] as const;
+
 export type AllPrecinctsTallyReportRow = {
   [K in (typeof ALL_PRECINCTS_TALLY_REPORT_COLUMNS)[number]['key']]: string;
+};
+
+export type AllPrecinctsTallyReportRowWithManualTallies = {
+  [K in (typeof ALL_PRECINCTS_TALLY_REPORT_COLUMNS_WITH_MANUAL_TALLIES)[number]['key']]: string;
 };
 
 export const SEMS_RESULTS_COLUMNS = [
@@ -91,20 +107,27 @@ export function convertMsResults(
     return err('wrong-election');
   }
 
-  let allPrecinctsTallyReportRows: AllPrecinctsTallyReportRow[];
+  let allPrecinctsTallyReportRows:
+    | AllPrecinctsTallyReportRow[]
+    | AllPrecinctsTallyReportRowWithManualTallies[];
   try {
     allPrecinctsTallyReportRows = parse(allPrecinctsTallyReportContents, {
       fromLine: 2,
       columns: (headers) => {
-        if (
-          !deepEqual(
-            headers,
-            ALL_PRECINCTS_TALLY_REPORT_COLUMNS.map((c) => c.name)
-          )
-        ) {
-          throw new Error('invalid-headers');
+        for (const validColumnConfig of [
+          ALL_PRECINCTS_TALLY_REPORT_COLUMNS,
+          ALL_PRECINCTS_TALLY_REPORT_COLUMNS_WITH_MANUAL_TALLIES,
+        ]) {
+          if (
+            deepEqual(
+              headers,
+              validColumnConfig.map((c) => c.name)
+            )
+          ) {
+            return validColumnConfig.map((c) => c.key);
+          }
         }
-        return ALL_PRECINCTS_TALLY_REPORT_COLUMNS.map((c) => c.key);
+        throw new Error('invalid-headers');
       },
     });
   } catch (error) {

@@ -46,7 +46,10 @@ import { getEntries, openZip, readEntry } from '@votingworks/utils/src';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { stringify } from 'csv-stringify/sync';
-import { AllPrecinctsTallyReportRow } from '../src/convert_ms_results';
+import {
+  AllPrecinctsTallyReportRow,
+  AllPrecinctsTallyReportRowWithManualTallies,
+} from '../src/convert_ms_results';
 
 tmp.setGracefulCleanup();
 
@@ -443,6 +446,25 @@ export function stringifyAllPrecinctsTallyReportRows(
   });
 }
 
+export function stringifyAllPrecinctsTallyReportRowsWithManualTallies(
+  rows: AllPrecinctsTallyReportRowWithManualTallies[]
+): string {
+  return stringify(rows, {
+    header: true,
+    columns: {
+      precinct: 'Precinct',
+      precinctId: 'Precinct ID',
+      contest: 'Contest',
+      contestId: 'Contest ID',
+      selection: 'Selection',
+      selectionId: 'Selection ID',
+      manualVotes: 'Manual Votes',
+      scannedVotes: 'Scanned Votes',
+      totalVotes: 'Total Votes',
+    },
+  });
+}
+
 export function generateAllPrecinctsTallyReportMetadataRow(
   electionDefinition: ElectionDefinition
 ): string {
@@ -459,5 +481,33 @@ export function generateAllPrecinctsTallyReport(
     stringifyAllPrecinctsTallyReportRows(
       generateAllPrecinctsTallyReportRows(electionDefinition.election)
     )
+  );
+}
+
+export function generateAllPrecinctsTallyReportWithManualTallies(
+  electionDefinition: ElectionDefinition
+): string {
+  const rows = generateAllPrecinctsTallyReportRows(electionDefinition.election);
+  const rowsWithManualTallies: AllPrecinctsTallyReportRowWithManualTallies[] =
+    rows.map((row) => {
+      const totalVotes = parseInt(row.totalVotes);
+      if (totalVotes >= 1) {
+        return {
+          ...row,
+          manualVotes: '1',
+          scannedVotes: `${totalVotes - 1}`,
+          totalVotes: `${totalVotes}`,
+        };
+      }
+      return {
+        ...row,
+        manualVotes: '0',
+        scannedVotes: `${totalVotes}`,
+        totalVotes: `${totalVotes}`,
+      };
+    });
+  return (
+    generateAllPrecinctsTallyReportMetadataRow(electionDefinition) +
+    stringifyAllPrecinctsTallyReportRowsWithManualTallies(rowsWithManualTallies)
   );
 }
