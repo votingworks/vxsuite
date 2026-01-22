@@ -4299,6 +4299,18 @@ test('getResultsReportingUrl', async () => {
   );
 });
 
+test('getBaseUrl', async () => {
+  process.env = { ...process.env, BASE_URL: 'https://test-base-url.com' };
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(vxUser);
+
+  expect(await apiClient.getBaseUrl()).toEqual('https://test-base-url.com');
+});
+
 test('api call logging', async () => {
   const { apiClient, logger, auth0 } = await setupApp({
     organizations,

@@ -28,6 +28,7 @@ import {
   generalElectionRecord,
 } from '../test/fixtures';
 import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api';
+import { ProofingStatus } from './proofing_status';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
@@ -36,6 +37,10 @@ vi.mock(import('./utils'), async (importActual) => ({
   ...(await importActual()),
   downloadFile: vi.fn(),
 }));
+
+vi.mock('./proofing_status.js');
+const MockProofingStatus = vi.mocked(ProofingStatus);
+const MOCK_PROOFING_STATUS_ID = 'MockProofingStatus';
 
 let apiMock: MockApiClient;
 
@@ -58,6 +63,10 @@ beforeEach(() => {
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
   mockStateFeatures(apiMock, electionId);
+
+  MockProofingStatus.mockReturnValue(
+    <div data-testid={MOCK_PROOFING_STATUS_ID} />
+  );
 });
 
 afterEach(() => {
@@ -550,27 +559,10 @@ test('set ballot template', async () => {
   screen.getByText('New Hampshire Ballot');
 });
 
-test('view ballot proofing status and unfinalize ballots', async () => {
-  apiMock.getBallotsFinalizedAt.reset();
-  const finalizedAt = '1/30/2025, 12:00 PM';
-  apiMock.getBallotsFinalizedAt
-    .expectCallWith({ electionId })
-    .resolves(new Date(finalizedAt));
-
+test('renders proofing status', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
-
-  screen.getByText(`Ballots finalized at: ${finalizedAt}`);
-
-  const select = screen.getByLabelText('Ballot Template');
-  expect(select).toBeDisabled();
-
-  apiMock.unfinalizeBallots.expectCallWith({ electionId }).resolves();
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  userEvent.click(screen.getButton('Unfinalize Ballots'));
-  await screen.findByText('Ballots not finalized');
-
-  expect(select).not.toBeDisabled();
+  screen.getByTestId(MOCK_PROOFING_STATUS_ID);
 });
 
 describe('state defaults', () => {
