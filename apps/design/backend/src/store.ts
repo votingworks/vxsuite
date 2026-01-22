@@ -488,8 +488,8 @@ async function insertContest(
       break;
     }
 
+    /* istanbul ignore next - @preserve */
     default: {
-      /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);
     }
   }
@@ -527,13 +527,10 @@ function rowToJurisdiction(row: JurisdictionRow): Jurisdiction {
 }
 
 export class Store {
-  constructor(
-    private readonly db: Db,
-    private readonly logger: BaseLogger
-  ) {}
+  constructor(private readonly db: Db) {}
 
   static new(logger: BaseLogger): Store {
-    return new Store(new Db(logger), logger);
+    return new Store(new Db(logger));
   }
 
   async listOrganizations(): Promise<Organization[]> {
