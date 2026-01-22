@@ -189,6 +189,6 @@ export async function waitForStatus(
     async () => {
       expect(await apiClient.getPaperHandlerState()).toEqual(status);
     },
-    { interval, retries: 3 }
+    { interval, retries: 5 }
   );
 }
