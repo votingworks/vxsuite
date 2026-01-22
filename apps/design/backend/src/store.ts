@@ -107,7 +107,7 @@ export interface BackgroundTask {
   taskName: TaskName;
   payload: string;
   createdAt: Date;
-  /** Set when a worker claims this task. Null for queued tasks. */
+  /** Set when a worker claims this task. Unset for queued tasks. */
   startedAt?: Date;
   /** Set when task processing finishes (successfully or with error). */
   completedAt?: Date;
