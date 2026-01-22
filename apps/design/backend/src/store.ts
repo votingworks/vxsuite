@@ -2354,9 +2354,9 @@ export class Store {
    */
   async claimOldestQueuedBackgroundTask(): Promise<Optional<BackgroundTask>> {
     return await this.db.withClient(async (client) => {
-      // Start a transaction to ensure atomicity
-      await client.query('begin');
-      try {
+      let backgroundTask: Optional<BackgroundTask>;
+
+      await client.withTransaction(async () => {
         // Select and lock the oldest queued task, skipping any already locked by other workers
         const selectResult = await client.query(`
           select ${backgroundTasksColumns}
@@ -2370,7 +2370,7 @@ export class Store {
 
         if (!row) {
           await client.query('commit');
-          return undefined;
+          return true;
         }
 
         // Mark the task as started and return the updated row
@@ -2386,11 +2386,11 @@ export class Store {
 
         await client.query('commit');
         const updatedRow = updateResult.rows[0] as BackgroundTaskRow;
-        return backgroundTaskRowToBackgroundTask(updatedRow);
-      } catch (error) {
-        await client.query('rollback');
-        throw error;
-      }
+        backgroundTask = backgroundTaskRowToBackgroundTask(updatedRow);
+        return true;
+      });
+
+      return backgroundTask;
     });
   }
 
