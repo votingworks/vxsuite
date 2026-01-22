@@ -17,7 +17,12 @@ import {
   allBaseBallotProps,
   renderAllBallotPdfsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
-import { Store, TaskName } from './store';
+import {
+  MainExportTaskMetadata,
+  Store,
+  TaskName,
+  TestDecksTaskMetadata,
+} from './store';
 import { TestStore } from '../test/test_store';
 import {
   processNextBackgroundTaskIfAny,
@@ -601,6 +606,91 @@ test('getExportedElectionDefinition returns the exported election including reor
   const expectedReorderedCandidateIds = [...originalCandidateIds].reverse();
   expect(storedCandidateIds).toEqual(expectedReorderedCandidateIds);
   expect(storedCandidateIds).not.toEqual(originalCandidateIds);
+});
+
+test('createElectionPackageBackgroundTask clears previous export URLs', async () => {
+  const { apiClient, auth0, workspace } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = 'election-1';
+  void (await apiClient.createElection({
+    id: electionId,
+    jurisdictionId: nonVxJurisdiction.id,
+  }));
+
+  const electionPackageUrl = '/files/electionPackage.zip';
+  const officialBallotsUrl = '/files/officialBallots.zip';
+  const sampleBallotsUrl = '/files/sampleBallots.zip';
+  const testBallotsUrl = '/files/testBallots.zip';
+
+  await workspace.store.setElectionPackageExportInformation({
+    ballotHash: 'ballot-hash',
+    electionData: 'election-data',
+    electionId,
+    electionPackageUrl,
+    officialBallotsUrl,
+    sampleBallotsUrl,
+    testBallotsUrl,
+  });
+  {
+    const exportMeta = await workspace.store.getElectionPackage(electionId);
+    expect(exportMeta).toEqual<MainExportTaskMetadata>({
+      task: undefined,
+
+      electionPackageUrl,
+      officialBallotsUrl,
+      sampleBallotsUrl,
+      testBallotsUrl,
+    });
+  }
+
+  await workspace.store.createElectionPackageBackgroundTask({
+    electionId,
+    electionSerializationFormat: 'vxf',
+  });
+  {
+    const exportMeta = await workspace.store.getElectionPackage(electionId);
+    expect(exportMeta).toEqual<MainExportTaskMetadata>({
+      task: expect.anything(),
+    });
+  }
+});
+
+test('createTestDecksBackgroundTask clears previous export URL', async () => {
+  const { apiClient, auth0, workspace } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = 'election-1';
+  void (await apiClient.createElection({
+    id: electionId,
+    jurisdictionId: nonVxJurisdiction.id,
+  }));
+
+  const testDecksUrl = '/files/test-decks.zip';
+  await workspace.store.setTestDecksUrl({ electionId, testDecksUrl });
+  {
+    const exportMeta = await workspace.store.getTestDecks(electionId);
+    expect(exportMeta).toEqual<TestDecksTaskMetadata>({
+      task: undefined,
+      url: testDecksUrl,
+    });
+  }
+
+  await workspace.store.createTestDecksBackgroundTask(electionId, 'vxf');
+  {
+    const exportMeta = await workspace.store.getTestDecks(electionId);
+    expect(exportMeta).toEqual<TestDecksTaskMetadata>({
+      task: expect.anything(),
+    });
+  }
 });
 
 test('getExportedElection returns election-out-of-date error when election data fails to parse', async () => {
