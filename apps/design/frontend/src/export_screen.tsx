@@ -10,27 +10,18 @@ import {
   H2,
   FileInputButton,
   Callout,
-  Card,
-  H4,
-  ProgressBar,
 } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { useParams } from 'react-router-dom';
 import { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import type {
-  BallotTemplateId,
-  BackgroundTask,
-} from '@votingworks/design-backend';
-import { format } from '@votingworks/utils';
+import type { BallotTemplateId } from '@votingworks/design-backend';
 import {
   exportElectionPackage,
   exportTestDecks,
   getBallotsFinalizedAt,
   getElectionPackage,
-  finalizeBallots,
   setBallotTemplate,
-  unfinalizeBallots,
   getUserFeatures,
   getTestDecks,
   getBallotTemplate,
@@ -40,32 +31,10 @@ import {
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import { downloadFile } from './utils';
-import { Column, FieldName, InputGroup } from './layout';
+import { Column, InputGroup } from './layout';
 import { useTitle } from './hooks/use_title';
-
-function TaskProgressCard({
-  title,
-  task,
-  style,
-}: {
-  title: string;
-  task: BackgroundTask;
-  style?: React.CSSProperties;
-}): JSX.Element {
-  return (
-    <Card color="primary" style={style}>
-      <H4>{title}</H4>
-      <P>{task.progress?.label ?? 'Starting'}</P>
-      <ProgressBar
-        // Recreate progress bar for each phase so that it doesn't animate backwards
-        key={task.progress?.label}
-        progress={
-          task.progress ? task.progress.progress / task.progress.total : 0
-        }
-      />
-    </Card>
-  );
-}
+import { ProofingStatus } from './proofing_status';
+import { TaskProgress } from './task_progress';
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
@@ -89,8 +58,6 @@ export function ExportScreen(): JSX.Element | null {
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
-  const finalizeBallotsMutation = finalizeBallots.useMutation();
-  const unfinalizeBallotsMutation = unfinalizeBallots.useMutation();
   const decryptCvrBallotAuditIdsMutation =
     decryptCvrBallotAuditIds.useMutation();
 
@@ -238,31 +205,7 @@ export function ExportScreen(): JSX.Element | null {
               />
             </InputGroup>
           )}
-          <div>
-            <FieldName>Proofing Status</FieldName>
-            {ballotsFinalizedAt ? (
-              <Column style={{ gap: '0.5rem', alignItems: 'flex-start' }}>
-                <div>
-                  Ballots finalized at:{' '}
-                  {format.localeShortDateAndTime(ballotsFinalizedAt)}
-                </div>
-                <Button
-                  onPress={() => {
-                    unfinalizeBallotsMutation.mutate({
-                      electionId,
-                    });
-                  }}
-                  disabled={finalizeBallotsMutation.isLoading}
-                  variant="danger"
-                  icon="Delete"
-                >
-                  Unfinalize Ballots
-                </Button>
-              </Column>
-            ) : (
-              <div>Ballots not finalized</div>
-            )}
-          </div>
+          <ProofingStatus />
         </Column>
 
         <H2>Export</H2>
@@ -271,7 +214,7 @@ export function ExportScreen(): JSX.Element | null {
         >
           {features.EXPORT_TEST_DECKS &&
             (testDecks.task && !testDecks.task.completedAt ? (
-              <TaskProgressCard
+              <TaskProgress
                 style={{ alignSelf: 'stretch' }}
                 title="Exporting Test Decks"
                 task={testDecks.task}
@@ -286,7 +229,7 @@ export function ExportScreen(): JSX.Element | null {
               </Button>
             ))}
           {electionPackage.task && !electionPackage.task.completedAt ? (
-            <TaskProgressCard
+            <TaskProgress
               style={{ alignSelf: 'stretch' }}
               title="Exporting Election Package and Ballots"
               task={electionPackage.task}

@@ -254,6 +254,7 @@ export function buildApi(ctx: AppContext) {
           'getUserFeatures',
           'getResultsReportingUrl', // Doesn't need authorization, nothing private accessed
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
+          'getBaseUrl', // Doesn't need authorization, nothing private accessed
           ...ttsStrings.methodsThatHandleAuthThemselves,
         ];
         assert(
@@ -1004,6 +1005,10 @@ export function buildApi(ctx: AppContext) {
           outputZipPath,
         ]);
       }
+    },
+
+    getBaseUrl(): string {
+      return baseUrl();
     },
 
     ...ttsStrings.apiMethods(ctx),

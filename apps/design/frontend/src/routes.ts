@@ -141,6 +141,10 @@ export const routes = {
         title: 'Export',
         path: `${root}/export`,
       },
+      downloads: {
+        title: 'Downloads',
+        path: `${root}/downloads`,
+      },
       reports: {
         root: {
           title: 'Live Reports',
