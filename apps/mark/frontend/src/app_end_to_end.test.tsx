@@ -102,6 +102,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText('5'));
   userEvent.click(screen.getByText('6'));
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
+  apiMock.expectGetUsbPortStatus();
 
   // Configure with USB
   await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
@@ -318,7 +319,6 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Voting is complete.');
 
   // Insert System Administrator card
-  apiMock.expectGetUsbPortStatus();
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
   await screen.findByText('System Administrator Menu');
   apiMock.setAuthStatusLoggedOut();

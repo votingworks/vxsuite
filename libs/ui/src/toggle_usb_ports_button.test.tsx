@@ -47,3 +47,39 @@ test('ToggleUsbPortsButton interactions', async () => {
     action: 'enable',
   });
 });
+
+test('onlyShowWhenDisabled hides button when USB ports are enabled', async () => {
+  const { mockApiClient, render: renderWithContext } = newTestContext({
+    skipUiStringsApi: true,
+  });
+  mockApiClient.getUsbPortStatus.mockResolvedValue({
+    enabled: true,
+  });
+  const { container } = renderWithContext(
+    <ToggleUsbPortsButton onlyShowWhenDisabled />
+  );
+
+  // Wait for query to resolve
+  await waitFor(() =>
+    expect(mockApiClient.getUsbPortStatus).toHaveBeenCalled()
+  );
+
+  // Button should not be rendered when USB ports are enabled
+  expect(
+    screen.queryByRole('button', { name: /USB Ports/i })
+  ).not.toBeInTheDocument();
+  expect(container).toBeEmptyDOMElement();
+});
+
+test('onlyShowWhenDisabled shows button when USB ports are disabled', async () => {
+  const { mockApiClient, render: renderWithContext } = newTestContext({
+    skipUiStringsApi: true,
+  });
+  mockApiClient.getUsbPortStatus.mockResolvedValue({
+    enabled: false,
+  });
+  renderWithContext(<ToggleUsbPortsButton onlyShowWhenDisabled />);
+
+  // Button should be rendered when USB ports are disabled
+  await screen.findByRole('button', { name: 'Enable USB Ports' });
+});

@@ -138,6 +138,16 @@ describe('Displays setup warning messages and errors screens', () => {
 
     await screen.findByText('Insert Card');
 
+    // Expect USB port status query when SetupPrinterPage renders
+    apiMock.expectGetUsbPortStatus();
+    // Alarm and USB auto-disable may or may not be called depending on audio settings in test context
+    apiMock.mockApiClient.playSound
+      .expectOptionalRepeatedCallsWith({ name: 'alarm' })
+      .resolves();
+    apiMock.mockApiClient.toggleUsbPorts
+      .expectOptionalRepeatedCallsWith({ action: 'disable' })
+      .resolves();
+
     // Disconnect Printer
     act(() => {
       apiMock.setPrinterStatus({ connected: false });
