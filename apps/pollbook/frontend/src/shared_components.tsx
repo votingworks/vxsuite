@@ -5,9 +5,11 @@ import type {
 } from '@votingworks/types';
 import {
   Callout,
+  Caption,
   Card,
   DivBreakWord,
   H4,
+  Icons,
   SpanBreakWord,
 } from '@votingworks/ui';
 import styled from 'styled-components';
@@ -253,4 +255,32 @@ export function VoterMailingAddress({
       </div>
     </div>
   );
+}
+
+export function VoterStatusLabel({
+  voter,
+}: {
+  voter: Voter;
+}): JSX.Element | null {
+  if (voter.isInvalidatedRegistration) {
+    return (
+      <Caption>
+        <Icons.Delete /> Registration Marked as Invalid
+      </Caption>
+    );
+  }
+  if (voter.isInactive) {
+    return (
+      <Caption>
+        <Icons.Delete /> Voter Marked as Inactive
+      </Caption>
+    );
+  }
+  if (voter.registrationEvent) {
+    return <Caption>Added Voter</Caption>;
+  }
+  if (voter.nameChange) {
+    return <Caption>Updated Name</Caption>;
+  }
+  return null;
 }
