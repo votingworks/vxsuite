@@ -368,6 +368,20 @@ export const reprintVoterReceipt = {
   },
 } as const;
 
+export const printPrimaryStatisticsSummaryReceipt = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printPrimaryStatisticsSummaryReceipt);
+  },
+} as const;
+
+export const printGeneralStatisticsSummaryReceipt = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printGeneralStatisticsSummaryReceipt);
+  },
+} as const;
+
 export const resetNetwork = {
   useMutation() {
     const apiClient = useApiClient();

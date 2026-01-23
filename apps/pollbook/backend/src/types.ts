@@ -295,17 +295,6 @@ export interface ThroughputStat {
   checkIns: number;
   startTime: string;
 }
-export interface SummaryStatistics {
-  totalVoters: number;
-  totalCheckIns: number;
-  totalNewRegistrations: number;
-  totalAbsenteeCheckIns: number;
-}
-
-export interface PrimarySummaryStatistics extends SummaryStatistics {
-  totalUndeclaredDemCheckIns: number;
-  totalUndeclaredRepCheckIns: number;
-}
 
 export type ConfigurationStatus =
   | 'loading'

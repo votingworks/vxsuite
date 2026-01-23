@@ -1,4 +1,8 @@
-import { safeParseInt } from '@votingworks/types';
+import {
+  getImportedVotersCountRaw,
+  getUndeclaredPrimaryPartyChoice,
+  safeParseInt,
+} from '@votingworks/types';
 import {
   SegmentedButton,
   Loading,
@@ -7,6 +11,7 @@ import {
   Font,
   MainContent,
   H1,
+  Button,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import type { PartyFilterAbbreviation } from '@votingworks/pollbook-backend';
@@ -29,6 +34,8 @@ import {
   getGeneralSummaryStatistics,
   getElection,
   getPrimarySummaryStatistics,
+  printGeneralStatisticsSummaryReceipt,
+  printPrimaryStatisticsSummaryReceipt,
 } from './api';
 import { Row, Column } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
@@ -180,6 +187,8 @@ export function GeneralElectionStatistics(): JSX.Element {
   const getSummaryStatisticsQuery = getGeneralSummaryStatistics.useQuery({
     partyFilter,
   });
+  const printGeneralStatisticsSummaryReceiptMutation =
+    printGeneralStatisticsSummaryReceipt.useMutation();
   if (!getSummaryStatisticsQuery.isSuccess) {
     return (
       <ElectionManagerNavScreen title="Statistics">
@@ -196,12 +205,13 @@ export function GeneralElectionStatistics(): JSX.Element {
       </ElectionManagerNavScreen>
     );
   }
+  const stats = getSummaryStatisticsQuery.data;
   const {
     totalVoters,
     totalCheckIns,
     totalNewRegistrations,
     totalAbsenteeCheckIns,
-  } = getSummaryStatisticsQuery.data;
+  } = stats;
   const precinctCheckIns = totalCheckIns - totalAbsenteeCheckIns;
 
   return (
@@ -273,13 +283,20 @@ export function GeneralElectionStatistics(): JSX.Element {
                 <Metric label="Total" value={totalVoters} />
                 <Metric
                   label="Imported"
-                  value={totalVoters - totalNewRegistrations}
+                  value={getImportedVotersCountRaw(stats)}
                 />
                 <Metric label="Added" value={totalNewRegistrations} />
               </div>
             </TitledCard>
           </Row>
           <ThroughputChart partyFilter="ALL" />
+          <Button
+            onPress={() =>
+              printGeneralStatisticsSummaryReceiptMutation.mutate()
+            }
+          >
+            Print
+          </Button>
         </Column>
       </MainContent>
     </ElectionManagerNavScreen>
@@ -292,6 +309,8 @@ export function PrimaryElectionStatistics(): JSX.Element {
   const getSummaryStatisticsQuery = getPrimarySummaryStatistics.useQuery({
     partyFilter,
   });
+  const printPrimaryStatisticsSummaryReceiptMutation =
+    printPrimaryStatisticsSummaryReceipt.useMutation();
   const title = (
     <span
       style={{
@@ -340,8 +359,6 @@ export function PrimaryElectionStatistics(): JSX.Element {
     totalCheckIns,
     totalNewRegistrations,
     totalAbsenteeCheckIns,
-    totalUndeclaredDemCheckIns,
-    totalUndeclaredRepCheckIns,
   } = getSummaryStatisticsQuery.data;
   const precinctCheckIns = totalCheckIns - totalAbsenteeCheckIns;
 
@@ -378,13 +395,23 @@ export function PrimaryElectionStatistics(): JSX.Element {
                   <Metric
                     label="Democratic"
                     value={
-                      <span>{totalUndeclaredDemCheckIns.toLocaleString()}</span>
+                      <span>
+                        {getUndeclaredPrimaryPartyChoice(
+                          'DEM',
+                          getSummaryStatisticsQuery.data
+                        )}
+                      </span>
                     }
                   />
                   <Metric
                     label="Republican"
                     value={
-                      <span>{totalUndeclaredRepCheckIns.toLocaleString()}</span>
+                      <span>
+                        {getUndeclaredPrimaryPartyChoice(
+                          'REP',
+                          getSummaryStatisticsQuery.data
+                        )}
+                      </span>
                     }
                   />
                 </div>
@@ -421,6 +448,13 @@ export function PrimaryElectionStatistics(): JSX.Element {
             {votersCard}
           </Row>
           <ThroughputChart partyFilter={partyFilter} />
+          <Button
+            onPress={() =>
+              printPrimaryStatisticsSummaryReceiptMutation.mutate()
+            }
+          >
+            Print
+          </Button>
         </Column>
       </MainContent>
     </ElectionManagerNavScreen>
