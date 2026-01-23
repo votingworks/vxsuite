@@ -424,4 +424,112 @@ test('validateUsState', () => {
   expect(validateUsState('NH')).toEqual('NH');
 });
 
+const possibleLabels = [
+  'Registration Marked as Invalid',
+  'Voter Marked as Inactive',
+  'Added Voter',
+  'Updated Name',
+] as const;
+test.each<{
+  description: string;
+  newlyRegistered: boolean;
+  nameChanged: boolean;
+  markedInvalid: boolean;
+  expectedLabel: (typeof possibleLabels)[number];
+}>([
+  {
+    description: 'registration marked as invalid',
+    newlyRegistered: true,
+    nameChanged: false,
+    markedInvalid: true,
+    expectedLabel: 'Registration Marked as Invalid',
+  },
+  {
+    description: 'voter marked as inactive',
+    newlyRegistered: false,
+    nameChanged: false,
+    markedInvalid: true,
+    expectedLabel: 'Voter Marked as Inactive',
+  },
+  {
+    description: 'added voter',
+    newlyRegistered: true,
+    nameChanged: false,
+    markedInvalid: false,
+    expectedLabel: 'Added Voter',
+  },
+  {
+    description: 'updated name',
+    newlyRegistered: false,
+    nameChanged: true,
+    markedInvalid: false,
+    expectedLabel: 'Updated Name',
+  },
+  {
+    description:
+      'registration marked as invalid takes precedence over added voter and updated name',
+    newlyRegistered: true,
+    nameChanged: true,
+    markedInvalid: true,
+    expectedLabel: 'Registration Marked as Invalid',
+  },
+  {
+    description: 'voter marked as inactive takes precedence over updated name',
+    newlyRegistered: false,
+    nameChanged: true,
+    markedInvalid: true,
+    expectedLabel: 'Voter Marked as Inactive',
+  },
+  {
+    description: 'added voter takes precedence over updated name',
+    newlyRegistered: true,
+    nameChanged: true,
+    markedInvalid: false,
+    expectedLabel: 'Added Voter',
+  },
+])(
+  'displays appropriate voter labels - $description',
+  async ({ newlyRegistered, nameChanged, markedInvalid, expectedLabel }) => {
+    const baseVoter = createMockVoter(
+      '123',
+      'ABIGAIL',
+      'ADAMS',
+      undefined,
+      undefined,
+      {
+        includeNameChange: nameChanged,
+        includeRegistrationEvent: newlyRegistered,
+      }
+    );
+    const voter: Voter = {
+      ...baseVoter,
+      isInactive: markedInvalid && !newlyRegistered,
+      isInvalidatedRegistration: markedInvalid && newlyRegistered,
+    };
+    apiMock.expectGetScannedIdDocument();
+    apiMock.expectSearchVotersWithResults({}, [voter]);
+
+    const result = renderInAppContext(
+      <VoterSearch
+        search={createEmptySearchParams({ strictMatch: false })}
+        setSearch={vi.fn()}
+        onBarcodeScanMatch={vi.fn()}
+        renderAction={() => null}
+        election={election}
+      />,
+      { apiMock }
+    );
+    unmount = result.unmount;
+
+    await screen.findByText(expectedLabel);
+    for (const label of possibleLabels) {
+      // A regression test to ensure that only one label takes precedence and multiple are not
+      // accidentally shown
+      if (label !== expectedLabel) {
+        expect(screen.queryByText(label)).not.toBeInTheDocument();
+      }
+    }
+  }
+);
+
 // Test for barcode scanner happy path is covered in app_poll_worker_screen.test.tsx
