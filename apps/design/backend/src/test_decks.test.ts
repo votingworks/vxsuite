@@ -26,7 +26,8 @@ import {
 import {
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
-  createTestDeckTallyReport,
+  createTestDeckTallyReports,
+  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
   getTallyReportResults,
 } from './test_decks';
 
@@ -386,22 +387,29 @@ describe('getTallyReportResults', () => {
   });
 });
 
-describe('createTestDeckTallyReport', () => {
+describe('createTestDeckTallyReports', () => {
   test('without summary ballots', async () => {
     const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
     const electionDefinition = (
       await readElection(fixtures.electionPath)
     ).unsafeUnwrap();
 
-    const reportDocumentBuffer = await createTestDeckTallyReport({
+    const reports = await createTestDeckTallyReports({
       electionDefinition,
       generatedAtTime: new Date('2021-01-01T00:00:00.000'),
       includeSummaryBallots: false,
     });
 
-    await expect(reportDocumentBuffer).toMatchPdfSnapshot({
+    // Verify full report exists and matches snapshot
+    const fullReport = reports.get(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME);
+    assert(fullReport);
+    await expect(fullReport).toMatchPdfSnapshot({
       failureThreshold: 0.0001,
     });
+
+    // Verify precinct reports exist
+    const { election } = electionDefinition;
+    expect(reports.size).toEqual(election.precincts.length + 1);
   });
 
   test('with summary ballots', async () => {
@@ -410,14 +418,21 @@ describe('createTestDeckTallyReport', () => {
       await readElection(fixtures.electionPath)
     ).unsafeUnwrap();
 
-    const reportDocumentBuffer = await createTestDeckTallyReport({
+    const reports = await createTestDeckTallyReports({
       electionDefinition,
       generatedAtTime: new Date('2021-01-01T00:00:00.000'),
       includeSummaryBallots: true,
     });
 
-    await expect(reportDocumentBuffer).toMatchPdfSnapshot({
+    // Verify full report exists and matches snapshot
+    const fullReport = reports.get(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME);
+    assert(fullReport);
+    await expect(fullReport).toMatchPdfSnapshot({
       failureThreshold: 0.0001,
     });
+
+    // Verify precinct reports exist
+    const { election } = electionDefinition;
+    expect(reports.size).toEqual(election.precincts.length + 1);
   });
 });

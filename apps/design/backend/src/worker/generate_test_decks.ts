@@ -27,8 +27,7 @@ import {
 import {
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
-  createTestDeckTallyReport,
-  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+  createTestDeckTallyReports,
 } from '../test_decks';
 
 interface GenerateTestDecksPayload {
@@ -182,12 +181,14 @@ export async function generateTestDecks(
     }
   }
 
-  const tallyReport = await createTestDeckTallyReport({
+  const tallyReports = await createTestDeckTallyReports({
     electionDefinition,
     includeSummaryBallots: shouldGenerateSummaryBallots,
   });
 
-  zip.file(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, tallyReport);
+  for (const [fileName, report] of tallyReports) {
+    zip.file(fileName, report);
+  }
   const zipContents = await zip.generateAsync({ type: 'nodebuffer' });
   const zipFilename = `test-decks-${formatBallotHash(
     electionDefinition.ballotHash

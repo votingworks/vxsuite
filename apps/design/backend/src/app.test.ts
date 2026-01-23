@@ -96,7 +96,7 @@ import {
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
-  createTestDeckTallyReport,
+  createTestDeckTallyReports,
 } from './test_decks';
 import { ElectionInfo, ElectionListing, ElectionStatus } from './types';
 import { generateBallotStyles } from '@votingworks/hmpb';
@@ -187,7 +187,7 @@ vi.mock(import('./test_decks.js'), async (importActual) => {
     createPrecinctSummaryBallotTestDeck: vi.fn(
       original.createPrecinctSummaryBallotTestDeck
     ),
-    createTestDeckTallyReport: vi.fn(original.createTestDeckTallyReport),
+    createTestDeckTallyReports: vi.fn(original.createTestDeckTallyReports),
   };
 });
 
@@ -245,7 +245,7 @@ afterEach(() => {
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockRestore();
   vi.mocked(createPrecinctTestDeck).mockRestore();
   vi.mocked(createPrecinctSummaryBallotTestDeck).mockRestore();
-  vi.mocked(createTestDeckTallyReport).mockRestore();
+  vi.mocked(createTestDeckTallyReports).mockRestore();
 });
 
 test('all methods require authentication', async () => {
@@ -3479,7 +3479,9 @@ test.each([
       async ({ ballotSpecs }) =>
         ballotSpecs.length > 0 ? mockPdfContent : undefined
     );
-    vi.mocked(createTestDeckTallyReport).mockResolvedValue(mockPdfContent);
+    vi.mocked(createTestDeckTallyReports).mockResolvedValue(
+      new Map([[FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, mockPdfContent]])
+    );
 
     const electionDefinition = readElectionTwoPartyPrimaryDefinition();
     const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
