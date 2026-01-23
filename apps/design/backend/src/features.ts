@@ -70,6 +70,10 @@ export enum UserFeature {
    * Requires the system settings screen to be enabled.
    */
   VOTER_HELP_BUTTONS_SYSTEM_SETTING = 'VOTER_HELP_BUTTONS_SYSTEM_SETTING',
+  /**
+   * [TEMP] Enable WIP "self-service downloads" feature.
+   */
+  DOWNLOADS = 'DOWNLOADS',
 }
 
 /**
@@ -124,6 +128,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   EXPORT_SCREEN: true,
   CHOOSE_BALLOT_TEMPLATE: true,
   EXPORT_TEST_DECKS: true,
+  DOWNLOADS: true,
 
   SYSTEM_SETTINGS_SCREEN: true,
   VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
