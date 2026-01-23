@@ -137,13 +137,20 @@ export function ElectionNavScreen({
       navContent={
         <NavList>
           {electionNavRoutes(electionInfo, userFeatures, systemSettings).map(
-            ({ title, path }) => (
-              <NavListItem key={path}>
-                <NavLink to={path} isActive={path === currentRoute.url}>
-                  {title}
-                </NavLink>
-              </NavListItem>
-            )
+            (entry, i) => {
+              if (entry === 'DIVIDER') {
+                // eslint-disable-next-line react/no-array-index-key
+                return <NavDivider key={i} />;
+              }
+              const { path, title } = entry;
+              return (
+                <NavListItem key={path}>
+                  <NavLink to={path} isActive={path === currentRoute.url}>
+                    {title}
+                  </NavLink>
+                </NavListItem>
+              );
+            }
           )}
           <NavDivider />
           <NavListItem>

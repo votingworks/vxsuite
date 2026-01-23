@@ -177,7 +177,7 @@ export function electionNavRoutes(
   electionInfo: ElectionInfo,
   userFeatures: UserFeaturesConfig,
   electionSystemSettings: SystemSettings
-): Route[] {
+): Array<Route | 'DIVIDER'> {
   const electionRoutes = routes.election(electionInfo.electionId);
   return [
     electionRoutes.electionInfo.root,
@@ -186,15 +186,18 @@ export function electionNavRoutes(
     electionRoutes.parties.root,
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
-    ...(userFeatures.SYSTEM_SETTINGS_SCREEN
-      ? [electionRoutes.systemSettings]
-      : []),
-    ...(userFeatures.EXPORT_SCREEN ? [electionRoutes.export] : []),
     ...(electionSystemSettings.quickResultsReportingUrl
       ? [electionRoutes.reports.root]
       : []),
     ...(electionInfo.externalSource === 'ms-sems'
       ? [electionRoutes.convertResults]
       : []),
+    ...(userFeatures.SYSTEM_SETTINGS_SCREEN || userFeatures.EXPORT_SCREEN
+      ? (['DIVIDER'] as const) // Delineate customer-facing screens from internal screens
+      : []),
+    ...(userFeatures.SYSTEM_SETTINGS_SCREEN
+      ? [electionRoutes.systemSettings]
+      : []),
+    ...(userFeatures.EXPORT_SCREEN ? [electionRoutes.export] : []),
   ];
 }
