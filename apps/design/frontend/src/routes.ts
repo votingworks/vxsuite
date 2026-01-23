@@ -173,9 +173,9 @@ export interface ElectionIdParams {
 export const electionParamRoutes = routes.election(':electionId');
 
 export const rootNavRoutes: Route[] = [];
+
 export function electionNavRoutes(
   electionInfo: ElectionInfo,
-  userFeatures: UserFeaturesConfig,
   electionSystemSettings: SystemSettings
 ): Route[] {
   const electionRoutes = routes.election(electionInfo.electionId);
@@ -186,15 +186,25 @@ export function electionNavRoutes(
     electionRoutes.parties.root,
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
-    ...(userFeatures.SYSTEM_SETTINGS_SCREEN
-      ? [electionRoutes.systemSettings]
-      : []),
-    ...(userFeatures.EXPORT_SCREEN ? [electionRoutes.export] : []),
     ...(electionSystemSettings.quickResultsReportingUrl
       ? [electionRoutes.reports.root]
       : []),
     ...(electionInfo.externalSource === 'ms-sems'
       ? [electionRoutes.convertResults]
       : []),
+  ];
+}
+
+// For screens only relevant for internal users
+export function adminElectionNavRoutes(
+  electionInfo: ElectionInfo,
+  userFeatures: UserFeaturesConfig
+): Route[] {
+  const electionRoutes = routes.election(electionInfo.electionId);
+  return [
+    ...(userFeatures.SYSTEM_SETTINGS_SCREEN
+      ? [electionRoutes.systemSettings]
+      : []),
+    ...(userFeatures.EXPORT_SCREEN ? [electionRoutes.export] : []),
   ];
 }
