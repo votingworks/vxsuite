@@ -2016,10 +2016,19 @@ export class Store {
         await client.query(
           `
             update elections
-            set election_package_task_id = $1
-            where id = $2
+            set
+              election_package_task_id = $1,
+              election_package_url = $2,
+              official_ballots_url = $3,
+              sample_ballots_url = $4,
+              test_ballots_url = $5
+            where id = $6
           `,
           taskId,
+          null,
+          null,
+          null,
+          null,
           p.electionId
         );
 
@@ -2110,10 +2119,13 @@ export class Store {
         await client.query(
           `
             update elections
-            set test_decks_task_id = $1
-            where id = $2
+            set
+              test_decks_task_id = $1,
+              test_decks_url = $2
+            where id = $3
           `,
           taskId,
+          null,
           electionId
         );
 

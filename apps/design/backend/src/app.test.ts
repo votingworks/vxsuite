@@ -2887,7 +2887,8 @@ test('Election package management', async () => {
       payload: expectedPayload,
       taskName: 'generate_election_package',
     },
-    electionPackageUrl: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
+    // Previous URL should be cleared out when a new task is started:
+    electionPackageUrl: undefined,
   });
   const secondTaskId = assertDefined(
     electionPackageAfterInitiatingSecondExport.task
