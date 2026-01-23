@@ -6,8 +6,8 @@ import {
   getUndeclaredPrimaryPartyChoiceRaw,
   PrimarySummaryStatistics,
   SummaryStatistics,
-  getTotalCheckIns,
   getImportedVotersCount,
+  getTotalPrecinctCheckIns,
 } from '@votingworks/types';
 import React from 'react';
 import styled from 'styled-components';
@@ -149,6 +149,37 @@ function TotalVoters({
   );
 }
 
+function GeneralCheckIns({
+  stats,
+}: {
+  stats: SummaryStatistics;
+}): React.ReactNode {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <TextRow>
+        <strong>Check-Ins</strong>
+      </TextRow>
+      <TextRow>
+        <span>Precinct:</span>
+        <span>{getTotalPrecinctCheckIns(stats)}</span>
+      </TextRow>
+      <TextRow>
+        <span>Absentee:</span>
+        <span>{stats.totalAbsenteeCheckIns.toLocaleString()}</span>
+      </TextRow>
+      <TextRow>
+        <span>Total:</span>
+        <span>{stats.totalCheckIns.toLocaleString()}</span>
+      </TextRow>
+    </div>
+  );
+}
+
 function PartyCheckIns({
   partyAbbreviation,
   partyStats,
@@ -171,7 +202,7 @@ function PartyCheckIns({
       </TextRow>
       <TextRow>
         <span>Precinct:</span>
-        <span>{partyStats.totalCheckIns.toLocaleString()}</span>
+        <span>{getTotalPrecinctCheckIns(partyStats)}</span>
       </TextRow>
       <TextRow>
         <span>Absentee:</span>
@@ -179,7 +210,7 @@ function PartyCheckIns({
       </TextRow>
       <TextRow>
         <span>Total:</span>
-        <span>{getTotalCheckIns(partyStats).toLocaleString()}</span>
+        <span>{partyStats.totalCheckIns.toLocaleString()}</span>
       </TextRow>
     </div>
   );
@@ -310,15 +341,26 @@ export function StatisticsSummaryReceipt({
         undeclaredStats={stats.undeclaredStats}
       />
 
-      <PartyCheckIns partyAbbreviation={'DEM'} partyStats={stats.demStats} />
-      <PartyCheckIns partyAbbreviation={'REP'} partyStats={stats.repStats} />
+      {election.type === 'general' && (
+        <GeneralCheckIns stats={stats.allStats} />
+      )}
 
       {election.type === 'primary' && (
-        <UndeclaredVoterPartyChoice
-          undeclaredVoterStats={
-            stats.undeclaredStats as PrimarySummaryStatistics
-          }
-        />
+        <React.Fragment>
+          <PartyCheckIns
+            partyAbbreviation={'DEM'}
+            partyStats={stats.demStats}
+          />
+          <PartyCheckIns
+            partyAbbreviation={'REP'}
+            partyStats={stats.repStats}
+          />
+          <UndeclaredVoterPartyChoice
+            undeclaredVoterStats={
+              stats.undeclaredStats as PrimarySummaryStatistics
+            }
+          />
+        </React.Fragment>
       )}
 
       <BiographicalDataChangeCounts eventCounts={eventCounts} />

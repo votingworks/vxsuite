@@ -707,12 +707,12 @@ export class LocalStore extends Store {
     return { voter: updatedVoter, receiptNumber };
   }
 
-  getEventCount(
+  getEventCountUniqueByVoter(
     eventType: EventType.VoterNameChange | EventType.VoterAddressChange
   ): number {
     const row = this.client.one(
       `
-    SELECT COUNT(*) as count
+    SELECT COUNT(DISTINCT voter_id) as count
     FROM event_log
     WHERE event_type = ?
     `,

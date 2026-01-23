@@ -1,5 +1,7 @@
 import {
   getImportedVotersCountRaw,
+  getTotalPrecinctCheckIns,
+  getTotalPrecinctCheckInsRaw,
   getUndeclaredPrimaryPartyChoice,
   safeParseInt,
 } from '@votingworks/types';
@@ -15,7 +17,7 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import type { PartyFilterAbbreviation } from '@votingworks/pollbook-backend';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Chart as ChartJS,
   TimeScale,
@@ -184,24 +186,11 @@ function Metric({
 export function GeneralElectionStatistics(): JSX.Element {
   const [partyFilter, setPartyFilter] =
     useState<PartyFilterAbbreviation>('ALL');
-  const [isPrintButtonDisabled, setIsPrintButtonDisabled] =
-    useState<boolean>(false);
   const getSummaryStatisticsQuery = getGeneralSummaryStatistics.useQuery({
     partyFilter,
   });
   const printGeneralStatisticsSummaryReceiptMutation =
     printGeneralStatisticsSummaryReceipt.useMutation();
-  const printStatsMutateFn =
-    printGeneralStatisticsSummaryReceiptMutation.mutate;
-
-  const onPressPrint = useCallback(() => {
-    setIsPrintButtonDisabled(true);
-    printStatsMutateFn(undefined, {
-      onSettled: () => {
-        setIsPrintButtonDisabled(false);
-      },
-    });
-  }, [printStatsMutateFn]);
 
   if (!getSummaryStatisticsQuery.isSuccess) {
     return (
@@ -219,14 +208,13 @@ export function GeneralElectionStatistics(): JSX.Element {
       </ElectionManagerNavScreen>
     );
   }
-  const stats = getSummaryStatisticsQuery.data;
+  const summaryStatistics = getSummaryStatisticsQuery.data;
   const {
     totalVoters,
     totalCheckIns,
     totalNewRegistrations,
     totalAbsenteeCheckIns,
-  } = stats;
-  const precinctCheckIns = totalCheckIns - totalAbsenteeCheckIns;
+  } = summaryStatistics;
 
   return (
     <ElectionManagerNavScreen title="Statistics">
@@ -258,7 +246,10 @@ export function GeneralElectionStatistics(): JSX.Element {
                   label="Total"
                   value={<span>{totalCheckIns.toLocaleString()}</span>}
                 />
-                <Metric label="Precinct" value={precinctCheckIns} />
+                <Metric
+                  label="Precinct"
+                  value={getTotalPrecinctCheckIns(summaryStatistics)}
+                />
                 <Metric label="Absentee" value={totalAbsenteeCheckIns} />
               </div>
             </TitledCard>
@@ -286,9 +277,13 @@ export function GeneralElectionStatistics(): JSX.Element {
                       }
                     />
                     <Button
-                      onPress={onPressPrint}
-                      disabled={isPrintButtonDisabled}
-                      icon={isPrintButtonDisabled ? 'Loading' : 'Print'}
+                      onPress={
+                        printGeneralStatisticsSummaryReceiptMutation.mutate
+                      }
+                      disabled={
+                        printGeneralStatisticsSummaryReceiptMutation.isLoading
+                      }
+                      icon="Print"
                       style={{
                         fontSize: '0.8rem',
                         padding: '0.25rem 0.75rem',
@@ -310,7 +305,7 @@ export function GeneralElectionStatistics(): JSX.Element {
                 <Metric label="Total" value={totalVoters} />
                 <Metric
                   label="Imported"
-                  value={getImportedVotersCountRaw(stats)}
+                  value={getImportedVotersCountRaw(summaryStatistics)}
                 />
                 <Metric label="Added" value={totalNewRegistrations} />
               </div>
@@ -326,24 +321,11 @@ export function GeneralElectionStatistics(): JSX.Element {
 export function PrimaryElectionStatistics(): JSX.Element {
   const [partyFilter, setPartyFilter] =
     useState<PartyFilterAbbreviation>('ALL');
-  const [isPrintButtonDisabled, setIsPrintButtonDisabled] = useState(false);
   const getSummaryStatisticsQuery = getPrimarySummaryStatistics.useQuery({
     partyFilter,
   });
   const printPrimaryStatisticsSummaryReceiptMutation =
     printPrimaryStatisticsSummaryReceipt.useMutation();
-
-  const printStatsMutateFn =
-    printPrimaryStatisticsSummaryReceiptMutation.mutate;
-
-  const onPressPrint = useCallback(() => {
-    setIsPrintButtonDisabled(true);
-    printStatsMutateFn(undefined, {
-      onSettled: () => {
-        setIsPrintButtonDisabled(false);
-      },
-    });
-  }, [printStatsMutateFn]);
 
   const title = (
     <span
@@ -370,9 +352,9 @@ export function PrimaryElectionStatistics(): JSX.Element {
           }
         />
         <Button
-          onPress={onPressPrint}
-          icon={isPrintButtonDisabled ? 'Loading' : 'Print'}
-          disabled={isPrintButtonDisabled}
+          onPress={printPrimaryStatisticsSummaryReceiptMutation.mutate}
+          disabled={printPrimaryStatisticsSummaryReceiptMutation.isLoading}
+          icon="Print"
           style={{
             fontSize: '0.8rem',
             padding: '0.25rem 0.75rem',
@@ -401,13 +383,14 @@ export function PrimaryElectionStatistics(): JSX.Element {
       </ElectionManagerNavScreen>
     );
   }
+
+  const summaryStatistics = getSummaryStatisticsQuery.data;
   const {
     totalVoters,
     totalCheckIns,
     totalNewRegistrations,
     totalAbsenteeCheckIns,
-  } = getSummaryStatisticsQuery.data;
-  const precinctCheckIns = totalCheckIns - totalAbsenteeCheckIns;
+  } = summaryStatistics;
 
   const votersCard = (
     <TitledCard title="Voters">
@@ -419,7 +402,10 @@ export function PrimaryElectionStatistics(): JSX.Element {
         }}
       >
         <Metric label="Total" value={totalVoters} />
-        <Metric label="Imported" value={totalVoters - totalNewRegistrations} />
+        <Metric
+          label="Imported"
+          value={getImportedVotersCountRaw(summaryStatistics)}
+        />
         <Metric label="Added" value={totalNewRegistrations} />
       </div>
     </TitledCard>
@@ -488,7 +474,10 @@ export function PrimaryElectionStatistics(): JSX.Element {
                   label="Total"
                   value={<span>{totalCheckIns.toLocaleString()}</span>}
                 />
-                <Metric label="Precinct" value={precinctCheckIns} />
+                <Metric
+                  label="Precinct"
+                  value={getTotalPrecinctCheckInsRaw(summaryStatistics)}
+                />
                 <Metric label="Absentee" value={totalAbsenteeCheckIns} />
               </div>
             </TitledCard>

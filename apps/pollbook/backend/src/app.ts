@@ -694,8 +694,10 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       const repStats = store.getPrimarySummaryStatistics('REP');
       const undeclaredStats = store.getPrimarySummaryStatistics('UND');
       const eventCounts: { addressChange: number; nameChange: number } = {
-        addressChange: store.getEventCount(EventType.VoterAddressChange),
-        nameChange: store.getEventCount(EventType.VoterNameChange),
+        addressChange: store.getEventCountUniqueByVoter(
+          EventType.VoterAddressChange
+        ),
+        nameChange: store.getEventCountUniqueByVoter(EventType.VoterNameChange),
       };
 
       const receipt = React.createElement(StatisticsSummaryReceipt, {
@@ -715,8 +717,10 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       const repStats = store.getGeneralSummaryStatistics('REP');
       const undeclaredStats = store.getGeneralSummaryStatistics('UND');
       const eventCounts: { addressChange: number; nameChange: number } = {
-        addressChange: store.getEventCount(EventType.VoterAddressChange),
-        nameChange: store.getEventCount(EventType.VoterNameChange),
+        addressChange: store.getEventCountUniqueByVoter(
+          EventType.VoterAddressChange
+        ),
+        nameChange: store.getEventCountUniqueByVoter(EventType.VoterNameChange),
       };
       const receipt = React.createElement(StatisticsSummaryReceipt, {
         machineId,

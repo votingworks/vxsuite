@@ -466,8 +466,12 @@ export function getImportedVotersCount(stats: SummaryStatistics): string {
   return getImportedVotersCountRaw(stats).toLocaleString();
 }
 
-export function getTotalCheckIns(stats: SummaryStatistics): string {
-  return (stats.totalCheckIns + stats.totalAbsenteeCheckIns).toLocaleString();
+export function getTotalPrecinctCheckInsRaw(stats: SummaryStatistics): number {
+  return stats.totalCheckIns - stats.totalAbsenteeCheckIns;
+}
+
+export function getTotalPrecinctCheckIns(stats: SummaryStatistics): string {
+  return getTotalPrecinctCheckInsRaw(stats).toLocaleString();
 }
 
 /**
