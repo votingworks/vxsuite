@@ -1,6 +1,6 @@
 /*
  * Fonts downloaded from Google Fonts: https://fonts.google.com/specimen/Roboto
- * Base64-encoding gnerated via Font Squirrel: https://www.fontsquirrel.com
+ * Base64-encoding generated via Font Squirrel: https://www.fontsquirrel.com
  */
 
 import { css } from 'styled-components';

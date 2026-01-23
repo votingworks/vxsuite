@@ -4,6 +4,7 @@ import {
   ROBOTO_REGULAR_FONT_DECLARATIONS,
   ROBOTO_ITALIC_FONT_DECLARATIONS,
 } from './roboto';
+import { FIRA_CODE_FONT_DECLARATIONS } from './fira_code';
 
 const VX_FONTS_NODE_ID = 'vx-font-declarations';
 
@@ -14,6 +15,7 @@ export function loadFonts(): void {
   fontDeclarations.innerHTML = [
     ROBOTO_REGULAR_FONT_DECLARATIONS,
     ROBOTO_ITALIC_FONT_DECLARATIONS,
+    FIRA_CODE_FONT_DECLARATIONS,
   ].join('\n');
 
   document.head.appendChild(fontDeclarations);

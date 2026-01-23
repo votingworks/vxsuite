@@ -256,20 +256,34 @@ export function GeneralElectionStatistics(): JSX.Element {
                   <H4 style={{ display: 'flex', alignItems: 'center' }}>
                     Voters
                   </H4>
-                  <SmallSegmentedControl
-                    label="Party"
-                    hideLabel
-                    selectedOptionId={String(partyFilter)}
-                    options={[
-                      { id: 'ALL', label: 'All' },
-                      { id: 'DEM', label: 'Dem' },
-                      { id: 'REP', label: 'Rep' },
-                      { id: 'UND', label: 'Und' },
-                    ]}
-                    onChange={(selectedId) =>
-                      setPartyFilter(selectedId as PartyFilterAbbreviation)
-                    }
-                  />
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <SmallSegmentedControl
+                      label="Party"
+                      hideLabel
+                      selectedOptionId={String(partyFilter)}
+                      options={[
+                        { id: 'ALL', label: 'All' },
+                        { id: 'DEM', label: 'Dem' },
+                        { id: 'REP', label: 'Rep' },
+                        { id: 'UND', label: 'Und' },
+                      ]}
+                      onChange={(selectedId) =>
+                        setPartyFilter(selectedId as PartyFilterAbbreviation)
+                      }
+                    />
+                    <Button
+                      onPress={() =>
+                        printGeneralStatisticsSummaryReceiptMutation.mutate()
+                      }
+                      icon="Print"
+                      style={{
+                        fontSize: '0.8rem',
+                        padding: '0.25rem 0.75rem',
+                      }}
+                    >
+                      Print All
+                    </Button>
+                  </div>
                 </span>
               }
             >
@@ -290,13 +304,6 @@ export function GeneralElectionStatistics(): JSX.Element {
             </TitledCard>
           </Row>
           <ThroughputChart partyFilter="ALL" />
-          <Button
-            onPress={() =>
-              printGeneralStatisticsSummaryReceiptMutation.mutate()
-            }
-          >
-            Print
-          </Button>
         </Column>
       </MainContent>
     </ElectionManagerNavScreen>
@@ -320,20 +327,32 @@ export function PrimaryElectionStatistics(): JSX.Element {
       }}
     >
       <H1>Statistics</H1>
-      <SmallSegmentedControl
-        label="Party"
-        hideLabel
-        selectedOptionId={String(partyFilter)}
-        options={[
-          { id: 'ALL', label: 'All' },
-          { id: 'DEM', label: 'Dem' },
-          { id: 'REP', label: 'Rep' },
-          { id: 'UND', label: 'Und' },
-        ]}
-        onChange={(selectedId) =>
-          setPartyFilter(selectedId as PartyFilterAbbreviation)
-        }
-      />
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <SmallSegmentedControl
+          label="Party"
+          hideLabel
+          selectedOptionId={String(partyFilter)}
+          options={[
+            { id: 'ALL', label: 'All' },
+            { id: 'DEM', label: 'Dem' },
+            { id: 'REP', label: 'Rep' },
+            { id: 'UND', label: 'Und' },
+          ]}
+          onChange={(selectedId) =>
+            setPartyFilter(selectedId as PartyFilterAbbreviation)
+          }
+        />
+        <Button
+          onPress={() => printPrimaryStatisticsSummaryReceiptMutation.mutate()}
+          icon="Print"
+          style={{
+            fontSize: '0.8rem',
+            padding: '0.25rem 0.75rem',
+          }}
+        >
+          Print All
+        </Button>
+      </div>
     </span>
   );
   if (!getSummaryStatisticsQuery.isSuccess) {
@@ -448,13 +467,6 @@ export function PrimaryElectionStatistics(): JSX.Element {
             {votersCard}
           </Row>
           <ThroughputChart partyFilter={partyFilter} />
-          <Button
-            onPress={() =>
-              printPrimaryStatisticsSummaryReceiptMutation.mutate()
-            }
-          >
-            Print
-          </Button>
         </Column>
       </MainContent>
     </ElectionManagerNavScreen>

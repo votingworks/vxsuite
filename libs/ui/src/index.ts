@@ -121,6 +121,7 @@ export * from './checkbox';
 export * from './utils/pin_length';
 export * from './test-utils/mock_usb_drive';
 export * from './fonts/roboto';
+export * from './fonts/fira_code';
 export * from './battery_display';
 export * from './battery_low_alert';
 export * from './fonts/font_awesome_styles';

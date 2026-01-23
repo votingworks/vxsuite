@@ -11,12 +11,13 @@ import {
 } from '@votingworks/types';
 import React from 'react';
 import styled from 'styled-components';
-import { StyledReceipt, ReceiptMetadata } from './receipt_helpers';
+import { VX_DEFAULT_MONOSPACE_FONT_FAMILY_DECLARATION } from '@votingworks/ui';
+import { StyledReceipt, ReceiptMetadata, ReceiptIcon } from './receipt_helpers';
 
 const TextRow = styled.div`
   display: flex;
   justify-content: space-between;
-  font-family: monospace;
+  font-family: ${VX_DEFAULT_MONOSPACE_FONT_FAMILY_DECLARATION};
   font-size: 10pt;
 `;
 
@@ -99,7 +100,10 @@ function AddedVoters({
         <span>Undeclared:</span>
         <span>{undeclaredStats.totalNewRegistrations.toLocaleString()}</span>
       </TextRow>
-      <div>Total: {allStats.totalNewRegistrations.toLocaleString()}</div>
+      <TextRow>
+        <span>Total:</span>
+        <span>{allStats.totalNewRegistrations.toLocaleString()}</span>
+      </TextRow>
     </div>
   );
 }
@@ -282,6 +286,7 @@ export function StatisticsSummaryReceipt({
           </div>
           <div>{format.localeNumericDateAndTime(now)}</div>
         </div>
+        <ReceiptIcon icon="ChartLine" />
       </div>
 
       <ImportedVoters

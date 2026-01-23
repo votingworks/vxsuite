@@ -6,6 +6,7 @@ import { ServerStyleSheet } from 'styled-components';
 import {
   ROBOTO_REGULAR_FONT_DECLARATIONS,
   ROBOTO_ITALIC_FONT_DECLARATIONS,
+  FIRA_CODE_FONT_DECLARATIONS,
   GlobalStyles,
   VxThemeProvider,
   FONT_AWESOME_STYLES,
@@ -183,6 +184,7 @@ export async function renderToPdf(
               __html: [
                 ROBOTO_REGULAR_FONT_DECLARATIONS,
                 ROBOTO_ITALIC_FONT_DECLARATIONS,
+                FIRA_CODE_FONT_DECLARATIONS,
               ].join('\n'),
             }}
           />
@@ -229,6 +231,7 @@ export async function renderToPdf(
                 __html: [
                   ROBOTO_REGULAR_FONT_DECLARATIONS,
                   ROBOTO_ITALIC_FONT_DECLARATIONS,
+                  FIRA_CODE_FONT_DECLARATIONS,
                 ].join('\n'),
               }}
             />

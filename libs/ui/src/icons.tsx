@@ -89,6 +89,7 @@ import {
   faCircleUser,
   faArrowRightFromBracket,
   faArrowsSplitUpAndLeft,
+  faChartLine,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -281,6 +282,10 @@ export const Icons = {
 
   CircleUser(props) {
     return <FaIcon {...props} type={faCircleUser} />;
+  },
+
+  ChartLine(props) {
+    return <FaIcon {...props} type={faChartLine} />;
   },
 
   Checkbox(props: IconProps & { filled?: boolean }) {
