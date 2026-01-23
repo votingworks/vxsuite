@@ -15,7 +15,7 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import type { PartyFilterAbbreviation } from '@votingworks/pollbook-backend';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Chart as ChartJS,
   TimeScale,
@@ -184,11 +184,25 @@ function Metric({
 export function GeneralElectionStatistics(): JSX.Element {
   const [partyFilter, setPartyFilter] =
     useState<PartyFilterAbbreviation>('ALL');
+  const [isPrintButtonDisabled, setIsPrintButtonDisabled] =
+    useState<boolean>(false);
   const getSummaryStatisticsQuery = getGeneralSummaryStatistics.useQuery({
     partyFilter,
   });
   const printGeneralStatisticsSummaryReceiptMutation =
     printGeneralStatisticsSummaryReceipt.useMutation();
+  const printStatsMutateFn =
+    printGeneralStatisticsSummaryReceiptMutation.mutate;
+
+  const onPressPrint = useCallback(() => {
+    setIsPrintButtonDisabled(true);
+    printStatsMutateFn(undefined, {
+      onSettled: () => {
+        setIsPrintButtonDisabled(false);
+      },
+    });
+  }, [printStatsMutateFn]);
+
   if (!getSummaryStatisticsQuery.isSuccess) {
     return (
       <ElectionManagerNavScreen title="Statistics">
@@ -272,10 +286,9 @@ export function GeneralElectionStatistics(): JSX.Element {
                       }
                     />
                     <Button
-                      onPress={() =>
-                        printGeneralStatisticsSummaryReceiptMutation.mutate()
-                      }
-                      icon="Print"
+                      onPress={onPressPrint}
+                      disabled={isPrintButtonDisabled}
+                      icon={isPrintButtonDisabled ? 'Loading' : 'Print'}
                       style={{
                         fontSize: '0.8rem',
                         padding: '0.25rem 0.75rem',
@@ -313,11 +326,25 @@ export function GeneralElectionStatistics(): JSX.Element {
 export function PrimaryElectionStatistics(): JSX.Element {
   const [partyFilter, setPartyFilter] =
     useState<PartyFilterAbbreviation>('ALL');
+  const [isPrintButtonDisabled, setIsPrintButtonDisabled] = useState(false);
   const getSummaryStatisticsQuery = getPrimarySummaryStatistics.useQuery({
     partyFilter,
   });
   const printPrimaryStatisticsSummaryReceiptMutation =
     printPrimaryStatisticsSummaryReceipt.useMutation();
+
+  const printStatsMutateFn =
+    printPrimaryStatisticsSummaryReceiptMutation.mutate;
+
+  const onPressPrint = useCallback(() => {
+    setIsPrintButtonDisabled(true);
+    printStatsMutateFn(undefined, {
+      onSettled: () => {
+        setIsPrintButtonDisabled(false);
+      },
+    });
+  }, [printStatsMutateFn]);
+
   const title = (
     <span
       style={{
@@ -343,8 +370,9 @@ export function PrimaryElectionStatistics(): JSX.Element {
           }
         />
         <Button
-          onPress={() => printPrimaryStatisticsSummaryReceiptMutation.mutate()}
-          icon="Print"
+          onPress={onPressPrint}
+          icon={isPrintButtonDisabled ? 'Loading' : 'Print'}
+          disabled={isPrintButtonDisabled}
           style={{
             fontSize: '0.8rem',
             padding: '0.25rem 0.75rem',
