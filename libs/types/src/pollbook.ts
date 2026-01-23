@@ -441,6 +441,7 @@ export function getUndeclaredPrimaryPartyChoiceRaw(
       return undeclaredPrimaryStats.totalUndeclaredDemCheckIns;
     case 'REP':
       return undeclaredPrimaryStats.totalUndeclaredRepCheckIns;
+    /* istanbul ignore next - @preserve */
     default:
       throwIllegalValue(partyAbbreviation);
   }

@@ -8,6 +8,13 @@ import {
   ValidStreetInfoSchema,
   VOTER_INPUT_FIELD_LIMITS,
   truncateToMaxLength,
+  getTotalCheckIns,
+  SummaryStatistics,
+  getImportedVotersCount,
+  getImportedVotersCountRaw,
+  getUndeclaredPrimaryPartyChoice,
+  PrimarySummaryStatistics,
+  getUndeclaredPrimaryPartyChoiceRaw,
 } from './pollbook';
 
 describe('Zod schema string truncation', () => {
@@ -377,5 +384,136 @@ describe('truncateToMaxLength', () => {
 
   test('returns empty string if maxLength is 0', () => {
     expect(truncateToMaxLength('abc', 0)).toEqual('');
+  });
+});
+
+describe('Statistics helper functions', () => {
+  const baseSummaryStats: SummaryStatistics = {
+    totalVoters: 1000,
+    totalCheckIns: 500,
+    totalNewRegistrations: 50,
+    totalAbsenteeCheckIns: 100,
+  };
+
+  const primaryStats: PrimarySummaryStatistics = {
+    ...baseSummaryStats,
+    totalUndeclaredDemCheckIns: 25,
+    totalUndeclaredRepCheckIns: 30,
+  };
+
+  describe('getUndeclaredPrimaryPartyChoiceRaw', () => {
+    test('returns totalUndeclaredDemCheckIns for DEM', () => {
+      expect(getUndeclaredPrimaryPartyChoiceRaw('DEM', primaryStats)).toEqual(
+        25
+      );
+    });
+
+    test('returns totalUndeclaredRepCheckIns for REP', () => {
+      expect(getUndeclaredPrimaryPartyChoiceRaw('REP', primaryStats)).toEqual(
+        30
+      );
+    });
+
+    test('returns 0 when counts are 0', () => {
+      const zeroStats: PrimarySummaryStatistics = {
+        ...baseSummaryStats,
+        totalUndeclaredDemCheckIns: 0,
+        totalUndeclaredRepCheckIns: 0,
+      };
+      expect(getUndeclaredPrimaryPartyChoiceRaw('DEM', zeroStats)).toEqual(0);
+      expect(getUndeclaredPrimaryPartyChoiceRaw('REP', zeroStats)).toEqual(0);
+    });
+  });
+
+  describe('getUndeclaredPrimaryPartyChoice', () => {
+    test('returns formatted string for DEM', () => {
+      expect(getUndeclaredPrimaryPartyChoice('DEM', primaryStats)).toEqual(
+        '25'
+      );
+    });
+
+    test('returns formatted string for REP', () => {
+      expect(getUndeclaredPrimaryPartyChoice('REP', primaryStats)).toEqual(
+        '30'
+      );
+    });
+
+    test('formats large numbers with commas', () => {
+      const largeStats: PrimarySummaryStatistics = {
+        ...baseSummaryStats,
+        totalUndeclaredDemCheckIns: 1234567,
+        totalUndeclaredRepCheckIns: 9876543,
+      };
+      expect(getUndeclaredPrimaryPartyChoice('DEM', largeStats)).toEqual(
+        '1,234,567'
+      );
+      expect(getUndeclaredPrimaryPartyChoice('REP', largeStats)).toEqual(
+        '9,876,543'
+      );
+    });
+  });
+
+  describe('getImportedVotersCountRaw', () => {
+    test('returns totalVoters minus totalNewRegistrations', () => {
+      expect(getImportedVotersCountRaw(baseSummaryStats)).toEqual(950);
+    });
+
+    test('returns 0 when all voters are new registrations', () => {
+      const allNewStats: SummaryStatistics = {
+        ...baseSummaryStats,
+        totalVoters: 100,
+        totalNewRegistrations: 100,
+      };
+      expect(getImportedVotersCountRaw(allNewStats)).toEqual(0);
+    });
+
+    test('works with primary stats', () => {
+      expect(getImportedVotersCountRaw(primaryStats)).toEqual(950);
+    });
+  });
+
+  describe('getImportedVotersCount', () => {
+    test('returns formatted string', () => {
+      expect(getImportedVotersCount(baseSummaryStats)).toEqual('950');
+    });
+
+    test('formats large numbers with commas', () => {
+      const largeStats: SummaryStatistics = {
+        totalVoters: 1000000,
+        totalCheckIns: 500000,
+        totalNewRegistrations: 1000,
+        totalAbsenteeCheckIns: 50000,
+      };
+      expect(getImportedVotersCount(largeStats)).toEqual('999,000');
+    });
+  });
+
+  describe('getTotalCheckIns', () => {
+    test('returns sum of totalCheckIns and totalAbsenteeCheckIns as formatted string', () => {
+      expect(getTotalCheckIns(baseSummaryStats)).toEqual('600');
+    });
+
+    test('returns 0 when no check-ins', () => {
+      const noCheckInsStats: SummaryStatistics = {
+        ...baseSummaryStats,
+        totalCheckIns: 0,
+        totalAbsenteeCheckIns: 0,
+      };
+      expect(getTotalCheckIns(noCheckInsStats)).toEqual('0');
+    });
+
+    test('formats large numbers with commas', () => {
+      const largeStats: SummaryStatistics = {
+        totalVoters: 1000000,
+        totalCheckIns: 500000,
+        totalNewRegistrations: 1000,
+        totalAbsenteeCheckIns: 750000,
+      };
+      expect(getTotalCheckIns(largeStats)).toEqual('1,250,000');
+    });
+
+    test('works with primary stats', () => {
+      expect(getTotalCheckIns(primaryStats)).toEqual('600');
+    });
   });
 });
