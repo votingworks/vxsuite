@@ -17,7 +17,7 @@ import {
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
-import { electionNavRoutes } from './routes';
+import { adminElectionNavRoutes, electionNavRoutes } from './routes';
 import {
   getElectionInfo,
   getSystemSettings,
@@ -130,27 +130,32 @@ export function ElectionNavScreen({
     return null;
   }
   const electionInfo = getElectionInfoQuery.data;
-  const userFeatures = getUserFeaturesQuery.data;
   const systemSettings = getSystemSettingsQuery.data;
+  const userFeatures = getUserFeaturesQuery.data;
   return (
     <NavScreen
       navContent={
         <NavList>
-          {electionNavRoutes(electionInfo, userFeatures, systemSettings).map(
-            (entry, i) => {
-              if (entry === 'DIVIDER') {
-                // eslint-disable-next-line react/no-array-index-key
-                return <NavDivider key={i} />;
-              }
-              const { path, title } = entry;
-              return (
-                <NavListItem key={path}>
-                  <NavLink to={path} isActive={path === currentRoute.url}>
-                    {title}
-                  </NavLink>
-                </NavListItem>
-              );
-            }
+          {electionNavRoutes(electionInfo, systemSettings).map(
+            ({ path, title }) => (
+              <NavListItem key={path}>
+                <NavLink to={path} isActive={path === currentRoute.url}>
+                  {title}
+                </NavLink>
+              </NavListItem>
+            )
+          )}
+          {adminElectionNavRoutes(electionInfo, userFeatures).length > 0 && (
+            <NavDivider />
+          )}
+          {adminElectionNavRoutes(electionInfo, userFeatures).map(
+            ({ path, title }) => (
+              <NavListItem key={path}>
+                <NavLink to={path} isActive={path === currentRoute.url}>
+                  {title}
+                </NavLink>
+              </NavListItem>
+            )
           )}
           <NavDivider />
           <NavListItem>

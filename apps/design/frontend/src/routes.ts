@@ -173,11 +173,11 @@ export interface ElectionIdParams {
 export const electionParamRoutes = routes.election(':electionId');
 
 export const rootNavRoutes: Route[] = [];
+
 export function electionNavRoutes(
   electionInfo: ElectionInfo,
-  userFeatures: UserFeaturesConfig,
   electionSystemSettings: SystemSettings
-): Array<Route | 'DIVIDER'> {
+): Route[] {
   const electionRoutes = routes.election(electionInfo.electionId);
   return [
     electionRoutes.electionInfo.root,
@@ -192,9 +192,16 @@ export function electionNavRoutes(
     ...(electionInfo.externalSource === 'ms-sems'
       ? [electionRoutes.convertResults]
       : []),
-    ...(userFeatures.SYSTEM_SETTINGS_SCREEN || userFeatures.EXPORT_SCREEN
-      ? (['DIVIDER'] as const) // Delineate customer-facing screens from internal screens
-      : []),
+  ];
+}
+
+// For screens only relevant for internal users
+export function adminElectionNavRoutes(
+  electionInfo: ElectionInfo,
+  userFeatures: UserFeaturesConfig
+): Route[] {
+  const electionRoutes = routes.election(electionInfo.electionId);
+  return [
     ...(userFeatures.SYSTEM_SETTINGS_SCREEN
       ? [electionRoutes.systemSettings]
       : []),
