@@ -97,6 +97,7 @@ import {
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
   createTestDeckTallyReports,
+  precinctTallyReportFileName,
 } from './test_decks';
 import { ElectionInfo, ElectionListing, ElectionStatus } from './types';
 import { generateBallotStyles } from '@votingworks/hmpb';
@@ -3400,6 +3401,7 @@ test('Export test decks', async () => {
     [
       ...precinctsWithBallots.flatMap((precinct) => [
         `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
+        `${precinct.name.replaceAll(' ', '_')}-test-deck-tally-report.pdf`,
       ]),
       FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
     ].sort()
@@ -3479,8 +3481,19 @@ test.each([
       async ({ ballotSpecs }) =>
         ballotSpecs.length > 0 ? mockPdfContent : undefined
     );
-    vi.mocked(createTestDeckTallyReports).mockResolvedValue(
-      new Map([[FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, mockPdfContent]])
+    vi.mocked(createTestDeckTallyReports).mockImplementation(
+      async ({ electionDefinition }) => {
+        const { election } = electionDefinition;
+        const reports = new Map<string, Uint8Array>();
+        reports.set(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, mockPdfContent);
+        for (const precinct of election.precincts) {
+          reports.set(
+            precinctTallyReportFileName(precinct.name),
+            mockPdfContent
+          );
+        }
+        return reports;
+      }
     );
 
     const electionDefinition = readElectionTwoPartyPrimaryDefinition();
@@ -3541,6 +3554,9 @@ test.each([
             `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
           ]),
           FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+          ...precincts.map((precinct) =>
+            precinctTallyReportFileName(precinct.name)
+          ),
         ]
       : [
           ...precinctsWithBallots.map(
@@ -3548,6 +3564,9 @@ test.each([
               `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
           ),
           FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+          ...precincts.map((precinct) =>
+            precinctTallyReportFileName(precinct.name)
+          ),
         ];
 
     expect(Object.keys(zip.files).sort()).toEqual(expectedFiles.sort());

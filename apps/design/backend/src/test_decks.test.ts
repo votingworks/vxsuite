@@ -27,8 +27,10 @@ import {
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
   createTestDeckTallyReports,
-  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+  generateTestDeckCastVoteRecords,
   getTallyReportResults,
+  precinctTallyReportFileName,
+  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
 } from './test_decks';
 
 vi.setConfig({
@@ -195,14 +197,91 @@ describe('createPrecinctSummaryBallotTestDeck', () => {
   });
 });
 
+describe('createTestDeckTallyReports', () => {
+  test('without summary ballots', async () => {
+    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
+    const electionDefinition = (
+      await readElection(fixtures.electionPath)
+    ).unsafeUnwrap();
+    const { election } = electionDefinition;
+
+    const reports = await createTestDeckTallyReports({
+      electionDefinition,
+      generatedAtTime: new Date('2021-01-01T00:00:00.000'),
+      includeSummaryBallots: false,
+    });
+
+    // Verify correct number of reports
+    expect(reports.size).toEqual(election.precincts.length + 1);
+
+    // Verify full report exists and matches snapshot
+    const fullReport = reports.get(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME);
+    assert(fullReport);
+    await expect(fullReport).toMatchPdfSnapshot({
+      customSnapshotIdentifier: 'full-tally-report-no-summary',
+      failureThreshold: 0.0001,
+    });
+
+    // Verify each precinct report exists and matches snapshot
+    for (const precinct of election.precincts) {
+      const precinctFileName = precinctTallyReportFileName(precinct.name);
+      const precinctReport = reports.get(precinctFileName);
+      assert(precinctReport, `Missing report for precinct: ${precinct.name}`);
+      const sanitizedName = precinct.name.replaceAll(' ', '_');
+      await expect(precinctReport).toMatchPdfSnapshot({
+        customSnapshotIdentifier: `precinct-tally-report-${sanitizedName}-no-summary`,
+        failureThreshold: 0.0001,
+      });
+    }
+  });
+
+  test('with summary ballots', async () => {
+    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
+    const electionDefinition = (
+      await readElection(fixtures.electionPath)
+    ).unsafeUnwrap();
+    const { election } = electionDefinition;
+
+    const reports = await createTestDeckTallyReports({
+      electionDefinition,
+      generatedAtTime: new Date('2021-01-01T00:00:00.000'),
+      includeSummaryBallots: true,
+    });
+
+    // Verify correct number of reports
+    expect(reports.size).toEqual(election.precincts.length + 1);
+
+    // Verify full report exists and matches snapshot
+    const fullReport = reports.get(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME);
+    assert(fullReport);
+    await expect(fullReport).toMatchPdfSnapshot({
+      customSnapshotIdentifier: 'full-tally-report-with-summary',
+      failureThreshold: 0.0001,
+    });
+
+    // Verify each precinct report exists and matches snapshot
+    for (const precinct of election.precincts) {
+      const precinctFileName = precinctTallyReportFileName(precinct.name);
+      const precinctReport = reports.get(precinctFileName);
+      assert(precinctReport, `Missing report for precinct: ${precinct.name}`);
+      const sanitizedName = precinct.name.replaceAll(' ', '_');
+      await expect(precinctReport).toMatchPdfSnapshot({
+        customSnapshotIdentifier: `precinct-tally-report-${sanitizedName}-with-summary`,
+        failureThreshold: 0.0001,
+      });
+    }
+  });
+});
+
 describe('getTallyReportResults', () => {
   test('general election without summary ballots', async () => {
     const { electionDefinition } = vxFamousNamesFixtures;
     const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults(election, {
+    const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: false,
     });
+    const tallyReportResults = await getTallyReportResults(election, cvrs);
 
     expect(tallyReportResults.hasPartySplits).toEqual(false);
     expect(tallyReportResults.contestIds).toEqual(
@@ -244,9 +323,10 @@ describe('getTallyReportResults', () => {
     const { electionDefinition } = vxFamousNamesFixtures;
     const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults(election, {
+    const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: true,
     });
+    const tallyReportResults = await getTallyReportResults(election, cvrs);
 
     expect(tallyReportResults.hasPartySplits).toEqual(false);
     const { scannedResults } = tallyReportResults;
@@ -284,9 +364,10 @@ describe('getTallyReportResults', () => {
     const { electionDefinition } = vxPrimaryElectionFixtures;
     const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults(election, {
+    const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: false,
     });
+    const tallyReportResults = await getTallyReportResults(election, cvrs);
 
     expect(tallyReportResults.hasPartySplits).toEqual(true);
     expect(tallyReportResults.contestIds).toEqual(
@@ -339,9 +420,10 @@ describe('getTallyReportResults', () => {
     const { electionDefinition } = vxPrimaryElectionFixtures;
     const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults(election, {
+    const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: true,
     });
+    const tallyReportResults = await getTallyReportResults(election, cvrs);
 
     expect(tallyReportResults.hasPartySplits).toEqual(true);
     expect(
@@ -385,54 +467,52 @@ describe('getTallyReportResults', () => {
       })
     );
   });
-});
 
-describe('createTestDeckTallyReports', () => {
-  test('without summary ballots', async () => {
-    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
-    const electionDefinition = (
-      await readElection(fixtures.electionPath)
-    ).unsafeUnwrap();
+  test('general election precinct-specific results', async () => {
+    const { electionDefinition } = vxFamousNamesFixtures;
+    const { election } = electionDefinition;
+    const precinct = election.precincts[0];
 
-    const reports = await createTestDeckTallyReports({
-      electionDefinition,
-      generatedAtTime: new Date('2021-01-01T00:00:00.000'),
+    const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: false,
     });
+    const precinctCvrs = cvrs.filter((cvr) => cvr.precinctId === precinct.id);
+    const tallyReportResults = await getTallyReportResults(
+      election,
+      precinctCvrs,
+      precinct.id
+    );
 
-    // Verify full report exists and matches snapshot
-    const fullReport = reports.get(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME);
-    assert(fullReport);
-    await expect(fullReport).toMatchPdfSnapshot({
-      failureThreshold: 0.0001,
+    expect(tallyReportResults.hasPartySplits).toEqual(false);
+    // Precinct-specific results only include contests for that precinct
+    expect(tallyReportResults.contestIds.length).toEqual(8);
+    const { scannedResults } = tallyReportResults;
+    expect(scannedResults.cardCounts).toEqual({
+      bmd: 0,
+      hmpb: [13],
     });
 
-    // Verify precinct reports exist
-    const { election } = electionDefinition;
-    expect(reports.size).toEqual(election.precincts.length + 1);
-  });
-
-  test('with summary ballots', async () => {
-    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
-    const electionDefinition = (
-      await readElection(fixtures.electionPath)
-    ).unsafeUnwrap();
-
-    const reports = await createTestDeckTallyReports({
-      electionDefinition,
-      generatedAtTime: new Date('2021-01-01T00:00:00.000'),
-      includeSummaryBallots: true,
-    });
-
-    // Verify full report exists and matches snapshot
-    const fullReport = reports.get(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME);
-    assert(fullReport);
-    await expect(fullReport).toMatchPdfSnapshot({
-      failureThreshold: 0.0001,
-    });
-
-    // Verify precinct reports exist
-    const { election } = electionDefinition;
-    expect(reports.size).toEqual(election.precincts.length + 1);
+    // check one contest - should have precinct-specific counts
+    expect(scannedResults.contestResults['board-of-alderman']).toEqual(
+      buildContestResultsFixture({
+        contest: find(election.contests, (c) => c.id === 'board-of-alderman'),
+        contestResultsSummary: {
+          type: 'candidate',
+          ballots: 13,
+          overvotes: 0,
+          undervotes: 39,
+          officialOptionTallies: {
+            'helen-keller': 2,
+            'nikola-tesla': 2,
+            'pablo-picasso': 1,
+            'steve-jobs': 2,
+            'vincent-van-gogh': 1,
+            'wolfgang-amadeus-mozart': 1,
+            'write-in': 4,
+          },
+        },
+        includeGenericWriteIn: true,
+      })
+    );
   });
 });

@@ -156,7 +156,7 @@ function getBallotContestLayouts(
   });
 }
 
-function generateTestDeckCastVoteRecords(
+export function generateTestDeckCastVoteRecords(
   election: Election,
   options: { includeSummaryBallots: boolean }
 ): Tabulation.CastVoteRecord[] {
@@ -253,7 +253,7 @@ function generateTestDeckCastVoteRecords(
 /**
  * Builds tally report results from CVRs, optionally filtered to a specific precinct.
  */
-function buildTallyReportResults(
+export async function getTallyReportResults(
   election: Election,
   cvrs: Tabulation.CastVoteRecord[],
   precinctId?: PrecinctId
@@ -265,14 +265,6 @@ function buildTallyReportResults(
       }).map(({ id }) => id)
     : election.contests.map(({ id }) => id);
 
-  return buildTallyReportResultsForContests(election, cvrs, contestIds);
-}
-
-async function buildTallyReportResultsForContests(
-  election: Election,
-  cvrs: Tabulation.CastVoteRecord[],
-  contestIds: ContestId[]
-): Promise<Admin.TallyReportResults> {
   if (election.type === 'general') {
     const [electionResults] = groupMapToGroupList(
       await tabulateCastVoteRecords({
@@ -317,51 +309,15 @@ async function buildTallyReportResultsForContests(
   };
 }
 
-export async function getTallyReportResults(
-  election: Election,
-  options: { includeSummaryBallots: boolean }
-): Promise<Admin.TallyReportResults> {
-  const cvrs = generateTestDeckCastVoteRecords(election, options);
-  return buildTallyReportResults(election, cvrs);
-}
-
-interface PrecinctTallyReportResults {
-  precinctId: PrecinctId;
-  precinctName: string;
-  tallyReportResults: Admin.TallyReportResults;
-}
-
-async function getAllPrecinctTallyReportResultsFromCvrs(
-  election: Election,
-  cvrs: Tabulation.CastVoteRecord[]
-): Promise<PrecinctTallyReportResults[]> {
-  const results: PrecinctTallyReportResults[] = [];
-  for (const precinct of election.precincts) {
-    const precinctCvrs = cvrs.filter((cvr) => cvr.precinctId === precinct.id);
-    const tallyReportResults = await buildTallyReportResults(
-      election,
-      precinctCvrs,
-      precinct.id
-    );
-    results.push({
-      precinctId: precinct.id,
-      precinctName: precinct.name,
-      tallyReportResults,
-    });
-  }
-
-  return results;
-}
-
 export const FULL_TEST_DECK_TALLY_REPORT_FILE_NAME =
   'full-test-deck-tally-report.pdf';
 
-function precinctTallyReportFileName(precinctName: string): string {
+export function precinctTallyReportFileName(precinctName: string): string {
   return `${precinctName.replaceAll(' ', '_')}-test-deck-tally-report.pdf`;
 }
 
 /**
- * Returns a map of filename -> PDF buffer for all test deck tally reports:
+ * Returns a map of filename -> PDF for all test deck tally reports:
  * - One full test deck tally report
  * - One tally report per precinct
  */
@@ -377,13 +333,11 @@ export async function createTestDeckTallyReports({
   const { election } = electionDefinition;
   const reports = new Map<string, Uint8Array>();
 
-  // Generate CVRs once for all reports
   const cvrs = generateTestDeckCastVoteRecords(election, {
     includeSummaryBallots,
   });
 
-  // Generate full test deck tally report
-  const fullTallyReportResults = await buildTallyReportResults(election, cvrs);
+  const fullTallyReportResults = await getTallyReportResults(election, cvrs);
   const fullReport = (
     await renderToPdf({
       document: AdminTallyReportByParty({
@@ -402,31 +356,29 @@ export async function createTestDeckTallyReports({
   reports.set(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, fullReport);
 
   // Generate per-precinct tally reports
-  const precinctResults = await getAllPrecinctTallyReportResultsFromCvrs(
-    election,
-    cvrs
-  );
-  for (const {
-    precinctId,
-    precinctName,
-    tallyReportResults,
-  } of precinctResults) {
+  for (const precinct of election.precincts) {
+    const precinctCvrs = cvrs.filter((cvr) => cvr.precinctId === precinct.id);
+    const tallyReportResults = await getTallyReportResults(
+      election,
+      precinctCvrs,
+      precinct.id
+    );
     const precinctReport = (
       await renderToPdf({
         document: AdminTallyReportByParty({
           electionDefinition,
           electionPackageHash: undefined,
-          title: `${precinctName} Tally Report`,
+          title: `${precinct.name} Tally Report`,
           isOfficial: false,
           isTest: true,
           isForLogicAndAccuracyTesting: true,
-          testId: `test-deck-tally-report-${precinctId}`,
+          testId: `test-deck-tally-report-${precinct.id}`,
           tallyReportResults,
           generatedAtTime,
         }),
       })
     ).unsafeUnwrap();
-    reports.set(precinctTallyReportFileName(precinctName), precinctReport);
+    reports.set(precinctTallyReportFileName(precinct.name), precinctReport);
   }
 
   return reports;
