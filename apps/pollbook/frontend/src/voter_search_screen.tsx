@@ -41,6 +41,7 @@ import {
   PrecinctName,
   VoterAddress,
   VoterName,
+  VoterStatusLabel,
 } from './shared_components';
 import { getVoterPrecinct } from './types';
 
@@ -383,20 +384,7 @@ export function VoterSearch({
                             data-testid={`voter-row#${voter.voterId}`}
                           >
                             <td style={inactiveStyle ? { opacity: 0.5 } : {}}>
-                              {voter.isInvalidatedRegistration && (
-                                <Caption>
-                                  <Icons.Delete /> Registration Marked as
-                                  Invalid
-                                </Caption>
-                              )}
-                              {voter.isInactive && (
-                                <Caption>
-                                  <Icons.Delete /> Voter Marked as Inactive
-                                </Caption>
-                              )}
-                              {voter.nameChange && (
-                                <Caption>Updated Name</Caption>
-                              )}
+                              <VoterStatusLabel voter={voter} />
                               <H2 style={{ margin: 0, ...invalidatedStyle }}>
                                 <VoterName voter={voter} lastNameFirst />
                               </H2>

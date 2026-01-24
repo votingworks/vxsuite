@@ -9,7 +9,9 @@ import {
   Voter,
   VoterAddressChangeRequest,
   VoterMailingAddressChangeRequest,
+  VoterNameChange,
   VoterNameChangeRequest,
+  VoterRegistration,
   VoterRegistrationRequest,
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
@@ -47,9 +49,13 @@ export function createMockVoter(
   firstName: string,
   lastName: string,
   precinctId: string = 'precinct-1',
-  party: PartyAbbreviation = 'UND'
+  party: PartyAbbreviation = 'UND',
+  options: {
+    includeNameChange?: boolean;
+    includeRegistrationEvent?: boolean;
+  } = {}
 ): Voter {
-  return {
+  const voter: Voter = {
     voterId,
     firstName,
     lastName,
@@ -81,6 +87,47 @@ export function createMockVoter(
     precinct: precinctId,
     isInactive: false,
     isInvalidatedRegistration: false,
+  };
+
+  let nameChange: VoterNameChange | undefined;
+  let registrationEvent: VoterRegistration | undefined;
+
+  if (options.includeNameChange) {
+    nameChange = {
+      firstName: `${voter.firstName} EDITED`,
+      lastName: `${voter.lastName} EDITED`,
+      middleName: voter.middleName,
+      suffix: voter.suffix,
+      timestamp: new Date().toISOString(),
+    };
+  }
+  if (options.includeRegistrationEvent) {
+    registrationEvent = {
+      voterId: voter.voterId,
+      firstName: voter.firstName,
+      lastName: voter.lastName,
+      middleName: voter.middleName,
+      suffix: voter.suffix,
+      streetNumber: voter.streetNumber,
+      streetName: voter.streetName,
+      streetSuffix: '',
+      apartmentUnitNumber: voter.apartmentUnitNumber,
+      houseFractionNumber: voter.houseFractionNumber,
+      addressLine2: voter.addressLine2,
+      addressLine3: voter.addressLine3,
+      city: voter.postalCityTown,
+      state: voter.state,
+      zipCode: voter.postalZip5,
+      party: voter.party,
+      precinct: voter.precinct,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  return {
+    ...voter,
+    nameChange,
+    registrationEvent,
   };
 }
 

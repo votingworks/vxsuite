@@ -1015,6 +1015,24 @@ describe('common functionality', () => {
     // Verify that "Absentee" value appears
     screen.getByRole('heading', { name: 'Absentee Checked In' });
   });
+
+  test('displays label for newly registered voters', async () => {
+    const addedVoter = createMockVoter(
+      mockVoterId,
+      'ABIGAIL',
+      'ADAMS',
+      precinct1.id,
+      undefined,
+      { includeRegistrationEvent: true }
+    );
+    apiMock.expectGetVoter(addedVoter);
+    apiMock.expectGetDeviceStatuses();
+
+    await renderComponent();
+
+    screen.getByText('Added Voter');
+    screen.getByText('ABIGAIL ADAMS');
+  });
 });
 
 describe('primary election functionality', () => {

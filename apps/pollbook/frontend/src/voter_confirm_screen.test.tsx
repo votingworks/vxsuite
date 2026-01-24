@@ -626,3 +626,19 @@ test('precinct information not shown in single precinct election', async () => {
   });
   expect(outOfStateCheckbox).not.toBeDisabled();
 });
+
+test('displays label for newly registered voters', async () => {
+  const addedVoter = createMockVoter(
+    mockVoterId,
+    'ABIGAIL',
+    'ADAMS',
+    precinct,
+    undefined,
+    { includeRegistrationEvent: true }
+  );
+
+  await renderComponent({ voterOverride: addedVoter });
+
+  screen.getByText('Added Voter');
+  screen.getByText('ABIGAIL ADAMS');
+});

@@ -34,6 +34,7 @@ import {
   VoterMailingAddress,
   hasMailingAddress,
   MailingAddressChange,
+  VoterStatusLabel,
 } from './shared_components';
 import { UpdateAddressFlow } from './update_address_flow';
 import { UpdateMailingAddressFlow } from './update_mailing_address_flow';
@@ -191,7 +192,7 @@ export function VoterConfirmScreen({
                 </H2>
               </div>
             )}
-            {voter.nameChange && <Caption>Updated Name</Caption>}
+            <VoterStatusLabel voter={voter} />
             <H2 style={{ marginTop: 0 }}>
               <VoterName voter={voter} />
             </H2>
