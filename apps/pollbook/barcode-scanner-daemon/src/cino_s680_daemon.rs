@@ -17,6 +17,7 @@ use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 use crate::parse_aamva::{AamvaParseError, ELEMENT_ID_SIZE};
 
 mod aamva_jurisdictions;
+mod fsc_protocol;
 mod parse_aamva;
 
 /*
@@ -346,7 +347,7 @@ async fn main() -> color_eyre::Result<()> {
             _ = &mut signal => None,
         };
 
-        let port = match maybe_port {
+        let mut port = match maybe_port {
             // If ctrl+c, exit
             None => break,
             // If couldn't get device, retry
@@ -371,6 +372,28 @@ async fn main() -> color_eyre::Result<()> {
             event_type: EventType::SystemStatus,
             disposition: Disposition::Success
         );
+
+        // Configure scanner. These configurations are nice-to-have so failures
+        // are logged but don't stop execution
+        let mut scanner = fsc_protocol::Scanner::new(&mut port);
+
+        if let Err(e) = scanner.set_buzzer_volume_low().await {
+            log!(
+                event_id: EventId::Info,
+                message: format!("Failed to set buzzer volume: {e}"),
+                event_type: EventType::SystemAction,
+                disposition: Disposition::Failure
+            );
+        }
+
+        if let Err(e) = scanner.set_symbology_pdf417_only().await {
+            log!(
+                event_id: EventId::Info,
+                message: format!("Failed to set symbology to PDF417: {e}"),
+                event_type: EventType::SystemAction,
+                disposition: Disposition::Failure
+            );
+        }
 
         // Race infinite read/write loop against ctrl+c
         let read_result = tokio::select! {
