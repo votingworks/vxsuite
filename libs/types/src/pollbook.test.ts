@@ -8,13 +8,14 @@ import {
   ValidStreetInfoSchema,
   VOTER_INPUT_FIELD_LIMITS,
   truncateToMaxLength,
-  getTotalCheckIns,
   SummaryStatistics,
   getImportedVotersCount,
   getImportedVotersCountRaw,
   getUndeclaredPrimaryPartyChoice,
   PrimarySummaryStatistics,
   getUndeclaredPrimaryPartyChoiceRaw,
+  getTotalPrecinctCheckInsRaw,
+  getTotalPrecinctCheckIns,
 } from './pollbook';
 
 describe('Zod schema string truncation', () => {
@@ -488,18 +489,22 @@ describe('Statistics helper functions', () => {
     });
   });
 
-  describe('getTotalCheckIns', () => {
-    test('returns sum of totalCheckIns and totalAbsenteeCheckIns as formatted string', () => {
-      expect(getTotalCheckIns(baseSummaryStats)).toEqual('600');
+  describe('getTotalPrecinctCheckIns', () => {
+    test('returns totalCheckIns minus totalAbsenteeCheckIns', () => {
+      expect(getTotalPrecinctCheckInsRaw(baseSummaryStats)).toEqual(400);
     });
 
-    test('returns 0 when no check-ins', () => {
-      const noCheckInsStats: SummaryStatistics = {
+    test('returns 0 when all check-ins are absentee', () => {
+      const allAbsenteeStats: SummaryStatistics = {
         ...baseSummaryStats,
-        totalCheckIns: 0,
-        totalAbsenteeCheckIns: 0,
+        totalCheckIns: 100,
+        totalAbsenteeCheckIns: 100,
       };
-      expect(getTotalCheckIns(noCheckInsStats)).toEqual('0');
+      expect(getTotalPrecinctCheckInsRaw(allAbsenteeStats)).toEqual(0);
+    });
+
+    test('returns formatted string', () => {
+      expect(getTotalPrecinctCheckIns(baseSummaryStats)).toEqual('400');
     });
 
     test('formats large numbers with commas', () => {
@@ -507,13 +512,14 @@ describe('Statistics helper functions', () => {
         totalVoters: 1000000,
         totalCheckIns: 500000,
         totalNewRegistrations: 1000,
-        totalAbsenteeCheckIns: 750000,
+        totalAbsenteeCheckIns: 50000,
       };
-      expect(getTotalCheckIns(largeStats)).toEqual('1,250,000');
+      expect(getTotalPrecinctCheckIns(largeStats)).toEqual('450,000');
     });
 
     test('works with primary stats', () => {
-      expect(getTotalCheckIns(primaryStats)).toEqual('600');
+      expect(getTotalPrecinctCheckInsRaw(primaryStats)).toEqual(400);
+      expect(getTotalPrecinctCheckIns(primaryStats)).toEqual('400');
     });
   });
 });
