@@ -5,5 +5,6 @@ export * from './mailing_address_change_receipt';
 export * from './mark_inactive_receipt';
 export * from './name_change_receipt';
 export * from './registration_receipt';
+export * from './statistics_summary_receipt';
 export * from './undo_check_in_receipt';
 export * from './printing';

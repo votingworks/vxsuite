@@ -4,11 +4,11 @@ import {
   electionSimpleSinglePrecinctFixtures,
   electionMultiPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import type {
-  SummaryStatistics,
+import type { ThroughputStat } from '@votingworks/pollbook-backend';
+import {
   PrimarySummaryStatistics,
-  ThroughputStat,
-} from '@votingworks/pollbook-backend';
+  SummaryStatistics,
+} from '@votingworks/types';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
 import { renderInAppContext } from '../test/render_in_app_context';
 import { act, screen, waitFor } from '../test/react_testing_library';

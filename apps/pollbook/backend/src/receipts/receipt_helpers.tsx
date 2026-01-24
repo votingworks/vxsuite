@@ -3,6 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { DivBreakWord, IconName, Icons, SpanBreakWord } from '@votingworks/ui';
 import { Election, Voter, VoterCheckIn } from '@votingworks/types';
+import React from 'react';
 
 export const StyledReceipt = styled.div``;
 
@@ -186,7 +187,7 @@ export function IdentificationMethod({
 
 export interface ReceiptMetadataProps {
   machineId: string;
-  receiptNumber: number;
+  receiptNumber?: number;
   election: Election;
 }
 
@@ -216,8 +217,12 @@ export function ReceiptMetadata({
       </div>
       <div>
         {machineId}
-        <br />
-        Receipt&nbsp;#{receiptNumber}
+        {receiptNumber !== undefined && (
+          <React.Fragment>
+            <br />
+            Receipt&nbsp;#{receiptNumber}
+          </React.Fragment>
+        )}
       </div>
     </div>
   );

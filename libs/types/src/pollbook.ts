@@ -1,3 +1,4 @@
+import { throwIllegalValue } from '@votingworks/basics';
 import z from 'zod/v4';
 
 export const VOTER_INPUT_FIELD_LIMITS = {
@@ -414,3 +415,65 @@ export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
     precinct: z.string(),
   })
 );
+
+/**
+ * Statistics types and helpers
+ */
+export interface SummaryStatistics {
+  totalVoters: number;
+  totalCheckIns: number;
+  totalNewRegistrations: number;
+  totalAbsenteeCheckIns: number;
+}
+
+export interface PrimarySummaryStatistics extends SummaryStatistics {
+  totalUndeclaredDemCheckIns: number;
+  totalUndeclaredRepCheckIns: number;
+}
+
+/* Gets the party choice for undeclared voters in a primary election as a number */
+export function getUndeclaredPrimaryPartyChoiceRaw(
+  partyAbbreviation: Exclude<PartyAbbreviation, 'UND'>,
+  undeclaredPrimaryStats: PrimarySummaryStatistics
+): number {
+  switch (partyAbbreviation) {
+    case 'DEM':
+      return undeclaredPrimaryStats.totalUndeclaredDemCheckIns;
+    case 'REP':
+      return undeclaredPrimaryStats.totalUndeclaredRepCheckIns;
+    /* istanbul ignore next - @preserve */
+    default:
+      throwIllegalValue(partyAbbreviation);
+  }
+}
+
+/* Gets the party choice for undeclared voters in a primary election as a string */
+export function getUndeclaredPrimaryPartyChoice(
+  partyAbbreviation: Exclude<PartyAbbreviation, 'UND'>,
+  undeclaredPrimaryStats: PrimarySummaryStatistics
+): string {
+  return getUndeclaredPrimaryPartyChoiceRaw(
+    partyAbbreviation,
+    undeclaredPrimaryStats
+  ).toLocaleString();
+}
+
+export function getImportedVotersCountRaw(stats: SummaryStatistics): number {
+  return stats.totalVoters - stats.totalNewRegistrations;
+}
+
+export function getImportedVotersCount(stats: SummaryStatistics): string {
+  return getImportedVotersCountRaw(stats).toLocaleString();
+}
+
+export function getTotalPrecinctCheckInsRaw(stats: SummaryStatistics): number {
+  return stats.totalCheckIns - stats.totalAbsenteeCheckIns;
+}
+
+export function getTotalPrecinctCheckIns(stats: SummaryStatistics): string {
+  return getTotalPrecinctCheckInsRaw(stats).toLocaleString();
+}
+
+/**
+ * End statistics types and helpers
+ */

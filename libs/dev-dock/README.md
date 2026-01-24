@@ -15,4 +15,4 @@ project or workspace.
 
 In order to use the mock printer, you need to set
 `REACT_APP_VX_USE_MOCK_PRINTER=TRUE`. Prints are saved to the `dev-workspace`
-directory in `libs/fujitsu-thermal-printer`.
+directory in `libs/fujitsu-thermal-printer` or `libs/printing`.

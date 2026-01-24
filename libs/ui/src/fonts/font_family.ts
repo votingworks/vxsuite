@@ -8,3 +8,7 @@ export const VX_DEFAULT_FONT_FAMILY_DECLARATION = [
   `'${FontFamily.NOTO_EMOJI}'`,
   'sans-serif',
 ].join(', ');
+
+export const VX_DEFAULT_MONOSPACE_FONT_FAMILY_DECLARATION = ['monospace'].join(
+  ', '
+);

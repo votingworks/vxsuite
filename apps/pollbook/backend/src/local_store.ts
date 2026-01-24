@@ -2,7 +2,9 @@ import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import {
   CheckInBallotParty,
+  PrimarySummaryStatistics,
   safeParseJson,
+  SummaryStatistics,
   Voter,
   VoterAddressChange,
   VoterAddressChangeRequest,
@@ -31,7 +33,6 @@ import {
   PollbookConnectionStatus,
   PollbookInformationSchema,
   PollbookServiceInfo,
-  SummaryStatistics,
   ThroughputStat,
   UndoVoterCheckInEvent,
   VoterAddressChangeEvent,
@@ -44,7 +45,6 @@ import {
   VoterRegistrationInvalidatedEvent,
   VoterSearchParams,
   PartyFilterAbbreviation,
-  PrimarySummaryStatistics,
 } from './types';
 import {
   applyPollbookEventsToVoters,
@@ -705,6 +705,20 @@ export class LocalStore extends Store {
     });
 
     return { voter: updatedVoter, receiptNumber };
+  }
+
+  getEventCountUniqueByVoter(
+    eventType: EventType.VoterNameChange | EventType.VoterAddressChange
+  ): number {
+    const row = this.client.one(
+      `
+    SELECT COUNT(DISTINCT voter_id) as count
+    FROM event_log
+    WHERE event_type = ?
+    `,
+      eventType
+    ) as { count: number };
+    return row.count;
   }
 
   markVoterInactive(voterId: string): { voter: Voter; receiptNumber: number } {

@@ -14,7 +14,9 @@ import {
   CheckInBallotParty,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
+  PrimarySummaryStatistics,
   PrinterStatus,
+  SummaryStatistics,
   TEST_JURISDICTION,
   ValidStreetInfo,
   Voter,
@@ -47,7 +49,6 @@ import {
   DeviceStatuses,
   VoterSearchParams,
   ConfigurationStatus,
-  SummaryStatistics,
   ThroughputStat,
   LocalAppContext,
   LocalWorkspace,
@@ -58,8 +59,8 @@ import {
   AamvaDocument,
   isBarcodeScannerError,
   PartyFilterAbbreviation,
-  PrimarySummaryStatistics,
   Anomaly,
+  EventType,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -68,6 +69,7 @@ import {
   AddressChangeReceipt,
   MailingAddressChangeReceipt,
   NameChangeReceipt,
+  StatisticsSummaryReceipt,
 } from './receipts';
 import { pollUsbDriveForPollbookPackage } from './pollbook_package';
 import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt';
@@ -683,6 +685,51 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         input.throughputInterval,
         input.partyFilter
       );
+    },
+
+    async printPrimaryStatisticsSummaryReceipt(): Promise<Result<void, Error>> {
+      const election = assertDefined(store.getElection());
+      const allStats = store.getPrimarySummaryStatistics('ALL');
+      const demStats = store.getPrimarySummaryStatistics('DEM');
+      const repStats = store.getPrimarySummaryStatistics('REP');
+      const undeclaredStats = store.getPrimarySummaryStatistics('UND');
+      const eventCounts: { addressChange: number; nameChange: number } = {
+        addressChange: store.getEventCountUniqueByVoter(
+          EventType.VoterAddressChange
+        ),
+        nameChange: store.getEventCountUniqueByVoter(EventType.VoterNameChange),
+      };
+
+      const receipt = React.createElement(StatisticsSummaryReceipt, {
+        machineId,
+        election,
+        stats: { allStats, demStats, repStats, undeclaredStats },
+        eventCounts,
+      });
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
+      return ok();
+    },
+
+    async printGeneralStatisticsSummaryReceipt(): Promise<Result<void, Error>> {
+      const election = assertDefined(store.getElection());
+      const allStats = store.getGeneralSummaryStatistics('ALL');
+      const demStats = store.getGeneralSummaryStatistics('DEM');
+      const repStats = store.getGeneralSummaryStatistics('REP');
+      const undeclaredStats = store.getGeneralSummaryStatistics('UND');
+      const eventCounts: { addressChange: number; nameChange: number } = {
+        addressChange: store.getEventCountUniqueByVoter(
+          EventType.VoterAddressChange
+        ),
+        nameChange: store.getEventCountUniqueByVoter(EventType.VoterNameChange),
+      };
+      const receipt = React.createElement(StatisticsSummaryReceipt, {
+        machineId,
+        election,
+        stats: { allStats, demStats, repStats, undeclaredStats },
+        eventCounts,
+      });
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
+      return ok();
     },
 
     programCard(input: {
