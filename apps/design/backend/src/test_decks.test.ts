@@ -515,4 +515,63 @@ describe('getTallyReportResults', () => {
       })
     );
   });
+
+  test('primary election precinct-specific results', async () => {
+    const { electionDefinition } = vxPrimaryElectionFixtures;
+    const { election } = electionDefinition;
+    const precinct = election.precincts[0];
+
+    const cvrs = generateTestDeckCastVoteRecords(election, {
+      includeSummaryBallots: false,
+    });
+    const precinctCvrs = cvrs.filter((cvr) => cvr.precinctId === precinct.id);
+    const tallyReportResults = await getTallyReportResults(
+      election,
+      precinctCvrs,
+      precinct.id
+    );
+
+    expect(tallyReportResults.hasPartySplits).toEqual(true);
+    assert(tallyReportResults.hasPartySplits);
+    // Precinct-specific results only include contests for that precinct
+    expect(tallyReportResults.contestIds.length).toEqual(5);
+    expect(tallyReportResults.cardCountsByParty).toEqual({
+      '0': {
+        bmd: 0,
+        hmpb: [20],
+      },
+      '1': {
+        bmd: 0,
+        hmpb: [20],
+      },
+    });
+    const { scannedResults } = tallyReportResults;
+    expect(scannedResults.cardCounts).toEqual({
+      bmd: 0,
+      hmpb: [40],
+      manual: 0,
+    });
+
+    // check one contest - should have precinct-specific counts
+    expect(scannedResults.contestResults['county-leader-mammal']).toEqual(
+      buildContestResultsFixture({
+        contest: find(
+          election.contests,
+          (c) => c.id === 'county-leader-mammal'
+        ),
+        contestResultsSummary: {
+          type: 'candidate',
+          ballots: 20,
+          overvotes: 0,
+          undervotes: 0,
+          officialOptionTallies: {
+            fox: 4,
+            horse: 8,
+            otter: 8,
+          },
+        },
+        includeGenericWriteIn: false,
+      })
+    );
+  });
 });
