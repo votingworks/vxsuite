@@ -38,6 +38,7 @@ import {
   getPrimarySummaryStatistics,
   printGeneralStatisticsSummaryReceipt,
   printPrimaryStatisticsSummaryReceipt,
+  getDeviceStatuses,
 } from './api';
 import { Row, Column } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
@@ -191,6 +192,8 @@ export function GeneralElectionStatistics(): JSX.Element {
   });
   const printGeneralStatisticsSummaryReceiptMutation =
     printGeneralStatisticsSummaryReceipt.useMutation();
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const isPrinterAttached = getDeviceStatusesQuery.data?.printer.connected;
 
   if (!getSummaryStatisticsQuery.isSuccess) {
     return (
@@ -229,7 +232,10 @@ export function GeneralElectionStatistics(): JSX.Element {
           <H1>Statistics</H1>
           <Button
             onPress={printGeneralStatisticsSummaryReceiptMutation.mutate}
-            disabled={printGeneralStatisticsSummaryReceiptMutation.isLoading}
+            disabled={
+              !isPrinterAttached ||
+              printGeneralStatisticsSummaryReceiptMutation.isLoading
+            }
             icon="Print"
             style={{
               fontSize: '0.8rem',
@@ -332,6 +338,8 @@ export function PrimaryElectionStatistics(): JSX.Element {
   });
   const printPrimaryStatisticsSummaryReceiptMutation =
     printPrimaryStatisticsSummaryReceipt.useMutation();
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const isPrinterAttached = getDeviceStatusesQuery.data?.printer.connected;
 
   const title = (
     <span
@@ -359,7 +367,10 @@ export function PrimaryElectionStatistics(): JSX.Element {
         />
         <Button
           onPress={printPrimaryStatisticsSummaryReceiptMutation.mutate}
-          disabled={printPrimaryStatisticsSummaryReceiptMutation.isLoading}
+          disabled={
+            !isPrinterAttached ||
+            printPrimaryStatisticsSummaryReceiptMutation.isLoading
+          }
           icon="Print"
           style={{
             fontSize: '0.8rem',
