@@ -24,6 +24,17 @@ const TextRow = styled.div`
   }
 `;
 
+function HorizontalRule(): React.ReactNode {
+  return (
+    <div
+      style={{
+        borderTop: '1px solid black',
+        margin: '2px 0',
+      }}
+    />
+  );
+}
+
 export interface EventCounts {
   addressChange: number;
   nameChange: number;
@@ -62,6 +73,7 @@ function ImportedVoters({
         <span>Undeclared</span>
         <span>{getImportedVotersCount(undeclaredStats)}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
         <span>Total</span>
         <span>{getImportedVotersCount(allStats)}</span>
@@ -103,6 +115,7 @@ function AddedVoters({
         <span>Undeclared</span>
         <span>{undeclaredStats.totalNewRegistrations.toLocaleString()}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
         <span>Total</span>
         <span>{allStats.totalNewRegistrations.toLocaleString()}</span>
@@ -144,6 +157,7 @@ function TotalVoters({
         <span>Undeclared</span>
         <span>{undeclaredStats.totalVoters.toLocaleString()}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
         <span>Total</span>
         <span>{allStats.totalVoters.toLocaleString()}</span>
@@ -175,6 +189,7 @@ function GeneralCheckIns({
         <span>Absentee</span>
         <span>{stats.totalAbsenteeCheckIns.toLocaleString()}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
         <span>Total</span>
         <span>{stats.totalCheckIns.toLocaleString()}</span>
@@ -211,6 +226,7 @@ function PartyCheckIns({
         <span>Absentee</span>
         <span>{partyStats.totalAbsenteeCheckIns.toLocaleString()}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
         <span>Total</span>
         <span>{partyStats.totalCheckIns.toLocaleString()}</span>
@@ -246,6 +262,7 @@ function UndeclaredVoterPartyChoice({
           {getUndeclaredPrimaryPartyChoice('REP', undeclaredVoterStats)}
         </span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
         <span>Total</span>
         <span>
