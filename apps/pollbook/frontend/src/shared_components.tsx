@@ -277,7 +277,7 @@ export function VoterStatusLabel({
     );
   }
   if (voter.registrationEvent) {
-    return <Caption>Added Voter</Caption>;
+    return <Caption>New Registration</Caption>;
   }
   if (voter.nameChange) {
     return <Caption>Updated Name</Caption>;

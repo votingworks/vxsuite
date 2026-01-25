@@ -1030,7 +1030,7 @@ describe('common functionality', () => {
 
     await renderComponent();
 
-    screen.getByText('Added Voter');
+    screen.getByText('New Registration');
     screen.getByText('ABIGAIL ADAMS');
   });
 });

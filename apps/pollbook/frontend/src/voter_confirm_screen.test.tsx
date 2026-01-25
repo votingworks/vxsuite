@@ -639,6 +639,6 @@ test('displays label for newly registered voters', async () => {
 
   await renderComponent({ voterOverride: addedVoter });
 
-  screen.getByText('Added Voter');
+  screen.getByText('New Registration');
   screen.getByText('ABIGAIL ADAMS');
 });
