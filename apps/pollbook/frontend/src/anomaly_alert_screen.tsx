@@ -24,7 +24,7 @@ export function AnomalyAlertScreen({
       case 'DuplicateCheckIn':
         return 'Duplicate Check-In Detected';
       case 'InvalidRegistrationCheckIn':
-        return 'Check-In for Invalid Registration';
+        return 'Check-In for Deleted Voter';
       default:
         /* istanbul ignore next - @preserve */
         throwIllegalValue(anomaly.anomalyType);
@@ -98,8 +98,8 @@ export function AnomalyAlertScreen({
         return (
           <React.Fragment>
             <P>
-              A check in was detected for a voter registration that has been
-              marked as invalid.
+              A check-in was detected for a voter whose registration was
+              deleted.
             </P>
             <P>
               <strong>Voter ID:</strong> {details.voterId}
@@ -108,8 +108,8 @@ export function AnomalyAlertScreen({
               <strong>Voter Name:</strong> {voterName}
             </P>
             <P>
-              The check in will be counted. An election manager should undo the
-              check in if this was done in error.
+              The check-in will be counted. An election manager should undo the
+              check-in if this was done in error.
             </P>
             <Table style={{ margin: '1em 0' }}>
               <thead>

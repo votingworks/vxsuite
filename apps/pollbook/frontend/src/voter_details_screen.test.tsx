@@ -464,8 +464,8 @@ describe('common functionality', () => {
 
     await renderComponent();
 
-    // Check that we do not see the ability to Flag as Inactive
-    expect(screen.queryByText('Flag Voter as Inactive')).toBeNull();
+    // Check that we do not see the ability to Mark Voter Inactive
+    expect(screen.queryByText('Mark Voter Inactive')).toBeNull();
 
     const reprintButton = screen.getButton('Reprint Receipt');
     expect(reprintButton).not.toBeDisabled();
@@ -524,15 +524,15 @@ describe('common functionality', () => {
     });
   });
 
-  test('flag inactive - happy path', async () => {
+  test('mark inactive - happy path', async () => {
     apiMock.expectGetVoter(voter);
     apiMock.expectGetDeviceStatuses();
 
     await renderComponent();
 
-    const flagInactiveButton = screen.getButton('Flag Voter as Inactive');
-    userEvent.click(flagInactiveButton);
-    await screen.findByText(/After a voter is flagged as inactive/);
+    const markInactiveButton = screen.getButton('Mark Voter Inactive');
+    userEvent.click(markInactiveButton);
+    await screen.findByText(/After a voter is marked inactive/);
 
     apiMock.expectMarkInactive(voter);
     apiMock.expectGetVoter({
@@ -543,34 +543,34 @@ describe('common functionality', () => {
     // Get the modal and find the button within it
     const modal = screen.getByRole('alertdialog');
     const confirmButton = within(modal).getByRole('button', {
-      name: 'Flag Inactive',
+      name: 'Mark Voter Inactive',
     });
     userEvent.click(confirmButton);
   });
 
-  test('flag inactive - error path', async () => {
+  test('mark voter inactive - error path', async () => {
     apiMock.expectGetVoter(voter);
     apiMock.expectGetDeviceStatuses();
 
     await renderComponent();
 
-    const flagInactiveButton = screen.getButton('Flag Voter as Inactive');
-    userEvent.click(flagInactiveButton);
-    await screen.findByText(/After a voter is flagged as inactive/);
+    const markInactiveButton = screen.getButton('Mark Voter Inactive');
+    userEvent.click(markInactiveButton);
+    await screen.findByText(/After a voter is marked inactive/);
 
     apiMock.expectMarkInactiveError(voter);
     apiMock.expectGetVoter(voter);
     // Get the modal and find the button within it
     const modal = screen.getByRole('alertdialog');
     const confirmButton = within(modal).getByRole('button', {
-      name: 'Flag Inactive',
+      name: 'Mark Voter Inactive',
     });
     userEvent.click(confirmButton);
 
-    await screen.findByText('Error Flagging Inactive');
+    await screen.findByText('Error Marking Inactive');
   });
 
-  test('mark registration invalid - happy path', async () => {
+  test('Delete Registration - happy path', async () => {
     // Create a voter that is a same-day registration (has registrationEvent)
     const registeredVoter: Voter = {
       ...voter,
@@ -587,9 +587,9 @@ describe('common functionality', () => {
 
     await renderComponent();
 
-    const markInvalidButton = screen.getButton('Mark Invalid');
+    const markInvalidButton = screen.getButton('Delete Registration');
     userEvent.click(markInvalidButton);
-    await screen.findByText(/This voter's registration will be marked invalid/);
+    await screen.findByText(/The voter will be excluded/);
 
     apiMock.expectInvalidateRegistration(registeredVoter);
     apiMock.expectGetVoter({
@@ -600,14 +600,14 @@ describe('common functionality', () => {
     // Get the modal and find the button within it
     const modal = screen.getByRole('alertdialog');
     const confirmButton = within(modal).getByRole('button', {
-      name: 'Mark Invalid',
+      name: 'Delete Registration',
     });
     userEvent.click(confirmButton);
 
-    await screen.findByText('Registration Invalid');
+    await screen.findByRole('heading', { name: 'Registration Deleted' });
   });
 
-  test('mark registration invalid - error (voter already checked in)', async () => {
+  test('Delete Registration - error (voter already checked in)', async () => {
     // Create a voter that is a same-day registration (has registrationEvent)
     const registeredVoter: Voter = {
       ...voter,
@@ -624,9 +624,9 @@ describe('common functionality', () => {
 
     await renderComponent();
 
-    const markInvalidButton = screen.getButton('Mark Invalid');
+    const markInvalidButton = screen.getButton('Delete Registration');
     userEvent.click(markInvalidButton);
-    await screen.findByText(/This voter's registration will be marked invalid/);
+    await screen.findByText(/The voter will be excluded/);
 
     apiMock.expectInvalidateRegistrationError(
       registeredVoter,
@@ -637,30 +637,30 @@ describe('common functionality', () => {
     // Get the modal and find the button within it
     const modal = screen.getByRole('alertdialog');
     const confirmButton = within(modal).getByRole('button', {
-      name: 'Mark Invalid',
+      name: 'Delete Registration',
     });
     userEvent.click(confirmButton);
 
-    await screen.findByText('Error Marking Invalid');
+    await screen.findByText('Error Deleting Registration');
     await screen.findByText(
-      'This voter is already checked in and cannot be marked as invalid.'
+      'This voter is already checked in. Their registration cannot be deleted.'
     );
   });
 
-  test('mark invalid button only appears for same-day registrations', async () => {
-    // Normal voter without registrationEvent should NOT show Mark Invalid button
+  test('Delete Registration button only appears for same-day registrations', async () => {
+    // Normal voter without registrationEvent should NOT show Delete Registration button
     apiMock.expectGetVoter(voter);
     apiMock.expectGetDeviceStatuses();
 
     await renderComponent();
 
-    // Should show Flag Voter as Inactive for normal voters
+    // Should show Mark Voter Inactive for normal voters
     expect(
-      screen.queryByRole('button', { name: 'Flag Voter as Inactive' })
+      screen.queryByRole('button', { name: 'Mark Voter Inactive' })
     ).toBeInTheDocument();
-    // Should NOT show Mark Invalid for normal voters
+    // Should NOT show Delete Registration for normal voters
     expect(
-      screen.queryByRole('button', { name: 'Mark Invalid' })
+      screen.queryByRole('button', { name: 'Delete Registration' })
     ).not.toBeInTheDocument();
   });
 
@@ -683,16 +683,16 @@ describe('common functionality', () => {
     await renderComponent();
 
     // Should show the invalidated status
-    await screen.findByText('Registration Invalid');
+    await screen.findByRole('heading', { name: 'Registration Deleted' });
 
-    // Should NOT show the Mark Invalid button since already invalidated
+    // Should NOT show the Delete Registration button since already invalidated
     expect(
-      screen.queryByRole('button', { name: 'Mark Invalid' })
+      screen.queryByRole('button', { name: 'Delete Registration' })
     ).not.toBeInTheDocument();
 
-    // Should NOT show Flag Voter as Inactive since it's invalidated
+    // Should NOT show Mark Voter Inactive since it's invalidated
     expect(
-      screen.queryByRole('button', { name: 'Flag Voter as Inactive' })
+      screen.queryByRole('button', { name: 'Mark Voter Inactive' })
     ).not.toBeInTheDocument();
   });
 
@@ -705,12 +705,12 @@ describe('common functionality', () => {
 
     await renderComponent();
 
-    const flagInactiveButtons = screen.getAllByRole('button', {
-      name: 'Flag Voter as Inactive',
+    const markInactiveButtons = screen.getAllByRole('button', {
+      name: 'Mark Voter Inactive',
     });
     // Find the first button (should be from main screen, not modal)
-    const flagButton = flagInactiveButtons[0];
-    expect(flagButton).toBeDisabled();
+    const markInactiveButton = markInactiveButtons[0];
+    expect(markInactiveButton).toBeDisabled();
 
     const updateNameButtons = screen.getAllByRole('button', {
       name: 'Update Name',
@@ -747,12 +747,12 @@ describe('common functionality', () => {
 
     await renderComponent();
 
-    const flagInactiveButtons = screen.getAllByRole('button', {
-      name: 'Flag Voter as Inactive',
+    const markInactiveButtons = screen.getAllByRole('button', {
+      name: 'Mark Voter Inactive',
     });
     // Find the first button (should be from main screen, not modal)
-    const flagButton = flagInactiveButtons[0];
-    expect(flagButton).toBeDisabled();
+    const markInactiveButton = markInactiveButtons[0];
+    expect(markInactiveButton).toBeDisabled();
 
     const updateNameButtons = screen.getAllByRole('button', {
       name: 'Update Name',

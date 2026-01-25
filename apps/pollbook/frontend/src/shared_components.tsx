@@ -265,14 +265,14 @@ export function VoterStatusLabel({
   if (voter.isInvalidatedRegistration) {
     return (
       <Caption>
-        <Icons.Delete /> Registration Marked as Invalid
+        <Icons.Delete /> Registration Deleted
       </Caption>
     );
   }
   if (voter.isInactive) {
     return (
       <Caption>
-        <Icons.Delete /> Voter Marked as Inactive
+        <Icons.Delete /> Voter Inactive
       </Caption>
     );
   }

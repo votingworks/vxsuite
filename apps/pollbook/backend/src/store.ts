@@ -349,7 +349,7 @@ export abstract class Store {
               LogEventId.PollbookDuplicateCheckInDetected,
               'system',
               {
-                message: `Invalidated registration for voter ${pollbookEvent.voterId} who was already checked in`,
+                message: `Voter ${pollbookEvent.voterId} was deleted or marked inactive after being checked in`,
                 voterId: pollbookEvent.voterId,
                 disposition: 'failure',
               }

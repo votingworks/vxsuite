@@ -425,8 +425,8 @@ test('validateUsState', () => {
 });
 
 const possibleLabels = [
-  'Registration Marked as Invalid',
-  'Voter Marked as Inactive',
+  'Registration Deleted',
+  'Voter Inactive',
   'New Registration',
   'Updated Name',
 ] as const;
@@ -438,18 +438,18 @@ test.each<{
   expectedLabel: (typeof possibleLabels)[number];
 }>([
   {
-    description: 'registration marked as invalid',
+    description: 'Registration Deleted',
     newlyRegistered: true,
     nameChanged: false,
     markedInvalid: true,
-    expectedLabel: 'Registration Marked as Invalid',
+    expectedLabel: 'Registration Deleted',
   },
   {
-    description: 'voter marked as inactive',
+    description: 'Voter Inactive',
     newlyRegistered: false,
     nameChanged: false,
     markedInvalid: true,
-    expectedLabel: 'Voter Marked as Inactive',
+    expectedLabel: 'Voter Inactive',
   },
   {
     description: 'new registration',
@@ -467,18 +467,18 @@ test.each<{
   },
   {
     description:
-      'registration marked as invalid takes precedence over new registration and updated name',
+      'Registration Deleted takes precedence over new registration and updated name',
     newlyRegistered: true,
     nameChanged: true,
     markedInvalid: true,
-    expectedLabel: 'Registration Marked as Invalid',
+    expectedLabel: 'Registration Deleted',
   },
   {
-    description: 'voter marked as inactive takes precedence over updated name',
+    description: 'Voter Inactive takes precedence over updated name',
     newlyRegistered: false,
     nameChanged: true,
     markedInvalid: true,
-    expectedLabel: 'Voter Marked as Inactive',
+    expectedLabel: 'Voter Inactive',
   },
   {
     description: 'new registration takes precedence over updated name',

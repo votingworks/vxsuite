@@ -187,7 +187,7 @@ test('renders InvalidRegistrationCheckIn anomaly correctly', async () => {
   unmount = result.unmount;
 
   // Check title is displayed
-  await screen.findByText('Check-In for Invalid Registration');
+  await screen.findByText('Check-In for Deleted Voter');
 
   // Check voter details are displayed
   expect(screen.getByText('voter-invalid')).toBeInTheDocument();
@@ -196,10 +196,10 @@ test('renders InvalidRegistrationCheckIn anomaly correctly', async () => {
   // Check the instructional message is displayed
   expect(
     screen.getByText(
-      /A check in was detected for a voter registration that has been marked as invalid/
+      /A check-in was detected for a voter whose registration was deleted/
     )
   ).toBeInTheDocument();
-  expect(screen.getByText(/The check in will be counted/)).toBeInTheDocument();
+  expect(screen.getByText(/The check-in will be counted/)).toBeInTheDocument();
 
   // Check machine ID is displayed in the table
   expect(screen.getByText('machine-1')).toBeInTheDocument();
@@ -231,7 +231,7 @@ test('clicking Dismiss button dismisses InvalidRegistrationCheckIn anomaly', asy
   });
   unmount = result.unmount;
 
-  await screen.findByText('Check-In for Invalid Registration');
+  await screen.findByText('Check-In for Deleted Voter');
 
   const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
   expect(dismissButton).toBeInTheDocument();

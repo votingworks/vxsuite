@@ -32,7 +32,7 @@ export function MarkInactiveReceipt({
       >
         <div>
           <div>
-            <strong>Voter Flagged as Inactive</strong>
+            <strong>Voter Marked Inactive</strong>
           </div>
           <div>
             {format.localeNumericDateAndTime(new Date(getCurrentTime()))}
