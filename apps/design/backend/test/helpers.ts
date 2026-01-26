@@ -12,6 +12,7 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
+import { Buffer } from 'node:buffer';
 import * as grout from '@votingworks/grout';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
@@ -50,6 +51,7 @@ import {
   AllPrecinctsTallyReportRow,
   AllPrecinctsTallyReportRowWithManualTallies,
 } from '../src/convert_ms_results';
+import { MainExportTaskMetadata } from '../src';
 
 tmp.setGracefulCleanup();
 
@@ -226,7 +228,7 @@ export async function processNextBackgroundTaskIfAny({
 }
 
 export const ELECTION_PACKAGE_FILE_NAME_REGEX =
-  /election-package-and-ballots-([0-9a-z]{7})-([0-9a-z]{7})\.zip$/;
+  /election-package-([0-9a-z]{7})-([0-9a-z]{7})\.zip$/;
 
 export async function exportElectionPackage({
   apiClient,
@@ -248,7 +250,7 @@ export async function exportElectionPackage({
   shouldExportSampleBallots: boolean;
   shouldExportTestBallots: boolean;
   numAuditIdBallots: number | undefined;
-}): Promise<string> {
+}): Promise<MainExportTaskMetadata> {
   await apiClient.exportElectionPackage({
     electionId,
     electionSerializationFormat,
@@ -269,32 +271,18 @@ export async function exportElectionPackage({
     electionPackage.task?.error === undefined,
     'Election package export failed with error: ' + electionPackage.task?.error
   );
-  return assertDefined(
-    assertDefined(electionPackage.electionPackageUrl).match(
-      ELECTION_PACKAGE_FILE_NAME_REGEX
-    )
-  )[0];
+
+  return electionPackage;
 }
 
-/**
- * Given a nested zip containing an election package zip,
- * parses the election package from the parent zip and hashes the raw contents.
- */
-export async function unzipElectionPackageAndBallots(fileContents: Buffer) {
-  const zipFile = await openZip(fileContents);
-  const entries = getEntries(zipFile);
-  const electionPackageEntry = find(
-    entries,
-    (e) => !!e.name.match(/election-package-.*\.zip/)
-  );
-  const ballotsEntry = find(entries, (e) => !!e.name.match(/ballots-.*\.zip/));
-
-  return {
-    electionPackageContents: await readEntry(electionPackageEntry),
-    electionPackageFileName: electionPackageEntry.name,
-    ballotsContents: await readEntry(ballotsEntry),
-    ballotsFileName: ballotsEntry.name,
-  };
+export function getExportedFile(p: {
+  storage: MockFileStorageClient;
+  jurisdictionId: string;
+  url: string | undefined;
+}): Buffer {
+  const url = assertDefined(p.url);
+  const filepath = url.match(new RegExp(`${p.jurisdictionId}/.+`))?.[0];
+  return assertDefined(p.storage.getRawFile(assertDefined(filepath)));
 }
 
 export const TEST_DECKS_FILE_NAME_REGEX = /test-decks-([0-9a-z]{7})\.zip$/;
