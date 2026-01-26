@@ -831,6 +831,7 @@ async function splitLongBallotMeasureAcrossPages(
   }
 
   const descriptionHtmlNode = parseHtml(tooLongContest.description);
+  const descriptionHtmlText = descriptionHtmlNode.toString();
   for (const overflowingChild of descriptionHtmlNode.childNodes.slice(
     firstOverflowingChildIndex
   )) {
@@ -838,7 +839,7 @@ async function splitLongBallotMeasureAcrossPages(
   }
   const splitIndex = descriptionHtmlNode.toString().length;
 
-  const firstDescriptionChunk = tooLongContest.description.slice(0, splitIndex);
+  const firstDescriptionChunk = descriptionHtmlText.slice(0, splitIndex);
   const firstContest: YesNoContest = {
     ...tooLongContest,
     description: firstDescriptionChunk,
@@ -851,7 +852,7 @@ async function splitLongBallotMeasureAcrossPages(
     />
   );
 
-  const restDescription = tooLongContest.description.slice(splitIndex);
+  const restDescription = descriptionHtmlText.slice(splitIndex);
   const continuedTitleSuffix = ' (Continued)';
   const continuedTitle = tooLongContest.title.endsWith(continuedTitleSuffix)
     ? tooLongContest.title
