@@ -87,21 +87,27 @@ export function ContestList(props: ContestListProps): React.ReactNode {
 
   return (
     <EntityList.Box>
-      {Object.keys(sectionNames).map((contestType) => (
-        <Sublist
-          key={contestType}
-          electionId={electionId}
-          contests={contests.filter((c) => c.type === contestType)}
-          districtIdToName={districtIdToName}
-          onSelect={onSelect}
-          parties={parties.data}
-          reordering={reordering}
-          reorder={reorder}
-          selectedId={contestId}
-          contestType={contestType as ContestTypes}
-          sectionHeader={contestSectionHeaders[contestType as ContestTypes]}
-        />
-      ))}
+      {Object.keys(sectionNames).map((contestType) => {
+        const contestsOfType = contests.filter((c) => c.type === contestType);
+        if (contestsOfType.length === 0) {
+          return null;
+        }
+        return (
+          <Sublist
+            key={contestType}
+            electionId={electionId}
+            contests={contestsOfType}
+            districtIdToName={districtIdToName}
+            onSelect={onSelect}
+            parties={parties.data}
+            reordering={reordering}
+            reorder={reorder}
+            selectedId={contestId}
+            contestType={contestType as ContestTypes}
+            sectionHeader={contestSectionHeaders[contestType as ContestTypes]}
+          />
+        );
+      })}
     </EntityList.Box>
   );
 }
