@@ -20,12 +20,15 @@ import {
   generalElectionRecord,
   primaryElectionRecord,
 } from '../test/fixtures';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { BallotsScreen } from './ballots_screen';
 import { routes } from './routes';
+import { BallotsStatus } from './ballots_status';
 
-vi.mock('./ballot_audio/screen');
+vi.mock('./ballots_status');
+const MockBallotsStatus = vi.mocked(BallotsStatus);
+const MOCK_BALLOTS_STATUS_ID = 'MockBallotsStatus';
 
 let apiMock: MockApiClient;
 
@@ -33,6 +36,10 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
+
+  MockBallotsStatus.mockReturnValue(
+    <div data-testid={MOCK_BALLOTS_STATUS_ID} />
+  );
 });
 
 afterEach(() => {
@@ -184,43 +191,18 @@ describe('Ballot styles tab', () => {
     ]);
   });
 
-  test('Finalizing ballots', async () => {
+  test('renders ballots status', async () => {
     const electionRecord = generalElectionRecord(jurisdiction.id);
     const electionId = electionRecord.election.id;
+
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt
       .expectOptionalRepeatedCallsWith({ electionId })
       .resolves(null);
+
     renderScreen(electionId);
-    await screen.findByRole('heading', { name: 'Proof Ballots' });
 
-    screen.getByRole('heading', { name: 'Ballots are Not Finalized' });
-
-    userEvent.click(screen.getByRole('button', { name: 'Finalize Ballots' }));
-    let modal = await screen.findByRole('alertdialog');
-    within(modal).getByRole('heading', { name: 'Confirm Finalize Ballots' });
-    userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
-    await waitFor(() =>
-      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-    );
-
-    const finalizedAt = new Date();
-    apiMock.finalizeBallots.expectCallWith({ electionId }).resolves();
-    apiMock.getBallotsFinalizedAt
-      .expectOptionalRepeatedCallsWith({ electionId })
-      .resolves(finalizedAt);
-    userEvent.click(screen.getByRole('button', { name: 'Finalize Ballots' }));
-    modal = await screen.findByRole('alertdialog');
-    userEvent.click(
-      within(modal).getByRole('button', { name: 'Finalize Ballots' })
-    );
-    await waitFor(() =>
-      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-    );
-    screen.getByRole('heading', { name: 'Ballots are Finalized' });
-    expect(
-      screen.getByRole('button', { name: 'Finalize Ballots' })
-    ).toBeDisabled();
+    await screen.findByTestId(MOCK_BALLOTS_STATUS_ID);
   });
 });
 

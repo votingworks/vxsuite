@@ -180,7 +180,9 @@ function ExportStatus(props: {
     return (
       <Callout color="danger" icon="Danger">
         <div>
-          <P weight="bold">{title} &bull; Export Error</P>
+          <P style={{ lineHeight: 1 }} weight="bold">
+            {title} &bull; Export Error
+          </P>
           <P>{task.error}</P>
           <Caption>
             To restart the export, unfinalize and re-finalize the election.

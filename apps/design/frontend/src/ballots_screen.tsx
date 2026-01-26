@@ -4,28 +4,22 @@ import {
   TH,
   TD,
   LinkButton,
-  P,
   Button,
   RadioGroup,
   MainContent,
   TabPanel,
   RouterTabBar,
-  H3,
-  Card,
-  Icons,
-  Modal,
   Font,
   Callout,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
 import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import {
   getBallotsFinalizedAt,
-  finalizeBallots,
   getBallotLayoutSettings,
   updateBallotLayoutSettings,
   listBallotStyles,
@@ -34,11 +28,12 @@ import {
   listParties,
   getStateFeatures,
 } from './api';
-import { Column, Form, FormActionsRow, NestedTr, Row } from './layout';
+import { Column, Form, FormActionsRow, NestedTr } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
 import { useTitle } from './hooks/use_title';
+import { BallotsStatus } from './ballots_status';
 
 function BallotDesignForm({
   electionId,
@@ -165,13 +160,6 @@ function BallotDesignForm({
   );
 }
 
-const FinalizeBallotsCallout = styled(Card).attrs({ color: 'neutral' })`
-  h3 {
-    margin: 0 !important;
-    line-height: 0.8;
-  }
-`;
-
 const BallotStylesTable = styled(Table)`
   td:last-child {
     text-align: right;
@@ -186,8 +174,6 @@ function BallotStylesTab(): JSX.Element | null {
   const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const finalizeBallotsMutation = finalizeBallots.useMutation();
-  const [isConfirmingFinalize, setIsConfirmingFinalize] = useState(false);
 
   if (
     !(
@@ -205,89 +191,14 @@ function BallotStylesTab(): JSX.Element | null {
   const precincts = listPrecinctsQuery.data;
   const ballotStyles = listBallotStylesQuery.data;
   const parties = listPartiesQuery.data;
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotRoutes = routes.election(electionId).ballots;
 
   return (
     <TabPanel>
-      {ballotStyles.length === 0 ? (
-        <P>
-          VxDesign will create ballot styles for your election once you have
-          created districts, precincts, and contests.
-        </P>
-      ) : (
-        <Column style={{ gap: '1rem', maxWidth: '40rem' }}>
-          <FinalizeBallotsCallout>
-            <Row
-              style={{ justifyContent: 'space-between', alignItems: 'center' }}
-            >
-              <Row style={{ gap: '0.5rem' }}>
-                {ballotsFinalizedAt ? (
-                  <React.Fragment>
-                    <Icons.Done color="primary" />
-                    <H3>Ballots are Finalized</H3>
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <Icons.Info />
-                    <div>
-                      <H3>Ballots are Not Finalized</H3>
-                      <div style={{ marginTop: '0.5rem' }}>
-                        Proof each ballot style, then finalize ballots.
-                      </div>
-                    </div>
-                  </React.Fragment>
-                )}
-              </Row>
-              <Button
-                icon="Done"
-                color="primary"
-                fill="outlined"
-                disabled={
-                  ballotsFinalizedAt !== null ||
-                  finalizeBallotsMutation.isLoading
-                }
-                onPress={() => setIsConfirmingFinalize(true)}
-              >
-                Finalize Ballots
-              </Button>
-            </Row>
-          </FinalizeBallotsCallout>
-          {isConfirmingFinalize && (
-            <Modal
-              title="Confirm Finalize Ballots"
-              content={
-                <P>
-                  Once ballots are finalized, the election may not be edited
-                  further.
-                </P>
-              }
-              actions={
-                <React.Fragment>
-                  <Button
-                    icon="Done"
-                    onPress={() =>
-                      finalizeBallotsMutation.mutate(
-                        { electionId },
-                        { onSuccess: () => setIsConfirmingFinalize(false) }
-                      )
-                    }
-                    variant="primary"
-                  >
-                    Finalize Ballots
-                  </Button>
-                  <Button onPress={() => setIsConfirmingFinalize(false)}>
-                    Cancel
-                  </Button>
-                </React.Fragment>
-              }
-              onOverlayClick={
-                /* istanbul ignore next - manually tested */
-                () => setIsConfirmingFinalize(false)
-              }
-            />
-          )}
+      <Column style={{ gap: '1rem', maxWidth: '40rem' }}>
+        <BallotsStatus />
 
+        {ballotStyles.length > 0 && (
           <BallotStylesTable>
             <thead>
               <tr>
@@ -413,8 +324,8 @@ function BallotStylesTab(): JSX.Element | null {
               })}
             </tbody>
           </BallotStylesTable>
-        </Column>
-      )}
+        )}
+      </Column>
     </TabPanel>
   );
 }

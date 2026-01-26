@@ -176,23 +176,24 @@ export const rootNavRoutes: Route[] = [];
 
 export function electionNavRoutes(
   electionInfo: ElectionInfo,
-  electionSystemSettings: SystemSettings
+  userFeatures: UserFeaturesConfig,
+  systemSettings: SystemSettings
 ): Route[] {
-  const electionRoutes = routes.election(electionInfo.electionId);
-  return [
-    electionRoutes.electionInfo.root,
-    electionRoutes.districts.root,
-    electionRoutes.precincts.root,
-    electionRoutes.parties.root,
-    electionRoutes.contests.root,
-    electionRoutes.ballots.root,
-    ...(electionSystemSettings.quickResultsReportingUrl
-      ? [electionRoutes.reports.root]
-      : []),
-    ...(electionInfo.externalSource === 'ms-sems'
-      ? [electionRoutes.convertResults]
-      : []),
+  const r = routes.election(electionInfo.electionId);
+
+  const nav: Array<Route | undefined | false> = [
+    r.electionInfo.root,
+    r.districts.root,
+    r.precincts.root,
+    r.parties.root,
+    r.contests.root,
+    r.ballots.root,
+    userFeatures.DOWNLOADS && r.downloads,
+    !!systemSettings.quickResultsReportingUrl && r.reports.root,
+    electionInfo.externalSource === 'ms-sems' && r.convertResults,
   ];
+
+  return nav.filter((route) => !!route);
 }
 
 // For screens only relevant for internal users
@@ -200,11 +201,12 @@ export function adminElectionNavRoutes(
   electionInfo: ElectionInfo,
   userFeatures: UserFeaturesConfig
 ): Route[] {
-  const electionRoutes = routes.election(electionInfo.electionId);
-  return [
-    ...(userFeatures.SYSTEM_SETTINGS_SCREEN
-      ? [electionRoutes.systemSettings]
-      : []),
-    ...(userFeatures.EXPORT_SCREEN ? [electionRoutes.export] : []),
+  const r = routes.election(electionInfo.electionId);
+
+  const nav: Array<Route | undefined | false> = [
+    userFeatures.SYSTEM_SETTINGS_SCREEN && r.systemSettings,
+    userFeatures.EXPORT_SCREEN && r.export,
   ];
+
+  return nav.filter((route) => !!route);
 }
