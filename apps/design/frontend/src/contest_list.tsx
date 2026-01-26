@@ -273,7 +273,14 @@ function EditSectionHeaderModalForm({
 
   function saveSectionHeader() {
     updateContestSectionHeaderMutation.mutate(
-      { electionId, contestType, updatedHeader: sectionHeader },
+      {
+        electionId,
+        contestType,
+        updatedHeader: {
+          title: sectionHeader.title.trim(),
+          description: sectionHeader.description || undefined,
+        },
+      },
       { onSuccess: onClose }
     );
   }
@@ -291,7 +298,7 @@ function EditSectionHeaderModalForm({
               onChange={(e) =>
                 setSectionHeader({
                   ...sectionHeader,
-                  title: e.target.value.trim(),
+                  title: e.target.value,
                 })
               }
               style={{ width: '100%' }}
@@ -305,7 +312,7 @@ function EditSectionHeaderModalForm({
               onChange={(value) =>
                 setSectionHeader({
                   ...sectionHeader,
-                  description: value.trim() === '' ? undefined : value.trim(),
+                  description: value === '' ? undefined : value,
                 })
               }
             />
