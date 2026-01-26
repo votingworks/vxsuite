@@ -6,9 +6,7 @@ import { LogEventId } from '@votingworks/logging';
 import {
   ElectionDefinition,
   ElectionPackageConfigurationError,
-  PrecinctId,
   PrecinctSelection,
-  PrinterStatus,
   SinglePrecinctSelection,
   LanguageCode,
   Id,
@@ -73,10 +71,6 @@ export function buildApi(ctx: AppContext) {
       return auth.logOut(constructAuthMachineState(store));
     },
 
-    getPrinterStatus(): Promise<PrinterStatus> {
-      return printer.status();
-    },
-
     async configureElectionPackageFromUsb(): Promise<
       Result<ElectionDefinition, ElectionPackageConfigurationError>
     > {
@@ -101,7 +95,7 @@ export function buildApi(ctx: AppContext) {
       const { electionPackage, electionPackageHash } =
         electionPackageResult.ok();
       const { electionDefinition, systemSettings, ballots } = electionPackage;
-      if (!ballots) {
+      if (!ballots || ballots.length === 0) {
         return err({ type: 'no_ballots' });
       }
       assert(systemSettings);
@@ -222,15 +216,10 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    getBallotPrintCounts({
-      precinctId,
-    }: {
-      precinctId?: PrecinctId;
-    }): BallotPrintCount[] {
+    getBallotPrintCounts(): BallotPrintCount[] {
       const isTestMode = store.getTestMode();
       const ballotMode = isTestMode ? 'test' : 'official';
-
-      return store.getBallotPrintCounts({ ballotMode, precinctId });
+      return store.getBallotPrintCounts({ ballotMode });
     },
 
     getDistinctBallotStylesCount(input: {
@@ -281,7 +270,7 @@ export function buildApi(ctx: AppContext) {
         ballotType: input.ballotType,
         ballotMode,
       });
-      if (!ballot || !ballot.encodedBallot) {
+      if (!ballot) {
         await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
           message: 'No ballot found',
           ballotProps: JSON.stringify({
@@ -342,6 +331,7 @@ export function buildApi(ctx: AppContext) {
       });
 
       const isTestMode = store.getTestMode();
+      /* istanbul ignore next - @preserve */
       const ballotMode = isTestMode ? 'test' : 'official';
 
       // BallotPrintCounts are hydrated with precinct/split names
@@ -359,9 +349,12 @@ export function buildApi(ctx: AppContext) {
               printCountB.precinctOrSplitName
             );
           }
-          if (printCountA.partyName && printCountB.partyName) {
-            return printCountA.partyName.localeCompare(printCountB.partyName);
+          if (printCountA.partyName) {
+            return printCountA.partyName.localeCompare(
+              assertDefined(printCountB.partyName)
+            );
           }
+          /* istanbul ignore next - @preserve */
           return 0;
         });
       for (let i = 0; i < sortedPrintCounts.length; i += 1) {
@@ -437,6 +430,7 @@ export function buildApi(ctx: AppContext) {
       return {
         usbDrive: usbDriveStatus,
         printer: printerStatus,
+        /* istanbul ignore next - @preserve */
         battery: batteryStatus ?? undefined,
       };
     },

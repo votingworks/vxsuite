@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import { BallotPrintCount } from '@votingworks/types';
 import { languageSort } from '@votingworks/utils';
 
@@ -19,7 +20,8 @@ export function sortBallotPrintCounts(
     );
   }
 
-  if (ballotPrintCountA.partyName && ballotPrintCountB.partyName) {
+  if (ballotPrintCountA.partyName !== undefined) {
+    assert(ballotPrintCountB.partyName !== undefined);
     if (ballotPrintCountA.partyName !== ballotPrintCountB.partyName) {
       return ballotPrintCountA.partyName.localeCompare(
         ballotPrintCountB.partyName

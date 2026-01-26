@@ -449,6 +449,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/print/backend/reports/
+      - store_artifacts:
+          path: apps/print/backend/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/print-frontend
   test-apps-print-frontend:
