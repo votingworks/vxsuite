@@ -36,6 +36,7 @@ import {
   getOrderedCandidatesForContestInBallotStyle,
   ContestSectionHeader as ContestSectionHeaderStruct,
   ContestSectionHeaders,
+  ContestTypes,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -926,7 +927,11 @@ async function BallotPageContent(
     .filter((section) => section.length > 0);
 
   // Add as many contests on this page as will fit.
-  const pageSections: JSX.Element[] = [];
+  const pageSections: Array<{
+    type: ContestTypes;
+    header?: JSX.Element;
+    contests: JSX.Element;
+  }> = [];
   let heightUsed = 0;
 
   // TODO is there some way we can use rem here instead of having to know the
@@ -1009,16 +1014,10 @@ async function BallotPageContent(
 
     // Add vertical gap to account for space between sections
     heightUsed += height + verticalGapPx + sectionHeaderHeight;
-    pageSections.push(
-      <div
-        key={`section-${pageSections.length + 1}`}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: `${verticalGapPx}px`,
-        }}
-      >
-        {sectionHeader}
+    pageSections.push({
+      type: section[0].type,
+      header: sectionHeader,
+      contests: (
         <div style={{ display: 'flex', gap: `${horizontalGapPx}px` }}>
           {columns.map((column, i) => (
             <div
@@ -1034,12 +1033,8 @@ async function BallotPageContent(
             </div>
           ))}
         </div>
-      </div>
-    );
-    // Don't show section header again on subsequent pages
-    if (contestSectionHeaders) {
-      contestSectionHeaders[section[0].type] = undefined;
-    }
+      ),
+    });
   }
 
   const contestsLeftToLayout = contestSections.flat();
@@ -1082,24 +1077,12 @@ async function BallotPageContent(
         return splitResult;
       }
       const { firstContestElement, restContest } = splitResult.ok();
-      pageSections.push(
-        <div
-          key="section-1"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: `${verticalGapPx}px`,
-          }}
-        >
-          {sectionHeader}
-          {firstContestElement}
-        </div>
-      );
+      pageSections.push({
+        type: 'yesno',
+        header: sectionHeader,
+        contests: firstContestElement,
+      });
       contestsLeftToLayout.unshift(restContest);
-      // Don't show section header again on subsequent pages
-      if (contestSectionHeaders) {
-        contestSectionHeaders['yesno'] = undefined;
-      }
     } else {
       return err({
         error: 'contestTooLong',
@@ -1117,11 +1100,34 @@ async function BallotPageContent(
           gap: `${verticalGapPx}px`,
         }}
       >
-        {pageSections}
+        {pageSections.map((section, i) => (
+          <div
+            key={`section-${i}`}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: `${verticalGapPx}px`,
+            }}
+          >
+            {section.header}
+            {section.contests}
+          </div>
+        ))}
       </div>
     ) : (
       <BlankPageMessage />
     );
+  // Only show section headers once per section type
+  const nextPageContestSectionHeaders = contestSectionHeaders
+    ? {
+        candidate: pageSections.some((section) => section.type === 'candidate')
+          ? undefined
+          : contestSectionHeaders.candidate,
+        yesno: pageSections.some((section) => section.type === 'yesno')
+          ? undefined
+          : contestSectionHeaders.yesno,
+      }
+    : undefined;
   const nextPageProps =
     contestsLeftToLayout.length > 0
       ? {
@@ -1132,7 +1138,7 @@ async function BallotPageContent(
             ...election,
             contests: contestsLeftToLayout,
           },
-          contestSectionHeaders,
+          contestSectionHeaders: nextPageContestSectionHeaders,
         }
       : undefined;
 
