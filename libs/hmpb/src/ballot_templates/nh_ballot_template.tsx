@@ -1046,6 +1046,23 @@ async function BallotPageContent(
   if (contests.length > 0 && contestsLeftToLayout.length === contests.length) {
     const tooLongContest = assertDefined(contestsLeftToLayout.shift());
     if (tooLongContest.type === 'yesno') {
+      const headerProps = contestSectionHeaders?.['yesno'];
+      const sectionHeader = headerProps ? (
+        <ContestSectionHeader {...headerProps} />
+      ) : undefined;
+      const sectionHeaderHeight = headerProps
+        ? (
+            await scratchpad.measureElements(
+              <BackendLanguageContextProvider
+                currentLanguageCode={primaryLanguageCode(ballotStyle)}
+                uiStringsPackage={election.ballotStrings}
+              >
+                <div className="sectionHeader">{sectionHeader}</div>
+              </BackendLanguageContextProvider>,
+              '.sectionHeader'
+            )
+          )[0].height + verticalGapPx
+        : 0;
       const splitResult = await splitLongBallotMeasureAcrossPages(
         tooLongContest,
         {
@@ -1055,16 +1072,34 @@ async function BallotPageContent(
           ballotStyle,
         },
         ballotStyle,
-        dimensions,
+        {
+          width: dimensions.width,
+          height: dimensions.height - sectionHeaderHeight,
+        },
         scratchpad
       );
       if (splitResult.isErr()) {
         return splitResult;
       }
       const { firstContestElement, restContest } = splitResult.ok();
-      // TODO do we need to account for section headers here?
-      pageSections.push(<div key="section-1">{firstContestElement}</div>);
+      pageSections.push(
+        <div
+          key="section-1"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: `${verticalGapPx}px`,
+          }}
+        >
+          {sectionHeader}
+          {firstContestElement}
+        </div>
+      );
       contestsLeftToLayout.unshift(restContest);
+      // Don't show section header again on subsequent pages
+      if (contestSectionHeaders) {
+        contestSectionHeaders['yesno'] = undefined;
+      }
     } else {
       return err({
         error: 'contestTooLong',
