@@ -217,7 +217,7 @@ function ConfirmInvalidateRegistrationModal({
   return (
     <Modal
       title={<React.Fragment>Delete Registration</React.Fragment>}
-      content="The voter will be excluded from all counts and it will no longer be possible to check them in. They will still be viewable in the election manager voter list."
+      content="The voter will be excluded from all counts, and it will no longer be possible to check them in. They will still be viewable in the election manager voter list."
       actions={
         <React.Fragment>
           <Button
