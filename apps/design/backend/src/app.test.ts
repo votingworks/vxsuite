@@ -97,7 +97,8 @@ import {
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
-  createTestDeckTallyReport,
+  createTestDeckTallyReports,
+  precinctTallyReportFileName,
 } from './test_decks';
 import {
   ElectionInfo,
@@ -202,7 +203,7 @@ vi.mock(import('./test_decks.js'), async (importActual) => {
     createPrecinctSummaryBallotTestDeck: vi.fn(
       original.createPrecinctSummaryBallotTestDeck
     ),
-    createTestDeckTallyReport: vi.fn(original.createTestDeckTallyReport),
+    createTestDeckTallyReports: vi.fn(original.createTestDeckTallyReports),
   };
 });
 
@@ -260,7 +261,7 @@ afterEach(() => {
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockRestore();
   vi.mocked(createPrecinctTestDeck).mockRestore();
   vi.mocked(createPrecinctSummaryBallotTestDeck).mockRestore();
-  vi.mocked(createTestDeckTallyReport).mockRestore();
+  vi.mocked(createTestDeckTallyReports).mockRestore();
 });
 
 test('all methods require authentication', async () => {
@@ -3608,6 +3609,7 @@ test('Export test decks', async () => {
     [
       ...precinctsWithBallots.flatMap((precinct) => [
         `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
+        `${precinct.name.replaceAll(' ', '_')}-test-deck-tally-report.pdf`,
       ]),
       FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
     ].sort()
@@ -3687,7 +3689,20 @@ test.each([
       async ({ ballotSpecs }) =>
         ballotSpecs.length > 0 ? mockPdfContent : undefined
     );
-    vi.mocked(createTestDeckTallyReport).mockResolvedValue(mockPdfContent);
+    vi.mocked(createTestDeckTallyReports).mockImplementation(
+      async ({ electionDefinition }) => {
+        const { election } = electionDefinition;
+        const reports = new Map<string, Uint8Array>();
+        reports.set(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, mockPdfContent);
+        for (const precinct of election.precincts) {
+          reports.set(
+            precinctTallyReportFileName(precinct.name),
+            mockPdfContent
+          );
+        }
+        return reports;
+      }
+    );
 
     const electionDefinition = readElectionTwoPartyPrimaryDefinition();
     const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
@@ -3747,6 +3762,9 @@ test.each([
             `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
           ]),
           FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+          ...precincts.map((precinct) =>
+            precinctTallyReportFileName(precinct.name)
+          ),
         ]
       : [
           ...precinctsWithBallots.map(
@@ -3754,6 +3772,9 @@ test.each([
               `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
           ),
           FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+          ...precincts.map((precinct) =>
+            precinctTallyReportFileName(precinct.name)
+          ),
         ];
 
     expect(Object.keys(zip.files).sort()).toEqual(expectedFiles.sort());
