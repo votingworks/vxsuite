@@ -36,6 +36,8 @@ import {
   ContestSectionHeaders,
   ContestTypes,
   ContestSectionHeader,
+  ContestTypesSchema,
+  ContestSectionHeaderSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -617,10 +619,15 @@ export function buildApi(ctx: AppContext) {
       contestType: ContestTypes;
       updatedHeader: ContestSectionHeader;
     }): Promise<void> {
+      const contestType = unsafeParse(ContestTypesSchema, input.contestType);
+      const updatedHeader = unsafeParse(
+        ContestSectionHeaderSchema,
+        input.updatedHeader
+      );
       await store.updateContestSectionHeader(
         input.electionId,
-        input.contestType,
-        input.updatedHeader
+        contestType,
+        updatedHeader
       );
     },
 

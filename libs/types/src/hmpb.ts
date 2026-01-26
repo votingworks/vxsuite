@@ -55,6 +55,12 @@ export interface ContestSectionHeader {
   description?: string;
 }
 
+export const ContestSectionHeaderSchema: z.ZodSchema<ContestSectionHeader> =
+  z.object({
+    title: z.string(),
+    description: z.string().optional(),
+  });
+
 export type ContestSectionHeaders = Record<
   ContestTypes,
   ContestSectionHeader | undefined
