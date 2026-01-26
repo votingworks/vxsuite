@@ -19,6 +19,7 @@ import {
 } from '@votingworks/utils';
 import {
   BallotType,
+  Election,
   ElectionDefinition,
   hasSplits,
   LanguageCode,
@@ -270,6 +271,37 @@ describe('createTestDeckTallyReports', () => {
         failureThreshold: 0.0001,
       });
     }
+  });
+
+  test('single-precinct election only generates full report', async () => {
+    const { electionDefinition: baseElectionDefinition } =
+      vxFamousNamesFixtures;
+    const { election: baseElection } = baseElectionDefinition;
+
+    const singlePrecinct = baseElection.precincts[0];
+    const singlePrecinctElection: Election = {
+      ...baseElection,
+      precincts: [singlePrecinct],
+      ballotStyles: baseElection.ballotStyles
+        .filter((bs) => bs.precincts.includes(singlePrecinct.id))
+        .map((bs) => ({ ...bs, precincts: [singlePrecinct.id] })),
+    };
+    const singlePrecinctElectionDefinition: ElectionDefinition = {
+      ...baseElectionDefinition,
+      election: singlePrecinctElection,
+    };
+
+    const reports = await createTestDeckTallyReports({
+      electionDefinition: singlePrecinctElectionDefinition,
+      generatedAtTime: new Date('2021-01-01T00:00:00.000'),
+      includeSummaryBallots: false,
+    });
+
+    expect(reports.size).toEqual(1);
+    expect(reports.has(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME)).toEqual(true);
+    expect(
+      reports.has(precinctTallyReportFileName(singlePrecinct.name))
+    ).toEqual(false);
   });
 });
 

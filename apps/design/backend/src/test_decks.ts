@@ -19,6 +19,7 @@ import {
   getBallotStyleIdPartyIdLookup,
   getContestsForPrecinctAndElection,
   groupMapToGroupList,
+  singlePrecinctSelectionFor,
   tabulateCastVoteRecords,
   TestDeckBallot as TestDeckBallotSpec,
 } from '@votingworks/utils';
@@ -259,10 +260,10 @@ export async function getTallyReportResults(
   precinctId?: PrecinctId
 ): Promise<Admin.TallyReportResults> {
   const contestIds = precinctId
-    ? getContestsForPrecinctAndElection(election, {
-        kind: 'SinglePrecinct',
-        precinctId,
-      }).map(({ id }) => id)
+    ? getContestsForPrecinctAndElection(
+        election,
+        singlePrecinctSelectionFor(precinctId)
+      ).map(({ id }) => id)
     : election.contests.map(({ id }) => id);
 
   if (election.type === 'general') {
@@ -355,7 +356,12 @@ export async function createTestDeckTallyReports({
   ).unsafeUnwrap();
   reports.set(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, fullReport);
 
-  // Generate per-precinct tally reports
+  // Generate per-precinct tally reports only if there are multiple precincts
+  // (single-precinct elections would have identical data to the full report)
+  if (election.precincts.length < 2) {
+    return reports;
+  }
+
   for (const precinct of election.precincts) {
     const precinctCvrs = cvrs.filter((cvr) => cvr.precinctId === precinct.id);
     const tallyReportResults = await getTallyReportResults(
@@ -368,7 +374,7 @@ export async function createTestDeckTallyReports({
         document: AdminTallyReportByParty({
           electionDefinition,
           electionPackageHash: undefined,
-          title: `${precinct.name} Tally Report`,
+          title: `Tally Report • ${precinct.name}`,
           isOfficial: false,
           isTest: true,
           isForLogicAndAccuracyTesting: true,
