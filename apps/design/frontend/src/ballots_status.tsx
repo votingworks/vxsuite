@@ -54,11 +54,11 @@ export function BallotsStatus(): React.ReactNode {
       <Callout
         action={
           <LinkButton
-            icon="Download"
+            rightIcon="Next"
             variant="primary"
             to={routes.election(electionId).downloads.path}
           >
-            Downloads
+            View Downloads
           </LinkButton>
         }
         color="primary"
@@ -156,18 +156,25 @@ function Callout(
     title: React.ReactNode;
   }
 ) {
-  const { action: actionButton, children, icon, title, ...rest } = props;
+  const { action, children, icon, title, ...rest } = props;
   return (
     <CalloutBase style={{ maxWidth: '40rem', minWidth: '4rem' }} {...rest}>
       <CalloutContent>
         <H3 aria-hidden>{icon}</H3>
-        <Row style={{ alignItems: 'center', flexGrow: 1, gap: '0.5rem' }}>
+        <Row
+          style={{
+            alignItems: 'center',
+            flexGrow: 1,
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+          }}
+        >
           <div style={{ flexGrow: 1 }}>
             <H3>{title}</H3>
             <Font>{children}</Font>
           </div>
 
-          {actionButton}
+          {action}
         </Row>
       </CalloutContent>
     </CalloutBase>
