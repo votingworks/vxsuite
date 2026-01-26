@@ -52,6 +52,7 @@ import {
   DistrictId,
   CastVoteRecordExportFileName,
   BALLOT_MODES,
+  safeParseJson,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -104,6 +105,7 @@ import {
   MainExportTaskMetadata,
   DuplicateDistrictError,
   DuplicatePartyError,
+  TestDecksTaskMetadata,
 } from './store';
 import { join } from 'node:path';
 import { stateFeatureConfigs, userFeatureConfigs } from './features';
@@ -131,6 +133,14 @@ import {
   SLI_DEFAULT_SYSTEM_SETTINGS,
   stateDefaultSystemSettings,
 } from './system_settings';
+import {
+  GenerateElectionPackageAndBallotsPayload,
+  GenerateElectionPackageAndBallotsPayloadSchema,
+} from './worker/generate_election_package_and_ballots';
+import {
+  GenerateTestDecksPayload,
+  GenerateTestDecksPayloadSchema,
+} from './worker/generate_test_decks';
 
 vi.setConfig({
   testTimeout: 120_000,
@@ -2349,7 +2359,7 @@ test('get/update system settings', async () => {
   });
 });
 
-test('Finalize ballots', async () => {
+test('Finalize ballots - DEMO state', async () => {
   const { apiClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
@@ -2369,6 +2379,8 @@ test('Finalize ballots', async () => {
   ).unsafeUnwrap();
 
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
+  expect(await apiClient.getElectionPackage({ electionId })).toEqual({});
+  expect(await apiClient.getTestDecks({ electionId })).toEqual({});
 
   const finalizedAt = new Date();
   vi.useFakeTimers({ now: finalizedAt });
@@ -2377,6 +2389,32 @@ test('Finalize ballots', async () => {
     finalizedAt
   );
   vi.useRealTimers();
+
+  // Finalizing should trigger package and ballot exports:
+  const mainExports = await apiClient.getElectionPackage({ electionId });
+  const mainExportsTask = assertDefined(mainExports.task);
+  const mainExportsParams = safeParseJson(
+    mainExportsTask.payload,
+    GenerateElectionPackageAndBallotsPayloadSchema
+  ).unsafeUnwrap();
+  expect(mainExportsParams).toEqual<GenerateElectionPackageAndBallotsPayload>({
+    electionId,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: true,
+    shouldExportSampleBallots: false,
+    shouldExportTestBallots: true,
+  });
+
+  const testDecks = await apiClient.getTestDecks({ electionId });
+  const testDecksTask = assertDefined(testDecks.task);
+  const testDecksParams = safeParseJson(
+    testDecksTask.payload,
+    GenerateTestDecksPayloadSchema
+  ).unsafeUnwrap();
+  expect(testDecksParams).toEqual<GenerateTestDecksPayload>({
+    electionId,
+    electionSerializationFormat: 'vxf',
+  });
 
   await apiClient.unfinalizeBallots({ electionId });
 
@@ -2395,6 +2433,49 @@ test('Finalize ballots', async () => {
       'auth:forbidden'
     );
   });
+});
+
+test('Finalize ballots - NH state', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      jurisdictionId: nhJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents:
+          electionFamousNames2021Fixtures.electionJson.asText(),
+      },
+    })
+  ).unsafeUnwrap();
+
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
+  expect(await apiClient.getElectionPackage({ electionId })).toEqual({});
+  expect(await apiClient.getTestDecks({ electionId })).toEqual({});
+
+  await apiClient.finalizeBallots({ electionId });
+
+  // Exports should be triggered with state-specific settings:
+  const mainExports = await apiClient.getElectionPackage({ electionId });
+  const mainExportsTask = assertDefined(mainExports.task);
+  const mainExportsParams = safeParseJson(
+    mainExportsTask.payload,
+    GenerateElectionPackageAndBallotsPayloadSchema
+  ).unsafeUnwrap();
+  expect(mainExportsParams).toEqual<GenerateElectionPackageAndBallotsPayload>({
+    electionId,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: true,
+    shouldExportTestBallots: false,
+  });
+
+  expect(await apiClient.getTestDecks({ electionId })).toEqual({});
 });
 
 test('approve ballots', async () => {

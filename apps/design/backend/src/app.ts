@@ -649,8 +649,25 @@ export function buildApi(ctx: AppContext) {
       return store.getBallotsFinalizedAt(input.electionId);
     },
 
-    finalizeBallots(input: { electionId: ElectionId }): Promise<void> {
-      return store.setBallotsFinalizedAt({
+    async finalizeBallots(input: { electionId: ElectionId }): Promise<void> {
+      const jurisdiction = await store.getElectionJurisdiction(
+        input.electionId
+      );
+      const stateFeatures = getStateFeaturesConfig(jurisdiction);
+
+      await store.createElectionPackageBackgroundTask({
+        electionId: input.electionId,
+        electionSerializationFormat: 'vxf',
+        shouldExportAudio: !!stateFeatures.AUDIO_ENABLED,
+        shouldExportSampleBallots: !!stateFeatures.EXPORT_SAMPLE_BALLOTS,
+        shouldExportTestBallots: !!stateFeatures.EXPORT_TEST_BALLOTS,
+      });
+
+      if (stateFeatures.EXPORT_TEST_BALLOTS) {
+        await store.createTestDecksBackgroundTask(input.electionId, 'vxf');
+      }
+
+      await store.setBallotsFinalizedAt({
         electionId: input.electionId,
         finalizedAt: new Date(),
       });

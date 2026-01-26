@@ -48,7 +48,7 @@ import {
   renderCalibrationSheetPdf,
 } from './ballot_pdfs';
 
-interface GenerateElectionPackageAndBallotsPayload {
+export interface GenerateElectionPackageAndBallotsPayload {
   electionId: ElectionId;
   electionSerializationFormat: ElectionSerializationFormat;
   shouldExportAudio?: boolean;
