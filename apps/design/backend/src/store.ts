@@ -1949,10 +1949,10 @@ export class Store {
     contestType: ContestTypes,
     header: ContestSectionHeader
   ): Promise<void> {
-    switch (contestType) {
-      case 'candidate':
-        await this.db.withClient((client) =>
-          client.query(
+    const { rowCount } = await this.db.withClient(async (client) => {
+      switch (contestType) {
+        case 'candidate':
+          return client.query(
             `
               update elections
               set
@@ -1963,12 +1963,9 @@ export class Store {
             header.title,
             header.description,
             electionId
-          )
-        );
-        break;
-      case 'yesno':
-        await this.db.withClient((client) =>
-          client.query(
+          );
+        case 'yesno':
+          return client.query(
             `
               update elections
               set
@@ -1979,13 +1976,13 @@ export class Store {
             header.title,
             header.description,
             electionId
-          )
-        );
-        break;
-      default:
-        /* istanbul ignore next - @preserve */
-        throwIllegalValue(contestType);
-    }
+          );
+        default:
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(contestType);
+      }
+    });
+    assert(rowCount === 1, 'Election not found');
   }
 
   async getBallotLayoutSettings(
