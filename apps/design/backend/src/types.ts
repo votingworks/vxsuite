@@ -57,7 +57,11 @@ export type UserType = User['type'];
 
 export type ExternalElectionSource = 'ms-sems';
 
-export type ElectionStatus = 'notStarted' | 'inProgress' | 'ballotsFinalized';
+export type ElectionStatus =
+  | 'notStarted'
+  | 'inProgress'
+  | 'ballotsFinalized'
+  | 'ballotsApproved';
 
 export interface ElectionListing {
   jurisdictionId: string;
