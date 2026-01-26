@@ -29,6 +29,7 @@ import {
 } from '../test/fixtures';
 import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api';
 import { ProofingStatus } from './proofing_status';
+import { Downloads } from './downloads';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
@@ -37,6 +38,10 @@ vi.mock(import('./utils'), async (importActual) => ({
   ...(await importActual()),
   downloadFile: vi.fn(),
 }));
+
+vi.mock('./downloads.js');
+const MockDownloads = vi.mocked(Downloads);
+const MOCK_DOWNLOADS_ID = 'MockDownloads';
 
 vi.mock('./proofing_status.js');
 const MockProofingStatus = vi.mocked(ProofingStatus);
@@ -64,6 +69,7 @@ beforeEach(() => {
   mockUserFeatures(apiMock);
   mockStateFeatures(apiMock, electionId);
 
+  MockDownloads.mockReturnValue(<div data-testid={MOCK_DOWNLOADS_ID} />);
   MockProofingStatus.mockReturnValue(
     <div data-testid={MOCK_PROOFING_STATUS_ID} />
   );
@@ -85,7 +91,7 @@ function renderScreen() {
   );
 }
 
-async function exportTestDecksAndExpectDownload(
+async function exportAndVerifyTestDecks(
   electionSerializationFormat: ElectionSerializationFormat
 ) {
   const taskCreatedAt = new Date();
@@ -136,23 +142,29 @@ async function exportTestDecksAndExpectDownload(
   vi.advanceTimersByTime(BACKGROUND_TASK_POLLING_INTERVAL_MS);
   await screen.findByText('Export Test Decks');
   expect(screen.queryByText('Exporting Test Decks')).not.toBeInTheDocument();
-
-  await waitFor(() => {
-    expect(vi.mocked(downloadFile)).toHaveBeenCalledWith(fileUrl);
-  });
 }
 
 test('export test decks', async () => {
+  mockStateFeatures(apiMock, electionId, { EXPORT_TEST_BALLOTS: true });
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
-  await exportTestDecksAndExpectDownload('vxf');
+  await exportAndVerifyTestDecks('vxf');
 });
 
-test('feature flag to hide export test decks', async () => {
+test('omits test deck exports for unauthorized users', async () => {
+  mockStateFeatures(apiMock, electionId, { EXPORT_TEST_BALLOTS: true });
   mockUserFeatures(apiMock, { EXPORT_TEST_DECKS: false });
+
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
+  expect(screen.queryByText('Export Test Decks')).not.toBeInTheDocument();
+});
 
+test('omits test deck exports for states without test ballots enabled', async () => {
+  mockStateFeatures(apiMock, electionId, { EXPORT_TEST_BALLOTS: false });
+
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
   expect(screen.queryByText('Export Test Decks')).not.toBeInTheDocument();
 });
 
@@ -218,10 +230,6 @@ test('export election package and ballots', async () => {
   expect(
     screen.queryByText('Exporting Election Package and Ballots')
   ).not.toBeInTheDocument();
-
-  await waitFor(() => {
-    expect(vi.mocked(downloadFile)).toHaveBeenCalledWith(fileUrl);
-  });
 });
 
 test('with audio export checked', async () => {
@@ -396,6 +404,8 @@ test('with test ballots export checked', async () => {
 });
 
 test('using CDF', async () => {
+  mockStateFeatures(apiMock, electionId, { EXPORT_TEST_BALLOTS: true });
+
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -410,7 +420,7 @@ test('using CDF', async () => {
     checked: true,
   });
 
-  await exportTestDecksAndExpectDownload('cdf');
+  await exportAndVerifyTestDecks('cdf');
 
   // Export election package
   apiMock.exportElectionPackage
@@ -419,7 +429,7 @@ test('using CDF', async () => {
       electionSerializationFormat: 'cdf',
       shouldExportAudio: false,
       shouldExportSampleBallots: false,
-      shouldExportTestBallots: false,
+      shouldExportTestBallots: true,
       numAuditIdBallots: undefined,
     })
     .resolves();
@@ -563,6 +573,24 @@ test('renders proofing status', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
   screen.getByTestId(MOCK_PROOFING_STATUS_ID);
+});
+
+test('renders downloads section if main exports completed', async () => {
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+  screen.getByTestId(MOCK_DOWNLOADS_ID);
+});
+
+test('omits export section if ballots are finalized', async () => {
+  apiMock.getBallotsFinalizedAt.reset();
+  apiMock.getBallotsFinalizedAt
+    .expectCallWith({ electionId })
+    .resolves(new Date());
+
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'Export' }); // Page heading
+  expect(screen.queryButton(/export/)).not.toBeInTheDocument();
 });
 
 describe('state defaults', () => {

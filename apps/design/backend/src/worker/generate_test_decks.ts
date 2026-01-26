@@ -31,7 +31,7 @@ import {
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
 } from '../test_decks';
 
-interface GenerateTestDecksPayload {
+export interface GenerateTestDecksPayload {
   electionId: ElectionId;
   electionSerializationFormat: ElectionSerializationFormat;
 }
