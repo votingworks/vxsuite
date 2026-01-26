@@ -617,13 +617,12 @@ export function buildApi(ctx: AppContext) {
     async updateContestSectionHeader(input: {
       electionId: ElectionId;
       contestType: ContestTypes;
-      updatedHeader: ContestSectionHeader;
+      updatedHeader?: ContestSectionHeader;
     }): Promise<void> {
       const contestType = unsafeParse(ContestTypesSchema, input.contestType);
-      const updatedHeader = unsafeParse(
-        ContestSectionHeaderSchema,
-        input.updatedHeader
-      );
+      const updatedHeader =
+        input.updatedHeader &&
+        unsafeParse(ContestSectionHeaderSchema, input.updatedHeader);
       await store.updateContestSectionHeader(
         input.electionId,
         contestType,

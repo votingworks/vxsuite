@@ -1947,7 +1947,7 @@ export class Store {
   async updateContestSectionHeader(
     electionId: ElectionId,
     contestType: ContestTypes,
-    header: ContestSectionHeader
+    header?: ContestSectionHeader
   ): Promise<void> {
     const { rowCount } = await this.db.withClient(async (client) => {
       switch (contestType) {
@@ -1960,8 +1960,8 @@ export class Store {
                 contest_section_description_candidate = $2
               where id = $3
             `,
-            header.title,
-            header.description,
+            header?.title,
+            header?.description,
             electionId
           );
         case 'yesno':
@@ -1973,8 +1973,8 @@ export class Store {
                 contest_section_description_yesno = $2
               where id = $3
             `,
-            header.title,
-            header.description,
+            header?.title,
+            header?.description,
             electionId
           );
         default:

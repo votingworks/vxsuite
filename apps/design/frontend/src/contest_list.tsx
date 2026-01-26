@@ -115,19 +115,11 @@ export function ContestList(props: ContestListProps): React.ReactNode {
 const OpenSectionHeaderFormButton = styled(Button).attrs({
   fill: 'transparent',
 })`
-  font-size: 0.8rem;
-  gap: 0.25rem;
-  padding: 0;
-
-  &:active,
-  &:hover {
-    background: none !important;
-    text-decoration: underline;
-    text-decoration-thickness: ${(p) => p.theme.sizes.bordersRem.thin}rem;
-    text-underline-offset: ${(p) => p.theme.sizes.bordersRem.thin}rem;
-  }
-
   color: ${(p) => p.theme.colors.onBackgroundMuted};
+  font-size: 0.9rem;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-left: -0.25rem; /* Align with header text */
 `;
 
 export function Sublist(props: {
@@ -166,23 +158,24 @@ export function Sublist(props: {
   return (
     <React.Fragment>
       <EntityList.Header>
-        <Row
-          style={{
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}
-        >
-          {sectionNames[contestType]}
-        </Row>
+        {sectionNames[contestType]}
         {features.CONTEST_SECTION_HEADERS && (
           <Row>
-            <OpenSectionHeaderFormButton
-              icon={sectionHeader ? 'Edit' : 'Add'}
-              onPress={() => setIsEditingSectionHeader(true)}
-            >
-              {sectionHeader ? 'Edit' : 'Add'} ballot header
-            </OpenSectionHeaderFormButton>
+            {sectionHeader ? (
+              <OpenSectionHeaderFormButton
+                rightIcon="Edit"
+                onPress={() => setIsEditingSectionHeader(true)}
+              >
+                {sectionHeader.title}
+              </OpenSectionHeaderFormButton>
+            ) : (
+              <OpenSectionHeaderFormButton
+                icon="Add"
+                onPress={() => setIsEditingSectionHeader(true)}
+              >
+                Add Ballot Header
+              </OpenSectionHeaderFormButton>
+            )}
           </Row>
         )}
       </EntityList.Header>
@@ -272,6 +265,8 @@ function EditSectionHeaderModalForm({
   savedSectionHeader?: ContestSectionHeader;
   onClose: () => void;
 }): React.ReactNode {
+  const getBallotsFinalizedAtQuery =
+    api.getBallotsFinalizedAt.useQuery(electionId);
   const updateContestSectionHeaderMutation =
     api.updateContestSectionHeader.useMutation();
   const [sectionHeader, setSectionHeader] =
@@ -291,6 +286,22 @@ function EditSectionHeaderModalForm({
     );
   }
 
+  function deleteSectionHeader() {
+    updateContestSectionHeaderMutation.mutate(
+      {
+        electionId,
+        contestType,
+        updatedHeader: undefined,
+      },
+      { onSuccess: onClose }
+    );
+  }
+
+  if (!getBallotsFinalizedAtQuery.isSuccess) {
+    return null;
+  }
+  const isFinalized = Boolean(getBallotsFinalizedAtQuery.data);
+
   return (
     <Modal
       title={`Edit Ballot Header - ${sectionNames[contestType]}`}
@@ -308,6 +319,7 @@ function EditSectionHeaderModalForm({
                 })
               }
               style={{ width: '100%' }}
+              disabled={isFinalized}
             />
           </InputGroup>
 
@@ -321,16 +333,39 @@ function EditSectionHeaderModalForm({
                   description: value === '' ? undefined : value,
                 })
               }
+              disabled={isFinalized}
             />
           </div>
         </Column>
       }
       actions={
         <React.Fragment>
-          <Button icon="Done" onPress={saveSectionHeader} variant="primary">
+          <Button
+            icon="Done"
+            onPress={saveSectionHeader}
+            variant="primary"
+            disabled={
+              updateContestSectionHeaderMutation.isLoading ||
+              sectionHeader.title.trim() === '' ||
+              isFinalized
+            }
+          >
             Save
           </Button>
           <Button onPress={onClose}>Cancel</Button>
+          <Button
+            icon="Delete"
+            onPress={deleteSectionHeader}
+            variant="danger"
+            fill="outlined"
+            disabled={
+              !savedSectionHeader ||
+              updateContestSectionHeaderMutation.isLoading ||
+              isFinalized
+            }
+          >
+            Delete
+          </Button>
         </React.Fragment>
       }
     />
