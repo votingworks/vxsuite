@@ -40,7 +40,7 @@ export function InvalidateRegistrationReceipt({
           </div>
         </div>
 
-        <ReceiptIcon icon={'Closed'} />
+        <ReceiptIcon icon={'Delete'} />
       </div>
 
       <div>

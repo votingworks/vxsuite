@@ -39,7 +39,7 @@ export function MarkInactiveReceipt({
           </div>
         </div>
 
-        <ReceiptIcon icon={'Flag'} />
+        <ReceiptIcon icon={'Delete'} />
       </div>
 
       <div>
