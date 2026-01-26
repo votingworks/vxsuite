@@ -76,6 +76,7 @@ import {
   StateCode,
   User,
   UserType,
+  ElectionStatus,
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
@@ -801,6 +802,7 @@ export class Store {
                 elections.county_name as "countyName",
                 elections.state,
                 elections.ballots_finalized_at as "ballotsFinalizedAt",
+                elections.ballots_approved_at as "ballotsApprovedAt",
                 elections.external_source as "externalSource",
                 count(contests.id)::int as "contestCount"
               from elections
@@ -816,6 +818,7 @@ export class Store {
             Omit<ElectionListing, 'status'> & {
               date: Date;
               ballotsFinalizedAt: Date | null;
+              ballotsApprovedAt: Date | null;
               contestCount: number;
             }
           >
@@ -830,14 +833,11 @@ export class Store {
       countyName: row.countyName,
       state: row.state,
       externalSource: row.externalSource || undefined,
-      status: (() => {
-        if (row.contestCount === 0) {
-          return 'notStarted';
-        }
-        if (!row.ballotsFinalizedAt) {
-          return 'inProgress';
-        }
-        return 'ballotsFinalized';
+      status: ((): ElectionStatus => {
+        if (row.contestCount === 0) return 'notStarted';
+        if (row.ballotsApprovedAt) return 'ballotsApproved';
+        if (row.ballotsFinalizedAt) return 'ballotsFinalized';
+        return 'inProgress';
       })(),
     }));
   }

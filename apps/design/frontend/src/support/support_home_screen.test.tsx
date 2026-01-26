@@ -146,29 +146,34 @@ test('lists elections', async () => {
 
 test('sort elections by status and jurisdiction', async () => {
   // Create elections with different statuses and jurisdictions
-  const generalElection = generalElectionRecord(jurisdiction.id);
-  const primaryElection = primaryElectionRecord(jurisdiction.id);
-  const blankElection = blankElectionRecord(jurisdiction);
+  const approvedElection = generalElectionRecord(jurisdiction.id);
+  const finalizedElection = generalElectionRecord(jurisdiction.id);
+  const inProgressElection = primaryElectionRecord(jurisdiction.id);
+  const notStartedElection = blankElectionRecord(jurisdiction);
 
   const elections: ElectionListing[] = [
-    // Election with inProgress status
     {
-      ...electionListing(primaryElection),
-      status: 'inProgress' as const,
+      ...electionListing(inProgressElection),
+      status: 'inProgress',
       jurisdictionName: 'Alpha Jurisdiction',
       jurisdictionId: 'County B',
     },
-    // Election with ballotsFinalized status
     {
-      ...electionListing(generalElection),
-      status: 'ballotsFinalized' as const,
+      ...electionListing(approvedElection),
+      status: 'ballotsFinalized',
+      jurisdictionName: 'Beta Jurisdiction',
+      jurisdictionId: 'County D',
+    },
+    {
+      ...electionListing(finalizedElection),
+      electionId: 'approved-election',
+      status: 'ballotsApproved',
       jurisdictionName: 'VotingWorks',
       jurisdictionId: 'County A',
     },
-    // Election with notStarted status
     {
-      ...electionListing(blankElection),
-      status: 'notStarted' as const,
+      ...electionListing(notStartedElection),
+      status: 'notStarted',
       jurisdictionName: 'Zeta Jurisdiction',
       jurisdictionId: 'County C',
     },
@@ -182,64 +187,54 @@ test('sort elections by status and jurisdiction', async () => {
 
   const table = screen.getByRole('table');
 
+  function columnValues(index: number) {
+    const rows = within(table).getAllByRole('row').slice(1);
+    return rows.map(
+      (row) => within(row).getAllByRole('cell')[index].textContent?.trim()
+    );
+  }
+
   // Test initial order (unsorted)
-  let rows = within(table).getAllByRole('row').slice(1);
-  expect(rows).toHaveLength(3);
-  expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
-    'In progress'
-  );
-  expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
-    'Ballots finalized'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
-    'Not started'
-  );
+  expect(columnValues(0)).toEqual([
+    'In progress',
+    'Ballots finalized',
+    'Ballots approved',
+    'Not started',
+  ]);
 
   // Test sorting by Status (ascending)
   const statusHeader = within(table).getByRole('button', { name: /status/i });
   userEvent.click(statusHeader);
 
-  rows = within(table).getAllByRole('row').slice(1);
-  // ballotsFinalized, inProgress, notStarted (alphabetical order)
-  expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
-    'Ballots finalized'
-  );
-  expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
-    'In progress'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
-    'Not started'
-  );
+  // Ascending alphabetical order
+  expect(columnValues(0)).toEqual([
+    'Ballots approved',
+    'Ballots finalized',
+    'In progress',
+    'Not started',
+  ]);
 
   // Test sorting by Status (descending)
   userEvent.click(statusHeader);
 
-  rows = within(table).getAllByRole('row').slice(1);
   // Reverse order
-  expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
-    'Not started'
-  );
-  expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
-    'In progress'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
-    'Ballots finalized'
-  );
+  expect(columnValues(0)).toEqual([
+    'Not started',
+    'In progress',
+    'Ballots finalized',
+    'Ballots approved',
+  ]);
 
   // Test sorting by Status (third click - unsorted, back to original order)
   userEvent.click(statusHeader);
 
-  rows = within(table).getAllByRole('row').slice(1);
   // Back to original order
-  expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
-    'In progress'
-  );
-  expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
-    'Ballots finalized'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
-    'Not started'
-  );
+  expect(columnValues(0)).toEqual([
+    'In progress',
+    'Ballots finalized',
+    'Ballots approved',
+    'Not started',
+  ]);
 
   // Test sorting by Jurisdiction (ascending)
   const jurisdictionHeader = within(table).getByRole('button', {
@@ -247,43 +242,30 @@ test('sort elections by status and jurisdiction', async () => {
   });
   userEvent.click(jurisdictionHeader);
 
-  rows = within(table).getAllByRole('row').slice(1);
   // Alpha Jurisdiction, VotingWorks, Zeta Jurisdiction (alphabetical)
-  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
-    'Alpha Jurisdiction'
-  );
-  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
-    'VotingWorks'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent(
-    'Zeta Jurisdiction'
-  );
+  expect(columnValues(1)).toEqual([
+    'Alpha Jurisdiction',
+    'Beta Jurisdiction',
+    'VotingWorks',
+    'Zeta Jurisdiction',
+  ]);
 
   // Test sorting by Jurisdiction (descending)
   userEvent.click(jurisdictionHeader);
-  rows = within(table).getAllByRole('row').slice(1);
-  // Reverse alphabetical order
-  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
-    'Zeta Jurisdiction'
-  );
-  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
-    'VotingWorks'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent(
-    'Alpha Jurisdiction'
-  );
+  expect(columnValues(1)).toEqual([
+    'Zeta Jurisdiction',
+    'VotingWorks',
+    'Beta Jurisdiction',
+    'Alpha Jurisdiction',
+  ]);
 
   // Test sorting by Jurisdiction (third click - unsorted, back to original order)
   userEvent.click(jurisdictionHeader);
-  rows = within(table).getAllByRole('row').slice(1);
   // Back to original order
-  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
-    'Alpha Jurisdiction'
-  );
-  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
-    'VotingWorks'
-  );
-  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent(
-    'Zeta Jurisdiction'
-  );
+  expect(columnValues(1)).toEqual([
+    'Alpha Jurisdiction',
+    'Beta Jurisdiction',
+    'VotingWorks',
+    'Zeta Jurisdiction',
+  ]);
 });

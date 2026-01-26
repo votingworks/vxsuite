@@ -554,6 +554,11 @@ test('create/list/delete elections', async () => {
     'ballotsFinalized'
   );
 
+  await apiClient.approveBallots({ electionId: sliElectionId });
+  expect((await apiClient.listElections())[0].status).toEqual<ElectionStatus>(
+    'ballotsApproved'
+  );
+
   // Loading election with an existing title+date should add copy prefix to the title
   const duplicateElectionId = (
     await apiClient.loadElection({

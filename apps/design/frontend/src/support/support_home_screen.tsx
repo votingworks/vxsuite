@@ -101,17 +101,22 @@ function SortHeaderButton(
 const STATUS_ELEMENTS: Readonly<Record<ElectionStatus, JSX.Element>> = {
   notStarted: (
     <span>
-      <Icons.Closed color="danger" /> Not started
+      <Icons.Circle color="danger" /> Not started
     </span>
   ),
   inProgress: (
     <span>
-      <Icons.Circle color="warning" /> In progress
+      <Icons.Contrast color="warning" /> In progress
     </span>
   ),
   ballotsFinalized: (
     <span>
-      <Icons.Done color="primary" /> Ballots finalized
+      <Icons.Closed color="primary" /> Ballots finalized
+    </span>
+  ),
+  ballotsApproved: (
+    <span>
+      <Icons.Done color="success" /> Ballots approved
     </span>
   ),
 };
