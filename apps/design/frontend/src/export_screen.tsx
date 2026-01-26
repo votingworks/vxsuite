@@ -4,7 +4,6 @@ import {
   P,
   Button,
   MainContent,
-  useQueryChangeListener,
   CheckboxButton,
   SearchSelect,
   H2,
@@ -33,6 +32,7 @@ import { ElectionIdParams, routes } from './routes';
 import { downloadFile } from './utils';
 import { Column, InputGroup } from './layout';
 import { useTitle } from './hooks/use_title';
+import { Downloads } from './downloads';
 import { ProofingStatus } from './proofing_status';
 import { TaskProgress } from './task_progress';
 
@@ -77,45 +77,11 @@ export function ExportScreen(): JSX.Element | null {
     setShouldExportTestBallots(!!f.EXPORT_TEST_BALLOTS);
   }, [getStateFeaturesQuery.data]);
 
-  useQueryChangeListener(electionPackageQuery, {
-    onChange: (currentElectionPackage, previousElectionPackage) => {
-      const taskJustCompleted = Boolean(
-        previousElectionPackage?.task &&
-          !previousElectionPackage.task.completedAt &&
-          currentElectionPackage.task?.completedAt
-      );
-      if (taskJustCompleted) {
-        const { error } = assertDefined(currentElectionPackage.task);
-        if (error) {
-          setExportError(error);
-        } else {
-          // [TODO] Replace automatic download with download cards for separate
-          // election package/ballot archives.
-          downloadFile(
-            assertDefined(currentElectionPackage.electionPackageUrl)
-          );
-        }
-      }
-    },
-  });
-
-  useQueryChangeListener(testDecksQuery, {
-    onChange: (currentTestDecks, previousTestDecks) => {
-      const taskJustCompleted = Boolean(
-        previousTestDecks?.task &&
-          !previousTestDecks.task.completedAt &&
-          currentTestDecks.task?.completedAt
-      );
-      if (taskJustCompleted) {
-        const { error } = assertDefined(currentTestDecks.task);
-        if (error) {
-          setExportError(error);
-        } else {
-          downloadFile(assertDefined(currentTestDecks.url));
-        }
-      }
-    },
-  });
+  React.useEffect(() => {
+    setExportError(
+      electionPackageQuery.data?.task?.error || testDecksQuery.data?.task?.error
+    );
+  }, [electionPackageQuery.data, testDecksQuery.data]);
 
   function onPressExportTestDecks() {
     setExportError(undefined);
@@ -152,6 +118,10 @@ export function ExportScreen(): JSX.Element | null {
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotTemplateId = getBallotTemplateQuery.data;
   const features = getUserFeaturesQuery.data;
+  const stateFeatures = getStateFeaturesQuery.data;
+
+  const canExportTestDecks =
+    features.EXPORT_TEST_DECKS && stateFeatures.EXPORT_TEST_BALLOTS;
 
   async function onSelectCvrsToDecrypt(event: FormEvent<HTMLInputElement>) {
     const input = event.currentTarget;
@@ -184,9 +154,12 @@ export function ExportScreen(): JSX.Element | null {
       <Header>
         <H1>Export</H1>
       </Header>
-      <MainContent>
-        <H2>Ballots</H2>
+
+      <MainContent
+        style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+      >
         <Column style={{ gap: '1rem' }}>
+          <H2 style={{ margin: 0 }}>Ballots</H2>
           {features.CHOOSE_BALLOT_TEMPLATE && (
             <InputGroup label="Ballot Template">
               <SearchSelect
@@ -208,118 +181,129 @@ export function ExportScreen(): JSX.Element | null {
           <ProofingStatus />
         </Column>
 
-        <H2>Export</H2>
-        <Column
-          style={{ gap: '0.5rem', alignItems: 'flex-start', maxWidth: '30rem' }}
-        >
-          {features.EXPORT_TEST_DECKS &&
-            (testDecks.task && !testDecks.task.completedAt ? (
+        {/* Prevent any further exports after finalizing ballots: */}
+        {!ballotsFinalizedAt && (
+          <Column
+            style={{
+              gap: '0.5rem',
+              alignItems: 'flex-start',
+              maxWidth: '30rem',
+            }}
+          >
+            <H2 style={{ margin: 0 }}>Export</H2>
+            {canExportTestDecks &&
+              (testDecks.task && !testDecks.task.completedAt ? (
+                <TaskProgress
+                  style={{ alignSelf: 'stretch' }}
+                  title="Exporting Test Decks"
+                  task={testDecks.task}
+                />
+              ) : (
+                <Button
+                  variant="primary"
+                  onPress={onPressExportTestDecks}
+                  disabled={exportTestDecksMutation.isLoading}
+                >
+                  Export Test Decks
+                </Button>
+              ))}
+            {electionPackage.task && !electionPackage.task.completedAt ? (
               <TaskProgress
                 style={{ alignSelf: 'stretch' }}
-                title="Exporting Test Decks"
-                task={testDecks.task}
+                title="Exporting Election Package and Ballots"
+                task={electionPackage.task}
               />
             ) : (
               <Button
+                onPress={onPressExportElectionPackage}
                 variant="primary"
-                onPress={onPressExportTestDecks}
-                disabled={exportTestDecksMutation.isLoading}
+                disabled={exportElectionPackageMutation.isLoading}
               >
-                Export Test Decks
+                Export Election Package and Ballots
               </Button>
-            ))}
-          {electionPackage.task && !electionPackage.task.completedAt ? (
-            <TaskProgress
-              style={{ alignSelf: 'stretch' }}
-              title="Exporting Election Package and Ballots"
-              task={electionPackage.task}
+            )}
+            {exportError && (
+              <Callout
+                color="danger"
+                icon="Danger"
+                style={{ margin: '0.5rem 0' }}
+              >
+                An unexpected error occurred while exporting. Please try again.
+              </Callout>
+            )}
+
+            <CheckboxButton
+              label="Include audio"
+              isChecked={shouldExportAudio}
+              onChange={(isChecked) => setShouldExportAudio(isChecked)}
             />
-          ) : (
-            <Button
-              onPress={onPressExportElectionPackage}
-              variant="primary"
-              disabled={exportElectionPackageMutation.isLoading}
-            >
-              Export Election Package and Ballots
-            </Button>
-          )}
-          {exportError && (
-            <Callout
-              color="danger"
-              icon="Danger"
-              style={{ margin: '0.5rem 0' }}
-            >
-              An unexpected error occurred while exporting. Please try again.
-            </Callout>
-          )}
 
-          <CheckboxButton
-            label="Include audio"
-            isChecked={shouldExportAudio}
-            onChange={(isChecked) => setShouldExportAudio(isChecked)}
-          />
+            <CheckboxButton
+              label="Include sample ballots"
+              isChecked={shouldExportSampleBallots}
+              onChange={(isChecked) => setShouldExportSampleBallots(isChecked)}
+            />
 
-          <CheckboxButton
-            label="Include sample ballots"
-            isChecked={shouldExportSampleBallots}
-            onChange={(isChecked) => setShouldExportSampleBallots(isChecked)}
-          />
+            <CheckboxButton
+              label="Include test ballots"
+              isChecked={shouldExportTestBallots}
+              onChange={(isChecked) => setShouldExportTestBallots(isChecked)}
+            />
 
-          <CheckboxButton
-            label="Include test ballots"
-            isChecked={shouldExportTestBallots}
-            onChange={(isChecked) => setShouldExportTestBallots(isChecked)}
-          />
+            <CheckboxButton
+              label="Format election using CDF"
+              isChecked={electionSerializationFormat === 'cdf'}
+              onChange={(isChecked) =>
+                setElectionSerializationFormat(isChecked ? 'cdf' : 'vxf')
+              }
+            />
 
-          <CheckboxButton
-            label="Format election using CDF"
-            isChecked={electionSerializationFormat === 'cdf'}
-            onChange={(isChecked) =>
-              setElectionSerializationFormat(isChecked ? 'cdf' : 'vxf')
-            }
-          />
+            <CheckboxButton
+              label="Generate audit IDs for ballots"
+              isChecked={numAuditIdBallots !== undefined}
+              onChange={(isChecked) =>
+                setNumAuditIdBallots(isChecked ? 1 : undefined)
+              }
+            />
 
-          <CheckboxButton
-            label="Generate audit IDs for ballots"
-            isChecked={numAuditIdBallots !== undefined}
-            onChange={(isChecked) =>
-              setNumAuditIdBallots(isChecked ? 1 : undefined)
-            }
-          />
+            <InputGroup label="Number of Audit IDs to Generate">
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={numAuditIdBallots ?? ''}
+                onChange={(e) => setNumAuditIdBallots(e.target.valueAsNumber)}
+                disabled={numAuditIdBallots === undefined}
+              />
+            </InputGroup>
+          </Column>
+        )}
 
-          <InputGroup label="Number of Audit IDs to Generate">
+        <Downloads />
+
+        <div>
+          <H2>Decrypt CVR Ballot Audit IDs</H2>
+          <InputGroup label="Secret Key">
             <input
-              type="number"
-              min={1}
-              max={100}
-              value={numAuditIdBallots ?? ''}
-              onChange={(e) => setNumAuditIdBallots(e.target.valueAsNumber)}
-              disabled={numAuditIdBallots === undefined}
+              type="text"
+              value={ballotAuditIdSecretKey ?? ''}
+              onChange={(e) => setBallotAuditIdSecretKey(e.target.value)}
+              disabled={decryptCvrBallotAuditIdsMutation.isLoading}
             />
           </InputGroup>
-        </Column>
-
-        <H2>Decrypt CVR Ballot Audit IDs</H2>
-        <InputGroup label="Secret Key">
-          <input
-            type="text"
-            value={ballotAuditIdSecretKey ?? ''}
-            onChange={(e) => setBallotAuditIdSecretKey(e.target.value)}
-            disabled={decryptCvrBallotAuditIdsMutation.isLoading}
-          />
-        </InputGroup>
-        <P style={{ marginTop: '0.5rem' }}>
-          <FileInputButton
-            accept=".zip"
-            onChange={onSelectCvrsToDecrypt}
-            disabled={
-              !ballotAuditIdSecretKey ||
-              decryptCvrBallotAuditIdsMutation.isLoading
-            }
-          >
-            Select CVR Export Zip File
-          </FileInputButton>
-        </P>
+          <P style={{ marginTop: '0.5rem' }}>
+            <FileInputButton
+              accept=".zip"
+              onChange={onSelectCvrsToDecrypt}
+              disabled={
+                !ballotAuditIdSecretKey ||
+                decryptCvrBallotAuditIdsMutation.isLoading
+              }
+            >
+              Select CVR Export Zip File
+            </FileInputButton>
+          </P>
+        </div>
       </MainContent>
     </ElectionNavScreen>
   );
