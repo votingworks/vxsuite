@@ -1592,6 +1592,7 @@ export function createPrecinctScannerStateMachine({
             ? error.type
             : 'client_error'
           : undefined;
+      console.log('error ', error);
       return {
         state: scannerState,
         interpretation: interpretationResult,

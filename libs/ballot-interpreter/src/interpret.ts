@@ -22,6 +22,7 @@ import {
   BallotTargetMark,
   BallotType,
   BmdMultiPageBallotPageMetadata,
+  ContestId,
   ContestOption,
   Contests,
   Corners,
@@ -270,12 +271,22 @@ function getUnmarkedWriteInsFromScoredContestOptions(
 
 /**
  * Derives adjudication information from contests.
+ *
+ * @param electionDefinition - The election definition
+ * @param options - Interpreter options including enabled adjudication reasons
+ * @param votes - The votes dictionary from the ballot
+ * @param ballotStyleId - The ballot style ID
+ * @param contestIds - Optional array of contest IDs to consider. If provided,
+ *   only contests with IDs in this array will be checked for adjudication.
+ *   Used for multi-page BMD ballots where each page only contains a subset
+ *   of contests.
  */
 export function determineAdjudicationInfoFromBmdVotes(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
   votes: VotesDict,
-  ballotStyleId: BallotStyleId
+  ballotStyleId: BallotStyleId,
+  contestIds?: ContestId[]
 ): AdjudicationInfo {
   const bmdAdjudicationReasons = [
     AdjudicationReason.BlankBallot,
@@ -286,11 +297,19 @@ export function determineAdjudicationInfoFromBmdVotes(
   );
   const { election } = electionDefinition;
 
+  let contests = getContests({
+    ballotStyle: assertDefined(getBallotStyle({ ballotStyleId, election })),
+    election,
+  });
+
+  // For multi-page BMD ballots, only consider contests on this page
+  if (contestIds) {
+    const contestIdSet = new Set(contestIds);
+    contests = contests.filter((contest) => contestIdSet.has(contest.id));
+  }
+
   const adjudicationReasonInfos = getAllPossibleAdjudicationReasonsForBmdVotes(
-    getContests({
-      ballotStyle: assertDefined(getBallotStyle({ ballotStyleId, election })),
-      election,
-    }),
+    contests,
     votes
   );
 
@@ -665,13 +684,14 @@ async function interpretBmdBallot(
 
   let front: PageInterpretation;
   if (result.type === 'multi-page') {
-    // Multi-page BMD ballot
+    // Multi-page BMD ballot - only consider contests on this page
     const { metadata, votes } = result;
     const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
       electionDefinition,
       options,
       votes,
-      metadata.ballotStyleId
+      metadata.ballotStyleId,
+      metadata.contestIds
     );
     front = {
       type: 'InterpretedBmdMultiPagePage',
