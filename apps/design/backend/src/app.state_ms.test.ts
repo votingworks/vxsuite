@@ -5,17 +5,16 @@ import {
   HmpbBallotPaperSize,
   unsafeParse,
 } from '@votingworks/types';
-import { assertDefined, err, ok } from '@votingworks/basics';
-import { join } from 'node:path';
+import { err, ok } from '@votingworks/basics';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   exportElectionPackage,
   generateAllPrecinctsTallyReport,
+  getExportedFile,
   readFixture,
   testSetupHelpers,
-  unzipElectionPackageAndBallots,
 } from '../test/helpers';
 import {
   jurisdictions,
@@ -120,7 +119,7 @@ test('convert MS results', async () => {
     paperSize: HmpbBallotPaperSize.Legal,
     compact: true,
   });
-  const electionPackageFilePath = await exportElectionPackage({
+  const exportMeta = await exportElectionPackage({
     apiClient,
     workspace,
     fileStorageClient,
@@ -131,13 +130,11 @@ test('convert MS results', async () => {
     shouldExportTestBallots: false,
     numAuditIdBallots: undefined,
   });
-  const contents = assertDefined(
-    fileStorageClient.getRawFile(
-      join(vxJurisdiction.id, electionPackageFilePath)
-    )
-  );
-  const { electionPackageContents } =
-    await unzipElectionPackageAndBallots(contents);
+  const electionPackageContents = getExportedFile({
+    storage: fileStorageClient,
+    jurisdictionId: vxJurisdiction.id,
+    url: exportMeta.electionPackageUrl,
+  });
   const { electionPackage } = (
     await readElectionPackageFromBuffer(electionPackageContents)
   ).unsafeUnwrap();

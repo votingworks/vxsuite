@@ -22,15 +22,14 @@ import {
 } from '@votingworks/types';
 import { encodeQuickResultsMessage } from '@votingworks/auth';
 import { electionWithMsEitherNeitherFixtures } from '@votingworks/fixtures';
-import { join } from 'node:path';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { renderAllBallotPdfsAndCreateElectionDefinition } from '@votingworks/hmpb';
 import {
   ApiClient,
   exportElectionPackage,
+  getExportedFile,
   MockFileStorageClient,
   testSetupHelpers,
-  unzipElectionPackageAndBallots,
 } from '../test/helpers';
 import { ALL_PRECINCTS_REPORT_KEY } from './types';
 import { Workspace } from './workspace';
@@ -119,7 +118,7 @@ async function setUpElectionInSystem(
   });
   expect(storedPollStatus).toEqual(err('no-election-export-found'));
 
-  const electionPackageFilePath = await exportElectionPackage({
+  const exportMeta = await exportElectionPackage({
     electionId,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
@@ -130,13 +129,11 @@ async function setUpElectionInSystem(
     apiClient,
     workspace,
   });
-  const contents = assertDefined(
-    fileStorageClient.getRawFile(
-      join(nonVxJurisdiction.id, electionPackageFilePath)
-    )
-  );
-  const { electionPackageContents } =
-    await unzipElectionPackageAndBallots(contents);
+  const electionPackageContents = getExportedFile({
+    storage: fileStorageClient,
+    jurisdictionId: nonVxJurisdiction.id,
+    url: exportMeta.electionPackageUrl,
+  });
   const { electionPackage } = (
     await readElectionPackageFromBuffer(electionPackageContents)
   ).unsafeUnwrap();
@@ -1976,7 +1973,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   );
 
   // Export the election (which will save the reordered version)
-  const electionPackageFilePath = await exportElectionPackage({
+  const exportMeta = await exportElectionPackage({
     electionId,
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
@@ -1988,13 +1985,11 @@ test('LiveReports uses modified exported election, not original vxdesign electio
     workspace,
   });
 
-  const contents = assertDefined(
-    fileStorageClient.getRawFile(
-      join(nonVxJurisdiction.id, electionPackageFilePath)
-    )
-  );
-  const { electionPackageContents } =
-    await unzipElectionPackageAndBallots(contents);
+  const electionPackageContents = getExportedFile({
+    storage: fileStorageClient,
+    jurisdictionId: nonVxJurisdiction.id,
+    url: exportMeta.electionPackageUrl,
+  });
   const { electionPackage } = (
     await readElectionPackageFromBuffer(electionPackageContents)
   ).unsafeUnwrap();
