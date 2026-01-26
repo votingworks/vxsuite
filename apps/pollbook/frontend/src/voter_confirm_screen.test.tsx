@@ -183,11 +183,11 @@ test('shows absentee mode callout when in absentee mode', async () => {
   screen.getByText('Absentee Mode');
 });
 
-test('shows flag callout for inactive voters', async () => {
+test('shows callout for inactive voters', async () => {
   const inactiveVoter: Voter = { ...voter, isInactive: true };
   await renderComponent({ voterOverride: inactiveVoter });
 
-  screen.getByText(/This voter was flagged as inactive/);
+  screen.getByText(/This voter was marked inactive/);
   screen.getByText(/Notify an election manager if anyone attempts to check in/);
 });
 
@@ -255,7 +255,7 @@ test('inactive voter confirmation modal - confirm check-in', async () => {
     name: 'Confirm Check-In',
   });
   screen.getByText(
-    /This voter was flagged as inactive. Continue only if you have confirmed/
+    /This voter was marked inactive. Continue only if you have confirmed/
   );
 
   // Find the modal and click confirm button within it
@@ -639,6 +639,6 @@ test('displays label for newly registered voters', async () => {
 
   await renderComponent({ voterOverride: addedVoter });
 
-  screen.getByText('Added Voter');
+  screen.getByText('New Registration');
   screen.getByText('ABIGAIL ADAMS');
 });

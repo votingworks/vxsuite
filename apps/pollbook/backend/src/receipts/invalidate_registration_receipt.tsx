@@ -33,14 +33,14 @@ export function InvalidateRegistrationReceipt({
       >
         <div>
           <div>
-            <strong>Registration Marked Invalid</strong>
+            <strong>Registration Deleted</strong>
           </div>
           <div>
             {format.localeNumericDateAndTime(new Date(getCurrentTime()))}
           </div>
         </div>
 
-        <ReceiptIcon icon={'Closed'} />
+        <ReceiptIcon icon={'Delete'} />
       </div>
 
       <div>

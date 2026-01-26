@@ -887,7 +887,9 @@ export class LocalStore extends Store {
     const votersWithCheckIn = Object.fromEntries(
       Object.entries(voters).filter(([, voter]) => voter.checkIn)
     );
-    const totalVoters = Object.keys(votersMatchingParty).length;
+    const totalVoters = Object.values(votersMatchingParty).filter(
+      (v) => !v.isInvalidatedRegistration
+    ).length;
     const totalAbsenteeCheckIns = Object.values(votersWithCheckIn).filter(
       (v) => v.checkIn && v.checkIn.isAbsentee
     ).length;
@@ -957,7 +959,9 @@ export class LocalStore extends Store {
           (partyFilter === 'ALL' || voter.checkIn.ballotParty === partyFilter)
       )
     );
-    const totalVoters = Object.keys(votersMatchingParty).length;
+    const totalVoters = Object.values(votersMatchingParty).filter(
+      (v) => !v.isInvalidatedRegistration
+    ).length;
     const totalAbsenteeCheckIns = Object.values(
       votersWithCheckInMatchingParty
     ).filter((v) => v.checkIn && v.checkIn.isAbsentee).length;

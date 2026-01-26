@@ -17,9 +17,23 @@ import { StyledReceipt, ReceiptMetadata, ReceiptIcon } from './receipt_helpers';
 const TextRow = styled.div`
   display: flex;
   justify-content: space-between;
-  font-family: ${VX_DEFAULT_MONOSPACE_FONT_FAMILY_DECLARATION};
   font-size: 10pt;
+
+  span:nth-of-type(2) {
+    font-family: ${VX_DEFAULT_MONOSPACE_FONT_FAMILY_DECLARATION};
+  }
 `;
+
+function HorizontalRule(): React.ReactNode {
+  return (
+    <div
+      style={{
+        borderTop: '1px solid black',
+        margin: '2px 0',
+      }}
+    />
+  );
+}
 
 export interface EventCounts {
   addressChange: number;
@@ -48,19 +62,20 @@ function ImportedVoters({
         <strong>Imported Voters</strong>
       </TextRow>
       <TextRow>
-        <span>Democratic:</span>
+        <span>Democratic</span>
         <span>{getImportedVotersCount(demStats)}</span>
       </TextRow>
       <TextRow>
-        <span>Republican:</span>
+        <span>Republican</span>
         <span>{getImportedVotersCount(repStats)}</span>
       </TextRow>
       <TextRow>
-        <span>Undeclared:</span>
+        <span>Undeclared</span>
         <span>{getImportedVotersCount(undeclaredStats)}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
-        <span>Total:</span>
+        <span>Total</span>
         <span>{getImportedVotersCount(allStats)}</span>
       </TextRow>
     </div>
@@ -89,19 +104,20 @@ function AddedVoters({
         <strong>Added Voters</strong>
       </TextRow>
       <TextRow>
-        <span>Democratic:</span>
+        <span>Democratic</span>
         <span>{demStats.totalNewRegistrations.toLocaleString()}</span>
       </TextRow>
       <TextRow>
-        <span>Republican:</span>
+        <span>Republican</span>
         <span>{repStats.totalNewRegistrations.toLocaleString()}</span>
       </TextRow>
       <TextRow>
-        <span>Undeclared:</span>
+        <span>Undeclared</span>
         <span>{undeclaredStats.totalNewRegistrations.toLocaleString()}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
-        <span>Total:</span>
+        <span>Total</span>
         <span>{allStats.totalNewRegistrations.toLocaleString()}</span>
       </TextRow>
     </div>
@@ -130,19 +146,20 @@ function TotalVoters({
         <strong>Total Voters</strong>
       </TextRow>
       <TextRow>
-        <span>Democratic:</span>
+        <span>Democratic</span>
         <span>{demStats.totalVoters.toLocaleString()}</span>
       </TextRow>
       <TextRow>
-        <span>Republican:</span>
+        <span>Republican</span>
         <span>{repStats.totalVoters.toLocaleString()}</span>
       </TextRow>
       <TextRow>
-        <span>Undeclared:</span>
+        <span>Undeclared</span>
         <span>{undeclaredStats.totalVoters.toLocaleString()}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
-        <span>Total:</span>
+        <span>Total</span>
         <span>{allStats.totalVoters.toLocaleString()}</span>
       </TextRow>
     </div>
@@ -165,15 +182,16 @@ function GeneralCheckIns({
         <strong>Check-Ins</strong>
       </TextRow>
       <TextRow>
-        <span>Precinct:</span>
+        <span>Precinct</span>
         <span>{getTotalPrecinctCheckIns(stats)}</span>
       </TextRow>
       <TextRow>
-        <span>Absentee:</span>
+        <span>Absentee</span>
         <span>{stats.totalAbsenteeCheckIns.toLocaleString()}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
-        <span>Total:</span>
+        <span>Total</span>
         <span>{stats.totalCheckIns.toLocaleString()}</span>
       </TextRow>
     </div>
@@ -201,15 +219,16 @@ function PartyCheckIns({
         </strong>
       </TextRow>
       <TextRow>
-        <span>Precinct:</span>
+        <span>Precinct</span>
         <span>{getTotalPrecinctCheckIns(partyStats)}</span>
       </TextRow>
       <TextRow>
-        <span>Absentee:</span>
+        <span>Absentee</span>
         <span>{partyStats.totalAbsenteeCheckIns.toLocaleString()}</span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
-        <span>Total:</span>
+        <span>Total</span>
         <span>{partyStats.totalCheckIns.toLocaleString()}</span>
       </TextRow>
     </div>
@@ -232,19 +251,20 @@ function UndeclaredVoterPartyChoice({
         <strong>Undeclared Voter Party Choice</strong>
       </TextRow>
       <TextRow>
-        <span>Democratic:</span>
+        <span>Democratic</span>
         <span>
           {getUndeclaredPrimaryPartyChoice('DEM', undeclaredVoterStats)}
         </span>
       </TextRow>
       <TextRow>
-        <span>Republican:</span>
+        <span>Republican</span>
         <span>
           {getUndeclaredPrimaryPartyChoice('REP', undeclaredVoterStats)}
         </span>
       </TextRow>
+      <HorizontalRule />
       <TextRow>
-        <span>Total:</span>
+        <span>Total</span>
         <span>
           {(
             getUndeclaredPrimaryPartyChoiceRaw('DEM', undeclaredVoterStats) +
@@ -272,11 +292,11 @@ function BiographicalDataChangeCounts({
         <strong>Other Counts</strong>
       </TextRow>
       <TextRow>
-        <span>Address Changes:</span>
+        <span>Address Changes</span>
         <span>{eventCounts.addressChange.toLocaleString()}</span>
       </TextRow>
       <TextRow>
-        <span>Name Changes:</span>
+        <span>Name Changes</span>
         <span>{eventCounts.nameChange.toLocaleString()}</span>
       </TextRow>
     </div>

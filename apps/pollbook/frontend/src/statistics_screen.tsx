@@ -38,6 +38,7 @@ import {
   getPrimarySummaryStatistics,
   printGeneralStatisticsSummaryReceipt,
   printPrimaryStatisticsSummaryReceipt,
+  getDeviceStatuses,
 } from './api';
 import { Row, Column } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
@@ -191,6 +192,8 @@ export function GeneralElectionStatistics(): JSX.Element {
   });
   const printGeneralStatisticsSummaryReceiptMutation =
     printGeneralStatisticsSummaryReceipt.useMutation();
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const isPrinterAttached = getDeviceStatusesQuery.data?.printer.connected;
 
   if (!getSummaryStatisticsQuery.isSuccess) {
     return (
@@ -217,7 +220,33 @@ export function GeneralElectionStatistics(): JSX.Element {
   } = summaryStatistics;
 
   return (
-    <ElectionManagerNavScreen title="Statistics">
+    <ElectionManagerNavScreen
+      title={
+        <span
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '100%',
+          }}
+        >
+          <H1>Statistics</H1>
+          <Button
+            onPress={printGeneralStatisticsSummaryReceiptMutation.mutate}
+            disabled={
+              !isPrinterAttached ||
+              printGeneralStatisticsSummaryReceiptMutation.isLoading
+            }
+            icon="Print"
+            style={{
+              fontSize: '0.8rem',
+              padding: '0.25rem 0.75rem',
+            }}
+          >
+            Print All
+          </Button>
+        </span>
+      }
+    >
       <MainContent>
         <Column style={{ gap: '1rem', height: '100%' }}>
           <Row style={{ gap: '1rem' }}>
@@ -261,37 +290,20 @@ export function GeneralElectionStatistics(): JSX.Element {
                   <H4 style={{ display: 'flex', alignItems: 'center' }}>
                     Voters
                   </H4>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <SmallSegmentedControl
-                      label="Party"
-                      hideLabel
-                      selectedOptionId={String(partyFilter)}
-                      options={[
-                        { id: 'ALL', label: 'All' },
-                        { id: 'DEM', label: 'Dem' },
-                        { id: 'REP', label: 'Rep' },
-                        { id: 'UND', label: 'Und' },
-                      ]}
-                      onChange={(selectedId) =>
-                        setPartyFilter(selectedId as PartyFilterAbbreviation)
-                      }
-                    />
-                    <Button
-                      onPress={
-                        printGeneralStatisticsSummaryReceiptMutation.mutate
-                      }
-                      disabled={
-                        printGeneralStatisticsSummaryReceiptMutation.isLoading
-                      }
-                      icon="Print"
-                      style={{
-                        fontSize: '0.8rem',
-                        padding: '0.25rem 0.75rem',
-                      }}
-                    >
-                      Print All
-                    </Button>
-                  </div>
+                  <SmallSegmentedControl
+                    label="Party"
+                    hideLabel
+                    selectedOptionId={String(partyFilter)}
+                    options={[
+                      { id: 'ALL', label: 'All' },
+                      { id: 'DEM', label: 'Dem' },
+                      { id: 'REP', label: 'Rep' },
+                      { id: 'UND', label: 'Und' },
+                    ]}
+                    onChange={(selectedId) =>
+                      setPartyFilter(selectedId as PartyFilterAbbreviation)
+                    }
+                  />
                 </span>
               }
             >
@@ -326,6 +338,8 @@ export function PrimaryElectionStatistics(): JSX.Element {
   });
   const printPrimaryStatisticsSummaryReceiptMutation =
     printPrimaryStatisticsSummaryReceipt.useMutation();
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const isPrinterAttached = getDeviceStatusesQuery.data?.printer.connected;
 
   const title = (
     <span
@@ -353,7 +367,10 @@ export function PrimaryElectionStatistics(): JSX.Element {
         />
         <Button
           onPress={printPrimaryStatisticsSummaryReceiptMutation.mutate}
-          disabled={printPrimaryStatisticsSummaryReceiptMutation.isLoading}
+          disabled={
+            !isPrinterAttached ||
+            printPrimaryStatisticsSummaryReceiptMutation.isLoading
+          }
           icon="Print"
           style={{
             fontSize: '0.8rem',

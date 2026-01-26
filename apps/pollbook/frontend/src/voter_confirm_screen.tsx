@@ -166,8 +166,8 @@ export function VoterConfirmScreen({
           {voter.isInactive && (
             <Callout icon="Flag" color="danger">
               <strong>
-                This voter was flagged as inactive. Notify an election manager
-                if anyone attempts to check in with this identity.
+                This voter was marked inactive. Notify an election manager if
+                anyone attempts to check in with this identity.
               </strong>
             </Callout>
           )}
@@ -377,7 +377,7 @@ export function VoterConfirmScreen({
       {showInactiveVoterModal && (
         <Modal
           title="Confirm Check-In"
-          content="This voter was flagged as inactive. Continue only if you have confirmed with an election manager that the voter was flagged as inactive in error."
+          content="This voter was marked inactive. Continue only if you have confirmed with an election manager that the voter was marked inactive in error."
           actions={
             <React.Fragment>
               <Button

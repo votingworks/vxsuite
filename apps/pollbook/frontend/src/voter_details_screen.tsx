@@ -153,8 +153,8 @@ function ConfirmMarkInactiveModal({
     assert(errorMessage === 'voter_checked_in');
     return (
       <Modal
-        title={<React.Fragment>Error Flagging Inactive</React.Fragment>}
-        content="This voter is already checked in and cannot be flagged as inactive."
+        title={<React.Fragment>Error Marking Inactive</React.Fragment>}
+        content="This voter is already checked in and cannot be marked inactive."
         actions={<Button onPress={onClose}>Cancel</Button>}
         onOverlayClick={onClose}
       />
@@ -162,12 +162,12 @@ function ConfirmMarkInactiveModal({
   }
   return (
     <Modal
-      title={<React.Fragment>Flag Voter as Inactive</React.Fragment>}
-      content="After a voter is flagged as inactive, any attempt to check them in will produce a warning."
+      title={<React.Fragment>Mark Voter Inactive</React.Fragment>}
+      content="After a voter is marked inactive, any attempt to check them in will produce a warning."
       actions={
         <React.Fragment>
           <Button
-            icon="Flag"
+            icon="Delete"
             variant="danger"
             onPress={async () => {
               const result = await markInactiveMutation.mutateAsync({
@@ -180,7 +180,7 @@ function ConfirmMarkInactiveModal({
               }
             }}
           >
-            Flag Inactive
+            Mark Voter Inactive
           </Button>
           <Button onPress={onClose}>Cancel</Button>
         </React.Fragment>
@@ -203,11 +203,11 @@ function ConfirmInvalidateRegistrationModal({
   if (errorMessage) {
     const errorContent =
       errorMessage === 'voter_checked_in'
-        ? 'This voter is already checked in and cannot be marked as invalid.'
-        : 'This voter is not a same-day registration.';
+        ? 'This voter is already checked in. Their registration cannot be deleted.'
+        : 'This voter is not a newly registered voter.';
     return (
       <Modal
-        title={<React.Fragment>Error Marking Invalid</React.Fragment>}
+        title={<React.Fragment>Error Deleting Registration</React.Fragment>}
         content={errorContent}
         actions={<Button onPress={onClose}>Cancel</Button>}
         onOverlayClick={onClose}
@@ -216,8 +216,8 @@ function ConfirmInvalidateRegistrationModal({
   }
   return (
     <Modal
-      title={<React.Fragment>Mark Registration Invalid</React.Fragment>}
-      content="This voter's registration will be marked invalid and excluded from all counts. You will no longer be able to check in a voter using this record."
+      title={<React.Fragment>Delete Registration</React.Fragment>}
+      content="The voter will be excluded from all counts, and it will no longer be possible to check them in. They will still be viewable in the election manager voter list."
       actions={
         <React.Fragment>
           <Button
@@ -234,7 +234,7 @@ function ConfirmInvalidateRegistrationModal({
               }
             }}
           >
-            Mark Invalid
+            Delete Registration
           </Button>
           <Button onPress={onClose}>Cancel</Button>
         </React.Fragment>
@@ -572,12 +572,12 @@ export function VoterDetailsScreen(): JSX.Element | null {
           <Card color="neutral">
             {voter.isInactive && !voter.checkIn && (
               <H2 style={{ marginTop: 0, marginBottom: 0 }}>
-                <Icons.Flag /> Inactive
+                <Icons.Delete /> Voter Inactive
               </H2>
             )}
             {voter.isInvalidatedRegistration && !voter.checkIn && (
               <H2 style={{ marginTop: 0, marginBottom: 0 }}>
-                <Icons.Delete /> Registration Invalid
+                <Icons.Delete /> Registration Deleted
               </H2>
             )}
             {!voter.checkIn &&
@@ -631,7 +631,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
             !voter.isInvalidatedRegistration &&
             !voter.registrationEvent && (
               <Button
-                icon="Flag"
+                icon="Delete"
                 color="danger"
                 disabled={
                   !configuredPrecinctId ||
@@ -639,7 +639,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
                 }
                 onPress={() => setShowMarkInactiveFlow(true)}
               >
-                Flag Voter as Inactive
+                Mark Voter Inactive
               </Button>
             )}
           {!voter.checkIn &&
@@ -654,7 +654,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
                 }
                 onPress={() => setShowInvalidateRegistrationFlow(true)}
               >
-                Mark Invalid
+                Delete Registration
               </Button>
             )}
           {voter.checkIn && (

@@ -425,9 +425,9 @@ test('validateUsState', () => {
 });
 
 const possibleLabels = [
-  'Registration Marked as Invalid',
-  'Voter Marked as Inactive',
-  'Added Voter',
+  'Registration Deleted',
+  'Voter Inactive',
+  'New Registration',
   'Updated Name',
 ] as const;
 test.each<{
@@ -438,25 +438,25 @@ test.each<{
   expectedLabel: (typeof possibleLabels)[number];
 }>([
   {
-    description: 'registration marked as invalid',
+    description: 'Registration Deleted',
     newlyRegistered: true,
     nameChanged: false,
     markedInvalid: true,
-    expectedLabel: 'Registration Marked as Invalid',
+    expectedLabel: 'Registration Deleted',
   },
   {
-    description: 'voter marked as inactive',
+    description: 'Voter Inactive',
     newlyRegistered: false,
     nameChanged: false,
     markedInvalid: true,
-    expectedLabel: 'Voter Marked as Inactive',
+    expectedLabel: 'Voter Inactive',
   },
   {
-    description: 'added voter',
+    description: 'new registration',
     newlyRegistered: true,
     nameChanged: false,
     markedInvalid: false,
-    expectedLabel: 'Added Voter',
+    expectedLabel: 'New Registration',
   },
   {
     description: 'updated name',
@@ -467,25 +467,25 @@ test.each<{
   },
   {
     description:
-      'registration marked as invalid takes precedence over added voter and updated name',
+      'Registration Deleted takes precedence over new registration and updated name',
     newlyRegistered: true,
     nameChanged: true,
     markedInvalid: true,
-    expectedLabel: 'Registration Marked as Invalid',
+    expectedLabel: 'Registration Deleted',
   },
   {
-    description: 'voter marked as inactive takes precedence over updated name',
+    description: 'Voter Inactive takes precedence over updated name',
     newlyRegistered: false,
     nameChanged: true,
     markedInvalid: true,
-    expectedLabel: 'Voter Marked as Inactive',
+    expectedLabel: 'Voter Inactive',
   },
   {
-    description: 'added voter takes precedence over updated name',
+    description: 'new registration takes precedence over updated name',
     newlyRegistered: true,
     nameChanged: true,
     markedInvalid: false,
-    expectedLabel: 'Added Voter',
+    expectedLabel: 'New Registration',
   },
 ])(
   'displays appropriate voter labels - $description',
