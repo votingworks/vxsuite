@@ -12,8 +12,10 @@ import {
 } from '@votingworks/basics';
 import {
   AnyContest,
+  BallotMode,
   ballotPaperDimensions,
   BallotType,
+  BaseBallotProps,
   Candidate,
   CandidateContest as CandidateContestStruct,
   ContestId,
@@ -42,13 +44,12 @@ import {
   QrCodeSlot,
 } from '../ballot_components';
 import {
-  BaseBallotProps,
   BallotPageTemplate,
   ContentComponentResult,
   BallotLayoutError,
 } from '../render_ballot';
 import { Watermark } from './watermark';
-import { BallotMode, PixelDimensions } from '../types';
+import { PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { RenderScratchpad } from '../renderer';
@@ -475,8 +476,8 @@ function CandidateContest({
     (candidate) => candidate.partyIds?.[0]
   );
   const { parties } = election;
-  const democracticPartyId = find(parties, (p) => p.abbrev === 'Democratic').id;
-  const republicanPartyId = find(parties, (p) => p.abbrev === 'Republican').id;
+  const democracticPartyId = find(parties, (p) => /^dem/i.test(p.abbrev)).id;
+  const republicanPartyId = find(parties, (p) => /^rep/i.test(p.abbrev)).id;
   const democraticCandidates =
     candidatesByParty.find(
       ([partyId]) => partyId === democracticPartyId

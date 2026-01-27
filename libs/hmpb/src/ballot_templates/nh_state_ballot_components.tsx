@@ -12,7 +12,6 @@ import {
   Colors,
   ColorTint,
   ColorTints,
-  ContestHeaderProps,
 } from '../ballot_components';
 
 const NH_FONT_DECLARATIONS = css`
@@ -187,7 +186,7 @@ export const Box = styled.div<{
       : ColorTints[p.fill]};
 `;
 
-export const ContestHeader = styled.div<ContestHeaderProps>`
+export const ContestHeader = styled.div<{ colorTint?: ColorTint }>`
   background: ${(p) =>
     p.colorTint ? ColorTints[p.colorTint] : Colors.LIGHT_GRAY};
   padding: 0.25rem 0.375rem 0 0.375rem;

@@ -157,6 +157,9 @@ export function getAllPossibleCandidateOrderings(
     switch (ballotStyleTemplateId) {
       case 'NhBallot':
         return getCandidateOrderingSetsForNhBallot(params);
+      // TODO what are the rotation rules for NH state elections?
+      case 'NhGeneralBallot':
+      case 'NhPrimaryBallot':
       case 'VxDefaultBallot':
       case 'MsBallot':
         return getDefaultCandidateOrdering(params);
