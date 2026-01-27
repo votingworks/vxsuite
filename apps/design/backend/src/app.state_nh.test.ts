@@ -1,7 +1,8 @@
-import { assert, assertDefined, err } from '@votingworks/basics';
+import { assert, assertDefined, err, find } from '@votingworks/basics';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
+  electionGeneralFixtures,
 } from '@votingworks/fixtures';
 import {
   Election,
@@ -12,10 +13,13 @@ import {
   BallotType,
   Precinct,
   PrecinctWithoutSplits,
+  ContestSectionHeaders,
+  ContestTypes,
 } from '@votingworks/types';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { readFileSync } from 'node:fs';
 import { vi, test, expect, afterAll } from 'vitest';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   organizations,
   jurisdictions,
@@ -24,6 +28,9 @@ import {
   nhJurisdiction,
 } from '../test/mocks';
 import { testSetupHelpers } from '../test/helpers';
+
+const nhUser = nonVxUser;
+const signatureSvg = readFileSync('./test/mockSignature.svg').toString();
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -48,7 +55,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
     users,
   });
 
-  auth0.setLoggedInUser(nonVxUser);
+  auth0.setLoggedInUser(nhUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
@@ -67,9 +74,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   const precinct = precincts[splitPrecinctIndex] as PrecinctWithSplits;
   const split = precinct.splits[0];
   split.clerkSignatureCaption = 'Test Clerk Caption';
-  split.clerkSignatureImage = readFileSync(
-    './test/mockSignature.svg'
-  ).toString();
+  split.clerkSignatureImage = signatureSvg;
   split.electionTitleOverride = 'Test Election Title Override';
 
   (
@@ -104,7 +109,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
     ...baseElectionDefinition.election,
     state: 'New Hampshire',
     signature: {
-      image: readFileSync('./test/mockSignature.svg').toString(),
+      image: signatureSvg,
       caption: 'Test Image Caption',
     },
   };
@@ -114,7 +119,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
     users,
   });
 
-  auth0.setLoggedInUser(nonVxUser);
+  auth0.setLoggedInUser(nhUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id' as ElectionId,
@@ -195,7 +200,7 @@ test.each<{
         },
       ],
       signature: {
-        image: readFileSync('./test/mockSignature.svg').toString(),
+        image: signatureSvg,
         caption: 'Caption',
       },
     };
@@ -205,7 +210,7 @@ test.each<{
       users,
     });
 
-    auth0.setLoggedInUser(nonVxUser);
+    auth0.setLoggedInUser(nhUser);
     const electionId = (
       await apiClient.loadElection({
         newId: 'new-election-id' as ElectionId,
@@ -260,3 +265,124 @@ test.each<{
     }
   }
 );
+
+test('contest section headers', async () => {
+  const baseElection = electionGeneralFixtures.readElection();
+  const election: Election = {
+    ...baseElection,
+    signature: {
+      image: signatureSvg,
+      caption: 'Test Image Caption',
+    },
+  };
+
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nhUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      jurisdictionId: nhJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(election),
+      },
+    })
+  ).unsafeUnwrap();
+
+  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual({});
+
+  const contestSectionHeaders: ContestSectionHeaders = {
+    candidate: {
+      title: 'Candidates Section',
+      description: '<p>Description for candidates</p>',
+    },
+    yesno: {
+      title: 'Ballot Measures Section',
+      description: '<p>Description for ballot measures</p>',
+    },
+  };
+  await apiClient.updateContestSectionHeader({
+    electionId,
+    contestType: 'candidate',
+    updatedHeader: contestSectionHeaders.candidate,
+  });
+  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual({
+    candidate: contestSectionHeaders.candidate,
+  });
+  await apiClient.updateContestSectionHeader({
+    electionId,
+    contestType: 'yesno',
+    updatedHeader: contestSectionHeaders.yesno,
+  });
+  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual(
+    contestSectionHeaders
+  );
+
+  await apiClient.updateContestSectionHeader({
+    electionId,
+    contestType: 'candidate',
+    updatedHeader: undefined,
+  });
+  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual({
+    yesno: contestSectionHeaders.yesno,
+  });
+
+  await apiClient.updateContestSectionHeader({
+    electionId,
+    contestType: 'candidate',
+    updatedHeader: contestSectionHeaders.candidate,
+  });
+  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual(
+    contestSectionHeaders
+  );
+
+  // Invalid headers are rejected
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      apiClient.updateContestSectionHeader({
+        electionId,
+        contestType: 'not-real-type' as unknown as ContestTypes,
+        updatedHeader: {
+          title: 'Valid Title',
+          description: undefined,
+        },
+      })
+    ).rejects.toThrow(/Invalid input/);
+    await expect(
+      apiClient.updateContestSectionHeader({
+        electionId,
+        contestType: 'candidate',
+        updatedHeader: {
+          title: '', // Invalid empty title
+          description: undefined,
+        },
+      })
+    ).rejects.toThrow(/Too small/);
+  });
+
+  // Headers are passed to ballot rendering
+  const precincts = await apiClient.listPrecincts({ electionId });
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  const precinct = precincts[0];
+  const ballotStyle = find(ballotStyles, (bs) =>
+    bs.districts.some(
+      (districtId) =>
+        !hasSplits(precinct) && precinct.districtIds.includes(districtId)
+    )
+  );
+
+  const result = (
+    await apiClient.getBallotPreviewPdf({
+      electionId,
+      precinctId: precinct.id,
+      ballotStyleId: assertDefined(ballotStyle).id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    })
+  ).unsafeUnwrap();
+  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
+});

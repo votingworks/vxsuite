@@ -57,7 +57,7 @@ export interface ContestSectionHeader {
 
 export const ContestSectionHeaderSchema: z.ZodSchema<ContestSectionHeader> =
   z.object({
-    title: z.string(),
+    title: z.string().nonempty(),
     description: z.string().optional(),
   });
 

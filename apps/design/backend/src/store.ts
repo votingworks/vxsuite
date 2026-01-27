@@ -1977,9 +1977,10 @@ export class Store {
             header?.description,
             electionId
           );
-        default:
+        default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(contestType);
+        }
       }
     });
     assert(rowCount === 1, 'Election not found');
