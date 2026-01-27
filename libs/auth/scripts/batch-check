@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+pcsc_scan | while read -r line; do
+    if echo "${line}" | grep -q "Card inserted"; then
+        ./scripts/read-java-card-details | grep -q production
+        echo -en "\a"
+    fi
+done
