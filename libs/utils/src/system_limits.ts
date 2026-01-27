@@ -41,6 +41,8 @@ export function systemLimitViolationToString(
         return `ballot style ${violation.ballotStyleId}`;
       case 'markScanContest':
         return `contest ${violation.contestId}`;
+      case 'markContest':
+        return `contest ${violation.contestId}`;
       case 'propositionDescription':
         return `proposition description ${violation.fieldValue.slice(0, 49)}…`;
       case 'textField':
@@ -60,6 +62,8 @@ export function systemLimitViolationToString(
         return SYSTEM_LIMITS.markScanBallotStyle[limitType];
       case 'markScanContest':
         return SYSTEM_LIMITS.markScanContest[limitType];
+      case 'markContest':
+        return SYSTEM_LIMITS.markContest[limitType];
       case 'propositionDescription':
         return SYSTEM_LIMITS.propositionDescription[limitType];
       case 'textField':
@@ -69,10 +73,18 @@ export function systemLimitViolationToString(
         throwIllegalValue(limitScope);
     }
   })();
-  const limitDesignation =
-    limitScope === 'markScanBallotStyle' || limitScope === 'markScanContest'
-      ? 'VxMarkScan system limit'
-      : 'system limit';
+  const limitDesignation = (() => {
+    if (
+      limitScope === 'markScanBallotStyle' ||
+      limitScope === 'markScanContest'
+    ) {
+      return 'VxMarkScan system limit';
+    }
+    if (limitScope === 'markContest') {
+      return 'VxMark system limit';
+    }
+    return 'system limit';
+  })();
   return (
     `Number of ${readableLimitType} in ${readableLimitScope} (${valueExceedingLimit}) ` +
     `exceeds ${limitDesignation} of ${limitValue}.`
