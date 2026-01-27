@@ -76,7 +76,9 @@ function Content(): React.ReactNode {
     !precincts.isSuccess ||
     !ballotsFinalizedAt.isSuccess ||
     !electionInfoQuery.isSuccess
-  ) return null;
+  ) {
+    return null;
+  }
 
   const precinctRoutes = routes.election(electionId).precincts;
   const precinctParamRoutes = electionParamRoutes.precincts;
@@ -117,8 +119,11 @@ function Content(): React.ReactNode {
               stringKey: ':stringKey',
               subkey: ':subkey',
             })}
-            component={PrecinctAudioPanel}
-          />
+          >
+            <EditPanel>
+              <PrecinctAudioPanel />
+            </EditPanel>
+          </Route>
 
           <Route
             path={precinctParamRoutes.add.path}
