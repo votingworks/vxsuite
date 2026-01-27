@@ -136,7 +136,7 @@ export function ElectionNavScreen({
     <NavScreen
       navContent={
         <NavList>
-          {electionNavRoutes(electionInfo, userFeatures, systemSettings).map(
+          {electionNavRoutes(electionInfo, systemSettings).map(
             ({ path, title }) => (
               <NavListItem key={path}>
                 <NavLink to={path} isActive={path === currentRoute.url}>

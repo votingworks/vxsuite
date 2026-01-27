@@ -35,7 +35,6 @@ const allUserFeaturesOnConfig: Record<UserFeature, boolean> = {
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
-  DOWNLOADS: true,
 };
 
 export function mockUserFeatures(
