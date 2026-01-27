@@ -1,6 +1,3 @@
 build
 vitest.config.ts
 coverage
-
-src/app.test.ts
-test/helpers.ts

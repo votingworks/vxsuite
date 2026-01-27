@@ -12,6 +12,7 @@ import {
   find,
   ok,
   range,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
 import {
@@ -82,7 +83,11 @@ import {
   hmpbStringsCatalog,
   layOutBallotsAndCreateElectionDefinition,
   renderAllBallotPdfsAndCreateElectionDefinition,
+  generateBallotStyles,
 } from '@votingworks/hmpb';
+import path, { join } from 'node:path';
+import { LogEventId } from '@votingworks/logging';
+import { readdir, readFile } from 'node:fs/promises';
 import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
@@ -106,18 +111,13 @@ import {
   ElectionStatus,
   Jurisdiction,
 } from './types';
-import { generateBallotStyles } from '@votingworks/hmpb';
 import {
   MainExportTaskMetadata,
   DuplicateDistrictError,
   DuplicatePartyError,
-  TestDecksTaskMetadata,
 } from './store';
-import path, { join } from 'node:path';
 import { stateFeatureConfigs, userFeatureConfigs } from './features';
-import { LogEventId } from '@votingworks/logging';
 import { buildApi } from './app';
-import { readdir, readFile } from 'node:fs/promises';
 import {
   organizations,
   jurisdictions,
@@ -185,14 +185,12 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
 });
 
 // Mock decryption for ballotAuditIds
-vi.mock('@votingworks/auth', async (importActual) => {
-  return {
-    ...(await importActual()),
-    decryptAes256: vi
-      .fn()
-      .mockImplementation((_key, data) => `decrypted-${data}`),
-  };
-});
+vi.mock('@votingworks/auth', async (importActual) => ({
+  ...(await importActual()),
+  decryptAes256: vi
+    .fn()
+    .mockImplementation((_key, data) => `decrypted-${data}`),
+}));
 
 // Spy on test deck functions so we can mock them in specific tests
 vi.mock(import('./test_decks.js'), async (importActual) => {
@@ -208,8 +206,6 @@ vi.mock(import('./test_decks.js'), async (importActual) => {
 });
 
 const { setupApp, cleanup } = testSetupHelpers();
-
-const MOCK_READINESS_REPORT_CONTENTS = '%PDF - MockReadinessReport';
 
 function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
   const expectedStrings = mergeUiStrings(election.ballotStrings, {
@@ -273,7 +269,7 @@ test('all methods require authentication', async () => {
   await suppressingConsoleOutput(async () => {
     const apiMethodNames = Object.keys(buildApi(context).methods());
     for (const apiMethodName of apiMethodNames) {
-      // @ts-ignore - Don't pass any input to the API methods since we expect
+      // @ts-expect-error - Don't pass any input to the API methods since we expect
       // auth middleware to reject it before getting to the handler. A bit of a
       // hack, but lets us test all the methods quickly without constructing
       // bespoke input for each one.
@@ -678,7 +674,7 @@ test('update election info', async () => {
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
-  await apiClient.updateElectionInfo(electionInfoUpdate);
+  (await apiClient.updateElectionInfo(electionInfoUpdate)).unsafeUnwrap();
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
       jurisdictionId: nonVxJurisdiction.id,
@@ -727,7 +723,9 @@ test('update election info', async () => {
     signatureCaption: 'New Caption',
     signatureImage: '\r\n<svg>new signature</svg>\r\n',
   };
-  await apiClient.updateElectionInfo(electionInfoUpdateWithSignature);
+  (
+    await apiClient.updateElectionInfo(electionInfoUpdateWithSignature)
+  ).unsafeUnwrap();
 
   // Signature should be included in response
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
@@ -1062,10 +1060,12 @@ test('deleting a district updates associated precincts', async () => {
   const precinctWithSplits = precincts.find(hasSplits)!;
   const split = precinctWithSplits.splits[0];
 
-  await apiClient.updateDistricts({
-    electionId,
-    deletedDistrictIds: [split.districtIds[0]],
-  });
+  (
+    await apiClient.updateDistricts({
+      electionId,
+      deletedDistrictIds: [split.districtIds[0]],
+    })
+  ).unsafeUnwrap();
 
   let updatedPrecincts = await apiClient.listPrecincts({ electionId });
   let updatedPrecinct = updatedPrecincts.find(
@@ -1081,10 +1081,12 @@ test('deleting a district updates associated precincts', async () => {
     (p) => !hasSplits(p)
   ) as PrecinctWithoutSplits;
 
-  await apiClient.updateDistricts({
-    electionId,
-    deletedDistrictIds: [precinctWithoutSplits.districtIds[0]],
-  });
+  (
+    await apiClient.updateDistricts({
+      electionId,
+      deletedDistrictIds: [precinctWithoutSplits.districtIds[0]],
+    })
+  ).unsafeUnwrap();
 
   updatedPrecincts = await apiClient.listPrecincts({ electionId });
   updatedPrecinct = updatedPrecincts.find(
@@ -1119,10 +1121,12 @@ test('CRUD precincts', async () => {
     name: 'Precinct 1',
     districtIds: [], // Ok to have no districts
   };
-  await apiClient.createPrecinct({
-    electionId,
-    newPrecinct: precinct1,
-  });
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinct1,
+    })
+  ).unsafeUnwrap();
   expect(await apiClient.listPrecincts({ electionId })).toEqual([precinct1]);
 
   // Can't create a precinct with an existing name
@@ -1142,18 +1146,22 @@ test('CRUD precincts', async () => {
     id: unsafeParse(DistrictIdSchema, 'district-1'),
     name: 'District 1',
   };
-  await apiClient.updateDistricts({
-    electionId,
-    newDistricts: [district1],
-  });
+  (
+    await apiClient.updateDistricts({
+      electionId,
+      newDistricts: [district1],
+    })
+  ).unsafeUnwrap();
   const updatedPrecinct1: PrecinctWithoutSplits = {
     ...precinct1,
     districtIds: [district1.id],
   };
-  await apiClient.updatePrecinct({
-    electionId,
-    updatedPrecinct: updatedPrecinct1,
-  });
+  (
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: updatedPrecinct1,
+    })
+  ).unsafeUnwrap();
   expect(await apiClient.listPrecincts({ electionId })).toEqual([
     updatedPrecinct1,
   ]);
@@ -1175,10 +1183,12 @@ test('CRUD precincts', async () => {
       },
     ],
   };
-  await apiClient.createPrecinct({
-    electionId,
-    newPrecinct: precinct2,
-  });
+  (
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: precinct2,
+    })
+  ).unsafeUnwrap();
   expect(await apiClient.listPrecincts({ electionId })).toEqual([
     updatedPrecinct1,
     precinct2,
@@ -1200,10 +1210,12 @@ test('CRUD precincts', async () => {
     id: unsafeParse(DistrictIdSchema, 'district-2'),
     name: 'District 2',
   };
-  await apiClient.updateDistricts({
-    electionId,
-    newDistricts: [district2],
-  });
+  (
+    await apiClient.updateDistricts({
+      electionId,
+      newDistricts: [district2],
+    })
+  ).unsafeUnwrap();
   const updatedPrecinct2: PrecinctWithSplits = {
     ...precinct2,
     splits: [
@@ -1214,10 +1226,12 @@ test('CRUD precincts', async () => {
       precinct2.splits[1],
     ],
   };
-  await apiClient.updatePrecinct({
-    electionId,
-    updatedPrecinct: updatedPrecinct2,
-  });
+  (
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: updatedPrecinct2,
+    })
+  ).unsafeUnwrap();
   expect(await apiClient.listPrecincts({ electionId })).toEqual([
     updatedPrecinct1,
     updatedPrecinct2,
@@ -1676,17 +1690,21 @@ test('deleting a party updates associated contests', async () => {
   )!;
   assert(contestWithParty.candidates.every((c) => c.partyIds?.length === 1));
 
-  await apiClient.updateParties({
-    electionId,
-    deletedPartyIds: [contestWithParty.partyId!],
-  });
+  (
+    await apiClient.updateParties({
+      electionId,
+      deletedPartyIds: [contestWithParty.partyId!],
+    })
+  ).unsafeUnwrap();
 
   const updatedContests = await apiClient.listContests({ electionId });
   const updatedContest = updatedContests.find(
     (c) => c.id === contestWithParty.id
   ) as CandidateContest;
   expect(updatedContest.partyId).toBeUndefined();
-  expect(updatedContest.candidates.every((c) => c.partyIds === undefined));
+  expect(
+    updatedContest.candidates.every((c) => c.partyIds === undefined)
+  ).toEqual(true);
 });
 
 test('CRUD contests', async () => {
@@ -1720,10 +1738,12 @@ test('CRUD contests', async () => {
     id: unsafeParse(DistrictIdSchema, 'district-2'),
     name: 'District 2',
   };
-  await apiClient.updateDistricts({
-    electionId,
-    newDistricts: [district1, district2],
-  });
+  (
+    await apiClient.updateDistricts({
+      electionId,
+      newDistricts: [district1, district2],
+    })
+  ).unsafeUnwrap();
 
   const party1: Party = {
     id: unsafeParse(PartyIdSchema, 'party-1'),
@@ -1737,7 +1757,9 @@ test('CRUD contests', async () => {
     abbrev: 'P2',
     fullName: 'Party 2 Full Name',
   };
-  await apiClient.updateParties({ electionId, newParties: [party1, party2] });
+  (
+    await apiClient.updateParties({ electionId, newParties: [party1, party2] })
+  ).unsafeUnwrap();
 
   // Create a candidate contest
   const contest1: CandidateContest = {
@@ -1766,7 +1788,9 @@ test('CRUD contests', async () => {
     ],
   };
 
-  await apiClient.createContest({ electionId, newContest: contest1 });
+  (
+    await apiClient.createContest({ electionId, newContest: contest1 })
+  ).unsafeUnwrap();
   expect(await apiClient.listContests({ electionId })).toEqual([contest1]);
 
   // Create a ballot measure contest
@@ -1785,7 +1809,9 @@ test('CRUD contests', async () => {
       label: 'No',
     },
   };
-  await apiClient.createContest({ electionId, newContest: contest2 });
+  (
+    await apiClient.createContest({ electionId, newContest: contest2 })
+  ).unsafeUnwrap();
   expect(await apiClient.listContests({ electionId })).toEqual([
     contest1,
     contest2,
@@ -1818,7 +1844,9 @@ test('CRUD contests', async () => {
     ],
   };
 
-  await apiClient.createContest({ electionId, newContest: contest3 });
+  (
+    await apiClient.createContest({ electionId, newContest: contest3 })
+  ).unsafeUnwrap();
   // Expect the candidate contest to be inserted ahead of the ballot measure
   expect(await apiClient.listContests({ electionId })).toEqual([
     contest1,
@@ -1843,10 +1871,12 @@ test('CRUD contests', async () => {
       },
     ],
   };
-  await apiClient.updateContest({
-    electionId,
-    updatedContest: updatedContest1,
-  });
+  (
+    await apiClient.updateContest({
+      electionId,
+      updatedContest: updatedContest1,
+    })
+  ).unsafeUnwrap();
   // Expect contests to have their ballot order preserved
   expect(await apiClient.listContests({ electionId })).toEqual([
     updatedContest1,
@@ -1860,10 +1890,12 @@ test('CRUD contests', async () => {
     title: 'Updated Contest 2',
     description: 'Updated Contest 2 Description',
   };
-  await apiClient.updateContest({
-    electionId,
-    updatedContest: updatedContest2,
-  });
+  (
+    await apiClient.updateContest({
+      electionId,
+      updatedContest: updatedContest2,
+    })
+  ).unsafeUnwrap();
   expect(await apiClient.listContests({ electionId })).toEqual([
     updatedContest1,
     contest3,
@@ -1878,10 +1910,12 @@ test('CRUD contests', async () => {
   ]);
 
   // Recreate the deleted contest
-  await apiClient.createContest({
-    electionId,
-    newContest: updatedContest1,
-  });
+  (
+    await apiClient.createContest({
+      electionId,
+      newContest: updatedContest1,
+    })
+  ).unsafeUnwrap();
 
   // Can't create a candidate contest with an existing title + seats + term
   expect(
@@ -1941,13 +1975,15 @@ test('CRUD contests', async () => {
 
   // If contests have parties (e.g. in primaries), this is also part of the uniqueness check
   // Can't create a candidate contest with an existing title + seats + term + party
-  await apiClient.updateContest({
-    electionId,
-    updatedContest: {
-      ...updatedContest1,
-      partyId: party1.id,
-    },
-  });
+  (
+    await apiClient.updateContest({
+      electionId,
+      updatedContest: {
+        ...updatedContest1,
+        partyId: party1.id,
+      },
+    })
+  ).unsafeUnwrap();
   expect(
     await apiClient.createContest({
       electionId,
@@ -1995,14 +2031,16 @@ test('CRUD contests', async () => {
   ).toEqual(err('duplicate-contest'));
 
   // Can't update a ballot measure contest to an existing title
-  await apiClient.createContest({
-    electionId,
-    newContest: {
-      ...updatedContest2,
-      id: 'contest-7',
-      title: 'New Contest Title',
-    },
-  });
+  (
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...updatedContest2,
+        id: 'contest-7',
+        title: 'New Contest Title',
+      },
+    })
+  ).unsafeUnwrap();
   expect(
     await apiClient.updateContest({
       electionId,
@@ -2520,13 +2558,13 @@ test('approve ballots', async () => {
 
   await apiClient.finalizeBallots({ electionId });
 
-  const now = new Date();
   {
+    const now = new Date();
     vi.useFakeTimers({ now });
     await apiClient.approveBallots({ electionId });
     vi.useRealTimers();
+    expect(await apiClient.getBallotsApprovedAt({ electionId })).toEqual(now);
   }
-  expect(await apiClient.getBallotsApprovedAt({ electionId })).toEqual(now);
 
   await apiClient.unfinalizeBallots({ electionId });
   expect(await apiClient.getBallotsApprovedAt({ electionId })).toEqual(null);
@@ -2554,15 +2592,17 @@ test('cloneElection', async () => {
 
   const srcElectionId = 'election-1' as ElectionId;
   auth0.setLoggedInUser(supportUser);
-  await apiClient.loadElection({
-    upload: {
-      format: 'vxf',
-      electionFileContents:
-        electionFamousNames2021Fixtures.electionJson.asText(),
-    },
-    newId: srcElectionId,
-    jurisdictionId: nonVxJurisdiction.id,
-  });
+  (
+    await apiClient.loadElection({
+      upload: {
+        format: 'vxf',
+        electionFileContents:
+          electionFamousNames2021Fixtures.electionJson.asText(),
+      },
+      newId: srcElectionId,
+      jurisdictionId: nonVxJurisdiction.id,
+    })
+  ).unsafeUnwrap();
   const srcSystemSettings = await apiClient.getSystemSettings({
     electionId: srcElectionId,
   });
@@ -2645,13 +2685,12 @@ test('cloneElection', async () => {
             districtIds: split.districtIds.map(updatedDistrictId),
           })),
         };
-      } else {
-        return {
-          ...precinct,
-          id: expectNotEqualTo(precinct.id),
-          districtIds: precinct.districtIds.map(updatedDistrictId),
-        };
       }
+      return {
+        ...precinct,
+        id: expectNotEqualTo(precinct.id),
+        districtIds: precinct.districtIds.map(updatedDistrictId),
+      };
     })
   );
 
@@ -2672,9 +2711,7 @@ test('cloneElection', async () => {
   const destContests = await apiClient.listContests({
     electionId: newElectionId,
   });
-  function updatedPartyId(
-    srcPartyId: PartyId | undefined
-  ): PartyId | undefined {
+  function updatedPartyId(srcPartyId?: PartyId): PartyId | undefined {
     if (!srcPartyId) return undefined;
     const srcParty = find(srcParties, (p) => p.id === srcPartyId);
     return find(destParties, (p) => p.name === srcParty.name).id;
@@ -2710,6 +2747,8 @@ test('cloneElection', async () => {
               id: expectNotEqualTo(contest.noOption.id),
             },
           };
+        default:
+          throw throwIllegalValue(contest, 'type');
       }
     })
   );
@@ -2744,7 +2783,7 @@ test('cloneElection', async () => {
   // Election title has copy prefix if same jurisdiction
   expect(
     (await apiClient.getElectionInfo({ electionId: 'election-clone-2' })).title
-  ).toEqual('(Copy) ' + srcElectionInfo.title);
+  ).toEqual(`(Copy) ${srcElectionInfo.title}`);
 
   // Can clone a cloned election and get an additional copy prefix
   await expect(
@@ -2756,7 +2795,7 @@ test('cloneElection', async () => {
   ).resolves.toEqual('election-clone-3');
   expect(
     (await apiClient.getElectionInfo({ electionId: 'election-clone-3' })).title
-  ).toEqual('(Copy) (Copy) ' + srcElectionInfo.title);
+  ).toEqual(`(Copy) (Copy) ${srcElectionInfo.title}`);
 
   // Non-VX user can't clone from another jurisdiction:
   auth0.setLoggedInUser(anotherNonVxUser);
@@ -2942,7 +2981,7 @@ test('Election package management', async () => {
 
   // Check that a bad URL returns an error
   await suppressingConsoleOutput(async () => {
-    const badUrlResponse = await fetch(electionPackageUrl + 'whoops');
+    const badUrlResponse = await fetch(`${electionPackageUrl}whoops`);
     expect(badUrlResponse.status).toEqual(500);
     expect(await badUrlResponse.json()).toEqual({
       message: '{"type":"undefined-body"}',
@@ -3336,7 +3375,7 @@ test('Election package and ballots export', async () => {
   expect(ballots).toHaveLength(expectedEntries.length);
 
   // Check each expected entry exists with base64 encoded data
-  expectedEntries.forEach((expected) => {
+  for (const expected of expectedEntries) {
     const matchingEntry = ballots.find(
       (entry) =>
         entry.ballotStyleId === expected.ballotStyleId &&
@@ -3350,8 +3389,8 @@ test('Election package and ballots export', async () => {
       `Couldn't find match for ballot entry: ${JSON.stringify(expected)}`
     );
     expect(matchingEntry.encodedBallot).toBeTruthy();
-    expect(typeof matchingEntry.encodedBallot).toBe('string');
-  });
+    expect(typeof matchingEntry.encodedBallot).toEqual('string');
+  }
 
   const ballotCombos: Array<[BallotType, BallotMode]> = [
     [BallotType.Precinct, 'official'],
@@ -3468,7 +3507,7 @@ test('export omits optional ballots if not enabled', async () => {
     [BallotType.Absentee, 'official'],
   ];
 
-  const election = electionDefinition.election;
+  const { election } = electionDefinition;
   const expectedBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.flatMap((precinctId) =>
       ballotCombos.map(
@@ -3516,19 +3555,21 @@ test('Election package export with VxDefaultBallot drops signature field', async
   ).unsafeUnwrap();
 
   // Set a signature in the election info
-  await apiClient.updateElectionInfo({
-    jurisdictionId: nonVxJurisdiction.id,
-    electionId,
-    title: baseElectionDefinition.election.title,
-    countyName: baseElectionDefinition.election.county.name,
-    state: baseElectionDefinition.election.state,
-    seal: baseElectionDefinition.election.seal,
-    type: baseElectionDefinition.election.type,
-    date: baseElectionDefinition.election.date,
-    languageCodes: [LanguageCode.ENGLISH],
-    signatureImage: 'test-signature-image',
-    signatureCaption: 'Test Signature Caption',
-  });
+  (
+    await apiClient.updateElectionInfo({
+      jurisdictionId: nonVxJurisdiction.id,
+      electionId,
+      title: baseElectionDefinition.election.title,
+      countyName: baseElectionDefinition.election.county.name,
+      state: baseElectionDefinition.election.state,
+      seal: baseElectionDefinition.election.seal,
+      type: baseElectionDefinition.election.type,
+      date: baseElectionDefinition.election.date,
+      languageCodes: [LanguageCode.ENGLISH],
+      signatureImage: 'test-signature-image',
+      signatureCaption: 'Test Signature Caption',
+    })
+  ).unsafeUnwrap();
 
   // Ensure we're using VxDefaultBallot template
   await apiClient.setBallotTemplate({
@@ -3681,16 +3722,15 @@ test.each([
   async ({ bmdPrintMode, shouldIncludeSummaryBallots }) => {
     // Mock PDF rendering functions to return simple placeholder PDFs for faster test execution
     const mockPdfContent = new TextEncoder().encode('%PDF-mock');
-    vi.mocked(createPrecinctTestDeck).mockImplementation(
-      async ({ ballotSpecs }) =>
-        ballotSpecs.length > 0 ? mockPdfContent : undefined
+    vi.mocked(createPrecinctTestDeck).mockImplementation(({ ballotSpecs }) =>
+      Promise.resolve(ballotSpecs.length > 0 ? mockPdfContent : undefined)
     );
     vi.mocked(createPrecinctSummaryBallotTestDeck).mockImplementation(
-      async ({ ballotSpecs }) =>
-        ballotSpecs.length > 0 ? mockPdfContent : undefined
+      ({ ballotSpecs }) =>
+        Promise.resolve(ballotSpecs.length > 0 ? mockPdfContent : undefined)
     );
     vi.mocked(createTestDeckTallyReports).mockImplementation(
-      async ({ electionDefinition }) => {
+      ({ electionDefinition }) => {
         const { election } = electionDefinition;
         const reports = new Map<string, Uint8Array>();
         reports.set(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, mockPdfContent);
@@ -3700,7 +3740,7 @@ test.each([
             mockPdfContent
           );
         }
-        return reports;
+        return Promise.resolve(reports);
       }
     );
 
@@ -3777,6 +3817,7 @@ test.each([
           ),
         ];
 
+    // eslint-disable-next-line vx/no-array-sort-mutation
     expect(Object.keys(zip.files).sort()).toEqual(expectedFiles.sort());
   }
 );
@@ -4018,12 +4059,11 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
   const precinct = assertDefined(precincts.find((p) => hasSplits(p)));
   const split = precinct.splits[0];
   const ballotStyle = assertDefined(
-    ballotStyles.find((style) => {
-      return (
+    ballotStyles.find(
+      (style) =>
         ballotStyleHasPrecinctOrSplit(style, { precinct, split }) &&
         style.languages!.includes(LanguageCode.ENGLISH)
-      );
-    })
+    )
   );
 
   const result = (
@@ -4094,15 +4134,16 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   ).toString();
   split.electionTitleOverride = 'Test Election Title Override';
 
-  await apiClient.updatePrecinct({ electionId, updatedPrecinct: precinct });
+  (
+    await apiClient.updatePrecinct({ electionId, updatedPrecinct: precinct })
+  ).unsafeUnwrap();
 
   const ballotStyle = assertDefined(
-    ballotStyles.find((style) => {
-      return (
+    ballotStyles.find(
+      (style) =>
         ballotStyleHasPrecinctOrSplit(style, { precinct, split }) &&
         style.languages!.includes(LanguageCode.ENGLISH)
-      );
-    })
+    )
   );
 
   const result = (
@@ -4315,11 +4356,9 @@ test.each<{
     });
 
     if (isRenderSuccessful) {
-      expect(result.isOk()).toEqual(true);
       const { pdfData } = result.unsafeUnwrap();
       await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
     } else {
-      expect(result.isOk()).toEqual(false);
       expect(result).toEqual(
         err({
           error: 'contestTooLong',
@@ -4569,10 +4608,12 @@ test('api call logging', async () => {
   );
 
   auth0.setLoggedInUser(vxUser);
-  await apiClient.createElection({
-    id: 'election-id' as ElectionId,
-    jurisdictionId: vxJurisdiction.id,
-  });
+  (
+    await apiClient.createElection({
+      id: 'election-id' as ElectionId,
+      jurisdictionId: vxJurisdiction.id,
+    })
+  ).unsafeUnwrap();
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ApiCall,
     'system',
@@ -4599,9 +4640,7 @@ test('decryptCvrBallotAuditIds', async () => {
     if (cvrPath === 'metadata.json') continue;
     await execFile('sed', [
       '-i',
-      's/"@type":"CVR.CVR"/"@type":"CVR.CVR","BallotAuditId":"' +
-        (i + 1) +
-        '"/',
+      `s/"@type":"CVR.CVR"/"@type":"CVR.CVR","BallotAuditId":"${i + 1}"/`,
       join(
         cvrDirectoryPath,
         cvrPath,
@@ -4708,12 +4747,14 @@ test('MS election and results SEMS conversion', async () => {
   ).unsafeUnwrap();
 
   // Convert results
-  await apiClient.convertMsResults({
-    electionId,
-    allPrecinctsTallyReportContents: generateAllPrecinctsTallyReport(
-      electionPackage.electionDefinition
-    ),
-  });
+  (
+    await apiClient.convertMsResults({
+      electionId,
+      allPrecinctsTallyReportContents: generateAllPrecinctsTallyReport(
+        electionPackage.electionDefinition
+      ),
+    })
+  ).unsafeUnwrap();
 });
 
 function regexElectionPackageZip(jurisdiction: Jurisdiction) {

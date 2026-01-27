@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import {
   makeMockGoogleCloudTextToSpeechClient,
   makeMockGoogleCloudTranslationClient,
@@ -7,7 +8,6 @@ import {
   assert,
   assertDefined,
   err,
-  find,
   ok,
   Result,
   throwIllegalValue,
@@ -23,14 +23,17 @@ import {
   ElectionSerializationFormat,
   formatBallotHash,
   LanguageCode,
+  safeParseInt,
 } from '@votingworks/types';
-import { Request } from 'express';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import * as tmp from 'tmp';
 import { vi } from 'vitest';
-import type { Api, ApiContext, UnauthenticatedApi } from '../src/app';
+import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { stringify } from 'csv-stringify/sync';
+import type { Api, UnauthenticatedApi } from '../src/app';
 import { buildApp } from '../src/app';
 import { Auth0ClientInterface } from '../src/auth0_client';
 import {
@@ -43,10 +46,6 @@ import { Jurisdiction, Organization, User } from '../src/types';
 import * as worker from '../src/worker/worker';
 import { createWorkspace, Workspace } from '../src/workspace';
 import { TestStore } from './test_store';
-import { getEntries, openZip, readEntry } from '@votingworks/utils/src';
-import { join } from 'node:path';
-import { readFileSync } from 'node:fs';
-import { stringify } from 'csv-stringify/sync';
 import {
   AllPrecinctsTallyReportRow,
   AllPrecinctsTallyReportRowWithManualTallies,
@@ -64,7 +63,7 @@ const vendoredTranslations: VendoredTranslations = {
 };
 
 class MockAuth0Client implements Auth0ClientInterface {
-  private loggedInUser: User | undefined;
+  private loggedInUser?: User;
 
   setLoggedInUser(user: User) {
     this.loggedInUser = user;
@@ -74,7 +73,7 @@ class MockAuth0Client implements Auth0ClientInterface {
     this.loggedInUser = undefined;
   }
 
-  userIdFromRequest(_req: Request) {
+  userIdFromRequest() {
     return this.loggedInUser?.id;
   }
 }
@@ -86,22 +85,22 @@ export class MockFileStorageClient implements FileStorageClient {
     return this.mockFiles[filePath];
   }
 
-  async readFile(
+  readFile(
     filePath: string
   ): Promise<Result<Readable, FileStorageClientError>> {
     const file = this.mockFiles[filePath];
     if (!file) {
-      return err({ type: 'undefined-body' });
+      return Promise.resolve(err({ type: 'undefined-body' }));
     }
-    return ok(Readable.from(file));
+    return Promise.resolve(ok(Readable.from(file)));
   }
 
-  async writeFile(
+  writeFile(
     filePath: string,
     contents: Buffer
   ): Promise<Result<void, FileStorageClientError>> {
     this.mockFiles[filePath] = contents;
-    return ok();
+    return Promise.resolve(ok());
   }
 }
 
@@ -249,6 +248,7 @@ export async function exportElectionPackage({
   shouldExportAudio: boolean;
   shouldExportSampleBallots: boolean;
   shouldExportTestBallots: boolean;
+  // eslint-disable-next-line vx/gts-use-optionals
   numAuditIdBallots: number | undefined;
 }): Promise<MainExportTaskMetadata> {
   await apiClient.exportElectionPackage({
@@ -269,7 +269,7 @@ export async function exportElectionPackage({
   });
   assert(
     electionPackage.task?.error === undefined,
-    'Election package export failed with error: ' + electionPackage.task?.error
+    `Election package export failed with error: ${electionPackage.task?.error}`
   );
 
   return electionPackage;
@@ -278,6 +278,7 @@ export async function exportElectionPackage({
 export function getExportedFile(p: {
   storage: MockFileStorageClient;
   jurisdictionId: string;
+  // eslint-disable-next-line vx/gts-use-optionals
   url: string | undefined;
 }): Buffer {
   const url = assertDefined(p.url);
@@ -478,7 +479,7 @@ export function generateAllPrecinctsTallyReportWithManualTallies(
   const rows = generateAllPrecinctsTallyReportRows(electionDefinition.election);
   const rowsWithManualTallies: AllPrecinctsTallyReportRowWithManualTallies[] =
     rows.map((row) => {
-      const totalVotes = parseInt(row.totalVotes);
+      const totalVotes = safeParseInt(row.totalVotes).unsafeUnwrap();
       if (totalVotes >= 1) {
         return {
           ...row,
