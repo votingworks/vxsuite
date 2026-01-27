@@ -307,8 +307,11 @@ function Content(): JSX.Element | null {
               stringKey: ':stringKey',
               subkey: ':subkey',
             })}
-            component={ContestAudioPanel}
-          />
+          >
+            <EditPanel>
+              <ContestAudioPanel />
+            </EditPanel>
+          </Route>
           <Route
             path={contestParamRoutes.add.path}
             component={AddContestForm}
