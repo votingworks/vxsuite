@@ -156,6 +156,7 @@ export function getAllPossibleCandidateOrderings(
   const orderings = (() => {
     switch (ballotStyleTemplateId) {
       case 'NhBallot':
+      case 'NhGeneralBallot':
         return getCandidateOrderingSetsForNhBallot(params);
       case 'VxDefaultBallot':
       case 'MsBallot':
