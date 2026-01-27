@@ -140,7 +140,18 @@ function addCastVoteRecordToElectionResult(
 ): Tabulation.ElectionResults {
   const { cardCounts } = electionResult;
   if (cvr.card.type === 'bmd') {
-    cardCounts.bmd += 1;
+    // Check if this is a multi-page BMD ballot (has sheetNumber)
+    if ('sheetNumber' in cvr.card) {
+      // Multi-page BMD ballot
+      if (!cardCounts.bmdMultiSheet) {
+        cardCounts.bmdMultiSheet = [];
+      }
+      cardCounts.bmdMultiSheet[cvr.card.sheetNumber - 1] =
+        (cardCounts.bmdMultiSheet[cvr.card.sheetNumber - 1] ?? 0) + 1;
+    } else {
+      // Single-page BMD ballot
+      cardCounts.bmd += 1;
+    }
   } else {
     cardCounts.hmpb[cvr.card.sheetNumber - 1] =
       (cardCounts.hmpb[cvr.card.sheetNumber - 1] ?? 0) + 1;
@@ -471,34 +482,55 @@ export function getHmpbBallotCount(cardCounts: Tabulation.CardCounts): number {
 }
 
 /**
- * Gets total ballot count including HMPB, BMD, and manually entered ballots.
+ * Gets the multi-page BMD ballot count, which is the count of the first page
+ * (similar to how HMPB count uses the first sheet).
+ */
+export function getBmdMultiPageBallotCount(
+  cardCounts: Tabulation.CardCounts
+): number {
+  return cardCounts.bmdMultiSheet?.[0] ?? 0;
+}
+
+/**
+ * Gets total ballot count including HMPB, BMD (single and multi-page), and
+ * manually entered ballots.
  */
 export function getBallotCount(cardCounts: Tabulation.CardCounts): number {
   return (
-    cardCounts.bmd + getHmpbBallotCount(cardCounts) + (cardCounts.manual ?? 0)
+    cardCounts.bmd +
+    getBmdMultiPageBallotCount(cardCounts) +
+    getHmpbBallotCount(cardCounts) +
+    (cardCounts.manual ?? 0)
   );
 }
 
 /**
- * Gets scanned ballot count including HMPB and BMD ballots. Does not include
- * manually entered ballots.
+ * Gets scanned ballot count including HMPB and BMD ballots (both single-page
+ * and multi-page). Does not include manually entered ballots.
  */
 export function getScannedBallotCount(
   cardCounts: Tabulation.CardCounts
 ): number {
-  return cardCounts.bmd + getHmpbBallotCount(cardCounts);
+  return (
+    cardCounts.bmd +
+    getBmdMultiPageBallotCount(cardCounts) +
+    getHmpbBallotCount(cardCounts)
+  );
 }
 
 /**
  * Gets the ballot count for a specific sheet index. For the first sheet, adds
- * the BMD count (since those are single-sheet summary ballots).
+ * the single-page BMD count (since those are single-sheet summary ballots) and
+ * the first page of multi-page BMD ballots.
  */
 export function getScannedBallotCountForSheet(
   cardCounts: Tabulation.CardCounts,
   sheetIndex: number // zero-indexed
 ): number {
   return (
-    (cardCounts.hmpb[sheetIndex] ?? 0) + (sheetIndex === 0 ? cardCounts.bmd : 0)
+    (cardCounts.hmpb[sheetIndex] ?? 0) +
+    (cardCounts.bmdMultiSheet?.[sheetIndex] ?? 0) +
+    (sheetIndex === 0 ? cardCounts.bmd : 0)
   );
 }
 
@@ -510,6 +542,9 @@ export function getSheetCount(cardCounts: Tabulation.CardCounts): number {
   return (
     cardCounts.bmd +
     iter(cardCounts.hmpb)
+      .map((c) => c ?? 0)
+      .sum() +
+    iter(cardCounts.bmdMultiSheet ?? [])
       .map((c) => c ?? 0)
       .sum()
   );
@@ -678,6 +713,17 @@ export function combineCardCounts(
       const cardCount = cardCounts.hmpb[i];
       combinedCardCounts.hmpb[i] =
         (combinedCardCounts.hmpb[i] ?? 0) + (cardCount ?? 0);
+    }
+    // Combine multi-page BMD sheet counts
+    if (cardCounts.bmdMultiSheet) {
+      if (!combinedCardCounts.bmdMultiSheet) {
+        combinedCardCounts.bmdMultiSheet = [];
+      }
+      for (let i = 0; i < cardCounts.bmdMultiSheet.length; i += 1) {
+        const cardCount = cardCounts.bmdMultiSheet[i];
+        combinedCardCounts.bmdMultiSheet[i] =
+          (combinedCardCounts.bmdMultiSheet[i] ?? 0) + (cardCount ?? 0);
+      }
     }
   }
 

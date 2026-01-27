@@ -110,6 +110,9 @@ export async function getScannerResults({
         votes: convertVotesDictToTabulationVotes(interpretation.votes),
         card: {
           type: 'bmd',
+          // Include sheet number for multi-page BMD ballots to enable
+          // proper sheet accounting (similar to HMPB)
+          sheetNumber: interpretation.metadata.pageNumber,
         },
         batchId: resultSheet.batchId,
         scannerId: VX_MACHINE_ID,

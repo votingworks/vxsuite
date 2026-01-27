@@ -233,6 +233,7 @@ export function determineCvrContestTags({
   const shouldTagUndervotes = adminAdjudicationReasons.includes(
     AdjudicationReason.Undervote
   );
+  console.log('is hmpb', isHmpb);
 
   // Write-ins
   const tagsByContestId = new CvrContestTagList(cvrId);
@@ -410,14 +411,31 @@ export async function importCastVoteRecords(
       const votes = convertCastVoteRecordVotesToTabulationVotes(
         castVoteRecordCurrentSnapshot
       );
-      const isHmpb = castVoteRecordBallotSheetId !== undefined;
+      // HMPB ballots have an original snapshot (for mark adjudication), while BMD ballots
+      // (including multi-page BMD) do not. Multi-page BMD also has BallotSheetId, so we
+      // can't use that alone to identify HMPB.
+      const isHmpb = castVoteRecordOriginalSnapshot !== undefined;
       let markScores: Tabulation.MarkScores | undefined;
       if (isHmpb) {
-        // hmpb are validated to have original snapshots by now
-        assert(castVoteRecordOriginalSnapshot !== undefined);
         markScores = convertCastVoteRecordMarkMetricsToMarkScores(
           castVoteRecordOriginalSnapshot
         );
+      }
+
+      // Determine the card type:
+      // - HMPB: has original snapshot and sheet number
+      // - Multi-page BMD: has sheet number but no original snapshot
+      // - Single-page BMD: no sheet number
+      let card: Tabulation.Card;
+      if (isHmpb) {
+        assert(castVoteRecordBallotSheetId !== undefined);
+        card = { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId };
+      } else if (castVoteRecordBallotSheetId !== undefined) {
+        // Multi-page BMD ballot
+        card = { type: 'bmd', sheetNumber: castVoteRecordBallotSheetId };
+      } else {
+        // Single-page BMD ballot
+        card = { type: 'bmd' };
       }
 
       // Currently, we only support filtering on initial adjudication status,
@@ -437,9 +455,7 @@ export async function importCastVoteRecords(
             election: electionDefinition.election,
           }),
           batchId: castVoteRecord.BatchId,
-          card: isHmpb
-            ? { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId }
-            : { type: 'bmd' },
+          card,
           precinctId: castVoteRecord.BallotStyleUnitId,
           markScores,
           votes,

@@ -1,4 +1,5 @@
 import {
+  InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -27,7 +28,7 @@ const EMPTY_PAGE_TYPES: ReadonlyArray<PageInterpretation['type']> = [
 export type CanonicalizedSheet =
   | {
       type: 'bmd';
-      interpretation: InterpretedBmdPage;
+      interpretation: InterpretedBmdPage | InterpretedBmdMultiPagePage;
       filenames: SheetOf<string>;
     }
   | {
@@ -46,7 +47,8 @@ export function canonicalizeSheet(
 ): Result<CanonicalizedSheet, SheetValidationError> {
   // Valid and correctly oriented BMD sheet
   if (
-    front.type === 'InterpretedBmdPage' &&
+    (front.type === 'InterpretedBmdPage' ||
+      front.type === 'InterpretedBmdMultiPagePage') &&
     EMPTY_PAGE_TYPES.includes(back.type)
   ) {
     return ok({
@@ -59,7 +61,8 @@ export function canonicalizeSheet(
   // Valid but reverse oriented BMD sheet
   if (
     EMPTY_PAGE_TYPES.includes(front.type) &&
-    back.type === 'InterpretedBmdPage'
+    (back.type === 'InterpretedBmdPage' ||
+      back.type === 'InterpretedBmdMultiPagePage')
   ) {
     return ok({
       type: 'bmd',

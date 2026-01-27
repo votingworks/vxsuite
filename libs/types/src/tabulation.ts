@@ -85,10 +85,19 @@ export interface CastVoteRecordAttributes {
 }
 
 /**
- * A scanned card can either be a BMD ballot or a sheet of an HMPB ballot,
- * indicated by its 1-indexed `sheetNumber`.
+ * A scanned card can be:
+ * - A single-page BMD ballot (type: 'bmd')
+ * - A page of a multi-page BMD ballot (type: 'bmd' with sheetNumber)
+ * - A sheet of an HMPB ballot (type: 'hmpb' with sheetNumber)
+ *
+ * For multi-page BMD ballots, `sheetNumber` is 1-indexed and corresponds to
+ * the page number of the ballot. This allows tracking which pages have been
+ * scanned, similar to HMPB sheet accounting.
  */
-export type Card = { type: 'bmd' } | { type: 'hmpb'; sheetNumber: number };
+export type Card =
+  | { type: 'bmd' }
+  | { type: 'bmd'; sheetNumber: number }
+  | { type: 'hmpb'; sheetNumber: number };
 
 export const MANUAL_BATCH_ID = 'NO_BATCH__MANUAL';
 export const MANUAL_SCANNER_ID = 'NO_SCANNER__MANUAL';
@@ -119,13 +128,18 @@ export interface GroupBy {
 /**
  * Object containing the counts for each scanned sheet.
  * - `bmd` is the number of single-sheet BMD ballots scanned
- * - `hmpb` is an array of the counts of each numbered ballot sheet. The number
- * at index `0` is the count of card 1, at index `1` is the count of card 2,
- * and so on
+ * - `bmdMultiSheet` is an array of the counts of each numbered multi-page BMD
+ *   ballot sheet. The number at index `0` is the count of page 1, at index `1`
+ *   is the count of page 2, and so on. When present, these counts are separate
+ *   from single-page BMD counts.
+ * - `hmpb` is an array of the counts of each numbered HMPB ballot sheet. The
+ *   number at index `0` is the count of card 1, at index `1` is the count of
+ *   card 2, and so on
  * - `manual` contains the count of manual entered ballot results
  */
 export interface CardCounts {
   bmd: number;
+  bmdMultiSheet?: Array<number | undefined>;
   hmpb: Array<number | undefined>;
   manual?: number;
 }
