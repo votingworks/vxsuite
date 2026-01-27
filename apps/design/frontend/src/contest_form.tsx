@@ -38,6 +38,7 @@ import {
   createContest,
   updateContest,
   deleteContest,
+  getStateFeatures,
 } from './api';
 import {
   FormFixed,
@@ -132,6 +133,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
+  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const createContestMutation = createContest.useMutation();
   const updateContestMutation = updateContest.useMutation();
   const deleteContestMutation = deleteContest.useMutation();
@@ -147,7 +149,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
     !getElectionInfoQuery.isSuccess ||
     !listDistrictsQuery.isSuccess ||
     !getBallotsFinalizedAtQuery.isSuccess ||
-    !listPartiesQuery.isSuccess
+    !listPartiesQuery.isSuccess ||
+    !getStateFeaturesQuery.isSuccess
   ) {
     return null;
   }
@@ -156,6 +159,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const parties = listPartiesQuery.data;
   const isFinalized = !!getBallotsFinalizedAtQuery.data;
   const hasExternalSource = Boolean(electionInfo.externalSource);
+  const features = getStateFeaturesQuery.data;
 
   function goBackToContestsList() {
     history.replace(contestRoutes.root.path);
@@ -728,62 +732,69 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                   }
                   autoComplete="off"
                 />
-                {(contest.additionalOptions ?? []).map((option, index) => (
-                  <Row key={option.id} style={{ gap: '0.5rem' }}>
-                    <input
-                      disabled={disabled || hasExternalSource}
-                      type="text"
-                      value={option.label}
-                      onChange={(e) => {
-                        const updatedOptions = (
-                          contest.additionalOptions ?? []
-                        ).map((o, i) =>
-                          i === index ? { ...option, label: e.target.value } : o
-                        );
-                        setContest({
-                          ...contest,
-                          additionalOptions: updatedOptions,
-                        });
-                      }}
-                      autoComplete="off"
-                    />
-                    <Button
-                      disabled={disabled || hasExternalSource || !editing}
-                      icon="Trash"
-                      color="danger"
-                      className="icon-button"
-                      onPress={() => {
-                        const updatedOptions = (
-                          contest.additionalOptions ?? []
-                        ).filter((_, i) => i !== index);
-                        setContest({
-                          ...contest,
-                          additionalOptions: updatedOptions,
-                        });
-                      }}
-                    />
-                  </Row>
-                ))}
-                <div>
-                  <Button
-                    icon="Add"
-                    disabled={disabled || hasExternalSource}
-                    onPress={() =>
-                      setContest({
-                        ...contest,
-                        additionalOptions: [
-                          ...(contest.additionalOptions ?? []),
-                          {
-                            id: generateId(),
-                            label: '',
-                          },
-                        ],
-                      })
-                    }
-                  >
-                    Add Option
-                  </Button>
-                </div>
+                {features.ADDITIONAL_BALLOT_MEASURE_OPTIONS && (
+                  <React.Fragment>
+                    {(contest.additionalOptions ?? []).map((option, index) => (
+                      <Row key={option.id} style={{ gap: '0.5rem' }}>
+                        <input
+                          disabled={disabled || hasExternalSource}
+                          type="text"
+                          value={option.label}
+                          onChange={(e) => {
+                            const updatedOptions = (
+                              contest.additionalOptions ?? []
+                            ).map((o, i) =>
+                              i === index
+                                ? { ...option, label: e.target.value }
+                                : o
+                            );
+                            setContest({
+                              ...contest,
+                              additionalOptions: updatedOptions,
+                            });
+                          }}
+                          autoComplete="off"
+                        />
+                        <Button
+                          disabled={disabled || hasExternalSource || !editing}
+                          icon="Trash"
+                          color="danger"
+                          className="icon-button"
+                          onPress={() => {
+                            const updatedOptions = (
+                              contest.additionalOptions ?? []
+                            ).filter((_, i) => i !== index);
+                            setContest({
+                              ...contest,
+                              additionalOptions: updatedOptions,
+                            });
+                          }}
+                        />
+                      </Row>
+                    ))}
+
+                    <div>
+                      <Button
+                        icon="Add"
+                        disabled={disabled || hasExternalSource || !editing}
+                        onPress={() =>
+                          setContest({
+                            ...contest,
+                            additionalOptions: [
+                              ...(contest.additionalOptions ?? []),
+                              {
+                                id: generateId(),
+                                label: '',
+                              },
+                            ],
+                          })
+                        }
+                      >
+                        Add Option
+                      </Button>
+                    </div>
+                  </React.Fragment>
+                )}
               </Column>
             </div>
           </React.Fragment>
