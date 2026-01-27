@@ -21,6 +21,7 @@ import {
   BallotStyleId,
   BallotTargetMark,
   BallotType,
+  ContestId,
   ContestOption,
   Contests,
   Corners,
@@ -268,12 +269,22 @@ function getUnmarkedWriteInsFromScoredContestOptions(
 
 /**
  * Derives adjudication information from contests.
+ *
+ * @param electionDefinition - The election definition
+ * @param options - Interpreter options including enabled adjudication reasons
+ * @param votes - The votes dictionary from the ballot
+ * @param ballotStyleId - The ballot style ID
+ * @param contestIds - Optional array of contest IDs to consider. If provided,
+ *   only contests with IDs in this array will be checked for adjudication.
+ *   Used for multi-page BMD ballots where each page only contains a subset
+ *   of contests.
  */
 export function determineAdjudicationInfoFromBmdVotes(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
   votes: VotesDict,
-  ballotStyleId: BallotStyleId
+  ballotStyleId: BallotStyleId,
+  contestIds?: ContestId[]
 ): AdjudicationInfo {
   const bmdAdjudicationReasons = [
     AdjudicationReason.BlankBallot,
@@ -284,11 +295,19 @@ export function determineAdjudicationInfoFromBmdVotes(
   );
   const { election } = electionDefinition;
 
+  let contests = getContests({
+    ballotStyle: assertDefined(getBallotStyle({ ballotStyleId, election })),
+    election,
+  });
+
+  // For multi-page BMD ballots, only consider contests on this page
+  if (contestIds) {
+    const contestIdSet = new Set(contestIds);
+    contests = contests.filter((contest) => contestIdSet.has(contest.id));
+  }
+
   const adjudicationReasonInfos = getAllPossibleAdjudicationReasonsForBmdVotes(
-    getContests({
-      ballotStyle: assertDefined(getBallotStyle({ ballotStyleId, election })),
-      election,
-    }),
+    contests,
     votes
   );
 
@@ -658,26 +677,49 @@ async function interpretBmdBallot(
     }
   }
 
-  const { ballot, summaryBallotImage, blankPageImage } = interpretResult.ok();
-  const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
-    electionDefinition,
-    options,
-    ballot.votes,
-    ballot.ballotStyleId
-  );
+  const result = interpretResult.ok();
+  const { summaryBallotImage, blankPageImage } = result;
 
-  const front: PageInterpretation = {
-    type: 'InterpretedBmdPage',
-    metadata: {
-      ballotHash: ballot.ballotHash,
-      ballotType: BallotType.Precinct,
-      ballotStyleId: ballot.ballotStyleId,
-      precinctId: ballot.precinctId,
-      isTestMode: ballot.isTestMode,
-    },
-    votes: ballot.votes,
-    adjudicationInfo,
-  };
+  let front: PageInterpretation;
+  if (result.type === 'multi-page') {
+    // Multi-page BMD ballot - only consider contests on this page
+    const { metadata, votes } = result;
+    const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
+      electionDefinition,
+      options,
+      votes,
+      metadata.ballotStyleId,
+      metadata.contestIds
+    );
+    front = {
+      type: 'InterpretedBmdMultiPagePage',
+      metadata,
+      votes,
+      adjudicationInfo,
+    };
+  } else {
+    // Single-page BMD ballot
+    const { ballot } = result;
+    const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
+      electionDefinition,
+      options,
+      ballot.votes,
+      ballot.ballotStyleId
+    );
+    front = {
+      type: 'InterpretedBmdPage',
+      metadata: {
+        ballotHash: ballot.ballotHash,
+        ballotType: BallotType.Precinct,
+        ballotStyleId: ballot.ballotStyleId,
+        precinctId: ballot.precinctId,
+        isTestMode: ballot.isTestMode,
+      },
+      votes: ballot.votes,
+      adjudicationInfo,
+    };
+  }
+
   const back: PageInterpretation = {
     type: 'BlankPage',
   };
@@ -723,7 +765,9 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
 
   if (
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
-    (frontType === 'BlankPage' && backType === 'InterpretedBmdPage')
+    (frontType === 'BlankPage' && backType === 'InterpretedBmdPage') ||
+    (frontType === 'InterpretedBmdMultiPagePage' && backType === 'BlankPage') ||
+    (frontType === 'BlankPage' && backType === 'InterpretedBmdMultiPagePage')
   ) {
     return 0;
   }

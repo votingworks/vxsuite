@@ -333,6 +333,24 @@ async function buildCastVoteRecord(
 
   // BMD ballot
   if (canonicalizedSheet.type === 'bmd') {
+    const { interpretation } = canonicalizedSheet;
+    const isMultiPageBmd =
+      interpretation.type === 'InterpretedBmdMultiPagePage';
+
+    if (isMultiPageBmd) {
+      return baseBuildCastVoteRecord({
+        ballotMarkingMode: 'machine-multi-page',
+        batchId,
+        ballotAuditId,
+        castVoteRecordId,
+        electionDefinition,
+        electionId,
+        images,
+        interpretation,
+        scannerId,
+      });
+    }
+
     return baseBuildCastVoteRecord({
       ballotMarkingMode: 'machine',
       batchId,
@@ -341,7 +359,7 @@ async function buildCastVoteRecord(
       electionDefinition,
       electionId,
       images,
-      interpretation: canonicalizedSheet.interpretation,
+      interpretation,
       scannerId,
     });
   }

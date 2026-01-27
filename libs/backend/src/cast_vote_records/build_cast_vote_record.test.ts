@@ -15,6 +15,8 @@ import { getCastVoteRecordBallotType } from '@votingworks/utils';
 import {
   fishCouncilContest,
   fishingContest,
+  interpretedBmdMultiPagePage1,
+  interpretedBmdMultiPagePage2,
   interpretedBmdPage,
   interpretedHmpbPage1,
   interpretedHmpbPage1WithUnmarkedWriteIn,
@@ -442,6 +444,79 @@ test('buildCastVoteRecord - BMD ballot', () => {
   expect(castVoteRecord.CVRSnapshot).toHaveLength(1);
   const snapshot = castVoteRecord.CVRSnapshot[0]!;
   expect(snapshot.Type).toEqual(CVR.CVRType.Original);
+});
+
+test('buildCastVoteRecord - multi-page BMD ballot page 1', () => {
+  const castVoteRecord = buildCastVoteRecord({
+    electionDefinition,
+    electionId,
+    castVoteRecordId,
+    scannerId,
+    batchId,
+    ballotAuditId,
+    ballotMarkingMode: 'machine-multi-page',
+    interpretation: interpretedBmdMultiPagePage1,
+  });
+
+  // Check metadata
+  expect(castVoteRecord).toMatchObject({
+    BallotStyleId: interpretedBmdMultiPagePage1.metadata.ballotStyleId,
+    BallotStyleUnitId: interpretedBmdMultiPagePage1.metadata.precinctId,
+    PartyIds: ['1'],
+    CreatingDeviceId: scannerId,
+    ElectionId: electionId,
+    BatchId: batchId,
+    // BallotAuditId should come from the interpretation metadata for multi-page BMD
+    BallotAuditId: interpretedBmdMultiPagePage1.metadata.ballotAuditId,
+    // BallotSheetId should be the page number
+    BallotSheetId: '1',
+    UniqueId: castVoteRecordId,
+  });
+  expect(getCastVoteRecordBallotType(castVoteRecord)).toEqual(
+    BallotType.Precinct
+  );
+
+  expect(castVoteRecord.CurrentSnapshotId).toEqual(
+    `${castVoteRecordId}-original`
+  );
+  expect(castVoteRecord.CVRSnapshot).toHaveLength(1);
+  const snapshot = castVoteRecord.CVRSnapshot[0]!;
+  expect(snapshot.Type).toEqual(CVR.CVRType.Original);
+
+  // Only the contest for this page should be included
+  expect(snapshot.CVRContest).toHaveLength(1);
+  expect(snapshot.CVRContest?.[0]?.ContestId).toEqual(fishCouncilContest.id);
+});
+
+test('buildCastVoteRecord - multi-page BMD ballot page 2', () => {
+  const castVoteRecord = buildCastVoteRecord({
+    electionDefinition,
+    electionId,
+    castVoteRecordId,
+    scannerId,
+    batchId,
+    ballotAuditId,
+    ballotMarkingMode: 'machine-multi-page',
+    interpretation: interpretedBmdMultiPagePage2,
+  });
+
+  // Check metadata
+  expect(castVoteRecord).toMatchObject({
+    BallotStyleId: interpretedBmdMultiPagePage2.metadata.ballotStyleId,
+    BallotStyleUnitId: interpretedBmdMultiPagePage2.metadata.precinctId,
+    // BallotAuditId should come from the interpretation metadata for multi-page BMD
+    BallotAuditId: interpretedBmdMultiPagePage2.metadata.ballotAuditId,
+    // BallotSheetId should be the page number
+    BallotSheetId: '2',
+    UniqueId: castVoteRecordId,
+  });
+
+  expect(castVoteRecord.CVRSnapshot).toHaveLength(1);
+  const snapshot = castVoteRecord.CVRSnapshot[0]!;
+
+  // Only the contest for this page should be included
+  expect(snapshot.CVRContest).toHaveLength(1);
+  expect(snapshot.CVRContest?.[0]?.ContestId).toEqual(fishingContest.id);
 });
 
 test('buildCastVoteRecord - BMD ballot images', () => {
