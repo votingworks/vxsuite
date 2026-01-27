@@ -17,6 +17,7 @@ import {
   BallotStyleId,
   BallotType,
   BaseBallotProps,
+  CandidateContest,
   Election,
   ElectionDefinition,
   ElectionSerializationFormat,
@@ -24,6 +25,7 @@ import {
   GridPosition,
   HmpbBallotPageMetadata,
   Outset,
+  YesNoContest,
   convertVxfElectionToCdfBallotDefinition,
   formatBallotHash,
   safeParseElection,
@@ -648,28 +650,9 @@ export async function layOutBallotsAndCreateElectionDefinition<
       ) {
         return contest;
       }
-      return {
-        type: 'candidate',
-        id: contest.id,
-        districtId: contest.districtId,
-        title: contest.title,
-        candidates: [
-          {
-            id: contest.yesOption.id,
-            name: contest.yesOption.label,
-          },
-          {
-            id: contest.noOption.id,
-            name: contest.noOption.label,
-          },
-          ...contest.additionalOptions.map((option) => ({
-            id: option.id,
-            name: option.label,
-          })),
-        ],
-        allowWriteIns: false,
-        seats: 1,
-      };
+      return convertBallotMeasureWithAdditionalOptionsToCandidateContest(
+        contest
+      );
     });
 
   const electionWithGridLayouts: Election = {
@@ -797,4 +780,32 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
     electionSerializationFormat
   );
   return electionDefinition;
+}
+
+export function convertBallotMeasureWithAdditionalOptionsToCandidateContest(
+  contest: YesNoContest
+): CandidateContest {
+  assert(contest.additionalOptions && contest.additionalOptions.length > 0);
+  return {
+    type: 'candidate',
+    id: contest.id,
+    districtId: contest.districtId,
+    title: contest.title,
+    candidates: [
+      {
+        id: contest.yesOption.id,
+        name: contest.yesOption.label,
+      },
+      {
+        id: contest.noOption.id,
+        name: contest.noOption.label,
+      },
+      ...contest.additionalOptions.map((option) => ({
+        id: option.id,
+        name: option.label,
+      })),
+    ],
+    allowWriteIns: false,
+    seats: 1,
+  };
 }
