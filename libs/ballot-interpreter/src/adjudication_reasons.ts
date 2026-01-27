@@ -60,7 +60,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
 
   for (const contest of contests) {
     const expectedSelectionCount = getExpectedVoteCount(contest);
-    const actualVotes = assertDefined(votes[contest.id]);
+    const actualVotes = votes[contest.id] ?? [];
 
     const actualVoteCount = actualVotes.length;
 

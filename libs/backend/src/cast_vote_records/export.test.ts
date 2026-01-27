@@ -20,6 +20,7 @@ import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import {
   interpretedBmdBallot,
   interpretedBmdBallotWithWriteIn,
+  interpretedBmdMultiPageBallot1,
   interpretedBmdPage,
   interpretedHmpb,
   interpretedHmpbPage1,
@@ -327,6 +328,30 @@ test.each<{
     sheetGenerator: () =>
       newAcceptedSheet(interpretedBmdBallotWithWriteIn, sheet1Id),
     exportOptions: { scannerType: 'central' },
+    expectedDirectoryContents: [
+      CastVoteRecordExportFileName.METADATA,
+      `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
+      `${sheet1Id}/${sheet1Id}-front.jpg`,
+      `${sheet1Id}/${sheet1Id}-back.jpg`,
+    ],
+    expectedBallotImageField: [
+      {
+        '@type': 'CVR.ImageData',
+        Hash: anyCastVoteRecordHash,
+        Location: `file:${sheet1Id}-front.jpg`,
+      },
+      {
+        '@type': 'CVR.ImageData',
+        Hash: anyCastVoteRecordHash,
+        Location: `file:${sheet1Id}-back.jpg`,
+      },
+    ],
+  },
+  {
+    description: 'accepted multi-page BMD ballot on precinct scanner',
+    sheetGenerator: () =>
+      newAcceptedSheet(interpretedBmdMultiPageBallot1, sheet1Id),
+    exportOptions: { scannerType: 'precinct' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,

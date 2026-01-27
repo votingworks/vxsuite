@@ -7,6 +7,8 @@ import {
   AdjudicationReasonSchema,
   BallotMetadata,
   BallotMetadataSchema,
+  BmdMultiPageBallotPageMetadata,
+  BmdMultiPageBallotPageMetadataSchema,
   ContestId,
   ContestIdSchema,
   HmpbBallotPageMetadata,
@@ -43,6 +45,24 @@ export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
   z.object({
     type: z.literal('InterpretedBmdPage'),
     metadata: BallotMetadataSchema,
+    votes: VotesDictSchema,
+    adjudicationInfo: AdjudicationInfoSchema,
+  });
+
+/**
+ * Interpretation result for a single page of a multi-page BMD ballot.
+ */
+export interface InterpretedBmdMultiPagePage {
+  type: 'InterpretedBmdMultiPagePage';
+  metadata: BmdMultiPageBallotPageMetadata;
+  /** Votes for only the contests on this page */
+  votes: VotesDict;
+  adjudicationInfo: AdjudicationInfo;
+}
+export const InterpretedBmdMultiPagePageSchema: z.ZodSchema<InterpretedBmdMultiPagePage> =
+  z.object({
+    type: z.literal('InterpretedBmdMultiPagePage'),
+    metadata: BmdMultiPageBallotPageMetadataSchema,
     votes: VotesDictSchema,
     adjudicationInfo: AdjudicationInfoSchema,
   });
@@ -121,6 +141,7 @@ export const UnreadablePageSchema: z.ZodSchema<UnreadablePage> = z.object({
 export type PageInterpretation =
   | BlankPage
   | InterpretedBmdPage
+  | InterpretedBmdMultiPagePage
   | InterpretedHmpbPage
   | InvalidBallotHashPage
   | InvalidTestModePage
@@ -130,6 +151,7 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
   z.union([
     BlankPageSchema,
     InterpretedBmdPageSchema,
+    InterpretedBmdMultiPagePageSchema,
     InterpretedHmpbPageSchema,
     InvalidBallotHashPageSchema,
     InvalidTestModePageSchema,
