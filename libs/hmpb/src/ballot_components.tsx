@@ -42,6 +42,7 @@ export const pageMarginsInches = {
 
 export const Colors = {
   BLACK: '#000000',
+  WHITE: '#FFFFFF',
   LIGHT_GRAY: '#EDEDED',
   DARK_GRAY: '#DADADA',
   DARKER_GRAY: '#B0B0B0',
