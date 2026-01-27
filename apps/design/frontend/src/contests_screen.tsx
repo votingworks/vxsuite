@@ -56,6 +56,11 @@ const Viewport = styled(FixedViewport)`
   grid-template-rows: min-content 1fr;
 `;
 
+const EditPanel = styled.div`
+  height: 100%;
+  overflow: hidden;
+`;
+
 const Body = styled.div`
   display: flex;
   height: 100%;
@@ -63,14 +68,13 @@ const Body = styled.div`
   width: 100%;
 
   /* Sidebar */
-  > :first-child {
+  > :first-child:not(:last-child) {
     min-width: min-content;
     max-width: min(25%, 25rem);
     width: 100%;
   }
 
-  /* Content pane */
-  > :last-child {
+  > ${EditPanel} {
     flex-grow: 1;
   }
 `;
@@ -80,11 +84,6 @@ const NoContests = styled.div`
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-`;
-
-const EditPanel = styled.div`
-  height: 100%;
-  overflow: hidden;
 `;
 
 function Content(): JSX.Element | null {
@@ -301,27 +300,25 @@ function Content(): JSX.Element | null {
           />
         )}
 
-        <EditPanel>
-          <Switch>
-            <Route
-              path={contestParamRoutes.audio({
-                contestId: ':contestId',
-                stringKey: ':stringKey',
-                subkey: ':subkey',
-              })}
-              component={ContestAudioPanel}
-            />
-            <Route
-              path={contestParamRoutes.add.path}
-              component={AddContestForm}
-            />
-            <Route
-              path={contestParamRoutes.view(':contestId').path}
-              component={EditContestForm}
-            />
-            {defaultContestRoute && <Redirect to={defaultContestRoute} />}
-          </Switch>
-        </EditPanel>
+        <Switch>
+          <Route
+            path={contestParamRoutes.audio({
+              contestId: ':contestId',
+              stringKey: ':stringKey',
+              subkey: ':subkey',
+            })}
+            component={ContestAudioPanel}
+          />
+          <Route
+            path={contestParamRoutes.add.path}
+            component={AddContestForm}
+          />
+          <Route
+            path={contestParamRoutes.view(':contestId').path}
+            component={EditContestForm}
+          />
+          {defaultContestRoute && <Redirect to={defaultContestRoute} />}
+        </Switch>
       </Body>
     </Viewport>
   );
@@ -329,7 +326,11 @@ function Content(): JSX.Element | null {
 
 function AddContestForm(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  return <ContestForm electionId={electionId} editing title="Add Contest" />;
+  return (
+    <EditPanel>
+      <ContestForm electionId={electionId} editing title="Add Contest" />
+    </EditPanel>
+  );
 }
 
 function EditContestForm(): JSX.Element | null {
@@ -352,42 +353,44 @@ function EditContestForm(): JSX.Element | null {
   const canEdit = !finalizedAt.data && !!savedContest;
 
   return (
-    <Switch>
-      {canEdit && (
-        <Route path={contestParamRoutes.edit(':contestId').path} exact>
-          <ContestForm
-            electionId={electionId}
-            key={contestId}
-            editing
-            savedContest={savedContest}
-            title="Edit Contest"
-          />
-        </Route>
-      )}
+    <EditPanel>
+      <Switch>
+        {canEdit && (
+          <Route path={contestParamRoutes.edit(':contestId').path} exact>
+            <ContestForm
+              electionId={electionId}
+              key={contestId}
+              editing
+              savedContest={savedContest}
+              title="Edit Contest"
+            />
+          </Route>
+        )}
 
-      {/*
-       * If there's no `savedContest`, it may have just been deleted (or we
-       * have a stale tab), so we fall through to the redirect below.
-       */}
-      {savedContest && (
-        <Route exact path={contestParamRoutes.view(':contestId').path}>
-          <ContestForm
-            editing={false}
-            electionId={electionId}
-            key={contestId}
-            savedContest={savedContest}
-            title="Contest Info"
-          />
-        </Route>
-      )}
+        {/*
+         * If there's no `savedContest`, it may have just been deleted (or we
+         * have a stale tab), so we fall through to the redirect below.
+         */}
+        {savedContest && (
+          <Route exact path={contestParamRoutes.view(':contestId').path}>
+            <ContestForm
+              editing={false}
+              electionId={electionId}
+              key={contestId}
+              savedContest={savedContest}
+              title="Contest Info"
+            />
+          </Route>
+        )}
 
-      <Redirect
-        to={
-          savedContest
-            ? contestRoutes.view(contestId).path
-            : contestRoutes.root.path
-        }
-      />
-    </Switch>
+        <Redirect
+          to={
+            savedContest
+              ? contestRoutes.view(contestId).path
+              : contestRoutes.root.path
+          }
+        />
+      </Switch>
+    </EditPanel>
   );
 }
