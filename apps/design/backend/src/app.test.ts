@@ -3168,6 +3168,7 @@ test('Election package and ballots export', async () => {
       precinctSplitSeals: expect.any(Object),
       precinctSplitSignatureImages: expect.any(Object),
       contestSectionHeaders: {},
+      contestDescriptionsForContestsWithAdditionalOptions: {},
     },
   };
   const expectedElection: Election = {

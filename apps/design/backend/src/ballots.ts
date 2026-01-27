@@ -4,6 +4,7 @@ import {
   Election,
   hasSplits,
   UiStringsPackage,
+  YesNoContest,
 } from '@votingworks/types';
 import {
   allBaseBallotProps,
@@ -54,10 +55,26 @@ export function formatElectionForExport(
     )
   );
 
+  // If a ballot measure contest has additional options, we transform it into a
+  // candidate contest before export, which omits the description field. So we
+  // add the description field to additionalHashInput.
+  const contestDescriptionsForContestsWithAdditionalOptions =
+    Object.fromEntries(
+      election.contests
+        .filter(
+          (contest): contest is YesNoContest =>
+            contest.type === 'yesno' &&
+            contest.additionalOptions !== undefined &&
+            contest.additionalOptions.length > 0
+        )
+        .map((contest) => [contest.id, contest.description])
+    );
+
   const additionalHashInput = {
     precinctSplitSeals: Object.fromEntries(sealOverrideBySplit),
     precinctSplitSignatureImages: Object.fromEntries(signatureImageBySplit),
     contestSectionHeaders,
+    contestDescriptionsForContestsWithAdditionalOptions,
   } as const;
 
   return {
