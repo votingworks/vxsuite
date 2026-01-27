@@ -10,8 +10,10 @@ import {
 import { Buffer } from 'node:buffer';
 import {
   AnyContest,
+  BallotMode,
   BallotStyleId,
   BallotType,
+  BaseBallotProps,
   CandidateContest as CandidateContestStruct,
   Election,
   YesNoContest,
@@ -30,7 +32,6 @@ import React from 'react';
 import {
   BallotLayoutError,
   BallotPageTemplate,
-  BaseBallotProps,
   ContentComponentResult,
 } from '../render_ballot';
 import { RenderScratchpad } from '../renderer';
@@ -49,7 +50,7 @@ import {
   ColorTints,
   QrCodeSlot,
 } from '../ballot_components';
-import { BallotMode, PixelDimensions } from '../types';
+import { PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
