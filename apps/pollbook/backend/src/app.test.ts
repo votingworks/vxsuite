@@ -851,6 +851,15 @@ test('register a voter, change name and address, and check in', async () => {
       });
       expect(eventsResult.hasMore).toEqual(false);
       expect(eventsResult.events).toHaveLength(6);
+
+      const statisticsResult =
+        await localApiClient.printGeneralStatisticsSummaryReceipt();
+      expect(statisticsResult.ok()).toEqual(undefined);
+      const statisticsReceipt = mockPrinterHandler.getLastPrintPath();
+      expect(statisticsReceipt).toBeDefined();
+      await expect(statisticsReceipt).toMatchPdfSnapshot({
+        failureThreshold: 0.05,
+      });
     }
   );
 });
