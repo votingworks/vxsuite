@@ -62,7 +62,7 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
     election,
     contestResultsSummaries: {},
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     includeGenericWriteIn: false,
@@ -99,7 +99,7 @@ const mockPollsClosedReportPrimary: ReceivedReportInfo = {
     election: primaryElection,
     contestResultsSummaries: {},
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     includeGenericWriteIn: false,

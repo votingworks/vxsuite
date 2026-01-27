@@ -71,7 +71,7 @@ test('card counts', async () => {
     })
   ).toEqual([
     {
-      bmd: 56,
+      bmd: [56],
       hmpb: [],
       manual: 10,
     },
@@ -85,13 +85,13 @@ test('card counts', async () => {
   ).toEqual([
     {
       precinctId: 'precinct-1',
-      bmd: 56,
+      bmd: [56],
       hmpb: [],
       manual: 10,
     },
     {
       precinctId: 'precinct-2',
-      bmd: 56,
+      bmd: [56],
       hmpb: [],
       manual: 0,
     },
@@ -105,13 +105,13 @@ test('card counts', async () => {
   ).toEqual([
     {
       precinctId: 'precinct-1',
-      bmd: 28,
+      bmd: [28],
       hmpb: [],
       manual: 10,
     },
     {
       precinctId: 'precinct-2',
-      bmd: 28,
+      bmd: [28],
       hmpb: [],
       manual: 0,
     },

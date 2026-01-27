@@ -30,7 +30,7 @@ function cc(
   ...hmpb: number[]
 ): Tabulation.CardCounts {
   return {
-    bmd,
+    bmd: [bmd],
     manual,
     hmpb,
   };

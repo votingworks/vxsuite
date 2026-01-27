@@ -123,6 +123,7 @@ create table cvrs (
     check (ballot_type = 'absentee' or ballot_type = 'precinct' or ballot_type = 'provisional'),
   batch_id text not null,
   precinct_id text not null,
+  card_type text not null default 'bmd' check (card_type = 'bmd' or card_type = 'hmpb'),
   sheet_number integer check (sheet_number is null or sheet_number > 0),
   votes text not null,
   mark_scores text,

@@ -128,7 +128,7 @@ test('includes election info and report metadata', () => {
 const scannedElectionResults = buildElectionResultsFixture({
   election,
   cardCounts: {
-    bmd: 790,
+    bmd: [790],
     hmpb: [],
   },
   contestResultsSummaries: {
@@ -207,7 +207,7 @@ test('allows card counts override', () => {
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{
-        bmd: 10000,
+        bmd: [10000],
         hmpb: [],
       }}
     />
@@ -227,7 +227,7 @@ test('displays custom filter', () => {
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{
-        bmd: 10000,
+        bmd: [10000],
         hmpb: [],
       }}
       customFilter={{ precinctIds: ['precinct-1'] }}
@@ -248,7 +248,7 @@ test('displays signature lines', () => {
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{
-        bmd: 10000,
+        bmd: [10000],
         hmpb: [],
       }}
       includeSignatureLines

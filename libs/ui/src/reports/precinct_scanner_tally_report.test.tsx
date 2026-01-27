@@ -28,7 +28,7 @@ const reportPrintedTime = new Date(2021, 8, 19, 11, 6).getTime();
 const generalElectionResults = buildElectionResultsFixture({
   election: generalElectionDefinition.election,
   cardCounts: {
-    bmd: 100,
+    bmd: [100],
     hmpb: [],
   },
   contestResultsSummaries: {
@@ -105,7 +105,7 @@ test('renders as expected for a single precinct in a general election', () => {
 const primaryElectionResults = buildElectionResultsFixture({
   election: electionTwoPartyPrimary,
   cardCounts: {
-    bmd: 100,
+    bmd: [100],
     hmpb: [],
   },
   contestResultsSummaries: {

@@ -77,7 +77,7 @@ export function getEmptyCandidateContestResults(
 
 export function getEmptyCardCounts(): Tabulation.CardCounts {
   return {
-    bmd: 0,
+    bmd: [],
     hmpb: [],
   };
 }
@@ -140,7 +140,10 @@ function addCastVoteRecordToElectionResult(
 ): Tabulation.ElectionResults {
   const { cardCounts } = electionResult;
   if (cvr.card.type === 'bmd') {
-    cardCounts.bmd += 1;
+    // Sheet number is 1 for single-page BMD, or the page number for multi-page BMD
+    const sheetNumber = 'sheetNumber' in cvr.card ? cvr.card.sheetNumber : 1;
+    cardCounts.bmd[sheetNumber - 1] =
+      (cardCounts.bmd[sheetNumber - 1] ?? 0) + 1;
   } else {
     cardCounts.hmpb[cvr.card.sheetNumber - 1] =
       (cardCounts.hmpb[cvr.card.sheetNumber - 1] ?? 0) + 1;
@@ -471,35 +474,45 @@ export function getHmpbBallotCount(cardCounts: Tabulation.CardCounts): number {
 }
 
 /**
+ * Gets the BMD ballot count, which is the count of the first sheet (index 0).
+ * For single-page BMD ballots, this is the total count. For multi-page BMD
+ * ballots, this represents the number of complete ballots based on page 1.
+ */
+export function getBmdBallotCount(cardCounts: Tabulation.CardCounts): number {
+  return cardCounts.bmd[0] ?? 0;
+}
+
+/**
  * Gets total ballot count including HMPB, BMD, and manually entered ballots.
+ * Ballot count is based on the first sheet/page count for both HMPB and BMD.
  */
 export function getBallotCount(cardCounts: Tabulation.CardCounts): number {
   return (
-    cardCounts.bmd + getHmpbBallotCount(cardCounts) + (cardCounts.manual ?? 0)
+    getBmdBallotCount(cardCounts) +
+    getHmpbBallotCount(cardCounts) +
+    (cardCounts.manual ?? 0)
   );
 }
 
 /**
- * Gets scanned ballot count including HMPB and BMD ballots. Does not include
- * manually entered ballots.
+ * Gets scanned ballot count including HMPB and BMD ballots.
+ * Does not include manually entered ballots.
  */
 export function getScannedBallotCount(
   cardCounts: Tabulation.CardCounts
 ): number {
-  return cardCounts.bmd + getHmpbBallotCount(cardCounts);
+  return getBmdBallotCount(cardCounts) + getHmpbBallotCount(cardCounts);
 }
 
 /**
- * Gets the ballot count for a specific sheet index. For the first sheet, adds
- * the BMD count (since those are single-sheet summary ballots).
+ * Gets the ballot count for a specific sheet index, combining both BMD and
+ * HMPB sheets at that index.
  */
 export function getScannedBallotCountForSheet(
   cardCounts: Tabulation.CardCounts,
   sheetIndex: number // zero-indexed
 ): number {
-  return (
-    (cardCounts.hmpb[sheetIndex] ?? 0) + (sheetIndex === 0 ? cardCounts.bmd : 0)
-  );
+  return (cardCounts.bmd[sheetIndex] ?? 0) + (cardCounts.hmpb[sheetIndex] ?? 0);
 }
 
 /**
@@ -508,7 +521,9 @@ export function getScannedBallotCountForSheet(
  */
 export function getSheetCount(cardCounts: Tabulation.CardCounts): number {
   return (
-    cardCounts.bmd +
+    iter(cardCounts.bmd)
+      .map((c) => c ?? 0)
+      .sum() +
     iter(cardCounts.hmpb)
       .map((c) => c ?? 0)
       .sum()
@@ -666,14 +681,20 @@ export function combineCardCounts(
   allCardCounts: Tabulation.CardCounts[]
 ): Tabulation.CardCounts {
   const combinedCardCounts: Tabulation.CardCounts = {
-    bmd: 0,
+    bmd: [],
     hmpb: [],
   };
 
   for (const cardCounts of allCardCounts) {
-    combinedCardCounts.bmd += cardCounts.bmd;
     combinedCardCounts.manual =
       (combinedCardCounts.manual ?? 0) + (cardCounts.manual ?? 0);
+    // Combine BMD sheet counts
+    for (let i = 0; i < cardCounts.bmd.length; i += 1) {
+      const cardCount = cardCounts.bmd[i];
+      combinedCardCounts.bmd[i] =
+        (combinedCardCounts.bmd[i] ?? 0) + (cardCount ?? 0);
+    }
+    // Combine HMPB sheet counts
     for (let i = 0; i < cardCounts.hmpb.length; i += 1) {
       const cardCount = cardCounts.hmpb[i];
       combinedCardCounts.hmpb[i] =
@@ -750,7 +771,7 @@ export function convertManualElectionResults(
 ): Tabulation.ElectionResults {
   return {
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
       manual: manualResults.ballotCount,
     },
