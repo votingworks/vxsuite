@@ -121,6 +121,7 @@ import * as ttsStrings from './tts_strings';
 import { convertMsElection } from './convert_ms_election';
 import { convertMsResults, ConvertMsResultsError } from './convert_ms_results';
 import { defaultSystemSettings } from './system_settings';
+import { logActivity } from './activity_logs';
 
 const debug = rootDebug.extend('app');
 
@@ -649,7 +650,10 @@ export function buildApi(ctx: AppContext) {
       return store.getBallotsFinalizedAt(input.electionId);
     },
 
-    async finalizeBallots(input: { electionId: ElectionId }): Promise<void> {
+    async finalizeBallots(
+      input: { electionId: ElectionId },
+      { user }: ApiContext
+    ): Promise<void> {
       const jurisdiction = await store.getElectionJurisdiction(
         input.electionId
       );
@@ -671,9 +675,19 @@ export function buildApi(ctx: AppContext) {
         electionId: input.electionId,
         finalizedAt: new Date(),
       });
+
+      await logActivity(store, {
+        type: 'finalize_ballot',
+        userName: user.name,
+        userType: user.type,
+        electionId: input.electionId,
+      });
     },
 
-    async unfinalizeBallots(input: { electionId: ElectionId }): Promise<void> {
+    async unfinalizeBallots(
+      input: { electionId: ElectionId },
+      { user }: ApiContext
+    ): Promise<void> {
       await store.setBallotsApprovedAt({
         approvedAt: null,
         electionId: input.electionId,
@@ -681,6 +695,13 @@ export function buildApi(ctx: AppContext) {
       await store.setBallotsFinalizedAt({
         electionId: input.electionId,
         finalizedAt: null,
+      });
+
+      await logActivity(store, {
+        type: 'unfinalize_ballot',
+        userName: user.name,
+        userType: user.type,
+        electionId: input.electionId,
       });
     },
 
@@ -690,12 +711,22 @@ export function buildApi(ctx: AppContext) {
       return store.getBallotsApprovedAt(input.electionId);
     },
 
-    async approveBallots(input: { electionId: ElectionId }): Promise<void> {
+    async approveBallots(
+      input: { electionId: ElectionId },
+      { user }: ApiContext
+    ): Promise<void> {
       const finalizedAt = await store.getBallotsFinalizedAt(input.electionId);
       assert(finalizedAt, 'Ballots cannot be approved before being finalized');
 
-      return store.setBallotsApprovedAt({
+      await store.setBallotsApprovedAt({
         approvedAt: new Date(),
+        electionId: input.electionId,
+      });
+
+      await logActivity(store, {
+        type: 'approve_ballot',
+        userName: user.name,
+        userType: user.type,
         electionId: input.electionId,
       });
     },
