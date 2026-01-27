@@ -1032,7 +1032,7 @@ test('handling unmarked write-ins', async () => {
       election,
       contestResultsSummaries: { [WRITE_IN_CONTEST_ID]: contestSummary },
       cardCounts: {
-        bmd: 0,
+        bmd: [],
         hmpb: [contestSummary.ballots],
       },
       includeGenericWriteIn: false,
@@ -1233,7 +1233,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       election,
       contestResultsSummaries: { [contestId]: contestSummary },
       cardCounts: {
-        bmd: 0,
+        bmd: [],
         hmpb: [contestSummary.ballots],
       },
       includeGenericWriteIn: false,
