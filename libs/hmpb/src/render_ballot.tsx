@@ -598,44 +598,79 @@ export async function layOutBallotsAndCreateElectionDefinition<
     .map((layouts) => assertDefined(iter(layouts.values()).first()))
     .toArray();
 
-  // Temporary workaround for candidate rotation to ensure that VxMark's voting
-  // flow and tally reports in VxAdmin/VxScan list candidates in the same order
-  // that they appear on the HMPB. (Eventually, we should use the gridLayouts
-  // for that ordering instead of the election contests.)
-  //
-  // For each candidate contest: if all ballot styles have the same
-  // orderedCandidatesByContest ordering, change the election definition to also
-  // have that ordering of candidates.
-  const contests = election.contests.map((contest) => {
-    if (template.isAllBubbleBallot) return contest;
-    if (contest.type !== 'candidate') return contest;
-    const ballotStylesWithContest = election.ballotStyles.filter(
-      ({ orderedCandidatesByContest: orderedDisplayCandidatesByContest }) =>
-        orderedDisplayCandidatesByContest &&
-        contest.id in orderedDisplayCandidatesByContest
-    );
-    if (ballotStylesWithContest.length === 0) return contest;
-    const [firstBallotStyle, ...restBallotStyles] = ballotStylesWithContest;
-    const firstLayoutOrder = assertDefined(
-      firstBallotStyle.orderedCandidatesByContest
-    )[contest.id];
-    if (
-      restBallotStyles.every((ballotStyle) =>
-        deepEqual(
-          assertDefined(ballotStyle.orderedCandidatesByContest)[contest.id],
-          firstLayoutOrder
+  const contests = election.contests
+    // Temporary workaround for candidate rotation to ensure that VxMark's voting
+    // flow and tally reports in VxAdmin/VxScan list candidates in the same order
+    // that they appear on the HMPB. (Eventually, we should use the gridLayouts
+    // for that ordering instead of the election contests.)
+    //
+    // For each candidate contest: if all ballot styles have the same
+    // orderedCandidatesByContest ordering, change the election definition to also
+    // have that ordering of candidates.
+    .map((contest) => {
+      if (template.isAllBubbleBallot) return contest;
+      if (contest.type !== 'candidate') return contest;
+      const ballotStylesWithContest = election.ballotStyles.filter(
+        ({ orderedCandidatesByContest: orderedDisplayCandidatesByContest }) =>
+          orderedDisplayCandidatesByContest &&
+          contest.id in orderedDisplayCandidatesByContest
+      );
+      if (ballotStylesWithContest.length === 0) return contest;
+      const [firstBallotStyle, ...restBallotStyles] = ballotStylesWithContest;
+      const firstLayoutOrder = assertDefined(
+        firstBallotStyle.orderedCandidatesByContest
+      )[contest.id];
+      if (
+        restBallotStyles.every((ballotStyle) =>
+          deepEqual(
+            assertDefined(ballotStyle.orderedCandidatesByContest)[contest.id],
+            firstLayoutOrder
+          )
         )
-      )
-    ) {
+      ) {
+        return {
+          ...contest,
+          candidates: firstLayoutOrder.map(({ id }) =>
+            find(contest.candidates, (c) => c.id === id)
+          ),
+        };
+      }
+      return contest;
+    })
+    // Temporary workaround to transform ballot measures with additional options
+    // into candidate contests, since VxSuite doesn't support the
+    // contest.additionalOptions field.
+    .map((contest): AnyContest => {
+      if (
+        contest.type !== 'yesno' ||
+        !contest.additionalOptions ||
+        contest.additionalOptions.length === 0
+      ) {
+        return contest;
+      }
       return {
-        ...contest,
-        candidates: firstLayoutOrder.map(({ id }) =>
-          find(contest.candidates, (c) => c.id === id)
-        ),
+        type: 'candidate',
+        id: contest.id,
+        districtId: contest.districtId,
+        title: contest.title,
+        candidates: [
+          {
+            id: contest.yesOption.id,
+            name: contest.yesOption.label,
+          },
+          {
+            id: contest.noOption.id,
+            name: contest.noOption.label,
+          },
+          ...contest.additionalOptions.map((option) => ({
+            id: option.id,
+            name: option.label,
+          })),
+        ],
+        allowWriteIns: false,
+        seats: 1,
       };
-    }
-    return contest;
-  });
+    });
 
   const electionWithGridLayouts: Election = {
     ...election,

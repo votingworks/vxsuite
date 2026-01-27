@@ -270,6 +270,7 @@ export interface YesNoContest extends Contest {
   readonly description: string;
   readonly yesOption: YesNoOption;
   readonly noOption: YesNoOption;
+  readonly additionalOptions?: readonly YesNoOption[];
 }
 export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
   ContestInternalSchema.merge(
@@ -278,6 +279,7 @@ export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
       description: z.string().nonempty(),
       yesOption: YesNoOptionSchema,
       noOption: YesNoOptionSchema,
+      additionalOptions: z.array(YesNoOptionSchema).optional(),
     })
   );
 
