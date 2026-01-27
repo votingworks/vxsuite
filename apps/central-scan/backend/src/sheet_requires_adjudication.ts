@@ -13,7 +13,9 @@ export function sheetRequiresAdjudication([
 ]: SheetOf<PageInterpretation>): boolean {
   if (
     front.type === 'InterpretedBmdPage' ||
-    back.type === 'InterpretedBmdPage'
+    back.type === 'InterpretedBmdPage' ||
+    front.type === 'InterpretedBmdMultiPagePage' ||
+    back.type === 'InterpretedBmdMultiPagePage'
   ) {
     return false;
   }

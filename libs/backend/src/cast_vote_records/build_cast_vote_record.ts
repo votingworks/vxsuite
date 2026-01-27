@@ -16,6 +16,7 @@ import {
   CVR,
   ElectionDefinition,
   getBallotStyle,
+  InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   MarkStatus,
@@ -480,6 +481,11 @@ type BuildCastVoteRecordParams = {
       images?: SheetOf<CvrImageDataInput>;
     }
   | {
+      ballotMarkingMode: 'machine-multi-page';
+      interpretation: InterpretedBmdMultiPagePage;
+      images?: SheetOf<CvrImageDataInput>;
+    }
+  | {
       ballotMarkingMode: 'hand';
       interpretations: SheetOf<InterpretedHmpbPage>;
       images?: SheetOf<CvrImageDataInput>;
@@ -503,6 +509,8 @@ export function buildCastVoteRecord({
   const { election } = electionDefinition;
   const ballotMetadata =
     rest.ballotMarkingMode === 'machine'
+      ? rest.interpretation.metadata
+      : rest.ballotMarkingMode === 'machine-multi-page'
       ? rest.interpretation.metadata
       : rest.interpretations[0].metadata;
 
@@ -537,6 +545,44 @@ export function buildCastVoteRecord({
 
     return {
       ...cvrMetadata,
+      CurrentSnapshotId: `${castVoteRecordId}-original`,
+      CVRSnapshot: [
+        {
+          '@type': 'CVR.CVRSnapshot',
+          '@id': `${castVoteRecordId}-original`,
+          Type: CVR.CVRType.Original,
+          ...buildCVRSnapshotBallotTypeMetadata(ballotMetadata.ballotType),
+          CVRContest: buildCVRContestsFromVotes({
+            votes: interpretation.votes,
+            electionDefinition,
+            ballotStyleId: ballotMetadata.ballotStyleId,
+            options: {
+              ballotMarkingMode: 'machine',
+            },
+          }),
+        },
+      ],
+      BallotImage: images?.map(buildCvrImageData),
+    };
+  }
+
+  // CVR for multi-page machine-marked ballot, similar to single-page but with
+  // page metadata and only the votes for contests on this page.
+  if (rest.ballotMarkingMode === 'machine-multi-page') {
+    const { interpretation, images } = rest;
+
+    const ballotStyle = getBallotStyle({
+      ballotStyleId: ballotMetadata.ballotStyleId,
+      election,
+    });
+    assert(ballotStyle);
+
+    return {
+      ...cvrMetadata,
+      // Use the ballot audit ID from metadata for multi-page correlation
+      BallotAuditId: interpretation.metadata.ballotAuditId,
+      // Include sheet number based on page number for multi-page BMD
+      BallotSheetId: interpretation.metadata.pageNumber.toString(),
       CurrentSnapshotId: `${castVoteRecordId}-original`,
       CVRSnapshot: [
         {
