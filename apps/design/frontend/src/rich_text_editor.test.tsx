@@ -1,8 +1,11 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi, describe } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
 import { fireEvent, render, screen } from '../test/react_testing_library';
-import { RichTextEditor } from './rich_text_editor';
+import {
+  RichTextEditor,
+  sanitizeTrailingNbspOnPaste,
+} from './rich_text_editor';
 
 // We mostly test that the buttons in the toolbar work as expected and that
 // `onChange` works. We rely on tiptap working correctly for the actual text
@@ -237,4 +240,61 @@ test('doesnt unwrap multiple cell tables on paste', async () => {
   expect(onChange).toHaveBeenLastCalledWith(
     '<table style="min-width: 0px"><colgroup><col><col></colgroup><tbody><tr><td colspan="1" rowspan="1"><p>Cell 1 contents</p></td><td colspan="1" rowspan="1"><p>Cell 2 contents</p></td></tr></tbody></table>'
   );
+});
+
+describe('sanitizeTrailingNbspOnPaste', () => {
+  test('strips trailing nbsp and whitespace from paragraphs', () => {
+    expect(sanitizeTrailingNbspOnPaste('<p>text  </p>')).toEqual('<p>text</p>');
+  });
+
+  test('strips trailing whitespace including regular spaces', () => {
+    expect(sanitizeTrailingNbspOnPaste('<p>text      </p>')).toEqual(
+      '<p>text</p>'
+    );
+  });
+
+  test('strips trailing nbsp wrapped in a formatting tag from list items', () => {
+    expect(sanitizeTrailingNbspOnPaste('<li><b>item  </b></li>')).toEqual(
+      '<li><b>item</b></li>'
+    );
+  });
+
+  test('strips trailing nbsp from table cells in a table', () => {
+    // Table cells need to be in a table structure for DOMParser to preserve them
+    // so the output includes <tbody> even if the input does not
+    expect(
+      sanitizeTrailingNbspOnPaste(
+        '<table><tr><td>cell  </td><th>header  </th></tr></table>'
+      )
+    ).toEqual(
+      '<table><tbody><tr><td>cell</td><th>header</th></tr></tbody></table>'
+    );
+  });
+
+  test('preserves nbsp in the middle of content', () => {
+    // Middle nbsp is preserved, output uses &nbsp; instead of unicode nbsp character
+    expect(sanitizeTrailingNbspOnPaste('<p>text more text</p>')).toEqual(
+      '<p>text&nbsp;more&nbsp;text</p>'
+    );
+  });
+
+  test('handles multiple paragraphs with trailing nbsp', () => {
+    expect(sanitizeTrailingNbspOnPaste('<p>para1  </p><p>para2  </p>')).toEqual(
+      '<p>para1</p><p>para2</p>'
+    );
+  });
+
+  test('handles real-world copy-paste from table', () => {
+    // Trailing nbsp is stripped, middle nbsp preserved as &nbsp; entity
+    const input = '<p>Year 2025-2026      $96,336           </p>';
+    expect(sanitizeTrailingNbspOnPaste(input)).toEqual(
+      '<p>Year 2025-2026&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $96,336</p>'
+    );
+  });
+
+  test('strips single trailing nbsp (empty cells in table)', () => {
+    expect(
+      sanitizeTrailingNbspOnPaste('<table><tr><td> </td></tr></table>')
+    ).toEqual('<table><tbody><tr><td></td></tr></tbody></table>');
+  });
 });
