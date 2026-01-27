@@ -33,7 +33,6 @@ export function ProofingStatus(): React.ReactNode {
   const finalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
   const mainExports = api.getElectionPackage.useQuery(electionId);
   const testDecks = api.getTestDecks.useQuery(electionId);
-  const user = api.getUser.useQuery();
 
   const approve = api.approveBallots.useMutation();
   const unfinalize = api.unfinalizeBallots.useMutation();
@@ -42,8 +41,7 @@ export function ProofingStatus(): React.ReactNode {
     !approvedAt.isSuccess ||
     !finalizedAt.isSuccess ||
     !mainExports.isSuccess ||
-    !testDecks.isSuccess ||
-    !user.isSuccess
+    !testDecks.isSuccess
   ) {
     return null;
   }
@@ -108,7 +106,7 @@ export function ProofingStatus(): React.ReactNode {
             Unfinalize
           </Button>
 
-          {user.data.type === 'support_user' && !approved && (
+          {!approved && (
             <Button
               disabled={approveDisabled}
               icon="Done"
