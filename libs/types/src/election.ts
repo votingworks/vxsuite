@@ -1079,6 +1079,40 @@ export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> =
     ballotAuditId: BallotIdSchema.optional(),
   });
 
+/**
+ * Metadata for a single page of a multi-page BMD summary ballot.
+ * Used when VxMark prints ballots that span multiple pages.
+ */
+export interface BmdMultiPageBallotPageMetadata {
+  ballotHash: string; // a hexadecimal string
+  precinctId: PrecinctId;
+  ballotStyleId: BallotStyleId;
+  pageNumber: number;
+  totalPages: number;
+  isTestMode: boolean;
+  ballotType: BallotType;
+  /**
+   * Required for multi-page BMD ballots to correlate pages during scanning.
+   */
+  ballotAuditId: BallotId;
+  /**
+   * IDs of contests whose votes are encoded on this page.
+   */
+  contestIds: ContestId[];
+}
+export const BmdMultiPageBallotPageMetadataSchema: z.ZodSchema<BmdMultiPageBallotPageMetadata> =
+  z.object({
+    ballotHash: Sha256Hash,
+    precinctId: PrecinctIdSchema,
+    ballotStyleId: BallotStyleIdSchema,
+    pageNumber: z.number(),
+    totalPages: z.number(),
+    isTestMode: z.boolean(),
+    ballotType: BallotTypeSchema,
+    ballotAuditId: BallotIdSchema,
+    contestIds: z.array(ContestIdSchema),
+  });
+
 export type BallotMetadata = Omit<
   HmpbBallotPageMetadata,
   'pageNumber' | 'ballotAuditId'

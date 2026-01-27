@@ -1952,6 +1952,9 @@ importers:
       usb:
         specifier: 2.15.0
         version: 2.15.0
+      uuid:
+        specifier: 9.0.1
+        version: 9.0.1
       zod:
         specifier: 3.25.42
         version: 3.25.42
@@ -1983,6 +1986,9 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
+      '@types/uuid':
+        specifier: 9.0.5
+        version: 9.0.5
       '@vitest/coverage-istanbul':
         specifier: ^3.1.1
         version: 3.1.1(vitest@3.1.1)
@@ -3916,6 +3922,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^3.1.1
         version: 3.1.1(vitest@3.1.1)
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -14944,7 +14953,7 @@ packages:
       magicast: 0.3.5
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.1.1(@types/debug@4.1.8)(@types/node@20.17.31)
+      vitest: 3.1.1(@types/debug@4.1.8)
     transitivePeerDependencies:
       - supports-color
     dev: true
