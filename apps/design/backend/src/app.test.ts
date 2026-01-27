@@ -91,10 +91,8 @@ import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
   exportTestDecks,
-  generateAllPrecinctsTallyReport,
   getExportedFile,
   processNextBackgroundTaskIfAny,
-  readFixture,
   testSetupHelpers,
 } from '../test/helpers';
 import {
