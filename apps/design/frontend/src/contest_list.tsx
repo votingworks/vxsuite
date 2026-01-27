@@ -32,18 +32,14 @@ const Items = styled(EntityList.Items)`
   }
 `;
 
-const sectionNames: Record<ContestTypes, string> = {
-  candidate: 'Candidate Contests',
-  yesno: 'Ballot Measures',
-};
-
 export interface ReorderParams {
   id: string;
   direction: -1 | 1;
 }
 
 export interface ContestListProps {
-  contests: readonly AnyContest[];
+  candidateContests: AnyContest[];
+  yesNoContests: AnyContest[];
   reordering: boolean;
   reorder: (params: ReorderParams) => void;
 }
@@ -53,7 +49,7 @@ export interface ContestListProps {
 // footer. With recent changes the "reorder" button is a bit too far off now and
 // there may be plans to add support for custom contest grouping down the line.
 export function ContestList(props: ContestListProps): React.ReactNode {
-  const { contests, reorder, reordering } = props;
+  const { candidateContests, yesNoContests, reorder, reordering } = props;
   const { contestId = null, electionId } = useParams<
     ElectionIdParams & { contestId?: string }
   >();
@@ -87,27 +83,36 @@ export function ContestList(props: ContestListProps): React.ReactNode {
 
   return (
     <EntityList.Box>
-      {Object.keys(sectionNames).map((contestType) => {
-        const contestsOfType = contests.filter((c) => c.type === contestType);
-        if (contestsOfType.length === 0) {
-          return null;
-        }
-        return (
-          <Sublist
-            key={contestType}
-            electionId={electionId}
-            contests={contestsOfType}
-            districtIdToName={districtIdToName}
-            onSelect={onSelect}
-            parties={parties.data}
-            reordering={reordering}
-            reorder={reorder}
-            selectedId={contestId}
-            contestType={contestType as ContestTypes}
-            sectionHeader={contestSectionHeaders[contestType as ContestTypes]}
-          />
-        );
-      })}
+      {candidateContests.length > 0 && (
+        <Sublist
+          electionId={electionId}
+          contests={candidateContests}
+          districtIdToName={districtIdToName}
+          onSelect={onSelect}
+          parties={parties.data}
+          reordering={reordering}
+          reorder={reorder}
+          selectedId={contestId}
+          title="Candidate Contests"
+          contestType="candidate"
+          sectionHeader={contestSectionHeaders.candidate}
+        />
+      )}
+      {yesNoContests.length > 0 && (
+        <Sublist
+          electionId={electionId}
+          contests={yesNoContests}
+          districtIdToName={districtIdToName}
+          onSelect={onSelect}
+          parties={parties.data}
+          reordering={reordering}
+          reorder={reorder}
+          selectedId={contestId}
+          title="Ballot Measures"
+          contestType="yesno"
+          sectionHeader={contestSectionHeaders.yesno}
+        />
+      )}
     </EntityList.Box>
   );
 }
@@ -131,6 +136,7 @@ export function Sublist(props: {
   reorder: (params: ReorderParams) => void;
   reordering: boolean;
   selectedId: string | null;
+  title: string;
   contestType: ContestTypes;
   sectionHeader?: ContestSectionHeader;
 }): React.ReactNode {
@@ -143,6 +149,7 @@ export function Sublist(props: {
     reorder,
     reordering,
     selectedId,
+    title,
     contestType,
     sectionHeader,
   } = props;
@@ -158,7 +165,7 @@ export function Sublist(props: {
   return (
     <React.Fragment>
       <EntityList.Header>
-        {sectionNames[contestType]}
+        {title}
         {features.CONTEST_SECTION_HEADERS && (
           <Row>
             {sectionHeader ? (
@@ -240,6 +247,7 @@ export function Sublist(props: {
         <EditSectionHeaderModalForm
           electionId={electionId}
           contestType={contestType}
+          sectionTitle={title}
           savedSectionHeader={sectionHeader}
           onClose={() => setIsEditingSectionHeader(false)}
         />
@@ -257,11 +265,13 @@ function partyName(contest: AnyContest, parties: readonly Party[]) {
 function EditSectionHeaderModalForm({
   electionId,
   contestType,
+  sectionTitle,
   savedSectionHeader,
   onClose,
 }: {
   electionId: ElectionId;
   contestType: ContestTypes;
+  sectionTitle: string;
   savedSectionHeader?: ContestSectionHeader;
   onClose: () => void;
 }): React.ReactNode {
@@ -304,7 +314,7 @@ function EditSectionHeaderModalForm({
 
   return (
     <Modal
-      title={`Edit Ballot Header - ${sectionNames[contestType]}`}
+      title={`Edit Ballot Header - ${sectionTitle}`}
       onOverlayClick={onClose}
       content={
         <Column style={{ gap: '1rem' }}>

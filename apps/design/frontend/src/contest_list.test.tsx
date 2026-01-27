@@ -75,15 +75,12 @@ afterEach(() => {
 
 test('renders labelled candidate and ballot measure sublists', async () => {
   mockApi = newMockApi({ districts: [district1, district2] });
-  const contests = [
-    candidateContest1,
-    candidateContest2,
-    yesNoContest1,
-    yesNoContest2,
-  ];
+  const candidateContests = [candidateContest1, candidateContest2];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
 
   renderList(mockApi, newHistory(), {
-    contests,
+    candidateContests,
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
   });
@@ -116,10 +113,12 @@ test('renders primary election contest parties, when available', async () => {
   const party1Contest = withParty(candidateContest1, party1);
   const party2Contest = withParty(candidateContest2, party2);
 
-  const contests = [party1Contest, party2Contest, yesNoContest1, yesNoContest2];
+  const candidateContests = [party1Contest, party2Contest];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
 
   renderList(mockApi, newHistory(), {
-    contests,
+    candidateContests,
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
   });
@@ -145,16 +144,13 @@ test('renders primary election contest parties, when available', async () => {
 
 test('navigates on select', async () => {
   mockApi = newMockApi({ districts: [district1, district2] });
-  const contests = [
-    candidateContest1,
-    candidateContest2,
-    yesNoContest1,
-    yesNoContest2,
-  ];
+  const candidateContests = [candidateContest1, candidateContest2];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
   const history = newHistory();
 
   renderList(mockApi, history, {
-    contests,
+    candidateContests,
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
   });
@@ -182,10 +178,11 @@ test('navigates on select', async () => {
 
 test('omits ballot measure section if empty', async () => {
   mockApi = newMockApi({ districts: [district2, district1] });
-  const contests = [candidateContest1, candidateContest2];
+  const candidateContests = [candidateContest1, candidateContest2];
 
   renderList(mockApi, newHistory(), {
-    contests,
+    candidateContests,
+    yesNoContests: [],
     reorder: vi.fn(),
     reordering: false,
   });
@@ -205,10 +202,11 @@ test('omits ballot measure section if empty', async () => {
 
 test('omits candidate section if empty', async () => {
   mockApi = newMockApi({ districts: [district1, district2] });
-  const contests = [yesNoContest2, yesNoContest1];
+  const yesNoContests = [yesNoContest2, yesNoContest1];
 
   renderList(mockApi, newHistory(), {
-    contests,
+    candidateContests: [],
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
   });
@@ -228,12 +226,13 @@ test('omits candidate section if empty', async () => {
 
 test('omits reordering when not enabled', async () => {
   mockApi = newMockApi({ districts: [district2] });
-  const contests = [candidateContest2];
+  const candidateContests = [candidateContest2];
 
   const reorder = vi.fn();
 
   renderList(mockApi, newHistory(), {
-    contests,
+    candidateContests,
+    yesNoContests: [],
     reorder,
     reordering: false,
   });
@@ -246,17 +245,14 @@ test('omits reordering when not enabled', async () => {
 
 test('supports reordering', async () => {
   mockApi = newMockApi({ districts: [district1, district2] });
-  const contests = [
-    candidateContest1,
-    candidateContest2,
-    yesNoContest1,
-    yesNoContest2,
-  ];
+  const candidateContests = [candidateContest1, candidateContest2];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
 
   const reorder = vi.fn();
 
   renderList(mockApi, newHistory(), {
-    contests,
+    candidateContests,
+    yesNoContests,
     reorder,
     reordering: true,
   });
@@ -307,15 +303,12 @@ test('editing contest section headers', async () => {
     .expectCallWith({ electionId })
     .resolves({ CONTEST_SECTION_HEADERS: true });
 
-  const contests = [
-    candidateContest1,
-    candidateContest2,
-    yesNoContest1,
-    yesNoContest2,
-  ];
+  const candidateContests = [candidateContest1, candidateContest2];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
 
   renderList(mockApi, newHistory(), {
-    contests,
+    candidateContests,
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
   });
@@ -458,14 +451,11 @@ test('disables editing contest section headers when ballots are finalized', asyn
   mockApi.getStateFeatures
     .expectCallWith({ electionId })
     .resolves({ CONTEST_SECTION_HEADERS: true });
-  const contests = [
-    candidateContest1,
-    candidateContest2,
-    yesNoContest1,
-    yesNoContest2,
-  ];
+  const candidateContests = [candidateContest1, candidateContest2];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
   renderList(mockApi, newHistory(), {
-    contests,
+    candidateContests,
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
   });

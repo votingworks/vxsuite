@@ -287,7 +287,8 @@ function Content(): JSX.Element | null {
           )
         ) : (
           <ContestList
-            contests={contestsToShow}
+            candidateContests={candidateContests}
+            yesNoContests={yesNoContests}
             reordering={isReordering}
             reorder={(params) => {
               if (!isReordering) return;
