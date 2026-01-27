@@ -1874,16 +1874,23 @@
       "id": "question-a",
       "districtId": "district-1",
       "title": "Question A: Recovery of Property Damages",
-      "type": "yesno",
-      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
-      "yesOption": {
-        "id": "question-a-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "question-a-option-no",
-        "label": "No"
-      }
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "question-a-option-yes",
+          "name": "Yes"
+        },
+        {
+          "id": "question-a-option-no",
+          "name": "No"
+        },
+        {
+          "id": "third-option",
+          "name": "Third Option"
+        }
+      ],
+      "allowWriteIns": false
     },
     {
       "id": "question-b",
@@ -2993,7 +3000,16 @@
           "sheetNumber": 2,
           "side": "back",
           "column": 31.285361943519547,
-          "row": 28.856827111984284,
+          "row": 21.460584479371317,
+          "contestId": "question-a",
+          "optionId": "third-option"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
+          "side": "back",
+          "column": 31.285361943519547,
+          "row": 30.121561886051083,
           "contestId": "question-b",
           "optionId": "question-b-option-yes"
         },
@@ -3002,7 +3018,7 @@
           "sheetNumber": 2,
           "side": "back",
           "column": 31.285361943519547,
-          "row": 30.121561886051083,
+          "row": 31.38629666011788,
           "contestId": "question-b",
           "optionId": "question-b-option-no"
         },
@@ -3445,7 +3461,16 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.285361943519547,
-          "row": 32.38764734774067,
+          "row": 24.9914047151277,
+          "contestId": "question-a",
+          "optionId": "third-option"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 31.285361943519547,
+          "row": 33.65238212180746,
           "contestId": "question-b",
           "optionId": "question-b-option-yes"
         },
@@ -3454,7 +3479,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.285361943519547,
-          "row": 33.65238212180746,
+          "row": 34.917116895874265,
           "contestId": "question-b",
           "optionId": "question-b-option-no"
         },

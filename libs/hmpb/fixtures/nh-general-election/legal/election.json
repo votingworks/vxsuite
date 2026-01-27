@@ -1874,16 +1874,23 @@
       "id": "question-a",
       "districtId": "district-1",
       "title": "Question A: Recovery of Property Damages",
-      "type": "yesno",
-      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
-      "yesOption": {
-        "id": "question-a-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "question-a-option-no",
-        "label": "No"
-      }
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "question-a-option-yes",
+          "name": "Yes"
+        },
+        {
+          "id": "question-a-option-no",
+          "name": "No"
+        },
+        {
+          "id": "third-option",
+          "name": "Third Option"
+        }
+      ],
+      "allowWriteIns": false
     },
     {
       "id": "question-b",
@@ -2991,6 +2998,15 @@
         {
           "type": "option",
           "sheetNumber": 2,
+          "side": "front",
+          "column": 31.285361943519547,
+          "row": 47.1156680704441,
+          "contestId": "question-a",
+          "optionId": "third-option"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 2,
           "side": "back",
           "column": 31.285361943519547,
           "row": 8.235116768759571,
@@ -3445,7 +3461,16 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.285361943519547,
-          "row": 25.958317381317,
+          "row": 18.463533690658497,
+          "contestId": "question-a",
+          "optionId": "third-option"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 31.285361943519547,
+          "row": 27.23990237366003,
           "contestId": "question-b",
           "optionId": "question-b-option-yes"
         },
@@ -3454,7 +3479,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.285361943519547,
-          "row": 27.23990237366003,
+          "row": 28.52148736600306,
           "contestId": "question-b",
           "optionId": "question-b-option-no"
         },
