@@ -280,7 +280,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
   const mockResults = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: {},
@@ -384,7 +384,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
   const mockResults2 = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: sampleContestResults,
@@ -393,7 +393,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
   const mockResults2Doubled = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: sampleContestResultsDoubled,
@@ -680,7 +680,7 @@ test('quick results reporting works for polls open reporting', async () => {
   const mockResults = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: {},
@@ -880,7 +880,7 @@ test('quick results reporting works as expected end to end with single precinct 
   const mockResultsFirstPrecinct = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: sampleContestResults,
@@ -891,7 +891,7 @@ test('quick results reporting works as expected end to end with single precinct 
   const mockResultsSecondPrecinct = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: sampleContestResults,
@@ -1121,7 +1121,7 @@ test('quick results reporting works as expected end to end with single precinct 
   const mockResultsAllPrecincts = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: {
@@ -1250,7 +1250,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
   const mockResults = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: sampleContestResults,
@@ -1392,7 +1392,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
   // Build simple results and split into two sections
   const mockResults = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
-    cardCounts: { bmd: 0, hmpb: [] },
+    cardCounts: { bmd: [], hmpb: [] },
     contestResultsSummaries: {
       [contestId1]: {
         type: 'candidate',
@@ -1559,7 +1559,7 @@ test('quick results reporting clears previous partial reports on numPages change
   // Build simple results and split into two sections
   const mockResults = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
-    cardCounts: { bmd: 0, hmpb: [] },
+    cardCounts: { bmd: [], hmpb: [] },
     contestResultsSummaries: {
       [contestId1]: {
         type: 'candidate',
@@ -1765,7 +1765,7 @@ test('quick results clears previous partial reports when precinctSelection chang
   // Build simple results and split into two pages
   const mockResults = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
-    cardCounts: { bmd: 0, hmpb: [] },
+    cardCounts: { bmd: [], hmpb: [] },
     contestResultsSummaries: {},
     includeGenericWriteIn: true,
   });
@@ -2003,7 +2003,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   const mockResults = buildElectionResultsFixture({
     election: reorderedElectionDefinition.election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: {},

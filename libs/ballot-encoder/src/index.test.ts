@@ -22,6 +22,7 @@ import {
   HexEncoding,
   MAXIMUM_WRITE_IN_LENGTH,
   BmdPrelude,
+  BmdMultiPagePrelude,
   WriteInEncoding,
   sliceBallotHashForEncoding,
   encodeBallotConfigInto,
@@ -30,6 +31,10 @@ import {
   decodeBallotConfigFromReader,
   MAXIMUM_PRECINCTS,
   MAXIMUM_BALLOT_STYLES,
+  isBmdMultiPageBallot,
+  encodeBmdMultiPageBallot,
+  decodeBmdMultiPageBallot,
+  BmdMultiPageBallotPage,
 } from '.';
 
 const precinctBallotTypeIndex = Object.values(BallotType).indexOf(
@@ -683,4 +688,176 @@ test('encode HMPB ballot page metadata with bad ballot style fails', () => {
   expect(() =>
     encodeHmpbBallotPageMetadata(election, ballotMetadata)
   ).toThrowError('ballot style ID not found: 42');
+});
+
+// Multi-page BMD ballot tests
+
+test('can detect a multi-page BMD ballot', () => {
+  expect(isBmdMultiPageBallot(Uint8Array.of(...BmdMultiPagePrelude))).toEqual(
+    true
+  );
+  expect(isBmdMultiPageBallot(Uint8Array.of())).toEqual(false);
+  expect(isBmdMultiPageBallot(Uint8Array.of(...BmdPrelude))).toEqual(false);
+  expect(
+    isBmdMultiPageBallot(Uint8Array.of(0, ...BmdMultiPagePrelude))
+  ).toEqual(false);
+});
+
+test('multi-page BMD ballot is still detected as VX ballot', () => {
+  const { election, ballotHash } = readElectionDefinition();
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+
+  const page: BmdMultiPageBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: false,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 2,
+    ballotAuditId: 'test-audit-id-123',
+    contests: contests.slice(0, 5), // first 5 contests
+    votes: vote(contests.slice(0, 5), {}),
+  };
+
+  const encoded = encodeBmdMultiPageBallot(election, page);
+  expect(isVxBallot(encoded)).toEqual(true);
+});
+
+test('encodes & decodes multi-page BMD ballot with empty votes', () => {
+  const { election, ballotHash } = readElectionDefinition();
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+  const pageContests = contests.slice(0, 5); // first 5 contests
+  const votes = vote(pageContests, {});
+
+  const page: BmdMultiPageBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: false,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 2,
+    ballotAuditId: 'test-audit-id-123',
+    contests: pageContests,
+    votes,
+  };
+
+  const encoded = encodeBmdMultiPageBallot(election, page);
+  const decoded = decodeBmdMultiPageBallot(election, encoded);
+
+  expect(decoded.metadata.ballotHash).toEqual(
+    ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH)
+  );
+  expect(decoded.metadata.ballotStyleId).toEqual(ballotStyle.id);
+  expect(decoded.metadata.precinctId).toEqual(precinct.id);
+  expect(decoded.metadata.isTestMode).toEqual(false);
+  expect(decoded.metadata.ballotType).toEqual(BallotType.Precinct);
+  expect(decoded.metadata.pageNumber).toEqual(1);
+  expect(decoded.metadata.totalPages).toEqual(2);
+  expect(decoded.metadata.ballotAuditId).toEqual('test-audit-id-123');
+  expect(decoded.metadata.contestIds).toEqual(pageContests.map((c) => c.id));
+  expect(decoded.votes).toEqual(votes);
+});
+
+test('encodes & decodes multi-page BMD ballot with votes', () => {
+  const { election, ballotHash } = readElectionDefinition();
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+  const pageContests = contests.slice(0, 5);
+  const votes = vote(pageContests, {
+    president: 'barchi-hallaren',
+    senator: 'weiford',
+  });
+
+  const page: BmdMultiPageBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: true,
+    ballotType: BallotType.Absentee,
+    pageNumber: 2,
+    totalPages: 3,
+    ballotAuditId: 'ballot-audit-xyz',
+    contests: pageContests,
+    votes,
+  };
+
+  const encoded = encodeBmdMultiPageBallot(election, page);
+  const decoded = decodeBmdMultiPageBallot(election, encoded);
+
+  expect(decoded.metadata.isTestMode).toEqual(true);
+  expect(decoded.metadata.ballotType).toEqual(BallotType.Absentee);
+  expect(decoded.metadata.pageNumber).toEqual(2);
+  expect(decoded.metadata.totalPages).toEqual(3);
+  expect(decoded.metadata.ballotAuditId).toEqual('ballot-audit-xyz');
+  expect(decoded.votes).toEqual(votes);
+});
+
+test('encodes & decodes multi-page BMD ballot with write-in votes', () => {
+  const { election, ballotHash } = readElectionDefinition();
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+  // Get contests that include county-registrar-of-wills
+  const pageContests = contests.filter((c) =>
+    c.id.includes('county-registrar-of-wills')
+  );
+  const votes = vote(pageContests, {
+    'county-registrar-of-wills': [
+      { id: 'write-in-DONALD DUCK', name: 'DONALD DUCK', isWriteIn: true },
+    ],
+  });
+
+  const page: BmdMultiPageBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: false,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'single-page-audit-id',
+    contests: pageContests,
+    votes,
+  };
+
+  const encoded = encodeBmdMultiPageBallot(election, page);
+  const decoded = decodeBmdMultiPageBallot(election, encoded);
+
+  expect(decoded.metadata.pageNumber).toEqual(1);
+  expect(decoded.metadata.totalPages).toEqual(1);
+  expect(decoded.votes['county-registrar-of-wills']).toEqual([
+    { id: 'write-in-DONALD DUCK', name: 'DONALD DUCK', isWriteIn: true },
+  ]);
+});
+
+test('decode ballot hash from multi-page BMD metadata', () => {
+  const { election, ballotHash } = readElectionDefinition();
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+
+  const page: BmdMultiPageBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: false,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 2,
+    ballotAuditId: 'audit-id',
+    contests: contests.slice(0, 3),
+    votes: vote(contests.slice(0, 3), {}),
+  };
+
+  const encoded = encodeBmdMultiPageBallot(election, page);
+  expect(decodeBallotHash(encoded)).toEqual(
+    ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH)
+  );
 });

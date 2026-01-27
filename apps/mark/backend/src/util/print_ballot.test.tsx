@@ -16,6 +16,7 @@ import {
   PrintSides,
   RenderSpec,
   renderToPdf,
+  SummaryBallotLayoutRenderer,
   type Printer,
 } from '@votingworks/printing';
 
@@ -31,6 +32,18 @@ import { printBallot } from './print_ballot';
 vi.mock('@votingworks/hmpb');
 vi.mock('@votingworks/printing');
 vi.mock('@votingworks/ui');
+
+// Mock SummaryBallotLayoutRenderer to return single page layout
+vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
+  () =>
+    ({
+      computePageBreaks: vi.fn().mockResolvedValue({
+        pages: [{ pageNumber: 1, contestIds: [], layout: {} }],
+        totalPages: 1,
+      }),
+      close: vi.fn().mockResolvedValue(undefined),
+    }) as unknown as SummaryBallotLayoutRenderer
+);
 
 const electionDefBase = electionGeneralFixtures.readElectionDefinition();
 

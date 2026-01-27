@@ -211,7 +211,7 @@ describe('getTallyReportResults', () => {
     const { scannedResults } = tallyReportResults;
     // Without summary ballots, only HMPB counts
     expect(scannedResults.cardCounts).toEqual({
-      bmd: 0,
+      bmd: [],
       hmpb: [52],
     });
 
@@ -251,7 +251,7 @@ describe('getTallyReportResults', () => {
     const { scannedResults } = tallyReportResults;
     // With summary ballots, we have both HMPB and BMD counts (doubled)
     expect(scannedResults.cardCounts).toEqual({
-      bmd: 52,
+      bmd: [52],
       hmpb: [52],
     });
 
@@ -296,17 +296,17 @@ describe('getTallyReportResults', () => {
       tallyReportResults.hasPartySplits && tallyReportResults.cardCountsByParty
     ).toEqual({
       '0': {
-        bmd: 0,
+        bmd: [],
         hmpb: [100],
       },
       '1': {
-        bmd: 0,
+        bmd: [],
         hmpb: [100],
       },
     });
     const { scannedResults } = tallyReportResults;
     expect(scannedResults.cardCounts).toEqual({
-      bmd: 0,
+      bmd: [],
       hmpb: [200],
       manual: 0,
     });
@@ -347,17 +347,17 @@ describe('getTallyReportResults', () => {
       tallyReportResults.hasPartySplits && tallyReportResults.cardCountsByParty
     ).toEqual({
       '0': {
-        bmd: 100,
+        bmd: [100],
         hmpb: [100],
       },
       '1': {
-        bmd: 100,
+        bmd: [100],
         hmpb: [100],
       },
     });
     const { scannedResults } = tallyReportResults;
     expect(scannedResults.cardCounts).toEqual({
-      bmd: 200,
+      bmd: [200],
       hmpb: [200],
       manual: 0,
     });
