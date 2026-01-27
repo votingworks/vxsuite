@@ -26,6 +26,15 @@ export const SYSTEM_LIMITS = {
   markScanContest: {
     seats: 25,
   },
+  /**
+   * VxMark-specific limits for multi-page summary ballots.
+   * VxMark supports dynamic page splitting, so it doesn't have
+   * ballot-style-level limits (contests, candidatesSummedAcrossContests,
+   * seatsSummedAcrossContests), but still has per-contest limits.
+   */
+  markContest: {
+    seats: 25,
+  },
 } as const;
 
 export type SystemLimits = {
@@ -62,6 +71,10 @@ type MarkScanContestSystemLimitViolation =
   SystemLimitViolationBase<'markScanContest'> & {
     contestId: string;
   };
+type MarkContestSystemLimitViolation =
+  SystemLimitViolationBase<'markContest'> & {
+    contestId: string;
+  };
 
 export type SystemLimitViolation =
   | ElectionSystemLimitViolation
@@ -69,4 +82,5 @@ export type SystemLimitViolation =
   | TextFieldSystemLimitViolation
   | PropositionDescriptionFieldSystemLimitViolation
   | MarkScanBallotStyleSystemLimitViolation
-  | MarkScanContestSystemLimitViolation;
+  | MarkScanContestSystemLimitViolation
+  | MarkContestSystemLimitViolation;

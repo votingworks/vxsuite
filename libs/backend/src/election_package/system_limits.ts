@@ -24,12 +24,14 @@ export function validateElectionDefinitionAgainstSystemLimits(
   electionDefinition: ElectionDefinition,
   options?: {
     checkMarkScanSystemLimits?: boolean;
+    checkMarkSystemLimits?: boolean;
     /** Used for testing */
     systemLimitsOverride?: SystemLimits;
   }
 ): Result<void, SystemLimitViolation> {
   const { election } = electionDefinition;
   const checkMarkScanSystemLimits = options?.checkMarkScanSystemLimits ?? false;
+  const checkMarkSystemLimits = options?.checkMarkSystemLimits ?? false;
   const systemLimits = options?.systemLimitsOverride ?? SYSTEM_LIMITS;
 
   if (election.ballotStyles.length > systemLimits.election.ballotStyles) {
@@ -201,6 +203,24 @@ export function validateElectionDefinitionAgainstSystemLimits(
           limitType: 'candidatesSummedAcrossContests',
           valueExceedingLimit: candidatesSummedAcrossContests,
           ballotStyleId: ballotStyle.id,
+        });
+      }
+    }
+  }
+
+  // Check VxMark-specific limits (only per-contest seat limit, no ballot-style-level limits
+  // since VxMark supports multi-page dynamic page splitting)
+  if (checkMarkSystemLimits) {
+    for (const contest of election.contests) {
+      if (
+        contest.type === 'candidate' &&
+        contest.seats > systemLimits.markContest.seats
+      ) {
+        return err({
+          limitScope: 'markContest',
+          limitType: 'seats',
+          valueExceedingLimit: contest.seats,
+          contestId: contest.id,
         });
       }
     }

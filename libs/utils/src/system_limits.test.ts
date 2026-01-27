@@ -124,6 +124,16 @@ test.each<{ violation: SystemLimitViolation; expectedString: string }>([
     expectedString:
       'Number of seats in contest contest-1 (26) exceeds VxMarkScan system limit of 25.',
   },
+  {
+    violation: {
+      limitScope: 'markContest',
+      limitType: 'seats',
+      valueExceedingLimit: SYSTEM_LIMITS.markContest.seats + 1,
+      contestId: 'contest-1',
+    },
+    expectedString:
+      'Number of seats in contest contest-1 (26) exceeds VxMark system limit of 25.',
+  },
 ])(
   'systemLimitViolationToString - $violation.limitScope $violation.limitType',
   ({ violation, expectedString }) => {

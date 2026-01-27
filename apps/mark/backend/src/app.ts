@@ -204,7 +204,8 @@ export function buildApi(ctx: Context) {
       const electionPackageResult = await readSignedElectionPackageFromUsb(
         authStatus,
         usbDrive,
-        logger
+        logger,
+        { checkMarkSystemLimits: true }
       );
       if (electionPackageResult.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
