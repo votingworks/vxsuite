@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
-import type { BackgroundTask, User } from '@votingworks/design-backend';
+import type { BackgroundTask } from '@votingworks/design-backend';
 import { format } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { sleep } from '@votingworks/basics';
@@ -10,7 +10,6 @@ import {
   provideApi,
   createMockApiClient,
   MockApiClient,
-  user,
 } from '../test/api_helpers';
 import { render, screen } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
@@ -25,7 +24,6 @@ const approvedAt = new Date('1/21/2026, 4:30 PM');
 
 test('ballots not finalized', async () => {
   const api = createMockApiClient();
-  mockUser(api, 'support_user');
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockMainExports(api, undefined);
@@ -47,7 +45,6 @@ test('ballots not finalized', async () => {
 
 test('finalized, main export in progress, no test decks', async () => {
   const api = createMockApiClient();
-  mockUser(api, 'support_user');
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, null);
   mockTestDecks(api, undefined);
@@ -77,7 +74,6 @@ test('finalized, main export in progress, no test decks', async () => {
 
 test('main exports done, not approved', async () => {
   const api = createMockApiClient();
-  mockUser(api, 'support_user');
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
@@ -101,7 +97,6 @@ test('main exports done, not approved', async () => {
 
 test('main export done, test decks in progress', async () => {
   const api = createMockApiClient();
-  mockUser(api, 'support_user');
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
@@ -132,7 +127,6 @@ test('main export done, test decks in progress', async () => {
 
 test('finalized, main exports and test decks done, not approved', async () => {
   const api = createMockApiClient();
-  mockUser(api, 'support_user');
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
@@ -156,7 +150,6 @@ test('finalized, main exports and test decks done, not approved', async () => {
 
 test('export errors are displayed', async () => {
   const api = createMockApiClient();
-  mockUser(api, 'support_user');
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, null);
   mockMainExports(api, { error: 'Contest too tall' });
@@ -183,7 +176,6 @@ test('export errors are displayed', async () => {
 
 test('finalized and approved', async () => {
   const api = createMockApiClient();
-  mockUser(api, 'support_user');
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, approvedAt);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
@@ -218,7 +210,6 @@ test('finalized and approved', async () => {
 
 test('approve button action', async () => {
   const api = createMockApiClient();
-  mockUser(api, 'support_user');
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
@@ -241,7 +232,6 @@ test('approve button action', async () => {
 
 test('unfinalize button action', async () => {
   const api = createMockApiClient();
-  mockUser(api, 'support_user');
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
@@ -261,34 +251,6 @@ test('unfinalize button action', async () => {
   await sleep(0); // Give cascading queries a chance to settle.
   api.assertComplete();
 });
-
-const nonSupportUserTypes: Array<User['type']> = [
-  'jurisdiction_user',
-  'organization_user',
-];
-for (const userType of nonSupportUserTypes) {
-  test(`approve button omitted for ${userType}`, async () => {
-    const api = createMockApiClient();
-    mockUser(api, userType);
-    mockFinalizedAt(api, finalizedAt);
-    mockApprovedAt(api, null);
-    mockMainExports(api, { completedAt: mainExportsDoneAt });
-    mockTestDecks(api, { completedAt: testDecksDoneAt });
-
-    renderUi(api);
-
-    await screen.findByText('Proofing Status');
-    api.assertComplete();
-
-    expectDoneStatus(finalizedAt, 'Ballots finalized');
-    expectDoneStatus(mainExportsDoneAt, 'Election Package & Ballots exported');
-    expectDoneStatus(testDecksDoneAt, 'Test Decks exported');
-    screen.getByText('Ballots not approved');
-    screen.getButton(/unfinalize/i);
-
-    expect(screen.queryButton(/approve/i)).not.toBeInTheDocument();
-  });
-}
 
 function expectDoneStatus(date: Date, text: string) {
   const dateString = format.localeShortDateAndTime(date);
@@ -336,10 +298,6 @@ function mockTestDecks(api: MockApiClient, task?: Partial<BackgroundTask>) {
       ...task,
     },
   });
-}
-
-function mockUser(api: MockApiClient, type: User['type']) {
-  api.getUser.expectCallWith().resolves({ ...user, type });
 }
 
 function renderUi(api: MockApiClient) {
