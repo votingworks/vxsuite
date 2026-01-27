@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import set from 'lodash.set';
-import { err, ok } from '@votingworks/basics';
+import { err, ok, assert } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -305,6 +305,70 @@ test('adding a file with BMD cast vote records', async () => {
       contestId: 'zoo-council-mammal',
     })
   ).toHaveLength(24);
+});
+
+test('adding multi-page BMD cast vote records', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
+  mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.election);
+
+  const page1ContestIds = ['best-animal-mammal', 'zoo-council-mammal'];
+  const page2ContestIds = ['new-zoo-either', 'new-zoo-pick', 'fishing'];
+
+  // Split 2 existing BMD records into simulated multi-page ballot pages.
+  // Each record gets a BallotSheetId and a subset of contest results.
+  let callCount = 0;
+  const modifiedExportPath = await modifyCastVoteRecordExport(
+    electionTwoPartyPrimaryFixtures.castVoteRecordExport.asDirectoryPath(),
+    {
+      numCastVoteRecordsToKeep: 2,
+      castVoteRecordModifier: (cvr) => {
+        callCount += 1;
+        const isPage1 = callCount === 1;
+        const contestIds = isPage1 ? page1ContestIds : page2ContestIds;
+        const snapshot = cvr.CVRSnapshot[0];
+        assert(snapshot !== undefined);
+        return {
+          ...cvr,
+          BallotStyleId: '1M',
+          BallotStyleUnitId: 'precinct-1',
+          PartyIds: ['0'],
+          BallotSheetId: isPage1 ? '1' : '2',
+          CVRSnapshot: [
+            {
+              ...snapshot,
+              CVRContest: snapshot.CVRContest.filter((c) =>
+                contestIds.includes(c.ContestId)
+              ),
+            },
+          ],
+        };
+      },
+    }
+  );
+
+  const cvrImportInfo = (
+    await apiClient.addCastVoteRecordFile({ path: modifiedExportPath })
+  ).unsafeUnwrap();
+  expect(cvrImportInfo).toMatchObject({
+    wasExistingFile: false,
+    alreadyPresent: 0,
+    newlyAdded: 2,
+    fileMode: 'test',
+  });
+
+  // Total ballot count should be 1 since only page 1 (bmd[0]) counts as a ballot
+  expect(await apiClient.getTotalBallotCount()).toEqual(1);
+
+  // Card counts should reflect multi-page BMD: one record per page
+  const [cardCounts] = await apiClient.getCardCounts({
+    filter: {},
+    groupBy: {},
+  });
+  expect(cardCounts).toMatchObject({
+    bmd: [1, 1],
+    hmpb: [],
+  });
 });
 
 test('handles duplicate exports', async () => {

@@ -41,6 +41,7 @@ import {
   getSheetCount,
   getScannedBallotCount,
   getHmpbBallotCount,
+  getBmdBallotCount,
   combineCandidateContestResults,
   buildContestResultsFixture,
   areContestResultsValid,
@@ -253,7 +254,7 @@ test('buildElectionResultsFixture', () => {
 
   const ballotCount = 10;
   const cardCounts: Tabulation.CardCounts = {
-    bmd: 5,
+    bmd: [5],
     hmpb: [5],
   };
   const contestResultsSummaries: ContestResultsSummaries = {
@@ -481,56 +482,108 @@ test('buildElectionResultsFixture', () => {
 test('getBallotCount', () => {
   expect(
     getBallotCount({
-      bmd: 10,
+      bmd: [10],
       hmpb: [10, 10],
     })
   ).toEqual(20);
   expect(
     getBallotCount({
-      bmd: 10,
+      bmd: [10],
       hmpb: [5, 4, 4, 4],
       manual: 7,
     })
   ).toEqual(22);
+
+  // With multi-page BMD ballots (combined into bmd array)
+  expect(
+    getBallotCount({
+      bmd: [15, 8], // 15 sheet-1 ballots (single-page + multi-page page-1), 8 sheet-2
+      hmpb: [3],
+      manual: 2,
+    })
+  ).toEqual(20); // 15 BMD sheet-1 + 3 HMPB + 2 manual
 });
 
 test('getHmpbBallotCount', () => {
   expect(
     getHmpbBallotCount({
-      bmd: 10,
+      bmd: [10],
       hmpb: [10, 10],
     })
   ).toEqual(10);
   expect(
     getHmpbBallotCount({
-      bmd: 10,
+      bmd: [10],
       hmpb: [5, 4, 4, 4],
       manual: 7,
     })
   ).toEqual(5);
 });
 
+test('getBmdBallotCount', () => {
+  // Empty BMD array
+  expect(
+    getBmdBallotCount({
+      bmd: [],
+      hmpb: [10, 10],
+    })
+  ).toEqual(0);
+
+  // Single-page BMD ballots (count at index 0)
+  expect(
+    getBmdBallotCount({
+      bmd: [10],
+      hmpb: [10, 10],
+    })
+  ).toEqual(10);
+
+  // Multi-page BMD ballots
+  expect(
+    getBmdBallotCount({
+      bmd: [15, 12],
+      hmpb: [10, 10],
+    })
+  ).toEqual(15);
+
+  // BMD with gaps in sheet array
+  expect(
+    getBmdBallotCount({
+      bmd: [8, undefined, 3] as Array<number | undefined>,
+      hmpb: [10],
+    })
+  ).toEqual(8);
+});
+
 test('getScannedBallotCount', () => {
   expect(
     getScannedBallotCount({
-      bmd: 10,
+      bmd: [10],
       hmpb: [10, 10],
     })
   ).toEqual(20);
   expect(
     getScannedBallotCount({
-      bmd: 10,
+      bmd: [10],
       hmpb: [5, 4, 4, 4],
       manual: 7,
     })
   ).toEqual(15);
+
+  // With multi-page BMD ballots (combined into bmd array)
+  expect(
+    getScannedBallotCount({
+      bmd: [15, 8], // 15 sheet-1 ballots, 8 sheet-2
+      hmpb: [3],
+      manual: 2,
+    })
+  ).toEqual(18); // 15 BMD sheet-1 + 3 HMPB (manual not included)
 });
 
 test('getScannedBallotCountForSheet', () => {
   expect(
     getScannedBallotCountForSheet(
       {
-        bmd: 3,
+        bmd: [3],
         hmpb: [10, 5, 2],
         manual: 7,
       },
@@ -540,7 +593,7 @@ test('getScannedBallotCountForSheet', () => {
   expect(
     getScannedBallotCountForSheet(
       {
-        bmd: 3,
+        bmd: [3],
         hmpb: [10, 5, 2],
         manual: 7,
       },
@@ -550,7 +603,7 @@ test('getScannedBallotCountForSheet', () => {
   expect(
     getScannedBallotCountForSheet(
       {
-        bmd: 3,
+        bmd: [3],
         hmpb: [10, 5, 2],
         manual: 7,
       },
@@ -560,40 +613,70 @@ test('getScannedBallotCountForSheet', () => {
   expect(
     getScannedBallotCountForSheet(
       {
-        bmd: 0,
+        bmd: [],
         hmpb: [3],
       },
       0
     )
   ).toEqual(3);
+
+  // With multi-page BMD ballots (combined into bmd array)
+  expect(
+    getScannedBallotCountForSheet(
+      {
+        bmd: [13, 8], // 13 sheet-1 (3 single-page + 10 multi-page), 8 sheet-2
+        hmpb: [5, 4],
+        manual: 7,
+      },
+      0
+    )
+  ).toEqual(18); // 13 BMD sheet-1 + 5 HMPB sheet-1
+  expect(
+    getScannedBallotCountForSheet(
+      {
+        bmd: [13, 8],
+        hmpb: [5, 4],
+        manual: 7,
+      },
+      1
+    )
+  ).toEqual(12); // 8 BMD sheet-2 + 4 HMPB sheet-2
 });
 
 test('getSheetCount', () => {
   expect(
     getSheetCount({
-      bmd: 3,
+      bmd: [3],
       hmpb: [20],
     })
   ).toEqual(23);
   expect(
     getSheetCount({
-      bmd: 3,
+      bmd: [3],
       hmpb: [20, 35],
     })
   ).toEqual(58);
   expect(
     getSheetCount({
-      bmd: 3,
+      bmd: [3],
       hmpb: [20, undefined, 1] as number[],
     })
   ).toEqual(24);
   expect(
     getSheetCount({
-      bmd: 3,
+      bmd: [3],
       hmpb: [20],
       manual: 56,
     })
   ).toEqual(23);
+
+  // With multi-page BMD ballots (combined into bmd array)
+  expect(
+    getSheetCount({
+      bmd: [13, 8], // 13 sheet-1 (3 single-page + 10 multi-page), 8 sheet-2
+      hmpb: [20],
+    })
+  ).toEqual(41); // 13 + 8 BMD sheets + 20 HMPB sheets
 });
 
 test('getBallotStyleIdPartyIdLookup', () => {
@@ -791,7 +874,7 @@ describe('tabulateCastVoteRecords', () => {
         election,
         includeGenericWriteIn: true,
         cardCounts: {
-          bmd: 2,
+          bmd: [2],
           hmpb: [2],
         },
         contestResultsSummaries: {
@@ -859,6 +942,125 @@ describe('tabulateCastVoteRecords', () => {
         },
       })
     );
+  });
+
+  test('multi-page BMD ballots with sheet accounting', async () => {
+    // This test verifies that multi-page BMD ballots are correctly tabulated
+    // with proper sheet accounting, similar to HMPB ballots.
+    //
+    // Scenario: A ballot has 2 pages
+    // - Page 1: contests best-animal-mammal, zoo-council-mammal
+    // - Page 2: contests best-animal-fish, aquarium-council-fish
+    //
+    // Only Page 1 is scanned, so only Page 1 contests should be counted.
+    // Page 2 contests should have 0 ballots cast.
+
+    const someMetadata = {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      precinctId: 'precinct-1',
+      votingMethod: BallotType.Precinct,
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+    } as const;
+
+    // Multi-page BMD ballot page 1 with votes
+    const multiPageCvr1Page1: Tabulation.CastVoteRecord = {
+      card: { type: 'bmd', sheetNumber: 1 },
+      votes: {
+        'best-animal-mammal': ['fox'],
+        'zoo-council-mammal': ['elephant', 'lion'],
+      },
+      ...someMetadata,
+    };
+
+    // Multi-page BMD ballot page 2 with votes
+    const multiPageCvr1Page2: Tabulation.CastVoteRecord = {
+      card: { type: 'bmd', sheetNumber: 2 },
+      votes: {
+        'best-animal-fish': ['seahorse'],
+        'aquarium-council-fish': ['manta-ray'],
+      },
+      ...someMetadata,
+    };
+
+    // Single-page BMD ballot (all contests on one page)
+    const singlePageCvr: Tabulation.CastVoteRecord = {
+      card: { type: 'bmd' },
+      votes: {
+        'best-animal-mammal': ['horse'],
+        'zoo-council-mammal': ['zebra'],
+        'best-animal-fish': ['salmon'],
+        'aquarium-council-fish': ['pufferfish'],
+      },
+      ...someMetadata,
+    };
+
+    // Scenario 1: Only page 1 of multi-page ballot scanned (plus a single-page ballot)
+    const resultsOnlyPage1 = (
+      await tabulateCastVoteRecords({
+        cvrs: [multiPageCvr1Page1, singlePageCvr],
+        election,
+      })
+    )[GROUP_KEY_ROOT];
+
+    assert(resultsOnlyPage1);
+    // Card counts: 1 single-page BMD + 1 multi-page BMD page-1 = 2 at index 0
+    expect(resultsOnlyPage1.cardCounts).toEqual({
+      bmd: [2],
+      hmpb: [],
+    });
+    // Ballot count should be 2 (based on sheet-1 count)
+    expect(getBallotCount(resultsOnlyPage1.cardCounts)).toEqual(2);
+
+    // Contest results:
+    // - best-animal-mammal: 2 ballots (single + multi-page page 1)
+    // - zoo-council-mammal: 2 ballots (single + multi-page page 1)
+    // - best-animal-fish: 1 ballot (only single-page)
+    // - aquarium-council-fish: 1 ballot (only single-page)
+    expect(
+      resultsOnlyPage1.contestResults['best-animal-mammal']?.ballots
+    ).toEqual(2);
+    expect(
+      resultsOnlyPage1.contestResults['zoo-council-mammal']?.ballots
+    ).toEqual(2);
+    expect(
+      resultsOnlyPage1.contestResults['best-animal-fish']?.ballots
+    ).toEqual(1);
+    expect(
+      resultsOnlyPage1.contestResults['aquarium-council-fish']?.ballots
+    ).toEqual(1);
+
+    // Scenario 2: Both pages of multi-page ballot scanned (plus single-page)
+    const resultsBothPages = (
+      await tabulateCastVoteRecords({
+        cvrs: [multiPageCvr1Page1, multiPageCvr1Page2, singlePageCvr],
+        election,
+      })
+    )[GROUP_KEY_ROOT];
+
+    assert(resultsBothPages);
+    // Card counts: 1 single-page + 1 multi-page page-1 = 2 at index 0, 1 multi-page page-2 at index 1
+    expect(resultsBothPages.cardCounts).toEqual({
+      bmd: [2, 1],
+      hmpb: [],
+    });
+    // Ballot count should still be 2 (based on sheet-1 count)
+    expect(getBallotCount(resultsBothPages.cardCounts)).toEqual(2);
+
+    // Contest results:
+    // - All contests now have 2 ballots each
+    expect(
+      resultsBothPages.contestResults['best-animal-mammal']?.ballots
+    ).toEqual(2);
+    expect(
+      resultsBothPages.contestResults['zoo-council-mammal']?.ballots
+    ).toEqual(2);
+    expect(
+      resultsBothPages.contestResults['best-animal-fish']?.ballots
+    ).toEqual(2);
+    expect(
+      resultsBothPages.contestResults['aquarium-council-fish']?.ballots
+    ).toEqual(2);
   });
 
   test('by ballot style or party', async () => {
@@ -974,7 +1176,7 @@ describe('tabulateCastVoteRecords', () => {
         election,
         includeGenericWriteIn: true,
         cardCounts: {
-          bmd: 28,
+          bmd: [28],
           hmpb: [],
         },
         contestResultsSummaries: {
@@ -1243,19 +1445,56 @@ test('combineCardCounts', () => {
   expect(
     combineCardCounts([
       {
-        bmd: 3,
+        bmd: [3],
         hmpb: [1, undefined as unknown as number, 1, 1],
       },
       {
-        bmd: 2,
+        bmd: [2],
         hmpb: [2, 2, 2, 2],
         manual: 2,
       },
     ])
   ).toEqual({
-    bmd: 5,
+    bmd: [5],
     hmpb: [3, 2, 3, 3],
     manual: 2,
+  });
+
+  // With multi-page BMD ballots (all combined into bmd array)
+  expect(
+    combineCardCounts([
+      {
+        bmd: [8, 4], // sheet-1: 3 single + 5 multi, sheet-2: 4 multi
+        hmpb: [1, 1],
+      },
+      {
+        bmd: [5, 2, 1], // sheet-1: 2 single + 3 multi, sheet-2: 2, sheet-3: 1
+        hmpb: [2, 2],
+        manual: 2,
+      },
+    ])
+  ).toEqual({
+    bmd: [13, 6, 1],
+    hmpb: [3, 3],
+    manual: 2,
+  });
+
+  // Combining different array lengths
+  expect(
+    combineCardCounts([
+      {
+        bmd: [3],
+        hmpb: [1],
+      },
+      {
+        bmd: [7, 4], // 2 single + 5 multi page-1, 4 multi page-2
+        hmpb: [2],
+      },
+    ])
+  ).toEqual({
+    bmd: [10, 4],
+    hmpb: [3],
+    manual: 0,
   });
 });
 
@@ -1267,7 +1506,7 @@ test('convertManualElectionResults', () => {
     })
   ).toEqual<Tabulation.ElectionResults>({
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
       manual: 5,
     },
@@ -1484,7 +1723,7 @@ test('combineCompressedElectionResults', () => {
       election,
       contestResultsSummaries: contestResultsSummaries1,
       includeGenericWriteIn: true,
-      cardCounts: { bmd: 0, hmpb: [] },
+      cardCounts: { bmd: [], hmpb: [] },
     }),
     precinctSelection: ALL_PRECINCTS_SELECTION,
     numPages: 1,
@@ -1495,7 +1734,7 @@ test('combineCompressedElectionResults', () => {
       election,
       contestResultsSummaries: contestResultsSummaries2,
       includeGenericWriteIn: true,
-      cardCounts: { bmd: 0, hmpb: [] },
+      cardCounts: { bmd: [], hmpb: [] },
     }),
     precinctSelection: ALL_PRECINCTS_SELECTION,
     numPages: 1,
@@ -1557,7 +1796,7 @@ test('combineCompressedElectionResults', () => {
         },
       },
       includeGenericWriteIn: true,
-      cardCounts: { bmd: 0, hmpb: [] },
+      cardCounts: { bmd: [], hmpb: [] },
     }).contestResults
   );
 });
@@ -1573,7 +1812,7 @@ test('combineCompressedElectionResults - can combine results from different prec
   const mockResultsPrecinct1 = buildElectionResultsFixture({
     election: electionEitherNeither,
     cardCounts: {
-      bmd: 10,
+      bmd: [10],
       hmpb: [],
     },
     contestResultsSummaries: {
@@ -1602,7 +1841,7 @@ test('combineCompressedElectionResults - can combine results from different prec
   const mockResultsPrecinct2 = buildElectionResultsFixture({
     election: electionEitherNeither,
     cardCounts: {
-      bmd: 10,
+      bmd: [10],
       hmpb: [],
     },
     contestResultsSummaries: {

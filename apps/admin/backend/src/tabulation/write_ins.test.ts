@@ -401,7 +401,7 @@ test('modifyElectionResultsWithWriteInSummary', () => {
   const election = electionTwoPartyPrimary;
   const electionResults = getEmptyElectionResults(election);
 
-  electionResults.cardCounts.bmd = 112;
+  electionResults.cardCounts.bmd = [112];
   electionResults.contestResults['zoo-council-mammal'] = {
     contestId: 'zoo-council-mammal',
     ballots: 112,

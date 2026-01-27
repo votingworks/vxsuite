@@ -48,7 +48,7 @@ const meta: Meta<typeof AdminTallyReportPreview> = {
 const scannedElectionResults = buildElectionResultsFixture({
   election,
   cardCounts: {
-    bmd: 4,
+    bmd: [4],
     hmpb: [3450, 3150],
   },
   includeGenericWriteIn: true,
@@ -153,7 +153,7 @@ const fullElectionWriteInReportArgs: AdminTallyReportProps = {
   scannedElectionResults: buildElectionResultsFixture({
     election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [100],
     },
     includeGenericWriteIn: false,

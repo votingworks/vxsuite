@@ -55,7 +55,7 @@ function getMockElectionDefinition(): ElectionDefinition {
 
 const allMockCardCounts: Tabulation.GroupList<Tabulation.CardCounts> =
   REPORT_ROW_RANGE.map((i) => ({
-    bmd: 0,
+    bmd: [],
     hmpb: [0],
     precinctId: `precinct-${i}`,
   }));

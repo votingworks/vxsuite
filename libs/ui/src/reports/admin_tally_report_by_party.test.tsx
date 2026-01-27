@@ -110,7 +110,7 @@ test('primary election, full election report with manual results', () => {
         manualBallotCount: 1,
         cardCountsByParty: {
           '0': {
-            bmd: 15,
+            bmd: [15],
             hmpb: [],
             manual: 1,
           },
