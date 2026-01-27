@@ -176,7 +176,6 @@ export const rootNavRoutes: Route[] = [];
 
 export function electionNavRoutes(
   electionInfo: ElectionInfo,
-  userFeatures: UserFeaturesConfig,
   systemSettings: SystemSettings
 ): Route[] {
   const r = routes.election(electionInfo.electionId);
@@ -188,7 +187,7 @@ export function electionNavRoutes(
     r.parties.root,
     r.contests.root,
     r.ballots.root,
-    userFeatures.DOWNLOADS && r.downloads,
+    r.downloads,
     !!systemSettings.quickResultsReportingUrl && r.reports.root,
     electionInfo.externalSource === 'ms-sems' && r.convertResults,
   ];

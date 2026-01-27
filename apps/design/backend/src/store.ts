@@ -2042,7 +2042,7 @@ export class Store {
     electionPackageUrl: string;
     ballotHash: string;
     electionData: string;
-    officialBallotsUrl?: string; // [TODO] Make required when worker is updated.
+    officialBallotsUrl: string;
     sampleBallotsUrl?: string;
     testBallotsUrl?: string;
   }): Promise<void> {
