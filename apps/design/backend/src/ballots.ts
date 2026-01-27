@@ -89,7 +89,7 @@ export function createBallotPropsForTemplate(
   election: Election,
   compact: boolean
 ): BaseBallotProps[] {
-  function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
+  function buildNhTownBallotProps(props: BaseBallotProps): NhBallotProps {
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);
     if (!hasSplits(precinct)) {
       return { ...props };
@@ -117,9 +117,10 @@ export function createBallotPropsForTemplate(
   }));
   switch (templateId) {
     case 'NhBallot':
-      return baseBallotProps.map(buildNhBallotProps);
+      return baseBallotProps.map(buildNhTownBallotProps);
 
     case 'MsBallot':
+    case 'NhGeneralBallot':
     case 'VxDefaultBallot':
       return baseBallotProps;
 
