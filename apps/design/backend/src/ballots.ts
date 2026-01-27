@@ -1,5 +1,6 @@
 import {
   BaseBallotProps,
+  ContestSectionHeaders,
   Election,
   hasSplits,
   UiStringsPackage,
@@ -33,7 +34,8 @@ export function defaultBallotTemplate(
 
 export function formatElectionForExport(
   election: Election,
-  ballotStrings: UiStringsPackage
+  ballotStrings: UiStringsPackage,
+  contestSectionHeaders: ContestSectionHeaders
 ): Election {
   const splitPrecincts = election.precincts.filter((p) => hasSplits(p));
 
@@ -52,10 +54,11 @@ export function formatElectionForExport(
     )
   );
 
-  const additionalHashInput: Record<string, Record<string, string>> = {
+  const additionalHashInput = {
     precinctSplitSeals: Object.fromEntries(sealOverrideBySplit),
     precinctSplitSignatureImages: Object.fromEntries(signatureImageBySplit),
-  };
+    contestSectionHeaders,
+  } as const;
 
   return {
     ...election,
@@ -70,12 +73,13 @@ export function formatElectionForExport(
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
-  compact: boolean
+  compact: boolean,
+  contestSectionHeaders: ContestSectionHeaders
 ): BaseBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);
     if (!hasSplits(precinct)) {
-      return props;
+      return { ...props, contestSectionHeaders };
     }
     const ballotStyle = find(
       election.ballotStyles,
@@ -90,6 +94,7 @@ export function createBallotPropsForTemplate(
       electionSealOverride: split.electionSealOverride,
       clerkSignatureImage: split.clerkSignatureImage,
       clerkSignatureCaption: split.clerkSignatureCaption,
+      contestSectionHeaders,
     };
   }
 

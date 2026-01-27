@@ -52,6 +52,9 @@ import {
   unsafeParse,
   DistrictSchema,
   PartySchema,
+  ContestSectionHeaders,
+  ContestTypes,
+  ContestSectionHeader,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -91,6 +94,7 @@ export interface ElectionRecord {
   ballotsFinalizedAt: Date | null;
   lastExportedBallotHash?: string;
   externalSource?: ExternalElectionSource;
+  contestSectionHeaders: ContestSectionHeaders;
 }
 
 export type TaskName = 'generate_election_package' | 'generate_test_decks';
@@ -864,7 +868,11 @@ export class Store {
               created_at as "createdAt",
               ballot_language_codes as "ballotLanguageCodes",
               last_exported_ballot_hash as "lastExportedBallotHash",
-              external_source as "externalSource"
+              external_source as "externalSource",
+              contest_section_title_candidate as "contestSectionTitleCandidate",
+              contest_section_description_candidate as "contestSectionDescriptionCandidate",
+              contest_section_title_yesno as "contestSectionTitleYesno",
+              contest_section_description_yesno as "contestSectionDescriptionYesno"
             from elections
             where id = $1
           `,
@@ -888,6 +896,10 @@ export class Store {
         ballotLanguageCodes: LanguageCode[];
         lastExportedBallotHash: string | null;
         externalSource: ExternalElectionSource | null;
+        contestSectionTitleCandidate: string | null;
+        contestSectionDescriptionCandidate: string | null;
+        contestSectionTitleYesno: string | null;
+        contestSectionDescriptionYesno: string | null;
       };
       assert(electionRow, 'Election not found');
 
@@ -1152,6 +1164,23 @@ export class Store {
         electionRow.systemSettingsData
       ).unsafeUnwrap();
 
+      const contestSectionHeaders: ContestSectionHeaders = {
+        candidate: electionRow.contestSectionTitleCandidate
+          ? {
+              title: electionRow.contestSectionTitleCandidate,
+              description:
+                electionRow.contestSectionDescriptionCandidate || undefined,
+            }
+          : undefined,
+        yesno: electionRow.contestSectionTitleYesno
+          ? {
+              title: electionRow.contestSectionTitleYesno,
+              description:
+                electionRow.contestSectionDescriptionYesno || undefined,
+            }
+          : undefined,
+      };
+
       return {
         election,
         precincts,
@@ -1164,6 +1193,7 @@ export class Store {
         jurisdictionId: electionRow.jurisdictionId,
         lastExportedBallotHash: electionRow.lastExportedBallotHash || undefined,
         externalSource: electionRow.externalSource || undefined,
+        contestSectionHeaders,
       };
     });
   }
@@ -1905,6 +1935,55 @@ export class Store {
       )
     );
     assert(rowCount === 1, 'Contest not found');
+  }
+
+  async getContestSectionHeaders(
+    electionId: ElectionId
+  ): Promise<ContestSectionHeaders> {
+    const { contestSectionHeaders } = await this.getElection(electionId);
+    return contestSectionHeaders;
+  }
+
+  async updateContestSectionHeader(
+    electionId: ElectionId,
+    contestType: ContestTypes,
+    header?: ContestSectionHeader
+  ): Promise<void> {
+    const { rowCount } = await this.db.withClient(async (client) => {
+      switch (contestType) {
+        case 'candidate':
+          return client.query(
+            `
+              update elections
+              set
+                contest_section_title_candidate = $1,
+                contest_section_description_candidate = $2
+              where id = $3
+            `,
+            header?.title,
+            header?.description,
+            electionId
+          );
+        case 'yesno':
+          return client.query(
+            `
+              update elections
+              set
+                contest_section_title_yesno = $1,
+                contest_section_description_yesno = $2
+              where id = $3
+            `,
+            header?.title,
+            header?.description,
+            electionId
+          );
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(contestType);
+        }
+      }
+    });
+    assert(rowCount === 1, 'Election not found');
   }
 
   async getBallotLayoutSettings(

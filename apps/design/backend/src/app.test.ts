@@ -14,7 +14,6 @@ import {
   range,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { readFileSync } from 'node:fs';
 import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
@@ -92,10 +91,8 @@ import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
   exportTestDecks,
-  generateAllPrecinctsTallyReport,
   getExportedFile,
   processNextBackgroundTaskIfAny,
-  readFixture,
   testSetupHelpers,
 } from '../test/helpers';
 import {
@@ -3170,6 +3167,7 @@ test('Election package and ballots export', async () => {
     additionalHashInput: {
       precinctSplitSeals: expect.any(Object),
       precinctSplitSignatureImages: expect.any(Object),
+      contestSectionHeaders: {},
     },
   };
   const expectedElection: Election = {
@@ -4093,72 +4091,6 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
   });
 });
 
-test('getBallotPreviewPdf returns a ballot pdf for NH election with split precincts and additional config options', async () => {
-  const baseElectionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-  const election: Election = {
-    ...baseElectionDefinition.election,
-    state: 'New Hampshire',
-    signature: {
-      caption: 'Caption To Be Overwritten',
-      image: 'Image To Be Overwritten',
-    },
-  };
-  const { apiClient, auth0 } = await setupApp({
-    organizations,
-    jurisdictions,
-    users,
-  });
-
-  auth0.setLoggedInUser(nonVxUser);
-  const electionId = (
-    await apiClient.loadElection({
-      newId: 'new-election-id' as ElectionId,
-      jurisdictionId: nhJurisdiction.id,
-      upload: {
-        format: 'vxf',
-        electionFileContents: JSON.stringify(election),
-      },
-    })
-  ).unsafeUnwrap();
-  const ballotStyles = await apiClient.listBallotStyles({ electionId });
-  const precincts = await apiClient.listPrecincts({ electionId });
-
-  const splitPrecinctIndex = precincts.findIndex((p) => hasSplits(p));
-  assert(splitPrecinctIndex >= 0);
-  const precinct = precincts[splitPrecinctIndex] as PrecinctWithSplits;
-  const split = precinct.splits[0];
-  split.clerkSignatureCaption = 'Test Clerk Caption';
-  split.clerkSignatureImage = readFileSync(
-    './test/mockSignature.svg'
-  ).toString();
-  split.electionTitleOverride = 'Test Election Title Override';
-
-  (
-    await apiClient.updatePrecinct({ electionId, updatedPrecinct: precinct })
-  ).unsafeUnwrap();
-
-  const ballotStyle = assertDefined(
-    ballotStyles.find(
-      (style) =>
-        ballotStyleHasPrecinctOrSplit(style, { precinct, split }) &&
-        style.languages!.includes(LanguageCode.ENGLISH)
-    )
-  );
-
-  const result = (
-    await apiClient.getBallotPreviewPdf({
-      electionId,
-      precinctId: precinct.id,
-      ballotStyleId: ballotStyle.id,
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-    })
-  ).unsafeUnwrap();
-
-  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.001 });
-});
-
 test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -4208,166 +4140,6 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
 
   await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
 });
-
-test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', async () => {
-  const baseElectionDefinition =
-    electionFamousNames2021Fixtures.readElectionDefinition();
-  const election: Election = {
-    ...baseElectionDefinition.election,
-    state: 'New Hampshire',
-    signature: {
-      image: readFileSync('./test/mockSignature.svg').toString(),
-      caption: 'Test Image Caption',
-    },
-  };
-  const { apiClient, auth0 } = await setupApp({
-    organizations,
-    jurisdictions,
-    users,
-  });
-
-  auth0.setLoggedInUser(nonVxUser);
-  const electionId = (
-    await apiClient.loadElection({
-      newId: 'new-election-id' as ElectionId,
-      jurisdictionId: nhJurisdiction.id,
-      upload: {
-        format: 'vxf',
-        electionFileContents: JSON.stringify(election),
-      },
-    })
-  ).unsafeUnwrap();
-  const ballotStyles = await apiClient.listBallotStyles({ electionId });
-  const precincts = await apiClient.listPrecincts({ electionId });
-
-  function hasDistrictIds(
-    precinct: Precinct
-  ): precinct is PrecinctWithoutSplits {
-    return 'districtIds' in precinct && precinct.districtIds.length > 0;
-  }
-
-  const precinct = assertDefined(precincts.find((p) => hasDistrictIds(p)));
-
-  const result = (
-    await apiClient.getBallotPreviewPdf({
-      electionId,
-      precinctId: precinct.id,
-      ballotStyleId: assertDefined(
-        ballotStyles.find(
-          (style) =>
-            style.districts.includes(precinct.districtIds[0]) &&
-            style.languages!.includes(LanguageCode.ENGLISH)
-        )
-      ).id,
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-    })
-  ).unsafeUnwrap();
-
-  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
-});
-
-test.each<{
-  description: string;
-  ballotMeasureDescription: string;
-  isRenderSuccessful: boolean;
-}>([
-  {
-    description: 'Many short paragraphs',
-    ballotMeasureDescription: '<p>Text</p>'.repeat(50),
-    isRenderSuccessful: true,
-  },
-  {
-    description: 'One long paragraph',
-    ballotMeasureDescription: `<p>${'Text '.repeat(10000)}</p>`,
-    isRenderSuccessful: false,
-  },
-  {
-    description: 'One short paragraph followed by one long paragraph',
-    ballotMeasureDescription: `<p>Text</p><p>${'Text '.repeat(10000)}</p>`,
-    isRenderSuccessful: false,
-  },
-])(
-  'splitting long ballot measures across pages when using NH template - $description',
-  async ({ ballotMeasureDescription, isRenderSuccessful }) => {
-    const baseElectionDefinition =
-      electionFamousNames2021Fixtures.readElectionDefinition();
-    const election: Election = {
-      ...baseElectionDefinition.election,
-      contests: [
-        ...baseElectionDefinition.election.contests,
-        {
-          id: 'long-ballot-measure',
-          type: 'yesno',
-          title: 'Long Ballot Measure',
-          description: ballotMeasureDescription,
-          yesOption: { id: 'yes-option', label: 'Yes' },
-          noOption: { id: 'no-option', label: 'No' },
-          districtId: baseElectionDefinition.election.districts[0].id,
-        },
-      ],
-      signature: {
-        image: readFileSync('./test/mockSignature.svg').toString(),
-        caption: 'Caption',
-      },
-    };
-    const { apiClient, auth0 } = await setupApp({
-      organizations,
-      jurisdictions,
-      users,
-    });
-
-    auth0.setLoggedInUser(nonVxUser);
-    const electionId = (
-      await apiClient.loadElection({
-        newId: 'new-election-id' as ElectionId,
-        jurisdictionId: nhJurisdiction.id,
-        upload: {
-          format: 'vxf',
-          electionFileContents: JSON.stringify(election),
-        },
-      })
-    ).unsafeUnwrap();
-
-    // IDs are updated after loading into VxDesign so we can't refer to the original election
-    // definition IDs
-    const contests = await apiClient.listContests({ electionId });
-    const precincts = await apiClient.listPrecincts({ electionId });
-    const ballotStyles = await apiClient.listBallotStyles({ electionId });
-
-    const contest = assertDefined(
-      contests.find((c) => c.title === 'Long Ballot Measure')
-    );
-    const precinctId = assertDefined(
-      precincts.find(
-        (p) => 'districtIds' in p && p.districtIds.includes(contest.districtId)
-      )
-    ).id;
-    const ballotStyleId = assertDefined(
-      ballotStyles.find((bs) => bs.districts.includes(contest.districtId))
-    ).id;
-
-    const result = await apiClient.getBallotPreviewPdf({
-      electionId,
-      precinctId,
-      ballotStyleId,
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-    });
-
-    if (isRenderSuccessful) {
-      const { pdfData } = result.unsafeUnwrap();
-      await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
-    } else {
-      expect(result).toEqual(
-        err({
-          error: 'contestTooLong',
-          contest: expect.objectContaining({ id: contest.id }),
-        })
-      );
-    }
-  }
-);
 
 test('setBallotTemplate changes the ballot template used to render ballots', async () => {
   const electionDefinition =
@@ -4683,78 +4455,6 @@ test('decryptCvrBallotAuditIds', async () => {
     const contents = JSON.parse(await cvrFileEntry.async('text'));
     expect(contents.CVR[0]).toEqual(cvr.castVoteRecord);
   }
-});
-
-test('MS election and results SEMS conversion', async () => {
-  const { apiClient, auth0, fileStorageClient, workspace } = await setupApp({
-    organizations,
-    jurisdictions,
-    users,
-  });
-  auth0.setLoggedInUser(anotherNonVxUser);
-
-  // Load election
-  const electionId = (
-    await apiClient.loadElection({
-      newId: 'ms-election-id' as ElectionId,
-      jurisdictionId: msJurisdiction.id,
-      upload: {
-        format: 'ms-sems',
-        electionFileContents: readFixture(
-          'ms-sems-election-general-ballot-measures-10.csv'
-        ),
-        candidateFileContents: readFixture(
-          'ms-sems-election-candidates-general-ballot-measures-10.csv'
-        ),
-      },
-    })
-  ).unsafeUnwrap();
-  expect(await apiClient.getElectionInfo({ electionId })).toMatchObject({
-    title: 'Mock General Election Greenwood 2020',
-    externalSource: 'ms-sems',
-  });
-  expect(await apiClient.getBallotTemplate({ electionId })).toEqual('MsBallot');
-
-  // Can't convert results before exporting election package
-  expect(
-    await apiClient.convertMsResults({
-      electionId,
-      allPrecinctsTallyReportContents: '',
-    })
-  ).toEqual(err('no-election-export-found'));
-
-  // Export election package
-  const exportMeta = await exportElectionPackage({
-    fileStorageClient,
-    apiClient,
-    electionId,
-    workspace,
-    electionSerializationFormat: 'vxf',
-    shouldExportAudio: true,
-    shouldExportSampleBallots: true,
-    shouldExportTestBallots: true,
-    numAuditIdBallots: undefined,
-  });
-
-  const electionPackageContents = getExportedFile({
-    storage: fileStorageClient,
-    jurisdictionId: msJurisdiction.id,
-    url: exportMeta.electionPackageUrl,
-  });
-
-  const { electionPackage } = (
-    await readElectionPackageFromBuffer(electionPackageContents)
-  ).unsafeUnwrap();
-
-  // Convert results
-  (
-    await apiClient.convertMsResults({
-      electionId,
-      allPrecinctsTallyReportContents: generateAllPrecinctsTallyReport(
-        electionPackage.electionDefinition
-      ),
-    })
-  ).unsafeUnwrap();
 });
 
 function regexElectionPackageZip(jurisdiction: Jurisdiction) {

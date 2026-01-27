@@ -298,3 +298,25 @@ describe('sanitizeTrailingNbspOnPaste', () => {
     ).toEqual('<table><tbody><tr><td></td></tr></tbody></table>');
   });
 });
+
+test('disabled', async () => {
+  const onChange = vi.fn();
+  render(
+    <RichTextEditor initialHtmlContent="Content" onChange={onChange} disabled />
+  );
+
+  const editor = await screen.findByTestId('rich-text-editor');
+  expect(editor).toHaveTextContent('Content');
+
+  expect(editor.querySelector('.tiptap')!).toHaveAttribute(
+    'contenteditable',
+    'false'
+  );
+
+  userEvent.type(editor.querySelector('.tiptap')!, ' More Content');
+  expect(onChange).not.toHaveBeenCalled();
+
+  for (const button of screen.getAllByRole('button')) {
+    expect(button).toBeDisabled();
+  }
+});

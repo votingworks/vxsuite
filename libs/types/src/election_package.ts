@@ -58,7 +58,8 @@ export interface BallotConfig extends BallotStyleData {
   isAbsentee: boolean;
 }
 
-export interface EncodedBallotEntry extends Omit<BaseBallotProps, 'election'> {
+export interface EncodedBallotEntry
+  extends Omit<BaseBallotProps, 'election' | 'contestSectionHeaders'> {
   encodedBallot: string; // A base64-encoded ballot PDF
 }
 

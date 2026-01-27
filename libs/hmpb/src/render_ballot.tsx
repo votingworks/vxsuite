@@ -718,7 +718,9 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
  * every combination of ballot style, precinct, ballot type (precinct/absentee),
  * and ballot mode (official/test/sample).
  */
-export function allBaseBallotProps(election: Election): BaseBallotProps[] {
+export function allBaseBallotProps(
+  election: Election
+): Array<Omit<BaseBallotProps, 'contestSectionHeaders'>> {
   const ballotTypes = [BallotType.Precinct, BallotType.Absentee];
   return election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.flatMap((precinctId) =>

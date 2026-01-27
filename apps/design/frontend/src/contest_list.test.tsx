@@ -1,4 +1,10 @@
-import { AnyContest, Contest, District, Party } from '@votingworks/types';
+import {
+  AnyContest,
+  Contest,
+  ContestSectionHeader,
+  District,
+  Party,
+} from '@votingworks/types';
 import { afterEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
@@ -10,7 +16,7 @@ import {
   provideApi,
 } from '../test/api_helpers';
 import { ContestList, ContestListProps, ReorderParams } from './contest_list';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { routes } from './routes';
 
 const district1: District = { id: 'district1', name: 'District 1' };
@@ -74,9 +80,9 @@ test('renders labelled candidate and ballot measure sublists', async () => {
 
   renderList(mockApi, newHistory(), {
     candidateContests,
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests,
   });
 
   await screen.findAllByText(district1.name);
@@ -112,9 +118,9 @@ test('renders primary election contest parties, when available', async () => {
 
   renderList(mockApi, newHistory(), {
     candidateContests,
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests,
   });
 
   await screen.findAllByText(district1.name);
@@ -144,9 +150,9 @@ test('navigates on select', async () => {
 
   renderList(mockApi, history, {
     candidateContests,
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests,
   });
 
   await screen.findAllByText(district1.name);
@@ -176,9 +182,9 @@ test('omits ballot measure section if empty', async () => {
 
   renderList(mockApi, newHistory(), {
     candidateContests,
+    yesNoContests: [],
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests: [],
   });
 
   await screen.findAllByText(district1.name);
@@ -200,9 +206,9 @@ test('omits candidate section if empty', async () => {
 
   renderList(mockApi, newHistory(), {
     candidateContests: [],
+    yesNoContests,
     reorder: vi.fn(),
     reordering: false,
-    yesNoContests,
   });
 
   await screen.findAllByText(district1.name);
@@ -226,9 +232,9 @@ test('omits reordering when not enabled', async () => {
 
   renderList(mockApi, newHistory(), {
     candidateContests,
+    yesNoContests: [],
     reorder,
     reordering: false,
-    yesNoContests: [],
   });
 
   await screen.findAllByText(district2.name);
@@ -246,9 +252,9 @@ test('supports reordering', async () => {
 
   renderList(mockApi, newHistory(), {
     candidateContests,
+    yesNoContests,
     reorder,
     reordering: true,
-    yesNoContests,
   });
 
   await screen.findAllByText(district2.name);
@@ -290,6 +296,190 @@ test('supports reordering', async () => {
   ]);
 });
 
+test('editing contest section headers', async () => {
+  mockApi = newMockApi({ districts: [district1, district2] });
+  mockApi.getStateFeatures.reset();
+  mockApi.getStateFeatures
+    .expectCallWith({ electionId })
+    .resolves({ CONTEST_SECTION_HEADERS: true });
+
+  const candidateContests = [candidateContest1, candidateContest2];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
+
+  renderList(mockApi, newHistory(), {
+    candidateContests,
+    yesNoContests,
+    reorder: vi.fn(),
+    reordering: false,
+  });
+
+  await screen.findAllByText(district1.name);
+  const candidateContestListHeader = await screen.findByRole('heading', {
+    name: /Candidate Contests/,
+  });
+  mockApi.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  userEvent.click(
+    within(candidateContestListHeader).getButton('Add Ballot Header')
+  );
+
+  let modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', {
+    name: 'Edit Ballot Header - Candidate Contests',
+  });
+  let titleInput = within(modal).getByLabelText('Title');
+  let descriptionEditor = within(
+    screen.getByText('Description').parentElement!
+  ).getByTestId('rich-text-editor');
+  const saveButton = within(modal).getByRole('button', { name: 'Save' });
+  const deleteButton = within(modal).getByRole('button', { name: 'Delete' });
+  expect(saveButton).toBeDisabled();
+  expect(deleteButton).toBeDisabled();
+  expect(titleInput).toHaveValue('');
+  expect(descriptionEditor).toHaveTextContent('');
+
+  const expectedCandidateHeader: ContestSectionHeader = {
+    title: 'New Candidate Header Title',
+    description: '<p>New Candidate Header Description</p>',
+  };
+  userEvent.type(titleInput, expectedCandidateHeader.title);
+  expect(saveButton).toBeEnabled();
+  userEvent.type(
+    descriptionEditor.querySelector('.tiptap p')!,
+    'New Candidate Header Description'
+  );
+  await within(descriptionEditor).findByText(
+    'New Candidate Header Description'
+  );
+
+  mockApi.updateContestSectionHeader
+    .expectCallWith({
+      electionId,
+      contestType: 'candidate',
+      updatedHeader: expectedCandidateHeader,
+    })
+    .resolves();
+  mockApi.getContestSectionHeaders.expectCallWith({ electionId }).resolves({
+    candidate: expectedCandidateHeader,
+    yesno: undefined,
+  });
+  userEvent.click(saveButton);
+  await waitFor(() => {
+    expect(modal).not.toBeInTheDocument();
+  });
+
+  const editButton = within(candidateContestListHeader).getButton(
+    expectedCandidateHeader.title
+  );
+  userEvent.click(editButton);
+
+  modal = await screen.findByRole('alertdialog');
+  titleInput = within(modal).getByLabelText('Title');
+  expect(titleInput).toHaveValue(expectedCandidateHeader.title);
+  descriptionEditor = within(
+    screen.getByText('Description').parentElement!
+  ).getByTestId('rich-text-editor');
+  expect(descriptionEditor).toHaveTextContent(
+    'New Candidate Header Description'
+  );
+
+  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await waitFor(() => {
+    expect(modal).not.toBeInTheDocument();
+  });
+  userEvent.click(editButton);
+  modal = await screen.findByRole('alertdialog');
+
+  mockApi.updateContestSectionHeader
+    .expectCallWith({
+      electionId,
+      contestType: 'candidate',
+      updatedHeader: undefined,
+    })
+    .resolves();
+  mockApi.getContestSectionHeaders.expectCallWith({ electionId }).resolves({
+    candidate: undefined,
+    yesno: undefined,
+  });
+  userEvent.click(within(modal).getByRole('button', { name: 'Delete' }));
+  await waitFor(() => {
+    expect(modal).not.toBeInTheDocument();
+  });
+  within(candidateContestListHeader).getButton('Add Ballot Header');
+
+  const ballotMeasureContestListHeader = await screen.findByRole('heading', {
+    name: /Ballot Measures/,
+  });
+  within(ballotMeasureContestListHeader).getButton('Add Ballot Header');
+  userEvent.click(
+    within(ballotMeasureContestListHeader).getButton('Add Ballot Header')
+  );
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', {
+    name: 'Edit Ballot Header - Ballot Measures',
+  });
+  userEvent.type(
+    within(modal).getByLabelText('Title'),
+    'New Ballot Measure Header Title'
+  );
+  const expectedBallotMeasureHeader: ContestSectionHeader = {
+    title: 'New Ballot Measure Header Title',
+    description: undefined,
+  };
+  mockApi.updateContestSectionHeader
+    .expectCallWith({
+      electionId,
+      contestType: 'yesno',
+      updatedHeader: expectedBallotMeasureHeader,
+    })
+    .resolves();
+  mockApi.getContestSectionHeaders.expectCallWith({ electionId }).resolves({
+    candidate: undefined,
+    yesno: expectedBallotMeasureHeader,
+  });
+  userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
+  await waitFor(() => {
+    expect(modal).not.toBeInTheDocument();
+  });
+  within(ballotMeasureContestListHeader).getButton(
+    expectedBallotMeasureHeader.title
+  );
+});
+
+test('disables editing contest section headers when ballots are finalized', async () => {
+  mockApi = newMockApi({ districts: [district1, district2] });
+  mockApi.getStateFeatures.reset();
+  mockApi.getStateFeatures
+    .expectCallWith({ electionId })
+    .resolves({ CONTEST_SECTION_HEADERS: true });
+  const candidateContests = [candidateContest1, candidateContest2];
+  const yesNoContests = [yesNoContest1, yesNoContest2];
+  renderList(mockApi, newHistory(), {
+    candidateContests,
+    yesNoContests,
+    reorder: vi.fn(),
+    reordering: false,
+  });
+
+  await screen.findAllByText(district1.name);
+  const candidateContestListHeader = await screen.findByRole('heading', {
+    name: /Candidate Contests/,
+  });
+  mockApi.getBallotsFinalizedAt
+    .expectCallWith({ electionId })
+    .resolves(new Date());
+  userEvent.click(
+    within(candidateContestListHeader).getButton('Add Ballot Header')
+  );
+
+  const modal = await screen.findByRole('alertdialog');
+  expect(within(modal).getByLabelText('Title')).toBeDisabled();
+  expect(
+    within(modal).getByTestId('rich-text-editor').querySelector('.tiptap')!
+  ).toHaveAttribute('contenteditable', 'false');
+  expect(within(modal).getByRole('button', { name: 'Save' })).toBeDisabled();
+  expect(within(modal).getByRole('button', { name: 'Delete' })).toBeDisabled();
+});
+
 function getHeading(name: string) {
   return screen.getByRole('heading', { name });
 }
@@ -321,6 +511,10 @@ function newMockApi(p: { districts: District[]; parties?: Party[] }) {
   mockApi = createMockApiClient();
   mockApi.listDistricts.expectCallWith({ electionId }).resolves(p.districts);
   mockApi.listParties.expectCallWith({ electionId }).resolves(p.parties || []);
+  mockApi.getContestSectionHeaders
+    .expectCallWith({ electionId })
+    .resolves({ candidate: undefined, yesno: undefined });
+  mockApi.getStateFeatures.expectCallWith({ electionId }).resolves({});
 
   return mockApi;
 }

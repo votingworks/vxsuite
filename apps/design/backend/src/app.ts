@@ -33,6 +33,11 @@ import {
   safeParseElection,
   BallotStyle,
   formatBallotHash,
+  ContestSectionHeaders,
+  ContestTypes,
+  ContestSectionHeader,
+  ContestTypesSchema,
+  ContestSectionHeaderSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -603,6 +608,28 @@ export function buildApi(ctx: AppContext) {
       await store.deleteContest(input.electionId, input.contestId);
     },
 
+    async getContestSectionHeaders(input: {
+      electionId: ElectionId;
+    }): Promise<ContestSectionHeaders> {
+      return store.getContestSectionHeaders(input.electionId);
+    },
+
+    async updateContestSectionHeader(input: {
+      electionId: ElectionId;
+      contestType: ContestTypes;
+      updatedHeader?: ContestSectionHeader;
+    }): Promise<void> {
+      const contestType = unsafeParse(ContestTypesSchema, input.contestType);
+      const updatedHeader =
+        input.updatedHeader &&
+        unsafeParse(ContestSectionHeaderSchema, input.updatedHeader);
+      await store.updateContestSectionHeader(
+        input.electionId,
+        contestType,
+        updatedHeader
+      );
+    },
+
     async getBallotLayoutSettings(input: {
       electionId: ElectionId;
     }): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
@@ -709,8 +736,12 @@ export function buildApi(ctx: AppContext) {
     }): Promise<
       Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
     > {
-      const { election, ballotLanguageConfigs, ballotTemplateId } =
-        await store.getElection(input.electionId);
+      const {
+        election,
+        ballotLanguageConfigs,
+        ballotTemplateId,
+        contestSectionHeaders,
+      } = await store.getElection(input.electionId);
       const { compact } = await store.getBallotLayoutSettings(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
@@ -725,7 +756,8 @@ export function buildApi(ctx: AppContext) {
       const allBallotProps = createBallotPropsForTemplate(
         ballotTemplateId,
         electionWithBallotStrings,
-        compact
+        compact,
+        contestSectionHeaders
       );
       const ballotProps = find(
         allBallotProps,

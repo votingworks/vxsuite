@@ -107,8 +107,13 @@ export async function generateElectionPackageAndBallots(
   const { store } = ctx.workspace;
 
   const electionRecord = await store.getElection(electionId);
-  const { ballotLanguageConfigs, election, ballotTemplateId, jurisdictionId } =
-    electionRecord;
+  const {
+    ballotLanguageConfigs,
+    election,
+    ballotTemplateId,
+    jurisdictionId,
+    contestSectionHeaders,
+  } = electionRecord;
   let { systemSettings } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
@@ -138,12 +143,17 @@ export async function generateElectionPackageAndBallots(
   );
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
 
-  const formattedElection = formatElectionForExport(election, ballotStrings);
+  const formattedElection = formatElectionForExport(
+    election,
+    ballotStrings,
+    contestSectionHeaders
+  );
 
   let allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
-    compact
+    compact,
+    contestSectionHeaders
   );
   // eslint-disable-next-line array-callback-return
   allBallotProps = allBallotProps.filter((props) => {

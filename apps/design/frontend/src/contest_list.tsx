@@ -1,15 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Flipped, Flipper } from 'react-flip-toolkit';
-
-import { Button } from '@votingworks/ui';
-import { AnyContest, Party } from '@votingworks/types';
-
+import { Button, Modal } from '@votingworks/ui';
+import {
+  AnyContest,
+  ContestTypes,
+  Party,
+  ElectionId,
+  ContestSectionHeader,
+} from '@votingworks/types';
 import { useHistory, useParams } from 'react-router-dom';
-import { Column, Row } from './layout';
+import { Column, FieldName, InputGroup, Row } from './layout';
 import * as api from './api';
 import { ElectionIdParams, routes } from './routes';
 import { EntityList } from './entity_list';
+import { RichTextEditor } from './rich_text_editor';
 
 const CLASS_REORDER_BUTTON = 'contestReorderButton';
 
@@ -34,9 +39,9 @@ export interface ReorderParams {
 
 export interface ContestListProps {
   candidateContests: AnyContest[];
+  yesNoContests: AnyContest[];
   reordering: boolean;
   reorder: (params: ReorderParams) => void;
-  yesNoContests: AnyContest[];
 }
 
 // [TODO] Might make sense, visually and functionally, to move the controls for
@@ -44,8 +49,7 @@ export interface ContestListProps {
 // footer. With recent changes the "reorder" button is a bit too far off now and
 // there may be plans to add support for custom contest grouping down the line.
 export function ContestList(props: ContestListProps): React.ReactNode {
-  const { candidateContests, reorder, reordering, yesNoContests } = props;
-
+  const { candidateContests, yesNoContests, reorder, reordering } = props;
   const { contestId = null, electionId } = useParams<
     ElectionIdParams & { contestId?: string }
   >();
@@ -55,6 +59,8 @@ export function ContestList(props: ContestListProps): React.ReactNode {
 
   const parties = api.listParties.useQuery(electionId);
   const districts = api.listDistricts.useQuery(electionId);
+  const getContestSectionHeadersQuery =
+    api.getContestSectionHeaders.useQuery(electionId);
 
   const districtIdToName = React.useMemo(
     () => new Map((districts.data || []).map((d) => [d.id, d.name])),
@@ -65,12 +71,21 @@ export function ContestList(props: ContestListProps): React.ReactNode {
     history.push(contestRoutes.view(id).path);
   }
 
-  if (!parties.isSuccess || !districts.isSuccess) return null;
+  if (
+    !parties.isSuccess ||
+    !districts.isSuccess ||
+    !getContestSectionHeadersQuery.isSuccess
+  ) {
+    return null;
+  }
+
+  const contestSectionHeaders = getContestSectionHeadersQuery.data;
 
   return (
     <EntityList.Box>
       {candidateContests.length > 0 && (
         <Sublist
+          electionId={electionId}
           contests={candidateContests}
           districtIdToName={districtIdToName}
           onSelect={onSelect}
@@ -79,11 +94,13 @@ export function ContestList(props: ContestListProps): React.ReactNode {
           reorder={reorder}
           selectedId={contestId}
           title="Candidate Contests"
+          contestType="candidate"
+          sectionHeader={contestSectionHeaders.candidate}
         />
       )}
-
       {yesNoContests.length > 0 && (
         <Sublist
+          electionId={electionId}
           contests={yesNoContests}
           districtIdToName={districtIdToName}
           onSelect={onSelect}
@@ -92,13 +109,26 @@ export function ContestList(props: ContestListProps): React.ReactNode {
           reorder={reorder}
           selectedId={contestId}
           title="Ballot Measures"
+          contestType="yesno"
+          sectionHeader={contestSectionHeaders.yesno}
         />
       )}
     </EntityList.Box>
   );
 }
 
+const OpenSectionHeaderFormButton = styled(Button).attrs({
+  fill: 'transparent',
+})`
+  color: ${(p) => p.theme.colors.onBackgroundMuted};
+  font-size: 0.9rem;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-left: -0.25rem; /* Align with header text */
+`;
+
 export function Sublist(props: {
+  electionId: ElectionId;
   contests: AnyContest[];
   districtIdToName: Map<string, string>;
   onSelect: (contestId: string) => void;
@@ -107,8 +137,11 @@ export function Sublist(props: {
   reordering: boolean;
   selectedId: string | null;
   title: string;
+  contestType: ContestTypes;
+  sectionHeader?: ContestSectionHeader;
 }): React.ReactNode {
   const {
+    electionId,
     contests,
     districtIdToName,
     onSelect,
@@ -117,11 +150,42 @@ export function Sublist(props: {
     reordering,
     selectedId,
     title,
+    contestType,
+    sectionHeader,
   } = props;
+  const [isEditingSectionHeader, setIsEditingSectionHeader] =
+    React.useState(false);
+  const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
+
+  if (!getStateFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getStateFeaturesQuery.data;
 
   return (
     <React.Fragment>
-      <EntityList.Header>{title}</EntityList.Header>
+      <EntityList.Header>
+        {title}
+        {features.CONTEST_SECTION_HEADERS && (
+          <Row>
+            {sectionHeader ? (
+              <OpenSectionHeaderFormButton
+                rightIcon="Edit"
+                onPress={() => setIsEditingSectionHeader(true)}
+              >
+                {sectionHeader.title}
+              </OpenSectionHeaderFormButton>
+            ) : (
+              <OpenSectionHeaderFormButton
+                icon="Add"
+                onPress={() => setIsEditingSectionHeader(true)}
+              >
+                Add Ballot Header
+              </OpenSectionHeaderFormButton>
+            )}
+          </Row>
+        )}
+      </EntityList.Header>
 
       {/* Flipper/Flip are used to animate the reordering of contest rows */}
       <Items
@@ -178,6 +242,16 @@ export function Sublist(props: {
           </Flipped>
         ))}
       </Items>
+
+      {isEditingSectionHeader && (
+        <EditSectionHeaderModalForm
+          electionId={electionId}
+          contestType={contestType}
+          sectionTitle={title}
+          savedSectionHeader={sectionHeader}
+          onClose={() => setIsEditingSectionHeader(false)}
+        />
+      )}
     </React.Fragment>
   );
 }
@@ -186,4 +260,124 @@ function partyName(contest: AnyContest, parties: readonly Party[]) {
   if (contest.type !== 'candidate' || !contest.partyId) return undefined;
 
   return parties.find((p) => p.id === contest.partyId)?.fullName;
+}
+
+function EditSectionHeaderModalForm({
+  electionId,
+  contestType,
+  sectionTitle,
+  savedSectionHeader,
+  onClose,
+}: {
+  electionId: ElectionId;
+  contestType: ContestTypes;
+  sectionTitle: string;
+  savedSectionHeader?: ContestSectionHeader;
+  onClose: () => void;
+}): React.ReactNode {
+  const getBallotsFinalizedAtQuery =
+    api.getBallotsFinalizedAt.useQuery(electionId);
+  const updateContestSectionHeaderMutation =
+    api.updateContestSectionHeader.useMutation();
+  const [sectionHeader, setSectionHeader] =
+    React.useState<ContestSectionHeader>(savedSectionHeader ?? { title: '' });
+
+  function saveSectionHeader() {
+    updateContestSectionHeaderMutation.mutate(
+      {
+        electionId,
+        contestType,
+        updatedHeader: {
+          title: sectionHeader.title.trim(),
+          description: sectionHeader.description || undefined,
+        },
+      },
+      { onSuccess: onClose }
+    );
+  }
+
+  function deleteSectionHeader() {
+    updateContestSectionHeaderMutation.mutate(
+      {
+        electionId,
+        contestType,
+        updatedHeader: undefined,
+      },
+      { onSuccess: onClose }
+    );
+  }
+
+  if (!getBallotsFinalizedAtQuery.isSuccess) {
+    return null;
+  }
+  const isFinalized = Boolean(getBallotsFinalizedAtQuery.data);
+
+  return (
+    <Modal
+      title={`Edit Ballot Header - ${sectionTitle}`}
+      onOverlayClick={onClose}
+      content={
+        <Column style={{ gap: '1rem' }}>
+          <InputGroup label="Title">
+            <input
+              type="text"
+              value={sectionHeader.title}
+              onChange={(e) =>
+                setSectionHeader({
+                  ...sectionHeader,
+                  title: e.target.value,
+                })
+              }
+              style={{ width: '100%' }}
+              disabled={isFinalized}
+            />
+          </InputGroup>
+
+          <div>
+            <FieldName>Description</FieldName>
+            <RichTextEditor
+              initialHtmlContent={sectionHeader.description || ''}
+              onChange={(value) =>
+                setSectionHeader({
+                  ...sectionHeader,
+                  description: value === '' ? undefined : value,
+                })
+              }
+              disabled={isFinalized}
+            />
+          </div>
+        </Column>
+      }
+      actions={
+        <React.Fragment>
+          <Button
+            icon="Done"
+            onPress={saveSectionHeader}
+            variant="primary"
+            disabled={
+              updateContestSectionHeaderMutation.isLoading ||
+              sectionHeader.title.trim() === '' ||
+              isFinalized
+            }
+          >
+            Save
+          </Button>
+          <Button onPress={onClose}>Cancel</Button>
+          <Button
+            icon="Delete"
+            onPress={deleteSectionHeader}
+            variant="danger"
+            fill="outlined"
+            disabled={
+              !savedSectionHeader ||
+              updateContestSectionHeaderMutation.isLoading ||
+              isFinalized
+            }
+          >
+            Delete
+          </Button>
+        </React.Fragment>
+      }
+    />
+  );
 }

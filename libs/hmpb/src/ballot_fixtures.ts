@@ -623,7 +623,7 @@ export const nhGeneralElectionFixtures = (() => {
     };
   }
 
-  const customNhProps = {
+  const customNhProps: Partial<NhBallotProps> = {
     electionTitleOverride: 'Overriden Election Title',
     electionSealOverride: vxFamousNamesFixtures.election.seal,
     clerkSignatureImage: `
@@ -633,7 +633,18 @@ export const nhGeneralElectionFixtures = (() => {
         </svg>
       `.trim(),
     clerkSignatureCaption: 'Clerk Signature Caption',
-  } as const;
+    contestSectionHeaders: {
+      candidate: {
+        title: 'Custom Candidates Title',
+        description: '<p>Custom description for the candidates section.</p>',
+      },
+      yesno: {
+        title: 'Custom Ballot Measures Title',
+        description:
+          '<p>Custom description for the ballot measures section.</p>',
+      },
+    },
+  };
   const fixtureSpecs = [
     makeFixtureSpec(HmpbBallotPaperSize.Letter, {}),
     makeFixtureSpec(HmpbBallotPaperSize.Legal, customNhProps),
