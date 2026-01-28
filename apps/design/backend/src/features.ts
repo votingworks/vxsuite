@@ -167,7 +167,6 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
-    CONTEST_SECTION_HEADERS: true,
   },
 };
 
