@@ -1,3 +1,4 @@
+import { isDeviceAttached, type Device } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import {
@@ -14,13 +15,6 @@ import { MockFilePrinter } from './mocks/file_printer';
 import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status';
 
 const debug = rootDebug.extend('manager');
-
-/**
- * The printer may register as disconnected from the CUPS server for
- * a period after each print. We give the printer this much time to
- * reconnect before we consider it disconnected.
- */
-export const POST_PRINT_DISCONNECT_ALLOWANCE = 5000;
 
 interface PrinterDevice {
   uri?: string;
@@ -41,16 +35,30 @@ export function detectPrinter(logger: BaseLogger): Printer {
 
       if (printerDevice.uri) {
         debug('device uri configured: %s', printerDevice.uri);
-        const justPrinted =
-          Date.now() - printerDevice.lastPrint <
-          POST_PRINT_DISCONNECT_ALLOWANCE;
-        debug('just printed: %s', justPrinted);
         const printerDetected = connectedUris.includes(printerDevice.uri);
         debug('printer detected: %s', printerDetected);
 
-        // check if the printer was disconnected
-        if (!justPrinted && !printerDetected) {
-          debug('printer disconnected');
+        // Check if printer is still attached via USB (more reliable than CUPS during post-print window)
+        const config = getPrinterConfig(printerDevice.uri);
+        const usbAttached =
+          config &&
+          isDeviceAttached(
+            /* istanbul ignore next - @preserve */
+            (device: Device) =>
+              device.deviceDescriptor.idVendor === config.vendorId &&
+              device.deviceDescriptor.idProduct === config.productId
+          );
+        debug(
+          'CUPS printer detected: %s, USB attached: %s',
+          printerDetected,
+          usbAttached
+        );
+
+        // check if the printer was disconnected, only disconnect if CUPS shows disconnected AND device is not on USB bus
+        // CUPS can briefly show the printer as disconnected right after a print job is sent but the device will remain on the USB bus in this
+        // situation. In order to prevent confusion/unnecessary interruptions we only mark the printer as disconnected if both CUPS and USB show it as disconnected.
+        if (!printerDetected && !usbAttached) {
+          debug('printer disconnected (CUPS and USB both confirm)');
           logger.log(LogEventId.PrinterConfigurationRemoved, 'system', {
             message: 'The previously configured printer is no longer detected.',
             uri: printerDevice.uri,
