@@ -63,6 +63,11 @@ export type ElectionStatus =
   | 'ballotsFinalized'
   | 'ballotsApproved';
 
+/**
+ * Error type indicating why ballot finalization cannot proceed.
+ */
+export type FinalizationBlocker = 'missingSignature' | 'missingSeal' | 'noDistricts' | 'noContests' | 'noPrecincts' | 'noBallotStyles';
+
 export interface ElectionListing {
   jurisdictionId: string;
   jurisdictionName: string;
