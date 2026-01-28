@@ -18,6 +18,7 @@ import {
   PAGE_CLASS,
 } from './ballot_components';
 import {
+  convertBallotMeasureWithAdditionalOptionsToCandidateContest,
   gridHeightToPixels,
   gridWidthToPixels,
   measureTimingMarkGrid,
@@ -180,6 +181,15 @@ export function createTestVotes(contests: Contests): {
           });
         }
         return [contest.id, candidates];
+      }
+      if (contest.additionalOptions && contest.additionalOptions.length > 0) {
+        return [
+          contest.id,
+          [
+            convertBallotMeasureWithAdditionalOptionsToCandidateContest(contest)
+              .candidates[0],
+          ],
+        ];
       }
       return [
         contest.id,

@@ -55,6 +55,7 @@ import {
   ContestSectionHeaders,
   ContestTypes,
   ContestSectionHeader,
+  YesNoOption,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -463,10 +464,11 @@ async function insertContest(
             yes_option_label,
             no_option_id,
             no_option_label,
+            additional_options,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, ${
-            ballotOrder ? '$11' : 'DEFAULT'
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ${
+            ballotOrder ? '$12' : 'DEFAULT'
           })
         `,
         contest.id,
@@ -479,6 +481,7 @@ async function insertContest(
         contest.yesOption.label,
         contest.noOption.id,
         contest.noOption.label,
+        JSON.stringify(contest.additionalOptions),
         ...(ballotOrder ? [ballotOrder] : [])
       );
       break;
@@ -1008,7 +1011,8 @@ export class Store {
               yes_option_id as "yesOptionId",
               yes_option_label as "yesOptionLabel",
               no_option_id as "noOptionId",
-              no_option_label as "noOptionLabel"
+              no_option_label as "noOptionLabel",
+              additional_options as "additionalOptions"
             from contests
             where election_id = $1
             order by ballot_order
@@ -1029,6 +1033,7 @@ export class Store {
         yesOptionLabel: string | null;
         noOptionId: string | null;
         noOptionLabel: string | null;
+        additionalOptions: YesNoOption[] | null;
       }>;
       const candidateRows = (
         await client.query(
@@ -1106,6 +1111,7 @@ export class Store {
                 id: assertDefined(row.noOptionId),
                 label: assertDefined(row.noOptionLabel),
               },
+              additionalOptions: row.additionalOptions ?? undefined,
             });
           }
           default: {

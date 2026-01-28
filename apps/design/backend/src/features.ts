@@ -119,6 +119,12 @@ export enum StateFeature {
    * Enable adding/editing headers for ballot contest sections.
    */
   CONTEST_SECTION_HEADERS = 'CONTEST_SECTION_HEADERS',
+  /**
+   * Enable adding more than two options for ballot measures. (Ballot measure
+   * contests with additional options will be transformed into candidate
+   * contests for export until VxSuite supports them.)
+   */
+  ADDITIONAL_BALLOT_MEASURE_OPTIONS = 'ADDITIONAL_BALLOT_MEASURE_OPTIONS',
 }
 
 export type UserFeaturesConfig = Partial<Record<UserFeature, boolean>>;
@@ -167,6 +173,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
+    ADDITIONAL_BALLOT_MEASURE_OPTIONS: true,
   },
 };
 

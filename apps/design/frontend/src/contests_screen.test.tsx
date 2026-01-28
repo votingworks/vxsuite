@@ -812,8 +812,10 @@ test('adding a ballot measure', async () => {
   );
   await within(descriptionEditor).findByText(newContest.description);
 
-  const yesInput = screen.getByLabelText('First Option Label');
-  const noInput = screen.getByLabelText('Second Option Label');
+  const inputs = getOptionInputs();
+  expect(inputs).toHaveLength(2);
+  const [yesInput, noInput] = inputs;
+  expect(screen.queryButton('Add Option')).not.toBeInTheDocument();
   userEvent.clear(yesInput);
   userEvent.type(yesInput, newContest.yesOption.label);
   userEvent.clear(noInput);
@@ -909,12 +911,11 @@ test('editing a ballot measure', async () => {
   const descriptionHtml = `<p>${updatedContest.description}</p>`;
 
   // Change yes and no labels
-  const yesInput = screen.getByLabelText('First Option Label');
+  const [yesInput, noInput] = getOptionInputs();
   expect(yesInput).toHaveValue(savedContest.yesOption.label);
   userEvent.clear(yesInput);
   userEvent.type(yesInput, updatedContest.yesOption.label);
 
-  const noInput = screen.getByLabelText('Second Option Label');
   expect(noInput).toHaveValue(savedContest.noOption.label);
   userEvent.clear(noInput);
   userEvent.type(noInput, updatedContest.noOption.label);
@@ -943,6 +944,102 @@ test('editing a ballot measure', async () => {
 
   await expectViewModeContest(history, electionId, updatedContest);
   expectContestListItems(updatedContestList);
+});
+
+test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additional options', async () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const { election } = electionRecord;
+  const electionId = election.id;
+  const savedContest = election.contests.find(
+    (contest): contest is YesNoContest => contest.type === 'yesno'
+  )!;
+
+  apiMock.listContests
+    .expectCallWith({ electionId })
+    .resolves(election.contests);
+  expectOtherElectionApiCalls(election);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+
+  const history = renderScreen(electionId, {
+    ADDITIONAL_BALLOT_MEASURE_OPTIONS: true,
+  });
+  await navigateToContestEdit(history, electionId, savedContest.id);
+
+  userEvent.click(screen.getButton('Add Option'));
+  let optionInputs = getOptionInputs();
+  expect(optionInputs).toHaveLength(3);
+
+  const [yesInput, noInput, additionalInput] = optionInputs;
+  expect(yesInput).toHaveValue(savedContest.yesOption.label);
+  expect(noInput).toHaveValue(savedContest.noOption.label);
+  expect(additionalInput).toHaveValue('');
+
+  userEvent.type(additionalInput, 'Third Option');
+  expect(additionalInput).toHaveValue('Third Option');
+
+  userEvent.click(screen.getButton('Add Option'));
+  const updatedOptionInputs = getOptionInputs();
+  expect(updatedOptionInputs).toHaveLength(4);
+  const [, , , fourthInput] = updatedOptionInputs;
+  userEvent.type(fourthInput, 'Fourth Option');
+
+  const updatedContest: YesNoContest = {
+    ...savedContest,
+    additionalOptions: [
+      { id: idFactory.next(), label: 'Third Option' },
+      { id: idFactory.next(), label: 'Fourth Option' },
+    ],
+  };
+  apiMock.updateContest
+    .expectCallWith({
+      electionId,
+      updatedContest,
+    })
+    .resolves(ok());
+  const updatedContestList = election.contests.map((contest) =>
+    contest.id === savedContest.id ? updatedContest : contest
+  );
+  apiMock.listContests
+    .expectCallWith({ electionId })
+    .resolves(updatedContestList);
+  expectOtherElectionApiCalls(election);
+  userEvent.click(screen.getButton('Save'));
+  await expectViewModeContest(history, electionId, updatedContest);
+
+  optionInputs = getOptionInputs();
+  expect(optionInputs).toHaveLength(4);
+  for (const input of optionInputs) {
+    expect(input).toBeDisabled();
+  }
+  expect(optionInputs[0]).toHaveValue(savedContest.yesOption.label);
+  expect(optionInputs[1]).toHaveValue(savedContest.noOption.label);
+  expect(optionInputs[2]).toHaveValue('Third Option');
+  expect(optionInputs[3]).toHaveValue('Fourth Option');
+  expect(screen.getButton('Add Option')).toBeDisabled();
+  expect(screen.queryButton('Remove Option')).not.toBeInTheDocument();
+
+  await navigateToContestEdit(history, electionId, savedContest.id);
+  const [, , thirdInput] = getOptionInputs();
+  userEvent.click(within(thirdInput.parentElement!).getButton('Remove Option'));
+  const updatedContest2: YesNoContest = {
+    ...updatedContest,
+    additionalOptions: updatedContest.additionalOptions!.slice(1),
+  };
+  apiMock.updateContest
+    .expectCallWith({
+      electionId,
+      updatedContest: updatedContest2,
+    })
+    .resolves(ok());
+  const updatedContestList2 = election.contests.map((contest) =>
+    contest.id === savedContest.id ? updatedContest2 : contest
+  );
+  apiMock.listContests
+    .expectCallWith({ electionId })
+    .resolves(updatedContestList2);
+  expectOtherElectionApiCalls(election);
+  userEvent.click(screen.getButton('Save'));
+  await expectViewModeContest(history, electionId, updatedContest2);
 });
 
 test('reordering contests', async () => {
@@ -1151,11 +1248,9 @@ test('editing contests is restricted for elections with external source', async 
   expect(candidateOptionHidden).toBeUndefined();
 
   // Option label inputs should be disabled
-  const yesOptionInput = screen.getByLabelText('First Option Label');
-  expect(yesOptionInput).toBeDisabled();
-
-  const noOptionInput = screen.getByLabelText('Second Option Label');
-  expect(noOptionInput).toBeDisabled();
+  const [yesInput, noInput] = getOptionInputs();
+  expect(yesInput).toBeDisabled();
+  expect(noInput).toBeDisabled();
 
   // Delete Contest button should not be visible
   expect(screen.queryButton('Delete Contest')).not.toBeInTheDocument();
@@ -1524,18 +1619,6 @@ describe('audio editing', () => {
       stringKey: ElectionStringKey.CONTEST_DESCRIPTION,
       subkey: yesNoContest.id,
     },
-    {
-      inputLabel: 'First Option Label',
-      contest: yesNoContest,
-      stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
-      subkey: yesNoContest.yesOption.id,
-    },
-    {
-      inputLabel: 'Second Option Label',
-      contest: yesNoContest,
-      stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
-      subkey: yesNoContest.noOption.id,
-    },
   ] as AudioEnabledInputSpec[]) {
     test(`configures audio edit button for ${spec.inputLabel}`, async () => {
       expectOtherElectionApiCalls(election);
@@ -1565,6 +1648,47 @@ describe('audio editing', () => {
       );
     });
   }
+
+  test('configures audio edit buttons for option labels', async () => {
+    expectOtherElectionApiCalls(election);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves([yesNoContest]);
+
+    const history = renderScreen(electionId, { AUDIO_ENABLED: true });
+    await navigateToContestView(history, electionId, yesNoContest.id);
+
+    const [yesInput] = getOptionInputs();
+    const yesAudioButton = within(yesInput.parentElement!).getButton(
+      /preview or edit audio/i
+    );
+    userEvent.click(yesAudioButton);
+    await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
+    expect(history.location.pathname).toEqual(
+      routes.election(electionId).contests.audio({
+        contestId: yesNoContest.id,
+        stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
+        subkey: yesNoContest.yesOption.id,
+      })
+    );
+    await navigateToContestView(history, electionId, yesNoContest.id);
+
+    const [, noInput] = getOptionInputs();
+    const noAudioButton = within(noInput.parentElement!).getButton(
+      /preview or edit audio/i
+    );
+    userEvent.click(noAudioButton);
+    await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
+    expect(history.location.pathname).toEqual(
+      routes.election(electionId).contests.audio({
+        contestId: yesNoContest.id,
+        stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
+        subkey: yesNoContest.noOption.id,
+      })
+    );
+  });
 });
 
 function expectContestListItems(contests: Contests) {
@@ -1607,4 +1731,11 @@ async function navigateToContestView(
 ) {
   history.replace(routes.election(electionId).contests.view(contestId).path);
   await screen.findByRole('heading', { name: 'Contest Info' });
+}
+
+function getOptionInputs() {
+  const inputs = within(
+    screen.getByText('Options').parentElement!
+  ).getAllByRole('textbox');
+  return inputs;
 }

@@ -548,13 +548,25 @@ export const nhGeneralElectionFixtures = (() => {
       dir,
       [paperSize, props.compact ? 'compact' : ''].filter(Boolean).join('-')
     );
-    // Make one ballot measure description too long to fit on one page to test
-    // that it gets split onto multiple pages
     const newContests = baseElection.contests.map((contest) =>
+      // Make one ballot measure description too long to fit on one page to test
+      // that it gets split onto multiple pages
       contest.id === 'proposition-1' && contest.type === 'yesno'
         ? {
             ...contest,
             description: contest.description.repeat(5),
+          }
+        : // Give one ballot measure additional options to test that it gets rendered correctly
+        // and transformed into a candidate contest
+        contest.id === 'question-a' && contest.type === 'yesno'
+        ? {
+            ...contest,
+            additionalOptions: [
+              {
+                id: 'third-option',
+                label: 'Third Option',
+              },
+            ],
           }
         : contest
     );

@@ -38,6 +38,7 @@ import {
   createContest,
   updateContest,
   deleteContest,
+  getStateFeatures,
 } from './api';
 import {
   FormFixed,
@@ -46,7 +47,7 @@ import {
   FormFooter,
   FormTitle,
 } from './form_fixed';
-import { InputGroup, Row, FieldName } from './layout';
+import { InputGroup, Row, FieldName, Column } from './layout';
 import { routes } from './routes';
 import { TooltipContainer, Tooltip } from './tooltip';
 import { generateId, replaceAtIndex } from './utils';
@@ -132,6 +133,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
+  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const createContestMutation = createContest.useMutation();
   const updateContestMutation = updateContest.useMutation();
   const deleteContestMutation = deleteContest.useMutation();
@@ -147,7 +149,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
     !getElectionInfoQuery.isSuccess ||
     !listDistrictsQuery.isSuccess ||
     !getBallotsFinalizedAtQuery.isSuccess ||
-    !listPartiesQuery.isSuccess
+    !listPartiesQuery.isSuccess ||
+    !getStateFeaturesQuery.isSuccess
   ) {
     return null;
   }
@@ -156,6 +159,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const parties = listPartiesQuery.data;
   const isFinalized = !!getBallotsFinalizedAtQuery.data;
   const hasExternalSource = Boolean(electionInfo.externalSource);
+  const features = getStateFeaturesQuery.data;
 
   function goBackToContestsList() {
     history.replace(contestRoutes.root.path);
@@ -686,47 +690,120 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
               />
             </div>
 
-            <InputGroup label="First Option Label">
-              <InputWithAudio
-                audioScreenUrl={contestRoutes.audio({
-                  contestId: contest.id,
-                  stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
-                  subkey: contest.yesOption.id,
-                })}
-                disabled={disabled || hasExternalSource}
-                editing={editing}
-                type="text"
-                value={contest.yesOption.label}
-                onChange={(e) =>
-                  setContest({
-                    ...contest,
-                    yesOption: { ...contest.yesOption, label: e.target.value },
-                  })
-                }
-                autoComplete="off"
-              />
-            </InputGroup>
+            <div>
+              <FieldName>Options</FieldName>
+              <Column style={{ gap: '0.5rem' }}>
+                <InputWithAudio
+                  audioScreenUrl={contestRoutes.audio({
+                    contestId: contest.id,
+                    stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
+                    subkey: contest.yesOption.id,
+                  })}
+                  disabled={disabled || hasExternalSource}
+                  editing={editing}
+                  type="text"
+                  value={contest.yesOption.label}
+                  onChange={(e) =>
+                    setContest({
+                      ...contest,
+                      yesOption: {
+                        ...contest.yesOption,
+                        label: e.target.value,
+                      },
+                    })
+                  }
+                  autoComplete="off"
+                />
+                <InputWithAudio
+                  audioScreenUrl={contestRoutes.audio({
+                    contestId: contest.id,
+                    stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
+                    subkey: contest.noOption.id,
+                  })}
+                  disabled={disabled || hasExternalSource}
+                  editing={editing}
+                  type="text"
+                  value={contest.noOption.label}
+                  onChange={(e) =>
+                    setContest({
+                      ...contest,
+                      noOption: { ...contest.noOption, label: e.target.value },
+                    })
+                  }
+                  autoComplete="off"
+                />
+                {features.ADDITIONAL_BALLOT_MEASURE_OPTIONS && (
+                  <React.Fragment>
+                    {(contest.additionalOptions ?? []).map((option, index) => (
+                      <Row key={option.id} style={{ gap: '0.5rem' }}>
+                        <input
+                          disabled={disabled || hasExternalSource}
+                          type="text"
+                          value={option.label}
+                          onChange={(e) => {
+                            const updatedOptions = (
+                              contest.additionalOptions ?? []
+                            ).map((o, i) =>
+                              i === index
+                                ? { ...option, label: e.target.value }
+                                : o
+                            );
+                            setContest({
+                              ...contest,
+                              additionalOptions: updatedOptions,
+                            });
+                          }}
+                          autoComplete="off"
+                        />
+                        {!(disabled || hasExternalSource) && (
+                          <TooltipContainer style={{ width: 'min-content' }}>
+                            <Button
+                              aria-label="Remove Option"
+                              icon="Trash"
+                              color="danger"
+                              className="icon-button"
+                              onPress={() => {
+                                const updatedOptions = (
+                                  contest.additionalOptions ?? []
+                                ).filter((_, i) => i !== index);
+                                setContest({
+                                  ...contest,
+                                  additionalOptions: updatedOptions,
+                                });
+                              }}
+                            />
+                            <Tooltip alignTo="right" bold>
+                              Remove Option
+                            </Tooltip>
+                          </TooltipContainer>
+                        )}
+                      </Row>
+                    ))}
 
-            <InputGroup label="Second Option Label">
-              <InputWithAudio
-                audioScreenUrl={contestRoutes.audio({
-                  contestId: contest.id,
-                  stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
-                  subkey: contest.noOption.id,
-                })}
-                disabled={disabled || hasExternalSource}
-                editing={editing}
-                type="text"
-                value={contest.noOption.label}
-                onChange={(e) =>
-                  setContest({
-                    ...contest,
-                    noOption: { ...contest.noOption, label: e.target.value },
-                  })
-                }
-                autoComplete="off"
-              />
-            </InputGroup>
+                    <div>
+                      <Button
+                        icon="Add"
+                        disabled={disabled || hasExternalSource}
+                        onPress={() =>
+                          setContest({
+                            ...contest,
+                            additionalOptions: [
+                              ...(contest.additionalOptions ?? []),
+                              {
+                                id: generateId(),
+                                label: '',
+                              },
+                            ],
+                          })
+                        }
+                      >
+                        Add Option
+                      </Button>
+                    </div>
+                  </React.Fragment>
+                )}
+              </Column>
+            </div>
           </React.Fragment>
         )}
       </FormBody>
@@ -833,14 +910,20 @@ interface DraftCandidateContest {
   partyId?: PartyId;
 }
 
+interface DraftOption {
+  id: string;
+  label: string;
+}
+
 interface DraftYesNoContest {
   id: ContestId;
   type: 'yesno';
   districtId?: DistrictId;
   title: string;
   description: string;
-  yesOption: { id: string; label: string };
-  noOption: { id: string; label: string };
+  yesOption: DraftOption;
+  noOption: DraftOption;
+  additionalOptions?: readonly DraftOption[];
 }
 
 type DraftContest = DraftCandidateContest | DraftYesNoContest;

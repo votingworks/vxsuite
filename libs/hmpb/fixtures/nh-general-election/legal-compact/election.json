@@ -1874,16 +1874,23 @@
       "id": "question-a",
       "districtId": "district-1",
       "title": "Question A: Recovery of Property Damages",
-      "type": "yesno",
-      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
-      "yesOption": {
-        "id": "question-a-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "question-a-option-no",
-        "label": "No"
-      }
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "question-a-option-yes",
+          "name": "Yes"
+        },
+        {
+          "id": "question-a-option-no",
+          "name": "No"
+        },
+        {
+          "id": "third-option",
+          "name": "Third Option"
+        }
+      ],
+      "allowWriteIns": false
     },
     {
       "id": "question-b",
@@ -2975,7 +2982,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34369219385868,
-          "row": 37.59834418070444,
+          "row": 36.7771343797856,
           "contestId": "question-a",
           "optionId": "question-a-option-yes"
         },
@@ -2984,7 +2991,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34369219385868,
-          "row": 38.6198794027565,
+          "row": 37.79866960183767,
           "contestId": "question-a",
           "optionId": "question-a-option-no"
         },
@@ -2993,7 +3000,16 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34369219385868,
-          "row": 42.69606623277182,
+          "row": 38.82020482388974,
+          "contestId": "question-a",
+          "optionId": "third-option"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 31.34369219385868,
+          "row": 43.47994831546707,
           "contestId": "question-b",
           "optionId": "question-b-option-yes"
         },
@@ -3002,25 +3018,25 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34369219385868,
-          "row": 43.717601454823885,
+          "row": 44.50148353751914,
           "contestId": "question-b",
           "optionId": "question-b-option-no"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
+          "sheetNumber": 2,
+          "side": "front",
           "column": 31.34369219385868,
-          "row": 46.62667496171516,
+          "row": 2.6571114088820824,
           "contestId": "question-c",
           "optionId": "question-c-option-yes"
         },
         {
           "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
+          "sheetNumber": 2,
+          "side": "front",
           "column": 31.34369219385868,
-          "row": 47.648210183767226,
+          "row": 3.67864663093415,
           "contestId": "question-c",
           "optionId": "question-c-option-no"
         },
@@ -3029,7 +3045,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.34369219385868,
-          "row": 37.24933001531393,
+          "row": 41.17993874425727,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-yes"
         },
@@ -3038,7 +3054,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.34369219385868,
-          "row": 38.270865237366,
+          "row": 42.20147396630934,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-no"
         },
@@ -3427,7 +3443,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.34369219385868,
-          "row": 38.36729517611026,
+          "row": 37.546085375191424,
           "contestId": "question-a",
           "optionId": "question-a-option-yes"
         },
@@ -3436,7 +3452,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.34369219385868,
-          "row": 39.38883039816233,
+          "row": 38.56762059724349,
           "contestId": "question-a",
           "optionId": "question-a-option-no"
         },
@@ -3445,7 +3461,16 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.34369219385868,
-          "row": 43.465017228177636,
+          "row": 39.589155819295556,
+          "contestId": "question-a",
+          "optionId": "third-option"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31.34369219385868,
+          "row": 44.24889931087289,
           "contestId": "question-b",
           "optionId": "question-b-option-yes"
         },
@@ -3454,7 +3479,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.34369219385868,
-          "row": 44.48655245022971,
+          "row": 45.27043453292496,
           "contestId": "question-b",
           "optionId": "question-b-option-no"
         },
