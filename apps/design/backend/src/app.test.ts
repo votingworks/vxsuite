@@ -489,28 +489,28 @@ test('create/list/delete elections', async () => {
       districtId: election2Districts[0].id,
       ...(contest.type === 'candidate'
         ? {
-            candidates: contest.candidates.map((candidate) =>
-              expect.objectContaining({
-                ...candidate,
-                id: expectNotEqualTo(candidate.id),
-                partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
-                firstName: expect.any(String),
-                // TODO upgrade vitest to use expect.toBeOneOf
-                // middleName: expect.toBeOneOf([expect.any(String), undefined]),
-                lastName: expect.any(String),
-              })
-            ),
-          }
+          candidates: contest.candidates.map((candidate) =>
+            expect.objectContaining({
+              ...candidate,
+              id: expectNotEqualTo(candidate.id),
+              partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
+              firstName: expect.any(String),
+              // TODO upgrade vitest to use expect.toBeOneOf
+              // middleName: expect.toBeOneOf([expect.any(String), undefined]),
+              lastName: expect.any(String),
+            })
+          ),
+        }
         : {
-            yesOption: {
-              ...contest.yesOption,
-              id: expectNotEqualTo(contest.yesOption.id),
-            },
-            noOption: {
-              ...contest.noOption,
-              id: expectNotEqualTo(contest.noOption.id),
-            },
-          }),
+          yesOption: {
+            ...contest.yesOption,
+            id: expectNotEqualTo(contest.yesOption.id),
+          },
+          noOption: {
+            ...contest.noOption,
+            id: expectNotEqualTo(contest.noOption.id),
+          },
+        }),
     }))
   );
   expect(
@@ -543,7 +543,7 @@ test('create/list/delete elections', async () => {
   ).toEqual(null);
 
   // Finalize ballots and check status
-  await apiClient.finalizeBallots({ electionId: sliElectionId });
+  (await apiClient.finalizeBallots({ electionId: sliElectionId })).unsafeUnwrap();
   expect((await apiClient.listElections())[0].status).toEqual<ElectionStatus>(
     'ballotsFinalized'
   );
@@ -2430,7 +2430,7 @@ test('Finalize ballots - DEMO state', async () => {
 
   const finalizedAt = new Date();
   vi.useFakeTimers({ now: finalizedAt });
-  await apiClient.finalizeBallots({ electionId });
+  (await apiClient.finalizeBallots({ electionId })).unsafeUnwrap();
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(
     finalizedAt
   );
@@ -2504,7 +2504,17 @@ test('Finalize ballots - NH state', async () => {
   expect(await apiClient.getElectionPackage({ electionId })).toEqual({});
   expect(await apiClient.getTestDecks({ electionId })).toEqual({});
 
-  await apiClient.finalizeBallots({ electionId });
+  // NH elections require a signature - add one before finalizing
+  const electionInfo = await apiClient.getElectionInfo({ electionId });
+  (
+    await apiClient.updateElectionInfo({
+      ...electionInfo,
+      signatureImage: '<svg>clerk signature</svg>',
+      signatureCaption: 'Town Clerk',
+    })
+  ).unsafeUnwrap();
+
+  (await apiClient.finalizeBallots({ electionId })).unsafeUnwrap();
 
   // Exports should be triggered with state-specific settings:
   const mainExports = await apiClient.getElectionPackage({ electionId });
@@ -2522,6 +2532,36 @@ test('Finalize ballots - NH state', async () => {
   });
 
   expect(await apiClient.getTestDecks({ electionId })).toEqual({});
+});
+
+test('Finalize ballots - NH state blocks without signature', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      jurisdictionId: nhJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents:
+          electionFamousNames2021Fixtures.electionJson.asText(),
+      },
+    })
+  ).unsafeUnwrap();
+
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
+
+  // Attempt to finalize without a signature - should fail
+  const result = await apiClient.finalizeBallots({ electionId });
+  expect(result.err()).toEqual(['missingSignature']);
+
+  // Election should not be finalized
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
+  expect(await apiClient.getElectionPackage({ electionId })).toEqual({});
 });
 
 test('approve ballots', async () => {
@@ -2553,7 +2593,7 @@ test('approve ballots', async () => {
     );
   });
 
-  await apiClient.finalizeBallots({ electionId });
+  (await apiClient.finalizeBallots({ electionId })).unsafeUnwrap();
 
   {
     const now = new Date();
@@ -2620,7 +2660,7 @@ test('cloneElection', async () => {
     electionId: srcElectionId,
     ballotTemplateId: 'VxDefaultBallot',
   });
-  await apiClient.finalizeBallots({ electionId: srcElectionId });
+  (await apiClient.finalizeBallots({ electionId: srcElectionId })).unsafeUnwrap();
 
   // Support user can clone from any jurisdiction to another:
   const newElectionId = await apiClient.cloneElection({
@@ -3270,7 +3310,7 @@ test('Election package and ballots export', async () => {
   //
   expect(countObjectLeaves(uiStringAudioIds)).toEqual(
     countObjectLeaves(uiStrings) -
-      Object.keys(hmpbStringsCatalog).length * allBallotLanguages.length
+    Object.keys(hmpbStringsCatalog).length * allBallotLanguages.length
   );
 
   //
@@ -3795,25 +3835,25 @@ test.each([
 
     const expectedFiles = shouldIncludeSummaryBallots
       ? [
-          ...precinctsWithBallots.flatMap((precinct) => [
-            `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
-            `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
-          ]),
-          FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-          ...precincts.map((precinct) =>
-            precinctTallyReportFileName(precinct.name)
-          ),
-        ]
+        ...precinctsWithBallots.flatMap((precinct) => [
+          `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
+          `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
+        ]),
+        FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+        ...precincts.map((precinct) =>
+          precinctTallyReportFileName(precinct.name)
+        ),
+      ]
       : [
-          ...precinctsWithBallots.map(
-            (precinct) =>
-              `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
-          ),
-          FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-          ...precincts.map((precinct) =>
-            precinctTallyReportFileName(precinct.name)
-          ),
-        ];
+        ...precinctsWithBallots.map(
+          (precinct) =>
+            `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
+        ),
+        FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+        ...precincts.map((precinct) =>
+          precinctTallyReportFileName(precinct.name)
+        ),
+      ];
 
     // eslint-disable-next-line vx/no-array-sort-mutation
     expect(Object.keys(zip.files).sort()).toEqual(expectedFiles.sort());
@@ -4170,10 +4210,30 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
   });
   expect(await apiClient.getBallotTemplate({ electionId })).toEqual('NhBallot');
 
+  // NH elections require a signature - add one before exporting
+  const electionInfo = await apiClient.getElectionInfo({ electionId });
+  (
+    await apiClient.updateElectionInfo({
+      ...electionInfo,
+      signatureImage: '<svg>clerk signature</svg>',
+      signatureCaption: 'Town Clerk',
+    })
+  ).unsafeUnwrap();
+
+
   const props = allBaseBallotProps(electionDefinition.election);
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockResolvedValue({
     ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
-    electionDefinition,
+    electionDefinition: {
+      ...electionDefinition,
+      election: {
+        ...electionDefinition.election,
+        signature: {
+          image: 'data:image/png;base64,signature-image',
+          caption: 'Test Signature',
+        },
+      },
+    },
   });
   await exportElectionPackage({
     fileStorageClient,

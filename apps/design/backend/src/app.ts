@@ -90,6 +90,7 @@ import {
   AggregatedReportedResults,
   ElectionInfo,
   ElectionListing,
+  FinalizationBlocker,
   GetExportedElectionError,
   ElectionUpload,
   Jurisdiction,
@@ -121,6 +122,7 @@ import {
   getUserFeaturesConfig,
   UserFeaturesConfig,
 } from './features';
+import { validateElectionForExport } from './election_validation';
 import { rootDebug } from './debug';
 import * as ttsStrings from './tts_strings';
 import { convertMsElection } from './convert_ms_election';
@@ -680,11 +682,21 @@ export function buildApi(ctx: AppContext) {
     async finalizeBallots(
       input: { electionId: ElectionId },
       { user }: ApiContext
-    ): Promise<void> {
+    ): Promise<Result<void, FinalizationBlocker[]>> {
+      const { election, ballotTemplateId } = await store.getElection(
+        input.electionId
+      );
+
+      // Validate that the election can be finalized - check for any conditions
+      // that would cause ballot export to fail
       const jurisdiction = await store.getElectionJurisdiction(
         input.electionId
       );
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
+
+      const blockers = validateElectionForExport(election, ballotTemplateId);
+
+      if (blockers.length > 0) return err(blockers);
 
       await store.createElectionPackageBackgroundTask({
         electionId: input.electionId,
@@ -709,6 +721,8 @@ export function buildApi(ctx: AppContext) {
         userType: user.type,
         electionId: input.electionId,
       });
+
+      return ok();
     },
 
     async unfinalizeBallots(
@@ -838,7 +852,7 @@ export function buildApi(ctx: AppContext) {
       return store.getElectionPackage(electionId);
     },
 
-    exportElectionPackage(input: {
+    async exportElectionPackage(input: {
       electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
       shouldExportAudio?: boolean;
@@ -846,6 +860,14 @@ export function buildApi(ctx: AppContext) {
       shouldExportTestBallots?: boolean;
       numAuditIdBallots?: number;
     }): Promise<void> {
+      const { election, ballotTemplateId } = await store.getElection(
+        input.electionId
+      );
+      const blockers = validateElectionForExport(election, ballotTemplateId);
+      if (blockers.length > 0) {
+        throw new Error(`finalization blockers: ${blockers.join(',')}`);
+      }
+
       return store.createElectionPackageBackgroundTask(input);
     },
 
@@ -861,6 +883,14 @@ export function buildApi(ctx: AppContext) {
       electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<void> {
+      const { election, ballotTemplateId } = await store.getElection(
+        input.electionId
+      );
+      const blockers = validateElectionForExport(election, ballotTemplateId);
+      if (blockers.length > 0) {
+        throw new Error(`finalization blockers: ${blockers.join(',')}`);
+      }
+
       return store.createTestDecksBackgroundTask(
         input.electionId,
         input.electionSerializationFormat

@@ -507,6 +507,21 @@ test('getExportedElectionDefinition returns the exported election including reor
     ballotTemplateId: 'NhBallot',
   });
 
+  // Update election info to include signature (required for NH ballot template)
+  (await apiClient.updateElectionInfo({
+    electionId,
+    jurisdictionId: nonVxJurisdiction.id,
+    title: baseElectionDefinition.election.title,
+    countyName: baseElectionDefinition.election.county.name,
+    state: baseElectionDefinition.election.state,
+    seal: baseElectionDefinition.election.seal,
+    type: baseElectionDefinition.election.type,
+    date: baseElectionDefinition.election.date,
+    languageCodes: [LanguageCode.ENGLISH],
+    signatureImage: 'data:image/png;base64,test-signature',
+    signatureCaption: 'Test Signature',
+  })).unsafeUnwrap();
+
   // Get the original candidate order and contest order from the base election
   const originalCandidateContest =
     baseElectionDefinition.election.contests.find(
@@ -539,6 +554,11 @@ test('getExportedElectionDefinition returns the exported election including reor
         }
         return contest;
       }),
+    // Add signature required for NH ballot template
+    signature: {
+      image: 'data:image/png;base64,test-signature',
+      caption: 'Test Signature',
+    },
   };
   const reorderedElectionData = JSON.stringify(reorderedElection);
   const reorderedBallotHash = sha256(reorderedElectionData);

@@ -40,6 +40,7 @@ export type {
   QuickReportedPollStatus,
   GetExportedElectionError,
   ResultsReportingPath,
+  FinalizationBlocker,
 } from './types';
 export type {
   StateFeature,

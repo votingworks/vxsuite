@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { BallotStyle } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { sleep } from '@votingworks/basics';
+import { ok, sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
 import { routes } from './routes';
 import { withRoute } from '../test/routing_helpers';
@@ -45,7 +45,7 @@ test('ballots ready to finalize', async () => {
   userEvent.click(screen.getButton(/finalize/i));
   const confirmModal = screen.getByRole('alertdialog');
 
-  api.finalizeBallots.expectCallWith({ electionId }).resolves();
+  api.finalizeBallots.expectCallWith({ electionId }).resolves(ok());
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, null);
 
@@ -89,7 +89,7 @@ test('start finalize and confirm', async () => {
   userEvent.click(screen.getButton(/finalize/i));
   const confirmModal = screen.getByRole('alertdialog');
 
-  api.finalizeBallots.expectCallWith({ electionId }).resolves();
+  api.finalizeBallots.expectCallWith({ electionId }).resolves(ok());
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, null);
 

@@ -13,13 +13,34 @@ import {
   CalloutProps,
   Font,
 } from '@votingworks/ui';
+import { FinalizationBlocker } from '@votingworks/design-backend';
 
 import * as api from './api';
 import { ElectionIdParams, routes } from './routes';
 import { Row } from './layout';
 
+function getBlockerMessage(blocker: FinalizationBlocker): string {
+  switch (blocker) {
+    case 'missingSignature':
+      return 'A clerk signature is required. Please add a signature on the Election Info screen.';
+    case 'missingSeal':
+      return 'A jurisdiction seal is required. Please add a seal on the Election Info screen.';
+    case 'noDistricts':
+      return 'At least one district is required. Please add districts on the Districts screen.';
+    case 'noContests':
+      return 'At least one contest is required. Please add contests on the Contests screen.';
+    case 'noPrecincts':
+      return 'At least one precinct is required. Please add precincts on the Precincts screen.';
+    default:
+      return 'An unknown error occurred.';
+  }
+}
+
 export function BallotsStatus(): React.ReactNode {
   const [isConfirmingFinalize, setIsConfirmingFinalize] = useState(false);
+  const [finalizationError, setFinalizationError] = useState<
+    FinalizationBlocker[]
+  >([]);
 
   const { electionId } = useParams<ElectionIdParams>();
   const listBallotStylesQuery = api.listBallotStyles.useQuery(electionId);
@@ -120,7 +141,17 @@ export function BallotsStatus(): React.ReactNode {
                 onPress={() =>
                   finalizeBallotsMutation.mutate(
                     { electionId },
-                    { onSuccess: () => setIsConfirmingFinalize(false) }
+                    {
+                      onSuccess: (result) => {
+                        if (result.isOk()) {
+                          setIsConfirmingFinalize(false);
+                          setFinalizationError([]);
+                        } else {
+                          setIsConfirmingFinalize(false);
+                          setFinalizationError(result.err());
+                        }
+                      },
+                    }
                   )
                 }
                 variant="primary"
@@ -135,6 +166,29 @@ export function BallotsStatus(): React.ReactNode {
           onOverlayClick={
             /* istanbul ignore next - manually tested */
             () => setIsConfirmingFinalize(false)
+          }
+        />
+      )}
+
+      {finalizationError.length > 0 && (
+        <Modal
+          title="Cannot Finalize Ballots"
+          content={
+            <React.Fragment>
+              <P>The following issues must be resolved before finalizing:</P>
+              <ul>
+                {finalizationError.map((blocker) => (
+                  <li key={blocker}>{getBlockerMessage(blocker)}</li>
+                ))}
+              </ul>
+            </React.Fragment>
+          }
+          actions={
+            <Button onPress={() => setFinalizationError([])}>Close</Button>
+          }
+          onOverlayClick={
+            /* istanbul ignore next - manually tested */
+            () => setFinalizationError([])
           }
         />
       )}
