@@ -15,6 +15,7 @@ import {
   PrecinctWithoutSplits,
   ContestSectionHeaders,
   ContestTypes,
+  YesNoContest,
 } from '@votingworks/types';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { readFileSync } from 'node:fs';
@@ -386,4 +387,60 @@ test('contest section headers', async () => {
   //   })
   // ).unsafeUnwrap();
   // await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.001 });
+});
+
+test('ballot measure contest editing with additional contest options', async () => {
+  const election = electionGeneralFixtures.readElection();
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+
+  auth0.setLoggedInUser(nhUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      jurisdictionId: nhJurisdiction.id,
+      upload: {
+        format: 'vxf',
+        electionFileContents: JSON.stringify(election),
+      },
+    })
+  ).unsafeUnwrap();
+
+  const contests = await apiClient.listContests({ electionId });
+  const ballotMeasureContest = find(
+    contests,
+    (contest) => contest.type === 'yesno'
+  );
+  expect(ballotMeasureContest.additionalOptions).toBeUndefined();
+
+  const expectedContest: YesNoContest = {
+    ...ballotMeasureContest,
+    additionalOptions: [
+      {
+        id: 'additional-option-1',
+        label: 'Additional Option 1',
+      },
+      {
+        id: 'additional-option-2',
+        label: 'Additional Option 2',
+      },
+    ],
+  };
+  (
+    await apiClient.updateContest({
+      electionId,
+      updatedContest: expectedContest,
+    })
+  ).unsafeUnwrap();
+  const updatedContests = await apiClient.listContests({ electionId });
+  const updatedContest = find(
+    updatedContests,
+    (contest): contest is YesNoContest => contest.id === ballotMeasureContest.id
+  );
+  expect(updatedContest.additionalOptions).toEqual(
+    expectedContest.additionalOptions
+  );
 });

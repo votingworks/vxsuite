@@ -4,17 +4,23 @@ import {
   BALLOT_MODES,
   BallotType,
   BaseBallotProps,
+  CandidateContest,
   Election,
   LanguageCode,
+  YesNoContest,
 } from '@votingworks/types';
-import { assert, iter } from '@votingworks/basics';
+import { assert, find, iter } from '@votingworks/basics';
+import { readElection } from '@votingworks/fs';
 import {
   allBaseBallotProps,
   layOutMinimalBallotsToCreateElectionDefinition,
 } from './render_ballot';
 import { createPlaywrightRendererPool } from './playwright_renderer';
 import { ballotTemplates } from './ballot_templates';
-import { vxFamousNamesFixtures } from './ballot_fixtures';
+import {
+  nhGeneralElectionFixtures,
+  vxFamousNamesFixtures,
+} from './ballot_fixtures';
 import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template';
 import { generateBallotStyles } from './ballot_styles';
 
@@ -134,4 +140,45 @@ test('reorder candidates based on rotation from template', async () => {
       rotateCandidatesByStatute(fixtureContest).map((c) => c.id)
     );
   }
+});
+
+test('ballot measure contests with additional options are transformed into candidate contests', async () => {
+  const fixtureSpec = nhGeneralElectionFixtures.fixtureSpecs[0];
+  const specElection = fixtureSpec.allBallotProps[0].election;
+  const ballotMeasureContest = find(
+    specElection.contests,
+    (contest): contest is YesNoContest =>
+      contest.type === 'yesno' && contest.additionalOptions !== undefined
+  );
+  assert(ballotMeasureContest.additionalOptions!.length === 1);
+
+  const electionAfterRender = (
+    await readElection(fixtureSpec.electionPath)
+  ).unsafeUnwrap().election;
+  const transformedContest = find(
+    electionAfterRender.contests,
+    (contest): contest is CandidateContest =>
+      contest.type === 'candidate' && contest.id === ballotMeasureContest.id
+  );
+  expect(transformedContest.districtId).toEqual(
+    ballotMeasureContest.districtId
+  );
+  expect(transformedContest.title).toEqual(ballotMeasureContest.title);
+  expect(transformedContest.seats).toEqual(1);
+  expect(transformedContest.allowWriteIns).toEqual(false);
+  expect(transformedContest.termDescription).toBeUndefined();
+  expect(transformedContest.candidates).toEqual([
+    {
+      id: ballotMeasureContest.yesOption.id,
+      name: ballotMeasureContest.yesOption.label,
+    },
+    {
+      id: ballotMeasureContest.noOption.id,
+      name: ballotMeasureContest.noOption.label,
+    },
+    {
+      id: ballotMeasureContest.additionalOptions![0].id,
+      name: ballotMeasureContest.additionalOptions![0].label,
+    },
+  ]);
 });
