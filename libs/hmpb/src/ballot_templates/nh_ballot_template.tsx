@@ -329,13 +329,6 @@ function Header({
               {electionTitleOverride ?? electionStrings.electionTitle(election)}
             </h2>
             <h2>{electionStrings.electionDate(election)}</h2>
-            {showPrecinctName && (
-              <PrecinctOrSplitName
-                election={election}
-                precinctId={precinctId}
-                ballotStyleId={ballotStyleId}
-              />
-            )}
             <div>
               {/* TODO comma-delimiting the components of a location doesn't
             necessarily work in all languages. We need to figure out a
@@ -343,6 +336,13 @@ function Header({
               {electionStrings.countyName(election.county)},{' '}
               {electionStrings.stateName(election)}
             </div>
+            {showPrecinctName && (
+              <PrecinctOrSplitName
+                election={election}
+                precinctId={precinctId}
+                ballotStyleId={ballotStyleId}
+              />
+            )}
           </div>
         </DualLanguageText>
       </div>
