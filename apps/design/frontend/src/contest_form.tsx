@@ -755,34 +755,35 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                           }}
                           autoComplete="off"
                         />
-                        <TooltipContainer style={{ width: 'min-content' }}>
-                          <Button
-                            aria-label="Remove Option"
-                            disabled={disabled || hasExternalSource || !editing}
-                            icon="Trash"
-                            color="danger"
-                            className="icon-button"
-                            onPress={() => {
-                              const updatedOptions = (
-                                contest.additionalOptions ?? []
-                              ).filter((_, i) => i !== index);
-                              setContest({
-                                ...contest,
-                                additionalOptions: updatedOptions,
-                              });
-                            }}
-                          />
-                          <Tooltip alignTo="right" bold>
-                            Remove Option
-                          </Tooltip>
-                        </TooltipContainer>
+                        {!(disabled || hasExternalSource) && (
+                          <TooltipContainer style={{ width: 'min-content' }}>
+                            <Button
+                              aria-label="Remove Option"
+                              icon="Trash"
+                              color="danger"
+                              className="icon-button"
+                              onPress={() => {
+                                const updatedOptions = (
+                                  contest.additionalOptions ?? []
+                                ).filter((_, i) => i !== index);
+                                setContest({
+                                  ...contest,
+                                  additionalOptions: updatedOptions,
+                                });
+                              }}
+                            />
+                            <Tooltip alignTo="right" bold>
+                              Remove Option
+                            </Tooltip>
+                          </TooltipContainer>
+                        )}
                       </Row>
                     ))}
 
                     <div>
                       <Button
                         icon="Add"
-                        disabled={disabled || hasExternalSource || !editing}
+                        disabled={disabled || hasExternalSource}
                         onPress={() =>
                           setContest({
                             ...contest,
