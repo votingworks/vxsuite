@@ -74,12 +74,15 @@ export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
   compact: boolean,
-  contestSectionHeaders: ContestSectionHeaders
+  // Temporarily turning off this feature, so also making sure existing contest
+  // section headers aren't included when rendering ballots.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _contestSectionHeaders: ContestSectionHeaders
 ): BaseBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);
     if (!hasSplits(precinct)) {
-      return { ...props, contestSectionHeaders };
+      return { ...props };
     }
     const ballotStyle = find(
       election.ballotStyles,
@@ -94,7 +97,6 @@ export function createBallotPropsForTemplate(
       electionSealOverride: split.electionSealOverride,
       clerkSignatureImage: split.clerkSignatureImage,
       clerkSignatureCaption: split.clerkSignatureCaption,
-      contestSectionHeaders,
     };
   }
 
