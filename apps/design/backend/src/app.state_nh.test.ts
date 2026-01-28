@@ -1,4 +1,4 @@
-import { assert, assertDefined, err } from '@votingworks/basics';
+import { assert, assertDefined, err, find } from '@votingworks/basics';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
