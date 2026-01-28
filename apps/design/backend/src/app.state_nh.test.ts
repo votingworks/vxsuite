@@ -157,7 +157,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
     })
   ).unsafeUnwrap();
 
-  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
+  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.001 });
 });
 
 test.each<{
@@ -252,7 +252,7 @@ test.each<{
       // eslint-disable-next-line vx/no-assert-result-predicates
       expect(result.isOk()).toEqual(true);
       const { pdfData } = result.unsafeUnwrap();
-      await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
+      await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.001 });
     } else {
       // eslint-disable-next-line vx/no-assert-result-predicates
       expect(result.isOk()).toEqual(false);
@@ -384,5 +384,5 @@ test('contest section headers', async () => {
       ballotMode: 'test',
     })
   ).unsafeUnwrap();
-  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
+  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.001 });
 });
