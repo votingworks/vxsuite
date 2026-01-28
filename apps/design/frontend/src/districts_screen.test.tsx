@@ -192,6 +192,13 @@ test('editing existing district list', async () => {
   apiMock.listDistricts.expectCallWith({ electionId }).resolves(updatedList);
 
   userEvent.click(screen.getButton('Save'));
+
+  // Confirm district deletion
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(
+    within(modal).getByRole('button', { name: 'Delete District' })
+  );
+
   await screen.findButton('Edit Districts');
   expectDistrictInputs(updatedList);
 });
@@ -329,6 +336,138 @@ test('audio editing', async () => {
   userEvent.click(editButton);
   expect(screen.queryByTestId(MOCK_AUDIO_PANEL_ID)).not.toBeInTheDocument();
   expect(screen.queryButton(/preview or edit audio/i)).not.toBeInTheDocument();
+});
+
+test('single district deletion', async () => {
+  const districts: District[] = [
+    { id: 'district-1', name: 'District 1' },
+    { id: 'district-2', name: 'District 2' },
+    { id: 'district-3', name: 'District 3' },
+  ];
+  apiMock.listDistricts.expectCallWith({ electionId }).resolves(districts);
+  const history = renderScreen(electionId);
+
+  userEvent.click(await screen.findButton('Edit Districts'));
+  await screen.findButton('Save');
+
+  // Delete one district and add one district
+  userEvent.click(screen.getButton('Delete District District 2'));
+  userEvent.click(screen.getButton('Add District'));
+  const inputs = screen.getAllByRole('textbox');
+  const newDistrict: District = { id: idFactory.next(), name: 'District 4' };
+  userEvent.type(inputs[inputs.length - 1], newDistrict.name);
+  const updatedDistrictList = [districts[0], districts[2], newDistrict];
+  expectDistrictInputs(updatedDistrictList);
+
+  userEvent.click(screen.getButton('Save'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Delete District' });
+  within(modal).getByText(
+    'Are you sure you want to delete district District 2?'
+  );
+  within(modal).getByText(
+    'This will delete all contests associated with the district.'
+  );
+  within(modal).getByRole('button', { name: 'Cancel' });
+  const deleteDistrictButton = within(modal).getByRole('button', {
+    name: 'Delete District',
+  });
+
+  expectUpdate(apiMock, {
+    electionId,
+    deletedDistrictIds: [districts[1].id],
+    newDistricts: [newDistrict],
+    updatedDistricts: [districts[0], districts[2]],
+  }).resolves(ok());
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(updatedDistrictList);
+  userEvent.click(deleteDistrictButton);
+
+  await screen.findButton('Edit Districts');
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  expect(history.location.pathname).toEqual(districtRoutes.root.path);
+  expectDistrictInputs(updatedDistrictList);
+});
+
+test('multiple district deletion', async () => {
+  const districts: District[] = [
+    { id: 'district-1', name: 'District 1' },
+    { id: 'district-2', name: 'District 2' },
+    { id: 'district-3', name: 'District 3' },
+  ];
+  apiMock.listDistricts.expectCallWith({ electionId }).resolves(districts);
+  const history = renderScreen(electionId);
+
+  userEvent.click(await screen.findButton('Edit Districts'));
+  await screen.findButton('Save');
+
+  // Delete two districts and add one district
+  userEvent.click(screen.getButton('Delete District District 2'));
+  userEvent.click(screen.getButton('Delete District District 3'));
+  userEvent.click(screen.getButton('Add District'));
+  const inputs = screen.getAllByRole('textbox');
+  const newDistrict: District = { id: idFactory.next(), name: 'District 4' };
+  userEvent.type(inputs[inputs.length - 1], newDistrict.name);
+  const updatedDistrictList = [districts[0], newDistrict];
+  expectDistrictInputs(updatedDistrictList);
+
+  userEvent.click(screen.getButton('Save'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Delete Districts' });
+  within(modal).getByText(
+    'Are you sure you want to delete the following districts?'
+  );
+  within(modal).getByText('District 2');
+  within(modal).getByText('District 3');
+  within(modal).getByText(
+    'This will delete all contests associated with these districts.'
+  );
+  within(modal).getByRole('button', { name: 'Cancel' });
+  const deleteDistrictButton = within(modal).getByRole('button', {
+    name: 'Delete Districts',
+  });
+
+  expectUpdate(apiMock, {
+    electionId,
+    deletedDistrictIds: [districts[1].id, districts[2].id],
+    newDistricts: [newDistrict],
+    updatedDistricts: [districts[0]],
+  }).resolves(ok());
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(updatedDistrictList);
+  userEvent.click(deleteDistrictButton);
+
+  await screen.findButton('Edit Districts');
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  expect(history.location.pathname).toEqual(districtRoutes.root.path);
+  expectDistrictInputs(updatedDistrictList);
+});
+
+test('cancel district deletion', async () => {
+  const districts: District[] = [
+    { id: 'district-1', name: 'District 1' },
+    { id: 'district-2', name: 'District 2' },
+  ];
+  apiMock.listDistricts.expectCallWith({ electionId }).resolves(districts);
+  const history = renderScreen(electionId);
+
+  userEvent.click(await screen.findButton('Edit Districts'));
+  await screen.findButton('Save');
+
+  userEvent.click(screen.getButton('Delete District District 1'));
+  expectDistrictInputs([districts[1]]);
+
+  userEvent.click(screen.getButton('Save'));
+  const modal = await screen.findByRole('alertdialog');
+
+  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+
+  await screen.findButton('Edit Districts');
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  expect(history.location.pathname).toEqual(districtRoutes.root.path);
+  expectDistrictInputs(districts);
 });
 
 function expectDistrictInputs(districts: District[]) {
