@@ -103,6 +103,10 @@ export function auth0Secret(): string {
   return requiredProdEnvVar('AUTH0_SECRET', '');
 }
 
+export function slackWebhookUrl(): string {
+  return requiredProdEnvVar('SLACK_WEBHOOK_URL', '');
+}
+
 export function votingWorksOrganizationId(): string {
   return requiredProdEnvVar('ORG_ID_VOTINGWORKS', 'votingworks');
 }
