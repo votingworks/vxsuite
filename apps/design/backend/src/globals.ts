@@ -3,13 +3,6 @@ import { unsafeParse } from '@votingworks/types';
 import { join } from 'node:path';
 import { z } from 'zod/v4';
 
-/**
- * Default port for the server.
- */
-// eslint-disable-next-line vx/gts-safe-number-parse
-export const FRONTEND_PORT = Number(process.env.PORT || 3000);
-export const PORT = FRONTEND_PORT + 1;
-
 const NodeEnvSchema = z.union([
   z.literal('development'),
   z.literal('test'),
@@ -38,6 +31,20 @@ export const DEPLOY_ENV = unsafeParse(
   DeployEnvSchema,
   process.env.DEPLOY_ENV ?? 'development'
 );
+
+/**
+ * Default port for the server.
+ * 
+ * Note that in development we run two servers, one for the frontend and one for
+ * the backend. The PORT environment variable configures the frontend port, and
+ * the backend port is always one higher than the frontend port.
+ * 
+ * In production, Heroku sets the PORT environment variable for us and we only
+ * run the backend server, so we use that port directly.
+ */
+// eslint-disable-next-line vx/gts-safe-number-parse
+export const FRONTEND_PORT = DEPLOY_ENV === 'development' ? Number(process.env.PORT || 3000) : -1;
+export const PORT = DEPLOY_ENV === 'development' ? FRONTEND_PORT + 1 : FRONTEND_PORT;
 
 /* istanbul ignore next - @preserve */
 function requiredProdEnvVar<Fallback>(
