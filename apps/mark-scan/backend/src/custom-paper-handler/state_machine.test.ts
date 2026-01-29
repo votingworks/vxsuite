@@ -1006,6 +1006,7 @@ describe('insert pre-printed ballot', () => {
     InterpretedBmdPage: false,
 
     InterpretedHmpbPage: true,
+    InterpretedBmdMultiPagePage: true,
     InvalidBallotHashPage: true,
     InvalidTestModePage: true,
     InvalidPrecinctPage: true,
@@ -1146,6 +1147,7 @@ describe('re-insert removed ballot', () => {
 
     BlankPage: true,
     InterpretedHmpbPage: true,
+    InterpretedBmdMultiPagePage: true,
     InvalidBallotHashPage: true,
     InvalidTestModePage: true,
     InvalidPrecinctPage: true,

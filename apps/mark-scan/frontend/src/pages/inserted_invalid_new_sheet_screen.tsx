@@ -16,6 +16,7 @@ const SCREENS: Readonly<
   // Not currently reachable in practice - HMPBs are interpreted as `BlankPage`s
   // in VxMarkScan:
   InterpretedHmpbPage: <InsertedUnreadableBallotScreen />,
+  InterpretedBmdMultiPagePage: <InsertedUnreadableBallotScreen />,
 
   BlankPage: <InsertedBlankSheetInsteadOfBallotScreen />,
   InvalidBallotHashPage: <InsertedWrongElectionBallotScreen />,
