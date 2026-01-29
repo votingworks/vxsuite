@@ -5,6 +5,8 @@ import {
   H1,
   DesktopPalette,
   useCurrentTheme,
+  Modal,
+  P,
 } from '@votingworks/ui';
 import { Switch, Route, useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -12,6 +14,7 @@ import styled from 'styled-components';
 import { District, ElectionStringKey } from '@votingworks/types';
 
 import { DuplicateDistrictError } from '@votingworks/design-backend';
+import { assertDefined } from '@votingworks/basics';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { FixedViewport, ListActionsRow } from './layout';
@@ -111,6 +114,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const [updatedDistricts, setUpdatedDistricts] = React.useState<District[]>(
     []
   );
+  const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
 
   const history = useHistory();
   const districtsRoutes = routes.election(electionId).districts;
@@ -181,6 +185,15 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   }
 
   const savedDistricts = savedDistrictsQuery.data;
+  const savedDistrictsById = savedDistricts.reduce<{
+    [districtId: string]: District;
+  }>(
+    (districtsById, district) => ({
+      ...districtsById,
+      [district.id]: district,
+    }),
+    {}
+  );
   const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
   const updating = updateDistrictsMutation.isLoading;
   const disabled = ballotsFinalized || !editing || updating;
@@ -193,8 +206,69 @@ function Contents(props: { editing: boolean }): React.ReactNode {
     updateDistrictsMutation.reset();
   }
 
+  function cancelDelete() {
+    setIsConfirmingDelete(false);
+    reset();
+    setEditing(false);
+  }
+
+  function confirmDelete() {
+    setIsConfirmingDelete(false);
+    onSubmit();
+  }
+
   return (
     <Viewport hasActionsRow={!hasExternalSource}>
+      {isConfirmingDelete &&
+        // Saved district data can update before the deletedIds form state is cleared so make sure
+        // that the two are in sync before proceeding to cross-reference the two
+        [...deletedIds].every((id) => id in savedDistrictsById) && (
+          <Modal
+            title={
+              deletedIds.size === 1 ? 'Delete District' : 'Delete Districts'
+            }
+            content={
+              deletedIds.size === 1 ? (
+                <P>
+                  Are you sure you want to delete district{' '}
+                  {assertDefined(savedDistrictsById[[...deletedIds][0]]).name}?{' '}
+                  <strong>
+                    This will delete all contests associated with the district.
+                  </strong>
+                </P>
+              ) : (
+                <P>
+                  Are you sure you want to delete the following districts?{' '}
+                  <strong>
+                    This will delete all contests associated with these
+                    districts.
+                  </strong>
+                  <ul>
+                    {[...deletedIds].map((id) => (
+                      <li key={id}>
+                        {assertDefined(savedDistrictsById[id]).name}
+                      </li>
+                    ))}
+                  </ul>
+                </P>
+              )
+            }
+            actions={
+              <React.Fragment>
+                <Button variant="danger" onPress={confirmDelete} autoFocus>
+                  {deletedIds.size === 1
+                    ? 'Delete District'
+                    : 'Delete Districts'}
+                </Button>
+                <Button onPress={cancelDelete}>Cancel</Button>
+              </React.Fragment>
+            }
+            onOverlayClick={
+              /* istanbul ignore next - @preserve */
+              cancelDelete
+            }
+          />
+        )}
       {!hasExternalSource && (
         <ListActionsRow>
           <Button
@@ -215,6 +289,10 @@ function Contents(props: { editing: boolean }): React.ReactNode {
           editing={editing}
           onSubmit={(e) => {
             e.preventDefault();
+            if (deletedIds.size > 0) {
+              setIsConfirmingDelete(true);
+              return;
+            }
             onSubmit();
           }}
           onReset={(e) => {
