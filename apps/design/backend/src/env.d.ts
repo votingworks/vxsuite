@@ -14,6 +14,7 @@ declare namespace NodeJS {
     readonly NODE_ENV: 'development' | 'production' | 'test';
     readonly ORG_ID_VOTINGWORKS?: string;
     readonly PORT?: string;
+    readonly FRONTEND_PORT?: string;
     readonly SENTRY_DSN?: string;
     readonly WORKSPACE?: string;
   }

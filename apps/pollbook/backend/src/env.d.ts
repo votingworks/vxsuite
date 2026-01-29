@@ -3,7 +3,8 @@ declare namespace NodeJS {
   export interface ProcessEnv {
     readonly CI?: string;
     readonly NODE_ENV: 'development' | 'production' | 'test';
-    readonly LOCAL_PORT?: string;
+    readonly FRONTEND_PORT?: string;
+    readonly PORT?: string;
     readonly PEER_PORT?: string;
     readonly WORKSPACE?: string;
     readonly VX_MACHINE_ID?: string;

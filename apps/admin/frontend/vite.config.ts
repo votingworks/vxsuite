@@ -113,7 +113,8 @@ export default defineConfig((env) => {
     ],
 
     server: {
-      port: 3000,
+      port: Number(process.env.FRONTEND_PORT || 3000),
+      strictPort: true,
     },
 
     // Pass some environment variables to the client in `import.meta.env`.

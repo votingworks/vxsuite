@@ -14,8 +14,8 @@ const { writeFileSync } = require('fs');
 const workspaceRoot = join(__dirname, '..', '..', '..');
 
 async function main() {
-  const packageInfo = await getWorkspacePackageInfo(workspaceRoot);
-  const configs = await generateAllConfigs(packageInfo);
+  const packageInfo = getWorkspacePackageInfo(workspaceRoot);
+  const configs = generateAllConfigs(packageInfo);
   for (const [filePath, fileContents] of configs.entries()) {
     console.log(`Writing CircleCI config to ${filePath}`);
     writeFileSync(filePath, fileContents);

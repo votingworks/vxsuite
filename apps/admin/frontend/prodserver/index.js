@@ -12,7 +12,7 @@ const { handleUncaughtExceptions } = require('@votingworks/backend');
 
 const proxy = require('./setupProxy');
 const app = express();
-const port = 3000;
+const frontendPort = Number(process.env.FRONTEND_PORT || 3000);
 const logger = new Logger(LogSource.VxAdminFrontendServer);
 
 handleUncaughtExceptions(logger);
@@ -30,9 +30,9 @@ app.get('*', (req, res) => {
 });
 
 app
-  .listen(port, () => {
+  .listen(frontendPort, () => {
     logger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `VxAdmin frontend running at http://localhost:${port}/`,
+      message: `VxAdmin frontend running at http://localhost:${frontendPort}/`,
       disposition: 'success',
     });
   })

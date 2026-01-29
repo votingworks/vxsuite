@@ -3,12 +3,6 @@ import { unsafeParse } from '@votingworks/types';
 import { join } from 'node:path';
 import { z } from 'zod/v4';
 
-/**
- * Default port for the server.
- */
-// eslint-disable-next-line vx/gts-safe-number-parse
-export const PORT = Number(process.env.PORT || 3002);
-
 const NodeEnvSchema = z.union([
   z.literal('development'),
   z.literal('test'),
@@ -37,6 +31,24 @@ export const DEPLOY_ENV = unsafeParse(
   DeployEnvSchema,
   process.env.DEPLOY_ENV ?? 'development'
 );
+
+/**
+ * Port for the frontend server.
+ * 
+ * Note that in development we run two servers, one for the frontend and one for
+ * the backend. This controls the port of the frontend.
+ */
+// eslint-disable-next-line vx/gts-safe-number-parse
+export const FRONTEND_PORT = Number(process.env.FRONTEND_PORT || 3000);
+
+/**
+ * Port for the backend server.
+ *
+ * Using PORT here because 1) it's more idiomatic than BACKEND_PORT and
+ * 2) Heroku sets PORT and expects the server to bind to that port.
+ */
+// eslint-disable-next-line vx/gts-safe-number-parse
+export const PORT = Number(process.env.PORT || (FRONTEND_PORT + 1));
 
 /* istanbul ignore next - @preserve */
 function requiredProdEnvVar<Fallback>(
@@ -80,7 +92,7 @@ export function baseUrl(): string {
     return `https://${herokuAppName}.herokuapp.com`;
   }
 
-  return requiredProdEnvVar('BASE_URL', `http://localhost:3000`);
+  return requiredProdEnvVar('BASE_URL', `http://localhost:${FRONTEND_PORT}`);
 }
 
 /* istanbul ignore next - @preserve */

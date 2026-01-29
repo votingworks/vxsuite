@@ -9,12 +9,20 @@ const NodeEnvSchema = z.union([
 ]);
 
 /**
- * Default ports for the local and peer server.
+ * Default port for the backend server.
  */
-// eslint-disable-next-line vx/gts-safe-number-parse
-export const LOCAL_PORT = Number(process.env.LOCAL_PORT || 3002);
-// eslint-disable-next-line vx/gts-safe-number-parse
-export const PEER_PORT = Number(process.env.PEER_PORT || 3004);
+/* eslint-disable vx/gts-safe-number-parse */
+export const PORT = Number(
+  process.env.PORT || Number(process.env.FRONTEND_PORT || 3000) + 1
+);
+
+/**
+ * Default port for the peer server (avahi).
+ */
+export const PEER_PORT = Number(
+  process.env.PEER_PORT || Number(process.env.FRONTEND_PORT || 3000) + 2
+);
+/* eslint-enable vx/gts-safe-number-parse */
 
 /**
  * Which node environment is this?

@@ -5,7 +5,7 @@ import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
 export default defineConfig(async (env) => {
   const workspaceRootPath = join(__dirname, '../../..');
-  const workspacePackages = await getWorkspacePackageInfo(workspaceRootPath);
+  const workspacePackages = getWorkspacePackageInfo(workspaceRootPath);
 
   const envPrefix = 'REACT_APP_';
   const rootDotenvValues = loadEnv(env.mode, workspaceRootPath, envPrefix);
@@ -80,15 +80,20 @@ export default defineConfig(async (env) => {
     plugins: [react()],
 
     // Configure the Vite dev server to proxy API requests to the dev backend server
-    server: {
-      proxy: {
-        '/auth': 'http://localhost:3002',
-        '/api': 'http://localhost:3002',
-        '/public/api': 'http://localhost:3002',
-        '/files': 'http://localhost:3002',
-      },
-      port: 3000,
-    },
+    server: (() => {
+      const basePort = Number(process.env.FRONTEND_PORT || 3000);
+      const backendPort = basePort + 1;
+      return {
+        proxy: {
+          '/auth': `http://localhost:${backendPort}`,
+          '/api': `http://localhost:${backendPort}`,
+          '/public/api': `http://localhost:${backendPort}`,
+          '/files': `http://localhost:${backendPort}`,
+        },
+        port: basePort,
+        strictPort: true,
+      };
+    })(),
 
     // Pass some environment variables to the client in `import.meta.env`.
     envPrefix,
