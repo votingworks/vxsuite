@@ -118,7 +118,7 @@ export function BallotsStatus(): React.ReactNode {
                 <React.Fragment>
                   {' '}
                   <strong>
-                    Requesting a change after finalizing may cost a fee.
+                    Requesting a change after finalizing may incur a fee.
                   </strong>
                 </React.Fragment>
               )}

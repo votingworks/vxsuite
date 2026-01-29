@@ -126,7 +126,7 @@ export enum StateFeature {
    */
   ADDITIONAL_BALLOT_MEASURE_OPTIONS = 'ADDITIONAL_BALLOT_MEASURE_OPTIONS',
   /**
-   * Show a warning when finalizing a ballot that requesting a change after finalizing may cost a
+   * Show a warning when finalizing a ballot that requesting a change after finalizing may incur a
    * fee.
    */
   POST_FINALIZE_CHANGE_FEE_WARNING = 'POST_FINALIZE_CHANGE_FEE_WARNING',

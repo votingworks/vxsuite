@@ -123,7 +123,7 @@ test.each([false, true])(
     within(modal).getByText(
       'Once ballots are finalized, the election may not be edited further.'
     );
-    const warningText = 'Requesting a change after finalizing may cost a fee.';
+    const warningText = 'Requesting a change after finalizing may incur a fee.';
     if (isPostFinalizeChangeFeeWarningEnabled) {
       within(modal).getByText(warningText);
     } else {
