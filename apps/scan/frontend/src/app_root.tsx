@@ -3,7 +3,6 @@ import {
   UnlockMachineScreen,
   useQueryChangeListener,
   VendorScreen,
-  handleKeyboardEvent,
   PatDeviceCalibrationPage,
   PatDeviceContextProvider,
   Keybinding,
@@ -157,14 +156,6 @@ export function AppRoot(): JSX.Element | null {
       });
     };
   }, [sessionSettingsManager]);
-
-  // Handle Keyboard Input for accessible navigation
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyboardEvent);
-    return () => {
-      document.removeEventListener('keydown', handleKeyboardEvent);
-    };
-  }, []);
 
   if (
     !(

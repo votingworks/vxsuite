@@ -122,12 +122,12 @@ test('renders nothing if dev dock is disabled', () => {
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   );
-  const { container } = render(<DevDock apiClient={mockApiClient} />);
+  const { container } = renderDock(mockApiClient);
   expect(container).toBeEmptyDOMElement();
 });
 
 test('card mock controls', async () => {
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
 
   // Card controls should enable once status loads
   const systemAdminControl = await screen.findByRole('button', {
@@ -210,7 +210,7 @@ test('disabled card mock controls if card mocks are disabled', async () => {
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_CARDS
   );
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
 
   await screen.findByText('Smart card mocks disabled');
   const systemAdminControl = screen.getByRole('button', {
@@ -232,7 +232,7 @@ test('disabled card mock controls if card mocks are disabled', async () => {
 });
 
 test('election selector', async () => {
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
   const electionSelector = await screen.findByRole('combobox');
   await waitFor(() => {
     expect(electionSelector).toHaveValue(
@@ -262,7 +262,7 @@ test('election selector', async () => {
 });
 
 test('USB drive controls', async () => {
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
   const usbDriveControl = await screen.findByRole('button', {
     name: 'USB Drive',
   });
@@ -293,7 +293,7 @@ test('disabled USB drive controls if USB drive mocks are disabled', async () => 
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
 
   await screen.findByText('USB mock disabled');
   const usbDriveControl = screen.getByRole('button', {
@@ -311,7 +311,7 @@ test('disabled USB drive controls if USB drive mocks are disabled', async () => 
 });
 
 test('screenshot flow', async () => {
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
   const screenshotButton = await screen.findByRole('button', {
     name: 'Capture Screenshot',
   });
@@ -340,7 +340,7 @@ test('screenshot flow', async () => {
 });
 
 test('Cmd+K starts screenshot flow', async () => {
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
   await screen.findByRole('button', { name: 'Capture Screenshot' });
 
   document.title = 'VotingWorks VxAdmin';
@@ -361,7 +361,7 @@ test('printer mock control', async () => {
     connected: false,
   });
 
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
   const printerButton = await screen.findByRole('button', {
     name: 'Printer',
   });
@@ -399,7 +399,7 @@ test('printer mock when disabled', async () => {
     connected: false,
   });
 
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
   const printerButton = await screen.findByRole('button', {
     name: 'Printer',
   });
@@ -434,7 +434,7 @@ test('hardware mock controls: toggle barcode, PAT input, and accessible controll
     accessibleControllerConnected: false,
   });
 
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
 
   const barcodeButton = await screen.findByRole('button', {
     name: 'Barcode Reader',
@@ -504,7 +504,7 @@ test('hardware mock controls disabled when feature flags disabled', async () => 
     accessibleControllerConnected: false,
   });
 
-  render(<DevDock apiClient={mockApiClient} />);
+  renderDock(mockApiClient);
 
   const barcodeButton = await screen.findByRole('button', {
     name: 'Barcode Reader',
@@ -535,7 +535,7 @@ describe('fujitsu printer mock', () => {
       state: 'idle',
     });
 
-    render(<DevDock apiClient={mockApiClient} />);
+    renderDock(mockApiClient);
     const dropdown = await screen.findByLabelText('Printer:');
 
     expect(dropdown).toBeDisabled();
@@ -555,7 +555,7 @@ describe('fujitsu printer mock', () => {
       state: 'idle',
     });
 
-    render(<DevDock apiClient={mockApiClient} />);
+    renderDock(mockApiClient);
     const dropdown = await screen.findByLabelText('Printer:');
     await waitFor(() => {
       expect(dropdown).toHaveValue('idle');
@@ -584,7 +584,7 @@ describe('PDI scanner mock', () => {
       state: 'idle',
     });
 
-    render(<DevDock apiClient={mockApiClient} />);
+    renderDock(mockApiClient);
     await screen.findByText(/Printer:/);
     expect(screen.queryByLabelText('Scanner:')).not.toBeInTheDocument();
   });
@@ -598,7 +598,7 @@ describe('PDI scanner mock', () => {
       .expectRepeatedCallsWith()
       .resolves('noSheet');
 
-    render(<DevDock apiClient={mockApiClient} />);
+    renderDock(mockApiClient);
     const insertBallotButton = await screen.findByRole('button', {
       name: 'Insert Ballot',
     });
@@ -650,7 +650,7 @@ describe('PDI scanner mock', () => {
       .resolves({ mockPdiScanner: true });
     mockApiClient.pdiScannerGetSheetStatus.expectCallWith().resolves('noSheet');
 
-    render(<DevDock apiClient={mockApiClient} />);
+    renderDock(mockApiClient);
     const insertBallotButton = await screen.findByRole('button', {
       name: 'Insert Ballot',
     });
@@ -666,3 +666,7 @@ describe('PDI scanner mock', () => {
     });
   });
 });
+
+function renderDock(api: MockClient<Api>) {
+  return render(<DevDock apiClient={api} enableAccessibleNav />);
+}

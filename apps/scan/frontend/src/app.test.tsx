@@ -21,7 +21,15 @@ import type {
   PrecinctScannerStatus,
 } from '@votingworks/scan-backend';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { waitFor, screen, within, render } from '../test/react_testing_library';
+import { Keybinding } from '@votingworks/ui';
+import {
+  waitFor,
+  screen,
+  within,
+  render,
+  fireEvent,
+  act,
+} from '../test/react_testing_library';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 import { scannerStatus } from '../test/helpers/helpers';
 import {
@@ -1536,4 +1544,25 @@ test('voter help button hidden when relevant system setting is set', async () =>
   expect(
     screen.queryByRole('button', { name: 'Help' })
   ).not.toBeInTheDocument();
+});
+
+test('keyboard nav enabled for voter settings', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+
+  renderApp();
+  await screen.findByText('Insert Your Ballot');
+
+  userEvent.click(screen.getButton('Settings'));
+  await act(() => fireEvent.keyDown(document, { key: Keybinding.PAT_MOVE }));
+  expect(screen.getByRole('tab', { name: 'Color' })).toHaveFocus();
+
+  await act(() => fireEvent.keyDown(document, { key: Keybinding.PAT_MOVE }));
+  expect(screen.getByRole('tab', { name: 'Text Size' })).toHaveFocus();
+
+  await act(() => fireEvent.keyDown(document, { key: Keybinding.PAT_SELECT }));
+  screen.getByText('Extra-Large');
 });
