@@ -123,6 +123,29 @@ test('all counts, single HMPB sheet', () => {
   within(manualRow).getByText('2');
 });
 
+test('multi-page BMD sheets, no HMPB', () => {
+  render(
+    <TallyReportCardCounts
+      cardCounts={{
+        bmd: [1, 1],
+        hmpb: [],
+      }}
+    />
+  );
+
+  const ballotCountRow = screen.getByText('Ballot Count').closest('tr')!;
+  within(ballotCountRow).getByText('1');
+
+  expect(screen.queryByText('Scanned')).not.toBeInTheDocument();
+
+  const sheet1Row = ballotCountRow.nextSibling as HTMLElement;
+  within(sheet1Row).getByText('Sheet 1');
+  within(sheet1Row).getByText('1');
+  const sheet2Row = sheet1Row.nextSibling as HTMLElement;
+  within(sheet2Row).getByText('Sheet 2');
+  within(sheet2Row).getByText('1');
+});
+
 test('multiple HMPB sheets, no manual', () => {
   render(
     <TallyReportCardCounts
