@@ -125,7 +125,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
     const page1Images = await iter(pdfToImages(page1Pdf, { scale: 200 / 72 }))
       .map((page) => toImageBuffer(page.page))
       .toArray();
-    expect(page1Images.length).toEqual(1);
+    expect(page1Images.length).toEqual(2);
     expect(page1Images[0]).toMatchImageSnapshot({
       failureThreshold: 0.0001,
       failureThresholdType: 'percent',
@@ -146,7 +146,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
     const page2Images = await iter(pdfToImages(page2Pdf, { scale: 200 / 72 }))
       .map((page) => toImageBuffer(page.page))
       .toArray();
-    expect(page2Images.length).toEqual(1);
+    expect(page2Images.length).toEqual(2);
     expect(page2Images[0]).toMatchImageSnapshot({
       failureThreshold: 0.0001,
       failureThresholdType: 'percent',
@@ -178,7 +178,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
     const images = await iter(pdfToImages(pdf, { scale: 200 / 72 }))
       .map((page) => toImageBuffer(page.page))
       .toArray();
-    expect(images.length).toEqual(1);
+    expect(images.length).toEqual(2);
     expect(images[0]).toMatchImageSnapshot({
       failureThreshold: 0.0001,
       failureThresholdType: 'percent',
@@ -214,7 +214,7 @@ describe('renderMultiPageBmdBallotFixture', () => {
     const images = await iter(pdfToImages(pdf, { scale: 200 / 72 }))
       .map((page) => toImageBuffer(page.page))
       .toArray();
-    expect(images.length).toEqual(1);
+    expect(images.length).toEqual(2);
     expect(images[0]).toMatchImageSnapshot({
       failureThreshold: 0.0001,
       failureThresholdType: 'percent',

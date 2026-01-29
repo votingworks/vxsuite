@@ -392,7 +392,6 @@ test('multi-page BMD ballot: partial votes on page', async () => {
     ballotAuditId,
     contestIdsForPage: page1ContestIds,
   });
-  console.log(pdfData.byteLength);
 
   const card = asSheet(await pdfToPageImages(pdfData).toArray());
   const result = await interpret(electionDefinition, card);

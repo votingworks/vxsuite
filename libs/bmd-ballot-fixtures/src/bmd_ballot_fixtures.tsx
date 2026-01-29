@@ -74,8 +74,6 @@ export interface MultiPageBmdBallotFixtureOptions {
   contestIdsForPage: string[];
   /** Whether to rotate the image 180 degrees */
   rotateImage?: boolean;
-  /** Whether to only render the front page (no blank back) */
-  frontPageOnly?: boolean;
   /** Whether this is a test mode ballot */
   isLiveMode?: boolean;
 }
@@ -113,18 +111,21 @@ export async function renderMultiPageBmdBallotFixture(
   }
 
   const ballot = (
-    <BmdPaperBallot
-      electionDefinition={electionDefinition}
-      isLiveMode={isLiveMode}
-      machineType="mark"
-      ballotStyleId={ballotStyleId}
-      precinctId={precinctId}
-      votes={votesForPage}
-      pageNumber={pageNumber}
-      totalPages={totalPages}
-      ballotAuditId={ballotAuditId}
-      contestsForPage={contestsForPage}
-    />
+    <React.Fragment>
+      <BmdPaperBallot
+        electionDefinition={electionDefinition}
+        isLiveMode={isLiveMode}
+        machineType="mark"
+        ballotStyleId={ballotStyleId}
+        precinctId={precinctId}
+        votes={votesForPage}
+        pageNumber={pageNumber}
+        totalPages={totalPages}
+        ballotAuditId={ballotAuditId}
+        contestsForPage={contestsForPage}
+      />
+      <div style={{ pageBreakAfter: 'always' }} />
+    </React.Fragment>
   );
 
   const document = rotateImage ? (
