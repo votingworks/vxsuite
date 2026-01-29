@@ -7,7 +7,8 @@ import { z } from 'zod/v4';
  * Default port for the server.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
-export const PORT = Number(process.env.PORT || 3000) + 1;
+export const FRONTEND_PORT = Number(process.env.PORT || 3000);
+export const PORT = FRONTEND_PORT + 1;
 
 const NodeEnvSchema = z.union([
   z.literal('development'),
@@ -80,7 +81,7 @@ export function baseUrl(): string {
     return `https://${herokuAppName}.herokuapp.com`;
   }
 
-  return requiredProdEnvVar('BASE_URL', `http://localhost:${Number(process.env.PORT || 3000)}`);
+  return requiredProdEnvVar('BASE_URL', `http://localhost:${FRONTEND_PORT}`);
 }
 
 /* istanbul ignore next - @preserve */
