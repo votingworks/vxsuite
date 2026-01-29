@@ -890,7 +890,8 @@ function createQueryClient() {
   });
 }
 
-function DevDock() {
+function DevDock(props: { enableAccessibleNav?: boolean }) {
+  const { enableAccessibleNav } = props;
   const [isOpen, setIsOpen] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -921,7 +922,7 @@ function DevDock() {
 
   return (
     <Container
-      aria-hidden
+      aria-hidden={!enableAccessibleNav}
       ref={containerRef}
       className={isOpen ? '' : 'closed'}
     >
@@ -971,8 +972,14 @@ function DevDock() {
  */
 function DevDockWrapper({
   apiClient = grout.createClient<Api>({ baseUrl: '/dock' }),
+  enableAccessibleNav,
 }: {
   apiClient?: ApiClient;
+  /**
+   * Add the dev dock controls to the accessibility tree (for testing). They are
+   * omitted by default to prevent interference with navigation in the main app.
+   */
+  enableAccessibleNav?: boolean;
 }): JSX.Element | null {
   // We use a wrapper component to make sure that not only is the dock not
   // inserted into the DOM, but its keyboard listeners are not registered
@@ -982,7 +989,7 @@ function DevDockWrapper({
   ) ? (
     <QueryClientProvider client={createQueryClient()}>
       <ApiClientContext.Provider value={apiClient}>
-        <DevDock />
+        <DevDock enableAccessibleNav={enableAccessibleNav} />
         {false && <ReactQueryDevtools initialIsOpen={false} />}
       </ApiClientContext.Provider>
     </QueryClientProvider>
