@@ -292,10 +292,11 @@ describe('sanitizeTrailingNbspOnPaste', () => {
     );
   });
 
-  test('strips single trailing nbsp (empty cells in table)', () => {
+  test('strips nbsp-only content down to single nbsp', () => {
+    // Strips down to a single nbsp rather than empty to avoid crashing ProseMirror
     expect(
       sanitizeTrailingNbspOnPaste('<table><tr><td> </td></tr></table>')
-    ).toEqual('<table><tbody><tr><td></td></tr></tbody></table>');
+    ).toEqual('<table><tbody><tr><td>&nbsp;</td></tr></tbody></table>');
   });
 });
 

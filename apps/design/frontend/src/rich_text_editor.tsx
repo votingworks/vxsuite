@@ -329,9 +329,11 @@ function findLastTextNode(root: Node): Text | null {
   return last;
 }
 
-// Remove trailing NBSPs and trailing whitespace, if there is at least one nbsp (unicode U+00A0)
+// Remove trailing NBSPs and trailing whitespace. Falls back to a single NBSP
+// rather than empty to avoid producing empty fragments that crash
+// ProseMirror's pastedCells function (prosemirror-tables).
 function stripTrailingNbsp(text: string): string {
-  return text.replace(/[\u00A0\s]+$/, '');
+  return text.replace(/[\u00A0\s]+$/, '') || ' ';
 }
 
 // HTML_BLOCKS includes the HTML elements that most commonly have unintended trailing
