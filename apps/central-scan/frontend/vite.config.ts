@@ -5,16 +5,19 @@ import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import setupProxy from './prodserver/setupProxy';
 
 export default defineConfig((env) => {
-  const workspacePackages = getWorkspacePackageInfo(
-    join(__dirname, '../..')
-  );
+  const workspacePackages = getWorkspacePackageInfo(join(__dirname, '../..'));
 
   const envPrefix = 'REACT_APP_';
-  const rootDotenvValues = loadEnv(env.mode, join(__dirname, '../../..'), envPrefix);
-  const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix)
-  const processEnvDefines = [...Object.entries(rootDotenvValues), ...Object.entries(coreDotenvValues)].reduce<
-    Record<string, string>
-  >(
+  const rootDotenvValues = loadEnv(
+    env.mode,
+    join(__dirname, '../../..'),
+    envPrefix
+  );
+  const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix);
+  const processEnvDefines = [
+    ...Object.entries(rootDotenvValues),
+    ...Object.entries(coreDotenvValues),
+  ].reduce<Record<string, string>>(
     (acc, [key, value]) => ({
       ...acc,
       [`process.env.${key}`]: JSON.stringify(value),
@@ -49,14 +52,14 @@ export default defineConfig((env) => {
         //
         // The trailing slash is important, otherwise it will be resolved as a
         // built-in NodeJS module.
-        { find: 'buffer', replacement: require.resolve('buffer/'), },
-        { find: 'node:buffer', replacement: require.resolve('buffer/'), },
+        { find: 'buffer', replacement: require.resolve('buffer/') },
+        { find: 'node:buffer', replacement: require.resolve('buffer/') },
         { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
         { find: 'node:fs', replacement: join(__dirname, './src/stubs/fs.ts') },
-        { find: 'path', replacement: require.resolve('path/'), },
-        { find: 'node:path', replacement: require.resolve('path/'), },
-        { find: 'util', replacement: require.resolve('util/'), },
-        { find: 'node:util', replacement: require.resolve('util/'), },
+        { find: 'path', replacement: require.resolve('path/') },
+        { find: 'node:path', replacement: require.resolve('path/') },
+        { find: 'util', replacement: require.resolve('util/') },
+        { find: 'node:util', replacement: require.resolve('util/') },
 
         // Create aliases for all workspace packages, i.e.
         //
@@ -91,7 +94,7 @@ export default defineConfig((env) => {
     ],
 
     server: {
-      port: Number(process.env.PORT || 3000),
+      port: Number(process.env.FRONTEND_PORT || 3000),
       strictPort: true,
     },
 

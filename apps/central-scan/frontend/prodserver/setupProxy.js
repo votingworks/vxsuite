@@ -14,7 +14,7 @@ const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
  * @param {import('connect').Server} app
  */
 module.exports = function (app) {
-  const backendPort = Number(process.env.PORT || 3000) + 1;
+  const backendPort = Number(process.env.FRONTEND_PORT || 3000) + 1;
 
   app.use('/machine-config', (req, res, next) => {
     if (req.method === 'GET') {
@@ -30,8 +30,10 @@ module.exports = function (app) {
     }
   });
 
-  app.use(proxy({
-    target: `http://localhost:${backendPort}/`,
-    pathFilter: ['/api', '/dock', '/central-scanner'],
-  }))
+  app.use(
+    proxy({
+      target: `http://localhost:${backendPort}/`,
+      pathFilter: ['/api', '/dock', '/central-scanner'],
+    })
+  );
 };

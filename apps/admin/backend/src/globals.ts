@@ -30,7 +30,7 @@ export const ADMIN_WORKSPACE =
  * Default port for the admin API.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
-export const PORT = Number(process.env.PORT || 3000) + 1;
+export const PORT = Number(process.env.FRONTEND_PORT || 3000) + 1;
 
 /**
  * A glob pattern for USB drives (real and not dev mock)

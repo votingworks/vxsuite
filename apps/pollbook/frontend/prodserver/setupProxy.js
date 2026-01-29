@@ -14,7 +14,7 @@ const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
  * @param {import('connect').Server} app
  */
 module.exports = function (app) {
-  const backendPort = Number(process.env.PORT || 3000) + 1;
+  const backendPort = Number(process.env.FRONTEND_PORT || 3000) + 1;
   app.use(
     proxy({
       pathFilter: ['/api', '/dock'],

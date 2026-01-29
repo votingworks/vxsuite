@@ -81,7 +81,7 @@ export default defineConfig(async (env) => {
 
     // Configure the Vite dev server to proxy API requests to the dev backend server
     server: (() => {
-      const basePort = Number(process.env.PORT || 3000);
+      const basePort = Number(process.env.FRONTEND_PORT || 3000);
       const backendPort = basePort + 1;
       return {
         proxy: {

@@ -33,18 +33,22 @@ export const DEPLOY_ENV = unsafeParse(
 );
 
 /**
- * Default port for the server.
+ * Port for the frontend server.
  * 
  * Note that in development we run two servers, one for the frontend and one for
- * the backend. The PORT environment variable configures the frontend port, and
- * the backend port is always one higher than the frontend port.
- * 
- * In production, Heroku sets the PORT environment variable for us and we only
- * run the backend server, so we use that port directly.
+ * the backend. This controls the port of the frontend.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
-export const FRONTEND_PORT = DEPLOY_ENV === 'development' ? Number(process.env.PORT || 3000) : -1;
-export const PORT = DEPLOY_ENV === 'development' ? FRONTEND_PORT + 1 : FRONTEND_PORT;
+export const FRONTEND_PORT = Number(process.env.FRONTEND_PORT || 3000);
+
+/**
+ * Port for the backend server.
+ *
+ * Using PORT here because 1) it's more idiomatic than BACKEND_PORT and
+ * 2) Heroku sets PORT and expects the server to bind to that port.
+ */
+// eslint-disable-next-line vx/gts-safe-number-parse
+export const PORT = Number(process.env.PORT || (FRONTEND_PORT + 1));
 
 /* istanbul ignore next - @preserve */
 function requiredProdEnvVar<Fallback>(

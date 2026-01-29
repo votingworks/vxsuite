@@ -135,7 +135,7 @@ pnpm start
 
 If you have VS Code open and connected to your VM remotely it should
 automatically forward the port for you, and you can visit
-`http://localhost:3000` on your home machine as well.
+`http://localhost:3000` on your host machine as well.
 
 See the individual README documents for more information on how to run the
 individual services.

@@ -85,7 +85,7 @@ export default defineConfig((env) => {
     // hardware has limited resources and hot reloading can cause poor performance during development
     server: {
       hmr: process.env.DISABLE_MARK_HOT_RELOAD === 'true' ? false : undefined,
-      port: Number(process.env.PORT || 3000),
+      port: Number(process.env.FRONTEND_PORT || 3000),
       strictPort: true,
     },
 
