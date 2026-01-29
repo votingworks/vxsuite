@@ -17,7 +17,7 @@ export const { MOCK_SCANNER_FILES } = process.env;
  * Default port for the scan API.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
-export const PORT = Number(process.env.PORT || 3002);
+export const PORT = Number(process.env.PORT || 3000) + 1;
 
 /**
  * Which node environment is this?

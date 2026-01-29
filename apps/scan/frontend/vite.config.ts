@@ -57,8 +57,8 @@ export default defineConfig(async (env) => {
         { find: 'node:path', replacement: require.resolve('path/') },
         { find: 'os', replacement: join(__dirname, './src/stubs/os.ts') },
         { find: 'node:os', replacement: join(__dirname, './src/stubs/os.ts') },
-        { find: 'util', replacement: require.resolve('util/'), },
-        { find: 'node:util', replacement: require.resolve('util/'), },
+        { find: 'util', replacement: require.resolve('util/') },
+        { find: 'node:util', replacement: require.resolve('util/') },
 
         // Create aliases for all workspace packages, i.e.
         //
@@ -93,7 +93,8 @@ export default defineConfig(async (env) => {
     ],
 
     server: {
-      port: 3000,
+      port: Number(process.env.PORT || 3000),
+      strictPort: true,
     },
 
     // Pass some environment variables to the client in `import.meta.env`.

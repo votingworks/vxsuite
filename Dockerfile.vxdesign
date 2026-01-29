@@ -78,6 +78,6 @@ RUN . ~/.bashrc && . ~/.cargo/env && pnpm -dir=apps/design/frontend build:prod
 
 EXPOSE 80
 EXPOSE 3000
-EXPOSE 3002
+EXPOSE 3001
 
 ENV HOME="/root"
