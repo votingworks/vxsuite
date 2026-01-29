@@ -843,7 +843,6 @@ const Container = styled.div`
   }
   /* Slide the dock down when open */
   transition: all 0.15s ease-out;
-  aria-hidden: true;
 `;
 
 const Content = styled.div`
@@ -921,7 +920,11 @@ function DevDock() {
   const mockSpec = getMockSpecQuery.data;
 
   return (
-    <Container ref={containerRef} className={isOpen ? '' : 'closed'}>
+    <Container
+      aria-hidden
+      ref={containerRef}
+      className={isOpen ? '' : 'closed'}
+    >
       <Content>
         <Row>
           <ElectionControl />
