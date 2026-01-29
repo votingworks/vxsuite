@@ -7,7 +7,7 @@ import { z } from 'zod/v4';
  * Default port for the VxMark API.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
-export const PORT = Number(process.env.PORT || 3002);
+export const PORT = Number(process.env.PORT || 3000) + 1;
 
 const NodeEnvSchema = z.union([
   z.literal('development'),

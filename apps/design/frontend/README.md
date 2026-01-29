@@ -146,7 +146,11 @@ In `apps/design/frontend`, run the following:
 pnpm start
 ```
 
-The server will be available at http://localhost:3000.
+
+The server will be available at http://localhost:3000, with the backend at
+http://localhost:3001. To use a different port, set the `PORT` environment
+variable and the backend port will use `$PORT + 1`.
+
 
 ## Restoring database from snapshot
 
