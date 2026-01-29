@@ -16,6 +16,7 @@ const SCREENS: Readonly<
 
   BlankPage: <ReinsertedNonBallotScreen />,
   InterpretedHmpbPage: <ReinsertedNonBallotScreen />,
+  InterpretedBmdMultiPagePage: <ReinsertedNonBallotScreen />,
   InvalidBallotHashPage: <ReinsertedWrongElectionBallotScreen />,
   InvalidPrecinctPage: <ReinsertedWrongPrecinctBallotScreen />,
   InvalidTestModePage: <ReinsertedWrongTestModeBallotScreen />,
