@@ -243,23 +243,29 @@ test('doesnt unwrap multiple cell tables on paste', async () => {
 });
 
 describe('sanitizeTrailingNbspOnPaste', () => {
-  test('strips trailing nbsp and whitespace from paragraphs', () => {
+  test('strips trailing nbsps from paragraphs', () => {
     expect(sanitizeTrailingNbspOnPaste('<p>text  </p>')).toEqual('<p>text</p>');
   });
 
-  test('strips trailing whitespace including regular spaces', () => {
+  test('strips trailing nbsps and surrounding spaces', () => {
     expect(sanitizeTrailingNbspOnPaste('<p>text      </p>')).toEqual(
       '<p>text</p>'
     );
   });
 
-  test('strips trailing nbsp wrapped in a formatting tag from list items', () => {
+  test('does not strip trailing regular spaces without nbsp', () => {
+    expect(sanitizeTrailingNbspOnPaste('<p>text   </p>')).toEqual(
+      '<p>text   </p>'
+    );
+  });
+
+  test('strips trailing nbsps inside formatting tags in list items', () => {
     expect(sanitizeTrailingNbspOnPaste('<li><b>item  </b></li>')).toEqual(
       '<li><b>item</b></li>'
     );
   });
 
-  test('strips trailing nbsp from table cells in a table', () => {
+  test('strips trailing nbsps from table cells in a table', () => {
     // Table cells need to be in a table structure for DOMParser to preserve them
     // so the output includes <tbody> even if the input does not
     expect(
@@ -278,7 +284,7 @@ describe('sanitizeTrailingNbspOnPaste', () => {
     );
   });
 
-  test('handles multiple paragraphs with trailing nbsp', () => {
+  test('strips trailing nbsps from multiple paragraphs', () => {
     expect(sanitizeTrailingNbspOnPaste('<p>para1  </p><p>para2  </p>')).toEqual(
       '<p>para1</p><p>para2</p>'
     );
@@ -292,10 +298,10 @@ describe('sanitizeTrailingNbspOnPaste', () => {
     );
   });
 
-  test('strips single trailing nbsp (empty cells in table)', () => {
+  test('strips nbsp-only content down to single nbsp', () => {
     expect(
       sanitizeTrailingNbspOnPaste('<table><tr><td> </td></tr></table>')
-    ).toEqual('<table><tbody><tr><td></td></tr></tbody></table>');
+    ).toEqual('<table><tbody><tr><td>&nbsp;</td></tr></tbody></table>');
   });
 });
 
