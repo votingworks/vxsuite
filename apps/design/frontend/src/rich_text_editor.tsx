@@ -7,17 +7,15 @@ import Text from '@tiptap/extension-text';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import HardBreak from '@tiptap/extension-hard-break';
-import BulletList from '@tiptap/extension-bullet-list';
-import OrderedList from '@tiptap/extension-ordered-list';
-import ListItem from '@tiptap/extension-list-item';
+import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
 import Image from '@tiptap/extension-image';
-import Table from '@tiptap/extension-table';
-import TableCell from '@tiptap/extension-table-cell';
-import TableRow from '@tiptap/extension-table-row';
-import TableHeader from '@tiptap/extension-table-header';
-import Dropcursor from '@tiptap/extension-dropcursor';
-import Gapcursor from '@tiptap/extension-gapcursor';
-import History from '@tiptap/extension-history';
+import {
+  Table,
+  TableCell,
+  TableRow,
+  TableHeader,
+} from '@tiptap/extension-table';
+import { Dropcursor, Gapcursor, UndoRedo } from '@tiptap/extensions';
 import { Slice } from '@tiptap/pm/model';
 import {
   Button,
@@ -389,7 +387,7 @@ export function RichTextEditor({
       TableHeader,
       Dropcursor,
       Gapcursor,
-      History,
+      UndoRedo,
     ],
     editorProps: {
       transformPasted: unwrapSingleCellTablesOnPaste,
