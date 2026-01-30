@@ -33,7 +33,7 @@ function isBallotTemplateId(id: string): id is BallotTemplateId {
 
 function getTemplate(templateId: string | null) {
   if (!templateId) {
-    return ballotTemplates.VxDefaultBallot;
+    return ballotTemplates.MiBallot;
   }
 
   if (!isBallotTemplateId(templateId)) {
@@ -66,7 +66,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
     ...election.ballotStyles[0],
     languages: languages.length
       ? languages
-      : ['es-US', 'en'].filter((lang) => lang in election.ballotStrings),
+      : ['en'].filter((lang) => lang in election.ballotStrings),
   };
   const exampleBallotProps: BaseBallotProps = {
     election: {

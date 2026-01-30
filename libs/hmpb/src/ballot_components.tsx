@@ -41,10 +41,12 @@ export const pageMarginsInches = {
 } as const;
 
 export const Colors = {
+  WHITE: '#FFFFFF',
   BLACK: '#000000',
   LIGHT_GRAY: '#EDEDED',
   DARK_GRAY: '#DADADA',
   DARKER_GRAY: '#B0B0B0',
+  INVERSE_GRAY: '#4B4B4B',
 } as const;
 
 export function primaryLanguageCode(ballotStyle: BallotStyle): string {
