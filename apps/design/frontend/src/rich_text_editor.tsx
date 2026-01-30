@@ -372,6 +372,10 @@ interface RichTextEditorProps {
   className?: string;
 }
 
+export const tiptapErrorContextBox: { lastPasteClipboardContent?: string } = {
+  lastPasteClipboardContent: undefined,
+};
+
 export function RichTextEditor({
   disabled,
   initialHtmlContent,
@@ -415,6 +419,11 @@ export function RichTextEditor({
     content: initialHtmlContent,
     onUpdate: (update) => {
       onChange(update.editor.getHTML());
+    },
+    onPaste: (event) => {
+      tiptapErrorContextBox.lastPasteClipboardContent =
+        event.clipboardData?.getData('text/html') ||
+        event.clipboardData?.getData('text/plain');
     },
   });
   return (
