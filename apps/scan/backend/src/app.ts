@@ -107,6 +107,7 @@ export function buildApi({
       if (authStatus.status === 'checking_pin') {
         await reboot(logger);
       }
+      return authStatus;
     },
 
     checkPin(input: { pin: string }) {
