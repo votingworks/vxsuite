@@ -14,3 +14,4 @@ export {
   type SetDefaultAudioResult,
   setDefaultAudio,
 } from './set_default_audio';
+export { reboot } from './reboot';

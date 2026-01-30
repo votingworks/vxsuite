@@ -26,6 +26,7 @@ import {
   Exporter,
   SCAN_ALLOWED_EXPORT_PATTERNS,
   ExportDataResult,
+  reboot,
 } from '@votingworks/backend';
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import {
@@ -99,8 +100,13 @@ export function buildApi({
   return grout.createApi({
     getMachineConfig,
 
-    getAuthStatus() {
-      return auth.getAuthStatus(constructAuthMachineState(workspace.store));
+    async getAuthStatus() {
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace.store)
+      );
+      if (authStatus.status === 'checking_pin') {
+        await reboot(logger);
+      }
     },
 
     checkPin(input: { pin: string }) {
