@@ -125,6 +125,11 @@ export enum StateFeature {
    * contests for export until VxSuite supports them.)
    */
   ADDITIONAL_BALLOT_MEASURE_OPTIONS = 'ADDITIONAL_BALLOT_MEASURE_OPTIONS',
+  /**
+   * Show a warning when finalizing a ballot that requesting a change after finalizing may incur a
+   * fee.
+   */
+  POST_FINALIZE_CHANGE_FEE_WARNING = 'POST_FINALIZE_CHANGE_FEE_WARNING',
 }
 
 export type UserFeaturesConfig = Partial<Record<UserFeature, boolean>>;
@@ -174,6 +179,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
     ADDITIONAL_BALLOT_MEASURE_OPTIONS: true,
+    POST_FINALIZE_CHANGE_FEE_WARNING: true,
   },
 };
 

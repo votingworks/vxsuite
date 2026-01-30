@@ -20,6 +20,7 @@ test('ballots incomplete', async () => {
   mockBallotStyles(api, []);
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
+  mockStateFeatures(api, {});
 
   renderUi(api);
 
@@ -35,6 +36,7 @@ test('ballots ready to finalize', async () => {
   mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
+  mockStateFeatures(api, {});
 
   renderUi(api);
 
@@ -60,6 +62,7 @@ test('start finalize and cancel', async () => {
   mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
+  mockStateFeatures(api, {});
 
   renderUi(api);
 
@@ -80,6 +83,7 @@ test('start finalize and confirm', async () => {
   mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
+  mockStateFeatures(api, {});
 
   renderUi(api);
 
@@ -99,11 +103,41 @@ test('start finalize and confirm', async () => {
   api.assertComplete();
 });
 
+test.each([false, true])(
+  'finalize confirmation modal text - is post-finalize change fee warning enabled: %s',
+  async (isPostFinalizeChangeFeeWarningEnabled) => {
+    const api = createMockApiClient();
+    mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
+    mockFinalizedAt(api, null);
+    mockApprovedAt(api, null);
+    mockStateFeatures(api, {
+      POST_FINALIZE_CHANGE_FEE_WARNING: isPostFinalizeChangeFeeWarningEnabled,
+    });
+
+    renderUi(api);
+
+    await screen.findByRole('heading', { name: 'Ballots Not Finalized' });
+    userEvent.click(screen.getButton(/finalize/i));
+
+    const modal = await screen.findByRole('alertdialog');
+    within(modal).getByText(
+      'Once ballots are finalized, the election may not be edited further.'
+    );
+    const warningText = 'Requesting a change after finalizing may incur a fee.';
+    if (isPostFinalizeChangeFeeWarningEnabled) {
+      within(modal).getByText(warningText);
+    } else {
+      expect(within(modal).queryByText(warningText)).not.toBeInTheDocument();
+    }
+  }
+);
+
 test('ballots finalized', async () => {
   const api = createMockApiClient();
   mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, null);
+  mockStateFeatures(api, {});
 
   renderUi(api);
 
@@ -119,6 +153,7 @@ test('ballots approved', async () => {
   mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, new Date());
+  mockStateFeatures(api, {});
 
   const { history } = renderUi(api);
 
@@ -144,6 +179,13 @@ function mockFinalizedAt(api: MockApiClient, date: Date | null) {
 
 function mockBallotStyles(api: MockApiClient, styles: BallotStyle[]) {
   api.listBallotStyles.expectCallWith({ electionId }).resolves(styles);
+}
+
+function mockStateFeatures(
+  api: MockApiClient,
+  features: Record<string, boolean>
+) {
+  api.getStateFeatures.expectCallWith({ electionId }).resolves(features);
 }
 
 function renderUi(api: MockApiClient) {

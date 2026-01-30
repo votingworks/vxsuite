@@ -25,13 +25,15 @@ export function BallotsStatus(): React.ReactNode {
   const listBallotStylesQuery = api.listBallotStyles.useQuery(electionId);
   const approvedAtQuery = api.getBallotsApprovedAt.useQuery(electionId);
   const finalizedAtQuery = api.getBallotsFinalizedAt.useQuery(electionId);
+  const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
 
   const finalizeBallotsMutation = api.finalizeBallots.useMutation();
 
   if (
     !listBallotStylesQuery.isSuccess ||
     !finalizedAtQuery.isSuccess ||
-    !approvedAtQuery.isSuccess
+    !approvedAtQuery.isSuccess ||
+    !getStateFeaturesQuery.isSuccess
   ) {
     return null;
   }
@@ -39,6 +41,7 @@ export function BallotsStatus(): React.ReactNode {
   const ballotStyles = listBallotStylesQuery.data;
   const finalized = !!finalizedAtQuery.data;
   const approved = !!approvedAtQuery.data;
+  const features = getStateFeaturesQuery.data;
 
   if (ballotStyles.length === 0) {
     return (
@@ -111,6 +114,14 @@ export function BallotsStatus(): React.ReactNode {
             <P>
               Once ballots are finalized, the election may not be edited
               further.
+              {features.POST_FINALIZE_CHANGE_FEE_WARNING && (
+                <React.Fragment>
+                  {' '}
+                  <strong>
+                    Requesting a change after finalizing may incur a fee.
+                  </strong>
+                </React.Fragment>
+              )}
             </P>
           }
           actions={
