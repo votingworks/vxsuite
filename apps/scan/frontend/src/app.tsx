@@ -37,7 +37,7 @@ export function App({
           // so that, in most cases, the user will still manually power down and power up rather
           // than relying on the auto-restart as the former is more likely to resolve issues than
           // the latter.
-          autoRestartInSeconds={600}
+          autoRestartInSeconds={10}
           logger={logger}
           primaryMessage="Ask a poll worker to restart the scanner."
         >
