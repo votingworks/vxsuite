@@ -72,6 +72,7 @@ export type ElectionPackageError =
 
 interface ReadElectionPackageOptions {
   checkMarkScanSystemLimits?: boolean;
+  checkMarkSystemLimits?: boolean;
   systemLimitsOverride?: SystemLimits;
 }
 

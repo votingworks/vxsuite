@@ -3,10 +3,20 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
+import {
+  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+  DEFAULT_FAMOUS_NAMES_VOTES,
+  renderMultiPageBmdBallotFixture,
+} from '@votingworks/bmd-ballot-fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { configureApp } from '../test/helpers/shared_helpers';
+import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers';
 import { scanBallot, withApp } from '../test/helpers/scanner_helpers';
+import { getScannerResults } from './util/results';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
@@ -207,6 +217,101 @@ test('can tabulate results and print polls closed report', async () => {
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'polls-closed-report',
+        failureThreshold: 0.0001,
+      });
+    }
+  );
+});
+
+test('polls closed report shows correct sheet counts for multi-page BMD ballots', async () => {
+  await withApp(
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockFujitsuPrinterHandler,
+      mockAuth,
+      workspace,
+      clock,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+      });
+
+      const electionDefinition =
+        electionFamousNames2021Fixtures.readElectionDefinition();
+
+      // Split contests into 2 pages
+      const page1ContestIds = [
+        'mayor',
+        'controller',
+        'attorney',
+        'public-works-director',
+      ];
+      const page2ContestIds = [
+        'chief-of-police',
+        'parks-and-recreation-director',
+        'board-of-alderman',
+        'city-council',
+      ];
+
+      const ballotAuditId = 'test-multi-page-audit-id';
+
+      // Render and scan page 1
+      const page1Images = await pdfToImageSheet(
+        await renderMultiPageBmdBallotFixture({
+          electionDefinition,
+          ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+          precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+          votes: DEFAULT_FAMOUS_NAMES_VOTES,
+          pageNumber: 1,
+          totalPages: 2,
+          ballotAuditId,
+          contestIdsForPage: page1ContestIds,
+        })
+      );
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0, {
+        ballotImages: page1Images,
+      });
+
+      // Render and scan page 2
+      const page2Images = await pdfToImageSheet(
+        await renderMultiPageBmdBallotFixture({
+          electionDefinition,
+          ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+          precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+          votes: DEFAULT_FAMOUS_NAMES_VOTES,
+          pageNumber: 2,
+          totalPages: 2,
+          ballotAuditId,
+          contestIdsForPage: page2ContestIds,
+        })
+      );
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 1, {
+        ballotImages: page2Images,
+      });
+
+      // Verify 2 sheets were scanned
+      expect(workspace.store.getBallotsCounted()).toEqual(2);
+
+      // Verify scanner results have correct card counts:
+      // bmd[0] = 1 (page 1), bmd[1] = 1 (page 2)
+      const results = await getScannerResults({ store: workspace.store });
+      expect(results).toHaveLength(1);
+      expect(results[0].cardCounts).toEqual(
+        expect.objectContaining({
+          bmd: [1, 1],
+          hmpb: [],
+        })
+      );
+
+      // Close polls and print the report
+      await apiClient.closePolls();
+      (await apiClient.printReportSection({ index: 0 })).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'polls-closed-report-multi-page-bmd',
         failureThreshold: 0.0001,
       });
     }

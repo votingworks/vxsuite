@@ -24,7 +24,7 @@ function buildSimpleMockElectionResults(
   return buildElectionResultsFixture({
     election,
     cardCounts: {
-      bmd: ballotCount,
+      bmd: [ballotCount],
       hmpb: [],
     },
     contestResultsSummaries,
@@ -78,7 +78,7 @@ export function buildSimpleMockTallyReportResults({
       cardCountsByParty: mapObject(cardCountsByParty ?? {}, (count) => {
         if (typeof count === 'number') {
           return {
-            bmd: count,
+            bmd: [count],
             hmpb: [],
           };
         }
@@ -102,7 +102,7 @@ export function buildMockCardCounts(
   ...hmpb: number[]
 ): Tabulation.CardCounts {
   return {
-    bmd,
+    bmd: [bmd],
     manual,
     hmpb,
   };

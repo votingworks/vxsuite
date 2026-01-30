@@ -43,6 +43,7 @@ const expectedScreenContents: Readonly<
   BlankPage: /no ballot detected/i,
   InterpretedBmdPage: 'Test Error Boundary',
   InterpretedHmpbPage: /no ballot detected/i,
+  InterpretedBmdMultiPagePage: /no ballot detected/i,
   InvalidBallotHashPage: /wrong election/i,
   InvalidPrecinctPage: /wrong precinct/i,
   InvalidTestModePage: /wrong ballot mode/i,

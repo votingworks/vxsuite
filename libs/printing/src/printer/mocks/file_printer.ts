@@ -11,8 +11,9 @@ import {
 } from 'node:fs';
 import { Optional, assert, iter } from '@votingworks/basics';
 import { writeFile } from 'node:fs/promises';
+import { PDFDocument } from 'pdf-lib';
 import { PrinterConfig, PrinterStatus } from '@votingworks/types';
-import { PrintProps, Printer } from '../types';
+import { PrintProps, PrintSides, Printer } from '../types';
 import { getMockConnectedPrinterStatus } from './fixtures';
 
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
@@ -114,11 +115,34 @@ export class MockFilePrinter implements Printer {
       throw new Error('cannot print without printer connected');
     }
 
-    const { data } = props;
+    const { data, sides } = props;
     const filename = join(
       getMockPrinterOutputPath(),
       `print-job-${new Date().toISOString()}.pdf`
     );
+
+    if (sides === PrintSides.OneSided) {
+      // Simulate single-sided printing by inserting a blank page after each
+      // content page, representing the blank back of each physical sheet.
+      try {
+        /* istanbul ignore next - @preserve */
+        const pdfBytes =
+          data instanceof Uint8Array ? data : Buffer.from(data as Buffer);
+        const pdf = await PDFDocument.load(pdfBytes);
+        const pageCount = pdf.getPageCount();
+
+        for (let i = pageCount - 1; i >= 0; i -= 1) {
+          const existingPage = pdf.getPage(i);
+          const { width, height } = existingPage.getSize();
+          pdf.insertPage(i + 1, [width, height]);
+        }
+        const modifiedBytes = await pdf.save();
+        await writeFile(filename, modifiedBytes);
+        return;
+      } catch {
+        // Data is not a valid PDF, write as-is
+      }
+    }
 
     await writeFile(filename, data);
   }

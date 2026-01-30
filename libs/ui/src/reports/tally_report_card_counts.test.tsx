@@ -8,7 +8,7 @@ test('all counts, multiple sheets', () => {
   render(
     <TallyReportCardCounts
       cardCounts={{
-        bmd: 4,
+        bmd: [4],
         hmpb: [23, undefined, 12],
         manual: 5,
       }}
@@ -39,7 +39,7 @@ test('only BMD count', () => {
   render(
     <TallyReportCardCounts
       cardCounts={{
-        bmd: 4,
+        bmd: [4],
         hmpb: [],
       }}
     />
@@ -54,7 +54,7 @@ test('only single HMPB sheet + BMD counts', () => {
   render(
     <TallyReportCardCounts
       cardCounts={{
-        bmd: 10,
+        bmd: [10],
         hmpb: [15],
       }}
     />
@@ -68,7 +68,7 @@ test('only single HMPB count', () => {
   render(
     <TallyReportCardCounts
       cardCounts={{
-        bmd: 0,
+        bmd: [],
         hmpb: [15],
       }}
     />
@@ -82,7 +82,7 @@ test('only manual count', () => {
   render(
     <TallyReportCardCounts
       cardCounts={{
-        bmd: 0,
+        bmd: [],
         hmpb: [],
         manual: 7,
       }}
@@ -103,7 +103,7 @@ test('all counts, single HMPB sheet', () => {
   render(
     <TallyReportCardCounts
       cardCounts={{
-        bmd: 3,
+        bmd: [3],
         hmpb: [20],
         manual: 2,
       }}
@@ -123,11 +123,34 @@ test('all counts, single HMPB sheet', () => {
   within(manualRow).getByText('2');
 });
 
+test('multi-page BMD sheets, no HMPB', () => {
+  render(
+    <TallyReportCardCounts
+      cardCounts={{
+        bmd: [1, 1],
+        hmpb: [],
+      }}
+    />
+  );
+
+  const ballotCountRow = screen.getByText('Ballot Count').closest('tr')!;
+  within(ballotCountRow).getByText('1');
+
+  expect(screen.queryByText('Scanned')).not.toBeInTheDocument();
+
+  const sheet1Row = ballotCountRow.nextSibling as HTMLElement;
+  within(sheet1Row).getByText('Sheet 1');
+  within(sheet1Row).getByText('1');
+  const sheet2Row = sheet1Row.nextSibling as HTMLElement;
+  within(sheet2Row).getByText('Sheet 2');
+  within(sheet2Row).getByText('1');
+});
+
 test('multiple HMPB sheets, no manual', () => {
   render(
     <TallyReportCardCounts
       cardCounts={{
-        bmd: 1,
+        bmd: [1],
         hmpb: [10, 5, 8],
       }}
     />

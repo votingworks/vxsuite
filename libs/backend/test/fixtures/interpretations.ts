@@ -2,11 +2,13 @@
 import { assertDefined, find } from '@votingworks/basics';
 import {
   AdjudicationInfo,
+  BallotId,
   BallotMetadata,
   BallotStyleId,
   BallotType,
   BlankPage,
   CandidateContest,
+  InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -255,4 +257,62 @@ export const interpretedHmpbWithWriteIn: SheetOf<PageInterpretation> = [
 export const interpretedHmpbWithUnmarkedWriteIn: SheetOf<PageInterpretation> = [
   interpretedHmpbPage1WithUnmarkedWriteIn,
   interpretedHmpbPage2,
+];
+
+export const interpretedBmdMultiPagePage1: InterpretedBmdMultiPagePage = {
+  type: 'InterpretedBmdMultiPagePage',
+  metadata: {
+    ballotHash,
+    precinctId: 'precinct-1',
+    ballotStyleId: '2F' as BallotStyleId,
+    isTestMode: true,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 2,
+    ballotAuditId: 'audit-123' as BallotId,
+    contestIds: [fishCouncilContest.id],
+  },
+  votes: {
+    [fishCouncilContest.id]: fishCouncilContest.candidates.slice(0, 1),
+  },
+  adjudicationInfo: {
+    requiresAdjudication: false,
+    ignoredReasonInfos: [],
+    enabledReasonInfos: [],
+    enabledReasons: [],
+  },
+};
+
+export const interpretedBmdMultiPagePage2: InterpretedBmdMultiPagePage = {
+  type: 'InterpretedBmdMultiPagePage',
+  metadata: {
+    ballotHash,
+    precinctId: 'precinct-1',
+    ballotStyleId: '2F' as BallotStyleId,
+    isTestMode: true,
+    ballotType: BallotType.Precinct,
+    pageNumber: 2,
+    totalPages: 2,
+    ballotAuditId: 'audit-123' as BallotId,
+    contestIds: [fishingContest.id],
+  },
+  votes: {
+    [fishingContest.id]: [fishingContest.noOption.id],
+  },
+  adjudicationInfo: {
+    requiresAdjudication: false,
+    ignoredReasonInfos: [],
+    enabledReasonInfos: [],
+    enabledReasons: [],
+  },
+};
+
+export const interpretedBmdMultiPageBallot1: SheetOf<PageInterpretation> = [
+  interpretedBmdMultiPagePage1,
+  blankPage,
+];
+
+export const interpretedBmdMultiPageBallot2: SheetOf<PageInterpretation> = [
+  interpretedBmdMultiPagePage2,
+  blankPage,
 ];

@@ -56,6 +56,87 @@ export async function renderBmdBallotFixture(
   return (await renderToPdf({ document })).unsafeUnwrap();
 }
 
+/**
+ * Options for rendering a multi-page BMD ballot fixture.
+ */
+export interface MultiPageBmdBallotFixtureOptions {
+  electionDefinition: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  votes: VotesDict;
+  /** Page number (1-indexed) */
+  pageNumber: number;
+  /** Total number of pages in the ballot */
+  totalPages: number;
+  /** Ballot audit ID to correlate pages */
+  ballotAuditId: string;
+  /** Contest IDs to include on this page */
+  contestIdsForPage: string[];
+  /** Whether to rotate the image 180 degrees */
+  rotateImage?: boolean;
+  /** Whether this is a test mode ballot */
+  isLiveMode?: boolean;
+}
+
+/**
+ * Renders a multi-page BMD ballot page as a PDF for testing.
+ */
+export async function renderMultiPageBmdBallotFixture(
+  options: MultiPageBmdBallotFixtureOptions
+): Promise<Uint8Array> {
+  const {
+    electionDefinition,
+    ballotStyleId,
+    precinctId,
+    votes,
+    pageNumber,
+    totalPages,
+    ballotAuditId,
+    contestIdsForPage,
+    rotateImage = false,
+    isLiveMode = false,
+  } = options;
+
+  const { election } = electionDefinition;
+  const contestsForPage = election.contests.filter((c) =>
+    contestIdsForPage.includes(c.id)
+  );
+
+  // Filter votes to only include contests on this page
+  const votesForPage: VotesDict = {};
+  for (const contestId of contestIdsForPage) {
+    if (contestId in votes) {
+      votesForPage[contestId] = votes[contestId];
+    }
+  }
+
+  const ballot = (
+    <React.Fragment>
+      <BmdPaperBallot
+        electionDefinition={electionDefinition}
+        isLiveMode={isLiveMode}
+        machineType="mark"
+        ballotStyleId={ballotStyleId}
+        precinctId={precinctId}
+        votes={votesForPage}
+        pageNumber={pageNumber}
+        totalPages={totalPages}
+        ballotAuditId={ballotAuditId}
+        contestsForPage={contestsForPage}
+      />
+      <div style={{ pageBreakAfter: 'always' }} />
+    </React.Fragment>
+  );
+
+  const document = rotateImage ? (
+    <div style={{ transform: 'rotate(180deg)' }}>{ballot}</div>
+  ) : (
+    ballot
+  );
+
+  return (await renderToPdf({ document })).unsafeUnwrap();
+}
+
 // Writes the first page of `pdfData` to an image file and returns the filepath.
 // BMD ballots print on one side only. Consider libs/image-utils' `BLANK_PAGE_IMAGE_DATA`
 // for mocking the blank back in testing.

@@ -38,7 +38,7 @@ function getZeroCompressedTally(
   const mockResults = buildElectionResultsFixture({
     election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: {},
@@ -162,7 +162,7 @@ describe('compressTally', () => {
     const resultsWithPresidentTallies = buildElectionResultsFixture({
       election: electionEitherNeither,
       cardCounts: {
-        bmd: 20,
+        bmd: [20],
         hmpb: [],
       },
       contestResultsSummaries: {
@@ -209,7 +209,7 @@ describe('compressTally', () => {
     const resultsWithYesNoTallies = buildElectionResultsFixture({
       election: electionEitherNeither,
       cardCounts: {
-        bmd: 20,
+        bmd: [20],
         hmpb: [],
       },
       includeGenericWriteIn: true,
@@ -429,7 +429,7 @@ test('primary tally can compress and be read back and end with the original tall
   const expectedTally = buildElectionResultsFixture({
     election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries: {
@@ -473,7 +473,7 @@ test('compresses and decompresses tally for a single precinct', () => {
   const mockResults = buildElectionResultsFixture({
     election: electionEitherNeither,
     cardCounts: {
-      bmd: 10,
+      bmd: [10],
       hmpb: [],
     },
     contestResultsSummaries: {},

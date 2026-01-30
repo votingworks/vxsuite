@@ -1,4 +1,5 @@
 import { assert, assertDefined, find, uniqueBy } from '@votingworks/basics';
+import { v4 as uuid } from 'uuid';
 import {
   Admin,
   BallotStyleId,
@@ -23,10 +24,18 @@ import {
   tabulateCastVoteRecords,
   TestDeckBallot as TestDeckBallotSpec,
 } from '@votingworks/utils';
-import { renderToPdf } from '@votingworks/printing';
+import {
+  renderToPdf,
+  SummaryBallotLayoutRenderer,
+  SummaryBallotLayoutResult,
+} from '@votingworks/printing';
 import React from 'react';
 
-import { AdminTallyReportByParty, BmdPaperBallot } from '@votingworks/ui';
+import {
+  AdminTallyReportByParty,
+  BmdPaperBallot,
+  filterVotesForContests,
+} from '@votingworks/ui';
 import {
   markBallotDocument,
   concatenatePdfs,
@@ -82,6 +91,7 @@ export async function createPrecinctTestDeck({
 
 /**
  * Creates a test deck of summary BMD ballots for a precinct and the given ballot specs.
+ * Uses render-based measurement to accurately compute page breaks based on actual votes.
  */
 export async function createPrecinctSummaryBallotTestDeck({
   electionDefinition,
@@ -98,17 +108,87 @@ export async function createPrecinctSummaryBallotTestDeck({
     return undefined;
   }
 
-  // Create all ballot React elements
-  const reactDocuments = ballotSpecs.map((ballotSpec) => ({
-    document: React.createElement(BmdPaperBallot, {
-      electionDefinition,
-      ballotStyleId: ballotSpec.ballotStyleId,
-      precinctId: ballotSpec.precinctId,
-      votes: ballotSpec.votes,
-      isLiveMode,
-      machineType: 'mark' as const,
-    }),
-  }));
+  const { election } = electionDefinition;
+
+  // Helper to get contests for a specific page
+  function getContestsForPage(
+    ballotStyleId: BallotStyleId,
+    pageBreaks: SummaryBallotLayoutResult,
+    pageNumber: number
+  ) {
+    const page = assertDefined(
+      pageBreaks.pages.find((p) => p.pageNumber === pageNumber)
+    );
+    const ballotStyle = find(
+      election.ballotStyles,
+      (bs) => bs.id === ballotStyleId
+    );
+    const allContests = ballotStyle.districts.flatMap((districtId) =>
+      election.contests.filter((c) => c.districtId === districtId)
+    );
+    const contestIdSet = new Set(page.contestIds);
+    return allContests.filter((c) => contestIdSet.has(c.id));
+  }
+
+  // Create all ballot React elements, computing page breaks per ballot based on actual votes
+  const layoutRenderer = new SummaryBallotLayoutRenderer();
+  const reactDocuments: Array<{ document: React.ReactElement }> = [];
+
+  try {
+    for (const ballotSpec of ballotSpecs) {
+      // Compute page breaks for this specific ballot with its actual votes
+      const pageBreaks = await layoutRenderer.computePageBreaks(
+        electionDefinition,
+        ballotSpec.ballotStyleId,
+        ballotSpec.precinctId,
+        ballotSpec.votes,
+        'mark'
+      );
+
+      if (pageBreaks.totalPages > 1) {
+        // Multi-page ballot - create a page for each break
+        const ballotAuditId = uuid();
+
+        for (const pageBreak of pageBreaks.pages) {
+          const pageContests = getContestsForPage(
+            ballotSpec.ballotStyleId,
+            pageBreaks,
+            pageBreak.pageNumber
+          );
+
+          reactDocuments.push({
+            document: React.createElement(BmdPaperBallot, {
+              electionDefinition,
+              ballotStyleId: ballotSpec.ballotStyleId,
+              precinctId: ballotSpec.precinctId,
+              votes: filterVotesForContests(ballotSpec.votes, pageContests),
+              isLiveMode,
+              machineType: 'mark' as const,
+              pageNumber: pageBreak.pageNumber,
+              totalPages: pageBreaks.totalPages,
+              ballotAuditId,
+              contestsForPage: pageContests,
+              layout: pageBreak.layout,
+            }),
+          });
+        }
+      } else {
+        // Single-page ballot
+        reactDocuments.push({
+          document: React.createElement(BmdPaperBallot, {
+            electionDefinition,
+            ballotStyleId: ballotSpec.ballotStyleId,
+            precinctId: ballotSpec.precinctId,
+            votes: ballotSpec.votes,
+            isLiveMode,
+            machineType: 'mark' as const,
+          }),
+        });
+      }
+    }
+  } finally {
+    await layoutRenderer.close();
+  }
 
   // Render all ballots in a single batch call for better performance
   const pdfResults = await renderToPdf(reactDocuments);

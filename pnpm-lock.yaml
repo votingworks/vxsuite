@@ -1973,6 +1973,9 @@ importers:
       usb:
         specifier: 2.15.0
         version: 2.15.0
+      uuid:
+        specifier: 9.0.1
+        version: 9.0.1
       zod:
         specifier: 3.25.42
         version: 3.25.42
@@ -2004,6 +2007,9 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
+      '@types/uuid':
+        specifier: 9.0.5
+        version: 9.0.5
       '@vitest/coverage-istanbul':
         specifier: ^3.1.1
         version: 3.1.1(vitest@3.1.1)
@@ -3937,6 +3943,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^3.1.1
         version: 3.1.1(vitest@3.1.1)
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -5393,6 +5402,9 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
+      pdf-lib:
+        specifier: ^1.17.1
+        version: 1.17.1
       playwright:
         specifier: ^1.40.1
         version: 1.40.1

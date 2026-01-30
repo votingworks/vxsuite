@@ -1,15 +1,19 @@
 import { ImageData } from 'canvas';
 import { Result, err, ok } from '@votingworks/basics';
 import {
+  BmdMultiPageBallotPageMetadata,
   CompletedBallot,
   ElectionDefinition,
   SheetOf,
+  VotesDict,
   mapSheet,
 } from '@votingworks/types';
 import {
   BALLOT_HASH_ENCODING_LENGTH,
   decodeBallot,
   decodeBallotHash,
+  decodeBmdMultiPageBallot,
+  isBmdMultiPageBallot,
 } from '@votingworks/ballot-encoder';
 import { crop } from '@votingworks/image-utils';
 import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
@@ -18,11 +22,28 @@ import { rotateImageData180 } from './utils/rotate';
 import { findScannedDocumentInset } from './image_utils';
 import { otsu } from './otsu';
 
-export interface Interpretation {
+/**
+ * Interpretation result for a single-page BMD ballot.
+ */
+export interface SinglePageInterpretation {
+  type: 'single-page';
   ballot: CompletedBallot;
   summaryBallotImage: ImageData;
   blankPageImage: ImageData;
 }
+
+/**
+ * Interpretation result for a page of a multi-page BMD ballot.
+ */
+export interface MultiPageInterpretation {
+  type: 'multi-page';
+  metadata: BmdMultiPageBallotPageMetadata;
+  votes: VotesDict;
+  summaryBallotImage: ImageData;
+  blankPageImage: ImageData;
+}
+
+export type Interpretation = SinglePageInterpretation | MultiPageInterpretation;
 
 export type InterpretError =
   | {
@@ -116,9 +137,28 @@ export async function interpret(
     rotateImageData180(summaryBallotImage);
   }
 
+  const blankPageImage = frontResult.isOk() ? croppedCard[1] : croppedCard[0];
+
+  // Check if this is a multi-page BMD ballot
+  if (isBmdMultiPageBallot(foundQrCode.data)) {
+    const decoded = decodeBmdMultiPageBallot(
+      electionDefinition.election,
+      foundQrCode.data
+    );
+    return ok({
+      type: 'multi-page',
+      metadata: decoded.metadata,
+      votes: decoded.votes,
+      summaryBallotImage,
+      blankPageImage,
+    });
+  }
+
+  // Single-page BMD ballot
   return ok({
+    type: 'single-page',
     ballot: decodeBallot(electionDefinition.election, foundQrCode.data),
     summaryBallotImage,
-    blankPageImage: frontResult.isOk() ? croppedCard[1] : croppedCard[0],
+    blankPageImage,
   });
 }

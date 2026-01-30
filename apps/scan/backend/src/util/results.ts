@@ -1,5 +1,6 @@
 import {
   BallotType,
+  InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -21,6 +22,12 @@ function isBmdPage(
   interpretation: PageInterpretation
 ): interpretation is InterpretedBmdPage {
   return interpretation.type === 'InterpretedBmdPage';
+}
+
+function isBmdMultiPagePage(
+  interpretation: PageInterpretation
+): interpretation is InterpretedBmdMultiPagePage {
+  return interpretation.type === 'InterpretedBmdMultiPagePage';
 }
 
 function isHmpbPage(
@@ -86,12 +93,43 @@ export async function getScannerResults({
       });
     }
 
-    // we assume that we have a BMD ballot if it's not an HMPB ballot
+    // Handle multi-page BMD ballot pages
+    if (
+      isBmdMultiPagePage(frontInterpretation) ||
+      isBmdMultiPagePage(backInterpretation)
+    ) {
+      const interpretation = isBmdMultiPagePage(frontInterpretation)
+        ? frontInterpretation
+        : (backInterpretation as InterpretedBmdMultiPagePage);
+      const ballotStyleGroupId = getGroupIdFromBallotStyleId({
+        ballotStyleId: interpretation.metadata.ballotStyleId,
+        election,
+      });
+
+      return typedAs<Tabulation.CastVoteRecord>({
+        votes: convertVotesDictToTabulationVotes(interpretation.votes),
+        card: {
+          type: 'bmd',
+          // Include sheet number for multi-page BMD ballots to enable
+          // proper sheet accounting (similar to HMPB)
+          sheetNumber: interpretation.metadata.pageNumber,
+        },
+        batchId: resultSheet.batchId,
+        scannerId: VX_MACHINE_ID,
+        precinctId: interpretation.metadata.precinctId,
+        ballotStyleGroupId,
+        partyId: ballotStyleIdPartyIdLookup[ballotStyleGroupId],
+        votingMethod:
+          BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
+      });
+    }
+
+    // we assume that we have a single-page BMD ballot if it's not an HMPB or multi-page BMD ballot
     const interpretation = isBmdPage(frontInterpretation)
       ? frontInterpretation
       : backInterpretation;
     assert(isBmdPage(interpretation));
-    const backBallotStyleGroupId = getGroupIdFromBallotStyleId({
+    const bmdBallotStyleGroupId = getGroupIdFromBallotStyleId({
       ballotStyleId: interpretation.metadata.ballotStyleId,
       election,
     });
@@ -104,8 +142,8 @@ export async function getScannerResults({
       batchId: resultSheet.batchId,
       scannerId: VX_MACHINE_ID,
       precinctId: interpretation.metadata.precinctId,
-      ballotStyleGroupId: backBallotStyleGroupId,
-      partyId: ballotStyleIdPartyIdLookup[backBallotStyleGroupId],
+      ballotStyleGroupId: bmdBallotStyleGroupId,
+      partyId: ballotStyleIdPartyIdLookup[bmdBallotStyleGroupId],
       votingMethod:
         BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
     });

@@ -33,6 +33,10 @@ import {
   getLayout,
   NoLayoutOptionError,
   MAX_WRITE_IN_CHARS_FOR_HIGH_DENSITY_QR,
+  splitContestsForPages,
+  needsMultiplePages,
+  filterVotesForContests,
+  MAX_CONTESTS_PER_MULTI_PAGE_BALLOT_PAGE,
 } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 
@@ -568,4 +572,143 @@ describe('getLayout', () => {
       }
     }
   );
+});
+
+describe('splitContestsForPages', () => {
+  const { election } = electionGeneralDefinition;
+  const allContests = election.contests;
+
+  test('returns single page for empty contests', () => {
+    const pages = splitContestsForPages([] as unknown as typeof allContests);
+    expect(pages).toHaveLength(1);
+    expect(pages[0]).toHaveLength(0);
+  });
+
+  test('returns single page when contests fit within limit', () => {
+    const fewContests = allContests.slice(0, 5) as typeof allContests;
+    const pages = splitContestsForPages(fewContests);
+    expect(pages).toHaveLength(1);
+    expect(pages[0]).toEqual(fewContests);
+  });
+
+  test('returns single page when contests exactly equal custom limit', () => {
+    const exactContests = allContests.slice(0, 10) as typeof allContests;
+    const pages = splitContestsForPages(exactContests, 10);
+    expect(pages).toHaveLength(1);
+    expect(pages[0]).toHaveLength(10);
+  });
+
+  test('splits contests into multiple pages when exceeding limit', () => {
+    // Use a small limit for testing
+    const contests = allContests.slice(0, 10) as typeof allContests;
+    const pages = splitContestsForPages(contests, 3);
+    expect(pages).toHaveLength(4); // 10 contests / 3 per page = 4 pages
+    expect(pages[0]).toHaveLength(3);
+    expect(pages[1]).toHaveLength(3);
+    expect(pages[2]).toHaveLength(3);
+    expect(pages[3]).toHaveLength(1);
+  });
+
+  test('preserves contest order across pages', () => {
+    const contests = allContests.slice(0, 6) as typeof allContests;
+    const pages = splitContestsForPages(contests, 2);
+    expect(pages[0][0].id).toEqual(contests[0].id);
+    expect(pages[0][1].id).toEqual(contests[1].id);
+    expect(pages[1][0].id).toEqual(contests[2].id);
+    expect(pages[1][1].id).toEqual(contests[3].id);
+    expect(pages[2][0].id).toEqual(contests[4].id);
+    expect(pages[2][1].id).toEqual(contests[5].id);
+  });
+});
+
+describe('needsMultiplePages', () => {
+  const { election } = electionGeneralDefinition;
+  const allContests = election.contests;
+
+  test('returns false for empty contests', () => {
+    expect(needsMultiplePages([] as unknown as typeof allContests)).toEqual(
+      false
+    );
+  });
+
+  test('returns false when contests fit within limit', () => {
+    const fewContests = allContests.slice(0, 5) as typeof allContests;
+    expect(needsMultiplePages(fewContests)).toEqual(false);
+  });
+
+  test('returns false when contests exactly equal custom limit', () => {
+    const exactContests = allContests.slice(0, 10) as typeof allContests;
+    expect(needsMultiplePages(exactContests, 10)).toEqual(false);
+  });
+
+  test('returns true when contests exceed limit', () => {
+    // Use a small limit for testing
+    const contests = allContests.slice(0, 10) as typeof allContests;
+    expect(needsMultiplePages(contests, 5)).toEqual(true);
+  });
+
+  test('returns true when contests exceed default limit', () => {
+    // Create more contests than the default limit
+    const manyContests = Array.from(
+      { length: MAX_CONTESTS_PER_MULTI_PAGE_BALLOT_PAGE + 1 },
+      (_, i) => ({ ...allContests[0], id: `contest-${i}` })
+    ) as typeof allContests;
+    expect(needsMultiplePages(manyContests)).toEqual(true);
+  });
+});
+
+describe('filterVotesForContests', () => {
+  const { election } = electionGeneralDefinition;
+  const allContests = election.contests;
+
+  test('returns empty object for empty votes', () => {
+    const filtered = filterVotesForContests({}, allContests);
+    expect(filtered).toEqual({});
+  });
+
+  test('returns empty object when no contests match', () => {
+    const votes = { 'non-existent-contest': ['option-1'] } as const;
+    const filtered = filterVotesForContests(
+      votes,
+      allContests.slice(0, 2) as typeof allContests
+    );
+    expect(filtered).toEqual({});
+  });
+
+  test('filters votes to only include matching contests', () => {
+    const contestSubset = allContests.slice(0, 2) as typeof allContests;
+    const votes = {
+      [contestSubset[0].id]: ['option-1'],
+      [contestSubset[1].id]: ['option-2'],
+      [allContests[3].id]: ['option-3'], // This should be filtered out
+    } as const;
+    const filtered = filterVotesForContests(votes, contestSubset);
+    expect(Object.keys(filtered)).toHaveLength(2);
+    expect(filtered[contestSubset[0].id]).toEqual(['option-1']);
+    expect(filtered[contestSubset[1].id]).toEqual(['option-2']);
+    expect(filtered[allContests[3].id]).toBeUndefined();
+  });
+
+  test('preserves vote values when filtering', () => {
+    const contest = allContests[0];
+    const votes = {
+      [contest.id]: [
+        { id: 'candidate-1', name: 'Candidate One' },
+        { id: 'candidate-2', name: 'Candidate Two' },
+      ],
+    } as const;
+    const filtered = filterVotesForContests(votes, [
+      contest,
+    ] as typeof allContests);
+    expect(filtered[contest.id]).toEqual(votes[contest.id]);
+  });
+
+  test('handles empty contests array', () => {
+    const votes = { [allContests[0].id]: ['option-1'] } as const;
+    const filtered = filterVotesForContests(
+      votes,
+      [] as unknown as typeof allContests
+    );
+    expect(filtered).toEqual({});
+  });
 });

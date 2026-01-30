@@ -99,7 +99,7 @@ function createMockAggregatedResults(
   const electionResults = buildElectionResultsFixture({
     election: electionData,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
     },
     contestResultsSummaries,
