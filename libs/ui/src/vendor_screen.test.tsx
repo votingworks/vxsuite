@@ -1,26 +1,61 @@
 import { beforeEach, expect, Mock, test, vi } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { VendorScreen } from './vendor_screen';
 
+let mockApiClient: {
+  generateSignedHashValidationQrCodeValue: Mock;
+  rebootToVendorMenu: Mock;
+};
 let mockLogOut: Mock;
-let mockRebootToVendorMenu: Mock;
 let mockUnconfigureMachine: Mock;
 
 beforeEach(() => {
+  mockApiClient = {
+    generateSignedHashValidationQrCodeValue: vi.fn(() =>
+      Promise.resolve({ data: '' })
+    ),
+    rebootToVendorMenu: vi.fn(),
+  };
   mockLogOut = vi.fn();
-  mockRebootToVendorMenu = vi.fn();
   mockUnconfigureMachine = vi.fn();
 });
 
-test('clicking Reboot to Vendor Menu calls rebootToVendorMenu', () => {
+test('Signed Hash Validation', () => {
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <VendorScreen
+        apiClient={mockApiClient}
+        isMachineConfigured
+        logOut={mockLogOut}
+        unconfigureMachine={mockUnconfigureMachine}
+      />
+    </QueryClientProvider>
+  );
+
+  const signedHashValidationButton = screen.getByRole('button', {
+    name: 'Signed Hash Validation',
+  });
+
+  userEvent.click(signedHashValidationButton);
+
+  expect(
+    mockApiClient.generateSignedHashValidationQrCodeValue
+  ).toHaveBeenCalledTimes(1);
+  expect(mockApiClient.rebootToVendorMenu).not.toHaveBeenCalled();
+  expect(mockLogOut).not.toHaveBeenCalled();
+  expect(mockUnconfigureMachine).not.toHaveBeenCalled();
+});
+
+test('rebooting to vendor menu', () => {
   render(
     <VendorScreen
-      logOut={mockLogOut}
-      rebootToVendorMenu={mockRebootToVendorMenu}
-      unconfigureMachine={mockUnconfigureMachine}
+      apiClient={mockApiClient}
       isMachineConfigured
+      logOut={mockLogOut}
+      unconfigureMachine={mockUnconfigureMachine}
     />
   );
 
@@ -30,18 +65,21 @@ test('clicking Reboot to Vendor Menu calls rebootToVendorMenu', () => {
 
   userEvent.click(rebootToVendorMenuButton);
 
-  expect(mockRebootToVendorMenu).toHaveBeenCalledTimes(1);
-  expect(mockUnconfigureMachine).not.toHaveBeenCalled();
+  expect(
+    mockApiClient.generateSignedHashValidationQrCodeValue
+  ).not.toHaveBeenCalled();
+  expect(mockApiClient.rebootToVendorMenu).toHaveBeenCalledTimes(1);
   expect(mockLogOut).not.toHaveBeenCalled();
+  expect(mockUnconfigureMachine).not.toHaveBeenCalled();
 });
 
-test('clicking Unconfigure Machine and confirming calls unconfigureMachine', async () => {
+test('unconfiguring machine', async () => {
   render(
     <VendorScreen
-      logOut={mockLogOut}
-      rebootToVendorMenu={mockRebootToVendorMenu}
-      unconfigureMachine={mockUnconfigureMachine}
+      apiClient={mockApiClient}
       isMachineConfigured
+      logOut={mockLogOut}
+      unconfigureMachine={mockUnconfigureMachine}
     />
   );
 
@@ -59,18 +97,21 @@ test('clicking Unconfigure Machine and confirming calls unconfigureMachine', asy
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 
-  expect(mockRebootToVendorMenu).not.toHaveBeenCalled();
-  expect(mockUnconfigureMachine).toHaveBeenCalledTimes(1);
+  expect(
+    mockApiClient.generateSignedHashValidationQrCodeValue
+  ).not.toHaveBeenCalled();
+  expect(mockApiClient.rebootToVendorMenu).not.toHaveBeenCalled();
   expect(mockLogOut).not.toHaveBeenCalled();
+  expect(mockUnconfigureMachine).toHaveBeenCalledTimes(1);
 });
 
-test('clicking Lock Machine calls logOut', () => {
+test('locking machine', () => {
   render(
     <VendorScreen
-      logOut={mockLogOut}
-      rebootToVendorMenu={mockRebootToVendorMenu}
-      unconfigureMachine={mockUnconfigureMachine}
+      apiClient={mockApiClient}
       isMachineConfigured
+      logOut={mockLogOut}
+      unconfigureMachine={mockUnconfigureMachine}
     />
   );
 
@@ -80,17 +121,20 @@ test('clicking Lock Machine calls logOut', () => {
 
   userEvent.click(lockMachineButton);
 
-  expect(mockRebootToVendorMenu).not.toHaveBeenCalled();
-  expect(mockUnconfigureMachine).not.toHaveBeenCalled();
+  expect(
+    mockApiClient.generateSignedHashValidationQrCodeValue
+  ).not.toHaveBeenCalled();
+  expect(mockApiClient.rebootToVendorMenu).not.toHaveBeenCalled();
   expect(mockLogOut).toHaveBeenCalledTimes(1);
+  expect(mockUnconfigureMachine).not.toHaveBeenCalled();
 });
 
 test('if logOut is not passed, Lock Machine button is not rendered', () => {
   render(
     <VendorScreen
-      rebootToVendorMenu={mockRebootToVendorMenu}
-      unconfigureMachine={mockUnconfigureMachine}
+      apiClient={mockApiClient}
       isMachineConfigured
+      unconfigureMachine={mockUnconfigureMachine}
     />
   );
 
@@ -104,10 +148,10 @@ test('if logOut is not passed, Lock Machine button is not rendered', () => {
 test('if isMachineConfigured is false, Unconfigure Machine button is disabled', () => {
   render(
     <VendorScreen
-      logOut={mockLogOut}
-      rebootToVendorMenu={mockRebootToVendorMenu}
-      unconfigureMachine={mockUnconfigureMachine}
+      apiClient={mockApiClient}
       isMachineConfigured={false}
+      logOut={mockLogOut}
+      unconfigureMachine={mockUnconfigureMachine}
     />
   );
 
