@@ -100,10 +100,10 @@ export function AppRoutes(): JSX.Element | null {
   if (isVendorAuth(auth)) {
     return (
       <VendorScreen
-        logOut={logOutMutation.mutate}
-        rebootToVendorMenu={apiClient.rebootToVendorMenu}
-        unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+        apiClient={apiClient}
         isMachineConfigured={Boolean(electionDefinition)}
+        logOut={logOutMutation.mutate}
+        unconfigureMachine={() => unconfigureMutation.mutateAsync()}
       />
     );
   }
