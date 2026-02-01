@@ -344,7 +344,7 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
 
   expect(QrCodeSpy).toBeCalledWith(
     expect.objectContaining<QrCodeModule.QrCodeProps>({
-      level: undefined,
+      level: 'H',
       value: fromByteArray(mockEncodedBallotData),
     }),
     expect.anything()
