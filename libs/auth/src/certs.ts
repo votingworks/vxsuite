@@ -259,7 +259,15 @@ export const CERT_EXPIRY_IN_DAYS = {
  * follow VotingWorks's cert format.
  */
 export async function parseCert(cert: Buffer): Promise<CustomCertFields> {
-  const response = await openssl(['x509', '-noout', '-subject', '-in', cert]);
+  const response = await openssl([
+    'x509',
+    '-noout',
+    '-subject',
+    '-nameopt',
+    'oneline',
+    '-in',
+    cert,
+  ]);
 
   const responseString = response.toString('utf-8');
   assert(responseString.startsWith('subject='));
