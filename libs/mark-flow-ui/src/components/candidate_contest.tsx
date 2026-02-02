@@ -1,5 +1,5 @@
 import camelCase from 'lodash.camelcase';
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -38,6 +38,7 @@ import {
   AccessibilityMode,
   Font,
   virtualKeyboardCommon,
+  useIsPatDeviceConnected,
 } from '@votingworks/ui';
 import { assert, assertDefined, deepEqual } from '@votingworks/basics';
 
@@ -154,6 +155,8 @@ export function CandidateContest({
     Candidate | undefined
   >(undefined);
 
+  const pendingFocusWriteInId = useRef<string | null>(null);
+
   const screenInfo = useScreenInfo();
 
   const writeInCharacterLimit = Math.min(
@@ -163,6 +166,7 @@ export function CandidateContest({
   const writeInCharacterLimitAcrossContestsIsLimitingFactor =
     writeInCharacterLimit < WRITE_IN_CANDIDATE_MAX_LENGTH;
 
+  const isPatDeviceConnected = useIsPatDeviceConnected();
   const votesRemaining = numVotesRemaining(contest, vote);
 
   useEffect(() => {
@@ -182,6 +186,21 @@ export function CandidateContest({
       return () => clearTimeout(timer);
     }
   }, [recentlySelectedCandidate]);
+
+  useEffect(() => {
+    if (pendingFocusWriteInId.current && !writeInCandidateModalIsOpen) {
+      const candidateId = pendingFocusWriteInId.current;
+      pendingFocusWriteInId.current = null;
+      // When the contest is fully voted, ContestPage auto-focuses the Next
+      // button for PAT navigation. Don't override that.
+      if (votesRemaining > 0 || !isPatDeviceConnected) {
+        const button = document.querySelector<HTMLElement>(
+          `[data-write-in-id="${candidateId}"] button`
+        );
+        button?.focus();
+      }
+    }
+  }, [writeInCandidateModalIsOpen, votesRemaining, isPatDeviceConnected]);
 
   function addCandidateToVote(candidate: Candidate) {
     // Store the candidate with the specific partyIds from the selected option
@@ -265,10 +284,13 @@ export function CandidateContest({
       writeInIndex = Math.max(writeInIndex, assertDefined(c.writeInIndex) + 1);
     }
 
+    const newCandidateId = `write-in-${camelCase(normalizedCandidateName)}`;
+    pendingFocusWriteInId.current = newCandidateId;
+
     updateVote(contest.id, [
       ...vote,
       {
-        id: `write-in-${camelCase(normalizedCandidateName)}`,
+        id: newCandidateId,
         isWriteIn: true,
         name: normalizedCandidateName,
         writeInIndex,
@@ -452,23 +474,28 @@ export function CandidateContest({
               vote
                 .filter((c) => c.isWriteIn)
                 .map((candidate) => (
-                  <ContestChoiceButton
+                  <span
                     key={candidate.id}
-                    isSelected
-                    choice={candidate}
-                    onPress={handleUpdateSelection}
-                    label={
-                      <Font breakWord>
-                        <AudioOnly>
-                          {appStrings.labelSelected()}
-                          <WriteInCandidateName name={candidate.name} />
-                        </AudioOnly>
-                        {/* User-generated content - no translation/audio available: */}
-                        {candidate.name}
-                      </Font>
-                    }
-                    caption={appStrings.labelWriteInTitleCase()}
-                  />
+                    style={{ display: 'contents' }}
+                    data-write-in-id={candidate.id}
+                  >
+                    <ContestChoiceButton
+                      isSelected
+                      choice={candidate}
+                      onPress={handleUpdateSelection}
+                      label={
+                        <Font breakWord>
+                          <AudioOnly>
+                            {appStrings.labelSelected()}
+                            <WriteInCandidateName name={candidate.name} />
+                          </AudioOnly>
+                          {/* User-generated content - no translation/audio available: */}
+                          {candidate.name}
+                        </Font>
+                      }
+                      caption={appStrings.labelWriteInTitleCase()}
+                    />
+                  </span>
                 ))}
             {contest.allowWriteIns && (
               <ContestChoiceButton
