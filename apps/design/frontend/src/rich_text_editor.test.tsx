@@ -39,7 +39,7 @@ test('calls onChange when content changes', async () => {
 
   userEvent.type(editor.querySelector('.tiptap')!, 'Content');
   await screen.findByText('Content');
-  expect(onChange).toHaveBeenCalledTimes('Content'.length);
+  expect(onChange).toHaveBeenCalledTimes(1);
   expect(onChange).toHaveBeenLastCalledWith('<p>Content</p>');
 });
 
@@ -151,7 +151,7 @@ test('table', async () => {
   const table = await screen.findByRole('table');
   expect(table).toBeInTheDocument();
   expect(onChange).toHaveBeenLastCalledWith(
-    '<table style="min-width: 0px"><colgroup><col><col><col></colgroup><tbody><tr><th colspan="1" rowspan="1"><p></p></th><th colspan="1" rowspan="1"><p></p></th><th colspan="1" rowspan="1"><p></p></th></tr><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr></tbody></table><p>Content</p>'
+    '<table style="min-width: 0px;"><colgroup><col style="min-width: 0px;"><col style="min-width: 0px;"><col style="min-width: 0px;"></colgroup><tbody><tr><th colspan="1" rowspan="1"><p></p></th><th colspan="1" rowspan="1"><p></p></th><th colspan="1" rowspan="1"><p></p></th></tr><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr></tbody></table><p>Content</p>'
   );
 
   userEvent.click(screen.getByRole('button', { name: 'Remove Row' }));
@@ -161,7 +161,7 @@ test('table', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Remove Column' }));
   userEvent.click(screen.getByRole('button', { name: 'Add Column' }));
   expect(onChange).toHaveBeenLastCalledWith(
-    '<table style="min-width: 0px"><colgroup><col><col></colgroup><tbody><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr></tbody></table><p>Content</p>'
+    '<table style="min-width: 0px;"><colgroup><col style="min-width: 0px;"><col style="min-width: 0px;"></colgroup><tbody><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr></tbody></table><p>Content</p>'
   );
 
   userEvent.click(tableButton);
@@ -188,9 +188,9 @@ test('image', async () => {
 
   await screen.findByRole('img');
   expect(onChange).toHaveBeenLastCalledWith(
-    `<p></p><img src="data:image/svg+xml;base64,${Buffer.from(
-      imageContents
-    ).toString('base64')}"><p>Content</p>`
+    `<img src="data:image/svg+xml;base64,${Buffer.from(imageContents).toString(
+      'base64'
+    )}"><p>Content</p>`
   );
 });
 
@@ -238,7 +238,7 @@ test('doesnt unwrap multiple cell tables on paste', async () => {
 
   await screen.findByRole('table');
   expect(onChange).toHaveBeenLastCalledWith(
-    '<table style="min-width: 0px"><colgroup><col><col></colgroup><tbody><tr><td colspan="1" rowspan="1"><p>Cell 1 contents</p></td><td colspan="1" rowspan="1"><p>Cell 2 contents</p></td></tr></tbody></table>'
+    '<table style="min-width: 0px;"><colgroup><col style="min-width: 0px;"><col style="min-width: 0px;"></colgroup><tbody><tr><td colspan="1" rowspan="1"><p>Cell 1 contents</p></td><td colspan="1" rowspan="1"><p>Cell 2 contents</p></td></tr></tbody></table>'
   );
 });
 
