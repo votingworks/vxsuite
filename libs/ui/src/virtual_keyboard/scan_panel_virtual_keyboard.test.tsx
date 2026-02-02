@@ -91,11 +91,15 @@ test('fires key events', async () => {
         // Click the relevant row. After each keypress focus will reset and
         // rows, not individual keys, will be clickable again.
         userEvent.click(
-          screen.getByText(hasTextAcrossElements(rowSearchValue))
+          screen.getByText(
+            hasTextAcrossElements(new RegExp(`^${rowSearchValue}`))
+          )
         );
         // Click the relevant scan panel
         userEvent.click(
-          screen.getByText(hasTextAcrossElements(panelSearchValue))
+          screen.getByText(
+            hasTextAcrossElements(new RegExp(`^${panelSearchValue}`))
+          )
         );
 
         const expectedLanguageCode = keysSpokenInVoterLanguage.has(key.value)
@@ -121,9 +125,9 @@ test('fires key events', async () => {
   function clickLastRowAndScanPanel() {
     // The last row has only one scan panel, so we click the "same" button twice
     // Click row
-    userEvent.click(screen.getButton('space delete'));
+    userEvent.click(screen.getButton(/^space delete/));
     // Click scan panel
-    userEvent.click(screen.getButton('space delete'));
+    userEvent.click(screen.getButton(/^space delete/));
   }
 
   clickLastRowAndScanPanel();
@@ -154,23 +158,31 @@ test('supports tab and enter keypresses to navigate the keyboard', () => {
     />
   );
 
-  const firstRowElement = screen.getByText(hasTextAcrossElements(firstRow));
+  const firstRowElement = screen.getByText(
+    hasTextAcrossElements(new RegExp(`^${firstRow}`))
+  );
   expect(firstRowElement).toHaveFocus();
   userEvent.tab();
-  expect(screen.getByText(hasTextAcrossElements(secondRow))).toHaveFocus();
+  expect(
+    screen.getByText(hasTextAcrossElements(new RegExp(`^${secondRow}`)))
+  ).toHaveFocus();
   userEvent.tab();
-  expect(screen.getByText(hasTextAcrossElements(thirdRow))).toHaveFocus();
+  expect(
+    screen.getByText(hasTextAcrossElements(new RegExp(`^${thirdRow}`)))
+  ).toHaveFocus();
   userEvent.tab();
-  expect(screen.getByText(hasTextAcrossElements(fourthRow))).toHaveFocus();
+  expect(
+    screen.getByText(hasTextAcrossElements(new RegExp(`^${fourthRow}`)))
+  ).toHaveFocus();
   // The next tab event will focus the whole keyboard, so tab twice to cycle around
   userEvent.tab();
   userEvent.tab();
   expect(firstRowElement).toHaveFocus();
 
   userEvent.keyboard('{enter}');
-  expect(screen.getByText(hasTextAcrossElements('QWER'))).toHaveFocus();
+  expect(screen.getByText(hasTextAcrossElements(/^QWER/))).toHaveFocus();
   userEvent.tab();
-  expect(screen.getByText(hasTextAcrossElements('TYU'))).toHaveFocus();
+  expect(screen.getByText(hasTextAcrossElements(/^TYU/))).toHaveFocus();
   userEvent.keyboard('{enter}');
   // Need to use slower getButton here because getByText will find the child <span>
   expect(
@@ -193,10 +205,10 @@ test('allows row/panel selection if at least one key is enabled', () => {
     />
   );
 
-  const firstRowButton = screen.getButton('Q W E R T Y U I O P');
+  const firstRowButton = screen.getButton(/^Q W E R T Y U I O P/);
   expect(firstRowButton).toBeDisabled();
 
-  const spaceDelRowButton = screen.getButton(fourthRow);
+  const spaceDelRowButton = screen.getButton(new RegExp(`^${fourthRow}`));
   expect(spaceDelRowButton).not.toBeDisabled();
 
   // Click to activate the "space"/"delete" row:
@@ -205,7 +217,7 @@ test('allows row/panel selection if at least one key is enabled', () => {
   // Click again to activate the "space"/"delete" panel:
   // [TODO] This UX could be improved to require only one click to split
   // the row, since there are only 2 keys here.
-  userEvent.click(screen.getButton('space delete'));
+  userEvent.click(screen.getButton(/^space delete/));
 
   expect(screen.getButton(/space/)).toBeDisabled();
   expect(screen.getButton(/delete/)).not.toBeDisabled();
@@ -225,8 +237,12 @@ test("doesn't fire key events for disabled keys", () => {
     />
   );
 
-  userEvent.click(screen.getByText(hasTextAcrossElements(thirdRow)));
-  userEvent.click(screen.getByText(hasTextAcrossElements(mPanel)));
+  userEvent.click(
+    screen.getByText(hasTextAcrossElements(new RegExp(`^${thirdRow}`)))
+  );
+  userEvent.click(
+    screen.getByText(hasTextAcrossElements(new RegExp(`^${mPanel}`)))
+  );
 
   userEvent.click(screen.getButton(/\bM\b/));
   expect(onKeyPress).not.toHaveBeenCalled();
@@ -261,8 +277,8 @@ test('custom keymap', () => {
   );
 
   // Click twice, once for row and once for scan panel
-  userEvent.click(screen.getByText(hasTextAcrossElements('😂magic')));
-  userEvent.click(screen.getByText(hasTextAcrossElements('😂magic')));
+  userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
+  userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
 
   userEvent.click(
     screen.getButton(`😂 ${getMockAudioOnlyTextPrefix(ENGLISH)} lol`)
@@ -270,8 +286,8 @@ test('custom keymap', () => {
   expect(onKeyPress).lastCalledWith('😂');
 
   // Click row and panel again after focus has reset
-  userEvent.click(screen.getByText(hasTextAcrossElements('😂magic')));
-  userEvent.click(screen.getByText(hasTextAcrossElements('😂magic')));
+  userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
+  userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
   userEvent.click(
     screen.getButton(`magic ${getMockAudioOnlyTextPrefix(ENGLISH)} magic`)
   );
