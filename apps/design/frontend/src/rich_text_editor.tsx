@@ -149,18 +149,16 @@ const NORMALIZE_PARAMS: Readonly<NormalizeParams> = {
 
 function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
   const [imageError, setImageError] = useState<Error>();
-  const { isActive } = useEditorState({
+  const isActive = useEditorState({
     editor,
     selector: (state) => ({
-      isActive: {
-        bold: state.editor.isActive('bold'),
-        italic: state.editor.isActive('italic'),
-        underline: state.editor.isActive('underline'),
-        strike: state.editor.isActive('strike'),
-        bulletList: state.editor.isActive('bulletList'),
-        orderedList: state.editor.isActive('orderedList'),
-        table: state.editor.isActive('table'),
-      },
+      bold: state.editor.isActive('bold'),
+      italic: state.editor.isActive('italic'),
+      underline: state.editor.isActive('underline'),
+      strike: state.editor.isActive('strike'),
+      bulletList: state.editor.isActive('bulletList'),
+      orderedList: state.editor.isActive('orderedList'),
+      table: state.editor.isActive('table'),
     }),
   });
 
