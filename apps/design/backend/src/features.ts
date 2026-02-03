@@ -157,7 +157,7 @@ export const userFeatureConfigs = {
 
 export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
   DEMO: {
-    AUDIO_ENABLED: false,
+    AUDIO_ENABLED: true,
     BALLOT_LANGUAGE_CONFIG: true,
     EXPORT_TEST_BALLOTS: true,
   },
