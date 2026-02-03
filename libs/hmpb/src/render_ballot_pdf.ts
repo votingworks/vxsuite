@@ -24,21 +24,16 @@ export async function main(args: string[]): Promise<number> {
   }
 
   const renderer = await createPlaywrightRenderer();
-  try {
-    const pdfBytes = (
-      await renderBallotPreviewToPdf(renderer, ballotTemplate, {
-        election,
-        ballotMode: 'official',
-        ballotType: BallotType.Precinct,
-        ballotStyleId: election.ballotStyles[0].id,
-        precinctId: election.ballotStyles[0].precincts[0],
-      })
-    ).unsafeUnwrap();
-    await writeFile(outputPdfPath, pdfBytes);
-  } catch (error) {
-    console.error(`Error rendering ballot PDF: ${error}`);
-    return 1;
-  }
+  const pdfBytes = (
+    await renderBallotPreviewToPdf(renderer, ballotTemplate, {
+      election,
+      ballotMode: 'official',
+      ballotType: BallotType.Precinct,
+      ballotStyleId: election.ballotStyles[0].id,
+      precinctId: election.ballotStyles[0].precincts[0],
+    })
+  ).unsafeUnwrap();
+  await writeFile(outputPdfPath, pdfBytes);
   await renderer.close();
 
   return 0;
