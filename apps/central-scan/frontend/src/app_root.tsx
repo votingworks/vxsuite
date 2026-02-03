@@ -150,12 +150,12 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   if (isVendorAuth(authStatus)) {
     return (
       <VendorScreen
+        apiClient={apiClient}
+        isMachineConfigured={Boolean(electionDefinition)}
         logOut={() => logOutMutation.mutate()}
-        rebootToVendorMenu={() => apiClient.rebootToVendorMenu()}
         unconfigureMachine={() =>
           unconfigureMutation.mutateAsync({ ignoreBackupRequirement: true })
         }
-        isMachineConfigured={Boolean(electionDefinition)}
       />
     );
   }

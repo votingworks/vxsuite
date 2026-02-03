@@ -142,10 +142,10 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   if (isVendorAuth(auth)) {
     return (
       <VendorScreen
-        logOut={logOutMutation.mutate}
-        rebootToVendorMenu={apiClient.rebootToVendorMenu}
-        unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+        apiClient={apiClient}
         isMachineConfigured={getElectionQuery.data.isOk()}
+        logOut={logOutMutation.mutate}
+        unconfigureMachine={() => unconfigureMutation.mutateAsync()}
       />
     );
   }

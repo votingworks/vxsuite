@@ -116,10 +116,10 @@ function AppRoot({
     if (isVendorAuth(authStatus)) {
       return (
         <VendorScreen
-          logOut={logOutMutation.mutate}
-          rebootToVendorMenu={apiClient.rebootToVendorMenu}
-          unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+          apiClient={apiClient}
           isMachineConfigured={electionRecord !== null}
+          logOut={logOutMutation.mutate}
+          unconfigureMachine={() => unconfigureMutation.mutateAsync()}
         />
       );
     }

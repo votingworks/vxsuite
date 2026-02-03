@@ -1,27 +1,35 @@
 import { Button } from './button';
 import { Main } from './main';
 import { Screen } from './screen';
+import {
+  SignedHashValidationApiClient,
+  SignedHashValidationButton,
+} from './signed_hash_validation_button';
 import { P } from './typography';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
 
-interface Props {
-  logOut?: () => void;
+interface VendorScreenApiClient extends SignedHashValidationApiClient {
   rebootToVendorMenu: () => Promise<void>;
-  unconfigureMachine: () => Promise<void>;
+}
+
+interface Props {
+  apiClient: VendorScreenApiClient;
   isMachineConfigured: boolean;
+  logOut?: () => void;
+  unconfigureMachine: () => Promise<void>;
 }
 
 export function VendorScreen({
-  logOut,
-  rebootToVendorMenu,
-  unconfigureMachine,
+  apiClient,
   isMachineConfigured,
+  logOut,
+  unconfigureMachine,
 }: Props): JSX.Element {
   return (
     <Screen>
       <Main centerChild>
         <P>
-          <Button onPress={rebootToVendorMenu} variant="primary">
+          <Button onPress={apiClient.rebootToVendorMenu} variant="primary">
             Reboot to Vendor Menu
           </Button>
         </P>
@@ -30,6 +38,9 @@ export function VendorScreen({
             unconfigureMachine={unconfigureMachine}
             isMachineConfigured={isMachineConfigured}
           />
+        </P>
+        <P>
+          <SignedHashValidationButton apiClient={apiClient} />
         </P>
         {logOut ? (
           <P>
