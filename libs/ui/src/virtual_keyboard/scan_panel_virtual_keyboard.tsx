@@ -472,6 +472,7 @@ export function ScanPanelVirtualKeyboard({
         ref={getFocusRefForRow(rowIndex)}
         onSelect={() => onSelectRow(rowIndex)}
         key={`row-${keySpecs.map((spec) => spec.value).join()}`}
+        keys={keySpecs}
         selectable={
           selectionLevel === SelectionLevel.Rows && containsEnabledKey
         }
@@ -493,6 +494,7 @@ export function ScanPanelVirtualKeyboard({
               ref={getFocusRefForScanPanel(panelIndex)}
               numKeys={panel.keys.length}
               key={panel.keys.map((k) => k.value).join()}
+              keys={panel.keys}
               renderAs={getScanPanelRenderOption(
                 rowIndex,
                 panelIndex,
@@ -511,6 +513,7 @@ export function ScanPanelVirtualKeyboard({
               key={`row-${row
                 .map((panel) => panel.keys.map((k) => k.value).join())
                 .join()}`}
+              keys={row.flatMap((panel) => panel.keys)}
               selectable={false}
               selected={selectedRowIndex === rowIndex}
             >

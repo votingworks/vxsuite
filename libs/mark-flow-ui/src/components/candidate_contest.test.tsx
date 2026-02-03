@@ -427,7 +427,7 @@ describe('supports write-in candidates', () => {
     modal.getByText(hasTextAcrossElements(/characters remaining: 40/i));
     // The default VirtualKeyboard doesn't have a button with text equal
     // to the entire keyboard row
-    modal.getButton('Q W E R T Y U I O P');
+    modal.getButton(/^Q W E R T Y U I O P/);
   });
 
   test('displays warning when deselecting a write-in candidate', () => {
@@ -642,6 +642,52 @@ describe('supports write-in candidates', () => {
         writeInIndex: 0,
       },
     ]);
+  });
+
+  test('focuses newly added write-in candidate after modal closes', () => {
+    const { fireKeyPressEvents } = setUpMockVirtualKeyboard();
+
+    const contest: TypeCandidateContest = {
+      ...candidateContestWithWriteIns,
+      seats: 4,
+    };
+
+    const updateVote = vi.fn<UpdateVoteFunction>();
+
+    const { rerender } = render(
+      <CandidateContest
+        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        election={electionDefinition.election}
+        contest={contest}
+        vote={[]}
+        updateVote={updateVote}
+      />
+    );
+
+    // When updateVote is called, rerender with the new vote so the write-in
+    // candidate appears in the DOM before the modal-close effect fires.
+    updateVote.mockImplementation((_, votes) => {
+      rerender(
+        <CandidateContest
+          ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+          election={electionDefinition.election}
+          contest={contest}
+          vote={votes as CandidateVote}
+          updateVote={updateVote}
+        />
+      );
+    });
+
+    userEvent.click(
+      screen.getByText('add write-in candidate').closest('button')!
+    );
+    fireKeyPressEvents('LIZARD');
+    userEvent.click(screen.getButton('Accept'));
+
+    const writeInButton = document.querySelector(
+      '[data-write-in-id="write-in-lizard"] button'
+    );
+    expect(writeInButton).toHaveFocus();
   });
 
   test('maintains sequential write-in indices', () => {

@@ -1,7 +1,9 @@
 import React, { forwardRef, Ref } from 'react';
 import styled from 'styled-components';
 import { gapStyles } from '../../button';
-import { getBorderWidthRem } from '../common';
+import { TextOnly } from '../../ui_strings';
+import { getBorderWidthRem, Key } from '../common';
+import { KeyGroupAudioLabel } from './key_group_audio_label';
 
 interface StyledComponentProps {
   numKeys: number;
@@ -25,6 +27,7 @@ export type ScanPanelRenderOption =
 
 interface ScanPanelProps {
   children?: React.ReactNode;
+  keys: Key[];
   numKeys: number;
   onSelect: () => void;
   renderAs: ScanPanelRenderOption;
@@ -33,20 +36,22 @@ interface ScanPanelProps {
 // eslint-disable-next-line react/display-name
 export const ScanPanel = forwardRef(
   (
-    { children, renderAs, numKeys, onSelect }: ScanPanelProps,
+    { children, keys, renderAs, numKeys, onSelect }: ScanPanelProps,
     ref: Ref<HTMLButtonElement>
   ): JSX.Element => {
     switch (renderAs) {
       case 'button-enabled':
         return (
           <ScanPanelButton numKeys={numKeys} onClick={onSelect} ref={ref}>
-            {children}
+            <TextOnly>{children}</TextOnly>
+            <KeyGroupAudioLabel keys={keys} />
           </ScanPanelButton>
         );
       case 'button-disabled':
         return (
           <ScanPanelButton numKeys={numKeys} onClick={onSelect} disabled>
-            {children}
+            <TextOnly>{children}</TextOnly>
+            <KeyGroupAudioLabel keys={keys} />
           </ScanPanelButton>
         );
       case 'container':

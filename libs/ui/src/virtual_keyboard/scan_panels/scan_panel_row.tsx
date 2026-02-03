@@ -1,5 +1,8 @@
 import React, { forwardRef, Ref } from 'react';
 import styled from 'styled-components';
+import { TextOnly } from '../../ui_strings';
+import { Key } from '../common';
+import { KeyGroupAudioLabel } from './key_group_audio_label';
 
 const RowButton = styled.button`
   margin-bottom: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
@@ -15,6 +18,7 @@ const RowDisplay = styled.div`
 
 interface ScanPanelRowProps {
   children?: React.ReactNode;
+  keys: Key[];
   onSelect?: () => void;
   selectable: boolean;
   selected: boolean;
@@ -23,14 +27,21 @@ interface ScanPanelRowProps {
 // eslint-disable-next-line react/display-name
 export const ScanPanelRow = forwardRef(
   (
-    { children, onSelect = () => {}, selectable, selected }: ScanPanelRowProps,
+    {
+      children,
+      keys,
+      onSelect = () => {},
+      selectable,
+      selected,
+    }: ScanPanelRowProps,
     ref: Ref<HTMLButtonElement>
   ): JSX.Element =>
     selected ? (
       <RowDisplay>{children}</RowDisplay>
     ) : (
       <RowButton onClick={onSelect} disabled={!selectable} ref={ref}>
-        {children}
+        <TextOnly>{children}</TextOnly>
+        <KeyGroupAudioLabel keys={keys} />
       </RowButton>
     )
 );
