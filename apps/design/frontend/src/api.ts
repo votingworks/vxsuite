@@ -63,6 +63,16 @@ export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
+        // By default, react-query has a staleTime of 0, meaning every time a
+        // query is invoked, it will fetch fresh data. This aggressive approach
+        // is good for making sure we always show up to date data from the
+        // server. However, if multiple components in the same tree use the same
+        // query, they will make duplicate requests for the same data when they
+        // mount. As a small optimization, we increase the staleTime to 1 second
+        // so that multiple components that are mounted simultaneously can use
+        // cached data. Note that manual query cache invalidations will override
+        // this, so there's no real risk.
+        staleTime: 1000,
         retry: (_, error) => !isAuthError(error),
         refetchOnWindowFocus: false,
         // In test, we only want to refetch when we explicitly invalidate. In
