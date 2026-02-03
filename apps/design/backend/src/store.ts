@@ -342,6 +342,35 @@ async function insertParty(
   );
 }
 
+async function applyContestOrder(
+  client: Client,
+  electionId: ElectionId,
+  contestIds: string[]
+): Promise<number> {
+  const contestPositions = contestIds.map((_, i) => i);
+  const { rowCount } = await client.query(
+    `
+    with next_order as (
+      select coalesce(max(ballot_order) + 1, 1) as value
+      from contests where election_id = $3
+    )
+    update contests
+    set ballot_order = ordered.position + (select value from next_order)
+    from unnest($1::text[], $2::int[]) as ordered(id, position)
+    where contests.id = ordered.id
+      and contests.election_id = $3
+    `,
+    contestIds,
+    contestPositions,
+    electionId
+  );
+  // Update the sequence so the next DEFAULT insert gets a value higher than the max
+  await client.query(
+    `select setval('contests_ballot_order_seq', (select max(ballot_order) from contests))`
+  );
+  return rowCount ?? 0;
+}
+
 async function insertContest(
   client: Client,
   electionId: ElectionId,
@@ -433,14 +462,8 @@ async function insertContest(
           contestIds.splice(newContestIndex, 1);
           contestIds.splice(firstBallotMeasureIndex, 0, contest.id);
 
-          // Apply the new order using reorderContests logic
-          for (const contestId of contestIds) {
-            await client.query(
-              `update contests set ballot_order = DEFAULT where id = $1 and election_id = $2`,
-              contestId,
-              electionId
-            );
-          }
+          // Apply the new order
+          await applyContestOrder(client, electionId, contestIds);
         }
       }
       break;
@@ -1877,18 +1900,15 @@ export class Store {
           contestIds.length === existingContestIds.length,
           'Contest list is out of date'
         );
-        for (const contestId of contestIds) {
-          const { rowCount } = await client.query(
-            `
-            update contests
-            set ballot_order = DEFAULT
-            where id = $1 and election_id = $2
-          `,
-            contestId,
-            electionId
-          );
-          assert(rowCount === 1, `Contest not found: ${contestId}`);
-        }
+        const rowCount = await applyContestOrder(
+          client,
+          electionId,
+          contestIds
+        );
+        assert(
+          rowCount === contestIds.length,
+          `${contestIds.length - rowCount} contests not found`
+        );
         return true;
       })
     );
