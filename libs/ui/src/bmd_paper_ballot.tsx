@@ -594,9 +594,7 @@ function qrCodeLevelOverride(
     }
   }
 
-  if (writeInCharCount > MAX_WRITE_IN_CHARS_FOR_HIGH_DENSITY_QR) return 'M';
-
-  return undefined;
+  return writeInCharCount <= MAX_WRITE_IN_CHARS_FOR_HIGH_DENSITY_QR ? 'H' : 'M';
 }
 
 /**

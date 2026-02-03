@@ -541,11 +541,7 @@ function PollWorkerScreenContents({
                   data-testid="quick-results-code"
                   data-value={reports[currentQrIndex]}
                 >
-                  <QrCode
-                    value={reports[currentQrIndex]}
-                    level="M"
-                    size={450}
-                  />
+                  <QrCode value={reports[currentQrIndex]} size={450} />
                 </div>
               )}
               <div style={{ height: '0.3em' }} />
