@@ -19,7 +19,7 @@ afterAll(async () => {
 async function createElectionForTest(
   apiClient: { createElection: (params: { id: ElectionId; jurisdictionId: string }) => Promise<{ unsafeUnwrap: () => ElectionId }> },
 ): Promise<ElectionId> {
-  const electionId = uuid() as ElectionId;
+  const electionId = uuid() ;
   (await apiClient.createElection({
     id: electionId,
     jurisdictionId: nonVxJurisdiction.id,
@@ -54,7 +54,7 @@ describe('Export QA Webhook', () => {
         status: 'in_progress',
       });
 
-    expect(responseWithoutSecret.status).toBe(401);
+    expect(responseWithoutSecret.status).toEqual(401);
     expect(responseWithoutSecret.body).toEqual({ error: 'Unauthorized' });
 
     // Test with wrong secret
@@ -65,7 +65,7 @@ describe('Export QA Webhook', () => {
         status: 'in_progress',
       });
 
-    expect(responseWithWrongSecret.status).toBe(401);
+    expect(responseWithWrongSecret.status).toEqual(401);
     expect(responseWithWrongSecret.body).toEqual({ error: 'Unauthorized' });
   });
 
@@ -88,7 +88,7 @@ describe('Export QA Webhook', () => {
         status: 'in_progress',
       });
 
-    expect(response.status).toBe(404);
+    expect(response.status).toEqual(404);
     expect(response.body).toEqual({ error: 'QA run not found' });
   });
 
@@ -121,7 +121,7 @@ describe('Export QA Webhook', () => {
         status: 'invalid-status',
       });
 
-    expect(responseInvalidStatus.status).toBe(400);
+    expect(responseInvalidStatus.status).toEqual(400);
     expect(responseInvalidStatus.body).toEqual({ error: 'Invalid request body' });
 
     // Test with missing status
@@ -130,7 +130,7 @@ describe('Export QA Webhook', () => {
       .set('X-Webhook-Secret', 'test-secret')
       .send({});
 
-    expect(responseMissingStatus.status).toBe(400);
+    expect(responseMissingStatus.status).toEqual(400);
     expect(responseMissingStatus.body).toEqual({ error: 'Invalid request body' });
   });
 
@@ -166,7 +166,7 @@ describe('Export QA Webhook', () => {
         jobUrl: 'https://app.circleci.com/pipelines/gh/org/repo/123/workflows/abc/jobs/456',
       });
 
-    expect(responseInProgress.status).toBe(200);
+    expect(responseInProgress.status).toEqual(200);
     expect(responseInProgress.body).toEqual({ success: true });
 
     let qaRun = await workspace.store.getExportQaRun(qaRunId);
@@ -189,7 +189,7 @@ describe('Export QA Webhook', () => {
         resultsUrl: 'https://example.com/results.html',
       });
 
-    expect(responseSuccess.status).toBe(200);
+    expect(responseSuccess.status).toEqual(200);
     expect(responseSuccess.body).toEqual({ success: true });
 
     qaRun = await workspace.store.getExportQaRun(qaRunId);
@@ -233,7 +233,7 @@ describe('Export QA Webhook', () => {
         resultsUrl: 'https://example.com/results.html',
       });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toEqual(200);
     expect(response.body).toEqual({ success: true });
 
     const qaRun = await workspace.store.getExportQaRun(qaRunId);
