@@ -1,0 +1,872 @@
+{
+  "id": "kent-county-mi-general-2020",
+  "type": "general",
+  "title": "Certification General Election",
+  "state": "Michigan",
+  "county": {
+    "id": "kent-county",
+    "name": "Kent County"
+  },
+  "date": "2020-11-03",
+  "ballotLayout": {
+    "paperSize": "letter",
+    "metadataEncoding": "qr-code"
+  },
+  "parties": [
+    {
+      "id": "democratic",
+      "name": "Democratic",
+      "fullName": "Democratic Party",
+      "abbrev": "DEM"
+    },
+    {
+      "id": "republican",
+      "name": "Republican",
+      "fullName": "Republican Party",
+      "abbrev": "REP"
+    },
+    {
+      "id": "libertarian",
+      "name": "Libertarian",
+      "fullName": "Libertarian Party",
+      "abbrev": "LIB"
+    },
+    {
+      "id": "us-taxpayers",
+      "name": "U.S. Taxpayers",
+      "fullName": "U.S. Taxpayers Party",
+      "abbrev": "UST"
+    },
+    {
+      "id": "green",
+      "name": "Green",
+      "fullName": "Green Party",
+      "abbrev": "GRN"
+    },
+    {
+      "id": "working-class",
+      "name": "Working Class",
+      "fullName": "Working Class Party",
+      "abbrev": "WCP"
+    },
+    {
+      "id": "natural-law",
+      "name": "Natural Law",
+      "fullName": "Natural Law Party",
+      "abbrev": "NLP"
+    }
+  ],
+  "districts": [
+    { "id": "presidential", "name": "Presidential" },
+    { "id": "state", "name": "State" },
+    { "id": "state-boards", "name": "State Boards" },
+    { "id": "legislative", "name": "Legislative" },
+    { "id": "congressional", "name": "Congressional" },
+    { "id": "county", "name": "County" },
+    { "id": "township", "name": "Township" },
+    { "id": "judicial", "name": "Judicial" },
+    { "id": "local-school-district", "name": "Local School District" },
+    { "id": "community-college", "name": "Community College" },
+    { "id": "village", "name": "Village" },
+    { "id": "straight-party", "name": "Straight Party Ticket" }
+  ],
+  "precincts": [
+    {
+      "id": "sparta-township-1",
+      "name": "Sparta Township, Precinct 1",
+      "districtIds": [
+        "straight-party",
+        "presidential",
+        "state",
+        "state-boards",
+        "legislative",
+        "congressional",
+        "county",
+        "township",
+        "judicial",
+        "local-school-district",
+        "community-college",
+        "village"
+      ]
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "1_en",
+      "groupId": "1",
+      "precincts": ["sparta-township-1"],
+      "districts": [
+        "straight-party",
+        "presidential",
+        "state",
+        "state-boards",
+        "legislative",
+        "congressional",
+        "county",
+        "township",
+        "judicial",
+        "local-school-district",
+        "community-college",
+        "village"
+      ],
+      "languages": ["en"]
+    }
+  ],
+  "contests": [
+    {
+      "id": "straight-party-ticket",
+      "type": "candidate",
+      "title": "Straight Party Ticket",
+      "districtId": "straight-party",
+      "candidates": [{
+        "id": "straight-party-dem",
+        "name": "Democratic Party"
+      }, 
+      {
+        "id": "straight-party-rep",
+        "name": "Republican Party"
+      },
+      {
+        "id": "straight-party-lib",
+        "name": "Libertarian Party"
+      },
+      {
+        "id": "straight-party-ust",
+        "name": "U.S. Taxpayers Party"
+      },
+      {
+        "id": "straight-party-grn",
+        "name": "Green Party"
+      },
+      {
+        "id": "straight-party-wcp",
+        "name": "Working Class Party"
+      },
+      {
+        "id": "straight-party-nlp",
+        "name": "Natural Law Party"
+      }],
+      "seats": 1,
+      "allowWriteIns": false
+    },
+    {
+      "id": "president",
+      "districtId": "presidential",
+      "type": "candidate",
+      "title": "Electors of President and Vice-President of the United States",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "biden-harris",
+          "name": "Joseph R. Biden<br/>Kamala D. Harris",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "trump-pence",
+          "name": "Donald J. Trump<br/>Michael R. Pence",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "jorgensen-cohen",
+          "name": "Jo Jorgensen<br/>Jeremy Cohen",
+          "partyIds": ["libertarian"]
+        },
+        {
+          "id": "blankenship-mohr",
+          "name": "Don Blankenship<br/>William Mohr",
+          "partyIds": ["us-taxpayers"]
+        },
+        {
+          "id": "hawkins-walker",
+          "name": "Howie Hawkins<br/>Angela Walker",
+          "partyIds": ["green"]
+        },
+        {
+          "id": "delaFuente-richardson",
+          "name": "Rocky De La Fuente<br/>Darcy Richardson",
+          "partyIds": ["natural-law"]
+        }
+      ]
+    },
+    {
+      "id": "us-senator",
+      "districtId": "state",
+      "type": "candidate",
+      "title": "United States Senator",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "gary-peters",
+          "name": "Gary Peters",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "john-james",
+          "name": "John James",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "valerie-willis",
+          "name": "Valerie L. Willis",
+          "partyIds": ["us-taxpayers"]
+        },
+        {
+          "id": "marcia-squier",
+          "name": "Marcia Squier",
+          "partyIds": ["green"]
+        },
+        { "id": "doug-dern", "name": "Doug Dern", "partyIds": ["natural-law"] }
+      ]
+    },
+    {
+      "id": "us-representative-2",
+      "districtId": "congressional",
+      "type": "candidate",
+      "title": "Representative in Congress<br/>2nd District",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "bryan-berghoef",
+          "name": "Bryan Berghoef",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "bill-huizenga",
+          "name": "Bill Huizenga",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "max-riekse",
+          "name": "Max Riekse",
+          "partyIds": ["libertarian"]
+        },
+        {
+          "id": "gerald-van-sickle",
+          "name": "Gerald T. Van Sickle",
+          "partyIds": ["us-taxpayers"]
+        },
+        {
+          "id": "jean-michel-creviere",
+          "name": "Jean-Michel Creviere",
+          "partyIds": ["green"]
+        }
+      ]
+    },
+    {
+      "id": "state-representative-90",
+      "districtId": "legislative",
+      "type": "candidate",
+      "title": "Representative in State Legislature<br/>90th District",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "christopher-banks",
+          "name": "Christopher P. Banks",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "bradley-slagh",
+          "name": "Bradley Slagh",
+          "partyIds": ["republican"]
+        }
+      ]
+    },
+    {
+      "id": "state-board-education",
+      "districtId": "state-boards",
+      "type": "candidate",
+      "title": "Member of the State Board of Education",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "ellen-cogen-lipton",
+          "name": "Ellen Cogen Lipton",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "michelle-frederick",
+          "name": "Michelle A. Frederick",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "tami-carlone",
+          "name": "Tami Carlone",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "richard-hewer",
+          "name": "Richard A. Hewer",
+          "partyIds": ["libertarian"]
+        },
+        { "id": "bill-hall", "name": "Bill Hall", "partyIds": ["libertarian"] },
+        {
+          "id": "douglas-levesque",
+          "name": "Douglas Levesque",
+          "partyIds": ["us-taxpayers"]
+        },
+        {
+          "id": "karen-adams",
+          "name": "Karen Adams",
+          "partyIds": ["us-taxpayers"]
+        },
+        {
+          "id": "hali-mceachern",
+          "name": "Hali McEachern",
+          "partyIds": ["working-class"]
+        },
+        {
+          "id": "mary-anne-hering",
+          "name": "Mary Anne Hering",
+          "partyIds": ["working-class"]
+        },
+        { "id": "tom-mair", "name": "Tom Mair", "partyIds": ["green"] },
+        {
+          "id": "jason-strayhorn",
+          "name": "Jason Strayhorn",
+          "partyIds": ["democratic"]
+        }
+      ]
+    },
+    {
+      "id": "regent-u-of-m",
+      "districtId": "state-boards",
+      "type": "candidate",
+      "title": "Regent of the University of Michigan",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "shauna-ryder-diggs",
+          "name": "Shauna Ryder Diggs",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "mark-bernstein",
+          "name": "Mark Bernstein",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "sarah-hubbard",
+          "name": "Sarah Hubbard",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "carl-meyers",
+          "name": "Carl Meyers",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "james-hudler",
+          "name": "James L. Hudler",
+          "partyIds": ["libertarian"]
+        },
+        {
+          "id": "eric-larson",
+          "name": "Eric Larson",
+          "partyIds": ["libertarian"]
+        },
+        {
+          "id": "crystal-van-sickle",
+          "name": "Crystal Van Sickle",
+          "partyIds": ["us-taxpayers"]
+        },
+        {
+          "id": "michael-mawilai",
+          "name": "Michael Mawilai",
+          "partyIds": ["green"]
+        },
+        {
+          "id": "keith-butkovich",
+          "name": "Keith Butkovich",
+          "partyIds": ["natural-law"]
+        }
+      ]
+    },
+    {
+      "id": "trustee-msu",
+      "districtId": "state-boards",
+      "type": "candidate",
+      "title": "Trustee of Michigan State University",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "brian-mosallam",
+          "name": "Brian Mosallam",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "rema-ella-vassar",
+          "name": "Rema Ella Vassar",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "tonya-schuitmaker",
+          "name": "Tonya Schuitmaker",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "pat-okeeffe",
+          "name": "Pat O'Keefe",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "will-tyler-white",
+          "name": "Will Tyler White",
+          "partyIds": ["libertarian"]
+        },
+        {
+          "id": "john-paul-sanger",
+          "name": "John Paul Sanger",
+          "partyIds": ["us-taxpayers"]
+        },
+        {
+          "id": "janet-sanger",
+          "name": "Janet M. Sanger",
+          "partyIds": ["us-taxpayers"]
+        },
+        {
+          "id": "robin-lea-laurain",
+          "name": "Robin Lea Laurain",
+          "partyIds": ["green"]
+        },
+        { "id": "brandon-hu", "name": "Brandon Hu", "partyIds": ["green"] },
+        {
+          "id": "bridgette-abraham-guzman",
+          "name": "Bridgette Abraham-Guzman",
+          "partyIds": ["natural-law"]
+        }
+      ]
+    },
+    {
+      "id": "governor-wsu",
+      "districtId": "state-boards",
+      "type": "candidate",
+      "title": "Governor of Wayne State University",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "shirley-stancato",
+          "name": "Shirley Stancato",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "eva-garza-dewaelsche",
+          "name": "Eva Garza Dewaelsche",
+          "partyIds": ["democratic"]
+        },
+        { "id": "don-gates", "name": "Don Gates", "partyIds": ["republican"] },
+        {
+          "id": "terri-lynn-land",
+          "name": "Terri Lynn Land",
+          "partyIds": ["republican"]
+        },
+        { "id": "jon-elgas", "name": "Jon Elgas", "partyIds": ["libertarian"] },
+        {
+          "id": "christine-schwartz",
+          "name": "Christine C. Schwartz",
+          "partyIds": ["us-taxpayers"]
+        },
+        { "id": "susan-odgers", "name": "Susan Odgers", "partyIds": ["green"] }
+      ]
+    },
+    {
+      "id": "prosecuting-attorney",
+      "districtId": "county",
+      "type": "candidate",
+      "title": "Prosecuting Attorney",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "chris-becker",
+          "name": "Chris Becker",
+          "partyIds": ["republican"]
+        }
+      ]
+    },
+    {
+      "id": "sheriff",
+      "districtId": "county",
+      "type": "candidate",
+      "title": "Sheriff",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "marc-burns",
+          "name": "Marc Burns",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "michelle-lajoye-young",
+          "name": "Michelle LaJoye-Young",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "john-glen-stedman",
+          "name": "John Glen Stedman",
+          "partyIds": ["libertarian"]
+        }
+      ]
+    },
+    {
+      "id": "clerk-register-deeds",
+      "districtId": "county",
+      "type": "candidate",
+      "title": "Clerk & Register of Deeds",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "lisa-posthumus-lyons",
+          "name": "Lisa Posthumus Lyons",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "jamie-lewis",
+          "name": "Jamie Lewis",
+          "partyIds": ["libertarian"]
+        }
+      ]
+    },
+    {
+      "id": "treasurer",
+      "districtId": "county",
+      "type": "candidate",
+      "title": "Treasurer",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "beth-white",
+          "name": "Beth White",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "peter-macgregor",
+          "name": "Peter MacGregor",
+          "partyIds": ["republican"]
+        }
+      ]
+    },
+    {
+      "id": "drain-commissioner",
+      "districtId": "county",
+      "type": "candidate",
+      "title": "Drain Commissioner",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "elaine-isely",
+          "name": "Elaine Isely",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "ken-yonker",
+          "name": "Ken Yonker",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "alex-avery",
+          "name": "Alex Avery",
+          "partyIds": ["libertarian"]
+        }
+      ]
+    },
+    {
+      "id": "county-commissioner-2",
+      "districtId": "county",
+      "type": "candidate",
+      "title": "County Commissioner<br/>District 02",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "jerry-berta",
+          "name": "Jerry Berta",
+          "partyIds": ["democratic"]
+        },
+        {
+          "id": "thomas-antor",
+          "name": "Thomas B. Antor",
+          "partyIds": ["republican"]
+        }
+      ]
+    },
+    {
+      "id": "township-supervisor",
+      "districtId": "township",
+      "type": "candidate",
+      "title": "Supervisor",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "dale-bergman",
+          "name": "Dale Bergman",
+          "partyIds": ["republican"]
+        }
+      ]
+    },
+    {
+      "id": "township-clerk",
+      "districtId": "township",
+      "type": "candidate",
+      "title": "Clerk",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "marcy-savage",
+          "name": "Marcy Savage",
+          "partyIds": ["republican"]
+        }
+      ]
+    },
+    {
+      "id": "township-treasurer",
+      "districtId": "township",
+      "type": "candidate",
+      "title": "Treasurer",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "rachel-shangle",
+          "name": "Rachel A. Shangle",
+          "partyIds": ["republican"]
+        }
+      ]
+    },
+    {
+      "id": "township-trustee",
+      "districtId": "township",
+      "type": "candidate",
+      "title": "Trustee",
+      "seats": 4,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "barbara-johnson",
+          "name": "Barbara Johnson",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "jason-bradford",
+          "name": "Jason Bradford",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "rob-steffens",
+          "name": "Rob Steffens",
+          "partyIds": ["republican"]
+        },
+        {
+          "id": "william-goodfellow",
+          "name": "William Goodfellow",
+          "partyIds": ["republican"]
+        }
+      ]
+    },
+    {
+      "id": "justice-supreme-court",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Justice of Supreme Court",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "mary-kelly", "name": "Mary Kelly" },
+        { "id": "susan-hubbard", "name": "Susan L. Hubbard" },
+        { "id": "brock-swartzle", "name": "Brock Swartzle" },
+        { "id": "kerry-lee-morgan", "name": "Kerry Lee Morgan" },
+        { "id": "elizabeth-welch", "name": "Elizabeth M. Welch" },
+        { "id": "katherine-nepton", "name": "Katherine Mary Nepton" },
+        { "id": "bridget-mccormack", "name": "Bridget Mary McCormack" }
+      ]
+    },
+    {
+      "id": "judge-court-appeals-3-incumbent",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Judge of Court of Appeals 3rd District<br/>Incumbent Position",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "mark-boonstra", "name": "Mark Thomas Boonstra" },
+        { "id": "jane-markey", "name": "Jane E. Markey" }
+      ]
+    },
+    {
+      "id": "judge-court-appeals-3-partial",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Judge of Court of Appeals 3rd District<br/>Incumbent Position<br/>Partial Term Ending 01-01-2023",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "james-redford", "name": "James Robert Redford" }]
+    },
+    {
+      "id": "judge-circuit-court-17-incumbent",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Judge of Circuit Court 17th Circuit<br/>Incumbent Position",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "kathleen-feeney", "name": "Kathleen A. Feeney" }]
+    },
+    {
+      "id": "judge-circuit-court-17-nonincumbent",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Judge of Circuit Court 17th Circuit<br/>Non-Incumbent Position",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "stephen-willison", "name": "Stephen Willison" },
+        { "id": "maureen-gottlieb", "name": "Maureen A. Gottlieb" },
+        { "id": "jenny-sarber", "name": "Jenny Johnsen Sarber" },
+        { "id": "scott-noto", "name": "Scott A. Noto" }
+      ]
+    },
+    {
+      "id": "judge-probate-court",
+      "districtId": "state",
+      "type": "candidate",
+      "title": "Judge of Probate Court",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "james-kerby", "name": "James T. Kerby" }]
+    },
+    {
+      "id": "judge-district-court-63",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Judge of District Court 63rd District<br/>Incumbent Position",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "sara-smolenski", "name": "Sara J. Smolenski" },
+        { "id": "jeffrey-ohara", "name": "Jeffrey J. O'Hara" }
+      ]
+    },
+    {
+      "id": "village-president",
+      "districtId": "village",
+      "type": "candidate",
+      "title": "President<br/>Village of Sparta",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "robert-whalen", "name": "Robert Whalen" }]
+    },
+    {
+      "id": "village-trustee",
+      "districtId": "village",
+      "type": "candidate",
+      "title": "Trustee<br/>Village of Sparta",
+      "seats": 3,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "brenda-braybrook", "name": "Brenda L. Braybrook" },
+        { "id": "gale-taylor", "name": "Gale R. Taylor" },
+        { "id": "robert-carlstrom", "name": "Robert Carlstrom" }
+      ]
+    },
+    {
+      "id": "village-trustee-partial",
+      "districtId": "village",
+      "type": "candidate",
+      "title": "Trustee<br/>Village of Sparta<br/>Partial Term Ending 11-20-2022",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [{ "id": "william-taylor", "name": "William Taylor" }]
+    },
+    {
+      "id": "library-board",
+      "districtId": "local-school-district",
+      "type": "candidate",
+      "title": "Library Board Director",
+      "seats": 6,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "richard-beauchamp", "name": "Richard Beauchamp" },
+        { "id": "debra-willison", "name": "Debra Willison" },
+        { "id": "carol-keller", "name": "Carol M. Keller" },
+        { "id": "mary-ann-meyer", "name": "Mary-Ann Meyer" },
+        { "id": "janet-hayes", "name": "Janet Hayes" },
+        { "id": "joy-leussenkamp", "name": "Joy Marie Leussenkamp" },
+        { "id": "jane-ohanesian", "name": "Jane Ohanesian" }
+      ]
+    },
+    {
+      "id": "sparta-school-board",
+      "districtId": "local-school-district",
+      "type": "candidate",
+      "title": "Board Member<br/>Sparta Area Schools",
+      "seats": 3,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "david-murkowski", "name": "David Murkowski" },
+        { "id": "erin-bormes", "name": "Erin Bormes" },
+        { "id": "kim-eluskie", "name": "Kim Eluskie" },
+        { "id": "timothy-driscoll", "name": "Timothy A. Driscoll" }
+      ]
+    },
+    {
+      "id": "community-college-board",
+      "districtId": "community-college",
+      "type": "candidate",
+      "title": "Community College Board of Trustees Member<br/>Grand Rapids Community College",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "brandon-sinclair", "name": "Brandon Sinclair" },
+        {
+          "id": "brandy-lovelady-mitchell",
+          "name": "Brandy Lovelady Mitchell"
+        },
+        { "id": "daniel-williams", "name": "Daniel Williams" }
+      ]
+    },
+    {
+      "id": "proposal-20-1",
+      "districtId": "state",
+      "type": "yesno",
+      "title": "Proposal 20-1",
+      "description": "A proposed constitutional amendment to allow money from oil and gas mining on state-owned lands to continue to be collected in state funds for land protection and creation and maintenance of parks, nature areas, and public recreation facilities; and to describe how money in those state funds can be spent. This proposed constitutional amendment would:\n\n• Allow the State Parks Endowment Fund to continue receiving money from sales of oil and gas from state-owned lands to improve, maintain and purchase land for State parks, and for Fund administration, until its balance reaches $800,000,000.\n\n• Require subsequent oil and gas revenue from state-owned lands to go into the Natural Resources Trust Fund.\n\n• Require at least 20% of Endowment Fund annual spending go toward State park improvement.\n\n• Require at least 25% of Trust Fund annual spending go toward parks and public recreation areas and at least 25% toward land conservation.\n\nShould this proposal be adopted?",
+      "yesOption": {
+        "id": "proposal-20-1-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "proposal-20-1-no",
+        "label": "No"
+      }
+    },
+    {
+      "id": "proposal-20-2",
+      "districtId": "state",
+      "type": "yesno",
+      "title": "Proposal 20-2",
+      "description": "A proposed constitutional amendment to require a search warrant in order to access a person's electronic data or electronic communications. This proposed constitutional amendment would:\n\n• Prohibit unreasonable searches or seizures of a person's electronic data and electronic communications.\n\n• Require a search warrant to access a person's electronic data or electronic communications, under the same conditions currently required for the government to obtain a search warrant to search a person's house or seize a person's things.\n\nShould this proposal be adopted?",
+      "yesOption": {
+        "id": "proposal-20-2-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "proposal-20-2-no",
+        "label": "No"
+      }
+    }
+  ],
+  "seal": "",
+  "ballotStrings": {}
+}
