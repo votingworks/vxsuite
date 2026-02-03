@@ -34,9 +34,6 @@ import {
   hasSplits,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
-  ContestSectionHeader as ContestSectionHeaderStruct,
-  ContestSectionHeaders,
-  ContestTypes,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -781,28 +778,6 @@ function Contest({
   }
 }
 
-function ContestSectionHeader({
-  title,
-  description,
-}: ContestSectionHeaderStruct) {
-  return (
-    <Box fill="tinted" style={{ padding: '0.5rem' }}>
-      <h2>{title}</h2>
-      {description && (
-        <div>
-          <RichText
-            tableBorderWidth={'1px'}
-            tableBorderColor={Colors.DARKER_GRAY}
-            tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
-          >
-            <div dangerouslySetInnerHTML={{ __html: description }} />
-          </RichText>
-        </div>
-      )}
-    </Box>
-  );
-}
-
 async function splitLongBallotMeasureAcrossPages(
   tooLongContest: YesNoContest,
   contestProps: Omit<Parameters<typeof Contest>[0], 'contest'>,
@@ -909,14 +884,7 @@ async function BallotPageContent(
     });
   }
 
-  const {
-    compact,
-    election,
-    ballotStyleId,
-    dimensions,
-    contestSectionHeaders,
-    ...restProps
-  } = props;
+  const { compact, election, ballotStyleId, dimensions, ...restProps } = props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -931,11 +899,7 @@ async function BallotPageContent(
     .filter((section) => section.length > 0);
 
   // Add as many contests on this page as will fit.
-  const pageSections: Array<{
-    type: ContestTypes;
-    header?: JSX.Element;
-    contests: JSX.Element;
-  }> = [];
+  const pageSections: JSX.Element[] = [];
   let heightUsed = 0;
 
   // TODO is there some way we can use rem here instead of having to know the
@@ -944,25 +908,6 @@ async function BallotPageContent(
   const verticalGapPx = horizontalGapPx;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
-    const headerProps = contestSectionHeaders?.[section[0].type];
-    const sectionHeader = headerProps ? (
-      <ContestSectionHeader {...headerProps} />
-    ) : undefined;
-    const [sectionHeaderMeasurements] = sectionHeader
-      ? await scratchpad.measureElements(
-          <BackendLanguageContextProvider
-            currentLanguageCode={primaryLanguageCode(ballotStyle)}
-            uiStringsPackage={election.ballotStrings}
-          >
-            <div className="sectionHeader">{sectionHeader}</div>
-          </BackendLanguageContextProvider>,
-          '.sectionHeader'
-        )
-      : [];
-    const sectionHeaderHeight = sectionHeader
-      ? sectionHeaderMeasurements.height + verticalGapPx
-      : 0;
-
     const contestElements = section.map((contest) => (
       <Contest
         key={contest.id}
@@ -1001,7 +946,7 @@ async function BallotPageContent(
     const { columns, height } = await layOutInColumns({
       elements: measuredContests,
       numColumns,
-      maxColumnHeight: dimensions.height - heightUsed - sectionHeaderHeight,
+      maxColumnHeight: dimensions.height - heightUsed,
       elementGap: verticalGapPx,
     });
 
@@ -1017,51 +962,30 @@ async function BallotPageContent(
     }
 
     // Add vertical gap to account for space between sections
-    heightUsed += height + verticalGapPx + sectionHeaderHeight;
-    pageSections.push({
-      type: section[0].type,
-      header: sectionHeader,
-      contests: (
-        <div style={{ display: 'flex', gap: `${horizontalGapPx}px` }}>
-          {columns.map((column, i) => (
-            <div
-              key={`column-${i}`}
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: `${verticalGapPx}px`,
-              }}
-            >
-              {column.map(({ element }) => element)}
-            </div>
-          ))}
-        </div>
-      ),
-    });
+    heightUsed += height + verticalGapPx;
+    pageSections.push(
+      <div style={{ display: 'flex', gap: `${horizontalGapPx}px` }}>
+        {columns.map((column, i) => (
+          <div
+            key={`column-${i}`}
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: `${verticalGapPx}px`,
+            }}
+          >
+            {column.map(({ element }) => element)}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   const contestsLeftToLayout = contestSections.flat();
   if (contests.length > 0 && contestsLeftToLayout.length === contests.length) {
     const tooLongContest = assertDefined(contestsLeftToLayout.shift());
     if (tooLongContest.type === 'yesno') {
-      const headerProps = contestSectionHeaders?.['yesno'];
-      const sectionHeader = headerProps ? (
-        <ContestSectionHeader {...headerProps} />
-      ) : undefined;
-      const sectionHeaderHeight = headerProps
-        ? (
-            await scratchpad.measureElements(
-              <BackendLanguageContextProvider
-                currentLanguageCode={primaryLanguageCode(ballotStyle)}
-                uiStringsPackage={election.ballotStrings}
-              >
-                <div className="sectionHeader">{sectionHeader}</div>
-              </BackendLanguageContextProvider>,
-              '.sectionHeader'
-            )
-          )[0].height + verticalGapPx
-        : 0;
       const splitResult = await splitLongBallotMeasureAcrossPages(
         tooLongContest,
         {
@@ -1073,7 +997,7 @@ async function BallotPageContent(
         ballotStyle,
         {
           width: dimensions.width,
-          height: dimensions.height - sectionHeaderHeight,
+          height: dimensions.height,
         },
         scratchpad
       );
@@ -1081,11 +1005,7 @@ async function BallotPageContent(
         return splitResult;
       }
       const { firstContestElement, restContest } = splitResult.ok();
-      pageSections.push({
-        type: 'yesno',
-        header: sectionHeader,
-        contests: firstContestElement,
-      });
+      pageSections.push(firstContestElement);
       contestsLeftToLayout.unshift(restContest);
     } else {
       return err({
@@ -1104,7 +1024,7 @@ async function BallotPageContent(
           gap: `${verticalGapPx}px`,
         }}
       >
-        {pageSections.map((section, i) => (
+        {pageSections.map((sectionContests, i) => (
           <div
             key={`section-${i}`}
             style={{
@@ -1113,25 +1033,13 @@ async function BallotPageContent(
               gap: `${verticalGapPx}px`,
             }}
           >
-            {section.header}
-            {section.contests}
+            {sectionContests}
           </div>
         ))}
       </div>
     ) : (
       <BlankPageMessage />
     );
-  // Only show section headers once per section type
-  const nextPageContestSectionHeaders = contestSectionHeaders
-    ? {
-        candidate: pageSections.some((section) => section.type === 'candidate')
-          ? undefined
-          : contestSectionHeaders.candidate,
-        yesno: pageSections.some((section) => section.type === 'yesno')
-          ? undefined
-          : contestSectionHeaders.yesno,
-      }
-    : undefined;
   const nextPageProps =
     contestsLeftToLayout.length > 0
       ? {
@@ -1142,7 +1050,6 @@ async function BallotPageContent(
             ...election,
             contests: contestsLeftToLayout,
           },
-          contestSectionHeaders: nextPageContestSectionHeaders,
         }
       : undefined;
 
@@ -1152,8 +1059,7 @@ async function BallotPageContent(
   });
 }
 
-export type NhBallotProps = BaseBallotProps &
-  NhPrecinctSplitOptions & { contestSectionHeaders?: ContestSectionHeaders };
+export type NhBallotProps = BaseBallotProps & NhPrecinctSplitOptions;
 
 export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
   stylesComponent: BaseStyles,

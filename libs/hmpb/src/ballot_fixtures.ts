@@ -645,17 +645,6 @@ export const nhGeneralElectionFixtures = (() => {
         </svg>
       `.trim(),
     clerkSignatureCaption: 'Clerk Signature Caption',
-    contestSectionHeaders: {
-      candidate: {
-        title: 'Custom Candidates Title',
-        description: '<p>Custom description for the candidates section.</p>',
-      },
-      yesno: {
-        title: 'Custom Ballot Measures Title',
-        description:
-          '<p>Custom description for the ballot measures section.</p>',
-      },
-    },
   };
   const fixtureSpecs = [
     makeFixtureSpec(HmpbBallotPaperSize.Letter, {}),

@@ -558,32 +558,6 @@ export const deleteContest = {
   },
 } as const;
 
-export const getContestSectionHeaders = {
-  queryKey(electionId: ElectionId): QueryKey {
-    return ['getContestSectionHeaders', electionId];
-  },
-  useQuery(electionId: ElectionId) {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(electionId), () =>
-      apiClient.getContestSectionHeaders({ electionId })
-    );
-  },
-} as const;
-
-export const updateContestSectionHeader = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateContestSectionHeader, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getContestSectionHeaders.queryKey(electionId)
-        );
-      },
-    });
-  },
-} as const;
-
 export const updateBallotLayoutSettings = {
   useMutation() {
     const apiClient = useApiClient();

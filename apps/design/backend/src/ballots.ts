@@ -1,6 +1,5 @@
 import {
   BaseBallotProps,
-  ContestSectionHeaders,
   Election,
   hasSplits,
   UiStringsPackage,
@@ -35,8 +34,7 @@ export function defaultBallotTemplate(
 
 export function formatElectionForExport(
   election: Election,
-  ballotStrings: UiStringsPackage,
-  contestSectionHeaders: ContestSectionHeaders
+  ballotStrings: UiStringsPackage
 ): Election {
   const splitPrecincts = election.precincts.filter((p) => hasSplits(p));
 
@@ -73,7 +71,6 @@ export function formatElectionForExport(
   const additionalHashInput = {
     precinctSplitSeals: Object.fromEntries(sealOverrideBySplit),
     precinctSplitSignatureImages: Object.fromEntries(signatureImageBySplit),
-    contestSectionHeaders,
     contestDescriptionsForContestsWithAdditionalOptions,
   } as const;
 
@@ -90,11 +87,7 @@ export function formatElectionForExport(
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
-  compact: boolean,
-  // Temporarily turning off this feature, so also making sure existing contest
-  // section headers aren't included when rendering ballots.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _contestSectionHeaders: ContestSectionHeaders
+  compact: boolean
 ): BaseBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);

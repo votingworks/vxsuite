@@ -13,14 +13,11 @@ import {
   BallotType,
   Precinct,
   PrecinctWithoutSplits,
-  ContestSectionHeaders,
-  ContestTypes,
   YesNoContest,
 } from '@votingworks/types';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { readFileSync } from 'node:fs';
 import { vi, test, expect, afterAll } from 'vitest';
-import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   organizations,
   jurisdictions,
@@ -266,128 +263,6 @@ test.each<{
     }
   }
 );
-
-test('contest section headers', async () => {
-  const baseElection = electionGeneralFixtures.readElection();
-  const election: Election = {
-    ...baseElection,
-    signature: {
-      image: signatureSvg,
-      caption: 'Test Image Caption',
-    },
-  };
-
-  const { apiClient, auth0 } = await setupApp({
-    organizations,
-    jurisdictions,
-    users,
-  });
-  auth0.setLoggedInUser(nhUser);
-  const electionId = (
-    await apiClient.loadElection({
-      newId: 'new-election-id' as ElectionId,
-      jurisdictionId: nhJurisdiction.id,
-      upload: {
-        format: 'vxf',
-        electionFileContents: JSON.stringify(election),
-      },
-    })
-  ).unsafeUnwrap();
-
-  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual({});
-
-  const contestSectionHeaders: ContestSectionHeaders = {
-    candidate: {
-      title: 'Candidates Section',
-      description: '<p>Description for candidates</p>',
-    },
-    yesno: {
-      title: 'Ballot Measures Section',
-      description: '<p>Description for ballot measures</p>',
-    },
-  };
-  await apiClient.updateContestSectionHeader({
-    electionId,
-    contestType: 'candidate',
-    updatedHeader: contestSectionHeaders.candidate,
-  });
-  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual({
-    candidate: contestSectionHeaders.candidate,
-  });
-  await apiClient.updateContestSectionHeader({
-    electionId,
-    contestType: 'yesno',
-    updatedHeader: contestSectionHeaders.yesno,
-  });
-  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual(
-    contestSectionHeaders
-  );
-
-  await apiClient.updateContestSectionHeader({
-    electionId,
-    contestType: 'candidate',
-    updatedHeader: undefined,
-  });
-  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual({
-    yesno: contestSectionHeaders.yesno,
-  });
-
-  await apiClient.updateContestSectionHeader({
-    electionId,
-    contestType: 'candidate',
-    updatedHeader: contestSectionHeaders.candidate,
-  });
-  expect(await apiClient.getContestSectionHeaders({ electionId })).toEqual(
-    contestSectionHeaders
-  );
-
-  // Invalid headers are rejected
-  await suppressingConsoleOutput(async () => {
-    await expect(
-      apiClient.updateContestSectionHeader({
-        electionId,
-        contestType: 'not-real-type' as unknown as ContestTypes,
-        updatedHeader: {
-          title: 'Valid Title',
-          description: undefined,
-        },
-      })
-    ).rejects.toThrow(/Invalid input/);
-    await expect(
-      apiClient.updateContestSectionHeader({
-        electionId,
-        contestType: 'candidate',
-        updatedHeader: {
-          title: '', // Invalid empty title
-          description: undefined,
-        },
-      })
-    ).rejects.toThrow(/Too small/);
-  });
-
-  // Headers are passed to ballot rendering
-  // Temporarily disabled
-  // const precincts = await apiClient.listPrecincts({ electionId });
-  // const ballotStyles = await apiClient.listBallotStyles({ electionId });
-  // const precinct = precincts[0];
-  // const ballotStyle = find(ballotStyles, (bs) =>
-  //   bs.districts.some(
-  //     (districtId) =>
-  //       !hasSplits(precinct) && precinct.districtIds.includes(districtId)
-  //   )
-  // );
-
-  // const result = (
-  //   await apiClient.getBallotPreviewPdf({
-  //     electionId,
-  //     precinctId: precinct.id,
-  //     ballotStyleId: assertDefined(ballotStyle).id,
-  //     ballotType: BallotType.Precinct,
-  //     ballotMode: 'test',
-  //   })
-  // ).unsafeUnwrap();
-  // await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.001 });
-});
 
 test('ballot measure contest editing with additional contest options', async () => {
   const election = electionGeneralFixtures.readElection();
