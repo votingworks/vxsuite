@@ -396,21 +396,37 @@ export function DeviceStatusBar({
   ) {
     return null;
   }
-  const { network, battery, usbDrive, printer, barcodeScanner } =
-    getDeviceStatusesQuery.data;
   const pollbookConfiguration = getPollbookConfigurationInformationQuery.data;
+
+  // Mock statuses for documentation screenshots - everything connected, no warnings
+  const mockNetwork: NetworkStatus = {
+    isOnline: true,
+    pollbooks: [
+      { machineId: 'mock-1', status: PollbookConnectionStatus.Connected, lastSeen: new Date().toISOString(), numCheckIns: 0 } as PollbookServiceInfo,
+    ],
+  };
 
   return (
     <DeviceInfoBar>
       <Row style={{ gap: '1.25rem', alignItems: 'center' }}>
         <NetworkStatus
-          status={network}
+          status={mockNetwork}
           currentMachineConfiguration={pollbookConfiguration}
         />
-        <PrinterStatus status={printer} />
-        <BarcodeScannerStatus status={barcodeScanner} />
-        <UsbStatus status={usbDrive} />
-        <BatteryStatus status={battery} />
+        <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
+          <Icons.Print color="inverse" />
+        </Row>
+        <Row style={{ gap: '0.25rem', alignItems: 'center' }} data-testid="barcode-scanner-status">
+          <Icons.IdCard color="inverse" />
+        </Row>
+        <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
+          <Icons.UsbDrive color="inverse" />
+        </Row>
+        <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
+          {getBatteryIcon({ level: 1, discharging: false }, true)}
+          <Icons.Bolt style={{ fontSize: '0.8em' }} color="inverse" />
+          {format.percent(1)}
+        </Row>
         {format.clockDateAndTime(currentDate)}
         {showLogOutButton && <LogOutButton />}
       </Row>

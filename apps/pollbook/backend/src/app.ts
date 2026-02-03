@@ -689,16 +689,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
 
     async printPrimaryStatisticsSummaryReceipt(): Promise<Result<void, Error>> {
       const election = assertDefined(store.getElection());
-      const allStats = store.getPrimarySummaryStatistics('ALL');
-      const demStats = store.getPrimarySummaryStatistics('DEM');
-      const repStats = store.getPrimarySummaryStatistics('REP');
-      const undeclaredStats = store.getPrimarySummaryStatistics('UND');
-      const eventCounts: { addressChange: number; nameChange: number } = {
-        addressChange: store.getEventCountUniqueByVoter(
-          EventType.VoterAddressChange
-        ),
-        nameChange: store.getEventCountUniqueByVoter(EventType.VoterNameChange),
-      };
+      // Mock data for documentation screenshots
+      const allStats = { totalVoters: 2847, totalCheckIns: 400, totalNewRegistrations: 28, totalAbsenteeCheckIns: 53 };
+      const demStats = { totalVoters: 1254, totalCheckIns: 165, totalNewRegistrations: 12, totalAbsenteeCheckIns: 22 };
+      const repStats = { totalVoters: 1142, totalCheckIns: 185, totalNewRegistrations: 11, totalAbsenteeCheckIns: 24 };
+      const undeclaredStats = { totalVoters: 451, totalCheckIns: 100, totalNewRegistrations: 5, totalAbsenteeCheckIns: 0, totalUndeclaredDemCheckIns: 42, totalUndeclaredRepCheckIns: 58 };
+      const eventCounts = { addressChange: 7, nameChange: 4 };
 
       const receipt = React.createElement(StatisticsSummaryReceipt, {
         machineId,
@@ -712,16 +708,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
 
     async printGeneralStatisticsSummaryReceipt(): Promise<Result<void, Error>> {
       const election = assertDefined(store.getElection());
-      const allStats = store.getGeneralSummaryStatistics('ALL');
-      const demStats = store.getGeneralSummaryStatistics('DEM');
-      const repStats = store.getGeneralSummaryStatistics('REP');
-      const undeclaredStats = store.getGeneralSummaryStatistics('UND');
-      const eventCounts: { addressChange: number; nameChange: number } = {
-        addressChange: store.getEventCountUniqueByVoter(
-          EventType.VoterAddressChange
-        ),
-        nameChange: store.getEventCountUniqueByVoter(EventType.VoterNameChange),
-      };
+      // Mock data for documentation screenshots
+      const allStats = { totalVoters: 2847, totalCheckIns: 400, totalNewRegistrations: 28, totalAbsenteeCheckIns: 53 };
+      const demStats = { totalVoters: 1254, totalCheckIns: 165, totalNewRegistrations: 12, totalAbsenteeCheckIns: 22 };
+      const repStats = { totalVoters: 1142, totalCheckIns: 185, totalNewRegistrations: 11, totalAbsenteeCheckIns: 24 };
+      const undeclaredStats = { totalVoters: 451, totalCheckIns: 100, totalNewRegistrations: 5, totalAbsenteeCheckIns: 0 };
+      const eventCounts = { addressChange: 7, nameChange: 4 };
       const receipt = React.createElement(StatisticsSummaryReceipt, {
         machineId,
         election,
