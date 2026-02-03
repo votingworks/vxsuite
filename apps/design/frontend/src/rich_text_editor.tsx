@@ -1,4 +1,9 @@
-import { useEditor, EditorContent, Editor } from '@tiptap/react';
+import {
+  useEditor,
+  EditorContent,
+  Editor,
+  useEditorState,
+} from '@tiptap/react';
 import Bold from '@tiptap/extension-bold';
 import Italic from '@tiptap/extension-italic';
 import Underline from '@tiptap/extension-underline';
@@ -7,17 +12,15 @@ import Text from '@tiptap/extension-text';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import HardBreak from '@tiptap/extension-hard-break';
-import BulletList from '@tiptap/extension-bullet-list';
-import OrderedList from '@tiptap/extension-ordered-list';
-import ListItem from '@tiptap/extension-list-item';
+import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
 import Image from '@tiptap/extension-image';
-import Table from '@tiptap/extension-table';
-import TableCell from '@tiptap/extension-table-cell';
-import TableRow from '@tiptap/extension-table-row';
-import TableHeader from '@tiptap/extension-table-header';
-import Dropcursor from '@tiptap/extension-dropcursor';
-import Gapcursor from '@tiptap/extension-gapcursor';
-import History from '@tiptap/extension-history';
+import {
+  Table,
+  TableCell,
+  TableRow,
+  TableHeader,
+} from '@tiptap/extension-table';
+import { Dropcursor, Gapcursor, UndoRedo } from '@tiptap/extensions';
 import { Slice } from '@tiptap/pm/model';
 import {
   Button,
@@ -146,6 +149,19 @@ const NORMALIZE_PARAMS: Readonly<NormalizeParams> = {
 
 function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
   const [imageError, setImageError] = useState<Error>();
+  const isActive = useEditorState({
+    editor,
+    selector: (state) => ({
+      bold: state.editor.isActive('bold'),
+      italic: state.editor.isActive('italic'),
+      underline: state.editor.isActive('underline'),
+      strike: state.editor.isActive('strike'),
+      bulletList: state.editor.isActive('bulletList'),
+      orderedList: state.editor.isActive('orderedList'),
+      table: state.editor.isActive('table'),
+    }),
+  });
+
   return (
     <StyledToolbar>
       <ControlGroup>
@@ -153,28 +169,28 @@ function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
           disabled={disabled}
           icon="Bold"
           aria-label="Bold"
-          isActive={editor.isActive('bold')}
+          isActive={isActive.bold}
           onPress={() => editor.chain().focus().toggleBold().run()}
         />
         <ControlButton
           disabled={disabled}
           icon="Italic"
           aria-label="Italic"
-          isActive={editor.isActive('italic')}
+          isActive={isActive.italic}
           onPress={() => editor.chain().focus().toggleItalic().run()}
         />
         <ControlButton
           disabled={disabled}
           icon="Underline"
           aria-label="Underline"
-          isActive={editor.isActive('underline')}
+          isActive={isActive.underline}
           onPress={() => editor.chain().focus().toggleUnderline().run()}
         />
         <ControlButton
           disabled={disabled}
           icon="Strikethrough"
           aria-label="Strikethrough"
-          isActive={editor.isActive('strike')}
+          isActive={isActive.strike}
           onPress={() => editor.chain().focus().toggleStrike().run()}
         />
       </ControlGroup>
@@ -183,14 +199,14 @@ function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
           disabled={disabled}
           icon="ListUnordered"
           aria-label="Bullet List"
-          isActive={editor.isActive('bulletList')}
+          isActive={isActive.bulletList}
           onPress={() => editor.chain().focus().toggleBulletList().run()}
         />
         <ControlButton
           disabled={disabled}
           icon="ListOrdered"
           aria-label="Number List"
-          isActive={editor.isActive('orderedList')}
+          isActive={isActive.orderedList}
           onPress={() => editor.chain().focus().toggleOrderedList().run()}
         />
       </ControlGroup>
@@ -225,9 +241,9 @@ function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
           disabled={disabled}
           icon="Table"
           aria-label="Table"
-          isActive={editor.isActive('table')}
+          isActive={isActive.table}
           onPress={() =>
-            editor.isActive('table')
+            isActive.table
               ? editor.chain().focus().deleteTable().run()
               : editor
                   .chain()
@@ -236,7 +252,7 @@ function Toolbar({ disabled, editor }: { disabled?: boolean; editor: Editor }) {
                   .run()
           }
         />
-        {editor.isActive('table') && (
+        {isActive.table && (
           <React.Fragment>
             <ControlButton
               disabled={disabled}
@@ -389,7 +405,7 @@ export function RichTextEditor({
       TableHeader,
       Dropcursor,
       Gapcursor,
-      History,
+      UndoRedo,
     ],
     editorProps: {
       transformPasted: unwrapSingleCellTablesOnPaste,
