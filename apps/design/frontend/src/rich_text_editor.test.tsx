@@ -297,6 +297,12 @@ describe('sanitizeTrailingNbspOnPaste', () => {
       sanitizeTrailingNbspOnPaste('<table><tr><td> </td></tr></table>')
     ).toEqual('<table><tbody><tr><td></td></tr></tbody></table>');
   });
+
+  test('does not strip trailing pure whitespace with no nbsp', () => {
+    expect(
+      sanitizeTrailingNbspOnPaste('<table><tr><td>text      </td></tr></table>')
+    ).toEqual('<table><tbody><tr><td>text      </td></tr></tbody></table>');
+  });
 });
 
 test('disabled', async () => {
