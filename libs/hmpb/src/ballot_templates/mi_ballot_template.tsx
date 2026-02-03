@@ -1,20 +1,21 @@
 import React from 'react';
 import {
+  assert,
   assertDefined,
   err,
+  find,
+  groupBy,
   iter,
   ok,
   range,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
 import {
   AnyContest,
   BallotMode,
   BallotStyle,
   BallotStyleId,
-  BallotType,
   BaseBallotProps,
   CandidateContest as CandidateContestStruct,
   Election,
@@ -31,10 +32,8 @@ import {
   CandidatePartyList,
   electionStrings,
   RichText,
-  ROBOTO_ITALIC_FONT_DECLARATIONS,
-  ROBOTO_REGULAR_FONT_DECLARATIONS,
 } from '@votingworks/ui';
-import { css } from 'styled-components';
+import styled from 'styled-components';
 import {
   BallotLayoutError,
   BallotPageTemplate,
@@ -49,12 +48,8 @@ import {
   pageMarginsInches,
   DualLanguageText,
   primaryLanguageCode,
-  Instructions,
   Footer,
-  Box,
-  ContestHeader,
   Colors,
-  WriteInLabel,
   BlankPageMessage,
   AlignedBubble,
   ContestTitle,
@@ -63,30 +58,51 @@ import {
   PrecinctOrSplitName,
 } from '../ballot_components';
 import { PixelDimensions } from '../types';
-import { layOutInColumns } from '../layout_in_columns';
+import { layOutSectionsInColumns } from '../layout_in_columns';
 import { hmpbStrings } from '../hmpb_strings';
 import { Watermark } from './watermark';
 import { BaseStyles as BaseStylesComponent } from '../base_styles';
 
+const Box = styled.div<{
+  fill?: 'transparent' | 'tinted';
+}>`
+  border: 1px solid ${Colors.BLACK};
+  // border-top-width: 3px;
+  background-color: ${(p) =>
+    p.fill === 'tinted' ? Colors.LIGHT_GRAY : 'none'};
+  &:not(:first-child) {
+    border-top: none;
+  }
+`;
+
+const ContestColumn = styled.div`
+  &:not(:last-child) {
+    > ${Box} {
+      margin-right: -1px;
+    }
+  }
+`;
+
 function BaseStyles(): JSX.Element {
-  return <BaseStylesComponent compact={false} />;
+  return <BaseStylesComponent compact />;
 }
 
 // Section header (Partisan, Nonpartisan and Proposal): 60% fill, centered, bold face, upper and lower case,
 // white sans serif font, 11 pt.
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <div
+    <Box
       style={{
         background: Colors.INVERSE_GRAY,
         color: Colors.WHITE,
         textAlign: 'center',
         fontWeight: 'bold',
         fontSize: '11pt',
+        padding: '0.25rem 0.5rem',
       }}
     >
       {children}
-    </div>
+    </Box>
   );
 }
 
@@ -94,16 +110,17 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
 // sans serif font, 10.5 pt.
 function DivisionalHeader({ children }: { children: React.ReactNode }) {
   return (
-    <div
+    <Box
       style={{
-        color: Colors.DARK_GRAY,
+        background: 'hsl(0, 2%, 75%)',
         textAlign: 'center',
         fontWeight: 'bold',
-        fontSize: '10.5pt',
+        fontSize: '11pt',
+        padding: '0.25rem 0.5rem',
       }}
     >
       {children}
-    </div>
+    </Box>
   );
 }
 
@@ -115,7 +132,7 @@ function ContestHeader({ children }: { children: React.ReactNode }) {
         background: Colors.LIGHT_GRAY,
         textAlign: 'center',
         fontWeight: 'bold',
-        fontSize: '9.5pt',
+        fontSize: '10pt',
         padding: '0.25rem 0.5rem',
       }}
     >
@@ -152,9 +169,7 @@ function CandidateDetails({ children }: { children: React.ReactNode }) {
 
 // Proposal wording: 0% fill, left justified, regular face, upper and lower case, black sans serif font, 8.5 pt.
 function ProposalDescription({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ textAlign: 'justify', fontSize: '8.5pt' }}>{children}</div>
-  );
+  return <div style={{ fontSize: '9pt' }}>{children}</div>;
 }
 
 function Header({
@@ -275,13 +290,15 @@ function BallotPageFrame({
             >
               {children}
             </div>
-            <Footer
-              election={election}
-              ballotStyleId={ballotStyleId}
-              precinctId={precinctId}
-              pageNumber={pageNumber}
-              totalPages={totalPages}
-            />
+            <div style={{ fontSize: '12pt' }}>
+              <Footer
+                election={election}
+                ballotStyleId={ballotStyleId}
+                precinctId={precinctId}
+                pageNumber={pageNumber}
+                totalPages={totalPages}
+              />
+            </div>
           </div>
         </TimingMarkGrid>
       </Page>
@@ -374,7 +391,9 @@ function CandidateContest({
               >
                 <AlignedBubble optionInfo={optionInfo} />
                 <div>
-                  <CandidateName>{candidate.name}</CandidateName>
+                  <CandidateName>
+                    {electionStrings.candidateName(candidate)}
+                  </CandidateName>
                   {partyText && (
                     <DualLanguageText delimiter="/">
                       <CandidateDetails>{partyText}</CandidateDetails>
@@ -392,10 +411,10 @@ function CandidateContest({
               contestId: contest.id,
               writeInIndex,
               writeInArea: {
-                top: 0.8,
-                left: -0.9,
-                bottom: 0.2,
-                right: 8.7,
+                top: 0.5,
+                left: -0.6,
+                bottom: 0.5,
+                right: 6.8,
               },
             };
             return (
@@ -405,20 +424,20 @@ function CandidateContest({
                 style={{
                   display: 'flex',
                   gap: '0.5rem',
-                  padding: '0.25rem 0.5rem',
-                  paddingTop: '0.9rem',
+                  padding: '0.5rem 0.5rem',
+                  // paddingTop: '0.9rem',
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                 }}
               >
                 <AlignedBubble optionInfo={optionInfo} />
-                <div style={{ flex: 1 }}>
+                {/* <div style={{ flex: 1 }}>
                   <div
                     style={{
                       borderBottom: `1px solid ${Colors.BLACK}`,
                       height: '1.25rem',
                     }}
                   />
-                </div>
+                </div> */}
               </li>
             );
           })}
@@ -451,15 +470,17 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
             gap: '0.5rem',
           }}
         >
-          <DualLanguageText>
-            <RichText
-              tableBorderWidth={'1px'}
-              tableBorderColor={Colors.DARKER_GRAY}
-              tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
-            >
-              {electionStrings.contestDescription(contest)}
-            </RichText>
-          </DualLanguageText>
+          <ProposalDescription>
+            <DualLanguageText>
+              <RichText
+                tableBorderWidth={'1px'}
+                tableBorderColor={Colors.DARKER_GRAY}
+                tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
+              >
+                {electionStrings.contestDescription(contest)}
+              </RichText>
+            </DualLanguageText>
+          </ProposalDescription>
         </div>
         <ul
           style={{
@@ -545,103 +566,167 @@ async function BallotPageContent(
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
-  const contestSections = iter(contests)
-    .partition((contest) => contest.type === 'candidate')
-    .filter((section) => section.length > 0);
 
-  // Add as many contests on this page as will fit.
-  const pageSections: JSX.Element[] = [];
-  let heightUsed = 0;
-
-  // TODO is there some way we can use rem here instead of having to know the
-  // font size and map to px?
-  const horizontalGapPx = 0.75 * 16; // Assuming 16px per 1rem
-  const verticalGapPx = horizontalGapPx;
-  while (contestSections.length > 0 && heightUsed < dimensions.height) {
-    const section = assertDefined(contestSections.shift());
-    // Group contests by district for divisional headers (assumes contests are in district order)
-    const subSections = iter(section)
-      .groupBy(
-        (contest1, contest2) => contest1.districtId === contest2.districtId
-      )
-      .toArray();
-
-    const contestElements = section.map((contest) => (
-      <Contest
-        key={contest.id}
-        contest={contest}
-        election={election}
-        ballotStyle={ballotStyle}
-      />
-    ));
-    const numColumns = section[0].type === 'candidate' ? 3 : 2;
-    const columnWidthPx =
-      (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
-    const contestMeasurements = await scratchpad.measureElements(
-      <BackendLanguageContextProvider
-        currentLanguageCode={primaryLanguageCode(ballotStyle)}
-        uiStringsPackage={election.ballotStrings}
-      >
-        {contestElements.map((contest, i) => (
-          <div
-            className="contestWrapper"
-            key={i}
-            style={{ width: `${columnWidthPx}px` }}
-          >
-            {contest}
-          </div>
-        ))}
-      </BackendLanguageContextProvider>,
-      '.contestWrapper'
-    );
-    const measuredContests = iter(contestElements)
-      .zip(contestMeasurements)
-      .map(([element, measurements]) => ({ element, ...measurements }))
-      .async();
-
-    const { columns, height } = await layOutInColumns({
-      elements: measuredContests,
-      numColumns,
-      maxColumnHeight: dimensions.height - heightUsed,
-      elementGap: verticalGapPx,
-    });
-
-    // Put contests we didn't lay out back on the front of the queue
-    const numElementsUsed = columns.flat().length;
-    if (numElementsUsed < section.length) {
-      contestSections.unshift(section.slice(numElementsUsed));
-    }
-
-    // If there wasn't enough room left for any contests, go to the next page
-    if (height === 0) {
-      break;
-    }
-
-    // Add vertical gap to account for space between sections
-    heightUsed += height + verticalGapPx;
-    pageSections.push(
-      <div
-        key={`section-${pageSections.length + 1}`}
-        style={{ display: 'flex', gap: `${horizontalGapPx}px` }}
-      >
-        {columns.map((column, i) => (
-          <div
-            key={`column-${i}`}
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: `${verticalGapPx}px`,
-            }}
-          >
-            {column.map(({ element }) => element)}
-          </div>
-        ))}
-      </div>
+  function isPartisanContest(contest: CandidateContestStruct): boolean {
+    return (
+      (contest.candidates[0]?.partyIds?.length || 0) > 0 ||
+      contest.id === 'straight-party-ticket'
     );
   }
 
-  const contestsLeftToLayout = contestSections.flat();
+  const contestSections = [
+    {
+      header: 'Partisan Section',
+      contests: contests.filter(
+        (contest) => contest.type === 'candidate' && isPartisanContest(contest)
+      ),
+    },
+    {
+      header: 'Nonpartisan Section',
+      contests: contests.filter(
+        (contest) => contest.type === 'candidate' && !isPartisanContest(contest)
+      ),
+    },
+    {
+      header: 'Proposal Section',
+      contests: contests.filter((contest) => contest.type === 'yesno'),
+    },
+  ]
+    .filter((section) => section.contests.length > 0)
+    .map((section) => ({
+      header: section.header,
+      subsections: groupBy(
+        section.contests,
+        (contest) => contest.districtId
+      ).map(([districtId, districtContests]) => ({
+        header: election.districts.find(
+          (d) => d.id === districtId && districtId !== 'straight-party'
+        )?.name,
+        contests: districtContests,
+      })),
+    }));
+
+  const horizontalGapPx = 0;
+  const verticalGapPx = 0;
+
+  const sectionElements = contestSections.map((section) => ({
+    header: <SectionHeader>{section.header}</SectionHeader>,
+    subsections: section.subsections.map((subsection) => ({
+      header:
+        subsection.header !== undefined ? (
+          <DivisionalHeader>{subsection.header}</DivisionalHeader>
+        ) : undefined,
+      contests: subsection.contests.map((contest) => ({
+        contest,
+        element: (
+          <Contest
+            key={contest.id}
+            contest={contest}
+            election={election}
+            ballotStyle={ballotStyle}
+          />
+        ),
+      })),
+    })),
+  }));
+
+  const numColumns = 4;
+  const columnWidthPx =
+    (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
+
+  const flattenedElements = sectionElements.flatMap((section) => {
+    const subsectionElements = section.subsections.flatMap((subsection) => [
+      ...(subsection.header ? [subsection.header] : []),
+      ...subsection.contests.map(({ element }) => element),
+    ]);
+    return [section.header, ...subsectionElements];
+  });
+
+  const measurements = await scratchpad.measureElements(
+    <BackendLanguageContextProvider
+      currentLanguageCode={primaryLanguageCode(ballotStyle)}
+      uiStringsPackage={election.ballotStrings}
+    >
+      {flattenedElements.map((element, i) => (
+        <div
+          className="wrapper"
+          key={i}
+          style={{ width: `${columnWidthPx}px` }}
+        >
+          {element}
+        </div>
+      ))}
+    </BackendLanguageContextProvider>,
+    '.wrapper'
+  );
+  const measurementsQueue = measurements.toReversed();
+
+  const measuredSections = [];
+  for (const sectionElement of sectionElements) {
+    const sectionHeaderMeasurements = assertDefined(measurementsQueue.pop());
+    const measuredSubsections = [];
+    for (const subsectionElement of sectionElement.subsections) {
+      const subsectionHeaderMeasurements =
+        subsectionElement.header && assertDefined(measurementsQueue.pop());
+      const measuredContests = [];
+      for (const contestElement of subsectionElement.contests) {
+        const contestMeasurements = assertDefined(measurementsQueue.pop());
+        measuredContests.push({
+          ...contestElement,
+          ...contestMeasurements,
+        });
+      }
+      measuredSubsections.push({
+        header: subsectionElement.header && {
+          element: subsectionElement.header,
+          ...assertDefined(subsectionHeaderMeasurements),
+        },
+        elements: measuredContests,
+      });
+    }
+    measuredSections.push({
+      header: {
+        element: sectionElement.header,
+        ...sectionHeaderMeasurements,
+      },
+      subsections: measuredSubsections,
+    });
+  }
+
+  const { columns, leftoverSections } = layOutSectionsInColumns({
+    sections: measuredSections,
+    numColumns,
+    maxColumnHeight: dimensions.height,
+    elementGap: verticalGapPx,
+  });
+
+  const sectionsElement = (
+    <div style={{ display: 'flex', gap: `${horizontalGapPx}px` }}>
+      {columns.map((column, i) => (
+        <ContestColumn
+          key={`column-${i}`}
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: `${verticalGapPx}px`,
+          }}
+        >
+          {column.map(({ element }) => element)}
+        </ContestColumn>
+      ))}
+    </div>
+  );
+
+  const contestsLeftToLayout = leftoverSections.flatMap((section) =>
+    section.subsections.flatMap((subsection) =>
+      subsection.elements.map((c) => {
+        assert('contest' in c);
+        return c.contest;
+      })
+    )
+  );
+
   if (contests.length > 0 && contestsLeftToLayout.length === contests.length) {
     return err({
       error: 'contestTooLong',
@@ -650,19 +735,12 @@ async function BallotPageContent(
   }
 
   const currentPageElement =
-    pageSections.length > 0 ? (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: `${verticalGapPx}px`,
-        }}
-      >
-        {pageSections}
-      </div>
-    ) : (
+    contestsLeftToLayout.length === contests.length ? (
       <BlankPageMessage />
+    ) : (
+      sectionsElement
     );
+
   const nextPageProps =
     contestsLeftToLayout.length > 0
       ? {
