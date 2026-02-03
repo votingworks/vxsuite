@@ -345,9 +345,9 @@ function findLastTextNode(root: Node): Text | null {
   return last;
 }
 
-// Remove trailing NBSPs and trailing whitespace, if there is at least one nbsp (unicode U+00A0)
+// Remove trailing nbsps and trailing whitespace, if there is at least one nbsp (unicode U+00A0)
 function stripTrailingNbsp(text: string): string {
-  return text.replace(/[\u00A0\s]+$/, '');
+  return text.replace(/[\s\u00A0]*\u00A0[\s\u00A0]*$/, '');
 }
 
 // HTML_BLOCKS includes the HTML elements that most commonly have unintended trailing
