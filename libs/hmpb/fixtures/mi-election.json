@@ -9,7 +9,7 @@
   },
   "date": "2020-11-03",
   "ballotLayout": {
-    "paperSize": "letter",
+    "paperSize": "custom-8.5x17",
     "metadataEncoding": "qr-code"
   },
   "parties": [
@@ -54,6 +54,36 @@
       "name": "Natural Law",
       "fullName": "Natural Law Party",
       "abbrev": "NLP"
+    },
+    {
+      "id": "justice-of-supreme-court",
+      "name": "Justice of Supreme Court",
+      "fullName": "Justice of Supreme Court",
+      "abbrev": "JSC"
+    },
+    {
+      "id": "judge-of-court-of-appeals",
+      "name": "Judge of Court of Appeals",
+      "fullName": "Judge of Court of Appeals",
+      "abbrev": "JCA"
+    },
+    {
+      "id": "judge-of-circuit-court",
+      "name": "Judge of Circuit Court",
+      "fullName": "Judge of Circuit Court",
+      "abbrev": "JCC"
+    },
+    {
+      "id": "judge-of-probate-court",
+      "name": "Judge of Probate Court",
+      "fullName": "Judge of Probate Court",
+      "abbrev": "JPC"
+    },
+    {
+      "id": "judge-of-district-court",
+      "name": "Judge of District Court",
+      "fullName": "Judge of District Court",
+      "abbrev": "JDC"
     }
   ],
   "districts": [
@@ -284,6 +314,11 @@
       "allowWriteIns": true,
       "candidates": [
         {
+          "id": "jason-strayhorn",
+          "name": "Jason Strayhorn",
+          "partyIds": ["democratic"]
+        },
+        {
           "id": "ellen-cogen-lipton",
           "name": "Ellen Cogen Lipton",
           "partyIds": ["democratic"]
@@ -324,12 +359,7 @@
           "name": "Mary Anne Hering",
           "partyIds": ["working-class"]
         },
-        { "id": "tom-mair", "name": "Tom Mair", "partyIds": ["green"] },
-        {
-          "id": "jason-strayhorn",
-          "name": "Jason Strayhorn",
-          "partyIds": ["democratic"]
-        }
+        { "id": "tom-mair", "name": "Tom Mair", "partyIds": ["green"] }
       ]
     },
     {
@@ -369,6 +399,11 @@
           "id": "eric-larson",
           "name": "Eric Larson",
           "partyIds": ["libertarian"]
+        },
+        {
+          "id": "ronald-graeser",
+          "name": "Ronald E. Graeser",
+          "partyIds": ["us-taxpayers"]
         },
         {
           "id": "crystal-van-sickle",
@@ -452,13 +487,13 @@
       "allowWriteIns": true,
       "candidates": [
         {
-          "id": "shirley-stancato",
-          "name": "Shirley Stancato",
+          "id": "eva-garza-dewaelsche",
+          "name": "Eva Garza Dewaelsche",
           "partyIds": ["democratic"]
         },
         {
-          "id": "eva-garza-dewaelsche",
-          "name": "Eva Garza Dewaelsche",
+          "id": "shirley-stancato",
+          "name": "Shirley Stancato",
           "partyIds": ["democratic"]
         },
         { "id": "don-gates", "name": "Don Gates", "partyIds": ["republican"] },
@@ -524,6 +559,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
+        {
+          "id": "devin-ortega-furgeson",
+          "name": "Devin Ortega-Furgeson",
+          "partyIds": ["democratic"]
+        },
         {
           "id": "lisa-posthumus-lyons",
           "name": "Lisa Posthumus Lyons",
@@ -680,7 +720,7 @@
       "id": "justice-supreme-court",
       "districtId": "judicial",
       "type": "candidate",
-      "title": "Justice of Supreme Court",
+      "title": "Justice of Supreme Court<br/>Supreme Court",
       "seats": 2,
       "allowWriteIns": true,
       "candidates": [
@@ -690,7 +730,7 @@
         { "id": "kerry-lee-morgan", "name": "Kerry Lee Morgan" },
         { "id": "elizabeth-welch", "name": "Elizabeth M. Welch" },
         { "id": "katherine-nepton", "name": "Katherine Mary Nepton" },
-        { "id": "bridget-mccormack", "name": "Bridget Mary McCormack" }
+        { "id": "bridget-mccormack", "name": "Bridget Mary McCormack", "partyIds": ["justice-of-supreme-court"] }
       ]
     },
     {
@@ -701,8 +741,8 @@
       "seats": 2,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "mark-boonstra", "name": "Mark Thomas Boonstra" },
-        { "id": "jane-markey", "name": "Jane E. Markey" }
+        { "id": "mark-boonstra", "name": "Mark Thomas Boonstra", "partyIds": ["judge-of-court-of-appeals"] },
+        { "id": "jane-markey", "name": "Jane E. Markey", "partyIds": ["judge-of-court-of-appeals"] }
       ]
     },
     {
@@ -712,7 +752,7 @@
       "title": "Judge of Court of Appeals 3rd District<br/>Incumbent Position<br/>Partial Term Ending 01-01-2023",
       "seats": 2,
       "allowWriteIns": true,
-      "candidates": [{ "id": "james-redford", "name": "James Robert Redford" }]
+      "candidates": [{ "id": "james-redford", "name": "James Robert Redford", "partyIds": ["judge-of-court-of-appeals"] }]
     },
     {
       "id": "judge-circuit-court-17-incumbent",
@@ -721,7 +761,7 @@
       "title": "Judge of Circuit Court 17th Circuit<br/>Incumbent Position",
       "seats": 1,
       "allowWriteIns": true,
-      "candidates": [{ "id": "kathleen-feeney", "name": "Kathleen A. Feeney" }]
+      "candidates": [{ "id": "kathleen-feeney", "name": "Kathleen A. Feeney", "partyIds": ["judge-of-circuit-court"] }]
     },
     {
       "id": "judge-circuit-court-17-nonincumbent",
@@ -744,18 +784,53 @@
       "title": "Judge of Probate Court",
       "seats": 1,
       "allowWriteIns": true,
-      "candidates": [{ "id": "james-kerby", "name": "James T. Kerby" }]
+      "candidates": [
+        { "id": "david-murkowski", "name": "David Murkowski", "partyIds": ["judge-of-probate-court"] }
+      ]
     },
     {
       "id": "judge-district-court-63",
       "districtId": "judicial",
       "type": "candidate",
       "title": "Judge of District Court 63rd District<br/>Incumbent Position",
-      "seats": 1,
+      "seats": 2,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "sara-smolenski", "name": "Sara J. Smolenski" },
-        { "id": "jeffrey-ohara", "name": "Jeffrey J. O'Hara" }
+        { "id": "sara-smolenski", "name": "Sara J. Smolenski", "partyIds": ["judge-of-district-court"] },
+        { "id": "jeffrey-ohara", "name": "Jeffrey J. O'Hara", "partyIds": ["judge-of-district-court"] }
+      ]
+    },
+    {
+      "id": "community-college-board",
+      "districtId": "community-college",
+      "type": "candidate",
+      "title": "Community College Board of Trustees Member<br/>Grand Rapids Community College",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "brandon-sinclair", "name": "Brandon Sinclair" },
+        {
+          "id": "brandy-lovelady-mitchell",
+          "name": "Brandy Lovelady Mitchell"
+        },
+        { "id": "daniel-williams", "name": "Daniel Williams" }
+      ]
+    },
+    {
+      "id": "library-board",
+      "districtId": "community-college",
+      "type": "candidate",
+      "title": "Library Board Director",
+      "seats": 6,
+      "allowWriteIns": true,
+      "candidates": [
+        { "id": "richard-beauchamp", "name": "Richard Beauchamp" },
+        { "id": "debra-willison", "name": "Debra Willison" },
+        { "id": "carol-keller", "name": "Carol M. Keller" },
+        { "id": "mary-ann-meyer", "name": "Mary-Ann Meyer" },
+        { "id": "janet-hayes", "name": "Janet Hayes" },
+        { "id": "joy-leussenkamp", "name": "Joy Marie Leussenkamp" },
+        { "id": "jane-ohanesian", "name": "Jane Ohanesian" }
       ]
     },
     {
@@ -790,51 +865,17 @@
       "candidates": [{ "id": "william-taylor", "name": "William Taylor" }]
     },
     {
-      "id": "library-board",
-      "districtId": "local-school-district",
-      "type": "candidate",
-      "title": "Library Board Director",
-      "seats": 6,
-      "allowWriteIns": true,
-      "candidates": [
-        { "id": "richard-beauchamp", "name": "Richard Beauchamp" },
-        { "id": "debra-willison", "name": "Debra Willison" },
-        { "id": "carol-keller", "name": "Carol M. Keller" },
-        { "id": "mary-ann-meyer", "name": "Mary-Ann Meyer" },
-        { "id": "janet-hayes", "name": "Janet Hayes" },
-        { "id": "joy-leussenkamp", "name": "Joy Marie Leussenkamp" },
-        { "id": "jane-ohanesian", "name": "Jane Ohanesian" }
-      ]
-    },
-    {
       "id": "sparta-school-board",
       "districtId": "local-school-district",
       "type": "candidate",
-      "title": "Board Member<br/>Sparta Area Schools",
+      "title": "Local School District<br/>Board Member<br/>Sparta Area Schools",
       "seats": 3,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "david-murkowski", "name": "David Murkowski" },
         { "id": "erin-bormes", "name": "Erin Bormes" },
         { "id": "kim-eluskie", "name": "Kim Eluskie" },
-        { "id": "timothy-driscoll", "name": "Timothy A. Driscoll" }
-      ]
-    },
-    {
-      "id": "community-college-board",
-      "districtId": "community-college",
-      "type": "candidate",
-      "title": "Community College Board of Trustees Member<br/>Grand Rapids Community College",
-      "seats": 2,
-      "allowWriteIns": true,
-      "candidates": [
-        { "id": "brandon-sinclair", "name": "Brandon Sinclair" },
-        {
-          "id": "brandy-lovelady-mitchell",
-          "name": "Brandy Lovelady Mitchell"
-        },
-        { "id": "daniel-williams", "name": "Daniel Williams" }
-      ]
+        { "id": "timothy-driscoll", "name": "Timothy A. Driscoll" },
+        { "id": "james-kerby", "name": "James T. Kerby" }]
     },
     {
       "id": "proposal-20-1",
