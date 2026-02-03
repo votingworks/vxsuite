@@ -276,7 +276,6 @@ export function layOutSectionsInColumns<Element extends ElementWithHeight>({
   const lastUsedElement = iter(
     columns.findLast((column) => column.length > 0)
   ).last();
-  console.log({ lastUsedElement });
   if (lastUsedElement) {
     lastUsedElementSearch: for (const [
       sectionIndex,

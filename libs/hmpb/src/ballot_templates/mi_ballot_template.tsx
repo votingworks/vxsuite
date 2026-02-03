@@ -3,9 +3,7 @@ import {
   assert,
   assertDefined,
   err,
-  find,
   groupBy,
-  iter,
   ok,
   range,
   Result,
@@ -569,7 +567,8 @@ async function BallotPageContent(
 
   function isPartisanContest(contest: CandidateContestStruct): boolean {
     return (
-      (contest.candidates[0]?.partyIds?.length || 0) > 0 ||
+      ((contest.candidates[0]?.partyIds?.length || 0) > 0 &&
+        contest.districtId !== 'judicial') ||
       contest.id === 'straight-party-ticket'
     );
   }
