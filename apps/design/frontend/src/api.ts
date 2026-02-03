@@ -855,7 +855,7 @@ export const getLatestExportQaRun = {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(electionId),
-      () => apiClient.getLatestExportQaRun({ electionId }),
+      async () => (await apiClient.getLatestExportQaRun({ electionId })) ?? null,
       {
         // Poll while any QA run is in progress
         refetchInterval: (latestQaRun) =>

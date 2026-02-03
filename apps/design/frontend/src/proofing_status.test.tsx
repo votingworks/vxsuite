@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
-import type { BackgroundTask } from '@votingworks/design-backend';
+import type { BackgroundTask, ExportQaRun } from '@votingworks/design-backend';
 import { format } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { sleep } from '@votingworks/basics';
@@ -11,7 +11,7 @@ import {
   createMockApiClient,
   MockApiClient,
 } from '../test/api_helpers';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { ProofingStatus } from './proofing_status';
@@ -28,6 +28,7 @@ test('ballots not finalized', async () => {
   mockApprovedAt(api, null);
   mockMainExports(api, undefined);
   mockTestDecks(api, undefined);
+  mockLatestQaRun(api, undefined);
 
   const { container } = renderUi(api);
 
@@ -48,6 +49,7 @@ test('finalized, main export in progress, no test decks', async () => {
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, null);
   mockTestDecks(api, undefined);
+  mockLatestQaRun(api, undefined);
 
   const mainProgressLabel = 'Rendering PDFs';
   mockMainExports(api, {
@@ -78,6 +80,7 @@ test('main exports done, not approved', async () => {
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
   mockTestDecks(api, undefined);
+  mockLatestQaRun(api, undefined);
 
   renderUi(api);
 
@@ -100,6 +103,7 @@ test('main export done, test decks in progress', async () => {
   mockFinalizedAt(api, finalizedAt);
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockLatestQaRun(api, undefined);
 
   const testDecksProgressLabel = 'Marking ballots';
   mockTestDecks(api, {
@@ -131,6 +135,7 @@ test('finalized, main exports and test decks done, not approved', async () => {
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
   mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, undefined);
 
   renderUi(api);
 
@@ -154,6 +159,7 @@ test('export errors are displayed', async () => {
   mockApprovedAt(api, null);
   mockMainExports(api, { error: 'Contest too tall' });
   mockTestDecks(api, { error: 'Something went wrong' });
+  mockLatestQaRun(api, undefined);
 
   renderUi(api);
 
@@ -180,6 +186,7 @@ test('finalized and approved', async () => {
   mockApprovedAt(api, approvedAt);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
   mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, undefined);
 
   api.getBaseUrl.expectCallWith().resolves('https://foo.com');
   const downloadsPath = routes.election(electionId).downloads.path;
@@ -214,6 +221,7 @@ test('approve button action', async () => {
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
   mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, undefined);
 
   renderUi(api);
 
@@ -236,6 +244,7 @@ test('unfinalize button action', async () => {
   mockApprovedAt(api, null);
   mockMainExports(api, { completedAt: mainExportsDoneAt });
   mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, undefined);
 
   renderUi(api);
 
@@ -250,6 +259,222 @@ test('unfinalize button action', async () => {
 
   await sleep(0); // Give cascading queries a chance to settle.
   api.assertComplete();
+});
+
+test('QA run pending status is displayed', async () => {
+  const api = createMockApiClient();
+  mockFinalizedAt(api, finalizedAt);
+  mockApprovedAt(api, null);
+  mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, { status: 'pending' });
+
+  renderUi(api);
+
+  await screen.findByText('Proofing Status');
+  api.assertComplete();
+
+  screen.getByText('QA check pending…');
+});
+
+test('QA run in progress status is displayed', async () => {
+  const api = createMockApiClient();
+  mockFinalizedAt(api, finalizedAt);
+  mockApprovedAt(api, null);
+  mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, {
+    status: 'in_progress',
+    statusMessage: 'Scanning ballots with VxScan',
+    jobUrl: 'https://circleci.com/job/123',
+  });
+
+  renderUi(api);
+
+  await screen.findByText('Proofing Status');
+  api.assertComplete();
+
+  screen.getByText('QA Check Running');
+  screen.getByText('Scanning ballots with VxScan');
+  expect(screen.getByText('(View CI Job)')).toHaveAttribute(
+    'href',
+    'https://circleci.com/job/123'
+  );
+});
+
+test('QA run failure status is displayed', async () => {
+  const api = createMockApiClient();
+  mockFinalizedAt(api, finalizedAt);
+  mockApprovedAt(api, null);
+  mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, {
+    status: 'failure',
+    statusMessage: 'QA tests failed: 3 ballot validation errors found',
+    resultsUrl: 'https://example.com/results/failure.html',
+    jobUrl: 'https://circleci.com/job/456',
+  });
+
+  renderUi(api);
+
+  await screen.findByText('Proofing Status');
+  api.assertComplete();
+
+  screen.getByText('QA Check Failed');
+  screen.getByText('QA tests failed: 3 ballot validation errors found');
+  expect(screen.getByText('(📑 Results)')).toHaveAttribute(
+    'href',
+    'https://example.com/results/failure.html'
+  );
+  expect(screen.getByText('(View CI Job)')).toHaveAttribute(
+    'href',
+    'https://circleci.com/job/456'
+  );
+});
+
+test('QA run success status is displayed', async () => {
+  const api = createMockApiClient();
+  mockFinalizedAt(api, finalizedAt);
+  mockApprovedAt(api, null);
+  mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockTestDecks(api, { completedAt: testDecksDoneAt });
+  const qaCompletedAt = new Date('1/21/2026, 2:15 PM');
+  mockLatestQaRun(api, {
+    status: 'success',
+    resultsUrl: 'https://example.com/results/success.html',
+    jobUrl: 'https://circleci.com/job/789',
+    createdAt: qaCompletedAt,
+    updatedAt: qaCompletedAt,
+  });
+
+  renderUi(api);
+
+  await screen.findByText('Proofing Status');
+  api.assertComplete();
+
+  // Check QA status is displayed with correct info
+  screen.getByText('QA check passed');
+  expect(screen.getByText(/1\/21\/2026.*2:15.*PM/)).toBeInTheDocument();
+  expect(screen.getByText('(📑 Results)')).toHaveAttribute(
+    'href',
+    'https://example.com/results/success.html'
+  );
+  expect(screen.getByText('(View CI Job)')).toHaveAttribute(
+    'href',
+    'https://circleci.com/job/789'
+  );
+});
+
+test('approve button shows warning when QA is in progress', async () => {
+  const api = createMockApiClient();
+  mockFinalizedAt(api, finalizedAt);
+  mockApprovedAt(api, null);
+  mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, {
+    status: 'in_progress',
+    statusMessage: 'Running tests',
+  });
+
+  renderUi(api);
+
+  await screen.findByText('Proofing Status');
+  api.assertComplete();
+
+  userEvent.click(screen.getButton(/approve/i));
+
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('QA Check Incomplete');
+  within(modal).getByText(
+    /automated QA check is still running.*approve these ballots before QA is complete/i
+  );
+
+  // Can cancel
+  userEvent.click(within(modal).getButton('Cancel'));
+  await sleep(0);
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+  // Or approve anyway - click again to reopen modal
+  userEvent.click(screen.getButton(/approve/i));
+  const modalAgain = await screen.findByRole('alertdialog');
+
+  api.approveBallots.expectCallWith({ electionId }).resolves();
+  mockApprovedAt(api, approvedAt);
+  api.getBaseUrl.expectCallWith().resolves('https://foo.com');
+
+  userEvent.click(within(modalAgain).getButton('Approve Anyway'));
+
+  await screen.findByText(/foo.com/);
+  api.assertComplete();
+});
+
+test('approve button shows warning when QA failed', async () => {
+  const api = createMockApiClient();
+  mockFinalizedAt(api, finalizedAt);
+  mockApprovedAt(api, null);
+  mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, {
+    status: 'failure',
+    statusMessage: 'QA tests failed',
+    resultsUrl: 'https://example.com/results.html',
+  });
+
+  renderUi(api);
+
+  await screen.findByText('Proofing Status');
+  api.assertComplete();
+
+  userEvent.click(screen.getButton(/approve/i));
+
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('QA Check Incomplete');
+  within(modal).getByText(
+    /automated QA check has failed: QA tests failed.*approve these ballots/i
+  );
+  expect(within(modal).getByText('(📑 Results)')).toHaveAttribute(
+    'href',
+    'https://example.com/results.html'
+  );
+
+  // Can approve anyway
+  api.approveBallots.expectCallWith({ electionId }).resolves();
+  mockApprovedAt(api, approvedAt);
+  api.getBaseUrl.expectCallWith().resolves('https://foo.com');
+
+  userEvent.click(within(modal).getButton('Approve Anyway'));
+
+  await screen.findByText(/foo.com/);
+  api.assertComplete();
+});
+
+test('approve button works normally when QA succeeded', async () => {
+  const api = createMockApiClient();
+  mockFinalizedAt(api, finalizedAt);
+  mockApprovedAt(api, null);
+  mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockTestDecks(api, { completedAt: testDecksDoneAt });
+  mockLatestQaRun(api, {
+    status: 'success',
+  });
+
+  renderUi(api);
+
+  await screen.findByText('Proofing Status');
+  api.assertComplete();
+
+  // Should approve directly without showing warning modal
+  api.approveBallots.expectCallWith({ electionId }).resolves();
+  mockApprovedAt(api, approvedAt);
+  api.getBaseUrl.expectCallWith().resolves('https://foo.com');
+
+  userEvent.click(screen.getButton(/approve/i));
+
+  await screen.findByText(/foo.com/);
+  api.assertComplete();
+
+  // Modal should not have been shown
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 
 function expectDoneStatus(date: Date, text: string) {
@@ -298,6 +523,21 @@ function mockTestDecks(api: MockApiClient, task?: Partial<BackgroundTask>) {
       ...task,
     },
   });
+}
+
+function mockLatestQaRun(api: MockApiClient, qaRun?: Partial<ExportQaRun>) {
+  api.getLatestExportQaRun.expectCallWith({ electionId }).resolves(
+    qaRun
+      && {
+          id: 'qa-run-1',
+          electionId,
+          exportPackageUrl: 'https://example.com/package.zip',
+          status: 'pending',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          ...qaRun,
+        }
+  );
 }
 
 function renderUi(api: MockApiClient) {
