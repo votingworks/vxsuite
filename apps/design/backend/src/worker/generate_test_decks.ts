@@ -53,7 +53,6 @@ export async function generateTestDecks(
     ballotTemplateId,
     jurisdictionId,
     systemSettings,
-    contestSectionHeaders,
   } = await store.getElection(electionId);
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
@@ -68,16 +67,11 @@ export async function generateTestDecks(
     hmpbStringsCatalog,
     ballotLanguageConfigs
   );
-  const formattedElection = formatElectionForExport(
-    election,
-    ballotStrings,
-    contestSectionHeaders
-  );
+  const formattedElection = formatElectionForExport(election, ballotStrings);
   const allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
-    compact,
-    contestSectionHeaders
+    compact
   );
   const testBallotProps = allBallotProps.filter(
     (props) =>

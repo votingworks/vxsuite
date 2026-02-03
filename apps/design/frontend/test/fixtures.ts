@@ -70,10 +70,6 @@ export function makeElectionRecord(
     ballotTemplateId: 'VxDefaultBallot',
     ballotsFinalizedAt: null,
     jurisdictionId,
-    contestSectionHeaders: {
-      candidate: undefined,
-      yesno: undefined,
-    },
   };
 }
 

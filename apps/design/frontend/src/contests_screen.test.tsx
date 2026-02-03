@@ -90,9 +90,6 @@ function renderScreen(electionId: ElectionId, features?: StateFeaturesConfig) {
   const { path } = routes.election(electionId).contests.root;
   const history = createMemoryHistory({ initialEntries: [path] });
   mockStateFeatures(apiMock, electionId, features);
-  apiMock.getContestSectionHeaders
-    .expectCallWith({ electionId })
-    .resolves({ candidate: undefined, yesno: undefined });
   render(
     provideApi(
       apiMock,

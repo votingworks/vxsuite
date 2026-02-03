@@ -116,10 +116,6 @@ export enum StateFeature {
    */
   EXPORT_TEST_BALLOTS = 'EXPORT_TEST_BALLOTS',
   /**
-   * Enable adding/editing headers for ballot contest sections.
-   */
-  CONTEST_SECTION_HEADERS = 'CONTEST_SECTION_HEADERS',
-  /**
    * Enable adding more than two options for ballot measures. (Ballot measure
    * contests with additional options will be transformed into candidate
    * contests for export until VxSuite supports them.)

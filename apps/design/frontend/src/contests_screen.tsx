@@ -13,7 +13,6 @@ import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
   getBallotsFinalizedAt,
-  getContestSectionHeaders,
   getElectionInfo,
   listContests,
   listDistricts,
@@ -97,24 +96,19 @@ function Content(): JSX.Element | null {
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const getContestSectionHeadersQuery =
-    getContestSectionHeaders.useQuery(electionId);
   const reorderContestsMutation = reorderContests.useMutation();
 
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
   const [filterPartyId, setFilterPartyId] = useState(FILTER_ALL);
   const [reorderedContests, setReorderedContests] = useState<Contests>();
 
-  // We want both subcomponents (contest list and edit panel) to have their data dependencies
-  // loaded before rendering either to avoid having them shift around.
   if (
     !(
       listContestsQuery.isSuccess &&
       getElectionInfoQuery.isSuccess &&
       listDistrictsQuery.isSuccess &&
       listPartiesQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess &&
-      getContestSectionHeadersQuery.isSuccess
+      getBallotsFinalizedAtQuery.isSuccess
     )
   ) {
     return null;

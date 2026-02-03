@@ -6,7 +6,6 @@ import {
   ContestId,
   ContestOption,
   ContestOptionSchema,
-  ContestTypes,
   Election,
   HmpbBallotPageMetadata,
   HmpbBallotPageMetadataSchema,
@@ -43,28 +42,6 @@ export interface BaseBallotProps {
   compact?: boolean;
   ballotAuditId?: string;
 }
-
-export interface ContestSectionHeader {
-  /**
-   * Title for the section header.
-   */
-  title: string;
-  /**
-   * HTML text to display below the title in the section header.
-   */
-  description?: string;
-}
-
-export const ContestSectionHeaderSchema: z.ZodSchema<ContestSectionHeader> =
-  z.object({
-    title: z.string().nonempty(),
-    description: z.string().optional(),
-  });
-
-export type ContestSectionHeaders = Record<
-  ContestTypes,
-  ContestSectionHeader | undefined
->;
 
 export type BallotPageMetadata = HmpbBallotPageMetadata;
 export const BallotPageMetadataSchema = HmpbBallotPageMetadataSchema;
