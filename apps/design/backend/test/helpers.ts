@@ -119,7 +119,7 @@ function createRequestBuilder(
     'Content-Type': 'application/json',
   };
 
-  const builder = {
+  const builder: ReturnType<typeof createRequestBuilder> = {
     set(header: string, value: string) {
       headers[header] = value;
       return builder;
@@ -164,7 +164,7 @@ export function testSetupHelpers() {
     env?: Record<string, string>;
   }) {
     // Set environment variables for this test
-    const originalEnv = { ...process.env };
+    const originalEnv = { ...process.env } as const;
     if (env) {
       Object.assign(process.env, env);
     }
