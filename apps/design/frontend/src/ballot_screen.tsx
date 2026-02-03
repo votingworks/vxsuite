@@ -233,6 +233,27 @@ function formContestTooLongErrorMessage(
   return `${baseMessage}.`;
 }
 
+function ErrorMessage({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  return (
+    <Row
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+        padding: '5rem',
+      }}
+    >
+      <Callout color="danger" icon="Danger">
+        {children}
+      </Callout>
+    </Row>
+  );
+}
+
 export function BallotScreen(): JSX.Element | null {
   const params = useParams<{
     electionId: string;
@@ -337,46 +358,30 @@ export function BallotScreen(): JSX.Element | null {
               switch (err.error) {
                 case 'missingSignature':
                   return (
-                    <Row
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                      }}
-                    >
-                      <Callout color="danger" icon="Danger">
-                        <span>
-                          Missing signature. Upload a signature in{' '}
-                          <Link
-                            to={
-                              routes.election(electionId).electionInfo.root.path
-                            }
-                          >
-                            Election Info
-                          </Link>
-                          .
-                        </span>
-                      </Callout>
-                    </Row>
+                    <ErrorMessage>
+                      <span>
+                        Missing signature. Upload a signature in{' '}
+                        <Link
+                          to={
+                            routes.election(electionId).electionInfo.root.path
+                          }
+                        >
+                          Election Info
+                        </Link>
+                        .
+                      </span>
+                    </ErrorMessage>
                   );
                 case 'contestTooLong':
                   return (
-                    <Row
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                      }}
-                    >
-                      <Callout color="danger" icon="Danger">
-                        <span>
-                          {formContestTooLongErrorMessage(
-                            err.contest,
-                            ballotTemplateId
-                          )}
-                        </span>
-                      </Callout>
-                    </Row>
+                    <ErrorMessage>
+                      <span>
+                        {formContestTooLongErrorMessage(
+                          err.contest,
+                          ballotTemplateId
+                        )}
+                      </span>
+                    </ErrorMessage>
                   );
                 /* istanbul ignore next - @preserve */
                 default: {
