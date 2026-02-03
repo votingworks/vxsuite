@@ -27,7 +27,7 @@ import {
 import {
   renderToPdf,
   SummaryBallotLayoutRenderer,
-  SummaryBallotLayoutResult,
+  SummaryBallotPageLayout,
 } from '@votingworks/printing';
 import React from 'react';
 
@@ -113,15 +113,14 @@ export async function createPrecinctSummaryBallotTestDeck({
   // Helper to get contests for a specific page
   function getContestsForPage(
     ballotStyleId: BallotStyleId,
-    pageBreaks: SummaryBallotLayoutResult,
+    pageBreaks: SummaryBallotPageLayout[],
     pageNumber: number
   ) {
     const page = assertDefined(
-      pageBreaks.pages.find((p) => p.pageNumber === pageNumber)
+      pageBreaks.find((p) => p.pageNumber === pageNumber)
     );
-    const ballotStyle = find(
-      election.ballotStyles,
-      (bs) => bs.id === ballotStyleId
+    const ballotStyle = assertDefined(
+      election.ballotStyles.find((bs) => bs.id === ballotStyleId)
     );
     const allContests = ballotStyle.districts.flatMap((districtId) =>
       election.contests.filter((c) => c.districtId === districtId)
@@ -145,11 +144,11 @@ export async function createPrecinctSummaryBallotTestDeck({
         'mark'
       );
 
-      if (pageBreaks.totalPages > 1) {
+      if (pageBreaks.length > 1) {
         // Multi-page ballot - create a page for each break
         const ballotAuditId = uuid();
 
-        for (const pageBreak of pageBreaks.pages) {
+        for (const pageBreak of pageBreaks) {
           const pageContests = getContestsForPage(
             ballotSpec.ballotStyleId,
             pageBreaks,
@@ -165,7 +164,7 @@ export async function createPrecinctSummaryBallotTestDeck({
               isLiveMode,
               machineType: 'mark' as const,
               pageNumber: pageBreak.pageNumber,
-              totalPages: pageBreaks.totalPages,
+              totalPages: pageBreaks.length,
               ballotAuditId,
               contestsForPage: pageContests,
               layout: pageBreak.layout,

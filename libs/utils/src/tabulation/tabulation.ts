@@ -141,7 +141,7 @@ function addCastVoteRecordToElectionResult(
   const { cardCounts } = electionResult;
   if (cvr.card.type === 'bmd') {
     // Sheet number is 1 for single-page BMD, or the page number for multi-page BMD
-    const sheetNumber = 'sheetNumber' in cvr.card ? cvr.card.sheetNumber : 1;
+    const sheetNumber = cvr.card.sheetNumber ?? 1;
     cardCounts.bmd[sheetNumber - 1] =
       (cardCounts.bmd[sheetNumber - 1] ?? 0) + 1;
   } else {

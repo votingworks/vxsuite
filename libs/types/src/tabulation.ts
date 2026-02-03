@@ -95,8 +95,7 @@ export interface CastVoteRecordAttributes {
  * scanned, similar to HMPB sheet accounting.
  */
 export type Card =
-  | { type: 'bmd' }
-  | { type: 'bmd'; sheetNumber: number }
+  | { type: 'bmd'; sheetNumber?: number }
   | { type: 'hmpb'; sheetNumber: number };
 
 export const MANUAL_BATCH_ID = 'NO_BATCH__MANUAL';

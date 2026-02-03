@@ -116,7 +116,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
 
   // Helper to get contests for a specific page
   function getPageContests(pageNumber: number) {
-    const page = pageBreaks.pages.find((pg) => pg.pageNumber === pageNumber);
+    const page = pageBreaks.find((pg) => pg.pageNumber === pageNumber);
     assert(page, `Page ${pageNumber} not found`);
     const ballotStyle = getBallotStyle({ ballotStyleId, election });
     assert(ballotStyle);
@@ -129,7 +129,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
 
   const ballotDocument = (
     <div>
-      {pageBreaks.pages.map((pageBreak) => {
+      {pageBreaks.map((pageBreak) => {
         const pageContests = getPageContests(pageBreak.pageNumber);
         return (
           <BackendLanguageContextProvider
@@ -145,7 +145,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
               isLiveMode={isLiveMode}
               machineType="mark"
               pageNumber={pageBreak.pageNumber}
-              totalPages={pageBreaks.totalPages}
+              totalPages={pageBreaks.length}
               ballotAuditId={ballotAuditId}
               contestsForPage={pageContests}
               layout={pageBreak.layout}

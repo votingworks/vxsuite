@@ -904,8 +904,7 @@ export class Store {
       type: 'ballot-id-already-exists-with-different-data';
     }
   > {
-    const cvrSheetNumber =
-      'sheetNumber' in cvr.card ? cvr.card.sheetNumber : null;
+    const cvrSheetNumber = cvr.card.sheetNumber ?? null;
     const serializedVotes = JSON.stringify(cvr.votes);
     const serializedMarkScores = JSON.stringify(cvr.markScores);
     const existingCvr = this.client.one(

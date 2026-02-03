@@ -673,13 +673,10 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     ];
 
     // Mock SummaryBallotLayoutRenderer to return 2 pages
-    const mockComputePageBreaks = vi.fn().mockResolvedValue({
-      pages: [
-        { pageNumber: 1, contestIds: page1ContestIds, layout: undefined },
-        { pageNumber: 2, contestIds: page2ContestIds, layout: undefined },
-      ],
-      totalPages: 2,
-    });
+    const mockComputePageBreaks = vi.fn().mockResolvedValue([
+      { pageNumber: 1, contestIds: page1ContestIds, layout: undefined },
+      { pageNumber: 2, contestIds: page2ContestIds, layout: undefined },
+    ]);
     const mockClose = vi.fn().mockResolvedValue(undefined);
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
       () =>
@@ -779,28 +776,22 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     const mockComputePageBreaks = vi.fn().mockImplementation(() => {
       callCount += 1;
       if (callCount === 1) {
-        return Promise.resolve({
-          pages: [
-            {
-              pageNumber: 1,
-              contestIds: allContestIds.slice(0, 3),
-              layout: undefined,
-            },
-            {
-              pageNumber: 2,
-              contestIds: allContestIds.slice(3),
-              layout: undefined,
-            },
-          ],
-          totalPages: 2,
-        });
+        return Promise.resolve([
+          {
+            pageNumber: 1,
+            contestIds: allContestIds.slice(0, 3),
+            layout: undefined,
+          },
+          {
+            pageNumber: 2,
+            contestIds: allContestIds.slice(3),
+            layout: undefined,
+          },
+        ]);
       }
-      return Promise.resolve({
-        pages: [
-          { pageNumber: 1, contestIds: allContestIds, layout: undefined },
-        ],
-        totalPages: 1,
-      });
+      return Promise.resolve([
+        { pageNumber: 1, contestIds: allContestIds, layout: undefined },
+      ]);
     });
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
       () =>
@@ -884,12 +875,11 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
       () =>
         ({
-          computePageBreaks: vi.fn().mockResolvedValue({
-            pages: [
+          computePageBreaks: vi
+            .fn()
+            .mockResolvedValue([
               { pageNumber: 1, contestIds: allContestIds, layout: undefined },
-            ],
-            totalPages: 1,
-          }),
+            ]),
           close: vi.fn().mockResolvedValue(undefined),
         }) as unknown as SummaryBallotLayoutRenderer
     );
@@ -982,13 +972,10 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
       () =>
         ({
-          computePageBreaks: vi.fn().mockResolvedValue({
-            pages: [
-              { pageNumber: 1, contestIds: page1ContestIds, layout: undefined },
-              { pageNumber: 2, contestIds: page2ContestIds, layout: undefined },
-            ],
-            totalPages: 2,
-          }),
+          computePageBreaks: vi.fn().mockResolvedValue([
+            { pageNumber: 1, contestIds: page1ContestIds, layout: undefined },
+            { pageNumber: 2, contestIds: page2ContestIds, layout: undefined },
+          ]),
           close: vi.fn().mockResolvedValue(undefined),
         }) as unknown as SummaryBallotLayoutRenderer
     );

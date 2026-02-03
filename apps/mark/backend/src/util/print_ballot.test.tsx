@@ -198,21 +198,18 @@ describe(`printMode === "summary"`, () => {
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
       () =>
         ({
-          computePageBreaks: vi.fn().mockResolvedValue({
-            pages: [
-              {
-                pageNumber: 1,
-                contestIds: page1ContestIds,
-                layout: { page: 1 },
-              },
-              {
-                pageNumber: 2,
-                contestIds: page2ContestIds,
-                layout: { page: 2 },
-              },
-            ],
-            totalPages: 2,
-          }),
+          computePageBreaks: vi.fn().mockResolvedValue([
+            {
+              pageNumber: 1,
+              contestIds: page1ContestIds,
+              layout: { page: 1 },
+            },
+            {
+              pageNumber: 2,
+              contestIds: page2ContestIds,
+              layout: { page: 2 },
+            },
+          ]),
           close: vi.fn().mockResolvedValue(undefined),
         }) as unknown as SummaryBallotLayoutRenderer
     );
@@ -347,13 +344,10 @@ describe(`printMode === "summary"`, () => {
     vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
       () =>
         ({
-          computePageBreaks: vi.fn().mockResolvedValue({
-            pages: [
-              { pageNumber: 1, contestIds, layout: {} },
-              { pageNumber: 2, contestIds: [], layout: {} },
-            ],
-            totalPages: 2,
-          }),
+          computePageBreaks: vi.fn().mockResolvedValue([
+            { pageNumber: 1, contestIds, layout: {} },
+            { pageNumber: 2, contestIds: [], layout: {} },
+          ]),
           close: vi.fn().mockResolvedValue(undefined),
         }) as unknown as SummaryBallotLayoutRenderer
     );

@@ -1,11 +1,9 @@
-import { describe, expect, test } from 'vitest';
-import { iter } from '@votingworks/basics';
+import { describe, expect, test, vi } from 'vitest';
 import {
   BallotStyleId,
   ElectionDefinition,
   VotesDict,
 } from '@votingworks/types';
-import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
 import {
   BmdPaperBallot,
   filterVotesForContests,
@@ -19,7 +17,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   SummaryBallotLayoutRenderer,
-  SummaryBallotLayoutResult,
+  SummaryBallotPageLayout,
   computeSummaryBallotLayoutWithRendering,
 } from './summary_ballot_layout';
 import { renderToPdf } from './render';
@@ -44,9 +42,8 @@ describe('SummaryBallotLayoutRenderer', () => {
         'mark'
       );
 
-      expect(result.totalPages).toEqual(1);
-      expect(result.pages.length).toEqual(1);
-      expect(result.pages[0].contestIds.length).toEqual(5);
+      expect(result.length).toEqual(1);
+      expect(result[0].contestIds.length).toEqual(5);
     } finally {
       await renderer.close();
     }
@@ -73,12 +70,65 @@ describe('SummaryBallotLayoutRenderer', () => {
         'mark'
       );
 
-      expect(result.totalPages).toBeGreaterThan(1);
-      expect(result.pages.length).toEqual(result.totalPages);
+      expect(result.length).toBeGreaterThan(1);
 
       // Verify all contests are accounted for
-      const allContestIds = result.pages.flatMap((p) => p.contestIds);
+      const allContestIds = result.flatMap((p) => p.contestIds);
       expect(allContestIds.length).toEqual(30);
+    } finally {
+      await renderer.close();
+    }
+  });
+
+  test('knownMinPages > 1 skips single-page check and produces same result with fewer measurements', async () => {
+    const election = createTestElection({
+      numCandidateContests: 20,
+      numYesNoContests: 10,
+      candidatesPerContest: 6,
+      longCandidateNames: true,
+      longContestTitles: true,
+    });
+    const electionDefinition = createElectionDefinition(election);
+    const votes = createMockVotes([...election.contests]);
+
+    const renderer = new SummaryBallotLayoutRenderer();
+    try {
+      const args = [
+        electionDefinition,
+        'ballot-style-1',
+        'precinct-1',
+        votes,
+        'mark',
+      ] as const;
+
+      // First call initializes the browser and produces the baseline result
+      const resultWithout = await renderer.computePageBreaks(...args);
+      expect(resultWithout.length).toBeGreaterThan(1);
+
+      // Spy on page.setContent to count measurement renders
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { page } = renderer as any;
+      const setContentSpy = vi.spyOn(page, 'setContent');
+
+      // Call without knownMinPages — includes the single-page check
+      await renderer.computePageBreaks(...args);
+      const callsWithout = setContentSpy.mock.calls.length;
+
+      setContentSpy.mockClear();
+
+      // Call with knownMinPages — skips the single-page check
+      const resultWith = await renderer.computePageBreaks(
+        ...args,
+        undefined,
+        2
+      );
+      const callsWith = setContentSpy.mock.calls.length;
+
+      // Should produce the same page layout
+      expect(resultWith).toEqual(resultWithout);
+
+      // But with fewer measurement renders (the single-page check is skipped)
+      expect(callsWith).toBeLessThan(callsWithout);
     } finally {
       await renderer.close();
     }
@@ -105,7 +155,7 @@ describe('SummaryBallotLayoutRenderer', () => {
       );
 
       // With long yes/no labels, we expect multiple pages
-      expect(result.totalPages).toBeGreaterThan(1);
+      expect(result.length).toBeGreaterThan(1);
     } finally {
       await renderer.close();
     }
@@ -133,11 +183,10 @@ describe('computeSummaryBallotLayoutWithRendering', () => {
     );
 
     // With 50 contests, we expect multiple pages
-    expect(result.totalPages).toBeGreaterThan(1);
-    expect(result.pages.length).toEqual(result.totalPages);
+    expect(result.length).toBeGreaterThan(1);
 
     // Verify all contests are accounted for
-    const allContestIds = result.pages.flatMap((p) => p.contestIds);
+    const allContestIds = result.flatMap((p) => p.contestIds);
     expect(allContestIds.length).toEqual(election.contests.length);
   });
 });
@@ -145,14 +194,14 @@ describe('computeSummaryBallotLayoutWithRendering', () => {
 describe('Multi-page summary ballot visual snapshots', () => {
   async function renderMultiPageBallot(
     electionDefinition: ElectionDefinition,
-    pageBreaks: SummaryBallotLayoutResult,
+    pageBreaks: SummaryBallotPageLayout[],
     votes: VotesDict
   ): Promise<Uint8Array[]> {
     const { election } = electionDefinition;
     const ballotAuditId = 'test-ballot-audit-id';
     const pdfs: Uint8Array[] = [];
 
-    for (const pageBreak of pageBreaks.pages) {
+    for (const pageBreak of pageBreaks) {
       const pageContests = election.contests.filter((c) =>
         pageBreak.contestIds.includes(c.id)
       );
@@ -169,7 +218,7 @@ describe('Multi-page summary ballot visual snapshots', () => {
             isLiveMode={false}
             machineType="mark"
             pageNumber={pageBreak.pageNumber}
-            totalPages={pageBreaks.totalPages}
+            totalPages={pageBreaks.length}
             ballotAuditId={ballotAuditId}
             contestsForPage={pageContests}
             layout={pageBreak.layout}
@@ -194,7 +243,7 @@ describe('Multi-page summary ballot visual snapshots', () => {
     const votes = createMockVotes([...election.contests]);
 
     const renderer = new SummaryBallotLayoutRenderer();
-    let pageBreaks: SummaryBallotLayoutResult;
+    let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
@@ -212,20 +261,12 @@ describe('Multi-page summary ballot visual snapshots', () => {
       votes
     );
 
-    // Convert PDFs to images and snapshot test each page
     for (let i = 0; i < pdfs.length; i += 1) {
       const pdf = pdfs[i];
-      const pages = await iter(pdfToImages(pdf, { scale: 200 / 72 }))
-        .map((page) => toImageBuffer(page.page))
-        .toArray();
-
-      expect(pages.length).toEqual(1);
-      expect(pages[0]).toMatchImageSnapshot({
+      await expect(pdf).toMatchPdfSnapshot({
         customSnapshotIdentifier: `medium-election-page-${i + 1}-of-${
           pdfs.length
         }`,
-        failureThreshold: 0.01,
-        failureThresholdType: 'percent',
       });
     }
   });
@@ -242,7 +283,7 @@ describe('Multi-page summary ballot visual snapshots', () => {
     const votes = createMockVotes([...election.contests]);
 
     const renderer = new SummaryBallotLayoutRenderer();
-    let pageBreaks: SummaryBallotLayoutResult;
+    let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
@@ -255,7 +296,7 @@ describe('Multi-page summary ballot visual snapshots', () => {
       await renderer.close();
     }
 
-    expect(pageBreaks.totalPages).toBeGreaterThanOrEqual(2);
+    expect(pageBreaks.length).toBeGreaterThanOrEqual(2);
     const pdfs = await renderMultiPageBallot(
       electionDefinition,
       pageBreaks,
@@ -265,17 +306,10 @@ describe('Multi-page summary ballot visual snapshots', () => {
     // Convert PDFs to images and snapshot test each page
     for (let i = 0; i < pdfs.length; i += 1) {
       const pdf = pdfs[i];
-      const pages = await iter(pdfToImages(pdf, { scale: 200 / 72 }))
-        .map((page) => toImageBuffer(page.page))
-        .toArray();
-
-      expect(pages.length).toEqual(1);
-      expect(pages[0]).toMatchImageSnapshot({
+      await expect(pdf).toMatchPdfSnapshot({
         customSnapshotIdentifier: `large-election-page-${i + 1}-of-${
           pdfs.length
         }`,
-        failureThreshold: 0.01,
-        failureThresholdType: 'percent',
       });
     }
   });
@@ -291,7 +325,7 @@ describe('Multi-page summary ballot visual snapshots', () => {
     const votes = createMockVotes([...election.contests]);
 
     const renderer = new SummaryBallotLayoutRenderer();
-    let pageBreaks: SummaryBallotLayoutResult;
+    let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
@@ -312,17 +346,10 @@ describe('Multi-page summary ballot visual snapshots', () => {
     // Convert PDFs to images and snapshot test each page
     for (let i = 0; i < pdfs.length; i += 1) {
       const pdf = pdfs[i];
-      const pages = await iter(pdfToImages(pdf, { scale: 200 / 72 }))
-        .map((page) => toImageBuffer(page.page))
-        .toArray();
-
-      expect(pages.length).toEqual(1);
-      expect(pages[0]).toMatchImageSnapshot({
+      await expect(pdf).toMatchPdfSnapshot({
         customSnapshotIdentifier: `long-yesno-labels-page-${i + 1}-of-${
           pdfs.length
         }`,
-        failureThreshold: 0.01,
-        failureThresholdType: 'percent',
       });
     }
   });
@@ -353,7 +380,7 @@ describe('Medium-large election summary ballot test deck', () => {
     const { electionDefinition, votes } = createMediumLargeElection();
 
     const renderer = new SummaryBallotLayoutRenderer();
-    let pageBreaks: SummaryBallotLayoutResult;
+    let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
@@ -367,11 +394,10 @@ describe('Medium-large election summary ballot test deck', () => {
     }
 
     // With 50 contests, we expect multiple pages
-    expect(pageBreaks.totalPages).toBeGreaterThan(1);
-    expect(pageBreaks.pages.length).toEqual(pageBreaks.totalPages);
+    expect(pageBreaks.length).toBeGreaterThan(1);
 
     // Verify all contests are accounted for
-    const allContestIds = pageBreaks.pages.flatMap((p) => p.contestIds);
+    const allContestIds = pageBreaks.flatMap((p) => p.contestIds);
     const { election } = electionDefinition;
     expect(allContestIds.length).toEqual(election.contests.length);
   });
@@ -380,7 +406,7 @@ describe('Medium-large election summary ballot test deck', () => {
     const { electionDefinition, votes } = createMediumLargeElection();
 
     const renderer = new SummaryBallotLayoutRenderer();
-    let pageBreaks: SummaryBallotLayoutResult;
+    let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
@@ -397,7 +423,7 @@ describe('Medium-large election summary ballot test deck', () => {
     const ballotAuditId = 'test-ballot-audit-id';
     const pdfs: Uint8Array[] = [];
 
-    for (const pageBreak of pageBreaks.pages) {
+    for (const pageBreak of pageBreaks) {
       const pageContests = election.contests.filter((c) =>
         pageBreak.contestIds.includes(c.id)
       );
@@ -414,7 +440,7 @@ describe('Medium-large election summary ballot test deck', () => {
             isLiveMode={false}
             machineType="mark"
             pageNumber={pageBreak.pageNumber}
-            totalPages={pageBreaks.totalPages}
+            totalPages={pageBreaks.length}
             ballotAuditId={ballotAuditId}
             contestsForPage={pageContests}
             layout={pageBreak.layout}
@@ -429,18 +455,10 @@ describe('Medium-large election summary ballot test deck', () => {
     // Verify each page renders successfully and content fits on one PDF page
     for (let i = 0; i < pdfs.length; i += 1) {
       const pdf = pdfs[i];
-      const pages = await iter(pdfToImages(pdf, { scale: 200 / 72 }))
-        .map((page) => toImageBuffer(page.page))
-        .toArray();
-
-      // Each ballot page should produce exactly 1 PDF page
-      expect(pages.length).toEqual(1);
-      expect(pages[0]).toMatchImageSnapshot({
+      await expect(pdf).toMatchPdfSnapshot({
         customSnapshotIdentifier: `medium-large-election-page-${i + 1}-of-${
           pdfs.length
         }`,
-        failureThreshold: 0.01,
-        failureThresholdType: 'percent',
       });
     }
   }, 120000);

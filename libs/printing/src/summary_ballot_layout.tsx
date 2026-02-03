@@ -36,14 +36,6 @@ export interface SummaryBallotPageLayout {
   layout: Layout;
 }
 
-/**
- * Result of computing page breaks for a summary ballot.
- */
-export interface SummaryBallotLayoutResult {
-  pages: SummaryBallotPageLayout[];
-  totalPages: number;
-}
-
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const CONTENT_WRAPPER_ID = 'summary-ballot-measure';
 
@@ -334,7 +326,7 @@ export class SummaryBallotLayoutRenderer {
     machineType: MachineType,
     languageContext?: LanguageContext,
     knownMinPages?: number
-  ): Promise<SummaryBallotLayoutResult> {
+  ): Promise<SummaryBallotPageLayout[]> {
     await this.initialize();
     assert(this.page, 'Page not initialized');
 
@@ -362,16 +354,13 @@ export class SummaryBallotLayoutRenderer {
 
       if (singlePageHeight <= getAvailableHeightPixels()) {
         const layout = selectLayout(totalContestCount, machineType);
-        return {
-          pages: [
-            {
-              pageNumber: 1,
-              contestIds: contests.map((c) => c.id),
-              layout,
-            },
-          ],
-          totalPages: 1,
-        };
+        return [
+          {
+            pageNumber: 1,
+            contestIds: contests.map((c) => c.id),
+            layout,
+          },
+        ];
       }
     }
 
@@ -415,10 +404,7 @@ export class SummaryBallotLayoutRenderer {
       }
     }
 
-    return {
-      pages,
-      totalPages: pages.length,
-    };
+    return pages;
   }
 }
 
@@ -436,7 +422,7 @@ export async function computeSummaryBallotLayoutWithRendering(
   votes: VotesDict,
   machineType: MachineType,
   languageContext?: LanguageContext
-): Promise<SummaryBallotLayoutResult> {
+): Promise<SummaryBallotPageLayout[]> {
   const renderer = new SummaryBallotLayoutRenderer();
   try {
     return await renderer.computePageBreaks(

@@ -29,7 +29,7 @@ function addCardTallyToCardCounts({
   const { card, tally } = cardTally;
   if (card.type === 'bmd') {
     // Sheet number is 1 for single-page BMD, or the page number for multi-page BMD
-    const sheetNumber = 'sheetNumber' in card ? card.sheetNumber : 1;
+    const sheetNumber = card.sheetNumber ?? 1;
     // eslint-disable-next-line no-param-reassign
     cardCounts.bmd[sheetNumber - 1] =
       (cardCounts.bmd[sheetNumber - 1] ?? 0) + tally;

@@ -229,7 +229,6 @@ export function mapSheet<F extends (...args: unknown[]) => unknown>(
  * Asserts that the array is of length two and returns it typed as a sheet.
  */
 export function asSheet<T>(array: T[]): SheetOf<T> {
-  console.log('hellow ', array.length);
   assert(array.length === 2);
   return array as unknown as SheetOf<T>;
 }
