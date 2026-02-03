@@ -2,6 +2,7 @@ import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 
 import {
+  getPdfPageCount,
   PrintSides,
   Printer,
   renderToPdf,
@@ -61,19 +62,56 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const { election } = electionDefinition;
   const isLiveMode = !store.getTestMode();
+  const uiStringsPackage = store.getUiStringsStore().getAllUiStrings();
 
+  // Optimistically render as a single-page ballot
+  const singlePageBallot = (
+    <BackendLanguageContextProvider
+      // [TODO] Derive languageCode from the ballot style instead.
+      currentLanguageCode={languageCode}
+      uiStringsPackage={uiStringsPackage}
+    >
+      <BmdPaperBallot
+        electionDefinition={electionDefinition}
+        ballotStyleId={ballotStyleId}
+        precinctId={precinctId}
+        votes={votes}
+        isLiveMode={isLiveMode}
+        machineType="mark"
+      />
+    </BackendLanguageContextProvider>
+  );
+
+  const pdfData = (
+    await renderToPdf({ document: singlePageBallot })
+  ).unsafeUnwrap();
+
+  const pageCount = await getPdfPageCount(pdfData);
+
+  // If the ballot fits on a single page, print directly without computing
+  // page breaks. This is the common case and avoids launching a separate
+  // Chromium instance for layout measurement.
+  if (pageCount === 1) {
+    return printer.print({
+      data: pdfData,
+      sides: PrintSides.OneSided,
+    });
+  }
+
+  // Multi-page fallback: compute page breaks for proper per-page QR codes.
+  // Pass pageCount as knownMinPages to skip the redundant single-page check.
   if (!sharedRenderer) {
     sharedRenderer = new SummaryBallotLayoutRenderer();
   }
 
-  const uiStringsPackage = store.getUiStringsStore().getAllUiStrings();
   const pageBreaks = await sharedRenderer.computePageBreaks(
     electionDefinition,
     ballotStyleId,
     precinctId,
     votes,
     'mark',
-    { languageCode, uiStringsPackage }
+    { languageCode, uiStringsPackage },
+    pageCount
   );
 
   // Helper to get contests for a specific page
@@ -87,65 +125,43 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     return allContests.filter((c) => contestIdSet.has(c.id));
   }
 
-  // Check if this ballot needs multiple pages
-  if (pageBreaks.totalPages > 1) {
-    const ballotAuditId = uuid();
+  const ballotAuditId = uuid();
 
-    const ballotDocument = (
-      <div>
-        {pageBreaks.pages.map((pageBreak) => {
-          const pageContests = getPageContests(pageBreak.pageNumber);
-          return (
-            <BackendLanguageContextProvider
-              key={pageBreak.pageNumber}
-              currentLanguageCode={languageCode}
-              uiStringsPackage={store.getUiStringsStore().getAllUiStrings()}
-            >
-              <BmdPaperBallot
-                electionDefinition={electionDefinition}
-                ballotStyleId={ballotStyleId}
-                precinctId={precinctId}
-                votes={filterVotesForContests(votes, pageContests)}
-                isLiveMode={isLiveMode}
-                machineType="mark"
-                pageNumber={pageBreak.pageNumber}
-                totalPages={pageBreaks.totalPages}
-                ballotAuditId={ballotAuditId}
-                contestsForPage={pageContests}
-                layout={pageBreak.layout}
-              />
-            </BackendLanguageContextProvider>
-          );
-        })}
-      </div>
-    );
-
-    return printer.print({
-      data: (await renderToPdf({ document: ballotDocument })).unsafeUnwrap(),
-      sides: PrintSides.OneSided,
-    });
-  }
-
-  // Single-page ballot flow (existing)
-  const ballot = (
-    <BackendLanguageContextProvider
-      // [TODO] Derive languageCode from the ballot style instead.
-      currentLanguageCode={languageCode}
-      uiStringsPackage={store.getUiStringsStore().getAllUiStrings()}
-    >
-      <BmdPaperBallot
-        electionDefinition={electionDefinition}
-        ballotStyleId={ballotStyleId}
-        precinctId={precinctId}
-        votes={votes}
-        isLiveMode={isLiveMode}
-        machineType="mark"
-      />
-    </BackendLanguageContextProvider>
+  const ballotDocument = (
+    <div>
+      {pageBreaks.pages.map((pageBreak) => {
+        const pageContests = getPageContests(pageBreak.pageNumber);
+        return (
+          <BackendLanguageContextProvider
+            key={pageBreak.pageNumber}
+            currentLanguageCode={languageCode}
+            uiStringsPackage={uiStringsPackage}
+          >
+            <BmdPaperBallot
+              electionDefinition={electionDefinition}
+              ballotStyleId={ballotStyleId}
+              precinctId={precinctId}
+              votes={filterVotesForContests(votes, pageContests)}
+              isLiveMode={isLiveMode}
+              machineType="mark"
+              pageNumber={pageBreak.pageNumber}
+              totalPages={pageBreaks.totalPages}
+              ballotAuditId={ballotAuditId}
+              contestsForPage={pageContests}
+              layout={pageBreak.layout}
+            />
+          </BackendLanguageContextProvider>
+        );
+      })}
+    </div>
   );
 
+  const multiPagePdfData = (
+    await renderToPdf({ document: ballotDocument })
+  ).unsafeUnwrap();
+
   return printer.print({
-    data: (await renderToPdf({ document: ballot })).unsafeUnwrap(),
+    data: multiPagePdfData,
     sides: PrintSides.OneSided,
   });
 }

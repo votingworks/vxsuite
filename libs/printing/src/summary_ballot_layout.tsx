@@ -322,6 +322,9 @@ export class SummaryBallotLayoutRenderer {
    * @param languageContext - Optional language context for rendering ballots
    *   in specific languages. When provided, measurements will use translations,
    *   ensuring accurate page breaks for non-English ballots.
+   * @param knownMinPages - When provided, skips the single-page check if > 1.
+   *   Use this when you already know the ballot overflows (e.g. from a prior
+   *   PDF render) to avoid a redundant measurement pass.
    */
   async computePageBreaks(
     electionDefinition: ElectionDefinition,
@@ -329,7 +332,8 @@ export class SummaryBallotLayoutRenderer {
     precinctId: string,
     votes: VotesDict,
     machineType: MachineType,
-    languageContext?: LanguageContext
+    languageContext?: LanguageContext,
+    knownMinPages?: number
   ): Promise<SummaryBallotLayoutResult> {
     await this.initialize();
     assert(this.page, 'Page not initialized');
@@ -340,32 +344,35 @@ export class SummaryBallotLayoutRenderer {
     const contests = getContests({ ballotStyle, election });
     const totalContestCount = contests.length;
 
-    // Check if single page is sufficient
-    const singlePageHeight = await measureBallotHeight(
-      this.page,
-      electionDefinition,
-      ballotStyleId,
-      precinctId,
-      contests,
-      votes,
-      machineType,
-      false,
-      totalContestCount,
-      languageContext
-    );
+    // Skip single-page check if caller already knows multi-page is needed
+    if (!knownMinPages || knownMinPages <= 1) {
+      // Check if single page is sufficient
+      const singlePageHeight = await measureBallotHeight(
+        this.page,
+        electionDefinition,
+        ballotStyleId,
+        precinctId,
+        contests,
+        votes,
+        machineType,
+        false,
+        totalContestCount,
+        languageContext
+      );
 
-    if (singlePageHeight <= getAvailableHeightPixels()) {
-      const layout = selectLayout(totalContestCount, machineType);
-      return {
-        pages: [
-          {
-            pageNumber: 1,
-            contestIds: contests.map((c) => c.id),
-            layout,
-          },
-        ],
-        totalPages: 1,
-      };
+      if (singlePageHeight <= getAvailableHeightPixels()) {
+        const layout = selectLayout(totalContestCount, machineType);
+        return {
+          pages: [
+            {
+              pageNumber: 1,
+              contestIds: contests.map((c) => c.id),
+              layout,
+            },
+          ],
+          totalPages: 1,
+        };
+      }
     }
 
     // Multi-page layout needed

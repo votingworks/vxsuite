@@ -12,6 +12,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import {
+  getPdfPageCount,
   PrintFunction,
   PrintSides,
   RenderSpec,
@@ -33,18 +34,6 @@ import { closeLayoutRenderer, printBallot } from './print_ballot';
 vi.mock('@votingworks/hmpb');
 vi.mock('@votingworks/printing');
 vi.mock('@votingworks/ui');
-
-// Mock SummaryBallotLayoutRenderer to return single page layout
-vi.mocked(SummaryBallotLayoutRenderer).mockImplementation(
-  () =>
-    ({
-      computePageBreaks: vi.fn().mockResolvedValue({
-        pages: [{ pageNumber: 1, contestIds: [], layout: {} }],
-        totalPages: 1,
-      }),
-      close: vi.fn().mockResolvedValue(undefined),
-    }) as unknown as SummaryBallotLayoutRenderer
-);
 
 const electionDefBase = electionGeneralFixtures.readElectionDefinition();
 
@@ -152,6 +141,7 @@ describe(`printMode === "summary"`, () => {
 
       return Promise.resolve(ok(mockPdf));
     });
+    vi.mocked(getPdfPageCount).mockResolvedValue(1);
 
     const mockPrint = vi.fn<PrintFunction>();
     await printBallot({
@@ -179,6 +169,10 @@ describe(`printMode === "summary"`, () => {
       votes: mockVotes,
     });
 
+    // Single-page: should NOT initialize SummaryBallotLayoutRenderer
+    expect(SummaryBallotLayoutRenderer).not.toHaveBeenCalled();
+    expect(getPdfPageCount).toHaveBeenCalledWith(mockPdf);
+    expect(renderToPdf).toHaveBeenCalledTimes(1);
     expect(mockPrint.mock.calls).toEqual<Array<Parameters<PrintFunction>>>([
       [{ data: mockPdf, sides: PrintSides.OneSided }],
     ]);
@@ -248,13 +242,19 @@ describe(`printMode === "summary"`, () => {
     vi.mocked(BmdPaperBallot).mockImplementation(() => <div>ballot</div>);
 
     const mockUiStrings: UiStringsPackage = {};
-    const mockPdf1 = Uint8Array.of(0x01);
-    const mockPdf2 = Uint8Array.of(0x02);
+    const mockOptimisticPdf = Uint8Array.of(0xff);
+    const mockMultiPagePdf = Uint8Array.of(0x02);
 
+    // Optimistic render returns a PDF that getPdfPageCount reports as 2 pages
+    vi.mocked(getPdfPageCount).mockResolvedValue(2);
+
+    // renderToPdf called twice: optimistic single-page (discarded), then multi-page
     let renderCallCount = 0;
     vi.mocked(renderToPdf).mockImplementation(() => {
       renderCallCount += 1;
-      return Promise.resolve(ok(renderCallCount === 1 ? mockPdf1 : mockPdf2));
+      return Promise.resolve(
+        ok(renderCallCount === 1 ? mockOptimisticPdf : mockMultiPagePdf)
+      );
     });
 
     const mockPrint = vi.fn<PrintFunction>();
@@ -283,15 +283,15 @@ describe(`printMode === "summary"`, () => {
       votes: mockVotes,
     });
 
-    // All pages should be printed in a single call with OneSided
+    // Printed PDF should be from the second (multi-page) render
     expect(mockPrint).toHaveBeenCalledTimes(1);
     expect(mockPrint.mock.calls[0]).toEqual([
-      { data: mockPdf1, sides: PrintSides.OneSided },
+      { data: mockMultiPagePdf, sides: PrintSides.OneSided },
     ]);
 
-    // renderToPdf should be called once with a combined document
+    // renderToPdf called twice: optimistic then multi-page
     const renderCalls = vi.mocked(renderToPdf).mock.calls;
-    expect(renderCalls).toHaveLength(1);
+    expect(renderCalls).toHaveLength(2);
 
     // filterVotesForContests should be called once per page with correct contests
     expect(filterCalls).toHaveLength(2);
@@ -302,12 +302,11 @@ describe(`printMode === "summary"`, () => {
       [...page2ContestIds].sort()
     );
 
-    // Verify BmdPaperBallot props via the JSX passed to renderToPdf
-    // renderToPdf receives { document: <div>[...pages]</div> }
-    const wrapperElement = renderCalls[0][0].document as React.ReactElement;
+    // Verify BmdPaperBallot props via the JSX passed to the second renderToPdf call
+    const wrapperElement = renderCalls[1][0].document as React.ReactElement;
     const pageElements = wrapperElement.props.children as React.ReactElement[];
 
-    const page1Element = pageElements[0] ;
+    const page1Element = pageElements[0];
     const page1BmdElement = page1Element.props.children as React.ReactElement;
     const page1Props = page1BmdElement.props;
     expect(page1Props.pageNumber).toEqual(1);
@@ -317,7 +316,7 @@ describe(`printMode === "summary"`, () => {
       page1Props.contestsForPage?.map((c: { id: string }) => c.id).sort()
     ).toEqual([...page1ContestIds].sort());
 
-    const page2Element = pageElements[1] ;
+    const page2Element = pageElements[1];
     const page2BmdElement = page2Element.props.children as React.ReactElement;
     const page2Props = page2BmdElement.props;
     expect(page2Props.pageNumber).toEqual(2);
@@ -359,6 +358,7 @@ describe(`printMode === "summary"`, () => {
         }) as unknown as SummaryBallotLayoutRenderer
     );
 
+    vi.mocked(getPdfPageCount).mockResolvedValue(2);
     vi.mocked(filterVotesForContests).mockReturnValue({});
     vi.mocked(BackendLanguageContextProvider).mockImplementation((p) => (
       <div>{p.children}</div>
@@ -392,10 +392,11 @@ describe(`printMode === "summary"`, () => {
       votes: {},
     });
 
-    // All pages should have isLiveMode: false when in test mode
+    // renderToPdf called twice: optimistic then multi-page
     const renderCalls = vi.mocked(renderToPdf).mock.calls;
-    expect(renderCalls).toHaveLength(1);
-    const wrapperElement = renderCalls[0][0].document as React.ReactElement;
+    expect(renderCalls).toHaveLength(2);
+    // All pages should have isLiveMode: false when in test mode (check second call)
+    const wrapperElement = renderCalls[1][0].document as React.ReactElement;
     const pageElements = wrapperElement.props.children as React.ReactElement[];
     for (const pageElement of pageElements) {
       const bmdElement = pageElement.props.children as React.ReactElement;
