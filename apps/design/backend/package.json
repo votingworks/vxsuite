@@ -39,6 +39,7 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "list-jurisdictions": "node -r esbuild-runner/register ./scripts/list_jurisdictions.ts",
     "list-organizations": "node -r esbuild-runner/register ./scripts/list_organizations.ts",
+    "mock-circleci-server": "node -r esbuild-runner/register ./scripts/mock_circleci_server.ts",
     "list-user-jurisdictions": "node -r esbuild-runner/register ./scripts/list_user_jurisdictions.ts",
     "pre-commit": "lint-staged",
     "send-welcome-email": "node -r esbuild-runner/register ./scripts/send_welcome_email.ts",

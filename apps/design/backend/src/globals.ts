@@ -128,6 +128,57 @@ export function sliOrganizationId(): string {
 }
 
 /**
+ * CircleCI API token for triggering QA builds.
+ * Optional - if not set, QA builds will not be triggered.
+ */
+export function circleCiApiToken(): string | undefined {
+  return process.env.CIRCLECI_API_TOKEN;
+}
+
+/**
+ * CircleCI project slug (e.g., "gh/organization/repository").
+ * Required if CircleCI integration is enabled.
+ */
+export function circleCiProjectSlug(): string | undefined {
+  return process.env.CIRCLECI_PROJECT_SLUG;
+}
+
+/**
+ * Shared secret for authenticating CircleCI webhook callbacks.
+ * Required if CircleCI integration is enabled.
+ */
+export function circleCiWebhookSecret(): string | undefined {
+  return process.env.CIRCLECI_WEBHOOK_SECRET;
+}
+
+/**
+ * Whether CircleCI integration is enabled (has required config).
+ */
+export function isCircleCiEnabled(): boolean {
+  return !!(
+    circleCiApiToken() &&
+    circleCiProjectSlug() &&
+    circleCiWebhookSecret()
+  );
+}
+
+/**
+ * CircleCI branch to trigger pipelines on.
+ * Optional - if not set, CircleCI uses the project's default branch.
+ */
+export function circleCiBranch(): string | undefined {
+  return process.env.CIRCLECI_BRANCH || undefined;
+}
+
+/**
+ * CircleCI API base URL (for testing with mock servers).
+ * Defaults to https://circleci.com
+ */
+export function circleCiBaseUrl(): string {
+  return process.env.CIRCLECI_BASE_URL ?? 'https://circleci.com';
+}
+
+/**
  * Where should the database go?
  */
 export const WORKSPACE =

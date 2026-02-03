@@ -40,6 +40,8 @@ export type {
   QuickReportedPollStatus,
   GetExportedElectionError,
   ResultsReportingPath,
+  ExportQaRun,
+  ExportQaStatus,
 } from './types';
 export type {
   StateFeature,

@@ -36,6 +36,7 @@ import {
 } from '@votingworks/basics';
 import z from 'zod/v4';
 import { Readable } from 'node:stream';
+import { v4 as uuid } from 'uuid';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -46,6 +47,12 @@ import {
   normalizeBallotColorModeForPrinting,
   renderCalibrationSheetPdf,
 } from './ballot_pdfs';
+import { createCircleCiClient, shouldTriggerCircleCi } from '../circleci_client';
+import { baseUrl, circleCiProjectSlug, circleCiWebhookSecret } from '../globals';
+import { Store } from '../store';
+import { rootDebug } from '../debug';
+
+const debug = rootDebug.extend('export-qa');
 
 export interface GenerateElectionPackageAndBallotsPayload {
   electionId: ElectionId;
@@ -65,6 +72,88 @@ export const GenerateElectionPackageAndBallotsPayloadSchema: z.ZodType<GenerateE
     shouldExportTestBallots: z.boolean().optional(),
     numAuditIdBallots: z.number().optional(),
   });
+
+/**
+ * Trigger a CircleCI QA build for the exported election package.
+ * This is called after the export completes successfully.
+ * If CircleCI is not enabled or if there's an error, it will log but not fail the export.
+ */
+async function triggerCircleCiQaBuild(params: {
+  store: Store;
+  electionId: ElectionId;
+  electionPackageUrl: string;
+}): Promise<void> {
+  const { store, electionId, electionPackageUrl } = params;
+
+  // Check if CircleCI integration is enabled
+  if (!shouldTriggerCircleCi()) {
+    debug('CircleCI integration not enabled, skipping QA build trigger');
+    return;
+  }
+
+  try {
+    const qaRunId = uuid();
+    const webhookSecret = circleCiWebhookSecret();
+
+    if (!webhookSecret) {
+      debug('CircleCI webhook secret not configured, cannot trigger QA build');
+      return;
+    }
+
+    // Construct the full URL to the export package
+    const fullExportUrl = new URL(electionPackageUrl, baseUrl()).toString();
+
+    // Construct the webhook URL
+    const webhookUrl = new URL(
+      `/api/export-qa-webhook/${qaRunId}`,
+      baseUrl()
+    ).toString();
+
+    debug('Triggering CircleCI QA build: electionId=%s, qaRunId=%s', electionId, qaRunId);
+
+    // Create QA run record
+    await store.createExportQaRun({
+      id: qaRunId,
+      electionId,
+      exportPackageUrl: fullExportUrl,
+    });
+
+    // Trigger CircleCI pipeline
+    const circleCiClient = createCircleCiClient();
+    const result = await circleCiClient.triggerPipeline({
+      exportPackageUrl: fullExportUrl,
+      webhookUrl,
+      qaRunId,
+      electionId,
+    });
+
+    // Construct a link to the pipeline page
+    const projectSlug = circleCiProjectSlug();
+    const jobUrl = projectSlug
+      ? `https://app.circleci.com/pipelines/${projectSlug}/${result.pipelineNumber}`
+      : undefined;
+
+    // Update QA run with CircleCI pipeline ID and job URL
+    await store.updateExportQaRunStatus(qaRunId, {
+      status: 'in_progress',
+      statusMessage: 'Waiting for CI job to start',
+      circleCiWorkflowId: result.pipelineId,
+      jobUrl,
+    });
+
+    debug('CircleCI QA build triggered successfully: electionId=%s, qaRunId=%s, pipelineId=%s',
+      electionId,
+      qaRunId,
+      result.pipelineId
+    );
+  } catch (error) {
+    // Log the error but don't fail the export
+    debug('Error triggering CircleCI QA build: error=%s, electionId=%s',
+      error instanceof Error ? error.message : String(error),
+      electionId
+    );
+  }
+}
 
 function generateEncodedBallots(
   normalizedBallotPdfs: Array<{
@@ -353,6 +442,13 @@ export async function generateElectionPackageAndBallots(
     officialBallotsUrl,
     sampleBallotsUrl,
     testBallotsUrl,
+  });
+
+  // Trigger CircleCI QA build if enabled
+  await triggerCircleCiQaBuild({
+    store,
+    electionId,
+    electionPackageUrl,
   });
 }
 

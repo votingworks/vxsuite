@@ -19,10 +19,8 @@ loadEnvVarsFromDotenvFiles();
 
 async function main(): Promise<void> {
   const workspacePath = path.resolve(assertDefined(WORKSPACE));
-  const workspace = createWorkspace(
-    workspacePath,
-    new BaseLogger(LogSource.VxDesignWorker)
-  );
+  const logger = new BaseLogger(LogSource.VxDesignWorker);
+  const workspace = createWorkspace(workspacePath, logger);
   const { store } = workspace;
 
   const fileStorageClient =
@@ -40,6 +38,7 @@ async function main(): Promise<void> {
     speechSynthesizer,
     translator,
     workspace,
+    logger,
   });
 }
 

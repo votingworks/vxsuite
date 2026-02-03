@@ -43,6 +43,7 @@ import {
   extractErrorMessage,
   find,
   ok,
+  Optional,
   Result,
   throwIllegalValue,
   wrapException,
@@ -85,6 +86,7 @@ import {
   AggregatedReportedResults,
   ElectionInfo,
   ElectionListing,
+  ExportQaRun,
   GetExportedElectionError,
   ElectionUpload,
   Jurisdiction,
@@ -98,6 +100,7 @@ import {
   auth0ClientId,
   auth0IssuerBaseUrl,
   auth0Secret,
+  circleCiWebhookSecret,
   baseUrl,
   NODE_ENV,
   DEPLOY_ENV,
@@ -276,9 +279,9 @@ export function buildApi(ctx: AppContext) {
         const outcome = result.isOk()
           ? { disposition: 'success' }
           : {
-              disposition: 'failure',
-              error: extractErrorMessage(result.err()),
-            };
+            disposition: 'failure',
+            error: extractErrorMessage(result.err()),
+          };
         await logger.logAsCurrentRole(
           LogEventId.ApiCall,
           {
@@ -290,8 +293,8 @@ export function buildApi(ctx: AppContext) {
             userJurisdictionIds:
               context.user?.type === 'jurisdiction_user'
                 ? context.user.jurisdictions
-                    .map((jurisdiction) => jurisdiction.id)
-                    .join(',')
+                  .map((jurisdiction) => jurisdiction.id)
+                  .join(',')
                 : '',
             ...outcome,
           },
@@ -817,6 +820,18 @@ export function buildApi(ctx: AppContext) {
       return store.createElectionPackageBackgroundTask(input);
     },
 
+    getLatestExportQaRun({
+      electionId,
+    }: {
+      electionId: ElectionId;
+    }): Promise<Optional<ExportQaRun>> {
+      return store.getLatestExportQaRunForElection(electionId);
+    },
+
+    getExportQaRun({ qaRunId }: { qaRunId: string }): Promise<ExportQaRun | undefined> {
+      return store.getExportQaRun(qaRunId);
+    },
+
     getTestDecks({
       electionId,
     }: {
@@ -1076,9 +1091,9 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
         const outcome = result.isOk()
           ? { disposition: 'success' }
           : {
-              disposition: 'failure',
-              error: extractErrorMessage(result.err()),
-            };
+            disposition: 'failure',
+            error: extractErrorMessage(result.err()),
+          };
         await logger.logAsCurrentRole(
           LogEventId.ApiCall,
           {
@@ -1197,8 +1212,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             // Ensure pageIndex is an integer and in the valid 1..numPages range
             assert(
               partial.pageIndex >= 0 && partial.pageIndex < numPages,
-              `Invalid pageIndex: ${partial.pageIndex} (expected 0..${
-                numPages - 1
+              `Invalid pageIndex: ${partial.pageIndex} (expected 0..${numPages - 1
               })`
             );
             seenIndexes.add(partial.pageIndex);
@@ -1383,6 +1397,106 @@ export function buildApp(context: AppContext): Application {
     }
   });
 
+  // CircleCI QA webhook endpoint (unauthenticated but requires secret)
+  app.post('/api/export-qa-webhook/:qaRunId', async (req, res, next) => {
+    try {
+      const { qaRunId } = req.params;
+      const webhookSecret = circleCiWebhookSecret();
+
+      // Validate webhook secret
+      const providedSecret = req.headers['x-webhook-secret'];
+      if (!webhookSecret || providedSecret !== webhookSecret) {
+        context.logger.log(LogEventId.UnknownError, 'unknown', {
+          message: 'Invalid webhook secret',
+          qaRunId,
+        });
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      // Validate QA run exists
+      const qaRun = await context.workspace.store.getExportQaRun(qaRunId);
+      if (!qaRun) {
+        res.status(404).json({ error: 'QA run not found' });
+        return;
+      }
+
+      // Parse and validate request body
+      const UpdateQaRunStatusSchema = z.object({
+        status: z.enum(['pending', 'in_progress', 'success', 'failure']),
+        statusMessage: z.string().optional(),
+        resultsUrl: z.string().optional(),
+        circleCiWorkflowId: z.string().optional(),
+        jobUrl: z.string().optional(),
+      });
+
+      if (!req.header('content-type')?.startsWith('application/json')) {
+        res.status(406).json({ error: 'Expected JSON request' });
+        return;
+      }
+
+      const body = await new Promise<string>((resolve, reject) => {
+        let chunks = '';
+        req.setEncoding('utf8');
+
+        req.on('readable', () => {
+          const chunk = req.read();
+          if (chunk) chunks += chunk.toString();
+        });
+
+        req.on('end', () => {
+          resolve(chunks);
+        });
+
+        req.on('error', reject);
+      });
+
+      const parseResult = safeParseJson(
+        body,
+        UpdateQaRunStatusSchema
+      );
+
+      if (parseResult.isErr()) {
+        res.status(400).json({ error: 'Invalid request body' });
+        return;
+      }
+
+      const updateParams = parseResult.ok();
+
+      context.logger.log(LogEventId.ApplicationStartup, 'system', {
+        message: 'Received QA run status update',
+        qaRunId,
+        status: updateParams.status,
+        electionId: qaRun.electionId,
+      });
+
+      // Update QA run status
+      await context.workspace.store.updateExportQaRunStatus(
+        qaRunId,
+        updateParams
+      );
+
+      context.logger.log(LogEventId.ApplicationStartup, 'system', {
+        message: 'QA run status updated',
+        qaRunId,
+        status: updateParams.status,
+        electionId: qaRun.electionId,
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      const message = extractErrorMessage(error);
+      context.logger.log(LogEventId.UnknownError, 'system', {
+        message: 'Error processing QA webhook',
+        error: message,
+      });
+      res.status(500).json({ error: message });
+      // eslint-disable-next-line no-console
+      console.error(error);
+      next(error);
+    }
+  });
+
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
 
@@ -1399,11 +1513,11 @@ export function buildApp(context: AppContext): Application {
     NODE_ENV === 'test'
       ? ''
       : readFileSync(
-          join(context.workspace.assetDirectoryPath, 'index.html'),
-          'utf8'
-        )
-          .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
-          .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
+        join(context.workspace.assetDirectoryPath, 'index.html'),
+        'utf8'
+      )
+        .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
+        .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
   app.get('*', (_req, res) => {
     res.send(indexFileContents);
   });

@@ -9,10 +9,12 @@ import {
   Card,
   Font,
   Icons,
+  Modal,
   P,
+  useQueryChangeListener,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { BackgroundTask } from '@votingworks/design-backend';
+import { BackgroundTask, ExportQaRun } from '@votingworks/design-backend';
 
 import { ElectionIdParams, routes } from './routes';
 import { Row } from './layout';
@@ -33,15 +35,27 @@ export function ProofingStatus(): React.ReactNode {
   const finalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
   const mainExports = api.getElectionPackage.useQuery(electionId);
   const testDecks = api.getTestDecks.useQuery(electionId);
+  const latestQaRunQuery = api.getLatestExportQaRun.useQuery(electionId);
 
   const approve = api.approveBallots.useMutation();
   const unfinalize = api.unfinalizeBallots.useMutation();
+
+  const [showQaWarningModal, setShowQaWarningModal] = React.useState(false);
+
+  useQueryChangeListener(latestQaRunQuery, {
+    onChange(newLatestRun) {
+      if (newLatestRun?.status === 'success') {
+        setShowQaWarningModal(false);
+      }
+    }
+  });
 
   if (
     !approvedAt.isSuccess ||
     !finalizedAt.isSuccess ||
     !mainExports.isSuccess ||
-    !testDecks.isSuccess
+    !testDecks.isSuccess ||
+    !latestQaRunQuery.isSuccess
   ) {
     return null;
   }
@@ -54,11 +68,33 @@ export function ProofingStatus(): React.ReactNode {
   const hasError =
     !!mainExports.data.task?.error || !!testDecks.data.task?.error;
 
+  // Get the most recent QA run (if any)
+  const latestQaRun = latestQaRunQuery.data;
+  const qaInProgress =
+    latestQaRun?.status === 'pending' ||
+    latestQaRun?.status === 'in_progress';
+  const qaFailed = latestQaRun?.status === 'failure';
+  const qaComplete = latestQaRun?.status === 'success';
+  const qaIncompleteOrFailed = latestQaRun && !qaComplete;
+
   const approving = approve.isLoading;
   const unfinalizing = unfinalize.isLoading;
   const approveDisabled = approving || exporting || hasError || unfinalizing;
   const approved = !!approvedAt.data;
   const finalized = !!finalizedAt.data;
+
+  function handleApproveClick() {
+    if (qaIncompleteOrFailed) {
+      setShowQaWarningModal(true);
+    } else {
+      approve.mutate({ electionId });
+    }
+  }
+
+  function handleConfirmApprove() {
+    setShowQaWarningModal(false);
+    approve.mutate({ electionId });
+  }
 
   return (
     <Container>
@@ -78,6 +114,8 @@ export function ProofingStatus(): React.ReactNode {
           {hasTestDecks && (
             <ExportStatus task={testDecks.data.task} title="Test Decks" />
           )}
+
+          {latestQaRun && <QaStatus qaRun={latestQaRun} />}
         </React.Fragment>
       ) : (
         <StatusLine done={false}>Ballots not finalized</StatusLine>
@@ -110,8 +148,7 @@ export function ProofingStatus(): React.ReactNode {
             <Button
               disabled={approveDisabled}
               icon="Done"
-              onPress={approve.mutate}
-              value={{ electionId }}
+              onPress={handleApproveClick}
               variant={approveDisabled ? 'neutral' : 'primary'}
             >
               Approve
@@ -119,8 +156,134 @@ export function ProofingStatus(): React.ReactNode {
           )}
         </Row>
       )}
+
+      {showQaWarningModal && (
+        <Modal
+          title="QA Check Incomplete"
+          content={
+            <div>
+              {qaFailed ? (
+                <P>
+                  The automated QA check has failed
+                  {latestQaRun?.statusMessage &&
+                    `: ${latestQaRun.statusMessage}`}
+                  . Are you sure you want to approve these ballots?
+                </P>
+              ) : qaInProgress ? (
+                <P>
+                  The automated QA check is still running. Are you sure you want
+                  to approve these ballots before QA is complete?
+                </P>
+              ) : (
+                <P>
+                  The automated QA check has not completed. Are you sure you
+                  want to approve these ballots?
+                </P>
+              )}
+              {latestQaRun?.resultsUrl && (
+                <P>
+                  <a
+                    href={latestQaRun.resultsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    (📑 Results)
+                  </a>
+                </P>
+              )}
+            </div>
+          }
+          actions={
+            <React.Fragment>
+              <Button onPress={handleConfirmApprove} variant="danger">
+                Approve Anyway
+              </Button>
+              <Button onPress={() => setShowQaWarningModal(false)}>
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={() => setShowQaWarningModal(false)}
+        />
+      )}
     </Container>
   );
+}
+
+function JobLink({ jobUrl }: { jobUrl?: string }): React.ReactNode {
+  if (!jobUrl) return null;
+  return (
+    <Caption>
+      <a href={jobUrl} target="_blank" rel="noopener noreferrer">
+        (View CI Job)
+      </a>
+    </Caption>
+  );
+}
+
+function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
+  const { status, statusMessage, resultsUrl, jobUrl, createdAt, updatedAt } = qaRun;
+
+  if (status === 'pending') {
+    return (
+      <StatusLine done={false}>
+        QA check pending&hellip;
+      </StatusLine>
+    );
+  }
+
+  if (status === 'in_progress') {
+    return (
+      <Callout color="warning" icon="Info">
+        <div>
+          <P style={{ lineHeight: 1 }} weight="bold">
+            QA Check Running
+          </P>
+          {statusMessage && <P>{statusMessage}</P>}
+          <JobLink jobUrl={jobUrl} />
+        </div>
+      </Callout>
+    );
+  }
+
+  if (status === 'failure') {
+    return (
+      <Callout color="danger" icon="Danger">
+        <div>
+          <P style={{ lineHeight: 1 }} weight="bold">
+            QA Check Failed
+            {resultsUrl && (
+              <P>
+                <a href={resultsUrl} target="_blank" rel="noopener noreferrer">
+                  (📑 Results)
+                </a>
+              </P>
+            )}
+          </P>
+          {statusMessage && <P>{statusMessage}</P>}
+          <JobLink jobUrl={jobUrl} />
+        </div>
+      </Callout>
+    );
+  }
+
+  if (status === 'success') {
+    return (
+      <StatusLine date={updatedAt ?? createdAt} done>
+        QA check passed
+        {resultsUrl && (
+          <Caption>
+            <a href={resultsUrl} target="_blank" rel="noopener noreferrer">
+              (📑 Results)
+            </a>
+          </Caption>
+        )}
+        <JobLink jobUrl={jobUrl} />
+      </StatusLine>
+    );
+  }
+
+  return null;
 }
 
 function ApprovalNextSteps(): React.ReactNode {

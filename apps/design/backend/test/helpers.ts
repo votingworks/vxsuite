@@ -104,6 +104,43 @@ export class MockFileStorageClient implements FileStorageClient {
   }
 }
 
+/**
+ * Simple request builder that mimics supertest's fluent API using fetch.
+ */
+function createRequestBuilder(
+  baseUrl: string,
+  method: string,
+  path: string
+): {
+  set: (header: string, value: string) => ReturnType<typeof createRequestBuilder>;
+  send: (body: unknown) => Promise<{ status: number; body: unknown }>;
+} {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  const builder = {
+    set(header: string, value: string) {
+      headers[header] = value;
+      return builder;
+    },
+    async send(body: unknown) {
+      const response = await fetch(`${baseUrl}${path}`, {
+        method,
+        headers,
+        body: JSON.stringify(body),
+      });
+      const responseBody = await response.json().catch(() => ({}));
+      return {
+        status: response.status,
+        body: responseBody,
+      };
+    },
+  };
+
+  return builder;
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function testSetupHelpers() {
   const servers: Server[] = [];
@@ -119,11 +156,18 @@ export function testSetupHelpers() {
     organizations,
     jurisdictions,
     users,
+    env,
   }: {
     organizations: Organization[];
     jurisdictions: Jurisdiction[];
     users: User[];
+    env?: Record<string, string>;
   }) {
+    // Set environment variables for this test
+    const originalEnv = { ...process.env };
+    if (env) {
+      Object.assign(process.env, env);
+    }
     const store = testStore.getStore();
     await testStore.init();
     for (const organization of organizations) {
@@ -182,6 +226,22 @@ export function testSetupHelpers() {
       logger,
       translator,
       speechSynthesizer,
+      app: {
+        request: {
+          post: (path: string) => createRequestBuilder(baseUrl, 'POST', path),
+          get: (path: string) => createRequestBuilder(baseUrl, 'GET', path),
+        },
+      },
+      restoreEnv: () => {
+        // Restore original environment
+        for (const key of Object.keys(env || {})) {
+          if (originalEnv[key] === undefined) {
+            delete process.env[key];
+          } else {
+            process.env[key] = originalEnv[key];
+          }
+        }
+      },
     };
   }
 
@@ -215,6 +275,7 @@ export async function processNextBackgroundTaskIfAny({
     translationClient: makeMockGoogleCloudTranslationClient({ fn: vi.fn }),
     vendoredTranslations,
   });
+  const logger = mockBaseLogger({ fn: vi.fn });
 
   await suppressingConsoleOutput(() =>
     worker.processNextBackgroundTaskIfAny({
@@ -222,6 +283,7 @@ export async function processNextBackgroundTaskIfAny({
       speechSynthesizer,
       translator,
       workspace,
+      logger,
     })
   );
 }

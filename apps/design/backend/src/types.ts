@@ -179,3 +179,36 @@ export type ResultsReportingPath = typeof RESULTS_REPORTING_PATH;
 export function resultsReportingUrl(): string {
   return new URL(RESULTS_REPORTING_PATH, baseUrl()).toString();
 }
+
+/**
+ * Status of a QA run triggered via CircleCI.
+ */
+export type ExportQaStatus = 'pending' | 'in_progress' | 'success' | 'failure';
+
+/**
+ * Information about a QA run for an exported election+ballots package.
+ */
+export interface ExportQaRun {
+  id: string;
+  electionId: ElectionId;
+  exportPackageUrl: string;
+  circleCiPipelineId?: string;
+  circleCiWorkflowId?: string;
+  status: ExportQaStatus;
+  statusMessage?: string;
+  resultsUrl?: string;
+  jobUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Parameters for updating a QA run status via webhook.
+ */
+export interface UpdateQaRunStatusParams {
+  status: ExportQaStatus;
+  statusMessage?: string;
+  resultsUrl?: string;
+  circleCiWorkflowId?: string;
+  jobUrl?: string;
+}

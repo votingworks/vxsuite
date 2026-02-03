@@ -846,3 +846,23 @@ export const getBaseUrl = {
     return useQuery(this.queryKey(), () => apiClient.getBaseUrl());
   },
 } as const;
+
+export const getLatestExportQaRun = {
+  queryKey(electionId: ElectionId): QueryKey {
+    return ['getLatestExportQaRun', electionId];
+  },
+  useQuery(electionId: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(electionId),
+      () => apiClient.getLatestExportQaRun({ electionId }),
+      {
+        // Poll while any QA run is in progress
+        refetchInterval: (latestQaRun) =>
+          latestQaRun?.status === 'pending' || latestQaRun?.status === 'in_progress'
+            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
+            : 0,
+      }
+    );
+  },
+} as const;

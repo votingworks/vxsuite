@@ -1,3 +1,4 @@
+import { BaseLogger } from '@votingworks/logging';
 import { FileStorageClient } from '../file_storage_client';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer';
 import { GoogleCloudTranslatorWithDbCache } from '../translator';
@@ -8,6 +9,7 @@ export interface WorkerContext {
   speechSynthesizer: GoogleCloudSpeechSynthesizerWithDbCache;
   translator: GoogleCloudTranslatorWithDbCache;
   workspace: Workspace;
+  logger: BaseLogger;
 }
 
 export type EmitProgressFunction = (
