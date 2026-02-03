@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test } from 'vitest';
+import { afterAll, describe, expect, test, vi } from 'vitest';
 import { v4 as uuid } from 'uuid';
 import { ElectionId } from '@votingworks/types';
 import { testSetupHelpers } from '../test/helpers';
@@ -90,6 +90,38 @@ describe('Export QA Webhook', () => {
 
     expect(response.status).toEqual(404);
     expect(response.body).toEqual({ error: 'QA run not found' });
+  });
+
+  test('webhook endpoint rejects non-JSON content type', async () => {
+    const { workspace, apiClient, auth0, app } = await setupApp({
+      organizations,
+      jurisdictions,
+      users,
+      env: {
+        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
+      },
+    });
+
+    auth0.setLoggedInUser(nonVxUser);
+
+    const electionId = await createElectionForTest(apiClient);
+    const qaRunId = uuid();
+    await workspace.store.createExportQaRun({
+      id: qaRunId,
+      electionId,
+      exportPackageUrl: 'https://example.com/package.zip',
+    });
+
+    const response = await app.request
+      .post(`/api/export-qa-webhook/${qaRunId}`)
+      .set('X-Webhook-Secret', 'test-secret')
+      .set('Content-Type', 'text/plain')
+      .send({
+        status: 'in_progress',
+      });
+
+    expect(response.status).toEqual(406);
+    expect(response.body).toEqual({ error: 'Expected JSON request' });
   });
 
   test('webhook endpoint validates request body', async () => {
@@ -244,5 +276,49 @@ describe('Export QA Webhook', () => {
       statusMessage: 'Tests failed: 3 errors found',
       resultsUrl: 'https://example.com/results.html',
     });
+  });
+
+  test('webhook endpoint returns 500 when store throws during status update', async () => {
+    const { workspace, apiClient, auth0, app } = await setupApp({
+      organizations,
+      jurisdictions,
+      users,
+      env: {
+        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
+      },
+    });
+
+    auth0.setLoggedInUser(nonVxUser);
+
+    // Create an election and a QA run
+    const electionId = await createElectionForTest(apiClient);
+    const qaRunId = uuid();
+    await workspace.store.createExportQaRun({
+      id: qaRunId,
+      electionId,
+      exportPackageUrl: 'https://example.com/package.zip',
+    });
+
+    // Make updateExportQaRunStatus throw an error
+    const spy = vi
+      .spyOn(workspace.store, 'updateExportQaRunStatus')
+      .mockRejectedValue(new Error('Database connection lost'));
+
+    // Suppress console.error output during test
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const response = await app.request
+      .post(`/api/export-qa-webhook/${qaRunId}`)
+      .set('X-Webhook-Secret', 'test-secret')
+      .send({
+        status: 'in_progress',
+        statusMessage: 'Running tests',
+      });
+
+    expect(response.status).toEqual(500);
+    expect(response.body).toEqual({ error: 'Database connection lost' });
+
+    spy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 });

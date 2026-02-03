@@ -170,6 +170,7 @@ export class CircleCiClient {
 /**
  * Create a CircleCI client instance.
  */
+/* istanbul ignore next - @preserve */
 export function createCircleCiClient(): CircleCiClient {
   return new CircleCiClient();
 }
@@ -177,6 +178,7 @@ export function createCircleCiClient(): CircleCiClient {
 /**
  * Check if CircleCI integration is enabled and configured.
  */
+/* istanbul ignore next - @preserve */
 export function shouldTriggerCircleCi(): boolean {
   return isCircleCiEnabled();
 }

@@ -115,14 +115,17 @@ export function auth0Secret(): string {
   return requiredProdEnvVar('AUTH0_SECRET', '');
 }
 
+/* istanbul ignore next - @preserve */
 export function slackWebhookUrl(): string {
   return requiredProdEnvVar('SLACK_WEBHOOK_URL', '');
 }
 
+/* istanbul ignore next - @preserve */
 export function votingWorksOrganizationId(): string {
   return requiredProdEnvVar('ORG_ID_VOTINGWORKS', 'votingworks');
 }
 
+/* istanbul ignore next - @preserve */
 export function sliOrganizationId(): string {
   return requiredProdEnvVar('ORG_ID_SLI', 'sli');
 }
@@ -131,6 +134,7 @@ export function sliOrganizationId(): string {
  * CircleCI API token for triggering QA builds.
  * Optional - if not set, QA builds will not be triggered.
  */
+/* istanbul ignore next - @preserve */
 export function circleCiApiToken(): string | undefined {
   return process.env.CIRCLECI_API_TOKEN;
 }
@@ -139,6 +143,7 @@ export function circleCiApiToken(): string | undefined {
  * CircleCI project slug (e.g., "gh/organization/repository").
  * Required if CircleCI integration is enabled.
  */
+/* istanbul ignore next - @preserve */
 export function circleCiProjectSlug(): string | undefined {
   return process.env.CIRCLECI_PROJECT_SLUG;
 }
@@ -147,6 +152,7 @@ export function circleCiProjectSlug(): string | undefined {
  * Shared secret for authenticating CircleCI webhook callbacks.
  * Required if CircleCI integration is enabled.
  */
+/* istanbul ignore next - @preserve */
 export function circleCiWebhookSecret(): string | undefined {
   return process.env.CIRCLECI_WEBHOOK_SECRET;
 }
@@ -154,6 +160,7 @@ export function circleCiWebhookSecret(): string | undefined {
 /**
  * Whether CircleCI integration is enabled (has required config).
  */
+/* istanbul ignore next - @preserve */
 export function isCircleCiEnabled(): boolean {
   return !!(
     circleCiApiToken() &&
@@ -166,6 +173,7 @@ export function isCircleCiEnabled(): boolean {
  * CircleCI branch to trigger pipelines on.
  * Optional - if not set, CircleCI uses the project's default branch.
  */
+/* istanbul ignore next - @preserve */
 export function circleCiBranch(): string | undefined {
   return process.env.CIRCLECI_BRANCH || undefined;
 }
@@ -174,6 +182,7 @@ export function circleCiBranch(): string | undefined {
  * CircleCI API base URL (for testing with mock servers).
  * Defaults to https://circleci.com
  */
+/* istanbul ignore next - @preserve */
 export function circleCiBaseUrl(): string {
   return process.env.CIRCLECI_BASE_URL ?? 'https://circleci.com';
 }

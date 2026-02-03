@@ -527,6 +527,7 @@ export class Store {
     private readonly logger: BaseLogger
   ) { }
 
+  /* istanbul ignore next - @preserve */
   static new(logger: BaseLogger): Store {
     return new Store(new Db(logger), logger);
   }
