@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+require('../src/render_ballot_pdf')
+  .main(process.argv.slice(2))
+  .then((exitCode) => {
+    process.exitCode = exitCode;
+  })
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
