@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 
+import { GoogleCloudSpeechSynthesizer, GoogleCloudTranslator, makeMockGoogleCloudTextToSpeechClient, makeMockGoogleCloudTranslationClient } from '@votingworks/backend';
 import * as tasks from './tasks';
 import { processNextBackgroundTaskIfAny, start } from './worker';
 import { WorkerContext } from './context';
@@ -12,6 +13,17 @@ const processBackgroundTaskMock = vi.mocked(tasks.processBackgroundTask);
 function createMockContext(overrides?: {
   getOldestQueuedBackgroundTask?: ReturnType<typeof vi.fn>;
 }): WorkerContext {
+  const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
+    fn: vi.fn,
+  });
+  const mockSynthesizer = new GoogleCloudSpeechSynthesizer({
+    textToSpeechClient,
+  });
+  const translationClient = makeMockGoogleCloudTranslationClient({
+    fn: vi.fn,
+  });
+  const mockTranslator = new GoogleCloudTranslator({ translationClient });
+
   return {
     workspace: {
       store: {
@@ -30,9 +42,12 @@ function createMockContext(overrides?: {
         requeueInterruptedBackgroundTasks: vi.fn().mockResolvedValue(undefined),
       },
     } as unknown as WorkerContext['workspace'],
-    fileStorageClient: {} as WorkerContext['fileStorageClient'],
-    speechSynthesizer: {} as WorkerContext['speechSynthesizer'],
-    translator: {} as WorkerContext['translator'],
+    fileStorageClient: {
+      readFile: vi.fn(),
+      writeFile: vi.fn(),
+    },
+    speechSynthesizer: mockSynthesizer,
+    translator: mockTranslator,
     logger: mockBaseLogger({ fn: vi.fn }),
   };
 }
@@ -71,7 +86,7 @@ describe('processNextBackgroundTaskIfAny', () => {
     processBackgroundTaskMock.mockRejectedValue(taskError);
 
     // Suppress console output during error test
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
     const result = await processNextBackgroundTaskIfAny(context);
 
@@ -98,7 +113,7 @@ describe('processNextBackgroundTaskIfAny', () => {
 
     processBackgroundTaskMock.mockRejectedValue('string error value');
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
     const result = await processNextBackgroundTaskIfAny(context);
 
@@ -134,7 +149,7 @@ describe('start', () => {
     processBackgroundTaskMock.mockResolvedValue(undefined);
 
     // Suppress console output
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
     await start(context);
 
