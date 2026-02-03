@@ -50,7 +50,8 @@ run on a different port (e.g. 4000 via `FRONTEND_PORT`).
 node dist/index.js serve --config serve-config.json
 ```
 
-A [`serve-config.json`](https://github.com/votingworks/vx-qa/blob/main/serve-config.json)
+A
+[`serve-config.json`](https://github.com/votingworks/vx-qa/blob/main/serve-config.json)
 is included in the vx-qa repo. Edit `vxsuite.ref` to match the VxSuite version
 you want to test against. The `election.source` field is ignored — it gets
 overridden by the election package URL from VxDesign.
@@ -102,8 +103,8 @@ CIRCLECI_API_TOKEN=<your personal CircleCI API token> \
 
 Where:
 
-- **`CIRCLECI_API_TOKEN`** — your personal CircleCI API token. Create one at
-  <https://app.circleci.com/settings/user/tokens>.
+- **`CIRCLECI_API_TOKEN`** — found in the shared 1Password vault as "VxQA Admin
+  API token" (`op read op://Shared/t27czuluxrg7joqjru55k472ua/password`).
 - **`CIRCLECI_PROJECT_SLUG`** — `gh/votingworks/vx-qa-internal` is the internal
   version of vx-qa we use for QA of customer elections.
 - **`CIRCLECI_WEBHOOK_SECRET`** — found in the shared 1Password vault as "VxQA
