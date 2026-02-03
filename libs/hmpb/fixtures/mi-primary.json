@@ -1,0 +1,657 @@
+{
+  "id": "wayne-county-mi-primary-2020",
+  "type": "primary",
+  "title": "Certification Primary Election",
+  "state": "Michigan",
+  "county": {
+    "id": "wayne-county",
+    "name": "Wayne County"
+  },
+  "date": "2020-08-04",
+  "ballotLayout": {
+    "paperSize": "legal",
+    "metadataEncoding": "qr-code"
+  },
+  "parties": [
+    {
+      "id": "democratic",
+      "name": "Democratic",
+      "fullName": "Democratic Party",
+      "abbrev": "DEM"
+    },
+    {
+      "id": "republican",
+      "name": "Republican",
+      "fullName": "Republican Party",
+      "abbrev": "REP"
+    },
+    {
+      "id": "libertarian",
+      "name": "Libertarian",
+      "fullName": "Libertarian Party",
+      "abbrev": "LIB"
+    }
+  ],
+  "districts": [
+    {
+      "id": "state",
+      "name": "State"
+    },
+    {
+      "id": "congressional",
+      "name": "Congressional"
+    },
+    {
+      "id": "legislative",
+      "name": "Legislative"
+    },
+    {
+      "id": "county",
+      "name": "County"
+    },
+    {
+      "id": "city",
+      "name": "City"
+    },
+    {
+      "id": "judicial",
+      "name": "Judicial"
+    }
+  ],
+  "precincts": [
+    {
+      "id": "precinct-1",
+      "name": "City of Ecorse, Precinct 1",
+      "districtIds": [
+        "state",
+        "congressional",
+        "legislative",
+        "county",
+        "city",
+        "judicial"
+      ]
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "1_en",
+      "groupId": "1",
+      "precincts": [
+        "precinct-1"
+      ],
+      "districts": [
+        "state",
+        "congressional",
+        "legislative",
+        "county",
+        "city",
+        "judicial"
+      ]
+    }
+  ],
+  "contests": [
+    {
+      "id": "democratic-us-senator",
+      "type": "candidate",
+      "title": "United States Senator",
+      "districtId": "state",
+      "partyId": "democratic",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "gary-peters",
+          "name": "Gary Peters"
+        }
+      ]
+    },
+    {
+      "id": "republican-us-senator",
+      "type": "candidate",
+      "title": "United States Senator",
+      "districtId": "state",
+      "partyId": "republican",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "john-james",
+          "name": "John James"
+        }
+      ]
+    },
+    {
+      "id": "libertarian-us-senator",
+      "type": "candidate",
+      "title": "United States Senator",
+      "districtId": "state",
+      "partyId": "libertarian",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-a",
+          "name": "Candidate A"
+        },
+        {
+          "id": "candidate-b",
+          "name": "Candidate B"
+        }
+      ]
+    },
+    {
+      "id": "democratic-rep-in-congress-13",
+      "type": "candidate",
+      "title": "Representative in Congress<br/>13th District",
+      "districtId": "congressional",
+      "partyId": "democratic",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "rashida-tlaib",
+          "name": "Rashida Tlaib"
+        },
+        {
+          "id": "brenda-jones",
+          "name": "Brenda Jones"
+        }
+      ]
+    },
+    {
+      "id": "republican-rep-in-congress-13",
+      "type": "candidate",
+      "title": "Representative in Congress<br/>13th District",
+      "districtId": "congressional",
+      "partyId": "republican",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "david-dudenhoefer",
+          "name": "David Dudenhoefer"
+        },
+        {
+          "id": "linda-sawyer",
+          "name":"Linda Sawyer"
+        },
+        {
+          "id": "al-lemmo",
+          "name": "Al Lemmo"
+        }
+      ]
+    },
+    {
+      "id": "libertarian-rep-in-congress-13",
+      "type": "candidate",
+      "title": "Representative in Congress<br/>13th District",
+      "districtId": "congressional",
+      "partyId": "libertarian",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-c",
+          "name": "Candidate C"
+        }
+      ]
+    },
+    {
+      "id": "democratic-state-rep-2",
+      "type": "candidate",
+      "title": "Representative in State Legislature<br/>2nd District",
+      "districtId": "legislative",
+      "partyId": "democratic",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "taylor-harrell",
+          "name": "Taylor Harrell"
+        },
+        {
+          "id": "joe-tate",
+          "name": "Joe Tate"
+        }
+
+      ]
+    },
+    {
+      "id": "republican-state-rep-2",
+      "type": "candidate",
+      "title": "Representative in State Legislature<br/>2nd District",
+      "districtId": "legislative",
+      "partyId": "republican",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "mayra-rodriguez",
+          "name": "Mayra Rodriguez"
+        }
+      ]
+    },
+    {
+      "id": "libertarian-state-rep-2",
+      "type": "candidate",
+      "title": "Representative in State Legislature<br/>2nd District",
+      "districtId": "legislative",
+      "partyId": "libertarian",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-d",
+          "name": "Candidate D"
+        }
+      ]
+    },
+    {
+      "id": "democratic-prosecuting-attorney",
+      "type": "candidate",
+      "title": "Prosecuting Attorney",
+      "districtId": "county",
+      "partyId": "democratic",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "victoria-burton-harris",
+          "name": "Victoria Burton-Harris"
+        },
+        {
+          "id": "kym-l-worthy",
+          "name": "Kym L. Worthy"
+        }
+      ]
+    },
+    {
+      "id": "republican-prosecuting-attorney",
+      "type": "candidate",
+      "title": "Prosecuting Attorney",
+      "districtId": "county",
+      "partyId": "republican",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": []
+    },
+    {
+      "id": "libertarian-prosecuting-attorney",
+      "type": "candidate",
+      "title": "Prosecuting Attorney",
+      "districtId": "county",
+      "partyId": "libertarian",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-e",
+          "name": "Candidate E"
+        }
+      ]
+    },
+    {
+      "id": "democratic-sheriff",
+      "type": "candidate",
+      "title": "Sheriff",
+      "districtId": "county",
+      "partyId": "democratic",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "benny-n-napoleon",
+          "name": "Benny N. Napoleon"
+        },
+        {
+          "id": "charles-corley-ii",
+          "name": "Charles Corley, II"
+        },
+        {
+          "id": "t-p-nykoriak",
+          "name": "T. P. Nykoriak"
+        }
+      ]
+    },
+    {
+      "id": "republican-sheriff",
+      "type": "candidate",
+      "title": "Sheriff",
+      "districtId": "county",
+      "partyId": "republican",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+      ]
+    },
+    {
+      "id": "libertarian-sheriff",
+      "type": "candidate",
+      "title": "Sheriff",
+      "districtId": "county",
+      "partyId": "libertarian",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-f",
+          "name": "Candidate F"
+        }
+      ]
+    },
+    {
+      "id": "democratic-clerk",
+      "type": "candidate",
+      "title": "Clerk",
+      "districtId": "county",
+      "partyId": "democratic",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "cathy-m-garrett",
+          "name": "Cathy M. Garrett"
+        }
+      ]
+    },
+    {
+      "id": "republican-clerk",
+      "type": "candidate",
+      "title": "Clerk",
+      "districtId": "county",
+      "partyId": "republican",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "dylan-m-gomula",
+          "name": "Dylan M. Gomula"
+        }
+      ]
+    },
+    {
+      "id": "libertarian-clerk",
+      "type": "candidate",
+      "title": "Clerk",
+      "districtId": "county",
+      "partyId": "libertarian",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-g",
+          "name": "Candidate G"
+        }
+      ]
+    },
+    {
+      "id": "democratic-treasurer",
+      "type": "candidate",
+      "title": "Treasurer",
+      "districtId": "county",
+      "partyId": "democratic",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "beverly-kindle-walker",
+          "name": "Beverly Kindle-Walker"
+        },
+        {
+          "id": "eric-r-sabree",
+          "name": "Eric R. Sabree"
+        },
+        {
+          "id": "angelo-s-brown",
+          "name": "Angelo S. Brown"
+        }
+      ]
+    },
+    {
+      "id": "republican-treasurer",
+      "type": "candidate",
+      "title": "Treasurer",
+      "districtId": "county",
+      "partyId": "republican",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "anthony-wozniak",
+          "name": "Anthony Wozniak"
+        }
+      ]
+    },
+    {
+      "id": "libertarian-treasurer",
+      "type": "candidate",
+      "title": "Treasurer",
+      "districtId": "county",
+      "partyId": "libertarian",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-h",
+          "name": "Candidate H"
+        }
+      ]
+    },
+    {
+      "id": "democratic-register-of-deeds",
+      "type": "candidate",
+      "title": "Register of Deeds",
+      "districtId": "county",
+      "partyId": "democratic",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "ricardo-r-moore",
+          "name": "Ricardo R. Moore"
+        },
+        {
+          "id": "bernard-j-youngblood",
+          "name": "Bernard J. Youngblood"
+        }
+      ]
+    },
+    {
+      "id": "republican-register-of-deeds",
+      "type": "candidate",
+      "title": "Register of Deeds",
+      "districtId": "county",
+      "partyId": "republican",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "parker-burns",
+          "name": "Parker Burns"
+        }
+      ]
+    },
+    {
+      "id": "libertarian-register-of-deeds",
+      "type": "candidate",
+      "title": "Register of Deeds",
+      "districtId": "county",
+      "partyId": "libertarian",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-i",
+          "name": "Candidate I"
+        }
+      ]
+    },
+    {
+      "id": "democratic-county-commissioner-4",
+      "type": "candidate",
+      "title": "County Commissioner<br/>District 04",
+      "districtId": "county",
+      "partyId": "democratic",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "gabriela-santiago-romero",
+          "name": "Gabriela Santiago-Romero"
+        },
+        {
+          "id": "ilona-varga",
+          "name": "Ilona Varga"
+        },
+        {
+          "id": "lisa-carter",
+          "name": "Lisa Carter"
+        }
+      ]
+    },
+    {
+      "id": "republican-county-commissioner-4",
+      "type": "candidate",
+      "title": "County Commissioner<br/>District 04",
+      "districtId": "county",
+      "partyId": "republican",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": []
+    },
+    {
+      "id": "libertarian-county-commissioner-4",
+      "type": "candidate",
+      "title": "County Commissioner<br/>District 04",
+      "districtId": "county",
+      "partyId": "libertarian",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-j",
+          "name": "Candidate J"
+        }
+      ]
+    },
+    {
+      "id": "democratic-delegate-county-convention",
+      "type": "candidate",
+      "title": "Delegate to County Convention",
+      "districtId": "county",
+      "partyId": "democratic",
+      "seats": 4,
+      "allowWriteIns": true,
+      "candidates": []
+    },
+    {
+      "id": "republican-delegate-county-convention",
+      "type": "candidate",
+      "title": "Delegate to County Convention",
+      "districtId": "county",
+      "partyId": "republican",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": []
+    },
+    {
+      "id": "libertarian-delegate-county-convention",
+      "type": "candidate",
+      "title": "Delegate to County Convention",
+      "districtId": "county",
+      "partyId": "libertarian",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "candidate-k",
+          "name": "Candidate K"
+        }
+      ]
+    },
+    {
+      "id": "judge-of-circuit-court-3rd-circuit",
+      "type": "candidate",
+      "title": "Judge of Circuit Court<br/>3rd Circuit<br/>Non-Incumbent Position",
+      "districtId": "judicial",
+      "seats": 2,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "shakira-lynn-hawkins",
+          "name": "Shakira Lynn Hawkins"
+        },
+        {
+          "id": "frank-simone",
+          "name": "Frank Simone"
+        },
+        {
+          "id": "nicholas-john-hathaway",
+          "name": "Nicholas John Hathaway"
+        },
+        {
+          "id": "mary-beth-kelly",
+          "name": "Mary Beth Kelly"
+        },
+        {
+          "id": "deana-beard",
+          "name": "Deana Beard"
+        },
+        {
+          "id": "chandra-w-baker",
+          "name": "Chandra W. Baker"
+        },
+        {
+          "id": "linda-sawyer",
+          "name": "Linda Sawyer"
+        }
+      ]
+    },
+    {
+      "id": "city-mayor",
+      "type": "candidate",
+      "title": "Mayor",
+      "districtId": "city",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "greg-blade",
+          "name": "Greg Blade"
+        }
+      ]
+    },
+    {
+      "id": "proposition-o",
+      "type": "yesno",
+      "title": "Proposition O<br/>Operating Millage Renewal",
+      "districtId": "county",
+      "description": "To renew the millage authorized in 2009, shall Wayne County be authorized to continue to levy this millage at the estimated 2019 rollback rate of 0.9529 (about 95 cents per $1,000 of taxable valuation) for ten more years (2020 through 2029), and proceeds used to continue existing County services, including programs for arrest, detention and prosecution of criminals, juvenile court and related services, public health, recreation, County parks, job training, senior citizen services, and programs for meeting medical needs of the poor, the disabled, and the aged? This renewal is projected to generate $42,129,703 in 2020.",
+      "yesOption": {
+        "id": "proposition-o-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "proposition-o-no",
+        "label": "No"
+      }
+    },
+    {
+      "id": "proposition-p",
+      "type": "yesno",
+      "title": "Proposition P<br/>Parks Millage Renewal",
+      "districtId": "county",
+      "description": "To renew the millage authorized in 2016, shall Wayne County levy this millage at the estimated 2020 rollback rate of 0.2459 mills (about 25 cents per $1,000 of taxable valuation) for five more years (2021 through 2025) to continue to improve and operate several parks and related facilities, including Hines Park, Elizabeth Park, Chandler Park, and improvements to municipal parks in the 43 communities as provided in an implementing ordinance through an annual allocation by commission district of the greater of $50,000 or 15% of the total funds generated from that district, on the condition that, for any year for which this continued levy would be imposed, Wayne County must budget from other sources an amount equal to its 1995-1996 fiscal year appropriation for parks? This renewal is projected to generate $10,871,753 in 2021.",
+      "yesOption": {
+        "id": "proposition-p-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "proposition-p-no",
+        "label": "No"
+      }
+    }
+  ],
+  "ballotStrings": {},
+  "seal": ""
+}

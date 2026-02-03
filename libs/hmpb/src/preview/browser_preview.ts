@@ -51,10 +51,10 @@ interface Config {
 
 async function loadConfigFromSearchParams(url: URL): Promise<Config> {
   const electionUrl =
-    url.searchParams.get('election-url') ?? '/hmpb-fixtures/mi-election.json';
+    url.searchParams.get('election-url') ?? '/hmpb-fixtures/mi-primary.json';
   const paperSize = unsafeParse(
     HmpbBallotPaperSizeSchema,
-    url.searchParams.get('paper-size') ?? HmpbBallotPaperSize.Custom17
+    url.searchParams.get('paper-size') ?? HmpbBallotPaperSize.Legal
   );
   const watermark = url.searchParams.get('watermark') ?? undefined;
   const languages = url.searchParams.getAll('lang');
