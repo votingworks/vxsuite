@@ -35,7 +35,17 @@ export function ProofingStatus(): React.ReactNode {
   const finalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
   const mainExports = api.getElectionPackage.useQuery(electionId);
   const testDecks = api.getTestDecks.useQuery(electionId);
-  const latestQaRunQuery = api.getLatestExportQaRun.useQuery(electionId);
+  const isExportInProgress =
+    (mainExports.isSuccess &&
+      mainExports.data.task &&
+      !mainExports.data.task.completedAt) ||
+    (testDecks.isSuccess &&
+      testDecks.data.task &&
+      !testDecks.data.task.completedAt) ||
+    false;
+  const latestQaRunQuery = api.getLatestExportQaRun.useQuery(electionId, {
+    isExportInProgress,
+  });
 
   const approve = api.approveBallots.useMutation();
   const unfinalize = api.unfinalizeBallots.useMutation();

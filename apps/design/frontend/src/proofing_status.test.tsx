@@ -254,6 +254,7 @@ test('unfinalize button action', async () => {
   api.unfinalizeBallots.expectCallWith({ electionId }).resolves();
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
+  mockLatestQaRun(api, undefined);
 
   userEvent.click(screen.getButton(/unfinalize/i));
 
