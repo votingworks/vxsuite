@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.735.0",
+    "@aws-sdk/s3-request-presigner": "^3.738.0",
     "@sentry/node": "^8.51.0",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",

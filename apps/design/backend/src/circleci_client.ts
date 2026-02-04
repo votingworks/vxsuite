@@ -95,13 +95,14 @@ export class CircleCiClient {
 
     const { exportPackageUrl, webhookUrl, qaRunId, electionId } = params;
 
-    debug('Triggering CircleCI pipeline for QA: projectSlug=%s, qaRunId=%s, electionId=%s',
+    const url = `${circleCiBaseUrl()}/api/v2/project/${this.projectSlug}/pipeline`;
+
+    debug('Triggering CircleCI pipeline for QA: projectSlug=%s, qaRunId=%s, electionId=%s, url=%s',
       this.projectSlug,
       qaRunId,
-      electionId
+      electionId,
+      url
     );
-
-    const url = `${circleCiBaseUrl()}/api/v2/project/${this.projectSlug}/pipeline`;
 
     try {
       const body = JSON.stringify({

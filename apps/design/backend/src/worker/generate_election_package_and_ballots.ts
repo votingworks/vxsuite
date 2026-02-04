@@ -49,6 +49,7 @@ import {
   renderCalibrationSheetPdf,
 } from './ballot_pdfs';
 import { createCircleCiClient, shouldTriggerCircleCi } from '../circleci_client';
+import { FileStorageClient } from '../file_storage_client';
 import { baseUrl, circleCiProjectSlug, circleCiWebhookSecret } from '../globals';
 import { Store } from '../store';
 import { rootDebug } from '../debug';
@@ -83,8 +84,9 @@ async function triggerCircleCiQaBuild(params: {
   store: Store;
   electionId: ElectionId;
   electionPackageUrl: string;
+  fileStorageClient: FileStorageClient;
 }): Promise<void> {
-  const { store, electionId, electionPackageUrl } = params;
+  const { store, electionId, electionPackageUrl, fileStorageClient } = params;
 
   // Check if CircleCI integration is enabled
   if (!shouldTriggerCircleCi()) {
@@ -100,8 +102,17 @@ async function triggerCircleCiQaBuild(params: {
     return;
   }
 
-  // Construct the full URL to the export package
-  const fullExportUrl = new URL(electionPackageUrl, baseUrl()).toString();
+  // Use a presigned S3 URL if available (production), otherwise fall back to
+  // the app URL (dev/test where files are on the local filesystem)
+  let fullExportUrl: string;
+  if (fileStorageClient.getSignedUrl) {
+    const storageKey = electionPackageUrl.replace(/^\/files\//, '');
+    fullExportUrl = await fileStorageClient.getSignedUrl(storageKey);
+    debug('Using presigned S3 URL for export package: electionId=%s', electionId);
+  } else {
+    fullExportUrl = new URL(electionPackageUrl, baseUrl()).toString();
+    debug('Using app URL for export package: electionId=%s, url=%s', electionId, fullExportUrl);
+  }
 
   // Construct the webhook URL
   const webhookUrl = new URL(
@@ -455,6 +466,7 @@ export async function generateElectionPackageAndBallots(
     store,
     electionId,
     electionPackageUrl,
+    fileStorageClient: ctx.fileStorageClient,
   });
 }
 
