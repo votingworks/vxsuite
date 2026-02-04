@@ -80,10 +80,10 @@ export class S3FileStorageClient {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: filePath,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- AWS SDK
-    // has internal @smithy/types version mismatches between client-s3 and
-    // s3-request-presigner that cause type errors at compile time despite being
-    // compatible at runtime.
+    // AWS SDK has internal @smithy/types version mismatches between client-s3
+    // and s3-request-presigner that cause type errors at compile time despite
+    // being compatible at runtime.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return s3GetSignedUrl(this.s3Client as any, command as any, {
       expiresIn: expiresInSeconds,
     });
