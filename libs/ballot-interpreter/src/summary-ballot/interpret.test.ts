@@ -6,9 +6,10 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { SheetOf, asSheet } from '@votingworks/types';
+import { SheetOf, asSheet, vote } from '@votingworks/types';
 import {
   renderBmdBallotFixture,
+  renderMultiPageBmdBallotFixture,
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
@@ -60,7 +61,9 @@ test('happy path: front, back', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition(),
     card
   );
-  const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
+  const interpretation = result.unsafeUnwrap();
+  assert(interpretation.type === 'single-page');
+  const { ballot, summaryBallotImage, blankPageImage } = interpretation;
   expect(ballot).toMatchSnapshot();
 
   expect(summaryBallotImage.width).toBeLessThanOrEqual(card[0].width);
@@ -75,7 +78,9 @@ test('happy path: back, front', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition(),
     [card[1], card[0]]
   );
-  const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
+  const interpretation = result.unsafeUnwrap();
+  assert(interpretation.type === 'single-page');
+  const { ballot, summaryBallotImage, blankPageImage } = interpretation;
   expect(ballot).toMatchSnapshot();
 
   expect(summaryBallotImage.width).toBeLessThanOrEqual(card[0].width);
@@ -95,12 +100,16 @@ test('happy path: front upside down, back', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition(),
     cardOriginal
   );
+  const interpretationFlipped = resultFlipped.unsafeUnwrap();
+  assert(interpretationFlipped.type === 'single-page');
   const {
     ballot: ballotFlipped,
     summaryBallotImage: summaryBallotImageFlipped,
     blankPageImage: blankPageImageFlipped,
-  } = resultFlipped.unsafeUnwrap();
-  const { ballot: ballotOriginal } = resultOriginal.unsafeUnwrap();
+  } = interpretationFlipped;
+  const interpretationOriginal = resultOriginal.unsafeUnwrap();
+  assert(interpretationOriginal.type === 'single-page');
+  const { ballot: ballotOriginal } = interpretationOriginal;
   expect(ballotFlipped).toMatchSnapshot();
   expect(ballotFlipped).toEqual(ballotOriginal);
 
@@ -138,12 +147,16 @@ test('happy path: back, front upside down', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition(),
     cardOriginal
   );
+  const interpretationFlipped = resultFlipped.unsafeUnwrap();
+  assert(interpretationFlipped.type === 'single-page');
   const {
     ballot: ballotFlipped,
     summaryBallotImage: summaryBallotImageFlipped,
     blankPageImage: blankPageImageFlipped,
-  } = resultFlipped.unsafeUnwrap();
-  const { ballot: ballotOriginal } = resultOriginal.unsafeUnwrap();
+  } = interpretationFlipped;
+  const interpretationOriginal = resultOriginal.unsafeUnwrap();
+  assert(interpretationOriginal.type === 'single-page');
+  const { ballot: ballotOriginal } = interpretationOriginal;
   expect(ballotFlipped).toMatchSnapshot();
   expect(ballotFlipped).toEqual(ballotOriginal);
 
@@ -221,4 +234,181 @@ test('mismatched election', async () => {
       ),
     })
   );
+});
+
+// Multi-page BMD ballot tests
+
+test('multi-page BMD ballot: page 1 of 2', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  // Split contests between two pages
+  const allContestIds = election.contests.map((c) => c.id);
+  const page1ContestIds = allContestIds.slice(0, 4);
+
+  const ballotStyleId = DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID;
+  const precinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
+  const ballotAuditId = 'test-multi-page-audit-id-123';
+
+  const pdfData = await renderMultiPageBmdBallotFixture({
+    electionDefinition,
+    ballotStyleId,
+    precinctId,
+    votes: DEFAULT_FAMOUS_NAMES_VOTES,
+    pageNumber: 1,
+    totalPages: 2,
+    ballotAuditId,
+    contestIdsForPage: page1ContestIds,
+  });
+
+  const card = asSheet(await pdfToPageImages(pdfData).toArray());
+  const result = await interpret(electionDefinition, card);
+  const interpretation = result.unsafeUnwrap();
+
+  assert(interpretation.type === 'multi-page');
+  const { metadata, votes } = interpretation;
+
+  expect(metadata.pageNumber).toEqual(1);
+  expect(metadata.totalPages).toEqual(2);
+  expect(metadata.ballotAuditId).toEqual(ballotAuditId);
+  expect(metadata.ballotStyleId).toEqual(ballotStyleId);
+  expect(metadata.precinctId).toEqual(precinctId);
+  expect(metadata.contestIds).toEqual(page1ContestIds);
+
+  // Verify that only page 1 contests have votes
+  const voteContestIds = Object.keys(votes);
+  expect([...voteContestIds].sort()).toEqual([...page1ContestIds].sort());
+});
+
+test('multi-page BMD ballot: page 2 of 2', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  // Split contests between two pages
+  const allContestIds = election.contests.map((c) => c.id);
+  const page2ContestIds = allContestIds.slice(4);
+
+  const ballotStyleId = DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID;
+  const precinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
+  const ballotAuditId = 'test-multi-page-audit-id-123';
+
+  const pdfData = await renderMultiPageBmdBallotFixture({
+    electionDefinition,
+    ballotStyleId,
+    precinctId,
+    votes: DEFAULT_FAMOUS_NAMES_VOTES,
+    pageNumber: 2,
+    totalPages: 2,
+    ballotAuditId,
+    contestIdsForPage: page2ContestIds,
+  });
+
+  const card = asSheet(await pdfToPageImages(pdfData).toArray());
+  const result = await interpret(electionDefinition, card);
+  const interpretation = result.unsafeUnwrap();
+
+  assert(interpretation.type === 'multi-page');
+  const { metadata, votes } = interpretation;
+
+  expect(metadata.pageNumber).toEqual(2);
+  expect(metadata.totalPages).toEqual(2);
+  expect(metadata.ballotAuditId).toEqual(ballotAuditId);
+  expect(metadata.contestIds).toEqual(page2ContestIds);
+
+  // Verify that only page 2 contests have votes
+  const voteContestIds = Object.keys(votes);
+  expect([...voteContestIds].sort()).toEqual([...page2ContestIds].sort());
+});
+
+test('multi-page BMD ballot: page with no votes (undervotes)', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  // Use only the first 4 contests on page 1 with no votes
+  const allContestIds = election.contests.map((c) => c.id);
+  const page1ContestIds = allContestIds.slice(0, 4);
+
+  const ballotStyleId = DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID;
+  const precinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
+  const ballotAuditId = 'test-blank-page-audit-id';
+
+  // Create a ballot with no votes (all undervotes)
+  const pdfData = await renderMultiPageBmdBallotFixture({
+    electionDefinition,
+    ballotStyleId,
+    precinctId,
+    votes: {}, // No votes - all contests will be undervoted
+    pageNumber: 1,
+    totalPages: 2,
+    ballotAuditId,
+    contestIdsForPage: page1ContestIds,
+  });
+
+  const card = asSheet(await pdfToPageImages(pdfData).toArray());
+  const result = await interpret(electionDefinition, card);
+  const interpretation = result.unsafeUnwrap();
+
+  assert(interpretation.type === 'multi-page');
+  const { metadata, votes } = interpretation;
+
+  expect(metadata.pageNumber).toEqual(1);
+  expect(metadata.contestIds).toEqual(page1ContestIds);
+
+  // Verify that all contests have empty arrays (undervotes)
+  for (const contestId of page1ContestIds) {
+    expect(votes[contestId]).toEqual([]);
+  }
+});
+
+test('multi-page BMD ballot: partial votes on page', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  // Use first 4 contests, but only vote in 2 of them
+  const allContestIds = election.contests.map((c) => c.id);
+  const page1ContestIds = allContestIds.slice(0, 4);
+
+  const ballotStyleId = DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID;
+  const precinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
+  const ballotAuditId = 'test-partial-vote-audit-id';
+
+  // Vote in only the first 2 contests
+  const partialVotes = vote(election.contests.slice(0, 2), {
+    mayor: 'sherlock-holmes',
+    controller: 'winston-churchill',
+  });
+
+  const pdfData = await renderMultiPageBmdBallotFixture({
+    electionDefinition,
+    ballotStyleId,
+    precinctId,
+    votes: partialVotes,
+    pageNumber: 1,
+    totalPages: 2,
+    ballotAuditId,
+    contestIdsForPage: page1ContestIds,
+  });
+
+  const card = asSheet(await pdfToPageImages(pdfData).toArray());
+  const result = await interpret(electionDefinition, card);
+  const interpretation = result.unsafeUnwrap();
+
+  assert(interpretation.type === 'multi-page');
+  const { metadata, votes } = interpretation;
+
+  expect(metadata.pageNumber).toEqual(1);
+  expect(metadata.contestIds).toEqual(page1ContestIds);
+
+  // Verify votes structure: all page contests should be present
+  for (const contestId of page1ContestIds) {
+    expect(contestId in votes).toEqual(true);
+  }
+
+  // First 2 contests should have votes, rest should be empty arrays (undervotes)
+  expect(votes['mayor']).toBeDefined();
+  expect(votes['controller']).toBeDefined();
 });

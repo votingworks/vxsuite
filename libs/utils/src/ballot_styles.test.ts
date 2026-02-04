@@ -400,19 +400,19 @@ test('determinePartyId', () => {
 
   const partyCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
     partyId: '0',
-    bmd: 1,
+    bmd: [1],
     hmpb: [1],
   };
 
   const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
     ballotStyleGroupId: '1M' as BallotStyleGroupId,
-    bmd: 1,
+    bmd: [1],
     hmpb: [1],
   };
 
   const precinctCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
     precinctId: 'precinct-1',
-    bmd: 1,
+    bmd: [1],
     hmpb: [1],
   };
 
@@ -431,25 +431,25 @@ test('determinePartyId - multi language election', () => {
 
   const partyCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
     partyId: '0',
-    bmd: 1,
+    bmd: [1],
     hmpb: [1],
   };
 
   const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
     ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
-    bmd: 1,
+    bmd: [1],
     hmpb: [1],
   };
 
   const ballotStyleCardCounts2: Tabulation.GroupOf<Tabulation.CardCounts> = {
     ballotStyleGroupId: 'fake-ballot-style' as BallotStyleGroupId,
-    bmd: 1,
+    bmd: [1],
     hmpb: [1],
   };
 
   const precinctCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
     precinctId: 'precinct-1',
-    bmd: 1,
+    bmd: [1],
     hmpb: [1],
   };
 

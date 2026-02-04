@@ -12,6 +12,7 @@ import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
 test.each<{
   systemLimits: SystemLimits;
   checkMarkScanSystemLimits?: boolean;
+  checkMarkSystemLimits?: boolean;
   expectedValidationResult: Result<void, SystemLimitViolation>;
 }>([
   {
@@ -236,16 +237,42 @@ test.each<{
     }),
   },
   {
+    systemLimits: {
+      ...SYSTEM_LIMITS,
+      markContest: {
+        ...SYSTEM_LIMITS.markContest,
+        seats: 0,
+      },
+    },
+    checkMarkSystemLimits: true,
+    expectedValidationResult: err({
+      limitScope: 'markContest',
+      limitType: 'seats',
+      valueExceedingLimit: expect.any(Number),
+      contestId: 'president',
+    }),
+  },
+  {
     systemLimits: SYSTEM_LIMITS,
     checkMarkScanSystemLimits: true,
+    checkMarkSystemLimits: true,
     expectedValidationResult: ok(),
   },
 ])(
   'validateElectionDefinitionAgainstSystemLimits',
-  ({ systemLimits, checkMarkScanSystemLimits, expectedValidationResult }) => {
+  ({
+    systemLimits,
+    checkMarkScanSystemLimits,
+    checkMarkSystemLimits,
+    expectedValidationResult,
+  }) => {
     const result = validateElectionDefinitionAgainstSystemLimits(
       electionGeneralFixtures.readElectionDefinition(),
-      { checkMarkScanSystemLimits, systemLimitsOverride: systemLimits }
+      {
+        checkMarkScanSystemLimits,
+        checkMarkSystemLimits,
+        systemLimitsOverride: systemLimits,
+      }
     );
     expect(result).toEqual(expectedValidationResult);
   }

@@ -164,7 +164,7 @@ test('tabulateScannedCardCounts - grouping', () => {
 
     for (const [groupKey, tally] of expected) {
       expect(groupedCardCounts[groupKey]).toEqual({
-        bmd: tally,
+        bmd: [tally],
         hmpb: [],
       });
     }
@@ -225,7 +225,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
       store,
     })[GROUP_KEY_ROOT]
   ).toEqual({
-    bmd: 5,
+    bmd: [5],
     hmpb: [6, 7],
   });
 
@@ -236,7 +236,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
       groupBy: { groupByScanner: true },
     })['root&scannerId=scanner-1']
   ).toEqual({
-    bmd: 5,
+    bmd: [5],
     hmpb: [6, 7],
   });
 });
@@ -302,13 +302,13 @@ test('tabulateFullCardCounts - manual results', () => {
   );
   expect(precinctCardCounts).toEqual([
     {
-      bmd: 30,
+      bmd: [30],
       hmpb: [],
       manual: 20,
       precinctId: 'precinct-1',
     },
     {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
       manual: 0,
       precinctId: 'precinct-2',
@@ -326,13 +326,13 @@ test('tabulateFullCardCounts - manual results', () => {
   );
   expect(votingMethodCardCounts).toEqual([
     {
-      bmd: 30,
+      bmd: [30],
       hmpb: [],
       manual: 0,
       votingMethod: 'precinct',
     },
     {
-      bmd: 0,
+      bmd: [],
       hmpb: [],
       manual: 20,
       votingMethod: 'absentee',
@@ -349,7 +349,7 @@ test('tabulateFullCardCounts - manual results', () => {
   );
   expect(scannerCardCounts).toEqual([
     {
-      bmd: 30,
+      bmd: [30],
       hmpb: [],
     },
   ]);
@@ -367,13 +367,13 @@ test('tabulateFullCardCounts - manual results', () => {
   expect(byBatchCardCounts).toEqual([
     {
       batchId: 'batch-1',
-      bmd: 30,
+      bmd: [30],
       hmpb: [],
       manual: 0,
     },
     {
       batchId: Tabulation.MANUAL_BATCH_ID,
-      bmd: 0,
+      bmd: [],
       hmpb: [],
       manual: 20,
     },
@@ -469,6 +469,6 @@ test('tabulateFullCardCounts - blankBallots', () => {
       })
     );
 
-    expect(cardCounts?.bmd).toEqual(testCase.expected);
+    expect(cardCounts?.bmd).toEqual([testCase.expected]);
   }
 });

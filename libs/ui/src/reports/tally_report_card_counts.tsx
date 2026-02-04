@@ -62,6 +62,8 @@ export function TallyReportCardCounts({
       : undefined;
   const showScannedCount = manualCount !== undefined;
 
+  const numSheets = Math.max(cardCounts.hmpb.length, cardCounts.bmd.length);
+
   return (
     <CardCountTable>
       <table data-testid="voting-method-table">
@@ -78,8 +80,8 @@ export function TallyReportCardCounts({
               <TD>{format.count(getScannedBallotCount(cardCounts))}</TD>
             </tr>
           )}
-          {cardCounts.hmpb.length > 1 &&
-            cardCounts.hmpb.map((_, sheetIndex) => (
+          {numSheets > 1 &&
+            Array.from({ length: numSheets }, (_, sheetIndex) => (
               <tr
                 // eslint-disable-next-line react/no-array-index-key
                 key={sheetIndex}

@@ -88,6 +88,7 @@ function withPageNumber(
   switch (page.type) {
     case 'BlankPage':
     case 'InterpretedBmdPage':
+    case 'InterpretedBmdMultiPagePage':
     case 'InvalidBallotHashPage':
     case 'UnreadablePage':
       return page;

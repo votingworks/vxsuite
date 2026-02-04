@@ -139,7 +139,7 @@ describe('getTallyReportWarning', () => {
         scannedResults: buildElectionResultsFixture({
           election,
           cardCounts: {
-            bmd: 20,
+            bmd: [20],
             hmpb: [],
           },
           contestResultsSummaries,
@@ -163,14 +163,14 @@ describe('getTallyReportWarning', () => {
     const tallyReport: Admin.TallyReportResults = {
       hasPartySplits: false,
       cardCounts: {
-        bmd: 5,
+        bmd: [5],
         hmpb: [],
       },
       contestIds: [],
       scannedResults: buildElectionResultsFixture({
         election,
         cardCounts: {
-          bmd: 5,
+          bmd: [5],
           hmpb: [],
         },
         contestResultsSummaries: {},
@@ -197,7 +197,7 @@ describe('getTallyReportWarning', () => {
       buildElectionResultsFixture({
         election,
         cardCounts: {
-          bmd: 25,
+          bmd: [25],
           hmpb: [],
         },
         contestResultsSummaries: {

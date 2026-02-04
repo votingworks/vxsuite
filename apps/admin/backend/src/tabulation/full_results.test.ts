@@ -137,7 +137,7 @@ test('tabulateCastVoteRecords', async () => {
     return buildElectionResultsFixture({
       election,
       cardCounts: {
-        bmd: fishingTally,
+        bmd: fishingTally > 0 ? [fishingTally] : [],
         hmpb: [],
       },
       contestResultsSummaries: {
@@ -332,7 +332,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const partialExpectedResultsPreAdjudication = buildElectionResultsFixture({
     election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [184],
     },
     contestResultsSummaries: {
@@ -450,7 +450,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const partialExpectedResultsScreenWiaNoDetail = buildElectionResultsFixture({
     election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [184],
     },
     contestResultsSummaries: {
@@ -495,7 +495,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const partialExpectedResultsScreenWiaDetail = buildElectionResultsFixture({
     election,
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [184],
     },
     contestResultsSummaries: {
@@ -595,7 +595,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     buildElectionResultsFixture({
       election,
       cardCounts: {
-        bmd: 0,
+        bmd: [],
         hmpb: [184],
         manual: 5,
       },
@@ -666,7 +666,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     buildElectionResultsFixture({
       election,
       cardCounts: {
-        bmd: 0,
+        bmd: [],
         hmpb: [184],
         manual: 5,
       },
@@ -776,7 +776,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       },
     },
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [92],
     },
     includeGenericWriteIn: false,
@@ -884,7 +884,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       },
     },
     cardCounts: {
-      bmd: 0,
+      bmd: [],
       hmpb: [92],
       manual: 10,
     },
@@ -911,7 +911,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   assert(precinctResultsWithManual);
 
   expect(precinctResultsWithManual.cardCounts).toEqual({
-    bmd: 0,
+    bmd: [],
     hmpb: [92],
     manual: 0,
   });

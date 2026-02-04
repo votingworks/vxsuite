@@ -1,14 +1,40 @@
 import { Buffer } from 'node:buffer';
+import { v4 as uuid } from 'uuid';
 
-import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
+import {
+  getPdfPageCount,
+  PrintSides,
+  Printer,
+  renderToPdf,
+  SummaryBallotLayoutRenderer,
+} from '@votingworks/printing';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { generateMarkOverlay } from '@votingworks/hmpb';
+import { getBallotStyle, getContests } from '@votingworks/types';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
+  filterVotesForContests,
 } from '@votingworks/ui';
 import { Store } from '../store';
 import { PrintBallotProps as ClientParams } from '../types';
+
+/**
+ * Shared renderer instance for measuring ballot layouts.
+ * Initialized lazily on first use.
+ */
+let sharedRenderer: SummaryBallotLayoutRenderer | null = null;
+
+/**
+ * Closes the shared renderer. Call this on application shutdown.
+ */
+export async function closeLayoutRenderer(): Promise<void> {
+  /* istanbul ignore next - @preserve */
+  if (sharedRenderer) {
+    await sharedRenderer.close();
+    sharedRenderer = null;
+  }
+}
 
 export interface PrintBallotProps extends ClientParams {
   printer: Printer;
@@ -34,13 +60,16 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   }
 
   const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { election } = electionDefinition;
   const isLiveMode = !store.getTestMode();
+  const uiStringsPackage = store.getUiStringsStore().getAllUiStrings();
 
-  const ballot = (
+  // Optimistically render as a single-page ballot
+  const singlePageBallot = (
     <BackendLanguageContextProvider
       // [TODO] Derive languageCode from the ballot style instead.
       currentLanguageCode={languageCode}
-      uiStringsPackage={store.getUiStringsStore().getAllUiStrings()}
+      uiStringsPackage={uiStringsPackage}
     >
       <BmdPaperBallot
         electionDefinition={electionDefinition}
@@ -53,8 +82,86 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     </BackendLanguageContextProvider>
   );
 
+  const pdfData = (
+    await renderToPdf({ document: singlePageBallot })
+  ).unsafeUnwrap();
+
+  const pageCount = await getPdfPageCount(pdfData);
+
+  // If the ballot fits on a single page, print directly without computing
+  // page breaks. This is the common case and avoids launching a separate
+  // Chromium instance for layout measurement.
+  if (pageCount === 1) {
+    return printer.print({
+      data: pdfData,
+      sides: PrintSides.OneSided,
+    });
+  }
+
+  // Multi-page fallback: compute page breaks for proper per-page QR codes.
+  // Pass pageCount as knownMinPages to skip the redundant single-page check.
+  if (!sharedRenderer) {
+    sharedRenderer = new SummaryBallotLayoutRenderer();
+  }
+
+  const pageBreaks = await sharedRenderer.computePageBreaks(
+    electionDefinition,
+    ballotStyleId,
+    precinctId,
+    votes,
+    'mark',
+    { languageCode, uiStringsPackage },
+    pageCount
+  );
+
+  // Helper to get contests for a specific page
+  function getPageContests(pageNumber: number) {
+    const page = pageBreaks.find((pg) => pg.pageNumber === pageNumber);
+    assert(page, `Page ${pageNumber} not found`);
+    const ballotStyle = getBallotStyle({ ballotStyleId, election });
+    assert(ballotStyle);
+    const allContests = getContests({ ballotStyle, election });
+    const contestIdSet = new Set(page.contestIds);
+    return allContests.filter((c) => contestIdSet.has(c.id));
+  }
+
+  const ballotAuditId = uuid();
+
+  const ballotDocument = (
+    <div>
+      {pageBreaks.map((pageBreak) => {
+        const pageContests = getPageContests(pageBreak.pageNumber);
+        return (
+          <BackendLanguageContextProvider
+            key={pageBreak.pageNumber}
+            currentLanguageCode={languageCode}
+            uiStringsPackage={uiStringsPackage}
+          >
+            <BmdPaperBallot
+              electionDefinition={electionDefinition}
+              ballotStyleId={ballotStyleId}
+              precinctId={precinctId}
+              votes={filterVotesForContests(votes, pageContests)}
+              isLiveMode={isLiveMode}
+              machineType="mark"
+              pageNumber={pageBreak.pageNumber}
+              totalPages={pageBreaks.length}
+              ballotAuditId={ballotAuditId}
+              contestsForPage={pageContests}
+              layout={pageBreak.layout}
+            />
+          </BackendLanguageContextProvider>
+        );
+      })}
+    </div>
+  );
+
+  const multiPagePdfData = (
+    await renderToPdf({ document: ballotDocument })
+  ).unsafeUnwrap();
+
   return printer.print({
-    data: (await renderToPdf({ document: ballot })).unsafeUnwrap(),
+    data: multiPagePdfData,
     sides: PrintSides.OneSided,
   });
 }

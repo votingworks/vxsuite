@@ -5,6 +5,7 @@ export * from './backend_wait_for';
 export * from './child_process';
 export * from './console';
 export * from './disposable';
+export * from './election_helpers';
 export * from './integration_test_helpers';
 export * from './mock_kiosk';
 export * from './mock_use_audio_controls';

@@ -904,8 +904,7 @@ export class Store {
       type: 'ballot-id-already-exists-with-different-data';
     }
   > {
-    const cvrSheetNumber =
-      cvr.card.type === 'bmd' ? null : cvr.card.sheetNumber;
+    const cvrSheetNumber = cvr.card.sheetNumber ?? null;
     const serializedVotes = JSON.stringify(cvr.votes);
     const serializedMarkScores = JSON.stringify(cvr.markScores);
     const existingCvr = this.client.one(
@@ -969,6 +968,7 @@ export class Store {
           ballot_type,
           batch_id,
           precinct_id,
+          card_type,
           sheet_number,
           votes,
           mark_scores,
@@ -977,7 +977,7 @@ export class Store {
           has_undervote,
           has_write_in
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -987,6 +987,7 @@ export class Store {
         cvr.votingMethod,
         cvr.batchId,
         cvr.precinctId,
+        cvr.card.type,
         cvrSheetNumber,
         serializedVotes,
         serializedMarkScores,
@@ -1372,9 +1373,14 @@ export class Store {
   }
 
   private convertSheetNumberToCard(
+    cardType: 'bmd' | 'hmpb',
     sheetNumber: number | null
   ): Tabulation.Card {
-    return sheetNumber ? { type: 'hmpb', sheetNumber } : { type: 'bmd' };
+    if (cardType === 'hmpb') {
+      return { type: 'hmpb', sheetNumber: sheetNumber ?? 1 };
+    }
+    if (sheetNumber) return { type: 'bmd', sheetNumber };
+    return { type: 'bmd' };
   }
 
   private parseVotesWithAdjudications({
@@ -1444,6 +1450,7 @@ export class Store {
           cvrs.ballot_type as votingMethod,
           cvrs.batch_id as batchId,
           scanner_batches.scanner_id as scannerId,
+          cvrs.card_type as cardType,
           cvrs.sheet_number as sheetNumber,
           cvrs.votes as votes,
           cvrs.mark_scores as markScores,
@@ -1476,6 +1483,7 @@ export class Store {
       ...(cvrId ? [...params, cvrId] : params)
     ) as Iterable<
       StoreCastVoteRecordAttributes & {
+        cardType: 'bmd' | 'hmpb';
         sheetNumber: number | null;
         votes: string;
         markScores: string;
@@ -1489,7 +1497,7 @@ export class Store {
         batchId: row.batchId,
         scannerId: row.scannerId,
         precinctId: row.precinctId,
-        card: this.convertSheetNumberToCard(row.sheetNumber),
+        card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
         votes: this.parseVotesWithAdjudications({
           votesString: row.votes,
           adjudicationsString: row.adjudications,
@@ -1556,6 +1564,7 @@ export class Store {
           select
             ${selectParts.map((line) => `${line},`).join('\n')}
             cvrs.sheet_number as sheetNumber,
+            cvrs.card_type as cardType,
             count(cvrs.id) as tally
           from cvrs
           inner join scanner_batches on cvrs.batch_id = scanner_batches.id
@@ -1565,12 +1574,14 @@ export class Store {
           where ${whereParts.join(' and ')}
           group by
             ${groupByParts.map((line) => `${line},`).join('\n')}
-            sheetNumber
+            sheetNumber,
+            cardType
         `,
       ...params
     ) as Iterable<
       Partial<StoreCastVoteRecordAttributes> & {
         sheetNumber: number | null;
+        cardType: 'bmd' | 'hmpb';
         tally: number;
       }
     >) {
@@ -1593,7 +1604,7 @@ export class Store {
 
       yield {
         ...groupSpecifier,
-        card: this.convertSheetNumberToCard(row.sheetNumber),
+        card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
         tally: row.tally,
       };
     }

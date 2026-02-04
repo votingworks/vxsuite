@@ -79,7 +79,7 @@ test('general, full election, write in adjudication', async () => {
   );
   expect(fullElectionTallyReport.manualResults).toBeUndefined();
   expect(fullElectionTallyReport.cardCounts).toEqual({
-    bmd: 0,
+    bmd: [],
     hmpb: [184],
   });
   expect(
@@ -166,7 +166,7 @@ test('general, full election, write in adjudication', async () => {
 
   expect(wiaFullElectionTallyReport.manualResults).toBeUndefined();
   expect(wiaFullElectionTallyReport.cardCounts).toMatchObject({
-    bmd: 0,
+    bmd: [],
     hmpb: [184],
   });
   expect(
@@ -270,12 +270,12 @@ test('general, reports by voting method, manual data', async () => {
 
   // card counts should be different on account of manual results
   expect(absenteeTallyReport.cardCounts).toEqual({
-    bmd: 0,
+    bmd: [],
     hmpb: [92],
     manual: 10,
   });
   expect(precinctTallyReport.cardCounts).toEqual({
-    bmd: 0,
+    bmd: [],
     hmpb: [92],
   });
 
@@ -356,17 +356,17 @@ test('primary, full election', async () => {
   // should have card counts by party as needed for the report display
   expect(fullElectionTallyReport.cardCountsByParty).toEqual({
     '0': {
-      bmd: 56,
+      bmd: [56],
       hmpb: [],
     },
     '1': {
-      bmd: 56,
+      bmd: [56],
       hmpb: [],
     },
   });
 
   expect(fullElectionTallyReport.scannedResults.cardCounts).toEqual({
-    bmd: 112,
+    bmd: [112],
     hmpb: [],
     manual: 0,
   });
@@ -427,18 +427,18 @@ test('primary, full election, with manual results', async () => {
   // manual results should affect only the parties their ballot styles represent
   expect(fullElectionTallyReport.cardCountsByParty).toEqual({
     '0': {
-      bmd: 56,
+      bmd: [56],
       hmpb: [],
       manual: 10,
     },
     '1': {
-      bmd: 56,
+      bmd: [56],
       hmpb: [],
     },
   });
 
   expect(fullElectionTallyReport.scannedResults.cardCounts).toEqual({
-    bmd: 112,
+    bmd: [112],
     hmpb: [],
     manual: 0,
   });
@@ -479,13 +479,13 @@ test('single language primary, reports by ballot style', async () => {
   // card counts should reflect the fact that each report only represents one party
   expect(mammalBallotStyleTallyReport.cardCountsByParty).toEqual({
     '0': {
-      bmd: 56,
+      bmd: [56],
       hmpb: [],
     },
   });
   expect(fishBallotStyleTallyReport.cardCountsByParty).toEqual({
     '1': {
-      bmd: 56,
+      bmd: [56],
       hmpb: [],
     },
   });
@@ -549,19 +549,19 @@ test('multi language, filtered by ballot style - grouped by precinct', async () 
 
   expect(congressional1split1.cardCountsByParty).toEqual({
     '0': {
-      bmd: 0,
+      bmd: [],
       hmpb: [72],
     },
   });
   expect(congressional1split2.cardCountsByParty).toEqual({
     '0': {
-      bmd: 0,
+      bmd: [],
       hmpb: [72],
     },
   });
   expect(congressional2.cardCountsByParty).toEqual({
     '1': {
-      bmd: 0,
+      bmd: [],
       hmpb: [72],
     },
   });
@@ -594,7 +594,7 @@ test('multi language, filtered by party - grouped by ballot style', async () => 
     assert(report.hasPartySplits);
     expect(report.cardCountsByParty).toEqual({
       '0': {
-        bmd: 0,
+        bmd: [],
         hmpb: [report.ballotStyleGroupId === '1-Ma' ? 144 : 72],
       },
     });
@@ -635,13 +635,13 @@ test('multi language, reports by ballot style - agnostic to language specific ba
   assert(fourthFishTallyReport.hasPartySplits);
   expect(firstMammalTallyReport.cardCountsByParty).toEqual({
     '0': {
-      bmd: 0,
+      bmd: [],
       hmpb: [144],
     },
   });
   expect(fourthFishTallyReport.cardCountsByParty).toEqual({
     '1': {
-      bmd: 0,
+      bmd: [],
       hmpb: [72],
     },
   });
@@ -691,11 +691,11 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
   // ballot counts should indicate that only one precinct is included
   expect(absenteeTallyReport.cardCountsByParty).toEqual({
     '0': {
-      bmd: 14,
+      bmd: [14],
       hmpb: [],
     },
     '1': {
-      bmd: 14,
+      bmd: [14],
       hmpb: [],
     },
   });

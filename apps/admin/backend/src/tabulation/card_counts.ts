@@ -28,8 +28,11 @@ function addCardTallyToCardCounts({
 }): Tabulation.CardCounts {
   const { card, tally } = cardTally;
   if (card.type === 'bmd') {
+    // Sheet number is 1 for single-page BMD, or the page number for multi-page BMD
+    const sheetNumber = card.sheetNumber ?? 1;
     // eslint-disable-next-line no-param-reassign
-    cardCounts.bmd += tally;
+    cardCounts.bmd[sheetNumber - 1] =
+      (cardCounts.bmd[sheetNumber - 1] ?? 0) + tally;
   } else {
     /* istanbul ignore next - trivial fallback case @preserve */
     // eslint-disable-next-line no-param-reassign
