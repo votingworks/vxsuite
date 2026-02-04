@@ -29,6 +29,7 @@ import {
 } from '@votingworks/backend';
 import {
   assertDefined,
+  extractErrorMessage,
   find,
   iter,
   range,
@@ -91,33 +92,31 @@ async function triggerCircleCiQaBuild(params: {
     return;
   }
 
+  const qaRunId = uuid();
+  const webhookSecret = circleCiWebhookSecret();
+
+  if (!webhookSecret) {
+    debug('CircleCI webhook secret not configured, cannot trigger QA build');
+    return;
+  }
+
+  // Construct the full URL to the export package
+  const fullExportUrl = new URL(electionPackageUrl, baseUrl()).toString();
+
+  // Construct the webhook URL
+  const webhookUrl = new URL(
+    `/api/export-qa-webhook/${qaRunId}`,
+    baseUrl()
+  ).toString();
+
+  // Create QA run record
+  await store.createExportQaRun({
+    id: qaRunId,
+    electionId,
+    exportPackageUrl: fullExportUrl,
+  });
+
   try {
-    const qaRunId = uuid();
-    const webhookSecret = circleCiWebhookSecret();
-
-    if (!webhookSecret) {
-      debug('CircleCI webhook secret not configured, cannot trigger QA build');
-      return;
-    }
-
-    // Construct the full URL to the export package
-    const fullExportUrl = new URL(electionPackageUrl, baseUrl()).toString();
-
-    // Construct the webhook URL
-    const webhookUrl = new URL(
-      `/api/export-qa-webhook/${qaRunId}`,
-      baseUrl()
-    ).toString();
-
-    debug('Triggering CircleCI QA build: electionId=%s, qaRunId=%s', electionId, qaRunId);
-
-    // Create QA run record
-    await store.createExportQaRun({
-      id: qaRunId,
-      electionId,
-      exportPackageUrl: fullExportUrl,
-    });
-
     // Trigger CircleCI pipeline
     const circleCiClient = createCircleCiClient();
     const result = await circleCiClient.triggerPipeline({
@@ -147,11 +146,18 @@ async function triggerCircleCiQaBuild(params: {
       result.pipelineId
     );
   } catch (error) {
+    const message = extractErrorMessage(error);
+
     // Log the error but don't fail the export
     debug('Error triggering CircleCI QA build: error=%s, electionId=%s',
-      error instanceof Error ? error.message : String(error),
+      message,
       electionId
     );
+
+    await store.updateExportQaRunStatus(qaRunId, {
+      status: 'failure',
+      statusMessage: `Error starting QA job in CircleCI: ${message}`,
+    });
   }
 }
 
@@ -419,18 +425,18 @@ export async function generateElectionPackageAndBallots(
 
     shouldExportSampleBallots
       ? writeBallotsZip(ctx, {
-          jurisdictionId,
-          name: `sample-ballots-${ballotHash}.zip`,
-          zip: sampleBallotsZip,
-        })
+        jurisdictionId,
+        name: `sample-ballots-${ballotHash}.zip`,
+        zip: sampleBallotsZip,
+      })
       : undefined,
 
     shouldExportTestBallots
       ? writeBallotsZip(ctx, {
-          jurisdictionId,
-          name: `test-ballots-${ballotHash}.zip`,
-          zip: testBallotsZip,
-        })
+        jurisdictionId,
+        name: `test-ballots-${ballotHash}.zip`,
+        zip: testBallotsZip,
+      })
       : undefined,
   ]);
 
