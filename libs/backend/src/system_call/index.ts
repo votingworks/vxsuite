@@ -14,3 +14,4 @@ export {
   type SetDefaultAudioResult,
   setDefaultAudio,
 } from './set_default_audio';
+export * from './set_builtin_audio_port';

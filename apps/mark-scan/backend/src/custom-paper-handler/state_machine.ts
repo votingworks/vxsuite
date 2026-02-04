@@ -53,6 +53,7 @@ import {
 import { readElection } from '@votingworks/fs';
 import { loadImageData } from '@votingworks/image-utils';
 import { Clock } from 'xstate/lib/interpreter';
+import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
 import { Workspace } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import { MAX_BALLOT_BOX_CAPACITY } from './constants';
@@ -73,10 +74,10 @@ import {
   renderDiagnosticMockBallot,
 } from './diagnostic';
 import { constructAuthMachineState } from '../util/auth';
-import { AudioOutput, setAudioOutput } from '../audio/outputs';
 import { BlankPageInterpretationDiagnosticError } from './diagnostic/blank_page_interpretation_diagnostic_error';
 import { UnknownInterpretationDiagnosticError } from './diagnostic/unknown_interpretation_diagnostic_error';
 import { DiagnosticError } from './diagnostic/diagnostic_error';
+import { getNodeEnv } from '../globals';
 
 interface CoverStatus {
   isOpen: boolean;
@@ -1343,8 +1344,8 @@ export function buildMachine(
         },
         cover_open_unauthorized: {
           invoke: pollCoverOpenStatus,
-          entry: ({ logger }) => setAudioOutput(AudioOutput.SPEAKER, logger),
-          exit: ({ logger }) => setAudioOutput(AudioOutput.HEADPHONES, logger),
+          entry: ({ logger }) => setAudioOutput(AudioPort.SPEAKER, logger),
+          exit: ({ logger }) => setAudioOutput(AudioPort.HEADPHONES, logger),
           on: {
             AUTH_STATUS_LOGGED_OUT: 'voting_flow.history',
             AUTH_STATUS_POLL_WORKER: 'voting_flow.history',
@@ -1746,4 +1747,12 @@ export async function getPaperHandlerStateMachine({
       machineService.send({ type: 'RESET' });
     },
   };
+}
+
+export const MAX_AUDIO_PORT_CHANGE_RETRIES = 3;
+
+async function setAudioOutput(port: AudioPort, logger: Logger) {
+  await setBuiltinAudioPort(getNodeEnv(), port, logger, {
+    maxRetries: MAX_AUDIO_PORT_CHANGE_RETRIES,
+  });
 }
