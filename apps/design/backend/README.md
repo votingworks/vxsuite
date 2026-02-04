@@ -104,12 +104,13 @@ CIRCLECI_API_TOKEN=<your personal CircleCI API token> \
 Where:
 
 - **`CIRCLECI_API_TOKEN`** — found in the shared 1Password vault as "VxQA Admin
-  API token" (`op read op://Shared/t27czuluxrg7joqjru55k472ua/password`).
+  API token"
+  (`op read 'op://Software Eng/sa6u6uues7p6hqrje7x5lexalq/password'`).
 - **`CIRCLECI_PROJECT_SLUG`** — `gh/votingworks/vx-qa-internal` is the internal
   version of vx-qa we use for QA of customer elections.
 - **`CIRCLECI_WEBHOOK_SECRET`** — found in the shared 1Password vault as "VxQA
   CircleCI Webhook Secret"
-  (`op read op://Shared/hier7ygte2hjsyeqj4zihhnkrq/password`).
+  (`op read 'op://Software Eng/5nl3dggiufl6z7flk3e22oe7cy/password'`).
 - **`CIRCLECI_BRANCH`** — the vx-qa branch to run (optional, defaults to the
   project default branch).
 - **`BASE_URL`** — the ngrok forwarding URL (fetch automatically using
