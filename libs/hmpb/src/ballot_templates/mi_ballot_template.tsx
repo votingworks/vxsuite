@@ -4,7 +4,6 @@ import {
   assertDefined,
   err,
   groupBy,
-  iter,
   ok,
   range,
   Result,
@@ -24,7 +23,6 @@ import {
   getBallotStyle,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
-  getPartyForBallotStyle,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
