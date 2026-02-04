@@ -1,10 +1,15 @@
-import type { Api, PrecinctScannerStatus } from '@votingworks/scan-backend';
+import type {
+  Api,
+  PrecinctScannerStatus,
+  SoundName,
+} from '@votingworks/scan-backend';
 import React from 'react';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
   QueryKey,
   useMutation,
+  UseMutationResult,
   useQuery,
   useQueryClient,
   UseQueryOptions,
@@ -15,6 +20,8 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   createUiStringsApi,
   createSystemCallApi,
+  useAudioControls,
+  useAudioEnabled,
 } from '@votingworks/ui';
 import { DiagnosticRecord } from '@votingworks/types';
 
@@ -586,8 +593,30 @@ export const saveBallotAuditIdSecretKey = {
 export const systemCallApi = createSystemCallApi(useApiClient);
 
 export const playSound = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.playSound);
-  },
+  useMutation: () => usePlaySoundMutation(useApiClient),
 } as const;
+
+/**
+ * {@link playSound} client implementation, broken out for sharing with
+ * the HWTA client.
+ */
+export function usePlaySoundMutation(
+  useClient: () => Pick<ApiClient, 'playSound'>
+): UseMutationResult<void, unknown, { name: SoundName }, unknown> {
+  const ttsAudio = useAudioControls();
+  const ttsWasEnabled = React.useRef(useAudioEnabled());
+
+  const apiClient = useClient();
+  return useMutation(async (input: { name: SoundName }) => {
+    // This assumes VxScan uses the builtin audio card for both speaker and
+    // headphones output.
+    // When playing sounds through the server (which involves switching all
+    // audio over to the speaker), we first mute the TTS audio to avoid
+    // conflicting audio/unintelligible speech.
+    ttsAudio.setIsEnabled(false);
+
+    await apiClient.playSound(input);
+
+    ttsAudio.setIsEnabled(ttsWasEnabled.current);
+  });
+}

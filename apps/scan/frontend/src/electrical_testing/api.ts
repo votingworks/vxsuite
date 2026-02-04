@@ -12,6 +12,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
 import React from 'react';
+import * as appApi from '../api';
 
 export type ApiClient = grout.Client<HWTA.Api>;
 
@@ -190,10 +191,7 @@ export const resetScanningSession = {
 } as const;
 
 export const playSound = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.playSound);
-  },
+  useMutation: () => appApi.usePlaySoundMutation(useApiClient),
 } as const;
 
 export const getCpuMetrics = {
