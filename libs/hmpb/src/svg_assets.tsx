@@ -234,6 +234,10 @@ export function ArrowRightCircle({
       viewBox="0 0 60 60"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      // When converting to PDF, the SVG is getting ever so slightly
+      // clipped, even though it looks fine in a browser. Letting that
+      // sliver overflow seems to fix it.
+      overflow="visible"
       style={style}
     >
       <circle cx="30" cy="30" r="30" fill="#000000" />
