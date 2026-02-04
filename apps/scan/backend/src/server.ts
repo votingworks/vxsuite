@@ -6,7 +6,6 @@ import {
   detectDevices,
   getAudioInfoWithRetry,
   setAudioVolume,
-  setDefaultAudio,
   startCpuMetricsLogging,
 } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -80,28 +79,15 @@ export async function start({
     nodeEnv: NODE_ENV,
   });
 
-  if (audioInfo.usb) {
-    const resultDefaultAudio = await setDefaultAudio(audioInfo.usb.name, {
-      logger,
-      nodeEnv: NODE_ENV,
-    });
-    resultDefaultAudio.assertOk('unable to set USB audio as default output');
-
-    // Screen reader volume levels are calibrated against a maximum system
-    // volume setting:
-    const resultVolume = await setAudioVolume({
-      logger,
-      nodeEnv: NODE_ENV,
-      sinkName: audioInfo.usb.name,
-      volumePct: 100,
-    });
-    resultVolume.assertOk('unable to set USB audio volume');
-  } else {
-    void logger.logAsCurrentRole(LogEventId.AudioDeviceMissing, {
-      message: 'USB audio device not detected.',
-      disposition: 'failure',
-    });
-  }
+  // Screen reader volume levels are calibrated against a maximum system
+  // volume setting:
+  const resultVolume = await setAudioVolume({
+    logger,
+    nodeEnv: NODE_ENV,
+    sinkName: audioInfo.builtin.name,
+    volumePct: 100,
+  });
+  resultVolume.assertOk('unable to set builtin audio volume');
 
   const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
 

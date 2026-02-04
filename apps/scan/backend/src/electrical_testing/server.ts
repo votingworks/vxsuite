@@ -4,7 +4,6 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   getAudioInfoWithRetry,
   setAudioVolume,
-  setDefaultAudio,
   startCpuMetricsLogging,
 } from '@votingworks/backend';
 import { NODE_ENV, PORT } from '../globals';
@@ -104,29 +103,16 @@ async function configureAudio(logger: Logger): Promise<AudioPlayer> {
     nodeEnv: NODE_ENV,
   });
 
-  if (audioInfo.usb) {
-    const resultDefaultAudio = await setDefaultAudio(audioInfo.usb.name, {
-      logger,
-      nodeEnv: NODE_ENV,
-    });
-    resultDefaultAudio.assertOk('unable to set USB audio as default output');
-
-    const resultVolume = await setAudioVolume({
-      logger,
-      nodeEnv: NODE_ENV,
-      sinkName: audioInfo.usb.name,
-      // This is set to 100% in the prod app, but the HWTA has no UI volume
-      // control at the moment, so this is set to a safe listening level
-      // discovered the hard way:
-      volumePct: 40,
-    });
-    resultVolume.assertOk('unable to set USB audio volume');
-  } else {
-    void logger.logAsCurrentRole(LogEventId.AudioDeviceMissing, {
-      message: 'USB audio device not detected.',
-      disposition: 'failure',
-    });
-  }
+  const resultVolume = await setAudioVolume({
+    logger,
+    nodeEnv: NODE_ENV,
+    sinkName: audioInfo.builtin.name,
+    // This is set to 100% in the prod app, but the HWTA has no UI volume
+    // control at the moment, so this is set to a safe listening level
+    // discovered the hard way:
+    volumePct: 40,
+  });
+  resultVolume.assertOk('unable to set builtin audio volume');
 
   return new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
 }
