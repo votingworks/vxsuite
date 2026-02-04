@@ -1,0 +1,62 @@
+{
+  "id": "muskegon-county-mi-special-2025",
+  "type": "general",
+  "title": "Special Election",
+  "state": "Michigan",
+  "county": {
+    "id": "muskegon-county",
+    "name": "Muskegon County"
+  },
+  "date": "2025-11-04",
+  "ballotLayout": {
+    "paperSize": "letter",
+    "metadataEncoding": "qr-code"
+  },
+  "parties": [],
+  "districts": [
+    {
+      "id": "intermediate-school-district",
+      "name": "Intermediate School District"
+    }
+  ],
+  "precincts": [
+    {
+      "id": "precinct-1",
+      "name": "Casnovia Township, Precinct 1",
+      "districtIds": [
+        "intermediate-school-district"
+      ]
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "1_en",
+      "groupId": "1",
+      "precincts": [
+        "precinct-1"
+      ],
+      "districts": [
+        "intermediate-school-district"
+      ]
+    }
+  ],
+  "contests": [
+    {
+      "id": "kent-isd-regional-enhancement-millage",
+      "type": "yesno",
+      "title": "Kent Intermediate School District<br/>Regional Enhancement Millage Proposal",
+      "districtId": "intermediate-school-district",
+      "description": "This proposal renews regional enhancement millage previously approved by the electors that will expire with the 2026 levy and restores millage lost as a result of the reduction required by the Michigan Constitution of 1963. Pursuant to state law, the revenue raised by the proposal millage will be collected by the intermediate school district and distributed to constituent districts based on pupil membership count.<br/><br/>Shall the limitation on the amount of taxes which may be assessed against all property in Kent Intermediate School District, Michigan, be renewed by .8498 mill ($0.8498 on each $1,000 of taxable valuation) and also be increased by .0502 mill ($0.0502 on each $1,000 of taxable valuation) for a total of .9 mill, for a period of 10 years, 2027 to 2036, inclusive, to provide operating funds to enhance other state and local funding for constituent district operating purposes; the estimate of the revenue the intermediate school district will collect if the millage is approved and levied in 2027 is approximately $35,606,388, which funds will be disbursed as required by statute to the following constituent districts: Byron Center Public Schools, Caledonia Community Schools, Cedar Springs Public Schools, Comstock Park Public Schools, East Grand Rapids Public Schools, Forest Hills Public Schools, Godfrey-Lee Public Schools, Godwin Heights Public Schools, Grand Rapids Public Schools, Grandville Public Schools, Kelloggsville Public School District, Kenowa Hills Public Schools, Kent City Community Schools, Kentwood Public Schools, Lowell Area Schools, Northview Public Schools, Rockford Public Schools, Sparta Area Schools, Thornapple Kellogg School, and Wyoming Public Schools, Byron Center Charter School, Chandler Woods Charter Academy, Covenant High School Grand Rapids, Creative Technologies Academy, Cross Creek Charter Academy, Excel Charter Academy, Gerald Dawkins Academy, Grand Rapids Child Discovery Center, Grand River preparatory High School, Hope Academy of West Michigan, Knapp Charter Academy, Lighthouse Academy, New Branches Charter Academy, NexTech High School of Grand Rapids, PrepNet Vrtual Academy, Ridge Park Charter Academy, River City Scholars Academy, Vanguard Charter Academy, Vista Charter Academy, Walker Charter Academy, Wellspring Preparatory High School, West MI Academy of Environmental Science, West Michigan Aviation Academy, and William C. Abney Academy, and to Kent Intermediate Schools District (.8498 mill of the above is a renewal of millage that will expire with the 2026 tax levy and .0502 mill is a restoration of millage lost as a result of the reduction required by the \"Headlee\" amendment to the Michigan Constitution on 1963)?",
+      "yesOption": {
+        "id": "kent-isd-millage-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "kent-isd-millage-no",
+        "label": "No"
+      }
+    }
+  ],
+  "ballotStrings": {},
+  "seal": ""
+}
