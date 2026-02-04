@@ -307,6 +307,14 @@ export interface AdjudicationQueueMetadata {
 }
 
 /**
+ * Description of ballot adjudication queue size.
+ */
+export interface BallotAdjudicationQueueMetadata {
+  pendingTally: number;
+  totalTally: number;
+}
+
+/**
  * Information necessary to adjudicate a write-in for an official candidate.
  */
 export interface WriteInAdjudicationActionOfficialCandidate {

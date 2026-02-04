@@ -86,6 +86,7 @@ import {
   WriteInAdjudicationActionReset,
   CvrContestTag,
   WriteInForTally,
+  BallotAdjudicationQueueMetadata,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -1764,6 +1765,71 @@ export class Store {
         )
       `
     );
+  }
+
+  getBallotAdjudicationQueue({ electionId }: { electionId: Id }): Id[] {
+    this.assertElectionExists(electionId);
+    debug('querying database for ballot adjudication cvr queue');
+    const rows = this.client.all(
+      `
+        select cvr_id
+        from cvr_contest_tags
+        group by cvr_id
+        order by min(sequence_id)
+      `
+    ) as Array<{ cvr_id: Id }>;
+    debug('queried cvr contests tags for ballot adjudication queue');
+    return rows.map((r) => r.cvr_id);
+  }
+
+  getBallotAdjudicationQueueMetadata({
+    electionId,
+  }: {
+    electionId: Id;
+  }): BallotAdjudicationQueueMetadata {
+    this.assertElectionExists(electionId);
+    debug(
+      'querying database for ballot adjudication queue metadata using tags'
+    );
+
+    const row = this.client.one(
+      `
+        select
+          count(distinct cvr_id) as totalTally,
+          count(distinct case when is_resolved = 0 then cvr_id end) as pendingTally
+        from cvr_contest_tags
+      `
+    ) as {
+      totalTally: number;
+      pendingTally: number;
+    };
+
+    debug('queried adjudication queue metadata from cvr contest tags');
+    return row;
+  }
+
+  getNextCvrIdForBallotAdjudication({
+    electionId,
+  }: {
+    electionId: Id;
+  }): Optional<Id> {
+    this.assertElectionExists(electionId);
+    debug('querying database for first unresolved cvr id for adjudication');
+
+    const row = this.client.one(
+      `
+        select cvr_id
+        from cvr_contest_tags
+        where
+          is_resolved = 0
+        group by cvr_id
+        order by min(sequence_id)
+        limit 1
+      `
+    ) as { cvr_id: Id } | undefined;
+
+    debug('queried database for first unresolved cvr id');
+    return row?.cvr_id;
   }
 
   /**
