@@ -561,8 +561,6 @@ function validateInterpretResults(
       sliceBallotHashForEncoding(metadata.ballotHash) !==
       sliceBallotHashForEncoding(ballotHash)
     ) {
-      console.log('expected:', sliceBallotHashForEncoding(ballotHash));
-      console.log('actual:', sliceBallotHashForEncoding(metadata.ballotHash));
       return typedAs<InvalidBallotHashPage>({
         type: 'InvalidBallotHashPage',
         expectedBallotHash: sliceBallotHashForEncoding(ballotHash),
