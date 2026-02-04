@@ -602,6 +602,33 @@ export const deleteElection = {
   },
 } as const;
 
+export const getLatestExportQaRun = {
+  queryKey(electionId: ElectionId): QueryKey {
+    return ['getLatestExportQaRun', electionId];
+  },
+  useQuery(
+    electionId: ElectionId,
+    options?: { isExportInProgress?: boolean }
+  ) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(electionId),
+      async () => (await apiClient.getLatestExportQaRun({ electionId })) ?? null,
+      {
+        // Poll while any QA run is in progress, or while an export is in
+        // progress (since a new QA run will be created when the export
+        // completes)
+        refetchInterval: (latestQaRun) =>
+          latestQaRun?.status === 'pending' ||
+          latestQaRun?.status === 'in_progress' ||
+          options?.isExportInProgress
+            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
+            : 0,
+      }
+    );
+  },
+} as const;
+
 export const getBallotsApprovedAt = {
   queryKey(electionId: ElectionId): QueryKey {
     return ['getBallotsApprovedAt', electionId];
@@ -653,6 +680,9 @@ export const finalizeBallots = {
           queryClient.invalidateQueries(
             getBallotsFinalizedAt.queryKey(electionId)
           ),
+          queryClient.invalidateQueries(
+            getLatestExportQaRun.queryKey(electionId)
+          ),
         ]);
       },
     });
@@ -672,6 +702,9 @@ export const unfinalizeBallots = {
           queryClient.invalidateQueries(
             getBallotsFinalizedAt.queryKey(electionId)
           ),
+          queryClient.invalidateQueries(
+            getLatestExportQaRun.queryKey(electionId)
+          )
         ]);
       },
     });
@@ -846,3 +879,4 @@ export const getBaseUrl = {
     return useQuery(this.queryKey(), () => apiClient.getBaseUrl());
   },
 } as const;
+

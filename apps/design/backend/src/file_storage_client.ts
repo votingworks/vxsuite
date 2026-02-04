@@ -9,6 +9,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl as s3GetSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { assertDefined, err, ok, Result } from '@votingworks/basics';
 
 import { WORKSPACE } from './globals';
@@ -26,6 +27,10 @@ export interface FileStorageClient {
     filePath: string,
     contents: Buffer
   ) => Promise<Result<void, FileStorageClientError>>;
+  getSignedUrl?: (
+    filePath: string,
+    expiresInSeconds?: number
+  ) => Promise<string>;
 }
 
 /**
@@ -65,6 +70,23 @@ export class S3FileStorageClient {
       })
     );
     return ok();
+  }
+
+  async getSignedUrl(
+    filePath: string,
+    expiresInSeconds: number = 3600
+  ): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: filePath,
+    });
+    // AWS SDK has internal @smithy/types version mismatches between client-s3
+    // and s3-request-presigner that cause type errors at compile time despite
+    // being compatible at runtime.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return s3GetSignedUrl(this.s3Client as any, command as any, {
+      expiresIn: expiresInSeconds,
+    });
   }
 }
 

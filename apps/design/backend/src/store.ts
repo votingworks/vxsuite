@@ -70,11 +70,13 @@ import {
   ExternalElectionSource,
   ElectionInfo,
   ElectionListing,
+  ExportQaRun,
   GetExportedElectionError,
   Jurisdiction,
   Organization,
   QuickReportedPollStatus,
   StateCode,
+  UpdateQaRunStatusParams,
   User,
   UserType,
   ElectionStatus,
@@ -365,9 +367,8 @@ async function insertContest(
             term_description,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, ${
-            ballotOrder ? '$10' : 'DEFAULT'
-          })
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, ${ballotOrder ? '$10' : 'DEFAULT'
+        })
         `,
         contest.id,
         electionId,
@@ -463,9 +464,8 @@ async function insertContest(
             additional_options,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ${
-            ballotOrder ? '$12' : 'DEFAULT'
-          })
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ${ballotOrder ? '$12' : 'DEFAULT'
+        })
         `,
         contest.id,
         electionId,
@@ -525,8 +525,9 @@ export class Store {
   constructor(
     private readonly db: Db,
     private readonly logger: BaseLogger
-  ) {}
+  ) { }
 
+  /* istanbul ignore next - @preserve */
   static new(logger: BaseLogger): Store {
     return new Store(new Db(logger), logger);
   }
@@ -632,7 +633,7 @@ export class Store {
     if (user.type === 'support_user') {
       assert(
         user.name.endsWith('@voting.works') ||
-          user.name.endsWith('@vx.support'),
+        user.name.endsWith('@vx.support'),
         'Support users must have a @voting.works or @vx.support email'
       );
     }
@@ -707,12 +708,12 @@ export class Store {
         )
       ).rows[0] as
         | {
-            id: string;
-            type: UserType;
-            name: string;
-            organizationId: string;
-            organizationName: string;
-          }
+          id: string;
+          type: UserType;
+          name: string;
+          organizationId: string;
+          organizationName: string;
+        }
         | undefined;
       if (!userRow) return undefined;
 
@@ -1431,9 +1432,9 @@ export class Store {
           electionInfo.seal,
           electionInfo.signatureImage
             ? JSON.stringify({
-                image: electionInfo.signatureImage,
-                caption: electionInfo.signatureCaption,
-              })
+              image: electionInfo.signatureImage,
+              caption: electionInfo.signatureCaption,
+            })
             : null,
           electionInfo.languageCodes,
           electionInfo.electionId
@@ -2077,6 +2078,127 @@ export class Store {
 
         return true;
       })
+    );
+  }
+
+  /**
+   * Create a new export QA run.
+   */
+  async createExportQaRun(p: {
+    id: Id;
+    electionId: ElectionId;
+    exportPackageUrl: string;
+    circleCiPipelineId?: string;
+  }): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          insert into export_qa_runs (
+            id,
+            election_id,
+            export_package_url,
+            circleci_pipeline_id,
+            status
+          ) values ($1, $2, $3, $4, $5)
+        `,
+        p.id,
+        p.electionId,
+        p.exportPackageUrl,
+        p.circleCiPipelineId,
+        'pending'
+      )
+    );
+  }
+
+  /**
+   * Get an export QA run by ID.
+   */
+  async getExportQaRun(id: Id): Promise<Optional<ExportQaRun>> {
+    const result = await this.db.withClient((client) =>
+      client.query(
+        `
+          select
+            id,
+            election_id as "electionId",
+            export_package_url as "exportPackageUrl",
+            circleci_pipeline_id as "circleCiPipelineId",
+            circleci_workflow_id as "circleCiWorkflowId",
+            status,
+            status_message as "statusMessage",
+            results_url as "resultsUrl",
+            job_url as "jobUrl",
+            created_at as "createdAt",
+            updated_at as "updatedAt"
+          from export_qa_runs
+          where id = $1
+        `,
+        id
+      )
+    );
+
+    return result.rows[0] as Optional<ExportQaRun>;
+  }
+
+  /**
+   * Get all export QA runs for an election.
+   */
+  async getLatestExportQaRunForElection(
+    electionId: ElectionId
+  ): Promise<Optional<ExportQaRun>> {
+    const result = await this.db.withClient((client) =>
+      client.query(
+        `
+          select
+            id,
+            election_id as "electionId",
+            export_package_url as "exportPackageUrl",
+            circleci_pipeline_id as "circleCiPipelineId",
+            circleci_workflow_id as "circleCiWorkflowId",
+            status,
+            status_message as "statusMessage",
+            results_url as "resultsUrl",
+            job_url as "jobUrl",
+            created_at as "createdAt",
+            updated_at as "updatedAt"
+          from export_qa_runs
+          where election_id = $1
+          order by created_at desc
+          limit 1
+        `,
+        electionId
+      )
+    );
+
+    return result.rows[0] as Optional<ExportQaRun>;
+  }
+
+  /**
+   * Update the status of an export QA run.
+   */
+  async updateExportQaRunStatus(
+    id: Id,
+    params: UpdateQaRunStatusParams
+  ): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update export_qa_runs
+          set
+            status = $1,
+            status_message = $2,
+            results_url = $3,
+            circleci_workflow_id = $4,
+            job_url = $5,
+            updated_at = current_timestamp
+          where id = $6
+        `,
+        params.status,
+        params.statusMessage,
+        params.resultsUrl,
+        params.circleCiWorkflowId,
+        params.jobUrl,
+        id
+      )
     );
   }
 

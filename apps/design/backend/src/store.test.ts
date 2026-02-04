@@ -769,3 +769,209 @@ test('support users must have @voting.works or @vx.support email', async () => {
     'Support users must have a @voting.works or @vx.support email'
   );
 });
+
+test('listOrganizations returns all organizations', async () => {
+  const store = testStore.getStore();
+
+  await store.createOrganization(nonVxOrganization);
+
+  const orgs = await store.listOrganizations();
+  expect(orgs).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        id: nonVxOrganization.id,
+        name: nonVxOrganization.name,
+      }),
+    ])
+  );
+});
+
+test('getOrganization returns a specific organization', async () => {
+  const store = testStore.getStore();
+
+  await store.createOrganization(nonVxOrganization);
+
+  const org = await store.getOrganization(nonVxOrganization.id);
+  expect(org).toMatchObject({
+    id: nonVxOrganization.id,
+    name: nonVxOrganization.name,
+  });
+});
+
+test('getUserIdByEmail returns user id or undefined', async () => {
+  const store = testStore.getStore();
+
+  await store.createOrganization(nonVxOrganization);
+  await store.createJurisdiction(nonVxJurisdiction);
+  await store.createUser(nonVxUser);
+
+  const userId = await store.getUserIdByEmail(nonVxUser.name);
+  expect(userId).toEqual(nonVxUser.id);
+
+  const noUserId = await store.getUserIdByEmail('nonexistent@example.com');
+  expect(noUserId).toBeUndefined();
+});
+
+describe('Export QA run store methods', () => {
+  const qaRunHelpers = testSetupHelpers();
+
+  afterAll(async () => {
+    await qaRunHelpers.cleanup();
+  });
+
+  test('create and retrieve a QA run by ID', async () => {
+    const { apiClient, auth0, workspace } = await qaRunHelpers.setupApp({
+      organizations,
+      jurisdictions,
+      users,
+    });
+    auth0.setLoggedInUser(nonVxUser);
+
+    const electionId = 'qa-run-election-1';
+    void (await apiClient.createElection({
+      id: electionId,
+      jurisdictionId: nonVxJurisdiction.id,
+    }));
+
+    const qaRunId = 'qa-run-1';
+    await workspace.store.createExportQaRun({
+      id: qaRunId,
+      electionId,
+      exportPackageUrl: 'https://example.com/package.zip',
+      circleCiPipelineId: 'pipeline-123',
+    });
+
+    const qaRun = await workspace.store.getExportQaRun(qaRunId);
+    expect(qaRun).toMatchObject({
+      id: qaRunId,
+      electionId,
+      exportPackageUrl: 'https://example.com/package.zip',
+      circleCiPipelineId: 'pipeline-123',
+      status: 'pending',
+    });
+    expect(qaRun?.createdAt).toBeInstanceOf(Date);
+    expect(qaRun?.updatedAt).toBeInstanceOf(Date);
+
+    // Non-existent QA run returns undefined
+    expect(await workspace.store.getExportQaRun('non-existent')).toBeUndefined();
+  });
+
+  test('getLatestExportQaRunForElection returns most recent run', async () => {
+    const { apiClient, auth0, workspace } = await qaRunHelpers.setupApp({
+      organizations,
+      jurisdictions,
+      users,
+    });
+    auth0.setLoggedInUser(nonVxUser);
+
+    const electionId = 'qa-run-election-2';
+    void (await apiClient.createElection({
+      id: electionId,
+      jurisdictionId: nonVxJurisdiction.id,
+    }));
+
+    // No runs yet
+    expect(
+      await workspace.store.getLatestExportQaRunForElection(electionId)
+    ).toBeUndefined();
+
+    await workspace.store.createExportQaRun({
+      id: 'qa-run-older',
+      electionId,
+      exportPackageUrl: 'https://example.com/package-old.zip',
+    });
+
+    // Small delay so created_at differs
+    await new Promise((resolve) => { setTimeout(resolve, 50); });
+
+    await workspace.store.createExportQaRun({
+      id: 'qa-run-newer',
+      electionId,
+      exportPackageUrl: 'https://example.com/package-new.zip',
+    });
+
+    const latest = await workspace.store.getLatestExportQaRunForElection(electionId);
+    expect(latest).toMatchObject({
+      id: 'qa-run-newer',
+      exportPackageUrl: 'https://example.com/package-new.zip',
+    });
+  });
+
+  test('updateExportQaRunStatus updates status fields', async () => {
+    const { apiClient, auth0, workspace } = await qaRunHelpers.setupApp({
+      organizations,
+      jurisdictions,
+      users,
+    });
+    auth0.setLoggedInUser(nonVxUser);
+
+    const electionId = 'qa-run-election-3';
+    void (await apiClient.createElection({
+      id: electionId,
+      jurisdictionId: nonVxJurisdiction.id,
+    }));
+
+    const qaRunId = 'qa-run-update';
+    await workspace.store.createExportQaRun({
+      id: qaRunId,
+      electionId,
+      exportPackageUrl: 'https://example.com/package.zip',
+    });
+
+    await workspace.store.updateExportQaRunStatus(qaRunId, {
+      status: 'in_progress',
+      statusMessage: 'Running tests',
+      circleCiWorkflowId: 'workflow-abc',
+      jobUrl: 'https://circleci.com/jobs/123',
+    });
+
+    let qaRun = await workspace.store.getExportQaRun(qaRunId);
+    expect(qaRun).toMatchObject({
+      status: 'in_progress',
+      statusMessage: 'Running tests',
+      circleCiWorkflowId: 'workflow-abc',
+      jobUrl: 'https://circleci.com/jobs/123',
+    });
+
+    await workspace.store.updateExportQaRunStatus(qaRunId, {
+      status: 'success',
+      statusMessage: 'All tests passed',
+      resultsUrl: 'https://example.com/results.html',
+    });
+
+    qaRun = await workspace.store.getExportQaRun(qaRunId);
+    expect(qaRun).toMatchObject({
+      status: 'success',
+      statusMessage: 'All tests passed',
+      resultsUrl: 'https://example.com/results.html',
+    });
+  });
+
+  test('createTestDecksBackgroundTask returns early when task is already in progress', async () => {
+    const { apiClient, auth0, workspace } = await qaRunHelpers.setupApp({
+      organizations,
+      jurisdictions,
+      users,
+    });
+    auth0.setLoggedInUser(nonVxUser);
+
+    const electionId = 'election-early-return';
+    void (await apiClient.createElection({
+      id: electionId,
+      jurisdictionId: nonVxJurisdiction.id,
+    }));
+
+    // Create the first background task
+    await workspace.store.createTestDecksBackgroundTask(electionId, 'vxf');
+
+    const firstTestDecks = await workspace.store.getTestDecks(electionId);
+    const firstTaskId = assertDefined(firstTestDecks.task).id;
+
+    // Call again while the first task is still in progress (not completed)
+    await workspace.store.createTestDecksBackgroundTask(electionId, 'vxf');
+
+    // Should still have the same task (no new task was created)
+    const secondTestDecks = await workspace.store.getTestDecks(electionId);
+    expect(assertDefined(secondTestDecks.task).id).toEqual(firstTaskId);
+  });
+});

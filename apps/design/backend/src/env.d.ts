@@ -10,6 +10,11 @@ declare namespace NodeJS {
     readonly AWS_S3_REGION?: string;
     readonly BASE_URL?: string;
     readonly CI?: string;
+    readonly CIRCLECI_API_TOKEN?: string;
+    readonly CIRCLECI_BASE_URL?: string;
+    readonly CIRCLECI_BRANCH?: string;
+    readonly CIRCLECI_PROJECT_SLUG?: string;
+    readonly CIRCLECI_WEBHOOK_SECRET?: string;
     readonly DEPLOY_ENV: 'development' | 'staging' | 'production';
     readonly NODE_ENV: 'development' | 'production' | 'test';
     readonly ORG_ID_VOTINGWORKS?: string;
