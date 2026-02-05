@@ -5720,6 +5720,9 @@ importers:
       use-interval:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.8(@types/node@20.17.31)(jsdom@20.0.1)
     devDependencies:
       '@storybook/cli':
         specifier: ^7.2.2
@@ -5883,9 +5886,6 @@ importers:
       vite:
         specifier: 4.5.2
         version: 4.5.2(@types/node@20.17.31)
-      vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.17.31)(jsdom@20.0.1)
       vitest-styled-components:
         specifier: ^1.0.0
         version: 1.0.0(styled-components@5.3.11)

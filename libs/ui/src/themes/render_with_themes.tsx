@@ -12,8 +12,9 @@ import {
   screen,
   BoundFunction,
   within,
+  cleanup,
 } from '@testing-library/react';
-
+import { onTestFinished } from 'vitest';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { AppBase } from '../app_base';
 
@@ -60,6 +61,10 @@ export function renderWithThemes(
   }
 
   const result = render(ui, { ...passthroughOptions, wrapper });
+  // Ensure that the DOM is cleaned up after each test, even if the test fails
+  // (including failure in afterEach hooks). This prevents a failure in one test
+  // from causing DOM leakage into the next test.
+  onTestFinished(cleanup);
 
   return getVxQueryFunctions(result);
 }
