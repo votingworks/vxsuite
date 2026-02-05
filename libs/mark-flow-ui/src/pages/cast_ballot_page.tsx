@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 
 import {
@@ -64,6 +65,20 @@ export function CastBallotPage({
   printingCompleted,
   VoterHelpScreen,
 }: Props): JSX.Element {
+  const instructionsRef = React.useRef<HTMLDivElement>(null);
+
+  // Replay instructions when left arrow is pressed (no previous page on this screen)
+  React.useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'ArrowLeft' && instructionsRef.current) {
+        instructionsRef.current.focus();
+        instructionsRef.current.click();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <VoterScreen
       actionButtons={
@@ -78,31 +93,33 @@ export function CastBallotPage({
       padded
       VoterHelpScreen={VoterHelpScreen}
     >
-      <ReadOnLoad>
-        <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
-        <P>
-          {printingCompleted
-            ? appStrings.instructionsBmdCastBallotPreamblePostPrint()
-            : appStrings.instructionsBmdCastBallotPreamble()}
-        </P>
-        <Instructions>
-          <ListItem>
-            <InstructionImageContainer>
-              <VerifyBallotImage />
-            </InstructionImageContainer>
-            <span>{appStrings.instructionsBmdCastBallotStep1()}</span>
-          </ListItem>
-          <ListItem>
-            <InstructionImageContainer>
-              <InsertBallotImage disableAnimation />
-            </InstructionImageContainer>
-            <span>{appStrings.instructionsBmdCastBallotStep2()}</span>
-          </ListItem>
-        </Instructions>
-        <P>
-          <Icons.Info /> {appStrings.noteAskPollWorkerForHelp()}
-        </P>
-      </ReadOnLoad>
+      <div ref={instructionsRef} tabIndex={-1}>
+        <ReadOnLoad>
+          <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
+          <P>
+            {printingCompleted
+              ? appStrings.instructionsBmdCastBallotPreamblePostPrint()
+              : appStrings.instructionsBmdCastBallotPreamble()}
+          </P>
+          <Instructions>
+            <ListItem>
+              <InstructionImageContainer>
+                <VerifyBallotImage />
+              </InstructionImageContainer>
+              <span>{appStrings.instructionsBmdCastBallotStep1()}</span>
+            </ListItem>
+            <ListItem>
+              <InstructionImageContainer>
+                <InsertBallotImage disableAnimation />
+              </InstructionImageContainer>
+              <span>{appStrings.instructionsBmdCastBallotStep2()}</span>
+            </ListItem>
+          </Instructions>
+          <P>
+            <Icons.Info /> {appStrings.noteAskPollWorkerForHelp()}
+          </P>
+        </ReadOnLoad>
+      </div>
     </VoterScreen>
   );
 }
