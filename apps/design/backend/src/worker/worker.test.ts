@@ -12,7 +12,7 @@ const processBackgroundTaskMock = vi.mocked(tasks.processBackgroundTask);
 
 function createMockContext(overrides?: {
   getOldestQueuedBackgroundTask?: ReturnType<typeof vi.fn>;
-  markRunningTaskAsGracefullyInterrupted?: ReturnType<typeof vi.fn>;
+  markTaskAsGracefullyInterrupted?: ReturnType<typeof vi.fn>;
   getInterruptedBackgroundTasks?: ReturnType<typeof vi.fn>;
 }): WorkerContext {
   const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
@@ -47,8 +47,8 @@ function createMockContext(overrides?: {
         getInterruptedBackgroundTasks:
           overrides?.getInterruptedBackgroundTasks ??
           vi.fn().mockResolvedValue({ graceful: [], nonGraceful: [] }),
-        markRunningTaskAsGracefullyInterrupted:
-          overrides?.markRunningTaskAsGracefullyInterrupted ?? vi.fn().mockResolvedValue(undefined),
+        markTaskAsGracefullyInterrupted:
+          overrides?.markTaskAsGracefullyInterrupted ?? vi.fn().mockResolvedValue(undefined),
       },
     } as unknown as WorkerContext['workspace'],
     fileStorageClient: {

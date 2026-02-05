@@ -418,10 +418,8 @@ test('graceful interruption - mark and requeue tasks', async () => {
   // Start only task1
   await store.startBackgroundTask(task1Id);
 
-  // Mark running task as gracefully interrupted
-  const markedTask = await store.markRunningTaskAsGracefullyInterrupted();
-  expect(markedTask).toBeDefined();
-  expect(markedTask?.id).toEqual(task1Id);
+  // Mark task1 as gracefully interrupted
+  await store.markTaskAsGracefullyInterrupted(task1Id);
 
   // Verify gracefulInterruption flag is set on task1
   let task1 = assertDefined(await store.getBackgroundTask(task1Id));

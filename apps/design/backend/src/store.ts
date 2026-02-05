@@ -2598,31 +2598,18 @@ export class Store {
   }
 
   /**
-   * Marks the currently running background task as gracefully interrupted.
-   * Returns the task that was marked, or undefined if no task is running.
-   * Note: Assumes only one task runs at a time (single worker design).
+   * Marks a specific background task as gracefully interrupted.
+   * Used by the SIGTERM handler to mark the currently running task.
    */
-  async markRunningTaskAsGracefullyInterrupted(): Promise<BackgroundTask | undefined> {
-    return this.db.withClient(async (client) => {
-      const res = await client.query(
+  async markTaskAsGracefullyInterrupted(taskId: Id): Promise<void> {
+    await this.db.withClient(async (client) =>
+      client.query(
         `update background_tasks
          set graceful_interruption = true
-         where started_at is not null and completed_at is null
-         returning
-           id,
-           task_name as "taskName",
-           payload,
-           created_at as "createdAt",
-           started_at as "startedAt",
-           completed_at as "completedAt",
-           progress,
-           error,
-           graceful_interruption as "gracefulInterruption"`
-      );
-      return res.rows.length > 0
-        ? backgroundTaskRowToBackgroundTask(res.rows[0])
-        : undefined;
-    });
+         where id = $1`,
+        taskId
+      )
+    );
   }
 
   async requeueGracefullyInterruptedBackgroundTasks(): Promise<BackgroundTask[]> {

@@ -5,7 +5,8 @@ import { WorkerContext } from './context';
 import { processBackgroundTask } from './tasks';
 
 export async function processNextBackgroundTaskIfAny(
-  context: WorkerContext
+  context: WorkerContext,
+  onTaskStarted?: (taskId: string) => void
 ): Promise<{ wasTaskProcessed: boolean }> {
   const { store } = context.workspace;
 
@@ -14,6 +15,8 @@ export async function processNextBackgroundTaskIfAny(
   if (!nextTask) {
     return { wasTaskProcessed: false };
   }
+
+  onTaskStarted?.(nextTask.id);
 
   /* eslint-disable no-console */
   await store.startBackgroundTask(nextTask.id);
@@ -52,6 +55,9 @@ export async function start(context: WorkerContext): Promise<void> {
   const { store } = context.workspace;
 
   /* eslint-disable no-console */
+
+  // Track the currently running task for graceful shutdown
+  let currentTaskId: string | undefined;
 
   // Check for interrupted tasks on startup
   const interruptedTasks = await store.getInterruptedBackgroundTasks();
@@ -97,9 +103,9 @@ export async function start(context: WorkerContext): Promise<void> {
   process.on('SIGTERM', async () => {
     console.log('Received SIGTERM, marking graceful shutdown...');
     try {
-      const runningTask = await store.markRunningTaskAsGracefullyInterrupted();
-      if (runningTask) {
-        console.log(`Marked task ${runningTask.id} as gracefully interrupted`);
+      if (currentTaskId) {
+        await store.markTaskAsGracefullyInterrupted(currentTaskId);
+        console.log(`Marked task ${currentTaskId} as gracefully interrupted`);
       }
       console.log('Graceful shutdown complete, exiting...');
     } catch (error) {
@@ -113,10 +119,15 @@ export async function start(context: WorkerContext): Promise<void> {
   process.nextTick(async () => {
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const { wasTaskProcessed } =
-        await processNextBackgroundTaskIfAny(context);
+      const { wasTaskProcessed } = await processNextBackgroundTaskIfAny(
+        context,
+        // eslint-disable-next-line no-loop-func
+        (taskId) => { currentTaskId = taskId; }
+      );
       if (!wasTaskProcessed) {
         await sleep(1000);
+      } else {
+        currentTaskId = undefined;
       }
     }
   });
