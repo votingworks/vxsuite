@@ -1,4 +1,5 @@
 import { assertDefined, extractErrorMessage, sleep } from '@votingworks/basics';
+import * as Sentry from '@sentry/node';
 
 import { WorkerContext } from './context';
 import { processBackgroundTask } from './tasks';
@@ -48,8 +49,66 @@ export async function processNextBackgroundTaskIfAny(
  * run one instance of the worker.
  */
 export async function start(context: WorkerContext): Promise<void> {
-  // Requeue any tasks that were previously interrupted, say, because the worker process crashed
-  await context.workspace.store.requeueInterruptedBackgroundTasks();
+  const { store } = context.workspace;
+
+  /* eslint-disable no-console */
+
+  // Check for interrupted tasks on startup
+  const interruptedTasks = await store.getInterruptedBackgroundTasks();
+
+  // Log and report any tasks that were killed non-gracefully (crashed)
+  if (interruptedTasks.nonGraceful.length > 0) {
+    const crashedTaskIds = interruptedTasks.nonGraceful.map((task) => task.id);
+    console.warn(
+      `⚠️  Worker starting with ${crashedTaskIds.length} crashed task(s) that will NOT be requeued: ${crashedTaskIds.join(', ')}`
+    );
+
+    // Report to Sentry for monitoring
+    Sentry.captureMessage(
+      `Background worker found ${crashedTaskIds.length} crashed task(s) on startup`,
+      {
+        level: 'warning',
+        tags: {
+          component: 'background-worker',
+          event: 'crashed-tasks-detected',
+        },
+        extra: {
+          crashedTaskIds,
+          crashedTasks: interruptedTasks.nonGraceful.map((task) => ({
+            id: task.id,
+            taskName: task.taskName,
+            startedAt: task.startedAt,
+          })),
+        },
+      }
+    );
+  }
+
+  // Requeue any tasks that were interrupted due to graceful shutdown
+  const requeuedTasks = await store.requeueGracefullyInterruptedBackgroundTasks();
+  if (requeuedTasks.length > 0) {
+    const requeuedTaskIds = requeuedTasks.map((task) => task.id);
+    console.log(
+      `🔄 Requeued ${requeuedTaskIds.length} gracefully interrupted task(s): ${requeuedTaskIds.join(', ')}`
+    );
+  }
+
+  // Set up SIGTERM handler to mark graceful shutdown
+  process.on('SIGTERM', async () => {
+    console.log('Received SIGTERM, marking graceful shutdown...');
+    try {
+      const runningTask = await store.markRunningTaskAsGracefullyInterrupted();
+      if (runningTask) {
+        console.log(`Marked task ${runningTask.id} as gracefully interrupted`);
+      }
+      console.log('Graceful shutdown complete, exiting...');
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+    }
+    process.exit(0);
+  });
+
+  /* eslint-enable no-console */
 
   process.nextTick(async () => {
     // eslint-disable-next-line no-constant-condition

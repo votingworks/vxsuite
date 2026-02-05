@@ -12,6 +12,8 @@ const processBackgroundTaskMock = vi.mocked(tasks.processBackgroundTask);
 
 function createMockContext(overrides?: {
   getOldestQueuedBackgroundTask?: ReturnType<typeof vi.fn>;
+  markRunningTaskAsGracefullyInterrupted?: ReturnType<typeof vi.fn>;
+  getInterruptedBackgroundTasks?: ReturnType<typeof vi.fn>;
 }): WorkerContext {
   const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
     fn: vi.fn,
@@ -38,8 +40,15 @@ function createMockContext(overrides?: {
           createdAt: new Date('2024-01-01T00:00:00Z'),
           startedAt: new Date('2024-01-01T00:00:01Z'),
           completedAt: new Date('2024-01-01T00:00:02Z'),
+          gracefulInterruption: false,
         }),
         requeueInterruptedBackgroundTasks: vi.fn().mockResolvedValue(undefined),
+        requeueGracefullyInterruptedBackgroundTasks: vi.fn().mockResolvedValue([]),
+        getInterruptedBackgroundTasks:
+          overrides?.getInterruptedBackgroundTasks ??
+          vi.fn().mockResolvedValue({ graceful: [], nonGraceful: [] }),
+        markRunningTaskAsGracefullyInterrupted:
+          overrides?.markRunningTaskAsGracefullyInterrupted ?? vi.fn().mockResolvedValue(undefined),
       },
     } as unknown as WorkerContext['workspace'],
     fileStorageClient: {
@@ -127,7 +136,7 @@ describe('processNextBackgroundTaskIfAny', () => {
 });
 
 describe('start', () => {
-  test('requeues interrupted tasks and processes tasks in a loop', async () => {
+  test('requeues gracefully interrupted tasks on startup', async () => {
     vi.useFakeTimers();
 
     let callCount = 0;
@@ -140,6 +149,7 @@ describe('start', () => {
             taskName: 'loop_task',
             payload: '{}',
             createdAt: new Date(),
+            gracefulInterruption: false,
           });
         }
         return Promise.resolve(undefined);
@@ -154,7 +164,7 @@ describe('start', () => {
     await start(context);
 
     expect(
-      context.workspace.store.requeueInterruptedBackgroundTasks
+      context.workspace.store.requeueGracefullyInterruptedBackgroundTasks
     ).toHaveBeenCalledTimes(1);
 
     // Process the first tick - should process the first task
@@ -174,5 +184,95 @@ describe('start', () => {
     ).toBeGreaterThanOrEqual(2);
 
     consoleSpy.mockRestore();
+  });
+
+  test('logs and reports crashed tasks on startup', async () => {
+    vi.useFakeTimers();
+
+    const crashedTasks = [
+      {
+        id: 'crashed-task-1',
+        taskName: 'generate_election_package' as const,
+        payload: '{}',
+        createdAt: new Date(),
+        startedAt: new Date(),
+        gracefulInterruption: false,
+      },
+      {
+        id: 'crashed-task-2',
+        taskName: 'generate_test_decks' as const,
+        payload: '{}',
+        createdAt: new Date(),
+        startedAt: new Date(),
+        gracefulInterruption: false,
+      },
+    ];
+
+    const context = createMockContext({
+      getOldestQueuedBackgroundTask: vi.fn().mockResolvedValue(undefined),
+      getInterruptedBackgroundTasks: vi.fn().mockResolvedValue({
+        graceful: [],
+        nonGraceful: crashedTasks,
+      }),
+    });
+
+    // Suppress console output
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+
+    await start(context);
+
+    // Should have logged warning about crashed tasks
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('crashed task(s) that will NOT be requeued')
+    );
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('crashed-task-1, crashed-task-2')
+    );
+
+    consoleWarnSpy.mockRestore();
+    consoleLogSpy.mockRestore();
+  });
+
+  test('logs when requeuing gracefully interrupted tasks', async () => {
+    vi.useFakeTimers();
+
+    const gracefulTasks = [
+      {
+        id: 'graceful-task-1',
+        taskName: 'generate_election_package' as const,
+        payload: '{}',
+        createdAt: new Date(),
+        startedAt: new Date(),
+        gracefulInterruption: true,
+      },
+    ];
+
+    const context = createMockContext({
+      getOldestQueuedBackgroundTask: vi.fn().mockResolvedValue(undefined),
+      getInterruptedBackgroundTasks: vi.fn().mockResolvedValue({
+        graceful: gracefulTasks,
+        nonGraceful: [],
+      }),
+    });
+
+    // Mock the requeue to return the tasks
+    (context.workspace.store.requeueGracefullyInterruptedBackgroundTasks as ReturnType<typeof vi.fn>)
+      .mockResolvedValue(gracefulTasks);
+
+    // Suppress console output
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+
+    await start(context);
+
+    // Should have logged info about requeued tasks
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Requeued 1 gracefully interrupted task(s)')
+    );
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining('graceful-task-1')
+    );
+
+    consoleLogSpy.mockRestore();
   });
 });

@@ -107,6 +107,7 @@ export interface BackgroundTask {
   completedAt?: Date;
   progress?: BackgroundTaskProgress;
   error?: string;
+  gracefulInterruption: boolean;
 }
 
 export interface BackgroundTaskProgress {
@@ -124,7 +125,8 @@ const getBackgroundTasksBaseQuery = `
     started_at as "startedAt",
     completed_at as "completedAt",
     progress,
-    error
+    error,
+    graceful_interruption as "gracefulInterruption"
   from background_tasks
 `;
 
@@ -139,6 +141,7 @@ interface BackgroundTaskRow {
   completedAt: string | null;
   progress: BackgroundTaskProgress | null;
   error: string | null;
+  gracefulInterruption: boolean;
 }
 
 function backgroundTaskRowToBackgroundTask(
@@ -153,6 +156,7 @@ function backgroundTaskRowToBackgroundTask(
     completedAt: row.completedAt ? new Date(row.completedAt) : undefined,
     progress: row.progress ?? undefined,
     error: row.error ?? undefined,
+    gracefulInterruption: row.gracefulInterruption,
   };
 }
 
@@ -2570,6 +2574,80 @@ export class Store {
         taskId
       )
     );
+  }
+
+  /**
+   * Gets interrupted background tasks (started but not completed).
+   * Returns both gracefully and non-gracefully interrupted tasks.
+   */
+  async getInterruptedBackgroundTasks(): Promise<{
+    graceful: BackgroundTask[];
+    nonGraceful: BackgroundTask[];
+  }> {
+    return this.db.withClient(async (client) => {
+      const res = await client.query(
+        `${getBackgroundTasksBaseQuery}
+         where started_at is not null and completed_at is null`
+      );
+      const allInterrupted = res.rows.map(backgroundTaskRowToBackgroundTask);
+      return {
+        graceful: allInterrupted.filter((task) => task.gracefulInterruption),
+        nonGraceful: allInterrupted.filter((task) => !task.gracefulInterruption),
+      };
+    });
+  }
+
+  /**
+   * Marks the currently running background task as gracefully interrupted.
+   * Returns the task that was marked, or undefined if no task is running.
+   * Note: Assumes only one task runs at a time (single worker design).
+   */
+  async markRunningTaskAsGracefullyInterrupted(): Promise<BackgroundTask | undefined> {
+    return this.db.withClient(async (client) => {
+      const res = await client.query(
+        `update background_tasks
+         set graceful_interruption = true
+         where started_at is not null and completed_at is null
+         returning
+           id,
+           task_name as "taskName",
+           payload,
+           created_at as "createdAt",
+           started_at as "startedAt",
+           completed_at as "completedAt",
+           progress,
+           error,
+           graceful_interruption as "gracefulInterruption"`
+      );
+      return res.rows.length > 0
+        ? backgroundTaskRowToBackgroundTask(res.rows[0])
+        : undefined;
+    });
+  }
+
+  async requeueGracefullyInterruptedBackgroundTasks(): Promise<BackgroundTask[]> {
+    return this.db.withClient(async (client) => {
+      // Update and return the requeued tasks in a single atomic operation
+      const result = await client.query(
+        `update background_tasks
+         set started_at = null, graceful_interruption = false
+         where started_at is not null
+           and completed_at is null
+           and graceful_interruption = true
+         returning
+           id,
+           task_name as "taskName",
+           payload,
+           created_at as "createdAt",
+           started_at as "startedAt",
+           completed_at as "completedAt",
+           progress,
+           error,
+           graceful_interruption as "gracefulInterruption"`
+      );
+
+      return result.rows.map(backgroundTaskRowToBackgroundTask);
+    });
   }
 
   async requeueInterruptedBackgroundTasks(): Promise<void> {

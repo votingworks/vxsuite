@@ -2866,6 +2866,7 @@ test('Election package management', async () => {
       id: expect.any(String),
       payload: expectedPayload,
       taskName: 'generate_election_package',
+      gracefulInterruption: false,
     },
   });
   const taskId = assertDefined(electionPackageAfterInitiatingExport.task).id;
@@ -2946,6 +2947,7 @@ test('Election package management', async () => {
       payload: expectedPayload,
       startedAt: expect.any(Date),
       taskName: 'generate_election_package',
+      gracefulInterruption: false,
       progress: {
         label: 'Test progress message',
         progress: 10,
@@ -3014,6 +3016,7 @@ test('Election package management', async () => {
       id: expect.any(String),
       payload: expectedPayload,
       taskName: 'generate_election_package',
+      gracefulInterruption: false,
     },
     // Previous URL should be cleared out when a new task is started:
     electionPackageUrl: undefined,

@@ -223,6 +223,11 @@ test('Background task processing - task creation and retrieval', async () => {
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
+    completedAt: undefined,
+    error: undefined,
+    gracefulInterruption: false,
+    progress: undefined,
+    startedAt: undefined,
   });
 
   expect(await store.getBackgroundTask(task1Id)).toEqual({
@@ -230,12 +235,22 @@ test('Background task processing - task creation and retrieval', async () => {
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
+    completedAt: undefined,
+    error: undefined,
+    gracefulInterruption: false,
+    progress: undefined,
+    startedAt: undefined,
   });
   expect(await store.getBackgroundTask(task2Id)).toEqual({
     createdAt: expect.any(Date),
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
+    completedAt: undefined,
+    error: undefined,
+    gracefulInterruption: false,
+    progress: undefined,
+    startedAt: undefined,
   });
   expect(await store.getBackgroundTask('non-existent-task-id')).toEqual(
     undefined
@@ -260,6 +275,11 @@ test('Background task processing - starting and completing tasks', async () => {
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
+    completedAt: undefined,
+    error: undefined,
+    gracefulInterruption: false,
+    progress: undefined,
+    startedAt: undefined,
   });
 
   // Start a task
@@ -269,6 +289,11 @@ test('Background task processing - starting and completing tasks', async () => {
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
+    completedAt: undefined,
+    error: undefined,
+    gracefulInterruption: false,
+    progress: undefined,
+    startedAt: undefined,
   });
   expect(await store.getBackgroundTask(task1Id)).toEqual({
     createdAt: expect.any(Date),
@@ -276,6 +301,10 @@ test('Background task processing - starting and completing tasks', async () => {
     payload: '{"somePayload":1}',
     startedAt: expect.any(Date),
     taskName,
+    completedAt: undefined,
+    error: undefined,
+    gracefulInterruption: false,
+    progress: undefined,
   });
 
   // Complete a task
@@ -285,6 +314,11 @@ test('Background task processing - starting and completing tasks', async () => {
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
+    completedAt: undefined,
+    error: undefined,
+    gracefulInterruption: false,
+    progress: undefined,
+    startedAt: undefined,
   });
   expect(await store.getBackgroundTask(task1Id)).toEqual({
     completedAt: expect.any(Date),
@@ -293,6 +327,9 @@ test('Background task processing - starting and completing tasks', async () => {
     payload: '{"somePayload":1}',
     startedAt: expect.any(Date),
     taskName,
+    error: undefined,
+    gracefulInterruption: false,
+    progress: undefined,
   });
 
   // Complete a task with an error
@@ -307,6 +344,8 @@ test('Background task processing - starting and completing tasks', async () => {
     payload: '{"somePayload":2}',
     startedAt: expect.any(Date),
     taskName,
+    gracefulInterruption: false,
+    progress: undefined,
   });
 });
 
@@ -363,6 +402,49 @@ test('Background task processing - requeuing interrupted tasks', async () => {
   await expectTaskToBeQueued(task2Id);
   await expectTaskToBeQueued(task3Id);
   await expectTaskToBeQueued(task4Id);
+});
+
+test('graceful interruption - mark and requeue tasks', async () => {
+  const store = testStore.getStore();
+  const taskName: TaskName = 'generate_election_package';
+
+  const task1Id = await store.createBackgroundTask(taskName, {
+    somePayload: 1,
+  });
+  const task2Id = await store.createBackgroundTask(taskName, {
+    somePayload: 2,
+  });
+
+  // Start only task1
+  await store.startBackgroundTask(task1Id);
+
+  // Mark running task as gracefully interrupted
+  const markedTask = await store.markRunningTaskAsGracefullyInterrupted();
+  expect(markedTask).toBeDefined();
+  expect(markedTask?.id).toEqual(task1Id);
+
+  // Verify gracefulInterruption flag is set on task1
+  let task1 = assertDefined(await store.getBackgroundTask(task1Id));
+  const task2 = assertDefined(await store.getBackgroundTask(task2Id));
+  
+  expect(task1.gracefulInterruption).toEqual(true);
+  expect(task2.gracefulInterruption).toEqual(false);
+
+  // Check interrupted tasks
+  const interrupted = await store.getInterruptedBackgroundTasks();
+  expect(interrupted.graceful).toHaveLength(1);
+  expect(interrupted.graceful[0].id).toEqual(task1Id);
+  expect(interrupted.nonGraceful).toHaveLength(0);
+
+  // Requeue only gracefully interrupted tasks
+  const requeuedTasks = await store.requeueGracefullyInterruptedBackgroundTasks();
+  expect(requeuedTasks).toHaveLength(1);
+  expect(requeuedTasks[0].id).toEqual(task1Id);
+
+  // task1 should be requeued (started_at cleared, graceful_interruption cleared)
+  task1 = assertDefined(await store.getBackgroundTask(task1Id));
+  expect(task1.startedAt).toBeUndefined();
+  expect(task1.gracefulInterruption).toEqual(false);
 });
 
 describe('tts_strings', () => {
