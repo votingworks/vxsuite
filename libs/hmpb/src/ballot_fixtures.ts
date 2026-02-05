@@ -1,4 +1,10 @@
-import { assert, assertDefined, iter, Optional } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  iter,
+  Optional,
+} from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
@@ -21,6 +27,7 @@ import makeDebug from 'debug';
 import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import { createTestVotes, markBallotDocument } from './mark_ballot';
 import {
+  allBaseBallotProps,
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
 } from './render_ballot';
@@ -46,29 +53,22 @@ export const vxFamousNamesFixtures = (() => {
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
   const blankOfficialBallotPath = join(dir, 'blank-official-ballot.pdf');
   const markedOfficialBallotPath = join(dir, 'marked-official-ballot.pdf');
+  const sampleBallotPath = join(dir, 'sample-ballot.pdf');
 
   const election = electionFamousNames2021Fixtures.readElection();
-  const allBallotPropsTest = election.ballotStyles.flatMap((ballotStyle) =>
-    ballotStyle.precincts.map(
-      (precinctId): BaseBallotProps => ({
-        election,
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-      })
-    )
+  const allProps = allBaseBallotProps(election);
+  const allBallotPropsTest = allProps.filter(
+    (props) =>
+      props.ballotMode === 'test' && props.ballotType === BallotType.Precinct
   );
-  const allBallotPropsOfficial = election.ballotStyles.flatMap((ballotStyle) =>
-    ballotStyle.precincts.map(
-      (precinctId): BaseBallotProps => ({
-        election,
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-        ballotType: BallotType.Precinct,
-        ballotMode: 'official',
-      })
-    )
+  const allBallotPropsOfficial = allProps.filter(
+    (props) =>
+      props.ballotMode === 'official' &&
+      props.ballotType === BallotType.Precinct
+  );
+  const allBallotPropsSample = allProps.filter(
+    (props) =>
+      props.ballotMode === 'sample' && props.ballotType === BallotType.Precinct
   );
   // For backwards compatibility, use test mode as default
   const allBallotProps = allBallotPropsTest;
@@ -94,49 +94,55 @@ export const vxFamousNamesFixtures = (() => {
     allBallotPropsOfficial,
     ...blankBallotProps,
     votes,
+    sampleBallotPath,
 
     async generate(
       rendererPool: RendererPool,
       { generatePageImages = false } = {}
     ) {
-      // Generate test mode ballots
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      const allBallotProps = [
+        ...allBallotPropsTest,
+        ...allBallotPropsOfficial,
+        ...allBallotPropsSample,
+      ];
       debug(`Generating: ${blankBallotPath}`);
-      const layoutsTest = await layOutBallotsAndCreateElectionDefinition(
-        rendererPool,
-        vxDefaultBallotTemplate,
-        allBallotPropsTest,
-        'vxf'
-      );
-
-      assert(
-        layoutsTest.electionDefinition.ballotHash ===
-          electionDefinition.ballotHash,
-        'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
-      );
-
-      // Generate official mode ballots
       debug(`Generating: ${blankOfficialBallotPath}`);
-      const layoutsOfficial = await layOutBallotsAndCreateElectionDefinition(
+      debug(`Generating: ${sampleBallotPath}`);
+      const layouts = await layOutBallotsAndCreateElectionDefinition(
         rendererPool,
         vxDefaultBallotTemplate,
-        allBallotPropsOfficial,
+        allBallotProps,
         'vxf'
       );
 
       assert(
-        layoutsOfficial.electionDefinition.ballotHash ===
-          electionDefinition.ballotHash,
+        layouts.electionDefinition.ballotHash === electionDefinition.ballotHash,
         'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
       );
 
-      const blankBallotContents = layoutsTest.ballotContents[0];
-      const blankOfficialBallotContents = layoutsOfficial.ballotContents[0];
+      const contentsWithProps = iter(layouts.ballotContents)
+        .zip(allBallotProps)
+        .toArray();
+      const [blankBallotContents] = find(
+        contentsWithProps,
+        ([, props]) => props.ballotMode === 'test'
+      );
+      const [blankOfficialBallotContents] = find(
+        contentsWithProps,
+        ([, props]) => props.ballotMode === 'official'
+      );
+      const [blankSampleBallotContents] = find(
+        contentsWithProps,
+        ([, props]) => props.ballotMode === 'sample'
+      );
 
       const {
         blankBallotPdf,
         markedBallotPdf,
         blankOfficialBallotPdf,
         markedOfficialBallotPdf,
+        sampleBallotPdf,
       } = await rendererPool.runTask(async (renderer) => {
         // Generate test mode ballots
         const ballotDocument =
@@ -170,11 +176,23 @@ export const vxFamousNamesFixtures = (() => {
         const markedOfficialBallotPdf =
           await officialBallotDocument.renderToPdf();
 
+        // Generate sample mode ballots
+        const sampleBallotDocument = await renderer.loadDocumentFromContent(
+          blankSampleBallotContents
+        );
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const sampleBallotPdf = await renderBallotPdfWithMetadataQrCode(
+          allBallotPropsSample[0],
+          sampleBallotDocument,
+          electionDefinition
+        );
+
         return {
           blankBallotPdf,
           markedBallotPdf,
           blankOfficialBallotPdf,
           markedOfficialBallotPdf,
+          sampleBallotPdf,
         };
       });
 
@@ -221,6 +239,8 @@ export const vxFamousNamesFixtures = (() => {
         markedBallotPageImages,
         blankOfficialBallotPageImages,
         markedOfficialBallotPageImages,
+        sampleBallotPath,
+        sampleBallotPdf,
       };
     },
   };
