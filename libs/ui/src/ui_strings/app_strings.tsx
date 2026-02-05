@@ -1249,7 +1249,7 @@ export const appStrings = {
 
   titleBmdPrintScreen: () => (
     <UiString uiStringKey="titleBmdPrintScreen">
-      Printing Your Official Ballot...
+      Printing Your Ballot...
     </UiString>
   ),
 

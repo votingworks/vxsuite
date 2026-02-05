@@ -158,7 +158,7 @@ test('poll worker selects ballot style, voter votes', async () => {
     ballotsPrintedCount: 1,
   });
   userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Official Ballot/i);
+  screen.getByText(/Printing Your Ballot/i);
 
   // Reset ballot
   await advanceTimersAndPromises();

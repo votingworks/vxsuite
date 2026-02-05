@@ -201,7 +201,7 @@ test('Cardless Voting Flow', async () => {
     ballotsPrintedCount: 1,
   });
   fireEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Official Ballot/i);
+  screen.getByText(/Printing Your Ballot/i);
 
   // Validate ballot page
   const mockInterpretation = getMockInterpretation(electionDefinition);

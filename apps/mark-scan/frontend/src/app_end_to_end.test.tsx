@@ -299,7 +299,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Official Ballot/i);
+  screen.getByText(/Printing Your Ballot/i);
 
   const mockInterpretation = getMockInterpretation(electionDefinition);
   apiMock.expectGetInterpretation(mockInterpretation);

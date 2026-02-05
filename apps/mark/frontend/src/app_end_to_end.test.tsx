@@ -294,7 +294,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Official Ballot/i);
+  screen.getByText(/Printing Your Ballot/i);
 
   // Expire timeout for display of "Printing Ballot" screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
