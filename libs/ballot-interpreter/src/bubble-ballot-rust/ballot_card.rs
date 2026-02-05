@@ -278,13 +278,13 @@ impl BallotPage {
     pub fn reject_vertical_streaks_above_cumulative_threshold(
         &self,
         detected_streaks: &[VerticalStreak],
+        max_cumulative_streak_width: PixelUnit,
     ) -> Result<()> {
-        const MAX_CUMULATIVE_STREAK_WIDTH: PixelUnit = 5;
         let cumulative_streak_width: PixelUnit = detected_streaks
             .iter()
             .map(|streak| (streak.x_range.end() - streak.x_range.start() + 1) as PixelUnit)
             .sum();
-        if cumulative_streak_width > MAX_CUMULATIVE_STREAK_WIDTH {
+        if cumulative_streak_width > max_cumulative_streak_width {
             return Err(Error::VerticalStreaksDetected {
                 label: self.label.clone(),
                 x_coordinates: detected_streaks
@@ -453,12 +453,16 @@ impl BallotCard {
     pub fn reject_disallowed_vertical_streaks(
         &self,
         streaks: &Pair<Vec<VerticalStreak>>,
+        max_cumulative_streak_width: PixelUnit,
     ) -> Result<Pair<()>> {
         self.as_pair()
             .zip(streaks)
             .par_map(|(ballot_page, page_streaks)| {
                 ballot_page.reject_vertical_streaks_in_timing_mark_inset(page_streaks)?;
-                ballot_page.reject_vertical_streaks_above_cumulative_threshold(page_streaks)
+                ballot_page.reject_vertical_streaks_above_cumulative_threshold(
+                    page_streaks,
+                    max_cumulative_streak_width,
+                )
             })
             .into_result()
     }

@@ -64,6 +64,24 @@ const PRINT_MODES = [
  */
 export type BmdPrintMode = (typeof PRINT_MODES)[number];
 
+/**
+ * Default cumulative width threshold for vertical streak detection in pixels.
+ * See {@link SystemSettings.maxCumulativeStreakWidth}.
+ *
+ * NOTE: This value must match DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH in
+ * libs/ballot-interpreter/src/bubble-ballot-rust/interpret.rs
+ */
+export const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH = 5;
+
+/**
+ * Default retry threshold for vertical streak detection in pixels when timing marks fail.
+ * See {@link SystemSettings.retryStreakWidthThreshold}.
+ *
+ * NOTE: This value must match DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD in
+ * libs/ballot-interpreter/src/bubble-ballot-rust/interpret.rs
+ */
+export const DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD = 1;
+
 export const SystemSettingsSchema = z
   .object({
     allowOfficialBallotsInTestMode: z.boolean().optional(),
@@ -92,6 +110,24 @@ export const SystemSettingsSchema = z
      * positives.
      */
     disableVerticalStreakDetection: z.boolean().optional(),
+
+    /**
+     * The cumulative width threshold in pixels for vertical streak detection.
+     * If the total width of detected streaks exceeds this threshold, the ballot
+     * will be rejected with a "scanner needs cleaning" error. Default is 5 pixels.
+     */
+    maxCumulativeStreakWidth: z.number().int().min(1).optional(),
+
+    /**
+     * When timing marks cannot be found on a ballot, retry streak detection with
+     * this lower threshold. If streaks are detected at this threshold, the ballot
+     * will be rejected as "scanner needs cleaning" rather than "unreadable".
+     * This helps differentiate between truly unreadable ballots and ballots that
+     * are unreadable due to minor streaks. Must be less than maxCumulativeStreakWidth
+     * (retrying with the same threshold would be pointless since detection is deterministic).
+     * Default is 1 pixel.
+     */
+    retryStreakWidthThreshold: z.number().int().min(1).optional(),
 
     /**
      * Enables quick results reporting and provides the server URL to post results to.
@@ -151,6 +187,19 @@ export const SystemSettingsSchema = z
      */
     bmdEnableQrBallotActivation: z.boolean().optional(),
   })
+  .refine(
+    (settings) => {
+      // Validate that retry streak threshold is strictly less than max cumulative streak width
+      // since retrying with the same threshold would be pointless (deterministic check)
+      const maxWidth = settings.maxCumulativeStreakWidth ?? DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH;
+      const retryThreshold = settings.retryStreakWidthThreshold ?? DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD;
+      return retryThreshold < maxWidth;
+    },
+    {
+      message:
+        'retryStreakWidthThreshold must be less than maxCumulativeStreakWidth',
+    }
+  )
   .readonly();
 
 /**
@@ -158,7 +207,7 @@ export const SystemSettingsSchema = z
  * definition. These settings can be changed without changing the ballot hash
  * (and therefore not needing to reprint ballots, for example).
  */
-export interface SystemSettings extends z.infer<typeof SystemSettingsSchema> {}
+export interface SystemSettings extends z.infer<typeof SystemSettingsSchema> { }
 // To enforce that this type matches its schema exactly, we infer the type from
 // the schema rather than defining them in parallel. We use this approach for
 // top-level schemas for input to the certified system to ensure that the data

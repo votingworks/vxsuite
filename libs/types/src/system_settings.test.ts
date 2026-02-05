@@ -70,3 +70,45 @@ test('disallows invalid adjudication reasons', () => {
     ).unsafeUnwrapErr()
   ).toMatchSnapshot();
 });
+
+test('disallows retry streak threshold greater than or equal to normal threshold', () => {
+  // Valid: retry threshold less than normal threshold
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        maxCumulativeStreakWidth: 5,
+        retryStreakWidthThreshold: 1,
+      })
+    )
+  ).toEqual(
+    ok({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      maxCumulativeStreakWidth: 5,
+      retryStreakWidthThreshold: 1,
+    })
+  );
+
+  // Invalid: retry threshold equal to normal threshold
+  // (pointless since the check is deterministic)
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        maxCumulativeStreakWidth: 5,
+        retryStreakWidthThreshold: 5,
+      })
+    ).unsafeUnwrapErr()
+  ).toMatchSnapshot();
+
+  // Invalid: retry threshold greater than normal threshold
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        maxCumulativeStreakWidth: 5,
+        retryStreakWidthThreshold: 10,
+      })
+    ).unsafeUnwrapErr()
+  ).toMatchSnapshot();
+});

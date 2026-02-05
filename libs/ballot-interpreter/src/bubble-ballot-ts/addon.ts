@@ -47,6 +47,8 @@ export function interpret(
     timingMarkAlgorithm?: 'contours' | 'corners';
     inferTimingMarks?: boolean;
     minimumDetectedScale?: number;
+    maxCumulativeStreakWidth?: number;
+    retryStreakWidthThreshold?: number;
     frontNormalizedImageOutputPath?: string;
     backNormalizedImageOutputPath?: string;
   }

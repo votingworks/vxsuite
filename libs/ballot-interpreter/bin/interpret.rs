@@ -9,6 +9,7 @@ use ballot_interpreter::{
     debug::ImageDebugWriter,
     interpret::{
         Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
+        DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
     },
     qr_code,
 };
@@ -58,6 +59,16 @@ struct Options {
     /// Detect and reject timing mark grid scales less than this value.
     #[clap(long)]
     minimum_detected_scale: Option<f32>,
+
+    /// Maximum cumulative width of vertical streaks in pixels before rejecting ballot.
+    /// Default value matches `DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH`.
+    #[clap(long, default_value_t = DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH)]
+    max_cumulative_streak_width: u32,
+
+    /// Retry streak detection threshold in pixels when timing marks fail.
+    /// Default value matches `DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD`.
+    #[clap(long, default_value_t = DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD)]
+    retry_streak_width_threshold: u32,
 
     /// Output as JSON instead of pretty-printed format.
     #[clap(long, short = 'j', default_value_t = false)]
@@ -308,6 +319,8 @@ fn interpret_bubble_ballot(
         options.vertical_streak_detection,
         timing_mark_algorithm,
         options.minimum_detected_scale,
+        options.max_cumulative_streak_width,
+        options.retry_streak_width_threshold,
     )?;
 
     let result = interpreter.interpret(

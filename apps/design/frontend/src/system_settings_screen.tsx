@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   H1,
   H2,
@@ -16,8 +16,10 @@ import {
   BmdPrintMode,
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_MARK_THRESHOLDS,
+  DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
+  DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   ElectionId,
   InactiveSessionTimeLimitMinutes,
@@ -350,6 +352,52 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             </InputGroup>
+            {!systemSettings.disableVerticalStreakDetection && (
+              <React.Fragment>
+                <InputGroup label="Max Cumulative Streak Width (pixels)">
+                  <input
+                    type="number"
+                    value={
+                      systemSettings.maxCumulativeStreakWidth ??
+                      DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH
+                    }
+                    onChange={(e) => {
+                      const value = e.target.valueAsNumber;
+                      setSystemSettings({
+                        ...systemSettings,
+                        maxCumulativeStreakWidth: Number.isNaN(value)
+                          ? DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH
+                          : value,
+                      });
+                    }}
+                    min={1}
+                    step={1}
+                    disabled={!isEditing}
+                  />
+                </InputGroup>
+                <InputGroup label="Retry Streak Width Threshold (pixels)">
+                  <input
+                    type="number"
+                    value={
+                      systemSettings.retryStreakWidthThreshold ??
+                      DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD
+                    }
+                    onChange={(e) => {
+                      const value = e.target.valueAsNumber;
+                      setSystemSettings({
+                        ...systemSettings,
+                        retryStreakWidthThreshold: Number.isNaN(value)
+                          ? DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD
+                          : value,
+                      });
+                    }}
+                    min={1}
+                    step={1}
+                    disabled={!isEditing}
+                  />
+                </InputGroup>
+              </React.Fragment>
+            )}
           </Column>
         </Card>
         <Card>

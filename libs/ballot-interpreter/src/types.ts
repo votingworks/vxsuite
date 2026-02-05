@@ -19,6 +19,8 @@ export interface InterpreterOptions {
   testMode: boolean;
   disableBmdBallotScanning?: boolean;
   minimumDetectedScale?: number;
+  maxCumulativeStreakWidth?: number;
+  retryStreakWidthThreshold?: number;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
 }

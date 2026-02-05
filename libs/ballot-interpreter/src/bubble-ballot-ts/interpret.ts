@@ -38,6 +38,8 @@ function normalizeOptionsForBridge(options: {
   timingMarkAlgorithm?: 'contours' | 'corners';
   inferTimingMarks?: boolean;
   minimumDetectedScale?: number;
+  maxCumulativeStreakWidth?: number;
+  retryStreakWidthThreshold?: number;
   debug?: boolean;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
@@ -70,6 +72,8 @@ function normalizeOptionsForBridge(options: {
       disableVerticalStreakDetection: options.disableVerticalStreakDetection,
       inferTimingMarks: options.inferTimingMarks,
       minimumDetectedScale: options.minimumDetectedScale,
+      maxCumulativeStreakWidth: options.maxCumulativeStreakWidth,
+      retryStreakWidthThreshold: options.retryStreakWidthThreshold,
       frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
       backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
     },
@@ -87,6 +91,8 @@ export function interpret(options: {
   timingMarkAlgorithm?: 'contours' | 'corners';
   inferTimingMarks?: boolean;
   minimumDetectedScale?: number;
+  maxCumulativeStreakWidth?: number;
+  retryStreakWidthThreshold?: number;
   debug?: boolean;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;

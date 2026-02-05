@@ -213,6 +213,8 @@ export class Importer {
       disableVerticalStreakDetection,
       markThresholds,
       minimumDetectedBallotScaleOverride,
+      maxCumulativeStreakWidth,
+      retryStreakWidthThreshold,
     } = assertDefined(store.getSystemSettings());
 
     return ok(
@@ -228,6 +230,8 @@ export class Importer {
           minimumDetectedScale:
             minimumDetectedBallotScaleOverride ??
             DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
+          maxCumulativeStreakWidth,
+          retryStreakWidthThreshold,
         },
         [frontImageData, backImageData],
         sheetId,
