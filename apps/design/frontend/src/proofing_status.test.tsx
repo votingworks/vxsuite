@@ -531,6 +531,7 @@ function mockMainExports(api: MockApiClient, task?: Partial<BackgroundTask>) {
       id: 'foo',
       payload: '',
       taskName: 'generate_election_package',
+      gracefulInterruption: false,
       ...task,
     },
   });
@@ -543,6 +544,7 @@ function mockTestDecks(api: MockApiClient, task?: Partial<BackgroundTask>) {
       id: 'foo',
       payload: '',
       taskName: 'generate_test_decks',
+      gracefulInterruption: false,
       ...task,
     },
   });

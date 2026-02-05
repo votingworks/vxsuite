@@ -143,6 +143,7 @@ function mockCompletedTask(
     id,
     payload: '',
     taskName,
+    gracefulInterruption: false,
   };
 }
 
@@ -150,7 +151,13 @@ function mockPendingTask(
   id: string,
   taskName: BackgroundTask['taskName']
 ): BackgroundTask {
-  return { createdAt: new Date(), id, payload: '', taskName };
+  return {
+    createdAt: new Date(),
+    id,
+    payload: '',
+    taskName,
+    gracefulInterruption: false,
+  };
 }
 
 function renderDownloads(api: MockApiClient) {
