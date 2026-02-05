@@ -395,10 +395,9 @@ pub fn ballot_card(
                 options.vertical_streak_detection,
                 VerticalStreakDetection::Enabled
             ) {
-                let streaks = ballot_card.detect_vertical_streaks();
                 // Check if streaks are detected with the retry threshold
                 ballot_card.reject_disallowed_vertical_streaks(
-                    &streaks,
+                    &detected_vertical_streaks,
                     options.retry_streak_width_threshold,
                 )?;
             }
