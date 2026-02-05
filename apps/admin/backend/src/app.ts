@@ -88,6 +88,8 @@ import {
   VoteAdjudication,
   AdjudicatedCvrContest,
   CvrContestTag,
+  BallotAdjudicationQueueMetadata,
+  BallotAdjudicationData,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -739,6 +741,33 @@ function buildApi({
       contestId: ContestId;
     }): CvrContestTag | undefined {
       return store.getCvrContestTag(input);
+    },
+
+    getBallotAdjudicationQueue(): Id[] {
+      return store.getBallotAdjudicationQueue({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
+    },
+
+    getBallotAdjudicationQueueMetadata(): BallotAdjudicationQueueMetadata {
+      return store.getBallotAdjudicationQueueMetadata({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
+    },
+
+    getNextCvrIdForBallotAdjudication(): Id | null {
+      return (
+        store.getNextCvrIdForBallotAdjudication({
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+        }) ?? null
+      );
+    },
+
+    getBallotAdjudicationData(input: { cvrId: Id }): BallotAdjudicationData {
+      return store.getBallotAdjudicationData({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        cvrId: input.cvrId,
+      });
     },
 
     async deleteAllManualResults(): Promise<void> {
