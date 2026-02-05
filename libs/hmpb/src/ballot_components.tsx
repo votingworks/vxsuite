@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 import {
   BALLOT_HASH_DISPLAY_LENGTH,
+  BallotMode,
   BallotStyle,
   BallotStyleId,
   Election,
@@ -56,20 +57,29 @@ export const TIMING_MARK_DIMENSIONS: InchDimensions = {
   height: 0.0625,
 };
 
-const StyledTimingMark = styled.div`
+const StyledTimingMark = styled.div<{ hidden?: boolean }>`
   width: ${TIMING_MARK_DIMENSIONS.width}in;
   height: ${TIMING_MARK_DIMENSIONS.height}in;
   background-color: black;
+  visibility: ${(p) => (p.hidden ? 'hidden' : undefined)};
 `;
 
 export const TIMING_MARK_CLASS = 'timing-mark';
 
 export function TimingMark({
+  hidden,
   style,
 }: {
+  hidden?: boolean;
   style?: React.CSSProperties;
 }): JSX.Element {
-  return <StyledTimingMark className={TIMING_MARK_CLASS} style={style} />;
+  return (
+    <StyledTimingMark
+      className={TIMING_MARK_CLASS}
+      hidden={hidden}
+      style={style}
+    />
+  );
 }
 
 export function timingMarkCounts(pageDimensions: InchDimensions): {
@@ -92,13 +102,16 @@ export function timingMarkCounts(pageDimensions: InchDimensions): {
 export function TimingMarkGrid({
   pageDimensions,
   children,
+  ballotMode,
   timingMarkStyle,
 }: {
   pageDimensions: InchDimensions;
   children: React.ReactNode;
+  ballotMode: BallotMode;
   timingMarkStyle?: React.CSSProperties;
 }): JSX.Element {
   const markCounts = timingMarkCounts(pageDimensions);
+  const hideTimingMarks = ballotMode === 'sample';
 
   function TimingMarkRow() {
     return (
@@ -109,7 +122,11 @@ export function TimingMarkGrid({
         }}
       >
         {range(0, markCounts.x).map((i) => (
-          <TimingMark key={i} style={timingMarkStyle} />
+          <TimingMark
+            key={i}
+            style={timingMarkStyle}
+            hidden={hideTimingMarks}
+          />
         ))}
       </div>
     );
@@ -129,7 +146,11 @@ export function TimingMarkGrid({
         }}
       >
         {range(0, markCounts.y).map((i) => (
-          <TimingMark key={i} style={timingMarkStyle} />
+          <TimingMark
+            key={i}
+            hidden={hideTimingMarks}
+            style={timingMarkStyle}
+          />
         ))}
       </div>
     );
