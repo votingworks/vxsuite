@@ -42,13 +42,16 @@ import {
   constructElectionKey,
   BallotStyleGroupId,
   BallotStyleGroup,
+  getContests,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 import {
+  allContestOptions,
   asSqliteBool,
   fromSqliteBool,
+  getBallotStyleGroup,
   getGroupedBallotStyles,
   getOfficialCandidateNameLookup,
   SqliteBool,
@@ -86,6 +89,9 @@ import {
   CvrContestTag,
   WriteInForTally,
   BallotAdjudicationQueueMetadata,
+  BallotAdjudicationData,
+  ContestAdjudicationData,
+  ContestOptionAdjudicationData,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -1803,6 +1809,167 @@ export class Store {
     return row;
   }
 
+  getBallotAdjudicationData({
+    electionId,
+    cvrId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+  }): BallotAdjudicationData {
+    const electionRecord = assertDefined(this.getElection(electionId));
+    const { election } = electionRecord.electionDefinition;
+    debug(
+      'querying database for ballot adjudication data for cvr id %s',
+      cvrId
+    );
+
+    // 1. Get CVR info
+    const cvrInfo = this.getCastVoteRecordVoteInfo({ electionId, cvrId });
+    const { votes, markScores, ballotStyleGroupId } = cvrInfo;
+
+    // 2. Get all contest tags for this CVR
+    const contestTagRows = this.client.all(
+      `
+        select
+          contest_id as contestId,
+          is_resolved as isResolved,
+          has_overvote as hasOvervote,
+          has_undervote as hasUndervote,
+          has_write_in as hasWriteIn,
+          has_unmarked_write_in as hasUnmarkedWriteIn,
+          has_marginal_mark as hasMarginalMark
+        from cvr_contest_tags
+        where cvr_id = ?
+      `,
+      cvrId
+    ) as Array<{
+      contestId: ContestId;
+      isResolved: SqliteBool;
+      hasOvervote: SqliteBool;
+      hasUndervote: SqliteBool;
+      hasWriteIn: SqliteBool;
+      hasUnmarkedWriteIn: SqliteBool;
+      hasMarginalMark: SqliteBool;
+    }>;
+
+    // 3. Get all vote adjudications for this CVR
+    const voteAdjudicationRows = this.client.all(
+      `
+        select
+          contest_id as contestId,
+          option_id as optionId,
+          is_vote as isVote
+        from vote_adjudications
+        where election_id = ? and cvr_id = ?
+      `,
+      electionId,
+      cvrId
+    ) as Array<{
+      contestId: ContestId;
+      optionId: ContestOptionId;
+      isVote: SqliteBool;
+    }>;
+
+    // 4. Get all write-in records for this CVR
+    const writeInRecords = this.getWriteInRecords({
+      electionId,
+      castVoteRecordId: cvrId,
+    });
+
+    // 5. Get mark thresholds and ballot style group
+    const { markThresholds } = this.getSystemSettings(electionId);
+    const ballotStyleGroup = assertDefined(
+      getBallotStyleGroup({
+        election,
+        ballotStyleGroupId,
+      })
+    );
+
+    // 6. Build lookup maps
+    const tagsByContestId = new Map(
+      contestTagRows.map((r) => [r.contestId, r])
+    );
+    const adjudicationsByKey = new Map(
+      voteAdjudicationRows.map((r) => [`${r.contestId}:${r.optionId}`, r])
+    );
+    const writeInsByKey = new Map(
+      writeInRecords.map((r) => [`${r.contestId}:${r.optionId}`, r])
+    );
+
+    // 7. Build contest adjudication data for each contest in the ballot style
+    const contests: ContestAdjudicationData[] = getContests({
+      ballotStyle: ballotStyleGroup,
+      election,
+    }).map((contest) => {
+      const tagRow = tagsByContestId.get(contest.id);
+      const tag: CvrContestTag | null = tagRow
+        ? {
+            cvrId,
+            contestId: contest.id,
+            isResolved: fromSqliteBool(tagRow.isResolved),
+            hasOvervote: fromSqliteBool(tagRow.hasOvervote),
+            hasUndervote: fromSqliteBool(tagRow.hasUndervote),
+            hasWriteIn: fromSqliteBool(tagRow.hasWriteIn),
+            hasUnmarkedWriteIn: fromSqliteBool(tagRow.hasUnmarkedWriteIn),
+            hasMarginalMark: fromSqliteBool(tagRow.hasMarginalMark),
+          }
+        : null;
+
+      const contestVotes = votes[contest.id] ?? [];
+      const contestMarkScores = markScores?.[contest.id];
+
+      const options: ContestOptionAdjudicationData[] = [
+        ...allContestOptions(contest, ballotStyleGroup),
+      ].map((option) => {
+        const key = `${contest.id}:${option.id}`;
+        const initialVote = contestVotes.includes(option.id);
+
+        const adjRow = adjudicationsByKey.get(key);
+        const voteAdjudication: VoteAdjudication | null = adjRow
+          ? {
+              electionId,
+              cvrId,
+              contestId: contest.id,
+              optionId: option.id,
+              isVote: fromSqliteBool(adjRow.isVote),
+            }
+          : null;
+
+        const writeInRecord = writeInsByKey.get(key) ?? null;
+
+        let hasMarginalMark = false;
+        if (contestMarkScores && markThresholds) {
+          const score = contestMarkScores[option.id];
+          if (score !== undefined) {
+            hasMarginalMark =
+              score >= markThresholds.marginal &&
+              score < markThresholds.definite;
+          }
+        }
+
+        return {
+          definition: option,
+          initialVote,
+          hasMarginalMark,
+          voteAdjudication,
+          writeInRecord,
+        };
+      });
+
+      return {
+        contestId: contest.id,
+        tag,
+        options,
+      };
+    });
+
+    debug('queried ballot adjudication data for cvr id %s', cvrId);
+    return {
+      cvrId,
+      contests,
+    };
+  }
+
   getNextCvrIdForBallotAdjudication({
     electionId,
   }: {
@@ -2199,7 +2366,8 @@ export class Store {
           id,
           election_id as electionId,
           ballot_style_group_id as ballotStyleGroupId,
-          votes
+          votes,
+          mark_scores as markScores
         from cvrs
         where
           election_id = ? and
@@ -2212,6 +2380,7 @@ export class Store {
       electionId: Id;
       ballotStyleGroupId: BallotStyleGroupId;
       votes: string;
+      markScores: string | null;
     };
 
     return {
@@ -2219,6 +2388,7 @@ export class Store {
       electionId: row.electionId,
       ballotStyleGroupId: row.ballotStyleGroupId,
       votes: JSON.parse(row.votes),
+      markScores: row.markScores ? JSON.parse(row.markScores) : null,
     };
   }
 
