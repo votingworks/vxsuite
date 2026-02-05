@@ -1,10 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AudioControls } from '@votingworks/types';
-import type { vi } from 'vitest';
+import type { Mocked, vi } from 'vitest';
 
-export function mockUseAudioControls(
-  fn: typeof vi.fn
-): Record<keyof AudioControls, any> {
+export function mockUseAudioControls(fn: typeof vi.fn): Mocked<AudioControls> {
   return {
     cycleVolume: fn(),
     decreasePlaybackRate: fn(),

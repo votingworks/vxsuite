@@ -31,6 +31,8 @@ export function VoterHelpScreen({
 
       <H3>{appStrings.voterHelpScreenHeadingAudio()}</H3>
       <P>{appStrings.voterHelpScreenContentAudioScan()}</P>
+      <P>{appStrings.voterHelpScreenContentAudioVolume()}</P>
+      <P>{appStrings.voterHelpScreenContentAudioRate()}</P>
 
       <H3>{appStrings.voterHelpScreenHeadingAudioOnlyMode()}</H3>
       <P>{appStrings.voterHelpScreenContentAudioOnlyModeScan()}</P>

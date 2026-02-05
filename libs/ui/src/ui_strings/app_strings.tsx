@@ -119,6 +119,20 @@ export const appStrings = {
     <UiString uiStringKey="buttonContinue">Continue</UiString>
   ),
 
+  buttonDecrease: () => (
+    <UiString uiStringKey="buttonDecrease">Decrease</UiString>
+  ),
+
+  buttonDecreaseSpeechRate: () => (
+    <UiString uiStringKey="buttonDecreaseSpeechRate">
+      Decrease Rate of Speech
+    </UiString>
+  ),
+
+  buttonDecreaseVolume: () => (
+    <UiString uiStringKey="buttonDecreaseVolume">Decrease Volume</UiString>
+  ),
+
   buttonDone: () => <UiString uiStringKey="buttonDone">Done</UiString>,
 
   buttonEnableAudioOnlyMode: () => (
@@ -134,6 +148,20 @@ export const appStrings = {
   ),
 
   buttonHelp: () => <UiString uiStringKey="buttonHelp">Help</UiString>,
+
+  buttonIncrease: () => (
+    <UiString uiStringKey="buttonIncrease">Increase</UiString>
+  ),
+
+  buttonIncreaseSpeechRate: () => (
+    <UiString uiStringKey="buttonIncreaseSpeechRate">
+      Increase Rate of Speech
+    </UiString>
+  ),
+
+  buttonIncreaseVolume: () => (
+    <UiString uiStringKey="buttonIncreaseVolume">Increase Volume</UiString>
+  ),
 
   buttonMore: () => <UiString uiStringKey="buttonMore">More</UiString>,
 
@@ -602,6 +630,30 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsSpeechRateDownButton: () => (
+    <UiString uiStringKey="instructionsSpeechRateDownButton">
+      Press the select button to decrease the rate of speech.
+    </UiString>
+  ),
+
+  instructionsSpeechRateDownButtonPat: () => (
+    <UiString uiStringKey="instructionsSpeechRateDownButtonPat">
+      Use the select input to decrease the rate of speech.
+    </UiString>
+  ),
+
+  instructionsSpeechRateUpButton: () => (
+    <UiString uiStringKey="instructionsSpeechRateUpButton">
+      Press the select button to increase the rate of speech.
+    </UiString>
+  ),
+
+  instructionsSpeechRateUpButtonPat: () => (
+    <UiString uiStringKey="instructionsSpeechRateUpButtonPat">
+      Use the select input to increase the rate of speech.
+    </UiString>
+  ),
+
   instructionsScannerAskForRestart: () => (
     <UiString uiStringKey="instructionsScannerAskForRestart">
       The ballot was not counted. Ask a poll worker to restart the scanner.
@@ -623,6 +675,30 @@ export const appStrings = {
   instructionsScannerRemoveDoubleSheet: () => (
     <UiString uiStringKey="instructionsScannerRemoveDoubleSheet">
       Remove your ballot and insert one sheet at a time.
+    </UiString>
+  ),
+
+  instructionsVolumeDownButton: () => (
+    <UiString uiStringKey="instructionsVolumeDownButton">
+      Press the select button to decrease the volume.
+    </UiString>
+  ),
+
+  instructionsVolumeDownButtonPat: () => (
+    <UiString uiStringKey="instructionsVolumeDownButtonPat">
+      Use the select input to decrease the volume.
+    </UiString>
+  ),
+
+  instructionsVolumeUpButton: () => (
+    <UiString uiStringKey="instructionsVolumeUpButton">
+      Press the select button to increase the volume.
+    </UiString>
+  ),
+
+  instructionsVolumeUpButtonPat: () => (
+    <UiString uiStringKey="instructionsVolumeUpButtonPat">
+      Use the select input to increase the volume.
     </UiString>
   ),
 
@@ -773,6 +849,10 @@ export const appStrings = {
     </UiString>
   ),
 
+  labelRateOfSpeech: () => (
+    <UiString uiStringKey="labelRateOfSpeech">Rate of Speech:</UiString>
+  ),
+
   labelSelected: () => (
     <UiString uiStringKey="labelSelected">Selected:</UiString>
   ),
@@ -824,6 +904,8 @@ export const appStrings = {
   labelTotalContests: () => (
     <UiString uiStringKey="labelTotalContests">Total contests:</UiString>
   ),
+
+  labelVolume: () => <UiString uiStringKey="labelVolume">Volume:</UiString>,
 
   labelWriteInCandidateName: () => (
     <UiString uiStringKey="labelWriteInCandidateName">
@@ -1834,6 +1916,22 @@ export const appStrings = {
     <UiString uiStringKey="voterHelpScreenContentAudioOnlyModeScan">
       Select the “Exit Audio-Only Mode” button to re-enable the on-screen
       display of ballot warnings.
+    </UiString>
+  ),
+
+  voterHelpScreenContentAudioRate: () => (
+    <UiString uiStringKey="voterHelpScreenContentAudioRate">
+      Select the "Rate of Speech: Decrease" button to slow down the
+      speech-to-text audio. Select the "Rate of Speech: Increase" button to
+      speed up the speech-to-text audio.
+    </UiString>
+  ),
+
+  voterHelpScreenContentAudioVolume: () => (
+    <UiString uiStringKey="voterHelpScreenContentAudioVolume">
+      Select the "Volume: Decrease" button to lower the volume of the
+      speech-to-text audio. Select the "Volume: Increase" button to raise the
+      volume of the speech-to-text audio.
     </UiString>
   ),
 
