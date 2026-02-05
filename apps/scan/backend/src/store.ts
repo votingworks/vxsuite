@@ -58,7 +58,7 @@ import { getPollsTransitionDestinationState } from '@votingworks/utils';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
-import { PollsTransition } from './types';
+import { BallotCastingPeriod, PollsTransition } from './types';
 
 const debug = rootDebug.extend('store');
 
@@ -325,6 +325,36 @@ export class Store {
     }
 
     this.client.run('update election set is_test_mode = ?', isTestMode ? 1 : 0);
+  }
+
+  /**
+   * Gets the current ballot casting period setting value.
+   */
+  getBallotCastingPeriod(): BallotCastingPeriod {
+    const electionRow = this.client.one(
+      'select ballot_casting_period as ballotCastingPeriod from election'
+    ) as { ballotCastingPeriod: BallotCastingPeriod } | undefined;
+
+    if (!electionRow) {
+      // ballot casting period will be the default once an election is defined
+      return 'election_day';
+    }
+
+    return electionRow.ballotCastingPeriod;
+  }
+
+  /**
+   * Sets the current ballot casting period setting value.
+   */
+  setBallotCastingPeriod(ballotCastingPeriod: BallotCastingPeriod): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set ballot casting period without an election.');
+    }
+
+    this.client.run(
+      'update election set ballot_casting_period = ?',
+      ballotCastingPeriod
+    );
   }
 
   /**
