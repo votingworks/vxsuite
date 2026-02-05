@@ -227,6 +227,7 @@ export enum LogEventId {
   NavigationPageChange = 'navigation-page-change',
   PollbookDuplicateCheckInDetected = 'pollbook-duplicate-check-in-detected',
   DataCheckOnStartup = 'data-check-on-startup',
+  SetBallotCastingPeriod = 'set-ballot-casting-period',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1419,6 +1420,13 @@ const DataCheckOnStartup: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxCentralScan, AppName.VxAdmin],
 };
 
+const SetBallotCastingPeriod: LogDetails = {
+  eventId: LogEventId.SetBallotCastingPeriod,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A user has changed the ballot casting period.',
+  restrictInDocumentationToApps: [AppName.VxScan],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1743,6 +1751,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PollbookDuplicateCheckInDetected;
     case LogEventId.DataCheckOnStartup:
       return DataCheckOnStartup;
+    case LogEventId.SetBallotCastingPeriod:
+      return SetBallotCastingPeriod;
     default:
       throwIllegalValue(eventId);
   }
