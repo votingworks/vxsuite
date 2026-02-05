@@ -58,8 +58,10 @@ import {
 } from '@votingworks/image-utils';
 import { join } from 'node:path';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
 import {
   ACCEPTED_PAPER_TYPES,
+  MAX_AUDIO_PORT_CHANGE_RETRIES,
   PaperHandlerStateMachine,
   delays,
   getPaperHandlerStateMachine,
@@ -95,10 +97,12 @@ import {
   BLANK_PAGE_INTERPRETATION_MOCK,
   BLANK_PAGE_MOCK,
 } from '../../test/ballot_helpers';
-import { AudioOutput, setAudioOutput } from '../audio/outputs';
 import { BmdModelNumber } from '../types';
+import { getNodeEnv } from '../globals';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
+
+vi.mock('../globals');
 
 vi.mock(import('@votingworks/ballot-interpreter'), async (importActual) => ({
   ...(await importActual()),
@@ -151,7 +155,12 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
-vi.mock(import('../audio/outputs.js'));
+
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  setBuiltinAudioPort: vi.fn(),
+}));
+
 vi.setConfig({ testTimeout: 2000 });
 
 const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<PageInterpretation> = [
@@ -1227,7 +1236,7 @@ describe('open cover detection', () => {
       ).loadAndParkPaper
     );
 
-    vi.mocked(setAudioOutput).mockResolvedValue();
+    vi.mocked(setBuiltinAudioPort).mockResolvedValue();
   });
 
   test("doesn't trigger when polls are not open", async () => {
@@ -1256,19 +1265,22 @@ describe('open cover detection', () => {
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
 
-    expect(vi.mocked(setAudioOutput)).not.toHaveBeenCalled();
+    expect(vi.mocked(setBuiltinAudioPort)).not.toHaveBeenCalled();
   });
 
   test('triggers when logged out and polls are open', async () => {
     workspace.store.setPollsState('polls_open');
     mockLoggedOutAuth(auth);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+    vi.mocked(getNodeEnv).mockReturnValue('production');
 
     await setMockCoverOpen(true);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
-    expect(vi.mocked(setAudioOutput)).toHaveBeenLastCalledWith(
-      AudioOutput.SPEAKER,
-      expect.anything() // logger
+    expect(vi.mocked(setBuiltinAudioPort)).toHaveBeenLastCalledWith(
+      'production',
+      AudioPort.SPEAKER,
+      expect.anything(), // logger
+      { maxRetries: MAX_AUDIO_PORT_CHANGE_RETRIES }
     );
 
     // Stops triggering for Poll Worker:
@@ -1276,9 +1288,11 @@ describe('open cover detection', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
-    expect(vi.mocked(setAudioOutput)).toHaveBeenLastCalledWith(
-      AudioOutput.HEADPHONES,
-      expect.anything() // logger
+    expect(vi.mocked(setBuiltinAudioPort)).toHaveBeenLastCalledWith(
+      'production',
+      AudioPort.HEADPHONES,
+      expect.anything(), // logger
+      { maxRetries: MAX_AUDIO_PORT_CHANGE_RETRIES }
     );
 
     // Stops triggering for EM:
@@ -1298,17 +1312,21 @@ describe('open cover detection', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
-    expect(vi.mocked(setAudioOutput)).toHaveBeenLastCalledWith(
-      AudioOutput.SPEAKER,
-      expect.anything() // logger
+    expect(vi.mocked(setBuiltinAudioPort)).toHaveBeenLastCalledWith(
+      'production',
+      AudioPort.SPEAKER,
+      expect.anything(), // logger
+      { maxRetries: MAX_AUDIO_PORT_CHANGE_RETRIES }
     );
 
     // Close cover to stop triggering:
     await setMockCoverOpen(false);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
-    expect(vi.mocked(setAudioOutput)).toHaveBeenLastCalledWith(
-      AudioOutput.HEADPHONES,
-      expect.anything() // logger
+    expect(vi.mocked(setBuiltinAudioPort)).toHaveBeenLastCalledWith(
+      'production',
+      AudioPort.HEADPHONES,
+      expect.anything(), // logger
+      { maxRetries: MAX_AUDIO_PORT_CHANGE_RETRIES }
     );
   });
 

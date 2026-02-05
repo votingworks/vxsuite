@@ -18,13 +18,14 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { DateTime } from 'luxon';
-import { AudioOutput, setAudioOutput } from '../audio/outputs';
+import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
 import {
   printBallotChunks,
   scanAndSave,
 } from '../custom-paper-handler/application_driver';
 import { constructAuthMachineState } from '../util/auth';
 import { ServerContext } from './context';
+import { getNodeEnv } from '../globals';
 
 const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;
@@ -240,7 +241,7 @@ export async function runPrintAndScanTask({
   });
   let i = 0;
 
-  let currentAudioOutput = AudioOutput.HEADPHONES;
+  let currentAudioOutput = AudioPort.HEADPHONES;
   let audioOutputDuration = HEADPHONE_OUTPUT_DURATION_SECONDS;
   let audioOutputStart = DateTime.now();
 
@@ -251,21 +252,23 @@ export async function runPrintAndScanTask({
     ) {
       audioOutputStart = DateTime.now();
 
-      if (currentAudioOutput === AudioOutput.HEADPHONES) {
+      if (currentAudioOutput === AudioPort.HEADPHONES) {
         await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
           message: 'Switching audio output to speaker',
         });
-        currentAudioOutput = AudioOutput.SPEAKER;
+        currentAudioOutput = AudioPort.SPEAKER;
         audioOutputDuration = SPEAKER_OUTPUT_DURATION_SECONDS;
       } else {
         await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
           message: 'Switching audio output to headphones',
         });
-        currentAudioOutput = AudioOutput.HEADPHONES;
+        currentAudioOutput = AudioPort.HEADPHONES;
         audioOutputDuration = HEADPHONE_OUTPUT_DURATION_SECONDS;
       }
 
-      await setAudioOutput(currentAudioOutput, logger);
+      await setBuiltinAudioPort(getNodeEnv(), currentAudioOutput, logger, {
+        maxRetries: 3,
+      });
     }
 
     // printBallotChunks will enable print mode.
