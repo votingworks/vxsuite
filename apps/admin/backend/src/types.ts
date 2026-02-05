@@ -19,6 +19,7 @@ import {
   Side,
   BallotCastingMode,
   BallotPageContestOptionLayout,
+  ContestOption,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 
@@ -318,6 +319,34 @@ export interface BallotAdjudicationQueueMetadata {
 }
 
 /**
+ * Information necessary to adjudicate a contest option.
+ */
+export interface ContestOptionAdjudicationData {
+  definition: ContestOption;
+  initialVote: boolean;
+  hasMarginalMark: boolean;
+  voteAdjudication: VoteAdjudication | null;
+  writeInRecord: WriteInRecord | null;
+}
+
+/**
+ * Information necessary to adjudicate a contest.
+ */
+export interface ContestAdjudicationData {
+  contestId: ContestId;
+  tag: CvrContestTag | null;
+  options: ContestOptionAdjudicationData[];
+}
+
+/**
+ * Information necessary to adjudicate a ballot.
+ */
+export interface BallotAdjudicationData {
+  cvrId: Id;
+  contests: ContestAdjudicationData[];
+}
+
+/**
  * Information necessary to adjudicate a write-in for an official candidate.
  */
 export interface WriteInAdjudicationActionOfficialCandidate {
@@ -474,6 +503,7 @@ export interface CastVoteRecordVoteInfo {
   electionId: Id;
   ballotStyleGroupId: BallotStyleGroupId;
   votes: Tabulation.CastVoteRecord['votes'];
+  markScores: Tabulation.MarkScores | null;
 }
 
 /**
