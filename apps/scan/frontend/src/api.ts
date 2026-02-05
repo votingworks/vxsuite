@@ -298,6 +298,18 @@ export const setTestMode = {
   },
 } as const;
 
+export const setBallotCastingPeriod = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setBallotCastingPeriod, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const getQuickResultsReportingUrl = {
   queryKey(): QueryKey {
     return ['getQuickResultsReportingUrl'];

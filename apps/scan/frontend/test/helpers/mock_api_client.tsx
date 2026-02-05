@@ -53,6 +53,7 @@ const defaultConfig: PrecinctScannerConfig = {
   electionPackageHash: 'test-election-package-hash',
   precinctSelection: ALL_PRECINCTS_SELECTION,
   systemSettings: DEFAULT_SYSTEM_SETTINGS,
+  ballotCastingPeriod: 'election_day',
 };
 
 export const statusNoPaper: PrecinctScannerStatus = {
