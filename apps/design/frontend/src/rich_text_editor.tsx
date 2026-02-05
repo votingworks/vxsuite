@@ -372,8 +372,12 @@ interface RichTextEditorProps {
   className?: string;
 }
 
-export const tiptapErrorContextBox: { lastPasteClipboardContent?: string } = {
+export const tiptapErrorContextBox: {
+  lastPasteClipboardContent?: string;
+  lastDragAndDropContent?: string;
+} = {
   lastPasteClipboardContent: undefined,
+  lastDragAndDropContent: undefined,
 };
 
 export function RichTextEditor({
@@ -424,6 +428,11 @@ export function RichTextEditor({
       tiptapErrorContextBox.lastPasteClipboardContent =
         event.clipboardData?.getData('text/html') ||
         event.clipboardData?.getData('text/plain');
+    },
+    onDrop: (event) => {
+      tiptapErrorContextBox.lastDragAndDropContent =
+        event.dataTransfer?.getData('text/html') ||
+        event.dataTransfer?.getData('text/plain');
     },
   });
   return (

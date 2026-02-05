@@ -32,6 +32,9 @@ if (process.env.NODE_ENV === 'production') {
         // eslint-disable-next-line no-param-reassign
         event.extra['lastPasteClipboardContent'] =
           tiptapErrorContextBox.lastPasteClipboardContent;
+        // eslint-disable-next-line no-param-reassign
+        event.extra['lastDragAndDropContent'] =
+          tiptapErrorContextBox.lastDragAndDropContent;
       }
       return event;
     },
