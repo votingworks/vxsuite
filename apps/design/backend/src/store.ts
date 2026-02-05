@@ -367,8 +367,9 @@ async function insertContest(
             term_description,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, ${ballotOrder ? '$10' : 'DEFAULT'
-        })
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, ${
+            ballotOrder ? '$10' : 'DEFAULT'
+          })
         `,
         contest.id,
         electionId,
@@ -464,8 +465,9 @@ async function insertContest(
             additional_options,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ${ballotOrder ? '$12' : 'DEFAULT'
-        })
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ${
+            ballotOrder ? '$12' : 'DEFAULT'
+          })
         `,
         contest.id,
         electionId,
@@ -525,7 +527,7 @@ export class Store {
   constructor(
     private readonly db: Db,
     private readonly logger: BaseLogger
-  ) { }
+  ) {}
 
   /* istanbul ignore next - @preserve */
   static new(logger: BaseLogger): Store {
@@ -633,7 +635,7 @@ export class Store {
     if (user.type === 'support_user') {
       assert(
         user.name.endsWith('@voting.works') ||
-        user.name.endsWith('@vx.support'),
+          user.name.endsWith('@vx.support'),
         'Support users must have a @voting.works or @vx.support email'
       );
     }
@@ -708,12 +710,12 @@ export class Store {
         )
       ).rows[0] as
         | {
-          id: string;
-          type: UserType;
-          name: string;
-          organizationId: string;
-          organizationName: string;
-        }
+            id: string;
+            type: UserType;
+            name: string;
+            organizationId: string;
+            organizationName: string;
+          }
         | undefined;
       if (!userRow) return undefined;
 
@@ -903,7 +905,7 @@ export class Store {
               name
             from districts
             where election_id = $1
-            order by name
+            order by name collate natural_sort
           `,
           electionId
         )
@@ -920,7 +922,7 @@ export class Store {
             left join districts_precincts on districts_precincts.precinct_id = precincts.id
             where election_id = $1
             group by precincts.id
-            order by precincts.name
+            order by precincts.name collate natural_sort
           `,
           electionId
         )
@@ -943,7 +945,7 @@ export class Store {
             left join districts_precinct_splits on districts_precinct_splits.precinct_split_id = precinct_splits.id
             where precincts.election_id = $1
             group by precinct_splits.id
-            order by precinct_splits.name
+            order by precinct_splits.name collate natural_sort
           `,
           electionId
         )
@@ -1432,9 +1434,9 @@ export class Store {
           electionInfo.seal,
           electionInfo.signatureImage
             ? JSON.stringify({
-              image: electionInfo.signatureImage,
-              caption: electionInfo.signatureCaption,
-            })
+                image: electionInfo.signatureImage,
+                caption: electionInfo.signatureCaption,
+              })
             : null,
           electionInfo.languageCodes,
           electionInfo.electionId
