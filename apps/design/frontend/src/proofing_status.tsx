@@ -17,7 +17,7 @@ import { format } from '@votingworks/utils';
 import { BackgroundTask, ExportQaRun } from '@votingworks/design-backend';
 
 import { ElectionIdParams, routes } from './routes';
-import { Row } from './layout';
+import { InputGroup, Row } from './layout';
 import * as api from './api';
 import { TaskProgress } from './task_progress';
 
@@ -26,6 +26,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
 `;
 
 export function ProofingStatus(): React.ReactNode {
@@ -51,13 +55,15 @@ export function ProofingStatus(): React.ReactNode {
   const unfinalize = api.unfinalizeBallots.useMutation();
 
   const [showQaWarningModal, setShowQaWarningModal] = React.useState(false);
+  const [showUnfinalizeModal, setShowUnfinalizeModal] = React.useState(false);
+  const [reasonForUnfinalizing, setReasonForUnfinalizing] = React.useState('');
 
   useQueryChangeListener(latestQaRunQuery, {
     onChange(newLatestRun) {
       if (newLatestRun?.status === 'success') {
         setShowQaWarningModal(false);
       }
-    }
+    },
   });
 
   if (
@@ -81,8 +87,7 @@ export function ProofingStatus(): React.ReactNode {
   // Get the most recent QA run (if any)
   const latestQaRun = latestQaRunQuery.data;
   const qaInProgress =
-    latestQaRun?.status === 'pending' ||
-    latestQaRun?.status === 'in_progress';
+    latestQaRun?.status === 'pending' || latestQaRun?.status === 'in_progress';
   const qaFailed = latestQaRun?.status === 'failure';
   const qaComplete = latestQaRun?.status === 'success';
   const qaIncompleteOrFailed = latestQaRun && !qaComplete;
@@ -147,8 +152,7 @@ export function ProofingStatus(): React.ReactNode {
           <Button
             disabled={unfinalizing || approving}
             icon="Delete"
-            onPress={unfinalize.mutate}
-            value={{ electionId }}
+            onPress={() => setShowUnfinalizeModal(true)}
             variant="danger"
           >
             Unfinalize
@@ -216,6 +220,67 @@ export function ProofingStatus(): React.ReactNode {
           onOverlayClick={() => setShowQaWarningModal(false)}
         />
       )}
+
+      {showUnfinalizeModal && (
+        <Modal
+          title="Unfinalize Ballots"
+          content={
+            <div>
+              <P>
+                Unfinalizing will clear exports and reenable editing. Enter a
+                reason for unfinalizing.
+              </P>
+              <P>
+                <InputGroup label="Reason">
+                  <TextArea
+                    id="reason-for-unfinalizing"
+                    maxLength={500}
+                    onChange={(e) => setReasonForUnfinalizing(e.target.value)}
+                    value={reasonForUnfinalizing}
+                  />
+                </InputGroup>
+              </P>
+            </div>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                disabled={!reasonForUnfinalizing.trim() || unfinalizing}
+                icon="Delete"
+                onPress={() => {
+                  unfinalize.mutate(
+                    {
+                      electionId,
+                      reason: reasonForUnfinalizing.trim(),
+                    },
+                    {
+                      onSuccess: () => {
+                        setShowUnfinalizeModal(false);
+                        setReasonForUnfinalizing('');
+                      },
+                    }
+                  );
+                }}
+                variant="danger"
+              >
+                Unfinalize Ballots
+              </Button>
+              <Button
+                onPress={() => {
+                  setShowUnfinalizeModal(false);
+                  setReasonForUnfinalizing('');
+                }}
+              >
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={() => {
+            setShowUnfinalizeModal(false);
+            setReasonForUnfinalizing('');
+          }}
+        />
+      )}
     </Container>
   );
 }
@@ -232,14 +297,11 @@ function JobLink({ jobUrl }: { jobUrl?: string }): React.ReactNode {
 }
 
 function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
-  const { status, statusMessage, resultsUrl, jobUrl, createdAt, updatedAt } = qaRun;
+  const { status, statusMessage, resultsUrl, jobUrl, createdAt, updatedAt } =
+    qaRun;
 
   if (status === 'pending') {
-    return (
-      <StatusLine done={false}>
-        QA check pending&hellip;
-      </StatusLine>
-    );
+    return <StatusLine done={false}>QA check pending&hellip;</StatusLine>;
   }
 
   if (status === 'in_progress') {
