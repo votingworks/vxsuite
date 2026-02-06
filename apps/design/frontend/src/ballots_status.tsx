@@ -109,7 +109,7 @@ export function BallotsStatus(): React.ReactNode {
 
       {isConfirmingFinalize && (
         <Modal
-          title="Confirm Finalize Ballots"
+          title="Finalize Ballots"
           content={
             <P>
               Once ballots are finalized, the election may not be edited
