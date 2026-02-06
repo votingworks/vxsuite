@@ -107,7 +107,7 @@ export interface BackgroundTask {
   completedAt?: Date;
   progress?: BackgroundTaskProgress;
   error?: string;
-  gracefulInterruption: boolean;
+  interruptedAt?: Date;
 }
 
 export interface BackgroundTaskProgress {
@@ -126,7 +126,7 @@ const getBackgroundTasksBaseQuery = `
     completed_at as "completedAt",
     progress,
     error,
-    graceful_interruption as "gracefulInterruption"
+    interrupted_at as "interruptedAt"
   from background_tasks
 `;
 
@@ -141,7 +141,7 @@ interface BackgroundTaskRow {
   completedAt: string | null;
   progress: BackgroundTaskProgress | null;
   error: string | null;
-  gracefulInterruption: boolean;
+  interruptedAt: string | null;
 }
 
 function backgroundTaskRowToBackgroundTask(
@@ -156,7 +156,7 @@ function backgroundTaskRowToBackgroundTask(
     completedAt: row.completedAt ? new Date(row.completedAt) : undefined,
     progress: row.progress ?? undefined,
     error: row.error ?? undefined,
-    gracefulInterruption: row.gracefulInterruption,
+    interruptedAt: row.interruptedAt ? new Date(row.interruptedAt) : undefined,
   };
 }
 
@@ -2591,8 +2591,8 @@ export class Store {
       );
       const allInterrupted = res.rows.map(backgroundTaskRowToBackgroundTask);
       return {
-        graceful: allInterrupted.filter((task) => task.gracefulInterruption),
-        nonGraceful: allInterrupted.filter((task) => !task.gracefulInterruption),
+        graceful: allInterrupted.filter((task) => task.interruptedAt),
+        nonGraceful: allInterrupted.filter((task) => !task.interruptedAt),
       };
     });
   }
@@ -2605,7 +2605,7 @@ export class Store {
     await this.db.withClient(async (client) =>
       client.query(
         `update background_tasks
-         set graceful_interruption = true
+         set interrupted_at = current_timestamp
          where id = $1`,
         taskId
       )
@@ -2617,10 +2617,10 @@ export class Store {
       // Update and return the requeued tasks in a single atomic operation
       const result = await client.query(
         `update background_tasks
-         set started_at = null, graceful_interruption = false
+         set started_at = null, interrupted_at = null
          where started_at is not null
            and completed_at is null
-           and graceful_interruption = true
+           and interrupted_at is not null
          returning
            id,
            task_name as "taskName",
@@ -2630,7 +2630,7 @@ export class Store {
            completed_at as "completedAt",
            progress,
            error,
-           graceful_interruption as "gracefulInterruption"`
+           interrupted_at as "interruptedAt"`
       );
 
       return result.rows.map(backgroundTaskRowToBackgroundTask);

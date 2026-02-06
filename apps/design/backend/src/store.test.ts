@@ -225,7 +225,6 @@ test('Background task processing - task creation and retrieval', async () => {
     taskName,
     completedAt: undefined,
     error: undefined,
-    gracefulInterruption: false,
     progress: undefined,
     startedAt: undefined,
   });
@@ -237,7 +236,6 @@ test('Background task processing - task creation and retrieval', async () => {
     taskName,
     completedAt: undefined,
     error: undefined,
-    gracefulInterruption: false,
     progress: undefined,
     startedAt: undefined,
   });
@@ -248,7 +246,6 @@ test('Background task processing - task creation and retrieval', async () => {
     taskName,
     completedAt: undefined,
     error: undefined,
-    gracefulInterruption: false,
     progress: undefined,
     startedAt: undefined,
   });
@@ -277,7 +274,6 @@ test('Background task processing - starting and completing tasks', async () => {
     taskName,
     completedAt: undefined,
     error: undefined,
-    gracefulInterruption: false,
     progress: undefined,
     startedAt: undefined,
   });
@@ -291,7 +287,6 @@ test('Background task processing - starting and completing tasks', async () => {
     taskName,
     completedAt: undefined,
     error: undefined,
-    gracefulInterruption: false,
     progress: undefined,
     startedAt: undefined,
   });
@@ -303,7 +298,6 @@ test('Background task processing - starting and completing tasks', async () => {
     taskName,
     completedAt: undefined,
     error: undefined,
-    gracefulInterruption: false,
     progress: undefined,
   });
 
@@ -316,7 +310,6 @@ test('Background task processing - starting and completing tasks', async () => {
     taskName,
     completedAt: undefined,
     error: undefined,
-    gracefulInterruption: false,
     progress: undefined,
     startedAt: undefined,
   });
@@ -328,7 +321,6 @@ test('Background task processing - starting and completing tasks', async () => {
     startedAt: expect.any(Date),
     taskName,
     error: undefined,
-    gracefulInterruption: false,
     progress: undefined,
   });
 
@@ -344,7 +336,6 @@ test('Background task processing - starting and completing tasks', async () => {
     payload: '{"somePayload":2}',
     startedAt: expect.any(Date),
     taskName,
-    gracefulInterruption: false,
     progress: undefined,
   });
 });
@@ -421,12 +412,12 @@ test('graceful interruption - mark and requeue tasks', async () => {
   // Mark task1 as gracefully interrupted
   await store.markTaskAsGracefullyInterrupted(task1Id);
 
-  // Verify gracefulInterruption flag is set on task1
+  // Verify interruptedAt is set on task1
   let task1 = assertDefined(await store.getBackgroundTask(task1Id));
   const task2 = assertDefined(await store.getBackgroundTask(task2Id));
-  
-  expect(task1.gracefulInterruption).toEqual(true);
-  expect(task2.gracefulInterruption).toEqual(false);
+
+  expect(task1.interruptedAt).toBeInstanceOf(Date);
+  expect(task2.interruptedAt).toBeUndefined();
 
   // Check interrupted tasks
   const interrupted = await store.getInterruptedBackgroundTasks();
@@ -439,10 +430,10 @@ test('graceful interruption - mark and requeue tasks', async () => {
   expect(requeuedTasks).toHaveLength(1);
   expect(requeuedTasks[0].id).toEqual(task1Id);
 
-  // task1 should be requeued (started_at cleared, graceful_interruption cleared)
+  // task1 should be requeued (started_at cleared, interrupted_at cleared)
   task1 = assertDefined(await store.getBackgroundTask(task1Id));
   expect(task1.startedAt).toBeUndefined();
-  expect(task1.gracefulInterruption).toEqual(false);
+  expect(task1.interruptedAt).toBeUndefined();
 });
 
 describe('tts_strings', () => {

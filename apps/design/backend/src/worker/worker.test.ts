@@ -40,7 +40,6 @@ function createMockContext(overrides?: {
           createdAt: new Date('2024-01-01T00:00:00Z'),
           startedAt: new Date('2024-01-01T00:00:01Z'),
           completedAt: new Date('2024-01-01T00:00:02Z'),
-          gracefulInterruption: false,
         }),
         requeueInterruptedBackgroundTasks: vi.fn().mockResolvedValue(undefined),
         requeueGracefullyInterruptedBackgroundTasks: vi.fn().mockResolvedValue([]),
@@ -149,7 +148,6 @@ describe('start', () => {
             taskName: 'loop_task',
             payload: '{}',
             createdAt: new Date(),
-            gracefulInterruption: false,
           });
         }
         return Promise.resolve(undefined);
@@ -196,7 +194,6 @@ describe('start', () => {
         payload: '{}',
         createdAt: new Date(),
         startedAt: new Date(),
-        gracefulInterruption: false,
       },
       {
         id: 'crashed-task-2',
@@ -204,7 +201,6 @@ describe('start', () => {
         payload: '{}',
         createdAt: new Date(),
         startedAt: new Date(),
-        gracefulInterruption: false,
       },
     ];
 
@@ -244,7 +240,7 @@ describe('start', () => {
         payload: '{}',
         createdAt: new Date(),
         startedAt: new Date(),
-        gracefulInterruption: true,
+        interruptedAt: new Date(),
       },
     ];
 

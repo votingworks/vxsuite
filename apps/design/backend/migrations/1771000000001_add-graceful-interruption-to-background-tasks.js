@@ -10,10 +10,9 @@ exports.shorthands =
  */
 exports.up = (pgm) => {
   pgm.addColumn('background_tasks', {
-    graceful_interruption: {
-      type: 'boolean',
-      notNull: true,
-      default: false,
+    interrupted_at: {
+      type: 'timestamp',
+      notNull: false,
     },
   });
 };
