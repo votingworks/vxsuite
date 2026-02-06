@@ -172,7 +172,9 @@ async function normalizeDataUrl(
     return resolve(
       err({
         code: 'unexpected',
-        error: new Error(`Error while decoding image for resize`),
+        error: new Error(
+          `Error while decoding image for resize: ${event.message}`
+        ),
       })
     );
   }
