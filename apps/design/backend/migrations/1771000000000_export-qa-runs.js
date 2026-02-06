@@ -42,12 +42,3 @@ exports.up = (pgm) => {
   // Create index on election_id for faster lookups
   pgm.createIndex('export_qa_runs', 'election_id');
 };
-
-/**
- * @param pgm {import('node-pg-migrate').MigrationBuilder}
- * @param run {() => void | undefined}
- * @returns {Promise<void> | void}
- */
-exports.down = (pgm) => {
-  pgm.dropTable('export_qa_runs');
-};
