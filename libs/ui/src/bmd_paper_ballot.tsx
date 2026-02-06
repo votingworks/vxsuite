@@ -15,6 +15,7 @@ import {
   Contests,
   Election,
   ElectionDefinition,
+  formatBallotHash,
   getBallotStyle,
   getCandidateVoteSortedForBallotStyleRotation,
   getContests,
@@ -839,6 +840,14 @@ export function BmdPaperBallot({
                     <InEnglish>
                       {electionStrings.ballotLanguage(primaryBallotLanguage)}
                     </InEnglish>
+                  </strong>
+                </div>
+                <div>
+                  <div>
+                    <InEnglish>Election</InEnglish>
+                  </div>
+                  <strong>
+                    <InEnglish>{formatBallotHash(ballotHash)}</InEnglish>
                   </strong>
                 </div>
               </div>
