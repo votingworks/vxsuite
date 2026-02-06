@@ -415,12 +415,13 @@ test('graceful interruption - mark and requeue tasks', async () => {
   expect(task1.interruptedAt).toBeInstanceOf(Date);
   expect(task2.interruptedAt).toBeUndefined();
 
-  const crashedTasks = await store.getCrashedBackgroundTasks();
+  const crashedTasks = await store.failCrashedBackgroundTasks();
   expect(crashedTasks).toHaveLength(0);
 
-  const requeuedTasks = await store.requeueGracefullyInterruptedBackgroundTasks();
+  const requeuedTasks =
+    await store.requeueGracefullyInterruptedBackgroundTasks();
   expect(requeuedTasks).toHaveLength(1);
-  expect(requeuedTasks[0].id).toEqual(task1Id);
+  expect(requeuedTasks[0]).toEqual(task1Id);
 
   task1 = assertDefined(await store.getBackgroundTask(task1Id));
   expect(task1.startedAt).toBeUndefined();

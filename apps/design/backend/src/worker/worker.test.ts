@@ -1,20 +1,26 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import {
+  GoogleCloudSpeechSynthesizer,
+  GoogleCloudTranslator,
+  makeMockGoogleCloudTextToSpeechClient,
+  makeMockGoogleCloudTranslationClient,
+} from '@votingworks/backend';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-
-import { GoogleCloudSpeechSynthesizer, GoogleCloudTranslator, makeMockGoogleCloudTextToSpeechClient, makeMockGoogleCloudTranslationClient } from '@votingworks/backend';
 import * as tasks from './tasks';
 import { processNextBackgroundTaskIfAny, start } from './worker';
 import { WorkerContext } from './context';
+import { TestStore } from '../../test/test_store';
 
 vi.mock('./tasks');
 
+const logger = mockBaseLogger({ fn: vi.fn });
+const testStore = new TestStore(logger);
+const store = testStore.getStore();
+
 const processBackgroundTaskMock = vi.mocked(tasks.processBackgroundTask);
 
-function createMockContext(overrides?: {
-  getOldestQueuedBackgroundTask?: ReturnType<typeof vi.fn>;
-  markTaskAsGracefullyInterrupted?: ReturnType<typeof vi.fn>;
-  getInterruptedBackgroundTasks?: ReturnType<typeof vi.fn>;
-}): WorkerContext {
+function createMockContext(): WorkerContext {
   const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
     fn: vi.fn,
   });
@@ -28,28 +34,9 @@ function createMockContext(overrides?: {
 
   return {
     workspace: {
-      store: {
-        getOldestQueuedBackgroundTask:
-          overrides?.getOldestQueuedBackgroundTask ?? vi.fn().mockResolvedValue(undefined),
-        startBackgroundTask: vi.fn().mockResolvedValue(undefined),
-        completeBackgroundTask: vi.fn().mockResolvedValue(undefined),
-        getBackgroundTask: vi.fn().mockResolvedValue({
-          id: 'task-1',
-          taskName: 'test_task',
-          payload: '{}',
-          createdAt: new Date('2024-01-01T00:00:00Z'),
-          startedAt: new Date('2024-01-01T00:00:01Z'),
-          completedAt: new Date('2024-01-01T00:00:02Z'),
-        }),
-        requeueInterruptedBackgroundTasks: vi.fn().mockResolvedValue(undefined),
-        requeueGracefullyInterruptedBackgroundTasks: vi.fn().mockResolvedValue([]),
-        getInterruptedBackgroundTasks:
-          overrides?.getInterruptedBackgroundTasks ??
-          vi.fn().mockResolvedValue({ graceful: [], nonGraceful: [] }),
-        markTaskAsGracefullyInterrupted:
-          overrides?.markTaskAsGracefullyInterrupted ?? vi.fn().mockResolvedValue(undefined),
-      },
-    } as unknown as WorkerContext['workspace'],
+      assetDirectoryPath: makeTemporaryDirectory(),
+      store,
+    },
     fileStorageClient: {
       readFile: vi.fn(),
       writeFile: vi.fn(),
@@ -60,12 +47,13 @@ function createMockContext(overrides?: {
   };
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   vi.restoreAllMocks();
+  await testStore.init();
 });
 
-afterEach(() => {
-  vi.useRealTimers();
+afterAll(async () => {
+  await testStore.cleanUp();
 });
 
 describe('processNextBackgroundTaskIfAny', () => {
@@ -75,60 +63,52 @@ describe('processNextBackgroundTaskIfAny', () => {
     const result = await processNextBackgroundTaskIfAny(context);
 
     expect(result).toEqual({ wasTaskProcessed: false });
-    expect(
-      context.workspace.store.startBackgroundTask
-    ).not.toHaveBeenCalled();
   });
 
   test('handles task processing errors gracefully', async () => {
     const taskError = new Error('Task failed unexpectedly');
-    const context = createMockContext({
-      getOldestQueuedBackgroundTask: vi.fn().mockResolvedValue({
-        id: 'error-task',
-        taskName: 'failing_task',
-        payload: '{}',
-        createdAt: new Date(),
-      }),
-    });
+    const context = createMockContext();
+
+    const taskId = await store.createBackgroundTask(
+      'generate_election_package',
+      {}
+    );
 
     processBackgroundTaskMock.mockRejectedValue(taskError);
 
-    // Suppress console output during error test
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const result = await processNextBackgroundTaskIfAny(context);
 
     expect(result).toEqual({ wasTaskProcessed: true });
-    expect(context.workspace.store.startBackgroundTask).toHaveBeenCalledWith(
-      'error-task'
-    );
-    expect(
-      context.workspace.store.completeBackgroundTask
-    ).toHaveBeenCalledWith('error-task', 'Task failed unexpectedly');
+
+    const task = await store.getBackgroundTask(taskId);
+    expect(task?.startedAt).toBeDefined();
+    expect(task?.completedAt).toBeDefined();
+    expect(task?.error).toEqual('Task failed unexpectedly');
 
     consoleSpy.mockRestore();
   });
 
   test('handles non-Error thrown values gracefully', async () => {
-    const context = createMockContext({
-      getOldestQueuedBackgroundTask: vi.fn().mockResolvedValue({
-        id: 'string-error-task',
-        taskName: 'failing_task',
-        payload: '{}',
-        createdAt: new Date(),
-      }),
-    });
+    const context = createMockContext();
+
+    const taskId = await store.createBackgroundTask(
+      'generate_election_package',
+      {}
+    );
 
     processBackgroundTaskMock.mockRejectedValue('string error value');
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const result = await processNextBackgroundTaskIfAny(context);
 
     expect(result).toEqual({ wasTaskProcessed: true });
-    expect(
-      context.workspace.store.completeBackgroundTask
-    ).toHaveBeenCalledWith('string-error-task', 'string error value');
+
+    const task = await store.getBackgroundTask(taskId);
+    expect(task?.completedAt).toBeDefined();
+    expect(task?.error).toEqual('string error value');
 
     consoleSpy.mockRestore();
   });
@@ -136,137 +116,106 @@ describe('processNextBackgroundTaskIfAny', () => {
 
 describe('start', () => {
   test('requeues gracefully interrupted tasks on startup', async () => {
-    vi.useFakeTimers();
+    const abortController = new AbortController();
+    const context = createMockContext();
 
-    let callCount = 0;
-    const context = createMockContext({
-      getOldestQueuedBackgroundTask: vi.fn().mockImplementation(() => {
-        callCount += 1;
-        if (callCount === 1) {
-          return Promise.resolve({
-            id: 'task-loop',
-            taskName: 'loop_task',
-            payload: '{}',
-            createdAt: new Date(),
-          });
-        }
-        return Promise.resolve(undefined);
-      }),
-    });
+    // Create a gracefully interrupted task
+    const interruptedTaskId = await store.createBackgroundTask(
+      'generate_election_package',
+      {}
+    );
+    await store.startBackgroundTask(interruptedTaskId);
+    await store.markTaskAsGracefullyInterrupted(interruptedTaskId);
 
     processBackgroundTaskMock.mockResolvedValue(undefined);
 
-    // Suppress console output
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-    await start(context);
+    await start(context, { signal: abortController.signal });
+    abortController.abort();
 
-    expect(
-      context.workspace.store.requeueGracefullyInterruptedBackgroundTasks
-    ).toHaveBeenCalledTimes(1);
-
-    // Process the first tick - should process the first task
-    await vi.advanceTimersToNextTimerAsync();
-
-    expect(
-      context.workspace.store.startBackgroundTask
-    ).toHaveBeenCalledWith('task-loop');
-
-    // Next iteration: no task queued, should sleep
-    await vi.advanceTimersByTimeAsync(1000);
-
-    // The getOldestQueuedBackgroundTask should have been called at least twice
-    // (once with a task, once without)
-    expect(
-      (context.workspace.store.getOldestQueuedBackgroundTask as ReturnType<typeof vi.fn>).mock.calls.length
-    ).toBeGreaterThanOrEqual(2);
+    // Verify the interrupted task was requeued (started_at and interrupted_at cleared)
+    const task = await store.getBackgroundTask(interruptedTaskId);
+    expect(task?.startedAt).toBeUndefined();
+    expect(task?.interruptedAt).toBeUndefined();
 
     consoleSpy.mockRestore();
   });
 
   test('logs and reports crashed tasks on startup', async () => {
-    vi.useFakeTimers();
+    const abortController = new AbortController();
+    const context = createMockContext();
 
-    const crashedTasks = [
-      {
-        id: 'crashed-task-1',
-        taskName: 'generate_election_package' as const,
-        payload: '{}',
-        createdAt: new Date(),
-        startedAt: new Date(),
-      },
-      {
-        id: 'crashed-task-2',
-        taskName: 'generate_test_decks' as const,
-        payload: '{}',
-        createdAt: new Date(),
-        startedAt: new Date(),
-      },
-    ];
+    // Create two crashed tasks (started but not completed, no interrupted_at)
+    const crashed1Id = await store.createBackgroundTask(
+      'generate_election_package',
+      {}
+    );
+    await store.startBackgroundTask(crashed1Id);
 
-    const context = createMockContext({
-      getOldestQueuedBackgroundTask: vi.fn().mockResolvedValue(undefined),
-      getInterruptedBackgroundTasks: vi.fn().mockResolvedValue({
-        graceful: [],
-        nonGraceful: crashedTasks,
-      }),
-    });
+    const crashed2Id = await store.createBackgroundTask(
+      'generate_test_decks',
+      {}
+    );
+    await store.startBackgroundTask(crashed2Id);
 
-    // Suppress console output
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const consoleWarnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {});
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-    await start(context);
+    await start(context, { signal: abortController.signal });
+    abortController.abort();
 
     // Should have logged warning about crashed tasks
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       expect.stringContaining('crashed task(s) that will NOT be requeued')
     );
     expect(consoleWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('crashed-task-1, crashed-task-2')
+      expect.stringContaining(crashed1Id)
     );
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining(crashed2Id)
+    );
+
+    // Verify the tasks were marked as failed in the DB
+    const task1 = await store.getBackgroundTask(crashed1Id);
+    expect(task1?.error).toEqual('Task crashed and was marked as failed');
+    expect(task1?.completedAt).toBeDefined();
+
+    const task2 = await store.getBackgroundTask(crashed2Id);
+    expect(task2?.error).toEqual('Task crashed and was marked as failed');
+    expect(task2?.completedAt).toBeDefined();
 
     consoleWarnSpy.mockRestore();
     consoleLogSpy.mockRestore();
   });
 
   test('logs when requeuing gracefully interrupted tasks', async () => {
-    vi.useFakeTimers();
+    const abortController = new AbortController();
+    const context = createMockContext();
 
-    const gracefulTasks = [
-      {
-        id: 'graceful-task-1',
-        taskName: 'generate_election_package' as const,
-        payload: '{}',
-        createdAt: new Date(),
-        startedAt: new Date(),
-        interruptedAt: new Date(),
-      },
-    ];
+    // Create a gracefully interrupted task
+    const gracefulTaskId = await store.createBackgroundTask(
+      'generate_election_package',
+      {}
+    );
+    await store.startBackgroundTask(gracefulTaskId);
+    await store.markTaskAsGracefullyInterrupted(gracefulTaskId);
 
-    const context = createMockContext({
-      getOldestQueuedBackgroundTask: vi.fn().mockResolvedValue(undefined),
-      getInterruptedBackgroundTasks: vi.fn().mockResolvedValue({
-        graceful: gracefulTasks,
-        nonGraceful: [],
-      }),
-    });
+    processBackgroundTaskMock.mockResolvedValue(undefined);
 
-    // Mock the requeue to return the tasks
-    (context.workspace.store.requeueGracefullyInterruptedBackgroundTasks as ReturnType<typeof vi.fn>)
-      .mockResolvedValue(gracefulTasks);
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-    // Suppress console output
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
-
-    await start(context);
+    await start(context, { signal: abortController.signal });
+    abortController.abort();
 
     // Should have logged info about requeued tasks
     expect(consoleLogSpy).toHaveBeenCalledWith(
       expect.stringContaining('Requeued 1 gracefully interrupted task(s)')
     );
     expect(consoleLogSpy).toHaveBeenCalledWith(
-      expect.stringContaining('graceful-task-1')
+      expect.stringContaining(gracefulTaskId)
     );
 
     consoleLogSpy.mockRestore();

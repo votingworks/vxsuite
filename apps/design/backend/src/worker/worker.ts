@@ -51,19 +51,37 @@ export async function processNextBackgroundTaskIfAny(
  * Starts the VxDesign background worker. Note that, as currently implemented, it's only safe to
  * run one instance of the worker.
  */
-export async function start(context: WorkerContext): Promise<void> {
+export async function start(
+  context: WorkerContext,
+  options?: { signal?: AbortSignal }
+): Promise<void> {
   const { store } = context.workspace;
-
 
   // Track the currently running task for graceful shutdown
   let currentTaskId: string | undefined;
 
-  const crashedTasks = await store.getCrashedBackgroundTasks();
+  async function handleSigterm() {
+    console.log('Received SIGTERM, marking graceful shutdown...');
+    try {
+      if (currentTaskId) {
+        await store.markTaskAsGracefullyInterrupted(currentTaskId);
+        console.log(`Marked task ${currentTaskId} as gracefully interrupted`);
+      }
+      console.log('Graceful shutdown complete, exiting...');
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+    }
+    process.exit(0);
+  }
+
+  const crashedTasks = await store.failCrashedBackgroundTasks();
 
   if (crashedTasks.length > 0) {
     const crashedTaskIds = crashedTasks.map((task) => task.id);
     console.warn(
-      `⚠️  Worker starting with ${crashedTaskIds.length} crashed task(s) that will NOT be requeued: ${crashedTaskIds.join(', ')}`
+      `⚠️  Worker starting with ${
+        crashedTaskIds.length
+      } crashed task(s) that will NOT be requeued: ${crashedTaskIds.join(', ')}`
     );
 
     // Report to Sentry for monitoring
@@ -78,35 +96,26 @@ export async function start(context: WorkerContext): Promise<void> {
     );
   }
 
-  const requeuedTasks = await store.requeueGracefullyInterruptedBackgroundTasks();
-  if (requeuedTasks.length > 0) {
-    const requeuedTaskIds = requeuedTasks.map((task) => task.id);
+  const requeuedTaskIds =
+    await store.requeueGracefullyInterruptedBackgroundTasks();
+  if (requeuedTaskIds.length > 0) {
     console.log(
-      `🔄 Requeued ${requeuedTaskIds.length} gracefully interrupted task(s): ${requeuedTaskIds.join(', ')}`
+      `🔄 Requeued ${
+        requeuedTaskIds.length
+      } gracefully interrupted task(s): ${requeuedTaskIds.join(', ')}`
     );
   }
 
-  process.on('SIGTERM', async () => {
-    console.log('Received SIGTERM, marking graceful shutdown...');
-    try {
-      if (currentTaskId) {
-        await store.markTaskAsGracefullyInterrupted(currentTaskId);
-        console.log(`Marked task ${currentTaskId} as gracefully interrupted`);
-      }
-      console.log('Graceful shutdown complete, exiting...');
-    } catch (error) {
-      console.error('Error during graceful shutdown:', error);
-    }
-    process.exit(0);
-  });
+  process.on('SIGTERM', handleSigterm);
 
   process.nextTick(async () => {
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
+    while (!options?.signal?.aborted) {
       const { wasTaskProcessed } = await processNextBackgroundTaskIfAny(
         context,
         // eslint-disable-next-line no-loop-func
-        (taskId) => { currentTaskId = taskId; }
+        (taskId) => {
+          currentTaskId = taskId;
+        }
       );
       if (!wasTaskProcessed) {
         await sleep(1000);
@@ -114,5 +123,7 @@ export async function start(context: WorkerContext): Promise<void> {
         currentTaskId = undefined;
       }
     }
+
+    process.off('SIGTERM', handleSigterm);
   });
 }
