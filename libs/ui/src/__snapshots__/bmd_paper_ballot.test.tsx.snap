@@ -88,6 +88,14 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                     </span>
                   </strong>
                 </div>
+                <div>
+                  <div>
+                    Election
+                  </div>
+                  <strong>
+                    e6cf543
+                  </strong>
+                </div>
               </div>
             </div>
             <div
@@ -459,6 +467,14 @@ House Bill 1796 - Flag Referendum
                   <span>
                     English
                   </span>
+                </strong>
+              </div>
+              <div>
+                <div>
+                  Election
+                </div>
+                <strong>
+                  e6cf543
                 </strong>
               </div>
             </div>
