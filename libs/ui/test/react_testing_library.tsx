@@ -1,5 +1,6 @@
+import { onTestFinished } from 'vitest';
 import {
-  renderWithThemes,
+  makeRender,
   VxRenderOptions,
   VxRenderResult,
   vxTestingLibraryScreen,
@@ -10,7 +11,7 @@ import {
 // with customized VX utils and types, as recommended at
 // https://testing-library.com/docs/react-testing-library/setup/#custom-render
 export * from '@testing-library/react';
-export { renderWithThemes as render };
+export const render = makeRender(onTestFinished);
 export { vxTestingLibraryScreen as screen };
 export { vxTestingLibraryWithinFn as within };
 export type { VxRenderOptions as RenderOptions };
