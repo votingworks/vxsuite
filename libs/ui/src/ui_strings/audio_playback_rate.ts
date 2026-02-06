@@ -1,4 +1,6 @@
-/*
+/**
+ * ## Screen reader rate-of-speech settings.
+ *
  * [VVSG 2.0 7.1-K – Audio settings]
  *
  * 4. The rate of speech is adjustable throughout the voting session while
@@ -11,21 +13,36 @@
  *
  * 7. Adjusting the rate of speech does not affect the pitch of the voice.
  */
+export enum PlaybackRate {
+  /**
+   * Minimum allowed playback rate (50%), as prescribed in VVSG 2.0 7.1-K.
+   */
+  MINIMUM = 0.5,
+  PERCENT_75 = 0.75,
+  /**
+   * Default playback rate, assuming a synthesized speech rate of 120-125 wpm,
+   * as prescribed in VVSG 2.0 7.1-K.
+   */
+  PERCENT_100 = 1,
+  PERCENT_125 = 1.25,
+  PERCENT_150 = 1.5,
+  PERCENT_175 = 1.75,
+  /**
+   * Maximum allowed playback rate (200%), as prescribed in VVSG 2.0 7.1-K.
+   */
+  MAXIMUM = 2,
+}
 
-/** Minimum allowed playback rate (50%), as prescribed in VVSG 2.0 7.1-K. */
-export const MIN_PLAYBACK_RATE = 0.5;
+export const PLAYBACK_RATES = [
+  PlaybackRate.MINIMUM,
+  PlaybackRate.PERCENT_75,
+  PlaybackRate.PERCENT_100,
+  PlaybackRate.PERCENT_125,
+  PlaybackRate.PERCENT_150,
+  PlaybackRate.PERCENT_175,
+  PlaybackRate.MAXIMUM,
+] as const;
 
-/**
- * Default playback rate, assuming a synthesized speech rate of 120-125 wpm, as
- * prescribed in VVSG 2.0 7.1-K.
- */
-export const DEFAULT_PLAYBACK_RATE = 1;
-
-/** Maximum allowed playback rate (200%), as prescribed in VVSG 2.0 7.1-K. */
-export const MAX_PLAYBACK_RATE = 2;
-
-/**
- * Amount by which the rate is changed when increasing/decreasing playback rate.
- * This should be assigned a value that allows for 6-8 rate settings, per VVSG.
- */
-export const PLAYBACK_RATE_INCREMENT_AMOUNT = 0.25;
+export const DEFAULT_PLAYBACK_RATE = PlaybackRate.PERCENT_100;
+export const MAX_PLAYBACK_RATE = PLAYBACK_RATES.at(-1);
+export const MIN_PLAYBACK_RATE = PLAYBACK_RATES[0];

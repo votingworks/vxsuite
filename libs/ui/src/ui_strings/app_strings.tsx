@@ -1,6 +1,9 @@
 /* eslint-disable react/no-unescaped-entities */
 
+import React from 'react';
 import { Font } from '../typography';
+import { PlaybackRate } from './audio_playback_rate';
+import { AudioVolume } from './audio_volume';
 import { UiString } from './ui_string';
 
 // TODO(kofi): Add lint rule to ensure object keys match uiStringKey props.
@@ -123,16 +126,6 @@ export const appStrings = {
     <UiString uiStringKey="buttonDecrease">Decrease</UiString>
   ),
 
-  buttonDecreaseSpeechRate: () => (
-    <UiString uiStringKey="buttonDecreaseSpeechRate">
-      Decrease Rate of Speech
-    </UiString>
-  ),
-
-  buttonDecreaseVolume: () => (
-    <UiString uiStringKey="buttonDecreaseVolume">Decrease Volume</UiString>
-  ),
-
   buttonDone: () => <UiString uiStringKey="buttonDone">Done</UiString>,
 
   buttonEnableAudioOnlyMode: () => (
@@ -151,16 +144,6 @@ export const appStrings = {
 
   buttonIncrease: () => (
     <UiString uiStringKey="buttonIncrease">Increase</UiString>
-  ),
-
-  buttonIncreaseSpeechRate: () => (
-    <UiString uiStringKey="buttonIncreaseSpeechRate">
-      Increase Rate of Speech
-    </UiString>
-  ),
-
-  buttonIncreaseVolume: () => (
-    <UiString uiStringKey="buttonIncreaseVolume">Increase Volume</UiString>
   ),
 
   buttonMore: () => <UiString uiStringKey="buttonMore">More</UiString>,
@@ -702,6 +685,24 @@ export const appStrings = {
     </UiString>
   ),
 
+  label75Percent: () => <UiString uiStringKey="label75Percent">75%</UiString>,
+
+  label100Percent: () => (
+    <UiString uiStringKey="label100Percent">100%</UiString>
+  ),
+
+  label125Percent: () => (
+    <UiString uiStringKey="label125Percent">125%</UiString>
+  ),
+
+  label150Percent: () => (
+    <UiString uiStringKey="label150Percent">150%</UiString>
+  ),
+
+  label175Percent: () => (
+    <UiString uiStringKey="label175Percent">175%</UiString>
+  ),
+
   labelAllPrecinctsSelection: () => (
     <UiString uiStringKey="labelAllPrecinctsSelection">All Precincts</UiString>
   ),
@@ -830,6 +831,10 @@ export const appStrings = {
   labelKeyboardSpaceBar: () => (
     <UiString uiStringKey="labelKeyboardSpaceBar">space</UiString>
   ),
+
+  labelMaximum: () => <UiString uiStringKey="labelMaximum">Maximum</UiString>,
+
+  labelMinimum: () => <UiString uiStringKey="labelMinimum">Minimum</UiString>,
 
   labelNumBallotContests: () => (
     <UiString uiStringKey="labelNumBallotContests">
@@ -2100,3 +2105,40 @@ export const appStrings = {
 } as const;
 
 export type AppStringKey = keyof typeof appStrings;
+
+export const RATE_CHANGE_FEEDBACK_STRING_KEYS: Readonly<
+  Record<PlaybackRate, AppStringKey>
+> = {
+  [PlaybackRate.MINIMUM]: 'labelMinimum',
+  [PlaybackRate.PERCENT_75]: 'label75Percent',
+  [PlaybackRate.PERCENT_100]: 'label100Percent',
+  [PlaybackRate.PERCENT_125]: 'label125Percent',
+  [PlaybackRate.PERCENT_150]: 'label150Percent',
+  [PlaybackRate.PERCENT_175]: 'label175Percent',
+  [PlaybackRate.MAXIMUM]: 'labelMaximum',
+};
+
+export function rateChangeFeedbackString(rate: PlaybackRate): JSX.Element {
+  const key = RATE_CHANGE_FEEDBACK_STRING_KEYS[rate];
+  return (
+    <React.Fragment>
+      {appStrings.labelRateOfSpeech()} {appStrings[key]()}
+    </React.Fragment>
+  );
+}
+
+export const VOLUME_CHANGE_FEEDBACK_STRING_KEYS: Readonly<
+  Record<AudioVolume, AppStringKey>
+> = {
+  [AudioVolume.MINIMUM]: 'audioFeedbackMinimumVolume',
+  [AudioVolume.TEN_PERCENT]: 'audioFeedback10PercentVolume',
+  [AudioVolume.TWENTY_PERCENT]: 'audioFeedback20PercentVolume',
+  [AudioVolume.THIRTY_PERCENT]: 'audioFeedback30PercentVolume',
+  [AudioVolume.FORTY_PERCENT]: 'audioFeedback40PercentVolume',
+  [AudioVolume.FIFTY_PERCENT]: 'audioFeedback50PercentVolume',
+  [AudioVolume.SIXTY_PERCENT]: 'audioFeedback60PercentVolume',
+  [AudioVolume.SEVENTY_PERCENT]: 'audioFeedback70PercentVolume',
+  [AudioVolume.EIGHTY_PERCENT]: 'audioFeedback80PercentVolume',
+  [AudioVolume.NINETY_PERCENT]: 'audioFeedback90PercentVolume',
+  [AudioVolume.MAXIMUM]: 'audioFeedbackMaximumVolume',
+};
