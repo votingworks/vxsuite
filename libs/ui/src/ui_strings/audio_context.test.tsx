@@ -14,9 +14,8 @@ import {
 } from './audio_volume';
 import {
   DEFAULT_PLAYBACK_RATE,
-  MAX_PLAYBACK_RATE,
-  MIN_PLAYBACK_RATE,
   PLAYBACK_RATES,
+  PlaybackRate,
 } from './audio_playback_rate';
 import { newTestContext } from '../../test/test_context';
 
@@ -127,10 +126,10 @@ describe('playback rate API', () => {
     }
 
     // Try increasing the rate well past the maximum:
-    expect(result.current?.playbackRate).toEqual(MAX_PLAYBACK_RATE);
+    expect(result.current?.playbackRate).toEqual(PlaybackRate.MAXIMUM);
     act(() => result.current?.increasePlaybackRate());
     act(() => result.current?.increasePlaybackRate());
-    expect(result.current?.playbackRate).toEqual(MAX_PLAYBACK_RATE);
+    expect(result.current?.playbackRate).toEqual(PlaybackRate.MAXIMUM);
   });
 
   test('decreasePlaybackRate', () => {
@@ -144,10 +143,10 @@ describe('playback rate API', () => {
     }
 
     // Try decreasing the rate well past the minimum:
-    expect(result.current?.playbackRate).toEqual(MIN_PLAYBACK_RATE);
+    expect(result.current?.playbackRate).toEqual(PlaybackRate.MINIMUM);
     act(() => result.current?.decreasePlaybackRate());
     act(() => result.current?.decreasePlaybackRate());
-    expect(result.current?.playbackRate).toEqual(MIN_PLAYBACK_RATE);
+    expect(result.current?.playbackRate).toEqual(PlaybackRate.MINIMUM);
   });
 });
 

@@ -44,5 +44,3 @@ export const PLAYBACK_RATES = [
 ] as const;
 
 export const DEFAULT_PLAYBACK_RATE = PlaybackRate.PERCENT_100;
-export const MAX_PLAYBACK_RATE = PLAYBACK_RATES.at(-1);
-export const MIN_PLAYBACK_RATE = PLAYBACK_RATES[0];
