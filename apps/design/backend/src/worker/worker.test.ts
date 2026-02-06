@@ -119,7 +119,6 @@ describe('start', () => {
     const abortController = new AbortController();
     const context = createMockContext();
 
-    // Create a gracefully interrupted task
     const interruptedTaskId = await store.createBackgroundTask(
       'generate_election_package',
       {}
@@ -134,7 +133,6 @@ describe('start', () => {
     await start(context, { signal: abortController.signal });
     abortController.abort();
 
-    // Verify the interrupted task was requeued (started_at and interrupted_at cleared)
     const task = await store.getBackgroundTask(interruptedTaskId);
     expect(task?.startedAt).toBeUndefined();
     expect(task?.interruptedAt).toBeUndefined();
@@ -146,7 +144,6 @@ describe('start', () => {
     const abortController = new AbortController();
     const context = createMockContext();
 
-    // Create two crashed tasks (started but not completed, no interrupted_at)
     const crashed1Id = await store.createBackgroundTask(
       'generate_election_package',
       {}
@@ -167,7 +164,6 @@ describe('start', () => {
     await start(context, { signal: abortController.signal });
     abortController.abort();
 
-    // Should have logged warning about crashed tasks
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       expect.stringContaining('crashed task(s) that will NOT be requeued')
     );
@@ -178,7 +174,6 @@ describe('start', () => {
       expect.stringContaining(crashed2Id)
     );
 
-    // Verify the tasks were marked as failed in the DB
     const task1 = await store.getBackgroundTask(crashed1Id);
     expect(task1?.error).toEqual('Task crashed and was marked as failed');
     expect(task1?.completedAt).toBeDefined();
@@ -191,11 +186,84 @@ describe('start', () => {
     consoleLogSpy.mockRestore();
   });
 
+  test('SIGTERM marks the current task as gracefully interrupted', async () => {
+    const abortController = new AbortController();
+    const context = createMockContext();
+
+    const taskId = await store.createBackgroundTask(
+      'generate_election_package',
+      {}
+    );
+
+    let resolveTask!: () => void;
+    const taskPickedUpPromise = new Promise<void>((resolve) => {
+      processBackgroundTaskMock.mockImplementation(
+        () =>
+          new Promise<void>((resolveInner) => {
+            resolve();
+            resolveTask = resolveInner;
+          })
+      );
+    });
+
+    const exitPromise = new Promise<void>((resolve) => {
+      vi.spyOn(process, 'exit').mockImplementation((() => {
+        resolve();
+      }) as typeof process.exit);
+    });
+
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    await start(context, { signal: abortController.signal });
+
+    await taskPickedUpPromise;
+    process.emit('SIGTERM');
+    await exitPromise;
+
+    const task = await store.getBackgroundTask(taskId);
+    expect(task?.interruptedAt).toBeDefined();
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Received SIGTERM')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining(`Marked task ${taskId} as gracefully interrupted`)
+    );
+    expect(process.exit).toHaveBeenCalledWith(0);
+
+    abortController.abort();
+    resolveTask();
+  });
+
+  test('SIGTERM exits gracefully when no task is in progress', async () => {
+    const abortController = new AbortController();
+    const context = createMockContext();
+
+    vi.spyOn(process, 'exit').mockImplementation((() => {}) as typeof process.exit);
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    await start(context, { signal: abortController.signal });
+
+    process.emit('SIGTERM');
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Received SIGTERM')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Graceful shutdown complete')
+    );
+    expect(consoleSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('Marked task')
+    );
+    expect(process.exit).toHaveBeenCalledWith(0);
+
+    abortController.abort();
+  });
+
   test('logs when requeuing gracefully interrupted tasks', async () => {
     const abortController = new AbortController();
     const context = createMockContext();
 
-    // Create a gracefully interrupted task
     const gracefulTaskId = await store.createBackgroundTask(
       'generate_election_package',
       {}
@@ -210,7 +278,6 @@ describe('start', () => {
     await start(context, { signal: abortController.signal });
     abortController.abort();
 
-    // Should have logged info about requeued tasks
     expect(consoleLogSpy).toHaveBeenCalledWith(
       expect.stringContaining('Requeued 1 gracefully interrupted task(s)')
     );
