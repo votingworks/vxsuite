@@ -406,31 +406,22 @@ test('graceful interruption - mark and requeue tasks', async () => {
     somePayload: 2,
   });
 
-  // Start only task1
   await store.startBackgroundTask(task1Id);
-
-  // Mark task1 as gracefully interrupted
   await store.markTaskAsGracefullyInterrupted(task1Id);
 
-  // Verify interruptedAt is set on task1
   let task1 = assertDefined(await store.getBackgroundTask(task1Id));
   const task2 = assertDefined(await store.getBackgroundTask(task2Id));
 
   expect(task1.interruptedAt).toBeInstanceOf(Date);
   expect(task2.interruptedAt).toBeUndefined();
 
-  // Check interrupted tasks
-  const interrupted = await store.getInterruptedBackgroundTasks();
-  expect(interrupted.graceful).toHaveLength(1);
-  expect(interrupted.graceful[0].id).toEqual(task1Id);
-  expect(interrupted.nonGraceful).toHaveLength(0);
+  const crashedTasks = await store.getCrashedBackgroundTasks();
+  expect(crashedTasks).toHaveLength(0);
 
-  // Requeue only gracefully interrupted tasks
   const requeuedTasks = await store.requeueGracefullyInterruptedBackgroundTasks();
   expect(requeuedTasks).toHaveLength(1);
   expect(requeuedTasks[0].id).toEqual(task1Id);
 
-  // task1 should be requeued (started_at cleared, interrupted_at cleared)
   task1 = assertDefined(await store.getBackgroundTask(task1Id));
   expect(task1.startedAt).toBeUndefined();
   expect(task1.interruptedAt).toBeUndefined();

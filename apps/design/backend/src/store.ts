@@ -2577,23 +2577,16 @@ export class Store {
   }
 
   /**
-   * Gets interrupted background tasks (started but not completed).
-   * Returns both gracefully and non-gracefully interrupted tasks.
+   * Gets interrupted background tasks (started but not completed)
+   * that were non-gracefully interrupted.
    */
-  async getInterruptedBackgroundTasks(): Promise<{
-    graceful: BackgroundTask[];
-    nonGraceful: BackgroundTask[];
-  }> {
+  async getCrashedBackgroundTasks(): Promise<BackgroundTask[]> {
     return this.db.withClient(async (client) => {
-      const res = await client.query(
+      const { rows } = await client.query(
         `${getBackgroundTasksBaseQuery}
-         where started_at is not null and completed_at is null`
+         where started_at is not null and completed_at is null and interrupted_at is null`
       );
-      const allInterrupted = res.rows.map(backgroundTaskRowToBackgroundTask);
-      return {
-        graceful: allInterrupted.filter((task) => task.interruptedAt),
-        nonGraceful: allInterrupted.filter((task) => !task.interruptedAt),
-      };
+      return rows.map(backgroundTaskRowToBackgroundTask);
     });
   }
 

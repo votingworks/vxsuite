@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { assertDefined, extractErrorMessage, sleep } from '@votingworks/basics';
 import * as Sentry from '@sentry/node';
 
@@ -18,7 +20,6 @@ export async function processNextBackgroundTaskIfAny(
 
   onTaskStarted?.(nextTask.id);
 
-  /* eslint-disable no-console */
   await store.startBackgroundTask(nextTask.id);
   console.log(`⏳ Processing background task ${nextTask.id}...`);
   try {
@@ -44,7 +45,6 @@ export async function processNextBackgroundTaskIfAny(
     `✅ Finished processing background task ${nextTask.id} (${durationSeconds}s)`
   );
   return { wasTaskProcessed: true };
-  /* eslint-enable no-console */
 }
 
 /**
@@ -54,17 +54,14 @@ export async function processNextBackgroundTaskIfAny(
 export async function start(context: WorkerContext): Promise<void> {
   const { store } = context.workspace;
 
-  /* eslint-disable no-console */
 
   // Track the currently running task for graceful shutdown
   let currentTaskId: string | undefined;
 
-  // Check for interrupted tasks on startup
-  const interruptedTasks = await store.getInterruptedBackgroundTasks();
+  const crashedTasks = await store.getCrashedBackgroundTasks();
 
-  // Log and report any tasks that were killed non-gracefully (crashed)
-  if (interruptedTasks.nonGraceful.length > 0) {
-    const crashedTaskIds = interruptedTasks.nonGraceful.map((task) => task.id);
+  if (crashedTasks.length > 0) {
+    const crashedTaskIds = crashedTasks.map((task) => task.id);
     console.warn(
       `⚠️  Worker starting with ${crashedTaskIds.length} crashed task(s) that will NOT be requeued: ${crashedTaskIds.join(', ')}`
     );
@@ -74,23 +71,13 @@ export async function start(context: WorkerContext): Promise<void> {
       `Background worker found ${crashedTaskIds.length} crashed task(s) on startup`,
       {
         level: 'warning',
-        tags: {
-          component: 'background-worker',
-          event: 'crashed-tasks-detected',
-        },
         extra: {
           crashedTaskIds,
-          crashedTasks: interruptedTasks.nonGraceful.map((task) => ({
-            id: task.id,
-            taskName: task.taskName,
-            startedAt: task.startedAt,
-          })),
         },
       }
     );
   }
 
-  // Requeue any tasks that were interrupted due to graceful shutdown
   const requeuedTasks = await store.requeueGracefullyInterruptedBackgroundTasks();
   if (requeuedTasks.length > 0) {
     const requeuedTaskIds = requeuedTasks.map((task) => task.id);
@@ -99,7 +86,6 @@ export async function start(context: WorkerContext): Promise<void> {
     );
   }
 
-  // Set up SIGTERM handler to mark graceful shutdown
   process.on('SIGTERM', async () => {
     console.log('Received SIGTERM, marking graceful shutdown...');
     try {
@@ -113,8 +99,6 @@ export async function start(context: WorkerContext): Promise<void> {
     }
     process.exit(0);
   });
-
-  /* eslint-enable no-console */
 
   process.nextTick(async () => {
     // eslint-disable-next-line no-constant-condition
