@@ -3,9 +3,11 @@ import { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import userEvent from '@testing-library/user-event';
 import { mockUseAudioControls } from '@votingworks/test-utils';
+import { assertDefined } from '@votingworks/basics';
 import { act, screen, waitFor } from '../../test/react_testing_library';
 import { AudioSettings } from './audio_settings';
 import { newTestContext } from '../../test/test_context';
+import { AudioVolume } from '../ui_strings/audio_volume';
 
 const MOCK_TOGGLE_AUDIO_BUTTON_TEST_ID = 'mockToggleAudioButton';
 
@@ -73,18 +75,37 @@ test('visual mode is disabled when button is pressed', async () => {
 });
 
 describe('volume controls', () => {
-  test('renders increase/decrease controls', async () => {
+  test('renders current volume level', async () => {
+    const { getAudioContext, render } = newTestContext();
+
+    render(<AudioSettings onEnterAudioOnlyMode={vi.fn()} />);
+    await screen.findByText(/volume:/i);
+
+    screen.getButton(/50% volume.+increase.+volume/i);
+    screen.getButton(/50% volume.+decrease.+volume/i);
+
+    const ctx = assertDefined(getAudioContext());
+    act(() => ctx.setVolume(AudioVolume.MAXIMUM));
+    screen.getButton(/maximum volume.+increase.+volume/i);
+    screen.getButton(/maximum volume.+decrease.+volume/i);
+  });
+
+  test('updates audio context', async () => {
     const { render } = newTestContext();
 
     render(<AudioSettings onEnterAudioOnlyMode={vi.fn()} />);
     await screen.findByText(/volume:/i);
 
-    userEvent.click(screen.getButton(/increase.+volume/i));
-    userEvent.click(screen.getButton(/increase.+volume/i));
+    const btnIncrease = screen.getButton(/50% volume.+increase.+volume/i);
+    expect(mockAudioControls.increaseVolume).not.toHaveBeenCalled();
+    userEvent.click(btnIncrease);
+    userEvent.click(btnIncrease);
     expect(mockAudioControls.increaseVolume).toHaveBeenCalledTimes(2);
 
-    userEvent.click(screen.getButton(/decrease.+volume/i));
-    userEvent.click(screen.getButton(/decrease.+volume/i));
+    const btnDecrease = screen.getButton(/50% volume.+decrease.+volume/i);
+    expect(mockAudioControls.decreaseVolume).not.toHaveBeenCalled();
+    userEvent.click(btnDecrease);
+    userEvent.click(btnDecrease);
     expect(mockAudioControls.decreaseVolume).toHaveBeenCalledTimes(2);
   });
 
@@ -102,18 +123,37 @@ describe('volume controls', () => {
 });
 
 describe('rate controls', () => {
-  test('renders increase/decrease controls', async () => {
+  test('renders current speech rate', async () => {
+    const { getAudioContext, render } = newTestContext();
+
+    render(<AudioSettings onEnterAudioOnlyMode={vi.fn()} />);
+    await screen.findAllByText(/rate of speech:/i);
+
+    screen.getButton(/rate.+100%.+increase.+rate/i);
+    screen.getButton(/rate.+100%.+decrease.+rate/i);
+
+    const ctx = assertDefined(getAudioContext());
+    act(() => ctx.increasePlaybackRate());
+    screen.getButton(/rate.+125%.+increase.+rate/i);
+    screen.getButton(/rate.+125%.+decrease.+rate/i);
+  });
+
+  test('updates audio context', async () => {
     const { render } = newTestContext();
 
     render(<AudioSettings onEnterAudioOnlyMode={vi.fn()} />);
     await screen.findAllByText(/rate of speech:/i);
 
-    userEvent.click(screen.getButton(/increase.+rate/i));
-    userEvent.click(screen.getButton(/increase.+rate/i));
+    const btnIncrease = screen.getButton(/rate.+100%.+increase.+rate/i);
+    expect(mockAudioControls.increasePlaybackRate).not.toHaveBeenCalled();
+    userEvent.click(btnIncrease);
+    userEvent.click(btnIncrease);
     expect(mockAudioControls.increasePlaybackRate).toHaveBeenCalledTimes(2);
 
-    userEvent.click(screen.getButton(/decrease.+rate/i));
-    userEvent.click(screen.getButton(/decrease.+rate/i));
+    const btnDecrease = screen.getButton(/rate.+100%.+decrease.+rate/i);
+    expect(mockAudioControls.decreasePlaybackRate).not.toHaveBeenCalled();
+    userEvent.click(btnDecrease);
+    userEvent.click(btnDecrease);
     expect(mockAudioControls.decreasePlaybackRate).toHaveBeenCalledTimes(2);
   });
 
