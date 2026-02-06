@@ -2462,7 +2462,7 @@ test('Finalize ballots - DEMO state', async () => {
     electionSerializationFormat: 'vxf',
   });
 
-  await apiClient.unfinalizeBallots({ electionId });
+  await apiClient.unfinalizeBallots({ electionId, reason: '' });
 
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
 
@@ -2475,9 +2475,9 @@ test('Finalize ballots - DEMO state', async () => {
     await expect(apiClient.finalizeBallots({ electionId })).rejects.toThrow(
       'auth:forbidden'
     );
-    await expect(apiClient.unfinalizeBallots({ electionId })).rejects.toThrow(
-      'auth:forbidden'
-    );
+    await expect(
+      apiClient.unfinalizeBallots({ electionId, reason: '' })
+    ).rejects.toThrow('auth:forbidden');
   });
 });
 
@@ -2563,7 +2563,7 @@ test('approve ballots', async () => {
     expect(await apiClient.getBallotsApprovedAt({ electionId })).toEqual(now);
   }
 
-  await apiClient.unfinalizeBallots({ electionId });
+  await apiClient.unfinalizeBallots({ electionId, reason: '' });
   expect(await apiClient.getBallotsApprovedAt({ electionId })).toEqual(null);
 
   // Check permissions:

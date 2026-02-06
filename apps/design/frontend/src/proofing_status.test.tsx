@@ -11,7 +11,7 @@ import {
   createMockApiClient,
   MockApiClient,
 } from '../test/api_helpers';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { ProofingStatus } from './proofing_status';
@@ -251,12 +251,34 @@ test('unfinalize button action', async () => {
   await screen.findByText('Proofing Status');
   api.assertComplete();
 
-  api.unfinalizeBallots.expectCallWith({ electionId }).resolves();
+  api.unfinalizeBallots
+    .expectCallWith({ electionId, reason: 'A reason' })
+    .resolves();
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockLatestQaRun(api, undefined);
 
+  // Begin to unfinalize but cancel
   userEvent.click(screen.getButton(/unfinalize/i));
+  let modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Unfinalize Ballots' });
+  const cancelButton = within(modal).getByRole('button', { name: /cancel/i });
+  userEvent.click(cancelButton);
+  await waitFor(() => expect(modal).not.toBeInTheDocument());
+
+  // Fully unfinalize
+  userEvent.click(screen.getButton(/unfinalize/i));
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Unfinalize Ballots' });
+  const confirmButton = within(modal).getByRole('button', {
+    name: /unfinalize ballots/i,
+  });
+  expect(confirmButton).toBeDisabled();
+  userEvent.type(within(modal).getByLabelText('Reason'), 'A reason');
+  expect(confirmButton).toBeEnabled();
+  userEvent.click(confirmButton);
+  await waitFor(() => expect(modal).not.toBeInTheDocument());
+  await screen.findByText('Ballots not finalized');
 
   await sleep(0); // Give cascading queries a chance to settle.
   api.assertComplete();
@@ -528,16 +550,15 @@ function mockTestDecks(api: MockApiClient, task?: Partial<BackgroundTask>) {
 
 function mockLatestQaRun(api: MockApiClient, qaRun?: Partial<ExportQaRun>) {
   api.getLatestExportQaRun.expectCallWith({ electionId }).resolves(
-    qaRun
-      && {
-          id: 'qa-run-1',
-          electionId,
-          exportPackageUrl: 'https://example.com/package.zip',
-          status: 'pending',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          ...qaRun,
-        }
+    qaRun && {
+      id: 'qa-run-1',
+      electionId,
+      exportPackageUrl: 'https://example.com/package.zip',
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...qaRun,
+    }
   );
 }
 

@@ -688,7 +688,7 @@ export function buildApi(ctx: AppContext) {
     },
 
     async unfinalizeBallots(
-      input: { electionId: ElectionId },
+      input: { electionId: ElectionId; reason: string },
       { user }: ApiContext
     ): Promise<void> {
       await store.setBallotsApprovedAt({
@@ -705,6 +705,7 @@ export function buildApi(ctx: AppContext) {
         userName: user.name,
         userType: user.type,
         electionId: input.electionId,
+        reason: input.reason,
       });
     },
 

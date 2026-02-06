@@ -20,6 +20,7 @@ interface FinalizeBallot extends UserContext, ElectionContext {
 
 interface UnfinalizeBallot extends UserContext, ElectionContext {
   type: 'unfinalize_ballot';
+  reason: string;
 }
 
 interface ApproveBallot extends UserContext, ElectionContext {
@@ -60,19 +61,22 @@ export async function logActivity(
   )}`;
   const electionUrl = `${baseUrl()}/elections/${election.id}`;
 
+  const contextElements = [
+    markdown(`:round_pushpin: ${jurisdiction.name}`),
+    markdown(`:ballot_box_with_ballot: <${electionUrl}|${electionString}>`),
+    markdown(`:technologist: ${userString}`),
+  ];
+  if (type === 'unfinalize_ballot') {
+    contextElements.push(markdown(`:memo: Reason: ${activity.reason}`));
+  }
+
   const formattedMessage = {
     text: message,
     blocks: [
       { type: 'section', text: markdown(`*${message}*`) },
       {
         type: 'context',
-        elements: [
-          markdown(`:round_pushpin: ${jurisdiction.name}`),
-          markdown(
-            `:ballot_box_with_ballot: <${electionUrl}|${electionString}>`
-          ),
-          markdown(`:technologist: ${userString}`),
-        ],
+        elements: contextElements,
       },
     ],
   } as const;
