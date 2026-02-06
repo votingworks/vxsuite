@@ -7,7 +7,9 @@ import {
   MachineModeCardTouch,
 } from './machine_mode_card';
 
-function TestModeCalloutTouch({
+const EARLY_VOTING_PURPLE = TouchscreenPalette.Purple80;
+
+function EarlyVotingCalloutTouch({
   style,
 }: {
   style?: React.CSSProperties;
@@ -24,37 +26,32 @@ function TestModeCalloutTouch({
           })
         }
       >
-        <MachineModeCardTouch
-          style={style}
-          borderColor={TouchscreenPalette.Orange50}
-        >
-          <Icons.Warning
+        <MachineModeCardTouch style={style} borderColor={EARLY_VOTING_PURPLE}>
+          <Icons.Clock
             style={{
-              // We always want a bright orange, even if the color mode is
-              // different, so we harcode instead of using the theme.
-              color: TouchscreenPalette.Orange50,
+              color: EARLY_VOTING_PURPLE,
             }}
           />{' '}
-          Test Ballot Mode
+          Early Voting
         </MachineModeCardTouch>
       </ThemeProvider>
     </TextOnly>
   );
 }
 
-function TestModeCalloutDesktop({
+function EarlyVotingCalloutDesktop({
   style,
 }: {
   style?: React.CSSProperties;
 }): JSX.Element {
   return (
-    <MachineModeCardDesktop style={style} color="warning">
-      <Icons.Warning color="warning" /> Test Ballot Mode
+    <MachineModeCardDesktop style={style} color="neutral">
+      <Icons.Clock color="neutral" /> Early Voting
     </MachineModeCardDesktop>
   );
 }
 
-export function TestModeCallout({
+export function EarlyVotingCallout({
   viewMode,
   style,
 }: {
@@ -62,8 +59,8 @@ export function TestModeCallout({
   style?: React.CSSProperties;
 }): JSX.Element {
   if (viewMode === 'desktop') {
-    return <TestModeCalloutDesktop style={style} />;
+    return <EarlyVotingCalloutDesktop style={style} />;
   }
 
-  return <TestModeCalloutTouch style={style} />;
+  return <EarlyVotingCalloutTouch style={style} />;
 }
