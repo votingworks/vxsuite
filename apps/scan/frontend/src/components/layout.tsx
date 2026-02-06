@@ -11,6 +11,8 @@ import {
   AudioOnly,
   TestModeCallout,
   VoterHelpButton,
+  EarlyVotingCallout,
+  P,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
@@ -39,6 +41,7 @@ export interface ScreenProps {
   padded?: boolean;
   title?: React.ReactNode;
   showTestModeBanner: boolean;
+  showEarlyVotingNotice: boolean;
   voterFacing: boolean;
   disableSettingsButtons?: boolean;
 }
@@ -91,6 +94,39 @@ const TitleContainer = styled.div`
   min-width: 5rem;
 `;
 
+interface ModeBannerProps {
+  showTestModeBanner: boolean;
+  showEarlyVotingNotice: boolean;
+}
+
+function ModeBanner({
+  showTestModeBanner,
+  showEarlyVotingNotice,
+}: ModeBannerProps): React.ReactElement | null {
+  if (showTestModeBanner && !showEarlyVotingNotice) {
+    return <TestModeCallout viewMode="touch" />;
+  }
+  if (showEarlyVotingNotice && !showTestModeBanner) {
+    return <EarlyVotingCallout viewMode="touch" />;
+  }
+  if (showTestModeBanner && showEarlyVotingNotice) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '1rem',
+        }}
+      >
+        <TestModeCallout viewMode="touch" />
+        <EarlyVotingCallout viewMode="touch" />
+      </div>
+    );
+  }
+
+  return <P>No mode alteration</P>;
+}
+
 export function Screen(props: ScreenProps): JSX.Element | null {
   const {
     actionButtons,
@@ -101,6 +137,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     infoBarMode,
     hideInfoBar: hideInfoBarFromProps,
     showTestModeBanner,
+    showEarlyVotingNotice,
     padded,
     title,
     voterFacing,
@@ -173,14 +210,20 @@ export function Screen(props: ScreenProps): JSX.Element | null {
               />
             )}
           </SettingsButtons>
-          {showTestModeBanner && <TestModeCallout viewMode="touch" />}
+          <ModeBanner
+            showTestModeBanner={showTestModeBanner}
+            showEarlyVotingNotice={showEarlyVotingNotice}
+          />
           {ballotCountElement}
         </HeaderRow>
       )}
       <HeaderRow>
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
-        {!voterFacing && showTestModeBanner && (
-          <TestModeCallout viewMode="touch" />
+        {!voterFacing && (
+          <ModeBanner
+            showTestModeBanner={showTestModeBanner}
+            showEarlyVotingNotice={showEarlyVotingNotice}
+          />
         )}
         {!voterFacing && ballotCountElement}
       </HeaderRow>
