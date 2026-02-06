@@ -693,6 +693,67 @@ test('createTestDecksBackgroundTask clears previous export URL', async () => {
   }
 });
 
+test('uses number-aware sorting on relevant entities', async () => {
+  const { apiClient, auth0, workspace } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+
+  const electionId = 'election-1';
+  void (await apiClient.createElection({
+    id: electionId,
+    jurisdictionId: nonVxJurisdiction.id,
+  }));
+
+  const newDistricts: types.District[] = [
+    { id: 'd100', name: 'district 100' },
+    { id: 'd20', name: 'district 20' },
+    { id: 'd3', name: 'district 3' },
+  ];
+  (
+    await apiClient.updateDistricts({ electionId, newDistricts })
+  ).unsafeUnwrap();
+
+  const precincts: types.Precinct[] = [
+    {
+      id: 'p100',
+      name: 'precinct 100',
+      splits: [
+        { districtIds: [newDistricts[0].id], id: 's100', name: 'split 100' },
+        { districtIds: [newDistricts[1].id], id: 's20', name: 'split 20' },
+      ],
+    },
+    { districtIds: [], id: 'p20', name: 'precinct 20' },
+    { districtIds: [], id: 'p3', name: 'precinct 3' },
+  ];
+  for (const newPrecinct of precincts) {
+    const res = await apiClient.createPrecinct({ electionId, newPrecinct });
+    res.unsafeUnwrap();
+  }
+
+  const { election } = await workspace.store.getElection(electionId);
+
+  expect(election.precincts.map((p) => p.name)).toEqual([
+    'precinct 3',
+    'precinct 20',
+    'precinct 100',
+  ]);
+
+  assert(types.hasSplits(election.precincts[2]));
+  expect(election.precincts[2].splits.map((s) => s.name)).toEqual([
+    'split 20',
+    'split 100',
+  ]);
+
+  expect(election.districts.map((p) => p.name)).toEqual([
+    'district 3',
+    'district 20',
+    'district 100',
+  ]);
+});
+
 test('getExportedElection returns election-out-of-date error when election data fails to parse', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -853,7 +914,9 @@ describe('Export QA run store methods', () => {
     expect(qaRun?.updatedAt).toBeInstanceOf(Date);
 
     // Non-existent QA run returns undefined
-    expect(await workspace.store.getExportQaRun('non-existent')).toBeUndefined();
+    expect(
+      await workspace.store.getExportQaRun('non-existent')
+    ).toBeUndefined();
   });
 
   test('getLatestExportQaRunForElection returns most recent run', async () => {
@@ -882,7 +945,9 @@ describe('Export QA run store methods', () => {
     });
 
     // Small delay so created_at differs
-    await new Promise((resolve) => { setTimeout(resolve, 50); });
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
 
     await workspace.store.createExportQaRun({
       id: 'qa-run-newer',
@@ -890,7 +955,8 @@ describe('Export QA run store methods', () => {
       exportPackageUrl: 'https://example.com/package-new.zip',
     });
 
-    const latest = await workspace.store.getLatestExportQaRunForElection(electionId);
+    const latest =
+      await workspace.store.getLatestExportQaRunForElection(electionId);
     expect(latest).toMatchObject({
       id: 'qa-run-newer',
       exportPackageUrl: 'https://example.com/package-new.zip',
