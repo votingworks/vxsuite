@@ -178,6 +178,7 @@ export function AppRoot(): JSX.Element | null {
     precinctSelection,
     isSoundMuted,
     isContinuousExportEnabled,
+    ballotCastingPeriod,
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
@@ -410,6 +411,7 @@ export function AppRoot(): JSX.Element | null {
         electionDefinition={electionDefinition}
         systemSettings={systemSettings}
         isTestMode={isTestMode}
+        isEarlyVotingMode={ballotCastingPeriod === 'early_voting'}
         isSoundMuted={isSoundMuted}
       />
     </PatDeviceContextProvider>
