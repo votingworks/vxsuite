@@ -358,7 +358,7 @@ const ballotCastingPeriodButtonDisabledTestCases: BallotCastingPeriodTestConfig[
   ];
 
 test.each(ballotCastingPeriodButtonDisabledTestCases)(
-  '"Ballot Casting Period" toggle button whenpollsState=$pollsState -> disabled=$buttonDisabled',
+  '"Ballot Casting Mode" toggle button whenpollsState=$pollsState -> disabled=$buttonDisabled',
   async ({ pollsState, buttonDisabled }) => {
     featureFlagMock.enableFeatureFlag(
       BooleanEnvironmentVariableName.EARLY_VOTING
@@ -366,7 +366,7 @@ test.each(ballotCastingPeriodButtonDisabledTestCases)(
     apiMock.mockApiClient.getPollsInfo.reset();
     apiMock.expectGetPollsInfo(pollsState);
     apiMock.expectGetConfig({
-      ballotCastingPeriod: 'early_voting',
+      ballotCastingMode: 'early_voting',
     });
     renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });
     await screen.findByRole('heading', { name: 'Election Manager Menu' });
