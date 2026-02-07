@@ -298,11 +298,11 @@ export const setTestMode = {
   },
 } as const;
 
-export const setBallotCastingPeriod = {
+export const setBallotCastingMode = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setBallotCastingPeriod, {
+    return useMutation(apiClient.setBallotCastingMode, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
       },

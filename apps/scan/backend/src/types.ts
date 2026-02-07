@@ -41,7 +41,7 @@ export interface PrecinctScannerConfig {
   // "Config" that is specific to each election session
   isTestMode: boolean;
   isContinuousExportEnabled: boolean;
-  ballotCastingPeriod: BallotCastingPeriod;
+  ballotCastingMode: BallotCastingMode;
 }
 
 /**
@@ -86,4 +86,4 @@ export type PrecinctScannerPollsInfo =
       lastPollsTransition: PollsTransition;
     };
 
-export type BallotCastingPeriod = 'early_voting' | 'election_day';
+export type BallotCastingMode = 'early_voting' | 'election_day';

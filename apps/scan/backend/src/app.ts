@@ -45,7 +45,7 @@ import {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
   PrecinctScannerPollsInfo,
-  BallotCastingPeriod,
+  BallotCastingMode,
 } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';
@@ -228,7 +228,7 @@ export function buildApi({
         precinctSelection: store.getPrecinctSelection(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
-        ballotCastingPeriod: store.getBallotCastingPeriod(),
+        ballotCastingMode: store.getBallotCastingMode(),
         isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
         isContinuousExportEnabled: store.getIsContinuousExportEnabled(),
       };
@@ -333,23 +333,23 @@ export function buildApi({
       });
     },
 
-    async setBallotCastingPeriod(input: {
-      ballotCastingPeriod: BallotCastingPeriod;
+    async setBallotCastingMode(input: {
+      ballotCastingMode: BallotCastingMode;
     }): Promise<Result<void, Error>> {
       const pollsState = store.getPollsState();
       if (pollsState === 'polls_open' || pollsState === 'polls_closed_final') {
-        const message = `Couldn't set ballot casting period because polls are in state: ${pollsState}`;
-        await logger.logAsCurrentRole(LogEventId.SetBallotCastingPeriod, {
+        const message = `Couldn't set ballot casting mode because polls are in state: ${pollsState}`;
+        await logger.logAsCurrentRole(LogEventId.SetBallotCastingMode, {
           message,
           disposition: 'failure',
         });
         return err(new Error(message));
       }
 
-      store.setBallotCastingPeriod(input.ballotCastingPeriod);
+      store.setBallotCastingMode(input.ballotCastingMode);
 
-      await logger.logAsCurrentRole(LogEventId.SetBallotCastingPeriod, {
-        message: `Successfully set ballot casting period to ${input.ballotCastingPeriod}.`,
+      await logger.logAsCurrentRole(LogEventId.SetBallotCastingMode, {
+        message: `Successfully set ballot casting mode to ${input.ballotCastingMode}.`,
         disposition: 'success',
       });
       return ok();

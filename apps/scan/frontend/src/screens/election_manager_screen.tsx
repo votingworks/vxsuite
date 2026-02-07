@@ -41,7 +41,7 @@ import {
   unconfigureElection,
   beginDoubleFeedCalibration,
   useApiClient,
-  setBallotCastingPeriod,
+  setBallotCastingMode,
 } from '../api';
 import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
 import { DiagnosticsScreen } from './diagnostics_screen';
@@ -86,7 +86,7 @@ export function ElectionManagerScreen({
   const logOutMutation = logOut.useMutation();
   const setIsContinuousExportEnabledMutation =
     setIsContinuousExportEnabled.useMutation();
-  const setBallotCastingPeriodMutation = setBallotCastingPeriod.useMutation();
+  const setBallotCastingModeMutation = setBallotCastingMode.useMutation();
 
   const [isConfirmingBallotModeSwitch, setIsConfirmingBallotModeSwitch] =
     useState(false);
@@ -113,7 +113,7 @@ export function ElectionManagerScreen({
     isDoubleFeedDetectionDisabled,
     isContinuousExportEnabled,
     systemSettings,
-    ballotCastingPeriod,
+    ballotCastingMode,
   } = configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
   const printerStatus = printerStatusQuery.data;
@@ -195,27 +195,27 @@ export function ElectionManagerScreen({
     />
   );
 
-  const ballotCastingPeriodButton = isFeatureFlagEnabled(
+  const ballotCastingModeButton = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.EARLY_VOTING
   ) ? (
     <SegmentedButton
       disabled={
-        setBallotCastingPeriodMutation.isLoading ||
+        setBallotCastingModeMutation.isLoading ||
         disableConfiguration ||
         (pollsState !== 'polls_closed_initial' && pollsState !== 'polls_paused')
       }
-      label="Ballot Casting Period:"
+      label="Ballot Casting Mode:"
       hideLabel
-      onChange={(newBallotCastingPeriod) => {
-        setBallotCastingPeriodMutation.mutate({
-          ballotCastingPeriod: newBallotCastingPeriod,
+      onChange={(newBallotCastingMode) => {
+        setBallotCastingModeMutation.mutate({
+          ballotCastingMode: newBallotCastingMode,
         });
       }}
       options={[
         { id: 'early_voting', label: 'Early Voting' },
         { id: 'election_day', label: 'Election Day' },
       ]}
-      selectedOptionId={ballotCastingPeriod}
+      selectedOptionId={ballotCastingMode}
     />
   ) : /* istanbul ignore next - @preserve */
   null;
@@ -313,7 +313,7 @@ export function ElectionManagerScreen({
           {cvrSyncRequiredWarning}
           {changePrecinctButton}
           {ballotMode}
-          {ballotCastingPeriodButton}
+          {ballotCastingModeButton}
           {unconfigureElectionButton}
         </TabPanel>
       ),
