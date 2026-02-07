@@ -19,7 +19,7 @@ export function InsertBallotScreen({
       ballotCountOverride={scannedBallotCount}
       voterFacing
       showTestModeBanner={isTestMode}
-      showEarlyVotingNotice={isEarlyVotingMode}
+      showEarlyVotingBanner={isEarlyVotingMode}
     >
       <FullScreenPromptLayout
         title={appStrings.titleScannerInsertBallotScreen()}

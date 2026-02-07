@@ -12,7 +12,6 @@ import {
   TestModeCallout,
   VoterHelpButton,
   EarlyVotingCallout,
-  P,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
@@ -41,7 +40,7 @@ export interface ScreenProps {
   padded?: boolean;
   title?: React.ReactNode;
   showTestModeBanner: boolean;
-  showEarlyVotingNotice: boolean;
+  showEarlyVotingBanner: boolean;
   voterFacing: boolean;
   disableSettingsButtons?: boolean;
 }
@@ -96,20 +95,20 @@ const TitleContainer = styled.div`
 
 interface ModeBannerProps {
   showTestModeBanner: boolean;
-  showEarlyVotingNotice: boolean;
+  showEarlyVotingBanner: boolean;
 }
 
 function ModeBanner({
   showTestModeBanner,
-  showEarlyVotingNotice,
+  showEarlyVotingBanner,
 }: ModeBannerProps): React.ReactElement | null {
-  if (showTestModeBanner && !showEarlyVotingNotice) {
+  if (showTestModeBanner && !showEarlyVotingBanner) {
     return <TestModeCallout viewMode="touch" />;
   }
-  if (showEarlyVotingNotice && !showTestModeBanner) {
+  if (showEarlyVotingBanner && !showTestModeBanner) {
     return <EarlyVotingCallout viewMode="touch" />;
   }
-  if (showTestModeBanner && showEarlyVotingNotice) {
+  if (showTestModeBanner && showEarlyVotingBanner) {
     return (
       <div
         style={{
@@ -124,7 +123,7 @@ function ModeBanner({
     );
   }
 
-  return <P>No mode alteration</P>;
+  return null;
 }
 
 export function Screen(props: ScreenProps): JSX.Element | null {
@@ -137,7 +136,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     infoBarMode,
     hideInfoBar: hideInfoBarFromProps,
     showTestModeBanner,
-    showEarlyVotingNotice,
+    showEarlyVotingBanner,
     padded,
     title,
     voterFacing,
@@ -212,7 +211,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
           </SettingsButtons>
           <ModeBanner
             showTestModeBanner={showTestModeBanner}
-            showEarlyVotingNotice={showEarlyVotingNotice}
+            showEarlyVotingBanner={showEarlyVotingBanner}
           />
           {ballotCountElement}
         </HeaderRow>
@@ -222,7 +221,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
         {!voterFacing && (
           <ModeBanner
             showTestModeBanner={showTestModeBanner}
-            showEarlyVotingNotice={showEarlyVotingNotice}
+            showEarlyVotingBanner={showEarlyVotingBanner}
           />
         )}
         {!voterFacing && ballotCountElement}

@@ -199,6 +199,28 @@ function ResumeVotingPromptScreen({
   );
 }
 
+function PauseVotingPromptScreen({
+  onConfirm,
+  onClose,
+}: {
+  onConfirm: () => void;
+  onClose: () => void;
+}): JSX.Element {
+  return (
+    <Screen>
+      <CenteredText>
+        <P>Do you want to pause voting?</P>
+        <P>
+          <Button onPress={onClose}>Menu</Button>{' '}
+          <Button variant="primary" onPress={onConfirm}>
+            Pause Voting
+          </Button>
+        </P>
+      </CenteredText>
+    </Screen>
+  );
+}
+
 function ClosePollsPromptScreen({
   onConfirm,
   onClose,
@@ -347,7 +369,7 @@ function PollWorkerScreenContents({
   const printerStatus = printerStatusQuery.data;
   const printerSummary = getPollsFlowPrinterSummary(printerStatus);
   const { pollsState } = pollsInfo;
-  const { isContinuousExportEnabled } = configQuery.data;
+  const { isContinuousExportEnabled, ballotCastingMode } = configQuery.data;
   const mustInsertUsbDriveToContinue =
     isContinuousExportEnabled && usbDriveStatus.status !== 'mounted';
 
@@ -488,12 +510,20 @@ function PollWorkerScreenContents({
           />
         );
       case 'close-polls-prompt':
+        if (ballotCastingMode === 'election_day') {
+          return (
+            <ClosePollsPromptScreen
+              onConfirm={closePolls}
+              onClose={showAllPollWorkerActions}
+              printerSummary={printerSummary}
+              mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
+            />
+          );
+        }
         return (
-          <ClosePollsPromptScreen
-            onConfirm={closePolls}
+          <PauseVotingPromptScreen
+            onConfirm={pauseVoting}
             onClose={showAllPollWorkerActions}
-            printerSummary={printerSummary}
-            mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
           />
         );
       case 'polls-transitioning':
@@ -650,15 +680,49 @@ function PollWorkerScreenContents({
       case 'polls_open':
         // Do not disable Pausing Voting if shouldAllowTogglingPolls is false as in the unlikely event of an internal connection failure
         // officials may want to pause voting on the machine.
+        if (ballotCastingMode === 'election_day') {
+          return (
+            <Container>
+              <P>
+                The polls are <Font weight="bold">open</Font>. Close the polls
+                to end voting.
+              </P>
+              <ButtonGrid>
+                <Button
+                  variant="primary"
+                  onPress={closePolls}
+                  disabled={
+                    !shouldAllowTogglingPolls(
+                      printerSummary,
+                      mustInsertUsbDriveToContinue
+                    )
+                  }
+                >
+                  Close Polls
+                </Button>
+              </ButtonGrid>
+              <H5>Other Actions</H5>
+              <ButtonGrid>
+                <Button onPress={pauseVoting}>Pause Voting</Button>
+                {commonActions}
+              </ButtonGrid>
+            </Container>
+          );
+        }
+
         return (
           <Container>
             <P>
-              The polls are <Font weight="bold">open</Font>. Close the polls to
-              end voting.
+              The polls are <Font weight="bold">open</Font>.
             </P>
             <ButtonGrid>
+              <Button variant="primary" onPress={pauseVoting}>
+                Pause Voting
+              </Button>
+            </ButtonGrid>
+            <H5>Other Actions</H5>
+            <ButtonGrid>
               <Button
-                variant="primary"
                 onPress={closePolls}
                 disabled={
                   !shouldAllowTogglingPolls(
@@ -669,14 +733,11 @@ function PollWorkerScreenContents({
               >
                 Close Polls
               </Button>
-            </ButtonGrid>
-            <H5>Other Actions</H5>
-            <ButtonGrid>
-              <Button onPress={pauseVoting}>Pause Voting</Button>
               {commonActions}
             </ButtonGrid>
           </Container>
         );
+
       case 'polls_paused':
         return (
           <Container>
@@ -736,6 +797,7 @@ function PollWorkerScreenContents({
       infoBarMode="admin"
       voterFacing={false}
       showTestModeBanner={false}
+      showEarlyVotingBanner={false}
     >
       {content}
     </PlainScreen>
