@@ -658,7 +658,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** Whether election results or scanned ballot data is present in the database at machine startup.
 **Machines:** vx-central-scan, vx-admin
-### set-ballot-casting-period
+### set-ballot-casting-mode
 **Type:** [user-action](#user-action)
-**Description:** A user has changed the ballot casting period.
+**Description:** A user has changed the ballot casting mode.
 **Machines:** vx-scan

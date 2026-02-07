@@ -437,7 +437,7 @@ pub enum EventId {
     PollbookDuplicateCheckInDetected,
     #[serde(rename = "data-check-on-startup")]
     DataCheckOnStartup,
-    #[serde(rename = "set-ballot-casting-period")]
-    SetBallotCastingPeriod,
+    #[serde(rename = "set-ballot-casting-mode")]
+    SetBallotCastingMode,
 }
 derive_display!(EventId);
