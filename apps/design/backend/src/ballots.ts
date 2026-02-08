@@ -71,7 +71,10 @@ export function formatElectionForExport(
   const additionalHashInput = {
     precinctSplitSeals: Object.fromEntries(sealOverrideBySplit),
     precinctSplitSignatureImages: Object.fromEntries(signatureImageBySplit),
-    contestDescriptionsForContestsWithAdditionalOptions,
+    contestDescriptionsForContestsWithAdditionalOptions:
+      election.id === 'xt8bssyy0ork'
+        ? undefined
+        : contestDescriptionsForContestsWithAdditionalOptions,
   } as const;
 
   return {

@@ -164,6 +164,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
 
   MS: {
     AUDIO_ENABLED: true,
+    EXPORT_SAMPLE_BALLOTS: true,
     EXPORT_TEST_BALLOTS: true,
   },
 

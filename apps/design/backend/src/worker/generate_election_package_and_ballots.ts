@@ -48,9 +48,16 @@ import {
   normalizeBallotColorModeForPrinting,
   renderCalibrationSheetPdf,
 } from './ballot_pdfs';
-import { createCircleCiClient, shouldTriggerCircleCi } from '../circleci_client';
+import {
+  createCircleCiClient,
+  shouldTriggerCircleCi,
+} from '../circleci_client';
 import { FileStorageClient } from '../file_storage_client';
-import { baseUrl, circleCiProjectSlug, circleCiWebhookSecret } from '../globals';
+import {
+  baseUrl,
+  circleCiProjectSlug,
+  circleCiWebhookSecret,
+} from '../globals';
 import { Store } from '../store';
 import { rootDebug } from '../debug';
 
@@ -108,10 +115,17 @@ async function triggerCircleCiQaBuild(params: {
   if (fileStorageClient.getSignedUrl) {
     const storageKey = electionPackageUrl.replace(/^\/files\//, '');
     fullExportUrl = await fileStorageClient.getSignedUrl(storageKey);
-    debug('Using presigned S3 URL for export package: electionId=%s', electionId);
+    debug(
+      'Using presigned S3 URL for export package: electionId=%s',
+      electionId
+    );
   } else {
     fullExportUrl = new URL(electionPackageUrl, baseUrl()).toString();
-    debug('Using app URL for export package: electionId=%s, url=%s', electionId, fullExportUrl);
+    debug(
+      'Using app URL for export package: electionId=%s, url=%s',
+      electionId,
+      fullExportUrl
+    );
   }
 
   // Construct the webhook URL
@@ -151,7 +165,8 @@ async function triggerCircleCiQaBuild(params: {
       jobUrl,
     });
 
-    debug('CircleCI QA build triggered successfully: electionId=%s, qaRunId=%s, pipelineId=%s',
+    debug(
+      'CircleCI QA build triggered successfully: electionId=%s, qaRunId=%s, pipelineId=%s',
       electionId,
       qaRunId,
       result.pipelineId
@@ -160,7 +175,8 @@ async function triggerCircleCiQaBuild(params: {
     const message = extractErrorMessage(error);
 
     // Log the error but don't fail the export
-    debug('Error triggering CircleCI QA build: error=%s, electionId=%s',
+    debug(
+      'Error triggering CircleCI QA build: error=%s, electionId=%s',
       message,
       electionId
     );
@@ -234,7 +250,20 @@ export async function generateElectionPackageAndBallots(
     await getAllStringsForElectionPackage(
       election,
       translator,
-      hmpbStringsCatalog,
+      election.id === 'xt8bssyy0ork'
+        ? {
+            ...hmpbStringsCatalog,
+            hmpb2WillBeElected: '2 will be elected',
+            hmpb3WillBeElected: '3 will be elected',
+            hmpb4WillBeElected: '4 will be elected',
+            hmpb5WillBeElected: '5 will be elected',
+            hmpb6WillBeElected: '6 will be elected',
+            hmpb7WillBeElected: '7 will be elected',
+            hmpb8WillBeElected: '8 will be elected',
+            hmpb9WillBeElected: '9 will be elected',
+            hmpb10WillBeElected: '10 will be elected',
+          }
+        : hmpbStringsCatalog,
       ballotLanguageConfigs
     );
 
@@ -436,18 +465,18 @@ export async function generateElectionPackageAndBallots(
 
     shouldExportSampleBallots
       ? writeBallotsZip(ctx, {
-        jurisdictionId,
-        name: `sample-ballots-${ballotHash}.zip`,
-        zip: sampleBallotsZip,
-      })
+          jurisdictionId,
+          name: `sample-ballots-${ballotHash}.zip`,
+          zip: sampleBallotsZip,
+        })
       : undefined,
 
     shouldExportTestBallots
       ? writeBallotsZip(ctx, {
-        jurisdictionId,
-        name: `test-ballots-${ballotHash}.zip`,
-        zip: testBallotsZip,
-      })
+          jurisdictionId,
+          name: `test-ballots-${ballotHash}.zip`,
+          zip: testBallotsZip,
+        })
       : undefined,
   ]);
 

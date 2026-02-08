@@ -64,7 +64,20 @@ export async function generateTestDecks(
   const ballotStrings = await translateBallotStrings(
     translator,
     election,
-    hmpbStringsCatalog,
+    election.id === 'xt8bssyy0ork'
+      ? {
+          ...hmpbStringsCatalog,
+          hmpb2WillBeElected: '2 will be elected',
+          hmpb3WillBeElected: '3 will be elected',
+          hmpb4WillBeElected: '4 will be elected',
+          hmpb5WillBeElected: '5 will be elected',
+          hmpb6WillBeElected: '6 will be elected',
+          hmpb7WillBeElected: '7 will be elected',
+          hmpb8WillBeElected: '8 will be elected',
+          hmpb9WillBeElected: '9 will be elected',
+          hmpb10WillBeElected: '10 will be elected',
+        }
+      : hmpbStringsCatalog,
     ballotLanguageConfigs
   );
   const formattedElection = formatElectionForExport(election, ballotStrings);
