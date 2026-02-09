@@ -4,7 +4,6 @@ import {
   Button,
   Modal,
   ButtonVariant,
-  Icons,
   Font,
   SearchSelect,
 } from '@votingworks/ui';
@@ -145,8 +144,9 @@ export function CloneElectionButton(
             cloneMutation.isLoading ||
             modalActive
           }
+          icon="Copy"
         >
-          <Icons.Copy />
+          Duplicate
         </Button>
       </TooltipContainer>
       {modalActive && (
