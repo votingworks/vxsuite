@@ -23,6 +23,7 @@
     "test": "is-ci test:ci test:watch",
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
+    "test:run": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsgo --build"
   },

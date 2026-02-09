@@ -29,6 +29,8 @@
     "test:ts": "is-ci test:ci test:ts:watch",
     "test:ts:coverage": "vitest --coverage",
     "test:ts:watch": "vitest",
+    "test:ts:run": "vitest run",
+    "test:run": "pnpm test:rust-addon && vitest run",
     "type-check": "tsgo --build"
   },
   "dependencies": {

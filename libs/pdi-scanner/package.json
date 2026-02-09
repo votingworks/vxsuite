@@ -24,9 +24,11 @@
     "pre-commit": "lint-staged",
     "test": "pnpm test:rust-addon && pnpm test:ts",
     "test:ci": "pnpm build && vitest run --coverage",
+    "test:run": "pnpm test:rust-addon && vitest run",
     "test:rust-addon": "cargo test",
     "test:ts": "is-ci test:ci test:ts:watch",
     "test:ts:coverage": "vitest --coverage",
+    "test:ts:run": "vitest run",
     "test:ts:watch": "vitest",
     "type-check": "tsgo --build"
   },

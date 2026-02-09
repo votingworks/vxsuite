@@ -20,8 +20,9 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:coverage": "vitest --coverage",
     "test:ci": "vitest run --coverage",
+    "test:coverage": "vitest --coverage",
+    "test:run": "vitest run",
     "test:watch": "vitest",
     "pre-commit": "lint-staged"
   },

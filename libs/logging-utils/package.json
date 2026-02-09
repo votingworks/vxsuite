@@ -17,6 +17,7 @@
     "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
     "test:ci": "cargo test && vitest",
+    "test:run": "cargo test && vitest run",
     "test:watch": "if which zellij; then zellij -l test/zellij-layout.kdl; else vitest; fi",
     "universal": "napi universal",
     "version": "napi version"
