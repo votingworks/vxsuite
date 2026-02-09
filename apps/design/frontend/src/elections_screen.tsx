@@ -90,9 +90,11 @@ function ElectionsList({
               </LinkCell>
             )}
 
-            <ActionIconButtonCell>
-              <CloneElectionButton election={election} />
-            </ActionIconButtonCell>
+            <td>
+              <Row style={{ justifyContent: 'flex-end' }}>
+                <CloneElectionButton election={election} />
+              </Row>
+            </td>
           </ElectionRow>
         ))}
       </tbody>
