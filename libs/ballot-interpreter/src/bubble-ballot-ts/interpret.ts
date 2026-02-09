@@ -1,8 +1,32 @@
 import { assert, err, ok } from '@votingworks/basics';
 import { ImageData } from 'canvas';
-import { ElectionDefinition, SheetOf } from '@votingworks/types';
-import { interpret as interpretImpl } from './addon';
+import {
+  ElectionDefinition,
+  SheetOf,
+  DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+  DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+} from '@votingworks/types';
+import { interpret as interpretImpl, JsInterpretOptions } from './addon';
 import { HmpbInterpretResult } from './types';
+
+/**
+ * Options for interpreting a ballot at the bridge layer.
+ * Some fields are computed from higher-level options.
+ */
+interface InterpretOptions {
+  electionDefinition: ElectionDefinition;
+  ballotImages: SheetOf<string> | SheetOf<ImageData>;
+  scoreWriteIns?: boolean;
+  disableVerticalStreakDetection?: boolean;
+  timingMarkAlgorithm?: 'contours' | 'corners';
+  inferTimingMarks?: boolean;
+  minimumDetectedScale?: number;
+  maxCumulativeStreakWidth?: number;
+  retryStreakWidthThreshold?: number;
+  debug?: boolean;
+  frontNormalizedImageOutputPath?: string;
+  backNormalizedImageOutputPath?: string;
+}
 
 function assertImageData(imageData: unknown): asserts imageData is ImageData {
   assert(
@@ -30,20 +54,9 @@ function checkImageSource(imageSource: string | ImageData): void {
   }
 }
 
-function normalizeOptionsForBridge(options: {
-  electionDefinition: ElectionDefinition;
-  ballotImages: SheetOf<string> | SheetOf<ImageData>;
-  scoreWriteIns?: boolean;
-  disableVerticalStreakDetection?: boolean;
-  timingMarkAlgorithm?: 'contours' | 'corners';
-  inferTimingMarks?: boolean;
-  minimumDetectedScale?: number;
-  maxCumulativeStreakWidth?: number;
-  retryStreakWidthThreshold?: number;
-  debug?: boolean;
-  frontNormalizedImageOutputPath?: string;
-  backNormalizedImageOutputPath?: string;
-}): Parameters<typeof interpretImpl> {
+function normalizeOptionsForBridge(
+  options: InterpretOptions
+): Parameters<typeof interpretImpl> {
   assert(typeof options.electionDefinition.electionData === 'string');
   assert(options.ballotImages.length === 2);
   checkImageSource(options.ballotImages[0]);
@@ -61,42 +74,34 @@ function normalizeOptionsForBridge(options: {
       options.ballotImages as SheetOf<string>;
   }
 
+  const jsOptions: JsInterpretOptions = {
+    debugBasePathSideA,
+    debugBasePathSideB,
+    scoreWriteIns: options.scoreWriteIns,
+    timingMarkAlgorithm: options.timingMarkAlgorithm,
+    disableVerticalStreakDetection: options.disableVerticalStreakDetection,
+    inferTimingMarks: options.inferTimingMarks,
+    minimumDetectedScale: options.minimumDetectedScale,
+    maxCumulativeStreakWidth:
+      options.maxCumulativeStreakWidth ?? DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+    retryStreakWidthThreshold:
+      options.retryStreakWidthThreshold ??
+      DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+    frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
+    backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
+  };
+
   return [
     options.electionDefinition.election,
     ...options.ballotImages,
-    {
-      debugBasePathSideA,
-      debugBasePathSideB,
-      scoreWriteIns: options.scoreWriteIns,
-      timingMarkAlgorithm: options.timingMarkAlgorithm,
-      disableVerticalStreakDetection: options.disableVerticalStreakDetection,
-      inferTimingMarks: options.inferTimingMarks,
-      minimumDetectedScale: options.minimumDetectedScale,
-      maxCumulativeStreakWidth: options.maxCumulativeStreakWidth,
-      retryStreakWidthThreshold: options.retryStreakWidthThreshold,
-      frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
-      backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
-    },
+    jsOptions,
   ];
 }
 
 /**
  * Interprets a scanned ballot.
  */
-export function interpret(options: {
-  electionDefinition: ElectionDefinition;
-  ballotImages: SheetOf<string> | SheetOf<ImageData>;
-  scoreWriteIns?: boolean;
-  disableVerticalStreakDetection?: boolean;
-  timingMarkAlgorithm?: 'contours' | 'corners';
-  inferTimingMarks?: boolean;
-  minimumDetectedScale?: number;
-  maxCumulativeStreakWidth?: number;
-  retryStreakWidthThreshold?: number;
-  debug?: boolean;
-  frontNormalizedImageOutputPath?: string;
-  backNormalizedImageOutputPath?: string;
-}): HmpbInterpretResult {
+export function interpret(options: InterpretOptions): HmpbInterpretResult {
   const args = normalizeOptionsForBridge(options);
   const result = interpretImpl(...args);
 
