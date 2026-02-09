@@ -744,3 +744,40 @@ test.each<{
     }
   }
 );
+
+test('validates streak width threshold must be less than max cumulative width', async () => {
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  const maxCumulativeStreakWidthInput = screen.getByRole('spinbutton', {
+    name: 'Max Cumulative Streak Width (pixels)',
+  }) ;
+  const retryStreakWidthThresholdInput = screen.getByRole('spinbutton', {
+    name: 'Retry Streak Width Threshold (pixels)',
+  }) ;
+
+  // Set max width to 5 and retry threshold to 5 (invalid: should be less than)
+  userEvent.clear(maxCumulativeStreakWidthInput);
+  userEvent.type(maxCumulativeStreakWidthInput, '5');
+  userEvent.clear(retryStreakWidthThresholdInput);
+  userEvent.type(retryStreakWidthThresholdInput, '5');
+
+  // The retry threshold input should have a validation error
+  expect(retryStreakWidthThresholdInput.validity.valid).toEqual(false);
+  expect(retryStreakWidthThresholdInput.validationMessage).toContain(
+    'must be less than'
+  );
+
+  // Fix it by making retry threshold less than max width
+  userEvent.clear(retryStreakWidthThresholdInput);
+  userEvent.type(retryStreakWidthThresholdInput, '3');
+
+  // Now both inputs should be valid
+  expect(maxCumulativeStreakWidthInput.validity.valid).toEqual(true);
+  expect(retryStreakWidthThresholdInput.validity.valid).toEqual(true);
+});
