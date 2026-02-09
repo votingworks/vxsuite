@@ -222,18 +222,18 @@ test('editing or adding a party is disabled when ballots are finalized', async (
   apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
 
   renderScreen(electionId);
-
-  await screen.findByDisplayValue(election.parties[0].name);
-  expect(screen.getButton('Add Party')).toBeDisabled();
-  expect(screen.queryButton('Edit Parties')).not.toBeInTheDocument();
-  expect(screen.queryButton('Save')).not.toBeInTheDocument();
-  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
   // Wait for state features API request to complete (to check whether or not to
   // show audio buttons). In this case, since audio is disabled, the buttons
   // aren't shown so there's nothing we can await on screen. But if the API
   // request doesn't complete in time, the test may fail due to the
   // assertComplete in afterEach.
   await waitFor(() => apiMock.assertComplete());
+
+  await screen.findByDisplayValue(election.parties[0].name);
+  expect(screen.getButton('Add Party')).toBeDisabled();
+  expect(screen.queryButton('Edit Parties')).not.toBeInTheDocument();
+  expect(screen.queryButton('Save')).not.toBeInTheDocument();
+  expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
 });
 
 test('adding, editing, or deleting a party is disabled for elections with external source', async () => {
