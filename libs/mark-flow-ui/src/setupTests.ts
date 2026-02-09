@@ -2,9 +2,9 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers';
-import { cleanup, configure } from '@testing-library/react';
+import { configure } from '@testing-library/react';
 
 expect.extend(matchers);
 
@@ -16,6 +16,5 @@ beforeEach(() => {
   });
 });
 
-afterEach(cleanup);
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);

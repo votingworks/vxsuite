@@ -1,9 +1,9 @@
-import { describe, expect, test, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, expect, onTestFinished, test, vi } from 'vitest';
+import { cleanup, render } from '@testing-library/react';
 
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
-  renderWithThemes,
+  makeRender,
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
 } from './render_with_themes';
@@ -11,6 +11,9 @@ import { H1, P } from '../typography';
 import { makeTheme } from './make_theme';
 import { Button } from '../button';
 import { Icons } from '../icons';
+
+const onTestFinishedSpy = vi.fn(onTestFinished);
+const renderWithThemes = makeRender(onTestFinishedSpy);
 
 test('renders theme-dependent component successfully', () => {
   suppressingConsoleOutput(() =>
@@ -32,6 +35,8 @@ test('renders theme-dependent component successfully', () => {
       </div>
     )
   ).not.toThrow();
+
+  expect(onTestFinishedSpy).toHaveBeenCalledWith(cleanup);
 });
 
 test('renders with specified theme settings', () => {

@@ -4,6 +4,7 @@ import {
   describe,
   expect,
   Mocked,
+  onTestFinished,
   test,
   vi,
 } from 'vitest';
@@ -23,8 +24,10 @@ import {
 } from '@votingworks/test-utils';
 import { CardStatus } from '@votingworks/auth';
 import { PrinterConfig } from '@votingworks/types';
-import { renderWithThemes as render } from '@votingworks/ui';
+import { makeRender } from '@votingworks/ui';
 import { DevDock } from './dev_dock';
+
+export const render = makeRender(onTestFinished);
 
 const noCardStatus: CardStatus = {
   status: 'no_card',

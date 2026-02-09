@@ -12,9 +12,10 @@ import {
   screen,
   BoundFunction,
   within,
+  cleanup,
 } from '@testing-library/react';
-
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
+import type { OnTestFinishedHandler } from 'vitest';
 import { AppBase } from '../app_base';
 
 /**
@@ -40,28 +41,36 @@ export type VxRenderResult = RenderResult & VxQueryFunctions;
  * This is needed when rendering component trees that contain theme-dependent
  * components from libs/ui.
  */
-export function renderWithThemes(
-  ui: React.ReactElement,
-  options: VxRenderOptions = {}
-): VxRenderResult {
-  const { vxTheme = {}, ...passthroughOptions } = options;
+export function makeRender(
+  onTestFinished: (fn: OnTestFinishedHandler) => void
+) {
+  return function renderWithThemes(
+    ui: React.ReactElement,
+    options: VxRenderOptions = {}
+  ): VxRenderResult {
+    const { vxTheme = {}, ...passthroughOptions } = options;
 
-  function wrapper(props: { children: React.ReactNode }): JSX.Element {
-    return (
-      <AppBase
-        defaultColorMode={vxTheme.colorMode ?? 'contrastMedium'}
-        defaultSizeMode={vxTheme.sizeMode ?? 'touchSmall'}
-        defaultIsVisualModeDisabled={vxTheme.isVisualModeDisabled ?? false}
-        disableFontsForTests
-        screenType={vxTheme.screenType}
-        {...props}
-      />
-    );
-  }
+    function wrapper(props: { children: React.ReactNode }): JSX.Element {
+      return (
+        <AppBase
+          defaultColorMode={vxTheme.colorMode ?? 'contrastMedium'}
+          defaultSizeMode={vxTheme.sizeMode ?? 'touchSmall'}
+          defaultIsVisualModeDisabled={vxTheme.isVisualModeDisabled ?? false}
+          disableFontsForTests
+          screenType={vxTheme.screenType}
+          {...props}
+        />
+      );
+    }
 
-  const result = render(ui, { ...passthroughOptions, wrapper });
+    const result = render(ui, { ...passthroughOptions, wrapper });
+    // Ensure that the DOM is cleaned up after each test, even if the test fails
+    // (including failure in afterEach hooks). This prevents a failure in one test
+    // from causing DOM leakage into the next test.
+    onTestFinished(cleanup);
 
-  return getVxQueryFunctions(result);
+    return getVxQueryFunctions(result);
+  };
 }
 
 /**
