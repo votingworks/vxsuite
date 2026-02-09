@@ -95,14 +95,14 @@ test('lists elections', async () => {
       'jurisdiction1 Name',
       general.election.title,
       'Nov 3, 2020',
-      `Make a copy of ${general.election.title}`,
+      `Make a copy of ${general.election.title}Duplicate`,
     ],
     [
       'In progress',
       'jurisdiction1 Name',
       primary.election.title,
       'Sep 8, 2021',
-      `Make a copy of ${primary.election.title}`,
+      `Make a copy of ${primary.election.title}Duplicate`,
     ],
   ]);
 
