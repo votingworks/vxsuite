@@ -15,5 +15,7 @@
   "precinctScanAdjudicationReasons": [],
   "adminAdjudicationReasons": [],
   "disallowCastingOvervotes": false,
-  "precinctScanEnableBmdBallotScanning": true
+  "precinctScanEnableBmdBallotScanning": true,
+  "maxCumulativeStreakWidth": 5,
+  "retryStreakWidthThreshold": 1
 }
