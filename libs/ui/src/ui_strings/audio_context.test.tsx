@@ -14,9 +14,8 @@ import {
 } from './audio_volume';
 import {
   DEFAULT_PLAYBACK_RATE,
-  MAX_PLAYBACK_RATE,
-  MIN_PLAYBACK_RATE,
-  PLAYBACK_RATE_INCREMENT_AMOUNT,
+  PLAYBACK_RATES,
+  PlaybackRate,
 } from './audio_playback_rate';
 import { newTestContext } from '../../test/test_context';
 
@@ -114,27 +113,23 @@ test('setVolume', () => {
 });
 
 describe('playback rate API', () => {
+  const DEFAULT_RATE_IDX = PLAYBACK_RATES.indexOf(DEFAULT_PLAYBACK_RATE);
+
   test('increasePlaybackRate', () => {
     const { result } = renderHook(useAudioContext, {
       wrapper: TestContextWrapper,
     });
 
-    expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
-
-    act(() => result.current?.increasePlaybackRate());
-    act(() => result.current?.increasePlaybackRate());
-    expect(result.current?.playbackRate).toEqual(
-      DEFAULT_PLAYBACK_RATE + PLAYBACK_RATE_INCREMENT_AMOUNT * 2
-    );
-
-    // Try increasing the rate well past the maximum:
-    const maxIncrementSteps = Math.ceil(
-      MAX_PLAYBACK_RATE / PLAYBACK_RATE_INCREMENT_AMOUNT
-    );
-    for (let i = 0; i < maxIncrementSteps + 2; i += 1) {
+    for (let i = DEFAULT_RATE_IDX; i < PLAYBACK_RATES.length; i += 1) {
+      expect(result.current?.playbackRate).toEqual(PLAYBACK_RATES[i]);
       act(() => result.current?.increasePlaybackRate());
     }
-    expect(result.current?.playbackRate).toEqual(MAX_PLAYBACK_RATE);
+
+    // Try increasing the rate well past the maximum:
+    expect(result.current?.playbackRate).toEqual(PlaybackRate.MAXIMUM);
+    act(() => result.current?.increasePlaybackRate());
+    act(() => result.current?.increasePlaybackRate());
+    expect(result.current?.playbackRate).toEqual(PlaybackRate.MAXIMUM);
   });
 
   test('decreasePlaybackRate', () => {
@@ -142,22 +137,16 @@ describe('playback rate API', () => {
       wrapper: TestContextWrapper,
     });
 
-    expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
-
-    act(() => result.current?.decreasePlaybackRate());
-    act(() => result.current?.decreasePlaybackRate());
-    expect(result.current?.playbackRate).toEqual(
-      DEFAULT_PLAYBACK_RATE - PLAYBACK_RATE_INCREMENT_AMOUNT * 2
-    );
-
-    // Try decreasing the rate well past the minimum:
-    const maxDecrementSteps = Math.abs(
-      Math.ceil(MIN_PLAYBACK_RATE / PLAYBACK_RATE_INCREMENT_AMOUNT)
-    );
-    for (let i = 0; i < maxDecrementSteps + 2; i += 1) {
+    for (let i = DEFAULT_RATE_IDX; i >= 0; i -= 1) {
+      expect(result.current?.playbackRate).toEqual(PLAYBACK_RATES[i]);
       act(() => result.current?.decreasePlaybackRate());
     }
-    expect(result.current?.playbackRate).toEqual(MIN_PLAYBACK_RATE);
+
+    // Try decreasing the rate well past the minimum:
+    expect(result.current?.playbackRate).toEqual(PlaybackRate.MINIMUM);
+    act(() => result.current?.decreasePlaybackRate());
+    act(() => result.current?.decreasePlaybackRate());
+    expect(result.current?.playbackRate).toEqual(PlaybackRate.MINIMUM);
   });
 });
 

@@ -7,6 +7,7 @@ import { UiStringsReactQueryApi, createUiStringsApi } from './ui_strings_api';
 import { UiStringScreenReaderContext } from '../ui_strings/ui_string_screen_reader';
 import { newTestContext } from '../../test/test_context';
 import { DEFAULT_AUDIO_VOLUME } from '../ui_strings/audio_volume';
+import { PlaybackRate } from '../ui_strings/audio_playback_rate';
 
 test('returns external-facing audio context API', () => {
   const { mockApiClient } = newTestContext();
@@ -40,7 +41,7 @@ test('returns external-facing audio context API', () => {
           api: mockUiStringsApi,
           isEnabled: true,
           isPaused: false,
-          playbackRate: 1,
+          playbackRate: PlaybackRate.PERCENT_100,
           setIsPaused: vi.fn(),
           setVolume: vi.fn(),
           volume: DEFAULT_AUDIO_VOLUME,

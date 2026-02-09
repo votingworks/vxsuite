@@ -7,7 +7,7 @@ import { useAudioContext } from './audio_context';
 import { ClipParams, PlayAudioClips } from './play_audio_clips';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 import { UiStringAudioDataAttributeName } from './with_audio';
-import { AppStringKey } from './app_strings';
+import { VOLUME_CHANGE_FEEDBACK_STRING_KEYS } from './app_strings';
 import {
   AudioVolume,
   getDecreasedVolume,
@@ -15,22 +15,6 @@ import {
 } from './audio_volume';
 
 const EMPTY_CLIP_QUEUE: ClipParams[] = [];
-
-const VOLUME_CHANGE_FEEDBACK_STRING_KEYS: Readonly<
-  Record<AudioVolume, AppStringKey>
-> = {
-  [AudioVolume.MINIMUM]: 'audioFeedbackMinimumVolume',
-  [AudioVolume.TEN_PERCENT]: 'audioFeedback10PercentVolume',
-  [AudioVolume.TWENTY_PERCENT]: 'audioFeedback20PercentVolume',
-  [AudioVolume.THIRTY_PERCENT]: 'audioFeedback30PercentVolume',
-  [AudioVolume.FORTY_PERCENT]: 'audioFeedback40PercentVolume',
-  [AudioVolume.FIFTY_PERCENT]: 'audioFeedback50PercentVolume',
-  [AudioVolume.SIXTY_PERCENT]: 'audioFeedback60PercentVolume',
-  [AudioVolume.SEVENTY_PERCENT]: 'audioFeedback70PercentVolume',
-  [AudioVolume.EIGHTY_PERCENT]: 'audioFeedback80PercentVolume',
-  [AudioVolume.NINETY_PERCENT]: 'audioFeedback90PercentVolume',
-  [AudioVolume.MAXIMUM]: 'audioFeedbackMaximumVolume',
-};
 
 export interface UiStringScreenReaderProps {
   children?: React.ReactNode;

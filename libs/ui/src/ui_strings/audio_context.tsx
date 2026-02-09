@@ -1,14 +1,9 @@
 import React from 'react';
 
-import { Optional } from '@votingworks/basics';
+import { assertDefined, Optional } from '@votingworks/basics';
 
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
-import {
-  DEFAULT_PLAYBACK_RATE,
-  MAX_PLAYBACK_RATE,
-  MIN_PLAYBACK_RATE,
-  PLAYBACK_RATE_INCREMENT_AMOUNT,
-} from './audio_playback_rate';
+import { PLAYBACK_RATES, PlaybackRate } from './audio_playback_rate';
 import {
   AudioVolume,
   DEFAULT_AUDIO_VOLUME,
@@ -27,7 +22,7 @@ export interface UiStringsAudioContextInterface {
   isEnabled: boolean;
   isPaused: boolean;
   output?: AudioNode;
-  playbackRate: number;
+  playbackRate: PlaybackRate;
   reset: () => void;
   setControlsEnabled: (enabled: boolean) => void;
   setIsEnabled: (enabled: boolean) => void;
@@ -78,6 +73,10 @@ function getGainNodeInstance() {
   return gainNode;
 }
 
+const DEFAULT_PLAYBACK_RATE_IDX = assertDefined(
+  PLAYBACK_RATES.indexOf(PlaybackRate.PERCENT_100)
+);
+
 export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
@@ -87,8 +86,8 @@ export function UiStringsAudioContextProvider(
   );
   const [controlsEnabled, setControlsEnabled] = React.useState(true);
   const [isPaused, setIsPaused] = React.useState(true);
-  const [playbackRate, setPlaybackRate] = React.useState<number>(
-    DEFAULT_PLAYBACK_RATE
+  const [playbackRateIdx, setPlaybackRateIdx] = React.useState<number>(
+    DEFAULT_PLAYBACK_RATE_IDX
   );
   const [volume, setVolume] = React.useState<AudioVolume>(DEFAULT_AUDIO_VOLUME);
   const headphonesPluggedIn = useHeadphonesPluggedIn();
@@ -102,7 +101,7 @@ export function UiStringsAudioContextProvider(
 
   const resetPlaybackSettings = React.useCallback(() => {
     setVolume(DEFAULT_AUDIO_VOLUME);
-    setPlaybackRate(DEFAULT_PLAYBACK_RATE);
+    setPlaybackRateIdx(DEFAULT_PLAYBACK_RATE_IDX);
     setIsPaused(false);
   }, []);
 
@@ -151,16 +150,14 @@ export function UiStringsAudioContextProvider(
   }, [isPaused]);
 
   const increasePlaybackRate = React.useCallback(() => {
-    setPlaybackRate(
-      Math.min(MAX_PLAYBACK_RATE, playbackRate + PLAYBACK_RATE_INCREMENT_AMOUNT)
+    setPlaybackRateIdx(
+      Math.min(PLAYBACK_RATES.length - 1, playbackRateIdx + 1)
     );
-  }, [playbackRate]);
+  }, [playbackRateIdx]);
 
   const decreasePlaybackRate = React.useCallback(() => {
-    setPlaybackRate(
-      Math.max(MIN_PLAYBACK_RATE, playbackRate - PLAYBACK_RATE_INCREMENT_AMOUNT)
-    );
-  }, [playbackRate]);
+    setPlaybackRateIdx(Math.max(0, playbackRateIdx - 1));
+  }, [playbackRateIdx]);
 
   const togglePause = React.useCallback(
     () => setIsPaused(!isPaused),
@@ -181,7 +178,7 @@ export function UiStringsAudioContextProvider(
         isEnabled,
         isPaused,
         output: gainNodeRef.current,
-        playbackRate,
+        playbackRate: PLAYBACK_RATES[playbackRateIdx],
         reset,
         setControlsEnabled,
         setIsEnabled: controlsEnabled ? setIsEnabled : noOp,

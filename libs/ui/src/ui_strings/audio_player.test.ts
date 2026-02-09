@@ -4,11 +4,7 @@ import { TestLanguageCode } from '@votingworks/test-utils';
 import { deferred, typedAs } from '@votingworks/basics';
 import { waitFor } from '../../test/react_testing_library';
 import { newAudioPlayer } from './audio_player';
-import {
-  DEFAULT_PLAYBACK_RATE,
-  MAX_PLAYBACK_RATE,
-  MIN_PLAYBACK_RATE,
-} from './audio_playback_rate';
+import { DEFAULT_PLAYBACK_RATE, PlaybackRate } from './audio_playback_rate';
 
 const { ENGLISH } = TestLanguageCode;
 
@@ -127,12 +123,12 @@ test('setPlaybackRate()', () => {
     webAudioContext: mockCtx,
   });
 
-  player.setPlaybackRate(MIN_PLAYBACK_RATE);
-  expect(mockAudio.playbackRate).toEqual(MIN_PLAYBACK_RATE);
+  player.setPlaybackRate(PlaybackRate.MINIMUM);
+  expect(mockAudio.playbackRate).toEqual(PlaybackRate.MINIMUM);
 
   player.setPlaybackRate(DEFAULT_PLAYBACK_RATE);
   expect(mockAudio.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
 
-  player.setPlaybackRate(MAX_PLAYBACK_RATE);
-  expect(mockAudio.playbackRate).toEqual(MAX_PLAYBACK_RATE);
+  player.setPlaybackRate(PlaybackRate.MAXIMUM);
+  expect(mockAudio.playbackRate).toEqual(PlaybackRate.MAXIMUM);
 });

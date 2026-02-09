@@ -90,6 +90,9 @@ import {
   faArrowRightFromBracket,
   faArrowsSplitUpAndLeft,
   faChartLine,
+  faPlus,
+  faMinus,
+  faVolumeDown,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -467,6 +470,10 @@ export const Icons = {
     return <FaIcon {...props} type={faArrowRightFromBracket} />;
   },
 
+  Minus(props) {
+    return <FaIcon {...props} type={faMinus} />;
+  },
+
   Mouse(props) {
     return <FaIcon {...props} type={faMouse} />;
   },
@@ -477,6 +484,10 @@ export const Icons = {
 
   Paused(props) {
     return <FaIcon {...props} type={faPauseCircle} />;
+  },
+
+  Plus(props) {
+    return <FaIcon {...props} type={faPlus} />;
   },
 
   Previous(props) {
@@ -573,6 +584,10 @@ export const Icons = {
 
   UsbDrive(props) {
     return <FaIcon {...props} type={faUsb} />;
+  },
+
+  VolumeDown(props) {
+    return <FaIcon {...props} type={faVolumeDown} />;
   },
 
   VolumeMute(props) {

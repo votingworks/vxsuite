@@ -16,7 +16,6 @@ const Overlay = styled.div`
   left: 0;
   top: 0;
   background: #fff;
-  padding: 1em;
 `;
 
 const ButtonContainer = styled.div`
@@ -38,7 +37,7 @@ export function VisualModeDisabledOverlay(): JSX.Element | null {
   return (
     <Overlay aria-hidden>
       <Header portrait={screenInfo.isPortrait}>
-        <H2 as="h1">{appStrings.titleAudioOnlyModeEnabled()}</H2>
+        <H2 style={{ margin: 0 }}>{appStrings.titleAudioOnlyModeEnabled()}</H2>
       </Header>
       <ButtonContainer>
         <Button
