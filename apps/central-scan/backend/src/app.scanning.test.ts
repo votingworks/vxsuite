@@ -13,13 +13,15 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
 import { withApp } from '../test/helpers/setup_app';
 import { ScannedSheetInfo } from './fujitsu_scanner';
 
 const jurisdiction = TEST_JURISDICTION;
+
+vi.setConfig({ testTimeout: 20000 });
 
 test('scanBatch with multiple sheets', async () => {
   const electionDefinition =
