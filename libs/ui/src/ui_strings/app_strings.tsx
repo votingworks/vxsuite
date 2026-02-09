@@ -342,27 +342,26 @@ export const appStrings = {
 
   instructionsBmdCastBallotPreamble: () => (
     <UiString uiStringKey="instructionsBmdCastBallotPreamble">
-      Your official ballot is printing. Complete the following steps to finish
-      voting:
+      Your ballot is printing. Complete the following steps to finish voting:
     </UiString>
   ),
 
   instructionsBmdCastBallotPreamblePostPrint: () => (
     <UiString uiStringKey="instructionsBmdCastBallotPreamblePostPrint">
-      Your official ballot has been removed from the printer. Complete the
-      following steps to finish voting:
+      Your ballot has been removed from the printer. Complete the following
+      steps to finish voting:
     </UiString>
   ),
 
   instructionsBmdCastBallotStep1: () => (
     <UiString uiStringKey="instructionsBmdCastBallotStep1">
-      1. Verify your official ballot.
+      1. Verify your ballot.
     </UiString>
   ),
 
   instructionsBmdCastBallotStep2: () => (
     <UiString uiStringKey="instructionsBmdCastBallotStep2">
-      2. Scan your official ballot.
+      2. Scan your ballot.
     </UiString>
   ),
 
@@ -469,9 +468,9 @@ export const appStrings = {
 
   instructionsBmdReviewAndValidatePrintedBallot: () => (
     <UiString uiStringKey="instructionsBmdReviewAndValidatePrintedBallot">
-      The following votes were scanned from your printed official ballot. Please
-      review the selections in each contest and verify that they are correct to
-      cast your ballot.
+      The following votes were scanned from your printed ballot. Please review
+      the selections in each contest and verify that they are correct to cast
+      your ballot.
     </UiString>
   ),
 
@@ -1336,7 +1335,7 @@ export const appStrings = {
 
   titleBmdPrintScreen: () => (
     <UiString uiStringKey="titleBmdPrintScreen">
-      Printing Your Official Ballot...
+      Printing Your Ballot...
     </UiString>
   ),
 
@@ -1569,7 +1568,7 @@ export const appStrings = {
 
   warningBmdBallotRemoved: () => (
     <UiString uiStringKey="warningBmdBallotRemoved">
-      Your official ballot has been removed from the printer.
+      Your ballot has been removed from the printer.
     </UiString>
   ),
 

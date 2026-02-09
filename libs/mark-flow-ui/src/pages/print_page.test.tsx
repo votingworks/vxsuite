@@ -8,5 +8,5 @@ test('calls print method', async () => {
   await waitFor(() => {
     expect(print).toHaveBeenCalledTimes(1);
   });
-  screen.getByText('Printing Your Official Ballot...');
+  screen.getByText('Printing Your Ballot...');
 });

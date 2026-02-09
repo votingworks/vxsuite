@@ -153,5 +153,5 @@ test('Single Seat Contest with Write In', async () => {
   apiMock.expectGetElectionState();
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
-  screen.getByText(/Printing Your Official Ballot/i);
+  screen.getByText(/Printing Your Ballot/i);
 });
