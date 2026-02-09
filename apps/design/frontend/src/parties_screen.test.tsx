@@ -19,7 +19,7 @@ import {
   user,
 } from '../test/api_helpers';
 import { electionInfoFromElection } from '../test/fixtures';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { makeIdFactory } from '../test/id_helpers';
@@ -222,6 +222,12 @@ test('editing or adding a party is disabled when ballots are finalized', async (
   apiMock.listParties.expectCallWith({ electionId }).resolves(election.parties);
 
   renderScreen(electionId);
+  // Wait for state features API request to complete (to check whether or not to
+  // show audio buttons). In this case, since audio is disabled, the buttons
+  // aren't shown so there's nothing we can await on screen. But if the API
+  // request doesn't complete in time, the test may fail due to the
+  // assertComplete in afterEach.
+  await waitFor(() => apiMock.assertComplete());
 
   await screen.findByDisplayValue(election.parties[0].name);
   expect(screen.getButton('Add Party')).toBeDisabled();
