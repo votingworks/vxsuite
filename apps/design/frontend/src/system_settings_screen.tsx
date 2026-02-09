@@ -357,10 +357,7 @@ export function SystemSettingsForm({
                 <InputGroup label="Max Cumulative Streak Width (pixels)">
                   <input
                     type="number"
-                    value={
-                      systemSettings.maxCumulativeStreakWidth ??
-                      DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH
-                    }
+                    value={systemSettings.maxCumulativeStreakWidth}
                     onChange={(e) => {
                       const value = e.target.valueAsNumber;
                       setSystemSettings({
@@ -378,10 +375,7 @@ export function SystemSettingsForm({
                 <InputGroup label="Retry Streak Width Threshold (pixels)">
                   <input
                     type="number"
-                    value={
-                      systemSettings.retryStreakWidthThreshold ??
-                      DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD
-                    }
+                    value={systemSettings.retryStreakWidthThreshold}
                     onChange={(e) => {
                       const value = e.target.valueAsNumber;
                       setSystemSettings({

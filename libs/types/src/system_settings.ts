@@ -114,9 +114,13 @@ export const SystemSettingsSchema = z
     /**
      * The cumulative width threshold in pixels for vertical streak detection.
      * If the total width of detected streaks exceeds this threshold, the ballot
-     * will be rejected with a "scanner needs cleaning" error. Default is 5 pixels.
+     * will be rejected with a "scanner needs cleaning" error.
      */
-    maxCumulativeStreakWidth: z.number().int().min(1).optional(),
+    maxCumulativeStreakWidth: z
+      .number()
+      .int()
+      .min(1)
+      .default(DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH),
 
     /**
      * When timing marks cannot be found on a ballot, retry streak detection with
@@ -125,9 +129,12 @@ export const SystemSettingsSchema = z
      * This helps differentiate between truly unreadable ballots and ballots that
      * are unreadable due to minor streaks. Must be less than maxCumulativeStreakWidth
      * (retrying with the same threshold would be pointless since detection is deterministic).
-     * Default is 1 pixel.
      */
-    retryStreakWidthThreshold: z.number().int().min(1).optional(),
+    retryStreakWidthThreshold: z
+      .number()
+      .int()
+      .min(1)
+      .default(DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD),
 
     /**
      * Enables quick results reporting and provides the server URL to post results to.
@@ -251,4 +258,6 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   centralScanAdjudicationReasons: [],
   adminAdjudicationReasons: [],
   precinctScanEnableBmdBallotScanning: true,
+  maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+  retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
 };
