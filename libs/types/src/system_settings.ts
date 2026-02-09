@@ -204,7 +204,8 @@ export const SystemSettingsSchema = z
     },
     {
       message:
-        'retryStreakWidthThreshold must be less than maxCumulativeStreakWidth',
+        'Retry streak width threshold must be less than max cumulative streak width',
+      path: ['retryStreakWidthThreshold'],
     }
   )
   .readonly();
