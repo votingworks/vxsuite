@@ -107,3 +107,27 @@ exports[`disallows invalid mark thresholds 3`] = `
   }
 ]]
 `;
+
+exports[`disallows retry streak threshold greater than or equal to normal threshold 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "retryStreakWidthThreshold"
+    ],
+    "message": "Retry streak width threshold must be less than max cumulative streak width"
+  }
+]]
+`;
+
+exports[`disallows retry streak threshold greater than or equal to normal threshold 2`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "retryStreakWidthThreshold"
+    ],
+    "message": "Retry streak width threshold must be less than max cumulative streak width"
+  }
+]]
+`;

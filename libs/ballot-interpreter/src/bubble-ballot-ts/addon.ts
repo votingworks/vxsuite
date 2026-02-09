@@ -22,13 +22,31 @@ const addon = (() => {
  */
 export type BridgeInterpretResult =
   | {
-      type: 'ok';
-      value: InterpretedBallotCard;
-    }
+    type: 'ok';
+    value: InterpretedBallotCard;
+  }
   | {
-      type: 'err';
-      value: InterpretError;
-    };
+    type: 'err';
+    value: InterpretError;
+  };
+
+/**
+ * Options for the Rust interpreter bridge, matching the Rust JsInterpretOptions struct.
+ * All fields used by the Rust interpreter must be present here.
+ */
+export interface JsInterpretOptions {
+  frontNormalizedImageOutputPath?: string;
+  backNormalizedImageOutputPath?: string;
+  debugBasePathSideA?: string;
+  debugBasePathSideB?: string;
+  timingMarkAlgorithm?: 'contours' | 'corners';
+  minimumDetectedScale?: number;
+  scoreWriteIns?: boolean;
+  disableVerticalStreakDetection?: boolean;
+  inferTimingMarks?: boolean;
+  maxCumulativeStreakWidth: number;
+  retryStreakWidthThreshold: number;
+}
 
 /**
  * Type of the Rust `interpret` implementation. Under normal circumstances,
@@ -39,17 +57,7 @@ export function interpret(
   election: Election,
   ballotImageSourceSideA: string | ImageData,
   ballotImageSourceSideB: string | ImageData,
-  options?: {
-    debugBasePathSideA?: string;
-    debugBasePathSideB?: string;
-    scoreWriteIns?: boolean;
-    disableVerticalStreakDetection?: boolean;
-    timingMarkAlgorithm?: 'contours' | 'corners';
-    inferTimingMarks?: boolean;
-    minimumDetectedScale?: number;
-    frontNormalizedImageOutputPath?: string;
-    backNormalizedImageOutputPath?: string;
-  }
+  options: JsInterpretOptions
 ): BridgeInterpretResult {
   if (
     typeof ballotImageSourceSideA === 'string' &&
@@ -93,15 +101,15 @@ export function findTimingMarkGrid(
 ): TimingMarks {
   return typeof image === 'string'
     ? addon.findTimingMarkGridFromPath(
-        image,
-        debugBasePath ?? null,
-        options ?? null
-      )
+      image,
+      debugBasePath ?? null,
+      options ?? null
+    )
     : addon.findTimingMarkGridFromImage(
-        image.width,
-        image.height,
-        image.data,
-        debugBasePath ?? null,
-        options ?? null
-      );
+      image.width,
+      image.height,
+      image.data,
+      debugBasePath ?? null,
+      options ?? null
+    );
 }

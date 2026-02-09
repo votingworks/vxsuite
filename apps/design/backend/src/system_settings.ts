@@ -1,6 +1,8 @@
 import {
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
+  DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+  DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   SystemSettings,
 } from '@votingworks/types';
 import { Jurisdiction, resultsReportingUrl, StateCode } from './types';
@@ -31,6 +33,8 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     quickResultsReportingUrl: resultsReportingUrl(),
     disableSystemLimitChecks: true,
     disableVoterHelpButtons: true,
+    maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+    retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   },
 
   MS: {
@@ -57,6 +61,8 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     quickResultsReportingUrl: resultsReportingUrl(),
     disableSystemLimitChecks: true,
     disableVoterHelpButtons: true,
+    maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+    retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   },
 
   NH: {
@@ -82,6 +88,8 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     precinctScanDisableAlarms: true,
     disableSystemLimitChecks: true,
     disableVoterHelpButtons: true,
+    maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+    retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   },
 };
 
@@ -97,6 +105,8 @@ export const SLI_DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     writeInTextArea: 0.05,
   },
   bmdPrintMode: 'bubble_ballot',
+  maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+  retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
 };
 
 export function defaultSystemSettings(

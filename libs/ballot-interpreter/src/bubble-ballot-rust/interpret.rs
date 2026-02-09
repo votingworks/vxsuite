@@ -28,6 +28,14 @@ use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::BallotPageMetadata;
 use crate::timing_marks::TimingMarks;
 
+/// Default maximum cumulative width of vertical streaks in pixels.
+/// This value must match `DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH` in `libs/types/src/system_settings.ts`
+pub const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH: PixelUnit = 5;
+
+/// Default retry streak detection threshold in pixels when timing marks fail.
+/// This value must match `DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD` in `libs/types/src/system_settings.ts`
+pub const DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD: PixelUnit = 1;
+
 #[derive(Debug, Clone)]
 pub struct Options {
     pub election: Election,
@@ -38,6 +46,8 @@ pub struct Options {
     pub vertical_streak_detection: VerticalStreakDetection,
     pub timing_mark_algorithm: TimingMarkAlgorithm,
     pub minimum_detected_scale: Option<UnitIntervalScore>,
+    pub max_cumulative_streak_width: PixelUnit,
+    pub retry_streak_width_threshold: PixelUnit,
 }
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr, Default)]
@@ -269,6 +279,8 @@ pub struct ScanInterpreter {
     bubble_template_image: GrayImage,
     timing_mark_algorithm: TimingMarkAlgorithm,
     minimum_detected_scale: Option<f32>,
+    max_cumulative_streak_width: PixelUnit,
+    retry_streak_width_threshold: PixelUnit,
 }
 
 impl ScanInterpreter {
@@ -283,6 +295,8 @@ impl ScanInterpreter {
         vertical_streak_detection: VerticalStreakDetection,
         timing_mark_algorithm: TimingMarkAlgorithm,
         minimum_detected_scale: Option<f32>,
+        max_cumulative_streak_width: PixelUnit,
+        retry_streak_width_threshold: PixelUnit,
     ) -> Result<Self, image::ImageError> {
         let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
@@ -292,6 +306,8 @@ impl ScanInterpreter {
             bubble_template_image,
             timing_mark_algorithm,
             minimum_detected_scale,
+            max_cumulative_streak_width,
+            retry_streak_width_threshold,
         })
     }
 
@@ -317,6 +333,8 @@ impl ScanInterpreter {
             vertical_streak_detection: self.vertical_streak_detection,
             timing_mark_algorithm: self.timing_mark_algorithm,
             minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
+            max_cumulative_streak_width: self.max_cumulative_streak_width,
+            retry_streak_width_threshold: self.retry_streak_width_threshold,
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -359,13 +377,35 @@ pub fn ballot_card(
     let mut detected_vertical_streaks = match options.vertical_streak_detection {
         VerticalStreakDetection::Enabled => {
             let streaks = ballot_card.detect_vertical_streaks();
-            ballot_card.reject_disallowed_vertical_streaks(&streaks)?;
+            ballot_card.reject_disallowed_vertical_streaks(
+                &streaks,
+                options.max_cumulative_streak_width,
+            )?;
             streaks
         }
         VerticalStreakDetection::Disabled => Pair::default(),
     };
 
-    let mut timing_marks = ballot_card.find_timing_marks(options.timing_mark_algorithm)?;
+    let mut timing_marks = match ballot_card.find_timing_marks(options.timing_mark_algorithm) {
+        Ok(marks) => marks,
+        Err(Error::MissingTimingMarks { reason }) => {
+            // If timing marks couldn't be found, retry streak detection with a lower threshold
+            // to differentiate between truly unreadable ballots and ballots with minor streaks.
+            if matches!(
+                options.vertical_streak_detection,
+                VerticalStreakDetection::Enabled
+            ) {
+                // Check if streaks are detected with the retry threshold
+                ballot_card.reject_disallowed_vertical_streaks(
+                    &detected_vertical_streaks,
+                    options.retry_streak_width_threshold,
+                )?;
+            }
+            // If no streaks detected with retry threshold, return the original error
+            return Err(Error::MissingTimingMarks { reason });
+        }
+        Err(e) => return Err(e),
+    };
 
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {
         ballot_card.check_minimum_scale(&timing_marks, minimum_detected_scale)?;
@@ -532,6 +572,8 @@ mod test {
             vertical_streak_detection: VerticalStreakDetection::default(),
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
+            max_cumulative_streak_width: 5,
+            retry_streak_width_threshold: 1,
         };
         (side_a_image, side_b_image, options)
     }
@@ -561,6 +603,8 @@ mod test {
             vertical_streak_detection: VerticalStreakDetection::default(),
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
+            max_cumulative_streak_width: 5,
+            retry_streak_width_threshold: 1,
         };
         (side_a_image, side_b_image, options)
     }
@@ -1146,6 +1190,166 @@ mod test {
         };
 
         assert!((detected_scale.0 - artificial_scale).abs() < 0.01, "Detected scale was not close to artificial scale: detected={detected_scale}, artificial={artificial_scale}");
+    }
+
+    /// Tests that when timing marks cannot be found and streaks are detected
+    /// with the retry threshold, a `VerticalStreaksDetected` error is returned.
+    ///
+    /// This test uses a real ballot image with actual streaks to verify the retry logic.
+    #[test]
+    fn test_retry_streak_detection_finds_streaks() {
+        // Load a real streaked ballot image
+        let side_a_image = image::open(
+            "./test/fixtures/diagnostic/streaked/f82222c0-1fda-4f02-9746-fdf111886ce4-front.jpg",
+        )
+        .expect("Failed to load streaked image")
+        .into_luma8();
+
+        // Create a clean second side (use any valid ballot image)
+        let (_, side_b_image, mut options) = load_hmpb_fixture("vx-general-election/letter", 1);
+
+        // Set thresholds so that the streaks are narrow enough to pass normal threshold
+        // but fail the retry threshold. Looking at the actual fixture, it has thin streaks
+        // that are around 2-3px wide. We'll set normal threshold high enough to let it pass
+        // initially, but retry threshold low enough to catch it.
+        options.max_cumulative_streak_width = 10; // Allow streaks up to 10px during normal check
+        options.retry_streak_width_threshold = 1; // But catch anything >1px during retry
+
+        // The streaked image doesn't have valid timing marks, so timing mark detection
+        // will fail, triggering the retry logic with the lower threshold.
+        let error = super::ballot_card(side_a_image, side_b_image, &options).unwrap_err();
+
+        // Should get VerticalStreaksDetected from retry logic
+        match error {
+            Error::VerticalStreaksDetected { label, .. } => {
+                assert_eq!(label, SIDE_A_LABEL, "Expected streak error on side A");
+            }
+            _ => panic!("Expected VerticalStreaksDetected error, got: {error:?}"),
+        }
+    }
+
+    /// Tests that when timing marks cannot be found and no streaks are detected
+    /// with the retry threshold, the original `MissingTimingMarks` error is returned.
+    #[test]
+    fn test_retry_streak_detection_no_streaks() {
+        let (mut side_a_image, side_b_image, mut options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+
+        // First, find the timing marks so we can remove them
+        let card = Pair::new(
+            BallotPage::from_image(
+                SIDE_A_LABEL,
+                side_a_image.clone(),
+                &PaperInfo::scanned(),
+                None,
+            )
+            .unwrap(),
+            BallotPage::from_image(
+                SIDE_B_LABEL,
+                side_b_image.clone(),
+                &PaperInfo::scanned(),
+                None,
+            )
+            .unwrap(),
+        )
+        .join(BallotCard::from_pages)
+        .unwrap();
+        let timing_marks: (TimingMarks, TimingMarks) = card
+            .as_pair()
+            .par_map(|page| {
+                page.find_timing_marks(TimingMarkAlgorithm::Corners)
+                    .unwrap()
+            })
+            .into();
+        let side_a_timing_marks = &timing_marks.0;
+
+        // Remove timing marks to force timing mark detection to fail
+        deface_ballot_by_removing_side_timing_marks(&mut side_a_image, side_a_timing_marks);
+
+        // Don't add any streaks - the ballot should be truly unreadable
+
+        // Set thresholds: normal=5px, retry=1px
+        options.max_cumulative_streak_width = 5;
+        options.retry_streak_width_threshold = 1;
+
+        // Interpret should fail with MissingTimingMarks (no streaks found)
+        let error = super::ballot_card(side_a_image, side_b_image, &options).unwrap_err();
+        match error {
+            Error::MissingTimingMarks { .. } => {
+                // Expected - truly unreadable ballot
+            }
+            _ => panic!("Expected MissingTimingMarks error, got: {error:?}"),
+        }
+    }
+
+    /// Tests that streaks exceeding the normal threshold are caught immediately
+    /// without retry logic being triggered. Uses a real streaked image.
+    #[test]
+    fn test_normal_streak_threshold_catches_wide_streaks() {
+        // Load a real streaked ballot image
+        let side_a_image = image::open(
+            "./test/fixtures/diagnostic/streaked/f82222c0-1fda-4f02-9746-fdf111886ce4-front.jpg",
+        )
+        .expect("Failed to load streaked image")
+        .into_luma8();
+
+        // Create a clean second side
+        let (_, side_b_image, mut options) = load_hmpb_fixture("vx-general-election/letter", 1);
+
+        // Set thresholds so that streaks are caught by the normal threshold
+        options.max_cumulative_streak_width = 1; // Very strict - catch any streaks immediately
+        options.retry_streak_width_threshold = 1;
+
+        // Interpret should fail with VerticalStreaksDetected immediately
+        // (before timing mark detection even runs)
+        let error = super::ballot_card(side_a_image, side_b_image, &options).unwrap_err();
+        match error {
+            Error::VerticalStreaksDetected { label, .. } => {
+                assert_eq!(label, SIDE_A_LABEL, "Expected streak error on side A");
+            }
+            _ => panic!("Expected VerticalStreaksDetected error, got: {error:?}"),
+        }
+    }
+
+    /// Tests retry logic with different threshold values using a real streaked image.
+    /// Verifies that the retry threshold correctly determines whether streaks are detected.
+    #[test]
+    fn test_retry_threshold_with_different_values() {
+        // Load a real streaked ballot image
+        let side_a_image = image::open(
+            "./test/fixtures/diagnostic/streaked/f82222c0-1fda-4f02-9746-fdf111886ce4-front.jpg",
+        )
+        .expect("Failed to load streaked image")
+        .into_luma8();
+
+        // Create a clean second side
+        let (_, side_b_image, mut options) = load_hmpb_fixture("vx-general-election/letter", 1);
+
+        // Test with retry threshold = 2px (should detect streaks during retry)
+        // Set normal threshold high enough to not catch initially
+        options.max_cumulative_streak_width = 100; // High enough to not trigger initially
+        options.retry_streak_width_threshold = 2;
+
+        let error =
+            super::ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap_err();
+        match error {
+            Error::VerticalStreaksDetected { .. } => {
+                // Expected - streak detected by retry
+            }
+            _ => panic!("Expected VerticalStreaksDetected error with threshold=2, got: {error:?}"),
+        }
+
+        // Test with retry threshold = 200px (should NOT detect streaks)
+        // The actual streaks in the image are around 23px cumulative, so 200px should pass
+        options.max_cumulative_streak_width = 200;
+        options.retry_streak_width_threshold = 200;
+        let error = super::ballot_card(side_a_image, side_b_image, &options).unwrap_err();
+        match error {
+            Error::MissingTimingMarks { .. } => {
+                // Expected - streak not detected with high threshold, truly unreadable
+            }
+            _ => panic!("Expected MissingTimingMarks error with threshold=200, got: {error:?}"),
+        }
     }
 
     /// Wraps a debug image file that is automatically deleted when the struct

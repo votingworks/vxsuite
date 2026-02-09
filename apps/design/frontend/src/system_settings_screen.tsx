@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   H1,
   H2,
@@ -16,8 +16,10 @@ import {
   BmdPrintMode,
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_MARK_THRESHOLDS,
+  DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
+  DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   ElectionId,
   InactiveSessionTimeLimitMinutes,
@@ -31,6 +33,7 @@ import {
   StartingCardLockoutDurationSeconds,
   StartingCardLockoutDurationSecondsSchema,
   SystemSettings,
+  SystemSettingsSchema,
   unsafeParse,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
@@ -119,6 +122,37 @@ export function SystemSettingsForm({
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const getResultsReportingUrlQuery = getResultsReportingUrl.useQuery();
+
+  const maxCumulativeStreakWidthInputRef = useRef<HTMLInputElement>(null);
+  const retryStreakWidthThresholdInputRef = useRef<HTMLInputElement>(null);
+
+  function validateStreakSettings(settings: SystemSettings) {
+    const parseResult = safeParse(SystemSettingsSchema, settings);
+
+    maxCumulativeStreakWidthInputRef.current?.setCustomValidity('');
+    retryStreakWidthThresholdInputRef.current?.setCustomValidity('');
+
+    if (parseResult.isErr()) {
+      const maxWidthError = parseResult.err().issues.find(
+        (err) => err.path.includes('maxCumulativeStreakWidth' satisfies keyof SystemSettings)
+      );
+      const retryThresholdError = parseResult.err().issues.find(
+        (err) => err.path.includes('retryStreakWidthThreshold' satisfies keyof SystemSettings)
+      );
+
+      if (maxWidthError) {
+        maxCumulativeStreakWidthInputRef.current?.setCustomValidity(
+          maxWidthError.message
+        );
+      }
+
+      if (retryThresholdError) {
+        retryStreakWidthThresholdInputRef.current?.setCustomValidity(
+          retryThresholdError.message
+        );
+      }
+    }
+  }
 
   /* istanbul ignore next - @preserve */
   if (
@@ -350,6 +384,52 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             </InputGroup>
+            {!systemSettings.disableVerticalStreakDetection && (
+              <React.Fragment>
+                <InputGroup label="Max Cumulative Streak Width (pixels)">
+                  <input
+                    ref={maxCumulativeStreakWidthInputRef}
+                    type="number"
+                    value={systemSettings.maxCumulativeStreakWidth}
+                    onChange={(e) => {
+                      const value = e.target.valueAsNumber;
+                      const newSettings: SystemSettings = {
+                        ...systemSettings,
+                        maxCumulativeStreakWidth: Number.isNaN(value)
+                          ? DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH
+                          : value,
+                      };
+                      setSystemSettings(newSettings);
+                      validateStreakSettings(newSettings);
+                    }}
+                    min={1}
+                    step={1}
+                    disabled={!isEditing}
+                  />
+                </InputGroup>
+                <InputGroup label="Retry Streak Width Threshold (pixels)">
+                  <input
+                    ref={retryStreakWidthThresholdInputRef}
+                    type="number"
+                    value={systemSettings.retryStreakWidthThreshold}
+                    onChange={(e) => {
+                      const value = e.target.valueAsNumber;
+                      const newSettings: SystemSettings = {
+                        ...systemSettings,
+                        retryStreakWidthThreshold: Number.isNaN(value)
+                          ? DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD
+                          : value,
+                      };
+                      setSystemSettings(newSettings);
+                      validateStreakSettings(newSettings);
+                    }}
+                    min={1}
+                    step={1}
+                    disabled={!isEditing}
+                  />
+                </InputGroup>
+              </React.Fragment>
+            )}
           </Column>
         </Card>
         <Card>

@@ -587,6 +587,8 @@ function interpretHmpb(
     disableVerticalStreakDetection: options.disableVerticalStreakDetection,
     inferTimingMarks: options.inferTimingMarks,
     minimumDetectedScale: options.minimumDetectedScale,
+    maxCumulativeStreakWidth: options.maxCumulativeStreakWidth,
+    retryStreakWidthThreshold: options.retryStreakWidthThreshold,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
   });

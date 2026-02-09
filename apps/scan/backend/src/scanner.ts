@@ -254,6 +254,8 @@ async function interpretSheet(
     markThresholds,
     precinctScanEnableBmdBallotScanning,
     minimumDetectedBallotScaleOverride,
+    maxCumulativeStreakWidth,
+    retryStreakWidthThreshold,
   } = assertDefined(store.getSystemSettings());
   const interpretation = (
     await interpret(sheetId, scanImages, {
@@ -270,6 +272,8 @@ async function interpretSheet(
       minimumDetectedScale:
         minimumDetectedBallotScaleOverride ??
         DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
+      maxCumulativeStreakWidth,
+      retryStreakWidthThreshold,
     })
   ).unsafeUnwrap();
   interpretTimer.end();

@@ -29,6 +29,8 @@ struct JsInterpretOptions {
     score_write_ins: Option<bool>,
     disable_vertical_streak_detection: Option<bool>,
     infer_timing_marks: Option<bool>,
+    max_cumulative_streak_width: u32,
+    retry_streak_width_threshold: u32,
 }
 
 #[derive(Debug, Serialize)]
@@ -93,6 +95,8 @@ fn interpret(
                 TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
             },
             minimum_detected_scale,
+            max_cumulative_streak_width: options.max_cumulative_streak_width,
+            retry_streak_width_threshold: options.retry_streak_width_threshold,
         },
     );
 
