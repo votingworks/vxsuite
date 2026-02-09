@@ -223,10 +223,6 @@ test('Background task processing - task creation and retrieval', async () => {
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
-    completedAt: undefined,
-    error: undefined,
-    progress: undefined,
-    startedAt: undefined,
   });
 
   expect(await store.getBackgroundTask(task1Id)).toEqual({
@@ -234,20 +230,12 @@ test('Background task processing - task creation and retrieval', async () => {
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
-    completedAt: undefined,
-    error: undefined,
-    progress: undefined,
-    startedAt: undefined,
   });
   expect(await store.getBackgroundTask(task2Id)).toEqual({
     createdAt: expect.any(Date),
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
-    completedAt: undefined,
-    error: undefined,
-    progress: undefined,
-    startedAt: undefined,
   });
   expect(await store.getBackgroundTask('non-existent-task-id')).toEqual(
     undefined
@@ -272,10 +260,6 @@ test('Background task processing - starting and completing tasks', async () => {
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
-    completedAt: undefined,
-    error: undefined,
-    progress: undefined,
-    startedAt: undefined,
   });
 
   // Start a task
@@ -285,10 +269,6 @@ test('Background task processing - starting and completing tasks', async () => {
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
-    completedAt: undefined,
-    error: undefined,
-    progress: undefined,
-    startedAt: undefined,
   });
   expect(await store.getBackgroundTask(task1Id)).toEqual({
     createdAt: expect.any(Date),
@@ -296,9 +276,6 @@ test('Background task processing - starting and completing tasks', async () => {
     payload: '{"somePayload":1}',
     startedAt: expect.any(Date),
     taskName,
-    completedAt: undefined,
-    error: undefined,
-    progress: undefined,
   });
 
   // Complete a task
@@ -308,10 +285,6 @@ test('Background task processing - starting and completing tasks', async () => {
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
-    completedAt: undefined,
-    error: undefined,
-    progress: undefined,
-    startedAt: undefined,
   });
   expect(await store.getBackgroundTask(task1Id)).toEqual({
     completedAt: expect.any(Date),
@@ -320,8 +293,6 @@ test('Background task processing - starting and completing tasks', async () => {
     payload: '{"somePayload":1}',
     startedAt: expect.any(Date),
     taskName,
-    error: undefined,
-    progress: undefined,
   });
 
   // Complete a task with an error
@@ -336,7 +307,6 @@ test('Background task processing - starting and completing tasks', async () => {
     payload: '{"somePayload":2}',
     startedAt: expect.any(Date),
     taskName,
-    progress: undefined,
   });
 });
 
