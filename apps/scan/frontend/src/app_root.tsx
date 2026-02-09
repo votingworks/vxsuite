@@ -366,6 +366,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <PollsNotOpenScreen
         isTestMode={isTestMode}
+        isEarlyVotingMode={ballotCastingMode === 'early_voting'}
         pollsState={pollsState}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />

@@ -11,11 +11,13 @@ import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout'
 interface Props {
   scannedBallotCount: number;
   isTestMode: boolean;
+  isEarlyVotingMode: boolean;
 }
 
 export function ScanDoubleSheetScreen({
   scannedBallotCount,
   isTestMode,
+  isEarlyVotingMode,
 }: Props): JSX.Element {
   return (
     <Screen
@@ -23,6 +25,7 @@ export function ScanDoubleSheetScreen({
       ballotCountOverride={scannedBallotCount}
       voterFacing
       showTestModeBanner={isTestMode}
+      showEarlyVotingBanner={isEarlyVotingMode}
     >
       <FullScreenPromptLayout
         title={appStrings.titleScannerMultipleSheetsDetected()}
@@ -41,5 +44,11 @@ export function ScanDoubleSheetScreen({
 
 /* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
-  return <ScanDoubleSheetScreen scannedBallotCount={42} isTestMode={false} />;
+  return (
+    <ScanDoubleSheetScreen
+      scannedBallotCount={42}
+      isTestMode={false}
+      isEarlyVotingMode={false}
+    />
+  );
 }
