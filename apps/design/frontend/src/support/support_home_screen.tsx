@@ -17,13 +17,14 @@ import { Header, NavScreen } from '../nav_screen';
 import { CloneElectionButton } from '../clone_election_button';
 import { Column, Row } from '../layout';
 import {
-  ActionIconButtonCell,
+  ActionButtonsGroup,
   ElectionRow,
   LinkCell,
 } from '../elections_screen';
 import { CreateElectionButton } from '../create_election_button';
 import { LoadElectionButton } from '../load_election_button';
 import { FilterInput } from '../filter_input';
+import { EditElectionButton } from '../edit_election_button';
 
 const SupportHeader = styled(Header)`
   background-color: ${(p) => p.theme.colors.warningContainer};
@@ -231,9 +232,12 @@ function AllOrgsElectionsList({
                 )}
             </LinkCell>
 
-            <ActionIconButtonCell>
-              <CloneElectionButton election={election} />
-            </ActionIconButtonCell>
+            <td>
+              <ActionButtonsGroup>
+                <EditElectionButton election={election} />
+                <CloneElectionButton election={election} />
+              </ActionButtonsGroup>
+            </td>
           </ElectionRow>
         ))}
       </tbody>

@@ -19,6 +19,7 @@ import { routes } from './routes';
 import { CloneElectionButton } from './clone_election_button';
 import { LoadElectionButton } from './load_election_button';
 import { FilterInput } from './filter_input';
+import { EditElectionButton } from './edit_election_button';
 
 export const ElectionRow = styled.tr`
   & td {
@@ -36,6 +37,11 @@ export const ActionIconButtonCell = styled.td`
 
 const LinkCellContainer = styled.td`
   cursor: pointer;
+`;
+
+export const ActionButtonsGroup = styled(Row)`
+  justify-content: flex-end;
+  gap: 0.5rem;
 `;
 
 export function LinkCell(
@@ -91,9 +97,10 @@ function ElectionsList({
             )}
 
             <td>
-              <Row style={{ justifyContent: 'flex-end' }}>
+              <ActionButtonsGroup>
+                <EditElectionButton election={election} />
                 <CloneElectionButton election={election} />
-              </Row>
+              </ActionButtonsGroup>
             </td>
           </ElectionRow>
         ))}
