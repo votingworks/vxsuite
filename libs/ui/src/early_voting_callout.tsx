@@ -45,8 +45,8 @@ function EarlyVotingCalloutDesktop({
   style?: React.CSSProperties;
 }): JSX.Element {
   return (
-    <MachineModeCardDesktop style={style} color="neutral">
-      <Icons.Clock color="neutral" /> Early Voting
+    <MachineModeCardDesktop style={style} color="primary">
+      <Icons.Clock color="primary" /> Early Voting
     </MachineModeCardDesktop>
   );
 }
