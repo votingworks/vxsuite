@@ -87,7 +87,7 @@ export async function start(
 
     // Report to Sentry for monitoring
     Sentry.captureMessage(
-      `Background worker found ${crashedTaskIds.length} crashed task(s) on startup`,
+      'Background worker found crashed task(s) on startup',
       {
         level: 'warning',
         extra: {
