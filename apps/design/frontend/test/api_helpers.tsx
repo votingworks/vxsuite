@@ -55,9 +55,7 @@ export function mockStateFeatures(
   electionId: ElectionId,
   features?: StateFeaturesConfig
 ): void {
-  if (features) {
-    apiClient.getStateFeatures.reset();
-  }
+  apiClient.getStateFeatures.reset();
   apiClient.getStateFeatures
     .expectCallWith({ electionId })
     .resolves(features ?? {});
