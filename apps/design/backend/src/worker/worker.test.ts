@@ -7,6 +7,7 @@ import {
 } from '@votingworks/backend';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
+import { backendWaitFor, suppressingConsoleOutput } from '@votingworks/test-utils';
 import * as tasks from './tasks';
 import { processNextBackgroundTaskIfAny, start } from './worker';
 import { WorkerContext } from './context';
@@ -60,7 +61,7 @@ describe('processNextBackgroundTaskIfAny', () => {
   test('returns wasTaskProcessed: false when no tasks queued', async () => {
     const context = createMockContext();
 
-    const result = await processNextBackgroundTaskIfAny(context);
+    const result = await suppressingConsoleOutput(() => processNextBackgroundTaskIfAny(context));
 
     expect(result).toEqual({ wasTaskProcessed: false });
   });
@@ -130,8 +131,9 @@ describe('start', () => {
 
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-    await start(context, { signal: abortController.signal });
+    const startPromise = start(context, { signal: abortController.signal });
     abortController.abort();
+    await startPromise;
 
     const task = await store.getBackgroundTask(interruptedTaskId);
     expect(task?.startedAt).toBeUndefined();
@@ -161,8 +163,9 @@ describe('start', () => {
       .mockImplementation(() => {});
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-    await start(context, { signal: abortController.signal });
+    const startPromise = start(context, { signal: abortController.signal });
     abortController.abort();
+    await startPromise;
 
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       expect.stringContaining('crashed task(s) that will NOT be requeued')
@@ -212,9 +215,8 @@ describe('start', () => {
       }) as typeof process.exit);
     });
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-    await start(context, { signal: abortController.signal });
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const startPromise = start(context, { signal: abortController.signal });
 
     await taskPickedUpPromise;
     process.emit('SIGTERM');
@@ -233,22 +235,25 @@ describe('start', () => {
 
     abortController.abort();
     resolveTask();
+    consoleSpy.mockRestore()
+    await startPromise;
   });
 
   test('SIGTERM exits gracefully when no task is in progress', async () => {
     const abortController = new AbortController();
     const context = createMockContext();
 
-    vi.spyOn(process, 'exit').mockImplementation((() => {}) as typeof process.exit);
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-    await start(context, { signal: abortController.signal });
+    vi.spyOn(process, 'exit').mockImplementation((() => { }) as typeof process.exit);
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const startPromise = start(context, { signal: abortController.signal });
 
     process.emit('SIGTERM');
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Received SIGTERM')
-    );
+    await backendWaitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Received SIGTERM')
+      );
+    }, { interval: 10 })
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining('Graceful shutdown complete')
     );
@@ -258,6 +263,8 @@ describe('start', () => {
     expect(process.exit).toHaveBeenCalledWith(0);
 
     abortController.abort();
+    await startPromise;
+    consoleSpy.mockRestore()
   });
 
   test('logs when requeuing gracefully interrupted tasks', async () => {
@@ -273,10 +280,10 @@ describe('start', () => {
 
     processBackgroundTaskMock.mockResolvedValue(undefined);
 
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-    await start(context, { signal: abortController.signal });
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const startPromise = start(context, { signal: abortController.signal });
     abortController.abort();
+    await startPromise;
 
     expect(consoleLogSpy).toHaveBeenCalledWith(
       expect.stringContaining('Requeued 1 gracefully interrupted task(s)')

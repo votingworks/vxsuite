@@ -74,13 +74,14 @@ export async function start(
     process.exit(0);
   }
 
+  process.on('SIGTERM', handleSigterm);
+
   const crashedTasks = await store.failCrashedBackgroundTasks();
 
   if (crashedTasks.length > 0) {
     const crashedTaskIds = crashedTasks.map((task) => task.id);
     console.warn(
-      `⚠️  Worker starting with ${
-        crashedTaskIds.length
+      `⚠️  Worker starting with ${crashedTaskIds.length
       } crashed task(s) that will NOT be requeued: ${crashedTaskIds.join(', ')}`
     );
 
@@ -100,30 +101,25 @@ export async function start(
     await store.requeueGracefullyInterruptedBackgroundTasks();
   if (requeuedTaskIds.length > 0) {
     console.log(
-      `🔄 Requeued ${
-        requeuedTaskIds.length
+      `🔄 Requeued ${requeuedTaskIds.length
       } gracefully interrupted task(s): ${requeuedTaskIds.join(', ')}`
     );
   }
 
-  process.on('SIGTERM', handleSigterm);
-
-  process.nextTick(async () => {
-    while (!options?.signal?.aborted) {
-      const { wasTaskProcessed } = await processNextBackgroundTaskIfAny(
-        context,
-        // eslint-disable-next-line no-loop-func
-        (taskId) => {
-          currentTaskId = taskId;
-        }
-      );
-      if (!wasTaskProcessed) {
-        await sleep(1000);
-      } else {
-        currentTaskId = undefined;
+  while (!options?.signal?.aborted) {
+    const { wasTaskProcessed } = await processNextBackgroundTaskIfAny(
+      context,
+      // eslint-disable-next-line no-loop-func
+      (taskId) => {
+        currentTaskId = taskId;
       }
+    );
+    if (!wasTaskProcessed) {
+      await sleep(1000);
+    } else {
+      currentTaskId = undefined;
     }
+  }
 
-    process.off('SIGTERM', handleSigterm);
-  });
+  process.off('SIGTERM', handleSigterm);
 }
