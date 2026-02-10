@@ -1,3 +1,4 @@
+import React from 'react';
 import { find } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { ballotPaperDimensions, Election, PartyId } from '@votingworks/types';
@@ -24,6 +25,7 @@ const ContestTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   border: 1px solid ${Colors.DARKER_GRAY};
+  break-inside: avoid;
 
   th {
     text-align: left;
@@ -87,7 +89,7 @@ interface NhRovFormProps {
   partyId?: PartyId;
 }
 
-function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
+export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
   const party = partyId
     ? find(election.parties, (p) => p.id === partyId)
     : undefined;
@@ -194,9 +196,15 @@ function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
             columnGap: '0.5rem',
           }}
         >
-          {election.contests.map((contest) => (
-            <div key={contest.id} style={{ marginBottom: '0.5rem' }}>
-              {contest.type === 'candidate' && (
+          {election.contests
+            .filter(
+              (contest) =>
+                !partyId ||
+                contest.type !== 'candidate' ||
+                contest.partyId === partyId
+            )
+            .map((contest) => (
+              <div key={contest.id} style={{ marginBottom: '0.5rem' }}>
                 <ContestTable style={{ fontSize: '0.8rem' }}>
                   <tbody>
                     <thead>
@@ -213,17 +221,29 @@ function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                         )}
                       </th>
                     </thead>
-                    {contest.candidates.map((candidate) => (
-                      <tr key={candidate.id}>
-                        <td>{candidate.name}</td>
-                        <td></td>
-                      </tr>
-                    ))}
+                    {contest.type === 'candidate' &&
+                      contest.candidates.map((candidate) => (
+                        <tr key={candidate.id}>
+                          <td>{candidate.name}</td>
+                          <td></td>
+                        </tr>
+                      ))}
+                    {contest.type === 'yesno' && (
+                      <>
+                        <tr>
+                          <td>{contest.yesOption.label}</td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>{contest.noOption.label}</td>
+                          <td></td>
+                        </tr>
+                      </>
+                    )}
                   </tbody>
                 </ContestTable>
-              )}
-            </div>
-          ))}
+              </div>
+            ))}
         </div>
       </div>
     </Page>
