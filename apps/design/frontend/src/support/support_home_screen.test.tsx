@@ -84,27 +84,29 @@ test('lists elections', async () => {
   ]);
   let rows = within(table).getAllByRole('row').slice(1);
   expect(
-    rows.map((row) =>
-      within(row)
-        .getAllByRole('cell')
-        .map((cell) => cell.textContent?.trim())
-    )
+    rows.map((row) => {
+      const cells = within(row).getAllByRole('cell');
+      return cells.slice(0, -1).map((cell) => cell.textContent?.trim());
+    })
   ).toEqual([
     [
       'In progress',
       'jurisdiction1 Name',
       general.election.title,
       'Nov 3, 2020',
-      `EditMake a copy of ${general.election.title}Duplicate`,
     ],
     [
       'In progress',
       'jurisdiction1 Name',
       primary.election.title,
       'Sep 8, 2021',
-      `EditMake a copy of ${primary.election.title}Duplicate`,
     ],
   ]);
+
+  // Verify action buttons in the first row
+  const firstRowActionCell = within(rows[0]).getAllByRole('cell').at(-1)!;
+  within(firstRowActionCell).getByRole('button', { name: `Edit ${general.election.title}` });
+  within(firstRowActionCell).getByRole('button', { name: `Make a copy of ${general.election.title}` });
 
   // Test filter
   const filterInput = screen.getByLabelText(/filter elections/i);

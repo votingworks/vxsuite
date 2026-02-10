@@ -31,10 +31,6 @@ export const ElectionRow = styled.tr`
   }
 `;
 
-export const ActionIconButtonCell = styled.td`
-  text-align: center;
-`;
-
 const LinkCellContainer = styled.td`
   cursor: pointer;
 `;
