@@ -8,6 +8,7 @@ import {
   DiagnosticRecord,
   DiagnosticOutcome,
   doesPollsStateSupportLiveReporting,
+  BallotCastingMode,
 } from '@votingworks/types';
 import {
   combineElectionResults,
@@ -45,7 +46,6 @@ import {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
   PrecinctScannerPollsInfo,
-  BallotCastingMode,
 } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';

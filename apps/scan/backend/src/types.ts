@@ -8,6 +8,7 @@ import {
   SheetInterpretationWithPages,
   SystemSettings,
   PrecinctScannerMachineStatus,
+  BallotCastingMode,
 } from '@votingworks/types';
 
 export interface MachineConfig {
@@ -85,5 +86,3 @@ export type PrecinctScannerPollsInfo =
       pollsState: Exclude<PollsState, 'polls_closed_initial'>;
       lastPollsTransition: PollsTransition;
     };
-
-export type BallotCastingMode = 'early_voting' | 'election_day';

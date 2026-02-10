@@ -27,6 +27,7 @@ import {
   DiagnosticType,
   ElectionKey,
   constructElectionKey,
+  BallotCastingMode,
 } from '@votingworks/types';
 import {
   assert,
@@ -58,7 +59,7 @@ import { getPollsTransitionDestinationState } from '@votingworks/utils';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
-import { BallotCastingMode, PollsTransition } from './types';
+import { PollsTransition } from './types';
 
 const debug = rootDebug.extend('store');
 
@@ -608,9 +609,11 @@ export class Store {
    */
   addBatch(): string {
     const id = uuid();
+    const ballotCastingMode = this.getBallotCastingMode();
     this.client.run('insert into batches (id) values (?)', id);
     this.client.run(
-      `update batches set label = 'Batch ' || batch_number WHERE id = ?`,
+      `update batches set label = 'Batch ' || batch_number, ballot_casting_mode = ? WHERE id = ?`,
+      ballotCastingMode,
       id
     );
     return id;
@@ -798,6 +801,7 @@ export class Store {
       id: string;
       batchNumber: number;
       label: string;
+      ballotCastingMode: BallotCastingMode;
       startedAt: string;
       endedAt: string | null;
       error: string | null;
@@ -808,6 +812,7 @@ export class Store {
         batches.id as id,
         batches.batch_number as batchNumber,
         batches.label as label,
+        batches.ballot_casting_mode as ballotCastingMode,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         error,
@@ -832,6 +837,7 @@ export class Store {
       id: info.id,
       batchNumber: info.batchNumber,
       label: info.label,
+      ballotCastingMode: info.ballotCastingMode,
       // eslint-disable-next-line vx/gts-safe-number-parse
       startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
       endedAt:
