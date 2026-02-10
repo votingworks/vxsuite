@@ -11,7 +11,7 @@ contains 8 applications and 30+ shared libraries managed with pnpm workspaces.
 apps/           # 8 voting system applications
   admin/        # Election administration
   central-scan/ # Central ballot scanning
-  design/       # Election design (VxDesign)
+  design/       # Election design (VxDesign) — see note below
   mark/         # Ballot marking device
   mark-scan/    # Combined mark + scan device
   pollbook/     # Electronic pollbook
@@ -50,6 +50,11 @@ Each app typically has `frontend/`, `backend/`, and optionally
 - **Node:** 20.16.0
 - **Rust:** Used in performance-critical libs (ballot-interpreter, pdi-scanner,
   logging)
+
+**VxDesign exception:** VxDesign (`apps/design/`) is the only publicly-hosted
+application in the monorepo. Unlike the other apps which run on air-gapped
+hardware with better-sqlite3, VxDesign uses PostgreSQL and has different
+infrastructure patterns (e.g. database migrations, cloud deployment).
 
 ## Commands
 
@@ -217,8 +222,14 @@ fn.assertComplete(); // verify all expected calls were made (usually in afterEac
 - **Constants** — UPPER_CASE for module-level constants
 - **No floating promises** — all promises must be awaited or explicitly voided
   (`void somePromise()`)
-- **Result types** — use `Result<T, E>` from `@votingworks/basics` for error
-  handling instead of throwing
+- **Error handling** — fail fast for unexpected errors: unexpected errors should
+  crash the application (throw an exception) to ensure early detection and
+  prevent undefined behavior. Expected errors resulting from user behavior or
+  known external conditions should be handled with `Result<T, E>` from
+  `@votingworks/basics` to present actionable error messages to the user.
+  Expected errors should always be logged.
+- **Logging** — all user actions, and errors should be logged. Use
+  `@votingworks/logging` for structured log events.
 - **Readonly** — mark properties as `readonly` when they aren't reassigned
 - **React** — functional components only, with hooks; components return
   `JSX.Element`
