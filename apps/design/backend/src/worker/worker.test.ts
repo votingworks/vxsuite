@@ -235,7 +235,7 @@ describe('start', () => {
 
     abortController.abort();
     resolveTask();
-    consoleSpy.mockRestore()
+    consoleSpy.mockRestore();
     await startPromise;
   });
 
@@ -262,7 +262,7 @@ describe('start', () => {
       expect.stringContaining('Received SIGTERM')
     );
 
-    consoleSpy.mockRestore()
+    consoleSpy.mockRestore();
   });
 
   test('logs when requeuing gracefully interrupted tasks', async () => {
