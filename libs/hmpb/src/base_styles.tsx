@@ -65,6 +65,10 @@ export function baseStyles(params: BaseStylesProps): string {
     padding: 0;
     list-style: none;
   }
+
+  table {
+    border-collapse: collapse;
+  }
 `;
 }
 export function BaseStyles(props: BaseStylesProps): JSX.Element {
