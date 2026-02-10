@@ -23,9 +23,6 @@ junit.xml
 .env.production.local
 .vscode
 *.local
-*.github/instructions/**
-*.github/copilot-instructions.md
-CLAUDE.md
 
 *.log
 *~

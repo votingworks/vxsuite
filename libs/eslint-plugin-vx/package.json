@@ -22,9 +22,10 @@
     "lint": "echo eslint-plugin-vs linting temporarily disabled",
     "lint:fix": "echo eslint-plugin-vs linting temporarily disabled",
     "test": "is-ci test:ci test:watch",
-    "test:watch": "vitest",
+    "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
-    "test:ci": "vitest run --coverage"
+    "test:run": "vitest run",
+    "test:watch": "vitest"
   },
   "packageManager": "pnpm@8.15.5",
   "dependencies": {

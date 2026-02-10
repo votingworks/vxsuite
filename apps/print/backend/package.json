@@ -24,6 +24,7 @@
     "test:ci": "TZ=America/Anchorage vitest run --coverage",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:notdummy": "is-ci test:ci test:watch",
+    "test:run": "TZ=America/Anchorage vitest run",
     "test:watch": "TZ=America/Anchorage vitest",
     "type-check": "tsgo --build"
   },
