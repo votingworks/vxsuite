@@ -2581,18 +2581,18 @@ export class Store {
   /**
    * Marks tasks that have crashed as failed (completed with an error).
    */
-  async failCrashedBackgroundTasks(): Promise<BackgroundTask[]> {
+  async failCrashedBackgroundTasks(): Promise<Id[]> {
     return this.db.withClient(async (client) => {
       const { rows } = await client.query(
         `
           update background_tasks
           set completed_at = current_timestamp, error = $1
           where started_at is not null and completed_at is null and interrupted_at is null
-          returning ${getBackgroundTasksColumns}
+          returning id
         `,
         'Task crashed and was marked as failed'
       );
-      return rows.map(backgroundTaskRowToBackgroundTask);
+      return rows.map(({ id }) => id);
     });
   }
 

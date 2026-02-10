@@ -68,10 +68,9 @@ export async function start(
 
   process.on('SIGTERM', handleSigterm);
 
-  const crashedTasks = await store.failCrashedBackgroundTasks();
+  const crashedTaskIds = await store.failCrashedBackgroundTasks();
 
-  if (crashedTasks.length > 0) {
-    const crashedTaskIds = crashedTasks.map((task) => task.id);
+  if (crashedTaskIds.length > 0) {
     console.warn(
       `⚠️  Worker starting with ${crashedTaskIds.length
       } crashed task(s) that will NOT be requeued: ${crashedTaskIds.join(', ')}`
