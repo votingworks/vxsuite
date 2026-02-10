@@ -1240,6 +1240,39 @@ export class Store {
     throw new Error(`No matching ballot layout found for contest ${contestId}`);
   }
 
+  /**
+   * Returns the images and layouts for both sides of a ballot.
+   */
+  getBallotImagesAndLayouts({ cvrId }: { cvrId: Id }): Array<{
+    image: Buffer;
+    side: Side;
+    layout?: BallotPageLayout;
+  }> {
+    const rows = this.client.all(
+      `
+      select
+        image,
+        side,
+        layout
+      from ballot_images
+      where cvr_id = ?
+      `,
+      cvrId
+    ) as Array<{
+      image: Buffer;
+      side: Side;
+      layout?: string;
+    }>;
+
+    return rows.map((row) => ({
+      image: row.image,
+      side: row.side,
+      layout: row.layout
+        ? safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap()
+        : undefined,
+    }));
+  }
+
   getCvrFiles(electionId: Id): CastVoteRecordFileRecord[] {
     debug('querying database for cvr file list');
     const results = this.client.all(

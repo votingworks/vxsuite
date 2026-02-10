@@ -35,9 +35,12 @@ export const routerPaths = {
   ballotCountReportVotingMethod: '/reports/ballot-count/voting-method',
   tallyWriteInReport: '/reports/tally-reports/writein',
   adjudication: '/adjudication',
+  contestAdjudicationSummary: '/adjudication/contests',
   contestAdjudication: ({
     contestId,
-  }: ContestAdjudicationScreenParams): string => `/adjudication/${contestId}`,
+  }: ContestAdjudicationScreenParams): string =>
+    `/adjudication/contests/${contestId}`,
+  ballotAdjudication: `/adjudication/ballots`,
   settings: '/settings',
   hardwareDiagnostics: '/hardware-diagnostics',
   system: '/system',
