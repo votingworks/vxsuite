@@ -66,6 +66,8 @@ beforeEach(() => {
     .expectCallWith({ electionId })
     .resolves('VxDefaultBallot');
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listContests.expectCallWith({ electionId }).resolves([]);
+  apiMock.listDistricts.expectCallWith({ electionId }).resolves([]);
   mockUserFeatures(apiMock);
   mockStateFeatures(apiMock, electionId);
 
