@@ -150,12 +150,7 @@ function mockPendingTask(
   id: string,
   taskName: BackgroundTask['taskName']
 ): BackgroundTask {
-  return {
-    createdAt: new Date(),
-    id,
-    payload: '',
-    taskName,
-  };
+  return { createdAt: new Date(), id, payload: '', taskName };
 }
 
 function renderDownloads(api: MockApiClient) {

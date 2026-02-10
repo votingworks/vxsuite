@@ -489,28 +489,28 @@ test('create/list/delete elections', async () => {
       districtId: election2Districts[0].id,
       ...(contest.type === 'candidate'
         ? {
-          candidates: contest.candidates.map((candidate) =>
-            expect.objectContaining({
-              ...candidate,
-              id: expectNotEqualTo(candidate.id),
-              partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
-              firstName: expect.any(String),
-              // TODO upgrade vitest to use expect.toBeOneOf
-              // middleName: expect.toBeOneOf([expect.any(String), undefined]),
-              lastName: expect.any(String),
-            })
-          ),
-        }
+            candidates: contest.candidates.map((candidate) =>
+              expect.objectContaining({
+                ...candidate,
+                id: expectNotEqualTo(candidate.id),
+                partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
+                firstName: expect.any(String),
+                // TODO upgrade vitest to use expect.toBeOneOf
+                // middleName: expect.toBeOneOf([expect.any(String), undefined]),
+                lastName: expect.any(String),
+              })
+            ),
+          }
         : {
-          yesOption: {
-            ...contest.yesOption,
-            id: expectNotEqualTo(contest.yesOption.id),
-          },
-          noOption: {
-            ...contest.noOption,
-            id: expectNotEqualTo(contest.noOption.id),
-          },
-        }),
+            yesOption: {
+              ...contest.yesOption,
+              id: expectNotEqualTo(contest.yesOption.id),
+            },
+            noOption: {
+              ...contest.noOption,
+              id: expectNotEqualTo(contest.noOption.id),
+            },
+          }),
     }))
   );
   expect(
@@ -3270,7 +3270,7 @@ test('Election package and ballots export', async () => {
   //
   expect(countObjectLeaves(uiStringAudioIds)).toEqual(
     countObjectLeaves(uiStrings) -
-    Object.keys(hmpbStringsCatalog).length * allBallotLanguages.length
+      Object.keys(hmpbStringsCatalog).length * allBallotLanguages.length
   );
 
   //
@@ -3795,25 +3795,25 @@ test.each([
 
     const expectedFiles = shouldIncludeSummaryBallots
       ? [
-        ...precinctsWithBallots.flatMap((precinct) => [
-          `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
-          `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
-        ]),
-        FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-        ...precincts.map((precinct) =>
-          precinctTallyReportFileName(precinct.name)
-        ),
-      ]
+          ...precinctsWithBallots.flatMap((precinct) => [
+            `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`,
+            `${precinct.name.replaceAll(' ', '_')}-summary-ballots.pdf`,
+          ]),
+          FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+          ...precincts.map((precinct) =>
+            precinctTallyReportFileName(precinct.name)
+          ),
+        ]
       : [
-        ...precinctsWithBallots.map(
-          (precinct) =>
-            `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
-        ),
-        FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-        ...precincts.map((precinct) =>
-          precinctTallyReportFileName(precinct.name)
-        ),
-      ];
+          ...precinctsWithBallots.map(
+            (precinct) =>
+              `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
+          ),
+          FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+          ...precincts.map((precinct) =>
+            precinctTallyReportFileName(precinct.name)
+          ),
+        ];
 
     // eslint-disable-next-line vx/no-array-sort-mutation
     expect(Object.keys(zip.files).sort()).toEqual(expectedFiles.sort());
