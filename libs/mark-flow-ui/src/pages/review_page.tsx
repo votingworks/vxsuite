@@ -1,4 +1,5 @@
 /* istanbul ignore file - @preserve - tested via Mark/Mark-Scan */
+import React from 'react';
 import styled from 'styled-components';
 import {
   LinkButton,
@@ -29,6 +30,7 @@ const ContentHeader = styled(ReadOnLoad)`
 `;
 
 export interface ReviewPageProps {
+  backUrl?: string;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
   precinctId?: PrecinctId;
@@ -41,6 +43,7 @@ export interface ReviewPageProps {
 
 export function ReviewPage(props: ReviewPageProps): JSX.Element {
   const {
+    backUrl,
     contests,
     electionDefinition,
     precinctId,
@@ -86,9 +89,20 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     </LinkButton>
   );
 
+  const backButton = backUrl ? (
+    <LinkButton icon="Previous" to={backUrl}>
+      {appStrings.buttonBack()}
+    </LinkButton>
+  ) : undefined;
+
   return (
     <VoterScreen
-      actionButtons={printMyBallotButton}
+      actionButtons={
+        <React.Fragment>
+          {backButton && backButton}
+          {printMyBallotButton}
+        </React.Fragment>
+      }
       VoterHelpScreen={VoterHelpScreen}
     >
       <ContentHeader>

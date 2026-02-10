@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { Route } from 'react-router-dom';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -38,6 +38,7 @@ test('Renders ContestScreen', async () => {
   await screen.findByRole('heading', { name: firstContestTitle });
   screen.getButton(/next/i);
   screen.getButton(/back/i);
+  screen.getButton(/view all/i);
   screen.getByRole('button', { name: 'Settings' });
 });
 
@@ -67,7 +68,9 @@ test('Renders ContestScreen in Landscape orientation in Review Mode', async () =
     }
   );
   await screen.findByRole('heading', { name: firstContestTitle });
-  screen.getByText('Review');
+  screen.getButton(/review/i);
+  expect(screen.queryButton(/back/i)).toBeNull();
+  expect(screen.queryButton(/next/i)).toBeNull();
 });
 
 test('renders as voter screen', () => {

@@ -96,14 +96,20 @@ const PortraitButtonGrid = styled(ButtonGrid)`
   }
 
   /**
-   * Three buttons
-   * Note: When using the XL text size, three buttons aren't guaranteed to fit in a row so we still
-   * use a two-column layout for that case.
+   * Three buttons: one row in normal sizes, two rows in XL mode
+   * (View All full width on top, Back and Next below).
    */
   &:has(> :first-child:nth-last-child(3)) {
     grid-template-columns: ${(p) =>
       p.theme.sizeMode === 'touchExtraLarge' ? '1fr 1fr' : '1fr 1fr 1fr'};
   }
+
+  ${(p) =>
+    p.theme.sizeMode === 'touchExtraLarge'
+      ? `&:has(> :first-child:nth-last-child(3)) > :first-child {
+          grid-column: 1 / -1;
+        }`
+      : ''}
 `;
 
 const LandscapeButtonGrid = styled(ButtonGrid)`
