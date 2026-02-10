@@ -14,6 +14,13 @@ import {
 import { Column, Row } from './layout';
 import { reorderElement } from './utils';
 
+function serializeContestIds(contests: Contests): string {
+  return contests
+    .map((c) => c.id)
+    .sort()
+    .join(',');
+}
+
 export function reorderContestsByDistrict(
   contests: Contests,
   districtOrder: District[]
@@ -23,14 +30,23 @@ export function reorderContestsByDistrict(
   assert(candidateContests.length + yesNoContests.length === contests.length);
 
   const districtIds = districtOrder.map((d) => d.id);
-  const orderedCandidateContests = districtIds.flatMap((districtId) =>
+  const reorderedCandidateContests = districtIds.flatMap((districtId) =>
     candidateContests.filter((c) => c.districtId === districtId)
   );
-  const orderedYesNoContests = districtIds.flatMap((districtId) =>
+  const reorderedYesNoContests = districtIds.flatMap((districtId) =>
     yesNoContests.filter((c) => c.districtId === districtId)
   );
+  const reorderedContests = [
+    ...reorderedCandidateContests,
+    ...reorderedYesNoContests,
+  ];
 
-  return [...orderedCandidateContests, ...orderedYesNoContests];
+  // Safeguard to make sure that we aren't accidentally losing contests
+  assert(
+    serializeContestIds(reorderedContests) === serializeContestIds(contests)
+  );
+
+  return reorderedContests;
 }
 
 const DistrictRow = styled(Row)`
