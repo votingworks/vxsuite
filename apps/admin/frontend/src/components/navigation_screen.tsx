@@ -45,7 +45,13 @@ const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
   { label: 'Tally', routerPath: routerPaths.tally },
   ...(isFeatureFlagEnabled(BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION)
-    ? [{ label: 'Adjudication', routerPath: routerPaths.adjudication }]
+    ? [
+        { label: 'Adjudication', routerPath: routerPaths.adjudication },
+        {
+          label: 'Adjudication',
+          routerPath: routerPaths.contestAdjudicationSummary,
+        },
+      ]
     : []),
   { label: 'Reports', routerPath: routerPaths.reports },
   { label: 'Settings', routerPath: routerPaths.settings },

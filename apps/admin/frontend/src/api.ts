@@ -229,6 +229,97 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
+export const getBallotAdjudicationQueue = {
+  queryKey(): QueryKey {
+    return ['getBallotAdjudicationQueue'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getBallotAdjudicationQueue()
+    );
+  },
+} as const;
+
+export const getBallotAdjudicationQueueMetadata = {
+  queryKey(): QueryKey {
+    return ['getBallotAdjudicationQueueMetadata'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getBallotAdjudicationQueueMetadata()
+    );
+  },
+} as const;
+
+export const getNextCvrIdForBallotAdjudication = {
+  queryKey(): QueryKey {
+    return ['getNextCvrIdForBallotAdjudication'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getNextCvrIdForBallotAdjudication()
+    );
+  },
+} as const;
+
+type GetBallotAdjudicationDataInput = QueryInput<'getBallotAdjudicationData'>;
+export const getBallotAdjudicationData = {
+  queryKey(input?: GetBallotAdjudicationDataInput): QueryKey {
+    return input
+      ? ['getBallotAdjudicationData', input.cvrId]
+      : ['getBallotAdjudicationData'];
+  },
+  useQuery(input?: GetBallotAdjudicationDataInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () =>
+            apiClient.getBallotAdjudicationData({
+              cvrId: input.cvrId,
+            })
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+} as const;
+
+type GetBallotImagesAndLayoutsInput = QueryInput<'getBallotImagesAndLayouts'>;
+export const getBallotImagesAndLayouts = {
+  queryKey(input?: GetBallotImagesAndLayoutsInput): QueryKey {
+    return input
+      ? ['getBallotImagesAndLayouts', input.cvrId]
+      : ['getBallotImagesAndLayouts'];
+  },
+  useQuery(input?: GetBallotImagesAndLayoutsInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () =>
+            apiClient.getBallotImagesAndLayouts({
+              cvrId: input.cvrId,
+            })
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+  usePrefetch() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return (input: GetBallotImagesAndLayoutsInput) =>
+      queryClient.prefetchQuery({
+        queryKey: getBallotImagesAndLayouts.queryKey(input),
+        queryFn: () => apiClient.getBallotImagesAndLayouts(input),
+      });
+  },
+} as const;
+
 type GetAdjudicationQueueInput = QueryInput<'getAdjudicationQueue'>;
 export const getAdjudicationQueue = {
   queryKey(input?: GetAdjudicationQueueInput): QueryKey {
@@ -775,9 +866,28 @@ export const adjudicateCvrContest = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.adjudicateCvrContest, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getVoteAdjudications.queryKey());
-        await queryClient.invalidateQueries(getCvrContestTag.queryKey());
+      async onSuccess(_data, variables) {
+        await queryClient.invalidateQueries(
+          getVoteAdjudications.queryKey({
+            cvrId: variables.cvrId,
+            contestId: variables.contestId,
+          })
+        );
+        await queryClient.invalidateQueries(
+          getCvrContestTag.queryKey({
+            cvrId: variables.cvrId,
+            contestId: variables.contestId,
+          })
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationQueueMetadata.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getNextCvrIdForBallotAdjudication.queryKey()
+        );
         await invalidateWriteInQueries(queryClient);
       },
     });

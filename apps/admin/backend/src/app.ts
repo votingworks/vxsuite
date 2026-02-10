@@ -90,10 +90,14 @@ import {
   CvrContestTag,
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
+  BallotImages,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { getBallotImageView } from './util/adjudication';
+import {
+  getBallotImageView,
+  getBallotImagesAndLayouts,
+} from './util/adjudication';
 import {
   transformWriteInsAndSetManualResults,
   validateManualResults,
@@ -766,6 +770,13 @@ function buildApi({
     getBallotAdjudicationData(input: { cvrId: Id }): BallotAdjudicationData {
       return store.getBallotAdjudicationData({
         electionId: loadCurrentElectionIdOrThrow(workspace),
+        cvrId: input.cvrId,
+      });
+    },
+
+    getBallotImagesAndLayouts(input: { cvrId: Id }): Promise<BallotImages> {
+      return getBallotImagesAndLayouts({
+        store: workspace.store,
         cvrId: input.cvrId,
       });
     },
