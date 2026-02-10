@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import { mkdtempSync } from 'node:fs';
-import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { expect, test } from 'vitest';
 import { MockBatchScanner } from './mock_batch_scanner';
 import { ScannedSheetInfo } from './fujitsu_scanner';
@@ -62,8 +62,12 @@ test('clearSheets empties the queue and cleans up image files', () => {
   const testFile = join(scanner.imageDir, 'test.jpg');
   fs.writeFileSync(testFile, 'data');
   scanner.addSheets([sheet(1), sheet(2)]);
+
   scanner.clearSheets();
+
   expect(scanner.getStatus()).toEqual({ sheetCount: 0 });
+  expect(fs.readdirSync(scanner.imageDir)).toEqual([]);
+  expect(fs.existsSync(scanner.imageDir)).toEqual(true);
 });
 
 test('scanSheets returns sheets and preserves the queue', async () => {

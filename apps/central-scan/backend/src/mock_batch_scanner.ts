@@ -1,4 +1,7 @@
 import * as fs from 'node:fs';
+import { mkdtempSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import {
   BatchControl,
   BatchScanner,
@@ -10,7 +13,7 @@ export interface MockBatchScannerApi {
   getStatus(): { sheetCount: number };
   clearSheets(): void;
   /** Directory for writing temporary ballot images. */
-  readonly imageDir: string;
+  imageDir: string;
 }
 
 /**
@@ -55,6 +58,8 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
 
   clearSheets(): void {
     this.queue = [];
+    fs.rmSync(this.imageDirPath, { recursive: true, force: true });
+    fs.mkdirSync(this.imageDirPath, { recursive: true });
   }
 
   /* eslint-disable @typescript-eslint/require-await */

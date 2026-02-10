@@ -502,8 +502,10 @@ test('mock PDI scanner', async () => {
 });
 
 function createMockBatchScanner(): MockBatchScannerApi {
+  const imageDir = fs.mkdtempSync(join(tmpdir(), 'dev-dock-test-'));
   let sheets: Array<{ frontPath: string; backPath: string }> = [];
   return {
+    imageDir,
     addSheets(newSheets) {
       sheets.push(...newSheets);
     },

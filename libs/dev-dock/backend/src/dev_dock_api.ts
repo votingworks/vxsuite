@@ -1,7 +1,7 @@
 import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
-import { homedir, tmpdir } from 'node:os';
+import { homedir } from 'node:os';
 import { join, extname, isAbsolute, relative } from 'node:path';
 import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import {
@@ -43,6 +43,7 @@ export interface MockBatchScannerApi {
   addSheets(sheets: Array<{ frontPath: string; backPath: string }>): void;
   getStatus(): { sheetCount: number };
   clearSheets(): void;
+  readonly imageDir: string;
 }
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
@@ -379,9 +380,12 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       const sheets: Array<{ frontPath: string; backPath: string }> = [];
       let fileIndex = 0;
 
-      function nextTmpPath(): string {
+      function nextImagePath(): string {
         fileIndex += 1;
-        return join(tmpdir(), `dev-dock-batch-${Date.now()}-${fileIndex}.jpg`);
+        return join(
+          batchScanner.imageDir,
+          `sheet-${Date.now()}-${fileIndex}.jpg`
+        );
       }
 
       const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
@@ -403,10 +407,10 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
             const frontImage = assertDefined(images[i]);
             const backImage = images[i + 1];
 
-            const frontPath = nextTmpPath();
+            const frontPath = nextImagePath();
             await writeImageData(frontPath, frontImage);
 
-            const backPath = nextTmpPath();
+            const backPath = nextImagePath();
             if (backImage) {
               await writeImageData(backPath, backImage);
             } else {
@@ -431,7 +435,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         } else {
           // Odd image: generate a blank back
           const frontResult = (await loadImageData(frontPath)).unsafeUnwrap();
-          const blankBackPath = nextTmpPath();
+          const blankBackPath = nextImagePath();
           await writeImageData(
             blankBackPath,
             createImageData(frontResult.width, frontResult.height)
