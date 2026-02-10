@@ -7,8 +7,7 @@ import { WorkerContext } from './context';
 import { processBackgroundTask } from './tasks';
 
 export async function processNextBackgroundTaskIfAny(
-  context: WorkerContext,
-  onTaskStarted?: (taskId: string) => void
+  context: WorkerContext
 ): Promise<{ wasTaskProcessed: boolean }> {
   const { store } = context.workspace;
 
@@ -17,8 +16,6 @@ export async function processNextBackgroundTaskIfAny(
   if (!nextTask) {
     return { wasTaskProcessed: false };
   }
-
-  onTaskStarted?.(nextTask.id);
 
   await store.startBackgroundTask(nextTask.id);
   console.log(`⏳ Processing background task ${nextTask.id}...`);
@@ -57,16 +54,11 @@ export async function start(
 ): Promise<void> {
   const { store } = context.workspace;
 
-  // Track the currently running task for graceful shutdown
-  let currentTaskId: string | undefined;
-
   async function handleSigterm() {
     console.log('Received SIGTERM, marking graceful shutdown...');
     try {
-      if (currentTaskId) {
-        await store.markTaskAsGracefullyInterrupted(currentTaskId);
-        console.log(`Marked task ${currentTaskId} as gracefully interrupted`);
-      }
+      await store.markRunningTaskAsGracefullyInterrupted();
+      console.log('Marked running task as gracefully interrupted');
       console.log('Graceful shutdown complete, exiting...');
     } catch (error) {
       console.error('Error during graceful shutdown:', error);
@@ -107,17 +99,9 @@ export async function start(
   }
 
   while (!options?.signal?.aborted) {
-    const { wasTaskProcessed } = await processNextBackgroundTaskIfAny(
-      context,
-      // eslint-disable-next-line no-loop-func
-      (taskId) => {
-        currentTaskId = taskId;
-      }
-    );
+    const { wasTaskProcessed } = await processNextBackgroundTaskIfAny(context);
     if (!wasTaskProcessed) {
       await sleep(1000);
-    } else {
-      currentTaskId = undefined;
     }
   }
 

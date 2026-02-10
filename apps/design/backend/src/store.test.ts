@@ -377,7 +377,7 @@ test('graceful interruption - mark and requeue tasks', async () => {
   });
 
   await store.startBackgroundTask(task1Id);
-  await store.markTaskAsGracefullyInterrupted(task1Id);
+  await store.markRunningTaskAsGracefullyInterrupted();
 
   let task1 = assertDefined(await store.getBackgroundTask(task1Id));
   const task2 = assertDefined(await store.getBackgroundTask(task2Id));

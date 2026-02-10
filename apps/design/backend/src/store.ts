@@ -2597,29 +2597,36 @@ export class Store {
   }
 
   /**
-   * Marks a specific background task as gracefully interrupted.
+   * Marks the running background task as gracefully interrupted.
    * Used by the SIGTERM handler to mark the currently running task.
    */
-  async markTaskAsGracefullyInterrupted(taskId: Id): Promise<void> {
-    await this.db.withClient(async (client) =>
-      client.query(
+  async markRunningTaskAsGracefullyInterrupted(): Promise<void> {
+    await this.db.withClient(async (client) => {
+      const { rows } = await client.query(
         `
           update background_tasks
           set interrupted_at = current_timestamp
-          where id = $1
-        `,
-        taskId
-      )
-    );
+          where started_at is not null
+            and completed_at is null
+            and interrupted_at is null
+          returning id
+        `
+      );
+
+      const ids = rows.map(({ id }) => id);
+      assert(ids.length <= 1, `Too many running background tasks! IDs=${ids.join(', ')}`);
+    });
   }
 
   async requeueGracefullyInterruptedBackgroundTasks(): Promise<Id[]> {
     return this.db.withClient(async (client) => {
-      // Update and return the requeued tasks in a single atomic operation
       const result = await client.query(
         `
           update background_tasks
-          set started_at = null, interrupted_at = null
+          set started_at = null,
+              completed_at = null,
+              interrupted_at = null,
+              error = null
           where started_at is not null
             and completed_at is null
             and interrupted_at is not null

@@ -77,7 +77,7 @@ describe('processNextBackgroundTaskIfAny', () => {
 
     processBackgroundTaskMock.mockRejectedValue(taskError);
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
     const result = await processNextBackgroundTaskIfAny(context);
 
@@ -101,7 +101,7 @@ describe('processNextBackgroundTaskIfAny', () => {
 
     processBackgroundTaskMock.mockRejectedValue('string error value');
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
     const result = await processNextBackgroundTaskIfAny(context);
 
@@ -125,11 +125,11 @@ describe('start', () => {
       {}
     );
     await store.startBackgroundTask(interruptedTaskId);
-    await store.markTaskAsGracefullyInterrupted(interruptedTaskId);
+    await store.markRunningTaskAsGracefullyInterrupted();
 
     processBackgroundTaskMock.mockResolvedValue(undefined);
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
     const startPromise = start(context, { signal: abortController.signal });
     abortController.abort();
@@ -160,8 +160,8 @@ describe('start', () => {
 
     const consoleWarnSpy = vi
       .spyOn(console, 'warn')
-      .mockImplementation(() => {});
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      .mockImplementation(() => { });
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
     const startPromise = start(context, { signal: abortController.signal });
     abortController.abort();
@@ -229,7 +229,7 @@ describe('start', () => {
       expect.stringContaining('Received SIGTERM')
     );
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining(`Marked task ${taskId} as gracefully interrupted`)
+      expect.stringContaining('Marked running task as gracefully interrupted')
     );
     expect(process.exit).toHaveBeenCalledWith(0);
 
@@ -249,21 +249,19 @@ describe('start', () => {
 
     process.emit('SIGTERM');
 
+    abortController.abort();
+    await startPromise;
+
     await backendWaitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Received SIGTERM')
-      );
-    }, { interval: 10 })
+      expect(process.exit).toHaveBeenCalledWith(0);
+    }, { interval: 50 });
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining('Graceful shutdown complete')
     );
-    expect(consoleSpy).not.toHaveBeenCalledWith(
-      expect.stringContaining('Marked task')
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Received SIGTERM')
     );
-    expect(process.exit).toHaveBeenCalledWith(0);
 
-    abortController.abort();
-    await startPromise;
     consoleSpy.mockRestore()
   });
 
@@ -276,7 +274,7 @@ describe('start', () => {
       {}
     );
     await store.startBackgroundTask(gracefulTaskId);
-    await store.markTaskAsGracefullyInterrupted(gracefulTaskId);
+    await store.markRunningTaskAsGracefullyInterrupted();
 
     processBackgroundTaskMock.mockResolvedValue(undefined);
 
