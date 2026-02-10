@@ -1,7 +1,7 @@
 import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
-import { homedir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join, extname, isAbsolute, relative } from 'node:path';
 import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import {
@@ -31,8 +31,19 @@ import {
 import { getMockFilePrinterHandler } from '@votingworks/printing';
 import { writeFile } from 'node:fs/promises';
 import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
-import { pdfToImages } from '@votingworks/image-utils';
+import {
+  createImageData,
+  loadImageData,
+  pdfToImages,
+  writeImageData,
+} from '@votingworks/image-utils';
 import { execFile } from './utils';
+
+export interface MockBatchScannerApi {
+  addSheets(sheets: Array<{ frontPath: string; backPath: string }>): void;
+  getStatus(): { sheetCount: number };
+  clearSheets(): void;
+}
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
 export type DevDockUsbDriveStatus = 'inserted' | 'removed';
@@ -96,6 +107,7 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
 export interface MockSpec {
   printerConfig?: PrinterConfig | 'fujitsu';
   mockPdiScanner?: MockScanner;
+  mockBatchScanner?: MockBatchScannerApi;
   // Optional hardware mocks provided by the host app
   getBarcodeConnected?: () => boolean;
   setBarcodeConnected?: (connected: boolean) => void;
@@ -109,6 +121,7 @@ interface SerializableMockSpec
   extends Omit<
     MockSpec,
     | 'mockPdiScanner'
+    | 'mockBatchScanner'
     | 'setBarcodeConnected'
     | 'setAccessibleControllerConnected'
     | 'setPatInputConnected'
@@ -117,6 +130,7 @@ interface SerializableMockSpec
     | 'getPatInputConnected'
   > {
   mockPdiScanner?: boolean;
+  mockBatchScanner?: boolean;
   hasBarcodeMock?: boolean;
   hasPatInputMock?: boolean;
   hasAccessibleControllerMock?: boolean;
@@ -184,6 +198,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       return {
         printerConfig: mockSpec.printerConfig,
         mockPdiScanner: Boolean(mockSpec.mockPdiScanner),
+        mockBatchScanner: Boolean(mockSpec.mockBatchScanner),
         hasBarcodeMock:
           Boolean(mockSpec.getBarcodeConnected) &&
           Boolean(mockSpec.setBarcodeConnected),
@@ -353,6 +368,83 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
 
     pdiScannerRemoveSheet(): void {
       assertDefined(mockSpec.mockPdiScanner).removeSheet();
+    },
+
+    batchScannerGetStatus(): { sheetCount: number } {
+      return assertDefined(mockSpec.mockBatchScanner).getStatus();
+    },
+
+    async batchScannerLoadBallots(input: { paths: string[] }): Promise<void> {
+      const batchScanner = assertDefined(mockSpec.mockBatchScanner);
+      const sheets: Array<{ frontPath: string; backPath: string }> = [];
+      let fileIndex = 0;
+
+      function nextTmpPath(): string {
+        fileIndex += 1;
+        return join(tmpdir(), `dev-dock-batch-${Date.now()}-${fileIndex}.jpg`);
+      }
+
+      const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
+      const imageFilePaths: string[] = [];
+
+      for (const filePath of input.paths) {
+        const ext = extname(filePath).toLowerCase();
+
+        if (IMAGE_EXTENSIONS.includes(ext)) {
+          imageFilePaths.push(filePath);
+        } else {
+          // Treat as PDF
+          const pdfData = Uint8Array.from(fs.readFileSync(filePath));
+          const images = await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
+            .map(({ page }) => page)
+            .toArray();
+
+          for (let i = 0; i < images.length; i += 2) {
+            const frontImage = assertDefined(images[i]);
+            const backImage = images[i + 1];
+
+            const frontPath = nextTmpPath();
+            await writeImageData(frontPath, frontImage);
+
+            const backPath = nextTmpPath();
+            if (backImage) {
+              await writeImageData(backPath, backImage);
+            } else {
+              await writeImageData(
+                backPath,
+                createImageData(frontImage.width, frontImage.height)
+              );
+            }
+
+            sheets.push({ frontPath, backPath });
+          }
+        }
+      }
+
+      // Pair image files as front/back, 2 at a time
+      for (let i = 0; i < imageFilePaths.length; i += 2) {
+        const frontPath = assertDefined(imageFilePaths[i]);
+        const backPath = imageFilePaths[i + 1];
+
+        if (backPath) {
+          sheets.push({ frontPath, backPath });
+        } else {
+          // Odd image: generate a blank back
+          const frontResult = (await loadImageData(frontPath)).unsafeUnwrap();
+          const blankBackPath = nextTmpPath();
+          await writeImageData(
+            blankBackPath,
+            createImageData(frontResult.width, frontResult.height)
+          );
+          sheets.push({ frontPath, backPath: blankBackPath });
+        }
+      }
+
+      batchScanner.addSheets(sheets);
+    },
+
+    batchScannerClearBallots(): void {
+      assertDefined(mockSpec.mockBatchScanner).clearSheets();
     },
   });
 }

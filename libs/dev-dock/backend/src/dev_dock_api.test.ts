@@ -39,6 +39,7 @@ import {
   Api,
   useDevDockRouter,
   MockSpec,
+  MockBatchScannerApi,
   DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
   DEV_DOCK_ELECTION_FILE_NAME,
 } from './dev_dock_api';
@@ -312,6 +313,7 @@ test('mock spec', async () => {
   const { apiClient: apiClient1 } = setup({ printerConfig: 'fujitsu' });
   expect(await apiClient1.getMockSpec()).toEqual({
     mockPdiScanner: false,
+    mockBatchScanner: false,
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: false,
     hasBarcodeMock: false,
@@ -329,6 +331,7 @@ test('mock spec', async () => {
   });
   expect(await apiClient2.getMockSpec()).toEqual({
     mockPdiScanner: false,
+    mockBatchScanner: false,
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: true,
     hasBarcodeMock: true,
@@ -496,4 +499,59 @@ test('mock PDI scanner', async () => {
   );
   await apiClient.pdiScannerRemoveSheet();
   expect(await apiClient.pdiScannerGetSheetStatus()).toEqual('noSheet');
+});
+
+function createMockBatchScanner(): MockBatchScannerApi {
+  let sheets: Array<{ frontPath: string; backPath: string }> = [];
+  return {
+    addSheets(newSheets) {
+      sheets.push(...newSheets);
+    },
+    getStatus() {
+      return { sheetCount: sheets.length };
+    },
+    clearSheets() {
+      sheets = [];
+    },
+  };
+}
+
+test('mock batch scanner - get status', async () => {
+  const mockBatchScanner = createMockBatchScanner();
+  const { apiClient } = setup({ mockBatchScanner });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 0 });
+});
+
+test('mock batch scanner - load ballots from PDF', async () => {
+  const mockBatchScanner = createMockBatchScanner();
+  const { apiClient } = setup({ mockBatchScanner });
+
+  await apiClient.batchScannerLoadBallots({
+    paths: [vxFamousNamesFixtures.markedBallotPath],
+  });
+
+  const status = await apiClient.batchScannerGetStatus();
+  expect(status.sheetCount).toBeGreaterThan(0);
+});
+
+test('mock batch scanner - clear ballots', async () => {
+  const mockBatchScanner = createMockBatchScanner();
+  const { apiClient } = setup({ mockBatchScanner });
+
+  await apiClient.batchScannerLoadBallots({
+    paths: [vxFamousNamesFixtures.markedBallotPath],
+  });
+  expect((await apiClient.batchScannerGetStatus()).sheetCount).toBeGreaterThan(
+    0
+  );
+
+  await apiClient.batchScannerClearBallots();
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 0 });
+});
+
+test('mock batch scanner - mock spec reports mockBatchScanner', async () => {
+  const mockBatchScanner = createMockBatchScanner();
+  const { apiClient } = setup({ mockBatchScanner });
+  const spec = await apiClient.getMockSpec();
+  expect(spec.mockBatchScanner).toEqual(true);
 });

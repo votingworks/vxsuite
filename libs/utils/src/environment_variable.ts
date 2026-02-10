@@ -43,6 +43,13 @@ export enum BooleanEnvironmentVariableName {
    */
   USE_MOCK_PDI_SCANNER = 'REACT_APP_VX_USE_MOCK_PDI_SCANNER',
 
+  /**
+   * Use a mock central scanner (batch scanner) instead of a real Fujitsu scanner.
+   * Meant for development with the dev dock. Real scanners will not work when
+   * this flag is enabled.
+   */
+  USE_MOCK_CENTRAL_SCANNER = 'REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER',
+
   /** Use mock X-keys PAT input instead of the real device. Dev/testing only. */
   USE_MOCK_XKEYS = 'REACT_APP_VX_USE_MOCK_XKEYS',
 
@@ -152,6 +159,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_USE_MOCK_BARCODE_READER;
     case BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER:
       return process.env.REACT_APP_VX_USE_MOCK_PDI_SCANNER;
+    case BooleanEnvironmentVariableName.USE_MOCK_CENTRAL_SCANNER:
+      return process.env.REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER;
     case BooleanEnvironmentVariableName.USE_MOCK_XKEYS:
       return process.env.REACT_APP_VX_USE_MOCK_XKEYS;
     case BooleanEnvironmentVariableName.USE_MOCK_ACCESSIBLE_CONTROLLER:
@@ -244,6 +253,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.USE_MOCK_CENTRAL_SCANNER:
       return {
         name,
         allowInProduction: false,

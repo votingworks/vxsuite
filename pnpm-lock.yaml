@@ -1031,6 +1031,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/dev-dock-backend':
+        specifier: workspace:*
+        version: link:../../../libs/dev-dock/backend
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures

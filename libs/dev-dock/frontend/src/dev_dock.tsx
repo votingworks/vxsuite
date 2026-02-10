@@ -750,6 +750,61 @@ const ScannerButton = styled.button`
   }
 `;
 
+function BatchScannerMockControl() {
+  const queryClient = useQueryClient();
+  const apiClient = useApiClient();
+  const getStatusQuery = useQuery(
+    ['batchScannerGetStatus'],
+    () => apiClient.batchScannerGetStatus(),
+    { refetchInterval: 1000 }
+  );
+  const loadBallotsMutation = useMutation(apiClient.batchScannerLoadBallots, {
+    onSuccess: async () =>
+      await queryClient.invalidateQueries(['batchScannerGetStatus']),
+  });
+  const clearBallotsMutation = useMutation(apiClient.batchScannerClearBallots, {
+    onSuccess: async () =>
+      await queryClient.invalidateQueries(['batchScannerGetStatus']),
+  });
+
+  const status = getStatusQuery.data;
+  const sheetCount = status?.sheetCount ?? 0;
+
+  return (
+    <div>
+      <strong>Batch Scanner:</strong>{' '}
+      <ScannerButton
+        onClick={async () => {
+          const dialogResult = await assertDefined(window.kiosk).showOpenDialog(
+            {
+              properties: ['openFile', 'multiSelections'],
+              filters: [
+                { name: 'Ballots', extensions: ['pdf', 'jpg', 'jpeg', 'png'] },
+              ],
+            }
+          );
+          if (dialogResult.canceled) return;
+          if (dialogResult.filePaths.length > 0) {
+            loadBallotsMutation.mutate({ paths: dialogResult.filePaths });
+          }
+        }}
+        disabled={loadBallotsMutation.isLoading}
+      >
+        {loadBallotsMutation.isLoading ? 'Loading...' : 'Load Ballots'}
+      </ScannerButton>
+      {sheetCount > 0 && (
+        <>
+          {' '}
+          {sheetCount} sheet(s) queued{' '}
+          <ScannerButton onClick={() => clearBallotsMutation.mutate()}>
+            Clear
+          </ScannerButton>
+        </>
+      )}
+    </div>
+  );
+}
+
 function PdiScannerMockControl() {
   const apiClient = useApiClient();
   const getSheetStatusQuery = useQuery(
@@ -955,6 +1010,7 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
             <FujitsuPrinterMockControl />
           )}
           {mockSpec.mockPdiScanner && <PdiScannerMockControl />}
+          {mockSpec.mockBatchScanner && <BatchScannerMockControl />}
         </Row>
       </Content>
       <Handle id="handle" onClick={() => setIsOpen(!isOpen)}>
