@@ -107,6 +107,7 @@ export interface BackgroundTask {
   completedAt?: Date;
   progress?: BackgroundTaskProgress;
   error?: string;
+  interruptedAt?: Date;
 }
 
 export interface BackgroundTaskProgress {
@@ -115,17 +116,16 @@ export interface BackgroundTaskProgress {
   total: number;
 }
 
-const getBackgroundTasksBaseQuery = `
-  select
-    id,
-    task_name as "taskName",
-    payload,
-    created_at as "createdAt",
-    started_at as "startedAt",
-    completed_at as "completedAt",
-    progress,
-    error
-  from background_tasks
+const getBackgroundTasksColumns = `
+  id,
+  task_name as "taskName",
+  payload,
+  created_at as "createdAt",
+  started_at as "startedAt",
+  completed_at as "completedAt",
+  progress,
+  error,
+  interrupted_at as "interruptedAt"
 `;
 
 const DEFAULT_LANGUAGE_CODES = [LanguageCode.ENGLISH];
@@ -139,6 +139,7 @@ interface BackgroundTaskRow {
   completedAt: string | null;
   progress: BackgroundTaskProgress | null;
   error: string | null;
+  interruptedAt: string | null;
 }
 
 function backgroundTaskRowToBackgroundTask(
@@ -153,6 +154,7 @@ function backgroundTaskRowToBackgroundTask(
     completedAt: row.completedAt ? new Date(row.completedAt) : undefined,
     progress: row.progress ?? undefined,
     error: row.error ?? undefined,
+    interruptedAt: row.interruptedAt ? new Date(row.interruptedAt) : undefined,
   };
 }
 
@@ -2484,7 +2486,9 @@ export class Store {
   //
 
   async getOldestQueuedBackgroundTask(): Promise<Optional<BackgroundTask>> {
-    const sql = `${getBackgroundTasksBaseQuery}
+    const sql = `
+      select ${getBackgroundTasksColumns}
+      from background_tasks
       where started_at is null
       order by created_at asc limit 1
     `;
@@ -2495,7 +2499,9 @@ export class Store {
   }
 
   async getBackgroundTask(taskId: Id): Promise<Optional<BackgroundTask>> {
-    const sql = `${getBackgroundTasksBaseQuery}
+    const sql = `
+      select ${getBackgroundTasksColumns}
+      from background_tasks
       where id = $1
     `;
     const row = (
@@ -2570,6 +2576,66 @@ export class Store {
         taskId
       )
     );
+  }
+
+  /**
+   * Marks tasks that have crashed as failed (completed with an error).
+   */
+  async failCrashedBackgroundTasks(): Promise<Id[]> {
+    return this.db.withClient(async (client) => {
+      const { rows } = await client.query(
+        `
+          update background_tasks
+          set completed_at = current_timestamp, error = $1
+          where started_at is not null and completed_at is null and interrupted_at is null
+          returning id
+        `,
+        'Task crashed and was marked as failed'
+      );
+      return rows.map(({ id }) => id);
+    });
+  }
+
+  /**
+   * Marks the running background task as gracefully interrupted.
+   * Used by the SIGTERM handler to mark the currently running task.
+   */
+  async markRunningTaskAsGracefullyInterrupted(): Promise<void> {
+    await this.db.withClient(async (client) => {
+      const { rows } = await client.query(
+        `
+          update background_tasks
+          set interrupted_at = current_timestamp
+          where started_at is not null
+            and completed_at is null
+            and interrupted_at is null
+          returning id
+        `
+      );
+
+      const ids = rows.map(({ id }) => id);
+      assert(ids.length <= 1, `Too many running background tasks! IDs=${ids.join(', ')}`);
+    });
+  }
+
+  async requeueGracefullyInterruptedBackgroundTasks(): Promise<Id[]> {
+    return this.db.withClient(async (client) => {
+      const result = await client.query(
+        `
+          update background_tasks
+          set started_at = null,
+              completed_at = null,
+              interrupted_at = null,
+              error = null
+          where started_at is not null
+            and completed_at is null
+            and interrupted_at is not null
+          returning id
+        `
+      );
+
+      return result.rows.map(({ id }) => id);
+    });
   }
 
   async requeueInterruptedBackgroundTasks(): Promise<void> {

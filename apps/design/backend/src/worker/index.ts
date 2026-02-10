@@ -34,6 +34,7 @@ async function main(): Promise<void> {
   });
   const translator = new GoogleCloudTranslatorWithDbCache({ store });
 
+  process.stdout.write('VxDesign background worker running\n');
   await worker.start({
     fileStorageClient,
     speechSynthesizer,
@@ -46,10 +47,6 @@ async function main(): Promise<void> {
 /* istanbul ignore next - @preserve */
 if (require.main === module) {
   main()
-    .then(() => {
-      process.stdout.write('VxDesign background worker running\n');
-      process.exitCode = 0;
-    })
     .catch((error) => {
       process.stderr.write(
         `Error starting VxDesign background worker:\n${error.stack}\n`

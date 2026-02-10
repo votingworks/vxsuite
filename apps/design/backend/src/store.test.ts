@@ -365,6 +365,39 @@ test('Background task processing - requeuing interrupted tasks', async () => {
   await expectTaskToBeQueued(task4Id);
 });
 
+test('graceful interruption - mark and requeue tasks', async () => {
+  const store = testStore.getStore();
+  const taskName: TaskName = 'generate_election_package';
+
+  const task1Id = await store.createBackgroundTask(taskName, {
+    somePayload: 1,
+  });
+  const task2Id = await store.createBackgroundTask(taskName, {
+    somePayload: 2,
+  });
+
+  await store.startBackgroundTask(task1Id);
+  await store.markRunningTaskAsGracefullyInterrupted();
+
+  let task1 = assertDefined(await store.getBackgroundTask(task1Id));
+  const task2 = assertDefined(await store.getBackgroundTask(task2Id));
+
+  expect(task1.interruptedAt).toBeInstanceOf(Date);
+  expect(task2.interruptedAt).toBeUndefined();
+
+  const crashedTasks = await store.failCrashedBackgroundTasks();
+  expect(crashedTasks).toHaveLength(0);
+
+  const requeuedTasks =
+    await store.requeueGracefullyInterruptedBackgroundTasks();
+  expect(requeuedTasks).toHaveLength(1);
+  expect(requeuedTasks[0]).toEqual(task1Id);
+
+  task1 = assertDefined(await store.getBackgroundTask(task1Id));
+  expect(task1.startedAt).toBeUndefined();
+  expect(task1.interruptedAt).toBeUndefined();
+});
+
 describe('tts_strings', () => {
   const key: TtsEditKey = {
     jurisdictionId: 'vx',

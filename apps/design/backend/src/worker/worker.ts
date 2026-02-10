@@ -1,4 +1,7 @@
+/* eslint-disable no-console */
+
 import { assertDefined, extractErrorMessage, sleep } from '@votingworks/basics';
+import * as Sentry from '@sentry/node';
 
 import { WorkerContext } from './context';
 import { processBackgroundTask } from './tasks';
@@ -14,7 +17,6 @@ export async function processNextBackgroundTaskIfAny(
     return { wasTaskProcessed: false };
   }
 
-  /* eslint-disable no-console */
   await store.startBackgroundTask(nextTask.id);
   console.log(`⏳ Processing background task ${nextTask.id}...`);
   try {
@@ -40,25 +42,67 @@ export async function processNextBackgroundTaskIfAny(
     `✅ Finished processing background task ${nextTask.id} (${durationSeconds}s)`
   );
   return { wasTaskProcessed: true };
-  /* eslint-enable no-console */
 }
 
 /**
  * Starts the VxDesign background worker. Note that, as currently implemented, it's only safe to
  * run one instance of the worker.
  */
-export async function start(context: WorkerContext): Promise<void> {
-  // Requeue any tasks that were previously interrupted, say, because the worker process crashed
-  await context.workspace.store.requeueInterruptedBackgroundTasks();
+export async function start(
+  context: WorkerContext,
+  options?: { signal?: AbortSignal }
+): Promise<void> {
+  const { store } = context.workspace;
 
-  process.nextTick(async () => {
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const { wasTaskProcessed } =
-        await processNextBackgroundTaskIfAny(context);
-      if (!wasTaskProcessed) {
-        await sleep(1000);
-      }
+  async function handleSigterm() {
+    console.log('Received SIGTERM, marking graceful shutdown...');
+    try {
+      await store.markRunningTaskAsGracefullyInterrupted();
+      console.log('Marked running task as gracefully interrupted');
+      console.log('Graceful shutdown complete, exiting...');
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
     }
-  });
+    process.exit(0);
+  }
+
+  process.on('SIGTERM', handleSigterm);
+
+  const crashedTaskIds = await store.failCrashedBackgroundTasks();
+
+  if (crashedTaskIds.length > 0) {
+    console.warn(
+      `⚠️  Worker starting with ${crashedTaskIds.length
+      } crashed task(s) that will NOT be requeued: ${crashedTaskIds.join(', ')}`
+    );
+
+    // Report to Sentry for monitoring
+    Sentry.captureMessage(
+      'Background worker found crashed task(s) on startup',
+      {
+        level: 'warning',
+        extra: {
+          crashedTaskIds,
+        },
+      }
+    );
+  }
+
+  const requeuedTaskIds =
+    await store.requeueGracefullyInterruptedBackgroundTasks();
+  if (requeuedTaskIds.length > 0) {
+    console.log(
+      `🔄 Requeued ${requeuedTaskIds.length
+      } gracefully interrupted task(s): ${requeuedTaskIds.join(', ')}`
+    );
+  }
+
+  while (!options?.signal?.aborted) {
+    const { wasTaskProcessed } = await processNextBackgroundTaskIfAny(context);
+    if (!wasTaskProcessed) {
+      await sleep(1000);
+    }
+  }
+
+  process.off('SIGTERM', handleSigterm);
 }
