@@ -154,6 +154,19 @@ export function BallotZoomImageViewer({
   );
 }
 
+const FitToHeightContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  overflow: hidden;
+
+  img {
+    height: 100%;
+    object-fit: contain;
+  }
+`;
+
 export function BallotStaticImageViewer({
   imageUrl,
 }: {
@@ -161,9 +174,9 @@ export function BallotStaticImageViewer({
 }): JSX.Element {
   return (
     <BallotImageViewerContainer>
-      <ZoomedOutBallotImageContainer>
+      <FitToHeightContainer>
         <img src={imageUrl} alt="Full ballot" />
-      </ZoomedOutBallotImageContainer>
+      </FitToHeightContainer>
     </BallotImageViewerContainer>
   );
 }
