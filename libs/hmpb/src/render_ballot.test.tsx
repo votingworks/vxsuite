@@ -1,4 +1,7 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionGeneralFixtures,
+} from '@votingworks/fixtures';
 import { test, expect } from 'vitest';
 import {
   BALLOT_MODES,
@@ -9,13 +12,18 @@ import {
   LanguageCode,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, find, iter } from '@votingworks/basics';
+import { assert, assertDefined, find, iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
+import { parse as parseHtml } from 'node-html-parser';
 import {
   allBaseBallotProps,
   layOutMinimalBallotsToCreateElectionDefinition,
+  renderBallotTemplate,
 } from './render_ballot';
-import { createPlaywrightRendererPool } from './playwright_renderer';
+import {
+  createPlaywrightRenderer,
+  createPlaywrightRendererPool,
+} from './playwright_renderer';
 import { ballotTemplates } from './ballot_templates';
 import {
   nhGeneralElectionFixtures,
@@ -23,6 +31,11 @@ import {
 } from './ballot_fixtures';
 import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template';
 import { generateBallotStyles } from './ballot_styles';
+import {
+  BUBBLE_CLASS,
+  CANDIDATE_OPTION_CLASS,
+  OptionInfo,
+} from './ballot_components';
 
 function combinations<T extends Record<string, unknown>>(
   arrays: Array<Array<Partial<T>>>
@@ -181,4 +194,44 @@ test('ballot measure contests with additional options are transformed into candi
       name: ballotMeasureContest.additionalOptions![0].label,
     },
   ]);
+});
+
+test('contest options are encoded correctly', async () => {
+  const electionDefinition = electionGeneralFixtures.readElectionDefinition();
+  const allBallotProps = allBaseBallotProps(electionDefinition.election);
+  const renderer = await createPlaywrightRenderer();
+  const document = (
+    await renderBallotTemplate(
+      renderer,
+      ballotTemplates.VxDefaultBallot,
+      allBallotProps[0]
+    )
+  ).unsafeUnwrap();
+  const content = await document.getContent();
+  await renderer.close();
+  const root = parseHtml(content);
+  const candidateOptions = root.querySelectorAll(`.${CANDIDATE_OPTION_CLASS}`);
+  for (const candidateOption of candidateOptions) {
+    const { textContent } = candidateOption;
+    const contest = find(
+      electionDefinition.election.contests,
+      (c): c is CandidateContest =>
+        c.type === 'candidate' &&
+        c.candidates.some((candidate) => textContent.includes(candidate.name))
+    );
+    const candidate = find(contest.candidates, (c) =>
+      textContent.includes(c.name)
+    );
+    expect(candidate).toBeDefined();
+    const bubbleElement = assertDefined(
+      candidateOption.querySelector(`.${BUBBLE_CLASS}`)
+    );
+    console.log(bubbleElement);
+    const optionInfo = JSON.parse(
+      bubbleElement.getAttribute('data-option-info')!
+    ) as OptionInfo;
+    assert(optionInfo.type === 'option');
+    expect(optionInfo.contestId).toEqual(contest.id);
+    expect(optionInfo.optionId).toEqual(candidate.id);
+  }
 });
