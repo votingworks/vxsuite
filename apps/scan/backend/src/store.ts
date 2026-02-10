@@ -336,7 +336,7 @@ export class Store {
     ) as { ballotCastingMode: BallotCastingMode } | undefined;
 
     if (!electionRow) {
-      // ballot casting mode will be the default once an election is defined
+      // election_day will be the default when an election is defined
       return 'election_day';
     }
 
