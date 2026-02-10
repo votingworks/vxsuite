@@ -1,4 +1,5 @@
 import {
+  BallotPageLayout,
   ContestId,
   ContestOptionId,
   ElectionDefinition,
@@ -478,6 +479,39 @@ export interface BmdImageView {
   readonly cvrId: Id;
   readonly imageUrl: string | null;
   readonly side: 'front'; // bmd ballots are always on the front.
+}
+
+/**
+ * A single page image of an HMPB ballot, including its layout for zoom
+ */
+export interface HmpbBallotPageImage {
+  readonly type: 'hmpb';
+  readonly imageUrl: string | null;
+  readonly ballotCoordinates: Rect;
+  readonly layout: BallotPageLayout;
+}
+
+/**
+ * A single page image of a BMD ballot with no layout
+ */
+export interface BmdBallotPageImage {
+  readonly type: 'bmd';
+  readonly imageUrl: string | null;
+  readonly ballotCoordinates: Rect;
+}
+
+/**
+ * A single page image of a ballot, either HMPB or BMD
+ */
+export type BallotPageImage = HmpbBallotPageImage | BmdBallotPageImage;
+
+/**
+ * Both sides of a ballot's images and layouts.
+ */
+export interface BallotImages {
+  readonly cvrId: Id;
+  readonly front: BallotPageImage;
+  readonly back: BallotPageImage;
 }
 
 /**

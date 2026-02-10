@@ -369,6 +369,7 @@ export function createApiMock(
         id: input.cvrId,
         electionId: 'electionId',
         ballotStyleGroupId: ballotStyleGroupId ?? ('1M' as BallotStyleGroupId),
+        markScores: null,
       });
     },
 

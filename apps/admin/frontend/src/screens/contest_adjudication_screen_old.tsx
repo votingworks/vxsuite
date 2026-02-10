@@ -12,15 +12,13 @@ import {
   CandidateContestOption,
   ContestOptionId,
   getContestDistrictName,
-  Id,
-  Side,
 } from '@votingworks/types';
 import {
   Button,
-  DesktopPalette,
   Main,
   Screen,
   Font,
+  Loading,
   Icons,
   H2,
   H1,
@@ -35,20 +33,36 @@ import {
 import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
-  BallotImages,
-  ContestAdjudicationData,
-  HmpbBallotPageImage,
   WriteInRecord,
 } from '@votingworks/admin-backend';
-import { format } from '@votingworks/utils';
-import { getWriteInCandidates, adjudicateCvrContest } from '../api';
+import {
+  allContestOptions,
+  format,
+  getBallotStyleGroup,
+} from '@votingworks/utils';
+import { useHistory, useParams } from 'react-router-dom';
+import {
+  getCastVoteRecordVoteInfo,
+  getBallotImageView,
+  getNextCvrIdForAdjudication,
+  getWriteIns,
+  getAdjudicationQueue,
+  getWriteInCandidates,
+  getVoteAdjudications,
+  adjudicateCvrContest,
+  getMarginalMarks,
+  getCvrContestTag,
+} from '../api';
 import { AppContext } from '../contexts/app_context';
+import { ContestAdjudicationScreenParams } from '../config/types';
+import { routerPaths } from '../router_paths';
 import {
   BallotStaticImageViewer,
   BallotZoomImageViewer,
   UnableToLoadImageCallout,
 } from '../components/adjudication_ballot_image_viewer';
 import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button';
+import { NavigationScreen } from '../components/navigation_screen';
 import { ContestOptionButton } from '../components/contest_option_button';
 import { getOptionCoordinates } from '../utils/adjudication';
 import {
@@ -105,7 +119,7 @@ const BaseRow = styled.div`
 const BallotHeader = styled(BaseRow)`
   background: ${(p) => p.theme.colors.inverseBackground};
   color: ${(p) => p.theme.colors.onInverse};
-  align-items: center;
+  align-items: start;
   min-height: 4rem;
   flex-shrink: 0;
 
@@ -116,9 +130,9 @@ const BallotHeader = styled(BaseRow)`
 `;
 
 const BallotVoteCount = styled(BaseRow)`
-  background: ${(p) => p.theme.colors.containerLow};
-  border-bottom: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
-    ${DesktopPalette.Gray30};
+  background: ${(p) => p.theme.colors.containerHigh};
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.outline};
   justify-content: space-between;
 `;
 
@@ -157,7 +171,7 @@ const ContestOptionButtonList = styled.div`
   background: ${(p) => p.theme.colors.background};
   flex-grow: 1;
   padding: ${DEFAULT_PADDING};
-  overflow-y: auto;
+  overflow-y: scroll;
 `;
 
 const ContestOptionButtonCaption = styled.span`
@@ -256,53 +270,83 @@ function renderContestOptionButtonCaption({
   );
 }
 
-interface ContestAdjudicationScreenProps {
-  contestAdjudicationData: ContestAdjudicationData;
-  contestNumber: number;
-  contestCount: number;
-  cvrId: Id;
-  onBack?: () => void;
-  onNext: () => void;
-  onClose: () => void;
-  ballotImages: BallotImages;
-  side: Side;
-  onLastContest: boolean;
-}
-
-export function ContestAdjudicationScreen({
-  onBack,
-  onNext,
-  onClose,
-  contestAdjudicationData,
-  contestNumber,
-  contestCount,
-  cvrId,
-  ballotImages,
-  side,
-  onLastContest,
-}: ContestAdjudicationScreenProps): JSX.Element {
+export function ContestAdjudicationScreenOld(): JSX.Element {
+  const history = useHistory();
+  const { contestId } = useParams<ContestAdjudicationScreenParams>();
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
-
-  const { options: contestOptions, contestId, tag } = contestAdjudicationData;
   const contest = find(election.contests, (c) => c.id === contestId);
   const isCandidateContest = contest.type === 'candidate';
 
-  const writeInCandidatesQuery = getWriteInCandidates.useQuery({
+  // Queries and mutations
+  const cvrQueueQuery = getAdjudicationQueue.useQuery({ contestId });
+  const firstPendingCvrIdQuery = getNextCvrIdForAdjudication.useQuery({
     contestId,
   });
 
-  const areQueriesFetching = writeInCandidatesQuery.isFetching;
+  const [maybeCvrQueueIndex, setMaybeCvrQueueIndex] = useState<number>();
+  const isQueueReady =
+    maybeCvrQueueIndex !== undefined && cvrQueueQuery.data !== undefined;
+  const maybeCurrentCvrId = isQueueReady
+    ? cvrQueueQuery.data[maybeCvrQueueIndex]
+    : undefined;
+
+  const cvrVoteInfoQuery = getCastVoteRecordVoteInfo.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId } : undefined
+  );
+  const voteAdjudicationsQuery = getVoteAdjudications.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
+  const writeInsQuery = getWriteIns.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
+  const ballotImageViewQuery = getBallotImageView.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
+  const writeInCandidatesQuery = getWriteInCandidates.useQuery({
+    contestId,
+  });
+  const marginalMarksQuery = getMarginalMarks.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
+  const cvrContestTagQuery = getCvrContestTag.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
+
+  const areQueriesFetching =
+    cvrVoteInfoQuery.isFetching ||
+    cvrQueueQuery.isFetching ||
+    firstPendingCvrIdQuery.isFetching ||
+    ballotImageViewQuery.isFetching ||
+    writeInsQuery.isFetching ||
+    writeInCandidatesQuery.isFetching ||
+    voteAdjudicationsQuery.isFetching ||
+    marginalMarksQuery.isFetching ||
+    cvrContestTagQuery.isFetching;
+
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
 
-  const officialOptions = useMemo(() => {
-    const optionDefinitions = contestOptions.map((o) => o.definition);
-    if (!isCandidateContest) {
-      return optionDefinitions;
+  const contestOptions = useMemo(() => {
+    if (!cvrVoteInfoQuery.data) {
+      return [];
     }
-    return optionDefinitions.filter(
-      (o) => !(o as CandidateContestOption).isWriteIn
+    const ballotStyleGroup = assertDefined(
+      getBallotStyleGroup({
+        ballotStyleGroupId: cvrVoteInfoQuery.data.ballotStyleGroupId,
+        election,
+      })
+    );
+    return Array.from(allContestOptions(contest, ballotStyleGroup));
+  }, [contest, election, cvrVoteInfoQuery.data]);
+
+  const officialOptions = useMemo(() => {
+    if (!isCandidateContest) {
+      return contestOptions;
+    }
+    // When contest is a CandidateContest, contestOptions are CandidateContestOptions
+    return (contestOptions as CandidateContestOption[]).filter(
+      (c) => !c.isWriteIn
     );
   }, [isCandidateContest, contestOptions]);
 
@@ -311,9 +355,9 @@ export function ContestAdjudicationScreen({
       return [];
     }
     // When contest is a CandidateContest, contestOptions are CandidateContestOptions
-    return contestOptions
-      .filter((o) => (o.definition as CandidateContestOption).isWriteIn)
-      .map((o) => o.definition.id);
+    return (contestOptions as CandidateContestOption[])
+      .filter((option) => option.isWriteIn)
+      .map((option) => option.id);
   }, [contestOptions, isCandidateContest]);
 
   const {
@@ -337,23 +381,15 @@ export function ContestAdjudicationScreen({
       numberOfWriteIns: isCandidateContest ? contest.seats : 0,
       officialOptions,
     },
-    areQueriesFetching
+    !maybeCurrentCvrId || areQueriesFetching
       ? undefined
       : {
-          votes: contestOptions
-            .filter((o) => o.initialVote)
-            .map((o) => o.definition.id),
-          writeIns: contestOptions
-            .map((o) => o.writeInRecord)
-            .filter((w) => !!w),
+          votes: cvrVoteInfoQuery.data?.votes[contestId],
+          writeIns: writeInsQuery.data,
           writeInCandidates: writeInCandidatesQuery.data,
-          voteAdjudications: contestOptions
-            .map((o) => o.voteAdjudication)
-            .filter((v) => !!v),
-          marginalMarks: contestOptions
-            .filter((o) => o.hasMarginalMark)
-            .map((o) => o.definition.id),
-          contestTag: contestAdjudicationData.tag,
+          voteAdjudications: voteAdjudicationsQuery.data,
+          marginalMarks: marginalMarksQuery.data,
+          contestTag: cvrContestTagQuery.data,
         }
   );
 
@@ -364,6 +400,37 @@ export function ContestAdjudicationScreen({
   const [discardChangesNextAction, setDiscardChangesNextAction] = useState<
     'close' | 'back' | 'skip'
   >();
+
+  // Open to first pending cvr when queue data is loaded
+  useEffect(() => {
+    if (
+      maybeCvrQueueIndex === undefined &&
+      cvrQueueQuery.isSuccess &&
+      firstPendingCvrIdQuery.isSuccess
+    ) {
+      const cvrQueue = cvrQueueQuery.data;
+      const cvrId = firstPendingCvrIdQuery.data;
+      if (cvrId) {
+        setMaybeCvrQueueIndex(cvrQueue.indexOf(cvrId));
+      } else {
+        setMaybeCvrQueueIndex(0);
+      }
+    }
+  }, [firstPendingCvrIdQuery, cvrQueueQuery, maybeCvrQueueIndex]);
+
+  // Prefetch the next and previous ballot images
+  const prefetchImageViews = getBallotImageView.usePrefetch();
+  useEffect(() => {
+    if (!cvrQueueQuery.isSuccess || maybeCvrQueueIndex === undefined) return;
+    const nextCvrId = cvrQueueQuery.data[maybeCvrQueueIndex + 1];
+    if (nextCvrId) {
+      void prefetchImageViews({ cvrId: nextCvrId, contestId });
+    }
+    const prevCvrId = cvrQueueQuery.data[maybeCvrQueueIndex - 1];
+    if (prevCvrId) {
+      void prefetchImageViews({ cvrId: prevCvrId, contestId });
+    }
+  }, [contestId, maybeCvrQueueIndex, cvrQueueQuery, prefetchImageViews]);
 
   // Allow escape key to dismiss focused option or modal
   useEffect(() => {
@@ -402,42 +469,53 @@ export function ContestAdjudicationScreen({
     shouldScrollToTarget,
   ]);
 
-  // // Only show full loading screen on initial load to mitigate screen flicker on scroll
-  // if (!writeInCandidatesQuery.data) {
-  //   return (
-  //     <NavigationScreen title="Contest Adjudication">
-  //       <Loading isFullscreen />
-  //     </NavigationScreen>
-  //   );
-  // }
+  // Only show full loading screen on initial load to mitigate screen flicker on scroll
+  if (
+    !isQueueReady ||
+    !maybeCurrentCvrId ||
+    !cvrVoteInfoQuery.data ||
+    !writeInCandidatesQuery.data ||
+    !writeInsQuery.data ||
+    !voteAdjudicationsQuery.data ||
+    !ballotImageViewQuery.data ||
+    !marginalMarksQuery.data ||
+    !cvrContestTagQuery.data
+  ) {
+    return (
+      <NavigationScreen title="Contest Adjudication">
+        <Loading isFullscreen />
+      </NavigationScreen>
+    );
+  }
 
+  const originalVotes = cvrVoteInfoQuery.data.votes[contestId];
+  const writeIns = writeInsQuery.data;
+  const ballotImage = ballotImageViewQuery.data;
   const writeInCandidates = writeInCandidatesQuery.data;
+  const cvrContestTag = cvrContestTagQuery.data;
+  const cvrQueueIndex = maybeCvrQueueIndex;
+  const currentCvrId = maybeCurrentCvrId;
 
   const seatCount = isCandidateContest ? contest.seats : 1;
-  const isOvervote = isStateReady ? voteCount > seatCount : false;
-  const isUndervote = isStateReady ? voteCount < seatCount : false;
+  const isOvervote = voteCount > seatCount;
+  const isUndervote = voteCount < seatCount;
 
   const allowSaveWithoutChanges =
-    tag !== null &&
-    (tag.hasOvervote || tag.hasUndervote) &&
-    !tag.isResolved &&
+    (cvrContestTag.hasOvervote || cvrContestTag.hasUndervote) &&
+    !cvrContestTag.isResolved &&
     allAdjudicationsCompleted;
 
-  const isHmpb = ballotImages.front.type === 'hmpb';
-  const isBmd = ballotImages.front.type === 'bmd';
-  const ballotImage = ballotImages[side];
-
+  const isHmpb = ballotImage.type === 'hmpb';
+  const isBmd = ballotImage.type === 'bmd';
+  const { side } = ballotImage;
   const focusedCoordinates =
     focusedOptionId && isHmpb
-      ? getOptionCoordinates(
-          assertDefined(
-            (ballotImage as HmpbBallotPageImage).layout.contests.find(
-              (c) => c.contestId === contestId
-            )
-          ).options,
-          focusedOptionId
-        )
+      ? getOptionCoordinates(ballotImage.optionLayouts, focusedOptionId)
       : undefined;
+
+  const numBallots = cvrQueueQuery.data.length;
+  const onFirstBallot = cvrQueueIndex === 0;
+  const onLastBallot = cvrQueueIndex + 1 === numBallots;
 
   function clearBallotState(): void {
     resetState();
@@ -454,7 +532,7 @@ export function ContestAdjudicationScreen({
     const adjudicatedCvrContest: AdjudicatedCvrContest = {
       adjudicatedContestOptionById,
       contestId,
-      cvrId,
+      cvrId: currentCvrId,
       side,
     };
     const officialOptionIds = officialOptions.map((o) => o.id);
@@ -492,60 +570,58 @@ export function ContestAdjudicationScreen({
     }
     try {
       await adjudicateCvrContestMutation.mutateAsync(adjudicatedCvrContest);
-      onNext();
-      clearBallotState();
+      if (onLastBallot) {
+        history.push(routerPaths.contestAdjudicationSummary);
+      } else {
+        setMaybeCvrQueueIndex(cvrQueueIndex + 1);
+        clearBallotState();
+      }
     } catch {
       // Handled by default query client error handling
     }
   }
 
   function onSkip(): void {
+    if (onLastBallot) return;
     if (isModified && !discardChangesNextAction) {
       setDiscardChangesNextAction('skip');
       return;
     }
-    onNext();
+    setMaybeCvrQueueIndex(cvrQueueIndex + 1);
     clearBallotState();
   }
 
-  function onPrev(): void {
-    if (!onBack) {
-      return;
-    }
+  function onBack(): void {
+    if (onFirstBallot) return;
     if (isModified && !discardChangesNextAction) {
       setDiscardChangesNextAction('back');
       return;
     }
-    onBack();
+    setMaybeCvrQueueIndex(cvrQueueIndex - 1);
     clearBallotState();
   }
 
-  function onExit(): void {
+  function onClose(): void {
     if (isModified && !discardChangesNextAction) {
       setDiscardChangesNextAction('close');
       return;
     }
-    onClose();
+    history.push(routerPaths.contestAdjudicationSummary);
   }
 
   return (
     <Screen>
-      <Main flexRow data-testid={`transcribe:${cvrId}`}>
+      <Main flexRow data-testid={`transcribe:${currentCvrId}`}>
         <BallotPanel>
           {!ballotImage.imageUrl ? (
             <UnableToLoadImageCallout />
           ) : isHmpb ? (
             <BallotZoomImageViewer
               ballotBounds={ballotImage.ballotCoordinates}
-              key={cvrId} // Reset zoom state for each write-in
+              key={currentCvrId} // Reset zoom state for each write-in
               imageUrl={ballotImage.imageUrl}
               zoomedInBounds={
-                focusedCoordinates ||
-                assertDefined(
-                  (ballotImage as HmpbBallotPageImage).layout.contests.find(
-                    (c) => c.contestId === contestId
-                  )
-                ).bounds
+                focusedCoordinates || ballotImage.contestCoordinates
               }
             />
           ) : isBmd ? (
@@ -562,11 +638,10 @@ export function ContestAdjudicationScreen({
             <Button
               fill="outlined"
               icon="X"
-              onPress={onExit}
+              onPress={onClose}
               variant="inverseNeutral"
-              style={{ padding: '0.3rem .75rem', fontSize: '.8rem' }}
             >
-              Return
+              Close
             </Button>
           </BallotHeader>
           <BallotVoteCount>
@@ -589,7 +664,7 @@ export function ContestAdjudicationScreen({
               </Label>
             )}
           </BallotVoteCount>
-          {!isStateReady || areQueriesFetching ? (
+          {!isStateReady ? (
             <ContestOptionButtonList style={{ justifyContent: 'center' }}>
               <Icons.Loading />
             </ContestOptionButtonList>
@@ -597,10 +672,7 @@ export function ContestAdjudicationScreen({
             <ContestOptionButtonList role="listbox">
               {officialOptions.map((officialOption) => {
                 const { id: optionId } = officialOption;
-                const optionForAdjudication = assertDefined(
-                  contestOptions.find((o) => o.definition.id === optionId)
-                );
-                const originalVote = optionForAdjudication.initialVote;
+                const originalVote = originalVotes.includes(optionId);
                 const currentVote = getOptionHasVote(optionId);
                 const optionLabel = isCandidateContest
                   ? (officialOption as Candidate).name
@@ -609,7 +681,7 @@ export function ContestAdjudicationScreen({
                   getOptionMarginalMarkStatus(optionId);
                 return (
                   <ContestOptionButton
-                    key={optionId + cvrId}
+                    key={optionId + currentCvrId}
                     isSelected={currentVote}
                     marginalMarkStatus={marginalMarkStatus}
                     ref={
@@ -642,19 +714,18 @@ export function ContestAdjudicationScreen({
                 );
               })}
               {writeInOptionIds.map((optionId) => {
-                const optionForAdjudication = assertDefined(
-                  contestOptions.find((o) => o.definition.id === optionId)
-                );
-                const originalVote = optionForAdjudication.initialVote;
+                const originalVote = originalVotes.includes(optionId);
                 const isSelected = getOptionHasVote(optionId);
                 const isFocused = focusedOptionId === optionId;
                 const writeInStatus = getOptionWriteInStatus(optionId);
-                const {writeInRecord} = optionForAdjudication;
+                const writeInRecord = writeIns.find(
+                  (writeIn) => writeIn.optionId === optionId
+                );
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
                 return (
                   <WriteInAdjudicationButton
-                    key={optionId + cvrId}
+                    key={optionId + currentCvrId}
                     label={writeInRecord?.machineMarkedText}
                     writeInStatus={writeInStatus}
                     marginalMarkStatus={marginalMarkStatus}
@@ -712,7 +783,7 @@ export function ContestAdjudicationScreen({
                         (isValidCandidate(writeInStatus) &&
                           writeInStatus.name === c.name)
                     )}
-                    writeInCandidates={assertDefined(writeInCandidates).filter(
+                    writeInCandidates={writeInCandidates.filter(
                       (c) =>
                         !selectedCandidateNames.includes(c.name) ||
                         (isValidCandidate(writeInStatus) &&
@@ -722,7 +793,7 @@ export function ContestAdjudicationScreen({
                       originalVote,
                       currentVote: isSelected,
                       isWriteIn: true,
-                      writeInRecord: writeInRecord || undefined,
+                      writeInRecord,
                       writeInStatus,
                       marginalMarkStatus,
                     })}
@@ -734,10 +805,9 @@ export function ContestAdjudicationScreen({
           <BallotFooter>
             <BallotMetadata>
               <SmallText>
-                {tag ? 'Adjudication' : 'Contest'} {format.count(contestNumber)}{' '}
-                of {format.count(contestCount)}
+                {format.count(cvrQueueIndex + 1)} of {format.count(numBallots)}{' '}
               </SmallText>
-              {/* <SmallText>Ballot ID: {cvrId.slice(-4)}</SmallText> */}
+              <SmallText>Ballot ID: {currentCvrId.substring(0, 4)}</SmallText>
             </BallotMetadata>
             <BallotNavigation>
               <PrimaryNavButton
@@ -749,18 +819,18 @@ export function ContestAdjudicationScreen({
                 onPress={saveAndNext}
                 variant="primary"
               >
-                {onLastContest ? 'Review' : 'Save & Next'}
+                {onLastBallot ? 'Finish' : 'Save & Next'}
               </PrimaryNavButton>
               <SecondaryNavButton
-                onPress={onLastContest ? onClose : onSkip}
+                onPress={onLastBallot ? onClose : onSkip}
                 rightIcon="Next"
               >
-                {onLastContest ? 'Exit' : 'Skip'}
+                {onLastBallot ? 'Exit' : 'Skip'}
               </SecondaryNavButton>
               <SecondaryNavButton
-                disabled={!onBack}
+                disabled={onFirstBallot}
                 icon="Previous"
-                onPress={onPrev}
+                onPress={onBack}
               >
                 Back
               </SecondaryNavButton>
@@ -779,10 +849,10 @@ export function ContestAdjudicationScreen({
             onDiscard={() => {
               switch (discardChangesNextAction) {
                 case 'close':
-                  onExit();
+                  onClose();
                   break;
                 case 'back':
-                  onPrev();
+                  onBack();
                   break;
                 case 'skip':
                   onSkip();

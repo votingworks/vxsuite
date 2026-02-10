@@ -98,7 +98,7 @@ export interface InitialValues {
   writeInCandidates: WriteInCandidateRecord[];
   voteAdjudications: VoteAdjudication[];
   marginalMarks: ContestOptionId[];
-  contestTag: CvrContestTag;
+  contestTag: CvrContestTag | null;
 }
 
 export interface ContestInfo {
@@ -184,10 +184,10 @@ export function makeInitialState(
     assertDefined(state.get(optionId)).hasVote = isVote;
   }
   for (const optionId of initialValues.marginalMarks) {
-    assertDefined(state.get(optionId)).marginalMarkStatus = initialValues
-      .contestTag.isResolved
-      ? 'resolved'
-      : 'pending';
+    assertDefined(state.get(optionId)).marginalMarkStatus =
+      !initialValues.contestTag || initialValues.contestTag.isResolved
+        ? 'resolved'
+        : 'pending';
   }
 
   for (const writeInOption of getWriteInOptions(state)) {
@@ -299,7 +299,7 @@ export function useContestAdjudicationState(
       initialValues.writeInCandidates &&
       initialValues.voteAdjudications &&
       initialValues.marginalMarks &&
-      initialValues.contestTag;
+      initialValues.contestTag !== undefined;
     if (isInputLoaded && !state.isStateReady) {
       setState({
         optionState: makeInitialState(
