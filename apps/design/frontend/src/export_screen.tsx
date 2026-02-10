@@ -32,6 +32,7 @@ import { ElectionIdParams, routes } from './routes';
 import { downloadFile } from './utils';
 import { Column, InputGroup } from './layout';
 import { useTitle } from './hooks/use_title';
+import { ReorderContestsByDistrictButton } from './reorder_contests_by_district_button';
 import { Downloads } from './downloads';
 import { ProofingStatus } from './proofing_status';
 import { TaskProgress } from './task_progress';
@@ -179,6 +180,11 @@ export function ExportScreen(): JSX.Element | null {
             </InputGroup>
           )}
           <ProofingStatus />
+        </Column>
+
+        <Column style={{ alignItems: 'flex-start', gap: '0.5rem' }}>
+          <H2 style={{ margin: 0 }}>Contests</H2>
+          <ReorderContestsByDistrictButton electionId={electionId} />
         </Column>
 
         {/* Prevent any further exports after finalizing ballots: */}
