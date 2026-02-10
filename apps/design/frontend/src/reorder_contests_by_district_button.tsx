@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { Contests, District } from '@votingworks/types';
 import { Button, Modal } from '@votingworks/ui';
 
@@ -23,14 +23,14 @@ export function reorderContestsByDistrict(
   assert(candidateContests.length + yesNoContests.length === contests.length);
 
   const districtIds = districtOrder.map((d) => d.id);
-  const orderedCandidates = districtIds.flatMap((districtId) =>
+  const orderedCandidateContests = districtIds.flatMap((districtId) =>
     candidateContests.filter((c) => c.districtId === districtId)
   );
-  const orderedYesNo = districtIds.flatMap((districtId) =>
+  const orderedYesNoContests = districtIds.flatMap((districtId) =>
     yesNoContests.filter((c) => c.districtId === districtId)
   );
 
-  return [...orderedCandidates, ...orderedYesNo];
+  return [...orderedCandidateContests, ...orderedYesNoContests];
 }
 
 const DistrictRow = styled(Row)`
@@ -57,17 +57,17 @@ function ReorderContestsByDistrictModal({
   const [orderedDistricts, setOrderedDistricts] = useState<District[]>(() => {
     // Initialize district order based on the order of appearance in contests
     const seenDistrictIds = new Set<string>();
-    const orderedByAppearanceInContests: District[] = [];
+    const districtsOrderedByAppearanceInContests: District[] = [];
     for (const contest of contests) {
       if (!seenDistrictIds.has(contest.districtId)) {
         seenDistrictIds.add(contest.districtId);
-        const district = districts.find((d) => d.id === contest.districtId);
-        if (district) {
-          orderedByAppearanceInContests.push(district);
-        }
+        const district = assertDefined(
+          districts.find((d) => d.id === contest.districtId)
+        );
+        districtsOrderedByAppearanceInContests.push(district);
       }
     }
-    return orderedByAppearanceInContests;
+    return districtsOrderedByAppearanceInContests;
   });
 
   return (
