@@ -5,11 +5,15 @@ import {
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { mockKiosk } from '@votingworks/test-utils';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, PollsState } from '@votingworks/types';
 import {
   act,
   render,
@@ -36,8 +40,19 @@ let apiMock: ApiMock;
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 
+const featureFlagMock = getFeatureFlagMock();
+
+vi.mock('@votingworks/utils', async () => ({
+  ...(await vi.importActual('@votingworks/utils')),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
+
 beforeEach(() => {
   window.kiosk = mockKiosk(vi.fn);
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.EARLY_VOTING
+  );
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetMachineConfig();
@@ -328,6 +343,52 @@ test('shows error if saving ballot audit ID secret key fails', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });
+
+interface BallotCastingPeriodTestConfig {
+  pollsState: PollsState;
+  buttonDisabled: boolean;
+}
+
+const ballotCastingPeriodButtonDisabledTestCases: BallotCastingPeriodTestConfig[] =
+  [
+    { pollsState: 'polls_closed_initial', buttonDisabled: false },
+    { pollsState: 'polls_paused', buttonDisabled: false },
+    { pollsState: 'polls_open', buttonDisabled: true },
+    { pollsState: 'polls_closed_final', buttonDisabled: true },
+  ];
+
+test.each(ballotCastingPeriodButtonDisabledTestCases)(
+  '"Ballot Casting Mode" toggle button whenpollsState=$pollsState -> disabled=$buttonDisabled',
+  async ({ pollsState, buttonDisabled }) => {
+    featureFlagMock.enableFeatureFlag(
+      BooleanEnvironmentVariableName.EARLY_VOTING
+    );
+    apiMock.mockApiClient.getPollsInfo.reset();
+    apiMock.expectGetPollsInfo(pollsState);
+    apiMock.expectGetConfig({
+      ballotCastingMode: 'early_voting',
+    });
+    renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });
+    await screen.findByRole('heading', { name: 'Election Manager Menu' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+
+    await screen.findByRole('option', {
+      name: 'Early Voting',
+      selected: true,
+    });
+    const earlyVotingButton = screen.getByRole('option', {
+      name: 'Election Day',
+      selected: false,
+    });
+
+    if (buttonDisabled) {
+      expect(earlyVotingButton).toBeDisabled();
+    } else {
+      expect(earlyVotingButton).toBeEnabled();
+    }
+  }
+);
 
 test('switching mode when no ballots have been counted', async () => {
   apiMock.expectGetConfig({ isTestMode: true });

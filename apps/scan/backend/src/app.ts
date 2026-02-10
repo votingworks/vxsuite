@@ -27,7 +27,7 @@ import {
   SCAN_ALLOWED_EXPORT_PATTERNS,
   ExportDataResult,
 } from '@votingworks/backend';
-import { assert, assertDefined, ok, Result } from '@votingworks/basics';
+import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
   InsertedSmartCardAuthApi,
   generateRandomAes256Key,
@@ -45,6 +45,7 @@ import {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
   PrecinctScannerPollsInfo,
+  BallotCastingMode,
 } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';
@@ -227,6 +228,7 @@ export function buildApi({
         precinctSelection: store.getPrecinctSelection(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
+        ballotCastingMode: store.getBallotCastingMode(),
         isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
         isContinuousExportEnabled: store.getIsContinuousExportEnabled(),
       };
@@ -329,6 +331,28 @@ export function buildApi({
         message: `Successfully toggled from ${logMessage} mode.`,
         isTestMode: input.isTestMode,
       });
+    },
+
+    async setBallotCastingMode(input: {
+      ballotCastingMode: BallotCastingMode;
+    }): Promise<Result<void, Error>> {
+      const pollsState = store.getPollsState();
+      if (pollsState === 'polls_open' || pollsState === 'polls_closed_final') {
+        const message = `Couldn't set ballot casting mode because polls are in state: ${pollsState}`;
+        await logger.logAsCurrentRole(LogEventId.SetBallotCastingMode, {
+          message,
+          disposition: 'failure',
+        });
+        return err(new Error(message));
+      }
+
+      store.setBallotCastingMode(input.ballotCastingMode);
+
+      await logger.logAsCurrentRole(LogEventId.SetBallotCastingMode, {
+        message: `Successfully set ballot casting mode to ${input.ballotCastingMode}.`,
+        disposition: 'success',
+      });
+      return ok();
     },
 
     async openPolls(): Promise<OpenPollsResult> {

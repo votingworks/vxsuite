@@ -58,7 +58,7 @@ import { getPollsTransitionDestinationState } from '@votingworks/utils';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
-import { PollsTransition } from './types';
+import { BallotCastingMode, PollsTransition } from './types';
 
 const debug = rootDebug.extend('store');
 
@@ -325,6 +325,36 @@ export class Store {
     }
 
     this.client.run('update election set is_test_mode = ?', isTestMode ? 1 : 0);
+  }
+
+  /**
+   * Gets the current ballot casting mode setting value.
+   */
+  getBallotCastingMode(): BallotCastingMode {
+    const electionRow = this.client.one(
+      'select ballot_casting_mode as ballotCastingMode from election'
+    ) as { ballotCastingMode: BallotCastingMode } | undefined;
+
+    if (!electionRow) {
+      // election_day will be the default when an election is defined
+      return 'election_day';
+    }
+
+    return electionRow.ballotCastingMode;
+  }
+
+  /**
+   * Sets the current ballot casting mode setting value.
+   */
+  setBallotCastingMode(ballotCastingMode: BallotCastingMode): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set ballot casting mode without an election.');
+    }
+
+    this.client.run(
+      'update election set ballot_casting_mode = ?',
+      ballotCastingMode
+    );
   }
 
   /**

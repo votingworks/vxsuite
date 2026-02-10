@@ -6,6 +6,7 @@ create table election (
   jurisdiction text not null,
   precinct_selection text,
   is_test_mode boolean not null default true,
+  ballot_casting_mode text not null default 'election_day',
   polls_state text not null default "polls_closed_initial",
   last_polls_transition_type text,
   last_polls_transition_time integer,

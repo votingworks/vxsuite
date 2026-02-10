@@ -1050,3 +1050,9 @@ eventId = "data-check-on-startup"
 eventType = "application-status"
 documentationMessage = "Whether election results or scanned ballot data is present in the database at machine startup."
 restrictInDocumentationToApps = ["vx-central-scan", "vx-admin"]
+
+[Events.SetBallotCastingMode]
+eventId = "set-ballot-casting-mode"
+eventType = "user-action"
+documentationMessage = "A user has changed the ballot casting mode."
+restrictInDocumentationToApps = ["vx-scan"]
