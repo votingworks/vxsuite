@@ -143,7 +143,6 @@ function mockCompletedTask(
     id,
     payload: '',
     taskName,
-    gracefulInterruption: false,
   };
 }
 
@@ -156,7 +155,6 @@ function mockPendingTask(
     id,
     payload: '',
     taskName,
-    gracefulInterruption: false,
   };
 }
 

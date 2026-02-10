@@ -104,7 +104,6 @@ async function exportAndVerifyTestDecks(
     id: '1',
     payload: JSON.stringify({ electionId }),
     taskName: 'generate_test_decks',
-    gracefulInterruption: false,
   };
 
   apiMock.getTestDecks.expectCallWith({ electionId }).resolves({
@@ -189,7 +188,6 @@ test('export election package and ballots', async () => {
     id: '1',
     payload: JSON.stringify({ electionId }),
     taskName: 'generate_election_package',
-    gracefulInterruption: false,
   };
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: electionPackageTask,
@@ -266,7 +264,6 @@ test('with audio export checked', async () => {
       id: '1',
       payload: JSON.stringify({ electionId, shouldExportAudio: true }),
       taskName: 'generate_election_package',
-    gracefulInterruption: false,
     },
   });
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
@@ -296,7 +293,6 @@ test('export election package error handling', async () => {
       id: '1',
       payload: JSON.stringify({ electionId }),
       taskName: 'generate_election_package',
-    gracefulInterruption: false,
     },
   });
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
@@ -315,7 +311,6 @@ test('export election package error handling', async () => {
       payload: JSON.stringify({ electionId }),
       startedAt: new Date(taskCreatedAt.getTime() + 1000),
       taskName: 'generate_election_package',
-    gracefulInterruption: false,
     },
   });
 
@@ -364,7 +359,6 @@ test('with sample ballots export checked', async () => {
       id: '1',
       payload: JSON.stringify({ electionId, shouldExportSampleBallots: true }),
       taskName: 'generate_election_package',
-    gracefulInterruption: false,
     },
   });
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
@@ -404,7 +398,6 @@ test('with test ballots export checked', async () => {
       id: '1',
       payload: '',
       taskName: 'generate_election_package',
-    gracefulInterruption: false,
     },
   });
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
@@ -449,7 +442,6 @@ test('using CDF', async () => {
         electionSerializationFormat: 'cdf',
       }),
       taskName: 'generate_election_package',
-    gracefulInterruption: false,
     },
   });
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
@@ -487,7 +479,6 @@ test('export ballots with audit ballot IDs', async () => {
       id: '1',
       payload: JSON.stringify({ electionId }),
       taskName: 'generate_election_package',
-    gracefulInterruption: false,
     },
   });
   const numAuditIdBallotsInput = screen.getByLabelText(
