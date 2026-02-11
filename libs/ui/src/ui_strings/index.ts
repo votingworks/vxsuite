@@ -2,6 +2,7 @@ export * from './app_strings';
 export * from './audio_only';
 export * from './date_string';
 export * from './election_strings';
+export * from './headphone_calibration_button';
 export * from './language_override';
 export {
   useLanguageContext,
