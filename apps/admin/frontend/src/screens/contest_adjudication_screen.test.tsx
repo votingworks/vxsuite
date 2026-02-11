@@ -29,7 +29,7 @@ import {
   renderInAppContext,
 } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { ContestAdjudicationScreen } from './contest_adjudication_screen';
+import { ContestAdjudicationScreenOld as ContestAdjudicationScreen } from './contest_adjudication_screen_old';
 import { MAX_WRITE_IN_NAME_LENGTH } from '../components/write_in_adjudication_button';
 import {
   IMAGE_VIEWER_HEIGHT_PX,

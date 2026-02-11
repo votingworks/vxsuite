@@ -99,6 +99,7 @@ const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
   height: 4rem;
   width: 100%;
   padding: 0.5rem;
+  padding-right: 1rem;
   gap: 0.5rem;
 `;
 

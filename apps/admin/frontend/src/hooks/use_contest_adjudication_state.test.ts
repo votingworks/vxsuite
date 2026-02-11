@@ -4,6 +4,7 @@ import {
   WriteInRecord,
 } from '@votingworks/admin-backend';
 import { act, renderHook } from '@testing-library/react';
+import { assertDefined } from '@votingworks/basics';
 import {
   ContestInfo,
   InitialValues,
@@ -261,9 +262,8 @@ test('makeInitialState initializes official and write-in options correctly for c
       undefined
     );
   }
-
   // Now try with the contest already resolved
-  initialValues.contestTag.isResolved = true;
+  assertDefined(initialValues.contestTag).isResolved = true;
   initialValues.writeIns = [
     {
       optionId: 'write-in-0',
@@ -349,7 +349,7 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
   expect(state.get('no')!.marginalMarkStatus).toEqual('pending');
 
   // Now try with the contest already resolved
-  initialValues.contestTag.isResolved = true;
+  assertDefined(initialValues.contestTag).isResolved = true;
   initialValues.voteAdjudications = [
     {
       optionId: 'yes',

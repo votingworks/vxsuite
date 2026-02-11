@@ -8,6 +8,7 @@ import {
   Loading,
   P,
 } from '@votingworks/ui';
+import pluralize from 'pluralize';
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
 import {
@@ -102,10 +103,16 @@ export function AdjudicationStartScreen(): JSX.Element {
         </LinkButton>
         <div style={{ textAlign: 'center' }}>
           <Font weight="semiBold" style={{ display: 'block' }}>
-            {queryMetadata.pendingTally} Ballots Awaiting Review
+            {queryMetadata.pendingTally}{' '}
+            {pluralize('Ballot', queryMetadata.pendingTally)} Awaiting Review
           </Font>
           <Caption style={{ display: 'block', marginTop: '0.25rem' }}>
-            {queryMetadata.totalTally - queryMetadata.pendingTally} Completed
+            {queryMetadata.totalTally - queryMetadata.pendingTally}{' '}
+            {pluralize(
+              'Ballot',
+              queryMetadata.totalTally - queryMetadata.pendingTally
+            )}{' '}
+            Completed
           </Caption>
         </div>
       </div>

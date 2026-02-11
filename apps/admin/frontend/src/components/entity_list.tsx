@@ -119,12 +119,8 @@ function Item(props: EntityListItemProps): React.ReactNode {
   const ref = React.useRef<HTMLLIElement>(null);
 
   React.useLayoutEffect(() => {
-    if (ref.current) ref.current.scrollIntoView({ block: 'nearest' });
-  }, [selected]);
-
-  React.useLayoutEffect(() => {
     if (autoScrollIntoView && ref.current) {
-      ref.current.scrollIntoView({ block: 'nearest' });
+      ref.current.scrollIntoView({ block: 'center' });
     }
   }, [autoScrollIntoView]);
 
