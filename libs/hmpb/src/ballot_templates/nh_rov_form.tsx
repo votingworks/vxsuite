@@ -24,7 +24,7 @@ const Header = styled.div`
 const ContestTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid ${Colors.DARKER_GRAY};
+  // border: 1px solid ${Colors.DARKER_GRAY};
   break-inside: avoid;
 
   th {
@@ -37,8 +37,11 @@ const ContestTable = styled.table`
 
   tr {
     height: 2rem;
+    &:first-child td {
+      border-top: none;
+    }
     &:last-child td {
-      border-bottom-color: unset;
+      border-bottom: none;
     }
   }
 
@@ -48,15 +51,13 @@ const ContestTable = styled.table`
   }
 
   td:first-child {
-    // background-color: ${Colors.LIGHT_GRAY};
-    border-left-color: unset;
+    border-left: none;
     font-weight: 500;
   }
 
   td:last-child {
     width: 6rem;
-    background-color: white;
-    border-right-color: unset;
+    border-right: none;
   }
 `;
 
@@ -204,7 +205,13 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                 contest.partyId === partyId
             )
             .map((contest) => (
-              <div key={contest.id} style={{ marginBottom: '0.5rem' }}>
+              <div
+                key={contest.id}
+                style={{
+                  marginBottom: '0.5rem',
+                  border: `1px solid ${Colors.DARKER_GRAY}`,
+                }}
+              >
                 <ContestTable style={{ fontSize: '0.8rem' }}>
                   <tbody>
                     <thead>
@@ -240,6 +247,20 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                         </tr>
                       </>
                     )}
+                    <tr>
+                      <td
+                        colSpan={2}
+                        style={{
+                          fontStyle: 'italic',
+                          fontWeight: 'normal',
+                        }}
+                      >
+                        <div style={{ display: 'flex', width: '100%' }}>
+                          <div style={{ flex: 1 }}>Undervotes:</div>
+                          <div style={{ flex: 1 }}>Overvotes:</div>
+                        </div>
+                      </td>
+                    </tr>
                   </tbody>
                 </ContestTable>
               </div>
