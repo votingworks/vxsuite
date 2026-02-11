@@ -15,18 +15,10 @@ function createScanner(): MockBatchScanner {
   return new MockBatchScanner(join(dir, 'images'));
 }
 
-test('isAttached returns true', () => {
+test('initial status checks pass as expected', async () => {
   const scanner = createScanner();
   expect(scanner.isAttached()).toEqual(true);
-});
-
-test('isImprinterAttached returns false', async () => {
-  const scanner = createScanner();
   expect(await scanner.isImprinterAttached()).toEqual(false);
-});
-
-test('initial status has zero sheets', () => {
-  const scanner = createScanner();
   expect(scanner.getStatus()).toEqual({ sheetCount: 0 });
 });
 
@@ -55,19 +47,6 @@ test('constructor cleans up leftover files from a previous run', () => {
 
   const scanner = new MockBatchScanner(imageDir);
   expect(fs.readdirSync(scanner.imageDir)).toEqual([]);
-});
-
-test('clearSheets empties the queue and cleans up image files', () => {
-  const scanner = createScanner();
-  const testFile = join(scanner.imageDir, 'test.jpg');
-  fs.writeFileSync(testFile, 'data');
-  scanner.addSheets([sheet(1), sheet(2)]);
-
-  scanner.clearSheets();
-
-  expect(scanner.getStatus()).toEqual({ sheetCount: 0 });
-  expect(fs.readdirSync(scanner.imageDir)).toEqual([]);
-  expect(fs.existsSync(scanner.imageDir)).toEqual(true);
 });
 
 test('scanSheets returns sheets and preserves the queue', async () => {
@@ -130,6 +109,8 @@ test('addSheets appends to existing queue for next scan', async () => {
 
 test('clearSheets resets so next scan returns nothing', async () => {
   const scanner = createScanner();
+  const testFile = join(scanner.imageDir, 'test.jpg');
+  fs.writeFileSync(testFile, 'data');
   scanner.addSheets([sheet(1), sheet(2)]);
 
   const batch1 = scanner.scanSheets();
@@ -140,4 +121,7 @@ test('clearSheets resets so next scan returns nothing', async () => {
 
   const batch2 = scanner.scanSheets();
   expect(await batch2.scanSheet()).toBeUndefined();
+
+  expect(fs.readdirSync(scanner.imageDir)).toEqual([]);
+  expect(fs.existsSync(scanner.imageDir)).toEqual(true);
 });
