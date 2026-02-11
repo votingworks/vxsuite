@@ -67,7 +67,7 @@ impl Scanner {
         /// For receiving image data from the scanner. We need a slightly larger buffer
         /// for image data than the primary endpoint, because we want to be able to receive
         /// a big enough chunk of data to keep up with the scanner as it sends data,
-        /// otherwise we get a FifoOverflow error from the scanner.
+        /// otherwise we get a `FifoOverflow` error from the scanner.
         const IMAGE_BUFFER_SIZE: usize = 1_048_576; // 1 MiB
 
         let (host_to_scanner_tx, mut host_to_scanner_rx) =
@@ -146,7 +146,7 @@ impl Scanner {
                                         remaining = String::from_utf8_lossy(remaining)
                                     );
                                 scanner_to_host_tx
-                                    .send(Ok(Incoming::Unknown(data.to_vec())))
+                                    .send(Ok(Incoming::Unknown(data.clone())))
                                     .unwrap();
                             }
                             Err(err) => {
@@ -155,7 +155,7 @@ impl Scanner {
                                     data = String::from_utf8_lossy(&data)
                                 );
                                 scanner_to_host_tx
-                                    .send(Ok(Incoming::Unknown(data.to_vec())))
+                                    .send(Ok(Incoming::Unknown(data.clone())))
                                     .unwrap();
                             }
                         }

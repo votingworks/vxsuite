@@ -21,16 +21,18 @@ impl TryFrom<vx::LogEntry> for cdf::Event {
     fn try_from(value: vx::LogEntry) -> std::result::Result<Self, Self::Error> {
         let log_line = value.line?;
         let lineno = value.lineno;
-        assert!(lineno >= 1, "lineno must be at least 1 to prevent underflow");
+        assert!(
+            lineno >= 1,
+            "lineno must be at least 1 to prevent underflow"
+        );
         let lineno0 = lineno - 1;
 
-        let time_log_written = match log_line.extras.get(TIME_LOG_WRITTEN_KEY) {
-            Some(serde_json::Value::String(time_log_written)) => time_log_written,
-            Some(_) | None => {
-                return Err(Error::MissingOrInvalidEntry(
-                    TIME_LOG_WRITTEN_KEY.to_owned(),
-                ))
-            }
+        let Some(serde_json::Value::String(time_log_written)) =
+            log_line.extras.get(TIME_LOG_WRITTEN_KEY)
+        else {
+            return Err(Error::MissingOrInvalidEntry(
+                TIME_LOG_WRITTEN_KEY.to_owned(),
+            ));
         };
 
         let disposition = if log_line.disposition.is_empty() {

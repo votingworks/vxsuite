@@ -87,7 +87,7 @@ where
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
 
-    /// If HashType is 'other', the type of the hash.
+    /// If `HashType` is 'other', the type of the hash.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub other_hash_type: Option<String>,
 
@@ -110,7 +110,7 @@ pub enum DeviceType {
     Device,
 }
 
-/// Used in Device::Type to describe the type or usage of the device generating the event.
+/// Used in `Device::Type` to describe the type or usage of the device generating the event.
 #[derive(Serialize, Deserialize)]
 pub enum EventLoggingDeviceType {
     /// Electronic adjudication function for reviewing absentee/mail-in ballots anomalies (blanks/overvotes/write-ins/unreadable ballots).

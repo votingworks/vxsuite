@@ -144,7 +144,7 @@ impl Version {
 pub struct Status {
     /// Byte 0, Bit 0 (0x01)
     pub rear_left_sensor_covered: bool,
-    /// Byte 0, Bit 1 (0x02) – omitted in UltraScan
+    /// Byte 0, Bit 1 (0x02) – omitted in `UltraScan`
     pub rear_right_sensor_covered: bool,
     /// Byte 0, Bit 2 (0x04)
     pub brander_position_sensor_covered: bool,
@@ -153,23 +153,23 @@ pub struct Status {
     /// Byte 0, Bit 4 (0x10)
     pub cover_open: bool,
     /// Byte 0, Bit 5 (0x20) – not defined
-    /// future_use: bool,
+    /// `future_use`: bool,
     /// Byte 0, Bit 6 (0x40)
     pub scanner_enabled: bool,
 
     /// Byte 1, Bit 0 (0x01)
     pub front_left_sensor_covered: bool,
-    /// Byte 1, Bit 1 (0x02) – omitted in UltraScan
+    /// Byte 1, Bit 1 (0x02) – omitted in `UltraScan`
     pub front_m1_sensor_covered: bool,
-    /// Byte 1, Bit 2 (0x04) – omitted in UltraScan
+    /// Byte 1, Bit 2 (0x04) – omitted in `UltraScan`
     pub front_m2_sensor_covered: bool,
-    /// Byte 1, Bit 3 (0x08) – omitted in UltraScan
+    /// Byte 1, Bit 3 (0x08) – omitted in `UltraScan`
     pub front_m3_sensor_covered: bool,
-    /// Byte 1, Bit 4 (0x10) – omitted in UltraScan
+    /// Byte 1, Bit 4 (0x10) – omitted in `UltraScan`
     pub front_m4_sensor_covered: bool,
-    /// Byte 1, Bit 5 (0x20) – omitted in Duplex and UltraScan
+    /// Byte 1, Bit 5 (0x20) – omitted in Duplex and `UltraScan`
     pub front_m5_sensor_covered: bool,
-    /// Byte 1, Bit 6 (0x40) – omitted in Duplex and UltraScan
+    /// Byte 1, Bit 6 (0x40) – omitted in Duplex and `UltraScan`
     pub front_right_sensor_covered: bool,
 
     /// Byte 2, Bit 0 (0x01)

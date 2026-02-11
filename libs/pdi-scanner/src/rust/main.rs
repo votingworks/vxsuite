@@ -195,7 +195,7 @@ enum Message {
     Response(Response),
 }
 
-fn send_to_stdout(message: Message) -> color_eyre::Result<()> {
+fn send_to_stdout(message: &Message) -> color_eyre::Result<()> {
     let mut stdout = io::stdout().lock();
     serde_json::to_writer(&mut stdout, &message)?;
     stdout.write_all(b"\n")?;
@@ -207,10 +207,12 @@ fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
         Error::Usb {
             source:
                 UsbError::DeviceNotFound
-                | UsbError::NusbTransfer(nusb::transfer::TransferError::Disconnected)
-                | UsbError::NusbTransfer(nusb::transfer::TransferError::Fault)
-                | UsbError::NusbTransfer(nusb::transfer::TransferError::Cancelled)
-                | UsbError::NusbTransfer(nusb::transfer::TransferError::Stall),
+                | UsbError::NusbTransfer(
+                    nusb::transfer::TransferError::Disconnected
+                    | nusb::transfer::TransferError::Fault
+                    | nusb::transfer::TransferError::Cancelled
+                    | nusb::transfer::TransferError::Stall,
+                ),
             ..
         } => (ErrorCode::Disconnected, None),
 
@@ -240,13 +242,13 @@ async fn main() -> color_eyre::Result<()> {
     let send_response = |response: Response| -> color_eyre::Result<()> {
         tracing::debug!("sending response: {response:?}");
         scan_in_progress.replace(false);
-        send_to_stdout(Message::Response(response))
+        send_to_stdout(&Message::Response(response))
     };
 
     let send_event = |event: Event| -> color_eyre::Result<()> {
         tracing::debug!("sending event: {event:?}");
         scan_in_progress.replace(matches!(event, Event::ScanStart));
-        send_to_stdout(Message::Event(event))
+        send_to_stdout(&Message::Event(event))
     };
 
     let send_error_response = |error: &Error| -> color_eyre::Result<()> {
@@ -413,7 +415,7 @@ async fn main() -> color_eyre::Result<()> {
                                     Ok(Ok(config)) => {
                                         send_response(Response::DoubleFeedDetectionCalibrationConfig {
                                             config,
-                                        })?
+                                        })?;
                                     }
                                     Ok(Err(e)) => send_error_response(&e)?,
                                     Err(_) => send_error_response(&Error::RecvTimeout)?,
@@ -485,7 +487,7 @@ async fn main() -> color_eyre::Result<()> {
                                         STANDARD.encode(top.as_bytes()),
                                         STANDARD.encode(bottom.as_bytes()),
                                     ),
-                                }))?
+                                }))?;
                             }
                             Ok(_) => unreachable!(
                                 "try_decode_scan called with {:?} returned non-duplex sheet",

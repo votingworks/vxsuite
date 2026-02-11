@@ -214,7 +214,7 @@ pub enum Outgoing {
     /// `(73H) <’Current Sensors Needed’> <’Total Input Sensors’>`
     ///
     /// The values are single characters, ascii decimal digit. As an example,
-    /// for PageScan 5 Simplex, the esc-s command will return:
+    /// for `PageScan` 5 Simplex, the esc-s command will return:
     ///
     /// `<esc>s37`
     ///
@@ -1270,7 +1270,7 @@ impl IncomingType {
     /// scanner in response to a request (solicited) or not (unsolicited).
     ///
     /// Note that a packet of unknown type is not considered unsolicited.
-    pub const fn is_unsolicited(self) -> bool {
+    #[must_use] pub const fn is_unsolicited(self) -> bool {
         match self {
             Self::ScanEvent | Self::CalibrationEvent | Self::ImageData => true,
             Self::Response | Self::Unknown => false,

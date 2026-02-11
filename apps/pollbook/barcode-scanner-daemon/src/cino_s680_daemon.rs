@@ -663,7 +663,7 @@ DCUJR
         fs::write(UDS_PATH, b"dummy").expect("failed to create dummy file");
         let meta = fs::metadata(UDS_PATH).expect("socket file must exist after bind");
         assert!(
-            meta.file_type().is_socket() == false,
+            !meta.file_type().is_socket(),
             "Expected rebound socket file"
         );
 

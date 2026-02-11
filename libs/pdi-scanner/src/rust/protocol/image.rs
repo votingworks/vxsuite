@@ -30,7 +30,7 @@ fn apply_image_calibration(
             if denominator == 0 {
                 0
             } else {
-                ((numerator as u32 * u8::MAX as u32) / denominator as u32).min(u8::MAX as u32) as u8
+                ((u32::from(numerator) * u32::from(u8::MAX)) / u32::from(denominator)).min(u32::from(u8::MAX)) as u8
             }
         })
         .collect()
