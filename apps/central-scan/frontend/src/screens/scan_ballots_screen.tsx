@@ -232,6 +232,7 @@ export function ScanBallotsScreen({
                   variant="danger"
                   icon="Delete"
                   onPress={deleteBallotData}
+                  autoFocus
                 >
                   Delete All Batches
                 </Button>
