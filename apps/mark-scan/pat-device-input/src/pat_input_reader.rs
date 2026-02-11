@@ -1,4 +1,4 @@
-use std::{fmt, io};
+use std::io;
 use vx_logging::{log, EventId};
 
 use crate::pin::Pin;
@@ -106,12 +106,14 @@ impl<T: Pin> PatInputReader<T> {
     }
 }
 
+#[cfg(test)]
 struct MockPin {
     address: u16,
     active: bool,
     probe_error: Option<io::Error>,
 }
 
+#[cfg(test)]
 impl Pin for MockPin {
     fn new(address: u16) -> Self {
         MockPin {
@@ -140,19 +142,22 @@ impl Pin for MockPin {
     }
 }
 
-impl fmt::Display for MockPin {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+#[cfg(test)]
+impl std::fmt::Display for MockPin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.address)
     }
 }
 
 // Fails to probe for any address that uses the offset
+#[cfg(test)]
 struct MockNoOffsetPin {
     address: u16,
     active: bool,
     probe_error: Option<io::Error>,
 }
 
+#[cfg(test)]
 impl Pin for MockNoOffsetPin {
     fn new(address: u16) -> Self {
         let mut probe_error = None;
@@ -189,8 +194,9 @@ impl Pin for MockNoOffsetPin {
     }
 }
 
-impl fmt::Display for MockNoOffsetPin {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+#[cfg(test)]
+impl std::fmt::Display for MockNoOffsetPin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.address)
     }
 }

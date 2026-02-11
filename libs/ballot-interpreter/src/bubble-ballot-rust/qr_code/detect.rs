@@ -151,17 +151,17 @@ impl Detected {
 
 #[derive(Debug, Clone, Serialize, thiserror::Error)]
 pub enum Error {
-    #[error("failed to decode QR code: {message}")]
+    #[error("failed to decode QR code: {message} (searched {detection_areas:?})")]
     DecodeFailed {
         detection_areas: Vec<Rect>,
         message: String,
     },
-    #[error("failed to detect QR code: {message}")]
+    #[error("failed to detect QR code: {message} (searched {detection_areas:?})")]
     DetectFailed {
         detection_areas: Vec<Rect>,
         message: String,
     },
-    #[error("no QR code detected")]
+    #[error("no QR code detected (searched {detection_areas:?})")]
     NoQrCodeDetected { detection_areas: Vec<Rect> },
 }
 

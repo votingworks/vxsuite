@@ -247,7 +247,7 @@ pub enum Error {
         dimensions: Size<PixelUnit>,
     },
 
-    #[error("invalid detected ballot scale: {scale}")]
+    #[error("invalid detected ballot scale for {label}: {scale}")]
     InvalidScale {
         label: String,
         scale: UnitIntervalScore,
@@ -256,7 +256,7 @@ pub enum Error {
     #[error("could not compute layout for {side:?}")]
     CouldNotComputeLayout { side: BallotSide },
 
-    #[error("vertical streaks detected on {label:?}")]
+    #[error("vertical streaks detected on {label:?} at {x_coordinates:?}")]
     #[serde(rename_all = "camelCase")]
     VerticalStreaksDetected {
         label: String,
