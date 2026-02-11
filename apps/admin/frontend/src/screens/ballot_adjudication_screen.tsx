@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   Button,
   Loading,
   Main,
   Modal,
+  P,
   Screen,
   SegmentedButton,
 } from '@votingworks/ui';
@@ -46,9 +47,23 @@ const BallotSideToggle = styled.div`
   position: absolute;
   top: 0;
   z-index: 2;
-  height: 4rem;
+  background: rgba(0, 0, 0, 50%);
   width: 100%;
   padding: 0.5rem;
+  padding-right: 1rem;
+
+  > span {
+    height: 2.3rem;
+    padding-bottom: -0.3rem;
+  }
+`;
+
+const SmallText = styled(P)`
+  color: ${(p) => p.theme.colors.onBackgroundMuted};
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  margin: 0;
 `;
 
 const AdjudicationPanel = styled.div`
@@ -71,23 +86,22 @@ const PanelHeader = styled.div`
 
 const BallotInfo = styled.div`
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0;
 `;
 
 const BallotInfoText = styled.p`
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
   line-height: 1;
   margin: 0;
 `;
 
-const BallotIdCaption = styled.p`
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1;
-  margin: 0;
-  opacity: 0.7;
+const BallotMetadata = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
 `;
 
 const PanelFooter = styled.div`
@@ -189,6 +203,9 @@ export function BallotAdjudicationScreen(): JSX.Element {
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
   );
+  const [navigationMode, setNavigationMode] = useState<'all' | 'flagged'>(
+    'all'
+  );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const ballotAdjudicationDataQuery = getBallotAdjudicationData.useQuery(
@@ -234,6 +251,39 @@ export function BallotAdjudicationScreen(): JSX.Element {
     }
   }, [nextCvrIdQuery, ballotQueueQuery, maybeCvrQueueIndex]);
 
+  // Default to back side if the first pending contest is on the back
+  useLayoutEffect(() => {
+    if (
+      !ballotAdjudicationDataQuery.isSuccess ||
+      !ballotImagesQuery.isSuccess ||
+      !electionDefinition
+    ) {
+      return;
+    }
+    const {contests} = ballotAdjudicationDataQuery.data;
+    const { backContests: back } = groupContestsBySide(
+      electionDefinition.election,
+      contests.map((c) => c.contestId),
+      ballotImagesQuery.data
+    );
+    const backIds = new Set(back.map((c) => c.id));
+    const firstPending = contests
+      .filter((c) => c.tag !== null)
+      .find((c) => c.tag && !c.tag.isResolved);
+    if (firstPending && backIds.has(firstPending.contestId)) {
+      setSelectedSide('back');
+    } else {
+      setSelectedSide('front');
+    }
+  }, [
+    maybeCurrentCvrId,
+    ballotAdjudicationDataQuery.isSuccess,
+    ballotAdjudicationDataQuery.data,
+    ballotImagesQuery.isSuccess,
+    ballotImagesQuery.data,
+    electionDefinition,
+  ]);
+
   if (
     !ballotAdjudicationDataQuery.isSuccess ||
     !ballotImagesQuery.isSuccess ||
@@ -263,7 +313,14 @@ export function BallotAdjudicationScreen(): JSX.Element {
     adjudicationContests.map((c) => c.contestId),
     ballotImages
   );
-  const selectedContestIndex = adjudicationContests.findIndex(
+  const visibleContestIds = new Set([
+    ...frontContests.map((c) => c.id),
+    ...backContests.map((c) => c.id),
+  ]);
+  const visibleAdjudicationContests = adjudicationContests.filter((c) =>
+    visibleContestIds.has(c.contestId)
+  );
+  const selectedContestIndex = visibleAdjudicationContests.findIndex(
     (c) => c.contestId === selectedContestId
   );
   const contestsTaggedForAdjudication = adjudicationContests.filter(
@@ -329,24 +386,25 @@ export function BallotAdjudicationScreen(): JSX.Element {
   }
 
   if (selectedContestId) {
-    const isTaggedContest = tagsByContestId.has(selectedContestId);
-    const prevContest = isTaggedContest
+    const isFlaggedMode = navigationMode === 'flagged';
+    const prevContest = isFlaggedMode
       ? prevContestForAdjudication
-      : adjudicationContests[selectedContestIndex - 1] ?? null;
-    const nextContest = isTaggedContest
+      : visibleAdjudicationContests[selectedContestIndex - 1] ?? null;
+    const nextContest = isFlaggedMode
       ? nextContestForAdjudication
-      : adjudicationContests[selectedContestIndex + 1] ?? null;
+      : visibleAdjudicationContests[selectedContestIndex + 1] ?? null;
 
     return (
       <ContestAdjudicationScreen
         cvrId={cvrId}
+        isFlaggedMode={isFlaggedMode}
         contestNumber={
-          isTaggedContest ? currentTaggedIndex + 1 : selectedContestIndex + 1
+          isFlaggedMode ? currentTaggedIndex + 1 : selectedContestIndex + 1
         }
         contestCount={
-          isTaggedContest
+          isFlaggedMode
             ? contestsTaggedForAdjudication.length
-            : adjudicationContests.length
+            : visibleAdjudicationContests.length
         }
         side={
           frontContests.some((contest) => contest.id === selectedContestId)
@@ -361,9 +419,15 @@ export function BallotAdjudicationScreen(): JSX.Element {
         onNext={
           nextContest
             ? () => setSelectedContestId(nextContest.contestId)
-            : () => setSelectedContestId(null)
+            : () => {
+                setSelectedContestId(null);
+                setNavigationMode('all');
+              }
         }
-        onClose={() => setSelectedContestId(null)}
+        onClose={() => {
+          setSelectedContestId(null);
+          setNavigationMode('all');
+        }}
         contestAdjudicationData={assertDefined(
           adjudicationContests.find((c) => c.contestId === selectedContestId)
         )}
@@ -400,11 +464,10 @@ export function BallotAdjudicationScreen(): JSX.Element {
         <AdjudicationPanel>
           <PanelHeader>
             <BallotInfo>
+              {/* <BallotIdCaption>ID: {cvrId.slice(-4)}</BallotIdCaption> */}
               <BallotInfoText>
-                Ballot {format.count(queueIndex + 1)} of{' '}
-                {format.count(queue.length)}
+                Ballot ID: {cvrId.substring(0, 4)}
               </BallotInfoText>
-              <BallotIdCaption>ID: {cvrId.slice(-4)}</BallotIdCaption>
             </BallotInfo>
             <Button
               fill="outlined"
@@ -423,17 +486,33 @@ export function BallotAdjudicationScreen(): JSX.Element {
               election={election}
               tagsByContestId={tagsByContestId}
               selectedContestId={selectedContestId}
-              onSelect={setSelectedContestId}
+              onSelect={(contestId) => {
+                setSelectedContestId(contestId);
+                setNavigationMode(
+                  tagsByContestId.has(contestId) ? 'flagged' : 'all'
+                );
+              }}
+              onStartAdjudication={(contestId) => {
+                setSelectedContestId(contestId);
+                setNavigationMode('flagged');
+              }}
+              onSelectSide={setSelectedSide}
             />
           )}
           <PanelFooter>
+            <BallotMetadata>
+              <SmallText>
+                Ballot {format.count(queueIndex + 1)} of{' '}
+                {format.count(queue.length)}
+              </SmallText>
+            </BallotMetadata>
             <FooterNav>
               <PrimaryNavButton
                 icon="Done"
                 onPress={onAcceptAndNext}
                 variant={allResolved ? 'primary' : 'neutral'}
               >
-                {onLastBallot ? 'Finish' : 'Accept'}
+                {onLastBallot ? 'Accept' : 'Accept'}
               </PrimaryNavButton>
               <SecondaryNavButton onPress={onSkip} rightIcon="Next">
                 {onLastBallot ? 'Exit' : 'Skip'}
