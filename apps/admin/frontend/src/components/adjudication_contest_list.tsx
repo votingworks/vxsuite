@@ -5,6 +5,7 @@ import {
   ContestId,
   Election,
   getContestDistrictName,
+  Side,
 } from '@votingworks/types';
 import type { CvrContestTag } from '@votingworks/admin-backend';
 import { Button, Icons } from '@votingworks/ui';
@@ -17,6 +18,12 @@ const Column = styled.div`
   gap: 0;
 `;
 
+const ClickableHeader = styled.button`
+  all: unset;
+  cursor: pointer;
+  width: 100%;
+`;
+
 export interface AdjudicationContestListProps {
   frontContests: AnyContest[];
   backContests: AnyContest[];
@@ -24,9 +31,11 @@ export interface AdjudicationContestListProps {
   tagsByContestId: Map<ContestId, CvrContestTag | null>;
   selectedContestId: ContestId | null;
   onSelect: (contestId: ContestId) => void;
+  onStartAdjudication: (contestId: ContestId) => void;
+  onSelectSide: (side: Side) => void;
 }
 
-function getAdjudicationReasons(tag?: CvrContestTag  ): string[] {
+function getAdjudicationReasons(tag?: CvrContestTag): string[] {
   if (!tag) return [];
   const reasons: string[] = [];
   if (tag.hasWriteIn) reasons.push('Write-In');
@@ -41,21 +50,31 @@ function ContestSublist({
   election,
   tagsByContestId,
   onSelect,
+  onStartAdjudication,
   selectedContestId,
   title,
   firstUnresolvedContestId,
+  onHeaderClick,
 }: {
   contests: AnyContest[];
   election: Election;
   tagsByContestId: Map<ContestId, CvrContestTag | null>;
   onSelect: (contestId: ContestId) => void;
+  onStartAdjudication: (contestId: ContestId) => void;
   selectedContestId: ContestId | null;
   title: string;
-  firstUnresolvedContestId?: ContestId  ;
+  firstUnresolvedContestId?: ContestId;
+  onHeaderClick?: () => void;
 }): React.ReactNode {
   return (
     <React.Fragment>
-      <EntityList.Header>{title}</EntityList.Header>
+      {onHeaderClick ? (
+        <ClickableHeader type="button" onClick={onHeaderClick}>
+          <EntityList.Header>{title}</EntityList.Header>
+        </ClickableHeader>
+      ) : (
+        <EntityList.Header>{title}</EntityList.Header>
+      )}
       <EntityList.Items>
         {contests.map((contest) => {
           const tag = tagsByContestId.get(contest.id);
@@ -66,13 +85,14 @@ function ContestSublist({
             <EntityList.Item
               id={contest.id}
               key={contest.id}
-              selected={selectedContestId === contest.id}
+              selected={isFirstUnresolved || selectedContestId === contest.id}
               onSelect={onSelect}
               autoScrollIntoView={isFirstUnresolved}
             >
               <Column>
                 {reasons.length > 0 && (
                   <EntityList.Caption weight="semiBold">
+                    {tag?.isResolved ? 'Resolved: ' : null}
                     {reasons.join(', ')}
                   </EntityList.Caption>
                 )}
@@ -85,13 +105,19 @@ function ContestSublist({
               </Column>
               {isResolved && <Icons.Done color="success" />}
               {isFirstUnresolved && (
-                <Button
-                  variant="primary"
-                  onPress={() => onSelect(contest.id)}
-                  style={{ padding: '0.375rem 0.75rem', fontSize: '0.8125rem' }}
-                >
-                  Start
-                </Button>
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="primary"
+                    onPress={() => onStartAdjudication(contest.id)}
+                    style={{
+                      padding: '0.375rem 0.75rem',
+                      fontSize: '0.8125rem',
+                    }}
+                  >
+                    Start
+                  </Button>
+                </div>
               )}
             </EntityList.Item>
           );
@@ -111,6 +137,8 @@ export function AdjudicationContestList(
     tagsByContestId,
     selectedContestId,
     onSelect,
+    onStartAdjudication,
+    onSelectSide,
   } = props;
 
   const allContests = [...frontContests, ...backContests];
@@ -127,9 +155,11 @@ export function AdjudicationContestList(
           election={election}
           tagsByContestId={tagsByContestId}
           onSelect={onSelect}
+          onStartAdjudication={onStartAdjudication}
           selectedContestId={selectedContestId}
           title="Front"
           firstUnresolvedContestId={firstUnresolvedContestId}
+          onHeaderClick={() => onSelectSide('front')}
         />
       )}
       {backContests.length > 0 && (
@@ -138,9 +168,11 @@ export function AdjudicationContestList(
           election={election}
           tagsByContestId={tagsByContestId}
           onSelect={onSelect}
+          onStartAdjudication={onStartAdjudication}
           selectedContestId={selectedContestId}
           title="Back"
           firstUnresolvedContestId={firstUnresolvedContestId}
+          onHeaderClick={() => onSelectSide('back')}
         />
       )}
     </EntityList.Box>

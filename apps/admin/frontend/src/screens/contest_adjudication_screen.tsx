@@ -261,6 +261,7 @@ interface ContestAdjudicationScreenProps {
   contestNumber: number;
   contestCount: number;
   cvrId: Id;
+  isFlaggedMode: boolean;
   onBack?: () => void;
   onNext: () => void;
   onClose: () => void;
@@ -277,6 +278,7 @@ export function ContestAdjudicationScreen({
   contestNumber,
   contestCount,
   cvrId,
+  isFlaggedMode,
   ballotImages,
   side,
   onLastContest,
@@ -561,7 +563,7 @@ export function ContestAdjudicationScreen({
             </ContestTitleDiv>
             <Button
               fill="outlined"
-              icon="X"
+              icon="ListUnordered"
               onPress={onExit}
               variant="inverseNeutral"
               style={{ padding: '0.3rem .75rem', fontSize: '.8rem' }}
@@ -649,7 +651,7 @@ export function ContestAdjudicationScreen({
                 const isSelected = getOptionHasVote(optionId);
                 const isFocused = focusedOptionId === optionId;
                 const writeInStatus = getOptionWriteInStatus(optionId);
-                const {writeInRecord} = optionForAdjudication;
+                const { writeInRecord } = optionForAdjudication;
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
                 return (
@@ -734,8 +736,8 @@ export function ContestAdjudicationScreen({
           <BallotFooter>
             <BallotMetadata>
               <SmallText>
-                {tag ? 'Adjudication' : 'Contest'} {format.count(contestNumber)}{' '}
-                of {format.count(contestCount)}
+                {isFlaggedMode ? 'Flagged Contest' : 'Contest'}{' '}
+                {format.count(contestNumber)} of {format.count(contestCount)}
               </SmallText>
               {/* <SmallText>Ballot ID: {cvrId.slice(-4)}</SmallText> */}
             </BallotMetadata>
