@@ -33,13 +33,23 @@ struct JsInterpretOptions {
     retry_streak_width_threshold: u32,
 }
 
+/// Wraps an interpret error with a pre-computed `is_bubble_ballot` flag so
+/// the TypeScript side doesn't have to infer ballot type from error strings.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct JsInterpretErr {
+    #[serde(flatten)]
+    error: interpret::Error,
+    is_bubble_ballot: bool,
+}
+
 #[derive(Debug, Serialize)]
 #[serde(tag = "type", content = "value")]
 enum JsInterpretResult {
     #[serde(rename = "ok")]
     Ok(Box<InterpretedBallotCard>),
     #[serde(rename = "err")]
-    Err(Box<interpret::Error>),
+    Err(Box<JsInterpretErr>),
 }
 
 fn interpret(
@@ -104,7 +114,11 @@ fn interpret(
         Ok(card) => card,
         Err(err) => {
             // Don't `throw` `interpret::Error`, for better structured & typed handling.
-            return Ok(JsInterpretResult::Err(Box::new(err)));
+            let is_bubble_ballot = err.is_bubble_ballot();
+            return Ok(JsInterpretResult::Err(Box::new(JsInterpretErr {
+                error: err,
+                is_bubble_ballot,
+            })));
         }
     };
 

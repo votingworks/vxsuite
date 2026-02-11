@@ -302,14 +302,13 @@ export interface Size<T> {
 
 /**
  * Possible errors that can occur when interpreting a ballot card.
+ *
+ * `isBubbleBallot` is set by the Rust interpreter and is true when the error
+ * definitively identifies the ballot as a bubble ballot rather than a summary
+ * ballot. When true, summary ballot interpretation can be skipped.
  */
-export type InterpretError =
+export type InterpretError = { isBubbleBallot: boolean } & (
   | { type: 'borderInsetNotFound'; path: string }
-  | {
-      type: 'invalidCardMetadata';
-      sideA: BallotPageMetadata;
-      sideB: BallotPageMetadata;
-    }
   | { type: 'invalidQrCodeMetadata'; label: string; message: string }
   | { type: 'mismatchedPrecincts'; sideA: PrecinctId; sideB: PrecinctId }
   | {
@@ -340,7 +339,8 @@ export type InterpretError =
   | {
       type: 'invalidElection';
       message: string;
-    };
+    }
+);
 
 /**
  * Information about a ballot page that has failed to be interpreted.

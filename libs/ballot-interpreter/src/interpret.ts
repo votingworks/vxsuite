@@ -73,6 +73,7 @@ import {
 } from './bubble-ballot-ts';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
+import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation';
 
 const debug = makeDebug('ballot-interpreter:scan:interpreter');
 
@@ -575,12 +576,15 @@ function validateInterpretResults(
 /**
  * Interpret a HMPB sheet and convert the result from the Rust
  * interpreter's result format to the result format used by the rest of VxSuite.
+ *
+ * Returns both the raw Rust result (so callers can check `isBubbleBallot`)
+ * and the converted `PageInterpretation` array (for TS-level validation).
  */
 function interpretHmpb(
   sheet: SheetOf<ImageData>,
   options: InterpreterOptions
-): SheetOf<PageInterpretation> {
-  const result = interpretHmpbBallotSheetRust({
+): { rawResult: HmpbInterpretResult; interpretation: SheetOf<PageInterpretation> } {
+  const rawResult = interpretHmpbBallotSheetRust({
     electionDefinition: options.electionDefinition,
     ballotImages: sheet,
     scoreWriteIns: shouldScoreWriteIns(options),
@@ -593,10 +597,13 @@ function interpretHmpb(
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
   });
 
-  return validateInterpretResults(
-    convertRustInterpretResult(options, result, sheet).unsafeUnwrap(),
-    options
-  );
+  return {
+    rawResult,
+    interpretation: validateInterpretResults(
+      convertRustInterpretResult(options, rawResult, sheet).unsafeUnwrap(),
+      options
+    ),
+  };
 }
 
 /**
@@ -847,14 +854,43 @@ export async function interpretSheet(
   const timer = time(debug, 'interpretSheet');
 
   try {
-    const hmpbInterpretation = options.electionDefinition.election.gridLayouts
+    const hmpb = options.electionDefinition.election.gridLayouts
       ? interpretHmpb(sheet, options)
       : undefined;
+
+    const hmpbInterpretation = hmpb?.interpretation;
 
     if (
       hmpbInterpretation?.[0].type === 'InterpretedHmpbPage' &&
       hmpbInterpretation[1].type === 'InterpretedHmpbPage'
     ) {
+      return hmpbInterpretation;
+    }
+
+    // Skip summary ballot interpretation if we're confident this is a bubble
+    // ballot. Two sources of confidence:
+    // 1. Rust detected a bubble-ballot-specific error (e.g. QR codes decoded
+    //    but precincts mismatched, streak/scale detection fired).
+    // 2. TypeScript validation produced a definitive bubble-ballot result
+    //    (QR code decoded successfully, but wrong hash/test-mode/precinct).
+    if (
+      hmpbInterpretation !== undefined &&
+      ((hmpb !== undefined &&
+        hmpb.rawResult.isErr() &&
+        hmpb.rawResult.err().isBubbleBallot) ||
+        shouldSkipSummaryBallotInterpretation(hmpbInterpretation))
+    ) {
+      // The bubble ballot interpreter doesn't write images on error paths, so
+      // write the original images since we're skipping summary ballot
+      // interpretation (which would normally handle this).
+      await mapSheet(
+        sheet,
+        [
+          options.frontNormalizedImageOutputPath,
+          options.backNormalizedImageOutputPath,
+        ],
+        async (imageData, path) => path && (await writeImageData(path, imageData))
+      );
       return hmpbInterpretation;
     }
 

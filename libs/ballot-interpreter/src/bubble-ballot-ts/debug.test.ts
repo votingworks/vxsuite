@@ -12,7 +12,7 @@ const interpretImplMock = vi.mocked(addon.interpret);
 test('no debug', () => {
   interpretImplMock.mockReturnValue({
     type: 'err',
-    value: { type: 'invalidScale', label: 'side A', scale: 0.9 },
+    value: { type: 'invalidScale', label: 'side A', scale: 0.9, isBubbleBallot: true },
   });
 
   void interpret({
@@ -32,7 +32,7 @@ test('no debug', () => {
 test('debug with image paths', () => {
   interpretImplMock.mockReturnValue({
     type: 'err',
-    value: { type: 'invalidScale', label: 'side A', scale: 0.9 },
+    value: { type: 'invalidScale', label: 'side A', scale: 0.9, isBubbleBallot: true },
   });
 
   void interpret({
