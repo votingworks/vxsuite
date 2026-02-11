@@ -1,7 +1,4 @@
 import * as fs from 'node:fs';
-import { mkdtempSync } from 'node:fs';
-import { join } from 'node:path';
-import { tmpdir } from 'node:os';
 import {
   BatchControl,
   BatchScanner,
