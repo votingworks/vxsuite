@@ -399,26 +399,16 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         } else {
           // Treat as PDF
           const pdfData = Uint8Array.from(fs.readFileSync(filePath));
-          const images = await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
+          const pairs = iter(pdfToImages(pdfData, { scale: 200 / 72 }))
             .map(({ page }) => page)
-            .toArray();
+            .chunks(2);
 
-          for (let i = 0; i < images.length; i += 2) {
-            const frontImage = assertDefined(images[i]);
-            const backImage = images[i + 1];
-
+          for await (const [frontImage, backImage] of pairs) {
             const frontPath = nextImagePath();
-            await writeImageData(frontPath, frontImage);
-
             const backPath = nextImagePath();
-            if (backImage) {
-              await writeImageData(backPath, backImage);
-            } else {
-              await writeImageData(
-                backPath,
-                createImageData(frontImage.width, frontImage.height)
-              );
-            }
+
+            await writeImageData(frontPath, frontImage);
+            await writeImageData(backPath, backImage ?? createImageData(frontImage.width, frontImage.height));
 
             sheets.push({ frontPath, backPath });
           }
@@ -426,10 +416,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       }
 
       // Pair image files as front/back, 2 at a time
-      for (let i = 0; i < imageFilePaths.length; i += 2) {
-        const frontPath = assertDefined(imageFilePaths[i]);
-        const backPath = imageFilePaths[i + 1];
-
+      for (const [frontPath, backPath] of iter(imageFilePaths).chunks(2)) {
         if (backPath) {
           sheets.push({ frontPath, backPath });
         } else {
