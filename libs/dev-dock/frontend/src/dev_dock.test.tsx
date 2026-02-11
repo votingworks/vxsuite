@@ -9,6 +9,7 @@ import {
   vi,
 } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
+import { assertDefined } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api } from '@votingworks/dev-dock-backend';
@@ -663,6 +664,89 @@ describe('PDI scanner mock', () => {
       filePaths: [],
     });
     userEvent.click(insertBallotButton);
+    await waitFor(() => {
+      expect(kiosk.showOpenDialog).toHaveBeenCalled();
+      mockApiClient.assertComplete();
+    });
+  });
+});
+
+describe('batch scanner mock', () => {
+  test('when disabled, not shown', async () => {
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ mockBatchScanner: false });
+
+    renderDock(mockApiClient);
+    await screen.findByRole('combobox'); // wait for dock to render
+    expect(screen.queryByText('Batch Scanner:')).not.toBeInTheDocument();
+  });
+
+  test('load ballots and clear', async () => {
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ mockBatchScanner: true });
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 0 });
+
+    renderDock(mockApiClient);
+    const loadButton = await screen.findByRole('button', {
+      name: 'Load Ballots',
+    });
+    expect(loadButton).toBeEnabled();
+
+    // Simulate selecting files
+    kiosk.showOpenDialog.mockResolvedValueOnce({
+      canceled: false,
+      filePaths: ['/ballot1.pdf', '/ballot2.pdf'],
+    });
+    mockApiClient.batchScannerLoadBallots
+      .expectCallWith({ paths: ['/ballot1.pdf', '/ballot2.pdf'] })
+      .resolves();
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 2 });
+    userEvent.click(loadButton);
+
+    const queuedText = await screen.findByText(/2 sheet\(s\) queued/);
+    // Get the Clear button within the batch scanner section (not the USB Clear)
+    const clearButton = within(
+      assertDefined(queuedText.closest('div'))
+    ).getByRole('button', { name: 'Clear' });
+
+    // Clear the ballots
+    mockApiClient.batchScannerClearBallots.expectCallWith().resolves();
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 0 });
+    userEvent.click(clearButton);
+    await waitFor(() => {
+      expect(screen.queryByText(/sheet\(s\) queued/)).not.toBeInTheDocument();
+    });
+  });
+
+  test('ignores canceled open file dialog', async () => {
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ mockBatchScanner: true });
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 0 });
+
+    renderDock(mockApiClient);
+    const loadButton = await screen.findByRole('button', {
+      name: 'Load Ballots',
+    });
+
+    kiosk.showOpenDialog.mockResolvedValueOnce({
+      canceled: true,
+      filePaths: [],
+    });
+    userEvent.click(loadButton);
     await waitFor(() => {
       expect(kiosk.showOpenDialog).toHaveBeenCalled();
       mockApiClient.assertComplete();

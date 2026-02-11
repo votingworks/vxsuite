@@ -551,6 +551,66 @@ test('mock batch scanner - clear ballots', async () => {
   expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 0 });
 });
 
+test('mock batch scanner - load image files as front/back pairs', async () => {
+  const mockBatchScanner = createMockBatchScanner();
+  const { apiClient } = setup({ mockBatchScanner });
+
+  // Create two small test images in the batch scanner's image dir
+  const img1 = join(mockBatchScanner.imageDir, 'front.jpg');
+  const img2 = join(mockBatchScanner.imageDir, 'back.jpg');
+  const { createImageData, writeImageData } = await import(
+    '@votingworks/image-utils'
+  );
+  await writeImageData(img1, createImageData(10, 10));
+  await writeImageData(img2, createImageData(10, 10));
+
+  await apiClient.batchScannerLoadBallots({ paths: [img1, img2] });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });
+});
+
+test('mock batch scanner - odd image gets a blank back', async () => {
+  const mockBatchScanner = createMockBatchScanner();
+  const { apiClient } = setup({ mockBatchScanner });
+
+  const img = join(mockBatchScanner.imageDir, 'single.jpg');
+  const { createImageData, writeImageData } = await import(
+    '@votingworks/image-utils'
+  );
+  await writeImageData(img, createImageData(10, 10));
+
+  await apiClient.batchScannerLoadBallots({ paths: [img] });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });
+});
+
+test('mock batch scanner - single page PDF gets blank back', async () => {
+  const mockBatchScanner = createMockBatchScanner();
+  const { apiClient } = setup({ mockBatchScanner });
+
+  // The famous names ballot is 2 pages; we need a 1-page PDF to cover the
+  // odd-page branch. Create a minimal valid single-page PDF from raw bytes.
+  const minimalPdf = [
+    '%PDF-1.0',
+    '1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj',
+    '2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj',
+    '3 0 obj <</Type /Page /Parent 2 0 R /MediaBox [0 0 100 100]>> endobj',
+    'xref',
+    '0 4',
+    '0000000000 65535 f ',
+    '0000000009 00000 n ',
+    '0000000058 00000 n ',
+    '0000000115 00000 n ',
+    'trailer <</Size 4 /Root 1 0 R>>',
+    'startxref',
+    '190',
+    '%%EOF',
+  ].join('\n');
+  const pdfPath = join(mockBatchScanner.imageDir, 'single-page.pdf');
+  fs.writeFileSync(pdfPath, minimalPdf);
+
+  await apiClient.batchScannerLoadBallots({ paths: [pdfPath] });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });
+});
+
 test('mock batch scanner - mock spec reports mockBatchScanner', async () => {
   const mockBatchScanner = createMockBatchScanner();
   const { apiClient } = setup({ mockBatchScanner });
