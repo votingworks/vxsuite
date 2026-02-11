@@ -148,8 +148,6 @@ pub(crate) use f32_newtype;
 mod tests {
     use proptest::proptest;
 
-    use super::*;
-
     f32_newtype!(MyF32);
 
     #[test]

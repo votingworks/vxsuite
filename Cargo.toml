@@ -81,6 +81,9 @@ zbar-rust = "0.0.23"
 
 [workspace.lints.rust]
 dead_code = "deny"
+unused_assignments = "deny"
+unused_imports = "deny"
+unused_variables = "deny"
 
 [workspace.lints.clippy]
 pedantic = { level = "deny", priority = -1 }
