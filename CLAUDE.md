@@ -347,3 +347,7 @@ export const saveSetting = {
 - Use `@votingworks/basics` for utility functions (Result types, assert, etc.)
 - UI components should use `@votingworks/ui` shared library with
   styled-components
+- **Voter-facing strings** — All voter-facing text in VxMark, VxScan, and
+  VxMarkScan must use `appStrings` from `@votingworks/ui` (defined in
+  `libs/ui/src/ui_strings/app_strings.tsx`) to support internationalization.
+  Never hardcode voter-facing strings directly in components.
