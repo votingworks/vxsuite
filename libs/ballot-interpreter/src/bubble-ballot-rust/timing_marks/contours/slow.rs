@@ -12,7 +12,7 @@ use super::{
 
 /// Finds the best fit of timing marks along the top border of the ballot card,
 /// even if the number of timing marks is not equal to the expected number.
-pub fn find_top_timing_marks(candidates: &[CandidateTimingMark]) -> BestFitSearchResult {
+pub fn find_top_timing_marks(candidates: &[CandidateTimingMark]) -> BestFitSearchResult<'_> {
     find_best_fit_segment(
         candidates,
         HORIZONTAL_ANGLE,
@@ -84,7 +84,7 @@ pub fn find_right_timing_marks<'a>(
 
 /// Finds the best fit of timing marks along the bottom border of the ballot card,
 /// even if the number of timing marks is not equal to the expected number.
-pub fn find_bottom_timing_marks(candidates: &[CandidateTimingMark]) -> BestFitSearchResult {
+pub fn find_bottom_timing_marks(candidates: &[CandidateTimingMark]) -> BestFitSearchResult<'_> {
     find_best_fit_segment(
         candidates,
         HORIZONTAL_ANGLE,
@@ -160,7 +160,7 @@ pub fn find_best_fit_segment(
     angle: impl Into<Radians>,
     tolerance: impl Into<Radians>,
     compare: impl Fn(&BestFit, &BestFit) -> Ordering,
-) -> BestFitSearchResult {
+) -> BestFitSearchResult<'_> {
     let start = Instant::now();
     let angle = angle.into();
     let tolerance = tolerance.into();

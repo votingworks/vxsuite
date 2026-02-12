@@ -161,7 +161,7 @@ fn find_timing_marks(
     expected_count: usize,
     expected_angle: impl Into<Radians>,
     options: FindTimingMarkOptions,
-) -> BestFitSearchResult {
+) -> BestFitSearchResult<'_> {
     let expected_angle = expected_angle.into();
     let start = Instant::now();
 

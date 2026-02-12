@@ -102,16 +102,13 @@ impl FromStr for Inference {
 }
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq)]
+#[derive(Default)]
 pub enum VerticalStreakDetection {
+    #[default]
     Enabled,
     Disabled,
 }
 
-impl Default for VerticalStreakDetection {
-    fn default() -> Self {
-        Self::Enabled
-    }
-}
 
 impl Display for VerticalStreakDetection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -256,7 +253,7 @@ pub enum Error {
     #[error("could not compute layout for {side:?}")]
     CouldNotComputeLayout { side: BallotSide },
 
-    #[error("vertical streaks detected on {label}")]
+    #[error("vertical streaks detected on {label} (found {})", x_coordinates.len())]
     #[serde(rename_all = "camelCase")]
     VerticalStreaksDetected {
         label: String,
