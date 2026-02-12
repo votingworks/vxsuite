@@ -384,7 +384,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         fileIndex += 1;
         return join(
           batchScanner.imageDir,
-          `sheet-${Date.now()}-${fileIndex}.jpg`
+          `sheet-${Date.now()}-${fileIndex}.png`
         );
       }
 
@@ -408,7 +408,10 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
             const backPath = nextImagePath();
 
             await writeImageData(frontPath, frontImage);
-            await writeImageData(backPath, backImage ?? createImageData(frontImage.width, frontImage.height));
+            await writeImageData(
+              backPath,
+              backImage ?? createImageData(frontImage.width, frontImage.height)
+            );
 
             sheets.push({ frontPath, backPath });
           }

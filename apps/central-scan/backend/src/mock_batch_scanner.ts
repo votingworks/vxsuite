@@ -6,7 +6,7 @@ import {
 } from './fujitsu_scanner';
 
 export interface MockBatchScannerApi {
-  addSheets(sheets: ScannedSheetInfo[]): void;
+  addSheets(sheets: readonly ScannedSheetInfo[]): void;
   getStatus(): { sheetCount: number };
   clearSheets(): void;
   /** Directory for writing temporary ballot images. */
