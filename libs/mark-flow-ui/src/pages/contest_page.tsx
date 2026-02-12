@@ -146,7 +146,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       id={isReviewMode ? PageNavigationButtonId.NEXT : undefined}
       variant={isReviewMode && isVoteComplete ? 'primary' : 'neutral'}
       to={viewAllUrl}
-      rightIcon={isReviewMode ? 'Next' : 'ListUnordered'}
+      icon={isReviewMode ? 'Next' : 'ListUnordered'}
       ref={viewAllButtonRef}
     >
       {isReviewMode ? (
