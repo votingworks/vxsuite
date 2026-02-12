@@ -165,7 +165,7 @@ impl RawImageData {
     ) -> Result<u32, Error> {
         let page_count = scan_side_mode.page_count() as usize;
 
-        if self.data.len() % page_count != 0 {
+        if !self.data.len().is_multiple_of(page_count) {
             return Err(Error::InvalidData(format!(
                 "data length {} is not divisible by {}",
                 self.data.len(),

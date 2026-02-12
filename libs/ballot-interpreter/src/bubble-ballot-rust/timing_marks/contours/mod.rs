@@ -1271,11 +1271,7 @@ fn infer_missing_timing_marks_on_segment(
                 a_distance
                     .partial_cmp(&b_distance)
                     .unwrap_or(Ordering::Equal)
-            })
-            .map_or_else(
-                || unreachable!("[{border:?}] there will always be a closest timing mark"),
-                |rect| rect,
-            );
+            }).unwrap_or_else(|| unreachable!("[{border:?}] there will always be a closest timing mark"));
 
         // if the closest timing mark is close enough, use it
         if closest_mark
