@@ -94,6 +94,7 @@ import {
   faMinus,
   faVolumeDown,
   faClock,
+  faHeadphones,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -421,6 +422,10 @@ export const Icons = {
 
   HardDrive(props) {
     return <FaIcon {...props} type={faHardDrive} />;
+  },
+
+  Headphones(props) {
+    return <FaIcon {...props} type={faHeadphones} />;
   },
 
   IdCard(props) {

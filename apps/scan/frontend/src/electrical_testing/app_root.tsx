@@ -11,16 +11,17 @@ import {
   RadioGroup,
   Screen,
   SignedHashValidationButton,
+  HeadphoneCalibrationButton,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import useInterval from 'use-interval';
 import { iter } from '@votingworks/basics';
 import { mapSheet, SheetOf } from '@votingworks/types';
 import type { HWTA } from '@votingworks/scan-backend';
-import { useSound } from '../utils/use_sound';
+import { useSoundControls } from '../utils/use_sound';
 import * as api from './api';
 import { useApiClient } from './api';
 
@@ -461,42 +462,88 @@ function UsbDriveControls({
   );
 }
 
-function AudioControls({
-  isSpeakerEnabled,
-  setIsSpeakerEnabled,
-  isHeadphonesEnabled,
-  setIsHeadphonesEnabled,
-}: {
-  isSpeakerEnabled: boolean;
-  setIsSpeakerEnabled: (isEnabled: boolean) => void;
-  isHeadphonesEnabled: boolean;
-  setIsHeadphonesEnabled: (isEnabled: boolean) => void;
-}): JSX.Element {
+function AudioControls(): JSX.Element {
+  const [headphonesOn, setHeadphonesOn] = React.useState(true);
+  const [speakerOn, setSpeakerOn] = React.useState(true);
+  const [calibrating, setCalibrating] = React.useState(false);
+  const [output, setOutput] = React.useState<'Headphones' | 'Speaker'>(
+    'Speaker'
+  );
+
+  const headphonesSuccess = useSoundControls('success');
+  const playSoundSpeaker = api.playSound.useMutation().mutate;
+
+  const anyOutputActive = !calibrating && (headphonesOn || speakerOn);
+  useInterval(
+    () => {
+      if (!anyOutputActive) return;
+
+      // If only one output is enabled, use that:
+      if (headphonesOn && !speakerOn) {
+        setOutput('Headphones');
+        return headphonesSuccess.play();
+      }
+      if (speakerOn && !headphonesOn) {
+        setOutput('Speaker');
+        return playSoundSpeaker({ name: 'success' });
+      }
+
+      // If both outputs are enabled, alternate:
+      if (output === 'Speaker') {
+        setOutput('Headphones');
+        headphonesSuccess.play();
+      } else if (speakerOn) {
+        setOutput('Speaker');
+        playSoundSpeaker({ name: 'success' });
+      }
+    },
+    anyOutputActive ? SOUND_INTERVAL_SECONDS * 1000 : null
+  );
+
+  const EnabledIcon =
+    output === 'Headphones' ? Icons.Headphones : Icons.VolumeUp;
+
   return (
     <Column gap="0.5rem">
       <Column>
         <H6>
-          {isSpeakerEnabled || isHeadphonesEnabled ? (
-            <Icons.VolumeUp />
-          ) : (
-            <Icons.VolumeMute />
-          )}{' '}
-          Audio
+          {anyOutputActive ? <EnabledIcon /> : <Icons.VolumeMute />} Audio
         </H6>
         <Caption style={{ flexGrow: 1 }}>
-          {isSpeakerEnabled ? 'Enabled' : 'Disabled'}
+          {anyOutputActive ? (
+            <React.Fragment>Current Output: {output}</React.Fragment>
+          ) : (
+            'Disabled'
+          )}
         </Caption>
       </Column>
       <CheckboxButton
-        label="Speaker"
-        isChecked={isSpeakerEnabled}
-        onChange={setIsSpeakerEnabled}
+        label="Headphones"
+        isChecked={headphonesOn}
+        onChange={(enable) => {
+          headphonesSuccess.stop();
+          setHeadphonesOn(enable);
+        }}
       />
       <CheckboxButton
-        label="Headphones"
-        isChecked={isHeadphonesEnabled}
-        onChange={setIsHeadphonesEnabled}
+        label="Speaker"
+        isChecked={speakerOn}
+        onChange={(enable) => {
+          headphonesSuccess.stop();
+          setSpeakerOn(enable);
+        }}
       />
+
+      <Row>
+        <HeadphoneCalibrationButton
+          audioUrl="/sounds/tts-sample.mp3"
+          onBegin={() => {
+            headphonesSuccess.stop();
+            setCalibrating(true);
+          }}
+          onEnd={() => setCalibrating(false)}
+        />
+      </Row>
     </Column>
   );
 }
@@ -554,12 +601,6 @@ export function AppRoot(): JSX.Element {
   const resetScanningSessionMutation = api.resetScanningSession.useMutation();
   const powerDownMutation = api.systemCallApi.powerDown.useMutation();
 
-  const [speakerEnabled, setSpeakerEnabled] = useState(true);
-  const [headphonesEnabled, setHeadphonesEnabled] = useState(true);
-
-  const playSoundHeadphones = useSound('success');
-  const playSoundSpeaker = api.playSound.useMutation().mutate;
-
   function powerDown() {
     powerDownMutation.mutate();
   }
@@ -571,15 +612,6 @@ export function AppRoot(): JSX.Element {
   function resetScanningSession() {
     resetScanningSessionMutation.mutate();
   }
-
-  useInterval(
-    () => playSoundSpeaker({ name: 'success' }),
-    speakerEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null
-  );
-  useInterval(
-    playSoundHeadphones,
-    headphonesEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null
-  );
 
   const [isSaveLogsModalOpen, setIsSaveLogsModalOpen] = React.useState(false);
 
@@ -610,12 +642,7 @@ export function AppRoot(): JSX.Element {
                   setUsbDriveTaskRunningMutation.mutate(isEnabled)
                 }
               />
-              <AudioControls
-                isSpeakerEnabled={speakerEnabled}
-                setIsSpeakerEnabled={setSpeakerEnabled}
-                isHeadphonesEnabled={headphonesEnabled}
-                setIsHeadphonesEnabled={setHeadphonesEnabled}
-              />
+              <AudioControls />
               <Column gap="0.5rem">
                 <Column>
                   <H6>

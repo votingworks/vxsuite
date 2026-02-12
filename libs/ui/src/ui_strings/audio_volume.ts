@@ -54,19 +54,31 @@ export enum AudioVolume {
  */
 const GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME = -55;
 
-function getAudioGainAmountDb(volume: AudioVolume): number {
+export interface GainOptions {
+  minGainDb?: number;
+}
+
+function getAudioGainAmountDb(
+  volume: AudioVolume,
+  opts: GainOptions = {}
+): number {
+  const minGain = opts.minGainDb ?? GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME;
+
   // eslint-disable-next-line vx/gts-safe-number-parse
   const additionalGainPercentage = parseInt(volume, 10);
   const additionalGainDb =
     (MAX_VOLUME_DB_SPL - MIN_VOLUME_DB_SPL) * (additionalGainPercentage / 100);
 
-  return GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME + additionalGainDb;
+  return minGain + additionalGainDb;
 }
 
-export function getAudioGainRatio(volume: AudioVolume): number {
+export function getAudioGainRatio(
+  volume: AudioVolume,
+  opts: GainOptions = {}
+): number {
   // Inverse of the "20 log rule" for calculating amplitude from gain ratio:
   // https://en.wikipedia.org/wiki/Gain_(electronics)#Voltage_gain
-  return 10 ** (getAudioGainAmountDb(volume) / 20);
+  return 10 ** (getAudioGainAmountDb(volume, opts) / 20);
 }
 
 export const DEFAULT_AUDIO_VOLUME: AudioVolume = AudioVolume.FIFTY_PERCENT;
