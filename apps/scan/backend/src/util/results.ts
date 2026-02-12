@@ -18,22 +18,22 @@ import { VX_MACHINE_ID } from '@votingworks/backend';
 import memoizeOne from 'memoize-one';
 import { Store } from '../store';
 
-function isBmdPage(
+export function isHmpbPage(
+  interpretation: PageInterpretation
+): interpretation is InterpretedHmpbPage {
+  return interpretation.type === 'InterpretedHmpbPage';
+}
+
+export function isBmdPage(
   interpretation: PageInterpretation
 ): interpretation is InterpretedBmdPage {
   return interpretation.type === 'InterpretedBmdPage';
 }
 
-function isBmdMultiPagePage(
+export function isBmdMultiPagePage(
   interpretation: PageInterpretation
 ): interpretation is InterpretedBmdMultiPagePage {
   return interpretation.type === 'InterpretedBmdMultiPagePage';
-}
-
-function isHmpbPage(
-  interpretation: PageInterpretation
-): interpretation is InterpretedHmpbPage {
-  return interpretation.type === 'InterpretedHmpbPage';
 }
 
 const BALLOT_TYPE_TO_VOTING_METHOD: Record<
