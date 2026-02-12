@@ -17,6 +17,10 @@ mod vx;
 
 /// Convert a VX-formatted log file to a CDF-formatted log file and calls the
 /// provided callback after completion.
+///
+/// # Errors
+///
+/// Throws if the source is not a known source.
 #[napi(ts_args_type = "
     log: (
       eventId: import('@votingworks/logging').LogEventId,
@@ -32,6 +36,7 @@ mod vx;
     callback: (error: Error | null) => void,
 ")]
 #[allow(clippy::too_many_arguments)]
+#[allow(clippy::needless_pass_by_value)]
 pub fn convert_vx_log_to_cdf(
     log: Function<FnArgs<(String, String, String)>, ()>,
     source: String,
@@ -63,8 +68,8 @@ pub fn convert_vx_log_to_cdf(
     thread::spawn(move || {
         let result = convert_vx_log_to_cdf_impl(
             source,
-            machine_id,
-            code_version,
+            &machine_id,
+            &code_version,
             &input_path,
             &output_path,
             compressed,
@@ -86,10 +91,15 @@ pub fn convert_vx_log_to_cdf(
 /// until the conversion is complete.
 ///
 /// This version is meant to be run in a non-main thread.
+///
+/// # Errors
+///
+/// Fails if `input_path` cannot be opened for reading, `output_path` cannot be
+/// opened for writing, or the CDF JSON cannot be serialized.
 pub fn convert_vx_log_to_cdf_impl(
     source: Source,
-    machine_id: String,
-    code_version: String,
+    machine_id: &str,
+    code_version: &str,
     input_path: &Path,
     output_path: &Path,
     compressed: bool,
@@ -133,14 +143,14 @@ pub fn convert_vx_log_to_cdf_impl(
         generated_time: chrono::offset::Utc::now().to_rfc3339(),
         device: vec![cdf::Device {
             object_type: cdf::DeviceType::Device,
-            id: machine_id.clone(),
+            id: machine_id.to_owned(),
             manufacturer: None,
             model: None,
             other_hash_type: None,
             other_type: None,
             event: event_serializer,
             r#type: device_type,
-            version: Some(code_version.clone()),
+            version: Some(code_version.to_owned()),
         }],
     };
 

@@ -23,7 +23,7 @@ struct Config {
     log_level: tracing::Level,
 
     /// Threshold value for determining whether a pixel is black or white.
-    /// See Section 2.1.43 of the PageScan software spec where it specifies this
+    /// See Section 2.1.43 of the `PageScan` software spec where it specifies this
     /// value as the default.
     #[clap(long, env = "BITONAL_THRESHOLD", default_value = "75%")]
     bitonal_threshold: ClampedPercentage,

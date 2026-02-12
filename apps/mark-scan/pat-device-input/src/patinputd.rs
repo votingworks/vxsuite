@@ -49,6 +49,7 @@ fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), uinput::Error
     Ok(())
 }
 
+#[allow(clippy::unwrap_used)]
 fn create_virtual_device() -> Device {
     uinput::open(UINPUT_PATH)
         .unwrap()

@@ -405,6 +405,7 @@ impl<T> Client<T> {
             if length_byte <= f32::from(u8::MAX) || length_byte >= f32::from(u8::MIN) {
                 return self
                     .send(Outgoing::SetLengthOfDocumentToScanRequest {
+                        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
                         length_byte: length_byte as u8,
                         unit_byte: if unit_byte == b'0' {
                             None
@@ -742,6 +743,12 @@ impl<T> Client<T> {
         .await
     }
 
+    /// Gets the double feed detection calibration configuration.
+    ///
+    /// # Errors
+    ///
+    /// Fails if any of the underlying config requests for the double feed
+    /// detection configuration properties fail.
     pub async fn get_double_feed_detection_calibration_config(
         &mut self,
     ) -> Result<DoubleFeedDetectionCalibrationConfig> {
@@ -779,6 +786,12 @@ impl<T> Client<T> {
         .await
     }
 
+    /// Gets the image calibration tables. They're used to adjust the luminosity
+    /// of the returned images.
+    ///
+    /// # Errors
+    ///
+    /// Fails if we cannot parse the incoming calibration tables.
     pub async fn get_image_calibration_tables(&mut self) -> Result<ImageCalibrationTables> {
         // Since we're using a duplex scanner, the request is followed by two
         // responses, one for the front sensors and one for the back sensors.
@@ -816,6 +829,11 @@ impl<T> Client<T> {
         })
     }
 
+    /// Triggers calibration of the image sensors.
+    ///
+    /// # Errors
+    ///
+    /// Fails if we're unable to communicate with the scanner.
     pub async fn calibrate_image_sensors(&mut self) -> Result<()> {
         self.send(Outgoing::CalibrateImageSensorsRequest).await
     }

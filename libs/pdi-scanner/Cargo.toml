@@ -45,3 +45,6 @@ tokio = { workspace = true, features = [
   "time",
   "sync",
 ] }
+
+[lints]
+workspace = true

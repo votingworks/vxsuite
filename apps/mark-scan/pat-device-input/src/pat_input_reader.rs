@@ -1,4 +1,4 @@
-use std::{fmt, io};
+use std::io;
 use vx_logging::{log, EventId};
 
 use crate::pin::Pin;
@@ -16,6 +16,7 @@ const IS_CONNECTED_PIN_ADDRESS: u16 = 478;
 const SIGNAL_A_PIN_ADDRESS: u16 = 481;
 const SIGNAL_B_PIN_ADDRESS: u16 = 476;
 
+#[allow(clippy::struct_field_names)]
 pub struct PatInputReader<T: Pin> {
     is_connected_pin: Option<T>,
     signal_a_pin: Option<T>,
@@ -37,16 +38,15 @@ impl<T: Pin> PatInputReader<T> {
         let mut offset: Option<u16> = None;
         for &potential_offset in offsets {
             let pin_to_probe = T::new(IS_CONNECTED_PIN_ADDRESS + potential_offset);
-            match pin_to_probe.probe() {
-                Err(err) => log!(
+            if let Err(err) = pin_to_probe.probe() {
+                log!(
                     EventId::Info,
                     "Failed to connect to pin {pin_to_probe} with error {err}.",
-                ),
-                Ok(()) => {
-                    log!(EventId::Info, "Valid offset found: {potential_offset}");
-                    offset = Some(potential_offset);
-                    break;
-                }
+                );
+            } else {
+                log!(EventId::Info, "Valid offset found: {potential_offset}");
+                offset = Some(potential_offset);
+                break;
             }
         }
 
@@ -57,15 +57,15 @@ impl<T: Pin> PatInputReader<T> {
             )),
             Some(confirmed_offset) => {
                 let is_connected_pin = T::new(IS_CONNECTED_PIN_ADDRESS + confirmed_offset);
-                let signal_a_pin = T::new(SIGNAL_A_PIN_ADDRESS + confirmed_offset);
-                let signal_b_pin = T::new(SIGNAL_B_PIN_ADDRESS + confirmed_offset);
+                let signal_a = T::new(SIGNAL_A_PIN_ADDRESS + confirmed_offset);
+                let signal_b = T::new(SIGNAL_B_PIN_ADDRESS + confirmed_offset);
                 is_connected_pin.set_up()?;
-                signal_a_pin.set_up()?;
-                signal_b_pin.set_up()?;
+                signal_a.set_up()?;
+                signal_b.set_up()?;
 
                 self.is_connected_pin = Some(is_connected_pin);
-                self.signal_a_pin = Some(signal_a_pin);
-                self.signal_b_pin = Some(signal_b_pin);
+                self.signal_a_pin = Some(signal_a);
+                self.signal_b_pin = Some(signal_b);
 
                 Ok(())
             }
@@ -106,12 +106,14 @@ impl<T: Pin> PatInputReader<T> {
     }
 }
 
+#[cfg(test)]
 struct MockPin {
     address: u16,
     active: bool,
     probe_error: Option<io::Error>,
 }
 
+#[cfg(test)]
 impl Pin for MockPin {
     fn new(address: u16) -> Self {
         MockPin {
@@ -140,19 +142,22 @@ impl Pin for MockPin {
     }
 }
 
-impl fmt::Display for MockPin {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+#[cfg(test)]
+impl std::fmt::Display for MockPin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.address)
     }
 }
 
 // Fails to probe for any address that uses the offset
+#[cfg(test)]
 struct MockNoOffsetPin {
     address: u16,
     active: bool,
     probe_error: Option<io::Error>,
 }
 
+#[cfg(test)]
 impl Pin for MockNoOffsetPin {
     fn new(address: u16) -> Self {
         let mut probe_error = None;
@@ -160,7 +165,7 @@ impl Pin for MockNoOffsetPin {
             probe_error = Some(io::Error::new(
                 io::ErrorKind::AddrNotAvailable,
                 "Test error",
-            ))
+            ));
         }
 
         MockNoOffsetPin {
@@ -189,8 +194,9 @@ impl Pin for MockNoOffsetPin {
     }
 }
 
-impl fmt::Display for MockNoOffsetPin {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+#[cfg(test)]
+impl std::fmt::Display for MockNoOffsetPin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.address)
     }
 }

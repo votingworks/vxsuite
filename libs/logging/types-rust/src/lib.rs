@@ -23,7 +23,7 @@ pub fn print_log(log: &Log) {
             let _ = writeln!(&mut stdout);
         }
         Err(e) => eprintln!("Error serializing log: {e}"),
-    };
+    }
 }
 
 /// Log a message with the given event id.

@@ -25,8 +25,6 @@ pub(crate) use idtype;
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use super::*;
-
     #[test]
     fn test_idtype() {
         idtype!(Foo);
