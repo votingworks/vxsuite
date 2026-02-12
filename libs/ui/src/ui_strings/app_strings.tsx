@@ -180,6 +180,14 @@ export const appStrings = {
     <UiString uiStringKey="buttonStartVoting">Start Voting</UiString>
   ),
 
+  buttonViewAll: () => (
+    <UiString uiStringKey="buttonViewAll">View All</UiString>
+  ),
+
+  buttonViewAllContests: () => (
+    <UiString uiStringKey="buttonViewAllContests">View all contests</UiString>
+  ),
+
   buttonViewContests: () => (
     <UiString uiStringKey="buttonViewContests">View Contests</UiString>
   ),
@@ -759,6 +767,10 @@ export const appStrings = {
 
   labelContestNumber: () => (
     <UiString uiStringKey="labelContestNumber">Contest number:</UiString>
+  ),
+
+  labelContests: () => (
+    <UiString uiStringKey="labelContests">contests</UiString>
   ),
 
   labelContestsWithNoVotes: () => (

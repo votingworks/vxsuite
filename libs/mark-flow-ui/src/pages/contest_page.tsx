@@ -16,6 +16,7 @@ import {
   Button,
   PageNavigationButtonId,
   AccessibilityMode,
+  WithAltAudio,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
@@ -136,16 +137,25 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     </LinkButton>
   );
 
-  const reviewButtonRef = useRef<Button<never>>(null);
-  const reviewScreenButton = (
+  const viewAllButtonRef = useRef<Button<never>>(null);
+  const viewAllUrl = isReviewMode
+    ? getReviewPageUrl(contest.id)
+    : `${getReviewPageUrl()}?fromContest=${currentContestIndex}`;
+  const viewAllButton = (
     <LinkButton
-      rightIcon="Next"
-      variant={isVoteComplete ? 'primary' : 'neutral'}
-      to={getReviewPageUrl(contest.id)}
-      id={PageNavigationButtonId.NEXT}
-      ref={reviewButtonRef}
+      id={isReviewMode ? PageNavigationButtonId.NEXT : undefined}
+      variant={isReviewMode && isVoteComplete ? 'primary' : 'neutral'}
+      to={viewAllUrl}
+      icon={isReviewMode ? 'Next' : 'ListUnordered'}
+      ref={viewAllButtonRef}
     >
-      {appStrings.buttonReview()}
+      {isReviewMode ? (
+        appStrings.buttonReview()
+      ) : (
+        <WithAltAudio audioText={appStrings.buttonViewAllContests()}>
+          {appStrings.buttonViewAll()}
+        </WithAltAudio>
+      )}
     </LinkButton>
   );
 
@@ -155,7 +165,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
 
       if (isPatDeviceConnected && voteProp?.length === maxNumSelections) {
         if (isReviewMode) {
-          reviewButtonRef?.current?.focus();
+          viewAllButtonRef?.current?.focus();
         } else {
           nextContestButtonRef?.current?.focus();
         }
@@ -177,19 +187,20 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     </LinkButton>
   );
 
+  const isLastContest = !nextContest;
+
   return (
     <VoterScreen
       actionButtons={
-        <React.Fragment>
-          {isReviewMode ? (
-            reviewScreenButton
-          ) : (
-            <React.Fragment>
-              {previousContestButton}
-              {nextContestButton}
-            </React.Fragment>
-          )}
-        </React.Fragment>
+        isReviewMode ? (
+          viewAllButton
+        ) : (
+          <React.Fragment>
+            {!isLastContest && viewAllButton}
+            {previousContestButton}
+            {nextContestButton}
+          </React.Fragment>
+        )
       }
       breadcrumbs={
         breadcrumbsMetadata && <Breadcrumbs {...breadcrumbsMetadata} />
