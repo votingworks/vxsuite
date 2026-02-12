@@ -103,7 +103,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     <VoterScreen
       actionButtons={
         <React.Fragment>
-          {backButton && backButton}
+          {backButton /* may be null */}
           {printMyBallotButton}
         </React.Fragment>
       }

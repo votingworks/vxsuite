@@ -16,7 +16,7 @@ import {
   Button,
   PageNavigationButtonId,
   AccessibilityMode,
-  AudioOnly,
+  WithAltAudio,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
@@ -152,10 +152,9 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       {isReviewMode ? (
         appStrings.buttonReview()
       ) : (
-        <React.Fragment>
+        <WithAltAudio audioText={appStrings.buttonViewAllContests()}>
           {appStrings.buttonViewAll()}
-          <AudioOnly> {appStrings.labelContests()}</AudioOnly>
-        </React.Fragment>
+        </WithAltAudio>
       )}
     </LinkButton>
   );

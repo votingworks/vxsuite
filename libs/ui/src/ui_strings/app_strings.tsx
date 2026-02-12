@@ -184,6 +184,10 @@ export const appStrings = {
     <UiString uiStringKey="buttonViewAll">View All</UiString>
   ),
 
+  buttonViewAllContests: () => (
+    <UiString uiStringKey="buttonViewAllContests">View all contests</UiString>
+  ),
+
   buttonViewContests: () => (
     <UiString uiStringKey="buttonViewContests">View Contests</UiString>
   ),
