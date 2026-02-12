@@ -10,9 +10,15 @@ import {
   PageInterpretationWithFiles,
   SheetOf,
   TEST_JURISDICTION,
+  PageInterpretation,
 } from '@votingworks/types';
 import { Store } from '../store';
-import { getScannerResultsMemoized } from './results';
+import {
+  getScannerResultsMemoized,
+  isBmdMultiPagePage,
+  isBmdPage,
+  isHmpbPage,
+} from './results';
 
 const jurisdiction = TEST_JURISDICTION;
 const electionPackageHash = 'test-election-package-hash';
@@ -139,4 +145,39 @@ test('getScannerResultsMemoized correctly memoizes results based on ballot count
     store,
   });
   expect(twoResultsB).toBe(twoResultsA); // should be exact same object due to memoization
+});
+
+const HMPB_PAGE: PageInterpretation = {
+  type: 'InterpretedHmpbPage',
+} as unknown as PageInterpretation;
+
+const BMD_PAGE: PageInterpretation = {
+  type: 'InterpretedBmdPage',
+} as unknown as PageInterpretation;
+
+const BMD_MULTI_PAGE: PageInterpretation = {
+  type: 'InterpretedBmdMultiPagePage',
+} as unknown as PageInterpretation;
+
+const BLANK_PAGE: PageInterpretation = { type: 'BlankPage' };
+
+test('isHmpbPage', () => {
+  expect(isHmpbPage(HMPB_PAGE)).toEqual(true);
+  expect(isHmpbPage(BMD_PAGE)).toEqual(false);
+  expect(isHmpbPage(BMD_MULTI_PAGE)).toEqual(false);
+  expect(isHmpbPage(BLANK_PAGE)).toEqual(false);
+});
+
+test('isBmdPage', () => {
+  expect(isBmdPage(BMD_PAGE)).toEqual(true);
+  expect(isBmdPage(HMPB_PAGE)).toEqual(false);
+  expect(isBmdPage(BMD_MULTI_PAGE)).toEqual(false);
+  expect(isBmdPage(BLANK_PAGE)).toEqual(false);
+});
+
+test('isBmdMultiPagePage', () => {
+  expect(isBmdMultiPagePage(BMD_MULTI_PAGE)).toEqual(true);
+  expect(isBmdMultiPagePage(HMPB_PAGE)).toEqual(false);
+  expect(isBmdMultiPagePage(BMD_PAGE)).toEqual(false);
+  expect(isBmdMultiPagePage(BLANK_PAGE)).toEqual(false);
 });
