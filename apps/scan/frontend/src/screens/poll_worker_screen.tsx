@@ -28,6 +28,7 @@ import type { PrintResult } from '@votingworks/fujitsu-thermal-printer';
 import {
   getUsbDriveStatus,
   printReportSection,
+  printWriteInImageReport as printWriteInImageReportApi,
   getPrinterStatus,
   openPolls as openPollsApi,
   closePolls as closePollsApi,
@@ -72,6 +73,10 @@ type PollWorkerFlowState =
       type: 'post-print';
       transitionType: PollsTransitionType;
       isAfterPollsTransition: boolean;
+      printResult: PrintResult;
+    }
+  | {
+      type: 'write-in-report-post-print';
       printResult: PrintResult;
     };
 
@@ -290,6 +295,8 @@ function PollWorkerScreenContents({
   const pauseVotingMutation = pauseVotingApi.useMutation();
   const resumeVotingMutation = resumeVotingApi.useMutation();
   const printReportSectionMutation = printReportSection.useMutation();
+  const printWriteInImageReportMutation =
+    printWriteInImageReportApi.useMutation();
   const getQuickResultsReportingUrlQuery =
     getQuickResultsReportingUrl.useQuery();
 
@@ -459,6 +466,12 @@ function PollWorkerScreenContents({
     });
   }
 
+  async function printWriteInReport() {
+    setPollWorkerFlowState({ type: 'printing-report' });
+    const printResult = await printWriteInImageReportMutation.mutateAsync();
+    setPollWorkerFlowState({ type: 'write-in-report-post-print', printResult });
+  }
+
   const allowReprintingReport =
     pollsInfo.pollsState !== 'polls_closed_initial' &&
     pollsInfo.lastPollsTransition.ballotCount === scannedBallotCount;
@@ -557,6 +570,48 @@ function PollWorkerScreenContents({
                   <Button onPress={showAllPollWorkerActions}>Done</Button>
                 )}
               </div>
+            </CenteredText>
+          </Screen>
+        );
+      }
+      case 'write-in-report-post-print': {
+        const writeInPrintResult = pollWorkerFlowState.printResult;
+        if (writeInPrintResult.isErr()) {
+          return (
+            <Screen>
+              <H1>Printing Stopped</H1>
+              <P>
+                {writeInPrintResult.err().state === 'no-paper'
+                  ? 'The report did not finish printing because the printer ran out of paper.'
+                  : 'The report did not finish printing because the printer encountered an unexpected error.'}
+              </P>
+              <PollWorkerLoadAndReprintButton
+                reprint={printWriteInReport}
+                reprintText="Reprint Write-In Image Report"
+              />
+              <P>
+                <Button onPress={showAllPollWorkerActions}>Done</Button>
+              </P>
+            </Screen>
+          );
+        }
+        return (
+          <Screen>
+            <CenteredText>
+              <H1>Write-In Image Report Printed</H1>
+              <P>
+                The Write-In Image Report has been printed. Remove the report
+                from the printer by gently tearing it against the tear bar.
+              </P>
+              <P>
+                <PollWorkerLoadAndReprintButton
+                  reprint={printWriteInReport}
+                  reprintText="Reprint Write-In Image Report"
+                />
+              </P>
+              <P>
+                <Button onPress={showAllPollWorkerActions}>Done</Button>
+              </P>
             </CenteredText>
           </Screen>
         );
@@ -721,7 +776,14 @@ function PollWorkerScreenContents({
               Polls are <Font weight="bold">closed</Font>. Voting is complete
               and the polls cannot be reopened.
             </P>
-            <ButtonGrid>{commonActions}</ButtonGrid>
+            <ButtonGrid>
+              <PollWorkerLoadAndReprintButton
+                reprint={printWriteInReport}
+                reprintText="Print Write-In Image Report"
+                loadPaperText="Load Printer Paper"
+              />
+              {commonActions}
+            </ButtonGrid>
           </Container>
         );
       /* istanbul ignore next - compile-time check for completeness @preserve */

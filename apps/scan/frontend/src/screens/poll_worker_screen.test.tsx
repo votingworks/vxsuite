@@ -259,10 +259,11 @@ test('no transitions from polls closed final', async () => {
   });
   await screen.findByText(/Voting is complete/);
 
-  // There should only be the power down and print previous report button
-  expect(screen.queryAllByRole('button')).toHaveLength(3);
+  // There should only be the power down, print previous report, write-in report, and signed hash buttons
+  expect(screen.queryAllByRole('button')).toHaveLength(4);
   screen.getButton('Power Down');
   screen.getButton('Print Polls Closed Report');
+  screen.getButton('Print Write-In Image Report');
   screen.getButton('Signed Hash Validation');
 
   // If the election is not configured for VxQR there should not be an option to view QR code
@@ -279,9 +280,10 @@ test('polls closed final shows quick results code when configured', async () => 
   });
   await screen.findByText(/Voting is complete/);
 
-  expect(screen.queryAllByRole('button')).toHaveLength(4);
+  expect(screen.queryAllByRole('button')).toHaveLength(5);
   screen.getButton('Power Down');
   screen.getButton('Print Polls Closed Report');
+  screen.getButton('Print Write-In Image Report');
   screen.getButton('Signed Hash Validation');
 
   const qrButton = screen.getButton('Send Polls Closed Report');
@@ -386,6 +388,58 @@ describe('reprinting previous report', () => {
     apiMock.expectPrintReportSection(0).resolve();
     userEvent.click(button);
     await screen.findButton('Reprint Polls Closed Report');
+  });
+});
+
+describe('write-in image report', () => {
+  test('print success flow', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    renderScreen({});
+
+    const button = await screen.findByText('Print Write-In Image Report');
+    apiMock.expectPrintWriteInImageReport().resolve();
+    userEvent.click(button);
+    await screen.findByText('Printing Report…');
+    await screen.findByText('Write-In Image Report Printed');
+    screen.getButton('Reprint Write-In Image Report');
+    screen.getButton('Done');
+  });
+
+  test('print failure shows error with reprint option', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    renderScreen({});
+
+    const button = await screen.findByText('Print Write-In Image Report');
+    apiMock
+      .expectPrintWriteInImageReport({ state: 'error', type: 'disconnected' })
+      .resolve();
+    userEvent.click(button);
+    await screen.findByText('Printing Stopped');
+    screen.getButton('Reprint Write-In Image Report');
+    screen.getButton('Done');
+  });
+
+  test('print no-paper failure shows out of paper message', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    renderScreen({});
+
+    const button = await screen.findByText('Print Write-In Image Report');
+    apiMock.expectPrintWriteInImageReport({ state: 'no-paper' }).resolve();
+    userEvent.click(button);
+    await screen.findByText('Printing Stopped');
+    await screen.findByText(/ran out of paper/);
+  });
+
+  test('done returns to poll worker menu', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    renderScreen({});
+
+    const button = await screen.findByText('Print Write-In Image Report');
+    apiMock.expectPrintWriteInImageReport().resolve();
+    userEvent.click(button);
+    await screen.findByText('Write-In Image Report Printed');
+    userEvent.click(screen.getButton('Done'));
+    await screen.findByText(/Voting is complete/);
   });
 });
 
