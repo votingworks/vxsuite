@@ -256,7 +256,7 @@ pub enum Error {
     #[error("could not compute layout for {side:?}")]
     CouldNotComputeLayout { side: BallotSide },
 
-    #[error("vertical streaks detected on {label}")]
+    #[error("vertical streaks detected on {label} (found {})", x_coordinates.len())]
     #[serde(rename_all = "camelCase")]
     VerticalStreaksDetected {
         label: String,
