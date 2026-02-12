@@ -463,7 +463,8 @@ function UsbDriveControls({
 }
 
 function AudioControls(): JSX.Element {
-  const [enabled, setEnabled] = React.useState(true);
+  const [headphonesOn, setHeadphonesOn] = React.useState(true);
+  const [speakerOn, setSpeakerOn] = React.useState(true);
   const [calibrating, setCalibrating] = React.useState(false);
   const [output, setOutput] = React.useState<'Headphones' | 'Speaker'>(
     'Speaker'
@@ -472,19 +473,31 @@ function AudioControls(): JSX.Element {
   const headphonesSuccess = useSoundControls('success');
   const playSoundSpeaker = api.playSound.useMutation().mutate;
 
+  const anyOutputActive = !calibrating && (headphonesOn || speakerOn);
   useInterval(
     () => {
-      if (calibrating) return;
+      if (!anyOutputActive) return;
 
+      // If only one output is enabled, use that:
+      if (headphonesOn && !speakerOn) {
+        setOutput('Headphones');
+        return headphonesSuccess.play();
+      }
+      if (speakerOn && !headphonesOn) {
+        setOutput('Speaker');
+        return playSoundSpeaker({ name: 'success' });
+      }
+
+      // If both outputs are enabled, alternate:
       if (output === 'Speaker') {
         setOutput('Headphones');
         headphonesSuccess.play();
-      } else {
+      } else if (speakerOn) {
         setOutput('Speaker');
         playSoundSpeaker({ name: 'success' });
       }
     },
-    enabled ? SOUND_INTERVAL_SECONDS * 1000 : null
+    anyOutputActive ? SOUND_INTERVAL_SECONDS * 1000 : null
   );
 
   const EnabledIcon =
@@ -493,21 +506,31 @@ function AudioControls(): JSX.Element {
   return (
     <Column gap="0.5rem">
       <Column>
-        <H6>{enabled ? <EnabledIcon /> : <Icons.VolumeMute />} Audio</H6>
+        <H6>
+          {anyOutputActive ? <EnabledIcon /> : <Icons.VolumeMute />} Audio
+        </H6>
         <Caption style={{ flexGrow: 1 }}>
-          {enabled ? (
-            <React.Fragment>Output: {output}</React.Fragment>
+          {anyOutputActive ? (
+            <React.Fragment>Current Output: {output}</React.Fragment>
           ) : (
             'Disabled'
           )}
         </Caption>
       </Column>
       <CheckboxButton
-        label="Enabled"
-        isChecked={enabled}
+        label="Headphones"
+        isChecked={headphonesOn}
         onChange={(enable) => {
           headphonesSuccess.stop();
-          setEnabled(enable);
+          setHeadphonesOn(enable);
+        }}
+      />
+      <CheckboxButton
+        label="Speaker"
+        isChecked={speakerOn}
+        onChange={(enable) => {
+          headphonesSuccess.stop();
+          setSpeakerOn(enable);
         }}
       />
 
