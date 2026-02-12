@@ -64,6 +64,7 @@ import {
 } from './polls';
 import { printTestPage } from './printing/test_print';
 import { printReportSection } from './printing/print_report_section';
+import { printWriteInImageReport } from './printing/print_write_in_image_report';
 import {
   TEST_AUDIO_USER_FAIL_REASON,
   TEST_PRINT_USER_FAIL_REASON,
@@ -399,6 +400,10 @@ export function buildApi({
         printer,
         index: input.index,
       });
+    },
+
+    async printWriteInImageReport(): Promise<PrintResult> {
+      return printWriteInImageReport({ store, printer });
     },
 
     getScannerStatus(): PrecinctScannerStatus {
