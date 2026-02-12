@@ -143,6 +143,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     : `${getReviewPageUrl()}?fromContest=${currentContestIndex}`;
   const viewAllButton = (
     <LinkButton
+      id={isReviewMode ? PageNavigationButtonId.NEXT : undefined}
       variant={isReviewMode && isVoteComplete ? 'primary' : 'neutral'}
       to={viewAllUrl}
       rightIcon={isReviewMode ? 'Next' : 'ListUnordered'}

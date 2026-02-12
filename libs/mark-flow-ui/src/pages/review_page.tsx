@@ -90,7 +90,11 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
   );
 
   const backButton = backUrl ? (
-    <LinkButton icon="Previous" to={backUrl}>
+    <LinkButton
+      id={PageNavigationButtonId.PREVIOUS}
+      icon="Previous"
+      to={backUrl}
+    >
       {appStrings.buttonBack()}
     </LinkButton>
   ) : undefined;
