@@ -508,6 +508,13 @@ export const printReportSection = {
   },
 } as const;
 
+export const printWriteInImageReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printWriteInImageReport);
+  },
+} as const;
+
 export const printTestPage = {
   useMutation() {
     const apiClient = useApiClient();
