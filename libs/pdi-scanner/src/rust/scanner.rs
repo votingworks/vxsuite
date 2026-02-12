@@ -50,6 +50,7 @@ impl Scanner {
         self.default_timeout = timeout;
     }
 
+    #[allow(clippy::unwrap_used)]
     pub fn start(&mut self) -> ScannerChannels {
         /// The endpoint for sending commands to the scanner.
         const ENDPOINT_OUT: u8 = 0x05;

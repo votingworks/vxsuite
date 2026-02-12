@@ -1,0 +1,5 @@
+# Clippy configuration for VxSuite Rust workspace
+
+# Allow unwrap() calls in test code
+# This disables clippy::unwrap_used warnings in #[test] functions and #[cfg(test)] modules
+allow-unwrap-in-tests = true
