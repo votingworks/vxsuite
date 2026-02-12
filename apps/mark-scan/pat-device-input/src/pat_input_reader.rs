@@ -37,10 +37,12 @@ impl<T: Pin> PatInputReader<T> {
         let mut offset: Option<u16> = None;
         for &potential_offset in offsets {
             let pin_to_probe = T::new(IS_CONNECTED_PIN_ADDRESS + potential_offset);
-            if let Err(err) = pin_to_probe.probe() { log!(
-                EventId::Info,
-                "Failed to connect to pin {pin_to_probe} with error {err}.",
-            ); } else {
+            if let Err(err) = pin_to_probe.probe() {
+                log!(
+                    EventId::Info,
+                    "Failed to connect to pin {pin_to_probe} with error {err}.",
+                );
+            } else {
                 log!(EventId::Info, "Valid offset found: {potential_offset}");
                 offset = Some(potential_offset);
                 break;
