@@ -141,6 +141,7 @@ impl Version {
 /// Note: bit 7 of each byte is always set to 1.
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(clippy::struct_excessive_bools)]
 pub struct Status {
     /// Byte 0, Bit 0 (0x01)
     pub rear_left_sensor_covered: bool,
@@ -191,6 +192,7 @@ pub struct Status {
 impl Status {
     #[allow(clippy::too_many_arguments)]
     #[must_use]
+    #[allow(clippy::fn_params_excessive_bools)]
     pub const fn new(
         rear_left_sensor_covered: bool,
         rear_right_sensor_covered: bool,

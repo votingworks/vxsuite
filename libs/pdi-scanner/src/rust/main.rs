@@ -220,6 +220,7 @@ fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
     }
 }
 
+#[allow(clippy::too_many_lines)]
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
     let config = Config::parse();

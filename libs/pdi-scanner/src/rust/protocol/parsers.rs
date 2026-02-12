@@ -383,6 +383,7 @@ fn any_response(input: &[u8]) -> IResult<&[u8], Incoming> {
 /// # Errors
 ///
 /// Returns an error if the input does not match any known event packet.
+#[allow(clippy::too_many_lines)]
 fn any_event(input: &[u8]) -> IResult<&[u8], Incoming> {
     alt((
         alt((
@@ -1036,6 +1037,7 @@ pub fn set_double_feed_detection_minimum_document_length_request(
             tag(b"n3B"),
             map_res(decimal_number, |number| {
                 if (10..=250).contains(&number) {
+                    #[allow(clippy::cast_possible_truncation)]
                     Ok(number as u8)
                 } else {
                     Err(nom::Err::Failure(nom::error::Error::new(
@@ -1346,6 +1348,11 @@ simple_response!(double_feed_calibration_timed_out_event, b"#9A");
 simple_response!(cover_open_event_alternate, b"#34");
 simple_response!(cover_closed_event_alternate, b"#35");
 
+/// Parses an "unexpected" response to a request to perform image sensor calibration.
+///
+/// # Errors
+///
+/// Fails if the input is not the looked-for response.
 pub fn image_sensor_calibration_unexpected_output(input: &[u8]) -> IResult<&[u8], &str> {
     map_res(packet((tag(b"#L0"), packet_body)), |(_, test_string)| {
         from_utf8(test_string)

@@ -27,10 +27,12 @@ fn apply_image_calibration(
         .map(|((&pixel, &white_calibration), &black_calibration)| {
             let denominator = white_calibration.saturating_sub(black_calibration);
             let numerator = pixel.saturating_sub(black_calibration);
+            #[allow(clippy::cast_possible_truncation)]
             if denominator == 0 {
                 0
             } else {
-                ((u32::from(numerator) * u32::from(u8::MAX)) / u32::from(denominator)).min(u32::from(u8::MAX)) as u8
+                ((u32::from(numerator) * u32::from(u8::MAX)) / u32::from(denominator))
+                    .min(u32::from(u8::MAX)) as u8
             }
         })
         .collect()
@@ -83,6 +85,10 @@ impl RawImageData {
     /// It also applies the image calibration tables to the raw image data,
     /// normalizing the pixel values based on the calibration data acquired from
     /// the scanner.
+    ///
+    /// # Errors
+    ///
+    /// Fails if the image data is empty or otherwise the wrong length.
     #[allow(clippy::missing_panics_doc)]
     pub fn try_decode_scan(
         &self,
@@ -168,6 +174,7 @@ impl RawImageData {
         }
 
         let pixels_per_side = self.data.len() / page_count;
+        #[allow(clippy::cast_possible_truncation)]
         Ok((pixels_per_side / width as usize) as u32)
     }
 }
@@ -199,17 +206,31 @@ mod tests {
             back_black: vec![0; 2],
         };
         data.extend_from_slice(&[
-            0b10101010, 0b01010101, 0b10101010, 0b01010101, 0b10101010, 0b01010101, 0b10101010,
-            0b01010101,
+            0b1010_1010,
+            0b0101_0101,
+            0b1010_1010,
+            0b0101_0101,
+            0b1010_1010,
+            0b0101_0101,
+            0b1010_1010,
+            0b0101_0101,
         ]);
         assert_eq!(
             data.try_decode_scan(2, ScanSideMode::Duplex, &image_calibration_tables)
                 .unwrap(),
             Sheet::Duplex(
-                GrayImage::from_raw(2, 2, vec![0b10101010, 0b10101010, 0b10101010, 0b10101010])
-                    .unwrap(),
-                GrayImage::from_raw(2, 2, vec![0b01010101, 0b01010101, 0b01010101, 0b01010101])
-                    .unwrap(),
+                GrayImage::from_raw(
+                    2,
+                    2,
+                    vec![0b1010_1010, 0b1010_1010, 0b1010_1010, 0b1010_1010]
+                )
+                .unwrap(),
+                GrayImage::from_raw(
+                    2,
+                    2,
+                    vec![0b0101_0101, 0b0101_0101, 0b0101_0101, 0b0101_0101]
+                )
+                .unwrap(),
             )
         );
     }

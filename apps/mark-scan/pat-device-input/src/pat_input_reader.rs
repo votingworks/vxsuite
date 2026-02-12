@@ -16,6 +16,7 @@ const IS_CONNECTED_PIN_ADDRESS: u16 = 478;
 const SIGNAL_A_PIN_ADDRESS: u16 = 481;
 const SIGNAL_B_PIN_ADDRESS: u16 = 476;
 
+#[allow(clippy::struct_field_names)]
 pub struct PatInputReader<T: Pin> {
     is_connected_pin: Option<T>,
     signal_a_pin: Option<T>,
@@ -56,15 +57,15 @@ impl<T: Pin> PatInputReader<T> {
             )),
             Some(confirmed_offset) => {
                 let is_connected_pin = T::new(IS_CONNECTED_PIN_ADDRESS + confirmed_offset);
-                let signal_a_pin = T::new(SIGNAL_A_PIN_ADDRESS + confirmed_offset);
-                let signal_b_pin = T::new(SIGNAL_B_PIN_ADDRESS + confirmed_offset);
+                let signal_a = T::new(SIGNAL_A_PIN_ADDRESS + confirmed_offset);
+                let signal_b = T::new(SIGNAL_B_PIN_ADDRESS + confirmed_offset);
                 is_connected_pin.set_up()?;
-                signal_a_pin.set_up()?;
-                signal_b_pin.set_up()?;
+                signal_a.set_up()?;
+                signal_b.set_up()?;
 
                 self.is_connected_pin = Some(is_connected_pin);
-                self.signal_a_pin = Some(signal_a_pin);
-                self.signal_b_pin = Some(signal_b_pin);
+                self.signal_a_pin = Some(signal_a);
+                self.signal_b_pin = Some(signal_b);
 
                 Ok(())
             }
