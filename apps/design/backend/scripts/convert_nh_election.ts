@@ -26,7 +26,7 @@ const images = {
 } as const;
 
 const CandidateNameSchema = z.object({
-  Name: z.string(),
+  Name: z.union([z.string(), z.array(z.string())]),
   Pronunciation: z.string(),
   CX: z.number(),
   CY: z.number(),
@@ -34,6 +34,7 @@ const CandidateNameSchema = z.object({
   OY: z.number(),
   City: z.string(),
   State: z.string(),
+  Party: z.string().optional(),
 });
 
 const WriteInSchema = z.object({
@@ -94,8 +95,16 @@ function toTitleCase(str: string): string {
   return str
     .toLowerCase()
     .split(' ')
+    .filter((word) => word.length > 0)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+function cleanString(str: string): string {
+  return str
+    .replace(/\s+/g, ' ')
+    .replace(/[\r\n]+/g, ' ')
+    .trim();
 }
 
 function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
@@ -126,23 +135,40 @@ function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
   assert(townNames.length === 1);
   const townName = toTitleCase(townNames[0]);
 
-  const partyNames = unique(
-    nhBallotStyles.map(
-      (ballotStyle) => ballotStyle.AVSInterface.HeaderInfo.PartyName
-    )
-  );
-  assert(partyNames.length === 1);
-  const partyName = toTitleCase(partyNames[0]);
-  const party: Party = {
-    id: generateId(),
-    name: partyName,
-    fullName: `${partyName} Party`,
-    abbrev: partyName.charAt(0).toUpperCase(),
-  };
-
   const districtsByName = new Map<string, District>();
   const precinctsByName = new Map<string, PrecinctWithoutSplits>();
   const contestsByTitle = new Map<string, CandidateContest>();
+  const partiesByName = new Map<string, Party>();
+
+  function getOrCreateParty(name: string): Party {
+    const partyName = toTitleCase(name);
+    const party = partiesByName.get(partyName);
+    if (party) {
+      return party;
+    }
+    const newParty: Party = {
+      id: generateId(),
+      name: partyName,
+      fullName: `${partyName} Party`,
+      abbrev: partyName.substring(0, 3).toUpperCase(),
+    };
+    partiesByName.set(newParty.name, newParty);
+    return newParty;
+  }
+
+  const primaryPartyNames = unique(
+    nhBallotStyles
+      .map((ballotStyle) => ballotStyle.AVSInterface.HeaderInfo.PartyName)
+      .filter((name) => name !== '')
+  );
+  assert(primaryPartyNames.length <= 1);
+  const primaryPartyName =
+    primaryPartyNames.length === 1
+      ? toTitleCase(primaryPartyNames[0])
+      : undefined;
+  const primaryParty: Party | undefined = primaryPartyName
+    ? getOrCreateParty(primaryPartyName)
+    : undefined;
 
   for (const nhBallotStyle of nhBallotStyles) {
     const { HeaderInfo, Candidates } = nhBallotStyle.AVSInterface;
@@ -150,7 +176,7 @@ function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     const districtsForBallotStyle = [];
 
     for (const contestInfo of Candidates) {
-      const contestTitle = contestInfo.OfficeName.Name;
+      const contestTitle = cleanString(contestInfo.OfficeName.Name);
 
       const districtName = contestTitle;
       const district = districtsByName.get(districtName) ?? {
@@ -167,7 +193,10 @@ function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
               assertDefined(
                 contestInfo.OfficeName.WinnerNote.match(
                   /^Vote for up to (\d+);\w+ will be elected$/
-                )
+                ) ??
+                  contestInfo.OfficeName.WinnerNote.match(
+                    /^Vote for not more than (\d+);\w+ will be elected$/
+                  )
               )[1]
             ).unsafeUnwrap();
 
@@ -187,13 +216,20 @@ function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
         type: 'candidate',
         title: contestTitle,
         districtId: district.id,
-        partyId: party.id,
+        partyId: primaryParty?.id,
         allowWriteIns: contestInfo.WriteIn !== undefined,
         seats,
-        candidates: candidateInfos.map((candidateInfo) => ({
-          id: generateId(),
-          name: candidateInfo.Name,
-        })),
+        candidates: candidateInfos
+          .filter((candidateInfo) => candidateInfo.Name !== '')
+          .map((candidateInfo) => ({
+            id: generateId(),
+            name: Array.isArray(candidateInfo.Name)
+              ? candidateInfo.Name.join('<br/>')
+              : candidateInfo.Name,
+            partyIds: candidateInfo.Party
+              ? [getOrCreateParty(candidateInfo.Party).id]
+              : undefined,
+          })),
       };
       contestsByTitle.set(contestTitle, contest);
     }
@@ -217,7 +253,7 @@ function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
 
   const districts = [...districtsByName.values()];
   const precincts = [...precinctsByName.values()];
-  const parties = [party];
+  const parties = [...partiesByName.values()];
   const contests = [...contestsByTitle.values()];
 
   const precinct = precincts[0];
@@ -226,12 +262,25 @@ function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     groupId: 'ballot-style-group-1',
     precincts: [precinct.id],
     districts: precinct.districtIds,
-    partyId: party.id,
+    partyId: primaryParty?.id,
   };
+
+  const paperSize = (() => {
+    switch (nhBallotStyles[0].AVSInterface.HeaderInfo.BallotSize) {
+      case '8.5x11':
+        return HmpbBallotPaperSize.Letter;
+      case '8.5x14':
+        return HmpbBallotPaperSize.Legal;
+      default:
+        throw new Error(
+          `Unsupported ballot size: ${nhBallotStyles[0].AVSInterface.HeaderInfo.BallotSize}`
+        );
+    }
+  })();
 
   return {
     id: generateId(),
-    type: 'primary',
+    type: primaryParty ? 'primary' : 'general',
     title,
     date,
     state: 'NH',
@@ -250,7 +299,7 @@ function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     contests,
     ballotStyles: [ballotStyle],
     ballotLayout: {
-      paperSize: HmpbBallotPaperSize.Letter,
+      paperSize,
       metadataEncoding: 'qr-code',
     },
     ballotStrings: {},
