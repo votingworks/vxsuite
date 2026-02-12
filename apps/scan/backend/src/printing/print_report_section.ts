@@ -10,12 +10,7 @@ import {
   PrecinctScannerBallotCountReport,
   PrecinctScannerTallyReport,
 } from '@votingworks/ui';
-import {
-  DEFAULT_MARGIN_DIMENSIONS,
-  MarginDimensions,
-  PAPER_DIMENSIONS,
-  renderToPdf,
-} from '@votingworks/printing';
+import { PAPER_DIMENSIONS, renderToPdf } from '@votingworks/printing';
 import {
   FujitsuThermalPrinterInterface,
   PrintResult,
@@ -25,6 +20,7 @@ import { getMachineConfig } from '../machine_config';
 import { getScannerResultsMemoized } from '../util/results';
 import { getCurrentTime } from '../util/get_current_time';
 import { rootDebug } from '../util/debug';
+import { ADJUSTED_MARGIN_DIMENSIONS } from './constants';
 
 const debug = rootDebug.extend('print-report-section');
 
@@ -97,28 +93,6 @@ async function getReportSection(
     scannedElectionResults,
   });
 }
-
-/**
- * While loaded, the paper must be fed through the paper output slot with the
- * tear bar. There is a distance between the output slot and the printhead, however,
- * which means that a certain chunk at the top of each page is unprintable. To
- * account for this, we redistribute a certain amount of the top margin to the
- * bottom margin. This must be calibrated based off of the hardware.
- */
-const VERTICAL_MARGIN_ADJUSTMENT_INCHES = 0.32;
-const ADJUSTED_TOP_MARGIN = Math.max(
-  DEFAULT_MARGIN_DIMENSIONS.top - VERTICAL_MARGIN_ADJUSTMENT_INCHES,
-  0
-);
-const ADJUSTED_BOTTOM_MARGIN = Math.max(
-  DEFAULT_MARGIN_DIMENSIONS.bottom + VERTICAL_MARGIN_ADJUSTMENT_INCHES,
-  0
-);
-const ADJUSTED_MARGIN_DIMENSIONS: MarginDimensions = {
-  ...DEFAULT_MARGIN_DIMENSIONS,
-  top: ADJUSTED_TOP_MARGIN,
-  bottom: ADJUSTED_BOTTOM_MARGIN,
-};
 
 export async function printReportSection({
   store,
