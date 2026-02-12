@@ -1,7 +1,8 @@
 APP := ..
 export PIPENV_VENV_IN_PROJECT=1
 export SCAN_WORKSPACE=/tmp/central-scan-integration-testing
-export MOCK_SCANNER_FILES=../../../libs/hmpb/fixtures/vx-famous-names/marked-official-ballot-p1.jpg,../../../libs/hmpb/fixtures/vx-famous-names/marked-official-ballot-p2.jpg
+export REACT_APP_VX_ENABLE_DEV_DOCK=TRUE
+export REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER=TRUE
 
 build-frontend:
 	make -C $(APP)/frontend install; \

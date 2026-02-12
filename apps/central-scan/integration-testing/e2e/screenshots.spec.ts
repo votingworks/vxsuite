@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import test from '@playwright/test';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
@@ -6,11 +7,18 @@ import {
   electionFamousNames2021Fixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
+import * as grout from '@votingworks/grout';
+import type { Api as DevDockApi } from '@votingworks/dev-dock-backend';
 import { buildIntegrationTestHelper } from '@votingworks/test-utils';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
 } from './support/auth';
+
+const MARKED_BALLOT_PATH = resolve(
+  __dirname,
+  '../../../../libs/hmpb/fixtures/vx-famous-names/marked-official-ballot.pdf'
+);
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
@@ -74,6 +82,14 @@ test('screenshots', async ({ page }) => {
   await page.getByText('Scan Ballots').click();
   await page.getByText('No ballots have been scanned').waitFor();
   await screenshot('em-scan-ballots-empty');
+
+  // Load ballot images into the mock batch scanner via the dev dock API
+  const devDockClient = grout.createClient<DevDockApi>({
+    baseUrl: 'http://127.0.0.1:3001/dock',
+  });
+  await devDockClient.batchScannerLoadBallots({
+    paths: [MARKED_BALLOT_PATH],
+  });
 
   await page.getByText('Scan New Batch').click();
   await page.getByText('Total Sheets: 1').waitFor();

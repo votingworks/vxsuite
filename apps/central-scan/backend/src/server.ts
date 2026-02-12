@@ -7,6 +7,7 @@ import {
 } from '@votingworks/logging';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import { Server } from 'node:http';
+import { join } from 'node:path';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -14,17 +15,20 @@ import {
 } from '@votingworks/utils';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
-import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import {
+  DEFAULT_DEV_DOCK_DIR,
+  useDevDockRouter,
+} from '@votingworks/dev-dock-backend';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
-import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
+import { FujitsuScanner, ScannerMode } from './fujitsu_scanner';
+import { MockBatchScanner } from './mock_batch_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './app';
 import { getUserRole } from './util/auth';
 
 export interface StartOptions {
   port: number | string;
-  batchScanner: BatchScanner;
   usbDrive: UsbDrive;
   importer: Importer;
   app: Application;
@@ -37,7 +41,6 @@ export interface StartOptions {
  */
 export function start({
   port = PORT,
-  batchScanner,
   usbDrive,
   importer,
   app,
@@ -82,6 +85,7 @@ export function start({
   resolvedWorkspace.store.cleanupIncompleteBatches();
 
   let resolvedApp = app;
+  let mockBatchScanner: MockBatchScanner | undefined;
   /* istanbul ignore next - @preserve */
   if (!resolvedApp) {
     const auth = new DippedSmartCardAuth({
@@ -105,8 +109,15 @@ export function start({
       getUserRole(auth, resolvedWorkspace)
     );
 
+    mockBatchScanner = isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.USE_MOCK_CENTRAL_SCANNER
+    )
+      ? new MockBatchScanner(join(DEFAULT_DEV_DOCK_DIR, 'batch-images'))
+      : undefined;
+
     const resolvedBatchScanner =
-      batchScanner ?? new FujitsuScanner({ mode: ScannerMode.Gray, logger });
+      mockBatchScanner ??
+      new FujitsuScanner({ mode: ScannerMode.Gray, logger });
 
     const resolvedImporter =
       importer ??
@@ -128,7 +139,9 @@ export function start({
     });
   }
 
-  useDevDockRouter(resolvedApp, express, {});
+  useDevDockRouter(resolvedApp, express, {
+    mockBatchScanner,
+  });
 
   // Start periodic CPU metrics logging
   startCpuMetricsLogging(baseLogger);

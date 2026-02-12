@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import express from 'express';
 import * as fs from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import * as grout from '@votingworks/grout';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
@@ -20,6 +19,8 @@ import {
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import {
   electionFamousNames2021Fixtures,
+  makeTemporaryDirectory,
+  makeTemporaryFile,
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import { Server } from 'node:http';
@@ -39,13 +40,12 @@ import {
   Api,
   useDevDockRouter,
   MockSpec,
+  MockBatchScannerApi,
   DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
   DEV_DOCK_ELECTION_FILE_NAME,
 } from './dev_dock_api';
 
 const electionGeneral = readElectionGeneral();
-
-const TEST_DEV_DOCK_FILE_DIR = '/tmp/dev-dock-test';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(
@@ -58,17 +58,17 @@ vi.mock(
 
 let server: Server;
 
-function setup(mockSpec: MockSpec = {}) {
-  if (fs.existsSync(TEST_DEV_DOCK_FILE_DIR)) {
-    fs.rmSync(TEST_DEV_DOCK_FILE_DIR, { recursive: true, force: true });
-  }
+function setup(
+  mockSpec: MockSpec = {},
+  devDockDir: string = makeTemporaryDirectory({ prefix: 'dev-dock-test-' })
+) {
   const app = express();
-  useDevDockRouter(app, express, mockSpec, TEST_DEV_DOCK_FILE_DIR);
+  useDevDockRouter(app, express, mockSpec, devDockDir);
   server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/dock`;
   const apiClient = grout.createClient<Api>({ baseUrl });
-  return { apiClient };
+  return { apiClient, devDockDir };
 }
 
 beforeEach(() => {
@@ -228,7 +228,7 @@ test('election setting', async () => {
 
 test('election loading from zip file', async () => {
   const election = electionFamousNames2021Fixtures.readElection();
-  const { apiClient } = setup();
+  const { apiClient, devDockDir } = setup();
 
   // Create a zip file containing election.json
   const electionData = JSON.stringify(election);
@@ -236,57 +236,48 @@ test('election loading from zip file', async () => {
     'election.json': electionData,
   });
 
-  // Write the zip file to a temporary location
-  const zipPath = join(tmpdir(), 'test-election.zip');
-  fs.writeFileSync(zipPath, zipBuffer);
+  const zipPath = makeTemporaryFile({
+    postfix: '.zip',
+    content: zipBuffer,
+  });
 
-  try {
-    // Load election from zip
-    await apiClient.setElection({ inputPath: zipPath });
+  // Load election from zip
+  await apiClient.setElection({ inputPath: zipPath });
 
-    const loadedElection = await apiClient.getElection();
-    const expectedElectionPath = join(
-      TEST_DEV_DOCK_FILE_DIR,
-      DEV_DOCK_ELECTION_FILE_NAME
-    );
-    expect(loadedElection).toMatchObject({
-      title: election.title,
-      inputPath: zipPath,
-      resolvedPath: expectedElectionPath,
-    });
-    expect(loadedElection?.resolvedPath).toBeDefined();
-    expect(loadedElection?.resolvedPath).not.toEqual(zipPath);
+  const loadedElection = await apiClient.getElection();
+  const expectedElectionPath = join(devDockDir, DEV_DOCK_ELECTION_FILE_NAME);
+  expect(loadedElection).toMatchObject({
+    title: election.title,
+    inputPath: zipPath,
+    resolvedPath: expectedElectionPath,
+  });
+  expect(loadedElection?.resolvedPath).toBeDefined();
+  expect(loadedElection?.resolvedPath).not.toEqual(zipPath);
 
-    // Verify the resolved path is in the stable directory
-    expect(loadedElection?.resolvedPath).toEqual(expectedElectionPath);
+  // Verify the resolved path is in the stable directory
+  expect(loadedElection?.resolvedPath).toEqual(expectedElectionPath);
 
-    // Verify the resolved path is a valid JSON file
-    const resolvedElectionData = fs.readFileSync(
-      loadedElection!.resolvedPath,
-      'utf-8'
-    );
-    const parsedElection = JSON.parse(resolvedElectionData);
-    expect(parsedElection.title).toEqual(election.title);
-    expect(parsedElection.county).toEqual(election.county);
+  // Verify the resolved path is a valid JSON file
+  const resolvedElectionData = fs.readFileSync(
+    loadedElection!.resolvedPath,
+    'utf-8'
+  );
+  const parsedElection = JSON.parse(resolvedElectionData);
+  expect(parsedElection.title).toEqual(election.title);
+  expect(parsedElection.county).toEqual(election.county);
 
-    // Verify that insertCard works with zip-loaded elections
-    await apiClient.removeCard();
-    await apiClient.insertCard({ role: 'election_manager' });
-    await expect(apiClient.getCardStatus()).resolves.toEqual({
-      status: 'ready',
-      cardDetails: {
-        user: mockElectionManagerUser({
-          electionKey: constructElectionKey(election),
-          jurisdiction: DEV_JURISDICTION,
-        }),
-      },
-    });
-  } finally {
-    // Clean up the zip file
-    if (fs.existsSync(zipPath)) {
-      fs.unlinkSync(zipPath);
-    }
-  }
+  // Verify that insertCard works with zip-loaded elections
+  await apiClient.removeCard();
+  await apiClient.insertCard({ role: 'election_manager' });
+  await expect(apiClient.getCardStatus()).resolves.toEqual({
+    status: 'ready',
+    cardDetails: {
+      user: mockElectionManagerUser({
+        electionKey: constructElectionKey(election),
+        jurisdiction: DEV_JURISDICTION,
+      }),
+    },
+  });
 });
 
 test('usb drive mock endpoints', async () => {
@@ -312,6 +303,7 @@ test('mock spec', async () => {
   const { apiClient: apiClient1 } = setup({ printerConfig: 'fujitsu' });
   expect(await apiClient1.getMockSpec()).toEqual({
     mockPdiScanner: false,
+    mockBatchScanner: false,
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: false,
     hasBarcodeMock: false,
@@ -329,6 +321,7 @@ test('mock spec', async () => {
   });
   expect(await apiClient2.getMockSpec()).toEqual({
     mockPdiScanner: false,
+    mockBatchScanner: false,
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: true,
     hasBarcodeMock: true,
@@ -496,4 +489,127 @@ test('mock PDI scanner', async () => {
   );
   await apiClient.pdiScannerRemoveSheet();
   expect(await apiClient.pdiScannerGetSheetStatus()).toEqual('noSheet');
+});
+
+function createMockBatchScanner(imageDir: string): MockBatchScannerApi {
+  let sheets: Array<{ frontPath: string; backPath: string }> = [];
+  return {
+    imageDir,
+    addSheets(newSheets) {
+      sheets.push(...newSheets);
+    },
+    getStatus() {
+      return { sheetCount: sheets.length };
+    },
+    clearSheets() {
+      sheets = [];
+    },
+  };
+}
+
+test('mock batch scanner - get status', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 0 });
+});
+
+test('mock batch scanner - load ballots from PDF', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+
+  await apiClient.batchScannerLoadBallots({
+    paths: [vxFamousNamesFixtures.markedBallotPath],
+  });
+
+  const status = await apiClient.batchScannerGetStatus();
+  expect(status.sheetCount).toBeGreaterThan(0);
+});
+
+test('mock batch scanner - clear ballots', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+
+  await apiClient.batchScannerLoadBallots({
+    paths: [vxFamousNamesFixtures.markedBallotPath],
+  });
+  expect((await apiClient.batchScannerGetStatus()).sheetCount).toBeGreaterThan(
+    0
+  );
+
+  await apiClient.batchScannerClearBallots();
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 0 });
+});
+
+test('mock batch scanner - load image files as front/back pairs', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+
+  // Create two small test images in the batch scanner's image dir
+  const img1 = join(mockBatchScanner.imageDir, 'front.jpg');
+  const img2 = join(mockBatchScanner.imageDir, 'back.jpg');
+  const { createImageData, writeImageData } = await import(
+    '@votingworks/image-utils'
+  );
+  await writeImageData(img1, createImageData(10, 10));
+  await writeImageData(img2, createImageData(10, 10));
+
+  await apiClient.batchScannerLoadBallots({ paths: [img1, img2] });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });
+});
+
+test('mock batch scanner - odd image gets a blank back', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+
+  const img = join(mockBatchScanner.imageDir, 'single.jpg');
+  const { createImageData, writeImageData } = await import(
+    '@votingworks/image-utils'
+  );
+  await writeImageData(img, createImageData(10, 10));
+
+  await apiClient.batchScannerLoadBallots({ paths: [img] });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });
+});
+
+test('mock batch scanner - single page PDF gets blank back', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+
+  // The famous names ballot is 2 pages; we need a 1-page PDF to cover the
+  // odd-page branch. Create a minimal valid single-page PDF from raw bytes.
+  const minimalPdf = [
+    '%PDF-1.0',
+    '1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj',
+    '2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj',
+    '3 0 obj <</Type /Page /Parent 2 0 R /MediaBox [0 0 100 100]>> endobj',
+    'xref',
+    '0 4',
+    '0000000000 65535 f ',
+    '0000000009 00000 n ',
+    '0000000058 00000 n ',
+    '0000000115 00000 n ',
+    'trailer <</Size 4 /Root 1 0 R>>',
+    'startxref',
+    '190',
+    '%%EOF',
+  ].join('\n');
+  const pdfPath = join(mockBatchScanner.imageDir, 'single-page.pdf');
+  fs.writeFileSync(pdfPath, minimalPdf);
+
+  await apiClient.batchScannerLoadBallots({ paths: [pdfPath] });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });
+});
+
+test('mock batch scanner - mock spec reports mockBatchScanner', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+  const spec = await apiClient.getMockSpec();
+  expect(spec.mockBatchScanner).toEqual(true);
 });

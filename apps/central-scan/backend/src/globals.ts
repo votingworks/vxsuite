@@ -9,11 +9,6 @@ const NodeEnvSchema = z.union([
 ]);
 
 /**
- * A list or pointer to a list of files to use for a mock scanner.
- */
-export const { MOCK_SCANNER_FILES } = process.env;
-
-/**
  * Default port for the scan API.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse

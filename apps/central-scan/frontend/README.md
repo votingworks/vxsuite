@@ -13,11 +13,9 @@ up, then run the app like so:
 pnpm start
 ```
 
-
 The server will be available at http://localhost:3000, with the backend at
 http://localhost:3001. To use a different port, set the `FRONTEND_PORT`
 environment variable and the backend port will use `$FRONTEND_PORT + 1`.
-
 
 ## Testing
 
@@ -29,35 +27,17 @@ pnpm test
 
 ### Mock Scanning
 
-To scan ballots without scanner hardware, use the `MOCK_SCANNER_FILES`
-environment variable.
+To scan ballots without scanner hardware, use the mock central scanner with the
+dev dock:
 
 ```sh
-# Single batch with single sheet
-MOCK_SCANNER_FILES=front.jpeg,back.jpeg pnpm start
-
-# Single batch with multiple sheets
-MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,front-02.jpeg,back-02.jpeg pnpm start
-
-# Multiple batches with one sheet each (note ",," batch separator)
-MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,,front-02.jpeg,back-02.jpeg pnpm start
-
-# Use a manifest file
-cat <<EOS > manifest
-# First batch (this is a comment)
-front-01.jpeg
-back-01.jpeg
-
-# Second batch
-front-02.jpeg
-back-02.jpeg
-EOS
-MOCK_SCANNER_FILES=@manifest pnpm start
-
-# Use an election backup file
-./bin/extract-backup /path/to/election-backup.zip
-MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm start
+REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER=TRUE pnpm start
 ```
+
+This enables a "Batch Scanner" control in the dev dock where you can load ballot
+PDFs or images (JPG/PNG). Loaded ballots persist across scans — click "Clear" in
+the dev dock to reset. Each click of "Scan New Batch" in the main UI will scan
+all loaded ballots.
 
 ### Testing Adjudication
 

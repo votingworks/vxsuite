@@ -1,12 +1,9 @@
 import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
-import { assert, iter } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
 } from '@votingworks/backend';
-import { MOCK_SCANNER_FILES } from './globals';
-import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
-import { BatchScanner } from './fujitsu_scanner';
 import * as server from './server';
 
 export type { Api } from './app';
@@ -17,21 +14,10 @@ loadEnvVarsFromDotenvFiles();
 
 const logger = new BaseLogger(LogSource.VxCentralScanService);
 
-function getScanner(): BatchScanner | undefined {
-  const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);
-  if (!mockScannerFiles) return undefined;
-  process.stdout.write(
-    `Using mock scanner that scans ${iter(mockScannerFiles)
-      .map((sheets) => sheets.length)
-      .sum()} sheet(s) in ${mockScannerFiles.length} batch(es) repeatedly.\n`
-  );
-  return new LoopScanner(mockScannerFiles);
-}
-
 function main(): number {
   handleUncaughtExceptions(logger);
 
-  server.start({ batchScanner: getScanner(), logger });
+  server.start({ logger });
   return 0;
 }
 

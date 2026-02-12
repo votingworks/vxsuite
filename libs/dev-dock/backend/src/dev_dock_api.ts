@@ -31,8 +31,20 @@ import {
 import { getMockFilePrinterHandler } from '@votingworks/printing';
 import { writeFile } from 'node:fs/promises';
 import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
-import { pdfToImages } from '@votingworks/image-utils';
+import {
+  createImageData,
+  loadImageData,
+  pdfToImages,
+  writeImageData,
+} from '@votingworks/image-utils';
 import { execFile } from './utils';
+
+export interface MockBatchScannerApi {
+  addSheets(sheets: Array<{ frontPath: string; backPath: string }>): void;
+  getStatus(): { sheetCount: number };
+  clearSheets(): void;
+  readonly imageDir: string;
+}
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
 export type DevDockUsbDriveStatus = 'inserted' | 'removed';
@@ -96,6 +108,7 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
 export interface MockSpec {
   printerConfig?: PrinterConfig | 'fujitsu';
   mockPdiScanner?: MockScanner;
+  mockBatchScanner?: MockBatchScannerApi;
   // Optional hardware mocks provided by the host app
   getBarcodeConnected?: () => boolean;
   setBarcodeConnected?: (connected: boolean) => void;
@@ -109,6 +122,7 @@ interface SerializableMockSpec
   extends Omit<
     MockSpec,
     | 'mockPdiScanner'
+    | 'mockBatchScanner'
     | 'setBarcodeConnected'
     | 'setAccessibleControllerConnected'
     | 'setPatInputConnected'
@@ -117,6 +131,7 @@ interface SerializableMockSpec
     | 'getPatInputConnected'
   > {
   mockPdiScanner?: boolean;
+  mockBatchScanner?: boolean;
   hasBarcodeMock?: boolean;
   hasPatInputMock?: boolean;
   hasAccessibleControllerMock?: boolean;
@@ -184,6 +199,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       return {
         printerConfig: mockSpec.printerConfig,
         mockPdiScanner: Boolean(mockSpec.mockPdiScanner),
+        mockBatchScanner: Boolean(mockSpec.mockBatchScanner),
         hasBarcodeMock:
           Boolean(mockSpec.getBarcodeConnected) &&
           Boolean(mockSpec.setBarcodeConnected),
@@ -353,6 +369,76 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
 
     pdiScannerRemoveSheet(): void {
       assertDefined(mockSpec.mockPdiScanner).removeSheet();
+    },
+
+    batchScannerGetStatus(): { sheetCount: number } {
+      return assertDefined(mockSpec.mockBatchScanner).getStatus();
+    },
+
+    async batchScannerLoadBallots(input: { paths: string[] }): Promise<void> {
+      const batchScanner = assertDefined(mockSpec.mockBatchScanner);
+      const sheets: Array<{ frontPath: string; backPath: string }> = [];
+      let fileIndex = 0;
+
+      function nextImagePath(): string {
+        fileIndex += 1;
+        return join(
+          batchScanner.imageDir,
+          `sheet-${Date.now()}-${fileIndex}.png`
+        );
+      }
+
+      const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
+      const imageFilePaths: string[] = [];
+
+      for (const filePath of input.paths) {
+        const ext = extname(filePath).toLowerCase();
+
+        if (IMAGE_EXTENSIONS.includes(ext)) {
+          imageFilePaths.push(filePath);
+        } else {
+          // Treat as PDF
+          const pdfData = Uint8Array.from(fs.readFileSync(filePath));
+          const pairs = iter(pdfToImages(pdfData, { scale: 200 / 72 }))
+            .map(({ page }) => page)
+            .chunks(2);
+
+          for await (const [frontImage, backImage] of pairs) {
+            const frontPath = nextImagePath();
+            const backPath = nextImagePath();
+
+            await writeImageData(frontPath, frontImage);
+            await writeImageData(
+              backPath,
+              backImage ?? createImageData(frontImage.width, frontImage.height)
+            );
+
+            sheets.push({ frontPath, backPath });
+          }
+        }
+      }
+
+      // Pair image files as front/back, 2 at a time
+      for (const [frontPath, backPath] of iter(imageFilePaths).chunks(2)) {
+        if (backPath) {
+          sheets.push({ frontPath, backPath });
+        } else {
+          // Odd image: generate a blank back
+          const frontResult = (await loadImageData(frontPath)).unsafeUnwrap();
+          const blankBackPath = nextImagePath();
+          await writeImageData(
+            blankBackPath,
+            createImageData(frontResult.width, frontResult.height)
+          );
+          sheets.push({ frontPath, backPath: blankBackPath });
+        }
+      }
+
+      batchScanner.addSheets(sheets);
+    },
+
+    batchScannerClearBallots(): void {
+      assertDefined(mockSpec.mockBatchScanner).clearSheets();
     },
   });
 }
