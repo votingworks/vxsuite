@@ -69,6 +69,7 @@ export function DiagnosticsScreen({
         title="Diagnostics"
         voterFacing={false}
         showTestModeBanner={false}
+        showEarlyVotingBanner={false}
         padded
       >
         <Loading />
@@ -103,7 +104,7 @@ export function DiagnosticsScreen({
       title="Diagnostics"
       voterFacing={false}
       showTestModeBanner={false}
-      padded
+      showEarlyVotingBanner={false}
       hideBallotCount
       hideInfoBar
     >

@@ -13,6 +13,7 @@ export function InvalidCardScreen({
       infoBarMode="pollworker"
       voterFacing={false}
       showTestModeBanner={false}
+      showEarlyVotingBanner={false}
     >
       <SharedInvalidCardScreen
         reasonAndContext={authStatus}

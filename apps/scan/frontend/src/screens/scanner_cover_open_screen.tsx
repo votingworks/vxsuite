@@ -14,6 +14,7 @@ export function ScannerCoverOpenScreen({ disableAlarm }: Props): JSX.Element {
     <ScreenMainCenterChild
       disableSettingsButtons={enableAlarm}
       showTestModeBanner={false}
+      showEarlyVotingBanner={false}
       voterFacing
     >
       <CenteredText>

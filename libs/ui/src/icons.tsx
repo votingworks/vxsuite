@@ -93,6 +93,7 @@ import {
   faPlus,
   faMinus,
   faVolumeDown,
+  faClock,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -340,6 +341,10 @@ export const Icons = {
 
   ChevronLeft(props) {
     return <FaIcon {...props} type={faChevronLeft} />;
+  },
+
+  Clock(props) {
+    return <FaIcon {...props} type={faClock} />;
   },
 
   Closed(props) {
