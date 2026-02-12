@@ -8,6 +8,11 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import {
+  ToMatchPdfSnapshotOptions,
+  buildToMatchPdfSnapshot,
+} from '@votingworks/image-utils';
+import { toMatchImageSnapshot } from 'jest-image-snapshot';
+import {
   buildToHaveStyleRule,
   ToHaveStyleRuleMatchers,
 } from 'vitest-styled-components';
@@ -17,8 +22,21 @@ declare module 'vitest' {
   interface AsymmetricMatchersContaining extends ToHaveStyleRuleMatchers {}
 }
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace jest {
+    interface Matchers<R> {
+      toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<R>;
+    }
+  }
+}
+
 expect.extend({ toHaveStyleRule: buildToHaveStyleRule(expect) });
 expect.extend(matchers);
+expect.extend({
+  toMatchImageSnapshot,
+  toMatchPdfSnapshot: buildToMatchPdfSnapshot(expect as any),
+});
 
 beforeEach(cleanup);
 
