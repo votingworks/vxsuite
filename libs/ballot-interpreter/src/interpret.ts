@@ -73,6 +73,7 @@ import {
 } from './bubble-ballot-ts';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
+import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation';
 
 const debug = makeDebug('ballot-interpreter:scan:interpreter');
 
@@ -855,6 +856,16 @@ export async function interpretSheet(
       hmpbInterpretation?.[0].type === 'InterpretedHmpbPage' &&
       hmpbInterpretation[1].type === 'InterpretedHmpbPage'
     ) {
+      return hmpbInterpretation;
+    }
+
+    if (hmpbInterpretation && shouldSkipSummaryBallotInterpretation(hmpbInterpretation)) {
+      // The bubble ballot interpreter doesn't write images on error paths, so we need
+      // to write the original images here since we're skipping summary ballot
+      // interpretation (which would normally handle this).
+      await mapSheet(sheet, [options.frontNormalizedImageOutputPath, options.backNormalizedImageOutputPath], async (imageData, path) =>
+        path && await writeImageData(path, imageData)
+      );
       return hmpbInterpretation;
     }
 
