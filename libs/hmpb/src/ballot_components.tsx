@@ -57,7 +57,11 @@ export const TIMING_MARK_DIMENSIONS: InchDimensions = {
   height: 0.0625,
 };
 
-const StyledTimingMark = styled.div<{ hidden?: boolean }>`
+const StyledTimingMark = styled.div.withConfig({
+  shouldForwardProp: () => false,
+})<{
+  hidden?: boolean;
+}>`
   width: ${TIMING_MARK_DIMENSIONS.width}in;
   height: ${TIMING_MARK_DIMENSIONS.height}in;
   background-color: black;
