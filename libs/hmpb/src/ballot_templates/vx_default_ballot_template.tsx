@@ -278,7 +278,7 @@ function CandidateContest({
           const optionInfo: OptionInfo = {
             type: 'option',
             contestId: contest.id,
-            optionId: candidates[Math.max(0, i - 1)].id,
+            optionId: candidate.id,
             partyIds: candidate.partyIds,
           };
           return (
