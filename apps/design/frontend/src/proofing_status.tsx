@@ -163,7 +163,7 @@ export function ProofingStatus(): React.ReactNode {
               disabled={approveDisabled}
               icon="Done"
               onPress={handleApproveClick}
-              variant={approveDisabled ? 'neutral' : 'primary'}
+              variant={approveDisabled || qaInProgress ? 'neutral' : 'primary'}
             >
               Approve
             </Button>
@@ -306,7 +306,12 @@ function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
 
   if (status === 'in_progress') {
     return (
-      <Callout color="warning" icon="Info">
+      <Callout
+        color="primary"
+        icon="Info"
+        // Matching styling of the other other `TaskProgress` elements:
+        style={{ alignSelf: 'stretch', maxWidth: '35rem' }}
+      >
         <div>
           <P style={{ lineHeight: 1 }} weight="bold">
             QA Check Running
