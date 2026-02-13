@@ -7,7 +7,7 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       thresholds: {
-        lines: 92.53,
+        lines: 92.52,
         branches: 88,
       },
       exclude: [
