@@ -72,7 +72,9 @@ export async function closePolls({
   if (previousPollsState === 'polls_open') {
     const ongoingBatchId = store.getOngoingBatchId();
     assert(ongoingBatchId !== undefined);
-    store.finishBatch({ batchId: ongoingBatchId });
+    store.finishBatch({
+      batchId: ongoingBatchId,
+    });
     logger.log(LogEventId.ScannerBatchEnded, 'system', {
       disposition: 'success',
       message: 'Current scanning batch finished on polls closed.',

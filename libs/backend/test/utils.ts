@@ -7,6 +7,7 @@ import {
 } from '@votingworks/auth';
 import { Client } from '@votingworks/db';
 import {
+  BallotCastingMode,
   BatchInfo,
   DEFAULT_MARK_THRESHOLDS,
   ElectionDefinition,
@@ -125,6 +126,7 @@ export class MockPrecinctScannerStore
   readonly scannerType = 'precinct';
 
   private ballotsCounted: number;
+  private ballotCastingMode: BallotCastingMode;
   private exportDirectoryName?: string;
   private isContinuousExportEnabled: boolean;
   private pendingContinuousExportOperations: string[];
@@ -133,6 +135,7 @@ export class MockPrecinctScannerStore
   constructor() {
     super();
     this.ballotsCounted = 0;
+    this.ballotCastingMode = 'election_day';
     this.exportDirectoryName = undefined;
     this.isContinuousExportEnabled = true;
     this.pendingContinuousExportOperations = [];
@@ -174,6 +177,10 @@ export class MockPrecinctScannerStore
     this.exportDirectoryName = exportDirectoryName;
   }
 
+  getBallotCastingMode(): BallotCastingMode {
+    return this.ballotCastingMode;
+  }
+
   //
   // Methods to facilitate testing, beyond the ScannerStore interface
   //
@@ -192,6 +199,10 @@ export class MockPrecinctScannerStore
 
   setPollsState(pollsState: PollsState): void {
     this.pollsState = pollsState;
+  }
+
+  setBallotCastingMode(ballotCastingMode: BallotCastingMode): void {
+    this.ballotCastingMode = ballotCastingMode;
   }
 }
 

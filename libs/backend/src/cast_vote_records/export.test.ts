@@ -1345,3 +1345,236 @@ test('recovery export expectedly errors if hash check fails', async () => {
     })
   );
 });
+
+test('ballot_casting_mode is not exported for central scanners', async () => {
+  const sheet = newAcceptedSheet(interpretedHmpb, sheet1Id);
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockCentralScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet],
+      { scannerType: 'central' }
+    )
+  ).toEqual(ok());
+
+  const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+    mockUsbDrive.usbDrive
+  );
+  expect(exportDirectoryPaths).toHaveLength(1);
+  const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
+
+  const { castVoteRecordExportMetadata } = (
+    await readCastVoteRecordExport(exportDirectoryPath)
+  ).unsafeUnwrap();
+
+  // Central scanners should not have ballotCastingMode in batch manifest
+  expect(
+    assertDefined(castVoteRecordExportMetadata.batchManifest[0])
+      .ballotCastingMode
+  ).toBeUndefined();
+});
+
+test('ballot_casting_mode is exported per batch for precinct scanners - continuous export', async () => {
+  const batch1ElectionDay: BatchInfo = {
+    id: uuid(),
+    batchNumber: 1,
+    count: 1,
+    label: 'Batch 1',
+    startedAt: new Date().toISOString(),
+    ballotCastingMode: 'election_day',
+  };
+  const batch2EarlyVoting: BatchInfo = {
+    id: uuid(),
+    batchNumber: 2,
+    count: 1,
+    label: 'Batch 2',
+    startedAt: new Date().toISOString(),
+    ballotCastingMode: 'early_voting',
+  };
+
+  mockPrecinctScannerStore.setBatches([batch1ElectionDay, batch2EarlyVoting]);
+
+  const imagePaths1 = generateMockImages(sheet1Id);
+  const sheet1: AcceptedSheet = {
+    type: 'accepted',
+    id: sheet1Id,
+    batchId: batch1ElectionDay.id,
+    interpretation: interpretedHmpb,
+    frontImagePath: imagePaths1[0],
+    backImagePath: imagePaths1[1],
+  };
+
+  const imagePaths2 = generateMockImages(sheet2Id);
+  const sheet2: AcceptedSheet = {
+    type: 'accepted',
+    id: sheet2Id,
+    batchId: batch2EarlyVoting.id,
+    interpretation: interpretedHmpb,
+    frontImagePath: imagePaths2[0],
+    backImagePath: imagePaths2[1],
+  };
+
+  // Test continuous export (default behavior)
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet1, sheet2],
+      { scannerType: 'precinct' }
+    )
+  ).toEqual(ok());
+
+  const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+    mockUsbDrive.usbDrive
+  );
+  expect(exportDirectoryPaths).toHaveLength(1);
+  const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
+
+  const { castVoteRecordExportMetadata } = (
+    await readCastVoteRecordExport(exportDirectoryPath)
+  ).unsafeUnwrap();
+
+  expect(castVoteRecordExportMetadata.batchManifest).toHaveLength(2);
+
+  const batch1Manifest = castVoteRecordExportMetadata.batchManifest.find(
+    (b) => b.id === batch1ElectionDay.id
+  );
+  const batch2Manifest = castVoteRecordExportMetadata.batchManifest.find(
+    (b) => b.id === batch2EarlyVoting.id
+  );
+
+  expect(assertDefined(batch1Manifest).ballotCastingMode).toEqual(
+    'election_day'
+  );
+  expect(assertDefined(batch2Manifest).ballotCastingMode).toEqual(
+    'early_voting'
+  );
+});
+
+test('ballot_casting_mode is exported per batch for precinct scanners - full export', async () => {
+  const batch1ElectionDay: BatchInfo = {
+    id: uuid(),
+    batchNumber: 1,
+    count: 1,
+    label: 'Batch 1',
+    startedAt: new Date().toISOString(),
+    ballotCastingMode: 'election_day',
+  };
+  const batch2EarlyVoting: BatchInfo = {
+    id: uuid(),
+    batchNumber: 2,
+    count: 1,
+    label: 'Batch 2',
+    startedAt: new Date().toISOString(),
+    ballotCastingMode: 'early_voting',
+  };
+
+  mockPrecinctScannerStore.setBatches([batch1ElectionDay, batch2EarlyVoting]);
+
+  const imagePaths1 = generateMockImages(sheet1Id);
+  const sheet1: AcceptedSheet = {
+    type: 'accepted',
+    id: sheet1Id,
+    batchId: batch1ElectionDay.id,
+    interpretation: interpretedHmpb,
+    frontImagePath: imagePaths1[0],
+    backImagePath: imagePaths1[1],
+  };
+
+  const imagePaths2 = generateMockImages(sheet2Id);
+  const sheet2: AcceptedSheet = {
+    type: 'accepted',
+    id: sheet2Id,
+    batchId: batch2EarlyVoting.id,
+    interpretation: interpretedHmpb,
+    frontImagePath: imagePaths2[0],
+    backImagePath: imagePaths2[1],
+  };
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet1, sheet2],
+      { scannerType: 'precinct', isFullExport: true }
+    )
+  ).toEqual(ok());
+
+  const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+    mockUsbDrive.usbDrive
+  );
+  expect(exportDirectoryPaths).toHaveLength(1);
+  const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
+
+  const { castVoteRecordExportMetadata } = (
+    await readCastVoteRecordExport(exportDirectoryPath)
+  ).unsafeUnwrap();
+
+  expect(castVoteRecordExportMetadata.batchManifest).toHaveLength(2);
+
+  const batch1Manifest = castVoteRecordExportMetadata.batchManifest.find(
+    (b) => b.id === batch1ElectionDay.id
+  );
+  const batch2Manifest = castVoteRecordExportMetadata.batchManifest.find(
+    (b) => b.id === batch2EarlyVoting.id
+  );
+
+  expect(assertDefined(batch1Manifest).ballotCastingMode).toEqual(
+    'election_day'
+  );
+  expect(assertDefined(batch2Manifest).ballotCastingMode).toEqual(
+    'early_voting'
+  );
+});
+
+test('ballot_casting_mode is preserved from batch creation - polls closing export', async () => {
+  const batchCreatedInEarlyVoting: BatchInfo = {
+    id: uuid(),
+    batchNumber: 1,
+    count: 1,
+    label: 'Batch 1',
+    startedAt: new Date().toISOString(),
+    ballotCastingMode: 'early_voting',
+  };
+
+  mockPrecinctScannerStore.setBatches([batchCreatedInEarlyVoting]);
+  mockPrecinctScannerStore.setBallotCastingMode('early_voting');
+  mockPrecinctScannerStore.setPollsState('polls_open');
+
+  const imagePaths = generateMockImages(sheet1Id);
+  const sheet: AcceptedSheet = {
+    type: 'accepted',
+    id: sheet1Id,
+    batchId: batchCreatedInEarlyVoting.id,
+    interpretation: interpretedHmpb,
+    frontImagePath: imagePaths[0],
+    backImagePath: imagePaths[1],
+  };
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet],
+      { scannerType: 'precinct', arePollsClosing: true }
+    )
+  ).toEqual(ok());
+
+  const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+    mockUsbDrive.usbDrive
+  );
+  expect(exportDirectoryPaths).toHaveLength(1);
+  const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
+
+  const { castVoteRecordExportMetadata } = (
+    await readCastVoteRecordExport(exportDirectoryPath)
+  ).unsafeUnwrap();
+
+  // Verify the batch exports with its ballotCastingMode assigned at creation time
+  expect(
+    assertDefined(castVoteRecordExportMetadata.batchManifest[0])
+      .ballotCastingMode
+  ).toEqual('early_voting');
+  expect(castVoteRecordExportMetadata.arePollsClosed).toEqual(true);
+});

@@ -6,6 +6,7 @@ import {
   CVRSchema,
 } from './cdf/cast-vote-records';
 import {
+  BallotCastingMode,
   BallotStyle,
   BallotType,
   BallotTypeSchema,
@@ -52,6 +53,7 @@ export interface CastVoteRecordBatchMetadata {
 
   readonly sheetCount: number;
   readonly scannerId: string;
+  readonly ballotCastingMode?: BallotCastingMode;
 }
 
 export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchMetadata> =
@@ -63,6 +65,7 @@ export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchM
     endTime: Iso8601TimestampSchema.optional(),
     sheetCount: z.number(),
     scannerId: z.string(),
+    ballotCastingMode: z.enum(['early_voting', 'election_day']).optional(),
   });
 
 /**

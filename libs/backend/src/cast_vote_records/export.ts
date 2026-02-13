@@ -20,6 +20,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
+  BallotCastingMode,
   BallotIdSchema,
   BatchInfo,
   CastVoteRecordExportFileName,
@@ -107,6 +108,7 @@ export interface PrecinctScannerStore extends ScannerStoreBase {
   getPendingContinuousExportOperations(): string[];
   getPollsState(): PollsState;
   setExportDirectoryName(exportDirectoryName: string): void;
+  getBallotCastingMode(): BallotCastingMode;
 }
 
 /**
