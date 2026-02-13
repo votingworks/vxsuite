@@ -80,7 +80,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
     ballotStyleId: ballotStyle.id,
     precinctId: ballotStyle.precincts[0],
     ballotType: BallotType.Absentee,
-    ballotMode: 'test',
+    ballotMode: 'sample',
     watermark,
   };
 
