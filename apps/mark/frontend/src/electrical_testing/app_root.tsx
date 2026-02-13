@@ -4,6 +4,7 @@ import {
   CheckboxButton,
   CpuMetricsDisplay,
   ElectricalTestingScreen,
+  HeadphoneCalibrationButton,
   Icons,
   InputControls,
   useHeadphonesPluggedIn,
@@ -79,9 +80,7 @@ function formatBarcodeStatus(
 const AudioControlsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  transform: scale(0.5);
-  transform-origin: top left;
+  gap: 0.5rem;
 `;
 
 function AudioControls({
@@ -90,12 +89,14 @@ function AudioControls({
   headphonesEnabled,
   setHeadphonesEnabled,
   headphonesAvailable,
+  setCalibratingHeadphones,
 }: {
   speakerEnabled: boolean;
   setSpeakerEnabled: (enabled: boolean) => void;
   headphonesEnabled: boolean;
   setHeadphonesEnabled: (enabled: boolean) => void;
   headphonesAvailable: boolean;
+  setCalibratingHeadphones: (calibrating: boolean) => void;
 }): JSX.Element {
   return (
     <AudioControlsContainer>
@@ -113,6 +114,11 @@ function AudioControls({
         isChecked={headphonesEnabled && headphonesAvailable}
         onChange={setHeadphonesEnabled}
         disabled={!headphonesAvailable}
+      />
+      <HeadphoneCalibrationButton
+        audioUrl="/sounds/tts-sample.mp3"
+        onBegin={() => setCalibratingHeadphones(true)}
+        onEnd={() => setCalibratingHeadphones(false)}
       />
     </AudioControlsContainer>
   );
@@ -136,6 +142,7 @@ export function AppRoot(): JSX.Element {
 
   const [speakerEnabled, setSpeakerEnabled] = useState(true);
   const [headphonesEnabled, setHeadphonesEnabled] = useState(true);
+  const [calibratingHeadphones, setCalibratingHeadphones] = useState(false);
 
   // Track which output to play next for alternating
   const nextOutputRef = useRef<'speaker' | 'headphones'>('speaker');
@@ -144,6 +151,9 @@ export function AppRoot(): JSX.Element {
   const playSoundHeadphones = useSound('success-5s');
 
   const headphonesAvailable = useHeadphonesPluggedIn();
+  const soundsEnabled =
+    !calibratingHeadphones &&
+    (speakerEnabled || (headphonesEnabled && headphonesAvailable));
 
   // Alternating sound playback
   useInterval(
@@ -174,9 +184,7 @@ export function AppRoot(): JSX.Element {
         nextOutputRef.current = 'speaker';
       }
     },
-    speakerEnabled || (headphonesEnabled && headphonesAvailable)
-      ? SOUND_INTERVAL_SECONDS * 1000
-      : null
+    soundsEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null
   );
 
   function toggleCardReaderTaskRunning() {
@@ -236,14 +244,19 @@ export function AppRoot(): JSX.Element {
             icon: <Icons.Print />,
             title: 'Printer',
             body: (
-              <React.Fragment>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                }}
+              >
                 {formatPrinterStatus(
                   getPrinterStatusQuery.data,
                   getPrinterTaskStatusQuery.data
                 )}
                 <br />
                 <Button
-                  style={{ transform: 'scale(0.5)' }}
                   onPress={() => printTestPageMutation.mutate()}
                   disabled={
                     printTestPageMutation.isLoading ||
@@ -254,7 +267,7 @@ export function AppRoot(): JSX.Element {
                     ? 'Printing...'
                     : 'Print Test Page'}
                 </Button>
-              </React.Fragment>
+              </div>
             ),
             isRunning: getPrinterTaskStatusQuery.data?.taskStatus === 'running',
             toggleIsRunning: togglePrinterTaskRunning,
@@ -281,6 +294,7 @@ export function AppRoot(): JSX.Element {
                 headphonesEnabled={headphonesEnabled}
                 setHeadphonesEnabled={setHeadphonesEnabled}
                 headphonesAvailable={headphonesAvailable}
+                setCalibratingHeadphones={setCalibratingHeadphones}
               />
             ),
           },
@@ -291,7 +305,6 @@ export function AppRoot(): JSX.Element {
             body: <InputControls />,
           },
         ]}
-        perRow={1}
         powerDown={powerDown}
         usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
         apiClient={apiClient}

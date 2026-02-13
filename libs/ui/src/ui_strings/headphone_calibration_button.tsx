@@ -1,7 +1,7 @@
 /* istanbul ignore file - internal tool - @preserve */
 
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Button } from '../button';
 import { Card } from '../card';
@@ -71,6 +71,18 @@ const Content = styled.div`
   gap: 1rem;
 `;
 
+const gainControlThumbDesktop = css`
+  height: 2rem;
+  outline: 0.25rem solid ${(p) => p.theme.colors.primary};
+  outline-offset: -1px;
+  width: 2rem;
+
+  :active,
+  :hover {
+    outline: 0.5rem solid ${(p) => p.theme.colors.primary};
+  }
+`;
+
 const GainControl = styled.input.attrs({ type: 'range' })`
   appearance: none;
   background: ${(p) => p.theme.colors.background};
@@ -89,22 +101,17 @@ const GainControl = styled.input.attrs({ type: 'range' })`
   ::-webkit-slider-thumb {
     appearance: none;
     background: ${(p) => p.theme.colors.primary};
-    border-radius: ${(p) => p.theme.sizes.borderRadiusRem / 2}rem;
+    border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
     cursor: grab;
-    height: 2rem;
-    outline: 0.25rem solid ${(p) => p.theme.colors.primary};
+    height: 3rem;
     transition: all 100ms ease-out;
-    width: 2rem;
+    width: 3rem;
 
     :active {
       cursor: grabbing;
     }
 
-    :active,
-    :hover {
-      outline: 0.5rem solid ${(p) => p.theme.colors.primary};
-      outline-offset: -1px;
-    }
+    ${(p) => p.theme.colorMode === 'desktop' && gainControlThumbDesktop}
   }
 `;
 
@@ -161,23 +168,29 @@ function CalibrationModal(props: { audioUrl: string; close: () => void }) {
       }
       content={
         <Content>
-          <div>
-            <P>
-              1. When ready, press &quot;Play&quot; to start the sample screen
-              reader audio.
-            </P>
-            <P>
-              2. Adjust the minimum gain offset until the SPL meter reads{' '}
-              <Font noWrap weight="bold">
-                100 dB
-              </Font>
-              , without going over.
-            </P>
-            <P>
-              3. Note down the corresponding gain offset below, which will be
-              used to update the product code.
-            </P>
-          </div>
+          <ol style={{ margin: 0 }}>
+            <li>
+              <P>
+                When ready, press &quot;Play&quot; to start the sample screen
+                reader audio.
+              </P>
+            </li>
+            <li>
+              <P>
+                Adjust the minimum gain offset until the SPL meter reads{' '}
+                <Font noWrap weight="bold">
+                  100 dB
+                </Font>
+                , without going over.
+              </P>
+            </li>
+            <li>
+              <P>
+                Note down the corresponding gain offset below, which will be
+                used to update the product code.
+              </P>
+            </li>
+          </ol>
           <Card>
             <P weight="bold">Minimum Gain Offset:</P>
             <div
