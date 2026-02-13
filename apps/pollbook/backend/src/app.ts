@@ -12,12 +12,10 @@ import {
 } from '@votingworks/basics';
 import {
   CheckInBallotParty,
-  DEFAULT_SYSTEM_SETTINGS,
   Election,
   PrimarySummaryStatistics,
   PrinterStatus,
   SummaryStatistics,
-  TEST_JURISDICTION,
   ValidStreetInfo,
   Voter,
   VoterAddressChangeRequest,
@@ -26,11 +24,7 @@ import {
   VoterNameChangeRequest,
   VoterRegistrationRequest,
 } from '@votingworks/types';
-import {
-  DEV_JURISDICTION,
-  DippedSmartCardAuthMachineState,
-  generateSignedHashValidationQrCodeValue,
-} from '@votingworks/auth';
+import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import React from 'react';
 import {
   createSystemCallApi,
@@ -40,7 +34,6 @@ import {
 import {
   generateFileTimeSuffix,
   isElectionManagerAuth,
-  isIntegrationTest,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -51,7 +44,6 @@ import {
   ConfigurationStatus,
   ThroughputStat,
   LocalAppContext,
-  LocalWorkspace,
   ConfigurationError,
   VoterCheckInError,
   DuplicateVoterError,
@@ -81,6 +73,7 @@ import { MarkInactiveReceipt } from './receipts/mark_inactive_receipt';
 import { InvalidateRegistrationReceipt } from './receipts/invalidate_registration_receipt';
 import { BarcodeScannerClient } from './barcode_scanner/client';
 import { securityHeadersMiddleware } from './security_middleware';
+import { constructAuthMachineState } from './auth';
 
 const debug = rootDebug.extend('local_app');
 
@@ -88,29 +81,6 @@ interface BuildAppParams {
   context: LocalAppContext;
   barcodeScannerClient: BarcodeScannerClient;
   logger: Logger;
-}
-
-function constructAuthMachineState(
-  workspace: LocalWorkspace
-): DippedSmartCardAuthMachineState {
-  const election = workspace.store.getElection();
-  const { configuredPrecinctId } =
-    workspace.store.getPollbookConfigurationInformation();
-
-  const jurisdiction = isIntegrationTest()
-    ? TEST_JURISDICTION
-    : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;
-
-  return {
-    ...DEFAULT_SYSTEM_SETTINGS['auth'],
-    electionKey: election && {
-      id: election.id,
-      date: election.date,
-    },
-    isConfigured: !!election && !!configuredPrecinctId,
-    jurisdiction,
-    machineType: 'poll-book',
-  };
 }
 
 function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
