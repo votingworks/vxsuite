@@ -21,7 +21,7 @@ import {
   TableHeader,
 } from '@tiptap/extension-table';
 import { Dropcursor, Gapcursor, UndoRedo } from '@tiptap/extensions';
-import { Slice } from '@tiptap/pm/model';
+import { Node as PMNode, Slice } from '@tiptap/pm/model';
 import {
   Button,
   ButtonProps,
@@ -337,6 +337,34 @@ function unwrapSingleCellTablesOnPaste(slice: Slice): Slice {
   return slice;
 }
 
+function isAllHardBreaks(node: PMNode): boolean {
+  for (let i = 0; i < node.childCount; i += 1) {
+    if (node.child(i).type.name !== 'hardBreak') {
+      return false;
+    }
+  }
+  return true;
+}
+
+function stripTrailingNewlinesOnPaste(slice: Slice): Slice {
+  let updatedSlice = slice;
+  for (let i = updatedSlice.content.childCount - 1; i >= 0; i -= 1) {
+    const child = updatedSlice.content.child(i);
+    if (child.type.name !== 'paragraph') {
+      break;
+    }
+    if (child.content.size !== 0 && !isAllHardBreaks(child)) {
+      break;
+    }
+    updatedSlice = new Slice(
+      updatedSlice.content.cut(0, updatedSlice.content.size - child.nodeSize),
+      updatedSlice.openStart,
+      updatedSlice.openEnd
+    );
+  }
+  return updatedSlice;
+}
+
 // Find the last text node in a given root node
 function findLastTextNode(root: Node): Text | null {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -416,7 +444,10 @@ export function RichTextEditor({
       UndoRedo,
     ],
     editorProps: {
-      transformPasted: unwrapSingleCellTablesOnPaste,
+      transformPasted: (slice) => {
+        const updatedSlice = unwrapSingleCellTablesOnPaste(slice);
+        return stripTrailingNewlinesOnPaste(updatedSlice);
+      },
       // eslint-disable-next-line vx/gts-identifiers
       transformPastedHTML: sanitizeTrailingNbspOnPaste,
     },
