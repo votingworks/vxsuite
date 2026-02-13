@@ -141,7 +141,7 @@ test('ballots printed report (zero) can be printed and exported (pdf snapshots)'
     customSnapshotIdentifier: 'ballots-printed-report-zero-export',
     failureThreshold: 0.00001,
   });
-}, 30_000);
+});
 
 test('ballots printed report (non-zero) can be printed and exported (pdf snapshots)', async () => {
   const fixedNow = new Date('2025-12-18T12:05:00.000Z');
@@ -215,7 +215,7 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
     customSnapshotIdentifier: 'ballots-printed-report-nonzero-export',
     failureThreshold: 0.00001,
   });
-}, 30_000);
+});
 
 test('printBallotsPrintedReport logs error when renderToPdf fails', async () => {
   await configureMachine({
