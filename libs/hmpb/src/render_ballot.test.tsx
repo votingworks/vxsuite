@@ -8,11 +8,12 @@ import {
   BallotType,
   BaseBallotProps,
   CandidateContest,
+  ContestId,
   Election,
   LanguageCode,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, assertDefined, find, iter } from '@votingworks/basics';
+import { assert, assertDefined, find, iter, range } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { parse as parseHtml } from 'node-html-parser';
 import {
@@ -32,9 +33,11 @@ import {
 import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template';
 import { generateBallotStyles } from './ballot_styles';
 import {
+  BALLOT_MEASURE_OPTION_CLASS,
   BUBBLE_CLASS,
   CANDIDATE_OPTION_CLASS,
   OptionInfo,
+  WRITE_IN_OPTION_CLASS,
 } from './ballot_components';
 
 function combinations<T extends Record<string, unknown>>(
@@ -210,7 +213,9 @@ test('contest options are encoded correctly', async () => {
   const content = await document.getContent();
   await renderer.close();
   const root = parseHtml(content);
+
   const candidateOptions = root.querySelectorAll(`.${CANDIDATE_OPTION_CLASS}`);
+  expect(candidateOptions.length).toBeGreaterThan(0);
   for (const candidateOption of candidateOptions) {
     const { textContent } = candidateOption;
     const contest = find(
@@ -226,12 +231,81 @@ test('contest options are encoded correctly', async () => {
     const bubbleElement = assertDefined(
       candidateOption.querySelector(`.${BUBBLE_CLASS}`)
     );
-    console.log(bubbleElement);
     const optionInfo = JSON.parse(
       bubbleElement.getAttribute('data-option-info')!
     ) as OptionInfo;
     assert(optionInfo.type === 'option');
     expect(optionInfo.contestId).toEqual(contest.id);
     expect(optionInfo.optionId).toEqual(candidate.id);
+  }
+
+  const writeInOptions = root.querySelectorAll(`.${WRITE_IN_OPTION_CLASS}`);
+  expect(writeInOptions.length).toBeGreaterThan(0);
+  const writeInOptionsByContest = new Map<ContestId, OptionInfo[]>();
+  for (const writeInOption of writeInOptions) {
+    const bubbleElement = assertDefined(
+      writeInOption.querySelector(`.${BUBBLE_CLASS}`)
+    );
+    const optionInfo = JSON.parse(
+      bubbleElement.getAttribute('data-option-info')!
+    ) as OptionInfo;
+    assert(optionInfo.type === 'write-in');
+    const contest = find(
+      electionDefinition.election.contests,
+      (c): c is CandidateContest =>
+        c.type === 'candidate' && c.id === optionInfo.contestId
+    );
+    const options = writeInOptionsByContest.get(contest.id) ?? [];
+    options.push(optionInfo);
+    writeInOptionsByContest.set(contest.id, options);
+  }
+  for (const [contestId, contestWriteInOptions] of writeInOptionsByContest) {
+    const contest = find(
+      electionDefinition.election.contests,
+      (c): c is CandidateContest => c.type === 'candidate' && c.id === contestId
+    );
+    expect(contestWriteInOptions).toHaveLength(contest.seats);
+    const writeInIndices = contestWriteInOptions.map((option) => {
+      assert(option.type === 'write-in');
+      return option.writeInIndex;
+    });
+    expect(writeInIndices).toEqual(range(0, contest.seats));
+  }
+
+  const ballotMeasureOptions = root.querySelectorAll(
+    `.${BALLOT_MEASURE_OPTION_CLASS}`
+  );
+  expect(ballotMeasureOptions.length).toBeGreaterThan(0);
+  const ballotMeasureOptionsByContest = new Map<ContestId, OptionInfo[]>();
+  for (const ballotMeasureOption of ballotMeasureOptions) {
+    const bubbleElement = assertDefined(
+      ballotMeasureOption.querySelector(`.${BUBBLE_CLASS}`)
+    );
+    const optionInfo = JSON.parse(
+      bubbleElement.getAttribute('data-option-info')!
+    ) as OptionInfo;
+    assert(optionInfo.type === 'option');
+    const contest = find(
+      electionDefinition.election.contests,
+      (c): c is YesNoContest =>
+        c.type === 'yesno' && c.id === optionInfo.contestId
+    );
+    const options = ballotMeasureOptionsByContest.get(contest.id) ?? [];
+    options.push(optionInfo);
+    ballotMeasureOptionsByContest.set(contest.id, options);
+  }
+  for (const [
+    contestId,
+    contestBallotMeasureOptions,
+  ] of ballotMeasureOptionsByContest) {
+    const contest = find(
+      electionDefinition.election.contests,
+      (c): c is YesNoContest => c.type === 'yesno' && c.id === contestId
+    );
+    const optionIds = contestBallotMeasureOptions.map((option) => {
+      assert(option.type === 'option');
+      return option.optionId;
+    });
+    expect(optionIds).toEqual([contest.yesOption.id, contest.noOption.id]);
   }
 });
