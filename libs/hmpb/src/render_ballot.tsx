@@ -562,11 +562,14 @@ export async function layOutBallotsAndCreateElectionDefinition<
       const document = (
         await renderBallotTemplate(renderer, template, props)
       ).unsafeUnwrap();
-      const gridLayout = await extractGridLayout(
-        document,
-        props.ballotStyleId,
-        template.isAllBubbleBallot
-      );
+      const gridLayout =
+        props.ballotMode !== 'sample'
+          ? await extractGridLayout(
+              document,
+              props.ballotStyleId,
+              template.isAllBubbleBallot
+            )
+          : undefined;
       const ballotContent = await document.getContent();
       return {
         props,
@@ -581,7 +584,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
   const layoutsByBallotStyle = iter(ballotLayouts)
-    .map((ballot) => ballot.gridLayout)
+    .filterMap((ballot) => ballot.gridLayout)
     .toMap((gridLayout) => gridLayout.ballotStyleId);
   for (const [ballotStyleId, layouts] of layoutsByBallotStyle.entries()) {
     const [firstLayout, ...restLayouts] = layouts;

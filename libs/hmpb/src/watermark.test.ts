@@ -31,7 +31,7 @@ rendererTest('watermark', async ({ renderer }) => {
       ballotStyleId: ballotStyle.id,
       precinctId: ballotStyle.precincts[0],
       ballotType: BallotType.Precinct,
-      ballotMode: 'sample',
+      ballotMode: 'test',
       watermark: 'PROOF',
     })
   ).unsafeUnwrap();

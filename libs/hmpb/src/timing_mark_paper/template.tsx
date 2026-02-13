@@ -24,6 +24,7 @@ export async function render(
     <Page pageNumber={1} dimensions={dimensions} margins={pageMarginsInches}>
       <TimingMarkGrid
         pageDimensions={dimensions}
+        ballotMode="test"
         timingMarkStyle={
           timingMarkPaperType === 'standard'
             ? undefined

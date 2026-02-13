@@ -33,6 +33,7 @@ export function allBubbleBallotTemplate(
     election,
     pageNumber,
     totalPages,
+    ballotMode,
     children,
   }: BaseBallotProps & {
     pageNumber: number;
@@ -47,7 +48,7 @@ export function allBubbleBallotTemplate(
         dimensions={dimensions}
         margins={pageMarginsInches}
       >
-        <TimingMarkGrid pageDimensions={dimensions}>
+        <TimingMarkGrid pageDimensions={dimensions} ballotMode={ballotMode}>
           <div
             style={{
               flex: 1,
