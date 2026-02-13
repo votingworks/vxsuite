@@ -8,14 +8,26 @@ import {
   BallotType,
   BaseBallotProps,
   CandidateContest,
-  ContestId,
   Election,
+  getBallotStyle,
+  getContests,
   LanguageCode,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, assertDefined, find, iter, range } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  groupBy,
+  iter,
+  range,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
-import { parse as parseHtml } from 'node-html-parser';
+import {
+  parse as parseHtml,
+  HTMLElement as ParsedHTMLElement,
+} from 'node-html-parser';
 import {
   allBaseBallotProps,
   layOutMinimalBallotsToCreateElectionDefinition,
@@ -39,6 +51,15 @@ import {
   OptionInfo,
   WRITE_IN_OPTION_CLASS,
 } from './ballot_components';
+
+function getOptionInfoFromElement(element: ParsedHTMLElement): OptionInfo {
+  const bubbleElement = assertDefined(
+    element.querySelector(`.${BUBBLE_CLASS}`)
+  );
+  return JSON.parse(
+    bubbleElement.getAttribute('data-option-info')!
+  ) as OptionInfo;
+}
 
 function combinations<T extends Record<string, unknown>>(
   arrays: Array<Array<Partial<T>>>
@@ -202,110 +223,107 @@ test('ballot measure contests with additional options are transformed into candi
 test('contest options are encoded correctly', async () => {
   const electionDefinition = electionGeneralFixtures.readElectionDefinition();
   const allBallotProps = allBaseBallotProps(electionDefinition.election);
+  const ballotProps = allBallotProps[0];
   const renderer = await createPlaywrightRenderer();
   const document = (
     await renderBallotTemplate(
       renderer,
       ballotTemplates.VxDefaultBallot,
-      allBallotProps[0]
+      ballotProps
     )
   ).unsafeUnwrap();
   const content = await document.getContent();
   await renderer.close();
   const root = parseHtml(content);
 
-  const candidateOptions = root.querySelectorAll(`.${CANDIDATE_OPTION_CLASS}`);
-  expect(candidateOptions.length).toBeGreaterThan(0);
-  for (const candidateOption of candidateOptions) {
-    const { textContent } = candidateOption;
-    const contest = find(
-      electionDefinition.election.contests,
-      (c): c is CandidateContest =>
-        c.type === 'candidate' &&
-        c.candidates.some((candidate) => textContent.includes(candidate.name))
-    );
-    const candidate = find(contest.candidates, (c) =>
-      textContent.includes(c.name)
-    );
-    expect(candidate).toBeDefined();
-    const bubbleElement = assertDefined(
-      candidateOption.querySelector(`.${BUBBLE_CLASS}`)
-    );
-    const optionInfo = JSON.parse(
-      bubbleElement.getAttribute('data-option-info')!
-    ) as OptionInfo;
-    assert(optionInfo.type === 'option');
-    expect(optionInfo.contestId).toEqual(contest.id);
-    expect(optionInfo.optionId).toEqual(candidate.id);
-  }
-
-  const writeInOptions = root.querySelectorAll(`.${WRITE_IN_OPTION_CLASS}`);
-  expect(writeInOptions.length).toBeGreaterThan(0);
-  const writeInOptionsByContest = new Map<ContestId, OptionInfo[]>();
-  for (const writeInOption of writeInOptions) {
-    const bubbleElement = assertDefined(
-      writeInOption.querySelector(`.${BUBBLE_CLASS}`)
-    );
-    const optionInfo = JSON.parse(
-      bubbleElement.getAttribute('data-option-info')!
-    ) as OptionInfo;
-    assert(optionInfo.type === 'write-in');
-    const contest = find(
-      electionDefinition.election.contests,
-      (c): c is CandidateContest =>
-        c.type === 'candidate' && c.id === optionInfo.contestId
-    );
-    const options = writeInOptionsByContest.get(contest.id) ?? [];
-    options.push(optionInfo);
-    writeInOptionsByContest.set(contest.id, options);
-  }
-  for (const [contestId, contestWriteInOptions] of writeInOptionsByContest) {
-    const contest = find(
-      electionDefinition.election.contests,
-      (c): c is CandidateContest => c.type === 'candidate' && c.id === contestId
-    );
-    expect(contestWriteInOptions).toHaveLength(contest.seats);
-    const writeInIndices = contestWriteInOptions.map((option) => {
-      assert(option.type === 'write-in');
-      return option.writeInIndex;
-    });
-    expect(writeInIndices).toEqual(range(0, contest.seats));
-  }
-
-  const ballotMeasureOptions = root.querySelectorAll(
-    `.${BALLOT_MEASURE_OPTION_CLASS}`
+  const candidateOptionElements = root.querySelectorAll(
+    `.${CANDIDATE_OPTION_CLASS}`
   );
-  expect(ballotMeasureOptions.length).toBeGreaterThan(0);
-  const ballotMeasureOptionsByContest = new Map<ContestId, OptionInfo[]>();
-  for (const ballotMeasureOption of ballotMeasureOptions) {
-    const bubbleElement = assertDefined(
-      ballotMeasureOption.querySelector(`.${BUBBLE_CLASS}`)
-    );
-    const optionInfo = JSON.parse(
-      bubbleElement.getAttribute('data-option-info')!
-    ) as OptionInfo;
-    assert(optionInfo.type === 'option');
-    const contest = find(
-      electionDefinition.election.contests,
-      (c): c is YesNoContest =>
-        c.type === 'yesno' && c.id === optionInfo.contestId
-    );
-    const options = ballotMeasureOptionsByContest.get(contest.id) ?? [];
-    options.push(optionInfo);
-    ballotMeasureOptionsByContest.set(contest.id, options);
-  }
-  for (const [
-    contestId,
-    contestBallotMeasureOptions,
-  ] of ballotMeasureOptionsByContest) {
-    const contest = find(
-      electionDefinition.election.contests,
-      (c): c is YesNoContest => c.type === 'yesno' && c.id === contestId
-    );
-    const optionIds = contestBallotMeasureOptions.map((option) => {
-      assert(option.type === 'option');
-      return option.optionId;
-    });
-    expect(optionIds).toEqual([contest.yesOption.id, contest.noOption.id]);
+  const candidateOptionsByContest = new Map(
+    groupBy(
+      candidateOptionElements.map((el) => ({
+        element: el,
+        optionInfo: getOptionInfoFromElement(el),
+      })),
+      (o) => o.optionInfo.contestId
+    )
+  );
+  const writeInOptionsByContest = new Map(
+    groupBy(
+      root
+        .querySelectorAll(`.${WRITE_IN_OPTION_CLASS}`)
+        .map(getOptionInfoFromElement),
+      (o) => o.contestId
+    )
+  );
+  const ballotMeasureOptionsByContest = new Map(
+    groupBy(
+      root
+        .querySelectorAll(`.${BALLOT_MEASURE_OPTION_CLASS}`)
+        .map(getOptionInfoFromElement),
+      (o) => o.contestId
+    )
+  );
+
+  const ballotStyle = assertDefined(
+    getBallotStyle({
+      election: electionDefinition.election,
+      ballotStyleId: ballotProps.ballotStyleId,
+    })
+  );
+  const contests = getContests({
+    election: electionDefinition.election,
+    ballotStyle,
+  });
+
+  expect(
+    new Set([
+      ...candidateOptionsByContest.keys(),
+      ...writeInOptionsByContest.keys(),
+      ...ballotMeasureOptionsByContest.keys(),
+    ])
+  ).toEqual(new Set(contests.map((c) => c.id)));
+
+  for (const contest of contests) {
+    switch (contest.type) {
+      case 'candidate': {
+        const renderedOptions = candidateOptionsByContest.get(contest.id) ?? [];
+        expect(renderedOptions).toHaveLength(contest.candidates.length);
+
+        for (const { element, optionInfo } of renderedOptions) {
+          assert(optionInfo.type === 'option');
+          const candidate = find(contest.candidates, (c) =>
+            element.textContent.includes(c.name)
+          );
+          expect(optionInfo.optionId).toEqual(candidate.id);
+        }
+
+        if (contest.allowWriteIns) {
+          const writeInOptions = writeInOptionsByContest.get(contest.id) ?? [];
+          expect(writeInOptions).toHaveLength(contest.seats);
+          const writeInIndices = writeInOptions.map((option) => {
+            assert(option.type === 'write-in');
+            return option.writeInIndex;
+          });
+          expect(writeInIndices).toEqual(range(0, contest.seats));
+        } else {
+          expect(writeInOptionsByContest.has(contest.id)).toEqual(false);
+        }
+        break;
+      }
+      case 'yesno': {
+        const renderedOptions =
+          ballotMeasureOptionsByContest.get(contest.id) ?? [];
+        const optionIds = renderedOptions.map((option) => {
+          assert(option.type === 'option');
+          return option.optionId;
+        });
+        expect(optionIds).toEqual([contest.yesOption.id, contest.noOption.id]);
+        break;
+      }
+      default: {
+        throwIllegalValue(contest);
+      }
+    }
   }
 });
