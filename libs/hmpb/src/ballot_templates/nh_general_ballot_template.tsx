@@ -1,3 +1,4 @@
+import React from 'react';
 import { Buffer } from 'node:buffer';
 import {
   assertDefined,
@@ -57,6 +58,7 @@ import {
   allCaps,
   HandCountInsignia,
   Instructions,
+  isFederalOfficeContest,
   NhBaseStyles,
 } from './nh_state_ballot_components';
 
@@ -176,10 +178,12 @@ const arrowNextPage = (
 
 function Footer({
   pageNumber,
+  totalPages,
   isHandCount,
 }: {
   pageNumber: number;
-  isHandCount: boolean;
+  totalPages?: number;
+  isHandCount?: boolean;
 }): JSX.Element {
   return (
     <div
@@ -194,7 +198,7 @@ function Footer({
           <QrCodeSlot />
         </div>
       )}
-      {pageNumber === 1 && (
+      {pageNumber === 1 && pageNumber !== totalPages && (
         <div
           style={{
             flex: 1,
@@ -222,6 +226,7 @@ function BallotPageFrame({
   totalPages,
   children,
   watermark,
+  isHandCount,
 }: NhGeneralBallotProps & {
   pageNumber: number;
   totalPages?: number;
@@ -241,8 +246,6 @@ function BallotPageFrame({
     // return err({ error: 'missingSignature' });
   }
 
-  const isHandCount = false;
-
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
@@ -259,7 +262,11 @@ function BallotPageFrame({
         margins={pageMarginsInches}
       >
         {watermark && <Watermark>{watermark}</Watermark>}
-        <TimingMarkGrid pageDimensions={pageDimensions}>
+        <TimingMarkGrid
+          pageDimensions={pageDimensions}
+          timingMarkStyle={isHandCount ? { visibility: 'hidden' } : undefined}
+          ballotMode={ballotMode}
+        >
           <div
             style={{
               flex: 1,
@@ -287,11 +294,21 @@ function BallotPageFrame({
               }}
             >
               {children}
-              {isHandCount && pageNumber === totalPages && (
-                <HandCountInsignia election={election} />
+              {isHandCount && (
+                <HandCountInsignia
+                  pageNumber={pageNumber}
+                  totalPages={totalPages}
+                  election={election}
+                  ballotType={ballotType}
+                  ballotMode={ballotMode}
+                />
               )}
             </div>
-            <Footer pageNumber={pageNumber} isHandCount={isHandCount} />
+            <Footer
+              pageNumber={pageNumber}
+              totalPages={totalPages}
+              isHandCount={isHandCount}
+            />
           </div>
         </TimingMarkGrid>
       </Page>
@@ -423,7 +440,7 @@ function CandidateList({
                     {electionStrings.partyName(party)}
                   </div>
                 )}
-                <h3>{candidate.name}</h3>
+                <h3>{electionStrings.candidateName(candidate)}</h3>
               </div>
               <AlignedBubble optionInfo={optionInfo} />
             </div>
@@ -564,6 +581,10 @@ function CandidateContest({
                     padding: '0.375rem 0.375rem',
                     height: '3rem',
                     alignItems: 'center',
+                    marginBottom:
+                      contest.seats > 1 && writeInIndex === contest.seats - 1
+                        ? '0.75rem'
+                        : undefined,
                   }}
                 >
                   <div
@@ -675,7 +696,7 @@ async function BallotPageContent(
 ): Promise<ContentComponentResult<BaseBallotProps>> {
   if (!props) {
     return ok({
-      currentPageElement: <BlankPageMessage />,
+      currentPageElement: <React.Fragment />,
       nextPageProps: undefined,
     });
   }
@@ -691,6 +712,9 @@ async function BallotPageContent(
     throw new Error('No contests assigned to this precinct.');
   }
   const contestSections = iter(contests)
+    .filter((contest) =>
+      restProps.isFederalOnlyOffices ? isFederalOfficeContest(contest) : true
+    )
     .partition((contest) => contest.type === 'candidate')
     .filter((section) => section.length > 0);
 
@@ -820,7 +844,10 @@ async function BallotPageContent(
   });
 }
 
-export type NhGeneralBallotProps = BaseBallotProps;
+export type NhGeneralBallotProps = BaseBallotProps & {
+  isHandCount?: boolean;
+  isFederalOnlyOffices?: boolean;
+};
 
 export const nhGeneralBallotTemplate: BallotPageTemplate<NhGeneralBallotProps> =
   {

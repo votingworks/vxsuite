@@ -1,3 +1,4 @@
+import React from 'react';
 import { Buffer } from 'node:buffer';
 import styled, { css } from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
@@ -5,6 +6,9 @@ import {
   Election,
   BallotStyleId,
   getPartyForBallotStyle,
+  BallotMode,
+  BallotType,
+  AnyContest,
 } from '@votingworks/types';
 import { electionStrings } from '@votingworks/ui';
 import {
@@ -199,14 +203,27 @@ export const ContestTitle = styled.h2`
 `;
 
 export function HandCountInsignia({
+  pageNumber,
+  totalPages,
   election,
+  ballotType,
+  ballotMode,
   ballotStyleId,
   colorTint,
 }: {
+  pageNumber: number;
+  totalPages?: number;
   election: Election;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
   ballotStyleId?: BallotStyleId;
   colorTint?: ColorTint;
-}): JSX.Element {
+}): JSX.Element | null {
+  const isLastPage =
+    !totalPages || (pageNumber === totalPages && totalPages % 2 === 0);
+  if (!isLastPage || ballotMode === 'sample') {
+    return null;
+  }
   const party =
     election.type === 'primary' && ballotStyleId
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
@@ -241,14 +258,16 @@ export function HandCountInsignia({
           {electionStrings.partyName(party)}
         </h2>
       )}
-      <div
-        style={{
-          fontFamily: 'Blackletter',
-          fontSize: '19pt',
-        }}
-      >
-        Absentee
-      </div>
+      {ballotType === BallotType.Absentee && (
+        <div
+          style={{
+            fontFamily: 'Blackletter',
+            fontSize: '19pt',
+          }}
+        >
+          Absentee
+        </div>
+      )}
       <div
         style={{
           fontFamily: 'Blackletter',
@@ -311,4 +330,12 @@ export function HandCountInsignia({
       </div>
     </div>
   );
+}
+
+export function isFederalOfficeContest(contest: AnyContest): boolean {
+  return [
+    'President and Vice-President of the United States',
+    'United States Senator',
+    'Representative in Congress',
+  ].some((office) => contest.title.includes(office));
 }

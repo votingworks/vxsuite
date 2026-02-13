@@ -61,6 +61,7 @@ import {
   ContestTitle,
   HandCountInsignia,
   Instructions,
+  isFederalOfficeContest,
   NhBaseStyles,
 } from './nh_state_ballot_components';
 
@@ -179,7 +180,8 @@ function BallotPageFrame({
   totalPages,
   children,
   watermark,
-  colorTint = 'RED',
+  colorTint,
+  isHandCount,
 }: NhPrimaryBallotProps & {
   pageNumber: number;
   totalPages?: number;
@@ -189,7 +191,6 @@ function BallotPageFrame({
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
-  const isHandCount = false;
   return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
@@ -205,6 +206,7 @@ function BallotPageFrame({
         <TimingMarkGrid
           pageDimensions={pageDimensions}
           timingMarkStyle={isHandCount ? { visibility: 'hidden' } : undefined}
+          ballotMode={ballotMode}
         >
           <div
             style={{
@@ -241,15 +243,17 @@ function BallotPageFrame({
               }}
             >
               {children}
-              {isHandCount &&
-                ((pageNumber === totalPages && pageNumber % 2 === 0) ||
-                  !totalPages) && (
-                  <HandCountInsignia
-                    election={election}
-                    colorTint={colorTint}
-                    ballotStyleId={ballotStyleId}
-                  />
-                )}
+              {isHandCount && (
+                <HandCountInsignia
+                  pageNumber={pageNumber}
+                  totalPages={totalPages}
+                  election={election}
+                  ballotType={ballotType}
+                  ballotMode={ballotMode}
+                  colorTint={colorTint}
+                  ballotStyleId={ballotStyleId}
+                />
+              )}
             </div>
             {!isHandCount && (
               <div>
@@ -563,6 +567,9 @@ async function BallotPageContent(
     throw new Error('No contests assigned to this precinct.');
   }
   const contestSections = iter(contests)
+    .filter((contest) =>
+      restProps.isFederalOnlyOffices ? isFederalOfficeContest(contest) : true
+    )
     .partition((contest) => contest.type === 'candidate')
     .filter((section) => section.length > 0);
 
@@ -583,7 +590,7 @@ async function BallotPageContent(
         compact={compact}
         contest={contest}
         election={election}
-        colorTint={props.colorTint ?? 'RED'}
+        colorTint={props.colorTint}
       />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
@@ -704,7 +711,11 @@ async function BallotPageContent(
   });
 }
 
-export type NhPrimaryBallotProps = BaseBallotProps & { colorTint?: ColorTint };
+export type NhPrimaryBallotProps = BaseBallotProps & {
+  colorTint: ColorTint;
+  isHandCount?: boolean;
+  isFederalOnlyOffices?: boolean;
+};
 
 export const nhPrimaryBallotTemplate: BallotPageTemplate<NhPrimaryBallotProps> =
   {
