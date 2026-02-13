@@ -1242,6 +1242,9 @@ export interface BatchInfo {
   ballotCastingMode?: BallotCastingMode;
 }
 
+export const BallotCastingModeSchema = z.enum(['early_voting', 'election_day']);
+export type BallotCastingMode = z.infer<typeof BallotCastingModeSchema>;
+
 export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   id: IdSchema,
   batchNumber: z.number().int().positive(),
@@ -1250,7 +1253,7 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   endedAt: z.optional(Iso8601TimestampSchema),
   error: z.optional(z.string()),
   count: z.number().nonnegative(),
-  ballotCastingMode: z.optional(z.enum(['early_voting', 'election_day'])),
+  ballotCastingMode: z.optional(BallotCastingModeSchema),
 });
 
 export interface CompletedBallot {
@@ -1261,5 +1264,3 @@ export interface CompletedBallot {
   readonly isTestMode: boolean;
   readonly ballotType: BallotType;
 }
-
-export type BallotCastingMode = 'early_voting' | 'election_day';
