@@ -1,4 +1,7 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionGeneralFixtures,
+} from '@votingworks/fixtures';
 import { test, expect } from 'vitest';
 import {
   BALLOT_MODES,
@@ -6,16 +9,34 @@ import {
   BaseBallotProps,
   CandidateContest,
   Election,
+  getBallotStyle,
+  getContests,
   LanguageCode,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, find, iter } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  groupBy,
+  iter,
+  range,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
+import {
+  parse as parseHtml,
+  HTMLElement as ParsedHTMLElement,
+} from 'node-html-parser';
 import {
   allBaseBallotProps,
   layOutMinimalBallotsToCreateElectionDefinition,
+  renderBallotTemplate,
 } from './render_ballot';
-import { createPlaywrightRendererPool } from './playwright_renderer';
+import {
+  createPlaywrightRenderer,
+  createPlaywrightRendererPool,
+} from './playwright_renderer';
 import { ballotTemplates } from './ballot_templates';
 import {
   nhGeneralElectionFixtures,
@@ -23,6 +44,22 @@ import {
 } from './ballot_fixtures';
 import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template';
 import { generateBallotStyles } from './ballot_styles';
+import {
+  BALLOT_MEASURE_OPTION_CLASS,
+  BUBBLE_CLASS,
+  CANDIDATE_OPTION_CLASS,
+  OptionInfo,
+  WRITE_IN_OPTION_CLASS,
+} from './ballot_components';
+
+function getOptionInfoFromElement(element: ParsedHTMLElement): OptionInfo {
+  const bubbleElement = assertDefined(
+    element.querySelector(`.${BUBBLE_CLASS}`)
+  );
+  return JSON.parse(
+    bubbleElement.getAttribute('data-option-info')!
+  ) as OptionInfo;
+}
 
 function combinations<T extends Record<string, unknown>>(
   arrays: Array<Array<Partial<T>>>
@@ -181,4 +218,112 @@ test('ballot measure contests with additional options are transformed into candi
       name: ballotMeasureContest.additionalOptions![0].label,
     },
   ]);
+});
+
+test('contest options are encoded correctly', async () => {
+  const electionDefinition = electionGeneralFixtures.readElectionDefinition();
+  const allBallotProps = allBaseBallotProps(electionDefinition.election);
+  const ballotProps = allBallotProps[0];
+  const renderer = await createPlaywrightRenderer();
+  const document = (
+    await renderBallotTemplate(
+      renderer,
+      ballotTemplates.VxDefaultBallot,
+      ballotProps
+    )
+  ).unsafeUnwrap();
+  const content = await document.getContent();
+  await renderer.close();
+  const root = parseHtml(content);
+
+  const candidateOptionElements = root.querySelectorAll(
+    `.${CANDIDATE_OPTION_CLASS}`
+  );
+  const candidateOptionsByContest = new Map(
+    groupBy(
+      candidateOptionElements.map((el) => ({
+        element: el,
+        optionInfo: getOptionInfoFromElement(el),
+      })),
+      (o) => o.optionInfo.contestId
+    )
+  );
+  const writeInOptionsByContest = new Map(
+    groupBy(
+      root
+        .querySelectorAll(`.${WRITE_IN_OPTION_CLASS}`)
+        .map(getOptionInfoFromElement),
+      (o) => o.contestId
+    )
+  );
+  const ballotMeasureOptionsByContest = new Map(
+    groupBy(
+      root
+        .querySelectorAll(`.${BALLOT_MEASURE_OPTION_CLASS}`)
+        .map(getOptionInfoFromElement),
+      (o) => o.contestId
+    )
+  );
+
+  const ballotStyle = assertDefined(
+    getBallotStyle({
+      election: electionDefinition.election,
+      ballotStyleId: ballotProps.ballotStyleId,
+    })
+  );
+  const contests = getContests({
+    election: electionDefinition.election,
+    ballotStyle,
+  });
+
+  expect(
+    new Set([
+      ...candidateOptionsByContest.keys(),
+      ...writeInOptionsByContest.keys(),
+      ...ballotMeasureOptionsByContest.keys(),
+    ])
+  ).toEqual(new Set(contests.map((c) => c.id)));
+
+  for (const contest of contests) {
+    switch (contest.type) {
+      case 'candidate': {
+        const renderedOptions = candidateOptionsByContest.get(contest.id) ?? [];
+        expect(renderedOptions).toHaveLength(contest.candidates.length);
+
+        for (const { element, optionInfo } of renderedOptions) {
+          assert(optionInfo.type === 'option');
+          const candidate = find(contest.candidates, (c) =>
+            element.textContent.includes(c.name)
+          );
+          expect(optionInfo.optionId).toEqual(candidate.id);
+        }
+
+        if (contest.allowWriteIns) {
+          const writeInOptions = writeInOptionsByContest.get(contest.id) ?? [];
+          expect(writeInOptions).toHaveLength(contest.seats);
+          const writeInIndices = writeInOptions.map((option) => {
+            assert(option.type === 'write-in');
+            return option.writeInIndex;
+          });
+          expect(writeInIndices).toEqual(range(0, contest.seats));
+        } else {
+          expect(writeInOptionsByContest.has(contest.id)).toEqual(false);
+        }
+        break;
+      }
+      case 'yesno': {
+        const renderedOptions =
+          ballotMeasureOptionsByContest.get(contest.id) ?? [];
+        const optionIds = renderedOptions.map((option) => {
+          assert(option.type === 'option');
+          return option.optionId;
+        });
+        expect(optionIds).toEqual([contest.yesOption.id, contest.noOption.id]);
+        break;
+      }
+      default: {
+        throwIllegalValue(contest);
+      }
+    }
+  }
 });
