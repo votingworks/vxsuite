@@ -1,4 +1,3 @@
-import { iter } from '@votingworks/basics';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
 import React from 'react';
@@ -29,22 +28,6 @@ const Column = styled.div<{ gap?: string }>`
   gap: ${({ gap = 0 }) => gap};
 `;
 
-const Small = styled.span`
-  font-size: 0.45rem;
-`;
-
-const SmallButton = styled(Button)`
-  transform: scale(0.5);
-`;
-
-const SmallButtonContainer = styled.div`
-  transform: scale(0.5);
-`;
-
-const ExtraSmall = styled.span`
-  font-size: 0.3rem;
-`;
-
 const PlayPauseButtonBase = styled.button`
   flex-shrink: 0;
   background-color: #ddd;
@@ -55,10 +38,6 @@ const PlayPauseButtonBase = styled.button`
   cursor: pointer;
   font-size: 1rem;
   padding: 0;
-
-  svg {
-    scale: 0.8;
-  }
 `;
 
 function PlayPauseButton({
@@ -79,6 +58,12 @@ function formatTimestamp(timestamp: DateTime): string {
   return timestamp.toLocal().toFormat('h:mm:ss a MM/dd/yyyy');
 }
 
+const StatusBody = styled.div`
+  display: grid;
+  gap: 0.5rem;
+  grid-template-rows: 1fr min-content;
+`;
+
 function StatusCard({
   title,
   statusMessage,
@@ -95,35 +80,11 @@ function StatusCard({
   onToggleRunning?: () => void;
 }) {
   return (
-    <Card
-      style={{
-        width: '600px',
-        height: '235px',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
-      <Row style={{ height: '100%', alignItems: 'stretch' }}>
-        <Column style={{ flexGrow: 1 }}>
+    <Card>
+      <Row style={{ alignItems: 'baseline' }}>
+        <Column>
           <H6 style={{ flexGrow: 0 }}>{title}</H6>
-          {statusMessage && (
-            <Caption
-              style={{
-                flexGrow: 1,
-                overflowWrap: 'anywhere',
-                maxHeight: '2rem',
-                overflow: 'hidden',
-              }}
-            >
-              <Small>{statusMessage}</Small>
-            </Caption>
-          )}
-          {body && <Caption style={{ flexGrow: 1 }}>{body}</Caption>}
-          {updatedAt && (
-            <Caption style={{ flexGrow: 0 }}>
-              <ExtraSmall>{formatTimestamp(updatedAt)}</ExtraSmall>
-            </Caption>
-          )}
+          {statusMessage && <div>{statusMessage}</div>}
         </Column>
         {typeof isRunning === 'boolean' && onToggleRunning && (
           <Column style={{ flexGrow: 0, alignContent: 'center' }}>
@@ -131,9 +92,34 @@ function StatusCard({
           </Column>
         )}
       </Row>
+      <StatusBody>
+        <div>{body}</div>
+        {updatedAt && (
+          <Caption style={{ flexGrow: 0 }}>
+            {formatTimestamp(updatedAt)}
+          </Caption>
+        )}
+      </StatusBody>
     </Card>
   );
 }
+
+const Cards = styled.div`
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.5rem;
+`;
+
+const Footer = styled.div`
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, 1fr);
+
+  > :last-child:nth-child(2n-1) {
+    grid-column: 1 / -1;
+  }
+`;
 
 export interface Task<Id = string> {
   id: Id;
@@ -148,7 +134,6 @@ export interface Task<Id = string> {
 
 export function ElectricalTestingScreen<Id extends React.Key>({
   tasks,
-  perRow,
   modals,
   powerDown,
   usbDriveStatus,
@@ -156,7 +141,6 @@ export function ElectricalTestingScreen<Id extends React.Key>({
   apiClient,
 }: {
   tasks: ReadonlyArray<Task<Id>>;
-  perRow: number;
   modals?: React.ReactNode;
   powerDown: () => void;
   usbDriveStatus?: UsbDriveStatus;
@@ -169,55 +153,38 @@ export function ElectricalTestingScreen<Id extends React.Key>({
 
   return (
     <Screen>
-      <Main
-        centerChild
-        style={topOffset ? { paddingTop: topOffset } : undefined}
-      >
+      <Main style={topOffset ? { paddingTop: topOffset } : undefined} padded>
         <Column style={{ height: '100%' }}>
-          <Column
-            style={{
-              alignItems: 'center',
-              gap: '1rem',
-              justifyContent: 'center',
-            }}
-          >
-            {iter(tasks)
-              .chunks(perRow)
-              .map((tt) => (
-                <Row gap="1rem" key={tt.map((t) => t.id).join('-')}>
-                  {tt.map((t) => (
-                    <StatusCard
-                      key={t.id}
-                      title={
-                        <React.Fragment>
-                          {t.icon} {t.title}
-                        </React.Fragment>
-                      }
-                      body={t.body}
-                      statusMessage={t.statusMessage}
-                      updatedAt={t.updatedAt}
-                      isRunning={t.isRunning}
-                      onToggleRunning={t.toggleIsRunning}
-                    />
-                  ))}
-                </Row>
-              ))
-              .toArray()}
-          </Column>
-          <Row style={{ justifyContent: 'center' }}>
-            <SmallButtonContainer>
-              <SignedHashValidationButton apiClient={apiClient} />
-            </SmallButtonContainer>
-            <SmallButton
+          <Cards>
+            {tasks.map((t) => (
+              <StatusCard
+                key={t.id}
+                title={
+                  <React.Fragment>
+                    {t.icon} {t.title}
+                  </React.Fragment>
+                }
+                body={t.body}
+                statusMessage={t.statusMessage}
+                updatedAt={t.updatedAt}
+                isRunning={t.isRunning}
+                onToggleRunning={t.toggleIsRunning}
+              />
+            ))}
+          </Cards>
+          <div style={{ flexGrow: 1 }} /> {/* spacer */}
+          <Footer>
+            <SignedHashValidationButton apiClient={apiClient} />
+            <Button
               icon={<Icons.Save />}
               onPress={() => setIsSaveLogsModalOpen(true)}
             >
               Save Logs
-            </SmallButton>
-            <SmallButton icon={<Icons.PowerOff />} onPress={powerDown}>
+            </Button>
+            <Button icon={<Icons.PowerOff />} onPress={powerDown}>
               Power Down
-            </SmallButton>
-          </Row>
+            </Button>
+          </Footer>
         </Column>
         {isSaveLogsModalOpen && usbDriveStatus && (
           <ExportLogsModal

@@ -10,10 +10,7 @@ export function CounterButton(): JSX.Element {
   const [count, setCount] = useState(0);
 
   return (
-    <Button
-      onPress={() => setCount((prev) => prev + 1)}
-      style={{ transform: 'scale(0.5)' }}
-    >
+    <Button onPress={() => setCount((prev) => prev + 1)}>
       Tap Count: {count}
     </Button>
   );

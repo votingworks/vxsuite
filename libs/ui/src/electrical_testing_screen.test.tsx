@@ -27,7 +27,6 @@ test('single task', async () => {
         },
       ]}
       powerDown={powerDown}
-      perRow={1}
       apiClient={mockApiClient}
     />
   );
@@ -79,7 +78,6 @@ test('multiple tasks', async () => {
         },
       ]}
       powerDown={powerDown}
-      perRow={1}
       apiClient={mockApiClient}
     />
   );
@@ -123,7 +121,6 @@ test('power down', async () => {
         },
       ]}
       powerDown={powerDown}
-      perRow={1}
       apiClient={mockApiClient}
     />
   );
@@ -142,7 +139,6 @@ test('save logs', async () => {
     <ElectricalTestingScreen
       tasks={[]}
       powerDown={vi.fn()}
-      perRow={1}
       usbDriveStatus={{ status: 'mounted', mountPoint: '/media/vx/usb-drive' }}
       apiClient={mockApiClient}
     />

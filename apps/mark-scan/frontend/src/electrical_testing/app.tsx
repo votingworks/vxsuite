@@ -1,7 +1,15 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { AppErrorBoundary, SystemCallContextProvider } from '@votingworks/ui';
+import {
+  AppBase,
+  AppErrorBoundary,
+  SystemCallContextProvider,
+} from '@votingworks/ui';
 
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import {
   ApiClientContext,
   createApiClient,
@@ -9,7 +17,6 @@ import {
   systemCallApi,
 } from './api';
 import { AppRoot } from './app_root';
-import { MarkScanAppBase } from '../mark_scan_app_base';
 
 export function App(): JSX.Element {
   const logger = new BaseLogger(LogSource.VxScanFrontend, window.kiosk);
@@ -17,7 +24,14 @@ export function App(): JSX.Element {
   const apiClient = createApiClient();
 
   return (
-    <MarkScanAppBase>
+    <AppBase
+      defaultColorMode="contrastMedium"
+      defaultSizeMode="touchSmall"
+      hideCursor={isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.HIDE_CURSOR
+      )}
+      screenType="elo15"
+    >
       <AppErrorBoundary
         autoRestartInSeconds={10}
         logger={logger}
@@ -31,6 +45,6 @@ export function App(): JSX.Element {
           </QueryClientProvider>
         </ApiClientContext.Provider>
       </AppErrorBoundary>
-    </MarkScanAppBase>
+    </AppBase>
   );
 }

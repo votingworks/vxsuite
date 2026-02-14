@@ -1,8 +1,10 @@
 import {
   CpuMetricsDisplay,
   ElectricalTestingScreen,
+  HeadphoneCalibrationButton,
   Icons,
   InputControls,
+  P,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import useInterval from 'use-interval';
@@ -31,6 +33,7 @@ export function AppRoot(): JSX.Element {
   const setUsbDriveTaskRunningMutation = setUsbDriveTaskRunning.useMutation();
   const powerDownMutation = systemCallApi.powerDown.useMutation();
 
+  const [calibratingHeadphones, setCalibratingHeadphones] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const playSound = useSound('success-5s');
 
@@ -61,7 +64,12 @@ export function AppRoot(): JSX.Element {
     powerDownMutation.mutate();
   }
 
-  useInterval(playSound, isSoundEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null);
+  useInterval(
+    playSound,
+    isSoundEnabled && !calibratingHeadphones
+      ? SOUND_INTERVAL_SECONDS * 1000
+      : null
+  );
 
   const cardStatus = getElectricalTestingStatusesQuery.data?.card;
   const paperHandlerStatus =
@@ -108,7 +116,16 @@ export function AppRoot(): JSX.Element {
             id: 'sound',
             icon: isSoundEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
             title: 'Sound',
-            body: isSoundEnabled ? 'Enabled' : 'Disabled',
+            body: (
+              <div>
+                <P>{isSoundEnabled ? 'Enabled' : 'Disabled'}</P>
+                <HeadphoneCalibrationButton
+                  audioUrl="/sounds/tts-sample.mp3"
+                  onBegin={() => setCalibratingHeadphones(true)}
+                  onEnd={() => setCalibratingHeadphones(false)}
+                />
+              </div>
+            ),
             isRunning: isSoundEnabled,
             toggleIsRunning: toggleSoundEnabled,
           },
@@ -119,7 +136,6 @@ export function AppRoot(): JSX.Element {
             body: <InputControls />,
           },
         ]}
-        perRow={1}
         powerDown={powerDown}
         usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
         apiClient={apiClient}
