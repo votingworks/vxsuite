@@ -242,6 +242,85 @@ test('doesnt unwrap multiple cell tables on paste', async () => {
   );
 });
 
+test('strips trailing empty paragraphs on paste', async () => {
+  const onChange = vi.fn();
+  render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
+
+  const editor = await screen.findByTestId('rich-text-editor');
+  fireEvent.paste(editor.querySelector('.tiptap')!, {
+    clipboardData: {
+      getData: () => '<p>Content</p><p></p><p></p>',
+    },
+  });
+
+  await screen.findByText('Content');
+  expect(onChange).toHaveBeenLastCalledWith('<p>Content</p>');
+});
+
+test('strips trailing hard-break-only paragraphs on paste', async () => {
+  const onChange = vi.fn();
+  render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
+
+  const editor = await screen.findByTestId('rich-text-editor');
+  fireEvent.paste(editor.querySelector('.tiptap')!, {
+    clipboardData: {
+      getData: () => '<p>Content</p><p><br><br></p>',
+    },
+  });
+
+  await screen.findByText('Content');
+  expect(onChange).toHaveBeenLastCalledWith('<p>Content</p>');
+});
+
+test('does not strip trailing paragraphs with text content on paste', async () => {
+  const onChange = vi.fn();
+  render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
+
+  const editor = await screen.findByTestId('rich-text-editor');
+  fireEvent.paste(editor.querySelector('.tiptap')!, {
+    clipboardData: {
+      getData: () => '<p>First</p><p>Second</p>',
+    },
+  });
+
+  await screen.findByText('First');
+  await screen.findByText('Second');
+  expect(onChange).toHaveBeenLastCalledWith('<p>First</p><p>Second</p>');
+});
+
+test('strips only trailing empty paragraphs, preserves leading on paste', async () => {
+  const onChange = vi.fn();
+  render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
+
+  const editor = await screen.findByTestId('rich-text-editor');
+  fireEvent.paste(editor.querySelector('.tiptap')!, {
+    clipboardData: {
+      getData: () => '<p>First</p><p></p><p>Second</p><p></p><p></p>',
+    },
+  });
+
+  await screen.findByText('First');
+  await screen.findByText('Second');
+  expect(onChange).toHaveBeenLastCalledWith('<p>First</p><p></p><p>Second</p>');
+});
+
+test('stops stripping at non-paragraph nodes on paste', async () => {
+  const onChange = vi.fn();
+  render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
+
+  const editor = await screen.findByTestId('rich-text-editor');
+  fireEvent.paste(editor.querySelector('.tiptap')!, {
+    clipboardData: {
+      getData: () => '<p></p><ul><li>Item</li></ul><p></p>',
+    },
+  });
+
+  await screen.findByText('Item');
+  expect(onChange).toHaveBeenLastCalledWith(
+    '<p></p><ul><li><p>Item</p></li></ul>'
+  );
+});
+
 describe('sanitizeTrailingNbspOnPaste', () => {
   test('strips trailing nbsp and whitespace from paragraphs', () => {
     expect(sanitizeTrailingNbspOnPaste('<p>text  </p>')).toEqual('<p>text</p>');
