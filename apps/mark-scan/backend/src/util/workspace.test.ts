@@ -8,7 +8,7 @@ vi.mock(import('@votingworks/backend'), async (importActual) => ({
   initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
 }));
 
-test('workspace.reset rests the store', () => {
+test('workspace.reset resets the store', () => {
   const workspace = createWorkspace(
     makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })

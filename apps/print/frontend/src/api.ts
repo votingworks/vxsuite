@@ -14,7 +14,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
 } from '@votingworks/ui';
-import { BallotType, LanguageCode, PrecinctId } from '@votingworks/types';
+import { BallotType, LanguageCode } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -129,14 +129,12 @@ export const getBallots = {
 } as const;
 
 export const getBallotPrintCounts = {
-  queryKey(precinctId?: PrecinctId): QueryKey {
-    return ['getBallotPrintCounts', precinctId];
+  queryKey(): QueryKey {
+    return ['getBallotPrintCounts'];
   },
-  useQuery(precinctId?: PrecinctId) {
+  useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(precinctId), () =>
-      apiClient.getBallotPrintCounts({ precinctId })
-    );
+    return useQuery(this.queryKey(), () => apiClient.getBallotPrintCounts());
   },
 } as const;
 

@@ -1,11 +1,40 @@
 import {
+  DippedSmartCardAuth,
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
+  JavaCard,
+  MockFileCard,
 } from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { LoggingUserRole } from '@votingworks/logging';
+import { BaseLogger, LoggingUserRole } from '@votingworks/logging';
+import {
+  isFeatureFlagEnabled,
+  BooleanEnvironmentVariableName,
+  isIntegrationTest,
+} from '@votingworks/utils';
 import { Workspace } from './workspace';
 import { Store } from '../store';
+
+/* istanbul ignore next - @preserve */
+export function getDefaultAuth(logger: BaseLogger): DippedSmartCardAuth {
+  return new DippedSmartCardAuth({
+    card:
+      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+      isIntegrationTest()
+        ? new MockFileCard()
+        : new JavaCard(),
+    config: {
+      allowElectionManagersToAccessUnconfiguredMachines: true,
+      allowedUserRoles: [
+        'vendor',
+        'system_administrator',
+        'election_manager',
+        'poll_worker',
+      ],
+    },
+    logger,
+  });
+}
 
 export function constructAuthMachineState(
   store: Store

@@ -26,7 +26,13 @@ export function generateReportsDirectoryPath(
   );
 }
 
-function buildBallotsPrintedReport({ store }: { store: Store }): JSX.Element {
+function buildBallotsPrintedReport({
+  store,
+  generatedAtTime = new Date(),
+}: {
+  store: Store;
+  generatedAtTime?: Date;
+}): JSX.Element {
   const electionRecord = assertDefined(store.getElectionRecord());
   const { electionDefinition, electionPackageHash } = electionRecord;
 
@@ -39,7 +45,7 @@ function buildBallotsPrintedReport({ store }: { store: Store }): JSX.Element {
     electionDefinition,
     electionPackageHash,
     printCounts,
-    generatedAtTime: new Date(),
+    generatedAtTime,
     isTestMode,
   });
 }
@@ -48,12 +54,14 @@ export async function printBallotsPrintedReport({
   printer,
   logger,
   store,
+  generatedAtTime,
 }: {
   printer: Printer;
   logger: Logger;
   store: Store;
+  generatedAtTime?: Date;
 }): Promise<void> {
-  const report = buildBallotsPrintedReport({ store });
+  const report = buildBallotsPrintedReport({ store, generatedAtTime });
   const renderResult = await renderToPdf({ document: report });
   if (renderResult.isErr()) {
     const error = renderResult.err();
@@ -84,12 +92,14 @@ export async function exportBallotsPrintedReportPdf({
   usbDrive,
   logger,
   store,
+  generatedAtTime,
 }: {
   usbDrive: UsbDrive;
   logger: Logger;
   store: Store;
+  generatedAtTime?: Date;
 }): Promise<void> {
-  const report = buildBallotsPrintedReport({ store });
+  const report = buildBallotsPrintedReport({ store, generatedAtTime });
   const renderResult = await renderToPdf({ document: report });
   if (renderResult.isErr()) {
     const error = renderResult.err();
@@ -104,7 +114,9 @@ export async function exportBallotsPrintedReportPdf({
   const electionRecord = assertDefined(store.getElectionRecord());
   const { electionDefinition } = electionRecord;
   const reportsDirectoryPath = generateReportsDirectoryPath(electionDefinition);
-  const filename = `ballots-printed-report__${generateFileTimeSuffix()}.pdf`;
+  const filename = `ballots-printed-report__${generateFileTimeSuffix(
+    generatedAtTime
+  )}.pdf`;
 
   const exporter = new Exporter({
     allowedExportPatterns: PRINT_ALLOWED_EXPORT_PATTERNS,
