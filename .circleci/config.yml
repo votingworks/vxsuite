@@ -647,6 +647,8 @@ jobs:
           path: libs/ballot-interpreter/reports/
       - store_artifacts:
           path: libs/ballot-interpreter/src/__image_snapshots__/__diff_output__/
+      - store_artifacts:
+          path: libs/ballot-interpreter/src/summary-ballot/__image_snapshots__/__diff_output__/
 
   # @votingworks/basics
   test-libs-basics:
@@ -1277,6 +1279,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/ui/reports/
+      - store_artifacts:
+          path: libs/ui/src/reports/__image_snapshots__/__diff_output__/
 
   # @votingworks/usb-drive
   test-libs-usb-drive:
