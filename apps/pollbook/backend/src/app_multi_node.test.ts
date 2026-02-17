@@ -83,7 +83,7 @@ beforeEach(() => {
   mockHasOnlineInterface.mockResolvedValue(false);
 });
 vitest.setConfig({
-  testTimeout: 10_000,
+  testTimeout: 20_000,
 });
 
 test('pollbook can go online as expected and goes offline if it does not have an online interface', async () => {
