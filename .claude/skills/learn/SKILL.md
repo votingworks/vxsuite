@@ -1,4 +1,5 @@
 ---
+name: learn
 description: Learn from user feedback — either edits they made to code or suggestions in their messages about how to improve code.
 ---
 

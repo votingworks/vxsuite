@@ -1,4 +1,5 @@
 ---
+name: mutation-test
 description: Introduce an intentional bug in source code to verify a test catches it, then revert the bug.
 ---
 
