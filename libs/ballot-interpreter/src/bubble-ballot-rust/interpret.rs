@@ -101,14 +101,12 @@ impl FromStr for Inference {
     }
 }
 
-#[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq, Default)]
 pub enum VerticalStreakDetection {
     #[default]
     Enabled,
     Disabled,
 }
-
 
 impl Display for VerticalStreakDetection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
