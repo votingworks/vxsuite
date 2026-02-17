@@ -1,7 +1,4 @@
-import {
-  electionFamousNames2021Fixtures,
-  electionGeneralFixtures,
-} from '@votingworks/fixtures';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { test, expect } from 'vitest';
 import {
   BALLOT_MODES,
@@ -37,10 +34,12 @@ import {
   createPlaywrightRenderer,
   createPlaywrightRendererPool,
 } from './playwright_renderer';
-import { ballotTemplates } from './ballot_templates';
+import { BallotTemplateId, ballotTemplates } from './ballot_templates';
 import {
+  msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   vxFamousNamesFixtures,
+  vxGeneralElectionFixtures,
 } from './ballot_fixtures';
 import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template';
 import { generateBallotStyles } from './ballot_styles';
@@ -220,110 +219,126 @@ test('ballot measure contests with additional options are transformed into candi
   ]);
 });
 
-test('contest options are encoded correctly', async () => {
-  const electionDefinition = electionGeneralFixtures.readElectionDefinition();
-  const allBallotProps = allBaseBallotProps(electionDefinition.election);
-  const ballotProps = allBallotProps[0];
-  const renderer = await createPlaywrightRenderer();
-  const document = (
-    await renderBallotTemplate(
-      renderer,
-      ballotTemplates.VxDefaultBallot,
-      ballotProps
-    )
-  ).unsafeUnwrap();
-  const content = await document.getContent();
-  await renderer.close();
-  const root = parseHtml(content);
+const optionEncodingTestProps: Record<BallotTemplateId, BaseBallotProps> = {
+  VxDefaultBallot: vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
+  NhBallot: nhGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
+  MsBallot: msGeneralElectionFixtures.allBallotProps[0],
+};
+const optionEncodingTestCases = Object.entries(optionEncodingTestProps).map(
+  ([templateName, ballotProps]) => ({
+    templateName: templateName as BallotTemplateId,
+    ballotProps,
+  })
+);
+test.each(optionEncodingTestCases)(
+  'contest options are encoded correctly - $templateName',
+  async ({ templateName, ballotProps }) => {
+    const template = ballotTemplates[templateName];
+    const renderer = await createPlaywrightRenderer();
+    const document = (
+      await renderBallotTemplate(renderer, template, ballotProps)
+    ).unsafeUnwrap();
+    const content = await document.getContent();
+    await renderer.close();
+    const root = parseHtml(content);
 
-  const candidateOptionElements = root.querySelectorAll(
-    `.${CANDIDATE_OPTION_CLASS}`
-  );
-  const candidateOptionsByContest = new Map(
-    groupBy(
-      candidateOptionElements.map((el) => ({
-        element: el,
-        optionInfo: getOptionInfoFromElement(el),
-      })),
-      (o) => o.optionInfo.contestId
-    )
-  );
-  const writeInOptionsByContest = new Map(
-    groupBy(
-      root
-        .querySelectorAll(`.${WRITE_IN_OPTION_CLASS}`)
-        .map(getOptionInfoFromElement),
-      (o) => o.contestId
-    )
-  );
-  const ballotMeasureOptionsByContest = new Map(
-    groupBy(
-      root
-        .querySelectorAll(`.${BALLOT_MEASURE_OPTION_CLASS}`)
-        .map(getOptionInfoFromElement),
-      (o) => o.contestId
-    )
-  );
+    const candidateOptionElements = root.querySelectorAll(
+      `.${CANDIDATE_OPTION_CLASS}`
+    );
+    const candidateOptionsByContest = new Map(
+      groupBy(
+        candidateOptionElements.map((el) => ({
+          element: el,
+          optionInfo: getOptionInfoFromElement(el),
+        })),
+        (o) => o.optionInfo.contestId
+      )
+    );
+    const writeInOptionsByContest = new Map(
+      groupBy(
+        root
+          .querySelectorAll(`.${WRITE_IN_OPTION_CLASS}`)
+          .map(getOptionInfoFromElement),
+        (o) => o.contestId
+      )
+    );
+    const ballotMeasureOptionsByContest = new Map(
+      groupBy(
+        root
+          .querySelectorAll(`.${BALLOT_MEASURE_OPTION_CLASS}`)
+          .map(getOptionInfoFromElement),
+        (o) => o.contestId
+      )
+    );
 
-  const ballotStyle = assertDefined(
-    getBallotStyle({
-      election: electionDefinition.election,
-      ballotStyleId: ballotProps.ballotStyleId,
-    })
-  );
-  const contests = getContests({
-    election: electionDefinition.election,
-    ballotStyle,
-  });
+    const { election } = ballotProps;
+    const ballotStyle = assertDefined(
+      getBallotStyle({
+        election,
+        ballotStyleId: ballotProps.ballotStyleId,
+      })
+    );
+    const contests = getContests({
+      election,
+      ballotStyle,
+    });
 
-  expect(
-    new Set([
-      ...candidateOptionsByContest.keys(),
-      ...writeInOptionsByContest.keys(),
-      ...ballotMeasureOptionsByContest.keys(),
-    ])
-  ).toEqual(new Set(contests.map((c) => c.id)));
+    expect(
+      new Set([
+        ...candidateOptionsByContest.keys(),
+        ...writeInOptionsByContest.keys(),
+        ...ballotMeasureOptionsByContest.keys(),
+      ])
+    ).toEqual(new Set(contests.map((c) => c.id)));
 
-  for (const contest of contests) {
-    switch (contest.type) {
-      case 'candidate': {
-        const renderedOptions = candidateOptionsByContest.get(contest.id) ?? [];
-        expect(renderedOptions).toHaveLength(contest.candidates.length);
+    for (const contest of contests) {
+      switch (contest.type) {
+        case 'candidate': {
+          const renderedOptions =
+            candidateOptionsByContest.get(contest.id) ?? [];
+          expect(renderedOptions).toHaveLength(contest.candidates.length);
 
-        for (const { element, optionInfo } of renderedOptions) {
-          assert(optionInfo.type === 'option');
-          const candidate = find(contest.candidates, (c) =>
-            element.textContent.includes(c.name)
-          );
-          expect(optionInfo.optionId).toEqual(candidate.id);
+          for (const { element, optionInfo } of renderedOptions) {
+            assert(optionInfo.type === 'option');
+            const candidate = find(contest.candidates, (c) =>
+              element.textContent.includes(c.name)
+            );
+            expect(optionInfo.optionId).toEqual(candidate.id);
+          }
+
+          if (contest.allowWriteIns) {
+            const writeInOptions =
+              writeInOptionsByContest.get(contest.id) ?? [];
+            expect(writeInOptions).toHaveLength(contest.seats);
+            const writeInIndices = writeInOptions.map((option) => {
+              assert(option.type === 'write-in');
+              return option.writeInIndex;
+            });
+            expect(writeInIndices).toEqual(range(0, contest.seats));
+          } else {
+            expect(writeInOptionsByContest.has(contest.id)).toEqual(false);
+          }
+          break;
         }
-
-        if (contest.allowWriteIns) {
-          const writeInOptions = writeInOptionsByContest.get(contest.id) ?? [];
-          expect(writeInOptions).toHaveLength(contest.seats);
-          const writeInIndices = writeInOptions.map((option) => {
-            assert(option.type === 'write-in');
-            return option.writeInIndex;
+        case 'yesno': {
+          const renderedOptions =
+            ballotMeasureOptionsByContest.get(contest.id) ?? [];
+          const optionIds = renderedOptions.map((option) => {
+            assert(option.type === 'option');
+            return option.optionId;
           });
-          expect(writeInIndices).toEqual(range(0, contest.seats));
-        } else {
-          expect(writeInOptionsByContest.has(contest.id)).toEqual(false);
+          const expectedOptionIds = [
+            contest.yesOption.id,
+            contest.noOption.id,
+            ...(contest.additionalOptions ?? []).map((o) => o.id),
+          ];
+          expect(optionIds).toEqual(expectedOptionIds);
+          break;
         }
-        break;
-      }
-      case 'yesno': {
-        const renderedOptions =
-          ballotMeasureOptionsByContest.get(contest.id) ?? [];
-        const optionIds = renderedOptions.map((option) => {
-          assert(option.type === 'option');
-          return option.optionId;
-        });
-        expect(optionIds).toEqual([contest.yesOption.id, contest.noOption.id]);
-        break;
-      }
-      default: {
-        throwIllegalValue(contest);
+        default: {
+          throwIllegalValue(contest);
+        }
       }
     }
   }
-});
+);
