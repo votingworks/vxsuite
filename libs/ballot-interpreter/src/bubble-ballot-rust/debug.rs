@@ -1103,16 +1103,16 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                     .min(scored_bubble_mark.matched_bounds.left())
                     - i32ify!(option_text_width)
                     - 5,
-                (scored_bubble_mark
-                    .expected_bounds
-                    .top()
-                    .min(scored_bubble_mark.matched_bounds.top())
-                    + scored_bubble_mark
+                i32::midpoint(
+                    scored_bubble_mark
+                        .expected_bounds
+                        .top()
+                        .min(scored_bubble_mark.matched_bounds.top()),
+                    scored_bubble_mark
                         .expected_bounds
                         .bottom()
-                        .max(scored_bubble_mark.matched_bounds.bottom()))
-                    / 2
-                    - i32ify!(option_text_height / 2),
+                        .max(scored_bubble_mark.matched_bounds.bottom()),
+                ) - i32ify!(option_text_height / 2),
                 scale,
                 font,
                 option_color,
@@ -1122,16 +1122,16 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
             draw_text_with_background_mut(
                 canvas,
                 &match_score_text,
-                (scored_bubble_mark
-                    .expected_bounds
-                    .left()
-                    .min(scored_bubble_mark.matched_bounds.left())
-                    + scored_bubble_mark
+                i32::midpoint(
+                    scored_bubble_mark
+                        .expected_bounds
+                        .left()
+                        .min(scored_bubble_mark.matched_bounds.left()),
+                    scored_bubble_mark
                         .expected_bounds
                         .right()
-                        .max(scored_bubble_mark.matched_bounds.right()))
-                    / 2
-                    - i32ify!(match_score_text_width / 2),
+                        .max(scored_bubble_mark.matched_bounds.right()),
+                ) - i32ify!(match_score_text_width / 2),
                 scored_bubble_mark
                     .expected_bounds
                     .top()
@@ -1147,16 +1147,16 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
             draw_text_with_background_mut(
                 canvas,
                 &fill_score_text,
-                (scored_bubble_mark
-                    .expected_bounds
-                    .left()
-                    .min(scored_bubble_mark.matched_bounds.left())
-                    + scored_bubble_mark
+                i32::midpoint(
+                    scored_bubble_mark
+                        .expected_bounds
+                        .left()
+                        .min(scored_bubble_mark.matched_bounds.left()),
+                    scored_bubble_mark
                         .expected_bounds
                         .right()
-                        .max(scored_bubble_mark.matched_bounds.right()))
-                    / 2
-                    - i32ify!(fill_score_text_width / 2),
+                        .max(scored_bubble_mark.matched_bounds.right()),
+                ) - i32ify!(fill_score_text_width / 2),
                 scored_bubble_mark
                     .expected_bounds
                     .bottom()
@@ -1224,7 +1224,7 @@ pub fn draw_scored_write_in_areas(
             canvas,
             &option_text,
             bounds.left() - i32ify!(option_text_width) - 5,
-            (bounds.top() + bounds.bottom()) / 2 - i32ify!(option_text_height / 2),
+            i32::midpoint(bounds.top(), bounds.bottom()) - i32ify!(option_text_height / 2),
             scale,
             font,
             DARK_GREEN,
@@ -1234,7 +1234,7 @@ pub fn draw_scored_write_in_areas(
         draw_text_with_background_mut(
             canvas,
             &score_text,
-            (bounds.left() + bounds.right()) / 2 - i32ify!(score_text_width / 2),
+            i32::midpoint(bounds.left(), bounds.right()) - i32ify!(score_text_width / 2),
             bounds.top() - 5 - i32ify!(score_text_height),
             scale,
             font,

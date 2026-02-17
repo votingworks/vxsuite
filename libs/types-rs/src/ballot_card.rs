@@ -49,7 +49,7 @@ impl PageNumber {
     /// ```
     #[must_use]
     pub const fn is_back(self) -> bool {
-        self.0 % 2 == 0
+        self.0.is_multiple_of(2)
     }
 
     /// Determines the sheet number.

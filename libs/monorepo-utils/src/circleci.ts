@@ -36,12 +36,12 @@ function generateTestJobForNodeJsPackage(
     `        is_node_package: true`,
     ...(hasPlaywrightTests
       ? [
-          `    - run:`,
-          `        name: Install Browser`,
-          `        command: |`,
-          `          pnpm --dir ${pkg.relativePath} exec playwright install-deps`,
-          `          pnpm --dir ${pkg.relativePath} exec playwright install chromium`,
-        ]
+        `    - run:`,
+        `        name: Install Browser`,
+        `        command: |`,
+        `          pnpm --dir ${pkg.relativePath} exec playwright install-deps`,
+        `          pnpm --dir ${pkg.relativePath} exec playwright install chromium`,
+      ]
       : []),
     `    - run:`,
     `        name: Build`,
@@ -53,33 +53,32 @@ function generateTestJobForNodeJsPackage(
     `          pnpm --dir ${pkg.relativePath} lint`,
     ...(isConditional
       ? [
-          `    - when:`,
-          `        condition: << pipeline.parameters.run-job >>`,
-          `        steps:`,
-          `          - run:`,
-          `              name: Test`,
-          `              command: |`,
-          `                pnpm --dir ${pkg.relativePath} test`,
-          `              environment:`,
-          `                JEST_JUNIT_OUTPUT_DIR: ./reports/`,
-          `          - store_test_results:`,
-          `              path: ${pkg.relativePath}/${
-            /* istanbul ignore next - @preserve */
-            hasPlaywrightTests ? 'test-results' : 'reports'
-          }/`,
-        ]
+        `    - when:`,
+        `        condition: << pipeline.parameters.run-job >>`,
+        `        steps:`,
+        `          - run:`,
+        `              name: Test`,
+        `              command: |`,
+        `                pnpm --dir ${pkg.relativePath} test`,
+        `              environment:`,
+        `                JEST_JUNIT_OUTPUT_DIR: ./reports/`,
+        `          - store_test_results:`,
+        `              path: ${pkg.relativePath}/${
+        /* istanbul ignore next - @preserve */
+        hasPlaywrightTests ? 'test-results' : 'reports'
+        }/`,
+      ]
       : [
-          `    - run:`,
-          `        name: Test`,
-          `        command: |`,
-          `          pnpm --dir ${pkg.relativePath} test`,
-          `        environment:`,
-          `          JEST_JUNIT_OUTPUT_DIR: ./reports/`,
-          `    - store_test_results:`,
-          `        path: ${pkg.relativePath}/${
-            hasPlaywrightTests ? 'test-results' : 'reports'
-          }/`,
-        ]),
+        `    - run:`,
+        `        name: Test`,
+        `        command: |`,
+        `          pnpm --dir ${pkg.relativePath} test`,
+        `        environment:`,
+        `          JEST_JUNIT_OUTPUT_DIR: ./reports/`,
+        `    - store_test_results:`,
+        `        path: ${pkg.relativePath}/${hasPlaywrightTests ? 'test-results' : 'reports'
+        }/`,
+      ]),
   ];
 
   if (hasSnapshotTests || hasPlaywrightTests) {
@@ -107,6 +106,10 @@ function generateTestJobForRustCrates(): string[] {
     `  steps:`,
     `    - checkout-and-install:`,
     `        is_node_package: false`,
+    `    - run:`,
+    `        name: Check Formatting`,
+    `        command: |`,
+    `          cargo fmt --check`,
     `    - run:`,
     `        name: Build`,
     `        command: |`,
@@ -178,7 +181,7 @@ function generateCircleCiFilteredAppConfigForPackage(
     'executors:',
     '  nodejs:',
     '    docker:',
-    '      - image: votingworks/cimg-debian12:4.2.0',
+    '      - image: votingworks/cimg-debian12:4.3.0',
     '        auth:',
     '          username: $VX_DOCKER_USERNAME',
     '          password: $VX_DOCKER_PASSWORD',
@@ -296,14 +299,14 @@ orbs:
 executors:
   nodejs:
     docker:
-      - image: votingworks/cimg-debian12:4.2.0
+      - image: votingworks/cimg-debian12:4.3.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
 
   nodejs_postgres:
     docker:
-      - image: votingworks/cimg-debian12:4.2.0
+      - image: votingworks/cimg-debian12:4.3.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
@@ -314,8 +317,8 @@ executors:
 
 jobs:
 ${[...pnpmJobs.values()]
-  .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
-  .join('\n\n')}
+      .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
+      .join('\n\n')}
 
 ${rustJobLines.map((line) => `  ${line}\n`).join('')}
 
@@ -339,8 +342,8 @@ workflows:
     jobs:
 
 ${[...pnpmJobsToFilter.values()]
-  .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
-  .join('\n\n')}
+      .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
+      .join('\n\n')}
 ${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
 
 commands:

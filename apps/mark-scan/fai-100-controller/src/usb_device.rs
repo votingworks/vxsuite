@@ -115,7 +115,7 @@ impl io::Read for UsbDevice {
             Err(rusb::Error::Timeout) => {
                 Err(io::Error::new(io::ErrorKind::TimedOut, "Read timed out"))
             }
-            Err(err) => Err(io::Error::new(io::ErrorKind::Other, format!("{err:?}"))),
+            Err(err) => Err(io::Error::other(format!("{err:?}"))),
         }
     }
 }

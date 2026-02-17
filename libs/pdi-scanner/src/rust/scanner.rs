@@ -13,7 +13,7 @@ type ScannerChannels = (
 );
 
 pub struct Scanner {
-    scanner_interface: Arc<nusb::Interface>,
+    usb_interface: Arc<nusb::Interface>,
     default_timeout: Duration,
     stop_tx: Option<tokio::sync::oneshot::Sender<()>>,
 }
@@ -46,7 +46,7 @@ impl Scanner {
         let scanner_interface = Arc::new(scanner_interface);
 
         Ok(Self {
-            scanner_interface,
+            usb_interface: scanner_interface,
             default_timeout: Duration::from_secs(1),
             stop_tx: None,
         })
@@ -90,9 +90,9 @@ impl Scanner {
 
         self.stop_tx = Some(stop_tx);
 
-        let mut in_primary_queue = self.scanner_interface.bulk_in_queue(ENDPOINT_IN_PRIMARY);
-        let mut in_image_data_queue = self.scanner_interface.bulk_in_queue(ENDPOINT_IN_IMAGE_DATA);
-        let device_handle = self.scanner_interface.clone();
+        let mut in_primary_queue = self.usb_interface.bulk_in_queue(ENDPOINT_IN_PRIMARY);
+        let mut in_image_data_queue = self.usb_interface.bulk_in_queue(ENDPOINT_IN_IMAGE_DATA);
+        let device_handle = self.usb_interface.clone();
         let default_timeout = self.default_timeout;
 
         tokio::spawn(async move {

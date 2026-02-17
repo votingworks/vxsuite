@@ -14,17 +14,17 @@ mod shape_finding;
 mod util;
 
 pub struct Options {
-    shape_finding_options: shape_finding::Options,
-    corner_finding_options: corner_finding::Options,
-    border_finding_options: border_finding::Options,
+    shape: shape_finding::Options,
+    corner: corner_finding::Options,
+    border: border_finding::Options,
 }
 
 impl DefaultForGeometry for Options {
     fn default_for_geometry(geometry: &Geometry) -> Self {
         Self {
-            shape_finding_options: shape_finding::Options::default_for_geometry(geometry),
-            corner_finding_options: corner_finding::Options::default_for_geometry(geometry),
-            border_finding_options: border_finding::Options::default_for_geometry(geometry),
+            shape: shape_finding::Options::default_for_geometry(geometry),
+            corner: corner_finding::Options::default_for_geometry(geometry),
+            border: border_finding::Options::default_for_geometry(geometry),
         }
     }
 }
@@ -43,7 +43,7 @@ pub fn find_timing_mark_grid(
     let shapes = shape_finding::BallotGridBorderShapes::from_ballot_image(
         ballot_image,
         geometry,
-        &options.shape_finding_options,
+        &options.shape,
     );
 
     ballot_image.debug().write("01-shapes", |canvas| {
@@ -61,7 +61,7 @@ pub fn find_timing_mark_grid(
         ballot_image.dimensions().into(),
         geometry,
         &candidates,
-        &options.corner_finding_options,
+        &options.corner,
     )?;
 
     ballot_image.debug().write("03-corners", |canvas| {
@@ -72,7 +72,7 @@ pub fn find_timing_mark_grid(
         geometry,
         &corners,
         &candidates,
-        &options.border_finding_options,
+        &options.border,
     )?;
 
     ballot_image.debug().write("04-borders", |canvas| {

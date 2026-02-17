@@ -74,21 +74,19 @@ impl Port {
         // will break parsing of the echo response below.
         match port.bytes_to_read() {
             Ok(0) => (),
-            Ok(num_bytes) => {
-                match port.clear(serialport::ClearBuffer::Input) {
-                    Ok(()) => log!(
-                        event_id: EventId::Info,
-                        event_type: EventType::SystemStatus,
-                        message: format!("Cleared {num_bytes} bytes from controller in-buffer")
-                    ),
-                    Err(e) => log!(
-                        event_id: EventId::UnknownError,
-                        message: format!("Error clearing in-buffer: {e:?}"),
-                        event_type: EventType::SystemStatus,
-                        disposition: Disposition::Failure
-                    ),
-                }
-            }
+            Ok(num_bytes) => match port.clear(serialport::ClearBuffer::Input) {
+                Ok(()) => log!(
+                    event_id: EventId::Info,
+                    event_type: EventType::SystemStatus,
+                    message: format!("Cleared {num_bytes} bytes from controller in-buffer")
+                ),
+                Err(e) => log!(
+                    event_id: EventId::UnknownError,
+                    message: format!("Error clearing in-buffer: {e:?}"),
+                    event_type: EventType::SystemStatus,
+                    disposition: Disposition::Failure
+                ),
+            },
             Err(e) => log!(
                 event_id: EventId::UnknownError,
                 message: format!("Error checking bytes to read: {e:?}"),
