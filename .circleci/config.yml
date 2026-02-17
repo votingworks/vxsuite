@@ -1333,6 +1333,10 @@ jobs:
       - checkout-and-install:
           is_node_package: false
       - run:
+          name: Check Formatting
+          command: |
+            cargo fmt --check
+      - run:
           name: Build
           command: |
             cargo build
