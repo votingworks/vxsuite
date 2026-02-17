@@ -8,7 +8,7 @@ use crate::{
     debug::{self, ImageDebugWriter},
 };
 
-use super::{rqrr, zbar};
+use super::{rqrr, zedbar};
 
 /// An area in a ballot image to be searched for QR codes.
 pub struct DetectionArea {
@@ -90,7 +90,7 @@ pub fn get_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
 #[must_use]
 pub enum Detector {
     Rqrr,
-    Zbar,
+    Zedbar,
 }
 
 /// Information about a QR code found in an image.
@@ -193,7 +193,7 @@ pub type Result = std::result::Result<Detected, Error>;
 /// Returns an `Err` if no QR codes are detected.
 pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
     let rqrr_result = rqrr::detect(img);
-    let detect_result = rqrr_result.or_else(|_| zbar::detect(img));
+    let detect_result = rqrr_result.or_else(|_| zedbar::detect(img));
     let detection_areas = match detect_result {
         Ok(ref qr_code) => qr_code.detection_areas().to_vec(),
         Err(ref e) => e.detection_areas().to_vec(),
