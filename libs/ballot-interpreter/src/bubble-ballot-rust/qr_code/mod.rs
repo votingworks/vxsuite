@@ -1,5 +1,5 @@
 mod detect;
 mod rqrr;
-mod zbar;
+mod zedbar;
 
 pub use detect::{detect, Detected};

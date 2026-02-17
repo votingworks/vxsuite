@@ -1,7 +1,7 @@
-import { detect as qrdetect } from '@votingworks/qrdetect';
+import { scanGrayscale } from 'zedbar';
 import { decode as quircDecode, QRCode } from 'node-quirc';
 import { isVxBallot } from '@votingworks/ballot-encoder';
-import { ImageData, crop } from '@votingworks/image-utils';
+import { ImageData, RGBA_CHANNEL_COUNT, crop } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import makeDebug from 'debug';
@@ -22,6 +22,25 @@ function decodeBase64FromUtf8(utf8StringData: Buffer): Buffer {
     /* istanbul ignore next - @preserve */
     return utf8StringData;
   }
+}
+
+/**
+ * Converts RGBA pixel data to grayscale (1 byte per pixel) using the
+ * luminance formula: 0.299*R + 0.587*G + 0.114*B.
+ */
+function rgbaToGrayscale(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number
+): Uint8Array {
+  const grayscale = new Uint8Array(width * height);
+  for (let rgbaIndex = 0, grayIndex = 0; rgbaIndex < data.length; rgbaIndex += RGBA_CHANNEL_COUNT, grayIndex += 1) {
+    const r = data[rgbaIndex] as number;
+    const g = data[rgbaIndex + 1] as number;
+    const b = data[rgbaIndex + 2] as number;
+    grayscale[grayIndex] = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+  }
+  return grayscale;
 }
 
 /**
@@ -97,9 +116,13 @@ export async function detect(
 
   const detectors = [
     {
-      name: 'qrdetect',
-      detect: ({ data, width, height }: ImageData): Buffer[] =>
-        qrdetect(data, width, height).map((symbol) => symbol.data),
+      name: 'zedbar',
+      detect: ({ data, width, height }: ImageData): Buffer[] => {
+        const grayscale = rgbaToGrayscale(data, width, height);
+        return scanGrayscale(grayscale, width, height).map((symbol) =>
+          Buffer.from(symbol.data)
+        );
+      },
     },
     {
       name: 'quirc',

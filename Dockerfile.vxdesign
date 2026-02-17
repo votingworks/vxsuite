@@ -48,7 +48,6 @@ RUN sudo apt update && apt install -y --no-install-recommends \
   libusb-1.0-0-dev \
   libxss1 \
   libxtst6 \
-  libzbar-dev \
   linux-kbuild-6.1 \
   make \
   pkg-config \
@@ -67,7 +66,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | b
   npm i -g pnpm@8.15.5 && \
   pnpm -v
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=1.86.0 -y
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=1.93.0 -y
 
 COPY . .
 

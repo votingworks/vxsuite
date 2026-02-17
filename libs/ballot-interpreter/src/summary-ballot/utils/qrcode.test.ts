@@ -27,7 +27,7 @@ test('can read metadata encoded in a QR code with base64', async () => {
     ok({
       data: expect.any(Buffer),
       position: 'top',
-      detector: 'qrdetect',
+      detector: 'zedbar',
     })
   );
 });
