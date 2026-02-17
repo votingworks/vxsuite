@@ -9,10 +9,7 @@ const Column = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-`;
-
-const Small = styled.span`
-  font-size: 0.45rem;
+  gap: 0.5rem;
 `;
 
 function formatTimestamp(timestamp: DateTime): string {
@@ -28,18 +25,15 @@ export function InputControls(): JSX.Element {
   return (
     <Column>
       <CounterButton />
-
-      <Small>
-        Last key press:{' '}
-        {lastKeyPress ? (
-          <React.Fragment>
-            <code>{lastKeyPress.key}</code> at{' '}
-            {formatTimestamp(lastKeyPress.pressedAt)}
-          </React.Fragment>
-        ) : (
-          'n/a'
-        )}
-      </Small>
+      Last key press:{' '}
+      {lastKeyPress ? (
+        <React.Fragment>
+          <code>{lastKeyPress.key}</code> at{' '}
+          {formatTimestamp(lastKeyPress.pressedAt)}
+        </React.Fragment>
+      ) : (
+        'n/a'
+      )}
     </Column>
   );
 }
