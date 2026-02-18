@@ -145,6 +145,7 @@ create table cvr_contest_tags (
   cvr_id varchar(36) not null,
   contest_id text not null,
   is_resolved boolean not null default false,
+  is_undetected boolean not null default false,
   has_overvote boolean not null default false,
   has_undervote boolean not null default false,
   has_write_in boolean not null default false,

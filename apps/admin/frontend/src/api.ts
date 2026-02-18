@@ -694,6 +694,13 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
 
     // write-in queues
     queryClient.invalidateQueries(getAdjudicationQueue.queryKey()),
+
+    // ballot adjudication queues
+    queryClient.invalidateQueries(getBallotAdjudicationQueue.queryKey()),
+    queryClient.invalidateQueries(
+      getBallotAdjudicationQueueMetadata.queryKey()
+    ),
+    queryClient.invalidateQueries(getNextCvrIdForBallotAdjudication.queryKey()),
   ]);
 }
 

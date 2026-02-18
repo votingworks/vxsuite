@@ -88,6 +88,41 @@ const ZoomedOutBallotImageContainer = styled.div`
   }
 `;
 
+const ImageWrapper = styled.div`
+  position: relative;
+  height: 100%;
+`;
+
+// Clip-path polygon that creates a transparent rectangular cutout in a
+// semi-transparent overlay. Percentage values are relative to the image
+// dimensions so the highlight scales with the image.
+const StaticHighlightOverlay = styled.div<{
+  top: number;
+  left: number;
+  bottom: number;
+  right: number;
+}>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: rgba(0, 0, 0, 50%);
+  clip-path: polygon(
+    0% 0%,
+    0% 100%,
+    ${(p) => p.left}% 100%,
+    ${(p) => p.left}% ${(p) => p.top}%,
+    ${(p) => p.right}% ${(p) => p.top}%,
+    ${(p) => p.right}% ${(p) => p.bottom}%,
+    ${(p) => p.left}% ${(p) => p.bottom}%,
+    ${(p) => p.left}% 100%,
+    100% 100%,
+    100% 0%
+  );
+`;
+
 const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
   display: flex;
   justify-content: flex-end;
@@ -169,13 +204,36 @@ const FitToHeightContainer = styled.div`
 
 export function BallotStaticImageViewer({
   imageUrl,
+  highlightBounds,
+  ballotBounds,
 }: {
   imageUrl: string;
+  highlightBounds?: Rect;
+  ballotBounds?: Rect;
 }): JSX.Element {
+  const overlay =
+    highlightBounds && ballotBounds ? (
+      <StaticHighlightOverlay
+        top={(highlightBounds.y / ballotBounds.height) * 100}
+        left={(highlightBounds.x / ballotBounds.width) * 100}
+        bottom={
+          ((highlightBounds.y + highlightBounds.height) / ballotBounds.height) *
+          100
+        }
+        right={
+          ((highlightBounds.x + highlightBounds.width) / ballotBounds.width) *
+          100
+        }
+      />
+    ) : null;
+
   return (
     <BallotImageViewerContainer>
       <FitToHeightContainer>
-        <img src={imageUrl} alt="Full ballot" />
+        <ImageWrapper>
+          <img src={imageUrl} alt="Full ballot" />
+          {overlay}
+        </ImageWrapper>
       </FitToHeightContainer>
     </BallotImageViewerContainer>
   );

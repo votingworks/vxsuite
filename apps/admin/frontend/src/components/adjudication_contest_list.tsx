@@ -8,7 +8,7 @@ import {
   Side,
 } from '@votingworks/types';
 import type { CvrContestTag } from '@votingworks/admin-backend';
-import { Button, Icons } from '@votingworks/ui';
+import { DesktopPalette, Icons } from '@votingworks/ui';
 import { EntityList } from './entity_list';
 
 const Column = styled.div`
@@ -24,25 +24,28 @@ const ClickableHeader = styled.button`
   width: 100%;
 `;
 
+const ResolvedCaption = styled(EntityList.Caption)`
+  color: ${DesktopPalette.Purple70};
+`;
+
+function getAdjudicationReasons(tag?: CvrContestTag): string[] {
+  if (!tag) return [];
+  const reasons: string[] = [];
+  if (tag.hasOvervote) reasons.push('Overvote');
+  if (tag.hasWriteIn) reasons.push('Write-In');
+  if (tag.hasUndervote) reasons.push('Undervote');
+  if (tag.hasMarginalMark) reasons.push('Marginal Mark');
+  return reasons;
+}
+
 export interface AdjudicationContestListProps {
   frontContests: AnyContest[];
   backContests: AnyContest[];
   election: Election;
   tagsByContestId: Map<ContestId, CvrContestTag | null>;
-  selectedContestId: ContestId | null;
   onSelect: (contestId: ContestId) => void;
-  onStartAdjudication: (contestId: ContestId) => void;
+  onHover?: (contestId: ContestId | null) => void;
   onSelectSide: (side: Side) => void;
-}
-
-function getAdjudicationReasons(tag?: CvrContestTag): string[] {
-  if (!tag) return [];
-  const reasons: string[] = [];
-  if (tag.hasWriteIn) reasons.push('Write-In');
-  if (tag.hasOvervote) reasons.push('Overvote');
-  if (tag.hasUndervote) reasons.push('Undervote');
-  if (tag.hasMarginalMark) reasons.push('Marginal Mark');
-  return reasons;
 }
 
 function ContestSublist({
@@ -50,8 +53,7 @@ function ContestSublist({
   election,
   tagsByContestId,
   onSelect,
-  onStartAdjudication,
-  selectedContestId,
+  onHover,
   title,
   firstUnresolvedContestId,
   onHeaderClick,
@@ -60,8 +62,7 @@ function ContestSublist({
   election: Election;
   tagsByContestId: Map<ContestId, CvrContestTag | null>;
   onSelect: (contestId: ContestId) => void;
-  onStartAdjudication: (contestId: ContestId) => void;
-  selectedContestId: ContestId | null;
+  onHover?: (contestId: ContestId | null) => void;
   title: string;
   firstUnresolvedContestId?: ContestId;
   onHeaderClick?: () => void;
@@ -78,47 +79,33 @@ function ContestSublist({
       <EntityList.Items>
         {contests.map((contest) => {
           const tag = tagsByContestId.get(contest.id);
-          const reasons = tag ? getAdjudicationReasons(tag) : [];
-          const isResolved = !tag || tag.isResolved;
+          const reasons = tag ? getAdjudicationReasons(tag).slice(0, 1) : [];
+          const isPending = tag && !tag.isResolved;
+          const isResolved = tag && tag.isResolved;
           const isFirstUnresolved = contest.id === firstUnresolvedContestId;
           return (
             <EntityList.Item
               id={contest.id}
               key={contest.id}
-              selected={isFirstUnresolved || selectedContestId === contest.id}
+              selected={false} // isFirstUnresolved || selectedContestId === contest.id}
               onSelect={onSelect}
+              onHover={onHover}
               autoScrollIntoView={isFirstUnresolved}
             >
               <Column>
-                {reasons.length > 0 && (
-                  <EntityList.Caption weight="semiBold">
-                    {tag?.isResolved ? 'Resolved: ' : null}
-                    {reasons.join(', ')}
-                  </EntityList.Caption>
-                )}
                 <EntityList.Caption>
                   {getContestDistrictName(election, contest)}
                 </EntityList.Caption>
                 <EntityList.Label weight="semiBold">
                   {contest.title}
                 </EntityList.Label>
+                {isResolved && (
+                  <ResolvedCaption weight="semiBold">
+                    Resolved: {reasons.join(', ')}
+                  </ResolvedCaption>
+                )}
               </Column>
-              {isResolved && <Icons.Done color="success" />}
-              {isFirstUnresolved && (
-                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                <div onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    variant="primary"
-                    onPress={() => onStartAdjudication(contest.id)}
-                    style={{
-                      padding: '0.375rem 0.75rem',
-                      fontSize: '0.8125rem',
-                    }}
-                  >
-                    Start
-                  </Button>
-                </div>
-              )}
+              {isPending && <Icons.Warning color="warning" />}
             </EntityList.Item>
           );
         })}
@@ -135,9 +122,8 @@ export function AdjudicationContestList(
     backContests,
     election,
     tagsByContestId,
-    selectedContestId,
     onSelect,
-    onStartAdjudication,
+    onHover,
     onSelectSide,
   } = props;
 
@@ -155,8 +141,7 @@ export function AdjudicationContestList(
           election={election}
           tagsByContestId={tagsByContestId}
           onSelect={onSelect}
-          onStartAdjudication={onStartAdjudication}
-          selectedContestId={selectedContestId}
+          onHover={onHover}
           title="Front"
           firstUnresolvedContestId={firstUnresolvedContestId}
           onHeaderClick={() => onSelectSide('front')}
@@ -168,8 +153,7 @@ export function AdjudicationContestList(
           election={election}
           tagsByContestId={tagsByContestId}
           onSelect={onSelect}
-          onStartAdjudication={onStartAdjudication}
-          selectedContestId={selectedContestId}
+          onHover={onHover}
           title="Back"
           firstUnresolvedContestId={firstUnresolvedContestId}
           onHeaderClick={() => onSelectSide('back')}
