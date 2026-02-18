@@ -496,8 +496,7 @@ function Contest({
     case 'yesno':
       return <BallotMeasureContest contest={contest} />;
     case 'straight-party':
-      // TODO: Render straight-party contest (Commit 10)
-      return null;
+      throw new Error('Straight party contests are not supported by this ballot template');
     default:
       return throwIllegalValue(contest);
   }

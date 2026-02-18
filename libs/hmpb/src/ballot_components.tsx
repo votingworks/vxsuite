@@ -5,6 +5,7 @@ import {
   BallotStyle,
   BallotStyleId,
   Election,
+  StraightPartyContest as StraightPartyContestType,
   getBallotStyle,
   getPartyForBallotStyle,
   Outset,
@@ -277,6 +278,48 @@ export const CANDIDATE_OPTION_CLASS = 'candidate-option';
 export const WRITE_IN_OPTION_CLASS = 'write-in-option';
 
 export const BALLOT_MEASURE_OPTION_CLASS = 'ballot-measure-option';
+
+export const STRAIGHT_PARTY_OPTION_CLASS = 'straight-party-option';
+
+export function StraightPartyContestContent({
+  contest,
+  election,
+}: {
+  contest: StraightPartyContestType;
+  election: Election;
+}): JSX.Element {
+  return (
+    <ul>
+      {election.parties.map((party, i) => {
+        const optionInfo: OptionInfo = {
+          type: 'option',
+          contestId: contest.id,
+          optionId: party.id,
+        };
+        return (
+          <li
+            key={party.id}
+            className={STRAIGHT_PARTY_OPTION_CLASS}
+            style={{
+              padding: '0.375rem 0.5rem',
+              borderTop:
+                i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
+            }}
+          >
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <AlignedBubble optionInfo={optionInfo} />
+              <strong>
+                <DualLanguageText delimiter="/">
+                  {electionStrings.partyFullName(party)}
+                </DualLanguageText>
+              </strong>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export const MARK_OVERLAY_CLASS = 'mark-overlay';
 

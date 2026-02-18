@@ -53,6 +53,7 @@ import {
   ContestTitle,
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
+  StraightPartyContestContent,
   PrecinctOrSplitName,
 } from '../ballot_components';
 import { PixelDimensions } from '../types';
@@ -558,8 +559,22 @@ function Contest({
     case 'yesno':
       return <BallotMeasureContest contest={contest} />;
     case 'straight-party':
-      // TODO: Render straight-party contest (Commit 10)
-      return null;
+      return (
+        <Box style={{ padding: 0 }}>
+          <ContestHeader>
+            <div>{contest.title}</div>
+            <DualLanguageText delimiter="/">
+              <VoteFor>
+                {hmpbStrings.hmpbVoteForNotMoreThan1}
+              </VoteFor>
+            </DualLanguageText>
+          </ContestHeader>
+          <StraightPartyContestContent
+            contest={contest}
+            election={election}
+          />
+        </Box>
+      );
     default:
       return throwIllegalValue(contest);
   }
