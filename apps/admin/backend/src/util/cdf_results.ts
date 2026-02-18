@@ -3,6 +3,7 @@ import {
   Election,
   NcName,
   ResultsReporting,
+  StraightPartyContest,
   Tabulation,
   YesNoContest,
 } from '@votingworks/types';
@@ -178,15 +179,51 @@ function buildCandidateContest(
   };
 }
 
+function buildPartyContest(
+  contest: StraightPartyContest,
+  results: Tabulation.StraightPartyContestResults,
+  countyId: string
+): ResultsReporting.PartyContest {
+  return {
+    '@type': 'ElectionResults.PartyContest',
+    '@id': getContestId(contest),
+    Name: contest.title,
+    ElectionDistrictId: countyId,
+    ContestSelection: Object.values(results.tallies).map((partyTally) => ({
+      '@type': 'ElectionResults.PartySelection' as const,
+      '@id': asNcName(partyTally.partyId),
+      PartyIds: [asNcName(partyTally.partyId)],
+      VoteCounts: [
+        {
+          '@type': 'ElectionResults.VoteCounts' as const,
+          Count: partyTally.tally,
+          GpUnitId: countyId,
+          Type: ResultsReporting.CountItemType.Total,
+        },
+      ],
+    })),
+    OtherCounts: [
+      {
+        '@type': 'ElectionResults.OtherCounts',
+        GpUnitId: countyId,
+        Overvotes: results.overvotes,
+        Undervotes: results.undervotes,
+      },
+    ],
+  };
+}
+
 type ReportContest =
   | ResultsReporting.BallotMeasureContest
-  | ResultsReporting.CandidateContest;
+  | ResultsReporting.CandidateContest
+  | ResultsReporting.PartyContest;
 
 function buildContests(
   election: Election,
   electionResults: Tabulation.ElectionResults
 ): ReportContest[] {
   const reportContests: ReportContest[] = [];
+  const countyId = getCountyId(election);
 
   for (const contest of election.contests) {
     const contestResults = electionResults.contestResults[contest.id];
@@ -197,6 +234,11 @@ function buildContests(
     } else if (contest.type === 'candidate') {
       assert(contestResults.contestType === 'candidate');
       reportContests.push(buildCandidateContest(contest, contestResults));
+    } else if (contest.type === 'straight-party') {
+      assert(contestResults.contestType === 'straight-party');
+      reportContests.push(
+        buildPartyContest(contest, contestResults, countyId)
+      );
     }
   }
 
