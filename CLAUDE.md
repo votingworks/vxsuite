@@ -222,6 +222,8 @@ fn.assertComplete(); // verify all expected calls were made (usually in afterEac
 - **Constants** — UPPER_CASE for module-level constants
 - **No floating promises** — all promises must be awaited or explicitly voided
   (`void somePromise()`)
+- **Exhaustive switches** — use `switch`/`case` with `throwIllegalValue` from
+  `@votingworks/basics` for discriminated unions instead of `if`/`else` chains
 - **Error handling** — fail fast for unexpected errors: unexpected errors should
   crash the application (throw an exception) to ensure early detection and
   prevent undefined behavior. Expected errors resulting from user behavior or
@@ -230,6 +232,11 @@ fn.assertComplete(); // verify all expected calls were made (usually in afterEac
   Expected errors should always be logged.
 - **Logging** — all user actions, and errors should be logged. Use
   `@votingworks/logging` for structured log events.
+- **Domain types over primitives** — use domain types like `ContestId`,
+  `PrecinctId`, etc. instead of plain `string`
+- **Prefer existing utilities** — use utility functions from
+  `@votingworks/basics` (e.g. `range`, `iter`, `groupBy`) rather than verbose
+  JS idioms (e.g. `Array.from`)
 - **Readonly** — mark properties as `readonly` when they aren't reassigned
 - **React** — functional components only, with hooks; components return
   `JSX.Element`
