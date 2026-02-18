@@ -116,6 +116,8 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
           votes[contest.eitherNeitherContestId]?.[0] ===
             contest.neitherOption.id
         );
+      case 'straight-party':
+        return !!vote;
       default: {
         /* istanbul ignore next - @preserve */
         throwIllegalValue(contest);

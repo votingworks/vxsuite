@@ -486,6 +486,10 @@ async function insertContest(
       break;
     }
 
+    case 'straight-party':
+      // Straight-party contests are injected at materialization time, not stored
+      break;
+
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);

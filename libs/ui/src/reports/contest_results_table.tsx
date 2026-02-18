@@ -274,6 +274,9 @@ export function ContestResultsTable({
       );
       break;
     }
+    case 'straight-party':
+      // TODO: Render straight-party results (Commit 12)
+      break;
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);

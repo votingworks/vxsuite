@@ -958,6 +958,8 @@ function draftContestFromContest(contest: AnyContest): DraftContest {
       };
     case 'yesno':
       return { ...contest };
+    case 'straight-party':
+      return { ...contest };
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(contest, 'type');

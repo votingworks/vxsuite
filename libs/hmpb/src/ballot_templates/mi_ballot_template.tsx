@@ -556,6 +556,9 @@ function Contest({
       );
     case 'yesno':
       return <BallotMeasureContest contest={contest} />;
+    case 'straight-party':
+      // TODO: Render straight-party contest (Commit 10)
+      return null;
     default:
       return throwIllegalValue(contest);
   }
