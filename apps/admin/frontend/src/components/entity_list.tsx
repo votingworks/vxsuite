@@ -109,12 +109,14 @@ export interface EntityListItemProps {
   children: React.ReactNode;
   id: string;
   onSelect: (id: string) => void;
+  onHover?: (id: string | null) => void;
   selected: boolean;
   autoScrollIntoView?: boolean;
 }
 
 function Item(props: EntityListItemProps): React.ReactNode {
-  const { children, id, onSelect, selected, autoScrollIntoView } = props;
+  const { children, id, onSelect, onHover, selected, autoScrollIntoView } =
+    props;
 
   const ref = React.useRef<HTMLLIElement>(null);
 
@@ -145,6 +147,8 @@ function Item(props: EntityListItemProps): React.ReactNode {
       aria-selected={selected}
       onClick={() => onSelect(id)}
       onKeyDown={onKeyDown}
+      onMouseEnter={onHover ? () => onHover(id) : undefined}
+      onMouseLeave={onHover ? () => onHover(null) : undefined}
       ref={selected || autoScrollIntoView ? ref : undefined}
       role="option"
       tabIndex={0}

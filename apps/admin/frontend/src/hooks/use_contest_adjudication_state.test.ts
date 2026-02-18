@@ -50,7 +50,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
     votes: ['alice'],
     voteAdjudications: [],
     marginalMarks: ['bob', 'write-in-1'],
-    contestTag: { isResolved: false, cvrId, contestId },
+    contestTag: { isResolved: false, isUndetected: false, cvrId, contestId },
     writeIns,
     writeInCandidates,
   };
@@ -223,7 +223,7 @@ test('makeInitialState initializes official and write-in options correctly for c
     votes: ['alice', 'write-in-0'],
     voteAdjudications: [],
     marginalMarks: ['bob'],
-    contestTag: { isResolved: false, cvrId, contestId },
+    contestTag: { isResolved: false, isUndetected: false, cvrId, contestId },
     writeIns: [
       {
         optionId: 'write-in-0',
@@ -335,7 +335,7 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
     votes: [],
     voteAdjudications: [],
     marginalMarks: ['yes', 'no'],
-    contestTag: { isResolved: false, cvrId, contestId },
+    contestTag: { isResolved: false, isUndetected: false, cvrId, contestId },
     writeIns: [],
     writeInCandidates: [],
   };

@@ -6,6 +6,7 @@ import {
   ContestOptionId,
   Id,
 } from '@votingworks/types';
+import { CachedElectionLookups } from '@votingworks/utils';
 import {
   AdjudicatedCvrContest,
   VoteAdjudication,
@@ -13,6 +14,7 @@ import {
   WriteInRecord,
 } from './types';
 import { type Store } from './store';
+import { getNumberVotesAllowed } from './util/cast_vote_records';
 
 /**
  * Manipulates adjudication records so that a particular vote in a cast vote
@@ -231,11 +233,22 @@ export function adjudicateCvrContest(
   });
 
   return store.withTransaction(() => {
+    // Track flags for tag creation when no pre-existing tag exists
+    let hasUnmarkedWriteIn = false;
+    let hasMarginalMark = false;
+
+    const { votes } = store.getCastVoteRecordVoteInfo({ electionId, cvrId });
+    const contestVotes = votes[contestId] ?? [];
+
     for (const [optionId, adjudicatedContestOption] of Object.entries(
       adjudicatedContestOptionById
     )) {
       const { hasVote: isVote, type } = adjudicatedContestOption;
       if (type === 'candidate-option') {
+        const scannedIsVote = contestVotes.includes(optionId);
+        if (isVote !== scannedIsVote) {
+          hasMarginalMark = true;
+        }
         adjudicateVote(
           {
             contestId,
@@ -280,6 +293,8 @@ export function adjudicateCvrContest(
           side,
         });
       }
+      hasUnmarkedWriteIn = true;
+
       const { candidateType } = adjudicatedContestOption;
       switch (candidateType) {
         case 'official-candidate': {
@@ -324,7 +339,32 @@ export function adjudicateCvrContest(
         }
       }
     }
-    store.resolveCvrContestTag({ cvrId, contestId });
+
+    // Create a tag if one doesn't already exist for this cvr-contest pair
+    if (!store.getCvrContestTag({ cvrId, contestId })) {
+      const electionRecord = assertDefined(store.getElection(electionId));
+      const contest = CachedElectionLookups.getContestById(
+        electionRecord.electionDefinition,
+        contestId
+      );
+      const votesAllowed = getNumberVotesAllowed(contest);
+      const adjudicatedVoteCount = Object.values(
+        adjudicatedContestOptionById
+      ).filter((option) => option.hasVote).length;
+
+      store.addCvrContestTag({
+        cvrId,
+        contestId,
+        isResolved: true,
+        isUndetected: true,
+        hasUnmarkedWriteIn,
+        hasMarginalMark,
+        hasOvervote: adjudicatedVoteCount > votesAllowed,
+        hasUndervote: adjudicatedVoteCount < votesAllowed,
+      });
+    } else {
+      store.resolveCvrContestTag({ cvrId, contestId });
+    }
   });
 }
 
