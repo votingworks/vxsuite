@@ -717,7 +717,7 @@ export class Store implements BaseStore {
           `,
       electionId,
       contest.id,
-      contest.districtId,
+      contest.type !== 'straight-party' ? contest.districtId : null,
       contest.type === 'candidate' ? contest.partyId ?? null : null,
       sortIndex
     );
