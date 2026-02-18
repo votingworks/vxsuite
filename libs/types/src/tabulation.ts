@@ -1,5 +1,6 @@
 import {
   AnyContest,
+  BallotCastingMode,
   BallotStyleGroupId,
   BallotType,
   Candidate,
@@ -45,9 +46,10 @@ export type CandidateContestResults = ContestResultsBase & {
  */
 export type ContestResults = YesNoContestResults | CandidateContestResults;
 
-export type VotingMethod = `${BallotType}`;
+export type VotingMethod = `${BallotType}` | 'early_voting';
 export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
   'precinct',
+  'early_voting',
   'absentee',
 ];
 
@@ -55,6 +57,7 @@ export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
   absentee: 'Absentee',
   precinct: 'Precinct',
   provisional: 'Provisional',
+  early_voting: 'Early Voting',
 };
 
 /**
@@ -82,6 +85,7 @@ export interface CastVoteRecordAttributes {
   readonly batchId: Id;
   readonly scannerId: Id;
   readonly partyId?: Id;
+  readonly ballotCastingMode?: BallotCastingMode;
 }
 
 /**
