@@ -28,6 +28,7 @@ export function doesContestAppearOnPartyBallot(
 ): boolean {
   return (
     contest.type === 'yesno' ||
+    contest.type === 'straight-party' ||
     !contest.partyId ||
     contest.partyId === ballotPartyId
   );
@@ -42,7 +43,7 @@ function buildBallotStyleContestIdsLookup(
     const contestIds = election.contests
       .filter(
         (c) =>
-          bsDistricts.has(c.districtId) &&
+          (c.type === 'straight-party' || bsDistricts.has(c.districtId)) &&
           doesContestAppearOnPartyBallot(c, ballotStyle.partyId)
       )
       .map((c) => c.id);

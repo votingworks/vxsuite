@@ -93,11 +93,11 @@ export function regenerateElectionIds(election: Election): {
   const contests = election.contests.map((contest) => ({
     ...contest,
     id: replaceId(contest.id),
-    districtId: replaceId(contest.districtId),
     ...(() => {
       switch (contest.type) {
         case 'candidate':
           return {
+            districtId: replaceId(contest.districtId),
             partyId: contest.partyId ? replaceId(contest.partyId) : undefined,
             candidates: contest.candidates.map((candidate) => ({
               ...candidate,
@@ -107,6 +107,7 @@ export function regenerateElectionIds(election: Election): {
           };
         case 'yesno':
           return {
+            districtId: replaceId(contest.districtId),
             yesOption: {
               ...contest.yesOption,
               id: replaceId(contest.yesOption.id),
@@ -116,10 +117,11 @@ export function regenerateElectionIds(election: Election): {
               id: replaceId(contest.noOption.id),
             },
           };
-        default: {
-          /* istanbul ignore next - @preserve */
+        case 'straight-party':
+          return {};
+        /* istanbul ignore next - @preserve */
+        default:
           throwIllegalValue(contest);
-        }
       }
     })(),
   }));
