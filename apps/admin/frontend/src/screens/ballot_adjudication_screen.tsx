@@ -9,7 +9,12 @@ import {
   Screen,
   SegmentedButton,
 } from '@votingworks/ui';
-import { AnyContest, ContestId, Election } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  AnyContest,
+  ContestId,
+  Election,
+} from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import type { BallotImages } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
@@ -19,6 +24,8 @@ import {
   getBallotAdjudicationQueue,
   getBallotImagesAndLayouts,
   getNextCvrIdForBallotAdjudication,
+  getSystemSettings,
+  getWriteInCandidates,
 } from '../api';
 import { routerPaths } from '../router_paths';
 import {
@@ -214,6 +221,8 @@ export function BallotAdjudicationScreen(): JSX.Element {
   const ballotImagesQuery = getBallotImagesAndLayouts.useQuery(
     maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId } : undefined
   );
+  const writeInCandidatesQuery = getWriteInCandidates.useQuery();
+  const systemSettingsQuery = getSystemSettings.useQuery();
 
   // Prefetch the next and previous ballot images
   const prefetchImageViews = getBallotImagesAndLayouts.usePrefetch();
@@ -288,6 +297,8 @@ export function BallotAdjudicationScreen(): JSX.Element {
     !ballotAdjudicationDataQuery.isSuccess ||
     !ballotImagesQuery.isSuccess ||
     !ballotQueueQuery.isSuccess ||
+    !writeInCandidatesQuery.isSuccess ||
+    !systemSettingsQuery.isSuccess ||
     maybeCvrQueueIndex === undefined
   ) {
     return (
@@ -318,6 +329,13 @@ export function BallotAdjudicationScreen(): JSX.Element {
       .filter((c) => c.tag !== null)
       .map((c) => [c.contestId, c.tag])
   );
+  const writeInCandidateNames = new Map(
+    writeInCandidatesQuery.data.map((c) => [c.id, c.name])
+  );
+  const showUndervoteTransitions =
+    systemSettingsQuery.data.adminAdjudicationReasons.includes(
+      AdjudicationReason.Undervote
+    );
 
   const allResolved = adjudicationContests.every(
     (c) => !c.tag || c.tag.isResolved
@@ -451,6 +469,9 @@ export function BallotAdjudicationScreen(): JSX.Element {
               backContests={backContests}
               election={election}
               tagsByContestId={tagsByContestId}
+              adjudicationContests={adjudicationContests}
+              writeInCandidateNames={writeInCandidateNames}
+              showUndervoteTransitions={showUndervoteTransitions}
               onSelect={(contestId) => setSelectedContestId(contestId)}
               onHover={onContestHover}
               onSelectSide={setSelectedSide}
