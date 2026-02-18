@@ -12,7 +12,7 @@ import { ContestResults } from '@votingworks/types/src/tabulation';
 import { z } from 'zod/v4';
 import { baseUrl } from './globals';
 
-export const StateCodes = ['DEMO', 'MS', 'NH'] as const;
+export const StateCodes = ['DEMO', 'MI', 'MS', 'NH'] as const;
 export type StateCode = (typeof StateCodes)[number];
 export const StateCodeSchema: z.ZodType<StateCode> = z.enum(StateCodes);
 

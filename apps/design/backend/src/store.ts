@@ -1059,7 +1059,7 @@ export class Store {
         lastName: string | null;
         partyIds: PartyId[];
       }>;
-      const contests: AnyContest[] = contestRows.map((row) => {
+      const contests: AnyContest[] = contestRows.flatMap((row) => {
         switch (row.type) {
           case 'candidate': {
             const candidates: Candidate[] = candidateRows
@@ -1111,6 +1111,9 @@ export class Store {
               additionalOptions: row.additionalOptions ?? undefined,
             });
           }
+          case 'straight-party':
+            // Straight-party contests are injected dynamically, not stored
+            return [];
           default: {
             /* istanbul ignore next - @preserve */
             return throwIllegalValue(row.type);

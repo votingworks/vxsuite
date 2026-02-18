@@ -126,6 +126,11 @@ export enum StateFeature {
    * fee.
    */
   POST_FINALIZE_CHANGE_FEE_WARNING = 'POST_FINALIZE_CHANGE_FEE_WARNING',
+  /**
+   * Automatically inject a straight party contest for general elections with
+   * partisan candidate contests.
+   */
+  STRAIGHT_PARTY_VOTING = 'STRAIGHT_PARTY_VOTING',
 }
 
 export type UserFeaturesConfig = Partial<Record<UserFeature, boolean>>;
@@ -160,6 +165,11 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     AUDIO_ENABLED: true,
     BALLOT_LANGUAGE_CONFIG: true,
     EXPORT_TEST_BALLOTS: true,
+    STRAIGHT_PARTY_VOTING: true,
+  },
+
+  MI: {
+    STRAIGHT_PARTY_VOTING: true,
   },
 
   MS: {
