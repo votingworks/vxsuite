@@ -97,15 +97,13 @@
     { "id": "judicial", "name": "Judicial" },
     { "id": "local-school-district", "name": "Local School District" },
     { "id": "community-college", "name": "Community College" },
-    { "id": "village", "name": "Village" },
-    { "id": "straight-party", "name": "Straight Party Ticket" }
+    { "id": "village", "name": "Village" }
   ],
   "precincts": [
     {
       "id": "sparta-township-1",
       "name": "Sparta Township, Precinct 1",
       "districtIds": [
-        "straight-party",
         "presidential",
         "state",
         "state-boards",
@@ -126,7 +124,6 @@
       "groupId": "1",
       "precincts": ["sparta-township-1"],
       "districts": [
-        "straight-party",
         "presidential",
         "state",
         "state-boards",
@@ -143,42 +140,6 @@
     }
   ],
   "contests": [
-    {
-      "id": "straight-party-ticket",
-      "type": "candidate",
-      "title": "Straight Party Ticket",
-      "districtId": "straight-party",
-      "candidates": [{
-        "id": "straight-party-dem",
-        "name": "Democratic Party"
-      }, 
-      {
-        "id": "straight-party-rep",
-        "name": "Republican Party"
-      },
-      {
-        "id": "straight-party-lib",
-        "name": "Libertarian Party"
-      },
-      {
-        "id": "straight-party-ust",
-        "name": "U.S. Taxpayers Party"
-      },
-      {
-        "id": "straight-party-grn",
-        "name": "Green Party"
-      },
-      {
-        "id": "straight-party-wcp",
-        "name": "Working Class Party"
-      },
-      {
-        "id": "straight-party-nlp",
-        "name": "Natural Law Party"
-      }],
-      "seats": 1,
-      "allowWriteIns": false
-    },
     {
       "id": "president",
       "districtId": "presidential",
