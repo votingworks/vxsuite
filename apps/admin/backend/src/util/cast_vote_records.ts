@@ -15,6 +15,9 @@ export function getNumberVotesAllowed(contest: AnyContest): number {
   if (contest.type === 'yesno') {
     return 1;
   }
+  if (contest.type === 'straight-party') {
+    return 1;
+  }
 
   return contest.seats;
 }

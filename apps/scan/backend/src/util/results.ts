@@ -8,6 +8,7 @@ import {
   getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import {
+  applyStraightPartyRules,
   convertVotesDictToTabulationVotes,
   getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
@@ -74,11 +75,15 @@ export async function getScannerResults({
         election,
       });
 
-      return typedAs<Tabulation.CastVoteRecord>({
-        votes: convertVotesDictToTabulationVotes({
+      const hmpbVotes = applyStraightPartyRules(
+        election,
+        convertVotesDictToTabulationVotes({
           ...frontInterpretation.votes,
           ...backInterpretation.votes,
-        }),
+        })
+      );
+      return typedAs<Tabulation.CastVoteRecord>({
+        votes: hmpbVotes,
         card: {
           type: 'hmpb',
           sheetNumber,
@@ -106,8 +111,12 @@ export async function getScannerResults({
         election,
       });
 
+      const multiPageBmdVotes = applyStraightPartyRules(
+        election,
+        convertVotesDictToTabulationVotes(interpretation.votes)
+      );
       return typedAs<Tabulation.CastVoteRecord>({
-        votes: convertVotesDictToTabulationVotes(interpretation.votes),
+        votes: multiPageBmdVotes,
         card: {
           type: 'bmd',
           // Include sheet number for multi-page BMD ballots to enable
@@ -134,8 +143,12 @@ export async function getScannerResults({
       election,
     });
 
+    const bmdVotes = applyStraightPartyRules(
+      election,
+      convertVotesDictToTabulationVotes(interpretation.votes)
+    );
     return typedAs<Tabulation.CastVoteRecord>({
-      votes: convertVotesDictToTabulationVotes(interpretation.votes),
+      votes: bmdVotes,
       card: {
         type: 'bmd',
       },

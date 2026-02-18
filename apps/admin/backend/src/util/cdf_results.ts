@@ -194,7 +194,7 @@ function buildContests(
     if (contest.type === 'yesno') {
       assert(contestResults.contestType === 'yesno');
       reportContests.push(buildBallotMeasureContest(contest, contestResults));
-    } else {
+    } else if (contest.type === 'candidate') {
       assert(contestResults.contestType === 'candidate');
       reportContests.push(buildCandidateContest(contest, contestResults));
     }
