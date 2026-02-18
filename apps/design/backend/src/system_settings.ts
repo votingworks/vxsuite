@@ -37,6 +37,29 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   },
 
+  MI: {
+    auth: DEFAULT_SYSTEM_SETTINGS.auth,
+    markThresholds: {
+      definite: 0.07,
+      marginal: 0.05,
+      writeInTextArea: 0.05,
+    },
+    precinctScanAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.BlankBallot,
+    ],
+    disallowCastingOvervotes: false,
+    centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
+    adminAdjudicationReasons: [],
+    precinctScanEnableBmdBallotScanning: true,
+    bmdPrintMode: 'bubble_ballot',
+    precinctScanDisableAlarms: true,
+    disableSystemLimitChecks: true,
+    disableVoterHelpButtons: true,
+    maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+    retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+  },
+
   MS: {
     auth: DEFAULT_SYSTEM_SETTINGS.auth,
     precinctScanAdjudicationReasons: [

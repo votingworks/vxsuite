@@ -21,6 +21,8 @@ export function defaultBallotTemplate(
   switch (jurisdiction.stateCode) {
     case 'DEMO':
       return 'VxDefaultBallot';
+    case 'MI':
+      return 'MiBallot';
     case 'MS':
       return 'MsBallot';
     case 'NH':
@@ -119,6 +121,7 @@ export function createBallotPropsForTemplate(
     case 'NhBallot':
       return baseBallotProps.map(buildNhBallotProps);
 
+    case 'MiBallot':
     case 'MsBallot':
     case 'VxDefaultBallot':
       return baseBallotProps;
