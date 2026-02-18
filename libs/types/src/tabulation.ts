@@ -5,6 +5,7 @@ import {
   BallotType,
   Candidate,
   CandidateId,
+  Contest,
   ContestId,
   ContestOptionId,
   PartyId,
@@ -20,7 +21,7 @@ export interface ContestResultsMetadata {
 
 type ContestResultsBase = ContestResultsMetadata & {
   readonly contestId: ContestId;
-  readonly contestType: AnyContest['type'];
+  readonly contestType: Contest['type'];
 };
 
 export type YesNoContestResults = ContestResultsBase & {
@@ -41,11 +42,25 @@ export type CandidateContestResults = ContestResultsBase & {
   readonly tallies: Record<CandidateId, CandidateTally>;
 };
 
+export interface StraightPartyTally {
+  partyId: PartyId;
+  name: string;
+  tally: number;
+}
+
+export type StraightPartyContestResults = ContestResultsBase & {
+  readonly contestType: 'straight-party';
+  readonly tallies: Record<PartyId, StraightPartyTally>;
+};
+
 /**
  * Represents the results of a single contest in an election, often filtered by
  * some cast vote record attributes.
  */
-export type ContestResults = YesNoContestResults | CandidateContestResults;
+export type ContestResults =
+  | YesNoContestResults
+  | CandidateContestResults
+  | StraightPartyContestResults;
 
 export type VotingMethod = `${BallotType}` | 'early_voting';
 export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [

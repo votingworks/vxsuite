@@ -6,7 +6,6 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  AnyContest,
   HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
@@ -17,6 +16,7 @@ import {
   ContestLike,
   Contests,
   District,
+  DistrictContest,
   DistrictId,
   Election,
   BallotStyleGroup,
@@ -49,12 +49,13 @@ export function getContests({
 }): Contests {
   return election.contests.filter(
     (contest) =>
-      ballotStyle.districts.includes(contest.districtId) &&
-      // In closed primary elections, where each ballot style has a specific
-      // party, filter candidate contests by party (if they have one).
-      (ballotStyle.partyId && contest.type === 'candidate'
-        ? !contest.partyId || contest.partyId === ballotStyle.partyId
-        : true)
+      contest.type === 'straight-party' ||
+      (ballotStyle.districts.includes(contest.districtId) &&
+        // In closed primary elections, where each ballot style has a specific
+        // party, filter candidate contests by party (if they have one).
+        (ballotStyle.partyId && contest.type === 'candidate'
+          ? !contest.partyId || contest.partyId === ballotStyle.partyId
+          : true))
   );
 }
 
@@ -216,7 +217,7 @@ export function findContest({
 }: {
   contests: Contests;
   contestId: ContestId;
-}): AnyContest | undefined {
+}): Contest | undefined {
   return contests.find((c) => c.id === contestId);
 }
 
@@ -431,7 +432,7 @@ export function getContestDistrict(
 
 export function getContestDistrictName(
   election: Election,
-  contest: Contest
+  contest: DistrictContest
 ): string {
   return getContestDistrict(election, contest).name;
 }
@@ -477,6 +478,9 @@ export function vote(
     } else if (contest.type === 'yesno') {
       assert(Array.isArray(choice), 'yesno shorthand must be an array');
       votes[contest.id] = choice;
+    } else if (contest.type === 'straight-party') {
+      // For straight-party, choice is a PartyId or array of PartyIds
+      votes[contest.id] = Array.isArray(choice) ? choice : [choice];
     } else if (Array.isArray(choice) && typeof choice[0] === 'string') {
       votes[contest.id] = contest.candidates.filter((c) =>
         (choice as readonly string[]).includes(c.id)

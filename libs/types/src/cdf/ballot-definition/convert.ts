@@ -511,6 +511,10 @@ export function convertVxfElectionToCdfBallotDefinition(
             case 'yesno': {
               return gridPosition.optionId;
             }
+            case 'straight-party': {
+              return gridPosition.optionId;
+            }
+            /* istanbul ignore next - @preserve */
             default: {
               /* istanbul ignore next */
               return throwIllegalValue(contest);
@@ -745,90 +749,91 @@ export function convertVxfElectionToCdfBallotDefinition(
             })
           ),
 
-        // eslint-disable-next-line array-callback-return
-        Contest: vxfElection.contests.map((contest) => {
-          switch (contest.type) {
-            case 'candidate':
-              return {
-                '@type': 'BallotDefinition.CandidateContest',
-                '@id': contest.id,
-                ElectionDistrictId: contest.districtId,
-                Name: contest.title,
-                BallotTitle: text(contest.title, [
-                  ElectionStringKey.CONTEST_TITLE,
-                  contest.id,
-                ]),
-                VotesAllowed: contest.seats,
-                ContestOption: [
-                  ...contest.candidates.map(
-                    (candidate): Cdf.CandidateOption => ({
-                      '@type': 'BallotDefinition.CandidateOption',
-                      '@id': candidateOptionId(contest.id, candidate.id),
-                      CandidateIds: [candidate.id],
-                      EndorsementPartyIds: candidate.partyIds,
-                    })
-                  ),
-                  // Create write-in options up to the number of votes allowed
-                  ...(contest.allowWriteIns
-                    ? naturals()
-                        .take(contest.seats)
-                        .map(
-                          (writeInIndex): Cdf.CandidateOption => ({
-                            '@type': 'BallotDefinition.CandidateOption',
-                            '@id': writeInOptionId(contest.id, writeInIndex),
-                            IsWriteIn: true,
-                          })
-                        )
-                    : []),
-                ],
-                PrimaryPartyIds: contest.partyId
-                  ? [contest.partyId]
-                  : undefined,
-                OfficeIds: contest.termDescription
-                  ? [officeId(contest.id)]
-                  : undefined,
-              };
+        Contest: vxfElection.contests
+          .filter((c): c is Vxf.DistrictContest => c.type !== 'straight-party')
+          // eslint-disable-next-line array-callback-return
+          .map((contest) => {
+            switch (contest.type) {
+              case 'candidate':
+                return {
+                  '@type': 'BallotDefinition.CandidateContest',
+                  '@id': contest.id,
+                  ElectionDistrictId: contest.districtId,
+                  Name: contest.title,
+                  BallotTitle: text(contest.title, [
+                    ElectionStringKey.CONTEST_TITLE,
+                    contest.id,
+                  ]),
+                  VotesAllowed: contest.seats,
+                  ContestOption: [
+                    ...contest.candidates.map(
+                      (candidate): Cdf.CandidateOption => ({
+                        '@type': 'BallotDefinition.CandidateOption',
+                        '@id': candidateOptionId(contest.id, candidate.id),
+                        CandidateIds: [candidate.id],
+                        EndorsementPartyIds: candidate.partyIds,
+                      })
+                    ),
+                    // Create write-in options up to the number of votes allowed
+                    ...(contest.allowWriteIns
+                      ? naturals()
+                          .take(contest.seats)
+                          .map(
+                            (writeInIndex): Cdf.CandidateOption => ({
+                              '@type': 'BallotDefinition.CandidateOption',
+                              '@id': writeInOptionId(contest.id, writeInIndex),
+                              IsWriteIn: true,
+                            })
+                          )
+                      : []),
+                  ],
+                  PrimaryPartyIds: contest.partyId
+                    ? [contest.partyId]
+                    : undefined,
+                  OfficeIds: contest.termDescription
+                    ? [officeId(contest.id)]
+                    : undefined,
+                };
 
-            case 'yesno':
-              return {
-                '@type': 'BallotDefinition.BallotMeasureContest',
-                '@id': contest.id,
-                ElectionDistrictId: contest.districtId,
-                Name: contest.title,
-                BallotTitle: text(contest.title, [
-                  ElectionStringKey.CONTEST_TITLE,
-                  contest.id,
-                ]),
-                FullText: text(contest.description, [
-                  ElectionStringKey.CONTEST_DESCRIPTION,
-                  contest.id,
-                ]),
-                ContestOption: [
-                  {
-                    '@type': 'BallotDefinition.BallotMeasureOption',
-                    '@id': contest.yesOption.id,
-                    Selection: text(contest.yesOption.label, [
-                      ElectionStringKey.CONTEST_OPTION_LABEL,
-                      contest.yesOption.id,
-                    ]),
-                  },
-                  {
-                    '@type': 'BallotDefinition.BallotMeasureOption',
-                    '@id': contest.noOption.id,
-                    Selection: text(contest.noOption.label, [
-                      ElectionStringKey.CONTEST_OPTION_LABEL,
-                      contest.noOption.id,
-                    ]),
-                  },
-                ],
-              };
+              case 'yesno':
+                return {
+                  '@type': 'BallotDefinition.BallotMeasureContest',
+                  '@id': contest.id,
+                  ElectionDistrictId: contest.districtId,
+                  Name: contest.title,
+                  BallotTitle: text(contest.title, [
+                    ElectionStringKey.CONTEST_TITLE,
+                    contest.id,
+                  ]),
+                  FullText: text(contest.description, [
+                    ElectionStringKey.CONTEST_DESCRIPTION,
+                    contest.id,
+                  ]),
+                  ContestOption: [
+                    {
+                      '@type': 'BallotDefinition.BallotMeasureOption',
+                      '@id': contest.yesOption.id,
+                      Selection: text(contest.yesOption.label, [
+                        ElectionStringKey.CONTEST_OPTION_LABEL,
+                        contest.yesOption.id,
+                      ]),
+                    },
+                    {
+                      '@type': 'BallotDefinition.BallotMeasureOption',
+                      '@id': contest.noOption.id,
+                      Selection: text(contest.noOption.label, [
+                        ElectionStringKey.CONTEST_OPTION_LABEL,
+                        contest.noOption.id,
+                      ]),
+                    },
+                  ],
+                };
 
             default: {
               /* istanbul ignore next */
               throwIllegalValue(contest);
             }
-          }
-        }),
+          }),
 
         BallotStyle: vxfElection.ballotStyles.map(
           (ballotStyle): Cdf.BallotStyle => ({
