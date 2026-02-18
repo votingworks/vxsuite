@@ -1963,7 +1963,7 @@ export class Store {
         const contestMarkScores = markScores?.[contest.id];
 
         const options: ContestOptionAdjudicationData[] = [
-          ...allContestOptions(contest, ballotStyleGroup),
+          ...allContestOptions(contest, ballotStyleGroup, election.parties),
         ].map((option) => {
           const key = `${contest.id}:${option.id}`;
           const initialVote = contestVotes.includes(option.id);
