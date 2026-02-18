@@ -346,6 +346,10 @@ export const saveSetting = {
 - Each app provides its API client via React context (`ApiClientContext` /
   `ApiProvider`)
 
+## Pull Requests
+
+When creating PRs, use the repo template at `.github/pull_request_template.md`.
+
 ## Key Conventions
 
 - All shared types live in `@votingworks/types`
