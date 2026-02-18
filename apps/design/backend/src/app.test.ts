@@ -3022,6 +3022,11 @@ test('cloneElection', async () => {
               id: expectNotEqualTo(contest.noOption.id),
             },
           };
+        case 'straight-party':
+          return {
+            ...contest,
+            id: expectNotEqualTo(contest.id),
+          };
         default:
           throw throwIllegalValue(contest, 'type');
       }

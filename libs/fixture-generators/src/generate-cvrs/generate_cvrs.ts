@@ -265,6 +265,9 @@ export function* generateCvrs({
                   [],
                 ]);
                 break;
+              case 'straight-party':
+                // TODO: Generate straight-party CVR options
+                break;
               // istanbul ignore next
               default:
                 throwIllegalValue(contest);

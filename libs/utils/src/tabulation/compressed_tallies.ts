@@ -80,7 +80,7 @@ export function compressTally(
   const contests = getContestsForPrecinctAndElection(
     election,
     precinctSelection
-  );
+  ).filter((c) => c.type !== 'straight-party');
   // eslint-disable-next-line array-callback-return
   return contests.map((contest) => {
     switch (contest.type) {
@@ -340,7 +340,7 @@ export function decodeV0CompressedTally(
   const contests = getContestsForPrecinctAndElection(
     election,
     precinctSelection
-  );
+  ).filter((c) => c.type !== 'straight-party');
   const totalNumberOfEntries = contests.reduce(
     (sum, contest) => sum + getNumberOfEntriesInContest(contest),
     0
@@ -480,8 +480,8 @@ export function readV0CompressedTallyAsContestResults({
   const contests = getContestsForPrecinctAndElection(
     election,
     precinctSelection
-  );
-  const allContestResults: Record<ContestId, ContestResults> = {};
+  ).filter((c) => c.type !== 'straight-party');
+  const allContestResults: Tabulation.ElectionResults['contestResults'] = {};
   for (const [contestIdx, contest] of contests.entries()) {
     const serializedContestTally = compressedTally[contestIdx];
     assert(serializedContestTally);

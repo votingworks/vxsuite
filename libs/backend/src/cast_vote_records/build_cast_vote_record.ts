@@ -386,6 +386,9 @@ export function buildCVRContestsFromVotes({
           })
         );
         break;
+      case 'straight-party':
+        // TODO: Build CDF CVR for straight-party (Commit 13)
+        break;
       default:
         /* istanbul ignore next */
         throwIllegalValue(contest);

@@ -98,6 +98,10 @@ export function* allContestOptionsWithMultiEndorsements(
       break;
     }
 
+    case 'straight-party':
+      // TODO: Yield party options (Commit 4)
+      break;
+
     default:
       /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
