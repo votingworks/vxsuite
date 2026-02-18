@@ -98,6 +98,14 @@ type StoreCastVoteRecordAttributes = Omit<
 };
 
 /**
+ * Derive the voting method from the ballot type and the
+ * batch's ballot casting mode. When the batch was scanned during early voting,
+ * the voting method is 'early_voting' regardless of ballot type. Otherwise it
+ * falls back to the ballot type itself.
+ */
+const VOTING_METHOD_SQL_EXPR = `(CASE WHEN scanner_batches.ballot_casting_mode = 'early_voting' THEN 'early_voting' ELSE cvrs.ballot_type END)`;
+
+/**
  * Adjudication queue ordering:
  * Note: The intention is to show the most important issues first
  * 1. All overvotes (regardless of write-ins, marginal marks)
@@ -694,7 +702,7 @@ export class Store {
         inner join precincts on
           ballot_styles_to_precincts.election_id = precincts.election_id and
           ballot_styles_to_precincts.precinct_id = precincts.id
-        inner join voting_methods on
+        cross join voting_methods on
           voting_methods.election_id = ballot_styles.election_id
         where ${whereParts.join(' and ')}
         group by
@@ -1051,32 +1059,40 @@ export class Store {
         id,
         label,
         scanner_id,
-        election_id
+        election_id,
+        ballot_casting_mode
       ) values (
-        ?, ?, ?, ?
+        ?, ?, ?, ?, ?
       )
     `,
       scannerBatch.batchId,
       scannerBatch.label,
       scannerBatch.scannerId,
-      scannerBatch.electionId
+      scannerBatch.electionId,
+      scannerBatch.ballotCastingMode ?? null
     );
   }
 
   getScannerBatches(electionId: string): ScannerBatch[] {
-    return this.client.all(
-      `
+    return (
+      this.client.all(
+        `
         select
           id as batchId,
           label as label,
           scanner_id as scannerId,
-          election_id as electionId
+          election_id as electionId,
+          ballot_casting_mode as ballotCastingMode
         from scanner_batches
         where
           election_id = ?
       `,
-      electionId
-    ) as ScannerBatch[];
+        electionId
+      ) as ScannerBatch[]
+    ).map((row) => ({
+      ...row,
+      ballotCastingMode: row.ballotCastingMode ?? undefined,
+    }));
   }
 
   deleteEmptyScannerBatches(electionId: string): void {
@@ -1328,7 +1344,9 @@ export class Store {
 
     if (filter.votingMethods) {
       whereParts.push(
-        `cvrs.ballot_type in ${asQueryPlaceholders(filter.votingMethods)}`
+        `${VOTING_METHOD_SQL_EXPR} in ${asQueryPlaceholders(
+          filter.votingMethods
+        )}`
       );
       params.push(...filter.votingMethods);
     }
@@ -1447,7 +1465,7 @@ export class Store {
           cvrs.ballot_style_group_id as ballotStyleGroupId,
           ballot_styles.party_id as partyId,
           cvrs.precinct_id as precinctId,
-          cvrs.ballot_type as votingMethod,
+          ${VOTING_METHOD_SQL_EXPR} as votingMethod,
           cvrs.batch_id as batchId,
           scanner_batches.scanner_id as scannerId,
           cvrs.card_type as cardType,
@@ -1555,8 +1573,8 @@ export class Store {
     }
 
     if (groupBy.groupByVotingMethod) {
-      selectParts.push('cvrs.ballot_type as votingMethod');
-      groupByParts.push('cvrs.ballot_type');
+      selectParts.push(`${VOTING_METHOD_SQL_EXPR} as votingMethod`);
+      groupByParts.push(VOTING_METHOD_SQL_EXPR);
     }
 
     for (const row of this.client.each(
@@ -1898,7 +1916,7 @@ export class Store {
     }
 
     if (groupBy.groupByVotingMethod) {
-      selectParts.push('cvrs.ballot_type as votingMethod');
+      selectParts.push(`${VOTING_METHOD_SQL_EXPR} as votingMethod`);
     }
 
     const officialCandidateNameLookup =
