@@ -160,13 +160,17 @@ export interface StateFeaturesConfig {
    * the same ballot rather than having a separate ballot for each party.
    */
   OPEN_PRIMARIES?: boolean;
-
   /**
    * Allow deleting live reports data. Only enabled for demo jurisdictions so
    * that demo data can be cleared between runs; live/production data should
    * never be deletable from the UI.
    */
   DELETE_LIVE_REPORTS?: boolean;
+  /**
+   * Automatically inject a straight party contest for general elections with
+   * partisan candidate contests.
+   */
+  STRAIGHT_PARTY_VOTING?: boolean;
 }
 
 export type UserFeature = keyof UserFeaturesConfig;
@@ -211,6 +215,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     AUDIO_ENABLED: true,
     EDIT_POLLING_PLACES: true,
     OPEN_PRIMARIES: true,
+    STRAIGHT_PARTY_VOTING: true,
   },
 
   MS: {
