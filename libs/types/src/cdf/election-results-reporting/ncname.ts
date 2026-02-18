@@ -4,6 +4,7 @@ import {
   CandidateId,
   Contest,
   District,
+  DistrictContest,
   Election,
   Party,
   YesNoContest,
@@ -50,7 +51,7 @@ export function getContestId(contest: Contest): string {
 /**
  * Gets the district ID from a Contest, formatted as an NCName.
  */
-export function getDistrictIdFromContest(contest: Contest): string {
+export function getDistrictIdFromContest(contest: DistrictContest): string {
   return asNcName(contest.districtId);
 }
 
