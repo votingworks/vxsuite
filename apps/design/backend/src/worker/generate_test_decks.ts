@@ -24,6 +24,8 @@ import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
+import { getStateFeaturesConfig } from '../features';
+import { injectStraightPartyContest } from '../straight_party';
 import {
   createPrecinctTestDeck,
   createPrecinctSummaryBallotTestDeck,
@@ -47,14 +49,20 @@ export async function generateTestDecks(
   emitProgress: EmitProgressFunction
 ): Promise<void> {
   const { store } = workspace;
+  const electionRecord = await store.getElection(electionId);
   const {
-    election,
     ballotLanguageConfigs,
     ballotTemplateId,
     jurisdictionId,
     systemSettings,
-  } = await store.getElection(electionId);
+  } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
+
+  const jurisdiction = await store.getJurisdiction(jurisdictionId);
+  const stateFeatures = getStateFeaturesConfig(jurisdiction);
+  const election = stateFeatures.STRAIGHT_PARTY_VOTING
+    ? injectStraightPartyContest(electionRecord.election)
+    : electionRecord.election;
 
   // Check if summary BMD ballots should be generated
   const shouldGenerateSummaryBallots =

@@ -10,6 +10,8 @@ import {
   SpeechSynthesizer,
   convertHtmlToAudioCues,
 } from '@votingworks/backend';
+import { getStateFeaturesConfig } from './features';
+import { injectStraightPartyContest } from './straight_party';
 import { Workspace } from './workspace';
 
 export type DataUrl = string;
@@ -39,9 +41,16 @@ export function apiMethods(ctx: TtsApiContext) {
     async ttsStringDefaults(input: {
       electionId: string;
     }): Promise<TtsStringDefault[]> {
-      const { election } = await ctx.workspace.store.getElection(
+      const electionRecord = await ctx.workspace.store.getElection(
         input.electionId
       );
+      const jurisdiction = await ctx.workspace.store.getElectionJurisdiction(
+        input.electionId
+      );
+      const stateFeatures = getStateFeaturesConfig(jurisdiction);
+      const election = stateFeatures.STRAIGHT_PARTY_VOTING
+        ? injectStraightPartyContest(electionRecord.election)
+        : electionRecord.election;
 
       const strings: TtsStringDefault[] = [];
 
