@@ -274,9 +274,30 @@ export function ContestResultsTable({
       );
       break;
     }
-    case 'straight-party':
-      // TODO: Render straight-party results (Commit 12)
-      return null;
+    case 'straight-party': {
+      assert(scannedContestResults.contestType === 'straight-party');
+      assertIsOptional<Tabulation.StraightPartyContestResults>(
+        manualContestResults
+      );
+      for (const [partyId, tally] of Object.entries(
+        scannedContestResults.tallies
+      )) {
+        const key = `${contest.id}-${partyId}`;
+        const manualTally =
+          manualContestResults?.tallies[partyId]?.tally ?? 0;
+        contestTableRows.push(
+          <ContestOptionRow
+            key={key}
+            testId={key}
+            optionLabel={tally.name}
+            scannedTally={tally.tally}
+            manualTally={manualTally}
+            showManualTally={hasManualResults}
+          />
+        );
+      }
+      break;
+    }
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);
@@ -285,7 +306,11 @@ export function ContestResultsTable({
 
   return (
     <Contest data-testid={`results-table-${contest.id}`}>
-      <DistrictName>{getContestDistrictName(election, contest)}</DistrictName>
+      {contest.type !== 'straight-party' && (
+        <DistrictName>
+          {getContestDistrictName(election, contest)}
+        </DistrictName>
+      )}
       <ContestTitle>{contest.title}</ContestTitle>
       {contest.type === 'candidate' && (
         <ContestMetadata>
