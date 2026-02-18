@@ -175,7 +175,8 @@ function buildOptionPositionLookupForBallotStyle(
     // Iterate through all options in ballot order, including multi-endorsed duplicates
     for (const option of allContestOptionsWithMultiEndorsements(
       contest,
-      ballotStyle
+      ballotStyle,
+      election.parties
     )) {
       // For multi-endorsed candidates, only store the first occurrence
       if (contestMap[option.id] === undefined) {

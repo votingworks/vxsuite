@@ -25,11 +25,13 @@ function generateMockYesNoVote(c: YesNoContest, seed = 0): Vote {
 
 export function generateMockVotes(election: Election): VotesDict {
   return Object.fromEntries(
-    election.contests.map((c, index) => [
-      c.id,
-      c.type === 'yesno'
-        ? generateMockYesNoVote(c, index)
-        : generateMockCandidateVote(c, index),
-    ])
+    election.contests
+      .filter((c) => c.type !== 'straight-party')
+      .map((c, index) => [
+        c.id,
+        c.type === 'yesno'
+          ? generateMockYesNoVote(c, index)
+          : generateMockCandidateVote(c, index),
+      ])
   );
 }

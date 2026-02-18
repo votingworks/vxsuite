@@ -141,6 +141,8 @@ export async function generateMarkOverlay(
 
     const contest = election.contests.find((c) => c.id === pos.contestId);
     assert(contest, `contest ${pos.contestId} not found`);
+    // TODO: Handle straight-party marking in a later commit
+    if (contest.type === 'straight-party') continue;
 
     const mark = markInfo(contestVotes, pos, contest, layout);
     if (!mark) continue;

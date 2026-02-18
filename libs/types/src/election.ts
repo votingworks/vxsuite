@@ -1244,12 +1244,34 @@ export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> =
     scoredOffset: OffsetSchema,
   });
 
+export interface BallotStraightPartyTargetMark {
+  type: StraightPartyContest['type'];
+  bounds: Rect;
+  contestId: ContestId;
+  target: TargetShape;
+  optionId: PartyId;
+  score: number;
+  scoredOffset: Offset;
+}
+export const BallotStraightPartyTargetMarkSchema: z.ZodSchema<BallotStraightPartyTargetMark> =
+  z.object({
+    type: z.literal('straight-party'),
+    bounds: RectSchema,
+    contestId: ContestIdSchema,
+    target: TargetShapeSchema,
+    optionId: PartyIdSchema,
+    score: z.number(),
+    scoredOffset: OffsetSchema,
+  });
+
 export type BallotTargetMark =
   | BallotCandidateTargetMark
-  | BallotYesNoTargetMark;
+  | BallotYesNoTargetMark
+  | BallotStraightPartyTargetMark;
 export const BallotTargetMarkSchema: z.ZodSchema<BallotTargetMark> = z.union([
   BallotCandidateTargetMarkSchema,
   BallotYesNoTargetMarkSchema,
+  BallotStraightPartyTargetMarkSchema,
 ]);
 
 export type BallotMark = BallotTargetMark;

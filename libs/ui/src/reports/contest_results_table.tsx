@@ -183,7 +183,7 @@ export function ContestResultsTable({
   contest,
   scannedContestResults,
   manualContestResults,
-}: Props): JSX.Element {
+}: Props): JSX.Element | null {
   // When there are manual results, the metadata is included as table rows
   // rather than as an above table caption.
   const contestTableRows: JSX.Element[] = manualContestResults
@@ -276,7 +276,7 @@ export function ContestResultsTable({
     }
     case 'straight-party':
       // TODO: Render straight-party results (Commit 12)
-      break;
+      return null;
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);

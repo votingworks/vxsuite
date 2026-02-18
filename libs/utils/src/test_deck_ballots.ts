@@ -127,23 +127,29 @@ export function generateTestDeckBallots({
           const overvoteContest = contests.find(
             (contest) =>
               contest.type === 'yesno' ||
-              contest.candidates.length > contest.seats
+              (contest.type === 'candidate' &&
+                contest.candidates.length > contest.seats)
           );
           if (overvoteContest) {
+            let overvoteVote: VotesDict[string];
+            if (overvoteContest.type === 'yesno') {
+              overvoteVote = [
+                overvoteContest.yesOption.id,
+                overvoteContest.noOption.id,
+              ];
+            } else if (overvoteContest.type === 'candidate') {
+              overvoteVote = iter(overvoteContest.candidates)
+                .take(overvoteContest.seats + 1)
+                .toArray();
+            } else {
+              continue;
+            }
             ballots.push({
               ballotStyleId: ballotStyle.id,
               precinctId: currentPrecinctId,
               ballotFormat,
               votes: {
-                [overvoteContest.id]:
-                  overvoteContest.type === 'yesno'
-                    ? [
-                        overvoteContest.yesOption.id,
-                        overvoteContest.noOption.id,
-                      ]
-                    : iter(overvoteContest.candidates)
-                        .take(overvoteContest.seats + 1)
-                        .toArray(),
+                [overvoteContest.id]: overvoteVote,
               },
             });
           }

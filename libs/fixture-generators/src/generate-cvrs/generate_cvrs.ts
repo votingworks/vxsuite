@@ -187,7 +187,7 @@ export function generateBallotPageLayouts(
             { x: 0, y: 100 },
             { x: 100, y: 100 },
           ],
-          options: iter(allContestOptions(contest, ballotStyle))
+          options: iter(allContestOptions(contest, ballotStyle, election.parties))
             .map(
               (option): BallotPageContestOptionLayout => ({
                 bounds: { x: 0, y: 0, width: 10, height: 10 },
@@ -365,7 +365,7 @@ export function* generateCvrs({
                 const optionIdsByContest: Record<ContestId, ContestOptionId[]> =
                   {};
                 for (const contest of contests) {
-                  const options = allContestOptions(contest, ballotStyle);
+                  const options = allContestOptions(contest, ballotStyle, election.parties);
                   optionIdsByContest[contest.id] = iter(options)
                     .map((option) => option.id)
                     .toArray();
