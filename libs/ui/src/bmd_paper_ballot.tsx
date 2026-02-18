@@ -703,8 +703,11 @@ export function BmdPaperBallot({
   const primaryBallotLanguage = ballotStyle.languages?.[0] || 'en';
   const allContests = getContests({ ballotStyle, election });
 
-  // Use contestsForPage if provided (multi-page), otherwise use all contests
-  const contests = contestsForPage ?? allContests;
+  // Use contestsForPage if provided (multi-page), otherwise use all contests.
+  // Filter out straight-party contests — BMD ballots don't render them directly.
+  const contests = (contestsForPage ?? allContests).filter(
+    (c) => c.type !== 'straight-party'
+  );
 
   const precinctOrSplit = find(
     getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),

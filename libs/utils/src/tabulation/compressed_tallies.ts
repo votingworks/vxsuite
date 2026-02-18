@@ -1,10 +1,10 @@
 import {
-  AnyContest,
   CandidateContestCompressedTally,
   CandidateContestCompressedTallySchema,
   CompressedTally,
   CompressedTallyEntry,
   ContestId,
+  DistrictContest,
   Election,
   PrecinctSelection,
   Tabulation,
@@ -62,7 +62,7 @@ export function compressTally(
   const contests = getContestsForPrecinctAndElection(
     election,
     precinctSelection
-  ).filter((c) => c.type !== 'straight-party');
+  ).filter((c): c is DistrictContest => c.type !== 'straight-party');
   // eslint-disable-next-line array-callback-return
   return contests.map((contest) => {
     switch (contest.type) {
@@ -125,7 +125,7 @@ export function compressAndEncodeTally({
 }
 
 function getContestTalliesForCompressedContest(
-  contest: AnyContest,
+  contest: DistrictContest,
   compressedContest: CompressedTallyEntry
 ): Tabulation.ContestResults {
   switch (contest.type) {
@@ -197,7 +197,7 @@ function getContestTalliesForCompressedContest(
 // The length of a yes/no contest compressed tally is always 5: undervotes, overvotes, ballots, yes, no
 const yesNoContestCompressedTallyLength: YesNoContestCompressedTally['length'] = 5;
 
-function getNumberOfEntriesInContest(contest: AnyContest): number {
+function getNumberOfEntriesInContest(contest: DistrictContest): number {
   switch (contest.type) {
     case 'yesno':
       return yesNoContestCompressedTallyLength;
@@ -238,7 +238,7 @@ export function decodeCompressedTally(
   const contests = getContestsForPrecinctAndElection(
     election,
     precinctSelection
-  ).filter((c) => c.type !== 'straight-party');
+  ).filter((c): c is DistrictContest => c.type !== 'straight-party');
   const totalNumberOfEntries = contests.reduce(
     (sum, contest) => sum + getNumberOfEntriesInContest(contest),
     0
@@ -293,7 +293,7 @@ export function decodeAndReadCompressedTally({
   const contests = getContestsForPrecinctAndElection(
     election,
     precinctSelection
-  ).filter((c) => c.type !== 'straight-party');
+  ).filter((c): c is DistrictContest => c.type !== 'straight-party');
   const allContestResults: Tabulation.ElectionResults['contestResults'] = {};
   for (const [contestIdx, contest] of contests.entries()) {
     const serializedContestTally = compressedTally[contestIdx];

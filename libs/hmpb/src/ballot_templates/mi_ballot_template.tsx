@@ -16,6 +16,7 @@ import {
   BallotStyleId,
   BaseBallotProps,
   CandidateContest as CandidateContestStruct,
+  DistrictContest,
   Election,
   PrecinctId,
   YesNoContest,
@@ -572,8 +573,9 @@ async function PrimaryBallotPageContent(
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
-  const contests = election.contests.filter((c) =>
-    ballotStyle.districts.includes(c.districtId)
+  const contests = election.contests.filter(
+    (c): c is DistrictContest =>
+      c.type !== 'straight-party' && ballotStyle.districts.includes(c.districtId)
   );
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
@@ -889,22 +891,27 @@ async function BallotPageContent(
     );
   }
 
+  const districtContests = contests.filter(
+    (c): c is DistrictContest => c.type !== 'straight-party'
+  );
   const contestSections = [
     {
       header: 'Partisan Section',
-      contests: contests.filter(
+      contests: districtContests.filter(
         (contest) => contest.type === 'candidate' && isPartisanContest(contest)
       ),
     },
     {
       header: 'Nonpartisan Section',
-      contests: contests.filter(
+      contests: districtContests.filter(
         (contest) => contest.type === 'candidate' && !isPartisanContest(contest)
       ),
     },
     {
       header: 'Proposal Section',
-      contests: contests.filter((contest) => contest.type === 'yesno'),
+      contests: districtContests.filter(
+        (contest) => contest.type === 'yesno'
+      ),
     },
   ]
     .filter((section) => section.contests.length > 0)
@@ -913,11 +920,9 @@ async function BallotPageContent(
       subsections: groupBy(
         section.contests,
         (contest) => contest.districtId
-      ).map(([districtId, districtContests]) => ({
-        header: election.districts.find(
-          (d) => d.id === districtId && districtId !== 'straight-party'
-        )?.name,
-        contests: districtContests,
+      ).map(([districtId, sectionContests]) => ({
+        header: election.districts.find((d) => d.id === districtId)?.name,
+        contests: sectionContests,
       })),
     }));
 

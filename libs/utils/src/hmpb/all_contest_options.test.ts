@@ -9,6 +9,8 @@ import {
   CandidateContest,
   CandidateContestOption,
   ContestOption,
+  StraightPartyContest,
+  StraightPartyContestOption,
   YesNoContestOption,
 } from '@votingworks/types';
 import fc from 'fast-check';
@@ -152,6 +154,35 @@ test('candidate contest with ballot style ordering', () => {
   expect(options[1]?.name).toEqual('Alice');
   expect(options[2]?.id).toEqual('candidate-b');
   expect(options[2]?.name).toEqual('Bob');
+});
+
+test('straight-party contest yields one option per party', () => {
+  const contest: StraightPartyContest = {
+    id: 'straight-party-ticket',
+    type: 'straight-party',
+    title: 'Straight Party',
+  };
+  const parties = [
+    { id: 'party-1', name: 'Democrat', fullName: 'Democratic Party', abbrev: 'D' },
+    { id: 'party-2', name: 'Republican', fullName: 'Republican Party', abbrev: 'R' },
+  ] as const;
+
+  const options = Array.from(allContestOptions(contest, undefined, parties));
+  expectTypeOf(options).toEqualTypeOf<StraightPartyContestOption[]>();
+  expect(options).toEqual([
+    {
+      type: 'straight-party',
+      id: 'party-1',
+      contestId: 'straight-party-ticket',
+      name: 'Democratic Party',
+    },
+    {
+      type: 'straight-party',
+      id: 'party-2',
+      contestId: 'straight-party-ticket',
+      name: 'Republican Party',
+    },
+  ]);
 });
 
 test('candidate contest with multi-endorsed candidates are deduplicated', () => {

@@ -127,7 +127,11 @@ export function AdminTallyReportByParty({
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         partyLabel="Nonpartisan Contests"
-        contests={contests.filter((c) => c.type === 'yesno' || !c.partyId)}
+        contests={contests.filter(
+          (c) =>
+            c.type !== 'straight-party' &&
+            (c.type === 'yesno' || !c.partyId)
+        )}
         scannedElectionResults={tallyReportResults.scannedResults}
         manualElectionResults={tallyReportResults.manualResults}
         title={title ?? 'Tally Report'}

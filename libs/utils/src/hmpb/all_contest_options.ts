@@ -11,6 +11,9 @@ import {
   CandidateContestOption,
   ContestOption,
   getOrderedCandidatesForContestInBallotStyle,
+  Parties,
+  StraightPartyContest,
+  StraightPartyContestOption,
   YesNoContest,
   YesNoContestOption,
 } from '@votingworks/types';
@@ -22,15 +25,26 @@ import {
  */
 export function allContestOptionsWithMultiEndorsements(
   contest: CandidateContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
+  ballotStyle: BallotStyle | BallotStyleGroup,
+  parties?: Parties
 ): Generator<CandidateContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
 export function allContestOptionsWithMultiEndorsements(
   contest: YesNoContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
+  ballotStyle?: BallotStyle | BallotStyleGroup,
+  parties?: Parties
 ): Generator<YesNoContestOption>;
+/**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ * For straight-party contests, yields one option per party.
+ */
+export function allContestOptionsWithMultiEndorsements(
+  contest: StraightPartyContest,
+  ballotStyle: BallotStyle | BallotStyleGroup | undefined,
+  parties: Parties
+): Generator<StraightPartyContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB,
  * including all instances of multi-endorsed candidates.
@@ -38,7 +52,8 @@ export function allContestOptionsWithMultiEndorsements(
  */
 export function allContestOptionsWithMultiEndorsements(
   contest: AnyContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
+  ballotStyle: BallotStyle | BallotStyleGroup,
+  parties?: Parties
 ): Generator<ContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB,
@@ -47,7 +62,8 @@ export function allContestOptionsWithMultiEndorsements(
  */
 export function* allContestOptionsWithMultiEndorsements(
   contest: AnyContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
+  ballotStyle?: BallotStyle | BallotStyleGroup,
+  parties?: Parties
 ): Generator<ContestOption> {
   switch (contest.type) {
     case 'candidate': {
@@ -98,9 +114,21 @@ export function* allContestOptionsWithMultiEndorsements(
       break;
     }
 
-    case 'straight-party':
-      // TODO: Yield party options (Commit 4)
+    case 'straight-party': {
+      const resolvedParties = assertDefined(
+        parties,
+        'parties required for straight-party contest'
+      );
+      for (const party of resolvedParties) {
+        yield {
+          type: 'straight-party',
+          id: party.id,
+          contestId: contest.id,
+          name: party.fullName,
+        };
+      }
       break;
+    }
 
     /* istanbul ignore next */
     default:
@@ -115,22 +143,34 @@ export function* allContestOptionsWithMultiEndorsements(
  */
 export function allContestOptions(
   contest: CandidateContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
+  ballotStyle: BallotStyle | BallotStyleGroup,
+  parties?: Parties
 ): Generator<CandidateContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
 export function allContestOptions(
   contest: YesNoContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
+  ballotStyle?: BallotStyle | BallotStyleGroup,
+  parties?: Parties
 ): Generator<YesNoContestOption>;
+/**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ * For straight-party contests, yields one option per party.
+ */
+export function allContestOptions(
+  contest: StraightPartyContest,
+  ballotStyle: BallotStyle | BallotStyleGroup | undefined,
+  parties: Parties
+): Generator<StraightPartyContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  * For candidate contests, respects ballot style-specific candidate rotation.
  */
 export function allContestOptions(
   contest: AnyContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
+  ballotStyle: BallotStyle | BallotStyleGroup,
+  parties?: Parties
 ): Generator<ContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
@@ -139,7 +179,8 @@ export function allContestOptions(
  */
 export function* allContestOptions(
   contest: AnyContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
+  ballotStyle?: BallotStyle | BallotStyleGroup,
+  parties?: Parties
 ): Generator<ContestOption> {
   // Get all options including multi-endorsed duplicates, then de-duplicate by id
   yield* uniqueBy(
@@ -147,7 +188,8 @@ export function* allContestOptions(
       allContestOptionsWithMultiEndorsements(
         contest,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        ballotStyle!
+        ballotStyle!,
+        parties
       )
     ),
     (option) => option.id
