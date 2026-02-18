@@ -1,9 +1,9 @@
 import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   AnyContest,
-  Contest,
   ContestId,
   Contests,
+  DistrictContest,
   YesNoOption,
   getContestDistrictName as getContestDistrictNameBase,
   Election,
@@ -16,7 +16,7 @@ import {
  * we want to show a combined UI for these contests to make them easy to
  * understand, so we combine the two contests into one "contest" data structure.
  */
-export interface MsEitherNeitherContest extends Omit<Contest, 'type'> {
+export interface MsEitherNeitherContest extends Omit<DistrictContest, 'type'> {
   readonly type: 'ms-either-neither';
   readonly eitherNeitherContestId: ContestId;
   readonly eitherNeitherContest: YesNoContest;
@@ -108,7 +108,7 @@ export function mergeMsEitherNeitherContests(
  */
 export function getContestDistrictName(
   election: Election,
-  contest: AnyContest | MsEitherNeitherContest
+  contest: DistrictContest | MsEitherNeitherContest
 ): string {
   if (contest.type === 'ms-either-neither') {
     const district = find(

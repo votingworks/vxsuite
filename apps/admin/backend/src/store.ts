@@ -585,7 +585,7 @@ export class Store {
           `,
       electionId,
       contest.id,
-      contest.districtId,
+      contest.type !== 'straight-party' ? contest.districtId : null,
       contest.type === 'candidate' ? contest.partyId ?? null : null,
       sortIndex
     );

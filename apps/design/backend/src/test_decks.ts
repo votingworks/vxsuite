@@ -123,7 +123,9 @@ export async function createPrecinctSummaryBallotTestDeck({
       election.ballotStyles.find((bs) => bs.id === ballotStyleId)
     );
     const allContests = ballotStyle.districts.flatMap((districtId) =>
-      election.contests.filter((c) => c.districtId === districtId)
+      election.contests.filter(
+        (c) => c.type !== 'straight-party' && c.districtId === districtId
+      )
     );
     const contestIdSet = new Set(page.contestIds);
     return allContests.filter((c) => contestIdSet.has(c.id));
