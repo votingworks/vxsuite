@@ -437,6 +437,9 @@ export interface CvrContestTag {
   cvrId: Id;
   contestId: ContestId;
   isResolved: boolean;
+  // isUndetected is true when the tag is created by a user action,
+  // not automatically by the system detecting an adjudication need.
+  isUndetected: boolean;
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;
   hasUnmarkedWriteIn?: boolean;

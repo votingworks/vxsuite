@@ -1866,6 +1866,7 @@ export class Store {
         select
           contest_id as contestId,
           is_resolved as isResolved,
+          is_undetected as isUndetected,
           has_overvote as hasOvervote,
           has_undervote as hasUndervote,
           has_write_in as hasWriteIn,
@@ -1878,6 +1879,7 @@ export class Store {
     ) as Array<{
       contestId: ContestId;
       isResolved: SqliteBool;
+      isUndetected: SqliteBool;
       hasOvervote: SqliteBool;
       hasUndervote: SqliteBool;
       hasWriteIn: SqliteBool;
@@ -1929,72 +1931,76 @@ export class Store {
       writeInRecords.map((r) => [`${r.contestId}:${r.optionId}`, r])
     );
 
-    // 7. Build contest adjudication data for each contest in the ballot style
+    // 7. Build contest adjudication data for each contest on this sheet
+    const cvrContestIds = new Set(Object.keys(votes));
     const contests: ContestAdjudicationData[] = getContests({
       ballotStyle: ballotStyleGroup,
       election,
-    }).map((contest) => {
-      const tagRow = tagsByContestId.get(contest.id);
-      const tag: CvrContestTag | null = tagRow
-        ? {
-            cvrId,
-            contestId: contest.id,
-            isResolved: fromSqliteBool(tagRow.isResolved),
-            hasOvervote: fromSqliteBool(tagRow.hasOvervote),
-            hasUndervote: fromSqliteBool(tagRow.hasUndervote),
-            hasWriteIn: fromSqliteBool(tagRow.hasWriteIn),
-            hasUnmarkedWriteIn: fromSqliteBool(tagRow.hasUnmarkedWriteIn),
-            hasMarginalMark: fromSqliteBool(tagRow.hasMarginalMark),
-          }
-        : null;
-
-      const contestVotes = votes[contest.id] ?? [];
-      const contestMarkScores = markScores?.[contest.id];
-
-      const options: ContestOptionAdjudicationData[] = [
-        ...allContestOptions(contest, ballotStyleGroup),
-      ].map((option) => {
-        const key = `${contest.id}:${option.id}`;
-        const initialVote = contestVotes.includes(option.id);
-
-        const adjRow = adjudicationsByKey.get(key);
-        const voteAdjudication: VoteAdjudication | null = adjRow
+    })
+      .filter((contest) => cvrContestIds.has(contest.id))
+      .map((contest) => {
+        const tagRow = tagsByContestId.get(contest.id);
+        const tag: CvrContestTag | null = tagRow
           ? {
-              electionId,
               cvrId,
               contestId: contest.id,
-              optionId: option.id,
-              isVote: fromSqliteBool(adjRow.isVote),
+              isResolved: fromSqliteBool(tagRow.isResolved),
+              isUndetected: fromSqliteBool(tagRow.isUndetected),
+              hasOvervote: fromSqliteBool(tagRow.hasOvervote),
+              hasUndervote: fromSqliteBool(tagRow.hasUndervote),
+              hasWriteIn: fromSqliteBool(tagRow.hasWriteIn),
+              hasUnmarkedWriteIn: fromSqliteBool(tagRow.hasUnmarkedWriteIn),
+              hasMarginalMark: fromSqliteBool(tagRow.hasMarginalMark),
             }
           : null;
 
-        const writeInRecord = writeInsByKey.get(key) ?? null;
+        const contestVotes = votes[contest.id] ?? [];
+        const contestMarkScores = markScores?.[contest.id];
 
-        let hasMarginalMark = false;
-        if (contestMarkScores && markThresholds) {
-          const score = contestMarkScores[option.id];
-          if (score !== undefined) {
-            hasMarginalMark =
-              score >= markThresholds.marginal &&
-              score < markThresholds.definite;
+        const options: ContestOptionAdjudicationData[] = [
+          ...allContestOptions(contest, ballotStyleGroup),
+        ].map((option) => {
+          const key = `${contest.id}:${option.id}`;
+          const initialVote = contestVotes.includes(option.id);
+
+          const adjRow = adjudicationsByKey.get(key);
+          const voteAdjudication: VoteAdjudication | null = adjRow
+            ? {
+                electionId,
+                cvrId,
+                contestId: contest.id,
+                optionId: option.id,
+                isVote: fromSqliteBool(adjRow.isVote),
+              }
+            : null;
+
+          const writeInRecord = writeInsByKey.get(key) ?? null;
+
+          let hasMarginalMark = false;
+          if (contestMarkScores && markThresholds) {
+            const score = contestMarkScores[option.id];
+            if (score !== undefined) {
+              hasMarginalMark =
+                score >= markThresholds.marginal &&
+                score < markThresholds.definite;
+            }
           }
-        }
+
+          return {
+            definition: option,
+            initialVote,
+            hasMarginalMark,
+            voteAdjudication,
+            writeInRecord,
+          };
+        });
 
         return {
-          definition: option,
-          initialVote,
-          hasMarginalMark,
-          voteAdjudication,
-          writeInRecord,
+          contestId: contest.id,
+          tag,
+          options,
         };
       });
-
-      return {
-        contestId: contest.id,
-        tag,
-        options,
-      };
-    });
 
     debug('queried ballot adjudication data for cvr id %s', cvrId);
     return {
@@ -2836,6 +2842,8 @@ export class Store {
   addCvrContestTag({
     cvrId,
     contestId,
+    isResolved = false,
+    isUndetected = false,
     hasOvervote = false,
     hasUndervote = false,
     hasWriteIn = false,
@@ -2848,16 +2856,18 @@ export class Store {
           cvr_id,
           contest_id,
           is_resolved,
+          is_undetected,
           has_overvote,
           has_undervote,
           has_write_in,
           has_unmarked_write_in,
           has_marginal_mark
-        ) values (?, ?, ?, ?, ?, ?, ?, ?)
+        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       cvrId,
       contestId,
-      asSqliteBool(false),
+      asSqliteBool(isResolved),
+      asSqliteBool(isUndetected),
       asSqliteBool(hasOvervote),
       asSqliteBool(hasUndervote),
       asSqliteBool(hasWriteIn),
@@ -2879,6 +2889,7 @@ export class Store {
           cvr_id as cvrId,
           contest_id as contestId,
           is_resolved as isResolved,
+          is_undetected as isUndetected,
           has_overvote as hasOvervote,
           has_undervote as hasUndervote,
           has_write_in as hasWriteIn,
@@ -2896,6 +2907,7 @@ export class Store {
           cvrId: Id;
           contestId: ContestId;
           isResolved: SqliteBool;
+          isUndetected: SqliteBool;
           hasOvervote: SqliteBool;
           hasUndervote: SqliteBool;
           hasWriteIn: SqliteBool;
@@ -2908,6 +2920,7 @@ export class Store {
       ? {
           ...row,
           isResolved: fromSqliteBool(row.isResolved),
+          isUndetected: fromSqliteBool(row.isUndetected),
           hasOvervote: fromSqliteBool(row.hasOvervote),
           hasUndervote: fromSqliteBool(row.hasUndervote),
           hasWriteIn: fromSqliteBool(row.hasWriteIn),

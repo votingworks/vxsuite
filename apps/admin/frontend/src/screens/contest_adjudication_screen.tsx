@@ -26,12 +26,7 @@ import {
   H1,
   P,
 } from '@votingworks/ui';
-import {
-  assert,
-  assertDefined,
-  find,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
@@ -133,22 +128,6 @@ const BallotFooter = styled(BaseRow)`
   width: 100%;
 `;
 
-const BallotMetadata = styled(BaseRow)`
-  padding: 0;
-`;
-
-const BallotNavigation = styled(BaseRow)`
-  gap: 0.5rem;
-  padding: 0;
-
-  /* row-reverse allows tabbing to go from primary to secondary actions */
-  flex-direction: row-reverse;
-
-  button {
-    flex-wrap: nowrap;
-  }
-`;
-
 const ContestOptionButtonList = styled.div`
   display: flex;
   flex-direction: column;
@@ -188,14 +167,6 @@ const MediumText = styled(P)`
   margin: 0;
 `;
 
-const SmallText = styled(P)`
-  color: ${(p) => p.theme.colors.onBackgroundMuted};
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1;
-  margin: 0;
-`;
-
 const Label = styled.span`
   color: ${(p) => p.theme.colors.inverseBackground};
   font-size: 1rem;
@@ -204,10 +175,6 @@ const Label = styled.span`
 
 const PrimaryNavButton = styled(Button)`
   flex-grow: 1;
-`;
-
-const SecondaryNavButton = styled(Button)`
-  width: 5.5rem;
 `;
 
 function renderContestOptionButtonCaption({
@@ -258,30 +225,18 @@ function renderContestOptionButtonCaption({
 
 interface ContestAdjudicationScreenProps {
   contestAdjudicationData: ContestAdjudicationData;
-  contestNumber: number;
-  contestCount: number;
   cvrId: Id;
-  isFlaggedMode: boolean;
-  onBack?: () => void;
-  onNext: () => void;
   onClose: () => void;
   ballotImages: BallotImages;
   side: Side;
-  onLastContest: boolean;
 }
 
 export function ContestAdjudicationScreen({
-  onBack,
-  onNext,
   onClose,
   contestAdjudicationData,
-  contestNumber,
-  contestCount,
   cvrId,
-  isFlaggedMode,
   ballotImages,
   side,
-  onLastContest,
 }: ContestAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
@@ -319,7 +274,6 @@ export function ContestAdjudicationScreen({
   }, [contestOptions, isCandidateContest]);
 
   const {
-    resetState,
     isStateReady,
     isModified,
     getOptionHasVote,
@@ -361,11 +315,8 @@ export function ContestAdjudicationScreen({
 
   // Vote and write-in state for adjudication management
   const [focusedOptionId, setFocusedOptionId] = useState<string>();
-  const [shouldScrollToTarget, setShouldScrollToTarget] = useState(false);
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
-  const [discardChangesNextAction, setDiscardChangesNextAction] = useState<
-    'close' | 'back' | 'skip'
-  >();
+  const [showDiscardChangesModal, setShowDiscardChangesModal] = useState(false);
 
   // Allow escape key to dismiss focused option or modal
   useEffect(() => {
@@ -375,43 +326,26 @@ export function ContestAdjudicationScreen({
           (document.activeElement as HTMLElement)?.blur();
           setFocusedOptionId(undefined);
         }
-        setDiscardChangesNextAction(undefined);
+        setShowDiscardChangesModal(false);
         setDoubleVoteAlert(undefined);
       }
     }
     window.addEventListener('keydown', handleEscape, { capture: true });
     return () =>
       window.removeEventListener('keydown', handleEscape, { capture: true });
-  }, [doubleVoteAlert, discardChangesNextAction, focusedOptionId]);
+  }, [doubleVoteAlert, showDiscardChangesModal, focusedOptionId]);
 
-  // On initial load OR ballot navigation: scroll user to first pending adjudication
   const scrollTargetRef = useRef<HTMLDivElement | null>(null);
+
+  // Scroll to first pending adjudication option on load
   useLayoutEffect(() => {
-    if (
-      !areQueriesFetching &&
-      firstOptionIdPendingAdjudication &&
-      shouldScrollToTarget
-    ) {
+    if (!areQueriesFetching && firstOptionIdPendingAdjudication) {
       scrollTargetRef.current?.scrollIntoView({
         behavior: 'instant',
         block: 'start',
       });
-      setShouldScrollToTarget(false);
     }
-  }, [
-    areQueriesFetching,
-    firstOptionIdPendingAdjudication,
-    shouldScrollToTarget,
-  ]);
-
-  // // Only show full loading screen on initial load to mitigate screen flicker on scroll
-  // if (!writeInCandidatesQuery.data) {
-  //   return (
-  //     <NavigationScreen title="Contest Adjudication">
-  //       <Loading isFullscreen />
-  //     </NavigationScreen>
-  //   );
-  // }
+  }, [areQueriesFetching, firstOptionIdPendingAdjudication]);
 
   const writeInCandidates = writeInCandidatesQuery.data;
 
@@ -441,14 +375,7 @@ export function ContestAdjudicationScreen({
         )
       : undefined;
 
-  function clearBallotState(): void {
-    resetState();
-    setFocusedOptionId(undefined);
-    setDoubleVoteAlert(undefined);
-    setDiscardChangesNextAction(undefined);
-  }
-
-  async function saveAndNext(): Promise<void> {
+  async function onConfirm(): Promise<void> {
     const adjudicatedContestOptionById: Record<
       ContestOptionId,
       AdjudicatedContestOption
@@ -494,37 +421,15 @@ export function ContestAdjudicationScreen({
     }
     try {
       await adjudicateCvrContestMutation.mutateAsync(adjudicatedCvrContest);
-      onNext();
-      clearBallotState();
+      onClose();
     } catch {
       // Handled by default query client error handling
     }
   }
 
-  function onSkip(): void {
-    if (isModified && !discardChangesNextAction) {
-      setDiscardChangesNextAction('skip');
-      return;
-    }
-    onNext();
-    clearBallotState();
-  }
-
-  function onPrev(): void {
-    if (!onBack) {
-      return;
-    }
-    if (isModified && !discardChangesNextAction) {
-      setDiscardChangesNextAction('back');
-      return;
-    }
-    onBack();
-    clearBallotState();
-  }
-
   function onExit(): void {
-    if (isModified && !discardChangesNextAction) {
-      setDiscardChangesNextAction('close');
+    if (isModified && !showDiscardChangesModal) {
+      setShowDiscardChangesModal(true);
       return;
     }
     onClose();
@@ -568,7 +473,7 @@ export function ContestAdjudicationScreen({
               variant="inverseNeutral"
               style={{ padding: '0.3rem .75rem', fontSize: '.8rem' }}
             >
-              Return
+              Overview
             </Button>
           </BallotHeader>
           <BallotVoteCount>
@@ -734,39 +639,17 @@ export function ContestAdjudicationScreen({
             </ContestOptionButtonList>
           )}
           <BallotFooter>
-            <BallotMetadata>
-              <SmallText>
-                {isFlaggedMode ? 'Flagged Contest' : 'Contest'}{' '}
-                {format.count(contestNumber)} of {format.count(contestCount)}
-              </SmallText>
-              {/* <SmallText>Ballot ID: {cvrId.slice(-4)}</SmallText> */}
-            </BallotMetadata>
-            <BallotNavigation>
-              <PrimaryNavButton
-                disabled={
-                  !allAdjudicationsCompleted ||
-                  (!isModified && !allowSaveWithoutChanges)
-                }
-                icon="Done"
-                onPress={saveAndNext}
-                variant="primary"
-              >
-                {onLastContest ? 'Review' : 'Save & Next'}
-              </PrimaryNavButton>
-              <SecondaryNavButton
-                onPress={onLastContest ? onClose : onSkip}
-                rightIcon="Next"
-              >
-                {onLastContest ? 'Exit' : 'Skip'}
-              </SecondaryNavButton>
-              <SecondaryNavButton
-                disabled={!onBack}
-                icon="Previous"
-                onPress={onPrev}
-              >
-                Back
-              </SecondaryNavButton>
-            </BallotNavigation>
+            <PrimaryNavButton
+              disabled={
+                !allAdjudicationsCompleted ||
+                (!isModified && !allowSaveWithoutChanges)
+              }
+              icon="Done"
+              onPress={onConfirm}
+              variant="primary"
+            >
+              Confirm
+            </PrimaryNavButton>
           </BallotFooter>
         </AdjudicationPanel>
         {doubleVoteAlert && (
@@ -775,26 +658,12 @@ export function ContestAdjudicationScreen({
             onClose={() => setDoubleVoteAlert(undefined)}
           />
         )}
-        {discardChangesNextAction && (
+        {showDiscardChangesModal && (
           <DiscardChangesModal
-            onBack={() => setDiscardChangesNextAction(undefined)}
+            onBack={() => setShowDiscardChangesModal(false)}
             onDiscard={() => {
-              switch (discardChangesNextAction) {
-                case 'close':
-                  onExit();
-                  break;
-                case 'back':
-                  onPrev();
-                  break;
-                case 'skip':
-                  onSkip();
-                  break;
-                default: {
-                  /* istanbul ignore next - @preserve */
-                  throwIllegalValue(discardChangesNextAction);
-                }
-              }
-              setDiscardChangesNextAction(undefined);
+              setShowDiscardChangesModal(false);
+              onClose();
             }}
           />
         )}

@@ -40,14 +40,14 @@ const BallotPanel = styled.div`
   position: relative;
 `;
 
-const BallotSideToggle = styled.div`
+const BallotSideToggle = styled.div<{ hasHighlight?: boolean }>`
   display: flex;
   justify-content: flex-end;
   align-items: center;
   position: absolute;
   top: 0;
   z-index: 2;
-  background: rgba(0, 0, 0, 50%);
+  background: ${(p) => (p.hasHighlight ? 'none' : 'rgba(0, 0, 0, 50%)')};
   width: 100%;
   padding: 0.5rem;
   padding-right: 1rem;
@@ -203,8 +203,8 @@ export function BallotAdjudicationScreen(): JSX.Element {
   const [selectedContestId, setSelectedContestId] = useState<ContestId | null>(
     null
   );
-  const [navigationMode, setNavigationMode] = useState<'all' | 'flagged'>(
-    'all'
+  const [hoveredContestId, setHoveredContestId] = useState<ContestId | null>(
+    null
   );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -260,7 +260,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
     ) {
       return;
     }
-    const {contests} = ballotAdjudicationDataQuery.data;
+    const { contests } = ballotAdjudicationDataQuery.data;
     const { backContests: back } = groupContestsBySide(
       electionDefinition.election,
       contests.map((c) => c.contestId),
@@ -313,31 +313,6 @@ export function BallotAdjudicationScreen(): JSX.Element {
     adjudicationContests.map((c) => c.contestId),
     ballotImages
   );
-  const visibleContestIds = new Set([
-    ...frontContests.map((c) => c.id),
-    ...backContests.map((c) => c.id),
-  ]);
-  const visibleAdjudicationContests = adjudicationContests.filter((c) =>
-    visibleContestIds.has(c.contestId)
-  );
-  const selectedContestIndex = visibleAdjudicationContests.findIndex(
-    (c) => c.contestId === selectedContestId
-  );
-  const contestsTaggedForAdjudication = adjudicationContests.filter(
-    (c) => c.tag !== null
-  );
-  const currentTaggedIndex = contestsTaggedForAdjudication.findIndex(
-    (c) => c.contestId === selectedContestId
-  );
-  const nextContestForAdjudication =
-    currentTaggedIndex < contestsTaggedForAdjudication.length - 1
-      ? contestsTaggedForAdjudication[currentTaggedIndex + 1]
-      : null;
-  const prevContestForAdjudication =
-    currentTaggedIndex > 0
-      ? contestsTaggedForAdjudication[currentTaggedIndex - 1]
-      : null;
-
   const tagsByContestId = new Map(
     adjudicationContests
       .filter((c) => c.tag !== null)
@@ -385,54 +360,41 @@ export function BallotAdjudicationScreen(): JSX.Element {
     history.push(routerPaths.adjudication);
   }
 
-  if (selectedContestId) {
-    const isFlaggedMode = navigationMode === 'flagged';
-    const prevContest = isFlaggedMode
-      ? prevContestForAdjudication
-      : visibleAdjudicationContests[selectedContestIndex - 1] ?? null;
-    const nextContest = isFlaggedMode
-      ? nextContestForAdjudication
-      : visibleAdjudicationContests[selectedContestIndex + 1] ?? null;
+  function onContestHover(contestId: ContestId | null): void {
+    setHoveredContestId(contestId);
+    if (contestId) {
+      if (backContests.some((c) => c.id === contestId)) {
+        setSelectedSide('back');
+      } else {
+        setSelectedSide('front');
+      }
+    }
+  }
 
+  const hoveredContestBounds = (() => {
+    if (!hoveredContestId || activeImage.type !== 'hmpb') return undefined;
+    return activeImage.layout.contests.find(
+      (c) => c.contestId === hoveredContestId
+    )?.bounds;
+  })();
+
+  const ballotBounds =
+    activeImage.type === 'hmpb' ? activeImage.ballotCoordinates : undefined;
+
+  if (selectedContestId) {
     return (
       <ContestAdjudicationScreen
         cvrId={cvrId}
-        isFlaggedMode={isFlaggedMode}
-        contestNumber={
-          isFlaggedMode ? currentTaggedIndex + 1 : selectedContestIndex + 1
-        }
-        contestCount={
-          isFlaggedMode
-            ? contestsTaggedForAdjudication.length
-            : visibleAdjudicationContests.length
-        }
         side={
           frontContests.some((contest) => contest.id === selectedContestId)
             ? 'front'
             : 'back'
         }
-        onBack={
-          prevContest
-            ? () => setSelectedContestId(prevContest.contestId)
-            : undefined
-        }
-        onNext={
-          nextContest
-            ? () => setSelectedContestId(nextContest.contestId)
-            : () => {
-                setSelectedContestId(null);
-                setNavigationMode('all');
-              }
-        }
-        onClose={() => {
-          setSelectedContestId(null);
-          setNavigationMode('all');
-        }}
+        onClose={() => setSelectedContestId(null)}
         contestAdjudicationData={assertDefined(
           adjudicationContests.find((c) => c.contestId === selectedContestId)
         )}
         ballotImages={ballotImages}
-        onLastContest={nextContest === null}
       />
     );
   }
@@ -442,7 +404,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
       <Main flexRow>
         <BallotPanel>
           {back && (
-            <BallotSideToggle>
+            <BallotSideToggle hasHighlight={!!hoveredContestBounds}>
               <SegmentedButton
                 label="Ballot Side"
                 hideLabel
@@ -458,7 +420,11 @@ export function BallotAdjudicationScreen(): JSX.Element {
           {!activeImage?.imageUrl ? (
             <UnableToLoadImageCallout />
           ) : (
-            <BallotStaticImageViewer imageUrl={activeImage.imageUrl} />
+            <BallotStaticImageViewer
+              imageUrl={activeImage.imageUrl}
+              highlightBounds={hoveredContestBounds}
+              ballotBounds={ballotBounds}
+            />
           )}
         </BallotPanel>
         <AdjudicationPanel>
@@ -485,17 +451,8 @@ export function BallotAdjudicationScreen(): JSX.Element {
               backContests={backContests}
               election={election}
               tagsByContestId={tagsByContestId}
-              selectedContestId={selectedContestId}
-              onSelect={(contestId) => {
-                setSelectedContestId(contestId);
-                setNavigationMode(
-                  tagsByContestId.has(contestId) ? 'flagged' : 'all'
-                );
-              }}
-              onStartAdjudication={(contestId) => {
-                setSelectedContestId(contestId);
-                setNavigationMode('flagged');
-              }}
+              onSelect={(contestId) => setSelectedContestId(contestId)}
+              onHover={onContestHover}
               onSelectSide={setSelectedSide}
             />
           )}
