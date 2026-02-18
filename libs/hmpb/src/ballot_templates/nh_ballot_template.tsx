@@ -990,7 +990,7 @@ async function BallotPageContent(
   const nextContest = contestsLeftToLayout[0];
   if (
     contestsLeftToLayout.length > 0 &&
-    unusedHeight > dimensions.height * 0.5 &&
+    unusedHeight > dimensions.height * 0.75 &&
     nextContest.type === 'yesno'
   ) {
     const splitResult = await splitLongBallotMeasureAcrossPages(
