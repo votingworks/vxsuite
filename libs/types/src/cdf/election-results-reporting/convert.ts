@@ -12,6 +12,7 @@ import {
 import {
   isBallotMeasureContest,
   isCandidateContest,
+  isPartyContest,
   isRetentionContest,
 } from './types';
 import { TEMPORARY_WRITE_IN_ID_PREFIX } from '../../admin';
@@ -298,6 +299,40 @@ function convertCandidateContest(
   };
 }
 
+function convertPartyContest(
+  contest: ResultsReporting.PartyContest
+): VxTabulation.StraightPartyContestResults {
+  const contestSelections = assertDefined(
+    contest.ContestSelection
+  ) as ResultsReporting.PartySelection[];
+  const otherCounts = contest.OtherCounts && contest.OtherCounts[0];
+  const overvotes = otherCounts?.Overvotes || 0;
+  const undervotes = otherCounts?.Undervotes || 0;
+
+  const tallies: VxTabulation.StraightPartyContestResults['tallies'] = {};
+  let total = 0;
+  for (const selection of contestSelections) {
+    const partyId = trimVxIdPrefix(selection.PartyIds[0]);
+    const tally = findTotalVoteCounts(assertDefined(selection.VoteCounts));
+    total += tally;
+    tallies[partyId] = {
+      partyId,
+      name: partyId,
+      tally,
+    };
+  }
+  total += overvotes + undervotes;
+
+  return {
+    contestId: trimVxIdPrefix(contest['@id']),
+    contestType: 'straight-party',
+    overvotes,
+    undervotes,
+    ballots: total,
+    tallies,
+  };
+}
+
 /**
  * Converts a list of ERR-formatted contests to Vx-formatted contest results.
  * @param contestList Array of contests in ERR format
@@ -319,6 +354,9 @@ function convertContestsListToVxResultsRecord(
     } else if (isBallotMeasureContest(contest) || isRetentionContest(contest)) {
       vxFormattedContests[trimVxIdPrefix(contest['@id'])] =
         convertToYesNoContest(contest);
+    } else if (isPartyContest(contest)) {
+      vxFormattedContests[trimVxIdPrefix(contest['@id'])] =
+        convertPartyContest(contest);
     } else {
       return err(
         new Error(
