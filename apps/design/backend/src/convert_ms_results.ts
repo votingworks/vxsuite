@@ -268,6 +268,14 @@ export function convertMsResults(
               candidatePartyLabel: NONPARTISAN_PARTY_LABEL,
             };
           }
+          case 'straight-party':
+            // Straight-party not supported in SEMS export
+            return {
+              candidateId: '0',
+              candidateName: row.selection,
+              candidatePartyId: NONPARTISAN_PARTY_ID,
+              candidatePartyLabel: NONPARTISAN_PARTY_LABEL,
+            };
           default: {
             /* istanbul ignore next - @preserve */
             throwIllegalValue(contest);

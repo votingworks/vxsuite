@@ -263,6 +263,10 @@ function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
       ];
     case 'yesno':
       return [contest.yesOption.id, contest.noOption.id];
+    case 'straight-party':
+      // Valid options are party IDs, but we don't have election.parties here.
+      // For now, accept any option ID for straight-party contests.
+      return [];
     /* istanbul ignore next */
     default:
       return throwIllegalValue(contest);

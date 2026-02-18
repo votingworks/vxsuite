@@ -112,7 +112,10 @@ function createRequestBuilder(
   method: string,
   path: string
 ): {
-  set: (header: string, value: string) => ReturnType<typeof createRequestBuilder>;
+  set: (
+    header: string,
+    value: string
+  ) => ReturnType<typeof createRequestBuilder>;
   send: (body: unknown) => Promise<{ status: number; body: unknown }>;
 } {
   const headers: Record<string, string> = {
@@ -472,6 +475,8 @@ export function generateAllPrecinctsTallyReportRows(
             ...overvotesAndUndervotesRows,
           ];
         }
+        case 'straight-party':
+          return [...overvotesAndUndervotesRows];
         default: {
           return throwIllegalValue(contest);
         }

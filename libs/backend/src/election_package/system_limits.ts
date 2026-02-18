@@ -83,6 +83,10 @@ export function validateElectionDefinitionAgainstSystemLimits(
         totalCandidates += 2;
         break;
       }
+      case 'straight-party': {
+        totalCandidates += election.parties.length;
+        break;
+      }
       /* istanbul ignore next - @preserve */
       default: {
         throwIllegalValue(contest, 'type');
@@ -175,6 +179,11 @@ export function validateElectionDefinitionAgainstSystemLimits(
           case 'yesno': {
             seatsSummedAcrossContests += 1;
             candidatesSummedAcrossContests += 2;
+            break;
+          }
+          case 'straight-party': {
+            seatsSummedAcrossContests += 1;
+            candidatesSummedAcrossContests += election.parties.length;
             break;
           }
           /* istanbul ignore next - @preserve */

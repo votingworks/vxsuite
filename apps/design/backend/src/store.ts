@@ -487,6 +487,10 @@ async function insertContest(
       break;
     }
 
+    case 'straight-party':
+      // Straight-party contests are injected at materialization time, not stored
+      break;
+
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);
@@ -2614,7 +2618,10 @@ export class Store {
       );
 
       const ids = rows.map(({ id }) => id);
-      assert(ids.length <= 1, `Too many running background tasks! IDs=${ids.join(', ')}`);
+      assert(
+        ids.length <= 1,
+        `Too many running background tasks! IDs=${ids.join(', ')}`
+      );
     });
   }
 

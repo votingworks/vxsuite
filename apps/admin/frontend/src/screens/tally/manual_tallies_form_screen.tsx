@@ -336,6 +336,22 @@ function emptyFormContestResults(
         ),
       };
 
+    case 'straight-party': {
+      // TODO: Implement manual tallies for straight-party (Commit 12)
+      const results: FormContestResults = {
+        contestId: contest.id,
+        contestType: 'yesno',
+        yesOptionId: 'placeholder-yes',
+        noOptionId: 'placeholder-no',
+        ballots: ballotCount ?? '',
+        overvotes: '',
+        undervotes: '',
+        yesTally: '',
+        noTally: '',
+      };
+      return results;
+    }
+
     default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);

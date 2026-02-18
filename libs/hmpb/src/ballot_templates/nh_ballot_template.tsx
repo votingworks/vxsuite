@@ -226,6 +226,7 @@ export function getCandidateOrderingSetsForNhBallot({
             );
             break;
           case 'yesno':
+          case 'straight-party':
             // do nothing
             break;
           default:
@@ -773,6 +774,9 @@ function Contest({
       );
     case 'yesno':
       return <BallotMeasureContest compact={compact} contest={contest} />;
+    case 'straight-party':
+      // TODO: Render straight-party contest (Commit 10)
+      return null;
     default:
       return throwIllegalValue(contest);
   }

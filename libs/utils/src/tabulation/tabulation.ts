@@ -15,6 +15,7 @@ import {
   Id,
   PartyId,
   PrecinctSelection,
+  StraightPartyContest,
   Tabulation,
   YesNoContest,
 } from '@votingworks/types';
@@ -75,6 +76,28 @@ export function getEmptyCandidateContestResults(
   };
 }
 
+export function getEmptyStraightPartyContestResults(
+  contest: StraightPartyContest,
+  election: Election
+): Tabulation.StraightPartyContestResults {
+  const tallies: Record<PartyId, Tabulation.StraightPartyTally> = {};
+  for (const party of election.parties) {
+    tallies[party.id] = {
+      partyId: party.id,
+      name: party.name,
+      tally: 0,
+    };
+  }
+  return {
+    contestId: contest.id,
+    contestType: 'straight-party',
+    overvotes: 0,
+    undervotes: 0,
+    ballots: 0,
+    tallies,
+  };
+}
+
 export function getEmptyCardCounts(): Tabulation.CardCounts {
   return {
     bmd: [],
@@ -95,6 +118,8 @@ export function getEmptyElectionResults(
     contestResults[contest.id] =
       contest.type === 'yesno'
         ? getEmptyYesNoContestResults(contest)
+        : contest.type === 'straight-party'
+        ? getEmptyStraightPartyContestResults(contest, election)
         : getEmptyCandidateContestResults(
             contest,
             includeGenericWriteInIfAllowed
@@ -121,6 +146,8 @@ export function getEmptyManualElectionResults(
     contestResults[contest.id] =
       contest.type === 'yesno'
         ? getEmptyYesNoContestResults(contest)
+        : contest.type === 'straight-party'
+        ? getEmptyStraightPartyContestResults(contest, election)
         : getEmptyCandidateContestResults(contest, false);
   }
 
@@ -169,6 +196,17 @@ function addCastVoteRecordToElectionResult(
           `Invalid option id: ${optionIds[0]}`
         );
         contestResult.noTally += 1;
+      }
+    } else if (contestResult.contestType === 'straight-party') {
+      if (optionIds.length > 1) {
+        contestResult.overvotes += 1;
+      } else if (optionIds.length === 0) {
+        contestResult.undervotes += 1;
+      } else {
+        const partyId = optionIds[0] as PartyId;
+        const partyTally = contestResult.tallies[partyId];
+        assert(partyTally, `Invalid party id for straight-party: ${partyId}`);
+        partyTally.tally += 1;
       }
     } else if (optionIds.length > contestResult.votesAllowed) {
       contestResult.overvotes += contestResult.votesAllowed;
@@ -590,17 +628,57 @@ export function combineCandidateContestResults({
   return combinedContestResults;
 }
 
+function combineStraightPartyContestResults({
+  contest,
+  election,
+  allContestResults,
+}: {
+  contest: StraightPartyContest;
+  election: Election;
+  allContestResults: Tabulation.StraightPartyContestResults[];
+}): Tabulation.StraightPartyContestResults {
+  const combinedContestResults = getEmptyStraightPartyContestResults(
+    contest,
+    election
+  );
+  for (const contestResults of allContestResults) {
+    combinedContestResults.overvotes += contestResults.overvotes;
+    combinedContestResults.undervotes += contestResults.undervotes;
+    combinedContestResults.ballots += contestResults.ballots;
+    for (const partyTally of Object.values(contestResults.tallies)) {
+      const combinedPartyTally =
+        combinedContestResults.tallies[partyTally.partyId];
+      if (combinedPartyTally) {
+        combinedPartyTally.tally += partyTally.tally;
+      }
+    }
+  }
+  return combinedContestResults;
+}
+
 export function combineContestResults({
   contest,
   allContestResults,
+  election,
 }: {
   contest: AnyContest;
   allContestResults: Tabulation.ContestResults[];
+  election?: Election;
 }): Tabulation.ContestResults {
   if (contest.type === 'yesno') {
     return combineYesNoContestResults({
       contest,
       allContestResults: allContestResults as Tabulation.YesNoContestResults[],
+    });
+  }
+
+  if (contest.type === 'straight-party') {
+    assert(election, 'election required for straight-party contest results');
+    return combineStraightPartyContestResults({
+      contest,
+      election,
+      allContestResults:
+        allContestResults as Tabulation.StraightPartyContestResults[],
     });
   }
 
@@ -633,6 +711,7 @@ function combineElectionContestResults({
   for (const contest of election.contests) {
     combinedElectionContestResults[contest.id] = combineContestResults({
       contest,
+      election,
       allContestResults: allElectionContestResults
         .map((electionContestResults) => electionContestResults[contest.id])
         .filter(
@@ -808,6 +887,9 @@ export function buildContestResultsFixture({
   contestResultsSummary: ContestResultsSummary;
   includeGenericWriteIn?: boolean;
 }): Tabulation.ContestResults {
+  // TODO: Support straight-party in contest result fixtures
+  assert(contest.type !== 'straight-party');
+
   const contestResults =
     contest.type === 'yesno'
       ? getEmptyYesNoContestResults(contest)
@@ -873,6 +955,8 @@ function buildElectionContestResultsFixture({
         })
       : contest.type === 'yesno'
       ? getEmptyYesNoContestResults(contest)
+      : contest.type === 'straight-party'
+      ? getEmptyStraightPartyContestResults(contest, election)
       : getEmptyCandidateContestResults(contest, includeGenericWriteIn);
   }
 
@@ -938,7 +1022,10 @@ export function mergeWriteInTallies<
     {};
 
   for (const contestResults of Object.values(anyResults.contestResults)) {
-    if (contestResults.contestType === 'yesno') {
+    if (
+      contestResults.contestType === 'yesno' ||
+      contestResults.contestType === 'straight-party'
+    ) {
       newElectionContestResults[contestResults.contestId] = contestResults;
       continue;
     }
@@ -982,7 +1069,10 @@ export function areContestResultsValid(
   contestResults: Tabulation.ContestResults
 ): boolean {
   const votesAllowed =
-    contestResults.contestType === 'yesno' ? 1 : contestResults.votesAllowed;
+    contestResults.contestType === 'yesno' ||
+    contestResults.contestType === 'straight-party'
+      ? 1
+      : contestResults.votesAllowed;
   const expectedVotes = contestResults.ballots * votesAllowed;
   const tallyVotes =
     contestResults.overvotes +

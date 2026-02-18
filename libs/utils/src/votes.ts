@@ -169,7 +169,7 @@ export function convertMarksToVotesDict(
     const newVotes =
       contest.type === 'candidate'
         ? markToCandidateVotes(contest, markThresholds, mark)
-        : contest.type === 'yesno'
+        : contest.type === 'yesno' || contest.type === 'straight-party'
         ? markToYesNoVotes(markThresholds, mark)
         : /* istanbul ignore next */
           throwIllegalValue(contest, 'type');
