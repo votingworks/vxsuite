@@ -983,60 +983,42 @@ async function BallotPageContent(
   }
 
   const contestsLeftToLayout = contestSections.flat();
-  const lastUnlaidOutContest = iter(contestsLeftToLayout).last();
-  const lastUnlaidOutContestHeight = lastUnlaidOutContest?.id
-    ? await scratchpad.measureElements(
-        <BackendLanguageContextProvider
-          currentLanguageCode={primaryLanguageCode(ballotStyle)}
-          uiStringsPackage={election.ballotStrings}
-        >
-          <div className="contestWrapper">
-            <Contest
-              compact={compact}
-              contest={lastUnlaidOutContest}
-              election={election}
-              precinctId={props.precinctId}
-              ballotStyle={ballotStyle}
-            />
-          </div>
-        </BackendLanguageContextProvider>,
-        '.contestWrapper'
-      )
-    : undefined;
+
+  // If more than half the page is unused and the next contest is a ballot
+  // measure, try splitting it across pages.
+  const unusedHeight = dimensions.height - heightUsed;
+  const nextContest = contestsLeftToLayout[0];
   if (
-    contests.length > 0 &&
-    lastUnlaidOutContestHeight &&
-    lastUnlaidOutContestHeight[0].height > dimensions.height * 0.5
+    contestsLeftToLayout.length > 0 &&
+    unusedHeight > dimensions.height * 0.5 &&
+    nextContest.type === 'yesno'
   ) {
-    const tooLongContest = assertDefined(contestsLeftToLayout.shift());
-    if (tooLongContest.type === 'yesno') {
-      const splitResult = await splitLongBallotMeasureAcrossPages(
-        tooLongContest,
-        {
-          election,
-          compact,
-          precinctId: props.precinctId,
-          ballotStyle,
-        },
+    const splitResult = await splitLongBallotMeasureAcrossPages(
+      nextContest,
+      {
+        election,
+        compact,
+        precinctId: props.precinctId,
         ballotStyle,
-        {
-          width: dimensions.width,
-          height: dimensions.height - heightUsed,
-        },
-        scratchpad
-      );
-      if (splitResult.isErr()) {
-        return splitResult;
-      }
-      const { firstContestElement, restContest } = splitResult.ok();
-      pageSections.push(firstContestElement);
-      contestsLeftToLayout.unshift(restContest);
-    } else {
-      return err({
-        error: 'contestTooLong',
-        contest: tooLongContest,
-      });
+      },
+      ballotStyle,
+      {
+        width: dimensions.width,
+        height: unusedHeight,
+      },
+      scratchpad
+    );
+    if (splitResult.isErr()) {
+      return splitResult;
     }
+    const { firstContestElement, restContest } = splitResult.ok();
+    pageSections.push(firstContestElement);
+    contestsLeftToLayout[0] = restContest;
+  } else if (contestsLeftToLayout.length > 0 && heightUsed === 0) {
+    return err({
+      error: 'contestTooLong',
+      contest: nextContest,
+    });
   }
 
   const currentPageElement =
