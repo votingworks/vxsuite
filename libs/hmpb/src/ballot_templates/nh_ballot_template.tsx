@@ -1008,12 +1008,16 @@ async function BallotPageContent(
       },
       scratchpad
     );
-    if (splitResult.isErr()) {
+    if (splitResult.isOk()) {
+      const { firstContestElement, restContest } = splitResult.ok();
+      pageSections.push(firstContestElement);
+      contestsLeftToLayout[0] = restContest;
+    }
+    // Only return a contestTooLong error if we were trying to lay out the
+    // contest on a full blank page. Otherwise, try on the next page.
+    else if (heightUsed === 0 || splitResult.err().error !== 'contestTooLong') {
       return splitResult;
     }
-    const { firstContestElement, restContest } = splitResult.ok();
-    pageSections.push(firstContestElement);
-    contestsLeftToLayout[0] = restContest;
   } else if (contestsLeftToLayout.length > 0 && heightUsed === 0) {
     return err({
       error: 'contestTooLong',
