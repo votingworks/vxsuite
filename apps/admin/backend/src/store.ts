@@ -50,6 +50,7 @@ import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 import {
   allContestOptions,
+  applyStraightPartyRules,
   asSqliteBool,
   BooleanEnvironmentVariableName,
   fromSqliteBool,
@@ -1576,6 +1577,9 @@ export class Store {
     filter: Tabulation.Filter;
     cvrId?: Id;
   }): Generator<Tabulation.CastVoteRecord> {
+    const { election } = assertDefined(
+      this.getElection(electionId)
+    ).electionDefinition;
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
       filter
@@ -1630,6 +1634,10 @@ export class Store {
         adjudications: string | null;
       }
     >) {
+      const parsedVotes = this.parseVotesWithAdjudications({
+        votesString: row.votes,
+        adjudicationsString: row.adjudications,
+      });
       yield {
         ballotStyleGroupId: row.ballotStyleGroupId,
         partyId: row.partyId ?? undefined,
@@ -1638,10 +1646,7 @@ export class Store {
         scannerId: row.scannerId,
         precinctId: row.precinctId,
         card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
-        votes: this.parseVotesWithAdjudications({
-          votesString: row.votes,
-          adjudicationsString: row.adjudications,
-        }),
+        votes: applyStraightPartyRules(election, parsedVotes),
         markScores: this.parseMarkScores({
           markScoresString: row.markScores,
         }),
