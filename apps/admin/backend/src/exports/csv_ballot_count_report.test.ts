@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
@@ -21,7 +22,7 @@ import { Store } from '../store';
 import { generateBallotCountReportCsv } from './csv_ballot_count_report';
 
 test('uses appropriate headers', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;
@@ -166,7 +167,7 @@ test('uses appropriate headers', async () => {
 });
 
 test('includes rows for empty but known result groups', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -192,7 +193,7 @@ test('includes rows for empty but known result groups', async () => {
 });
 
 test('does not include results groups when they are excluded by the filter', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -239,7 +240,7 @@ test('does not include results groups when they are excluded by the filter', asy
 });
 
 test('excludes Manual column if no manual data exists', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -264,7 +265,7 @@ test('excludes Manual column if no manual data exists', async () => {
 });
 
 test('can include sheet counts', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionFamousNames2021Fixtures.makeMultiSheetElectionDefinition();
   const { electionData } = electionDefinition;

@@ -8,7 +8,7 @@ import {
   SystemSettings,
   Tabulation,
 } from '@votingworks/types';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures, makeTemporaryDirectory } from '@votingworks/fixtures';
 import { assert, typedAs } from '@votingworks/basics';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
@@ -26,7 +26,7 @@ import { AdjudicatedContestOption, VoteAdjudication, WriteInRecord } from '.';
 const contestId = 'zoo-council-mammal';
 
 test('adjudicateVote', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -153,7 +153,7 @@ test('adjudicateVote', () => {
 });
 
 test('adjudicateWriteIn', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
@@ -338,7 +338,7 @@ test('adjudicateWriteIn', () => {
 });
 
 test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({

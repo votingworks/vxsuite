@@ -43,7 +43,8 @@ import {
   BallotStyleGroupId,
   BallotStyleGroup,
 } from '@votingworks/types';
-import { join } from 'node:path';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join, sep } from 'node:path';
 import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 import {
@@ -60,6 +61,7 @@ import {
   getMostRecentDiagnosticRecord,
 } from '@votingworks/backend';
 import { BaseLogger } from '@votingworks/logging';
+import { emptyDir } from 'fs-extra';
 import {
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
@@ -148,31 +150,49 @@ interface CastVoteRecordVoteAdjudication {
  * transcribed and adjudicated write-ins.
  */
 export class Store {
-  private constructor(private readonly client: DbClient) {}
+  private constructor(
+    private readonly client: DbClient,
+    private readonly ballotImagesPath: string
+  ) {}
 
   getDbPath(): string {
     return this.client.getDatabasePath();
   }
 
-  /**
-   * Builds and returns a new store whose data is kept in memory.
-   */
-  static memoryStore(): Store {
-    return new Store(DbClient.memoryClient(SchemaPath));
+  getBallotImagesPath(): string {
+    return this.ballotImagesPath;
   }
 
   /**
-   * Builds and returns a new store at `dbPath`.
+   * Builds and returns a new store whose data is kept in memory. An
+   * `imageDirPath` must be provided, but may be a temporary directory if
+   * desired.
    */
-  static fileStore(dbPath: string, logger: BaseLogger): Store {
-    return new Store(DbClient.fileClient(dbPath, logger, SchemaPath));
+  static memoryStore(imageDirPath: string): Store {
+    return new Store(DbClient.memoryClient(SchemaPath), imageDirPath);
+  }
+
+  /**
+   * Builds and returns a new store with a database at `dbPath` and ballot
+   * images stored in `ballotImagesPath`.
+   */
+  static fileStore(
+    dbPath: string,
+    ballotImagesPath: string,
+    logger: BaseLogger
+  ): Store {
+    return new Store(
+      DbClient.fileClient(dbPath, logger, SchemaPath),
+      ballotImagesPath
+    );
   }
 
   /**
    * Resets the database, clearing any existing data.
    */
-  reset(): void {
+  async reset(): Promise<void> {
     this.client.reset();
+    await this.clearBallotImages();
   }
 
   isEarlyVotingEnabled(): boolean {
@@ -1046,22 +1066,36 @@ export class Store {
     pageLayout?: BallotPageLayout;
     side: Side;
   }): void {
+    const ballotImagePath = this.getBallotImageFilePath(cvrId, side);
+    mkdirSync(dirname(ballotImagePath), { recursive: true });
+    writeFileSync(ballotImagePath, imageData);
     this.client.run(
       `
       insert into ballot_images (
         cvr_id,
         side,
-        image,
         layout
       ) values (
-        ?, ?, ?, ?
+        ?, ?, ?
       )
     `,
       cvrId,
       side,
-      imageData,
       pageLayout ? JSON.stringify(pageLayout) : null
     );
+  }
+
+  private getBallotImageFilePath(cvrId: Id, side: Side): string {
+    assert(!cvrId.includes(sep), `CVR ID contains a path separator: ${cvrId}`);
+    return join(this.ballotImagesPath, `${cvrId}-${side}`);
+  }
+
+  /**
+   * Deletes all ballot image files from the image directory. Called when the
+   * store is reset (e.g., on unconfigure).
+   */
+  async clearBallotImages(): Promise<void> {
+    await emptyDir(this.ballotImagesPath);
   }
 
   addScannerBatch(scannerBatch: ScannerBatch): void {
@@ -1218,7 +1252,6 @@ export class Store {
     const rows = this.client.all(
       `
       select
-        image,
         layout,
         side
       from ballot_images
@@ -1226,7 +1259,6 @@ export class Store {
       `,
       cvrId
     ) as Array<{
-      image: Buffer;
       layout?: string;
       side: Side;
     }>;
@@ -1237,8 +1269,8 @@ export class Store {
         return {
           cvrId,
           contestId,
-          image: row.image,
-          side: row.side,
+          image: readFileSync(this.getBallotImageFilePath(cvrId, 'front')),
+          side: 'front',
         };
       }
       if (row.layout) {
@@ -1253,7 +1285,7 @@ export class Store {
           return {
             cvrId,
             contestId,
-            image: row.image,
+            image: readFileSync(this.getBallotImageFilePath(cvrId, row.side)),
             side: row.side,
             layout: parsedLayout,
           };
@@ -1660,6 +1692,20 @@ export class Store {
    * Deletes all CVR files for an election.
    */
   deleteCastVoteRecordFiles(electionId: Id): void {
+    // Collect CVR IDs with ballot images before deletion so we can clean up
+    // the image files after the DB transaction commits.
+    const cvrIdsWithImages = (
+      this.client.all(
+        `
+          select bi.cvr_id as cvrId
+          from ballot_images bi
+          join cvrs c on c.id = bi.cvr_id
+          where c.election_id = ?
+        `,
+        electionId
+      ) as Array<{ cvrId: Id }>
+    ).map((row) => row.cvrId);
+
     this.client.transaction(() => {
       this.client.run(
         `
@@ -1694,6 +1740,13 @@ export class Store {
       );
       this.deleteEmptyScannerBatches(electionId);
     });
+
+    for (const cvrId of cvrIdsWithImages) {
+      for (const side of ['front', 'back'] as const) {
+        const filePath = this.getBallotImageFilePath(cvrId, side);
+        rmSync(filePath, { force: true });
+      }
+    }
   }
 
   getWriteInCandidates({
@@ -1825,7 +1878,7 @@ export class Store {
 
     const rows = this.client.all(
       `
-        select 
+        select
           cvr_id
         from cvr_contest_tags
         where
@@ -1885,7 +1938,7 @@ export class Store {
 
     const row = this.client.one(
       `
-        select 
+        select
           cvr_id
         from cvr_contest_tags
         where
@@ -2662,8 +2715,8 @@ export class Store {
           has_unmarked_write_in as hasUnmarkedWriteIn,
           has_marginal_mark as hasMarginalMark
         from cvr_contest_tags
-        where 
-          cvr_id = ? and 
+        where
+          cvr_id = ? and
           contest_id = ?
       `,
       cvrId,
@@ -2704,10 +2757,10 @@ export class Store {
     this.client.run(
       `
         update cvr_contest_tags
-        set 
+        set
           is_resolved = 1
-        where 
-          cvr_id = ? and 
+        where
+          cvr_id = ? and
           contest_id = ?
       `,
       cvrId,

@@ -21,10 +21,11 @@ export interface Workspace {
  */
 export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const resolvedRoot = resolve(root);
-  ensureDirSync(resolvedRoot);
-
+  const ballotImagesPath = join(resolvedRoot, 'ballot-images');
   const dbPath = join(resolvedRoot, 'data.db');
-  const store = Store.fileStore(dbPath, logger);
+
+  ensureDirSync(ballotImagesPath);
+  const store = Store.fileStore(dbPath, ballotImagesPath, logger);
 
   return {
     path: resolvedRoot,

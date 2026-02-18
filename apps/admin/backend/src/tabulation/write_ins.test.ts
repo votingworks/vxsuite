@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import {
@@ -153,7 +154,7 @@ const mockAquariumCouncilFishSummary: Tabulation.ContestWriteInSummary = {
 };
 
 test('tabulateWriteInTallies', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;

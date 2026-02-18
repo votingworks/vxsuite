@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -56,7 +57,7 @@ afterEach(() => {
 });
 
 test('tabulateCastVoteRecords', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;
@@ -270,7 +271,7 @@ test('tabulateCastVoteRecords', async () => {
 });
 
 test('tabulateElectionResults - includes empty groups', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -299,7 +300,7 @@ const candidateContestId =
   'State-Representatives-Hillsborough-District-34-b1012d38';
 
 test('tabulateElectionResults - write-in handling', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
 
   const electionDefinition =
@@ -711,7 +712,7 @@ test('tabulateElectionResults - write-in handling', async () => {
 });
 
 test('tabulateElectionResults - group and filter by voting method', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();

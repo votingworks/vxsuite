@@ -489,7 +489,7 @@ function buildApi({
     },
 
     async unconfigure(): Promise<void> {
-      store.reset();
+      await store.reset();
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
       });
