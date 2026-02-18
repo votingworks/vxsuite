@@ -20,6 +20,10 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
+import {
+  MockCastVoteRecordFile,
+  addMockCvrFileToStore,
+} from '../test/mock_cvr_file';
 import { Api } from './app';
 import { generateReportPath } from './util/filenames';
 
@@ -152,15 +156,50 @@ test('creates accurate ballot count reports', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  // add CVR data
+  // add election day CVR data
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
+
+  // add additional early voting CVR data
+  const mockEarlyVotingCvrs: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
+      batchId: 'early-voting-batch',
+      scannerId: 'scanner-ev',
+      precinctId: election.precincts[0]!.id,
+      votingMethod: 'precinct',
+      votes: {},
+      card: { type: 'hmpb', sheetNumber: 1 },
+      ballotCastingMode: 'early_voting',
+      multiplier: 15,
+    },
+    {
+      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
+      batchId: 'early-voting-batch',
+      scannerId: 'scanner-ev',
+      precinctId: election.precincts[0]!.id,
+      votingMethod: 'absentee',
+      votes: {},
+      card: { type: 'hmpb', sheetNumber: 1 },
+      ballotCastingMode: 'early_voting',
+      multiplier: 5,
+    },
+  ];
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: mockEarlyVotingCvrs,
+    store: workspace.store,
+  });
 
   // add manual data
   await apiClient.setManualResults({
@@ -193,6 +232,12 @@ test('creates accurate ballot count reports', async () => {
         Scanned: '92',
         Total: '92',
         'Voting Method': 'Precinct',
+      },
+      {
+        Manual: '0',
+        Scanned: '20',
+        Total: '20',
+        'Voting Method': 'Early Voting',
       },
       {
         Manual: '10',
@@ -230,6 +275,14 @@ test('creates accurate ballot count reports', async () => {
         'Precinct ID': 'town-id-00701-precinct-id-default',
         Total: '92',
         'Voting Method': 'Precinct',
+      },
+      {
+        Scanned: '20',
+        Manual: '0',
+        Precinct: 'Test Ballot',
+        'Precinct ID': 'town-id-00701-precinct-id-default',
+        Total: '20',
+        'Voting Method': 'Early Voting',
       },
       {
         Scanned: '92',
