@@ -185,6 +185,24 @@ function* generateDataRows({
           hasManualResults,
           manualVotes: manualContestResults?.noTally ?? 0,
         });
+      } else if (contest.type === 'straight-party') {
+        assert(scannedContestResults.contestType === 'straight-party');
+        assertIsOptional<Tabulation.StraightPartyContestResults>(
+          manualContestResults
+        );
+        for (const [partyId, tally] of Object.entries(
+          scannedContestResults.tallies
+        )) {
+          yield buildRow({
+            metadataValues,
+            contest,
+            selection: tally.name,
+            selectionId: partyId,
+            scannedVotes: tally.tally,
+            hasManualResults,
+            manualVotes: manualContestResults?.tallies[partyId]?.tally ?? 0,
+          });
+        }
       }
 
       yield buildRow({
