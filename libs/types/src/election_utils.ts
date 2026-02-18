@@ -6,7 +6,6 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  AnyContest,
   HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
@@ -17,6 +16,7 @@ import {
   ContestLike,
   Contests,
   District,
+  DistrictContest,
   DistrictId,
   Election,
   BallotStyleGroup,
@@ -47,13 +47,15 @@ export function getContests({
   ballotStyle: BallotStyle | BallotStyleGroup;
   election: Election;
 }): Contests {
-  return election.contests.filter(
-    (c) =>
+  return election.contests.filter((c) => {
+    if (c.type === 'straight-party') return true;
+    return (
       ballotStyle.districts.includes(c.districtId) &&
       (c.type !== 'candidate' ||
         !c.partyId ||
         ballotStyle.partyId === c.partyId)
-  );
+    );
+  });
 }
 
 /**
@@ -214,7 +216,7 @@ export function findContest({
 }: {
   contests: Contests;
   contestId: ContestId;
-}): AnyContest | undefined {
+}): Contest | undefined {
   return contests.find((c) => c.id === contestId);
 }
 
@@ -417,7 +419,7 @@ export function getContestDistrict(
 
 export function getContestDistrictName(
   election: Election,
-  contest: Contest
+  contest: DistrictContest
 ): string {
   return getContestDistrict(election, contest).name;
 }
@@ -463,6 +465,9 @@ export function vote(
     } else if (contest.type === 'yesno') {
       assert(Array.isArray(choice), 'yesno shorthand must be an array');
       votes[contest.id] = choice;
+    } else if (contest.type === 'straight-party') {
+      // For straight-party, choice is a PartyId or array of PartyIds
+      votes[contest.id] = Array.isArray(choice) ? choice : [choice];
     } else if (Array.isArray(choice) && typeof choice[0] === 'string') {
       votes[contest.id] = contest.candidates.filter((c) =>
         (choice as readonly string[]).includes(c.id)

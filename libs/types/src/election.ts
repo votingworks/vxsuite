@@ -165,34 +165,38 @@ export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> =
   CandidateSchema.optional();
 
 // Contests
-export type ContestTypes = 'candidate' | 'yesno';
+export type ContestTypes = 'candidate' | 'yesno' | 'straight-party';
 export const ContestTypesSchema: z.ZodSchema<ContestTypes> = z.union([
   z.literal('candidate'),
   z.literal('yesno'),
+  z.literal('straight-party'),
 ]);
 export type ContestId = Id;
 export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
-export interface Contest {
-  readonly id: ContestId;
-  readonly districtId: DistrictId;
-  readonly title: string;
-  readonly type: ContestTypes;
-}
+/**
+ * A contest that belongs to a specific district. Includes candidate contests
+ * and yes/no ballot measures but not straight-party contests (which apply to
+ * the entire ballot).
+ */
+export type DistrictContest = CandidateContest | YesNoContest;
 
 /**
  * Generic type-agnostic contest type, enabling common operations on canonical
- * {@link Contest}s and BMD-specific ms-either-neither contests.
+ * contests and BMD-specific ms-either-neither contests.
  */
-export type ContestLike = Pick<Contest, 'id' | 'districtId' | 'title'>;
+export type ContestLike = Pick<DistrictContest, 'id' | 'districtId' | 'title'>;
 
-const ContestInternalSchema = z.object({
+const DistrictContestInternalSchema = z.object({
   id: ContestIdSchema,
   districtId: DistrictIdSchema,
   title: z.string().nonempty(),
   type: ContestTypesSchema,
 });
-export const ContestSchema: z.ZodSchema<Contest> = ContestInternalSchema;
-export interface CandidateContest extends Contest {
+
+export interface CandidateContest {
+  readonly id: ContestId;
+  readonly districtId: DistrictId;
+  readonly title: string;
   readonly type: 'candidate';
   readonly seats: number;
   readonly candidates: readonly Candidate[];
@@ -201,7 +205,7 @@ export interface CandidateContest extends Contest {
   readonly termDescription?: string;
 }
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
-  ContestInternalSchema.merge(
+  DistrictContestInternalSchema.merge(
     z.object({
       type: z.literal('candidate'),
       seats: z.number().int().positive(),
@@ -265,7 +269,10 @@ export const YesNoOptionSchema: z.ZodSchema<YesNoOption> = z.object({
   label: z.string().nonempty(),
 });
 
-export interface YesNoContest extends Contest {
+export interface YesNoContest {
+  readonly id: ContestId;
+  readonly districtId: DistrictId;
+  readonly title: string;
   readonly type: 'yesno';
   readonly description: string;
   readonly yesOption: YesNoOption;
@@ -273,7 +280,7 @@ export interface YesNoContest extends Contest {
   readonly additionalOptions?: readonly YesNoOption[];
 }
 export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
-  ContestInternalSchema.merge(
+  DistrictContestInternalSchema.merge(
     z.object({
       type: z.literal('yesno'),
       description: z.string().nonempty(),
@@ -283,13 +290,31 @@ export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
     })
   );
 
-export type AnyContest = CandidateContest | YesNoContest;
-export const AnyContestSchema: z.ZodSchema<AnyContest> = z.union([
+export interface StraightPartyContest {
+  readonly id: ContestId;
+  readonly type: 'straight-party';
+  readonly title: string;
+  // No districtId — applies to the entire ballot
+  // No seats — always vote-for-one by definition
+  // No option data — derived from election.parties
+}
+export const StraightPartyContestSchema: z.ZodSchema<StraightPartyContest> =
+  z.object({
+    id: ContestIdSchema,
+    type: z.literal('straight-party'),
+    title: z.string().nonempty(),
+  });
+
+export type Contest = CandidateContest | YesNoContest | StraightPartyContest;
+/** @deprecated Use {@link Contest} instead. */
+export type AnyContest = Contest;
+export const AnyContestSchema: z.ZodSchema<Contest> = z.union([
   CandidateContestSchema,
   YesNoContestSchema,
+  StraightPartyContestSchema,
 ]);
 
-export type Contests = readonly AnyContest[];
+export type Contests = readonly Contest[];
 export const ContestsSchema = z.array(AnyContestSchema).check((ctx) => {
   const contests = ctx.value;
   for (const [index, id] of findDuplicateIds(contests)) {
@@ -309,6 +334,17 @@ export const ContestsSchema = z.array(AnyContestSchema).check((ctx) => {
       code: 'custom',
       path: [index, 'yes/noOption', 'id'],
       message: `Duplicate yes/no contest option '${id}' found.`,
+      input: contests,
+    });
+  }
+  const straightPartyContests = contests.filter(
+    (c) => c.type === 'straight-party'
+  );
+  if (straightPartyContests.length > 1) {
+    ctx.issues.push({
+      code: 'custom',
+      path: [],
+      message: 'At most one straight-party contest is allowed.',
       input: contests,
     });
   }
@@ -947,10 +983,28 @@ export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
     name: z.string(),
   });
 
-export type ContestOption = CandidateContestOption | YesNoContestOption;
+export interface StraightPartyContestOption {
+  type: StraightPartyContest['type'];
+  id: PartyId;
+  contestId: StraightPartyContest['id'];
+  name: string;
+}
+export const StraightPartyContestOptionSchema: z.ZodSchema<StraightPartyContestOption> =
+  z.object({
+    type: z.literal('straight-party'),
+    id: PartyIdSchema,
+    contestId: ContestIdSchema,
+    name: z.string(),
+  });
+
+export type ContestOption =
+  | CandidateContestOption
+  | YesNoContestOption
+  | StraightPartyContestOption;
 export const ContestOptionSchema: z.ZodSchema<ContestOption> = z.union([
   CandidateContestOptionSchema,
   YesNoContestOptionSchema,
+  StraightPartyContestOptionSchema,
 ]);
 
 export type ContestOptionId = ContestOption['id'];
@@ -958,6 +1012,7 @@ export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
   CandidateIdSchema,
   WriteInIdSchema,
   YesNoContestOptionIdSchema,
+  PartyIdSchema,
 ]);
 
 // Votes
@@ -969,13 +1024,18 @@ export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.array(
   YesNoContestOptionIdSchema
 );
 
+export type StraightPartyVote = readonly PartyId[];
+export const StraightPartyVoteSchema: z.ZodSchema<StraightPartyVote> =
+  z.array(PartyIdSchema);
+
 export type OptionalYesNoVote = Optional<YesNoVote>;
 export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> =
   YesNoVoteSchema.optional();
-export type Vote = CandidateVote | YesNoVote;
+export type Vote = CandidateVote | YesNoVote | StraightPartyVote;
 export const VoteSchema: z.ZodSchema<Vote> = z.union([
   CandidateVoteSchema,
   YesNoVoteSchema,
+  StraightPartyVoteSchema,
 ]);
 export type OptionalVote = Optional<Vote>;
 export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
