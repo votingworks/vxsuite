@@ -43,6 +43,8 @@ import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
+import { getStateFeaturesConfig } from '../features';
+import { injectStraightPartyContest } from '../straight_party';
 import { getBallotPdfFileName } from '../utils';
 import {
   normalizeBallotColorModeForPrinting,
@@ -213,10 +215,16 @@ export async function generateElectionPackageAndBallots(
   const { store } = ctx.workspace;
 
   const electionRecord = await store.getElection(electionId);
-  const { ballotLanguageConfigs, election, ballotTemplateId, jurisdictionId } =
+  const { ballotLanguageConfigs, ballotTemplateId, jurisdictionId } =
     electionRecord;
   let { systemSettings } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
+
+  const jurisdiction = await store.getJurisdiction(jurisdictionId);
+  const stateFeatures = getStateFeaturesConfig(jurisdiction);
+  const election = stateFeatures.STRAIGHT_PARTY_VOTING
+    ? injectStraightPartyContest(electionRecord.election)
+    : electionRecord.election;
 
   const officialBallotsZip = new JsZip();
   const sampleBallotsZip = new JsZip();
