@@ -495,7 +495,7 @@ type ContestSection = Section<JSX.Element, ContestElement>;
 function buildSubsectionsByDistrict(
   election: Election,
   ballotStyle: BallotStyle,
-  sectionContests: Array<CandidateContestStruct | YesNoContest>,
+  sectionContests: DistrictContest[],
   numColumns: number
 ): ContestSection['subsections'] {
   return groupBy(sectionContests, (contest) => contest.districtId).map(
@@ -525,7 +525,7 @@ function buildSections(
   numColumns: number,
   sectionTemplates: Array<{
     header: JSX.Element;
-    contests: Array<CandidateContestStruct | YesNoContest>;
+    contests: DistrictContest[];
   }>
 ): ContestSection[] {
   return sectionTemplates
@@ -570,7 +570,7 @@ function buildClosedPrimaryContestSections(
 }
 
 function buildOpenPrimaryContestSections(
-  contests: ReadonlyArray<CandidateContestStruct | YesNoContest>,
+  contests: readonly DistrictContest[],
   election: Election,
   ballotStyle: BallotStyle,
   numColumns: number
