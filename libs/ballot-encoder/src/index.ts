@@ -276,7 +276,7 @@ function encodeBallotVotesInto(
         const ynVote = contestVote as YesNoVote;
 
         writeYesNoVote(bits, ynVote, contest);
-      } else {
+      } else if (contest.type === 'candidate') {
         const choices = contestVote as CandidateVote;
 
         // candidate choices get one bit per candidate
@@ -416,7 +416,7 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
       votes[contest.id] = bits.readBoolean()
         ? [contest.yesOption.id]
         : [contest.noOption.id];
-    } else {
+    } else if (contest.type === 'candidate') {
       const contestVote: Candidate[] = [];
 
       // candidate choices get one bit per candidate
@@ -450,6 +450,7 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
 
       votes[contest.id] = contestVote;
     }
+    // straight-party votes are not encoded in BMD ballots
   }
 
   return votes;

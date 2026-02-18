@@ -159,43 +159,49 @@ export function createTestVotes(contests: Contests): {
   unmarkedWriteIns: UnmarkedWriteInVote[];
 } {
   const votes: VotesDict = Object.fromEntries(
-    contests.map((contest, i) => {
-      if (contest.type === 'candidate') {
-        const candidates = iter(contest.candidates)
-          .cycle()
-          .skip(i)
-          .take(contest.seats - (i % 2))
-          .toArray()
-          // List candidates in the order they appear on the ballot
-          .sort(
-            (a, b) =>
-              contest.candidates.indexOf(a) - contest.candidates.indexOf(b)
-          );
-        if (contest.allowWriteIns && i % 2 === 0) {
-          const writeInIndex = i % contest.seats;
-          candidates.push({
-            id: `write-in-${writeInIndex}`,
-            name: `Write-In #${writeInIndex + 1}`,
-            isWriteIn: true,
-            writeInIndex,
-          });
+    contests
+      .filter((c) => c.type !== 'straight-party')
+      .map((contest, i) => {
+        if (contest.type === 'candidate') {
+          const candidates = iter(contest.candidates)
+            .cycle()
+            .skip(i)
+            .take(contest.seats - (i % 2))
+            .toArray()
+            // List candidates in the order they appear on the ballot
+            .sort(
+              (a, b) =>
+                contest.candidates.indexOf(a) - contest.candidates.indexOf(b)
+            );
+          if (contest.allowWriteIns && i % 2 === 0) {
+            const writeInIndex = i % contest.seats;
+            candidates.push({
+              id: `write-in-${writeInIndex}`,
+              name: `Write-In #${writeInIndex + 1}`,
+              isWriteIn: true,
+              writeInIndex,
+            });
+          }
+          return [contest.id, candidates];
         }
-        return [contest.id, candidates];
-      }
-      if (contest.additionalOptions && contest.additionalOptions.length > 0) {
+        if (
+          contest.additionalOptions &&
+          contest.additionalOptions.length > 0
+        ) {
+          return [
+            contest.id,
+            [
+              convertBallotMeasureWithAdditionalOptionsToCandidateContest(
+                contest
+              ).candidates[0],
+            ],
+          ];
+        }
         return [
           contest.id,
-          [
-            convertBallotMeasureWithAdditionalOptionsToCandidateContest(contest)
-              .candidates[0],
-          ],
+          i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
         ];
-      }
-      return [
-        contest.id,
-        i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
-      ];
-    })
+      })
   );
 
   const unmarkedWriteIns = contests.flatMap((contest, i) => {

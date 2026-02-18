@@ -7,6 +7,7 @@ import {
   ContestOption,
   Contests,
   MarkStatus,
+  Parties,
   VotesDict,
   WriteInAreaStatus,
 } from '@votingworks/types';
@@ -119,7 +120,8 @@ export function getAllPossibleAdjudicationReasons(
     markStatus: MarkStatus;
     writeInAreaStatus: WriteInAreaStatus;
   }>,
-  ballotStyle: BallotStyle
+  ballotStyle: BallotStyle,
+  parties?: Parties
 ): AdjudicationReasonInfo[] {
   if (contests.length === 0) return [];
 
@@ -141,7 +143,7 @@ export function getAllPossibleAdjudicationReasons(
       id: ContestOption['id'];
     }> = [];
 
-    for (const option of allContestOptions(contest, ballotStyle)) {
+    for (const option of allContestOptions(contest, ballotStyle, parties)) {
       // there may be multiple scores for a given contest option if they have
       // multiple positions on the ballot, such as a candidate endorsed by
       // two candidates.

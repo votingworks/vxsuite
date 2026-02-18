@@ -18,6 +18,7 @@ import {
   BallotStyleId,
   BaseBallotProps,
   CandidateContest as CandidateContestStruct,
+  DistrictContest,
   Election,
   PrecinctId,
   YesNoContest,
@@ -489,13 +490,12 @@ interface ContestElement {
   contest: AnyContest;
   element: JSX.Element;
 }
-
 type ContestSection = Section<JSX.Element, ContestElement>;
 
 function buildSubsectionsByDistrict(
   election: Election,
   ballotStyle: BallotStyle,
-  sectionContests: AnyContest[],
+  sectionContests: Array<CandidateContestStruct | YesNoContest>,
   numColumns: number
 ): ContestSection['subsections'] {
   return groupBy(sectionContests, (contest) => contest.districtId).map(
@@ -523,7 +523,10 @@ function buildSections(
   election: Election,
   ballotStyle: BallotStyle,
   numColumns: number,
-  sectionTemplates: Array<{ header: JSX.Element; contests: AnyContest[] }>
+  sectionTemplates: Array<{
+    header: JSX.Element;
+    contests: Array<CandidateContestStruct | YesNoContest>;
+  }>
 ): ContestSection[] {
   return sectionTemplates
     .filter((section) => section.contests.length > 0)
@@ -548,13 +551,15 @@ function buildClosedPrimaryContestSections(
     {
       header: <SectionHeader>Partisan Section</SectionHeader>,
       contests: contests.filter(
-        (contest) => contest.type === 'candidate' && contest.partyId
+        (contest): contest is CandidateContestStruct =>
+          contest.type === 'candidate' && contest.partyId !== undefined
       ),
     },
     {
       header: <SectionHeader>Nonpartisan Section</SectionHeader>,
       contests: contests.filter(
-        (contest) => contest.type === 'candidate' && !contest.partyId
+        (contest): contest is CandidateContestStruct =>
+          contest.type === 'candidate' && !contest.partyId
       ),
     },
     {
@@ -565,7 +570,7 @@ function buildClosedPrimaryContestSections(
 }
 
 function buildOpenPrimaryContestSections(
-  contests: readonly AnyContest[],
+  contests: ReadonlyArray<CandidateContestStruct | YesNoContest>,
   election: Election,
   ballotStyle: BallotStyle,
   numColumns: number
@@ -768,6 +773,7 @@ async function OpenPrimaryContestColumns({
   dimensions: PixelDimensions;
   scratchpad: RenderScratchpad;
 }): Promise<ContestColumnsResult> {
+  assert(contests.every((contest) => contest.type !== 'straight-party'));
   const numColumns = 4;
   const { partisanSections, nonPartisanSections } =
     buildOpenPrimaryContestSections(

@@ -6,7 +6,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 
-import { find } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { format } from '@votingworks/utils';
 import { TD } from '../table';
@@ -108,6 +108,10 @@ export function ContestWriteInSummaryTable({
   const contest = find(
     election.contests,
     (c) => c.id === contestWriteInSummary.contestId
+  );
+  assert(
+    contest.type !== 'straight-party',
+    'Write-in summaries not applicable to straight-party contests'
   );
 
   const candidateTallies = Object.values(
