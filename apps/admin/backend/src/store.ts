@@ -59,6 +59,7 @@ import { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
 import {
   allContestOptions,
+  applyStraightPartyRules,
   asSqliteBool,
   BooleanEnvironmentVariableName,
   fromSqliteBool,
@@ -1620,6 +1621,9 @@ export class Store implements BaseStore {
     filter: Tabulation.Filter;
     cvrId?: Id;
   }): Generator<Tabulation.CastVoteRecord> {
+    const { election } = assertDefined(
+      this.getElection(electionId)
+    ).electionDefinition;
     const [whereParts, params] = this.getTabulationFilterAsSql(
       election,
       electionId,
@@ -1658,10 +1662,13 @@ export class Store implements BaseStore {
         markScores: string;
       }
     >) {
-      const votes = this.applyAdjudicatedVotes({
-        votesString: row.votes,
-        adjudicatedVotesString: row.adjudicatedVotes,
-      });
+      const votes = applyStraightPartyRules(
+        election,
+        this.applyAdjudicatedVotes({
+          votesString: row.votes,
+          adjudicatedVotesString: row.adjudicatedVotes,
+        })
+      );
       const partyId = isOpenPrimary(election)
         ? inferPartyFromVotes(election, votes)
         : row.partyId ?? undefined;
