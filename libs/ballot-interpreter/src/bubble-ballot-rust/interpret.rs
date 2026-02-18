@@ -188,13 +188,6 @@ pub enum Error {
     #[error("could not find border inset for {label}")]
     BorderInsetNotFound { label: String },
 
-    #[error("invalid card metadata: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
-    #[serde(rename_all = "camelCase")]
-    InvalidCardMetadata {
-        side_a: BallotPageMetadata,
-        side_b: BallotPageMetadata,
-    },
-
     #[error("invalid QR code metadata for {label}: {message}")]
     InvalidQrCodeMetadata { label: String, message: String },
 
@@ -260,6 +253,29 @@ pub enum Error {
 
     #[error("invalid election: {message}")]
     InvalidElection { message: String },
+}
+
+impl Error {
+    /// Returns true if this error definitively identifies the ballot as a
+    /// bubble ballot, not a summary ballot. These are errors that can only be
+    /// produced after the bubble ballot QR code was decoded or after
+    /// bubble-ballot-specific algorithms ran.
+    #[must_use]
+    pub fn is_bubble_ballot(&self) -> bool {
+        matches!(
+            self,
+            // These errors occur after both QR codes were successfully decoded
+            // as bubble ballot (HMPB) metadata.
+            Self::MismatchedPrecincts { .. }
+                | Self::MismatchedBallotStyles { .. }
+                | Self::NonConsecutivePageNumbers { .. }
+                | Self::MissingGridLayout { .. }
+                | Self::CouldNotComputeLayout { .. }
+                // InvalidScale is only reachable after find_timing_marks()
+                // succeeds, which requires bubble-ballot-specific timing marks.
+                | Self::InvalidScale { .. }
+        )
+    }
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;

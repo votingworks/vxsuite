@@ -3,6 +3,10 @@
 /**
  * Convert a VX-formatted log file to a CDF-formatted log file and calls the
  * provided callback after completion.
+ *
+ * # Errors
+ *
+ * Throws if the source is not a known source.
  */
 export declare function convertVxLogToCdf(
 log: (
