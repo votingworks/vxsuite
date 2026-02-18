@@ -126,6 +126,10 @@ function generateOptionsForFilter({
           value: 'absentee',
           label: 'Absentee',
         },
+        {
+          value: 'early_voting',
+          label: 'Early Voting',
+        },
       ]);
     case 'scanner':
       return unique(scannerBatches.map((sb) => sb.scannerId)).map(
