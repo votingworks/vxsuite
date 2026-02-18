@@ -983,7 +983,31 @@ async function BallotPageContent(
   }
 
   const contestsLeftToLayout = contestSections.flat();
-  if (contests.length > 0 && contestsLeftToLayout.length === contests.length) {
+  const lastUnlaidOutContest = iter(contestsLeftToLayout).last();
+  const lastUnlaidOutContestHeight = lastUnlaidOutContest?.id
+    ? await scratchpad.measureElements(
+        <BackendLanguageContextProvider
+          currentLanguageCode={primaryLanguageCode(ballotStyle)}
+          uiStringsPackage={election.ballotStrings}
+        >
+          <div className="contestWrapper">
+            <Contest
+              compact={compact}
+              contest={lastUnlaidOutContest}
+              election={election}
+              precinctId={props.precinctId}
+              ballotStyle={ballotStyle}
+            />
+          </div>
+        </BackendLanguageContextProvider>,
+        '.contestWrapper'
+      )
+    : undefined;
+  if (
+    contests.length > 0 &&
+    lastUnlaidOutContestHeight &&
+    lastUnlaidOutContestHeight[0].height > dimensions.height * 0.5
+  ) {
     const tooLongContest = assertDefined(contestsLeftToLayout.shift());
     if (tooLongContest.type === 'yesno') {
       const splitResult = await splitLongBallotMeasureAcrossPages(
@@ -997,7 +1021,7 @@ async function BallotPageContent(
         ballotStyle,
         {
           width: dimensions.width,
-          height: dimensions.height,
+          height: dimensions.height - heightUsed,
         },
         scratchpad
       );
