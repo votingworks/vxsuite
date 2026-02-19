@@ -983,36 +983,46 @@ async function BallotPageContent(
   }
 
   const contestsLeftToLayout = contestSections.flat();
-  if (contests.length > 0 && contestsLeftToLayout.length === contests.length) {
-    const tooLongContest = assertDefined(contestsLeftToLayout.shift());
-    if (tooLongContest.type === 'yesno') {
-      const splitResult = await splitLongBallotMeasureAcrossPages(
-        tooLongContest,
-        {
-          election,
-          compact,
-          precinctId: props.precinctId,
-          ballotStyle,
-        },
+
+  // If more than 3/4 of the page is unused and the next contest is a ballot
+  // measure, try splitting it across pages.
+  const unusedHeight = dimensions.height - heightUsed;
+  const nextContest = contestsLeftToLayout[0];
+  if (
+    contestsLeftToLayout.length > 0 &&
+    unusedHeight > dimensions.height * 0.75 &&
+    nextContest.type === 'yesno'
+  ) {
+    const splitResult = await splitLongBallotMeasureAcrossPages(
+      nextContest,
+      {
+        election,
+        compact,
+        precinctId: props.precinctId,
         ballotStyle,
-        {
-          width: dimensions.width,
-          height: dimensions.height,
-        },
-        scratchpad
-      );
-      if (splitResult.isErr()) {
-        return splitResult;
-      }
+      },
+      ballotStyle,
+      {
+        width: dimensions.width,
+        height: unusedHeight,
+      },
+      scratchpad
+    );
+    if (splitResult.isOk()) {
       const { firstContestElement, restContest } = splitResult.ok();
       pageSections.push(firstContestElement);
-      contestsLeftToLayout.unshift(restContest);
-    } else {
-      return err({
-        error: 'contestTooLong',
-        contest: tooLongContest,
-      });
+      contestsLeftToLayout[0] = restContest;
     }
+    // Only return a contestTooLong error if we were trying to lay out the
+    // contest on a full blank page. Otherwise, try on the next page.
+    else if (heightUsed === 0 || splitResult.err().error !== 'contestTooLong') {
+      return splitResult;
+    }
+  } else if (contestsLeftToLayout.length > 0 && heightUsed === 0) {
+    return err({
+      error: 'contestTooLong',
+      contest: nextContest,
+    });
   }
 
   const currentPageElement =
