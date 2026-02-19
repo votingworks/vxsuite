@@ -984,7 +984,7 @@ async function BallotPageContent(
 
   const contestsLeftToLayout = contestSections.flat();
 
-  // If more than half the page is unused and the next contest is a ballot
+  // If more than 3/4 of the page is unused and the next contest is a ballot
   // measure, try splitting it across pages.
   const unusedHeight = dimensions.height - heightUsed;
   const nextContest = contestsLeftToLayout[0];
