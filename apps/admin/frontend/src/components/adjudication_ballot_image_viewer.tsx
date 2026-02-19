@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Callout } from '@votingworks/ui';
+import { Button, Callout, DesktopPalette } from '@votingworks/ui';
 import styled from 'styled-components';
 import { Rect } from '@votingworks/types';
 
@@ -93,34 +93,23 @@ const ImageWrapper = styled.div`
   height: 100%;
 `;
 
-// Clip-path polygon that creates a transparent rectangular cutout in a
-// semi-transparent overlay. Percentage values are relative to the image
-// dimensions so the highlight scales with the image.
-const StaticHighlightOverlay = styled.div<{
+// A purple outline rectangle positioned over the contest area using percentage
+// coordinates relative to the ballot image dimensions.
+const ContestOutline = styled.div<{
   top: number;
   left: number;
-  bottom: number;
-  right: number;
+  width: number;
+  height: number;
 }>`
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: ${(p) => p.top}%;
+  left: ${(p) => p.left}%;
+  width: ${(p) => p.width}%;
+  height: ${(p) => p.height}%;
   z-index: 1;
-  background: rgba(0, 0, 0, 50%);
-  clip-path: polygon(
-    0% 0%,
-    0% 100%,
-    ${(p) => p.left}% 100%,
-    ${(p) => p.left}% ${(p) => p.top}%,
-    ${(p) => p.right}% ${(p) => p.top}%,
-    ${(p) => p.right}% ${(p) => p.bottom}%,
-    ${(p) => p.left}% ${(p) => p.bottom}%,
-    ${(p) => p.left}% 100%,
-    100% 100%,
-    100% 0%
-  );
+  border: 3px solid ${DesktopPalette.Purple60};
+  border-radius: 4px;
+  pointer-events: none;
 `;
 
 const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
@@ -213,17 +202,11 @@ export function BallotStaticImageViewer({
 }): JSX.Element {
   const overlay =
     highlightBounds && ballotBounds ? (
-      <StaticHighlightOverlay
+      <ContestOutline
         top={(highlightBounds.y / ballotBounds.height) * 100}
         left={(highlightBounds.x / ballotBounds.width) * 100}
-        bottom={
-          ((highlightBounds.y + highlightBounds.height) / ballotBounds.height) *
-          100
-        }
-        right={
-          ((highlightBounds.x + highlightBounds.width) / ballotBounds.width) *
-          100
-        }
+        width={(highlightBounds.width / ballotBounds.width) * 100}
+        height={(highlightBounds.height / ballotBounds.height) * 100}
       />
     ) : null;
 

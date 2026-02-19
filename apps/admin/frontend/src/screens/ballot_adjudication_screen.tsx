@@ -47,14 +47,14 @@ const BallotPanel = styled.div`
   position: relative;
 `;
 
-const BallotSideToggle = styled.div<{ hasHighlight?: boolean }>`
+const BallotSideToggle = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
   position: absolute;
   top: 0;
   z-index: 2;
-  background: ${(p) => (p.hasHighlight ? 'none' : 'rgba(0, 0, 0, 50%)')};
+  background: rgba(0, 0, 0, 50%);
   width: 100%;
   padding: 0.5rem;
   padding-right: 1rem;
@@ -422,7 +422,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
       <Main flexRow>
         <BallotPanel>
           {back && (
-            <BallotSideToggle hasHighlight={!!hoveredContestBounds}>
+            <BallotSideToggle>
               <SegmentedButton
                 label="Ballot Side"
                 hideLabel
