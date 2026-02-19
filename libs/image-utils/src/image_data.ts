@@ -17,7 +17,8 @@ import {
   PngConfig,
 } from 'canvas';
 import makeDebug from 'debug';
-import { writeFile } from 'node:fs/promises';
+import { open, writeFile } from 'node:fs/promises';
+
 import { assertInteger } from './numeric';
 import { int, u8, usize } from './types';
 
@@ -75,6 +76,160 @@ export async function loadImageData(
   context.drawImage(image, 0, 0);
   const imageData = context.getImageData(0, 0, image.width, image.height);
   return ok(imageData);
+}
+
+// Read enough bytes to find the JPEG SOF marker, which appears after
+// quantization tables and typically falls within the first few kilobytes.
+// 24 bytes suffices for PNG (8-byte signature + 8-byte IHDR header + 8-byte dims).
+//
+// While valid JPEGs might have enough data in the file before the SOF marker
+// to push the first SOF marker beyond 4096 bytes, these are unlikely to be
+// encountered with the files VxSuite works with. Examples of such files include
+// JPEGs with:
+// - Huge EXIF blocks (camera metadata - GPS, lens info, exposure, etc.)
+// - ICC color profiles (color management for print/photo workflows)
+// - Embedded thumbnails (camera preview images)
+const MAX_HEADER_BYTES_FROM_FILE = 4096;
+
+// 0x89 'P' 'N' 'G' '\r' '\n' 0x1A '\n'
+const PNG_SIGNATURE = Buffer.of(137, 80, 78, 71, 13, 10, 26, 10);
+
+/**
+ * Reads PNG image dimensions from the IHDR chunk. Returns undefined if the
+ * buffer does not start with a valid PNG signature.
+ *
+ * @see https://github.com/corkami/formats/blob/master/image/png.md
+ */
+function findPngDimensions(
+  data: Buffer
+): { width: number; height: number } | undefined {
+  // PNG header: 8-byte signature + 4-byte chunk length + 4-byte "IHDR" type
+  // + 4-byte width + 4-byte height = 24 bytes minimum
+  if (data.length < 24) return undefined;
+  if (
+    data.compare(
+      PNG_SIGNATURE,
+      0,
+      PNG_SIGNATURE.length,
+      0,
+      PNG_SIGNATURE.length
+    ) !== 0
+  ) {
+    return undefined;
+  }
+  if (data.toString('ascii', 12, 16) !== 'IHDR') {
+    return undefined;
+  }
+  return { width: data.readUInt32BE(16), height: data.readUInt32BE(20) };
+}
+
+/**
+ * Scans a buffer for a JPEG SOF (Start of Frame) marker and extracts image
+ * dimensions. Returns undefined if the buffer does not start with a valid JPEG
+ * SOI marker or if no SOF marker is found within the buffer.
+ *
+ * This is not designed to work with all JPEG files, but rather with those
+ * typically processed by VxSuite. It may not handle files produced by some
+ * digital cameras, for example. It also will not handle some other JPEG formats
+ * like JPEG2000 or JPEG XL, which are not supported by VxSuite.
+ *
+ * @see https://github.com/corkami/formats/blob/master/image/jpeg.md
+ */
+function findJpegDimensions(
+  data: Buffer
+): { width: number; height: number } | undefined {
+  // require that the buffer starts with a valid JPEG SOI marker
+  if (data.length < 2 || data[0] !== 0xff || data[1] !== 0xd8) {
+    return undefined;
+  }
+
+  // process segments until we find a SOF marker which contains image dimensions
+  let offset = 2;
+  while (offset + 1 < data.length) {
+    // skip padding bytes
+    while (offset < data.length && data[offset] !== 0xff) offset += 1;
+    while (offset < data.length && data[offset] === 0xff) offset += 1;
+    const marker = data[offset] as number;
+    offset += 1;
+
+    // Markers without a payload: SOI (D8), EOI (D9), RST0-RST7 (D0-D7)
+    if (marker >= 0xd0 && marker <= 0xd9) {
+      continue;
+    }
+
+    if (offset + 2 > data.length) break;
+    const segmentLength = data.readUInt16BE(offset);
+
+    if (segmentLength < 2) return undefined;
+
+    // SOF markers contain image dimensions.
+    // C0-C3, C5-C7, C9-CB, CD-CF are SOF; C4=DHT, C8=JPG, CC=DAC are not.
+    if (
+      (marker >= 0xc0 && marker <= 0xc3) ||
+      (marker >= 0xc5 && marker <= 0xc7) ||
+      (marker >= 0xc9 && marker <= 0xcb) ||
+      (marker >= 0xcd && marker <= 0xcf)
+    ) {
+      // SOF payload: length (2) + precision (1) + height (2) + width (2)
+      if (offset + 7 > data.length) break;
+      const height = data.readUInt16BE(offset + 3);
+      const width = data.readUInt16BE(offset + 5);
+      return { width, height };
+    }
+
+    offset += segmentLength;
+  }
+
+  return undefined;
+}
+
+/**
+ * Loads image metadata from a file or buffer without decoding the image data.
+ * If all you need is the image dimensions, this is much faster than
+ * `loadImageData`.
+ */
+export async function loadImageMetadata(
+  pathOrData: string | Buffer
+): Promise<
+  Result<
+    { type: 'image/jpeg' | 'image/png'; width: number; height: number },
+    { type: 'invalid-image-file'; message: string }
+  >
+> {
+  let headerBytes: Buffer;
+  try {
+    if (typeof pathOrData === 'string') {
+      const file = await open(pathOrData, 'r');
+      try {
+        headerBytes = Buffer.alloc(MAX_HEADER_BYTES_FROM_FILE);
+        await file.read(headerBytes, 0, headerBytes.byteLength);
+      } finally {
+        await file.close();
+      }
+    } else {
+      headerBytes = pathOrData;
+    }
+  } catch (error) {
+    return err({
+      type: 'invalid-image-file',
+      message: extractErrorMessage(error),
+    });
+  }
+
+  const pngDimensions = findPngDimensions(headerBytes);
+  if (pngDimensions) {
+    return ok({ type: 'image/png', ...pngDimensions });
+  }
+
+  const jpegDimensions = findJpegDimensions(headerBytes);
+  if (jpegDimensions) {
+    return ok({ type: 'image/jpeg', ...jpegDimensions });
+  }
+
+  return err({
+    type: 'invalid-image-file',
+    message: 'File is not PNG or JPEG',
+  });
 }
 
 /**

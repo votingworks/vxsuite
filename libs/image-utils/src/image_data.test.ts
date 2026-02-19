@@ -5,7 +5,7 @@ import fc from 'fast-check';
 import { writeFile } from 'node:fs/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { randomFillSync } from 'node:crypto';
-import { err, MaybePromise } from '@votingworks/basics';
+import { err, ok, MaybePromise } from '@votingworks/basics';
 import { arbitraryImageData } from '../test/arbitraries';
 import {
   RGBA_CHANNEL_COUNT,
@@ -15,6 +15,7 @@ import {
   getImageChannelCount,
   isRgba,
   loadImageData,
+  loadImageMetadata,
   toDataUrl,
   toImageBuffer,
   writeImageData,
@@ -281,6 +282,121 @@ async function measureRepeatedly(
     }
   }
 }
+
+test('loadImageMetadata from buffer', async () => {
+  await fc.assert(
+    fc.asyncProperty(
+      arbitraryImageData(),
+      fc.constantFrom<'image/png' | 'image/jpeg'>('image/png', 'image/jpeg'),
+      async (imageData, mimeType) => {
+        const buffer = toImageBuffer(imageData, mimeType);
+        const result = await loadImageMetadata(buffer);
+        expect(result).toEqual(
+          ok({
+            type: mimeType,
+            width: imageData.width,
+            height: imageData.height,
+          })
+        );
+      }
+    )
+  );
+});
+
+test('loadImageMetadata from file', async () => {
+  await fc.assert(
+    fc.asyncProperty(
+      arbitraryImageData(),
+      fc.constantFrom<'image/png' | 'image/jpeg'>('image/png', 'image/jpeg'),
+      async (imageData, mimeType) => {
+        const ext = mimeType === 'image/png' ? 'png' : 'jpeg';
+        const filePath = makeTemporaryFile({ postfix: `.${ext}` });
+        await writeImageData(filePath, imageData);
+        const result = await loadImageMetadata(filePath);
+        expect(result).toEqual(
+          ok({
+            type: mimeType,
+            width: imageData.width,
+            height: imageData.height,
+          })
+        );
+      }
+    )
+  );
+});
+
+test('loadImageMetadata on a non-existent file', async () => {
+  const result = await loadImageMetadata('/path/does/not/exist.png');
+  expect(result).toEqual(
+    err({ type: 'invalid-image-file', message: expect.any(String) })
+  );
+});
+
+test('loadImageMetadata on corrupted data', async () => {
+  const result = await loadImageMetadata(Buffer.from('not an image'));
+  expect(result).toEqual(
+    err({ type: 'invalid-image-file', message: expect.any(String) })
+  );
+});
+
+test('loadImageMetadata on PNG with non-IHDR chunk', async () => {
+  const pngImageBuffer = toImageBuffer(createImageData(1, 1), 'image/png');
+  expect(pngImageBuffer.toString('ascii', 12, 16)).toEqual('IHDR');
+  // corrupt IHDR chunk
+  pngImageBuffer[12] = 0x00;
+
+  expect(await loadImageMetadata(pngImageBuffer)).toEqual(
+    err({ type: 'invalid-image-file', message: expect.any(String) })
+  );
+});
+
+test('loadImageMetadata on JPEG with no SOF marker found', async () => {
+  // SOI (FF D8) + EOI (FF D9, payload-less marker) with no SOF — the scan
+  // loop hits the payload-less `continue` branch then exhausts the buffer
+  const result = await loadImageMetadata(Buffer.from([0xff, 0xd8, 0xff, 0xd9]));
+  expect(result).toEqual(
+    err({ type: 'invalid-image-file', message: expect.any(String) })
+  );
+});
+
+test('loadImageMetadata on JPEG with invalid marker byte mid-stream', async () => {
+  // SOI + RST0 (payload-less, advances offset) + non-FF byte where the next
+  // marker prefix should be
+  const result = await loadImageMetadata(
+    Buffer.from([0xff, 0xd8, 0xff, 0xd0, 0xab, 0xcd])
+  );
+  expect(result).toEqual(
+    err({ type: 'invalid-image-file', message: expect.any(String) })
+  );
+});
+
+test('loadImageMetadata on JPEG truncated before segment length', async () => {
+  // SOI + APP0 marker (FF E0) with no room for the 2-byte length field
+  const result = await loadImageMetadata(Buffer.from([0xff, 0xd8, 0xff, 0xe0]));
+  expect(result).toEqual(
+    err({ type: 'invalid-image-file', message: expect.any(String) })
+  );
+});
+
+test('loadImageMetadata on JPEG with invalid segment length', async () => {
+  // SOI + APP0 marker (FF E0) + 2-byte length field of 1, which is less than
+  // the minimum valid value of 2 (the length field includes itself)
+  const result = await loadImageMetadata(Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x01]));
+  expect(result).toEqual(
+    err({ type: 'invalid-image-file', message: expect.any(String) })
+  );
+});
+
+test('loadImageMetadata on JPEG truncated inside SOF payload', async () => {
+  // SOI + SOF0 marker (FF C0) + 2-byte length field but not enough bytes for
+  // the SOF payload (precision + height + width = 5 more bytes needed)
+  const result = await loadImageMetadata(
+    Buffer.from([0xff, 0xd8, 0xff, 0xc0, 0x00, 0x08, 0x08])
+  );
+  expect(result).toEqual(
+    err({ type: 'invalid-image-file', message: expect.any(String) })
+  );
+});
 
 // TODO: Replace this with a service specifically geared toward measuring performance.
 //
