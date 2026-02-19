@@ -39,7 +39,7 @@ import {
 import { createCanvas, ImageData } from 'canvas';
 import { assert } from 'node:console';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { loadImageData, toImageBuffer } from '@votingworks/image-utils';
+import { loadImageMetadata, toImageBuffer } from '@votingworks/image-utils';
 import { readFile } from 'node:fs/promises';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
@@ -482,10 +482,10 @@ describe('VX BMD interpretation', () => {
 
     expect(interpretation).toMatchSnapshot();
 
-    const outputImage = (await loadImageData(outputPath)).unsafeUnwrap();
+    const outputImageMetadata = (await loadImageMetadata(outputPath)).unsafeUnwrap();
     expect({
-      width: outputImage.width,
-      height: outputImage.height,
+      width: outputImageMetadata.width,
+      height: outputImageMetadata.height,
     }).toEqual({
       width: bmdSummaryBallotPage.width,
       height: bmdSummaryBallotPage.height,
