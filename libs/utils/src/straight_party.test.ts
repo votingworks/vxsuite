@@ -12,6 +12,7 @@ const straightPartyContest: StraightPartyContest = {
   id: 'straight-party-ticket',
   type: 'straight-party',
   title: 'Straight Party',
+  districtId: 'election-wide',
 };
 
 const governorContest: CandidateContest = {

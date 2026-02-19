@@ -43,7 +43,7 @@ function buildBallotStyleContestIdsLookup(
     const contestIds = election.contests
       .filter(
         (c) =>
-          (c.type === 'straight-party' || bsDistricts.has(c.districtId)) &&
+          bsDistricts.has(c.districtId) &&
           doesContestAppearOnPartyBallot(c, ballotStyle.partyId)
       )
       .map((c) => c.id);

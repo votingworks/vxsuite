@@ -174,11 +174,13 @@ export const ContestTypesSchema: z.ZodSchema<ContestTypes> = z.union([
 export type ContestId = Id;
 export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
 /**
- * A contest that belongs to a specific district. Includes candidate contests
- * and yes/no ballot measures but not straight-party contests (which apply to
- * the entire ballot).
+ * A contest that belongs to a specific district. Now includes all contest types
+ * since straight-party contests have a synthetic election-wide district.
+ *
+ * @deprecated Equivalent to {@link Contest}. Retained for compatibility during
+ * the straight-party POC; prefer using {@link Contest} directly.
  */
-export type DistrictContest = CandidateContest | YesNoContest;
+export type DistrictContest = CandidateContest | YesNoContest | StraightPartyContest;
 
 /**
  * Generic type-agnostic contest type, enabling common operations on canonical
@@ -294,7 +296,7 @@ export interface StraightPartyContest {
   readonly id: ContestId;
   readonly type: 'straight-party';
   readonly title: string;
-  // No districtId — applies to the entire ballot
+  readonly districtId: DistrictId;
   // No seats — always vote-for-one by definition
   // No option data — derived from election.parties
 }
@@ -303,6 +305,7 @@ export const StraightPartyContestSchema: z.ZodSchema<StraightPartyContest> =
     id: ContestIdSchema,
     type: z.literal('straight-party'),
     title: z.string().nonempty(),
+    districtId: DistrictIdSchema,
   });
 
 export type Contest = CandidateContest | YesNoContest | StraightPartyContest;

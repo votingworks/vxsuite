@@ -16,7 +16,6 @@ import {
   BallotStyleId,
   BaseBallotProps,
   CandidateContest as CandidateContestStruct,
-  DistrictContest,
   Election,
   PrecinctId,
   YesNoContest,
@@ -589,7 +588,7 @@ async function PrimaryBallotPageContent(
     getBallotStyle({ election, ballotStyleId })
   );
   const contests = election.contests.filter(
-    (c): c is DistrictContest =>
+    (c) =>
       c.type !== 'straight-party' && ballotStyle.districts.includes(c.districtId)
   );
   if (contests.length === 0) {
@@ -907,7 +906,7 @@ async function BallotPageContent(
   }
 
   const districtContests = contests.filter(
-    (c): c is DistrictContest => c.type !== 'straight-party'
+    (c) => c.type !== 'straight-party'
   );
   const contestSections = [
     {

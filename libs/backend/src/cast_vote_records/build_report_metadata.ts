@@ -121,7 +121,7 @@ function buildElection({
       Name: candidate.name,
     })),
     Contest: election.contests
-      .filter((c): c is DistrictContest => c.type !== 'straight-party')
+      .filter((c) => c.type !== 'straight-party')
       .map(buildContest),
     ElectionScopeId: electionScopeId,
   };

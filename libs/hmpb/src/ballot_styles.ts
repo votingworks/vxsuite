@@ -92,10 +92,8 @@ export function generateBallotStyles(params: {
       return precinctsOrSplitsByDistricts.flatMap(
         ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {
           // Filter contests by district before generating orderings
-          const ballotStyleContests = contests.filter(
-            (contest) =>
-              contest.type === 'straight-party' ||
-              districtIds.includes(contest.districtId)
+          const ballotStyleContests = contests.filter((contest) =>
+            districtIds.includes(contest.districtId)
           );
           // Get all ordered contest sets for this district group
           const orderedContestSets = getAllPossibleCandidateOrderings(
@@ -146,10 +144,8 @@ export function generateBallotStyles(params: {
       return precinctsOrSplitsByDistricts.flatMap(
         ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {
           // Filter contests by district before generating orderings
-          const ballotStyleContests = contests.filter(
-            (contest) =>
-              contest.type === 'straight-party' ||
-              districtIds.includes(contest.districtId)
+          const ballotStyleContests = contests.filter((contest) =>
+            districtIds.includes(contest.districtId)
           );
           const partyIds = unique(
             ballotStyleContests

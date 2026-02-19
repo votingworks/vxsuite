@@ -22,6 +22,7 @@ function injectStraightPartyContest(election: Election): Election {
     id: 'straight-party-ticket',
     type: 'straight-party',
     title: 'Straight Party Ticket',
+    districtId: 'election-wide',
   };
   return {
     ...election,

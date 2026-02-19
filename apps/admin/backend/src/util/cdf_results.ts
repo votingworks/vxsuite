@@ -181,14 +181,14 @@ function buildCandidateContest(
 
 function buildPartyContest(
   contest: StraightPartyContest,
-  results: Tabulation.StraightPartyContestResults,
-  countyId: string
+  results: Tabulation.StraightPartyContestResults
 ): ResultsReporting.PartyContest {
+  const districtId = getDistrictIdFromContest(contest);
   return {
     '@type': 'ElectionResults.PartyContest',
     '@id': getContestId(contest),
     Name: contest.title,
-    ElectionDistrictId: countyId,
+    ElectionDistrictId: districtId,
     ContestSelection: Object.values(results.tallies).map((partyTally) => ({
       '@type': 'ElectionResults.PartySelection' as const,
       '@id': asNcName(partyTally.partyId),
@@ -197,7 +197,7 @@ function buildPartyContest(
         {
           '@type': 'ElectionResults.VoteCounts' as const,
           Count: partyTally.tally,
-          GpUnitId: countyId,
+          GpUnitId: districtId,
           Type: ResultsReporting.CountItemType.Total,
         },
       ],
@@ -205,7 +205,7 @@ function buildPartyContest(
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',
-        GpUnitId: countyId,
+        GpUnitId: districtId,
         Overvotes: results.overvotes,
         Undervotes: results.undervotes,
       },
@@ -236,9 +236,7 @@ function buildContests(
       reportContests.push(buildCandidateContest(contest, contestResults));
     } else if (contest.type === 'straight-party') {
       assert(contestResults.contestType === 'straight-party');
-      reportContests.push(
-        buildPartyContest(contest, contestResults, countyId)
-      );
+      reportContests.push(buildPartyContest(contest, contestResults));
     }
   }
 

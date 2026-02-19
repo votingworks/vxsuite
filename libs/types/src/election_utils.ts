@@ -47,15 +47,12 @@ export function getContests({
   ballotStyle: BallotStyle | BallotStyleGroup;
   election: Election;
 }): Contests {
-  return election.contests.filter((c) => {
-    if (c.type === 'straight-party') return true;
-    return (
-      ballotStyle.districts.includes(c.districtId) &&
-      (c.type !== 'candidate' ||
-        !c.partyId ||
-        ballotStyle.partyId === c.partyId)
-    );
-  });
+  return election.contests.filter((c) =>
+    ballotStyle.districts.includes(c.districtId) &&
+    (c.type !== 'candidate' ||
+      !c.partyId ||
+      ballotStyle.partyId === c.partyId)
+  );
 }
 
 /**
