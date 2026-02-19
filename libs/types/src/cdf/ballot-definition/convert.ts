@@ -736,9 +736,8 @@ export function convertVxfElectionToCdfBallotDefinition(
           ),
 
         Contest: vxfElection.contests
-          .filter((c): c is Vxf.DistrictContest => c.type !== 'straight-party')
           // eslint-disable-next-line array-callback-return
-          .map((contest) => {
+          .map((contest): Cdf.BallotMeasureContest | Cdf.CandidateContest | Cdf.StraightPartyContest => {
             switch (contest.type) {
               case 'candidate':
                 return {
@@ -813,6 +812,32 @@ export function convertVxfElectionToCdfBallotDefinition(
                       ]),
                     },
                   ],
+                };
+
+              case 'straight-party':
+                return {
+                  '@type': 'BallotDefinition.StraightPartyContest',
+                  '@id': contest.id,
+                  ElectionDistrictId: stateId,
+                  Name: contest.title,
+                  BallotTitle: text(contest.title, [
+                    ElectionStringKey.CONTEST_TITLE,
+                    contest.id,
+                  ]),
+                  StraightPartyRuleset: Cdf.StraightPartyRuleset.Exclusive,
+                  ControlledContestIds: vxfElection.contests
+                    .filter(
+                      (c): c is Vxf.CandidateContest =>
+                        c.type === 'candidate' && c.partyId !== undefined
+                    )
+                    .map((c) => c.id),
+                  ContestOption: vxfElection.parties.map(
+                    (party): Cdf.PartyOption => ({
+                      '@type': 'BallotDefinition.PartyOption',
+                      '@id': party.id,
+                      PartyIds: [party.id],
+                    })
+                  ),
                 };
 
               /* istanbul ignore next - @preserve */

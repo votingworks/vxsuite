@@ -468,6 +468,9 @@
               },
               {
                 "$ref": "#/definitions/BallotDefinition.CandidateContest"
+              },
+              {
+                "$ref": "#/definitions/BallotDefinition.StraightPartyContest"
               }
             ]
           },
@@ -724,7 +727,8 @@
           "type": "string",
           "refTypes": [
             "BallotDefinition.BallotMeasureContest",
-            "BallotDefinition.CandidateContest"
+            "BallotDefinition.CandidateContest",
+            "BallotDefinition.StraightPartyContest"
           ]
         },
         "Physical": {
@@ -757,6 +761,28 @@
         },
         "Name": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.PartyOption": {
+      "required": ["@id", "@type", "PartyIds"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.PartyOption"],
+          "type": "string"
+        },
+        "PartyIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Party"]
+          },
+          "minItems": 1,
+          "type": "array"
         }
       },
       "type": "object"
@@ -825,7 +851,8 @@
           "type": "string",
           "refTypes": [
             "BallotDefinition.BallotMeasureOption",
-            "BallotDefinition.CandidateOption"
+            "BallotDefinition.CandidateOption",
+            "BallotDefinition.PartyOption"
           ]
         },
         "OptionPosition": {
@@ -909,6 +936,64 @@
     },
     "BallotDefinition.ShapeType": {
       "enum": ["ellipse", "rectangle"],
+      "type": "string"
+    },
+    "BallotDefinition.StraightPartyContest": {
+      "required": [
+        "@id",
+        "@type",
+        "ContestOption",
+        "ControlledContestIds",
+        "ElectionDistrictId",
+        "Name",
+        "StraightPartyRuleset"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.StraightPartyContest"],
+          "type": "string"
+        },
+        "BallotTitle": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "ContestOption": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.PartyOption"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "ControlledContestIds": {
+          "items": {
+            "type": "string",
+            "refTypes": [
+              "BallotDefinition.BallotMeasureContest",
+              "BallotDefinition.CandidateContest",
+              "BallotDefinition.StraightPartyContest"
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "ElectionDistrictId": {
+          "type": "string",
+          "refTypes": ["BallotDefinition.ReportingUnit"]
+        },
+        "Name": {
+          "type": "string"
+        },
+        "StraightPartyRuleset": {
+          "$ref": "#/definitions/BallotDefinition.StraightPartyRuleset"
+        }
+      },
+      "type": "object"
+    },
+    "BallotDefinition.StraightPartyRuleset": {
+      "enum": ["exclusive", "inclusive", "other"],
       "type": "string"
     },
     "BallotDefinition.Term": {
