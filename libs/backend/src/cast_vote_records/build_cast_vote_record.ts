@@ -21,6 +21,8 @@ import {
   InterpretedHmpbPage,
   MarkStatus,
   SheetOf,
+  StraightPartyContest,
+  StraightPartyVote,
   VotesDict,
   YesNoContest,
   YesNoVote,
@@ -144,6 +146,60 @@ function buildCVRBallotMeasureContest({
             ? CVR.AllocationStatus.No
             : CVR.AllocationStatus.Yes,
           Status: overvoted ? [CVR.PositionStatus.InvalidatedRules] : undefined,
+        },
+      ],
+    })),
+  };
+}
+
+function buildCVRStraightPartyContest({
+  contest,
+  vote,
+  electionDefinition,
+  ballotStyleId,
+}: {
+  contest: StraightPartyContest;
+  vote: StraightPartyVote;
+  electionDefinition: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
+}): CVR.CVRContest {
+  // Straight-party is always vote-for-one
+  const overvoted = vote.length > 1;
+  const undervoted = vote.length < 1;
+
+  return {
+    '@type': 'CVR.CVRContest',
+    ContestId: contest.id,
+    Overvotes: overvoted ? 1 : 0,
+    Undervotes: undervoted ? 1 : 0,
+    Status: overvoted
+      ? [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules]
+      : undervoted
+        ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
+        : undefined,
+    CVRContestSelection: vote.map((partyId) => ({
+      '@type': 'CVR.CVRContestSelection',
+      ContestSelectionId: partyId,
+      OptionPosition: CachedElectionLookups.getOptionPosition(
+        electionDefinition,
+        ballotStyleId,
+        contest.id,
+        partyId
+      ),
+      Status: overvoted
+        ? [CVR.ContestSelectionStatus.InvalidatedRules]
+        : undefined,
+      SelectionPosition: [
+        {
+          '@type': 'CVR.SelectionPosition',
+          HasIndication: CVR.IndicationStatus.Yes,
+          NumberVotes: 1,
+          IsAllocable: overvoted
+            ? CVR.AllocationStatus.No
+            : CVR.AllocationStatus.Yes,
+          Status: overvoted
+            ? [CVR.PositionStatus.InvalidatedRules]
+            : undefined,
         },
       ],
     })),
@@ -386,7 +442,14 @@ export function buildCVRContestsFromVotes({
         );
         break;
       case 'straight-party':
-        // TODO: Build CDF CVR for straight-party (Commit 13)
+        cvrContests.push(
+          buildCVRStraightPartyContest({
+            contest,
+            vote: contestVote as StraightPartyVote,
+            electionDefinition,
+            ballotStyleId,
+          })
+        );
         break;
       /* istanbul ignore next - @preserve */
       default:
