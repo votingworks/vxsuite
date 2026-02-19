@@ -264,6 +264,24 @@ export function createApiMock() {
       };
     },
 
+    expectPrintWriteInImageReport(errorStatus?: PrinterStatus): {
+      resolve: () => void;
+    } {
+      const { resolve, promise } = deferred<PrintResult>();
+
+      mockApiClient.printWriteInImageReport.expectCallWith().returns(promise);
+
+      return {
+        resolve: () => {
+          if (errorStatus) {
+            resolve(err(errorStatus));
+          } else {
+            resolve(ok());
+          }
+        },
+      };
+    },
+
     expectPrintTestPage(result: PrintResult = ok()): {
       resolve: () => void;
     } {

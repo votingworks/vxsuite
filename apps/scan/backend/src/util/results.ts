@@ -13,27 +13,57 @@ import {
   groupMapToGroupList,
   tabulateCastVoteRecords,
 } from '@votingworks/utils';
-import { assert, assertDefined, iter, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  iter,
+  throwIllegalValue,
+  typedAs,
+} from '@votingworks/basics';
 import { VX_MACHINE_ID } from '@votingworks/backend';
 import memoizeOne from 'memoize-one';
-import { Store } from '../store';
+import type { Store } from '../store';
 
-function isBmdPage(
+export function isHmpbPage(
+  interpretation: PageInterpretation
+): interpretation is InterpretedHmpbPage {
+  return interpretation.type === 'InterpretedHmpbPage';
+}
+
+export function isBmdPage(
   interpretation: PageInterpretation
 ): interpretation is InterpretedBmdPage {
   return interpretation.type === 'InterpretedBmdPage';
 }
 
-function isBmdMultiPagePage(
+export function isBmdMultiPagePage(
   interpretation: PageInterpretation
 ): interpretation is InterpretedBmdMultiPagePage {
   return interpretation.type === 'InterpretedBmdMultiPagePage';
 }
 
-function isHmpbPage(
+export function isPageWithVotes(
   interpretation: PageInterpretation
-): interpretation is InterpretedHmpbPage {
-  return interpretation.type === 'InterpretedHmpbPage';
+): interpretation is
+  | InterpretedHmpbPage
+  | InterpretedBmdPage
+  | InterpretedBmdMultiPagePage {
+  const { type } = interpretation;
+  switch (type) {
+    case 'InterpretedHmpbPage':
+    case 'InterpretedBmdPage':
+    case 'InterpretedBmdMultiPagePage':
+      return true;
+    case 'BlankPage':
+    case 'UnreadablePage':
+    case 'InvalidBallotHashPage':
+    case 'InvalidPrecinctPage':
+    case 'InvalidTestModePage':
+      return false;
+    default:
+      /* istanbul ignore next -- preserve */
+      throwIllegalValue(type);
+  }
 }
 
 const BALLOT_TYPE_TO_VOTING_METHOD: Record<

@@ -56,9 +56,17 @@ import {
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
 import { getPollsTransitionDestinationState } from '@votingworks/utils';
+import { ContestWriteIns, WriteInEntry } from '@votingworks/ui';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
+import { isHmpbPage, isPageWithVotes } from './util/results';
+import {
+  extractHmpbWriteIns,
+  extractSummaryWriteIns,
+  extractWriteInCandidates,
+  getOvervotedContestIds,
+} from './util/write_in_report';
 import { PollsTransition } from './types';
 
 const debug = rootDebug.extend('store');
@@ -885,6 +893,76 @@ export class Store {
     for (const row of this.client.each(sql) as Iterable<SheetRow>) {
       yield sheetRowToAcceptedSheet(row);
     }
+  }
+
+  async getWriteInReportData(): Promise<ContestWriteIns[]> {
+    const { election } = assertDefined(
+      this.getElectionRecord()
+    ).electionDefinition;
+    const allWriteInsByContest = new Map<string, WriteInEntry[]>();
+
+    for (const sheet of this.forEachAcceptedSheet()) {
+      const [frontInterpretation, backInterpretation] = sheet.interpretation;
+
+      const interpretationsWithPaths = [
+        {
+          interpretation: frontInterpretation,
+          imagePath: sheet.frontImagePath,
+        },
+        {
+          interpretation: backInterpretation,
+          imagePath: sheet.backImagePath,
+        },
+      ];
+
+      for (const { interpretation, imagePath } of interpretationsWithPaths) {
+        if (!isPageWithVotes(interpretation)) {
+          continue;
+        }
+        const { votes } = interpretation;
+
+        const overvotedContestIds = getOvervotedContestIds(
+          votes,
+          election.contests
+        );
+
+        const writeInCandidates = extractWriteInCandidates(
+          votes,
+          overvotedContestIds
+        );
+
+        const pageWriteIns = isHmpbPage(interpretation)
+          ? await extractHmpbWriteIns(
+              interpretation,
+              imagePath,
+              writeInCandidates
+            )
+          : extractSummaryWriteIns(writeInCandidates);
+
+        for (const [contestId, entries] of pageWriteIns) {
+          const existing = allWriteInsByContest.get(contestId) ?? [];
+          existing.push(...entries);
+          allWriteInsByContest.set(contestId, existing);
+        }
+      }
+    }
+
+    const contestWriteIns: ContestWriteIns[] = [];
+
+    for (const contest of election.contests) {
+      if (contest.type !== 'candidate' || !contest.allowWriteIns) continue;
+
+      const entries = allWriteInsByContest.get(contest.id) ?? [];
+
+      contestWriteIns.push({
+        contestId: contest.id,
+        contestName: contest.title,
+        partyId: contest.partyId,
+        writeIns: entries,
+      });
+    }
+
+    return contestWriteIns;
   }
 
   /**
