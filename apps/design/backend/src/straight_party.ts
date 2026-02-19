@@ -2,6 +2,7 @@ import {
   District,
   DistrictId,
   Election,
+  hasSplits,
   StraightPartyContest,
 } from '@votingworks/types';
 
@@ -55,6 +56,20 @@ export function injectStraightPartyContest(election: Election): Election {
   return {
     ...election,
     districts: [...election.districts, electionWideDistrict],
+    precincts: election.precincts.map((precinct) =>
+      hasSplits(precinct)
+        ? {
+            ...precinct,
+            splits: precinct.splits.map((split) => ({
+              ...split,
+              districtIds: [...split.districtIds, ELECTION_WIDE_DISTRICT_ID],
+            })),
+          }
+        : {
+            ...precinct,
+            districtIds: [...precinct.districtIds, ELECTION_WIDE_DISTRICT_ID],
+          }
+    ),
     ballotStyles: election.ballotStyles.map((bs) => ({
       ...bs,
       districts: [...bs.districts, ELECTION_WIDE_DISTRICT_ID],
