@@ -14,7 +14,11 @@ import {
   getBallotStyleLabel,
 } from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
-import { getGroupedBallotStyles } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  getGroupedBallotStyles,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { getScannerBatches } from '../../api';
 import {
   getPartiesWithPrimaryElections,
@@ -126,10 +130,14 @@ function generateOptionsForFilter({
           value: 'absentee',
           label: 'Absentee',
         },
-        {
-          value: 'early_voting',
-          label: 'Early Voting',
-        },
+        ...(isFeatureFlagEnabled(BooleanEnvironmentVariableName.EARLY_VOTING)
+          ? [
+              {
+                value: 'early_voting' as const,
+                label: 'Early Voting',
+              },
+            ]
+          : []),
       ]);
     case 'scanner':
       return unique(scannerBatches.map((sb) => sb.scannerId)).map(
