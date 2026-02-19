@@ -302,6 +302,31 @@ export enum ShapeType {
 export const ShapeTypeSchema = z.enum(ShapeType);
 
 /**
+ * Specifies how to consider indications made in the controlled contests of a straight party controlling contest.These specify the consequences direct selections made by the voter in controlled contests.
+ */
+export enum StraightPartyRuleset {
+  /**
+   * For a ruleset that excludes any straight-party selections if there is a directly selected candidate in a contest.
+   */
+  Exclusive = 'exclusive',
+
+  /**
+   * For a ruleset allowing any additional candidates selected by the straight-party to be included with directly selected candidates if the total number of candidates does not exceed the number of selections allowed.
+   */
+  Inclusive = 'inclusive',
+
+  /**
+   * Used when the straight party rule type is not included in this enumeration.
+   */
+  Other = 'other',
+}
+
+/**
+ * Schema for {@link StraightPartyRuleset}.
+ */
+export const StraightPartyRulesetSchema = z.enum(StraightPartyRuleset);
+
+/**
  * For defining items pertaining to the issuer and version of the definition and when it was generated.
  * 
  * BallotDefinition references the major elements that are not necessarily specific to an election and that therefore can exist in a logical ballot definition: GpUnit, Office and OfficeGroup, Party, Person, and Election.
@@ -811,7 +836,7 @@ export interface Election {
   /**
    * For defining contests associated with the election.
    */
-  readonly Contest: ReadonlyArray<BallotMeasureContest | CandidateContest>;
+  readonly Contest: ReadonlyArray<BallotMeasureContest | CandidateContest | StraightPartyContest>;
 
   /**
    * Unique identifier for a GpUnit element. For associating the election with a reporting unit that represents the geographical scope of the election, e.g., a state, a county, etc.
@@ -851,7 +876,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z.object({
   '@type': z.literal('BallotDefinition.Election'),
   BallotStyle: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => BallotStyleSchema)).min(1),
   Candidate: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSchema))),
-  Contest: z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateContestSchema)])).min(1),
+  Contest: z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => StraightPartyContestSchema)])).min(1),
   ElectionScopeId: z.string(),
   EndDate: DateSchema,
   ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema)).min(1),
@@ -1227,6 +1252,29 @@ export const PartySchema: z.ZodSchema<Party> = z.object({
 });
 
 /**
+ * For a contest selection involving a party such as for a party list selection or straight party selection on the ballot. It inherits the attributes of ContestOption.
+ */
+export interface PartyOption {
+  readonly '@id': string;
+
+  readonly '@type': 'BallotDefinition.PartyOption';
+
+  /**
+   * Link to one or more Party instances. For associating one or more parties with the party selection.
+   */
+  readonly PartyIds: readonly string[];
+}
+
+/**
+ * Schema for {@link PartyOption}.
+ */
+export const PartyOptionSchema: z.ZodSchema<PartyOption> = z.object({
+  '@id': z.string(),
+  '@type': z.literal('BallotDefinition.PartyOption'),
+  PartyIds: z.array(z.string()).min(1),
+});
+
+/**
  * For the appearance of a contest on a particular ballot style with physical details such as the locations and shapes of contest option positions.
  */
 export interface PhysicalContest {
@@ -1380,6 +1428,59 @@ export const ShapeSchema: z.ZodSchema<Shape> = z.object({
   ShapeType: z.lazy(/* istanbul ignore next - @preserve */ () => ShapeTypeSchema),
   StrokeColor: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HtmlColorStringSchema)),
   StrokeWidth: z.optional(z.number()),
+});
+
+/**
+ * For a contest that involves choosing a party, typically for a straight party selection on the ballot.This element uses ControllingContest as a superclass. Therefore, it inherits the attributes of Contest as well as ControllingContest.
+ */
+export interface StraightPartyContest {
+  readonly '@id': string;
+
+  readonly '@type': 'BallotDefinition.StraightPartyContest';
+
+  /**
+   * Title of the contest as it appears on the ballot.
+   */
+  readonly BallotTitle?: InternationalizedText;
+
+  /**
+   * For associating contest options for the contest, e.g., candidates,  ballot measure options.
+   */
+  readonly ContestOption: readonly PartyOption[];
+
+  /**
+   * A contest on a ballot whose state is dependent on the selections made in a separate controlling contest.
+   */
+  readonly ControlledContestIds: readonly string[];
+
+  /**
+   * Link to a GpUnit instance. For associating the contest with a reporting unit that represents the geographical scope of the contest, e.g., a district, etc.
+   */
+  readonly ElectionDistrictId: string;
+
+  /**
+   * Name of the contest, not necessarily as it appears on the ballot.
+   */
+  readonly Name: string;
+
+  /**
+   * The ruleset specifying how to consider indications made in the controlled contests.
+   */
+  readonly StraightPartyRuleset: StraightPartyRuleset;
+}
+
+/**
+ * Schema for {@link StraightPartyContest}.
+ */
+export const StraightPartyContestSchema: z.ZodSchema<StraightPartyContest> = z.object({
+  '@id': z.string(),
+  '@type': z.literal('BallotDefinition.StraightPartyContest'),
+  BallotTitle: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  ContestOption: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PartyOptionSchema)).min(1),
+  ControlledContestIds: z.array(z.string()).min(1),
+  ElectionDistrictId: z.string(),
+  Name: z.string(),
+  StraightPartyRuleset: z.lazy(/* istanbul ignore next - @preserve */ () => StraightPartyRulesetSchema),
 });
 
 /**
