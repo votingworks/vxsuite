@@ -834,7 +834,7 @@ function ContestForm({
           <ContestSection>
             {contest.type === 'candidate' && (
               <React.Fragment>
-                {[...allContestOptions(contest, ballotStyleGroup)]
+                {[...allContestOptions(contest, ballotStyleGroup, election.parties)]
                   .filter((c) => !c.isWriteIn)
                   .map((candidate) => (
                     <ContestDataRow key={candidate.id}>
