@@ -643,8 +643,48 @@ def build_svg(config, fonts):
     hd = max(0.0, float(dims['hole_diameter']))
     cdist = max(0.0, float(dims['hole_center_distance']))
     
-    # Step 1: Calculate textbox2 and center it
+# ... inside build_svg ...
+
+    # Step 1: Calculate textbox2 metrics
     textbox2_metrics = calculate_textbox2_metrics(config, fonts)
+    
+    # ==================== START OF FIX ====================
+    # CONSTRAINT: Ensure the font size is small enough that the warning text 
+    # (textbox3) never exceeds the configured line limit.
+    
+    # 1. Get the warning text, available width, and LINE LIMIT from config
+    warning_text = config['text'].get('warning_text', '')
+    bottom_margin_mm = w * config['layout'].get('bottom_section_margin', 0.10)
+    avail_width_warning = w - 2 * bottom_margin_mm
+    
+    # NEW: Read limit from config (default to 2 if not set)
+    warning_lines_limit = config['layout'].get('warning_lines', 2)
+    
+    # 2. Define a metric function for the warning text
+    def warning_constraint_metrics(fs):
+        lines = wrap_text_to_width(warning_text, avail_width_warning, fonts['arial'], fs)
+        line_count = len(lines)
+        # Return (dummy_count, dummy_width, actual_line_count_as_height)
+        return (1, 1, line_count)
+
+    # 3. Calculate max font size that results in exactly 'warning_lines_limit'
+    max_warning_fs = calculate_max_font_size(
+        warning_constraint_metrics, 
+        max_width=9999, 
+        max_height=warning_lines_limit,   # LIMIT: Uses config value now
+        max_font_size=MAX_FONT_SIZE
+    )
+    
+    # 4. Apply the limit: Take the smaller of the two font sizes
+    if max_warning_fs < textbox2_metrics['font_size']:
+        print(f"Limiting font size from {textbox2_metrics['font_size']:.2f} to {max_warning_fs:.2f} (Warning text constraint: {warning_lines_limit} lines)")
+        
+        # Scale the height of textbox2 proportionally
+        old_fs = textbox2_metrics['font_size']
+        textbox2_metrics['font_size'] = max_warning_fs
+        textbox2_metrics['height'] = textbox2_metrics['height'] * (max_warning_fs / old_fs)
+    # ==================== END OF FIX ====================
+
     textbox2_y = (h - textbox2_metrics['height']) / 2.0
     
     # Step 2: Calculate available space for top and bottom
@@ -801,41 +841,41 @@ def prompt_configuration(base_config=None):
                                                      ['product_line', 'serial_line', 'rating_line'])))
     config['layout']['textbox2_lines'] = [line.strip() for line in textbox2_lines_input.split(',')]
     
-    # print("\nProduct Line:")
-    # config['text']['product_line']['label'] = prompt_string("  Label", 
-    #                                                        default=config['text']['product_line']['label'])
-    # config['text']['product_line']['value'] = prompt_string("  Value", 
-    #                                                        default=config['text']['product_line']['value'])
-    # if config['text']['product_line']['label']:
-    #     config['text']['product_line']['label_bold'] = prompt_boolean("  Label bold?", 
-    #                                                                  default=config['text']['product_line']['label_bold'])
-    # if config['text']['product_line']['value']:
-    #     config['text']['product_line']['value_bold'] = prompt_boolean("  Value bold?", 
-    #                                                                  default=config['text']['product_line']['value_bold'])
+    print("\nProduct Line:")
+    config['text']['product_line']['label'] = prompt_string("  Label", 
+                                                           default=config['text']['product_line']['label'])
+    config['text']['product_line']['value'] = prompt_string("  Value", 
+                                                           default=config['text']['product_line']['value'])
+    if config['text']['product_line']['label']:
+        config['text']['product_line']['label_bold'] = prompt_boolean("  Label bold?", 
+                                                                     default=config['text']['product_line']['label_bold'])
+    if config['text']['product_line']['value']:
+        config['text']['product_line']['value_bold'] = prompt_boolean("  Value bold?", 
+                                                                     default=config['text']['product_line']['value_bold'])
     
-    # print("\nSerial Line:")
-    # config['text']['serial_line']['label'] = prompt_string("  Label", 
-    #                                                       default=config['text']['serial_line']['label'])
-    # config['text']['serial_line']['value'] = prompt_string("  Value", 
-    #                                                       default=config['text']['serial_line']['value'])
-    # if config['text']['serial_line']['label']:
-    #     config['text']['serial_line']['label_bold'] = prompt_boolean("  Label bold?", 
-    #                                                                 default=config['text']['serial_line']['label_bold'])
-    # if config['text']['serial_line']['value']:
-    #     config['text']['serial_line']['value_bold'] = prompt_boolean("  Value bold?", 
-    #                                                                 default=config['text']['serial_line']['value_bold'])
+    print("\nSerial Line:")
+    config['text']['serial_line']['label'] = prompt_string("  Label", 
+                                                          default=config['text']['serial_line']['label'])
+    config['text']['serial_line']['value'] = prompt_string("  Value", 
+                                                          default=config['text']['serial_line']['value'])
+    if config['text']['serial_line']['label']:
+        config['text']['serial_line']['label_bold'] = prompt_boolean("  Label bold?", 
+                                                                    default=config['text']['serial_line']['label_bold'])
+    if config['text']['serial_line']['value']:
+        config['text']['serial_line']['value_bold'] = prompt_boolean("  Value bold?", 
+                                                                    default=config['text']['serial_line']['value_bold'])
     
-    # print("\nRating Line:")
-    # config['text']['rating_line']['label'] = prompt_string("  Label", 
-    #                                                       default=config['text']['rating_line']['label'])
-    # config['text']['rating_line']['value'] = prompt_string("  Value", 
-    #                                                       default=config['text']['rating_line']['value'])
-    # if config['text']['rating_line']['label']:
-    #     config['text']['rating_line']['label_bold'] = prompt_boolean("  Label bold?", 
-    #                                                                 default=config['text']['rating_line']['label_bold'])
-    # if config['text']['rating_line']['value']:
-    #     config['text']['rating_line']['value_bold'] = prompt_boolean("  Value bold?", 
-    #                                                                 default=config['text']['rating_line']['value_bold'])
+    print("\nRating Line:")
+    config['text']['rating_line']['label'] = prompt_string("  Label", 
+                                                          default=config['text']['rating_line']['label'])
+    config['text']['rating_line']['value'] = prompt_string("  Value", 
+                                                          default=config['text']['rating_line']['value'])
+    if config['text']['rating_line']['label']:
+        config['text']['rating_line']['label_bold'] = prompt_boolean("  Label bold?", 
+                                                                    default=config['text']['rating_line']['label_bold'])
+    if config['text']['rating_line']['value']:
+        config['text']['rating_line']['value_bold'] = prompt_boolean("  Value bold?", 
+                                                                    default=config['text']['rating_line']['value_bold'])
     
     config['text']['warning_text'] = prompt_string("\nWarning text", 
                                                   default=config['text']['warning_text'])
