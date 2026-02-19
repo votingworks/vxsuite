@@ -70,7 +70,7 @@ function generateMockContestOptionScores(
   return [ballotStyleMammal, ballotStyleFish].reduce(
     (found, bs) => [
       ...found,
-      ...[...allContestOptions(contest, bs)].map((option) => ({
+      ...[...allContestOptions(contest, bs, electionTwoPartyPrimaryDefinition.election.parties)].map((option) => ({
         option,
         markStatus: overrides[option.id]?.markStatus ?? MarkStatus.Unmarked,
         writeInAreaStatus:
