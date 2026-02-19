@@ -33,7 +33,7 @@ import { writeFile } from 'node:fs/promises';
 import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
 import {
   createImageData,
-  loadImageData,
+  loadImageMetadata,
   pdfToImages,
   writeImageData,
 } from '@votingworks/image-utils';
@@ -424,7 +424,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
           sheets.push({ frontPath, backPath });
         } else {
           // Odd image: generate a blank back
-          const frontResult = (await loadImageData(frontPath)).unsafeUnwrap();
+          const frontResult = (await loadImageMetadata(frontPath)).unsafeUnwrap();
           const blankBackPath = nextImagePath();
           await writeImageData(
             blankBackPath,

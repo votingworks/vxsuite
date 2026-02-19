@@ -1,5 +1,5 @@
 import { ContestId, Id } from '@votingworks/types';
-import { loadImageData, toDataUrl } from '@votingworks/image-utils';
+import { loadImageMetadata } from '@votingworks/image-utils';
 import { Store } from '../store';
 import { BallotImageView } from '../types';
 import { rootDebug } from './debug';
@@ -22,9 +22,9 @@ export async function getBallotImageView({
   const imageDetails = store.getBallotImageAndLayout({ contestId, cvrId });
   const { layout, image, side } = imageDetails;
 
-  const imageData = await loadImageData(image);
-  const imageUrl = imageData.isOk()
-    ? toDataUrl(imageData.ok(), 'image/jpeg')
+  const metadata = await loadImageMetadata(image);
+  const imageUrl = metadata.isOk()
+    ? `data:${metadata.ok().type};base64,${image.toString('base64')}`
     : null;
 
   // BMD ballots do not have layouts, we do not support zoom during adjudication on these ballots.
@@ -52,8 +52,8 @@ export async function getBallotImageView({
     cvrId,
     imageUrl,
     ballotCoordinates: {
-      width: imageData.isOk() ? imageData.ok().width : 0,
-      height: imageData.isOk() ? imageData.ok().height : 0,
+      width: metadata.ok()?.width ?? 0,
+      height: metadata.ok()?.height ?? 0,
       x: 0,
       y: 0,
     },

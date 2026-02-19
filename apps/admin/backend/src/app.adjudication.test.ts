@@ -12,9 +12,9 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
-import { toDataUrl, loadImageData } from '@votingworks/image-utils';
+import { loadImageMetadata } from '@votingworks/image-utils';
 import { join } from 'node:path';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import {
   BooleanEnvironmentVariableName,
   ContestResultsSummary,
@@ -766,28 +766,28 @@ test('getBallotImageView on hmpb', async () => {
     optionLayouts,
   } = ballotImageView as HmpbImageView;
 
-  const expectedImage = (
-    await loadImageData(
-      join(
-        reportDirectoryPath,
-        MANUAL_CAST_VOTE_RECORD_EXPORT_ID,
-        `${MANUAL_CAST_VOTE_RECORD_EXPORT_ID}-front.jpg`
-      )
+  const imageBytes = await readFile(
+    join(
+      reportDirectoryPath,
+      MANUAL_CAST_VOTE_RECORD_EXPORT_ID,
+      `${MANUAL_CAST_VOTE_RECORD_EXPORT_ID}-front.jpg`
     )
-  ).unsafeUnwrap();
-  const expectedImageUrl = toDataUrl(expectedImage, 'image/jpeg');
-  expect(actualImageUrl).toEqual(expectedImageUrl);
+  );
+  expect(actualImageUrl).toEqual(
+    `data:image/jpeg;base64,${imageBytes.toString('base64')}`
+  );
 
+  const metadata = await loadImageMetadata(imageBytes);
   const expectedBallotCoordinates: Rect = {
-    height: expectedImage.height,
-    width: expectedImage.width,
+    width: metadata.unsafeUnwrap().width,
+    height: metadata.unsafeUnwrap().height,
     x: 0,
     y: 0,
   };
   expect(ballotCoordinates).toEqual(expectedBallotCoordinates);
   const expectedContestCoordinates: Rect = {
-    height: 374,
     width: 1161,
+    height: 374,
     x: 436,
     y: 1183,
   };
