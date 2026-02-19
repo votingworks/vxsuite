@@ -337,7 +337,7 @@ export function ContestAdjudicationScreenOld(): JSX.Element {
         election,
       })
     );
-    return Array.from(allContestOptions(contest, ballotStyleGroup));
+    return Array.from(allContestOptions(contest, ballotStyleGroup, election.parties));
   }, [contest, election, cvrVoteInfoQuery.data]);
 
   const officialOptions = useMemo(() => {
