@@ -21,6 +21,10 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
+import {
+  MockCastVoteRecordFile,
+  addMockCvrFileToStore,
+} from '../test/mock_cvr_file';
 import { Api } from './app';
 import { generateReportPath } from './util/filenames';
 
@@ -201,8 +205,12 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockUsbDrive.insertUsbDrive({});
@@ -217,6 +225,37 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
   };
   const candidateContestId =
     'State-Representatives-Hillsborough-District-34-b1012d38';
+
+  // add early voting CVRs with write-in votes
+  const mockEarlyVotingCvrs: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
+      batchId: 'early-voting-batch',
+      scannerId: 'scanner-early-voting-1',
+      precinctId: election.precincts[0]!.id,
+      votingMethod: 'precinct',
+      votes: { [candidateContestId]: ['write-in-0'] },
+      card: { type: 'hmpb', sheetNumber: 1 },
+      ballotCastingMode: 'early_voting',
+      multiplier: 10,
+    },
+    {
+      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
+      batchId: 'early-voting-batch',
+      scannerId: 'scanner-early-voting-1',
+      precinctId: election.precincts[0]!.id,
+      votingMethod: 'absentee',
+      votes: { [candidateContestId]: ['write-in-0'] },
+      card: { type: 'hmpb', sheetNumber: 1 },
+      ballotCastingMode: 'early_voting',
+      multiplier: 5,
+    },
+  ];
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: mockEarlyVotingCvrs,
+    store: workspace.store,
+  });
   const officialCandidateId = 'Obadiah-Carrigan-5c95145a';
   const officialCandidateName = 'Obadiah Carrigan';
 
@@ -290,6 +329,14 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
       selectionId: Tabulation.PENDING_WRITE_IN_ID,
       votingMethod: 'Precinct',
       totalVotes: 28,
+    })
+  ).toBeTruthy();
+  expect(
+    rowExists(rowsInitial, {
+      selection: Tabulation.PENDING_WRITE_IN_NAME,
+      selectionId: Tabulation.PENDING_WRITE_IN_ID,
+      votingMethod: 'Early Voting',
+      totalVotes: 15,
     })
   ).toBeTruthy();
   expect(
@@ -410,6 +457,16 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
       manualVotes: 0,
       scannedVotes: 28,
       totalVotes: 28,
+    })
+  ).toBeTruthy();
+  expect(
+    rowExists(rowsFinal, {
+      selection: `${writeInCandidate.name} (Write-In)`,
+      selectionId: writeInCandidate.id,
+      votingMethod: 'Early Voting',
+      manualVotes: 0,
+      scannedVotes: 15,
+      totalVotes: 15,
     })
   ).toBeTruthy();
   expect(
