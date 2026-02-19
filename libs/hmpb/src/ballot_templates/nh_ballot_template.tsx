@@ -641,6 +641,15 @@ function BallotMeasureContest({
   compact?: boolean;
   continuesOnNextPage?: boolean;
 }) {
+  // [TODO] Temporary: to be removed after March ballot production run.
+  // This contest contains a lot of images that we'd like to resize to stack
+  // two on each line. Resizing the original images in CSS rather then resizing
+  // them for re-upload avoids noticeable resolution loss that we'll need a
+  // broader fix for in our image upload handling.
+  // https://design.voting.works/elections/g4usy39oo1fw/contests/h9fzgh2orsim
+  const ASHLAND_CONTEST_ID = 'h9fzgh2orsim';
+  const imgWithOverride = contest.id === ASHLAND_CONTEST_ID ? '50%' : undefined;
+
   return (
     <Box style={{ padding: 0 }}>
       <ContestHeader>
@@ -666,6 +675,7 @@ function BallotMeasureContest({
         >
           <DualLanguageText>
             <RichText
+              __tempOverrideImgMaxWidth={imgWithOverride}
               tableBorderWidth={'1px'}
               tableBorderColor={Colors.DARKER_GRAY}
               tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
