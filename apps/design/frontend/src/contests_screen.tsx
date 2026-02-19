@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
-import { Button, LinkButton, SearchSelect, H1, Callout } from '@votingworks/ui';
+import {
+  Button,
+  LinkButton,
+  SearchSelect,
+  H1,
+  Callout,
+  P,
+} from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
+import { throwIllegalValue } from '@votingworks/basics';
 import {
   CandidateContest,
   ContestId,
   Contests,
+  StraightPartyContest,
   YesNoContest,
 } from '@votingworks/types';
 import styled from 'styled-components';
@@ -24,6 +33,7 @@ import { useTitle } from './hooks/use_title';
 import { ContestForm } from './contest_form';
 import { ContestList } from './contest_list';
 import { ContestAudioPanel } from './contest_audio_panel';
+import { FormBody, FormTitle } from './form_fixed';
 
 export function ContestsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
@@ -125,6 +135,7 @@ function Content(): JSX.Element | null {
   const contestParamRoutes = electionParamRoutes.contests;
 
   const filteredContests = contests.filter((contest) => {
+    if (contest.type === 'straight-party') return true;
     const matchesDistrict =
       filterDistrictId === FILTER_ALL ||
       contest.districtId === filterDistrictId;
@@ -147,10 +158,23 @@ function Content(): JSX.Element | null {
   const contestsToShow = isReordering ? reorderedContests : filteredContests;
   const candidateContests: CandidateContest[] = [];
   const yesNoContests: YesNoContest[] = [];
+  const straightPartyContests: StraightPartyContest[] = [];
 
   for (const c of contestsToShow) {
-    if (c.type === 'candidate') candidateContests.push(c);
-    else yesNoContests.push(c);
+    switch (c.type) {
+      case 'candidate':
+        candidateContests.push(c);
+        break;
+      case 'yesno':
+        yesNoContests.push(c);
+        break;
+      case 'straight-party':
+        straightPartyContests.push(c);
+        break;
+      /* istanbul ignore next - @preserve */
+      default:
+        throwIllegalValue(c, 'type');
+    }
   }
 
   /**
@@ -286,6 +310,7 @@ function Content(): JSX.Element | null {
           )
         ) : (
           <ContestList
+            straightPartyContests={straightPartyContests}
             candidateContests={candidateContests}
             yesNoContests={yesNoContests}
             reordering={isReordering}
@@ -353,7 +378,8 @@ function EditContestForm(): JSX.Element | null {
 
   const contests = listContestsQuery.data;
   const savedContest = contests.find((c) => c.id === contestId);
-  const canEdit = !finalizedAt.data && !!savedContest;
+  const isStraightParty = savedContest?.type === 'straight-party';
+  const canEdit = !finalizedAt.data && !!savedContest && !isStraightParty;
 
   return (
     <EditPanel>
@@ -376,13 +402,17 @@ function EditContestForm(): JSX.Element | null {
          */}
         {savedContest && (
           <Route exact path={contestParamRoutes.view(':contestId').path}>
-            <ContestForm
-              editing={false}
-              electionId={electionId}
-              key={contestId}
-              savedContest={savedContest}
-              title="Contest Info"
-            />
+            {isStraightParty ? (
+              <StraightPartyContestInfo contest={savedContest} />
+            ) : (
+              <ContestForm
+                editing={false}
+                electionId={electionId}
+                key={contestId}
+                savedContest={savedContest}
+                title="Contest Info"
+              />
+            )}
           </Route>
         )}
 
@@ -395,5 +425,22 @@ function EditContestForm(): JSX.Element | null {
         />
       </Switch>
     </EditPanel>
+  );
+}
+
+function StraightPartyContestInfo(props: {
+  contest: StraightPartyContest;
+}): JSX.Element {
+  const { contest } = props;
+  return (
+    <FormBody>
+      <FormTitle>{contest.title}</FormTitle>
+      <Callout color="neutral" icon="Info">
+        <P>
+          This contest is automatically derived from the election&apos;s
+          partisan candidate contests and cannot be edited directly.
+        </P>
+      </Callout>
+    </FormBody>
   );
 }

@@ -220,6 +220,7 @@ const extractorFns: Record<
 
   [ElectionStringKey.CONTEST_TITLE](cdfElection, uiStrings) {
     for (const contest of assertDefined(cdfElection.Election[0]).Contest) {
+      if (!contest.BallotTitle) continue;
       setInternationalizedUiStrings({
         stringKey: [ElectionStringKey.CONTEST_TITLE, contest['@id']],
         uiStrings,
@@ -1047,6 +1048,9 @@ export function convertCdfBallotDefinitionToVxfElection(
       case 'BallotDefinition.BallotMeasureContest':
         return optionId;
       /* istanbul ignore next - @preserve */
+      case 'BallotDefinition.StraightPartyContest':
+        return optionId;
+      /* istanbul ignore next - @preserve */
       default: {
         return throwIllegalValue(contest);
       }
@@ -1099,7 +1103,10 @@ export function convertCdfBallotDefinitionToVxfElection(
       abbrev: englishText(party.Abbreviation),
     })),
 
-    contests: election.Contest.map((contest): Vxf.AnyContest => {
+    contests: election.Contest.filter(
+      (c): c is Cdf.CandidateContest | Cdf.BallotMeasureContest =>
+        c['@type'] !== 'BallotDefinition.StraightPartyContest'
+    ).map((contest): Vxf.AnyContest => {
       const contestBase = {
         id: contest['@id'],
         title: englishText(contest.BallotTitle),
@@ -1390,6 +1397,21 @@ export function convertCdfBallotDefinitionToVxfElection(
                     }
 
                     case 'BallotDefinition.BallotMeasureContest': {
+                      return {
+                        type: 'option',
+                        contestId: orderedContest.ContestId,
+                        sheetNumber: option.OptionPosition[0].Sheet,
+                        side: option.OptionPosition[0].Side,
+                        column: option.OptionPosition[0].X,
+                        row: option.OptionPosition[0].Y,
+                        optionId: convertOptionId(
+                          orderedContest.ContestId,
+                          option.ContestOptionId
+                        ),
+                      };
+                    }
+
+                    case 'BallotDefinition.StraightPartyContest': {
                       return {
                         type: 'option',
                         contestId: orderedContest.ContestId,

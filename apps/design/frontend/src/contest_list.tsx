@@ -31,6 +31,7 @@ export interface ReorderParams {
 }
 
 export interface ContestListProps {
+  straightPartyContests: AnyContest[];
   candidateContests: AnyContest[];
   yesNoContests: AnyContest[];
   reordering: boolean;
@@ -42,7 +43,13 @@ export interface ContestListProps {
 // footer. With recent changes the "reorder" button is a bit too far off now and
 // there may be plans to add support for custom contest grouping down the line.
 export function ContestList(props: ContestListProps): React.ReactNode {
-  const { candidateContests, yesNoContests, reorder, reordering } = props;
+  const {
+    straightPartyContests,
+    candidateContests,
+    yesNoContests,
+    reorder,
+    reordering,
+  } = props;
   const { contestId = null, electionId } = useParams<
     ElectionIdParams & { contestId?: string }
   >();
@@ -68,6 +75,18 @@ export function ContestList(props: ContestListProps): React.ReactNode {
 
   return (
     <EntityList.Box>
+      {straightPartyContests.length > 0 && (
+        <Sublist
+          contests={straightPartyContests}
+          districtIdToName={districtIdToName}
+          onSelect={onSelect}
+          parties={parties.data}
+          reordering={false}
+          reorder={reorder}
+          selectedId={contestId}
+          title="Straight Party"
+        />
+      )}
       {candidateContests.length > 0 && (
         <Sublist
           contests={candidateContests}
@@ -144,7 +163,9 @@ export function Sublist(props: {
                 </EntityList.Caption>
 
                 <EntityList.Caption>
-                  {districtIdToName.get(c.districtId)}
+                  {c.type === 'straight-party'
+                    ? 'Election-wide'
+                    : districtIdToName.get(c.districtId)}
                 </EntityList.Caption>
 
                 <EntityList.Label>{c.title}</EntityList.Label>
