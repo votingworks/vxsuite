@@ -1298,7 +1298,10 @@ test('audio-only mode', async () => {
     await screen.findByRole('button', { name: /Enable Audio-Only Mode/ })
   );
   userEvent.click(
-    await screen.findByRole('button', { name: /Exit Audio-Only Mode/ })
+    await screen.findByRole('button', {
+      name: /Exit Audio-Only Mode/,
+      hidden: true, // Exit button is excluded from the screen reader targets
+    })
   );
   await screen.findByText(/Insert Your Ballot/i);
 });
@@ -1562,6 +1565,16 @@ test('voter help button hidden when relevant system setting is set', async () =>
 });
 
 test('keyboard nav enabled for voter settings', async () => {
+  vi.mocked(useSessionSettingsManager).mockReturnValue({
+    isPatCalibrationComplete: true,
+    startNewSession: startNewSessionMock,
+    pauseSession: pauseSessionMock,
+    resumeSession: resumeSessionMock,
+    setShowingPatCalibration: vi.fn(),
+    setIsPatCalibrationComplete: vi.fn(),
+    showingPatCalibration: false,
+  });
+
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
