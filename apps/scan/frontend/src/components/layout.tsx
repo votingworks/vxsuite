@@ -12,12 +12,14 @@ import {
   TestModeCallout,
   VoterHelpButton,
   EarlyVotingCallout,
+  VoterSettings,
+  Button,
+  appStrings,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
 import { getConfig, getMachineConfig, getScannerStatus } from '../api';
 import { ScannedBallotCount } from './scanned_ballot_count';
-import { VoterSettingsButton } from './voter_settings_button';
 import { VoterHelpScreen } from './voter_help_screen';
 
 /**
@@ -147,6 +149,8 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     React.useState(false);
   const [shouldShowVoterHelpScreen, setShouldShowVoterHelpScreen] =
     React.useState(false);
+  const [shouldShowVoterSettings, setShouldShowVoterSettings] =
+    React.useState(false);
 
   const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
@@ -158,6 +162,15 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     return (
       <LanguageSettingsScreen
         onDone={() => setShouldShowLanguageSettings(false)}
+      />
+    );
+  }
+
+  if (shouldShowVoterSettings) {
+    return (
+      <VoterSettings
+        allowAudioVideoOnlyToggles
+        onClose={() => setShouldShowVoterSettings(false)}
       />
     );
   }
@@ -201,7 +214,13 @@ export function Screen(props: ScreenProps): JSX.Element | null {
               disabled={disableSettingsButtons}
               onPress={() => setShouldShowLanguageSettings(true)}
             />
-            <VoterSettingsButton disabled={disableSettingsButtons} />
+            <Button
+              disabled={disableSettingsButtons}
+              icon="Display"
+              onPress={() => setShouldShowVoterSettings(true)}
+            >
+              {appStrings.buttonVoterSettings()}
+            </Button>
             {!systemSettings.disableVoterHelpButtons && (
               <VoterHelpButton
                 disabled={disableSettingsButtons}
