@@ -94,7 +94,15 @@ export function generateTestDeckBallots({
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
         const votes: VotesDict = {};
         for (const contest of contests) {
-          if (contest.type === 'yesno') {
+          if (contest.type === 'straight-party') {
+            const { parties } = election;
+            if (parties.length > 0) {
+              const party = assertDefined(
+                parties[ballotNum % parties.length]
+              );
+              votes[contest.id] = [party.id];
+            }
+          } else if (contest.type === 'yesno') {
             votes[contest.id] =
               ballotNum % 2 === 0
                 ? [contest.yesOption.id]

@@ -6,6 +6,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
+  AnyContest,
   HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
@@ -419,8 +420,11 @@ export function getContestDistrict(
 
 export function getContestDistrictName(
   election: Election,
-  contest: DistrictContest
+  contest: AnyContest
 ): string {
+  if (contest.type === 'straight-party') {
+    return 'Election-wide';
+  }
   return getContestDistrict(election, contest).name;
 }
 

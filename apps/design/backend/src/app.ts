@@ -754,8 +754,13 @@ export function buildApi(ctx: AppContext) {
     }): Promise<
       Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
     > {
-      const { election, ballotLanguageConfigs, ballotTemplateId } =
-        await store.getElection(input.electionId);
+      const electionRecord = await store.getElection(input.electionId);
+      const { ballotLanguageConfigs, ballotTemplateId } = electionRecord;
+      const jurisdiction = await store.getElectionJurisdiction(input.electionId);
+      const stateFeatures = getStateFeaturesConfig(jurisdiction);
+      const election = stateFeatures.STRAIGHT_PARTY_VOTING
+        ? injectStraightPartyContest(electionRecord.election)
+        : electionRecord.election;
       const { compact } = await store.getBallotLayoutSettings(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,

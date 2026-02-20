@@ -43,6 +43,7 @@ export interface AdjudicationContestListProps {
   backContests: AnyContest[];
   election: Election;
   tagsByContestId: Map<ContestId, CvrContestTag | null>;
+  selectedContestId: ContestId | null;
   onSelect: (contestId: ContestId) => void;
   onHover?: (contestId: ContestId | null) => void;
   onSelectSide: (side: Side) => void;

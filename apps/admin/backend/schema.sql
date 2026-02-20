@@ -55,7 +55,7 @@ create index idx_ballot_styles_to_districts_district_id on
 create table contests(
   election_id text not null,
   id text not null,
-  district_id text not null,
+  district_id text,
   party_id text,
   sort_index integer not null,
   primary key (election_id, id),

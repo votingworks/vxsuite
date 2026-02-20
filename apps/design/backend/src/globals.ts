@@ -69,7 +69,7 @@ function requiredProdEnvVar<Fallback>(
 export function databaseUrl(): string {
   return requiredProdEnvVar(
     'DATABASE_URL',
-    'postgresql://design:design@localhost:5432/design'
+    'postgresql://design_poc:design_poc@localhost:5432/design_poc'
   );
 }
 

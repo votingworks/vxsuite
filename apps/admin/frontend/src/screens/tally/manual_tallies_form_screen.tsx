@@ -336,21 +336,9 @@ function emptyFormContestResults(
         ),
       };
 
-    case 'straight-party': {
-      // TODO: Implement manual tallies for straight-party (Commit 12)
-      const results: FormContestResults = {
-        contestId: contest.id,
-        contestType: 'yesno',
-        yesOptionId: 'placeholder-yes',
-        noOptionId: 'placeholder-no',
-        ballots: ballotCount ?? '',
-        overvotes: '',
-        undervotes: '',
-        yesTally: '',
-        noTally: '',
-      };
-      return results;
-    }
+    case 'straight-party':
+      // Straight-party contests are filtered out before reaching this function
+      throw new Error('Straight-party contests are not supported in manual tallies');
 
     default: {
       /* istanbul ignore next - @preserve */
@@ -390,13 +378,16 @@ function convertTabulationResultsToFormResults(
   contests: Contests,
   savedResults?: Tabulation.ManualElectionResults
 ): FormManualResults {
-  const contestResults = Object.fromEntries(
-    contests.map((contest) => [
-      contest.id,
-      savedResults?.contestResults[contest.id] ??
-        emptyFormContestResults(contest, savedResults?.ballotCount),
-    ])
-  );
+  const contestResults: Record<ContestId, FormContestResults> =
+    Object.fromEntries(
+      contests.map((contest) => [
+        contest.id,
+        (savedResults?.contestResults[contest.id] as
+          | FormContestResults
+          | undefined) ??
+          emptyFormContestResults(contest, savedResults?.ballotCount),
+      ])
+    );
   return { contestResults, ballotCount: savedResults?.ballotCount ?? '' };
 }
 
@@ -442,7 +433,8 @@ function BallotCountForm({
   const ballotStyleGroup = assertDefined(
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
-  const contests = getContests({ election, ballotStyle: ballotStyleGroup });
+  const contests = getContests({ election, ballotStyle: ballotStyleGroup })
+    .filter((c) => c.type !== 'straight-party');
 
   const initialManualResults = convertTabulationResultsToFormResults(
     contests,
@@ -557,7 +549,8 @@ function ContestForm({
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
 
-  const contests = getContests({ election, ballotStyle: ballotStyleGroup });
+  const contests = getContests({ election, ballotStyle: ballotStyleGroup })
+    .filter((c) => c.type !== 'straight-party');
   const contest = find(contests, (c) => c.id === contestId);
   const contestIndex = contests.indexOf(contest);
   const nextContest = contests[contestIndex + 1];
@@ -835,7 +828,7 @@ function ContestForm({
             {contest.type === 'candidate' && (
               <React.Fragment>
                 {[...allContestOptions(contest, ballotStyleGroup, election.parties)]
-                  .filter((c) => !c.isWriteIn)
+                  .filter((c) => c.type === 'candidate' && !c.isWriteIn)
                   .map((candidate) => (
                     <ContestDataRow key={candidate.id}>
                       <NumberInput
