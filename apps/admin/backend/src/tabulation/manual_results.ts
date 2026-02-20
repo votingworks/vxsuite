@@ -32,6 +32,9 @@ function getManualResultsGroupSpecifier(
       ? manualResultsIdentifier.votingMethod
       : undefined,
     batchId: groupBy.groupByBatch ? Tabulation.MANUAL_BATCH_ID : undefined,
+    batchDate: groupBy.groupByBatchDate
+      ? Tabulation.MANUAL_BATCH_DATE
+      : undefined,
     scannerId: groupBy.groupByScanner
       ? Tabulation.MANUAL_SCANNER_ID
       : undefined,

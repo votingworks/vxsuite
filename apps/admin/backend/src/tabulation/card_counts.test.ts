@@ -185,6 +185,169 @@ test('tabulateScannedCardCounts - grouping', () => {
   }
 });
 
+test('tabulateScannedCardCounts - groupByBatchDate', () => {
+  const store = Store.memoryStore();
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  store.addScannerBatch({
+    electionId,
+    batchId: 'batch-day1-a',
+    scannerId: 'scanner-1',
+    label: 'Batch batch-day1-a',
+    startedAt: '2024-11-05T08:00:00.000Z',
+  });
+  store.addScannerBatch({
+    electionId,
+    batchId: 'batch-day1-b',
+    scannerId: 'scanner-1',
+    label: 'Batch batch-day1-b',
+    startedAt: '2024-11-05T14:30:00.000Z',
+  });
+  store.addScannerBatch({
+    electionId,
+    batchId: 'batch-day2',
+    scannerId: 'scanner-2',
+    label: 'Batch batch-day2',
+    startedAt: '2024-11-06T09:00:00.000Z',
+  });
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-day1-a',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 10,
+    },
+    {
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      batchId: 'batch-day1-b',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 15,
+    },
+    {
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      batchId: 'batch-day2',
+      scannerId: 'scanner-2',
+      precinctId: 'precinct-2',
+      votingMethod: 'absentee',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 7,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  // Two batches on 2024-11-05 should be grouped together
+  const groupedCardCounts = tabulateScannedCardCounts({
+    electionId,
+    store,
+    groupBy: { groupByBatchDate: true },
+  });
+
+  expect(groupedCardCounts['root&batchDate=2024-11-05']).toEqual({
+    bmd: [25],
+    hmpb: [],
+  });
+  expect(groupedCardCounts['root&batchDate=2024-11-06']).toEqual({
+    bmd: [7],
+    hmpb: [],
+  });
+  expect(Object.values(groupedCardCounts)).toHaveLength(2);
+});
+
+test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
+  const store = Store.memoryStore();
+  const { election, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  store.addScannerBatch({
+    electionId,
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+    label: 'Batch batch-1',
+    startedAt: '2024-11-05T08:00:00.000Z',
+  });
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 30,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  store.setManualResults({
+    electionId,
+    precinctId: 'precinct-1',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    votingMethod: 'absentee',
+    manualResults: buildManualResultsFixture({
+      election,
+      ballotCount: 20,
+      contestResultsSummaries: {
+        fishing: {
+          type: 'yesno',
+          ballots: 20,
+          overvotes: 0,
+          undervotes: 0,
+          yesTally: 20,
+          noTally: 0,
+        },
+      },
+    }),
+  });
+
+  const byBatchDateCardCounts = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      store,
+      groupBy: { groupByBatchDate: true },
+    })
+  );
+  expect(byBatchDateCardCounts).toEqual([
+    {
+      batchDate: '2024-11-05',
+      bmd: [30],
+      hmpb: [],
+      manual: 0,
+    },
+    {
+      batchDate: Tabulation.MANUAL_BATCH_DATE,
+      bmd: [],
+      hmpb: [],
+      manual: 20,
+    },
+  ]);
+});
+
 test('tabulateScannedCardCounts - merging card tallies', () => {
   const store = Store.memoryStore();
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();

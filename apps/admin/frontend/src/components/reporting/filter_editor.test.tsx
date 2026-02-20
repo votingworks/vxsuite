@@ -115,18 +115,21 @@ test('scanner, batch selection', async () => {
       scannerId: 'scanner-1',
       label: 'Batch 1',
       electionId: 'id',
+      startedAt: '2024-11-05T08:00:00.000Z',
     },
     {
       batchId: '23456789-0000-0000-0000-000000000000',
       scannerId: 'scanner-1',
       label: 'Batch 2',
       electionId: 'id',
+      startedAt: '2024-11-05T09:03:00.000Z',
     },
     {
       batchId: '34567890-0000-0000-0000-000000000000',
       scannerId: 'scanner-2',
       label: 'Batch 3',
       electionId: 'id',
+      startedAt: '2024-11-05T10:05:00.000Z',
     },
   ]);
   renderInAppContext(

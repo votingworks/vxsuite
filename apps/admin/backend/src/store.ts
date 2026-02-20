@@ -1072,7 +1072,8 @@ export class Store {
         label,
         scanner_id,
         election_id,
-        ballot_casting_mode
+        ballot_casting_mode,
+        started_at
       ) values (
         ?, ?, ?, ?, ?
       )
@@ -1081,7 +1082,8 @@ export class Store {
       scannerBatch.label,
       scannerBatch.scannerId,
       scannerBatch.electionId,
-      scannerBatch.ballotCastingMode ?? null
+      scannerBatch.ballotCastingMode ?? null,
+      scannerBatch.startedAt
     );
   }
 
@@ -1094,7 +1096,8 @@ export class Store {
           label as label,
           scanner_id as scannerId,
           election_id as electionId,
-          ballot_casting_mode as ballotCastingMode
+          ballot_casting_mode as ballotCastingMode,
+          started_at as startedAt
         from scanner_batches
         where
           election_id = ?
@@ -1574,6 +1577,11 @@ export class Store {
       groupByParts.push('cvrs.batch_id');
     }
 
+    if (groupBy.groupByBatchDate) {
+      selectParts.push('date(scanner_batches.started_at) as batchDate');
+      groupByParts.push('date(scanner_batches.started_at)');
+    }
+
     if (groupBy.groupByPrecinct) {
       selectParts.push('cvrs.precinct_id as precinctId');
       groupByParts.push('cvrs.precinct_id');
@@ -1625,6 +1633,7 @@ export class Store {
             row.partyId ?? undefined
           : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
+        batchDate: groupBy.groupByBatchDate ? row.batchDate : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
         votingMethod: groupBy.groupByVotingMethod

@@ -355,6 +355,7 @@ export async function importCastVoteRecords(
         label: batch.label,
         scannerId: batch.scannerId,
         ballotCastingMode: batch.ballotCastingMode,
+        startedAt: batch.startTime,
       });
       scannerIds.add(batch.scannerId);
     }

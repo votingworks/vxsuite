@@ -14,18 +14,21 @@ const MOCK_SCANNER_BATCHES: ScannerBatch[] = [
     scannerId: 'VX-00-001',
     label: 'Batch 1',
     electionId: 'id',
+    startedAt: '2024-11-05T08:00:00.000Z',
   },
   {
     batchId: '23456789-0000-0000-0000-000000000000',
     scannerId: 'VX-00-001',
     label: 'Batch 2',
     electionId: 'id',
+    startedAt: '2024-11-05T09:00:00.000Z',
   },
   {
     batchId: '34567890-0000-0000-0000-000000000000',
     scannerId: 'VX-00-002',
     label: 'Batch 3',
     electionId: 'id',
+    startedAt: '2024-11-05T10:00:00.000Z',
   },
 ];
 

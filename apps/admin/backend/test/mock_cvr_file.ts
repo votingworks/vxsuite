@@ -59,6 +59,7 @@ export function addMockCvrFileToStore({
       scannerId: mockCastVoteRecord.scannerId,
       label: `Batch ${mockCastVoteRecord.batchId}`,
       ballotCastingMode: mockCastVoteRecord.ballotCastingMode,
+      startedAt: new Date().toISOString(),
     });
     scannerIds.add(mockCastVoteRecord.scannerId);
   }
