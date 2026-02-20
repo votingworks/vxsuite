@@ -6,6 +6,7 @@ import {
   makeTemporaryDirectory,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
+import { execFileSync } from 'node:child_process';
 import {
   FileSystemEntry,
   FileSystemEntryType,
@@ -207,6 +208,24 @@ describe('listDirectory', () => {
     expect(resultNames).toHaveLength(2);
     expect(resultNames).toContain('normal-directory');
     expect(resultNames).toContain('normal-file.txt');
+  });
+
+  test('closes the open directory properly', async () => {
+    function lsof() {
+      return execFileSync('lsof', ['-p', process.pid.toString()], {
+        encoding: 'utf8',
+      });
+    }
+    const directory = makeTemporaryDirectory();
+
+    writeFileSync(join(directory, 'normal-file.txt'), '');
+    writeFileSync(join(directory, 'another-file.txt'), '');
+
+    const iterator = listDirectory(directory);
+    await iterator.next();
+    expect(lsof()).toContain(directory);
+    await iterator.return(undefined);
+    expect(lsof()).not.toContain(directory);
   });
 });
 
