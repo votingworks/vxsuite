@@ -241,6 +241,7 @@ test('tabulateCastVoteRecords', async () => {
     {
       groupBy: { groupByVotingMethod: true },
       expected: [
+        ['root&votingMethod=early_voting', 0],
         ['root&votingMethod=precinct', 68],
         ['root&votingMethod=absentee', 15],
       ],
@@ -282,8 +283,10 @@ test('tabulateElectionResults - includes empty groups', async () => {
     groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
   });
   expect(Object.keys(groupedElectionResults)).toEqual([
+    'root&precinctId=precinct-1&votingMethod=early_voting',
     'root&precinctId=precinct-1&votingMethod=precinct',
     'root&precinctId=precinct-1&votingMethod=absentee',
+    'root&precinctId=precinct-2&votingMethod=early_voting',
     'root&precinctId=precinct-2&votingMethod=precinct',
     'root&precinctId=precinct-2&votingMethod=absentee',
   ]);

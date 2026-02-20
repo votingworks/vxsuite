@@ -149,6 +149,7 @@ test('tabulateScannedCardCounts - grouping', () => {
     {
       groupBy: { groupByVotingMethod: true },
       expected: [
+        ['root&votingMethod=early_voting', 0],
         ['root&votingMethod=precinct', 68],
         ['root&votingMethod=absentee', 15],
       ],
@@ -164,7 +165,7 @@ test('tabulateScannedCardCounts - grouping', () => {
 
     for (const [groupKey, tally] of expected) {
       expect(groupedCardCounts[groupKey]).toEqual({
-        bmd: [tally],
+        bmd: tally > 0 ? [tally] : [],
         hmpb: [],
       });
     }
@@ -325,6 +326,12 @@ test('tabulateFullCardCounts - manual results', () => {
     })
   );
   expect(votingMethodCardCounts).toEqual([
+    {
+      bmd: [],
+      hmpb: [],
+      manual: 0,
+      votingMethod: 'early_voting',
+    },
     {
       bmd: [30],
       hmpb: [],

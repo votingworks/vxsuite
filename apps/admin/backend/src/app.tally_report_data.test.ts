@@ -20,6 +20,10 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
+import {
+  MockCastVoteRecordFile,
+  addMockCvrFileToStore,
+} from '../test/mock_cvr_file';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -246,7 +250,7 @@ test('general, reports by voting method, manual data', async () => {
       groupBy: { groupByVotingMethod: true },
     }
   );
-  expect(votingMethodTallyReportList).toHaveLength(2);
+  expect(votingMethodTallyReportList).toHaveLength(3);
   const absenteeTallyReport = find(
     votingMethodTallyReportList,
     (report) => report.votingMethod === 'absentee'
@@ -290,7 +294,7 @@ test('general, reports by voting method, manual data', async () => {
       filter: { scannerIds: [DEV_MACHINE_ID] },
       groupBy: { groupByVotingMethod: true },
     });
-  expect(scannerFilteredTallyReportResult).toHaveLength(2);
+  expect(scannerFilteredTallyReportResult).toHaveLength(3);
   const scannerAbsenteeTallyReport = find(
     scannerFilteredTallyReportResult,
     (report) => report.votingMethod === 'absentee'
@@ -658,13 +662,123 @@ test('multi language, reports by ballot style - agnostic to language specific ba
   ]);
 });
 
+test('general, reports grouped by voting method with early voting data', async () => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, election);
+
+  // add mock CVRs with different ballot casting modes
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
+      batchId: 'election-day-batch',
+      scannerId: 'scanner-1',
+      precinctId: election.precincts[0]!.id,
+      votingMethod: 'precinct',
+      votes: {},
+      card: { type: 'hmpb', sheetNumber: 1 },
+      multiplier: 10,
+    },
+    {
+      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
+      batchId: 'election-day-batch',
+      scannerId: 'scanner-1',
+      precinctId: election.precincts[0]!.id,
+      votingMethod: 'absentee',
+      votes: {},
+      card: { type: 'hmpb', sheetNumber: 1 },
+      multiplier: 8,
+    },
+    {
+      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
+      batchId: 'early-voting-batch',
+      scannerId: 'scanner-1',
+      precinctId: election.precincts[0]!.id,
+      votingMethod: 'precinct',
+      votes: {},
+      card: { type: 'hmpb', sheetNumber: 1 },
+      ballotCastingMode: 'early_voting',
+      multiplier: 7,
+    },
+    {
+      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
+      batchId: 'early-voting-batch',
+      scannerId: 'scanner-1',
+      precinctId: election.precincts[0]!.id,
+      votingMethod: 'absentee',
+      votes: {},
+      card: { type: 'hmpb', sheetNumber: 1 },
+      ballotCastingMode: 'early_voting',
+      multiplier: 5,
+    },
+  ];
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store: workspace.store,
+  });
+
+  const tallyReportList = await apiClient.getResultsForTallyReports({
+    filter: {},
+    groupBy: { groupByVotingMethod: true },
+  });
+  expect(tallyReportList).toHaveLength(3);
+
+  const precinctReport = find(
+    tallyReportList,
+    (report) => report.votingMethod === 'precinct'
+  );
+  const absenteeReport = find(
+    tallyReportList,
+    (report) => report.votingMethod === 'absentee'
+  );
+  const earlyVotingReport = find(
+    tallyReportList,
+    (report) => report.votingMethod === 'early_voting'
+  );
+
+  assert(!precinctReport.hasPartySplits);
+  assert(!absenteeReport.hasPartySplits);
+  assert(!earlyVotingReport.hasPartySplits);
+
+  // precinct ballots from election day only
+  expect(precinctReport.cardCounts).toEqual({
+    bmd: [],
+    hmpb: [10],
+  });
+
+  // absentee ballots from election day only
+  expect(absenteeReport.cardCounts).toEqual({
+    bmd: [],
+    hmpb: [8],
+  });
+
+  // early voting includes both precinct and absentee ballots from the early voting batch
+  expect(earlyVotingReport.cardCounts).toEqual({
+    bmd: [],
+    hmpb: [12],
+  });
+});
+
 test('primary, reports grouped by voting method, filtered by precinct', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -672,11 +786,42 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
   });
   loadFileResult.assertOk('load file failed');
 
+  // add early voting CVRs for precinct-1, both parties
+  const mockEarlyVotingCvrs: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'early-voting-batch',
+      scannerId: 'scanner-ev',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'hmpb', sheetNumber: 1 },
+      ballotCastingMode: 'early_voting',
+      multiplier: 3,
+    },
+    {
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
+      batchId: 'early-voting-batch',
+      scannerId: 'scanner-ev',
+      precinctId: 'precinct-1',
+      votingMethod: 'absentee',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'hmpb', sheetNumber: 1 },
+      ballotCastingMode: 'early_voting',
+      multiplier: 4,
+    },
+  ];
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: mockEarlyVotingCvrs,
+    store: workspace.store,
+  });
+
   const tallyReportList = await apiClient.getResultsForTallyReports({
     groupBy: { groupByVotingMethod: true },
     filter: { precinctIds: ['precinct-1'] },
   });
-  expect(tallyReportList).toHaveLength(2);
+  expect(tallyReportList).toHaveLength(3);
   const absenteeTallyReport = find(
     tallyReportList,
     (report) => report.votingMethod === 'absentee'
@@ -685,10 +830,28 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
     tallyReportList,
     (report) => report.votingMethod === 'precinct'
   );
+  const earlyVotingTallyReport = find(
+    tallyReportList,
+    (report) => report.votingMethod === 'early_voting'
+  );
+  assert(earlyVotingTallyReport.hasPartySplits);
   assert(absenteeTallyReport.hasPartySplits);
   assert(precinctTallyReport.hasPartySplits);
 
-  // ballot counts should indicate that only one precinct is included
+  // early voting group includes both precinct and absentee ballots
+  // from the early voting batch, split by party
+  expect(earlyVotingTallyReport.cardCountsByParty).toEqual({
+    '0': {
+      bmd: [],
+      hmpb: [3],
+    },
+    '1': {
+      bmd: [],
+      hmpb: [4],
+    },
+  });
+
+  // election day ballot counts should be unchanged
   expect(absenteeTallyReport.cardCountsByParty).toEqual({
     '0': {
       bmd: [14],
