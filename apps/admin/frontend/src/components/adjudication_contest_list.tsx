@@ -264,6 +264,7 @@ function ContestSublist({
               onSelect={onSelect}
               onHover={onHover}
               autoScrollIntoView={isFirstUnresolved}
+              hasWarning={isPending || false}
             >
               <Column>
                 <EntityList.Caption>

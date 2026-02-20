@@ -100,6 +100,7 @@ const ContestOutline = styled.div<{
   left: number;
   width: number;
   height: number;
+  hasWarning?: boolean;
 }>`
   position: absolute;
   top: ${(p) => p.top}%;
@@ -107,8 +108,9 @@ const ContestOutline = styled.div<{
   width: ${(p) => p.width}%;
   height: ${(p) => p.height}%;
   z-index: 1;
-  border: 3px solid ${DesktopPalette.Purple60};
-  border-radius: 4px;
+  box-shadow: 0 0 0 7px
+    ${(p) => (p.hasWarning ? DesktopPalette.Orange30 : DesktopPalette.Purple60)};
+  border-radius: 1px;
   pointer-events: none;
 `;
 
@@ -195,10 +197,12 @@ export function BallotStaticImageViewer({
   imageUrl,
   highlightBounds,
   ballotBounds,
+  hasWarning,
 }: {
   imageUrl: string;
   highlightBounds?: Rect;
   ballotBounds?: Rect;
+  hasWarning?: boolean;
 }): JSX.Element {
   const overlay =
     highlightBounds && ballotBounds ? (
@@ -207,6 +211,7 @@ export function BallotStaticImageViewer({
         left={(highlightBounds.x / ballotBounds.width) * 100}
         width={(highlightBounds.width / ballotBounds.width) * 100}
         height={(highlightBounds.height / ballotBounds.height) * 100}
+        hasWarning={hasWarning}
       />
     ) : null;
 
