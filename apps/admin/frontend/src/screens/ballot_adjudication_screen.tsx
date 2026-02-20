@@ -380,13 +380,6 @@ export function BallotAdjudicationScreen(): JSX.Element {
 
   function onContestHover(contestId: ContestId | null): void {
     setHoveredContestId(contestId);
-    if (contestId) {
-      if (backContests.some((c) => c.id === contestId)) {
-        setSelectedSide('back');
-      } else {
-        setSelectedSide('front');
-      }
-    }
   }
 
   const hoveredContestBounds = (() => {
@@ -394,6 +387,12 @@ export function BallotAdjudicationScreen(): JSX.Element {
     return activeImage.layout.contests.find(
       (c) => c.contestId === hoveredContestId
     )?.bounds;
+  })();
+
+  const hoveredContestHasWarning = (() => {
+    if (!hoveredContestId) return false;
+    const tag = tagsByContestId.get(hoveredContestId);
+    return Boolean(tag && !tag.isResolved);
   })();
 
   const ballotBounds =
@@ -442,6 +441,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
               imageUrl={activeImage.imageUrl}
               highlightBounds={hoveredContestBounds}
               ballotBounds={ballotBounds}
+              hasWarning={hoveredContestHasWarning}
             />
           )}
         </BallotPanel>

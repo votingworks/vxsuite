@@ -68,10 +68,11 @@ const Caption = styled(CaptionBase)`
   }
 `;
 
-const ItemContainer = styled.li`
+const ItemContainer = styled.li<{ hasWarning?: boolean }>`
+  /* stylelint-disable value-keyword-case */
   align-items: center;
   border-bottom: var(--entity-list-border);
-  border-color: ${DesktopPalette.Gray10};
+  border-color: ${DesktopPalette.Gray30};
   cursor: pointer;
   display: flex;
   gap: 0.5rem;
@@ -82,18 +83,32 @@ const ItemContainer = styled.li`
   transition-property: background, border, box-shadow, color;
   transition-timing-function: ease-out;
 
+  ${(p) =>
+    p.hasWarning &&
+    `
+    background-color: ${DesktopPalette.Orange5};
+  `}
+
   :focus,
   :hover {
-    background: ${(p) => p.theme.colors.containerLow};
-    box-shadow: inset 0.25rem 0 0 ${DesktopPalette.Purple50};
+    background: ${(p) =>
+      p.hasWarning
+        ? p.theme.colors.warningContainer
+        : p.theme.colors.containerLow};
+    box-shadow: inset 0.25rem 0 0
+      ${(p) =>
+        p.hasWarning ? DesktopPalette.Orange30 : DesktopPalette.Purple50};
     color: inherit;
     outline: none;
   }
 
   :active,
   &[aria-selected='true'] {
-    background-color: ${DesktopPalette.Purple10};
-    box-shadow: inset 0.35rem 0 0 ${DesktopPalette.Purple60};
+    background-color: ${(p) =>
+      p.hasWarning ? DesktopPalette.Orange10 : DesktopPalette.Purple10};
+    box-shadow: inset 0.35rem 0 0
+      ${(p) =>
+        p.hasWarning ? DesktopPalette.Orange30 : DesktopPalette.Purple60};
 
     ${Label} {
       font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
@@ -112,11 +127,19 @@ export interface EntityListItemProps {
   onHover?: (id: string | null) => void;
   selected: boolean;
   autoScrollIntoView?: boolean;
+  hasWarning?: boolean;
 }
 
 function Item(props: EntityListItemProps): React.ReactNode {
-  const { children, id, onSelect, onHover, selected, autoScrollIntoView } =
-    props;
+  const {
+    children,
+    id,
+    onSelect,
+    onHover,
+    selected,
+    autoScrollIntoView,
+    hasWarning,
+  } = props;
 
   const ref = React.useRef<HTMLLIElement>(null);
 
@@ -145,6 +168,7 @@ function Item(props: EntityListItemProps): React.ReactNode {
   return (
     <ItemContainer
       aria-selected={selected}
+      hasWarning={hasWarning}
       onClick={() => onSelect(id)}
       onKeyDown={onKeyDown}
       onMouseEnter={onHover ? () => onHover(id) : undefined}
