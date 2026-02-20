@@ -122,14 +122,6 @@ function generateOptionsForFilter({
       }));
     case 'voting-method':
       return typedAs<Array<SelectOption<Tabulation.VotingMethod>>>([
-        {
-          value: 'precinct',
-          label: 'Precinct',
-        },
-        {
-          value: 'absentee',
-          label: 'Absentee',
-        },
         ...(isFeatureFlagEnabled(BooleanEnvironmentVariableName.EARLY_VOTING)
           ? [
               {
@@ -138,6 +130,14 @@ function generateOptionsForFilter({
               },
             ]
           : []),
+        {
+          value: 'precinct',
+          label: 'Precinct',
+        },
+        {
+          value: 'absentee',
+          label: 'Absentee',
+        },
       ]);
     case 'scanner':
       return unique(scannerBatches.map((sb) => sb.scannerId)).map(
