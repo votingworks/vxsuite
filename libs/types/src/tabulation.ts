@@ -48,8 +48,8 @@ export type ContestResults = YesNoContestResults | CandidateContestResults;
 
 export type VotingMethod = `${BallotType}` | 'early_voting';
 export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
-  'precinct',
   'early_voting',
+  'precinct',
   'absentee',
 ];
 

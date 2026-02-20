@@ -229,15 +229,15 @@ test('creates accurate ballot count reports', async () => {
     rows: [
       {
         Manual: '0',
-        Scanned: '92',
-        Total: '92',
-        'Voting Method': 'Precinct',
-      },
-      {
-        Manual: '0',
         Scanned: '20',
         Total: '20',
         'Voting Method': 'Early Voting',
+      },
+      {
+        Manual: '0',
+        Scanned: '92',
+        Total: '92',
+        'Voting Method': 'Precinct',
       },
       {
         Manual: '10',
@@ -269,20 +269,20 @@ test('creates accurate ballot count reports', async () => {
     ],
     rows: [
       {
-        Scanned: '92',
-        Manual: '0',
-        Precinct: 'Test Ballot',
-        'Precinct ID': 'town-id-00701-precinct-id-default',
-        Total: '92',
-        'Voting Method': 'Precinct',
-      },
-      {
         Scanned: '20',
         Manual: '0',
         Precinct: 'Test Ballot',
         'Precinct ID': 'town-id-00701-precinct-id-default',
         Total: '20',
         'Voting Method': 'Early Voting',
+      },
+      {
+        Scanned: '92',
+        Manual: '0',
+        Precinct: 'Test Ballot',
+        'Precinct ID': 'town-id-00701-precinct-id-default',
+        Total: '92',
+        'Voting Method': 'Precinct',
       },
       {
         Scanned: '92',

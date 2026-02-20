@@ -689,7 +689,9 @@ export class Store {
     if (groupBy.groupByVotingMethod) {
       selectParts.push('voting_methods.voting_method as votingMethod');
       groupByParts.push('votingMethod');
-      sortByParts.push('votingMethod DESC'); // absentee last
+      sortByParts.push(
+        `CASE voting_methods.voting_method WHEN 'early_voting' THEN 1 WHEN 'precinct' THEN 2 WHEN 'absentee' THEN 3 END`
+      );
     }
 
     const query = `
