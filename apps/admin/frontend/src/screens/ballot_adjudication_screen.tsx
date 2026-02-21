@@ -407,7 +407,10 @@ export function BallotAdjudicationScreen(): JSX.Element {
             ? 'front'
             : 'back'
         }
-        onClose={() => setSelectedContestId(null)}
+        onClose={() => {
+          setSelectedContestId(null);
+          setHoveredContestId(null);
+        }}
         contestAdjudicationData={assertDefined(
           adjudicationContests.find((c) => c.contestId === selectedContestId)
         )}
@@ -500,7 +503,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
                 icon="Previous"
                 onPress={onBack}
               >
-                Back
+                Prev
               </SecondaryNavButton>
             </FooterNav>
           </PanelFooter>
