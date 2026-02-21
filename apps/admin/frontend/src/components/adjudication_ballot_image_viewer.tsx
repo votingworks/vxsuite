@@ -108,9 +108,11 @@ const ContestOutline = styled.div<{
   width: ${(p) => p.width}%;
   height: ${(p) => p.height}%;
   z-index: 1;
-  box-shadow: 0 0 0 7px
+  background: ${(p) =>
+    p.hasWarning ? 'rgba(220, 120, 0, 0.1)' : 'rgba(100, 50, 200, 0.1)'};
+  box-shadow: 0 0 0 5px
     ${(p) => (p.hasWarning ? DesktopPalette.Orange30 : DesktopPalette.Purple60)};
-  border-radius: 1px;
+  border-radius: 2px;
   pointer-events: none;
 `;
 
