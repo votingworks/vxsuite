@@ -408,6 +408,24 @@ export function BallotAdjudicationScreen(): JSX.Element {
             : 'back'
         }
         onClose={() => {
+          const contestWasOnFront = frontContests.some(
+            (c) => c.id === selectedContestId
+          );
+          if (contestWasOnFront) {
+            const hasUnresolvedFront = frontContests.some((c) => {
+              const tag = tagsByContestId.get(c.id);
+              return tag && !tag.isResolved;
+            });
+            const hasUnresolvedBack = backContests.some((c) => {
+              const tag = tagsByContestId.get(c.id);
+              return tag && !tag.isResolved;
+            });
+            setSelectedSide(
+              !hasUnresolvedFront && hasUnresolvedBack ? 'back' : 'front'
+            );
+          } else {
+            setSelectedSide('back');
+          }
           setSelectedContestId(null);
           setHoveredContestId(null);
         }}
