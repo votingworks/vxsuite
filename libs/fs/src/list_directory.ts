@@ -1,5 +1,5 @@
-import { Result, assert, err, ok } from '@votingworks/basics';
-import { Dirent, promises as fs } from 'node:fs';
+import { Optional, Result, assert, err, ok } from '@votingworks/basics';
+import { Dir, Dirent, promises as fs } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 
 /**
@@ -89,38 +89,10 @@ export async function* listDirectory(
   assert(isAbsolute(path));
   assert(depth >= 1, 'depth must be positive');
 
+  let dir: Optional<Dir>;
+
   try {
-    const dir = await fs.opendir(path);
-
-    for await (const entry of dir) {
-      const entryPath = join(path, entry.name);
-      const stat = await fs.lstat(entryPath);
-
-      if (!entry.isFile() && !entry.isDirectory()) {
-        continue;
-      }
-
-      if (
-        excludeHidden &&
-        (entry.name.startsWith('.') || entry.name.startsWith('_'))
-      ) {
-        continue;
-      }
-
-      yield ok({
-        name: entry.name,
-        path: entryPath,
-        size: stat.size,
-        type: getDirentType(entry),
-        mtime: stat.mtime,
-        atime: stat.atime,
-        ctime: stat.ctime,
-      });
-
-      if (entry.isDirectory() && depth > 1) {
-        yield* listDirectory(entryPath, { depth: depth - 1, excludeHidden });
-      }
-    }
+    dir = await fs.opendir(path);
   } catch (e) {
     const error = e as { code: string };
     /* istanbul ignore next - @preserve */
@@ -145,6 +117,45 @@ export async function* listDirectory(
         break;
       default:
         throw error;
+    }
+  }
+
+  if (dir) {
+    try {
+      for await (const entry of dir) {
+        const entryPath = join(path, entry.name);
+        const stat = await fs.lstat(entryPath);
+
+        if (!entry.isFile() && !entry.isDirectory()) {
+          continue;
+        }
+
+        if (
+          excludeHidden &&
+          (entry.name.startsWith('.') || entry.name.startsWith('_'))
+        ) {
+          continue;
+        }
+
+        yield ok({
+          name: entry.name,
+          path: entryPath,
+          size: stat.size,
+          type: getDirentType(entry),
+          mtime: stat.mtime,
+          atime: stat.atime,
+          ctime: stat.ctime,
+        });
+
+        if (entry.isDirectory() && depth > 1) {
+          yield* listDirectory(entryPath, { depth: depth - 1, excludeHidden });
+        }
+      }
+    } finally {
+      await dir.close().catch(() => {
+        // Ignore errors here since we're okay if `close` fails when it's
+        // already been closed.
+      });
     }
   }
 }
