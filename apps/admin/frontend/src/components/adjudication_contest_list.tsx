@@ -12,7 +12,7 @@ import type {
   ContestOptionAdjudicationData,
   CvrContestTag,
 } from '@votingworks/admin-backend';
-import { DesktopPalette, Icons } from '@votingworks/ui';
+import { Button, DesktopPalette, Icons } from '@votingworks/ui';
 import { EntityList } from './entity_list';
 
 const Column = styled.div`
@@ -22,10 +22,9 @@ const Column = styled.div`
   gap: 0;
 `;
 
-const ClickableHeader = styled.button`
-  all: unset;
-  cursor: pointer;
-  width: 100%;
+const ViewSideButton = styled(Button)`
+  font-size: 0.875rem;
+  padding: 0.2rem 0.5rem;
 `;
 
 const ResolvedCaption = styled(EntityList.Caption)`
@@ -155,12 +154,12 @@ function getOptionResolutionDescription(
   if (hasMarginalMark) {
     const isVote = voteAdjudication ? voteAdjudication.isVote : initialVote;
     const voteText = isVote ? 'is Valid' : 'is Invalid';
-    return `Marginal mark for “${definition.name}” ${voteText}`;
+    return `Marginal Mark for “${definition.name}” ${voteText}`;
   }
 
   // Standard vote change
   if (voteAdjudication) {
-    const preface = voteAdjudication.isVote ? 'Undetected mark' : 'Mark';
+    const preface = voteAdjudication.isVote ? 'Undetected Mark' : 'Mark';
     const voteText = voteAdjudication.isVote ? 'is Valid' : 'is Invalid';
     return `${preface} for “${definition.name}” ${voteText}`;
   }
@@ -192,6 +191,7 @@ export interface AdjudicationContestListProps {
   adjudicationContests: ContestAdjudicationData[];
   writeInCandidateNames: Map<string, string>;
   showUndervoteTransitions: boolean;
+  selectedSide: Side;
   onSelect: (contestId: ContestId) => void;
   onHover?: (contestId: ContestId | null) => void;
   onSelectSide: (side: Side) => void;
@@ -208,6 +208,7 @@ function ContestSublist({
   onHover,
   title,
   firstUnresolvedContestId,
+  isActive,
   onHeaderClick,
 }: {
   contests: AnyContest[];
@@ -220,17 +221,33 @@ function ContestSublist({
   onHover?: (contestId: ContestId | null) => void;
   title: string;
   firstUnresolvedContestId?: ContestId;
+  isActive?: boolean;
   onHeaderClick?: () => void;
 }): React.ReactNode {
   return (
     <React.Fragment>
-      {onHeaderClick ? (
-        <ClickableHeader type="button" onClick={onHeaderClick}>
-          <EntityList.Header>{title}</EntityList.Header>
-        </ClickableHeader>
-      ) : (
-        <EntityList.Header>{title}</EntityList.Header>
-      )}
+      <EntityList.Header
+        as="div"
+        onClick={!isActive ? onHeaderClick : undefined}
+        style={{
+          cursor: !isActive && onHeaderClick ? 'pointer' : undefined,
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '0.5rem',
+          alignItems: 'center',
+        }}
+      >
+        {title}
+        {onHeaderClick && (
+          <ViewSideButton
+            fill="tinted"
+            onPress={onHeaderClick}
+            disabled={isActive}
+          >
+            View
+          </ViewSideButton>
+        )}
+      </EntityList.Header>
       <EntityList.Items>
         {contests.map((contest) => {
           const tag = tagsByContestId.get(contest.id);
@@ -308,6 +325,7 @@ export function AdjudicationContestList(
     adjudicationContests,
     writeInCandidateNames,
     showUndervoteTransitions,
+    selectedSide,
     onSelect,
     onHover,
     onSelectSide,
@@ -337,6 +355,7 @@ export function AdjudicationContestList(
           onHover={onHover}
           title="Front"
           firstUnresolvedContestId={firstUnresolvedContestId}
+          isActive={selectedSide === 'front'}
           onHeaderClick={() => onSelectSide('front')}
         />
       )}
@@ -352,6 +371,7 @@ export function AdjudicationContestList(
           onHover={onHover}
           title="Back"
           firstUnresolvedContestId={firstUnresolvedContestId}
+          isActive={selectedSide === 'back'}
           onHeaderClick={() => onSelectSide('back')}
         />
       )}
