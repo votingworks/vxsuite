@@ -93,9 +93,9 @@ const ImageWrapper = styled.div`
   height: 100%;
 `;
 
-// A purple outline rectangle positioned over the contest area using percentage
-// coordinates relative to the ballot image dimensions.
-const ContestOutline = styled.div<{
+// A lightly colored highlight rectangle positioned over the contest area using
+// percentage coordinates relative to the ballot image dimensions.
+const ContestHighlight = styled.div<{
   top: number;
   left: number;
   width: number;
@@ -110,7 +110,7 @@ const ContestOutline = styled.div<{
   z-index: 1;
   background: ${(p) =>
     p.hasWarning ? 'rgba(220, 120, 0, 0.1)' : 'rgba(100, 50, 200, 0.1)'};
-  box-shadow: 0 0 0 5px
+  box-shadow: 0 0 0 3px
     ${(p) => (p.hasWarning ? DesktopPalette.Orange30 : DesktopPalette.Purple60)};
   border-radius: 2px;
   pointer-events: none;
@@ -208,7 +208,7 @@ export function BallotStaticImageViewer({
 }): JSX.Element {
   const overlay =
     highlightBounds && ballotBounds ? (
-      <ContestOutline
+      <ContestHighlight
         top={(highlightBounds.y / ballotBounds.height) * 100}
         left={(highlightBounds.x / ballotBounds.width) * 100}
         width={(highlightBounds.width / ballotBounds.width) * 100}

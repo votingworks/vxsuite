@@ -36,14 +36,18 @@ const Header = styled(H2)`
   border-bottom: var(--entity-list-border);
   border-bottom-width: ${(p) => p.theme.sizes.bordersRem.medium}rem;
   font-size: var(--entity-list-title-size);
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   line-height: 1;
   margin: 0;
   padding: var(--entity-list-title-padding-y) 1rem;
+  position: sticky;
+  top: 0;
   white-space: nowrap;
 
   :not(:first-child) {
     border-top: var(--entity-list-border);
     margin: 0;
+    top: -${(p) => p.theme.sizes.bordersRem.hairline}rem;
   }
 `;
 

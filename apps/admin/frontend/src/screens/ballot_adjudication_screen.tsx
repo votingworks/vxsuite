@@ -1,14 +1,6 @@
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import styled from 'styled-components';
-import {
-  Button,
-  Loading,
-  Main,
-  Modal,
-  P,
-  Screen,
-  SegmentedButton,
-} from '@votingworks/ui';
+import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
 import {
   AdjudicationReason,
   AnyContest,
@@ -45,24 +37,6 @@ const BallotPanel = styled.div`
   background: black;
   flex: 1;
   position: relative;
-`;
-
-const BallotSideToggle = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  z-index: 2;
-  background: rgba(0, 0, 0, 50%);
-  width: 100%;
-  padding: 0.5rem;
-  padding-right: 1rem;
-
-  > span {
-    height: 2.3rem;
-    padding-bottom: -0.3rem;
-  }
 `;
 
 const SmallText = styled(P)`
@@ -284,10 +258,10 @@ export function BallotAdjudicationScreen(): JSX.Element {
     } else {
       setSelectedSide('front');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     maybeCurrentCvrId,
     ballotAdjudicationDataQuery.isSuccess,
-    ballotAdjudicationDataQuery.data,
     ballotImagesQuery.isSuccess,
     ballotImagesQuery.data,
     electionDefinition,
@@ -441,20 +415,6 @@ export function BallotAdjudicationScreen(): JSX.Element {
     <Screen>
       <Main flexRow>
         <BallotPanel>
-          {back && (
-            <BallotSideToggle>
-              <SegmentedButton
-                label="Ballot Side"
-                hideLabel
-                options={[
-                  { id: 'front', label: 'Front' },
-                  { id: 'back', label: 'Back' },
-                ]}
-                selectedOptionId={selectedSide}
-                onChange={setSelectedSide}
-              />
-            </BallotSideToggle>
-          )}
           {!activeImage?.imageUrl ? (
             <UnableToLoadImageCallout />
           ) : (
@@ -493,6 +453,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
               adjudicationContests={adjudicationContests}
               writeInCandidateNames={writeInCandidateNames}
               showUndervoteTransitions={showUndervoteTransitions}
+              selectedSide={selectedSide}
               onSelect={(contestId) => setSelectedContestId(contestId)}
               onHover={onContestHover}
               onSelectSide={setSelectedSide}
