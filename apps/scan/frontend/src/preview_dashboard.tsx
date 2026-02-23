@@ -6,8 +6,6 @@ import React from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { createApiClient } from './api';
-import { Paths } from './constants';
-import { VoterSettingsScreen } from './screens/voter_settings_screen';
 import { ApiProvider } from './api_provider';
 
 const PreviewColumns = styled.div`
@@ -104,9 +102,6 @@ export function PreviewDashboard({ modules }: Props): JSX.Element {
   return (
     <ApiProvider apiClient={createApiClient()} enableStringTranslation>
       <BrowserRouter>
-        <Route path={Paths.VOTER_SETTINGS} exact>
-          <VoterSettingsScreen />
-        </Route>
         <Route path="/preview" exact>
           <div style={{ height: '100%', overflow: 'auto' }}>
             <H1>Previews</H1>
