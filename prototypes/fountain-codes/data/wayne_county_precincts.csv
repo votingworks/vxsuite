@@ -1,0 +1,806 @@
+precinct_name,precinct_group,num_contests,total_options,total_uint16s,estimated_size_bytes,estimated_size_kb
+"Ash Township, Precinct 2",Ash Township,6,6,25,50,0.05
+"Berlin Township, Precinct 2",Berlin Township,5,5,21,42,0.04
+"Canton Township, Precinct 1",Canton Township,39,160,278,556,0.54
+"Canton Township, Precinct 10",Canton Township,41,159,283,566,0.55
+"Canton Township, Precinct 11",Canton Township,41,164,288,576,0.56
+"Canton Township, Precinct 12",Canton Township,41,165,289,578,0.56
+"Canton Township, Precinct 13",Canton Township,41,164,288,576,0.56
+"Canton Township, Precinct 14",Canton Township,41,167,291,582,0.57
+"Canton Township, Precinct 15",Canton Township,41,165,289,578,0.56
+"Canton Township, Precinct 16",Canton Township,41,161,285,570,0.56
+"Canton Township, Precinct 17",Canton Township,41,167,291,582,0.57
+"Canton Township, Precinct 18",Canton Township,41,162,286,572,0.56
+"Canton Township, Precinct 19",Canton Township,41,160,284,568,0.55
+"Canton Township, Precinct 2",Canton Township,39,162,280,560,0.55
+"Canton Township, Precinct 20",Canton Township,42,168,295,590,0.58
+"Canton Township, Precinct 21",Canton Township,41,162,286,572,0.56
+"Canton Township, Precinct 22",Canton Township,41,165,289,578,0.56
+"Canton Township, Precinct 23",Canton Township,41,165,289,578,0.56
+"Canton Township, Precinct 24",Canton Township,41,166,290,580,0.57
+"Canton Township, Precinct 25",Canton Township,41,162,286,572,0.56
+"Canton Township, Precinct 26",Canton Township,41,167,291,582,0.57
+"Canton Township, Precinct 27",Canton Township,41,166,290,580,0.57
+"Canton Township, Precinct 28",Canton Township,41,167,291,582,0.57
+"Canton Township, Precinct 29",Canton Township,41,167,291,582,0.57
+"Canton Township, Precinct 3",Canton Township,39,157,275,550,0.54
+"Canton Township, Precinct 30",Canton Township,41,165,289,578,0.56
+"Canton Township, Precinct 31",Canton Township,41,171,295,590,0.58
+"Canton Township, Precinct 32",Canton Township,41,165,289,578,0.56
+"Canton Township, Precinct 33",Canton Township,41,160,284,568,0.55
+"Canton Township, Precinct 4",Canton Township,41,159,283,566,0.55
+"Canton Township, Precinct 5",Canton Township,41,158,282,564,0.55
+"Canton Township, Precinct 6",Canton Township,41,156,280,560,0.55
+"Canton Township, Precinct 7",Canton Township,41,159,283,566,0.55
+"Canton Township, Precinct 8",Canton Township,41,165,289,578,0.56
+"Canton Township, Precinct 9",Canton Township,41,163,287,574,0.56
+"Charter Township of Brownstown, Precinct 1",Charter Township of Brownstown,39,158,276,552,0.54
+"Charter Township of Brownstown, Precinct 10",Charter Township of Brownstown,39,156,274,548,0.54
+"Charter Township of Brownstown, Precinct 11",Charter Township of Brownstown,39,148,266,532,0.52
+"Charter Township of Brownstown, Precinct 12",Charter Township of Brownstown,39,152,270,540,0.53
+"Charter Township of Brownstown, Precinct 2",Charter Township of Brownstown,39,157,275,550,0.54
+"Charter Township of Brownstown, Precinct 3",Charter Township of Brownstown,39,157,275,550,0.54
+"Charter Township of Brownstown, Precinct 4",Charter Township of Brownstown,39,156,274,548,0.54
+"Charter Township of Brownstown, Precinct 5",Charter Township of Brownstown,39,153,271,542,0.53
+"Charter Township of Brownstown, Precinct 6",Charter Township of Brownstown,39,155,273,546,0.53
+"Charter Township of Brownstown, Precinct 7",Charter Township of Brownstown,39,147,265,530,0.52
+"Charter Township of Brownstown, Precinct 8",Charter Township of Brownstown,39,153,271,542,0.53
+"Charter Township of Brownstown, Precinct 9",Charter Township of Brownstown,40,166,287,574,0.56
+"Charter Township of Huron, Precinct 1",Charter Township of Huron,37,144,256,512,0.50
+"Charter Township of Huron, Precinct 2",Charter Township of Huron,37,144,256,512,0.50
+"Charter Township of Huron, Precinct 3",Charter Township of Huron,39,151,269,538,0.53
+"Charter Township of Huron, Precinct 4",Charter Township of Huron,40,162,283,566,0.55
+"Charter Township of Northville, Precinct 1",Charter Township of Northville,41,154,278,556,0.54
+"Charter Township of Northville, Precinct 10",Charter Township of Northville,41,165,289,578,0.56
+"Charter Township of Northville, Precinct 11",Charter Township of Northville,41,165,289,578,0.56
+"Charter Township of Northville, Precinct 12",Charter Township of Northville,41,155,279,558,0.54
+"Charter Township of Northville, Precinct 2",Charter Township of Northville,41,160,284,568,0.55
+"Charter Township of Northville, Precinct 3",Charter Township of Northville,41,159,283,566,0.55
+"Charter Township of Northville, Precinct 4",Charter Township of Northville,41,165,289,578,0.56
+"Charter Township of Northville, Precinct 5",Charter Township of Northville,41,158,282,564,0.55
+"Charter Township of Northville, Precinct 6",Charter Township of Northville,41,155,279,558,0.54
+"Charter Township of Northville, Precinct 7",Charter Township of Northville,40,153,274,548,0.54
+"Charter Township of Northville, Precinct 8",Charter Township of Northville,41,159,283,566,0.55
+"Charter Township of Northville, Precinct 9",Charter Township of Northville,41,159,283,566,0.55
+"City of Allen Park, Precinct 1",City of Allen Park,32,136,233,466,0.46
+"City of Allen Park, Precinct 10",City of Allen Park,32,127,224,448,0.44
+"City of Allen Park, Precinct 11",City of Allen Park,32,133,230,460,0.45
+"City of Allen Park, Precinct 12",City of Allen Park,32,128,225,450,0.44
+"City of Allen Park, Precinct 13",City of Allen Park,32,130,227,454,0.44
+"City of Allen Park, Precinct 14",City of Allen Park,32,129,226,452,0.44
+"City of Allen Park, Precinct 15",City of Allen Park,32,138,235,470,0.46
+"City of Allen Park, Precinct 16",City of Allen Park,32,124,221,442,0.43
+"City of Allen Park, Precinct 2",City of Allen Park,32,137,234,468,0.46
+"City of Allen Park, Precinct 3",City of Allen Park,32,138,235,470,0.46
+"City of Allen Park, Precinct 4",City of Allen Park,32,133,230,460,0.45
+"City of Allen Park, Precinct 5",City of Allen Park,32,140,237,474,0.46
+"City of Allen Park, Precinct 7",City of Allen Park,32,132,229,458,0.45
+"City of Allen Park, Precinct 8",City of Allen Park,32,132,229,458,0.45
+"City of Allen Park, Precinct 9",City of Allen Park,32,138,235,470,0.46
+"City of Belleville, Precinct 1",City of Belleville,38,153,268,536,0.52
+"City of Dearborn Heights, Precinct 1",City of Dearborn Heights,34,141,244,488,0.48
+"City of Dearborn Heights, Precinct 10",City of Dearborn Heights,36,140,249,498,0.49
+"City of Dearborn Heights, Precinct 11",City of Dearborn Heights,36,143,252,504,0.49
+"City of Dearborn Heights, Precinct 12",City of Dearborn Heights,39,152,270,540,0.53
+"City of Dearborn Heights, Precinct 13",City of Dearborn Heights,36,145,254,508,0.50
+"City of Dearborn Heights, Precinct 14",City of Dearborn Heights,36,144,253,506,0.49
+"City of Dearborn Heights, Precinct 15",City of Dearborn Heights,36,140,249,498,0.49
+"City of Dearborn Heights, Precinct 16",City of Dearborn Heights,36,149,258,516,0.50
+"City of Dearborn Heights, Precinct 17",City of Dearborn Heights,36,140,249,498,0.49
+"City of Dearborn Heights, Precinct 18",City of Dearborn Heights,36,144,253,506,0.49
+"City of Dearborn Heights, Precinct 19",City of Dearborn Heights,33,134,234,468,0.46
+"City of Dearborn Heights, Precinct 2",City of Dearborn Heights,34,145,248,496,0.48
+"City of Dearborn Heights, Precinct 20",City of Dearborn Heights,34,133,236,472,0.46
+"City of Dearborn Heights, Precinct 21",City of Dearborn Heights,33,134,234,468,0.46
+"City of Dearborn Heights, Precinct 22",City of Dearborn Heights,33,135,235,470,0.46
+"City of Dearborn Heights, Precinct 23",City of Dearborn Heights,34,137,240,480,0.47
+"City of Dearborn Heights, Precinct 24",City of Dearborn Heights,34,139,242,484,0.47
+"City of Dearborn Heights, Precinct 25",City of Dearborn Heights,34,137,240,480,0.47
+"City of Dearborn Heights, Precinct 26",City of Dearborn Heights,34,139,242,484,0.47
+"City of Dearborn Heights, Precinct 27",City of Dearborn Heights,34,139,242,484,0.47
+"City of Dearborn Heights, Precinct 3",City of Dearborn Heights,34,135,238,476,0.46
+"City of Dearborn Heights, Precinct 4",City of Dearborn Heights,34,137,240,480,0.47
+"City of Dearborn Heights, Precinct 5",City of Dearborn Heights,36,144,253,506,0.49
+"City of Dearborn Heights, Precinct 6",City of Dearborn Heights,36,138,247,494,0.48
+"City of Dearborn Heights, Precinct 7",City of Dearborn Heights,36,151,260,520,0.51
+"City of Dearborn Heights, Precinct 8",City of Dearborn Heights,37,148,260,520,0.51
+"City of Dearborn Heights, Precinct 9",City of Dearborn Heights,36,138,247,494,0.48
+"City of Dearborn, Precinct 1",City of Dearborn,34,147,250,500,0.49
+"City of Dearborn, Precinct 10",City of Dearborn,34,147,250,500,0.49
+"City of Dearborn, Precinct 11",City of Dearborn,34,137,240,480,0.47
+"City of Dearborn, Precinct 12",City of Dearborn,34,141,244,488,0.48
+"City of Dearborn, Precinct 13",City of Dearborn,34,110,213,426,0.42
+"City of Dearborn, Precinct 15",City of Dearborn,34,147,250,500,0.49
+"City of Dearborn, Precinct 16",City of Dearborn,34,147,250,500,0.49
+"City of Dearborn, Precinct 17",City of Dearborn,34,142,245,490,0.48
+"City of Dearborn, Precinct 18",City of Dearborn,34,138,241,482,0.47
+"City of Dearborn, Precinct 19",City of Dearborn,34,142,245,490,0.48
+"City of Dearborn, Precinct 2",City of Dearborn,34,139,242,484,0.47
+"City of Dearborn, Precinct 20",City of Dearborn,34,139,242,484,0.47
+"City of Dearborn, Precinct 21",City of Dearborn,34,138,241,482,0.47
+"City of Dearborn, Precinct 22",City of Dearborn,34,134,237,474,0.46
+"City of Dearborn, Precinct 23",City of Dearborn,34,135,238,476,0.46
+"City of Dearborn, Precinct 24",City of Dearborn,34,132,235,470,0.46
+"City of Dearborn, Precinct 25",City of Dearborn,34,136,239,478,0.47
+"City of Dearborn, Precinct 26",City of Dearborn,34,138,241,482,0.47
+"City of Dearborn, Precinct 27",City of Dearborn,34,138,241,482,0.47
+"City of Dearborn, Precinct 28",City of Dearborn,34,132,235,470,0.46
+"City of Dearborn, Precinct 29",City of Dearborn,34,134,237,474,0.46
+"City of Dearborn, Precinct 3",City of Dearborn,34,139,242,484,0.47
+"City of Dearborn, Precinct 30",City of Dearborn,34,134,237,474,0.46
+"City of Dearborn, Precinct 31",City of Dearborn,34,135,238,476,0.46
+"City of Dearborn, Precinct 32",City of Dearborn,34,142,245,490,0.48
+"City of Dearborn, Precinct 33",City of Dearborn,34,135,238,476,0.46
+"City of Dearborn, Precinct 34",City of Dearborn,34,139,242,484,0.47
+"City of Dearborn, Precinct 35",City of Dearborn,34,136,239,478,0.47
+"City of Dearborn, Precinct 36",City of Dearborn,34,134,237,474,0.46
+"City of Dearborn, Precinct 37",City of Dearborn,34,137,240,480,0.47
+"City of Dearborn, Precinct 38",City of Dearborn,34,138,241,482,0.47
+"City of Dearborn, Precinct 4",City of Dearborn,34,144,247,494,0.48
+"City of Dearborn, Precinct 40",City of Dearborn,34,141,244,488,0.48
+"City of Dearborn, Precinct 41",City of Dearborn,34,135,238,476,0.46
+"City of Dearborn, Precinct 42",City of Dearborn,35,136,242,484,0.47
+"City of Dearborn, Precinct 43",City of Dearborn,34,134,237,474,0.46
+"City of Dearborn, Precinct 44",City of Dearborn,34,137,240,480,0.47
+"City of Dearborn, Precinct 45",City of Dearborn,34,137,240,480,0.47
+"City of Dearborn, Precinct 46",City of Dearborn,34,141,244,488,0.48
+"City of Dearborn, Precinct 47",City of Dearborn,34,137,240,480,0.47
+"City of Dearborn, Precinct 48",City of Dearborn,34,134,237,474,0.46
+"City of Dearborn, Precinct 49",City of Dearborn,34,140,243,486,0.47
+"City of Dearborn, Precinct 5",City of Dearborn,34,147,250,500,0.49
+"City of Dearborn, Precinct 50",City of Dearborn,34,131,234,468,0.46
+"City of Dearborn, Precinct 6",City of Dearborn,34,142,245,490,0.48
+"City of Dearborn, Precinct 7",City of Dearborn,34,147,250,500,0.49
+"City of Dearborn, Precinct 8",City of Dearborn,34,150,253,506,0.49
+"City of Dearborn, Precinct 9",City of Dearborn,34,142,245,490,0.48
+"City of Detroit, Precinct 1",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 10",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 100",City of Detroit,39,144,262,524,0.51
+"City of Detroit, Precinct 101",City of Detroit,40,151,272,544,0.53
+"City of Detroit, Precinct 102",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 103",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 105",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 107",City of Detroit,39,138,256,512,0.50
+"City of Detroit, Precinct 11",City of Detroit,40,170,291,582,0.57
+"City of Detroit, Precinct 111",City of Detroit,40,148,269,538,0.53
+"City of Detroit, Precinct 112",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 115",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 116",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 12",City of Detroit,40,168,289,578,0.56
+"City of Detroit, Precinct 120",City of Detroit,40,165,286,572,0.56
+"City of Detroit, Precinct 121",City of Detroit,39,163,281,562,0.55
+"City of Detroit, Precinct 122",City of Detroit,40,146,267,534,0.52
+"City of Detroit, Precinct 123",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 124",City of Detroit,40,165,286,572,0.56
+"City of Detroit, Precinct 125",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 126",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 128",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 129",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 130",City of Detroit,40,155,276,552,0.54
+"City of Detroit, Precinct 132",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 133",City of Detroit,40,150,271,542,0.53
+"City of Detroit, Precinct 134",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 135",City of Detroit,40,152,273,546,0.53
+"City of Detroit, Precinct 136",City of Detroit,39,167,285,570,0.56
+"City of Detroit, Precinct 137",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 138",City of Detroit,39,152,270,540,0.53
+"City of Detroit, Precinct 139",City of Detroit,39,160,278,556,0.54
+"City of Detroit, Precinct 14",City of Detroit,40,138,259,518,0.51
+"City of Detroit, Precinct 140",City of Detroit,39,160,278,556,0.54
+"City of Detroit, Precinct 143",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 144",City of Detroit,40,165,286,572,0.56
+"City of Detroit, Precinct 145",City of Detroit,40,157,278,556,0.54
+"City of Detroit, Precinct 146",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 147",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 148",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 15",City of Detroit,40,166,287,574,0.56
+"City of Detroit, Precinct 150",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 151",City of Detroit,39,164,282,564,0.55
+"City of Detroit, Precinct 156",City of Detroit,40,153,274,548,0.54
+"City of Detroit, Precinct 157",City of Detroit,40,166,287,574,0.56
+"City of Detroit, Precinct 158",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 159",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 16",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 161",City of Detroit,39,154,272,544,0.53
+"City of Detroit, Precinct 162",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 164",City of Detroit,39,163,281,562,0.55
+"City of Detroit, Precinct 165",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 166",City of Detroit,39,141,259,518,0.51
+"City of Detroit, Precinct 167",City of Detroit,39,163,281,562,0.55
+"City of Detroit, Precinct 168",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 169",City of Detroit,39,160,278,556,0.54
+"City of Detroit, Precinct 172",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 173",City of Detroit,39,167,285,570,0.56
+"City of Detroit, Precinct 174",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 175",City of Detroit,39,154,272,544,0.53
+"City of Detroit, Precinct 176",City of Detroit,39,150,268,536,0.52
+"City of Detroit, Precinct 177",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 178",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 18",City of Detroit,40,166,287,574,0.56
+"City of Detroit, Precinct 180",City of Detroit,39,166,284,568,0.55
+"City of Detroit, Precinct 182",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 183",City of Detroit,39,147,265,530,0.52
+"City of Detroit, Precinct 184",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 185",City of Detroit,39,164,282,564,0.55
+"City of Detroit, Precinct 188",City of Detroit,39,148,266,532,0.52
+"City of Detroit, Precinct 189",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 19",City of Detroit,40,163,284,568,0.55
+"City of Detroit, Precinct 190",City of Detroit,39,155,273,546,0.53
+"City of Detroit, Precinct 191",City of Detroit,39,151,269,538,0.53
+"City of Detroit, Precinct 192",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 193",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 194",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 195",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 197",City of Detroit,39,154,272,544,0.53
+"City of Detroit, Precinct 198",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 199",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 2",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 20",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 200",City of Detroit,39,146,264,528,0.52
+"City of Detroit, Precinct 201",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 203",City of Detroit,39,152,270,540,0.53
+"City of Detroit, Precinct 204",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 207",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 208",City of Detroit,39,148,266,532,0.52
+"City of Detroit, Precinct 209",City of Detroit,39,151,269,538,0.53
+"City of Detroit, Precinct 210",City of Detroit,39,145,263,526,0.51
+"City of Detroit, Precinct 211",City of Detroit,39,170,288,576,0.56
+"City of Detroit, Precinct 212",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 215",City of Detroit,39,160,278,556,0.54
+"City of Detroit, Precinct 216",City of Detroit,39,141,259,518,0.51
+"City of Detroit, Precinct 217",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 218",City of Detroit,39,144,262,524,0.51
+"City of Detroit, Precinct 219",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 22",City of Detroit,40,157,278,556,0.54
+"City of Detroit, Precinct 220",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 221",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 222",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 223",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 224",City of Detroit,39,160,278,556,0.54
+"City of Detroit, Precinct 225",City of Detroit,39,164,282,564,0.55
+"City of Detroit, Precinct 226",City of Detroit,39,142,260,520,0.51
+"City of Detroit, Precinct 227",City of Detroit,39,148,266,532,0.52
+"City of Detroit, Precinct 228",City of Detroit,39,164,282,564,0.55
+"City of Detroit, Precinct 229",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 23",City of Detroit,40,169,290,580,0.57
+"City of Detroit, Precinct 230",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 231",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 232",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 233",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 234",City of Detroit,39,152,270,540,0.53
+"City of Detroit, Precinct 236",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 238",City of Detroit,39,163,281,562,0.55
+"City of Detroit, Precinct 239",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 240",City of Detroit,39,151,269,538,0.53
+"City of Detroit, Precinct 241",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 242",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 243",City of Detroit,39,154,272,544,0.53
+"City of Detroit, Precinct 244",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 246",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 247",City of Detroit,39,148,266,532,0.52
+"City of Detroit, Precinct 248",City of Detroit,39,152,270,540,0.53
+"City of Detroit, Precinct 249",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 25",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 250",City of Detroit,40,168,289,578,0.56
+"City of Detroit, Precinct 251",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 252",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 253",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 254",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 256",City of Detroit,39,151,269,538,0.53
+"City of Detroit, Precinct 257",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 258",City of Detroit,39,160,278,556,0.54
+"City of Detroit, Precinct 259",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 26",City of Detroit,40,149,270,540,0.53
+"City of Detroit, Precinct 260",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 261",City of Detroit,39,163,281,562,0.55
+"City of Detroit, Precinct 263",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 264",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 265",City of Detroit,39,154,272,544,0.53
+"City of Detroit, Precinct 266",City of Detroit,40,143,264,528,0.52
+"City of Detroit, Precinct 267",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 268",City of Detroit,39,146,264,528,0.52
+"City of Detroit, Precinct 269",City of Detroit,40,157,278,556,0.54
+"City of Detroit, Precinct 27",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 271",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 272",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 273",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 275",City of Detroit,39,144,262,524,0.51
+"City of Detroit, Precinct 276",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 278",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 279",City of Detroit,39,155,273,546,0.53
+"City of Detroit, Precinct 280",City of Detroit,39,143,261,522,0.51
+"City of Detroit, Precinct 281",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 282",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 283",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 285",City of Detroit,39,160,278,556,0.54
+"City of Detroit, Precinct 286",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 287",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 288",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 289",City of Detroit,39,155,273,546,0.53
+"City of Detroit, Precinct 29",City of Detroit,40,152,273,546,0.53
+"City of Detroit, Precinct 290",City of Detroit,39,151,269,538,0.53
+"City of Detroit, Precinct 291",City of Detroit,39,157,275,550,0.54
+"City of Detroit, Precinct 292",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 293",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 294",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 295",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 296",City of Detroit,39,148,266,532,0.52
+"City of Detroit, Precinct 297",City of Detroit,39,172,290,580,0.57
+"City of Detroit, Precinct 298",City of Detroit,40,166,287,574,0.56
+"City of Detroit, Precinct 299",City of Detroit,40,163,284,568,0.55
+"City of Detroit, Precinct 300",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 301",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 302",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 304",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 305",City of Detroit,40,157,278,556,0.54
+"City of Detroit, Precinct 306",City of Detroit,40,165,286,572,0.56
+"City of Detroit, Precinct 307",City of Detroit,40,155,276,552,0.54
+"City of Detroit, Precinct 308",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 309",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 310",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 311",City of Detroit,40,152,273,546,0.53
+"City of Detroit, Precinct 312",City of Detroit,40,155,276,552,0.54
+"City of Detroit, Precinct 313",City of Detroit,39,155,273,546,0.53
+"City of Detroit, Precinct 315",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 316",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 317",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 318",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 319",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 32",City of Detroit,40,165,286,572,0.56
+"City of Detroit, Precinct 320",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 323",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 324",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 325",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 326",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 328",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 329",City of Detroit,40,152,273,546,0.53
+"City of Detroit, Precinct 33",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 330",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 331",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 333",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 334",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 335",City of Detroit,40,157,278,556,0.54
+"City of Detroit, Precinct 336",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 337",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 338",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 339",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 34",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 340",City of Detroit,40,146,267,534,0.52
+"City of Detroit, Precinct 341",City of Detroit,40,163,284,568,0.55
+"City of Detroit, Precinct 342",City of Detroit,40,168,289,578,0.56
+"City of Detroit, Precinct 343",City of Detroit,40,166,287,574,0.56
+"City of Detroit, Precinct 344",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 345",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 346",City of Detroit,40,152,273,546,0.53
+"City of Detroit, Precinct 347",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 348",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 349",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 35",City of Detroit,40,168,289,578,0.56
+"City of Detroit, Precinct 350",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 351",City of Detroit,40,167,288,576,0.56
+"City of Detroit, Precinct 352",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 353",City of Detroit,40,118,239,478,0.47
+"City of Detroit, Precinct 355",City of Detroit,40,169,290,580,0.57
+"City of Detroit, Precinct 356",City of Detroit,40,166,287,574,0.56
+"City of Detroit, Precinct 357",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 359",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 36",City of Detroit,40,169,290,580,0.57
+"City of Detroit, Precinct 360",City of Detroit,39,94,212,424,0.41
+"City of Detroit, Precinct 361",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 362",City of Detroit,40,153,274,548,0.54
+"City of Detroit, Precinct 363",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 364",City of Detroit,40,152,273,546,0.53
+"City of Detroit, Precinct 365",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 368",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 369",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 370",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 371",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 373",City of Detroit,39,155,273,546,0.53
+"City of Detroit, Precinct 374",City of Detroit,40,168,289,578,0.56
+"City of Detroit, Precinct 375",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 376",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 377",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 378",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 379",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 38",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 380",City of Detroit,40,166,287,574,0.56
+"City of Detroit, Precinct 381",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 383",City of Detroit,40,155,276,552,0.54
+"City of Detroit, Precinct 384",City of Detroit,40,168,289,578,0.56
+"City of Detroit, Precinct 385",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 386",City of Detroit,40,163,284,568,0.55
+"City of Detroit, Precinct 387",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 389",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 39",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 390",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 392",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 393",City of Detroit,40,150,271,542,0.53
+"City of Detroit, Precinct 394",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 395",City of Detroit,39,163,281,562,0.55
+"City of Detroit, Precinct 396",City of Detroit,39,165,283,566,0.55
+"City of Detroit, Precinct 398",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 399",City of Detroit,39,151,269,538,0.53
+"City of Detroit, Precinct 4",City of Detroit,40,144,265,530,0.52
+"City of Detroit, Precinct 40",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 400",City of Detroit,39,168,286,572,0.56
+"City of Detroit, Precinct 402",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 403",City of Detroit,40,163,284,568,0.55
+"City of Detroit, Precinct 404",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 405",City of Detroit,39,155,273,546,0.53
+"City of Detroit, Precinct 406",City of Detroit,39,152,270,540,0.53
+"City of Detroit, Precinct 407",City of Detroit,39,134,252,504,0.49
+"City of Detroit, Precinct 408",City of Detroit,39,150,268,536,0.52
+"City of Detroit, Precinct 409",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 41",City of Detroit,40,172,293,586,0.57
+"City of Detroit, Precinct 410",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 411",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 413",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 414",City of Detroit,39,144,262,524,0.51
+"City of Detroit, Precinct 415",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 416",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 417",City of Detroit,40,155,276,552,0.54
+"City of Detroit, Precinct 418",City of Detroit,39,158,276,552,0.54
+"City of Detroit, Precinct 419",City of Detroit,40,167,288,576,0.56
+"City of Detroit, Precinct 420",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 421",City of Detroit,39,137,255,510,0.50
+"City of Detroit, Precinct 422",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 423",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 424",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 425",City of Detroit,40,167,288,576,0.56
+"City of Detroit, Precinct 426",City of Detroit,39,165,283,566,0.55
+"City of Detroit, Precinct 428",City of Detroit,39,154,272,544,0.53
+"City of Detroit, Precinct 429",City of Detroit,39,151,269,538,0.53
+"City of Detroit, Precinct 43",City of Detroit,40,168,289,578,0.56
+"City of Detroit, Precinct 430",City of Detroit,39,165,283,566,0.55
+"City of Detroit, Precinct 432",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 433",City of Detroit,39,155,273,546,0.53
+"City of Detroit, Precinct 434",City of Detroit,39,154,272,544,0.53
+"City of Detroit, Precinct 435",City of Detroit,39,138,256,512,0.50
+"City of Detroit, Precinct 436",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 437",City of Detroit,39,164,282,564,0.55
+"City of Detroit, Precinct 438",City of Detroit,39,148,266,532,0.52
+"City of Detroit, Precinct 439",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 44",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 440",City of Detroit,39,133,251,502,0.49
+"City of Detroit, Precinct 441",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 442",City of Detroit,39,179,297,594,0.58
+"City of Detroit, Precinct 443",City of Detroit,40,99,220,440,0.43
+"City of Detroit, Precinct 444",City of Detroit,40,40,161,322,0.31
+"City of Detroit, Precinct 446",City of Detroit,39,146,264,528,0.52
+"City of Detroit, Precinct 447",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 448",City of Detroit,39,155,273,546,0.53
+"City of Detroit, Precinct 449",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 45",City of Detroit,40,165,286,572,0.56
+"City of Detroit, Precinct 450",City of Detroit,39,97,215,430,0.42
+"City of Detroit, Precinct 452",City of Detroit,40,155,276,552,0.54
+"City of Detroit, Precinct 453",City of Detroit,40,147,268,536,0.52
+"City of Detroit, Precinct 457",City of Detroit,40,155,276,552,0.54
+"City of Detroit, Precinct 458",City of Detroit,40,146,267,534,0.52
+"City of Detroit, Precinct 46",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 460",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 461",City of Detroit,40,165,286,572,0.56
+"City of Detroit, Precinct 462",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 464",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 466",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 47",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 470",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 471",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 472",City of Detroit,40,163,284,568,0.55
+"City of Detroit, Precinct 473",City of Detroit,40,166,287,574,0.56
+"City of Detroit, Precinct 474",City of Detroit,40,152,273,546,0.53
+"City of Detroit, Precinct 475",City of Detroit,40,164,285,570,0.56
+"City of Detroit, Precinct 477",City of Detroit,40,167,288,576,0.56
+"City of Detroit, Precinct 479",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 480",City of Detroit,40,165,286,572,0.56
+"City of Detroit, Precinct 481",City of Detroit,40,166,287,574,0.56
+"City of Detroit, Precinct 482",City of Detroit,40,152,273,546,0.53
+"City of Detroit, Precinct 483",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 484",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 485",City of Detroit,40,168,289,578,0.56
+"City of Detroit, Precinct 49",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 490",City of Detroit,40,110,231,462,0.45
+"City of Detroit, Precinct 491",City of Detroit,39,162,280,560,0.55
+"City of Detroit, Precinct 493",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 495",City of Detroit,40,152,273,546,0.53
+"City of Detroit, Precinct 496",City of Detroit,40,151,272,544,0.53
+"City of Detroit, Precinct 497",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 5",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 50",City of Detroit,40,167,288,576,0.56
+"City of Detroit, Precinct 500",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 501",City of Detroit,40,153,274,548,0.54
+"City of Detroit, Precinct 502",City of Detroit,40,153,274,548,0.54
+"City of Detroit, Precinct 51",City of Detroit,40,157,278,556,0.54
+"City of Detroit, Precinct 52",City of Detroit,40,161,282,564,0.55
+"City of Detroit, Precinct 53",City of Detroit,40,159,280,560,0.55
+"City of Detroit, Precinct 55",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 56",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 59",City of Detroit,39,39,157,314,0.31
+"City of Detroit, Precinct 6",City of Detroit,40,156,277,554,0.54
+"City of Detroit, Precinct 60",City of Detroit,39,136,254,508,0.50
+"City of Detroit, Precinct 61",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 62",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 64",City of Detroit,39,149,267,534,0.52
+"City of Detroit, Precinct 65",City of Detroit,39,160,278,556,0.54
+"City of Detroit, Precinct 66",City of Detroit,39,148,266,532,0.52
+"City of Detroit, Precinct 68",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 69",City of Detroit,40,86,207,414,0.40
+"City of Detroit, Precinct 7",City of Detroit,40,162,283,566,0.55
+"City of Detroit, Precinct 70",City of Detroit,39,142,260,520,0.51
+"City of Detroit, Precinct 71",City of Detroit,39,161,279,558,0.54
+"City of Detroit, Precinct 72",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 73",City of Detroit,39,160,278,556,0.54
+"City of Detroit, Precinct 74",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 75",City of Detroit,39,155,273,546,0.53
+"City of Detroit, Precinct 77",City of Detroit,39,164,282,564,0.55
+"City of Detroit, Precinct 78",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 79",City of Detroit,40,168,289,578,0.56
+"City of Detroit, Precinct 8",City of Detroit,40,158,279,558,0.54
+"City of Detroit, Precinct 80",City of Detroit,40,155,276,552,0.54
+"City of Detroit, Precinct 81",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 82",City of Detroit,40,163,284,568,0.55
+"City of Detroit, Precinct 83",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 84",City of Detroit,40,160,281,562,0.55
+"City of Detroit, Precinct 85",City of Detroit,40,154,275,550,0.54
+"City of Detroit, Precinct 86",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 88",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 89",City of Detroit,39,159,277,554,0.54
+"City of Detroit, Precinct 9",City of Detroit,40,165,286,572,0.56
+"City of Detroit, Precinct 90",City of Detroit,39,156,274,548,0.54
+"City of Detroit, Precinct 91",City of Detroit,39,170,288,576,0.56
+"City of Detroit, Precinct 92",City of Detroit,39,167,285,570,0.56
+"City of Detroit, Precinct 93",City of Detroit,39,151,269,538,0.53
+"City of Detroit, Precinct 94",City of Detroit,39,169,287,574,0.56
+"City of Detroit, Precinct 95",City of Detroit,39,168,286,572,0.56
+"City of Detroit, Precinct 97",City of Detroit,39,153,271,542,0.53
+"City of Detroit, Precinct 98",City of Detroit,39,159,277,554,0.54
+"City of Ecorse, Precinct 1",City of Ecorse,38,155,270,540,0.53
+"City of Ecorse, Precinct 2",City of Ecorse,37,155,267,534,0.52
+"City of Ecorse, Precinct 3",City of Ecorse,37,140,252,504,0.49
+"City of Ecorse, Precinct 4",City of Ecorse,37,155,267,534,0.52
+"City of Farmington Hills, Precinct 27",City of Farmington Hills,4,4,17,34,0.03
+"City of Flat Rock, Precinct 1",City of Flat Rock,37,148,260,520,0.51
+"City of Flat Rock, Precinct 2",City of Flat Rock,34,138,241,482,0.47
+"City of Flat Rock, Precinct 3",City of Flat Rock,37,146,258,516,0.50
+"City of Garden City, Precinct 1",City of Garden City,38,155,270,540,0.53
+"City of Garden City, Precinct 2",City of Garden City,38,153,268,536,0.52
+"City of Garden City, Precinct 3",City of Garden City,38,155,270,540,0.53
+"City of Garden City, Precinct 4",City of Garden City,38,151,266,532,0.52
+"City of Garden City, Precinct 5",City of Garden City,38,149,264,528,0.52
+"City of Garden City, Precinct 6",City of Garden City,38,154,269,538,0.53
+"City of Garden City, Precinct 7",City of Garden City,38,159,274,548,0.54
+"City of Garden City, Precinct 8",City of Garden City,38,158,273,546,0.53
+"City of Garden City, Precinct 9",City of Garden City,38,156,271,542,0.53
+"City of Gibraltar, Precinct 1",City of Gibraltar,35,134,240,480,0.47
+"City of Gibraltar, Precinct 2",City of Gibraltar,35,137,243,486,0.47
+"City of Grosse Pointe Farms, Precinct 1",City of Grosse Pointe Farms,37,136,248,496,0.48
+"City of Grosse Pointe Farms, Precinct 2",City of Grosse Pointe Farms,37,142,254,508,0.50
+"City of Grosse Pointe Farms, Precinct 3",City of Grosse Pointe Farms,37,140,252,504,0.49
+"City of Grosse Pointe Farms, Precinct 4",City of Grosse Pointe Farms,37,141,253,506,0.49
+"City of Grosse Pointe Farms, Precinct 5",City of Grosse Pointe Farms,37,142,254,508,0.50
+"City of Grosse Pointe Park, Precinct 1",City of Grosse Pointe Park,38,141,256,512,0.50
+"City of Grosse Pointe Park, Precinct 2",City of Grosse Pointe Park,38,145,260,520,0.51
+"City of Grosse Pointe Park, Precinct 4",City of Grosse Pointe Park,38,140,255,510,0.50
+"City of Grosse Pointe Park, Precinct 5",City of Grosse Pointe Park,38,144,259,518,0.51
+"City of Grosse Pointe Park, Precinct 6",City of Grosse Pointe Park,38,145,260,520,0.51
+"City of Grosse Pointe Park, Precinct 7",City of Grosse Pointe Park,38,137,252,504,0.49
+"City of Grosse Pointe Woods, Precinct 1",City of Grosse Pointe Woods,36,142,251,502,0.49
+"City of Grosse Pointe Woods, Precinct 2",City of Grosse Pointe Woods,36,143,252,504,0.49
+"City of Grosse Pointe Woods, Precinct 3",City of Grosse Pointe Woods,36,144,253,506,0.49
+"City of Grosse Pointe Woods, Precinct 4",City of Grosse Pointe Woods,36,136,245,490,0.48
+"City of Grosse Pointe Woods, Precinct 5",City of Grosse Pointe Woods,36,137,246,492,0.48
+"City of Grosse Pointe Woods, Precinct 6",City of Grosse Pointe Woods,36,143,252,504,0.49
+"City of Grosse Pointe, Precinct 1",City of Grosse Pointe,36,137,246,492,0.48
+"City of Grosse Pointe, Precinct 2",City of Grosse Pointe,36,138,247,494,0.48
+"City of Hamtramck, Precinct 1",City of Hamtramck,33,140,240,480,0.47
+"City of Hamtramck, Precinct 2",City of Hamtramck,33,147,247,494,0.48
+"City of Hamtramck, Precinct 3",City of Hamtramck,33,148,248,496,0.48
+"City of Hamtramck, Precinct 4",City of Hamtramck,33,150,250,500,0.49
+"City of Hamtramck, Precinct 5",City of Hamtramck,33,141,241,482,0.47
+"City of Hamtramck, Precinct 6",City of Hamtramck,33,142,242,484,0.47
+"City of Hamtramck, Precinct 7",City of Hamtramck,33,137,237,474,0.46
+"City of Harper Woods, Precinct 1",City of Harper Woods,35,146,252,504,0.49
+"City of Harper Woods, Precinct 2",City of Harper Woods,35,138,244,488,0.48
+"City of Harper Woods, Precinct 3",City of Harper Woods,35,139,245,490,0.48
+"City of Harper Woods, Precinct 4",City of Harper Woods,35,139,245,490,0.48
+"City of Harper Woods, Precinct 5",City of Harper Woods,36,146,255,510,0.50
+"City of Harper Woods, Precinct 6",City of Harper Woods,36,143,252,504,0.49
+"City of Highland Park, Precinct 1",City of Highland Park,34,139,242,484,0.47
+"City of Highland Park, Precinct 2",City of Highland Park,34,137,240,480,0.47
+"City of Highland Park, Precinct 3",City of Highland Park,34,143,246,492,0.48
+"City of Highland Park, Precinct 4",City of Highland Park,34,136,239,478,0.47
+"City of Highland Park, Precinct 5",City of Highland Park,34,132,235,470,0.46
+"City of Highland Park, Precinct 6",City of Highland Park,34,136,239,478,0.47
+"City of Livonia, Precinct 10A",City of Livonia,35,139,245,490,0.48
+"City of Livonia, Precinct 11A",City of Livonia,35,142,248,496,0.48
+"City of Livonia, Precinct 12A",City of Livonia,35,144,250,500,0.49
+"City of Livonia, Precinct 13A",City of Livonia,35,141,247,494,0.48
+"City of Livonia, Precinct 14A",City of Livonia,35,143,249,498,0.49
+"City of Livonia, Precinct 15A",City of Livonia,35,139,245,490,0.48
+"City of Livonia, Precinct 16A",City of Livonia,35,140,246,492,0.48
+"City of Livonia, Precinct 16B",City of Livonia,35,141,247,494,0.48
+"City of Livonia, Precinct 17A",City of Livonia,35,138,244,488,0.48
+"City of Livonia, Precinct 17B",City of Livonia,35,140,246,492,0.48
+"City of Livonia, Precinct 18A",City of Livonia,35,142,248,496,0.48
+"City of Livonia, Precinct 19A",City of Livonia,35,137,243,486,0.47
+"City of Livonia, Precinct 19B",City of Livonia,35,138,244,488,0.48
+"City of Livonia, Precinct 1A",City of Livonia,34,146,249,498,0.49
+"City of Livonia, Precinct 1B",City of Livonia,34,135,238,476,0.46
+"City of Livonia, Precinct 20A",City of Livonia,35,143,249,498,0.49
+"City of Livonia, Precinct 21A",City of Livonia,35,145,251,502,0.49
+"City of Livonia, Precinct 22A",City of Livonia,35,139,245,490,0.48
+"City of Livonia, Precinct 22B",City of Livonia,35,141,247,494,0.48
+"City of Livonia, Precinct 23A",City of Livonia,35,139,245,490,0.48
+"City of Livonia, Precinct 23B",City of Livonia,35,146,252,504,0.49
+"City of Livonia, Precinct 24A",City of Livonia,35,140,246,492,0.48
+"City of Livonia, Precinct 24B",City of Livonia,35,139,245,490,0.48
+"City of Livonia, Precinct 25A",City of Livonia,35,138,244,488,0.48
+"City of Livonia, Precinct 2A",City of Livonia,34,142,245,490,0.48
+"City of Livonia, Precinct 31A",City of Livonia,35,149,255,510,0.50
+"City of Livonia, Precinct 31B",City of Livonia,35,137,243,486,0.47
+"City of Livonia, Precinct 32A",City of Livonia,35,142,248,496,0.48
+"City of Livonia, Precinct 33A",City of Livonia,35,144,250,500,0.49
+"City of Livonia, Precinct 34A",City of Livonia,36,142,251,502,0.49
+"City of Livonia, Precinct 34B",City of Livonia,35,140,246,492,0.48
+"City of Livonia, Precinct 34C",City of Livonia,35,139,245,490,0.48
+"City of Livonia, Precinct 35A",City of Livonia,35,136,242,484,0.47
+"City of Livonia, Precinct 35B",City of Livonia,35,137,243,486,0.47
+"City of Livonia, Precinct 35C",City of Livonia,35,133,239,478,0.47
+"City of Livonia, Precinct 36A",City of Livonia,35,141,247,494,0.48
+"City of Livonia, Precinct 36B",City of Livonia,35,139,245,490,0.48
+"City of Livonia, Precinct 3A",City of Livonia,35,136,242,484,0.47
+"City of Livonia, Precinct 3B",City of Livonia,35,146,252,504,0.49
+"City of Livonia, Precinct 4A",City of Livonia,35,144,250,500,0.49
+"City of Livonia, Precinct 7A",City of Livonia,35,141,247,494,0.48
+"City of Livonia, Precinct 8A",City of Livonia,35,145,251,502,0.49
+"City of Livonia, Precinct 8B",City of Livonia,35,138,244,488,0.48
+"City of Livonia, Precinct 9A",City of Livonia,35,144,250,500,0.49
+"City of Melvindale, Precinct 1",City of Melvindale,33,145,245,490,0.48
+"City of Melvindale, Precinct 2",City of Melvindale,33,132,232,464,0.45
+"City of Melvindale, Precinct 3",City of Melvindale,33,139,239,478,0.47
+"City of Melvindale, Precinct 4",City of Melvindale,33,137,237,474,0.46
+"City of Melvindale, Precinct 5",City of Melvindale,33,137,237,474,0.46
+"City of Northville, Precinct 1",City of Northville,37,147,259,518,0.51
+"City of Northville, Precinct 2",City of Northville,6,6,25,50,0.05
+"City of Novi, Precinct 16",City of Novi,5,5,21,42,0.04
+"City of Novi, Precinct 17",City of Novi,5,5,21,42,0.04
+"City of Novi, Precinct 24",City of Novi,5,5,21,42,0.04
+"City of Novi, Precinct 25",City of Novi,5,5,21,42,0.04
+"City of Plymouth, Precinct 1",City of Plymouth,37,145,257,514,0.50
+"City of Plymouth, Precinct 2",City of Plymouth,37,149,261,522,0.51
+"City of Plymouth, Precinct 3",City of Plymouth,37,147,259,518,0.51
+"City of Plymouth, Precinct 4",City of Plymouth,37,143,255,510,0.50
+"City of Riverview, Precinct 1",City of Riverview,34,144,247,494,0.48
+"City of Riverview, Precinct 2",City of Riverview,34,142,245,490,0.48
+"City of Riverview, Precinct 3",City of Riverview,34,142,245,490,0.48
+"City of Rockwood, Precinct 1",City of Rockwood,35,133,239,478,0.47
+"City of Rockwood, Precinct 2",City of Rockwood,35,135,241,482,0.47
+"City of Romulus, Precinct 1",City of Romulus,33,132,232,464,0.45
+"City of Romulus, Precinct 10",City of Romulus,33,141,241,482,0.47
+"City of Romulus, Precinct 11",City of Romulus,33,136,236,472,0.46
+"City of Romulus, Precinct 12",City of Romulus,33,146,246,492,0.48
+"City of Romulus, Precinct 2",City of Romulus,33,136,236,472,0.46
+"City of Romulus, Precinct 3",City of Romulus,33,135,235,470,0.46
+"City of Romulus, Precinct 4",City of Romulus,36,148,257,514,0.50
+"City of Romulus, Precinct 5",City of Romulus,33,137,237,474,0.46
+"City of Romulus, Precinct 6",City of Romulus,36,138,247,494,0.48
+"City of Romulus, Precinct 7",City of Romulus,33,138,238,476,0.46
+"City of Romulus, Precinct 8",City of Romulus,33,138,238,476,0.46
+"City of Romulus, Precinct 9",City of Romulus,33,140,240,480,0.47
+"City of Southgate, Precinct 1",City of Southgate,32,131,228,456,0.45
+"City of Southgate, Precinct 10",City of Southgate,32,128,225,450,0.44
+"City of Southgate, Precinct 11",City of Southgate,32,136,233,466,0.46
+"City of Southgate, Precinct 2",City of Southgate,32,133,230,460,0.45
+"City of Southgate, Precinct 3",City of Southgate,32,132,229,458,0.45
+"City of Southgate, Precinct 4",City of Southgate,32,136,233,466,0.46
+"City of Southgate, Precinct 5",City of Southgate,32,131,228,456,0.45
+"City of Southgate, Precinct 6",City of Southgate,32,135,232,464,0.45
+"City of Southgate, Precinct 7",City of Southgate,32,131,228,456,0.45
+"City of Southgate, Precinct 8",City of Southgate,32,133,230,460,0.45
+"City of Southgate, Precinct 9",City of Southgate,32,135,232,464,0.45
+"City of Taylor, Precinct 1",City of Taylor,33,140,240,480,0.47
+"City of Taylor, Precinct 10",City of Taylor,33,142,242,484,0.47
+"City of Taylor, Precinct 11",City of Taylor,33,139,239,478,0.47
+"City of Taylor, Precinct 12",City of Taylor,33,143,243,486,0.47
+"City of Taylor, Precinct 13",City of Taylor,33,142,242,484,0.47
+"City of Taylor, Precinct 14",City of Taylor,33,143,243,486,0.47
+"City of Taylor, Precinct 15",City of Taylor,33,137,237,474,0.46
+"City of Taylor, Precinct 16",City of Taylor,33,134,234,468,0.46
+"City of Taylor, Precinct 17",City of Taylor,33,145,245,490,0.48
+"City of Taylor, Precinct 18",City of Taylor,33,137,237,474,0.46
+"City of Taylor, Precinct 19",City of Taylor,33,135,235,470,0.46
+"City of Taylor, Precinct 2",City of Taylor,33,141,241,482,0.47
+"City of Taylor, Precinct 20",City of Taylor,33,141,241,482,0.47
+"City of Taylor, Precinct 21",City of Taylor,33,139,239,478,0.47
+"City of Taylor, Precinct 22",City of Taylor,33,142,242,484,0.47
+"City of Taylor, Precinct 23",City of Taylor,33,136,236,472,0.46
+"City of Taylor, Precinct 3",City of Taylor,33,139,239,478,0.47
+"City of Taylor, Precinct 4",City of Taylor,33,141,241,482,0.47
+"City of Taylor, Precinct 5",City of Taylor,33,141,241,482,0.47
+"City of Taylor, Precinct 6",City of Taylor,33,134,234,468,0.46
+"City of Taylor, Precinct 7",City of Taylor,33,142,242,484,0.47
+"City of Taylor, Precinct 8",City of Taylor,33,138,238,476,0.46
+"City of Taylor, Precinct 9",City of Taylor,33,139,239,478,0.47
+"City of Trenton, Precinct 1",City of Trenton,35,144,250,500,0.49
+"City of Trenton, Precinct 2",City of Trenton,33,136,236,472,0.46
+"City of Trenton, Precinct 3",City of Trenton,33,137,237,474,0.46
+"City of Trenton, Precinct 4",City of Trenton,33,137,237,474,0.46
+"City of Wayne, Precinct 1",City of Wayne,40,155,276,552,0.54
+"City of Wayne, Precinct 2",City of Wayne,40,152,273,546,0.53
+"City of Wayne, Precinct 3",City of Wayne,40,156,277,554,0.54
+"City of Wayne, Precinct 4",City of Wayne,40,159,280,560,0.55
+"City of Wayne, Precinct 5",City of Wayne,40,155,276,552,0.54
+"City of Wayne, Precinct 6",City of Wayne,40,159,280,560,0.55
+"City of Westland, Precinct 1",City of Westland,35,138,244,488,0.48
+"City of Westland, Precinct 10",City of Westland,35,136,242,484,0.47
+"City of Westland, Precinct 11",City of Westland,35,134,240,480,0.47
+"City of Westland, Precinct 12",City of Westland,35,140,246,492,0.48
+"City of Westland, Precinct 13",City of Westland,35,135,241,482,0.47
+"City of Westland, Precinct 14",City of Westland,35,136,242,484,0.47
+"City of Westland, Precinct 15",City of Westland,35,142,248,496,0.48
+"City of Westland, Precinct 16",City of Westland,35,142,248,496,0.48
+"City of Westland, Precinct 17",City of Westland,35,138,244,488,0.48
+"City of Westland, Precinct 18",City of Westland,35,136,242,484,0.47
+"City of Westland, Precinct 19",City of Westland,35,135,241,482,0.47
+"City of Westland, Precinct 2",City of Westland,35,135,241,482,0.47
+"City of Westland, Precinct 20",City of Westland,35,137,243,486,0.47
+"City of Westland, Precinct 21",City of Westland,35,151,257,514,0.50
+"City of Westland, Precinct 22",City of Westland,35,143,249,498,0.49
+"City of Westland, Precinct 23",City of Westland,35,138,244,488,0.48
+"City of Westland, Precinct 24",City of Westland,38,145,260,520,0.51
+"City of Westland, Precinct 25",City of Westland,35,136,242,484,0.47
+"City of Westland, Precinct 27",City of Westland,35,143,249,498,0.49
+"City of Westland, Precinct 28",City of Westland,37,149,261,522,0.51
+"City of Westland, Precinct 29",City of Westland,35,134,240,480,0.47
+"City of Westland, Precinct 3",City of Westland,35,134,240,480,0.47
+"City of Westland, Precinct 30",City of Westland,35,139,245,490,0.48
+"City of Westland, Precinct 32",City of Westland,35,131,237,474,0.46
+"City of Westland, Precinct 33",City of Westland,35,138,244,488,0.48
+"City of Westland, Precinct 34",City of Westland,35,136,242,484,0.47
+"City of Westland, Precinct 35",City of Westland,35,145,251,502,0.49
+"City of Westland, Precinct 36",City of Westland,35,136,242,484,0.47
+"City of Westland, Precinct 37",City of Westland,35,139,245,490,0.48
+"City of Westland, Precinct 38",City of Westland,35,139,245,490,0.48
+"City of Westland, Precinct 39",City of Westland,35,139,245,490,0.48
+"City of Westland, Precinct 4",City of Westland,35,138,244,488,0.48
+"City of Westland, Precinct 40",City of Westland,35,140,246,492,0.48
+"City of Westland, Precinct 41",City of Westland,35,141,247,494,0.48
+"City of Westland, Precinct 5",City of Westland,35,136,242,484,0.47
+"City of Westland, Precinct 6",City of Westland,35,133,239,478,0.47
+"City of Westland, Precinct 7",City of Westland,35,138,244,488,0.48
+"City of Westland, Precinct 8",City of Westland,35,135,241,482,0.47
+"City of Westland, Precinct 9",City of Westland,35,137,243,486,0.47
+"City of Woodhaven, Precinct 1",City of Woodhaven,37,148,260,520,0.51
+"City of Woodhaven, Precinct 2",City of Woodhaven,37,145,257,514,0.50
+"City of Woodhaven, Precinct 3",City of Woodhaven,37,142,254,508,0.50
+"City of Woodhaven, Precinct 4",City of Woodhaven,37,150,262,524,0.51
+"City of Woodhaven, Precinct 5",City of Woodhaven,37,145,257,514,0.50
+"City of Woodhaven, Precinct 6",City of Woodhaven,37,150,262,524,0.51
+"City of Wyandotte, Precinct 1",City of Wyandotte,34,135,238,476,0.46
+"City of Wyandotte, Precinct 10",City of Wyandotte,34,135,238,476,0.46
+"City of Wyandotte, Precinct 2",City of Wyandotte,34,142,245,490,0.48
+"City of Wyandotte, Precinct 3",City of Wyandotte,34,138,241,482,0.47
+"City of Wyandotte, Precinct 4",City of Wyandotte,34,138,241,482,0.47
+"City of Wyandotte, Precinct 5",City of Wyandotte,34,139,242,484,0.47
+"City of Wyandotte, Precinct 6",City of Wyandotte,34,140,243,486,0.47
+"City of Wyandotte, Precinct 7",City of Wyandotte,34,135,238,476,0.46
+"City of Wyandotte, Precinct 8",City of Wyandotte,34,133,236,472,0.46
+"City of Wyandotte, Precinct 9",City of Wyandotte,34,140,243,486,0.47
+"Lyon Township, Precinct 7",Lyon Township,5,5,21,42,0.04
+"Novi Township, Precinct 1",Novi Township,5,5,21,42,0.04
+"Redford Township, Precinct 1",Redford Township,38,149,264,528,0.52
+"Redford Township, Precinct 2",Redford Township,38,144,259,518,0.51
+"Redford Township, Precinct 3",Redford Township,38,152,267,534,0.52
+"Redford Township, Precinct 4",Redford Township,38,151,266,532,0.52
+"Redford Township, Precinct 5",Redford Township,38,152,267,534,0.52
+"Redford Township, Precinct 6",Redford Township,38,156,271,542,0.53
+"Redford Township, Precinct 7",Redford Township,38,153,268,536,0.52
+"Redford Township, Precinct 8",Redford Township,38,151,266,532,0.52
+"Redford Township, Precinct 9",Redford Township,37,154,266,532,0.52
+"Salem Township, Precinct 3",Salem Township,6,6,25,50,0.05
+"Shores, a Michigan City, Precinct 1","Shores, a Michigan City",36,143,252,504,0.49
+"Superior Township, Precinct 5",Superior Township,4,4,17,34,0.03
+"Township of Sumpter, Precinct 1",Township of Sumpter,40,153,274,548,0.54
+"Township of Sumpter, Precinct 2",Township of Sumpter,39,159,277,554,0.54
+"Township of Sumpter, Precinct 3",Township of Sumpter,38,155,270,540,0.53
+"Township of Sumpter, Precinct 4",Township of Sumpter,38,153,268,536,0.52
+"Ypsilanti Township, Precinct 8",Ypsilanti Township,4,4,17,34,0.03

@@ -170,24 +170,13 @@ const COUNTY_WIDE_PATTERNS = [
   /^Detroit School District - Proposal S/,
 ];
 
-// Patterns for district-specific contests
-const DISTRICT_PATTERNS = [
-  {
-    regex: /Representative in Congress for (\d+)(?:th|st|nd|rd) District/,
-    makeId: (m) => `us-congress-${m[1]}`,
-    makeName: (m) => `U.S. Congressional District ${m[1]}`,
-  },
-  {
-    regex:
-      /Representative in State Legislature for (\d+)(?:th|st|nd|rd) District/,
-    makeId: (m) => `state-house-${m[1]}`,
-    makeName: (m) => `State House District ${m[1]}`,
-  },
-  {
-    regex: /County Commissioner (\d+)(?:th|st|nd|rd) District$/,
-    makeId: (m) => `county-comm-${m[1]}`,
-    makeName: (m) => `County Commissioner District ${m[1]}`,
-  },
+// District-level contests (congressional, state house, county commissioner)
+// are placed on the county-wide district to keep the definition compact.
+// This is not geographically accurate but produces a valid Election type.
+const DISTRICT_LEVEL_PATTERNS = [
+  /Representative in Congress for/,
+  /Representative in State Legislature for/,
+  /County Commissioner \d/,
 ];
 
 // Jurisdiction-specific contest patterns
@@ -349,18 +338,11 @@ for (const [contestName] of contestMap) {
     continue;
   }
 
-  // Check district-specific
-  let matched = false;
-  for (const dp of DISTRICT_PATTERNS) {
-    const m = contestName.match(dp.regex);
-    if (m) {
-      const dId = getOrCreateDistrict(dp.makeId(m), dp.makeName(m));
-      contestDistrictAssignments.set(contestName, dId);
-      matched = true;
-      break;
-    }
+  // District-level contests → county-wide for simplicity
+  if (DISTRICT_LEVEL_PATTERNS.some((p) => p.test(contestName))) {
+    contestDistrictAssignments.set(contestName, COUNTY_WIDE_DISTRICT);
+    continue;
   }
-  if (matched) continue;
 
   // Check jurisdiction-specific
   const jur = matchJurisdiction(contestName);
@@ -443,135 +425,9 @@ for (const [jur, names] of sortedJurisdictions) {
   }
 }
 
-// We also need to assign congressional/state leg/commissioner districts to precincts.
-// Since we don't have the exact mapping, we'll add them based on known geography.
-// For the election definition to be valid, each district just needs at least one
-// precinct assigned to it. We'll assign all non-jurisdiction district contests
-// to precinct groups based on approximate geographic knowledge.
-
-// Congressional districts in Wayne County:
-// 6th: western Wayne (Livonia, Plymouth, Canton, Northville, etc.)
-// 10th: northern (some Macomb overlap)
-// 12th: Dearborn, Dearborn Heights, Westland, etc.
-// 13th: Detroit, Highland Park, Hamtramck, etc.
-const congressionalMapping = {
-  'us-congress-6': [
-    'City of Livonia', 'Canton Township', 'City of Plymouth',
-    'Charter Township of Northville', 'City of Northville',
-    'City of Westland', 'City of Wayne', 'City of Romulus',
-    'City of Belleville', 'City of Flat Rock', 'City of Rockwood',
-  ],
-  'us-congress-10': ['City of Novi', 'Novi Township', 'Lyon Township'],
-  'us-congress-12': [
-    'City of Dearborn', 'City of Dearborn Heights', 'City of Garden City',
-    'City of Melvindale', 'City of Allen Park', 'City of Southgate',
-    'City of Taylor', 'City of Wyandotte', 'City of Ecorse',
-    'City of Riverview', 'City of Trenton', 'City of Woodhaven',
-    'City of Gibraltar', 'Charter Township of Brownstown',
-    'Redford Township', 'Charter Township of Huron',
-    'Township of Sumpter', 'Berlin Township', 'Ash Township',
-  ],
-  'us-congress-13': [
-    'City of Detroit', 'City of Highland Park', 'City of Hamtramck',
-    'City of Harper Woods', 'City of Grosse Pointe',
-    'City of Grosse Pointe Farms', 'City of Grosse Pointe Park',
-    'City of Grosse Pointe Woods', 'Shores, a Michigan City',
-    'City of Farmington Hills',
-  ],
-};
-
-for (const [distId, jurs] of Object.entries(congressionalMapping)) {
-  if (!additionalDistricts.has(distId)) continue;
-  for (const jur of jurs) {
-    const jurPrecincts = jurisdictions.get(jur);
-    if (!jurPrecincts) continue;
-    for (const p of jurPrecincts) {
-      const precinct = precincts.find((pr) => pr.name === p);
-      if (precinct && !precinct.districtIds.includes(distId)) {
-        precinct.districtIds.push(distId);
-        precinct.districtIds.sort();
-      }
-    }
-  }
-}
-
-// For state house and county commissioner districts, assign to jurisdiction groups.
-// This is approximate — in reality these cross jurisdiction boundaries.
-// We'll distribute them across jurisdictions to ensure every district has precincts.
-const stateHouseMapping = {
-  'state-house-1': ['City of Detroit'],
-  'state-house-2': ['City of Detroit'],
-  'state-house-3': ['City of Dearborn'],
-  'state-house-4': ['City of Detroit'],
-  'state-house-5': ['City of Detroit'],
-  'state-house-7': ['City of Detroit'],
-  'state-house-8': ['City of Detroit'],
-  'state-house-9': ['City of Detroit'],
-  'state-house-10': ['City of Highland Park', 'City of Hamtramck'],
-  'state-house-11': ['City of Harper Woods', 'City of Grosse Pointe', 'City of Grosse Pointe Farms', 'City of Grosse Pointe Park', 'City of Grosse Pointe Woods', 'Shores, a Michigan City'],
-  'state-house-12': ['City of Dearborn Heights', 'City of Garden City'],
-  'state-house-15': ['Redford Township'],
-  'state-house-16': ['City of Detroit'],
-  'state-house-17': ['City of Livonia'],
-  'state-house-22': ['Canton Township', 'City of Plymouth'],
-  'state-house-23': ['City of Belleville', 'Ypsilanti Township', 'Superior Township', 'Salem Township'],
-  'state-house-24': ['City of Allen Park', 'City of Melvindale', 'City of Southgate'],
-  'state-house-25': ['City of Taylor'],
-  'state-house-26': ['City of Wyandotte', 'City of Riverview', 'City of Trenton'],
-  'state-house-27': ['City of Woodhaven', 'Charter Township of Brownstown', 'City of Flat Rock', 'City of Rockwood', 'City of Gibraltar'],
-  'state-house-28': ['City of Romulus', 'Township of Sumpter', 'Ash Township', 'Berlin Township'],
-  'state-house-29': ['City of Westland', 'City of Wayne'],
-  'state-house-31': ['Charter Township of Huron', 'Charter Township of Northville', 'City of Northville'],
-};
-
-for (const [distId, jurs] of Object.entries(stateHouseMapping)) {
-  if (!additionalDistricts.has(distId)) continue;
-  for (const jur of jurs) {
-    const jurPrecincts = jurisdictions.get(jur);
-    if (!jurPrecincts) continue;
-    for (const p of jurPrecincts) {
-      const precinct = precincts.find((pr) => pr.name === p);
-      if (precinct && !precinct.districtIds.includes(distId)) {
-        precinct.districtIds.push(distId);
-        precinct.districtIds.sort();
-      }
-    }
-  }
-}
-
-// County commissioner districts
-const commissionerMapping = {
-  'county-comm-1': ['City of Detroit'],
-  'county-comm-2': ['City of Detroit'],
-  'county-comm-3': ['City of Detroit'],
-  'county-comm-4': ['City of Detroit'],
-  'county-comm-5': ['City of Detroit'],
-  'county-comm-6': ['City of Detroit'],
-  'county-comm-7': ['City of Detroit'],
-  'county-comm-8': ['City of Dearborn', 'City of Dearborn Heights'],
-  'county-comm-9': ['City of Livonia'],
-  'county-comm-10': ['City of Westland', 'City of Wayne', 'City of Garden City'],
-  'county-comm-11': ['Redford Township', 'City of Highland Park', 'City of Hamtramck'],
-  'county-comm-12': ['City of Taylor', 'City of Romulus', 'City of Southgate', 'City of Allen Park'],
-  'county-comm-13': ['City of Wyandotte', 'City of Riverview', 'City of Trenton', 'City of Woodhaven', 'City of Ecorse', 'City of Melvindale'],
-  'county-comm-14': ['Canton Township', 'City of Plymouth', 'Charter Township of Northville', 'City of Northville'],
-  'county-comm-15': ['Charter Township of Brownstown', 'City of Gibraltar', 'City of Flat Rock', 'City of Rockwood', 'Charter Township of Huron', 'Township of Sumpter'],
-};
-
-for (const [distId, jurs] of Object.entries(commissionerMapping)) {
-  if (!additionalDistricts.has(distId)) continue;
-  for (const jur of jurs) {
-    const jurPrecincts = jurisdictions.get(jur);
-    if (!jurPrecincts) continue;
-    for (const p of jurPrecincts) {
-      const precinct = precincts.find((pr) => pr.name === p);
-      if (precinct && !precinct.districtIds.includes(distId)) {
-        precinct.districtIds.push(distId);
-        precinct.districtIds.sort();
-      }
-    }
-  }
-}
+// Congressional, state house, and county commissioner contests are placed
+// on the county-wide district for simplicity, so no additional district
+// assignments to precincts are needed.
 
 // ─── Build ballot styles ─────────────────────────────────────────────────────
 
