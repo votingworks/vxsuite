@@ -1806,10 +1806,14 @@ export class Store {
     debug('querying database for ballot adjudication cvr queue');
     const rows = this.client.all(
       `
-        select cvr_id
-        from cvr_contest_tags
-        group by cvr_id
-        order by min(sequence_id)
+        select cct.cvr_id
+        from cvr_contest_tags cct
+        join cvrs c on c.id = cct.cvr_id
+        group by cct.cvr_id
+        order by
+          case when c.card_type = 'bmd' then 1 else 0 end,
+          c.ballot_style_group_id,
+          c.sheet_number
       `
     ) as Array<{ cvr_id: Id }>;
     debug('queried cvr contests tags for ballot adjudication queue');
