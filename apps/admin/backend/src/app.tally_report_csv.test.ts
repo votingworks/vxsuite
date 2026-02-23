@@ -48,6 +48,9 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.EARLY_VOTING
+  );
 });
 
 afterEach(() => {
