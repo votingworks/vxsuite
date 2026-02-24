@@ -54,6 +54,7 @@ export function GroupByEditor({
       hideLabel
       label="Report By"
       direction="row"
+      wrap
       options={allowedGroupings.map((grouping) => ({
         value: grouping,
         label: GROUPING_LABEL[grouping],

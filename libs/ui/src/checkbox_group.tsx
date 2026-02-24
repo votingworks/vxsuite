@@ -17,6 +17,7 @@ export type CheckboxGroupProps<T extends string> = (
   onChange: NoInfer<(value: T[]) => void>;
   disabled?: boolean;
   direction?: 'row' | 'column';
+  wrap?: boolean;
   noOptionsMessage?: React.ReactNode;
 };
 
@@ -27,9 +28,12 @@ const LabelContainer = styled.legend`
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
 `;
 
-const OptionsContainer = styled.div<{ direction: 'row' | 'column' }>`
+const OptionsContainer = styled.div<{
+  direction: 'row' | 'column';
+  wrap?: boolean;
+}>`
   display: flex;
-  flex-direction: ${(p) => p.direction};
+  flex-flow: ${(p) => p.direction} ${(p) => (p.wrap ? 'wrap' : 'nowrap')};
   gap: 0.25rem;
 `;
 
@@ -45,6 +49,7 @@ export function CheckboxGroup<T extends string>({
   onChange,
   disabled = false,
   direction = 'column',
+  wrap,
   noOptionsMessage,
 }: CheckboxGroupProps<T>): JSX.Element {
   return (
@@ -52,7 +57,7 @@ export function CheckboxGroup<T extends string>({
       aria-label={ariaLabel ?? (typeof label === 'string' ? label : undefined)}
     >
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
-      <OptionsContainer direction={direction}>
+      <OptionsContainer direction={direction} wrap={wrap}>
         {options.length === 0
           ? noOptionsMessage
           : options.map((option) => {
