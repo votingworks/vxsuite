@@ -164,7 +164,11 @@ function PollsOpenReportConfirmation({
   signedTimestamp,
   election,
   precinctSelection,
-}: ReportDetailsProps & { isLive: boolean }): JSX.Element {
+  ballotCount,
+}: ReportDetailsProps & {
+  isLive: boolean;
+  ballotCount?: number;
+}): JSX.Element {
   const reportTitle = getPollsReportTitle('open_polls');
   return (
     <ResultsScreen screenTitle={`${reportTitle} Sent`}>
@@ -177,6 +181,47 @@ function PollsOpenReportConfirmation({
           election={election}
           precinctSelection={precinctSelection}
         />
+        {ballotCount !== undefined && (
+          <LabeledValue
+            label="Ballots Scanned"
+            value={ballotCount.toLocaleString()}
+          />
+        )}
+      </MainContent>
+    </ResultsScreen>
+  );
+}
+
+function PollsPausedReportConfirmation({
+  ballotHash,
+  machineId,
+  isLive,
+  signedTimestamp,
+  election,
+  precinctSelection,
+  ballotCount,
+}: ReportDetailsProps & {
+  isLive: boolean;
+  ballotCount?: number;
+}): JSX.Element {
+  const reportTitle = getPollsReportTitle('pause_voting');
+  return (
+    <ResultsScreen screenTitle={`${reportTitle} Sent`}>
+      <MainContent>
+        <ReportHeader reportTitle={reportTitle} isLive={isLive} />
+        <ReportDetails
+          ballotHash={ballotHash}
+          machineId={machineId}
+          signedTimestamp={signedTimestamp}
+          election={election}
+          precinctSelection={precinctSelection}
+        />
+        {ballotCount !== undefined && (
+          <LabeledValue
+            label="Ballots Scanned"
+            value={ballotCount.toLocaleString()}
+          />
+        )}
       </MainContent>
     </ResultsScreen>
   );
@@ -382,6 +427,19 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           signedTimestamp={reportData.signedTimestamp}
           election={reportData.election}
           precinctSelection={reportData.precinctSelection}
+          ballotCount={reportData.ballotCount}
+        />
+      );
+    case 'polls_paused':
+      return (
+        <PollsPausedReportConfirmation
+          ballotHash={reportData.ballotHash}
+          machineId={reportData.machineId}
+          isLive={reportData.isLive}
+          signedTimestamp={reportData.signedTimestamp}
+          election={reportData.election}
+          precinctSelection={reportData.precinctSelection}
+          ballotCount={reportData.ballotCount}
         />
       );
     case 'polls_closed_final':

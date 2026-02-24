@@ -279,9 +279,9 @@ export function buildApi(ctx: AppContext) {
         const outcome = result.isOk()
           ? { disposition: 'success' }
           : {
-            disposition: 'failure',
-            error: extractErrorMessage(result.err()),
-          };
+              disposition: 'failure',
+              error: extractErrorMessage(result.err()),
+            };
         await logger.logAsCurrentRole(
           LogEventId.ApiCall,
           {
@@ -293,8 +293,8 @@ export function buildApi(ctx: AppContext) {
             userJurisdictionIds:
               context.user?.type === 'jurisdiction_user'
                 ? context.user.jurisdictions
-                  .map((jurisdiction) => jurisdiction.id)
-                  .join(',')
+                    .map((jurisdiction) => jurisdiction.id)
+                    .join(',')
                 : '',
             ...outcome,
           },
@@ -829,7 +829,11 @@ export function buildApi(ctx: AppContext) {
       return store.getLatestExportQaRunForElection(electionId);
     },
 
-    getExportQaRun({ qaRunId }: { qaRunId: string }): Promise<ExportQaRun | undefined> {
+    getExportQaRun({
+      qaRunId,
+    }: {
+      qaRunId: string;
+    }): Promise<ExportQaRun | undefined> {
       return store.getExportQaRun(qaRunId);
     },
 
@@ -1092,9 +1096,9 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
         const outcome = result.isOk()
           ? { disposition: 'success' }
           : {
-            disposition: 'failure',
-            error: extractErrorMessage(result.err()),
-          };
+              disposition: 'failure',
+              error: extractErrorMessage(result.err()),
+            };
         await logger.logAsCurrentRole(
           LogEventId.ApiCall,
           {
@@ -1138,6 +1142,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           encodedCompressedTally,
           precinctSelection,
           pollsState,
+          ballotCount,
           numPages,
           pageIndex,
         } = decodeQuickResultsMessage(payload);
@@ -1213,7 +1218,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             // Ensure pageIndex is an integer and in the valid 1..numPages range
             assert(
               partial.pageIndex >= 0 && partial.pageIndex < numPages,
-              `Invalid pageIndex: ${partial.pageIndex} (expected 0..${numPages - 1
+              `Invalid pageIndex: ${partial.pageIndex} (expected 0..${
+                numPages - 1
               })`
             );
             seenIndexes.add(partial.pageIndex);
@@ -1311,7 +1317,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               isPartial: false,
             });
           }
-          case 'polls_open': {
+          case 'polls_open':
+          case 'polls_paused': {
             return ok({
               pollsState,
               ballotHash,
@@ -1321,6 +1328,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               precinctSelection,
               election,
               isPartial: false,
+              ballotCount,
             });
           }
           /* istanbul ignore next - @preserve */
@@ -1452,10 +1460,7 @@ export function buildApp(context: AppContext): Application {
         req.on('error', reject);
       });
 
-      const parseResult = safeParseJson(
-        body,
-        UpdateQaRunStatusSchema
-      );
+      const parseResult = safeParseJson(body, UpdateQaRunStatusSchema);
 
       if (parseResult.isErr()) {
         res.status(400).json({ error: 'Invalid request body' });
@@ -1514,11 +1519,11 @@ export function buildApp(context: AppContext): Application {
     NODE_ENV === 'test'
       ? ''
       : readFileSync(
-        join(context.workspace.assetDirectoryPath, 'index.html'),
-        'utf8'
-      )
-        .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
-        .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
+          join(context.workspace.assetDirectoryPath, 'index.html'),
+          'utf8'
+        )
+          .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
+          .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
   app.get('*', (_req, res) => {
     res.send(indexFileContents);
   });
