@@ -138,7 +138,9 @@ describe('createTestElection', () => {
 
     const districtId = election.districts[0]?.id;
     for (const contest of election.contests) {
-      expect(contest.districtId).toEqual(districtId);
+      if (contest.type !== 'straight-party') {
+        expect(contest.districtId).toEqual(districtId);
+      }
     }
   });
 

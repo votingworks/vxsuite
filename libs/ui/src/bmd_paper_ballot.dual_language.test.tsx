@@ -304,10 +304,14 @@ describe('English ballot style', () => {
 
   test('all votes filled in', async () => {
     const votes: VotesDict = Object.fromEntries(
-      contests.map((c) => [
-        c.id,
-        c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
-      ])
+      contests
+        .filter((c) => c.type !== 'straight-party')
+        .map((c) => [
+          c.id,
+          c.type === 'yesno'
+            ? generateYesNoVote(c)
+            : generateCandidateVotes(c),
+        ])
     );
 
     const { container } = render(
