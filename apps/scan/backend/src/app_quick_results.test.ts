@@ -65,7 +65,11 @@ test('getQuickResultsReportingUrl returns expected results when system setting f
     );
 
     await apiClient.pauseVoting();
-    expect(await apiClient.getQuickResultsReportingUrl()).toEqual([]);
+    const pausedUrls = await apiClient.getQuickResultsReportingUrl();
+    expect(pausedUrls).toHaveLength(1);
+    expect(pausedUrls[0]).toMatch(
+      /http:\/\/example-results-url\.com\/something\?p=[^&]+&s=[^&]+&c=[^&]+$/
+    );
 
     await apiClient.resumeVoting();
     const urls2 = await apiClient.getQuickResultsReportingUrl();

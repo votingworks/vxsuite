@@ -420,6 +420,53 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   }).toThrow('Invalid timestamp format');
 });
 
+test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, and ballotCount values', () => {
+  const SEP = '\x00'; // Null byte separator used in the QR message format
+  const timestamp = (
+    new Date('2024-01-01T00:00:00Z').getTime() / 1000
+  ).toString();
+
+  function buildV2Payload(overrides: {
+    numPages?: string;
+    pageIndex?: string;
+    ballotCount?: string;
+  }): string {
+    const parts = [
+      'ballotHash',
+      'machineId',
+      '1',
+      timestamp,
+      'sampleTally',
+      '',
+      overrides.numPages ?? '1',
+      overrides.pageIndex ?? '0',
+      overrides.ballotCount ?? '0',
+    ];
+    return constructPrefixedMessage(QR_MESSAGE_FORMAT_V2, parts.join(SEP));
+  }
+
+  // numPages must be >= 1
+  expect(() =>
+    decodeQuickResultsMessage(buildV2Payload({ numPages: '0' }))
+  ).toThrow('Invalid number of pages format');
+  expect(() =>
+    decodeQuickResultsMessage(buildV2Payload({ numPages: '-1' }))
+  ).toThrow('Invalid number of pages format');
+
+  // pageIndex must be >= 0
+  expect(() =>
+    decodeQuickResultsMessage(buildV2Payload({ pageIndex: '-1' }))
+  ).toThrow('Invalid page index format');
+
+  // ballotCount must be a valid non-negative integer
+  expect(() =>
+    decodeQuickResultsMessage(buildV2Payload({ ballotCount: 'abc' }))
+  ).toThrow('Invalid ballot count format');
+  expect(() =>
+    decodeQuickResultsMessage(buildV2Payload({ ballotCount: '-1' }))
+  ).toThrow('Invalid ballot count format');
+});
+
 test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads no precinct id', () => {
   const decoded = decodeQuickResultsMessage(
     constructPrefixedMessage(

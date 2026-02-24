@@ -193,9 +193,7 @@ function decodeBaseFields(parts: string[]): DecodedBaseFieldsV1 {
     isLive: isLiveModeStr === '1',
     signedTimestamp: new Date(timestampNumber * 1000),
     encodedCompressedTally:
-      pollsState === 'polls_open' || pollsState === 'polls_paused'
-        ? ''
-        : primaryMessage,
+      pollsState !== 'polls_closed_final' ? '' : primaryMessage,
     precinctSelection: precinctId
       ? singlePrecinctSelectionFor(safeDecodeFromUrl(precinctId))
       : ALL_PRECINCTS_SELECTION,
