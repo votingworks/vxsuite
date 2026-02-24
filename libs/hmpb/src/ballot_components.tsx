@@ -57,7 +57,14 @@ export const TIMING_MARK_DIMENSIONS: InchDimensions = {
   height: 0.0625,
 };
 
-const StyledTimingMark = styled.div<{ hidden?: boolean }>`
+const StyledTimingMark = styled.div.withConfig({
+  // Styled components forward and apply props as HTML attributes by default, and `hidden` happens
+  // to be a valid HTML attribute that hides an element but doesn't maintain surrounding layout
+  // like CSS `visibility: hidden` does. We filter it out accordingly.
+  shouldForwardProp: (prop) => prop !== 'hidden',
+})<{
+  hidden?: boolean;
+}>`
   width: ${TIMING_MARK_DIMENSIONS.width}in;
   height: ${TIMING_MARK_DIMENSIONS.height}in;
   background-color: black;
