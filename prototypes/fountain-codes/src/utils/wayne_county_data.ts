@@ -1,5 +1,6 @@
 import tallies from '../../data/wayne_county_tallies.json';
 import electionJson from '../../data/electionWayneCountyGeneral2024/electionBase.json';
+import livingstonElection from '../../data/livingstonCountyRFPElection.json';
 
 /**
  * Overhead from the current signed quick results reporting URL format:
@@ -153,6 +154,102 @@ function createElectionJsonPreset(): DataPreset {
     },
   };
 }
+
+interface ElectionContest {
+  readonly type: string;
+  readonly districtId: string;
+  readonly candidates?: readonly { readonly id: string }[];
+  readonly allowWriteIns?: boolean;
+}
+
+interface ElectionBallotStyle {
+  readonly precincts: readonly string[];
+  readonly districts: readonly string[];
+}
+
+interface ElectionDefinition {
+  readonly precincts: readonly { readonly id: string; readonly name: string }[];
+  readonly contests: readonly ElectionContest[];
+  readonly ballotStyles: readonly ElectionBallotStyle[];
+}
+
+function computePerPrecinctTallySize(election: ElectionDefinition): {
+  precinctSizes: { name: string; uint16Count: number }[];
+  totalBytes: number;
+} {
+  const precinctDistricts = new Map<string, readonly string[]>();
+  for (const bs of election.ballotStyles) {
+    for (const pid of bs.precincts) {
+      precinctDistricts.set(pid, bs.districts);
+    }
+  }
+
+  const contestsByDistrict = new Map<string, ElectionContest[]>();
+  for (const c of election.contests) {
+    const existing = contestsByDistrict.get(c.districtId) ?? [];
+    existing.push(c);
+    contestsByDistrict.set(c.districtId, existing);
+  }
+
+  const precinctSizes: { name: string; uint16Count: number }[] = [];
+  let totalBytes = 0;
+
+  for (const precinct of election.precincts) {
+    const districts = precinctDistricts.get(precinct.id) ?? [];
+    let count = 1; // version header
+    for (const d of districts) {
+      for (const c of contestsByDistrict.get(d) ?? []) {
+        let options: number;
+        if (c.type === 'candidate') {
+          options =
+            (c.candidates?.length ?? 0) + (c.allowWriteIns ? 1 : 0);
+        } else {
+          options = 2; // yes/no
+        }
+        count += 3 + options; // undervotes + overvotes + ballotsCast + options
+      }
+    }
+    precinctSizes.push({ name: precinct.name, uint16Count: count });
+    totalBytes += count * 2;
+  }
+
+  return { precinctSizes, totalBytes };
+}
+
+function createLivingstonPreset(): DataPreset {
+  const election = livingstonElection as unknown as ElectionDefinition;
+  const { precinctSizes, totalBytes } = computePerPrecinctTallySize(election);
+  const precinctCount = precinctSizes.length;
+  const tallyBytes = totalBytes;
+  const payloadBytes = tallyBytes + SIGNING_OVERHEAD_BYTES;
+
+  return {
+    id: 'livingston-per-precinct',
+    label: 'Livingston County (per precinct)',
+    description: `Livingston County (per precinct) — ${precinctCount} precincts, ${formatSize(payloadBytes)}`,
+    precinctCount,
+    tallyBytes,
+    buildData() {
+      // Build a buffer with simulated per-precinct tally data at the correct
+      // size derived from the election definition, plus signing overhead.
+      const buffer = new Uint8Array(payloadBytes);
+      const view = new DataView(buffer.buffer);
+      let offset = 0;
+
+      for (const { uint16Count } of precinctSizes) {
+        for (let i = 0; i < uint16Count; i++) {
+          // Fill with small nonzero values so it looks like plausible tally data
+          view.setUint16(offset, i === 0 ? 1 : (i * 7) % 500, true);
+          offset += 2;
+        }
+      }
+      // Remaining SIGNING_OVERHEAD_BYTES are left as zeros
+      return buffer;
+    },
+  };
+}
+
+export const LIVINGSTON_PRESETS: DataPreset[] = [createLivingstonPreset()];
 
 export const WAYNE_COUNTY_PRESETS: DataPreset[] = [
   createElectionJsonPreset(),

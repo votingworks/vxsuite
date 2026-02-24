@@ -7,6 +7,7 @@ import { EncodingMode, SymbolEncoder } from '../fountain/types';
 import { QrAnimator } from './qr_animator';
 import {
   WAYNE_COUNTY_PRESETS,
+  LIVINGSTON_PRESETS,
   SIGNING_OVERHEAD_BYTES,
 } from '../utils/wayne_county_data';
 
@@ -42,9 +43,10 @@ export function SenderPage(): JSX.Element {
   const [symbolCount, setSymbolCount] = useState(0);
   const [running, setRunning] = useState(false);
 
+  const ALL_PRESETS = [...WAYNE_COUNTY_PRESETS, ...LIVINGSTON_PRESETS];
   const isPreset = config.dataSource !== 'random';
   const activePreset = isPreset
-    ? WAYNE_COUNTY_PRESETS.find((p) => p.id === config.dataSource)
+    ? ALL_PRESETS.find((p) => p.id === config.dataSource)
     : undefined;
 
   const maxBlock = maxBlockSizeForLevel(config.qrLevel);
@@ -62,7 +64,7 @@ export function SenderPage(): JSX.Element {
       data = generateTestData(config.dataSeed, sizeBytes);
       label = `${config.dataSizeKb}KB (${data.length}B)`;
     } else {
-      const preset = WAYNE_COUNTY_PRESETS.find(
+      const preset = ALL_PRESETS.find(
         (p) => p.id === config.dataSource
       );
       if (!preset) return;
@@ -178,6 +180,13 @@ export function SenderPage(): JSX.Element {
             <option value="random">Random Data</option>
             <optgroup label="Wayne County MI">
               {WAYNE_COUNTY_PRESETS.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.description}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Livingston County MI">
+              {LIVINGSTON_PRESETS.map((preset) => (
                 <option key={preset.id} value={preset.id}>
                   {preset.description}
                 </option>
