@@ -646,6 +646,8 @@ describe('ERR file import', () => {
       ...manualResultsIdentifier,
       filepath,
     });
-    expect(result.err()?.type).toEqual('conversion-failed');
+    // The fixture uses an unsupported contest @type which fails at the
+    // schema parsing stage rather than the conversion stage.
+    expect(result.err()?.type).toEqual('parsing-failed');
   });
 });

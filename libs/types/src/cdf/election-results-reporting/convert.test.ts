@@ -402,7 +402,7 @@ describe('getManualResultsFromErrElectionResults', () => {
       err(
         expect.objectContaining({
           message:
-            'Unsupported Election Results Reporting contest type ElectionResults.PartyContest',
+            'Unsupported Election Results Reporting contest type ElectionResults.OrderedContest',
         })
       )
     );

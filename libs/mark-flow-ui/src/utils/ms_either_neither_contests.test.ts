@@ -4,6 +4,7 @@ import {
   readElectionGeneral,
   readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
+import { DistrictContest } from '@votingworks/types';
 import {
   getContestDistrictName,
   mergeMsEitherNeitherContests,
@@ -59,10 +60,11 @@ test('getContestDistrictName returns the district name for a merged contest', ()
     mergedContests,
     (c) => c.id === '750000015-750000016-either-neither'
   );
+  assert(mergedContest.type === 'ms-either-neither');
   expect(getContestDistrictName(election, mergedContest)).toEqual(
     'State Of Mississippi'
   );
-  expect(getContestDistrictName(election, election.contests[0])).toEqual(
-    'United States'
-  );
+  expect(
+    getContestDistrictName(election, election.contests[0] as DistrictContest)
+  ).toEqual('United States');
 });

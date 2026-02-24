@@ -140,5 +140,5 @@ test('When CVRs need adjudication, shows a table of contests', async () => {
   }
 
   userEvent.click(adjudicateButtons[0]);
-  expect(history.location.pathname).toEqual('/adjudication/zoo-council-mammal');
+  expect(history.location.pathname).toEqual('/adjudication/contests/zoo-council-mammal');
 });
