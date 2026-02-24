@@ -139,7 +139,10 @@ const StyledSvgIcon = styled.svg`
   width: 1em;
 `;
 
-function iconColor(theme: UiTheme, color?: IconColor) {
+export function iconColor(
+  theme: UiTheme,
+  color?: IconColor
+): string | undefined {
   if (!color) {
     return undefined;
   }

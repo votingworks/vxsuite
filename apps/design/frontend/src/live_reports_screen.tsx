@@ -24,6 +24,9 @@ import {
   TestModeCallout,
   TestModeBanner,
   useQueryChangeListener,
+  RouterTabBar,
+  iconColor,
+  IconColor,
 } from '@votingworks/ui';
 import { useParams, Switch, Route } from 'react-router-dom';
 import React, { useState } from 'react';
@@ -50,38 +53,31 @@ import {
   getSystemSettings,
 } from './api';
 import { useTitle } from './hooks/use_title';
-import { Row } from './layout';
+import { Row, Column } from './layout';
 import { ALL_PRECINCTS_REPORT_KEY, useSound } from './utils';
 
 const PollsStatusLabel = styled.span`
   font-size: 1rem;
 `;
 
-function getPollsStatusText(
+function getScannerStatusText(
   pollsOpenCount: number,
+  pollsPausedCount: number,
   pollsClosedCount: number
 ): JSX.Element | string {
   const totalCount = pollsOpenCount + pollsClosedCount;
 
   if (totalCount === 0) {
-    return (
-      <span>
-        <Icons.Warning color="warning" /> No reports sent
-      </span>
-    );
+    return <span>No reports sent</span>;
   }
   if (pollsClosedCount === 0) {
-    return (
-      <span>
-        <Icons.Circle color="success" /> {pollsOpenCount} open
-      </span>
-    );
+    return <span>{pollsOpenCount} open</span>;
   }
   const icon =
     pollsClosedCount === totalCount ? (
       <Icons.Done color="primary" />
     ) : (
-      <Icons.CircleDot color="primary" />
+      <Icons.Paused color="neutral" />
     );
   return (
     <span>
@@ -101,6 +97,58 @@ function getErrorMessage(error: GetExportedElectionError): string {
   }
 }
 
+const ActivityPanel = styled(Card)`
+  > div {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  border: ${(p) =>
+    `${p.theme.sizes.bordersRem.thin}rem solid ${p.theme.colors.outline}`};
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
+const SummaryCard = styled(Card)`
+  overflow: hidden;
+  > div {
+    padding: 0;
+  }
+`;
+
+const StatusTable = styled(Table)`
+  td {
+    padding: 0.5rem;
+  }
+`;
+
+const ActivityHeader = styled.div`
+  // color: ${(p) => p.theme.colors.onInverse};
+  background-color: ${(p) => p.theme.colors.containerLow};
+  top: 0;
+  padding: 0.75rem 0.5rem 0.25rem 0.75rem;
+  border-bottom: ${(p) =>
+    `${p.theme.sizes.bordersRem.thin}rem solid ${p.theme.colors.outline}`};
+`;
+
+const ActivityList = styled.div`
+  overflow-y: auto;
+`;
+
+const ActivityItem = styled.div`
+  // background-color: ${(p) => p.theme.colors.containerLow};
+  > :first-child {
+    font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  }
+  > :not(:first-child) {
+    color: ${(p) => p.theme.colors.onBackgroundMuted};
+  }
+  padding: 0.75rem;
+  border-bottom: ${(p) =>
+    `${p.theme.sizes.bordersRem.hairline}rem solid ${p.theme.colors.outline}`};
+`;
+
 function getLastUpdateInformation(
   reports: QuickReportedPollStatus[]
 ): JSX.Element {
@@ -118,6 +166,42 @@ function getLastUpdateInformation(
         {format.localeShortDateAndTime(lastPollsUpdate.signedTimestamp)}
       </Caption>
     </div>
+  );
+}
+
+const BarContainer = styled.div`
+  background-color: ${(p) => p.theme.colors.containerLow};
+  border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.outline};
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+  height: 0.75rem;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+`;
+
+const BarFill = styled.div<{ color: IconColor }>`
+  background-color: ${(p) => iconColor(p.theme, p.color)};
+  height: 100%;
+  transition: width 0.3s ease;
+`;
+
+function StackedBarChart({
+  segments,
+}: {
+  segments: Array<{ color: IconColor; value: number }>;
+}): JSX.Element {
+  const totalValue = segments.reduce((sum, segment) => sum + segment.value, 0);
+  return (
+    <BarContainer>
+      {segments.map((segment, index) => (
+        <BarFill
+          key={index}
+          color={segment.color}
+          style={{ width: `${(segment.value / totalValue) * 100}%` }}
+        />
+      ))}
+    </BarContainer>
   );
 }
 
@@ -200,7 +284,7 @@ function LiveReportsSummaryScreen({
         ).length > 0;
       setPrecinctsToAnimate(changedPrecincts);
       if (changedPrecincts.length > 0 && hasNewData) {
-        playSound();
+        // playSound();
       }
     },
   });
@@ -266,7 +350,7 @@ function LiveReportsSummaryScreen({
   const allEntries = Object.values(pollsStatusData.reportsByPrecinct).flat();
 
   return (
-    <div>
+    <Column style={{ height: '100%' }}>
       <Header>
         <Row style={{ alignItems: 'center', gap: '1rem' }}>
           <H1 style={{ paddingRight: '1rem', display: 'inline' }}>
@@ -278,66 +362,106 @@ function LiveReportsSummaryScreen({
         </Row>
       </Header>
       <MainContent>
-        {allEntries.length > 0 && (
-          <div
-            style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
-          >
-            <Card color="neutral">
-              <div
+        <Column style={{ gap: '1rem', height: '100%' }}>
+          <RouterTabBar
+            tabs={[
+              {
+                title: 'All Voting Groups',
+                path: routes.election(electionId).reports.root.path,
+              },
+              { title: 'Early Voting', path: '' },
+              { title: 'Election Day', path: '' },
+              { title: 'Absentee', path: '' },
+            ]}
+          />
+          {allEntries.length > 0 && (
+            <Row style={{ minHeight: 0, gap: '1rem' }}>
+              <Column
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  gap: '1rem',
+                  overflow: 'hidden',
+                  height: '100%',
+                  flex: 2,
                 }}
               >
-                <div>
-                  <H3>Precinct Status</H3>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(4, 1fr)',
-                      flex: 1,
-                      gap: '2rem',
-                    }}
-                  >
-                    <LabelledText
-                      style={{ marginTop: '-.25rem' }}
-                      labelPosition="bottom"
-                      label={
-                        <PollsStatusLabel>No reports sent</PollsStatusLabel>
-                      }
+                <SummaryCard>
+                  <ActivityHeader>
+                    <H3>Polling Place Status</H3>
+                  </ActivityHeader>
+                  <Column style={{ padding: '1rem', gap: '1rem' }}>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, 1fr)',
+                        flex: 1,
+                        gap: '2rem',
+                      }}
                     >
-                      <H1 data-testid="no-reports-sent-count">
-                        <Icons.Warning color="warning" />{' '}
-                        {
-                          Object.values(
-                            pollsStatusData.reportsByPrecinct
-                          ).filter((entries) => entries.length === 0).length
+                      <LabelledText
+                        labelPosition="bottom"
+                        label={
+                          <PollsStatusLabel>No reports sent</PollsStatusLabel>
                         }
-                      </H1>
-                    </LabelledText>
-                    <LabelledText
-                      style={{ marginTop: '-.25rem' }}
-                      labelPosition="bottom"
-                      label={<PollsStatusLabel>Polls open</PollsStatusLabel>}
-                    >
-                      <H1 data-testid="polls-open-count">
-                        <Icons.Circle color="success" />{' '}
-                        {
-                          Object.values(
-                            pollsStatusData.reportsByPrecinct
-                          ).filter(
-                            (entries) =>
-                              entries.length > 0 &&
-                              entries.every(
-                                (entry) => entry.pollsState === 'polls_open'
-                              )
-                          ).length
+                      >
+                        <H1
+                          data-testid="no-reports-sent-count"
+                          style={{ marginBottom: '0.25rem' }}
+                        >
+                          <Icons.Warning color="warning" />{' '}
+                          {
+                            Object.values(
+                              pollsStatusData.reportsByPrecinct
+                            ).filter((entries) => entries.length === 0).length
+                          }
+                        </H1>
+                      </LabelledText>
+                      <LabelledText
+                        labelPosition="bottom"
+                        label={<PollsStatusLabel>Polls open</PollsStatusLabel>}
+                      >
+                        <H1
+                          data-testid="polls-open-count"
+                          style={{ marginBottom: '0.25rem' }}
+                        >
+                          <Icons.Circle color="success" />{' '}
+                          {
+                            Object.values(
+                              pollsStatusData.reportsByPrecinct
+                            ).filter(
+                              (entries) =>
+                                entries.length > 0 &&
+                                entries.every(
+                                  (entry) => entry.pollsState === 'polls_open'
+                                )
+                            ).length
+                          }
+                        </H1>
+                      </LabelledText>
+                      <LabelledText
+                        labelPosition="bottom"
+                        label={
+                          <PollsStatusLabel>Polls paused</PollsStatusLabel>
                         }
-                      </H1>
-                    </LabelledText>
-                    <LabelledText
-                      style={{ marginTop: '-.25rem' }}
+                      >
+                        <H1
+                          data-testid="polls-paused-count"
+                          style={{ marginBottom: '0.25rem' }}
+                        >
+                          <Icons.Paused color="neutral" /> 2
+                          {/* {
+                              Object.values(
+                                pollsStatusData.reportsByPrecinct
+                              ).filter(
+                                (entries) =>
+                                  entries.length > 0 &&
+                                  entries.every(
+                                    (entry) => entry.pollsState === 'polls_open'
+                                  )
+                              ).length
+                            } */}
+                        </H1>
+                      </LabelledText>
+                      {/* <LabelledText
                       labelPosition="bottom"
                       label={<PollsStatusLabel>Polls closing</PollsStatusLabel>}
                     >
@@ -359,112 +483,147 @@ function LiveReportsSummaryScreen({
                           ).length
                         }
                       </H1>
-                    </LabelledText>
-                    <LabelledText
-                      style={{ marginTop: '-.25rem' }}
-                      labelPosition="bottom"
-                      label={<PollsStatusLabel>Polls closed</PollsStatusLabel>}
-                    >
-                      <H1 data-testid="polls-closed-count">
-                        <Icons.Done color="primary" />{' '}
-                        {
-                          Object.values(
-                            pollsStatusData.reportsByPrecinct
-                          ).filter(
-                            (entries) =>
-                              entries.length > 0 &&
-                              entries.every(
-                                (entry) =>
-                                  entry.pollsState === 'polls_closed_final'
-                              )
-                          ).length
+                    </LabelledText> */}
+                      <LabelledText
+                        labelPosition="bottom"
+                        label={
+                          <PollsStatusLabel>Polls closed</PollsStatusLabel>
                         }
-                      </H1>
-                    </LabelledText>
-                  </div>
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem',
-                  }}
-                >
-                  <LinkButton
-                    variant="primary"
-                    disabled={
-                      allEntries.filter(
-                        (entry) => entry.pollsState === 'polls_closed_final'
-                      ).length === 0
-                    }
-                    to={`${
-                      routes.election(electionId).reports.allPrecinctResults
-                        .path
-                    }`}
-                  >
-                    View Full Election Tally Report
-                  </LinkButton>
-                  <Button
+                      >
+                        <H1
+                          data-testid="polls-closed-count"
+                          style={{ marginBottom: '0.25rem' }}
+                        >
+                          <Icons.Done color="primary" />{' '}
+                          {
+                            Object.values(
+                              pollsStatusData.reportsByPrecinct
+                            ).filter(
+                              (entries) =>
+                                entries.length > 0 &&
+                                entries.every(
+                                  (entry) =>
+                                    entry.pollsState === 'polls_closed_final'
+                                )
+                            ).length
+                          }
+                        </H1>
+                      </LabelledText>
+                    </div>
+                    <StackedBarChart
+                      segments={[
+                        {
+                          color: 'warning',
+                          value: 1,
+                        },
+                        {
+                          color: 'success',
+                          value: 1,
+                        },
+                        {
+                          color: 'neutral',
+                          value: 2,
+                        },
+                        {
+                          color: 'primary',
+                          value: 2,
+                        },
+                      ]}
+                    />
+                    {/* <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem',
+                      }}
+                    >
+                      <Button
                     color="danger"
                     icon="Delete"
                     onPress={() => setIsDeleteDataModalOpen(true)}
                   >
                     Delete All Reports
-                  </Button>
-                </div>
-              </div>
-            </Card>
-            <Table>
-              <thead>
-                <tr>
-                  <TH style={{ minWidth: '200px' }}>Precinct</TH>
-                  <TH style={{ minWidth: '180px' }}>Scanner Status</TH>
-                  <TH style={{ minWidth: '250px' }}>Last Report Sent</TH>
-                  <TH style={{ minWidth: '200px' }} />
-                </tr>
-              </thead>
-              <tbody>
-                {precinctsWithNonSpecified.map((precinct) => {
-                  // Only show the "Precinct Not Specified" row if there is data for it
-                  const reportsForPrecinct =
-                    pollsStatusData.reportsByPrecinct[precinct.id] || [];
+                  </Button> 
+                    </div> */}
+                  </Column>
+                </SummaryCard>
+                <div style={{ flex: 2, height: '100%', overflowY: 'auto' }}>
+                  <StatusTable>
+                    <thead>
+                      <tr>
+                        <TH style={{ minWidth: '200px' }}>Polling Place</TH>
+                        <TH style={{ minWidth: '180px' }}>Status</TH>
+                        <TH style={{ minWidth: '180px' }}>Scanners</TH>
+                        {/* <TH style={{ minWidth: '250px' }}>Last Report Sent</TH> */}
+                        {/* <TH style={{ minWidth: '200px' }} /> */}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <TD>Polling Place 1</TD>
+                        <TD>
+                          <Icons.Warning color="warning" /> No reports sent
+                        </TD>
+                        <TD />
+                      </tr>
+                      <tr>
+                        <TD>Polling Place 2</TD>
+                        <TD>
+                          <Icons.Circle color="success" /> Polls open
+                        </TD>
+                        <TD>2 open</TD>
+                      </tr>
+                      {/* {precinctsWithNonSpecified.map((precinct) => {
+                        // Only show the "Precinct Not Specified" row if there is data for it
+                        const reportsForPrecinct =
+                          pollsStatusData.reportsByPrecinct[precinct.id] || [];
 
-                  if (
-                    precinct.id === ALL_PRECINCTS_REPORT_KEY &&
-                    reportsForPrecinct.length === 0
-                  ) {
-                    return null;
-                  }
+                        if (
+                          precinct.id === ALL_PRECINCTS_REPORT_KEY &&
+                          reportsForPrecinct.length === 0
+                        ) {
+                          return null;
+                        }
 
-                  const pollsOpenCount = reportsForPrecinct.filter(
-                    (entry) => entry.pollsState === 'polls_open'
-                  ).length;
-                  const pollsClosedCount = reportsForPrecinct.filter(
-                    (entry) => entry.pollsState === 'polls_closed_final'
-                  ).length;
+                        const pollsOpenCount = reportsForPrecinct.filter(
+                          (entry) => entry.pollsState === 'polls_open'
+                        ).length;
+                        const pollsClosedCount = reportsForPrecinct.filter(
+                          (entry) => entry.pollsState === 'polls_closed_final'
+                        ).length;
 
-                  const isHighlighted = precinctIdsToAnimate.includes(
-                    precinct.id
-                  );
+                        const isHighlighted = precinctIdsToAnimate.includes(
+                          precinct.id
+                        );
 
-                  return (
-                    <tr
-                      key={precinct.id}
-                      data-testid={`precinct-row-${precinct.id}`}
-                      data-highlighted={isHighlighted ? 'true' : 'false'}
-                      style={{
-                        height: '3rem',
-                        transition: 'background-color 0.5s ease-in-out',
-                        backgroundColor: isHighlighted
-                          ? theme.colors.inversePrimary
-                          : 'transparent',
-                      }}
-                    >
-                      <TD>{precinct.name}</TD>
-                      <TD>
-                        {getPollsStatusText(pollsOpenCount, pollsClosedCount)}
-                      </TD>
-                      <TD>
+                        return (
+                          <tr
+                            key={precinct.id}
+                            data-testid={`precinct-row-${precinct.id}`}
+                            data-highlighted={isHighlighted ? 'true' : 'false'}
+                            style={{
+                              height: '3rem',
+                              transition: 'background-color 0.5s ease-in-out',
+                              // backgroundColor: isHighlighted
+                              //   ? theme.colors.inversePrimary
+                              //   : 'transparent',
+                            }}
+                          >
+                            <TD>{precinct.name}</TD>
+                            <TD>
+                              {getSummaryStatusText(
+                                pollsOpenCount,
+                                pollsClosedCount
+                              )}
+                            </TD>
+                            <TD>
+                              {getScannerStatusText(
+                                pollsOpenCount,
+                                pollsPausedCount,
+                                pollsClosedCount
+                              )}
+                            </TD>
+                            {/* <TD>
                         {reportsForPrecinct.length > 0 &&
                           getLastUpdateInformation(reportsForPrecinct)}
                       </TD>
@@ -481,21 +640,68 @@ function LiveReportsSummaryScreen({
                             View Tally Report
                           </LinkButton>
                         )}
-                      </TD>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-            <div style={{ padding: '2rem 0' }} />
-          </div>
-        )}
+                      </TD> 
+                          </tr>
+                        );
+                      })} */}
+                    </tbody>
+                  </StatusTable>
+                </div>
+              </Column>
+              <Column style={{ gap: '1rem', flex: 1 }}>
+                <LinkButton
+                  variant="primary"
+                  disabled={
+                    allEntries.filter(
+                      (entry) => entry.pollsState === 'polls_closed_final'
+                    ).length === 0
+                  }
+                  to={`${
+                    routes.election(electionId).reports.allPrecinctResults.path
+                  }`}
+                >
+                  View Tally Reports
+                </LinkButton>
+                <ActivityPanel style={{ flex: 1 }}>
+                  <ActivityHeader>
+                    <H3>Activity</H3>
+                  </ActivityHeader>
+                  <ActivityList>
+                    {allEntries.map((entry) => (
+                      <ActivityItem
+                        key={entry.machineId + entry.signedTimestamp}
+                      >
+                        <div>
+                          {entry.machineId}: Polls{' '}
+                          {getPollsStateName(entry.pollsState)}
+                        </div>
+                        <div>
+                          {(entry.precinctSelection.kind === 'SinglePrecinct' &&
+                            precinctsWithNonSpecified.find(
+                              (p) =>
+                                entry.precinctSelection.kind ===
+                                  'SinglePrecinct' &&
+                                p.id === entry.precinctSelection.precinctId
+                            )?.name) ||
+                            'Unknown'}
+                        </div>
+                        <Caption>
+                          {format.localeShortDateAndTime(entry.signedTimestamp)}
+                        </Caption>
+                      </ActivityItem>
+                    ))}
+                  </ActivityList>
+                </ActivityPanel>
+              </Column>
+            </Row>
+          )}
 
-        {allEntries.length === 0 && (
-          <Callout color="neutral" icon="Info">
-            No machines have sent reports yet.
-          </Callout>
-        )}
+          {allEntries.length === 0 && (
+            <Callout color="neutral" icon="Info">
+              No machines have sent reports yet.
+            </Callout>
+          )}
+        </Column>
       </MainContent>
       {isDeleteDataModalOpen && (
         <Modal
@@ -541,7 +747,7 @@ function LiveReportsSummaryScreen({
           }
         />
       )}
-    </div>
+    </Column>
   );
 }
 
