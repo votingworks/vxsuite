@@ -49,6 +49,7 @@ const mockPollsOpenReport: ReceivedReportInfo = {
   precinctSelection: ALL_PRECINCTS_SELECTION,
   isPartial: false,
   ballotCount: 42,
+  votingType: 'election_day',
 };
 
 const mockPollsPausedReport: ReceivedReportInfo = {
@@ -61,6 +62,7 @@ const mockPollsPausedReport: ReceivedReportInfo = {
   precinctSelection: ALL_PRECINCTS_SELECTION,
   isPartial: false,
   ballotCount: 108,
+  votingType: 'early_voting',
 };
 
 const mockPollsClosedReportGeneral: ReceivedReportInfo = {
@@ -81,6 +83,7 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
     includeGenericWriteIn: false,
   }).contestResults,
   isPartial: false,
+  votingType: 'election_day',
 };
 
 const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
@@ -94,6 +97,7 @@ const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
   isPartial: true,
   numPages: 4,
   pageIndex: 1,
+  votingType: 'election_day',
 };
 
 const primaryElection = electionPrimaryPrecinctSplitsFixtures.readElection();
@@ -118,6 +122,7 @@ const mockPollsClosedReportPrimary: ReceivedReportInfo = {
     includeGenericWriteIn: false,
   }).contestResults,
   isPartial: false,
+  votingType: 'election_day',
 };
 
 beforeEach(() => {
@@ -320,6 +325,9 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
     expect(screen.getByText(/42/)).toBeInTheDocument();
 
+    // Check voting type
+    expect(screen.getByText('Election Day')).toBeInTheDocument();
+
     // does not show test mode banner
     await waitFor(() => {
       expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
@@ -379,6 +387,9 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     // Check ballot count
     expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
     expect(screen.getByText(/108/)).toBeInTheDocument();
+
+    // Check voting type
+    expect(screen.getByText('Early Voting')).toBeInTheDocument();
 
     // does not show test mode banner
     await waitFor(() => {

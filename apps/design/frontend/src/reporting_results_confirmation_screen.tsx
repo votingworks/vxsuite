@@ -18,6 +18,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   formatBallotHash,
   Election,
+  LiveReportVotingType,
   PrecinctSelection,
   Tabulation,
   ContestId,
@@ -56,12 +57,27 @@ export function ResultsScreen({
   );
 }
 
+function getVotingTypeLabel(votingType: LiveReportVotingType): string {
+  switch (votingType) {
+    case 'election_day':
+      return 'Election Day';
+    case 'early_voting':
+      return 'Early Voting';
+    case 'absentee':
+      return 'Absentee';
+    /* istanbul ignore next - @preserve */
+    default:
+      throwIllegalValue(votingType);
+  }
+}
+
 interface ReportDetailsProps {
   ballotHash: string;
   machineId: string;
   signedTimestamp: Date;
   election: Election;
   precinctSelection: PrecinctSelection;
+  votingType: LiveReportVotingType;
 }
 
 function ReportDetails({
@@ -70,6 +86,7 @@ function ReportDetails({
   signedTimestamp,
   election,
   precinctSelection,
+  votingType,
 }: ReportDetailsProps): JSX.Element {
   const precinctName = getPrecinctSelectionName(
     election.precincts,
@@ -93,6 +110,10 @@ function ReportDetails({
           <LabeledValue
             label="Election ID"
             value={formatBallotHash(ballotHash)}
+          />
+          <LabeledValue
+            label="Voting Type"
+            value={getVotingTypeLabel(votingType)}
           />
         </ColumnSpan>
       </ReportMetadata>
@@ -164,6 +185,7 @@ function PollsOpenReportConfirmation({
   signedTimestamp,
   election,
   precinctSelection,
+  votingType,
   ballotCount,
 }: ReportDetailsProps & {
   isLive: boolean;
@@ -180,6 +202,7 @@ function PollsOpenReportConfirmation({
           signedTimestamp={signedTimestamp}
           election={election}
           precinctSelection={precinctSelection}
+          votingType={votingType}
         />
         {ballotCount !== undefined && (
           <LabeledValue
@@ -199,6 +222,7 @@ function PollsPausedReportConfirmation({
   signedTimestamp,
   election,
   precinctSelection,
+  votingType,
   ballotCount,
 }: ReportDetailsProps & {
   isLive: boolean;
@@ -215,6 +239,7 @@ function PollsPausedReportConfirmation({
           signedTimestamp={signedTimestamp}
           election={election}
           precinctSelection={precinctSelection}
+          votingType={votingType}
         />
         {ballotCount !== undefined && (
           <LabeledValue
@@ -234,6 +259,7 @@ function PollsClosedPartialReportConfirmation({
   signedTimestamp,
   election,
   precinctSelection,
+  votingType,
   numPages,
   pageIndex,
 }: ReportDetailsProps & {
@@ -259,6 +285,7 @@ function PollsClosedPartialReportConfirmation({
           signedTimestamp={signedTimestamp}
           election={election}
           precinctSelection={precinctSelection}
+          votingType={votingType}
         />
       </MainContent>
     </ResultsScreen>
@@ -272,6 +299,7 @@ function PollsClosedReportConfirmation({
   signedTimestamp,
   election,
   precinctSelection,
+  votingType,
   contestResults,
 }: ReportDetailsProps & {
   contestResults: Record<ContestId, Tabulation.ContestResults>;
@@ -298,6 +326,7 @@ function PollsClosedReportConfirmation({
           signedTimestamp={signedTimestamp}
           election={election}
           precinctSelection={precinctSelection}
+          votingType={votingType}
         />
         {contestsByParty.map(({ partyId, contests }) => (
           <div key={partyId || 'nonpartisan'}>
@@ -428,6 +457,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           election={reportData.election}
           precinctSelection={reportData.precinctSelection}
           ballotCount={reportData.ballotCount}
+          votingType={reportData.votingType}
         />
       );
     case 'polls_paused':
@@ -440,6 +470,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           election={reportData.election}
           precinctSelection={reportData.precinctSelection}
           ballotCount={reportData.ballotCount}
+          votingType={reportData.votingType}
         />
       );
     case 'polls_closed_final':
@@ -453,6 +484,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
             election={reportData.election}
             precinctSelection={reportData.precinctSelection}
             contestResults={reportData.contestResults}
+            votingType={reportData.votingType}
           />
         );
       }
@@ -466,6 +498,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           precinctSelection={reportData.precinctSelection}
           numPages={reportData.numPages}
           pageIndex={reportData.pageIndex}
+          votingType={reportData.votingType}
         />
       );
 

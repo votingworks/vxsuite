@@ -630,6 +630,7 @@ export function buildApi({
           precinctSelection,
           results: combinedResults,
           pollsState,
+          votingType: store.getBallotCastingMode(),
         });
       return signedQuickResultsReportingUrls;
     },

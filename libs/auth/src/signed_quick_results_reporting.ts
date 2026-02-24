@@ -3,6 +3,8 @@ import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import {
   ElectionDefinition,
+  LIVE_REPORT_VOTING_TYPES,
+  LiveReportVotingType,
   PollsStateSupportsLiveReporting,
   PrecinctSelection,
   Tabulation,
@@ -46,6 +48,7 @@ interface SignedQuickResultsReportingInput {
   signingMachineId: string;
   precinctSelection: PrecinctSelection;
   pollsState: PollsStateSupportsLiveReporting;
+  votingType: LiveReportVotingType;
   maxQrCodeLength?: number; // Provided as a prop for ease in testing
 }
 
@@ -63,12 +66,12 @@ const CERT_PEM_FOOTER = '-----END CERTIFICATE-----';
 const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '\x00';
 
 /**
- * The original message format (8 fields, no ballot count).
+ * The v1 message format (8 fields, no ballot count or voting type).
  */
 export const QR_MESSAGE_FORMAT_V1 = 'qr1';
 
 /**
- * The v2 message format (9 fields, adds ballot count).
+ * The current message format (10 fields: base fields, ballot count, and voting type).
  */
 export const QR_MESSAGE_FORMAT = 'qr2';
 
@@ -102,6 +105,7 @@ export function encodeQuickResultsMessage(components: {
   numPages: number;
   pageIndex: number;
   ballotCount: number;
+  votingType: LiveReportVotingType;
 }): string {
   const messagePayloadParts = [
     safeEncodeForUrl(components.ballotHash),
@@ -115,6 +119,7 @@ export function encodeQuickResultsMessage(components: {
     components.numPages.toString(),
     components.pageIndex.toString(),
     components.ballotCount.toString(),
+    LIVE_REPORT_VOTING_TYPES.indexOf(components.votingType).toString(),
   ];
 
   return messagePayloadParts.join(
@@ -134,8 +139,9 @@ interface DecodedBaseFieldsV1 {
   pageIndex: number;
 }
 
-interface DecodedBaseFieldsV2 extends DecodedBaseFieldsV1 {
+interface DecodedFields extends DecodedBaseFieldsV1 {
   ballotCount?: number;
+  votingType: LiveReportVotingType;
 }
 
 function parseRequiredInt(value: string, fieldName: string): number {
@@ -203,21 +209,25 @@ function decodeBaseFields(parts: string[]): DecodedBaseFieldsV1 {
   };
 }
 
-function decodeV1Message(messagePayload: string): DecodedBaseFieldsV2 {
+function decodeV1Message(messagePayload: string): DecodedFields {
   const parts = messagePayload.split(
     SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
   );
   if (parts.length !== 8) {
     throw new Error('Invalid message payload format');
   }
-  return { ...decodeBaseFields(parts), ballotCount: undefined };
+  return {
+    ...decodeBaseFields(parts),
+    ballotCount: undefined,
+    votingType: 'election_day',
+  };
 }
 
-function decodeV2Message(messagePayload: string): DecodedBaseFieldsV2 {
+function decodeV2Message(messagePayload: string): DecodedFields {
   const parts = messagePayload.split(
     SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
   );
-  if (parts.length !== 9) {
+  if (parts.length !== 10) {
     throw new Error('Invalid message payload format');
   }
 
@@ -230,16 +240,22 @@ function decodeV2Message(messagePayload: string): DecodedBaseFieldsV2 {
     throw new Error('Invalid ballot count format');
   }
 
-  return { ...base, ballotCount };
+  const votingTypeDigitStr = parts[9];
+  assert(votingTypeDigitStr !== undefined);
+  const votingTypeDigit = parseRequiredInt(votingTypeDigitStr, 'voting type');
+  const votingType = LIVE_REPORT_VOTING_TYPES[votingTypeDigit];
+  if (!votingType) {
+    throw new Error('Invalid voting type format');
+  }
+
+  return { ...base, ballotCount, votingType };
 }
 
 /**
  * Decodes a message payload string back into its components.
  * Exported for testing purposes.
  */
-export function decodeQuickResultsMessage(
-  payload: string
-): DecodedBaseFieldsV2 {
+export function decodeQuickResultsMessage(payload: string): DecodedFields {
   const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
 
   switch (messageType) {
@@ -302,6 +318,7 @@ export async function generateSignedQuickResultsReportingUrl(
     signingMachineId,
     precinctSelection,
     pollsState,
+    votingType,
     maxQrCodeLength = MAXIMUM_BYTES_IN_MEDIUM_QR_CODE,
   }: SignedQuickResultsReportingInput,
   configOverride?: SignedQuickResultsReportingConfig
@@ -336,6 +353,7 @@ export async function generateSignedQuickResultsReportingUrl(
             numPages: numPagesNeeded,
             pageIndex: encodedUrls.length,
             ballotCount: getBallotCount(results.cardCounts),
+            votingType,
           });
           const message = constructPrefixedMessage(
             QR_MESSAGE_FORMAT,
@@ -373,6 +391,7 @@ export async function generateSignedQuickResultsReportingUrl(
         numPages: 1,
         pageIndex: 0,
         ballotCount: getBallotCount(results.cardCounts),
+        votingType,
       });
       const message = constructPrefixedMessage(
         QR_MESSAGE_FORMAT,

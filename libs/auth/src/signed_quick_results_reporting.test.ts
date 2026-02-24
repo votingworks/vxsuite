@@ -11,8 +11,8 @@ import {
   authenticateSignedQuickResultsReportingUrl,
   decodeQuickResultsMessage,
   encodeQuickResultsMessage,
-  QR_MESSAGE_FORMAT_V1,
   QR_MESSAGE_FORMAT,
+  QR_MESSAGE_FORMAT_V1,
 } from './signed_quick_results_reporting';
 import { constructPrefixedMessage } from './signatures';
 
@@ -69,6 +69,7 @@ test.each<{ isLiveMode: boolean }>([
           signingMachineId: DEV_MACHINE_ID,
           precinctSelection: { kind: 'AllPrecincts' },
           pollsState: 'polls_closed_final',
+          votingType: 'election_day',
         },
         vxScanTestConfig
       );
@@ -101,6 +102,7 @@ test.each<{ isLiveMode: boolean }>([
           signingMachineId: DEV_MACHINE_ID,
           precinctSelection: { kind: 'AllPrecincts' },
           pollsState: 'polls_closed_final',
+          votingType: 'election_day',
           maxQrCodeLength: 1000, // Force multi-part by setting a small max length
         },
         vxScanTestConfig
@@ -140,6 +142,7 @@ test('If it is impossible to fit the signed quick results reporting URL within t
         signingMachineId: DEV_MACHINE_ID,
         precinctSelection: { kind: 'AllPrecincts' },
         pollsState: 'polls_closed_final',
+        votingType: 'election_day',
         maxQrCodeLength: 10, // impossible length
       },
       vxScanTestConfig
@@ -161,6 +164,7 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
         signingMachineId: DEV_MACHINE_ID,
         precinctSelection: { kind: 'AllPrecincts' },
         pollsState: 'polls_open',
+        votingType: 'election_day',
       },
       vxScanTestConfig
     );
@@ -190,6 +194,7 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
           precinctId: 'mockPrecinctId',
         },
         pollsState: 'polls_open',
+        votingType: 'early_voting',
       },
       vxScanTestConfig
     );
@@ -217,6 +222,7 @@ test('authenticateSignedQuickResultsReportingUrl - success case with real certif
       signingMachineId: DEV_MACHINE_ID,
       precinctSelection: { kind: 'AllPrecincts' },
       pollsState: 'polls_closed_final',
+      votingType: 'election_day',
     },
     vxScanTestConfig
   );
@@ -254,6 +260,7 @@ test('authenticateSignedQuickResultsReportingUrl - invalid signature', async () 
       signingMachineId: DEV_MACHINE_ID,
       precinctSelection: { kind: 'AllPrecincts' },
       pollsState: 'polls_closed_final',
+      votingType: 'election_day',
     },
     vxScanTestConfig
   );
@@ -307,6 +314,7 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
       signingMachineId: DEV_MACHINE_ID,
       precinctSelection: { kind: 'AllPrecincts' },
       pollsState: 'polls_closed_final',
+      votingType: 'election_day',
     },
     vxScanTestConfig
   );
@@ -362,6 +370,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     numPages: 88,
     pageIndex: 77,
     ballotCount: 0,
+    votingType: 'election_day',
   });
   expect(() => {
     decodeQuickResultsMessage(
@@ -420,16 +429,17 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   }).toThrow('Invalid timestamp format');
 });
 
-test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, and ballotCount values', () => {
+test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, ballotCount, and votingType values', () => {
   const SEP = '\x00'; // Null byte separator used in the QR message format
   const timestamp = (
     new Date('2024-01-01T00:00:00Z').getTime() / 1000
   ).toString();
 
-  function buildV2Payload(overrides: {
+  function buildPayload(overrides: {
     numPages?: string;
     pageIndex?: string;
     ballotCount?: string;
+    votingType?: string;
   }): string {
     const parts = [
       'ballotHash',
@@ -441,30 +451,42 @@ test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, and ballotC
       overrides.numPages ?? '1',
       overrides.pageIndex ?? '0',
       overrides.ballotCount ?? '0',
+      overrides.votingType ?? '0',
     ];
     return constructPrefixedMessage(QR_MESSAGE_FORMAT, parts.join(SEP));
   }
 
   // numPages must be >= 1
   expect(() =>
-    decodeQuickResultsMessage(buildV2Payload({ numPages: '0' }))
+    decodeQuickResultsMessage(buildPayload({ numPages: '0' }))
   ).toThrow('Invalid number of pages format');
   expect(() =>
-    decodeQuickResultsMessage(buildV2Payload({ numPages: '-1' }))
+    decodeQuickResultsMessage(buildPayload({ numPages: '-1' }))
   ).toThrow('Invalid number of pages format');
 
   // pageIndex must be >= 0
   expect(() =>
-    decodeQuickResultsMessage(buildV2Payload({ pageIndex: '-1' }))
+    decodeQuickResultsMessage(buildPayload({ pageIndex: '-1' }))
   ).toThrow('Invalid page index format');
 
   // ballotCount must be a valid non-negative integer
   expect(() =>
-    decodeQuickResultsMessage(buildV2Payload({ ballotCount: 'abc' }))
+    decodeQuickResultsMessage(buildPayload({ ballotCount: 'abc' }))
   ).toThrow('Invalid ballot count format');
   expect(() =>
-    decodeQuickResultsMessage(buildV2Payload({ ballotCount: '-1' }))
+    decodeQuickResultsMessage(buildPayload({ ballotCount: '-1' }))
   ).toThrow('Invalid ballot count format');
+
+  // votingType must be a valid digit mapping to a known type
+  expect(() =>
+    decodeQuickResultsMessage(buildPayload({ votingType: 'abc' }))
+  ).toThrow('Invalid voting type format');
+  expect(() =>
+    decodeQuickResultsMessage(buildPayload({ votingType: '99' }))
+  ).toThrow('Invalid voting type format');
+  expect(() =>
+    decodeQuickResultsMessage(buildPayload({ votingType: '-1' }))
+  ).toThrow('Invalid voting type format');
 });
 
 test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads no precinct id', () => {
@@ -481,6 +503,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         numPages: 1,
         pageIndex: 0,
         ballotCount: 42,
+        votingType: 'election_day',
       })
     )
   );
@@ -498,6 +521,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         "kind": "AllPrecincts",
       },
       "signedTimestamp": 2024-01-01T00:00:00.000Z,
+      "votingType": "election_day",
     }
   `);
 });
@@ -519,6 +543,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         numPages: 1,
         pageIndex: 0,
         ballotCount: 15,
+        votingType: 'early_voting',
       })
     )
   );
@@ -537,6 +562,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         "precinctId": "mockPrecinctId",
       },
       "signedTimestamp": 2024-01-01T00:00:00.000Z,
+      "votingType": "early_voting",
     }
   `);
 });
@@ -552,6 +578,7 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls paused st
         signingMachineId: DEV_MACHINE_ID,
         precinctSelection: { kind: 'AllPrecincts' },
         pollsState: 'polls_paused',
+        votingType: 'election_day',
       },
       vxScanTestConfig
     );
@@ -581,6 +608,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
     numPages: 1,
     pageIndex: 0,
     ballotCount: 7,
+    votingType: 'election_day',
   });
 
   expect(encoded).toContain('polls_open');
@@ -602,6 +630,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
         "precinctId": "mockPrecinctId",
       },
       "signedTimestamp": 2024-01-01T00:00:00.000Z,
+      "votingType": "election_day",
     }
   `);
 });
@@ -620,6 +649,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
     numPages: 1,
     pageIndex: 0,
     ballotCount: 99,
+    votingType: 'early_voting',
   });
 
   expect(encoded).toContain('polls_paused');
@@ -641,12 +671,13 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
         "precinctId": "mockPrecinctId",
       },
       "signedTimestamp": 2024-01-01T00:00:00.000Z,
+      "votingType": "early_voting",
     }
   `);
 });
 
-test('decodeQuickResultsMessage handles v1 (qr1) messages without ballotCount', () => {
-  // Simulate a qr1 message with 8 fields (no ballotCount) as older VxScan would generate
+test('decodeQuickResultsMessage handles v1 (qr1) messages without ballotCount, defaults votingType to election_day', () => {
+  // Simulate a qr1 message with 8 fields as older VxScan would generate
   const v1MessageParts = [
     encodeURIComponent('mockBallotHash'),
     encodeURIComponent('machineId'),
@@ -677,6 +708,44 @@ test('decodeQuickResultsMessage handles v1 (qr1) messages without ballotCount', 
         "precinctId": "mockPrecinctId",
       },
       "signedTimestamp": 2024-01-01T00:00:00.000Z,
+      "votingType": "election_day",
+    }
+  `);
+});
+
+test('encodeQuickResultsMessage and decodeQuickResultsMessage handle absentee voting type', () => {
+  const decoded = decodeQuickResultsMessage(
+    constructPrefixedMessage(
+      QR_MESSAGE_FORMAT,
+      encodeQuickResultsMessage({
+        ballotHash: 'mockBallotHash',
+        signingMachineId: 'machineId',
+        isLiveMode: true,
+        timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
+        primaryMessage: 'sampleCompressedTally',
+        precinctSelection: { kind: 'AllPrecincts' },
+        numPages: 1,
+        pageIndex: 0,
+        ballotCount: 5,
+        votingType: 'absentee',
+      })
+    )
+  );
+  expect(decoded).toMatchInlineSnapshot(`
+    {
+      "ballotCount": 5,
+      "ballotHash": "mockBallotHash",
+      "encodedCompressedTally": "sampleCompressedTally",
+      "isLive": true,
+      "machineId": "machineId",
+      "numPages": 1,
+      "pageIndex": 0,
+      "pollsState": "polls_closed_final",
+      "precinctSelection": {
+        "kind": "AllPrecincts",
+      },
+      "signedTimestamp": 2024-01-01T00:00:00.000Z,
+      "votingType": "absentee",
     }
   `);
 });

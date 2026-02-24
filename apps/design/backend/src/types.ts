@@ -4,6 +4,7 @@ import {
   ElectionId,
   Election,
   ContestId,
+  LiveReportVotingType,
   PrecinctSelection,
   PollsStateSupportsLiveReporting,
 } from '@votingworks/types';
@@ -113,6 +114,7 @@ export interface ReceivedReportInfoBase {
   signedTimestamp: Date;
   election: Election;
   precinctSelection: PrecinctSelection;
+  votingType: LiveReportVotingType;
 }
 
 export interface ReceivedPollsOpenReportInfo extends ReceivedReportInfoBase {

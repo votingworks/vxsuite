@@ -1145,6 +1145,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           ballotCount,
           numPages,
           pageIndex,
+          votingType,
         } = decodeQuickResultsMessage(payload);
 
         // First get the election ID for this hash
@@ -1238,6 +1239,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               numPages,
               pageIndex,
               isPartial: true,
+              votingType,
             });
           }
           // It should be impossible to have more than numPages partials
@@ -1283,6 +1285,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             precinctSelection,
             election,
             isPartial: false,
+            votingType,
           });
         }
 
@@ -1315,6 +1318,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               precinctSelection,
               election,
               isPartial: false,
+              votingType,
             });
           }
           case 'polls_open':
@@ -1329,6 +1333,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               election,
               isPartial: false,
               ballotCount,
+              votingType,
             });
           }
           /* istanbul ignore next - @preserve */
