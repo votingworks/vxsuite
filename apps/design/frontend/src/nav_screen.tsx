@@ -145,7 +145,7 @@ export function ElectionNavScreen({
               </NavListItem>
             )
           )}
-          {adminElectionNavRoutes(electionInfo, userFeatures).length > 0 && (
+          {/* {adminElectionNavRoutes(electionInfo, userFeatures).length > 0 && (
             <NavDivider />
           )}
           {adminElectionNavRoutes(electionInfo, userFeatures).map(
@@ -156,7 +156,7 @@ export function ElectionNavScreen({
                 </NavLink>
               </NavListItem>
             )
-          )}
+          )} */}
           <NavDivider />
           <NavListItem>
             <LinkButton

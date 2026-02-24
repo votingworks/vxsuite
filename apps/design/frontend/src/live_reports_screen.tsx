@@ -65,23 +65,53 @@ function getScannerStatusText(
   pollsPausedCount: number,
   pollsClosedCount: number
 ): JSX.Element | string {
-  const totalCount = pollsOpenCount + pollsClosedCount;
-
+  const totalCount = pollsOpenCount + pollsPausedCount + pollsClosedCount;
   if (totalCount === 0) {
-    return <span>No reports sent</span>;
+    return '';
   }
-  if (pollsClosedCount === 0) {
-    return <span>{pollsOpenCount} open</span>;
+  const parts = [];
+  if (pollsOpenCount > 0) {
+    parts.push(`${pollsOpenCount} open`);
   }
-  const icon =
-    pollsClosedCount === totalCount ? (
-      <Icons.Done color="primary" />
-    ) : (
-      <Icons.Paused color="neutral" />
+  if (pollsPausedCount > 0) {
+    parts.push(`${pollsPausedCount} paused`);
+  }
+  if (pollsClosedCount > 0) {
+    parts.push(`${pollsClosedCount} closed`);
+  }
+
+  return <span>{parts.join(', ')}</span>;
+}
+
+function getSummaryStatusText(
+  pollsOpenCount: number,
+  pollsPausedCount: number,
+  pollsClosedCount: number
+): JSX.Element {
+  if (pollsOpenCount > 0) {
+    return (
+      <span>
+        <Icons.Circle color="success" /> Polls open
+      </span>
     );
+  }
+  if (pollsPausedCount > 0) {
+    return (
+      <span>
+        <Icons.Paused color="neutral" /> Polls paused
+      </span>
+    );
+  }
+  if (pollsClosedCount > 0) {
+    return (
+      <span>
+        <Icons.Done color="primary" /> Polls closed
+      </span>
+    );
+  }
   return (
     <span>
-      {icon} {pollsClosedCount}/{totalCount} closed
+      <Icons.Warning color="warning" /> No reports sent
     </span>
   );
 }
@@ -196,6 +226,7 @@ function StackedBarChart({
     <BarContainer>
       {segments.map((segment, index) => (
         <BarFill
+          // eslint-disable-next-line react/no-array-index-key
           key={index}
           color={segment.color}
           style={{ width: `${(segment.value / totalValue) * 100}%` }}
@@ -348,6 +379,26 @@ function LiveReportsSummaryScreen({
   assert(pollsStatusData !== null);
 
   const allEntries = Object.values(pollsStatusData.reportsByPrecinct).flat();
+  const summaryCounts = {
+    noReportsSent: Object.values(pollsStatusData.reportsByPrecinct).filter(
+      (entries) => entries.length === 0
+    ).length,
+    pollsOpen: Object.values(pollsStatusData.reportsByPrecinct).filter(
+      (entries) =>
+        entries.length > 0 &&
+        entries.some((entry) => entry.pollsState === 'polls_open')
+    ).length,
+    pollsPaused: Object.values(pollsStatusData.reportsByPrecinct).filter(
+      (entries) =>
+        entries.length > 0 &&
+        entries.every((entry) => entry.pollsState === 'polls_paused')
+    ).length,
+    pollsClosed: Object.values(pollsStatusData.reportsByPrecinct).filter(
+      (entries) =>
+        entries.length > 0 &&
+        entries.every((entry) => entry.pollsState === 'polls_closed_final')
+    ).length,
+  } as const;
 
   return (
     <Column style={{ height: '100%' }}>
@@ -356,9 +407,9 @@ function LiveReportsSummaryScreen({
           <H1 style={{ paddingRight: '1rem', display: 'inline' }}>
             Live Reports
           </H1>
-          {allEntries.length > 0 && !pollsStatusData.isLive && (
+          {/* {allEntries.length > 0 && !pollsStatusData.isLive && (
             <TestModeCallout viewMode="desktop" />
-          )}
+          )} */}
         </Row>
       </Header>
       <MainContent>
@@ -367,10 +418,16 @@ function LiveReportsSummaryScreen({
             tabs={[
               {
                 title: 'All Voting Groups',
+                path: '',
+              },
+              {
+                title: 'Early Voting',
+                path: '',
+              },
+              {
+                title: 'Election Day',
                 path: routes.election(electionId).reports.root.path,
               },
-              { title: 'Early Voting', path: '' },
-              { title: 'Election Day', path: '' },
               { title: 'Absentee', path: '' },
             ]}
           />
@@ -408,11 +465,7 @@ function LiveReportsSummaryScreen({
                           style={{ marginBottom: '0.25rem' }}
                         >
                           <Icons.Warning color="warning" />{' '}
-                          {
-                            Object.values(
-                              pollsStatusData.reportsByPrecinct
-                            ).filter((entries) => entries.length === 0).length
-                          }
+                          {summaryCounts.noReportsSent.toLocaleString()}
                         </H1>
                       </LabelledText>
                       <LabelledText
@@ -424,17 +477,7 @@ function LiveReportsSummaryScreen({
                           style={{ marginBottom: '0.25rem' }}
                         >
                           <Icons.Circle color="success" />{' '}
-                          {
-                            Object.values(
-                              pollsStatusData.reportsByPrecinct
-                            ).filter(
-                              (entries) =>
-                                entries.length > 0 &&
-                                entries.every(
-                                  (entry) => entry.pollsState === 'polls_open'
-                                )
-                            ).length
-                          }
+                          {summaryCounts.pollsOpen.toLocaleString()}
                         </H1>
                       </LabelledText>
                       <LabelledText
@@ -447,43 +490,10 @@ function LiveReportsSummaryScreen({
                           data-testid="polls-paused-count"
                           style={{ marginBottom: '0.25rem' }}
                         >
-                          <Icons.Paused color="neutral" /> 2
-                          {/* {
-                              Object.values(
-                                pollsStatusData.reportsByPrecinct
-                              ).filter(
-                                (entries) =>
-                                  entries.length > 0 &&
-                                  entries.every(
-                                    (entry) => entry.pollsState === 'polls_open'
-                                  )
-                              ).length
-                            } */}
+                          <Icons.Paused color="neutral" />{' '}
+                          {summaryCounts.pollsPaused.toLocaleString()}
                         </H1>
                       </LabelledText>
-                      {/* <LabelledText
-                      labelPosition="bottom"
-                      label={<PollsStatusLabel>Polls closing</PollsStatusLabel>}
-                    >
-                      <H1 data-testid="polls-closing-count">
-                        <Icons.CircleDot color="primary" />{' '}
-                        {
-                          Object.values(
-                            pollsStatusData.reportsByPrecinct
-                          ).filter(
-                            (entries) =>
-                              entries.length > 0 &&
-                              entries.some(
-                                (entry) => entry.pollsState === 'polls_open'
-                              ) &&
-                              entries.some(
-                                (entry) =>
-                                  entry.pollsState === 'polls_closed_final'
-                              )
-                          ).length
-                        }
-                      </H1>
-                    </LabelledText> */}
                       <LabelledText
                         labelPosition="bottom"
                         label={
@@ -495,18 +505,7 @@ function LiveReportsSummaryScreen({
                           style={{ marginBottom: '0.25rem' }}
                         >
                           <Icons.Done color="primary" />{' '}
-                          {
-                            Object.values(
-                              pollsStatusData.reportsByPrecinct
-                            ).filter(
-                              (entries) =>
-                                entries.length > 0 &&
-                                entries.every(
-                                  (entry) =>
-                                    entry.pollsState === 'polls_closed_final'
-                                )
-                            ).length
-                          }
+                          {summaryCounts.pollsClosed.toLocaleString()}
                         </H1>
                       </LabelledText>
                     </div>
@@ -514,19 +513,19 @@ function LiveReportsSummaryScreen({
                       segments={[
                         {
                           color: 'warning',
-                          value: 1,
+                          value: summaryCounts.noReportsSent,
                         },
                         {
                           color: 'success',
-                          value: 1,
+                          value: summaryCounts.pollsOpen,
                         },
                         {
                           color: 'neutral',
-                          value: 2,
+                          value: summaryCounts.pollsPaused,
                         },
                         {
                           color: 'primary',
-                          value: 2,
+                          value: summaryCounts.pollsClosed,
                         },
                       ]}
                     />
@@ -559,21 +558,7 @@ function LiveReportsSummaryScreen({
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <TD>Polling Place 1</TD>
-                        <TD>
-                          <Icons.Warning color="warning" /> No reports sent
-                        </TD>
-                        <TD />
-                      </tr>
-                      <tr>
-                        <TD>Polling Place 2</TD>
-                        <TD>
-                          <Icons.Circle color="success" /> Polls open
-                        </TD>
-                        <TD>2 open</TD>
-                      </tr>
-                      {/* {precinctsWithNonSpecified.map((precinct) => {
+                      {precinctsWithNonSpecified.map((precinct) => {
                         // Only show the "Precinct Not Specified" row if there is data for it
                         const reportsForPrecinct =
                           pollsStatusData.reportsByPrecinct[precinct.id] || [];
@@ -590,6 +575,9 @@ function LiveReportsSummaryScreen({
                         ).length;
                         const pollsClosedCount = reportsForPrecinct.filter(
                           (entry) => entry.pollsState === 'polls_closed_final'
+                        ).length;
+                        const pollsPausedCount = reportsForPrecinct.filter(
+                          (entry) => entry.pollsState === 'polls_paused'
                         ).length;
 
                         const isHighlighted = precinctIdsToAnimate.includes(
@@ -613,6 +601,7 @@ function LiveReportsSummaryScreen({
                             <TD>
                               {getSummaryStatusText(
                                 pollsOpenCount,
+                                pollsPausedCount,
                                 pollsClosedCount
                               )}
                             </TD>
@@ -623,34 +612,22 @@ function LiveReportsSummaryScreen({
                                 pollsClosedCount
                               )}
                             </TD>
-                            {/* <TD>
-                        {reportsForPrecinct.length > 0 &&
-                          getLastUpdateInformation(reportsForPrecinct)}
-                      </TD>
-                      <TD textAlign="right" style={{ paddingRight: '1rem' }}>
-                        {pollsClosedCount > 0 && precinct.id && (
-                          <LinkButton
-                            data-testid={`view-tally-report-${precinct.id}`}
-                            to={`${
-                              routes
-                                .election(electionId)
-                                .reports.byPrecinctResults(precinct.id).path
-                            }`}
-                          >
-                            View Tally Report
-                          </LinkButton>
-                        )}
-                      </TD> 
                           </tr>
                         );
-                      })} */}
+                      })}
                     </tbody>
                   </StatusTable>
                 </div>
               </Column>
               <Column style={{ gap: '1rem', flex: 1 }}>
                 <LinkButton
-                  variant="primary"
+                  variant={
+                    allEntries.filter(
+                      (entry) => entry.pollsState === 'polls_closed_final'
+                    ).length === 0
+                      ? 'neutral'
+                      : 'primary'
+                  }
                   disabled={
                     allEntries.filter(
                       (entry) => entry.pollsState === 'polls_closed_final'

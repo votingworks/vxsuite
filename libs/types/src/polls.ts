@@ -8,6 +8,7 @@ export type PollsState =
 
 export type PollsStateSupportsLiveReporting =
   | 'polls_open'
+  | 'polls_paused'
   | 'polls_closed_final';
 
 export function doesPollsStateSupportLiveReporting(
