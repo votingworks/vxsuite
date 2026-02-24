@@ -58,6 +58,7 @@ test('canonicalizeGroupBy', () => {
   expect(canonicalizeGroupBy({})).toEqual({
     groupByScanner: false,
     groupByBatch: false,
+    groupByBatchDate: false,
     groupByBallotStyle: false,
     groupByPrecinct: false,
     groupByParty: false,
@@ -67,6 +68,7 @@ test('canonicalizeGroupBy', () => {
   const allTrueGroupBy: Tabulation.GroupBy = {
     groupByScanner: true,
     groupByBatch: true,
+    groupByBatchDate: true,
     groupByBallotStyle: true,
     groupByPrecinct: true,
     groupByParty: true,
@@ -87,6 +89,11 @@ test('generateBallotCountReportPdfFilename', () => {
     {
       expectedFilename:
         'unofficial-full-election-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      groupBy: { groupByBatchDate: true },
+      expectedFilename:
+        'unofficial-ballot-count-report-by-batch-date__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {

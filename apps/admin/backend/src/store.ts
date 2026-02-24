@@ -1561,6 +1561,7 @@ export class Store {
 
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
+    const orderByParts: string[] = [];
 
     if (groupBy.groupByBallotStyle) {
       selectParts.push('cvrs.ballot_style_group_id as ballotStyleGroupId');
@@ -1578,8 +1579,11 @@ export class Store {
     }
 
     if (groupBy.groupByBatchDate) {
-      selectParts.push('date(scanner_batches.started_at) as batchDate');
-      groupByParts.push('date(scanner_batches.started_at)');
+      selectParts.push(
+        "date(scanner_batches.started_at, 'localtime') as batchDate"
+      );
+      groupByParts.push("date(scanner_batches.started_at, 'localtime')");
+      orderByParts.push("date(scanner_batches.started_at, 'localtime') asc");
     }
 
     if (groupBy.groupByPrecinct) {
@@ -1614,6 +1618,9 @@ export class Store {
             ${groupByParts.map((line) => `${line},`).join('\n')}
             sheetNumber,
             cardType
+          ${
+            orderByParts.length > 0 ? `order by ${orderByParts.join(', ')}` : ''
+          }
         `,
       ...params
     ) as Iterable<

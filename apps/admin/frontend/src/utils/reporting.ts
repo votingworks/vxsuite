@@ -104,6 +104,7 @@ export function canonicalizeGroupBy(
     groupByScanner: groupBy.groupByScanner ?? false,
     groupByVotingMethod: groupBy.groupByVotingMethod ?? false,
     groupByBatch: groupBy.groupByBatch ?? false,
+    groupByBatchDate: groupBy.groupByBatchDate ?? false,
   };
 }
 
@@ -231,6 +232,10 @@ function generateReportFilenameGroupByPostfix({
 
   if (groupBy.groupByBatch) {
     postfixes.push('batch');
+  }
+
+  if (groupBy.groupByBatchDate) {
+    postfixes.push('batch-date');
   }
 
   return postfixes.join(`${WORD_SEPARATOR}and${WORD_SEPARATOR}`);

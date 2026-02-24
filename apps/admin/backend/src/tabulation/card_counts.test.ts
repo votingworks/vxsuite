@@ -201,21 +201,22 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
     batchId: 'batch-day1-a',
     scannerId: 'scanner-1',
     label: 'Batch batch-day1-a',
-    startedAt: '2024-11-05T08:00:00.000Z',
+    // Tests use Alaska TZ (UTC-9); UTC 18:00 unambiguously avoids date rollover
+    startedAt: '2024-11-05T18:00:00.000Z',
   });
   store.addScannerBatch({
     electionId,
     batchId: 'batch-day1-b',
     scannerId: 'scanner-1',
     label: 'Batch batch-day1-b',
-    startedAt: '2024-11-05T14:30:00.000Z',
+    startedAt: '2024-11-05T18:00:00.000Z',
   });
   store.addScannerBatch({
     electionId,
     batchId: 'batch-day2',
     scannerId: 'scanner-2',
     label: 'Batch batch-day2',
-    startedAt: '2024-11-06T09:00:00.000Z',
+    startedAt: '2024-11-06T18:00:00.000Z',
   });
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
@@ -252,7 +253,19 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
   ];
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
-  // Two batches on 2024-11-05 should be grouped together
+  // Without date grouping, each batch is its own group (3 total)
+  expect(
+    Object.values(
+      tabulateScannedCardCounts({
+        electionId,
+        store,
+        groupBy: { groupByBatch: true },
+      })
+    )
+  ).toHaveLength(3);
+
+  // With date grouping, batch-day1-a (10) and batch-day1-b (15) are merged
+  // into a single group because they share the same date
   const groupedCardCounts = tabulateScannedCardCounts({
     electionId,
     store,
@@ -268,6 +281,11 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
     hmpb: [],
   });
   expect(Object.values(groupedCardCounts)).toHaveLength(2);
+  // Verify chronological sort order (oldest date first)
+  expect(Object.keys(groupedCardCounts)).toEqual([
+    'root&batchDate=2024-11-05',
+    'root&batchDate=2024-11-06',
+  ]);
 });
 
 test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
@@ -287,7 +305,8 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     label: 'Batch batch-1',
-    startedAt: '2024-11-05T08:00:00.000Z',
+    // Tests use Alaska TZ (UTC-9); UTC 18:00 unambiguously avoids date rollover
+    startedAt: '2024-11-05T18:00:00.000Z',
   });
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
