@@ -32,6 +32,9 @@ function compressedTallyUint16Count(tallies: PrecinctContestTally[]): number {
   return count;
 }
 
+// Matches both "Precinct 123" and "CB 45" location identifiers
+const LOCATION_ID = /(?:Precinct \d+[A-Z]?|CB \d+)/;
+
 // ─── PDF text parsing ────────────────────────────────────────────────────────
 
 function isPageHeader(line: string): boolean {
@@ -57,7 +60,7 @@ function preprocessLines(text: string): string[] {
 
     if (
       line &&
-      /Precinct \d+[A-Z]?$/.test(line) &&
+      new RegExp(`${LOCATION_ID.source}$`).test(line) &&
       i + 1 < rawLines.length
     ) {
       const nextLine = rawLines[i + 1]?.trim() || '';
@@ -110,7 +113,7 @@ function parseFile(text: string): {
     if (isPageHeader(line)) continue;
 
     // Detect contest header
-    if (isContestHeader(line) && !/Precinct \d/.test(line)) {
+    if (isContestHeader(line) && !LOCATION_ID.test(line)) {
       currentContestName = line;
       inHeader = true;
       currentHasWriteIns = false;
@@ -121,7 +124,7 @@ function parseFile(text: string): {
       if (/^[12] [12]/.test(line) && line.split(' ').every(x => x === '1' || x === '2')) {
         continue;
       }
-      if (/Precinct \d+[A-Z]?\s+(Total|Early)/.test(line)) {
+      if (new RegExp(`${LOCATION_ID.source}\\s+(Total|Early)`).test(line)) {
         inHeader = false;
       } else {
         if (line === 'Write-ins') currentHasWriteIns = true;
@@ -130,7 +133,7 @@ function parseFile(text: string): {
     }
 
     // Look for Total lines
-    const totalMatch = line.match(/^(.+Precinct \d+[A-Z]?)\s+Total\s+([\d,.%\s]+)$/);
+    const totalMatch = line.match(new RegExp(`^(.+${LOCATION_ID.source})\\s+Total\\s+([\\d,.%\\s]+)$`));
     if (!totalMatch) continue;
 
     const precinctName = totalMatch[1].trim().replace(/,\s*$/, '');
@@ -350,7 +353,7 @@ function main() {
   ];
 
   for (const p of [...precinctSizes].sort((a, b) => a.name.localeCompare(b.name))) {
-    const groupMatch = p.name.match(/^(.+),\s*Precinct/);
+    const groupMatch = p.name.match(/^(.+),\s*(?:Precinct|CB)/);
     const group = groupMatch ? groupMatch[1].trim() : p.name;
     const escapeCsv = (s: string) =>
       s.includes(',') ? `"${s.replace(/"/g, '""')}"` : s;
@@ -361,6 +364,29 @@ function main() {
 
   fs.writeFileSync(csvPath, csvRows.join('\n') + '\n');
   console.log(`\nCSV written to ${csvPath} (${csvRows.length - 1} precincts)`);
+
+  // ─── Write tallies JSON ────────────────────────────────────────────────────
+  const talliesJson: Record<string, number[]> = {};
+  const sortedPrecincts = [...allPrecincts.entries()].sort(([a], [b]) =>
+    a.localeCompare(b)
+  );
+  for (const [precinctName, precinctTallies] of sortedPrecincts) {
+    const values: number[] = [1]; // version header
+    for (const t of precinctTallies) {
+      values.push(t.undervotes, t.overvotes, t.ballotsCast);
+      for (const v of t.candidateVotes) {
+        values.push(v);
+      }
+      if (t.writeIns > 0) {
+        values.push(t.writeIns);
+      }
+    }
+    talliesJson[precinctName] = values;
+  }
+
+  const talliesPath = `${dataDir}wayne_county_tallies.json`;
+  fs.writeFileSync(talliesPath, JSON.stringify(talliesJson));
+  console.log(`Tallies JSON written to ${talliesPath} (${sortedPrecincts.length} precincts)`);
 }
 
 main();

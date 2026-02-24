@@ -67,10 +67,14 @@ export function SenderPage(): JSX.Element {
       );
       if (!preset) return;
       data = preset.buildData();
-      const tallyKb = (preset.tallyBytes / 1024).toFixed(1);
-      const overheadKb = (SIGNING_OVERHEAD_BYTES / 1024).toFixed(1);
       const totalKb = (data.length / 1024).toFixed(1);
-      label = `${preset.label} (${preset.precinctCount} precincts) — ${tallyKb} KB tally + ${overheadKb} KB signing = ${totalKb} KB`;
+      if (preset.precinctCount > 0) {
+        const tallyKb = (preset.tallyBytes / 1024).toFixed(1);
+        const overheadKb = (SIGNING_OVERHEAD_BYTES / 1024).toFixed(1);
+        label = `${preset.label} (${preset.precinctCount} precincts) — ${tallyKb} KB tally + ${overheadKb} KB signing = ${totalKb} KB`;
+      } else {
+        label = `${preset.label} — ${totalKb} KB`;
+      }
     }
 
     const hash = await computeTruncatedHash(data);
@@ -211,7 +215,9 @@ export function SenderPage(): JSX.Element {
                 marginTop: 4,
               }}
             >
-              {activePreset.precinctCount} precincts
+              {activePreset.precinctCount > 0
+                ? `${activePreset.precinctCount} precincts`
+                : activePreset.label}
             </div>
           </label>
         )}

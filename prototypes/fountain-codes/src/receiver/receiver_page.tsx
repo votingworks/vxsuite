@@ -71,6 +71,8 @@ export function ReceiverPage(): JSX.Element {
   const [blocksDecoded, setBlocksDecoded] = useState(0);
   const [detectedMode, setDetectedMode] = useState<EncodingMode | null>(null);
   const [scanMode, setScanMode] = useState<ScanMode>('jsqr');
+  const [receivedData, setReceivedData] = useState<Uint8Array | null>(null);
+  const [showData, setShowData] = useState(false);
 
   const sessionRef = useRef<SessionState | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -138,6 +140,8 @@ export function ReceiverPage(): JSX.Element {
     setLog([]);
     setBlocksDecoded(0);
     setDetectedMode(null);
+    setReceivedData(null);
+    setShowData(false);
   }
 
   const onStatsUpdate = useCallback((stats: ScanStats) => {
@@ -303,6 +307,8 @@ export function ReceiverPage(): JSX.Element {
             currentSession.header.dataLength
           );
         }
+
+        setReceivedData(reassembled);
 
         const expectedHash = toHex(currentSession.header.dataHash);
 
@@ -748,6 +754,46 @@ export function ReceiverPage(): JSX.Element {
               <strong>Received:</strong> {verification.receivedHash}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Received data viewer */}
+      {receivedData && (
+        <div style={{ marginTop: 8 }}>
+          <button
+            onClick={() => setShowData((prev) => !prev)}
+            style={{
+              padding: '6px 16px',
+              fontSize: 13,
+              background: showData ? '#0066cc' : '#eee',
+              color: showData ? '#fff' : '#333',
+              border: 'none',
+              borderRadius: 4,
+              cursor: 'pointer',
+            }}
+          >
+            {showData ? 'Hide' : 'View'} Received Data (
+            {(receivedData.length / 1024).toFixed(1)} KB)
+          </button>
+          {showData && (
+            <pre
+              style={{
+                marginTop: 6,
+                padding: 10,
+                background: '#1a1a2e',
+                color: '#e0e0e0',
+                borderRadius: 4,
+                fontFamily: 'monospace',
+                fontSize: 11,
+                maxHeight: 400,
+                overflowY: 'auto',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all',
+              }}
+            >
+              {new TextDecoder('utf-8', { fatal: false }).decode(receivedData)}
+            </pre>
+          )}
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import tallies from '../../data/wayne_county_tallies.json';
+import electionJson from '../../data/electionWayneCountyGeneral2024/electionBase.json';
 
 /**
  * Overhead from the current signed quick results reporting URL format:
@@ -88,19 +89,26 @@ function createCityPreset(
   };
 }
 
-const DETROIT_AVCB_COUNT = 65;
+function filterCountingBoards(
+  data: TallyData,
+  cityName: string
+): [string, number[]][] {
+  const prefix = `${cityName}, CB `;
+  return Object.entries(data)
+    .filter(([name]) => name.startsWith(prefix))
+    .sort(([a], [b]) => a.localeCompare(b));
+}
 
 function createDetroitAvcbPreset(): DataPreset {
-  const allDetroit = filterPrecincts(tallies as TallyData, 'City of Detroit');
-  const entries = allDetroit.slice(0, DETROIT_AVCB_COUNT);
+  const entries = filterCountingBoards(tallies as TallyData, 'City of Detroit');
   const precinctCount = entries.length;
   const tallyBytes = tallyByteCount(entries);
   const totalBytes = tallyBytes + SIGNING_OVERHEAD_BYTES;
 
   return {
     id: 'detroit-avcbs',
-    label: 'Detroit AVCBs (proxy)',
-    description: `Detroit AVCBs (proxy) — ${precinctCount} precincts, ${formatSize(totalBytes)}`,
+    label: 'Detroit AVCBs',
+    description: `Detroit AVCBs — ${precinctCount} CBs, ${formatSize(totalBytes)}`,
     precinctCount,
     tallyBytes,
     buildData() {
@@ -129,7 +137,25 @@ function createAllPresetsPreset(): DataPreset {
   };
 }
 
+function createElectionJsonPreset(): DataPreset {
+  const jsonString = JSON.stringify(electionJson);
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(jsonString);
+
+  return {
+    id: 'election-json',
+    label: 'Election Definition (JSON)',
+    description: `Election Definition (JSON) — ${formatSize(bytes.length)}`,
+    precinctCount: 0,
+    tallyBytes: bytes.length,
+    buildData() {
+      return bytes;
+    },
+  };
+}
+
 export const WAYNE_COUNTY_PRESETS: DataPreset[] = [
+  createElectionJsonPreset(),
   createCityPreset(
     'grosse-pointe-farms',
     'Grosse Pointe Farms',
