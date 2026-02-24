@@ -59,7 +59,7 @@ export function QrAnimator({
           borderRadius: 8,
         }}
       >
-        <QRCodeSVG value={frameData} level={qrLevel} size={400} />
+        <QRCodeSVG value={frameData} level={qrLevel} size={450} />
       </div>
       <div style={{ marginTop: 4, fontSize: 12, color: '#666' }}>
         {mode === 'round-robin'

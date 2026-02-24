@@ -361,15 +361,63 @@ export function SenderPage(): JSX.Element {
       </div>
 
       {encoder && running && (
-        <div>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: '#ededed',
+            zIndex: 100,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <h4 style={{ margin: '0 0 0.3em 0' }}>
+            Scan the QR code to receive data
+          </h4>
+          <QrAnimator
+            encoder={encoder}
+            mode={config.mode}
+            frameIntervalMs={frameIntervalMs}
+            qrLevel={config.qrLevel}
+            onSymbolGenerated={onSymbolGenerated}
+          />
           <div
             style={{
-              marginBottom: 8,
+              marginTop: 12,
+              display: 'flex',
+              gap: 12,
+              alignItems: 'center',
+            }}
+          >
+            <button
+              onClick={handleStop}
+              style={{
+                padding: '10px 24px',
+                fontSize: 16,
+                background: '#c00',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer',
+              }}
+            >
+              Stop
+            </button>
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 8,
+              left: 8,
+              right: 8,
               padding: 8,
-              background: '#f5f5f5',
+              background: 'rgba(245,245,245,0.95)',
               borderRadius: 4,
               fontFamily: 'monospace',
               fontSize: 12,
+              textAlign: 'center',
             }}
           >
             <strong>Data:</strong> {dataLabel}
@@ -381,14 +429,6 @@ export function SenderPage(): JSX.Element {
               <span> (cycle {Math.floor(symbolCount / encoder.k) + 1})</span>
             )}
           </div>
-
-          <QrAnimator
-            encoder={encoder}
-            mode={config.mode}
-            frameIntervalMs={frameIntervalMs}
-            qrLevel={config.qrLevel}
-            onSymbolGenerated={onSymbolGenerated}
-          />
         </div>
       )}
     </div>
