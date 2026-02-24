@@ -27,6 +27,7 @@ import {
 } from 'node-html-parser';
 import {
   allBaseBallotProps,
+  layOutBallotsAndCreateElectionDefinition,
   layOutMinimalBallotsToCreateElectionDefinition,
   renderBallotTemplate,
 } from './render_ballot';
@@ -124,6 +125,33 @@ test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
       'vxf'
     );
   expect(electionDefinition).toEqual(fixtureElectionDefinition);
+});
+
+test('sample ballots, despite not having timing marks, have the same bubble positions as official and test ballots', async () => {
+  const { election } = vxFamousNamesFixtures.electionDefinition;
+  const ballotStyle = election.ballotStyles[0];
+  const precinctId = ballotStyle.precincts[0];
+
+  const ballotPropsForAllModes: BaseBallotProps[] = BALLOT_MODES.map(
+    (ballotMode) => ({
+      election,
+      ballotStyleId: ballotStyle.id,
+      precinctId,
+      ballotType: BallotType.Precinct,
+      ballotMode,
+    })
+  );
+
+  const rendererPool = await createPlaywrightRendererPool();
+
+  // layOutBallotsAndCreateElectionDefinition throws if any ballot mode produces a different grid
+  // layout for the same ballot style
+  await layOutBallotsAndCreateElectionDefinition(
+    rendererPool,
+    ballotTemplates.VxDefaultBallot,
+    ballotPropsForAllModes,
+    'vxf'
+  );
 });
 
 test('reorder candidates based on rotation from template', async () => {
