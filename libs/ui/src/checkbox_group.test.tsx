@@ -118,6 +118,26 @@ test('allows constraining the value type based on options', () => {
   />;
 });
 
+test('wrap prop is not forwarded to the DOM element', () => {
+  const { container } = render(
+    <CheckboxGroup
+      label="Pick cards:"
+      onChange={vi.fn()}
+      options={[
+        { value: 'hearts-4', label: 'Four of Hearts' },
+        { value: 'clubs-6', label: 'Six of Clubs' },
+      ]}
+      value={[]}
+      wrap
+    />
+  );
+
+  // Verify that `wrap` is consumed by the styled-component and not
+  // forwarded to the DOM, which would produce a React warning.
+  const optionsContainer = container.querySelector('fieldset > div');
+  expect(optionsContainer).not.toHaveAttribute('wrap');
+});
+
 test('allows a label with arbitrary content', () => {
   render(
     <CheckboxGroup

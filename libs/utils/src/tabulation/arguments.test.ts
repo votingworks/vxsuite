@@ -85,6 +85,7 @@ test('groupBySupportsZeroSplits', () => {
   );
   expect(groupBySupportsZeroSplits({ groupByBatch: true })).toEqual(false);
   expect(groupBySupportsZeroSplits({ groupByScanner: true })).toEqual(false);
+  expect(groupBySupportsZeroSplits({ groupByBatchDate: true })).toEqual(false);
   expect(
     groupBySupportsZeroSplits({ groupByBatch: true, groupByBallotStyle: true })
   ).toEqual(false);
@@ -98,6 +99,7 @@ test('isGroupByEmpty', () => {
   expect(isGroupByEmpty({ groupByParty: true })).toEqual(false);
   expect(isGroupByEmpty({ groupByScanner: true })).toEqual(false);
   expect(isGroupByEmpty({ groupByVotingMethod: true })).toEqual(false);
+  expect(isGroupByEmpty({ groupByBatchDate: true })).toEqual(false);
 });
 
 test('isFilterEmpty', () => {

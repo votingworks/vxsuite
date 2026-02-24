@@ -30,10 +30,10 @@ const LabelContainer = styled.legend`
 
 const OptionsContainer = styled.div<{
   direction: 'row' | 'column';
-  wrap?: boolean;
+  flexWrap: 'wrap' | 'nowrap';
 }>`
   display: flex;
-  flex-flow: ${(p) => p.direction} ${(p) => (p.wrap ? 'wrap' : 'nowrap')};
+  flex-flow: ${(p) => p.direction} ${(p) => p.flexWrap};
   gap: 0.25rem;
 `;
 
@@ -57,7 +57,10 @@ export function CheckboxGroup<T extends string>({
       aria-label={ariaLabel ?? (typeof label === 'string' ? label : undefined)}
     >
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
-      <OptionsContainer direction={direction} wrap={wrap}>
+      <OptionsContainer
+        direction={direction}
+        flexWrap={wrap ? 'wrap' : 'nowrap'}
+      >
         {options.length === 0
           ? noOptionsMessage
           : options.map((option) => {
