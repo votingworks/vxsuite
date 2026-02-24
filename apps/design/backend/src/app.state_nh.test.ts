@@ -227,7 +227,10 @@ test.each<{
     const ballotStyles = await apiClient.listBallotStyles({ electionId });
 
     const contest = assertDefined(
-      contests.find((c) => c.title === 'Long Ballot Measure')
+      contests.find(
+        (c): c is YesNoContest =>
+          c.type === 'yesno' && c.title === 'Long Ballot Measure'
+      )
     );
     const precinctId = assertDefined(
       precincts.find(

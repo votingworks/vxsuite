@@ -219,17 +219,20 @@ test('ballot measure contests with additional options are transformed into candi
   ]);
 });
 
-const optionEncodingTestProps: Record<BallotTemplateId, BaseBallotProps> = {
+// TODO(straight-party-poc): Add MiBallot fixture once MI election fixtures are set up
+const optionEncodingTestProps: Partial<Record<BallotTemplateId, BaseBallotProps>> = {
   VxDefaultBallot: vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
   NhBallot: nhGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
   MsBallot: msGeneralElectionFixtures.allBallotProps[0],
 };
-const optionEncodingTestCases = Object.entries(optionEncodingTestProps).map(
-  ([templateName, ballotProps]) => ({
+const optionEncodingTestCases = Object.entries(optionEncodingTestProps)
+  .filter(
+    (entry): entry is [string, BaseBallotProps] => entry[1] !== undefined
+  )
+  .map(([templateName, ballotProps]) => ({
     templateName: templateName as BallotTemplateId,
     ballotProps,
-  })
-);
+  }));
 test.each(optionEncodingTestCases)(
   'contest options are encoded correctly - $templateName',
   async ({ templateName, ballotProps }) => {

@@ -79,7 +79,7 @@ export const electionStrings = {
     </UiString>
   ),
 
-  [Key.CONTEST_TITLE]: (contest: ContestLike) => (
+  [Key.CONTEST_TITLE]: (contest: Pick<ContestLike, 'id' | 'title'>) => (
     <UiString uiStringKey={Key.CONTEST_TITLE} uiStringSubKey={contest.id}>
       {contest.title}
     </UiString>

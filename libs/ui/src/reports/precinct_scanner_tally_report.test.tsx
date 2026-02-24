@@ -135,7 +135,9 @@ test('renders as expected for all precincts in a primary election', () => {
       isLiveMode
       scannedElectionResults={primaryElectionResults}
       contests={electionTwoPartyPrimary.contests.filter(
-        (c) => c.type === 'yesno' || c.partyId === '0'
+        (c) =>
+          c.type === 'yesno' ||
+          (c.type === 'candidate' && c.partyId === '0')
       )}
       partyId={'0' as PartyId}
     />

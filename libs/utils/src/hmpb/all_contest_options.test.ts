@@ -44,6 +44,7 @@ test('candidate contest with write-ins', () => {
         const options = Array.from(allContestOptions(contest, ballotStyle, []));
         expect(options).toHaveLength(contest.candidates.length + contest.seats);
         for (const [i, option] of options.entries()) {
+          assert(option.type === 'candidate');
           expect(option.id).toEqual(
             contest.candidates[i]?.id ??
               `write-in-${i - contest.candidates.length}`

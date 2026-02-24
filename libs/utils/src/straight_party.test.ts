@@ -139,7 +139,7 @@ describe('applyStraightPartyRules', () => {
       council: [],
     };
     const result = applyStraightPartyRules(election, votes);
-    expect(result.governor).toEqual(['alice']);
+    expect(result['governor']).toEqual(['alice']);
   });
 
   test('multi-seat contest — fills all party candidates if they fit', () => {
@@ -150,7 +150,7 @@ describe('applyStraightPartyRules', () => {
     };
     const result = applyStraightPartyRules(election, votes);
     // 2 dem candidates (carol, dave) fit in 3 seats
-    expect(result.council).toEqual(['carol', 'dave']);
+    expect(result['council']).toEqual(['carol', 'dave']);
   });
 
   test('voter already voted for party candidate — no duplicate', () => {
@@ -159,7 +159,7 @@ describe('applyStraightPartyRules', () => {
       governor: ['alice'],
     };
     const result = applyStraightPartyRules(election, votes);
-    expect(result.governor).toEqual(['alice']);
+    expect(result['governor']).toEqual(['alice']);
   });
 
   test('voter voted cross-party — party fills remaining seats', () => {
@@ -169,7 +169,7 @@ describe('applyStraightPartyRules', () => {
     };
     const result = applyStraightPartyRules(election, votes);
     // Eve (rep) is already selected, 2 remaining seats, 2 dem candidates fit
-    expect(result.council).toEqual(['eve', 'carol', 'dave']);
+    expect(result['council']).toEqual(['eve', 'carol', 'dave']);
   });
 
   test('more party candidates than open seats — no expansion', () => {
@@ -198,7 +198,7 @@ describe('applyStraightPartyRules', () => {
     };
     const result = applyStraightPartyRules(tightElection, votes);
     // 2 dem candidates, 1 seat — ambiguous, don't expand
-    expect(result.tight).toEqual([]);
+    expect(result['tight']).toEqual([]);
   });
 
   test('contest with no party candidates — unchanged', () => {
@@ -207,7 +207,7 @@ describe('applyStraightPartyRules', () => {
       judge: [],
     };
     const result = applyStraightPartyRules(election, votes);
-    expect(result.judge).toEqual([]);
+    expect(result['judge']).toEqual([]);
   });
 
   test('write-in slots are not affected by expansion', () => {
@@ -217,7 +217,7 @@ describe('applyStraightPartyRules', () => {
     };
     const result = applyStraightPartyRules(election, votes);
     // Governor has 1 seat, voter wrote in — no expansion
-    expect(result.governor).toEqual(['write-in-0']);
+    expect(result['governor']).toEqual(['write-in-0']);
   });
 
   test('ballot measure is unaffected', () => {
@@ -228,7 +228,7 @@ describe('applyStraightPartyRules', () => {
     };
     const result = applyStraightPartyRules(election, votes);
     expect(result['measure-1']).toEqual(['yes']);
-    expect(result.governor).toEqual(['alice']);
+    expect(result['governor']).toEqual(['alice']);
   });
 
   test('voter filled all seats — no expansion needed', () => {
@@ -237,7 +237,7 @@ describe('applyStraightPartyRules', () => {
       council: ['carol', 'eve', 'frank'],
     };
     const result = applyStraightPartyRules(election, votes);
-    expect(result.council).toEqual(['carol', 'eve', 'frank']);
+    expect(result['council']).toEqual(['carol', 'eve', 'frank']);
   });
 
   test('partial cross-party with remaining seats for party expansion', () => {
@@ -247,6 +247,6 @@ describe('applyStraightPartyRules', () => {
     };
     const result = applyStraightPartyRules(election, votes);
     // Carol (dem) is selected, 2 remaining seats, 2 rep candidates (eve, frank) fit
-    expect(result.council).toEqual(['carol', 'eve', 'frank']);
+    expect(result['council']).toEqual(['carol', 'eve', 'frank']);
   });
 });

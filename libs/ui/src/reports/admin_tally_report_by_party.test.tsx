@@ -187,7 +187,11 @@ test('primary election, party report, test deck', () => {
           '0': 10,
         },
         contestIds: election.contests
-          .filter((c) => c.type === 'yesno' || c.partyId === '0')
+          .filter(
+            (c) =>
+              c.type === 'yesno' ||
+              (c.type === 'candidate' && c.partyId === '0')
+          )
           .map((c) => c.id),
       })}
       scannerBatches={mockScannerBatches}

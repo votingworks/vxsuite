@@ -167,7 +167,7 @@ describe('groupContestsByParty', () => {
       'fishing',
     ]);
     expect(
-      nonPartisanGroup.contests.every((c) => c.type === 'yesno' || !c.partyId)
+      nonPartisanGroup.contests.every((c) => c.type !== 'candidate' || !c.partyId)
     ).toEqual(true);
   });
 
@@ -183,7 +183,7 @@ describe('groupContestsByParty', () => {
     expect(nonPartisanGroup!.partyId).toBeUndefined();
     expect(nonPartisanGroup!.contests).toEqual(election.contests);
     expect(
-      nonPartisanGroup!.contests.every((c) => c.type === 'yesno' || !c.partyId)
+      nonPartisanGroup!.contests.every((c) => c.type !== 'candidate' || !c.partyId)
     ).toEqual(true);
   });
 

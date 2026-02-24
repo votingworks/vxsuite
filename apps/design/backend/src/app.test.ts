@@ -501,16 +501,18 @@ test('create/list/delete elections', async () => {
               })
             ),
           }
-        : {
-            yesOption: {
-              ...contest.yesOption,
-              id: expectNotEqualTo(contest.yesOption.id),
-            },
-            noOption: {
-              ...contest.noOption,
-              id: expectNotEqualTo(contest.noOption.id),
-            },
-          }),
+        : contest.type === 'yesno'
+          ? {
+              yesOption: {
+                ...contest.yesOption,
+                id: expectNotEqualTo(contest.yesOption.id),
+              },
+              noOption: {
+                ...contest.noOption,
+                id: expectNotEqualTo(contest.noOption.id),
+              },
+            }
+          : {}),
     }))
   );
   expect(

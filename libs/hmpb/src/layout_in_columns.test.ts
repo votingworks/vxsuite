@@ -208,25 +208,23 @@ test('doesnt access elements until needed', async () => {
 
 describe.only('layOutSectionsInColumns', () => {
   const subsection2 = {
-    id: 'subsection2',
     header: { id: 'subsection2-header', height: 1 },
-    children: [a1],
+    elements: [a1],
   } as const;
   const subsection4 = {
-    id: 'subsection4',
     header: {
       id: 'subsection4-header',
       height: 1,
     },
-    children: [b1, c2],
+    elements: [b1, c2],
   } as const;
   const section3 = {
     header: { id: 'section3-header', height: 1 },
-    children: [subsection2],
+    subsections: [subsection2],
   } as const;
   const section7 = {
     header: { id: 'section7-header', height: 1 },
-    children: [subsection2, subsection4],
+    subsections: [subsection2, subsection4],
   } as const;
 
   test('lays out sections into columns with headers', async () => {
@@ -296,10 +294,10 @@ describe.only('layOutSectionsInColumns', () => {
       leftoverSections: [
         {
           ...section7,
-          children: [
+          subsections: [
             {
               ...subsection4,
-              children: [c2],
+              elements: [c2],
             },
           ],
         },

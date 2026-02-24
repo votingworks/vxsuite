@@ -188,8 +188,8 @@ describe(`printMode === "summary"`, () => {
     const precinctId = ballotStyle.precincts[0];
 
     // Get real contest IDs from the election and split them into two pages
-    const allContests = election.contests.filter((c) =>
-      ballotStyle.districts.includes(c.districtId)
+    const allContests = election.contests.filter(
+      (c) => c.type !== 'straight-party' && ballotStyle.districts.includes(c.districtId)
     );
     const page1ContestIds = allContests.slice(0, 5).map((c) => c.id);
     const page2ContestIds = allContests.slice(5).map((c) => c.id);
@@ -336,8 +336,8 @@ describe(`printMode === "summary"`, () => {
     const ballotStyle = election.ballotStyles[0];
     const precinctId = ballotStyle.precincts[0];
 
-    const allContests = election.contests.filter((c) =>
-      ballotStyle.districts.includes(c.districtId)
+    const allContests = election.contests.filter(
+      (c) => c.type !== 'straight-party' && ballotStyle.districts.includes(c.districtId)
     );
     const contestIds = allContests.map((c) => c.id);
 
