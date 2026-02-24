@@ -12,6 +12,7 @@ import {
   decodeQuickResultsMessage,
   encodeQuickResultsMessage,
   QR_MESSAGE_FORMAT,
+  QR_MESSAGE_FORMAT_V2,
 } from './signed_quick_results_reporting';
 import { constructPrefixedMessage } from './signatures';
 
@@ -47,7 +48,10 @@ const vxScanTestConfig: SignedQuickResultsReportingConfig = {
 };
 
 const electionDefinition = electionGeneralFixtures.readElectionDefinition();
-const mockedResults = {} as unknown as Tabulation.ElectionResults;
+const mockedResults = {
+  cardCounts: { bmd: [42], hmpb: [] },
+  contestResults: {},
+} as unknown as Tabulation.ElectionResults;
 
 test.each<{ isLiveMode: boolean }>([
   { isLiveMode: false },
@@ -357,11 +361,12 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
     precinctSelection: { kind: 'AllPrecincts' },
     numPages: 88,
     pageIndex: 77,
+    ballotCount: 0,
   });
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT,
+        QR_MESSAGE_FORMAT_V2,
         // mimic extra data appended after the valid payload
         `${encodedMessage}\x00extraData`
       )
@@ -371,8 +376,8 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT,
-        // remove the final field
+        QR_MESSAGE_FORMAT_V2,
+        // remove fields to get wrong count
         encodedMessage.replace('\x00sampleCompressedTally', '')
       )
     );
@@ -381,8 +386,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT,
-        // remove the final field
+        QR_MESSAGE_FORMAT_V2,
         encodedMessage.replace('88', 'nan')
       )
     );
@@ -391,8 +395,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT,
-        // remove the final field
+        QR_MESSAGE_FORMAT_V2,
         encodedMessage.replace('77', 'nan')
       )
     );
@@ -401,8 +404,8 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT,
-        // make the final field empty
+        QR_MESSAGE_FORMAT_V2,
+        // make the primary message field empty
         encodedMessage.replace('sampleCompressedTally', '')
       )
     );
@@ -410,8 +413,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT,
-        // make the final field empty
+        QR_MESSAGE_FORMAT_V2,
         encodedMessage.replace(timeInSeconds.toString(), 'notATimestamp')
       )
     );
@@ -421,7 +423,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
 test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads no precinct id', () => {
   const decoded = decodeQuickResultsMessage(
     constructPrefixedMessage(
-      QR_MESSAGE_FORMAT,
+      QR_MESSAGE_FORMAT_V2,
       encodeQuickResultsMessage({
         ballotHash: 'mockBallotHash',
         signingMachineId: 'machineId',
@@ -431,11 +433,13 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         precinctSelection: { kind: 'AllPrecincts' },
         numPages: 1,
         pageIndex: 0,
+        ballotCount: 42,
       })
     )
   );
   expect(decoded).toMatchInlineSnapshot(`
     {
+      "ballotCount": 42,
       "ballotHash": "mockBallotHash",
       "encodedCompressedTally": "sampleCompressedTally",
       "isLive": false,
@@ -454,7 +458,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
 test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads with single precinct selection', () => {
   const decoded = decodeQuickResultsMessage(
     constructPrefixedMessage(
-      QR_MESSAGE_FORMAT,
+      QR_MESSAGE_FORMAT_V2,
       encodeQuickResultsMessage({
         ballotHash: 'mockBallotHash',
         signingMachineId: 'machineId',
@@ -467,11 +471,13 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
         },
         numPages: 1,
         pageIndex: 0,
+        ballotCount: 15,
       })
     )
   );
   expect(decoded).toMatchInlineSnapshot(`
     {
+      "ballotCount": 15,
       "ballotHash": "mockBallotHash",
       "encodedCompressedTally": "sampleCompressedTally",
       "isLive": false,
@@ -488,6 +494,32 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
   `);
 });
 
+test('generateSignedQuickResultsReportingUrl works for reporting polls paused status', async () => {
+  const signedQuickResultsReportingUrls =
+    await generateSignedQuickResultsReportingUrl(
+      {
+        electionDefinition,
+        isLiveMode: true,
+        quickResultsReportingUrl: 'https://example.com',
+        results: mockedResults,
+        signingMachineId: DEV_MACHINE_ID,
+        precinctSelection: { kind: 'AllPrecincts' },
+        pollsState: 'polls_paused',
+      },
+      vxScanTestConfig
+    );
+  expect(signedQuickResultsReportingUrls).toHaveLength(1);
+  const signedQuickResultsReportingUrl =
+    signedQuickResultsReportingUrls[0] as string;
+
+  // We do not need a compressed tally when reporting polls paused status
+  expect(compressAndEncodeTally).toHaveBeenCalledTimes(0);
+  expect(signedQuickResultsReportingUrl).toMatch(
+    /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
+  );
+  expect(signedQuickResultsReportingUrl).toContain('polls_paused');
+});
+
 test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting polls open status', () => {
   const encoded = encodeQuickResultsMessage({
     ballotHash: 'mockBallotHash',
@@ -501,14 +533,91 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
     },
     numPages: 1,
     pageIndex: 0,
+    ballotCount: 7,
   });
 
   expect(encoded).toContain('polls_open');
   const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT, encoded)
+    constructPrefixedMessage(QR_MESSAGE_FORMAT_V2, encoded)
   );
   expect(decoded).toMatchInlineSnapshot(`
     {
+      "ballotCount": 7,
+      "ballotHash": "mockBallotHash",
+      "encodedCompressedTally": "",
+      "isLive": false,
+      "machineId": "machineId",
+      "numPages": 1,
+      "pageIndex": 0,
+      "pollsState": "polls_open",
+      "precinctSelection": {
+        "kind": "SinglePrecinct",
+        "precinctId": "mockPrecinctId",
+      },
+      "signedTimestamp": 2024-01-01T00:00:00.000Z,
+    }
+  `);
+});
+
+test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting polls paused status', () => {
+  const encoded = encodeQuickResultsMessage({
+    ballotHash: 'mockBallotHash',
+    signingMachineId: 'machineId',
+    isLiveMode: false,
+    timestamp: new Date('2024-01-01T00:00:00Z').getTime() / 1000,
+    primaryMessage: 'polls_paused',
+    precinctSelection: {
+      kind: 'SinglePrecinct',
+      precinctId: 'mockPrecinctId',
+    },
+    numPages: 1,
+    pageIndex: 0,
+    ballotCount: 99,
+  });
+
+  expect(encoded).toContain('polls_paused');
+  const decoded = decodeQuickResultsMessage(
+    constructPrefixedMessage(QR_MESSAGE_FORMAT_V2, encoded)
+  );
+  expect(decoded).toMatchInlineSnapshot(`
+    {
+      "ballotCount": 99,
+      "ballotHash": "mockBallotHash",
+      "encodedCompressedTally": "",
+      "isLive": false,
+      "machineId": "machineId",
+      "numPages": 1,
+      "pageIndex": 0,
+      "pollsState": "polls_paused",
+      "precinctSelection": {
+        "kind": "SinglePrecinct",
+        "precinctId": "mockPrecinctId",
+      },
+      "signedTimestamp": 2024-01-01T00:00:00.000Z,
+    }
+  `);
+});
+
+test('decodeQuickResultsMessage handles v1 (qr1) messages without ballotCount', () => {
+  // Simulate a qr1 message with 8 fields (no ballotCount) as older VxScan would generate
+  const v1MessageParts = [
+    encodeURIComponent('mockBallotHash'),
+    encodeURIComponent('machineId'),
+    '0',
+    (new Date('2024-01-01T00:00:00Z').getTime() / 1000).toString(),
+    'polls_open',
+    encodeURIComponent('mockPrecinctId'),
+    '1',
+    '0',
+  ];
+  // Null byte separator used in the QR message format
+  const v1Payload = v1MessageParts.join('\x00');
+  const decoded = decodeQuickResultsMessage(
+    constructPrefixedMessage(QR_MESSAGE_FORMAT, v1Payload)
+  );
+  expect(decoded).toMatchInlineSnapshot(`
+    {
+      "ballotCount": undefined,
       "ballotHash": "mockBallotHash",
       "encodedCompressedTally": "",
       "isLive": false,
