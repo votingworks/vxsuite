@@ -165,6 +165,10 @@ impl FromBitStreamWith<'_> for ContestVote {
                     yesno_contest.no_option.id.clone()
                 }))
             }
+            Contest::StraightParty(_) => {
+                // Straight-party contests are not encoded in BMD QR codes
+                Ok(Self::Candidate(Vec::new()))
+            }
         }
     }
 }
