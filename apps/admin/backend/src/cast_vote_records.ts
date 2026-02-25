@@ -49,6 +49,7 @@ import {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
   CvrContestTag,
+  CvrTag,
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
@@ -295,6 +296,34 @@ export function determineCvrContestTags({
 }
 
 /**
+ * Returns a cvr tag for a given cvr based on system settings.
+ * */
+export function determineCvrTag({
+  store,
+  cvrId,
+  votes,
+}: {
+  store: Store;
+  cvrId: Id;
+  votes: Tabulation.Votes;
+}): CvrTag | undefined {
+  const electionId = assertDefined(store.getCurrentElectionId());
+  const { adminAdjudicationReasons } = store.getSystemSettings(electionId);
+  const shouldTagBlankBallots = adminAdjudicationReasons.includes(
+    AdjudicationReason.BlankBallot
+  );
+  const isBlankBallot = Object.values(votes).every(
+    (optionIds) => optionIds.length === 0
+  );
+
+  if (shouldTagBlankBallots && isBlankBallot) {
+    return { cvrId, isResolved: false, isBlankBallot: true };
+  }
+
+  return undefined;
+}
+
+/**
  * Imports cast vote records given a cast vote record export directory path
  */
 export async function importCastVoteRecords(
@@ -483,11 +512,20 @@ export async function importCastVoteRecords(
           writeIns: castVoteRecordWriteIns,
           markScores,
         });
-        if (castVoteRecordContestTags.length > 0) {
-          for (const tag of castVoteRecordContestTags) {
-            store.addCvrContestTag(tag);
-          }
+        const castVoteRecordTag = determineCvrTag({
+          store,
+          cvrId: castVoteRecordId,
+          votes,
+        });
 
+        if (castVoteRecordTag) {
+          store.addCvrTag(castVoteRecordTag);
+        }
+        for (const tag of castVoteRecordContestTags) {
+          store.addCvrContestTag(tag);
+        }
+
+        if (castVoteRecordContestTags.length > 0 || castVoteRecordTag) {
           // Guaranteed to be defined given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
           for (const i of [0, 1] as const) {

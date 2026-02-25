@@ -133,12 +133,20 @@ export function SystemSettingsForm({
     retryStreakWidthThresholdInputRef.current?.setCustomValidity('');
 
     if (parseResult.isErr()) {
-      const maxWidthError = parseResult.err().issues.find(
-        (err) => err.path.includes('maxCumulativeStreakWidth' satisfies keyof SystemSettings)
-      );
-      const retryThresholdError = parseResult.err().issues.find(
-        (err) => err.path.includes('retryStreakWidthThreshold' satisfies keyof SystemSettings)
-      );
+      const maxWidthError = parseResult
+        .err()
+        .issues.find((err) =>
+          err.path.includes(
+            'maxCumulativeStreakWidth' satisfies keyof SystemSettings
+          )
+        );
+      const retryThresholdError = parseResult
+        .err()
+        .issues.find((err) =>
+          err.path.includes(
+            'retryStreakWidthThreshold' satisfies keyof SystemSettings
+          )
+        );
 
       if (maxWidthError) {
         maxCumulativeStreakWidthInputRef.current?.setCustomValidity(
@@ -184,13 +192,10 @@ export function SystemSettingsForm({
   );
 
   const adminAdjudicationReasonOptions = adjudicationReasonOptions.filter(
-    (option) =>
-      // Not implemented
-      option.value !== AdjudicationReason.BlankBallot &&
-      // UnmarkedWriteIn is excluded from adminAdjudicationReasons because
-      // admin will surface all unmarked write-ins that the scanner tags.
-      // It is effectively equal to the scanner's adjudication setting.
-      option.value !== AdjudicationReason.UnmarkedWriteIn
+    // UnmarkedWriteIn is excluded from adminAdjudicationReasons because
+    // admin will surface all unmarked write-ins that the scanner tags.
+    // It is effectively equal to the scanner's adjudication setting.
+    (option) => option.value !== AdjudicationReason.UnmarkedWriteIn
   );
 
   const isScoringUnmarkedWriteIns =

@@ -155,6 +155,14 @@ create table cvr_contest_tags (
   foreign key (cvr_id) references cvrs(id) on delete cascade
 );
 
+create table cvr_tags (
+  sequence_id integer not null primary key autoincrement,
+  cvr_id varchar(36) not null unique,
+  is_resolved boolean not null default false,
+  is_blank_ballot boolean not null default false,
+  foreign key (cvr_id) references cvrs(id) on delete cascade
+);
+
 create table vote_adjudications (
   election_id varchar(36) not null,
   cvr_id varchar(36) not null,
