@@ -65,12 +65,12 @@ const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '\x00';
 /**
  * The original message format (8 fields, no ballot count).
  */
-export const QR_MESSAGE_FORMAT = 'qr1';
+export const QR_MESSAGE_FORMAT_V1 = 'qr1';
 
 /**
  * The v2 message format (9 fields, adds ballot count).
  */
-export const QR_MESSAGE_FORMAT_V2 = 'qr2';
+export const QR_MESSAGE_FORMAT = 'qr2';
 
 /**
  * Safely encodes a string for use in URLs by URL-encoding any characters that
@@ -243,9 +243,9 @@ export function decodeQuickResultsMessage(
   const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
 
   switch (messageType) {
-    case QR_MESSAGE_FORMAT:
+    case QR_MESSAGE_FORMAT_V1:
       return decodeV1Message(messagePayload);
-    case QR_MESSAGE_FORMAT_V2:
+    case QR_MESSAGE_FORMAT:
       return decodeV2Message(messagePayload);
     default:
       throw new Error(`Unknown QR message format: ${messageType}`);
@@ -338,7 +338,7 @@ export async function generateSignedQuickResultsReportingUrl(
             ballotCount: getBallotCount(results.cardCounts),
           });
           const message = constructPrefixedMessage(
-            QR_MESSAGE_FORMAT_V2,
+            QR_MESSAGE_FORMAT,
             messagePayload
           );
           const url = await signAndBuildUrl(
@@ -375,7 +375,7 @@ export async function generateSignedQuickResultsReportingUrl(
         ballotCount: getBallotCount(results.cardCounts),
       });
       const message = constructPrefixedMessage(
-        QR_MESSAGE_FORMAT_V2,
+        QR_MESSAGE_FORMAT,
         messagePayload
       );
       const url = await signAndBuildUrl(

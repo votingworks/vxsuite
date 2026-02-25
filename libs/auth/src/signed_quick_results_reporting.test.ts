@@ -11,8 +11,8 @@ import {
   authenticateSignedQuickResultsReportingUrl,
   decodeQuickResultsMessage,
   encodeQuickResultsMessage,
+  QR_MESSAGE_FORMAT_V1,
   QR_MESSAGE_FORMAT,
-  QR_MESSAGE_FORMAT_V2,
 } from './signed_quick_results_reporting';
 import { constructPrefixedMessage } from './signatures';
 
@@ -347,7 +347,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
 
   expect(() => {
     decodeQuickResultsMessage(
-      constructPrefixedMessage(QR_MESSAGE_FORMAT, 'data')
+      constructPrefixedMessage(QR_MESSAGE_FORMAT_V1, 'data')
     );
   }).toThrow('Invalid message payload format');
 
@@ -366,7 +366,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT_V2,
+        QR_MESSAGE_FORMAT,
         // mimic extra data appended after the valid payload
         `${encodedMessage}\x00extraData`
       )
@@ -376,7 +376,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT_V2,
+        QR_MESSAGE_FORMAT,
         // remove fields to get wrong count
         encodedMessage.replace('\x00sampleCompressedTally', '')
       )
@@ -386,7 +386,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT_V2,
+        QR_MESSAGE_FORMAT,
         encodedMessage.replace('88', 'nan')
       )
     );
@@ -395,7 +395,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT_V2,
+        QR_MESSAGE_FORMAT,
         encodedMessage.replace('77', 'nan')
       )
     );
@@ -404,7 +404,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT_V2,
+        QR_MESSAGE_FORMAT,
         // make the primary message field empty
         encodedMessage.replace('sampleCompressedTally', '')
       )
@@ -413,7 +413,7 @@ test('decodeQuickResultsMessage throws error when given invalid payload', () => 
   expect(() => {
     decodeQuickResultsMessage(
       constructPrefixedMessage(
-        QR_MESSAGE_FORMAT_V2,
+        QR_MESSAGE_FORMAT,
         encodedMessage.replace(timeInSeconds.toString(), 'notATimestamp')
       )
     );
@@ -442,7 +442,7 @@ test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, and ballotC
       overrides.pageIndex ?? '0',
       overrides.ballotCount ?? '0',
     ];
-    return constructPrefixedMessage(QR_MESSAGE_FORMAT_V2, parts.join(SEP));
+    return constructPrefixedMessage(QR_MESSAGE_FORMAT, parts.join(SEP));
   }
 
   // numPages must be >= 1
@@ -470,7 +470,7 @@ test('decodeQuickResultsMessage rejects invalid numPages, pageIndex, and ballotC
 test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads no precinct id', () => {
   const decoded = decodeQuickResultsMessage(
     constructPrefixedMessage(
-      QR_MESSAGE_FORMAT_V2,
+      QR_MESSAGE_FORMAT,
       encodeQuickResultsMessage({
         ballotHash: 'mockBallotHash',
         signingMachineId: 'machineId',
@@ -505,7 +505,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
 test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payloads with single precinct selection', () => {
   const decoded = decodeQuickResultsMessage(
     constructPrefixedMessage(
-      QR_MESSAGE_FORMAT_V2,
+      QR_MESSAGE_FORMAT,
       encodeQuickResultsMessage({
         ballotHash: 'mockBallotHash',
         signingMachineId: 'machineId',
@@ -585,7 +585,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
 
   expect(encoded).toContain('polls_open');
   const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT_V2, encoded)
+    constructPrefixedMessage(QR_MESSAGE_FORMAT, encoded)
   );
   expect(decoded).toMatchInlineSnapshot(`
     {
@@ -624,7 +624,7 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
 
   expect(encoded).toContain('polls_paused');
   const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT_V2, encoded)
+    constructPrefixedMessage(QR_MESSAGE_FORMAT, encoded)
   );
   expect(decoded).toMatchInlineSnapshot(`
     {
@@ -660,7 +660,7 @@ test('decodeQuickResultsMessage handles v1 (qr1) messages without ballotCount', 
   // Null byte separator used in the QR message format
   const v1Payload = v1MessageParts.join('\x00');
   const decoded = decodeQuickResultsMessage(
-    constructPrefixedMessage(QR_MESSAGE_FORMAT, v1Payload)
+    constructPrefixedMessage(QR_MESSAGE_FORMAT_V1, v1Payload)
   );
   expect(decoded).toMatchInlineSnapshot(`
     {
