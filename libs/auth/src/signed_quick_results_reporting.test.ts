@@ -70,6 +70,7 @@ test.each<{ isLiveMode: boolean }>([
           precinctSelection: { kind: 'AllPrecincts' },
           pollsState: 'polls_closed_final',
           votingType: 'election_day',
+          pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
         },
         vxScanTestConfig
       );
@@ -103,6 +104,7 @@ test.each<{ isLiveMode: boolean }>([
           precinctSelection: { kind: 'AllPrecincts' },
           pollsState: 'polls_closed_final',
           votingType: 'election_day',
+          pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
           maxQrCodeLength: 1000, // Force multi-part by setting a small max length
         },
         vxScanTestConfig
@@ -143,6 +145,7 @@ test('If it is impossible to fit the signed quick results reporting URL within t
         precinctSelection: { kind: 'AllPrecincts' },
         pollsState: 'polls_closed_final',
         votingType: 'election_day',
+        pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
         maxQrCodeLength: 10, // impossible length
       },
       vxScanTestConfig
@@ -165,6 +168,7 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
         precinctSelection: { kind: 'AllPrecincts' },
         pollsState: 'polls_open',
         votingType: 'election_day',
+        pollsTransitionTimestamp: new Date('2024-11-05T08:00:00Z').getTime(),
       },
       vxScanTestConfig
     );
@@ -195,6 +199,7 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls open stat
         },
         pollsState: 'polls_open',
         votingType: 'early_voting',
+        pollsTransitionTimestamp: new Date('2024-11-05T08:00:00Z').getTime(),
       },
       vxScanTestConfig
     );
@@ -223,6 +228,7 @@ test('authenticateSignedQuickResultsReportingUrl - success case with real certif
       precinctSelection: { kind: 'AllPrecincts' },
       pollsState: 'polls_closed_final',
       votingType: 'election_day',
+      pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
     },
     vxScanTestConfig
   );
@@ -261,6 +267,7 @@ test('authenticateSignedQuickResultsReportingUrl - invalid signature', async () 
       precinctSelection: { kind: 'AllPrecincts' },
       pollsState: 'polls_closed_final',
       votingType: 'election_day',
+      pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
     },
     vxScanTestConfig
   );
@@ -315,6 +322,7 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
       precinctSelection: { kind: 'AllPrecincts' },
       pollsState: 'polls_closed_final',
       votingType: 'election_day',
+      pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
     },
     vxScanTestConfig
   );
@@ -579,6 +587,7 @@ test('generateSignedQuickResultsReportingUrl works for reporting polls paused st
         precinctSelection: { kind: 'AllPrecincts' },
         pollsState: 'polls_paused',
         votingType: 'election_day',
+        pollsTransitionTimestamp: new Date('2024-11-05T12:00:00Z').getTime(),
       },
       vxScanTestConfig
     );

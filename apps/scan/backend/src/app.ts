@@ -615,6 +615,8 @@ export function buildApi({
       if (!doesPollsStateSupportLiveReporting(pollsState)) {
         return [];
       }
+      const lastPollsTransition = store.getLastPollsTransition();
+      assert(lastPollsTransition !== null);
       const scannerResultsByParty = await getScannerResultsMemoized({ store });
 
       const combinedResults = combineElectionResults({
@@ -631,6 +633,7 @@ export function buildApi({
           results: combinedResults,
           pollsState,
           votingType: store.getBallotCastingMode(),
+          pollsTransitionTimestamp: lastPollsTransition.time,
         });
       return signedQuickResultsReportingUrls;
     },

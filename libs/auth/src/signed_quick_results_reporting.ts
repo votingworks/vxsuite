@@ -49,6 +49,7 @@ interface SignedQuickResultsReportingInput {
   precinctSelection: PrecinctSelection;
   pollsState: PollsStateSupportsLiveReporting;
   votingType: LiveReportVotingType;
+  pollsTransitionTimestamp: number;
   maxQrCodeLength?: number; // Provided as a prop for ease in testing
 }
 
@@ -319,6 +320,7 @@ export async function generateSignedQuickResultsReportingUrl(
     precinctSelection,
     pollsState,
     votingType,
+    pollsTransitionTimestamp,
     maxQrCodeLength = MAXIMUM_BYTES_IN_MEDIUM_QR_CODE,
   }: SignedQuickResultsReportingInput,
   configOverride?: SignedQuickResultsReportingConfig
@@ -329,7 +331,7 @@ export async function generateSignedQuickResultsReportingUrl(
 
   const { ballotHash, election } = electionDefinition;
   let numPagesNeeded = 1; // If we need to paginate this value will be incremented.
-  const secondsSince1970 = Math.round(new Date().getTime() / 1000);
+  const secondsSince1970 = Math.round(pollsTransitionTimestamp / 1000);
 
   switch (pollsState) {
     case 'polls_closed_final': {
