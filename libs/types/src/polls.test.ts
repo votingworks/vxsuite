@@ -11,7 +11,7 @@ test('doesPollsStateSupportLiveReporting', () => {
   expect(doesPollsStateSupportLiveReporting('polls_closed_final')).toEqual(
     true
   );
-  expect(doesPollsStateSupportLiveReporting('polls_paused')).toEqual(false);
+  expect(doesPollsStateSupportLiveReporting('polls_paused')).toEqual(true);
   expect(doesPollsStateSupportLiveReporting('polls_closed_initial')).toEqual(
     false
   );

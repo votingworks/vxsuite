@@ -361,6 +361,9 @@ export const pauseVoting = {
     return useMutation(apiClient.pauseVoting, {
       async onSuccess() {
         await queryClient.invalidateQueries(getPollsInfo.queryKey());
+        await queryClient.invalidateQueries(
+          getQuickResultsReportingUrl.queryKey()
+        );
       },
     });
   },
@@ -373,6 +376,9 @@ export const resumeVoting = {
     return useMutation(apiClient.resumeVoting, {
       async onSuccess() {
         await queryClient.invalidateQueries(getPollsInfo.queryKey());
+        await queryClient.invalidateQueries(
+          getQuickResultsReportingUrl.queryKey()
+        );
       },
     });
   },

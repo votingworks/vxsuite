@@ -208,7 +208,24 @@ describe('transitions from polls open', () => {
     userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     await screen.findByText('Voting Paused');
-    expect(screen.queryByText('Send Polls Paused Report')).toBeNull();
+    expect(screen.queryByText('Send Voting Paused Report')).toBeNull();
+  });
+
+  test('pause voting happy path with live results', async () => {
+    apiMock.expectPauseVoting();
+    apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
+    apiMock.expectPrintReportSection(0).resolve();
+    apiMock.expectGetPollsInfo('polls_paused');
+    userEvent.click(screen.getByText('Menu'));
+    userEvent.click(await screen.findByText('Pause Voting'));
+    await screen.findByText('Pausing Voting…');
+    await screen.findByText('Voting Paused');
+    await screen.findByText('Reprint Voting Paused Report');
+    userEvent.click(screen.getButton('Send Voting Paused Report'));
+    const qrCode = await screen.findByTestId('quick-results-code');
+    expect(qrCode).toBeInTheDocument();
+    userEvent.click(screen.getButton('Done'));
+    await screen.findByText('Resume Voting');
   });
 });
 
@@ -238,6 +255,22 @@ describe('transitions from polls paused', () => {
     userEvent.click(await screen.findByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting Resumed');
+  });
+
+  test('resume voting happy path with vxqr', async () => {
+    apiMock.expectResumeVoting();
+    apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
+    apiMock.expectPrintReportSection(0).resolve();
+    apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
+    userEvent.click(screen.getByText('Resume Voting'));
+    await screen.findByText('Resuming Voting…');
+    await screen.findByText('Voting Resumed');
+    await screen.findByText('Reprint Voting Resumed Report');
+    userEvent.click(screen.getButton('Send Voting Resumed Report'));
+    const qrCode = screen.getByTestId('quick-results-code');
+    expect(qrCode).toBeInTheDocument();
+    userEvent.click(screen.getButton('Done'));
+    await screen.findByText('Close Polls');
   });
 
   test('close polls from landing screen', async () => {

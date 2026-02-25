@@ -118,6 +118,13 @@ export interface ReceivedReportInfoBase {
 export interface ReceivedPollsOpenReportInfo extends ReceivedReportInfoBase {
   pollsState: 'polls_open';
   isPartial: false;
+  ballotCount?: number;
+}
+
+export interface ReceivedPollsPausedReportInfo extends ReceivedReportInfoBase {
+  pollsState: 'polls_paused';
+  isPartial: false;
+  ballotCount?: number;
 }
 
 export interface ReceivedPollsClosedPartialReportInfo
@@ -137,6 +144,7 @@ export interface ReceivedPollsClosedFinalReportInfo
 
 export type ReceivedReportInfo =
   | ReceivedPollsOpenReportInfo
+  | ReceivedPollsPausedReportInfo
   | ReceivedPollsClosedPartialReportInfo
   | ReceivedPollsClosedFinalReportInfo;
 

@@ -48,6 +48,19 @@ const mockPollsOpenReport: ReceivedReportInfo = {
   election,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   isPartial: false,
+  ballotCount: 42,
+};
+
+const mockPollsPausedReport: ReceivedReportInfo = {
+  pollsState: 'polls_paused',
+  ballotHash: 'abc123def456',
+  machineId: 'VxScan-001',
+  isLive: true,
+  signedTimestamp: new Date('2024-11-05T12:00:00Z'),
+  election,
+  precinctSelection: ALL_PRECINCTS_SELECTION,
+  isPartial: false,
+  ballotCount: 108,
 };
 
 const mockPollsClosedReportGeneral: ReceivedReportInfo = {
@@ -303,6 +316,10 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     // Check timestamp formatting - using more flexible matcher
     expect(screen.getByText(/Nov 5, 2024/)).toBeInTheDocument();
 
+    // Check ballot count
+    expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
+    expect(screen.getByText(/42/)).toBeInTheDocument();
+
     // does not show test mode banner
     await waitFor(() => {
       expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
@@ -319,6 +336,66 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
       .resolves(
         ok({
           ...mockPollsOpenReport,
+          isLive: false,
+        })
+      );
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Report')).toBeInTheDocument();
+    });
+  });
+
+  test('displays polls paused report correctly', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockPollsPausedReport));
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Voting Paused Report Sent' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('The voting paused report has been sent to VxDesign.')
+      ).toBeInTheDocument();
+    });
+
+    // Check report details
+    expect(screen.getByText('All Precincts')).toBeInTheDocument();
+    expect(screen.getByText('VxScan-001')).toBeInTheDocument();
+    expect(screen.getByText(/abc123d/)).toBeInTheDocument();
+    expect(screen.getByText(/Nov 5, 2024/)).toBeInTheDocument();
+
+    // Check ballot count
+    expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
+    expect(screen.getByText(/108/)).toBeInTheDocument();
+
+    // does not show test mode banner
+    await waitFor(() => {
+      expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
+    });
+  });
+
+  test('polls paused report shows test mode banner for test reports', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(
+        ok({
+          ...mockPollsPausedReport,
           isLive: false,
         })
       );
