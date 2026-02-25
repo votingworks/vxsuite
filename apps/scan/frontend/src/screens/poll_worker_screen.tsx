@@ -615,13 +615,13 @@ function PollWorkerScreenContents({
                   ? 'The report did not finish printing because the printer ran out of paper.'
                   : 'The report did not finish printing because the printer encountered an unexpected error.'}
               </P>
-              <PollWorkerLoadAndReprintButton
-                reprint={printWriteInReport}
-                reprintText="Reprint Write-In Image Report"
-              />
-              <P>
+              <ButtonGrid>
+                <PollWorkerLoadAndReprintButton
+                  reprint={printWriteInReport}
+                  reprintText="Reprint Write-In Image Report"
+                />
                 <Button onPress={showAllPollWorkerActions}>Done</Button>
-              </P>
+              </ButtonGrid>
             </Screen>
           );
         }
@@ -630,18 +630,18 @@ function PollWorkerScreenContents({
             <CenteredText>
               <H1>Write-In Image Report Printed</H1>
               <P>
-                The Write-In Image Report has been printed. Remove the report
-                from the printer by gently tearing it against the tear bar.
+                Remove the report from the printer by gently tearing it against
+                the tear bar.
               </P>
-              <P>
+              <ButtonGrid>
                 <PollWorkerLoadAndReprintButton
                   reprint={printWriteInReport}
                   reprintText="Reprint Write-In Image Report"
                 />
-              </P>
-              <P>
-                <Button onPress={showAllPollWorkerActions}>Done</Button>
-              </P>
+                <Button variant="primary" onPress={showAllPollWorkerActions}>
+                  Done
+                </Button>
+              </ButtonGrid>
             </CenteredText>
           </Screen>
         );
