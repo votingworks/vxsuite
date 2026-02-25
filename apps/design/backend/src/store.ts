@@ -2805,6 +2805,61 @@ export class Store {
       reportsByPrecinctId[precinct.id] = [];
     }
 
+    // Mock data for early voting tab showing transitioning to polls paused
+    // - Some precincts have all open
+    // - Some precincts have some open, some paused
+    // - Some precincts have all paused
+    // for (const [i, precinct] of election.precincts.entries()) {
+    //   for (let j = 0; j < (i % 4 === 0 ? 3 : 1); j += 1) {
+    //     reportsByPrecinctId[precinct.id].push({
+    //       machineId: `SC-00${i}${j}`,
+    //       signedTimestamp: new Date(Date.now() - (i * 2 + j) * 60000),
+    //       precinctSelection: singlePrecinctSelectionFor(precinct.id),
+    //       pollsState:
+    //         (() => {
+    //           switch (i % 3) {
+    //             case 0:
+    //               return 'polls_open';
+    //             case 1:
+    //               return j % 2 === 0 ? 'polls_open' : 'polls_paused';
+    //             case 2:
+    //               return 'polls_paused';
+    //             default:
+    //               throw new Error('Unreachable');
+    //           }
+    //         })(),
+    //     });
+    //   }
+    // }
+
+    // Mock data for election day tab showing transitioning to polls open
+    // - Some precincts have no reports
+    // - Some precincts have 1 open
+    // for (const [i, precinct] of election.precincts.entries()) {
+    //   if (i % 5 === 1) {
+    //     continue;
+    //   }
+    //   reportsByPrecinctId[precinct.id].push({
+    //     machineId: `SC-00${i}0`,
+    //     signedTimestamp: new Date(Date.now() - i * 60000),
+    //     precinctSelection: singlePrecinctSelectionFor(precinct.id),
+    //     pollsState: 'polls_open',
+    //   });
+    // }
+
+
+    // Mock data for election day tab showing transitioning to polls closed
+    // - Some precincts have 1 open
+    // - Some precincts have 1 closed
+    for (const [i, precinct] of election.precincts.entries()) {
+      reportsByPrecinctId[precinct.id].push({
+        machineId: `SC-00${i}0`,
+        signedTimestamp: new Date(Date.now() - i * 60000),
+        precinctSelection: singlePrecinctSelectionFor(precinct.id),
+        pollsState: i % 4 === 3 ? 'polls_open' : 'polls_closed_final',
+      });
+    }
+
     for (const status of rows) {
       if (
         !status.precinctId &&
