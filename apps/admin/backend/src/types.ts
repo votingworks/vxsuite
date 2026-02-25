@@ -504,7 +504,7 @@ export type CvrFileMode =
  */
 export type ManualResultsVotingMethod = Extract<
   Tabulation.VotingMethod,
-  'absentee' | 'precinct'
+  'absentee' | 'precinct' | 'early_voting'
 >;
 
 /**

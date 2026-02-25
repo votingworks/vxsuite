@@ -7,6 +7,7 @@ import {
 } from '@votingworks/utils';
 
 const VOTING_METHOD_LABELS: Record<ManualResultsVotingMethod, string> = {
+  early_voting: 'Early Voting',
   absentee: 'Absentee',
   precinct: 'Precinct',
 };

@@ -16,9 +16,11 @@ import {
   Icons,
 } from '@votingworks/ui';
 import {
+  BooleanEnvironmentVariableName,
   getBallotStyleGroupsForPrecinctOrSplit,
   getGroupedBallotStyles,
   isElectionManagerAuth,
+  isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import {
   BallotStyleGroup,
@@ -48,18 +50,22 @@ export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
   'absentee',
 ];
 
+const VOTING_METHODS: ManualResultsVotingMethod[] = isFeatureFlagEnabled(
+  BooleanEnvironmentVariableName.EARLY_VOTING
+)
+  ? ['early_voting', ...ALL_MANUAL_TALLY_BALLOT_TYPES]
+  : ALL_MANUAL_TALLY_BALLOT_TYPES;
+
 function getAllPossibleManualTallyIdentifiers(
   election: Election
 ): ManualResultsIdentifier[] {
   return getGroupedBallotStyles(election.ballotStyles).flatMap((bs) =>
     bs.precincts.flatMap((precinctId) =>
-      ALL_MANUAL_TALLY_BALLOT_TYPES.flatMap((votingMethod) => [
-        {
-          ballotStyleGroupId: bs.id,
-          precinctId,
-          votingMethod,
-        },
-      ])
+      VOTING_METHODS.map((votingMethod) => ({
+        ballotStyleGroupId: bs.id,
+        precinctId,
+        votingMethod,
+      }))
     )
   );
 }
@@ -225,7 +231,7 @@ export function ManualTalliesTab(): JSX.Element | null {
 
   const selectableVotingMethods: ManualResultsVotingMethod[] =
     selectedPrecinctAndBallotStyle
-      ? ALL_MANUAL_TALLY_BALLOT_TYPES.filter((votingMethod) =>
+      ? VOTING_METHODS.filter((votingMethod) =>
           uncreatedManualTallyMetadata.some(
             (metadata) =>
               metadata.ballotStyleGroupId ===
