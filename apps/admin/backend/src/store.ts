@@ -716,11 +716,6 @@ export class Store {
           ballot_styles_to_precincts.precinct_id = precincts.id
         inner join voting_methods on
           voting_methods.election_id = ballot_styles.election_id
-          ${
-            !this.isEarlyVotingEnabled()
-              ? "and voting_methods.voting_method != 'early_voting'"
-              : ''
-          }
         where ${whereParts.join(' and ')}
         group by
           ${['universalGroup', ...groupByParts].join(',\n')}
