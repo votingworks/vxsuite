@@ -108,6 +108,9 @@ export = {
     // be stricter than eslint-config-airbnb which allows `== null`
     eqeqeq: ['error', 'always'],
     'import/extensions': 'off',
+    // import/no-cycle is the single most expensive rule (~40% of lint time).
+    // Keep it in CI where it still catches cycles; skip locally for speed.
+    'import/no-cycle': process.env['CI'] ? 'error' : 'off',
     'import/no-extraneous-dependencies': [
       'error',
       {
