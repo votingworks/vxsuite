@@ -106,7 +106,7 @@ export type ElectionUpload =
 // Live Reports types
 
 export interface ReceivedReportInfoBase {
-  pollsState: PollsTransitionType;
+  pollsTransitionType: PollsTransitionType;
   isPartial: boolean;
   ballotHash: string;
   machineId: string;
@@ -119,27 +119,27 @@ export interface ReceivedReportInfoBase {
 }
 
 export interface ReceivedPollsOpenReportInfo extends ReceivedReportInfoBase {
-  pollsState: 'open_polls';
+  pollsTransitionType: 'open_polls';
   isPartial: false;
   ballotCount?: number;
 }
 
 export interface ReceivedVotingResumedReportInfo
   extends ReceivedReportInfoBase {
-  pollsState: 'resume_voting';
+  pollsTransitionType: 'resume_voting';
   isPartial: false;
   ballotCount?: number;
 }
 
 export interface ReceivedPollsPausedReportInfo extends ReceivedReportInfoBase {
-  pollsState: 'pause_voting';
+  pollsTransitionType: 'pause_voting';
   isPartial: false;
   ballotCount?: number;
 }
 
 export interface ReceivedPollsClosedPartialReportInfo
   extends ReceivedReportInfoBase {
-  pollsState: 'close_polls';
+  pollsTransitionType: 'close_polls';
   isPartial: true;
   numPages: number;
   pageIndex: number;
@@ -147,7 +147,7 @@ export interface ReceivedPollsClosedPartialReportInfo
 
 export interface ReceivedPollsClosedFinalReportInfo
   extends ReceivedReportInfoBase {
-  pollsState: 'close_polls';
+  pollsTransitionType: 'close_polls';
   isPartial: false;
   contestResults: Record<ContestId, ContestResults>;
 }
@@ -178,7 +178,7 @@ export interface QuickReportedPollStatus {
   machineId: string;
   precinctSelection: PrecinctSelection;
   signedTimestamp: Date;
-  pollsState: PollsTransitionType;
+  pollsTransitionType: PollsTransitionType;
 }
 
 export const ALL_PRECINCTS_REPORT_KEY = '';

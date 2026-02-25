@@ -1188,7 +1188,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             machineId,
             isLive,
             signedTimestamp,
-            pollsState: pollsTransitionType,
+            pollsTransitionType,
             pageIndex,
             numPages,
           });
@@ -1197,7 +1197,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             ballotHash,
             machineId,
             isLive,
-            pollsState: pollsTransitionType,
+            pollsTransitionType,
           });
           const expectedPrecinctId =
             maybeGetPrecinctIdFromSelection(precinctSelection);
@@ -1233,7 +1233,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           // If we don't yet have all pages, return a minimal OK response.
           if (partials.length < numPages) {
             return ok({
-              pollsState: pollsTransitionType,
+              pollsTransitionType,
               ballotHash,
               machineId,
               isLive,
@@ -1271,7 +1271,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             machineId,
             isLive,
             signedTimestamp,
-            pollsState: pollsTransitionType,
+            pollsTransitionType,
           });
 
           const contestResults = decodeAndReadCompressedTally({
@@ -1281,7 +1281,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           });
 
           return ok({
-            pollsState: pollsTransitionType,
+            pollsTransitionType,
             ballotHash,
             machineId,
             isLive,
@@ -1304,7 +1304,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           machineId,
           isLive,
           signedTimestamp,
-          pollsState: pollsTransitionType,
+          pollsTransitionType,
         });
 
         switch (pollsTransitionType) {
@@ -1315,7 +1315,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               encodedTally: encodedCompressedTally,
             });
             return ok({
-              pollsState: pollsTransitionType,
+              pollsTransitionType,
               ballotHash,
               machineId,
               isLive,
@@ -1332,7 +1332,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           case 'pause_voting':
           case 'resume_voting': {
             return ok({
-              pollsState: pollsTransitionType,
+              pollsTransitionType,
               ballotHash,
               machineId,
               isLive,

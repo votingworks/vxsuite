@@ -40,7 +40,7 @@ function setUrlParams(params: Record<string, string>) {
 
 // Mock data for different report types
 const mockPollsOpenReport: ReceivedReportInfo = {
-  pollsState: 'open_polls',
+  pollsTransitionType: 'open_polls',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
@@ -53,7 +53,7 @@ const mockPollsOpenReport: ReceivedReportInfo = {
 };
 
 const mockPollsPausedReport: ReceivedReportInfo = {
-  pollsState: 'pause_voting',
+  pollsTransitionType: 'pause_voting',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
@@ -66,7 +66,7 @@ const mockPollsPausedReport: ReceivedReportInfo = {
 };
 
 const mockVotingResumedReport: ReceivedReportInfo = {
-  pollsState: 'resume_voting',
+  pollsTransitionType: 'resume_voting',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
@@ -79,7 +79,7 @@ const mockVotingResumedReport: ReceivedReportInfo = {
 };
 
 const mockPollsClosedReportGeneral: ReceivedReportInfo = {
-  pollsState: 'close_polls',
+  pollsTransitionType: 'close_polls',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
@@ -100,7 +100,7 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
 };
 
 const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
-  pollsState: 'close_polls',
+  pollsTransitionType: 'close_polls',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
@@ -116,7 +116,7 @@ const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
 const primaryElection = electionPrimaryPrecinctSplitsFixtures.readElection();
 
 const mockPollsClosedReportPrimary: ReceivedReportInfo = {
-  pollsState: 'close_polls',
+  pollsTransitionType: 'close_polls',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-002',
   isLive: true,

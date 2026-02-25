@@ -72,8 +72,8 @@ function getVotingTypeLabel(votingType: LiveReportVotingType): string {
   }
 }
 
-function getTimestampLabel(pollsState: PollsTransitionType): string {
-  switch (pollsState) {
+function getTimestampLabel(pollsTransition: PollsTransitionType): string {
+  switch (pollsTransition) {
     case 'open_polls':
       return 'Polls Opened at';
     case 'resume_voting':
@@ -84,7 +84,7 @@ function getTimestampLabel(pollsState: PollsTransitionType): string {
       return 'Polls Closed at';
     /* istanbul ignore next - @preserve */
     default:
-      throwIllegalValue(pollsState);
+      throwIllegalValue(pollsTransition);
   }
 }
 
@@ -96,7 +96,7 @@ interface ReportDetailsProps {
   election: Election;
   precinctSelection: PrecinctSelection;
   votingType: LiveReportVotingType;
-  pollsState: PollsTransitionType;
+  pollsTransitionType: PollsTransitionType;
 }
 
 function ReportDetails({
@@ -107,7 +107,7 @@ function ReportDetails({
   election,
   precinctSelection,
   votingType,
-  pollsState,
+  pollsTransitionType,
 }: ReportDetailsProps): JSX.Element {
   const precinctName = getPrecinctSelectionName(
     election.precincts,
@@ -116,7 +116,7 @@ function ReportDetails({
 
   const timestamp = pollsTransitionTime ?? reportCreatedAt;
   const timestampLabel = pollsTransitionTime
-    ? getTimestampLabel(pollsState)
+    ? getTimestampLabel(pollsTransitionType)
     : 'Report Created At';
 
   return (
@@ -215,7 +215,7 @@ function PollsOpenReportConfirmation({
   election,
   precinctSelection,
   votingType,
-  pollsState,
+  pollsTransitionType,
   ballotCount,
 }: ReportDetailsProps & {
   isLive: boolean;
@@ -234,7 +234,7 @@ function PollsOpenReportConfirmation({
           election={election}
           precinctSelection={precinctSelection}
           votingType={votingType}
-          pollsState={pollsState}
+          pollsTransitionType={pollsTransitionType}
         />
         {ballotCount !== undefined && (
           <LabeledValue
@@ -256,7 +256,7 @@ function PollsPausedReportConfirmation({
   election,
   precinctSelection,
   votingType,
-  pollsState,
+  pollsTransitionType,
   ballotCount,
 }: ReportDetailsProps & {
   isLive: boolean;
@@ -275,7 +275,7 @@ function PollsPausedReportConfirmation({
           election={election}
           precinctSelection={precinctSelection}
           votingType={votingType}
-          pollsState={pollsState}
+          pollsTransitionType={pollsTransitionType}
         />
         {ballotCount !== undefined && (
           <LabeledValue
@@ -297,7 +297,7 @@ function VotingResumedReportConfirmation({
   election,
   precinctSelection,
   votingType,
-  pollsState,
+  pollsTransitionType,
   ballotCount,
 }: ReportDetailsProps & {
   isLive: boolean;
@@ -316,7 +316,7 @@ function VotingResumedReportConfirmation({
           election={election}
           precinctSelection={precinctSelection}
           votingType={votingType}
-          pollsState={pollsState}
+          pollsTransitionType={pollsTransitionType}
         />
         {ballotCount !== undefined && (
           <LabeledValue
@@ -338,7 +338,7 @@ function PollsClosedPartialReportConfirmation({
   election,
   precinctSelection,
   votingType,
-  pollsState,
+  pollsTransitionType,
   numPages,
   pageIndex,
 }: ReportDetailsProps & {
@@ -366,7 +366,7 @@ function PollsClosedPartialReportConfirmation({
           election={election}
           precinctSelection={precinctSelection}
           votingType={votingType}
-          pollsState={pollsState}
+          pollsTransitionType={pollsTransitionType}
         />
       </MainContent>
     </ResultsScreen>
@@ -382,7 +382,7 @@ function PollsClosedReportConfirmation({
   election,
   precinctSelection,
   votingType,
-  pollsState,
+  pollsTransitionType,
   contestResults,
 }: ReportDetailsProps & {
   contestResults: Record<ContestId, Tabulation.ContestResults>;
@@ -411,7 +411,7 @@ function PollsClosedReportConfirmation({
           election={election}
           precinctSelection={precinctSelection}
           votingType={votingType}
-          pollsState={pollsState}
+          pollsTransitionType={pollsTransitionType}
         />
         {contestsByParty.map(({ partyId, contests }) => (
           <div key={partyId || 'nonpartisan'}>
@@ -531,7 +531,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
   const reportData = reportResult.ok();
 
   // Check the kind of report and render the appropriate component
-  switch (reportData.pollsState) {
+  switch (reportData.pollsTransitionType) {
     case 'open_polls':
       return (
         <PollsOpenReportConfirmation
@@ -544,7 +544,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           precinctSelection={reportData.precinctSelection}
           ballotCount={reportData.ballotCount}
           votingType={reportData.votingType}
-          pollsState={reportData.pollsState}
+          pollsTransitionType={reportData.pollsTransitionType}
         />
       );
     case 'resume_voting':
@@ -559,7 +559,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           precinctSelection={reportData.precinctSelection}
           ballotCount={reportData.ballotCount}
           votingType={reportData.votingType}
-          pollsState={reportData.pollsState}
+          pollsTransitionType={reportData.pollsTransitionType}
         />
       );
     case 'pause_voting':
@@ -574,7 +574,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           precinctSelection={reportData.precinctSelection}
           ballotCount={reportData.ballotCount}
           votingType={reportData.votingType}
-          pollsState={reportData.pollsState}
+          pollsTransitionType={reportData.pollsTransitionType}
         />
       );
     case 'close_polls':
@@ -590,7 +590,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
             precinctSelection={reportData.precinctSelection}
             contestResults={reportData.contestResults}
             votingType={reportData.votingType}
-            pollsState={reportData.pollsState}
+            pollsTransitionType={reportData.pollsTransitionType}
           />
         );
       }
@@ -606,12 +606,12 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           numPages={reportData.numPages}
           pageIndex={reportData.pageIndex}
           votingType={reportData.votingType}
-          pollsState={reportData.pollsState}
+          pollsTransitionType={reportData.pollsTransitionType}
         />
       );
 
     default:
       /* istanbul ignore next -  @preserve */
-      throwIllegalValue(reportData, 'pollsState');
+      throwIllegalValue(reportData, 'pollsTransitionType');
   }
 }

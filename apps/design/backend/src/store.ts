@@ -2773,7 +2773,7 @@ export class Store {
         client.query(
           `
             select
-              polls_transition as "pollsState",
+              polls_transition as "pollsTransitionType",
               machine_id as "machineId",
               signed_at as "signedAt",
               precinct_id as "precinctId"
@@ -2797,7 +2797,7 @@ export class Store {
         )
       )
     ).rows as Array<{
-      pollsState: string;
+      pollsTransitionType: string;
       machineId: string;
       precinctId: string | null;
       signedAt: Date;
@@ -2820,7 +2820,7 @@ export class Store {
         precinctSelection: status.precinctId
           ? singlePrecinctSelectionFor(status.precinctId)
           : ALL_PRECINCTS_SELECTION,
-        pollsState: status.pollsState as PollsTransitionType,
+        pollsTransitionType: status.pollsTransitionType as PollsTransitionType,
       });
     }
     return reportsByPrecinctId;
@@ -2903,7 +2903,7 @@ export class Store {
     isLive,
     signedTimestamp,
     precinctId,
-    pollsState,
+    pollsTransitionType,
   }: {
     electionId: string;
     ballotHash: string;
@@ -2912,7 +2912,7 @@ export class Store {
     isLive: boolean;
     signedTimestamp: Date;
     precinctId?: string;
-    pollsState: PollsTransitionType;
+    pollsTransitionType: PollsTransitionType;
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
@@ -2942,7 +2942,7 @@ export class Store {
           signedTimestamp.toISOString(),
           encodedCompressedTally,
           precinctId || null,
-          pollsState
+          pollsTransitionType
         );
         assert(rowCount === 1, 'Failed to insert results report');
 
@@ -2959,7 +2959,7 @@ export class Store {
           ballotHash,
           machineId,
           isLive,
-          pollsState
+          pollsTransitionType
         );
         return true;
       })
@@ -2978,7 +2978,7 @@ export class Store {
     isLive,
     signedTimestamp,
     precinctId,
-    pollsState,
+    pollsTransitionType,
     pageIndex,
     numPages,
   }: {
@@ -2989,7 +2989,7 @@ export class Store {
     isLive: boolean;
     signedTimestamp: Date;
     precinctId?: string;
-    pollsState: PollsTransitionType;
+    pollsTransitionType: PollsTransitionType;
     pageIndex: number;
     numPages: number;
   }): Promise<void> {
@@ -3009,7 +3009,7 @@ export class Store {
           ballotHash,
           machineId,
           isLive,
-          pollsState,
+          pollsTransitionType,
           numPages,
           precinctId || null
         );
@@ -3042,7 +3042,7 @@ export class Store {
           signedTimestamp.toISOString(),
           encodedCompressedTally,
           precinctId || null,
-          pollsState,
+          pollsTransitionType,
           pageIndex,
           numPages
         );
@@ -3059,12 +3059,12 @@ export class Store {
     ballotHash,
     machineId,
     isLive,
-    pollsState,
+    pollsTransitionType,
   }: {
     ballotHash: string;
     machineId: string;
     isLive: boolean;
-    pollsState: PollsTransitionType;
+    pollsTransitionType: PollsTransitionType;
   }): Promise<
     Array<{
       encodedCompressedTally: string;
@@ -3092,7 +3092,7 @@ export class Store {
         ballotHash,
         machineId,
         isLive,
-        pollsState
+        pollsTransitionType
       );
       return res.rows as Array<{
         encodedCompressedTally: string;

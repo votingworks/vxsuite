@@ -138,7 +138,7 @@ function getLastUpdateInformation(
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <div>
         {lastPollsUpdate.machineId}: Polls{' '}
-        {getLiveReportTransitionName(lastPollsUpdate.pollsState)}
+        {getLiveReportTransitionName(lastPollsUpdate.pollsTransitionType)}
       </div>
       <Caption>
         {format.localeShortDateAndTime(lastPollsUpdate.signedTimestamp)}
@@ -357,7 +357,7 @@ function LiveReportsSummaryScreen({
                               entries.length > 0 &&
                               entries.every((entry) =>
                                 POLLS_OPEN_TRANSITIONS.includes(
-                                  entry.pollsState
+                                  entry.pollsTransitionType
                                 )
                               )
                           ).length
@@ -379,11 +379,12 @@ function LiveReportsSummaryScreen({
                               entries.length > 0 &&
                               entries.some((entry) =>
                                 POLLS_OPEN_TRANSITIONS.includes(
-                                  entry.pollsState
+                                  entry.pollsTransitionType
                                 )
                               ) &&
                               entries.some(
-                                (entry) => entry.pollsState === 'close_polls'
+                                (entry) =>
+                                  entry.pollsTransitionType === 'close_polls'
                               )
                           ).length
                         }
@@ -403,7 +404,8 @@ function LiveReportsSummaryScreen({
                             (entries) =>
                               entries.length > 0 &&
                               entries.every(
-                                (entry) => entry.pollsState === 'close_polls'
+                                (entry) =>
+                                  entry.pollsTransitionType === 'close_polls'
                               )
                           ).length
                         }
@@ -422,7 +424,7 @@ function LiveReportsSummaryScreen({
                     variant="primary"
                     disabled={
                       allEntries.filter(
-                        (entry) => entry.pollsState === 'close_polls'
+                        (entry) => entry.pollsTransitionType === 'close_polls'
                       ).length === 0
                     }
                     to={`${
@@ -465,10 +467,10 @@ function LiveReportsSummaryScreen({
                   }
 
                   const pollsOpenCount = reportsForPrecinct.filter((entry) =>
-                    POLLS_OPEN_TRANSITIONS.includes(entry.pollsState)
+                    POLLS_OPEN_TRANSITIONS.includes(entry.pollsTransitionType)
                   ).length;
                   const pollsClosedCount = reportsForPrecinct.filter(
-                    (entry) => entry.pollsState === 'close_polls'
+                    (entry) => entry.pollsTransitionType === 'close_polls'
                   ).length;
 
                   const isHighlighted = precinctIdsToAnimate.includes(
