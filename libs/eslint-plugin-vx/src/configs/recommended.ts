@@ -130,6 +130,10 @@ export = {
     ],
     'import/no-self-import': 'off',
     'import/no-unresolved': 'off',
+    // These import rules are redundant with TypeScript's own module checks.
+    'import/namespace': 'off',
+    'import/default': 'off',
+    'import/no-named-as-default-member': 'off',
     'import/prefer-default-export': 'off',
     'lines-between-class-members': 'off',
     'no-await-in-loop': 'off',
