@@ -1138,7 +1138,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           ballotHash,
           machineId,
           isLive,
-          signedTimestamp,
+          reportCreatedAt,
+          pollsTransitionTime,
           encodedCompressedTally,
           precinctSelection,
           pollsState,
@@ -1147,6 +1148,9 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           pageIndex,
           votingType,
         } = decodeQuickResultsMessage(payload);
+
+        const signedTimestamp = pollsTransitionTime ?? reportCreatedAt;
+        assert(signedTimestamp);
 
         // First get the election ID for this hash
         const electionId = await store.getElectionIdFromBallotHash(ballotHash);
@@ -1233,7 +1237,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotHash,
               machineId,
               isLive,
-              signedTimestamp,
+              reportCreatedAt,
+              pollsTransitionTime,
               precinctSelection,
               election,
               numPages,
@@ -1280,7 +1285,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             ballotHash,
             machineId,
             isLive,
-            signedTimestamp,
+            reportCreatedAt,
+            pollsTransitionTime,
             contestResults,
             precinctSelection,
             election,
@@ -1313,7 +1319,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotHash,
               machineId,
               isLive,
-              signedTimestamp,
+              reportCreatedAt,
+              pollsTransitionTime,
               contestResults,
               precinctSelection,
               election,
@@ -1328,7 +1335,8 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
               ballotHash,
               machineId,
               isLive,
-              signedTimestamp,
+              reportCreatedAt,
+              pollsTransitionTime,
               precinctSelection,
               election,
               isPartial: false,

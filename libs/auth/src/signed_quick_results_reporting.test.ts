@@ -525,10 +525,10 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
       "numPages": 1,
       "pageIndex": 0,
       "pollsState": "polls_closed_final",
+      "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "precinctSelection": {
         "kind": "AllPrecincts",
       },
-      "signedTimestamp": 2024-01-01T00:00:00.000Z,
       "votingType": "election_day",
     }
   `);
@@ -565,11 +565,11 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle proper payl
       "numPages": 1,
       "pageIndex": 0,
       "pollsState": "polls_closed_final",
+      "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "precinctSelection": {
         "kind": "SinglePrecinct",
         "precinctId": "mockPrecinctId",
       },
-      "signedTimestamp": 2024-01-01T00:00:00.000Z,
       "votingType": "early_voting",
     }
   `);
@@ -634,11 +634,11 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
       "numPages": 1,
       "pageIndex": 0,
       "pollsState": "polls_open",
+      "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "precinctSelection": {
         "kind": "SinglePrecinct",
         "precinctId": "mockPrecinctId",
       },
-      "signedTimestamp": 2024-01-01T00:00:00.000Z,
       "votingType": "election_day",
     }
   `);
@@ -675,11 +675,11 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle reporting p
       "numPages": 1,
       "pageIndex": 0,
       "pollsState": "polls_paused",
+      "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "precinctSelection": {
         "kind": "SinglePrecinct",
         "precinctId": "mockPrecinctId",
       },
-      "signedTimestamp": 2024-01-01T00:00:00.000Z,
       "votingType": "early_voting",
     }
   `);
@@ -716,7 +716,7 @@ test('decodeQuickResultsMessage handles v1 (qr1) messages without ballotCount, d
         "kind": "SinglePrecinct",
         "precinctId": "mockPrecinctId",
       },
-      "signedTimestamp": 2024-01-01T00:00:00.000Z,
+      "reportCreatedAt": 2024-01-01T00:00:00.000Z,
       "votingType": "election_day",
     }
   `);
@@ -750,10 +750,10 @@ test('encodeQuickResultsMessage and decodeQuickResultsMessage handle absentee vo
       "numPages": 1,
       "pageIndex": 0,
       "pollsState": "polls_closed_final",
+      "pollsTransitionTime": 2024-01-01T00:00:00.000Z,
       "precinctSelection": {
         "kind": "AllPrecincts",
       },
-      "signedTimestamp": 2024-01-01T00:00:00.000Z,
       "votingType": "absentee",
     }
   `);

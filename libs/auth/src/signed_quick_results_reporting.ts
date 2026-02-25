@@ -128,11 +128,11 @@ export function encodeQuickResultsMessage(components: {
   );
 }
 
-interface DecodedBaseFieldsV1 {
+interface DecodedBaseFields {
   ballotHash: string;
   machineId: string;
   isLive: boolean;
-  signedTimestamp: Date;
+  reportCreatedAt?: Date;
   encodedCompressedTally: string;
   precinctSelection: PrecinctSelection;
   pollsState: PollsStateSupportsLiveReporting;
@@ -140,7 +140,8 @@ interface DecodedBaseFieldsV1 {
   pageIndex: number;
 }
 
-interface DecodedFields extends DecodedBaseFieldsV1 {
+interface DecodedFields extends DecodedBaseFields {
+  pollsTransitionTime?: Date;
   ballotCount?: number;
   votingType: LiveReportVotingType;
 }
@@ -153,7 +154,9 @@ function parseRequiredInt(value: string, fieldName: string): number {
   return result.ok();
 }
 
-function decodeBaseFields(parts: string[]): DecodedBaseFieldsV1 {
+function decodeBaseFields(
+  parts: string[]
+): DecodedBaseFields & { timestamp: Date } {
   const [
     ballotHashEncoded,
     signingMachineIdEncoded,
@@ -198,7 +201,7 @@ function decodeBaseFields(parts: string[]): DecodedBaseFieldsV1 {
     ballotHash: safeDecodeFromUrl(ballotHashEncoded),
     machineId: safeDecodeFromUrl(signingMachineIdEncoded),
     isLive: isLiveModeStr === '1',
-    signedTimestamp: new Date(timestampNumber * 1000),
+    timestamp: new Date(timestampNumber * 1000),
     encodedCompressedTally:
       pollsState !== 'polls_closed_final' ? '' : primaryMessage,
     precinctSelection: precinctId
@@ -217,8 +220,10 @@ function decodeV1Message(messagePayload: string): DecodedFields {
   if (parts.length !== 8) {
     throw new Error('Invalid message payload format');
   }
+  const { timestamp, ...base } = decodeBaseFields(parts);
   return {
-    ...decodeBaseFields(parts),
+    ...base,
+    reportCreatedAt: timestamp,
     ballotCount: undefined,
     votingType: 'election_day',
   };
@@ -232,7 +237,7 @@ function decodeV2Message(messagePayload: string): DecodedFields {
     throw new Error('Invalid message payload format');
   }
 
-  const base = decodeBaseFields(parts);
+  const { timestamp, ...base } = decodeBaseFields(parts);
 
   const ballotCountStr = parts[8];
   assert(ballotCountStr !== undefined);
@@ -249,7 +254,7 @@ function decodeV2Message(messagePayload: string): DecodedFields {
     throw new Error('Invalid voting type format');
   }
 
-  return { ...base, ballotCount, votingType };
+  return { ...base, pollsTransitionTime: timestamp, ballotCount, votingType };
 }
 
 /**

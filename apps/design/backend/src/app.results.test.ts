@@ -320,7 +320,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         pollsState: 'polls_closed_final',
         machineId: 'machineId',
         isLive: true,
-        signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+        pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -438,7 +438,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         machineId: 'machineId',
         isLive: true,
         pollsState: 'polls_closed_final',
-        signedTimestamp: new Date('2024-01-02T12:00:00Z'),
+        pollsTransitionTime: new Date('2024-01-02T12:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -613,7 +613,7 @@ test('quick results reporting works for polls open reporting', async () => {
         pollsState: 'polls_open',
         machineId: 'mock-01',
         isLive: false,
-        signedTimestamp: new Date('2024-05-04T08:00:00Z'),
+        pollsTransitionTime: new Date('2024-05-04T08:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -648,7 +648,7 @@ test('quick results reporting works for polls open reporting', async () => {
         pollsState: 'polls_open',
         machineId: 'mock-02',
         isLive: false,
-        signedTimestamp: new Date('2024-05-04T09:00:00Z'),
+        pollsTransitionTime: new Date('2024-05-04T09:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -732,7 +732,7 @@ test('quick results reporting works for polls open reporting', async () => {
         pollsState: 'polls_closed_final',
         machineId: 'mock-01',
         isLive: false,
-        signedTimestamp: new Date('2024-05-04T12:00:00Z'),
+        pollsTransitionTime: new Date('2024-05-04T12:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -805,7 +805,7 @@ test('quick results reporting works for polls open reporting', async () => {
       pollsState: 'polls_open',
       machineId: 'mock-01',
       isLive: true,
-      signedTimestamp: new Date('2024-05-05T08:00:00Z'),
+      pollsTransitionTime: new Date('2024-05-05T08:00:00Z'),
       election: expect.objectContaining({
         id: sampleElectionDefinition.election.id,
       }),
@@ -888,7 +888,7 @@ test('quick results reporting works for polls paused reporting', async () => {
         pollsState: 'polls_paused',
         machineId: 'mock-01',
         isLive: false,
-        signedTimestamp: new Date('2024-05-04T10:00:00Z'),
+        pollsTransitionTime: new Date('2024-05-04T10:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -966,7 +966,7 @@ test('processQrCodeReport handles v1 (qr1) message format without ballotCount', 
       pollsState: 'polls_open',
       machineId: 'mock-v1',
       isLive: false,
-      signedTimestamp: new Date('2024-05-04T08:00:00Z'),
+      reportCreatedAt: new Date('2024-05-04T08:00:00Z'),
       election: expect.objectContaining({
         id: sampleElectionDefinition.election.id,
       }),
@@ -1134,7 +1134,7 @@ test('quick results reporting works as expected end to end with single precinct 
         ballotHash: sampleElectionDefinition.ballotHash,
         machineId: 'first-precinct-machine',
         isLive: true,
-        signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+        pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -1181,7 +1181,7 @@ test('quick results reporting works as expected end to end with single precinct 
         ballotHash: sampleElectionDefinition.ballotHash,
         machineId: 'second-precinct-machine',
         isLive: true,
-        signedTimestamp: new Date('2024-01-01T13:00:00Z'),
+        pollsTransitionTime: new Date('2024-01-01T13:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -1669,7 +1669,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
       pageIndex: 0,
       pollsState: 'polls_closed_final',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
       isPartial: true,
       votingType: 'election_day',
     })
@@ -1724,7 +1724,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
       }),
       pollsState: 'polls_closed_final',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:01Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:01Z'),
       contestResults: mockResults.contestResults,
       isPartial: false,
       votingType: 'election_day',
@@ -1842,7 +1842,7 @@ test('quick results reporting clears previous partial reports on numPages change
       pageIndex: 0,
       pollsState: 'polls_closed_final',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
       isPartial: true,
       votingType: 'election_day',
     })
@@ -1888,7 +1888,7 @@ test('quick results reporting clears previous partial reports on numPages change
       pageIndex: 1,
       pollsState: 'polls_closed_final',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:01Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:01Z'),
       isPartial: true,
       votingType: 'election_day',
     })
@@ -1926,7 +1926,7 @@ test('quick results reporting clears previous partial reports on numPages change
       pageIndex: 2,
       pollsState: 'polls_closed_final',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:02Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:02Z'),
       isPartial: true,
       votingType: 'election_day',
     })
@@ -1963,7 +1963,7 @@ test('quick results reporting clears previous partial reports on numPages change
       }),
       pollsState: 'polls_closed_final',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
       contestResults: mockResults.contestResults,
       isPartial: false,
       votingType: 'election_day',
