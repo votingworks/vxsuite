@@ -129,7 +129,7 @@ function markToYesNoVotes(
   markThresholds: Pick<MarkThresholds, 'definite'>,
   mark: BallotTargetMark
 ): YesNoVote {
-  assert(mark.type === 'yesno');
+  assert(mark.type === 'yesno' || mark.type === 'straight-party');
   return getMarkStatus(mark.score, markThresholds) === MarkStatus.Marked
     ? [mark.optionId]
     : [];

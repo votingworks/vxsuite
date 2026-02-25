@@ -229,39 +229,48 @@ pub enum Contest {
     Candidate(CandidateContest),
     #[serde(rename = "yesno")]
     YesNo(YesNoContest),
+    #[serde(rename = "straight-party")]
+    StraightParty(StraightPartyContest),
 }
 
 impl Contest {
     pub fn id(&self) -> &ContestId {
         match self {
-            Self::Candidate(CandidateContest { id, .. }) | Self::YesNo(YesNoContest { id, .. }) => {
-                id
-            }
+            Self::Candidate(CandidateContest { id, .. })
+            | Self::YesNo(YesNoContest { id, .. })
+            | Self::StraightParty(StraightPartyContest { id, .. }) => id,
         }
     }
 
-    pub fn district_id(&self) -> &DistrictId {
+    pub fn district_id(&self) -> Option<&DistrictId> {
         match self {
             Self::Candidate(CandidateContest { district_id, .. })
-            | Self::YesNo(YesNoContest { district_id, .. }) => district_id,
+            | Self::YesNo(YesNoContest { district_id, .. }) => Some(district_id),
+            Self::StraightParty(_) => None,
         }
     }
 
     #[must_use]
     pub fn applies_to_ballot_style(&self, ballot_style: &BallotStyle) -> bool {
-        // matches the district
-        ballot_style
-            .districts
-            .iter()
-            .any(|district_id| district_id == self.district_id())
-            // and has matching party or no party
-            && match self {
-                Contest::YesNo(_)
-                | Contest::Candidate(CandidateContest { party_id: None, .. }) => true,
-                Contest::Candidate(CandidateContest { party_id, .. }) => {
-                    party_id == &ballot_style.party_id
+        match self {
+            // Straight-party contests apply to all ballot styles
+            Contest::StraightParty(_) => true,
+            _ => {
+                // matches the district
+                self.district_id().is_some_and(|did| {
+                    ballot_style.districts.iter().any(|district_id| district_id == did)
+                })
+                // and has matching party or no party
+                && match self {
+                    Contest::YesNo(_)
+                    | Contest::Candidate(CandidateContest { party_id: None, .. }) => true,
+                    Contest::Candidate(CandidateContest { party_id, .. }) => {
+                        party_id == &ballot_style.party_id
+                    }
+                    Contest::StraightParty(_) => unreachable!(),
                 }
             }
+        }
     }
 }
 
@@ -437,6 +446,14 @@ pub struct YesNoContest {
 pub struct YesNoOption {
     pub id: OptionId,
     pub label: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
+#[must_use]
+pub struct StraightPartyContest {
+    pub id: ContestId,
+    pub title: String,
 }
 
 #[cfg(test)]

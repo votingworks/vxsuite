@@ -294,12 +294,18 @@ export function castVoteRecordHasValidContestReferences(
         return err('contest-not-found');
       }
 
-      const validContestOptions = new Set(
-        getValidContestOptions(electionContest)
-      );
-      for (const cvrContestSelection of cvrContest.CVRContestSelection) {
-        if (!validContestOptions.has(cvrContestSelection.ContestSelectionId)) {
-          return err('contest-option-not-found');
+      // Straight-party options are derived from election.parties, not stored
+      // on the contest itself, so skip option validation for them.
+      if (electionContest.type !== 'straight-party') {
+        const validContestOptions = new Set(
+          getValidContestOptions(electionContest)
+        );
+        for (const cvrContestSelection of cvrContest.CVRContestSelection) {
+          if (
+            !validContestOptions.has(cvrContestSelection.ContestSelectionId)
+          ) {
+            return err('contest-option-not-found');
+          }
         }
       }
     }
