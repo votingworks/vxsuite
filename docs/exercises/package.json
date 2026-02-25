@@ -7,8 +7,8 @@
   "scripts": {
     "build": "pnpm type-check",
     "clean": "echo 'Nothing to clean'",
-    "lint": "pnpm type-check && eslint .",
-    "lint:fix": "pnpm type-check && eslint . --fix",
+    "lint": "pnpm type-check && eslint --cache .",
+    "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
     "test:ci": "vitest run --coverage",
