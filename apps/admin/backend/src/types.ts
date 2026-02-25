@@ -17,6 +17,7 @@ import {
   Sha256Hash,
   BallotStyleGroupId,
   Side,
+  BallotCastingMode,
   BallotPageContestOptionLayout,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
@@ -50,6 +51,7 @@ export interface CastVoteRecordFileMetadata {
 export interface ScannerBatch extends Tabulation.ScannerBatch {
   label: string;
   electionId: string;
+  ballotCastingMode?: BallotCastingMode;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
@@ -8,8 +8,10 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import {
+  BooleanEnvironmentVariableName,
   GROUP_KEY_ROOT,
   buildManualResultsFixture,
+  getFeatureFlagMock,
   groupMapToGroupList,
 } from '@votingworks/utils';
 import { Store } from '../store';
@@ -21,6 +23,15 @@ import {
   tabulateFullCardCounts,
   tabulateScannedCardCounts,
 } from './card_counts';
+
+const featureFlagMock = getFeatureFlagMock();
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
+
+featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
 
 test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore();
@@ -149,6 +160,7 @@ test('tabulateScannedCardCounts - grouping', () => {
     {
       groupBy: { groupByVotingMethod: true },
       expected: [
+        ['root&votingMethod=early_voting', 0],
         ['root&votingMethod=precinct', 68],
         ['root&votingMethod=absentee', 15],
       ],
@@ -164,7 +176,7 @@ test('tabulateScannedCardCounts - grouping', () => {
 
     for (const [groupKey, tally] of expected) {
       expect(groupedCardCounts[groupKey]).toEqual({
-        bmd: [tally],
+        bmd: tally > 0 ? [tally] : [],
         hmpb: [],
       });
     }
@@ -325,6 +337,12 @@ test('tabulateFullCardCounts - manual results', () => {
     })
   );
   expect(votingMethodCardCounts).toEqual([
+    {
+      bmd: [],
+      hmpb: [],
+      manual: 0,
+      votingMethod: 'early_voting',
+    },
     {
       bmd: [30],
       hmpb: [],

@@ -17,13 +17,26 @@ import { join } from 'node:path';
 import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
-import { getGroupedBallotStyles } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+  getGroupedBallotStyles,
+} from '@votingworks/utils';
 import { Store } from './store';
 import {
   ElectionRecord,
   ManualResultsVotingMethod,
   ScannerBatch,
 } from './types';
+
+const featureFlagMock = getFeatureFlagMock();
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
+
+featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
 
 test('create a file store', () => {
   const tmpDir = makeTemporaryDirectory();

@@ -14,7 +14,11 @@ import {
   getBallotStyleLabel,
 } from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
-import { getGroupedBallotStyles } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  getGroupedBallotStyles,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { getScannerBatches } from '../../api';
 import {
   getPartiesWithPrimaryElections,
@@ -118,6 +122,14 @@ function generateOptionsForFilter({
       }));
     case 'voting-method':
       return typedAs<Array<SelectOption<Tabulation.VotingMethod>>>([
+        ...(isFeatureFlagEnabled(BooleanEnvironmentVariableName.EARLY_VOTING)
+          ? [
+              {
+                value: 'early_voting' as const,
+                label: 'Early Voting',
+              },
+            ]
+          : []),
         {
           value: 'precinct',
           label: 'Precinct',

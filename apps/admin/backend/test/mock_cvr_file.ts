@@ -15,7 +15,9 @@ import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_record
 import { determineCvrContestTags } from '../src/cast_vote_records';
 
 export type MockCastVoteRecordFile = Array<
-  Tabulation.CastVoteRecord & { multiplier?: number }
+  Tabulation.CastVoteRecord & {
+    multiplier?: number;
+  }
 >;
 
 const mockPageLayout: BallotPageLayout = {
@@ -56,6 +58,7 @@ export function addMockCvrFileToStore({
       batchId: mockCastVoteRecord.batchId,
       scannerId: mockCastVoteRecord.scannerId,
       label: `Batch ${mockCastVoteRecord.batchId}`,
+      ballotCastingMode: mockCastVoteRecord.ballotCastingMode,
     });
     scannerIds.add(mockCastVoteRecord.scannerId);
   }

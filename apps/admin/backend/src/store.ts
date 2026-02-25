@@ -48,9 +48,11 @@ import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 import {
   asSqliteBool,
+  BooleanEnvironmentVariableName,
   fromSqliteBool,
   getGroupedBallotStyles,
   getOfficialCandidateNameLookup,
+  isFeatureFlagEnabled,
   SqliteBool,
 } from '@votingworks/utils';
 import {
@@ -171,6 +173,21 @@ export class Store {
    */
   reset(): void {
     this.client.reset();
+  }
+
+  isEarlyVotingEnabled(): boolean {
+    return isFeatureFlagEnabled(BooleanEnvironmentVariableName.EARLY_VOTING);
+  }
+
+  /**
+   * Derive the voting method from the ballot type and the
+   * batch's ballot casting mode, if early voting is enabled.
+   */
+  private getVotingMethodSqlExpr(): string {
+    if (this.isEarlyVotingEnabled()) {
+      return `(CASE WHEN scanner_batches.ballot_casting_mode = 'early_voting' THEN 'early_voting' ELSE cvrs.ballot_type END)`;
+    }
+    return `cvrs.ballot_type`;
   }
 
   /**
@@ -595,8 +612,11 @@ export class Store {
    * Adds link record representing the association between a ballot style and a precinct.
    */
   private addVotingMethodRecords({ electionId }: { electionId: Id }): void {
+    const votingMethods = Tabulation.SUPPORTED_VOTING_METHODS.filter(
+      (method) => method !== 'early_voting' || this.isEarlyVotingEnabled()
+    );
     const params: Bindable[] = [];
-    for (const votingMethod of Tabulation.SUPPORTED_VOTING_METHODS) {
+    for (const votingMethod of votingMethods) {
       params.push(electionId, votingMethod);
     }
 
@@ -607,9 +627,7 @@ export class Store {
             voting_method
           )
           values
-            ${Tabulation.SUPPORTED_VOTING_METHODS.map(() => '(?, ?)').join(
-              ',\n'
-            )}
+            ${votingMethods.map(() => '(?, ?)').join(',\n')}
         `,
       ...params
     );
@@ -681,7 +699,9 @@ export class Store {
     if (groupBy.groupByVotingMethod) {
       selectParts.push('voting_methods.voting_method as votingMethod');
       groupByParts.push('votingMethod');
-      sortByParts.push('votingMethod DESC'); // absentee last
+      sortByParts.push(
+        `CASE voting_methods.voting_method WHEN 'early_voting' THEN 1 WHEN 'precinct' THEN 2 WHEN 'absentee' THEN 3 END`
+      );
     }
 
     const query = `
@@ -1051,32 +1071,40 @@ export class Store {
         id,
         label,
         scanner_id,
-        election_id
+        election_id,
+        ballot_casting_mode
       ) values (
-        ?, ?, ?, ?
+        ?, ?, ?, ?, ?
       )
     `,
       scannerBatch.batchId,
       scannerBatch.label,
       scannerBatch.scannerId,
-      scannerBatch.electionId
+      scannerBatch.electionId,
+      scannerBatch.ballotCastingMode ?? null
     );
   }
 
   getScannerBatches(electionId: string): ScannerBatch[] {
-    return this.client.all(
-      `
+    return (
+      this.client.all(
+        `
         select
           id as batchId,
           label as label,
           scanner_id as scannerId,
-          election_id as electionId
+          election_id as electionId,
+          ballot_casting_mode as ballotCastingMode
         from scanner_batches
         where
           election_id = ?
       `,
-      electionId
-    ) as ScannerBatch[];
+        electionId
+      ) as ScannerBatch[]
+    ).map((row) => ({
+      ...row,
+      ballotCastingMode: row.ballotCastingMode ?? undefined,
+    }));
   }
 
   deleteEmptyScannerBatches(electionId: string): void {
@@ -1328,7 +1356,9 @@ export class Store {
 
     if (filter.votingMethods) {
       whereParts.push(
-        `cvrs.ballot_type in ${asQueryPlaceholders(filter.votingMethods)}`
+        `${this.getVotingMethodSqlExpr()} in ${asQueryPlaceholders(
+          filter.votingMethods
+        )}`
       );
       params.push(...filter.votingMethods);
     }
@@ -1447,7 +1477,7 @@ export class Store {
           cvrs.ballot_style_group_id as ballotStyleGroupId,
           ballot_styles.party_id as partyId,
           cvrs.precinct_id as precinctId,
-          cvrs.ballot_type as votingMethod,
+          ${this.getVotingMethodSqlExpr()} as votingMethod,
           cvrs.batch_id as batchId,
           scanner_batches.scanner_id as scannerId,
           cvrs.card_type as cardType,
@@ -1555,8 +1585,8 @@ export class Store {
     }
 
     if (groupBy.groupByVotingMethod) {
-      selectParts.push('cvrs.ballot_type as votingMethod');
-      groupByParts.push('cvrs.ballot_type');
+      selectParts.push(`${this.getVotingMethodSqlExpr()} as votingMethod`);
+      groupByParts.push(this.getVotingMethodSqlExpr());
     }
 
     for (const row of this.client.each(
@@ -1898,7 +1928,7 @@ export class Store {
     }
 
     if (groupBy.groupByVotingMethod) {
-      selectParts.push('cvrs.ballot_type as votingMethod');
+      selectParts.push(`${this.getVotingMethodSqlExpr()} as votingMethod`);
     }
 
     const officialCandidateNameLookup =

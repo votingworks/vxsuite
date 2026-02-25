@@ -65,8 +65,8 @@ create table contests(
 
 create table voting_methods(
   election_id integer not null,
-  voting_method text not null 
-    check (voting_method = 'absentee' or voting_method = 'precinct' or voting_method = 'provisional'),
+  voting_method text not null
+    check (voting_method = 'absentee' or voting_method = 'precinct' or voting_method = 'provisional' or voting_method = 'early_voting'),
   primary key (election_id, voting_method),
   foreign key (election_id) references elections(id)
     on delete cascade
@@ -173,6 +173,7 @@ create table scanner_batches (
   label text not null,
   scanner_id text not null,
   election_id varchar(36) not null,
+  ballot_casting_mode text check (ballot_casting_mode is null or ballot_casting_mode = 'early_voting' or ballot_casting_mode = 'election_day'),
   primary key (election_id, id),
   foreign key (election_id) references elections(id)
     on delete cascade
@@ -217,8 +218,8 @@ create table manual_results (
   election_id integer not null,
   precinct_id text not null,
   ballot_style_group_id text not null,
-  voting_method text not null 
-    check (voting_method = 'absentee' or voting_method = 'precinct'),
+  voting_method text not null
+    check (voting_method = 'absentee' or voting_method = 'precinct' or voting_method = 'early_voting'),
   ballot_count integer not null,
   contest_results text not null,
   created_at timestamp not null default current_timestamp,
