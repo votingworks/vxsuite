@@ -91,6 +91,7 @@ import {
   CastVoteRecordAdjudicationFlags,
   WriteInAdjudicationActionReset,
   CvrContestTag,
+  CvrTag,
   WriteInForTally,
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
@@ -1928,17 +1929,22 @@ export class Store {
     debug('querying database for ballot adjudication cvr queue');
     const rows = this.client.all(
       `
-        select cct.cvr_id
-        from cvr_contest_tags cct
-        join cvrs c on c.id = cct.cvr_id
-        group by cct.cvr_id
+        select c.id as cvr_id
+        from cvrs c
+        where c.id in (
+          select cvr_id from cvr_contest_tags
+          union
+          select cvr_id from cvr_tags
+        )
         order by
           case when c.card_type = 'bmd' then 1 else 0 end,
           c.ballot_style_group_id,
           c.sheet_number
       `
     ) as Array<{ cvr_id: Id }>;
-    debug('queried cvr contests tags for ballot adjudication queue');
+    debug(
+      'queried cvr contest tags and cvr tags for ballot adjudication queue'
+    );
     return rows.map((r) => r.cvr_id);
   }
 
@@ -1957,14 +1963,20 @@ export class Store {
         select
           count(distinct cvr_id) as totalTally,
           count(distinct case when is_resolved = 0 then cvr_id end) as pendingTally
-        from cvr_contest_tags
+        from (
+          select cvr_id, is_resolved from cvr_contest_tags
+          union all
+          select cvr_id, is_resolved from cvr_tags
+        )
       `
     ) as {
       totalTally: number;
       pendingTally: number;
     };
 
-    debug('queried adjudication queue metadata from cvr contest tags');
+    debug(
+      'queried adjudication queue metadata from cvr contest tags and cvr tags'
+    );
     return row;
   }
 
@@ -2128,9 +2140,12 @@ export class Store {
         };
       });
 
+    const tag = this.getCvrTag({ cvrId });
+
     debug('queried ballot adjudication data for cvr id %s', cvrId);
     return {
       cvrId,
+      tag,
       contests,
     };
   }
@@ -2146,9 +2161,11 @@ export class Store {
     const row = this.client.one(
       `
         select cvr_id
-        from cvr_contest_tags
-        where
-          is_resolved = 0
+        from (
+          select cvr_id, sequence_id from cvr_contest_tags where is_resolved = 0
+          union all
+          select cvr_id, sequence_id from cvr_tags where is_resolved = 0
+        )
         group by cvr_id
         order by min(sequence_id)
         limit 1
@@ -3074,6 +3091,64 @@ export class Store {
       `,
       cvrId,
       contestId
+    );
+  }
+
+  addCvrTag({
+    cvrId,
+    isResolved = false,
+    isBlankBallot = false,
+  }: CvrTag): void {
+    this.client.run(
+      `
+        insert into cvr_tags (
+          cvr_id,
+          is_resolved,
+          is_blank_ballot
+        ) values (?, ?, ?)
+      `,
+      cvrId,
+      asSqliteBool(isResolved),
+      asSqliteBool(isBlankBallot)
+    );
+  }
+
+  getCvrTag({ cvrId }: { cvrId: Id }): CvrTag | undefined {
+    const row = this.client.one(
+      `
+        select
+          cvr_id as cvrId,
+          is_resolved as isResolved,
+          is_blank_ballot as isBlankBallot
+        from cvr_tags
+        where cvr_id = ?
+      `,
+      cvrId
+    ) as
+      | {
+          cvrId: Id;
+          isResolved: SqliteBool;
+          isBlankBallot: SqliteBool;
+        }
+      | undefined;
+
+    return row
+      ? {
+          ...row,
+          isResolved: fromSqliteBool(row.isResolved),
+          isBlankBallot: fromSqliteBool(row.isBlankBallot),
+        }
+      : undefined;
+  }
+
+  resolveCvrTag({ cvrId }: { cvrId: Id }): void {
+    this.client.run(
+      `
+        update cvr_tags
+        set is_resolved = 1
+        where cvr_id = ?
+      `,
+      cvrId
     );
   }
 

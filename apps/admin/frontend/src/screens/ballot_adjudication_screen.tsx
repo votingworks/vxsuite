@@ -12,6 +12,7 @@ import type { BallotImages } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import {
+  adjudicateBallot,
   getBallotAdjudicationData,
   getBallotAdjudicationQueue,
   getBallotImagesAndLayouts,
@@ -170,6 +171,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
   // Queries and mutations
   const { electionDefinition } = useContext(AppContext);
   const history = useHistory();
+  const adjudicateBallotMutation = adjudicateBallot.useMutation();
   const ballotQueueQuery = getBallotAdjudicationQueue.useQuery();
   const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.useQuery();
 
@@ -339,12 +341,21 @@ export function BallotAdjudicationScreen(): JSX.Element {
     confirmAcceptAndNext();
   }
 
-  function confirmAcceptAndNext(): void {
-    setShowConfirmModal(false);
+  function navigateNext(): void {
     if (onLastBallot) {
       history.push(routerPaths.adjudication);
     } else {
       setMaybeCvrQueueIndex(queueIndex + 1);
+    }
+  }
+
+  function confirmAcceptAndNext(): void {
+    setShowConfirmModal(false);
+    const { tag } = ballotAdjudicationDataQuery.data;
+    if (tag && !tag.isResolved) {
+      void adjudicateBallotMutation.mutateAsync({ cvrId }).then(navigateNext);
+    } else {
+      navigateNext();
     }
   }
 

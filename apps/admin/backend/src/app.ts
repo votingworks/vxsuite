@@ -649,6 +649,10 @@ function buildApi({
       adjudicateCvrContest(input, store, logger);
     },
 
+    adjudicateBallot(input: { cvrId: Id }): void {
+      store.resolveCvrTag({ cvrId: input.cvrId });
+    },
+
     getCastVoteRecordVoteInfo(input: { cvrId: Id }): CastVoteRecordVoteInfo {
       return store.getCastVoteRecordVoteInfo({
         ...input,

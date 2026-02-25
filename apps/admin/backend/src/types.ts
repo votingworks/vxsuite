@@ -344,6 +344,7 @@ export interface ContestAdjudicationData {
  */
 export interface BallotAdjudicationData {
   cvrId: Id;
+  tag?: CvrTag;
   contests: ContestAdjudicationData[];
 }
 
@@ -431,6 +432,15 @@ interface AdjudicatedWriteInCandidate extends AdjudicatedWriteInBase {
 
 interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
   hasVote: false;
+}
+
+/**
+ * A queryable ballot-level tag, used for adjudication
+ */
+export interface CvrTag {
+  cvrId: Id;
+  isResolved: boolean;
+  isBlankBallot?: boolean;
 }
 
 /**

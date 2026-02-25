@@ -901,6 +901,26 @@ export const adjudicateCvrContest = {
   },
 } as const;
 
+export const adjudicateBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.adjudicateBallot, {
+      async onSuccess(_data, variables) {
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationQueueMetadata.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getNextCvrIdForBallotAdjudication.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
 export const saveElectionPackageToUsb = {
   useMutation() {
     const apiClient = useApiClient();
