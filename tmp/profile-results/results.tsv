@@ -1,0 +1,9 @@
+prettier	libs/basics/src/iterators/integers.test.ts	.687197583
+eslint	libs/basics/src/iterators/integers.test.ts	1.325893459
+prettier	apps/admin/frontend/src/screens/adjudication_summary_screen.test.tsx	.709465167
+eslint	apps/admin/frontend/src/screens/adjudication_summary_screen.test.tsx	1.559619084
+stylelint	apps/admin/frontend/src/screens/adjudication_summary_screen.test.tsx	.964455334
+lint-staged	1-file-1-pkg	1.600633418
+lint-staged	5-files-1-pkg	1.617293584
+lint-staged	1-file-3-pkgs	1.618354043
+lint-staged	10+-files-multi-pkg	1.813476209

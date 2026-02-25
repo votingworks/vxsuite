@@ -1,0 +1,16 @@
+dev-server-cold	apps/admin/frontend	2.631464835
+dev-server-warm	apps/admin/frontend	.556707042
+dev-server-cold	apps/central-scan/frontend	4.831373669
+dev-server-warm	apps/central-scan/frontend	3.188717168
+dev-server-cold	apps/design/frontend	3.726885376
+dev-server-warm	apps/design/frontend	3.675743169
+dev-server-cold	apps/mark/frontend	2.645180751
+dev-server-warm	apps/mark/frontend	2.009391751
+dev-server-cold	apps/mark-scan/frontend	2.013309251
+dev-server-warm	apps/mark-scan/frontend	2.009593251
+dev-server-cold	apps/pollbook/frontend	2.016051501
+dev-server-warm	apps/pollbook/frontend	2.041894709
+dev-server-cold	apps/print/frontend	2.015612793
+dev-server-warm	apps/print/frontend	3.548466377
+dev-server-cold	apps/scan/frontend	3.572344418
+dev-server-warm	apps/scan/frontend	4.218532168
