@@ -5754,6 +5754,9 @@ importers:
       '@types/i18next':
         specifier: ^13.0.0
         version: 13.0.0
+      '@types/jest-image-snapshot':
+        specifier: ^6.4.0
+        version: 6.4.0
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../@types/kiosk-browser
@@ -5811,9 +5814,15 @@ importers:
       '@votingworks/fujitsu-thermal-printer':
         specifier: workspace:*
         version: link:../fujitsu-thermal-printer
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../image-utils
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../monorepo-utils
+      '@votingworks/printing':
+        specifier: workspace:*
+        version: link:../printing
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -5853,6 +5862,9 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
+      jest-image-snapshot:
+        specifier: ^6.4.0
+        version: 6.4.0
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0

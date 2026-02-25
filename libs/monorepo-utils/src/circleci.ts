@@ -1,5 +1,5 @@
-import { join } from 'node:path';
-import { existsSync } from 'node:fs';
+import { basename, join } from 'node:path';
+import { existsSync, readdirSync } from 'node:fs';
 import { iter, Optional } from '@votingworks/basics';
 import { PnpmPackageInfo } from './types';
 
@@ -13,6 +13,14 @@ const POSTGRES_PACKAGES: string[] = ['apps/design/backend'];
 // The following packages are only tested when there is a change to its directory.
 const PACKAGES_ONLY_TEST_ON_CHANGES = ['apps/pollbook/backend'];
 
+function findImageSnapshotDirsRelativeToSrc(pkgPath: string): string[] {
+  const srcPath = join(pkgPath, 'src');
+  if (!existsSync(srcPath)) return [];
+  return (readdirSync(srcPath, { recursive: true }) as string[]).filter(
+    (entry) => basename(entry) === '__image_snapshots__'
+  );
+}
+
 function generateTestJobForNodeJsPackage(
   pkg: PnpmPackageInfo,
   isConditional?: boolean
@@ -23,7 +31,8 @@ function generateTestJobForNodeJsPackage(
   }
 
   const hasPlaywrightTests = existsSync(`${pkg.path}/playwright.config.ts`);
-  const hasSnapshotTests = existsSync(`${pkg.path}/src/__image_snapshots__`);
+  const snapshotDirs = findImageSnapshotDirsRelativeToSrc(pkg.path);
+  const hasSnapshotTests = snapshotDirs.length > 0;
   const needsPostgres = POSTGRES_PACKAGES.includes(pkg.relativePath);
 
   const lines = [
@@ -83,13 +92,14 @@ function generateTestJobForNodeJsPackage(
 
   if (hasSnapshotTests || hasPlaywrightTests) {
     const indent = isConditional ? '          ' : '    ';
-    lines.push(`${indent}- store_artifacts:`);
-    if (hasSnapshotTests) {
+    for (const snapshotDir of snapshotDirs) {
+      lines.push(`${indent}- store_artifacts:`);
       lines.push(
-        `${indent}    path: ${pkg.relativePath}/src/__image_snapshots__/__diff_output__/`
+        `${indent}    path: ${pkg.relativePath}/src/${snapshotDir}/__diff_output__/`
       );
     }
     if (hasPlaywrightTests) {
+      lines.push(`${indent}- store_artifacts:`);
       lines.push(`${indent}    path: ${pkg.relativePath}/test-results/`);
     }
   }

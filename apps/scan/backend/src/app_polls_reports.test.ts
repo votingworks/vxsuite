@@ -318,6 +318,37 @@ test('polls closed report shows correct sheet counts for multi-page BMD ballots'
   );
 });
 
+test('can print write-in image report after polls closed', async () => {
+  await withApp(
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockFujitsuPrinterHandler,
+      mockAuth,
+      workspace,
+      clock,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+      });
+
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
+
+      await apiClient.closePolls();
+
+      (await apiClient.printWriteInImageReport()).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'write-in-image-report-integration',
+      });
+
+      mockFujitsuPrinterHandler.cleanup();
+    }
+  );
+});
+
 /**
  * TODO: Add test coverage for results in a primary election. This will require
  * more robust mocking of ballots for scanning that creates or copies marked
