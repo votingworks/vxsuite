@@ -5,7 +5,7 @@ import {
   ElectionDefinition,
   LIVE_REPORT_VOTING_TYPES,
   LiveReportVotingType,
-  PollsStateSupportsLiveReporting,
+  PollsTransitionType,
   PrecinctSelection,
   Tabulation,
   safeParseInt,
@@ -47,10 +47,39 @@ interface SignedQuickResultsReportingInput {
   results: Tabulation.ElectionResults;
   signingMachineId: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsStateSupportsLiveReporting;
+  pollsTransitionType: PollsTransitionType;
   votingType: LiveReportVotingType;
   pollsTransitionTimestamp: number;
   maxQrCodeLength?: number; // Provided as a prop for ease in testing
+}
+
+/**
+ * Non-tally primaryMessage values (both new transition types and old polls
+ * state strings for backwards compatibility).
+ */
+const NON_TALLY_PRIMARY_MESSAGES = [
+  'open_polls',
+  'pause_voting',
+  'resume_voting',
+  'polls_open',
+  'polls_paused',
+] as const;
+
+/**
+ * Maps old polls-state-based primaryMessage strings to transition types for
+ * backwards compatibility with older QR messages.
+ */
+export function normalizePollsTransitionType(
+  primaryMessage: string
+): PollsTransitionType {
+  switch (primaryMessage) {
+    case 'polls_open':
+      return 'open_polls';
+    case 'polls_paused':
+      return 'pause_voting';
+    default:
+      return primaryMessage as PollsTransitionType;
+  }
 }
 
 const MAXIMUM_BYTES_IN_MEDIUM_QR_CODE = 2300;
@@ -100,7 +129,7 @@ export function encodeQuickResultsMessage(components: {
   signingMachineId: string;
   isLiveMode: boolean;
   timestamp: number;
-  // primaryMessage is either a compressed tally (base64) or the string 'polls_open'
+  // primaryMessage is either a compressed tally (base64) or a transition type string
   primaryMessage: string;
   precinctSelection: PrecinctSelection;
   numPages: number;
@@ -135,7 +164,7 @@ interface DecodedBaseFields {
   reportCreatedAt?: Date;
   encodedCompressedTally: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsStateSupportsLiveReporting;
+  pollsTransitionType: PollsTransitionType;
   numPages: number;
   pageIndex: number;
 }
@@ -192,22 +221,23 @@ function decodeBaseFields(
     throw new Error('Invalid page index format');
   }
 
-  const pollsState =
-    primaryMessage === 'polls_open' || primaryMessage === 'polls_paused'
-      ? primaryMessage
-      : 'polls_closed_final';
+  const isNonTallyMessage = (
+    NON_TALLY_PRIMARY_MESSAGES as readonly string[]
+  ).includes(primaryMessage);
+  const pollsTransitionType = isNonTallyMessage
+    ? normalizePollsTransitionType(primaryMessage)
+    : 'close_polls';
 
   return {
     ballotHash: safeDecodeFromUrl(ballotHashEncoded),
     machineId: safeDecodeFromUrl(signingMachineIdEncoded),
     isLive: isLiveModeStr === '1',
     timestamp: new Date(timestampNumber * 1000),
-    encodedCompressedTally:
-      pollsState !== 'polls_closed_final' ? '' : primaryMessage,
+    encodedCompressedTally: isNonTallyMessage ? '' : primaryMessage,
     precinctSelection: precinctId
       ? singlePrecinctSelectionFor(safeDecodeFromUrl(precinctId))
       : ALL_PRECINCTS_SELECTION,
-    pollsState,
+    pollsTransitionType,
     numPages,
     pageIndex,
   };
@@ -323,7 +353,7 @@ export async function generateSignedQuickResultsReportingUrl(
     results,
     signingMachineId,
     precinctSelection,
-    pollsState,
+    pollsTransitionType,
     votingType,
     pollsTransitionTimestamp,
     maxQrCodeLength = MAXIMUM_BYTES_IN_MEDIUM_QR_CODE,
@@ -338,8 +368,8 @@ export async function generateSignedQuickResultsReportingUrl(
   let numPagesNeeded = 1; // If we need to paginate this value will be incremented.
   const secondsSince1970 = Math.round(pollsTransitionTimestamp / 1000);
 
-  switch (pollsState) {
-    case 'polls_closed_final': {
+  switch (pollsTransitionType) {
+    case 'close_polls': {
       // Try increasing pagination until all parts fit within the QR size limits.
       while (numPagesNeeded <= MAX_PARTS_FOR_QR_CODE) {
         const encodedUrls: string[] = [];
@@ -384,16 +414,17 @@ export async function generateSignedQuickResultsReportingUrl(
       }
       break;
     }
-    case 'polls_open':
-    case 'polls_paused': {
-      // For polls open/paused reports we don't send tally data, just the
+    case 'open_polls':
+    case 'pause_voting':
+    case 'resume_voting': {
+      // For non-close-polls reports we don't send tally data, just the
       // ballot count so the confirmation page can display it.
       const messagePayload = encodeQuickResultsMessage({
         ballotHash,
         signingMachineId,
         isLiveMode,
         timestamp: secondsSince1970,
-        primaryMessage: pollsState,
+        primaryMessage: pollsTransitionType,
         precinctSelection,
         numPages: 1,
         pageIndex: 0,
@@ -416,7 +447,7 @@ export async function generateSignedQuickResultsReportingUrl(
     }
     /* istanbul ignore next - @preserve */
     default: {
-      throwIllegalValue(pollsState);
+      throwIllegalValue(pollsTransitionType);
     }
   }
   throw new Error(

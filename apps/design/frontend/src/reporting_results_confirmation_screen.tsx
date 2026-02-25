@@ -19,7 +19,7 @@ import {
   formatBallotHash,
   Election,
   LiveReportVotingType,
-  PollsStateSupportsLiveReporting,
+  PollsTransitionType,
   PrecinctSelection,
   Tabulation,
   ContestId,
@@ -72,15 +72,15 @@ function getVotingTypeLabel(votingType: LiveReportVotingType): string {
   }
 }
 
-function getTimestampLabel(
-  pollsState: PollsStateSupportsLiveReporting
-): string {
+function getTimestampLabel(pollsState: PollsTransitionType): string {
   switch (pollsState) {
-    case 'polls_open':
+    case 'open_polls':
       return 'Polls Opened at';
-    case 'polls_paused':
+    case 'resume_voting':
+      return 'Voting Resumed at';
+    case 'pause_voting':
       return 'Voting Paused at';
-    case 'polls_closed_final':
+    case 'close_polls':
       return 'Polls Closed at';
     /* istanbul ignore next - @preserve */
     default:
@@ -96,7 +96,7 @@ interface ReportDetailsProps {
   election: Election;
   precinctSelection: PrecinctSelection;
   votingType: LiveReportVotingType;
-  pollsState: PollsStateSupportsLiveReporting;
+  pollsState: PollsTransitionType;
 }
 
 function ReportDetails({
@@ -263,6 +263,47 @@ function PollsPausedReportConfirmation({
   ballotCount?: number;
 }): JSX.Element {
   const reportTitle = getPollsReportTitle('pause_voting');
+  return (
+    <ResultsScreen screenTitle={`${reportTitle} Sent`}>
+      <MainContent>
+        <ReportHeader reportTitle={reportTitle} isLive={isLive} />
+        <ReportDetails
+          ballotHash={ballotHash}
+          machineId={machineId}
+          reportCreatedAt={reportCreatedAt}
+          pollsTransitionTime={pollsTransitionTime}
+          election={election}
+          precinctSelection={precinctSelection}
+          votingType={votingType}
+          pollsState={pollsState}
+        />
+        {ballotCount !== undefined && (
+          <LabeledValue
+            label="Ballots Scanned"
+            value={ballotCount.toLocaleString()}
+          />
+        )}
+      </MainContent>
+    </ResultsScreen>
+  );
+}
+
+function VotingResumedReportConfirmation({
+  ballotHash,
+  machineId,
+  isLive,
+  reportCreatedAt,
+  pollsTransitionTime,
+  election,
+  precinctSelection,
+  votingType,
+  pollsState,
+  ballotCount,
+}: ReportDetailsProps & {
+  isLive: boolean;
+  ballotCount?: number;
+}): JSX.Element {
+  const reportTitle = getPollsReportTitle('resume_voting');
   return (
     <ResultsScreen screenTitle={`${reportTitle} Sent`}>
       <MainContent>
@@ -491,7 +532,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
 
   // Check the kind of report and render the appropriate component
   switch (reportData.pollsState) {
-    case 'polls_open':
+    case 'open_polls':
       return (
         <PollsOpenReportConfirmation
           ballotHash={reportData.ballotHash}
@@ -506,7 +547,22 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           pollsState={reportData.pollsState}
         />
       );
-    case 'polls_paused':
+    case 'resume_voting':
+      return (
+        <VotingResumedReportConfirmation
+          ballotHash={reportData.ballotHash}
+          machineId={reportData.machineId}
+          isLive={reportData.isLive}
+          reportCreatedAt={reportData.reportCreatedAt}
+          pollsTransitionTime={reportData.pollsTransitionTime}
+          election={reportData.election}
+          precinctSelection={reportData.precinctSelection}
+          ballotCount={reportData.ballotCount}
+          votingType={reportData.votingType}
+          pollsState={reportData.pollsState}
+        />
+      );
+    case 'pause_voting':
       return (
         <PollsPausedReportConfirmation
           ballotHash={reportData.ballotHash}
@@ -521,7 +577,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
           pollsState={reportData.pollsState}
         />
       );
-    case 'polls_closed_final':
+    case 'close_polls':
       if (!reportData.isPartial) {
         return (
           <PollsClosedReportConfirmation

@@ -631,7 +631,7 @@ export function buildApi({
           isLiveMode: !store.getTestMode(),
           precinctSelection,
           results: combinedResults,
-          pollsState,
+          pollsTransitionType: lastPollsTransition.type,
           votingType: store.getBallotCastingMode(),
           pollsTransitionTimestamp: lastPollsTransition.time,
         });

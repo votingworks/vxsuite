@@ -6,7 +6,7 @@ import {
   ContestId,
   LiveReportVotingType,
   PrecinctSelection,
-  PollsStateSupportsLiveReporting,
+  PollsTransitionType,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
@@ -106,7 +106,7 @@ export type ElectionUpload =
 // Live Reports types
 
 export interface ReceivedReportInfoBase {
-  pollsState: PollsStateSupportsLiveReporting;
+  pollsState: PollsTransitionType;
   isPartial: boolean;
   ballotHash: string;
   machineId: string;
@@ -119,20 +119,27 @@ export interface ReceivedReportInfoBase {
 }
 
 export interface ReceivedPollsOpenReportInfo extends ReceivedReportInfoBase {
-  pollsState: 'polls_open';
+  pollsState: 'open_polls';
+  isPartial: false;
+  ballotCount?: number;
+}
+
+export interface ReceivedVotingResumedReportInfo
+  extends ReceivedReportInfoBase {
+  pollsState: 'resume_voting';
   isPartial: false;
   ballotCount?: number;
 }
 
 export interface ReceivedPollsPausedReportInfo extends ReceivedReportInfoBase {
-  pollsState: 'polls_paused';
+  pollsState: 'pause_voting';
   isPartial: false;
   ballotCount?: number;
 }
 
 export interface ReceivedPollsClosedPartialReportInfo
   extends ReceivedReportInfoBase {
-  pollsState: 'polls_closed_final';
+  pollsState: 'close_polls';
   isPartial: true;
   numPages: number;
   pageIndex: number;
@@ -140,13 +147,14 @@ export interface ReceivedPollsClosedPartialReportInfo
 
 export interface ReceivedPollsClosedFinalReportInfo
   extends ReceivedReportInfoBase {
-  pollsState: 'polls_closed_final';
+  pollsState: 'close_polls';
   isPartial: false;
   contestResults: Record<ContestId, ContestResults>;
 }
 
 export type ReceivedReportInfo =
   | ReceivedPollsOpenReportInfo
+  | ReceivedVotingResumedReportInfo
   | ReceivedPollsPausedReportInfo
   | ReceivedPollsClosedPartialReportInfo
   | ReceivedPollsClosedFinalReportInfo;
@@ -170,7 +178,7 @@ export interface QuickReportedPollStatus {
   machineId: string;
   precinctSelection: PrecinctSelection;
   signedTimestamp: Date;
-  pollsState: PollsStateSupportsLiveReporting;
+  pollsState: PollsTransitionType;
 }
 
 export const ALL_PRECINCTS_REPORT_KEY = '';

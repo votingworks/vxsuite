@@ -225,7 +225,7 @@ describe('Polls status summary display', () => {
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
-            pollsState: 'polls_closed_final',
+            pollsState: 'close_polls',
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[0].id
             ),
@@ -236,7 +236,7 @@ describe('Polls status summary display', () => {
         [election.precincts[1].id]: [
           {
             machineId: 'VxScan-002',
-            pollsState: 'polls_open',
+            pollsState: 'open_polls',
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[1].id
             ),
@@ -301,7 +301,7 @@ describe('Polls status summary display', () => {
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
-            pollsState: 'polls_open',
+            pollsState: 'open_polls',
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[0].id
             ),
@@ -309,7 +309,7 @@ describe('Polls status summary display', () => {
           },
           {
             machineId: 'VxScan-002',
-            pollsState: 'polls_open',
+            pollsState: 'open_polls',
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[1].id
             ),
@@ -320,7 +320,7 @@ describe('Polls status summary display', () => {
         [election.precincts[2].id]: [
           {
             machineId: 'VxScan-003',
-            pollsState: 'polls_closed_final',
+            pollsState: 'close_polls',
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[2].id
             ),
@@ -328,7 +328,7 @@ describe('Polls status summary display', () => {
           },
           {
             machineId: 'VxScan-005',
-            pollsState: 'polls_closed_final',
+            pollsState: 'close_polls',
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[2].id
             ),
@@ -338,14 +338,14 @@ describe('Polls status summary display', () => {
         [ALL_PRECINCTS_REPORT_KEY]: [
           {
             machineId: 'VxScan-004',
-            pollsState: 'polls_closed_final',
+            pollsState: 'close_polls',
             precinctSelection: ALL_PRECINCTS_SELECTION,
             signedTimestamp: new Date('2024-01-01T17:45:00Z'),
           },
 
           {
             machineId: 'VxScan-006',
-            pollsState: 'polls_open',
+            pollsState: 'open_polls',
             precinctSelection: ALL_PRECINCTS_SELECTION,
             signedTimestamp: new Date('2024-01-01T17:48:00Z'),
           },
@@ -421,7 +421,7 @@ describe('Animation behavior', () => {
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
-        pollsState: 'polls_open',
+        pollsState: 'open_polls',
         precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
         signedTimestamp: new Date('2024-01-01T17:00:00Z'),
       },
@@ -461,7 +461,7 @@ describe('Animation behavior', () => {
       [election.precincts[1].id]: [
         {
           machineId: 'VxScan-002',
-          pollsState: 'polls_open',
+          pollsState: 'open_polls',
           precinctSelection: singlePrecinctSelectionFor(
             election.precincts[1].id
           ),
@@ -502,7 +502,7 @@ describe('Animation behavior', () => {
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
-        pollsState: 'polls_closed_final' as const,
+        pollsState: 'close_polls' as const,
         precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
@@ -535,7 +535,7 @@ describe('Animation behavior', () => {
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
-        pollsState: 'polls_open' as const,
+        pollsState: 'open_polls' as const,
         precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
@@ -590,7 +590,7 @@ describe('Animation behavior', () => {
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
-        pollsState: 'polls_open' as const,
+        pollsState: 'open_polls' as const,
         precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
         signedTimestamp: new Date('2024-01-01T17:00:00Z'),
       },
@@ -622,7 +622,7 @@ describe('Animation behavior', () => {
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
-        pollsState: 'polls_closed_final' as const,
+        pollsState: 'close_polls' as const,
         precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
         signedTimestamp: new Date('2024-01-01T18:00:00Z'), // Later timestamp
       },
@@ -666,7 +666,7 @@ describe('Animation behavior', () => {
     initialData[election.precincts[0].id] = [
       {
         machineId: 'VxScan-001',
-        pollsState: 'polls_open',
+        pollsState: 'open_polls',
         precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
@@ -703,7 +703,7 @@ describe('Animation behavior', () => {
       [ALL_PRECINCTS_REPORT_KEY]: [
         {
           machineId: 'VxScan-999',
-          pollsState: 'polls_open',
+          pollsState: 'open_polls',
           precinctSelection: singlePrecinctSelectionFor(
             election.precincts[0].id
           ),
@@ -757,7 +757,7 @@ describe('Results navigation and display', () => {
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
-            pollsState: 'polls_closed_final',
+            pollsState: 'close_polls',
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[0].id
             ),
@@ -830,7 +830,7 @@ describe('Results navigation and display', () => {
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[0].id
             ),
@@ -840,7 +840,7 @@ describe('Results navigation and display', () => {
         [election.precincts[1].id]: [
           {
             machineId: 'VxScan-002',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[1].id
             ),
@@ -850,7 +850,7 @@ describe('Results navigation and display', () => {
         [election.precincts[2].id]: [
           {
             machineId: 'VxScan-003',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[2].id
             ),
@@ -917,7 +917,7 @@ describe('Results navigation and display', () => {
         [primaryElection.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               primaryElection.precincts[0].id
             ),
@@ -927,7 +927,7 @@ describe('Results navigation and display', () => {
         [primaryElection.precincts[1].id]: [
           {
             machineId: 'VxScan-002',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               primaryElection.precincts[1].id
             ),
@@ -937,7 +937,7 @@ describe('Results navigation and display', () => {
         [primaryElection.precincts[2].id]: [
           {
             machineId: 'VxScan-003',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               primaryElection.precincts[2].id
             ),
@@ -1010,7 +1010,7 @@ describe('Results navigation and display', () => {
         [primaryElection.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               primaryElection.precincts[0].id
             ),
@@ -1020,7 +1020,7 @@ describe('Results navigation and display', () => {
         [primaryElection.precincts[1].id]: [
           {
             machineId: 'VxScan-002',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               primaryElection.precincts[1].id
             ),
@@ -1030,7 +1030,7 @@ describe('Results navigation and display', () => {
         [primaryElection.precincts[2].id]: [
           {
             machineId: 'VxScan-003',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               primaryElection.precincts[2].id
             ),
@@ -1120,7 +1120,7 @@ describe('Results navigation and display', () => {
         [election.precincts[0].id]: [
           {
             machineId: 'VxScan-001',
-            pollsState: 'polls_closed_final' as const,
+            pollsState: 'close_polls' as const,
             precinctSelection: singlePrecinctSelectionFor(
               election.precincts[0].id
             ),

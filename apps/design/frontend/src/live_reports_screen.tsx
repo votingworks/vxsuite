@@ -28,13 +28,16 @@ import {
 import { useParams, Switch, Route } from 'react-router-dom';
 import React, { useState } from 'react';
 import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
-import { formatBallotHash, PrecinctSelection } from '@votingworks/types';
+import {
+  formatBallotHash,
+  PollsTransitionType,
+  PrecinctSelection,
+} from '@votingworks/types';
 import {
   getContestsForPrecinctAndElection,
   getPrecinctSelectionName,
   format,
   groupContestsByParty,
-  getPollsStateName,
 } from '@votingworks/utils';
 import styled, { useTheme } from 'styled-components';
 import type {
@@ -56,6 +59,29 @@ import { ALL_PRECINCTS_REPORT_KEY, useSound } from './utils';
 const PollsStatusLabel = styled.span`
   font-size: 1rem;
 `;
+
+const POLLS_OPEN_TRANSITIONS: readonly PollsTransitionType[] = [
+  'open_polls',
+  'resume_voting',
+];
+
+function getLiveReportTransitionName(
+  transitionType: PollsTransitionType
+): string {
+  switch (transitionType) {
+    case 'open_polls':
+      return 'Open';
+    case 'resume_voting':
+      return 'Resumed';
+    case 'pause_voting':
+      return 'Paused';
+    case 'close_polls':
+      return 'Closed';
+    /* istanbul ignore next - @preserve */
+    default:
+      throwIllegalValue(transitionType);
+  }
+}
 
 function getPollsStatusText(
   pollsOpenCount: number,
@@ -112,7 +138,7 @@ function getLastUpdateInformation(
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <div>
         {lastPollsUpdate.machineId}: Polls{' '}
-        {getPollsStateName(lastPollsUpdate.pollsState)}
+        {getLiveReportTransitionName(lastPollsUpdate.pollsState)}
       </div>
       <Caption>
         {format.localeShortDateAndTime(lastPollsUpdate.signedTimestamp)}
@@ -329,8 +355,10 @@ function LiveReportsSummaryScreen({
                           ).filter(
                             (entries) =>
                               entries.length > 0 &&
-                              entries.every(
-                                (entry) => entry.pollsState === 'polls_open'
+                              entries.every((entry) =>
+                                POLLS_OPEN_TRANSITIONS.includes(
+                                  entry.pollsState
+                                )
                               )
                           ).length
                         }
@@ -349,12 +377,13 @@ function LiveReportsSummaryScreen({
                           ).filter(
                             (entries) =>
                               entries.length > 0 &&
-                              entries.some(
-                                (entry) => entry.pollsState === 'polls_open'
+                              entries.some((entry) =>
+                                POLLS_OPEN_TRANSITIONS.includes(
+                                  entry.pollsState
+                                )
                               ) &&
                               entries.some(
-                                (entry) =>
-                                  entry.pollsState === 'polls_closed_final'
+                                (entry) => entry.pollsState === 'close_polls'
                               )
                           ).length
                         }
@@ -374,8 +403,7 @@ function LiveReportsSummaryScreen({
                             (entries) =>
                               entries.length > 0 &&
                               entries.every(
-                                (entry) =>
-                                  entry.pollsState === 'polls_closed_final'
+                                (entry) => entry.pollsState === 'close_polls'
                               )
                           ).length
                         }
@@ -394,7 +422,7 @@ function LiveReportsSummaryScreen({
                     variant="primary"
                     disabled={
                       allEntries.filter(
-                        (entry) => entry.pollsState === 'polls_closed_final'
+                        (entry) => entry.pollsState === 'close_polls'
                       ).length === 0
                     }
                     to={`${
@@ -436,11 +464,11 @@ function LiveReportsSummaryScreen({
                     return null;
                   }
 
-                  const pollsOpenCount = reportsForPrecinct.filter(
-                    (entry) => entry.pollsState === 'polls_open'
+                  const pollsOpenCount = reportsForPrecinct.filter((entry) =>
+                    POLLS_OPEN_TRANSITIONS.includes(entry.pollsState)
                   ).length;
                   const pollsClosedCount = reportsForPrecinct.filter(
-                    (entry) => entry.pollsState === 'polls_closed_final'
+                    (entry) => entry.pollsState === 'close_polls'
                   ).length;
 
                   const isHighlighted = precinctIdsToAnimate.includes(
