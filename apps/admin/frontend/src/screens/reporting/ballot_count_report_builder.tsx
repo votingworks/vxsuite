@@ -62,6 +62,7 @@ export function BallotCountReportBuilder(): JSX.Element {
   const allowedGroupBys: GroupByEditorOption[] = [
     'groupByBallotStyle',
     'groupByBatch',
+    'groupByBatchDate',
     'groupByPrecinct',
     'groupByScanner',
     'groupByVotingMethod',

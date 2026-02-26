@@ -52,6 +52,7 @@ export interface ScannerBatch extends Tabulation.ScannerBatch {
   label: string;
   electionId: string;
   ballotCastingMode?: BallotCastingMode;
+  startedAt: string;
 }
 
 /**

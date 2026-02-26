@@ -701,6 +701,7 @@ test('mapping from group keys to and from group specifiers', () => {
     const groupBy: Tabulation.GroupBy = {
       groupByBallotStyle: groupSpecifier.ballotStyleGroupId !== undefined,
       groupByBatch: groupSpecifier.batchId !== undefined,
+      groupByBatchDate: groupSpecifier.batchDate !== undefined,
       groupByParty: groupSpecifier.partyId !== undefined,
       groupByPrecinct: groupSpecifier.precinctId !== undefined,
       groupByScanner: groupSpecifier.scannerId !== undefined,
@@ -721,6 +722,7 @@ test('mapping from group keys to and from group specifiers', () => {
   maintainsGroupSpecifier({ precinctId: 'precinct-1' });
   maintainsGroupSpecifier({ scannerId: 'scanner-1' });
   maintainsGroupSpecifier({ votingMethod: 'absentee' });
+  maintainsGroupSpecifier({ batchDate: '2024-11-05' });
 
   // composite group specifiers, multiple attributes
   maintainsGroupSpecifier({

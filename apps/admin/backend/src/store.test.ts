@@ -181,6 +181,7 @@ test('scanner batches', () => {
     batchId: 'batch-1',
     label: 'Batch 1',
     scannerId: 'VX-00-001',
+    startedAt: '2024-11-05T08:00:00.000Z',
   };
   store.addScannerBatch(scannerBatch);
   expect(store.getScannerBatches(electionId)).toEqual([scannerBatch]);

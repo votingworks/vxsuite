@@ -253,12 +253,14 @@ function getCastVoteRecordGroupSpecifier(
     scannerId: groupBy.groupByScanner ? cvr.scannerId : undefined,
     votingMethod: groupBy.groupByVotingMethod ? cvr.votingMethod : undefined,
     partyId: groupBy.groupByParty ? cvr.partyId : undefined,
+    batchDate: groupBy.groupByBatchDate ? cvr.batchDate : undefined,
   };
 }
 
 export const GROUP_KEY_ROOT: Tabulation.GroupKey = 'root';
 type GroupKeyPartType =
   | 'ballotStyleGroupId'
+  | 'batchDate'
   | 'batchId'
   | 'partyId'
   | 'precinctId'
@@ -305,6 +307,10 @@ export function getGroupKey(
     keyParts.push(getGroupKeyPart('batchId', groupSpecifier.batchId));
   }
 
+  if (groupBy.groupByBatchDate) {
+    keyParts.push(getGroupKeyPart('batchDate', groupSpecifier.batchDate));
+  }
+
   if (groupBy.groupByParty) {
     keyParts.push(getGroupKeyPart('partyId', groupSpecifier.partyId));
   }
@@ -345,6 +351,9 @@ export function getGroupSpecifierFromGroupKey(
         break;
       case 'partyId':
         groupSpecifier.partyId = unescapeGroupKeyValue(value);
+        break;
+      case 'batchDate':
+        groupSpecifier.batchDate = unescapeGroupKeyValue(value);
         break;
       case 'batchId':
         groupSpecifier.batchId = unescapeGroupKeyValue(value);

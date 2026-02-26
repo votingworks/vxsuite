@@ -44,6 +44,7 @@ export const ATTRIBUTE_COLUMNS = [
   'voting-method',
   'scanner',
   'batch',
+  'batch-date',
 ] as const;
 type AttributeColumnId = (typeof ATTRIBUTE_COLUMNS)[number];
 interface AttributeColumn {
@@ -84,6 +85,7 @@ const COLUMN_LABELS: Record<AttributeColumnId | BallotCountColumnId, string> = {
   'voting-method': 'Voting Method',
   scanner: 'Scanner ID',
   batch: 'Batch',
+  'batch-date': 'Batch Date',
   manual: 'Manual',
   scanned: 'Scanned',
   total: 'Total',
@@ -398,6 +400,13 @@ function getCellContent({
             assertDefined(cardCounts.batchId),
             scannerBatches
           );
+        case 'batch-date': {
+          const batchDate = assertDefined(cardCounts.batchDate);
+          if (batchDate === Tabulation.MANUAL_BATCH_DATE) {
+            return 'Manual Tallies';
+          }
+          return format.localeDate(new Date(`${batchDate}T00:00:00`));
+        }
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(column);
@@ -463,6 +472,9 @@ function BallotCountTable({
   }
   if (groupBy.groupByBatch) {
     columns.push({ type: 'attribute', id: 'batch' });
+  }
+  if (groupBy.groupByBatchDate) {
+    columns.push({ type: 'attribute', id: 'batch-date' });
   }
 
   if (hasGroups) {

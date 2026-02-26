@@ -86,6 +86,7 @@ export interface CastVoteRecordAttributes {
   readonly scannerId: Id;
   readonly partyId?: Id;
   readonly ballotCastingMode?: BallotCastingMode;
+  readonly batchDate?: string;
 }
 
 /**
@@ -104,6 +105,7 @@ export type Card =
 
 export const MANUAL_BATCH_ID = 'NO_BATCH__MANUAL';
 export const MANUAL_SCANNER_ID = 'NO_SCANNER__MANUAL';
+export const MANUAL_BATCH_DATE = 'NO_DATE__MANUAL';
 
 /**
  * In situations where we're generating grouped results, specifiers can be
@@ -126,6 +128,7 @@ export interface GroupBy {
   groupByVotingMethod?: boolean;
   groupByBatch?: boolean;
   groupByScanner?: boolean;
+  groupByBatchDate?: boolean;
 }
 
 /**

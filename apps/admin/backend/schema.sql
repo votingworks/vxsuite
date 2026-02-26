@@ -174,6 +174,7 @@ create table scanner_batches (
   scanner_id text not null,
   election_id varchar(36) not null,
   ballot_casting_mode text check (ballot_casting_mode is null or ballot_casting_mode = 'early_voting' or ballot_casting_mode = 'election_day'),
+  started_at datetime not null,
   primary key (election_id, id),
   foreign key (election_id) references elections(id)
     on delete cascade

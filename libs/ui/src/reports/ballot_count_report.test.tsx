@@ -440,6 +440,67 @@ test('shows separate manual rows when group by is not compatible with manual res
   expect(footer).toEqual(expectedFooter);
 });
 
+test('shows batch date groups including manual tallies sentinel', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  const batchDateCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = [
+    {
+      ...cc(5),
+      batchDate: '2024-11-05',
+    },
+    {
+      ...cc(0, 3),
+      batchDate: Tabulation.MANUAL_BATCH_DATE,
+    },
+  ];
+
+  render(
+    <BallotCountReport
+      title="Full Election Ballot Count Report"
+      isTest={false}
+      isOfficial={false}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+      scannerBatches={mockScannerBatches}
+      groupBy={{ groupByBatchDate: true }}
+      cardCountsList={batchDateCardCountsList}
+    />
+  );
+
+  const expectedColumns = [
+    'batch-date',
+    'center',
+    'manual',
+    'scanned',
+    'total',
+    'right',
+  ];
+  const expectedRows: RowData[] = [
+    {
+      'batch-date': 'Nov 5, 2024',
+      manual: '0',
+      scanned: '5',
+      total: '5',
+    },
+    {
+      'batch-date': 'Manual Tallies',
+      manual: '3',
+      scanned: '0',
+      total: '3',
+    },
+  ];
+  const expectedFooter: RowData = {
+    manual: '3',
+    scanned: '5',
+    total: '8',
+  };
+
+  const { columns, rows, footer } = parseGrid({ expectFooter: true });
+  expect(columns).toEqual(expectedColumns);
+  expect(rows).toEqual(expectedRows);
+  expect(footer).toEqual(expectedFooter);
+});
+
 test('ungrouped case', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
 

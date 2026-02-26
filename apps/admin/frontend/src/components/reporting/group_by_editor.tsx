@@ -13,6 +13,7 @@ const GROUPING_LABEL: Record<GroupByEditorOption, string> = {
   groupByBatch: 'Batch',
   groupByScanner: 'Scanner',
   includeSheetCounts: 'Sheet',
+  groupByBatchDate: 'Batch Date',
 };
 
 export interface GroupByEditorProps {
@@ -53,6 +54,7 @@ export function GroupByEditor({
       hideLabel
       label="Report By"
       direction="row"
+      wrap
       options={allowedGroupings.map((grouping) => ({
         value: grouping,
         label: GROUPING_LABEL[grouping],

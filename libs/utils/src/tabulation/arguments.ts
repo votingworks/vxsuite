@@ -26,7 +26,11 @@ export function combineGroupSpecifierAndFilter(
 export function groupBySupportsZeroSplits(
   groupBy: Tabulation.GroupBy
 ): boolean {
-  if (groupBy.groupByBatch || groupBy.groupByScanner) {
+  if (
+    groupBy.groupByBatch ||
+    groupBy.groupByScanner ||
+    groupBy.groupByBatchDate
+  ) {
     return false;
   }
 
@@ -40,7 +44,8 @@ export function isGroupByEmpty(groupBy: Tabulation.GroupBy): boolean {
     groupBy.groupByPrecinct ||
     groupBy.groupByParty ||
     groupBy.groupByScanner ||
-    groupBy.groupByVotingMethod
+    groupBy.groupByVotingMethod ||
+    groupBy.groupByBatchDate
   );
 }
 

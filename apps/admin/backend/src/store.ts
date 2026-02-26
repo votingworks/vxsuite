@@ -1072,16 +1072,18 @@ export class Store {
         label,
         scanner_id,
         election_id,
-        ballot_casting_mode
+        ballot_casting_mode,
+        started_at
       ) values (
-        ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?
       )
     `,
       scannerBatch.batchId,
       scannerBatch.label,
       scannerBatch.scannerId,
       scannerBatch.electionId,
-      scannerBatch.ballotCastingMode ?? null
+      scannerBatch.ballotCastingMode ?? null,
+      scannerBatch.startedAt
     );
   }
 
@@ -1094,7 +1096,8 @@ export class Store {
           label as label,
           scanner_id as scannerId,
           election_id as electionId,
-          ballot_casting_mode as ballotCastingMode
+          ballot_casting_mode as ballotCastingMode,
+          started_at as startedAt
         from scanner_batches
         where
           election_id = ?
@@ -1558,6 +1561,7 @@ export class Store {
 
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
+    const orderByParts: string[] = [];
 
     if (groupBy.groupByBallotStyle) {
       selectParts.push('cvrs.ballot_style_group_id as ballotStyleGroupId');
@@ -1572,6 +1576,14 @@ export class Store {
     if (groupBy.groupByBatch) {
       selectParts.push('cvrs.batch_id as batchId');
       groupByParts.push('cvrs.batch_id');
+    }
+
+    if (groupBy.groupByBatchDate) {
+      selectParts.push(
+        "date(scanner_batches.started_at, 'localtime') as batchDate"
+      );
+      groupByParts.push("date(scanner_batches.started_at, 'localtime')");
+      orderByParts.push("date(scanner_batches.started_at, 'localtime') asc");
     }
 
     if (groupBy.groupByPrecinct) {
@@ -1606,6 +1618,9 @@ export class Store {
             ${groupByParts.map((line) => `${line},`).join('\n')}
             sheetNumber,
             cardType
+          ${
+            orderByParts.length > 0 ? `order by ${orderByParts.join(', ')}` : ''
+          }
         `,
       ...params
     ) as Iterable<
@@ -1625,6 +1640,7 @@ export class Store {
             row.partyId ?? undefined
           : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
+        batchDate: groupBy.groupByBatchDate ? row.batchDate : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
         votingMethod: groupBy.groupByVotingMethod
