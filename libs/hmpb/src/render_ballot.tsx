@@ -580,6 +580,9 @@ export async function layOutBallotsAndCreateElectionDefinition<
 
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
+  // We need to check sample ballots as well. Even though they don't have visible timing marks, we
+  // can still compute a grid layout for them, and it's important that their bubble positions match
+  // official ballots.
   const layoutsByBallotStyle = iter(ballotLayouts)
     .map((ballot) => ballot.gridLayout)
     .toMap((gridLayout) => gridLayout.ballotStyleId);

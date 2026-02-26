@@ -51,6 +51,7 @@ async function generateVxFamousNamesFixtures(rendererPool: RendererPool) {
     fixtures.markedOfficialBallotPath,
     generated.markedOfficialBallotPdf
   );
+  await writeFile(fixtures.sampleBallotPath, generated.sampleBallotPdf);
   for (const { pdfPath, images } of [
     {
       pdfPath: generated.blankBallotPath,

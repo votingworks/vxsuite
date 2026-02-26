@@ -42,4 +42,8 @@ test('famous names fixtures', async () => {
     generated.markedOfficialBallotPdf,
     fixtures.markedOfficialBallotPath
   );
+  await expectToMatchSavedPdf(
+    generated.sampleBallotPdf,
+    fixtures.sampleBallotPath
+  );
 });
