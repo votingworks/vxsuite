@@ -21,7 +21,6 @@
     "install:rust-addon": "cargo fetch",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "pre-commit": "lint-staged",
     "test": "pnpm test:rust-addon && pnpm test:ts",
     "test:ci": "pnpm build && vitest run --coverage",
     "test:run": "pnpm test:rust-addon && vitest run",

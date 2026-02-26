@@ -1,9 +1,9 @@
 {
   "name": "@votingworks/image-utils",
-  "private": true,
   "version": "1.0.0",
-  "license": "GPL-3.0-only",
+  "private": true,
   "description": "Image utilities for VxSuite",
+  "license": "GPL-3.0-only",
   "main": "build/index.js",
   "scripts": {
     "type-check": "tsgo --build",
@@ -21,7 +21,6 @@
     "test:run": "vitest run",
     "test:watch": "vitest"
   },
-  "packageManager": "pnpm@8.15.5",
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
@@ -46,7 +45,7 @@
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "is-ci-cli": "2.2.0",
-    "lint-staged": "11.0.0",
     "vitest": "^3.1.1"
-  }
+  },
+  "packageManager": "pnpm@8.15.5"
 }

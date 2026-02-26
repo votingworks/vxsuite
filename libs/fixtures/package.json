@@ -25,8 +25,7 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:run": "vitest run",
-    "test:watch": "vitest",
-    "pre-commit": "lint-staged"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@votingworks/types": "workspace:*",
@@ -40,7 +39,6 @@
     "@vitest/coverage-istanbul": "^3.1.1",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
-    "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^3.1.1"
   },

@@ -23,8 +23,7 @@
     "test:ci": "TZ=America/Anchorage pnpm build && pnpm test:coverage",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest",
-    "pre-commit": "lint-staged"
+    "test:watch": "TZ=America/Anchorage vitest"
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
@@ -56,7 +55,6 @@
     "fast-check": "2.23.2",
     "fetch-mock": "9.11.0",
     "is-ci-cli": "2.2.0",
-    "lint-staged": "11.0.0",
     "node-fetch": "^2.6.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^3.1.1"

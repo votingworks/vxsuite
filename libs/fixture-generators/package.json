@@ -24,8 +24,7 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:run": "vitest run",
-    "test:watch": "vitest",
-    "pre-commit": "lint-staged"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@votingworks/auth": "workspace:*",

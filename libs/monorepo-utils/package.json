@@ -20,8 +20,7 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:run": "vitest run",
-    "test:watch": "vitest",
-    "pre-commit": "lint-staged"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*"
@@ -40,7 +39,6 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
-    "lint-staged": "11.0.0",
     "prettier": "3.0.3",
     "sort-package-json": "^1.50.0",
     "typescript": "5.8.3",

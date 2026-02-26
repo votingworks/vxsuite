@@ -27,8 +27,7 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:run": "vitest run",
-    "test:watch": "vitest",
-    "pre-commit": "lint-staged"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -87,7 +86,6 @@
     "history": "4.10.1",
     "is-ci-cli": "2.2.0",
     "jsdom": "20.0.1",
-    "lint-staged": "11.0.0",
     "lorem-ipsum": "^2.0.8",
     "parse-css-color": "^0.2.1",
     "path": "^0.12.7",

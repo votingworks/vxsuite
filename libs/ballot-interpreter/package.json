@@ -22,7 +22,6 @@
     "install:rust-addon": "cargo fetch",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "pre-commit": "lint-staged",
     "test": "pnpm test:rust-addon && pnpm test:ts",
     "test:ci": "pnpm build && pnpm test:ts:coverage --run",
     "test:rust-addon": "cargo test",
@@ -37,7 +36,6 @@
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
-    "zedbar": "^0.2.1",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
@@ -46,7 +44,8 @@
     "chalk": "4.1.2",
     "debug": "4.3.4",
     "node-quirc": "^2.2.1",
-    "tmp": "^0.2.1"
+    "tmp": "^0.2.1",
+    "zedbar": "^0.2.1"
   },
   "devDependencies": {
     "@types/better-sqlite3": "7.6.3",
@@ -69,7 +68,6 @@
     "fs-extra": "11.1.1",
     "is-ci-cli": "2.2.0",
     "jest-image-snapshot": "^6.4.0",
-    "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^3.1.1"
   },
