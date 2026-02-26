@@ -50,7 +50,7 @@ export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
   'absentee',
 ];
 
-function getManualTallyBallotTypes(): ManualResultsVotingMethod[] {
+function getManualTallyVotingMethods(): ManualResultsVotingMethod[] {
   return isFeatureFlagEnabled(BooleanEnvironmentVariableName.EARLY_VOTING)
     ? ['early_voting', ...ALL_MANUAL_TALLY_BALLOT_TYPES]
     : ALL_MANUAL_TALLY_BALLOT_TYPES;
@@ -61,7 +61,7 @@ function getAllPossibleManualTallyIdentifiers(
 ): ManualResultsIdentifier[] {
   return getGroupedBallotStyles(election.ballotStyles).flatMap((bs) =>
     bs.precincts.flatMap((precinctId) =>
-      getManualTallyBallotTypes().map((votingMethod) => ({
+      getManualTallyVotingMethods().map((votingMethod) => ({
         ballotStyleGroupId: bs.id,
         precinctId,
         votingMethod,
@@ -231,7 +231,7 @@ export function ManualTalliesTab(): JSX.Element | null {
 
   const selectableVotingMethods: ManualResultsVotingMethod[] =
     selectedPrecinctAndBallotStyle
-      ? getManualTallyBallotTypes().filter((votingMethod) =>
+      ? getManualTallyVotingMethods().filter((votingMethod) =>
           uncreatedManualTallyMetadata.some(
             (metadata) =>
               metadata.ballotStyleGroupId ===
