@@ -1,6 +1,7 @@
 import {
   BallotStyleId,
   ElectionDefinition,
+  PartyId,
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
@@ -21,6 +22,8 @@ export interface BallotContextInterface {
   endVoterSession: () => Promise<void>;
   precinctId?: PrecinctId;
   resetBallot: (showPostVotingInstructions?: boolean) => void;
+  selectParty: (partyId: PartyId) => void;
+  selectedPartyId?: PartyId;
   updateVote: UpdateVoteFunction;
   votes: VotesDict;
 }

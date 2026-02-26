@@ -1007,9 +1007,10 @@ export class Store implements BaseStore {
           is_blank,
           has_overvote,
           has_undervote,
-          has_write_in
+          has_write_in,
+          has_crossover
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -1026,7 +1027,8 @@ export class Store implements BaseStore {
         asSqliteBool(adjudicationFlags.isBlank),
         asSqliteBool(adjudicationFlags.hasOvervote),
         asSqliteBool(adjudicationFlags.hasUndervote),
-        asSqliteBool(adjudicationFlags.hasWriteIn)
+        asSqliteBool(adjudicationFlags.hasWriteIn),
+        asSqliteBool(adjudicationFlags.hasCrossover)
       );
     }
 
@@ -1425,6 +1427,10 @@ export class Store implements BaseStore {
 
       if (flags.includes('hasWriteIn')) {
         whereParts.push('cvrs.has_write_in = 1');
+      }
+
+      if (flags.includes('hasCrossover')) {
+        whereParts.push('cvrs.has_crossover = 1');
       }
     }
 

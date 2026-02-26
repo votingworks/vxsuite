@@ -36,6 +36,7 @@ export function generateBallotStyles(params: {
   contests: Contests;
   ballotLanguageConfigs: BallotLanguageConfigs;
   electionType: ElectionType;
+  isOpenPrimary?: boolean;
   parties: Parties;
   precincts: Precinct[];
   ballotTemplateId: BallotTemplateId;
@@ -45,6 +46,7 @@ export function generateBallotStyles(params: {
     ballotLanguageConfigs,
     contests,
     electionType,
+    isOpenPrimary,
     parties,
     precincts,
     ballotTemplateId,
@@ -83,7 +85,12 @@ export function generateBallotStyles(params: {
     group.map(({ precinctId, splitId }) => ({ precinctId, splitId })),
   ]);
 
-  switch (electionType) {
+  // Open primaries generate a single ballot style per precinct (like general
+  // elections) with no partyId — every voter gets all contests from all parties.
+  const effectiveElectionType =
+    electionType === 'primary' && isOpenPrimary ? 'general' : electionType;
+
+  switch (effectiveElectionType) {
     case 'general':
       return precinctsOrSplitsByDistricts.flatMap(
         ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {

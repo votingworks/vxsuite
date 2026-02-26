@@ -1,16 +1,19 @@
 import {
   AdjudicationReason,
+  Election,
   PageInterpretation,
   SheetOf,
+  VotesDict,
 } from '@votingworks/types';
+import { detectCrossoverVoting } from '@votingworks/utils';
 
 /**
  * Determine if a sheet needs adjudication.
  */
-export function sheetRequiresAdjudication([
-  front,
-  back,
-]: SheetOf<PageInterpretation>): boolean {
+export function sheetRequiresAdjudication(
+  [front, back]: SheetOf<PageInterpretation>,
+  election?: Election
+): boolean {
   if (
     front.type === 'InterpretedBmdPage' ||
     back.type === 'InterpretedBmdPage'
@@ -61,6 +64,22 @@ export function sheetRequiresAdjudication([
   // blank-page adjudication is a "recessive" trait: both pages need to be blank to trigger
   if (frontIsBlankHmpbPage && backIsBlankHmpbPage) {
     return true;
+  }
+
+  // Crossover voting is a ballot-level check — combine votes from both pages
+  if (
+    election &&
+    front.type === 'InterpretedHmpbPage' &&
+    back.type === 'InterpretedHmpbPage'
+  ) {
+    const combinedVotes: VotesDict = {
+      ...front.votes,
+      ...back.votes,
+    };
+    const { isCrossover } = detectCrossoverVoting(combinedVotes, election);
+    if (isCrossover) {
+      return true;
+    }
   }
 
   return false;

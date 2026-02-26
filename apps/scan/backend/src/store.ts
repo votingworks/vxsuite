@@ -721,7 +721,10 @@ export class Store {
         JSON.stringify(front.interpretation),
         back.imagePath,
         JSON.stringify(back.interpretation ?? {}),
-        sheetRequiresAdjudication([front.interpretation, back.interpretation])
+        sheetRequiresAdjudication(
+          [front.interpretation, back.interpretation],
+          this.getElectionRecord()?.electionDefinition.election
+        )
           ? 1
           : 0,
         finishedAdjudicationAt ?? null

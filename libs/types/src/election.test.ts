@@ -19,6 +19,7 @@ import {
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
   getPrecinctIndexById,
+  isOpenPrimary,
   isVotePresent,
   validateVotes,
   vote,
@@ -270,6 +271,21 @@ test('getGroupIdFromBallotStyleId', () => {
   ).toEqual('1');
 });
 
+test('isOpenPrimary', () => {
+  expect(isOpenPrimary(election)).toEqual(false);
+  expect(isOpenPrimary(primaryElection)).toEqual(false);
+  expect(isOpenPrimary(electionTwoPartyPrimary)).toEqual(false);
+
+  const openPrimaryElection: Election = {
+    ...electionTwoPartyPrimary,
+    ballotStyles: electionTwoPartyPrimary.ballotStyles.map((bs) => ({
+      ...bs,
+      partyId: undefined,
+    })),
+  };
+  expect(isOpenPrimary(openPrimaryElection)).toEqual(true);
+});
+
 test('getContests', () => {
   // general election ballot
   expect(
@@ -302,6 +318,35 @@ test('getContests', () => {
       election: electionTwoPartyPrimary,
     }).map((c) => c.id)
   ).toEqual(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
+
+  // open primary ballot style (no partyId) gets all contests
+  const openPrimaryElection: Election = {
+    ...electionTwoPartyPrimary,
+    ballotStyles: [
+      {
+        ...electionTwoPartyPrimary.ballotStyles[0]!,
+        id: '1' as BallotStyleId,
+        groupId: '1',
+        partyId: undefined,
+        districts: electionTwoPartyPrimary.districts.map((d) => d.id),
+      },
+    ],
+  };
+  expect(
+    getContests({
+      ballotStyle: getBallotStyle({
+        ballotStyleId: '1' as BallotStyleId,
+        election: openPrimaryElection,
+      })!,
+      election: openPrimaryElection,
+    }).map((c) => c.id)
+  ).toEqual([
+    'best-animal-mammal',
+    'best-animal-fish',
+    'zoo-council-mammal',
+    'aquarium-council-fish',
+    'fishing',
+  ]);
 });
 
 test('getContestsFromIds', () => {

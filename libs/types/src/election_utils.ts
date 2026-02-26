@@ -38,6 +38,18 @@ import {
 } from './election';
 
 /**
+ * Returns true if the election is an open primary — a primary election where
+ * all ballot styles lack a partyId, meaning every voter gets a single ballot
+ * with contests from all parties.
+ */
+export function isOpenPrimary(election: Election): boolean {
+  return (
+    election.type === 'primary' &&
+    election.ballotStyles.every((bs) => !bs.partyId)
+  );
+}
+
+/**
  * Gets contests which belong to a ballot style in an election.
  */
 export function getContests({
@@ -52,6 +64,7 @@ export function getContests({
       ballotStyle.districts.includes(c.districtId) &&
       (c.type !== 'candidate' ||
         !c.partyId ||
+        !ballotStyle.partyId ||
         ballotStyle.partyId === c.partyId)
   );
 }

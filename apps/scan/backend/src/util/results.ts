@@ -1,14 +1,19 @@
 import {
   BallotType,
+  Election,
   InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
+  PartyId,
   Tabulation,
+  VotesDict,
   getGroupIdFromBallotStyleId,
+  isOpenPrimary,
 } from '@votingworks/types';
 import {
   convertVotesDictToTabulationVotes,
+  detectCrossoverVoting,
   getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
   tabulateCastVoteRecords,
@@ -75,6 +80,24 @@ const BALLOT_TYPE_TO_VOTING_METHOD: Record<
   [BallotType.Provisional]: 'provisional',
 };
 
+/**
+ * For open primaries, infer the party from the voter's actual selections.
+ * Non-crossover → party of voted partisan contests.
+ * Crossover or no partisan votes → undefined.
+ */
+function inferPartyFromVotes(
+  votes: VotesDict,
+  election: Election
+): PartyId | undefined {
+  if (!isOpenPrimary(election)) return undefined;
+  const { isCrossover, votedPartyIds } = detectCrossoverVoting(
+    votes,
+    election
+  );
+  if (isCrossover || votedPartyIds.length === 0) return undefined;
+  return votedPartyIds[0];
+}
+
 type ScannerResultsByParty = Tabulation.GroupList<Tabulation.ElectionResults>;
 
 export async function getScannerResults({
@@ -103,12 +126,13 @@ export async function getScannerResults({
         ballotStyleId: frontInterpretation.metadata.ballotStyleId,
         election,
       });
+      const combinedVotes: VotesDict = {
+        ...frontInterpretation.votes,
+        ...backInterpretation.votes,
+      };
 
       return typedAs<Tabulation.CastVoteRecord>({
-        votes: convertVotesDictToTabulationVotes({
-          ...frontInterpretation.votes,
-          ...backInterpretation.votes,
-        }),
+        votes: convertVotesDictToTabulationVotes(combinedVotes),
         card: {
           type: 'hmpb',
           sheetNumber,
@@ -117,7 +141,9 @@ export async function getScannerResults({
         scannerId: VX_MACHINE_ID,
         precinctId: frontInterpretation.metadata.precinctId,
         ballotStyleGroupId: frontBallotStyleGroupId,
-        partyId: ballotStyleIdPartyIdLookup[frontBallotStyleGroupId],
+        partyId:
+          ballotStyleIdPartyIdLookup[frontBallotStyleGroupId] ??
+          inferPartyFromVotes(combinedVotes, election),
         votingMethod:
           BALLOT_TYPE_TO_VOTING_METHOD[frontInterpretation.metadata.ballotType],
       });
@@ -148,7 +174,9 @@ export async function getScannerResults({
         scannerId: VX_MACHINE_ID,
         precinctId: interpretation.metadata.precinctId,
         ballotStyleGroupId,
-        partyId: ballotStyleIdPartyIdLookup[ballotStyleGroupId],
+        partyId:
+          ballotStyleIdPartyIdLookup[ballotStyleGroupId] ??
+          inferPartyFromVotes(interpretation.votes, election),
         votingMethod:
           BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
       });
@@ -173,7 +201,9 @@ export async function getScannerResults({
       scannerId: VX_MACHINE_ID,
       precinctId: interpretation.metadata.precinctId,
       ballotStyleGroupId: bmdBallotStyleGroupId,
-      partyId: ballotStyleIdPartyIdLookup[bmdBallotStyleGroupId],
+      partyId:
+        ballotStyleIdPartyIdLookup[bmdBallotStyleGroupId] ??
+        inferPartyFromVotes(interpretation.votes, election),
       votingMethod:
         BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
     });

@@ -220,9 +220,32 @@ function ElectionInfoForm({
             { label: 'Primary', id: 'primary' },
           ]}
           selectedOptionId={electionInfo.type}
-          onChange={(type) => setElectionInfo({ ...electionInfo, type })}
+          onChange={(type) =>
+            setElectionInfo({
+              ...electionInfo,
+              type,
+              isOpenPrimary: type === 'general' ? undefined : electionInfo.isOpenPrimary,
+            })
+          }
           disabled={disabled || hasExternalSource}
         />
+        {electionInfo.type === 'primary' && (
+          <SegmentedButton
+            label="Primary Type"
+            options={[
+              { label: 'Standard', id: 'standard' },
+              { label: 'Open', id: 'open' },
+            ]}
+            selectedOptionId={electionInfo.isOpenPrimary ? 'open' : 'standard'}
+            onChange={(primaryType) =>
+              setElectionInfo({
+                ...electionInfo,
+                isOpenPrimary: primaryType === 'open',
+              })
+            }
+            disabled={disabled || hasExternalSource}
+          />
+        )}
         <InputGroup label="State">
           <InputWithAudio
             audioScreenUrl={infoRoutes.audio({

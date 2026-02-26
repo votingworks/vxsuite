@@ -3,6 +3,7 @@ import {
   ContestId,
   ElectionDefinition,
   Id,
+  isOpenPrimary,
   Tabulation,
 } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
@@ -60,11 +61,30 @@ export function getCastVoteRecordAdjudicationFlags(
     }
   }
 
+  const { election } = electionDefinition;
+  let hasCrossover = false;
+  if (isOpenPrimary(election)) {
+    const votedPartyIds = new Set<string>();
+    for (const [contestId, optionIds] of Object.entries(votes)) {
+      if (optionIds.length > 0) {
+        const contest = CachedElectionLookups.getContestById(
+          electionDefinition,
+          contestId
+        );
+        if (contest.type === 'candidate' && contest.partyId) {
+          votedPartyIds.add(contest.partyId);
+        }
+      }
+    }
+    hasCrossover = votedPartyIds.size > 1;
+  }
+
   return {
     isBlank,
     hasUndervote,
     hasOvervote,
     hasWriteIn,
+    hasCrossover,
   };
 }
 

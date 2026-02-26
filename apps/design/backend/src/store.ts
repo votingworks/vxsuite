@@ -100,6 +100,7 @@ export interface ElectionRecord {
   ballotsFinalizedAt: Date | null;
   lastExportedBallotHash?: string;
   externalSource?: ExternalElectionSource;
+  isOpenPrimary?: boolean;
 }
 
 export type TaskName = 'generate_election_package' | 'generate_test_decks';
@@ -898,7 +899,8 @@ export class Store {
               created_at as "createdAt",
               ballot_language_codes as "ballotLanguageCodes",
               last_exported_ballot_hash as "lastExportedBallotHash",
-              external_source as "externalSource"
+              external_source as "externalSource",
+              coalesce(is_open_primary, false) as "isOpenPrimary"
             from elections
             where id = $1
           `,
@@ -922,6 +924,7 @@ export class Store {
         ballotLanguageCodes: LanguageCode[];
         lastExportedBallotHash: string | null;
         externalSource: ExternalElectionSource | null;
+        isOpenPrimary: boolean;
       };
       assert(electionRow, 'Election not found');
 
@@ -1148,6 +1151,7 @@ export class Store {
         ballotLanguageConfigs,
         contests,
         electionType: electionRow.type,
+        isOpenPrimary: electionRow.isOpenPrimary,
         parties,
         precincts,
         ballotTemplateId: electionRow.ballotTemplateId,
@@ -1204,6 +1208,7 @@ export class Store {
         jurisdictionId: electionRow.jurisdictionId,
         lastExportedBallotHash: electionRow.lastExportedBallotHash || undefined,
         externalSource: electionRow.externalSource || undefined,
+        isOpenPrimary: electionRow.isOpenPrimary,
       };
     });
   }
@@ -1458,8 +1463,9 @@ export class Store {
             state = $5,
             seal = $6,
             signature = $7,
-            ballot_language_codes = $8
-          where id = $9
+            ballot_language_codes = $8,
+            is_open_primary = $9
+          where id = $10
         `,
           electionInfo.type,
           electionInfo.title,
@@ -1474,6 +1480,7 @@ export class Store {
               })
             : null,
           electionInfo.languageCodes,
+          electionInfo.isOpenPrimary ?? false,
           electionInfo.electionId
         )
       );

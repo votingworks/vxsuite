@@ -170,6 +170,7 @@ const TextInput = z
 const UpdateElectionInfoInputSchema = z.object({
   electionId: ElectionIdSchema,
   type: z.union([z.literal('general'), z.literal('primary')]),
+  isOpenPrimary: z.boolean().optional(),
   date: DateWithoutTimeSchema,
   title: TextInput,
   state: TextInput,
@@ -497,6 +498,7 @@ export function buildApi(ctx: AppContext) {
         ballotLanguageConfigs,
         jurisdictionId,
         externalSource,
+        isOpenPrimary,
       } = await store.getElection(input.electionId);
       return {
         jurisdictionId,
@@ -504,6 +506,7 @@ export function buildApi(ctx: AppContext) {
         title: election.title,
         date: election.date,
         type: election.type,
+        isOpenPrimary,
         state: election.state,
         countyName: election.county.name,
         seal: election.seal,

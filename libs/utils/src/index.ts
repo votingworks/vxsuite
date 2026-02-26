@@ -5,6 +5,7 @@ export * from './ballot_styles';
 export * from './bmd_votes_mock';
 export * from './pins';
 export * from './cast_vote_records';
+export * from './crossover_voting';
 export * from './date';
 export * from './disk_space_summary';
 export * from './elections';

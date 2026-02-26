@@ -6,6 +6,7 @@ export const ADJUDICATION_FLAGS = [
   'hasOvervote',
   'hasUndervote',
   'hasWriteIn',
+  'hasCrossover',
 ] as const;
 
 export type CastVoteRecordAdjudicationFlag =
@@ -19,6 +20,7 @@ export const ADJUDICATION_FLAG_LABELS: Record<
   hasOvervote: 'Overvote',
   hasUndervote: 'Undervote',
   hasWriteIn: 'Write-In',
+  hasCrossover: 'Crossover Voting',
 };
 
 /**

@@ -103,11 +103,13 @@ function buildCVRBallotMeasureContest({
   vote,
   electionDefinition,
   ballotStyleId,
+  isCrossover,
 }: {
   contest: YesNoContest;
   vote: YesNoVote;
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
+  isCrossover?: boolean;
 }): CVR.CVRContest {
   const overvoted = vote.length > 1;
   const undervoted = vote.length < 1;
@@ -172,6 +174,7 @@ function buildCVRCandidateContest({
   vote,
   unmarkedWriteIns,
   options,
+  isCrossover,
 }: {
   contest: CandidateContest;
   electionDefinition: ElectionDefinition;
@@ -179,7 +182,10 @@ function buildCVRCandidateContest({
   vote: CandidateVote;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   options: CVRContestRequiredBallotPageOptions;
+  isCrossover?: boolean;
 }): CVR.CVRContest {
+  // For crossover ballots, all partisan contests are invalidated
+  const crossoverInvalidated = isCrossover && contest.partyId !== undefined;
   const overvoted = vote.length > contest.seats;
   const undervoted = vote.length < contest.seats;
 
@@ -192,7 +198,7 @@ function buildCVRCandidateContest({
     statuses.push(CVR.ContestStatus.Undervoted);
   }
 
-  if (overvoted) {
+  if (overvoted || crossoverInvalidated) {
     statuses.push(
       CVR.ContestStatus.Overvoted,
       CVR.ContestStatus.InvalidatedRules
@@ -240,7 +246,7 @@ function buildCVRCandidateContest({
           contest.id,
           candidate.id
         ),
-        Status: overvoted
+        Status: overvoted || crossoverInvalidated
           ? [CVR.ContestSelectionStatus.InvalidatedRules]
           : isWriteIn
           ? [CVR.ContestSelectionStatus.NeedsAdjudication]
@@ -250,12 +256,12 @@ function buildCVRCandidateContest({
             '@type': 'CVR.SelectionPosition',
             HasIndication: CVR.IndicationStatus.Yes,
             NumberVotes: 1,
-            IsAllocable: overvoted
+            IsAllocable: overvoted || crossoverInvalidated
               ? CVR.AllocationStatus.No
               : isWriteIn
               ? CVR.AllocationStatus.Unknown
               : CVR.AllocationStatus.Yes,
-            Status: overvoted
+            Status: overvoted || crossoverInvalidated
               ? [CVR.PositionStatus.InvalidatedRules]
               : undefined,
             CVRWriteIn: isWriteIn
@@ -342,12 +348,14 @@ export function buildCVRContestsFromVotes({
   electionDefinition,
   ballotStyleId,
   options,
+  isCrossover,
 }: {
   votes: VotesDict;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
   options: CVRContestRequiredBallotPageOptions;
+  isCrossover?: boolean;
 }): CVR.CVRContest[] {
   const cvrContests: CVR.CVRContest[] = [];
 
@@ -370,6 +378,7 @@ export function buildCVRContestsFromVotes({
             vote: contestVote as YesNoVote,
             electionDefinition,
             ballotStyleId,
+            isCrossover,
           })
         );
         break;
@@ -382,6 +391,7 @@ export function buildCVRContestsFromVotes({
             vote: contestVote as CandidateVote,
             unmarkedWriteIns: contestUnmarkedWriteIns,
             options,
+            isCrossover,
           })
         );
         break;

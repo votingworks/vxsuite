@@ -81,6 +81,7 @@ export interface ElectionInfo {
   jurisdictionId: string;
   electionId: ElectionId;
   type: ElectionType;
+  isOpenPrimary?: boolean;
   date: DateWithoutTime;
   title: string;
   state: string;
