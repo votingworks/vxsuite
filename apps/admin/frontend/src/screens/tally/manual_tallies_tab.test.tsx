@@ -25,8 +25,8 @@ import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { mockManualResultsMetadata } from '../../../test/api_mock_data';
 
 const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
+vi.mock('@votingworks/utils', async () => ({
+  ...(await vi.importActual('@votingworks/utils')),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
