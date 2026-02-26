@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { assertDefined } from '@votingworks/basics';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
@@ -9,7 +10,11 @@ import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
 import { BallotStyleGroupId } from '@votingworks/types';
-import { getGroupedBallotStyles } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+  getGroupedBallotStyles,
+} from '@votingworks/utils';
 import { screen, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
@@ -18,6 +23,13 @@ import {
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { mockManualResultsMetadata } from '../../../test/api_mock_data';
+
+const featureFlagMock = getFeatureFlagMock();
+vi.mock('@votingworks/utils', async () => ({
+  ...(await vi.importActual('@votingworks/utils')),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 
 let apiMock: ApiMock;
 
@@ -31,6 +43,7 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.assertComplete();
+  featureFlagMock.resetFeatureFlags();
 });
 
 const electionDefinition =
@@ -300,4 +313,32 @@ test('disable buttons when results are official', async () => {
   expect(screen.getButton('Edit')).toBeDisabled();
   expect(screen.getByLabelText('Ballot Style')).toBeDisabled();
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
+});
+
+test('voting method dropdown includes early voting when feature flag is enabled', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.EARLY_VOTING
+  );
+  const electionGeneralDefinition = readElectionGeneralDefinition();
+  apiMock.expectGetManualResultsMetadata([]);
+  renderInAppContext(<ManualTalliesTab />, {
+    route: '/tally/manual',
+    electionDefinition: electionGeneralDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('No manual tallies entered.');
+
+  userEvent.click(screen.getByLabelText('Ballot Style'));
+  userEvent.click(screen.getByText('Center Springfield'));
+
+  userEvent.click(screen.getByLabelText('Voting Method'));
+  const votingMethodOptions = assertDefined(
+    screen.getByText('Early Voting').parentElement
+  );
+  expect([...votingMethodOptions.children].map((o) => o.textContent)).toEqual([
+    'Early Voting',
+    'Precinct',
+    'Absentee',
+  ]);
 });

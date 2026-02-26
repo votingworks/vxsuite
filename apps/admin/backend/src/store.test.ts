@@ -319,6 +319,60 @@ test('manual results', () => {
   expect(store.getManualResults({ electionId })).toEqual([]);
 });
 
+test('manual results - early_voting is a valid votingMethod', () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { electionData } = electionDefinition;
+
+  const store = Store.memoryStore();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+
+  const precinctId = 'precinct-1';
+  const ballotStyleGroupId: BallotStyleGroupId = '1M' as BallotStyleGroupId;
+  const simpleResults: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: {},
+  };
+
+  store.setManualResults({
+    electionId,
+    precinctId,
+    ballotStyleGroupId,
+    votingMethod: 'precinct',
+    manualResults: simpleResults,
+  });
+  store.setManualResults({
+    electionId,
+    precinctId,
+    ballotStyleGroupId,
+    votingMethod: 'early_voting',
+    manualResults: { ...simpleResults, ballotCount: 25 },
+  });
+
+  expect(
+    store.getManualResults({
+      electionId,
+      filter: { votingMethods: ['precinct'] },
+    })
+  ).toMatchObject([
+    { votingMethod: 'precinct', manualResults: { ballotCount: 10 } },
+  ]);
+
+  expect(
+    store.getManualResults({
+      electionId,
+      filter: { votingMethods: ['early_voting'] },
+    })
+  ).toMatchObject([
+    { votingMethod: 'early_voting', manualResults: { ballotCount: 25 } },
+  ]);
+});
+
 function expectArrayMatch<T>(a: T[], b: T[]) {
   expect(a).toHaveLength(b.length);
   for (const item of a) {
