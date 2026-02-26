@@ -10,10 +10,6 @@
     "configure-vxdev-env": "node libs/utils/build/scripts/generate_env_file.js --isVxDev -o /vx/config/.env.local",
     "run-dev": "script/run-dev"
   },
-  "engines": {
-    "node": "20.16.0"
-  },
-  "packageManager": "pnpm@8.15.5",
   "devDependencies": {
     "@storybook/addon-a11y": "^7.2.2",
     "@storybook/addon-actions": "^7.2.2",
@@ -40,11 +36,11 @@
     "@storybook/theming": "^7.2.2",
     "@storybook/types": "^7.2.2",
     "@types/eslint": "8.4.1",
-    "@typescript/native-preview": "7.0.0-dev.20260120.1",
     "@typescript-eslint/parser": "6.7.0",
+    "@typescript/native-preview": "7.0.0-dev.20260120.1",
     "eslint": "8.57.0",
     "husky": "^7.0.0",
-    "lint-staged": "11.0.0",
+    "lint-staged": "^15.0.0",
     "ora": "^5.2.0",
     "postcss-styled-syntax": "^0.4.0",
     "prettier": "^3.0.3",
@@ -55,6 +51,10 @@
     "typescript": "5.8.3",
     "vitest": "^2.1.8"
   },
+  "engines": {
+    "node": "20.16.0"
+  },
+  "packageManager": "pnpm@8.15.5",
   "pnpm": {
     "overrides": {
       "@babel/traverse": "7.23.2",
