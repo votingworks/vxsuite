@@ -7,8 +7,8 @@
   "scripts": {
     "build": "pnpm install && make build",
     "format": "prettier --write .",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint": "eslint --cache .",
+    "lint:fix": "eslint --cache --fix .",
     "pre-commit": "lint-staged",
     "test": "playwright test",
     "test:watch": "playwright test --ui"

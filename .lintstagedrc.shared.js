@@ -4,13 +4,13 @@ const base = {
   '*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)': [
     'prettier --write',
   ],
-  '*.+(js|jsx|ts|tsx)': ['eslint --quiet --fix'],
+  '*.+(js|jsx|ts|tsx)': ['eslint --cache --quiet --fix'],
   'package.json': ['sort-package-json'],
 };
 
 const frontend = {
   ...base,
-  '*.+(js|jsx|ts|tsx)': ['stylelint --quiet --fix', 'eslint --quiet --fix'],
+  '*.+(js|jsx|ts|tsx)': ['stylelint --quiet --fix', 'eslint --cache --quiet --fix'],
   '*.css': ['stylelint --config .stylelintrc-css.js --fix'],
 };
 
