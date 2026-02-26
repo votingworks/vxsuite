@@ -178,6 +178,7 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`, // Bad data
   ];
   for (const payload of invalidPayloads) {
@@ -219,6 +220,7 @@ test('processQRCodeReport returns "invalid-signature" when authenticating the si
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -251,6 +253,7 @@ test('processQRCodeReport returns no election found where there is no election f
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -305,6 +308,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -313,10 +317,10 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     ok(
       expect.objectContaining({
         ballotHash: sampleElectionDefinition.ballotHash,
-        pollsState: 'polls_closed_final',
+        pollsTransitionType: 'close_polls',
         machineId: 'machineId',
         isLive: true,
-        signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+        pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -358,6 +362,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -421,6 +426,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -431,8 +437,8 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         ballotHash: sampleElectionDefinition.ballotHash,
         machineId: 'machineId',
         isLive: true,
-        pollsState: 'polls_closed_final',
-        signedTimestamp: new Date('2024-01-02T12:00:00Z'),
+        pollsTransitionType: 'close_polls',
+        pollsTransitionTime: new Date('2024-01-02T12:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -505,7 +511,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
         [ALL_PRECINCTS_REPORT_KEY]: [
           {
             machineId: 'machineId',
-            pollsState: 'polls_closed_final',
+            pollsTransitionType: 'close_polls',
             precinctSelection: ALL_PRECINCTS_SELECTION,
             signedTimestamp: new Date('2024-01-02T12:00:00.000Z'),
           },
@@ -539,6 +545,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -589,10 +596,11 @@ test('quick results reporting works for polls open reporting', async () => {
       timestamp: new Date('2024-05-04T08:00:00Z').getTime() / 1000,
       isLiveMode: false,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      primaryMessage: 'polls_open',
+      primaryMessage: 'open_polls',
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -602,10 +610,10 @@ test('quick results reporting works for polls open reporting', async () => {
     ok(
       expect.objectContaining({
         ballotHash: sampleElectionDefinition.ballotHash,
-        pollsState: 'polls_open',
+        pollsTransitionType: 'open_polls',
         machineId: 'mock-01',
         isLive: false,
-        signedTimestamp: new Date('2024-05-04T08:00:00Z'),
+        pollsTransitionTime: new Date('2024-05-04T08:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -623,10 +631,11 @@ test('quick results reporting works for polls open reporting', async () => {
         timestamp: new Date('2024-05-04T09:00:00Z').getTime() / 1000,
         isLiveMode: false,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
-        primaryMessage: 'polls_open',
+        primaryMessage: 'open_polls',
         numPages: 1,
         pageIndex: 0,
         ballotCount: 0,
+        votingType: 'election_day',
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -636,10 +645,10 @@ test('quick results reporting works for polls open reporting', async () => {
     ok(
       expect.objectContaining({
         ballotHash: sampleElectionDefinition.ballotHash,
-        pollsState: 'polls_open',
+        pollsTransitionType: 'open_polls',
         machineId: 'mock-02',
         isLive: false,
-        signedTimestamp: new Date('2024-05-04T09:00:00Z'),
+        pollsTransitionTime: new Date('2024-05-04T09:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -663,7 +672,7 @@ test('quick results reporting works for polls open reporting', async () => {
         [precinctId]: [
           {
             machineId: 'mock-02',
-            pollsState: 'polls_open',
+            pollsTransitionType: 'open_polls',
             precinctSelection: singlePrecinctSelectionFor(
               sampleElectionDefinition.election.precincts[0].id
             ),
@@ -673,7 +682,7 @@ test('quick results reporting works for polls open reporting', async () => {
         [ALL_PRECINCTS_REPORT_KEY]: [
           {
             machineId: 'mock-01',
-            pollsState: 'polls_open',
+            pollsTransitionType: 'open_polls',
             precinctSelection: ALL_PRECINCTS_SELECTION,
             signedTimestamp: new Date('2024-05-04T08:00:00Z'),
           },
@@ -711,6 +720,7 @@ test('quick results reporting works for polls open reporting', async () => {
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -719,10 +729,10 @@ test('quick results reporting works for polls open reporting', async () => {
     ok(
       expect.objectContaining({
         ballotHash: sampleElectionDefinition.ballotHash,
-        pollsState: 'polls_closed_final',
+        pollsTransitionType: 'close_polls',
         machineId: 'mock-01',
         isLive: false,
-        signedTimestamp: new Date('2024-05-04T12:00:00Z'),
+        pollsTransitionTime: new Date('2024-05-04T12:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -747,7 +757,7 @@ test('quick results reporting works for polls open reporting', async () => {
           [precinctId]: [
             {
               machineId: 'mock-02',
-              pollsState: 'polls_open',
+              pollsTransitionType: 'open_polls',
               precinctSelection: singlePrecinctSelectionFor(
                 sampleElectionDefinition.election.precincts[0].id
               ),
@@ -757,7 +767,7 @@ test('quick results reporting works for polls open reporting', async () => {
           [ALL_PRECINCTS_REPORT_KEY]: [
             {
               machineId: 'mock-01',
-              pollsState: 'polls_closed_final',
+              pollsTransitionType: 'close_polls',
               precinctSelection: ALL_PRECINCTS_SELECTION,
               signedTimestamp: new Date('2024-05-04T12:00:00Z'),
             },
@@ -778,10 +788,11 @@ test('quick results reporting works for polls open reporting', async () => {
         timestamp: new Date('2024-05-05T08:00:00Z').getTime() / 1000,
         isLiveMode: true,
         precinctSelection: ALL_PRECINCTS_SELECTION,
-        primaryMessage: 'polls_open',
+        primaryMessage: 'open_polls',
         numPages: 1,
         pageIndex: 0,
         ballotCount: 0,
+        votingType: 'election_day',
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -791,16 +802,17 @@ test('quick results reporting works for polls open reporting', async () => {
   expect(openResultLiveMode).toEqual(
     ok({
       ballotHash: sampleElectionDefinition.ballotHash,
-      pollsState: 'polls_open',
+      pollsTransitionType: 'open_polls',
       machineId: 'mock-01',
       isLive: true,
-      signedTimestamp: new Date('2024-05-05T08:00:00Z'),
+      pollsTransitionTime: new Date('2024-05-05T08:00:00Z'),
       election: expect.objectContaining({
         id: sampleElectionDefinition.election.id,
       }),
       precinctSelection: ALL_PRECINCTS_SELECTION,
       isPartial: false,
       ballotCount: 0,
+      votingType: 'election_day',
     })
   );
 
@@ -820,7 +832,7 @@ test('quick results reporting works for polls open reporting', async () => {
         [ALL_PRECINCTS_REPORT_KEY]: [
           {
             machineId: 'mock-01',
-            pollsState: 'polls_open',
+            pollsTransitionType: 'open_polls',
             precinctSelection: ALL_PRECINCTS_SELECTION,
             signedTimestamp: new Date('2024-05-05T08:00:00Z'),
           },
@@ -859,10 +871,11 @@ test('quick results reporting works for polls paused reporting', async () => {
       timestamp: new Date('2024-05-04T10:00:00Z').getTime() / 1000,
       isLiveMode: false,
       precinctSelection: singlePrecinctSelectionFor(precinctId),
-      primaryMessage: 'polls_paused',
+      primaryMessage: 'pause_voting',
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -872,10 +885,10 @@ test('quick results reporting works for polls paused reporting', async () => {
     ok(
       expect.objectContaining({
         ballotHash: sampleElectionDefinition.ballotHash,
-        pollsState: 'polls_paused',
+        pollsTransitionType: 'pause_voting',
         machineId: 'mock-01',
         isLive: false,
-        signedTimestamp: new Date('2024-05-04T10:00:00Z'),
+        pollsTransitionTime: new Date('2024-05-04T10:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -895,9 +908,85 @@ test('quick results reporting works for polls paused reporting', async () => {
           [precinctId]: [
             {
               machineId: 'mock-01',
-              pollsState: 'polls_paused',
+              pollsTransitionType: 'pause_voting',
               precinctSelection: singlePrecinctSelectionFor(precinctId),
               signedTimestamp: new Date('2024-05-04T10:00:00Z'),
+            },
+          ],
+        }),
+      })
+    )
+  );
+});
+
+test('quick results reporting works for voting resumed reporting', async () => {
+  const {
+    unauthenticatedApiClient,
+    apiClient,
+    workspace,
+    fileStorageClient,
+    auth0,
+  } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const sampleElectionDefinition = await setUpElectionInSystem(
+    apiClient,
+    workspace,
+    fileStorageClient
+  );
+  const precinctId = sampleElectionDefinition.election.precincts[0].id;
+
+  const resumedResult = await unauthenticatedApiClient.processQrCodeReport({
+    payload: `1//qr2//${encodeQuickResultsMessage({
+      ballotHash: sampleElectionDefinition.ballotHash,
+      signingMachineId: 'mock-01',
+      timestamp: new Date('2024-05-04T11:00:00Z').getTime() / 1000,
+      isLiveMode: false,
+      precinctSelection: singlePrecinctSelectionFor(precinctId),
+      primaryMessage: 'resume_voting',
+      numPages: 1,
+      pageIndex: 0,
+      ballotCount: 50,
+      votingType: 'election_day',
+    })}`,
+    signature: 'test-signature',
+    certificate: 'test-certificate',
+  });
+
+  expect(resumedResult).toEqual(
+    ok(
+      expect.objectContaining({
+        ballotHash: sampleElectionDefinition.ballotHash,
+        pollsTransitionType: 'resume_voting',
+        machineId: 'mock-01',
+        isLive: false,
+        pollsTransitionTime: new Date('2024-05-04T11:00:00Z'),
+        election: expect.objectContaining({
+          id: sampleElectionDefinition.election.id,
+        }),
+        precinctSelection: singlePrecinctSelectionFor(precinctId),
+        isPartial: false,
+        ballotCount: 50,
+      })
+    )
+  );
+
+  const pollsStatus = await apiClient.getLiveReportsSummary({
+    electionId: sampleElectionDefinition.election.id,
+  });
+  expect(pollsStatus).toEqual(
+    ok(
+      expect.objectContaining({
+        reportsByPrecinct: expect.objectContaining({
+          [precinctId]: [
+            {
+              machineId: 'mock-01',
+              pollsTransitionType: 'resume_voting',
+              precinctSelection: singlePrecinctSelectionFor(precinctId),
+              signedTimestamp: new Date('2024-05-04T11:00:00Z'),
             },
           ],
         }),
@@ -950,16 +1039,17 @@ test('processQrCodeReport handles v1 (qr1) message format without ballotCount', 
   expect(result).toEqual(
     ok({
       ballotHash: sampleElectionDefinition.ballotHash,
-      pollsState: 'polls_open',
+      pollsTransitionType: 'open_polls',
       machineId: 'mock-v1',
       isLive: false,
-      signedTimestamp: new Date('2024-05-04T08:00:00Z'),
+      reportCreatedAt: new Date('2024-05-04T08:00:00Z'),
       election: expect.objectContaining({
         id: sampleElectionDefinition.election.id,
       }),
       precinctSelection: ALL_PRECINCTS_SELECTION,
       isPartial: false,
       ballotCount: undefined,
+      votingType: 'election_day',
     })
   );
 
@@ -1003,7 +1093,7 @@ test('processQrCodeReport handles v1 (qr1) message format without ballotCount', 
     ok(
       expect.objectContaining({
         ballotHash: sampleElectionDefinition.ballotHash,
-        pollsState: 'polls_closed_final',
+        pollsTransitionType: 'close_polls',
         machineId: 'mock-v1',
         isLive: false,
         isPartial: false,
@@ -1108,6 +1198,7 @@ test('quick results reporting works as expected end to end with single precinct 
         numPages: 1,
         pageIndex: 0,
         ballotCount: 0,
+        votingType: 'election_day',
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -1119,7 +1210,7 @@ test('quick results reporting works as expected end to end with single precinct 
         ballotHash: sampleElectionDefinition.ballotHash,
         machineId: 'first-precinct-machine',
         isLive: true,
-        signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+        pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -1154,6 +1245,7 @@ test('quick results reporting works as expected end to end with single precinct 
         numPages: 1,
         pageIndex: 0,
         ballotCount: 0,
+        votingType: 'election_day',
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -1165,7 +1257,7 @@ test('quick results reporting works as expected end to end with single precinct 
         ballotHash: sampleElectionDefinition.ballotHash,
         machineId: 'second-precinct-machine',
         isLive: true,
-        signedTimestamp: new Date('2024-01-01T13:00:00Z'),
+        pollsTransitionTime: new Date('2024-01-01T13:00:00Z'),
         election: expect.objectContaining({
           id: sampleElectionDefinition.election.id,
         }),
@@ -1347,6 +1439,7 @@ test('quick results reporting works as expected end to end with single precinct 
         numPages: 1,
         pageIndex: 0,
         ballotCount: 0,
+        votingType: 'election_day',
       })}`,
       signature: 'test-signature',
       certificate: 'test-certificate',
@@ -1468,6 +1561,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -1510,6 +1604,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',
@@ -1629,6 +1724,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     numPages: 2,
     pageIndex: 0,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   const r1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1647,10 +1743,11 @@ test('quick results reporting supports paginated 2-page reports', async () => {
       }),
       numPages: 2,
       pageIndex: 0,
-      pollsState: 'polls_closed_final',
+      pollsTransitionType: 'close_polls',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
       isPartial: true,
+      votingType: 'election_day',
     })
   );
 
@@ -1684,6 +1781,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     numPages: 2,
     pageIndex: 1,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   auth0.logOut();
@@ -1700,11 +1798,12 @@ test('quick results reporting supports paginated 2-page reports', async () => {
       election: expect.objectContaining({
         id: sampleElectionDefinition.election.id,
       }),
-      pollsState: 'polls_closed_final',
+      pollsTransitionType: 'close_polls',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:01Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:01Z'),
       contestResults: mockResults.contestResults,
       isPartial: false,
+      votingType: 'election_day',
     })
   );
 
@@ -1798,6 +1897,7 @@ test('quick results reporting clears previous partial reports on numPages change
     numPages: 2,
     pageIndex: 0,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   const r1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1816,10 +1916,11 @@ test('quick results reporting clears previous partial reports on numPages change
       }),
       numPages: 2,
       pageIndex: 0,
-      pollsState: 'polls_closed_final',
+      pollsTransitionType: 'close_polls',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
       isPartial: true,
+      votingType: 'election_day',
     })
   );
 
@@ -1842,6 +1943,7 @@ test('quick results reporting clears previous partial reports on numPages change
     numPages: 3,
     pageIndex: 1,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   const r2 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1860,10 +1962,11 @@ test('quick results reporting clears previous partial reports on numPages change
       }),
       numPages: 3,
       pageIndex: 1,
-      pollsState: 'polls_closed_final',
+      pollsTransitionType: 'close_polls',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:01Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:01Z'),
       isPartial: true,
+      votingType: 'election_day',
     })
   );
 
@@ -1878,6 +1981,7 @@ test('quick results reporting clears previous partial reports on numPages change
     numPages: 3,
     pageIndex: 2,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   const r3 = await unauthenticatedApiClient.processQrCodeReport({
@@ -1896,10 +2000,11 @@ test('quick results reporting clears previous partial reports on numPages change
       }),
       numPages: 3,
       pageIndex: 2,
-      pollsState: 'polls_closed_final',
+      pollsTransitionType: 'close_polls',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:02Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:02Z'),
       isPartial: true,
+      votingType: 'election_day',
     })
   );
 
@@ -1913,6 +2018,7 @@ test('quick results reporting clears previous partial reports on numPages change
     numPages: 3,
     pageIndex: 0,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   expect(newPayloadPage1).not.toEqual(payloadPage1);
@@ -1931,11 +2037,12 @@ test('quick results reporting clears previous partial reports on numPages change
       election: expect.objectContaining({
         id: sampleElectionDefinition.election.id,
       }),
-      pollsState: 'polls_closed_final',
+      pollsTransitionType: 'close_polls',
       isLive: true,
-      signedTimestamp: new Date('2024-01-01T12:00:00Z'),
+      pollsTransitionTime: new Date('2024-01-01T12:00:00Z'),
       contestResults: mockResults.contestResults,
       isPartial: false,
+      votingType: 'election_day',
     })
   );
 });
@@ -1989,6 +2096,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     numPages: 2,
     pageIndex: 0,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   const rA1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -2000,6 +2108,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     ok(
       expect.objectContaining({
         isPartial: true,
+        votingType: 'election_day',
       })
     )
   );
@@ -2022,6 +2131,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     numPages: 2,
     pageIndex: 0,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   const rB1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -2033,6 +2143,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     ok(
       expect.objectContaining({
         isPartial: true,
+        votingType: 'election_day',
       })
     )
   );
@@ -2048,6 +2159,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     numPages: 2,
     pageIndex: 1,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   const rC1 = await unauthenticatedApiClient.processQrCodeReport({
@@ -2059,6 +2171,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     ok(
       expect.objectContaining({
         isPartial: true,
+        votingType: 'election_day',
       })
     )
   );
@@ -2073,6 +2186,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     ok(
       expect.objectContaining({
         isPartial: true,
+        votingType: 'election_day',
       })
     )
   );
@@ -2088,6 +2202,7 @@ test('quick results clears previous partial reports when precinctSelection chang
     numPages: 2,
     pageIndex: 1,
     ballotCount: 0,
+    votingType: 'election_day',
   })}`;
 
   const rA2 = await unauthenticatedApiClient.processQrCodeReport({
@@ -2232,6 +2347,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
       numPages: 1,
       pageIndex: 0,
       ballotCount: 0,
+      votingType: 'election_day',
     })}`,
     signature: 'test-signature',
     certificate: 'test-certificate',

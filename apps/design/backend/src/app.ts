@@ -1138,14 +1138,19 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           ballotHash,
           machineId,
           isLive,
-          signedTimestamp,
+          reportCreatedAt,
+          pollsTransitionTime,
           encodedCompressedTally,
           precinctSelection,
-          pollsState,
+          pollsTransitionType,
           ballotCount,
           numPages,
           pageIndex,
+          votingType,
         } = decodeQuickResultsMessage(payload);
+
+        const signedTimestamp = pollsTransitionTime ?? reportCreatedAt;
+        assert(signedTimestamp);
 
         // First get the election ID for this hash
         const electionId = await store.getElectionIdFromBallotHash(ballotHash);
@@ -1170,7 +1175,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
         // the last page.
         if (numPages > 1) {
           // Pagination only supported or necessary for polls closed reports
-          assert(pollsState === 'polls_closed_final');
+          assert(pollsTransitionType === 'close_polls');
           // Save the received page as a partial. This handles out-of-order
           // arrival: whenever we receive any page we save it and then check
           // whether we have all pages stored (by count). If so, assemble and
@@ -1183,7 +1188,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             machineId,
             isLive,
             signedTimestamp,
-            pollsState,
+            pollsTransitionType,
             pageIndex,
             numPages,
           });
@@ -1192,7 +1197,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             ballotHash,
             machineId,
             isLive,
-            pollsState,
+            pollsTransitionType,
           });
           const expectedPrecinctId =
             maybeGetPrecinctIdFromSelection(precinctSelection);
@@ -1228,16 +1233,18 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           // If we don't yet have all pages, return a minimal OK response.
           if (partials.length < numPages) {
             return ok({
-              pollsState,
+              pollsTransitionType,
               ballotHash,
               machineId,
               isLive,
-              signedTimestamp,
+              reportCreatedAt,
+              pollsTransitionTime,
               precinctSelection,
               election,
               numPages,
               pageIndex,
               isPartial: true,
+              votingType,
             });
           }
           // It should be impossible to have more than numPages partials
@@ -1264,7 +1271,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             machineId,
             isLive,
             signedTimestamp,
-            pollsState,
+            pollsTransitionType,
           });
 
           const contestResults = decodeAndReadCompressedTally({
@@ -1274,15 +1281,17 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           });
 
           return ok({
-            pollsState,
+            pollsTransitionType,
             ballotHash,
             machineId,
             isLive,
-            signedTimestamp,
+            reportCreatedAt,
+            pollsTransitionTime,
             contestResults,
             precinctSelection,
             election,
             isPartial: false,
+            votingType,
           });
         }
 
@@ -1295,45 +1304,50 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
           machineId,
           isLive,
           signedTimestamp,
-          pollsState,
+          pollsTransitionType,
         });
 
-        switch (pollsState) {
-          case 'polls_closed_final': {
+        switch (pollsTransitionType) {
+          case 'close_polls': {
             const contestResults = decodeAndReadCompressedTally({
               election,
               precinctSelection,
               encodedTally: encodedCompressedTally,
             });
             return ok({
-              pollsState,
+              pollsTransitionType,
               ballotHash,
               machineId,
               isLive,
-              signedTimestamp,
+              reportCreatedAt,
+              pollsTransitionTime,
               contestResults,
               precinctSelection,
               election,
               isPartial: false,
+              votingType,
             });
           }
-          case 'polls_open':
-          case 'polls_paused': {
+          case 'open_polls':
+          case 'pause_voting':
+          case 'resume_voting': {
             return ok({
-              pollsState,
+              pollsTransitionType,
               ballotHash,
               machineId,
               isLive,
-              signedTimestamp,
+              reportCreatedAt,
+              pollsTransitionTime,
               precinctSelection,
               election,
               isPartial: false,
               ballotCount,
+              votingType,
             });
           }
           /* istanbul ignore next - @preserve */
           default:
-            throwIllegalValue(pollsState);
+            throwIllegalValue(pollsTransitionType);
         }
       } catch (e) {
         return err('invalid-payload');

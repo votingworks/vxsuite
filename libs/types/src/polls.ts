@@ -17,6 +17,17 @@ export function doesPollsStateSupportLiveReporting(
   return state !== 'polls_closed_initial';
 }
 
+/**
+ * The voting type included in live report QR codes.
+ * Encoded as a single digit: 0 = election_day, 1 = early_voting, 2 = absentee.
+ */
+export const LIVE_REPORT_VOTING_TYPES = [
+  'election_day',
+  'early_voting',
+  'absentee',
+] as const;
+export type LiveReportVotingType = (typeof LIVE_REPORT_VOTING_TYPES)[number];
+
 export const PollsStateSchema: z.ZodSchema<PollsState> = z.union([
   z.literal('polls_closed_initial'),
   z.literal('polls_open'),

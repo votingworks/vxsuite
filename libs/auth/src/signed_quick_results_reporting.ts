@@ -3,7 +3,9 @@ import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import {
   ElectionDefinition,
-  PollsStateSupportsLiveReporting,
+  LIVE_REPORT_VOTING_TYPES,
+  LiveReportVotingType,
+  PollsTransitionType,
   PrecinctSelection,
   Tabulation,
   safeParseInt,
@@ -45,8 +47,39 @@ interface SignedQuickResultsReportingInput {
   results: Tabulation.ElectionResults;
   signingMachineId: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsStateSupportsLiveReporting;
+  pollsTransitionType: PollsTransitionType;
+  votingType: LiveReportVotingType;
+  pollsTransitionTimestamp: number;
   maxQrCodeLength?: number; // Provided as a prop for ease in testing
+}
+
+/**
+ * Non-tally primaryMessage values (both new transition types and old polls
+ * state strings for backwards compatibility).
+ */
+const NON_TALLY_PRIMARY_MESSAGES = [
+  'open_polls',
+  'pause_voting',
+  'resume_voting',
+  'polls_open',
+  'polls_paused',
+] as const;
+
+/**
+ * Maps old polls-state-based primaryMessage strings to transition types for
+ * backwards compatibility with older QR messages.
+ */
+export function normalizePollsTransitionType(
+  primaryMessage: string
+): PollsTransitionType {
+  switch (primaryMessage) {
+    case 'polls_open':
+      return 'open_polls';
+    case 'polls_paused':
+      return 'pause_voting';
+    default:
+      return primaryMessage as PollsTransitionType;
+  }
 }
 
 const MAXIMUM_BYTES_IN_MEDIUM_QR_CODE = 2300;
@@ -63,12 +96,12 @@ const CERT_PEM_FOOTER = '-----END CERTIFICATE-----';
 const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '\x00';
 
 /**
- * The original message format (8 fields, no ballot count).
+ * The v1 message format (8 fields, no ballot count or voting type).
  */
 export const QR_MESSAGE_FORMAT_V1 = 'qr1';
 
 /**
- * The v2 message format (9 fields, adds ballot count).
+ * The current message format (10 fields: base fields, ballot count, and voting type).
  */
 export const QR_MESSAGE_FORMAT = 'qr2';
 
@@ -96,12 +129,13 @@ export function encodeQuickResultsMessage(components: {
   signingMachineId: string;
   isLiveMode: boolean;
   timestamp: number;
-  // primaryMessage is either a compressed tally (base64) or the string 'polls_open'
+  // primaryMessage is either a compressed tally (base64) or a transition type string
   primaryMessage: string;
   precinctSelection: PrecinctSelection;
   numPages: number;
   pageIndex: number;
   ballotCount: number;
+  votingType: LiveReportVotingType;
 }): string {
   const messagePayloadParts = [
     safeEncodeForUrl(components.ballotHash),
@@ -115,6 +149,7 @@ export function encodeQuickResultsMessage(components: {
     components.numPages.toString(),
     components.pageIndex.toString(),
     components.ballotCount.toString(),
+    LIVE_REPORT_VOTING_TYPES.indexOf(components.votingType).toString(),
   ];
 
   return messagePayloadParts.join(
@@ -122,20 +157,22 @@ export function encodeQuickResultsMessage(components: {
   );
 }
 
-interface DecodedBaseFieldsV1 {
+interface DecodedBaseFields {
   ballotHash: string;
   machineId: string;
   isLive: boolean;
-  signedTimestamp: Date;
+  reportCreatedAt?: Date;
   encodedCompressedTally: string;
   precinctSelection: PrecinctSelection;
-  pollsState: PollsStateSupportsLiveReporting;
+  pollsTransitionType: PollsTransitionType;
   numPages: number;
   pageIndex: number;
 }
 
-interface DecodedBaseFieldsV2 extends DecodedBaseFieldsV1 {
+interface DecodedFields extends DecodedBaseFields {
+  pollsTransitionTime?: Date;
   ballotCount?: number;
+  votingType: LiveReportVotingType;
 }
 
 function parseRequiredInt(value: string, fieldName: string): number {
@@ -146,7 +183,9 @@ function parseRequiredInt(value: string, fieldName: string): number {
   return result.ok();
 }
 
-function decodeBaseFields(parts: string[]): DecodedBaseFieldsV1 {
+function decodeBaseFields(
+  parts: string[]
+): DecodedBaseFields & { timestamp: Date } {
   const [
     ballotHashEncoded,
     signingMachineIdEncoded,
@@ -182,46 +221,53 @@ function decodeBaseFields(parts: string[]): DecodedBaseFieldsV1 {
     throw new Error('Invalid page index format');
   }
 
-  const pollsState =
-    primaryMessage === 'polls_open' || primaryMessage === 'polls_paused'
-      ? primaryMessage
-      : 'polls_closed_final';
+  const isNonTallyMessage = (
+    NON_TALLY_PRIMARY_MESSAGES as readonly string[]
+  ).includes(primaryMessage);
+  const pollsTransitionType = isNonTallyMessage
+    ? normalizePollsTransitionType(primaryMessage)
+    : 'close_polls';
 
   return {
     ballotHash: safeDecodeFromUrl(ballotHashEncoded),
     machineId: safeDecodeFromUrl(signingMachineIdEncoded),
     isLive: isLiveModeStr === '1',
-    signedTimestamp: new Date(timestampNumber * 1000),
-    encodedCompressedTally:
-      pollsState !== 'polls_closed_final' ? '' : primaryMessage,
+    timestamp: new Date(timestampNumber * 1000),
+    encodedCompressedTally: isNonTallyMessage ? '' : primaryMessage,
     precinctSelection: precinctId
       ? singlePrecinctSelectionFor(safeDecodeFromUrl(precinctId))
       : ALL_PRECINCTS_SELECTION,
-    pollsState,
+    pollsTransitionType,
     numPages,
     pageIndex,
   };
 }
 
-function decodeV1Message(messagePayload: string): DecodedBaseFieldsV2 {
+function decodeV1Message(messagePayload: string): DecodedFields {
   const parts = messagePayload.split(
     SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
   );
   if (parts.length !== 8) {
     throw new Error('Invalid message payload format');
   }
-  return { ...decodeBaseFields(parts), ballotCount: undefined };
+  const { timestamp, ...base } = decodeBaseFields(parts);
+  return {
+    ...base,
+    reportCreatedAt: timestamp,
+    ballotCount: undefined,
+    votingType: 'election_day',
+  };
 }
 
-function decodeV2Message(messagePayload: string): DecodedBaseFieldsV2 {
+function decodeV2Message(messagePayload: string): DecodedFields {
   const parts = messagePayload.split(
     SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
   );
-  if (parts.length !== 9) {
+  if (parts.length !== 10) {
     throw new Error('Invalid message payload format');
   }
 
-  const base = decodeBaseFields(parts);
+  const { timestamp, ...base } = decodeBaseFields(parts);
 
   const ballotCountStr = parts[8];
   assert(ballotCountStr !== undefined);
@@ -230,16 +276,22 @@ function decodeV2Message(messagePayload: string): DecodedBaseFieldsV2 {
     throw new Error('Invalid ballot count format');
   }
 
-  return { ...base, ballotCount };
+  const votingTypeDigitStr = parts[9];
+  assert(votingTypeDigitStr !== undefined);
+  const votingTypeDigit = parseRequiredInt(votingTypeDigitStr, 'voting type');
+  const votingType = LIVE_REPORT_VOTING_TYPES[votingTypeDigit];
+  if (!votingType) {
+    throw new Error('Invalid voting type format');
+  }
+
+  return { ...base, pollsTransitionTime: timestamp, ballotCount, votingType };
 }
 
 /**
  * Decodes a message payload string back into its components.
  * Exported for testing purposes.
  */
-export function decodeQuickResultsMessage(
-  payload: string
-): DecodedBaseFieldsV2 {
+export function decodeQuickResultsMessage(payload: string): DecodedFields {
   const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
 
   switch (messageType) {
@@ -301,7 +353,9 @@ export async function generateSignedQuickResultsReportingUrl(
     results,
     signingMachineId,
     precinctSelection,
-    pollsState,
+    pollsTransitionType,
+    votingType,
+    pollsTransitionTimestamp,
     maxQrCodeLength = MAXIMUM_BYTES_IN_MEDIUM_QR_CODE,
   }: SignedQuickResultsReportingInput,
   configOverride?: SignedQuickResultsReportingConfig
@@ -312,10 +366,10 @@ export async function generateSignedQuickResultsReportingUrl(
 
   const { ballotHash, election } = electionDefinition;
   let numPagesNeeded = 1; // If we need to paginate this value will be incremented.
-  const secondsSince1970 = Math.round(new Date().getTime() / 1000);
+  const secondsSince1970 = Math.round(pollsTransitionTimestamp / 1000);
 
-  switch (pollsState) {
-    case 'polls_closed_final': {
+  switch (pollsTransitionType) {
+    case 'close_polls': {
       // Try increasing pagination until all parts fit within the QR size limits.
       while (numPagesNeeded <= MAX_PARTS_FOR_QR_CODE) {
         const encodedUrls: string[] = [];
@@ -336,6 +390,7 @@ export async function generateSignedQuickResultsReportingUrl(
             numPages: numPagesNeeded,
             pageIndex: encodedUrls.length,
             ballotCount: getBallotCount(results.cardCounts),
+            votingType,
           });
           const message = constructPrefixedMessage(
             QR_MESSAGE_FORMAT,
@@ -359,20 +414,22 @@ export async function generateSignedQuickResultsReportingUrl(
       }
       break;
     }
-    case 'polls_open':
-    case 'polls_paused': {
-      // For polls open/paused reports we don't send tally data, just the
+    case 'open_polls':
+    case 'pause_voting':
+    case 'resume_voting': {
+      // For non-close-polls reports we don't send tally data, just the
       // ballot count so the confirmation page can display it.
       const messagePayload = encodeQuickResultsMessage({
         ballotHash,
         signingMachineId,
         isLiveMode,
         timestamp: secondsSince1970,
-        primaryMessage: pollsState,
+        primaryMessage: pollsTransitionType,
         precinctSelection,
         numPages: 1,
         pageIndex: 0,
         ballotCount: getBallotCount(results.cardCounts),
+        votingType,
       });
       const message = constructPrefixedMessage(
         QR_MESSAGE_FORMAT,
@@ -390,7 +447,7 @@ export async function generateSignedQuickResultsReportingUrl(
     }
     /* istanbul ignore next - @preserve */
     default: {
-      throwIllegalValue(pollsState);
+      throwIllegalValue(pollsTransitionType);
     }
   }
   throw new Error(

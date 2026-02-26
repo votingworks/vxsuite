@@ -40,35 +40,50 @@ function setUrlParams(params: Record<string, string>) {
 
 // Mock data for different report types
 const mockPollsOpenReport: ReceivedReportInfo = {
-  pollsState: 'polls_open',
+  pollsTransitionType: 'open_polls',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
-  signedTimestamp: new Date('2024-11-05T08:00:00Z'),
+  pollsTransitionTime: new Date('2024-11-05T08:00:00Z'),
   election,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   isPartial: false,
   ballotCount: 42,
+  votingType: 'election_day',
 };
 
 const mockPollsPausedReport: ReceivedReportInfo = {
-  pollsState: 'polls_paused',
+  pollsTransitionType: 'pause_voting',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
-  signedTimestamp: new Date('2024-11-05T12:00:00Z'),
+  pollsTransitionTime: new Date('2024-11-05T12:00:00Z'),
   election,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   isPartial: false,
   ballotCount: 108,
+  votingType: 'early_voting',
 };
 
-const mockPollsClosedReportGeneral: ReceivedReportInfo = {
-  pollsState: 'polls_closed_final',
+const mockVotingResumedReport: ReceivedReportInfo = {
+  pollsTransitionType: 'resume_voting',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
-  signedTimestamp: new Date('2024-11-05T20:00:00Z'),
+  pollsTransitionTime: new Date('2024-11-05T13:00:00Z'),
+  election,
+  precinctSelection: ALL_PRECINCTS_SELECTION,
+  isPartial: false,
+  ballotCount: 150,
+  votingType: 'election_day',
+};
+
+const mockPollsClosedReportGeneral: ReceivedReportInfo = {
+  pollsTransitionType: 'close_polls',
+  ballotHash: 'abc123def456',
+  machineId: 'VxScan-001',
+  isLive: true,
+  pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   contestResults: buildElectionResultsFixture({
@@ -81,29 +96,31 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
     includeGenericWriteIn: false,
   }).contestResults,
   isPartial: false,
+  votingType: 'election_day',
 };
 
 const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
-  pollsState: 'polls_closed_final',
+  pollsTransitionType: 'close_polls',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-001',
   isLive: true,
-  signedTimestamp: new Date('2024-11-05T20:00:00Z'),
+  pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   isPartial: true,
   numPages: 4,
   pageIndex: 1,
+  votingType: 'election_day',
 };
 
 const primaryElection = electionPrimaryPrecinctSplitsFixtures.readElection();
 
 const mockPollsClosedReportPrimary: ReceivedReportInfo = {
-  pollsState: 'polls_closed_final',
+  pollsTransitionType: 'close_polls',
   ballotHash: 'abc123def456',
   machineId: 'VxScan-002',
   isLive: true,
-  signedTimestamp: new Date('2024-11-05T20:00:00Z'),
+  pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election: primaryElection,
   precinctSelection: singlePrecinctSelectionFor(
     primaryElection.precincts[0].id
@@ -118,6 +135,7 @@ const mockPollsClosedReportPrimary: ReceivedReportInfo = {
     includeGenericWriteIn: false,
   }).contestResults,
   isPartial: false,
+  votingType: 'election_day',
 };
 
 beforeEach(() => {
@@ -320,6 +338,9 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
     expect(screen.getByText(/42/)).toBeInTheDocument();
 
+    // Check voting type
+    expect(screen.getByText('Election Day')).toBeInTheDocument();
+
     // does not show test mode banner
     await waitFor(() => {
       expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
@@ -380,6 +401,9 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
     expect(screen.getByText(/108/)).toBeInTheDocument();
 
+    // Check voting type
+    expect(screen.getByText('Early Voting')).toBeInTheDocument();
+
     // does not show test mode banner
     await waitFor(() => {
       expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
@@ -407,6 +431,41 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     await waitFor(() => {
       expect(screen.getByText('Test Report')).toBeInTheDocument();
     });
+  });
+
+  test('displays voting resumed report correctly', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockVotingResumedReport));
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Voting Resumed Report Sent' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('The voting resumed report has been sent to VxDesign.')
+      ).toBeInTheDocument();
+    });
+
+    // Check report details
+    expect(screen.getByText('All Precincts')).toBeInTheDocument();
+    expect(screen.getByText('VxScan-001')).toBeInTheDocument();
+    expect(screen.getByText(/abc123d/)).toBeInTheDocument();
+    expect(screen.getByText(/Nov 5, 2024/)).toBeInTheDocument();
+
+    // Check ballot count
+    expect(screen.getByText(/Ballots Scanned/)).toBeInTheDocument();
+    expect(screen.getByText(/150/)).toBeInTheDocument();
+
+    // Check voting type
+    expect(screen.getByText('Election Day')).toBeInTheDocument();
   });
 
   test('displays partial polls closed report correctly - general election', async () => {
