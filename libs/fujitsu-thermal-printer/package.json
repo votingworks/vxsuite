@@ -14,7 +14,6 @@
     "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
     "test:ci": "pnpm build && pnpm test:coverage --run",
     "test:coverage": "vitest --coverage",

@@ -15,7 +15,6 @@
     "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
@@ -32,7 +31,6 @@
     "eslint-plugin-vx": "workspace:*",
     "expect-type": "^0.15.0",
     "is-ci-cli": "2.2.0",
-    "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^3.1.1"
   },
