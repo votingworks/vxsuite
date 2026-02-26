@@ -1075,7 +1075,7 @@ export class Store {
         ballot_casting_mode,
         started_at
       ) values (
-        ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?
       )
     `,
       scannerBatch.batchId,
