@@ -13,6 +13,7 @@ import {
   ContestOptionId,
   Election,
   Id,
+  isOpenPrimary,
   PartyId,
   PrecinctSelection,
   Tabulation,
@@ -131,12 +132,44 @@ export function getEmptyManualElectionResults(
 }
 
 /**
+ * Determines the set of partisan contest IDs that should be invalidated due to
+ * crossover voting in an open primary. Returns undefined if no crossover.
+ */
+function getCrossoverInvalidatedContestIds(
+  cvr: Tabulation.CastVoteRecord,
+  election: Election
+): Set<ContestId> | undefined {
+  if (!isOpenPrimary(election)) return undefined;
+
+  const votedPartyIds = new Set<PartyId>();
+  for (const contest of election.contests) {
+    if (
+      contest.type === 'candidate' &&
+      contest.partyId &&
+      cvr.votes[contest.id] &&
+      cvr.votes[contest.id].length > 0
+    ) {
+      votedPartyIds.add(contest.partyId);
+    }
+  }
+
+  if (votedPartyIds.size <= 1) return undefined;
+
+  return new Set(
+    election.contests
+      .filter((c) => c.type === 'candidate' && c.partyId)
+      .map((c) => c.id)
+  );
+}
+
+/**
  * Adds a cast vote record to an election result and returns the election
  * result. Mutates the election result in place!
  */
 function addCastVoteRecordToElectionResult(
   electionResult: Tabulation.ElectionResults,
-  cvr: Tabulation.CastVoteRecord
+  cvr: Tabulation.CastVoteRecord,
+  election: Election
 ): Tabulation.ElectionResults {
   const { cardCounts } = electionResult;
   if (cvr.card.type === 'bmd') {
@@ -149,7 +182,17 @@ function addCastVoteRecordToElectionResult(
       (cardCounts.hmpb[cvr.card.sheetNumber - 1] ?? 0) + 1;
   }
 
+  const crossoverInvalidatedContestIds = getCrossoverInvalidatedContestIds(
+    cvr,
+    election
+  );
+
   for (const [contestId, optionIds] of Object.entries(cvr.votes)) {
+    // Skip invalidated partisan contests on crossover ballots
+    if (crossoverInvalidatedContestIds?.has(contestId)) {
+      continue;
+    }
+
     const contestResult = assertDefined(
       electionResult.contestResults[contestId]
     );
@@ -428,7 +471,7 @@ export async function tabulateCastVoteRecords({
 
     let i = 0;
     for (const cvr of cvrs) {
-      addCastVoteRecordToElectionResult(electionResults, cvr);
+      addCastVoteRecordToElectionResult(electionResults, cvr, election);
 
       i += 1;
       if (i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
@@ -455,13 +498,13 @@ export async function tabulateCastVoteRecords({
     const existingElectionResult = groupedElectionResults[groupKey];
     if (expectedGroups) {
       assert(existingElectionResult);
-      addCastVoteRecordToElectionResult(existingElectionResult, cvr);
+      addCastVoteRecordToElectionResult(existingElectionResult, cvr, election);
     } else if (existingElectionResult) {
-      addCastVoteRecordToElectionResult(existingElectionResult, cvr);
+      addCastVoteRecordToElectionResult(existingElectionResult, cvr, election);
     } else {
       const electionResult: Tabulation.ElectionResults =
         getEmptyElectionResults(election);
-      addCastVoteRecordToElectionResult(electionResult, cvr);
+      addCastVoteRecordToElectionResult(electionResult, cvr, election);
       groupedElectionResults[groupKey] = electionResult;
     }
 
