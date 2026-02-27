@@ -24,6 +24,7 @@ test('builds well-formed cast vote record report', () => {
     electionId,
     generatingDeviceId: scannerId,
     scannerIds: [scannerId],
+    scannerType: 'precinct',
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
     isTestMode: false,
     batchInfo: [
@@ -48,6 +49,7 @@ test('builds well-formed cast vote record report', () => {
       '@id': scannerId,
       SerialNumber: scannerId,
       Manufacturer: 'VotingWorks',
+      Model: 'VxScan',
     },
   ]);
 
@@ -209,6 +211,7 @@ test('represents test mode as an "OtherReportType"', () => {
     electionId,
     generatingDeviceId: scannerId,
     scannerIds: [scannerId],
+    scannerType: 'precinct',
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
     isTestMode: true,
     batchInfo: [],
@@ -228,6 +231,7 @@ test('still includes the generating device id in the device list if it is not th
     electionId,
     generatingDeviceId,
     scannerIds: [scannerId],
+    scannerType: 'central',
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
     isTestMode: true,
     batchInfo: [],
@@ -240,11 +244,13 @@ test('still includes the generating device id in the device list if it is not th
         '@id': scannerId,
         SerialNumber: scannerId,
         Manufacturer: 'VotingWorks',
+        Model: 'VxCentralScan',
       }),
       expect.objectContaining({
         '@id': generatingDeviceId,
         SerialNumber: generatingDeviceId,
         Manufacturer: 'VotingWorks',
+        Model: 'VxCentralScan',
       }),
     ])
   );

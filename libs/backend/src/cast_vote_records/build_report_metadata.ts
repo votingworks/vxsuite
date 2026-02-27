@@ -127,17 +127,21 @@ function buildElection({
 
 function buildReportingDevices(
   generatingDeviceId: string,
-  scannerIds: string[]
+  scannerIds: string[],
+  scannerType: 'central' | 'precinct'
 ): CVR.ReportingDevice[] {
   const allDeviceIds = scannerIds.includes(generatingDeviceId)
     ? scannerIds
     : [generatingDeviceId, ...scannerIds];
+
+  const model = scannerType === 'precinct' ? 'VxScan' : 'VxCentralScan';
 
   return allDeviceIds.map((deviceId) => ({
     '@type': 'CVR.ReportingDevice',
     '@id': deviceId,
     SerialNumber: deviceId,
     Manufacturer: 'VotingWorks',
+    Model: model,
   }));
 }
 
@@ -146,6 +150,7 @@ interface BuildCastVoteRecordReportMetadataParams {
   electionId: string;
   generatingDeviceId: string;
   scannerIds: string[];
+  scannerType: 'central' | 'precinct';
   reportTypes: CVR.ReportType[];
   isTestMode: boolean;
   batchInfo: BatchInfo[];
@@ -162,6 +167,7 @@ export function buildCastVoteRecordReportMetadata({
   electionId,
   generatingDeviceId,
   scannerIds,
+  scannerType,
   reportTypes,
   isTestMode,
   generatedDate = new Date(),
@@ -180,7 +186,11 @@ export function buildCastVoteRecordReportMetadata({
     GeneratedDate: generatedDate.toISOString(),
     // VVSG 2.0 1.1.5-G.1 requires identification of the creating device
     ReportGeneratingDeviceIds: [generatingDeviceId],
-    ReportingDevice: buildReportingDevices(generatingDeviceId, scannerIds),
+    ReportingDevice: buildReportingDevices(
+      generatingDeviceId,
+      scannerIds,
+      scannerType
+    ),
     Party: election.parties.map((party) => ({
       '@type': 'CVR.Party',
       '@id': party.id,

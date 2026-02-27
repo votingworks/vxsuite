@@ -302,6 +302,7 @@ function buildCastVoteRecordReportMetadata(
     isTestMode: inTestMode,
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
     scannerIds: [scannerId],
+    scannerType: exportContext.exportOptions.scannerType,
   });
 }
 
