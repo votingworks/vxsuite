@@ -61,11 +61,18 @@ function generateVxUsbLabel(previousLabel?: string): string {
   return newLabel;
 }
 
-const PARTITION_REGEX = /^(\/dev\/sd[a-z])\d$/;
+// Matches partition paths like /dev/sdb1, /dev/sdaa10
+const PARTITION_REGEX = /^(\/dev\/sd[a-z]+)\d+$/;
+// Matches root disk paths like /dev/sdb, /dev/sdaa
+const ROOT_DISK_REGEX = /^\/dev\/sd[a-z]+$/;
 
 function getRootDeviceName(deviceName: string): string {
+  // Disk paths (e.g. from unpartitioned drives) are already the root device
+  if (ROOT_DISK_REGEX.test(deviceName)) {
+    return deviceName;
+  }
   const match = deviceName.match(PARTITION_REGEX);
-  assert(match);
+  assert(match, `Unexpected device path: ${deviceName}`);
   return assertDefined(match[1]);
 }
 
@@ -186,6 +193,11 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
   // Store eject state so we don't immediately remount the drive on
   // the next status call. We don't need to persist this across restarts, so
   // storing in memory is fine.
+  //
+  // NOTE: This flag is not keyed by device identity, so with multiple USB
+  // drives present, ejecting one drive will suppress auto-mounting of any other
+  // drive until the ejected drive is physically removed. Only a single USB drive
+  // is supported.
   let didEject = false;
 
   const actionLock: {

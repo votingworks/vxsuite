@@ -1,7 +1,6 @@
-import { assert } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
-import { join } from 'node:path';
+import { basename } from 'node:path';
 import { exec } from './exec';
 
 const debug = makeDebug('usb-drive');
@@ -16,60 +15,72 @@ export interface BlockDeviceInfo {
   type: string;
 }
 
-type RawBlockDevice = Omit<BlockDeviceInfo, 'path'>;
+// All block device info comes from two sources that don't require privileged
+// access:
+//
+// - udevadm info --export-db: reads udev's database files in /run/udev/data/
+//   directly. We identify USB devices via ID_BUS=usb and get device name
+//   (DEVNAME), type (DEVTYPE), and filesystem attributes (ID_FS_TYPE,
+//   ID_FS_VERSION, ID_FS_LABEL). We use udevadm instead of lsblk because
+//   lsblk probes block devices directly, which can cause permissions issues
+//   in some environments.
+//
+// - /proc/mounts: a standard procfs file (world-readable) containing the
+//   kernel's current mount table, used to determine mount state.
 
-async function getBlockDeviceInfo(
-  devicePaths: string[]
-): Promise<BlockDeviceInfo[]> {
-  assert(devicePaths.length > 0);
-
-  try {
-    const { stdout } = await exec('lsblk', [
-      '-J',
-      '-n',
-      '-l',
-      '-o',
-      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL', 'TYPE'].join(','),
-      ...devicePaths,
-    ]);
-    const rawData = JSON.parse(stdout) as {
-      blockdevices: RawBlockDevice[];
-    };
-    debug(`Got block device info for ${devicePaths.length} devices: ${stdout}`);
-    return rawData.blockdevices.map((rawBlockDevice) => ({
-      ...rawBlockDevice,
-      path: join('/dev', rawBlockDevice.name),
-    }));
-  } catch (error) {
-    debug(`Error getting block device info: ${error}`);
-    return [];
-  }
+function parseMountpoints(mountsContent: string): Map<string, string> {
+  return new Map(
+    mountsContent.split('\n').flatMap((line) => {
+      const [device, mountpoint] = line.split(' ');
+      return device && mountpoint ? [[device, mountpoint] as const] : [];
+    })
+  );
 }
 
-async function findUsbDriveDevices(): Promise<string[]> {
-  const DEVICE_ID_PATH_PREFIX = '/dev/disk/by-id/';
-  const USB_DEVICE_ID_REGEXP = /^usb(.+)part(.*)$/;
+interface UsbBlockDevice {
+  devname: string;
+  devtype: 'disk' | 'partition';
+  fstype: string | null;
+  fsver: string | null;
+  label: string | null;
+}
 
-  // List devices, filtering to only the USB partitions
-  const devicesById = (await fs.readdir(DEVICE_ID_PATH_PREFIX)).filter((name) =>
-    USB_DEVICE_ID_REGEXP.test(name)
-  );
+function get(block: string, key: string): string | null {
+  const match = block.match(new RegExp(`^E: ${key}=(.+)$`, 'm'));
+  return match?.[1] ?? null;
+}
 
-  return Promise.all(
-    devicesById.map(async (deviceId) =>
-      join(
-        DEVICE_ID_PATH_PREFIX,
-        await fs.readlink(join(DEVICE_ID_PATH_PREFIX, deviceId))
-      )
-    )
-  );
+function parseExportDb(output: string): UsbBlockDevice[] {
+  const devices: UsbBlockDevice[] = [];
+
+  for (const block of output.split('\n\n')) {
+    if (get(block, 'ID_BUS') !== 'usb') continue;
+    if (get(block, 'SUBSYSTEM') !== 'block') continue;
+
+    const devtype = get(block, 'DEVTYPE');
+    if (devtype !== 'disk' && devtype !== 'partition') continue;
+
+    const devname = get(block, 'DEVNAME');
+    if (!devname) continue;
+
+    debug(`Found USB block device in udev database: ${devname} (${devtype})`);
+    devices.push({
+      devname,
+      devtype,
+      fstype: get(block, 'ID_FS_TYPE'),
+      fsver: get(block, 'ID_FS_VERSION'),
+      label: get(block, 'ID_FS_LABEL'),
+    });
+  }
+
+  return devices;
 }
 
 const DEFAULT_MEDIA_MOUNT_DIR = '/media';
 
 function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
   return (
-    blockDeviceInfo.type === 'part' && // disk partitions only, no disks or logical volumes
+    (blockDeviceInfo.type === 'part' || blockDeviceInfo.type === 'disk') &&
     !blockDeviceInfo.fstype?.includes('LVM') && // no partitions acting as LVMs
     (!blockDeviceInfo.mountpoint ||
       blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR))
@@ -78,25 +89,57 @@ function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
 
 /**
  * Returns the device info for the USB drive, if it's a removable data drive.
- * In the case of multiple USB drives, returns the first one enumerated by
- * lsblk.
+ * Returns info for both partitioned drives (type 'part') and unpartitioned
+ * drives (type 'disk'). Callers should use the type to determine whether the
+ * drive needs to be formatted before use.
+ *
+ * NOTE: Only a single USB drive is supported. When multiple USB drives are
+ * present, the first one enumerated is returned.
  */
 export async function getUsbDriveDeviceInfo(): Promise<
   BlockDeviceInfo | undefined
 > {
-  const devicePaths = await findUsbDriveDevices();
-  if (devicePaths.length === 0) {
-    debug(`No USB drives detected`);
+  const [exportDbOutput, mountsContent] = await Promise.all([
+    exec('udevadm', ['info', '--export-db'])
+      .then(({ stdout }) => stdout)
+      .catch(() => ''),
+    fs.readFile('/proc/mounts', 'utf-8').catch(() => ''),
+  ]);
+
+  const usbBlockDevices = parseExportDb(exportDbOutput);
+  if (usbBlockDevices.length === 0) {
+    debug('No USB block devices found in udev database');
     return undefined;
   }
 
-  const blockDeviceInfos = await getBlockDeviceInfo(devicePaths);
-  const dataUsbBlockDeviceInfo = blockDeviceInfos.find(isDataUsbDrive);
-  if (!dataUsbBlockDeviceInfo) {
-    debug(`USB drive detected, but it's not mounted as a removable data drive`);
+  // Prefer partitions over their parent disks: skip disk entries that have
+  // at least one partition in the udev database.
+  const candidates = usbBlockDevices.filter(
+    (d) =>
+      d.devtype === 'partition' ||
+      !usbBlockDevices.some(
+        (p) => p.devtype === 'partition' && p.devname.startsWith(d.devname)
+      )
+  );
+
+  const mountpoints = parseMountpoints(mountsContent);
+
+  const deviceInfos: BlockDeviceInfo[] = candidates.map((d) => ({
+    name: basename(d.devname),
+    path: d.devname,
+    type: d.devtype === 'partition' ? 'part' : 'disk',
+    mountpoint: mountpoints.get(d.devname) ?? null,
+    fstype: d.fstype,
+    fsver: d.fsver,
+    label: d.label,
+  }));
+
+  const dataUsbDrive = deviceInfos.find(isDataUsbDrive);
+  if (!dataUsbDrive) {
+    debug('USB block device(s) found, but none are usable data drives');
     return undefined;
   }
 
-  debug(`Detected USB drive at ${dataUsbBlockDeviceInfo.path}`);
-  return dataUsbBlockDeviceInfo;
+  debug(`Detected USB drive at ${dataUsbDrive.path}`);
+  return dataUsbDrive;
 }

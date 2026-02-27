@@ -193,6 +193,29 @@ describe('status', () => {
     });
   });
 
+  test('unpartitioned drive', async () => {
+    const logger = mockLogger({ fn: vi.fn });
+    const usbDrive = detectUsbDrive(logger);
+
+    // An unpartitioned drive has type 'disk' and no filesystem
+    getUsbDriveDeviceInfoMock.mockResolvedValue(
+      mockBlockDeviceInfo({
+        name: 'sdb',
+        path: '/dev/sdb',
+        mountpoint: null,
+        fstype: null,
+        fsver: null,
+        label: null,
+        type: 'disk',
+      })
+    );
+
+    await expect(usbDrive.status()).resolves.toEqual({
+      status: 'error',
+      reason: 'bad_format',
+    });
+  });
+
   test('fails to mount', async () => {
     const logger = mockLogger({ fn: vi.fn });
     const usbDrive = detectUsbDrive(logger);
@@ -479,6 +502,36 @@ describe('format', () => {
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // mock format script
 
     // format should call format script only
+    await usbDrive.format();
+    expect(vi.mocked(exec)).toHaveBeenNthCalledWith(1, 'sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/format_fat32.sh`,
+      '/dev/sdb',
+      expect.stringMatching(VX_USB_LABEL_REGEXP),
+    ]);
+
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'ejected' });
+  });
+
+  test('on unpartitioned drive, passes disk path directly to format script', async () => {
+    const logger = mockLogger({ fn: vi.fn });
+    const usbDrive = detectUsbDrive(logger);
+
+    // An unpartitioned drive reports as type 'disk' with no filesystem
+    getUsbDriveDeviceInfoMock.mockResolvedValueOnce(
+      mockBlockDeviceInfo({
+        name: 'sdb',
+        path: '/dev/sdb',
+        mountpoint: null,
+        fstype: null,
+        fsver: null,
+        label: null,
+        type: 'disk',
+      })
+    );
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // mock format script
+
+    // format should pass /dev/sdb directly (no partition suffix to strip)
     await usbDrive.format();
     expect(vi.mocked(exec)).toHaveBeenNthCalledWith(1, 'sudo', [
       '-n',

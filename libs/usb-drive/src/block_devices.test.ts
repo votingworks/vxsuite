@@ -1,12 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { promises as fs, PathLike } from 'node:fs';
+import { promises as fs } from 'node:fs';
 import { BlockDeviceInfo, getUsbDriveDeviceInfo } from './block_devices';
 import { exec } from './exec';
 
-const readdirMock = vi.mocked<(path: PathLike) => Promise<string[]>>(
-  fs.readdir
-);
-const readlinkMock = vi.mocked(fs.readlink);
+const readFileMock = vi.mocked(fs.readFile);
 const execMock = vi.mocked(exec);
 
 vi.mock(
@@ -17,8 +14,7 @@ vi.mock(
       ...actual,
       promises: {
         ...actual.promises,
-        readdir: vi.fn().mockRejectedValue(new Error('readdir not mocked')),
-        readlink: vi.fn().mockRejectedValue(new Error('readlink not mocked')),
+        readFile: vi.fn().mockRejectedValue(new Error('readFile not mocked')),
       },
     };
   }
@@ -36,93 +32,168 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function lsblkOutput(devices: Array<Partial<BlockDeviceInfo>> = []) {
-  return {
-    stdout: JSON.stringify({
-      blockdevices: devices.map((device) => ({
-        name: 'sdb1',
-        mountpoint: '/media/usb-drive-sdb1',
-        fstype: 'vfat',
-        fsver: 'FAT32',
-        label: 'VxUSB-00000',
-        type: 'part',
-        ...device,
-      })),
-    }),
-    stderr: '',
-  };
+function exportDbEntry(info: {
+  devname: string;
+  devtype?: 'disk' | 'partition';
+  idBus?: string;
+  fstype?: string | null;
+  fsver?: string | null;
+  label?: string | null;
+}): string {
+  const {
+    devname,
+    devtype = 'partition',
+    idBus = 'usb',
+    fstype,
+    fsver,
+    label,
+  } = info;
+  const lines = [
+    `E: DEVNAME=${devname}`,
+    `E: SUBSYSTEM=block`,
+    `E: DEVTYPE=${devtype}`,
+    `E: ID_BUS=${idBus}`,
+  ];
+  if (fstype) lines.push(`E: ID_FS_TYPE=${fstype}`);
+  if (fsver) lines.push(`E: ID_FS_VERSION=${fsver}`);
+  if (label) lines.push(`E: ID_FS_LABEL=${label}`);
+  return lines.join('\n');
 }
 
-export function mockBlockDeviceOnce(
-  device: Partial<BlockDeviceInfo> = {}
-): void {
-  readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
-  readlinkMock.mockResolvedValueOnce('../../sdb1');
-  execMock.mockResolvedValueOnce(lsblkOutput([device]));
+function exportDbOutput(devices: Array<Parameters<typeof exportDbEntry>[0]>) {
+  return { stdout: devices.map(exportDbEntry).join('\n\n'), stderr: '' };
+}
+
+function procMountsContent(
+  mounts: Array<{ device: string; mountpoint: string }> = []
+): string {
+  return mounts
+    .map(({ device, mountpoint }) => `${device} ${mountpoint} vfat rw 0 0`)
+    .join('\n');
+}
+
+function mockBlockDeviceOnce(device: Partial<BlockDeviceInfo> = {}): void {
+  const {
+    name = 'sdb1',
+    mountpoint = '/media/usb-drive-sdb1',
+    path = `/dev/${name}`,
+    type = 'part',
+    fstype = 'vfat',
+    fsver = 'FAT32',
+    label = 'VxUSB-00000',
+  } = device;
+  execMock.mockResolvedValueOnce(
+    exportDbOutput([
+      {
+        devname: path,
+        devtype: type === 'part' ? 'partition' : 'disk',
+        fstype,
+        fsver,
+        label,
+      },
+    ])
+  );
+  readFileMock.mockResolvedValueOnce(
+    mountpoint
+      ? procMountsContent([{ device: path, mountpoint }])
+      : procMountsContent()
+  );
 }
 
 describe('getUsbDriveDeviceInfo', () => {
-  test('returns undefined when no USB devices found', async () => {
-    readdirMock.mockResolvedValueOnce([]);
+  test('returns undefined when no USB block devices found', async () => {
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValueOnce('');
 
     expect(await getUsbDriveDeviceInfo()).toBeUndefined();
   });
 
-  test('returns undefined when no appropriately named USB partitions found', async () => {
-    readdirMock.mockResolvedValueOnce(['usb-other1', 'sata-drive-part1']);
+  test('returns undefined when udevadm fails', async () => {
+    execMock.mockRejectedValueOnce(new Error('udevadm failed'));
+    readFileMock.mockResolvedValueOnce('');
 
     expect(await getUsbDriveDeviceInfo()).toBeUndefined();
   });
 
-  test('returns undefined when lsblk fails', async () => {
-    readdirMock.mockResolvedValueOnce(['usb-device-part1']);
-    readlinkMock.mockResolvedValueOnce('../../sdb1');
-    execMock.mockRejectedValueOnce(new Error('lsblk failed'));
-
-    expect(await getUsbDriveDeviceInfo()).toBeUndefined();
-  });
-
-  test('returns undefined when no partition type block devices found', async () => {
-    mockBlockDeviceOnce({
-      type: 'disk', // rather than 'part'
-    });
+  test('treats drive as unmounted when /proc/mounts is unreadable', async () => {
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([
+        {
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-00000',
+        },
+      ])
+    );
+    readFileMock.mockRejectedValueOnce(new Error('/proc/mounts unreadable'));
 
     const result = await getUsbDriveDeviceInfo();
-    expect(result).toBeUndefined();
+
+    expect(result).toEqual(
+      expect.objectContaining({ name: 'sdb1', mountpoint: null })
+    );
+  });
+
+  test('ignores non-USB and non-block-device entries in the udev database', async () => {
+    // Exercises all the parseExportDb filter branches:
+    //   - non-USB device (ID_BUS=ata): skipped at the ID_BUS check
+    //   - USB non-block device (SUBSYSTEM=usb): skipped at the SUBSYSTEM check
+    //   - USB block device with unexpected DEVTYPE: skipped at the DEVTYPE check
+    //   - USB block device with no DEVNAME: skipped at the DEVNAME check
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        // non-USB block device
+        'E: DEVNAME=/dev/sda1\nE: SUBSYSTEM=block\nE: DEVTYPE=partition\nE: ID_BUS=ata',
+        // USB non-block device (e.g. USB serial)
+        'E: DEVNAME=/dev/ttyUSB0\nE: SUBSYSTEM=tty\nE: ID_BUS=usb',
+        // USB block device with unexpected DEVTYPE (e.g. loop)
+        'E: DEVNAME=/dev/loop0\nE: SUBSYSTEM=block\nE: DEVTYPE=loop\nE: ID_BUS=usb',
+        // USB block device missing DEVNAME
+        'E: SUBSYSTEM=block\nE: DEVTYPE=partition\nE: ID_BUS=usb',
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce('');
+
+    expect(await getUsbDriveDeviceInfo()).toBeUndefined();
   });
 
   test('returns undefined when partition is acting as an LVM', async () => {
-    mockBlockDeviceOnce({
-      fstype: 'LVM2_member',
-      type: 'part',
-    });
+    mockBlockDeviceOnce({ fstype: 'LVM2_member', type: 'part' });
 
-    const result = await getUsbDriveDeviceInfo();
-    expect(result).toBeUndefined();
+    expect(await getUsbDriveDeviceInfo()).toBeUndefined();
   });
 
   test('returns undefined when found drive is mounted outside /media', async () => {
     mockBlockDeviceOnce({
       mountpoint: '/home/user/mount',
+      path: '/dev/sdb1',
       type: 'part',
       fstype: 'vfat',
     });
 
-    const result = await getUsbDriveDeviceInfo();
-
-    expect(result).toBeUndefined();
+    expect(await getUsbDriveDeviceInfo()).toBeUndefined();
   });
 
   test('returns device info for USB drive', async () => {
-    mockBlockDeviceOnce({
-      name: 'sdb1',
-      mountpoint: '/media/usb-drive-sdb1',
-      fstype: 'vfat',
-      fsver: 'FAT32',
-      label: 'VxUSB-12345',
-      type: 'part',
-    });
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([
+        {
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-12345',
+        },
+      ])
+    );
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/media/usb-drive-sdb1' },
+      ])
+    );
 
     const result = await getUsbDriveDeviceInfo();
 
@@ -136,40 +207,76 @@ describe('getUsbDriveDeviceInfo', () => {
       type: 'part',
     });
 
-    expect(readdirMock).toHaveBeenCalledWith('/dev/disk/by-id/');
-    expect(readlinkMock).toHaveBeenCalledWith(
-      '/dev/disk/by-id/usb-foobar-part23'
+    expect(readFileMock).toHaveBeenCalledWith('/proc/mounts', 'utf-8');
+    expect(execMock).toHaveBeenCalledWith('udevadm', ['info', '--export-db']);
+  });
+
+  test('returns device info for unpartitioned USB disk', async () => {
+    // An unpartitioned drive has only a disk-level entry in the udev database
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([{ devname: '/dev/sdb', devtype: 'disk' }])
     );
-    expect(execMock).toHaveBeenCalledWith('lsblk', [
-      '-J',
-      '-n',
-      '-l',
-      '-o',
-      'NAME,MOUNTPOINT,FSTYPE,FSVER,LABEL,TYPE',
-      '/dev/sdb1',
-    ]);
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getUsbDriveDeviceInfo();
+
+    expect(result).toEqual({
+      name: 'sdb',
+      path: '/dev/sdb',
+      mountpoint: null,
+      fstype: null,
+      fsver: null,
+      label: null,
+      type: 'disk',
+    });
+  });
+
+  test('prefers partition over parent disk when both appear in udev database', async () => {
+    // After formatting, udev may have both the disk and its new partition
+    // in the database. We should prefer the partition.
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([
+        { devname: '/dev/sdb', devtype: 'disk' },
+        {
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-HGMZG',
+        },
+      ])
+    );
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getUsbDriveDeviceInfo();
+
+    expect(result).toEqual({
+      name: 'sdb1',
+      path: '/dev/sdb1',
+      mountpoint: null,
+      fstype: 'vfat',
+      fsver: 'FAT32',
+      label: 'VxUSB-HGMZG',
+      type: 'part',
+    });
   });
 
   test('handles multiple USB devices and selects first valid data drive', async () => {
-    readdirMock.mockResolvedValueOnce([
-      'usb-device1-part1',
-      'usb-device2-part1',
-      'not-usb-device',
-    ]);
-    readlinkMock.mockResolvedValueOnce('../../sdb1');
-    readlinkMock.mockResolvedValueOnce('../../sdc1');
     execMock.mockResolvedValueOnce(
-      lsblkOutput([
+      exportDbOutput([
+        { devname: '/dev/sdb1', devtype: 'partition', fstype: 'LVM2_member' }, // not a valid data drive
         {
-          name: 'sdb1',
-          type: 'disk', // not a valid data drive
-        },
-        {
-          name: 'sdc1',
-          mountpoint: '/media/usb-drive-sdc1',
-          type: 'part',
+          devname: '/dev/sdc1',
+          devtype: 'partition',
           fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-00000',
         },
+      ])
+    );
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdc1', mountpoint: '/media/usb-drive-sdc1' },
       ])
     );
 
