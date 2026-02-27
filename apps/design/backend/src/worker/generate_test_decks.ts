@@ -18,7 +18,12 @@ import { iter } from '@votingworks/basics';
 import JsZip from 'jszip';
 import path from 'node:path';
 import z from 'zod/v4';
-import { generateTestDeckBallots, TestDeckBallot } from '@votingworks/utils';
+import {
+  generateStraightPartyTestDeckBallots,
+  generateStraightPartyVerificationChecklist,
+  generateTestDeckBallots,
+  TestDeckBallot,
+} from '@votingworks/utils';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -104,20 +109,33 @@ export async function generateTestDecks(
 
   const zip = new JsZip();
 
+  // For straight-party elections, generate a purpose-built test deck instead
+  // of the standard rotating test deck
+  const useStraightPartyTestDeck = stateFeatures.STRAIGHT_PARTY_VOTING;
+
   // Generate HMPB test deck ballot specs
   const precinctHmpbBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
-    election.precincts.map((precinct) => [
-      precinct,
-      generateTestDeckBallots({
-        election,
-        precinctId: precinct.id,
-        ballotFormat: 'bubble',
-      }),
-    ]);
+    useStraightPartyTestDeck
+      ? [
+          [
+            election.precincts[0],
+            generateStraightPartyTestDeckBallots(election),
+          ],
+        ]
+      : election.precincts.map((precinct) => [
+          precinct,
+          generateTestDeckBallots({
+            election,
+            precinctId: precinct.id,
+            ballotFormat: 'bubble',
+          }),
+        ]);
 
-  // Generate summary ballot specs if configured
+  // Generate summary ballot specs if configured (skip for straight-party POC)
   const precinctSummaryBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
-    shouldGenerateSummaryBallots
+    useStraightPartyTestDeck
+      ? []
+      : shouldGenerateSummaryBallots
       ? election.precincts.map((precinct) => [
           precinct,
           generateTestDeckBallots({
@@ -189,9 +207,23 @@ export async function generateTestDecks(
     }
   }
 
+  // Add straight-party verification checklist to ZIP
+  if (useStraightPartyTestDeck) {
+    const allBallotSpecs = precinctHmpbBallotSpecs.flatMap(
+      ([, specs]) => specs
+    );
+    const checklist = generateStraightPartyVerificationChecklist(
+      election,
+      allBallotSpecs
+    );
+    zip.file('straight-party-verification-checklist.md', checklist);
+  }
+
   const tallyReports = await createTestDeckTallyReports({
     electionDefinition,
-    includeSummaryBallots: shouldGenerateSummaryBallots,
+    includeSummaryBallots: useStraightPartyTestDeck
+      ? false
+      : shouldGenerateSummaryBallots,
   });
 
   for (const [fileName, report] of tallyReports) {
