@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import { err, ok } from '@votingworks/basics';
 import {
-  ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
   getContestsForPrecinctAndElection,
   singlePrecinctSelectionFor,
@@ -46,7 +45,7 @@ const mockPollsOpenReport: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T08:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+  precinctIds: [],
   isPartial: false,
   ballotCount: 42,
   votingType: 'election_day',
@@ -59,7 +58,7 @@ const mockPollsPausedReport: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T12:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+  precinctIds: [],
   isPartial: false,
   ballotCount: 108,
   votingType: 'early_voting',
@@ -72,7 +71,7 @@ const mockVotingResumedReport: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T13:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+  precinctIds: [],
   isPartial: false,
   ballotCount: 150,
   votingType: 'election_day',
@@ -85,16 +84,18 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
-  contestResults: buildElectionResultsFixture({
-    election,
-    contestResultsSummaries: {},
-    cardCounts: {
-      bmd: [],
-      hmpb: [],
-    },
-    includeGenericWriteIn: false,
-  }).contestResults,
+  precinctIds: [],
+  contestResultsByPrecinct: {
+    __all: buildElectionResultsFixture({
+      election,
+      contestResultsSummaries: {},
+      cardCounts: {
+        bmd: [],
+        hmpb: [],
+      },
+      includeGenericWriteIn: false,
+    }).contestResults,
+  },
   isPartial: false,
   votingType: 'election_day',
 };
@@ -106,7 +107,7 @@ const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election,
-  precinctSelection: ALL_PRECINCTS_SELECTION,
+  precinctIds: [],
   isPartial: true,
   numPages: 4,
   pageIndex: 1,
@@ -122,18 +123,18 @@ const mockPollsClosedReportPrimary: ReceivedReportInfo = {
   isLive: true,
   pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
   election: primaryElection,
-  precinctSelection: singlePrecinctSelectionFor(
-    primaryElection.precincts[0].id
-  ),
-  contestResults: buildElectionResultsFixture({
-    election: primaryElection,
-    contestResultsSummaries: {},
-    cardCounts: {
-      bmd: [],
-      hmpb: [],
-    },
-    includeGenericWriteIn: false,
-  }).contestResults,
+  precinctIds: [primaryElection.precincts[0].id],
+  contestResultsByPrecinct: {
+    [primaryElection.precincts[0].id]: buildElectionResultsFixture({
+      election: primaryElection,
+      contestResultsSummaries: {},
+      cardCounts: {
+        bmd: [],
+        hmpb: [],
+      },
+      includeGenericWriteIn: false,
+    }).contestResults,
+  },
   isPartial: false,
   votingType: 'election_day',
 };

@@ -4,10 +4,12 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
+  PrecinctId,
   Tabulation,
   getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import {
+  combineElectionResults,
   convertVotesDictToTabulationVotes,
   getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
@@ -169,6 +171,159 @@ export function getScannerResultsMemoized({
   store: Store;
 }): Promise<ScannerResultsByParty> {
   return getScannerResultsMemoizedByBallotCount(
+    store,
+    store.getBallotsCounted()
+  );
+}
+
+export async function getScannerResultsByPrecinct({
+  store,
+}: {
+  store: Store;
+}): Promise<Partial<Record<PrecinctId, Tabulation.ElectionResults>>> {
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { election } = electionDefinition;
+  const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
+
+  const cvrs = iter(store.forEachAcceptedSheet()).map((resultSheet) => {
+    const [frontInterpretation, backInterpretation] =
+      resultSheet.interpretation;
+
+    if (isHmpbPage(frontInterpretation)) {
+      assert(isHmpbPage(backInterpretation));
+
+      const sheetNumber = Math.round(
+        Math.max(
+          frontInterpretation.metadata.pageNumber,
+          backInterpretation.metadata.pageNumber
+        ) / 2
+      );
+      const frontBallotStyleGroupId = getGroupIdFromBallotStyleId({
+        ballotStyleId: frontInterpretation.metadata.ballotStyleId,
+        election,
+      });
+
+      return typedAs<Tabulation.CastVoteRecord>({
+        votes: convertVotesDictToTabulationVotes({
+          ...frontInterpretation.votes,
+          ...backInterpretation.votes,
+        }),
+        card: {
+          type: 'hmpb',
+          sheetNumber,
+        },
+        batchId: resultSheet.batchId,
+        scannerId: VX_MACHINE_ID,
+        precinctId: frontInterpretation.metadata.precinctId,
+        ballotStyleGroupId: frontBallotStyleGroupId,
+        partyId: ballotStyleIdPartyIdLookup[frontBallotStyleGroupId],
+        votingMethod:
+          BALLOT_TYPE_TO_VOTING_METHOD[frontInterpretation.metadata.ballotType],
+      });
+    }
+
+    if (
+      isBmdMultiPagePage(frontInterpretation) ||
+      isBmdMultiPagePage(backInterpretation)
+    ) {
+      const interpretation = isBmdMultiPagePage(frontInterpretation)
+        ? frontInterpretation
+        : (backInterpretation as InterpretedBmdMultiPagePage);
+      const ballotStyleGroupId = getGroupIdFromBallotStyleId({
+        ballotStyleId: interpretation.metadata.ballotStyleId,
+        election,
+      });
+
+      return typedAs<Tabulation.CastVoteRecord>({
+        votes: convertVotesDictToTabulationVotes(interpretation.votes),
+        card: {
+          type: 'bmd',
+          sheetNumber: interpretation.metadata.pageNumber,
+        },
+        batchId: resultSheet.batchId,
+        scannerId: VX_MACHINE_ID,
+        precinctId: interpretation.metadata.precinctId,
+        ballotStyleGroupId,
+        partyId: ballotStyleIdPartyIdLookup[ballotStyleGroupId],
+        votingMethod:
+          BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
+      });
+    }
+
+    const interpretation = isBmdPage(frontInterpretation)
+      ? frontInterpretation
+      : backInterpretation;
+    assert(isBmdPage(interpretation));
+    const bmdBallotStyleGroupId = getGroupIdFromBallotStyleId({
+      ballotStyleId: interpretation.metadata.ballotStyleId,
+      election,
+    });
+
+    return typedAs<Tabulation.CastVoteRecord>({
+      votes: convertVotesDictToTabulationVotes(interpretation.votes),
+      card: {
+        type: 'bmd',
+      },
+      batchId: resultSheet.batchId,
+      scannerId: VX_MACHINE_ID,
+      precinctId: interpretation.metadata.precinctId,
+      ballotStyleGroupId: bmdBallotStyleGroupId,
+      partyId: ballotStyleIdPartyIdLookup[bmdBallotStyleGroupId],
+      votingMethod:
+        BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
+    });
+  });
+
+  const groupBy: Tabulation.GroupBy =
+    election.type === 'primary'
+      ? { groupByPrecinct: true, groupByParty: true }
+      : { groupByPrecinct: true };
+
+  const groupedResults = groupMapToGroupList(
+    await tabulateCastVoteRecords({
+      election,
+      groupBy,
+      cvrs,
+    })
+  );
+
+  const resultsByPrecinct: Partial<
+    Record<PrecinctId, Tabulation.ElectionResults>
+  > = {};
+
+  // Group party results per precinct, then combine them
+  const byPrecinct = new Map<
+    PrecinctId,
+    Tabulation.ElectionResults[]
+  >();
+  for (const result of groupedResults) {
+    const precinctId = assertDefined(result.precinctId);
+    const existing = byPrecinct.get(precinctId) ?? [];
+    existing.push(result);
+    byPrecinct.set(precinctId, existing);
+  }
+  for (const [precinctId, results] of byPrecinct) {
+    resultsByPrecinct[precinctId] = combineElectionResults({
+      election,
+      allElectionResults: results,
+    });
+  }
+
+  return resultsByPrecinct;
+}
+
+const getScannerResultsByPrecinctMemoizedByBallotCount = memoizeOne(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (store: Store, _ballotCount: number) =>
+    getScannerResultsByPrecinct({ store })
+);
+
+export function getScannerResultsByPrecinctMemoized({
+  store,
+}: {
+  store: Store;
+}): Promise<Partial<Record<PrecinctId, Tabulation.ElectionResults>>> {
+  return getScannerResultsByPrecinctMemoizedByBallotCount(
     store,
     store.getBallotsCounted()
   );

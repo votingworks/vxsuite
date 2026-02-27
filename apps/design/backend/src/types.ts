@@ -5,7 +5,7 @@ import {
   Election,
   ContestId,
   LiveReportVotingType,
-  PrecinctSelection,
+  PrecinctId,
   PollsTransitionType,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
@@ -114,7 +114,7 @@ export interface ReceivedReportInfoBase {
   reportCreatedAt?: Date;
   pollsTransitionTime?: Date;
   election: Election;
-  precinctSelection: PrecinctSelection;
+  precinctIds: PrecinctId[];
   votingType: LiveReportVotingType;
 }
 
@@ -149,7 +149,10 @@ export interface ReceivedPollsClosedFinalReportInfo
   extends ReceivedReportInfoBase {
   pollsTransitionType: 'close_polls';
   isPartial: false;
-  contestResults: Record<ContestId, ContestResults>;
+  contestResultsByPrecinct: Record<
+    PrecinctId,
+    Record<ContestId, ContestResults>
+  >;
 }
 
 export type ReceivedReportInfo =
@@ -176,7 +179,7 @@ export interface AggregatedReportedPollsStatus {
 
 export interface QuickReportedPollStatus {
   machineId: string;
-  precinctSelection: PrecinctSelection;
+  precinctIds: PrecinctId[];
   signedTimestamp: Date;
   pollsTransitionType: PollsTransitionType;
 }

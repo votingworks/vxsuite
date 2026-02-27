@@ -12,6 +12,7 @@ import {
 } from '@votingworks/types';
 import {
   combineElectionResults,
+  getBallotCount,
   getPrecinctSelectionName,
   isElectionManagerAuth,
   singlePrecinctSelectionFor,
@@ -73,7 +74,10 @@ import {
 } from './util/diagnostics';
 import { saveReadinessReport } from './printing/readiness_report';
 import { Player as AudioPlayer, SoundName } from './audio/player';
-import { getScannerResultsMemoized } from './util/results';
+import {
+  getScannerResultsByPrecinctMemoized,
+  getScannerResultsMemoized,
+} from './util/results';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
@@ -623,14 +627,21 @@ export function buildApi({
         election: electionDefinition.election,
         allElectionResults: scannerResultsByParty,
       });
+
+      // TODO(POLLING_PLACES) - Implement getting scanner results by precinct for polling place precincts.
+      const resultsByPrecinct =
+        precinctSelection.kind === 'AllPrecincts'
+          ? await getScannerResultsByPrecinctMemoized({ store })
+          : { [precinctSelection.precinctId]: combinedResults };
+
       const signedQuickResultsReportingUrls =
         await generateSignedQuickResultsReportingUrl({
           electionDefinition,
           quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
           signingMachineId: machineId,
           isLiveMode: !store.getTestMode(),
-          precinctSelection,
-          results: combinedResults,
+          ballotCount: getBallotCount(combinedResults.cardCounts),
+          resultsByPrecinct,
           pollsTransitionType: lastPollsTransition.type,
           votingType: store.getBallotCastingMode(),
           pollsTransitionTimestamp: lastPollsTransition.time,

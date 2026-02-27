@@ -56,7 +56,7 @@ import {
   getExportedCastVoteRecordIds,
   getOriginalSnapshot,
 } from '../cast_vote_records';
-import { compressAndEncodeTally } from './compressed_tallies';
+import { compressTally, encodeCompressedTally } from './compressed_tallies';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -1717,28 +1717,32 @@ test('combineCompressedElectionResults', () => {
   };
   const election = electionTwoPartyPrimaryFixtures.readElection();
 
-  const encoded1 = compressAndEncodeTally({
-    election,
-    results: buildElectionResultsFixture({
+  const encoded1 = encodeCompressedTally(
+    compressTally(
       election,
-      contestResultsSummaries: contestResultsSummaries1,
-      includeGenericWriteIn: true,
-      cardCounts: { bmd: [], hmpb: [] },
-    }),
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    numPages: 1,
-  });
-  const encoded2 = compressAndEncodeTally({
-    election,
-    results: buildElectionResultsFixture({
+      buildElectionResultsFixture({
+        election,
+        contestResultsSummaries: contestResultsSummaries1,
+        includeGenericWriteIn: true,
+        cardCounts: { bmd: [], hmpb: [] },
+      }),
+      ALL_PRECINCTS_SELECTION
+    ),
+    1
+  );
+  const encoded2 = encodeCompressedTally(
+    compressTally(
       election,
-      contestResultsSummaries: contestResultsSummaries2,
-      includeGenericWriteIn: true,
-      cardCounts: { bmd: [], hmpb: [] },
-    }),
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    numPages: 1,
-  });
+      buildElectionResultsFixture({
+        election,
+        contestResultsSummaries: contestResultsSummaries2,
+        includeGenericWriteIn: true,
+        cardCounts: { bmd: [], hmpb: [] },
+      }),
+      ALL_PRECINCTS_SELECTION
+    ),
+    1
+  );
   const combined = combineAndDecodeCompressedElectionResults({
     election,
     encodedCompressedTallies: [
@@ -1869,18 +1873,22 @@ test('combineCompressedElectionResults - can combine results from different prec
     includeGenericWriteIn: true,
   });
 
-  const encodedTallyPrecinct1 = compressAndEncodeTally({
-    election: electionEitherNeither,
-    results: mockResultsPrecinct1,
-    precinctSelection: singlePrecinctSelectionPrecinct1,
-    numPages: 1,
-  });
-  const encodedTallyPrecinct2 = compressAndEncodeTally({
-    election: electionEitherNeither,
-    results: mockResultsPrecinct2,
-    precinctSelection: singlePrecinctSelectionPrecinct2,
-    numPages: 1,
-  });
+  const encodedTallyPrecinct1 = encodeCompressedTally(
+    compressTally(
+      electionEitherNeither,
+      mockResultsPrecinct1,
+      singlePrecinctSelectionPrecinct1
+    ),
+    1
+  );
+  const encodedTallyPrecinct2 = encodeCompressedTally(
+    compressTally(
+      electionEitherNeither,
+      mockResultsPrecinct2,
+      singlePrecinctSelectionPrecinct2
+    ),
+    1
+  );
   expect(encodedTallyPrecinct1[0]).toMatchInlineSnapshot(
     `"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQACAAoABQACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoABAAGAAAAAAAAAAAAAAA"`
   );

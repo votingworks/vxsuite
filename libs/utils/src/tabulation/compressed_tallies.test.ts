@@ -5,6 +5,7 @@ import {
   CandidateContestCompressedTally,
   CompressedTally,
   Election,
+  PrecinctId,
   PrecinctSelection,
   Tabulation,
 } from '@votingworks/types';
@@ -21,6 +22,11 @@ import {
   decodeCompressedTally,
   encodeCompressedTally,
   decodeAndReadCompressedTally,
+  decodeAndReadPerPrecinctCompressedTally,
+  encodePrecinctBitmap,
+  encodeTallyEntries,
+  splitEncodedTallyByPrecinct,
+  getPrecinctIdsFromBitmap,
 } from './compressed_tallies';
 import {
   buildElectionResultsFixture,
@@ -47,16 +53,18 @@ function getZeroCompressedTally(
   return compressTally(election, mockResults, precinctSelection);
 }
 
-describe('compressTally', () => {
+describe('V0 compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
-    const compressedTallies = compressAndEncodeTally({
-      election: electionEitherNeither,
-      results: getEmptyElectionResults(electionEitherNeither),
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      numPages: 1,
-    });
+    const compressedTallies = encodeCompressedTally(
+      compressTally(
+        electionEitherNeither,
+        getEmptyElectionResults(electionEitherNeither),
+        ALL_PRECINCTS_SELECTION
+      ),
+      1
+    );
     expect(compressedTallies).toHaveLength(1);
     const [compressedTally] = compressedTallies;
     assert(typeof compressedTally === 'string');
@@ -77,12 +85,14 @@ describe('compressTally', () => {
     expect(decodedCompressedTally[0]).toStrictEqual([0, 0, 0, 0, 0, 0, 0]);
 
     // Compress for a single precinct
-    const compressedTalliesSinglePrecinct = compressAndEncodeTally({
-      election: electionEitherNeither,
-      results: getEmptyElectionResults(electionEitherNeither),
-      precinctSelection: singlePrecinctSelectionFor('6522'),
-      numPages: 1,
-    });
+    const compressedTalliesSinglePrecinct = encodeCompressedTally(
+      compressTally(
+        electionEitherNeither,
+        getEmptyElectionResults(electionEitherNeither),
+        singlePrecinctSelectionFor('6522')
+      ),
+      1
+    );
     expect(compressedTalliesSinglePrecinct).toHaveLength(1);
     const [compressedTallySinglePrecinct] = compressedTalliesSinglePrecinct;
     assert(typeof compressedTallySinglePrecinct === 'string');
@@ -111,24 +121,24 @@ describe('compressTally', () => {
       electionWithMsEitherNeitherFixtures.readElection();
     const results = getEmptyElectionResults(electionEitherNeither);
 
-    const compressedTalliesSinglePart = compressAndEncodeTally({
-      election: electionEitherNeither,
-      results: getEmptyElectionResults(electionEitherNeither),
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      numPages: 1,
-    });
+    const compressedTalliesSinglePart = encodeCompressedTally(
+      compressTally(electionEitherNeither, results, ALL_PRECINCTS_SELECTION),
+      1
+    );
     expect(compressedTalliesSinglePart).toHaveLength(1);
     const [compressedTallySinglePart] = compressedTalliesSinglePart;
     assert(typeof compressedTallySinglePart === 'string');
 
     fc.assert(
       fc.property(fc.integer({ min: 1, max: 25 }), (numPages) => {
-        const compressedTallies = compressAndEncodeTally({
-          election: electionEitherNeither,
-          results,
-          precinctSelection: ALL_PRECINCTS_SELECTION,
-          numPages,
-        });
+        const compressedTallies = encodeCompressedTally(
+          compressTally(
+            electionEitherNeither,
+            results,
+            ALL_PRECINCTS_SELECTION
+          ),
+          numPages
+        );
         expect(compressedTallies).toHaveLength(numPages);
 
         // The broken up tallies should combine to equal the single part tally
@@ -176,12 +186,14 @@ describe('compressTally', () => {
       },
       includeGenericWriteIn: true,
     });
-    const compressedTallies = compressAndEncodeTally({
-      election: electionEitherNeither,
-      results: resultsWithPresidentTallies,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      numPages: 1,
-    });
+    const compressedTallies = encodeCompressedTally(
+      compressTally(
+        electionEitherNeither,
+        resultsWithPresidentTallies,
+        ALL_PRECINCTS_SELECTION
+      ),
+      1
+    );
     expect(compressedTallies).toHaveLength(1);
     const [compressedTally] = compressedTallies;
     assert(typeof compressedTally === 'string');
@@ -225,12 +237,14 @@ describe('compressTally', () => {
       },
     });
 
-    const compressedTallies = compressAndEncodeTally({
-      election: electionEitherNeither,
-      results: resultsWithYesNoTallies,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      numPages: 1,
-    });
+    const compressedTallies = encodeCompressedTally(
+      compressTally(
+        electionEitherNeither,
+        resultsWithYesNoTallies,
+        ALL_PRECINCTS_SELECTION
+      ),
+      1
+    );
     expect(compressedTallies).toHaveLength(1);
     const [compressedTally] = compressedTallies;
     assert(typeof compressedTally === 'string');
@@ -251,7 +265,7 @@ describe('compressTally', () => {
   });
 });
 
-describe('readCompressTally', () => {
+describe('V0 readCompressTally', () => {
   test('reads a empty tally as expected', () => {
     const electionEitherNeither =
       electionWithMsEitherNeitherFixtures.readElection();
@@ -424,7 +438,7 @@ describe('readCompressTally', () => {
   });
 });
 
-test('primary tally can compress and be read back and end with the original tally', () => {
+test('V0 primary tally can compress and be read back and end with the original tally', () => {
   const election = readElectionTwoPartyPrimary();
   const expectedTally = buildElectionResultsFixture({
     election,
@@ -445,12 +459,10 @@ test('primary tally can compress and be read back and end with the original tall
     includeGenericWriteIn: true,
   });
 
-  const compressedTallies = compressAndEncodeTally({
-    election,
-    results: expectedTally,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    numPages: 1,
-  });
+  const compressedTallies = encodeCompressedTally(
+    compressTally(election, expectedTally, ALL_PRECINCTS_SELECTION),
+    1
+  );
   expect(compressedTallies).toHaveLength(1);
   const [compressedTally] = compressedTallies;
   assert(typeof compressedTally === 'string');
@@ -464,7 +476,7 @@ test('primary tally can compress and be read back and end with the original tall
   expect(decompressedTally).toMatchObject(expectedTally.contestResults);
 });
 
-test('compresses and decompresses tally for a single precinct', () => {
+test('V0 compresses and decompresses tally for a single precinct', () => {
   const electionEitherNeither =
     electionWithMsEitherNeitherFixtures.readElection();
   const singlePrecinctSelection = singlePrecinctSelectionFor('6522');
@@ -536,4 +548,693 @@ test('compresses and decompresses tally for a single precinct', () => {
       "775020902",
     ]
   `);
+});
+
+describe('bitmap format', () => {
+  test('bitmap round-trip: encode per-precinct, decode and verify aggregate', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    // Build results for two precincts with different data
+    const precinct1Results = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: {
+        bmd: [10],
+        hmpb: [],
+      },
+      contestResultsSummaries: {
+        '775020876': {
+          type: 'candidate',
+          undervotes: 2,
+          overvotes: 1,
+          ballots: 10,
+          officialOptionTallies: {
+            '775031988': 3,
+            '775031987': 2,
+            '775031989': 2,
+          },
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+
+    const precinct2Results = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: {
+        bmd: [15],
+        hmpb: [],
+      },
+      contestResultsSummaries: {
+        '775020876': {
+          type: 'candidate',
+          undervotes: 3,
+          overvotes: 2,
+          ballots: 15,
+          officialOptionTallies: {
+            '775031988': 5,
+            '775031987': 3,
+            '775031989': 2,
+          },
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinct1Results,
+      '6525': precinct2Results,
+    };
+
+    const encoded = compressAndEncodeTally({
+      election: electionEitherNeither,
+      resultsByPrecinct,
+      numPages: 1,
+    });
+    expect(encoded).toHaveLength(1);
+
+    const aggregated = decodeAndReadCompressedTally({
+      election: electionEitherNeither,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      encodedTally: assertDefined(encoded[0]),
+    });
+
+    // The president contest should have aggregated tallies
+    const presidentTally = aggregated['775020876'];
+    assert(presidentTally);
+    assert(presidentTally.contestType === 'candidate');
+    expect(presidentTally.ballots).toEqual(25);
+    expect(presidentTally.undervotes).toEqual(5);
+    expect(presidentTally.overvotes).toEqual(3);
+    expect(presidentTally.tallies['775031988']?.tally).toEqual(8);
+    expect(presidentTally.tallies['775031987']?.tally).toEqual(5);
+    expect(presidentTally.tallies['775031989']?.tally).toEqual(4);
+  });
+
+  test('bitmap per-precinct decode: verify breakdown', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const precinct1Results = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: {
+        bmd: [10],
+        hmpb: [],
+      },
+      contestResultsSummaries: {
+        '750000017': {
+          type: 'yesno',
+          ballots: 10,
+          undervotes: 1,
+          overvotes: 2,
+          yesTally: 4,
+          noTally: 3,
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+
+    const precinct2Results = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: {
+        bmd: [20],
+        hmpb: [],
+      },
+      contestResultsSummaries: {
+        '750000017': {
+          type: 'yesno',
+          ballots: 20,
+          undervotes: 2,
+          overvotes: 3,
+          yesTally: 8,
+          noTally: 7,
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinct1Results,
+      '6525': precinct2Results,
+    };
+
+    const encoded = compressAndEncodeTally({
+      election: electionEitherNeither,
+      resultsByPrecinct,
+      numPages: 1,
+    });
+
+    const perPrecinct = decodeAndReadPerPrecinctCompressedTally({
+      election: electionEitherNeither,
+      encodedTally: assertDefined(encoded[0]),
+    });
+
+    expect(Object.keys(perPrecinct)).toEqual(
+      expect.arrayContaining(['6522', '6525'])
+    );
+
+    // Check precinct 1 yes/no contest
+    const p1YesNo = perPrecinct['6522']?.['750000017'];
+    assert(p1YesNo?.contestType === 'yesno');
+    expect(p1YesNo.ballots).toEqual(10);
+    expect(p1YesNo.undervotes).toEqual(1);
+    expect(p1YesNo.overvotes).toEqual(2);
+    expect(p1YesNo.yesTally).toEqual(4);
+    expect(p1YesNo.noTally).toEqual(3);
+
+    // Check precinct 2 yes/no contest
+    const p2YesNo = perPrecinct['6525']?.['750000017'];
+    assert(p2YesNo?.contestType === 'yesno');
+    expect(p2YesNo.ballots).toEqual(20);
+    expect(p2YesNo.undervotes).toEqual(2);
+    expect(p2YesNo.overvotes).toEqual(3);
+    expect(p2YesNo.yesTally).toEqual(8);
+    expect(p2YesNo.noTally).toEqual(7);
+  });
+
+  test('single-precinct: bitmap with 1 bit set', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const precinctResults = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: {
+        bmd: [5],
+        hmpb: [],
+      },
+      contestResultsSummaries: {},
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinctResults,
+    };
+
+    const encoded = compressAndEncodeTally({
+      election: electionEitherNeither,
+      resultsByPrecinct,
+      numPages: 1,
+    });
+
+    const perPrecinct = decodeAndReadPerPrecinctCompressedTally({
+      election: electionEitherNeither,
+      encodedTally: assertDefined(encoded[0]),
+    });
+
+    expect(Object.keys(perPrecinct)).toEqual(['6522']);
+
+    // Verify contests are only those belonging to precinct 6522
+    const precinctContestIds = Object.keys(assertDefined(perPrecinct['6522']));
+    expect(precinctContestIds).toMatchInlineSnapshot(`
+      [
+        "750000015",
+        "750000016",
+        "750000017",
+        "750000018",
+        "775020870",
+        "775020872",
+        "775020876",
+        "775020877",
+        "775020903",
+        "775020904",
+      ]
+    `);
+  });
+
+  test('sparse data: many precincts, few with data', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    // Only one precinct has data out of all precincts
+    const precinctResults = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: {
+        bmd: [1],
+        hmpb: [],
+      },
+      contestResultsSummaries: {},
+      includeGenericWriteIn: true,
+    });
+
+    const lastPrecinct =
+      electionEitherNeither.precincts[
+        electionEitherNeither.precincts.length - 1
+      ];
+    assert(lastPrecinct !== undefined);
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      [lastPrecinct.id]: precinctResults,
+    };
+
+    const encodedSparse = compressAndEncodeTally({
+      election: electionEitherNeither,
+      resultsByPrecinct,
+      numPages: 1,
+    });
+
+    // Compare with encoding all precincts with data
+    const allPrecinctResults: Record<string, Tabulation.ElectionResults> = {};
+    for (const precinct of electionEitherNeither.precincts) {
+      allPrecinctResults[precinct.id] = buildElectionResultsFixture({
+        election: electionEitherNeither,
+        cardCounts: {
+          bmd: [1],
+          hmpb: [],
+        },
+        contestResultsSummaries: {},
+        includeGenericWriteIn: true,
+      });
+    }
+    const encodedAll = compressAndEncodeTally({
+      election: electionEitherNeither,
+      resultsByPrecinct: allPrecinctResults,
+      numPages: 1,
+    });
+
+    // Sparse encoding should be significantly smaller
+    const sparseSize = Buffer.from(
+      assertDefined(encodedSparse[0]),
+      'base64url'
+    ).byteLength;
+    const allSize = Buffer.from(
+      assertDefined(encodedAll[0]),
+      'base64url'
+    ).byteLength;
+    expect(sparseSize).toBeLessThan(allSize);
+
+    // Round-trip verification
+    const perPrecinct = decodeAndReadPerPrecinctCompressedTally({
+      election: electionEitherNeither,
+      encodedTally: assertDefined(encodedSparse[0]),
+    });
+    expect(Object.keys(perPrecinct)).toEqual([lastPrecinct.id]);
+  });
+
+  test('empty resultsByPrecinct produces minimal encoding', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const encoded = compressAndEncodeTally({
+      election: electionEitherNeither,
+      resultsByPrecinct: {},
+      numPages: 1,
+    });
+
+    // Empty bitmap has first word = 0, which looks like V0 to auto-detection
+    // and is rejected by per-precinct decode
+    expect(() =>
+      decodeAndReadPerPrecinctCompressedTally({
+        election: electionEitherNeither,
+        encodedTally: assertDefined(encoded[0]),
+      })
+    ).toThrow('Per-precinct decode requires bitmap format, got V0 legacy data');
+  });
+
+  test('can break into multiple pages', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const precinctResults = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: {
+        bmd: [10],
+        hmpb: [],
+      },
+      contestResultsSummaries: {},
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinctResults,
+      '6525': precinctResults,
+    };
+
+    const singlePage = compressAndEncodeTally({
+      election: electionEitherNeither,
+      resultsByPrecinct,
+      numPages: 1,
+    });
+
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 10 }), (numPages) => {
+        const multiPage = compressAndEncodeTally({
+          election: electionEitherNeither,
+          resultsByPrecinct,
+          numPages,
+        });
+        expect(multiPage).toHaveLength(numPages);
+
+        // Combined pages should equal the single page
+        const combinedBuffer = Buffer.concat(
+          multiPage.map((page) => Buffer.from(page, 'base64url'))
+        );
+        const singleBuffer = Buffer.from(
+          assertDefined(singlePage[0]),
+          'base64url'
+        );
+        expect(combinedBuffer.toString('base64url')).toEqual(
+          singleBuffer.toString('base64url')
+        );
+      })
+    );
+  });
+
+  test('decodeAndReadPerPrecinctCompressedTally rejects V0 data', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+    const zeroTally = getZeroCompressedTally(electionEitherNeither);
+    const v0Encoded = assertDefined(encodeCompressedTally(zeroTally, 1)[0]);
+
+    expect(() =>
+      decodeAndReadPerPrecinctCompressedTally({
+        election: electionEitherNeither,
+        encodedTally: v0Encoded,
+      })
+    ).toThrow('Per-precinct decode requires bitmap format, got V0 legacy data');
+  });
+});
+
+describe('tally format auto-detection', () => {
+  test('auto-detects V0 format', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+    const zeroTally = getZeroCompressedTally(electionEitherNeither);
+    const v0Encoded = assertDefined(encodeCompressedTally(zeroTally, 1)[0]);
+
+    const result = decodeAndReadCompressedTally({
+      election: electionEitherNeither,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      encodedTally: v0Encoded,
+    });
+
+    for (const contestTally of Object.values(result)) {
+      assert(contestTally);
+      expect(contestTally.ballots).toEqual(0);
+    }
+  });
+
+  test('auto-detects bitmap format', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const precinctResults = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [10], hmpb: [] },
+      contestResultsSummaries: {
+        '775020876': {
+          type: 'candidate',
+          undervotes: 2,
+          overvotes: 1,
+          ballots: 10,
+          officialOptionTallies: {
+            '775031988': 3,
+            '775031987': 2,
+            '775031989': 2,
+          },
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinctResults,
+    };
+
+    const encoded = compressAndEncodeTally({
+      election: electionEitherNeither,
+      resultsByPrecinct,
+      numPages: 1,
+    });
+
+    const result = decodeAndReadCompressedTally({
+      election: electionEitherNeither,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      encodedTally: assertDefined(encoded[0]),
+    });
+
+    const presidentTally = result['775020876'];
+    assert(presidentTally);
+    assert(presidentTally.contestType === 'candidate');
+    expect(presidentTally.ballots).toEqual(10);
+    expect(presidentTally.undervotes).toEqual(2);
+    expect(presidentTally.overvotes).toEqual(1);
+  });
+
+  test('auto-detects bitmap format for per-precinct decode', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const precinctResults = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [5], hmpb: [] },
+      contestResultsSummaries: {},
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinctResults,
+    };
+
+    const encoded = compressAndEncodeTally({
+      election: electionEitherNeither,
+      resultsByPrecinct,
+      numPages: 1,
+    });
+
+    const perPrecinct = decodeAndReadPerPrecinctCompressedTally({
+      election: electionEitherNeither,
+      encodedTally: assertDefined(encoded[0]),
+    });
+
+    expect(Object.keys(perPrecinct)).toEqual(['6522']);
+  });
+});
+
+describe('split bitmap/tally functions', () => {
+  test('encodePrecinctBitmap returns a base64url string', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const precinctResults = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [5], hmpb: [] },
+      contestResultsSummaries: {},
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinctResults,
+    };
+
+    const bitmap = encodePrecinctBitmap(
+      electionEitherNeither,
+      resultsByPrecinct
+    );
+    expect(typeof bitmap).toEqual('string');
+    expect(bitmap.length).toBeGreaterThan(0);
+    // Should be valid base64url
+    expect(Buffer.from(bitmap, 'base64url').toString('base64url')).toEqual(
+      bitmap
+    );
+  });
+
+  test('encodeTallyEntries produces tally-only data without bitmap', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const precinctResults = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [5], hmpb: [] },
+      contestResultsSummaries: {},
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinctResults,
+    };
+
+    const entries = encodeTallyEntries({
+      election: electionEitherNeither,
+      resultsByPrecinct,
+      numPages: 1,
+    });
+    expect(entries).toHaveLength(1);
+    expect(typeof entries[0]).toEqual('string');
+  });
+
+  test('splitEncodedTallyByPrecinct splits bitmap+tally into per-precinct v0 tallies', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const precinct1Results = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [10], hmpb: [] },
+      contestResultsSummaries: {
+        '775020876': {
+          type: 'candidate',
+          undervotes: 2,
+          overvotes: 1,
+          ballots: 10,
+          officialOptionTallies: {
+            '775031988': 3,
+            '775031987': 2,
+            '775031989': 2,
+          },
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+
+    const precinct2Results = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [15], hmpb: [] },
+      contestResultsSummaries: {
+        '775020876': {
+          type: 'candidate',
+          undervotes: 3,
+          overvotes: 2,
+          ballots: 15,
+          officialOptionTallies: {
+            '775031988': 5,
+            '775031987': 3,
+            '775031989': 2,
+          },
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinct1Results,
+      '6525': precinct2Results,
+    };
+
+    const bitmap = encodePrecinctBitmap(
+      electionEitherNeither,
+      resultsByPrecinct
+    );
+    const entries = encodeTallyEntries({
+      election: electionEitherNeither,
+      resultsByPrecinct,
+      numPages: 1,
+    });
+
+    const precinctIds = getPrecinctIdsFromBitmap(electionEitherNeither, bitmap);
+    expect(precinctIds).toEqual(['6522', '6525']);
+
+    const perPrecinct = splitEncodedTallyByPrecinct(
+      electionEitherNeither,
+      precinctIds,
+      assertDefined(entries[0])
+    );
+
+    expect(perPrecinct).toHaveLength(2);
+    expect(perPrecinct.map((p) => p.precinctId)).toEqual(['6522', '6525']);
+
+    // Each per-precinct tally should decode as v0 format
+    const decoded1 = decodeAndReadCompressedTally({
+      election: electionEitherNeither,
+      precinctSelection: singlePrecinctSelectionFor('6522'),
+      encodedTally: perPrecinct[0]!.encodedTally,
+    });
+    const president1 = decoded1['775020876'];
+    assert(president1?.contestType === 'candidate');
+    expect(president1.ballots).toEqual(10);
+    expect(president1.undervotes).toEqual(2);
+    expect(president1.overvotes).toEqual(1);
+    expect(president1.tallies['775031988']?.tally).toEqual(3);
+
+    const decoded2 = decodeAndReadCompressedTally({
+      election: electionEitherNeither,
+      precinctSelection: singlePrecinctSelectionFor('6525'),
+      encodedTally: perPrecinct[1]!.encodedTally,
+    });
+    const president2 = decoded2['775020876'];
+    assert(president2?.contestType === 'candidate');
+    expect(president2.ballots).toEqual(15);
+    expect(president2.undervotes).toEqual(3);
+    expect(president2.overvotes).toEqual(2);
+    expect(president2.tallies['775031988']?.tally).toEqual(5);
+  });
+
+  test('splitEncodedTallyByPrecinct works with multi-page tally entries', () => {
+    const electionEitherNeither =
+      electionWithMsEitherNeitherFixtures.readElection();
+
+    const precinctResults = buildElectionResultsFixture({
+      election: electionEitherNeither,
+      cardCounts: { bmd: [10], hmpb: [] },
+      contestResultsSummaries: {},
+      includeGenericWriteIn: true,
+    });
+
+    const resultsByPrecinct: Partial<
+      Record<PrecinctId, Tabulation.ElectionResults>
+    > = {
+      '6522': precinctResults,
+      '6525': precinctResults,
+    };
+
+    const bitmap = encodePrecinctBitmap(
+      electionEitherNeither,
+      resultsByPrecinct
+    );
+
+    const precinctIds = getPrecinctIdsFromBitmap(electionEitherNeither, bitmap);
+
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 5 }), (numPages) => {
+        const entries = encodeTallyEntries({
+          election: electionEitherNeither,
+          resultsByPrecinct,
+          numPages,
+        });
+        expect(entries).toHaveLength(numPages);
+
+        // Combine all pages
+        const combinedTallyBuffer = Buffer.concat(
+          entries.map((e) => Buffer.from(e, 'base64url'))
+        );
+        const combinedTallyEncoded = combinedTallyBuffer.toString('base64url');
+
+        const perPrecinct = splitEncodedTallyByPrecinct(
+          electionEitherNeither,
+          precinctIds,
+          combinedTallyEncoded
+        );
+
+        expect(perPrecinct).toHaveLength(2);
+        expect(perPrecinct.map((p) => p.precinctId)).toEqual(['6522', '6525']);
+
+        // Each per-precinct tally should decode without error
+        for (const { precinctId, encodedTally } of perPrecinct) {
+          const decoded = decodeAndReadCompressedTally({
+            election: electionEitherNeither,
+            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            encodedTally,
+          });
+          expect(Object.keys(decoded).length).toBeGreaterThan(0);
+        }
+      })
+    );
+  });
 });

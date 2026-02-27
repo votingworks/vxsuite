@@ -2,11 +2,12 @@ import { Readable } from 'node:stream';
 import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import {
+  Election,
   ElectionDefinition,
   LIVE_REPORT_VOTING_TYPES,
   LiveReportVotingType,
   PollsTransitionType,
-  PrecinctSelection,
+  PrecinctId,
   Tabulation,
   safeParseInt,
 } from '@votingworks/types';
@@ -18,10 +19,9 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  ALL_PRECINCTS_SELECTION,
-  compressAndEncodeTally,
-  getBallotCount,
-  singlePrecinctSelectionFor,
+  encodePrecinctBitmap,
+  encodeTallyEntries,
+  getPrecinctIdsFromBitmap,
 } from '@votingworks/utils';
 import {
   constructPrefixedMessage,
@@ -44,9 +44,9 @@ interface SignedQuickResultsReportingInput {
   electionDefinition: ElectionDefinition;
   isLiveMode: boolean;
   quickResultsReportingUrl: string;
-  results: Tabulation.ElectionResults;
+  ballotCount: number;
+  resultsByPrecinct: Partial<Record<string, Tabulation.ElectionResults>>;
   signingMachineId: string;
-  precinctSelection: PrecinctSelection;
   pollsTransitionType: PollsTransitionType;
   votingType: LiveReportVotingType;
   pollsTransitionTimestamp: number;
@@ -101,7 +101,8 @@ const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '\x00';
 export const QR_MESSAGE_FORMAT_V1 = 'qr1';
 
 /**
- * The current message format (10 fields: base fields, ballot count, and voting type).
+ * The current message format (10 fields: base fields with bitmap in field 5,
+ * ballot count, and voting type).
  */
 export const QR_MESSAGE_FORMAT = 'qr2';
 
@@ -131,7 +132,7 @@ export function encodeQuickResultsMessage(components: {
   timestamp: number;
   // primaryMessage is either a compressed tally (base64) or a transition type string
   primaryMessage: string;
-  precinctSelection: PrecinctSelection;
+  encodedPrecinctBitmap: string;
   numPages: number;
   pageIndex: number;
   ballotCount: number;
@@ -143,9 +144,7 @@ export function encodeQuickResultsMessage(components: {
     components.isLiveMode ? '1' : '0',
     components.timestamp.toString(),
     components.primaryMessage,
-    components.precinctSelection.kind === 'SinglePrecinct'
-      ? safeEncodeForUrl(components.precinctSelection.precinctId)
-      : '',
+    components.encodedPrecinctBitmap,
     components.numPages.toString(),
     components.pageIndex.toString(),
     components.ballotCount.toString(),
@@ -163,7 +162,7 @@ interface DecodedBaseFields {
   isLive: boolean;
   reportCreatedAt?: Date;
   encodedCompressedTally: string;
-  precinctSelection: PrecinctSelection;
+  precinctIds: PrecinctId[];
   pollsTransitionType: PollsTransitionType;
   numPages: number;
   pageIndex: number;
@@ -234,9 +233,7 @@ function decodeBaseFields(
     isLive: isLiveModeStr === '1',
     timestamp: new Date(timestampNumber * 1000),
     encodedCompressedTally: isNonTallyMessage ? '' : primaryMessage,
-    precinctSelection: precinctId
-      ? singlePrecinctSelectionFor(safeDecodeFromUrl(precinctId))
-      : ALL_PRECINCTS_SELECTION,
+    precinctIds: [],
     pollsTransitionType,
     numPages,
     pageIndex,
@@ -251,15 +248,23 @@ function decodeV1Message(messagePayload: string): DecodedFields {
     throw new Error('Invalid message payload format');
   }
   const { timestamp, ...base } = decodeBaseFields(parts);
+  const precinctField = parts[5] ?? '';
+  const precinctIds: PrecinctId[] = precinctField
+    ? [safeDecodeFromUrl(precinctField)]
+    : [];
   return {
     ...base,
+    precinctIds,
     reportCreatedAt: timestamp,
     ballotCount: undefined,
     votingType: 'election_day',
   };
 }
 
-function decodeV2Message(messagePayload: string): DecodedFields {
+function decodeV2Message(
+  messagePayload: string,
+  election: Election
+): DecodedFields {
   const parts = messagePayload.split(
     SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
   );
@@ -284,21 +289,50 @@ function decodeV2Message(messagePayload: string): DecodedFields {
     throw new Error('Invalid voting type format');
   }
 
-  return { ...base, pollsTransitionTime: timestamp, ballotCount, votingType };
+  // Field 5 is always a precinct bitmap in v2.
+  const encodedBitmap = parts[5] ?? '';
+  const precinctIds = encodedBitmap
+    ? getPrecinctIdsFromBitmap(election, encodedBitmap)
+    : [];
+
+  return {
+    ...base,
+    precinctIds,
+    pollsTransitionTime: timestamp,
+    ballotCount,
+    votingType,
+  };
+}
+
+/**
+ * Extracts just the ballot hash from a signed quick results reporting payload
+ * without performing full decoding. Useful for looking up the election before
+ * performing the full decode.
+ */
+export function extractBallotHashFromPayload(payload: string): string {
+  const { messagePayload } = deconstructPrefixedMessage(payload);
+  const firstField = messagePayload.split(
+    SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
+  )[0];
+  assert(firstField !== undefined, 'Missing ballot hash in payload');
+  return decodeURIComponent(firstField);
 }
 
 /**
  * Decodes a message payload string back into its components.
  * Exported for testing purposes.
  */
-export function decodeQuickResultsMessage(payload: string): DecodedFields {
+export function decodeQuickResultsMessage(
+  payload: string,
+  election: Election
+): DecodedFields {
   const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
 
   switch (messageType) {
     case QR_MESSAGE_FORMAT_V1:
       return decodeV1Message(messagePayload);
     case QR_MESSAGE_FORMAT:
-      return decodeV2Message(messagePayload);
+      return decodeV2Message(messagePayload, election);
     default:
       throw new Error(`Unknown QR message format: ${messageType}`);
   }
@@ -350,9 +384,9 @@ export async function generateSignedQuickResultsReportingUrl(
     electionDefinition,
     isLiveMode,
     quickResultsReportingUrl,
-    results,
+    ballotCount,
+    resultsByPrecinct,
     signingMachineId,
-    precinctSelection,
     pollsTransitionType,
     votingType,
     pollsTransitionTimestamp,
@@ -368,28 +402,33 @@ export async function generateSignedQuickResultsReportingUrl(
   let numPagesNeeded = 1; // If we need to paginate this value will be incremented.
   const secondsSince1970 = Math.round(pollsTransitionTimestamp / 1000);
 
+  // Compute the precinct bitmap once for all transition types
+  const encodedPrecinctBitmap = encodePrecinctBitmap(
+    election,
+    resultsByPrecinct
+  );
+
   switch (pollsTransitionType) {
     case 'close_polls': {
       // Try increasing pagination until all parts fit within the QR size limits.
       while (numPagesNeeded <= MAX_PARTS_FOR_QR_CODE) {
         const encodedUrls: string[] = [];
-        const compressedTallies = compressAndEncodeTally({
+        const tallyPages = encodeTallyEntries({
           election,
-          results,
-          precinctSelection,
+          resultsByPrecinct,
           numPages: numPagesNeeded,
         });
-        for (const compressedTally of compressedTallies) {
+        for (const tallyPage of tallyPages) {
           const messagePayload = encodeQuickResultsMessage({
             ballotHash,
             signingMachineId,
             isLiveMode,
             timestamp: secondsSince1970,
-            primaryMessage: compressedTally,
-            precinctSelection,
+            primaryMessage: tallyPage,
+            encodedPrecinctBitmap,
             numPages: numPagesNeeded,
             pageIndex: encodedUrls.length,
-            ballotCount: getBallotCount(results.cardCounts),
+            ballotCount,
             votingType,
           });
           const message = constructPrefixedMessage(
@@ -406,7 +445,7 @@ export async function generateSignedQuickResultsReportingUrl(
           encodedUrls.push(url);
         }
 
-        if (encodedUrls.length !== compressedTallies.length) {
+        if (encodedUrls.length !== tallyPages.length) {
           numPagesNeeded += 1;
           continue;
         }
@@ -425,10 +464,10 @@ export async function generateSignedQuickResultsReportingUrl(
         isLiveMode,
         timestamp: secondsSince1970,
         primaryMessage: pollsTransitionType,
-        precinctSelection,
+        encodedPrecinctBitmap,
         numPages: 1,
         pageIndex: 0,
-        ballotCount: getBallotCount(results.cardCounts),
+        ballotCount,
         votingType,
       });
       const message = constructPrefixedMessage(
