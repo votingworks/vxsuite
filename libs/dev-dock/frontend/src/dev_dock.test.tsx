@@ -352,6 +352,40 @@ test('Cmd+K starts screenshot flow', async () => {
   await screen.findByText('Save Screenshot');
 });
 
+test('Esc dismisses screenshot modal', async () => {
+  renderDock(mockApiClient);
+  const screenshotButton = await screen.findByRole('button', {
+    name: 'Capture Screenshot',
+  });
+
+  document.title = 'VotingWorks VxAdmin';
+  userEvent.click(screenshotButton);
+  await screen.findByText('Save Screenshot');
+
+  userEvent.keyboard('{Escape}');
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+});
+
+test('Save button is auto-focused when screenshot modal opens', async () => {
+  renderDock(mockApiClient);
+  const screenshotButton = await screen.findByRole('button', {
+    name: 'Capture Screenshot',
+  });
+
+  document.title = 'VotingWorks VxAdmin';
+  userEvent.click(screenshotButton);
+  await screen.findByText('Save Screenshot');
+
+  expect(screen.getByRole('button', { name: 'Save' })).toHaveFocus();
+
+  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+});
+
 test('printer mock control', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_PRINTER
