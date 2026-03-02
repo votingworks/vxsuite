@@ -22,6 +22,7 @@ import {
   generateStraightPartyTestDeckBallots,
   generateStraightPartyVerificationChecklist,
   generateTestDeckBallots,
+  StraightPartyTestDeckResult,
   TestDeckBallot,
 } from '@votingworks/utils';
 import { EmitProgressFunction, WorkerContext } from './context';
@@ -112,16 +113,17 @@ export async function generateTestDecks(
   // For straight-party elections, generate a purpose-built test deck instead
   // of the standard rotating test deck
   const useStraightPartyTestDeck = stateFeatures.STRAIGHT_PARTY_VOTING;
+  let straightPartyResult: StraightPartyTestDeckResult | undefined;
 
   // Generate HMPB test deck ballot specs
   const precinctHmpbBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
     useStraightPartyTestDeck
-      ? [
-          [
-            election.precincts[0],
-            generateStraightPartyTestDeckBallots(election),
-          ],
-        ]
+      ? (() => {
+          straightPartyResult = generateStraightPartyTestDeckBallots(election);
+          return [
+            [election.precincts[0], straightPartyResult.ballots],
+          ] as Array<[Precinct, TestDeckBallot[]]>;
+        })()
       : election.precincts.map((precinct) => [
           precinct,
           generateTestDeckBallots({
@@ -208,13 +210,10 @@ export async function generateTestDecks(
   }
 
   // Add straight-party verification checklist to ZIP
-  if (useStraightPartyTestDeck) {
-    const allBallotSpecs = precinctHmpbBallotSpecs.flatMap(
-      ([, specs]) => specs
-    );
+  if (useStraightPartyTestDeck && straightPartyResult) {
     const checklist = generateStraightPartyVerificationChecklist(
       election,
-      allBallotSpecs
+      straightPartyResult
     );
     zip.file('straight-party-verification-checklist.md', checklist);
   }
