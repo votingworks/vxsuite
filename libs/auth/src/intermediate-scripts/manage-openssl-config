@@ -18,7 +18,6 @@
 
 set -euo pipefail
 
-SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
 USAGE_MESSAGE="Usage: ${0} <override-for-tpm-use|restore-default>"
 
 if [[ "${#}" -ne 1 ]]; then
