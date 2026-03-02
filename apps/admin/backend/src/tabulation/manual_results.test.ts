@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures, makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
   BallotStyleGroupId,
@@ -51,7 +51,7 @@ test('isFilterCompatibleWithManualResults', () => {
 
 describe('tabulateManualResults & tabulateManualBallotCounts', () => {
   test('on incompatible filter', () => {
-    const store = Store.memoryStore();
+    const store = Store.memoryStore(makeTemporaryDirectory());
     const electionId = store.addElection({
       electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -77,7 +77,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     ).toEqual({ type: 'incompatible-filter' });
   });
   test('grouping and filtering', () => {
-    const store = Store.memoryStore();
+    const store = Store.memoryStore(makeTemporaryDirectory());
     const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
     const { election, electionData } = electionDefinition;

@@ -1,6 +1,9 @@
 import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import {
+  electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import {
   Admin,
   BallotStyleGroupId,
@@ -34,7 +37,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
 
 test('tabulateScannedCardCounts - grouping', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -186,7 +189,7 @@ test('tabulateScannedCardCounts - grouping', () => {
 });
 
 test('tabulateScannedCardCounts - groupByBatchDate', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -289,7 +292,7 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
 });
 
 test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
@@ -368,7 +371,7 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
 });
 
 test('tabulateScannedCardCounts - merging card tallies', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -436,7 +439,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
 });
 
 test('tabulateFullCardCounts - manual results', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
@@ -581,7 +584,7 @@ test('tabulateFullCardCounts - manual results', () => {
 });
 
 test('tabulateFullCardCounts - blankBallots', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,

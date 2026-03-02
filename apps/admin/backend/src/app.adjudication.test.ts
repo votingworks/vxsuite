@@ -34,10 +34,12 @@ import {
 } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import { sha256 } from 'js-sha256';
+import { readdirSync } from 'node:fs';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
+  mockSystemAdministratorAuth,
 } from '../test/app';
 import {
   AdjudicatedContestOption,
@@ -807,7 +809,7 @@ test('getBallotImageView on hmpb', async () => {
 });
 
 test('getBallotImageView on bmd', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
@@ -834,6 +836,14 @@ test('getBallotImageView on bmd', async () => {
     contestId,
   });
   assert(ballotImageView);
+
+  // verify that unconfigure cleans up ballot image files
+  expect(readdirSync(workspace.store.getBallotImagesPath())).not.toHaveLength(
+    0
+  );
+  mockSystemAdministratorAuth(auth);
+  await apiClient.unconfigure();
+  expect(readdirSync(workspace.store.getBallotImagesPath())).toHaveLength(0);
 });
 
 test('getBallotImageView when image is corrupted', async () => {

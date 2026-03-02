@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures, makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
@@ -18,7 +18,7 @@ import { iterableToString, mockFileName, parseCsv } from '../../test/csv';
 import { Store } from '../store';
 
 test('uses appropriate headers', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const { electionData, ballotHash } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
@@ -240,7 +240,7 @@ test('uses appropriate headers', async () => {
 });
 
 test('includes rows for empty but known result groups', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -265,7 +265,7 @@ test('includes rows for empty but known result groups', async () => {
 });
 
 test('included contests are specific to each results group', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -304,7 +304,7 @@ test('included contests are specific to each results group', async () => {
 });
 
 test('included contests are restricted by the overall export filter', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -333,7 +333,7 @@ test('included contests are restricted by the overall export filter', async () =
 });
 
 test('does not include results groups when they are excluded by the filter', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
@@ -378,7 +378,7 @@ test('does not include results groups when they are excluded by the filter', asy
 });
 
 test('incorporates manual data', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;
@@ -481,7 +481,7 @@ test('incorporates manual data', async () => {
 });
 
 test('separate rows for manual data when grouping by an incompatible dimension', async () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;

@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,
@@ -11,6 +11,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   BallotStyleGroupId,
+  Id,
+  Election,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
@@ -41,14 +43,18 @@ featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
 test('create a file store', () => {
   const tmpDir = makeTemporaryDirectory();
   const tmpDbPath = join(tmpDir, 'ballots.db');
-  const store = Store.fileStore(tmpDbPath, mockBaseLogger({ fn: vi.fn }));
+  const store = Store.fileStore(
+    tmpDbPath,
+    join(tmpDir, 'ballot-images'),
+    mockBaseLogger({ fn: vi.fn })
+  );
 
   expect(store).toBeInstanceOf(Store);
   expect(store.getDbPath()).toEqual(tmpDbPath);
 });
 
 test('create a memory store', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   expect(store).toBeInstanceOf(Store);
   expect(store.getDbPath()).toEqual(':memory:');
 });
@@ -63,7 +69,7 @@ test('add an election', async () => {
   });
   const electionPackageHash = sha256(electionPackageFileContents);
 
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -92,14 +98,14 @@ test('add an election', async () => {
 });
 
 test('assert election exists', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   expect(() => store.assertElectionExists('foo')).toThrowError(
     'Election not found: foo'
   );
 });
 
 test('setElectionResultsOfficial', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -137,7 +143,7 @@ test('setElectionResultsOfficial', () => {
 });
 
 test('current election id', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -155,7 +161,7 @@ test('current election id', () => {
 });
 
 test('saveSystemSettings and getSystemSettings write and read system settings', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -167,7 +173,7 @@ test('saveSystemSettings and getSystemSettings write and read system settings', 
 });
 
 test('scanner batches', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -195,7 +201,7 @@ test('manual results', () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { electionData, election } = electionDefinition;
 
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -324,7 +330,7 @@ test('manual results - early_voting is a valid votingMethod', () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { electionData } = electionDefinition;
 
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -381,14 +387,20 @@ function expectArrayMatch<T>(a: T[], b: T[]) {
 }
 
 describe('getTabulationGroups', () => {
-  const store = Store.memoryStore();
-  const electionId = store.addElection({
-    electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
-    electionPackageHash: 'test-election-package-hash',
+  let store: Store;
+  let electionId: Id;
+  let election: Election;
+
+  beforeAll(() => {
+    store = Store.memoryStore(makeTemporaryDirectory());
+    electionId = store.addElection({
+      electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
+      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      electionPackageFileContents: Buffer.of(),
+      electionPackageHash: 'test-election-package-hash',
+    });
+    election = electionPrimaryPrecinctSplitsFixtures.readElection();
   });
-  const election = electionPrimaryPrecinctSplitsFixtures.readElection();
 
   test('no groupings', () => {
     expect(store.getTabulationGroups({ electionId })).toEqual([{}]);
@@ -563,14 +575,20 @@ describe('getTabulationGroups', () => {
 });
 
 describe('getFilteredContests', () => {
-  const store = Store.memoryStore();
-  const electionId = store.addElection({
-    electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
-    electionPackageHash: 'test-election-package-hash',
+  let store: Store;
+  let electionId: Id;
+  let election: Election;
+
+  beforeAll(() => {
+    store = Store.memoryStore(makeTemporaryDirectory());
+    electionId = store.addElection({
+      electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
+      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      electionPackageFileContents: Buffer.of(),
+      electionPackageHash: 'test-election-package-hash',
+    });
+    election = electionPrimaryPrecinctSplitsFixtures.readElection();
   });
-  const election = electionPrimaryPrecinctSplitsFixtures.readElection();
 
   test('no filter', () => {
     expectArrayMatch(

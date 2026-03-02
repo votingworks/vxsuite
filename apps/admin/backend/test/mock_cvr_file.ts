@@ -117,6 +117,7 @@ export function addMockCvrFileToStore({
       if (writeIns.length) {
         store.addBallotImage({
           cvrId,
+          electionDefinitionId: electionDefinition.election.id,
           imageData: Buffer.from([]),
           pageLayout: mockPageLayout,
           side: 'front',

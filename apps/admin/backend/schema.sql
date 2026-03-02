@@ -205,9 +205,9 @@ create table cvr_file_entries (
 );
 
 create table ballot_images (
+  -- image files stored on disk based on cvr_id
   cvr_id varchar(36) not null,
   side text not null check (side = 'front' or side = 'back'),
-  image blob not null,
   layout text, -- Machine-marked ballots do not have a layout
   primary key (cvr_id, side),
   foreign key (cvr_id) references cvrs(id)
