@@ -578,6 +578,19 @@ describe('fujitsu printer mock', () => {
   });
 });
 
+const IDLE_PDI_STATUS = {
+  sheetStatus: 'noSheetEnabled',
+  queue: undefined,
+} as const;
+
+function setupPdiScannerMocks() {
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec.expectCallWith().resolves({ mockPdiScanner: true });
+  mockApiClient.pdiScannerGetStatus
+    .expectRepeatedCallsWith()
+    .resolves(IDLE_PDI_STATUS);
+}
+
 describe('PDI scanner mock', () => {
   test('when disabled, not shown', async () => {
     mockApiClient.getMockSpec.reset();
@@ -594,13 +607,7 @@ describe('PDI scanner mock', () => {
   });
 
   test('has button to insert and remove ballot', async () => {
-    mockApiClient.getMockSpec.reset();
-    mockApiClient.getMockSpec
-      .expectCallWith()
-      .resolves({ mockPdiScanner: true });
-    mockApiClient.pdiScannerGetSheetStatus
-      .expectRepeatedCallsWith()
-      .resolves('noSheet');
+    setupPdiScannerMocks();
 
     renderDock(mockApiClient);
     const insertBallotButton = await screen.findByRole('button', {
@@ -612,22 +619,34 @@ describe('PDI scanner mock', () => {
       canceled: false,
       filePaths: ['mock-ballot-path.pdf'],
     });
-    mockApiClient.pdiScannerInsertSheet
+    mockApiClient.pdiScannerInsertSheets
       .expectCallWith({ path: 'mock-ballot-path.pdf' })
       .resolves();
+    mockApiClient.pdiScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves(IDLE_PDI_STATUS);
     userEvent.click(insertBallotButton);
 
-    mockApiClient.pdiScannerGetSheetStatus
-      .expectRepeatedCallsWith()
-      .resolves('sheetInserted');
+    mockApiClient.pdiScannerGetStatus.expectRepeatedCallsWith().resolves({
+      sheetStatus: 'sheetInserted',
+      queue: { total: 1, scanned: 1 },
+    });
     await waitFor(
       () => expect(insertBallotButton).toBeDisabled(),
-      { timeout: 2000 } // getSheetStatusQuery refetches every 1000ms
+      { timeout: 2000 } // status query refetches every 1000ms
     );
 
-    mockApiClient.pdiScannerGetSheetStatus
-      .expectRepeatedCallsWith()
-      .resolves('sheetHeldInFront');
+    // Single-sheet queue should not enable the Clear button
+    const scannerSection = assertDefined(insertBallotButton.closest('div'));
+    const clearButton = within(scannerSection).getByRole('button', {
+      name: 'Clear',
+    });
+    expect(clearButton).toBeDisabled();
+
+    mockApiClient.pdiScannerGetStatus.expectRepeatedCallsWith().resolves({
+      sheetStatus: 'sheetHeldInFront',
+      queue: { total: 1, scanned: 1 },
+    });
     const removeBallotButton = await screen.findByRole(
       'button',
       { name: 'Remove Ballot' },
@@ -637,9 +656,9 @@ describe('PDI scanner mock', () => {
     mockApiClient.pdiScannerRemoveSheet.expectCallWith().resolves();
     userEvent.click(removeBallotButton);
 
-    mockApiClient.pdiScannerGetSheetStatus
+    mockApiClient.pdiScannerGetStatus
       .expectRepeatedCallsWith()
-      .resolves('noSheet');
+      .resolves(IDLE_PDI_STATUS);
     await screen.findByRole(
       'button',
       { name: 'Insert Ballot' },
@@ -647,12 +666,56 @@ describe('PDI scanner mock', () => {
     );
   });
 
+  test('shows queue progress for multi-sheet PDFs', async () => {
+    setupPdiScannerMocks();
+
+    renderDock(mockApiClient);
+    const insertBallotButton = await screen.findByRole('button', {
+      name: 'Insert Ballot',
+    });
+
+    kiosk.showOpenDialog.mockResolvedValueOnce({
+      canceled: false,
+      filePaths: ['multi-page.pdf'],
+    });
+    mockApiClient.pdiScannerInsertSheets
+      .expectCallWith({ path: 'multi-page.pdf' })
+      .resolves();
+    mockApiClient.pdiScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves(IDLE_PDI_STATUS);
+    userEvent.click(insertBallotButton);
+
+    // After insert, queue becomes active with multi-sheet progress
+    mockApiClient.pdiScannerGetStatus.expectRepeatedCallsWith().resolves({
+      sheetStatus: 'sheetInserted',
+      queue: { total: 5, scanned: 1 },
+    });
+
+    // Should show progress text and enabled clear button
+    const progressText = await screen.findByText(/1\/5/, undefined, {
+      timeout: 2000,
+    });
+    const scannerSection = assertDefined(progressText.closest('div'));
+    const clearButton = within(scannerSection).getByRole('button', {
+      name: 'Clear',
+    });
+    expect(clearButton).toBeEnabled();
+
+    // Clear the queue — after clear, queue is inactive and scanner is idle
+    mockApiClient.pdiScannerClearSheetQueue.expectCallWith().resolves();
+    mockApiClient.pdiScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves(IDLE_PDI_STATUS);
+    userEvent.click(clearButton);
+
+    // Should go back to showing Insert Ballot; wait for all mocks to be
+    // consumed by the refetch interval
+    await waitFor(() => mockApiClient.assertComplete(), { timeout: 3000 });
+  });
+
   test('ignores canceled open file dialog', async () => {
-    mockApiClient.getMockSpec.reset();
-    mockApiClient.getMockSpec
-      .expectCallWith()
-      .resolves({ mockPdiScanner: true });
-    mockApiClient.pdiScannerGetSheetStatus.expectCallWith().resolves('noSheet');
+    setupPdiScannerMocks();
 
     renderDock(mockApiClient);
     const insertBallotButton = await screen.findByRole('button', {
