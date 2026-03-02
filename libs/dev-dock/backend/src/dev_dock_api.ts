@@ -9,6 +9,7 @@ import {
   PrinterConfig,
   PrinterStatus,
   safeParseElectionDefinition,
+  SheetOf,
   UserRole,
 } from '@votingworks/types';
 import {
@@ -33,6 +34,7 @@ import { writeFile } from 'node:fs/promises';
 import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
 import {
   createImageData,
+  ImageData,
   loadImageMetadata,
   pdfToImages,
   writeImageData,
@@ -189,10 +191,27 @@ function getElection(devDockDir: string): Optional<DevDockElectionInfo> {
     .electionInfo;
 }
 
+interface PdiScannerSheetQueueStatus {
+  total: number;
+  scanned: number;
+}
+
+export interface PdiScannerStatus {
+  sheetStatus: MockSheetStatus;
+  queue?: PdiScannerSheetQueueStatus;
+}
+
+interface PdiScannerSheetQueueState {
+  queue: Array<SheetOf<ImageData>>;
+  index: number;
+  intervalId: ReturnType<typeof setInterval>;
+}
+
 function buildApi(devDockDir: string, mockSpec: MockSpec) {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
+  let pdiScannerSheetQueue: PdiScannerSheetQueueState | undefined;
 
   return grout.createApi({
     getMockSpec(): SerializableMockSpec {
@@ -353,22 +372,68 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       mockSpec.setPatInputConnected?.(input.connected);
     },
 
-    pdiScannerGetSheetStatus(): MockSheetStatus {
-      return assertDefined(mockSpec.mockPdiScanner).getSheetStatus();
+    pdiScannerGetStatus(): PdiScannerStatus {
+      return {
+        sheetStatus: assertDefined(mockSpec.mockPdiScanner).getSheetStatus(),
+        queue: pdiScannerSheetQueue && {
+          total: pdiScannerSheetQueue.queue.length,
+          scanned: pdiScannerSheetQueue.index,
+        },
+      };
     },
 
-    async pdiScannerInsertSheet(input: { path: string }): Promise<void> {
-      const pdfData = Uint8Array.from(fs.readFileSync(input.path));
-      const images = await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
-        .map(({ page }) => page)
-        .toArray();
-      assertDefined(mockSpec.mockPdiScanner).insertSheet(
-        asSheet(images.slice(0, 2))
+    async pdiScannerInsertSheets(input: { path: string }): Promise<void> {
+      const mockPdiScanner = assertDefined(mockSpec.mockPdiScanner);
+
+      assert(
+        !pdiScannerSheetQueue,
+        'Cannot insert sheets while queue is active'
       );
+
+      const pdfData = Uint8Array.from(fs.readFileSync(input.path));
+      const sheets = await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
+        .map(({ page }) => page)
+        .chunks(2)
+        .map(([front, back]) =>
+          asSheet([front, back ?? createImageData(front.width, front.height)])
+        )
+        .toArray();
+
+      function insertNextSheet(): void {
+        assert(pdiScannerSheetQueue, 'Sheet queue is not active');
+        if (mockPdiScanner.getSheetStatus() !== 'noSheetEnabled') return;
+
+        if (pdiScannerSheetQueue.index < pdiScannerSheetQueue.queue.length) {
+          mockPdiScanner.insertSheet(
+            assertDefined(
+              pdiScannerSheetQueue.queue[pdiScannerSheetQueue.index]
+            )
+          );
+          pdiScannerSheetQueue.index += 1;
+        } else {
+          clearInterval(pdiScannerSheetQueue.intervalId);
+          pdiScannerSheetQueue = undefined;
+        }
+      }
+
+      const intervalId = setInterval(insertNextSheet, 500);
+      pdiScannerSheetQueue = { queue: sheets, index: 0, intervalId };
+      insertNextSheet();
     },
 
     pdiScannerRemoveSheet(): void {
       assertDefined(mockSpec.mockPdiScanner).removeSheet();
+    },
+
+    pdiScannerClearSheetQueue(): void {
+      assert(pdiScannerSheetQueue, 'Sheet queue is not active');
+      clearInterval(pdiScannerSheetQueue.intervalId);
+      pdiScannerSheetQueue = undefined;
+
+      const mockPdiScanner = assertDefined(mockSpec.mockPdiScanner);
+      if (mockPdiScanner.getSheetStatus() === 'sheetHeldInFront') {
+        mockPdiScanner.removeSheet();
+      }
     },
 
     batchScannerGetStatus(): { sheetCount: number } {
@@ -424,7 +489,9 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
           sheets.push({ frontPath, backPath });
         } else {
           // Odd image: generate a blank back
-          const frontResult = (await loadImageMetadata(frontPath)).unsafeUnwrap();
+          const frontResult = (
+            await loadImageMetadata(frontPath)
+          ).unsafeUnwrap();
           const blankBackPath = nextImagePath();
           await writeImageData(
             blankBackPath,
