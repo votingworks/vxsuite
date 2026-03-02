@@ -327,8 +327,10 @@ export function generateStraightPartyTestDeckBallots(
     {
       scenario: 'write-in-with-expansion',
       ballotIndex: BALLOT_1_INDEX,
-      qualifies: (c) =>
-        c.seats > 1 && c.allowWriteIns && partyACandCount(c) <= c.seats - 1,
+      qualifies: (c) => {
+        const count = partyACandCount(c);
+        return c.seats > 1 && c.allowWriteIns && count > 0 && count <= c.seats - 1;
+      },
     },
     {
       scenario: 'deterministic-expansion',
