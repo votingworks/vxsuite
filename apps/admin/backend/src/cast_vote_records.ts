@@ -512,6 +512,7 @@ export async function importCastVoteRecords(
               }
               store.addBallotImage({
                 cvrId: castVoteRecordId,
+                electionDefinitionId: electionDefinition.election.id,
                 imageData: imageFileReadResult.ok(),
                 pageLayout: layoutFileReadResult.ok(),
                 side: (['front', 'back'] as const)[i],
@@ -520,6 +521,7 @@ export async function importCastVoteRecords(
               // bmd ballots do not have pageLayout information.
               store.addBallotImage({
                 cvrId: castVoteRecordId,
+                electionDefinitionId: electionDefinition.election.id,
                 imageData: imageFileReadResult.ok(),
                 side: (['front', 'back'] as const)[i],
               });

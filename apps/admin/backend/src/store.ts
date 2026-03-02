@@ -1057,16 +1057,22 @@ export class Store {
 
   addBallotImage({
     cvrId,
+    electionDefinitionId,
     imageData,
     pageLayout,
     side,
   }: {
     cvrId: Id;
+    electionDefinitionId: string;
     imageData: Buffer;
     pageLayout?: BallotPageLayout;
     side: Side;
   }): void {
-    const ballotImagePath = this.getBallotImageFilePath(cvrId, side);
+    const ballotImagePath = this.getBallotImageFilePath(
+      electionDefinitionId,
+      cvrId,
+      side
+    );
     mkdirSync(dirname(ballotImagePath), { recursive: true });
     writeFileSync(ballotImagePath, imageData);
     this.client.run(
@@ -1085,9 +1091,21 @@ export class Store {
     );
   }
 
-  private getBallotImageFilePath(cvrId: Id, side: Side): string {
+  private getBallotImageFilePath(
+    electionDefinitionId: string,
+    cvrId: Id,
+    side: Side
+  ): string {
+    assert(
+      !electionDefinitionId.includes(sep),
+      `Election definition ID contains a path separator: ${electionDefinitionId}`
+    );
     assert(!cvrId.includes(sep), `CVR ID contains a path separator: ${cvrId}`);
-    return join(this.ballotImagesPath, `${cvrId}-${side}`);
+    return join(
+      this.ballotImagesPath,
+      electionDefinitionId,
+      `${cvrId}-${side}`
+    );
   }
 
   /**
@@ -1252,15 +1270,19 @@ export class Store {
     const rows = this.client.all(
       `
       select
-        layout,
-        side
-      from ballot_images
-      where cvr_id = ?
+        bi.layout,
+        bi.side,
+        e.election_data ->> 'id' as electionDefinitionId
+      from ballot_images bi
+      join cvrs c on c.id = bi.cvr_id
+      join elections e on e.id = c.election_id
+      where bi.cvr_id = ?
       `,
       cvrId
     ) as Array<{
       layout?: string;
       side: Side;
+      electionDefinitionId: string;
     }>;
 
     for (const row of rows) {
@@ -1269,7 +1291,13 @@ export class Store {
         return {
           cvrId,
           contestId,
-          image: readFileSync(this.getBallotImageFilePath(cvrId, 'front')),
+          image: readFileSync(
+            this.getBallotImageFilePath(
+              row.electionDefinitionId,
+              cvrId,
+              'front'
+            )
+          ),
           side: 'front',
         };
       }
@@ -1285,7 +1313,13 @@ export class Store {
           return {
             cvrId,
             contestId,
-            image: readFileSync(this.getBallotImageFilePath(cvrId, row.side)),
+            image: readFileSync(
+              this.getBallotImageFilePath(
+                row.electionDefinitionId,
+                cvrId,
+                row.side
+              )
+            ),
             side: row.side,
             layout: parsedLayout,
           };
@@ -1692,19 +1726,10 @@ export class Store {
    * Deletes all CVR files for an election.
    */
   deleteCastVoteRecordFiles(electionId: Id): void {
-    // Collect CVR IDs with ballot images before deletion so we can clean up
-    // the image files after the DB transaction commits.
-    const cvrIdsWithImages = (
-      this.client.all(
-        `
-          select bi.cvr_id as cvrId
-          from ballot_images bi
-          join cvrs c on c.id = bi.cvr_id
-          where c.election_id = ?
-        `,
-        electionId
-      ) as Array<{ cvrId: Id }>
-    ).map((row) => row.cvrId);
+    const { electionDefinitionId } = this.client.one(
+      `select election_data ->> 'id' as electionDefinitionId from elections where id = ?`,
+      electionId
+    ) as { electionDefinitionId: string };
 
     this.client.transaction(() => {
       this.client.run(
@@ -1741,12 +1766,10 @@ export class Store {
       this.deleteEmptyScannerBatches(electionId);
     });
 
-    for (const cvrId of cvrIdsWithImages) {
-      for (const side of ['front', 'back'] as const) {
-        const filePath = this.getBallotImageFilePath(cvrId, side);
-        rmSync(filePath, { force: true });
-      }
-    }
+    rmSync(join(this.ballotImagesPath, electionDefinitionId), {
+      recursive: true,
+      force: true,
+    });
   }
 
   getWriteInCandidates({
