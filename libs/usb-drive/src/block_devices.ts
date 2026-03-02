@@ -114,13 +114,33 @@ export async function getUsbDriveDeviceInfo(): Promise<
     return undefined;
   }
 
+  function isPartitionOfDisk(partitionDevname: string, diskDevname: string): boolean {
+    if (!partitionDevname.startsWith(diskDevname)) {
+      return false;
+    }
+
+    const suffix = partitionDevname.slice(diskDevname.length);
+
+    // Common Linux partition naming patterns:
+    // - /dev/sda1   (disk: /dev/sda, suffix: "1")
+    // - /dev/sda10  (disk: /dev/sda, suffix: "10")
+    // - /dev/nvme0n1p1 (disk: /dev/nvme0n1, suffix: "p1")
+    // - /dev/mmcblk0p1 (disk: /dev/mmcblk0, suffix: "p1")
+    if (suffix.length === 0) {
+      return false;
+    }
+
+    return /^[0-9]+$/.test(suffix) || /^p[0-9]+$/.test(suffix);
+  }
+
   // Prefer partitions over their parent disks: skip disk entries that have
   // at least one partition in the udev database.
   const candidates = usbBlockDevices.filter(
     (d) =>
       d.devtype === 'partition' ||
       !usbBlockDevices.some(
-        (p) => p.devtype === 'partition' && p.devname.startsWith(d.devname)
+        (p) =>
+          p.devtype === 'partition' && isPartitionOfDisk(p.devname, d.devname)
       )
   );
 
