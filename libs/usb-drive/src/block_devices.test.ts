@@ -270,6 +270,96 @@ describe('getUsbDriveDeviceInfo', () => {
     });
   });
 
+  test('prefers nvme-style (p-suffix) partition over parent disk', async () => {
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([
+        { devname: '/dev/nvme0n1', devtype: 'disk' },
+        {
+          devname: '/dev/nvme0n1p1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        },
+      ])
+    );
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getUsbDriveDeviceInfo();
+
+    expect(result).toEqual({
+      name: 'nvme0n1p1',
+      path: '/dev/nvme0n1p1',
+      mountpoint: null,
+      fstype: 'vfat',
+      fsver: 'FAT32',
+      label: 'VxUSB-ABCDE',
+      type: 'part',
+    });
+  });
+
+  test('does not filter out disk when partition belongs to a different disk', async () => {
+    // isPartitionOfDisk('/dev/sdc1', '/dev/sdb') → false because '/dev/sdc1'
+    // does not start with '/dev/sdb', so /dev/sdb is kept as a candidate.
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([
+        { devname: '/dev/sdb', devtype: 'disk' },
+        {
+          devname: '/dev/sdc1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-00001',
+        },
+      ])
+    );
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getUsbDriveDeviceInfo();
+
+    expect(result).toEqual({
+      name: 'sdb',
+      path: '/dev/sdb',
+      mountpoint: null,
+      fstype: null,
+      fsver: null,
+      label: null,
+      type: 'disk',
+    });
+  });
+
+  test('does not treat a disk as a partition of itself when devnames are identical', async () => {
+    // Contrived: same devname appears as both disk and partition in udev.
+    // isPartitionOfDisk('/dev/sdb', '/dev/sdb') → suffix is '' → false,
+    // so the disk is not filtered out.
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-00002',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getUsbDriveDeviceInfo();
+
+    expect(result).toEqual({
+      name: 'sdb',
+      path: '/dev/sdb',
+      mountpoint: null,
+      fstype: null,
+      fsver: null,
+      label: null,
+      type: 'disk',
+    });
+  });
+
   test('handles multiple USB devices and selects first valid data drive', async () => {
     execMock.mockResolvedValueOnce(
       exportDbOutput([
@@ -472,6 +562,31 @@ describe('createUsbDriveMonitor', () => {
     expect(onRefresh).toHaveBeenCalledTimes(2);
 
     monitor.stop();
+  });
+
+  test('stop() prevents scheduled restart from spawning a new subprocess', async () => {
+    vi.useFakeTimers();
+
+    execMock.mockResolvedValue({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValue('');
+
+    const firstProc = mockChildProcess();
+    spawnMock.mockReturnValueOnce(firstProc);
+
+    const monitor = createUsbDriveMonitor();
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    // Subprocess exits while monitor is still running — schedules a restart
+    firstProc.emit('exit');
+
+    // stop() is called before the restart timer fires
+    monitor.stop();
+
+    // When the restart timer fires, startMonitor returns early because stopped=true
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
   });
 
   test('handles subprocess spawn error without crashing', () => {

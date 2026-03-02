@@ -269,6 +269,41 @@ describe('status', () => {
     vi.useRealTimers();
   });
 
+  test('does not attempt mount when ejecting action is in progress', async () => {
+    const logger = mockLogger({ fn: vi.fn });
+    const usbDrive = detectUsbDrive(logger);
+
+    mockMonitorDeviceInfo = mockBlockDeviceInfo({
+      mountpoint: '/media/usb-drive-sdb1',
+    });
+
+    const { promise: unmountScriptPromise, resolve: resolveUnmount } = deferred<{
+      stdout: string;
+      stderr: string;
+    }>();
+    execMock.mockReturnValueOnce(
+      unmountScriptPromise as PromiseWithChild<{ stdout: string; stderr: string }>
+    );
+
+    // Begin eject — synchronously acquires the ejecting lock, then yields at
+    // the first await
+    const ejectPromise = usbDrive.eject();
+
+    // Update monitor to show drive unmounted (didEject is still false)
+    mockMonitorDeviceInfo = mockBlockDeviceInfo({ mountpoint: null });
+
+    // status() reaches the auto-mount branch but getActionLock('mounting')
+    // returns false because ejecting is in progress
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
+    expect(execMock).not.toHaveBeenCalledWith(
+      'sudo',
+      expect.arrayContaining(['mount.sh'])
+    );
+
+    resolveUnmount({ stdout: '', stderr: '' });
+    await ejectPromise;
+  });
+
   test('if mount point is found after timeout, we still "mount" it by detecting the mount point belatedly', async () => {
     vi.useFakeTimers();
     const logger = mockLogger({ fn: vi.fn });
