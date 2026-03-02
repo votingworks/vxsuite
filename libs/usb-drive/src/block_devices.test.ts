@@ -6,7 +6,7 @@ import {
   createUsbDriveMonitor,
   getUsbDriveDeviceInfo,
 } from './block_devices';
-import { exec } from './exec';
+import { exec, spawn } from './exec';
 
 const readFileMock = vi.mocked(fs.readFile);
 const execMock = vi.mocked(exec);
@@ -30,15 +30,11 @@ vi.mock(
   async (importActual): Promise<typeof import('./exec')> => ({
     ...(await importActual()),
     exec: vi.fn().mockRejectedValue(new Error('exec not mocked')),
+    spawn: vi.fn().mockRejectedValue(new Error('spawn not mocked')),
   })
 );
 
-const spawnMock = vi.fn();
-
-vi.mock(import('node:child_process'), async (importActual) => ({
-  ...(await importActual()),
-  spawn: spawnMock,
-}));
+const spawnMock = vi.mocked(spawn);
 
 beforeEach(() => {
   vi.clearAllMocks();

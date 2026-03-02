@@ -1,9 +1,8 @@
-import { spawn } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
 import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
 import { basename } from 'node:path';
-import { exec } from './exec';
+import { exec, spawn } from './exec';
 
 const debug = makeDebug('usb-drive');
 
@@ -201,7 +200,11 @@ export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
 
   function startMonitor(): void {
     if (stopped) return;
-    const proc = spawn('udevadm', ['monitor', '--udev', '--subsystem-match=block']);
+    const proc = spawn('udevadm', [
+      'monitor',
+      '--udev',
+      '--subsystem-match=block',
+    ]);
     monitorProcess = proc;
     proc.stdout.on('data', scheduleRefresh);
     // Handle spawn errors (e.g. binary not found) so they don't go unhandled.
