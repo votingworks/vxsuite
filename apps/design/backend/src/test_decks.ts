@@ -251,7 +251,7 @@ export function generateTestDeckCastVoteRecords(
 
   // For straight-party elections, use the purpose-built test deck
   const hmpbBallotSpecs: TestDeckBallotSpec[] = hasStraightParty
-    ? generateStraightPartyTestDeckBallots(election)
+    ? generateStraightPartyTestDeckBallots(election).ballots
     : generateTestDeckBallots({
         election,
         ballotFormat: 'bubble',
