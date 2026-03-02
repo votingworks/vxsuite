@@ -1,6 +1,8 @@
 ---
 name: learn
-description: Learn from user feedback — either edits they made to code or suggestions in their messages about how to improve code.
+description:
+  Learn from user feedback — either edits they made to code or suggestions in
+  their messages about how to improve code.
 ---
 
 # Learn from Feedback
@@ -20,12 +22,17 @@ lessons to improve future work. Feedback can come in two forms:
    context. For verbal suggestions, identify the specific code patterns or
    changes the user is recommending.
 
-2. **Identify the lessons.** For each piece of feedback, understand *why* the
+2. **Identify the lessons.** For each piece of feedback, understand _why_ the
    user prefers it. Categorize each lesson:
-   - **Team convention** — a pattern or rule the whole team follows. These belong
-     in `CLAUDE.md`.
+
+   - **Team convention** — a pattern or rule the whole team follows. These
+     belong in `CLAUDE.md`.
    - **Personal preference** — something specific to this user or a useful
      pattern worth remembering. These belong in auto memory (`MEMORY.md`).
+   - **Skill improvement** — a workflow or multi-step process that should become
+     a new skill or improve an existing one. Decide whether it's a shared team
+     skill or a personal skill based on whether the workflow is team-wide or
+     user-specific.
    - **Already known** — something Claude should already know from existing
      instructions. No action needed, but acknowledge it.
 
@@ -33,9 +40,14 @@ lessons to improve future work. Feedback can come in two forms:
    categorized. Ask the user to confirm the categorization before saving.
 
 4. **Save the lessons.** Apply confirmed changes:
+
    - For team conventions: Edit `CLAUDE.md` to add the rule in the appropriate
      section.
    - For personal preferences: Edit `MEMORY.md` to record the pattern.
+   - For skill improvements: Create or edit the appropriate `SKILL.md` file. For
+     new skills, create `.claude/skills/<name>/SKILL.md` (shared) or
+     `~/.claude/skills/<name>/SKILL.md` (personal) following the standard
+     frontmatter format. For existing skills, edit the relevant `SKILL.md`.
    - For already-known items: No file changes needed.
 
 5. **Apply the feedback.** If the feedback was a verbal suggestion and the code
