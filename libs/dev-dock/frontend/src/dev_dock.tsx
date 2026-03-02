@@ -489,6 +489,7 @@ function ScreenshotControls({
       {screenshotToSave && (
         <ScreenshotModal
           title="Save Screenshot"
+          onOverlayClick={() => setScreenshotToSave(undefined)}
           content={
             <>
               <P>The image will be saved to the Downloads folder as:</P>
@@ -515,6 +516,7 @@ function ScreenshotControls({
           actions={
             <>
               <Button
+                autoFocus
                 onPress={onSaveScreenshot}
                 style={{
                   backgroundColor: Colors.ACTIVE,
