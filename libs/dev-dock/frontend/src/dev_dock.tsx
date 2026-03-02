@@ -835,7 +835,8 @@ function PdiScannerMockControl() {
     queue &&
     queue.total > 1 &&
     !insertSheetMutation.isLoading &&
-    !removeSheetMutation.isLoading;
+    !removeSheetMutation.isLoading &&
+    !clearSheetQueueMutation.isLoading;
 
   async function onInsertBallot() {
     const dialogResult = await assertDefined(window.kiosk).showOpenDialog({

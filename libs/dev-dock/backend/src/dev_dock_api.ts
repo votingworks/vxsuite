@@ -400,7 +400,8 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         .toArray();
 
       function insertNextSheet(): void {
-        assert(pdiScannerSheetQueue, 'Sheet queue is not active');
+        /* istanbul ignore next - @preserve */
+        if (!pdiScannerSheetQueue) return;
         if (mockPdiScanner.getSheetStatus() !== 'noSheetEnabled') return;
 
         if (pdiScannerSheetQueue.index < pdiScannerSheetQueue.queue.length) {
@@ -426,7 +427,8 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     },
 
     pdiScannerClearSheetQueue(): void {
-      assert(pdiScannerSheetQueue, 'Sheet queue is not active');
+      /* istanbul ignore next - @preserve */
+      if (!pdiScannerSheetQueue) return;
       clearInterval(pdiScannerSheetQueue.intervalId);
       pdiScannerSheetQueue = undefined;
 

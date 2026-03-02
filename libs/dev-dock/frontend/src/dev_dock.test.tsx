@@ -633,7 +633,7 @@ describe('PDI scanner mock', () => {
     });
     await waitFor(
       () => expect(insertBallotButton).toBeDisabled(),
-      { timeout: 2000 } // status query refetches every 1000ms
+      { timeout: 2000 } // status query refetches every 500ms
     );
 
     // Single-sheet queue should not enable the Clear button
