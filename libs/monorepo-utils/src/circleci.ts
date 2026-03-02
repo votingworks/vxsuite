@@ -342,7 +342,7 @@ ${rustJobLines.map((line) => `  ${line}\n`).join('')}
       - run:
           name: Install shellcheck
           command: |
-            apt-get install -y --no-install-recommends shellcheck
+            apt-get update -qq && apt-get install -y --no-install-recommends shellcheck
       - run:
           name: Shellcheck
           command: |
