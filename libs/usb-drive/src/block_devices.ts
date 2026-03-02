@@ -1,3 +1,5 @@
+import { spawn } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
 import { basename } from 'node:path';
@@ -142,4 +144,73 @@ export async function getUsbDriveDeviceInfo(): Promise<
 
   debug(`Detected USB drive at ${dataUsbDrive.path}`);
   return dataUsbDrive;
+}
+
+export interface UsbDriveMonitor {
+  getDeviceInfo(): BlockDeviceInfo | undefined;
+  refresh(): Promise<void>;
+  stop(): void;
+}
+
+const MONITOR_DEBOUNCE_MS = 50;
+const MONITOR_RESTART_DELAY_MS = 1_000;
+
+export function createUsbDriveMonitor(onRefresh?: () => void): UsbDriveMonitor {
+  let cachedDeviceInfo: BlockDeviceInfo | undefined;
+  let isFirstRefresh = true;
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let monitorProcess: ChildProcess | undefined;
+  let stopped = false;
+
+  async function doRefresh(): Promise<void> {
+    const newDeviceInfo = await getUsbDriveDeviceInfo();
+    const stateChanged =
+      isFirstRefresh ||
+      JSON.stringify(newDeviceInfo) !== JSON.stringify(cachedDeviceInfo);
+    isFirstRefresh = false;
+    cachedDeviceInfo = newDeviceInfo;
+    if (stateChanged) {
+      onRefresh?.();
+    }
+  }
+
+  function scheduleRefresh(): void {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => void doRefresh(), MONITOR_DEBOUNCE_MS);
+  }
+
+  function startMonitor(): void {
+    if (stopped) return;
+    const proc = spawn('udevadm', ['monitor', '--udev', '--subsystem-match=block']);
+    monitorProcess = proc;
+    proc.stdout.on('data', scheduleRefresh);
+    // Handle spawn errors (e.g. binary not found) so they don't go unhandled.
+    // The 'exit'/'close' event will fire after 'error' and trigger a restart.
+    proc.on('error', (err) => {
+      debug(`udevadm monitor process error: ${err}`);
+    });
+    proc.on('exit', () => {
+      monitorProcess = undefined;
+      if (!stopped) {
+        setTimeout(startMonitor, MONITOR_RESTART_DELAY_MS);
+      }
+    });
+  }
+
+  void doRefresh();
+  startMonitor();
+
+  return {
+    getDeviceInfo: () => cachedDeviceInfo,
+
+    async refresh(): Promise<void> {
+      await doRefresh();
+    },
+
+    stop(): void {
+      stopped = true;
+      clearTimeout(debounceTimer);
+      monitorProcess?.kill();
+    },
+  };
 }

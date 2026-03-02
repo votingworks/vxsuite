@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { promises as fs } from 'node:fs';
-import { BlockDeviceInfo, getUsbDriveDeviceInfo } from './block_devices';
+import { mockChildProcess } from '@votingworks/test-utils';
+import {
+  BlockDeviceInfo,
+  createUsbDriveMonitor,
+  getUsbDriveDeviceInfo,
+} from './block_devices';
 import { exec } from './exec';
 
 const readFileMock = vi.mocked(fs.readFile);
@@ -28,8 +33,16 @@ vi.mock(
   })
 );
 
+const spawnMock = vi.fn();
+
+vi.mock(import('node:child_process'), async (importActual) => ({
+  ...(await importActual()),
+  spawn: spawnMock,
+}));
+
 beforeEach(() => {
   vi.clearAllMocks();
+  spawnMock.mockImplementation(mockChildProcess);
 });
 
 function exportDbEntry(info: {
@@ -291,5 +304,192 @@ describe('getUsbDriveDeviceInfo', () => {
       label: 'VxUSB-00000',
       type: 'part',
     });
+  });
+});
+
+describe('createUsbDriveMonitor', () => {
+  test('initial cache is undefined, populated by async initial refresh', async () => {
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValueOnce('');
+
+    const monitor = createUsbDriveMonitor();
+
+    // Cache starts undefined before the async initial refresh resolves
+    expect(monitor.getDeviceInfo()).toEqual(undefined);
+
+    // Let the initial refresh complete
+    await vi.waitFor(() =>
+      expect(execMock).toHaveBeenCalledWith('udevadm', ['info', '--export-db'])
+    );
+
+    monitor.stop();
+  });
+
+  test('refresh() updates the cached device info', async () => {
+    // Initial refresh returns nothing
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValueOnce('');
+
+    const monitor = createUsbDriveMonitor();
+
+    // Set up a USB drive for the explicit refresh
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([
+        {
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-12345',
+        },
+      ])
+    );
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/media/usb-drive-sdb1' },
+      ])
+    );
+
+    await monitor.refresh();
+
+    expect(monitor.getDeviceInfo()).toEqual(
+      expect.objectContaining({
+        name: 'sdb1',
+        mountpoint: '/media/usb-drive-sdb1',
+      })
+    );
+
+    monitor.stop();
+  });
+
+  test('spawns udevadm monitor subprocess with correct args', () => {
+    execMock.mockResolvedValue({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValue('');
+
+    const monitor = createUsbDriveMonitor();
+
+    expect(spawnMock).toHaveBeenCalledWith('udevadm', [
+      'monitor',
+      '--udev',
+      '--subsystem-match=block',
+    ]);
+
+    monitor.stop();
+  });
+
+  test('debounces subprocess stdout events and refreshes cache', async () => {
+    vi.useFakeTimers();
+
+    // Initial refresh returns nothing
+    execMock.mockResolvedValue({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValue('');
+
+    const proc = mockChildProcess();
+    spawnMock.mockReturnValue(proc);
+
+    const monitor = createUsbDriveMonitor();
+
+    // Simulate three rapid stdout events (e.g. a burst from USB plug-in)
+    proc.stdout.append('UDEV event 1');
+    proc.stdout.append('UDEV event 2');
+    proc.stdout.append('UDEV event 3');
+
+    // No refresh yet — debounce timer hasn't fired
+    const callsBefore = execMock.mock.calls.length;
+
+    await vi.advanceTimersByTimeAsync(50);
+
+    // Exactly one refresh triggered (debounced)
+    expect(execMock.mock.calls.length).toEqual(callsBefore + 1);
+
+    vi.useRealTimers();
+    monitor.stop();
+  });
+
+  test('restarts subprocess after exit', async () => {
+    vi.useFakeTimers();
+
+    execMock.mockResolvedValue({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValue('');
+
+    const firstProc = mockChildProcess();
+    const secondProc = mockChildProcess();
+    spawnMock.mockReturnValueOnce(firstProc).mockReturnValueOnce(secondProc);
+
+    const monitor = createUsbDriveMonitor();
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    // Simulate the subprocess exiting
+    firstProc.emit('exit');
+
+    // Restart happens after a 1s delay
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(spawnMock).toHaveBeenCalledTimes(2);
+
+    vi.useRealTimers();
+    monitor.stop();
+  });
+
+  test('stop() kills the subprocess and prevents restart', async () => {
+    vi.useFakeTimers();
+
+    execMock.mockResolvedValue({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValue('');
+
+    const proc = mockChildProcess();
+    const killSpy = vi.spyOn(proc, 'kill');
+    spawnMock.mockReturnValue(proc);
+
+    const monitor = createUsbDriveMonitor();
+    monitor.stop();
+
+    expect(killSpy).toHaveBeenCalled();
+
+    // Simulate exit after stop — should not restart
+    proc.emit('exit');
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
+  test('calls onRefresh on first refresh and when state changes', async () => {
+    // Initial refresh: no drive
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValueOnce('');
+
+    const onRefresh = vi.fn();
+    const monitor = createUsbDriveMonitor(onRefresh);
+
+    // Wait for initial async refresh to complete
+    await vi.waitFor(() => expect(onRefresh).toHaveBeenCalledTimes(1));
+
+    // Refresh with same state (no drive) — should NOT fire callback
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValueOnce('');
+    await monitor.refresh();
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+
+    // Refresh with new state (drive appeared) — should fire callback
+    mockBlockDeviceOnce();
+    await monitor.refresh();
+    expect(onRefresh).toHaveBeenCalledTimes(2);
+
+    monitor.stop();
+  });
+
+  test('handles subprocess spawn error without crashing', () => {
+    execMock.mockResolvedValue({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValue('');
+
+    const proc = mockChildProcess();
+    spawnMock.mockReturnValue(proc);
+
+    const monitor = createUsbDriveMonitor();
+
+    // Emitting an error event should not throw (it is handled)
+    expect(() => proc.emit('error', new Error('spawn ENOENT'))).not.toThrow();
+
+    monitor.stop();
   });
 });
