@@ -564,15 +564,10 @@ function Contest({
           <ContestHeader>
             <div>{contest.title}</div>
             <DualLanguageText delimiter="/">
-              <VoteFor>
-                {hmpbStrings.hmpbVoteForNotMoreThan1}
-              </VoteFor>
+              <VoteFor>{hmpbStrings.hmpbVoteForNotMoreThan1}</VoteFor>
             </DualLanguageText>
           </ContestHeader>
-          <StraightPartyContestContent
-            contest={contest}
-            election={election}
-          />
+          <StraightPartyContestContent contest={contest} election={election} />
         </Box>
       );
     default:
@@ -590,7 +585,8 @@ async function PrimaryBallotPageContent(
   );
   const contests = election.contests.filter(
     (c): c is DistrictContest =>
-      c.type !== 'straight-party' && ballotStyle.districts.includes(c.districtId)
+      c.type !== 'straight-party' &&
+      ballotStyle.districts.includes(c.districtId)
   );
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
@@ -906,6 +902,9 @@ async function BallotPageContent(
     );
   }
 
+  const straightPartyContest = contests.find(
+    (c) => c.type === 'straight-party'
+  );
   const districtContests = contests.filter(
     (c): c is DistrictContest => c.type !== 'straight-party'
   );
@@ -915,23 +914,28 @@ async function BallotPageContent(
       contests: districtContests.filter(
         (contest) => contest.type === 'candidate' && isPartisanContest(contest)
       ),
+      leadingContests: straightPartyContest ? [straightPartyContest] : [],
     },
     {
       header: 'Nonpartisan Section',
       contests: districtContests.filter(
         (contest) => contest.type === 'candidate' && !isPartisanContest(contest)
       ),
+      leadingContests: [] as AnyContest[],
     },
     {
       header: 'Proposal Section',
-      contests: districtContests.filter(
-        (contest) => contest.type === 'yesno'
-      ),
+      contests: districtContests.filter((contest) => contest.type === 'yesno'),
+      leadingContests: [] as AnyContest[],
     },
   ]
-    .filter((section) => section.contests.length > 0)
+    .filter(
+      (section) =>
+        section.contests.length > 0 || section.leadingContests.length > 0
+    )
     .map((section) => ({
       header: section.header,
+      leadingContests: section.leadingContests,
       subsections: groupBy(
         section.contests,
         (contest) => contest.districtId
@@ -950,6 +954,17 @@ async function BallotPageContent(
 
   const sectionElements = contestSections.map((section) => ({
     header: <SectionHeader>{section.header}</SectionHeader>,
+    leadingContests: section.leadingContests.map((contest) => ({
+      contest,
+      element: (
+        <Contest
+          key={contest.id}
+          contest={contest}
+          election={election}
+          ballotStyle={ballotStyle}
+        />
+      ),
+    })),
     subsections: section.subsections.map((subsection) => ({
       header:
         subsection.header !== undefined ? (
@@ -970,11 +985,14 @@ async function BallotPageContent(
   }));
 
   const flattenedElements = sectionElements.flatMap((section) => {
+    const leadingElements = section.leadingContests.map(
+      ({ element }) => element
+    );
     const subsectionElements = section.subsections.flatMap((subsection) => [
       ...(subsection.header ? [subsection.header] : []),
       ...subsection.contests.map(({ element }) => element),
     ]);
-    return [section.header, ...subsectionElements];
+    return [section.header, ...leadingElements, ...subsectionElements];
   });
 
   const measurements = await scratchpad.measureElements(
@@ -999,6 +1017,14 @@ async function BallotPageContent(
   const measuredSections = [];
   for (const sectionElement of sectionElements) {
     const sectionHeaderMeasurements = assertDefined(measurementsQueue.pop());
+    const measuredLeadingContests = [];
+    for (const leadingContest of sectionElement.leadingContests) {
+      const contestMeasurements = assertDefined(measurementsQueue.pop());
+      measuredLeadingContests.push({
+        ...leadingContest,
+        ...contestMeasurements,
+      });
+    }
     const measuredSubsections = [];
     for (const subsectionElement of sectionElement.subsections) {
       const subsectionHeaderMeasurements =
@@ -1017,6 +1043,13 @@ async function BallotPageContent(
           ...assertDefined(subsectionHeaderMeasurements),
         },
         elements: measuredContests,
+      });
+    }
+    // Insert leading contests as a subsection at the top (no header)
+    if (measuredLeadingContests.length > 0) {
+      measuredSubsections.unshift({
+        header: undefined,
+        elements: measuredLeadingContests,
       });
     }
     measuredSections.push({

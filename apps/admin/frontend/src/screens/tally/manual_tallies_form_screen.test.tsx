@@ -4,6 +4,7 @@ import { Route } from 'react-router-dom';
 
 import {
   BallotStyleGroupId,
+  DistrictContest,
   Election,
   getContests,
   Tabulation,
@@ -51,7 +52,7 @@ const ballotStyleGroup = getBallotStyleGroup({
 const contests = getContests({
   election,
   ballotStyle: ballotStyleGroup,
-});
+}).filter((c): c is DistrictContest => c.type !== 'straight-party');
 
 const resultsFixture = buildManualResultsFixture({
   election,

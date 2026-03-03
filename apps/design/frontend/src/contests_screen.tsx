@@ -13,11 +13,19 @@ import {
   CandidateContest,
   ContestId,
   Contests,
+  ElectionStringKey,
   StraightPartyContest,
   YesNoContest,
 } from '@votingworks/types';
 import styled from 'styled-components';
-import { FixedViewport, ListActionsRow, Row } from './layout';
+import {
+  Column,
+  FieldName,
+  FixedViewport,
+  InputGroup,
+  ListActionsRow,
+  Row,
+} from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
@@ -33,6 +41,7 @@ import { useTitle } from './hooks/use_title';
 import { ContestForm } from './contest_form';
 import { ContestList } from './contest_list';
 import { ContestAudioPanel } from './contest_audio_panel';
+import { InputWithAudio } from './ballot_audio/input_with_audio';
 import { FormBody, FormTitle } from './form_fixed';
 
 export function ContestsScreen(): JSX.Element {
@@ -432,15 +441,49 @@ function StraightPartyContestInfo(props: {
   contest: StraightPartyContest;
 }): JSX.Element {
   const { contest } = props;
+  const { electionId } = useParams<ElectionIdParams>();
+  const contestRoutes = routes.election(electionId).contests;
+  const partiesQuery = listParties.useQuery(electionId);
+
   return (
     <FormBody>
-      <FormTitle>{contest.title}</FormTitle>
+      <FormTitle>Straight Party Contest</FormTitle>
       <Callout color="neutral" icon="Info">
         <P>
           This contest is automatically derived from the election&apos;s
           partisan candidate contests and cannot be edited directly.
         </P>
       </Callout>
+      <InputGroup label="Title">
+        <InputWithAudio
+          audioScreenUrl={contestRoutes.audio({
+            contestId: contest.id,
+            stringKey: ElectionStringKey.CONTEST_TITLE,
+            subkey: contest.id,
+          })}
+          disabled
+          editing={false}
+          type="text"
+          value={contest.title}
+          readOnly
+        />
+      </InputGroup>
+      {partiesQuery.isSuccess && (
+        <div>
+          <FieldName>Options</FieldName>
+          <Column style={{ gap: '0.5rem' }}>
+            {partiesQuery.data.map((party) => (
+              <input
+                key={party.id}
+                type="text"
+                value={party.fullName}
+                disabled
+                readOnly
+              />
+            ))}
+          </Column>
+        </div>
+      )}
     </FormBody>
   );
 }

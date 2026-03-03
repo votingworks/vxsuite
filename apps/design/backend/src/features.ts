@@ -169,6 +169,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
   },
 
   MI: {
+    EXPORT_TEST_BALLOTS: true,
     STRAIGHT_PARTY_VOTING: true,
   },
 

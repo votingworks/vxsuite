@@ -34,7 +34,7 @@ export const DEPLOY_ENV = unsafeParse(
 
 /**
  * Port for the frontend server.
- * 
+ *
  * Note that in development we run two servers, one for the frontend and one for
  * the backend. This controls the port of the frontend.
  */
@@ -48,7 +48,7 @@ export const FRONTEND_PORT = Number(process.env.FRONTEND_PORT || 3000);
  * 2) Heroku sets PORT and expects the server to bind to that port.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
-export const PORT = Number(process.env.PORT || (FRONTEND_PORT + 1));
+export const PORT = Number(process.env.PORT || FRONTEND_PORT + 1);
 
 /* istanbul ignore next - @preserve */
 function requiredProdEnvVar<Fallback>(
@@ -69,7 +69,7 @@ function requiredProdEnvVar<Fallback>(
 export function databaseUrl(): string {
   return requiredProdEnvVar(
     'DATABASE_URL',
-    'postgresql://design:design@localhost:5432/design'
+    'postgresql://design_poc:design_poc@localhost:5432/design_poc'
   );
 }
 

@@ -7,6 +7,7 @@ import {
   CandidateContest,
   Contests,
   District,
+  DistrictContest,
   DistrictIdSchema,
   HmpbBallotPaperSize,
   unsafeParse,
@@ -75,7 +76,7 @@ const testDistrictC: District = {
 
 const testDistricts = [testDistrictA, testDistrictB, testDistrictC];
 
-const testContests: Contests = [
+const testContests: DistrictContest[] = [
   candidateContest(testDistrictA.id, 1),
   candidateContest(testDistrictB.id, 1),
   candidateContest(testDistrictC.id, 1),
@@ -84,7 +85,7 @@ const testContests: Contests = [
   yesNoContest(testDistrictC.id, 1),
 ];
 
-const testContestsInBcaOrder: Contests = [
+const testContestsInBcaOrder: DistrictContest[] = [
   candidateContest(testDistrictB.id, 1),
   candidateContest(testDistrictC.id, 1),
   candidateContest(testDistrictA.id, 1),
@@ -321,9 +322,9 @@ test('initial district order is based on the order of appearance in contests', a
 });
 
 test.each<{
-  contests: Contests;
+  contests: DistrictContest[];
   districtOrder: District[];
-  reorderedContests: Contests;
+  reorderedContests: DistrictContest[];
 }>([
   {
     contests: [
