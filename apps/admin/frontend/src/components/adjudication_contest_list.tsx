@@ -81,8 +81,14 @@ const StatusLine = styled.span`
   gap: 0.25rem;
 `;
 
+const StraightPartyCaption = styled(EntityList.Caption)`
+  color: ${(p) => p.theme.colors.onBackground};
+`;
+
 function getVotesAllowed(contest: AnyContest): number {
-  return contest.type === 'yesno' ? 1 : contest.seats;
+  return contest.type === 'yesno' || contest.type === 'straight-party'
+    ? 1
+    : contest.seats;
 }
 
 function getCurrentVote(
@@ -289,6 +295,35 @@ function ContestAdjudicationSummary({
   );
 }
 
+interface StraightPartyStatus {
+  text: string;
+  isChanged: boolean;
+}
+
+function getStraightPartyStatus(
+  contestData: ContestAdjudicationData,
+  adjudicatedContest: AdjudicatedCvrContest
+): StraightPartyStatus {
+  const originalVoteCount = contestData.options.filter(
+    (o) => o.scannedVote
+  ).length;
+  const votedOptions = contestData.options.filter((o) =>
+    getCurrentVote(
+      o,
+      adjudicatedContest.adjudicatedContestOptionById[o.definition.id]
+    )
+  );
+  const isChanged = votedOptions.length !== originalVoteCount;
+
+  if (votedOptions.length === 1) {
+    return {
+      text: `Straight party vote applied: ${votedOptions[0].definition.name}`,
+      isChanged,
+    };
+  }
+  return { text: 'Straight party vote not applied', isChanged };
+}
+
 function BallotSideContestList({
   adjudicatedContests,
   contests,
@@ -300,6 +335,7 @@ function BallotSideContestList({
   onHover,
   onSelect,
   showUndervoteStatus,
+  straightPartyStatus,
   title,
 }: {
   adjudicatedContests: ReadonlyMap<ContestId, AdjudicatedCvrContest>;
@@ -312,6 +348,7 @@ function BallotSideContestList({
   onHover: (contestId: ContestId | null) => void;
   onSelect: (contestId: ContestId) => void;
   showUndervoteStatus: boolean;
+  straightPartyStatus?: StraightPartyStatus;
   title: string;
 }): React.ReactNode {
   return (
@@ -379,6 +416,17 @@ function BallotSideContestList({
                     adjudicatedContest={adjudicatedContest}
                   />
                 )}
+                {contest.type === 'straight-party' &&
+                  straightPartyStatus &&
+                  (straightPartyStatus.isChanged ? (
+                    <ResolvedCaption weight="semiBold">
+                      {straightPartyStatus.text}
+                    </ResolvedCaption>
+                  ) : (
+                    <StraightPartyCaption>
+                      {straightPartyStatus.text}
+                    </StraightPartyCaption>
+                  ))}
               </Column>
               {isPending && !suppressContestAdjudicationInfo && (
                 <Icons.Warning color="warning" />
@@ -444,6 +492,17 @@ export function AdjudicationContestList({
     }
     return isResolved ? 'Blank Ballot Confirmed' : 'Blank Ballot Detected';
   })();
+
+  const spContest = allContests.find(
+    (c) => c.contest.type === 'straight-party'
+  );
+  const spContestData = spContest?.adjudicationData;
+  const straightPartyStatus = spContestData
+    ? getStraightPartyStatus(
+        spContestData,
+        adjudicatedContests.get(spContest.contest.id)
+      )
+    : undefined;
 
   return (
     <EntityList.Box>
