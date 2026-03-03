@@ -125,7 +125,11 @@ function assign(
  * An enum of statuses for the mock sheet of paper "inserted" into the mock
  * scanner.
  */
-export type MockSheetStatus = 'noSheet' | 'sheetInserted' | 'sheetHeldInFront';
+export type MockSheetStatus =
+  | 'noSheetEnabled'
+  | 'noSheetDisabled'
+  | 'sheetInserted'
+  | 'sheetHeldInFront';
 
 /**
  * Mock PDI scanner. Provides a mock {@link ScannerClient} and methods for
@@ -412,8 +416,9 @@ export function createMockPdiScanner(): MockScanner {
           return 'sheetHeldInFront';
         case state.matches('disconnected'):
         case state.matches('idleScanningDisabled'):
+          return 'noSheetDisabled';
         case state.matches('idleScanningEnabled'):
-          return 'noSheet';
+          return 'noSheetEnabled';
         default:
           return 'sheetInserted';
       }

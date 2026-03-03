@@ -9,13 +9,7 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
-import {
-  assert,
-  assertDefined,
-  sleep,
-  throwIllegalValue,
-  uniqueBy,
-} from '@votingworks/basics';
+import { assert, assertDefined, sleep, uniqueBy } from '@votingworks/basics';
 import type { Api, DevDockUserRole } from '@votingworks/dev-dock-backend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -752,6 +746,12 @@ const ScannerButton = styled.button`
   }
 `;
 
+const ScannerControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
 function BatchScannerMockControl() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
@@ -808,61 +808,75 @@ function BatchScannerMockControl() {
 }
 
 function PdiScannerMockControl() {
+  const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getSheetStatusQuery = useQuery(
-    ['getSheetStatus'],
-    () => apiClient.pdiScannerGetSheetStatus(),
-    { refetchInterval: 1000 }
+  const getStatusQuery = useQuery(
+    ['pdiScannerGetStatus'],
+    () => apiClient.pdiScannerGetStatus(),
+    { refetchInterval: 500 }
   );
-  const insertSheetMutation = useMutation(apiClient.pdiScannerInsertSheet);
+  const insertSheetMutation = useMutation(apiClient.pdiScannerInsertSheets, {
+    onSuccess: async () =>
+      await queryClient.invalidateQueries(['pdiScannerGetStatus']),
+  });
   const removeSheetMutation = useMutation(apiClient.pdiScannerRemoveSheet);
-
-  const sheetStatus = getSheetStatusQuery.data;
-
-  const button = (() => {
-    switch (sheetStatus) {
-      case 'noSheet':
-        return (
-          <ScannerButton
-            onClick={async () => {
-              const dialogResult = await assertDefined(
-                window.kiosk
-              ).showOpenDialog({
-                properties: ['openFile'],
-                filters: [{ name: '', extensions: ['pdf'] }],
-              });
-              if (dialogResult.canceled) return;
-              const selectedPath = dialogResult.filePaths[0];
-              if (selectedPath) {
-                insertSheetMutation.mutate({ path: selectedPath });
-              }
-            }}
-          >
-            Insert Ballot
-          </ScannerButton>
-        );
-
-      case 'sheetInserted':
-      case undefined:
-        return <ScannerButton disabled>Insert Ballot</ScannerButton>;
-
-      case 'sheetHeldInFront':
-        return (
-          <ScannerButton onClick={() => removeSheetMutation.mutate()}>
-            Remove Ballot
-          </ScannerButton>
-        );
-
-      /* istanbul ignore next */
-      default:
-        return throwIllegalValue(sheetStatus);
+  const clearSheetQueueMutation = useMutation(
+    apiClient.pdiScannerClearSheetQueue,
+    {
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['pdiScannerGetStatus']),
     }
-  })();
+  );
+
+  const { sheetStatus, queue } = getStatusQuery.data ?? {};
+  const canInsert =
+    sheetStatus === 'noSheetEnabled' &&
+    !queue &&
+    !insertSheetMutation.isLoading;
+  const canClear =
+    queue &&
+    queue.total > 1 &&
+    !insertSheetMutation.isLoading &&
+    !removeSheetMutation.isLoading &&
+    !clearSheetQueueMutation.isLoading;
+
+  async function onInsertBallot() {
+    const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: '', extensions: ['pdf'] }],
+    });
+    if (dialogResult.canceled) return;
+    const selectedPath = dialogResult.filePaths[0];
+    if (selectedPath) {
+      insertSheetMutation.mutate({ path: selectedPath });
+    }
+  }
 
   return (
-    <div>
-      <strong>Scanner:</strong> {button}
-    </div>
+    <ScannerControls>
+      <strong>
+        Scanner:{' '}
+        {queue && queue.total > 1 ? `${queue.inserted}/${queue.total}` : ''}
+      </strong>
+      {sheetStatus === 'sheetHeldInFront' ? (
+        <ScannerButton
+          onClick={() => removeSheetMutation.mutate()}
+          disabled={removeSheetMutation.isLoading}
+        >
+          Remove Ballot
+        </ScannerButton>
+      ) : (
+        <ScannerButton onClick={onInsertBallot} disabled={!canInsert}>
+          {insertSheetMutation.isLoading ? 'Loading...' : 'Insert Ballot'}
+        </ScannerButton>
+      )}
+      <ScannerButton
+        onClick={() => clearSheetQueueMutation.mutate()}
+        disabled={!canClear}
+      >
+        Clear
+      </ScannerButton>
+    </ScannerControls>
   );
 }
 

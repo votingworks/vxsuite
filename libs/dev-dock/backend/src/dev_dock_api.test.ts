@@ -3,7 +3,10 @@ import express from 'express';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import * as grout from '@votingworks/grout';
-import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import {
+  vxFamousNamesFixtures,
+  vxGeneralElectionFixtures,
+} from '@votingworks/hmpb';
 import { AddressInfo } from 'node:net';
 import {
   BooleanEnvironmentVariableName,
@@ -24,7 +27,7 @@ import {
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import { Server } from 'node:http';
-import { typedAs } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import { constructElectionKey, PrinterStatus } from '@votingworks/types';
 import {
   getMockConnectedPrinterStatus,
@@ -43,9 +46,28 @@ import {
   MockBatchScannerApi,
   DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH,
   DEV_DOCK_ELECTION_FILE_NAME,
+  PdiScannerStatus,
 } from './dev_dock_api';
 
 const electionGeneral = readElectionGeneral();
+
+// Minimal valid single-page PDF for testing odd-page fallback behavior
+const SINGLE_PAGE_PDF = [
+  '%PDF-1.0',
+  '1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj',
+  '2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj',
+  '3 0 obj <</Type /Page /Parent 2 0 R /MediaBox [0 0 100 100]>> endobj',
+  'xref',
+  '0 4',
+  '0000000000 65535 f ',
+  '0000000009 00000 n ',
+  '0000000058 00000 n ',
+  '0000000115 00000 n ',
+  'trailer <</Size 4 /Root 1 0 R>>',
+  'startxref',
+  '190',
+  '%%EOF',
+].join('\n');
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(
@@ -451,7 +473,7 @@ test('Fujitsu printer status', async () => {
   );
 });
 
-test('mock PDI scanner', async () => {
+test('mock PDI scanner - single sheet', async () => {
   const mockPdiScanner = createMockPdiScanner();
   const { apiClient } = setup({ mockPdiScanner });
 
@@ -463,7 +485,12 @@ test('mock PDI scanner', async () => {
     })
   ).unsafeUnwrap();
 
-  expect(await apiClient.pdiScannerGetSheetStatus()).toEqual('noSheet');
+  expect(await apiClient.pdiScannerGetStatus()).toEqual(
+    typedAs<PdiScannerStatus>({
+      sheetStatus: 'noSheetEnabled',
+      queue: undefined,
+    })
+  );
 
   const scanCompletePromise = new Promise<void>((resolve) => {
     const listener = mockPdiScanner.client.addListener((event) => {
@@ -473,22 +500,226 @@ test('mock PDI scanner', async () => {
       }
     });
   });
-  await apiClient.pdiScannerInsertSheet({
+  await apiClient.pdiScannerInsertSheets({
     path: vxFamousNamesFixtures.markedBallotPath,
   });
-  expect(await apiClient.pdiScannerGetSheetStatus()).toEqual('sheetInserted');
+  expect(await apiClient.pdiScannerGetStatus()).toEqual({
+    sheetStatus: 'sheetInserted',
+    queue: {
+      total: 1,
+      inserted: 1,
+    },
+  });
   await scanCompletePromise;
 
   (await mockPdiScanner.client.ejectDocument('toFrontAndHold')).unsafeUnwrap();
   await backendWaitFor(
     async () =>
-      expect(await apiClient.pdiScannerGetSheetStatus()).toEqual(
+      expect((await apiClient.pdiScannerGetStatus()).sheetStatus).toEqual(
         'sheetHeldInFront'
       ),
     { interval: 500 }
   );
   await apiClient.pdiScannerRemoveSheet();
-  expect(await apiClient.pdiScannerGetSheetStatus()).toEqual('noSheet');
+  expect((await apiClient.pdiScannerGetStatus()).sheetStatus).toEqual(
+    'noSheetDisabled'
+  );
+
+  // Re-enable scanning so the queue interval detects exhaustion and auto-clears
+  (
+    await mockPdiScanner.client.enableScanning({
+      doubleFeedDetectionEnabled: false,
+      paperLengthInches: 11,
+    })
+  ).unsafeUnwrap();
+  await backendWaitFor(
+    async () =>
+      expect((await apiClient.pdiScannerGetStatus()).queue).toBeUndefined(),
+    { interval: 500 }
+  );
+});
+
+test(
+  'mock PDI scanner - multi-sheet queue with ballot return',
+  { timeout: 30_000 },
+  async () => {
+    const mockPdiScanner = createMockPdiScanner();
+    const { apiClient } = setup({ mockPdiScanner });
+
+    (await mockPdiScanner.client.connect()).unsafeUnwrap();
+    (
+      await mockPdiScanner.client.enableScanning({
+        doubleFeedDetectionEnabled: false,
+        paperLengthInches: 11,
+      })
+    ).unsafeUnwrap();
+
+    let scanCompleteCount = 0;
+    mockPdiScanner.client.addListener((event) => {
+      if (event.event === 'scanComplete') scanCompleteCount += 1;
+    });
+
+    // Use the electionGeneral letter fixture which is a multi-sheet ballot
+    const letterFixture = vxGeneralElectionFixtures.fixtureSpecs.find(
+      (spec) => spec.paperSize === 'letter'
+    );
+    assert(letterFixture !== undefined);
+    const multiSheetPath = letterFixture.markedBallotPath;
+    await apiClient.pdiScannerInsertSheets({ path: multiSheetPath });
+
+    const initialStatus = await apiClient.pdiScannerGetStatus();
+    expect(initialStatus.queue).toBeDefined();
+    expect(initialStatus.queue!.total).toBeGreaterThan(1);
+    expect(initialStatus.queue!.inserted).toEqual(1);
+
+    // Wait for first sheet to complete scanning
+    await backendWaitFor(() => expect(scanCompleteCount).toEqual(1), {
+      interval: 500,
+    });
+
+    // Eject first sheet to front (simulating ballot return to voter)
+    (
+      await mockPdiScanner.client.ejectDocument('toFrontAndHold')
+    ).unsafeUnwrap();
+    await backendWaitFor(
+      async () =>
+        expect((await apiClient.pdiScannerGetStatus()).sheetStatus).toEqual(
+          'sheetHeldInFront'
+        ),
+      { interval: 500 }
+    );
+
+    // Voter removes the returned ballot
+    await apiClient.pdiScannerRemoveSheet();
+    await backendWaitFor(
+      async () =>
+        expect((await apiClient.pdiScannerGetStatus()).sheetStatus).toEqual(
+          'noSheetDisabled'
+        ),
+      { interval: 500 }
+    );
+
+    // Re-enable scanning so the queue interval can insert the next sheet
+    (
+      await mockPdiScanner.client.enableScanning({
+        doubleFeedDetectionEnabled: false,
+        paperLengthInches: 11,
+      })
+    ).unsafeUnwrap();
+
+    // Wait for second sheet to be inserted and scanned
+    await backendWaitFor(() => expect(scanCompleteCount).toEqual(2), {
+      interval: 500,
+    });
+
+    // Clear the remaining queue rather than scanning all sheets
+    await apiClient.pdiScannerClearSheetQueue();
+    expect((await apiClient.pdiScannerGetStatus()).queue).toBeUndefined();
+  }
+);
+
+test('mock PDI scanner - clear sheet queue', async () => {
+  const mockPdiScanner = createMockPdiScanner();
+  const { apiClient } = setup({ mockPdiScanner });
+
+  (await mockPdiScanner.client.connect()).unsafeUnwrap();
+  (
+    await mockPdiScanner.client.enableScanning({
+      doubleFeedDetectionEnabled: false,
+      paperLengthInches: 11,
+    })
+  ).unsafeUnwrap();
+
+  // Add a no-op listener so the mock scanner doesn't throw
+  mockPdiScanner.client.addListener(() => {});
+
+  await apiClient.pdiScannerInsertSheets({
+    path: vxFamousNamesFixtures.markedBallotPath,
+  });
+
+  await apiClient.pdiScannerClearSheetQueue();
+
+  expect((await apiClient.pdiScannerGetStatus()).queue).toBeUndefined();
+});
+
+test('mock PDI scanner - clear sheet queue with sheet held in front', async () => {
+  const mockPdiScanner = createMockPdiScanner();
+  const { apiClient } = setup({ mockPdiScanner });
+
+  (await mockPdiScanner.client.connect()).unsafeUnwrap();
+  (
+    await mockPdiScanner.client.enableScanning({
+      doubleFeedDetectionEnabled: false,
+      paperLengthInches: 11,
+    })
+  ).unsafeUnwrap();
+
+  const scanCompletePromise = new Promise<void>((resolve) => {
+    const listener = mockPdiScanner.client.addListener((event) => {
+      if (event.event === 'scanComplete') {
+        mockPdiScanner.client.removeListener(listener);
+        resolve();
+      }
+    });
+  });
+
+  await apiClient.pdiScannerInsertSheets({
+    path: vxFamousNamesFixtures.markedBallotPath,
+  });
+  await scanCompletePromise;
+
+  // Eject to front and hold
+  (await mockPdiScanner.client.ejectDocument('toFrontAndHold')).unsafeUnwrap();
+  await backendWaitFor(
+    async () =>
+      expect((await apiClient.pdiScannerGetStatus()).sheetStatus).toEqual(
+        'sheetHeldInFront'
+      ),
+    { interval: 500 }
+  );
+
+  // Clear the queue while sheet is held — should also remove the sheet
+  await apiClient.pdiScannerClearSheetQueue();
+
+  expect((await apiClient.pdiScannerGetStatus()).queue).toBeUndefined();
+  await backendWaitFor(
+    async () =>
+      expect((await apiClient.pdiScannerGetStatus()).sheetStatus).toEqual(
+        'noSheetDisabled'
+      ),
+    { interval: 500 }
+  );
+});
+
+test('mock PDI scanner - odd-page PDF gets blank back', async () => {
+  const mockPdiScanner = createMockPdiScanner();
+  const { apiClient } = setup({ mockPdiScanner });
+
+  (await mockPdiScanner.client.connect()).unsafeUnwrap();
+  (
+    await mockPdiScanner.client.enableScanning({
+      doubleFeedDetectionEnabled: false,
+      paperLengthInches: 11,
+    })
+  ).unsafeUnwrap();
+
+  mockPdiScanner.client.addListener(() => {});
+
+  const pdfPath = makeTemporaryFile({
+    postfix: '.pdf',
+    content: SINGLE_PAGE_PDF,
+  });
+
+  await apiClient.pdiScannerInsertSheets({ path: pdfPath });
+
+  // Should successfully insert the sheet with a generated blank back
+  expect((await apiClient.pdiScannerGetStatus()).sheetStatus).toEqual(
+    'sheetInserted'
+  );
+  expect((await apiClient.pdiScannerGetStatus()).queue).toEqual({
+    total: 1,
+    inserted: 1,
+  });
 });
 
 function createMockBatchScanner(imageDir: string): MockBatchScannerApi {
@@ -581,26 +812,8 @@ test('mock batch scanner - single page PDF gets blank back', async () => {
   const mockBatchScanner = createMockBatchScanner(devDockDir);
   const { apiClient } = setup({ mockBatchScanner }, devDockDir);
 
-  // The famous names ballot is 2 pages; we need a 1-page PDF to cover the
-  // odd-page branch. Create a minimal valid single-page PDF from raw bytes.
-  const minimalPdf = [
-    '%PDF-1.0',
-    '1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj',
-    '2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj',
-    '3 0 obj <</Type /Page /Parent 2 0 R /MediaBox [0 0 100 100]>> endobj',
-    'xref',
-    '0 4',
-    '0000000000 65535 f ',
-    '0000000009 00000 n ',
-    '0000000058 00000 n ',
-    '0000000115 00000 n ',
-    'trailer <</Size 4 /Root 1 0 R>>',
-    'startxref',
-    '190',
-    '%%EOF',
-  ].join('\n');
   const pdfPath = join(mockBatchScanner.imageDir, 'single-page.pdf');
-  fs.writeFileSync(pdfPath, minimalPdf);
+  fs.writeFileSync(pdfPath, SINGLE_PAGE_PDF);
 
   await apiClient.batchScannerLoadBallots({ paths: [pdfPath] });
   expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });

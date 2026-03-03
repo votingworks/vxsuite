@@ -18,7 +18,7 @@ async function insertAndScanSheet(mockScanner: MockScanner) {
   const listener = mockFunction('listener');
   mockScanner.client.addListener(listener);
 
-  expect(mockScanner.getSheetStatus()).toEqual('noSheet');
+  expect(mockScanner.getSheetStatus()).toEqual('noSheetEnabled');
   listener.expectCallWith({ event: 'scanStart' }).returns(undefined);
   listener
     .expectCallWith({ event: 'scanComplete', images: mockSheetImageDatas })
@@ -45,7 +45,7 @@ describe('mock scanner', () => {
     expect(await client.getScannerStatus()).toEqual(
       err({ code: 'disconnected' })
     );
-    expect(mockScanner.getSheetStatus()).toEqual('noSheet');
+    expect(mockScanner.getSheetStatus()).toEqual('noSheetDisabled');
 
     // Connect
     expect(await client.connect()).toEqual(ok());
@@ -68,7 +68,7 @@ describe('mock scanner', () => {
     client.addListener(listener);
 
     // Insert sheet to be scanned
-    expect(mockScanner.getSheetStatus()).toEqual('noSheet');
+    expect(mockScanner.getSheetStatus()).toEqual('noSheetEnabled');
     listener.expectCallWith({ event: 'scanStart' }).returns(undefined);
     listener
       .expectCallWith({ event: 'scanComplete', images: mockSheetImageDatas })
@@ -142,7 +142,7 @@ describe('mock scanner', () => {
         ),
       { interval: 500 }
     );
-    expect(mockScanner.getSheetStatus()).toEqual('noSheet');
+    expect(mockScanner.getSheetStatus()).toEqual('noSheetDisabled');
   });
 
   test('scan and return ballot, then cast', async () => {
@@ -180,7 +180,7 @@ describe('mock scanner', () => {
         ),
       { interval: 500 }
     );
-    expect(mockScanner.getSheetStatus()).toEqual('noSheet');
+    expect(mockScanner.getSheetStatus()).toEqual('noSheetDisabled');
   });
 
   test('disable scanning', async () => {
@@ -206,6 +206,6 @@ describe('mock scanner', () => {
 
     // Try to insert sheet - nothing should happen
     mockScanner.insertSheet(mockSheetImageDatas);
-    expect(mockScanner.getSheetStatus()).toEqual('noSheet');
+    expect(mockScanner.getSheetStatus()).toEqual('noSheetDisabled');
   });
 });
