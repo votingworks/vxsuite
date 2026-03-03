@@ -13,7 +13,7 @@ fi
 
 MOUNTPOINT=$1
 
-MOUNTPOINT_REGEX=^/media/[[:alnum:]\ -_]+/[[:alnum:]\ -_]+$
+MOUNTPOINT_REGEX='^/media/[[:alnum:]\ -_]+/[[:alnum:]\ -_]+$'
 
 if ! [[ "$MOUNTPOINT" =~ $MOUNTPOINT_REGEX ]]; then
     echo "unmount.sh: mount point \"${MOUNTPOINT}\" is not a valid mounted USB drive"

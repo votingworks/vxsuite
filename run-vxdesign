@@ -12,8 +12,10 @@ APP="${1}"
 . /root/.bashrc
 
 # Google Cloud looks for a credentials file at the path specified by the
-# GOOGLE_APPLICATION_CREDENTIALS env var
+# GOOGLE_APPLICATION_CREDENTIALS env var (set in the deployment environment).
+# shellcheck disable=SC2154
 mkdir -p "$(dirname "${GOOGLE_APPLICATION_CREDENTIALS}")"
+# shellcheck disable=SC2154
 echo "${GOOGLE_APPLICATION_CREDENTIALS_CONTENTS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
 
 if [[ "${APP}" == "web" ]]; then

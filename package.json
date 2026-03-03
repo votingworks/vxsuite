@@ -8,7 +8,8 @@
     "prepare": "husky install",
     "configure-env": "node libs/utils/build/scripts/generate_env_file.js",
     "configure-vxdev-env": "node libs/utils/build/scripts/generate_env_file.js --isVxDev -o /vx/config/.env.local",
-    "run-dev": "script/run-dev"
+    "run-dev": "script/run-dev",
+    "shellcheck": "script/shellcheck"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "^7.2.2",

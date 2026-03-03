@@ -11,8 +11,8 @@ if ! [[ $# -eq 1 ]]; then
     usage
 fi
 
-USB_DRIVE_DEVICE_REGEX=^/dev/sd[a-z][0-9]$
-LOOP_DEVICE_REGEX=^/dev/loop[0-9]p[0-9]$
+USB_DRIVE_DEVICE_REGEX='^/dev/sd[a-z][0-9]$'
+LOOP_DEVICE_REGEX='^/dev/loop[0-9]p[0-9]$'
 
 if ! [[ $1 =~ $USB_DRIVE_DEVICE_REGEX || $1 =~ $LOOP_DEVICE_REGEX ]]; then
     echo "mount.sh: device \"${1}\" is not a USB drive"
@@ -28,7 +28,7 @@ MOUNTPOINT=/media/vx/usb-drive
 # file picker will confusingly show multiple drives with the same name. Thus,
 # before mounting, we check for a (probably "phantom") mounted drive and
 # unmount it if it exists.
-if [[  $(findmnt) =~ "$MOUNTPOINT" ]]; then
+if [[  $(findmnt) =~ ${MOUNTPOINT} ]]; then
     SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
     "${SCRIPTS_DIRECTORY}/unmount.sh" "$MOUNTPOINT"
 fi

@@ -9,12 +9,12 @@ export NODE_ENV=development
 ./bin/generate-voters 10000 town ../fixtures/data/electionSimpleSinglePrecinct/voters.csv ../fixtures/data/electionSimpleSinglePrecinct/streetNames.csv 1
 ./bin/generate-voters 50000 city ../fixtures/data/electionMultiPartyPrimary/voters.csv ../fixtures/data/electionMultiPartyPrimary/streetNames.csv 5
 
-cd ../fixtures/data/electionSimpleSinglePrecinct
+cd ../fixtures/data/electionSimpleSinglePrecinct || exit
 rm -f pollbook-package-mock-town.zip
 zip pollbook-package-mock-town.zip voters.csv streetNames.csv election.json
-cd - > /dev/null
+cd - > /dev/null || exit
 
-cd ../fixtures/data/electionMultiPartyPrimary
+cd ../fixtures/data/electionMultiPartyPrimary || exit
 rm -f pollbook-package-large-city.zip
 zip pollbook-package-large-city.zip voters.csv streetNames.csv election.json
-cd - > /dev/null
+cd - > /dev/null || exit

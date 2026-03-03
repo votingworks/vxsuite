@@ -1354,6 +1354,20 @@ jobs:
             cargo test
 
 
+  shellcheck:
+    executor: nodejs
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Install shellcheck
+          command: |
+            apt-get update -qq && apt-get install -y --no-install-recommends shellcheck
+      - run:
+          name: Shellcheck
+          command: |
+            script/shellcheck
+
   validate-monorepo:
     executor: nodejs
     resource_class: xlarge
@@ -1431,6 +1445,7 @@ workflows:
       - test-libs-ui
       - test-libs-usb-drive
       - test-libs-utils
+      - shellcheck
       - validate-monorepo
       - test-rust-crates
 

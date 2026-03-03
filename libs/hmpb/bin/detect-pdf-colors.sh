@@ -51,7 +51,7 @@ for input in "${inputs[@]}"; do
   qpdf --qdf --object-streams=disable "$input" "$tmpfile"
 
   # Remove the tmpfile on exit.
-  trap "rm $tmpfile" exit
+  trap 'rm "$tmpfile"' EXIT
 
   echo "Scanning for color space usage in: $input"
   echo

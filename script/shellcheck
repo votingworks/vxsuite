@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Find all shell scripts tracked by git and run shellcheck on them.
+# Detects scripts by shebang so it catches scripts without a .sh extension.
+mapfile -t SCRIPTS < <(
+  git ls-files | while IFS= read -r f; do
+    head -1 "$f" 2>/dev/null | grep -qE '^#!/.*\b(bash|sh)$' && echo "$f" || true
+  done
+)
+
+if [[ "${#SCRIPTS[@]}" -eq 0 ]]; then
+  echo "No shell scripts found."
+  exit 0
+fi
+
+exec shellcheck \
+  --severity=warning \
+  --enable=all \
+  "${SCRIPTS[@]}"

@@ -7,7 +7,7 @@ usage () {
     exit 1
 }
 
-ROOT_DEVICE_REGEX=^/dev/sd[a-z]$
+ROOT_DEVICE_REGEX='^/dev/sd[a-z]$'
 
 DEVICE=${1:-}
 LABEL=${2:-}
