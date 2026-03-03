@@ -629,7 +629,7 @@ describe('PDI scanner mock', () => {
 
     mockApiClient.pdiScannerGetStatus.expectRepeatedCallsWith().resolves({
       sheetStatus: 'sheetInserted',
-      queue: { total: 1, scanned: 1 },
+      queue: { total: 1, inserted: 1 },
     });
     await waitFor(
       () => expect(insertBallotButton).toBeDisabled(),
@@ -645,7 +645,7 @@ describe('PDI scanner mock', () => {
 
     mockApiClient.pdiScannerGetStatus.expectRepeatedCallsWith().resolves({
       sheetStatus: 'sheetHeldInFront',
-      queue: { total: 1, scanned: 1 },
+      queue: { total: 1, inserted: 1 },
     });
     const removeBallotButton = await screen.findByRole(
       'button',
@@ -689,7 +689,7 @@ describe('PDI scanner mock', () => {
     // After insert, queue becomes active with multi-sheet progress
     mockApiClient.pdiScannerGetStatus.expectRepeatedCallsWith().resolves({
       sheetStatus: 'sheetInserted',
-      queue: { total: 5, scanned: 1 },
+      queue: { total: 5, inserted: 1 },
     });
 
     // Should show progress text and enabled clear button

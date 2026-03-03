@@ -854,7 +854,7 @@ function PdiScannerMockControl() {
     <ScannerControls>
       <strong>
         Scanner:{' '}
-        {queue && queue.total > 1 ? `${queue.scanned}/${queue.total}` : ''}
+        {queue && queue.total > 1 ? `${queue.inserted}/${queue.total}` : ''}
       </strong>
       {sheetStatus === 'sheetHeldInFront' ? (
         <ScannerButton

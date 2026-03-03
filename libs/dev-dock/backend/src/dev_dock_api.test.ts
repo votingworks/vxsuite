@@ -507,7 +507,7 @@ test('mock PDI scanner - single sheet', async () => {
     sheetStatus: 'sheetInserted',
     queue: {
       total: 1,
-      scanned: 1,
+      inserted: 1,
     },
   });
   await scanCompletePromise;
@@ -570,7 +570,7 @@ test(
     const initialStatus = await apiClient.pdiScannerGetStatus();
     expect(initialStatus.queue).toBeDefined();
     expect(initialStatus.queue!.total).toBeGreaterThan(1);
-    expect(initialStatus.queue!.scanned).toEqual(1);
+    expect(initialStatus.queue!.inserted).toEqual(1);
 
     // Wait for first sheet to complete scanning
     await backendWaitFor(() => expect(scanCompleteCount).toEqual(1), {
@@ -718,7 +718,7 @@ test('mock PDI scanner - odd-page PDF gets blank back', async () => {
   );
   expect((await apiClient.pdiScannerGetStatus()).queue).toEqual({
     total: 1,
-    scanned: 1,
+    inserted: 1,
   });
 });
 

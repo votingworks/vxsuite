@@ -34,6 +34,7 @@ import { writeFile } from 'node:fs/promises';
 import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
 import {
   createImageData,
+  getPdfPageCount,
   ImageData,
   loadImageMetadata,
   pdfToImages,
@@ -193,7 +194,7 @@ function getElection(devDockDir: string): Optional<DevDockElectionInfo> {
 
 interface PdiScannerSheetQueueStatus {
   total: number;
-  scanned: number;
+  inserted: number;
 }
 
 export interface PdiScannerStatus {
@@ -202,9 +203,10 @@ export interface PdiScannerStatus {
 }
 
 interface PdiScannerSheetQueueState {
-  queue: Array<SheetOf<ImageData>>;
-  index: number;
-  intervalId: ReturnType<typeof setInterval>;
+  sheetIterator: AsyncIterator<SheetOf<ImageData>>;
+  totalSheets: number;
+  sheetsInserted: number;
+  timeoutId: ReturnType<typeof setTimeout>;
 }
 
 function buildApi(devDockDir: string, mockSpec: MockSpec) {
@@ -376,8 +378,8 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       return {
         sheetStatus: assertDefined(mockSpec.mockPdiScanner).getSheetStatus(),
         queue: pdiScannerSheetQueue && {
-          total: pdiScannerSheetQueue.queue.length,
-          scanned: pdiScannerSheetQueue.index,
+          total: pdiScannerSheetQueue.totalSheets,
+          inserted: pdiScannerSheetQueue.sheetsInserted,
         },
       };
     },
@@ -391,35 +393,38 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       );
 
       const pdfData = Uint8Array.from(fs.readFileSync(input.path));
-      const sheets = await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
+      const pageCount = await getPdfPageCount(Uint8Array.from(pdfData));
+      const totalSheets = Math.ceil(pageCount / 2);
+      const sheetIterator = iter(pdfToImages(pdfData, { scale: 200 / 72 }))
         .map(({ page }) => page)
         .chunks(2)
         .map(([front, back]) =>
           asSheet([front, back ?? createImageData(front.width, front.height)])
         )
-        .toArray();
+        [Symbol.asyncIterator]();
 
-      function insertNextSheet(): void {
+      async function insertNextSheet(): Promise<void> {
         /* istanbul ignore next - @preserve */
         if (!pdiScannerSheetQueue) return;
-        if (mockPdiScanner.getSheetStatus() !== 'noSheetEnabled') return;
-
-        if (pdiScannerSheetQueue.index < pdiScannerSheetQueue.queue.length) {
-          mockPdiScanner.insertSheet(
-            assertDefined(
-              pdiScannerSheetQueue.queue[pdiScannerSheetQueue.index]
-            )
-          );
-          pdiScannerSheetQueue.index += 1;
-        } else {
-          clearInterval(pdiScannerSheetQueue.intervalId);
-          pdiScannerSheetQueue = undefined;
+        if (mockPdiScanner.getSheetStatus() === 'noSheetEnabled') {
+          const { done, value } =
+            await pdiScannerSheetQueue.sheetIterator.next();
+          if (done) {
+            pdiScannerSheetQueue = undefined;
+            return;
+          }
+          mockPdiScanner.insertSheet(value);
+          pdiScannerSheetQueue.sheetsInserted += 1;
         }
+        pdiScannerSheetQueue.timeoutId = setTimeout(insertNextSheet, 500);
       }
 
-      const intervalId = setInterval(insertNextSheet, 500);
-      pdiScannerSheetQueue = { queue: sheets, index: 0, intervalId };
-      insertNextSheet();
+      pdiScannerSheetQueue = {
+        sheetIterator,
+        totalSheets,
+        sheetsInserted: 0,
+        timeoutId: setTimeout(insertNextSheet, 0),
+      };
     },
 
     pdiScannerRemoveSheet(): void {
@@ -429,7 +434,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     pdiScannerClearSheetQueue(): void {
       /* istanbul ignore next - @preserve */
       if (!pdiScannerSheetQueue) return;
-      clearInterval(pdiScannerSheetQueue.intervalId);
+      clearTimeout(pdiScannerSheetQueue.timeoutId);
       pdiScannerSheetQueue = undefined;
 
       const mockPdiScanner = assertDefined(mockSpec.mockPdiScanner);
