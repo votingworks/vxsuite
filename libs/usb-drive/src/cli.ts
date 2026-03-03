@@ -1,5 +1,4 @@
 /* istanbul ignore file */
-import { sleep } from '@votingworks/basics';
 import { LogSource, Logger } from '@votingworks/logging';
 import { detectUsbDrive } from './usb_drive';
 import { UsbDrive } from './types';
@@ -9,12 +8,15 @@ async function printStatus(usbDrive: UsbDrive, stdout: NodeJS.WriteStream) {
   stdout.write(`${JSON.stringify(status)}\n`);
 }
 
-async function watchUsbDrive(usbDrive: UsbDrive): Promise<void> {
+async function watchUsbDrive(logger: Logger): Promise<void> {
   const { stdout } = process;
-  for (;;) {
-    await printStatus(usbDrive, stdout);
-    await sleep(1000);
-  }
+  // onRefreshFn is set synchronously after detectUsbDrive returns.
+  // Since doRefresh fires asynchronously, it's always defined when called.
+  let onRefreshFn: (() => Promise<void>) | undefined;
+  const usbDrive = detectUsbDrive(logger, () => void onRefreshFn?.());
+  onRefreshFn = () => printStatus(usbDrive, stdout);
+  // Wait until process is terminated (e.g. Ctrl+C)
+  await new Promise<never>(() => {});
 }
 
 const USAGE = `Usage: usb-drive status|eject|format|watch\n`;
@@ -22,9 +24,14 @@ const USAGE = `Usage: usb-drive status|eject|format|watch\n`;
 export async function main(args: string[]): Promise<number> {
   const { stdout, stderr } = process;
   const command = args[2];
-  const usbDrive = detectUsbDrive(
-    new Logger(LogSource.System, () => Promise.resolve('unknown'))
-  );
+  const logger = new Logger(LogSource.System, () => Promise.resolve('unknown'));
+
+  if (command === 'watch') {
+    await watchUsbDrive(logger);
+    return 0;
+  }
+
+  const usbDrive = detectUsbDrive(logger);
   switch (command) {
     case 'status': {
       await printStatus(usbDrive, stdout);
@@ -40,10 +47,6 @@ export async function main(args: string[]): Promise<number> {
       await usbDrive.format();
       stdout.write('Formatted\n');
       await printStatus(usbDrive, stdout);
-      break;
-    }
-    case 'watch': {
-      await watchUsbDrive(usbDrive);
       break;
     }
     case undefined: {
