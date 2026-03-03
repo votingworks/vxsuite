@@ -485,15 +485,10 @@ function Contest({
           <ContestHeader>
             <div>{contest.title}</div>
             <DualLanguageText delimiter="/">
-              <VoteFor>
-                {hmpbStrings.hmpbVoteForNotMoreThan1}
-              </VoteFor>
+              <VoteFor>{hmpbStrings.hmpbVoteForNotMoreThan1}</VoteFor>
             </DualLanguageText>
           </ContestHeader>
-          <StraightPartyContestContent
-            contest={contest}
-            election={election}
-          />
+          <StraightPartyContestContent contest={contest} election={election} />
         </Box>
       );
     default:

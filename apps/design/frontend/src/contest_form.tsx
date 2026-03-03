@@ -959,12 +959,12 @@ function draftContestFromContest(contest: AnyContest): DraftContest {
       };
     case 'yesno':
       return { ...contest };
+    /* istanbul ignore next - @preserve */
     case 'straight-party':
-      return { ...contest };
-    default: {
-      /* istanbul ignore next */
+      throw new Error('Straight-party contests are not editable');
+    /* istanbul ignore next - @preserve */
+    default:
       throwIllegalValue(contest, 'type');
-    }
   }
 }
 

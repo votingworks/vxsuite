@@ -121,7 +121,7 @@ export function getAllPossibleAdjudicationReasons(
     writeInAreaStatus: WriteInAreaStatus;
   }>,
   ballotStyle: BallotStyle,
-  parties?: Parties
+  parties: Parties
 ): AdjudicationReasonInfo[] {
   if (contests.length === 0) return [];
 

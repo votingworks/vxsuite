@@ -32,7 +32,7 @@ export function injectStraightPartyContest(election: Election): Election {
   const straightPartyContest: StraightPartyContest = {
     id: STRAIGHT_PARTY_CONTEST_ID,
     type: 'straight-party',
-    title: 'Straight Party',
+    title: 'Straight Party Ticket',
   };
 
   return {

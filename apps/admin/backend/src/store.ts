@@ -937,6 +937,13 @@ export class Store implements BaseStore {
       where
         ${whereParts.join(' and\n')}
       group by contestId, sortIndex
+
+      union
+
+      select contests.id as contestId, contests.sort_index as sortIndex
+      from contests
+      where contests.election_id = ? and contests.district_id is null
+
       order by sortIndex
     `;
 
@@ -946,7 +953,8 @@ export class Store implements BaseStore {
         electionId,
         electionId,
         electionId,
-        ...ballotStyleParams
+        ...ballotStyleParams,
+        electionId
       ) as Array<{
         contestId: ContestId;
       }>
