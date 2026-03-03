@@ -1358,21 +1358,25 @@ export class Store {
     const rows = this.client.all(
       `
       select
-        image,
-        side,
-        layout
-      from ballot_images
-      where cvr_id = ?
+        bi.side,
+        bi.layout,
+        e.election_data ->> 'id' as electionDefinitionId
+      from ballot_images bi
+      join cvrs c on c.id = bi.cvr_id
+      join elections e on e.id = c.election_id
+      where bi.cvr_id = ?
       `,
       cvrId
     ) as Array<{
-      image: Buffer;
       side: Side;
       layout?: string;
+      electionDefinitionId: string;
     }>;
 
     return rows.map((row) => ({
-      image: row.image,
+      image: readFileSync(
+        this.getBallotImageFilePath(row.electionDefinitionId, cvrId, row.side)
+      ),
       side: row.side,
       layout: row.layout
         ? safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap()
@@ -2109,7 +2113,7 @@ export class Store {
         const contestMarkScores = markScores?.[contest.id];
 
         const options: ContestOptionAdjudicationData[] = [
-          ...allContestOptions(contest, ballotStyleGroup),
+          ...allContestOptions(contest, ballotStyleGroup, election.parties),
         ].map((option) => {
           const key = `${contest.id}:${option.id}`;
           const initialVote = contestVotes.includes(option.id);
@@ -2150,8 +2154,28 @@ export class Store {
           contestId: contest.id,
           tag,
           options,
+          derivedOptionIds: [], // populated below after SP expansion
         };
       });
+
+    // 8. Compute straight-party derived votes
+    const effectiveVotes: Tabulation.Votes = {};
+    for (const contestData of contests) {
+      effectiveVotes[contestData.contestId] = contestData.options
+        .filter((o) => {
+          if (o.voteAdjudication) return o.voteAdjudication.isVote;
+          return o.initialVote;
+        })
+        .map((o) => o.definition.id);
+    }
+    const expandedVotes = applyStraightPartyRules(election, effectiveVotes);
+    for (const contestData of contests) {
+      const effective = new Set(effectiveVotes[contestData.contestId] ?? []);
+      const expanded = expandedVotes[contestData.contestId] ?? [];
+      contestData.derivedOptionIds = expanded.filter(
+        (id) => !effective.has(id)
+      );
+    }
 
     const tag = this.getCvrTag({ cvrId });
 

@@ -337,6 +337,7 @@ export interface ContestAdjudicationData {
   contestId: ContestId;
   tag: CvrContestTag | null;
   options: ContestOptionAdjudicationData[];
+  derivedOptionIds: ContestOptionId[];
 }
 
 /**

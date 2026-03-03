@@ -313,6 +313,22 @@ export function BallotAdjudicationScreen(): JSX.Element {
       AdjudicationReason.Undervote
     );
 
+  const spContestData = adjudicationContests.find((c) => {
+    const contestDef = election?.contests.find((ec) => ec.id === c.contestId);
+    return contestDef?.type === 'straight-party';
+  });
+  const spVotedOption = (() => {
+    if (!spContestData) return undefined;
+    const votedOptions = spContestData.options.filter((o) => {
+      if (o.voteAdjudication) return o.voteAdjudication.isVote;
+      return o.initialVote;
+    });
+    if (votedOptions.length !== 1) return undefined;
+    return votedOptions[0];
+  })();
+  const straightPartyName = spVotedOption?.definition.name;
+  const straightPartyId = spVotedOption?.definition.id;
+
   const allResolved = adjudicationContests.every(
     (c) => !c.tag || c.tag.isResolved
   );
@@ -417,6 +433,8 @@ export function BallotAdjudicationScreen(): JSX.Element {
         contestAdjudicationData={assertDefined(
           adjudicationContests.find((c) => c.contestId === selectedContestId)
         )}
+        straightPartyId={straightPartyId}
+        straightPartyName={straightPartyName}
         ballotImages={ballotImages}
       />
     );

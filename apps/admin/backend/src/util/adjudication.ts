@@ -1,5 +1,9 @@
 import { ContestId, Id, Rect } from '@votingworks/types';
-import { loadImageData, toDataUrl } from '@votingworks/image-utils';
+import {
+  loadImageData,
+  loadImageMetadata,
+  toDataUrl,
+} from '@votingworks/image-utils';
 import { assertDefined } from '@votingworks/basics';
 import { Store } from '../store';
 import { BallotImageView, BallotImages, BallotPageImage } from '../types';

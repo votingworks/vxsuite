@@ -13,6 +13,7 @@ import {
   ContestOptionId,
   getContestDistrictName,
   Id,
+  PartyId,
   Side,
 } from '@votingworks/types';
 import {
@@ -145,6 +146,42 @@ const ContestOptionButtonCaption = styled.span`
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
 
+const DerivedVoteCaption = styled.span`
+  color: ${(p) => p.theme.colors.onBackground};
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin: 0.25rem 0 0.25rem 0.125rem;
+`;
+
+const CaptionGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0.25rem 0 0.25rem 0.125rem;
+
+  ${ContestOptionButtonCaption},
+  ${DerivedVoteCaption} {
+    margin: 0;
+  }
+`;
+
+// Derived vote button: containerLow bg, primary text/icon, primary border.
+// Alternative considered: primaryContainer bg, onBackground text/icon, outline border.
+const DerivedVoteButton = styled(Button)`
+  background-color: ${(p) => p.theme.colors.containerLow};
+  border: 2px solid ${(p) => p.theme.colors.primary};
+  color: ${(p) => p.theme.colors.primary};
+  flex-wrap: nowrap;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
+  justify-content: start;
+  padding-left: 0.5rem;
+  text-align: left;
+
+  svg {
+    color: ${(p) => p.theme.colors.primary};
+  }
+`;
+
 const ContestTitleDiv = styled.div`
   display: flex;
   flex-direction: column;
@@ -227,6 +264,8 @@ interface ContestAdjudicationScreenProps {
   contestAdjudicationData: ContestAdjudicationData;
   cvrId: Id;
   onClose: () => void;
+  straightPartyId?: PartyId;
+  straightPartyName?: string;
   ballotImages: BallotImages;
   side: Side;
 }
@@ -235,6 +274,8 @@ export function ContestAdjudicationScreen({
   onClose,
   contestAdjudicationData,
   cvrId,
+  straightPartyId,
+  straightPartyName,
   ballotImages,
   side,
 }: ContestAdjudicationScreenProps): JSX.Element {
@@ -313,6 +354,42 @@ export function ContestAdjudicationScreen({
         }
   );
 
+  // Compute derived options locally based on SP party and current vote state.
+  // This replaces the backend-provided derivedOptionIds so that changes are
+  // reflected immediately as the adjudicator toggles votes.
+  const derivedOptionIdSet = useMemo(() => {
+    if (!straightPartyId || !isCandidateContest || !isStateReady) {
+      return new Set<ContestOptionId>();
+    }
+    const partyOptionIds = contest.candidates
+      .filter((c) => !c.isWriteIn && c.partyIds?.includes(straightPartyId))
+      .map((c) => c.id);
+    const currentVoteIds = officialOptions
+      .filter((o) => getOptionHasVote(o.id))
+      .map((o) => o.id);
+    const writeInVoteCount = writeInOptionIds.filter((id) =>
+      getOptionHasVote(id)
+    ).length;
+    const totalVotes = currentVoteIds.length + writeInVoteCount;
+    const remainingSeats = contest.seats - totalVotes;
+    const unselectedPartyOptions = partyOptionIds.filter(
+      (id) => !currentVoteIds.includes(id)
+    );
+    // Only expand if deterministic: all unselected party candidates fit
+    if (remainingSeats <= 0 || unselectedPartyOptions.length > remainingSeats) {
+      return new Set<ContestOptionId>();
+    }
+    return new Set(unselectedPartyOptions);
+  }, [
+    straightPartyId,
+    isCandidateContest,
+    isStateReady,
+    contest,
+    officialOptions,
+    writeInOptionIds,
+    getOptionHasVote,
+  ]);
+
   // Vote and write-in state for adjudication management
   const [focusedOptionId, setFocusedOptionId] = useState<string>();
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
@@ -350,8 +427,9 @@ export function ContestAdjudicationScreen({
   const writeInCandidates = writeInCandidatesQuery.data;
 
   const seatCount = isCandidateContest ? contest.seats : 1;
-  const isOvervote = isStateReady ? voteCount > seatCount : false;
-  const isUndervote = isStateReady ? voteCount < seatCount : false;
+  const effectiveVoteCount = voteCount + derivedOptionIdSet.size;
+  const isOvervote = isStateReady ? effectiveVoteCount > seatCount : false;
+  const isUndervote = isStateReady ? effectiveVoteCount < seatCount : false;
 
   const allowSaveWithoutChanges =
     tag !== null &&
@@ -481,7 +559,8 @@ export function ContestAdjudicationScreen({
               Votes cast:{' '}
               {isStateReady && (
                 <React.Fragment>
-                  {format.count(voteCount)} of {format.count(seatCount)}
+                  {format.count(effectiveVoteCount)} of{' '}
+                  {format.count(seatCount)}
                 </React.Fragment>
               )}
             </MediumText>
@@ -509,11 +588,54 @@ export function ContestAdjudicationScreen({
                 );
                 const originalVote = optionForAdjudication.initialVote;
                 const currentVote = getOptionHasVote(optionId);
+                const isDerived = derivedOptionIdSet.has(optionId);
                 const optionLabel = isCandidateContest
                   ? (officialOption as Candidate).name
                   : officialOption.name;
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
+
+                const adjudicationCaption = renderContestOptionButtonCaption({
+                  originalVote,
+                  currentVote,
+                  isWriteIn: false,
+                  marginalMarkStatus,
+                });
+                const spCaption = isDerived ? (
+                  <DerivedVoteCaption>
+                    Straight party vote applied:{' '}
+                    {straightPartyName ?? 'Unknown'}
+                  </DerivedVoteCaption>
+                ) : null;
+                const combinedCaption =
+                  adjudicationCaption || spCaption ? (
+                    <CaptionGroup>
+                      {adjudicationCaption}
+                      {spCaption}
+                    </CaptionGroup>
+                  ) : null;
+
+                if (isDerived && !currentVote) {
+                  return (
+                    <div
+                      key={optionId + cvrId}
+                      style={{ display: 'flex', flexDirection: 'column' }}
+                    >
+                      <DerivedVoteButton
+                        role="checkbox"
+                        aria-checked
+                        fill="outlined"
+                        color="neutral"
+                        onPress={() => setOptionHasVote(optionId, true)}
+                        icon={<Icons.Checkbox filled={false} />}
+                      >
+                        {optionLabel}
+                      </DerivedVoteButton>
+                      {combinedCaption}
+                    </div>
+                  );
+                }
+
                 return (
                   <ContestOptionButton
                     key={optionId + cvrId}
@@ -539,12 +661,7 @@ export function ContestAdjudicationScreen({
                       (!currentVote &&
                         selectedCandidateNames.includes(optionLabel))
                     }
-                    caption={renderContestOptionButtonCaption({
-                      originalVote,
-                      currentVote,
-                      isWriteIn: false,
-                      marginalMarkStatus,
-                    })}
+                    caption={combinedCaption}
                   />
                 );
               })}

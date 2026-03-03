@@ -31,8 +31,14 @@ const ResolvedCaption = styled(EntityList.Caption)`
   color: ${DesktopPalette.Purple70};
 `;
 
+const StraightPartyCaption = styled(EntityList.Caption)`
+  color: ${(p) => p.theme.colors.onBackground};
+`;
+
 function getVotesAllowed(contest: AnyContest): number {
-  return contest.type === 'yesno' ? 1 : contest.seats;
+  return contest.type === 'yesno' || contest.type === 'straight-party'
+    ? 1
+    : contest.seats;
 }
 
 /**
@@ -197,6 +203,29 @@ export interface AdjudicationContestListProps {
   onSelectSide: (side: Side) => void;
 }
 
+interface StraightPartyStatus {
+  text: string;
+  isChanged: boolean;
+}
+
+function getStraightPartyStatus(
+  contestData: ContestAdjudicationData
+): StraightPartyStatus {
+  const originalVoteCount = contestData.options.filter(
+    (o) => o.initialVote
+  ).length;
+  const votedOptions = contestData.options.filter((o) => getAdjudicatedVote(o));
+  const isChanged = votedOptions.length !== originalVoteCount;
+
+  if (votedOptions.length === 1) {
+    return {
+      text: `Straight party vote applied: ${votedOptions[0].definition.name}`,
+      isChanged,
+    };
+  }
+  return { text: 'Straight party vote not applied', isChanged };
+}
+
 function ContestSublist({
   contests,
   election,
@@ -204,6 +233,7 @@ function ContestSublist({
   adjudicationContestsByContestId,
   writeInCandidateNames,
   showUndervoteTransitions,
+  straightPartyStatus,
   onSelect,
   onHover,
   title,
@@ -217,6 +247,7 @@ function ContestSublist({
   adjudicationContestsByContestId: Map<ContestId, ContestAdjudicationData>;
   writeInCandidateNames: Map<string, string>;
   showUndervoteTransitions: boolean;
+  straightPartyStatus?: StraightPartyStatus;
   onSelect: (contestId: ContestId) => void;
   onHover?: (contestId: ContestId | null) => void;
   title: string;
@@ -304,6 +335,17 @@ function ContestSublist({
                       &bull; {bullet}
                     </ResolvedCaption>
                   ))}
+                {contest.type === 'straight-party' &&
+                  straightPartyStatus &&
+                  (straightPartyStatus.isChanged ? (
+                    <ResolvedCaption weight="semiBold">
+                      {straightPartyStatus.text}
+                    </ResolvedCaption>
+                  ) : (
+                    <StraightPartyCaption>
+                      {straightPartyStatus.text}
+                    </StraightPartyCaption>
+                  ))}
               </Column>
               {isPending && <Icons.Warning color="warning" />}
             </EntityList.Item>
@@ -341,6 +383,14 @@ export function AdjudicationContestList(
     adjudicationContests.map((c) => [c.contestId, c])
   );
 
+  const spContest = allContests.find((c) => c.type === 'straight-party');
+  const spContestData = spContest
+    ? adjudicationContestsByContestId.get(spContest.id)
+    : undefined;
+  const straightPartyStatus = spContestData
+    ? getStraightPartyStatus(spContestData)
+    : undefined;
+
   return (
     <EntityList.Box>
       {frontContests.length > 0 && (
@@ -351,6 +401,7 @@ export function AdjudicationContestList(
           adjudicationContestsByContestId={adjudicationContestsByContestId}
           writeInCandidateNames={writeInCandidateNames}
           showUndervoteTransitions={showUndervoteTransitions}
+          straightPartyStatus={straightPartyStatus}
           onSelect={onSelect}
           onHover={onHover}
           title="Front"
@@ -367,6 +418,7 @@ export function AdjudicationContestList(
           adjudicationContestsByContestId={adjudicationContestsByContestId}
           writeInCandidateNames={writeInCandidateNames}
           showUndervoteTransitions={showUndervoteTransitions}
+          straightPartyStatus={straightPartyStatus}
           onSelect={onSelect}
           onHover={onHover}
           title="Back"

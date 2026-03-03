@@ -42,6 +42,8 @@ import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 import { AdjudicationStartScreen } from '../screens/adjudication_start_screen';
 import { BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen';
 import { ContestAdjudicationScreenOld } from '../screens/contest_adjudication_screen_old';
+import { DerivedVotePrototype } from '../screens/derived_vote_prototype';
+import { ContestListPrototype } from '../screens/contest_list_prototype';
 
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -136,6 +138,12 @@ export function AppRoutes(): JSX.Element | null {
     <Switch>
       <Route exact path={routerPaths.election}>
         <ElectionScreen />
+      </Route>
+      <Route exact path="/prototype/derived-votes">
+        <DerivedVotePrototype />
+      </Route>
+      <Route exact path="/prototype/contest-list">
+        <ContestListPrototype />
       </Route>
       {isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
