@@ -17,6 +17,7 @@ import {
   readFromMockFile as readFromCardMockFile,
 } from '@votingworks/auth';
 import {
+  getMockStateRootDir,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
   openZip,
@@ -62,35 +63,32 @@ export interface DevDockElectionInfo {
 export const DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH =
   './libs/fixtures/data/electionGeneral/election.json';
 
-// Convert paths relative to the VxSuite root to absolute paths
-export function electionPathToAbsolute(path: string): string {
-  return isAbsolute(path)
-    ? /* istanbul ignore next */
-      path
-    : join(__dirname, '../../../..', path);
-}
-
-function electionAbsolutePathToRelative(absolutePath: string): string {
-  return `./${relative(join(__dirname, '../../../..'), absolutePath)}`;
-}
-
 const MOCK_CARD_SCRIPT_PATH = join(
   __dirname,
   '../../../auth/scripts/mock-card'
 );
 
-// Create a stable directory for dev-dock data
-export const DEFAULT_DEV_DOCK_DIR = join(homedir(), '.vx-dev-dock');
+// The repo root is 4 levels up from this file's directory
+// (libs/dev-dock/backend/src -> libs/dev-dock/backend -> libs/dev-dock -> libs -> repo root)
+const REPO_ROOT = join(__dirname, '../../../..');
+
+// Directory for dev-dock mock state, namespaced by NODE_ENV for worktree isolation
+export const DEFAULT_DEV_DOCK_DIR = getMockStateRootDir(REPO_ROOT);
+
+// Convert paths relative to the VxSuite root to absolute paths
+export function electionPathToAbsolute(path: string): string {
+  return isAbsolute(path)
+    ? /* istanbul ignore next */
+      path
+    : join(REPO_ROOT, path);
+}
+
+function electionAbsolutePathToRelative(absolutePath: string): string {
+  return `./${relative(REPO_ROOT, absolutePath)}`;
+}
+
 export const DEV_DOCK_FILE_NAME = 'dev-dock.json';
-export const DEFAULT_DEV_DOCK_FILE_PATH = join(
-  DEFAULT_DEV_DOCK_DIR,
-  DEV_DOCK_FILE_NAME
-);
 export const DEV_DOCK_ELECTION_FILE_NAME = 'election.json';
-export const DEV_DOCK_ELECTION_PATH = join(
-  DEFAULT_DEV_DOCK_DIR,
-  'election.json'
-);
 interface DevDockFileContents {
   electionInfo?: DevDockElectionInfo;
 }

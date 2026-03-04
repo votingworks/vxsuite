@@ -1,5 +1,6 @@
 import { DEV_MACHINE_ID, unsafeParse } from '@votingworks/types';
 import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
+import { isIntegrationTest } from '@votingworks/utils';
 import { z } from 'zod/v4';
 
 const NodeEnvSchema = z.union([
@@ -25,10 +26,12 @@ const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
 
 const DEFAULT_ALLOWED_EXPORT_PATTERNS =
   NODE_ENV === 'production'
-    ? [REAL_USB_DRIVE_GLOB_PATTERN]
+    ? isIntegrationTest()
+      ? [REAL_USB_DRIVE_GLOB_PATTERN, DEV_MOCK_USB_DRIVE_GLOB_PATTERN]
+      : [REAL_USB_DRIVE_GLOB_PATTERN]
     : NODE_ENV === 'development'
     ? [REAL_USB_DRIVE_GLOB_PATTERN, DEV_MOCK_USB_DRIVE_GLOB_PATTERN]
-    : ['/tmp/**/*']; // Where mock USB drives are created within tests
+    : ['/tmp/**/*', DEV_MOCK_USB_DRIVE_GLOB_PATTERN]; // Where mock USB drives are created within tests
 
 /**
  * Where are exported files allowed to be written to?

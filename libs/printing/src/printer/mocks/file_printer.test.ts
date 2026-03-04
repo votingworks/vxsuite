@@ -1,11 +1,18 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+} from 'node:fs';
 import { sleep } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 import { PrinterStatus } from '@votingworks/types';
 import {
-  DEFAULT_MOCK_PRINTER_DIR,
+  MOCK_HP_PRINTER_DIR,
+  MOCK_PRINTER_OUTPUT_DIR,
   MockFilePrinter,
   getMockFilePrinterHandler,
 } from './file_printer';
@@ -53,13 +60,18 @@ test('mock file printer', async () => {
 
   await filePrinter.print({ data: Buffer.from('print-2') });
 
-  expect(filePrinterHandler.getDataPath()).toEqual('/tmp/mock-printer/prints');
-  expect(readdirSync(filePrinterHandler.getDataPath())).toEqual([
-    'print-job-2021-01-01T00:00:00.000Z.pdf',
-    'print-job-2021-01-01T00:00:01.000Z.pdf',
-  ]);
+  expect(filePrinterHandler.getDataPath()).toEqual(MOCK_PRINTER_OUTPUT_DIR);
+  // Use arrayContaining because the prints/ directory is shared across printer
+  // mocks and other test suites may write to it concurrently
+  const printFiles = readdirSync(filePrinterHandler.getDataPath());
+  expect(printFiles).toEqual(
+    expect.arrayContaining([
+      'print-job-2021-01-01T00:00:00.000Z.pdf',
+      'print-job-2021-01-01T00:00:01.000Z.pdf',
+    ])
+  );
   expect(filePrinterHandler.getLastPrintPath()).toEqual(
-    '/tmp/mock-printer/prints/print-job-2021-01-01T00:00:01.000Z.pdf'
+    `${MOCK_PRINTER_OUTPUT_DIR}/print-job-2021-01-01T00:00:01.000Z.pdf`
   );
 
   expect(readFileSync(filePrinterHandler.getLastPrintPath()!, 'utf-8')).toEqual(
@@ -75,7 +87,7 @@ test('mock file printer', async () => {
   );
 
   filePrinterHandler.cleanup();
-  expect(existsSync(DEFAULT_MOCK_PRINTER_DIR)).toEqual(false);
+  expect(existsSync(MOCK_HP_PRINTER_DIR)).toEqual(false);
 });
 
 async function createTestPdf(pageCount: number): Promise<Uint8Array> {
@@ -131,4 +143,23 @@ test('two-sided printing does not insert blank pages', async () => {
   const outputPath = handler.getLastPrintPath()!;
   const outputPdf = await PDFDocument.load(readFileSync(outputPath));
   expect(outputPdf.getPageCount()).toEqual(2);
+});
+
+test('trimOldPrints removes oldest files when over 100', () => {
+  // Seed the prints directory with 101 files directly
+  mkdirSync(MOCK_PRINTER_OUTPUT_DIR, { recursive: true });
+  for (let i = 0; i < 101; i += 1) {
+    writeFileSync(
+      `${MOCK_PRINTER_OUTPUT_DIR}/print-job-${i
+        .toString()
+        .padStart(3, '0')}.pdf`,
+      'data'
+    );
+  }
+  expect(readdirSync(MOCK_PRINTER_OUTPUT_DIR)).toHaveLength(101);
+
+  // getMockFilePrinterHandler calls trimOldPrints internally
+  getMockFilePrinterHandler();
+
+  expect(readdirSync(MOCK_PRINTER_OUTPUT_DIR)).toHaveLength(100);
 });

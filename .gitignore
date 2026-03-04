@@ -28,3 +28,6 @@ junit.xml
 *~
 *.swp
 *.swo
+
+# Mock state files (namespaced by NODE_ENV for worktree isolation)
+/.mock-state

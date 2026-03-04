@@ -7,25 +7,23 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { Optional, assert } from '@votingworks/basics';
+import { getMockStateRootDir } from '@votingworks/utils';
 import { join } from 'node:path';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive, UsbDriveStatus } from '../types';
 
 export const MOCK_USB_DRIVE_STATE_FILENAME = 'mock-usb-state.json';
 export const MOCK_USB_DRIVE_DATA_DIRNAME = 'mock-usb-data';
-export const DEFAULT_MOCK_USB_DRIVE_DIR = '/tmp/mock-usb';
-export const DEV_MOCK_USB_DRIVE_DIR = join(__dirname, '../../dev-workspace');
-export const DEV_MOCK_USB_DRIVE_GLOB_PATTERN = join(
-  DEV_MOCK_USB_DRIVE_DIR,
-  '**/*'
+// libs/usb-drive/src/mocks/ is 4 levels below the repo root
+const REPO_ROOT = join(__dirname, '../../../..');
+export const MOCK_USB_DRIVE_DIR = join(
+  getMockStateRootDir(REPO_ROOT),
+  'usb-drive'
 );
+export const DEV_MOCK_USB_DRIVE_GLOB_PATTERN = join(MOCK_USB_DRIVE_DIR, '**/*');
 
 function getMockUsbDirPath(): string {
-  if (process.env.NODE_ENV === 'development') {
-    return DEV_MOCK_USB_DRIVE_DIR;
-  }
-
-  return DEFAULT_MOCK_USB_DRIVE_DIR;
+  return MOCK_USB_DRIVE_DIR;
 }
 
 interface MockStateFileContents {

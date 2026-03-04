@@ -4,7 +4,8 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { err, ok } from '@votingworks/basics';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import {
-  DEFAULT_MOCK_FUJITSU_PRINTER_DIR,
+  MOCK_FUJITSU_PRINTER_DIR,
+  MOCK_PRINTER_OUTPUT_DIR,
   MockFileFujitsuPrinter,
   getMockFileFujitsuPrinterHandler,
 } from './file_printer';
@@ -89,12 +90,15 @@ test('successful printing', async () => {
   const print2Promise = filePrinter.printPdf(Uint8Array.of(4, 5, 6));
   expect(await print2Promise).toEqual(ok());
 
-  expect(filePrinterHandler.getDataPath()).toEqual(
-    '/tmp/mock-fujitsu-printer/prints'
-  );
+  expect(filePrinterHandler.getDataPath()).toEqual(MOCK_PRINTER_OUTPUT_DIR);
   expect(readdirSync(filePrinterHandler.getDataPath())).toHaveLength(2);
   expect(filePrinterHandler.getLastPrintPath()).toMatch(
-    /\/tmp\/mock-fujitsu-printer\/prints\/print-job-.*\.pdf/
+    new RegExp(
+      String.raw`${MOCK_PRINTER_OUTPUT_DIR.replace(
+        /\./g,
+        String.raw`\.`
+      )}/print-job-.*\.pdf`
+    )
   );
 
   expect(readFileSync(filePrinterHandler.getLastPrintPath()!)).toEqual(
@@ -102,7 +106,7 @@ test('successful printing', async () => {
   );
 
   filePrinterHandler.cleanup();
-  expect(existsSync(DEFAULT_MOCK_FUJITSU_PRINTER_DIR)).toEqual(false);
+  expect(existsSync(MOCK_FUJITSU_PRINTER_DIR)).toEqual(false);
   expect(logger.log).toBeCalledTimes(4);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PrinterPrintRequest,
