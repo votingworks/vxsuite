@@ -336,6 +336,11 @@ fn parse_color(value: &str) -> Option<Color> {
                     u8::from_str_radix(&hex[2..4], 16).ok()?,
                     u8::from_str_radix(&hex[4..6], 16).ok()?,
                 )
+            } else if hex.len() == 3 {
+                let r = u8::from_str_radix(&hex[0..1], 16).ok()?;
+                let g = u8::from_str_radix(&hex[1..2], 16).ok()?;
+                let b = u8::from_str_radix(&hex[2..3], 16).ok()?;
+                (r << 4 | r, g << 4 | g, b << 4 | b)
             } else {
                 return None;
             };

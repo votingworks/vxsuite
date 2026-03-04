@@ -8,6 +8,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 base64.workspace = true
+image.workspace = true
 krilla.workspace = true
 krilla-svg.workspace = true
 napi.workspace = true
@@ -17,6 +18,10 @@ rustybuzz.workspace = true
 taffy.workspace = true
 ttf-parser.workspace = true
 unicode-linebreak.workspace = true
+
+[[bin]]
+name = "compare-pdfs"
+path = "src/bin/compare_pdfs.rs"
 
 [build-dependencies]
 napi-build.workspace = true

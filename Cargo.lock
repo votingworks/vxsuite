@@ -2322,6 +2322,7 @@ name = "pdf-renderer"
 version = "0.0.0"
 dependencies = [
  "base64",
+ "image",
  "krilla",
  "krilla-svg",
  "napi",
