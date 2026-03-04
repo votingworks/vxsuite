@@ -26,7 +26,6 @@ clap = { workspace = true }
 color-eyre = { workspace = true }
 crossterm = { workspace = true }
 image = { workspace = true }
-imageproc = { workspace = true }
 log = { workspace = true }
 neon = { workspace = true }
 rayon = { workspace = true }

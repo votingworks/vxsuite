@@ -409,11 +409,57 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
     streaks
 }
 
+/// Computes Otsu's threshold for a grayscale image.
+pub(crate) fn otsu_level(image: &GrayImage) -> u8 {
+    let mut hist = [0u32; 256];
+    for &p in image.as_raw() {
+        hist[p as usize] += 1;
+    }
+    let total = f64::from(image.width()) * f64::from(image.height());
+    let sum: f64 = hist
+        .iter()
+        .enumerate()
+        .map(|(i, &c)| i as f64 * f64::from(c))
+        .sum();
+    let mut sum_b = 0.0f64;
+    let mut w_b = 0.0f64;
+    let mut max_var = 0.0f64;
+    let mut threshold = 0u8;
+    for (t, &count) in hist.iter().enumerate() {
+        w_b += f64::from(count);
+        if w_b == 0.0 {
+            continue;
+        }
+        let w_f = total - w_b;
+        if w_f == 0.0 {
+            break;
+        }
+        sum_b += t as f64 * f64::from(count);
+        let m_b = sum_b / w_b;
+        let m_f = (sum - sum_b) / w_f;
+        let var = w_b * w_f * (m_b - m_f).powi(2);
+        if var > max_var {
+            max_var = var;
+            threshold = t as u8;
+        }
+    }
+    threshold
+}
+
+/// Applies a binary threshold to a grayscale image.
+///
+/// Pixels with value `<= thresh` become 0 (black); others become 255 (white).
+pub(crate) fn threshold(image: &GrayImage, thresh: u8) -> GrayImage {
+    GrayImage::from_fn(image.width(), image.height(), |x, y| {
+        let p = image.get_pixel(x, y)[0];
+        Luma([if p <= thresh { 0u8 } else { 255u8 }])
+    })
+}
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod test {
     use super::*;
-    use imageproc::contrast::otsu_level;
     use std::io::Cursor;
 
     #[test]

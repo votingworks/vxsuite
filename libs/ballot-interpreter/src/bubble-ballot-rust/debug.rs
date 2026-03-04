@@ -3,12 +3,12 @@
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
-use ab_glyph::{FontRef, PxScale};
-use image::{imageops::rotate180, DynamicImage, GrayImage, Rgb, RgbImage};
-use imageproc::drawing::{
+use crate::draw_utils::{
     draw_cross_mut, draw_filled_rect_mut, draw_hollow_rect_mut, draw_line_segment_mut,
     draw_text_mut, text_size,
 };
+use ab_glyph::{FontRef, PxScale};
+use image::{imageops::rotate180, DynamicImage, GrayImage, Rgb, RgbImage};
 use log::debug;
 use types_rs::election::GridPosition;
 use types_rs::geometry::{
@@ -16,11 +16,6 @@ use types_rs::geometry::{
 };
 
 use crate::ballot_card::Geometry;
-
-#[must_use]
-pub fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
-    imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
-}
 
 use crate::image_utils::{dark_rainbow, rainbow, VerticalStreak, BLACK};
 use crate::layout::InterpretedContestLayout;
@@ -46,7 +41,7 @@ pub fn draw_qr_code_debug_image_mut(
     detection_areas: &[Rect],
 ) {
     for detection_area in detection_areas {
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(detection_area), ORANGE);
+        draw_hollow_rect_mut(canvas, *detection_area, ORANGE);
     }
 
     match qr_code {
@@ -55,11 +50,7 @@ pub fn draw_qr_code_debug_image_mut(
             let font = monospace_font();
             let fg = WHITE_RGB;
             let bg = DARK_GREEN;
-            draw_hollow_rect_mut(
-                canvas,
-                imageproc_rect_from_rect(&qr_code.bounds()),
-                DARK_GREEN,
-            );
+            draw_hollow_rect_mut(canvas, qr_code.bounds(), DARK_GREEN);
             draw_text_with_background_mut(
                 canvas,
                 &format!("QR code: {:x?}", qr_code.bytes()),
@@ -167,9 +158,9 @@ pub fn draw_candidate_timing_marks_debug_image_mut(
         if mark.scores().mark_score() < minimum_mark_score
             || mark.scores().padding_score() < minimum_padding_score
         {
-            draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+            draw_hollow_rect_mut(canvas, *mark.rect(), color);
         } else {
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+            draw_filled_rect_mut(canvas, *mark.rect(), color);
         }
 
         let center = mark.rect().center();
@@ -297,7 +288,7 @@ pub fn draw_timing_mark_debug_image_mut(
         }
         text_rects.push(text_rect);
 
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), TOP_COLOR);
+        draw_filled_rect_mut(canvas, *mark.rect(), TOP_COLOR);
         draw_text_mut(
             canvas,
             DARK_GREEN,
@@ -330,7 +321,7 @@ pub fn draw_timing_mark_debug_image_mut(
         }
         text_rects.push(text_rect);
 
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), BOTTOM_COLOR);
+        draw_filled_rect_mut(canvas, *mark.rect(), BOTTOM_COLOR);
         draw_text_mut(
             canvas,
             DARK_BLUE,
@@ -346,7 +337,7 @@ pub fn draw_timing_mark_debug_image_mut(
         let center = mark.rect().center();
         let text = format!("{i}");
         let (_, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), LEFT_COLOR);
+        draw_filled_rect_mut(canvas, *mark.rect(), LEFT_COLOR);
         draw_text_mut(
             canvas,
             DARK_RED,
@@ -363,7 +354,7 @@ pub fn draw_timing_mark_debug_image_mut(
         let center = mark.rect().center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), RIGHT_COLOR);
+        draw_filled_rect_mut(canvas, *mark.rect(), RIGHT_COLOR);
         draw_text_mut(
             canvas,
             DARK_CYAN,
@@ -377,29 +368,13 @@ pub fn draw_timing_mark_debug_image_mut(
         );
     }
 
-    draw_filled_rect_mut(
-        canvas,
-        imageproc_rect_from_rect(timing_marks.top_left_mark.rect()),
-        CORNER_COLOR,
-    );
+    draw_filled_rect_mut(canvas, *timing_marks.top_left_mark.rect(), CORNER_COLOR);
 
-    draw_filled_rect_mut(
-        canvas,
-        imageproc_rect_from_rect(timing_marks.top_right_mark.rect()),
-        CORNER_COLOR,
-    );
+    draw_filled_rect_mut(canvas, *timing_marks.top_right_mark.rect(), CORNER_COLOR);
 
-    draw_filled_rect_mut(
-        canvas,
-        imageproc_rect_from_rect(timing_marks.bottom_left_mark.rect()),
-        CORNER_COLOR,
-    );
+    draw_filled_rect_mut(canvas, *timing_marks.bottom_left_mark.rect(), CORNER_COLOR);
 
-    draw_filled_rect_mut(
-        canvas,
-        imageproc_rect_from_rect(timing_marks.bottom_right_mark.rect()),
-        CORNER_COLOR,
-    );
+    draw_filled_rect_mut(canvas, *timing_marks.bottom_right_mark.rect(), CORNER_COLOR);
 
     draw_cross_mut(
         canvas,
@@ -590,7 +565,7 @@ pub fn draw_corner_match_info_debug_image_mut(
             Corner::BottomLeft => LEFT_COLOR,
             Corner::BottomRight => BOTTOM_COLOR,
         };
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+        draw_hollow_rect_mut(canvas, *mark.rect(), color);
         let scale = PxScale::from(12.0);
         let font = monospace_font();
         let text = format!(
@@ -797,12 +772,12 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
 
             draw_hollow_rect_mut(
                 canvas,
-                imageproc_rect_from_rect(&scored_bubble_mark.expected_bounds),
+                scored_bubble_mark.expected_bounds,
                 original_bubble_color,
             );
             draw_hollow_rect_mut(
                 canvas,
-                imageproc_rect_from_rect(&scored_bubble_mark.matched_bounds),
+                scored_bubble_mark.matched_bounds,
                 matched_bubble_color,
             );
         }
@@ -927,11 +902,7 @@ pub fn draw_contest_layouts_debug_image_mut(
                 WHITE_RGB,
                 color,
             );
-            draw_hollow_rect_mut(
-                canvas,
-                imageproc_rect_from_rect(&option_layout.bounds),
-                color,
-            );
+            draw_hollow_rect_mut(canvas, option_layout.bounds, color);
         }
     }
 }
@@ -951,7 +922,9 @@ fn draw_text_with_background_mut(
 
     draw_filled_rect_mut(
         canvas,
-        imageproc::rect::Rect::at(x, y).of_size(
+        Rect::new(
+            x,
+            y,
             text_width as PixelUnit,
             (text_height as f32 * 1.3) as PixelUnit,
         ),
@@ -989,11 +962,11 @@ fn draw_legend(canvas: &mut RgbImage, colored_labels: &[(Rgb<u8>, &str)], origin
 
 pub fn draw_diagnostic_cells(canvas: &mut RgbImage, passed_cells: &[Rect], failed_cells: &[Rect]) {
     for cell in passed_cells {
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(cell), GREEN);
+        draw_hollow_rect_mut(canvas, *cell, GREEN);
     }
 
     for cell in failed_cells {
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(cell), RED);
+        draw_hollow_rect_mut(canvas, *cell, RED);
     }
 }
 

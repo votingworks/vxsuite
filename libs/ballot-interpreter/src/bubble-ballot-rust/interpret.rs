@@ -20,6 +20,7 @@ use crate::ballot_card::Geometry;
 use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
 use crate::debug::draw_timing_mark_debug_image_mut;
+use crate::image_utils::threshold;
 use crate::image_utils::Inset;
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::ScoredBubbleMarks;
@@ -441,7 +442,7 @@ pub fn ballot_card(
     };
 
     let normalized_images = ballot_card.as_pair().par_map(|ballot_page| {
-        imageproc::contrast::threshold(
+        threshold(
             ballot_page.ballot_image().image(),
             ballot_page.ballot_image().threshold(),
         )
@@ -480,11 +481,10 @@ mod test {
     };
 
     use image::{imageops::FilterType, GenericImage, Luma};
-    use imageproc::geometric_transformations::{self, Interpolation, Projection};
     use itertools::Itertools;
     use types_rs::{
         election::{ContestId, OptionId},
-        geometry::{Degrees, PixelPosition, Radians, Rect},
+        geometry::{PixelPosition, Rect},
     };
 
     use crate::{
@@ -819,18 +819,13 @@ mod test {
 
     #[test]
     fn test_rotated_ballot_scoring_write_in_areas_no_write_ins() {
-        let (side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 3);
-        let (side_a_image_rotated, side_b_image_rotated) = [side_a_image, side_b_image]
-            .map(|image| {
-                geometric_transformations::warp(
-                    &image,
-                    &Projection::rotate(Radians::from(Degrees::new(1.0)).get()),
-                    Interpolation::Bilinear,
-                    Luma([0]),
-                )
-            })
-            .into();
+        let (_, _, options) = load_hmpb_fixture("vx-general-election/letter", 3);
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/vx-general-election-letter");
+        let (side_a_image_rotated, side_b_image_rotated) = load_ballot_card_images(
+            &fixture_path.join("blank-ballot-p3-rotated-1deg.jpg"),
+            &fixture_path.join("blank-ballot-p4-rotated-1deg.jpg"),
+        );
 
         let interpretation =
             ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
