@@ -7,6 +7,7 @@ import {
   DistrictContest,
   Election,
   getContests,
+  StraightPartyContest,
   Tabulation,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -877,4 +878,121 @@ test('cross-endorsed candidates appear only once in manual tallies form', async 
   expect(allInputs[3]).toEqual(otterInput);
   expect(allInputs[4]).toEqual(foxInput);
   expect(allInputs[5]).toEqual(horseInput);
+});
+
+// Straight-party contest support
+const straightPartyContest: StraightPartyContest = {
+  id: 'straight-party-ticket',
+  type: 'straight-party',
+  title: 'Straight Party Ticket',
+};
+
+function injectStraightPartyContest(e: Election): Election {
+  return {
+    ...e,
+    contests: [straightPartyContest, ...e.contests],
+  };
+}
+
+const spElection = injectStraightPartyContest(election);
+const spElectionDefinition = {
+  ...electionDefinition,
+  election: spElection,
+} as const;
+const spContests = getContests({
+  election: spElection,
+  ballotStyle: ballotStyleGroup,
+});
+
+test('entering tallies for a straight-party contest', async () => {
+  const spIdentifier: ManualResultsIdentifier = { ...identifier };
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(spIdentifier, undefined);
+
+  const history = createMemoryHistory({
+    initialEntries: [
+      `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}`,
+    ],
+  });
+  renderInAppContext(
+    <Route path="/tally/manual/:ballotStyleGroupId/:votingMethod/:precinctId">
+      <ManualTalliesFormScreen />
+    </Route>,
+    {
+      history,
+      electionDefinition: spElectionDefinition,
+      apiMock,
+    }
+  );
+
+  await screen.findByRole('heading', { name: 'Edit Tallies' });
+
+  // Enter ballot count
+  userEvent.type(screen.getByLabelText('Manual Tally Ballot Count'), '10');
+  const emptyResults: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: {},
+  };
+  apiMock.expectSetManualResults({
+    ...spIdentifier,
+    manualResults: emptyResults,
+  });
+  apiMock.expectGetManualResults(spIdentifier, emptyResults);
+  apiMock.expectGetWriteInCandidates([]);
+  userEvent.click(screen.getButton('Save & Next'));
+
+  // First contest should be the straight-party contest
+  await screen.findByRole('heading', { name: 'Straight Party Ticket' });
+  screen.getByText('Election-wide');
+  screen.getByText(`1 of ${spContests.length}`);
+  // Should not show "Vote for N"
+  expect(screen.queryByText(/Vote for/)).not.toBeInTheDocument();
+  // Should not show write-in option
+  expect(screen.queryByText('Add Write-In Candidate')).not.toBeInTheDocument();
+
+  screen.getByText('No tallies entered');
+
+  // Enter party tallies
+  const undervotesInput = screen.getByLabelText('Undervotes');
+  userEvent.type(undervotesInput, '2');
+  screen.getByText('Incomplete tallies');
+
+  const overvotesInput = screen.getByLabelText('Overvotes');
+  userEvent.type(overvotesInput, '1');
+
+  const mammalInput = screen.getByLabelText('Mammal Party');
+  userEvent.type(mammalInput, '4');
+
+  const fishInput = screen.getByLabelText('Fish Party');
+  userEvent.type(fishInput, '3');
+
+  screen.getByText('Entered tallies are valid');
+
+  const spContestResults: Tabulation.StraightPartyContestResults = {
+    contestId: 'straight-party-ticket',
+    contestType: 'straight-party',
+    ballots: 10,
+    overvotes: 1,
+    undervotes: 2,
+    tallies: {
+      '0': { partyId: '0', name: 'Mammal Party', tally: 4 },
+      '1': { partyId: '1', name: 'Fish Party', tally: 3 },
+    },
+  };
+  const updatedResults: Tabulation.ManualElectionResults = {
+    ballotCount: 10,
+    contestResults: {
+      'straight-party-ticket': spContestResults,
+    },
+  };
+  apiMock.expectSetManualResults({
+    ...spIdentifier,
+    manualResults: updatedResults,
+  });
+  apiMock.expectGetManualResults(spIdentifier, updatedResults);
+  apiMock.expectGetWriteInCandidates([]);
+  userEvent.click(screen.getButton('Save & Next'));
+
+  // Should advance to the next contest
+  await screen.findByText(`2 of ${spContests.length}`);
 });
