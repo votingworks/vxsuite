@@ -242,8 +242,8 @@ create table settings (
   -- enforce singleton table
   id integer primary key check (id = 1),
   current_election_id varchar(36),
-  machine_mode text not null default 'traditional'
-    check (machine_mode in ('traditional', 'host', 'client')),
+  machine_mode text not null default 'host'
+    check (machine_mode in ('host', 'client')),
   foreign key (current_election_id) references elections(id)
 );
 

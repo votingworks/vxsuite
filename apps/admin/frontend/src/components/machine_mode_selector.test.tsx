@@ -18,31 +18,31 @@ afterEach(() => {
 test('renders with current machine mode selected', () => {
   renderInAppContext(<MachineModeSelector />, {
     apiMock,
-    machineMode: 'traditional',
-  });
-
-  screen.getByRole('heading', { name: 'Machine Mode' });
-  const traditionalButton = screen.getByRole('option', {
-    name: 'Traditional',
-    selected: true,
-  });
-  expect(traditionalButton).toBeDefined();
-});
-
-test('renders host mode as selected', () => {
-  renderInAppContext(<MachineModeSelector />, {
-    apiMock,
     machineMode: 'host',
   });
 
-  screen.getByRole('option', { name: 'Host', selected: true });
+  screen.getByRole('heading', { name: 'Machine Mode' });
+  const hostButton = screen.getByRole('option', {
+    name: 'Host',
+    selected: true,
+  });
+  expect(hostButton).toBeDefined();
+});
+
+test('renders client mode as selected', () => {
+  renderInAppContext(<MachineModeSelector />, {
+    apiMock,
+    machineMode: 'client',
+  });
+
+  screen.getByRole('option', { name: 'Client', selected: true });
 });
 
 test('calls setMachineMode mutation on selection change', async () => {
   apiMock.expectSetMachineMode('client');
   renderInAppContext(<MachineModeSelector />, {
     apiMock,
-    machineMode: 'traditional',
+    machineMode: 'host',
   });
 
   userEvent.click(screen.getByRole('option', { name: 'Client' }));

@@ -24,7 +24,7 @@ import { z } from 'zod/v4';
 
 export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
 
-export type VxAdminMachineMode = 'traditional' | 'host' | 'client';
+export type VxAdminMachineMode = 'host' | 'client';
 
 export type VxAdminClientConnectionStatus =
   | { status: 'not_connected' }
@@ -32,13 +32,18 @@ export type VxAdminClientConnectionStatus =
   | { status: 'too_many_hosts'; hostCount: number };
 
 export type VxAdminNetworkStatus =
-  | { mode: 'traditional' }
   | {
       mode: 'host';
+      isOnline: boolean;
       isPublishing: boolean;
       connectedClients: Array<{ machineId: string; lastSeen: string }>;
+      otherHostsDetected?: number;
     }
-  | { mode: 'client'; connectionStatus: VxAdminClientConnectionStatus };
+  | {
+      mode: 'client';
+      isOnline: boolean;
+      connectionStatus: VxAdminClientConnectionStatus;
+    };
 
 /**
  * Environment variables that identify the machine and its software. Set at the

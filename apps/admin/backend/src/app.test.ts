@@ -651,13 +651,18 @@ describe('ERR file import', () => {
 });
 
 describe('machine mode endpoints', () => {
-  test('getMachineMode returns traditional when flag is disabled', async () => {
+  test('getMachineMode returns host when flag is disabled', async () => {
     const { apiClient } = buildTestEnvironment();
-    expect(await apiClient.getMachineMode()).toEqual('traditional');
+    expect(await apiClient.getMachineMode()).toEqual('host');
   });
 
-  test('getNetworkStatus returns traditional when no networking manager', async () => {
+  test('getNetworkStatus returns default host status when no networking manager', async () => {
     const { apiClient } = buildTestEnvironment();
-    expect(await apiClient.getNetworkStatus()).toEqual({ mode: 'traditional' });
+    expect(await apiClient.getNetworkStatus()).toEqual({
+      mode: 'host',
+      isOnline: false,
+      isPublishing: false,
+      connectedClients: [],
+    });
   });
 });

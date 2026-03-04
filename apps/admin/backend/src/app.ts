@@ -1236,7 +1236,7 @@ function buildApi({
           BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
         )
       ) {
-        return 'traditional';
+        return 'host';
       }
       return store.getMachineMode();
     },
@@ -1260,7 +1260,12 @@ function buildApi({
 
     getNetworkStatus(): VxAdminNetworkStatus {
       if (!networkingManager) {
-        return { mode: 'traditional' };
+        return {
+          mode: 'host',
+          isOnline: false,
+          isPublishing: false,
+          connectedClients: [],
+        };
       }
       return networkingManager.getNetworkStatus();
     },

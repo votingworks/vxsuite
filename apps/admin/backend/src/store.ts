@@ -183,7 +183,7 @@ export class Store {
     const row = this.client.one(
       'select machine_mode from settings where id = 1'
     ) as { machine_mode: string } | undefined;
-    return (row?.machine_mode ?? 'traditional') as VxAdminMachineMode;
+    return (row?.machine_mode ?? 'host') as VxAdminMachineMode;
   }
 
   setMachineMode(mode: VxAdminMachineMode): void {

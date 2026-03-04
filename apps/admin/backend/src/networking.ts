@@ -1,4 +1,4 @@
-import { AvahiService } from '@votingworks/networking';
+import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import { rootDebug } from './util/debug';
 import { NETWORK_POLLING_INTERVAL, PEER_PORT } from './globals';
 import {
@@ -13,7 +13,7 @@ const VXADMIN_SERVICE_TYPE = '_vxadmin._tcp';
 
 export class VxAdminNetworkingManager {
   private readonly machineId: string;
-  private mode: VxAdminMachineMode = 'traditional';
+  private mode: VxAdminMachineMode = 'host';
   private isPolling = false;
   private pollingInterval: ReturnType<typeof setInterval> | undefined;
   private clientConnectionStatus: VxAdminClientConnectionStatus = {
@@ -21,6 +21,8 @@ export class VxAdminNetworkingManager {
   };
 
   private isPublishing = false;
+  private isOnline = false;
+  private otherHostCount = 0;
 
   constructor(machineId: string) {
     this.machineId = machineId;
@@ -28,18 +30,21 @@ export class VxAdminNetworkingManager {
 
   getNetworkStatus(): VxAdminNetworkStatus {
     switch (this.mode) {
-      case 'traditional':
-        return { mode: 'traditional' };
       case 'host':
         return {
           mode: 'host',
+          isOnline: this.isOnline,
           isPublishing: this.isPublishing,
           connectedClients: [],
+          otherHostsDetected: this.otherHostCount,
         };
       case 'client':
         return {
           mode: 'client',
-          connectionStatus: this.clientConnectionStatus,
+          isOnline: this.isOnline,
+          connectionStatus: this.isOnline
+            ? this.clientConnectionStatus
+            : { status: 'not_connected' },
         };
     }
   }
@@ -52,8 +57,6 @@ export class VxAdminNetworkingManager {
 
   start(): void {
     switch (this.mode) {
-      case 'traditional':
-        break;
       case 'host':
         this.startHost();
         break;
@@ -73,6 +76,8 @@ export class VxAdminNetworkingManager {
     }
     this.clientConnectionStatus = { status: 'not_connected' };
     this.isPublishing = false;
+    this.isOnline = false;
+    this.otherHostCount = 0;
   }
 
   private startHost(): void {
@@ -88,12 +93,49 @@ export class VxAdminNetworkingManager {
       VXADMIN_SERVICE_TYPE
     );
     this.isPublishing = true;
+
+    this.pollingInterval = setInterval(async () => {
+      if (this.isPolling) {
+        return;
+      }
+      this.isPolling = true;
+      try {
+        await this.pollHostStatus();
+      } finally {
+        this.isPolling = false;
+      }
+    }, NETWORK_POLLING_INTERVAL);
   }
 
   private stopHost(): void {
     const serviceName = `VxAdmin-${this.machineId}`;
     AvahiService.stopAdvertisedService(serviceName);
     this.isPublishing = false;
+  }
+
+  private async pollHostStatus(): Promise<void> {
+    try {
+      this.isOnline = await hasOnlineInterface();
+    } catch {
+      this.isOnline = false;
+    }
+
+    if (!this.isOnline) {
+      this.otherHostCount = 0;
+      return;
+    }
+
+    try {
+      const services = await AvahiService.discoverServices(
+        VXADMIN_SERVICE_TYPE
+      );
+      const ownServiceName = `VxAdmin-${this.machineId}`;
+      const otherHosts = services.filter((s) => s.name !== ownServiceName);
+      this.otherHostCount = otherHosts.length;
+    } catch (error) {
+      debug(`Error discovering other hosts: ${error}`);
+      this.otherHostCount = 0;
+    }
   }
 
   private startClient(): void {
@@ -112,6 +154,17 @@ export class VxAdminNetworkingManager {
   }
 
   private async pollForHost(): Promise<void> {
+    try {
+      this.isOnline = await hasOnlineInterface();
+    } catch {
+      this.isOnline = false;
+    }
+
+    if (!this.isOnline) {
+      this.clientConnectionStatus = { status: 'not_connected' };
+      return;
+    }
+
     try {
       const services = await AvahiService.discoverServices(
         VXADMIN_SERVICE_TYPE

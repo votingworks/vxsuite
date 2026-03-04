@@ -14,19 +14,24 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('shows loading state when network status is not yet available', async () => {
-  apiMock.expectGetNetworkStatus({ mode: 'traditional' });
+test('shows offline message when not online', async () => {
+  apiMock.expectGetNetworkStatus({
+    mode: 'client',
+    isOnline: false,
+    connectionStatus: { status: 'not_connected' },
+  });
   renderInAppContext(<ClientStatusScreen />, {
     apiMock,
     machineMode: 'client',
   });
 
-  await screen.findByText('Loading...');
+  await screen.findByText(/Network offline/);
 });
 
-test('shows searching state when not connected', async () => {
+test('shows searching state when online but not connected', async () => {
   apiMock.expectGetNetworkStatus({
     mode: 'client',
+    isOnline: true,
     connectionStatus: { status: 'not_connected' },
   });
   renderInAppContext(<ClientStatusScreen />, {
@@ -40,6 +45,7 @@ test('shows searching state when not connected', async () => {
 test('shows connected state with host machine ID', async () => {
   apiMock.expectGetNetworkStatus({
     mode: 'client',
+    isOnline: true,
     connectionStatus: { status: 'connected', hostMachineId: '1234' },
   });
   renderInAppContext(<ClientStatusScreen />, {
@@ -54,6 +60,7 @@ test('shows connected state with host machine ID', async () => {
 test('shows too many hosts error', async () => {
   apiMock.expectGetNetworkStatus({
     mode: 'client',
+    isOnline: true,
     connectionStatus: { status: 'too_many_hosts', hostCount: 3 },
   });
   renderInAppContext(<ClientStatusScreen />, {
@@ -68,6 +75,7 @@ test('shows too many hosts error', async () => {
 test('renders machine mode selector', async () => {
   apiMock.expectGetNetworkStatus({
     mode: 'client',
+    isOnline: true,
     connectionStatus: { status: 'not_connected' },
   });
   renderInAppContext(<ClientStatusScreen />, {

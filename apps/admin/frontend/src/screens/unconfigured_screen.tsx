@@ -23,6 +23,7 @@ import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { NODE_ENV, TIME_FORMAT } from '../config/globals';
 import { MachineModeSelector } from '../components/machine_mode_selector';
+import { HostStatusPanel } from '../components/connected_clients_list';
 
 const ButtonRow = styled.tr`
   cursor: pointer;
@@ -156,6 +157,7 @@ export function UnconfiguredScreen(): JSX.Element {
   const potentialElectionPackagesResult =
     listPotentialElectionPackagesOnUsbDriveQuery.data;
 
+  const { machineMode } = useContext(AppContext);
   const isMultiStationEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
   );
@@ -163,6 +165,7 @@ export function UnconfiguredScreen(): JSX.Element {
   return (
     <NavigationScreen title="Election">
       {isMultiStationEnabled && <MachineModeSelector />}
+      {isMultiStationEnabled && machineMode === 'host' && <HostStatusPanel />}
       {potentialElectionPackagesResult.isErr() ? (
         <FullScreenMessage
           title="Insert a USB drive containing an election package"

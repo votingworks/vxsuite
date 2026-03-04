@@ -107,7 +107,7 @@ export function renderInAppContext(
       machineId: DEV_MACHINE_ID,
       codeVersion: 'dev',
     },
-    machineMode = 'traditional',
+    machineMode = 'host',
     apiMock,
     queryClient,
   }: RenderInAppContextParams = {}

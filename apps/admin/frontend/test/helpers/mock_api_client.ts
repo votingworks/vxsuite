@@ -830,7 +830,7 @@ export function createApiMock(
       apiClient.getUsbPortStatus.expectCallWith().resolves({ enabled: true });
     },
 
-    expectGetMachineMode(mode: VxAdminMachineMode = 'traditional') {
+    expectGetMachineMode(mode: VxAdminMachineMode = 'host') {
       apiClient.getMachineMode.expectCallWith().resolves(mode);
     },
 
@@ -839,7 +839,12 @@ export function createApiMock(
     },
 
     expectGetNetworkStatus(
-      status: VxAdminNetworkStatus = { mode: 'traditional' }
+      status: VxAdminNetworkStatus = {
+        mode: 'host',
+        isOnline: false,
+        isPublishing: false,
+        connectedClients: [],
+      }
     ) {
       apiClient.getNetworkStatus.expectCallWith().resolves(status);
     },

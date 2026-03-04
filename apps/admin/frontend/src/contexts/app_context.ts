@@ -34,7 +34,7 @@ const appContext: AppContextInterface = {
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
   },
-  machineMode: 'traditional',
+  machineMode: 'host',
 };
 
 export const AppContext = createContext(appContext);

@@ -8,7 +8,6 @@ const MACHINE_MODE_OPTIONS: Array<{
   id: VxAdminMachineMode;
   label: string;
 }> = [
-  { id: 'traditional', label: 'Traditional' },
   { id: 'host', label: 'Host' },
   { id: 'client', label: 'Client' },
 ];

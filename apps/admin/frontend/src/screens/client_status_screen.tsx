@@ -17,6 +17,13 @@ export function ClientStatusScreen(): JSX.Element {
       <MachineModeSelector />
       {!networkStatus || networkStatus.mode !== 'client' ? (
         <FullScreenMessage title="Loading..." image={<Loading />} />
+      ) : !networkStatus.isOnline ? (
+        <Card color="neutral">
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <Icons.Info />
+            Network offline. Connect to a network to find a Host VxAdmin.
+          </div>
+        </Card>
       ) : (
         (() => {
           const { connectionStatus } = networkStatus;
