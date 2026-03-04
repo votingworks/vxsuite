@@ -14,6 +14,7 @@ import {
   getContests,
   Tabulation,
   CandidateId,
+  PartyId,
   Admin as AdminTypes,
   AnyContest,
   getPrecinctById,
@@ -286,7 +287,22 @@ type FormCandidateContestResults = Omit<
     tallies: Record<CandidateId, FormCandidateTally>;
   };
 
-type FormContestResults = FormYesNoContestResults | FormCandidateContestResults;
+type FormStraightPartyTally = Omit<Tabulation.StraightPartyTally, 'tally'> & {
+  tally: InputValue;
+};
+
+type FormStraightPartyContestResults = Omit<
+  Tabulation.StraightPartyContestResults,
+  'ballots' | 'overvotes' | 'undervotes' | 'tallies'
+> &
+  FormContestResultsMetadata & {
+    tallies: Record<PartyId, FormStraightPartyTally>;
+  };
+
+type FormContestResults =
+  | FormYesNoContestResults
+  | FormCandidateContestResults
+  | FormStraightPartyContestResults;
 
 interface FormManualResults {
   readonly contestResults: Record<ContestId, FormContestResults>;
@@ -300,6 +316,7 @@ interface FormWriteInCandidate {
 
 function emptyFormContestResults(
   contest: AnyContest,
+  election: Election,
   ballotCount?: number
 ): FormContestResults {
   switch (contest.type) {
@@ -337,10 +354,23 @@ function emptyFormContestResults(
       };
 
     case 'straight-party':
-      // Straight-party contests are filtered out before reaching this function
-      throw new Error(
-        'Straight-party contests are not supported in manual tallies'
-      );
+      return {
+        contestId: contest.id,
+        contestType: 'straight-party',
+        ballots: ballotCount ?? '',
+        overvotes: '',
+        undervotes: '',
+        tallies: Object.fromEntries(
+          election.parties.map((party) => [
+            party.id,
+            {
+              partyId: party.id,
+              name: party.fullName,
+              tally: '',
+            },
+          ])
+        ),
+      };
 
     default: {
       /* istanbul ignore next - @preserve */
@@ -359,9 +389,9 @@ function validateTallies(
     ...(isOverridingBallotCount ? [formContestResults.ballots] : []),
     formContestResults.overvotes,
     formContestResults.undervotes,
-    ...(formContestResults.contestType === 'candidate'
-      ? Object.values(formContestResults.tallies).map(({ tally }) => tally)
-      : [formContestResults.yesTally, formContestResults.noTally]),
+    ...(formContestResults.contestType === 'yesno'
+      ? [formContestResults.yesTally, formContestResults.noTally]
+      : Object.values(formContestResults.tallies).map(({ tally }) => tally)),
   ];
   if (formValues.every((v) => v === '')) {
     return 'empty';
@@ -378,6 +408,7 @@ function validateTallies(
 
 function convertTabulationResultsToFormResults(
   contests: Contests,
+  election: Election,
   savedResults?: Tabulation.ManualElectionResults
 ): FormManualResults {
   const contestResults: Record<ContestId, FormContestResults> =
@@ -387,7 +418,7 @@ function convertTabulationResultsToFormResults(
         (savedResults?.contestResults[contest.id] as
           | FormContestResults
           | undefined) ??
-          emptyFormContestResults(contest, savedResults?.ballotCount),
+          emptyFormContestResults(contest, election, savedResults?.ballotCount),
       ])
     );
   return { contestResults, ballotCount: savedResults?.ballotCount ?? '' };
@@ -438,10 +469,11 @@ function BallotCountForm({
   const contests = getContests({
     election,
     ballotStyle: ballotStyleGroup,
-  }).filter((c) => c.type !== 'straight-party');
+  });
 
   const initialManualResults = convertTabulationResultsToFormResults(
     contests,
+    election,
     savedManualResults?.manualResults
   );
   const [ballotCount, setBallotCount] = useState<number | EmptyValue>(
@@ -556,7 +588,7 @@ function ContestForm({
   const contests = getContests({
     election,
     ballotStyle: ballotStyleGroup,
-  }).filter((c) => c.type !== 'straight-party');
+  });
   const contest = find(contests, (c) => c.id === contestId);
   const contestIndex = contests.indexOf(contest);
   const nextContest = contests[contestIndex + 1];
@@ -568,6 +600,7 @@ function ContestForm({
 
   const initialManualResults = convertTabulationResultsToFormResults(
     contests,
+    election,
     savedManualResults.manualResults
   );
   const [formManualResults, setFormManualResults] =
@@ -632,7 +665,10 @@ function ContestForm({
           ? contestResults.yesTally
           : contestResults.noTally;
       default:
-        assert(contestResults.contestType === 'candidate');
+        assert(
+          contestResults.contestType === 'candidate' ||
+            contestResults.contestType === 'straight-party'
+        );
         return contestResults.tallies[dataKey]?.tally ?? '';
     }
   }
@@ -680,27 +716,39 @@ function ContestForm({
         }
         break;
       default: {
-        assert(contestResults.contestType === 'candidate');
-        assert(newContestResults.contestType === 'candidate');
-        const candidateTally = contestResults.tallies[dataKey];
-        const newCandidateTally: FormCandidateTally = candidateTally
-          ? {
-              ...candidateTally,
-              tally: value,
-            }
-          : {
-              id: dataKey,
-              isWriteIn: true,
-              name: assertDefined(candidateName),
-              tally: value,
-            };
-        newContestResults = {
-          ...contestResults,
-          tallies: {
-            ...contestResults.tallies,
-            [dataKey]: newCandidateTally,
-          },
-        };
+        if (contestResults.contestType === 'straight-party') {
+          const partyTally = contestResults.tallies[dataKey];
+          assert(partyTally);
+          newContestResults = {
+            ...contestResults,
+            tallies: {
+              ...contestResults.tallies,
+              [dataKey]: { ...partyTally, tally: value },
+            },
+          };
+        } else {
+          assert(contestResults.contestType === 'candidate');
+          assert(newContestResults.contestType === 'candidate');
+          const candidateTally = contestResults.tallies[dataKey];
+          const newCandidateTally: FormCandidateTally = candidateTally
+            ? {
+                ...candidateTally,
+                tally: value,
+              }
+            : {
+                id: dataKey,
+                isWriteIn: true,
+                name: assertDefined(candidateName),
+                tally: value,
+              };
+          newContestResults = {
+            ...contestResults,
+            tallies: {
+              ...contestResults.tallies,
+              [dataKey]: newCandidateTally,
+            },
+          };
+        }
       }
     }
 
@@ -897,6 +945,17 @@ function ContestForm({
                 ))}
               </React.Fragment>
             )}
+            {contest.type === 'straight-party' &&
+              election.parties.map((party) => (
+                <ContestDataRow key={party.id}>
+                  <NumberInput
+                    id={party.id}
+                    value={getValueForInput(party.id)}
+                    onChange={(value) => updateContestData(party.id, value)}
+                  />
+                  <label htmlFor={party.id}>{party.fullName}</label>
+                </ContestDataRow>
+              ))}
             {contest.type === 'yesno' && (
               <React.Fragment>
                 <ContestDataRow>
