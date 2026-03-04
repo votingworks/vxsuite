@@ -6,7 +6,8 @@ import { Icons } from './icons';
 import { Caption, Font, H5, HeadingProps, P } from './typography';
 
 export interface VoterContestSummaryProps {
-  districtName: React.ReactNode;
+  districtName?: React.ReactNode;
+  note?: React.ReactNode;
   subtitle?: React.ReactNode;
   title: React.ReactNode;
   titleType: HeadingProps['as'];
@@ -51,6 +52,7 @@ export function VoterContestSummary(
 ): JSX.Element {
   const {
     districtName,
+    note,
     subtitle,
     title,
     titleType,
@@ -62,7 +64,9 @@ export function VoterContestSummary(
   return (
     <div data-testid={testId}>
       <H5 as={titleType}>
-        <DistrictName weight="regular">{districtName}</DistrictName>
+        {districtName && (
+          <DistrictName weight="regular">{districtName}</DistrictName>
+        )}
         {title}
       </H5>
       {subtitle && <P>{subtitle}</P>}
@@ -70,6 +74,13 @@ export function VoterContestSummary(
         <P>
           <Caption>
             <Icons.Warning color="warning" /> {undervoteWarning}
+          </Caption>
+        </P>
+      )}
+      {note && (
+        <P>
+          <Caption>
+            <Icons.Info /> {note}
           </Caption>
         </P>
       )}

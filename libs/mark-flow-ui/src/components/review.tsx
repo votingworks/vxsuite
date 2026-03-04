@@ -10,8 +10,11 @@ import {
   getContestDistrict,
   ContestId,
   BallotStyle,
+  StraightPartyContest,
+  StraightPartyVote,
   getCandidateVoteSortedForBallotStyleRotation,
 } from '@votingworks/types';
+import { find } from '@votingworks/basics';
 import {
   Caption,
   Card,
@@ -39,6 +42,7 @@ import {
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { WriteInCandidateName } from './write_in_candidate_name';
 import { numVotesRemaining } from '../utils/vote';
+import { getIndirectCandidateIds } from '../utils/straight_party_votes';
 
 const Contest = styled.div`
   display: block;
@@ -59,13 +63,18 @@ const Contest = styled.div`
 function CandidateContestResult({
   contest,
   vote = [],
+  votes,
   election,
   selectionsAreEditable,
   ballotStyle,
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
 
-  const remainingChoices = numVotesRemaining(contest, vote);
+  const indirectCandidateIds = votes
+    ? getIndirectCandidateIds(election, votes, contest)
+    : new Set<string>();
+  const remainingChoices =
+    numVotesRemaining(contest, vote) - indirectCandidateIds.size;
 
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()
@@ -85,7 +94,7 @@ function CandidateContestResult({
       titleType="h2"
       undervoteWarning={
         remainingChoices > 0 ? (
-          vote.length === 0 ? (
+          vote.length === 0 && indirectCandidateIds.size === 0 ? (
             noVotesString
           ) : (
             <React.Fragment>
@@ -94,6 +103,11 @@ function CandidateContestResult({
             </React.Fragment>
           )
         ) : undefined
+      }
+      note={
+        indirectCandidateIds.size > 0
+          ? appStrings.noteStraightPartyAffectsContest()
+          : undefined
       }
       votes={orderedVotes.map(
         (candidate): ContestVote => ({
@@ -213,6 +227,47 @@ function MsEitherNeitherContestResult({
   );
 }
 
+interface StraightPartyContestResultProps {
+  contest: StraightPartyContest;
+  election: Election;
+  vote?: StraightPartyVote;
+  selectionsAreEditable?: boolean;
+}
+
+function StraightPartyContestResult({
+  contest,
+  election,
+  vote,
+  selectionsAreEditable,
+}: StraightPartyContestResultProps): JSX.Element {
+  const selectedPartyId = vote?.length === 1 ? vote[0] : undefined;
+  const selectedParty = selectedPartyId
+    ? find(election.parties, (p) => p.id === selectedPartyId)
+    : undefined;
+
+  const votes: ContestVote[] = selectedParty
+    ? [
+        {
+          id: selectedParty.id,
+          label: electionStrings.partyFullName(selectedParty),
+        },
+      ]
+    : [];
+
+  const noVotesString = selectionsAreEditable
+    ? appStrings.warningNoVotesForContest()
+    : appStrings.noteBallotContestNoSelection();
+
+  return (
+    <VoterContestSummary
+      title={electionStrings.contestTitle(contest)}
+      titleType="h2"
+      undervoteWarning={!selectedParty ? noVotesString : undefined}
+      votes={votes}
+    />
+  );
+}
+
 export interface ReviewProps {
   election: Election;
   precinctId: PrecinctId;
@@ -292,6 +347,7 @@ export function Review({
                 selectionsAreEditable={selectionsAreEditable}
                 precinctId={precinctId}
                 vote={votes[contest.id] as CandidateVote}
+                votes={votes}
                 ballotStyle={ballotStyle}
               />
             )}
@@ -314,6 +370,14 @@ export function Review({
                 pickOneContestVote={
                   votes[contest.pickOneContestId] as OptionalYesNoVote
                 }
+              />
+            )}
+            {contest.type === 'straight-party' && (
+              <StraightPartyContestResult
+                contest={contest}
+                election={election}
+                vote={votes[contest.id] as StraightPartyVote | undefined}
+                selectionsAreEditable={selectionsAreEditable}
               />
             )}
           </Card>
