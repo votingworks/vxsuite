@@ -91,7 +91,7 @@ function getStatusTransitionLine(
   contestData: ContestAdjudicationData,
   contest: AnyContest,
   showUndervoteTransitions: boolean
-): string | undefined {
+): React.ReactNode {
   const votesAllowed = getVotesAllowed(contest);
 
   const originalVoteCount = contestData.options.filter(
@@ -109,14 +109,32 @@ function getStatusTransitionLine(
   // Overvote resolved
   if (originalStatus === 'overvote' && adjudicatedStatus !== 'overvote') {
     if (adjudicatedStatus === 'undervote' && showUndervoteTransitions) {
-      return 'Overvote resolved; now an Undervote';
+      return (
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.25rem',
+          }}
+        >
+          Overvote Resolved; Undervote Created
+          <Icons.Warning color="warning" />
+        </span>
+      );
     }
     return 'Overvote Resolved';
   }
 
   // New overvote
   if (adjudicatedStatus === 'overvote') {
-    return 'Now an Overvote';
+    return (
+      <span
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+      >
+        Overvote Created
+        <Icons.Warning color="warning" />
+      </span>
+    );
   }
 
   // Undervote transitions only if enabled
@@ -125,7 +143,18 @@ function getStatusTransitionLine(
       return 'Undervote Resolved';
     }
     if (adjudicatedStatus === 'undervote') {
-      return 'Now an Undervote';
+      return (
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.25rem',
+          }}
+        >
+          Undervote Created
+          <Icons.Warning color="warning" />
+        </span>
+      );
     }
   }
 
@@ -151,6 +180,10 @@ function getOptionResolutionDescription(
 
   // Write-in adjudication takes priority
   if (writeInRecord && writeInRecord.status === 'adjudicated') {
+    const writeInPrefix =
+      writeInRecord.isUnmarked || writeInRecord.isUndetected || hasMarginalMark
+        ? 'Ambiguous Write-In'
+        : 'Write-In';
     switch (writeInRecord.adjudicationType) {
       case 'official-candidate': {
         const candidateName =
@@ -158,16 +191,16 @@ function getOptionResolutionDescription(
             ? contest.candidates.find((c) => c.id === writeInRecord.candidateId)
                 ?.name ?? writeInRecord.candidateId
             : writeInRecord.candidateId;
-        return `Write-in for “${candidateName}”`;
+        return `${writeInPrefix} adjudicated for “${candidateName}”`;
       }
       case 'write-in-candidate': {
         const candidateName =
           writeInCandidateNames.get(writeInRecord.candidateId) ??
           writeInRecord.candidateId;
-        return `Write-in for “${candidateName}”`;
+        return `${writeInPrefix} adjudicated for “${candidateName}”`;
       }
       case 'invalid':
-        return `Write-in is Invalid`;
+        return `${writeInPrefix} adjudicated as Invalid`;
       default:
         return undefined;
     }
