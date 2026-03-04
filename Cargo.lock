@@ -1767,7 +1767,6 @@ dependencies = [
  "serde",
  "serde_json",
  "smallvec",
- "tokio",
 ]
 
 [[package]]
