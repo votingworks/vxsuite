@@ -641,6 +641,43 @@ export const SignatureSchema: z.ZodSchema<Signature> = z.object({
   caption: z.string(),
 });
 
+export interface PollingPlace {
+  id: Id;
+  name: string;
+  precincts: Record<PrecinctId, PollingPlacePrecinct>;
+  type: PollingPlaceType;
+}
+
+export type PollingPlacePrecinct =
+  | { type: 'whole' }
+  | { type: 'partial'; splitIds: string[] };
+
+export type PollingPlaceType = (typeof POLLING_PLACE_TYPES)[number];
+
+const POLLING_PLACE_TYPES = [
+  'absentee',
+  'early_voting',
+  'election_day',
+] as const;
+
+export const PollingPlacePrecinctSchema: z.ZodSchema<PollingPlacePrecinct> =
+  z.union([
+    z.object({
+      type: z.literal('whole'),
+    }),
+    z.object({
+      type: z.literal('partial'),
+      splitIds: z.array(z.string()),
+    }),
+  ]);
+
+export const PollingPlaceSchema: z.ZodSchema<PollingPlace> = z.object({
+  id: IdSchema,
+  name: z.string(),
+  precincts: z.record(z.string(), PollingPlacePrecinctSchema),
+  type: z.enum(POLLING_PLACE_TYPES),
+});
+
 export const ELECTION_TYPES = ['general', 'primary'] as const;
 export type ElectionType = (typeof ELECTION_TYPES)[number];
 const ElectionTypeSchema: z.ZodSchema<ElectionType> = z.enum(ELECTION_TYPES);

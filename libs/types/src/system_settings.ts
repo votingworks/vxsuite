@@ -1,6 +1,6 @@
 import { Result } from '@votingworks/basics';
 import { z } from 'zod/v4';
-import { AdjudicationReasonSchema } from './election';
+import { AdjudicationReasonSchema, PollingPlaceSchema } from './election';
 import {
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -97,6 +97,7 @@ export const SystemSettingsSchema = z
     ),
     disallowCastingOvervotes: z.boolean(),
     precinctScanEnableShoeshineMode: z.boolean().optional(),
+    pollingPlaces: z.array(PollingPlaceSchema).optional(),
 
     /**
      * Includes redundant metadata in cast vote record reports, increasing export size and
@@ -198,8 +199,12 @@ export const SystemSettingsSchema = z
     (settings) => {
       // Validate that retry streak threshold is strictly less than max cumulative streak width
       // since retrying with the same threshold would be pointless (deterministic check)
-      const maxWidth = settings.maxCumulativeStreakWidth ?? DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH;
-      const retryThreshold = settings.retryStreakWidthThreshold ?? DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD;
+      const maxWidth =
+        settings.maxCumulativeStreakWidth ??
+        DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH;
+      const retryThreshold =
+        settings.retryStreakWidthThreshold ??
+        DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD;
       return retryThreshold < maxWidth;
     },
     {
@@ -215,7 +220,7 @@ export const SystemSettingsSchema = z
  * definition. These settings can be changed without changing the ballot hash
  * (and therefore not needing to reprint ballots, for example).
  */
-export interface SystemSettings extends z.infer<typeof SystemSettingsSchema> { }
+export interface SystemSettings extends z.infer<typeof SystemSettingsSchema> {}
 // To enforce that this type matches its schema exactly, we infer the type from
 // the schema rather than defining them in parallel. We use this approach for
 // top-level schemas for input to the certified system to ensure that the data
