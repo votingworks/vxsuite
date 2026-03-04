@@ -17,9 +17,7 @@ use crate::{
         score_bubble_marks_from_grid_layout, score_write_in_areas, ScoredBubbleMarks,
         ScoredPositionAreas, UnitIntervalScore,
     },
-    timing_marks::{
-        self, BorderAxis, DefaultForGeometry, TimingMarks,
-    },
+    timing_marks::{self, BorderAxis, DefaultForGeometry, TimingMarks},
 };
 
 use types_rs::{

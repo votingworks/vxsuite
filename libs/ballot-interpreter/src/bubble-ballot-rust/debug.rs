@@ -429,23 +429,18 @@ pub fn draw_timing_mark_debug_image_mut(
         timing_marks.bottom_right_corner.y.round() as PixelPosition,
     );
 
-    let top_line_distance = Segment::new(
-        timing_marks.top_left_corner,
-        timing_marks.top_right_corner,
-    )
-    .length();
+    let top_line_distance =
+        Segment::new(timing_marks.top_left_corner, timing_marks.top_right_corner).length();
     let bottom_line_distance = Segment::new(
         timing_marks.bottom_left_corner,
         timing_marks.bottom_right_corner,
     )
     .length();
     for i in 0..geometry.grid_size.width {
-        let expected_top_timing_mark_center = Segment::new(
-            timing_marks.top_left_corner,
-            timing_marks.top_right_corner,
-        )
-        .with_length(top_line_distance * (i as SubPixelUnit))
-        .end;
+        let expected_top_timing_mark_center =
+            Segment::new(timing_marks.top_left_corner, timing_marks.top_right_corner)
+                .with_length(top_line_distance * (i as SubPixelUnit))
+                .end;
 
         draw_cross_mut(
             canvas,

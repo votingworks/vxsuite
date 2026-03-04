@@ -113,11 +113,7 @@ fn process_path<W: Write>(
 
     let timing_marks = find_result?;
     ballot_page.debug().write("timing_marks", |canvas| {
-        debug::draw_timing_mark_debug_image_mut(
-            canvas,
-            ballot_page.geometry(),
-            &timing_marks,
-        );
+        debug::draw_timing_mark_debug_image_mut(canvas, ballot_page.geometry(), &timing_marks);
     });
 
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {

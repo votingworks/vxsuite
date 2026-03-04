@@ -909,12 +909,8 @@ mod test {
             "104h-2025-04",
             ("imprinter-front.png", "imprinter-back.png"),
         );
-        let interpretation = ballot_card(
-            side_a_image.clone(),
-            side_b_image.clone(),
-            &options,
-        )
-        .unwrap();
+        let interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
         let marked_grid_positions = interpretation
             .front
@@ -965,12 +961,8 @@ mod test {
                 "fold-through-timing-mark-back.png",
             ),
         );
-        let interpretation = ballot_card(
-            side_a_image.clone(),
-            side_b_image.clone(),
-            &options,
-        )
-        .unwrap();
+        let interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
         // All bubbles should be unmarked
         assert_eq!(
@@ -1203,10 +1195,7 @@ mod test {
         .unwrap();
         let timing_marks: (TimingMarks, TimingMarks) = card
             .as_pair()
-            .par_map(|page| {
-                page.find_timing_marks()
-                    .unwrap()
-            })
+            .par_map(|page| page.find_timing_marks().unwrap())
             .into();
         let side_a_timing_marks = &timing_marks.0;
 
