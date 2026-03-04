@@ -20,11 +20,8 @@ path = "bin/debug-timing-marks.rs"
 name = "main"
 harness = false
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 ab_glyph = { workspace = true }
-bitstream-io = { workspace = true }
 clap = { workspace = true }
 color-eyre = { workspace = true }
 crossterm = { workspace = true }
@@ -32,7 +29,6 @@ image = { workspace = true }
 imageproc = { workspace = true }
 log = { workspace = true }
 neon = { workspace = true }
-pretty_env_logger = { workspace = true }
 rayon = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
