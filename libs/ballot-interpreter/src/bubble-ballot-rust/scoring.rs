@@ -11,7 +11,7 @@ use types_rs::geometry::{
 };
 
 use crate::ballot_card::BallotImage;
-use crate::image_utils::{count_pixels, count_pixels_in_shape, VerticalStreak};
+use crate::image_utils::{count_pixels, count_pixels_in_shape, threshold, VerticalStreak};
 use crate::interpret::{Error, Result};
 use crate::timing_marks::TimingMarks;
 use crate::{
@@ -243,8 +243,7 @@ pub fn score_bubble_mark(
                 .image()
                 .view(x as PixelUnit, y as PixelUnit, width, height)
                 .to_image();
-            let cropped_and_thresholded =
-                imageproc::contrast::threshold(&cropped, ballot_image.threshold());
+            let cropped_and_thresholded = threshold(&cropped, ballot_image.threshold());
 
             let match_diff = diff(&cropped_and_thresholded, bubble_template);
             let match_score = UnitIntervalScore(count_pixels(&match_diff, WHITE).ratio());
@@ -278,8 +277,7 @@ pub fn score_bubble_mark(
             best_match.bounds.height(),
         )
         .to_image();
-    let binarized_source_image =
-        imageproc::contrast::threshold(&source_image, ballot_image.threshold());
+    let binarized_source_image = threshold(&source_image, ballot_image.threshold());
     let diff_image = diff(bubble_template, &binarized_source_image);
     let fill_score = UnitIntervalScore(count_pixels(&diff_image, BLACK).ratio());
 

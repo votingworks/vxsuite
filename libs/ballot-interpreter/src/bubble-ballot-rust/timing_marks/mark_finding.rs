@@ -1,11 +1,11 @@
 use ab_glyph::PxScale;
 use image::RgbImage;
-use imageproc::drawing::{draw_filled_rect_mut, draw_text_mut, text_size};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::{
     ballot_card::{BallotImage, Geometry},
-    debug::{imageproc_rect_from_rect, monospace_font},
+    debug::monospace_font,
+    draw_utils::{draw_filled_rect_mut, draw_text_mut, text_size},
     image_utils::rainbow,
     impl_edgewise,
     timing_marks::{shape_finding::BallotGridBorderShapes, util::EdgeWise, CandidateTimingMark},
@@ -58,7 +58,7 @@ impl BallotGridCandidateMarks {
         // Left edge - text on the right (inside the grid)
         for (mark, color) in self.left.iter().zip(rainbow()) {
             let rect = mark.rect();
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
+            draw_filled_rect_mut(canvas, *rect, color);
 
             let text = format_score(mark.scores().mark_score().0);
             draw_text_mut(
@@ -75,7 +75,7 @@ impl BallotGridCandidateMarks {
         // Right edge - text on the left (inside the grid)
         for (mark, color) in self.right.iter().zip(rainbow()) {
             let rect = mark.rect();
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
+            draw_filled_rect_mut(canvas, *rect, color);
 
             let text = format_score(mark.scores().mark_score().0);
             let (text_width, _) = text_size(scale, &font, &text);
@@ -93,7 +93,7 @@ impl BallotGridCandidateMarks {
         // Top edge - text below (inside the grid)
         for (mark, color) in self.top.iter().zip(rainbow()) {
             let rect = mark.rect();
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
+            draw_filled_rect_mut(canvas, *rect, color);
 
             let text = format_score(mark.scores().mark_score().0);
             draw_text_mut(
@@ -110,7 +110,7 @@ impl BallotGridCandidateMarks {
         // Bottom edge - text above (inside the grid)
         for (mark, color) in self.bottom.iter().zip(rainbow()) {
             let rect = mark.rect();
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
+            draw_filled_rect_mut(canvas, *rect, color);
 
             let text = format_score(mark.scores().mark_score().0);
             let (_, text_height) = text_size(scale, &font, &text);

@@ -1,11 +1,10 @@
 use image::RgbImage;
-use imageproc::drawing::draw_filled_rect_mut;
 use itertools::Itertools;
 use types_rs::geometry::{Point, Size};
 
 use crate::{
     ballot_card::Geometry,
-    debug::imageproc_rect_from_rect,
+    draw_utils::draw_filled_rect_mut,
     image_utils::rainbow,
     impl_cornerwise,
     interpret::Error,
@@ -187,7 +186,7 @@ impl BallotGridCorners {
             .zip(rainbow())
         {
             for mark in grouping.iter() {
-                draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+                draw_filled_rect_mut(canvas, *mark.rect(), color);
             }
         }
     }

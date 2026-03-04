@@ -23,7 +23,7 @@ anyhow = "1.0.75"
 base64 = "0.22.0"
 bitstream-io = "4.0.0"
 chrono = "0.4.31"
-clap = { version = "4.0.29", features = ["cargo", "derive", "env"] }
+clap = { version = "4.0.29", features = ["derive", "env"] }
 color-eyre = "0.6.2"
 crc16 = "0.4.0"
 crossterm = "0.27.0"
@@ -33,7 +33,6 @@ divan = "0.1.15"
 flate2 = "1.1.1"
 hex = "0.4.3"
 image = "0.25.0"
-imageproc = "0.24.0"
 itertools = "0.12.1"
 libc = "0.2.153"
 log = "0.4.17"
@@ -48,14 +47,12 @@ napi-build = "2.1.6"
 napi-derive = "3.2.5"
 neon = { version = "1.1.0", default-features = false, features = [
   "napi-6",
-  "futures",
   "serde",
-  "tokio",
 ] }
 nix = "0.26"
 nom = "7.1.3"
 num_enum = "0.7.1"
-nusb = "0.1.13"
+nusb = "0.1.14"
 pretty_env_logger = "0.5.0"
 proptest = "1.0.0"
 psutil = "3.3.0"
@@ -64,6 +61,7 @@ rayon = "1.5.3"
 rqrr = "0.7.1"
 rusb = "0.9.3"
 serde = { version = "1.0.150", features = ["derive"] }
+serde_bytes = "0.11.14"
 serde_json = "1.0.89"
 serde_with = { version = "3.14.0", features = ["macros"] }
 serialport = "4.2.2"

@@ -15,30 +15,21 @@ path = "src/rust/main.rs"
 name = "pdi-parse-traffic"
 path = "src/rust/parse_traffic.rs"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-anyhow = { workspace = true }
 base64 = { workspace = true }
-chrono = { workspace = true }
 clap = { workspace = true }
 color-eyre = { workspace = true }
-crc16 = { workspace = true }
 csv = { workspace = true }
-crossterm = { workspace = true }
 image = { workspace = true }
-libc = { workspace = true }
 nom = { workspace = true }
-psutil = { workspace = true }
-rand = { workspace = true }
+nusb = { workspace = true }
 rayon = { workspace = true }
 serde = { workspace = true }
-serde_bytes = "0.11.14"
+serde_bytes = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-nusb = "0.1.14"
 tokio = { workspace = true, features = [
   "rt-multi-thread",
   "macros",

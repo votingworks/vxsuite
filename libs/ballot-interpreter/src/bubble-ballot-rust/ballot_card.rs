@@ -1,7 +1,7 @@
 use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf};
 
+use crate::image_utils::{otsu_level, threshold};
 use image::{imageops::rotate180_in_place, GenericImageView, GrayImage};
-use imageproc::contrast::{otsu_level, threshold};
 use itertools::Itertools;
 use serde::Serialize;
 

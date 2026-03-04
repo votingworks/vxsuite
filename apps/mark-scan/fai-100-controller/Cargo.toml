@@ -8,11 +8,10 @@ name = "fai100-controllerd"
 path = "src/fai_100_controllerd.rs"
 
 [dependencies]
-clap = { workspace = true, features = ["derive"] }
+clap = { workspace = true }
 color-eyre = { workspace = true }
 ctrlc = { workspace = true }
 daemon-utils = { workspace = true }
-hex = { workspace = true }
 num_enum = { workspace = true }
 rusb = { workspace = true }
 serde = { workspace = true }
