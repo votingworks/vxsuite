@@ -11,10 +11,8 @@ use crate::{
     interpret::Error,
     scoring::UnitIntervalScore,
     timing_marks::{
-        corners::{
-            util::{mark_distances_to_point, CornerWise, EdgeWise},
-            BallotGridCandidateMarks,
-        },
+        mark_finding::BallotGridCandidateMarks,
+        util::{mark_distances_to_point, CornerWise, EdgeWise},
         CandidateTimingMark, Corner, DefaultForGeometry,
     },
 };
@@ -49,21 +47,25 @@ impl BallotGridCorners {
     }
 
     /// Get the top-left corner of the ballot grid.
+    #[must_use]
     pub const fn top_left(&self) -> &BallotGridCorner {
         &self.top_left
     }
 
     /// Get the top-right corner of the ballot grid.
+    #[must_use]
     pub const fn top_right(&self) -> &BallotGridCorner {
         &self.top_right
     }
 
     /// Get the bottom-left corner of the ballot grid.
+    #[must_use]
     pub const fn bottom_left(&self) -> &BallotGridCorner {
         &self.bottom_left
     }
 
     /// Get the bottom-right corner of the ballot grid.
+    #[must_use]
     pub const fn bottom_right(&self) -> &BallotGridCorner {
         &self.bottom_right
     }
@@ -71,6 +73,7 @@ impl BallotGridCorners {
     /// Find all corners of the ballot grid. Searches based on the left and
     /// right edges rather than the top and bottom ones.
     #[allow(clippy::result_large_err)]
+    #[allow(clippy::missing_errors_doc)]
     pub fn find_all(
         image_size: Size<u32>,
         geometry: &Geometry,
@@ -197,10 +200,12 @@ pub struct BallotGridCorner {
 }
 
 impl BallotGridCorner {
+    #[must_use]
     pub const fn best_corner_grouping(&self) -> &CandidateCornerMarkGrouping {
         &self.best_corner_grouping
     }
 
+    #[must_use]
     pub fn all_possible_corner_groupings(&self) -> &[CandidateCornerMarkGrouping] {
         &self.all_possible_corner_groupings
     }
@@ -222,6 +227,8 @@ impl CandidateCornerMarkGrouping {
         [&self.corner, &self.row, &self.column].into_iter()
     }
 
+    #[must_use]
+    #[allow(clippy::missing_errors_doc)]
     pub fn find_all_within_border_candidate_marks(
         geometry: &Geometry,
         candidate_timing_marks: &[CandidateTimingMark],

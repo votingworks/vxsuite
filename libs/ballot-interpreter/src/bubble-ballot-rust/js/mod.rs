@@ -11,8 +11,7 @@ use types_rs::election::Election;
 
 use crate::ballot_card::{load_ballot_scan_bubble_image, BallotPage, PaperInfo};
 use crate::interpret::{
-    self, ballot_card, Inference, InterpretedBallotCard, Options, TimingMarkAlgorithm,
-    VerticalStreakDetection, WriteInScoring,
+    self, ballot_card, InterpretedBallotCard, Options, VerticalStreakDetection, WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::TimingMarks;
@@ -24,11 +23,9 @@ struct JsInterpretOptions {
     back_normalized_image_output_path: Option<String>,
     debug_base_path_side_a: Option<String>,
     debug_base_path_side_b: Option<String>,
-    timing_mark_algorithm: Option<TimingMarkAlgorithm>,
     minimum_detected_scale: Option<f64>,
     score_write_ins: Option<bool>,
     disable_vertical_streak_detection: Option<bool>,
-    infer_timing_marks: Option<bool>,
     max_cumulative_streak_width: u32,
     retry_streak_width_threshold: u32,
 }
@@ -88,21 +85,6 @@ fn interpret(
                 VerticalStreakDetection::Disabled
             } else {
                 VerticalStreakDetection::Enabled
-            },
-            timing_mark_algorithm: match options.timing_mark_algorithm.unwrap_or_default() {
-                TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
-                    inference: options
-                        .infer_timing_marks
-                        .map(|infer| {
-                            if infer {
-                                Inference::Enabled
-                            } else {
-                                Inference::Disabled
-                            }
-                        })
-                        .unwrap_or_default(),
-                },
-                TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
             },
             minimum_detected_scale,
             max_cumulative_streak_width: options.max_cumulative_streak_width,
@@ -209,23 +191,15 @@ fn interpret_images(
     )?))
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct JsFindTimingMarkGridOptions {
-    timing_mark_algorithm: Option<TimingMarkAlgorithm>,
-}
-
 fn find_timing_mark_grid(
     image: GrayImage,
     label: &str,
     debug_path: Option<PathBuf>,
-    timing_mark_algorithm: Option<TimingMarkAlgorithm>,
 ) -> Result<TimingMarks, Error> {
     let ballot_page = BallotPage::from_image(label, image, &PaperInfo::scanned(), debug_path)
         .map_err(|err| Error::new(format!("Unable to prepare ballot page image: {err}")))?;
 
-    let timing_mark_algorithm = timing_mark_algorithm.unwrap_or_default();
-    let find_timing_marks_result = ballot_page.find_timing_marks(timing_mark_algorithm);
+    let find_timing_marks_result = ballot_page.find_timing_marks();
 
     let timing_marks = find_timing_marks_result
         .map_err(|err| Error::new(format!("failed to detect timing mark grid: {err:?}")))?;
@@ -237,7 +211,6 @@ fn find_timing_mark_grid(
 fn find_timing_mark_grid_from_path(
     image_path: String,
     debug_path: Option<String>,
-    Json(options): Json<Option<JsFindTimingMarkGridOptions>>,
 ) -> Result<Json<TimingMarks>, Error> {
     let image_path = PathBuf::from(image_path);
     let label = image_path
@@ -249,7 +222,6 @@ fn find_timing_mark_grid_from_path(
         image,
         &label,
         debug_path.map(Into::into),
-        options.and_then(|o| o.timing_mark_algorithm),
     )?))
 }
 
@@ -259,14 +231,12 @@ fn find_timing_mark_grid_from_image(
     image_height: f64,
     image_data: Vec<u8>,
     debug_path: Option<String>,
-    Json(options): Json<Option<JsFindTimingMarkGridOptions>>,
 ) -> Result<Json<TimingMarks>, Error> {
     let image = gray_image(image_width, image_height, image_data)?;
     Ok(Json(find_timing_mark_grid(
         image,
         "image",
         debug_path.map(Into::into),
-        options.and_then(|o| o.timing_mark_algorithm),
     )?))
 }
 

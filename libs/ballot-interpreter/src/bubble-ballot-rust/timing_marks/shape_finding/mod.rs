@@ -9,11 +9,10 @@ use crate::{
     image_utils::{rainbow, Inset},
     impl_edgewise,
     timing_marks::{
-        corners::{
-            shape_finding::shape_list_builder::ShapeListBuilder,
-            util::{median_filter, EdgeWise},
-        },
-        rect_could_be_timing_mark, CandidateTimingMark, DefaultForGeometry,
+        rect_could_be_timing_mark,
+        shape_finding::shape_list_builder::ShapeListBuilder,
+        util::{median_filter, EdgeWise},
+        CandidateTimingMark, DefaultForGeometry,
     },
 };
 
@@ -34,6 +33,7 @@ impl BallotGridBorderShapes {
     /// Searches the given ballot image within the given inset area for timing
     /// mark shapes. Searches each of the four sides independently, so the
     /// resulting shape lists will likely contain duplicates.
+    #[must_use]
     pub fn from_ballot_image(
         ballot_image: &BallotImage,
         geometry: &Geometry,
@@ -219,11 +219,13 @@ impl TimingMarkShape {
     }
 
     /// The leftmost x coordinate this timing mark shape contains.
+    #[must_use]
     pub fn left(&self) -> u32 {
         self.x
     }
 
     /// The rightmost x coordinate this timing mark shape contains.
+    #[must_use]
     pub fn right(&self) -> u32 {
         self.x + self.y_ranges.len() as u32 - 1
     }
@@ -261,6 +263,7 @@ impl TimingMarkShape {
     }
 
     /// The width of this timing mark shape in pixels.
+    #[must_use]
     pub fn width(&self) -> u32 {
         self.right() - self.left() + 1
     }
@@ -269,6 +272,7 @@ impl TimingMarkShape {
     /// with the `y` values smoothed using a median filter.
     ///
     /// See <https://en.wikipedia.org/wiki/Median_filter>
+    #[must_use]
     pub fn smoothed(&self) -> Self {
         /// This window size was chosen to be wide enough to smooth out bumps
         /// of 3-4px wide, which is the maximum I saw that I wanted to be able
@@ -325,6 +329,7 @@ pub struct Options {
 }
 
 impl Options {
+    #[must_use]
     pub fn timing_mark_height_range(&self, geometry: &Geometry) -> RangeInclusive<PixelUnit> {
         (geometry.timing_mark_height_pixels() * self.timing_mark_height_ratio_range.start()).floor()
             as PixelUnit

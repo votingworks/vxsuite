@@ -18,8 +18,6 @@ interface InterpretOptions {
   ballotImages: SheetOf<string> | SheetOf<ImageData>;
   scoreWriteIns?: boolean;
   disableVerticalStreakDetection?: boolean;
-  timingMarkAlgorithm?: 'contours' | 'corners';
-  inferTimingMarks?: boolean;
   minimumDetectedScale?: number;
   maxCumulativeStreakWidth?: number;
   retryStreakWidthThreshold?: number;
@@ -78,15 +76,12 @@ function normalizeOptionsForBridge(
     debugBasePathSideA,
     debugBasePathSideB,
     scoreWriteIns: options.scoreWriteIns,
-    timingMarkAlgorithm: options.timingMarkAlgorithm,
     disableVerticalStreakDetection: options.disableVerticalStreakDetection,
-    inferTimingMarks: options.inferTimingMarks,
     minimumDetectedScale: options.minimumDetectedScale,
     maxCumulativeStreakWidth:
       options.maxCumulativeStreakWidth ?? DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
     retryStreakWidthThreshold:
-      options.retryStreakWidthThreshold ??
-      DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+      options.retryStreakWidthThreshold ?? DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
   };

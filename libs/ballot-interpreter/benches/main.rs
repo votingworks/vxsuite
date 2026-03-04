@@ -3,8 +3,8 @@
 use std::{fmt::Display, fs::File, io::BufReader, path::PathBuf};
 
 use ballot_interpreter::interpret::{
-    Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
-    DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+    ScanInterpreter, VerticalStreakDetection, WriteInScoring, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+    DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
 };
 use divan::{black_box, Bencher};
 use image::GrayImage;
@@ -19,21 +19,14 @@ struct InterpretFixture {
     election: &'static str,
     name: &'static str,
     extension: &'static str,
-    timing_mark_algorithm: TimingMarkAlgorithm,
 }
 
 impl InterpretFixture {
-    const fn new(
-        election: &'static str,
-        name: &'static str,
-        extension: &'static str,
-        timing_mark_algorithm: TimingMarkAlgorithm,
-    ) -> Self {
+    const fn new(election: &'static str, name: &'static str, extension: &'static str) -> Self {
         Self {
             election,
             name,
             extension,
-            timing_mark_algorithm,
         }
     }
 
@@ -46,7 +39,6 @@ impl InterpretFixture {
             election,
             WriteInScoring::Enabled,
             VerticalStreakDetection::default(),
-            self.timing_mark_algorithm,
             None,
             DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
             DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
@@ -67,19 +59,13 @@ impl InterpretFixture {
 
 impl Display for InterpretFixture {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}/{} ({})",
-            self.election, self.name, self.timing_mark_algorithm
-        )
+        write!(f, "{}/{}", self.election, self.name)
     }
 }
 
 #[divan::bench(args = [
-    InterpretFixture::new("all-bubble-ballot", "blank", ".jpg", TimingMarkAlgorithm::Contours { inference: Inference::Enabled }),
-    InterpretFixture::new("vxqa-2024-10", "skew", ".png", TimingMarkAlgorithm::Contours { inference: Inference::Enabled }),
-    InterpretFixture::new("all-bubble-ballot", "blank", ".jpg", TimingMarkAlgorithm::Corners),
-    InterpretFixture::new("vxqa-2024-10", "skew", ".png", TimingMarkAlgorithm::Corners),
+    InterpretFixture::new("all-bubble-ballot", "blank", ".jpg"),
+    InterpretFixture::new("vxqa-2024-10", "skew", ".png"),
 ])]
 fn interpret(bencher: Bencher, fixture: InterpretFixture) {
     let (side_a_image, side_b_image, interpreter) = fixture.load().unwrap();

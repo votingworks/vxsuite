@@ -14,7 +14,7 @@ use std::{
 use ballot_interpreter::{
     ballot_card::{BallotPage, PaperInfo},
     debug,
-    interpret::{Error, Inference, TimingMarkAlgorithm},
+    interpret::Error,
     timing_marks::{Border, BorderAxis, TimingMarks},
 };
 use clap::Parser;
@@ -30,14 +30,6 @@ struct Options {
     /// fail timing mark detection.
     #[clap(long)]
     expected_failure_manifest: Option<PathBuf>,
-
-    /// Determine how to infer timing marks.
-    #[clap(long, default_value = "infer")]
-    inference: Inference,
-
-    /// Choose which timing mark finding algorithm to use.
-    #[clap(long, default_value_t = TimingMarkAlgorithm::default())]
-    timing_mark_algorithm: TimingMarkAlgorithm,
 
     /// Should debug images be produced?
     #[clap(long)]
@@ -116,16 +108,12 @@ fn process_path<W: Write>(
     *prepare_image_duration += start.elapsed();
 
     let start = Instant::now();
-    let find_result = ballot_page.find_timing_marks(options.timing_mark_algorithm);
+    let find_result = ballot_page.find_timing_marks();
     *find_timing_marks_duration += start.elapsed();
 
     let timing_marks = find_result?;
     ballot_page.debug().write("timing_marks", |canvas| {
-        debug::draw_timing_mark_debug_image_mut(
-            canvas,
-            ballot_page.geometry(),
-            &timing_marks.clone().into(),
-        );
+        debug::draw_timing_mark_debug_image_mut(canvas, ballot_page.geometry(), &timing_marks);
     });
 
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {

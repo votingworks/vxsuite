@@ -44,61 +44,9 @@ pub struct Options {
     pub debug_side_b_base: Option<PathBuf>,
     pub write_in_scoring: WriteInScoring,
     pub vertical_streak_detection: VerticalStreakDetection,
-    pub timing_mark_algorithm: TimingMarkAlgorithm,
     pub minimum_detected_scale: Option<UnitIntervalScore>,
     pub max_cumulative_streak_width: PixelUnit,
     pub retry_streak_width_threshold: PixelUnit,
-}
-
-#[derive(Debug, Clone, Copy, DeserializeFromStr, Default)]
-pub enum TimingMarkAlgorithm {
-    Contours {
-        inference: Inference,
-    },
-    #[default]
-    Corners,
-}
-
-impl Display for TimingMarkAlgorithm {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Contours { .. } => write!(f, "contours"),
-            Self::Corners => write!(f, "corners"),
-        }
-    }
-}
-
-impl FromStr for TimingMarkAlgorithm {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "contours" => Ok(Self::Contours {
-                inference: Inference::Enabled,
-            }),
-            "corners" => Ok(Self::Corners),
-            _ => Err(format!("Unexpected algorithm: {s}")),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Default)]
-pub enum Inference {
-    #[default]
-    Enabled,
-    Disabled,
-}
-
-impl FromStr for Inference {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "yes" | "enabled" | "infer" => Ok(Self::Enabled),
-            "no" | "disabled" | "noinfer" | "no-infer" => Ok(Self::Disabled),
-            _ => Err(format!("Unexpected inference: {s}")),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq, Default)]
@@ -288,7 +236,6 @@ pub struct ScanInterpreter {
     write_in_scoring: WriteInScoring,
     vertical_streak_detection: VerticalStreakDetection,
     bubble_template_image: GrayImage,
-    timing_mark_algorithm: TimingMarkAlgorithm,
     minimum_detected_scale: Option<f32>,
     max_cumulative_streak_width: PixelUnit,
     retry_streak_width_threshold: PixelUnit,
@@ -304,7 +251,6 @@ impl ScanInterpreter {
         election: Election,
         write_in_scoring: WriteInScoring,
         vertical_streak_detection: VerticalStreakDetection,
-        timing_mark_algorithm: TimingMarkAlgorithm,
         minimum_detected_scale: Option<f32>,
         max_cumulative_streak_width: PixelUnit,
         retry_streak_width_threshold: PixelUnit,
@@ -315,7 +261,6 @@ impl ScanInterpreter {
             write_in_scoring,
             vertical_streak_detection,
             bubble_template_image,
-            timing_mark_algorithm,
             minimum_detected_scale,
             max_cumulative_streak_width,
             retry_streak_width_threshold,
@@ -342,7 +287,6 @@ impl ScanInterpreter {
             debug_side_b_base: debug_side_b_base.into(),
             write_in_scoring: self.write_in_scoring,
             vertical_streak_detection: self.vertical_streak_detection,
-            timing_mark_algorithm: self.timing_mark_algorithm,
             minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
             max_cumulative_streak_width: self.max_cumulative_streak_width,
             retry_streak_width_threshold: self.retry_streak_width_threshold,
@@ -397,7 +341,7 @@ pub fn ballot_card(
         VerticalStreakDetection::Disabled => Pair::default(),
     };
 
-    let mut timing_marks = match ballot_card.find_timing_marks(options.timing_mark_algorithm) {
+    let mut timing_marks = match ballot_card.find_timing_marks() {
         Ok(marks) => marks,
         Err(Error::MissingTimingMarks { reason }) => {
             // If timing marks couldn't be found, retry streak detection with a lower threshold
@@ -450,7 +394,7 @@ pub fn ballot_card(
                         draw_timing_mark_debug_image_mut(
                             canvas,
                             ballot_page.geometry(),
-                            &timing_marks.clone().into(),
+                            timing_marks,
                         );
                     },
                 );
@@ -581,7 +525,6 @@ mod test {
             election,
             write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::default(),
-            timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
@@ -612,7 +555,6 @@ mod test {
             election,
             write_in_scoring: WriteInScoring::Enabled,
             vertical_streak_detection: VerticalStreakDetection::default(),
-            timing_mark_algorithm: TimingMarkAlgorithm::default(),
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
@@ -967,15 +909,8 @@ mod test {
             "104h-2025-04",
             ("imprinter-front.png", "imprinter-back.png"),
         );
-        let interpretation = ballot_card(
-            side_a_image.clone(),
-            side_b_image.clone(),
-            &Options {
-                timing_mark_algorithm: TimingMarkAlgorithm::Corners,
-                ..options
-            },
-        )
-        .unwrap();
+        let interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
         let marked_grid_positions = interpretation
             .front
@@ -1026,15 +961,8 @@ mod test {
                 "fold-through-timing-mark-back.png",
             ),
         );
-        let interpretation = ballot_card(
-            side_a_image.clone(),
-            side_b_image.clone(),
-            &Options {
-                timing_mark_algorithm: TimingMarkAlgorithm::Corners,
-                ..options
-            },
-        )
-        .unwrap();
+        let interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
         // All bubbles should be unmarked
         assert_eq!(
@@ -1267,10 +1195,7 @@ mod test {
         .unwrap();
         let timing_marks: (TimingMarks, TimingMarks) = card
             .as_pair()
-            .par_map(|page| {
-                page.find_timing_marks(TimingMarkAlgorithm::Corners)
-                    .unwrap()
-            })
+            .par_map(|page| page.find_timing_marks().unwrap())
             .into();
         let side_a_timing_marks = &timing_marks.0;
 

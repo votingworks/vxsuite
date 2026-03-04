@@ -10,16 +10,14 @@ use crate::{
     image_utils::{
         bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, VerticalStreak, BLACK,
     },
-    interpret::{BallotPageAndGeometry, Error, Result, TimingMarkAlgorithm},
+    interpret::{BallotPageAndGeometry, Error, Result},
     layout::{build_interpreted_page_layout, InterpretedContestLayout},
     qr_code,
     scoring::{
         score_bubble_marks_from_grid_layout, score_write_in_areas, ScoredBubbleMarks,
         ScoredPositionAreas, UnitIntervalScore,
     },
-    timing_marks::{
-        self, contours::FindTimingMarkGridOptions, BorderAxis, DefaultForGeometry, TimingMarks,
-    },
+    timing_marks::{self, BorderAxis, DefaultForGeometry, TimingMarks},
 };
 
 use types_rs::{
@@ -296,35 +294,19 @@ impl BallotPage {
         Ok(())
     }
 
-    /// Finds timing marks in this ballot page with the specified algorithm.
+    /// Finds timing marks in this ballot page.
     ///
     /// # Errors
     ///
-    /// Fails if the selected timing mark algorithm is unable to find the
+    /// Fails if the timing mark algorithm is unable to find the
     /// timing mark grid within the image.
     #[allow(clippy::result_large_err)]
-    pub fn find_timing_marks(
-        &self,
-        timing_mark_algorithm: TimingMarkAlgorithm,
-    ) -> Result<TimingMarks> {
-        match timing_mark_algorithm {
-            TimingMarkAlgorithm::Corners => timing_marks::corners::find_timing_mark_grid(
-                &self.ballot_image,
-                &self.geometry,
-                &timing_marks::corners::Options::default_for_geometry(&self.geometry),
-            ),
-            TimingMarkAlgorithm::Contours { inference } => {
-                timing_marks::contours::find_timing_mark_grid(
-                    &self.geometry,
-                    &self.ballot_image,
-                    &FindTimingMarkGridOptions {
-                        allowed_timing_mark_inset_percentage_of_width:
-                            timing_marks::contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
-                        inference,
-                    },
-                )
-            }
-        }
+    pub fn find_timing_marks(&self) -> Result<TimingMarks> {
+        timing_marks::find_timing_mark_grid(
+            &self.ballot_image,
+            &self.geometry,
+            &timing_marks::Options::default_for_geometry(&self.geometry),
+        )
     }
 
     /// Gets the ballot geometry information for this page.
@@ -467,19 +449,15 @@ impl BallotCard {
             .into_result()
     }
 
-    /// Finds timing marks on the ballot card using the given timing mark
-    /// algorithm.
+    /// Finds timing marks on the ballot card.
     ///
     /// # Errors
     ///
     /// Fails if timing marks cannot be found on one or both ballot pages.
     #[allow(clippy::result_large_err)]
-    pub fn find_timing_marks(
-        &self,
-        timing_mark_algorithm: TimingMarkAlgorithm,
-    ) -> Result<Pair<TimingMarks>> {
+    pub fn find_timing_marks(&self) -> Result<Pair<TimingMarks>> {
         self.as_pair()
-            .par_map(|ballot_page| ballot_page.find_timing_marks(timing_mark_algorithm))
+            .par_map(BallotPage::find_timing_marks)
             .into_result()
     }
 
