@@ -1,0 +1,41 @@
+{
+  "name": "@votingworks/pdf-renderer",
+  "version": "0.0.0",
+  "license": "GPL-3.0-only",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "is-ci build:ci build:dev",
+    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
+    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build:watch": "nodemon -x 'pnpm build:self' -w src -e rs",
+    "build:self": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "lint": "cargo clippy",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "cargo test && vitest",
+    "test:run": "cargo test && vitest run",
+    "test:watch": "vitest",
+    "universal": "napi universal",
+    "version": "napi version"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.1.5",
+    "@vitest/coverage-istanbul": "^3.1.1",
+    "@votingworks/test-utils": "workspace:*",
+    "eslint-plugin-vx": "workspace:*",
+    "is-ci-cli": "2.2.0",
+    "nodemon": "^3.1.7",
+    "vitest": "^3.1.1"
+  },
+  "napi": {
+    "binaryName": "pdf-renderer",
+    "targets": [
+      "aarch64-unknown-linux-gnu",
+      "x86_64-unknown-linux-gnu"
+    ]
+  },
+  "packageManager": "pnpm@8.15.5"
+}

@@ -1,0 +1,42 @@
+[package]
+edition = "2021"
+name = "pdf-renderer"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+base64.workspace = true
+krilla.workspace = true
+krilla-svg.workspace = true
+napi.workspace = true
+napi-derive.workspace = true
+quick-xml.workspace = true
+rustybuzz.workspace = true
+taffy.workspace = true
+ttf-parser.workspace = true
+unicode-linebreak.workspace = true
+
+[build-dependencies]
+napi-build.workspace = true
+
+[lints.rust]
+dead_code = "deny"
+unused_assignments = "deny"
+unused_imports = "deny"
+unused_variables = "deny"
+
+[lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+# PoC: relax pedantic lints that add noise during prototyping
+cast_possible_truncation = "allow"
+cast_precision_loss = "allow"
+cast_sign_loss = "allow"
+doc_markdown = "allow"
+many_single_char_names = "allow"
+too_many_arguments = "allow"
+too_many_lines = "allow"
+trivially_copy_pass_by_ref = "allow"
+only_used_in_recursion = "allow"
