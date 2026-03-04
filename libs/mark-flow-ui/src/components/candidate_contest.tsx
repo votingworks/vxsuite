@@ -59,6 +59,7 @@ interface Props {
   ballotStyleId: BallotStyleId;
   election: Election;
   contest: CandidateContestInterface;
+  indirectCandidateIds?: Set<CandidateId>;
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
   accessibilityMode?: AccessibilityMode;
@@ -114,6 +115,7 @@ export function CandidateContest({
   ballotStyleId,
   election,
   contest,
+  indirectCandidateIds,
   vote,
   updateVote,
   accessibilityMode = AccessibilityMode.ATI_CONTROLLER,
@@ -385,6 +387,8 @@ export function CandidateContest({
           <ChoicesGrid>
             {orderedCandidates.map((candidate) => {
               const isChecked = !!findCandidateInVote(vote, candidate);
+              const isIndirect =
+                !isChecked && !!indirectCandidateIds?.has(candidate.id);
               // In the case of a cross-endorsed candidate, we consider any
               // version of that candidate as equivalent in tabulation and the voter
               // may select multiple versions without it impacting the number of selections / overvote trigger.
@@ -393,11 +397,19 @@ export function CandidateContest({
                 candidate.id
               );
               const isDisabled =
-                votesRemaining <= 0 && !isChecked && !isEquivalentToSelected;
+                votesRemaining <= 0 &&
+                !isChecked &&
+                !isIndirect &&
+                !isEquivalentToSelected;
 
               function handleDisabledClick() {
                 handleChangeVoteAlert(candidate);
               }
+
+              function handleIndirectClick() {
+                addCandidateToVote(candidate);
+              }
+
               let prefixAudioText: ReactNode = null;
               let suffixAudioText: ReactNode = null;
 
@@ -436,8 +448,13 @@ export function CandidateContest({
                 <ContestChoiceButton
                   key={candidate.id + (candidate.partyIds ?? []).join('-')}
                   isSelected={isChecked}
+                  isDerived={isIndirect}
                   onPress={
-                    isDisabled ? handleDisabledClick : handleUpdateSelection
+                    isDisabled
+                      ? handleDisabledClick
+                      : isIndirect
+                      ? handleIndirectClick
+                      : handleUpdateSelection
                   }
                   choice={candidate}
                   label={
@@ -452,6 +469,12 @@ export function CandidateContest({
                         candidate={candidate}
                         electionParties={election.parties}
                       />
+                      {isIndirect && (
+                        <React.Fragment>
+                          {' '}
+                          — {appStrings.labelStraightPartyIndirectVote()}
+                        </React.Fragment>
+                      )}
                       <AudioOnly>{suffixAudioText}</AudioOnly>
                     </React.Fragment>
                   }
