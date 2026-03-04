@@ -7,7 +7,7 @@ use image::{Rgb, RgbImage};
 use types_rs::geometry::Rect;
 
 // ---------------------------------------------------------------------------
-// Contrast helpers (moved here from image_utils and callers)
+// Basic drawing helpers (crosses, rectangles, line segments, text)
 // ---------------------------------------------------------------------------
 
 /// Draws a filled cross (+ shape, 3×3 pixels) on `canvas` at `(x, y)`.
@@ -130,13 +130,13 @@ fn layout_glyphs(
 
     for c in text.chars() {
         let glyph_id = font.glyph_id(c);
+        if let Some(last_id) = last {
+            w += font.kern(last_id, glyph_id);
+        }
         let glyph = glyph_id.with_scale_and_position(scale, point(w, font.ascent()));
         w += font.h_advance(glyph_id);
+        last = Some(glyph_id);
         if let Some(g) = font.outline_glyph(glyph) {
-            if let Some(last_id) = last {
-                w += font.kern(glyph_id, last_id);
-            }
-            last = Some(glyph_id);
             let bb = g.px_bounds();
             h = h.max(bb.height());
             f(g, bb);
