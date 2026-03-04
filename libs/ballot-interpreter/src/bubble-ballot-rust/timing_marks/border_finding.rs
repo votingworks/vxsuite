@@ -6,11 +6,8 @@ use crate::{
     interpret::Error,
     scoring::UnitIntervalScore,
     timing_marks::{
-        corners::{
-            corner_finding::BallotGridCorners, util::mark_distances_to_point,
-            BallotGridCandidateMarks,
-        },
-        Border, CandidateTimingMark, DefaultForGeometry,
+        corner_finding::BallotGridCorners, mark_finding::BallotGridCandidateMarks,
+        util::mark_distances_to_point, Border, CandidateTimingMark, DefaultForGeometry,
     },
 };
 use image::RgbImage;
@@ -31,6 +28,7 @@ impl_edgewise!(BallotGridBorders, GridBorder);
 
 impl BallotGridBorders {
     #[allow(clippy::result_large_err)]
+    #[allow(clippy::missing_errors_doc)]
     pub fn find_all(
         geometry: &Geometry,
         corners: &BallotGridCorners,
@@ -173,6 +171,7 @@ impl GridBorder {
     /// two corners, finding timing marks that are close enough to the expected
     /// location to be counted.
     #[allow(clippy::result_large_err)]
+    #[allow(clippy::missing_errors_doc, clippy::missing_panics_doc)]
     pub fn find_between_corners(
         timing_mark_center_to_center_distance: SubPixelUnit,
         maximum_timing_mark_center_distance_error: SubPixelUnit,
@@ -227,10 +226,12 @@ impl GridBorder {
     }
 
     #[allow(dead_code)]
+    #[must_use]
     pub const fn border(&self) -> Border {
         self.border
     }
 
+    #[must_use]
     pub fn into_marks(self) -> Vec<CandidateTimingMark> {
         self.marks
     }

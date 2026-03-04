@@ -8,10 +8,7 @@ use crate::{
     debug::{imageproc_rect_from_rect, monospace_font},
     image_utils::rainbow,
     impl_edgewise,
-    timing_marks::{
-        corners::{shape_finding::BallotGridBorderShapes, util::EdgeWise},
-        CandidateTimingMark,
-    },
+    timing_marks::{shape_finding::BallotGridBorderShapes, util::EdgeWise, CandidateTimingMark},
 };
 
 /// Represents the candidate timing marks found on a ballot grid.
@@ -28,6 +25,7 @@ impl BallotGridCandidateMarks {
     /// Converts a set of ballot grid border shapes into a set of candidate
     /// timing marks. This operation cannot fail because it doesn't do any
     /// validation of the input shapes, it just scores the shapes.
+    #[must_use]
     pub fn from_shapes(
         ballot_image: &BallotImage,
         geometry: &Geometry,

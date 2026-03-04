@@ -302,10 +302,10 @@ impl BallotPage {
     /// timing mark grid within the image.
     #[allow(clippy::result_large_err)]
     pub fn find_timing_marks(&self) -> Result<TimingMarks> {
-        timing_marks::corners::find_timing_mark_grid(
+        timing_marks::find_timing_mark_grid(
             &self.ballot_image,
             &self.geometry,
-            &timing_marks::corners::Options::default_for_geometry(&self.geometry),
+            &timing_marks::Options::default_for_geometry(&self.geometry),
         )
     }
 
