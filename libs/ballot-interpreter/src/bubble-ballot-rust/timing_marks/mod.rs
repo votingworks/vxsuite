@@ -11,7 +11,6 @@ use crate::ballot_card::Geometry;
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::scoring::CandidateTimingMark;
 
-pub mod contours;
 pub mod corners;
 pub mod scoring;
 

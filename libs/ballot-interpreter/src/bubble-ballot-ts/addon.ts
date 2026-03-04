@@ -22,13 +22,13 @@ const addon = (() => {
  */
 export type BridgeInterpretResult =
   | {
-    type: 'ok';
-    value: InterpretedBallotCard;
-  }
+      type: 'ok';
+      value: InterpretedBallotCard;
+    }
   | {
-    type: 'err';
-    value: InterpretError;
-  };
+      type: 'err';
+      value: InterpretError;
+    };
 
 /**
  * Options for the Rust interpreter bridge, matching the Rust JsInterpretOptions struct.
@@ -39,11 +39,9 @@ export interface JsInterpretOptions {
   backNormalizedImageOutputPath?: string;
   debugBasePathSideA?: string;
   debugBasePathSideB?: string;
-  timingMarkAlgorithm?: 'contours' | 'corners';
   minimumDetectedScale?: number;
   scoreWriteIns?: boolean;
   disableVerticalStreakDetection?: boolean;
-  inferTimingMarks?: boolean;
   maxCumulativeStreakWidth: number;
   retryStreakWidthThreshold: number;
 }
@@ -94,22 +92,14 @@ export function runBlankPaperDiagnosticFromPath(
 
 export function findTimingMarkGrid(
   image: string | ImageData,
-  debugBasePath?: string,
-  options?: {
-    timingMarkAlgorithm?: 'contours' | 'corners';
-  }
+  debugBasePath?: string
 ): TimingMarks {
   return typeof image === 'string'
-    ? addon.findTimingMarkGridFromPath(
-      image,
-      debugBasePath ?? null,
-      options ?? null
-    )
+    ? addon.findTimingMarkGridFromPath(image, debugBasePath ?? null)
     : addon.findTimingMarkGridFromImage(
-      image.width,
-      image.height,
-      image.data,
-      debugBasePath ?? null,
-      options ?? null
-    );
+        image.width,
+        image.height,
+        image.data,
+        debugBasePath ?? null
+      );
 }

@@ -1,7 +1,7 @@
 use std::mem::swap;
 use std::ops::RangeInclusive;
 
-use image::{GenericImage, GrayImage, ImageError, Luma, Rgb};
+use image::{GrayImage, Luma, Rgb};
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit};
@@ -197,21 +197,6 @@ pub fn count_pixels_in_shape(ballot_image: &BallotImage, shape: &Quadrilateral) 
         }
     }
     counted
-}
-
-/// Expands an image by the given number of pixels on all sides.
-pub fn expand_image(
-    img: &GrayImage,
-    border_size: PixelUnit,
-    background_color: Luma<u8>,
-) -> Result<GrayImage, ImageError> {
-    let mut out = GrayImage::new(
-        img.width() + border_size * 2,
-        img.height() + border_size * 2,
-    );
-    out.fill(background_color.0[0]);
-    out.copy_from(img, border_size, border_size)?;
-    Ok(out)
 }
 
 /// Finds the inset of a scanned document in an image such that each side of the

@@ -583,13 +583,15 @@ function validateInterpretResults(
 function interpretHmpb(
   sheet: SheetOf<ImageData>,
   options: InterpreterOptions
-): { rawResult: HmpbInterpretResult; interpretation: SheetOf<PageInterpretation> } {
+): {
+  rawResult: HmpbInterpretResult;
+  interpretation: SheetOf<PageInterpretation>;
+} {
   const rawResult = interpretHmpbBallotSheetRust({
     electionDefinition: options.electionDefinition,
     ballotImages: sheet,
     scoreWriteIns: shouldScoreWriteIns(options),
     disableVerticalStreakDetection: options.disableVerticalStreakDetection,
-    inferTimingMarks: options.inferTimingMarks,
     minimumDetectedScale: options.minimumDetectedScale,
     maxCumulativeStreakWidth: options.maxCumulativeStreakWidth,
     retryStreakWidthThreshold: options.retryStreakWidthThreshold,
@@ -889,7 +891,8 @@ export async function interpretSheet(
           options.frontNormalizedImageOutputPath,
           options.backNormalizedImageOutputPath,
         ],
-        async (imageData, path) => path && (await writeImageData(path, imageData))
+        async (imageData, path) =>
+          path && (await writeImageData(path, imageData))
       );
       return hmpbInterpretation;
     }

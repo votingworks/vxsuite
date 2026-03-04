@@ -8,7 +8,7 @@ use std::{
 use ballot_interpreter::{
     debug::ImageDebugWriter,
     interpret::{
-        Inference, ScanInterpreter, TimingMarkAlgorithm, VerticalStreakDetection, WriteInScoring,
+        ScanInterpreter, VerticalStreakDetection, WriteInScoring,
         DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
     },
     qr_code,
@@ -47,14 +47,6 @@ struct Options {
     /// Vertical streak detection setting.
     #[clap(long, short = 'v', default_value_t = Default::default())]
     vertical_streak_detection: VerticalStreakDetection,
-
-    /// Determines whether to disable timing mark inference (only applicable to contours algorithm).
-    #[clap(long, default_value = "false")]
-    disable_timing_mark_inference: bool,
-
-    /// Which timing mark finding algorithm to use.
-    #[clap(long, short = 'a', default_value_t = Default::default())]
-    timing_mark_algorithm: TimingMarkAlgorithm,
 
     /// Detect and reject timing mark grid scales less than this value.
     #[clap(long)]
@@ -298,17 +290,6 @@ fn interpret_bubble_ballot(
     election: Election,
     side_a_image: image::GrayImage,
 ) -> color_eyre::Result<i32> {
-    let timing_mark_algorithm = match options.timing_mark_algorithm {
-        TimingMarkAlgorithm::Contours { .. } => TimingMarkAlgorithm::Contours {
-            inference: if options.disable_timing_mark_inference {
-                Inference::Disabled
-            } else {
-                Inference::Enabled
-            },
-        },
-        TimingMarkAlgorithm::Corners => TimingMarkAlgorithm::Corners,
-    };
-
     let interpreter = ScanInterpreter::new(
         election,
         if options.score_write_ins {
@@ -317,7 +298,6 @@ fn interpret_bubble_ballot(
             WriteInScoring::Disabled
         },
         options.vertical_streak_detection,
-        timing_mark_algorithm,
         options.minimum_detected_scale,
         options.max_cumulative_streak_width,
         options.retry_streak_width_threshold,
