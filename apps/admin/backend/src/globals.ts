@@ -52,6 +52,16 @@ const DEFAULT_ALLOWED_EXPORT_PATTERNS =
     : ['/tmp/**/*']; // Where mock USB drives are created within tests
 
 /**
+ * Port for peer-to-peer communication in multi-station mode.
+ */
+export const PEER_PORT = PORT + 1;
+
+/**
+ * Interval for polling network status in multi-station mode.
+ */
+export const NETWORK_POLLING_INTERVAL = 2000;
+
+/**
  * Where are exported files allowed to be written to?
  */
 export const ADMIN_ALLOWED_EXPORT_PATTERNS =

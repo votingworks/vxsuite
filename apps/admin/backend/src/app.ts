@@ -36,12 +36,14 @@ import { Printer } from '@votingworks/printing';
 import { createReadStream, promises as fs } from 'node:fs';
 import path, { join } from 'node:path';
 import {
+  BooleanEnvironmentVariableName,
   ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
   generateFilenameForElectionPackage,
   getBallotCount,
   getBallotStyleGroup,
   groupMapToGroupList,
+  isFeatureFlagEnabled,
   isIntegrationTest,
   isSystemAdministratorAuth,
   systemLimitViolationToString,
@@ -88,7 +90,10 @@ import {
   VoteAdjudication,
   AdjudicatedCvrContest,
   CvrContestTag,
+  VxAdminMachineMode,
+  VxAdminNetworkStatus,
 } from './types';
+import { VxAdminNetworkingManager } from './networking';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { getBallotImageView } from './util/adjudication';
@@ -164,12 +169,14 @@ function buildApi({
   logger,
   usbDrive,
   printer,
+  networkingManager,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
   printer: Printer;
+  networkingManager?: VxAdminNetworkingManager;
 }) {
   const { store } = workspace;
 
@@ -1223,6 +1230,41 @@ function buildApi({
       return workspace.getDiskSpaceSummary();
     },
 
+    getMachineMode(): VxAdminMachineMode {
+      if (
+        !isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+        )
+      ) {
+        return 'traditional';
+      }
+      return store.getMachineMode();
+    },
+
+    setMachineMode(input: {
+      mode: VxAdminMachineMode;
+    }): void {
+      assert(
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+        ),
+        'Multi-station admin is not enabled'
+      );
+      assert(
+        !store.getCurrentElectionId(),
+        'Cannot change machine mode while an election is configured'
+      );
+      store.setMachineMode(input.mode);
+      networkingManager?.onModeChanged(input.mode);
+    },
+
+    getNetworkStatus(): VxAdminNetworkStatus {
+      if (!networkingManager) {
+        return { mode: 'traditional' };
+      }
+      return networkingManager.getNetworkStatus();
+    },
+
     ...createSystemCallApi({
       usbDrive,
       logger,
@@ -1246,15 +1288,24 @@ export function buildApp({
   logger,
   usbDrive,
   printer,
+  networkingManager,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
   printer: Printer;
+  networkingManager?: VxAdminNetworkingManager;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usbDrive, printer });
+  const api = buildApi({
+    auth,
+    workspace,
+    logger,
+    usbDrive,
+    printer,
+    networkingManager,
+  });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

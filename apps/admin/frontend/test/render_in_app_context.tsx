@@ -15,7 +15,10 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import type { MachineConfig } from '@votingworks/admin-backend';
+import type {
+  MachineConfig,
+  VxAdminMachineMode,
+} from '@votingworks/admin-backend';
 import {
   mockUsbDriveStatus,
   SystemCallContextProvider,
@@ -46,6 +49,7 @@ export interface RenderInAppContextParams {
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
   hasPrinterAttached?: boolean;
+  machineMode?: VxAdminMachineMode;
   apiMock?: ApiMock;
   queryClient?: QueryClient;
 }
@@ -103,6 +107,7 @@ export function renderInAppContext(
       machineId: DEV_MACHINE_ID,
       codeVersion: 'dev',
     },
+    machineMode = 'traditional',
     apiMock,
     queryClient,
   }: RenderInAppContextParams = {}
@@ -117,6 +122,7 @@ export function renderInAppContext(
         usbDriveStatus,
         auth,
         machineConfig,
+        machineMode,
         electionPackageHash: 'test-election-package-hash',
       }}
     >

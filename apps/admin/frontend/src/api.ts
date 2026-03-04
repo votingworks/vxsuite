@@ -882,4 +882,43 @@ export const saveReadinessReport = {
   },
 } as const;
 
+// Machine Mode (Multi-Station Admin)
+
+const NETWORK_STATUS_POLLING_INTERVAL_MS = 2000;
+
+export const getMachineMode = {
+  queryKey(): QueryKey {
+    return ['getMachineMode'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMachineMode());
+  },
+} as const;
+
+export const setMachineMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setMachineMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getMachineMode.queryKey());
+        await queryClient.invalidateQueries(getNetworkStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const getNetworkStatus = {
+  queryKey(): QueryKey {
+    return ['getNetworkStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getNetworkStatus(), {
+      refetchInterval: NETWORK_STATUS_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

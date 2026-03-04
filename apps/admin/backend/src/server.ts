@@ -30,6 +30,8 @@ import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
 import { rootDebug } from './util/debug';
 import { getUserRole } from './util/auth';
+import { VxAdminNetworkingManager } from './networking';
+import { getMachineConfig } from './machine_config';
 
 const debug = rootDebug.extend('server');
 
@@ -103,12 +105,27 @@ export async function start({
     const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
     const resolvedPrinter = printer ?? detectPrinter(logger);
 
+    let networkingManager: VxAdminNetworkingManager | undefined;
+    if (
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+      )
+    ) {
+      const machineConfig = getMachineConfig();
+      networkingManager = new VxAdminNetworkingManager(
+        machineConfig.machineId
+      );
+      const currentMode = resolvedWorkspace.store.getMachineMode();
+      networkingManager.onModeChanged(currentMode);
+    }
+
     resolvedApp = buildApp({
       auth,
       logger,
       usbDrive: resolvedUsbDrive,
       printer: resolvedPrinter,
       workspace: resolvedWorkspace,
+      networkingManager,
     });
   }
 

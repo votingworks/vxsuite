@@ -649,3 +649,15 @@ describe('ERR file import', () => {
     expect(result.err()?.type).toEqual('conversion-failed');
   });
 });
+
+describe('machine mode endpoints', () => {
+  test('getMachineMode returns traditional when flag is disabled', async () => {
+    const { apiClient } = buildTestEnvironment();
+    expect(await apiClient.getMachineMode()).toEqual('traditional');
+  });
+
+  test('getNetworkStatus returns traditional when no networking manager', async () => {
+    const { apiClient } = buildTestEnvironment();
+    expect(await apiClient.getNetworkStatus()).toEqual({ mode: 'traditional' });
+  });
+});

@@ -162,6 +162,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/networking':
+        specifier: workspace:*
+        version: link:../../../libs/networking
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -2321,6 +2324,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/networking':
+        specifier: workspace:*
+        version: link:../../../libs/networking
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -5314,6 +5320,52 @@ importers:
       vitest:
         specifier: ^3.1.1
         version: 3.1.1(@types/node@20.17.31)(jsdom@20.0.1)
+
+  libs/networking:
+    dependencies:
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../backend
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../basics
+      debug:
+        specifier: 4.3.4
+        version: 4.3.4(supports-color@5.5.0)
+    devDependencies:
+      '@types/debug':
+        specifier: 4.1.8
+        version: 4.1.8
+      '@types/node':
+        specifier: 20.17.31
+        version: 20.17.31
+      '@vitest/coverage-istanbul':
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+      esbuild:
+        specifier: 0.21.2
+        version: 0.21.2
+      esbuild-runner:
+        specifier: 2.2.2
+        version: 2.2.2(esbuild@0.21.2)
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../eslint-plugin-vx
+      is-ci-cli:
+        specifier: 2.2.0
+        version: 2.2.0
+      lint-staged:
+        specifier: 11.0.0
+        version: 11.0.0
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.53.1
+      vitest:
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.17.31)
 
   libs/pdi-scanner:
     dependencies:
@@ -25701,7 +25753,7 @@ packages:
       '@vitest/spy': 3.1.1
       '@vitest/utils': 3.1.1
       chai: 5.2.0
-      debug: 4.4.0
+      debug: 4.4.1
       expect-type: 1.2.1
       magic-string: 0.30.17
       pathe: 2.0.3
@@ -25829,7 +25881,7 @@ packages:
       '@vitest/spy': 3.1.1
       '@vitest/utils': 3.1.1
       chai: 5.2.0
-      debug: 4.4.0
+      debug: 4.4.1
       expect-type: 1.2.1
       jsdom: 20.0.1
       magic-string: 0.30.17

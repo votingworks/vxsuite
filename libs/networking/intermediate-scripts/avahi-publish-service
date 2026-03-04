@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage () {
+    echo 'Usage: avahi-publish-service <name> <port> [service_type]'
+    exit 1
+}
+
+if ! [[ "${#}" -ge 2 ]]; then
+    usage
+fi
+
+SERVICE_TYPE="${3:-_http._tcp}"
+
+avahi-publish-service "${1}" "$SERVICE_TYPE" "${2}"

@@ -611,3 +611,27 @@ describe('getFilteredContests', () => {
     );
   });
 });
+
+describe('machine mode', () => {
+  test('defaults to traditional', () => {
+    const store = Store.memoryStore();
+    expect(store.getMachineMode()).toEqual('traditional');
+  });
+
+  test('set and get machine mode', () => {
+    const store = Store.memoryStore();
+    store.setMachineMode('host');
+    expect(store.getMachineMode()).toEqual('host');
+    store.setMachineMode('client');
+    expect(store.getMachineMode()).toEqual('client');
+    store.setMachineMode('traditional');
+    expect(store.getMachineMode()).toEqual('traditional');
+  });
+
+  test('machine mode survives reset', () => {
+    const store = Store.memoryStore();
+    store.setMachineMode('host');
+    store.reset();
+    expect(store.getMachineMode()).toEqual('host');
+  });
+});

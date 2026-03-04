@@ -5,6 +5,7 @@ import {
   getAuthStatus,
   getCurrentElectionMetadata,
   getMachineConfig,
+  getMachineMode,
   getUsbDriveStatus,
 } from './api';
 
@@ -13,12 +14,14 @@ export function AppRoot(): JSX.Element | null {
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const currentElectionMetadataQuery = getCurrentElectionMetadata.useQuery();
+  const machineModeQuery = getMachineMode.useQuery();
 
   if (
     !authStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !getMachineConfigQuery.isSuccess ||
-    !currentElectionMetadataQuery.isSuccess
+    !currentElectionMetadataQuery.isSuccess ||
+    !machineModeQuery.isSuccess
   ) {
     return null;
   }
@@ -26,6 +29,7 @@ export function AppRoot(): JSX.Element | null {
   const usbDriveStatus = usbDriveStatusQuery.data;
   const machineConfig = getMachineConfigQuery.data;
   const auth: DippedSmartCardAuth.AuthStatus = authStatusQuery.data;
+  const machineMode = machineModeQuery.data;
   const {
     electionDefinition,
     electionPackageHash,
@@ -43,6 +47,7 @@ export function AppRoot(): JSX.Element | null {
         usbDriveStatus,
         auth,
         machineConfig,
+        machineMode,
       }}
     >
       <AppRoutes />

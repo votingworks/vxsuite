@@ -10,6 +10,7 @@ import {
   ReadOnLoad,
   VerifyBallotImage,
   appStrings,
+  useAudioControls,
 } from '@votingworks/ui';
 import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
 
@@ -54,6 +55,15 @@ const InstructionImageContainer = styled.div`
   }
 `;
 
+const FocusableContent = styled.div.attrs({
+  role: 'button',
+  tabIndex: 0,
+})`
+  &:focus {
+    outline: none;
+  }
+`;
+
 interface Props {
   hidePostVotingInstructions: () => void;
   printingCompleted?: boolean;
@@ -65,19 +75,11 @@ export function CastBallotPage({
   printingCompleted,
   VoterHelpScreen,
 }: Props): JSX.Element {
-  const instructionsRef = React.useRef<HTMLDivElement>(null);
+  const audioControls = useAudioControls();
 
-  // Replay instructions when left arrow is pressed (no previous page on this screen)
-  React.useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'ArrowLeft' && instructionsRef.current) {
-        instructionsRef.current.focus();
-        instructionsRef.current.click();
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const handleFocus = React.useCallback(() => {
+    audioControls.replay();
+  }, [audioControls]);
 
   return (
     <VoterScreen
@@ -93,33 +95,33 @@ export function CastBallotPage({
       padded
       VoterHelpScreen={VoterHelpScreen}
     >
-      <div ref={instructionsRef} tabIndex={-1}>
+      <FocusableContent onFocus={handleFocus}>
         <ReadOnLoad>
-          <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
-          <P>
-            {printingCompleted
-              ? appStrings.instructionsBmdCastBallotPreamblePostPrint()
-              : appStrings.instructionsBmdCastBallotPreamble()}
-          </P>
-          <Instructions>
-            <ListItem>
-              <InstructionImageContainer>
-                <VerifyBallotImage />
-              </InstructionImageContainer>
-              <span>{appStrings.instructionsBmdCastBallotStep1()}</span>
-            </ListItem>
-            <ListItem>
-              <InstructionImageContainer>
-                <InsertBallotImage disableAnimation />
-              </InstructionImageContainer>
-              <span>{appStrings.instructionsBmdCastBallotStep2()}</span>
-            </ListItem>
-          </Instructions>
-          <P>
-            <Icons.Info /> {appStrings.noteAskPollWorkerForHelp()}
-          </P>
+        <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
+        <P>
+          {printingCompleted
+            ? appStrings.instructionsBmdCastBallotPreamblePostPrint()
+            : appStrings.instructionsBmdCastBallotPreamble()}
+        </P>
+        <Instructions>
+          <ListItem>
+            <InstructionImageContainer>
+              <VerifyBallotImage />
+            </InstructionImageContainer>
+            <span>{appStrings.instructionsBmdCastBallotStep1()}</span>
+          </ListItem>
+          <ListItem>
+            <InstructionImageContainer>
+              <InsertBallotImage disableAnimation />
+            </InstructionImageContainer>
+            <span>{appStrings.instructionsBmdCastBallotStep2()}</span>
+          </ListItem>
+        </Instructions>
+        <P>
+          <Icons.Info /> {appStrings.noteAskPollWorkerForHelp()}
+        </P>
         </ReadOnLoad>
-      </div>
+      </FocusableContent>
     </VoterScreen>
   );
 }

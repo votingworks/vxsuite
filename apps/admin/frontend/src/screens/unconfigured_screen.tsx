@@ -12,12 +12,17 @@ import {
 } from '@votingworks/ui';
 import type { FileSystemEntry } from '@votingworks/fs';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { systemLimitViolationToString } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  systemLimitViolationToString,
+} from '@votingworks/utils';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { NODE_ENV, TIME_FORMAT } from '../config/globals';
+import { MachineModeSelector } from '../components/machine_mode_selector';
 
 const ButtonRow = styled.tr`
   cursor: pointer;
@@ -151,8 +156,13 @@ export function UnconfiguredScreen(): JSX.Element {
   const potentialElectionPackagesResult =
     listPotentialElectionPackagesOnUsbDriveQuery.data;
 
+  const isMultiStationEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+  );
+
   return (
     <NavigationScreen title="Election">
+      {isMultiStationEnabled && <MachineModeSelector />}
       {potentialElectionPackagesResult.isErr() ? (
         <FullScreenMessage
           title="Insert a USB drive containing an election package"

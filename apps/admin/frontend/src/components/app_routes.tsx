@@ -22,6 +22,7 @@ import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { ElectionScreen } from '../screens/election_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
+import { ClientStatusScreen } from '../screens/client_status_screen';
 import { TallyScreen } from '../screens/tally/tally_screen';
 import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudication_report_screen';
 import { ManualTalliesFormScreen } from '../screens/tally/manual_tallies_form_screen';
@@ -42,7 +43,7 @@ import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 import { ContestAdjudicationScreen } from '../screens/contest_adjudication_screen';
 
 export function AppRoutes(): JSX.Element | null {
-  const { electionDefinition, auth } = useContext(AppContext);
+  const { electionDefinition, auth, machineMode } = useContext(AppContext);
   const election = electionDefinition?.election;
   const apiClient = useApiClient();
   const checkPinMutation = checkPin.useMutation();
@@ -112,7 +113,13 @@ export function AppRoutes(): JSX.Element | null {
     return (
       <Switch>
         <Route exact path={routerPaths.election}>
-          {election ? <ElectionScreen /> : <UnconfiguredScreen />}
+          {election ? (
+            <ElectionScreen />
+          ) : machineMode === 'client' ? (
+            <ClientStatusScreen />
+          ) : (
+            <UnconfiguredScreen />
+          )}
         </Route>
         <Route exact path={routerPaths.smartcards}>
           <SmartCardsScreen />

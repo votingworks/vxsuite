@@ -87,6 +87,7 @@ import {
   WriteInAdjudicationActionReset,
   CvrContestTag,
   WriteInForTally,
+  VxAdminMachineMode,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -170,9 +171,26 @@ export class Store {
 
   /**
    * Resets the database, clearing any existing data.
+   * Preserves machine mode across resets.
    */
   reset(): void {
+    const machineMode = this.getMachineMode();
     this.client.reset();
+    this.setMachineMode(machineMode);
+  }
+
+  getMachineMode(): VxAdminMachineMode {
+    const row = this.client.one(
+      'select machine_mode from settings where id = 1'
+    ) as { machine_mode: string } | undefined;
+    return (row?.machine_mode ?? 'traditional') as VxAdminMachineMode;
+  }
+
+  setMachineMode(mode: VxAdminMachineMode): void {
+    this.client.run(
+      'update settings set machine_mode = ? where id = 1',
+      mode
+    );
   }
 
   isEarlyVotingEnabled(): boolean {

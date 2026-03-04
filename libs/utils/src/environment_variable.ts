@@ -107,6 +107,10 @@ export enum BooleanEnvironmentVariableName {
    * [In Development] Exposes early voting features in VxScan and VxAdmin
    */
   EARLY_VOTING = 'REACT_APP_VX_EARLY_VOTING',
+  /**
+   * [In Development] Enables multi-station admin mode (host/client) in VxAdmin
+   */
+  ENABLE_MULTI_STATION_ADMIN = 'REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -188,6 +192,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE;
     case BooleanEnvironmentVariableName.EARLY_VOTING:
       return process.env.REACT_APP_VX_EARLY_VOTING;
+    case BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN:
+      return process.env['REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN'];
     /* istanbul ignore next */
     default:
       throwIllegalValue(name);
@@ -342,6 +348,12 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: true,
         autoEnableInDevelopment: true,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
       };
     /* istanbul ignore next */
     default:

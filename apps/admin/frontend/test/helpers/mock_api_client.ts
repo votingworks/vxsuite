@@ -19,6 +19,8 @@ import type {
   WriteInRecord,
   VoteAdjudication,
   CvrContestTag,
+  VxAdminMachineMode,
+  VxAdminNetworkStatus,
 } from '@votingworks/admin-backend';
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
@@ -826,6 +828,20 @@ export function createApiMock(
 
     expectGetUsbPortStatus(): void {
       apiClient.getUsbPortStatus.expectCallWith().resolves({ enabled: true });
+    },
+
+    expectGetMachineMode(mode: VxAdminMachineMode = 'traditional') {
+      apiClient.getMachineMode.expectCallWith().resolves(mode);
+    },
+
+    expectSetMachineMode(mode: VxAdminMachineMode) {
+      apiClient.setMachineMode.expectCallWith({ mode }).resolves();
+    },
+
+    expectGetNetworkStatus(
+      status: VxAdminNetworkStatus = { mode: 'traditional' }
+    ) {
+      apiClient.getNetworkStatus.expectCallWith().resolves(status);
     },
   };
 }
