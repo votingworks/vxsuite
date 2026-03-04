@@ -8,7 +8,7 @@ import {
   Election,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
-import type { BallotImages } from '@votingworks/admin-backend';
+import type { BallotImages, CvrContestTag } from '@votingworks/admin-backend';
 import { useHistory } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -313,9 +313,21 @@ export function BallotAdjudicationScreen(): JSX.Element {
       AdjudicationReason.Undervote
     );
 
-  const allResolved = adjudicationContests.every(
-    (c) => !c.tag || c.tag.isResolved
-  );
+  const cvrTag = ballotAdjudicationDataQuery.data.tag;
+
+  function isContestTagOnlyUndervote(tag: CvrContestTag) { return tag !== null &&
+    tag.hasUndervote &&
+    !tag.hasMarginalMark &&
+    !tag.hasWriteIn &&
+    !tag.hasUnmarkedWriteIn &&
+    !tag.hasOvervote };
+
+  const allResolved =
+    (cvrTag?.isBlankBallot &&
+      adjudicationContests.every(
+        (c) => !c.tag || c.tag.isResolved || isContestTagOnlyUndervote(c.tag)
+      )) ||
+    adjudicationContests.every((c) => !c.tag || c.tag.isResolved);
   const onFirstBallot = queueIndex <= 0;
   const onLastBallot = queueIndex >= queue.length - 1;
 
@@ -351,7 +363,8 @@ export function BallotAdjudicationScreen(): JSX.Element {
 
   function confirmAcceptAndNext(): void {
     setShowConfirmModal(false);
-    const { tag } = ballotAdjudicationDataQuery.data;
+    const {data} = ballotAdjudicationDataQuery;
+    const tag = data?.tag;
     if (tag && !tag.isResolved) {
       void adjudicateBallotMutation.mutateAsync({ cvrId }).then(navigateNext);
     } else {
@@ -368,10 +381,13 @@ export function BallotAdjudicationScreen(): JSX.Element {
   }
 
   const hoveredContestBounds = (() => {
-    if (!hoveredContestId || activeImage.type !== 'hmpb') return undefined;
-    return activeImage.layout.contests.find(
-      (c) => c.contestId === hoveredContestId
-    )?.bounds;
+    if (hoveredContestId && activeImage.type === 'hmpb') {
+      const bounds = activeImage.layout.contests.find(
+        (c) => c.contestId === hoveredContestId
+      )?.bounds;
+      return bounds;
+    }
+    return undefined;
   })();
 
   const hoveredContestHasWarning = (() => {
@@ -468,6 +484,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
               onSelect={(contestId) => setSelectedContestId(contestId)}
               onHover={onContestHover}
               onSelectSide={setSelectedSide}
+              cvrTag={cvrTag}
             />
           )}
           <PanelFooter>

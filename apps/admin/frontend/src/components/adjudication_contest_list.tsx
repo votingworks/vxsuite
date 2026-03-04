@@ -11,8 +11,16 @@ import type {
   ContestAdjudicationData,
   ContestOptionAdjudicationData,
   CvrContestTag,
+  CvrTag,
 } from '@votingworks/admin-backend';
-import { Button, DesktopPalette, Icons } from '@votingworks/ui';
+import {
+  Button,
+  Callout,
+  Caption,
+  DesktopPalette,
+  Icons,
+  P,
+} from '@votingworks/ui';
 import { EntityList } from './entity_list';
 
 const Column = styled.div`
@@ -25,6 +33,21 @@ const Column = styled.div`
 const ViewSideButton = styled(Button)`
   font-size: 0.875rem;
   padding: 0.2rem 0.5rem;
+`;
+
+const ViewSideCalloutButton = styled(ViewSideButton)`
+  &:hover {
+    background-color: ${DesktopPalette.Purple40};
+  }
+`;
+
+const BlankBallotCalloutContainer = styled.div`
+  padding: 0.5rem;
+  border-bottom: var(--entity-list-border);
+
+  svg {
+    align-self: center;
+  }
 `;
 
 const ResolvedCaption = styled(EntityList.Caption)`
@@ -88,7 +111,7 @@ function getStatusTransitionLine(
     if (adjudicatedStatus === 'undervote' && showUndervoteTransitions) {
       return 'Overvote resolved; now an Undervote';
     }
-    return 'Overvote resolved';
+    return 'Overvote Resolved';
   }
 
   // New overvote
@@ -99,7 +122,7 @@ function getStatusTransitionLine(
   // Undervote transitions only if enabled
   if (showUndervoteTransitions) {
     if (originalStatus === 'undervote' && adjudicatedStatus !== 'undervote') {
-      return 'Undervote resolved';
+      return 'Undervote Resolved';
     }
     if (adjudicatedStatus === 'undervote') {
       return 'Now an Undervote';
@@ -153,14 +176,16 @@ function getOptionResolutionDescription(
   // Marginal mark - show caption whether explicitly adjudicated or dismissed
   if (hasMarginalMark) {
     const isVote = voteAdjudication ? voteAdjudication.isVote : initialVote;
-    const voteText = isVote ? 'is Valid' : 'is Invalid';
+    const voteText = isVote ? 'adjudicated as Valid' : 'adjudicated as Invalid';
     return `Marginal Mark for “${definition.name}” ${voteText}`;
   }
 
   // Standard vote change
   if (voteAdjudication) {
     const preface = voteAdjudication.isVote ? 'Undetected Mark' : 'Mark';
-    const voteText = voteAdjudication.isVote ? 'is Valid' : 'is Invalid';
+    const voteText = voteAdjudication.isVote
+      ? 'adjudicated as Valid'
+      : 'adjudicated as Invalid';
     return `${preface} for “${definition.name}” ${voteText}`;
   }
 
@@ -195,6 +220,7 @@ export interface AdjudicationContestListProps {
   onSelect: (contestId: ContestId) => void;
   onHover?: (contestId: ContestId | null) => void;
   onSelectSide: (side: Side) => void;
+  cvrTag?: CvrTag;
 }
 
 function ContestSublist({
@@ -210,6 +236,7 @@ function ContestSublist({
   firstUnresolvedContestId,
   isActive,
   onHeaderClick,
+  isBlankBallot,
 }: {
   contests: AnyContest[];
   election: Election;
@@ -223,6 +250,7 @@ function ContestSublist({
   firstUnresolvedContestId?: ContestId;
   isActive?: boolean;
   onHeaderClick?: () => void;
+  isBlankBallot?: boolean;
 }): React.ReactNode {
   return (
     <React.Fragment>
@@ -252,6 +280,13 @@ function ContestSublist({
         {contests.map((contest) => {
           const tag = tagsByContestId.get(contest.id);
           const isPending = tag && !tag.isResolved;
+          const isOnlyUndervote =
+            tag &&
+            tag.hasUndervote &&
+            !tag.hasMarginalMark &&
+            !tag.hasWriteIn &&
+            !tag.hasUnmarkedWriteIn &&
+            !tag.hasOvervote;
           const isResolved = tag && tag.isResolved;
           const isFirstUnresolved = contest.id === firstUnresolvedContestId;
 
@@ -281,7 +316,9 @@ function ContestSublist({
               onSelect={onSelect}
               onHover={onHover}
               autoScrollIntoView={isFirstUnresolved}
-              hasWarning={isPending || false}
+              hasWarning={
+                (isPending && !(isBlankBallot && isOnlyUndervote)) || false
+              }
             >
               <Column>
                 <EntityList.Caption>
@@ -305,7 +342,9 @@ function ContestSublist({
                     </ResolvedCaption>
                   ))}
               </Column>
-              {isPending && <Icons.Warning color="warning" />}
+              {isPending && !(isBlankBallot && isOnlyUndervote) && (
+                <Icons.Warning color="warning" />
+              )}
             </EntityList.Item>
           );
         })}
@@ -329,20 +368,93 @@ export function AdjudicationContestList(
     onSelect,
     onHover,
     onSelectSide,
+    cvrTag,
   } = props;
 
   const allContests = [...frontContests, ...backContests];
-  const firstUnresolvedContestId = allContests.find((c) => {
-    const tag = tagsByContestId.get(c.id);
-    return tag && !tag.isResolved;
-  })?.id;
+  const firstUnresolvedContestId = cvrTag?.isBlankBallot
+    ? undefined
+    : allContests.find((c) => {
+        const tag = tagsByContestId.get(c.id);
+        return tag && !tag.isResolved;
+      })?.id;
 
   const adjudicationContestsByContestId = new Map(
     adjudicationContests.map((c) => [c.contestId, c])
   );
 
+  const hasAnyAdjudicatedVote =
+    cvrTag?.isBlankBallot &&
+    adjudicationContests.some((c) =>
+      c.options.some((o) => getAdjudicatedVote(o))
+    );
+
+  const blankBallotCalloutTitle = (() => {
+    if (!cvrTag?.isBlankBallot) return undefined;
+    if (!cvrTag.isResolved) return hasAnyAdjudicatedVote
+        ? 'Blank Ballot Resolved'
+        : 'Blank Ballot Detected';
+    return hasAnyAdjudicatedVote
+      ? 'Blank Ballot Resolved'
+      : 'Blank Ballot Confirmed';
+  })();
+
   return (
     <EntityList.Box>
+      {cvrTag?.isBlankBallot && blankBallotCalloutTitle && (
+        <BlankBallotCalloutContainer>
+          <Callout
+            color={
+              hasAnyAdjudicatedVote
+                ? 'neutral'
+                : !cvrTag.isResolved
+                ? 'warning'
+                : 'primary'
+            }
+            icon={
+              cvrTag.isResolved || hasAnyAdjudicatedVote ? 'Done' : 'Warning'
+            }
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flex: 1,
+              }}
+            >
+              <Column style={{ gap: '0.5rem' }}>
+                <P
+                  style={{
+                    lineHeight: 1,
+                    fontSize: '1.125rem',
+                    marginBottom: 0,
+                  }}
+                  weight="bold"
+                >
+                  {blankBallotCalloutTitle}
+                </P>
+                {hasAnyAdjudicatedVote && (
+                  <Caption weight="regular" style={{ lineHeight: 1 }}>
+                    At least one contest now has a valid vote
+                  </Caption>
+                )}
+              </Column>
+              {!hasAnyAdjudicatedVote && (
+                <ViewSideCalloutButton
+                  fill="filled"
+                  onPress={() => onSelectSide('back')}
+                  color={
+                    cvrTag.isResolved ? 'inversePrimary' : 'inverseNeutral'
+                  }
+                >
+                  View Back
+                </ViewSideCalloutButton>
+              )}
+            </div>
+          </Callout>
+        </BlankBallotCalloutContainer>
+      )}
       {frontContests.length > 0 && (
         <ContestSublist
           contests={frontContests}
@@ -357,6 +469,7 @@ export function AdjudicationContestList(
           firstUnresolvedContestId={firstUnresolvedContestId}
           isActive={selectedSide === 'front'}
           onHeaderClick={() => onSelectSide('front')}
+          isBlankBallot={cvrTag?.isBlankBallot}
         />
       )}
       {backContests.length > 0 && (
@@ -373,6 +486,7 @@ export function AdjudicationContestList(
           firstUnresolvedContestId={firstUnresolvedContestId}
           isActive={selectedSide === 'back'}
           onHeaderClick={() => onSelectSide('back')}
+          isBlankBallot={cvrTag?.isBlankBallot}
         />
       )}
     </EntityList.Box>
