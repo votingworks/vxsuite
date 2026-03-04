@@ -151,7 +151,7 @@ pub fn draw_vertical_streaks_debug_image_mut(
     }
 }
 
-/// Draws a debug image of the rectangles found using the contour algorithm.
+/// Draws a debug image of candidate timing marks with their mark and padding scores.
 pub fn draw_candidate_timing_marks_debug_image_mut(
     canvas: &mut RgbImage,
     candidate_timing_marks: &[CandidateTimingMark],
