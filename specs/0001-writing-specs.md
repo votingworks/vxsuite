@@ -38,11 +38,11 @@ isn't public and can be hard to search. Even when a decision is recorded, the
 reasoning is not always clear due to the casual nature of the medium.
 
 **Google Docs.** This is mostly what we have used when writing engineering
-design documents. It works, but the documents tend to become stale and forgotten
-once the initial design is settled. Like with Slack, finding the rationale for
-decisions among Google Docs can be quite challenging. Historically, they've also
-been non-public. Creating public Google Docs is an option, but a mix of public
-and private docs often leads to access control confusion.
+design documents. It works, but the documents tend to be forgotten once the
+initial design is settled. Like with Slack, finding the rationale for decisions
+among Google Docs can be quite challenging. Historically, they've also been
+non-public. Creating public Google Docs is an option, but a mix of public and
+private docs often leads to access control confusion.
 
 **GitHub issues as the discussion venue.** Issues are already used for bug
 tracking and feature requests and are familiar to contributors. However, issues
@@ -50,9 +50,9 @@ are harder to edit collaboratively, don't benefit from PR review tooling (inline
 comments, suggestions), and are decoupled from the code that implements them.
 
 **An external wiki or Notion.** A shared wiki can host richer content but is
-disconnected from the repo, has separate access controls, and tends to go stale.
-Keeping specs in-repo ensures they are versioned, searchable with standard
-tools, and visible to anyone who can read the code.
+disconnected from the repo, has separate access controls, and tends to be
+forgotten. Keeping specs in-repo ensures they are accessible, searchable with
+standard tools, and visible to anyone who can read the code.
 
 ## Open questions
 
