@@ -1158,6 +1158,30 @@ jobs:
       - store_test_results:
           path: libs/monorepo-utils/reports/
 
+  # @votingworks/networking
+  test-libs-networking:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/networking build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/networking lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/networking test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/networking/reports/
+
   # @votingworks/pdi-scanner
   test-libs-pdi-scanner:
     executor: nodejs
@@ -1438,6 +1462,7 @@ workflows:
       - test-libs-mark-flow-ui
       - test-libs-message-coder
       - test-libs-monorepo-utils
+      - test-libs-networking
       - test-libs-pdi-scanner
       - test-libs-printing
       - test-libs-test-utils

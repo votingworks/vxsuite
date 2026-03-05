@@ -1,0 +1,49 @@
+{
+  "name": "@votingworks/networking",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared networking utilities for avahi service discovery and publishing",
+  "license": "GPL-3.0-only",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build",
+    "intermediate-scripts"
+  ],
+  "scripts": {
+    "build": "is-ci build:ci build:dev",
+    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
+    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build:self": "tsgo --build tsconfig.build.json",
+    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "pnpm build && pnpm test:coverage --run",
+    "test:coverage": "vitest --coverage",
+    "test:run": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsgo --build"
+  },
+  "dependencies": {
+    "@votingworks/backend": "workspace:*",
+    "@votingworks/basics": "workspace:*",
+    "debug": "4.3.4"
+  },
+  "devDependencies": {
+    "@types/debug": "4.1.8",
+    "@types/node": "20.17.31",
+    "@vitest/coverage-istanbul": "^3.1.1",
+    "@votingworks/test-utils": "workspace:*",
+    "esbuild": "0.21.2",
+    "esbuild-runner": "2.2.2",
+    "eslint-plugin-vx": "workspace:*",
+    "is-ci-cli": "2.2.0",
+    "lint-staged": "11.0.0",
+    "sort-package-json": "^1.50.0",
+    "vitest": "^3.1.1"
+  },
+  "packageManager": "pnpm@8.15.5"
+}
