@@ -321,15 +321,16 @@ fn build_taffy_tree(
     // Skip SVG internals — serialize and store for paint-time rendering
     if element.tag == "svg" {
         let mut computed = computed;
-        // Pick up width/height from SVG element attributes if not set in CSS
+        // Pick up width/height from SVG element attributes if not set in CSS.
+        // SVG width/height are in CSS px (user units), convert to pt (1px = 0.75pt).
         if matches!(computed.width, Dimension::Auto) {
             if let Some(w) = element.get_attr("width").and_then(|v| v.parse::<f32>().ok()) {
-                computed.width = Dimension::Points(w);
+                computed.width = Dimension::Points(w * 0.75);
             }
         }
         if matches!(computed.height, Dimension::Auto) {
             if let Some(h) = element.get_attr("height").and_then(|v| v.parse::<f32>().ok()) {
-                computed.height = Dimension::Points(h);
+                computed.height = Dimension::Points(h * 0.75);
             }
         }
         let style = build_taffy_style(&computed);
@@ -342,14 +343,15 @@ fn build_taffy_tree(
     // Handle <img> elements as leaf nodes
     if element.tag == "img" {
         let mut computed = computed;
+        // HTML width/height attributes are in CSS px, convert to pt
         if matches!(computed.width, Dimension::Auto) {
             if let Some(w) = element.get_attr("width").and_then(|v| v.parse::<f32>().ok()) {
-                computed.width = Dimension::Points(w);
+                computed.width = Dimension::Points(w * 0.75);
             }
         }
         if matches!(computed.height, Dimension::Auto) {
             if let Some(h) = element.get_attr("height").and_then(|v| v.parse::<f32>().ok()) {
-                computed.height = Dimension::Points(h);
+                computed.height = Dimension::Points(h * 0.75);
             }
         }
         let style = build_taffy_style(&computed);
