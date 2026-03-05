@@ -423,6 +423,11 @@ fn resolve_length(value: &str, parent_font_size: f32, root_font_size: f32) -> Op
     if value == "0" {
         return Some(0.0);
     }
+    // Handle calc() expressions
+    if value.starts_with("calc(") && value.ends_with(')') {
+        let inner = &value[5..value.len() - 1];
+        return eval_calc(inner, parent_font_size, root_font_size);
+    }
     if let Some(n) = value.strip_suffix("pt") {
         n.trim().parse::<f32>().ok()
     } else if let Some(n) = value.strip_suffix("px") {
@@ -440,6 +445,95 @@ fn resolve_length(value: &str, parent_font_size: f32, root_font_size: f32) -> Op
         value.parse::<f32>().ok()
     }
     // Percent returns a fraction — the caller must handle it
+}
+
+/// Evaluate a calc() expression. Supports +, -, *, / with length values.
+/// Handles expressions like "100pt + 20pt", "50% - 10pt", "2 * 36pt".
+/// Returns None if the expression cannot be evaluated.
+fn eval_calc(expr: &str, parent_font_size: f32, root_font_size: f32) -> Option<f32> {
+    let expr = expr.trim();
+
+    // Handle nested calc()
+    if expr.starts_with("calc(") && expr.ends_with(')') {
+        return eval_calc(&expr[5..expr.len() - 1], parent_font_size, root_font_size);
+    }
+
+    // Try to find a binary operator (+ or - with surrounding spaces, or * / anywhere)
+    // CSS spec requires + and - to be surrounded by whitespace
+    if let Some(pos) = find_calc_operator(expr, " + ") {
+        let left = eval_calc(&expr[..pos], parent_font_size, root_font_size)?;
+        let right = eval_calc(&expr[pos + 3..], parent_font_size, root_font_size)?;
+        return Some(left + right);
+    }
+    if let Some(pos) = find_calc_operator(expr, " - ") {
+        let left = eval_calc(&expr[..pos], parent_font_size, root_font_size)?;
+        let right = eval_calc(&expr[pos + 3..], parent_font_size, root_font_size)?;
+        return Some(left - right);
+    }
+    // * and / bind tighter but we process left-to-right after + and -
+    if let Some(pos) = find_calc_operator(expr, " * ") {
+        let left = eval_calc(&expr[..pos], parent_font_size, root_font_size)?;
+        let right = eval_calc(&expr[pos + 3..], parent_font_size, root_font_size)?;
+        return Some(left * right);
+    }
+    if let Some(pos) = find_calc_operator(expr, " / ") {
+        let left = eval_calc(&expr[..pos], parent_font_size, root_font_size)?;
+        let right = eval_calc(&expr[pos + 3..], parent_font_size, root_font_size)?;
+        if right == 0.0 {
+            return None;
+        }
+        return Some(left / right);
+    }
+
+    // Handle parenthesized subexpressions
+    if expr.starts_with('(') && expr.ends_with(')') {
+        return eval_calc(&expr[1..expr.len() - 1], parent_font_size, root_font_size);
+    }
+
+    // Base case: a single length value
+    resolve_length_no_calc(expr, parent_font_size, root_font_size)
+}
+
+fn find_calc_operator(expr: &str, op: &str) -> Option<usize> {
+    let mut depth = 0i32;
+    let bytes = expr.as_bytes();
+    let op_bytes = op.as_bytes();
+    if op_bytes.len() > bytes.len() {
+        return None;
+    }
+    for i in 0..=bytes.len() - op_bytes.len() {
+        match bytes[i] {
+            b'(' => depth += 1,
+            b')' => depth -= 1,
+            _ => {}
+        }
+        if depth == 0 && &bytes[i..i + op_bytes.len()] == op_bytes {
+            return Some(i);
+        }
+    }
+    None
+}
+
+fn resolve_length_no_calc(value: &str, parent_font_size: f32, root_font_size: f32) -> Option<f32> {
+    let value = value.trim();
+    if value == "0" {
+        return Some(0.0);
+    }
+    if let Some(n) = value.strip_suffix("pt") {
+        n.trim().parse::<f32>().ok()
+    } else if let Some(n) = value.strip_suffix("px") {
+        n.trim().parse::<f32>().ok().map(|v| v * PX_TO_PT)
+    } else if let Some(n) = value.strip_suffix("in") {
+        n.trim().parse::<f32>().ok().map(|v| v * IN_TO_PT)
+    } else if let Some(n) = value.strip_suffix("rem") {
+        n.trim().parse::<f32>().ok().map(|v| v * root_font_size)
+    } else if let Some(n) = value.strip_suffix("em") {
+        n.trim().parse::<f32>().ok().map(|v| v * parent_font_size)
+    } else if let Some(n) = value.strip_suffix('%') {
+        n.trim().parse::<f32>().ok().map(|v| v / 100.0)
+    } else {
+        value.parse::<f32>().ok()
+    }
 }
 
 fn parse_color(value: &str) -> Option<Color> {
@@ -1094,6 +1188,22 @@ fn parse_dimension(value: &str, parent_font_size: f32, root_font_size: f32) -> D
     if value == "auto" {
         return Dimension::Auto;
     }
+    // Handle calc() — if it contains %, extract percent and absolute parts
+    if value.starts_with("calc(") && value.ends_with(')') {
+        let inner = &value[5..value.len() - 1];
+        // Check if the expression contains a percentage
+        if inner.contains('%') {
+            // Try to decompose into percent + absolute: "100% + 20pt" or "100% - 10pt"
+            if let Some(dim) = eval_calc_dimension(inner, parent_font_size, root_font_size) {
+                return dim;
+            }
+        }
+        // Fully absolute calc — resolve to points
+        if let Some(v) = eval_calc(inner, parent_font_size, root_font_size) {
+            return Dimension::Points(v);
+        }
+        return Dimension::Auto;
+    }
     if let Some(n) = value.strip_suffix('%') {
         if let Ok(v) = n.trim().parse::<f32>() {
             return Dimension::Percent(v / 100.0);
@@ -1103,6 +1213,48 @@ fn parse_dimension(value: &str, parent_font_size: f32, root_font_size: f32) -> D
         return Dimension::Points(v);
     }
     Dimension::Auto
+}
+
+/// Try to decompose a calc expression with percentages.
+/// For "100% + 20pt", returns Dimension::Percent(1.0) since taffy doesn't
+/// support mixed units. The absolute part is dropped (usually small).
+fn eval_calc_dimension(expr: &str, parent_font_size: f32, root_font_size: f32) -> Option<Dimension> {
+    let expr = expr.trim();
+    // Simple case: "X% + Ypt" or "X% - Ypt"
+    if let Some(pos) = find_calc_operator(expr, " + ") {
+        let left = expr[..pos].trim();
+        let right = expr[pos + 3..].trim();
+        // Check which side has the percentage
+        if left.ends_with('%') {
+            let pct = left.strip_suffix('%')?.trim().parse::<f32>().ok()? / 100.0;
+            // Resolve right as absolute (ignore it for percentage dimension)
+            let _ = resolve_length_no_calc(right, parent_font_size, root_font_size);
+            return Some(Dimension::Percent(pct));
+        }
+        if right.ends_with('%') {
+            let pct = right.strip_suffix('%')?.trim().parse::<f32>().ok()? / 100.0;
+            return Some(Dimension::Percent(pct));
+        }
+    }
+    if let Some(pos) = find_calc_operator(expr, " - ") {
+        let left = expr[..pos].trim();
+        let right = expr[pos + 3..].trim();
+        if left.ends_with('%') {
+            let pct = left.strip_suffix('%')?.trim().parse::<f32>().ok()? / 100.0;
+            let _ = resolve_length_no_calc(right, parent_font_size, root_font_size);
+            return Some(Dimension::Percent(pct));
+        }
+        if right.ends_with('%') {
+            let pct = right.strip_suffix('%')?.trim().parse::<f32>().ok()? / 100.0;
+            return Some(Dimension::Percent(pct));
+        }
+    }
+    // Fallback: just percentage
+    if expr.ends_with('%') {
+        let pct = expr.strip_suffix('%')?.trim().parse::<f32>().ok()? / 100.0;
+        return Some(Dimension::Percent(pct));
+    }
+    None
 }
 
 fn apply_shorthand_edges(edges: &mut Edges, value: &str, fs: f32, root_fs: f32) {
