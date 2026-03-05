@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
 use krilla::color::rgb;
-use krilla::geom::{PathBuilder, Point, Rect, Transform};
+use krilla::geom::{PathBuilder, Point, Rect, Size, Transform};
 use krilla::num::NormalizedF32;
 use krilla::paint::{Fill, FillRule};
 use krilla::page::PageSettings;
 use krilla::text::Font;
 use krilla::Document;
+use krilla_svg::{SurfaceExt, SvgSettings};
 use taffy::NodeId;
 
 use crate::fonts::FontCollection;
@@ -117,6 +118,17 @@ fn paint_node(
         }
     }
 
+    // SVG rendering — if this node has SVG data, render it and skip children
+    if let Some(elem_id) = find_element_id_for_node(node, layout) {
+        if let Some(svg_xml) = layout.svg_data.get(&elem_id) {
+            paint_svg(surface, x, y, w, h, svg_xml);
+            for _ in 0..push_count {
+                surface.pop();
+            }
+            return;
+        }
+    }
+
     // Paint children
     let children: Vec<NodeId> = taffy.children(node).unwrap_or_default();
     for child in children {
@@ -144,17 +156,22 @@ fn paint_node(
     }
 }
 
+fn find_element_id_for_node(node: NodeId, layout: &LayoutResult) -> Option<usize> {
+    for (&elem_id, &taffy_node) in &layout.node_map {
+        if taffy_node == node {
+            return Some(elem_id);
+        }
+    }
+    None
+}
+
 fn find_style_for_node(
     node: NodeId,
     layout: &LayoutResult,
     styles: &StyleResult,
 ) -> Option<ComputedStyle> {
-    for (&elem_id, &taffy_node) in &layout.node_map {
-        if taffy_node == node {
-            return styles.styles.get(&elem_id).cloned();
-        }
-    }
-    None
+    find_element_id_for_node(node, layout)
+        .and_then(|elem_id| styles.styles.get(&elem_id).cloned())
 }
 
 fn make_fill(color: &Color) -> Fill {
@@ -385,6 +402,31 @@ fn flatten_transform(
     }
 }
 
+fn paint_svg(
+    surface: &mut krilla::surface::Surface,
+    x: f32,
+    y: f32,
+    w: f32,
+    h: f32,
+    svg_xml: &str,
+) {
+    // Ensure xmlns is present for usvg parsing
+    let svg_xml = if svg_xml.contains("xmlns") {
+        svg_xml.to_string()
+    } else {
+        svg_xml.replacen("<svg", "<svg xmlns=\"http://www.w3.org/2000/svg\"", 1)
+    };
+    let Ok(tree) = usvg::Tree::from_str(&svg_xml, &usvg::Options::default()) else {
+        return;
+    };
+    let Some(size) = Size::from_wh(w, h) else {
+        return;
+    };
+    surface.push_transform(&Transform::from_translate(x, y));
+    surface.draw_svg(&tree, size, SvgSettings::default());
+    surface.pop();
+}
+
 fn paint_text(
     surface: &mut krilla::surface::Surface,
     x: f32,
@@ -533,3 +575,4 @@ fn paint_inline_runs(
         cursor_x += word_width;
     }
 }
+

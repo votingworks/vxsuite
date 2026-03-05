@@ -60,6 +60,8 @@ pub struct LayoutResult {
     pub root: NodeId,
     /// Map from DOM element pointer → taffy NodeId
     pub node_map: HashMap<usize, NodeId>,
+    /// Map from element ID → serialized SVG XML for SVG elements
+    pub svg_data: HashMap<usize, String>,
     /// Page dimensions in points
     pub page_width: f32,
     pub page_height: f32,
@@ -222,8 +224,9 @@ pub fn compute_layout(
 ) -> LayoutResult {
     let mut taffy: TaffyTree<TextContext> = TaffyTree::new();
     let mut node_map = HashMap::new();
+    let mut svg_data = HashMap::new();
 
-    let root = build_taffy_tree(&mut taffy, document, styles, fonts, &mut node_map);
+    let root = build_taffy_tree(&mut taffy, document, styles, fonts, &mut node_map, &mut svg_data);
 
     // Determine page size from the outermost element's computed style
     let page_width;
@@ -263,6 +266,7 @@ pub fn compute_layout(
         taffy,
         root,
         node_map,
+        svg_data,
         page_width,
         page_height,
     }
@@ -275,6 +279,7 @@ fn build_taffy_tree(
     styles: &StyleResult,
     fonts: &FontCollection,
     node_map: &mut HashMap<usize, NodeId>,
+    svg_data: &mut HashMap<usize, String>,
 ) -> NodeId {
     let element_id = std::ptr::from_ref(element) as usize;
     let computed = styles
@@ -294,11 +299,24 @@ fn build_taffy_tree(
         return node;
     }
 
-    // Skip SVG internals — they'll be rendered as images
+    // Skip SVG internals — serialize and store for paint-time rendering
     if element.tag == "svg" {
+        let mut computed = computed;
+        // Pick up width/height from SVG element attributes if not set in CSS
+        if matches!(computed.width, Dimension::Auto) {
+            if let Some(w) = element.get_attr("width").and_then(|v| v.parse::<f32>().ok()) {
+                computed.width = Dimension::Points(w);
+            }
+        }
+        if matches!(computed.height, Dimension::Auto) {
+            if let Some(h) = element.get_attr("height").and_then(|v| v.parse::<f32>().ok()) {
+                computed.height = Dimension::Points(h);
+            }
+        }
         let style = build_taffy_style(&computed);
         let node = taffy.new_leaf(style).expect("taffy new_leaf");
         node_map.insert(element_id, node);
+        svg_data.insert(element_id, element.serialize_to_xml());
         return node;
     }
 
@@ -384,7 +402,7 @@ fn build_taffy_tree(
                     if child_el.tag == "style" || child_el.tag == "head" {
                         continue;
                     }
-                    let child_node = build_taffy_tree(taffy, child_el, styles, fonts, node_map);
+                    let child_node = build_taffy_tree(taffy, child_el, styles, fonts, node_map, svg_data);
                     children.push(child_node);
                 }
                 DomNode::Text(text) => {

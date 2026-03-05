@@ -28,6 +28,41 @@ impl ElementNode {
     pub fn get_attr(&self, name: &str) -> Option<&str> {
         self.attributes.get(name).map(String::as_str)
     }
+
+    pub fn serialize_to_xml(&self) -> String {
+        let mut xml = String::new();
+        self.write_xml(&mut xml);
+        xml
+    }
+
+    fn write_xml(&self, out: &mut String) {
+        out.push('<');
+        out.push_str(&self.tag);
+        // Sort attributes for deterministic output
+        let mut attrs: Vec<_> = self.attributes.iter().collect();
+        attrs.sort_by_key(|(k, _)| k.as_str());
+        for (key, value) in &attrs {
+            out.push(' ');
+            out.push_str(key);
+            out.push_str("=\"");
+            out.push_str(&value.replace('&', "&amp;").replace('"', "&quot;").replace('<', "&lt;").replace('>', "&gt;"));
+            out.push('"');
+        }
+        if self.children.is_empty() {
+            out.push_str("/>");
+        } else {
+            out.push('>');
+            for child in &self.children {
+                match child {
+                    DomNode::Element(el) => el.write_xml(out),
+                    DomNode::Text(t) => out.push_str(t),
+                }
+            }
+            out.push_str("</");
+            out.push_str(&self.tag);
+            out.push('>');
+        }
+    }
 }
 
 fn parse_attributes(start: &BytesStart) -> HashMap<String, String> {

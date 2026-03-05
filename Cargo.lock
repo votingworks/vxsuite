@@ -2643,6 +2643,7 @@ dependencies = [
  "tempfile",
  "ttf-parser 0.25.1",
  "unicode-linebreak",
+ "usvg",
 ]
 
 [[package]]

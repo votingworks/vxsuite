@@ -24,6 +24,7 @@ taffy.workspace = true
 tempfile.workspace = true
 ttf-parser.workspace = true
 unicode-linebreak.workspace = true
+usvg.workspace = true
 
 [[bin]]
 name = "compare-pdfs"
