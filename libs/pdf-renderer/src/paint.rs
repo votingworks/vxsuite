@@ -144,8 +144,12 @@ fn paint_node(
         }
     }
 
-    // Paint children
-    let children: Vec<NodeId> = taffy.children(node).unwrap_or_default();
+    // Paint children sorted by z-index (lower z-index paints first)
+    let mut children: Vec<NodeId> = taffy.children(node).unwrap_or_default();
+    children.sort_by_key(|child| {
+        find_style_for_node(*child, layout, styles)
+            .map_or(0, |s| s.z_index)
+    });
     for child in children {
         if let Some(ctx) = taffy.get_node_context(child) {
             let child_layout = taffy.layout(child).expect("layout");

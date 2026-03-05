@@ -77,6 +77,7 @@ pub struct ComputedStyle {
     pub visibility: Visibility,
     pub transform: Option<Transform>,
     pub opacity: f32,
+    pub z_index: i32,
 
     // Content (for pseudo-elements)
     pub content: Option<String>,
@@ -141,6 +142,7 @@ impl Default for ComputedStyle {
             visibility: Visibility::Visible,
             transform: None,
             opacity: 1.0,
+            z_index: 0,
             content: None,
             before: None,
             after: None,
@@ -870,6 +872,11 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
         "opacity" => {
             if let Ok(v) = value.parse::<f32>() {
                 style.opacity = v.clamp(0.0, 1.0);
+            }
+        }
+        "z-index" => {
+            if let Ok(v) = value.parse::<i32>() {
+                style.z_index = v;
             }
         }
         "transform" => {
