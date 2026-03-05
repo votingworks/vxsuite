@@ -3,8 +3,11 @@ import { execFile } from '@votingworks/backend';
 import { rootDebug } from './debug';
 import { intermediateScript } from './intermediate_scripts';
 
-const debug = rootDebug.extend('networking');
+const debug = rootDebug;
 
+/**
+ * Information about a service discovered via avahi/mDNS.
+ */
 export interface AvahiDiscoveredService {
   name: string;
   host: string;
@@ -12,7 +15,9 @@ export interface AvahiDiscoveredService {
   port: string;
 }
 
-// Checks if there is any network interface 'UP'.
+/**
+ * Checks if there is any network interface with link state UP.
+ */
 export async function hasOnlineInterface(): Promise<boolean> {
   try {
     const { stdout } = await execFile('bash', [
@@ -26,6 +31,9 @@ export async function hasOnlineInterface(): Promise<boolean> {
   }
 }
 
+/**
+ * Static helper class for publishing and discovering avahi/mDNS services.
+ */
 export class AvahiService {
   private static readonly runningProcesses: Map<
     string,
@@ -108,19 +116,19 @@ export class AvahiService {
       if (line.startsWith('=')) {
         // Indicated a resolved service
         const parts = line.split(';');
-        if (parts.length >= 8) {
-          const iface = parts[1];
+        if (parts.length >= 9) {
+          const iface = parts[1] as string;
           if (iface === 'lo') {
             continue;
           }
-          const type = parts[2];
+          const type = parts[2] as string;
           if (type !== 'IPv4') {
             continue;
           }
-          const name = parts[3];
-          const host = parts[6];
-          const resolvedIp = parts[7];
-          const port = parts[8];
+          const name = parts[3] as string;
+          const host = parts[6] as string;
+          const resolvedIp = parts[7] as string;
+          const port = parts[8] as string;
           services.push({ name, host, resolvedIp, port });
         }
       }
