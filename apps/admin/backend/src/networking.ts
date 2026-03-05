@@ -9,7 +9,8 @@ import {
 
 const debug = rootDebug.extend('networking');
 
-const VXADMIN_SERVICE_TYPE = '_vxadmin._tcp';
+const VXADMIN_HOST_SERVICE_TYPE = '_vxadmin._tcp';
+const VXADMIN_CLIENT_SERVICE_TYPE = '_vxadmin-client._tcp';
 
 export class VxAdminNetworkingManager {
   private readonly machineId: string;
@@ -23,6 +24,7 @@ export class VxAdminNetworkingManager {
   private isPublishing = false;
   private isOnline = false;
   private otherHostCount = 0;
+  private connectedClients: Array<{ machineId: string; lastSeen: string }> = [];
 
   constructor(machineId: string) {
     this.machineId = machineId;
@@ -35,7 +37,7 @@ export class VxAdminNetworkingManager {
           mode: 'host',
           isOnline: this.isOnline,
           isPublishing: this.isPublishing,
-          connectedClients: [],
+          connectedClients: this.connectedClients,
           otherHostsDetected: this.otherHostCount,
         };
       case 'client':
@@ -74,23 +76,35 @@ export class VxAdminNetworkingManager {
     if (this.mode === 'host') {
       this.stopHost();
     }
+    if (this.mode === 'client') {
+      this.stopClient();
+    }
     this.clientConnectionStatus = { status: 'not_connected' };
     this.isPublishing = false;
     this.isOnline = false;
     this.otherHostCount = 0;
+    this.connectedClients = [];
+  }
+
+  private hostServiceName(): string {
+    return `VxAdmin-${this.machineId}`;
+  }
+
+  private clientServiceName(): string {
+    return `VxAdminClient-${this.machineId}`;
   }
 
   private startHost(): void {
-    const serviceName = `VxAdmin-${this.machineId}`;
+    const serviceName = this.hostServiceName();
     debug(
-      'Publishing avahi service %s on port %d',
+      'Publishing avahi host service %s on port %d',
       serviceName,
       PEER_PORT
     );
     AvahiService.advertiseService(
       serviceName,
       PEER_PORT,
-      VXADMIN_SERVICE_TYPE
+      VXADMIN_HOST_SERVICE_TYPE
     );
     this.isPublishing = true;
 
@@ -108,8 +122,7 @@ export class VxAdminNetworkingManager {
   }
 
   private stopHost(): void {
-    const serviceName = `VxAdmin-${this.machineId}`;
-    AvahiService.stopAdvertisedService(serviceName);
+    AvahiService.stopAdvertisedService(this.hostServiceName());
     this.isPublishing = false;
   }
 
@@ -122,24 +135,51 @@ export class VxAdminNetworkingManager {
 
     if (!this.isOnline) {
       this.otherHostCount = 0;
+      this.connectedClients = [];
       return;
     }
 
+    // Discover other hosts
     try {
       const services = await AvahiService.discoverServices(
-        VXADMIN_SERVICE_TYPE
+        VXADMIN_HOST_SERVICE_TYPE
       );
-      const ownServiceName = `VxAdmin-${this.machineId}`;
-      const otherHosts = services.filter((s) => s.name !== ownServiceName);
+      const ownName = this.hostServiceName();
+      const otherHosts = services.filter((s) => s.name !== ownName);
       this.otherHostCount = otherHosts.length;
     } catch (error) {
       debug(`Error discovering other hosts: ${error}`);
       this.otherHostCount = 0;
     }
+
+    // Discover connected clients
+    try {
+      const clientServices = await AvahiService.discoverServices(
+        VXADMIN_CLIENT_SERVICE_TYPE
+      );
+      const now = new Date().toISOString();
+      this.connectedClients = clientServices.map((s) => ({
+        machineId: s.name.replace('VxAdminClient-', ''),
+        lastSeen: now,
+      }));
+    } catch (error) {
+      debug(`Error discovering clients: ${error}`);
+      this.connectedClients = [];
+    }
   }
 
   private startClient(): void {
     this.clientConnectionStatus = { status: 'not_connected' };
+
+    // Publish client service so hosts can discover us
+    const serviceName = this.clientServiceName();
+    debug('Publishing avahi client service %s on port %d', serviceName, PEER_PORT);
+    AvahiService.advertiseService(
+      serviceName,
+      PEER_PORT,
+      VXADMIN_CLIENT_SERVICE_TYPE
+    );
+
     this.pollingInterval = setInterval(async () => {
       if (this.isPolling) {
         return;
@@ -151,6 +191,10 @@ export class VxAdminNetworkingManager {
         this.isPolling = false;
       }
     }, NETWORK_POLLING_INTERVAL);
+  }
+
+  private stopClient(): void {
+    AvahiService.stopAdvertisedService(this.clientServiceName());
   }
 
   private async pollForHost(): Promise<void> {
@@ -167,14 +211,13 @@ export class VxAdminNetworkingManager {
 
     try {
       const services = await AvahiService.discoverServices(
-        VXADMIN_SERVICE_TYPE
+        VXADMIN_HOST_SERVICE_TYPE
       );
 
-      // Filter out our own machine
-      const ownServiceName = `VxAdmin-${this.machineId}`;
-      const otherServices = services.filter(
-        (s) => s.name !== ownServiceName
-      );
+      // Filter out our own machine (shouldn't be publishing host service as
+      // client, but filter defensively)
+      const ownHostName = this.hostServiceName();
+      const otherServices = services.filter((s) => s.name !== ownHostName);
 
       if (otherServices.length === 0) {
         this.clientConnectionStatus = { status: 'not_connected' };

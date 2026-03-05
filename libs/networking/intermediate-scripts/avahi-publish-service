@@ -13,4 +13,4 @@ fi
 
 SERVICE_TYPE="${3:-_http._tcp}"
 
-avahi-publish-service "${1}" "$SERVICE_TYPE" "${2}"
+exec avahi-publish-service "${1}" "$SERVICE_TYPE" "${2}"
