@@ -22,22 +22,50 @@ pub fn render_pdf(layout: &LayoutResult, styles: &StyleResult, fonts: &FontColle
     let page_settings = PageSettings::from_wh(layout.page_width, layout.page_height)
         .unwrap_or_else(|| PageSettings::from_wh(612.0, 792.0).expect("valid default page size"));
 
-    let mut page = document.start_page_with(page_settings);
-    let mut surface = page.surface();
+    // Determine total content height from root layout
+    let root_layout = layout.taffy.layout(layout.root).expect("root layout");
+    let total_height = root_layout.size.height;
+    let page_height = layout.page_height;
 
-    paint_node(
-        &layout.taffy,
-        layout.root,
-        &mut surface,
-        styles,
-        fonts,
-        layout,
-        0.0,
-        0.0,
-    );
+    // Calculate number of pages needed
+    let num_pages = if total_height <= page_height {
+        1
+    } else {
+        ((total_height / page_height).ceil() as usize).max(1)
+    };
 
-    drop(surface);
-    page.finish();
+    for page_idx in 0..num_pages {
+        let mut page = document.start_page_with(page_settings.clone());
+        let mut surface = page.surface();
+
+        let y_offset = -(page_idx as f32 * page_height);
+
+        // Clip to page bounds
+        if num_pages > 1 {
+            if let Some(clip_path) = build_rect_path(0.0, 0.0, layout.page_width, page_height) {
+                surface.push_clip_path(&clip_path, &FillRule::NonZero);
+            }
+        }
+
+        paint_node(
+            &layout.taffy,
+            layout.root,
+            &mut surface,
+            styles,
+            fonts,
+            layout,
+            0.0,
+            y_offset,
+        );
+
+        if num_pages > 1 {
+            surface.pop(); // pop clip
+        }
+
+        drop(surface);
+        page.finish();
+    }
+
     document.finish().expect("PDF generation failed")
 }
 
