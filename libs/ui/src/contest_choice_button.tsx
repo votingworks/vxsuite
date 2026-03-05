@@ -41,9 +41,12 @@ const selectedChoiceStyles = css<StyleProps>`
     ${(p) => p.theme.colors.primary};
 `;
 
+// Uses box-shadow instead of a thicker border to avoid layout shift when
+// toggling between derived and non-derived states.
 const derivedChoiceStyles = css<StyleProps>`
   background-color: ${(p) => p.theme.colors.containerLow};
-  border: 3px solid ${(p) => p.theme.colors.primary};
+  border-color: ${(p) => p.theme.colors.primary};
+  box-shadow: inset 0 0 0 4px ${(p) => p.theme.colors.primary};
   color: ${(p) => p.theme.colors.primary};
 `;
 

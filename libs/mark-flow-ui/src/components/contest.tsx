@@ -14,7 +14,10 @@ import { YesNoContest } from './yes_no_contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { UpdateVoteFunction } from '../config/types';
 import { BreadcrumbMetadata } from './contest_header';
-import { getIndirectCandidateIds } from '../utils/straight_party_votes';
+import {
+  getIndirectCandidateIds,
+  getStraightPartySelectedPartyId,
+} from '../utils/straight_party_votes';
 
 export interface ContestProps {
   /**
@@ -86,6 +89,11 @@ export function Contest({
     [votes]
   );
 
+  const straightPartyPartyId = useMemo(
+    () => getStraightPartySelectedPartyId(election, votes),
+    [election, votes]
+  );
+
   const indirectCandidateIds = useMemo(
     () =>
       contest.type === 'candidate'
@@ -104,6 +112,7 @@ export function Contest({
           election={election}
           contest={contest}
           indirectCandidateIds={indirectCandidateIds}
+          straightPartyPartyId={straightPartyPartyId}
           vote={(vote ?? []) as CandidateVote}
           updateVote={updateVote}
           accessibilityMode={accessibilityMode}

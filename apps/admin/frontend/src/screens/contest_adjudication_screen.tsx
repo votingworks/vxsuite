@@ -146,11 +146,11 @@ const ContestOptionButtonCaption = styled.span`
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
 
-const DerivedVoteCaption = styled.span`
-  color: ${(p) => p.theme.colors.onBackground};
+const OptionSubtitle = styled.span`
+  display: block;
   font-size: 0.75rem;
   font-weight: 400;
-  margin: 0.25rem 0 0.25rem 0.125rem;
+  line-height: 1.2;
 `;
 
 const CaptionGroup = styled.div`
@@ -159,8 +159,7 @@ const CaptionGroup = styled.div`
   gap: 0.125rem;
   margin: 0.25rem 0 0.25rem 0.125rem;
 
-  ${ContestOptionButtonCaption},
-  ${DerivedVoteCaption} {
+  ${ContestOptionButtonCaption} {
     margin: 0;
   }
 `;
@@ -265,7 +264,6 @@ interface ContestAdjudicationScreenProps {
   cvrId: Id;
   onClose: () => void;
   straightPartyId?: PartyId;
-  straightPartyName?: string;
   ballotImages: BallotImages;
   side: Side;
 }
@@ -275,7 +273,6 @@ export function ContestAdjudicationScreen({
   contestAdjudicationData,
   cvrId,
   straightPartyId,
-  straightPartyName,
   ballotImages,
   side,
 }: ContestAdjudicationScreenProps): JSX.Element {
@@ -357,13 +354,22 @@ export function ContestAdjudicationScreen({
   // Compute derived options locally based on SP party and current vote state.
   // This replaces the backend-provided derivedOptionIds so that changes are
   // reflected immediately as the adjudicator toggles votes.
-  const derivedOptionIdSet = useMemo(() => {
+  const { derivedOptionIdSet, straightPartyNotAppliedReason } = useMemo(() => {
     if (!straightPartyId || !isCandidateContest || !isStateReady) {
-      return new Set<ContestOptionId>();
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason: undefined,
+      };
     }
     const partyOptionIds = contest.candidates
       .filter((c) => !c.isWriteIn && c.partyIds?.includes(straightPartyId))
       .map((c) => c.id);
+    if (partyOptionIds.length === 0) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason: undefined,
+      };
+    }
     const currentVoteIds = officialOptions
       .filter((o) => getOptionHasVote(o.id))
       .map((o) => o.id);
@@ -375,11 +381,23 @@ export function ContestAdjudicationScreen({
     const unselectedPartyOptions = partyOptionIds.filter(
       (id) => !currentVoteIds.includes(id)
     );
-    // Only expand if deterministic: all unselected party candidates fit
-    if (remainingSeats <= 0 || unselectedPartyOptions.length > remainingSeats) {
-      return new Set<ContestOptionId>();
+    if (remainingSeats <= 0) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason: 'No remaining seats' as const,
+      };
     }
-    return new Set(unselectedPartyOptions);
+    if (unselectedPartyOptions.length > remainingSeats) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason:
+          'Too many candidates for remaining seats' as const,
+      };
+    }
+    return {
+      derivedOptionIdSet: new Set(unselectedPartyOptions),
+      straightPartyNotAppliedReason: undefined,
+    };
   }, [
     straightPartyId,
     isCandidateContest,
@@ -589,9 +607,34 @@ export function ContestAdjudicationScreen({
                 const originalVote = optionForAdjudication.initialVote;
                 const currentVote = getOptionHasVote(optionId);
                 const isDerived = derivedOptionIdSet.has(optionId);
-                const optionLabel = isCandidateContest
-                  ? (officialOption as Candidate).name
-                  : officialOption.name;
+                const candidate =
+                  isCandidateContest && contest.type === 'candidate'
+                    ? contest.candidates.find((c) => c.id === optionId)
+                    : undefined;
+                const optionName = candidate?.name ?? officialOption.name;
+                const candidatePartyNames = straightPartyId
+                  ? candidate?.partyIds
+                      ?.map(
+                        (pid) =>
+                          election.parties.find((p) => p.id === pid)?.fullName
+                      )
+                      .filter(Boolean)
+                      .join(', ')
+                  : undefined;
+                const isStraightPartyCandidate =
+                  !!straightPartyId &&
+                  !!candidate?.partyIds?.includes(straightPartyId);
+                const optionLabel = candidatePartyNames ? (
+                  <span>
+                    {optionName}
+                    <OptionSubtitle>
+                      {candidatePartyNames}
+                      {isStraightPartyCandidate && ' - Straight party vote'}
+                    </OptionSubtitle>
+                  </span>
+                ) : (
+                  optionName
+                );
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
 
@@ -601,17 +644,20 @@ export function ContestAdjudicationScreen({
                   isWriteIn: false,
                   marginalMarkStatus,
                 });
-                const spCaption = isDerived ? (
-                  <DerivedVoteCaption>
-                    Straight party vote applied:{' '}
-                    {straightPartyName ?? 'Unknown'}
-                  </DerivedVoteCaption>
-                ) : null;
+                const spNotAppliedCaption =
+                  isStraightPartyCandidate &&
+                  !isDerived &&
+                  straightPartyNotAppliedReason ? (
+                    <ContestOptionButtonCaption>
+                      Straight party vote not applied:{' '}
+                      {straightPartyNotAppliedReason}
+                    </ContestOptionButtonCaption>
+                  ) : null;
                 const combinedCaption =
-                  adjudicationCaption || spCaption ? (
+                  adjudicationCaption || spNotAppliedCaption ? (
                     <CaptionGroup>
                       {adjudicationCaption}
-                      {spCaption}
+                      {spNotAppliedCaption}
                     </CaptionGroup>
                   ) : null;
 
@@ -659,7 +705,7 @@ export function ContestAdjudicationScreen({
                       isBmd ||
                       // Disabled when there is a write-in selection for the candidate
                       (!currentVote &&
-                        selectedCandidateNames.includes(optionLabel))
+                        selectedCandidateNames.includes(optionName))
                     }
                     caption={combinedCaption}
                   />

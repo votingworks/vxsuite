@@ -326,7 +326,6 @@ export function BallotAdjudicationScreen(): JSX.Element {
     if (votedOptions.length !== 1) return undefined;
     return votedOptions[0];
   })();
-  const straightPartyName = spVotedOption?.definition.name;
   const straightPartyId = spVotedOption?.definition.id;
 
   const allResolved = adjudicationContests.every(
@@ -434,7 +433,6 @@ export function BallotAdjudicationScreen(): JSX.Element {
           adjudicationContests.find((c) => c.contestId === selectedContestId)
         )}
         straightPartyId={straightPartyId}
-        straightPartyName={straightPartyName}
         ballotImages={ballotImages}
       />
     );

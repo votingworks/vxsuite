@@ -329,12 +329,6 @@ function ContestSublist({
                     {statusLine}
                   </ResolvedCaption>
                 )}
-                {isResolved &&
-                  bullets.map((bullet) => (
-                    <ResolvedCaption key={bullet} weight="semiBold">
-                      &bull; {bullet}
-                    </ResolvedCaption>
-                  ))}
                 {contest.type === 'straight-party' &&
                   straightPartyStatus &&
                   (straightPartyStatus.isChanged ? (
@@ -345,6 +339,12 @@ function ContestSublist({
                     <StraightPartyCaption>
                       {straightPartyStatus.text}
                     </StraightPartyCaption>
+                  ))}
+                {isResolved &&
+                  bullets.map((bullet) => (
+                    <ResolvedCaption key={bullet} weight="semiBold">
+                      &bull; {bullet}
+                    </ResolvedCaption>
                   ))}
               </Column>
               {isPending && <Icons.Warning color="warning" />}
