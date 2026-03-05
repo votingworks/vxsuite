@@ -97,6 +97,9 @@ pub struct ComputedStyle {
 
     // Lists
     pub list_style_type: ListStyleType,
+
+    // Page break control
+    pub break_inside: BreakInside,
 }
 
 #[derive(Debug, Clone)]
@@ -165,6 +168,7 @@ impl Default for ComputedStyle {
             before: None,
             after: None,
             list_style_type: ListStyleType::None,
+            break_inside: BreakInside::Auto,
         }
     }
 }
@@ -174,6 +178,12 @@ pub enum ListStyleType {
     None,
     Disc,
     Decimal,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum BreakInside {
+    Auto,
+    Avoid,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -1038,6 +1048,13 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
         }
         "border-collapse" => {
             style.border_collapse = value == "collapse";
+        }
+        "break-inside" => {
+            style.break_inside = if value == "avoid" {
+                BreakInside::Avoid
+            } else {
+                BreakInside::Auto
+            };
         }
         "box-sizing" => {
             style.box_sizing = match value {
