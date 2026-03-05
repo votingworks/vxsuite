@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+require('../src/compare_rust_renderer')
+  .main()
+  .then((exitCode) => {
+    process.exitCode = exitCode;
+  })
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
