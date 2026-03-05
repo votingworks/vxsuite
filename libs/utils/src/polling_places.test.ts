@@ -10,13 +10,11 @@ import {
   PrecinctSplit,
   PrecinctWithoutSplits,
   PrecinctWithSplits,
-  SystemSettings,
 } from '@votingworks/types';
 import { expect, test, vi } from 'vitest';
 import {
   pollingPlaceBallotStyles,
   pollingPlaceContests,
-  pollingPlaceFromSettings,
   pollingPlaceMembers,
   pollingPlacePrecinctIds,
   pollingPlacesGenerateFromPrecincts,
@@ -99,22 +97,6 @@ test('pollingPlaceContests', () => {
   expectContests({ precincts: { p2: { type: 'partial', splitIds: ['s1'] } } }, [
     contest2,
   ]);
-});
-
-test('pollingPlaceFromSettings', () => {
-  expect(() => pollingPlaceFromSettings('pp1', mockSettings({}))).toThrow(
-    /pp1 not found/i
-  );
-
-  const place1 = mockPollingPlace({ id: 'pp1' });
-  const place2 = mockPollingPlace({ id: 'pp2' });
-  const settings = mockSettings({ pollingPlaces: [place2, place1] });
-
-  expect(pollingPlaceFromSettings('pp1', settings)).toEqual(place1);
-
-  expect(() => pollingPlaceFromSettings('pp3', settings)).toThrow(
-    /pp3 not found/i
-  );
 });
 
 test('pollingPlacesGenerateFromPrecincts', () => {
@@ -288,10 +270,6 @@ function mockPrecinctWithSplits(
   partial: Partial<PrecinctWithSplits>
 ): PrecinctWithSplits {
   return partial as PrecinctWithSplits;
-}
-
-function mockSettings(partial: Partial<SystemSettings>): SystemSettings {
-  return partial as SystemSettings;
 }
 
 function mockSplit(partial: Partial<PrecinctSplit>): PrecinctSplit {

@@ -1,6 +1,6 @@
 import { Result } from '@votingworks/basics';
 import { z } from 'zod/v4';
-import { AdjudicationReasonSchema, PollingPlaceSchema } from './election';
+import { AdjudicationReasonSchema } from './election';
 import {
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -97,7 +97,6 @@ export const SystemSettingsSchema = z
     ),
     disallowCastingOvervotes: z.boolean(),
     precinctScanEnableShoeshineMode: z.boolean().optional(),
-    pollingPlaces: z.array(PollingPlaceSchema).optional(),
 
     /**
      * Includes redundant metadata in cast vote record reports, increasing export size and

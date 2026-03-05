@@ -8,7 +8,6 @@ import {
   PollingPlaceType,
   Precinct,
   PrecinctOrSplit,
-  SystemSettings,
 } from '@votingworks/types';
 
 export function pollingPlaceBallotStyles(
@@ -42,16 +41,6 @@ function pollingPlaceDistrictIds(
   }
 
   return ids;
-}
-
-export function pollingPlaceFromSettings(
-  id: string,
-  settings: SystemSettings
-): PollingPlace {
-  const places = settings.pollingPlaces || [];
-  for (const p of places) if (p.id === id) return p;
-
-  throw new Error(`polling place with id ${id} not found`);
 }
 
 export function pollingPlaceGenerateFromPrecinct(p: {

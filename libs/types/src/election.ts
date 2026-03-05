@@ -648,6 +648,11 @@ export interface PollingPlace {
   type: PollingPlaceType;
 }
 
+/**
+ * - `whole`: The polling place covers the whole precinct, including any and
+ *   all splits.
+ * - `partial`: The polling places only covers the specified splits.
+ */
 export type PollingPlacePrecinct =
   | { type: 'whole' }
   | { type: 'partial'; splitIds: string[] };
