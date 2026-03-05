@@ -1,0 +1,71 @@
+<html>
+<head>
+<style>
+* { box-sizing: border-box; }
+body {
+  width: 300pt;
+  height: 200pt;
+  margin: 0;
+  padding: 10pt;
+  display: flex;
+  flex-direction: column;
+  gap: 5pt;
+}
+.parent .child {
+  background-color: #3498db;
+  height: 20pt;
+  width: 100pt;
+}
+.parent > .direct {
+  background-color: #2ecc71;
+  height: 20pt;
+  width: 100pt;
+}
+.box.red {
+  background-color: #e74c3c;
+  height: 20pt;
+  width: 100pt;
+}
+.box.blue {
+  background-color: #3498db;
+  height: 20pt;
+  width: 100pt;
+}
+.container .box {
+  background-color: #95a5a6;
+}
+.container .box.highlight {
+  background-color: #f39c12;
+  height: 20pt;
+  width: 100pt;
+}
+.list > div:first-child {
+  background-color: #9b59b6;
+  height: 20pt;
+  width: 100pt;
+}
+.list > div:last-child {
+  background-color: #1abc9c;
+  height: 20pt;
+  width: 100pt;
+}
+</style>
+</head>
+<body>
+  <div class="parent">
+    <div class="child"></div>
+    <div class="direct"></div>
+    <div><div class="child"></div></div>
+  </div>
+  <div class="box red"></div>
+  <div class="box blue"></div>
+  <div class="container">
+    <div class="box highlight"></div>
+  </div>
+  <div class="list">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</body>
+</html>

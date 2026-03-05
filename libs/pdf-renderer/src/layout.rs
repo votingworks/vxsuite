@@ -18,6 +18,7 @@ pub(crate) struct TextContext {
     font_weight: u16,
     font_style: crate::style::FontStyle,
     white_space: WhiteSpace,
+    line_height: f32,
 }
 
 impl TextContext {
@@ -152,10 +153,10 @@ fn build_taffy_style(computed: &ComputedStyle) -> Style {
             left: convert_length_percent(Dimension::Points(computed.padding.left)),
         },
         margin: Rect {
-            top: convert_length_percent_auto(Dimension::Points(computed.margin.top)),
-            right: convert_length_percent_auto(Dimension::Points(computed.margin.right)),
-            bottom: convert_length_percent_auto(Dimension::Points(computed.margin.bottom)),
-            left: convert_length_percent_auto(Dimension::Points(computed.margin.left)),
+            top: convert_length_percent_auto(computed.margin.top),
+            right: convert_length_percent_auto(computed.margin.right),
+            bottom: convert_length_percent_auto(computed.margin.bottom),
+            left: convert_length_percent_auto(computed.margin.left),
         },
         border: Rect {
             top: convert_length_percent(Dimension::Points(computed.border_widths.top)),
@@ -298,6 +299,7 @@ fn build_taffy_tree(
                             font_weight: computed.font_weight,
                             font_style: computed.font_style,
                             white_space: computed.white_space,
+                            line_height: computed.line_height,
                         },
                     )
                     .expect("taffy new_leaf_with_context");
@@ -330,8 +332,11 @@ fn measure_text_node(
         AvailableSpace::MaxContent => f32::INFINITY,
     });
 
-    let line_height_ratio =
-        fonts.line_height_ratio(&ctx.font_family, ctx.font_weight, ctx.font_style);
+    let line_height = if ctx.line_height > 0.0 {
+        ctx.font_size * ctx.line_height
+    } else {
+        ctx.font_size * fonts.line_height_ratio(&ctx.font_family, ctx.font_weight, ctx.font_style)
+    };
 
     if matches!(ctx.white_space, WhiteSpace::NoWrap) || max_width.is_infinite() {
         let width = fonts.measure_text(
@@ -341,8 +346,7 @@ fn measure_text_node(
             ctx.font_style,
             ctx.font_size,
         );
-        let height = ctx.font_size * line_height_ratio;
-        return Size { width, height };
+        return Size { width, height: line_height };
     }
 
     let lines = fonts.break_text_into_lines(
@@ -353,8 +357,6 @@ fn measure_text_node(
         ctx.font_size,
         max_width,
     );
-
-    let line_height = ctx.font_size * line_height_ratio;
     let width = lines.iter().copied().fold(0.0f32, f32::max);
     let height = lines.len() as f32 * line_height;
 

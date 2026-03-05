@@ -38,7 +38,7 @@ pub struct ComputedStyle {
     pub height: Dimension,
     pub min_height: Dimension,
     pub padding: Edges,
-    pub margin: Edges,
+    pub margin: DimensionEdges,
     pub border_widths: Edges,
 
     // Positioning
@@ -97,7 +97,7 @@ impl Default for ComputedStyle {
             height: Dimension::Auto,
             min_height: Dimension::Auto,
             padding: Edges::zero(),
-            margin: Edges::zero(),
+            margin: DimensionEdges::zero(),
             border_widths: Edges::zero(),
             position: Position::Static,
             top: Dimension::Auto,
@@ -108,7 +108,7 @@ impl Default for ComputedStyle {
             font_size: 12.0,
             font_weight: 400,
             font_style: FontStyle::Normal,
-            line_height: 1.2,
+            line_height: 0.0, // 0 = use font metrics (line-height: normal)
             text_align: TextAlign::Left,
             text_transform: TextTransform::None,
             white_space: WhiteSpace::Normal,
@@ -258,6 +258,25 @@ impl Edges {
             right: 0.0,
             bottom: 0.0,
             left: 0.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct DimensionEdges {
+    pub top: Dimension,
+    pub right: Dimension,
+    pub bottom: Dimension,
+    pub left: Dimension,
+}
+
+impl DimensionEdges {
+    pub const fn zero() -> Self {
+        Self {
+            top: Dimension::Points(0.0),
+            right: Dimension::Points(0.0),
+            bottom: Dimension::Points(0.0),
+            left: Dimension::Points(0.0),
         }
     }
 }
@@ -625,27 +644,19 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
             }
         }
         "margin" => {
-            apply_shorthand_edges(&mut style.margin, value, fs, root_font_size);
+            apply_margin_shorthand(&mut style.margin, value, fs, root_font_size);
         }
         "margin-top" => {
-            if let Some(v) = resolve_length(value, fs, root_font_size) {
-                style.margin.top = v;
-            }
+            style.margin.top = parse_margin_value(value, fs, root_font_size);
         }
         "margin-right" => {
-            if let Some(v) = resolve_length(value, fs, root_font_size) {
-                style.margin.right = v;
-            }
+            style.margin.right = parse_margin_value(value, fs, root_font_size);
         }
         "margin-bottom" => {
-            if let Some(v) = resolve_length(value, fs, root_font_size) {
-                style.margin.bottom = v;
-            }
+            style.margin.bottom = parse_margin_value(value, fs, root_font_size);
         }
         "margin-left" => {
-            if let Some(v) = resolve_length(value, fs, root_font_size) {
-                style.margin.left = v;
-            }
+            style.margin.left = parse_margin_value(value, fs, root_font_size);
         }
         "position" => {
             style.position = match value {
@@ -951,6 +962,50 @@ fn apply_shorthand_edges(edges: &mut Edges, value: &str, fs: f32, root_fs: f32) 
     }
 }
 
+fn parse_margin_value(value: &str, fs: f32, root_fs: f32) -> Dimension {
+    let v = value.trim();
+    if v == "auto" {
+        Dimension::Auto
+    } else {
+        resolve_length(v, fs, root_fs)
+            .map_or(Dimension::Points(0.0), Dimension::Points)
+    }
+}
+
+fn apply_margin_shorthand(edges: &mut DimensionEdges, value: &str, fs: f32, root_fs: f32) {
+    let parts: Vec<&str> = value.split_whitespace().collect();
+    match parts.len() {
+        1 => {
+            let v = parse_margin_value(parts[0], fs, root_fs);
+            *edges = DimensionEdges {
+                top: v,
+                right: v,
+                bottom: v,
+                left: v,
+            };
+        }
+        2 => {
+            let tb = parse_margin_value(parts[0], fs, root_fs);
+            let lr = parse_margin_value(parts[1], fs, root_fs);
+            *edges = DimensionEdges {
+                top: tb,
+                right: lr,
+                bottom: tb,
+                left: lr,
+            };
+        }
+        4 => {
+            *edges = DimensionEdges {
+                top: parse_margin_value(parts[0], fs, root_fs),
+                right: parse_margin_value(parts[1], fs, root_fs),
+                bottom: parse_margin_value(parts[2], fs, root_fs),
+                left: parse_margin_value(parts[3], fs, root_fs),
+            };
+        }
+        _ => {}
+    }
+}
+
 /// Minimal CSS rule representation — selector string + declarations
 struct CssRule {
     selector: String,
@@ -958,7 +1013,27 @@ struct CssRule {
 }
 
 /// Parse CSS text into rules (using simple text parsing for the PoC)
+fn strip_css_comments(css: &str) -> String {
+    let mut result = String::with_capacity(css.len());
+    let bytes = css.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        if i + 1 < bytes.len() && bytes[i] == b'/' && bytes[i + 1] == b'*' {
+            i += 2;
+            while i + 1 < bytes.len() && !(bytes[i] == b'*' && bytes[i + 1] == b'/') {
+                i += 1;
+            }
+            i += 2; // skip */
+        } else {
+            result.push(bytes[i] as char);
+            i += 1;
+        }
+    }
+    result
+}
+
 fn parse_css_rules(css_text: &str) -> Vec<CssRule> {
+    let css_text = strip_css_comments(css_text);
     let mut rules = Vec::new();
     let mut chars = css_text.chars().peekable();
 
@@ -1043,26 +1118,158 @@ fn parse_css_rules(css_text: &str) -> Vec<CssRule> {
     rules
 }
 
-/// Check if a simple selector matches an element.
-/// Supports: element, .class, element.class, * (universal),
-/// descendant (space), child (>), and some pseudo-classes.
-fn selector_matches(selector: &str, element: &ElementNode, parent: Option<&ElementNode>) -> bool {
+/// Check if a full selector (potentially with combinators) matches an element.
+/// `ancestors` is the list from nearest parent to root.
+fn selector_matches(
+    selector: &str,
+    element: &ElementNode,
+    ancestors: &[&ElementNode],
+) -> bool {
     let selector = selector.trim();
 
-    // Handle descendant/child combinators by only matching the last part
-    // (full matching requires walking ancestors — we do that in resolve)
-    let last_part = selector
-        .rsplit_once([' ', '>'])
-        .map_or(selector, |(_, last)| last.trim());
+    // Tokenize into simple selector parts and combinators
+    let parts = tokenize_selector(selector);
+    if parts.is_empty() {
+        return false;
+    }
 
-    simple_selector_matches(last_part, element, parent)
+    // The last part must match the element itself
+    let last = &parts[parts.len() - 1];
+    match last {
+        SelectorToken::Simple(s) => {
+            if !simple_selector_matches(s, element, ancestors) {
+                return false;
+            }
+        }
+        SelectorToken::Combinator(_) => return false,
+    }
+
+    if parts.len() == 1 {
+        return true;
+    }
+
+    // Walk backwards through the remaining parts, matching against ancestors
+    match_selector_parts(&parts[..parts.len() - 1], ancestors)
 }
 
-#[allow(clippy::only_used_in_recursion)]
+fn match_selector_parts(parts: &[SelectorToken], ancestors: &[&ElementNode]) -> bool {
+    if parts.is_empty() {
+        return true;
+    }
+
+    // Get the combinator (second-to-last token should be a combinator)
+    let last_idx = parts.len() - 1;
+    let combinator = match &parts[last_idx] {
+        SelectorToken::Combinator(c) => *c,
+        SelectorToken::Simple(_) => Combinator::Descendant, // implicit
+    };
+
+    // Get the simple selector before the combinator
+    let (simple_selector, remaining) = if matches!(parts[last_idx], SelectorToken::Combinator(_)) {
+        if last_idx == 0 {
+            return false;
+        }
+        match &parts[last_idx - 1] {
+            SelectorToken::Simple(s) => (s.as_str(), &parts[..last_idx - 1]),
+            SelectorToken::Combinator(_) => return false,
+        }
+    } else {
+        match &parts[last_idx] {
+            SelectorToken::Simple(s) => (s.as_str(), &parts[..last_idx]),
+            SelectorToken::Combinator(_) => return false,
+        }
+    };
+
+    match combinator {
+        Combinator::Child => {
+            // Must match the immediate parent
+            if let Some(&parent) = ancestors.first() {
+                if simple_selector_matches(simple_selector, parent, &ancestors[1..]) {
+                    return match_selector_parts(remaining, &ancestors[1..]);
+                }
+            }
+            false
+        }
+        Combinator::Descendant => {
+            // Can match any ancestor
+            for (i, &ancestor) in ancestors.iter().enumerate() {
+                if simple_selector_matches(simple_selector, ancestor, &ancestors[i + 1..])
+                    && match_selector_parts(remaining, &ancestors[i + 1..])
+                {
+                    return true;
+                }
+            }
+            false
+        }
+    }
+}
+
+#[derive(Debug)]
+enum SelectorToken {
+    Simple(String),
+    Combinator(Combinator),
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Combinator {
+    Descendant, // space
+    Child,      // >
+}
+
+fn tokenize_selector(selector: &str) -> Vec<SelectorToken> {
+    let mut tokens = Vec::new();
+    let mut current = String::new();
+    let mut chars = selector.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        match ch {
+            '>' => {
+                let trimmed = current.trim().to_string();
+                if !trimmed.is_empty() {
+                    tokens.push(SelectorToken::Simple(trimmed));
+                }
+                current.clear();
+                tokens.push(SelectorToken::Combinator(Combinator::Child));
+                // Skip whitespace after >
+                while chars.peek() == Some(&' ') {
+                    chars.next();
+                }
+            }
+            ' ' => {
+                let trimmed = current.trim().to_string();
+                if !trimmed.is_empty() {
+                    // Check if the next non-space char is >
+                    while chars.peek() == Some(&' ') {
+                        chars.next();
+                    }
+                    if chars.peek() == Some(&'>') {
+                        tokens.push(SelectorToken::Simple(trimmed));
+                        current.clear();
+                        // The > will be handled in the next iteration
+                    } else {
+                        tokens.push(SelectorToken::Simple(trimmed));
+                        current.clear();
+                        tokens.push(SelectorToken::Combinator(Combinator::Descendant));
+                    }
+                }
+            }
+            _ => current.push(ch),
+        }
+    }
+
+    let trimmed = current.trim().to_string();
+    if !trimmed.is_empty() {
+        tokens.push(SelectorToken::Simple(trimmed));
+    }
+
+    tokens
+}
+
+/// Check if a simple (non-compound) selector matches an element.
 fn simple_selector_matches(
     selector: &str,
     element: &ElementNode,
-    parent: Option<&ElementNode>,
+    ancestors: &[&ElementNode],
 ) -> bool {
     let selector = selector.trim();
 
@@ -1070,12 +1277,15 @@ fn simple_selector_matches(
         return true;
     }
 
-    // Handle pseudo-elements/classes — strip them for matching
+    // Handle pseudo-elements — strip them for matching
     let base = selector.split("::").next().unwrap_or(selector);
+
+    // Separate pseudo-classes from the selector
+    let (base, pseudo_classes) = extract_pseudo_classes(base);
 
     // Handle :not() — very basic
     if let Some(inner) = base.strip_prefix(":not(").and_then(|s| s.strip_suffix(')')) {
-        return !simple_selector_matches(inner, element, parent);
+        return !simple_selector_matches(inner, element, ancestors);
     }
 
     // Split into element and class parts
@@ -1089,14 +1299,107 @@ fn simple_selector_matches(
 
     // Check classes
     for class in &parts[1..] {
-        // Strip pseudo-classes from class name
-        let class_name = class.split(':').next().unwrap_or(class);
-        if !element.classes().any(|c| c == class_name) {
+        if !element.classes().any(|c| c == *class) {
+            return false;
+        }
+    }
+
+    // Check pseudo-classes
+    for pseudo in &pseudo_classes {
+        if !matches_pseudo_class(pseudo, element, ancestors) {
             return false;
         }
     }
 
     true
+}
+
+fn extract_pseudo_classes(selector: &str) -> (&str, Vec<&str>) {
+    let mut base_end = 0;
+    let mut pseudos = Vec::new();
+    let mut i = 0;
+    let bytes = selector.as_bytes();
+
+    while i < bytes.len() {
+        if bytes[i] == b':' && (i + 1 < bytes.len()) && bytes[i + 1] != b':' {
+            if base_end == 0 {
+                base_end = i;
+            }
+            // Find end of pseudo-class (handle :not() with parens)
+            let start = i + 1;
+            let mut end = start;
+            let mut depth = 0;
+            while end < bytes.len() {
+                match bytes[end] {
+                    b'(' => depth += 1,
+                    b')' if depth > 0 => {
+                        end += 1;
+                        break;
+                    }
+                    b':' if depth == 0 => break,
+                    _ => {}
+                }
+                end += 1;
+            }
+            pseudos.push(&selector[start..end]);
+            i = end;
+        } else {
+            if pseudos.is_empty() {
+                base_end = i + 1;
+            }
+            i += 1;
+        }
+    }
+
+    if base_end == 0 {
+        base_end = selector.len();
+    }
+
+    (&selector[..base_end], pseudos)
+}
+
+fn matches_pseudo_class(pseudo: &str, element: &ElementNode, ancestors: &[&ElementNode]) -> bool {
+    match pseudo {
+        "first-child" => {
+            if let Some(&parent) = ancestors.first() {
+                let element_children: Vec<&ElementNode> = parent
+                    .children
+                    .iter()
+                    .filter_map(|c| match c {
+                        DomNode::Element(el) => Some(el),
+                        DomNode::Text(_) => None,
+                    })
+                    .collect();
+                return element_children.first().is_some_and(|first| {
+                    std::ptr::eq(*first, element)
+                });
+            }
+            false
+        }
+        "last-child" => {
+            if let Some(&parent) = ancestors.first() {
+                let element_children: Vec<&ElementNode> = parent
+                    .children
+                    .iter()
+                    .filter_map(|c| match c {
+                        DomNode::Element(el) => Some(el),
+                        DomNode::Text(_) => None,
+                    })
+                    .collect();
+                return element_children.last().is_some_and(|last| {
+                    std::ptr::eq(*last, element)
+                });
+            }
+            false
+        }
+        _ => {
+            // Handle :not()
+            if let Some(inner) = pseudo.strip_prefix("not(").and_then(|s| s.strip_suffix(')')) {
+                return !simple_selector_matches(inner, element, ancestors);
+            }
+            true // Unknown pseudo-classes pass by default
+        }
+    }
 }
 
 /// Parse @font-face rules from CSS text
@@ -1194,7 +1497,7 @@ pub fn resolve_styles(parsed: &ParseResult) -> StyleResult {
         &ComputedStyle::default(),
         root_font_size,
         &mut styles,
-        None,
+        &[],
     );
 
     StyleResult { styles, font_faces }
@@ -1206,7 +1509,7 @@ fn resolve_element_styles(
     parent_style: &ComputedStyle,
     root_font_size: f32,
     styles: &mut HashMap<usize, ComputedStyle>,
-    parent: Option<&ElementNode>,
+    ancestors: &[&ElementNode],
 ) {
     let element_id = std::ptr::from_ref(element) as usize;
 
@@ -1234,31 +1537,108 @@ fn resolve_element_styles(
         computed.font_weight = 700;
     }
 
-    // Apply matching CSS rules
-    for rule in rules {
-        if selector_matches(&rule.selector, element, parent) {
-            for (prop, val) in &rule.declarations {
-                apply_property(&mut computed, prop, val, root_font_size);
-            }
+    // Collect matching rules with specificity for proper cascade ordering
+    #[allow(clippy::type_complexity)]
+    let mut matched_rules: Vec<(usize, u32, Vec<(String, String)>)> = Vec::new();
+    for (source_order, rule) in rules.iter().enumerate() {
+        if selector_matches(&rule.selector, element, ancestors) {
+            let specificity = compute_specificity(&rule.selector);
+            matched_rules.push((source_order, specificity, rule.declarations.clone()));
         }
     }
+    // Sort by specificity (stable sort preserves source order for equal specificity)
+    matched_rules.sort_by_key(|(source_order, specificity, _)| (*specificity, *source_order));
 
-    // Apply inline styles (highest specificity)
+    let mut all_declarations: Vec<(String, String)> = Vec::new();
+    for (_, _, decls) in matched_rules {
+        all_declarations.extend(decls);
+    }
+    // Inline styles have highest specificity
     if let Some(style_attr) = element.get_attr("style") {
-        let declarations = parse_inline_declarations(style_attr);
-        for (prop, val) in &declarations {
+        all_declarations.extend(parse_inline_declarations(style_attr));
+    }
+
+    // Pass 1: resolve font-size
+    for (prop, val) in &all_declarations {
+        if prop == "font-size" {
+            apply_property(&mut computed, prop, val, root_font_size);
+        }
+    }
+    // Pass 2: resolve everything else
+    for (prop, val) in &all_declarations {
+        if prop != "font-size" {
             apply_property(&mut computed, prop, val, root_font_size);
         }
     }
 
     styles.insert(element_id, computed.clone());
 
+    // Build ancestor chain for children (element becomes nearest ancestor)
+    let mut child_ancestors = vec![element];
+    child_ancestors.extend_from_slice(ancestors);
+
     // Recurse into children
     for child in &element.children {
         if let DomNode::Element(child_el) = child {
-            resolve_element_styles(child_el, rules, &computed, root_font_size, styles, Some(element));
+            resolve_element_styles(child_el, rules, &computed, root_font_size, styles, &child_ancestors);
         }
     }
+}
+
+/// Compute CSS specificity as a single u32.
+/// Format: 0x00_AA_BB_CC where AA=id count, BB=class/attr/pseudo count, CC=element count
+fn compute_specificity(selector: &str) -> u32 {
+    let tokens = tokenize_selector(selector);
+    let mut ids: u32 = 0;
+    let mut classes: u32 = 0;
+    let mut elements: u32 = 0;
+
+    for token in &tokens {
+        if let SelectorToken::Simple(s) = token {
+            let (base, pseudos) = extract_pseudo_classes(s);
+            let base = base.split("::").next().unwrap_or(base);
+
+            // Count pseudo-classes
+            for pseudo in &pseudos {
+                if pseudo.starts_with("not(") {
+                    // :not() itself has no specificity; the inner selector does
+                    if let Some(inner) = pseudo.strip_prefix("not(").and_then(|p| p.strip_suffix(')')) {
+                        // Simplified: count inner as a class-level selector
+                        classes += count_classes_in_simple(inner);
+                        elements += count_elements_in_simple(inner);
+                    }
+                } else {
+                    classes += 1; // pseudo-classes count as class-level
+                }
+            }
+
+            let parts: Vec<&str> = base.split('.').collect();
+            let tag_part = parts[0];
+
+            // Count ID selectors (not yet supported but future-proof)
+            if tag_part.starts_with('#') {
+                ids += 1;
+            } else if !tag_part.is_empty() && tag_part != "*" {
+                elements += 1;
+            }
+
+            // Count class selectors
+            classes += (parts.len() as u32).saturating_sub(1);
+        }
+    }
+
+    (ids << 16) | (classes << 8) | elements
+}
+
+fn count_classes_in_simple(s: &str) -> u32 {
+    let parts: Vec<&str> = s.split('.').collect();
+    (parts.len() as u32).saturating_sub(1)
+}
+
+fn count_elements_in_simple(s: &str) -> u32 {
+    let parts: Vec<&str> = s.split('.').collect();
+    let tag = parts[0];
+    u32::from(!tag.is_empty() && tag != "*")
 }
 
 #[cfg(test)]

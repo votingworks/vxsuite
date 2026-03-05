@@ -126,7 +126,8 @@ fn paint_node(
             let cy = y + child_layout.location.y;
 
             if let Some(ref parent_style) = computed {
-                paint_text(surface, cx, cy, ctx.text(), parent_style, fonts);
+                let content_width = w - computed.as_ref().map_or(0.0, |s| s.padding.left + s.padding.right);
+                paint_text(surface, cx, cy, ctx.text(), parent_style, fonts, content_width);
             }
         } else {
             paint_node(taffy, child, surface, styles, fonts, layout, x, y);
@@ -281,6 +282,11 @@ fn paint_borders(
     let bw = &computed.border_widths;
     let colors = &computed.border_colors;
 
+    if matches!(computed.border_style, BorderStyle::Dashed) {
+        paint_dashed_borders(surface, x, y, w, h, computed);
+        return;
+    }
+
     if bw.top > 0.0 {
         paint_rect(surface, x, y, w, bw.top, &colors.top);
     }
@@ -292,6 +298,58 @@ fn paint_borders(
     }
     if bw.right > 0.0 {
         paint_rect(surface, x + w - bw.right, y, bw.right, h, &colors.right);
+    }
+}
+
+fn paint_dashed_borders(
+    surface: &mut krilla::surface::Surface,
+    x: f32,
+    y: f32,
+    w: f32,
+    h: f32,
+    computed: &ComputedStyle,
+) {
+    let bw = &computed.border_widths;
+    let colors = &computed.border_colors;
+
+    let paint_dashed_edge = |surface: &mut krilla::surface::Surface,
+                             x1: f32, y1: f32, x2: f32, y2: f32,
+                             width: f32, color: &Color| {
+        let mut pb = PathBuilder::new();
+        pb.move_to(x1, y1);
+        pb.line_to(x2, y2);
+        let Some(path) = pb.finish() else { return };
+        let dash_len = width * 3.0;
+        let stroke = krilla::paint::Stroke {
+            paint: rgb::Color::new(color.r, color.g, color.b).into(),
+            width,
+            opacity: NormalizedF32::new(color.a).unwrap_or(NormalizedF32::ONE),
+            dash: Some(krilla::paint::StrokeDash {
+                array: vec![dash_len, dash_len],
+                offset: 0.0,
+            }),
+            ..krilla::paint::Stroke::default()
+        };
+        surface.set_fill(None);
+        surface.set_stroke(Some(stroke));
+        surface.draw_path(&path);
+    };
+
+    if bw.top > 0.0 {
+        let half = bw.top / 2.0;
+        paint_dashed_edge(surface, x, y + half, x + w, y + half, bw.top, &colors.top);
+    }
+    if bw.bottom > 0.0 {
+        let half = bw.bottom / 2.0;
+        paint_dashed_edge(surface, x, y + h - half, x + w, y + h - half, bw.bottom, &colors.bottom);
+    }
+    if bw.left > 0.0 {
+        let half = bw.left / 2.0;
+        paint_dashed_edge(surface, x + half, y, x + half, y + h, bw.left, &colors.left);
+    }
+    if bw.right > 0.0 {
+        let half = bw.right / 2.0;
+        paint_dashed_edge(surface, x + w - half, y, x + w - half, y + h, bw.right, &colors.right);
     }
 }
 
@@ -330,7 +388,13 @@ fn paint_text(
     text: &str,
     style: &ComputedStyle,
     fonts: &FontCollection,
+    container_width: f32,
 ) {
+    let text = match style.text_transform {
+        crate::style::TextTransform::Uppercase => text.to_uppercase(),
+        crate::style::TextTransform::None => text.to_string(),
+    };
+
     let Some(font_face) = fonts.find(&style.font_family, style.font_weight, style.font_style)
     else {
         return;
@@ -345,13 +409,29 @@ fn paint_text(
     let ascender_ratio = fonts.ascender_ratio(&style.font_family, style.font_weight, style.font_style);
     let baseline_y = y + font_size * ascender_ratio;
 
+    let text_x = match style.text_align {
+        crate::style::TextAlign::Left => x,
+        crate::style::TextAlign::Center => {
+            let text_width = fonts.measure_text(
+                &text, &style.font_family, style.font_weight, style.font_style, font_size,
+            );
+            x + (container_width - text_width) / 2.0
+        }
+        crate::style::TextAlign::Right => {
+            let text_width = fonts.measure_text(
+                &text, &style.font_family, style.font_weight, style.font_style, font_size,
+            );
+            x + container_width - text_width
+        }
+    };
+
     surface.set_fill(Some(make_fill(&style.color)));
     surface.set_stroke(None);
     surface.draw_text(
-        Point::from_xy(x, baseline_y),
+        Point::from_xy(text_x, baseline_y),
         font,
         font_size,
-        text,
+        &text,
         false,
         krilla::text::TextDirection::Auto,
     );
