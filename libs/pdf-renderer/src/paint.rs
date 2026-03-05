@@ -10,7 +10,7 @@ use krilla::Document;
 use taffy::NodeId;
 
 use crate::fonts::FontCollection;
-use crate::layout::LayoutResult;
+use crate::layout::{LayoutResult, TextContext};
 use crate::style::{BorderStyle, Color, ComputedStyle, Display, Overflow, StyleResult, Visibility};
 
 pub fn render_pdf(layout: &LayoutResult, styles: &StyleResult, fonts: &FontCollection) -> Vec<u8> {
@@ -127,7 +127,11 @@ fn paint_node(
 
             if let Some(ref parent_style) = computed {
                 let content_width = w - computed.as_ref().map_or(0.0, |s| s.padding.left + s.padding.right);
-                paint_text(surface, cx, cy, ctx.text(), parent_style, fonts, content_width);
+                if ctx.runs.len() <= 1 {
+                    paint_text(surface, cx, cy, &ctx.text(), parent_style, fonts, content_width);
+                } else {
+                    paint_inline_runs(surface, cx, cy, ctx, parent_style, fonts, content_width);
+                }
             }
         } else {
             paint_node(taffy, child, surface, styles, fonts, layout, x, y);
@@ -435,4 +439,97 @@ fn paint_text(
         false,
         krilla::text::TextDirection::Auto,
     );
+}
+
+#[allow(clippy::too_many_arguments)]
+fn paint_inline_runs(
+    surface: &mut krilla::surface::Surface,
+    x: f32,
+    y: f32,
+    ctx: &TextContext,
+    parent_style: &ComputedStyle,
+    fonts: &FontCollection,
+    container_width: f32,
+) {
+    let font_size = ctx.primary_font_size();
+    let font_family = ctx.primary_font_family().to_string();
+    let font_weight = ctx.primary_font_weight();
+    let font_style = ctx.primary_font_style();
+    let ascender_ratio = fonts.ascender_ratio(&font_family, font_weight, font_style);
+    let line_height = if ctx.line_height() > 0.0 {
+        font_size * ctx.line_height()
+    } else {
+        font_size * fonts.line_height_ratio(&font_family, font_weight, font_style)
+    };
+
+    let mut cursor_x = x;
+    let mut cursor_y = y;
+    let line_start_x = x;
+    let max_x = x + container_width;
+    let _space_width = fonts.measure_text(" ", &font_family, font_weight, font_style, font_size);
+
+    // Break all runs into word-level segments with their styles
+    let mut segments: Vec<(String, usize)> = Vec::new();
+    for (i, run) in ctx.runs.iter().enumerate() {
+        let text = match parent_style.text_transform {
+            crate::style::TextTransform::Uppercase => run.text.to_uppercase(),
+            crate::style::TextTransform::None => run.text.clone(),
+        };
+
+        // Split into words, preserving leading/trailing spaces
+        let has_leading_space = text.starts_with(' ');
+        let has_trailing_space = text.ends_with(' ');
+        let words: Vec<&str> = text.split_whitespace().collect();
+
+        for (j, word) in words.iter().enumerate() {
+            let mut w = String::new();
+            // Add space before word if it's not the first word, or if the
+            // run text had a leading space
+            if (j == 0 && has_leading_space) || j > 0 {
+                w.push(' ');
+            }
+            w.push_str(word);
+            if j == words.len() - 1 && has_trailing_space {
+                w.push(' ');
+            }
+            segments.push((w, i));
+        }
+    }
+
+    // Paint word by word with wrapping
+    for (word, run_index) in &segments {
+        let run = &ctx.runs[*run_index];
+        let word_width = fonts.measure_text(word, &run.font_family, run.font_weight, run.font_style, run.font_size);
+
+        // Check if we need to wrap
+        if cursor_x > line_start_x && cursor_x + word_width > max_x + 0.5 {
+            cursor_x = line_start_x;
+            cursor_y += line_height;
+        }
+
+        let baseline_y = cursor_y + font_size * ascender_ratio;
+
+        let Some(font_face) = fonts.find(&run.font_family, run.font_weight, run.font_style) else {
+            cursor_x += word_width;
+            continue;
+        };
+        let data: krilla::Data = Arc::new(font_face.data.clone()).into();
+        let Some(font) = Font::new(data, 0) else {
+            cursor_x += word_width;
+            continue;
+        };
+
+        surface.set_fill(Some(make_fill(&run.color)));
+        surface.set_stroke(None);
+        surface.draw_text(
+            Point::from_xy(cursor_x, baseline_y),
+            font,
+            run.font_size,
+            word,
+            false,
+            krilla::text::TextDirection::Auto,
+        );
+
+        cursor_x += word_width;
+    }
 }

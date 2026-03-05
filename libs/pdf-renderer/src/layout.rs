@@ -10,20 +10,47 @@ use crate::style::{
 };
 use crate::{DataAttribute, ElementInfo};
 
+/// A single styled segment of text within a text node
+#[derive(Clone)]
+pub(crate) struct TextRun {
+    pub text: String,
+    pub font_family: String,
+    pub font_size: f32,
+    pub font_weight: u16,
+    pub font_style: crate::style::FontStyle,
+    pub color: crate::style::Color,
+}
+
 /// Context carried with leaf text nodes for measurement
 pub(crate) struct TextContext {
-    text: String,
-    font_family: String,
-    font_size: f32,
-    font_weight: u16,
-    font_style: crate::style::FontStyle,
+    pub(crate) runs: Vec<TextRun>,
     white_space: WhiteSpace,
     line_height: f32,
 }
 
 impl TextContext {
-    pub(crate) fn text(&self) -> &str {
-        &self.text
+    pub(crate) fn text(&self) -> String {
+        self.runs.iter().map(|r| r.text.as_str()).collect()
+    }
+
+    pub(crate) fn primary_font_family(&self) -> &str {
+        self.runs.first().map_or("", |r| &r.font_family)
+    }
+
+    pub(crate) fn primary_font_size(&self) -> f32 {
+        self.runs.first().map_or(12.0, |r| r.font_size)
+    }
+
+    pub(crate) fn primary_font_weight(&self) -> u16 {
+        self.runs.first().map_or(400, |r| r.font_weight)
+    }
+
+    pub(crate) fn primary_font_style(&self) -> crate::style::FontStyle {
+        self.runs.first().map_or(crate::style::FontStyle::Normal, |r| r.font_style)
+    }
+
+    pub(crate) fn line_height(&self) -> f32 {
+        self.line_height
     }
 }
 
@@ -66,7 +93,7 @@ fn build_taffy_style(computed: &ComputedStyle) -> Style {
     let display = match computed.display {
         Display::Flex => taffy::Display::Flex,
         Display::Grid => taffy::Display::Grid,
-        Display::Block => taffy::Display::Block,
+        Display::Block | Display::Inline => taffy::Display::Block,
         Display::None => taffy::Display::None,
     };
 
@@ -275,39 +302,63 @@ fn build_taffy_tree(
         return node;
     }
 
+    // Check if this container has inline content that should be flattened
+    let has_inline_content = has_mixed_inline_content(&element.children, styles);
+
     let mut children = Vec::new();
 
-    for child in &element.children {
-        match child {
-            DomNode::Element(child_el) => {
-                // Skip style, head elements
-                if child_el.tag == "style" || child_el.tag == "head" {
-                    continue;
+    if has_inline_content {
+        // Flatten inline content into styled text runs
+        let mut runs = Vec::new();
+        collect_inline_runs(element, &element.children, styles, &computed, &mut runs);
+        if !runs.is_empty() {
+            let text_node = taffy
+                .new_leaf_with_context(
+                    Style::DEFAULT,
+                    TextContext {
+                        runs,
+                        white_space: computed.white_space,
+                        line_height: computed.line_height,
+                    },
+                )
+                .expect("taffy new_leaf_with_context");
+            children.push(text_node);
+        }
+    } else {
+        for child in &element.children {
+            match child {
+                DomNode::Element(child_el) => {
+                    // Skip style, head elements
+                    if child_el.tag == "style" || child_el.tag == "head" {
+                        continue;
+                    }
+                    let child_node = build_taffy_tree(taffy, child_el, styles, fonts, node_map);
+                    children.push(child_node);
                 }
-                let child_node = build_taffy_tree(taffy, child_el, styles, fonts, node_map);
-                children.push(child_node);
-            }
-            DomNode::Text(text) => {
-                let text = text.trim();
-                if text.is_empty() {
-                    continue;
+                DomNode::Text(text) => {
+                    let text = text.trim();
+                    if text.is_empty() {
+                        continue;
+                    }
+                    let text_node = taffy
+                        .new_leaf_with_context(
+                            Style::DEFAULT,
+                            TextContext {
+                                runs: vec![TextRun {
+                                    text: text.to_string(),
+                                    font_family: computed.font_family.clone(),
+                                    font_size: computed.font_size,
+                                    font_weight: computed.font_weight,
+                                    font_style: computed.font_style,
+                                    color: computed.color,
+                                }],
+                                white_space: computed.white_space,
+                                line_height: computed.line_height,
+                            },
+                        )
+                        .expect("taffy new_leaf_with_context");
+                    children.push(text_node);
                 }
-                // Create a leaf node for text
-                let text_node = taffy
-                    .new_leaf_with_context(
-                        Style::DEFAULT,
-                        TextContext {
-                            text: text.to_string(),
-                            font_family: computed.font_family.clone(),
-                            font_size: computed.font_size,
-                            font_weight: computed.font_weight,
-                            font_style: computed.font_style,
-                            white_space: computed.white_space,
-                            line_height: computed.line_height,
-                        },
-                    )
-                    .expect("taffy new_leaf_with_context");
-                children.push(text_node);
             }
         }
     }
@@ -318,6 +369,103 @@ fn build_taffy_tree(
         .expect("taffy new_with_children");
     node_map.insert(element_id, node);
     node
+}
+
+/// Check if a list of children contains mixed inline content (text + inline elements)
+/// that should be flattened into a single text node.
+fn has_mixed_inline_content(children: &[DomNode], styles: &StyleResult) -> bool {
+    let mut has_text = false;
+    let mut has_inline_element = false;
+
+    for child in children {
+        match child {
+            DomNode::Text(t) => {
+                if !t.trim().is_empty() {
+                    has_text = true;
+                }
+            }
+            DomNode::Element(el) => {
+                if el.tag == "style" || el.tag == "head" {
+                    continue;
+                }
+                let el_id = std::ptr::from_ref(el) as usize;
+                let is_inline = styles
+                    .styles
+                    .get(&el_id)
+                    .is_some_and(|s| matches!(s.display, Display::Inline));
+                if is_inline {
+                    has_inline_element = true;
+                } else {
+                    // Has a block-level element — not pure inline content
+                    return false;
+                }
+            }
+        }
+    }
+
+    has_text && has_inline_element
+}
+
+/// Collapse whitespace: newlines → space, multiple spaces → one space.
+fn collapse_whitespace(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut prev_was_space = false;
+    for c in s.chars() {
+        if c.is_whitespace() {
+            if !prev_was_space {
+                result.push(' ');
+                prev_was_space = true;
+            }
+        } else {
+            result.push(c);
+            prev_was_space = false;
+        }
+    }
+    result
+}
+
+/// Recursively collect text runs from inline content.
+fn collect_inline_runs(
+    _parent: &ElementNode,
+    children: &[DomNode],
+    styles: &StyleResult,
+    parent_computed: &ComputedStyle,
+    runs: &mut Vec<TextRun>,
+) {
+    for child in children {
+        match child {
+            DomNode::Text(text) => {
+                let collapsed = collapse_whitespace(text);
+                let trimmed = if runs.is_empty() {
+                    collapsed.trim_start().to_string()
+                } else {
+                    collapsed
+                };
+                if !trimmed.is_empty() {
+                    runs.push(TextRun {
+                        text: trimmed,
+                        font_family: parent_computed.font_family.clone(),
+                        font_size: parent_computed.font_size,
+                        font_weight: parent_computed.font_weight,
+                        font_style: parent_computed.font_style,
+                        color: parent_computed.color,
+                    });
+                }
+            }
+            DomNode::Element(el) => {
+                if el.tag == "style" || el.tag == "head" {
+                    continue;
+                }
+                let el_id = std::ptr::from_ref(el) as usize;
+                let el_style = styles
+                    .styles
+                    .get(&el_id)
+                    .cloned()
+                    .unwrap_or_default();
+                collect_inline_runs(el, &el.children, styles, &el_style, runs);
+            }
+        }
+    }
 }
 
 fn measure_text_node(
@@ -336,29 +484,42 @@ fn measure_text_node(
         AvailableSpace::MaxContent => f32::INFINITY,
     });
 
+    let font_size = ctx.primary_font_size();
+    let font_family = ctx.primary_font_family().to_string();
+    let font_weight = ctx.primary_font_weight();
+    let font_style = ctx.primary_font_style();
+
     let line_height = if ctx.line_height > 0.0 {
-        ctx.font_size * ctx.line_height
+        font_size * ctx.line_height
     } else {
-        ctx.font_size * fonts.line_height_ratio(&ctx.font_family, ctx.font_weight, ctx.font_style)
+        font_size * fonts.line_height_ratio(&font_family, font_weight, font_style)
     };
 
+    // For multi-run text, measure each run and sum widths for single-line,
+    // or concatenate text for line-breaking
+    let full_text = ctx.text();
+
     if matches!(ctx.white_space, WhiteSpace::NoWrap) || max_width.is_infinite() {
-        let width = fonts.measure_text(
-            &ctx.text,
-            &ctx.font_family,
-            ctx.font_weight,
-            ctx.font_style,
-            ctx.font_size,
-        );
+        // Measure each run individually for more accurate width
+        let width: f32 = ctx.runs.iter().map(|run| {
+            fonts.measure_text(
+                &run.text,
+                &run.font_family,
+                run.font_weight,
+                run.font_style,
+                run.font_size,
+            )
+        }).sum();
         return Size { width, height: line_height };
     }
 
+    // For wrapping, use concatenated text with primary font (simplified)
     let lines = fonts.break_text_into_lines(
-        &ctx.text,
-        &ctx.font_family,
-        ctx.font_weight,
-        ctx.font_style,
-        ctx.font_size,
+        &full_text,
+        &font_family,
+        font_weight,
+        font_style,
+        font_size,
         max_width,
     );
     let width = lines.iter().copied().fold(0.0f32, f32::max);

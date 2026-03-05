@@ -135,6 +135,7 @@ pub enum Display {
     Block,
     Flex,
     Grid,
+    Inline,
     None,
 }
 
@@ -560,6 +561,7 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
             style.display = match value {
                 "flex" => Display::Flex,
                 "grid" => Display::Grid,
+                "inline" | "inline-block" => Display::Inline,
                 "none" => Display::None,
                 _ => Display::Block,
             };
@@ -1567,15 +1569,43 @@ fn resolve_element_styles(
         ..ComputedStyle::default()
     };
 
-    // Set defaults based on tag
-    if matches!(
-        element.tag.as_str(),
-        "span" | "b" | "strong" | "em" | "i"
-    ) {
-        computed.display = Display::Block; // simplified — in real impl these are inline
-    }
-    if element.tag == "b" || element.tag == "strong" {
-        computed.font_weight = 700;
+    // Default user-agent styles based on tag
+    match element.tag.as_str() {
+        "span" | "a" | "small" | "u" | "sub" | "sup" | "abbr" | "code" | "var" => {
+            computed.display = Display::Inline;
+        }
+        "b" | "strong" => {
+            computed.display = Display::Inline;
+            computed.font_weight = 700;
+        }
+        "em" | "i" => {
+            computed.display = Display::Inline;
+            computed.font_style = FontStyle::Italic;
+        }
+        "h1" => {
+            computed.font_size = parent_style.font_size * 2.0;
+            computed.font_weight = 700;
+        }
+        "h2" => {
+            computed.font_size = parent_style.font_size * 1.5;
+            computed.font_weight = 700;
+        }
+        "h3" => {
+            computed.font_size = parent_style.font_size * 1.17;
+            computed.font_weight = 700;
+        }
+        "h4" => {
+            computed.font_weight = 700;
+        }
+        "h5" => {
+            computed.font_size = parent_style.font_size * 0.83;
+            computed.font_weight = 700;
+        }
+        "h6" => {
+            computed.font_size = parent_style.font_size * 0.67;
+            computed.font_weight = 700;
+        }
+        _ => {}
     }
 
     // Collect matching rules with specificity for proper cascade ordering

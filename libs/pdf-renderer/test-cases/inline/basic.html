@@ -1,0 +1,37 @@
+<html>
+<head>
+<style>
+* { box-sizing: border-box; }
+@font-face {
+  font-family: 'TestFont';
+  font-weight: bold;
+  src: url(../fonts/Roboto-Bold.ttf) format('truetype');
+}
+body {
+  width: 300pt;
+  height: 200pt;
+  margin: 0;
+  padding: 10pt;
+  font-family: 'TestFont';
+  font-size: 12pt;
+  font-weight: bold;
+  color: #333333;
+}
+.line {
+  margin-bottom: 8pt;
+}
+.highlight {
+  color: #e74c3c;
+}
+.blue {
+  color: #3498db;
+}
+</style>
+</head>
+<body>
+  <div class="line">Hello <b>bold</b> world</div>
+  <div class="line">Mix <span class="highlight">red</span> and <span class="blue">blue</span> text</div>
+  <div class="line"><strong>Strong</strong> start with <em>emphasis</em></div>
+  <div class="line">A longer paragraph with <b>bold words</b> in the middle that should wrap to the next line naturally.</div>
+</body>
+</html>
