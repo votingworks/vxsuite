@@ -9,11 +9,9 @@ mod style;
 mod fonts;
 mod layout;
 mod paint;
+pub mod diff;
 
-use napi::bindgen_prelude::Buffer;
-use napi_derive::napi;
-
-#[napi(object)]
+#[cfg_attr(feature = "napi-binding", napi_derive::napi(object))]
 pub struct ElementInfo {
     pub x: f64,
     pub y: f64,
@@ -22,31 +20,39 @@ pub struct ElementInfo {
     pub attributes: Vec<DataAttribute>,
 }
 
-#[napi(object)]
+#[cfg_attr(feature = "napi-binding", napi_derive::napi(object))]
 pub struct DataAttribute {
     pub name: String,
     pub value: String,
 }
 
-#[napi]
-pub fn render_to_pdf(html: String) -> napi::Result<Buffer> {
-    let parsed = dom::parse_html(&html).map_err(|e| napi::Error::from_reason(e.to_string()))?;
-    let styles = style::resolve_styles(&parsed);
-    let fonts = fonts::load_fonts(&styles.font_faces);
-    let layout_result = layout::compute_layout(&parsed.document, &styles, &fonts);
-    let pdf_bytes = paint::render_pdf(&layout_result, &styles, &fonts);
-    Ok(Buffer::from(pdf_bytes))
-}
+#[cfg(feature = "napi-binding")]
+mod napi_bindings {
+    use napi::bindgen_prelude::Buffer;
+    use napi_derive::napi;
 
-#[napi]
-pub fn query(html: String, selector: String) -> napi::Result<Vec<ElementInfo>> {
-    let parsed = dom::parse_html(&html).map_err(|e| napi::Error::from_reason(e.to_string()))?;
-    let styles = style::resolve_styles(&parsed);
-    let fonts = fonts::load_fonts(&styles.font_faces);
-    let layout_result = layout::compute_layout(&parsed.document, &styles, &fonts);
-    Ok(layout::query_elements(
-        &layout_result,
-        &parsed.document,
-        &selector,
-    ))
+    #[napi]
+    pub fn render_to_pdf(html: String) -> napi::Result<Buffer> {
+        let parsed =
+            crate::dom::parse_html(&html).map_err(|e| napi::Error::from_reason(e.to_string()))?;
+        let styles = crate::style::resolve_styles(&parsed);
+        let fonts = crate::fonts::load_fonts(&styles.font_faces);
+        let layout_result = crate::layout::compute_layout(&parsed.document, &styles, &fonts);
+        let pdf_bytes = crate::paint::render_pdf(&layout_result, &styles, &fonts);
+        Ok(Buffer::from(pdf_bytes))
+    }
+
+    #[napi]
+    pub fn query(html: String, selector: String) -> napi::Result<Vec<crate::ElementInfo>> {
+        let parsed =
+            crate::dom::parse_html(&html).map_err(|e| napi::Error::from_reason(e.to_string()))?;
+        let styles = crate::style::resolve_styles(&parsed);
+        let fonts = crate::fonts::load_fonts(&styles.font_faces);
+        let layout_result = crate::layout::compute_layout(&parsed.document, &styles, &fonts);
+        Ok(crate::layout::query_elements(
+            &layout_result,
+            &parsed.document,
+            &selector,
+        ))
+    }
 }

@@ -6,34 +6,18 @@
 //! Requires `pdftoppm` (from poppler-utils) on PATH.
 
 use image::{GenericImage, ImageBuffer, Rgb, RgbImage};
-use std::process::Command;
+use pdf_renderer::diff;
+use std::path::Path;
 
-const DPI: u32 = 150;
 const LABEL_H: u32 = 36;
 const GAP: u32 = 4;
-const DIFF_AMPLIFY: u8 = 10;
-
-fn pdf_to_png(pdf_path: &str, tmp_prefix: &str) -> RgbImage {
-    let status = Command::new("pdftoppm")
-        .args(["-png", "-r", &DPI.to_string(), pdf_path, tmp_prefix])
-        .status()
-        .expect("pdftoppm not found — install poppler-utils");
-    assert!(status.success(), "pdftoppm failed");
-
-    let png_path = format!("{tmp_prefix}-1.png");
-    image::open(&png_path)
-        .unwrap_or_else(|e| panic!("failed to open {png_path}: {e}"))
-        .to_rgb8()
-}
 
 fn draw_label(canvas: &mut RgbImage, x: u32, y: u32, w: u32, text: &str, bg: Rgb<u8>) {
-    // Fill background
     for py in y..y + LABEL_H {
         for px in x..x + w {
             canvas.put_pixel(px, py, bg);
         }
     }
-    // Render text as simple block letters (8px wide, centered)
     let char_w = 8u32;
     let char_h = 12u32;
     let text_w = text.len() as u32 * char_w;
@@ -59,7 +43,6 @@ fn draw_label(canvas: &mut RgbImage, x: u32, y: u32, w: u32, text: &str, bg: Rgb
 }
 
 fn char_to_bitmap(ch: char) -> [u8; 12] {
-    // Minimal 8x12 bitmaps for uppercase + digits + parens + space
     match ch {
         'R' => [0xFC,0xC6,0xC6,0xC6,0xFC,0xD8,0xCC,0xC6,0xC6,0xC6,0x00,0x00],
         'U' => [0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0xC6,0x7C,0x00,0x00],
@@ -82,22 +65,6 @@ fn char_to_bitmap(ch: char) -> [u8; 12] {
     }
 }
 
-fn compute_diff(a: &RgbImage, b: &RgbImage) -> RgbImage {
-    let (w, h) = a.dimensions();
-    let mut diff: RgbImage = ImageBuffer::new(w, h);
-    for y in 0..h {
-        for x in 0..w {
-            let pa = a.get_pixel(x, y);
-            let pb = b.get_pixel(x, y);
-            let dr = pa[0].abs_diff(pb[0]).saturating_mul(DIFF_AMPLIFY);
-            let dg = pa[1].abs_diff(pb[1]).saturating_mul(DIFF_AMPLIFY);
-            let db = pa[2].abs_diff(pb[2]).saturating_mul(DIFF_AMPLIFY);
-            diff.put_pixel(x, y, Rgb([dr, dg, db]));
-        }
-    }
-    diff
-}
-
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 3 {
@@ -111,19 +78,16 @@ fn main() {
     let tmp = std::env::temp_dir().join("compare-pdfs");
     std::fs::create_dir_all(&tmp).expect("create temp dir");
 
-    let rust_img = pdf_to_png(rust_pdf, tmp.join("rust").to_str().expect("path"));
-    let chrome_img = pdf_to_png(chrome_pdf, tmp.join("chrome").to_str().expect("path"));
+    let rust_img = diff::pdf_to_png(Path::new(rust_pdf), &tmp.join("rust"));
+    let chrome_img = diff::pdf_to_png(Path::new(chrome_pdf), &tmp.join("chrome"));
 
-    // Match dimensions
     let w = rust_img.width().max(chrome_img.width());
     let h = rust_img.height().max(chrome_img.height());
 
-    let mut rust_padded: RgbImage = ImageBuffer::from_pixel(w, h, Rgb([255, 255, 255]));
-    rust_padded.copy_from(&rust_img, 0, 0).expect("copy rust");
-    let mut chrome_padded: RgbImage = ImageBuffer::from_pixel(w, h, Rgb([255, 255, 255]));
-    chrome_padded.copy_from(&chrome_img, 0, 0).expect("copy chrome");
+    let rust_padded = diff::pad_to_size(&rust_img, w, h);
+    let chrome_padded = diff::pad_to_size(&chrome_img, w, h);
 
-    let diff = compute_diff(&rust_padded, &chrome_padded);
+    let diff_img = diff::compute_diff(&rust_padded, &chrome_padded);
 
     let total_w = w * 3 + GAP * 2;
     let total_h = LABEL_H + h;
@@ -136,7 +100,7 @@ fn main() {
 
     canvas.copy_from(&rust_padded, 0, LABEL_H).expect("paste rust");
     canvas.copy_from(&chrome_padded, w + GAP, LABEL_H).expect("paste chrome");
-    canvas.copy_from(&diff, 2 * (w + GAP), LABEL_H).expect("paste diff");
+    canvas.copy_from(&diff_img, 2 * (w + GAP), LABEL_H).expect("paste diff");
 
     canvas.save(output).expect("save output");
     eprintln!("Saved: {output} ({total_w}x{total_h})");

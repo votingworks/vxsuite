@@ -4,24 +4,40 @@ name = "pdf-renderer"
 version = "0.0.0"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = ["napi-binding"]
+napi-binding = ["dep:napi", "dep:napi-derive"]
 
 [dependencies]
 base64.workspace = true
+headless_chrome = { workspace = true, optional = true }
 image.workspace = true
 krilla.workspace = true
 krilla-svg.workspace = true
-napi.workspace = true
-napi-derive.workspace = true
+napi = { workspace = true, optional = true }
+napi-derive = { workspace = true, optional = true }
 quick-xml.workspace = true
 rustybuzz.workspace = true
 taffy.workspace = true
+tempfile.workspace = true
 ttf-parser.workspace = true
 unicode-linebreak.workspace = true
 
 [[bin]]
 name = "compare-pdfs"
 path = "src/bin/compare_pdfs.rs"
+required-features = []
+
+[[bin]]
+name = "update-references"
+path = "src/bin/update_references.rs"
+required-features = ["headless_chrome"]
+
+[dev-dependencies]
+base64.workspace = true
+image-compare.workspace = true
 
 [build-dependencies]
 napi-build.workspace = true

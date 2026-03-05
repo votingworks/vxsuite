@@ -86,6 +86,8 @@ rustybuzz = "0.20"
 taffy = "0.7"
 ttf-parser = "0.25"
 unicode-linebreak = "0.1"
+headless_chrome = "1.0.15"
+image-compare = "0.4"
 zedbar = "0.2.1"
 
 [workspace.lints.rust]

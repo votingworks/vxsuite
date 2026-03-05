@@ -1,0 +1,8 @@
+# Visual comparison test output
+test-output/
+
+# Chromium reference snapshots (regenerated via update-references)
+test-cases/**/*.reference.pdf
+test-cases/**/*.reference.png
+test-cases/**/*.reference.hash
+test-cases/**/*.ref-tmp-*.png
