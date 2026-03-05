@@ -33,6 +33,8 @@ import {
   safeParseElection,
   BallotStyle,
   formatBallotHash,
+  PollingPlaceSchema,
+  PollingPlace,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -80,6 +82,7 @@ import {
   DuplicatePartyError,
   DuplicatePrecinctError,
   TestDecksTaskMetadata,
+  SetPollingPlaceError,
 } from './store';
 import {
   AggregatedReportedPollsStatus,
@@ -1077,6 +1080,27 @@ export function buildApi(ctx: AppContext) {
 
     getBaseUrl(): string {
       return baseUrl();
+    },
+
+    listPollingPlaces(input: { electionId: string }): Promise<PollingPlace[]> {
+      return store.listPollingPlaces(input.electionId);
+    },
+
+    async setPollingPlace(input: {
+      electionId: ElectionId;
+      place: PollingPlace;
+    }): Promise<Result<void, SetPollingPlaceError>> {
+      return store.setPollingPlace(
+        input.electionId,
+        unsafeParse(PollingPlaceSchema, input.place)
+      );
+    },
+
+    deletePollingPlace(input: {
+      electionId: string;
+      id: string;
+    }): Promise<void> {
+      return store.deletePollingPlace(input);
     },
 
     ...ttsStrings.apiMethods(ctx),
