@@ -726,6 +726,46 @@ fn parse_inline_declarations(style_attr: &str) -> Vec<(String, String)> {
     result
 }
 
+/// Parse a `grid-template-columns` value into a list of track sizes.
+/// Supports: `<length>`, `<fr>`, and `auto` tokens.
+fn parse_track_list(value: &str, parent_font_size: f32, root_font_size: f32) -> Vec<TrackSize> {
+    let mut tracks = Vec::new();
+    for token in value.split_whitespace() {
+        if let Some(n) = token.strip_suffix("fr") {
+            if let Ok(v) = n.trim().parse::<f32>() {
+                tracks.push(TrackSize::Fr(v));
+                continue;
+            }
+        }
+        if token == "auto" {
+            tracks.push(TrackSize::Auto);
+            continue;
+        }
+        if let Some(pts) = resolve_length(token, parent_font_size, root_font_size) {
+            tracks.push(TrackSize::Points(pts));
+        }
+    }
+    tracks
+}
+
+/// Copy a single CSS property from parent style (for the `inherit` keyword).
+fn apply_inherit(style: &mut ComputedStyle, prop: &str, parent: &ComputedStyle) {
+    match prop {
+        "box-sizing" => style.box_sizing = parent.box_sizing,
+        "display" => style.display = parent.display,
+        "color" => style.color = parent.color,
+        "font-weight" => style.font_weight = parent.font_weight,
+        "font-style" => style.font_style = parent.font_style,
+        "font-family" => style.font_family.clone_from(&parent.font_family),
+        "font-size" => style.font_size = parent.font_size,
+        "line-height" => style.line_height = parent.line_height,
+        "text-align" => style.text_align = parent.text_align,
+        "visibility" => style.visibility = parent.visibility,
+        "list-style-type" => style.list_style_type = parent.list_style_type,
+        _ => {} // unsupported property — silently ignore
+    }
+}
+
 /// Apply a property-value pair to a `ComputedStyle`
 fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_size: f32) {
     let fs = style.font_size;
@@ -805,6 +845,9 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
                     .unwrap_or(row);
                 style.gap = (row, col);
             }
+        }
+        "grid-template-columns" => {
+            style.grid_template_columns = parse_track_list(value, fs, root_font_size);
         }
         "width" => {
             style.width = parse_dimension(value, fs, root_font_size);
@@ -2240,7 +2283,12 @@ fn resolve_element_styles(
     }
     // Pass 2: resolve everything else
     for (prop, val) in &all_declarations {
-        if prop != "font-size" {
+        if prop == "font-size" {
+            continue;
+        }
+        if val == "inherit" {
+            apply_inherit(&mut computed, prop, parent_style);
+        } else {
             apply_property(&mut computed, prop, val, root_font_size);
         }
     }

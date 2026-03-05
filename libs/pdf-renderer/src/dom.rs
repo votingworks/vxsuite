@@ -83,7 +83,54 @@ pub struct ParseResult {
     pub style_texts: Vec<String>,
 }
 
+/// HTML void elements that have no closing tag.
+const VOID_ELEMENTS: &[&str] = &[
+    "area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "param", "source", "track", "wbr",
+];
+
+/// Convert HTML void elements (e.g. `<col>`, `<br>`) to self-closing XML
+/// (e.g. `<col/>`, `<br/>`) so quick-xml can parse them.
+fn make_void_elements_self_closing(html: &str) -> String {
+    let mut result = html.to_string();
+    for tag in VOID_ELEMENTS {
+        // Find each occurrence of `<tag...>` that isn't already self-closing
+        let open = format!("<{tag}");
+        let mut search_from = 0;
+        loop {
+            let Some(start) = result[search_from..].find(&open) else {
+                break;
+            };
+            let start = search_from + start;
+            // Check that the character after the tag name is a boundary (space, /, or >)
+            let after_tag = start + open.len();
+            if after_tag < result.len() {
+                let next_char = result.as_bytes()[after_tag];
+                if next_char != b' ' && next_char != b'/' && next_char != b'>' {
+                    search_from = after_tag;
+                    continue;
+                }
+            }
+            // Find the closing `>`
+            let Some(end_offset) = result[start..].find('>') else {
+                break;
+            };
+            let end = start + end_offset;
+            // Already self-closing?
+            if result.as_bytes()[end - 1] == b'/' {
+                search_from = end + 1;
+                continue;
+            }
+            // Insert `/` before `>`
+            result.insert(end, '/');
+            search_from = end + 2;
+        }
+    }
+    result
+}
+
 pub fn parse_html(html: &str) -> Result<ParseResult, quick_xml::Error> {
+    let html = &make_void_elements_self_closing(html);
     let mut reader = Reader::from_str(html);
 
     let mut stack: Vec<ElementNode> = vec![ElementNode {
