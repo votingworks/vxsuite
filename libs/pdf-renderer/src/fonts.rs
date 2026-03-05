@@ -69,6 +69,35 @@ impl FontCollection {
         self.font_data.first()
     }
 
+    /// Get the ascender ratio (ascender / units_per_em) for a font.
+    /// Used for baseline positioning.
+    pub fn ascender_ratio(&self, family: &str, weight: u16, style: FontStyle) -> f32 {
+        let Some(font_face) = self.find(family, weight, style) else {
+            return 0.8;
+        };
+        let Ok(face) = ttf_parser::Face::parse(&font_face.data, 0) else {
+            return 0.8;
+        };
+        let units_per_em = f32::from(face.units_per_em());
+        f32::from(face.ascender()) / units_per_em
+    }
+
+    /// Get the line height ratio ((ascender - descender + line_gap) / units_per_em)
+    /// for a font. Used for computing `line-height: normal`.
+    pub fn line_height_ratio(&self, family: &str, weight: u16, style: FontStyle) -> f32 {
+        let Some(font_face) = self.find(family, weight, style) else {
+            return 1.2;
+        };
+        let Ok(face) = ttf_parser::Face::parse(&font_face.data, 0) else {
+            return 1.2;
+        };
+        let units_per_em = f32::from(face.units_per_em());
+        let ascender = f32::from(face.ascender());
+        let descender = f32::from(face.descender()); // negative value
+        let line_gap = f32::from(face.line_gap());
+        (ascender - descender + line_gap) / units_per_em
+    }
+
     /// Shape text and return total advance width in points
     pub fn measure_text(
         &self,

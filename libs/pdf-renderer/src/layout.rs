@@ -5,7 +5,7 @@ use taffy::prelude::*;
 use crate::dom::{DomNode, ElementNode};
 use crate::fonts::FontCollection;
 use crate::style::{
-    AlignItems, AlignSelf, ComputedStyle, Dimension, Display, FlexDirection, FlexWrap,
+    AlignItems, AlignSelf, BoxSizing, ComputedStyle, Dimension, Display, FlexDirection, FlexWrap,
     JustifyContent, Position, StyleResult, WhiteSpace,
 };
 use crate::{DataAttribute, ElementInfo};
@@ -113,9 +113,15 @@ fn build_taffy_style(computed: &ComputedStyle) -> Style {
         })
         .collect();
 
+    let box_sizing = match computed.box_sizing {
+        BoxSizing::ContentBox => taffy::BoxSizing::ContentBox,
+        BoxSizing::BorderBox => taffy::BoxSizing::BorderBox,
+    };
+
     Style {
         display,
         position,
+        box_sizing,
         flex_direction,
         flex_wrap,
         flex_grow: computed.flex_grow,
@@ -324,6 +330,9 @@ fn measure_text_node(
         AvailableSpace::MaxContent => f32::INFINITY,
     });
 
+    let line_height_ratio =
+        fonts.line_height_ratio(&ctx.font_family, ctx.font_weight, ctx.font_style);
+
     if matches!(ctx.white_space, WhiteSpace::NoWrap) || max_width.is_infinite() {
         let width = fonts.measure_text(
             &ctx.text,
@@ -332,7 +341,7 @@ fn measure_text_node(
             ctx.font_style,
             ctx.font_size,
         );
-        let height = ctx.font_size * 1.2; // approximate line height
+        let height = ctx.font_size * line_height_ratio;
         return Size { width, height };
     }
 
@@ -345,7 +354,7 @@ fn measure_text_node(
         max_width,
     );
 
-    let line_height = ctx.font_size * 1.2;
+    let line_height = ctx.font_size * line_height_ratio;
     let width = lines.iter().copied().fold(0.0f32, f32::max);
     let height = lines.len() as f32 * line_height;
 

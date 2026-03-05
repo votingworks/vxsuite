@@ -64,9 +64,12 @@ pub struct ComputedStyle {
     pub background_image: Option<String>, // data URI
 
     // Borders
-    pub border_color: Color,
+    pub border_colors: BorderColors,
     pub border_style: BorderStyle,
     pub border_radius: f32,
+
+    // Box sizing
+    pub box_sizing: BoxSizing,
 
     // Visual
     pub overflow: Overflow,
@@ -112,9 +115,10 @@ impl Default for ComputedStyle {
             color: Color::BLACK,
             background_color: Color::TRANSPARENT,
             background_image: None,
-            border_color: Color::BLACK,
+            border_colors: BorderColors::uniform(Color::BLACK),
             border_style: BorderStyle::None,
             border_radius: 0.0,
+            box_sizing: BoxSizing::ContentBox,
             overflow: Overflow::Visible,
             visibility: Visibility::Visible,
             transform: None,
@@ -200,6 +204,12 @@ pub enum BorderStyle {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub enum BoxSizing {
+    ContentBox,
+    BorderBox,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum Overflow {
     Visible,
     Hidden,
@@ -248,6 +258,25 @@ impl Edges {
             right: 0.0,
             bottom: 0.0,
             left: 0.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct BorderColors {
+    pub top: Color,
+    pub right: Color,
+    pub bottom: Color,
+    pub left: Color,
+}
+
+impl BorderColors {
+    pub const fn uniform(color: Color) -> Self {
+        Self {
+            top: color,
+            right: color,
+            bottom: color,
+            left: color,
         }
     }
 }
@@ -345,6 +374,20 @@ fn parse_color(value: &str) -> Option<Color> {
                 return None;
             };
             Some(Color { r, g, b, a: 1.0 })
+        }
+        _ if value.starts_with("rgb(") && !value.starts_with("rgba(") => {
+            let inner = value.strip_prefix("rgb(")?.strip_suffix(')')?;
+            let parts: Vec<&str> = inner.split(',').collect();
+            if parts.len() == 3 {
+                Some(Color {
+                    r: parts[0].trim().parse().ok()?,
+                    g: parts[1].trim().parse().ok()?,
+                    b: parts[2].trim().parse().ok()?,
+                    a: 1.0,
+                })
+            } else {
+                None
+            }
         }
         _ if value.starts_with("rgba(") => {
             let inner = value.strip_prefix("rgba(")?.strip_suffix(')')?;
@@ -707,21 +750,10 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
                 };
             }
             if let Some(c) = parts.get(2).and_then(|v| parse_color(v)) {
-                style.border_color = c;
+                style.border_colors = BorderColors::uniform(c);
             }
         }
         "border-top" | "border-right" | "border-bottom" | "border-left" => {
-            let parts: Vec<&str> = value.split_whitespace().collect();
-            if let Some(width) = parts.first().and_then(|v| resolve_length(v, fs, root_font_size))
-            {
-                match prop {
-                    "border-top" => style.border_widths.top = width,
-                    "border-right" => style.border_widths.right = width,
-                    "border-bottom" => style.border_widths.bottom = width,
-                    "border-left" => style.border_widths.left = width,
-                    _ => {}
-                }
-            }
             if value == "none" {
                 match prop {
                     "border-top" => style.border_widths.top = 0.0,
@@ -730,12 +762,54 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
                     "border-left" => style.border_widths.left = 0.0,
                     _ => {}
                 }
+            } else {
+                let parts: Vec<&str> = value.split_whitespace().collect();
+                if let Some(width) =
+                    parts.first().and_then(|v| resolve_length(v, fs, root_font_size))
+                {
+                    match prop {
+                        "border-top" => style.border_widths.top = width,
+                        "border-right" => style.border_widths.right = width,
+                        "border-bottom" => style.border_widths.bottom = width,
+                        "border-left" => style.border_widths.left = width,
+                        _ => {}
+                    }
+                }
+                if let Some(s) = parts.get(1) {
+                    if *s == "solid" || *s == "dashed" {
+                        style.border_style = match *s {
+                            "solid" => BorderStyle::Solid,
+                            "dashed" => BorderStyle::Dashed,
+                            _ => style.border_style,
+                        };
+                    }
+                }
+                if let Some(c) = parts.get(2).and_then(|v| parse_color(v)) {
+                    match prop {
+                        "border-top" => style.border_colors.top = c,
+                        "border-right" => style.border_colors.right = c,
+                        "border-bottom" => style.border_colors.bottom = c,
+                        "border-left" => style.border_colors.left = c,
+                        _ => {}
+                    }
+                }
+            }
+        }
+        "border-color" => {
+            if let Some(c) = parse_color(value) {
+                style.border_colors = BorderColors::uniform(c);
             }
         }
         "border-radius" => {
             if let Some(v) = resolve_length(value, fs, root_font_size) {
                 style.border_radius = v;
             }
+        }
+        "box-sizing" => {
+            style.box_sizing = match value {
+                "border-box" => BoxSizing::BorderBox,
+                _ => BoxSizing::ContentBox,
+            };
         }
         "overflow" => {
             style.overflow = match value {
@@ -749,8 +823,80 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
                 _ => Visibility::Visible,
             };
         }
+        "opacity" => {
+            if let Ok(v) = value.parse::<f32>() {
+                style.opacity = v.clamp(0.0, 1.0);
+            }
+        }
+        "transform" => {
+            style.transform = parse_transform(value);
+        }
         // Skip properties we don't need for the PoC
         _ => {}
+    }
+}
+
+fn parse_transform(value: &str) -> Option<Transform> {
+    let value = value.trim();
+    if value == "none" {
+        return None;
+    }
+
+    let mut transforms = Vec::new();
+    let mut remaining = value;
+
+    while !remaining.is_empty() {
+        remaining = remaining.trim_start();
+        if remaining.is_empty() {
+            break;
+        }
+
+        if let Some(inner) = remaining.strip_prefix("scaleX(").and_then(|s| {
+            let end = s.find(')')?;
+            Some(&s[..end])
+        }) {
+            if let Ok(sx) = inner.trim().parse::<f32>() {
+                transforms.push(Transform::ScaleX(sx));
+            }
+            remaining = &remaining[remaining.find(')').map_or(remaining.len(), |i| i + 1)..];
+        } else if let Some(inner) = remaining.strip_prefix("rotate(").and_then(|s| {
+            let end = s.find(')')?;
+            Some(&s[..end])
+        }) {
+            let deg_str = inner.trim().trim_end_matches("deg");
+            if let Ok(deg) = deg_str.parse::<f32>() {
+                transforms.push(Transform::Rotate(deg));
+            }
+            remaining = &remaining[remaining.find(')').map_or(remaining.len(), |i| i + 1)..];
+        } else if let Some(inner) = remaining.strip_prefix("translate(").and_then(|s| {
+            let end = s.find(')')?;
+            Some(&s[..end])
+        }) {
+            let parts: Vec<&str> = inner.split(',').collect();
+            let tx = parts
+                .first()
+                .and_then(|v| resolve_length(v.trim(), 12.0, 12.0))
+                .unwrap_or(0.0);
+            let ty = parts
+                .get(1)
+                .and_then(|v| resolve_length(v.trim(), 12.0, 12.0))
+                .unwrap_or(0.0);
+            transforms.push(Transform::Translate(tx, ty));
+            remaining = &remaining[remaining.find(')').map_or(remaining.len(), |i| i + 1)..];
+        } else {
+            // Skip unrecognized transform function
+            if let Some(end) = remaining.find(')') {
+                remaining = &remaining[end + 1..];
+            } else {
+                break;
+            }
+        }
+    }
+
+    match transforms.len() {
+        0 => None,
+        1 => Some(transforms.into_iter().next().expect("len checked")),
+        _ => Some(Transform::Combined(transforms)),
     }
 }
 
