@@ -69,6 +69,8 @@ pub struct ComputedStyle {
     pub color: Color,
     pub background_color: Color,
     pub background_image: Option<String>, // data URI
+    pub background_size: BackgroundSize,
+    pub background_repeat: BackgroundRepeat,
 
     // Borders
     pub border_colors: BorderColors,
@@ -146,6 +148,8 @@ impl Default for ComputedStyle {
             color: Color::BLACK,
             background_color: Color::TRANSPARENT,
             background_image: None,
+            background_size: BackgroundSize::Auto,
+            background_repeat: BackgroundRepeat::Repeat,
             border_colors: BorderColors::uniform(Color::BLACK),
             border_style: BorderStyle::None,
             border_radius: 0.0,
@@ -254,6 +258,19 @@ pub enum BorderStyle {
     None,
     Solid,
     Dashed,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum BackgroundSize {
+    Auto,
+    Contain,
+    Cover,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum BackgroundRepeat {
+    Repeat,
+    NoRepeat,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -834,6 +851,19 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
             if value != "none" {
                 style.background_image = Some(value.to_string());
             }
+        }
+        "background-size" => {
+            style.background_size = match value {
+                "contain" => BackgroundSize::Contain,
+                "cover" => BackgroundSize::Cover,
+                _ => BackgroundSize::Auto,
+            };
+        }
+        "background-repeat" => {
+            style.background_repeat = match value {
+                "no-repeat" => BackgroundRepeat::NoRepeat,
+                _ => BackgroundRepeat::Repeat,
+            };
         }
         "border" => {
             // Parse shorthand: "1px solid black"
