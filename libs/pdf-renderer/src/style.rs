@@ -76,6 +76,7 @@ pub struct ComputedStyle {
     pub border_colors: BorderColors,
     pub border_style: BorderStyle,
     pub border_radius: f32,
+    pub border_collapse: bool, // true = collapse (table only)
 
     // Box sizing
     pub box_sizing: BoxSizing,
@@ -153,6 +154,7 @@ impl Default for ComputedStyle {
             border_colors: BorderColors::uniform(Color::BLACK),
             border_style: BorderStyle::None,
             border_radius: 0.0,
+            border_collapse: false,
             box_sizing: BoxSizing::ContentBox,
             overflow: Overflow::Visible,
             visibility: Visibility::Visible,
@@ -939,6 +941,9 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
             if let Some(v) = resolve_length(value, fs, root_font_size) {
                 style.border_radius = v;
             }
+        }
+        "border-collapse" => {
+            style.border_collapse = value == "collapse";
         }
         "box-sizing" => {
             style.box_sizing = match value {

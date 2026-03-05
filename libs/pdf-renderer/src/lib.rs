@@ -35,9 +35,9 @@ mod napi_bindings {
     pub fn render_to_pdf(html: String) -> napi::Result<Buffer> {
         let parsed =
             crate::dom::parse_html(&html).map_err(|e| napi::Error::from_reason(e.to_string()))?;
-        let styles = crate::style::resolve_styles(&parsed);
+        let mut styles = crate::style::resolve_styles(&parsed);
         let fonts = crate::fonts::load_fonts(&styles.font_faces);
-        let layout_result = crate::layout::compute_layout(&parsed.document, &styles, &fonts);
+        let layout_result = crate::layout::compute_layout(&parsed.document, &mut styles, &fonts);
         let pdf_bytes = crate::paint::render_pdf(&layout_result, &styles, &fonts);
         Ok(Buffer::from(pdf_bytes))
     }
@@ -46,9 +46,9 @@ mod napi_bindings {
     pub fn query(html: String, selector: String) -> napi::Result<Vec<crate::ElementInfo>> {
         let parsed =
             crate::dom::parse_html(&html).map_err(|e| napi::Error::from_reason(e.to_string()))?;
-        let styles = crate::style::resolve_styles(&parsed);
+        let mut styles = crate::style::resolve_styles(&parsed);
         let fonts = crate::fonts::load_fonts(&styles.font_faces);
-        let layout_result = crate::layout::compute_layout(&parsed.document, &styles, &fonts);
+        let layout_result = crate::layout::compute_layout(&parsed.document, &mut styles, &fonts);
         Ok(crate::layout::query_elements(
             &layout_result,
             &parsed.document,

@@ -122,8 +122,8 @@ pub fn count_different_pixels(a: &RgbImage, b: &RgbImage) -> u64 {
 #[must_use]
 pub fn render_html_to_pdf(html: &str) -> Vec<u8> {
     let parsed = crate::dom::parse_html(html).expect("parse HTML");
-    let styles = crate::style::resolve_styles(&parsed);
+    let mut styles = crate::style::resolve_styles(&parsed);
     let fonts = crate::fonts::load_fonts(&styles.font_faces);
-    let layout_result = crate::layout::compute_layout(&parsed.document, &styles, &fonts);
+    let layout_result = crate::layout::compute_layout(&parsed.document, &mut styles, &fonts);
     crate::paint::render_pdf(&layout_result, &styles, &fonts)
 }

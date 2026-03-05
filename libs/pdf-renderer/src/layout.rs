@@ -234,7 +234,7 @@ fn build_taffy_style(computed: &ComputedStyle) -> Style {
 
 pub fn compute_layout(
     document: &ElementNode,
-    styles: &StyleResult,
+    styles: &mut StyleResult,
     fonts: &FontCollection,
 ) -> LayoutResult {
     let mut taffy: TaffyTree<TextContext> = TaffyTree::new();
@@ -293,7 +293,7 @@ pub fn compute_layout(
 fn build_taffy_tree(
     taffy: &mut TaffyTree<TextContext>,
     element: &ElementNode,
-    styles: &StyleResult,
+    styles: &mut StyleResult,
     fonts: &FontCollection,
     node_map: &mut HashMap<usize, NodeId>,
     svg_data: &mut HashMap<usize, String>,
@@ -365,14 +365,36 @@ fn build_taffy_tree(
     if element.tag == "table" {
         let cells = collect_table_cells(element);
         let num_cols = count_table_columns(element);
+        let num_rows = if num_cols > 0 { cells.len().div_ceil(num_cols) } else { 0 };
+        let border_collapse = computed.border_collapse;
         let mut computed = computed;
         computed.display = Display::Grid;
         if computed.grid_template_columns.is_empty() && num_cols > 0 {
             computed.grid_template_columns = vec![crate::style::TrackSize::Fr(1.0); num_cols];
         }
+        // For border-collapse, remove table's own border (cells handle it)
+        if border_collapse {
+            computed.border_widths = crate::style::Edges::zero();
+        }
         let style = build_taffy_style(&computed);
         let mut children = Vec::new();
-        for cell_el in &cells {
+        for (i, cell_el) in cells.iter().enumerate() {
+            // Apply border-collapse: each internal shared border is drawn once.
+            // Convention: top/left borders win; remove bottom (except last row)
+            // and right (except last column) to avoid doubling.
+            if border_collapse && num_cols > 0 {
+                let row = i / num_cols;
+                let col = i % num_cols;
+                let cell_id = std::ptr::from_ref(*cell_el) as usize;
+                if let Some(cell_style) = styles.styles.get_mut(&cell_id) {
+                    if row < num_rows - 1 {
+                        cell_style.border_widths.bottom = 0.0;
+                    }
+                    if col < num_cols - 1 {
+                        cell_style.border_widths.right = 0.0;
+                    }
+                }
+            }
             let child_node = build_taffy_tree(taffy, cell_el, styles, fonts, node_map, svg_data, image_data, 0);
             children.push(child_node);
         }
@@ -891,9 +913,9 @@ mod tests {
 
     fn query_html(html: &str, selector: &str) -> Vec<ElementInfo> {
         let parsed = parse_html(html).expect("parse failed");
-        let styles = resolve_styles(&parsed);
+        let mut styles = resolve_styles(&parsed);
         let fonts = load_fonts(&styles.font_faces);
-        let layout = compute_layout(&parsed.document, &styles, &fonts);
+        let layout = compute_layout(&parsed.document, &mut styles, &fonts);
         query_elements(&layout, &parsed.document, selector)
     }
 
