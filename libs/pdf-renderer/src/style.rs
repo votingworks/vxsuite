@@ -80,6 +80,19 @@ pub struct ComputedStyle {
 
     // Content (for pseudo-elements)
     pub content: Option<String>,
+
+    // Pseudo-element generated content
+    pub before: Option<Box<PseudoElementStyle>>,
+    pub after: Option<Box<PseudoElementStyle>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct PseudoElementStyle {
+    pub content: String,
+    pub color: Color,
+    pub display: Display,
+    pub font_weight: u16,
+    pub font_style: FontStyle,
 }
 
 impl Default for ComputedStyle {
@@ -126,6 +139,8 @@ impl Default for ComputedStyle {
             transform: None,
             opacity: 1.0,
             content: None,
+            before: None,
+            after: None,
         }
     }
 }
@@ -1050,8 +1065,16 @@ fn apply_margin_shorthand(edges: &mut DimensionEdges, value: &str, fs: f32, root
 }
 
 /// Minimal CSS rule representation — selector string + declarations
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum PseudoElement {
+    None,
+    Before,
+    After,
+}
+
 struct CssRule {
     selector: String,
+    pseudo_element: PseudoElement,
     declarations: Vec<(String, String)>,
 }
 
@@ -1149,12 +1172,22 @@ fn parse_css_rules(css_text: &str) -> Vec<CssRule> {
         // Handle comma-separated selectors
         for sel in selector.split(',') {
             let sel = sel.trim().to_string();
-            if !sel.is_empty() {
-                rules.push(CssRule {
-                    selector: sel,
-                    declarations: declarations.clone(),
-                });
+            if sel.is_empty() {
+                continue;
             }
+            // Detect and strip pseudo-elements
+            let (sel, pseudo) = if let Some(base) = sel.strip_suffix("::before") {
+                (base.to_string(), PseudoElement::Before)
+            } else if let Some(base) = sel.strip_suffix("::after") {
+                (base.to_string(), PseudoElement::After)
+            } else {
+                (sel, PseudoElement::None)
+            };
+            rules.push(CssRule {
+                selector: sel,
+                pseudo_element: pseudo,
+                declarations: declarations.clone(),
+            });
         }
     }
 
@@ -1546,6 +1579,112 @@ pub fn resolve_styles(parsed: &ParseResult) -> StyleResult {
     StyleResult { styles, font_faces }
 }
 
+type CascadedDecls = Vec<(usize, u32, Vec<(String, String)>)>;
+
+#[allow(clippy::type_complexity)]
+fn resolve_pseudo_element(
+    decls: &[(usize, u32, Vec<(String, String)>)],
+    parent: &ComputedStyle,
+) -> Option<Box<PseudoElementStyle>> {
+    let mut content = None;
+    let mut color = parent.color;
+    let mut display = Display::Inline;
+    let mut font_weight = parent.font_weight;
+    let mut font_style = parent.font_style;
+
+    for (_, _, declarations) in decls {
+        for (prop, val) in declarations {
+            match prop.as_str() {
+                "content" => {
+                    let val = val.trim();
+                    if val == "none" || val == "\"\"" || val == "''" || val.is_empty() {
+                        content = Some(String::new());
+                    } else {
+                        // Strip quotes and handle escape sequences
+                        let unquoted = val
+                            .trim_start_matches('"')
+                            .trim_end_matches('"')
+                            .trim_start_matches('\'')
+                            .trim_end_matches('\'');
+                        content = Some(decode_css_escapes(unquoted));
+                    }
+                }
+                "color" => {
+                    if let Some(c) = parse_color(val) {
+                        color = c;
+                    }
+                }
+                "display" => {
+                    display = match val.as_str() {
+                        "none" => Display::None,
+                        "inline" => Display::Inline,
+                        _ => Display::Block,
+                    };
+                }
+                "font-weight" => {
+                    font_weight = match val.as_str() {
+                        "bold" => 700,
+                        "normal" => 400,
+                        _ => val.parse().unwrap_or(font_weight),
+                    };
+                }
+                "font-style" => {
+                    font_style = if val == "italic" {
+                        FontStyle::Italic
+                    } else {
+                        FontStyle::Normal
+                    };
+                }
+                _ => {}
+            }
+        }
+    }
+
+    let content = content?;
+    if content.is_empty() {
+        return None;
+    }
+
+    Some(Box::new(PseudoElementStyle {
+        content,
+        color,
+        display,
+        font_weight,
+        font_style,
+    }))
+}
+
+fn decode_css_escapes(s: &str) -> String {
+    let mut result = String::new();
+    let mut chars = s.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            let mut hex = String::new();
+            while hex.len() < 6 {
+                match chars.peek() {
+                    Some(ch) if ch.is_ascii_hexdigit() => hex.push(chars.next().expect("peeked")),
+                    _ => break,
+                }
+            }
+            if !hex.is_empty() {
+                if let Ok(code) = u32::from_str_radix(&hex, 16) {
+                    if let Some(ch) = char::from_u32(code) {
+                        result.push(ch);
+                    }
+                }
+                if chars.peek() == Some(&' ') {
+                    chars.next();
+                }
+            } else if let Some(next) = chars.next() {
+                result.push(next);
+            }
+        } else {
+            result.push(c);
+        }
+    }
+    result
+}
+
 fn resolve_element_styles(
     element: &ElementNode,
     rules: &[CssRule],
@@ -1611,10 +1750,23 @@ fn resolve_element_styles(
     // Collect matching rules with specificity for proper cascade ordering
     #[allow(clippy::type_complexity)]
     let mut matched_rules: Vec<(usize, u32, Vec<(String, String)>)> = Vec::new();
+    let mut before_decls: CascadedDecls = Vec::new();
+    let mut after_decls: CascadedDecls = Vec::new();
+
     for (source_order, rule) in rules.iter().enumerate() {
         if selector_matches(&rule.selector, element, ancestors) {
             let specificity = compute_specificity(&rule.selector);
-            matched_rules.push((source_order, specificity, rule.declarations.clone()));
+            match rule.pseudo_element {
+                PseudoElement::None => {
+                    matched_rules.push((source_order, specificity, rule.declarations.clone()));
+                }
+                PseudoElement::Before => {
+                    before_decls.push((source_order, specificity, rule.declarations.clone()));
+                }
+                PseudoElement::After => {
+                    after_decls.push((source_order, specificity, rule.declarations.clone()));
+                }
+            }
         }
     }
     // Sort by specificity (stable sort preserves source order for equal specificity)
@@ -1640,6 +1792,18 @@ fn resolve_element_styles(
         if prop != "font-size" {
             apply_property(&mut computed, prop, val, root_font_size);
         }
+    }
+
+    // Process ::before pseudo-element
+    if !before_decls.is_empty() {
+        before_decls.sort_by_key(|(so, sp, _)| (*sp, *so));
+        computed.before = resolve_pseudo_element(&before_decls, &computed);
+    }
+
+    // Process ::after pseudo-element
+    if !after_decls.is_empty() {
+        after_decls.sort_by_key(|(so, sp, _)| (*sp, *so));
+        computed.after = resolve_pseudo_element(&after_decls, &computed);
     }
 
     styles.insert(element_id, computed.clone());

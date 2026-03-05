@@ -1,0 +1,56 @@
+<html>
+<head>
+<style>
+* { box-sizing: border-box; }
+@font-face {
+  font-family: 'TestFont';
+  font-weight: bold;
+  src: url(../fonts/Roboto-Bold.ttf) format('truetype');
+}
+body {
+  width: 300pt;
+  height: 200pt;
+  margin: 0;
+  padding: 10pt;
+  font-family: 'TestFont';
+  font-size: 12pt;
+  font-weight: bold;
+  color: #333333;
+}
+.item {
+  display: flex;
+  flex-direction: row;
+  gap: 5pt;
+  margin-bottom: 5pt;
+}
+.delimited::before {
+  content: "/ ";
+  color: #999999;
+}
+.delimited:first-child::before {
+  content: "";
+}
+.quoted::before {
+  content: "\201C";
+  color: #e74c3c;
+}
+.quoted::after {
+  content: "\201D";
+  color: #e74c3c;
+}
+.label::after {
+  content: ":";
+  color: #3498db;
+}
+</style>
+</head>
+<body>
+  <div class="item">
+    <div class="delimited">First</div>
+    <div class="delimited">Second</div>
+    <div class="delimited">Third</div>
+  </div>
+  <div class="quoted">Hello World</div>
+  <div class="label">Name</div>
+</body>
+</html>

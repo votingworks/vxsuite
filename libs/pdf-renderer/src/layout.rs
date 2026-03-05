@@ -302,15 +302,63 @@ fn build_taffy_tree(
         return node;
     }
 
-    // Check if this container has inline content that should be flattened
-    let has_inline_content = has_mixed_inline_content(&element.children, styles);
+    // Check if this container has inline content that should be flattened.
+    // Also treat as inline if pseudo-elements are present with text children.
+    let has_pseudo = computed.before.is_some() || computed.after.is_some();
+    let has_inline_content = has_mixed_inline_content(&element.children, styles)
+        || (has_pseudo && has_text_or_inline_children(&element.children, styles));
 
     let mut children = Vec::new();
+
+    // Helper: create a text leaf from a pseudo-element
+    let make_pseudo_leaf = |taffy: &mut TaffyTree<TextContext>, pseudo: &crate::style::PseudoElementStyle, parent: &ComputedStyle| -> NodeId {
+        taffy.new_leaf_with_context(
+            Style::DEFAULT,
+            TextContext {
+                runs: vec![TextRun {
+                    text: pseudo.content.clone(),
+                    font_family: parent.font_family.clone(),
+                    font_size: parent.font_size,
+                    font_weight: pseudo.font_weight,
+                    font_style: pseudo.font_style,
+                    color: pseudo.color,
+                }],
+                white_space: parent.white_space,
+                line_height: parent.line_height,
+            },
+        ).expect("taffy new_leaf_with_context")
+    };
 
     if has_inline_content {
         // Flatten inline content into styled text runs
         let mut runs = Vec::new();
+
+        // Add ::before content as first run
+        if let Some(ref before) = computed.before {
+            runs.push(TextRun {
+                text: before.content.clone(),
+                font_family: computed.font_family.clone(),
+                font_size: computed.font_size,
+                font_weight: before.font_weight,
+                font_style: before.font_style,
+                color: before.color,
+            });
+        }
+
         collect_inline_runs(element, &element.children, styles, &computed, &mut runs);
+
+        // Add ::after content as last run
+        if let Some(ref after) = computed.after {
+            runs.push(TextRun {
+                text: after.content.clone(),
+                font_family: computed.font_family.clone(),
+                font_size: computed.font_size,
+                font_weight: after.font_weight,
+                font_style: after.font_style,
+                color: after.color,
+            });
+        }
+
         if !runs.is_empty() {
             let text_node = taffy
                 .new_leaf_with_context(
@@ -325,10 +373,14 @@ fn build_taffy_tree(
             children.push(text_node);
         }
     } else {
+        // Add ::before as first child
+        if let Some(ref before) = computed.before {
+            children.push(make_pseudo_leaf(taffy, before, &computed));
+        }
+
         for child in &element.children {
             match child {
                 DomNode::Element(child_el) => {
-                    // Skip style, head elements
                     if child_el.tag == "style" || child_el.tag == "head" {
                         continue;
                     }
@@ -360,6 +412,11 @@ fn build_taffy_tree(
                     children.push(text_node);
                 }
             }
+        }
+
+        // Add ::after as last child
+        if let Some(ref after) = computed.after {
+            children.push(make_pseudo_leaf(taffy, after, &computed));
         }
     }
 
@@ -404,6 +461,33 @@ fn has_mixed_inline_content(children: &[DomNode], styles: &StyleResult) -> bool 
     }
 
     has_text && has_inline_element
+}
+
+/// Check if children contain any text or inline elements (but no block elements).
+fn has_text_or_inline_children(children: &[DomNode], styles: &StyleResult) -> bool {
+    for child in children {
+        match child {
+            DomNode::Text(t) => {
+                if !t.trim().is_empty() {
+                    return true;
+                }
+            }
+            DomNode::Element(el) => {
+                if el.tag == "style" || el.tag == "head" {
+                    continue;
+                }
+                let el_id = std::ptr::from_ref(el) as usize;
+                let is_inline = styles
+                    .styles
+                    .get(&el_id)
+                    .is_some_and(|s| matches!(s.display, Display::Inline));
+                if !is_inline {
+                    return false;
+                }
+            }
+        }
+    }
+    true
 }
 
 /// Collapse whitespace: newlines → space, multiple spaces → one space.
