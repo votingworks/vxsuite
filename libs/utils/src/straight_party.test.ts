@@ -4,9 +4,11 @@ import {
   Election,
   StraightPartyContest,
   Tabulation,
+  VotesDict,
   YesNoContest,
 } from '@votingworks/types';
 import { applyStraightPartyRules } from './straight_party';
+import { convertVotesDictToTabulationVotes } from './tabulation';
 
 const straightPartyContest: StraightPartyContest = {
   id: 'straight-party-ticket',
@@ -248,5 +250,46 @@ describe('applyStraightPartyRules', () => {
     const result = applyStraightPartyRules(election, votes);
     // Carol (dem) is selected, 2 remaining seats, 2 rep candidates (eve, frank) fit
     expect(result['council']).toEqual(['carol', 'eve', 'frank']);
+  });
+});
+
+describe('cross-page HMPB scanning pipeline', () => {
+  // Simulates the VxScan code path: merge front+back VotesDict, convert
+  // to Tabulation.Votes, then apply SP rules.
+  test('SP on front page, candidate contests on back page', () => {
+    const frontVotes: VotesDict = {
+      'straight-party-ticket': ['dem'],
+    };
+    const backVotes: VotesDict = {
+      governor: [],
+      council: [],
+    };
+    const mergedVotes = convertVotesDictToTabulationVotes({
+      ...frontVotes,
+      ...backVotes,
+    });
+    const result = applyStraightPartyRules(election, mergedVotes);
+    expect(result['straight-party-ticket']).toEqual(['dem']);
+    expect(result['governor']).toEqual(['alice']);
+    expect(result['council']).toEqual(['carol', 'dave']);
+  });
+
+  test('SP on front page, direct vote overrides on back page', () => {
+    const frontVotes: VotesDict = {
+      'straight-party-ticket': ['dem'],
+    };
+    const backVotes: VotesDict = {
+      governor: [{ id: 'bob', name: 'Bob', partyIds: ['rep'] }],
+      council: [],
+    };
+    const mergedVotes = convertVotesDictToTabulationVotes({
+      ...frontVotes,
+      ...backVotes,
+    });
+    const result = applyStraightPartyRules(election, mergedVotes);
+    // Governor: voter explicitly picked Bob (rep), seat filled → no expansion
+    expect(result['governor']).toEqual(['bob']);
+    // Council: empty, 2 dem candidates fit in 3 seats
+    expect(result['council']).toEqual(['carol', 'dave']);
   });
 });
