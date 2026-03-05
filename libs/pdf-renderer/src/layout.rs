@@ -146,6 +146,10 @@ fn build_taffy_style(computed: &ComputedStyle) -> Style {
             width: taffy::Dimension::Auto,
             height: convert_dimension(computed.min_height),
         },
+        max_size: Size {
+            width: convert_dimension(computed.max_width),
+            height: taffy::Dimension::Auto,
+        },
         padding: Rect {
             top: convert_length_percent(Dimension::Points(computed.padding.top)),
             right: convert_length_percent(Dimension::Points(computed.padding.right)),

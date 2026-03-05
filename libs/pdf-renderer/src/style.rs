@@ -37,6 +37,7 @@ pub struct ComputedStyle {
     pub width: Dimension,
     pub height: Dimension,
     pub min_height: Dimension,
+    pub max_width: Dimension,
     pub padding: Edges,
     pub margin: DimensionEdges,
     pub border_widths: Edges,
@@ -96,6 +97,7 @@ impl Default for ComputedStyle {
             width: Dimension::Auto,
             height: Dimension::Auto,
             min_height: Dimension::Auto,
+            max_width: Dimension::Auto,
             padding: Edges::zero(),
             margin: DimensionEdges::zero(),
             border_widths: Edges::zero(),
@@ -620,6 +622,9 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
         "min-height" => {
             style.min_height = parse_dimension(value, fs, root_font_size);
         }
+        "max-width" => {
+            style.max_width = parse_dimension(value, fs, root_font_size);
+        }
         "padding" => {
             apply_shorthand_edges(&mut style.padding, value, fs, root_font_size);
         }
@@ -842,7 +847,43 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
         "transform" => {
             style.transform = parse_transform(value);
         }
-        // Skip properties we don't need for the PoC
+        "border-width" => {
+            if let Some(w) = resolve_length(value, fs, root_font_size) {
+                style.border_widths = Edges {
+                    top: w,
+                    right: w,
+                    bottom: w,
+                    left: w,
+                };
+            }
+        }
+        "border-style" => {
+            style.border_style = match value {
+                "solid" => BorderStyle::Solid,
+                "dashed" => BorderStyle::Dashed,
+                _ => BorderStyle::None,
+            };
+        }
+        "border-top-width" => {
+            if let Some(w) = resolve_length(value, fs, root_font_size) {
+                style.border_widths.top = w;
+            }
+        }
+        "border-right-width" => {
+            if let Some(w) = resolve_length(value, fs, root_font_size) {
+                style.border_widths.right = w;
+            }
+        }
+        "border-bottom-width" => {
+            if let Some(w) = resolve_length(value, fs, root_font_size) {
+                style.border_widths.bottom = w;
+            }
+        }
+        "border-left-width" => {
+            if let Some(w) = resolve_length(value, fs, root_font_size) {
+                style.border_widths.left = w;
+            }
+        }
         _ => {}
     }
 }
