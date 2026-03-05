@@ -5,6 +5,7 @@ import {
   BallotStyleGroup,
   ContestOption,
   getOrderedCandidatesForContestInBallotStyle,
+  getStraightPartyContestOptions,
   Parties,
 } from '@votingworks/types';
 
@@ -67,14 +68,7 @@ export function* allContestOptionsWithMultiEndorsements(
     }
 
     case 'straight-party': {
-      for (const party of parties) {
-        yield {
-          type: 'straight-party',
-          id: party.id,
-          contestId: contest.id,
-          name: party.fullName,
-        };
-      }
+      yield* getStraightPartyContestOptions(contest, parties);
       break;
     }
 
@@ -95,7 +89,9 @@ export function* allContestOptions(
   parties: Parties
 ): Generator<ContestOption> {
   yield* uniqueBy(
-    Array.from(allContestOptionsWithMultiEndorsements(contest, ballotStyle, parties)),
+    Array.from(
+      allContestOptionsWithMultiEndorsements(contest, ballotStyle, parties)
+    ),
     (option) => option.id
   );
 }

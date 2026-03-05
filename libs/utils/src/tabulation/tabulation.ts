@@ -15,6 +15,7 @@ import {
   Id,
   PartyId,
   PrecinctSelection,
+  getStraightPartyContestOptions,
   StraightPartyContest,
   Tabulation,
   YesNoContest,
@@ -81,10 +82,13 @@ export function getEmptyStraightPartyContestResults(
   election: Election
 ): Tabulation.StraightPartyContestResults {
   const tallies: Record<PartyId, Tabulation.StraightPartyTally> = {};
-  for (const party of election.parties) {
-    tallies[party.id] = {
-      partyId: party.id,
-      name: party.name,
+  for (const option of getStraightPartyContestOptions(
+    contest,
+    election.parties
+  )) {
+    tallies[option.id] = {
+      partyId: option.id,
+      name: option.name,
       tally: 0,
     };
   }

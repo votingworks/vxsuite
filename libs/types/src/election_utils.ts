@@ -35,7 +35,26 @@ import {
   hasSplits,
   PrecinctOrSplit,
   CandidateVote,
+  StraightPartyContest,
+  StraightPartyContestOption,
 } from './election';
+
+/**
+ * Returns the options for a straight-party contest, using the party full name
+ * as the display name. All rendering of straight-party contest options should
+ * use this function to ensure consistency.
+ */
+export function getStraightPartyContestOptions(
+  contest: StraightPartyContest,
+  parties: Parties
+): StraightPartyContestOption[] {
+  return parties.map((party) => ({
+    type: 'straight-party' as const,
+    id: party.id,
+    contestId: contest.id,
+    name: party.fullName,
+  }));
+}
 
 /**
  * Gets contests which belong to a ballot style in an election.

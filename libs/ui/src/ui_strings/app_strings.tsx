@@ -879,7 +879,7 @@ export const appStrings = {
 
   labelStraightPartyIndirectVote: () => (
     <UiString uiStringKey="labelStraightPartyIndirectVote">
-      Straight Party
+      Straight party vote
     </UiString>
   ),
 

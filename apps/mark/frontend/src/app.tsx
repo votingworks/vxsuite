@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
@@ -8,6 +8,7 @@ import { ApiClient, createApiClient, createQueryClient } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 import { ApiProvider } from './api_provider';
 import { MarkAppBase } from './mark_app_base';
+import { StraightPartyPrototype } from './pages/straight_party_prototype';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
@@ -40,16 +41,23 @@ export function App({
           logger={logger}
           primaryMessage="Ask a poll worker to restart the ballot marking device."
         >
-          <ApiProvider
-            queryClient={queryClient}
-            apiClient={apiClient}
-            enableStringTranslation={enableStringTranslation}
-            noAudio={noAudio}
-          >
-            <VisualModeDisabledOverlay />
-            <AppRoot />
-            <SessionTimeLimitTracker />
-          </ApiProvider>
+          <Switch>
+            <Route exact path="/prototype/straight-party">
+              <StraightPartyPrototype />
+            </Route>
+            <Route>
+              <ApiProvider
+                queryClient={queryClient}
+                apiClient={apiClient}
+                enableStringTranslation={enableStringTranslation}
+                noAudio={noAudio}
+              >
+                <VisualModeDisabledOverlay />
+                <AppRoot />
+                <SessionTimeLimitTracker />
+              </ApiProvider>
+            </Route>
+          </Switch>
         </AppErrorBoundary>
       </BrowserRouter>
     </MarkAppBase>

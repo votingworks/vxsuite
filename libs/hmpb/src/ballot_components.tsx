@@ -9,12 +9,14 @@ import {
   StraightPartyContest as StraightPartyContestType,
   getBallotStyle,
   getPartyForBallotStyle,
+  getStraightPartyContestOptions,
   Outset,
   PrecinctId,
 } from '@votingworks/types';
 import { assertDefined, find, range, unique } from '@votingworks/basics';
 import {
   electionStrings,
+  straightPartyOptionName,
   InEnglish,
   useLanguageContext,
 } from '@votingworks/ui';
@@ -318,33 +320,35 @@ export function StraightPartyContestContent({
 }): JSX.Element {
   return (
     <ul>
-      {election.parties.map((party, i) => {
-        const optionInfo: OptionInfo = {
-          type: 'option',
-          contestId: contest.id,
-          optionId: party.id,
-        };
-        return (
-          <li
-            key={party.id}
-            className={STRAIGHT_PARTY_OPTION_CLASS}
-            style={{
-              padding: '0.375rem 0.5rem',
-              borderTop:
-                i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
-            }}
-          >
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <AlignedBubble optionInfo={optionInfo} />
-              <strong>
-                <DualLanguageText delimiter="/">
-                  {electionStrings.partyFullName(party)}
-                </DualLanguageText>
-              </strong>
-            </div>
-          </li>
-        );
-      })}
+      {getStraightPartyContestOptions(contest, election.parties).map(
+        (option, i) => {
+          const optionInfo: OptionInfo = {
+            type: 'option',
+            contestId: contest.id,
+            optionId: option.id,
+          };
+          return (
+            <li
+              key={option.id}
+              className={STRAIGHT_PARTY_OPTION_CLASS}
+              style={{
+                padding: '0.375rem 0.5rem',
+                borderTop:
+                  i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
+              }}
+            >
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <AlignedBubble optionInfo={optionInfo} />
+                <strong>
+                  <DualLanguageText delimiter="/">
+                    {straightPartyOptionName(option)}
+                  </DualLanguageText>
+                </strong>
+              </div>
+            </li>
+          );
+        }
+      )}
     </ul>
   );
 }

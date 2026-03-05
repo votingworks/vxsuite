@@ -13,8 +13,8 @@ import {
   StraightPartyContest,
   StraightPartyVote,
   getCandidateVoteSortedForBallotStyleRotation,
+  getStraightPartyContestOptions,
 } from '@votingworks/types';
-import { find } from '@votingworks/basics';
 import {
   Caption,
   Card,
@@ -25,6 +25,7 @@ import {
   appStrings,
   CandidatePartyList,
   electionStrings,
+  straightPartyOptionName,
   NumberString,
   WithAltAudio,
   AssistiveTechInstructions,
@@ -86,6 +87,10 @@ function CandidateContestResult({
     ballotStyle,
   });
 
+  const indirectCandidates = contest.candidates.filter((c) =>
+    indirectCandidateIds.has(c.id)
+  );
+
   return (
     <VoterContestSummary
       districtName={electionStrings.districtName(district)}
@@ -104,35 +109,51 @@ function CandidateContestResult({
           )
         ) : undefined
       }
-      note={
-        indirectCandidateIds.size > 0
-          ? appStrings.noteStraightPartyAffectsContest()
-          : undefined
-      }
-      votes={orderedVotes.map(
-        (candidate): ContestVote => ({
-          caption: candidate.isWriteIn ? (
-            appStrings.labelWriteInParenthesized()
-          ) : (
-            <CandidatePartyList
-              candidate={candidate}
-              electionParties={election.parties}
-            />
-          ),
-          id: candidate.id,
-          partyIds: candidate.partyIds,
-          label: candidate.isWriteIn ? (
-            <Font breakWord>
-              <AudioOnly>
-                <WriteInCandidateName name={candidate.name} />
-              </AudioOnly>
-              {candidate.name}
-            </Font>
-          ) : (
-            electionStrings.candidateName(candidate)
-          ),
-        })
-      )}
+      note={undefined}
+      votes={[
+        ...orderedVotes.map(
+          (candidate): ContestVote => ({
+            caption: candidate.isWriteIn ? (
+              appStrings.labelWriteInParenthesized()
+            ) : (
+              <CandidatePartyList
+                candidate={candidate}
+                electionParties={election.parties}
+              />
+            ),
+            id: candidate.id,
+            partyIds: candidate.partyIds,
+            label: candidate.isWriteIn ? (
+              <Font breakWord>
+                <AudioOnly>
+                  <WriteInCandidateName name={candidate.name} />
+                </AudioOnly>
+                {candidate.name}
+              </Font>
+            ) : (
+              electionStrings.candidateName(candidate)
+            ),
+          })
+        ),
+        ...indirectCandidates.map(
+          (candidate): ContestVote => ({
+            caption: (
+              <React.Fragment>
+                <CandidatePartyList
+                  candidate={candidate}
+                  electionParties={election.parties}
+                />
+                {' - '}
+                {appStrings.labelStraightPartyIndirectVote()}
+              </React.Fragment>
+            ),
+            id: candidate.id,
+            isDerived: true,
+            partyIds: candidate.partyIds,
+            label: electionStrings.candidateName(candidate),
+          })
+        ),
+      ]}
     />
   );
 }
@@ -241,15 +262,14 @@ function StraightPartyContestResult({
   selectionsAreEditable,
 }: StraightPartyContestResultProps): JSX.Element {
   const selectedPartyId = vote?.length === 1 ? vote[0] : undefined;
-  const selectedParty = selectedPartyId
-    ? find(election.parties, (p) => p.id === selectedPartyId)
-    : undefined;
+  const options = getStraightPartyContestOptions(contest, election.parties);
+  const selectedOption = options.find((o) => o.id === selectedPartyId);
 
-  const votes: ContestVote[] = selectedParty
+  const votes: ContestVote[] = selectedOption
     ? [
         {
-          id: selectedParty.id,
-          label: electionStrings.partyFullName(selectedParty),
+          id: selectedOption.id,
+          label: straightPartyOptionName(selectedOption),
         },
       ]
     : [];
@@ -262,7 +282,7 @@ function StraightPartyContestResult({
     <VoterContestSummary
       title={electionStrings.contestTitle(contest)}
       titleType="h2"
-      undervoteWarning={!selectedParty ? noVotesString : undefined}
+      undervoteWarning={!selectedOption ? noVotesString : undefined}
       votes={votes}
     />
   );

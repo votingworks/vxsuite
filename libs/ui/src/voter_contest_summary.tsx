@@ -19,6 +19,7 @@ export interface VoterContestSummaryProps {
 export interface ContestVote {
   caption?: React.ReactNode;
   id: string;
+  isDerived?: boolean;
   label: React.ReactNode;
   partyIds?: readonly string[];
 }
@@ -90,7 +91,7 @@ export function VoterContestSummary(
             key={`${v.id}${v.partyIds ? `-${v.partyIds.join('-')}` : ''}`}
           >
             <CheckboxContainer>
-              <Checkbox checked />
+              <Checkbox checked filled={!v.isDerived} />
             </CheckboxContainer>
             <span>
               <Font weight="semiBold">{v.label}</Font>

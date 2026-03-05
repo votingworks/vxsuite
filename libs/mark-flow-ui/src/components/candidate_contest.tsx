@@ -169,7 +169,9 @@ export function CandidateContest({
     writeInCharacterLimit < WRITE_IN_CANDIDATE_MAX_LENGTH;
 
   const isPatDeviceConnected = useIsPatDeviceConnected();
-  const votesRemaining = numVotesRemaining(contest, vote);
+  const indirectCount = indirectCandidateIds?.size ?? 0;
+  const directVotesRemaining = numVotesRemaining(contest, vote);
+  const votesRemaining = directVotesRemaining - indirectCount;
 
   useEffect(() => {
     if (recentlyDeselectedCandidate) {
@@ -409,7 +411,7 @@ export function CandidateContest({
                 candidate.id
               );
               const isDisabled =
-                votesRemaining <= 0 &&
+                directVotesRemaining <= 0 &&
                 !isChecked &&
                 !isIndirect &&
                 !isEquivalentToSelected;
@@ -483,8 +485,8 @@ export function CandidateContest({
                       />
                       {isIndirect && (
                         <React.Fragment>
-                          {' '}
-                          — {appStrings.labelStraightPartyIndirectVote()}
+                          {' - '}
+                          {appStrings.labelStraightPartyIndirectVote()}
                         </React.Fragment>
                       )}
                       <AudioOnly>{suffixAudioText}</AudioOnly>
@@ -525,7 +527,7 @@ export function CandidateContest({
                 choice="write-in"
                 isSelected={false}
                 onPress={
-                  votesRemaining <= 0
+                  directVotesRemaining <= 0
                     ? handleDisabledAddWriteInClick
                     : initWriteInCandidate
                 }

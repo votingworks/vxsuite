@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import {
   Election,
+  getStraightPartyContestOptions,
   PartyId,
   StraightPartyContest as StraightPartyContestInterface,
   StraightPartyVote,
@@ -16,14 +17,14 @@ import {
   AudioOnly,
   appStrings,
   electionStrings,
+  straightPartyOptionName,
   AssistiveTechInstructions,
   PageNavigationButtonId,
-  useIsPatDeviceConnected,
 } from '@votingworks/ui';
 
 import { Optional } from '@votingworks/basics';
 
-import { ContestFooter, ChoicesGrid } from './contest_screen_layout';
+import { ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { UpdateVoteFunction } from '../config/types';
 
@@ -45,8 +46,6 @@ export function StraightPartyContest({
   const [overvoteSelection, setOvervoteSelection] =
     useState<Optional<PartyId>>();
   const [deselectedVote, setDeselectedVote] = useState('');
-
-  const isPatDeviceConnected = useIsPatDeviceConnected();
 
   const selectedPartyId = vote?.length === 1 ? vote[0] : undefined;
 
@@ -77,61 +76,57 @@ export function StraightPartyContest({
   return (
     <React.Fragment>
       <Main flexColumn>
-        <WithScrollButtons focusable={isPatDeviceConnected}>
-          <ContestHeader
-            breadcrumbs={breadcrumbs}
-            contest={contest}
-            className="no-horizontal-padding"
-          >
-            <Caption>
-              <AudioOnly>
-                <AssistiveTechInstructions
-                  controllerString={appStrings.instructionsBmdContestNavigation()}
-                  patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
-                />
-              </AudioOnly>
-            </Caption>
-          </ContestHeader>
-        </WithScrollButtons>
-        <ContestFooter>
+        <ContestHeader breadcrumbs={breadcrumbs} contest={contest}>
+          <Caption>
+            <AudioOnly>
+              <AssistiveTechInstructions
+                controllerString={appStrings.instructionsBmdContestNavigation()}
+                patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
+              />
+            </AudioOnly>
+          </Caption>
+        </ContestHeader>
+        <WithScrollButtons>
           <ChoicesGrid data-testid="contest-choices">
-            {election.parties.map((party) => {
-              const isChecked = selectedPartyId === party.id;
-              const isDisabled = !isChecked && !!selectedPartyId;
-              function handleDisabledClick() {
-                handleChangeVoteAlert(party.id);
+            {getStraightPartyContestOptions(contest, election.parties).map(
+              (option) => {
+                const isChecked = selectedPartyId === option.id;
+                const isDisabled = !isChecked && !!selectedPartyId;
+                function handleDisabledClick() {
+                  handleChangeVoteAlert(option.id);
+                }
+                let prefixAudioText: ReactNode = null;
+                let suffixAudioText: ReactNode = null;
+                if (isChecked) {
+                  prefixAudioText = appStrings.labelSelectedOption();
+                  suffixAudioText = appStrings.noteBmdContestCompleted();
+                } else if (deselectedVote === option.id) {
+                  prefixAudioText = appStrings.labelDeselectedOption();
+                }
+                return (
+                  <ContestChoiceButton
+                    key={option.id}
+                    choice={option.id}
+                    isSelected={isChecked}
+                    onPress={
+                      isDisabled ? handleDisabledClick : handleUpdateSelection
+                    }
+                    label={
+                      <React.Fragment>
+                        <AudioOnly>
+                          {prefixAudioText}
+                          {electionStrings.contestTitle(contest)} |{' '}
+                        </AudioOnly>
+                        {straightPartyOptionName(option)}
+                        <AudioOnly>{suffixAudioText}</AudioOnly>
+                      </React.Fragment>
+                    }
+                  />
+                );
               }
-              let prefixAudioText: ReactNode = null;
-              let suffixAudioText: ReactNode = null;
-              if (isChecked) {
-                prefixAudioText = appStrings.labelSelectedOption();
-                suffixAudioText = appStrings.noteBmdContestCompleted();
-              } else if (deselectedVote === party.id) {
-                prefixAudioText = appStrings.labelDeselectedOption();
-              }
-              return (
-                <ContestChoiceButton
-                  key={party.id}
-                  choice={party.id}
-                  isSelected={isChecked}
-                  onPress={
-                    isDisabled ? handleDisabledClick : handleUpdateSelection
-                  }
-                  label={
-                    <React.Fragment>
-                      <AudioOnly>
-                        {prefixAudioText}
-                        {electionStrings.contestTitle(contest)} |{' '}
-                      </AudioOnly>
-                      {electionStrings.partyFullName(party)}
-                      <AudioOnly>{suffixAudioText}</AudioOnly>
-                    </React.Fragment>
-                  }
-                />
-              );
-            })}
+            )}
           </ChoicesGrid>
-        </ContestFooter>
+        </WithScrollButtons>
       </Main>
       {overvoteSelection && (
         <Modal
