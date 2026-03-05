@@ -387,13 +387,12 @@ fn paint_dashed_borders(
         pb.move_to(x1, y1);
         pb.line_to(x2, y2);
         let Some(path) = pb.finish() else { return };
-        let dash_len = width * 3.0;
         let stroke = krilla::paint::Stroke {
             paint: rgb::Color::new(color.r, color.g, color.b).into(),
             width,
             opacity: NormalizedF32::new(color.a).unwrap_or(NormalizedF32::ONE),
             dash: Some(krilla::paint::StrokeDash {
-                array: vec![dash_len, dash_len],
+                array: vec![width * 3.0, width],
                 offset: 0.0,
             }),
             ..krilla::paint::Stroke::default()
