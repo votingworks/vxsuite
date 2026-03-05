@@ -2,6 +2,7 @@ import { execFile } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { assert, assertDefined, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
+import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import { rootDebug } from './debug';
 import {
   CommunicatingPollbookConnectionStatuses,
@@ -12,7 +13,6 @@ import {
   transitionPollbookToConnectedStatus,
   transitionPollbookToDisconnectedStatus,
 } from './types';
-import { AvahiService, hasOnlineInterface } from './avahi';
 import {
   EVENT_POLLING_INTERVAL,
   NETWORK_GOSSIP_BRANCHING_FACTOR,

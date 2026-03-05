@@ -29,6 +29,7 @@ import {
   DippedSmartCardAuth,
   Election,
 } from '@votingworks/types';
+import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import { LocalApi, buildLocalApp } from '../src/app';
 import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace';
 import {
@@ -39,7 +40,6 @@ import {
 import { getUserRole } from '../src/auth';
 import { buildPeerApp, PeerApi } from '../src/peer_app';
 import { BarcodeScannerClient } from '../src/barcode_scanner/client';
-import { AvahiService, hasOnlineInterface } from '../src/avahi';
 import {
   EVENT_POLLING_INTERVAL,
   NETWORK_POLLING_INTERVAL,

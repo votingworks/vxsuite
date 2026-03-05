@@ -9,6 +9,7 @@ import { err, ok } from '@votingworks/basics';
 import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { sha256 } from 'js-sha256';
+import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import {
   extendedWaitFor,
   mockElectionManagerAuth,
@@ -25,7 +26,6 @@ import {
   NETWORK_POLLING_INTERVAL,
   UNCONFIGURE_LOCKOUT_TIMEOUT,
 } from './globals';
-import { AvahiService, hasOnlineInterface } from './avahi';
 import { mockPollbookPackageZip } from '../test/pollbook_package';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
@@ -51,7 +51,7 @@ vi.mock(
   })
 );
 
-vi.mock('./avahi.js', () => ({
+vi.mock('@votingworks/networking', () => ({
   hasOnlineInterface: vi.fn().mockResolvedValue(false),
   AvahiService: {
     advertiseHttpService: vi.fn().mockReturnValue(undefined),

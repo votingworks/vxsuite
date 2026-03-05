@@ -2278,6 +2278,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/networking':
+        specifier: workspace:*
+        version: link:../../../libs/networking
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing

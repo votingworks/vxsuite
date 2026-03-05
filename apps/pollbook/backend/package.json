@@ -38,6 +38,7 @@
     "@votingworks/fs": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/logging": "workspace:*",
+    "@votingworks/networking": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
