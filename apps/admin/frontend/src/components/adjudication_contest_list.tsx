@@ -44,10 +44,13 @@ const ViewSideCalloutButton = styled(ViewSideButton)`
 const BlankBallotCalloutContainer = styled.div`
   padding: 0.5rem;
   border-bottom: var(--entity-list-border);
+`;
 
-  svg {
-    align-self: center;
-  }
+const CalloutContent = styled.div`
+  align-items: baseline;
+  display: flex;
+  flex-grow: 1;
+  gap: 0.5rem;
 `;
 
 const ResolvedCaption = styled(EntityList.Caption)`
@@ -444,47 +447,56 @@ export function AdjudicationContestList(
                 ? 'warning'
                 : 'primary'
             }
-            icon={
-              cvrTag.isResolved || hasAnyAdjudicatedVote ? 'Done' : 'Warning'
-            }
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flex: 1,
-              }}
-            >
-              <Column style={{ gap: '0.5rem' }}>
-                <P
-                  style={{
-                    lineHeight: 1,
-                    fontSize: '1.125rem',
-                    marginBottom: 0,
-                  }}
-                  weight="bold"
-                >
-                  {blankBallotCalloutTitle}
-                </P>
-                {hasAnyAdjudicatedVote && (
-                  <Caption weight="regular" style={{ lineHeight: 1 }}>
-                    At least one contest now has a valid vote
-                  </Caption>
+            <CalloutContent>
+              <P aria-hidden style={{ lineHeight: 1, marginBottom: 0 }}>
+                {cvrTag.isResolved || hasAnyAdjudicatedVote ? (
+                  <Icons.Done
+                    color={hasAnyAdjudicatedVote ? 'neutral' : 'primary'}
+                  />
+                ) : (
+                  <Icons.Warning color="warning" />
                 )}
-              </Column>
-              {!hasAnyAdjudicatedVote && (
-                <ViewSideCalloutButton
-                  fill="filled"
-                  onPress={() => onSelectSide('back')}
-                  color={
-                    cvrTag.isResolved ? 'inversePrimary' : 'inverseNeutral'
-                  }
-                >
-                  View Back
-                </ViewSideCalloutButton>
-              )}
-            </div>
+              </P>
+              <div
+                style={{
+                  alignItems: 'center',
+                  display: 'flex',
+                  flexGrow: 1,
+                  gap: '0.5rem',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div style={{ flexGrow: 1 }}>
+                  <P
+                    style={{
+                      lineHeight: 1,
+                      fontSize: '1rem',
+                      marginBottom: 0,
+                    }}
+                    weight="bold"
+                  >
+                    {blankBallotCalloutTitle}
+                  </P>
+                  {hasAnyAdjudicatedVote && (
+                    <Caption weight="regular" style={{ lineHeight: 1 }}>
+                      At least one contest now has a valid vote
+                    </Caption>
+                  )}
+                </div>
+                {!hasAnyAdjudicatedVote && (
+                  <ViewSideCalloutButton
+                    fill="filled"
+                    onPress={() => onSelectSide('back')}
+                    color={
+                      cvrTag.isResolved ? 'inversePrimary' : 'inverseNeutral'
+                    }
+                  >
+                    View Back
+                  </ViewSideCalloutButton>
+                )}
+              </div>
+            </CalloutContent>
           </Callout>
         </BlankBallotCalloutContainer>
       )}
