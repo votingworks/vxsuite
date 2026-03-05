@@ -1,0 +1,37 @@
+<html>
+<head>
+<style>
+@font-face {
+  font-family: 'TestFont';
+  font-weight: bold;
+  src: url(../fonts/Roboto-Bold.ttf) format('truetype');
+}
+* { box-sizing: border-box; }
+body {
+  width: 300pt;
+  height: 200pt;
+  margin: 0;
+  padding: 10pt;
+  font-family: 'TestFont', sans-serif;
+  font-weight: bold;
+  font-size: 10pt;
+  display: flex;
+  flex-direction: column;
+  gap: 10pt;
+}
+.seal {
+  width: 60pt;
+  height: 60pt;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='28' fill='%23336699' stroke='%23224466' stroke-width='2'/%3E%3Ctext x='30' y='35' text-anchor='middle' fill='white' font-size='10'%3ESEAL%3C/text%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+</style>
+</head>
+<body>
+  <div>Image element:</div>
+  <img width="80" height="40" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Crect width='80' height='40' fill='%23e74c3c' rx='5'/%3E%3Ctext x='40' y='25' text-anchor='middle' fill='white' font-size='12'%3EImage%3C/text%3E%3C/svg%3E"/>
+  <div>Background image:</div>
+  <div class="seal"></div>
+</body>
+</html>

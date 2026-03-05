@@ -62,6 +62,8 @@ pub struct LayoutResult {
     pub node_map: HashMap<usize, NodeId>,
     /// Map from element ID → serialized SVG XML for SVG elements
     pub svg_data: HashMap<usize, String>,
+    /// Map from element ID → image data URI for <img> elements
+    pub image_data: HashMap<usize, String>,
     /// Page dimensions in points
     pub page_width: f32,
     pub page_height: f32,
@@ -225,8 +227,9 @@ pub fn compute_layout(
     let mut taffy: TaffyTree<TextContext> = TaffyTree::new();
     let mut node_map = HashMap::new();
     let mut svg_data = HashMap::new();
+    let mut image_data = HashMap::new();
 
-    let root = build_taffy_tree(&mut taffy, document, styles, fonts, &mut node_map, &mut svg_data, 0);
+    let root = build_taffy_tree(&mut taffy, document, styles, fonts, &mut node_map, &mut svg_data, &mut image_data, 0);
 
     // Determine page size from the outermost element's computed style
     let page_width;
@@ -267,12 +270,13 @@ pub fn compute_layout(
         root,
         node_map,
         svg_data,
+        image_data,
         page_width,
         page_height,
     }
 }
 
-#[allow(clippy::only_used_in_recursion)]
+#[allow(clippy::only_used_in_recursion, clippy::too_many_arguments)]
 fn build_taffy_tree(
     taffy: &mut TaffyTree<TextContext>,
     element: &ElementNode,
@@ -280,6 +284,7 @@ fn build_taffy_tree(
     fonts: &FontCollection,
     node_map: &mut HashMap<usize, NodeId>,
     svg_data: &mut HashMap<usize, String>,
+    image_data: &mut HashMap<usize, String>,
     li_index: usize,
 ) -> NodeId {
     let element_id = std::ptr::from_ref(element) as usize;
@@ -318,6 +323,28 @@ fn build_taffy_tree(
         let node = taffy.new_leaf(style).expect("taffy new_leaf");
         node_map.insert(element_id, node);
         svg_data.insert(element_id, element.serialize_to_xml());
+        return node;
+    }
+
+    // Handle <img> elements as leaf nodes
+    if element.tag == "img" {
+        let mut computed = computed;
+        if matches!(computed.width, Dimension::Auto) {
+            if let Some(w) = element.get_attr("width").and_then(|v| v.parse::<f32>().ok()) {
+                computed.width = Dimension::Points(w);
+            }
+        }
+        if matches!(computed.height, Dimension::Auto) {
+            if let Some(h) = element.get_attr("height").and_then(|v| v.parse::<f32>().ok()) {
+                computed.height = Dimension::Points(h);
+            }
+        }
+        let style = build_taffy_style(&computed);
+        let node = taffy.new_leaf(style).expect("taffy new_leaf");
+        node_map.insert(element_id, node);
+        if let Some(src) = element.get_attr("src") {
+            image_data.insert(element_id, src.to_string());
+        }
         return node;
     }
 
@@ -453,7 +480,7 @@ fn build_taffy_tree(
                     } else {
                         0
                     };
-                    let child_node = build_taffy_tree(taffy, child_el, styles, fonts, node_map, svg_data, child_li_index);
+                    let child_node = build_taffy_tree(taffy, child_el, styles, fonts, node_map, svg_data, image_data, child_li_index);
                     children.push(child_node);
                 }
                 DomNode::Text(text) => {

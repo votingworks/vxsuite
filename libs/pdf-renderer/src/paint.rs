@@ -1,12 +1,14 @@
 use std::sync::Arc;
 
+use base64::Engine;
 use krilla::color::rgb;
 use krilla::geom::{PathBuilder, Point, Rect, Size, Transform};
+use krilla::image::Image;
 use krilla::num::NormalizedF32;
 use krilla::paint::{Fill, FillRule};
 use krilla::page::PageSettings;
 use krilla::text::Font;
-use krilla::Document;
+use krilla::{Data, Document};
 use krilla_svg::{SurfaceExt, SvgSettings};
 use taffy::NodeId;
 
@@ -97,6 +99,11 @@ fn paint_node(
             }
         }
 
+        // Background image
+        if let Some(ref bg_image) = computed.background_image {
+            paint_data_uri_image(surface, x, y, w, h, bg_image);
+        }
+
         // Borders
         if matches!(
             computed.border_style,
@@ -122,6 +129,14 @@ fn paint_node(
     if let Some(elem_id) = find_element_id_for_node(node, layout) {
         if let Some(svg_xml) = layout.svg_data.get(&elem_id) {
             paint_svg(surface, x, y, w, h, svg_xml);
+            for _ in 0..push_count {
+                surface.pop();
+            }
+            return;
+        }
+        // Image rendering — <img> elements with data URIs
+        if let Some(src) = layout.image_data.get(&elem_id) {
+            paint_data_uri_image(surface, x, y, w, h, src);
             for _ in 0..push_count {
                 surface.pop();
             }
@@ -425,6 +440,103 @@ fn paint_svg(
     surface.push_transform(&Transform::from_translate(x, y));
     surface.draw_svg(&tree, size, SvgSettings::default());
     surface.pop();
+}
+
+fn percent_decode(input: &str) -> String {
+    let mut result = String::with_capacity(input.len());
+    let mut chars = input.bytes();
+    while let Some(b) = chars.next() {
+        if b == b'%' {
+            let hi = chars.next().unwrap_or(0);
+            let lo = chars.next().unwrap_or(0);
+            let hex = [hi, lo];
+            if let Ok(s) = std::str::from_utf8(&hex) {
+                if let Ok(byte) = u8::from_str_radix(s, 16) {
+                    result.push(byte as char);
+                    continue;
+                }
+            }
+            result.push('%');
+            result.push(hi as char);
+            result.push(lo as char);
+        } else {
+            result.push(b as char);
+        }
+    }
+    result
+}
+
+fn extract_data_uri(uri: &str) -> Option<(&str, Vec<u8>)> {
+    let uri = uri.trim();
+    // Strip url(...) wrapper if present
+    let uri = if uri.starts_with("url(") {
+        let inner = uri.strip_prefix("url(")?.strip_suffix(')')?;
+        let inner = inner.trim();
+        if (inner.starts_with('"') && inner.ends_with('"'))
+            || (inner.starts_with('\'') && inner.ends_with('\''))
+        {
+            &inner[1..inner.len() - 1]
+        } else {
+            inner
+        }
+    } else {
+        uri
+    };
+    let rest = uri.strip_prefix("data:")?;
+    if let Some(base64_sep) = rest.find(";base64,") {
+        let mime = &rest[..base64_sep];
+        let encoded = &rest[base64_sep + 8..];
+        let data = base64::engine::general_purpose::STANDARD
+            .decode(encoded)
+            .ok()?;
+        Some((mime, data))
+    } else {
+        // URL-encoded data (e.g. SVG)
+        let comma = rest.find(',')?;
+        let mime = &rest[..comma];
+        let encoded = &rest[comma + 1..];
+        let decoded = percent_decode(encoded);
+        Some((mime, decoded.into_bytes()))
+    }
+}
+
+fn paint_data_uri_image(
+    surface: &mut krilla::surface::Surface,
+    x: f32,
+    y: f32,
+    w: f32,
+    h: f32,
+    uri: &str,
+) {
+    let Some((mime, data)) = extract_data_uri(uri) else {
+        return;
+    };
+    if mime.contains("svg") {
+        let svg_xml = String::from_utf8_lossy(&data);
+        paint_svg(surface, x, y, w, h, &svg_xml);
+    } else {
+        let image_result = if mime.contains("png") {
+            Image::from_png(Data::from(data), false)
+        } else if mime.contains("jpeg") || mime.contains("jpg") {
+            Image::from_jpeg(Data::from(data), false)
+        } else if mime.contains("gif") {
+            Image::from_gif(Data::from(data), false)
+        } else if mime.contains("webp") {
+            Image::from_webp(Data::from(data), false)
+        } else {
+            // Try PNG first, then JPEG as fallback
+            Image::from_png(Data::from(data.clone()), false)
+                .or_else(|_| Image::from_jpeg(Data::from(data), false))
+        };
+        if let Ok(image) = image_result {
+            let Some(size) = Size::from_wh(w, h) else {
+                return;
+            };
+            surface.push_transform(&Transform::from_translate(x, y));
+            surface.draw_image(image, size);
+            surface.pop();
+        }
+    }
 }
 
 fn paint_text(
