@@ -4626,6 +4626,9 @@ importers:
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
+      '@votingworks/pdf-renderer':
+        specifier: workspace:*
+        version: link:../pdf-renderer
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types

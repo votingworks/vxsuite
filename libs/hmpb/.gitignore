@@ -4,6 +4,7 @@ node_modules
 coverage/
 .DS_Store
 debug-dump*.zip
+rust-output/
 /*.png
 /*.jpeg
 /*.jpg

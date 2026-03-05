@@ -7,6 +7,7 @@ export * from './mark_ballot';
 export * from './marking';
 export * from './playwright_renderer';
 export * from './render_ballot';
+export * from './rust_renderer';
 export * from './renderer';
 export * from './ballot_templates';
 export * as calibrationSheetTemplate from './calibration_sheet/template';
