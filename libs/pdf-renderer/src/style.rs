@@ -1636,8 +1636,11 @@ fn simple_selector_matches(
         return !simple_selector_matches(inner, element, ancestors);
     }
 
+    // Extract attribute selectors: e.g. div[data-id="foo"].bar
+    let (base_no_attr, attr_selectors) = extract_attribute_selectors(base);
+
     // Split into element and class parts
-    let parts: Vec<&str> = base.split('.').collect();
+    let parts: Vec<&str> = base_no_attr.split('.').collect();
     let tag_part = parts[0];
 
     // Check tag
@@ -1652,6 +1655,13 @@ fn simple_selector_matches(
         }
     }
 
+    // Check attribute selectors
+    for attr_sel in &attr_selectors {
+        if !matches_attribute_selector(attr_sel, element) {
+            return false;
+        }
+    }
+
     // Check pseudo-classes
     for pseudo in &pseudo_classes {
         if !matches_pseudo_class(pseudo, element, ancestors) {
@@ -1660,6 +1670,75 @@ fn simple_selector_matches(
     }
 
     true
+}
+
+/// Extract attribute selectors from a simple selector.
+/// "div[data-id][class=foo]" -> ("div", vec!["data-id", "class=foo"])
+fn extract_attribute_selectors(selector: &str) -> (String, Vec<String>) {
+    let mut base = String::new();
+    let mut attrs = Vec::new();
+    let mut i = 0;
+    let bytes = selector.as_bytes();
+    while i < bytes.len() {
+        if bytes[i] == b'[' {
+            if let Some(end) = selector[i..].find(']') {
+                let attr_content = &selector[i + 1..i + end];
+                attrs.push(attr_content.to_string());
+                i += end + 1;
+            } else {
+                base.push(bytes[i] as char);
+                i += 1;
+            }
+        } else {
+            base.push(bytes[i] as char);
+            i += 1;
+        }
+    }
+    (base, attrs)
+}
+
+fn strip_attr_quotes(s: &str) -> &str {
+    let s = s.trim();
+    if (s.starts_with('"') && s.ends_with('"')) || (s.starts_with('\'') && s.ends_with('\'')) {
+        &s[1..s.len() - 1]
+    } else {
+        s
+    }
+}
+
+fn matches_attribute_selector(attr_sel: &str, element: &ElementNode) -> bool {
+    // [attr=value], [attr^=value], [attr$=value], [attr*=value], [attr~=value], [attr]
+    let attr_sel = attr_sel.trim();
+
+    if let Some(pos) = attr_sel.find("^=") {
+        let attr_name = attr_sel[..pos].trim();
+        let expected = strip_attr_quotes(&attr_sel[pos + 2..]);
+        return element.get_attr(attr_name).is_some_and(|v| v.starts_with(expected));
+    }
+    if let Some(pos) = attr_sel.find("$=") {
+        let attr_name = attr_sel[..pos].trim();
+        let expected = strip_attr_quotes(&attr_sel[pos + 2..]);
+        return element.get_attr(attr_name).is_some_and(|v| v.ends_with(expected));
+    }
+    if let Some(pos) = attr_sel.find("*=") {
+        let attr_name = attr_sel[..pos].trim();
+        let expected = strip_attr_quotes(&attr_sel[pos + 2..]);
+        return element.get_attr(attr_name).is_some_and(|v| v.contains(expected));
+    }
+    if let Some(pos) = attr_sel.find("~=") {
+        let attr_name = attr_sel[..pos].trim();
+        let expected = strip_attr_quotes(&attr_sel[pos + 2..]);
+        return element.get_attr(attr_name).is_some_and(|v| {
+            v.split_whitespace().any(|word| word == expected)
+        });
+    }
+    if let Some(pos) = attr_sel.find('=') {
+        let attr_name = attr_sel[..pos].trim();
+        let expected = strip_attr_quotes(&attr_sel[pos + 1..]);
+        return element.get_attr(attr_name).is_some_and(|v| v == expected);
+    }
+    // Just [attr] — check presence
+    element.get_attr(attr_sel).is_some()
 }
 
 fn extract_pseudo_classes(selector: &str) -> (&str, Vec<&str>) {
@@ -2202,7 +2281,11 @@ fn compute_specificity(selector: &str) -> u32 {
                 }
             }
 
-            let parts: Vec<&str> = base.split('.').collect();
+            // Extract attribute selectors before splitting by .
+            let (base_no_attr, attr_sels) = extract_attribute_selectors(base);
+            classes += attr_sels.len() as u32;
+
+            let parts: Vec<&str> = base_no_attr.split('.').collect();
             let tag_part = parts[0];
 
             // Count ID selectors (not yet supported but future-proof)
