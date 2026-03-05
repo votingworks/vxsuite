@@ -361,6 +361,26 @@ fn build_taffy_tree(
         return node;
     }
 
+    // Handle <table> elements — flatten to grid with cell children
+    if element.tag == "table" {
+        let cells = collect_table_cells(element);
+        let num_cols = count_table_columns(element);
+        let mut computed = computed;
+        computed.display = Display::Grid;
+        if computed.grid_template_columns.is_empty() && num_cols > 0 {
+            computed.grid_template_columns = vec![crate::style::TrackSize::Fr(1.0); num_cols];
+        }
+        let style = build_taffy_style(&computed);
+        let mut children = Vec::new();
+        for cell_el in &cells {
+            let child_node = build_taffy_tree(taffy, cell_el, styles, fonts, node_map, svg_data, image_data, 0);
+            children.push(child_node);
+        }
+        let node = taffy.new_with_children(style, &children).expect("taffy new_with_children");
+        node_map.insert(element_id, node);
+        return node;
+    }
+
     // Generate list marker for <li> elements
     let list_marker = if element.tag == "li" {
         match computed.list_style_type {
@@ -800,6 +820,66 @@ fn collect_matching_elements<'a>(
             collect_matching_elements(child_el, selector, layout, x, y, results, &child_ancestors);
         }
     }
+}
+
+/// Collect all <th> and <td> cells from a table, flattening through
+/// <thead>, <tbody>, <tfoot>, and <tr> elements.
+fn collect_table_cells(table: &ElementNode) -> Vec<&ElementNode> {
+    let mut cells = Vec::new();
+    collect_cells_recursive(table, &mut cells);
+    cells
+}
+
+fn collect_cells_recursive<'a>(element: &'a ElementNode, cells: &mut Vec<&'a ElementNode>) {
+    for child in &element.children {
+        if let DomNode::Element(el) = child {
+            match el.tag.as_str() {
+                "th" | "td" => cells.push(el),
+                "thead" | "tbody" | "tfoot" | "tr" | "colgroup" => {
+                    collect_cells_recursive(el, cells);
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
+/// Count the number of columns in a table from the first row.
+fn count_table_columns(table: &ElementNode) -> usize {
+    for child in &table.children {
+        if let DomNode::Element(el) = child {
+            match el.tag.as_str() {
+                "tr" => return count_row_cells(el),
+                "thead" | "tbody" | "tfoot" => {
+                    for tbody_child in &el.children {
+                        if let DomNode::Element(tr) = tbody_child {
+                            if tr.tag == "tr" {
+                                return count_row_cells(tr);
+                            }
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    0
+}
+
+fn count_row_cells(tr: &ElementNode) -> usize {
+    let mut count = 0;
+    for child in &tr.children {
+        if let DomNode::Element(el) = child {
+            if el.tag == "th" || el.tag == "td" {
+                let colspan = el
+                    .get_attr("colspan")
+                    .and_then(|v| v.parse::<usize>().ok())
+                    .unwrap_or(1);
+                count += colspan;
+            }
+        }
+    }
+    count
 }
 
 #[cfg(test)]

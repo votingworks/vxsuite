@@ -1849,7 +1849,7 @@ fn resolve_element_styles(
             computed.font_size = parent_style.font_size * 1.17;
             computed.font_weight = 700;
         }
-        "h4" => {
+        "h4" | "th" => {
             computed.font_weight = 700;
         }
         "h5" => {
@@ -1867,6 +1867,9 @@ fn resolve_element_styles(
         "ol" => {
             computed.list_style_type = ListStyleType::Decimal;
             computed.padding.left = 40.0;
+        }
+        "table" => {
+            computed.display = Display::Grid;
         }
         _ => {}
     }
