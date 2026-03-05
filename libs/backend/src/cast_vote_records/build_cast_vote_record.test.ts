@@ -9,6 +9,9 @@ import {
   BallotType,
   CandidateContest,
   CVR,
+  Election,
+  ElectionDefinition,
+  StraightPartyContest,
   unsafeParse,
 } from '@votingworks/types';
 import { getCastVoteRecordBallotType } from '@votingworks/utils';
@@ -930,6 +933,215 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
           OptionPosition: 0,
         }),
       ],
+    });
+  });
+});
+
+// Minimal election fixture with a straight-party contest for testing
+// GeneratedRules marking on derived candidate selections.
+const spContest: StraightPartyContest = {
+  id: 'straight-party-ticket',
+  type: 'straight-party',
+  title: 'Straight Party',
+};
+
+const governorContest: CandidateContest = {
+  id: 'governor',
+  type: 'candidate',
+  title: 'Governor',
+  districtId: 'district-1',
+  seats: 1,
+  allowWriteIns: true,
+  candidates: [
+    { id: 'alice', name: 'Alice', partyIds: ['dem'] },
+    { id: 'bob', name: 'Bob', partyIds: ['rep'] },
+  ],
+};
+
+const councilContest: CandidateContest = {
+  id: 'council',
+  type: 'candidate',
+  title: 'City Council',
+  districtId: 'district-1',
+  seats: 3,
+  allowWriteIns: false,
+  candidates: [
+    { id: 'carol', name: 'Carol', partyIds: ['dem'] },
+    { id: 'dave', name: 'Dave', partyIds: ['dem'] },
+    { id: 'eve', name: 'Eve', partyIds: ['rep'] },
+    { id: 'frank', name: 'Frank', partyIds: ['rep'] },
+  ],
+};
+
+const spElection = {
+  type: 'general',
+  title: 'Test Election',
+  date: '2026-11-03T00:00:00Z',
+  state: 'State',
+  county: { id: 'county-1', name: 'County' },
+  seal: '',
+  ballotLayout: { paperSize: 'letter', metadataEncoding: 'qr-code' },
+  districts: [{ id: 'district-1', name: 'District 1' }],
+  precincts: [{ id: 'precinct-1', name: 'Precinct 1' }],
+  parties: [
+    { id: 'dem', name: 'Democrat', fullName: 'Democratic Party', abbrev: 'D' },
+    {
+      id: 'rep',
+      name: 'Republican',
+      fullName: 'Republican Party',
+      abbrev: 'R',
+    },
+  ],
+  contests: [spContest, governorContest, councilContest],
+  ballotStyles: [
+    {
+      id: 'bs-1',
+      groupId: 'group-1',
+      precincts: ['precinct-1'],
+      districts: ['district-1'],
+    },
+  ],
+} as unknown as Election;
+
+const spElectionDefinition = {
+  election: spElection,
+  ballotHash: 'test-hash',
+} as unknown as ElectionDefinition;
+
+describe('buildCVRContestsFromVotes - straight party GeneratedRules', () => {
+  test('derived candidates are marked with generated-rules', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: spElectionDefinition,
+      ballotStyleId: 'bs-1',
+      votes: {
+        [spContest.id]: ['dem'],
+        [governorContest.id]: [],
+        [councilContest.id]: [
+          { id: 'carol', name: 'Carol', partyIds: ['dem'], isWriteIn: false },
+        ],
+      },
+      options: { ballotMarkingMode: 'machine' },
+    });
+
+    expect(result).toHaveLength(3);
+
+    // Governor: alice should be derived
+    const govContest = find(result, (c) => c.ContestId === 'governor');
+    expect(govContest.Undervotes).toEqual(0);
+    expect(govContest.CVRContestSelection).toHaveLength(1);
+    expect(govContest.CVRContestSelection[0]).toMatchObject({
+      ContestSelectionId: 'alice',
+      Status: [CVR.ContestSelectionStatus.GeneratedRules],
+      SelectionPosition: [
+        expect.objectContaining({
+          HasIndication: CVR.IndicationStatus.Yes,
+          IsAllocable: CVR.AllocationStatus.Yes,
+          Status: [CVR.PositionStatus.GeneratedRules],
+        }),
+      ],
+    });
+
+    // Council: carol is voter-selected (no status), dave is derived
+    const council = find(result, (c) => c.ContestId === 'council');
+    expect(council.CVRContestSelection).toHaveLength(2);
+    const carolSelection = find(
+      council.CVRContestSelection,
+      (s) => s.ContestSelectionId === 'carol'
+    );
+    expect(carolSelection.Status).toBeUndefined();
+    expect(carolSelection.SelectionPosition[0]!.Status).toBeUndefined();
+
+    const daveSelection = find(
+      council.CVRContestSelection,
+      (s) => s.ContestSelectionId === 'dave'
+    );
+    expect(daveSelection.Status).toEqual([
+      CVR.ContestSelectionStatus.GeneratedRules,
+    ]);
+    expect(daveSelection.SelectionPosition[0]!.Status).toEqual([
+      CVR.PositionStatus.GeneratedRules,
+    ]);
+  });
+
+  test('no derived votes when there is no straight-party selection', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: spElectionDefinition,
+      ballotStyleId: 'bs-1',
+      votes: {
+        [governorContest.id]: [
+          { id: 'alice', name: 'Alice', partyIds: ['dem'], isWriteIn: false },
+        ],
+        [councilContest.id]: [],
+      },
+      options: { ballotMarkingMode: 'machine' },
+    });
+
+    const govContest = find(result, (c) => c.ContestId === 'governor');
+    expect(govContest.CVRContestSelection[0]!.Status).toBeUndefined();
+    expect(
+      govContest.CVRContestSelection[0]!.SelectionPosition[0]!.Status
+    ).toBeUndefined();
+  });
+
+  test('no derived votes when straight-party is overvoted', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: spElectionDefinition,
+      ballotStyleId: 'bs-1',
+      votes: {
+        [spContest.id]: ['dem', 'rep'],
+        [governorContest.id]: [],
+        [councilContest.id]: [],
+      },
+      options: { ballotMarkingMode: 'machine' },
+    });
+
+    const govContest = find(result, (c) => c.ContestId === 'governor');
+    expect(govContest.CVRContestSelection).toHaveLength(0);
+    expect(govContest.Undervotes).toEqual(1);
+  });
+
+  test('no derived votes when voter already filled all seats', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: spElectionDefinition,
+      ballotStyleId: 'bs-1',
+      votes: {
+        [spContest.id]: ['dem'],
+        [governorContest.id]: [
+          { id: 'alice', name: 'Alice', partyIds: ['dem'], isWriteIn: false },
+        ],
+        [councilContest.id]: [],
+      },
+      options: { ballotMarkingMode: 'machine' },
+    });
+
+    // Governor: alice was manually selected, not derived
+    const govContest = find(result, (c) => c.ContestId === 'governor');
+    expect(govContest.CVRContestSelection).toHaveLength(1);
+    expect(govContest.CVRContestSelection[0]!.Status).toBeUndefined();
+    expect(
+      govContest.CVRContestSelection[0]!.SelectionPosition[0]!.Status
+    ).toBeUndefined();
+  });
+
+  test('pre-computed straightPartyDerived overrides internal computation', () => {
+    // Pass pre-computed derived IDs (simulating HMPB cross-page scenario)
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: spElectionDefinition,
+      ballotStyleId: 'bs-1',
+      votes: {
+        // Only the governor contest votes on this "page"
+        [governorContest.id]: [],
+      },
+      options: { ballotMarkingMode: 'hand' },
+      // Pre-computed from combined pages — alice is derived
+      straightPartyDerived: new Map([['governor', new Set(['alice'])]]),
+    });
+
+    const govContest = find(result, (c) => c.ContestId === 'governor');
+    expect(govContest.CVRContestSelection).toHaveLength(1);
+    expect(govContest.CVRContestSelection[0]).toMatchObject({
+      ContestSelectionId: 'alice',
+      Status: [CVR.ContestSelectionStatus.GeneratedRules],
     });
   });
 });
