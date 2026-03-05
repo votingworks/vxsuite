@@ -627,7 +627,6 @@ export function BallotAdjudicationScreen({
     if (votedOptions.length !== 1) return undefined;
     return votedOptions[0];
   })();
-  const straightPartyName = spVotedOption?.definition.name;
   const straightPartyId = spVotedOption?.definition.id;
 
   function onNavigation(action: () => void): () => void {
@@ -739,7 +738,6 @@ export function BallotAdjudicationScreen({
             ?.adjudicatedContestOptionById
         }
         straightPartyId={straightPartyId}
-        straightPartyName={straightPartyName}
         ballotImages={ballotImages}
         writeInCandidates={writeInCandidates.filter(
           (c) => c.contestId === selectedContestId

@@ -3,9 +3,25 @@ import {
   CandidateId,
   CandidateVote,
   Election,
+  Optional,
   PartyId,
   VotesDict,
 } from '@votingworks/types';
+
+export function getStraightPartySelectedPartyId(
+  election: Election,
+  votes: VotesDict
+): Optional<PartyId> {
+  const straightPartyContest = election.contests.find(
+    (c) => c.type === 'straight-party'
+  );
+  if (!straightPartyContest) return undefined;
+
+  const straightPartyVote = votes[straightPartyContest.id];
+  if (!straightPartyVote || straightPartyVote.length !== 1) return undefined;
+
+  return straightPartyVote[0] as PartyId;
+}
 
 /**
  * Derives the set of candidate IDs that are indirectly selected by a

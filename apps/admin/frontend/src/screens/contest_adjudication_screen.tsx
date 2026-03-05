@@ -128,13 +128,11 @@ const ContestOptionButtonCaption = styled.span`
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
 
-<<<<<<< HEAD
-=======
 const DerivedVoteCaption = styled.span`
   color: ${(p) => p.theme.colors.onBackground};
   font-size: 0.75rem;
   font-weight: 400;
-  margin: 0.25rem 0 0.25rem 0.125rem;
+  line-height: 1.2;
 `;
 
 const CaptionGroup = styled.div`
@@ -143,8 +141,7 @@ const CaptionGroup = styled.div`
   gap: 0.125rem;
   margin: 0.25rem 0 0.25rem 0.125rem;
 
-  ${ContestOptionButtonCaption},
-  ${DerivedVoteCaption} {
+  ${ContestOptionButtonCaption} {
     margin: 0;
   }
 `;
@@ -347,13 +344,22 @@ export function ContestAdjudicationScreen({
   // Compute derived options locally based on SP party and current vote state.
   // This replaces the backend-provided derivedOptionIds so that changes are
   // reflected immediately as the adjudicator toggles votes.
-  const derivedOptionIdSet = useMemo(() => {
+  const { derivedOptionIdSet, straightPartyNotAppliedReason } = useMemo(() => {
     if (!straightPartyId || !isCandidateContest || !isStateReady) {
-      return new Set<ContestOptionId>();
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason: undefined,
+      };
     }
     const partyOptionIds = contest.candidates
       .filter((c) => !c.isWriteIn && c.partyIds?.includes(straightPartyId))
       .map((c) => c.id);
+    if (partyOptionIds.length === 0) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason: undefined,
+      };
+    }
     const currentVoteIds = officialOptions
       .filter((o) => getOptionHasVote(o.id))
       .map((o) => o.id);
@@ -365,11 +371,23 @@ export function ContestAdjudicationScreen({
     const unselectedPartyOptions = partyOptionIds.filter(
       (id) => !currentVoteIds.includes(id)
     );
-    // Only expand if deterministic: all unselected party candidates fit
-    if (remainingSeats <= 0 || unselectedPartyOptions.length > remainingSeats) {
-      return new Set<ContestOptionId>();
+    if (remainingSeats <= 0) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason: 'No remaining seats' as const,
+      };
     }
-    return new Set(unselectedPartyOptions);
+    if (unselectedPartyOptions.length > remainingSeats) {
+      return {
+        derivedOptionIdSet: new Set<ContestOptionId>(),
+        straightPartyNotAppliedReason:
+          'Too many candidates for remaining seats' as const,
+      };
+    }
+    return {
+      derivedOptionIdSet: new Set(unselectedPartyOptions),
+      straightPartyNotAppliedReason: undefined,
+    };
   }, [
     straightPartyId,
     isCandidateContest,
@@ -415,14 +433,8 @@ export function ContestAdjudicationScreen({
   }, [firstOptionIdPendingAdjudication]);
 
   const seatCount = isCandidateContest ? contest.seats : 1;
-<<<<<<< HEAD
   const isOvervote = voteCount > seatCount;
   const isUndervote = voteCount < seatCount;
-=======
-  const effectiveVoteCount = voteCount + derivedOptionIdSet.size;
-  const isOvervote = isStateReady ? effectiveVoteCount > seatCount : false;
-  const isUndervote = isStateReady ? effectiveVoteCount < seatCount : false;
->>>>>>> cbce17bde (feat: straight-party derived votes in adjudication UI)
 
   const allowSaveWithoutChanges =
     tag !== undefined &&
@@ -497,17 +509,7 @@ export function ContestAdjudicationScreen({
           </ContestHeader>
           <BallotVoteCount>
             <MediumText>
-<<<<<<< HEAD
               Votes cast: {format.count(voteCount)} of {format.count(seatCount)}
-=======
-              Votes cast:{' '}
-              {isStateReady && (
-                <React.Fragment>
-                  {format.count(effectiveVoteCount)} of{' '}
-                  {format.count(seatCount)}
-                </React.Fragment>
-              )}
->>>>>>> cbce17bde (feat: straight-party derived votes in adjudication UI)
             </MediumText>
             {isOvervote && (
               <Label>
@@ -520,7 +522,6 @@ export function ContestAdjudicationScreen({
               </Label>
             )}
           </BallotVoteCount>
-<<<<<<< HEAD
           <ContestOptionButtonList role="listbox">
             {officialOptions.map((officialOption) => {
               const { id: optionId } = officialOption;
@@ -603,148 +604,6 @@ export function ContestAdjudicationScreen({
                       return;
                     }
                     if (isValidCandidate(newStatus)) {
-=======
-          {!isStateReady || areQueriesFetching ? (
-            <ContestOptionButtonList style={{ justifyContent: 'center' }}>
-              <Icons.Loading />
-            </ContestOptionButtonList>
-          ) : (
-            <ContestOptionButtonList role="listbox">
-              {officialOptions.map((officialOption) => {
-                const { id: optionId } = officialOption;
-                const optionForAdjudication = assertDefined(
-                  contestOptions.find((o) => o.definition.id === optionId)
-                );
-                const originalVote = optionForAdjudication.initialVote;
-                const currentVote = getOptionHasVote(optionId);
-                const isDerived = derivedOptionIdSet.has(optionId);
-                const optionLabel = isCandidateContest
-                  ? (officialOption as Candidate).name
-                  : officialOption.name;
-                const marginalMarkStatus =
-                  getOptionMarginalMarkStatus(optionId);
-
-                const adjudicationCaption = renderContestOptionButtonCaption({
-                  originalVote,
-                  currentVote,
-                  isWriteIn: false,
-                  marginalMarkStatus,
-                });
-                const spCaption = isDerived ? (
-                  <DerivedVoteCaption>
-                    Straight party vote applied:{' '}
-                    {straightPartyName ?? 'Unknown'}
-                  </DerivedVoteCaption>
-                ) : null;
-                const combinedCaption =
-                  adjudicationCaption || spCaption ? (
-                    <CaptionGroup>
-                      {adjudicationCaption}
-                      {spCaption}
-                    </CaptionGroup>
-                  ) : null;
-
-                if (isDerived && !currentVote) {
-                  return (
-                    <div
-                      key={optionId + cvrId}
-                      style={{ display: 'flex', flexDirection: 'column' }}
-                    >
-                      <DerivedVoteButton
-                        role="checkbox"
-                        aria-checked
-                        fill="outlined"
-                        color="neutral"
-                        onPress={() => setOptionHasVote(optionId, true)}
-                        icon={<Icons.Checkbox filled={false} />}
-                      >
-                        {optionLabel}
-                      </DerivedVoteButton>
-                      {combinedCaption}
-                    </div>
-                  );
-                }
-
-                return (
-                  <ContestOptionButton
-                    key={optionId + cvrId}
-                    isSelected={currentVote}
-                    marginalMarkStatus={marginalMarkStatus}
-                    ref={
-                      optionId === firstOptionIdPendingAdjudication
-                        ? scrollTargetRef
-                        : undefined
-                    }
-                    option={{
-                      id: optionId,
-                      label: optionLabel,
-                    }}
-                    onSelect={() => setOptionHasVote(optionId, true)}
-                    onDeselect={() => setOptionHasVote(optionId, false)}
-                    onDismissFlag={() => {
-                      resolveOptionMarginalMark(optionId);
-                    }}
-                    disabled={
-                      isBmd ||
-                      // Disabled when there is a write-in selection for the candidate
-                      (!currentVote &&
-                        selectedCandidateNames.includes(optionLabel))
-                    }
-                    caption={combinedCaption}
-                  />
-                );
-              })}
-              {writeInOptionIds.map((optionId) => {
-                const optionForAdjudication = assertDefined(
-                  contestOptions.find((o) => o.definition.id === optionId)
-                );
-                const originalVote = optionForAdjudication.initialVote;
-                const isSelected = getOptionHasVote(optionId);
-                const isFocused = focusedOptionId === optionId;
-                const writeInStatus = getOptionWriteInStatus(optionId);
-                const { writeInRecord } = optionForAdjudication;
-                const marginalMarkStatus =
-                  getOptionMarginalMarkStatus(optionId);
-                return (
-                  <WriteInAdjudicationButton
-                    key={optionId + cvrId}
-                    label={writeInRecord?.machineMarkedText}
-                    writeInStatus={writeInStatus}
-                    marginalMarkStatus={marginalMarkStatus}
-                    isFocused={isFocused}
-                    isSelected={isSelected}
-                    hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
-                    // bmd ballots can only toggle-on write-ins that were
-                    // previously detected, meaning the status would be defined
-                    disabled={isBmd && writeInStatus === undefined}
-                    onInputFocus={() => setFocusedOptionId(optionId)}
-                    onInputBlur={() => setFocusedOptionId(undefined)}
-                    ref={
-                      optionId === firstOptionIdPendingAdjudication
-                        ? scrollTargetRef
-                        : undefined
-                    }
-                    onChange={(newStatus) => {
-                      setFocusedOptionId(undefined);
-                      if (isWriteInPending(newStatus)) {
-                        setOptionWriteInStatus(optionId, newStatus);
-                        setOptionHasVote(optionId, true);
-                        return;
-                      }
-                      if (isWriteInInvalid(newStatus)) {
-                        // If there was no write-in record, reset
-                        // to undefined instead of invalid
-                        setOptionWriteInStatus(
-                          optionId,
-                          writeInRecord ? newStatus : undefined
-                        );
-                        setOptionHasVote(optionId, false);
-                        if (isMarginalMarkPending(marginalMarkStatus)) {
-                          resolveOptionMarginalMark(optionId);
-                        }
-                        return;
-                      }
->>>>>>> cbce17bde (feat: straight-party derived votes in adjudication UI)
                       const alert = checkWriteInNameForDoubleVote({
                         writeInName: newStatus.name,
                         optionId,

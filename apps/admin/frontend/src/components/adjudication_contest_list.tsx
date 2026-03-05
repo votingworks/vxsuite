@@ -427,6 +427,12 @@ function BallotSideContestList({
                       {straightPartyStatus.text}
                     </StraightPartyCaption>
                   ))}
+                {isResolved &&
+                  bullets.map((bullet) => (
+                    <ResolvedCaption key={bullet} weight="semiBold">
+                      &bull; {bullet}
+                    </ResolvedCaption>
+                  ))}
               </Column>
               {isPending && !suppressContestAdjudicationInfo && (
                 <Icons.Warning color="warning" />

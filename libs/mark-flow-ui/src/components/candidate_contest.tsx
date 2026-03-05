@@ -9,6 +9,7 @@ import {
   CandidateVote,
   CandidateContest as CandidateContestInterface,
   Election,
+  PartyId,
   getBallotStyle,
   getContestDistrict,
   getOrderedCandidatesForContestInBallotStyle,
@@ -60,6 +61,7 @@ interface Props {
   election: Election;
   contest: CandidateContestInterface;
   indirectCandidateIds?: Set<CandidateId>;
+  straightPartyPartyId?: PartyId;
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
   accessibilityMode?: AccessibilityMode;
@@ -116,6 +118,7 @@ export function CandidateContest({
   election,
   contest,
   indirectCandidateIds,
+  straightPartyPartyId,
   vote,
   updateVote,
   accessibilityMode = AccessibilityMode.ATI_CONTROLLER,
@@ -471,12 +474,13 @@ export function CandidateContest({
                         candidate={candidate}
                         electionParties={election.parties}
                       />
-                      {isIndirect && (
-                        <React.Fragment>
-                          {' - '}
-                          {appStrings.labelStraightPartyIndirectVote()}
-                        </React.Fragment>
-                      )}
+                      {straightPartyPartyId &&
+                        candidate.partyIds?.includes(straightPartyPartyId) && (
+                          <React.Fragment>
+                            {' - '}
+                            {appStrings.labelStraightPartyIndirectVote()}
+                          </React.Fragment>
+                        )}
                       <AudioOnly>{suffixAudioText}</AudioOnly>
                     </React.Fragment>
                   }
