@@ -5,8 +5,8 @@ use taffy::prelude::*;
 use crate::dom::{DomNode, ElementNode};
 use crate::fonts::FontCollection;
 use crate::style::{
-    AlignItems, AlignSelf, BoxSizing, ComputedStyle, Dimension, Display, FlexDirection, FlexWrap,
-    JustifyContent, Position, StyleResult, WhiteSpace,
+    AlignContent, AlignItems, AlignSelf, BoxSizing, ComputedStyle, Dimension, Display,
+    FlexDirection, FlexWrap, JustifyContent, Position, StyleResult, WhiteSpace,
 };
 use crate::{DataAttribute, ElementInfo};
 
@@ -123,6 +123,15 @@ fn build_taffy_style(computed: &ComputedStyle) -> Style {
         JustifyContent::SpaceBetween => Some(taffy::JustifyContent::SpaceBetween),
     };
 
+    let align_content = match computed.align_content {
+        AlignContent::Stretch => Some(taffy::AlignContent::Stretch),
+        AlignContent::FlexStart => Some(taffy::AlignContent::FlexStart),
+        AlignContent::FlexEnd => Some(taffy::AlignContent::FlexEnd),
+        AlignContent::Center => Some(taffy::AlignContent::Center),
+        AlignContent::SpaceBetween => Some(taffy::AlignContent::SpaceBetween),
+        AlignContent::SpaceAround => Some(taffy::AlignContent::SpaceAround),
+    };
+
     let align_items = match computed.align_items {
         AlignItems::Stretch => Some(taffy::AlignItems::Stretch),
         AlignItems::FlexStart => Some(taffy::AlignItems::FlexStart),
@@ -157,7 +166,10 @@ fn build_taffy_style(computed: &ComputedStyle) -> Style {
         flex_direction,
         flex_wrap,
         flex_grow: computed.flex_grow,
+        flex_shrink: computed.flex_shrink,
+        flex_basis: convert_dimension(computed.flex_basis),
         justify_content,
+        align_content,
         align_items,
         align_self,
         gap: Size {

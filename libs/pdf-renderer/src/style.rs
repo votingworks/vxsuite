@@ -25,8 +25,11 @@ pub struct ComputedStyle {
     pub flex_direction: FlexDirection,
     pub flex_wrap: FlexWrap,
     pub flex_grow: f32,
+    pub flex_shrink: f32,
+    pub flex_basis: Dimension,
     pub justify_content: JustifyContent,
     pub align_items: AlignItems,
+    pub align_content: AlignContent,
     pub align_self: AlignSelf,
     pub gap: (f32, f32), // row, column
 
@@ -109,7 +112,10 @@ impl Default for ComputedStyle {
             flex_direction: FlexDirection::Row,
             flex_wrap: FlexWrap::NoWrap,
             flex_grow: 0.0,
+            flex_shrink: 1.0,
+            flex_basis: Dimension::Auto,
             justify_content: JustifyContent::FlexStart,
+            align_content: AlignContent::Stretch,
             align_items: AlignItems::Stretch,
             align_self: AlignSelf::Auto,
             gap: (0.0, 0.0),
@@ -199,6 +205,16 @@ pub enum AlignItems {
     FlexStart,
     FlexEnd,
     Center,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum AlignContent {
+    Stretch,
+    FlexStart,
+    FlexEnd,
+    Center,
+    SpaceBetween,
+    SpaceAround,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -617,12 +633,30 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
                 style.flex_grow = v;
             }
         }
+        "flex-shrink" => {
+            if let Ok(v) = value.parse::<f32>() {
+                style.flex_shrink = v;
+            }
+        }
+        "flex-basis" => {
+            style.flex_basis = parse_dimension(value, fs, root_font_size);
+        }
         "justify-content" => {
             style.justify_content = match value {
                 "center" => JustifyContent::Center,
                 "space-between" => JustifyContent::SpaceBetween,
                 "flex-end" | "end" => JustifyContent::FlexEnd,
                 _ => JustifyContent::FlexStart,
+            };
+        }
+        "align-content" => {
+            style.align_content = match value {
+                "center" => AlignContent::Center,
+                "flex-start" => AlignContent::FlexStart,
+                "flex-end" => AlignContent::FlexEnd,
+                "space-between" => AlignContent::SpaceBetween,
+                "space-around" => AlignContent::SpaceAround,
+                _ => AlignContent::Stretch,
             };
         }
         "align-items" => {
