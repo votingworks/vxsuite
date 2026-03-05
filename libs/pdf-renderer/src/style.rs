@@ -1745,9 +1745,80 @@ fn matches_pseudo_class(pseudo: &str, element: &ElementNode, ancestors: &[&Eleme
             if let Some(inner) = pseudo.strip_prefix("not(").and_then(|s| s.strip_suffix(')')) {
                 return !simple_selector_matches(inner, element, ancestors);
             }
+            // Handle :nth-child()
+            if let Some(inner) = pseudo.strip_prefix("nth-child(").and_then(|s| s.strip_suffix(')')) {
+                return matches_nth_child(inner.trim(), element, ancestors);
+            }
             true // Unknown pseudo-classes pass by default
         }
     }
+}
+
+fn matches_nth_child(expr: &str, element: &ElementNode, ancestors: &[&ElementNode]) -> bool {
+    let Some(&parent) = ancestors.first() else {
+        return false;
+    };
+    // Find 1-based index of this element among its siblings
+    let mut index = 0usize;
+    for child in &parent.children {
+        if let DomNode::Element(el) = child {
+            index += 1;
+            if std::ptr::eq(el, element) {
+                break;
+            }
+        }
+    }
+    if index == 0 {
+        return false;
+    }
+    let (a, b) = parse_nth(expr);
+    matches_an_plus_b(a, b, index)
+}
+
+/// Parse nth expression: "odd", "even", "3", "2n", "2n+1", "-n+3", etc.
+/// Returns (a, b) for the formula an+b.
+fn parse_nth(expr: &str) -> (i32, i32) {
+    let expr = expr.trim().to_lowercase();
+    match expr.as_str() {
+        "odd" => (2, 1),
+        "even" => (2, 0),
+        _ => {
+            if let Some(n_pos) = expr.find('n') {
+                let a_str = expr[..n_pos].trim();
+                let a = match a_str {
+                    "" | "+" => 1,
+                    "-" => -1,
+                    _ => a_str.parse::<i32>().unwrap_or(0),
+                };
+                let rest = expr[n_pos + 1..].trim();
+                let b = if rest.is_empty() {
+                    0
+                } else {
+                    rest.replace(' ', "").parse::<i32>().unwrap_or(0)
+                };
+                (a, b)
+            } else {
+                // Just a number: matches exactly that index
+                let n = expr.parse::<i32>().unwrap_or(0);
+                (0, n)
+            }
+        }
+    }
+}
+
+fn matches_an_plus_b(a: i32, b: i32, index: usize) -> bool {
+    let Ok(index) = i32::try_from(index) else {
+        return false;
+    };
+    if a == 0 {
+        return index == b;
+    }
+    let diff = index - b;
+    // diff must be divisible by a, and the quotient must be non-negative
+    if diff % a != 0 {
+        return false;
+    }
+    diff / a >= 0
 }
 
 /// Parse @font-face rules from CSS text
