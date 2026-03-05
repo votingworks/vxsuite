@@ -1222,7 +1222,7 @@ fn parse_css_rules(css_text: &str) -> Vec<CssRule> {
 
 /// Check if a full selector (potentially with combinators) matches an element.
 /// `ancestors` is the list from nearest parent to root.
-fn selector_matches(
+pub fn selector_matches(
     selector: &str,
     element: &ElementNode,
     ancestors: &[&ElementNode],

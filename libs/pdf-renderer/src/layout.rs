@@ -735,19 +735,19 @@ pub fn query_elements(
         0.0,
         0.0,
         &mut results,
-        None,
+        &[],
     );
     results
 }
 
-fn collect_matching_elements(
-    element: &ElementNode,
+fn collect_matching_elements<'a>(
+    element: &'a ElementNode,
     selector: &str,
     layout: &LayoutResult,
     parent_x: f32,
     parent_y: f32,
     results: &mut Vec<ElementInfo>,
-    _parent: Option<&ElementNode>,
+    ancestors: &[&'a ElementNode],
 ) {
     let element_id = std::ptr::from_ref(element) as usize;
     let Some(&node_id) = layout.node_map.get(&element_id) else {
@@ -758,8 +758,8 @@ fn collect_matching_elements(
     let x = parent_x + taffy_layout.location.x;
     let y = parent_y + taffy_layout.location.y;
 
-    // Check if this element matches the selector
-    if matches_selector(element, selector) {
+    // Check if this element matches using the full selector engine
+    if crate::style::selector_matches(selector, element, ancestors) {
         let data_attrs: Vec<DataAttribute> = element
             .attributes
             .iter()
@@ -779,31 +779,54 @@ fn collect_matching_elements(
         });
     }
 
-    // Recurse
+    // Recurse with this element added to ancestors
+    let mut child_ancestors = vec![element];
+    child_ancestors.extend_from_slice(ancestors);
     for child in &element.children {
         if let DomNode::Element(child_el) = child {
-            collect_matching_elements(child_el, selector, layout, x, y, results, Some(element));
+            collect_matching_elements(child_el, selector, layout, x, y, results, &child_ancestors);
         }
     }
 }
 
-fn matches_selector(element: &ElementNode, selector: &str) -> bool {
-    let selector = selector.trim();
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::dom::parse_html;
+    use crate::fonts::load_fonts;
+    use crate::style::resolve_styles;
 
-    // Handle class selector: .foo
-    if let Some(class_name) = selector.strip_prefix('.') {
-        return element.classes().any(|c| c == class_name);
+    fn query_html(html: &str, selector: &str) -> Vec<ElementInfo> {
+        let parsed = parse_html(html).expect("parse failed");
+        let styles = resolve_styles(&parsed);
+        let fonts = load_fonts(&styles.font_faces);
+        let layout = compute_layout(&parsed.document, &styles, &fonts);
+        query_elements(&layout, &parsed.document, selector)
     }
 
-    // Handle element selector
-    if selector == element.tag {
-        return true;
+    #[test]
+    fn test_query_class_selector() {
+        let html = r#"<html><body style="width:100pt;height:100pt;margin:0"><div class="target" data-id="1">A</div><div>B</div></body></html>"#;
+        let results = query_html(html, ".target");
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].attributes.len(), 1);
+        assert_eq!(results[0].attributes[0].name, "data-id");
+        assert_eq!(results[0].attributes[0].value, "1");
     }
 
-    // Handle element.class
-    if let Some((tag, class)) = selector.split_once('.') {
-        return tag == element.tag && element.classes().any(|c| c == class);
+    #[test]
+    fn test_query_descendant_selector() {
+        let html = r#"<html><body style="width:100pt;height:100pt;margin:0"><div class="parent"><div class="child" data-v="found">X</div></div><div class="child" data-v="skip">Y</div></body></html>"#;
+        let results = query_html(html, ".parent .child");
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].attributes[0].value, "found");
     }
 
-    false
+    #[test]
+    fn test_query_compound_selector() {
+        let html = r#"<html><body style="width:100pt;height:100pt;margin:0"><div class="a b" data-v="match">X</div><div class="a">Y</div></body></html>"#;
+        let results = query_html(html, ".a.b");
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].attributes[0].value, "match");
+    }
 }
