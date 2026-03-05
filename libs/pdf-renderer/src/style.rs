@@ -84,6 +84,9 @@ pub struct ComputedStyle {
     // Pseudo-element generated content
     pub before: Option<Box<PseudoElementStyle>>,
     pub after: Option<Box<PseudoElementStyle>>,
+
+    // Lists
+    pub list_style_type: ListStyleType,
 }
 
 #[derive(Debug, Clone)]
@@ -141,8 +144,16 @@ impl Default for ComputedStyle {
             content: None,
             before: None,
             after: None,
+            list_style_type: ListStyleType::None,
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ListStyleType {
+    None,
+    Disc,
+    Decimal,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -900,6 +911,14 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
             if let Some(w) = resolve_length(value, fs, root_font_size) {
                 style.border_widths.left = w;
             }
+        }
+        "list-style" | "list-style-type" => {
+            style.list_style_type = match value.trim() {
+                "none" => ListStyleType::None,
+                "disc" => ListStyleType::Disc,
+                "decimal" => ListStyleType::Decimal,
+                _ => style.list_style_type,
+            };
         }
         _ => {}
     }
@@ -1705,6 +1724,7 @@ fn resolve_element_styles(
         text_align: parent_style.text_align,
         color: parent_style.color,
         visibility: parent_style.visibility,
+        list_style_type: parent_style.list_style_type,
         ..ComputedStyle::default()
     };
 
@@ -1743,6 +1763,14 @@ fn resolve_element_styles(
         "h6" => {
             computed.font_size = parent_style.font_size * 0.67;
             computed.font_weight = 700;
+        }
+        "ul" => {
+            computed.list_style_type = ListStyleType::Disc;
+            computed.padding.left = 40.0;
+        }
+        "ol" => {
+            computed.list_style_type = ListStyleType::Decimal;
+            computed.padding.left = 40.0;
         }
         _ => {}
     }

@@ -223,4 +223,5 @@ mod tests {
         };
         assert_eq!(span.children.len(), 2); // <b> + text
     }
+
 }

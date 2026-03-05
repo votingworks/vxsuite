@@ -1,0 +1,54 @@
+<html>
+<head>
+<style>
+@font-face {
+  font-family: 'Roboto';
+  src: url(../fonts/Roboto-Bold.ttf) format('truetype');
+  font-weight: bold;
+}
+* { box-sizing: border-box; }
+body {
+  width: 300pt;
+  height: 250pt;
+  margin: 0;
+  padding: 10pt;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+  font-size: 10pt;
+  display: flex;
+  flex-direction: column;
+  gap: 8pt;
+}
+ul, ol {
+  margin: 0;
+  padding-left: 20pt;
+}
+li {
+  margin-bottom: 2pt;
+}
+.no-style {
+  list-style: none;
+  padding-left: 0;
+}
+</style>
+</head>
+<body>
+  <div>Unordered list:</div>
+  <ul>
+    <li>First item</li>
+    <li>Second item</li>
+    <li>Third item</li>
+  </ul>
+  <div>Ordered list:</div>
+  <ol>
+    <li>Step one</li>
+    <li>Step two</li>
+    <li>Step three</li>
+  </ol>
+  <div>No-style list:</div>
+  <ul class="no-style">
+    <li>Plain item A</li>
+    <li>Plain item B</li>
+  </ul>
+</body>
+</html>

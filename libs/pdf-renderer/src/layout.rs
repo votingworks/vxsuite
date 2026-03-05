@@ -226,7 +226,7 @@ pub fn compute_layout(
     let mut node_map = HashMap::new();
     let mut svg_data = HashMap::new();
 
-    let root = build_taffy_tree(&mut taffy, document, styles, fonts, &mut node_map, &mut svg_data);
+    let root = build_taffy_tree(&mut taffy, document, styles, fonts, &mut node_map, &mut svg_data, 0);
 
     // Determine page size from the outermost element's computed style
     let page_width;
@@ -280,6 +280,7 @@ fn build_taffy_tree(
     fonts: &FontCollection,
     node_map: &mut HashMap<usize, NodeId>,
     svg_data: &mut HashMap<usize, String>,
+    li_index: usize,
 ) -> NodeId {
     let element_id = std::ptr::from_ref(element) as usize;
     let computed = styles
@@ -320,9 +321,20 @@ fn build_taffy_tree(
         return node;
     }
 
+    // Generate list marker for <li> elements
+    let list_marker = if element.tag == "li" {
+        match computed.list_style_type {
+            crate::style::ListStyleType::Disc => Some("\u{2022} ".to_string()),
+            crate::style::ListStyleType::Decimal => Some(format!("{li_index}. ")),
+            crate::style::ListStyleType::None => None,
+        }
+    } else {
+        None
+    };
+
     // Check if this container has inline content that should be flattened.
     // Also treat as inline if pseudo-elements are present with text children.
-    let has_pseudo = computed.before.is_some() || computed.after.is_some();
+    let has_pseudo = computed.before.is_some() || computed.after.is_some() || list_marker.is_some();
     let has_inline_content = has_mixed_inline_content(&element.children, styles)
         || (has_pseudo && has_text_or_inline_children(&element.children, styles));
 
@@ -350,6 +362,18 @@ fn build_taffy_tree(
     if has_inline_content {
         // Flatten inline content into styled text runs
         let mut runs = Vec::new();
+
+        // Add list marker as first run
+        if let Some(ref marker) = list_marker {
+            runs.push(TextRun {
+                text: marker.clone(),
+                font_family: computed.font_family.clone(),
+                font_size: computed.font_size,
+                font_weight: computed.font_weight,
+                font_style: computed.font_style,
+                color: computed.color,
+            });
+        }
 
         // Add ::before content as first run
         if let Some(ref before) = computed.before {
@@ -391,18 +415,45 @@ fn build_taffy_tree(
             children.push(text_node);
         }
     } else {
+        // Add list marker as first child
+        if let Some(ref marker) = list_marker {
+            let marker_node = taffy.new_leaf_with_context(
+                Style::DEFAULT,
+                TextContext {
+                    runs: vec![TextRun {
+                        text: marker.clone(),
+                        font_family: computed.font_family.clone(),
+                        font_size: computed.font_size,
+                        font_weight: computed.font_weight,
+                        font_style: computed.font_style,
+                        color: computed.color,
+                    }],
+                    white_space: computed.white_space,
+                    line_height: computed.line_height,
+                },
+            ).expect("taffy new_leaf_with_context");
+            children.push(marker_node);
+        }
+
         // Add ::before as first child
         if let Some(ref before) = computed.before {
             children.push(make_pseudo_leaf(taffy, before, &computed));
         }
 
+        let mut child_li_counter = 0usize;
         for child in &element.children {
             match child {
                 DomNode::Element(child_el) => {
                     if child_el.tag == "style" || child_el.tag == "head" {
                         continue;
                     }
-                    let child_node = build_taffy_tree(taffy, child_el, styles, fonts, node_map, svg_data);
+                    let child_li_index = if child_el.tag == "li" {
+                        child_li_counter += 1;
+                        child_li_counter
+                    } else {
+                        0
+                    };
+                    let child_node = build_taffy_tree(taffy, child_el, styles, fonts, node_map, svg_data, child_li_index);
                     children.push(child_node);
                 }
                 DomNode::Text(text) => {
