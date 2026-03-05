@@ -36,8 +36,11 @@ pub struct ComputedStyle {
     // Box model (in points)
     pub width: Dimension,
     pub height: Dimension,
+    pub min_width: Dimension,
     pub min_height: Dimension,
     pub max_width: Dimension,
+    pub max_height: Dimension,
+    pub aspect_ratio: Option<f32>,
     pub padding: Edges,
     pub margin: DimensionEdges,
     pub border_widths: Edges,
@@ -113,8 +116,11 @@ impl Default for ComputedStyle {
             grid_template_columns: Vec::new(),
             width: Dimension::Auto,
             height: Dimension::Auto,
+            min_width: Dimension::Auto,
             min_height: Dimension::Auto,
             max_width: Dimension::Auto,
+            max_height: Dimension::Auto,
+            aspect_ratio: None,
             padding: Edges::zero(),
             margin: DimensionEdges::zero(),
             border_widths: Edges::zero(),
@@ -649,11 +655,17 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
         "height" => {
             style.height = parse_dimension(value, fs, root_font_size);
         }
+        "min-width" => {
+            style.min_width = parse_dimension(value, fs, root_font_size);
+        }
         "min-height" => {
             style.min_height = parse_dimension(value, fs, root_font_size);
         }
         "max-width" => {
             style.max_width = parse_dimension(value, fs, root_font_size);
+        }
+        "max-height" => {
+            style.max_height = parse_dimension(value, fs, root_font_size);
         }
         "padding" => {
             apply_shorthand_edges(&mut style.padding, value, fs, root_font_size);
@@ -711,6 +723,19 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
         }
         "bottom" => {
             style.bottom = parse_dimension(value, fs, root_font_size);
+        }
+        "aspect-ratio" => {
+            if value == "auto" {
+                style.aspect_ratio = None;
+            } else if let Some((w, h)) = value.split_once('/') {
+                if let (Ok(w), Ok(h)) = (w.trim().parse::<f32>(), h.trim().parse::<f32>()) {
+                    if h > 0.0 {
+                        style.aspect_ratio = Some(w / h);
+                    }
+                }
+            } else if let Ok(v) = value.parse::<f32>() {
+                style.aspect_ratio = Some(v);
+            }
         }
         "font-family" => {
             // Take the first family name, stripping quotes
