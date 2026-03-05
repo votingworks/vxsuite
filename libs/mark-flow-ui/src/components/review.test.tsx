@@ -3,7 +3,12 @@ import {
   readElectionGeneral,
   readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
-import { CandidateContest, Election, YesNoContest } from '@votingworks/types';
+import {
+  AnyContest,
+  CandidateContest,
+  Election,
+  YesNoContest,
+} from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -685,5 +690,160 @@ describe('cross-endorsed candidates', () => {
     // Should show both party affiliations
     screen.getByText('Federalist');
     screen.getByText(/People/);
+  });
+});
+
+describe('straight-party contest', () => {
+  const PARTY_A = 'party-a';
+  const PARTY_B = 'party-b';
+
+  const spElection: Election = {
+    ...electionGeneral,
+    parties: [
+      { id: PARTY_A, name: 'Party A', fullName: 'Party A' },
+      { id: PARTY_B, name: 'Party B', fullName: 'Party B' },
+    ],
+    contests: [
+      {
+        id: 'straight-party',
+        type: 'straight-party',
+        title: 'Straight Party Ticket',
+      },
+      {
+        id: 'president',
+        type: 'candidate',
+        title: 'President',
+        districtId: electionGeneral.districts[0].id,
+        seats: 1,
+        allowWriteIns: false,
+        candidates: [
+          { id: 'alice', name: 'Alice', partyIds: [PARTY_A] },
+          { id: 'bob', name: 'Bob', partyIds: [PARTY_B] },
+        ],
+      },
+      {
+        id: 'council',
+        type: 'candidate',
+        title: 'City Council',
+        districtId: electionGeneral.districts[0].id,
+        seats: 2,
+        allowWriteIns: false,
+        candidates: [
+          { id: 'c1', name: 'Council A1', partyIds: [PARTY_A] },
+          { id: 'c2', name: 'Council A2', partyIds: [PARTY_A] },
+          { id: 'c3', name: 'Council B1', partyIds: [PARTY_B] },
+        ],
+      },
+    ] as AnyContest[],
+  };
+
+  test('SP selection renders on review', () => {
+    render(
+      <Review
+        election={spElection}
+        contests={spElection.contests}
+        precinctId={spElection.precincts[0].id}
+        ballotStyle={spElection.ballotStyles[0]}
+        votes={{
+          'straight-party': [PARTY_A],
+          president: [],
+          council: [],
+        }}
+        returnToContest={vi.fn()}
+      />
+    );
+
+    screen.getByText('Straight Party Ticket');
+    // Party A appears multiple times (SP selection + indirect candidate party labels)
+    const partyAs = screen.getAllByText('Party A');
+    expect(partyAs.length).toBeGreaterThanOrEqual(1);
+
+    // Verify SP selection is within the SP contest card
+    const spCard = screen.getByTestId('contest-wrapper-straight-party');
+    within(spCard).getByText('Party A');
+  });
+
+  test('undervote count accounts for SP indirect votes', () => {
+    render(
+      <Review
+        election={spElection}
+        contests={spElection.contests}
+        precinctId={spElection.precincts[0].id}
+        ballotStyle={spElection.ballotStyles[0]}
+        votes={{
+          'straight-party': [PARTY_A],
+          president: [],
+          council: [],
+        }}
+        returnToContest={vi.fn()}
+      />
+    );
+
+    // President: 1 seat, 1 party-A candidate derived → no undervote warning
+    const presidentCard = screen.getByTestId('contest-wrapper-president');
+    expect(
+      within(presidentCard).queryByText(/You may still vote/)
+    ).not.toBeInTheDocument();
+    expect(
+      within(presidentCard).queryByText(/unused vote/i)
+    ).not.toBeInTheDocument();
+
+    // Council: 2 seats, 2 party-A candidates derived → no undervote warning
+    const councilCard = screen.getByTestId('contest-wrapper-council');
+    expect(
+      within(councilCard).queryByText(/You may still vote/)
+    ).not.toBeInTheDocument();
+  });
+
+  test('shows undervote when SP does not fully fill contest', () => {
+    // Council has 2 seats but only 1 party-B candidate
+    render(
+      <Review
+        election={spElection}
+        contests={spElection.contests}
+        precinctId={spElection.precincts[0].id}
+        ballotStyle={spElection.ballotStyles[0]}
+        votes={{
+          'straight-party': [PARTY_B],
+          president: [],
+          council: [],
+        }}
+        returnToContest={vi.fn()}
+      />
+    );
+
+    // President: 1 seat, 1 party-B candidate → no undervote
+    const presidentCard = screen.getByTestId('contest-wrapper-president');
+    expect(
+      within(presidentCard).queryByText(/unused vote/i)
+    ).not.toBeInTheDocument();
+
+    // Council: 2 seats, only 1 party-B candidate → 1 unused vote
+    const councilCard = screen.getByTestId('contest-wrapper-council');
+    within(councilCard).getByText(
+      hasTextAcrossElements(/number of unused votes: 1/i)
+    );
+  });
+
+  test('indirect candidates shown on review with SP label', () => {
+    render(
+      <Review
+        election={spElection}
+        contests={spElection.contests}
+        precinctId={spElection.precincts[0].id}
+        ballotStyle={spElection.ballotStyles[0]}
+        votes={{
+          'straight-party': [PARTY_A],
+          president: [],
+          council: [],
+        }}
+        returnToContest={vi.fn()}
+      />
+    );
+
+    // Indirect candidates should be listed
+    screen.getByText('Alice');
+    screen.getByText('Council A1');
+    screen.getByText('Council A2');
   });
 });

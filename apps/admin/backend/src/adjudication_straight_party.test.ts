@@ -320,6 +320,58 @@ test('adjudicating a candidate contest does not affect SP derived state', () => 
   expect(councilAfter.derivedOptionIds).toEqual(['dem-c2']);
 });
 
+test('invalidating a vote frees seat for SP expansion', () => {
+  const { store, electionId } = setupStore();
+  const logger = mockBaseLogger({ fn: vi.fn });
+
+  // Voter selected rep-pres in president (filling the 1 seat) + SP dem
+  const cvrId = addCvr({
+    store,
+    electionId,
+    votes: {
+      'straight-party': ['dem'],
+      president: ['rep-pres'],
+      council: [],
+    },
+  });
+
+  // Initially: president seat is filled → no SP expansion
+  let data = store.getBallotAdjudicationData({ electionId, cvrId });
+  const presidentBefore = data.contests.find(
+    (c) => c.contestId === 'president'
+  );
+  assert(presidentBefore !== undefined);
+  expect(presidentBefore.derivedOptionIds).toEqual([]);
+
+  // Adjudicate president to remove the rep-pres vote (mark as not a vote)
+  adjudicateCvrContest(
+    {
+      cvrId,
+      contestId: 'president',
+      side: 'front',
+      adjudicatedContestOptionById: {
+        'dem-pres': { type: 'candidate-option', hasVote: false },
+        'rep-pres': { type: 'candidate-option', hasVote: false },
+      },
+    },
+    store,
+    logger
+  );
+
+  // Now seat is empty → SP should derive dem-pres
+  data = store.getBallotAdjudicationData({ electionId, cvrId });
+  const presidentAfter = data.contests.find((c) => c.contestId === 'president');
+  assert(presidentAfter !== undefined);
+  expect(presidentAfter.derivedOptionIds).toEqual(['dem-pres']);
+
+  // Council should still have derived votes as before
+  const councilAfter = data.contests.find((c) => c.contestId === 'council');
+  assert(councilAfter !== undefined);
+  expect(councilAfter.derivedOptionIds).toEqual(
+    expect.arrayContaining(['dem-c1', 'dem-c2'])
+  );
+});
+
 test('tally pipeline produces correct expanded tallies after adjudication', () => {
   const { store, electionId } = setupStore();
   const logger = mockBaseLogger({ fn: vi.fn });

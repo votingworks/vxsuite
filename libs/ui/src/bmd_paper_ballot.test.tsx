@@ -8,6 +8,7 @@ import {
   getBallotStyle,
   getContests,
   PrecinctId,
+  safeParseElectionDefinition,
   vote,
 } from '@votingworks/types';
 import {
@@ -710,5 +711,114 @@ describe('filterVotesForContests', () => {
       [] as unknown as typeof allContests
     );
     expect(filtered).toEqual({});
+  });
+});
+
+describe('straight-party contest on BMD paper ballot', () => {
+  const spElectionData = JSON.stringify({
+    id: 'sp-bmd-test',
+    type: 'general',
+    title: 'SP BMD Test',
+    state: 'Test State',
+    county: { id: 'county-1', name: 'Test County' },
+    date: '2024-11-05',
+    seal: '',
+    ballotLayout: { paperSize: 'letter', metadataEncoding: 'qr-code' },
+    parties: [
+      {
+        id: 'dem',
+        name: 'Democrat',
+        fullName: 'Democratic Party',
+        abbrev: 'D',
+      },
+      {
+        id: 'rep',
+        name: 'Republican',
+        fullName: 'Republican Party',
+        abbrev: 'R',
+      },
+    ],
+    districts: [{ id: 'd1', name: 'District 1' }],
+    precincts: [{ id: 'p1', name: 'Precinct 1', districtIds: ['d1'] }],
+    ballotStyles: [
+      {
+        id: 'bs1',
+        groupId: 'bs1',
+        precincts: ['p1'],
+        districts: ['d1'],
+      },
+    ],
+    ballotStrings: {},
+    contests: [
+      {
+        id: 'straight-party',
+        type: 'straight-party',
+        title: 'Straight Party Ticket',
+      },
+      {
+        id: 'president',
+        type: 'candidate',
+        title: 'President',
+        districtId: 'd1',
+        seats: 1,
+        allowWriteIns: false,
+        candidates: [
+          { id: 'dem-pres', name: 'Alice Adams', partyIds: ['dem'] },
+          { id: 'rep-pres', name: 'Bob Brown', partyIds: ['rep'] },
+        ],
+      },
+    ],
+  });
+
+  const spElectionDefinition =
+    safeParseElectionDefinition(spElectionData).unsafeUnwrap();
+
+  test('renders SP contest with selected party', () => {
+    renderBmdPaperBallot({
+      electionDefinition: spElectionDefinition,
+      ballotStyleId: 'bs1' as BallotStyleId,
+      precinctId: 'p1',
+      votes: {
+        'straight-party': 'dem',
+      },
+    });
+
+    screen.getByText('Straight Party Ticket');
+    screen.getByText('Democratic Party');
+  });
+
+  test('renders SP contest with no selection', () => {
+    renderBmdPaperBallot({
+      electionDefinition: spElectionDefinition,
+      ballotStyleId: 'bs1' as BallotStyleId,
+      precinctId: 'p1',
+      votes: {},
+    });
+
+    screen.getByText('Straight Party Ticket');
+    // Both contests should show no selection
+    expect(screen.getAllByText(/no selection/i)).toHaveLength(2);
+  });
+
+  test('prints only direct votes, not derived votes', () => {
+    // Voter selected dem SP and directly voted for rep-pres
+    // The BMD should show: SP = Democrat, President = Bob Brown
+    // It should NOT show Alice Adams (the derived dem vote)
+    renderBmdPaperBallot({
+      electionDefinition: spElectionDefinition,
+      ballotStyleId: 'bs1' as BallotStyleId,
+      precinctId: 'p1',
+      votes: {
+        'straight-party': 'dem',
+        president: 'rep-pres',
+      },
+    });
+
+    screen.getByText('Straight Party Ticket');
+    screen.getByText('Democratic Party');
+    // Direct vote should appear
+    screen.getByText('Bob Brown');
+    // Derived vote should NOT appear — Alice Adams is not printed
+    expect(screen.queryByText('Alice Adams')).not.toBeInTheDocument();
   });
 });
