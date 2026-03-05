@@ -14,7 +14,7 @@ use taffy::NodeId;
 
 use crate::fonts::FontCollection;
 use crate::layout::{LayoutResult, TextContext};
-use crate::style::{BorderStyle, Color, ComputedStyle, Display, Overflow, StyleResult, Visibility};
+use crate::style::{BackgroundSize, BorderStyle, Color, ComputedStyle, Display, Overflow, StyleResult, Visibility};
 
 pub fn render_pdf(layout: &LayoutResult, styles: &StyleResult, fonts: &FontCollection) -> Vec<u8> {
     let mut document = Document::new();
@@ -129,7 +129,7 @@ fn paint_node(
 
         // Background image
         if let Some(ref bg_image) = computed.background_image {
-            paint_data_uri_image(surface, x, y, w, h, bg_image);
+            paint_background_image(surface, x, y, w, h, bg_image, computed);
         }
 
         // Borders
@@ -530,6 +530,69 @@ fn extract_data_uri(uri: &str) -> Option<(&str, Vec<u8>)> {
         let decoded = percent_decode(encoded);
         Some((mime, decoded.into_bytes()))
     }
+}
+
+fn paint_background_image(
+    surface: &mut krilla::surface::Surface,
+    x: f32,
+    y: f32,
+    w: f32,
+    h: f32,
+    uri: &str,
+    style: &ComputedStyle,
+) {
+    let Some((mime, data)) = extract_data_uri(uri) else {
+        return;
+    };
+
+    // For SVGs, we can render at any size — use the full element box
+    if mime.contains("svg") {
+        let svg_xml = String::from_utf8_lossy(&data);
+        paint_svg(surface, x, y, w, h, &svg_xml);
+        return;
+    }
+
+    // For raster images, get the intrinsic size and compute placement
+    let image_result = if mime.contains("png") {
+        Image::from_png(Data::from(data), false)
+    } else if mime.contains("jpeg") || mime.contains("jpg") {
+        Image::from_jpeg(Data::from(data), false)
+    } else {
+        Image::from_png(Data::from(data.clone()), false)
+            .or_else(|_| Image::from_jpeg(Data::from(data), false))
+    };
+    let Ok(image) = image_result else { return };
+
+    let (draw_w, draw_h) = match style.background_size {
+        BackgroundSize::Contain => {
+            let iw = image.size().0 as f32;
+            let ih = image.size().1 as f32;
+            if iw == 0.0 || ih == 0.0 {
+                (w, h)
+            } else {
+                let scale = (w / iw).min(h / ih);
+                (iw * scale, ih * scale)
+            }
+        }
+        BackgroundSize::Cover => {
+            let iw = image.size().0 as f32;
+            let ih = image.size().1 as f32;
+            if iw == 0.0 || ih == 0.0 {
+                (w, h)
+            } else {
+                let scale = (w / iw).max(h / ih);
+                (iw * scale, ih * scale)
+            }
+        }
+        BackgroundSize::Auto => (w, h),
+    };
+
+    let Some(size) = Size::from_wh(draw_w, draw_h) else {
+        return;
+    };
+    surface.push_transform(&Transform::from_translate(x, y));
+    surface.draw_image(image, size);
+    surface.pop();
 }
 
 fn paint_data_uri_image(
