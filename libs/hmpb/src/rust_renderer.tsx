@@ -44,6 +44,10 @@ function renderJsxToHtml(element: JSX.Element): string {
   return ReactDomServer.renderToString(<>{style}</>) + elementHtml;
 }
 
+// The Rust renderer works in PDF points (72 DPI), but the ballot pipeline
+// expects CSS pixels (96 DPI) to match Chromium's getBoundingClientRect().
+const PT_TO_PX = 96 / 72;
+
 /**
  * Creates a {@link RenderDocument} backed by the Rust PDF renderer.
  *
@@ -78,10 +82,10 @@ function createRustDocument(initialHtml: string): RenderDocument {
             data[dataAttrToCamelCase(attr.name)] = attr.value;
           }
           return {
-            x: el.x,
-            y: el.y,
-            width: el.width,
-            height: el.height,
+            x: el.x * PT_TO_PX,
+            y: el.y * PT_TO_PX,
+            width: el.width * PT_TO_PX,
+            height: el.height * PT_TO_PX,
             data,
           };
         })

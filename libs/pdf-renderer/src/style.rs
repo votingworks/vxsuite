@@ -128,8 +128,8 @@ impl Default for ComputedStyle {
             grid_template_columns: Vec::new(),
             width: Dimension::Auto,
             height: Dimension::Auto,
-            min_width: Dimension::Auto,
-            min_height: Dimension::Auto,
+            min_width: Dimension::Points(0.0),
+            min_height: Dimension::Points(0.0),
             max_width: Dimension::Auto,
             max_height: Dimension::Auto,
             aspect_ratio: None,
@@ -791,7 +791,16 @@ fn apply_property(style: &mut ComputedStyle, prop: &str, value: &str, root_font_
                 _ => FlexWrap::NoWrap,
             };
         }
-        "flex" | "flex-grow" => {
+        "flex" => {
+            // CSS `flex` shorthand: a single number means
+            // flex-grow: <number>; flex-shrink: 1; flex-basis: 0%
+            if let Ok(v) = value.parse::<f32>() {
+                style.flex_grow = v;
+                style.flex_shrink = 1.0;
+                style.flex_basis = Dimension::Percent(0.0);
+            }
+        }
+        "flex-grow" => {
             if let Ok(v) = value.parse::<f32>() {
                 style.flex_grow = v;
             }
@@ -2275,11 +2284,23 @@ fn resolve_element_styles(
         all_declarations.extend(parse_inline_declarations(style_attr));
     }
 
-    // Pass 1: resolve font-size
-    for (prop, val) in &all_declarations {
-        if prop == "font-size" {
-            apply_property(&mut computed, prop, val, root_font_size);
+    // Pass 1: resolve font-size. Per CSS spec, `em` units in font-size are
+    // relative to the parent's font-size, not the element's own UA default.
+    // Temporarily set font-size to parent's value so em resolves correctly,
+    // then apply the CSS declaration (which will override both the UA default
+    // and the parent value).
+    let ua_font_size = computed.font_size;
+    let has_font_size_decl = all_declarations.iter().any(|(p, _)| p == "font-size");
+    if has_font_size_decl {
+        // For font-size, `em` resolves against the parent's font-size
+        computed.font_size = parent_style.font_size;
+        for (prop, val) in &all_declarations {
+            if prop == "font-size" {
+                apply_property(&mut computed, prop, val, root_font_size);
+            }
         }
+    } else {
+        computed.font_size = ua_font_size;
     }
     // Pass 2: resolve everything else
     for (prop, val) in &all_declarations {

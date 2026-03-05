@@ -499,31 +499,12 @@ fn build_taffy_tree(
             children.push(text_node);
         }
     } else {
-        // Add list marker as first child
-        if let Some(ref marker) = list_marker {
-            let marker_node = taffy.new_leaf_with_context(
-                Style::DEFAULT,
-                TextContext {
-                    runs: vec![TextRun {
-                        text: marker.clone(),
-                        font_family: computed.font_family.clone(),
-                        font_size: computed.font_size,
-                        font_weight: computed.font_weight,
-                        font_style: computed.font_style,
-                        color: computed.color,
-                    }],
-                    white_space: computed.white_space,
-                    line_height: computed.line_height,
-                },
-            ).expect("taffy new_leaf_with_context");
-            children.push(marker_node);
-        }
-
         // Add ::before as first child
         if let Some(ref before) = computed.before {
             children.push(make_pseudo_leaf(taffy, before, &computed));
         }
 
+        let mut content_children = Vec::new();
         let mut child_li_counter = 0usize;
         for child in &element.children {
             match child {
@@ -538,7 +519,7 @@ fn build_taffy_tree(
                         0
                     };
                     let child_node = build_taffy_tree(taffy, child_el, styles, fonts, node_map, svg_data, image_data, child_li_index);
-                    children.push(child_node);
+                    content_children.push(child_node);
                 }
                 DomNode::Text(text) => {
                     let text = text.trim();
@@ -562,18 +543,62 @@ fn build_taffy_tree(
                             },
                         )
                         .expect("taffy new_leaf_with_context");
-                    children.push(text_node);
+                    content_children.push(text_node);
                 }
             }
         }
 
         // Add ::after as last child
         if let Some(ref after) = computed.after {
-            children.push(make_pseudo_leaf(taffy, after, &computed));
+            content_children.push(make_pseudo_leaf(taffy, after, &computed));
+        }
+
+        // For block-content <li>, use flex-row layout so the marker sits
+        // inline-left of the content instead of stacking vertically.
+        if let Some(ref marker) = list_marker {
+            let marker_node = taffy.new_leaf_with_context(
+                Style {
+                    flex_shrink: 0.0,
+                    ..Style::DEFAULT
+                },
+                TextContext {
+                    runs: vec![TextRun {
+                        text: marker.clone(),
+                        font_family: computed.font_family.clone(),
+                        font_size: computed.font_size,
+                        font_weight: computed.font_weight,
+                        font_style: computed.font_style,
+                        color: computed.color,
+                    }],
+                    white_space: computed.white_space,
+                    line_height: computed.line_height,
+                },
+            ).expect("taffy new_leaf_with_context");
+            let content_wrapper = taffy.new_with_children(
+                Style {
+                    flex_grow: 1.0,
+                    flex_shrink: 1.0,
+                    min_size: Size { width: length(0.0), height: auto() },
+                    ..Style::DEFAULT
+                },
+                &content_children,
+            ).expect("taffy new_with_children");
+            children.push(marker_node);
+            children.push(content_wrapper);
+        } else {
+            children.append(&mut content_children);
         }
     }
 
-    let style = build_taffy_style(&computed);
+    let mut style = build_taffy_style(&computed);
+
+    // Block-content <li> with a marker uses flex-row so the marker sits
+    // beside the content rather than stacking vertically.
+    if list_marker.is_some() && !has_inline_content {
+        style.display = taffy::Display::Flex;
+        style.flex_direction = taffy::FlexDirection::Row;
+    }
+
     let node = taffy
         .new_with_children(style, &children)
         .expect("taffy new_with_children");

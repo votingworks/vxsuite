@@ -659,34 +659,100 @@ fn paint_text(
 
     let font_size = style.font_size;
     let ascender_ratio = fonts.ascender_ratio(&style.font_family, style.font_weight, style.font_style);
-    let baseline_y = y + font_size * ascender_ratio;
+    let line_height = font_size * fonts.line_height_ratio(&style.font_family, style.font_weight, style.font_style);
 
-    let text_x = match style.text_align {
+    surface.set_fill(Some(make_fill(&style.color)));
+    surface.set_stroke(None);
+
+    let no_wrap = matches!(style.white_space, crate::style::WhiteSpace::NoWrap);
+    if no_wrap || container_width <= 0.0 {
+        let baseline_y = y + font_size * ascender_ratio;
+        let text_x = align_text_x(x, &text, style, fonts, font_size, container_width);
+        surface.draw_text(
+            Point::from_xy(text_x, baseline_y),
+            font,
+            font_size,
+            &text,
+            false,
+            krilla::text::TextDirection::Auto,
+        );
+        return;
+    }
+
+    // Word-wrap: split into words and greedily fill lines
+    let words: Vec<&str> = text.split_whitespace().collect();
+    if words.is_empty() {
+        return;
+    }
+
+    let max_x = x + container_width;
+    let mut cursor_x = x;
+    let mut cursor_y = y;
+    let line_start_x = x;
+
+    for (i, word) in words.iter().enumerate() {
+        let prefix = if i == 0 { String::new() } else { format!(" {word}") };
+        let draw_word = if i == 0 { (*word).to_string() } else { prefix.clone() };
+        let word_width = fonts.measure_text(
+            &draw_word, &style.font_family, style.font_weight, style.font_style, font_size,
+        );
+
+        if cursor_x > line_start_x && cursor_x + word_width > max_x + 0.5 {
+            cursor_x = line_start_x;
+            cursor_y += line_height;
+            // Redraw without leading space after wrap
+            let bare_word = (*word).to_string();
+            let bare_width = fonts.measure_text(
+                &bare_word, &style.font_family, style.font_weight, style.font_style, font_size,
+            );
+            let baseline_y = cursor_y + font_size * ascender_ratio;
+            surface.draw_text(
+                Point::from_xy(cursor_x, baseline_y),
+                font.clone(),
+                font_size,
+                &bare_word,
+                false,
+                krilla::text::TextDirection::Auto,
+            );
+            cursor_x += bare_width;
+        } else {
+            let baseline_y = cursor_y + font_size * ascender_ratio;
+            surface.draw_text(
+                Point::from_xy(cursor_x, baseline_y),
+                font.clone(),
+                font_size,
+                &draw_word,
+                false,
+                krilla::text::TextDirection::Auto,
+            );
+            cursor_x += word_width;
+        }
+    }
+}
+
+fn align_text_x(
+    x: f32,
+    text: &str,
+    style: &ComputedStyle,
+    fonts: &FontCollection,
+    font_size: f32,
+    container_width: f32,
+) -> f32 {
+    match style.text_align {
         crate::style::TextAlign::Left => x,
         crate::style::TextAlign::Center => {
             let text_width = fonts.measure_text(
-                &text, &style.font_family, style.font_weight, style.font_style, font_size,
+                text, &style.font_family, style.font_weight, style.font_style, font_size,
             );
             x + (container_width - text_width) / 2.0
         }
         crate::style::TextAlign::Right => {
             let text_width = fonts.measure_text(
-                &text, &style.font_family, style.font_weight, style.font_style, font_size,
+                text, &style.font_family, style.font_weight, style.font_style, font_size,
             );
             x + container_width - text_width
         }
-    };
-
-    surface.set_fill(Some(make_fill(&style.color)));
-    surface.set_stroke(None);
-    surface.draw_text(
-        Point::from_xy(text_x, baseline_y),
-        font,
-        font_size,
-        &text,
-        false,
-        krilla::text::TextDirection::Auto,
-    );
+    }
 }
 
 #[allow(clippy::too_many_arguments)]

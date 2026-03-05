@@ -13,7 +13,10 @@ import { join } from 'node:path';
 import { assertDefined, iter } from '@votingworks/basics';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
 import { createRustRenderer, createRustRendererPool } from './rust_renderer';
-import { createPlaywrightRenderer } from './playwright_renderer';
+import {
+  createPlaywrightRenderer,
+  createPlaywrightRendererPool,
+} from './playwright_renderer';
 import { Renderer } from './renderer';
 import { CONTENT_SLOT_CLASS, PAGE_CLASS } from './ballot_components';
 import {
@@ -23,7 +26,6 @@ import {
 import { createTestVotes, markBallotDocument } from './mark_ballot';
 
 const OUTPUT_DIR = join(__dirname, '../rust-output');
-const FIXTURES_DIR = join(__dirname, '../fixtures/vx-general-election/letter');
 
 async function measureContentSlot(
   label: string,
@@ -68,14 +70,6 @@ async function measureContentSlot(
   const document = scratchpad.convertToDocument();
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   console.log(`${label} page:`, pages);
-
-  // Dump HTML for analysis
-  const html = await document.getContent();
-  if (label === 'Rust') {
-    const { writeFile: wf } = await import('node:fs/promises');
-    await wf(join(__dirname, '../rust-output/diagnostic.html'), html);
-    console.log(`${label} HTML dumped to rust-output/diagnostic.html`);
-  }
 
   await document.close();
 }
@@ -154,9 +148,46 @@ async function generateBallotComparison(): Promise<void> {
 
   console.log(`Rust blank ballot: ${blankPath}`);
   console.log(`Rust marked ballot: ${markedPath}`);
-  console.log(`Chromium reference: ${join(FIXTURES_DIR, 'blank-ballot.pdf')}`);
 
   await rendererPool.close();
+
+  // Generate Chromium reference for the same ballot style
+  console.log('\n--- Generating Chromium reference ---');
+  const chromiumPool = await createPlaywrightRendererPool();
+  const { electionDefinition: chromiumEd, ballotContents: chromiumContents } =
+    await layOutBallotsAndCreateElectionDefinition(
+      chromiumPool,
+      vxDefaultBallotTemplate,
+      allBallotProps,
+      'vxf'
+    );
+
+  const [chromiumBlankContents, chromiumBallotProps] = assertDefined(
+    iter(chromiumContents)
+      .zip(allBallotProps)
+      .find(
+        ([, props]) =>
+          props.ballotStyleId === ballotStyle.id &&
+          props.precinctId === precinctId
+      )
+  );
+
+  const chromiumBlankPdf = await chromiumPool.runTask(async (renderer) => {
+    const ballotDocument = await renderer.loadDocumentFromContent(
+      chromiumBlankContents
+    );
+    return renderBallotPdfWithMetadataQrCode(
+      chromiumBallotProps,
+      ballotDocument,
+      chromiumEd
+    );
+  });
+
+  const chromiumPath = join(OUTPUT_DIR, 'chromium-blank-ballot.pdf');
+  await writeFile(chromiumPath, chromiumBlankPdf);
+  console.log(`Chromium blank ballot: ${chromiumPath}`);
+
+  await chromiumPool.close();
 }
 
 export async function main(): Promise<number> {
