@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import { ApiClient, createApiClient, createQueryClient } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 import { ApiProvider } from './api_provider';
 import { MarkAppBase } from './mark_app_base';
+import { StraightPartyPrototype } from './pages/straight_party_prototype';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();

@@ -25,6 +25,7 @@ import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests
 import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
 import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
 import { numVotesRemaining } from '../utils/vote';
+import { getIndirectCandidateIds } from '../utils/straight_party_votes';
 
 export interface ContestPageProps {
   ballotStyleId?: string;
@@ -108,8 +109,15 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     switch (contest.type) {
       case 'yesno':
         return !!vote;
-      case 'candidate':
-        return vote && numVotesRemaining(contest, vote as CandidateVote) === 0;
+      case 'candidate': {
+        const candidateVote = (vote ?? []) as CandidateVote;
+        const indirectCount = getIndirectCandidateIds(
+          electionDefinition.election,
+          votes,
+          contest
+        ).size;
+        return numVotesRemaining(contest, candidateVote) - indirectCount === 0;
+      }
       case 'ms-either-neither':
         return (
           votes[contest.pickOneContestId]?.length === 1 ||

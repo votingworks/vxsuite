@@ -14,6 +14,7 @@ import {
   PollingPlace,
   Precinct,
   PrecinctSplit,
+  StraightPartyContestOption,
   YesNoOption,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
@@ -146,3 +147,18 @@ export const electionStrings = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (..._args: any[]) => JSX.Element
 >;
+
+/**
+ * Renders the display name for a straight-party contest option.
+ * Wraps the option's name in the appropriate UiString for translation.
+ * All voter-facing rendering of straight-party options should use this.
+ */
+export function straightPartyOptionName(
+  option: StraightPartyContestOption
+): JSX.Element {
+  return (
+    <UiString uiStringKey={Key.PARTY_FULL_NAME} uiStringSubKey={option.id}>
+      {option.name}
+    </UiString>
+  );
+}

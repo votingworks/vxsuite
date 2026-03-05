@@ -23,6 +23,9 @@ import {
   isOpenPrimary,
   OptionalYesNoVote,
   PrecinctId,
+  getStraightPartyContestOptions,
+  StraightPartyContest,
+  StraightPartyVote,
   VotesDict,
   YesNoContest,
   YesNoVote,
@@ -40,6 +43,7 @@ import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 import { Seal } from './seal';
 import {
   electionStrings,
+  straightPartyOptionName,
   appStrings,
   LanguageOverride,
   CandidatePartyList,
@@ -616,6 +620,41 @@ function YesNoContestResult({
   );
 }
 
+interface StraightPartyContestResultProps {
+  contest: StraightPartyContest;
+  election: Election;
+  primaryBallotLanguage: string;
+  vote?: StraightPartyVote;
+}
+
+function StraightPartyContestResult({
+  contest,
+  election,
+  primaryBallotLanguage,
+  vote = [],
+}: StraightPartyContestResultProps): JSX.Element {
+  const selectedPartyId = vote.length === 1 ? vote[0] : undefined;
+  const options = getStraightPartyContestOptions(contest, election.parties);
+  const selectedOption = options.find((o) => o.id === selectedPartyId);
+
+  if (!selectedOption) {
+    return <NoSelection primaryBallotLanguage={primaryBallotLanguage} />;
+  }
+
+  return (
+    <VoteLine>
+      <Font weight="bold">
+        <DualLanguageText
+          primaryLanguage={primaryBallotLanguage}
+          englishTextWrapper={ParenthesizedText}
+        >
+          {straightPartyOptionName(selectedOption)}
+        </DualLanguageText>
+      </Font>
+    </VoteLine>
+  );
+}
+
 export interface BmdPaperBallotProps {
   ballotStyleId: BallotStyleId;
   binarize?: boolean;
@@ -710,10 +749,7 @@ export function BmdPaperBallot({
   const allContests = getContests({ ballotStyle, election });
 
   // Use contestsForPage if provided (multi-page), otherwise use all contests.
-  // Filter out straight-party contests — BMD ballots don't render them directly.
-  const contests = (contestsForPage ?? allContests).filter(
-    (c) => c.type !== 'straight-party'
-  );
+  const contests = contestsForPage ?? allContests;
 
   const precinctOrSplit = find(
     getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),
@@ -922,6 +958,14 @@ export function BmdPaperBallot({
                       contest={contest}
                       primaryBallotLanguage={primaryBallotLanguage}
                       vote={votes[contest.id] as YesNoVote}
+                    />
+                  )}
+                  {contest.type === 'straight-party' && (
+                    <StraightPartyContestResult
+                      contest={contest}
+                      election={election}
+                      primaryBallotLanguage={primaryBallotLanguage}
+                      vote={votes[contest.id] as StraightPartyVote}
                     />
                   )}
                 </Contest>

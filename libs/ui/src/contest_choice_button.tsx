@@ -43,8 +43,7 @@ const selectedChoiceStyles = css<StyleProps>`
 
 const derivedChoiceStyles = css<StyleProps>`
   background-color: ${(p) => p.theme.colors.containerLow};
-  border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.primary};
+  border: 3px solid ${(p) => p.theme.colors.primary};
   color: ${(p) => p.theme.colors.primary};
 `;
 
