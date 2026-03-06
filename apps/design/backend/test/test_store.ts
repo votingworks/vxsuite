@@ -13,7 +13,7 @@ export class TestStore {
     this.db = new Db(this.logger, {
       defaultSchemaName: this.schemaName,
     });
-    this.store = new Store(this.db, this.logger);
+    this.store = new Store(this.db);
   }
 
   getStore(): Store {

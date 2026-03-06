@@ -52,6 +52,8 @@ import {
   DistrictSchema,
   PartySchema,
   YesNoOption,
+  PollingPlace,
+  PollingPlaceType,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -197,6 +199,17 @@ function isDuplicateKeyError(
   );
 }
 
+function isForeignKeyError(
+  error: unknown,
+  constraint: string
+): error is DatabaseError {
+  return (
+    error instanceof DatabaseError &&
+    error.code === '23503' &&
+    error.constraint === constraint
+  );
+}
+
 export type DuplicateElectionError = 'duplicate-title-and-date';
 
 export type DuplicateDistrictErrorCode = 'duplicate-name';
@@ -225,6 +238,8 @@ export type DuplicateContestError =
   | 'duplicate-contest'
   | 'duplicate-candidate'
   | 'duplicate-option';
+
+export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';
 
 async function insertDistrict(
   client: Client,
@@ -525,14 +540,11 @@ function rowToJurisdiction(row: JurisdictionRow): Jurisdiction {
 }
 
 export class Store {
-  constructor(
-    private readonly db: Db,
-    private readonly logger: BaseLogger
-  ) {}
+  constructor(private readonly db: Db) {}
 
   /* istanbul ignore next - @preserve */
   static new(logger: BaseLogger): Store {
-    return new Store(new Db(logger), logger);
+    return new Store(new Db(logger));
   }
 
   async listOrganizations(): Promise<Organization[]> {
@@ -3125,4 +3137,166 @@ export class Store {
       })
     );
   }
+
+  async listPollingPlaces(electionId: ElectionId): Promise<PollingPlace[]> {
+    return this.db.withClient(async (client) => {
+      const res = (await client.query(
+        `
+          select
+            id,
+            name,
+            array_remove(array_agg(precinct_id), NULL) as "precinct_ids",
+            type
+          from polling_places
+          left join polling_places_precincts as precincts on
+            precincts.polling_place_id = id
+          where
+            election_id = $1
+          group by id
+          order by name collate natural_sort
+      `,
+        electionId
+      )) as {
+        rows: Array<{
+          id: string;
+          name: string;
+          precinct_ids: string[];
+          type: PollingPlaceType;
+        }>;
+      };
+
+      const places: PollingPlace[] = [];
+
+      for (const row of res.rows) {
+        const place: PollingPlace = {
+          id: row.id,
+          name: row.name,
+          precincts: {},
+          type: row.type,
+        };
+
+        for (const precinctId of row.precinct_ids) {
+          // [TODO] Support partial precincts for polling places
+          // covering only a subset of a precinct's splits.
+          place.precincts[precinctId] = { type: 'whole' };
+        }
+
+        places.push(place);
+      }
+
+      return places;
+    });
+  }
+
+  async setPollingPlace(
+    electionId: ElectionId,
+    place: PollingPlace
+  ): Promise<Result<void, SetPollingPlaceError>> {
+    let res: Result<void, SetPollingPlaceError> | undefined;
+
+    await this.db.withClient(async (client) =>
+      client.withTransaction(async () => {
+        await deletePollingPlace(client, {
+          electionId,
+          id: place.id,
+        });
+
+        res = await insertPollingPlace(client, electionId, place);
+
+        return true;
+      })
+    );
+
+    return assertDefined(res);
+  }
+
+  async deletePollingPlace(p: {
+    electionId: string;
+    id: string;
+  }): Promise<void> {
+    await this.db.withClient(async (client) => deletePollingPlace(client, p));
+  }
+}
+
+async function deletePollingPlace(
+  client: Client,
+  p: { electionId: string; id: string }
+): Promise<void> {
+  await client.query(
+    `delete from polling_places where id = $1 and election_id = $2`,
+    p.id,
+    p.electionId
+  );
+}
+
+async function insertPollingPlace(
+  client: Client,
+  electionId: ElectionId,
+  place: PollingPlace
+): Promise<Result<void, SetPollingPlaceError>> {
+  assert(
+    Object.values(place.precincts).every((p) => p.type === 'whole'),
+    'partial precinct coverage not yet supported for polling places'
+  );
+
+  await assertWithinTransaction(client);
+  try {
+    await client.query(
+      `
+        insert into polling_places (
+          election_id,
+          id,
+          name,
+          type
+        )
+        values ($1, $2, $3, $4)
+      `,
+      electionId,
+      place.id,
+      place.name,
+      place.type
+    );
+
+    await insertPollingPlacePrecincts(client, place);
+  } catch (error) {
+    const nameIndex = 'polling_places_uniq_election_id_name_type';
+    if (isDuplicateKeyError(error, nameIndex)) {
+      return err('duplicate-name');
+    }
+
+    const precinctsForeignKey = 'polling_places_precincts_precinct_id_fkey';
+    if (isForeignKeyError(error, precinctsForeignKey)) {
+      return err('invalid-precinct');
+    }
+
+    throw error;
+  }
+
+  return ok();
+}
+
+async function insertPollingPlacePrecincts(
+  client: Client,
+  place: PollingPlace
+) {
+  const precinctIds = Object.keys(place.precincts);
+  if (precinctIds.length === 0) return;
+
+  const params = [place.id, ...precinctIds];
+  const placeholders: string[] = [];
+
+  for (let i = 2; i <= params.length; i += 1) {
+    placeholders.push(`($1, $${i})`);
+  }
+
+  await client.query(
+    `
+      insert into polling_places_precincts (
+        polling_place_id,
+        precinct_id
+      ) values
+        ${placeholders.join(', ')}
+  `,
+    ...params
+  );
 }
