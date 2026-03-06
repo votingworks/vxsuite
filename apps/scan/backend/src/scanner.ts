@@ -776,6 +776,14 @@ function buildMachine({
               id: 'checkingStatus',
               invoke: pollScannerStatus,
               on: {
+                // If the ballot is teased and initially not caught, but then
+                // pulled in, we might get a partial scan followed by a second
+                // scan in quick succession after the first scan completes
+                // (since there will be no ballot in the back during checkingComplete).
+                SCANNER_EVENT: {
+                  cond: (_, { event }) => event.event === 'scanStart',
+                  target: '#scanning',
+                },
                 SCANNER_STATUS: [
                   {
                     cond: (_, { status }) => anyRearSensorCovered(status),
@@ -910,6 +918,17 @@ function buildMachine({
             checkingComplete: {
               invoke: pollScannerStatus,
               on: {
+                // If the ballot is teased, we might get a second scanStart in
+                // quick succession after the first completes before we're able
+                // to get the scanner status. We abort the current scan (which
+                // was almost definitely an incomplete scan) and start the next
+                // one.
+                SCANNER_EVENT: {
+                  cond: (_, { event }) => event.event === 'scanStart',
+                  target: 'waitingForScanComplete',
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  actions: assign({ scanImages: (_context) => undefined }),
+                },
                 SCANNER_STATUS: [
                   {
                     cond: (_, { status }) => status.documentJam,
