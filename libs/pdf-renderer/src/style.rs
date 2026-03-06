@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::dom::{DomNode, ElementNode, ParseResult};
 
@@ -423,6 +423,163 @@ pub struct StyleResult {
     pub styles: HashMap<usize, ComputedStyle>,
     /// Font face declarations
     pub font_faces: Vec<FontFace>,
+}
+
+/// Pre-compiled CSS rules and font face declarations, extracted from style
+/// text. Reusable across multiple documents that share the same stylesheets.
+pub struct CompiledStyles {
+    pub(crate) rules: Vec<CssRule>,
+    pub font_faces: Vec<FontFace>,
+}
+
+impl CompiledStyles {
+    /// Parse additional style texts (e.g. from styled-components injected into
+    /// the document) and return a combined rule set. Font faces are not
+    /// re-parsed since they only appear in the initial stylesheet.
+    pub(crate) fn with_additional_styles(&self, style_texts: &[String]) -> Vec<CssRule> {
+        if style_texts.is_empty() {
+            return self.rules.clone();
+        }
+        let additional_css: String = style_texts.join("\n");
+        let additional_rules = parse_css_rules(&additional_css);
+        let mut combined = self.rules.clone();
+        combined.extend(additional_rules);
+        combined
+    }
+}
+
+/// Index mapping tag names and class names to rule indices for fast lookup.
+/// Instead of checking every rule against every element, we only check rules
+/// whose tag or class might match.
+struct RuleIndex {
+    by_tag: HashMap<String, Vec<usize>>,
+    by_class: HashMap<String, Vec<usize>>,
+    universal: Vec<usize>,
+}
+
+impl RuleIndex {
+    fn build(rules: &[CssRule]) -> Self {
+        let mut by_tag: HashMap<String, Vec<usize>> = HashMap::new();
+        let mut by_class: HashMap<String, Vec<usize>> = HashMap::new();
+        let mut universal: Vec<usize> = Vec::new();
+
+        for (i, rule) in rules.iter().enumerate() {
+            let selector = rule.selector.trim();
+            // Extract the rightmost simple selector (the key selector that must
+            // match the target element)
+            let key_selector = Self::extract_key_selector(selector);
+
+            if key_selector == "*" || key_selector.is_empty() {
+                universal.push(i);
+                continue;
+            }
+
+            // Strip pseudo-classes and attribute selectors for indexing
+            let (base, _pseudo_classes) = extract_pseudo_classes(key_selector);
+            let (base_no_attr, _attrs) = extract_attribute_selectors(base);
+
+            // If the selector is only pseudo-classes/attributes with no
+            // tag/class (e.g. `:first-child`, `[data-foo]`), it's universal
+            if base_no_attr.is_empty() || base_no_attr == "*" {
+                universal.push(i);
+                continue;
+            }
+
+            // If the base starts with :not(...), treat as universal
+            if base_no_attr.starts_with(":not(") || base_no_attr.starts_with(':') {
+                universal.push(i);
+                continue;
+            }
+
+            let parts: Vec<&str> = base_no_attr.split('.').collect();
+            let tag_part = parts[0];
+            let class_parts = &parts[1..];
+
+            let mut indexed = false;
+
+            // Index by tag if present
+            if !tag_part.is_empty() {
+                by_tag.entry(tag_part.to_string()).or_default().push(i);
+                indexed = true;
+            }
+
+            // Index by each class
+            for class in class_parts {
+                if !class.is_empty() {
+                    by_class.entry(class.to_string()).or_default().push(i);
+                    indexed = true;
+                }
+            }
+
+            if !indexed {
+                universal.push(i);
+            }
+        }
+
+        Self { by_tag, by_class, universal }
+    }
+
+    /// Get the rightmost simple selector from a potentially compound selector.
+    /// e.g. "div > .foo .bar" -> ".bar", "div.class" -> "div.class"
+    fn extract_key_selector(selector: &str) -> &str {
+        // Find the last space or > combinator to get the rightmost part
+        let mut last_start = 0;
+        let bytes = selector.as_bytes();
+        let mut i = 0;
+        while i < bytes.len() {
+            match bytes[i] {
+                b' ' | b'>' => {
+                    // Skip whitespace
+                    let mut j = i + 1;
+                    while j < bytes.len() && (bytes[j] == b' ' || bytes[j] == b'>') {
+                        j += 1;
+                    }
+                    if j < bytes.len() {
+                        last_start = j;
+                    }
+                    i = j;
+                }
+                _ => i += 1,
+            }
+        }
+        &selector[last_start..]
+    }
+
+    /// Return candidate rule indices for a given element.
+    fn candidates_for(&self, element: &ElementNode) -> Vec<usize> {
+        let mut seen = HashSet::new();
+        let mut candidates = Vec::new();
+
+        // Add universal rules
+        for &idx in &self.universal {
+            if seen.insert(idx) {
+                candidates.push(idx);
+            }
+        }
+
+        // Add rules matching by tag
+        if let Some(indices) = self.by_tag.get(&element.tag) {
+            for &idx in indices {
+                if seen.insert(idx) {
+                    candidates.push(idx);
+                }
+            }
+        }
+
+        // Add rules matching by class
+        for class in element.classes() {
+            if let Some(indices) = self.by_class.get(class) {
+                for &idx in indices {
+                    if seen.insert(idx) {
+                        candidates.push(idx);
+                    }
+                }
+            }
+        }
+
+        candidates.sort_unstable();
+        candidates
+    }
 }
 
 /// Convert px to points (1px = 0.75pt at 96dpi)
@@ -1409,13 +1566,14 @@ fn apply_margin_shorthand(edges: &mut DimensionEdges, value: &str, fs: f32, root
 
 /// Minimal CSS rule representation — selector string + declarations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum PseudoElement {
+pub(crate) enum PseudoElement {
     None,
     Before,
     After,
 }
 
-struct CssRule {
+#[derive(Clone)]
+pub(crate) struct CssRule {
     selector: String,
     pseudo_element: PseudoElement,
     declarations: Vec<(String, String)>,
@@ -2053,23 +2211,68 @@ fn parse_font_faces(css_text: &str) -> Vec<FontFace> {
     faces
 }
 
-pub fn resolve_styles(parsed: &ParseResult) -> StyleResult {
-    let all_css: String = parsed.style_texts.join("\n");
+/// Pre-compile CSS rules and decode font faces from style text. This is the
+/// expensive part that can be done once and reused across many documents.
+pub fn compile_styles(style_texts: &[String]) -> CompiledStyles {
+    let all_css: String = style_texts.join("\n");
     let rules = parse_css_rules(&all_css);
     let font_faces = parse_font_faces(&all_css);
-    let root_font_size: f32 = 12.0; // default
+    CompiledStyles { rules, font_faces }
+}
 
+/// Apply pre-compiled CSS rules to a parsed document, producing computed styles
+/// for each element.
+pub fn apply_styles(compiled: &CompiledStyles, document: &ElementNode) -> HashMap<usize, ComputedStyle> {
+    apply_rules(&compiled.rules, document)
+}
+
+/// Apply a set of CSS rules to a document, producing computed styles.
+pub(crate) fn apply_rules(rules: &[CssRule], document: &ElementNode) -> HashMap<usize, ComputedStyle> {
+    let root_font_size: f32 = 12.0; // default
+    let rule_index = RuleIndex::build(rules);
     let mut styles = HashMap::new();
     resolve_element_styles(
-        &parsed.document,
-        &rules,
+        document,
+        rules,
+        &rule_index,
         &ComputedStyle::default(),
         root_font_size,
         &mut styles,
         &[],
     );
+    styles
+}
 
-    StyleResult { styles, font_faces }
+/// Apply styles without rule indexing (for benchmarking comparison only).
+#[doc(hidden)]
+pub fn apply_styles_no_index(compiled: &CompiledStyles, document: &ElementNode) -> HashMap<usize, ComputedStyle> {
+    let root_font_size: f32 = 12.0;
+    let all_indices: Vec<usize> = (0..compiled.rules.len()).collect();
+    let rule_index = RuleIndex {
+        by_tag: HashMap::new(),
+        by_class: HashMap::new(),
+        universal: all_indices,
+    };
+    let mut styles = HashMap::new();
+    resolve_element_styles(
+        document,
+        &compiled.rules,
+        &rule_index,
+        &ComputedStyle::default(),
+        root_font_size,
+        &mut styles,
+        &[],
+    );
+    styles
+}
+
+pub fn resolve_styles(parsed: &ParseResult) -> StyleResult {
+    let compiled = compile_styles(&parsed.style_texts);
+    let styles = apply_styles(&compiled, &parsed.document);
+    StyleResult {
+        styles,
+        font_faces: compiled.font_faces,
+    }
 }
 
 type CascadedDecls = Vec<(usize, u32, Vec<(String, String)>)>;
@@ -2181,6 +2384,7 @@ fn decode_css_escapes(s: &str) -> String {
 fn resolve_element_styles(
     element: &ElementNode,
     rules: &[CssRule],
+    rule_index: &RuleIndex,
     parent_style: &ComputedStyle,
     root_font_size: f32,
     styles: &mut HashMap<usize, ComputedStyle>,
@@ -2269,7 +2473,9 @@ fn resolve_element_styles(
     let mut before_decls: CascadedDecls = Vec::new();
     let mut after_decls: CascadedDecls = Vec::new();
 
-    for (source_order, rule) in rules.iter().enumerate() {
+    let candidates = rule_index.candidates_for(element);
+    for source_order in candidates {
+        let rule = &rules[source_order];
         if selector_matches(&rule.selector, element, ancestors) {
             let specificity = compute_specificity(&rule.selector);
             match rule.pseudo_element {
@@ -2348,7 +2554,7 @@ fn resolve_element_styles(
     // Recurse into children
     for child in &element.children {
         if let DomNode::Element(child_el) = child {
-            resolve_element_styles(child_el, rules, &computed, root_font_size, styles, &child_ancestors);
+            resolve_element_styles(child_el, rules, rule_index, &computed, root_font_size, styles, &child_ancestors);
         }
     }
 }

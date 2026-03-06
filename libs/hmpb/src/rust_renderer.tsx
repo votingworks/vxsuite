@@ -7,6 +7,7 @@ import { cpus } from 'node:os';
 import {
   query as rustQuery,
   renderToPdf as rustRenderToPdf,
+  RenderContext,
 } from '@votingworks/pdf-renderer';
 import {
   DocumentElement,
@@ -54,8 +55,14 @@ const PT_TO_PX = 96 / 72;
  * HTML state is maintained in-memory as a string and manipulated with
  * `node-html-parser`. Queries and PDF rendering are delegated to the Rust
  * napi-rs bindings.
+ *
+ * When a {@link RenderContext} is provided, CSS parsing and font loading are
+ * skipped on every call — the pre-compiled context is reused instead.
  */
-function createRustDocument(initialHtml: string): RenderDocument {
+function createRustDocument(
+  initialHtml: string,
+  context?: RenderContext
+): RenderDocument {
   let html = initialHtml;
 
   return {
@@ -74,7 +81,9 @@ function createRustDocument(initialHtml: string): RenderDocument {
     },
 
     inspectElements(selector: string): Promise<DocumentElement[]> {
-      const elements = rustQuery(html, selector);
+      const elements = context
+        ? context.query(html, selector)
+        : rustQuery(html, selector);
       return Promise.resolve(
         elements.map((el) => {
           const data: Record<string, string> = {};
@@ -93,7 +102,10 @@ function createRustDocument(initialHtml: string): RenderDocument {
     },
 
     renderToPdf(): Promise<Uint8Array> {
-      return Promise.resolve(Uint8Array.from(rustRenderToPdf(html)));
+      const pdfBytes = context
+        ? context.renderToPdf(html)
+        : rustRenderToPdf(html);
+      return Promise.resolve(Uint8Array.from(pdfBytes));
     },
 
     close(): Promise<void> {
@@ -110,7 +122,8 @@ function createRustRendererInstance(): Omit<Renderer, 'close'> {
     createScratchpad(styles: JSX.Element): Promise<RenderScratchpad> {
       const stylesHtml = ReactDomServer.renderToStaticMarkup(styles);
       const html = `<!DOCTYPE html><html><head>${stylesHtml}</head><body></body></html>`;
-      const document = createRustDocument(html);
+      const context = new RenderContext(html);
+      const document = createRustDocument(html, context);
       return Promise.resolve(createScratchpad(document));
     },
 

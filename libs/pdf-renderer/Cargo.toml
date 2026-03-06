@@ -42,6 +42,11 @@ name = "bench-render"
 path = "src/bin/bench_render.rs"
 required-features = ["cli"]
 
+[[bin]]
+name = "bench-optimizations"
+path = "src/bin/bench_optimizations.rs"
+required-features = ["cli"]
+
 [dev-dependencies]
 base64.workspace = true
 image-compare.workspace = true

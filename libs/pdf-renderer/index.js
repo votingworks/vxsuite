@@ -687,5 +687,6 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding;
+module.exports.RenderContext = nativeBinding.RenderContext;
 module.exports.query = nativeBinding.query;
 module.exports.renderToPdf = nativeBinding.renderToPdf;
