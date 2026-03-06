@@ -44,6 +44,12 @@ among Google Docs can be quite challenging. Historically, they've also been
 non-public. Creating public Google Docs is an option, but a mix of public and
 private docs often leads to access control confusion.
 
+_Addendum by @arsalansufi - Software engineers can use the approach laid out in
+this doc but are also still welcome to use Google Docs. One pro of Google Docs
+is ease of editing, iteration, and discussion (subjective but definitely true
+for some on the team). What we can however do is publish markdown exports of
+these Google Docs to GitHub under `specs/` once they've stabilized._
+
 **GitHub issues as the discussion venue.** Issues are already used for bug
 tracking and feature requests and are familiar to contributors. However, issues
 are harder to edit collaboratively, don't benefit from PR review tooling (inline
