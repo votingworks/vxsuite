@@ -354,21 +354,15 @@ export function ContestAdjudicationScreen({
   // Compute derived options locally based on SP party and current vote state.
   // This replaces the backend-provided derivedOptionIds so that changes are
   // reflected immediately as the adjudicator toggles votes.
-  const { derivedOptionIdSet, straightPartyNotAppliedReason } = useMemo(() => {
+  const derivedOptionIdSet = useMemo(() => {
     if (!straightPartyId || !isCandidateContest || !isStateReady) {
-      return {
-        derivedOptionIdSet: new Set<ContestOptionId>(),
-        straightPartyNotAppliedReason: undefined,
-      };
+      return new Set<ContestOptionId>();
     }
     const partyOptionIds = contest.candidates
       .filter((c) => !c.isWriteIn && c.partyIds?.includes(straightPartyId))
       .map((c) => c.id);
     if (partyOptionIds.length === 0) {
-      return {
-        derivedOptionIdSet: new Set<ContestOptionId>(),
-        straightPartyNotAppliedReason: undefined,
-      };
+      return new Set<ContestOptionId>();
     }
     const currentVoteIds = officialOptions
       .filter((o) => getOptionHasVote(o.id))
@@ -382,22 +376,12 @@ export function ContestAdjudicationScreen({
       (id) => !currentVoteIds.includes(id)
     );
     if (remainingSeats <= 0) {
-      return {
-        derivedOptionIdSet: new Set<ContestOptionId>(),
-        straightPartyNotAppliedReason: 'No remaining seats' as const,
-      };
+      return new Set<ContestOptionId>();
     }
     if (unselectedPartyOptions.length > remainingSeats) {
-      return {
-        derivedOptionIdSet: new Set<ContestOptionId>(),
-        straightPartyNotAppliedReason:
-          'Too many candidates for remaining seats' as const,
-      };
+      return new Set<ContestOptionId>();
     }
-    return {
-      derivedOptionIdSet: new Set(unselectedPartyOptions),
-      straightPartyNotAppliedReason: undefined,
-    };
+    return new Set(unselectedPartyOptions);
   }, [
     straightPartyId,
     isCandidateContest,
@@ -644,22 +628,9 @@ export function ContestAdjudicationScreen({
                   isWriteIn: false,
                   marginalMarkStatus,
                 });
-                const spNotAppliedCaption =
-                  isStraightPartyCandidate &&
-                  !isDerived &&
-                  straightPartyNotAppliedReason ? (
-                    <ContestOptionButtonCaption>
-                      Straight party vote not applied:{' '}
-                      {straightPartyNotAppliedReason}
-                    </ContestOptionButtonCaption>
-                  ) : null;
-                const combinedCaption =
-                  adjudicationCaption || spNotAppliedCaption ? (
-                    <CaptionGroup>
-                      {adjudicationCaption}
-                      {spNotAppliedCaption}
-                    </CaptionGroup>
-                  ) : null;
+                const combinedCaption = adjudicationCaption ? (
+                  <CaptionGroup>{adjudicationCaption}</CaptionGroup>
+                ) : null;
 
                 if (isDerived && !currentVote) {
                   return (

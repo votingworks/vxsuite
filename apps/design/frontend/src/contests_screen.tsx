@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  LinkButton,
-  SearchSelect,
-  H1,
-  Callout,
-  P,
-} from '@votingworks/ui';
+import { Button, LinkButton, SearchSelect, H1, Callout } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
@@ -20,7 +13,6 @@ import {
 import styled from 'styled-components';
 import {
   Column,
-  FieldName,
   FixedViewport,
   InputGroup,
   ListActionsRow,
@@ -449,10 +441,8 @@ function StraightPartyContestInfo(props: {
     <FormBody>
       <FormTitle>Straight Party Contest</FormTitle>
       <Callout color="neutral" icon="Info">
-        <P>
-          This contest is automatically derived from the election&apos;s
-          partisan candidate contests and cannot be edited directly.
-        </P>
+        This contest is automatically created based on this election&apos;s
+        parties.
       </Callout>
       <InputGroup label="Title">
         <InputWithAudio
@@ -469,20 +459,25 @@ function StraightPartyContestInfo(props: {
         />
       </InputGroup>
       {partiesQuery.isSuccess && (
-        <div>
-          <FieldName>Options</FieldName>
+        <InputGroup label="Options">
           <Column style={{ gap: '0.5rem' }}>
             {partiesQuery.data.map((party) => (
-              <input
+              <InputWithAudio
                 key={party.id}
+                audioScreenUrl={contestRoutes.audio({
+                  contestId: contest.id,
+                  stringKey: ElectionStringKey.PARTY_FULL_NAME,
+                  subkey: party.id,
+                })}
+                disabled
+                editing={false}
                 type="text"
                 value={party.fullName}
-                disabled
                 readOnly
               />
             ))}
           </Column>
-        </div>
+        </InputGroup>
       )}
     </FormBody>
   );
