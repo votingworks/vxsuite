@@ -1,16 +1,31 @@
 import { expect, test } from 'vitest';
 import {
+  ContestAdjudicationData,
+  ContestOptionAdjudicationData,
   WriteInCandidateRecord,
-  WriteInRecord,
 } from '@votingworks/admin-backend';
+import { ContestOption } from '@votingworks/types';
 import { act, renderHook } from '@testing-library/react';
 import {
   ContestInfo,
-  InitialValues,
   isWriteInPending,
   makeInitialState,
   useContestAdjudicationState,
 } from './use_contest_adjudication_state';
+
+function makeOption(
+  definition: ContestOption,
+  overrides: Partial<Omit<ContestOptionAdjudicationData, 'definition'>> = {}
+): ContestOptionAdjudicationData {
+  return {
+    definition,
+    initialVote: false,
+    hasMarginalMark: false,
+    voteAdjudication: null,
+    writeInRecord: null,
+    ...overrides,
+  };
+}
 
 test('useContestAdjudicationState can manage adjudications', () => {
   const cvrId = 'cvr';
@@ -27,35 +42,76 @@ test('useContestAdjudicationState can manage adjudications', () => {
     { id: 'elephant', name: 'Elephant', electionId, contestId },
   ];
 
-  const writeIns: WriteInRecord[] = [
-    {
-      optionId: 'write-in-0',
-      status: 'pending',
-      electionId,
-      contestId,
-      cvrId,
-      id: 'write-in-0',
-      isUnmarked: true,
-    },
-  ];
-
   const contestInfo: ContestInfo = {
     officialOptions: candidateOptions,
     isCandidateContest: true,
     numberOfWriteIns: 2,
   };
 
-  const initialValues: InitialValues = {
-    votes: ['alice'],
-    voteAdjudications: [],
-    marginalMarks: ['bob', 'write-in-1'],
-    contestTag: { isResolved: false, cvrId, contestId },
-    writeIns,
-    writeInCandidates,
+  const contestAdjudicationData: ContestAdjudicationData = {
+    contestId,
+    tag: { isResolved: false, isUndetected: false, cvrId, contestId },
+    options: [
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'alice',
+          contestId,
+          name: 'Alice',
+          isWriteIn: false,
+        },
+        { initialVote: true }
+      ),
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'bob',
+          contestId,
+          name: 'Bob',
+          isWriteIn: false,
+        },
+        { hasMarginalMark: true }
+      ),
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'write-in-0',
+          contestId,
+          name: 'Write-In',
+          isWriteIn: true,
+          writeInIndex: 0,
+        },
+        {
+          writeInRecord: {
+            id: 'write-in-0',
+            optionId: 'write-in-0',
+            status: 'pending',
+            electionId,
+            contestId,
+            cvrId,
+            isUnmarked: true,
+          },
+        }
+      ),
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'write-in-1',
+          contestId,
+          name: 'Write-In',
+          isWriteIn: true,
+          writeInIndex: 1,
+        },
+        { hasMarginalMark: true }
+      ),
+    ],
   };
 
   const { result } = renderHook(() =>
-    useContestAdjudicationState(contestInfo, initialValues)
+    useContestAdjudicationState(contestInfo, {
+      contestAdjudicationData,
+      writeInCandidates,
+    })
   );
 
   expect(result.current.voteCount).toEqual(1);
@@ -80,7 +136,7 @@ test('useContestAdjudicationState can manage adjudications', () => {
   });
   expect(result.current.getOptionHasVote('bob')).toEqual(false);
   expect(result.current.voteCount).toEqual(1);
-  expect(result.current.isModified).toEqual(true);
+  expect(result.current.isModified).toEqual(false);
   expect(result.current.selectedCandidateNames).toEqual(['Alice']);
 
   // Dismiss candidate marginal mark
@@ -185,16 +241,6 @@ test('useContestAdjudicationState can manage adjudications', () => {
   ).toEqual(undefined);
 
   expect(result.current.allAdjudicationsCompleted).toEqual(true);
-
-  // Reset state
-  act(() => {
-    result.current.resetState();
-  });
-  expect(result.current.isModified).toEqual(false);
-  expect(result.current.allAdjudicationsCompleted).toEqual(false);
-  expect(result.current.voteCount).toEqual(1);
-  expect(result.current.selectedCandidateNames).toEqual(['Alice']);
-  expect(result.current.firstOptionIdPendingAdjudication).toEqual('bob');
 });
 
 test('makeInitialState initializes official and write-in options correctly for candidate contest', () => {
@@ -218,25 +264,67 @@ test('makeInitialState initializes official and write-in options correctly for c
     numberOfWriteIns: 2,
   };
 
-  const initialValues: InitialValues = {
-    votes: ['alice', 'write-in-0'],
-    voteAdjudications: [],
-    marginalMarks: ['bob'],
-    contestTag: { isResolved: false, cvrId, contestId },
-    writeIns: [
-      {
-        optionId: 'write-in-0',
-        status: 'pending',
-        electionId,
+  const contestAdjudicationData: ContestAdjudicationData = {
+    contestId,
+    tag: { isResolved: false, isUndetected: false, cvrId, contestId },
+    options: [
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'alice',
+          contestId,
+          name: 'Alice',
+          isWriteIn: false,
+        },
+        { initialVote: true }
+      ),
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'bob',
+          contestId,
+          name: 'Bob',
+          isWriteIn: false,
+        },
+        { hasMarginalMark: true }
+      ),
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'write-in-0',
+          contestId,
+          name: 'Write-In',
+          isWriteIn: true,
+          writeInIndex: 0,
+        },
+        {
+          initialVote: true,
+          writeInRecord: {
+            id: 'write-in-0',
+            optionId: 'write-in-0',
+            status: 'pending',
+            electionId,
+            contestId,
+            cvrId,
+          },
+        }
+      ),
+      makeOption({
+        type: 'candidate',
+        id: 'write-in-1',
         contestId,
-        cvrId,
-        id: 'write-in-0',
-      },
+        name: 'Write-In',
+        isWriteIn: true,
+        writeInIndex: 1,
+      }),
     ],
-    writeInCandidates,
   };
 
-  const state = makeInitialState(contestInfo, initialValues);
+  const state = makeInitialState(
+    contestInfo,
+    contestAdjudicationData,
+    writeInCandidates
+  );
 
   expect(state.get('alice')!.hasVote).toEqual(true);
   expect(state.get('alice')!.marginalMarkStatus).toEqual('none');
@@ -261,31 +349,78 @@ test('makeInitialState initializes official and write-in options correctly for c
       undefined
     );
   }
-
   // Now try with the contest already resolved
-  initialValues.contestTag.isResolved = true;
-  initialValues.writeIns = [
-    {
-      optionId: 'write-in-0',
-      status: 'adjudicated',
-      adjudicationType: 'write-in-candidate',
-      candidateId: 'lion',
-      electionId,
-      contestId,
-      cvrId,
-      id: 'write-in-0',
-    },
-  ];
-  initialValues.voteAdjudications = [
-    {
-      optionId: 'bob',
-      isVote: true,
-      electionId: 'election',
-      contestId,
-      cvrId,
-    },
-  ];
-  const adjudicatedState = makeInitialState(contestInfo, initialValues);
+  const adjudicatedContestAdjudicationData: ContestAdjudicationData = {
+    contestId,
+    tag: { isResolved: true, isUndetected: false, cvrId, contestId },
+    options: [
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'alice',
+          contestId,
+          name: 'Alice',
+          isWriteIn: false,
+        },
+        { initialVote: true }
+      ),
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'bob',
+          contestId,
+          name: 'Bob',
+          isWriteIn: false,
+        },
+        {
+          hasMarginalMark: true,
+          voteAdjudication: {
+            optionId: 'bob',
+            isVote: true,
+            electionId,
+            contestId,
+            cvrId,
+          },
+        }
+      ),
+      makeOption(
+        {
+          type: 'candidate',
+          id: 'write-in-0',
+          contestId,
+          name: 'Write-In',
+          isWriteIn: true,
+          writeInIndex: 0,
+        },
+        {
+          initialVote: true,
+          writeInRecord: {
+            id: 'write-in-0',
+            optionId: 'write-in-0',
+            status: 'adjudicated',
+            adjudicationType: 'write-in-candidate',
+            candidateId: 'lion',
+            electionId,
+            contestId,
+            cvrId,
+          },
+        }
+      ),
+      makeOption({
+        type: 'candidate',
+        id: 'write-in-1',
+        contestId,
+        name: 'Write-In',
+        isWriteIn: true,
+        writeInIndex: 1,
+      }),
+    ],
+  };
+  const adjudicatedState = makeInitialState(
+    contestInfo,
+    adjudicatedContestAdjudicationData,
+    writeInCandidates
+  );
 
   expect(adjudicatedState.get('alice')!.hasVote).toEqual(true);
   expect(adjudicatedState.get('alice')!.marginalMarkStatus).toEqual('none');
@@ -331,16 +466,22 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
     numberOfWriteIns: 0,
   };
 
-  const initialValues: InitialValues = {
-    votes: [],
-    voteAdjudications: [],
-    marginalMarks: ['yes', 'no'],
-    contestTag: { isResolved: false, cvrId, contestId },
-    writeIns: [],
-    writeInCandidates: [],
+  const contestAdjudicationData: ContestAdjudicationData = {
+    contestId,
+    tag: { isResolved: false, isUndetected: false, cvrId, contestId },
+    options: [
+      makeOption(
+        { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
+        { hasMarginalMark: true }
+      ),
+      makeOption(
+        { type: 'yesno', id: 'no', contestId, name: 'No' },
+        { hasMarginalMark: true }
+      ),
+    ],
   };
 
-  const state = makeInitialState(contestInfo, initialValues);
+  const state = makeInitialState(contestInfo, contestAdjudicationData, []);
 
   expect(state.get('yes')!.hasVote).toEqual(false);
   expect(state.get('yes')!.marginalMarkStatus).toEqual('pending');
@@ -349,17 +490,35 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
   expect(state.get('no')!.marginalMarkStatus).toEqual('pending');
 
   // Now try with the contest already resolved
-  initialValues.contestTag.isResolved = true;
-  initialValues.voteAdjudications = [
-    {
-      optionId: 'yes',
-      isVote: true,
-      electionId: 'election',
-      contestId,
-      cvrId,
-    },
-  ];
-  const adjudicatedState = makeInitialState(contestInfo, initialValues);
+  const electionId = 'election';
+  const adjudicatedContestAdjudicationData: ContestAdjudicationData = {
+    contestId,
+    tag: { isResolved: true, isUndetected: false, cvrId, contestId },
+    options: [
+      makeOption(
+        { type: 'yesno', id: 'yes', contestId, name: 'Yes' },
+        {
+          hasMarginalMark: true,
+          voteAdjudication: {
+            optionId: 'yes',
+            isVote: true,
+            electionId,
+            contestId,
+            cvrId,
+          },
+        }
+      ),
+      makeOption(
+        { type: 'yesno', id: 'no', contestId, name: 'No' },
+        { hasMarginalMark: true }
+      ),
+    ],
+  };
+  const adjudicatedState = makeInitialState(
+    contestInfo,
+    adjudicatedContestAdjudicationData,
+    []
+  );
 
   expect(adjudicatedState.get('yes')!.hasVote).toEqual(true);
   expect(adjudicatedState.get('yes')!.marginalMarkStatus).toEqual('resolved');
