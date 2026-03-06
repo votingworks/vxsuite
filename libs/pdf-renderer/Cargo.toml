@@ -9,6 +9,7 @@ crate-type = ["cdylib", "lib"]
 [features]
 default = ["napi-binding"]
 napi-binding = ["dep:napi", "dep:napi-derive"]
+cli = []
 
 [dependencies]
 base64.workspace = true
@@ -29,12 +30,17 @@ usvg.workspace = true
 [[bin]]
 name = "compare-pdfs"
 path = "src/bin/compare_pdfs.rs"
-required-features = []
+required-features = ["cli"]
 
 [[bin]]
 name = "update-references"
 path = "src/bin/update_references.rs"
 required-features = ["headless_chrome"]
+
+[[bin]]
+name = "bench-render"
+path = "src/bin/bench_render.rs"
+required-features = ["cli"]
 
 [dev-dependencies]
 base64.workspace = true
@@ -62,3 +68,5 @@ too_many_arguments = "allow"
 too_many_lines = "allow"
 trivially_copy_pass_by_ref = "allow"
 only_used_in_recursion = "allow"
+must_use_candidate = "allow"
+missing_panics_doc = "allow"

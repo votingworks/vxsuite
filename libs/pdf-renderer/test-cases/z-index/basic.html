@@ -1,0 +1,48 @@
+<html>
+<head>
+<style>
+* { box-sizing: border-box; }
+body {
+  width: 300pt;
+  height: 200pt;
+  margin: 0;
+  padding: 10pt;
+}
+.container {
+  position: relative;
+  width: 280pt;
+  height: 180pt;
+}
+.box {
+  position: absolute;
+  width: 120pt;
+  height: 120pt;
+}
+.back {
+  background-color: #e74c3c;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+.middle {
+  background-color: #2ecc71;
+  top: 30pt;
+  left: 40pt;
+  z-index: 2;
+}
+.front {
+  background-color: #3498db;
+  top: 60pt;
+  left: 80pt;
+  z-index: 3;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box front"></div>
+    <div class="box back"></div>
+    <div class="box middle"></div>
+  </div>
+</body>
+</html>

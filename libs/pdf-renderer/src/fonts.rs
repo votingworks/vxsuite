@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::collections::HashMap;
 
 use crate::style::{FontFace, FontStyle};
@@ -10,12 +11,34 @@ pub struct FontKey {
     pub style: FontStyle,
 }
 
-/// Loaded font collection with parsed face data
+/// Pre-computed font metrics to avoid re-parsing ttf_parser::Face
+struct FontMetrics {
+    units_per_em: f32,
+    ascender: f32,
+    descender: f32,
+    line_gap: f32,
+}
+
+/// Cache key for text measurement results
+#[derive(Hash, Eq, PartialEq)]
+struct MeasureCacheKey {
+    text: String,
+    font_idx: usize,
+    font_size_bits: u32,
+}
+
+/// Loaded font collection with parsed face data and measurement caches
 pub struct FontCollection {
     /// Raw font data kept alive for ttf-parser references
     font_data: Vec<FontFace>,
     /// Index from font key to position in font_data
     index: HashMap<FontKey, usize>,
+    /// Pre-computed metrics per font (parallel to font_data)
+    metrics: Vec<FontMetrics>,
+    /// Cache: font lookup results (family, weight, style) → font_data index
+    find_cache: RefCell<HashMap<FontKey, Option<usize>>>,
+    /// Cache: text shaping results
+    measure_cache: RefCell<HashMap<MeasureCacheKey, f32>>,
 }
 
 impl FontCollection {
@@ -23,9 +46,25 @@ impl FontCollection {
         &self.font_data
     }
 
-    /// Look up a font face by family, weight, style.
+    /// Look up a font face index by family, weight, style.
     /// Falls back to: closest weight → normal style → first font.
-    pub fn find(&self, family: &str, weight: u16, style: FontStyle) -> Option<&FontFace> {
+    fn find_idx(&self, family: &str, weight: u16, style: FontStyle) -> Option<usize> {
+        let key = FontKey {
+            family: family.to_string(),
+            weight,
+            style,
+        };
+
+        if let Some(&cached) = self.find_cache.borrow().get(&key) {
+            return cached;
+        }
+
+        let result = self.find_idx_uncached(family, weight, style);
+        self.find_cache.borrow_mut().insert(key, result);
+        result
+    }
+
+    fn find_idx_uncached(&self, family: &str, weight: u16, style: FontStyle) -> Option<usize> {
         // Exact match
         let key = FontKey {
             family: family.to_string(),
@@ -33,7 +72,7 @@ impl FontCollection {
             style,
         };
         if let Some(&idx) = self.index.get(&key) {
-            return Some(&self.font_data[idx]);
+            return Some(idx);
         }
 
         // Try normal style with same weight
@@ -44,7 +83,7 @@ impl FontCollection {
                 style: FontStyle::Normal,
             };
             if let Some(&idx) = self.index.get(&fallback_key) {
-                return Some(&self.font_data[idx]);
+                return Some(idx);
             }
         }
 
@@ -55,50 +94,50 @@ impl FontCollection {
             style: FontStyle::Normal,
         };
         if let Some(&idx) = self.index.get(&default_key) {
-            return Some(&self.font_data[idx]);
+            return Some(idx);
         }
 
         // Return any font in this family
         for (k, &idx) in &self.index {
             if k.family == family {
-                return Some(&self.font_data[idx]);
+                return Some(idx);
             }
         }
 
         // Return the first font we have
-        self.font_data.first()
+        if self.font_data.is_empty() {
+            None
+        } else {
+            Some(0)
+        }
+    }
+
+    /// Look up a font face by family, weight, style.
+    pub fn find(&self, family: &str, weight: u16, style: FontStyle) -> Option<&FontFace> {
+        self.find_idx(family, weight, style)
+            .map(|idx| &self.font_data[idx])
     }
 
     /// Get the ascender ratio (ascender / units_per_em) for a font.
-    /// Used for baseline positioning.
     pub fn ascender_ratio(&self, family: &str, weight: u16, style: FontStyle) -> f32 {
-        let Some(font_face) = self.find(family, weight, style) else {
+        let Some(idx) = self.find_idx(family, weight, style) else {
             return 0.8;
         };
-        let Ok(face) = ttf_parser::Face::parse(&font_face.data, 0) else {
-            return 0.8;
-        };
-        let units_per_em = f32::from(face.units_per_em());
-        f32::from(face.ascender()) / units_per_em
+        let m = &self.metrics[idx];
+        m.ascender / m.units_per_em
     }
 
-    /// Get the line height ratio ((ascender - descender + line_gap) / units_per_em)
-    /// for a font. Used for computing `line-height: normal`.
+    /// Get the line height ratio for a font.
     pub fn line_height_ratio(&self, family: &str, weight: u16, style: FontStyle) -> f32 {
-        let Some(font_face) = self.find(family, weight, style) else {
+        let Some(idx) = self.find_idx(family, weight, style) else {
             return 1.2;
         };
-        let Ok(face) = ttf_parser::Face::parse(&font_face.data, 0) else {
-            return 1.2;
-        };
-        let units_per_em = f32::from(face.units_per_em());
-        let ascender = f32::from(face.ascender());
-        let descender = f32::from(face.descender()); // negative value
-        let line_gap = f32::from(face.line_gap());
-        (ascender - descender + line_gap) / units_per_em
+        let m = &self.metrics[idx];
+        (m.ascender - m.descender + m.line_gap) / m.units_per_em
     }
 
-    /// Shape text and return total advance width in points
+    /// Shape text and return total advance width in points.
+    /// Results are cached by (text, font, size).
     pub fn measure_text(
         &self,
         text: &str,
@@ -107,11 +146,28 @@ impl FontCollection {
         style: FontStyle,
         font_size: f32,
     ) -> f32 {
-        let Some(font_face) = self.find(family, weight, style) else {
-            // No fonts loaded — estimate based on font size
+        let Some(font_idx) = self.find_idx(family, weight, style) else {
             return text.len() as f32 * font_size * 0.6;
         };
 
+        let cache_key = MeasureCacheKey {
+            text: text.to_string(),
+            font_idx,
+            font_size_bits: font_size.to_bits(),
+        };
+
+        if let Some(&cached) = self.measure_cache.borrow().get(&cache_key) {
+            return cached;
+        }
+
+        let width = self.shape_text(text, font_idx, font_size);
+        self.measure_cache.borrow_mut().insert(cache_key, width);
+        width
+    }
+
+    /// Run text shaping (uncached) and return total advance width in points.
+    fn shape_text(&self, text: &str, font_idx: usize, font_size: f32) -> f32 {
+        let font_face = &self.font_data[font_idx];
         let Ok(face) = ttf_parser::Face::parse(&font_face.data, 0) else {
             return text.len() as f32 * font_size * 0.6;
         };
@@ -200,10 +256,10 @@ impl FontCollection {
 pub fn load_fonts(font_faces: &[FontFace]) -> FontCollection {
     let mut index = HashMap::new();
     let mut font_data = Vec::new();
+    let mut metrics = Vec::new();
 
     for face in font_faces {
-        // Verify the TTF data is valid
-        if ttf_parser::Face::parse(&face.data, 0).is_ok() {
+        if let Ok(parsed) = ttf_parser::Face::parse(&face.data, 0) {
             let key = FontKey {
                 family: face.family.clone(),
                 weight: face.weight,
@@ -211,9 +267,21 @@ pub fn load_fonts(font_faces: &[FontFace]) -> FontCollection {
             };
             let idx = font_data.len();
             font_data.push(face.clone());
+            metrics.push(FontMetrics {
+                units_per_em: f32::from(parsed.units_per_em()),
+                ascender: f32::from(parsed.ascender()),
+                descender: f32::from(parsed.descender()),
+                line_gap: f32::from(parsed.line_gap()),
+            });
             index.insert(key, idx);
         }
     }
 
-    FontCollection { font_data, index }
+    FontCollection {
+        font_data,
+        index,
+        metrics,
+        find_cache: RefCell::new(HashMap::new()),
+        measure_cache: RefCell::new(HashMap::new()),
+    }
 }

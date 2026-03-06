@@ -22,7 +22,7 @@ pub(crate) struct TextRun {
 }
 
 /// Context carried with leaf text nodes for measurement
-pub(crate) struct TextContext {
+pub struct TextContext {
     pub(crate) runs: Vec<TextRun>,
     white_space: WhiteSpace,
     line_height: f32,

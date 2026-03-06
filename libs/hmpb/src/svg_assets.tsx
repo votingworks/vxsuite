@@ -119,7 +119,7 @@ export function InstructionsDiagramWriteIn({
   writeInLabel,
   bubbleSide,
 }: {
-  writeInLabel: React.ReactNode;
+  writeInLabel: string;
   bubbleSide: 'left' | 'right';
 }): JSX.Element {
   return (
@@ -196,25 +196,16 @@ export function InstructionsDiagramWriteIn({
         strokeWidth="2"
         strokeMiterlimit="10"
       />
-      <foreignObject x="65" y="51" width="150" height="50">
-        <div
-          style={
-            // Flip text again to make it readable since we are flipping the
-            // entire SVG
-            {
-              ...(bubbleSide === 'right'
-                ? {
-                    transform: 'scaleX(-1)',
-                    textAlign: 'right',
-                  }
-                : {}),
-              fontSize: '13pt',
-            }
-          }
-        >
+      {/* Flip text back to make it readable when the entire SVG is flipped */}
+      <g
+        transform={
+          bubbleSide === 'right' ? 'translate(260, 0) scale(-1, 1)' : undefined
+        }
+      >
+        <text x="65" y="66" fontSize="13pt">
           {writeInLabel}
-        </div>
-      </foreignObject>
+        </text>
+      </g>
       <defs>
         <clipPath id="clip0_1_26">
           <rect width="257" height="90" transform="translate(1.08 1)" />

@@ -4,11 +4,11 @@
 // PoC: many types defined ahead of use
 #![allow(dead_code)]
 
-mod dom;
-mod style;
-mod fonts;
-mod layout;
-mod paint;
+pub mod dom;
+pub mod style;
+pub mod fonts;
+pub mod layout;
+pub mod paint;
 pub mod diff;
 
 #[cfg_attr(feature = "napi-binding", napi_derive::napi(object))]

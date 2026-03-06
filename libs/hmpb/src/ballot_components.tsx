@@ -22,7 +22,7 @@ import {
   getPrecinctsAndSplitsForBallotStyle,
 } from '@votingworks/utils';
 import { InchDimensions, InchMargins } from './types';
-import { hmpbStrings } from './hmpb_strings';
+import { hmpbStrings, hmpbStringsCatalog } from './hmpb_strings';
 import {
   ArrowRightCircle,
   InstructionsDiagramFillBubble,
@@ -455,6 +455,28 @@ export function WriteInLabel(): React.ReactElement {
   );
 }
 
+function useWriteInLabelText(): string {
+  const languageContext = useLanguageContext();
+  const englishText = hmpbStringsCatalog.hmpbWriteIn;
+
+  if (!languageContext || languageContext.currentLanguageCode === 'en') {
+    return englishText;
+  }
+
+  const translated = languageContext.translationFunction('hmpbWriteIn', {
+    lng: languageContext.currentLanguageCode,
+  });
+  const translatedText =
+    translated === 'hmpbWriteIn' ? englishText : translated;
+
+  const english = languageContext.translationFunction('hmpbWriteIn', {
+    lng: 'en',
+  });
+  const englishFallback = english === 'hmpbWriteIn' ? englishText : english;
+
+  return `${translatedText}/${englishFallback}`;
+}
+
 export function Instructions({
   languageCode,
   bubbleSide = 'left',
@@ -462,6 +484,8 @@ export function Instructions({
   languageCode?: string;
   bubbleSide?: 'left' | 'right';
 }): React.ReactElement {
+  const writeInLabelText = useWriteInLabelText();
+
   // To minimize vertical space used, we do a slightly different layout for
   // English-only vs bilingual ballots.
   if (!languageCode || languageCode === 'en') {
@@ -490,7 +514,7 @@ export function Instructions({
         </div>
         <div style={{ alignSelf: 'center' }}>
           <InstructionsDiagramWriteIn
-            writeInLabel={<WriteInLabel />}
+            writeInLabel={writeInLabelText}
             bubbleSide={bubbleSide}
           />
         </div>
@@ -528,7 +552,7 @@ export function Instructions({
       {/* Row 3 */}
       <div style={{ alignSelf: 'center' }}>
         <InstructionsDiagramWriteIn
-          writeInLabel={<WriteInLabel />}
+          writeInLabel={writeInLabelText}
           bubbleSide={bubbleSide}
         />
       </div>

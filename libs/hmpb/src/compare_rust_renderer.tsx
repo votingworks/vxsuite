@@ -5,7 +5,6 @@ import {
   BallotStyleId,
   BallotType,
   getBallotStyle,
-  getContests,
   HmpbBallotPaperSize,
 } from '@votingworks/types';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -23,7 +22,6 @@ import {
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
 } from './render_ballot';
-import { createTestVotes, markBallotDocument } from './mark_ballot';
 
 const OUTPUT_DIR = join(__dirname, '../rust-output');
 
@@ -101,9 +99,19 @@ async function measureContentSlot(
   await document.close();
 }
 
-async function generateBallotComparison(): Promise<void> {
-  const rendererPool = await createRustRendererPool();
+const BALLOT_STYLE_IDS: BallotStyleId[] = [
+  '5' as BallotStyleId,
+  '12' as BallotStyleId,
+];
 
+interface TimingResult {
+  ballotStyleId: string;
+  renderer: string;
+  layoutMs: number;
+  renderMs: number;
+}
+
+async function generateBallotComparison(): Promise<void> {
   const electionGeneral = readElectionGeneral();
   const election = {
     ...electionGeneral,
@@ -113,108 +121,147 @@ async function generateBallotComparison(): Promise<void> {
     },
   } as const;
 
-  const targetBallotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId: '5' as BallotStyleId })
-  );
-  const allBallotProps: BaseBallotProps[] = targetBallotStyle.precincts.map(
-    (precinctId): BaseBallotProps => ({
-      election,
-      ballotStyleId: targetBallotStyle.id,
-      precinctId,
-      ballotType: BallotType.Absentee,
-      ballotMode: 'official',
-    })
-  );
+  await mkdir(OUTPUT_DIR, { recursive: true });
 
-  console.log('\n--- Generating ballots with Rust renderer ---');
-  const { electionDefinition, ballotContents } =
-    await layOutBallotsAndCreateElectionDefinition(
-      rendererPool,
-      vxDefaultBallotTemplate,
-      allBallotProps,
-      'vxf'
+  const timings: TimingResult[] = [];
+
+  for (const ballotStyleId of BALLOT_STYLE_IDS) {
+    const targetBallotStyle = assertDefined(
+      getBallotStyle({ election, ballotStyleId })
+    );
+    const allBallotProps: BaseBallotProps[] = targetBallotStyle.precincts.map(
+      (precinctId): BaseBallotProps => ({
+        election,
+        ballotStyleId: targetBallotStyle.id,
+        precinctId,
+        ballotType: BallotType.Absentee,
+        ballotMode: 'official',
+      })
     );
 
-  const ballotStyle = targetBallotStyle;
-  const precinctId = assertDefined(ballotStyle.precincts[0]);
-  const contests = getContests({ election, ballotStyle });
-  const { votes, unmarkedWriteIns } = createTestVotes(contests);
+    const precinctId = assertDefined(targetBallotStyle.precincts[0]);
 
-  const [blankBallotContents, ballotProps] = assertDefined(
-    iter(ballotContents)
-      .zip(allBallotProps)
-      .find(
-        ([, props]) =>
-          props.ballotStyleId === ballotStyle.id &&
-          props.precinctId === precinctId
-      )
-  );
+    // --- Rust renderer ---
+    console.log(`\n--- Ballot style ${ballotStyleId}: Rust renderer ---`);
+    const rustPool = await createRustRendererPool();
 
-  const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
-    async (renderer) => {
+    const rustLayoutStart = performance.now();
+    const { electionDefinition, ballotContents } =
+      await layOutBallotsAndCreateElectionDefinition(
+        rustPool,
+        vxDefaultBallotTemplate,
+        allBallotProps,
+        'vxf'
+      );
+    const rustLayoutMs = performance.now() - rustLayoutStart;
+
+    const [blankBallotContents, ballotProps] = assertDefined(
+      iter(ballotContents)
+        .zip(allBallotProps)
+        .find(
+          ([, props]) =>
+            props.ballotStyleId === targetBallotStyle.id &&
+            props.precinctId === precinctId
+        )
+    );
+
+    const rustRenderStart = performance.now();
+    const rustBlankPdf = await rustPool.runTask(async (renderer) => {
       const ballotDocument =
         await renderer.loadDocumentFromContent(blankBallotContents);
-      const blank = await renderBallotPdfWithMetadataQrCode(
+      return renderBallotPdfWithMetadataQrCode(
         ballotProps,
         ballotDocument,
         electionDefinition
       );
+    });
+    const rustRenderMs = performance.now() - rustRenderStart;
 
-      await markBallotDocument(ballotDocument, votes, unmarkedWriteIns);
-      const marked = await ballotDocument.renderToPdf();
+    timings.push({
+      ballotStyleId: String(ballotStyleId),
+      renderer: 'Rust',
+      layoutMs: rustLayoutMs,
+      renderMs: rustRenderMs,
+    });
 
-      return { blankBallotPdf: blank, markedBallotPdf: marked };
-    }
-  );
+    const rustPath = join(OUTPUT_DIR, `style-${ballotStyleId}-rust-blank.pdf`);
+    await writeFile(rustPath, rustBlankPdf);
+    console.log(`  Layout: ${rustLayoutMs.toFixed(0)}ms`);
+    console.log(`  Render: ${rustRenderMs.toFixed(0)}ms`);
+    console.log(`  Output: ${rustPath}`);
 
-  await mkdir(OUTPUT_DIR, { recursive: true });
-  const blankPath = join(OUTPUT_DIR, 'blank-ballot.pdf');
-  const markedPath = join(OUTPUT_DIR, 'marked-ballot.pdf');
-  await writeFile(blankPath, blankBallotPdf);
-  await writeFile(markedPath, markedBallotPdf);
+    await rustPool.close();
 
-  console.log(`Rust blank ballot: ${blankPath}`);
-  console.log(`Rust marked ballot: ${markedPath}`);
+    // --- Chromium renderer ---
+    console.log(`\n--- Ballot style ${ballotStyleId}: Chromium renderer ---`);
+    const chromiumPool = await createPlaywrightRendererPool();
 
-  await rendererPool.close();
+    const chromiumLayoutStart = performance.now();
+    const { electionDefinition: chromiumEd, ballotContents: chromiumContents } =
+      await layOutBallotsAndCreateElectionDefinition(
+        chromiumPool,
+        vxDefaultBallotTemplate,
+        allBallotProps,
+        'vxf'
+      );
+    const chromiumLayoutMs = performance.now() - chromiumLayoutStart;
 
-  // Generate Chromium reference for the same ballot style
-  console.log('\n--- Generating Chromium reference ---');
-  const chromiumPool = await createPlaywrightRendererPool();
-  const { electionDefinition: chromiumEd, ballotContents: chromiumContents } =
-    await layOutBallotsAndCreateElectionDefinition(
-      chromiumPool,
-      vxDefaultBallotTemplate,
-      allBallotProps,
-      'vxf'
+    const [chromiumBlankContents, chromiumBallotProps] = assertDefined(
+      iter(chromiumContents)
+        .zip(allBallotProps)
+        .find(
+          ([, props]) =>
+            props.ballotStyleId === targetBallotStyle.id &&
+            props.precinctId === precinctId
+        )
     );
 
-  const [chromiumBlankContents, chromiumBallotProps] = assertDefined(
-    iter(chromiumContents)
-      .zip(allBallotProps)
-      .find(
-        ([, props]) =>
-          props.ballotStyleId === ballotStyle.id &&
-          props.precinctId === precinctId
-      )
-  );
+    const chromiumRenderStart = performance.now();
+    const chromiumBlankPdf = await chromiumPool.runTask(async (renderer) => {
+      const ballotDocument = await renderer.loadDocumentFromContent(
+        chromiumBlankContents
+      );
+      return renderBallotPdfWithMetadataQrCode(
+        chromiumBallotProps,
+        ballotDocument,
+        chromiumEd
+      );
+    });
+    const chromiumRenderMs = performance.now() - chromiumRenderStart;
 
-  const chromiumBlankPdf = await chromiumPool.runTask(async (renderer) => {
-    const ballotDocument = await renderer.loadDocumentFromContent(
-      chromiumBlankContents
+    timings.push({
+      ballotStyleId: String(ballotStyleId),
+      renderer: 'Chromium',
+      layoutMs: chromiumLayoutMs,
+      renderMs: chromiumRenderMs,
+    });
+
+    const chromiumPath = join(
+      OUTPUT_DIR,
+      `style-${ballotStyleId}-chromium-blank.pdf`
     );
-    return renderBallotPdfWithMetadataQrCode(
-      chromiumBallotProps,
-      ballotDocument,
-      chromiumEd
+    await writeFile(chromiumPath, chromiumBlankPdf);
+    console.log(`  Layout: ${chromiumLayoutMs.toFixed(0)}ms`);
+    console.log(`  Render: ${chromiumRenderMs.toFixed(0)}ms`);
+    console.log(`  Output: ${chromiumPath}`);
+
+    await chromiumPool.close();
+  }
+
+  // Print timing summary
+  console.log('\n=== Timing Summary ===');
+  console.log('Style | Renderer | Layout (ms) | Render (ms) | Total (ms)');
+  console.log('------|----------|-------------|-------------|----------');
+  for (const t of timings) {
+    const total = t.layoutMs + t.renderMs;
+    console.log(
+      `${t.ballotStyleId.padEnd(5)} | ${t.renderer.padEnd(8)} | ${t.layoutMs
+        .toFixed(0)
+        .padStart(11)} | ${t.renderMs.toFixed(0).padStart(11)} | ${total
+        .toFixed(0)
+        .padStart(9)}`
     );
-  });
-
-  const chromiumPath = join(OUTPUT_DIR, 'chromium-blank-ballot.pdf');
-  await writeFile(chromiumPath, chromiumBlankPdf);
-  console.log(`Chromium blank ballot: ${chromiumPath}`);
-
-  await chromiumPool.close();
+  }
 }
 
 export async function main(): Promise<number> {
@@ -229,8 +276,11 @@ export async function main(): Promise<number> {
   await measureContentSlot('Chromium', playwrightRenderer);
   await playwrightRenderer.close();
 
-  // Step 2: Generate ballot PDF
-  console.log('\n=== Step 2: Generate ballot ===');
+  // Step 2: Generate ballot PDFs for all styles with timing
+  console.log(
+    '\n=== Step 2: Generate ballots (styles: %s) ===',
+    BALLOT_STYLE_IDS.join(', ')
+  );
   try {
     await generateBallotComparison();
   } catch (e) {
