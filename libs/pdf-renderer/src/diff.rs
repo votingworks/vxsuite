@@ -9,13 +9,23 @@ use std::process::Command;
 pub const DPI: u32 = 150;
 const DIFF_AMPLIFY: u8 = 10;
 
-/// Rasterize a PDF file to an RGB image using `pdftoppm`.
+/// Rasterize a PDF file to an RGB image using `pdftoppm` (first page only).
 ///
 /// # Panics
 ///
 /// Panics if `pdftoppm` is not found, fails, or produces no output.
 #[must_use]
 pub fn pdf_to_png(pdf_path: &Path, tmp_prefix: &Path) -> RgbImage {
+    pdf_to_pngs(pdf_path, tmp_prefix).into_iter().next().expect("no pages")
+}
+
+/// Rasterize all pages of a PDF file to RGB images using `pdftoppm`.
+///
+/// # Panics
+///
+/// Panics if `pdftoppm` is not found, fails, or produces no output.
+#[must_use]
+pub fn pdf_to_pngs(pdf_path: &Path, tmp_prefix: &Path) -> Vec<RgbImage> {
     let status = Command::new("pdftoppm")
         .args([
             "-png",
@@ -28,10 +38,17 @@ pub fn pdf_to_png(pdf_path: &Path, tmp_prefix: &Path) -> RgbImage {
         .expect("pdftoppm not found — install poppler-utils");
     assert!(status.success(), "pdftoppm failed");
 
-    let png_path = format!("{}-1.png", tmp_prefix.display());
-    image::open(&png_path)
-        .unwrap_or_else(|e| panic!("failed to open {png_path}: {e}"))
-        .to_rgb8()
+    let mut pages = Vec::new();
+    for i in 1.. {
+        let png_path = format!("{}-{i}.png", tmp_prefix.display());
+        if let Ok(img) = image::open(&png_path) {
+            pages.push(img.to_rgb8());
+        } else {
+            break;
+        }
+    }
+    assert!(!pages.is_empty(), "pdftoppm produced no output pages");
+    pages
 }
 
 /// Rasterize in-memory PDF bytes to an RGB image.

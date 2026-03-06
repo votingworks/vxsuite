@@ -71,6 +71,33 @@ async function measureContentSlot(
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   console.log(`${label} page:`, pages);
 
+  // Inspect header/instructions elements by styled-component classes
+  for (const sel of ['.sc-dOvA-dm', '.sc-eSfNbN', 'svg', 'img']) {
+    const els = await document.inspectElements(sel);
+    if (els.length > 0) {
+      console.log(
+        `${label} ${sel}:`,
+        els.map((e) => ({
+          x: e.x.toFixed(1),
+          y: e.y.toFixed(1),
+          w: e.width.toFixed(1),
+          h: e.height.toFixed(1),
+        }))
+      );
+    }
+  }
+
+  // Dump HTML content for debugging
+  const content = await document.getContent();
+  const { writeFile: writeFileAsync } = await import('node:fs/promises');
+  await writeFileAsync(
+    `/tmp/claude-1001/${label.toLowerCase()}-frame.html`,
+    content
+  );
+  console.log(
+    `${label} HTML dumped to /tmp/claude-1001/${label.toLowerCase()}-frame.html`
+  );
+
   await document.close();
 }
 

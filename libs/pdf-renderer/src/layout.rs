@@ -67,13 +67,16 @@ pub struct LayoutResult {
     /// Page dimensions in points
     pub page_width: f32,
     pub page_height: f32,
+    /// Location overrides for nodes whose position was reset by subtree relayout.
+    /// Maps NodeId → original location (position within parent).
+    pub location_overrides: HashMap<NodeId, taffy::geometry::Point<f32>>,
 }
 
 fn convert_dimension(dim: Dimension) -> taffy::Dimension {
     match dim {
         Dimension::Auto => taffy::Dimension::Auto,
         Dimension::Points(v) => taffy::Dimension::Length(v),
-        Dimension::Percent(v) => taffy::Dimension::Percent(v),
+        Dimension::Percent(v) | Dimension::PercentPlus(v, _) => taffy::Dimension::Percent(v),
     }
 }
 
@@ -81,14 +84,14 @@ fn convert_length_percent_auto(dim: Dimension) -> LengthPercentageAuto {
     match dim {
         Dimension::Auto => LengthPercentageAuto::Auto,
         Dimension::Points(v) => LengthPercentageAuto::Length(v),
-        Dimension::Percent(v) => LengthPercentageAuto::Percent(v),
+        Dimension::Percent(v) | Dimension::PercentPlus(v, _) => LengthPercentageAuto::Percent(v),
     }
 }
 
 fn convert_length_percent(dim: Dimension) -> LengthPercentage {
     match dim {
         Dimension::Points(v) => LengthPercentage::Length(v),
-        Dimension::Percent(v) => LengthPercentage::Percent(v),
+        Dimension::Percent(v) | Dimension::PercentPlus(v, _) => LengthPercentage::Percent(v),
         Dimension::Auto => LengthPercentage::Length(0.0),
     }
 }
@@ -238,6 +241,7 @@ pub fn compute_layout(
     fonts: &FontCollection,
 ) -> LayoutResult {
     let mut taffy: TaffyTree<TextContext> = TaffyTree::new();
+    taffy.disable_rounding();
     let mut node_map = HashMap::new();
     let mut svg_data = HashMap::new();
     let mut image_data = HashMap::new();
@@ -278,6 +282,81 @@ pub fn compute_layout(
         })
         .expect("layout failed");
 
+    // Resolve PercentPlus dimensions (e.g. calc(100% + 9pt)) by computing the
+    // resolved value from the parent's layout size, updating the Taffy style to
+    // use a fixed Length, and re-running layout. This ensures children are
+    // positioned using the correct container size. Safe because PercentPlus
+    // elements in practice are absolutely positioned and don't affect siblings.
+    let mut has_percent_plus = false;
+    for (&element_id, &node_id) in &node_map {
+        if let Some(computed) = styles.styles.get(&element_id) {
+            let has_pp_w = matches!(computed.width, Dimension::PercentPlus(_, _));
+            let has_pp_h = matches!(computed.height, Dimension::PercentPlus(_, _));
+            if has_pp_w || has_pp_h {
+                if let Some(parent_id) = taffy.parent(node_id) {
+                    let parent_size = taffy.layout(parent_id).expect("parent layout").size;
+                    let mut style = taffy.style(node_id).expect("style").clone();
+                    if let Dimension::PercentPlus(pct, offset) = computed.width {
+                        style.size.width = taffy::Dimension::Length(parent_size.width * pct + offset);
+                        has_percent_plus = true;
+                    }
+                    if let Dimension::PercentPlus(pct, offset) = computed.height {
+                        style.size.height = taffy::Dimension::Length(parent_size.height * pct + offset);
+                        has_percent_plus = true;
+                    }
+                    taffy.set_style(node_id, style).expect("set style");
+                }
+            }
+        }
+    }
+
+    // Relayout only the PercentPlus subtrees, not the entire tree.
+    // A full relayout can change unrelated grid/flex layouts because the
+    // PercentPlus node's resolved fixed size gives Taffy different sizing
+    // hints in the second pass. We relayout each PercentPlus node with
+    // its own resolved size as available space, so its children (e.g.
+    // timing marks with justify-content:space-between) get positioned
+    // using the correct container dimensions.
+    let mut location_overrides: HashMap<NodeId, taffy::geometry::Point<f32>> = HashMap::new();
+    if has_percent_plus {
+        for (&element_id, &node_id) in &node_map {
+            if let Some(computed) = styles.styles.get(&element_id) {
+                let is_pp = matches!(computed.width, Dimension::PercentPlus(_, _))
+                    || matches!(computed.height, Dimension::PercentPlus(_, _));
+                if is_pp {
+                    let node_size = taffy.style(node_id).expect("style").size;
+                    let resolved_w = match node_size.width {
+                        taffy::Dimension::Length(v) => v,
+                        _ => taffy.layout(node_id).expect("layout").size.width,
+                    };
+                    let resolved_h = match node_size.height {
+                        taffy::Dimension::Length(v) => v,
+                        _ => taffy.layout(node_id).expect("layout").size.height,
+                    };
+                    // Save the node's position within its parent before
+                    // subtree relayout, since compute_layout_with_measure
+                    // treats the node as a root and resets location to (0,0).
+                    let saved_location = taffy.layout(node_id).expect("layout").location;
+                    taffy
+                        .compute_layout_with_measure(
+                            node_id,
+                            Size {
+                                width: AvailableSpace::Definite(resolved_w),
+                                height: AvailableSpace::Definite(resolved_h),
+                            },
+                            |known, available, _id, ctx, _style| {
+                                measure_text_node(known, available, ctx, fonts)
+                            },
+                        )
+                        .expect("subtree relayout failed");
+                    // Store the original location so paint/query can use it
+                    // instead of the reset (0,0) location from subtree relayout.
+                    location_overrides.insert(node_id, saved_location);
+                }
+            }
+        }
+    }
+
     LayoutResult {
         taffy,
         root,
@@ -286,6 +365,20 @@ pub fn compute_layout(
         image_data,
         page_width,
         page_height,
+        location_overrides,
+    }
+}
+
+/// Parse SVG viewBox attribute "minX minY width height" and return (width, height).
+fn parse_viewbox_dims(viewbox: &str) -> Option<(f32, f32)> {
+    let parts: Vec<f32> = viewbox
+        .split_whitespace()
+        .filter_map(|s| s.parse::<f32>().ok())
+        .collect();
+    if parts.len() == 4 {
+        Some((parts[2], parts[3]))
+    } else {
+        None
     }
 }
 
@@ -321,16 +414,35 @@ fn build_taffy_tree(
     // Skip SVG internals — serialize and store for paint-time rendering
     if element.tag == "svg" {
         let mut computed = computed;
-        // Pick up width/height from SVG element attributes if not set in CSS.
-        // SVG width/height are in CSS px (user units), convert to pt (1px = 0.75pt).
-        if matches!(computed.width, Dimension::Auto) {
-            if let Some(w) = element.get_attr("width").and_then(|v| v.parse::<f32>().ok()) {
-                computed.width = Dimension::Points(w * 0.75);
+        let attr_w = element.get_attr("width").and_then(|v| v.parse::<f32>().ok());
+        let attr_h = element.get_attr("height").and_then(|v| v.parse::<f32>().ok());
+        let viewbox_dims = element.get_attr("viewBox").and_then(parse_viewbox_dims);
+        let css_width_is_auto = matches!(computed.width, Dimension::Auto);
+        let css_height_is_auto = matches!(computed.height, Dimension::Auto);
+        // Use intrinsic dimensions when CSS is auto.
+        // With explicit width/height attributes: use as fixed sizes (px → pt).
+        // With only viewBox: stretch to container width and use aspect ratio for height,
+        // matching browser behavior for SVGs without explicit dimensions.
+        if css_width_is_auto && css_height_is_auto {
+            if attr_w.is_some() || attr_h.is_some() {
+                if let Some(w) = attr_w {
+                    computed.width = Dimension::Points(w * 0.75);
+                }
+                if let Some(h) = attr_h {
+                    computed.height = Dimension::Points(h * 0.75);
+                }
+            } else if viewbox_dims.is_some() {
+                computed.width = Dimension::Percent(1.0);
             }
         }
-        if matches!(computed.height, Dimension::Auto) {
-            if let Some(h) = element.get_attr("height").and_then(|v| v.parse::<f32>().ok()) {
-                computed.height = Dimension::Points(h * 0.75);
+        // Derive aspect ratio from attributes or viewBox
+        if computed.aspect_ratio.is_none() {
+            let ratio_w = attr_w.or(viewbox_dims.map(|(w, _)| w));
+            let ratio_h = attr_h.or(viewbox_dims.map(|(_, h)| h));
+            if let (Some(w), Some(h)) = (ratio_w, ratio_h) {
+                if h > 0.0 {
+                    computed.aspect_ratio = Some(w / h);
+                }
             }
         }
         let style = build_taffy_style(&computed);
@@ -343,15 +455,33 @@ fn build_taffy_tree(
     // Handle <img> elements as leaf nodes
     if element.tag == "img" {
         let mut computed = computed;
-        // HTML width/height attributes are in CSS px, convert to pt
-        if matches!(computed.width, Dimension::Auto) {
-            if let Some(w) = element.get_attr("width").and_then(|v| v.parse::<f32>().ok()) {
-                computed.width = Dimension::Points(w * 0.75);
+        let intrinsic_w = element.get_attr("width").and_then(|v| v.parse::<f32>().ok());
+        let intrinsic_h = element.get_attr("height").and_then(|v| v.parse::<f32>().ok());
+        let css_width_is_auto = matches!(computed.width, Dimension::Auto);
+        let css_height_is_auto = matches!(computed.height, Dimension::Auto);
+        // When both dimensions are auto, use intrinsic sizes as fallback.
+        // When only one is auto and we have an aspect ratio, leave it auto
+        // so Taffy can compute it from the other dimension + aspect ratio.
+        if css_width_is_auto {
+            if let Some(w) = intrinsic_w {
+                if css_height_is_auto {
+                    computed.width = Dimension::Points(w * 0.75);
+                }
             }
         }
-        if matches!(computed.height, Dimension::Auto) {
-            if let Some(h) = element.get_attr("height").and_then(|v| v.parse::<f32>().ok()) {
-                computed.height = Dimension::Points(h * 0.75);
+        if css_height_is_auto {
+            if let Some(h) = intrinsic_h {
+                if css_width_is_auto {
+                    computed.height = Dimension::Points(h * 0.75);
+                }
+            }
+        }
+        // Derive aspect ratio from intrinsic dimensions when not explicitly set
+        if computed.aspect_ratio.is_none() {
+            if let (Some(w), Some(h)) = (intrinsic_w, intrinsic_h) {
+                if h > 0.0 {
+                    computed.aspect_ratio = Some(w / h);
+                }
             }
         }
         let style = build_taffy_style(&computed);
@@ -837,9 +967,13 @@ fn collect_matching_elements<'a>(
     };
 
     let taffy_layout = layout.taffy.layout(node_id).expect("layout not computed");
-    let x = parent_x + taffy_layout.location.x;
-    let y = parent_y + taffy_layout.location.y;
-
+    let location = layout
+        .location_overrides
+        .get(&node_id)
+        .copied()
+        .unwrap_or(taffy_layout.location);
+    let x = parent_x + location.x;
+    let y = parent_y + location.y;
     // Check if this element matches using the full selector engine
     if crate::style::selector_matches(selector, element, ancestors) {
         let data_attrs: Vec<DataAttribute> = element
@@ -970,5 +1104,54 @@ mod tests {
         let results = query_html(html, ".a.b");
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].attributes[0].value, "match");
+    }
+
+    #[test]
+    fn test_block_children_constrained_by_grid_item() {
+        let html = r#"<html><body style="width:576pt;height:792pt;margin:0">
+            <div style="display:grid;grid-template-columns:1fr 7rem 1.9fr 7.5rem;gap:0.125rem 0.75rem;padding:0.5rem">
+                <div><h2 data-v="h2">Instructions</h2></div>
+                <div>Col 2</div>
+                <div>Col 3</div>
+                <div>Col 4</div>
+            </div>
+        </body></html>"#;
+        let results = query_html(html, "[data-v=h2]");
+        assert_eq!(results.len(), 1);
+        // h2 should be constrained to the first grid column (~1fr of 4 columns)
+        // It should NOT be 576pt (full page width)
+        assert!(
+            results[0].width < 200.0,
+            "h2 width {} should be less than 200pt (constrained to grid cell)",
+            results[0].width
+        );
+    }
+
+    #[test]
+    fn test_block_children_in_nested_grid() {
+        // Matches real ballot structure: page > flex column > box with border+padding > grid
+        // The Box and grid are the SAME element (inline grid display + class border/padding)
+        let html = r#"<html>
+        <head><style>* { box-sizing: border-box; } h2 { font-size: 1.2em; margin: 0; }</style></head>
+        <body style="margin:0">
+            <div style="width:612pt;height:792pt;padding:14pt">
+                <div style="display:flex;flex-direction:column;padding:9pt">
+                    <div style="border:1px solid black;border-top-width:3px;padding:6pt;display:grid;gap:1.5pt 9pt;grid-template-columns:1fr 84pt 1.9fr 90pt">
+                        <div><h2 data-v="h2"><span>Instructions</span></h2></div>
+                        <div>Col 2</div>
+                        <div>Col 3</div>
+                        <div>Col 4</div>
+                    </div>
+                </div>
+            </div>
+        </body></html>"#;
+        let results = query_html(html, "[data-v=h2]");
+        assert_eq!(results.len(), 1);
+        // h2 should fit within the 1fr grid column (~112pt), not overflow
+        assert!(
+            results[0].width < 200.0,
+            "h2 width {} should be less than 200pt (constrained to grid cell)",
+            results[0].width
+        );
     }
 }

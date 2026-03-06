@@ -65,28 +65,12 @@ fn char_to_bitmap(ch: char) -> [u8; 12] {
     }
 }
 
-fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() < 3 {
-        eprintln!("Usage: compare-pdfs <rust.pdf> <chromium.pdf> [output.png]");
-        std::process::exit(1);
-    }
-    let rust_pdf = &args[1];
-    let chrome_pdf = &args[2];
-    let output = args.get(3).map_or("/tmp/claude-1001/compare.png", String::as_str);
-
-    let tmp = std::env::temp_dir().join("compare-pdfs");
-    std::fs::create_dir_all(&tmp).expect("create temp dir");
-
-    let rust_img = diff::pdf_to_png(Path::new(rust_pdf), &tmp.join("rust"));
-    let chrome_img = diff::pdf_to_png(Path::new(chrome_pdf), &tmp.join("chrome"));
-
+fn make_comparison(rust_img: &RgbImage, chrome_img: &RgbImage) -> RgbImage {
     let w = rust_img.width().max(chrome_img.width());
     let h = rust_img.height().max(chrome_img.height());
 
-    let rust_padded = diff::pad_to_size(&rust_img, w, h);
-    let chrome_padded = diff::pad_to_size(&chrome_img, w, h);
-
+    let rust_padded = diff::pad_to_size(rust_img, w, h);
+    let chrome_padded = diff::pad_to_size(chrome_img, w, h);
     let diff_img = diff::compute_diff(&rust_padded, &chrome_padded);
 
     let total_w = w * 3 + GAP * 2;
@@ -102,6 +86,39 @@ fn main() {
     canvas.copy_from(&chrome_padded, w + GAP, LABEL_H).expect("paste chrome");
     canvas.copy_from(&diff_img, 2 * (w + GAP), LABEL_H).expect("paste diff");
 
-    canvas.save(output).expect("save output");
-    eprintln!("Saved: {output} ({total_w}x{total_h})");
+    canvas
+}
+
+fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() < 3 {
+        eprintln!("Usage: compare-pdfs <rust.pdf> <chromium.pdf> [output-prefix]");
+        eprintln!("  Generates output-prefix-p1.png, output-prefix-p2.png, etc.");
+        std::process::exit(1);
+    }
+    let rust_pdf = &args[1];
+    let chrome_pdf = &args[2];
+    let output_prefix = args
+        .get(3)
+        .map_or("ballot-diff", String::as_str)
+        .trim_end_matches(".png");
+
+    let tmp = std::env::temp_dir().join("compare-pdfs");
+    std::fs::create_dir_all(&tmp).expect("create temp dir");
+
+    let rust_pages = diff::pdf_to_pngs(Path::new(rust_pdf), &tmp.join("rust"));
+    let chrome_pages = diff::pdf_to_pngs(Path::new(chrome_pdf), &tmp.join("chrome"));
+
+    let num_pages = rust_pages.len().max(chrome_pages.len());
+    let white = ImageBuffer::from_pixel(1, 1, Rgb([255, 255, 255]));
+
+    for i in 0..num_pages {
+        let rust_img = rust_pages.get(i).unwrap_or(&white);
+        let chrome_img = chrome_pages.get(i).unwrap_or(&white);
+        let canvas = make_comparison(rust_img, chrome_img);
+        let (cw, ch) = canvas.dimensions();
+        let output = format!("{output_prefix}-p{}.png", i + 1);
+        canvas.save(&output).expect("save output");
+        eprintln!("Saved: {output} ({cw}x{ch})");
+    }
 }

@@ -316,6 +316,8 @@ pub enum Dimension {
     Auto,
     Points(f32),
     Percent(f32),
+    /// calc(percent + points), e.g. calc(100% + 9pt)
+    PercentPlus(f32, f32),
 }
 
 #[derive(Debug, Clone)]
@@ -1285,24 +1287,23 @@ fn parse_dimension(value: &str, parent_font_size: f32, root_font_size: f32) -> D
 }
 
 /// Try to decompose a calc expression with percentages.
-/// For "100% + 20pt", returns Dimension::Percent(1.0) since taffy doesn't
-/// support mixed units. The absolute part is dropped (usually small).
+/// For "100% + 20pt", returns Dimension::PercentPlus(1.0, 20.0) to preserve
+/// both the percentage and absolute parts.
 fn eval_calc_dimension(expr: &str, parent_font_size: f32, root_font_size: f32) -> Option<Dimension> {
     let expr = expr.trim();
     // Simple case: "X% + Ypt" or "X% - Ypt"
     if let Some(pos) = find_calc_operator(expr, " + ") {
         let left = expr[..pos].trim();
         let right = expr[pos + 3..].trim();
-        // Check which side has the percentage
         if left.ends_with('%') {
             let pct = left.strip_suffix('%')?.trim().parse::<f32>().ok()? / 100.0;
-            // Resolve right as absolute (ignore it for percentage dimension)
-            let _ = resolve_length_no_calc(right, parent_font_size, root_font_size);
-            return Some(Dimension::Percent(pct));
+            let abs = resolve_length_no_calc(right, parent_font_size, root_font_size).unwrap_or(0.0);
+            return Some(Dimension::PercentPlus(pct, abs));
         }
         if right.ends_with('%') {
             let pct = right.strip_suffix('%')?.trim().parse::<f32>().ok()? / 100.0;
-            return Some(Dimension::Percent(pct));
+            let abs = resolve_length_no_calc(left, parent_font_size, root_font_size).unwrap_or(0.0);
+            return Some(Dimension::PercentPlus(pct, abs));
         }
     }
     if let Some(pos) = find_calc_operator(expr, " - ") {
@@ -1310,12 +1311,13 @@ fn eval_calc_dimension(expr: &str, parent_font_size: f32, root_font_size: f32) -
         let right = expr[pos + 3..].trim();
         if left.ends_with('%') {
             let pct = left.strip_suffix('%')?.trim().parse::<f32>().ok()? / 100.0;
-            let _ = resolve_length_no_calc(right, parent_font_size, root_font_size);
-            return Some(Dimension::Percent(pct));
+            let abs = resolve_length_no_calc(right, parent_font_size, root_font_size).unwrap_or(0.0);
+            return Some(Dimension::PercentPlus(pct, -abs));
         }
         if right.ends_with('%') {
             let pct = right.strip_suffix('%')?.trim().parse::<f32>().ok()? / 100.0;
-            return Some(Dimension::Percent(pct));
+            let abs = resolve_length_no_calc(left, parent_font_size, root_font_size).unwrap_or(0.0);
+            return Some(Dimension::PercentPlus(-pct, abs));
         }
     }
     // Fallback: just percentage
@@ -2202,7 +2204,7 @@ fn resolve_element_styles(
 
     // Default user-agent styles based on tag
     match element.tag.as_str() {
-        "span" | "a" | "small" | "u" | "sub" | "sup" | "abbr" | "code" | "var" => {
+        "span" | "a" | "small" | "u" | "s" | "sub" | "sup" | "abbr" | "code" | "var" => {
             computed.display = Display::Inline;
         }
         "b" | "strong" => {
@@ -2236,16 +2238,27 @@ fn resolve_element_styles(
             computed.font_size = parent_style.font_size * 0.67;
             computed.font_weight = 700;
         }
+        "p" => {
+            computed.margin.top = Dimension::Points(computed.font_size);
+            computed.margin.bottom = Dimension::Points(computed.font_size);
+        }
         "ul" => {
             computed.list_style_type = ListStyleType::Disc;
             computed.padding.left = 40.0;
+            computed.margin.top = Dimension::Points(computed.font_size);
+            computed.margin.bottom = Dimension::Points(computed.font_size);
         }
         "ol" => {
             computed.list_style_type = ListStyleType::Decimal;
             computed.padding.left = 40.0;
+            computed.margin.top = Dimension::Points(computed.font_size);
+            computed.margin.bottom = Dimension::Points(computed.font_size);
         }
         "table" => {
             computed.display = Display::Grid;
+        }
+        "head" | "style" | "script" | "link" | "meta" | "title" => {
+            computed.display = Display::None;
         }
         _ => {}
     }

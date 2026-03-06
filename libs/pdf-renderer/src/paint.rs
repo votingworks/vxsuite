@@ -81,8 +81,13 @@ fn paint_node(
     parent_y: f32,
 ) {
     let taffy_layout = taffy.layout(node).expect("layout");
-    let x = parent_x + taffy_layout.location.x;
-    let y = parent_y + taffy_layout.location.y;
+    let location = layout
+        .location_overrides
+        .get(&node)
+        .copied()
+        .unwrap_or(taffy_layout.location);
+    let x = parent_x + location.x;
+    let y = parent_y + location.y;
     let w = taffy_layout.size.width;
     let h = taffy_layout.size.height;
 
@@ -659,7 +664,11 @@ fn paint_text(
 
     let font_size = style.font_size;
     let ascender_ratio = fonts.ascender_ratio(&style.font_family, style.font_weight, style.font_style);
-    let line_height = font_size * fonts.line_height_ratio(&style.font_family, style.font_weight, style.font_style);
+    let line_height = if style.line_height > 0.0 {
+        font_size * style.line_height
+    } else {
+        font_size * fonts.line_height_ratio(&style.font_family, style.font_weight, style.font_style)
+    };
 
     surface.set_fill(Some(make_fill(&style.color)));
     surface.set_stroke(None);

@@ -163,21 +163,21 @@ impl FontCollection {
         let mut width_at_last_break = 0.0;
 
         for &(pos, _opportunity) in &break_opportunities {
+            // Per CSS Text Level 3 §4.2, trailing whitespace at a line break
+            // "hangs" and is not measured for line-breaking purposes. Measure
+            // the segment without trailing whitespace for the overflow check.
             let segment = &text[line_start..pos];
-            let segment_width = self.measure_text(segment, family, weight, style, font_size);
+            let trimmed = segment.trim_end();
+            let trimmed_width = self.measure_text(trimmed, family, weight, style, font_size);
 
-            if segment_width > max_width && last_break_pos > line_start {
+            if trimmed_width > max_width && last_break_pos > line_start {
                 lines.push(width_at_last_break);
                 line_start = last_break_pos;
-                width_at_last_break = self.measure_text(
-                    &text[line_start..pos],
-                    family,
-                    weight,
-                    style,
-                    font_size,
-                );
+                let new_segment = text[line_start..pos].trim_end();
+                width_at_last_break =
+                    self.measure_text(new_segment, family, weight, style, font_size);
             } else {
-                width_at_last_break = segment_width;
+                width_at_last_break = trimmed_width;
             }
 
             last_break_pos = pos;
@@ -185,8 +185,9 @@ impl FontCollection {
 
         // Remaining text
         if line_start < text.len() {
+            let remaining = text[line_start..].trim_end();
             let remaining_width =
-                self.measure_text(&text[line_start..], family, weight, style, font_size);
+                self.measure_text(remaining, family, weight, style, font_size);
             lines.push(remaining_width);
         } else if lines.is_empty() {
             lines.push(0.0);
