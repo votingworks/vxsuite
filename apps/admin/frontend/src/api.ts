@@ -262,47 +262,40 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
-type GetAdjudicationQueueInput = QueryInput<'getAdjudicationQueue'>;
-export const getAdjudicationQueue = {
-  queryKey(input?: GetAdjudicationQueueInput): QueryKey {
-    return input ? ['getAdjudicationQueue', input] : ['getAdjudicationQueue'];
-  },
-  useQuery(input: GetAdjudicationQueueInput) {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getAdjudicationQueue(input)
-    );
-  },
-} as const;
-
-export const getAdjudicationQueueMetadata = {
+export const getBallotAdjudicationQueue = {
   queryKey(): QueryKey {
-    return ['getAdjudicationQueueMetadata'];
+    return ['getBallotAdjudicationQueue'];
   },
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () =>
-      apiClient.getAdjudicationQueueMetadata()
+      apiClient.getBallotAdjudicationQueue()
     );
   },
 } as const;
 
-type GetNextCvrIdForAdjudicationInput =
-  QueryInput<'getNextCvrIdForAdjudication'>;
-export const getNextCvrIdForAdjudication = {
-  queryKey(input?: GetNextCvrIdForAdjudicationInput): QueryKey {
-    return input
-      ? ['getNextCvrIdForAdjudication', input]
-      : ['getNextCvrIdForAdjudication'];
+export const getBallotAdjudicationQueueMetadata = {
+  queryKey(): QueryKey {
+    return ['getBallotAdjudicationQueueMetadata'];
   },
-  useQuery(input: GetNextCvrIdForAdjudicationInput) {
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getBallotAdjudicationQueueMetadata()
+    );
+  },
+} as const;
+
+export const getNextCvrIdForBallotAdjudication = {
+  queryKey(): QueryKey {
+    return ['getNextCvrIdForBallotAdjudication'];
+  },
+  useQuery() {
     const apiClient = useApiClient();
     return useQuery(
-      this.queryKey(input),
-      () => apiClient.getNextCvrIdForAdjudication(input),
-      {
-        cacheTime: 0,
-      }
+      this.queryKey(),
+      () => apiClient.getNextCvrIdForBallotAdjudication(),
+      { cacheTime: 0 }
     );
   },
 } as const;
@@ -320,39 +313,42 @@ export const getWriteInCandidates = {
   },
 } as const;
 
-type GetWriteInsInput = QueryInput<'getWriteIns'>;
-export const getWriteIns = {
-  queryKey(input?: GetWriteInsInput): QueryKey {
-    return input ? ['getWriteIns', input] : ['getWriteIns'];
+type GetBallotAdjudicationDataInput = QueryInput<'getBallotAdjudicationData'>;
+export const getBallotAdjudicationData = {
+  queryKey(input?: GetBallotAdjudicationDataInput): QueryKey {
+    return input
+      ? ['getBallotAdjudicationData', input.cvrId]
+      : ['getBallotAdjudicationData'];
   },
-  useQuery(input?: GetWriteInsInput) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      () =>
-        apiClient.getWriteIns({
-          cvrId: input?.cvrId,
-          contestId: input?.contestId,
-        }),
-      { enabled: !!input, keepPreviousData: true }
-    );
-  },
-} as const;
-
-type GetBallotImageViewInput = QueryInput<'getBallotImageView'>;
-export const getBallotImageView = {
-  queryKey(input?: GetBallotImageViewInput): QueryKey {
-    return input ? ['getBallotImageView', input] : ['getBallotImageView'];
-  },
-  useQuery(input?: GetBallotImageViewInput) {
+  useQuery(input?: GetBallotAdjudicationDataInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       input
         ? () =>
-            apiClient.getBallotImageView({
+            apiClient.getBallotAdjudicationData({
               cvrId: input.cvrId,
-              contestId: input.contestId,
+            })
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+} as const;
+
+type GetBallotImages = QueryInput<'getBallotImages'>;
+export const getBallotImages = {
+  queryKey(input?: GetBallotImages): QueryKey {
+    return input ? ['getBallotImages', input.cvrId] : ['getBallotImages'];
+  },
+  useQuery(input?: GetBallotImages) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () =>
+            apiClient.getBallotImages({
+              cvrId: input.cvrId,
             })
         : /* istanbul ignore next - @preserve */
           () => fail('input is required'),
@@ -362,10 +358,10 @@ export const getBallotImageView = {
   usePrefetch() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return (input: GetBallotImageViewInput) =>
+    return (input: GetBallotImages) =>
       queryClient.prefetchQuery({
-        queryKey: getBallotImageView.queryKey(input),
-        queryFn: () => apiClient.getBallotImageView(input),
+        queryKey: getBallotImages.queryKey(input),
+        queryFn: () => apiClient.getBallotImages(input),
       });
   },
 } as const;
@@ -392,24 +388,6 @@ export const getCastVoteRecordVoteInfo = {
   },
 } as const;
 
-type GetVoteAdjudicationsInput = QueryInput<'getVoteAdjudications'>;
-export const getVoteAdjudications = {
-  queryKey(input?: GetVoteAdjudicationsInput): QueryKey {
-    return input ? ['getVoteAdjudications', input] : ['getVoteAdjudications'];
-  },
-  useQuery(input?: GetVoteAdjudicationsInput) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      input
-        ? () => apiClient.getVoteAdjudications(input)
-        : /* istanbul ignore next - @preserve */
-          () => fail('input is required'),
-      { enabled: !!input, keepPreviousData: true }
-    );
-  },
-} as const;
-
 type GetMarginalMarksInput = QueryInput<'getMarginalMarks'>;
 export const getMarginalMarks = {
   queryKey(input?: GetMarginalMarksInput): QueryKey {
@@ -421,24 +399,6 @@ export const getMarginalMarks = {
       this.queryKey(input),
       input
         ? () => apiClient.getMarginalMarks(input)
-        : /* istanbul ignore next - @preserve */
-          () => fail('input is required'),
-      { enabled: !!input, keepPreviousData: true }
-    );
-  },
-} as const;
-
-type GetCvrContestTagInput = QueryInput<'getCvrContestTag'>;
-export const getCvrContestTag = {
-  queryKey(input?: GetCvrContestTagInput): QueryKey {
-    return input ? ['getCvrContestTag', input] : ['getCvrContestTag'];
-  },
-  useQuery(input?: GetCvrContestTagInput) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      input
-        ? () => apiClient.getCvrContestTag(input)
         : /* istanbul ignore next - @preserve */
           () => fail('input is required'),
       { enabled: !!input, keepPreviousData: true }
@@ -634,15 +594,17 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     // total ballot count may be affected
     queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
 
-    // write-in queues
-    queryClient.invalidateQueries(getAdjudicationQueue.queryKey()),
+    // ballot adjudication queues
+    queryClient.invalidateQueries(getBallotAdjudicationQueue.queryKey()),
+    queryClient.invalidateQueries(
+      getBallotAdjudicationQueueMetadata.queryKey()
+    ),
+    queryClient.invalidateQueries(getNextCvrIdForBallotAdjudication.queryKey()),
   ]);
 }
 
 function invalidateWriteInQueries(queryClient: QueryClient) {
   const invalidations = [
-    queryClient.invalidateQueries(getAdjudicationQueueMetadata.queryKey()),
-    queryClient.invalidateQueries(getWriteIns.queryKey()),
     queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
   ];
 
@@ -808,10 +770,40 @@ export const adjudicateCvrContest = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.adjudicateCvrContest, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getVoteAdjudications.queryKey());
-        await queryClient.invalidateQueries(getCvrContestTag.queryKey());
+      async onSuccess(_data, variables) {
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationQueueMetadata.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getNextCvrIdForBallotAdjudication.queryKey()
+        );
         await invalidateWriteInQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const resolveBallotTags = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.resolveBallotTags, {
+      async onSuccess(_data, variables) {
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationData.queryKey({ cvrId: variables.cvrId })
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationQueue.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getBallotAdjudicationQueueMetadata.queryKey()
+        );
+        await queryClient.invalidateQueries(
+          getNextCvrIdForBallotAdjudication.queryKey()
+        );
       },
     });
   },
