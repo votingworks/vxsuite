@@ -4,6 +4,14 @@
 
 **Status:** planning
 
+This plan came out of work on Election Archiving & Backup (#7897). I will need
+to add support for multiple USB drives, which will require updating the dev dock
+mocks to support that as well. While not strictly needed to do that work, the
+dev dock file management is a bit of a shaky ground on which to build.
+
+Once this spec is implemented, I will add dev dock support for multiple USB
+drives alongside the overall multi-USB drive feature support.
+
 ## Problem
 
 The dev-dock provides a simulated hardware environment during development: a
