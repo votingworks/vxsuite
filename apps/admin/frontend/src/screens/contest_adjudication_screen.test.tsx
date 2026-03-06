@@ -1,35 +1,45 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   readElectionTwoPartyPrimaryDefinition,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
+  BallotType,
   ContestId,
   ContestOptionId,
+  ElectionDefinition,
   Id,
+  Side,
+} from '@votingworks/types';
+import type {
+  BallotPageContestOptionLayout,
+  BallotPageLayout,
+  HmpbBallotPageMetadata,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { Route } from 'react-router-dom';
 import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
+  BallotImages,
+  ContestAdjudicationData,
   CvrContestTag,
+  HmpbBallotPageImage,
+  VoteAdjudication,
   WriteInCandidateRecord,
   WriteInRecord,
 } from '@votingworks/admin-backend';
+import { allContestOptions, getBallotStyleGroup } from '@votingworks/utils';
+import { assertDefined, find } from '@votingworks/basics';
 import {
   fireEvent,
   screen,
   waitFor,
   within,
 } from '../../test/react_testing_library';
-import {
-  RenderInAppContextParams,
-  renderInAppContext,
-} from '../../test/render_in_app_context';
+import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { ContestAdjudicationScreenOld as ContestAdjudicationScreen } from './contest_adjudication_screen_old';
+import { ContestAdjudicationScreen } from './contest_adjudication_screen';
 import { MAX_WRITE_IN_NAME_LENGTH } from '../components/write_in_adjudication_button';
 import {
   IMAGE_VIEWER_HEIGHT_PX,
@@ -52,27 +62,258 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen(
+// Option layouts matching the data returned by the old getBallotImageView mock,
+// used to test zoom coordinates and write-in focus in the ballot image viewer.
+const MOCK_ZOO_OPTION_LAYOUTS: BallotPageContestOptionLayout[] = [
+  {
+    definition: {
+      type: 'candidate',
+      id: 'elephant',
+      contestId: 'zoo-council-mammal',
+      name: 'Elephant',
+      isWriteIn: false,
+    },
+    bounds: { x: 200, y: 100, width: 50, height: 30 },
+    target: {
+      bounds: { x: 205, y: 105, width: 10, height: 10 },
+      inner: { x: 207, y: 107, width: 6, height: 6 },
+    },
+  },
+  {
+    definition: {
+      type: 'candidate',
+      id: 'lion',
+      contestId: 'zoo-council-mammal',
+      name: 'Lion',
+      isWriteIn: false,
+    },
+    bounds: { x: 200, y: 100, width: 50, height: 30 },
+    target: {
+      bounds: { x: 205, y: 105, width: 10, height: 10 },
+      inner: { x: 207, y: 107, width: 6, height: 6 },
+    },
+  },
+  {
+    definition: {
+      type: 'candidate',
+      id: 'kangaroo',
+      contestId: 'zoo-council-mammal',
+      name: 'Kangaroo',
+      isWriteIn: false,
+    },
+    bounds: { x: 200, y: 100, width: 50, height: 30 },
+    target: {
+      bounds: { x: 205, y: 105, width: 10, height: 10 },
+      inner: { x: 207, y: 107, width: 6, height: 6 },
+    },
+  },
+  {
+    definition: {
+      type: 'candidate',
+      id: 'write-in-0',
+      contestId: 'zoo-council-mammal',
+      name: 'Write-In Option 0',
+      isWriteIn: true,
+      writeInIndex: 0,
+    },
+    bounds: { x: 400, y: 200, width: 400, height: 200 },
+    target: {
+      bounds: { x: 205, y: 155, width: 10, height: 10 },
+      inner: { x: 207, y: 157, width: 6, height: 6 },
+    },
+  },
+  {
+    definition: {
+      type: 'candidate',
+      id: 'write-in-1',
+      contestId: 'zoo-council-mammal',
+      name: 'Write-In Option 1',
+      isWriteIn: true,
+      writeInIndex: 1,
+    },
+    bounds: { x: 400, y: 200, width: 400, height: 200 },
+    target: {
+      bounds: { x: 205, y: 155, width: 10, height: 10 },
+      inner: { x: 207, y: 157, width: 6, height: 6 },
+    },
+  },
+  {
+    definition: {
+      type: 'candidate',
+      id: 'write-in-2',
+      contestId: 'zoo-council-mammal',
+      name: 'Write-In Option 2',
+      isWriteIn: true,
+      writeInIndex: 2,
+    },
+    bounds: { x: 400, y: 200, width: 400, height: 200 },
+    target: {
+      bounds: { x: 205, y: 155, width: 10, height: 10 },
+      inner: { x: 207, y: 157, width: 6, height: 6 },
+    },
+  },
+];
+
+const MOCK_HMPB_METADATA: HmpbBallotPageMetadata = {
+  ballotHash: '0'.repeat(64),
+  precinctId: '23',
+  ballotStyleId: '1M',
+  pageNumber: 1,
+  isTestMode: false,
+  ballotType: BallotType.Precinct,
+};
+
+function buildHmpbBallotImages(
+  cvrId: Id,
   contestId: ContestId,
-  appContextParams: RenderInAppContextParams = {}
-) {
-  return renderInAppContext(
-    <Route path="/write-in/adjudication/:contestId">
-      <ContestAdjudicationScreen />
-    </Route>,
-    {
-      route: `/write-in/adjudication/${contestId}`,
-      ...appContextParams,
-    }
+  options: {
+    isImageCorrupted?: boolean;
+    optionLayouts?: BallotPageContestOptionLayout[];
+  } = {}
+): BallotImages {
+  const imageUrl = options.isImageCorrupted
+    ? null
+    : `mock-image-data-${cvrId}-0`;
+  const ballotDim = options.isImageCorrupted ? 0 : 1000;
+  const layout: BallotPageLayout = {
+    pageSize: { width: 1000, height: 1000 },
+    metadata: MOCK_HMPB_METADATA,
+    contests: [
+      {
+        contestId,
+        bounds: { x: 200, y: 200, width: 600, height: 600 },
+        corners: [
+          { x: 200, y: 200 },
+          { x: 800, y: 200 },
+          { x: 200, y: 800 },
+          { x: 800, y: 800 },
+        ],
+        options: options.optionLayouts ?? MOCK_ZOO_OPTION_LAYOUTS,
+      },
+    ],
+  };
+  const frontPage: HmpbBallotPageImage = {
+    type: 'hmpb',
+    imageUrl,
+    ballotCoordinates: { x: 0, y: 0, width: ballotDim, height: ballotDim },
+    layout,
+  };
+  const backPage: HmpbBallotPageImage = {
+    type: 'hmpb',
+    imageUrl: null,
+    ballotCoordinates: { x: 0, y: 0, width: 0, height: 0 },
+    layout: { ...layout, contests: [] },
+  };
+  return { cvrId, front: frontPage, back: backPage };
+}
+
+function buildBmdBallotImages(
+  cvrId: Id,
+  options: { isImageCorrupted?: boolean } = {}
+): BallotImages {
+  const imageUrl = options.isImageCorrupted
+    ? null
+    : `mock-image-data-${cvrId}-0`;
+  return {
+    cvrId,
+    front: {
+      type: 'bmd',
+      imageUrl,
+      ballotCoordinates: { x: 0, y: 0, width: 1000, height: 1000 },
+    },
+    back: {
+      type: 'bmd',
+      imageUrl: null,
+      ballotCoordinates: { x: 0, y: 0, width: 0, height: 0 },
+    },
+  };
+}
+
+function buildContestAdjudicationData({
+  electionDef = electionDefinition,
+  contestId,
+  votes = [],
+  writeInRecords = [],
+  voteAdjudications = [],
+  marginalMarkOptionIds = [],
+  tag = null,
+  ballotStyleGroupId,
+}: {
+  electionDef?: ElectionDefinition;
+  contestId: ContestId;
+  votes?: ContestOptionId[];
+  writeInRecords?: WriteInRecord[];
+  voteAdjudications?: VoteAdjudication[];
+  marginalMarkOptionIds?: ContestOptionId[];
+  tag?: CvrContestTag | null;
+  ballotStyleGroupId?: BallotStyleGroupId;
+}): ContestAdjudicationData {
+  const { election } = electionDef;
+  const contest = find(election.contests, (c) => c.id === contestId);
+  const contestPartyId =
+    contest.type === 'candidate' ? contest.partyId : undefined;
+  const ballotStyleGroup = ballotStyleGroupId
+    ? assertDefined(getBallotStyleGroup({ election, ballotStyleGroupId }))
+    : assertDefined(
+        election.ballotStyles.find(
+          (bs) =>
+            bs.districts.includes(contest.districtId) &&
+            (!contestPartyId || bs.partyId === contestPartyId)
+        )
+      );
+  const options = [...allContestOptions(contest, ballotStyleGroup)].map(
+    (option) => ({
+      definition: option,
+      initialVote: votes.includes(option.id),
+      hasMarginalMark: marginalMarkOptionIds.includes(option.id),
+      voteAdjudication:
+        voteAdjudications.find((v) => v.optionId === option.id) ?? null,
+      writeInRecord:
+        writeInRecords.find((w) => w.optionId === option.id) ?? null,
+    })
   );
+  return { contestId, tag, options };
+}
+
+function renderScreen(
+  contestAdjudicationData: ContestAdjudicationData,
+  cvrId: Id,
+  {
+    ballotImages,
+    side = 'front' as Side,
+    electionDef = electionDefinition,
+    onClose = vi.fn(),
+  }: {
+    ballotImages?: BallotImages;
+    side?: Side;
+    electionDef?: ElectionDefinition;
+    onClose?: () => void;
+  } = {}
+) {
+  const images =
+    ballotImages ??
+    buildHmpbBallotImages(cvrId, contestAdjudicationData.contestId);
+  return {
+    onClose,
+    ...renderInAppContext(
+      <ContestAdjudicationScreen
+        contestAdjudicationData={contestAdjudicationData}
+        cvrId={cvrId}
+        onClose={onClose}
+        ballotImages={images}
+        side={side}
+      />,
+      { electionDefinition: electionDef, apiMock }
+    ),
+  };
 }
 
 async function waitForBallotById(id: Id) {
-  // First wait for the ballot ID, as we may have scrolled from another ballot
+  // Wait for the ballot testId to be present, indicating the ballot has loaded
   await expect(
     screen.findByTestId(`transcribe:${id}`)
   ).resolves.toBeInTheDocument();
-  // Then wait for the checkboxes to be rendered, indicating the ballot data is fully loaded
+  // Then wait for the checkboxes to be rendered, indicating ballot data is fully loaded
   await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
 }
 
@@ -129,8 +370,7 @@ function formAdjudicatedCvrContest(
 
 describe('hmpb write-in adjudication', () => {
   const contestId = 'zoo-council-mammal';
-  const cvrIds = ['id-174'];
-  const cvrId = cvrIds[0];
+  const cvrId = 'id-174';
   const writeInRecord: WriteInRecord = {
     status: 'pending',
     id: '1',
@@ -151,24 +391,18 @@ describe('hmpb write-in adjudication', () => {
   };
 
   beforeEach(() => {
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo', 'write-in-0'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
   });
 
   test('hmpb write-in can be adjudicated as invalid', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo', 'write-in-0'],
+      writeInRecords: [writeInRecord],
+      tag: cvrContestTag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -179,8 +413,8 @@ describe('hmpb write-in adjudication', () => {
     });
     expect(writeInCheckbox).toBeChecked();
 
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
+    let confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeDisabled();
 
     let writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
@@ -194,36 +428,28 @@ describe('hmpb write-in adjudication', () => {
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
 
-    finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeEnabled();
+    confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeEnabled();
 
     const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
       kangaroo: { type: 'candidate-option', hasVote: true },
     });
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-
-    const adjudicatedWriteInRecord: WriteInRecord = {
-      ...writeInRecord,
-      status: 'adjudicated',
-      adjudicationType: 'invalid',
-    };
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, [adjudicatedWriteInRecord]);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId, contestId },
-      { ...cvrContestTag, isResolved: true }
-    );
-    userEvent.click(finishButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
+
+    userEvent.click(confirmButton);
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   test('hmpb write-in can be adjudicated as official candidate', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo', 'write-in-0'],
+      writeInRecords: [writeInRecord],
+      tag: cvrContestTag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -234,8 +460,8 @@ describe('hmpb write-in adjudication', () => {
     });
     expect(writeInCheckbox).toBeChecked();
 
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
+    let confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeDisabled();
 
     let writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
@@ -253,8 +479,8 @@ describe('hmpb write-in adjudication', () => {
     });
     expect(elephantCheckbox).toBeDisabled();
 
-    finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeEnabled();
+    confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeEnabled();
 
     const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
       kangaroo: { type: 'candidate-option', hasVote: true },
@@ -266,30 +492,21 @@ describe('hmpb write-in adjudication', () => {
       },
     });
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-
-    const adjudicatedWriteInRecord: WriteInRecord = {
-      ...writeInRecord,
-      status: 'adjudicated',
-      adjudicationType: 'official-candidate',
-      candidateId: 'elephant',
-    };
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, [adjudicatedWriteInRecord]);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId, contestId },
-      { ...cvrContestTag, isResolved: true }
-    );
-    userEvent.click(finishButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
+
+    userEvent.click(confirmButton);
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   test('hmpb write-in can be adjudicated as existing write-in using filter and dropdown', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo', 'write-in-0'],
+      writeInRecords: [writeInRecord],
+      tag: cvrContestTag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -299,8 +516,8 @@ describe('hmpb write-in adjudication', () => {
     });
     expect(writeInCheckbox).toBeChecked();
 
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
+    let confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeDisabled();
 
     let writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
@@ -336,8 +553,8 @@ describe('hmpb write-in adjudication', () => {
     const oliverDropdownItem = getDropdownItemByLabel('oliver');
     userEvent.click(oliverDropdownItem!);
 
-    finishButton = getButtonByName('finish');
-    expect(finishButton).toBeEnabled();
+    confirmButton = getButtonByName('confirm');
+    expect(confirmButton).toBeEnabled();
 
     const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
       kangaroo: { type: 'candidate-option', hasVote: true },
@@ -350,30 +567,21 @@ describe('hmpb write-in adjudication', () => {
     });
 
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-
-    const adjudicatedWriteInRecord: WriteInRecord = {
-      ...writeInRecord,
-      status: 'adjudicated',
-      adjudicationType: 'write-in-candidate',
-      candidateId: 'oliver',
-    };
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, [adjudicatedWriteInRecord]);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId, contestId },
-      { ...cvrContestTag, isResolved: true }
-    );
-    userEvent.click(finishButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
+
+    userEvent.click(confirmButton);
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   test('hmpb write-in can be adjudicated as new write-in candidate', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo', 'write-in-0'],
+      writeInRecords: [writeInRecord],
+      tag: cvrContestTag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -383,8 +591,8 @@ describe('hmpb write-in adjudication', () => {
     });
     expect(writeInCheckbox).toBeChecked();
 
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
+    let confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeDisabled();
 
     // test max name length
     let writeInSearchSelect = screen.getByRole('combobox');
@@ -397,6 +605,7 @@ describe('hmpb write-in adjudication', () => {
     ).toBeInTheDocument();
     // enter should not select anything since there is no valid option
     userEvent.keyboard('{Enter}');
+
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
     userEvent.clear(writeInSearchSelect);
@@ -425,8 +634,8 @@ describe('hmpb write-in adjudication', () => {
     // highlighted in the dropdown
     userEvent.keyboard('{Enter}');
 
-    finishButton = getButtonByName('finish');
-    expect(finishButton).toBeEnabled();
+    confirmButton = getButtonByName('confirm');
+    expect(confirmButton).toBeEnabled();
 
     const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
       kangaroo: { type: 'candidate-option', hasVote: true },
@@ -439,31 +648,16 @@ describe('hmpb write-in adjudication', () => {
     });
 
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-
-    const adjudicatedWriteInRecord: WriteInRecord = {
-      ...writeInRecord,
-      status: 'adjudicated',
-      adjudicationType: 'write-in-candidate',
-      candidateId: 'oliver',
-    };
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, [adjudicatedWriteInRecord]);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId, contestId },
-      { ...cvrContestTag, isResolved: true }
-    );
-    userEvent.click(finishButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
+
+    userEvent.click(confirmButton);
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });
 
 describe('bmd write-in adjudication', () => {
   const contestId = 'zoo-council-mammal';
-  const cvrIds = ['id-174'];
-  const cvrId = cvrIds[0];
+  const cvrId = 'id-174';
   const writeInRecords: WriteInRecord[] = [
     {
       status: 'pending',
@@ -487,24 +681,18 @@ describe('bmd write-in adjudication', () => {
   };
 
   beforeEach(() => {
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo', 'write-in-0'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, true);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
   });
 
   test('bmd write-in can be adjudicated and shows machine marked text', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo', 'write-in-0'],
+      writeInRecords,
+      tag: cvrContestTag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      ballotImages: buildBmdBallotImages(cvrId),
     });
 
     await waitForBallotById('id-174');
@@ -518,8 +706,8 @@ describe('bmd write-in adjudication', () => {
       .filter((el) => (el as HTMLInputElement).disabled);
     expect(disabledWriteInCheckboxes).toHaveLength(2);
 
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
+    let confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeDisabled();
 
     let writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
@@ -544,8 +732,8 @@ describe('bmd write-in adjudication', () => {
     });
     expect(writeInCheckbox).toBeChecked();
 
-    finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
+    confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeDisabled();
 
     writeInSearchSelect = screen.getByRole('combobox');
     fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
@@ -554,8 +742,8 @@ describe('bmd write-in adjudication', () => {
     const oliverItem = getDropdownItemByLabel('oliver');
     userEvent.click(oliverItem!);
 
-    finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeEnabled();
+    confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeEnabled();
 
     const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
       kangaroo: { type: 'candidate-option', hasVote: true },
@@ -567,28 +755,18 @@ describe('bmd write-in adjudication', () => {
       },
     });
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId, contestId },
-      { ...cvrContestTag, isResolved: true }
-    );
 
-    userEvent.click(finishButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
+    userEvent.click(confirmButton);
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });
 
 describe('vote adjudication', () => {
   test('hmpb ballot can have votes adjudicated', async () => {
     const contestId = 'zoo-council-mammal';
-    const cvrIds = ['id-174', 'id-175'];
-    const cvrId = cvrIds[0];
-    const cvrId2 = cvrIds[1];
-    const voteAdjudications = [
+    const cvrId = 'id-174';
+    const voteAdjudications: VoteAdjudication[] = [
       {
         electionId,
         cvrId,
@@ -605,24 +783,15 @@ describe('vote adjudication', () => {
       hasWriteIn: true,
     };
 
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, voteAdjudications);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
 
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo'],
+      voteAdjudications,
+      tag: cvrContestTag,
     });
+    const { onClose } = renderScreen(data, cvrId);
 
     await waitForBallotById('id-174');
 
@@ -660,41 +829,25 @@ describe('vote adjudication', () => {
     expect(getCheckboxByName('kangaroo')).toBeChecked();
     expect(screen.queryByText(/invalid/i)).toBeNull();
 
-    // add vote for kangaroo so there is some change, enabling the primary button
+    // remove kangaroo so there is some change, enabling the primary button
     userEvent.click(getCheckboxByName('kangaroo'));
 
-    const primaryButton = screen.getByRole('button', { name: /save & next/i });
+    const primaryButton = screen.getByRole('button', { name: /confirm/i });
     expect(primaryButton).toBeEnabled();
 
     const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
       lion: { type: 'candidate-option', hasVote: true },
     });
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, voteAdjudications);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
     apiMock.expectGetWriteInCandidates([], contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId, contestId },
-      { ...cvrContestTag, isResolved: true }
-    );
-
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetCvrContestTag({ cvrId: cvrId2, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
 
     userEvent.click(primaryButton);
-    await waitForBallotById('id-175');
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   test('bmd ballots cannot have votes adjudicated', async () => {
     const contestId = 'aquarium-council-fish';
-    const cvrIds = ['id-174'];
-    const cvrId = cvrIds[0];
+    const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
       isUndetected: false,
@@ -703,22 +856,15 @@ describe('vote adjudication', () => {
       hasWriteIn: true,
     };
 
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['rockfish'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, true);
     apiMock.expectGetWriteInCandidates([], contestId);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
 
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['rockfish'],
+      tag: cvrContestTag,
+    });
+    renderScreen(data, cvrId, {
+      ballotImages: buildBmdBallotImages(cvrId),
     });
 
     await waitForBallotById('id-174');
@@ -748,8 +894,7 @@ describe('vote adjudication', () => {
 
 describe('unmarked and undetected write-ins', () => {
   const contestId = 'zoo-council-mammal';
-  const cvrIds = ['id-174'];
-  const cvrId = cvrIds[0];
+  const cvrId = 'id-174';
   const writeInRecords: WriteInRecord[] = [
     {
       status: 'pending',
@@ -773,24 +918,18 @@ describe('unmarked and undetected write-ins', () => {
   };
 
   beforeEach(() => {
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
   });
 
   test('unmarked and undetected write-in candidate adjudication', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo'],
+      writeInRecords,
+      tag: cvrContestTag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -800,8 +939,8 @@ describe('unmarked and undetected write-ins', () => {
         .filter((cb) => (cb as HTMLInputElement).checked)
     ).toHaveLength(0);
 
-    let finishButton = getButtonByName('finish');
-    expect(finishButton).toBeDisabled();
+    let confirmButton = getButtonByName('confirm');
+    expect(confirmButton).toBeDisabled();
 
     // it's difficult to detect which checkbox was the UWI by query since
     // there are multiple unchecked, so let's just test out undetected
@@ -830,8 +969,8 @@ describe('unmarked and undetected write-ins', () => {
     const selections = ['Elephant', 'Lion', 'Zebra'];
     for (const [i, select] of searchSelects.entries()) {
       expect(select).toHaveAttribute('aria-expanded', 'false');
-      finishButton = getButtonByName('finish');
-      expect(finishButton).toBeDisabled();
+      confirmButton = getButtonByName('confirm');
+      expect(confirmButton).toBeDisabled();
       fireEvent.keyDown(select, { key: 'ArrowDown' });
       const dropdownItem = getDropdownItemByLabel(selections[i]);
       userEvent.click(dropdownItem!);
@@ -843,8 +982,8 @@ describe('unmarked and undetected write-ins', () => {
     expect(screen.getAllByText(/ambiguous write-in/i)).toHaveLength(3);
     expect(screen.getAllByText(/valid/i)).toHaveLength(3);
 
-    finishButton = getButtonByName('finish');
-    expect(finishButton).toBeEnabled();
+    confirmButton = getButtonByName('confirm');
+    expect(confirmButton).toBeEnabled();
 
     const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
       kangaroo: { type: 'candidate-option', hasVote: true },
@@ -869,254 +1008,17 @@ describe('unmarked and undetected write-ins', () => {
     });
 
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-
-    const adjudicatedWriteInRecords: WriteInRecord[] = [
-      {
-        ...writeInRecords[0],
-        status: 'adjudicated',
-        adjudicationType: 'official-candidate',
-        candidateId: 'elephant',
-      },
-      {
-        status: 'adjudicated',
-        adjudicationType: 'official-candidate',
-        candidateId: 'lion',
-        id: '2',
-        cvrId,
-        contestId,
-        electionId,
-        optionId: 'write-in-1',
-        isUnmarked: true,
-      },
-      {
-        status: 'adjudicated',
-        adjudicationType: 'official-candidate',
-        candidateId: 'zebra',
-        id: '3',
-        cvrId,
-        contestId,
-        electionId,
-        optionId: 'write-in-2',
-        isUnmarked: true,
-      },
-    ];
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, adjudicatedWriteInRecords);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId, contestId },
-      { ...cvrContestTag, isResolved: true }
-    );
-    userEvent.click(finishButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
-  });
-});
 
-describe('ballot navigation', () => {
-  const contestId = 'zoo-council-mammal';
-  const cvrIds = ['id-174', 'id-175', 'id-176'];
-  const firstPendingCvrId = cvrIds[1];
-
-  const pendingWriteInRecords175: WriteInRecord[] = [
-    {
-      status: 'pending',
-      id: '1',
-      cvrId: firstPendingCvrId,
-      contestId,
-      electionId,
-      optionId: 'write-in-0',
-    },
-  ];
-
-  const pendingWriteInRecords176: WriteInRecord[] = [
-    {
-      status: 'pending',
-      id: '2',
-      cvrId: cvrIds[2],
-      contestId,
-      electionId,
-      optionId: 'write-in-0',
-    },
-  ];
-
-  const completedWriteInRecords174: WriteInRecord[] = [
-    {
-      status: 'adjudicated',
-      id: '3',
-      cvrId: cvrIds[0],
-      contestId,
-      electionId,
-      optionId: 'write-in-0',
-      adjudicationType: 'invalid',
-    },
-    {
-      status: 'adjudicated',
-      id: '4',
-      cvrId: cvrIds[0],
-      contestId,
-      electionId,
-      optionId: 'write-in-1',
-      adjudicationType: 'official-candidate',
-      candidateId: 'lion',
-      isUnmarked: true,
-      isUndetected: true,
-    },
-    {
-      status: 'adjudicated',
-      id: '5',
-      cvrId: cvrIds[0],
-      contestId,
-      electionId,
-      optionId: 'write-in-2',
-      adjudicationType: 'write-in-candidate',
-      candidateId: 'write-in-0',
-    },
-  ];
-
-  const writeInCandidates: WriteInCandidateRecord[] = [
-    { id: 'write-in-0', name: 'oliver', electionId, contestId },
-  ];
-  const votes = ['kangaroo', 'write-in-0'];
-  const cvrContestTag0: CvrContestTag = {
-    isResolved: true,
-    isUndetected: false,
-    cvrId: cvrIds[0],
-    contestId,
-    hasWriteIn: true,
-    hasUnmarkedWriteIn: true,
-  };
-  const cvrContestTag1: CvrContestTag = {
-    isResolved: false,
-    isUndetected: false,
-    cvrId: cvrIds[1],
-    contestId,
-    hasWriteIn: true,
-  };
-  const cvrContestTag2: CvrContestTag = {
-    isResolved: false,
-    isUndetected: false,
-    cvrId: cvrIds[2],
-    contestId,
-    hasWriteIn: true,
-  };
-
-  beforeEach(() => {
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, firstPendingCvrId);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: firstPendingCvrId },
-      { [contestId]: votes }
-    );
-    apiMock.expectGetVoteAdjudications(
-      { contestId, cvrId: firstPendingCvrId },
-      []
-    );
-    apiMock.expectGetWriteIns(
-      { contestId, cvrId: firstPendingCvrId },
-      pendingWriteInRecords175
-    );
-    apiMock.expectGetBallotImageView(
-      { contestId, cvrId: firstPendingCvrId },
-      false
-    );
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrIds[2] }, false);
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrIds[0] }, false);
-    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrIds[1], contestId },
-      cvrContestTag1
-    );
-    apiMock.expectGetMarginalMarks({ cvrId: cvrIds[1], contestId }, []);
-  });
-
-  test('opens to pending cvr, loads previous adjudications, and enables/disables navigation buttons based on remaining queue', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await waitForBallotById('id-175');
-
-    // verify buttons are enabled/disabled
-    let skipButton = getButtonByName('skip');
-    expect(skipButton).toBeEnabled();
-    let backButton = getButtonByName('back');
-    expect(backButton).toBeEnabled();
-    let primaryButton = getButtonByName('save & next');
-    expect(primaryButton).toBeDisabled();
-
-    // go back one ballot
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrIds[0] },
-      { [contestId]: votes }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrIds[0] }, []);
-    apiMock.expectGetWriteIns(
-      { contestId, cvrId: cvrIds[0] },
-      completedWriteInRecords174
-    );
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrIds[0], contestId },
-      cvrContestTag0
-    );
-    apiMock.expectGetMarginalMarks({ cvrId: cvrIds[0], contestId }, []);
-    userEvent.click(backButton);
-
-    await waitForBallotById('id-174');
-
-    // verify buttons are enabled/disabled
-    skipButton = getButtonByName('skip');
-    expect(skipButton).toBeEnabled();
-    backButton = getButtonByName('back');
-    expect(backButton).toBeDisabled();
-    primaryButton = getButtonByName('save & next');
-    // primary button should be disabled because there have been no modifications
-    expect(primaryButton).toBeDisabled();
-    userEvent.click(skipButton);
-    await screen.findByTestId('transcribe:id-175');
-
-    // Skip to last ballot
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrIds[2] },
-      { [contestId]: votes }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrIds[2] }, []);
-    apiMock.expectGetWriteIns(
-      { contestId, cvrId: cvrIds[2] },
-      pendingWriteInRecords176
-    );
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrIds[2], contestId },
-      cvrContestTag2
-    );
-    apiMock.expectGetMarginalMarks({ cvrId: cvrIds[2], contestId }, []);
-    skipButton = getButtonByName('skip');
-    userEvent.click(skipButton);
-    await waitForBallotById('id-176');
-
-    // verify buttons are enabled/disabled
-    const exitButton = getButtonByName('exit');
-    expect(exitButton).toBeEnabled();
-    backButton = getButtonByName('back');
-    expect(backButton).toBeEnabled();
-    primaryButton = getButtonByName('finish');
-    expect(primaryButton).toBeDisabled();
-
-    userEvent.click(exitButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-176')).not.toBeInTheDocument();
-    });
+    userEvent.click(confirmButton);
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });
 
 describe('ballot image viewer', () => {
   test('hmpb ballot is zoomable and write-in is focusable', async () => {
     const contestId = 'zoo-council-mammal';
-    const cvrIds = ['id-174', 'id-175'];
-    const cvrId = cvrIds[0];
-    const cvrId2 = cvrIds[1];
+    const cvrId = 'id-174';
     const writeInRecords: WriteInRecord[] = [
       {
         status: 'pending',
@@ -1135,24 +1037,16 @@ describe('ballot image viewer', () => {
       hasWriteIn: true,
     };
 
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo', 'write-in-0'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
-    // Prefetch
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
 
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo', 'write-in-0'],
+      writeInRecords,
+      tag: cvrContestTag,
+    });
+    renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -1170,7 +1064,7 @@ describe('ballot image viewer', () => {
     expect(ballotImage).toHaveStyle({
       width: `${expectedContestZoomedInWidth}px`,
     });
-    let zoomButton = screen.getButton(/Zoom Out/);
+    const zoomButton = screen.getButton(/Zoom Out/);
     expect(zoomButton).toBeEnabled();
 
     // Zoom out to show the entire ballot
@@ -1191,55 +1085,7 @@ describe('ballot image viewer', () => {
       width: `${expectedContestZoomedInWidth}px`,
     });
 
-    // Zoom back out
-    userEvent.click(zoomButton);
-    ballotImage = screen.getByRole('img', {
-      name: /full ballot/i,
-    });
-    expect(ballotImage).toHaveStyle({ width: '100%' });
-
-    // When scrolling to next cvr, resets to zoomed in
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrId2, contestId },
-      { ...cvrContestTag, cvrId: cvrId2 }
-    );
-
-    userEvent.click(screen.getButton(/Skip/));
-    await screen.findByTestId('transcribe:id-175');
-    ballotImage = await screen.findByRole('img', {
-      name: /ballot with section highlighted/i,
-    });
-    expect(ballotImage).toHaveAttribute('src', 'mock-image-data-id-175-0');
-    expect(ballotImage).toHaveStyle({
-      width: `${expectedContestZoomedInWidth}px`,
-    });
-
-    // Zoom out
-    zoomButton = screen.getButton(/Zoom Out/);
-    userEvent.click(zoomButton);
-    ballotImage = screen.getByRole('img', {
-      name: /full ballot/i,
-    });
-    expect(ballotImage).toHaveStyle({ width: '100%' });
-
-    // When switching to previous adjudication, resets to zoomed in
-    userEvent.click(screen.getButton(/Back/));
-    await waitForBallotById('id-174');
-    ballotImage = await screen.findByRole('img', {
-      name: /ballot with section highlighted/i,
-    });
-    expect(ballotImage).toHaveStyle({
-      width: `${expectedContestZoomedInWidth}px`,
-    });
-
-    // Entering a write-in should focus on the image
+    // Entering a write-in while zoomed in should change the focused area
     let writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
     userEvent.click(writeInSearchSelect);
@@ -1268,11 +1114,9 @@ describe('ballot image viewer', () => {
     });
   });
 
-  test('hmp ballot with corrupted image', async () => {
+  test('hmpb ballot with corrupted image', async () => {
     const contestId = 'zoo-council-mammal';
-    const cvrIds = ['id-174', 'id-175'];
-    const cvrId = cvrIds[0];
-    const cvrId2 = cvrIds[1];
+    const cvrId = 'id-174';
     const writeInRecords: WriteInRecord[] = [
       {
         status: 'pending',
@@ -1291,57 +1135,27 @@ describe('ballot image viewer', () => {
       hasWriteIn: true,
     };
 
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo', 'write-in-0'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false, {
-      isImageCorrupted: true,
-    });
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
-
-    // Prefetch of next ballot
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
 
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo', 'write-in-0'],
+      writeInRecords,
+      tag: cvrContestTag,
+    });
+    renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId, {
+        isImageCorrupted: true,
+      }),
     });
 
     await waitForBallotById('id-174');
     await screen.findByText('Unable to load image');
-
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrId2, contestId },
-      { ...cvrContestTag, cvrId: cvrId2 }
-    );
-
-    // Can still proceed to next ballot
-    userEvent.click(screen.getButton(/Skip/));
-    await screen.findByTestId('transcribe:id-175');
-    await screen.findByRole('img', {
-      name: /ballot with section highlighted/i,
-    });
   });
 
   test('bmd ballot is not zoomable', async () => {
     const contestId = 'zoo-council-mammal';
-    const cvrIds = ['id-174', 'id-175'];
-    const cvrId = cvrIds[0];
-    const cvrId2 = cvrIds[1];
+    const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
       isUndetected: false,
@@ -1350,28 +1164,19 @@ describe('ballot image viewer', () => {
       hasWriteIn: true,
     };
 
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, true);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
-    // Prefetch
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, true);
     apiMock.expectGetWriteInCandidates([], contestId);
 
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo'],
+      tag: cvrContestTag,
+    });
+    renderScreen(data, cvrId, {
+      ballotImages: buildBmdBallotImages(cvrId),
     });
 
     await waitForBallotById('id-174');
-    let ballotImage = await screen.findByRole('img', {
+    const ballotImage = await screen.findByRole('img', {
       name: /Full ballot/i,
     });
 
@@ -1381,34 +1186,11 @@ describe('ballot image viewer', () => {
 
     // There should be no zoom buttons
     expect(screen.queryByText(/Zoom/)).toBeNull();
-
-    // When switching to next ballot for adjudication, ballot image changes
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrId2, contestId },
-      { ...cvrContestTag, cvrId: cvrId2 }
-    );
-    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
-    userEvent.click(screen.getButton(/Skip/));
-
-    await screen.findByTestId('transcribe:id-175');
-    ballotImage = await screen.findByRole('img', {
-      name: /Full ballot/i,
-    });
-    expect(ballotImage).toHaveAttribute('src', 'mock-image-data-id-175-0');
-    expect(ballotImage).toHaveStyle({ height: `100%` });
   });
 
   test('bmd ballot with corrupted image', async () => {
     const contestId = 'zoo-council-mammal';
-    const cvrIds = ['id-174', 'id-175'];
-    const cvrId = cvrIds[0];
-    const cvrId2 = cvrIds[1];
+    const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
       isUndetected: false,
@@ -1417,55 +1199,25 @@ describe('ballot image viewer', () => {
       hasWriteIn: true,
     };
 
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, true, {
-      isImageCorrupted: true,
-    });
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
-
-    // Prefetch of next ballot
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, true);
     apiMock.expectGetWriteInCandidates([], contestId);
 
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: ['kangaroo'],
+      tag: cvrContestTag,
+    });
+    renderScreen(data, cvrId, {
+      ballotImages: buildBmdBallotImages(cvrId, { isImageCorrupted: true }),
     });
 
     await waitForBallotById('id-174');
     await screen.findByText('Unable to load image');
-
-    // Can still proceed to next ballot
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrId2, contestId },
-      { ...cvrContestTag, cvrId: cvrId2 }
-    );
-    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
-
-    userEvent.click(screen.getButton(/Skip/));
-    await waitForBallotById('id-175');
-    await screen.findByRole('img', { name: /Full ballot/i });
   });
 });
 
 describe('double votes', () => {
   const contestId = 'zoo-council-mammal';
-  const cvrIds = ['id-174'];
-  const cvrId = cvrIds[0];
+  const cvrId = 'id-174';
 
   const writeInRecords: WriteInRecord[] = [
     {
@@ -1498,21 +1250,18 @@ describe('double votes', () => {
   };
 
   beforeEach(() => {
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: votes });
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
   });
 
   test('detects double vote if already voted for official candidates name is submitted', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes,
+      writeInRecords,
+      tag: cvrContestTag,
+    });
+    renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -1528,8 +1277,8 @@ describe('double votes', () => {
     });
     for (const cb of writeInCheckboxes) expect(cb).toBeChecked();
 
-    const finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
+    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeDisabled();
 
     // enter in the official candidate that is already selected
     // via their official checkbox
@@ -1564,9 +1313,14 @@ describe('double votes', () => {
   });
 
   test('detects double vote if already selected write-in candidates name is submitted', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes,
+      writeInRecords,
+      tag: cvrContestTag,
+    });
+    renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -1576,8 +1330,8 @@ describe('double votes', () => {
     });
     expect(kangarooCheckbox).toBeChecked();
 
-    const finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
+    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeDisabled();
 
     const writeInSearchSelects = screen.getAllByRole('combobox');
     for (const select of writeInSearchSelects) {
@@ -1596,9 +1350,14 @@ describe('double votes', () => {
   });
 
   test('detects double vote if already newly entered write-in candidates name is re-submitted on the same ballot', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes,
+      writeInRecords,
+      tag: cvrContestTag,
+    });
+    renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -1608,8 +1367,8 @@ describe('double votes', () => {
     });
     expect(kangarooCheckbox).toBeChecked();
 
-    const finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
+    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    expect(confirmButton).toBeDisabled();
 
     const writeInSearchSelects = screen.getAllByRole('combobox');
     for (const select of writeInSearchSelects) {
@@ -1630,9 +1389,7 @@ describe('double votes', () => {
 
 describe('unsaved changes', () => {
   const contestId = 'zoo-council-mammal';
-  const cvrIds = ['id-174', 'id-175'];
-  const cvrId = cvrIds[0];
-  const cvrId2 = cvrIds[1];
+  const cvrId = 'id-174';
   const writeInRecord: WriteInRecord = {
     status: 'pending',
     id: '1',
@@ -1651,22 +1408,18 @@ describe('unsaved changes', () => {
   };
 
   beforeEach(() => {
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: votes });
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, []);
   });
 
-  test('detects unsaved changes when navigating with the close button', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+  test('detects unsaved changes when navigating with the overview button', async () => {
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes,
+      writeInRecords: [writeInRecord],
+      tag: cvrContestTag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
@@ -1678,8 +1431,8 @@ describe('unsaved changes', () => {
     elephantCheckbox = getCheckboxByName('elephant');
     expect(elephantCheckbox).toBeChecked();
 
-    const closeButton = getButtonByName('close');
-    userEvent.click(closeButton);
+    const overviewButton = getButtonByName('overview');
+    userEvent.click(overviewButton);
 
     let modal = await screen.findByRole('alertdialog');
     const modalBackButton = within(modal).getByRole('button', {
@@ -1689,122 +1442,27 @@ describe('unsaved changes', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(elephantCheckbox).toBeChecked();
 
-    userEvent.click(closeButton);
+    userEvent.click(overviewButton);
     modal = await screen.findByRole('alertdialog');
     userEvent.keyboard('{Enter}');
 
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
-  });
-
-  test('detects unsaved changes when navigating with the back button', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await waitForBallotById('id-174');
-
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetCvrContestTag(
-      { contestId, cvrId: cvrId2 },
-      { ...cvrContestTag, cvrId: cvrId2 }
-    );
-    apiMock.expectGetMarginalMarks({ contestId, cvrId: cvrId2 }, []);
-    const skipButton = screen.getByRole('button', { name: /skip/i });
-    userEvent.click(skipButton);
-
-    await waitForBallotById('id-175');
-
-    let elephantCheckbox = getCheckboxByName('elephant');
-    expect(elephantCheckbox).not.toBeChecked();
-
-    userEvent.click(elephantCheckbox);
-    elephantCheckbox = getCheckboxByName('elephant');
-    expect(elephantCheckbox).toBeChecked();
-
-    const backButton = getButtonByName('back');
-    userEvent.click(backButton);
-
-    let modal = await screen.findByRole('alertdialog');
-    const modalBackButton = within(modal).getByRole('button', {
-      name: /back/i,
-    });
-    userEvent.click(modalBackButton);
-    expect(elephantCheckbox).toBeChecked();
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-
-    userEvent.click(backButton);
-    modal = await screen.findByRole('alertdialog');
-    const modalDiscardButton = within(modal).getByRole('button', {
-      name: /discard changes/i,
-    });
-    userEvent.click(modalDiscardButton);
-    await waitForBallotById('id-174');
-  });
-
-  test('detects unsaved changes when navigating with the skip button', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await waitForBallotById('id-174');
-
-    let elephantCheckbox = getCheckboxByName('elephant');
-    expect(elephantCheckbox).not.toBeChecked();
-
-    userEvent.click(elephantCheckbox);
-    elephantCheckbox = getCheckboxByName('elephant');
-    expect(elephantCheckbox).toBeChecked();
-
-    const skipButton = getButtonByName('skip');
-    userEvent.click(skipButton);
-
-    let modal = await screen.findByRole('alertdialog');
-    const modalBackButton = within(modal).getByRole('button', {
-      name: /back/i,
-    });
-    userEvent.click(modalBackButton);
-    expect(elephantCheckbox).toBeChecked();
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-
-    userEvent.click(skipButton);
-    modal = await screen.findByRole('alertdialog');
-    const modalDiscardButton = within(modal).getByRole('button', {
-      name: /discard changes/i,
-    });
-
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetCvrContestTag(
-      { contestId, cvrId: cvrId2 },
-      { ...cvrContestTag, cvrId: cvrId2 }
-    );
-    apiMock.expectGetMarginalMarks({ contestId, cvrId: cvrId2 }, []);
-    userEvent.click(modalDiscardButton);
-    await screen.findByTestId('transcribe:id-175');
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   test('detects an unsaved write-in adjudication', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes,
+      writeInRecords: [writeInRecord],
+      tag: cvrContestTag,
+    });
+    const { onClose } = renderScreen(data, cvrId, {
+      ballotImages: buildHmpbBallotImages(cvrId, contestId),
     });
 
     await waitForBallotById('id-174');
 
-    const closeButton = getButtonByName('close');
+    const overviewButton = getButtonByName('overview');
     const kangarooCheckbox = screen.getByRole('checkbox', {
       name: /kangaroo/i,
     });
@@ -1834,7 +1492,7 @@ describe('unsaved changes', () => {
     elephantItems = screen.getAllByText('Elephant');
     expect(elephantItems).toHaveLength(2);
 
-    userEvent.click(closeButton);
+    userEvent.click(overviewButton);
 
     let modal = await screen.findByRole('alertdialog');
     const modalBackButton = within(modal).getByRole('button', {
@@ -1846,37 +1504,22 @@ describe('unsaved changes', () => {
     elephantItems = screen.getAllByText('Elephant');
     expect(elephantItems).toHaveLength(2);
 
-    userEvent.click(closeButton);
+    userEvent.click(overviewButton);
     modal = await screen.findByRole('alertdialog');
     const modalDiscardButton = within(modal).getByRole('button', {
       name: /discard changes/i,
     });
     userEvent.click(modalDiscardButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });
 
 describe('marginal mark adjudication', () => {
   const contestId = 'zoo-council-mammal';
-  const cvrIds = ['id-174', 'id-175'];
-  const cvrId = cvrIds[0];
-  const cvrId2 = cvrIds[1];
-
-  beforeEach(() => {
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetWriteInCandidates([], contestId);
-
-    apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: [] });
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
-  });
+  const cvrId = 'id-174';
 
   test('hmpb ballot can have marginally marked official option adjudicated', async () => {
-    const marginalMarks = ['kangaroo', 'elephant'];
+    const marginalMarkOptionIds = ['kangaroo', 'elephant'];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
       isUndetected: false,
@@ -1885,20 +1528,21 @@ describe('marginal mark adjudication', () => {
       hasMarginalMark: true,
     };
 
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, marginalMarks);
+    apiMock.expectGetWriteInCandidates([], contestId);
 
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: [],
+      marginalMarkOptionIds,
+      tag: cvrContestTag,
     });
+    const { onClose } = renderScreen(data, cvrId);
 
     await waitForBallotById('id-174');
     expect(screen.queryAllByText(/review marginal mark/i).length).toEqual(
-      marginalMarks.length
+      marginalMarkOptionIds.length
     );
-    expect(getButtonByName('save & next')).toBeDisabled();
+    expect(getButtonByName('confirm')).toBeDisabled();
 
     // address one marginal mark by clicking it's checkbox, making it valid
     expect(screen.queryByText(/valid/i)).toBeNull();
@@ -1919,57 +1563,20 @@ describe('marginal mark adjudication', () => {
     // check adjudication caption, removal of last flag
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
     expect(screen.queryByText(/review marginal mark/i)).toBeNull();
-    expect(getButtonByName('save & next')).toBeEnabled();
+    expect(getButtonByName('confirm')).toBeEnabled();
 
-    // adjudicate contest, reload invalidated queries
     apiMock.expectAdjudicateCvrContest(
       formAdjudicatedCvrContest(cvrId, {
         kangaroo: { type: 'candidate-option', hasVote: true },
       })
     );
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, [
-      {
-        electionId,
-        cvrId,
-        contestId,
-        optionId: 'kangaroo',
-        isVote: true,
-      },
-    ]);
-    apiMock.expectGetCvrContestTag(
-      { cvrId, contestId },
-      { ...cvrContestTag, isResolved: true }
-    );
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
     apiMock.expectGetWriteInCandidates([], contestId);
 
-    // Scroll to next cvr, and scroll back
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrId2, contestId },
-      { ...cvrContestTag, cvrId: cvrId2 }
-    );
-    userEvent.click(getButtonByName('save & next'));
-    await waitForBallotById('id-175');
-    userEvent.click(getButtonByName('back'));
-
-    // Flags shouldn't be there and captions should be
-    await waitForBallotById('id-174');
-    expect(screen.queryByText(/review marginal mark/i)).toBeNull();
-    expect(screen.queryAllByText(/marginal mark/i).length).toEqual(2);
-    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
-    // There is only one valid marginal mark, but the text also exists within 'invalid mark'
-    expect(screen.queryAllByText(/valid/i).length).toEqual(2);
+    userEvent.click(getButtonByName('confirm'));
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   test('hmpb ballot can have marginally marked write-in adjudicated', async () => {
-    const marginalMarks = ['write-in-0'];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
       isUndetected: false,
@@ -1988,17 +1595,19 @@ describe('marginal mark adjudication', () => {
       isUnmarked: true,
     };
 
-    apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
-    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
-    apiMock.expectGetMarginalMarks({ cvrId, contestId }, marginalMarks);
+    apiMock.expectGetWriteInCandidates([], contestId);
 
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      contestId,
+      votes: [],
+      writeInRecords: [writeInRecord],
+      marginalMarkOptionIds: ['write-in-0'],
+      tag: cvrContestTag,
     });
+    const { onClose } = renderScreen(data, cvrId);
 
     await waitForBallotById('id-174');
-    expect(getButtonByName('save & next')).toBeDisabled();
+    expect(getButtonByName('confirm')).toBeDisabled();
 
     const writeIn0Checkbox = screen.getAllByRole('checkbox', {
       name: /write-in/i,
@@ -2043,9 +1652,8 @@ describe('marginal mark adjudication', () => {
     );
     userEvent.click(getDropdownItemByLabel('Elephant')!);
 
-    expect(getButtonByName('save & next')).toBeEnabled();
+    expect(getButtonByName('confirm')).toBeEnabled();
 
-    // Adjudicate contest, reload invalidated queries
     apiMock.expectAdjudicateCvrContest(
       formAdjudicatedCvrContest(cvrId, {
         'write-in-0': {
@@ -2056,44 +1664,10 @@ describe('marginal mark adjudication', () => {
         },
       })
     );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, [
-      {
-        electionId,
-        cvrId,
-        contestId,
-        optionId: 'write-in-0',
-        isVote: true,
-      },
-    ]);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
     apiMock.expectGetWriteInCandidates([], contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId, contestId },
-      { ...cvrContestTag, isResolved: true }
-    );
 
-    // Scroll to next cvr, and scroll back
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: [] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrId2, contestId },
-      { ...cvrContestTag, cvrId: cvrId2 }
-    );
-    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, [
-      'write-in-0',
-    ]);
-    userEvent.click(getButtonByName('save & next'));
-    await waitForBallotById('id-175');
-    userEvent.click(getButtonByName('back'));
-
-    // Valid caption should be present
-    await waitForBallotById('id-174');
-    expect(screen.queryByText(/ambiguous write-in/i)).toBeInTheDocument();
-    expect(screen.queryByText(/valid/i)).toBeInTheDocument();
+    userEvent.click(getButtonByName('confirm'));
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });
 
@@ -2102,89 +1676,39 @@ describe('candidate ordering', () => {
     const famousNamesElectionDefinition =
       electionFamousNames2021Fixtures.readElectionDefinition();
     const testContestId = 'mayor';
-    const testCvrIds = ['id-174', 'id-175'];
-    const testCvrId1 = testCvrIds[0];
-    const testCvrId2 = testCvrIds[1];
     const testBallotStyleGroupId1 = '1-1' as BallotStyleGroupId;
-    const testBallotStyleGroupId2 = '1-4' as BallotStyleGroupId;
 
-    const writeInRecord1: WriteInRecord = {
-      status: 'pending',
-      id: '1',
-      cvrId: testCvrId1,
-      contestId: testContestId,
-      electionId: famousNamesElectionDefinition.election.id,
-      optionId: 'write-in-0',
-    };
-
-    const writeInRecord2: WriteInRecord = {
-      status: 'pending',
-      id: '2',
-      cvrId: testCvrId2,
-      contestId: testContestId,
-      electionId: famousNamesElectionDefinition.election.id,
-      optionId: 'write-in-0',
-    };
-
-    const testCvrContestTag1: CvrContestTag = {
-      isResolved: false,
-      isUndetected: false,
-      cvrId: testCvrId1,
-      contestId: testContestId,
-      hasWriteIn: true,
-    };
-
-    const testCvrContestTag2: CvrContestTag = {
-      isResolved: false,
-      isUndetected: false,
-      cvrId: testCvrId2,
-      contestId: testContestId,
-      hasWriteIn: true,
-    };
-
-    // Setup for first ballot (ballot style 1-1)
-    // Order: Sherlock Holmes (party 0), Sherlock Holmes (party 2), Thomas Edison
-    apiMock.expectGetAdjudicationQueue(
-      { contestId: testContestId },
-      testCvrIds
-    );
-    apiMock.expectGetNextCvrIdForAdjudication(
-      { contestId: testContestId },
-      null
-    );
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: testCvrId1 },
-      { [testContestId]: [] },
-      testBallotStyleGroupId1
-    );
-    apiMock.expectGetVoteAdjudications(
-      { contestId: testContestId, cvrId: testCvrId1 },
-      []
-    );
-    apiMock.expectGetWriteIns({ contestId: testContestId, cvrId: testCvrId1 }, [
-      writeInRecord1,
-    ]);
-    apiMock.expectGetBallotImageView(
-      { contestId: testContestId, cvrId: testCvrId1 },
-      false
-    );
-    apiMock.expectGetBallotImageView(
-      { contestId: testContestId, cvrId: testCvrId2 },
-      false
-    );
+    // Ballot style 1-1: Sherlock Holmes (party 0) first, then Thomas Edison
     apiMock.expectGetWriteInCandidates([], testContestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: testCvrId1, contestId: testContestId },
-      testCvrContestTag1
-    );
-    apiMock.expectGetMarginalMarks(
-      { cvrId: testCvrId1, contestId: testContestId },
-      []
-    );
 
-    renderScreen(testContestId, {
-      electionDefinition: famousNamesElectionDefinition,
-      apiMock,
+    const data1 = buildContestAdjudicationData({
+      electionDef: famousNamesElectionDefinition,
+      contestId: testContestId,
+      votes: [],
+      writeInRecords: [
+        {
+          status: 'pending',
+          id: '1',
+          cvrId: 'id-174',
+          contestId: testContestId,
+          electionId: famousNamesElectionDefinition.election.id,
+          optionId: 'write-in-0',
+        },
+      ],
+      tag: {
+        isResolved: false,
+        isUndetected: false,
+        cvrId: 'id-174',
+        contestId: testContestId,
+        hasWriteIn: true,
+      },
+      ballotStyleGroupId: testBallotStyleGroupId1,
+    });
+    renderScreen(data1, 'id-174', {
+      electionDef: famousNamesElectionDefinition,
+      ballotImages: buildHmpbBallotImages('id-174', testContestId, {
+        optionLayouts: [],
+      }),
     });
 
     await waitForBallotById('id-174');
@@ -2196,7 +1720,7 @@ describe('candidate ordering', () => {
     // Get all checkboxes in DOM order
     // In ballot style 1-1, Sherlock Holmes should appear before Thomas Edison
     const allCheckboxes = screen.getAllByRole('checkbox');
-    expect(allCheckboxes).toHaveLength(3); // Ensure there are exactly three checkboxes, two for candidates and one for write in
+    expect(allCheckboxes).toHaveLength(3); // two candidates and one write-in
     within(allCheckboxes[0]).getByText(/Sherlock Holmes/i);
     within(allCheckboxes[1]).getByText(/Thomas Edison/i);
     within(allCheckboxes[2]).getByText(/Write-In/i);
@@ -2220,32 +1744,44 @@ describe('candidate ordering', () => {
 
     // Close the dropdown
     userEvent.keyboard('{Escape}');
+  });
 
-    // Navigate to second ballot with different ordering
-    // Order: Sherlock Holmes (party 0), Thomas Edison, Sherlock Holmes (party 2)
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: testCvrId2 },
-      { [testContestId]: [] },
-      testBallotStyleGroupId2
-    );
-    apiMock.expectGetVoteAdjudications(
-      { contestId: testContestId, cvrId: testCvrId2 },
-      []
-    );
-    apiMock.expectGetWriteIns({ contestId: testContestId, cvrId: testCvrId2 }, [
-      writeInRecord2,
-    ]);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: testCvrId2, contestId: testContestId },
-      testCvrContestTag2
-    );
-    apiMock.expectGetMarginalMarks(
-      { cvrId: testCvrId2, contestId: testContestId },
-      []
-    );
+  test('candidate ordering respects ballot style rotation for a different ballot style', async () => {
+    const famousNamesElectionDefinition =
+      electionFamousNames2021Fixtures.readElectionDefinition();
+    const testContestId = 'mayor';
+    // Ballot style 1-4: Thomas Edison first, then Sherlock Holmes
+    apiMock.expectGetWriteInCandidates([], testContestId);
 
-    const skipButton = screen.getByRole('button', { name: /skip/i });
-    userEvent.click(skipButton);
+    const data2 = buildContestAdjudicationData({
+      electionDef: famousNamesElectionDefinition,
+      contestId: testContestId,
+      votes: [],
+      writeInRecords: [
+        {
+          status: 'pending',
+          id: '2',
+          cvrId: 'id-175',
+          contestId: testContestId,
+          electionId: famousNamesElectionDefinition.election.id,
+          optionId: 'write-in-0',
+        },
+      ],
+      tag: {
+        isResolved: false,
+        isUndetected: false,
+        cvrId: 'id-175',
+        contestId: testContestId,
+        hasWriteIn: true,
+      },
+      ballotStyleGroupId: '1-4' as BallotStyleGroupId,
+    });
+    renderScreen(data2, 'id-175', {
+      electionDef: famousNamesElectionDefinition,
+      ballotImages: buildHmpbBallotImages('id-175', testContestId, {
+        optionLayouts: [],
+      }),
+    });
 
     await waitForBallotById('id-175');
 
@@ -2283,57 +1819,30 @@ describe('candidate ordering', () => {
     const famousNamesElectionDefinition =
       electionFamousNames2021Fixtures.readElectionDefinition();
     const testContestId = 'mayor';
-    const testCvrIds = ['id-174'];
-    const testCvrId = testCvrIds[0];
+    const testCvrId = 'id-174';
     const testBallotStyleGroupId = '1-1' as BallotStyleGroupId;
 
-    const testCvrContestTag: CvrContestTag = {
-      isResolved: false,
-      isUndetected: false,
-      cvrId: testCvrId,
-      contestId: testContestId,
-      hasWriteIn: false,
-    };
-
     // Ballot style 1-1 has: Sherlock Holmes (party 0), Sherlock Holmes (party 2), Thomas Edison
-    apiMock.expectGetAdjudicationQueue(
-      { contestId: testContestId },
-      testCvrIds
-    );
-    apiMock.expectGetNextCvrIdForAdjudication(
-      { contestId: testContestId },
-      null
-    );
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: testCvrId },
-      { [testContestId]: ['sherlock-holmes'] },
-      testBallotStyleGroupId
-    );
-    apiMock.expectGetVoteAdjudications(
-      { contestId: testContestId, cvrId: testCvrId },
-      []
-    );
-    apiMock.expectGetWriteIns(
-      { contestId: testContestId, cvrId: testCvrId },
-      []
-    );
-    apiMock.expectGetBallotImageView(
-      { contestId: testContestId, cvrId: testCvrId },
-      false
-    );
     apiMock.expectGetWriteInCandidates([], testContestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: testCvrId, contestId: testContestId },
-      testCvrContestTag
-    );
-    apiMock.expectGetMarginalMarks(
-      { cvrId: testCvrId, contestId: testContestId },
-      []
-    );
 
-    renderScreen(testContestId, {
-      electionDefinition: famousNamesElectionDefinition,
-      apiMock,
+    const data = buildContestAdjudicationData({
+      electionDef: famousNamesElectionDefinition,
+      contestId: testContestId,
+      votes: ['sherlock-holmes'],
+      tag: {
+        isResolved: false,
+        isUndetected: false,
+        cvrId: testCvrId,
+        contestId: testContestId,
+        hasWriteIn: false,
+      },
+      ballotStyleGroupId: testBallotStyleGroupId,
+    });
+    renderScreen(data, testCvrId, {
+      electionDef: famousNamesElectionDefinition,
+      ballotImages: buildHmpbBallotImages(testCvrId, testContestId, {
+        optionLayouts: [],
+      }),
     });
 
     await waitForBallotById('id-174');
@@ -2343,7 +1852,6 @@ describe('candidate ordering', () => {
     await screen.findByText('Thomas Edison');
 
     // Sherlock Holmes should appear exactly once despite being cross-endorsed (party 0 and party 2)
-    // Use getAllByRole to get all matching elements
     const sherlockCheckboxes = screen.getAllByRole('checkbox', {
       name: /Sherlock Holmes/i,
     });

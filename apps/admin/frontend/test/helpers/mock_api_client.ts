@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react';
 import type {
   Api,
   AdjudicatedCvrContest,
+  BallotAdjudicationQueueMetadata,
   BallotCountReportSpec,
   BallotCountReportWarning,
   CastVoteRecordFileMetadata,
@@ -11,12 +12,10 @@ import type {
   ManualResultsIdentifier,
   WriteInCandidateRecord,
   ScannerBatch,
-  AdjudicationQueueMetadata,
   ExportDataError,
   TallyReportSpec,
   TallyReportWarning,
   ManualResultsMetadata,
-  WriteInRecord,
   VoteAdjudication,
   CvrContestTag,
 } from '@votingworks/admin-backend';
@@ -338,24 +337,21 @@ export function createApiMock(
         .resolves(writeInCandidateRecord);
     },
 
-    expectGetAdjudicationQueue(input: { contestId: ContestId }, cvrIds: Id[]) {
-      apiClient.getAdjudicationQueue.expectCallWith(input).resolves(cvrIds);
+    expectGetBallotAdjudicationQueue(cvrIds: Id[]) {
+      apiClient.getBallotAdjudicationQueue.expectCallWith().resolves(cvrIds);
     },
 
-    expectGetAdjudicationQueueMetadata(
-      queueMetadata: AdjudicationQueueMetadata[]
+    expectGetBallotAdjudicationQueueMetadata(
+      queueMetadata: BallotAdjudicationQueueMetadata
     ) {
-      return apiClient.getAdjudicationQueueMetadata
+      return apiClient.getBallotAdjudicationQueueMetadata
         .expectCallWith()
         .resolves(queueMetadata);
     },
 
-    expectGetNextCvrIdForAdjudication(
-      input: { contestId: ContestId },
-      cvrId: Id | null
-    ) {
-      apiClient.getNextCvrIdForAdjudication
-        .expectCallWith(input)
+    expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null) {
+      apiClient.getNextCvrIdForBallotAdjudication
+        .expectCallWith()
         .resolves(cvrId);
     },
 
@@ -371,13 +367,6 @@ export function createApiMock(
         ballotStyleGroupId: ballotStyleGroupId ?? ('1M' as BallotStyleGroupId),
         markScores: null,
       });
-    },
-
-    expectGetWriteIns(
-      input: { contestId: ContestId; cvrId: Id },
-      writeIns: WriteInRecord[]
-    ) {
-      apiClient.getWriteIns.expectCallWith(input).resolves(writeIns);
     },
 
     expectGetBallotImageView(
