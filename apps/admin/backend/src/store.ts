@@ -2951,6 +2951,49 @@ export class Store {
       : undefined;
   }
 
+  getUnresolvedCvrContestTags({ cvrId }: { cvrId: Id }): CvrContestTag[] {
+    const rows = this.client.all(
+      `
+        select
+          cvr_id as cvrId,
+          contest_id as contestId,
+          is_resolved as isResolved,
+          is_undetected as isUndetected,
+          has_overvote as hasOvervote,
+          has_undervote as hasUndervote,
+          has_write_in as hasWriteIn,
+          has_unmarked_write_in as hasUnmarkedWriteIn,
+          has_marginal_mark as hasMarginalMark
+        from cvr_contest_tags
+        where
+          cvr_id = ? and
+          is_resolved = 0
+      `,
+      cvrId
+    ) as Array<{
+      cvrId: Id;
+      contestId: ContestId;
+      isResolved: SqliteBool;
+      isUndetected: SqliteBool;
+      hasOvervote: SqliteBool;
+      hasUndervote: SqliteBool;
+      hasWriteIn: SqliteBool;
+      hasUnmarkedWriteIn: SqliteBool;
+      hasMarginalMark: SqliteBool;
+    }>;
+
+    return rows.map((row) => ({
+      ...row,
+      isResolved: fromSqliteBool(row.isResolved),
+      isUndetected: fromSqliteBool(row.isUndetected),
+      hasOvervote: fromSqliteBool(row.hasOvervote),
+      hasUndervote: fromSqliteBool(row.hasUndervote),
+      hasWriteIn: fromSqliteBool(row.hasWriteIn),
+      hasUnmarkedWriteIn: fromSqliteBool(row.hasUnmarkedWriteIn),
+      hasMarginalMark: fromSqliteBool(row.hasMarginalMark),
+    }));
+  }
+
   resolveCvrContestTag({
     cvrId,
     contestId,

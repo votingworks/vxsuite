@@ -369,6 +369,21 @@ export function adjudicateCvrContest(
 }
 
 /**
+ * Resolves the ballot tag and all remaining unresolved contest tags.
+ */
+export function resolveBallotAdjudications(
+  { cvrId }: { cvrId: Id },
+  store: Store
+): void {
+  store.withTransaction(() => {
+    for (const { contestId } of store.getUnresolvedCvrContestTags({ cvrId })) {
+      store.resolveCvrContestTag({ cvrId, contestId });
+    }
+    store.resolveCvrTag({ cvrId });
+  });
+}
+
+/**
  * Returns a list of option ids for a cvr-contest
  * that are below the definite threshold and above
  * the marginal threshold

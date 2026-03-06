@@ -315,12 +315,16 @@ export function BallotAdjudicationScreen(): JSX.Element {
 
   const cvrTag = ballotAdjudicationDataQuery.data.tag;
 
-  function isContestTagOnlyUndervote(tag: CvrContestTag) { return tag !== null &&
-    tag.hasUndervote &&
-    !tag.hasMarginalMark &&
-    !tag.hasWriteIn &&
-    !tag.hasUnmarkedWriteIn &&
-    !tag.hasOvervote };
+  function isContestTagOnlyUndervote(tag: CvrContestTag) {
+    return (
+      tag !== null &&
+      tag.hasUndervote &&
+      !tag.hasMarginalMark &&
+      !tag.hasWriteIn &&
+      !tag.hasUnmarkedWriteIn &&
+      !tag.hasOvervote
+    );
+  }
 
   const allResolved =
     (cvrTag?.isBlankBallot &&
@@ -328,6 +332,13 @@ export function BallotAdjudicationScreen(): JSX.Element {
         (c) => !c.tag || c.tag.isResolved || isContestTagOnlyUndervote(c.tag)
       )) ||
     adjudicationContests.every((c) => !c.tag || c.tag.isResolved);
+
+  const hasUnresolvedWriteInContests = adjudicationContests.some(
+    (c) =>
+      c.tag &&
+      !c.tag.isResolved &&
+      (c.tag.hasWriteIn || c.tag.hasUnmarkedWriteIn)
+  );
   const onFirstBallot = queueIndex <= 0;
   const onLastBallot = queueIndex >= queue.length - 1;
 
@@ -350,7 +361,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
       setShowConfirmModal(true);
       return;
     }
-    confirmAcceptAndNext();
+    void confirmAcceptAndNext();
   }
 
   function navigateNext(): void {
@@ -361,15 +372,10 @@ export function BallotAdjudicationScreen(): JSX.Element {
     }
   }
 
-  function confirmAcceptAndNext(): void {
+  async function confirmAcceptAndNext(): Promise<void> {
     setShowConfirmModal(false);
-    const {data} = ballotAdjudicationDataQuery;
-    const tag = data?.tag;
-    if (tag && !tag.isResolved) {
-      void adjudicateBallotMutation.mutateAsync({ cvrId }).then(navigateNext);
-    } else {
-      navigateNext();
-    }
+    await adjudicateBallotMutation.mutateAsync({ cvrId });
+    navigateNext();
   }
 
   function onClose(): void {
@@ -473,6 +479,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
           </PanelHeader>
           {election && (
             <AdjudicationContestList
+              key={cvrTag?.cvrId}
               frontContests={frontContests}
               backContests={backContests}
               election={election}
@@ -498,6 +505,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
               <PrimaryNavButton
                 icon="Done"
                 onPress={onAcceptAndNext}
+                disabled={hasUnresolvedWriteInContests}
                 variant={allResolved ? 'primary' : 'neutral'}
               >
                 {onLastBallot ? 'Accept' : 'Accept'}

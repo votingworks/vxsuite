@@ -114,7 +114,11 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import { adjudicateCvrContest, getMarginalMarks } from './adjudication';
+import {
+  resolveBallotAdjudications,
+  adjudicateCvrContest,
+  getMarginalMarks,
+} from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
@@ -650,7 +654,7 @@ function buildApi({
     },
 
     adjudicateBallot(input: { cvrId: Id }): void {
-      store.resolveCvrTag({ cvrId: input.cvrId });
+      resolveBallotAdjudications(input, store);
     },
 
     getCastVoteRecordVoteInfo(input: { cvrId: Id }): CastVoteRecordVoteInfo {

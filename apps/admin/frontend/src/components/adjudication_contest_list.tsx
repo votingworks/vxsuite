@@ -120,8 +120,8 @@ function getStatusTransitionLine(
             gap: '0.25rem',
           }}
         >
-          Overvote Resolved; Undervote Created
           <Icons.Warning color="warning" />
+          Overvote Resolved; Undervote Created
         </span>
       );
     }
@@ -134,8 +134,8 @@ function getStatusTransitionLine(
       <span
         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
       >
-        Overvote Created
         <Icons.Warning color="warning" />
+        Overvote Created
       </span>
     );
   }
@@ -154,8 +154,8 @@ function getStatusTransitionLine(
             gap: '0.25rem',
           }}
         >
-          Undervote Created
           <Icons.Warning color="warning" />
+          Undervote Created
         </span>
       );
     }
