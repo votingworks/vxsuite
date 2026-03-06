@@ -13,5 +13,5 @@
 - [ ] I have added
       [logging](https://github.com/votingworks/vxsuite/tree/main/libs/logging)
       where appropriate for any new user actions.
-- [ ] I have added the "user_facing_change" label to this PR, if relevant, to
+- [ ] I have added the "user-facing-change" label to this PR, if relevant, to
       automate an announcement in #machine-product-updates.
