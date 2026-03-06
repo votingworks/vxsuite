@@ -192,13 +192,10 @@ export function SystemSettingsForm({
   );
 
   const adminAdjudicationReasonOptions = adjudicationReasonOptions.filter(
-    (option) =>
-      // Not implemented
-      option.value !== AdjudicationReason.BlankBallot &&
-      // UnmarkedWriteIn is excluded from adminAdjudicationReasons because
-      // admin will surface all unmarked write-ins that the scanner tags.
-      // It is effectively equal to the scanner's adjudication setting.
-      option.value !== AdjudicationReason.UnmarkedWriteIn
+    // UnmarkedWriteIn is excluded from adminAdjudicationReasons because
+    // admin will surface all unmarked write-ins that the scanner tags.
+    // It is effectively equal to the scanner's adjudication setting.
+    (option) => option.value !== AdjudicationReason.UnmarkedWriteIn
   );
 
   const isScoringUnmarkedWriteIns =
