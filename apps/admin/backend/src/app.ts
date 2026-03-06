@@ -78,13 +78,11 @@ import {
   ManualResultsIdentifier,
   ManualResultsRecord,
   ScannerBatch,
-  AdjudicationQueueMetadata,
   WriteInCandidateRecord,
   BallotImageView,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
   CastVoteRecordVoteInfo,
-  WriteInRecord,
   VoteAdjudication,
   AdjudicatedCvrContest,
   CvrContestTag,
@@ -693,36 +691,6 @@ function buildApi({
       return store.addWriteInCandidate({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
-      });
-    },
-
-    getAdjudicationQueue(input: { contestId: ContestId }): Id[] {
-      return store.getAdjudicationQueue({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        contestId: input.contestId,
-      });
-    },
-
-    getAdjudicationQueueMetadata(): AdjudicationQueueMetadata[] {
-      return store.getAdjudicationQueueMetadata({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-      });
-    },
-
-    getNextCvrIdForAdjudication(input: { contestId: ContestId }): Id | null {
-      return (
-        store.getNextCvrIdForAdjudication({
-          ...input,
-          electionId: loadCurrentElectionIdOrThrow(workspace),
-        }) ?? null
-      );
-    },
-
-    getWriteIns(input: { cvrId?: Id; contestId?: ContestId }): WriteInRecord[] {
-      return store.getWriteInRecords({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        castVoteRecordId: input.cvrId,
-        contestId: input.contestId,
       });
     },
 

@@ -27,7 +27,6 @@ import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudica
 import { ManualTalliesFormScreen } from '../screens/tally/manual_tallies_form_screen';
 import { SmartCardsScreen } from '../screens/smart_cards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
-import { AdjudicationSummaryScreen } from '../screens/adjudication_summary_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { ReportsScreen } from '../screens/reporting/reports_screen';
 import { checkPin, logOut, unconfigure, useApiClient } from '../api';
@@ -41,7 +40,6 @@ import { FullElectionTallyReportScreen } from '../screens/reporting/full_electio
 import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 import { AdjudicationStartScreen } from '../screens/adjudication_start_screen';
 import { BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen';
-import { ContestAdjudicationScreenOld } from '../screens/contest_adjudication_screen_old';
 
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -149,23 +147,6 @@ export function AppRoutes(): JSX.Element | null {
       ) && (
         <Route exact path={routerPaths.ballotAdjudication}>
           <BallotAdjudicationScreen />
-        </Route>
-      )}
-      {isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
-      ) && (
-        <Route exact path={routerPaths.contestAdjudicationSummary}>
-          <AdjudicationSummaryScreen />
-        </Route>
-      )}
-      {isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
-      ) && (
-        <Route
-          exact
-          path={routerPaths.contestAdjudication({ contestId: ':contestId' })}
-        >
-          <ContestAdjudicationScreenOld />
         </Route>
       )}
       <Route

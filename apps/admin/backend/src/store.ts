@@ -78,7 +78,6 @@ import {
   WriteInRecordPending,
   ManualResultsFilter,
   CardTally,
-  AdjudicationQueueMetadata,
   VoteAdjudication,
   CastVoteRecordVoteInfo,
   WriteInAdjudicationActionOfficialCandidate,
@@ -104,28 +103,6 @@ type StoreCastVoteRecordAttributes = Omit<
 > & {
   readonly partyId: string | null;
 };
-
-/**
- * Adjudication queue ordering:
- * Note: The intention is to show the most important issues first
- * 1. All overvotes (regardless of write-ins, marginal marks)
- * 2. Write-ins (unmarked and marked), no marginal marks, includes undervotes
- * 3. Write-ins and marginal marks, includes undervotes
- * 4. Marginal marks, includes undervotes
- * 5. Undervotes without marginal marks or write-ins
- */
-
-const ADJUDICATION_QUEUE_ORDER_BY = `
-  order by
-    case
-      when has_overvote = 1 then 1
-      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 0 then 2
-      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 1 then 3
-      when has_marginal_mark = 1 then 4
-      else 5
-    end,
-    sequence_id
-`;
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -2048,100 +2025,6 @@ export class Store {
         order by min(sequence_id)
         limit 1
       `
-    ) as { cvr_id: Id } | undefined;
-
-    debug('queried database for first unresolved cvr id');
-    return row?.cvr_id;
-  }
-
-  /**
-   * Gets the adjudication queue for a specific contest.
-   */
-  getAdjudicationQueue({
-    electionId,
-    contestId,
-  }: {
-    electionId: Id;
-    contestId: ContestId;
-  }): Id[] {
-    this.assertElectionExists(electionId);
-    debug(
-      'querying database for adjudication cvr queue for contest %s',
-      contestId
-    );
-
-    const rows = this.client.all(
-      `
-        select 
-          cvr_id
-        from cvr_contest_tags
-        where
-          contest_id = ?
-        ${ADJUDICATION_QUEUE_ORDER_BY}
-      `,
-      contestId
-    ) as Array<{ cvr_id: Id }>;
-
-    debug('queried cvr contests tags for adjudication queue');
-    return rows.map((r) => r.cvr_id);
-  }
-
-  /**
-   * Gets adjudication queue total and pending tallies by contest.
-   */
-  getAdjudicationQueueMetadata({
-    electionId,
-  }: {
-    electionId: Id;
-  }): AdjudicationQueueMetadata[] {
-    this.assertElectionExists(electionId);
-    debug('querying database for adjudication queue metadata using tags');
-
-    const rows = this.client.all(
-      `
-        select
-          contest_id as contestId,
-          count(*) as totalTally,
-          count(case when is_resolved = 0 then 1 end) as pendingTally
-        from cvr_contest_tags
-        group
-          by contest_id
-      `
-    ) as Array<{
-      contestId: ContestId;
-      totalTally: number;
-      pendingTally: number;
-    }>;
-
-    debug('queried adjudication queue metadata from cvr contest tags');
-    return rows;
-  }
-
-  getNextCvrIdForAdjudication({
-    electionId,
-    contestId,
-  }: {
-    electionId: Id;
-    contestId: ContestId;
-  }): Optional<Id> {
-    this.assertElectionExists(electionId);
-    debug(
-      'querying database for first unresolved cvr id for contest %s adjudication',
-      contestId
-    );
-
-    const row = this.client.one(
-      `
-        select 
-          cvr_id
-        from cvr_contest_tags
-        where
-          contest_id = ?
-          and is_resolved = 0
-        ${ADJUDICATION_QUEUE_ORDER_BY}
-        limit 1
-      `,
-      contestId
     ) as { cvr_id: Id } | undefined;
 
     debug('queried database for first unresolved cvr id');
