@@ -1,4 +1,4 @@
-# Writing specs in VxSuite
+# Writing Specs in VxSuite
 
 **Author:** @eventualbuddha
 
@@ -31,7 +31,7 @@ features, infrastructure updates, and other changes. Specs are stored in the
 lifecycle, and document structure. The README should evolve over time and
 diverge from this document, assuming this practice catches on.
 
-## Alternatives considered
+## Alternatives Considered
 
 **Slack channels/threads.** Slack is great for immediacy and informality, but
 isn't public and can be hard to search. Even when a decision is recorded, the
@@ -54,6 +54,6 @@ disconnected from the repo, has separate access controls, and tends to be
 forgotten. Keeping specs in-repo ensures they are accessible, searchable with
 standard tools, and visible to anyone who can read the code.
 
-## Open questions
+## Open Questions
 
 None.
