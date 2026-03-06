@@ -1,4 +1,4 @@
-# Writing specs in VxSuite
+# Writing Specs in VxSuite
 
 **Author:** @eventualbuddha
 
@@ -31,7 +31,7 @@ features, infrastructure updates, and other changes. Specs are stored in the
 lifecycle, and document structure. The README should evolve over time and
 diverge from this document, assuming this practice catches on.
 
-## Alternatives considered
+## Alternatives Considered
 
 **Slack channels/threads.** Slack is great for immediacy and informality, but
 isn't public and can be hard to search. Even when a decision is recorded, the
@@ -44,6 +44,12 @@ among Google Docs can be quite challenging. Historically, they've also been
 non-public. Creating public Google Docs is an option, but a mix of public and
 private docs often leads to access control confusion.
 
+_Addendum by @arsalansufi - Software engineers can use the approach laid out in
+this doc but are also still welcome to use Google Docs. One pro of Google Docs
+is ease of editing, iteration, and discussion (subjective but definitely true
+for some on the team). What we can however do is publish markdown exports of
+these Google Docs to GitHub under `specs/` once they've stabilized._
+
 **GitHub issues as the discussion venue.** Issues are already used for bug
 tracking and feature requests and are familiar to contributors. However, issues
 are harder to edit collaboratively, don't benefit from PR review tooling (inline
@@ -54,6 +60,6 @@ disconnected from the repo, has separate access controls, and tends to be
 forgotten. Keeping specs in-repo ensures they are accessible, searchable with
 standard tools, and visible to anyone who can read the code.
 
-## Open questions
+## Open Questions
 
 None.

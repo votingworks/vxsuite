@@ -10,7 +10,7 @@ document reflecting the current plan. Afterward, they enter the historical
 record and may no longer reflect the current status of VxSuite. The code
 ultimately serves as the source of truth for completed specs.
 
-## When to write a spec
+## When to Write a Spec
 
 Write a spec when:
 
@@ -38,7 +38,7 @@ status is one of:
 Rejected spec PRs can also just be closed without merging rather than being
 marked `rejected` if their inclusion is not deemed useful.
 
-## PR workflow
+## PR Workflow
 
 Specs can live in the same PR as the implementation or in a separate PR — use
 your judgment based on scope. For large or cross-cutting changes, a spec-only
@@ -52,7 +52,7 @@ the "Wrap-up / Retro" section of the spec and mark the spec as `completed`. At
 this point, the spec is no longer expected to reflect the current reality of the
 codebase and should be thought of a historical document.
 
-## File naming
+## File Naming
 
 ```
 specs/<number>-<slug>.md
@@ -70,7 +70,7 @@ Examples:
 0002-some-other-thing.md
 ```
 
-## Document structure
+## Document Structure
 
 Specs do not have a rigid template, but the following sections work well for
 most changes. Include the sections that are useful and omit the rest.
@@ -94,11 +94,11 @@ most changes. Include the sections that are useful and omit the rest.
 
 <!-- What are you building or changing, and how does it work? -->
 
-## Alternatives considered
+## Alternatives Considered
 
 <!-- What other approaches did you evaluate, and why did you choose this one? -->
 
-## Open questions
+## Open Questions
 
 <!-- Decisions or unknowns to be resolved during review. -->
 
