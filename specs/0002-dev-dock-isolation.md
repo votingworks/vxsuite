@@ -81,7 +81,7 @@ The `NODE_ENV` subdirectory provides isolation based on environment:
 - `production` — used by integration tests (Playwright runs apps in production
   mode but sets `IS_INTEGRATION_TEST=true`)
 
-The entire `.vx-dev-dock/` directory is gitignored.
+The entire `.vx-dev-dock/` directory is ignored by Git.
 
 ### Implementation
 
