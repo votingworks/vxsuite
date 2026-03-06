@@ -341,7 +341,7 @@ export function adjudicateCvrContest(
     }
 
     // Create a tag if one doesn't already exist for this cvr-contest pair
-    if (!store.getCvrContestTag({ cvrId, contestId })) {
+    if (!store.getCvrContestTags({ cvrId, contestId }).length) {
       const electionRecord = assertDefined(store.getElection(electionId));
       const contest = CachedElectionLookups.getContestById(
         electionRecord.electionDefinition,
@@ -371,7 +371,7 @@ export function adjudicateCvrContest(
 /**
  * Resolves the ballot tag and all remaining unresolved contest tags.
  */
-export function resolveBallotAdjudications(
+export function resolveBallotTags(
   { cvrId }: { cvrId: Id },
   store: Store
 ): void {

@@ -1,64 +1,50 @@
-import { ContestId, Id } from '@votingworks/types';
-import { loadImageMetadata } from '@votingworks/image-utils';
+import { Id, Rect } from '@votingworks/types';
+import { loadImageData, toDataUrl } from '@votingworks/image-utils';
+import { assertDefined } from '@votingworks/basics';
 import { Store } from '../store';
-import { BallotImageView } from '../types';
+import { BallotImages, BallotPageImage } from '../types';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('adjudication');
 
 /**
- * Retrieves data necessary to display a ballot image on the frontend.
+ * Retrieves both sides of a ballot's images and layouts.
  */
-export async function getBallotImageView({
+export async function getBallotImages({
   store,
   cvrId,
-  contestId,
 }: {
   store: Store;
   cvrId: Id;
-  contestId: ContestId;
-}): Promise<BallotImageView> {
-  debug('creating image view for %s...', contestId);
-  const imageDetails = store.getBallotImageAndLayout({ contestId, cvrId });
-  const { layout, image, side } = imageDetails;
+}): Promise<BallotImages> {
+  debug('getting ballot images for cvr %s...', cvrId);
+  const imagesAndLayouts = store.getBallotImagesAndLayouts({ cvrId });
 
-  const metadata = await loadImageMetadata(image);
-  const imageUrl = metadata.isOk()
-    ? `data:${metadata.ok().type};base64,${image.toString('base64')}`
-    : null;
+  let front: BallotPageImage | undefined;
+  let back: BallotPageImage | undefined;
 
-  // BMD ballots do not have layouts, we do not support zoom during adjudication on these ballots.
-  if (layout === undefined) {
-    return {
-      type: 'bmd',
-      cvrId,
-      imageUrl,
-      side: 'front',
-    };
-  }
-
-  // identify the contest layout
-  const contestLayout = layout.contests.find(
-    (contest) => contest.contestId === contestId
-  );
-  /* istanbul ignore next - TODO: revisit our layout assumptions based on our new ballots @preserve */
-  if (!contestLayout) {
-    throw new Error('unable to find a layout for the specified contest');
-  }
-
-  debug('created image view');
-  return {
-    type: 'hmpb',
-    cvrId,
-    imageUrl,
-    ballotCoordinates: {
-      width: metadata.ok()?.width ?? 0,
-      height: metadata.ok()?.height ?? 0,
+  for (const { image, layout, side } of imagesAndLayouts) {
+    const imageData = await loadImageData(image);
+    const imageUrl = imageData.isOk()
+      ? toDataUrl(imageData.ok(), 'image/jpeg')
+      : null;
+    const ballotCoordinates: Rect = {
       x: 0,
       y: 0,
-    },
-    contestCoordinates: contestLayout.bounds,
-    optionLayouts: contestLayout.options,
-    side,
-  };
+      width: imageData.isOk() ? imageData.ok().width : 0,
+      height: imageData.isOk() ? imageData.ok().height : 0,
+    };
+    const pageImage: BallotPageImage = layout
+      ? { type: 'hmpb', imageUrl, ballotCoordinates, layout }
+      : { type: 'bmd', imageUrl, ballotCoordinates };
+
+    if (side === 'front') {
+      front = pageImage;
+    } else {
+      back = pageImage;
+    }
+  }
+
+  debug('retrieved ballot images for cvr %s', cvrId);
+  return { cvrId, front: assertDefined(front), back: assertDefined(back) };
 }

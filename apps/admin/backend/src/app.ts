@@ -78,24 +78,22 @@ import {
   ManualResultsIdentifier,
   ManualResultsRecord,
   ScannerBatch,
-  AdjudicationQueueMetadata,
   WriteInCandidateRecord,
-  BallotImageView,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
   CastVoteRecordVoteInfo,
-  WriteInRecord,
-  VoteAdjudication,
   AdjudicatedCvrContest,
-  CvrContestTag,
   MachineMode,
   HostConnectionStatus,
   MachineRecord,
+  BallotAdjudicationQueueMetadata,
+  BallotAdjudicationData,
+  BallotImages,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
-import { getBallotImageView } from './util/adjudication';
+import { getBallotImages } from './util/adjudication';
 import {
   transformWriteInsAndSetManualResults,
   validateManualResults,
@@ -112,7 +110,11 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import { adjudicateCvrContest, getMarginalMarks } from './adjudication';
+import {
+  resolveBallotTags,
+  adjudicateCvrContest,
+  getMarginalMarks,
+} from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
@@ -680,21 +682,14 @@ function buildApi({
       adjudicateCvrContest(input, store, logger);
     },
 
+    resolveBallotTags(input: { cvrId: Id }): void {
+      resolveBallotTags(input, store);
+    },
+
     getCastVoteRecordVoteInfo(input: { cvrId: Id }): CastVoteRecordVoteInfo {
       return store.getCastVoteRecordVoteInfo({
         ...input,
         electionId: loadCurrentElectionIdOrThrow(workspace),
-      });
-    },
-
-    getVoteAdjudications(input: {
-      contestId: ContestId;
-      cvrId: Id;
-    }): VoteAdjudication[] {
-      return store.getVoteAdjudications({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        contestId: input.contestId,
-        cvrId: input.cvrId,
       });
     },
 
@@ -719,44 +714,37 @@ function buildApi({
       });
     },
 
-    getAdjudicationQueue(input: { contestId: ContestId }): Id[] {
-      return store.getAdjudicationQueue({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        contestId: input.contestId,
-      });
-    },
-
-    getAdjudicationQueueMetadata(): AdjudicationQueueMetadata[] {
-      return store.getAdjudicationQueueMetadata({
+    getBallotAdjudicationQueue(): Id[] {
+      return store.getBallotAdjudicationQueue({
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });
     },
 
-    getNextCvrIdForAdjudication(input: { contestId: ContestId }): Id | null {
+    getBallotAdjudicationQueueMetadata(): BallotAdjudicationQueueMetadata {
+      return store.getBallotAdjudicationQueueMetadata({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
+    },
+
+    getNextCvrIdForBallotAdjudication(): Id | null {
       return (
-        store.getNextCvrIdForAdjudication({
-          ...input,
+        store.getNextCvrIdForBallotAdjudication({
           electionId: loadCurrentElectionIdOrThrow(workspace),
         }) ?? null
       );
     },
 
-    getWriteIns(input: { cvrId?: Id; contestId?: ContestId }): WriteInRecord[] {
-      return store.getWriteInRecords({
+    getBallotAdjudicationData(input: { cvrId: Id }): BallotAdjudicationData {
+      return store.getBallotAdjudicationData({
         electionId: loadCurrentElectionIdOrThrow(workspace),
-        castVoteRecordId: input.cvrId,
-        contestId: input.contestId,
+        cvrId: input.cvrId,
       });
     },
 
-    getBallotImageView(input: {
-      cvrId: Id;
-      contestId: ContestId;
-    }): Promise<BallotImageView> {
-      return getBallotImageView({
+    getBallotImages(input: { cvrId: Id }): Promise<BallotImages> {
+      return getBallotImages({
         store: workspace.store,
         cvrId: input.cvrId,
-        contestId: input.contestId,
       });
     },
 
@@ -769,13 +757,6 @@ function buildApi({
         cvrId: input.cvrId,
         contestId: input.contestId,
       });
-    },
-
-    getCvrContestTag(input: {
-      cvrId: Id;
-      contestId: ContestId;
-    }): CvrContestTag | undefined {
-      return store.getCvrContestTag(input);
     },
 
     async deleteAllManualResults(): Promise<void> {
