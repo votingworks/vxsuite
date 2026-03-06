@@ -162,11 +162,11 @@ export function Sublist(props: {
                   {partyName(c, parties)}
                 </EntityList.Caption>
 
-                <EntityList.Caption>
-                  {c.type === 'straight-party'
-                    ? 'Election-wide'
-                    : districtIdToName.get(c.districtId)}
-                </EntityList.Caption>
+                {c.type !== 'straight-party' && (
+                  <EntityList.Caption>
+                    {districtIdToName.get(c.districtId)}
+                  </EntityList.Caption>
+                )}
 
                 <EntityList.Label>{c.title}</EntityList.Label>
               </Column>
