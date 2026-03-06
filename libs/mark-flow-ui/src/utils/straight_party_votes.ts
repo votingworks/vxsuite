@@ -3,7 +3,6 @@ import {
   CandidateId,
   CandidateVote,
   Election,
-  Optional,
   PartyId,
   VotesDict,
 } from '@votingworks/types';
@@ -11,7 +10,7 @@ import {
 export function getStraightPartySelectedPartyId(
   election: Election,
   votes: VotesDict
-): Optional<PartyId> {
+): PartyId | undefined {
   const straightPartyContest = election.contests.find(
     (c) => c.type === 'straight-party'
   );

@@ -700,8 +700,8 @@ describe('straight-party contest', () => {
   const spElection: Election = {
     ...electionGeneral,
     parties: [
-      { id: PARTY_A, name: 'Party A', fullName: 'Party A' },
-      { id: PARTY_B, name: 'Party B', fullName: 'Party B' },
+      { id: PARTY_A, name: 'Party A', fullName: 'Party A', abbrev: 'A' },
+      { id: PARTY_B, name: 'Party B', fullName: 'Party B', abbrev: 'B' },
     ],
     contests: [
       {

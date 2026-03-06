@@ -366,7 +366,7 @@ export function BallotAdjudicationScreen(): JSX.Element {
 
   function confirmAcceptAndNext(): void {
     setShowConfirmModal(false);
-    const { tag } = ballotAdjudicationDataQuery.data;
+    const tag = ballotAdjudicationDataQuery.data?.tag;
     if (tag && !tag.isResolved) {
       void adjudicateBallotMutation.mutateAsync({ cvrId }).then(navigateNext);
     } else {
