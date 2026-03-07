@@ -636,12 +636,51 @@ fn build_taffy_tree(
 
         let mut content_children = Vec::new();
         let mut child_li_counter = 0usize;
+        // Accumulate consecutive text nodes so they flow inline instead of
+        // stacking as separate block children (e.g. React comment nodes
+        // `<!-- -->` split "2/0" into "2", "/", "0" text nodes).
+        let mut pending_text = String::new();
+
+        let flush_pending_text = |pending: &mut String,
+                                  out: &mut Vec<NodeId>,
+                                  taffy: &mut TaffyTree<TextContext>,
+                                  computed: &ComputedStyle| {
+            let trimmed = pending.trim();
+            if !trimmed.is_empty() {
+                let text_node = taffy
+                    .new_leaf_with_context(
+                        Style::DEFAULT,
+                        TextContext {
+                            runs: vec![TextRun {
+                                text: trimmed.to_string(),
+                                font_family: computed.font_family.clone(),
+                                font_size: computed.font_size,
+                                font_weight: computed.font_weight,
+                                font_style: computed.font_style,
+                                color: computed.color,
+                            }],
+                            white_space: computed.white_space,
+                            line_height: computed.line_height,
+                        },
+                    )
+                    .expect("taffy new_leaf_with_context");
+                out.push(text_node);
+            }
+            pending.clear();
+        };
+
         for child in &element.children {
             match child {
                 DomNode::Element(child_el) => {
                     if child_el.tag == "style" || child_el.tag == "head" {
                         continue;
                     }
+                    flush_pending_text(
+                        &mut pending_text,
+                        &mut content_children,
+                        taffy,
+                        &computed,
+                    );
                     let child_li_index = if child_el.tag == "li" {
                         child_li_counter += 1;
                         child_li_counter
@@ -652,31 +691,16 @@ fn build_taffy_tree(
                     content_children.push(child_node);
                 }
                 DomNode::Text(text) => {
-                    let text = text.trim();
-                    if text.is_empty() {
-                        continue;
-                    }
-                    let text_node = taffy
-                        .new_leaf_with_context(
-                            Style::DEFAULT,
-                            TextContext {
-                                runs: vec![TextRun {
-                                    text: text.to_string(),
-                                    font_family: computed.font_family.clone(),
-                                    font_size: computed.font_size,
-                                    font_weight: computed.font_weight,
-                                    font_style: computed.font_style,
-                                    color: computed.color,
-                                }],
-                                white_space: computed.white_space,
-                                line_height: computed.line_height,
-                            },
-                        )
-                        .expect("taffy new_leaf_with_context");
-                    content_children.push(text_node);
+                    pending_text.push_str(text);
                 }
             }
         }
+        flush_pending_text(
+            &mut pending_text,
+            &mut content_children,
+            taffy,
+            &computed,
+        );
 
         // Add ::after as last child
         if let Some(ref after) = computed.after {

@@ -27,6 +27,26 @@ export declare class RenderContext {
    * pre-compiled rules.
    */
   renderToPdf(html: string): Buffer;
+  /**
+   * Initialize the live DOM from the given HTML. Subsequent calls to
+   * `set_content` will patch this DOM in-place instead of re-parsing.
+   */
+  loadDocument(html: string): void;
+  /**
+   * Patch the live DOM by replacing the children of the element
+   * matching `selector` with the parsed `html_content` fragment.
+   * Much faster than re-parsing the entire document.
+   */
+  setContent(selector: string, htmlContent: string): void;
+  /**
+   * Query elements from the live DOM. Recomputes styles and layout
+   * only if the DOM has been modified since the last query.
+   */
+  queryLive(selector: string): Array<ElementInfo>;
+  /** Serialize the current live DOM back to an HTML string. */
+  getContent(): string;
+  /** Render the live DOM to PDF. */
+  renderLiveToPdf(): Buffer;
 }
 
 export interface DataAttribute {

@@ -1575,6 +1575,8 @@ pub(crate) enum PseudoElement {
 #[derive(Clone)]
 pub(crate) struct CssRule {
     selector: String,
+    parsed_selector: Vec<SelectorToken>,
+    specificity: u32,
     pseudo_element: PseudoElement,
     declarations: Vec<(String, String)>,
 }
@@ -1684,8 +1686,12 @@ fn parse_css_rules(css_text: &str) -> Vec<CssRule> {
             } else {
                 (sel, PseudoElement::None)
             };
+            let parsed_selector = tokenize_selector(&sel);
+            let specificity = compute_specificity_from_tokens(&parsed_selector);
             rules.push(CssRule {
                 selector: sel,
+                parsed_selector,
+                specificity,
                 pseudo_element: pseudo,
                 declarations: declarations.clone(),
             });
@@ -1695,17 +1701,13 @@ fn parse_css_rules(css_text: &str) -> Vec<CssRule> {
     rules
 }
 
-/// Check if a full selector (potentially with combinators) matches an element.
+/// Check if pre-parsed selector tokens match an element.
 /// `ancestors` is the list from nearest parent to root.
-pub fn selector_matches(
-    selector: &str,
+pub(crate) fn selector_matches_tokens(
+    parts: &[SelectorToken],
     element: &ElementNode,
     ancestors: &[&ElementNode],
 ) -> bool {
-    let selector = selector.trim();
-
-    // Tokenize into simple selector parts and combinators
-    let parts = tokenize_selector(selector);
     if parts.is_empty() {
         return false;
     }
@@ -1727,6 +1729,17 @@ pub fn selector_matches(
 
     // Walk backwards through the remaining parts, matching against ancestors
     match_selector_parts(&parts[..parts.len() - 1], ancestors)
+}
+
+/// Check if a full selector (potentially with combinators) matches an element.
+/// `ancestors` is the list from nearest parent to root.
+pub fn selector_matches(
+    selector: &str,
+    element: &ElementNode,
+    ancestors: &[&ElementNode],
+) -> bool {
+    let parts = tokenize_selector(selector.trim());
+    selector_matches_tokens(&parts, element, ancestors)
 }
 
 fn match_selector_parts(parts: &[SelectorToken], ancestors: &[&ElementNode]) -> bool {
@@ -1781,14 +1794,14 @@ fn match_selector_parts(parts: &[SelectorToken], ancestors: &[&ElementNode]) -> 
     }
 }
 
-#[derive(Debug)]
-enum SelectorToken {
+#[derive(Debug, Clone)]
+pub(crate) enum SelectorToken {
     Simple(String),
     Combinator(Combinator),
 }
 
 #[derive(Debug, Clone, Copy)]
-enum Combinator {
+pub(crate) enum Combinator {
     Descendant, // space
     Child,      // >
 }
@@ -2275,11 +2288,13 @@ pub fn resolve_styles(parsed: &ParseResult) -> StyleResult {
     }
 }
 
-type CascadedDecls = Vec<(usize, u32, Vec<(String, String)>)>;
+/// A reference to a matched rule's declarations without cloning.
+/// (source_order, specificity, rule_index)
+type MatchedRuleRef = (usize, u32, usize);
 
-#[allow(clippy::type_complexity)]
-fn resolve_pseudo_element(
-    decls: &[(usize, u32, Vec<(String, String)>)],
+fn resolve_pseudo_element_refs(
+    matched: &[MatchedRuleRef],
+    rules: &[CssRule],
     parent: &ComputedStyle,
 ) -> Option<Box<PseudoElementStyle>> {
     let mut content = None;
@@ -2288,8 +2303,8 @@ fn resolve_pseudo_element(
     let mut font_weight = parent.font_weight;
     let mut font_style = parent.font_style;
 
-    for (_, _, declarations) in decls {
-        for (prop, val) in declarations {
+    for &(_, _, rule_idx) in matched {
+        for (prop, val) in &rules[rule_idx].declarations {
             match prop.as_str() {
                 "content" => {
                     let val = val.trim();
@@ -2467,82 +2482,93 @@ fn resolve_element_styles(
         _ => {}
     }
 
-    // Collect matching rules with specificity for proper cascade ordering
-    #[allow(clippy::type_complexity)]
-    let mut matched_rules: Vec<(usize, u32, Vec<(String, String)>)> = Vec::new();
-    let mut before_decls: CascadedDecls = Vec::new();
-    let mut after_decls: CascadedDecls = Vec::new();
+    // Collect matching rules as (source_order, specificity, rule_index) —
+    // no declaration cloning
+    let mut matched_rules: Vec<MatchedRuleRef> = Vec::new();
+    let mut before_refs: Vec<MatchedRuleRef> = Vec::new();
+    let mut after_refs: Vec<MatchedRuleRef> = Vec::new();
 
     let candidates = rule_index.candidates_for(element);
     for source_order in candidates {
         let rule = &rules[source_order];
-        if selector_matches(&rule.selector, element, ancestors) {
-            let specificity = compute_specificity(&rule.selector);
+        if selector_matches_tokens(&rule.parsed_selector, element, ancestors) {
+            let entry = (source_order, rule.specificity, source_order);
             match rule.pseudo_element {
-                PseudoElement::None => {
-                    matched_rules.push((source_order, specificity, rule.declarations.clone()));
-                }
-                PseudoElement::Before => {
-                    before_decls.push((source_order, specificity, rule.declarations.clone()));
-                }
-                PseudoElement::After => {
-                    after_decls.push((source_order, specificity, rule.declarations.clone()));
-                }
+                PseudoElement::None => matched_rules.push(entry),
+                PseudoElement::Before => before_refs.push(entry),
+                PseudoElement::After => after_refs.push(entry),
             }
         }
     }
     // Sort by specificity (stable sort preserves source order for equal specificity)
-    matched_rules.sort_by_key(|(source_order, specificity, _)| (*specificity, *source_order));
+    matched_rules.sort_by_key(|&(so, sp, _)| (sp, so));
 
-    let mut all_declarations: Vec<(String, String)> = Vec::new();
-    for (_, _, decls) in matched_rules {
-        all_declarations.extend(decls);
-    }
-    // Inline styles have highest specificity
-    if let Some(style_attr) = element.get_attr("style") {
-        all_declarations.extend(parse_inline_declarations(style_attr));
-    }
+    // Inline styles parsed on demand
+    let inline_decls = element.get_attr("style").map(parse_inline_declarations);
 
-    // Pass 1: resolve font-size. Per CSS spec, `em` units in font-size are
-    // relative to the parent's font-size, not the element's own UA default.
-    // Temporarily set font-size to parent's value so em resolves correctly,
-    // then apply the CSS declaration (which will override both the UA default
-    // and the parent value).
+    // Pass 1: resolve font-size
     let ua_font_size = computed.font_size;
-    let has_font_size_decl = all_declarations.iter().any(|(p, _)| p == "font-size");
+    let has_font_size_decl = matched_rules.iter().any(|&(_, _, ri)| {
+        rules[ri].declarations.iter().any(|(p, _)| p == "font-size")
+    }) || inline_decls.as_ref().is_some_and(|d| d.iter().any(|(p, _)| p == "font-size"));
+
     if has_font_size_decl {
-        // For font-size, `em` resolves against the parent's font-size
         computed.font_size = parent_style.font_size;
-        for (prop, val) in &all_declarations {
-            if prop == "font-size" {
-                apply_property(&mut computed, prop, val, root_font_size);
+        for &(_, _, ri) in &matched_rules {
+            for (prop, val) in &rules[ri].declarations {
+                if prop == "font-size" {
+                    apply_property(&mut computed, prop, val, root_font_size);
+                }
+            }
+        }
+        if let Some(ref decls) = inline_decls {
+            for (prop, val) in decls {
+                if prop == "font-size" {
+                    apply_property(&mut computed, prop, val, root_font_size);
+                }
             }
         }
     } else {
         computed.font_size = ua_font_size;
     }
-    // Pass 2: resolve everything else
-    for (prop, val) in &all_declarations {
-        if prop == "font-size" {
-            continue;
+
+    // Pass 2: resolve everything else (iterate by reference, no clone)
+    for &(_, _, ri) in &matched_rules {
+        for (prop, val) in &rules[ri].declarations {
+            if prop == "font-size" {
+                continue;
+            }
+            if val == "inherit" {
+                apply_inherit(&mut computed, prop, parent_style);
+            } else {
+                apply_property(&mut computed, prop, val, root_font_size);
+            }
         }
-        if val == "inherit" {
-            apply_inherit(&mut computed, prop, parent_style);
-        } else {
-            apply_property(&mut computed, prop, val, root_font_size);
+    }
+    // Inline styles have highest specificity
+    if let Some(ref decls) = inline_decls {
+        for (prop, val) in decls {
+            if prop == "font-size" {
+                continue;
+            }
+            if val == "inherit" {
+                apply_inherit(&mut computed, prop, parent_style);
+            } else {
+                apply_property(&mut computed, prop, val, root_font_size);
+            }
         }
     }
 
     // Process ::before pseudo-element
-    if !before_decls.is_empty() {
-        before_decls.sort_by_key(|(so, sp, _)| (*sp, *so));
-        computed.before = resolve_pseudo_element(&before_decls, &computed);
+    if !before_refs.is_empty() {
+        before_refs.sort_by_key(|&(so, sp, _)| (sp, so));
+        computed.before = resolve_pseudo_element_refs(&before_refs, rules, &computed);
     }
 
     // Process ::after pseudo-element
-    if !after_decls.is_empty() {
-        after_decls.sort_by_key(|(so, sp, _)| (*sp, *so));
-        computed.after = resolve_pseudo_element(&after_decls, &computed);
+    if !after_refs.is_empty() {
+        after_refs.sort_by_key(|&(so, sp, _)| (sp, so));
+        computed.after = resolve_pseudo_element_refs(&after_refs, rules, &computed);
     }
 
     styles.insert(element_id, computed.clone());
@@ -2559,15 +2585,13 @@ fn resolve_element_styles(
     }
 }
 
-/// Compute CSS specificity as a single u32.
-/// Format: 0x00_AA_BB_CC where AA=id count, BB=class/attr/pseudo count, CC=element count
-fn compute_specificity(selector: &str) -> u32 {
-    let tokens = tokenize_selector(selector);
+/// Compute CSS specificity from pre-parsed tokens.
+fn compute_specificity_from_tokens(tokens: &[SelectorToken]) -> u32 {
     let mut ids: u32 = 0;
     let mut classes: u32 = 0;
     let mut elements: u32 = 0;
 
-    for token in &tokens {
+    for token in tokens {
         if let SelectorToken::Simple(s) = token {
             let (base, pseudos) = extract_pseudo_classes(s);
             let base = base.split("::").next().unwrap_or(base);
@@ -2575,37 +2599,39 @@ fn compute_specificity(selector: &str) -> u32 {
             // Count pseudo-classes
             for pseudo in &pseudos {
                 if pseudo.starts_with("not(") {
-                    // :not() itself has no specificity; the inner selector does
                     if let Some(inner) = pseudo.strip_prefix("not(").and_then(|p| p.strip_suffix(')')) {
-                        // Simplified: count inner as a class-level selector
                         classes += count_classes_in_simple(inner);
                         elements += count_elements_in_simple(inner);
                     }
                 } else {
-                    classes += 1; // pseudo-classes count as class-level
+                    classes += 1;
                 }
             }
 
-            // Extract attribute selectors before splitting by .
             let (base_no_attr, attr_sels) = extract_attribute_selectors(base);
             classes += attr_sels.len() as u32;
 
             let parts: Vec<&str> = base_no_attr.split('.').collect();
             let tag_part = parts[0];
 
-            // Count ID selectors (not yet supported but future-proof)
             if tag_part.starts_with('#') {
                 ids += 1;
             } else if !tag_part.is_empty() && tag_part != "*" {
                 elements += 1;
             }
 
-            // Count class selectors
             classes += (parts.len() as u32).saturating_sub(1);
         }
     }
 
     (ids << 16) | (classes << 8) | elements
+}
+
+/// Compute CSS specificity as a single u32.
+/// Format: 0x00_AA_BB_CC where AA=id count, BB=class/attr/pseudo count, CC=element count
+fn compute_specificity(selector: &str) -> u32 {
+    let tokens = tokenize_selector(selector);
+    compute_specificity_from_tokens(&tokens)
 }
 
 fn count_classes_in_simple(s: &str) -> u32 {

@@ -2,13 +2,8 @@ import React from 'react';
 import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
-import { parse as parseHtml } from 'node-html-parser';
 import { cpus } from 'node:os';
-import {
-  query as rustQuery,
-  renderToPdf as rustRenderToPdf,
-  RenderContext,
-} from '@votingworks/pdf-renderer';
+import { RenderContext, ElementInfo } from '@votingworks/pdf-renderer';
 import {
   DocumentElement,
   RenderDocument,
@@ -49,63 +44,50 @@ function renderJsxToHtml(element: JSX.Element): string {
 // expects CSS pixels (96 DPI) to match Chromium's getBoundingClientRect().
 const PT_TO_PX = 96 / 72;
 
+function mapElements(elements: ElementInfo[]): DocumentElement[] {
+  return elements.map((el) => {
+    const data: Record<string, string> = {};
+    for (const attr of el.attributes) {
+      data[dataAttrToCamelCase(attr.name)] = attr.value;
+    }
+    return {
+      x: el.x * PT_TO_PX,
+      y: el.y * PT_TO_PX,
+      width: el.width * PT_TO_PX,
+      height: el.height * PT_TO_PX,
+      data,
+    };
+  });
+}
+
 /**
- * Creates a {@link RenderDocument} backed by the Rust PDF renderer.
- *
- * HTML state is maintained in-memory as a string and manipulated with
- * `node-html-parser`. Queries and PDF rendering are delegated to the Rust
- * napi-rs bindings.
- *
- * When a {@link RenderContext} is provided, CSS parsing and font loading are
- * skipped on every call — the pre-compiled context is reused instead.
+ * Creates a {@link RenderDocument} backed by the Rust PDF renderer with
+ * live DOM patching. The DOM is maintained in Rust and patched in-place
+ * via `setContent`, avoiding full HTML re-parsing on every change.
  */
-function createRustDocument(
+function createRustDocumentWithLiveDom(
   initialHtml: string,
-  context?: RenderContext
+  context: RenderContext
 ): RenderDocument {
-  let html = initialHtml;
+  context.loadDocument(initialHtml);
 
   return {
     setContent(selector: string, element: JSX.Element): Promise<void> {
       const htmlContent = renderJsxToHtml(element);
-      const doc = parseHtml(html);
-      const node = doc.querySelector(selector);
-      assert(node !== null, `No element found with selector: ${selector}`);
-      node.set_content(htmlContent);
-      html = doc.toString();
+      context.setContent(selector, htmlContent);
       return Promise.resolve();
     },
 
     getContent(): Promise<string> {
-      return Promise.resolve(html);
+      return Promise.resolve(context.getContent());
     },
 
     inspectElements(selector: string): Promise<DocumentElement[]> {
-      const elements = context
-        ? context.query(html, selector)
-        : rustQuery(html, selector);
-      return Promise.resolve(
-        elements.map((el) => {
-          const data: Record<string, string> = {};
-          for (const attr of el.attributes) {
-            data[dataAttrToCamelCase(attr.name)] = attr.value;
-          }
-          return {
-            x: el.x * PT_TO_PX,
-            y: el.y * PT_TO_PX,
-            width: el.width * PT_TO_PX,
-            height: el.height * PT_TO_PX,
-            data,
-          };
-        })
-      );
+      return Promise.resolve(mapElements(context.queryLive(selector)));
     },
 
     renderToPdf(): Promise<Uint8Array> {
-      const pdfBytes = context
-        ? context.renderToPdf(html)
-        : rustRenderToPdf(html);
-      return Promise.resolve(Uint8Array.from(pdfBytes));
+      return Promise.resolve(Uint8Array.from(context.renderLiveToPdf()));
     },
 
     close(): Promise<void> {
@@ -123,12 +105,15 @@ function createRustRendererInstance(): Omit<Renderer, 'close'> {
       const stylesHtml = ReactDomServer.renderToStaticMarkup(styles);
       const html = `<!DOCTYPE html><html><head>${stylesHtml}</head><body></body></html>`;
       const context = new RenderContext(html);
-      const document = createRustDocument(html, context);
+      const document = createRustDocumentWithLiveDom(html, context);
       return Promise.resolve(createScratchpad(document));
     },
 
     loadDocumentFromContent(htmlContent: string): Promise<RenderDocument> {
-      return Promise.resolve(createRustDocument(htmlContent));
+      const loadContext = new RenderContext(htmlContent);
+      return Promise.resolve(
+        createRustDocumentWithLiveDom(htmlContent, loadContext)
+      );
     },
   };
 }

@@ -68,6 +68,13 @@ mod napi_bindings {
         layout_result: crate::layout::LayoutResult,
     }
 
+    /// Cached layout results for the live DOM. Stored separately because the
+    /// DOM is owned by `live_dom` and we just cache the computed results.
+    struct LiveLayoutCache {
+        style_result: crate::style::StyleResult,
+        layout_result: crate::layout::LayoutResult,
+    }
+
     fn hash_html(html: &str) -> u64 {
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
         html.hash(&mut hasher);
@@ -85,6 +92,11 @@ mod napi_bindings {
         /// when merging additional styles from the document.
         initial_style_count: usize,
         cache: RefCell<Option<CachedLayout>>,
+        /// Mutable DOM for structural caching. When set_content is used,
+        /// this holds the live DOM tree that gets patched in-place.
+        live_dom: RefCell<Option<Box<crate::dom::ParseResult>>>,
+        /// Cached layout for the live DOM, invalidated on set_content.
+        live_layout_cache: RefCell<Option<LiveLayoutCache>>,
     }
 
     #[napi]
@@ -98,7 +110,14 @@ mod napi_bindings {
             let initial_style_count = parsed.style_texts.len();
             let compiled = crate::style::compile_styles(&parsed.style_texts);
             let fonts = crate::fonts::load_fonts(&compiled.font_faces);
-            Ok(Self { compiled, fonts, initial_style_count, cache: RefCell::new(None) })
+            Ok(Self {
+                compiled,
+                fonts,
+                initial_style_count,
+                cache: RefCell::new(None),
+                live_dom: RefCell::new(None),
+                live_layout_cache: RefCell::new(None),
+            })
         }
 
         /// Query elements matching a CSS selector in the given HTML document.
@@ -174,6 +193,123 @@ mod napi_bindings {
             let layout_result =
                 crate::layout::compute_layout(&parsed.document, &mut style_result, &self.fonts);
             let pdf_bytes = crate::paint::render_pdf(&layout_result, &style_result, &self.fonts);
+            Ok(Buffer::from(pdf_bytes))
+        }
+
+        /// Initialize the live DOM from the given HTML. Subsequent calls to
+        /// `set_content` will patch this DOM in-place instead of re-parsing.
+        #[napi]
+        pub fn load_document(&self, html: String) -> napi::Result<()> {
+            let parsed = Box::new(
+                crate::dom::parse_html(&html)
+                    .map_err(|e| napi::Error::from_reason(e.to_string()))?,
+            );
+            *self.live_dom.borrow_mut() = Some(parsed);
+            *self.live_layout_cache.borrow_mut() = None;
+            Ok(())
+        }
+
+        /// Patch the live DOM by replacing the children of the element
+        /// matching `selector` with the parsed `html_content` fragment.
+        /// Much faster than re-parsing the entire document.
+        #[napi]
+        pub fn set_content(&self, selector: String, html_content: String) -> napi::Result<()> {
+            let mut dom_ref = self.live_dom.borrow_mut();
+            let parsed = dom_ref.as_mut().ok_or_else(|| {
+                napi::Error::from_reason("No document loaded. Call loadDocument first.".to_string())
+            })?;
+
+            let (new_children, new_styles) = crate::dom::parse_fragment(&html_content)
+                .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+
+            let target = crate::dom::find_element_mut(&mut parsed.document, &selector)
+                .ok_or_else(|| {
+                    napi::Error::from_reason(format!("No element found matching: {selector}"))
+                })?;
+            target.children = new_children;
+
+            // Replace additional styles (from styled-components in the fragment).
+            // Truncate to initial count first to avoid accumulating stale styles
+            // from previous setContent calls.
+            parsed.style_texts.truncate(self.initial_style_count);
+            parsed.style_texts.extend(new_styles);
+
+            // Invalidate cached layout since DOM changed
+            drop(dom_ref);
+            *self.live_layout_cache.borrow_mut() = None;
+            Ok(())
+        }
+
+        /// Compute styles and layout for the live DOM, caching the result.
+        fn ensure_live_layout(&self) -> napi::Result<()> {
+            if self.live_layout_cache.borrow().is_some() {
+                return Ok(());
+            }
+
+            let dom_ref = self.live_dom.borrow();
+            let parsed = dom_ref.as_ref().ok_or_else(|| {
+                napi::Error::from_reason("No document loaded. Call loadDocument first.".to_string())
+            })?;
+
+            let new_styles = &parsed.style_texts[self.initial_style_count..];
+            let rules = self.compiled.with_additional_styles(new_styles);
+            let styles = crate::style::apply_rules(&rules, &parsed.document);
+            let mut style_result = crate::style::StyleResult {
+                styles,
+                font_faces: self.compiled.font_faces.clone(),
+            };
+            let layout_result =
+                crate::layout::compute_layout(&parsed.document, &mut style_result, &self.fonts);
+
+            drop(dom_ref);
+            *self.live_layout_cache.borrow_mut() = Some(LiveLayoutCache {
+                style_result,
+                layout_result,
+            });
+            Ok(())
+        }
+
+        /// Query elements from the live DOM. Recomputes styles and layout
+        /// only if the DOM has been modified since the last query.
+        #[napi]
+        pub fn query_live(&self, selector: String) -> napi::Result<Vec<crate::ElementInfo>> {
+            self.ensure_live_layout()?;
+
+            let dom_ref = self.live_dom.borrow();
+            let parsed = dom_ref.as_ref().expect("live_dom set by ensure_live_layout");
+            let cache_ref = self.live_layout_cache.borrow();
+            let cached = cache_ref.as_ref().expect("set by ensure_live_layout");
+
+            Ok(crate::layout::query_elements(
+                &cached.layout_result,
+                &parsed.document,
+                &selector,
+            ))
+        }
+
+        /// Serialize the current live DOM back to an HTML string.
+        #[napi]
+        pub fn get_content(&self) -> napi::Result<String> {
+            let dom_ref = self.live_dom.borrow();
+            let parsed = dom_ref.as_ref().ok_or_else(|| {
+                napi::Error::from_reason("No document loaded. Call loadDocument first.".to_string())
+            })?;
+            Ok(parsed.document.serialize_children_to_xml())
+        }
+
+        /// Render the live DOM to PDF.
+        #[napi]
+        pub fn render_live_to_pdf(&self) -> napi::Result<Buffer> {
+            self.ensure_live_layout()?;
+
+            let cache_ref = self.live_layout_cache.borrow();
+            let cached = cache_ref.as_ref().expect("set by ensure_live_layout");
+
+            let pdf_bytes = crate::paint::render_pdf(
+                &cached.layout_result,
+                &cached.style_result,
+                &self.fonts,
+            );
             Ok(Buffer::from(pdf_bytes))
         }
     }

@@ -35,6 +35,18 @@ impl ElementNode {
         xml
     }
 
+    /// Serialize only this element's children to XML (skips the wrapper tag).
+    pub fn serialize_children_to_xml(&self) -> String {
+        let mut xml = String::new();
+        for child in &self.children {
+            match child {
+                DomNode::Element(el) => el.write_xml(&mut xml),
+                DomNode::Text(t) => xml.push_str(t),
+            }
+        }
+        xml
+    }
+
     fn write_xml(&self, out: &mut String) {
         out.push('<');
         out.push_str(&self.tag);
@@ -48,7 +60,7 @@ impl ElementNode {
             out.push_str(&value.replace('&', "&amp;").replace('"', "&quot;").replace('<', "&lt;").replace('>', "&gt;"));
             out.push('"');
         }
-        if self.children.is_empty() {
+        if self.children.is_empty() && VOID_ELEMENTS.contains(&self.tag.as_str()) {
             out.push_str("/>");
         } else {
             out.push('>');
@@ -177,8 +189,9 @@ pub fn parse_html(html: &str) -> Result<ParseResult, quick_xml::Error> {
             Event::Text(text) => {
                 let text_str = text.unescape()?.into_owned();
                 if in_style {
-                    style_texts.push(text_str);
-                } else if !text_str.is_empty() {
+                    style_texts.push(text_str.clone());
+                }
+                if !text_str.is_empty() {
                     if let Some(parent) = stack.last_mut() {
                         parent.children.push(DomNode::Text(text_str));
                     }
@@ -187,8 +200,9 @@ pub fn parse_html(html: &str) -> Result<ParseResult, quick_xml::Error> {
             Event::CData(cdata) => {
                 let text_str = String::from_utf8_lossy(&cdata).into_owned();
                 if in_style {
-                    style_texts.push(text_str);
-                } else if !text_str.is_empty() {
+                    style_texts.push(text_str.clone());
+                }
+                if !text_str.is_empty() {
                     if let Some(parent) = stack.last_mut() {
                         parent.children.push(DomNode::Text(text_str));
                     }
@@ -206,6 +220,55 @@ pub fn parse_html(html: &str) -> Result<ParseResult, quick_xml::Error> {
         document,
         style_texts,
     })
+}
+
+/// Parse an HTML fragment into a list of child nodes (no root wrapper).
+/// Style tags are collected separately, just like full document parsing.
+pub fn parse_fragment(html: &str) -> Result<(Vec<DomNode>, Vec<String>), quick_xml::Error> {
+    // Wrap in a temporary root so quick_xml can parse it
+    let wrapped = format!("<__fragment__>{html}</__fragment__>");
+    let result = parse_html(&wrapped)?;
+    // Extract children from <__fragment__> wrapper
+    if let Some(DomNode::Element(fragment)) = result.document.children.into_iter().next() {
+        Ok((fragment.children, result.style_texts))
+    } else {
+        Ok((Vec::new(), result.style_texts))
+    }
+}
+
+/// Find a mutable reference to the first element matching a CSS selector.
+/// Uses the same selector matching as style resolution.
+pub fn find_element_mut<'a>(
+    root: &'a mut ElementNode,
+    selector: &str,
+) -> Option<&'a mut ElementNode> {
+    find_element_mut_recursive(root, selector, &[])
+}
+
+fn find_element_mut_recursive<'a>(
+    element: &'a mut ElementNode,
+    selector: &str,
+    ancestors: &[&ElementNode],
+) -> Option<&'a mut ElementNode> {
+    if crate::style::selector_matches(selector, element, ancestors) {
+        return Some(element);
+    }
+
+    // Build ancestor chain for children. We need to use raw pointers because
+    // we can't borrow `element` immutably (for ancestors) and mutably (for
+    // children) at the same time.
+    let element_ptr = element as *const ElementNode;
+    let mut child_ancestors = vec![unsafe { &*element_ptr }];
+    child_ancestors.extend_from_slice(ancestors);
+
+    for child in &mut element.children {
+        if let DomNode::Element(child_el) = child {
+            if let Some(found) = find_element_mut_recursive(child_el, selector, &child_ancestors) {
+                return Some(found);
+            }
+        }
+    }
+    None
 }
 
 #[cfg(test)]
