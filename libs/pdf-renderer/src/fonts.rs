@@ -127,6 +127,17 @@ impl FontCollection {
         m.ascender / m.units_per_em
     }
 
+    /// Get the content area height ratio ((ascender - descender) / units_per_em).
+    /// This is the height of the font's content area relative to font_size,
+    /// used for CSS half-leading calculation.
+    pub fn content_area_ratio(&self, family: &str, weight: u16, style: FontStyle) -> f32 {
+        let Some(idx) = self.find_idx(family, weight, style) else {
+            return 1.2;
+        };
+        let m = &self.metrics[idx];
+        (m.ascender - m.descender) / m.units_per_em
+    }
+
     /// Get the line height ratio for a font.
     pub fn line_height_ratio(&self, family: &str, weight: u16, style: FontStyle) -> f32 {
         let Some(idx) = self.find_idx(family, weight, style) else {
@@ -178,7 +189,12 @@ impl FontCollection {
         let mut buffer = rustybuzz::UnicodeBuffer::new();
         buffer.push_str(text);
 
-        let output = rustybuzz::shape(&rb_face, &[], buffer);
+        // Disable ligatures to match CSS `font-variant-ligatures: none`
+        let features = [
+            rustybuzz::Feature::new(ttf_parser::Tag::from_bytes(b"liga"), 0, ..),
+            rustybuzz::Feature::new(ttf_parser::Tag::from_bytes(b"clig"), 0, ..),
+        ];
+        let output = rustybuzz::shape(&rb_face, &features, buffer);
         let positions = output.glyph_positions();
 
         let units_per_em = rb_face.units_per_em() as f32;
@@ -188,6 +204,62 @@ impl FontCollection {
             .iter()
             .map(|pos| pos.x_advance as f32 * scale)
             .sum()
+    }
+
+    /// Shape text and return KrillaGlyph objects for use with draw_glyphs.
+    /// Uses the same shaping features (liga=0, clig=0) as measure_text.
+    pub fn shape_glyphs(
+        &self,
+        text: &str,
+        family: &str,
+        weight: u16,
+        style: FontStyle,
+        font_size: f32,
+    ) -> Vec<krilla::text::KrillaGlyph> {
+        let Some(font_idx) = self.find_idx(family, weight, style) else {
+            return Vec::new();
+        };
+        let font_face = &self.font_data[font_idx];
+        let Ok(face) = ttf_parser::Face::parse(&font_face.data, 0) else {
+            return Vec::new();
+        };
+
+        let mut rb_face = rustybuzz::Face::from_face(face);
+        rb_face.set_points_per_em(Some(font_size));
+
+        let mut buffer = rustybuzz::UnicodeBuffer::new();
+        buffer.push_str(text);
+
+        let features = [
+            rustybuzz::Feature::new(ttf_parser::Tag::from_bytes(b"liga"), 0, ..),
+            rustybuzz::Feature::new(ttf_parser::Tag::from_bytes(b"clig"), 0, ..),
+        ];
+        let output = rustybuzz::shape(&rb_face, &features, buffer);
+        let positions = output.glyph_positions();
+        let infos = output.glyph_infos();
+        let units_per_em = rb_face.units_per_em() as f32;
+
+        let mut glyphs = Vec::with_capacity(output.len());
+        for i in 0..output.len() {
+            let pos = &positions[i];
+            let info = &infos[i];
+            let start = info.cluster as usize;
+            let end = if i + 1 < output.len() {
+                infos[i + 1].cluster as usize
+            } else {
+                text.len()
+            };
+            glyphs.push(krilla::text::KrillaGlyph::new(
+                krilla::text::GlyphId::new(info.glyph_id),
+                pos.x_advance as f32 / units_per_em,
+                pos.x_offset as f32 / units_per_em,
+                pos.y_offset as f32 / units_per_em,
+                pos.y_advance as f32 / units_per_em,
+                start..end,
+                None,
+            ));
+        }
+        glyphs
     }
 
     /// Break text into lines that fit within max_width, returning line widths.
@@ -267,11 +339,38 @@ pub fn load_fonts(font_faces: &[FontFace]) -> FontCollection {
             };
             let idx = font_data.len();
             font_data.push(face.clone());
+
+            // Use OS/2 win metrics when available to match Chromium's behavior.
+            // Chromium uses usWinAscent/usWinDescent for the content area when
+            // USE_TYPO_METRICS is not set.
+            let (ascender, descender, line_gap) =
+                if let Some(os2) = parsed.tables().os2 {
+                    if os2.use_typographic_metrics() {
+                        (
+                            f32::from(os2.typographic_ascender()),
+                            f32::from(os2.typographic_descender()),
+                            f32::from(os2.typographic_line_gap()),
+                        )
+                    } else {
+                        (
+                            f32::from(os2.windows_ascender()),
+                            f32::from(os2.windows_descender()),
+                            0.0,
+                        )
+                    }
+                } else {
+                    (
+                        f32::from(parsed.ascender()),
+                        f32::from(parsed.descender()),
+                        f32::from(parsed.line_gap()),
+                    )
+                };
+
             metrics.push(FontMetrics {
                 units_per_em: f32::from(parsed.units_per_em()),
-                ascender: f32::from(parsed.ascender()),
-                descender: f32::from(parsed.descender()),
-                line_gap: f32::from(parsed.line_gap()),
+                ascender,
+                descender,
+                line_gap,
             });
             index.insert(key, idx);
         }

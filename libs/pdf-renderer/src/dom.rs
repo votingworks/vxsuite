@@ -102,10 +102,15 @@ const VOID_ELEMENTS: &[&str] = &[
 ];
 
 /// Convert HTML void elements (e.g. `<col>`, `<br>`) to self-closing XML
-/// (e.g. `<col/>`, `<br/>`) so quick-xml can parse them.
+/// (e.g. `<col/>`, `<br/>`) and remove stray closing tags (e.g. `</col>`)
+/// so quick-xml can parse them.
 fn make_void_elements_self_closing(html: &str) -> String {
     let mut result = html.to_string();
     for tag in VOID_ELEMENTS {
+        // Remove stray closing tags for void elements (e.g. `</col>`)
+        let close_tag = format!("</{tag}>");
+        result = result.replace(&close_tag, "");
+
         // Find each occurrence of `<tag...>` that isn't already self-closing
         let open = format!("<{tag}");
         let mut search_from = 0;

@@ -190,7 +190,9 @@ fn paint_node(
             let cy = y + child_layout.location.y;
 
             if let Some(ref parent_style) = computed {
-                let content_width = w - computed.as_ref().map_or(0.0, |s| s.padding.left + s.padding.right);
+                let content_width = w - computed.as_ref().map_or(0.0, |s| {
+                    s.padding.left + s.padding.right + s.border_widths.left + s.border_widths.right
+                });
                 if ctx.runs.len() <= 1 {
                     paint_text(surface, cx, cy, &ctx.text(), parent_style, fonts, content_width);
                 } else {
@@ -664,79 +666,103 @@ fn paint_text(
 
     let font_size = style.font_size;
     let ascender_ratio = fonts.ascender_ratio(&style.font_family, style.font_weight, style.font_style);
+    let content_area_ratio = fonts.content_area_ratio(&style.font_family, style.font_weight, style.font_style);
     let line_height = if style.line_height > 0.0 {
         font_size * style.line_height
     } else {
         font_size * fonts.line_height_ratio(&style.font_family, style.font_weight, style.font_style)
     };
+    // CSS half-leading: center the content area within the line box
+    let half_leading = (line_height - font_size * content_area_ratio) / 2.0;
 
     surface.set_fill(Some(make_fill(&style.color)));
     surface.set_stroke(None);
 
     let no_wrap = matches!(style.white_space, crate::style::WhiteSpace::NoWrap);
     if no_wrap || container_width <= 0.0 {
-        let baseline_y = y + font_size * ascender_ratio;
+        let baseline_y = y + half_leading + font_size * ascender_ratio;
         let text_x = align_text_x(x, &text, style, fonts, font_size, container_width);
-        surface.draw_text(
-            Point::from_xy(text_x, baseline_y),
-            font,
-            font_size,
-            &text,
-            false,
-            krilla::text::TextDirection::Auto,
+        draw_shaped_text(
+            surface, text_x, baseline_y, &text, &font, font_size,
+            fonts, &style.font_family, style.font_weight, style.font_style,
         );
         return;
     }
 
-    // Word-wrap: split into words and greedily fill lines
-    let words: Vec<&str> = text.split_whitespace().collect();
-    if words.is_empty() {
-        return;
-    }
+    // Word-wrap using unicode_linebreak (same as layout measurement)
+    let break_opportunities: Vec<(usize, unicode_linebreak::BreakOpportunity)> =
+        unicode_linebreak::linebreaks(&text).collect();
 
-    let max_x = x + container_width;
     let mut cursor_x = x;
     let mut cursor_y = y;
     let line_start_x = x;
+    let mut line_start = 0;
+    let mut last_break_pos = 0;
 
-    for (i, word) in words.iter().enumerate() {
-        let prefix = if i == 0 { String::new() } else { format!(" {word}") };
-        let draw_word = if i == 0 { (*word).to_string() } else { prefix.clone() };
-        let word_width = fonts.measure_text(
-            &draw_word, &style.font_family, style.font_weight, style.font_style, font_size,
+    for &(pos, _opportunity) in &break_opportunities {
+        let segment = &text[line_start..pos];
+        let trimmed = segment.trim_end();
+        let trimmed_width = fonts.measure_text(
+            trimmed, &style.font_family, style.font_weight, style.font_style, font_size,
         );
 
-        if cursor_x > line_start_x && cursor_x + word_width > max_x + 0.5 {
-            cursor_x = line_start_x;
+        if trimmed_width > container_width && last_break_pos > line_start {
+            // Draw previous line
+            let line_text = text[line_start..last_break_pos].trim_end();
+            if !line_text.is_empty() {
+                let baseline_y = cursor_y + half_leading + font_size * ascender_ratio;
+                let text_x = align_text_x(cursor_x, line_text, style, fonts, font_size, container_width);
+                draw_shaped_text(
+                    surface, text_x, baseline_y, line_text, &font, font_size,
+                    fonts, &style.font_family, style.font_weight, style.font_style,
+                );
+            }
             cursor_y += line_height;
-            // Redraw without leading space after wrap
-            let bare_word = (*word).to_string();
-            let bare_width = fonts.measure_text(
-                &bare_word, &style.font_family, style.font_weight, style.font_style, font_size,
-            );
-            let baseline_y = cursor_y + font_size * ascender_ratio;
-            surface.draw_text(
-                Point::from_xy(cursor_x, baseline_y),
-                font.clone(),
-                font_size,
-                &bare_word,
-                false,
-                krilla::text::TextDirection::Auto,
-            );
-            cursor_x += bare_width;
-        } else {
-            let baseline_y = cursor_y + font_size * ascender_ratio;
-            surface.draw_text(
-                Point::from_xy(cursor_x, baseline_y),
-                font.clone(),
-                font_size,
-                &draw_word,
-                false,
-                krilla::text::TextDirection::Auto,
-            );
-            cursor_x += word_width;
+            cursor_x = line_start_x;
+            line_start = last_break_pos;
         }
+
+        last_break_pos = pos;
     }
+
+    // Draw remaining text
+    let remaining = text[line_start..].trim_end();
+    if !remaining.is_empty() {
+        let baseline_y = cursor_y + half_leading + font_size * ascender_ratio;
+        let text_x = align_text_x(cursor_x, remaining, style, fonts, font_size, container_width);
+        draw_shaped_text(
+            surface, text_x, baseline_y, remaining, &font, font_size,
+            fonts, &style.font_family, style.font_weight, style.font_style,
+        );
+    }
+}
+
+/// Draw text using pre-shaped glyphs for consistent positioning with measurement.
+#[allow(clippy::too_many_arguments)]
+fn draw_shaped_text(
+    surface: &mut krilla::surface::Surface,
+    x: f32,
+    baseline_y: f32,
+    text: &str,
+    font: &Font,
+    font_size: f32,
+    fonts: &FontCollection,
+    family: &str,
+    weight: u16,
+    style: crate::style::FontStyle,
+) {
+    let glyphs = fonts.shape_glyphs(text, family, weight, style, font_size);
+    if glyphs.is_empty() {
+        return;
+    }
+    surface.draw_glyphs(
+        Point::from_xy(x, baseline_y),
+        &glyphs,
+        font.clone(),
+        text,
+        font_size,
+        false,
+    );
 }
 
 fn align_text_x(
@@ -765,6 +791,88 @@ fn align_text_x(
 }
 
 #[allow(clippy::too_many_arguments)]
+/// Paint a single line of inline text, splitting into per-run segments so each
+/// run gets its own font/color.
+fn paint_inline_line(
+    surface: &mut krilla::surface::Surface,
+    x: f32,
+    y: f32,
+    line_text: &str,
+    line_byte_start: usize,
+    char_to_run: &[usize],
+    ctx: &TextContext,
+    fonts: &FontCollection,
+    font_size: f32,
+    ascender_ratio: f32,
+    half_leading: f32,
+) {
+    let trimmed = line_text.trim_end();
+    if trimmed.is_empty() {
+        return;
+    }
+
+    // Split line_text into contiguous spans belonging to the same run
+    let mut cursor_x = x;
+    let baseline_y = y + half_leading + font_size * ascender_ratio;
+
+    let mut span_start = 0;
+    let mut current_run = char_to_run.get(line_byte_start).copied().unwrap_or(0);
+
+    for (byte_pos, _ch) in trimmed.char_indices() {
+        let global_byte = line_byte_start + byte_pos;
+        let run_idx = char_to_run.get(global_byte).copied().unwrap_or(current_run);
+
+        if run_idx != current_run {
+            // Flush previous span
+            let span = &trimmed[span_start..byte_pos];
+            if !span.is_empty() {
+                cursor_x += paint_run_span(
+                    surface, cursor_x, baseline_y, span, current_run, ctx, fonts,
+                );
+            }
+            span_start = byte_pos;
+            current_run = run_idx;
+        }
+    }
+
+    // Flush last span
+    let span = &trimmed[span_start..];
+    if !span.is_empty() {
+        paint_run_span(surface, cursor_x, baseline_y, span, current_run, ctx, fonts);
+    }
+}
+
+/// Draw a text span using a specific run's font/color. Returns the drawn width.
+fn paint_run_span(
+    surface: &mut krilla::surface::Surface,
+    x: f32,
+    baseline_y: f32,
+    text: &str,
+    run_index: usize,
+    ctx: &TextContext,
+    fonts: &FontCollection,
+) -> f32 {
+    let run = &ctx.runs[run_index];
+    let width = fonts.measure_text(text, &run.font_family, run.font_weight, run.font_style, run.font_size);
+
+    let Some(font_face) = fonts.find(&run.font_family, run.font_weight, run.font_style) else {
+        return width;
+    };
+    let data: krilla::Data = Arc::new(font_face.data.clone()).into();
+    let Some(font) = Font::new(data, 0) else {
+        return width;
+    };
+
+    surface.set_fill(Some(make_fill(&run.color)));
+    surface.set_stroke(None);
+    draw_shaped_text(
+        surface, x, baseline_y, text, &font, run.font_size,
+        fonts, &run.font_family, run.font_weight, run.font_style,
+    );
+
+    width
+}
+
 fn paint_inline_runs(
     surface: &mut krilla::surface::Surface,
     x: f32,
@@ -779,81 +887,67 @@ fn paint_inline_runs(
     let font_weight = ctx.primary_font_weight();
     let font_style = ctx.primary_font_style();
     let ascender_ratio = fonts.ascender_ratio(&font_family, font_weight, font_style);
+    let content_area_ratio = fonts.content_area_ratio(&font_family, font_weight, font_style);
     let line_height = if ctx.line_height() > 0.0 {
         font_size * ctx.line_height()
     } else {
         font_size * fonts.line_height_ratio(&font_family, font_weight, font_style)
     };
-
+    let half_leading = (line_height - font_size * content_area_ratio) / 2.0;
     let mut cursor_x = x;
     let mut cursor_y = y;
     let line_start_x = x;
-    let max_x = x + container_width;
-    let _space_width = fonts.measure_text(" ", &font_family, font_weight, font_style, font_size);
 
-    // Break all runs into word-level segments with their styles
-    let mut segments: Vec<(String, usize)> = Vec::new();
+    // Build the full concatenated text and a map from char offset to run index
+    let mut full_text = String::new();
+    let mut char_to_run: Vec<usize> = Vec::new();
     for (i, run) in ctx.runs.iter().enumerate() {
         let text = match parent_style.text_transform {
             crate::style::TextTransform::Uppercase => run.text.to_uppercase(),
             crate::style::TextTransform::None => run.text.clone(),
         };
-
-        // Split into words, preserving leading/trailing spaces
-        let has_leading_space = text.starts_with(' ');
-        let has_trailing_space = text.ends_with(' ');
-        let words: Vec<&str> = text.split_whitespace().collect();
-
-        for (j, word) in words.iter().enumerate() {
-            let mut w = String::new();
-            // Add space before word if it's not the first word, or if the
-            // run text had a leading space
-            if (j == 0 && has_leading_space) || j > 0 {
-                w.push(' ');
-            }
-            w.push_str(word);
-            if j == words.len() - 1 && has_trailing_space {
-                w.push(' ');
-            }
-            segments.push((w, i));
+        for _ in text.chars() {
+            char_to_run.push(i);
         }
+        full_text.push_str(&text);
     }
 
-    // Paint word by word with wrapping
-    for (word, run_index) in &segments {
-        let run = &ctx.runs[*run_index];
-        let word_width = fonts.measure_text(word, &run.font_family, run.font_weight, run.font_style, run.font_size);
+    // Use unicode_linebreak to find break opportunities (same as layout)
+    let break_opportunities: Vec<(usize, unicode_linebreak::BreakOpportunity)> =
+        unicode_linebreak::linebreaks(&full_text).collect();
 
-        // Check if we need to wrap
-        if cursor_x > line_start_x && cursor_x + word_width > max_x + 0.5 {
-            cursor_x = line_start_x;
-            cursor_y += line_height;
-        }
+    let mut line_start = 0;
+    let mut last_break_pos = 0;
 
-        let baseline_y = cursor_y + font_size * ascender_ratio;
-
-        let Some(font_face) = fonts.find(&run.font_family, run.font_weight, run.font_style) else {
-            cursor_x += word_width;
-            continue;
-        };
-        let data: krilla::Data = Arc::new(font_face.data.clone()).into();
-        let Some(font) = Font::new(data, 0) else {
-            cursor_x += word_width;
-            continue;
-        };
-
-        surface.set_fill(Some(make_fill(&run.color)));
-        surface.set_stroke(None);
-        surface.draw_text(
-            Point::from_xy(cursor_x, baseline_y),
-            font,
-            run.font_size,
-            word,
-            false,
-            krilla::text::TextDirection::Auto,
+    for &(pos, _opportunity) in &break_opportunities {
+        let segment = &full_text[line_start..pos];
+        let trimmed = segment.trim_end();
+        let trimmed_width = fonts.measure_text(
+            trimmed, &font_family, font_weight, font_style, font_size,
         );
 
-        cursor_x += word_width;
+        if trimmed_width > container_width && last_break_pos > line_start {
+            // Draw the line from line_start to last_break_pos
+            let line_text = &full_text[line_start..last_break_pos];
+            paint_inline_line(
+                surface, cursor_x, cursor_y, line_text, line_start,
+                &char_to_run, ctx, fonts, font_size, ascender_ratio, half_leading,
+            );
+            cursor_y += line_height;
+            cursor_x = line_start_x;
+            line_start = last_break_pos;
+        }
+
+        last_break_pos = pos;
+    }
+
+    // Draw remaining text
+    if line_start < full_text.len() {
+        let line_text = &full_text[line_start..];
+        paint_inline_line(
+            surface, cursor_x, cursor_y, line_text, line_start,
+            &char_to_run, ctx, fonts, font_size, ascender_ratio, half_leading,
+        );
     }
 }
 

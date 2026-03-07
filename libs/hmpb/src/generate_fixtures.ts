@@ -11,12 +11,14 @@ import {
   calibrationSheetFixtures,
   msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
+  rustRendererFixtures,
   timingMarkPaperFixtures,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
 } from './ballot_fixtures';
 import { createPlaywrightRendererPool } from './playwright_renderer';
+import { createRustRendererPool } from './rust_renderer';
 import { Renderer, RendererPool } from './renderer';
 import { TimingMarkPaperType } from './timing_mark_paper/template';
 
@@ -159,6 +161,19 @@ async function generateMsGeneralElectionFixtures(rendererPool: RendererPool) {
   await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
 }
 
+async function generateRustRendererFixtures() {
+  const fixtures = rustRendererFixtures;
+  const rustRendererPool = await createRustRendererPool();
+  const allGenerated = await fixtures.generate(rustRendererPool);
+  await mkdir(fixtures.dir, { recursive: true });
+  for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
+    allGenerated
+  )) {
+    await writeFile(spec.blankBallotPath, generated.blankBallotPdf);
+  }
+  await rustRendererPool.close();
+}
+
 async function generateTimingMarkPaperFixtures(
   renderer: Renderer,
   paperSize: HmpbBallotPaperSize,
@@ -209,7 +224,8 @@ type Fixture =
   | 'vx-primary-election'
   | 'nh-general-election'
   | 'ms-general-election'
-  | 'calibration-sheet';
+  | 'calibration-sheet'
+  | 'rust-renderer';
 
 export async function main(): Promise<number> {
   const rendererPool = await createPlaywrightRendererPool();
@@ -257,6 +273,11 @@ export async function main(): Promise<number> {
 
       case '--calibration-sheet': {
         fixtures.add('calibration-sheet');
+        break;
+      }
+
+      case '--rust-renderer': {
+        fixtures.add('rust-renderer');
         break;
       }
 
@@ -334,6 +355,11 @@ export async function main(): Promise<number> {
   }
 
   await rendererPool.close();
+
+  if (fixtures.size === 0 || fixtures.has('rust-renderer')) {
+    await rm(rustRendererFixtures.dir, { recursive: true, force: true });
+    await generateRustRendererFixtures();
+  }
 
   return 0;
 }

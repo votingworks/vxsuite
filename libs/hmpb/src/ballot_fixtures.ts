@@ -870,6 +870,86 @@ export const timingMarkPaperFixtures = (() => {
   };
 })();
 
+export const rustRendererFixtures = (() => {
+  const dir = join(fixturesDir, 'rust-renderer');
+
+  const ballotStyleIds: BallotStyleId[] = [
+    '5' as BallotStyleId,
+    '12' as BallotStyleId,
+  ];
+
+  const electionGeneral = readElectionGeneral();
+  const election = {
+    ...electionGeneral,
+    ballotLayout: {
+      ...electionGeneral.ballotLayout,
+      paperSize: HmpbBallotPaperSize.Letter,
+    },
+  } as const;
+
+  const fixtureSpecs = ballotStyleIds.map((ballotStyleId) => {
+    const ballotStyle = assertDefined(
+      getBallotStyle({ election, ballotStyleId })
+    );
+    const allBallotProps: BaseBallotProps[] = ballotStyle.precincts.map(
+      (precinctId): BaseBallotProps => ({
+        election,
+        ballotStyleId,
+        precinctId,
+        ballotType: BallotType.Absentee,
+        ballotMode: 'official',
+      })
+    );
+    return {
+      ballotStyleId,
+      allBallotProps,
+      precinctId: assertDefined(ballotStyle.precincts[0]),
+      blankBallotPath: join(dir, `style-${ballotStyleId}-blank.pdf`),
+    };
+  });
+
+  return {
+    dir,
+    fixtureSpecs,
+
+    async generate(rendererPool: RendererPool) {
+      return iter(fixtureSpecs)
+        .async()
+        .map(async (spec) => {
+          debug(`Generating Rust renderer fixture: ${spec.blankBallotPath}`);
+          const { electionDefinition, ballotContents } =
+            await layOutBallotsAndCreateElectionDefinition(
+              rendererPool,
+              vxDefaultBallotTemplate,
+              spec.allBallotProps,
+              'vxf'
+            );
+
+          const [blankBallotContents, ballotProps] = assertDefined(
+            iter(ballotContents)
+              .zip(spec.allBallotProps)
+              .find(([, props]) => props.precinctId === spec.precinctId)
+          );
+
+          const blankBallotPdf = await rendererPool.runTask(
+            async (renderer) => {
+              const ballotDocument =
+                await renderer.loadDocumentFromContent(blankBallotContents);
+              return renderBallotPdfWithMetadataQrCode(
+                ballotProps,
+                ballotDocument,
+                electionDefinition
+              );
+            }
+          );
+
+          return { blankBallotPdf };
+        })
+        .toArray();
+    },
+  };
+})();
+
 export const calibrationSheetFixtures = (() => {
   function specPaths(paperSize: HmpbBallotPaperSize): {
     dir: string;

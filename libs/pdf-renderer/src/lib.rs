@@ -228,10 +228,10 @@ mod napi_bindings {
                 })?;
             target.children = new_children;
 
-            // Replace additional styles (from styled-components in the fragment).
-            // Truncate to initial count first to avoid accumulating stale styles
-            // from previous setContent calls.
-            parsed.style_texts.truncate(self.initial_style_count);
+            // Append additional styles from the fragment (e.g. styled-components).
+            // We accumulate styles from all setContent calls rather than
+            // truncating, since different calls may target different elements
+            // whose styles are all needed at layout time.
             parsed.style_texts.extend(new_styles);
 
             // Invalidate cached layout since DOM changed
