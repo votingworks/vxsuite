@@ -11,6 +11,13 @@ pub mod layout;
 pub mod paint;
 pub mod diff;
 
+/// Check if RUST_PROFILE env var is set (cached, checked once).
+pub(crate) fn is_profiling() -> bool {
+    use std::sync::OnceLock;
+    static PROFILING: OnceLock<bool> = OnceLock::new();
+    *PROFILING.get_or_init(|| std::env::var("RUST_PROFILE").is_ok())
+}
+
 #[cfg_attr(feature = "napi-binding", napi_derive::napi(object))]
 pub struct ElementInfo {
     pub x: f64,
@@ -31,6 +38,7 @@ mod napi_bindings {
     use std::cell::RefCell;
     use std::hash::{Hash, Hasher};
 
+    use super::is_profiling;
     use napi::bindgen_prelude::Buffer;
     use napi_derive::napi;
 
@@ -105,11 +113,26 @@ mod napi_bindings {
         /// HTML (typically just `<style>` tags).
         #[napi(constructor)]
         pub fn new(styles_html: String) -> napi::Result<Self> {
+            let t0 = std::time::Instant::now();
             let parsed = crate::dom::parse_html(&styles_html)
                 .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+            let t1 = std::time::Instant::now();
             let initial_style_count = parsed.style_texts.len();
             let compiled = crate::style::compile_styles(&parsed.style_texts);
+            let t2 = std::time::Instant::now();
             let fonts = crate::fonts::load_fonts(&compiled.font_faces);
+            let t3 = std::time::Instant::now();
+
+            if is_profiling() {
+                eprintln!(
+                    "[rust-profile] RenderContext::new: parse_html={:.1}ms compile_styles={:.1}ms load_fonts={:.1}ms total={:.1}ms",
+                    t1.duration_since(t0).as_secs_f64() * 1000.0,
+                    t2.duration_since(t1).as_secs_f64() * 1000.0,
+                    t3.duration_since(t2).as_secs_f64() * 1000.0,
+                    t3.duration_since(t0).as_secs_f64() * 1000.0,
+                );
+            }
+
             Ok(Self {
                 compiled,
                 fonts,
@@ -200,13 +223,33 @@ mod napi_bindings {
         /// `set_content` will patch this DOM in-place instead of re-parsing.
         #[napi]
         pub fn load_document(&self, html: String) -> napi::Result<()> {
+            let t0 = std::time::Instant::now();
+            let html_len = html.len();
             let parsed = Box::new(
                 crate::dom::parse_html(&html)
                     .map_err(|e| napi::Error::from_reason(e.to_string()))?,
             );
+            let t1 = std::time::Instant::now();
+
+            if is_profiling() {
+                eprintln!(
+                    "[rust-profile] load_document: parse_html={:.1}ms ({} bytes)",
+                    t1.duration_since(t0).as_secs_f64() * 1000.0,
+                    html_len,
+                );
+            }
+
             *self.live_dom.borrow_mut() = Some(parsed);
             *self.live_layout_cache.borrow_mut() = None;
             Ok(())
+        }
+
+        /// Patch the live DOM like set_content, but skip layout cache
+        /// invalidation. Use when the change is known to not affect layout
+        /// (e.g. replacing content in a fixed-size slot).
+        #[napi]
+        pub fn set_content_no_relayout(&self, selector: String, html_content: String) -> napi::Result<()> {
+            self.set_content_inner(&selector, &html_content, false)
         }
 
         /// Patch the live DOM by replacing the children of the element
@@ -214,29 +257,46 @@ mod napi_bindings {
         /// Much faster than re-parsing the entire document.
         #[napi]
         pub fn set_content(&self, selector: String, html_content: String) -> napi::Result<()> {
+            self.set_content_inner(&selector, &html_content, true)
+        }
+
+        fn set_content_inner(&self, selector: &str, html_content: &str, invalidate_layout: bool) -> napi::Result<()> {
+            let t0 = std::time::Instant::now();
+            let content_len = html_content.len();
+
             let mut dom_ref = self.live_dom.borrow_mut();
             let parsed = dom_ref.as_mut().ok_or_else(|| {
                 napi::Error::from_reason("No document loaded. Call loadDocument first.".to_string())
             })?;
 
-            let (new_children, new_styles) = crate::dom::parse_fragment(&html_content)
+            let (new_children, new_styles) = crate::dom::parse_fragment(html_content)
                 .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+            let t1 = std::time::Instant::now();
 
-            let target = crate::dom::find_element_mut(&mut parsed.document, &selector)
+            let target = crate::dom::find_element_mut(&mut parsed.document, selector)
                 .ok_or_else(|| {
                     napi::Error::from_reason(format!("No element found matching: {selector}"))
                 })?;
             target.children = new_children;
 
-            // Append additional styles from the fragment (e.g. styled-components).
-            // We accumulate styles from all setContent calls rather than
-            // truncating, since different calls may target different elements
-            // whose styles are all needed at layout time.
             parsed.style_texts.extend(new_styles);
+            let t2 = std::time::Instant::now();
 
-            // Invalidate cached layout since DOM changed
+            if is_profiling() {
+                eprintln!(
+                    "[rust-profile] set_content({}): parse={:.1}ms patch={:.1}ms total={:.1}ms ({} bytes)",
+                    selector,
+                    t1.duration_since(t0).as_secs_f64() * 1000.0,
+                    t2.duration_since(t1).as_secs_f64() * 1000.0,
+                    t2.duration_since(t0).as_secs_f64() * 1000.0,
+                    content_len,
+                );
+            }
+
             drop(dom_ref);
-            *self.live_layout_cache.borrow_mut() = None;
+            if invalidate_layout {
+                *self.live_layout_cache.borrow_mut() = None;
+            }
             Ok(())
         }
 
@@ -251,15 +311,29 @@ mod napi_bindings {
                 napi::Error::from_reason("No document loaded. Call loadDocument first.".to_string())
             })?;
 
+            let t0 = std::time::Instant::now();
             let new_styles = &parsed.style_texts[self.initial_style_count..];
             let rules = self.compiled.with_additional_styles(new_styles);
+            let t1 = std::time::Instant::now();
             let styles = crate::style::apply_rules(&rules, &parsed.document);
+            let t2 = std::time::Instant::now();
             let mut style_result = crate::style::StyleResult {
                 styles,
                 font_faces: self.compiled.font_faces.clone(),
             };
             let layout_result =
                 crate::layout::compute_layout(&parsed.document, &mut style_result, &self.fonts);
+            let t3 = std::time::Instant::now();
+
+            if is_profiling() {
+                eprintln!(
+                    "[rust-profile] ensure_live_layout: compile_extra={:.1}ms apply_rules={:.1}ms compute_layout={:.1}ms total={:.1}ms",
+                    t1.duration_since(t0).as_secs_f64() * 1000.0,
+                    t2.duration_since(t1).as_secs_f64() * 1000.0,
+                    t3.duration_since(t2).as_secs_f64() * 1000.0,
+                    t3.duration_since(t0).as_secs_f64() * 1000.0,
+                );
+            }
 
             drop(dom_ref);
             *self.live_layout_cache.borrow_mut() = Some(LiveLayoutCache {
@@ -287,6 +361,18 @@ mod napi_bindings {
             ))
         }
 
+        /// Count elements matching a CSS selector in the live DOM without
+        /// computing layout. Much faster than query_live when only the count
+        /// is needed.
+        #[napi]
+        pub fn count_elements(&self, selector: String) -> napi::Result<u32> {
+            let dom_ref = self.live_dom.borrow();
+            let parsed = dom_ref.as_ref().ok_or_else(|| {
+                napi::Error::from_reason("No document loaded. Call loadDocument first.".to_string())
+            })?;
+            Ok(crate::dom::count_elements(&parsed.document, &selector) as u32)
+        }
+
         /// Serialize the current live DOM back to an HTML string.
         #[napi]
         pub fn get_content(&self) -> napi::Result<String> {
@@ -300,7 +386,9 @@ mod napi_bindings {
         /// Render the live DOM to PDF.
         #[napi]
         pub fn render_live_to_pdf(&self) -> napi::Result<Buffer> {
+            let t0 = std::time::Instant::now();
             self.ensure_live_layout()?;
+            let t1 = std::time::Instant::now();
 
             let cache_ref = self.live_layout_cache.borrow();
             let cached = cache_ref.as_ref().expect("set by ensure_live_layout");
@@ -310,6 +398,17 @@ mod napi_bindings {
                 &cached.style_result,
                 &self.fonts,
             );
+            let t2 = std::time::Instant::now();
+
+            if is_profiling() {
+                eprintln!(
+                    "[rust-profile] render_live_to_pdf: layout={:.1}ms paint={:.1}ms total={:.1}ms",
+                    t1.duration_since(t0).as_secs_f64() * 1000.0,
+                    t2.duration_since(t1).as_secs_f64() * 1000.0,
+                    t2.duration_since(t0).as_secs_f64() * 1000.0,
+                );
+            }
+
             Ok(Buffer::from(pdf_bytes))
         }
     }

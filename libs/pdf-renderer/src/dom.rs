@@ -250,6 +250,29 @@ pub fn find_element_mut<'a>(
     find_element_mut_recursive(root, selector, &[])
 }
 
+/// Count elements matching a CSS selector without computing layout.
+pub fn count_elements(root: &ElementNode, selector: &str) -> usize {
+    count_elements_recursive(root, selector, &[])
+}
+
+fn count_elements_recursive(
+    element: &ElementNode,
+    selector: &str,
+    ancestors: &[&ElementNode],
+) -> usize {
+    let mut count = usize::from(crate::style::selector_matches(selector, element, ancestors));
+
+    let mut child_ancestors = vec![element];
+    child_ancestors.extend_from_slice(ancestors);
+
+    for child in &element.children {
+        if let DomNode::Element(child_el) = child {
+            count += count_elements_recursive(child_el, selector, &child_ancestors);
+        }
+    }
+    count
+}
+
 fn find_element_mut_recursive<'a>(
     element: &'a mut ElementNode,
     selector: &str,

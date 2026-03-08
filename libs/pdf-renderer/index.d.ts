@@ -33,6 +33,12 @@ export declare class RenderContext {
    */
   loadDocument(html: string): void;
   /**
+   * Patch the live DOM like set_content, but skip layout cache
+   * invalidation. Use when the change is known to not affect layout
+   * (e.g. replacing content in a fixed-size slot).
+   */
+  setContentNoRelayout(selector: string, htmlContent: string): void;
+  /**
    * Patch the live DOM by replacing the children of the element
    * matching `selector` with the parsed `html_content` fragment.
    * Much faster than re-parsing the entire document.
@@ -43,6 +49,12 @@ export declare class RenderContext {
    * only if the DOM has been modified since the last query.
    */
   queryLive(selector: string): Array<ElementInfo>;
+  /**
+   * Count elements matching a CSS selector in the live DOM without
+   * computing layout. Much faster than query_live when only the count
+   * is needed.
+   */
+  countElements(selector: string): number;
   /** Serialize the current live DOM back to an HTML string. */
   getContent(): string;
   /** Render the live DOM to PDF. */

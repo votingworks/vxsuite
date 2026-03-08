@@ -438,8 +438,8 @@ async function addQrCodesAndBallotHashes(
   election: Election,
   metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>
 ) {
-  const pages = await document.inspectElements(`.${PAGE_CLASS}`);
-  for (const i of pages.keys()) {
+  const numPages = await document.countElements(`.${PAGE_CLASS}`);
+  for (let i = 0; i < numPages; i += 1) {
     const pageNumber = i + 1;
     const encodedMetadata = encodeHmpbBallotPageMetadata(election, {
       ...metadata,

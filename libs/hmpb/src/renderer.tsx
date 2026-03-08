@@ -127,6 +127,29 @@ export function createDocument(pageHandle: PageHandle) {
     },
 
     /**
+     * Like setContent, but hints that the change won't affect layout.
+     * Falls back to regular setContent for the Playwright renderer.
+     */
+    async setContentNoRelayout(
+      selector: string,
+      element: JSX.Element
+    ): Promise<void> {
+      await this.setContent(selector, element);
+    },
+
+    /**
+     * Count elements matching the selector without computing layout.
+     */
+    async countElements(selector: string): Promise<number> {
+      /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage - @preserve */
+      return await pageHandle.page().evaluate(
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        (selector) => document.querySelectorAll(selector).length,
+        selector
+      );
+    },
+
+    /**
      * Returns a PDF Buffer of the current document.
      */
     async renderToPdf(): Promise<Uint8Array> {

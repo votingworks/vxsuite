@@ -86,6 +86,19 @@ function createRustDocumentWithLiveDom(
       return Promise.resolve(mapElements(context.queryLive(selector)));
     },
 
+    countElements(selector: string): Promise<number> {
+      return Promise.resolve(context.countElements(selector));
+    },
+
+    setContentNoRelayout(
+      selector: string,
+      element: JSX.Element
+    ): Promise<void> {
+      const htmlContent = renderJsxToHtml(element);
+      context.setContentNoRelayout(selector, htmlContent);
+      return Promise.resolve();
+    },
+
     renderToPdf(): Promise<Uint8Array> {
       return Promise.resolve(Uint8Array.from(context.renderLiveToPdf()));
     },

@@ -17,6 +17,7 @@ use crate::layout::{LayoutResult, TextContext};
 use crate::style::{BackgroundSize, BorderStyle, Color, ComputedStyle, Display, Overflow, StyleResult, Visibility};
 
 pub fn render_pdf(layout: &LayoutResult, styles: &StyleResult, fonts: &FontCollection) -> Vec<u8> {
+    let t0 = std::time::Instant::now();
     let mut document = Document::new();
 
     let page_settings = PageSettings::from_wh(layout.page_width, layout.page_height)
@@ -34,6 +35,7 @@ pub fn render_pdf(layout: &LayoutResult, styles: &StyleResult, fonts: &FontColle
         ((total_height / page_height).ceil() as usize).max(1)
     };
 
+    let t1 = std::time::Instant::now();
     for page_idx in 0..num_pages {
         let mut page = document.start_page_with(page_settings.clone());
         let mut surface = page.surface();
@@ -65,8 +67,24 @@ pub fn render_pdf(layout: &LayoutResult, styles: &StyleResult, fonts: &FontColle
         drop(surface);
         page.finish();
     }
+    let t2 = std::time::Instant::now();
 
-    document.finish().expect("PDF generation failed")
+    let result = document.finish().expect("PDF generation failed");
+    let t3 = std::time::Instant::now();
+
+    if crate::is_profiling() {
+        eprintln!(
+            "[rust-profile] render_pdf: setup={:.1}ms paint_pages={:.1}ms ({} pages) finish={:.1}ms total={:.1}ms ({} bytes)",
+            t1.duration_since(t0).as_secs_f64() * 1000.0,
+            t2.duration_since(t1).as_secs_f64() * 1000.0,
+            num_pages,
+            t3.duration_since(t2).as_secs_f64() * 1000.0,
+            t3.duration_since(t0).as_secs_f64() * 1000.0,
+            result.len(),
+        );
+    }
+
+    result
 }
 
 #[allow(clippy::too_many_arguments)]

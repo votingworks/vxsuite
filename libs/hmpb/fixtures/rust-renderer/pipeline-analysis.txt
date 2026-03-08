@@ -1,0 +1,121 @@
+=== Rust PDF Renderer Pipeline Analysis ===
+Date: 2026-03-08T09:07:42.041Z
+Ballot: Style 12, Election General
+
+Total pipeline:     571ms
+  Phase 1 (Layout): 403ms (71%)
+  Phase 2 (PDF):    168ms (29%)
+
+--- Phase 1: Layout Phase Breakdown ---
+  Total Rust/NAPI calls: 775ms
+  Remaining JS time:     -372ms (React render, election def creation, etc.)
+
+  inspectElements: 32 calls, 341ms total, 10.6ms avg
+  measureElements: 28 calls, 280ms total, 10.0ms avg
+  setContent: 2 calls, 90ms total, 44.8ms avg
+  createScratchpad: 2 calls, 61ms total, 30.7ms avg
+  getContent: 2 calls, 3ms total, 1.5ms avg
+
+--- Phase 1: Individual Calls ---
+  createScratchpad(): 41.3ms
+  createScratchpad(): 20.2ms
+  measureElements(.content-slot): 13.6ms
+  measureElements(.content-slot): 8.5ms
+  measureElements(.contestWrapper): 26.1ms
+  measureElements(.contestWrapper): 15.3ms
+  measureElements(.contestWrapper): 20.6ms
+  measureElements(.contestWrapper): 10.3ms
+  measureElements(.content-slot): 8.4ms
+  measureElements(.content-slot): 4.6ms
+  measureElements(.contestWrapper): 17.7ms
+  measureElements(.contestWrapper): 10.1ms
+  measureElements(.contestWrapper): 10.9ms
+  measureElements(.contestWrapper): 5.3ms
+  measureElements(.content-slot): 8.2ms
+  measureElements(.content-slot): 4.6ms
+  measureElements(.contestWrapper): 8.6ms
+  measureElements(.contestWrapper): 5.1ms
+  measureElements(.contestWrapper): 16.6ms
+  measureElements(.contestWrapper): 12.9ms
+  measureElements(.content-slot): 8.0ms
+  measureElements(.content-slot): 5.0ms
+  measureElements(.contestWrapper): 12.3ms
+  measureElements(.contestWrapper): 6.8ms
+  measureElements(.contestWrapper): 7.3ms
+  measureElements(.contestWrapper): 5.1ms
+  measureElements(.content-slot): 9.0ms
+  measureElements(.content-slot): 6.1ms
+  measureElements(.contestWrapper): 7.6ms
+  measureElements(.contestWrapper): 5.7ms
+  setContent(body): 59.1ms
+  setContent(body): 30.5ms
+  inspectElements(.page): 70.3ms
+  inspectElements(.page): 34.7ms
+  inspectElements(.page[data-page-number="1"] .timing-mark): 23.2ms
+  inspectElements(.page[data-page-number="2"] .timing-mark): 20.9ms
+  inspectElements(.page[data-page-number="3"] .timing-mark): 19.0ms
+  inspectElements(.page[data-page-number="4"] .timing-mark): 17.1ms
+  inspectElements(.page[data-page-number="5"] .timing-mark): 15.2ms
+  inspectElements(.page[data-page-number="6"] .timing-mark): 13.3ms
+  inspectElements(.page[data-page-number="1"] .timing-mark): 11.4ms
+  inspectElements(.page[data-page-number="2"] .timing-mark): 9.5ms
+  inspectElements(.page[data-page-number="3"] .timing-mark): 7.6ms
+  inspectElements(.page[data-page-number="4"] .timing-mark): 5.7ms
+  inspectElements(.page[data-page-number="5"] .timing-mark): 3.8ms
+  inspectElements(.page[data-page-number="6"] .timing-mark): 1.9ms
+  inspectElements(.page[data-page-number="1"] .bubble): 11.9ms
+  inspectElements(.page[data-page-number="2"] .bubble): 10.8ms
+  inspectElements(.page[data-page-number="3"] .bubble): 9.8ms
+  inspectElements(.page[data-page-number="4"] .bubble): 8.8ms
+  inspectElements(.page[data-page-number="5"] .bubble): 7.8ms
+  inspectElements(.page[data-page-number="6"] .bubble): 6.8ms
+  inspectElements(.page[data-page-number="1"] .bubble): 5.9ms
+  inspectElements(.page[data-page-number="2"] .bubble): 4.9ms
+  inspectElements(.page[data-page-number="3"] .bubble): 3.9ms
+  inspectElements(.page[data-page-number="4"] .bubble): 2.9ms
+  inspectElements(.page[data-page-number="5"] .bubble): 1.9ms
+  inspectElements(.page[data-page-number="6"] .bubble): 0.9ms
+  inspectElements(.write-in-option): 1.4ms
+  inspectElements(.write-in-option): 0.7ms
+  inspectElements(.write-in-option .bubble): 1.8ms
+  inspectElements(.write-in-option .bubble): 0.9ms
+  inspectElements(.page[data-page-number="1"] .timing-mark): 3.9ms
+  inspectElements(.page[data-page-number="1"] .timing-mark): 1.9ms
+  getContent(): 2.1ms
+  getContent(): 0.9ms
+
+--- Phase 2: PDF Phase Breakdown ---
+  renderToPdf: 1 calls, 127ms total, 126.7ms avg
+  loadDocumentFromContent: 1 calls, 28ms total, 27.6ms avg
+  setContent: 12 calls, 12ms total, 1.0ms avg
+  countElements: 1 calls, 0ms total, 0.5ms avg
+
+--- Phase 2: Individual Calls ---
+  loadDocumentFromContent(1014452 chars): 27.6ms
+  countElements(.page): 0.5ms
+  setContent(.page[data-page-number="1"] .qr-code-slot): 1.2ms
+  setContent(.page[data-page-number="1"] .ballot-hash-slot): 0.2ms
+  setContent(.page[data-page-number="2"] .qr-code-slot): 1.2ms
+  setContent(.page[data-page-number="2"] .ballot-hash-slot): 0.4ms
+  setContent(.page[data-page-number="3"] .qr-code-slot): 1.5ms
+  setContent(.page[data-page-number="3"] .ballot-hash-slot): 0.6ms
+  setContent(.page[data-page-number="4"] .qr-code-slot): 1.5ms
+  setContent(.page[data-page-number="4"] .ballot-hash-slot): 0.7ms
+  setContent(.page[data-page-number="5"] .qr-code-slot): 1.4ms
+  setContent(.page[data-page-number="5"] .ballot-hash-slot): 0.8ms
+  setContent(.page[data-page-number="6"] .qr-code-slot): 1.4ms
+  setContent(.page[data-page-number="6"] .ballot-hash-slot): 0.9ms
+  renderToPdf(): 126.7ms
+
+--- Bottleneck Analysis ---
+Top 10 slowest calls:
+  126.7ms - renderToPdf()
+  70.3ms - inspectElements(.page)
+  59.1ms - setContent(body)
+  41.3ms - createScratchpad()
+  34.7ms - inspectElements(.page)
+  30.5ms - setContent(body)
+  27.6ms - loadDocumentFromContent(1014452 chars)
+  26.1ms - measureElements(.contestWrapper)
+  23.2ms - inspectElements(.page[data-page-number="1"] .timing-mark)
+  20.9ms - inspectElements(.page[data-page-number="2"] .timing-mark)
