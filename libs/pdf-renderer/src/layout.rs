@@ -189,7 +189,18 @@ fn build_taffy_style(computed: &ComputedStyle) -> Style {
             height: convert_dimension(computed.height),
         },
         min_size: Size {
-            width: convert_dimension(computed.min_width),
+            // CSS spec: flex items default to min-width: auto, which prevents
+            // them from shrinking below their specified width. We default to 0
+            // for proper flex constraint propagation, but when an element has
+            // an explicit width and no explicit min-width override, use the
+            // width as the min-width to match browser behavior.
+            width: if matches!(computed.min_width, Dimension::Points(v) if v == 0.0)
+                && !matches!(computed.width, Dimension::Auto)
+            {
+                convert_dimension(computed.width)
+            } else {
+                convert_dimension(computed.min_width)
+            },
             height: convert_dimension(computed.min_height),
         },
         max_size: Size {
