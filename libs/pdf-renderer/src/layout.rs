@@ -455,8 +455,18 @@ fn build_taffy_tree(
     // Handle <img> elements as leaf nodes
     if element.tag == "img" {
         let mut computed = computed;
-        let intrinsic_w = element.get_attr("width").and_then(|v| v.parse::<f32>().ok());
-        let intrinsic_h = element.get_attr("height").and_then(|v| v.parse::<f32>().ok());
+        let mut intrinsic_w = element.get_attr("width").and_then(|v| v.parse::<f32>().ok());
+        let mut intrinsic_h = element.get_attr("height").and_then(|v| v.parse::<f32>().ok());
+        // When the <img> has no width/height attributes but its src is an SVG
+        // data URI, extract intrinsic dimensions from the SVG itself.
+        if intrinsic_w.is_none() || intrinsic_h.is_none() {
+            if let Some(src) = element.get_attr("src") {
+                if let Some((sw, sh)) = extract_svg_data_uri_dimensions(src) {
+                    intrinsic_w = intrinsic_w.or(Some(sw));
+                    intrinsic_h = intrinsic_h.or(Some(sh));
+                }
+            }
+        }
         let css_width_is_auto = matches!(computed.width, Dimension::Auto);
         let css_height_is_auto = matches!(computed.height, Dimension::Auto);
         // When both dimensions are auto, use intrinsic sizes as fallback.
@@ -758,6 +768,64 @@ fn build_taffy_tree(
         .expect("taffy new_with_children");
     node_map.insert(element_id, node);
     node
+}
+
+/// Extract intrinsic (width, height) from an SVG data URI.
+/// Decodes the data URI, parses the SVG root element, and reads `width`/`height`
+/// attributes or falls back to `viewBox` dimensions.
+fn extract_svg_data_uri_dimensions(uri: &str) -> Option<(f32, f32)> {
+    use base64::Engine;
+    let rest = uri.strip_prefix("data:")?;
+    let (mime, svg_xml) = if let Some(base64_sep) = rest.find(";base64,") {
+        let mime = &rest[..base64_sep];
+        let encoded = &rest[base64_sep + 8..];
+        let data = base64::engine::general_purpose::STANDARD
+            .decode(encoded)
+            .ok()?;
+        (mime, String::from_utf8(data).ok()?)
+    } else {
+        // URL-encoded SVG (e.g. data:image/svg+xml,%3Csvg...)
+        let comma = rest.find(',')?;
+        let mime = &rest[..comma];
+        let encoded = &rest[comma + 1..];
+        let decoded = crate::paint::percent_decode(encoded);
+        (mime, decoded)
+    };
+    if !mime.contains("svg") {
+        return None;
+    }
+    // Parse the SVG root element to extract width/height/viewBox
+    let parsed = crate::dom::parse_html(&svg_xml).ok()?;
+    let svg_el = find_element_by_tag(&parsed.document, "svg")?;
+    let attr_w = svg_el
+        .get_attr("width")
+        .and_then(|v| v.trim_end_matches("px").parse::<f32>().ok());
+    let attr_h = svg_el
+        .get_attr("height")
+        .and_then(|v| v.trim_end_matches("px").parse::<f32>().ok());
+    if let (Some(w), Some(h)) = (attr_w, attr_h) {
+        return Some((w, h));
+    }
+    // Fall back to viewBox dimensions
+    if let Some(dims) = svg_el.get_attr("viewBox").and_then(parse_viewbox_dims) {
+        return Some((attr_w.unwrap_or(dims.0), attr_h.unwrap_or(dims.1)));
+    }
+    None
+}
+
+/// Find the first element with the given tag name (depth-first).
+fn find_element_by_tag<'a>(element: &'a ElementNode, tag: &str) -> Option<&'a ElementNode> {
+    if element.tag == tag {
+        return Some(element);
+    }
+    for child in &element.children {
+        if let DomNode::Element(el) = child {
+            if let Some(found) = find_element_by_tag(el, tag) {
+                return Some(found);
+            }
+        }
+    }
+    None
 }
 
 /// Check if a list of children contains mixed inline content (text + inline elements)
@@ -1177,5 +1245,74 @@ mod tests {
             "h2 width {} should be less than 200pt (constrained to grid cell)",
             results[0].width
         );
+    }
+
+    #[test]
+    fn test_img_data_uri_svg_creates_image_data() {
+        let html = r#"<html><head><style>
+            img { max-width: 100%; height: auto; }
+        </style></head><body style="width:200pt;margin:0">
+            <p>Before</p>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDUwIDUwIj48Y2lyY2xlIGN4PSIyNSIgY3k9IjI1IiByPSIyMCIgZmlsbD0iYmxhY2siLz48L3N2Zz4=" width="50" height="50" />
+            <p>After</p>
+        </body></html>"#;
+        let parsed = parse_html(html).expect("parse failed");
+        let mut styles = resolve_styles(&parsed);
+        let fonts = load_fonts(&styles.font_faces);
+        let layout = compute_layout(&parsed.document, &mut styles, &fonts);
+
+        assert!(
+            !layout.image_data.is_empty(),
+            "Expected image_data to contain the <img> element's data URI"
+        );
+
+        // Check that the image node has non-zero layout dimensions
+        for (&elem_id, src) in &layout.image_data {
+            if src.contains("data:image/svg+xml") {
+                let node = layout.node_map[&elem_id];
+                let node_layout = layout.taffy.layout(node).expect("layout");
+                let w = node_layout.size.width;
+                let h = node_layout.size.height;
+                assert!(w > 0.0, "img width should be > 0, got {}", w);
+                assert!(h > 0.0, "img height should be > 0, got {}", h);
+            }
+        }
+    }
+
+    #[test]
+    fn test_img_svg_data_uri_no_width_height_attrs() {
+        // Reproduces the real ballot scenario: <img> with SVG data URI but
+        // no width/height HTML attributes. The renderer should extract
+        // intrinsic dimensions from the SVG's width/height/viewBox.
+        let html = r#"<html><head><style>
+            img { max-width: 100%; height: auto; }
+        </style></head><body style="width:200pt;margin:0">
+            <p>Before</p>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDUwIDUwIj48Y2lyY2xlIGN4PSIyNSIgY3k9IjI1IiByPSIyMCIgZmlsbD0iYmxhY2siLz48L3N2Zz4=" />
+            <p>After</p>
+        </body></html>"#;
+        let parsed = parse_html(html).expect("parse failed");
+        let mut styles = resolve_styles(&parsed);
+        let fonts = load_fonts(&styles.font_faces);
+        let layout = compute_layout(&parsed.document, &mut styles, &fonts);
+
+        assert!(
+            !layout.image_data.is_empty(),
+            "Expected image_data to contain the <img> element's data URI"
+        );
+
+        for (&elem_id, src) in &layout.image_data {
+            if src.contains("data:image/svg+xml") {
+                let node = layout.node_map[&elem_id];
+                let node_layout = layout.taffy.layout(node).expect("layout");
+                let w = node_layout.size.width;
+                let h = node_layout.size.height;
+                // SVG has width=50 height=50 → 37.5pt each
+                assert!(w > 0.0, "img width should be > 0, got {}", w);
+                assert!(h > 0.0, "img height should be > 0, got {}", h);
+                assert!((w - 37.5).abs() < 1.0, "img width should be ~37.5pt, got {}", w);
+                assert!((h - 37.5).abs() < 1.0, "img height should be ~37.5pt, got {}", h);
+            }
+        }
     }
 }

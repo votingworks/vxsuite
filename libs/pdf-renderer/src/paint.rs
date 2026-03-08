@@ -480,7 +480,7 @@ fn paint_svg(
     surface.pop();
 }
 
-fn percent_decode(input: &str) -> String {
+pub(crate) fn percent_decode(input: &str) -> String {
     let mut result = String::with_capacity(input.len());
     let mut chars = input.bytes();
     while let Some(b) = chars.next() {
