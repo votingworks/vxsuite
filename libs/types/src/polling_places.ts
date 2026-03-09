@@ -8,7 +8,7 @@ import {
   PollingPlaceType,
   Precinct,
   PrecinctOrSplit,
-} from '@votingworks/types';
+} from './election';
 
 export function pollingPlaceBallotStyles(
   election: Election,

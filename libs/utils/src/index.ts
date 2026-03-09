@@ -19,7 +19,6 @@ export * from './languages';
 export * from './multi_language_mock';
 export * from './mutex';
 export * from './perf';
-export * from './polling_places';
 export * from './polls';
 export * from './precinct_selection';
 export * from './structural_sharing';
