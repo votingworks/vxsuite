@@ -69,7 +69,7 @@ function getAllWriteInRows({
   return rows;
 }
 
-function getInsignificantWriteInTally({
+function getInsignificantWriteInCount({
   contestResults,
   significantWriteInCandidateIds,
 }: {
@@ -139,12 +139,12 @@ function getAggregatedWriteInRows({
   const significantWriteInCandidateIds = significantWriteInCandidates.map(
     (c) => c.id
   );
-  const scannedInsignificantWriteInCount = getInsignificantWriteInTally({
+  const scannedInsignificantWriteInCount = getInsignificantWriteInCount({
     contestResults: scannedContestResults,
     significantWriteInCandidateIds,
   });
   const manualInsignificantWriteInCount = manualContestResults
-    ? getInsignificantWriteInTally({
+    ? getInsignificantWriteInCount({
         contestResults: manualContestResults,
         significantWriteInCandidateIds,
       })
