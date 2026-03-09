@@ -114,8 +114,6 @@ function getAggregatedWriteInRows({
   const leastNumberVotesForWinner: number =
     candidateTalliesDescending.at(contest.seats - 1)?.tally ?? 0;
 
-  // A write-in candidate is shown individually only if it is a winner,
-  // i.e. its tally meets or exceeds the winner threshold.
   const significantWriteInCandidates = candidateTalliesDescending.filter(
     (candidateTally) =>
       candidateTally.isWriteIn &&
