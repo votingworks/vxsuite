@@ -113,6 +113,10 @@ function contestTitleWithForPrefix(title: string): string {
   return title.startsWith('For ') ? title : `For ${title}`;
 }
 
+function cleanCandidateName(name: string): string {
+  return name.replace(/<br\/>/g, ' / ');
+}
+
 const PRIMARY_INSTRUCTIONS =
   'Record the number of votes received by each candidate in the appropriate ' +
   "space to the right of each candidate's name. If a candidate printed on " +
@@ -256,7 +260,7 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                     {contest.type === 'candidate' &&
                       contest.candidates.map((candidate) => (
                         <tr key={candidate.id}>
-                          <td>{candidate.name}</td>
+                          <td>{cleanCandidateName(candidate.name)}</td>
                           <td></td>
                         </tr>
                       ))}
@@ -295,7 +299,7 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            gap: '0.375rem',
+            gap: '0.5rem',
             alignItems: 'center',
           }}
         >
