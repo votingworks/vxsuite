@@ -15,6 +15,7 @@ import {
 import {
   pollingPlaceBallotStyles,
   pollingPlaceContests,
+  pollingPlaceFromElection,
   pollingPlaceMembers,
   pollingPlacePrecinctIds,
   pollingPlacesGenerateFromPrecincts,
@@ -97,6 +98,22 @@ test('pollingPlaceContests', () => {
   expectContests({ precincts: { p2: { type: 'partial', splitIds: ['s1'] } } }, [
     contest2,
   ]);
+});
+
+test('pollingPlaceFromElection', () => {
+  expect(() => pollingPlaceFromElection(mockElection({}), 'pp1')).toThrow(
+    /pp1 not found/i
+  );
+
+  const place1 = mockPollingPlace({ id: 'pp1' });
+  const place2 = mockPollingPlace({ id: 'pp2' });
+  const election = mockElection({ pollingPlaces: [place2, place1] });
+
+  expect(pollingPlaceFromElection(election, 'pp1')).toEqual(place1);
+
+  expect(() => pollingPlaceFromElection(election, 'pp3')).toThrow(
+    /pp3 not found/i
+  );
 });
 
 test('pollingPlacesGenerateFromPrecincts', () => {

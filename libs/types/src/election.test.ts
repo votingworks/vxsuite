@@ -53,6 +53,8 @@ import {
   Precinct,
   BallotStyle,
   Election,
+  PollingPlace,
+  PollingPlacesSchema,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -1540,5 +1542,84 @@ test('election validation succeeds when orderedCandidatesByContest party IDs mat
         id: electionTwoPartyPrimary.id,
       })
     )
+  );
+});
+
+test('polling places schema', () => {
+  safeParse(PollingPlacesSchema, []).unsafeUnwrapErr();
+
+  safeParse(PollingPlacesSchema, [
+    {
+      id: '',
+      name: 'invalid id',
+      precincts: {},
+      type: 'election_day',
+    },
+  ]).unsafeUnwrapErr();
+
+  safeParse(PollingPlacesSchema, [
+    {
+      id: 'duplicate-id',
+      name: 'place',
+      precincts: {},
+      type: 'absentee',
+    },
+    {
+      id: 'duplicate-id',
+      name: 'place',
+      precincts: {},
+      type: 'election_day',
+    },
+  ]).unsafeUnwrapErr();
+
+  safeParse(PollingPlacesSchema, [
+    {
+      id: 'place-1',
+      name: 'invalid type',
+      precincts: {},
+      type: 'mail_in',
+    },
+  ]).unsafeUnwrapErr();
+
+  expect(
+    safeParse(PollingPlacesSchema, [
+      {
+        id: 'place-1',
+        name: 'place',
+        precincts: {
+          p1: { type: 'whole' },
+        },
+        type: 'election_day',
+      },
+      {
+        id: 'place-2',
+        name: 'place',
+        precincts: {
+          p1: { type: 'whole' },
+          p2: { type: 'partial', splitIds: ['s1'] },
+        },
+        type: 'early_voting',
+      },
+    ])
+  ).toEqual(
+    ok<PollingPlace[], unknown>([
+      {
+        id: 'place-1',
+        name: 'place',
+        precincts: {
+          p1: { type: 'whole' },
+        },
+        type: 'election_day',
+      },
+      {
+        id: 'place-2',
+        name: 'place',
+        precincts: {
+          p1: { type: 'whole' },
+          p2: { type: 'partial', splitIds: ['s1'] },
+        },
+        type: 'early_voting',
+      },
+    ])
   );
 });
