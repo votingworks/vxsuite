@@ -102,7 +102,7 @@ function MisvoteWarningScreen({
         <React.Fragment>
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
-            variant="primary"
+            variant={overvoteContests.length > 0 ? 'primary' : undefined}
             onPress={() => returnBallotMutation.mutate()}
             disabled={hasCastBallot}
           >
@@ -112,6 +112,7 @@ function MisvoteWarningScreen({
           {(allowCastingOvervotes || overvoteContests.length === 0) && (
             <Button
               id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+              variant={overvoteContests.length === 0 ? 'primary' : undefined}
               onPress={onCastBallot}
               disabled={hasCastBallot}
             >

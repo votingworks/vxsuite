@@ -99,6 +99,8 @@ test('overvote', async () => {
 
   const castBallotButton = screen.getButton('Cast Ballot');
   const returnBallotButton = screen.getButton('Return Ballot');
+  expect(returnBallotButton).toHaveAttribute('data-variant', 'primary');
+  expect(castBallotButton).not.toHaveAttribute('data-variant', 'primary');
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
@@ -191,6 +193,8 @@ test('undervote no votes', async () => {
 
   const castBallotButton = screen.getButton('Cast Ballot');
   const returnBallotButton = screen.getButton('Return Ballot');
+  expect(castBallotButton).toHaveAttribute('data-variant', 'primary');
+  expect(returnBallotButton).not.toHaveAttribute('data-variant', 'primary');
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
@@ -228,6 +232,8 @@ test('undervote by 1', async () => {
 
   const castBallotButton = screen.getButton('Cast Ballot');
   const returnBallotButton = screen.getButton('Return Ballot');
+  expect(castBallotButton).toHaveAttribute('data-variant', 'primary');
+  expect(returnBallotButton).not.toHaveAttribute('data-variant', 'primary');
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
@@ -261,6 +267,8 @@ test('multiple undervotes', async () => {
 
   const castBallotButton = screen.getButton('Cast Ballot');
   const returnBallotButton = screen.getButton('Return Ballot');
+  expect(castBallotButton).toHaveAttribute('data-variant', 'primary');
+  expect(returnBallotButton).not.toHaveAttribute('data-variant', 'primary');
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
