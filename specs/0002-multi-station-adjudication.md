@@ -137,6 +137,95 @@ avoiding CORS issues. Frontend only talks to its own local backend.
 | Ballot image size | ~800 KB per side                    |
 | Bottleneck        | Human speed (~1 ballot/min/station) |
 
+### Code Organization
+
+Adapts VxPollBook's dual-server pattern for an **asymmetric** architecture. Key
+difference: pollbook is symmetric (all peers equal, same code on every machine),
+while VxAdmin has a host with full functionality and clients that are
+adjudication-only thin proxies.
+
+| Aspect    | VxPollBook                           | VxAdmin Multi-Station                        |
+| --------- | ------------------------------------ | -------------------------------------------- |
+| Topology  | Symmetric peers                      | Asymmetric host/client                       |
+| Peer API  | Every machine serves it              | Host only                                    |
+| Local API | Same on all machines                 | Full API on host, sysadmin + proxy on client |
+| Database  | Same DB on all machines              | Full DB on host; minimal DB on client        |
+| Store     | LocalStore + PeerStore (shared base) | HostStore + ClientStore (separate)           |
+| Discovery | All machines advertise               | Host-only advertisement                      |
+
+#### Server Architecture
+
+**Host mode** — two Express servers in the same process, sharing one `HostStore`
+instance (single SQLite DB, no sync needed):
+
+- **Local API** on PORT (`app.ts`) — existing full VxAdmin API + new session
+  management endpoints
+- **Peer API** on PEER_PORT (`peer_app.ts`) — serves client requests. Calls the
+  same shared functions (e.g. `adjudicateCvrContest()`) as the local API — no
+  adjudication logic duplication.
+
+**Client mode** — one Express server only:
+
+- **Client Local API** on PORT (`client_app.ts`) — two categories of endpoints:
+  1. **Local system endpoints** — auth, USB, power, diagnostics, mode config.
+     Uses shared API builders (`createSystemCallApi`, etc.) identical to the
+     host.
+  2. **Adjudication proxy endpoints** — transparent forwarding to the host's
+     peer API via a `grout.Client<PeerApi>`.
+
+#### Machine Mode
+
+Mode (`'host' | 'client'`) is stored in a **file** in the workspace directory
+(`{ADMIN_WORKSPACE}/machine_mode`), not in the database. This solves the
+bootstrapping problem: mode must be known before creating a store, since hosts
+and clients use different store classes with different schemas.
+
+Both `app.ts` and `client_app.ts` expose `getMachineMode()` / `setMachineMode()`
+endpoints. `setMachineMode()` writes the file and triggers a backend restart.
+Only changeable by System Administrator when unconfigured. Default is `'host'`.
+Feature flag `ENABLE_MULTI_STATION_ADMIN` gates the entire feature.
+
+#### Startup Flow (`server.ts`)
+
+1. Read mode from file before creating any store
+2. **Host:** create `HostStore` → start peer server on PEER_PORT → start local
+   server on PORT → start host networking (avahi advertise, heartbeat
+   monitoring)
+3. **Client:** create `ClientStore` → start client networking (avahi discover,
+   heartbeat) → start client local server on PORT
+
+#### Store Classes
+
+**`HostStore`** — existing `Store` class (renamed) plus new methods for the
+adjudication session tables. Full `schema.sql`.
+
+**`ClientStore`** — minimal store for diagnostics only. Small
+`client_schema.sql` with no election/CVR/adjudication tables.
+
+#### Networking (`networking.ts`)
+
+Follows pollbook's `setupMachineNetworking` pattern with two functions:
+
+- **`startHostNetworking`:** avahi advertise, poll for host conflicts, monitor
+  heartbeat timeouts and release stale ballot claims
+- **`startClientNetworking`:** avahi discover host, connect, send heartbeats,
+  reconnect on disconnect
+
+#### Frontend
+
+The client is a separate app experience — no election management, reports, or
+tabulation. Rather than branching on mode throughout the existing `AppRoot`, the
+client gets its own component tree:
+
+- `index.tsx` queries `getMachineMode()`, renders `<App />` (host, unchanged) or
+  `<ClientApp />` (new)
+- `client/` directory: own app shell, app root, API file, and screens
+  (connecting, adjudication flow, mode selector)
+- `host/` directory: new host-only multi-station screens (session management,
+  connected clients)
+- Shared adjudication components (e.g. `ContestAdjudicationScreen`) are reused
+  by the client without modification
+
 ## Task Breakdown
 
 ### Hardware
@@ -182,15 +271,17 @@ avoiding CORS issues. Frontend only talks to its own local backend.
 
 ## Key Files
 
-| File                                     | Role                                       |
-| ---------------------------------------- | ------------------------------------------ |
-| `libs/networking/src/avahi.ts`           | Shared avahi publish/discover/online-check |
-| `libs/networking/intermediate-scripts/`  | Privileged bash scripts                    |
-| `apps/admin/backend/src/app.ts`          | VxAdmin local API                          |
-| `apps/admin/backend/src/peer_app.ts`     | **NEW** — Peer API for host-client         |
-| `apps/admin/backend/src/networking.ts`   | VxAdmin networking manager                 |
-| `apps/admin/backend/src/adjudication.ts` | Core adjudication logic                    |
-| `apps/admin/backend/src/store.ts`        | Database layer                             |
-| `apps/admin/backend/schema.sql`          | Database schema                            |
-| `apps/admin/frontend/src/api.ts`         | React Query API bindings                   |
-| `apps/pollbook/backend/src/peer_app.ts`  | Reference: peer API pattern                |
+| File                                     | Role                                          |
+| ---------------------------------------- | --------------------------------------------- |
+| `libs/networking/src/avahi.ts`           | Shared avahi publish/discover/online-check    |
+| `apps/admin/backend/src/server.ts`       | Entry point — mode-aware startup              |
+| `apps/admin/backend/src/app.ts`          | Host local API                                |
+| `apps/admin/backend/src/peer_app.ts`     | **NEW** — Host peer API                       |
+| `apps/admin/backend/src/client_app.ts`   | **NEW** — Client local API (sysadmin + proxy) |
+| `apps/admin/backend/src/networking.ts`   | **NEW** — Avahi advertisement/discovery       |
+| `apps/admin/backend/src/machine_mode.ts` | **NEW** — File-based mode read/write          |
+| `apps/admin/backend/src/host_store.ts`   | Host store (renamed from store.ts)            |
+| `apps/admin/backend/src/client_store.ts` | **NEW** — Client store (minimal)              |
+| `apps/admin/frontend/src/client/`        | **NEW** — Client frontend app                 |
+| `apps/admin/frontend/src/host/`          | **NEW** — Host multi-station screens          |
+| `apps/pollbook/backend/src/`             | Reference: pollbook peer API + networking     |
