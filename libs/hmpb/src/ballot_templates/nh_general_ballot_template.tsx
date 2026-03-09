@@ -42,6 +42,7 @@ import {
   AlignedBubble,
   WRITE_IN_OPTION_CLASS,
   QrCodeSlot,
+  BallotHashSlot,
   BubbleShape,
 } from '../ballot_components';
 import {
@@ -60,7 +61,7 @@ const BLACKLETTER = "'Blackletter'";
 const HELVETICA_CONDENSED = "'Helvetica Condensed'";
 const TIMES_NEW_ROMAN = "'Times New Roman'";
 
-const FONT_DECLARATIONS = css`
+const FONT_DECLARATIONS = `
   @font-face {
     font-family: ${CENTURY_SCHOOLBOOK};
     src:
@@ -291,7 +292,7 @@ export function Header({
             backgroundRepeat: 'no-repeat',
           }}
         />
-        <div style={{ textAlign: 'right' }}>
+        {/* <div style={{ textAlign: 'right' }}>
           <img
             src={`data:image/svg+xml;base64,${Buffer.from(
               assertDefined(election.signature).image
@@ -311,7 +312,7 @@ export function Header({
           >
             {assertDefined(election.signature).caption}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -352,6 +353,10 @@ function Footer({
           <QrCodeSlot />
         </div>
       )}
+      {/* BallotHashSlot must appear in the document but isn't displayed */}
+      <div style={{ display: 'none' }}>
+        <BallotHashSlot />
+      </div>
       {pageNumber === 1 && (
         <div
           style={{
@@ -502,7 +507,7 @@ function BallotPageFrame({
         margins={pageMarginsInches}
       >
         {watermark && <Watermark>{watermark}</Watermark>}
-        <TimingMarkGrid pageDimensions={pageDimensions}>
+        <TimingMarkGrid pageDimensions={pageDimensions} ballotMode={ballotMode}>
           <div
             style={{
               flex: 1,
@@ -791,12 +796,11 @@ function CandidateContest({
                 type: 'write-in',
                 contestId: contest.id,
                 writeInIndex,
-                // TODO check write-in area box
                 writeInArea: {
-                  top: 0.8,
-                  left: -0.9,
-                  bottom: 0.2,
-                  right: 8.7,
+                  top: 0.6,
+                  right: -0.7,
+                  bottom: 0.1,
+                  left: 4.7,
                 },
               };
               return (
