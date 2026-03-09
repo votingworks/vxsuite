@@ -158,6 +158,8 @@ test('blank ballot', async () => {
   screen.getByText('No votes were found when scanning this ballot.');
   const castBallotButton = screen.getButton('Cast Ballot');
   const returnBallotButton = screen.getButton('Return Ballot');
+  expect(returnBallotButton).toHaveAttribute('data-variant', 'primary');
+  expect(castBallotButton).not.toHaveAttribute('data-variant', 'primary');
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
