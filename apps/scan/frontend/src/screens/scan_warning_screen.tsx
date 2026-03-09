@@ -74,7 +74,7 @@ function MisvoteWarningScreen({
     overvoteContestIds.add(overvote.contestId);
   }
 
-  // The, map IDs to contests in the election:
+  // Then, map IDs to contests in the election:
   const blankContests: AnyContest[] = [];
   const partiallyVotedContests: AnyContest[] = [];
   const overvoteContests: AnyContest[] = [];
@@ -96,13 +96,19 @@ function MisvoteWarningScreen({
     }
   }
 
+  // If there are overvotes, we nudge the voter toward returning the ballot.
+  // Given that undervotes are often intentional, we don't discourage casting
+  // the ballot in that case. Note that completely blank ballots are handled
+  // by another component.
+  const returnBallotButtonIsPrimary = overvoteContests.length > 0;
+
   return (
     <Screen
       actionButtons={
         <React.Fragment>
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
-            variant={overvoteContests.length > 0 ? 'primary' : undefined}
+            variant={returnBallotButtonIsPrimary ? 'primary' : undefined}
             onPress={() => returnBallotMutation.mutate()}
             disabled={hasCastBallot}
           >
@@ -112,7 +118,7 @@ function MisvoteWarningScreen({
           {(allowCastingOvervotes || overvoteContests.length === 0) && (
             <Button
               id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-              variant={overvoteContests.length === 0 ? 'primary' : undefined}
+              variant={returnBallotButtonIsPrimary ? undefined : 'primary'}
               onPress={onCastBallot}
               disabled={hasCastBallot}
             >
