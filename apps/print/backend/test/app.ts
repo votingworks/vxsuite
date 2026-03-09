@@ -30,6 +30,7 @@ import {
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { readFile } from 'node:fs/promises';
@@ -136,6 +137,17 @@ export function mockAuthStatus(
   authStatus: DippedSmartCardAuth.AuthStatus
 ): void {
   vi.mocked(auth.getAuthStatus).mockResolvedValue(authStatus);
+}
+
+export function mockSystemAdministratorAuth(
+  auth: DippedSmartCardAuthApi
+): void {
+  mockAuthStatus(auth, {
+    status: 'logged_in',
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+    programmableCard: { status: 'no_card' },
+  });
 }
 
 export function mockElectionManagerAuth(

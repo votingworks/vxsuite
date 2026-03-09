@@ -5,6 +5,7 @@ import { PrintScreen } from './screens/print_screen';
 import { SettingsScreen } from './screens/settings_screen';
 import { ReportScreen } from './screens/report_screen';
 import { ElectionScreen } from './screens/election_screen';
+import { DiagnosticsScreen } from './screens/diagnostics_screen';
 import { electionManagerRoutes } from './routes';
 import { PrinterAlertWrapper } from './components/printer_alert_wrapper';
 import { getElectionRecord, getPrecinctSelection } from './api';
@@ -35,6 +36,10 @@ export function ElectionManagerApp(): JSX.Element | null {
           exact
           path={electionManagerRoutes.election.path}
           render={() => <ElectionScreen />}
+        />
+        <Route
+          path={electionManagerRoutes.diagnostics.path}
+          render={() => <DiagnosticsScreen authType="election_manager" />}
         />
         <Route
           path={electionManagerRoutes.settings.path}

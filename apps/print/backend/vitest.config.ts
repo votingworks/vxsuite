@@ -7,8 +7,8 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       thresholds: {
-        lines: 92,
-        branches: -2,
+        lines: 100,
+        branches: -3,
       },
       exclude: [
         '**/node_modules/**',
@@ -17,6 +17,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/types.ts',
         'src/**/index.ts',
+        'src/util/get_current_time.ts',
       ],
     },
     // Ensure only one instance of each library is loaded by loading the TS

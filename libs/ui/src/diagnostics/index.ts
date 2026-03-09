@@ -9,6 +9,7 @@ export * from './central_scan_readiness_report';
 export * from './components';
 export * from './mark_readiness_report';
 export * from './mark_scan_readiness_report';
+export * from './print_readiness_report';
 export * from './scan_readiness_report';
 export * from './test_utils';
 export * from './types';
