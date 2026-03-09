@@ -17,14 +17,21 @@ import { join } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { expectToMatchSavedPdf } from '../test/helpers';
-import { fixturesDir } from './ballot_fixtures';
 import {
+  fixturesDir,
+  nhGeneralElectionFixtures,
+  msGeneralElectionFixtures,
+} from './ballot_fixtures';
+import {
+  BallotPageTemplate,
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
 } from './render_ballot';
 import { createRustRendererPool } from './rust_renderer';
 import { createPlaywrightRendererPool } from './playwright_renderer';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
+import { nhBallotTemplate } from './ballot_templates/nh_ballot_template';
+import { msBallotTemplate } from './ballot_templates/ms_ballot_template';
 import { RendererPool } from './renderer';
 
 vi.setConfig({
@@ -37,6 +44,14 @@ const BALLOT_STYLE_IDS: BallotStyleId[] = [
   '5' as BallotStyleId,
   '12' as BallotStyleId,
 ];
+
+// Threshold for Rust-vs-Chromium comparison. The renderers produce slightly
+// different output due to inherent layout engine differences (Taffy vs Blink)
+// that cause ~0.3pt text position drift across the page. We compare at 200 DPI
+// to reduce the impact of sub-pixel rendering differences, and use a threshold
+// that catches large layout regressions while tolerating minor positioning.
+const RUST_VS_CHROMIUM_COMPARISON_SCALE = 200 / 72;
+const RUST_VS_CHROMIUM_FAILURE_THRESHOLD = 0.035;
 
 function makeElection(): Election {
   const electionGeneral = readElectionGeneral();
@@ -69,12 +84,13 @@ function makeBallotProps(
 
 async function renderBallotPdf(
   rendererPool: RendererPool,
-  allBallotProps: BaseBallotProps[]
+  allBallotProps: BaseBallotProps[],
+  template: BallotPageTemplate<BaseBallotProps> = vxDefaultBallotTemplate
 ): Promise<Uint8Array> {
   const { electionDefinition, ballotContents } =
     await layOutBallotsAndCreateElectionDefinition(
       rendererPool,
-      vxDefaultBallotTemplate,
+      template,
       allBallotProps,
       'vxf'
     );
@@ -95,6 +111,80 @@ async function renderBallotPdf(
       electionDefinition
     );
   });
+}
+
+/**
+ * Compares Rust and Chromium PDFs page-by-page, saving per-page images and
+ * diff composites (rust | red-highlighted diff | chromium) to the output dir.
+ */
+async function compareRendererPages(
+  rustPdf: Uint8Array,
+  chromiumPdf: Uint8Array,
+  outputDir: string,
+  prefix: string
+): Promise<void> {
+  const rustPages = pdfToImages(rustPdf, {
+    scale: RUST_VS_CHROMIUM_COMPARISON_SCALE,
+  });
+  const chromiumPages = pdfToImages(chromiumPdf, {
+    scale: RUST_VS_CHROMIUM_COMPARISON_SCALE,
+  });
+  const pagePairs = iter(rustPages).zip(chromiumPages);
+
+  await mkdir(outputDir, { recursive: true });
+  for await (const [
+    { page: rustPage, pageNumber },
+    { page: chromiumPage },
+  ] of pagePairs) {
+    const pagePrefix = `${prefix}-p${pageNumber}`;
+    await writeImageData(join(outputDir, `${pagePrefix}-rust.png`), rustPage);
+    await writeImageData(
+      join(outputDir, `${pagePrefix}-chromium.png`),
+      chromiumPage
+    );
+
+    // Generate diff composite: [rust | red-highlighted diff | chromium]
+    const { width, height } = rustPage;
+    const diffImg = createImageData(width, height);
+    for (let i = 0; i < width * height * 4; i += 4) {
+      const dr = Math.abs(
+        (rustPage.data[i] ?? 0) - (chromiumPage.data[i] ?? 0)
+      );
+      const dg = Math.abs(
+        (rustPage.data[i + 1] ?? 0) - (chromiumPage.data[i + 1] ?? 0)
+      );
+      const db = Math.abs(
+        (rustPage.data[i + 2] ?? 0) - (chromiumPage.data[i + 2] ?? 0)
+      );
+      const maxDiff = Math.max(dr, dg, db);
+      diffImg.data[i] = maxDiff > 0 ? 255 : 0;
+      diffImg.data[i + 1] = 0;
+      diffImg.data[i + 2] = 0;
+      diffImg.data[i + 3] = 255;
+    }
+    const composite = createImageData(3 * width, height);
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const srcIdx = (y * width + x) * 4;
+        for (const [img, dx] of [
+          [rustPage, 0],
+          [diffImg, width],
+          [chromiumPage, 2 * width],
+        ] as Array<[ImageData, number]>) {
+          const dstIdx = (y * 3 * width + (x + dx)) * 4;
+          composite.data[dstIdx] = img.data[srcIdx]!;
+          composite.data[dstIdx + 1] = img.data[srcIdx + 1]!;
+          composite.data[dstIdx + 2] = img.data[srcIdx + 2]!;
+          composite.data[dstIdx + 3] = img.data[srcIdx + 3]!;
+        }
+      }
+    }
+    await writeImageData(join(outputDir, `${pagePrefix}-diff.png`), composite);
+
+    await expect(rustPage).toMatchImage(chromiumPage, {
+      failureThreshold: RUST_VS_CHROMIUM_FAILURE_THRESHOLD,
+    });
+  }
 }
 
 describe('Rust renderer regression (vs saved references)', () => {
@@ -130,14 +220,6 @@ describe('Rust renderer regression (vs saved references)', () => {
   );
 });
 
-// Threshold for Rust-vs-Chromium comparison. The renderers produce slightly
-// different output due to inherent layout engine differences (Taffy vs Blink)
-// that cause ~0.3pt text position drift across the page. We compare at 200 DPI
-// to reduce the impact of sub-pixel rendering differences, and use a threshold
-// that catches large layout regressions while tolerating minor positioning.
-const RUST_VS_CHROMIUM_COMPARISON_SCALE = 200 / 72;
-const RUST_VS_CHROMIUM_FAILURE_THRESHOLD = 0.035;
-
 describe('Rust renderer vs Chromium', () => {
   let rustPool: RendererPool;
   let chromiumPool: RendererPool;
@@ -153,7 +235,7 @@ describe('Rust renderer vs Chromium', () => {
   });
 
   test.each(BALLOT_STYLE_IDS)(
-    'style %s renders similarly to Chromium',
+    'VxDefault style %s renders similarly to Chromium',
     async (ballotStyleId) => {
       const election = makeElection();
       const allBallotProps = makeBallotProps(election, ballotStyleId);
@@ -163,75 +245,58 @@ describe('Rust renderer vs Chromium', () => {
         renderBallotPdf(chromiumPool, allBallotProps),
       ]);
 
-      const rustPages = pdfToImages(rustPdf, {
-        scale: RUST_VS_CHROMIUM_COMPARISON_SCALE,
-      });
-      const chromiumPages = pdfToImages(chromiumPdf, {
-        scale: RUST_VS_CHROMIUM_COMPARISON_SCALE,
-      });
-      const pagePairs = iter(rustPages).zip(chromiumPages);
-
-      await mkdir(RUST_FIXTURES_DIR, { recursive: true });
-      for await (const [
-        { page: rustPage, pageNumber },
-        { page: chromiumPage },
-      ] of pagePairs) {
-        const prefix = `style-${ballotStyleId}-p${pageNumber}`;
-        await writeImageData(
-          join(RUST_FIXTURES_DIR, `${prefix}-rust.png`),
-          rustPage
-        );
-        await writeImageData(
-          join(RUST_FIXTURES_DIR, `${prefix}-chromium.png`),
-          chromiumPage
-        );
-
-        // Always generate diff composite: [rust | diff | chromium]
-        const { width, height } = rustPage;
-        const diffImg = createImageData(width, height);
-        for (let i = 0; i < width * height * 4; i += 4) {
-          const dr = Math.abs(
-            (rustPage.data[i] ?? 0) - (chromiumPage.data[i] ?? 0)
-          );
-          const dg = Math.abs(
-            (rustPage.data[i + 1] ?? 0) - (chromiumPage.data[i + 1] ?? 0)
-          );
-          const db = Math.abs(
-            (rustPage.data[i + 2] ?? 0) - (chromiumPage.data[i + 2] ?? 0)
-          );
-          const maxDiff = Math.max(dr, dg, db);
-          // Red highlight where pixels differ, black where they match
-          diffImg.data[i] = maxDiff > 0 ? 255 : 0;
-          diffImg.data[i + 1] = 0;
-          diffImg.data[i + 2] = 0;
-          diffImg.data[i + 3] = 255;
-        }
-        const composite = createImageData(3 * width, height);
-        for (let y = 0; y < height; y += 1) {
-          for (let x = 0; x < width; x += 1) {
-            const srcIdx = (y * width + x) * 4;
-            for (const [img, dx] of [
-              [rustPage, 0],
-              [diffImg, width],
-              [chromiumPage, 2 * width],
-            ] as Array<[ImageData, number]>) {
-              const dstIdx = (y * 3 * width + (x + dx)) * 4;
-              composite.data[dstIdx] = img.data[srcIdx]!;
-              composite.data[dstIdx + 1] = img.data[srcIdx + 1]!;
-              composite.data[dstIdx + 2] = img.data[srcIdx + 2]!;
-              composite.data[dstIdx + 3] = img.data[srcIdx + 3]!;
-            }
-          }
-        }
-        await writeImageData(
-          join(RUST_FIXTURES_DIR, `${prefix}-diff.png`),
-          composite
-        );
-
-        await expect(rustPage).toMatchImage(chromiumPage, {
-          failureThreshold: RUST_VS_CHROMIUM_FAILURE_THRESHOLD,
-        });
-      }
+      await compareRendererPages(
+        rustPdf,
+        chromiumPdf,
+        RUST_FIXTURES_DIR,
+        `style-${ballotStyleId}`
+      );
     }
   );
+
+  test('NH ballot renders similarly to Chromium', async () => {
+    const spec = nhGeneralElectionFixtures.fixtureSpecs[0]; // Letter size
+
+    const [rustPdf, chromiumPdf] = await Promise.all([
+      renderBallotPdf(
+        rustPool,
+        spec.allBallotProps,
+        nhBallotTemplate as BallotPageTemplate<BaseBallotProps>
+      ),
+      renderBallotPdf(
+        chromiumPool,
+        spec.allBallotProps,
+        nhBallotTemplate as BallotPageTemplate<BaseBallotProps>
+      ),
+    ]);
+
+    await compareRendererPages(
+      rustPdf,
+      chromiumPdf,
+      join(RUST_FIXTURES_DIR, 'nh'),
+      'nh'
+    );
+  });
+
+  test('MS ballot renders similarly to Chromium', async () => {
+    const [rustPdf, chromiumPdf] = await Promise.all([
+      renderBallotPdf(
+        rustPool,
+        msGeneralElectionFixtures.allBallotProps,
+        msBallotTemplate
+      ),
+      renderBallotPdf(
+        chromiumPool,
+        msGeneralElectionFixtures.allBallotProps,
+        msBallotTemplate
+      ),
+    ]);
+
+    await compareRendererPages(
+      rustPdf,
+      chromiumPdf,
+      join(RUST_FIXTURES_DIR, 'ms'),
+      'ms'
+    );
+  });
 });
