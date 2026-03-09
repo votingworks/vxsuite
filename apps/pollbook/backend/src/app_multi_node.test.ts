@@ -7,6 +7,7 @@ import {
 import { AddressInfo } from 'node:net';
 import { assertDefined, ok } from '@votingworks/basics';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import {
   extendedWaitFor,
   setupUnconfiguredPollbooksOnNetwork,
@@ -22,7 +23,6 @@ import {
   MACHINE_DISCONNECTED_TIMEOUT,
   NETWORK_POLLING_INTERVAL,
 } from './globals';
-import { AvahiService, hasOnlineInterface } from './avahi';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 const singlePrecinctElectionDefinition =
@@ -63,7 +63,7 @@ vi.mock(import('./get_current_time.js'), async (importActual) => ({
   getCurrentTime: () => currentTime.getTime(),
 }));
 
-vi.mock('./avahi.js', () => ({
+vi.mock('@votingworks/networking', () => ({
   hasOnlineInterface: vi.fn().mockResolvedValue(false),
   AvahiService: {
     advertiseHttpService: vi.fn().mockReturnValue(undefined),

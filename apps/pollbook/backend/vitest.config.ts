@@ -7,8 +7,8 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       thresholds: {
-        lines: 92.52,
-        branches: 88,
+        lines: 92.3,
+        branches: 87.5,
       },
       exclude: [
         '**/node_modules/**',
@@ -29,6 +29,10 @@ export default defineConfig({
       {
         find: '@votingworks/backend',
         replacement: join(__dirname, '../../../libs/backend/src/index.ts'),
+      },
+      {
+        find: '@votingworks/networking',
+        replacement: join(__dirname, '../../../libs/networking/src/index.ts'),
       },
     ],
   },

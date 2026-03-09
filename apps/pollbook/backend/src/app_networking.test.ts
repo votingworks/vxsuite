@@ -1,9 +1,9 @@
 import { vi, expect, test, beforeEach } from 'vitest';
 import { execFile } from '@votingworks/backend';
+import { AvahiService } from '@votingworks/networking';
 import { withApp } from '../test/app';
-import { AvahiService } from './avahi';
 
-vi.mock('./avahi.js', () => ({
+vi.mock('@votingworks/networking', () => ({
   hasOnlineInterface: vi.fn().mockResolvedValue(false),
   AvahiService: {
     advertiseHttpService: vi.fn().mockReturnValue(undefined),
