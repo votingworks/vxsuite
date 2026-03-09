@@ -5,6 +5,7 @@ import {
   BallotType,
   BaseBallotProps,
   HmpbBallotPaperSize,
+  PartyId,
 } from '@votingworks/types';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import {
@@ -13,6 +14,7 @@ import {
   NhPrimaryBallotProps,
 } from './ballot_templates';
 import { renderBallotPreviewToPdf } from './render_ballot';
+import { render as renderRovForm } from './ballot_templates/nh_rov_form';
 
 const USAGE = `Usage: render-ballot-pdf <ballot-template-id> <election-path> <output-pdf-path>`;
 
@@ -106,6 +108,29 @@ const ballotSpecs = [
   ...makePrimaryElectionSpecs('monroe', 'dem', { isHandCount: true }),
 ];
 
+interface RovSpec {
+  electionPath: string;
+  partyId?: PartyId;
+  outputPdfPath: string;
+}
+
+const rovSpecs: RovSpec[] = [
+  {
+    electionPath: `${dir}/monroe-general-election.json`,
+    outputPdfPath: `${dir}/monroe-general-rov.pdf`,
+  },
+  {
+    electionPath: `${dir}/monroe-primary-election-rep.json`,
+    partyId: 'o76ud7u6rqe4',
+    outputPdfPath: `${dir}/monroe-primary-rov-rep.pdf`,
+  },
+  {
+    electionPath: `${dir}/monroe-primary-election-dem.json`,
+    partyId: 'z8l5d9a22v5j',
+    outputPdfPath: `${dir}/monroe-primary-rov-dem.pdf`,
+  },
+];
+
 export async function main(args: string[]): Promise<number> {
   // if (args.length !== 3) {
   //   console.error(USAGE);
@@ -141,6 +166,18 @@ export async function main(args: string[]): Promise<number> {
     ).unsafeUnwrap();
     await writeFile(spec.outputPdfPath, pdfBytes);
   }
+  // Render ROV forms
+  for (const spec of rovSpecs) {
+    const { election } = (await readElection(spec.electionPath)).unsafeUnwrap();
+    const document = await renderRovForm(renderer, {
+      election,
+      partyId: spec.partyId,
+    });
+    const pdfBytes = await document.renderToPdf();
+    await writeFile(spec.outputPdfPath, pdfBytes);
+    console.log(`Wrote ${spec.outputPdfPath}`);
+  }
+
   await renderer.close();
 
   return 0;
