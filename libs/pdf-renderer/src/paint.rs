@@ -123,6 +123,10 @@ fn paint_node(
     // Track push count for matching pops
     let mut push_count: u32 = 0;
 
+    let inherited_font = computed
+        .as_ref()
+        .map_or("sans-serif", |c| c.font_family.as_str());
+
     if let Some(ref computed) = computed {
         // Opacity
         if computed.opacity < 1.0 {
@@ -152,7 +156,7 @@ fn paint_node(
 
         // Background image
         if let Some(ref bg_image) = computed.background_image {
-            paint_background_image(surface, x, y, w, h, bg_image, computed);
+            paint_background_image(surface, x, y, w, h, bg_image, computed, fonts, inherited_font);
         }
 
         // Borders
@@ -179,7 +183,7 @@ fn paint_node(
     // SVG rendering — if this node has SVG data, render it and skip children
     if let Some(elem_id) = find_element_id_for_node(node, layout) {
         if let Some(svg_xml) = layout.svg_data.get(&elem_id) {
-            paint_svg(surface, x, y, w, h, svg_xml);
+            paint_svg(surface, x, y, w, h, svg_xml, fonts, inherited_font);
             for _ in 0..push_count {
                 surface.pop();
             }
@@ -187,7 +191,7 @@ fn paint_node(
         }
         // Image rendering — <img> elements with data URIs
         if let Some(src) = layout.image_data.get(&elem_id) {
-            paint_data_uri_image(surface, x, y, w, h, src);
+            paint_data_uri_image(surface, x, y, w, h, src, fonts, inherited_font);
             for _ in 0..push_count {
                 surface.pop();
             }
@@ -480,6 +484,8 @@ fn paint_svg(
     w: f32,
     h: f32,
     svg_xml: &str,
+    fonts: &FontCollection,
+    default_font_family: &str,
 ) {
     // Ensure xmlns is present for usvg parsing
     let svg_xml = if svg_xml.contains("xmlns") {
@@ -487,7 +493,13 @@ fn paint_svg(
     } else {
         svg_xml.replacen("<svg", "<svg xmlns=\"http://www.w3.org/2000/svg\"", 1)
     };
-    let Ok(tree) = usvg::Tree::from_str(&svg_xml, &usvg::Options::default()) else {
+    let resolved_family = fonts.resolve_fontdb_family(default_font_family);
+    let opts = usvg::Options {
+        fontdb: Arc::clone(fonts.svg_fontdb()),
+        font_family: resolved_family,
+        ..usvg::Options::default()
+    };
+    let Ok(tree) = usvg::Tree::from_str(&svg_xml, &opts) else {
         return;
     };
     let Some(size) = Size::from_wh(w, h) else {
@@ -564,6 +576,8 @@ fn paint_background_image(
     h: f32,
     uri: &str,
     style: &ComputedStyle,
+    fonts: &FontCollection,
+    default_font_family: &str,
 ) {
     let Some((mime, data)) = extract_data_uri(uri) else {
         return;
@@ -572,7 +586,7 @@ fn paint_background_image(
     // For SVGs, we can render at any size — use the full element box
     if mime.contains("svg") {
         let svg_xml = String::from_utf8_lossy(&data);
-        paint_svg(surface, x, y, w, h, &svg_xml);
+        paint_svg(surface, x, y, w, h, &svg_xml, fonts, default_font_family);
         return;
     }
 
@@ -626,13 +640,15 @@ fn paint_data_uri_image(
     w: f32,
     h: f32,
     uri: &str,
+    fonts: &FontCollection,
+    default_font_family: &str,
 ) {
     let Some((mime, data)) = extract_data_uri(uri) else {
         return;
     };
     if mime.contains("svg") {
         let svg_xml = String::from_utf8_lossy(&data);
-        paint_svg(surface, x, y, w, h, &svg_xml);
+        paint_svg(surface, x, y, w, h, &svg_xml, fonts, default_font_family);
     } else {
         let image_result = if mime.contains("png") {
             Image::from_png(Data::from(data), false)

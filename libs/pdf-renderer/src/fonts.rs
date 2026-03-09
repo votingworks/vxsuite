@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use crate::style::{FontFace, FontStyle};
 
@@ -39,11 +40,37 @@ pub struct FontCollection {
     find_cache: RefCell<HashMap<FontKey, Option<usize>>>,
     /// Cache: text shaping results
     measure_cache: RefCell<HashMap<MeasureCacheKey, f32>>,
+    /// Font database for usvg SVG text rendering
+    svg_fontdb: Arc<usvg::fontdb::Database>,
 }
 
 impl FontCollection {
     pub fn font_data(&self) -> &[FontFace] {
         &self.font_data
+    }
+
+    pub fn svg_fontdb(&self) -> &Arc<usvg::fontdb::Database> {
+        &self.svg_fontdb
+    }
+
+    /// Resolve a CSS font-family name to the internal TTF font family name
+    /// used in the fontdb. Returns the CSS name if no mapping is found.
+    pub fn resolve_fontdb_family(&self, css_family: &str) -> String {
+        let Some(idx) = self.find_idx(css_family, 400, FontStyle::Normal) else {
+            return css_family.to_string();
+        };
+        let face_data = &self.font_data[idx];
+        if let Ok(face) = ttf_parser::Face::parse(&face_data.data, 0) {
+            for name in face.names() {
+                // Name ID 1 = Font Family
+                if name.name_id == ttf_parser::name_id::FAMILY {
+                    if let Some(family) = name.to_string() {
+                        return family;
+                    }
+                }
+            }
+        }
+        css_family.to_string()
     }
 
     /// Look up a font face index by family, weight, style.
@@ -376,11 +403,18 @@ pub fn load_fonts(font_faces: &[FontFace]) -> FontCollection {
         }
     }
 
+    // Build fontdb for usvg SVG text rendering
+    let mut db = usvg::fontdb::Database::new();
+    for face in &font_data {
+        db.load_font_data(face.data.clone());
+    }
+
     FontCollection {
         font_data,
         index,
         metrics,
         find_cache: RefCell::new(HashMap::new()),
         measure_cache: RefCell::new(HashMap::new()),
+        svg_fontdb: Arc::new(db),
     }
 }

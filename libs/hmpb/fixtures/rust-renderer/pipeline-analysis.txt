@@ -1,121 +1,140 @@
 === Rust PDF Renderer Pipeline Analysis ===
-Date: 2026-03-08T09:07:42.041Z
-Ballot: Style 12, Election General
+Date: 2026-03-08
+Ballot: Style 12, Election General (6 pages, 2 precincts)
+Machine: Linux arm64
 
-Total pipeline:     571ms
-  Phase 1 (Layout): 403ms (71%)
-  Phase 2 (PDF):    168ms (29%)
+== Summary ==
 
---- Phase 1: Layout Phase Breakdown ---
-  Total Rust/NAPI calls: 775ms
-  Remaining JS time:     -372ms (React render, election def creation, etc.)
+Total pipeline: ~540ms (vs ~1200ms Chromium, 2.3x faster)
+  Phase 1 (Layout):  ~400ms (71%)
+  Phase 2 (PDF):     ~170ms (29%)
 
-  inspectElements: 32 calls, 341ms total, 10.6ms avg
-  measureElements: 28 calls, 280ms total, 10.0ms avg
-  setContent: 2 calls, 90ms total, 44.8ms avg
-  createScratchpad: 2 calls, 61ms total, 30.7ms avg
-  getContent: 2 calls, 3ms total, 1.5ms avg
+Improvement from this session: 618ms -> 540ms (-13%)
+  - countElements optimization: -34ms (avoid unnecessary layout for page count)
+  - Min-width fix (previous commit): small layout improvement
 
---- Phase 1: Individual Calls ---
-  createScratchpad(): 41.3ms
-  createScratchpad(): 20.2ms
-  measureElements(.content-slot): 13.6ms
-  measureElements(.content-slot): 8.5ms
-  measureElements(.contestWrapper): 26.1ms
-  measureElements(.contestWrapper): 15.3ms
-  measureElements(.contestWrapper): 20.6ms
-  measureElements(.contestWrapper): 10.3ms
-  measureElements(.content-slot): 8.4ms
-  measureElements(.content-slot): 4.6ms
-  measureElements(.contestWrapper): 17.7ms
-  measureElements(.contestWrapper): 10.1ms
-  measureElements(.contestWrapper): 10.9ms
-  measureElements(.contestWrapper): 5.3ms
-  measureElements(.content-slot): 8.2ms
-  measureElements(.content-slot): 4.6ms
-  measureElements(.contestWrapper): 8.6ms
-  measureElements(.contestWrapper): 5.1ms
-  measureElements(.contestWrapper): 16.6ms
-  measureElements(.contestWrapper): 12.9ms
-  measureElements(.content-slot): 8.0ms
-  measureElements(.content-slot): 5.0ms
-  measureElements(.contestWrapper): 12.3ms
-  measureElements(.contestWrapper): 6.8ms
-  measureElements(.contestWrapper): 7.3ms
-  measureElements(.contestWrapper): 5.1ms
-  measureElements(.content-slot): 9.0ms
-  measureElements(.content-slot): 6.1ms
-  measureElements(.contestWrapper): 7.6ms
-  measureElements(.contestWrapper): 5.7ms
-  setContent(body): 59.1ms
-  setContent(body): 30.5ms
-  inspectElements(.page): 70.3ms
-  inspectElements(.page): 34.7ms
-  inspectElements(.page[data-page-number="1"] .timing-mark): 23.2ms
-  inspectElements(.page[data-page-number="2"] .timing-mark): 20.9ms
-  inspectElements(.page[data-page-number="3"] .timing-mark): 19.0ms
-  inspectElements(.page[data-page-number="4"] .timing-mark): 17.1ms
-  inspectElements(.page[data-page-number="5"] .timing-mark): 15.2ms
-  inspectElements(.page[data-page-number="6"] .timing-mark): 13.3ms
-  inspectElements(.page[data-page-number="1"] .timing-mark): 11.4ms
-  inspectElements(.page[data-page-number="2"] .timing-mark): 9.5ms
-  inspectElements(.page[data-page-number="3"] .timing-mark): 7.6ms
-  inspectElements(.page[data-page-number="4"] .timing-mark): 5.7ms
-  inspectElements(.page[data-page-number="5"] .timing-mark): 3.8ms
-  inspectElements(.page[data-page-number="6"] .timing-mark): 1.9ms
-  inspectElements(.page[data-page-number="1"] .bubble): 11.9ms
-  inspectElements(.page[data-page-number="2"] .bubble): 10.8ms
-  inspectElements(.page[data-page-number="3"] .bubble): 9.8ms
-  inspectElements(.page[data-page-number="4"] .bubble): 8.8ms
-  inspectElements(.page[data-page-number="5"] .bubble): 7.8ms
-  inspectElements(.page[data-page-number="6"] .bubble): 6.8ms
-  inspectElements(.page[data-page-number="1"] .bubble): 5.9ms
-  inspectElements(.page[data-page-number="2"] .bubble): 4.9ms
-  inspectElements(.page[data-page-number="3"] .bubble): 3.9ms
-  inspectElements(.page[data-page-number="4"] .bubble): 2.9ms
-  inspectElements(.page[data-page-number="5"] .bubble): 1.9ms
-  inspectElements(.page[data-page-number="6"] .bubble): 0.9ms
-  inspectElements(.write-in-option): 1.4ms
-  inspectElements(.write-in-option): 0.7ms
-  inspectElements(.write-in-option .bubble): 1.8ms
-  inspectElements(.write-in-option .bubble): 0.9ms
-  inspectElements(.page[data-page-number="1"] .timing-mark): 3.9ms
-  inspectElements(.page[data-page-number="1"] .timing-mark): 1.9ms
-  getContent(): 2.1ms
-  getContent(): 0.9ms
+== Phase 1: Layout Breakdown ==
 
---- Phase 2: PDF Phase Breakdown ---
-  renderToPdf: 1 calls, 127ms total, 126.7ms avg
-  loadDocumentFromContent: 1 calls, 28ms total, 27.6ms avg
-  setContent: 12 calls, 12ms total, 1.0ms avg
-  countElements: 1 calls, 0ms total, 0.5ms avg
+The layout phase runs `layOutBallotsAndCreateElectionDefinition`, which
+processes 2 ballot precincts concurrently. For each ballot:
 
---- Phase 2: Individual Calls ---
-  loadDocumentFromContent(1014452 chars): 27.6ms
-  countElements(.page): 0.5ms
-  setContent(.page[data-page-number="1"] .qr-code-slot): 1.2ms
-  setContent(.page[data-page-number="1"] .ballot-hash-slot): 0.2ms
-  setContent(.page[data-page-number="2"] .qr-code-slot): 1.2ms
-  setContent(.page[data-page-number="2"] .ballot-hash-slot): 0.4ms
-  setContent(.page[data-page-number="3"] .qr-code-slot): 1.5ms
-  setContent(.page[data-page-number="3"] .ballot-hash-slot): 0.6ms
-  setContent(.page[data-page-number="4"] .qr-code-slot): 1.5ms
-  setContent(.page[data-page-number="4"] .ballot-hash-slot): 0.7ms
-  setContent(.page[data-page-number="5"] .qr-code-slot): 1.4ms
-  setContent(.page[data-page-number="5"] .ballot-hash-slot): 0.8ms
-  setContent(.page[data-page-number="6"] .qr-code-slot): 1.4ms
-  setContent(.page[data-page-number="6"] .ballot-hash-slot): 0.9ms
-  renderToPdf(): 126.7ms
+1. createScratchpad()           ~15ms  [Rust: parse_html 5ms + compile_styles 10ms]
+2. paginateBallotContent loop   ~250ms [14 measureElements calls per ballot]
+   - Each measureElements call:
+     a. React renderToString + styled-components  ~8-15ms (JS)
+     b. Rust set_content (parse HTML fragment)     ~0.3-0.7ms
+     c. Rust ensure_live_layout (style + layout)   ~0.7-2.5ms
+3. setContent(body) final       ~2ms   [Rust: parse 2ms]
+4. ensure_live_layout (full)    ~33ms  [Rust: apply_rules 4.5ms + compute_layout 27ms]
+5. extractGridLayout            ~5ms   [inspectElements x ~30 — all cache hits]
+6. getContent()                 ~2ms
 
---- Bottleneck Analysis ---
-Top 10 slowest calls:
-  126.7ms - renderToPdf()
-  70.3ms - inspectElements(.page)
-  59.1ms - setContent(body)
-  41.3ms - createScratchpad()
-  34.7ms - inspectElements(.page)
-  30.5ms - setContent(body)
-  27.6ms - loadDocumentFromContent(1014452 chars)
-  26.1ms - measureElements(.contestWrapper)
-  23.2ms - inspectElements(.page[data-page-number="1"] .timing-mark)
-  20.9ms - inspectElements(.page[data-page-number="2"] .timing-mark)
+Total Rust-internal time: ~70ms per ballot
+Total JS time: ~250ms per ballot (dominated by React renderToString)
+
+With 2 ballots running concurrently (but NAPI calls are synchronous, so
+the JS thread alternates between them), wall-clock is ~400ms.
+
+== Phase 2: PDF Render Breakdown ==
+
+1. RenderContext::new            ~17ms [parse_html 7ms + compile_styles 10ms]
+2. load_document                  ~7ms [parse_html for 1MB HTML]
+3. countElements(.page)         ~0.5ms [DOM-only count, no layout needed]
+4. 12x setContent (QR codes)     ~12ms [DOM patching, invalidates layout cache]
+5. renderToPdf                  ~130ms
+   a. ensure_live_layout          ~20ms [re-computes layout after QR injection]
+   b. paint_pages (6 pages)       ~91ms [~15ms/page, krilla tree traversal]
+   c. document.finish              ~1ms [PDF serialization]
+
+== Key Bottlenecks (ranked by impact) ==
+
+1. React renderToString during pagination: ~250ms (46%)
+   - 28 calls to measureElements, each rendering JSX to HTML via React
+   - styled-components ServerStyleSheet created fresh each time
+   - This is the DOMINANT bottleneck
+
+2. Paint (krilla PDF generation): ~91ms (17%)
+   - 6 pages at ~15ms each
+   - Includes text shaping, SVG rendering, path drawing
+   - Already well-optimized; gains would require krilla-level changes
+
+3. Redundant RenderContext creation: ~32ms (6%)
+   - 3 RenderContext instances created (2 in layout, 1 in PDF)
+   - Each compiles CSS rules (~10ms) and parses HTML (~5ms)
+   - Fonts are already cached (0ms), but CSS compilation repeats
+
+4. Full layout recomputation for PDF: ~20ms (4%)
+   - renderToPdf recomputes layout after QR code injection
+   - Unavoidable since QR SVG nodes need to be in the layout tree
+   - Could be reduced with incremental layout
+
+== Implemented Optimizations ==
+
+A. countElements() — DONE (-34ms, -6%)
+   Added DOM-only element counting NAPI method. Used in QR code
+   injection to count pages without triggering a full layout computation.
+   Old: inspectElements(.page) = 35ms (includes full layout)
+   New: countElements(.page) = 0.5ms (DOM traversal only)
+
+B. setContentNoRelayout() — DONE (available, not yet used)
+   Added DOM patching method that skips layout cache invalidation.
+   Available for future use with fixed-size slots.
+
+C. Profiling instrumentation — DONE
+   Added RUST_PROFILE env var for timing all Rust operations.
+   Uses OnceLock for zero overhead when disabled.
+
+== Proposed Future Optimizations ==
+
+D. Pre-render contest HTML once (-100ms estimated, -17%)
+   Render all contest JSX to HTML strings once, then reuse during
+   pagination instead of re-rendering via React each iteration.
+
+E. Move pagination to Rust (-250ms estimated, -43%)
+   Pass pre-rendered contest HTML fragments to Rust, let Rust
+   handle pagination/column-fitting internally. Eliminates all
+   React renderToString round-trips during pagination.
+   Effort: Large architectural change.
+
+F. Worker threads for parallel rendering (-50% of layout phase)
+   Currently NAPI calls block the JS event loop, limiting concurrency.
+   Using worker_threads would allow true parallel Rust execution.
+   Effort: Medium (need worker_threads setup + message passing).
+
+G. Cache RenderContext across pipeline (-15ms, -3%)
+   Reuse compiled CSS rules between layout and PDF phases.
+   Effort: Low-medium.
+
+== Rust-Internal Timing Details ==
+
+RenderContext::new:
+  parse_html:      5-7ms
+  compile_styles:  10ms
+  load_fonts:      0ms (already cached after first load)
+
+ensure_live_layout (pagination, small content ~10-40KB):
+  compile_extra:   0-1ms (grows as styles accumulate)
+  apply_rules:     0.2-0.5ms
+  compute_layout:  0.3-3.4ms (depends on DOM size)
+  TOTAL:           0.7-4.2ms
+
+ensure_live_layout (full ballot, ~180KB):
+  compile_extra:   1.5ms
+  apply_rules:     4.5ms
+  compute_layout:  27ms
+  TOTAL:           33ms
+
+set_content (body, ~180KB):
+  parse_fragment:  2ms
+  DOM patch:       0ms
+  TOTAL:           2ms
+
+set_content (QR code, ~2.5KB):
+  parse_fragment:  0ms
+  DOM patch:       0.1-0.8ms (grows with DOM search depth)
+  TOTAL:           0.2-0.8ms
+
+render_pdf (6 pages):
+  paint_pages:     88-96ms (~15ms/page)
+  finish (PDF):    1ms
+  TOTAL:           89-97ms

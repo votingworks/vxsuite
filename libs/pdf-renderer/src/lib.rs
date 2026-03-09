@@ -1,6 +1,7 @@
 #![deny(clippy::all)]
 // napi-rs requires owned String params and Result return types
 #![allow(clippy::needless_pass_by_value, clippy::missing_errors_doc)]
+#![allow(clippy::too_many_arguments)]
 // PoC: many types defined ahead of use
 #![allow(dead_code)]
 

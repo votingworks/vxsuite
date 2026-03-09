@@ -8,8 +8,13 @@ import {
   getBallotStyle,
 } from '@votingworks/types';
 import { assertDefined, iter } from '@votingworks/basics';
-import { pdfToImages } from '@votingworks/image-utils';
+import {
+  createImageData,
+  pdfToImages,
+  writeImageData,
+} from '@votingworks/image-utils';
 import { join } from 'node:path';
+import { mkdir } from 'node:fs/promises';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { expectToMatchSavedPdf } from '../test/helpers';
 import { fixturesDir } from './ballot_fixtures';
@@ -166,15 +171,64 @@ describe('Rust renderer vs Chromium', () => {
       });
       const pagePairs = iter(rustPages).zip(chromiumPages);
 
+      await mkdir(RUST_FIXTURES_DIR, { recursive: true });
       for await (const [
         { page: rustPage, pageNumber },
         { page: chromiumPage },
       ] of pagePairs) {
+        const prefix = `style-${ballotStyleId}-p${pageNumber}`;
+        await writeImageData(
+          join(RUST_FIXTURES_DIR, `${prefix}-rust.png`),
+          rustPage
+        );
+        await writeImageData(
+          join(RUST_FIXTURES_DIR, `${prefix}-chromium.png`),
+          chromiumPage
+        );
+
+        // Always generate diff composite: [rust | diff | chromium]
+        const { width, height } = rustPage;
+        const diffImg = createImageData(width, height);
+        for (let i = 0; i < width * height * 4; i += 4) {
+          const dr = Math.abs(
+            (rustPage.data[i] ?? 0) - (chromiumPage.data[i] ?? 0)
+          );
+          const dg = Math.abs(
+            (rustPage.data[i + 1] ?? 0) - (chromiumPage.data[i + 1] ?? 0)
+          );
+          const db = Math.abs(
+            (rustPage.data[i + 2] ?? 0) - (chromiumPage.data[i + 2] ?? 0)
+          );
+          const maxDiff = Math.max(dr, dg, db);
+          // Red highlight where pixels differ, black where they match
+          diffImg.data[i] = maxDiff > 0 ? 255 : 0;
+          diffImg.data[i + 1] = 0;
+          diffImg.data[i + 2] = 0;
+          diffImg.data[i + 3] = 255;
+        }
+        const composite = createImageData(3 * width, height);
+        for (let y = 0; y < height; y += 1) {
+          for (let x = 0; x < width; x += 1) {
+            const srcIdx = (y * width + x) * 4;
+            for (const [img, dx] of [
+              [rustPage, 0],
+              [diffImg, width],
+              [chromiumPage, 2 * width],
+            ] as Array<[ImageData, number]>) {
+              const dstIdx = (y * 3 * width + (x + dx)) * 4;
+              composite.data[dstIdx] = img.data[srcIdx]!;
+              composite.data[dstIdx + 1] = img.data[srcIdx + 1]!;
+              composite.data[dstIdx + 2] = img.data[srcIdx + 2]!;
+              composite.data[dstIdx + 3] = img.data[srcIdx + 3]!;
+            }
+          }
+        }
+        await writeImageData(
+          join(RUST_FIXTURES_DIR, `${prefix}-diff.png`),
+          composite
+        );
+
         await expect(rustPage).toMatchImage(chromiumPage, {
-          diffPath: join(
-            RUST_FIXTURES_DIR,
-            `style-${ballotStyleId}-vs-chromium-p${pageNumber}-diff.png`
-          ),
           failureThreshold: RUST_VS_CHROMIUM_FAILURE_THRESHOLD,
         });
       }
