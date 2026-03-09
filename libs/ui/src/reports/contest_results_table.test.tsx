@@ -221,13 +221,13 @@ test('uses write-in adjudication aggregation', () => {
           undervotes: 1500,
           officialOptionTallies: {
             zebra: 50,
-            lion: 50,
-            elephant: 50,
+            lion: 40,
+            elephant: 30,
           },
           writeInOptionTallies: {
             'write-in-1': {
               name: 'Giraffe',
-              tally: 40,
+              tally: 60,
             },
             'write-in-2': {
               name: 'Gazelle',
@@ -240,9 +240,9 @@ test('uses write-in adjudication aggregation', () => {
   );
   const fishing = screen.getByTestId('results-table-zoo-council-mammal');
   within(fishing).getByText(hasTextAcrossElements('Zebra50'));
-  within(fishing).getByText(hasTextAcrossElements('Lion50'));
-  within(fishing).getByText(hasTextAcrossElements('Elephant50'));
-  within(fishing).getByText(hasTextAcrossElements('Giraffe (Write-In)40'));
+  within(fishing).getByText(hasTextAcrossElements('Lion40'));
+  within(fishing).getByText(hasTextAcrossElements('Elephant30'));
+  within(fishing).getByText(hasTextAcrossElements('Giraffe (Write-In)60'));
   within(fishing).getByText(hasTextAcrossElements('Other Write-In20'));
 });
 
