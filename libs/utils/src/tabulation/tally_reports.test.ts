@@ -240,8 +240,7 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
       ['kangaroo', 'Kangaroo', 10, 5],
       ['elephant', 'Elephant', 5, 0],
       ['write-in-4', 'Write-In 4 (Write-In)', 0, 30],
-      ['write-in-1', 'Write-In 1 (Write-In)', 15, 0],
-      ['write-in-other', 'Other Write-In', 5, 0],
+      ['write-in-other', 'Other Write-In', 20, 0],
       ['write-in', 'Unadjudicated Write-In', 10, 0],
     ]);
 
@@ -354,6 +353,50 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
     ).toEqual([
       ['official', 'Official', 70, 0],
       ['write-in-1', 'Write-In 1 (Write-In)', 30, 0],
+    ]);
+  });
+
+  test('in low-vote contest, non-winning write-ins stay bucketed', () => {
+    const lowVoteContest: CandidateContest = {
+      type: 'candidate',
+      seats: 1,
+      allowWriteIns: true,
+      districtId: 'id' as DistrictId,
+      title: 'Title',
+      id: 'id',
+      candidates: [
+        { id: 'alice', name: 'Alice' },
+        { id: 'bob', name: 'Bob' },
+      ],
+    };
+
+    expect(
+      getTallyReportCandidateRows({
+        contest: lowVoteContest,
+        scannedContestResults: buildContestResultsFixture({
+          contest: lowVoteContest,
+          contestResultsSummary: {
+            type: 'candidate',
+            ballots: 20,
+            officialOptionTallies: {
+              alice: 5,
+              bob: 3,
+            },
+            writeInOptionTallies: {
+              'write-in-1': { name: 'Write-In 1', tally: 4 },
+              'write-in-2': { name: 'Write-In 2', tally: 3 },
+              'write-in-3': { name: 'Write-In 3', tally: 2 },
+              'write-in-4': { name: 'Write-In 4', tally: 2 },
+              'write-in-5': { name: 'Write-In 5', tally: 1 },
+            },
+          },
+        }) as Tabulation.CandidateContestResults,
+        aggregateInsignificantWriteIns: true,
+      }).map(shorthandTallyReportCandidateRow)
+    ).toEqual([
+      ['alice', 'Alice', 5, 0],
+      ['bob', 'Bob', 3, 0],
+      ['write-in-other', 'Write-In', 12, 0],
     ]);
   });
 

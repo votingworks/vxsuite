@@ -69,7 +69,7 @@ function getAllWriteInRows({
   return rows;
 }
 
-function getInsignificantWriteInCount({
+function getInsignificantWriteInTally({
   contestResults,
   significantWriteInCandidateIds,
 }: {
@@ -114,27 +114,13 @@ function getAggregatedWriteInRows({
   const leastNumberVotesForWinner: number =
     candidateTalliesDescending.at(contest.seats - 1)?.tally ?? 0;
 
-  const writeInCandidateTalliesDescending = candidateTalliesDescending.filter(
-    (candidateTally) => candidateTally.isWriteIn
+  // A write-in candidate is shown individually only if it is a winner,
+  // i.e. its tally meets or exceeds the winner threshold.
+  const significantWriteInCandidates = candidateTalliesDescending.filter(
+    (candidateTally) =>
+      candidateTally.isWriteIn &&
+      candidateTally.tally >= leastNumberVotesForWinner
   );
-  const significantWriteInCandidates: Tabulation.CandidateTally[] = [];
-
-  while (
-    significantWriteInCandidates.length <
-      writeInCandidateTalliesDescending.length &&
-    getInsignificantWriteInCount({
-      contestResults: combinedContestResults,
-      significantWriteInCandidateIds: significantWriteInCandidates.map(
-        (c) => c.id
-      ),
-    }) >= leastNumberVotesForWinner
-  ) {
-    significantWriteInCandidates.push(
-      assertDefined(
-        writeInCandidateTalliesDescending[significantWriteInCandidates.length]
-      )
-    );
-  }
 
   const rows: TallyReportCandidateRow[] = [];
   let hasSomeWriteInRow = false;
@@ -153,12 +139,12 @@ function getAggregatedWriteInRows({
   const significantWriteInCandidateIds = significantWriteInCandidates.map(
     (c) => c.id
   );
-  const scannedInsignificantWriteInCount = getInsignificantWriteInCount({
+  const scannedInsignificantWriteInCount = getInsignificantWriteInTally({
     contestResults: scannedContestResults,
     significantWriteInCandidateIds,
   });
   const manualInsignificantWriteInCount = manualContestResults
-    ? getInsignificantWriteInCount({
+    ? getInsignificantWriteInTally({
         contestResults: manualContestResults,
         significantWriteInCandidateIds,
       })
