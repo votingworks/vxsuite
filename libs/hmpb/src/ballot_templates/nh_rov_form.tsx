@@ -1,18 +1,23 @@
 import React from 'react';
 import { find } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { ballotPaperDimensions, Election, PartyId } from '@votingworks/types';
+import {
+  ballotPaperDimensions,
+  Election,
+  HmpbBallotPaperSize,
+  PartyId,
+} from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import styled from 'styled-components';
 import { SignatureLine, SignatureX } from '@votingworks/ui';
 import { RenderDocument, Renderer } from '../renderer';
 import { BaseStyles } from '../base_styles';
-import { Colors, Page, pageMarginsInches } from '../ballot_components';
-
-const Box = styled.div`
-  border: 1px solid ${Colors.DARKER_GRAY};
-  padding: 0.5rem;
-`;
+import {
+  Colors,
+  ColorTints,
+  Page,
+  pageMarginsInches,
+} from '../ballot_components';
 
 const Header = styled.div`
   display: flex;
@@ -30,7 +35,7 @@ const ContestTable = styled.table`
   th {
     text-align: left;
     font-weight: normal;
-    padding: 0.5rem;
+    padding: 0.375rem;
     // border: 1px solid ${Colors.DARK_GRAY};
     background-color: ${Colors.LIGHT_GRAY};
   }
@@ -47,7 +52,7 @@ const ContestTable = styled.table`
 
   td {
     border: 1px solid ${Colors.DARK_GRAY};
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.375rem;
   }
 
   td:first-child {
@@ -61,7 +66,13 @@ const ContestTable = styled.table`
   }
 `;
 
-function Field({ label }: { label: string }): JSX.Element {
+function Field({
+  label,
+  headerColor = Colors.LIGHT_GRAY,
+}: {
+  label: string;
+  headerColor?: string;
+}): JSX.Element {
   return (
     <div
       style={{
@@ -74,7 +85,7 @@ function Field({ label }: { label: string }): JSX.Element {
       <div
         style={{
           padding: '0.25rem',
-          backgroundColor: Colors.LIGHT_GRAY,
+          backgroundColor: headerColor,
           fontWeight: '500',
           fontSize: '0.8rem',
         }}
@@ -90,6 +101,35 @@ interface NhRovFormProps {
   partyId?: PartyId;
 }
 
+function partyColorTint(
+  partyName: string
+): keyof typeof ColorTints | undefined {
+  if (/democrat/i.test(partyName)) return 'BLUE';
+  if (/republican/i.test(partyName)) return 'RED';
+  return undefined;
+}
+
+function contestTitleWithForPrefix(title: string): string {
+  return title.startsWith('For ') ? title : `For ${title}`;
+}
+
+const PRIMARY_INSTRUCTIONS =
+  'Record the number of votes received by each candidate in the appropriate ' +
+  "space to the right of each candidate's name. If a candidate printed on " +
+  "the ballot received write-in votes in this party's primary, include the " +
+  'votes by write-in by adding those write-in votes into the total votes ' +
+  'for that candidate on this return. Record the total Undervotes and total ' +
+  'Overvotes for each race. Record the Ballots Cast information at the ' +
+  'bottom of the return.';
+
+const GENERAL_INSTRUCTIONS =
+  'Record the number of votes received by each candidate or question in the ' +
+  'appropriate space. Record the total Undervotes and total Overvotes for ' +
+  'each race or question. Record the Ballots Cast information at the bottom ' +
+  'of the return. The Clerk must verify that the numbers entered accurately ' +
+  'reflect the vote counts determined by the moderator and sign the form. ' +
+  'Return on ELECTION NIGHT to the Secretary of State.';
+
 export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
   const party = partyId
     ? find(election.parties, (p) => p.id === partyId)
@@ -97,100 +137,77 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
   const electionDate = format.localeLongDate(
     election.date.toMidnightDatetimeWithSystemTimezone()
   );
-  const dimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
+  const dimensions = ballotPaperDimensions(HmpbBallotPaperSize.Legal);
+  const colorTint = party ? partyColorTint(party.fullName) : undefined;
+  const headerBgColor = colorTint ? ColorTints[colorTint] : Colors.LIGHT_GRAY;
+  const instructions = partyId ? PRIMARY_INSTRUCTIONS : GENERAL_INSTRUCTIONS;
+  const ballotsCastPrefix = party ? `${party.fullName} ` : '';
   return (
     <Page pageNumber={1} dimensions={dimensions} margins={pageMarginsInches}>
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.5rem',
-          padding: '0.5rem',
+          gap: '0.375rem',
+          padding: '0.375rem',
         }}
       >
-        <Header>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <img
-              src={`data:image/svg+xml;base64,${Buffer.from(
-                election.seal
-              ).toString('base64')}`}
-              style={{ height: '5rem' }}
-            />
-            <div>
-              <h1>Return of Votes</h1>
-              <h2>
-                {election.county.name}, {election.state}
-              </h2>
-              {party && <h2>{party.fullName}</h2>}
-              <h4>{election.title}</h4>
-              <h4>{electionDate}</h4>
+        <div
+          style={{
+            border: `1px solid ${Colors.DARKER_GRAY}`,
+            backgroundColor: headerBgColor,
+          }}
+        >
+          <Header style={{ padding: '0.5rem' }}>
+            <div
+              style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}
+            >
+              <img
+                src={`data:image/svg+xml;base64,${Buffer.from(
+                  election.seal
+                ).toString('base64')}`}
+                style={{ height: '5rem' }}
+              />
+              <div>
+                <h1>Return of Votes</h1>
+                <h2>
+                  {election.county.name}, {election.state}
+                </h2>
+                {party && <h2>{party.fullName}</h2>}
+                <h4>{election.title}</h4>
+                <h4>{electionDate}</h4>
+              </div>
             </div>
-          </div>
-          <div
-            style={{
-              // width: '15rem',
-              fontSize: '0.8rem',
-              border: '1px solid black',
-              padding: '0.5rem',
-            }}
-          >
-            <div>
-              <strong>Vote {electionDate}. A true copy attest:</strong>
-            </div>
-            <SignatureLine>
-              <SignatureX />
-            </SignatureLine>
-            <div>Signature of Town/City Clerk</div>
-            {/* <div style={{ fontSize: '0.8rem' }}>
-              One copy to be Returned ELECTION NIGHT to the Secretary of State
-            </div> */}
-          </div>
-        </Header>
-        <Box style={{ fontSize: '0.8rem', backgroundColor: Colors.LIGHT_GRAY }}>
-          <strong>Instructions:</strong> Record the Ballots Cast information.
-          Record the number of votes received by each candidate in the
-          appropriate space to the right of each candidate’s name. If a
-          candidate printed on the ballot received write-in votes in this
-          party’s primary, include the votes by write-in by adding those
-          write-in votes into the total votes for that candidate on this return.
-          Record the total Undervotes and total Overvotes for each race.{' '}
-          <strong>
-            One copy to be returned ELECTION NIGHT to the Secretary of State.
-          </strong>
-        </Box>
-        <Box style={{ padding: 0 }}>
-          <h4
-            style={{
-              backgroundColor: Colors.LIGHT_GRAY,
-              padding: '0.5rem',
-              margin: 0,
-            }}
-          >
-            Ballots Cast
-          </h4>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: '0.5rem',
-              alignItems: 'center',
-              padding: '0.5rem',
-            }}
-          >
-            <Field label="Election Day Ballots" />
-            <h2>+</h2>
-            <Field label="Absentee Ballots" />
-            <h2>=</h2>
-            <Field label="Total Ballots Cast" />
             <div
               style={{
-                borderLeft: `1px solid ${Colors.DARK_GRAY}`,
-                height: '4rem',
+                fontSize: '0.8rem',
+                border: '1px solid black',
+                padding: '0.375rem',
+                backgroundColor: 'white',
               }}
-            />
-            <Field label="Federal Office Only Ballots" />
+            >
+              <div>
+                <strong>Vote {electionDate}. A true copy attest:</strong>
+              </div>
+              <SignatureLine>
+                <SignatureX />
+              </SignatureLine>
+              <div>Signature of Town/City Clerk</div>
+              <div style={{ fontSize: '0.8rem' }}>
+                One copy to be Returned ELECTION NIGHT to the Secretary of State
+              </div>
+            </div>
+          </Header>
+          <div
+            style={{
+              fontSize: '0.8rem',
+              padding: '0.375rem',
+              borderTop: `1px solid ${Colors.DARKER_GRAY}`,
+            }}
+          >
+            <strong>Instructions:</strong> {instructions}
           </div>
-        </Box>
+        </div>
         <div
           style={{
             columns: 3,
@@ -208,22 +225,30 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
               <div
                 key={contest.id}
                 style={{
-                  marginBottom: '0.5rem',
+                  marginBottom: '0.375rem',
                   border: `1px solid ${Colors.DARKER_GRAY}`,
                 }}
               >
                 <ContestTable style={{ fontSize: '0.8rem' }}>
                   <tbody>
                     <thead>
-                      <th colSpan={2}>
-                        <h4 style={{ fontSize: '1rem' }}>{contest.title}</h4>
+                      <th
+                        colSpan={2}
+                        style={
+                          colorTint
+                            ? { backgroundColor: ColorTints[colorTint] }
+                            : undefined
+                        }
+                      >
+                        <h4 style={{ fontSize: '1rem' }}>
+                          {contestTitleWithForPrefix(contest.title)}
+                        </h4>
                         {contest.type === 'candidate' && (
                           <div>
-                            Vote for {contest.seats}
-                            {contest.type === 'candidate' &&
-                              contest.termDescription && (
-                                <span> • {contest.termDescription}</span>
-                              )}
+                            Vote for not more than {contest.seats}
+                            {contest.termDescription && (
+                              <span> • {contest.termDescription}</span>
+                            )}
                           </div>
                         )}
                       </th>
@@ -265,6 +290,39 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                 </ContestTable>
               </div>
             ))}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: '0.375rem',
+            alignItems: 'center',
+          }}
+        >
+          <Field
+            label={`${ballotsCastPrefix}Election Day Ballots Cast`}
+            headerColor={headerBgColor}
+          />
+          <h2>+</h2>
+          <Field
+            label={`${ballotsCastPrefix}Absentee Ballots Cast`}
+            headerColor={headerBgColor}
+          />
+          <h2>=</h2>
+          <Field
+            label={`${ballotsCastPrefix}Total Ballots Cast`}
+            headerColor={headerBgColor}
+          />
+          <div
+            style={{
+              borderLeft: `1px solid ${Colors.DARK_GRAY}`,
+              height: '4rem',
+            }}
+          />
+          <Field
+            label="Federal Office Only Ballots Cast"
+            headerColor={headerBgColor}
+          />
         </div>
       </div>
     </Page>
