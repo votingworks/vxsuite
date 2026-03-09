@@ -1,8 +1,12 @@
-import { err, typedAs } from '@votingworks/basics';
+import { Result, deferred, err, ok, typedAs } from '@votingworks/basics';
 import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { mockScannerStatus } from '@votingworks/pdi-scanner';
+import {
+  ScannerError,
+  ScannerStatus,
+  mockScannerStatus,
+} from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -630,6 +634,119 @@ test('if scanning times out, show unrecoverable error', async () => {
         },
         expect.any(Function)
       );
+    }
+  );
+});
+
+test('scanStart during scanning.checkingComplete restarts scan', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      // Start first scan
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanning' });
+
+      // Hold the status poll so we stay in checkingComplete
+      const { promise: statusPromise, resolve: resolveStatus } =
+        deferred<Result<ScannerStatus, ScannerError>>();
+      mockScanner.client.getScannerStatus.mockReturnValueOnce(statusPromise);
+
+      // Complete the scan with a blank sheet (would be rejected if
+      // interpreted). This proves the second scan's images are used.
+      mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.blankSheet(),
+      });
+
+      // Emit a new scanStart before the status poll resolves (paper tease)
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanning' });
+      resolveStatus(ok(mockScannerStatus.documentInRear));
+
+      // Now complete a full valid scan — interpretation succeeds, proving
+      // the blank sheet from the first scan was discarded
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.completeHmpb(),
+      });
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, {
+        state: 'accepting',
+        interpretation: { type: 'ValidSheet' },
+      });
+    }
+  );
+});
+
+test('scanStart during waitingForBallot.checkingStatus transitions to scanning', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      // Start a scan where paper gets pulled out
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanning' });
+
+      // Paper pulled out: documentInScanner=false
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
+
+      // Queue two mockReturnValueOnce calls:
+      // 1. checkingComplete poll: resolves immediately with no document
+      //    (triggers transition to waitingForBallot.checkingStatus)
+      // 2. checkingStatus poll: held via deferred so we can emit scanStart
+      const { promise: statusPromise, resolve: resolveStatus } =
+        deferred<Result<ScannerStatus, ScannerError>>();
+      mockScanner.client.getScannerStatus
+        .mockReturnValueOnce(
+          Promise.resolve(ok(mockScannerStatus.idleScanningDisabled))
+        )
+        .mockReturnValueOnce(statusPromise);
+
+      // scanComplete with no document → checkingComplete sees
+      // documentInScanner=false → transitions to waitingForBallot.checkingStatus
+      // (where the poll is now held)
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.blankSheet(),
+      });
+      // Let the checkingComplete status poll resolve and transition to
+      // waitingForBallot.checkingStatus
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      // Now in checkingStatus with a held poll — emit scanStart
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanning' });
+      resolveStatus(ok(mockScannerStatus.idleScanningDisabled));
+
+      // Complete a normal scan and verify interpretation succeeds
+      mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.completeHmpb(),
+      });
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, {
+        state: 'accepting',
+        interpretation: { type: 'ValidSheet' },
+      });
     }
   );
 });
