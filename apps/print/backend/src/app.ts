@@ -36,7 +36,7 @@ import {
   printBallotsPrintedReport,
   exportBallotsPrintedReportPdf,
 } from './reports/ballots_printed_report';
-import { printTestPage } from './reports/test_print';
+import { printTestPage } from './printing/test_print';
 import { saveReadinessReport } from './reports/readiness';
 import { BallotPrintEntry, DeviceStatuses } from './types';
 import { getMachineConfig } from './machine_config';
