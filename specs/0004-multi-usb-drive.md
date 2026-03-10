@@ -50,7 +50,7 @@ export interface UsbPartitionInfo {
   label?: string;
   fstype?: string;
   fsver?: string;
-  mount: UsbPartitionMount; // 'unmounted' | 'mounting' | 'mounted' | 'unmounting'
+  mount: 'unmounted' | 'mounting' | 'mounted' | 'unmounting';
 }
 
 export interface UsbDriveInfo {
@@ -151,7 +151,7 @@ The dev dock gains first-class support for simulating multiple USB drives:
 
 **`createMockFileMultiUsbDrive()`** — the file-backed mock used in development
 and integration tests. Drive state is stored under
-`.mock-state/<NODE_ENV>/usb-drive/usb-drive/<diskName>/` (leveraging the unified
+`.mock-state/<NODE_ENV>/usb-drive/<diskName>/` (leveraging the unified
 mock-state root from spec 0003). Helper functions:
 
 - `addMockDrive()` — creates a new drive directory, returns its path.
