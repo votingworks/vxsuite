@@ -16,12 +16,30 @@ import {
 import { assert } from '@votingworks/basics';
 import { LogSource, BaseLogger } from '@votingworks/logging';
 import { App } from './app';
+import { ClientApp } from './client/client_app';
 import {
   ApiClientContext,
   createApiClient,
   createQueryClient,
+  getMachineMode,
   systemCallApi,
 } from './api';
+
+function RootApp(): JSX.Element | null {
+  const machineModeQuery = getMachineMode.useQuery();
+  if (!machineModeQuery.isSuccess) {
+    return null;
+  }
+  if (
+    machineModeQuery.data === 'client' &&
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+    )
+  ) {
+    return <ClientApp />;
+  }
+  return <App />;
+}
 
 const apiClient = createApiClient();
 const queryClient = createQueryClient();
@@ -43,7 +61,7 @@ root.render(
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
             <SystemCallContextProvider api={systemCallApi}>
-              <App />
+              <RootApp />
               {isFeatureFlagEnabled(
                 BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
               ) && (

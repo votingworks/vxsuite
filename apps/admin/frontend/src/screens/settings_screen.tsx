@@ -1,25 +1,60 @@
 import React, { useContext } from 'react';
 import {
+  Button,
   CurrentDateAndTime,
   ExportLogsButton,
   FormatUsbButton,
+  FullScreenMessage,
   H2,
+  Main,
   P,
+  Screen,
   SetClockButton,
   SignedHashValidationButton,
   ToggleUsbPortsButton,
+  useSystemCallApi,
 } from '@votingworks/ui';
-import { isSystemAdministratorAuth } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import { formatUsbDrive, logOut, useApiClient } from '../api';
+import { formatUsbDrive, logOut, setMachineMode, useApiClient } from '../api';
 
 export function SettingsScreen(): JSX.Element | null {
-  const { auth, usbDriveStatus } = useContext(AppContext);
+  const { auth, electionDefinition, usbDriveStatus } = useContext(AppContext);
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const formatUsbDriveMutation = formatUsbDrive.useMutation();
+  const setMachineModeMutation = setMachineMode.useMutation();
+  const isMultiStationEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+  );
+  const powerDownMutation = useSystemCallApi().powerDown.useMutation();
+
+  if (setMachineModeMutation.isSuccess) {
+    return (
+      <Screen>
+        <Main centerChild>
+          <FullScreenMessage title="Machine mode changed, restart the machine to continue.">
+            <P>
+              <Button
+                onPress={
+                  /* istanbul ignore next - no-op in tests @preserve */
+                  () => powerDownMutation.mutate()
+                }
+              >
+                Power Down
+              </Button>
+            </P>
+          </FullScreenMessage>
+        </Main>
+      </Screen>
+    );
+  }
 
   return (
     <NavigationScreen title="Settings">
@@ -52,6 +87,23 @@ export function SettingsScreen(): JSX.Element | null {
           <ToggleUsbPortsButton />
         </P>
       )}
+      {isSystemAdministratorAuth(auth) &&
+        isMultiStationEnabled &&
+        !electionDefinition && (
+          <React.Fragment>
+            <H2>Multi-Station Mode</H2>
+            <P>
+              <Button
+                onPress={() =>
+                  setMachineModeMutation.mutate({ mode: 'client' })
+                }
+                disabled={setMachineModeMutation.isLoading}
+              >
+                Switch to Client Mode
+              </Button>
+            </P>
+          </React.Fragment>
+        )}
     </NavigationScreen>
   );
 }

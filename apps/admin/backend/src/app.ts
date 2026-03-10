@@ -88,9 +88,11 @@ import {
   VoteAdjudication,
   AdjudicatedCvrContest,
   CvrContestTag,
+  MachineMode,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
+import { readMachineMode, writeMachineMode } from './machine_mode';
 import { getBallotImageView } from './util/adjudication';
 import {
   transformWriteInsAndSetManualResults,
@@ -219,6 +221,14 @@ function buildApi({
 
   return grout.createApi({
     getMachineConfig,
+
+    getMachineMode(): MachineMode {
+      return readMachineMode(workspace.path);
+    },
+
+    setMachineMode(input: { mode: MachineMode }) {
+      writeMachineMode(workspace.path, input.mode);
+    },
 
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
