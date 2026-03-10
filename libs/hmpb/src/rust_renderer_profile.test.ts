@@ -79,6 +79,18 @@ function instrumentDocument(
         detail: selector,
       });
     },
+    async setContentNoRelayout(
+      selector: string,
+      element: JSX.Element
+    ): Promise<void> {
+      const start = performance.now();
+      await doc.setContentNoRelayout(selector, element);
+      log.push({
+        method: 'setContentNoRelayout',
+        duration: performance.now() - start,
+        detail: selector,
+      });
+    },
     async getContent(): Promise<string> {
       const start = performance.now();
       const result = await doc.getContent();
@@ -280,7 +292,9 @@ describe('Rust renderer pipeline profiling', () => {
 
     // Analyze and report
     const lines: string[] = [];
-    function emit(line: string) { return lines.push(line) };
+    function emit(line: string) {
+      return lines.push(line);
+    }
 
     emit('=== Rust PDF Renderer Pipeline Analysis ===');
     emit(`Date: ${new Date().toISOString()}`);

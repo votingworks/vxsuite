@@ -63,6 +63,27 @@ import { hmpbStrings } from '../hmpb_strings';
 import { Watermark } from './watermark';
 import { BaseStyles } from '../base_styles';
 
+/**
+ * Per-contest height cache, keyed by scratchpad instance. Avoids re-measuring
+ * contests that were already measured on a previous page. Heights are cached
+ * by contest ID and column width since those determine the measurement.
+ */
+const contestHeightCaches = new WeakMap<
+  RenderScratchpad,
+  Map<string, number>
+>();
+
+function getContestHeightCache(
+  scratchpad: RenderScratchpad
+): Map<string, number> {
+  let cache = contestHeightCaches.get(scratchpad);
+  if (!cache) {
+    cache = new Map();
+    contestHeightCaches.set(scratchpad, cache);
+  }
+  return cache;
+}
+
 function Header({
   election,
   ballotStyleId,
@@ -498,26 +519,42 @@ async function BallotPageContent(
     const numColumns = section[0].type === 'candidate' ? 3 : 2;
     const columnWidthPx =
       (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
-    const contestMeasurements = await scratchpad.measureElements(
-      <BackendLanguageContextProvider
-        currentLanguageCode={primaryLanguageCode(ballotStyle)}
-        uiStringsPackage={election.ballotStrings}
-      >
-        {contestElements.map((contest, i) => (
-          <div
-            className="contestWrapper"
-            key={i}
-            style={{ width: `${columnWidthPx}px` }}
-          >
-            {contest}
-          </div>
-        ))}
-      </BackendLanguageContextProvider>,
-      '.contestWrapper'
+    const heightCache = getContestHeightCache(scratchpad);
+    const cachedHeights = section.map((c) =>
+      heightCache.get(`${c.id}:${c.title}@${columnWidthPx}`)
     );
+    let contestHeights: number[];
+    if (cachedHeights.every((h): h is number => h !== undefined)) {
+      contestHeights = cachedHeights;
+    } else {
+      const contestMeasurements = await scratchpad.measureElements(
+        <BackendLanguageContextProvider
+          currentLanguageCode={primaryLanguageCode(ballotStyle)}
+          uiStringsPackage={election.ballotStrings}
+        >
+          {contestElements.map((contest, i) => (
+            <div
+              className="contestWrapper"
+              key={i}
+              style={{ width: `${columnWidthPx}px` }}
+            >
+              {contest}
+            </div>
+          ))}
+        </BackendLanguageContextProvider>,
+        '.contestWrapper'
+      );
+      contestHeights = contestMeasurements.map((m) => m.height);
+      for (let i = 0; i < section.length; i += 1) {
+        heightCache.set(
+          `${section[i].id}:${section[i].title}@${columnWidthPx}`,
+          contestHeights[i]
+        );
+      }
+    }
     const measuredContests = iter(contestElements)
-      .zip(contestMeasurements)
-      .map(([element, measurements]) => ({ element, ...measurements }))
+      .zip(contestHeights)
+      .map(([element, height]) => ({ element, height }))
       .async();
 
     const { columns, height } = await layOutInColumns({
