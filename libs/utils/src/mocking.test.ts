@@ -17,10 +17,12 @@ test('uses NODE_ENV when set', () => {
   expect(getMockStateRootDir(FAKE_REPO_ROOT)).toEqual(
     join(FAKE_REPO_ROOT, '.mock-state', 'test')
   );
+});
 
-  vi.stubEnv('NODE_ENV', 'development');
+test('sanitizes NODE_ENV for use as a path segment', () => {
+  vi.stubEnv('NODE_ENV', 'my/env!');
   expect(getMockStateRootDir(FAKE_REPO_ROOT)).toEqual(
-    join(FAKE_REPO_ROOT, '.mock-state', 'development')
+    join(FAKE_REPO_ROOT, '.mock-state', 'my_env_')
   );
 });
 
