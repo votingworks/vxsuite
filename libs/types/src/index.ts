@@ -32,6 +32,7 @@ export * from './languages';
 export * from './language_code';
 export * from './ballot_language_config';
 export * from './numeric';
+export * from './polling_places';
 export * from './polls';
 export * from './precinct_scanner';
 export * from './precinct_selection';

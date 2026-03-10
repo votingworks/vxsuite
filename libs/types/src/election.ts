@@ -683,6 +683,21 @@ export const PollingPlaceSchema: z.ZodSchema<PollingPlace> = z.object({
   type: z.enum(POLLING_PLACE_TYPES),
 });
 
+export const PollingPlacesSchema = z
+  .array(PollingPlaceSchema)
+  .nonempty()
+  .check((ctx) => {
+    const places = ctx.value;
+    for (const [index, id] of findDuplicateIds(places)) {
+      ctx.issues.push({
+        code: 'custom',
+        path: [index, 'id'],
+        message: `Duplicate polling place '${id}' found.`,
+        input: places,
+      });
+    }
+  });
+
 export const ELECTION_TYPES = ['general', 'primary'] as const;
 export type ElectionType = (typeof ELECTION_TYPES)[number];
 const ElectionTypeSchema: z.ZodSchema<ElectionType> = z.enum(ELECTION_TYPES);
@@ -698,6 +713,7 @@ export interface Election {
   readonly gridLayouts?: readonly GridLayout[];
   readonly id: ElectionId;
   readonly parties: Parties;
+  readonly pollingPlaces?: readonly PollingPlace[]; // [TODO] Add CDF conversion
   readonly precincts: readonly Precinct[];
   readonly seal: string;
   readonly signature?: Signature;
@@ -718,6 +734,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     districts: DistrictsSchema,
     id: ElectionIdSchema,
     parties: PartiesSchema,
+    pollingPlaces: PollingPlacesSchema.optional(),
     precincts: PrecinctsSchema,
     seal: z.string(),
     signature: SignatureSchema.optional(),

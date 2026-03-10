@@ -8,7 +8,7 @@ import {
   PollingPlaceType,
   Precinct,
   PrecinctOrSplit,
-} from '@votingworks/types';
+} from './election';
 
 export function pollingPlaceBallotStyles(
   election: Election,
@@ -41,6 +41,16 @@ function pollingPlaceDistrictIds(
   }
 
   return ids;
+}
+
+export function pollingPlaceFromElection(
+  election: Election,
+  id: string
+): PollingPlace {
+  const places = election.pollingPlaces || [];
+  for (const p of places) if (p.id === id) return p;
+
+  throw new Error(`polling place with id ${id} not found`);
 }
 
 export function pollingPlaceGenerateFromPrecinct(p: {

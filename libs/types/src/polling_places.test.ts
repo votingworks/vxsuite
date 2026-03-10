@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import {
   AnyContest,
   BallotStyle,
@@ -10,11 +11,11 @@ import {
   PrecinctSplit,
   PrecinctWithoutSplits,
   PrecinctWithSplits,
-} from '@votingworks/types';
-import { expect, test, vi } from 'vitest';
+} from './election';
 import {
   pollingPlaceBallotStyles,
   pollingPlaceContests,
+  pollingPlaceFromElection,
   pollingPlaceMembers,
   pollingPlacePrecinctIds,
   pollingPlacesGenerateFromPrecincts,
@@ -97,6 +98,22 @@ test('pollingPlaceContests', () => {
   expectContests({ precincts: { p2: { type: 'partial', splitIds: ['s1'] } } }, [
     contest2,
   ]);
+});
+
+test('pollingPlaceFromElection', () => {
+  expect(() => pollingPlaceFromElection(mockElection({}), 'pp1')).toThrow(
+    /pp1 not found/i
+  );
+
+  const place1 = mockPollingPlace({ id: 'pp1' });
+  const place2 = mockPollingPlace({ id: 'pp2' });
+  const election = mockElection({ pollingPlaces: [place2, place1] });
+
+  expect(pollingPlaceFromElection(election, 'pp1')).toEqual(place1);
+
+  expect(() => pollingPlaceFromElection(election, 'pp3')).toThrow(
+    /pp3 not found/i
+  );
 });
 
 test('pollingPlacesGenerateFromPrecincts', () => {
@@ -256,7 +273,6 @@ function mockElection(partial: Partial<Election>): Election {
 }
 
 function mockPollingPlace(partial: Partial<PollingPlace>): PollingPlace {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   return partial as PollingPlace;
 }
 
