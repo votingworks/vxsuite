@@ -1,6 +1,5 @@
 import {
   Result,
-  deferred,
   err,
   extractErrorMessage,
   ok,
@@ -38,32 +37,6 @@ export type LogsExportError =
 /** type of return value from exporting logs */
 export type LogsResultType = Result<void, LogsExportError>;
 
-function convertFileToCdf(
-  logger: Logger,
-  inputPath: string,
-  outputPath: string,
-  machineId: string,
-  codeVersion: string,
-  compressed: boolean
-): Promise<void> {
-  const { promise, reject, resolve } = deferred<void>();
-
-  convertVxLogToCdf(
-    (eventId, message, disposition) => {
-      void logger.logAsCurrentRole(eventId, { message, disposition });
-    },
-    logger.getSource(),
-    machineId,
-    codeVersion,
-    inputPath,
-    outputPath,
-    compressed,
-    (error) => (error ? reject(error) : resolve())
-  );
-
-  return promise;
-}
-
 async function convertLogsToCdf(
   logDir: string,
   outputDir: string,
@@ -76,12 +49,15 @@ async function convertLogsToCdf(
   // Create CDF for vx-logs.log
   if (files.includes('vx-logs.log')) {
     const compressed = false;
-    await convertFileToCdf(
-      logger,
-      join(logDir, 'vx-logs.log'),
-      join(outputDir, 'vx-logs.cdf.log.json'),
+    await convertVxLogToCdf(
+      (eventId, message, disposition) => {
+        void logger.logAsCurrentRole(eventId, { message, disposition });
+      },
+      logger.getSource(),
       machineId,
       codeVersion,
+      join(logDir, 'vx-logs.log'),
+      join(outputDir, 'vx-logs.cdf.log.json'),
       compressed
     );
   }
@@ -91,12 +67,15 @@ async function convertLogsToCdf(
     if (file.match(COMPRESSED_VX_LOGS_NAME_REGEX)) {
       const cdfFileName = file.replace('vx-logs', 'vx-logs.cdf.json');
       const compressed = true;
-      await convertFileToCdf(
-        logger,
-        join(logDir, file),
-        join(outputDir, cdfFileName),
+      await convertVxLogToCdf(
+        (eventId, message, disposition) => {
+          void logger.logAsCurrentRole(eventId, { message, disposition });
+        },
+        logger.getSource(),
         machineId,
         codeVersion,
+        join(logDir, file),
+        join(outputDir, cdfFileName),
         compressed
       );
     }
