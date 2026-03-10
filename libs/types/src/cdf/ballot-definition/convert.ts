@@ -28,6 +28,7 @@ import {
   UiStringsPackage,
 } from '../../ui_string_translations';
 import { DEFAULT_LANGUAGE_CODE } from '../../languages';
+import { pollingPlaceMembers } from '../../polling_places';
 
 function officeId(contestId: Vxf.ContestId): string {
   return `office-${contestId}`;
@@ -304,6 +305,18 @@ const extractorFns: Record<
         stringKey: [ElectionStringKey.PARTY_NAME, party['@id']],
         uiStrings,
         values: party.Name.Text,
+      });
+    }
+  },
+
+  [ElectionStringKey.POLLING_PLACE_NAME](cdfElection, uiStrings) {
+    for (const gpUnit of cdfElection.GpUnit) {
+      if (gpUnit.Type !== Cdf.ReportingUnitType.PollingPlace) continue;
+
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.POLLING_PLACE_NAME, gpUnit['@id']],
+        uiStrings,
+        values: gpUnit.Name.Text,
       });
     }
   },
@@ -911,12 +924,30 @@ export function convertVxfElectionToCdfBallotDefinition(
               (split): Cdf.ReportingUnit => ({
                 '@type': 'BallotDefinition.ReportingUnit',
                 '@id': split.id,
-                // TODO(jonah): Add election string for precinct split names (once we want to actually use them)
-                Name: text(split.name, 'other'),
+                Name: text(split.name, [
+                  ElectionStringKey.PRECINCT_SPLIT_NAME,
+                  split.id,
+                ]),
                 Type: Cdf.ReportingUnitType.SplitPrecinct,
               })
             )
           : []
+      ),
+      ...(vxfElection.pollingPlaces ?? []).map(
+        (pollingPlace): Cdf.ReportingUnit => ({
+          '@type': 'BallotDefinition.ReportingUnit',
+          '@id': pollingPlace.id,
+          Type: Cdf.ReportingUnitType.PollingPlace,
+          IsMailOnly: pollingPlace.type === 'absentee' || undefined,
+          Name: text(pollingPlace.name, [
+            ElectionStringKey.POLLING_PLACE_NAME,
+            pollingPlace.id,
+          ]),
+          ComposingGpUnitIds: pollingPlaceMembers(
+            vxfElection,
+            pollingPlace
+          ).map((p) => p.split?.id || p.precinct.id),
+        })
       ),
     ],
 
@@ -981,6 +1012,9 @@ export function convertCdfBallotDefinitionToVxfElection(
   );
   const precinctSplits = gpUnits.filter(
     (gpUnit) => gpUnit.Type === Cdf.ReportingUnitType.SplitPrecinct
+  );
+  const pollingPlaces = gpUnits.filter(
+    (gpUnit) => gpUnit.Type === Cdf.ReportingUnitType.PollingPlace
   );
 
   function precinctOrSplitIdToPrecinctId(
@@ -1144,6 +1178,45 @@ export function convertCdfBallotDefinitionToVxfElection(
       id: district['@id'],
       name: englishText(district.Name),
     })),
+
+    pollingPlaces:
+      pollingPlaces.length === 0
+        ? undefined
+        : pollingPlaces.map((place): Vxf.PollingPlace => {
+            const placePrecincts: Record<
+              Vxf.PrecinctId,
+              Vxf.PollingPlacePrecinct
+            > = {};
+
+            const memberIds = place.ComposingGpUnitIds || [];
+            for (const precinct of precincts) {
+              if (memberIds.includes(precinct['@id'])) {
+                placePrecincts[precinct['@id']] = { type: 'whole' };
+                continue;
+              }
+
+              const placeSplitIds: string[] = [];
+              let isPartial = false;
+
+              for (const splitId of precinct.ComposingGpUnitIds || []) {
+                if (memberIds.includes(splitId)) placeSplitIds.push(splitId);
+                else isPartial = true;
+              }
+
+              if (placeSplitIds.length === 0) continue;
+
+              placePrecincts[precinct['@id']] = isPartial
+                ? { type: 'partial', splitIds: placeSplitIds }
+                : { type: 'whole' };
+            }
+
+            return {
+              id: place['@id'],
+              name: englishText(place.Name),
+              type: place.IsMailOnly ? 'absentee' : 'election_day',
+              precincts: placePrecincts,
+            };
+          }),
 
     precincts: precincts.map((precinct) => {
       const precinctBase = {

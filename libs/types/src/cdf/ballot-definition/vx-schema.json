@@ -864,6 +864,9 @@
           "minItems": 0,
           "type": "array"
         },
+        "IsMailOnly": {
+          "type": "boolean"
+        },
         "Name": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         },
@@ -874,7 +877,14 @@
       "type": "object"
     },
     "BallotDefinition.ReportingUnitType": {
-      "enum": ["county", "precinct", "split-precinct", "state", "other"],
+      "enum": [
+        "county",
+        "polling-place",
+        "precinct",
+        "split-precinct",
+        "state",
+        "other"
+      ],
       "type": "string"
     },
     "BallotDefinition.SelectionCaptureMethod": {

@@ -713,7 +713,7 @@ export interface Election {
   readonly gridLayouts?: readonly GridLayout[];
   readonly id: ElectionId;
   readonly parties: Parties;
-  readonly pollingPlaces?: readonly PollingPlace[]; // [TODO] Add CDF conversion
+  readonly pollingPlaces?: readonly PollingPlace[];
   readonly precincts: readonly Precinct[];
   readonly seal: string;
   readonly signature?: Signature;
