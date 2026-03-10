@@ -11,6 +11,7 @@ import {
   Election,
   ElectionStringKey as Key,
   Party,
+  PollingPlace,
   Precinct,
   PrecinctSplit,
   YesNoOption,
@@ -116,6 +117,12 @@ export const electionStrings = {
   [Key.PARTY_NAME]: (party: Party) => (
     <UiString uiStringKey={Key.PARTY_NAME} uiStringSubKey={party.id}>
       {party.name}
+    </UiString>
+  ),
+
+  [Key.POLLING_PLACE_NAME]: (place: PollingPlace) => (
+    <UiString uiStringKey={Key.POLLING_PLACE_NAME} uiStringSubKey={place.id}>
+      {place.name}
     </UiString>
   ),
 

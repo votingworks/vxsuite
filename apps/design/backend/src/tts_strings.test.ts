@@ -135,6 +135,20 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
       { id: 'party1', fullName: 'Party One', name: 'One' },
       { id: 'party2', fullName: 'Party Two', name: 'Two' },
     ],
+    pollingPlaces: [
+      {
+        id: 'pollingPlace1',
+        name: 'Polling Place 1',
+        precincts: {},
+        type: 'election_day',
+      },
+      {
+        id: 'pollingPlace2',
+        name: 'Polling Place 2',
+        precincts: {},
+        type: 'absentee',
+      },
+    ],
     precincts: [
       { id: 'precinct1', name: 'Precinct 1' },
       {
@@ -188,6 +202,10 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
     partyName: [
       { subkey: 'party1', text: 'One' },
       { subkey: 'party2', text: 'Two' },
+    ],
+    pollingPlaceName: [
+      { subkey: 'pollingPlace1', text: 'Polling Place 1' },
+      { subkey: 'pollingPlace2', text: 'Polling Place 2' },
     ],
     precinctName: [
       { subkey: 'precinct1', text: 'Precinct 1' },

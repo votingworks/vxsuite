@@ -89,6 +89,9 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   [ElectionStringKey.PARTY_NAME]: {
     translatable: true,
   },
+  [ElectionStringKey.POLLING_PLACE_NAME]: {
+    translatable: true,
+  },
   [ElectionStringKey.PRECINCT_NAME]: {
     translatable: true,
   },
@@ -226,6 +229,12 @@ const electionStringExtractorFns: Record<
     return election.parties.map((party) => ({
       stringKey: [ElectionStringKey.PARTY_NAME, party.id],
       stringInEnglish: party.name,
+    }));
+  },
+  [ElectionStringKey.POLLING_PLACE_NAME](election) {
+    return (election.pollingPlaces || []).map((place) => ({
+      stringKey: [ElectionStringKey.POLLING_PLACE_NAME, place.id],
+      stringInEnglish: place.name,
     }));
   },
   [ElectionStringKey.PRECINCT_NAME](election) {
