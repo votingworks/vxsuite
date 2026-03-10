@@ -19,5 +19,10 @@ export function normalizeVxfAfterCdfConversion(
     })),
     // No field in CDF for seal
     seal: '',
+    pollingPlaces: vxfElection.pollingPlaces?.map((place) => ({
+      ...place,
+      // No way to represent `early_voting` polling place types in CDF.
+      type: place.type === 'absentee' ? 'absentee' : 'election_day',
+    })),
   };
 }

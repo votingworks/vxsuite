@@ -506,6 +506,55 @@ const tests: Record<ElectionStringKey, () => void> = {
     });
   },
 
+  [ElectionStringKey.POLLING_PLACE_NAME]() {
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      GpUnit: [
+        {
+          '@id': 'absenteeVoting',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            en: 'Absentee Voting',
+            'es-US': 'Voto en ausencia',
+          }),
+          Type: BallotDefinition.ReportingUnitType.PollingPlace,
+        },
+        {
+          '@id': 'pollingPlace1',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            en: 'North Lincoln',
+            'es-US': 'Lincoln del Norte',
+          }),
+          Type: BallotDefinition.ReportingUnitType.PollingPlace,
+        },
+        {
+          '@id': 'not-a-polling-place',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            en: 'Not A Polling Place',
+          }),
+          Type: BallotDefinition.ReportingUnitType.Other,
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      en: expect.objectContaining({
+        [ElectionStringKey.POLLING_PLACE_NAME]: {
+          absenteeVoting: 'Absentee Voting',
+          pollingPlace1: 'North Lincoln',
+        },
+      }),
+      'es-US': expect.objectContaining({
+        [ElectionStringKey.POLLING_PLACE_NAME]: {
+          absenteeVoting: 'Voto en ausencia',
+          pollingPlace1: 'Lincoln del Norte',
+        },
+      }),
+    });
+  },
+
   [ElectionStringKey.PRECINCT_NAME]() {
     const uiStrings = extractCdfUiStrings({
       ...testCdfBallotDefinition,

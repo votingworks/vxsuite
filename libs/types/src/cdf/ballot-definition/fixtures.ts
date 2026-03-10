@@ -107,6 +107,33 @@ export const testVxfElection: Election = {
       name: 'City of Washington',
     },
   ],
+  pollingPlaces: [
+    {
+      id: 'polling-place-1',
+      name: 'North Lincoln (Partial)',
+      type: 'election_day',
+      precincts: {
+        'precinct-1': { type: 'partial', splitIds: ['precinct-1-split-2'] },
+      },
+    },
+    {
+      id: 'polling-place-2',
+      name: 'South Lincoln',
+      type: 'absentee',
+      precincts: {
+        'precinct-2': { type: 'whole' },
+      },
+    },
+    {
+      id: 'polling-place-3',
+      name: 'Early Voting',
+      type: 'early_voting',
+      precincts: {
+        'precinct-1': { type: 'whole' },
+        'precinct-2': { type: 'whole' },
+      },
+    },
+  ],
   precincts: [
     {
       id: 'precinct-1',
@@ -463,6 +490,11 @@ export const testVxfElection: Election = {
       partyName: {
         'party-1': 'Democratic Party',
         'party-2': 'Republican Party',
+      },
+      pollingPlaceName: {
+        'polling-place-1': 'North Lincoln (Partial)',
+        'polling-place-2': 'South Lincoln',
+        'polling-place-3': 'Early Voting',
       },
       precinctName: {
         'precinct-1': 'North Lincoln',
@@ -1355,6 +1387,59 @@ export const testCdfBallotDefinition: BallotDefinition = {
             '@type': 'BallotDefinition.LanguageString',
             Language: 'en',
             Content: 'North Lincoln - Split 2',
+          },
+        ],
+      },
+    },
+    {
+      '@type': 'BallotDefinition.ReportingUnit',
+      '@id': 'polling-place-1',
+      Type: ReportingUnitType.PollingPlace,
+      ComposingGpUnitIds: ['precinct-1-split-2'],
+      Name: {
+        '@type': 'BallotDefinition.InternationalizedText',
+        Text: [
+          {
+            '@type': 'BallotDefinition.LanguageString',
+            Language: 'en',
+            Content: 'North Lincoln (Partial)',
+          },
+        ],
+      },
+    },
+    {
+      '@type': 'BallotDefinition.ReportingUnit',
+      '@id': 'polling-place-2',
+      Type: ReportingUnitType.PollingPlace,
+      IsMailOnly: true,
+      ComposingGpUnitIds: ['precinct-2'],
+      Name: {
+        '@type': 'BallotDefinition.InternationalizedText',
+        Text: [
+          {
+            '@type': 'BallotDefinition.LanguageString',
+            Language: 'en',
+            Content: 'South Lincoln',
+          },
+        ],
+      },
+    },
+    {
+      '@type': 'BallotDefinition.ReportingUnit',
+      '@id': 'polling-place-3',
+      Type: ReportingUnitType.PollingPlace,
+      ComposingGpUnitIds: [
+        'precinct-1-split-1',
+        'precinct-1-split-2',
+        'precinct-2',
+      ],
+      Name: {
+        '@type': 'BallotDefinition.InternationalizedText',
+        Text: [
+          {
+            '@type': 'BallotDefinition.LanguageString',
+            Language: 'en',
+            Content: 'Early Voting',
           },
         ],
       },

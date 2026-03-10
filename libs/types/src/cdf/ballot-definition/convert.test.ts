@@ -72,9 +72,18 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
         'party-1': 'Demócrata',
         'party-2': 'Republicano',
       },
+      [ElectionStringKey.POLLING_PLACE_NAME]: {
+        'polling-place-1': 'Norte de Lincoln (Parcial)',
+        'polling-place-2': 'Sur de Lincoln',
+        'polling-place-3': 'Voto anticipado',
+      },
       [ElectionStringKey.PRECINCT_NAME]: {
         'precinct-1': 'Norte de Lincoln',
         'precinct-2': 'Sur de Lincoln',
+      },
+      [ElectionStringKey.PRECINCT_SPLIT_NAME]: {
+        'precinct-1-split-1': 'Norte de Lincoln - División 1',
+        'precinct-1-split-2': 'Norte de Lincoln - División 2',
       },
       [ElectionStringKey.STATE_NAME]: 'Estado de Hamilton',
     },
@@ -216,6 +225,32 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     ]
   );
 
+  // Polling place names
+  set(
+    expectedCdfBallotDefinition,
+    ['GpUnit', 8, 'Name', 'Text'],
+    [
+      languageString('North Lincoln (Partial)', 'en'),
+      languageString('Norte de Lincoln (Parcial)', 'es-US'),
+    ]
+  );
+  set(
+    expectedCdfBallotDefinition,
+    ['GpUnit', 9, 'Name', 'Text'],
+    [
+      languageString('South Lincoln', 'en'),
+      languageString('Sur de Lincoln', 'es-US'),
+    ]
+  );
+  set(
+    expectedCdfBallotDefinition,
+    ['GpUnit', 10, 'Name', 'Text'],
+    [
+      languageString('Early Voting', 'en'),
+      languageString('Voto anticipado', 'es-US'),
+    ]
+  );
+
   // Precinct names
   set(
     expectedCdfBallotDefinition,
@@ -231,6 +266,24 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     [
       languageString('South Lincoln', 'en'),
       languageString('Sur de Lincoln', 'es-US'),
+    ]
+  );
+
+  // Precinct split names
+  set(
+    expectedCdfBallotDefinition,
+    ['GpUnit', 6, 'Name', 'Text'],
+    [
+      languageString('North Lincoln - Split 1', 'en'),
+      languageString('Norte de Lincoln - División 1', 'es-US'),
+    ]
+  );
+  set(
+    expectedCdfBallotDefinition,
+    ['GpUnit', 7, 'Name', 'Text'],
+    [
+      languageString('North Lincoln - Split 2', 'en'),
+      languageString('Norte de Lincoln - División 2', 'es-US'),
     ]
   );
 
