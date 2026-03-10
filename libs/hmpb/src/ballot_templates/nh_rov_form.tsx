@@ -235,8 +235,8 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                 }}
               >
                 <ContestTable style={{ fontSize: '0.8rem' }}>
-                  <tbody>
-                    <thead>
+                  <thead>
+                    <tr>
                       <th
                         colSpan={2}
                         style={
@@ -257,7 +257,9 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                           </div>
                         )}
                       </th>
-                    </thead>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {contest.type === 'candidate' &&
                       contest.candidates.map((candidate) => (
                         <tr key={candidate.id}>
