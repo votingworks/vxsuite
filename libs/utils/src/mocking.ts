@@ -11,6 +11,8 @@ import { join } from 'node:path';
  * The directory is gitignored at the repo root level.
  */
 export function getMockStateRootDir(repoRoot: string): string {
-  const nodeEnv = process.env['NODE_ENV'] ?? 'development';
+  const rawNodeEnv = process.env['NODE_ENV'] ?? 'development';
+  // Sanitize NODE_ENV to prevent path traversal and ensure a safe directory name
+  const nodeEnv = rawNodeEnv.replace(/[^a-zA-Z0-9_-]/g, '_') || 'development';
   return join(repoRoot, '.mock-state', nodeEnv);
 }
