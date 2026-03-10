@@ -63,7 +63,7 @@ Unify all dev-dock mock file storage under a single directory tree rooted in the
 repo:
 
 ```
-<repo-root>/.vx-dev-dock/<NODE_ENV>/
+<repo-root>/.mock-state/<NODE_ENV>/
   mock-file-card.json       # smart card
   usb-drive/                # USB drive state + data
   hp-printer/               # HP laser printer state (state.json)
@@ -81,7 +81,7 @@ The `NODE_ENV` subdirectory provides isolation based on environment:
 - `production` — used by integration tests (Playwright runs apps in production
   mode but sets `IS_INTEGRATION_TEST=true`)
 
-The entire `.vx-dev-dock/` directory is ignored by Git.
+The entire `.mock-state/` directory is ignored by Git.
 
 ### Implementation
 
@@ -91,10 +91,10 @@ constant (derived from `__dirname`) rather than having the function walk up the
 directory tree, keeping the logic simple and explicit.
 
 ```typescript
-// libs/utils/src/dev_dock.ts
-export function getDevDockMockRootDir(repoRoot: string): string {
+// libs/utils/src/mocking.ts
+export function getMockStateRootDir(repoRoot: string): string {
   const nodeEnv = process.env['NODE_ENV'] ?? 'development';
-  return join(repoRoot, '.vx-dev-dock', nodeEnv);
+  return join(repoRoot, '.mock-state', nodeEnv);
 }
 ```
 
@@ -105,11 +105,16 @@ of using the old hardcoded paths.
 The PDI scanner (VxScan) implementation is unchanged, keeping all sheet state in
 memory, and requires no file path changes.
 
+To prevent the `prints/` directory from growing without bound, each app trims it
+to at most 100 files on startup by deleting the oldest files first. This should
+balance keeping essentially all useful prints around with assurance that the
+size of the mock prints is bounded.
+
 ### Export allowlist updates
 
 Apps maintain an allowlist of glob patterns for where exported files may be
 written (a security boundary). Moving the mock USB drive from `/tmp/mock-usb` to
-`<repo-root>/.vx-dev-dock/<NODE_ENV>/usb-drive/` means the new path no longer
+`<repo-root>/.mock-state/<NODE_ENV>/usb-drive/` means the new path no longer
 matches the existing `/tmp/**/*` catch-all, so every environment's allowlist
 needs an explicit `DEV_MOCK_USB_DRIVE_GLOB_PATTERN` entry.
 
@@ -145,16 +150,4 @@ directories.
 
 ## Open questions
 
-**Should `prints/` be cleared on startup?** `batch-images/` is wiped and
-recreated each time VxCentralScan starts (and again when the dev-dock "Clear"
-button is clicked), so it does not accumulate. `prints/`, however, grows without
-bound across sessions and currently requires manual cleanup. It may be worth
-clearing it on each dev server or integration test startup.
-
-**Does the shared `prints/` directory cause confusion when running multiple app
-dev servers simultaneously?** In development, VxAdmin (HP printer) and VxScan
-(Fujitsu printer) can run at the same time and both write to
-`development/prints/`. `getLastPrintPath()` returns whichever file was written
-most recently, regardless of which app produced it. This is a new behavior
-introduced by consolidating print output; it may be surprising but is unlikely
-to matter in practice since the dev-dock UI is per-app.
+None.
