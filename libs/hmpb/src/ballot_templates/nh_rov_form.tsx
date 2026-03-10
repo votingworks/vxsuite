@@ -1,8 +1,9 @@
 import React from 'react';
-import { find } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   ballotPaperDimensions,
+  CandidateContest,
   Election,
   HmpbBallotPaperSize,
   PartyId,
@@ -333,12 +334,348 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
   );
 }
 
+// Write-in page constants
+const WRITE_IN_BLANK_ROWS = 5;
+
+// Strip "Party" suffix for write-in page text (e.g. "Republican Party" → "Republican")
+function partyShortName(fullName: string): string {
+  return fullName.replace(/\s+Party$/i, '');
+}
+
+function primaryWriteInInstructions(partyName: string): JSX.Element {
+  const upperParty = partyName.toUpperCase();
+  return (
+    <span>
+      Record write-in votes only -{' '}
+      <strong>from {upperParty} ballots only</strong>. Please indicate names of
+      all write-ins (regardless of whether they are known to you) and the number
+      of votes received by each in the appropriate space. Use additional sheets
+      if necessary. The moderator shall determine the number of votes for each
+      person and the clerk must verify the accuracy of the number entered for
+      &ldquo;Total write-in votes&rdquo; reported for each race on the write-in
+      Return of Votes and sign the form. Return on ELECTION NIGHT to the
+      Secretary of State. If candidates printed on the{' '}
+      <strong>{upperParty}</strong> ballot receive write-in votes on the{' '}
+      {partyName} ballot, add votes by write-in to the total votes by marked
+      oval, located beside where that candidate&rsquo;s name is pre-printed on
+      the first page of the Return of Votes. <strong>Do not</strong> include
+      them on this page. <strong>DO NOT</strong> use hash marks. Use numbers to
+      record write-in votes, i.e. 1, 2, 3, 4.
+    </span>
+  );
+}
+
+const GENERAL_WRITE_IN_INSTRUCTIONS = (
+  <span>
+    <strong>(1)</strong> Record all write-in votes. <strong>(2)</strong> Do not
+    include write-ins for candidates printed on the ballot, include these votes
+    with the candidate&rsquo;s total votes on the first page.{' '}
+    <strong>(3)</strong> Do not include votes where the bubble was filled-in
+    with no person&rsquo;s name. These are Undervotes and should be included in
+    the Undervote totals on the first page. <strong>(4)</strong> Attach
+    additional pages if necessary. Each additional page must be numbered and
+    signed by the Clerk. Print &ldquo;See Attached, Page___&rdquo; and the page
+    number for any race with additional page(s) of write-ins.{' '}
+    <strong>(5)</strong> Do not use hash marks. Use numbers to record write-in
+    votes, i.e. 1 or 5. <strong>(6)</strong> Total all write-in votes for each
+    race. <strong>(7)</strong> The Clerk must sign the return.
+  </span>
+);
+
+const WriteInContestTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  break-inside: avoid;
+
+  th {
+    text-align: left;
+    font-weight: bold;
+    padding: 0.25rem 0.375rem;
+    background-color: ${Colors.LIGHT_GRAY};
+    font-size: 0.9rem;
+  }
+
+  tr {
+    height: 1.35rem;
+
+    &:nth-child(2) td {
+      border-top: none;
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  td {
+    border: 1px solid ${Colors.DARK_GRAY};
+    padding: 0.125rem 0.375rem;
+  }
+
+  td:first-child {
+    border-left: none;
+  }
+
+  td:last-child {
+    width: 4rem;
+    border-right: none;
+  }
+
+  tr:last-child td {
+    font-weight: bold;
+    font-size: 0.8rem;
+    background-color: ${Colors.LIGHT_GRAY};
+  }
+`;
+
+function WriteInContest({
+  title,
+  headerColor,
+}: {
+  title: string;
+  headerColor?: string;
+}): JSX.Element {
+  return (
+    <div
+      style={{
+        marginBottom: '0.375rem',
+        border: `1px solid ${Colors.DARKER_GRAY}`,
+      }}
+    >
+    <WriteInContestTable>
+      <tbody>
+        <tr>
+          <th
+            colSpan={2}
+            style={headerColor ? { backgroundColor: headerColor } : undefined}
+          >
+            {contestTitleWithForPrefix(title)}
+          </th>
+        </tr>
+        {Array.from({ length: WRITE_IN_BLANK_ROWS }, (_, i) => (
+          <tr key={`row-${i}`}>
+            <td />
+            <td />
+          </tr>
+        ))}
+        <tr>
+          <td>Total</td>
+          <td />
+        </tr>
+      </tbody>
+    </WriteInContestTable>
+    </div>
+  );
+}
+
+// Split contests into pages. First page has less space due to header +
+// attestation, continuation pages have more room.
+const CONTESTS_PER_FIRST_PAGE = 12;
+const CONTESTS_PER_CONTINUATION_PAGE = 14;
+
+function splitContestsIntoPages(
+  contests: CandidateContest[]
+): Array<CandidateContest[]> {
+  const pages: Array<CandidateContest[]> = [];
+  let remaining = [...contests];
+
+  const firstPageCount = Math.min(CONTESTS_PER_FIRST_PAGE, remaining.length);
+  pages.push(remaining.slice(0, firstPageCount));
+  remaining = remaining.slice(firstPageCount);
+
+  while (remaining.length > 0) {
+    const pageCount = Math.min(
+      CONTESTS_PER_CONTINUATION_PAGE,
+      remaining.length
+    );
+    pages.push(remaining.slice(0, pageCount));
+    remaining = remaining.slice(pageCount);
+  }
+
+  return pages;
+}
+
+function NhWriteInPages({
+  election,
+  partyId,
+}: NhRovFormProps): JSX.Element | null {
+  const party = partyId
+    ? find(election.parties, (p) => p.id === partyId)
+    : undefined;
+  const electionDate = format.localeLongDate(
+    election.date.toMidnightDatetimeWithSystemTimezone()
+  );
+  const dimensions = ballotPaperDimensions(HmpbBallotPaperSize.Legal);
+
+  const writeInContests = election.contests.filter(
+    (contest): contest is CandidateContest =>
+      contest.type === 'candidate' &&
+      contest.allowWriteIns &&
+      (!partyId || contest.partyId === partyId)
+  );
+
+  if (writeInContests.length === 0) return null;
+
+  const colorTint = party ? partyColorTint(party.fullName) : undefined;
+  const headerBgColor = colorTint ? ColorTints[colorTint] : Colors.LIGHT_GRAY;
+
+  const contestPages = splitContestsIntoPages(writeInContests);
+  assert(contestPages.length > 0);
+
+  return (
+    <React.Fragment>
+      {contestPages.map((pageContests, pageIndex) => {
+        const isFirstPage = pageIndex === 0;
+        const pageNumber = pageIndex + 2; // ROV form is page 1
+
+        return (
+          <Page
+            key={`write-in-page-${pageNumber}`}
+            pageNumber={pageNumber}
+            dimensions={dimensions}
+            margins={pageMarginsInches}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                padding: '0.375rem',
+              }}
+            >
+              {/* Header + Instructions box (matches ROV form structure) */}
+              <div
+                style={{
+                  border: `1px solid ${Colors.DARKER_GRAY}`,
+                  backgroundColor: headerBgColor,
+                  marginBottom: '0.375rem',
+                }}
+              >
+                <Header style={{ padding: '0.5rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '0.375rem',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <img
+                      src={`data:image/svg+xml;base64,${Buffer.from(
+                        election.seal
+                      ).toString('base64')}`}
+                      style={{ height: '5rem' }}
+                    />
+                    <div>
+                      {isFirstPage ? (
+                        <React.Fragment>
+                          <h1>Write-In Votes</h1>
+                          <h2>
+                            {election.county.name}, {election.state}
+                          </h2>
+                          {party && <h2>{partyShortName(party.fullName)}</h2>}
+                          <h4>{election.title}</h4>
+                          <h4>{electionDate}</h4>
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>
+                          <h1>Write-In Votes Continued</h1>
+                          <h2>
+                            {election.county.name}, {election.state}
+                          </h2>
+                          {party && <h2>{partyShortName(party.fullName)}</h2>}
+                          <h4>{election.title}</h4>
+                          <h4>{electionDate}</h4>
+                        </React.Fragment>
+                      )}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '0.8rem',
+                      border: '1px solid black',
+                      padding: '0.375rem',
+                      backgroundColor: 'white',
+                      minWidth: '22rem',
+                    }}
+                  >
+                    <div>
+                      <strong>A true copy attest:</strong>
+                    </div>
+                    <SignatureLine>
+                      <SignatureX />
+                    </SignatureLine>
+                    <div>Signature of Town/City Clerk</div>
+                  </div>
+                </Header>
+                <div
+                  style={{
+                    fontSize: '0.8rem',
+                    padding: '0.375rem',
+                    borderTop: `1px solid ${Colors.DARKER_GRAY}`,
+                  }}
+                >
+                  <strong>Instructions:</strong>{' '}
+                  {party
+                    ? primaryWriteInInstructions(
+                        partyShortName(party.fullName)
+                      )
+                    : GENERAL_WRITE_IN_INSTRUCTIONS}
+                </div>
+              </div>
+
+              {/* "The following persons" intro for primary first page */}
+              {party && isFirstPage && (
+                <div
+                  style={{
+                    fontSize: '0.8rem',
+                    marginBottom: '0.375rem',
+                  }}
+                >
+                  The following persons received{' '}
+                  <strong>WRITE-IN</strong> votes on{' '}
+                  <strong>
+                    {partyShortName(party.fullName).toUpperCase()}
+                  </strong>{' '}
+                  ballots for the following <strong>Offices:</strong>
+                </div>
+              )}
+
+              {/* Contests in 2-column layout */}
+              <div
+                style={{
+                  columns: 2,
+                  columnGap: '0.5rem',
+                  flex: 1,
+                }}
+              >
+                {pageContests.map((contest) => (
+                  <WriteInContest
+                    key={contest.id}
+                    title={contest.title}
+                    headerColor={colorTint ? ColorTints[colorTint] : undefined}
+                  />
+                ))}
+              </div>
+            </div>
+          </Page>
+        );
+      })}
+    </React.Fragment>
+  );
+}
+
 export async function render(
   renderer: Renderer,
   props: NhRovFormProps
 ): Promise<RenderDocument> {
   const scratchpad = await renderer.createScratchpad(<BaseStyles />);
   const document = scratchpad.convertToDocument();
-  await document.setContent('body', <NhRovForm {...props} />);
+  await document.setContent(
+    'body',
+    <React.Fragment>
+      <NhRovForm {...props} />
+      <NhWriteInPages {...props} />
+    </React.Fragment>
+  );
   return document;
 }
