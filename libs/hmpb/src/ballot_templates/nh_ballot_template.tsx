@@ -68,6 +68,7 @@ import {
   PrecinctOrSplitName,
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
+  contestMeasurementCacheKeys,
 } from '../ballot_components';
 import { PixelDimensions, CandidateOrdering, RotationParams } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
@@ -932,6 +933,7 @@ async function BallotPageContent(
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
     const columnWidthPx =
       (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
+    const cacheKeys = contestMeasurementCacheKeys(section, columnWidthPx);
     const contestMeasurements = await scratchpad.measureElements(
       <BackendLanguageContextProvider
         currentLanguageCode={primaryLanguageCode(ballotStyle)}
@@ -947,7 +949,8 @@ async function BallotPageContent(
           </div>
         ))}
       </BackendLanguageContextProvider>,
-      '.contestWrapper'
+      '.contestWrapper',
+      cacheKeys
     );
     const measuredContests = iter(contestElements)
       .zip(contestMeasurements)

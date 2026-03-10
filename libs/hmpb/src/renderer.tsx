@@ -161,17 +161,37 @@ export type RenderDocument = Awaited<ReturnType<typeof createDocument>>;
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createScratchpad(document: RenderDocument) {
   let hasBeenConvertedToDocument = false;
+  const measurementCache = new Map<string, PixelMeasurements>();
   return {
+    /**
+     * Measures elements matching `selector` after rendering `content` into
+     * the scratchpad. If `cacheKeys` are provided (one per expected result),
+     * returns cached measurements when all keys hit, avoiding a DOM round-trip.
+     * On a cache miss, measures normally and stores results for future calls.
+     */
     async measureElements(
       content: JSX.Element,
-      selector: string
+      selector: string,
+      cacheKeys?: string[]
     ): Promise<PixelMeasurements[]> {
       assert(
         !hasBeenConvertedToDocument,
         'Scratchpad has been converted to a document'
       );
+      if (cacheKeys) {
+        const cached = cacheKeys.map((key) => measurementCache.get(key));
+        if (cached.every((m): m is PixelMeasurements => m !== undefined)) {
+          return cached;
+        }
+      }
       await document.setContent('body', content);
-      return await document.inspectElements(selector);
+      const measurements = await document.inspectElements(selector);
+      if (cacheKeys) {
+        for (let i = 0; i < cacheKeys.length; i += 1) {
+          measurementCache.set(cacheKeys[i], measurements[i]);
+        }
+      }
+      return measurements;
     },
 
     convertToDocument(): RenderDocument {

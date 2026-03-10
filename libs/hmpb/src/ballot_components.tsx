@@ -5,6 +5,7 @@ import {
   BallotMode,
   BallotStyle,
   BallotStyleId,
+  Contest,
   Election,
   getBallotStyle,
   getPartyForBallotStyle,
@@ -50,6 +51,18 @@ export const Colors = {
 
 export function primaryLanguageCode(ballotStyle: BallotStyle): string {
   return ballotStyle.languages?.[0] ?? 'en';
+}
+
+/**
+ * Builds cache keys for contest measurement caching during pagination.
+ * Title is included because the NH template splits long contests across pages,
+ * reusing the same contest ID with a modified title.
+ */
+export function contestMeasurementCacheKeys(
+  contests: readonly Contest[],
+  columnWidthPx: number
+): string[] {
+  return contests.map((c) => `${c.id}:${c.title}@${columnWidthPx}`);
 }
 
 export const TIMING_MARK_DIMENSIONS: InchDimensions = {
