@@ -38,13 +38,13 @@ libc = "0.2.153"
 log = "0.4.17"
 vx-logging = { path = "libs/logging" }
 daemon-utils = { path = "apps/mark-scan/daemon-utils" }
-napi = { version = "3.3.0", default-features = false, features = [
+napi = { version = "3.8.0", default-features = false, features = [
   "napi4",
   "async",
   "serde-json",
 ] }
-napi-build = "2.1.6"
-napi-derive = "3.2.5"
+napi-build = "2.3.1"
+napi-derive = "3.5.2"
 neon = { version = "1.1.0", default-features = false, features = [
   "napi-6",
   "serde",

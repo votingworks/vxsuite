@@ -29,26 +29,17 @@ async function convertStringToCdf(
   await writeFile(inputPath, compressed ? zlib.gzipSync(input) : input);
 
   const outputPath = makeTemporaryFile();
-  await new Promise<void>((resolve, reject) => {
-    convertVxLogToCdf(
-      (eventId, message, disposition) => {
-        void logger.logAsCurrentRole(eventId, { message, disposition });
-      },
-      logger.getSource(),
-      machineId,
-      codeVersion,
-      inputPath,
-      outputPath,
-      compressed,
-      (error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
-      }
-    );
-  });
+  await convertVxLogToCdf(
+    (eventId, message, disposition) => {
+      void logger.logAsCurrentRole(eventId, { message, disposition });
+    },
+    logger.getSource(),
+    machineId,
+    codeVersion,
+    inputPath,
+    outputPath,
+    compressed
+  );
 
   if (!compressed) return await readFile(outputPath, 'utf8');
 

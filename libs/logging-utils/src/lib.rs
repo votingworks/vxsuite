@@ -1,11 +1,12 @@
 #![deny(clippy::all)]
 
-use std::{
-    path::{Path, PathBuf},
-    thread,
-};
+use std::path::{Path, PathBuf};
 
-use napi::{bindgen_prelude::*, threadsafe_function::ThreadsafeFunctionCallMode};
+use napi::{
+    bindgen_prelude::*,
+    threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
+    Task,
+};
 use napi_derive::napi;
 use vx_logging::{Disposition, EventId, Source};
 
@@ -15,13 +16,65 @@ mod ser;
 mod stream;
 mod vx;
 
-/// Convert a VX-formatted log file to a CDF-formatted log file and calls the
-/// provided callback after completion.
+// `CalleeHandled = false`: the JS callback receives the args directly (no
+// leading Error argument). This matches what
+// `build_threadsafe_function().build_callback()` produces.
+type LogFn = ThreadsafeFunction<
+    FnArgs<(String, String, String)>,
+    (),
+    FnArgs<(String, String, String)>,
+    Status,
+    false,
+>;
+
+pub struct ConvertTask {
+    log: LogFn,
+    source: Source,
+    machine_id: String,
+    code_version: String,
+    input_path: PathBuf,
+    output_path: PathBuf,
+    compressed: bool,
+}
+
+impl Task for ConvertTask {
+    type Output = ();
+    type JsValue = ();
+
+    fn compute(&mut self) -> Result<()> {
+        convert_vx_log_to_cdf_impl(
+            self.source,
+            &self.machine_id,
+            &self.code_version,
+            &self.input_path,
+            &self.output_path,
+            self.compressed,
+            |event_id, message, disposition| {
+                self.log.call(
+                    FnArgs {
+                        data: (event_id.to_string(), message, disposition.to_string()),
+                    },
+                    ThreadsafeFunctionCallMode::NonBlocking,
+                );
+            },
+        )
+    }
+
+    fn resolve(&mut self, _env: Env, _output: ()) -> Result<()> {
+        Ok(())
+    }
+}
+
+/// Convert a VX-formatted log file to a CDF-formatted log file.
+///
+/// Returns a Promise that resolves when the conversion is complete.
 ///
 /// # Errors
 ///
-/// Throws if the source is not a known source.
-#[napi(ts_args_type = "
+/// Rejects if the source is not a known source, the input file cannot be read,
+/// the output file cannot be written, or the CDF JSON cannot be serialized.
+#[napi(
+    ts_args_type = "
     log: (
       eventId: import('@votingworks/logging').LogEventId,
       message: string,
@@ -33,20 +86,20 @@ mod vx;
     inputPath: string,
     outputPath: string,
     compressed: boolean,
-    callback: (error: Error | null) => void,
-")]
+",
+    ts_return_type = "Promise<void>"
+)]
 #[allow(clippy::too_many_arguments)]
 #[allow(clippy::needless_pass_by_value)]
 pub fn convert_vx_log_to_cdf(
-    log: Function<FnArgs<(String, String, String)>, ()>,
+    log: Function<'_, FnArgs<(String, String, String)>, ()>,
     source: String,
     machine_id: String,
     code_version: String,
     input_path: String,
     output_path: String,
     compressed: bool,
-    callback: Function<(), ()>,
-) -> Result<()> {
+) -> Result<AsyncTask<ConvertTask>> {
     let source: Source = serde_json::from_value(serde_json::Value::String(source.clone()))
         .map_err(|e| {
             Error::new(
@@ -54,37 +107,20 @@ pub fn convert_vx_log_to_cdf(
                 format!("Invalid source value '{source}': {e}"),
             )
         })?;
-    let input_path = PathBuf::from(input_path);
-    let output_path = PathBuf::from(output_path);
 
     let log = log
         .build_threadsafe_function::<FnArgs<(String, String, String)>>()
         .build_callback(|ctx| Ok(ctx.value))?;
 
-    let callback = callback
-        .build_threadsafe_function()
-        .build_callback(|_| Ok(serde_json::Value::Null))?;
-
-    thread::spawn(move || {
-        let result = convert_vx_log_to_cdf_impl(
-            source,
-            &machine_id,
-            &code_version,
-            &input_path,
-            &output_path,
-            compressed,
-            |event_id, message, disposition| {
-                log.call(
-                    (event_id.to_string(), message, disposition.to_string()).into(),
-                    ThreadsafeFunctionCallMode::NonBlocking,
-                );
-            },
-        );
-
-        callback.call(result, ThreadsafeFunctionCallMode::NonBlocking);
-    });
-
-    Ok(())
+    Ok(AsyncTask::new(ConvertTask {
+        log,
+        source,
+        machine_id,
+        code_version,
+        input_path: PathBuf::from(input_path),
+        output_path: PathBuf::from(output_path),
+        compressed,
+    }))
 }
 
 /// Convert a VX-formatted log file to a CDF-formatted log file. Blocks
@@ -161,7 +197,7 @@ pub fn convert_vx_log_to_cdf_impl(
         .open(output_path)
         .map_err(|e| {
             Error::new(
-                Status::Cancelled,
+                Status::GenericFailure,
                 format!(
                     "Unable to open {output_path} for writing: {e}",
                     output_path = output_path.display()
@@ -172,7 +208,7 @@ pub fn convert_vx_log_to_cdf_impl(
     let writer = stream::Writer::new(outfile, compressed);
     serde_json::to_writer(writer, &cdf_event_log).map_err(|e| {
         Error::new(
-            Status::Cancelled,
+            Status::GenericFailure,
             format!(
                 "Failed to write CDF log to {output_path}: {e}",
                 output_path = output_path.display()

@@ -227,18 +227,7 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
   ]);
 
   const cause = new Error('conversion failed');
-  vi.mocked(convertVxLogToCdf).mockImplementation(
-    (
-      _logWrapper,
-      _source,
-      _machineId,
-      _codeVersion,
-      _inputPath,
-      _outputPath,
-      _compressed,
-      cb
-    ) => cb(cause)
-  );
+  vi.mocked(convertVxLogToCdf).mockRejectedValue(cause);
 
   const result = await exportLogsToUsb({
     usbDrive: mockUsbDrive.usbDrive,
@@ -329,8 +318,7 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
       codeVersion,
       inputPath,
       outputPath,
-      compressed,
-      cb
+      compressed
     ) => {
       expect(source).toEqual(logger.getSource());
       expect(machineId).toEqual('TEST-MACHINE-ID');
@@ -342,7 +330,7 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
       expect(compressed).toEqual(fmt === 'compressed');
 
       logWrapper(LogEventId.LogConversionToCdfComplete, 'unknown', 'success');
-      cb(null);
+      return Promise.resolve();
     }
   );
 
