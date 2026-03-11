@@ -108,7 +108,7 @@ test('write-in adjudication report', async () => {
       customSnapshotIdentifier,
     });
 
-    mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+    mockUsbDrive.multiUsbDrive.sync.expectCallWith('/dev/sdb1').resolves();
     const filename = mockFileName('pdf');
     const exportResult = await apiClient.exportWriteInAdjudicationReportPdf({
       filename,
@@ -230,7 +230,7 @@ test('write-in adjudication report logging', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  mockUsbDrive.multiUsbDrive.sync.expectCallWith('/dev/sdb1').resolves();
 
   // successful file export
   const validFileName = mockFileName('pdf');

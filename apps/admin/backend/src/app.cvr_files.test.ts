@@ -96,7 +96,7 @@ async function getOfficialReportPath(): Promise<string> {
 
 test('happy path - mock election flow', async () => {
   const { apiClient, auth, mockUsbDrive, logger } = buildTestEnvironment();
-  const { usbDrive, insertUsbDrive, removeUsbDrive } = mockUsbDrive;
+  const { insertUsbDrive, removeUsbDrive } = mockUsbDrive;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -104,7 +104,7 @@ test('happy path - mock election flow', async () => {
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
   expect(await apiClient.getTotalBallotCount()).toEqual(0);
-  usbDrive.status.expectRepeatedCallsWith().resolves({ status: 'no_drive' });
+  // Default state: no USB drive connected (getDrives returns [])
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.ListCastVoteRecordExportsOnUsbDrive,

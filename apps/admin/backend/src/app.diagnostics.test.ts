@@ -212,7 +212,7 @@ test('print or save readiness report', async () => {
   vi.useRealTimers();
 
   mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  mockUsbDrive.multiUsbDrive.sync.expectCallWith('/dev/sdb1').resolves();
   const exportFileResult = await apiClient.saveReadinessReport();
   exportFileResult.assertOk('error saving readiness report to USB');
   expect(logger.log).toHaveBeenCalledWith(

@@ -15,6 +15,7 @@ import type {
 import { BallotStyleGroupId } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { importElectionResultsReportingFile } from '../../api';
+import { getUsbDriveStatus } from '../../utils/get_usb_drive_status';
 
 const Content = styled.div`
   overflow: hidden;
@@ -48,7 +49,8 @@ export function ImportElectionsResultReportingFileModal({
   precinctId,
   votingMethod,
 }: Props): JSX.Element | null {
-  const { usbDriveStatus, electionDefinition, auth } = useContext(AppContext);
+  const { usbDrives, electionDefinition, auth } = useContext(AppContext);
+  const usbDriveStatus = getUsbDriveStatus(usbDrives);
   const importElectionResultReportingFileMutation =
     importElectionResultsReportingFile.useMutation();
 

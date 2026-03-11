@@ -17,7 +17,10 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
+import {
+  detectOrMockMultiUsbDrive,
+  MultiUsbDrive,
+} from '@votingworks/usb-drive';
 import {
   HP_LASER_PRINTER_CONFIG,
   Printer,
@@ -43,7 +46,7 @@ export interface StartOptions {
   logger: BaseLogger;
   port: number | string;
   workspace: Workspace;
-  usbDrive?: UsbDrive;
+  multiUsbDrive?: MultiUsbDrive;
   printer?: Printer;
 }
 
@@ -55,7 +58,7 @@ export async function start({
   logger: baseLogger = new BaseLogger(LogSource.VxAdminService),
   port = PORT,
   workspace,
-  usbDrive,
+  multiUsbDrive,
   printer,
 }: Partial<StartOptions>): Promise<Server> {
   debug('starting server...');
@@ -104,13 +107,14 @@ export async function start({
     );
 
     if (machineMode === 'host') {
-      const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
+      const resolvedMultiUsbDrive =
+        multiUsbDrive ?? detectOrMockMultiUsbDrive(logger);
       const resolvedPrinter = printer ?? detectPrinter(logger);
 
       resolvedApp = buildApp({
         auth,
         logger,
-        usbDrive: resolvedUsbDrive,
+        multiUsbDrive: resolvedMultiUsbDrive,
         printer: resolvedPrinter,
         workspace: resolvedWorkspace,
       });

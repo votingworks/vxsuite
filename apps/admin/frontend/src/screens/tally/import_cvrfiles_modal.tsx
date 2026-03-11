@@ -35,6 +35,7 @@ import {
   getCastVoteRecordFiles,
   listCastVoteRecordFilesOnUsb,
 } from '../../api';
+import { getUsbDriveStatus } from '../../utils/get_usb_drive_status';
 
 const CvrFileTableWrapper = styled.div`
   background: ${(p) => p.theme.colors.containerLow};
@@ -177,7 +178,8 @@ export interface Props {
 }
 
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
-  const { usbDriveStatus, electionDefinition, auth } = useContext(AppContext);
+  const { usbDrives, electionDefinition, auth } = useContext(AppContext);
+  const usbDriveStatus = getUsbDriveStatus(usbDrives);
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const cvrFilesOnUsbQuery = listCastVoteRecordFilesOnUsb.useQuery();

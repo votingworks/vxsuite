@@ -5,8 +5,7 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/admin-backend';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { mockUsbDriveStatus } from '@votingworks/ui';
+import type { UsbDriveInfo } from '@votingworks/usb-drive';
 import { Iso8601Timestamp } from '../config/types';
 
 export interface AppContextInterface {
@@ -14,7 +13,7 @@ export interface AppContextInterface {
   electionPackageHash?: string;
   configuredAt?: Iso8601Timestamp;
   isOfficialResults: boolean;
-  usbDriveStatus: UsbDriveStatus;
+  usbDrives: UsbDriveInfo[];
   auth: DippedSmartCardAuth.AuthStatus;
   machineConfig: MachineConfig;
 }
@@ -24,7 +23,7 @@ const appContext: AppContextInterface = {
   electionPackageHash: undefined,
   configuredAt: undefined,
   isOfficialResults: false,
-  usbDriveStatus: mockUsbDriveStatus('no_drive'),
+  usbDrives: [],
   auth: DippedSmartCardAuth.DEFAULT_AUTH_STATUS,
   machineConfig: {
     machineId: DEV_MACHINE_ID,

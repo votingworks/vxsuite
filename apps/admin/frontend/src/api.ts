@@ -15,7 +15,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveInfo } from '@votingworks/usb-drive';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 
@@ -150,13 +150,13 @@ export const getPrinterStatus = {
 
 // USB
 
-export const getUsbDriveStatus = {
+export const getUsbDrives = {
   queryKey(): QueryKey {
-    return ['getUsbDriveStatus'];
+    return ['getUsbDrives'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
+    return useQuery(this.queryKey(), () => apiClient.getUsbDrives(), {
       refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
       structuralSharing(oldData, newData) {
         if (!oldData) {
@@ -175,11 +175,14 @@ export const ejectUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.ejectUsbDrive, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
-      },
-    });
+    return useMutation(
+      (input: { driveDevPath: string }) => apiClient.ejectUsbDrive(input),
+      {
+        async onSuccess() {
+          await queryClient.invalidateQueries(getUsbDrives.queryKey());
+        },
+      }
+    );
   },
 } as const;
 
@@ -187,11 +190,14 @@ export const formatUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.formatUsbDrive, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
-      },
-    });
+    return useMutation(
+      (input: { driveDevPath: string }) => apiClient.formatUsbDrive(input),
+      {
+        async onSuccess() {
+          await queryClient.invalidateQueries(getUsbDrives.queryKey());
+        },
+      }
+    );
   },
 } as const;
 
@@ -487,14 +493,14 @@ export const getScannerBatches = {
 } as const;
 
 export const listPotentialElectionPackagesOnUsbDrive = {
-  // Refetch if USB drive status changes
-  queryKey(usbDriveStatus: UsbDriveStatus): QueryKey {
-    return ['listPotentialElectionPackagesOnUsbDrive', usbDriveStatus];
+  // Refetch if USB drives change
+  queryKey(usbDrives: UsbDriveInfo[]): QueryKey {
+    return ['listPotentialElectionPackagesOnUsbDrive', usbDrives];
   },
-  useQuery(usbDriveStatus: UsbDriveStatus) {
+  useQuery(usbDrives: UsbDriveInfo[]) {
     const apiClient = useApiClient();
     return useQuery(
-      this.queryKey(usbDriveStatus),
+      this.queryKey(usbDrives),
       () => apiClient.listPotentialElectionPackagesOnUsbDrive(),
       // Don't reuse stale data (e.g. from the last mounted USB drive)
       { staleTime: 0 }

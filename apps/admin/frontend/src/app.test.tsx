@@ -55,7 +55,7 @@ beforeEach(() => {
     reason: 'machine_locked',
   });
   apiMock.setPrinterStatus();
-  apiMock.expectGetUsbDriveStatus('no_drive');
+  apiMock.expectGetUsbDrives('no_drive');
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.setDiskSpaceSummary();
@@ -105,7 +105,7 @@ test('configuring with an election definition', async () => {
   fireEvent.click(screen.getByText('Settings'));
   fireEvent.click(screen.getByText('Save Logs'));
   await screen.findByText('No USB Drive Detected');
-  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetUsbDrives('mounted');
   await screen.findByText('Select a log format:');
 
   fireEvent.click(screen.getByText('Election'));
@@ -524,38 +524,38 @@ test('usb formatting flows', async () => {
   await within(initialModal).findByText('No USB Drive Detected');
 
   // Format USB Drive that is already compatible
-  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetUsbDrives('mounted');
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   const formatModal = screen.getByRole('alertdialog');
   within(formatModal).getByText(/already compatible/);
-  apiMock.expectFormatUsbDrive();
+  apiMock.expectFormatUsbDrive('/dev/sdb');
   userEvent.click(within(formatModal).getButton('Format USB Drive'));
-  apiMock.expectGetUsbDriveStatus('ejected');
+  apiMock.expectGetUsbDrives('ejected');
   await screen.findByText('USB Drive Formatted');
   screen.getByText('USB Ejected');
 
   // Removing USB resets modal
-  apiMock.expectGetUsbDriveStatus('no_drive');
+  apiMock.expectGetUsbDrives('no_drive');
   await screen.findByText('No USB Drive Detected');
 
   // Format another USB, this time in an incompatible format
-  apiMock.expectGetUsbDriveStatus('error');
+  apiMock.expectGetUsbDrives('error');
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   const incompatibleModal = screen.getByRole('alertdialog');
   within(incompatibleModal).getByText(/not compatible/);
-  apiMock.expectFormatUsbDrive();
+  apiMock.expectFormatUsbDrive('/dev/sdb');
   userEvent.click(within(incompatibleModal).getButton('Format USB Drive'));
-  apiMock.expectGetUsbDriveStatus('ejected');
+  apiMock.expectGetUsbDrives('ejected');
   await screen.findByText('USB Drive Formatted');
   screen.getByText('USB Ejected');
 
   // Removing USB resets modal
-  apiMock.expectGetUsbDriveStatus('no_drive');
+  apiMock.expectGetUsbDrives('no_drive');
   await screen.findByText('No USB Drive Detected');
   // Error handling
-  apiMock.expectGetUsbDriveStatus('error');
+  apiMock.expectGetUsbDrives('error');
   apiMock.apiClient.formatUsbDrive
-    .expectCallWith()
+    .expectCallWith({ driveDevPath: '/dev/sdb' })
     .resolves(err(new Error('unable to format')));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   const errorModal = screen.getByRole('alertdialog');
@@ -564,7 +564,7 @@ test('usb formatting flows', async () => {
   within(errorModal).getByText(/unable to format/);
 
   // Removing USB resets modal
-  apiMock.expectGetUsbDriveStatus('no_drive');
+  apiMock.expectGetUsbDrives('no_drive');
   await screen.findByText('No USB Drive Detected');
 });
 
