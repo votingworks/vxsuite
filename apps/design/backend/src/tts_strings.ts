@@ -74,6 +74,14 @@ export function apiMethods(ctx: TtsApiContext) {
         });
       }
 
+      for (const place of election.pollingPlaces || []) {
+        strings.push({
+          key: ElectionStringKey.POLLING_PLACE_NAME,
+          subkey: place.id,
+          text: place.name,
+        });
+      }
+
       for (const precinct of election.precincts) {
         strings.push({
           key: ElectionStringKey.PRECINCT_NAME,

@@ -242,6 +242,11 @@ export enum ReportingUnitType {
   County = 'county',
 
   /**
+   * Used for a polling place.
+   */
+  PollingPlace = 'polling-place',
+
+  /**
    * Used also for “Ward” or “District” when these terms are used interchangeably with “Precinct”.
    */
   Precinct = 'precinct',
@@ -1318,6 +1323,11 @@ export interface ReportingUnit {
   readonly ComposingGpUnitIds?: readonly string[];
 
   /**
+   * Boolean to indicate whether the reporting unit handles only mail-in or absentee ballot elections, assumed to be “false” if not present.
+   */
+  readonly IsMailOnly?: boolean;
+
+  /**
    * Name of the geopolitical unit.
    */
   readonly Name: InternationalizedText;
@@ -1335,6 +1345,7 @@ export const ReportingUnitSchema: z.ZodSchema<ReportingUnit> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.ReportingUnit'),
   ComposingGpUnitIds: z.optional(z.array(z.string())),
+  IsMailOnly: z.optional(z.boolean()),
   Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
   Type: z.lazy(/* istanbul ignore next - @preserve */ () => ReportingUnitTypeSchema),
 });

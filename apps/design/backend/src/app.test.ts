@@ -3211,6 +3211,7 @@ test('Election package and ballots export', async () => {
       electionStringKey === ElectionStringKey.CONTEST_DESCRIPTION ||
       electionStringKey === ElectionStringKey.CONTEST_OPTION_LABEL ||
       electionStringKey === ElectionStringKey.CONTEST_TERM ||
+      electionStringKey === ElectionStringKey.POLLING_PLACE_NAME ||
       electionStringKey === ElectionStringKey.PRECINCT_SPLIT_NAME
     ) {
       continue;
