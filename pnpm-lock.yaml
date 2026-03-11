@@ -1921,9 +1921,6 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
-      usb:
-        specifier: 2.15.0
-        version: 2.15.0
       uuid:
         specifier: 9.0.1
         version: 9.0.1
@@ -25375,7 +25372,7 @@ packages:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.7.2
+      semver: 7.7.4
     transitivePeerDependencies:
       - supports-color
     dev: true
