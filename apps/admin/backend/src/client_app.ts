@@ -5,16 +5,19 @@ import { Logger } from '@votingworks/logging';
 import { getMachineConfig } from './machine_config';
 import { readMachineMode, writeMachineMode } from './machine_mode';
 import { type MachineMode } from './types';
+import { type NetworkConnectionStatus } from './networking';
 import { type Workspace } from './util/workspace';
 import { constructAuthMachineState } from './util/auth';
 
 function buildClientApi({
   auth,
   workspace,
+  getNetworkConnectionStatus,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
+  getNetworkConnectionStatus: () => NetworkConnectionStatus;
 }) {
   return grout.createApi({
     getMachineConfig,
@@ -25,6 +28,10 @@ function buildClientApi({
 
     setMachineMode(input: { mode: MachineMode }) {
       writeMachineMode(workspace.path, input.mode);
+    },
+
+    getNetworkConnectionStatus(): NetworkConnectionStatus {
+      return getNetworkConnectionStatus();
     },
 
     getAuthStatus() {
@@ -54,13 +61,20 @@ export function buildClientApp({
   auth,
   workspace,
   logger,
+  getNetworkConnectionStatus = () => ({ status: 'offline' as const }),
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
+  getNetworkConnectionStatus?: () => NetworkConnectionStatus;
 }): Application {
   const app: Application = express();
-  const api = buildClientApi({ auth, workspace, logger });
+  const api = buildClientApi({
+    auth,
+    workspace,
+    logger,
+    getNetworkConnectionStatus,
+  });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

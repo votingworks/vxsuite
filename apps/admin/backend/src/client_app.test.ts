@@ -19,7 +19,15 @@ function buildClientTestEnvironment() {
   const baseLogger = mockBaseLogger({ fn: vi.fn });
   const workspace = createWorkspace(workspaceRoot, baseLogger);
   const logger = buildMockLogger(auth, workspace);
-  const app = buildClientApp({ auth, workspace, logger });
+  const mockGetNetworkConnectionStatus = vi.fn().mockReturnValue({
+    status: 'offline',
+  });
+  const app = buildClientApp({
+    auth,
+    workspace,
+    logger,
+    getNetworkConnectionStatus: mockGetNetworkConnectionStatus,
+  });
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const apiClient = grout.createClient<ClientApi>({
@@ -28,7 +36,13 @@ function buildClientTestEnvironment() {
 
   mockMachineLocked(auth);
 
-  return { auth, workspace, apiClient, server };
+  return {
+    auth,
+    workspace,
+    apiClient,
+    server,
+    mockGetNetworkConnectionStatus,
+  };
 }
 
 let env: ReturnType<typeof buildClientTestEnvironment>;
@@ -79,4 +93,47 @@ test('logOut delegates to auth', async () => {
   mockSystemAdministratorAuth(env.auth);
   await env.apiClient.logOut();
   expect(env.auth.logOut).toHaveBeenCalled();
+});
+
+test('getNetworkConnectionStatus defaults to offline when not provided', async () => {
+  const auth = buildMockDippedSmartCardAuth(vi.fn);
+  const workspaceRoot = tmp.dirSync().name;
+  const baseLogger = mockBaseLogger({ fn: vi.fn });
+  const workspace = createWorkspace(workspaceRoot, baseLogger);
+  const logger = buildMockLogger(auth, workspace);
+  const app = buildClientApp({ auth, workspace, logger });
+  const server = app.listen();
+  const { port } = server.address() as AddressInfo;
+  const apiClient = grout.createClient<ClientApi>({
+    baseUrl: `http://localhost:${port}/api`,
+  });
+  try {
+    expect(await apiClient.getNetworkConnectionStatus()).toEqual({
+      status: 'offline',
+    });
+  } finally {
+    server.close();
+  }
+});
+
+test('getNetworkConnectionStatus returns current status', async () => {
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'offline',
+  });
+
+  env.mockGetNetworkConnectionStatus.mockReturnValue({
+    status: 'online-waiting-for-host',
+  });
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'online-waiting-for-host',
+  });
+
+  env.mockGetNetworkConnectionStatus.mockReturnValue({
+    status: 'online-connected-to-host',
+    hostMachineId: '0001',
+  });
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'online-connected-to-host',
+    hostMachineId: '0001',
+  });
 });

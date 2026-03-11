@@ -48,6 +48,22 @@ export const getMachineConfig = {
   },
 } as const;
 
+const NETWORK_STATUS_POLLING_INTERVAL_MS = 2000;
+
+export const getNetworkConnectionStatus = {
+  queryKey(): QueryKey {
+    return ['getNetworkConnectionStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getNetworkConnectionStatus(),
+      { refetchInterval: NETWORK_STATUS_POLLING_INTERVAL_MS }
+    );
+  },
+} as const;
+
 export const setMachineMode = {
   useMutation() {
     const apiClient = useApiClient();

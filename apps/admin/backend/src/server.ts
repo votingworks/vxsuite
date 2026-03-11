@@ -25,11 +25,15 @@ import {
 } from '@votingworks/printing';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { ADMIN_WORKSPACE, PORT } from './globals';
+import { assert } from 'node:console';
+import { ADMIN_WORKSPACE, PEER_PORT, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
 import { buildClientApp } from './client_app';
+import { buildPeerApp } from './peer_app';
 import { readMachineMode } from './machine_mode';
+import { getMachineConfig } from './machine_config';
+import { startHostNetworking, startClientNetworking } from './networking';
 import { rootDebug } from './util/debug';
 import { getUserRole } from './util/auth';
 
@@ -78,6 +82,9 @@ export async function start({
   }
 
   const machineMode = readMachineMode(resolvedWorkspace.path);
+  const isMultiStationEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+  );
 
   let resolvedApp = app;
 
@@ -103,7 +110,22 @@ export async function start({
       getUserRole(auth, resolvedWorkspace)
     );
 
-    if (machineMode === 'host') {
+    if (machineMode === 'client') {
+      assert(
+        isMultiStationEnabled,
+        'Multi-station admin must be enabled for client mode'
+      );
+      const getNetworkConnectionStatus = startClientNetworking({
+        machineId: getMachineConfig().machineId,
+      });
+
+      resolvedApp = buildClientApp({
+        auth,
+        logger,
+        workspace: resolvedWorkspace,
+        getNetworkConnectionStatus,
+      });
+    } else {
       const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
       const resolvedPrinter = printer ?? detectPrinter(logger);
 
@@ -114,12 +136,25 @@ export async function start({
         printer: resolvedPrinter,
         workspace: resolvedWorkspace,
       });
-    } /* machine mode is client */ else {
-      resolvedApp = buildClientApp({
-        auth,
-        logger,
-        workspace: resolvedWorkspace,
-      });
+
+      if (isMultiStationEnabled) {
+        // Start peer server for host-client communication
+        const peerApp = buildPeerApp({
+          workspace: resolvedWorkspace,
+        });
+        peerApp.listen(PEER_PORT, () => {
+          debug('Peer API server running at http://localhost:%d/', PEER_PORT);
+          baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+            message: `Peer API server running at http://localhost:${PEER_PORT}/`,
+            disposition: 'success',
+          });
+        });
+
+        startHostNetworking({
+          machineId: getMachineConfig().machineId,
+          peerPort: PEER_PORT,
+        });
+      }
     }
   }
 

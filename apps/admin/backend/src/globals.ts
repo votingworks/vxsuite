@@ -34,6 +34,12 @@ export const ADMIN_WORKSPACE =
 export const PORT = Number(process.env.FRONTEND_PORT || 3000) + 1;
 
 /**
+ * Default port for the peer API (host-client communication).
+ */
+// eslint-disable-next-line vx/gts-safe-number-parse
+export const PEER_PORT = Number(process.env['PEER_PORT'] || PORT + 1);
+
+/**
  * A glob pattern for USB drives (real and not dev mock)
  */
 export const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';

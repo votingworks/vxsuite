@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test } from 'vitest';
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
@@ -39,13 +39,21 @@ function setSystemAdminAuth() {
 
 function renderClientApp() {
   apiMock.expectGetMachineConfig();
-  // Cast to ApiClient since ClientApi is a subset of Api
+  const clientApiClient = apiMock.apiClient as unknown as ApiClient;
+  // Add getNetworkConnectionStatus mock since it only exists on ClientApi
+  if (!('getNetworkConnectionStatus' in clientApiClient)) {
+    Object.assign(clientApiClient, {
+      getNetworkConnectionStatus: vi
+        .fn()
+        .mockResolvedValue({ status: 'offline' }),
+    });
+  }
   // Provide both HostApiClientContext (for systemCallApi) and ClientApp's context
   return render(
     <HostApiClientContext.Provider value={apiMock.apiClient}>
       <QueryClientProvider client={createQueryClient()}>
         <SystemCallContextProvider api={systemCallApi}>
-          <ClientApp apiClient={apiMock.apiClient as unknown as ApiClient} />
+          <ClientApp apiClient={clientApiClient} />
         </SystemCallContextProvider>
       </QueryClientProvider>
     </HostApiClientContext.Provider>
@@ -127,9 +135,32 @@ test('shows main screen when logged in as system administrator', async () => {
   setSystemAdminAuth();
   renderClientApp();
   await screen.findByText('VxAdmin Client');
-  await screen.findByText(
-    'This machine is configured as a client for multi-station adjudication. Networking is not yet set up.'
-  );
+  await screen.findByText('Offline');
+});
+
+test('shows waiting for host status', async () => {
+  setSystemAdminAuth();
+  const clientApiClient = apiMock.apiClient as unknown as ApiClient;
+  Object.assign(clientApiClient, {
+    getNetworkConnectionStatus: vi
+      .fn()
+      .mockResolvedValue({ status: 'online-waiting-for-host' }),
+  });
+  renderClientApp();
+  await screen.findByText(/Online — Waiting for host/);
+});
+
+test('shows connected to host status', async () => {
+  setSystemAdminAuth();
+  const clientApiClient = apiMock.apiClient as unknown as ApiClient;
+  Object.assign(clientApiClient, {
+    getNetworkConnectionStatus: vi.fn().mockResolvedValue({
+      status: 'online-connected-to-host',
+      hostMachineId: '0001',
+    }),
+  });
+  renderClientApp();
+  await screen.findByText(/Online — Connected to host machine: 0001/);
 });
 
 test('switching to host mode shows restart screen', async () => {
