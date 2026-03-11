@@ -1,6 +1,7 @@
 /* istanbul ignore file - @preserve */
 import { unsafeParse } from '@votingworks/types';
 import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
+import { isIntegrationTest } from '@votingworks/utils';
 import { z } from 'zod/v4';
 
 /**
@@ -25,11 +26,17 @@ const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
 
 export const PRINT_ALLOWED_EXPORT_PATTERNS =
   NODE_ENV === 'production'
-    ? [REAL_USB_DRIVE_GLOB_PATTERN, '/tmp/**/*']
-    : NODE_ENV === 'development'
+    ? isIntegrationTest()
       ? [
+          REAL_USB_DRIVE_GLOB_PATTERN,
+          DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
+          '/tmp/**/*',
+        ]
+      : [REAL_USB_DRIVE_GLOB_PATTERN, '/tmp/**/*']
+    : NODE_ENV === 'development'
+    ? [
         REAL_USB_DRIVE_GLOB_PATTERN,
         DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
         '/tmp/**/*',
       ]
-      : ['/tmp/**/*'];
+    : ['/tmp/**/*', DEV_MOCK_USB_DRIVE_GLOB_PATTERN]; // Where mock USB drives are created within tests

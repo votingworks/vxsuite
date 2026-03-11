@@ -13,6 +13,7 @@ import {
 } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { getMockStateRootDir } from '@votingworks/utils';
 import { logPrinterStatusIfChanged } from '../logging';
 import {
   FujitsuThermalPrinterInterface,
@@ -21,20 +22,34 @@ import {
 } from '../types';
 
 export const MOCK_FUJITSU_PRINTER_STATE_FILENAME = 'state.json';
-export const MOCK_FUJITSU_PRINTER_OUTPUT_DIRNAME = 'prints';
-export const DEFAULT_MOCK_FUJITSU_PRINTER_DIR = '/tmp/mock-fujitsu-printer';
-export const DEV_MOCK_FUJITSU_PRINTER_DIR = join(
-  __dirname,
-  '../../dev-workspace'
+// libs/fujitsu-thermal-printer/src/mocks/ is 4 levels below the repo root
+const REPO_ROOT = join(__dirname, '../../../..');
+export const MOCK_FUJITSU_PRINTER_DIR = join(
+  getMockStateRootDir(REPO_ROOT),
+  'fujitsu-printer'
+);
+export const MOCK_PRINTER_OUTPUT_DIR = join(
+  getMockStateRootDir(REPO_ROOT),
+  'prints'
 );
 
 function getMockPrinterPath(): string {
-  // istanbul ignore next
-  if (process.env.NODE_ENV === 'development') {
-    return DEV_MOCK_FUJITSU_PRINTER_DIR;
-  }
+  return MOCK_FUJITSU_PRINTER_DIR;
+}
 
-  return DEFAULT_MOCK_FUJITSU_PRINTER_DIR;
+const MAX_PRINTS = 100;
+
+function trimOldPrints(): void {
+  if (!existsSync(MOCK_PRINTER_OUTPUT_DIR)) return;
+  const files = readdirSync(MOCK_PRINTER_OUTPUT_DIR, { withFileTypes: true })
+    .filter((d) => d.isFile())
+    .map((f) => join(MOCK_PRINTER_OUTPUT_DIR, f.name))
+    .sort(
+      (a, b) => lstatSync(a).ctime.getTime() - lstatSync(b).ctime.getTime()
+    );
+  for (const file of files.slice(0, Math.max(0, files.length - MAX_PRINTS))) {
+    rmSync(file);
+  }
 }
 
 type MockStateFileContents = PrinterStatus;
@@ -44,7 +59,7 @@ function getMockPrinterStateFilePath(): string {
 }
 
 function getMockPrinterOutputPath(): string {
-  return join(getMockPrinterPath(), MOCK_FUJITSU_PRINTER_OUTPUT_DIRNAME);
+  return MOCK_PRINTER_OUTPUT_DIR;
 }
 
 /**
@@ -213,6 +228,7 @@ interface MockFileFujitsuPrinterHandler {
 }
 
 export function getMockFileFujitsuPrinterHandler(): MockFileFujitsuPrinterHandler {
+  trimOldPrints();
   return {
     setStatus: (status: PrinterStatus) => {
       writeToMockFile(status);
@@ -231,7 +247,8 @@ export function getMockFileFujitsuPrinterHandler(): MockFileFujitsuPrinterHandle
       );
     },
     cleanup: () => {
-      rmSync(getMockPrinterPath(), { recursive: true, force: true });
+      rmSync(MOCK_FUJITSU_PRINTER_DIR, { recursive: true, force: true });
+      rmSync(MOCK_PRINTER_OUTPUT_DIR, { recursive: true, force: true });
     },
   };
 }

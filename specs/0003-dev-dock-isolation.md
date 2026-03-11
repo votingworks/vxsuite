@@ -2,7 +2,7 @@
 
 **Author:** @eventualbuddha
 
-**Status:** planning
+**Status:** implementing
 
 This plan came out of work on Election Archiving & Backup (#7897). I will need
 to add support for multiple USB drives, which will require updating the dev dock

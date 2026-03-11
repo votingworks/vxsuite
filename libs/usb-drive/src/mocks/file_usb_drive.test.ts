@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  DEFAULT_MOCK_USB_DRIVE_DIR,
+  MOCK_USB_DRIVE_DIR,
   MOCK_USB_DRIVE_DATA_DIRNAME,
   MockFileUsbDrive,
   getMockFileUsbDriveHandler,
@@ -24,7 +24,7 @@ test('mock flow', async () => {
     [testFilename]: Buffer.from('test file contents'),
   });
   const expectedMountPoint = join(
-    DEFAULT_MOCK_USB_DRIVE_DIR,
+    MOCK_USB_DRIVE_DIR,
     MOCK_USB_DRIVE_DATA_DIRNAME
   );
   expect(await usbDrive.status()).toMatchObject({

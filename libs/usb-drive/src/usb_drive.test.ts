@@ -17,7 +17,7 @@ import {
 import { exec } from './exec';
 import { UsbDrive } from './types';
 import {
-  DEFAULT_MOCK_USB_DRIVE_DIR,
+  MOCK_USB_DRIVE_DIR,
   MOCK_USB_DRIVE_STATE_FILENAME,
 } from './mocks/file_usb_drive';
 import { BlockDeviceInfo } from './block_devices';
@@ -277,12 +277,16 @@ describe('status', () => {
       mountpoint: '/media/usb-drive-sdb1',
     });
 
-    const { promise: unmountScriptPromise, resolve: resolveUnmount } = deferred<{
-      stdout: string;
-      stderr: string;
-    }>();
+    const { promise: unmountScriptPromise, resolve: resolveUnmount } =
+      deferred<{
+        stdout: string;
+        stderr: string;
+      }>();
     execMock.mockReturnValueOnce(
-      unmountScriptPromise as PromiseWithChild<{ stdout: string; stderr: string }>
+      unmountScriptPromise as PromiseWithChild<{
+        stdout: string;
+        stderr: string;
+      }>
     );
 
     // Begin eject — synchronously acquires the ejecting lock, then yields at
@@ -722,10 +726,7 @@ test('uses mock file usb drive if environment variable is set', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
-  const stateFilePath = join(
-    DEFAULT_MOCK_USB_DRIVE_DIR,
-    MOCK_USB_DRIVE_STATE_FILENAME
-  );
+  const stateFilePath = join(MOCK_USB_DRIVE_DIR, MOCK_USB_DRIVE_STATE_FILENAME);
 
   // Ensure we start with no mock state file
   if (existsSync(stateFilePath)) {

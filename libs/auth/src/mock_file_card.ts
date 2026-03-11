@@ -1,11 +1,13 @@
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
+import { dirname, join } from 'node:path';
 import {
   assert,
   DateWithoutTime,
   Optional,
   throwIllegalValue,
 } from '@votingworks/basics';
+import { getMockStateRootDir } from '@votingworks/utils';
 import {
   ElectionManagerUser,
   PollWorkerUser,
@@ -15,10 +17,20 @@ import {
 
 import { Card, CardStatus, CheckPinResponse } from './card';
 
+// libs/auth/src/ is 3 levels below the repo root
+const REPO_ROOT = join(__dirname, '../../..');
+
 /**
- * The path of the file underlying a MockFileCard
+ * The path of the file underlying a MockFileCard, namespaced by NODE_ENV so
+ * that tests and development instances in the same worktree don't interfere.
+ *
+ * The directory structure .mock-state/<NODE_ENV>/ inside the repo root also
+ * ensures that separate git worktrees use entirely separate mock state.
  */
-export const MOCK_FILE_PATH = '/tmp/mock-file-card.json';
+export const MOCK_FILE_PATH = join(
+  getMockStateRootDir(REPO_ROOT),
+  'mock-file-card.json'
+);
 
 /**
  * The contents of the file underlying a MockFileCard
@@ -63,6 +75,7 @@ export function deserializeMockFileContents(file: Buffer): MockFileContents {
 }
 
 function writeToMockFile(mockFileContents: MockFileContents): void {
+  fs.mkdirSync(dirname(MOCK_FILE_PATH), { recursive: true });
   fs.writeFileSync(MOCK_FILE_PATH, serializeMockFileContents(mockFileContents));
 }
 
