@@ -4,7 +4,9 @@ import { mockChildProcess } from '@votingworks/test-utils';
 import {
   BlockDeviceInfo,
   createUsbDriveMonitor,
+  getAllUsbDrives,
   getUsbDriveDeviceInfo,
+  UsbDiskDeviceInfo,
 } from './block_devices';
 import { exec, spawn } from './exec';
 
@@ -611,5 +613,180 @@ describe('createUsbDriveMonitor', () => {
     expect(() => proc.emit('error', new Error('spawn ENOENT'))).not.toThrow();
 
     monitor.stop();
+  });
+});
+
+describe('getAllUsbDrives', () => {
+  test('returns empty array when no USB block devices found', async () => {
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+    readFileMock.mockResolvedValueOnce('');
+
+    expect(await getAllUsbDrives()).toEqual([]);
+  });
+
+  test('returns empty array when udevadm fails', async () => {
+    execMock.mockRejectedValueOnce(new Error('udevadm failed'));
+    readFileMock.mockResolvedValueOnce('');
+
+    expect(await getAllUsbDrives()).toEqual([]);
+  });
+
+  test('returns disk with its partitions', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({
+          devname: '/dev/sdb',
+          devtype: 'disk',
+          vendor: 'SanDisk',
+          model: 'Ultra',
+          serial: 'ABC123',
+        }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/media/vx/usb-drive-sdb1' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toEqual([
+      {
+        devPath: '/dev/sdb',
+        vendor: 'SanDisk',
+        model: 'Ultra',
+        serial: 'ABC123',
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: '/media/vx/usb-drive-sdb1',
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      },
+    ]);
+  });
+
+  test('returns disk with empty partitions array when unformatted', async () => {
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([{ devname: '/dev/sdb', devtype: 'disk' }])
+    );
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toEqual<UsbDiskDeviceInfo[]>([
+      {
+        devPath: '/dev/sdb',
+        vendor: undefined,
+        model: undefined,
+        serial: undefined,
+        partitions: [],
+      },
+    ]);
+  });
+
+  test('returns multiple disks', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-11111',
+        }),
+        exportDbEntry({ devname: '/dev/sdc', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdc1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-22222',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({ devPath: '/dev/sdb' });
+    expect(result[1]).toMatchObject({ devPath: '/dev/sdc' });
+  });
+
+  test('excludes LVM partitions from partitions list', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'LVM2_member',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(procMountsContent());
+
+    const result = await getAllUsbDrives();
+
+    // Disk is included but LVM partition is excluded
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      devPath: '/dev/sdb',
+      partitions: [],
+    });
+  });
+
+  test('excludes disks mounted outside /media', async () => {
+    execMock.mockResolvedValueOnce(
+      exportDbOutput([{ devname: '/dev/sdb', devtype: 'disk' }])
+    );
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb', mountpoint: '/home/user/mount' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    // Disk mounted outside /media is not a valid data drive
+    expect(result).toEqual([]);
+  });
+
+  test('treats drive as unmounted when /proc/mounts is unreadable', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: [
+        exportDbEntry({ devname: '/dev/sdb', devtype: 'disk' }),
+        exportDbEntry({
+          devname: '/dev/sdb1',
+          devtype: 'partition',
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        }),
+      ].join('\n\n'),
+      stderr: '',
+    });
+    readFileMock.mockRejectedValueOnce(new Error('/proc/mounts unreadable'));
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.partitions[0]).toMatchObject({ mountpoint: undefined });
   });
 });
