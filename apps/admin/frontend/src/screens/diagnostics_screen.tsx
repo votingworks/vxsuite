@@ -12,8 +12,9 @@ import {
   getDiskSpaceSummary,
   systemCallApi,
   saveReadinessReport,
-  getUsbDriveStatus,
+  getUsbDrives,
 } from '../api';
+import { getUsbDriveStatus } from '../utils/get_usb_drive_status';
 import { Loading } from '../components/loading';
 import { PrintTestPageButton } from '../components/print_test_page_button';
 import { AppContext } from '../contexts/app_context';
@@ -32,14 +33,14 @@ export function DiagnosticsScreen(): JSX.Element {
   const diskSpaceQuery = getDiskSpaceSummary.useQuery();
   const diagnosticRecordQuery = getMostRecentPrinterDiagnostic.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
-  const getUsbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const getUsbDrivesQuery = getUsbDrives.useQuery();
 
   if (
     !batteryInfoQuery.isSuccess ||
     !printerStatusQuery.isSuccess ||
     !diagnosticRecordQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
-    !getUsbDriveStatusQuery.isSuccess
+    !getUsbDrivesQuery.isSuccess
   ) {
     return (
       <NavigationScreen title="Diagnostics">
@@ -69,7 +70,7 @@ export function DiagnosticsScreen(): JSX.Element {
           />
         </div>
         <SaveReadinessReportButton
-          usbDriveStatus={getUsbDriveStatusQuery.data}
+          usbDriveStatus={getUsbDriveStatus(getUsbDrivesQuery.data)}
           saveReadinessReportMutation={saveReadinessReportMutation}
         />
       </PageLayout>

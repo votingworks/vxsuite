@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { assert, Result, throwIllegalValue } from '@votingworks/basics';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { UseMutationResult } from '@tanstack/react-query';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Font, P } from './typography';
@@ -133,12 +132,9 @@ export function FormatUsbModal(props: FormatUsbModalProps): JSX.Element {
 
 export interface FormatUsbButtonProps {
   usbDriveStatus: UsbDriveStatus;
-  formatUsbDriveMutation: UseMutationResult<
-    Result<void, Error>,
-    unknown,
-    void,
-    unknown
-  >;
+  formatUsbDriveMutation: {
+    mutateAsync: () => Promise<Result<void, Error>>;
+  };
 }
 
 export function FormatUsbButton(props: FormatUsbButtonProps): JSX.Element {

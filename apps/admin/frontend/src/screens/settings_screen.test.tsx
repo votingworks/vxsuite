@@ -76,6 +76,23 @@ describe('as System Admin', () => {
     });
   });
 
+  test('Formatting USB drive', async () => {
+    apiMock.expectGetUsbPortStatus();
+    apiMock.expectFormatUsbDrive('/dev/sdb');
+    renderInAppContext(<SettingsScreen />, {
+      apiMock,
+      auth,
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Format USB Drive' }));
+    const modal = await screen.findByRole('alertdialog');
+    userEvent.click(
+      within(modal).getByRole('button', { name: 'Format USB Drive' })
+    );
+    await screen.findByText('USB Drive Formatted');
+  });
+
   test('Exporting logs', async () => {
     apiMock.expectGetUsbPortStatus();
     renderInAppContext(<SettingsScreen />, {
