@@ -14,32 +14,26 @@ const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 const featureFlagMock = getFeatureFlagMock();
 
-vi.mock(
-  import('@votingworks/utils'),
-  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
-    ...(await importActual()),
-    isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
-  })
-);
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
+}));
 
 const execMock = vi.mocked(exec);
 const getAllUsbDrivesMock = vi.mocked(getAllUsbDrives);
 
-vi.mock(
-  import('./exec.js'),
-  async (importActual): Promise<typeof import('./exec')> => ({
-    ...(await importActual()),
-    exec: vi.fn().mockRejectedValue(new Error('exec not mocked')),
-  })
-);
+vi.mock(import('./exec.js'), async (importActual) => ({
+  ...(await importActual()),
+  exec: vi.fn().mockRejectedValue(new Error('exec not mocked')),
+}));
 
 // Shared state for mock block_devices module
 let mockDrives: UsbDiskDeviceInfo[] = [];
 let capturedWatcherCallback: (() => void) | undefined;
 const mockWatcherStop = vi.fn();
 
-vi.mock('./block_devices', async (importActual) => {
-  const actual = await importActual<typeof import('./block_devices')>();
+vi.mock(import('./block_devices.js'), async (importActual) => {
+  const actual = await importActual();
   return {
     ...actual,
     getAllUsbDrives: vi.fn(() => Promise.resolve(mockDrives)),
