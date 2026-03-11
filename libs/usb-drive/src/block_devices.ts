@@ -95,6 +95,28 @@ function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
   );
 }
 
+function isPartitionOfDisk(
+  partitionDevname: string,
+  diskDevname: string
+): boolean {
+  if (!partitionDevname.startsWith(diskDevname)) {
+    return false;
+  }
+
+  const suffix = partitionDevname.slice(diskDevname.length);
+
+  // Common Linux partition naming patterns:
+  // - /dev/sda1   (disk: /dev/sda, suffix: "1")
+  // - /dev/sda10  (disk: /dev/sda, suffix: "10")
+  // - /dev/nvme0n1p1 (disk: /dev/nvme0n1, suffix: "p1")
+  // - /dev/mmcblk0p1 (disk: /dev/mmcblk0, suffix: "p1")
+  if (suffix.length === 0) {
+    return false;
+  }
+
+  return /^[0-9]+$/.test(suffix) || /^p[0-9]+$/.test(suffix);
+}
+
 /**
  * Returns the device info for the USB drive, if it's a removable data drive.
  * Returns info for both partitioned drives (type 'part') and unpartitioned
@@ -118,28 +140,6 @@ export async function getUsbDriveDeviceInfo(): Promise<
   if (usbBlockDevices.length === 0) {
     debug('No USB block devices found in udev database');
     return undefined;
-  }
-
-  function isPartitionOfDisk(
-    partitionDevname: string,
-    diskDevname: string
-  ): boolean {
-    if (!partitionDevname.startsWith(diskDevname)) {
-      return false;
-    }
-
-    const suffix = partitionDevname.slice(diskDevname.length);
-
-    // Common Linux partition naming patterns:
-    // - /dev/sda1   (disk: /dev/sda, suffix: "1")
-    // - /dev/sda10  (disk: /dev/sda, suffix: "10")
-    // - /dev/nvme0n1p1 (disk: /dev/nvme0n1, suffix: "p1")
-    // - /dev/mmcblk0p1 (disk: /dev/mmcblk0, suffix: "p1")
-    if (suffix.length === 0) {
-      return false;
-    }
-
-    return /^[0-9]+$/.test(suffix) || /^p[0-9]+$/.test(suffix);
   }
 
   // Prefer partitions over their parent disks: skip disk entries that have
@@ -173,6 +173,111 @@ export async function getUsbDriveDeviceInfo(): Promise<
 
   debug(`Detected USB drive at ${dataUsbDrive.path}`);
   return dataUsbDrive;
+}
+
+export interface UsbPartitionDeviceInfo {
+  devPath: string;
+  mountpoint?: string;
+  fstype?: string;
+  fsver?: string;
+  label?: string;
+}
+
+export interface UsbDiskDeviceInfo {
+  devPath: string;
+  vendor?: string;
+  model?: string;
+  serial?: string;
+  partitions: UsbPartitionDeviceInfo[];
+}
+
+/**
+ * Returns all USB block devices as a structured disk → partitions hierarchy.
+ * Includes vendor/model/serial parsed from udev for each disk. Applies the
+ * same `isDataUsbDrive` filter as `getUsbDriveDeviceInfo`.
+ */
+export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
+  const [exportDbOutput, mountsContent] = await Promise.all([
+    exec('udevadm', ['info', '--export-db'])
+      .then(({ stdout }) => stdout)
+      .catch(() => ''),
+    fs.readFile('/proc/mounts', 'utf-8').catch(() => ''),
+  ]);
+
+  const usbBlockDevices = parseExportDb(exportDbOutput);
+  if (usbBlockDevices.length === 0) {
+    debug('No USB block devices found in udev database');
+    return [];
+  }
+
+  const mountpoints = parseMountpoints(mountsContent);
+
+  const diskDevices = usbBlockDevices.filter((d) => d.devtype === 'disk');
+  const partitionDevices = usbBlockDevices.filter(
+    (d) => d.devtype === 'partition'
+  );
+
+  const result: UsbDiskDeviceInfo[] = [];
+
+  for (const disk of diskDevices) {
+    const diskInfo: BlockDeviceInfo = {
+      name: basename(disk.devname),
+      path: disk.devname,
+      type: 'disk',
+      mountpoint: mountpoints.get(disk.devname),
+      fstype: disk.fstype,
+      fsver: disk.fsver,
+      label: disk.label,
+    };
+
+    const diskPartitions = partitionDevices.filter((p) =>
+      isPartitionOfDisk(p.devname, disk.devname)
+    );
+
+    if (diskPartitions.length > 0) {
+      // Drive has partitions — only include valid data partitions
+      const validPartitions: UsbPartitionDeviceInfo[] = diskPartitions
+        .map(
+          (p): BlockDeviceInfo => ({
+            name: basename(p.devname),
+            path: p.devname,
+            type: 'part',
+            mountpoint: mountpoints.get(p.devname),
+            fstype: p.fstype,
+            fsver: p.fsver,
+            label: p.label,
+          })
+        )
+        .filter(isDataUsbDrive)
+        .map((p) => ({
+          devPath: p.path,
+          mountpoint: p.mountpoint,
+          fstype: p.fstype,
+          fsver: p.fsver,
+          label: p.label,
+        }));
+
+      result.push({
+        devPath: disk.devname,
+        vendor: disk.vendor,
+        model: disk.model,
+        serial: disk.serial,
+        partitions: validPartitions,
+      });
+    } else if (isDataUsbDrive(diskInfo)) {
+      // Unformatted drive (no partitions) — include it with empty partitions
+      result.push({
+        devPath: disk.devname,
+        vendor: disk.vendor,
+        model: disk.model,
+        serial: disk.serial,
+        partitions: [],
+      });
+    }
+  }
+
+  debug(`Found ${result.length} USB drive(s)`);
+  return result;
 }
 
 export interface UsbDriveMonitor {
