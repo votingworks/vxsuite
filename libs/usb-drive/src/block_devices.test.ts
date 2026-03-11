@@ -48,6 +48,9 @@ function exportDbEntry(info: {
   fstype?: string;
   fsver?: string;
   label?: string;
+  vendor?: string;
+  model?: string;
+  serial?: string;
 }): string {
   const {
     devname,
@@ -56,6 +59,9 @@ function exportDbEntry(info: {
     fstype,
     fsver,
     label,
+    vendor,
+    model,
+    serial,
   } = info;
   const lines = [
     `E: DEVNAME=${devname}`,
@@ -66,6 +72,9 @@ function exportDbEntry(info: {
   if (fstype) lines.push(`E: ID_FS_TYPE=${fstype}`);
   if (fsver) lines.push(`E: ID_FS_VERSION=${fsver}`);
   if (label) lines.push(`E: ID_FS_LABEL=${label}`);
+  if (vendor) lines.push(`E: ID_VENDOR=${vendor}`);
+  if (model) lines.push(`E: ID_MODEL=${model}`);
+  if (serial) lines.push(`E: ID_SERIAL_SHORT=${serial}`);
   return lines.join('\n');
 }
 

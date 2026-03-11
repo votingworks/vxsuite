@@ -45,6 +45,9 @@ interface UsbBlockDevice {
   fstype?: string;
   fsver?: string;
   label?: string;
+  vendor?: string;
+  model?: string;
+  serial?: string;
 }
 
 function get(block: string, key: string): Optional<string> {
@@ -72,6 +75,9 @@ function parseExportDb(output: string): UsbBlockDevice[] {
       fstype: get(block, 'ID_FS_TYPE'),
       fsver: get(block, 'ID_FS_VERSION'),
       label: get(block, 'ID_FS_LABEL'),
+      vendor: get(block, 'ID_VENDOR'),
+      model: get(block, 'ID_MODEL'),
+      serial: get(block, 'ID_SERIAL_SHORT'),
     });
   }
 
