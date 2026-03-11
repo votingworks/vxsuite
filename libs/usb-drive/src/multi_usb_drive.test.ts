@@ -1,0 +1,1036 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { join } from 'node:path';
+import { PromiseWithChild } from 'node:child_process';
+import { LogEventId, mockLogger } from '@votingworks/logging';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { detectMultiUsbDrive } from './multi_usb_drive';
+import { exec } from './exec';
+import { getAllUsbDrives, UsbDiskDeviceInfo } from './block_devices';
+
+const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
+
+const featureFlagMock = getFeatureFlagMock();
+
+vi.mock(
+  import('@votingworks/utils'),
+  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
+    ...(await importActual()),
+    isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
+  })
+);
+
+const execMock = vi.mocked(exec);
+const getAllUsbDrivesMock = vi.mocked(getAllUsbDrives);
+
+vi.mock(
+  import('./exec.js'),
+  async (importActual): Promise<typeof import('./exec')> => ({
+    ...(await importActual()),
+    exec: vi.fn().mockRejectedValue(new Error('exec not mocked')),
+  })
+);
+
+// Shared state for mock block_devices module
+let mockDrives: UsbDiskDeviceInfo[] = [];
+let capturedWatcherCallback: (() => void) | undefined;
+const mockWatcherStop = vi.fn();
+
+vi.mock('./block_devices', async (importActual) => {
+  const actual = await importActual<typeof import('./block_devices')>();
+  return {
+    ...actual,
+    getAllUsbDrives: vi.fn(() => Promise.resolve(mockDrives)),
+    createBlockDeviceChangeWatcher: vi.fn((onDeviceChange: () => void) => {
+      capturedWatcherCallback = onDeviceChange;
+      return { stop: mockWatcherStop };
+    }),
+  };
+});
+
+beforeEach(() => {
+  mockDrives = [];
+  capturedWatcherCallback = undefined;
+  mockWatcherStop.mockReset();
+  vi.clearAllMocks();
+  vi.unstubAllEnvs();
+  featureFlagMock.resetFeatureFlags();
+});
+
+function makeDisk(
+  overrides: Partial<UsbDiskDeviceInfo> = {}
+): UsbDiskDeviceInfo {
+  return {
+    devPath: '/dev/sdb',
+    vendor: 'SanDisk',
+    model: 'Ultra',
+    serial: 'SN123',
+    partitions: [
+      {
+        devPath: '/dev/sdb1',
+        mountpoint: '/media/vx/usb-drive-sdb1',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+        label: 'VxUSB-ABCDE',
+      },
+    ],
+    ...overrides,
+  };
+}
+
+test('works even when USE_MOCK_USB_DRIVE feature flag is enabled', () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
+  );
+  const multiUsbDrive = detectMultiUsbDrive(mockLogger({ fn: vi.fn }));
+  expect(multiUsbDrive.getDrives()).toEqual([]);
+  multiUsbDrive.stop();
+});
+
+describe('getDrives', () => {
+  test('returns empty array initially', () => {
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+    expect(multiUsbDrive.getDrives()).toEqual([]);
+    multiUsbDrive.stop();
+  });
+
+  test('returns drives after initial refresh resolves', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    const [drive] = multiUsbDrive.getDrives();
+    expect(drive).toMatchObject({
+      devPath: '/dev/sdb',
+      vendor: 'SanDisk',
+      model: 'Ultra',
+      serial: 'SN123',
+    });
+    expect(drive?.partitions[0]).toMatchObject({
+      devPath: '/dev/sdb1',
+      mount: { type: 'mounted', mountPoint: '/media/vx/usb-drive-sdb1' },
+    });
+
+    multiUsbDrive.stop();
+  });
+
+  test('returns unmounted partition as unmounted', async () => {
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: undefined,
+          },
+        ],
+      }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
+      type: 'unmounted',
+    });
+
+    multiUsbDrive.stop();
+  });
+
+  test('returns empty partitions for unformatted drive', async () => {
+    mockDrives = [makeDisk({ partitions: [] })];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    expect(multiUsbDrive.getDrives()[0]?.partitions).toEqual([]);
+
+    multiUsbDrive.stop();
+  });
+
+  test('returns multiple drives', async () => {
+    mockDrives = [
+      makeDisk({ devPath: '/dev/sdb' }),
+      makeDisk({ devPath: '/dev/sdc', partitions: [] }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    expect(multiUsbDrive.getDrives()).toHaveLength(2);
+
+    multiUsbDrive.stop();
+  });
+});
+
+describe('refresh', () => {
+  test('updates the cached drives', async () => {
+    mockDrives = [];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    expect(multiUsbDrive.getDrives()).toHaveLength(0);
+
+    mockDrives = [makeDisk()];
+    await multiUsbDrive.refresh();
+
+    expect(multiUsbDrive.getDrives()).toHaveLength(1);
+
+    multiUsbDrive.stop();
+  });
+
+  test('calls onRefresh callback on each refresh', async () => {
+    const logger = mockLogger({ fn: vi.fn });
+    const onChange = vi.fn();
+    const multiUsbDrive = detectMultiUsbDrive(logger, { onChange });
+
+    await multiUsbDrive.refresh();
+
+    expect(onChange).toHaveBeenCalledTimes(2); // initial + explicit refresh
+
+    multiUsbDrive.stop();
+  });
+
+  test('watcher callback triggers a refresh', async () => {
+    mockDrives = [];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+    expect(multiUsbDrive.getDrives()).toHaveLength(0);
+
+    mockDrives = [makeDisk()];
+    // Trigger the watcher callback (simulates a udevadm event)
+    capturedWatcherCallback?.();
+
+    await vi.waitFor(() => expect(multiUsbDrive.getDrives()).toHaveLength(1));
+
+    multiUsbDrive.stop();
+  });
+
+  test('clears eject state for drives that were physically removed', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
+    await multiUsbDrive.ejectDrive('/dev/sdb');
+
+    // Drive is physically removed
+    mockDrives = [];
+    await multiUsbDrive.refresh();
+
+    // Drive no longer in the list
+    expect(multiUsbDrive.getDrives()).toHaveLength(0);
+
+    // Drive re-plugged — eject state should be cleared
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      }),
+    ];
+    await multiUsbDrive.refresh();
+    expect(multiUsbDrive.getDrives()).toHaveLength(1);
+
+    multiUsbDrive.stop();
+  });
+});
+
+describe('stop', () => {
+  test('stops the watcher', () => {
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+    multiUsbDrive.stop();
+    expect(mockWatcherStop).toHaveBeenCalled();
+  });
+});
+
+describe('ejectDrive', () => {
+  test('unmounts all mounted partitions and logs events', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
+
+    await multiUsbDrive.ejectDrive('/dev/sdb');
+
+    expect(execMock).toHaveBeenCalledWith('sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/unmount.sh`,
+      '/media/vx/usb-drive-sdb1',
+    ]);
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveEjectInit,
+      expect.any(String)
+    );
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveEjected,
+      expect.any(String),
+      expect.objectContaining({ disposition: 'success' })
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('shows partitions as unmounting during eject', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    let resolveUnmount!: (v: { stdout: string; stderr: string }) => void;
+    execMock.mockReturnValueOnce(
+      new Promise<{ stdout: string; stderr: string }>((resolve) => {
+        resolveUnmount = resolve;
+      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+    );
+
+    const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
+
+    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toMatchObject({
+      type: 'unmounting',
+      mountPoint: '/media/vx/usb-drive-sdb1',
+    });
+
+    resolveUnmount({ stdout: '', stderr: '' });
+    await ejectPromise;
+
+    multiUsbDrive.stop();
+  });
+
+  test('waits for in-progress partition mount to complete before unmounting', async () => {
+    vi.useFakeTimers();
+
+    try {
+      const unmountedPartitionDisk = makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: undefined,
+          },
+        ],
+      });
+      const mountedDisk = makeDisk();
+
+      let resolveMountExec!: (v: { stdout: string; stderr: string }) => void;
+      execMock
+        .mockReturnValueOnce(
+          new Promise<{ stdout: string; stderr: string }>((resolve) => {
+            resolveMountExec = resolve;
+          }) as PromiseWithChild<{ stdout: string; stderr: string }>
+        )
+        .mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
+
+      // Call 1: factory doRefresh — triggers auto-mount
+      // Call 2: mountPartitionWithRetry poll — mounts the partition
+      // Call 3: ejectDrive's final doRefresh
+      getAllUsbDrivesMock
+        .mockResolvedValueOnce([unmountedPartitionDisk])
+        .mockResolvedValueOnce([mountedDisk])
+        .mockResolvedValueOnce([]);
+
+      const logger = mockLogger({ fn: vi.fn });
+      const multiUsbDrive = detectMultiUsbDrive(logger);
+
+      // Flush microtasks: factory doRefresh runs, auto-mount starts (exec pending)
+      await vi.advanceTimersByTimeAsync(0);
+
+      // Start eject — the while loop sleeps because partitionAction has 'mounting'
+      const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
+
+      // Resolve mount exec so mountPartitionWithRetry completes during the sleep
+      resolveMountExec({ stdout: '', stderr: '' });
+
+      // Advance 100ms: eject's sleep fires; by then, mountPartitionWithRetry has
+      // polled cachedDrives, found the mountpoint, and cleared partitionAction
+      await vi.advanceTimersByTimeAsync(100);
+      await ejectPromise;
+
+      // Eject must have unmounted the partition that finished mounting during the wait
+      expect(execMock).toHaveBeenCalledWith('sudo', [
+        '-n',
+        `${MOUNT_SCRIPT_PATH}/unmount.sh`,
+        '/media/vx/usb-drive-sdb1',
+      ]);
+
+      multiUsbDrive.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('shows already-unmounted partition as unmounted while ejecting', async () => {
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: undefined,
+          },
+        ],
+      }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    // Start eject without awaiting — driveAction is set to 'ejecting' synchronously
+    // before the first await, so getDrives() can observe the in-progress state.
+    const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
+
+    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
+      type: 'unmounted',
+    });
+
+    await ejectPromise;
+
+    multiUsbDrive.stop();
+  });
+
+  test('skips unmount for unmounted partitions', async () => {
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: undefined,
+          },
+        ],
+      }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    await multiUsbDrive.ejectDrive('/dev/sdb');
+
+    expect(execMock).not.toHaveBeenCalledWith(
+      'sudo',
+      expect.arrayContaining(['unmount.sh'])
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('logs failure and rethrows when unmount throws', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockRejectedValueOnce(new Error('unmount failed'));
+
+    await expect(multiUsbDrive.ejectDrive('/dev/sdb')).rejects.toThrow(
+      'unmount failed'
+    );
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveEjected,
+      expect.any(String),
+      expect.objectContaining({ disposition: 'failure' })
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('does nothing if action already in progress', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    let resolveFirst!: (v: { stdout: string; stderr: string }) => void;
+    execMock.mockReturnValueOnce(
+      new Promise<{ stdout: string; stderr: string }>((resolve) => {
+        resolveFirst = resolve;
+      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+    );
+
+    const firstEject = multiUsbDrive.ejectDrive('/dev/sdb');
+    await multiUsbDrive.ejectDrive('/dev/sdb'); // no-op
+
+    resolveFirst({ stdout: '', stderr: '' });
+    await firstEject;
+
+    // Only one unmount call (from the first eject)
+    expect(execMock).toHaveBeenCalledTimes(1);
+
+    multiUsbDrive.stop();
+  });
+});
+
+describe('formatDrive', () => {
+  test('unmounts partitions, formats drive with existing label, and logs events', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
+
+    await multiUsbDrive.formatDrive('/dev/sdb');
+
+    expect(execMock).toHaveBeenCalledWith('sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/unmount.sh`,
+      '/media/vx/usb-drive-sdb1',
+    ]);
+    expect(execMock).toHaveBeenCalledWith('sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/format_fat32.sh`,
+      '/dev/sdb',
+      'VxUSB-ABCDE', // preserves existing VxUSB label
+    ]);
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveFormatInit,
+      expect.any(String)
+    );
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveFormatted,
+      expect.any(String),
+      expect.objectContaining({ disposition: 'success' })
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('shows partitions as unmounted during format', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    let resolveFormat!: (v: { stdout: string; stderr: string }) => void;
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
+    execMock.mockReturnValueOnce(
+      new Promise<{ stdout: string; stderr: string }>((resolve) => {
+        resolveFormat = resolve;
+      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+    );
+
+    const formatPromise = multiUsbDrive.formatDrive('/dev/sdb');
+
+    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
+      type: 'unmounted',
+    });
+
+    resolveFormat({ stdout: '', stderr: '' });
+    await formatPromise;
+
+    multiUsbDrive.stop();
+  });
+
+  test('waits for in-progress partition mount to complete before unmounting', async () => {
+    vi.useFakeTimers();
+
+    try {
+      const unmountedPartitionDisk = makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      });
+      const mountedDisk = makeDisk();
+
+      let resolveMountExec!: (v: { stdout: string; stderr: string }) => void;
+      execMock
+        .mockReturnValueOnce(
+          new Promise<{ stdout: string; stderr: string }>((resolve) => {
+            resolveMountExec = resolve;
+          }) as PromiseWithChild<{ stdout: string; stderr: string }>
+        )
+        .mockResolvedValueOnce({ stdout: '', stderr: '' }) // unmount
+        .mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
+
+      // Call 1: factory doRefresh — triggers auto-mount
+      // Call 2: mountPartitionWithRetry poll — finds mountpoint
+      // Call 3: formatDrive's final doRefresh
+      getAllUsbDrivesMock
+        .mockResolvedValueOnce([unmountedPartitionDisk])
+        .mockResolvedValueOnce([mountedDisk])
+        .mockResolvedValueOnce([]);
+
+      const logger = mockLogger({ fn: vi.fn });
+      const multiUsbDrive = detectMultiUsbDrive(logger);
+
+      // Flush microtasks: factory doRefresh runs, auto-mount starts (exec pending)
+      await vi.advanceTimersByTimeAsync(0);
+
+      // Start format — the while loop sleeps because partitionAction has 'mounting'
+      const formatPromise = multiUsbDrive.formatDrive('/dev/sdb');
+
+      // Resolve mount exec so mountPartitionWithRetry completes during the sleep
+      resolveMountExec({ stdout: '', stderr: '' });
+
+      // Advance 100ms: format's sleep fires; by then, mountPartitionWithRetry has
+      // polled cachedDrives, found the mountpoint, and cleared partitionAction
+      await vi.advanceTimersByTimeAsync(100);
+      await formatPromise;
+
+      // Format must have unmounted the partition that finished mounting during the wait
+      expect(execMock).toHaveBeenCalledWith('sudo', [
+        '-n',
+        `${MOUNT_SCRIPT_PATH}/unmount.sh`,
+        '/media/vx/usb-drive-sdb1',
+      ]);
+
+      multiUsbDrive.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('generates new VxUSB label if existing label does not match pattern', async () => {
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'MY-DRIVE',
+          },
+        ],
+      }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format (no unmount needed)
+
+    await multiUsbDrive.formatDrive('/dev/sdb');
+
+    const formatArgs = execMock.mock.calls.find((c) =>
+      (c[1] as string[]).some((a) => a.includes('format_fat32.sh'))
+    )?.[1] as string[];
+    const label = formatArgs[formatArgs.length - 1];
+    expect(label).toMatch(/^VxUSB-[A-Z0-9]{5}$/);
+
+    multiUsbDrive.stop();
+  });
+
+  test('generates new label for drive with no partitions', async () => {
+    mockDrives = [makeDisk({ partitions: [] })];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
+
+    await multiUsbDrive.formatDrive('/dev/sdb');
+
+    const formatArgs = execMock.mock.calls.find((c) =>
+      (c[1] as string[]).some((a) => a.includes('format_fat32.sh'))
+    )?.[1] as string[];
+    const label = formatArgs[formatArgs.length - 1];
+    expect(label).toMatch(/^VxUSB-[A-Z0-9]{5}$/);
+
+    multiUsbDrive.stop();
+  });
+
+  test('logs failure and rethrows when format throws', async () => {
+    mockDrives = [makeDisk({ partitions: [] })];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockRejectedValueOnce(new Error('format failed'));
+
+    await expect(multiUsbDrive.formatDrive('/dev/sdb')).rejects.toThrow(
+      'format failed'
+    );
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveFormatted,
+      expect.any(String),
+      expect.objectContaining({ disposition: 'failure' })
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('does nothing if action already in progress', async () => {
+    mockDrives = [makeDisk({ partitions: [] })];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    let resolveFirst!: (v: { stdout: string; stderr: string }) => void;
+    execMock.mockReturnValueOnce(
+      new Promise<{ stdout: string; stderr: string }>((resolve) => {
+        resolveFirst = resolve;
+      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+    );
+
+    const firstFormat = multiUsbDrive.formatDrive('/dev/sdb');
+    await multiUsbDrive.formatDrive('/dev/sdb'); // no-op
+
+    resolveFirst({ stdout: '', stderr: '' });
+    await firstFormat;
+
+    expect(execMock).toHaveBeenCalledTimes(1);
+
+    multiUsbDrive.stop();
+  });
+});
+
+describe('sync', () => {
+  test('syncs a mounted partition', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+
+    await multiUsbDrive.sync('/dev/sdb1');
+
+    expect(execMock).toHaveBeenCalledWith('sync', [
+      '-f',
+      '/media/vx/usb-drive-sdb1',
+    ]);
+
+    multiUsbDrive.stop();
+  });
+
+  test('does nothing if partition is not mounted', async () => {
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: undefined,
+          },
+        ],
+      }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    await multiUsbDrive.sync('/dev/sdb1');
+
+    const { calls } = execMock.mock;
+    for (const args of calls) {
+      expect(args).not.toContain('sync');
+    }
+
+    multiUsbDrive.stop();
+  });
+
+  test('does nothing if drive not found', async () => {
+    mockDrives = [];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.sync('/dev/sdb1');
+
+    expect(execMock).not.toHaveBeenCalled();
+
+    multiUsbDrive.stop();
+  });
+});
+
+describe('autoMount', () => {
+  test('auto-mounts FAT32 partitions', async () => {
+    const unmountedPartitionDisk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: undefined,
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        },
+      ],
+    });
+    const mountedDisk = makeDisk(); // has mountpoint
+
+    mockDrives = [unmountedPartitionDisk];
+    const logger = mockLogger({ fn: vi.fn });
+
+    // On mount, update the drives to reflect the mount
+    execMock.mockImplementation((_cmd, args) => {
+      if (args?.includes(`${MOUNT_SCRIPT_PATH}/mount.sh`)) {
+        mockDrives = [mountedDisk];
+      }
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+      }) as unknown as PromiseWithChild<{ stdout: string; stderr: string }>;
+    });
+
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await vi.waitFor(
+      () => {
+        const drives = multiUsbDrive.getDrives();
+        return (
+          drives.length === 1 &&
+          drives[0]?.partitions[0]?.mount.type === 'mounted'
+        );
+      },
+      { timeout: 2000 }
+    );
+
+    expect(execMock).toHaveBeenCalledWith('sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/mount.sh`,
+      '/dev/sdb1',
+    ]);
+
+    multiUsbDrive.stop();
+  });
+
+  test('shows partition as mounting while auto-mount exec is pending', async () => {
+    const unmountedPartitionDisk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: undefined,
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: undefined,
+        },
+      ],
+    });
+
+    let resolveMountCall!: (v: { stdout: string; stderr: string }) => void;
+    execMock.mockReturnValueOnce(
+      new Promise<{ stdout: string; stderr: string }>((resolve) => {
+        resolveMountCall = resolve;
+      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+    );
+
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    mockDrives = [unmountedPartitionDisk];
+    await multiUsbDrive.refresh();
+
+    // partitionAction has 'mounting' for /dev/sdb1 while exec is pending
+    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
+      type: 'mounting',
+    });
+
+    resolveMountCall({ stdout: '', stderr: '' });
+    mockDrives = [makeDisk()];
+    await vi.waitFor(
+      () =>
+        multiUsbDrive.getDrives()[0]?.partitions[0]?.mount.type === 'mounted'
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('retries polling after sleep if mountpoint does not register immediately', async () => {
+    vi.useFakeTimers();
+
+    try {
+      const unmountedPartitionDisk = makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: undefined,
+          },
+        ],
+      });
+
+      // Call 1 (factory doRefresh): unmounted — triggers auto-mount
+      // Call 2 (first retry poll): still unmounted — triggers sleep
+      // Call 3 (second retry poll, after sleep): mounted — breaks loop
+      getAllUsbDrivesMock
+        .mockResolvedValueOnce([unmountedPartitionDisk])
+        .mockResolvedValueOnce([unmountedPartitionDisk])
+        .mockResolvedValueOnce([makeDisk()]);
+
+      execMock.mockResolvedValue({ stdout: '', stderr: '' });
+
+      const logger = mockLogger({ fn: vi.fn });
+      const multiUsbDrive = detectMultiUsbDrive(logger);
+
+      // Advance by 100ms (MOUNT_RETRY_INTERVAL_MS) to flush all microtasks and
+      // trigger the sleep timer, then flush the final poll microtasks.
+      await vi.advanceTimersByTimeAsync(100);
+
+      expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
+        type: 'mounted',
+        mountPoint: '/media/vx/usb-drive-sdb1',
+      });
+
+      multiUsbDrive.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('does not auto-mount while a drive action is in progress', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    // Start eject with a pending unmount so driveAction stays set while we
+    // trigger the watcher (ejectState is not yet set at this point).
+    let resolveUnmount!: (v: { stdout: string; stderr: string }) => void;
+    execMock.mockReturnValueOnce(
+      new Promise<{ stdout: string; stderr: string }>((resolve) => {
+        resolveUnmount = resolve;
+      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+    );
+
+    const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
+
+    // Watcher fires while driveAction === 'ejecting' but ejectState is not set.
+    // doAutoMount must return early at the driveAction check (line 190).
+    capturedWatcherCallback?.();
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0);
+    });
+
+    resolveUnmount({ stdout: '', stderr: '' });
+    await ejectPromise;
+
+    // Only one exec call: the unmount (no spurious remount attempts)
+    expect(execMock).toHaveBeenCalledTimes(1);
+
+    multiUsbDrive.stop();
+  });
+
+  test('does not auto-mount drives that were ejected', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount for eject
+
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    // Eject the drive
+    await multiUsbDrive.ejectDrive('/dev/sdb');
+
+    // Now the drive reappears unmounted
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      }),
+    ];
+    vi.clearAllMocks(); // clear exec call history
+
+    await multiUsbDrive.refresh();
+
+    // Short wait to ensure no async auto-mount triggers
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 50);
+    });
+
+    expect(execMock).not.toHaveBeenCalledWith(
+      'sudo',
+      expect.arrayContaining(['mount.sh'])
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('does not auto-mount non-FAT32 partitions', async () => {
+    mockDrives = [
+      makeDisk({
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: undefined,
+            fstype: 'exfat',
+            fsver: undefined,
+            label: undefined,
+          },
+        ],
+      }),
+    ];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 50);
+    });
+
+    expect(execMock).not.toHaveBeenCalledWith(
+      'sudo',
+      expect.arrayContaining(['mount.sh'])
+    );
+
+    multiUsbDrive.stop();
+  });
+});
