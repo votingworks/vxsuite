@@ -76,7 +76,9 @@ beforeEach(() => {
   mockApiClient = createMockClient<Api>();
   mockApiClient.getMockSpec.expectCallWith().resolves({});
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
-  mockApiClient.getUsbDriveStatus.expectCallWith().resolves('removed');
+  mockApiClient.getUsbDriveStatus
+    .expectRepeatedCallsWith()
+    .resolves([{ devPath: '/dev/sdb', status: 'removed' }]);
   mockApiClient.getCurrentFixtureElectionPaths.expectCallWith().resolves([
     {
       title: 'electionGeneral',
@@ -268,28 +270,67 @@ test('election selector', async () => {
 test('USB drive controls', async () => {
   renderDock(mockApiClient);
   const usbDriveControl = await screen.findByRole('button', {
-    name: 'USB Drive',
+    name: 'USB Drive /dev/sdb',
   });
   await waitFor(() => expect(usbDriveControl).toBeEnabled());
 
-  mockApiClient.insertUsbDrive.expectCallWith().resolves();
-  mockApiClient.getUsbDriveStatus.expectCallWith().resolves('inserted');
+  mockApiClient.insertUsbDrive
+    .expectCallWith({ devPath: '/dev/sdb' })
+    .resolves();
+  mockApiClient.getUsbDriveStatus
+    .expectCallWith()
+    .resolves([{ devPath: '/dev/sdb', status: 'inserted' }]);
   userEvent.click(usbDriveControl);
   // Not easy to test the color change of the button, so we'll just wait for the
   // API call to complete.
   await waitFor(() => mockApiClient.assertComplete());
 
-  mockApiClient.removeUsbDrive.expectCallWith().resolves();
-  mockApiClient.getUsbDriveStatus.expectCallWith().resolves('removed');
+  mockApiClient.removeUsbDrive
+    .expectCallWith({ devPath: '/dev/sdb' })
+    .resolves();
+  mockApiClient.getUsbDriveStatus
+    .expectCallWith()
+    .resolves([{ devPath: '/dev/sdb', status: 'removed' }]);
   userEvent.click(usbDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
   const clearUsbDriveButton = screen.getByRole('button', {
     name: 'Clear',
   });
-  mockApiClient.clearUsbDrive.expectCallWith().resolves();
-  mockApiClient.getUsbDriveStatus.expectCallWith().resolves('removed');
+  mockApiClient.clearUsbDrive
+    .expectCallWith({ devPath: '/dev/sdb' })
+    .resolves();
+  mockApiClient.getUsbDriveStatus
+    .expectCallWith()
+    .resolves([{ devPath: '/dev/sdb', status: 'removed' }]);
   userEvent.click(clearUsbDriveButton);
+  await waitFor(() => mockApiClient.assertComplete());
+});
+
+test('add and remove USB drive slots', async () => {
+  renderDock(mockApiClient);
+  await screen.findByRole('button', { name: 'USB Drive /dev/sdb' });
+
+  // Add a second drive slot
+  mockApiClient.addUsbDriveSlot
+    .expectCallWith()
+    .resolves({ devPath: '/dev/sdc' });
+  mockApiClient.getUsbDriveStatus.expectCallWith().resolves([
+    { devPath: '/dev/sdb', status: 'removed' },
+    { devPath: '/dev/sdc', status: 'removed' },
+  ]);
+  userEvent.click(screen.getByRole('button', { name: 'Add USB Drive Slot' }));
+  await screen.findByRole('button', { name: 'USB Drive /dev/sdc' });
+  await waitFor(() => mockApiClient.assertComplete());
+
+  // Remove the second drive slot
+  mockApiClient.removeUsbDriveSlot
+    .expectCallWith({ devPath: '/dev/sdc' })
+    .resolves();
+  mockApiClient.getUsbDriveStatus
+    .expectCallWith()
+    .resolves([{ devPath: '/dev/sdb', status: 'removed' }]);
+  userEvent.click(screen.getByRole('button', { name: 'Remove slot /dev/sdc' }));
   await waitFor(() => mockApiClient.assertComplete());
 });
 
@@ -301,7 +342,7 @@ test('disabled USB drive controls if USB drive mocks are disabled', async () => 
 
   await screen.findByText('USB mock disabled');
   const usbDriveControl = screen.getByRole('button', {
-    name: 'USB Drive',
+    name: 'USB Drive /dev/sdb',
   });
   const clearUsbDriveButton = screen.getByRole('button', {
     name: 'Clear',
