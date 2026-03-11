@@ -10,11 +10,9 @@ async function printStatus(usbDrive: UsbDrive, stdout: NodeJS.WriteStream) {
 
 async function watchUsbDrive(logger: Logger): Promise<void> {
   const { stdout } = process;
-  // onRefreshFn is set synchronously after detectUsbDrive returns.
-  // Since doRefresh fires asynchronously, it's always defined when called.
-  let onRefreshFn: (() => Promise<void>) | undefined;
-  const usbDrive = detectUsbDrive(logger, () => void onRefreshFn?.());
-  onRefreshFn = () => printStatus(usbDrive, stdout);
+  const usbDrive = detectUsbDrive(logger, {
+    onChange: () => void printStatus(usbDrive, stdout),
+  });
   // Wait until process is terminated (e.g. Ctrl+C)
   await new Promise<never>(() => {});
 }
