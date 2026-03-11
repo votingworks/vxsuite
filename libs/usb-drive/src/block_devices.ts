@@ -2,6 +2,7 @@ import type { ChildProcess } from 'node:child_process';
 import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
 import { basename } from 'node:path';
+import { Optional } from '@votingworks/basics';
 import { exec, spawn } from './exec';
 
 const debug = makeDebug('usb-drive');
@@ -9,11 +10,11 @@ const debug = makeDebug('usb-drive');
 export interface BlockDeviceInfo {
   name: string;
   path: string;
-  mountpoint: string | null;
-  fstype: string | null;
-  fsver: string | null;
-  label: string | null;
-  type: string;
+  mountpoint?: string;
+  fstype?: string;
+  fsver?: string;
+  label?: string;
+  type: 'disk' | 'part';
 }
 
 // All block device info comes from two sources that don't require privileged
@@ -41,14 +42,14 @@ function parseMountpoints(mountsContent: string): Map<string, string> {
 interface UsbBlockDevice {
   devname: string;
   devtype: 'disk' | 'partition';
-  fstype: string | null;
-  fsver: string | null;
-  label: string | null;
+  fstype?: string;
+  fsver?: string;
+  label?: string;
 }
 
-function get(block: string, key: string): string | null {
+function get(block: string, key: string): Optional<string> {
   const match = block.match(new RegExp(`^E: ${key}=(.+)$`, 'm'));
-  return match?.[1] ?? null;
+  return match?.[1];
 }
 
 function parseExportDb(output: string): UsbBlockDevice[] {
@@ -113,7 +114,10 @@ export async function getUsbDriveDeviceInfo(): Promise<
     return undefined;
   }
 
-  function isPartitionOfDisk(partitionDevname: string, diskDevname: string): boolean {
+  function isPartitionOfDisk(
+    partitionDevname: string,
+    diskDevname: string
+  ): boolean {
     if (!partitionDevname.startsWith(diskDevname)) {
       return false;
     }
@@ -149,7 +153,7 @@ export async function getUsbDriveDeviceInfo(): Promise<
     name: basename(d.devname),
     path: d.devname,
     type: d.devtype === 'partition' ? 'part' : 'disk',
-    mountpoint: mountpoints.get(d.devname) ?? null,
+    mountpoint: mountpoints.get(d.devname),
     fstype: d.fstype,
     fsver: d.fsver,
     label: d.label,

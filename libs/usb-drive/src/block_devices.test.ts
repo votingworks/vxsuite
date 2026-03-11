@@ -45,9 +45,9 @@ function exportDbEntry(info: {
   devname: string;
   devtype?: 'disk' | 'partition';
   idBus?: string;
-  fstype?: string | null;
-  fsver?: string | null;
-  label?: string | null;
+  fstype?: string;
+  fsver?: string;
+  label?: string;
 }): string {
   const {
     devname,
@@ -141,7 +141,7 @@ describe('getUsbDriveDeviceInfo', () => {
     const result = await getUsbDriveDeviceInfo();
 
     expect(result).toEqual(
-      expect.objectContaining({ name: 'sdb1', mountpoint: null })
+      expect.objectContaining({ name: 'sdb1', mountpoint: undefined })
     );
   });
 
@@ -229,13 +229,13 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdb',
       path: '/dev/sdb',
-      mountpoint: null,
-      fstype: null,
-      fsver: null,
-      label: null,
+      mountpoint: undefined,
+      fstype: undefined,
+      fsver: undefined,
+      label: undefined,
       type: 'disk',
     });
   });
@@ -259,10 +259,10 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdb1',
       path: '/dev/sdb1',
-      mountpoint: null,
+      mountpoint: undefined,
       fstype: 'vfat',
       fsver: 'FAT32',
       label: 'VxUSB-HGMZG',
@@ -287,10 +287,10 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'nvme0n1p1',
       path: '/dev/nvme0n1p1',
-      mountpoint: null,
+      mountpoint: undefined,
       fstype: 'vfat',
       fsver: 'FAT32',
       label: 'VxUSB-ABCDE',
@@ -317,13 +317,13 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdb',
       path: '/dev/sdb',
-      mountpoint: null,
-      fstype: null,
-      fsver: null,
-      label: null,
+      mountpoint: undefined,
+      fstype: undefined,
+      fsver: undefined,
+      label: undefined,
       type: 'disk',
     });
   });
@@ -349,13 +349,13 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdb',
       path: '/dev/sdb',
-      mountpoint: null,
-      fstype: null,
-      fsver: null,
-      label: null,
+      mountpoint: undefined,
+      fstype: undefined,
+      fsver: undefined,
+      label: undefined,
       type: 'disk',
     });
   });
@@ -381,7 +381,7 @@ describe('getUsbDriveDeviceInfo', () => {
 
     const result = await getUsbDriveDeviceInfo();
 
-    expect(result).toEqual({
+    expect(result).toEqual<BlockDeviceInfo>({
       name: 'sdc1',
       path: '/dev/sdc1',
       mountpoint: '/media/usb-drive-sdc1',
