@@ -7,14 +7,14 @@ import util from 'node:util';
 
 import { parentPort } from 'node:worker_threads';
 import { sleep } from '@votingworks/basics';
-import { execFileSync } from 'node:child_process';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { usb } from 'usb';
 import { ScanEvent } from './types';
-import { NODE_ENV } from '../globals';
 
 // [TODO] Figure out configuration command protocol.
 const CONFIGURE_ON_STARTUP = true;
+
+const SETUP_SCRIPT = 'apps/mark/backend/scripts/setup_udev_rules.sh';
 
 // Honeywell CM4680SR (AKA Metrologic Instruments CM4680SR):
 const VENDOR_ID = 0x0c2e;
@@ -40,11 +40,24 @@ function connect() {
     return;
   }
 
-  devEnsureDeviceAccess(devices[0].path);
-
-  activeScanner = new hid.HID(devices[0].vendorId, devices[0].productId)
-    .on('data', onData)
-    .on('error', onError);
+  try {
+    activeScanner = new hid.HID(devices[0].vendorId, devices[0].productId)
+      .on('data', onData)
+      .on('error', onError);
+  } catch (error) {
+    const isPermissionError =
+      error instanceof Error &&
+      /permission denied|unable to open/i.test(error.message);
+    logger.log(LogEventId.UnknownError, 'system', {
+      disposition: 'failure',
+      message: isPermissionError
+        ? `barcode scanner permission denied - run 'sudo ${SETUP_SCRIPT}' to install udev rules`
+        : 'failed to open barcode scanner',
+      error: util.inspect(error),
+    });
+    parentPort?.postMessage({ type: 'status', connected: false });
+    return;
+  }
 
   logger.log(LogEventId.Info, 'system', {
     disposition: 'success',
@@ -106,12 +119,6 @@ const CMD_REGISTERED_ESTIMATED_DELAY_MS = 100;
 async function sendCommand(scanner: hid.HID, cmd: Cmd) {
   scanner.write(Buffer.from(`${CMD_PREFIX}${cmd}${CMD_TERMINATOR}\n`));
   await sleep(CMD_REGISTERED_ESTIMATED_DELAY_MS);
-}
-
-function devEnsureDeviceAccess(devicePath?: string) {
-  if (NODE_ENV !== 'development' || !devicePath?.trim()) return;
-
-  execFileSync('sudo', ['chmod', '777', devicePath]);
 }
 
 function shutdown() {
