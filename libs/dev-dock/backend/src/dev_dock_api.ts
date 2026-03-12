@@ -2,7 +2,7 @@ import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
 import { homedir } from 'node:os';
-import { join, extname, isAbsolute, relative } from 'node:path';
+import { basename, join, extname, isAbsolute, relative } from 'node:path';
 import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import {
   asSheet,
@@ -306,17 +306,17 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     },
 
     insertUsbDrive(input: { devPath: string }): void {
-      const diskName = input.devPath.slice('/dev/'.length);
+      const diskName = basename(input.devPath);
       getMockFileUsbDriveHandler(diskName).insert();
     },
 
     removeUsbDrive(input: { devPath: string }): void {
-      const diskName = input.devPath.slice('/dev/'.length);
+      const diskName = basename(input.devPath);
       getMockFileUsbDriveHandler(diskName).remove();
     },
 
     clearUsbDrive(input: { devPath: string }): void {
-      const diskName = input.devPath.slice('/dev/'.length);
+      const diskName = basename(input.devPath);
       getMockFileUsbDriveHandler(diskName).clearData();
     },
 
@@ -326,7 +326,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     },
 
     removeUsbDriveSlot(input: { devPath: string }): void {
-      const diskName = input.devPath.slice('/dev/'.length);
+      const diskName = basename(input.devPath);
       removeMockDriveDir(diskName);
     },
 
