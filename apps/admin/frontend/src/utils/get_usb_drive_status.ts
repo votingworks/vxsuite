@@ -13,7 +13,9 @@ export function getUsbDriveStatus(
   const drive = usbDrives[0];
   if (!drive) return { status: 'no_drive' };
   const partition = drive.partitions[0];
-  if (!partition) return { status: 'no_drive' };
+  if (!partition) {
+    return { status: 'error', reason: 'bad_format', devPath: drive.devPath };
+  }
   const { mount, fstype, fsver } = partition;
   function isBadFormat(): boolean {
     return !!fstype && !(fstype === 'vfat' && fsver === 'FAT32');
