@@ -138,10 +138,11 @@ export function startClientNetworking({
 
         const hostAddress = `http://${host.resolvedIp}:${host.port}`;
 
-        // Reuse existing client if same host
+        // Reuse existing client if same host — send heartbeat via connectToHost
+        // so the host refreshes our lastSeenAt
         if (connectedHostAddress === hostAddress && peerApiClient) {
           try {
-            await peerApiClient.getHostMachineConfig();
+            await peerApiClient.connectToHost({ machineId });
             debug('Heartbeat to host at %s succeeded', hostAddress);
           } catch {
             debug('Heartbeat to host at %s failed', hostAddress);

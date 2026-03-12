@@ -48,20 +48,29 @@ describe('startHostNetworking', () => {
   });
 
   test('returns offline status initially', () => {
-    const getStatus = startHostNetworking({ machineId: '0001', peerPort: 3002 });
+    const getStatus = startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+    });
     expect(getStatus()).toEqual('offline');
   });
 
   test('returns online when network is up', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    const getStatus = startHostNetworking({ machineId: '0001', peerPort: 3002 });
+    const getStatus = startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+    });
     await advancePollingInterval();
     expect(getStatus()).toEqual('online');
   });
 
   test('returns offline when network goes down', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    const getStatus = startHostNetworking({ machineId: '0001', peerPort: 3002 });
+    const getStatus = startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+    });
     await advancePollingInterval();
     expect(getStatus()).toEqual('online');
 
@@ -243,9 +252,9 @@ describe('startClientNetworking', () => {
     await advancePollingInterval();
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(1);
 
-    // Second poll: heartbeat
+    // Second poll: heartbeat via connectToHost
     await vi.advanceTimersByTimeAsync(2000);
-    expect(mockClient.getHostMachineConfig).toHaveBeenCalled();
+    expect(mockClient.connectToHost).toHaveBeenCalledTimes(2);
   });
 
   test('disconnects when heartbeat fails', async () => {
@@ -259,11 +268,13 @@ describe('startClientNetworking', () => {
       },
     ]);
     const mockClient = {
-      connectToHost: vi.fn().mockResolvedValue({ status: 'ok' }),
+      connectToHost: vi
+        .fn()
+        .mockResolvedValueOnce({ status: 'ok' })
+        .mockRejectedValue(new Error('connection lost')),
       getHostMachineConfig: vi
         .fn()
-        .mockResolvedValueOnce({ machineId: 'HOST1', codeVersion: 'dev' })
-        .mockRejectedValue(new Error('connection lost')),
+        .mockResolvedValue({ machineId: 'HOST1', codeVersion: 'dev' }),
     } as unknown as grout.Client<PeerApi>;
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 

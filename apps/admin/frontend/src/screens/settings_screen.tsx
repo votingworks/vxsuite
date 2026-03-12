@@ -121,14 +121,11 @@ export function SettingsScreen(): JSX.Element | null {
               )}
             </P>
           )}
-          {electionDefinition && connectedClientsQuery.isSuccess && (
+          {connectedClientsQuery.isSuccess && (
             <React.Fragment>
               <P>
-                <Button
-                  onPress={() => setIsConnectedClientsModalOpen(true)}
-                >
-                  View Connected Clients (
-                  {connectedClientsQuery.data.length})
+                <Button onPress={() => setIsConnectedClientsModalOpen(true)}>
+                  View Connected Clients ({connectedClientsQuery.data.length})
                 </Button>
               </P>
               {isConnectedClientsModalOpen && (
