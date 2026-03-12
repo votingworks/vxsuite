@@ -6,6 +6,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { deferred, sleep } from '@votingworks/basics';
 import { detectMultiUsbDrive } from './multi_usb_drive';
 import { exec } from './exec';
 import { getAllUsbDrives, UsbDiskDeviceInfo } from './block_devices';
@@ -13,6 +14,8 @@ import { getAllUsbDrives, UsbDiskDeviceInfo } from './block_devices';
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 const featureFlagMock = getFeatureFlagMock();
+
+type ExecResult = Awaited<ReturnType<typeof exec>>;
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
@@ -183,7 +186,7 @@ describe('refresh', () => {
     multiUsbDrive.stop();
   });
 
-  test('calls onRefresh callback on each refresh', async () => {
+  test('calls onChange callback on each refresh', async () => {
     const logger = mockLogger({ fn: vi.fn });
     const onChange = vi.fn();
     const multiUsbDrive = detectMultiUsbDrive(logger, { onChange });
@@ -297,11 +300,9 @@ describe('ejectDrive', () => {
 
     await multiUsbDrive.refresh();
 
-    let resolveUnmount!: (v: { stdout: string; stderr: string }) => void;
+    const unmountOperation = deferred<ExecResult>();
     execMock.mockReturnValueOnce(
-      new Promise<{ stdout: string; stderr: string }>((resolve) => {
-        resolveUnmount = resolve;
-      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+      unmountOperation.promise as PromiseWithChild<ExecResult>
     );
 
     const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
@@ -311,7 +312,7 @@ describe('ejectDrive', () => {
       mountPoint: '/media/vx/usb-drive-sdb1',
     });
 
-    resolveUnmount({ stdout: '', stderr: '' });
+    unmountOperation.resolve({ stdout: '', stderr: '' });
     await ejectPromise;
 
     multiUsbDrive.stop();
@@ -334,12 +335,10 @@ describe('ejectDrive', () => {
       });
       const mountedDisk = makeDisk();
 
-      let resolveMountExec!: (v: { stdout: string; stderr: string }) => void;
+      const mountOperation = deferred<ExecResult>();
       execMock
         .mockReturnValueOnce(
-          new Promise<{ stdout: string; stderr: string }>((resolve) => {
-            resolveMountExec = resolve;
-          }) as PromiseWithChild<{ stdout: string; stderr: string }>
+          mountOperation.promise as PromiseWithChild<ExecResult>
         )
         .mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
 
@@ -361,7 +360,7 @@ describe('ejectDrive', () => {
       const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
 
       // Resolve mount exec so mountPartitionWithRetry completes during the sleep
-      resolveMountExec({ stdout: '', stderr: '' });
+      mountOperation.resolve({ stdout: '', stderr: '' });
 
       // Advance 100ms: eject's sleep fires; by then, mountPartitionWithRetry has
       // polled cachedDrives, found the mountpoint, and cleared partitionAction
@@ -471,17 +470,15 @@ describe('ejectDrive', () => {
 
     await multiUsbDrive.refresh();
 
-    let resolveFirst!: (v: { stdout: string; stderr: string }) => void;
+    const firstEjectOperation = deferred<ExecResult>();
     execMock.mockReturnValueOnce(
-      new Promise<{ stdout: string; stderr: string }>((resolve) => {
-        resolveFirst = resolve;
-      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+      firstEjectOperation.promise as PromiseWithChild<ExecResult>
     );
 
     const firstEject = multiUsbDrive.ejectDrive('/dev/sdb');
     await multiUsbDrive.ejectDrive('/dev/sdb'); // no-op
 
-    resolveFirst({ stdout: '', stderr: '' });
+    firstEjectOperation.resolve({ stdout: '', stderr: '' });
     await firstEject;
 
     // Only one unmount call (from the first eject)
@@ -536,12 +533,10 @@ describe('formatDrive', () => {
 
     await multiUsbDrive.refresh();
 
-    let resolveFormat!: (v: { stdout: string; stderr: string }) => void;
+    const formatOperation = deferred<ExecResult>();
     execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
     execMock.mockReturnValueOnce(
-      new Promise<{ stdout: string; stderr: string }>((resolve) => {
-        resolveFormat = resolve;
-      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+      formatOperation.promise as PromiseWithChild<ExecResult>
     );
 
     const formatPromise = multiUsbDrive.formatDrive('/dev/sdb');
@@ -550,7 +545,7 @@ describe('formatDrive', () => {
       type: 'unmounted',
     });
 
-    resolveFormat({ stdout: '', stderr: '' });
+    formatOperation.resolve({ stdout: '', stderr: '' });
     await formatPromise;
 
     multiUsbDrive.stop();
@@ -573,12 +568,10 @@ describe('formatDrive', () => {
       });
       const mountedDisk = makeDisk();
 
-      let resolveMountExec!: (v: { stdout: string; stderr: string }) => void;
+      const mountOperation = deferred<ExecResult>();
       execMock
         .mockReturnValueOnce(
-          new Promise<{ stdout: string; stderr: string }>((resolve) => {
-            resolveMountExec = resolve;
-          }) as PromiseWithChild<{ stdout: string; stderr: string }>
+          mountOperation.promise as PromiseWithChild<ExecResult>
         )
         .mockResolvedValueOnce({ stdout: '', stderr: '' }) // unmount
         .mockResolvedValueOnce({ stdout: '', stderr: '' }); // format
@@ -601,7 +594,7 @@ describe('formatDrive', () => {
       const formatPromise = multiUsbDrive.formatDrive('/dev/sdb');
 
       // Resolve mount exec so mountPartitionWithRetry completes during the sleep
-      resolveMountExec({ stdout: '', stderr: '' });
+      mountOperation.resolve({ stdout: '', stderr: '' });
 
       // Advance 100ms: format's sleep fires; by then, mountPartitionWithRetry has
       // polled cachedDrives, found the mountpoint, and cleared partitionAction
@@ -702,17 +695,15 @@ describe('formatDrive', () => {
 
     await multiUsbDrive.refresh();
 
-    let resolveFirst!: (v: { stdout: string; stderr: string }) => void;
+    const formatOperation = deferred<ExecResult>();
     execMock.mockReturnValueOnce(
-      new Promise<{ stdout: string; stderr: string }>((resolve) => {
-        resolveFirst = resolve;
-      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+      formatOperation.promise as PromiseWithChild<ExecResult>
     );
 
     const firstFormat = multiUsbDrive.formatDrive('/dev/sdb');
     await multiUsbDrive.formatDrive('/dev/sdb'); // no-op
 
-    resolveFirst({ stdout: '', stderr: '' });
+    formatOperation.resolve({ stdout: '', stderr: '' });
     await firstFormat;
 
     expect(execMock).toHaveBeenCalledTimes(1);
@@ -809,7 +800,7 @@ describe('autoMount', () => {
       return Promise.resolve({
         stdout: '',
         stderr: '',
-      }) as unknown as PromiseWithChild<{ stdout: string; stderr: string }>;
+      }) as unknown as PromiseWithChild<ExecResult>;
     });
 
     const multiUsbDrive = detectMultiUsbDrive(logger);
@@ -847,11 +838,9 @@ describe('autoMount', () => {
       ],
     });
 
-    let resolveMountCall!: (v: { stdout: string; stderr: string }) => void;
+    const mountOperation = deferred<ExecResult>();
     execMock.mockReturnValueOnce(
-      new Promise<{ stdout: string; stderr: string }>((resolve) => {
-        resolveMountCall = resolve;
-      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+      mountOperation.promise as PromiseWithChild<ExecResult>
     );
 
     const logger = mockLogger({ fn: vi.fn });
@@ -865,7 +854,7 @@ describe('autoMount', () => {
       type: 'mounting',
     });
 
-    resolveMountCall({ stdout: '', stderr: '' });
+    mountOperation.resolve({ stdout: '', stderr: '' });
     mockDrives = [makeDisk()];
     await vi.waitFor(
       () =>
@@ -928,11 +917,9 @@ describe('autoMount', () => {
 
     // Start eject with a pending unmount so driveAction stays set while we
     // trigger the watcher (ejectState is not yet set at this point).
-    let resolveUnmount!: (v: { stdout: string; stderr: string }) => void;
+    const unmountOperation = deferred<ExecResult>();
     execMock.mockReturnValueOnce(
-      new Promise<{ stdout: string; stderr: string }>((resolve) => {
-        resolveUnmount = resolve;
-      }) as PromiseWithChild<{ stdout: string; stderr: string }>
+      unmountOperation.promise as PromiseWithChild<ExecResult>
     );
 
     const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
@@ -940,11 +927,9 @@ describe('autoMount', () => {
     // Watcher fires while driveAction === 'ejecting' but ejectState is not set.
     // doAutoMount must return early at the driveAction check (line 190).
     capturedWatcherCallback?.();
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 0);
-    });
+    await sleep(0);
 
-    resolveUnmount({ stdout: '', stderr: '' });
+    unmountOperation.resolve({ stdout: '', stderr: '' });
     await ejectPromise;
 
     // Only one exec call: the unmount (no spurious remount attempts)
@@ -985,9 +970,7 @@ describe('autoMount', () => {
     await multiUsbDrive.refresh();
 
     // Short wait to ensure no async auto-mount triggers
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 50);
-    });
+    await sleep(50);
 
     expect(execMock).not.toHaveBeenCalledWith(
       'sudo',
@@ -1016,9 +999,7 @@ describe('autoMount', () => {
 
     await multiUsbDrive.refresh();
 
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 50);
-    });
+    await sleep(50);
 
     expect(execMock).not.toHaveBeenCalledWith(
       'sudo',
