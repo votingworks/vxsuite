@@ -117,8 +117,24 @@ describe('multi-station mode', () => {
     featureFlagMock.resetFeatureFlags();
   });
 
+  function mockMultiStationQueries({
+    connectedClients = [],
+    hostNetworkStatus = 'online',
+  }: {
+    connectedClients?: Array<{ machineId: string; lastSeenAt: Date }>;
+    hostNetworkStatus?: 'online' | 'offline';
+  } = {}) {
+    apiMock.apiClient.getConnectedClients
+      .expectRepeatedCallsWith()
+      .resolves(connectedClients);
+    apiMock.apiClient.getHostNetworkStatus
+      .expectRepeatedCallsWith()
+      .resolves(hostNetworkStatus);
+  }
+
   test('shows switch to client mode button when unconfigured', () => {
     apiMock.expectGetUsbPortStatus();
+    mockMultiStationQueries();
     renderInAppContext(<SettingsScreen />, {
       apiMock,
       auth,
@@ -128,16 +144,66 @@ describe('multi-station mode', () => {
     screen.getByRole('button', { name: 'Switch to Client Mode' });
   });
 
-  test('hides switch to client mode button when configured', () => {
+  test('shows online network status', async () => {
     apiMock.expectGetUsbPortStatus();
+    mockMultiStationQueries({ hostNetworkStatus: 'online' });
     renderInAppContext(<SettingsScreen />, { apiMock, auth });
-    expect(
-      screen.queryByRole('heading', { name: 'Multi-Station Mode' })
-    ).not.toBeInTheDocument();
+    await screen.findByText('Network: Online');
+  });
+
+  test('shows offline network status', async () => {
+    apiMock.expectGetUsbPortStatus();
+    mockMultiStationQueries({ hostNetworkStatus: 'offline' });
+    renderInAppContext(<SettingsScreen />, { apiMock, auth });
+    await screen.findByText('Network: Offline');
+  });
+
+  test('shows connected clients button when configured', async () => {
+    apiMock.expectGetUsbPortStatus();
+    mockMultiStationQueries({
+      connectedClients: [{ machineId: 'client-001', lastSeenAt: new Date() }],
+    });
+    renderInAppContext(<SettingsScreen />, { apiMock, auth });
+    screen.getByRole('heading', { name: 'Multi-Station Mode' });
+    await screen.findByRole('button', {
+      name: 'View Connected Clients (1)',
+    });
+  });
+
+  test('opens and closes connected clients modal', async () => {
+    apiMock.expectGetUsbPortStatus();
+    mockMultiStationQueries({
+      connectedClients: [{ machineId: 'client-001', lastSeenAt: new Date() }],
+    });
+    renderInAppContext(<SettingsScreen />, { apiMock, auth });
+    userEvent.click(
+      await screen.findByRole('button', {
+        name: 'View Connected Clients (1)',
+      })
+    );
+    await screen.findByText('Connected Clients');
+    screen.getByText('client-001');
+    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await vi.waitFor(() =>
+      expect(screen.queryByText('Connected Clients')).not.toBeInTheDocument()
+    );
+  });
+
+  test('shows empty state in connected clients modal', async () => {
+    apiMock.expectGetUsbPortStatus();
+    mockMultiStationQueries();
+    renderInAppContext(<SettingsScreen />, { apiMock, auth });
+    userEvent.click(
+      await screen.findByRole('button', {
+        name: 'View Connected Clients (0)',
+      })
+    );
+    await screen.findByText('No clients are currently connected.');
   });
 
   test('shows restart screen after switching mode', async () => {
     apiMock.expectGetUsbPortStatus();
+    mockMultiStationQueries();
     renderInAppContext(<SettingsScreen />, {
       apiMock,
       auth,

@@ -101,6 +101,8 @@ import { addFileToZipStream } from './util/zip';
 import { generateTallyReportCsv } from './exports/csv_tally_report';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
+import type { ConnectedClient } from './peer_app';
+import type { HostNetworkStatus } from './networking';
 import { rootDebug } from './util/debug';
 import { tabulateTallyReportResults } from './tabulation/tally_reports';
 import { buildExporter } from './util/exporter';
@@ -165,12 +167,16 @@ function buildApi({
   logger,
   usbDrive,
   printer,
+  getConnectedClients = () => [],
+  getHostNetworkStatus = () => 'offline' as HostNetworkStatus,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
   printer: Printer;
+  getConnectedClients?: () => ConnectedClient[];
+  getHostNetworkStatus?: () => HostNetworkStatus;
 }) {
   const { store } = workspace;
 
@@ -227,6 +233,14 @@ function buildApi({
 
     setMachineMode(input: { mode: MachineMode }) {
       writeMachineMode(workspace.path, input.mode);
+    },
+
+    getConnectedClients(): ConnectedClient[] {
+      return getConnectedClients();
+    },
+
+    getHostNetworkStatus(): HostNetworkStatus {
+      return getHostNetworkStatus();
     },
 
     getAuthStatus() {
@@ -1252,15 +1266,27 @@ export function buildApp({
   logger,
   usbDrive,
   printer,
+  getConnectedClients,
+  getHostNetworkStatus,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
   printer: Printer;
+  getConnectedClients?: () => ConnectedClient[];
+  getHostNetworkStatus?: () => HostNetworkStatus;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usbDrive, printer });
+  const api = buildApi({
+    auth,
+    workspace,
+    logger,
+    usbDrive,
+    printer,
+    getConnectedClients,
+    getHostNetworkStatus,
+  });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

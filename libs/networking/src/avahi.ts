@@ -47,13 +47,27 @@ export class AvahiService {
    * @returns A promise that resolves when the service starts.
    */
   static advertiseHttpService(name: string, port: number): void {
-    const process = spawn('bash', [
+    const childProcess = spawn('bash', [
       intermediateScript('avahi-publish-service'),
       name,
       `${port}`,
     ]);
 
-    this.runningProcesses.set(name, process);
+    childProcess.stderr?.on('data', (data: Buffer) => {
+      debug(`avahi-publish-service stderr [${name}]: ${data.toString()}`);
+    });
+
+    childProcess.on('error', (error) => {
+      debug(`avahi-publish-service error [${name}]: ${error}`);
+    });
+
+    childProcess.on('exit', (code, signal) => {
+      debug(
+        `avahi-publish-service exited [${name}]: code=${code} signal=${signal}`
+      );
+    });
+
+    this.runningProcesses.set(name, childProcess);
   }
 
   /**

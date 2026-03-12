@@ -15,7 +15,8 @@ export type {
   TallyReportWarning,
   BallotCountReportWarning,
 } from './reports/warnings';
-export type { NetworkConnectionStatus } from './networking';
+export type { NetworkConnectionStatus, HostNetworkStatus } from './networking';
+export type { ConnectedClient } from './peer_app';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();

@@ -23,6 +23,11 @@ export type NetworkConnectionStatus =
   | { status: 'online-connected-to-host'; hostMachineId: string };
 
 /**
+ * Network status for the host machine.
+ */
+export type HostNetworkStatus = 'online' | 'offline';
+
+/**
  * Returns the avahi service name for a VxAdmin host.
  */
 export function getHostServiceName(machineId: string): string {
@@ -42,6 +47,7 @@ function createPeerApiClient(address: string): grout.Client<PeerApi> {
 
 /**
  * Starts host networking: advertises on avahi so clients can discover this host.
+ * Polls network status and returns a function to get the current status.
  */
 export function startHostNetworking({
   machineId,
@@ -49,11 +55,23 @@ export function startHostNetworking({
 }: {
   machineId: string;
   peerPort: number;
-}): void {
+}): () => HostNetworkStatus {
   const serviceName = getHostServiceName(machineId);
   debug('Publishing avahi service %s on port %d', serviceName, peerPort);
   AvahiService.advertiseHttpService(serviceName, peerPort);
   // TODO(CARO) - poll the network for other hosts and surface an error when there is more than one host.
+
+  let isOnline = false;
+
+  process.nextTick(() => {
+    setInterval(async () => {
+      isOnline = await hasOnlineInterface();
+    }, NETWORK_POLLING_INTERVAL_MS);
+  });
+
+  return function getHostNetworkStatus(): HostNetworkStatus {
+    return isOnline ? 'online' : 'offline';
+  };
 }
 
 /**

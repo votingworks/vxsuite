@@ -93,6 +93,16 @@ test('getMachineMode and setMachineMode', async () => {
   expect(await apiClient.getMachineMode()).toEqual('host');
 });
 
+test('getConnectedClients returns empty by default', async () => {
+  const { apiClient } = buildTestEnvironment();
+  expect(await apiClient.getConnectedClients()).toEqual([]);
+});
+
+test('getHostNetworkStatus returns offline by default', async () => {
+  const { apiClient } = buildTestEnvironment();
+  expect(await apiClient.getHostNetworkStatus()).toEqual('offline');
+});
+
 test('managing the current election', async () => {
   const { apiClient, auth, logger } = buildTestEnvironment();
 

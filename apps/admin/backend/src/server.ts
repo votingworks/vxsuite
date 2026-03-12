@@ -129,20 +129,16 @@ export async function start({
       const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
       const resolvedPrinter = printer ?? detectPrinter(logger);
 
-      resolvedApp = buildApp({
-        auth,
-        logger,
-        usbDrive: resolvedUsbDrive,
-        printer: resolvedPrinter,
-        workspace: resolvedWorkspace,
-      });
+      let getConnectedClients: (() => import('./peer_app').ConnectedClient[]) | undefined;
+      let getHostNetworkStatus: (() => import('./networking').HostNetworkStatus) | undefined;
 
       if (isMultiStationEnabled) {
         // Start peer server for host-client communication
-        const peerApp = buildPeerApp({
+        const peerResult = buildPeerApp({
           workspace: resolvedWorkspace,
         });
-        peerApp.listen(PEER_PORT, () => {
+        getConnectedClients = peerResult.getConnectedClients;
+        peerResult.app.listen(PEER_PORT, () => {
           debug('Peer API server running at http://localhost:%d/', PEER_PORT);
           baseLogger.log(LogEventId.ApplicationStartup, 'system', {
             message: `Peer API server running at http://localhost:${PEER_PORT}/`,
@@ -150,11 +146,21 @@ export async function start({
           });
         });
 
-        startHostNetworking({
+        getHostNetworkStatus = startHostNetworking({
           machineId: getMachineConfig().machineId,
           peerPort: PEER_PORT,
         });
       }
+
+      resolvedApp = buildApp({
+        auth,
+        logger,
+        usbDrive: resolvedUsbDrive,
+        printer: resolvedPrinter,
+        workspace: resolvedWorkspace,
+        getConnectedClients,
+        getHostNetworkStatus,
+      });
     }
   }
 

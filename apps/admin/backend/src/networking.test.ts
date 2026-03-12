@@ -46,6 +46,29 @@ describe('startHostNetworking', () => {
       3002
     );
   });
+
+  test('returns offline status initially', () => {
+    const getStatus = startHostNetworking({ machineId: '0001', peerPort: 3002 });
+    expect(getStatus()).toEqual('offline');
+  });
+
+  test('returns online when network is up', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    const getStatus = startHostNetworking({ machineId: '0001', peerPort: 3002 });
+    await advancePollingInterval();
+    expect(getStatus()).toEqual('online');
+  });
+
+  test('returns offline when network goes down', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    const getStatus = startHostNetworking({ machineId: '0001', peerPort: 3002 });
+    await advancePollingInterval();
+    expect(getStatus()).toEqual('online');
+
+    vi.mocked(hasOnlineInterface).mockResolvedValue(false);
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(getStatus()).toEqual('offline');
+  });
 });
 
 describe('startClientNetworking', () => {

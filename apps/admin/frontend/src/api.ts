@@ -70,6 +70,34 @@ export const setMachineMode = {
   },
 } as const;
 
+const CONNECTED_CLIENTS_POLLING_INTERVAL_MS = 5000;
+
+export const getHostNetworkStatus = {
+  queryKey(): QueryKey {
+    return ['getHostNetworkStatus'];
+  },
+  useQuery({ enabled }: { enabled: boolean } = { enabled: true }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getHostNetworkStatus(), {
+      refetchInterval: CONNECTED_CLIENTS_POLLING_INTERVAL_MS,
+      enabled,
+    });
+  },
+} as const;
+
+export const getConnectedClients = {
+  queryKey(): QueryKey {
+    return ['getConnectedClients'];
+  },
+  useQuery({ enabled }: { enabled: boolean } = { enabled: true }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getConnectedClients(), {
+      refetchInterval: CONNECTED_CLIENTS_POLLING_INTERVAL_MS,
+      enabled,
+    });
+  },
+} as const;
+
 // Auth
 
 export const getAuthStatus = {
