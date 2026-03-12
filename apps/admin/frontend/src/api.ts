@@ -493,9 +493,10 @@ export const getScannerBatches = {
 } as const;
 
 export const listPotentialElectionPackagesOnUsbDrive = {
-  // Refetch if USB drives change
+  // Refetch when the first drive's mount state changes (inserted/ejected/removed)
   queryKey(usbDrives: UsbDriveInfo[]): QueryKey {
-    return ['listPotentialElectionPackagesOnUsbDrive', usbDrives];
+    const mountType = usbDrives[0]?.partitions[0]?.mount.type ?? 'no_drive';
+    return ['listPotentialElectionPackagesOnUsbDrive', mountType];
   },
   useQuery(usbDrives: UsbDriveInfo[]) {
     const apiClient = useApiClient();
