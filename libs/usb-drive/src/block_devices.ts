@@ -276,6 +276,43 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
     }
   }
 
+  // Handle partitions whose parent disk has no udev entry. This is unusual but
+  // observed with some USB card readers where only the partition (not the parent
+  // disk) appears in the udev database. For each such orphan partition, derive
+  // the disk path by stripping the partition suffix and synthesize a disk entry.
+  const diskDevPaths = new Set(diskDevices.map((d) => d.devname));
+  for (const partition of partitionDevices) {
+    const diskDevPath = partition.devname.replace(/(p\d+|\d+)$/, '');
+    if (diskDevPaths.has(diskDevPath)) continue;
+
+    const partitionInfo: BlockDeviceInfo = {
+      name: basename(partition.devname),
+      path: partition.devname,
+      type: 'part',
+      mountpoint: mountpoints.get(partition.devname),
+      fstype: partition.fstype,
+      fsver: partition.fsver,
+      label: partition.label,
+    };
+    if (!isDataUsbDrive(partitionInfo)) continue;
+
+    result.push({
+      devPath: diskDevPath,
+      vendor: undefined,
+      model: undefined,
+      serial: undefined,
+      partitions: [
+        {
+          devPath: partition.devname,
+          mountpoint: partitionInfo.mountpoint,
+          fstype: partition.fstype,
+          fsver: partition.fsver,
+          label: partition.label,
+        },
+      ],
+    });
+  }
+
   debug(`Found ${result.length} USB drive(s)`);
   return result;
 }
