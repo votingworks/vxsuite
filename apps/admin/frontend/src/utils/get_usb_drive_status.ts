@@ -29,8 +29,9 @@ export function getUsbDriveStatus(
         mountPoint: mount.mountPoint,
         devPath: drive.devPath,
       };
-    case 'unmounted':
     case 'unmounting':
+      return { status: 'ejected' };
+    case 'unmounted':
       if (fstype && fstype !== 'vfat') {
         return {
           status: 'error',
@@ -38,7 +39,7 @@ export function getUsbDriveStatus(
           devPath: drive.devPath,
         };
       }
-      return { status: 'ejected' };
+      return { status: 'no_drive' };
     case 'mounting':
       return { status: 'no_drive' };
     /* istanbul ignore next */
