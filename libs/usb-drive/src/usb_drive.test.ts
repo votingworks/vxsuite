@@ -49,7 +49,7 @@ test('detectOrMockMultiUsbDrive returns real MultiUsbDrive when feature flag is 
   multiUsbDrive.stop();
 });
 
-test('uses MockFileUsbDrive when feature flag is set', async () => {
+test('uses createMockFileUsbDrive when feature flag is set', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
