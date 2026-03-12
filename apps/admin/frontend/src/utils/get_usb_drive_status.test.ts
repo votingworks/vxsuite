@@ -51,10 +51,10 @@ test('bad_format error when partition is mounted with non-vfat filesystem', () =
   ).toEqual({ status: 'error', reason: 'bad_format', devPath: '/dev/sdb' });
 });
 
-test('ejected when partition is unmounted', () => {
+test('no_drive when partition is unmounted', () => {
   expect(
     getUsbDriveStatus([makeDrive([makePartition({ type: 'unmounted' })])])
-  ).toEqual({ status: 'ejected' });
+  ).toEqual({ status: 'no_drive' });
 });
 
 test('bad_format error when partition is unmounted with non-vfat filesystem', () => {
