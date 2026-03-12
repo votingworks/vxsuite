@@ -15,7 +15,7 @@ import {
   ToggleUsbPortsButton,
   useSystemCallApi,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { ok } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -35,11 +35,13 @@ export function SettingsScreen(): JSX.Element | null {
   const formatUsbDriveMutationRaw = formatUsbDrive.useMutation();
   const formatUsbDriveMutation: FormatUsbButtonProps['formatUsbDriveMutation'] =
     {
-      mutateAsync: () => {
-        assert('devPath' in usbDriveStatus);
-        return formatUsbDriveMutationRaw.mutateAsync({
-          driveDevPath: usbDriveStatus.devPath,
-        });
+      mutateAsync: async () => {
+        if ('devPath' in usbDriveStatus) {
+          return formatUsbDriveMutationRaw.mutateAsync({
+            driveDevPath: usbDriveStatus.devPath,
+          });
+        }
+        return ok();
       },
     };
   const setMachineModeMutation = setMachineMode.useMutation();

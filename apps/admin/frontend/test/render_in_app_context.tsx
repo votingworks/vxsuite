@@ -70,7 +70,7 @@ function mockUsbDriveStatusToUsbDrives(status: UsbDriveStatus): UsbDriveInfo[] {
           mount: partitionMount,
           label: undefined,
           fstype: status.status === 'error' ? 'ntfs' : 'vfat',
-          fsver: status.status === 'error' ? undefined : '32',
+          fsver: status.status === 'error' ? undefined : 'FAT32',
         },
       ],
     },
