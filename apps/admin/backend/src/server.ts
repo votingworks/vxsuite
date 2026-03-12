@@ -30,10 +30,14 @@ import { ADMIN_WORKSPACE, PEER_PORT, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
 import { buildClientApp } from './client_app';
-import { buildPeerApp } from './peer_app';
+import { buildPeerApp, ConnectedClient } from './peer_app';
 import { readMachineMode } from './machine_mode';
 import { getMachineConfig } from './machine_config';
-import { startHostNetworking, startClientNetworking } from './networking';
+import {
+  HostNetworkStatus,
+  startHostNetworking,
+  startClientNetworking,
+} from './networking';
 import { rootDebug } from './util/debug';
 import { getUserRole } from './util/auth';
 
@@ -129,8 +133,8 @@ export async function start({
       const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
       const resolvedPrinter = printer ?? detectPrinter(logger);
 
-      let getConnectedClients: (() => import('./peer_app').ConnectedClient[]) | undefined;
-      let getHostNetworkStatus: (() => import('./networking').HostNetworkStatus) | undefined;
+      let getConnectedClients: (() => ConnectedClient[]) | undefined;
+      let getHostNetworkStatus: (() => HostNetworkStatus) | undefined;
 
       if (isMultiStationEnabled) {
         // Start peer server for host-client communication
