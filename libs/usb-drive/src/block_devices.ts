@@ -257,6 +257,10 @@ export async function getAllUsbDrives(): Promise<UsbDiskDeviceInfo[]> {
           label: p.label,
         }));
 
+      // Skip entirely if no partitions qualify — e.g. a non-/media mount.
+      // Returning an empty-partition disk would look like an unformatted drive.
+      if (validPartitions.length === 0) continue;
+
       result.push({
         devPath: disk.devname,
         vendor: disk.vendor,
