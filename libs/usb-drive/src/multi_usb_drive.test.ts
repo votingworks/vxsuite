@@ -864,6 +864,53 @@ describe('autoMount', () => {
     multiUsbDrive.stop();
   });
 
+  test('calls onChange after partitionAction is cleared so listeners see mounted state', async () => {
+    const unmountedPartitionDisk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: undefined,
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        },
+      ],
+    });
+
+    execMock.mockImplementation((_cmd, args) => {
+      if ((args as string[])?.includes(`${MOUNT_SCRIPT_PATH}/mount.sh`)) {
+        mockDrives = [makeDisk()];
+      }
+      return Promise.resolve({
+        stdout: '',
+        stderr: '',
+      }) as unknown as PromiseWithChild<ExecResult>;
+    });
+
+    const mountStatesOnChange: string[] = [];
+    const logger = mockLogger({ fn: vi.fn });
+    mockDrives = [unmountedPartitionDisk];
+    const multiUsbDrive = detectMultiUsbDrive(logger, {
+      onChange: () => {
+        const mount = multiUsbDrive.getDrives()[0]?.partitions[0]?.mount;
+        if (mount) mountStatesOnChange.push(mount.type);
+      },
+    });
+
+    // Wait until onChange is called with the drive in mounted state.
+    // Without the onChange call in mountPartitionWithRetry's finally block,
+    // this never happens because the last doRefresh inside the poll loop fires
+    // onChange while partitionAction still has 'mounting' set.
+    await vi.waitFor(
+      () => {
+        expect(mountStatesOnChange).toContain('mounted');
+      },
+      { timeout: 2000 }
+    );
+
+    multiUsbDrive.stop();
+  });
+
   test('retries polling after sleep if mountpoint does not register immediately', async () => {
     vi.useFakeTimers();
 
