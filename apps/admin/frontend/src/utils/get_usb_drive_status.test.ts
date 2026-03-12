@@ -4,9 +4,10 @@ import { getUsbDriveStatus } from './get_usb_drive_status';
 
 function makePartition(
   mount: UsbPartitionInfo['mount'],
-  fstype?: string
+  fstype?: string,
+  fsver?: string
 ): UsbPartitionInfo {
-  return { devPath: '/dev/sdb1', mount, fstype };
+  return { devPath: '/dev/sdb1', mount, fstype, fsver };
 }
 
 function makeDrive(partitions: UsbPartitionInfo[]): UsbDriveInfo {
@@ -21,13 +22,14 @@ test('no_drive when drive has no partitions', () => {
   expect(getUsbDriveStatus([makeDrive([])])).toEqual({ status: 'no_drive' });
 });
 
-test('mounted when partition is mounted with vfat', () => {
+test('mounted when partition is mounted as FAT32', () => {
   expect(
     getUsbDriveStatus([
       makeDrive([
         makePartition(
           { type: 'mounted', mountPoint: '/media/vx/usb-drive-sdb1' },
-          'vfat'
+          'vfat',
+          'FAT32'
         ),
       ]),
     ])
@@ -51,6 +53,20 @@ test('bad_format error when partition is mounted with non-vfat filesystem', () =
   ).toEqual({ status: 'error', reason: 'bad_format', devPath: '/dev/sdb' });
 });
 
+test('bad_format error when partition is mounted as FAT16', () => {
+  expect(
+    getUsbDriveStatus([
+      makeDrive([
+        makePartition(
+          { type: 'mounted', mountPoint: '/media/vx/usb-drive-sdb1' },
+          'vfat',
+          'FAT16'
+        ),
+      ]),
+    ])
+  ).toEqual({ status: 'error', reason: 'bad_format', devPath: '/dev/sdb' });
+});
+
 test('no_drive when partition is unmounted', () => {
   expect(
     getUsbDriveStatus([makeDrive([makePartition({ type: 'unmounted' })])])
@@ -61,6 +77,14 @@ test('bad_format error when partition is unmounted with non-vfat filesystem', ()
   expect(
     getUsbDriveStatus([
       makeDrive([makePartition({ type: 'unmounted' }, 'ntfs')]),
+    ])
+  ).toEqual({ status: 'error', reason: 'bad_format', devPath: '/dev/sdb' });
+});
+
+test('bad_format error when partition is unmounted as FAT16', () => {
+  expect(
+    getUsbDriveStatus([
+      makeDrive([makePartition({ type: 'unmounted' }, 'vfat', 'FAT16')]),
     ])
   ).toEqual({ status: 'error', reason: 'bad_format', devPath: '/dev/sdb' });
 });
