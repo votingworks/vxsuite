@@ -769,6 +769,46 @@ describe('getAllUsbDrives', () => {
     expect(result).toEqual([]);
   });
 
+  test('includes partition with no parent disk entry in udev', async () => {
+    // Some USB card readers expose only a partition entry (not a parent disk)
+    // in the udev database.
+    execMock.mockResolvedValueOnce({
+      stdout: exportDbEntry({
+        devname: '/dev/sdb1',
+        devtype: 'partition',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+        label: 'VxUSB-ABCDE',
+      }),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/media/vx/usb-drive-sdb1' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    expect(result).toEqual<UsbDiskDeviceInfo[]>([
+      {
+        devPath: '/dev/sdb',
+        vendor: undefined,
+        model: undefined,
+        serial: undefined,
+        partitions: [
+          {
+            devPath: '/dev/sdb1',
+            mountpoint: '/media/vx/usb-drive-sdb1',
+            fstype: 'vfat',
+            fsver: 'FAT32',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      },
+    ]);
+  });
+
   test('treats drive as unmounted when /proc/mounts is unreadable', async () => {
     execMock.mockResolvedValueOnce({
       stdout: [
