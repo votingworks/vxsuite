@@ -352,7 +352,7 @@ export function getBooleanEnvVarConfig(
     case BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN:
       return {
         name,
-        allowInProduction: false,
+        allowInProduction: true,
         autoEnableInDevelopment: true,
       };
     /* istanbul ignore next */
