@@ -103,13 +103,7 @@ export async function start({
       getUserRole(auth, resolvedWorkspace)
     );
 
-    if (machineMode === 'client') {
-      resolvedApp = buildClientApp({
-        auth,
-        logger,
-        workspace: resolvedWorkspace,
-      });
-    } else {
+    if (machineMode === 'host') {
       const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
       const resolvedPrinter = printer ?? detectPrinter(logger);
 
@@ -118,6 +112,12 @@ export async function start({
         logger,
         usbDrive: resolvedUsbDrive,
         printer: resolvedPrinter,
+        workspace: resolvedWorkspace,
+      });
+    } /* machine mode is client */ else {
+      resolvedApp = buildClientApp({
+        auth,
+        logger,
         workspace: resolvedWorkspace,
       });
     }
@@ -143,7 +143,7 @@ export async function start({
       numCvrFiles: cvrFileEntries.length,
       numManualResults: manualResults.length,
     });
-  } else {
+  } /* machine mode is client */ else {
     baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
       message:
         'No election results data is present in the database at machine startup.',

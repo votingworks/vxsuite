@@ -15,7 +15,7 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { LogSource, BaseLogger } from '@votingworks/logging';
-import { App } from './app';
+import { App as ServerApp } from './app';
 import { ClientApp } from './client/client_app';
 import {
   ApiClientContext,
@@ -25,7 +25,7 @@ import {
   systemCallApi,
 } from './api';
 
-function RootApp(): JSX.Element | null {
+function PrimaryApp(): JSX.Element | null {
   const machineModeQuery = getMachineMode.useQuery();
   if (!machineModeQuery.isSuccess) {
     return null;
@@ -38,7 +38,7 @@ function RootApp(): JSX.Element | null {
   ) {
     return <ClientApp />;
   }
-  return <App />;
+  return <ServerApp />;
 }
 
 const apiClient = createApiClient();
@@ -61,7 +61,7 @@ root.render(
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
             <SystemCallContextProvider api={systemCallApi}>
-              <RootApp />
+              <PrimaryApp />
               {isFeatureFlagEnabled(
                 BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
               ) && (
