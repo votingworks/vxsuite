@@ -8,7 +8,7 @@ import {
 } from 'node:fs';
 import { Optional } from '@votingworks/basics';
 import { getMockStateRootDir } from '@votingworks/utils';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import type { MultiUsbDrive } from '../multi_usb_drive';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive, UsbDriveStatus } from '../types';
@@ -200,7 +200,7 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
     refresh: () => Promise.resolve(),
 
     ejectDrive(driveDevPath: string): Promise<void> {
-      const diskName = driveDevPath.slice('/dev/'.length);
+      const diskName = basename(driveDevPath);
       const { state } = readMockDriveState(diskName);
       if (state === 'inserted') {
         writeMockDriveState(diskName, { state: 'ejected' });
@@ -209,7 +209,7 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
     },
 
     formatDrive(driveDevPath: string): Promise<void> {
-      const diskName = driveDevPath.slice('/dev/'.length);
+      const diskName = basename(driveDevPath);
       const { state } = readMockDriveState(diskName);
       if (state === 'inserted') {
         writeMockDriveState(diskName, { state: 'ejected' });
