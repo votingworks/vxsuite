@@ -64,7 +64,7 @@ export function createMockMultiUsbDrive(): MockMultiUsbDrive {
 
   const usbDrive = createUsbDriveAdapter(
     multiUsbDrive,
-    () => MOCK_DISK_DEV_PATH
+    (drives) => drives[0]?.devPath
   );
 
   return {
