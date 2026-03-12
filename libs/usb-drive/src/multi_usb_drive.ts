@@ -99,7 +99,7 @@ export function detectMultiUsbDrive(
   let cachedDrives: UsbDiskDeviceInfo[] = [];
 
   // Per-drive eject state: cleared when the drive is no longer detected.
-  const ejectState = new Map<string, boolean>();
+  const ejectState = new Set<string>();
 
   // Per-drive action lock: 'ejecting' or 'formatting'.
   const driveAction = new Map<string, 'ejecting' | 'formatting'>();
@@ -177,7 +177,7 @@ export function detectMultiUsbDrive(
   }
 
   function doAutoMount(disk: UsbDiskDeviceInfo): void {
-    if (ejectState.get(disk.devPath)) return;
+    if (ejectState.has(disk.devPath)) return;
     if (driveAction.get(disk.devPath)) return;
 
     for (const partition of disk.partitions) {
@@ -195,7 +195,7 @@ export function detectMultiUsbDrive(
     const newDrives = await getAllUsbDrives();
 
     // Clear eject state for drives that have been physically removed
-    for (const [devPath] of ejectState) {
+    for (const devPath of ejectState) {
       if (!newDrives.some((d) => d.devPath === devPath)) {
         ejectState.delete(devPath);
       }
@@ -252,7 +252,7 @@ export function detectMultiUsbDrive(
           }
         }
 
-        ejectState.set(driveDevPath, true);
+        ejectState.add(driveDevPath);
         await doRefresh();
 
         await logger.logAsCurrentRole(LogEventId.UsbDriveEjected, {
@@ -310,7 +310,7 @@ export function detectMultiUsbDrive(
 
         debug(`formatting drive ${driveDevPath} with label ${label}`);
         await formatDriveAsFat32(driveDevPath, label);
-        ejectState.set(driveDevPath, true); // prevent auto-remount
+        ejectState.add(driveDevPath); // prevent auto-remount
         await doRefresh();
 
         await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
