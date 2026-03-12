@@ -65,10 +65,10 @@ export function createUsbDriveAdapter(
         });
       }
 
-      // mount.type === 'unmounted' or 'unmounting'
-      if (didEject) {
+      // mount.type === 'ejected', 'unmounted', or 'unmounting'
+      if (mount.type === 'ejected' || mount.type === 'unmounting' || didEject) {
         debug(
-          'adapter: partition is unmounted and eject was called, returning ejected'
+          'adapter: partition is ejected/unmounting or eject was called, returning ejected'
         );
         return Promise.resolve({ status: 'ejected' });
       }

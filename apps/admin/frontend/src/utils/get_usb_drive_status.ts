@@ -32,6 +32,7 @@ export function getUsbDriveStatus(
         mountPoint: mount.mountPoint,
         devPath: drive.devPath,
       };
+    case 'ejected':
     case 'unmounting':
       return { status: 'ejected' };
     case 'unmounted':

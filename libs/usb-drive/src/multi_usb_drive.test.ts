@@ -380,7 +380,7 @@ describe('ejectDrive', () => {
     }
   });
 
-  test('shows already-unmounted partition as unmounted while ejecting', async () => {
+  test('shows already-unmounted partition as ejected while ejecting', async () => {
     mockDrives = [
       makeDisk({
         partitions: [
@@ -404,7 +404,7 @@ describe('ejectDrive', () => {
     const ejectPromise = multiUsbDrive.ejectDrive('/dev/sdb');
 
     expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-      type: 'unmounted',
+      type: 'ejected',
     });
 
     await ejectPromise;
@@ -483,6 +483,24 @@ describe('ejectDrive', () => {
 
     // Only one unmount call (from the first eject)
     expect(execMock).toHaveBeenCalledTimes(1);
+
+    multiUsbDrive.stop();
+  });
+
+  test('shows partitions as ejected after eject completes', async () => {
+    mockDrives = [makeDisk()];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' }); // unmount
+
+    await multiUsbDrive.ejectDrive('/dev/sdb');
+
+    expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
+      type: 'ejected',
+    });
 
     multiUsbDrive.stop();
   });

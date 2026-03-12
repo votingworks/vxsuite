@@ -57,6 +57,7 @@ function isFat32Partition(partition: UsbPartitionDeviceInfo): boolean {
 
 export type UsbPartitionMount =
   | { type: 'unmounted' }
+  | { type: 'ejected' }
   | { type: 'mounting' }
   | { type: 'mounted'; mountPoint: string }
   | { type: 'unmounting'; mountPoint: string };
@@ -114,11 +115,11 @@ export function detectMultiUsbDrive(
     const dAction = driveAction.get(diskDevPath);
 
     if (dAction === 'ejecting') {
-      // All partitions appear as unmounting (or unmounted if already unmounted)
+      // All partitions appear as unmounting (or ejected if already unmounted)
       if (partition.mountpoint) {
         return { type: 'unmounting', mountPoint: partition.mountpoint };
       }
-      return { type: 'unmounted' };
+      return { type: 'ejected' };
     }
 
     if (dAction === 'formatting') {
@@ -128,6 +129,10 @@ export function detectMultiUsbDrive(
 
     if (partitionAction.get(partition.devPath) === 'mounting') {
       return { type: 'mounting' };
+    }
+
+    if (ejectState.has(diskDevPath)) {
+      return { type: 'ejected' };
     }
 
     if (partition.mountpoint) {

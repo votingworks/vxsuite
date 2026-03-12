@@ -39,7 +39,7 @@ test('createMockFileMultiUsbDrive mock flow', async () => {
     },
   ]);
 
-  // Eject — partition becomes unmounted
+  // Eject — partition becomes ejected
   await multiUsbDrive.ejectDrive('/dev/sdb');
   expect(multiUsbDrive.getDrives()).toEqual([
     {
@@ -49,23 +49,23 @@ test('createMockFileMultiUsbDrive mock flow', async () => {
           devPath: '/dev/sdb1',
           fstype: 'vfat',
           fsver: 'FAT32',
-          mount: { type: 'unmounted' },
+          mount: { type: 'ejected' },
         },
       ],
     },
   ]);
 
-  // Eject when already not mounted is a no-op
+  // Eject when already ejected is a no-op
   await multiUsbDrive.ejectDrive('/dev/sdb');
   expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-    type: 'unmounted',
+    type: 'ejected',
   });
 
   // Format re-ejects (same behavior)
   handler.insert();
   await multiUsbDrive.formatDrive('/dev/sdb');
   expect(multiUsbDrive.getDrives()[0]?.partitions[0]?.mount).toEqual({
-    type: 'unmounted',
+    type: 'ejected',
   });
 
   // Remove drive — getDrives returns empty
@@ -102,7 +102,7 @@ test('createMockFileMultiUsbDrive multi-drive flow', async () => {
   expect(drives).toHaveLength(2);
   expect(
     drives.find((d) => d.devPath === `/dev/${diskA}`)?.partitions[0]?.mount
-  ).toEqual({ type: 'unmounted' });
+  ).toEqual({ type: 'ejected' });
   expect(
     drives.find((d) => d.devPath === `/dev/${diskB}`)?.partitions[0]?.mount.type
   ).toEqual('mounted');

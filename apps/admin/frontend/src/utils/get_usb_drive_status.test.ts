@@ -89,6 +89,12 @@ test('bad_format error when partition is unmounted as FAT16', () => {
   ).toEqual({ status: 'error', reason: 'bad_format', devPath: '/dev/sdb' });
 });
 
+test('ejected when partition is in ejected state', () => {
+  expect(
+    getUsbDriveStatus([makeDrive([makePartition({ type: 'ejected' })])])
+  ).toEqual({ status: 'ejected' });
+});
+
 test('ejected when partition is unmounting', () => {
   expect(
     getUsbDriveStatus([
