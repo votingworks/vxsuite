@@ -172,6 +172,7 @@ export function detectMultiUsbDrive(
       debug(`auto-mount failed for ${partitionDevPath}: ${error}`);
     } finally {
       partitionAction.delete(partitionDevPath);
+      onChange?.();
     }
   }
 
