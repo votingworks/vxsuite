@@ -4,9 +4,9 @@ import { existsSync } from 'node:fs';
 import {
   addMockDrive,
   createMockFileMultiUsbDrive,
+  createMockFileUsbDrive,
   getMockFileUsbDriveHandler,
   listMockDrives,
-  MockFileUsbDrive,
   removeMockDriveDir,
 } from './file_usb_drive';
 
@@ -118,7 +118,7 @@ test('createMockFileMultiUsbDrive multi-drive flow', async () => {
 });
 
 test('mock flow', async () => {
-  const usbDrive = new MockFileUsbDrive();
+  const usbDrive = createMockFileUsbDrive();
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
   await expect(usbDrive.eject()).resolves.toBeUndefined();
   await expect(usbDrive.format()).resolves.toBeUndefined();

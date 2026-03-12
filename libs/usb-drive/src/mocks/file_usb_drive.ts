@@ -109,42 +109,49 @@ export function removeMockDriveDir(diskName: string): void {
 }
 
 /**
- * USB drive initialized in apps that use a temporary file to mock a real drive.
- * Always targets the 'sdb' mock drive.
+ * Creates a UsbDrive backed by per-drive state files. Used by detectUsbDrive
+ * when the USE_MOCK_USB_DRIVE feature flag is set (e.g. in integration tests
+ * and dev mode). Always targets the 'sdb' mock drive.
  */
-export class MockFileUsbDrive implements UsbDrive {
-  private readonly diskName = 'sdb';
+export function createMockFileUsbDrive(): UsbDrive {
+  const diskName = 'sdb';
 
-  status(): Promise<UsbDriveStatus> {
-    const { state } = readMockDriveState(this.diskName);
-    if (state === 'removed') {
-      return Promise.resolve({ status: 'no_drive' });
-    }
-    if (state === 'ejected') {
-      return Promise.resolve({ status: 'ejected' });
-    }
-    return Promise.resolve({
-      status: 'mounted',
-      mountPoint: getMockDriveDataDirPath(this.diskName),
-    });
-  }
+  return {
+    status(): Promise<UsbDriveStatus> {
+      const { state } = readMockDriveState(diskName);
+      if (state === 'removed') {
+        return Promise.resolve({ status: 'no_drive' });
+      }
+      if (state === 'ejected') {
+        return Promise.resolve({ status: 'ejected' });
+      }
+      return Promise.resolve({
+        status: 'mounted',
+        mountPoint: getMockDriveDataDirPath(diskName),
+      });
+    },
 
-  eject(): Promise<void> {
-    const { state } = readMockDriveState(this.diskName);
-    if (state === 'inserted') {
-      writeMockDriveState(this.diskName, { state: 'ejected' });
-    }
-    return Promise.resolve();
-  }
+    eject(): Promise<void> {
+      const { state } = readMockDriveState(diskName);
+      if (state === 'inserted') {
+        writeMockDriveState(diskName, { state: 'ejected' });
+      }
+      return Promise.resolve();
+    },
 
-  // mock not fully implemented
-  format(): Promise<void> {
-    return this.eject();
-  }
+    // mock not fully implemented
+    format(): Promise<void> {
+      const { state } = readMockDriveState(diskName);
+      if (state === 'inserted') {
+        writeMockDriveState(diskName, { state: 'ejected' });
+      }
+      return Promise.resolve();
+    },
 
-  sync(): Promise<void> {
-    return Promise.resolve();
-  }
+    sync(): Promise<void> {
+      return Promise.resolve();
+    },
+  };
 }
 
 export interface MockFileUsbDriveHandler {

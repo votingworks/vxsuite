@@ -6,7 +6,7 @@ import { Logger } from '@votingworks/logging';
 import { UsbDrive } from './types';
 import {
   createMockFileMultiUsbDrive,
-  MockFileUsbDrive,
+  createMockFileUsbDrive,
 } from './mocks/file_usb_drive';
 import { detectMultiUsbDrive, MultiUsbDrive } from './multi_usb_drive';
 import { createUsbDriveAdapter } from './usb_drive_adapter';
@@ -23,7 +23,7 @@ export function detectUsbDrive(
   options: { onChange?: () => void } = {}
 ): UsbDrive {
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)) {
-    return new MockFileUsbDrive();
+    return createMockFileUsbDrive();
   }
   const multiUsbDrive = detectMultiUsbDrive(logger, {
     onChange: options.onChange,
