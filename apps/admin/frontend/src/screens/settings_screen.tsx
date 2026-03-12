@@ -139,12 +139,18 @@ export function SettingsScreen(): JSX.Element | null {
                         <thead>
                           <tr>
                             <th>Machine ID</th>
+                            <th>Last Seen</th>
                           </tr>
                         </thead>
                         <tbody>
                           {connectedClientsQuery.data.map((client) => (
                             <tr key={client.machineId}>
                               <td>{client.machineId}</td>
+                              <td>
+                                {new Date(
+                                  client.lastSeenAt
+                                ).toLocaleTimeString()}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
