@@ -18,8 +18,12 @@ test('no_drive when drives list is empty', () => {
   expect(getUsbDriveStatus([])).toEqual({ status: 'no_drive' });
 });
 
-test('no_drive when drive has no partitions', () => {
-  expect(getUsbDriveStatus([makeDrive([])])).toEqual({ status: 'no_drive' });
+test('bad_format error when drive has no partitions', () => {
+  expect(getUsbDriveStatus([makeDrive([])])).toEqual({
+    status: 'error',
+    reason: 'bad_format',
+    devPath: '/dev/sdb',
+  });
 });
 
 test('mounted when partition is mounted as FAT32', () => {
