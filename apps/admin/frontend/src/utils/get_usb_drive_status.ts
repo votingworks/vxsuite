@@ -14,10 +14,13 @@ export function getUsbDriveStatus(
   if (!drive) return { status: 'no_drive' };
   const partition = drive.partitions[0];
   if (!partition) return { status: 'no_drive' };
-  const { mount, fstype } = partition;
+  const { mount, fstype, fsver } = partition;
+  function isBadFormat(): boolean {
+    return !!fstype && !(fstype === 'vfat' && fsver === 'FAT32');
+  }
   switch (mount.type) {
     case 'mounted':
-      if (fstype && fstype !== 'vfat') {
+      if (isBadFormat()) {
         return {
           status: 'error',
           reason: 'bad_format',
@@ -32,7 +35,7 @@ export function getUsbDriveStatus(
     case 'unmounting':
       return { status: 'ejected' };
     case 'unmounted':
-      if (fstype && fstype !== 'vfat') {
+      if (isBadFormat()) {
         return {
           status: 'error',
           reason: 'bad_format',
