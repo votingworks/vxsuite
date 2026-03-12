@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
@@ -16,6 +17,17 @@ import {
 } from '../../test/render_in_app_context';
 import { SettingsScreen } from './settings_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+
+const featureFlagMock = vi.hoisted(() => {
+  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+  const { getFeatureFlagMock } = require('@votingworks/utils');
+  return getFeatureFlagMock();
+});
+vi.mock('@votingworks/utils', async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 
 let apiMock: ApiMock;
 
@@ -84,6 +96,63 @@ describe('as System Admin', () => {
     await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
+  });
+});
+
+describe('multi-station mode', () => {
+  const auth: DippedSmartCardAuth.SystemAdministratorLoggedIn = {
+    status: 'logged_in',
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+    programmableCard: { status: 'no_card' },
+  };
+
+  beforeEach(() => {
+    featureFlagMock.enableFeatureFlag(
+      BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+    );
+  });
+
+  afterEach(() => {
+    featureFlagMock.resetFeatureFlags();
+  });
+
+  test('shows switch to client mode button when unconfigured', () => {
+    apiMock.expectGetUsbPortStatus();
+    renderInAppContext(<SettingsScreen />, {
+      apiMock,
+      auth,
+      electionDefinition: null,
+    });
+    screen.getByRole('heading', { name: 'Multi-Station Mode' });
+    screen.getByRole('button', { name: 'Switch to Client Mode' });
+  });
+
+  test('hides switch to client mode button when configured', () => {
+    apiMock.expectGetUsbPortStatus();
+    renderInAppContext(<SettingsScreen />, { apiMock, auth });
+    expect(
+      screen.queryByRole('heading', { name: 'Multi-Station Mode' })
+    ).not.toBeInTheDocument();
+  });
+
+  test('shows restart screen after switching mode', async () => {
+    apiMock.expectGetUsbPortStatus();
+    renderInAppContext(<SettingsScreen />, {
+      apiMock,
+      auth,
+      electionDefinition: null,
+    });
+    apiMock.apiClient.setMachineMode
+      .expectCallWith({ mode: 'client' })
+      .resolves();
+    userEvent.click(
+      screen.getByRole('button', { name: 'Switch to Client Mode' })
+    );
+    await screen.findByText(
+      'Machine mode changed, restart the machine to continue.'
+    );
+    screen.getByRole('button', { name: 'Power Down' });
   });
 });
 

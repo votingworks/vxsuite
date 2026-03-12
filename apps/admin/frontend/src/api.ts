@@ -52,6 +52,24 @@ export const getMachineConfig = {
   },
 } as const;
 
+export const getMachineMode = {
+  queryKeyPrefix: 'getMachineMode',
+  queryKey(): QueryKey {
+    return [this.queryKeyPrefix];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMachineMode());
+  },
+} as const;
+
+export const setMachineMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.setMachineMode);
+  },
+} as const;
+
 // Auth
 
 export const getAuthStatus = {

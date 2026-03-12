@@ -28,6 +28,8 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
+import { buildClientApp } from './client_app';
+import { readMachineMode } from './machine_mode';
 import { rootDebug } from './util/debug';
 import { getUserRole } from './util/auth';
 
@@ -75,6 +77,8 @@ export async function start({
     resolvedWorkspace = createWorkspace(workspacePath, baseLogger);
   }
 
+  const machineMode = readMachineMode(resolvedWorkspace.path);
+
   let resolvedApp = app;
 
   /* istanbul ignore next - @preserve */
@@ -87,11 +91,10 @@ export async function start({
           : new JavaCard(),
       config: {
         allowElectionManagersToAccessUnconfiguredMachines: false,
-        allowedUserRoles: [
-          'vendor',
-          'system_administrator',
-          'election_manager',
-        ],
+        allowedUserRoles:
+          machineMode === 'client'
+            ? ['vendor', 'system_administrator']
+            : ['vendor', 'system_administrator', 'election_manager'],
       },
       logger: baseLogger,
     });
@@ -100,37 +103,54 @@ export async function start({
       getUserRole(auth, resolvedWorkspace)
     );
 
-    const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
-    const resolvedPrinter = printer ?? detectPrinter(logger);
+    if (machineMode === 'host') {
+      const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
+      const resolvedPrinter = printer ?? detectPrinter(logger);
 
-    resolvedApp = buildApp({
-      auth,
-      logger,
-      usbDrive: resolvedUsbDrive,
-      printer: resolvedPrinter,
-      workspace: resolvedWorkspace,
-    });
+      resolvedApp = buildApp({
+        auth,
+        logger,
+        usbDrive: resolvedUsbDrive,
+        printer: resolvedPrinter,
+        workspace: resolvedWorkspace,
+      });
+    } /* machine mode is client */ else {
+      resolvedApp = buildClientApp({
+        auth,
+        logger,
+        workspace: resolvedWorkspace,
+      });
+    }
   }
 
-  const electionId = resolvedWorkspace.store.getCurrentElectionId();
-  const cvrFileEntries = electionId
-    ? resolvedWorkspace.store.getCvrFiles(electionId)
-    : [];
-  const manualResults = electionId
-    ? resolvedWorkspace.store.getManualResults({
-        electionId,
-      })
-    : [];
+  if (machineMode === 'host') {
+    const electionId = resolvedWorkspace.store.getCurrentElectionId();
+    const cvrFileEntries = electionId
+      ? resolvedWorkspace.store.getCvrFiles(electionId)
+      : [];
+    const manualResults = electionId
+      ? resolvedWorkspace.store.getManualResults({
+          electionId,
+        })
+      : [];
 
-  const message =
-    cvrFileEntries.length > 0 || manualResults.length > 0
-      ? 'Election results data is present in the database at machine startup.'
-      : 'No election results data is present in the database at machine startup.';
-  baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
-    message,
-    numCvrFiles: cvrFileEntries.length,
-    numManualResults: manualResults.length,
-  });
+    const message =
+      cvrFileEntries.length > 0 || manualResults.length > 0
+        ? 'Election results data is present in the database at machine startup.'
+        : 'No election results data is present in the database at machine startup.';
+    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+      message,
+      numCvrFiles: cvrFileEntries.length,
+      numManualResults: manualResults.length,
+    });
+  } /* machine mode is client */ else {
+    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+      message:
+        'No election results data is present in the database at machine startup.',
+      numCvrFiles: 0,
+      numManualResults: 0,
+    });
+  }
 
   useDevDockRouter(resolvedApp, express, {
     printerConfig: HP_LASER_PRINTER_CONFIG,

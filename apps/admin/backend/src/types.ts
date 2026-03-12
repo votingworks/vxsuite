@@ -25,6 +25,12 @@ import { z } from 'zod/v4';
 export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
 
 /**
+ * Whether this VxAdmin is running as a host (full functionality) or client
+ * (adjudication-only, proxies to host).
+ */
+export type MachineMode = 'host' | 'client';
+
+/**
  * Environment variables that identify the machine and its software. Set at the
  * machine-level rather than the at the software-level.
  */

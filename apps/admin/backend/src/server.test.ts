@@ -18,8 +18,10 @@ import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
 import { buildApp } from './app';
+import { buildClientApp } from './client_app';
 import { buildMockLogger } from '../test/app';
 import { importCastVoteRecords } from './cast_vote_records';
+import { writeMachineMode } from './machine_mode';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -249,6 +251,41 @@ test('logs when there is stored election results data present at startup', async
         'Election results data is present in the database at machine startup.',
       numCvrFiles: 1,
       numManualResults: 1,
+    }
+  );
+});
+
+test('starts in client mode with client app', async () => {
+  const auth = buildMockDippedSmartCardAuth(vi.fn);
+  const workspaceDir = makeTemporaryDirectory();
+  const workspace = createWorkspace(
+    workspaceDir,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  const logger = buildMockLogger(auth, workspace);
+
+  writeMachineMode(workspace.path, 'client');
+
+  const app = buildClientApp({ auth, workspace, logger });
+
+  // don't actually listen
+  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
+    onListening?.();
+    return undefined as unknown as Server;
+  });
+
+  await suppressingConsoleOutput(() => start({ app, workspace, logger }));
+
+  expect(app.listen).toHaveBeenCalledWith(PORT, expect.anything());
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.DataCheckOnStartup,
+    'system',
+    {
+      message:
+        'No election results data is present in the database at machine startup.',
+      numCvrFiles: 0,
+      numManualResults: 0,
     }
   );
 });
