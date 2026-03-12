@@ -15,14 +15,11 @@ export function createUsbDriveAdapter(
   multiUsbDrive: MultiUsbDrive,
   getDriveDevPath: (usbDrives: readonly UsbDriveInfo[]) => string | undefined
 ): UsbDrive {
-  let didEject = false;
-
   return {
     status(): Promise<UsbDriveStatus> {
       const drives = multiUsbDrive.getDrives();
       const driveDevPath = getDriveDevPath(drives);
       if (!driveDevPath) {
-        didEject = false;
         debug('adapter: no drive device path, returning no_drive');
         return Promise.resolve({ status: 'no_drive' });
       }
@@ -30,7 +27,6 @@ export function createUsbDriveAdapter(
       const drive = drives.find((d) => d.devPath === driveDevPath);
 
       if (!drive) {
-        didEject = false;
         debug('adapter: drive not found in cache, returning no_drive');
         return Promise.resolve({ status: 'no_drive' });
       }
@@ -66,10 +62,8 @@ export function createUsbDriveAdapter(
       }
 
       // mount.type === 'ejected', 'unmounted', or 'unmounting'
-      if (mount.type === 'ejected' || mount.type === 'unmounting' || didEject) {
-        debug(
-          'adapter: partition is ejected/unmounting or eject was called, returning ejected'
-        );
+      if (mount.type === 'ejected' || mount.type === 'unmounting') {
+        debug('adapter: partition is ejected/unmounting, returning ejected');
         return Promise.resolve({ status: 'ejected' });
       }
 
@@ -85,7 +79,6 @@ export function createUsbDriveAdapter(
       }
 
       await multiUsbDrive.ejectDrive(driveDevPath);
-      didEject = true;
     },
 
     async format(): Promise<void> {
@@ -96,7 +89,6 @@ export function createUsbDriveAdapter(
       }
 
       await multiUsbDrive.formatDrive(driveDevPath);
-      didEject = true;
     },
 
     async sync(): Promise<void> {

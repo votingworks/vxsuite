@@ -129,17 +129,11 @@ describe('createUsbDriveAdapter', () => {
       expect(await adapter.status()).toEqual({ status: 'no_drive' });
     });
 
-    test('returns ejected for unmounted partition after eject is called', async () => {
+    test('returns ejected when partition mount type is ejected', async () => {
       const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
       const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
       multiUsbDrive.getDrives.reset();
-      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([]);
 
-      // eject the drive
-      multiUsbDrive.ejectDrive.expectCallWith('/dev/sdb').resolves();
-      await adapter.eject();
-
-      // Now the partition appears unmounted
       multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
         makeDriveInfo({
           partitions: [
@@ -147,59 +141,12 @@ describe('createUsbDriveAdapter', () => {
               devPath: '/dev/sdb1',
               fstype: 'vfat',
               fsver: 'FAT32',
-              mount: { type: 'unmounted' },
+              mount: { type: 'ejected' },
             },
           ],
         }),
       ]);
       expect(await adapter.status()).toEqual({ status: 'ejected' });
-
-      assertComplete();
-    });
-
-    test('resets didEject when drive disappears', async () => {
-      const { multiUsbDrive, assertComplete } = createMockMultiUsbDrive();
-      const adapter = createUsbDriveAdapter(multiUsbDrive, () => '/dev/sdb');
-      multiUsbDrive.getDrives.reset();
-      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
-        {
-          devPath: '/dev/sdb',
-          partitions: [
-            {
-              devPath: '/dev/sdb1',
-              fstype: 'vfat',
-              fsver: 'FAT32',
-              mount: {
-                type: 'mounted',
-                mountPoint: '/media/vx/usb-drive-sdb1',
-              },
-            },
-          ],
-        },
-      ]);
-
-      // eject the drive
-      multiUsbDrive.ejectDrive.expectCallWith('/dev/sdb').resolves();
-      await adapter.eject();
-
-      // Drive disappears
-      multiUsbDrive.getDrives.expectCallWith().returns([]);
-      expect(await adapter.status()).toEqual({ status: 'no_drive' });
-
-      // Drive reappears unmounted — should be no_drive again, not ejected
-      multiUsbDrive.getDrives.expectRepeatedCallsWith().returns([
-        makeDriveInfo({
-          partitions: [
-            {
-              devPath: '/dev/sdb1',
-              fstype: 'vfat',
-              fsver: 'FAT32',
-              mount: { type: 'unmounted' },
-            },
-          ],
-        }),
-      ]);
-      expect(await adapter.status()).toEqual({ status: 'no_drive' });
 
       assertComplete();
     });
