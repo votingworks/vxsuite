@@ -73,10 +73,12 @@ function usbDriveStatusToMockDrives(
           mount:
             status === 'mounted'
               ? { type: 'mounted', mountPoint: MOCK_MOUNT_POINT }
+              : status === 'ejected'
+              ? { type: 'ejected' }
               : { type: 'unmounted' },
           label: undefined,
           fstype: status === 'error' ? 'ntfs' : 'vfat',
-          fsver: status === 'error' ? undefined : '32',
+          fsver: status === 'error' ? undefined : 'FAT32',
         },
       ],
     },

@@ -57,6 +57,8 @@ function mockUsbDriveStatusToUsbDrives(status: UsbDriveStatus): UsbDriveInfo[] {
   const partitionMount: UsbPartitionMount =
     status.status === 'mounted'
       ? { type: 'mounted', mountPoint: status.mountPoint }
+      : status.status === 'ejected'
+      ? { type: 'ejected' }
       : { type: 'unmounted' };
   return [
     {

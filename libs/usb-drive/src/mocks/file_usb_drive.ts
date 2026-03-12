@@ -180,7 +180,7 @@ export function createMockFileMultiUsbDrive(): MultiUsbDrive {
                 type: 'mounted',
                 mountPoint: getMockDriveDataDirPath(diskName),
               } as const)
-            : ({ type: 'unmounted' } as const);
+            : ({ type: 'ejected' } as const);
         return [
           {
             devPath: `/dev/${diskName}`,
