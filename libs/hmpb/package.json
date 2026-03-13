@@ -16,7 +16,7 @@
     "build:self": "tsgo --build tsconfig.build.json && cp -R ./src/fonts ./build",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
-    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "generate-fixtures": "DEBUG=hmpb:ballot_fixtures ./bin/generate-fixtures",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
