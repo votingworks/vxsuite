@@ -11,7 +11,6 @@ export * from './exceptions';
 export * from './exec';
 export * from './exporter';
 export * from './initialize_system_audio';
-export * from './disk_space_summary';
 export * from './is_device_attached';
 export * from './pdf_to_text';
 export * from './system_call';
