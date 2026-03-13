@@ -12,6 +12,7 @@ import * as grout from '@votingworks/grout';
 
 export const BATTERY_POLLING_INTERVAL_GROUT = 3000;
 export const AUDIO_INFO_POLLING_INTERVAL_MS = 1000;
+export const DISK_SPACE_POLLING_INTERVAL_MS = 60_000;
 
 /**
  * `useMutation` only accepts async functions, but some backend system calls
@@ -78,6 +79,16 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
             await queryClient.invalidateQueries(getUsbPortStatusQueryKey);
           },
         });
+      },
+    },
+    getDiskSpaceSummary: {
+      useQuery() {
+        const apiClient = getApiClient();
+        return useQuery(
+          ['getDiskSpaceSummary'],
+          () => apiClient.getDiskSpaceSummary(),
+          { refetchInterval: DISK_SPACE_POLLING_INTERVAL_MS }
+        );
       },
     },
   };
