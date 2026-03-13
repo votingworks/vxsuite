@@ -1,4 +1,7 @@
-import { GoogleCloudSpeechSynthesizer, GoogleCloudTranslator } from '@votingworks/backend';
+import {
+  GoogleCloudSpeechSynthesizer,
+  GoogleCloudTranslator,
+} from '@votingworks/backend';
 import { BaseLogger } from '@votingworks/logging';
 import { FileStorageClient } from '../file_storage_client';
 import { Workspace } from '../workspace';

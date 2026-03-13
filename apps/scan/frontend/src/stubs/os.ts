@@ -178,6 +178,6 @@ export const constants = {
   },
 };
 /** Stub for EOL */
-export const EOL = "\n";
+export const EOL = '\n';
 /** Stub for devNull */
-export const devNull = "/dev/null";
+export const devNull = '/dev/null';

@@ -133,12 +133,20 @@ export function SystemSettingsForm({
     retryStreakWidthThresholdInputRef.current?.setCustomValidity('');
 
     if (parseResult.isErr()) {
-      const maxWidthError = parseResult.err().issues.find(
-        (err) => err.path.includes('maxCumulativeStreakWidth' satisfies keyof SystemSettings)
-      );
-      const retryThresholdError = parseResult.err().issues.find(
-        (err) => err.path.includes('retryStreakWidthThreshold' satisfies keyof SystemSettings)
-      );
+      const maxWidthError = parseResult
+        .err()
+        .issues.find((err) =>
+          err.path.includes(
+            'maxCumulativeStreakWidth' satisfies keyof SystemSettings
+          )
+        );
+      const retryThresholdError = parseResult
+        .err()
+        .issues.find((err) =>
+          err.path.includes(
+            'retryStreakWidthThreshold' satisfies keyof SystemSettings
+          )
+        );
 
       if (maxWidthError) {
         maxCumulativeStreakWidthInputRef.current?.setCustomValidity(

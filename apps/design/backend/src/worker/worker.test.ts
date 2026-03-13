@@ -7,7 +7,10 @@ import {
 } from '@votingworks/backend';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { backendWaitFor, suppressingConsoleOutput } from '@votingworks/test-utils';
+import {
+  backendWaitFor,
+  suppressingConsoleOutput,
+} from '@votingworks/test-utils';
 import * as tasks from './tasks';
 import { processNextBackgroundTaskIfAny, start } from './worker';
 import { WorkerContext } from './context';
@@ -61,7 +64,9 @@ describe('processNextBackgroundTaskIfAny', () => {
   test('returns wasTaskProcessed: false when no tasks queued', async () => {
     const context = createMockContext();
 
-    const result = await suppressingConsoleOutput(() => processNextBackgroundTaskIfAny(context));
+    const result = await suppressingConsoleOutput(() =>
+      processNextBackgroundTaskIfAny(context)
+    );
 
     expect(result).toEqual({ wasTaskProcessed: false });
   });
@@ -77,7 +82,7 @@ describe('processNextBackgroundTaskIfAny', () => {
 
     processBackgroundTaskMock.mockRejectedValue(taskError);
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const result = await processNextBackgroundTaskIfAny(context);
 
@@ -101,7 +106,7 @@ describe('processNextBackgroundTaskIfAny', () => {
 
     processBackgroundTaskMock.mockRejectedValue('string error value');
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const result = await processNextBackgroundTaskIfAny(context);
 
@@ -129,7 +134,7 @@ describe('start', () => {
 
     processBackgroundTaskMock.mockResolvedValue(undefined);
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const startPromise = start(context, { signal: abortController.signal });
     abortController.abort();
@@ -160,8 +165,8 @@ describe('start', () => {
 
     const consoleWarnSpy = vi
       .spyOn(console, 'warn')
-      .mockImplementation(() => { });
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+      .mockImplementation(() => {});
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const startPromise = start(context, { signal: abortController.signal });
     abortController.abort();
@@ -215,7 +220,7 @@ describe('start', () => {
       }) as typeof process.exit);
     });
 
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const startPromise = start(context, { signal: abortController.signal });
 
     await taskPickedUpPromise;
@@ -243,8 +248,10 @@ describe('start', () => {
     const abortController = new AbortController();
     const context = createMockContext();
 
-    vi.spyOn(process, 'exit').mockImplementation((() => { }) as typeof process.exit);
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    vi.spyOn(process, 'exit').mockImplementation(
+      (() => {}) as typeof process.exit
+    );
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const startPromise = start(context, { signal: abortController.signal });
 
     process.emit('SIGTERM');
@@ -252,9 +259,12 @@ describe('start', () => {
     abortController.abort();
     await startPromise;
 
-    await backendWaitFor(() => {
-      expect(process.exit).toHaveBeenCalledWith(0);
-    }, { interval: 50 });
+    await backendWaitFor(
+      () => {
+        expect(process.exit).toHaveBeenCalledWith(0);
+      },
+      { interval: 50 }
+    );
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining('Graceful shutdown complete')
     );
@@ -278,7 +288,7 @@ describe('start', () => {
 
     processBackgroundTaskMock.mockResolvedValue(undefined);
 
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const startPromise = start(context, { signal: abortController.signal });
     abortController.abort();
     await startPromise;

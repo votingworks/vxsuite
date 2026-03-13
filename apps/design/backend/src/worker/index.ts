@@ -46,11 +46,10 @@ async function main(): Promise<void> {
 
 /* istanbul ignore next - @preserve */
 if (require.main === module) {
-  main()
-    .catch((error) => {
-      process.stderr.write(
-        `Error starting VxDesign background worker:\n${error.stack}\n`
-      );
-      process.exitCode = 1;
-    });
+  main().catch((error) => {
+    process.stderr.write(
+      `Error starting VxDesign background worker:\n${error.stack}\n`
+    );
+    process.exitCode = 1;
+  });
 }

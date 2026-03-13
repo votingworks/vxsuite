@@ -8,7 +8,10 @@ import {
   SystemSettings,
   Tabulation,
 } from '@votingworks/types';
-import { electionTwoPartyPrimaryFixtures, makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { assert, typedAs } from '@votingworks/basics';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {

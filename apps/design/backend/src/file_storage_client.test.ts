@@ -25,7 +25,8 @@ describe('S3FileStorageClient', () => {
   });
 
   test('getSignedUrl generates a presigned URL with default expiration', async () => {
-    const expectedUrl = 'https://test-bucket.s3.amazonaws.com/path/to/file.zip?X-Amz-Signature=abc123';
+    const expectedUrl =
+      'https://test-bucket.s3.amazonaws.com/path/to/file.zip?X-Amz-Signature=abc123';
     mockedS3GetSignedUrl.mockResolvedValueOnce(expectedUrl);
 
     const client = new S3FileStorageClient();
@@ -40,7 +41,8 @@ describe('S3FileStorageClient', () => {
   });
 
   test('getSignedUrl accepts a custom expiration', async () => {
-    const expectedUrl = 'https://test-bucket.s3.amazonaws.com/path/to/file.zip?X-Amz-Signature=abc123';
+    const expectedUrl =
+      'https://test-bucket.s3.amazonaws.com/path/to/file.zip?X-Amz-Signature=abc123';
     mockedS3GetSignedUrl.mockResolvedValueOnce(expectedUrl);
 
     const client = new S3FileStorageClient();
