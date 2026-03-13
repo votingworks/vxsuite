@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-  DiskSpaceSummary,
   getBatteryInfo,
   getDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { join } from 'node:path';
 import { DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
@@ -16,11 +16,24 @@ vi.setConfig({
   testTimeout: 60_000,
 });
 
-vi.mock(import('@votingworks/backend'), async (importActual) => ({
-  ...(await importActual()),
-  getBatteryInfo: vi.fn(),
-  getDiskSpaceSummary: vi.fn(),
-}));
+vi.mock(
+  import('@votingworks/backend'),
+  async (importActual): Promise<typeof import('@votingworks/backend')> => {
+    const actual = await importActual();
+    const mockedGetDiskSpaceSummary = vi.fn();
+    return {
+      ...actual,
+      getBatteryInfo: vi.fn(),
+      getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      createSystemCallApi: (
+        ...args: Parameters<typeof actual.createSystemCallApi>
+      ) => ({
+        ...actual.createSystemCallApi(...args),
+        getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      }),
+    };
+  }
+);
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   total: 10 * 1_000_000,

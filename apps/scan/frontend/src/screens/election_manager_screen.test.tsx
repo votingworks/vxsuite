@@ -641,7 +641,6 @@ test('renders buttons for saving logs', async () => {
 test('shows diagnostics button and renders screen after click', async () => {
   apiMock.expectGetConfig();
   apiMock.setPrinterStatus({ state: 'no-paper' });
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();

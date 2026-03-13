@@ -32,6 +32,7 @@ beforeEach(() => {
   apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
+  apiMock.setDiskSpaceSummary();
 });
 
 afterEach(() => {

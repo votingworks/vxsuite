@@ -20,7 +20,8 @@ import type {
   VoteAdjudication,
   CvrContestTag,
 } from '@votingworks/admin-backend';
-import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
+import type { BatteryInfo } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
 import { Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -63,10 +64,14 @@ export const MOCK_PRINTER_CONFIG: PrinterConfig = {
   supportsIpp: true,
 };
 
-type MockApiClient = Omit<MockClient<Api>, 'getBatteryInfo'> & {
-  // Because this is polled so frequently, we opt for a standard vitest mock instead of a
+type MockApiClient = Omit<
+  MockClient<Api>,
+  'getBatteryInfo' | 'getDiskSpaceSummary'
+> & {
+  // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getBatteryInfo: Mock;
+  getDiskSpaceSummary: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -75,6 +80,9 @@ export function createMockApiClient(): MockApiClient {
   // of the mockApiClient, so we override like this instead
   (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ level: 1, discharging: false })
+  );
+  (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
+    Promise.resolve({ total: 3, used: 2, available: 1 })
   );
   return mockApiClient as unknown as MockApiClient;
 }
@@ -719,13 +727,9 @@ export function createApiMock(
       apiClient.addDiagnosticRecord.expectCallWith(record).resolves();
     },
 
-    expectGetDiskSpaceSummary(summary?: DiskSpaceSummary) {
-      apiClient.getDiskSpaceSummary.expectCallWith().resolves(
-        summary ?? {
-          available: 1,
-          used: 1,
-          total: 2,
-        }
+    setDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      apiClient.getDiskSpaceSummary.mockResolvedValue(
+        summary ?? { total: 3, used: 2, available: 1 }
       );
     },
 

@@ -14,7 +14,7 @@ beforeEach(() => {
     level: 0.5,
     discharging: false,
   });
-  apiMock.expectGetDiskSpaceSummary({
+  apiMock.setDiskSpaceSummary({
     total: 1_000_000_000,
     available: 500_000_000,
     used: 500_000_000,

@@ -120,7 +120,6 @@ test('navigates to Diagnostics screen', async () => {
   apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
   apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
   apiMock.expectGetMarkScanBmdModel();
-  apiMock.expectGetDiskSpaceSummary();
 
   userEvent.click(screen.getButton('Diagnostics'));
   screen.getByRole('heading', { name: 'Diagnostics' });

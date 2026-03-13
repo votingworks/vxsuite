@@ -943,7 +943,6 @@ test('system administrator open diagnostics screen', async () => {
   apiMock.setPrinterStatus();
   apiMock.expectGetUsbPortStatus();
 
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();

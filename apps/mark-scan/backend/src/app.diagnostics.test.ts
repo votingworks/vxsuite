@@ -14,11 +14,8 @@ import {
   PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
-import {
-  DiskSpaceSummary,
-  getDiskSpaceSummary,
-  pdfToText,
-} from '@votingworks/backend';
+import { getDiskSpaceSummary, pdfToText } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
@@ -74,10 +71,23 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   available: 9 * 1_000_000,
 };
 
-vi.mock(import('@votingworks/backend'), async (importActual) => ({
-  ...(await importActual()),
-  getDiskSpaceSummary: vi.fn(),
-}));
+vi.mock(
+  import('@votingworks/backend'),
+  async (importActual): Promise<typeof import('@votingworks/backend')> => {
+    const actual = await importActual();
+    const mockedGetDiskSpaceSummary = vi.fn();
+    return {
+      ...actual,
+      getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      createSystemCallApi: (
+        ...args: Parameters<typeof actual.createSystemCallApi>
+      ) => ({
+        ...actual.createSystemCallApi(...args),
+        getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      }),
+    };
+  }
+);
 
 vi.mock(import('./pat-input/connection_status_reader.js'));
 vi.mock(import('./util/hardware.js'));

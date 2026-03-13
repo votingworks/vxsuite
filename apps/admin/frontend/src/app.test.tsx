@@ -58,6 +58,7 @@ beforeEach(() => {
   apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
+  apiMock.setDiskSpaceSummary();
 });
 
 afterEach(() => {
@@ -580,7 +581,7 @@ test('battery display and alert', async () => {
 
   apiMock.setBatteryInfo({ level: 0.1, discharging: true });
   const warning = await screen.findByRole('alertdialog');
-  within(warning).getByText('Low Battery Warning');
+  within(warning).getByText('Low Battery');
 
   // updated battery level in nav bar
   await screen.findByText('10%');

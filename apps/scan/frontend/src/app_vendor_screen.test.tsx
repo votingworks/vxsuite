@@ -26,6 +26,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.setDiskSpaceSummary();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
   vi.mocked(useSessionSettingsManager).mockReturnValue({
     startNewSession: startNewSessionMock,

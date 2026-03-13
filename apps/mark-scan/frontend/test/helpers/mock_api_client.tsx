@@ -35,7 +35,7 @@ import {
   mockVendorUser,
 } from '@votingworks/test-utils';
 import { err, ok, Result } from '@votingworks/basics';
-import type { DiskSpaceSummary } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockMachineConfig } from './mock_machine_config';
@@ -53,6 +53,7 @@ type MockApiClient = Omit<
   | 'getPaperHandlerState'
   | 'getUsbDriveStatus'
   | 'isPatDeviceConnected'
+  | 'getDiskSpaceSummary'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -60,6 +61,7 @@ type MockApiClient = Omit<
   getPaperHandlerState: Mock;
   getUsbDriveStatus: Mock;
   getIsPatDeviceConnected: Mock;
+  getDiskSpaceSummary: Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -77,6 +79,9 @@ function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.getIsPatDeviceConnected as unknown as Mock) = vi.fn(() =>
     Promise.resolve(false)
+  );
+  (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
+    Promise.resolve({ total: 3, used: 2, available: 1 })
   );
 
   return mockApiClient as unknown as MockApiClient;
@@ -375,8 +380,8 @@ export function createApiMock() {
       mockApiClient.getMarkScanBmdModel.expectCallWith().resolves(model);
     },
 
-    expectGetDiskSpaceSummary(summary?: DiskSpaceSummary) {
-      mockApiClient.getDiskSpaceSummary.expectCallWith().resolves(
+    setDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      mockApiClient.getDiskSpaceSummary.mockResolvedValue(
         summary ?? {
           available: 1_000_000_000,
           used: 1_000_000_000,

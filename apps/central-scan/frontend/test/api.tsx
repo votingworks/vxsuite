@@ -19,7 +19,8 @@ import {
 } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
-import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
+import type { BatteryInfo } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ok } from '@votingworks/basics';
 import { mockVendorUser, mockSessionExpiresAt } from '@votingworks/test-utils';
@@ -27,10 +28,14 @@ import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
 import { DEFAULT_STATUS } from './fixtures';
 import { screen } from './react_testing_library';
 
-export type MockApiClient = Omit<MockClient<Api>, 'getBatteryInfo'> & {
-  // Because this is polled so frequently, we opt for a standard vitest mock instead of a
+export type MockApiClient = Omit<
+  MockClient<Api>,
+  'getBatteryInfo' | 'getDiskSpaceSummary'
+> & {
+  // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getBatteryInfo: Mock;
+  getDiskSpaceSummary: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -39,6 +44,9 @@ export function createMockApiClient(): MockApiClient {
   // of the mockApiClient, so we override like this instead
   (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ level: 1, discharging: false })
+  );
+  (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
+    Promise.resolve({ total: 3, used: 2, available: 1 })
   );
   return mockApiClient as unknown as MockApiClient;
 }
@@ -188,8 +196,10 @@ export function createApiMock(
       apiClient.logUpsDiagnosticOutcome.expectCallWith(input).resolves();
     },
 
-    expectGetDiskSpaceSummary(summary: DiskSpaceSummary) {
-      apiClient.getDiskSpaceSummary.expectCallWith().resolves(summary);
+    setDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      apiClient.getDiskSpaceSummary.mockResolvedValue(
+        summary ?? { total: 3, used: 2, available: 1 }
+      );
     },
 
     expectRebootToVendorMenu() {

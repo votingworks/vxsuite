@@ -140,3 +140,36 @@ test('logOut', async () => {
     isConfigured: true,
   });
 });
+
+test('updateSessionExpiry', async () => {
+  const env = buildTestEnvironment();
+  server = env.server;
+  const { apiClient, auth, mockUsbDrive, workspace } = env;
+
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+
+  workspace.store.setPrecinctSelection(
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0]!.id)
+  );
+  await apiClient.updateSessionExpiry({
+    sessionExpiresAt: new Date(Date.now() + 60_000),
+  });
+  expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
+  expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
+    1,
+    {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      electionKey,
+      jurisdiction,
+      machineType,
+      isConfigured: true,
+    },
+    { sessionExpiresAt: expect.any(Date) }
+  );
+});
