@@ -475,6 +475,18 @@ async fn main() -> color_eyre::Result<()> {
                         raw_image_data.extend_from_slice(&image_data.0);
                     }
                     Incoming::EndScanEvent => {
+                        // Disable the feeder immediately after every scan completes
+                        // to prevent the firmware from auto-starting another
+                        // scan (e.g. if the first scan was just a paper tease).
+                        // PickOnCommandMode::FeederMustBeReenabledBetweenScans
+                        // is supposed to do this, but it only works when the
+                        // paper reaches the rear sensors.
+                        if let Some(c) = client.as_mut() {
+                            if let Err(e) = c.set_feeder_mode(FeederMode::Disabled).await {
+                                tracing::warn!("failed to disable feeder after scan: {e:?}");
+                            }
+                        }
+
                         match raw_image_data.try_decode_scan(
                             DEFAULT_IMAGE_WIDTH,
                             ScanSideMode::Duplex,
