@@ -60,6 +60,7 @@ export * from './signed_hash_validation_button';
 export * from './loading';
 export * from './loading_animation';
 export * from './logo_mark';
+export * from './low_disk_space_warning';
 export * from './main';
 export * from './modal';
 export * from './number_pad';
