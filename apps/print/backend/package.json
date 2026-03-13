@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "build": "pnpm --filter $npm_package_name... build:self",
-    "build:self": "tsgo --build tsconfig.build.json",
+    "build:self": "tsgo --build tsconfig.build.json && ./scripts/copy_build_assets.sh",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
@@ -67,6 +67,7 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
+    "copyfiles": "^2.4.1",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",

@@ -2,7 +2,12 @@
 // The durable datastore for configuration info.
 //
 
-import { UiStringsStore, createUiStringStore } from '@votingworks/backend';
+import {
+  UiStringsStore,
+  createUiStringStore,
+  addDiagnosticRecord,
+  getMostRecentDiagnosticRecord,
+} from '@votingworks/backend';
 import { assertDefined, DateWithoutTime } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import { BaseLogger } from '@votingworks/logging';
@@ -22,6 +27,8 @@ import {
   LanguageCode,
   BallotStyleId,
   PrecinctId,
+  DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { BallotPrintEntry, BallotMode } from './types';
@@ -124,10 +131,6 @@ export class Store {
         electionPackageHash: electionRow.electionPackageHash,
       }
     );
-  }
-
-  deleteElectionRecord(): void {
-    this.client.run('delete from election');
   }
 
   /**
@@ -241,13 +244,6 @@ export class Store {
   }
 
   /**
-   * Deletes system settings
-   */
-  deleteSystemSettings(): void {
-    this.client.run('delete from system_settings');
-  }
-
-  /**
    * Stores the system settings.
    */
   setSystemSettings(systemSettings: SystemSettings): void {
@@ -300,13 +296,6 @@ export class Store {
         ballot.encodedBallot
       );
     }
-  }
-
-  /**
-   * Deletes all stored ballots.
-   */
-  deleteBallots(): void {
-    this.client.run('delete from ballots');
   }
 
   getBallotPrintCounts({
@@ -527,5 +516,15 @@ export class Store {
    */
   resetBallotPrintCounts(): void {
     this.client.run('update ballots set print_count = 0');
+  }
+
+  addDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>): void {
+    addDiagnosticRecord(this.client, record);
+  }
+
+  getMostRecentDiagnosticRecord(
+    type: DiagnosticType
+  ): DiagnosticRecord | undefined {
+    return getMostRecentDiagnosticRecord(this.client, type);
   }
 }

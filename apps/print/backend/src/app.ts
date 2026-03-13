@@ -4,6 +4,7 @@ import express, { Application } from 'express';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
+  DiagnosticRecord,
   ElectionDefinition,
   ElectionPackageConfigurationError,
   PrecinctSelection,
@@ -15,7 +16,9 @@ import {
 } from '@votingworks/types';
 import {
   createSystemCallApi,
+  DiskSpaceSummary,
   ElectionRecord,
+  ExportDataResult,
   getBatteryInfo,
   readSignedElectionPackageFromUsb,
 } from '@votingworks/backend';
@@ -33,6 +36,8 @@ import {
   printBallotsPrintedReport,
   exportBallotsPrintedReportPdf,
 } from './reports/ballots_printed_report';
+import { printTestPage } from './printing/test_print';
+import { saveReadinessReport } from './reports/readiness';
 import { BallotPrintEntry, DeviceStatuses } from './types';
 import { getMachineConfig } from './machine_config';
 import { findBallotStyleId } from './util/ballot_styles';
@@ -173,10 +178,7 @@ export function buildApi(ctx: AppContext) {
     },
 
     unconfigureMachine(): void {
-      store.deleteBallots();
-      store.deleteSystemSettings();
-      store.setPrecinctSelection(undefined);
-      store.deleteElectionRecord();
+      store.reset();
     },
 
     /* istanbul ignore next - @preserve */
@@ -437,6 +439,31 @@ export function buildApi(ctx: AppContext) {
 
     async ejectUsbDrive(): Promise<void> {
       await usbDrive.eject();
+    },
+
+    addDiagnosticRecord(input: Omit<DiagnosticRecord, 'timestamp'>): void {
+      store.addDiagnosticRecord(input);
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition: input.outcome === 'pass' ? 'success' : 'failure',
+        message: `Diagnostic (${input.type}) completed with outcome: ${input.outcome}.`,
+        type: input.type,
+      });
+    },
+
+    getMostRecentPrinterDiagnostic(): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord('test-print') ?? null;
+    },
+
+    async printTestPage(): Promise<void> {
+      await printTestPage({ printer, logger });
+    },
+
+    async saveReadinessReport(): Promise<ExportDataResult> {
+      return saveReadinessReport({ workspace, printer, usbDrive, logger });
+    },
+
+    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+      return workspace.getDiskSpaceSummary();
     },
   } as const;
 

@@ -18,6 +18,7 @@
     "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "generate-fixtures": "DEBUG=hmpb:ballot_fixtures ./bin/generate-fixtures",
+    "generate-vxprint-test-print": "./bin/generate-vxprint-test-print",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "start": "vite -c vite.config.ts src/preview",

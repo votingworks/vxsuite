@@ -1,0 +1,22 @@
+import { PrintTestPageButton as SharedPrintTestPageButton } from '@votingworks/ui';
+import { addDiagnosticRecord, getDeviceStatuses, printTestPage } from '../api';
+
+export { TEST_PAGE_PRINT_DELAY_SECONDS } from '@votingworks/ui';
+
+export function PrintTestPageButton(): JSX.Element {
+  const deviceStatusesQuery = getDeviceStatuses.useQuery();
+  const isPrinterConnected =
+    deviceStatusesQuery.data?.printer.connected ?? false;
+  const printTestPageMutation = printTestPage.useMutation();
+  const addDiagnosticRecordMutation = addDiagnosticRecord.useMutation();
+
+  return (
+    <SharedPrintTestPageButton
+      isPrinterConnected={isPrinterConnected}
+      printTestPage={() => printTestPageMutation.mutate()}
+      logTestPrintOutcome={(input) =>
+        addDiagnosticRecordMutation.mutate({ type: 'test-print', ...input })
+      }
+    />
+  );
+}

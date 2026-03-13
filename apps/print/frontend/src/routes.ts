@@ -1,4 +1,5 @@
 export const systemAdministratorRoutes = {
+  diagnostics: { title: 'Diagnostics', path: '/diagnostics' },
   settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
 
@@ -6,6 +7,7 @@ export const electionManagerRoutes = {
   election: { title: 'Election', path: '/election' },
   print: { title: 'Print', path: '/print' },
   reports: { title: 'Report', path: '/report' },
+  diagnostics: { title: 'Diagnostics', path: '/diagnostics' },
   settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
 

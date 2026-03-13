@@ -24,3 +24,11 @@ create table ballots (
   encoded_ballot text not null, -- Base64 encoded ballot
   print_count integer not null default 0
 );
+
+create table diagnostics (
+  id integer primary key,
+  type text not null,
+  outcome text not null check (outcome = 'pass' or outcome = 'fail'),
+  message text,
+  timestamp number not null
+);

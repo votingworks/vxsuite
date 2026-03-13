@@ -272,3 +272,53 @@ export const exportBallotsPrintedReportPdf = {
 } as const;
 
 export const systemCallApi = createSystemCallApi(useApiClient);
+
+export const getMostRecentPrinterDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostRecentPrinterDiagnostic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMostRecentPrinterDiagnostic()
+    );
+  },
+} as const;
+
+export const getDiskSpaceSummary = {
+  queryKey(): QueryKey {
+    return ['getDiskSpaceSummary'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getDiskSpaceSummary());
+  },
+} as const;
+
+export const printTestPage = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTestPage);
+  },
+} as const;
+
+export const addDiagnosticRecord = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.addDiagnosticRecord, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentPrinterDiagnostic.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
+export const saveReadinessReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.saveReadinessReport);
+  },
+} as const;

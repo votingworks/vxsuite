@@ -14,6 +14,7 @@ export default defineConfig({
         // tested by src/preview.test.ts, but no coverage is collected
         'src/preview',
         'src/generate_fixtures.ts',
+        'src/generate_vxprint_test_print.ts',
       ],
     },
   },

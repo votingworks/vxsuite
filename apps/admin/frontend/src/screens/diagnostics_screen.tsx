@@ -15,7 +15,7 @@ import {
   getUsbDriveStatus,
 } from '../api';
 import { Loading } from '../components/loading';
-import { PrintTestPageButton } from '../components/print_diagnostic_button';
+import { PrintTestPageButton } from '../components/print_test_page_button';
 import { AppContext } from '../contexts/app_context';
 
 const PageLayout = styled.div`
