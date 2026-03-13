@@ -72,7 +72,8 @@ export async function start(
 
   if (crashedTaskIds.length > 0) {
     console.warn(
-      `⚠️  Worker starting with ${crashedTaskIds.length
+      `⚠️  Worker starting with ${
+        crashedTaskIds.length
       } crashed task(s) that will NOT be requeued: ${crashedTaskIds.join(', ')}`
     );
 
@@ -92,7 +93,8 @@ export async function start(
     await store.requeueGracefullyInterruptedBackgroundTasks();
   if (requeuedTaskIds.length > 0) {
     console.log(
-      `🔄 Requeued ${requeuedTaskIds.length
+      `🔄 Requeued ${
+        requeuedTaskIds.length
       } gracefully interrupted task(s): ${requeuedTaskIds.join(', ')}`
     );
   }

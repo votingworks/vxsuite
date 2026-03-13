@@ -65,7 +65,8 @@ export class CircleCiClient {
     this.projectSlug = projectSlug ?? circleCiProjectSlug() ?? '';
 
     if (!this.apiToken || !this.projectSlug) {
-      debug('CircleCI client initialized but not configured: hasToken=%s, hasProjectSlug=%s',
+      debug(
+        'CircleCI client initialized but not configured: hasToken=%s, hasProjectSlug=%s',
         !!this.apiToken,
         !!this.projectSlug
       );
@@ -95,9 +96,12 @@ export class CircleCiClient {
 
     const { exportPackageUrl, webhookUrl, qaRunId, electionId } = params;
 
-    const url = `${circleCiBaseUrl()}/api/v2/project/${this.projectSlug}/pipeline`;
+    const url = `${circleCiBaseUrl()}/api/v2/project/${
+      this.projectSlug
+    }/pipeline`;
 
-    debug('Triggering CircleCI pipeline for QA: projectSlug=%s, qaRunId=%s, electionId=%s, url=%s',
+    debug(
+      'Triggering CircleCI pipeline for QA: projectSlug=%s, qaRunId=%s, electionId=%s, url=%s',
       this.projectSlug,
       qaRunId,
       electionId,
@@ -126,7 +130,8 @@ export class CircleCiClient {
 
       if (!response.ok) {
         const errorText = await response.text();
-        debug('CircleCI API request failed: status=%s, statusText=%s, error=%s, qaRunId=%s',
+        debug(
+          'CircleCI API request failed: status=%s, statusText=%s, error=%s, qaRunId=%s',
           response.status,
           response.statusText,
           errorText,
@@ -145,7 +150,8 @@ export class CircleCiClient {
         created_at: string;
       };
 
-      debug('CircleCI pipeline triggered successfully: pipelineId=%s, pipelineNumber=%s, qaRunId=%s, request body=%s',
+      debug(
+        'CircleCI pipeline triggered successfully: pipelineId=%s, pipelineNumber=%s, qaRunId=%s, request body=%s',
         data.id,
         data.number,
         qaRunId,
@@ -159,7 +165,8 @@ export class CircleCiClient {
         createdAt: data.created_at,
       };
     } catch (error) {
-      debug('Error triggering CircleCI pipeline: error=%s, qaRunId=%s',
+      debug(
+        'Error triggering CircleCI pipeline: error=%s, qaRunId=%s',
         error instanceof Error ? error.message : String(error),
         qaRunId
       );

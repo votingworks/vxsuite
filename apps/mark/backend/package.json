@@ -15,7 +15,7 @@
     "build:self": "tsgo --build tsconfig.build.json && ./scripts/copy_build_assets.sh",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
-    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "start": "node ./build/index.js",

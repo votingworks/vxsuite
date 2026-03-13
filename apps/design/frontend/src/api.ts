@@ -606,14 +606,12 @@ export const getLatestExportQaRun = {
   queryKey(electionId: ElectionId): QueryKey {
     return ['getLatestExportQaRun', electionId];
   },
-  useQuery(
-    electionId: ElectionId,
-    options?: { isExportInProgress?: boolean }
-  ) {
+  useQuery(electionId: ElectionId, options?: { isExportInProgress?: boolean }) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(electionId),
-      async () => (await apiClient.getLatestExportQaRun({ electionId })) ?? null,
+      async () =>
+        (await apiClient.getLatestExportQaRun({ electionId })) ?? null,
       {
         // Poll while any QA run is in progress, or while an export is in
         // progress (since a new QA run will be created when the export
@@ -704,7 +702,7 @@ export const unfinalizeBallots = {
           ),
           queryClient.invalidateQueries(
             getLatestExportQaRun.queryKey(electionId)
-          )
+          ),
         ]);
       },
     });
@@ -879,4 +877,3 @@ export const getBaseUrl = {
     return useQuery(this.queryKey(), () => apiClient.getBaseUrl());
   },
 } as const;
-

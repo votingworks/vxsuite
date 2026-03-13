@@ -754,12 +754,18 @@ test('validates streak width threshold must be less than max cumulative width', 
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-  const maxCumulativeStreakWidthInput = screen.getByRole<HTMLInputElement>('spinbutton', {
-    name: 'Max Cumulative Streak Width (pixels)',
-  });
-  const retryStreakWidthThresholdInput = screen.getByRole<HTMLInputElement>('spinbutton', {
-    name: 'Retry Streak Width Threshold (pixels)',
-  });
+  const maxCumulativeStreakWidthInput = screen.getByRole<HTMLInputElement>(
+    'spinbutton',
+    {
+      name: 'Max Cumulative Streak Width (pixels)',
+    }
+  );
+  const retryStreakWidthThresholdInput = screen.getByRole<HTMLInputElement>(
+    'spinbutton',
+    {
+      name: 'Retry Streak Width Threshold (pixels)',
+    }
+  );
 
   // Set max width to 5 and retry threshold to 5 (invalid: should be less than)
   userEvent.clear(maxCumulativeStreakWidthInput);

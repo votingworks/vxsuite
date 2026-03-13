@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { electionTwoPartyPrimaryFixtures, makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
   BallotStyleGroupId,

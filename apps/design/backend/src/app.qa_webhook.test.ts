@@ -16,25 +16,29 @@ afterAll(async () => {
   await cleanup();
 });
 
-async function createElectionForTest(
-  apiClient: { createElection: (params: { id: ElectionId; jurisdictionId: string }) => Promise<{ unsafeUnwrap: () => ElectionId }> },
-): Promise<ElectionId> {
-  const electionId = uuid() ;
-  (await apiClient.createElection({
-    id: electionId,
-    jurisdictionId: nonVxJurisdiction.id,
-  })).unsafeUnwrap();
+async function createElectionForTest(apiClient: {
+  createElection: (params: {
+    id: ElectionId;
+    jurisdictionId: string;
+  }) => Promise<{ unsafeUnwrap: () => ElectionId }>;
+}): Promise<ElectionId> {
+  const electionId = uuid();
+  (
+    await apiClient.createElection({
+      id: electionId,
+      jurisdictionId: nonVxJurisdiction.id,
+    })
+  ).unsafeUnwrap();
   return electionId;
 }
 
 describe('Export QA Webhook', () => {
   test('webhook endpoint requires valid secret', async () => {
-    const { workspace, apiClient, auth0, app } =
-      await setupApp({
-        organizations,
-        jurisdictions,
-        users,
-      });
+    const { workspace, apiClient, auth0, app } = await setupApp({
+      organizations,
+      jurisdictions,
+      users,
+    });
 
     auth0.setLoggedInUser(nonVxUser);
 
@@ -154,7 +158,9 @@ describe('Export QA Webhook', () => {
       });
 
     expect(responseInvalidStatus.status).toEqual(400);
-    expect(responseInvalidStatus.body).toEqual({ error: 'Invalid request body' });
+    expect(responseInvalidStatus.body).toEqual({
+      error: 'Invalid request body',
+    });
 
     // Test with missing status
     const responseMissingStatus = await app.request
@@ -163,7 +169,9 @@ describe('Export QA Webhook', () => {
       .send({});
 
     expect(responseMissingStatus.status).toEqual(400);
-    expect(responseMissingStatus.body).toEqual({ error: 'Invalid request body' });
+    expect(responseMissingStatus.body).toEqual({
+      error: 'Invalid request body',
+    });
   });
 
   test('webhook endpoint updates QA run status', async () => {
@@ -195,7 +203,8 @@ describe('Export QA Webhook', () => {
         status: 'in_progress',
         statusMessage: 'Running tests',
         circleCiWorkflowId: 'workflow-123',
-        jobUrl: 'https://app.circleci.com/pipelines/gh/org/repo/123/workflows/abc/jobs/456',
+        jobUrl:
+          'https://app.circleci.com/pipelines/gh/org/repo/123/workflows/abc/jobs/456',
       });
 
     expect(responseInProgress.status).toEqual(200);
@@ -208,7 +217,8 @@ describe('Export QA Webhook', () => {
       status: 'in_progress',
       statusMessage: 'Running tests',
       circleCiWorkflowId: 'workflow-123',
-      jobUrl: 'https://app.circleci.com/pipelines/gh/org/repo/123/workflows/abc/jobs/456',
+      jobUrl:
+        'https://app.circleci.com/pipelines/gh/org/repo/123/workflows/abc/jobs/456',
     });
 
     // Update to success
@@ -305,7 +315,9 @@ describe('Export QA Webhook', () => {
       .mockRejectedValue(new Error('Database connection lost'));
 
     // Suppress console.error output during test
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
     const response = await app.request
       .post(`/api/export-qa-webhook/${qaRunId}`)
