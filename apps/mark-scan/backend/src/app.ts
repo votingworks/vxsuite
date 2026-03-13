@@ -459,6 +459,11 @@ export function buildApi(
     },
 
     startPaperHandlerDiagnostic(): void {
+      void logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
+        message: 'User initiated a paper handler diagnostic.',
+        disposition: 'success',
+      });
+
       if (!stateMachine) {
         const record: Omit<DiagnosticRecord, 'timestamp'> = {
           type: 'mark-scan-paper-handler',

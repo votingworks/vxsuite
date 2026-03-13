@@ -328,6 +328,13 @@ describe('paper handler diagnostic', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
 
     await apiClient.startPaperHandlerDiagnostic();
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.DiagnosticInit,
+      {
+        message: 'User initiated a paper handler diagnostic.',
+        disposition: 'success',
+      }
+    );
     await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
 
     driver.setMockStatus('paperInserted');
@@ -370,6 +377,13 @@ describe('paper handler diagnostic', () => {
     driver.setMockStatus('noPaper');
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await apiClient.startPaperHandlerDiagnostic();
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.DiagnosticInit,
+      {
+        message: 'User initiated a paper handler diagnostic.',
+        disposition: 'success',
+      }
+    );
 
     await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
 
