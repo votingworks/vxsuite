@@ -633,11 +633,14 @@ export async function layOutBallotsAndCreateElectionDefinition<
           )
         )
       ) {
+        const seen = new Set<string>();
         return {
           ...contest,
-          candidates: firstLayoutOrder.map(({ id }) =>
-            find(contest.candidates, (c) => c.id === id)
-          ),
+          candidates: firstLayoutOrder.flatMap(({ id }) => {
+            if (seen.has(id)) return [];
+            seen.add(id);
+            return [find(contest.candidates, (c) => c.id === id)];
+          }),
         };
       }
       return contest;

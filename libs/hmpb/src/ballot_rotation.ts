@@ -148,6 +148,42 @@ export function deduplicateIdenticalOrderingsAcrossPrecincts(
   }));
 }
 
+/**
+ * For ballot templates with party columns (e.g. NhGeneralBallot), cross-endorsed
+ * candidates need separate OrderedCandidateOption entries per party so that each
+ * party column gets its own bubble/grid position.
+ */
+function splitCrossEndorsedCandidates(
+  orderings: CandidateOrdering[]
+): CandidateOrdering[] {
+  return orderings.map((ordering) => {
+    const splitOrderedCandidatesByContest: Record<
+      ContestId,
+      OrderedCandidateOption[]
+    > = {};
+    for (const [contestId, options] of Object.entries(
+      ordering.orderedCandidatesByContest
+    )) {
+      splitOrderedCandidatesByContest[contestId] = options.flatMap((option) => {
+        const { partyIds } = option;
+        if (!partyIds || partyIds.length <= 1) {
+          return [option];
+        }
+        return partyIds.map((partyId) =>
+          typedAs<OrderedCandidateOption>({
+            id: option.id,
+            partyIds: [partyId],
+          })
+        );
+      });
+    }
+    return {
+      ...ordering,
+      orderedCandidatesByContest: splitOrderedCandidatesByContest,
+    };
+  });
+}
+
 // Helper function to get all contest rotations based on the selected ballot template
 export function getAllPossibleCandidateOrderings(
   ballotStyleTemplateId: BallotTemplateId,
@@ -156,8 +192,11 @@ export function getAllPossibleCandidateOrderings(
   const orderings = (() => {
     switch (ballotStyleTemplateId) {
       case 'NhBallot':
-      case 'NhGeneralBallot':
         return getCandidateOrderingSetsForNhBallot(params);
+      case 'NhGeneralBallot':
+        return splitCrossEndorsedCandidates(
+          getCandidateOrderingSetsForNhBallot(params)
+        );
       case 'VxDefaultBallot':
       case 'MsBallot':
         return getDefaultCandidateOrdering(params);

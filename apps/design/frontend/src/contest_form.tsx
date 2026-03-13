@@ -480,7 +480,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                       <TH>First Name</TH>
                       <TH>Middle Name</TH>
                       <TH>Last Name</TH>
-                      <TH>Party</TH>
+                      <TH>Party/Parties</TH>
                       <TH />
                     </tr>
                   </thead>
@@ -563,21 +563,17 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                         </TD>
                         <TD>
                           <SearchSelect
+                            isMulti
                             aria-label={`Candidate ${index + 1} Party`}
                             disabled={disabled || hasExternalSource}
-                            options={[
-                              {
-                                value: '' as PartyId,
-                                label: 'No Party Affiliation',
-                              },
-                              ...parties.map((party) => ({
-                                value: party.id,
-                                label: party.name,
-                              })),
-                            ]}
-                            // Only support one party per candidate for now
-                            value={candidate.partyIds?.[0]}
-                            onChange={(value) =>
+                            options={parties.map((party) => ({
+                              value: party.id,
+                              label: party.name,
+                            }))}
+                            value={
+                              candidate.partyIds ? [...candidate.partyIds] : []
+                            }
+                            onChange={(values) =>
                               setContest({
                                 ...contest,
                                 candidates: replaceAtIndex(
@@ -585,7 +581,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                                   index,
                                   {
                                     ...candidate,
-                                    partyIds: value ? [value] : undefined,
+                                    partyIds:
+                                      values.length > 0 ? values : undefined,
                                   }
                                 ),
                               })

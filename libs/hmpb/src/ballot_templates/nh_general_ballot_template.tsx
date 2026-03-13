@@ -609,14 +609,19 @@ const ContestTitleCell = styled.div`
   align-items: center;
 `;
 
+interface CandidateEntry {
+  candidate: Candidate;
+  partyId?: string;
+}
+
 function CandidateList({
   contestId,
-  candidates,
+  entries,
   party,
   offset,
 }: {
   contestId: ContestId;
-  candidates: Candidate[];
+  entries: CandidateEntry[];
   party?: Party;
   offset?: boolean;
 }) {
@@ -626,20 +631,23 @@ function CandidateList({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        paddingTop: offset && candidates.length > 1 ? '1.375rem' : undefined,
-        justifyContent: candidates.length === 1 ? 'center' : 'start',
+        paddingTop: offset && entries.length > 1 ? '1.375rem' : undefined,
+        justifyContent: entries.length === 1 ? 'center' : 'start',
         gap: '0.5rem',
       }}
     >
-      {candidates.map((candidate) => {
+      {entries.map(({ candidate, partyId }) => {
+        const isCrossEndorsed =
+          candidate.partyIds && candidate.partyIds.length > 1;
         const optionInfo: OptionInfo = {
           type: 'option',
           contestId,
           optionId: candidate.id,
+          partyIds: isCrossEndorsed && partyId ? [partyId] : undefined,
         };
         return (
           <div
-            key={candidate.id}
+            key={`${candidate.id}-${partyId ?? ''}`}
             style={{
               padding: '0.375rem 0.375rem',
               display: 'flex',
@@ -719,21 +727,29 @@ function CandidateContest({
     10: hmpbStrings.hmpb10WillBeElected,
   }[contest.seats];
 
-  const candidatesByParty = groupBy(
-    [...contest.candidates],
-    (candidate) => candidate.partyIds?.[0]
+  // Explode candidates into per-party entries. A cross-endorsed candidate
+  // (with multiple partyIds) gets a separate entry for each party column,
+  // each with a distinct bubble, but all tabulated as the same candidate.
+  const candidateEntries: CandidateEntry[] = contest.candidates.flatMap(
+    (candidate) => {
+      const { partyIds } = candidate;
+      if (!partyIds || partyIds.length === 0) {
+        return [{ candidate }];
+      }
+      return partyIds.map((partyId) => ({ candidate, partyId }));
+    }
   );
+  const entriesByParty = groupBy(candidateEntries, (entry) => entry.partyId);
   const { parties } = election;
   const democracticPartyId = find(parties, (p) => /^dem/i.test(p.abbrev)).id;
   const republicanPartyId = find(parties, (p) => /^rep/i.test(p.abbrev)).id;
-  const democraticCandidates =
-    candidatesByParty.find(
-      ([partyId]) => partyId === democracticPartyId
-    )?.[1] ?? [];
-  const republicanCandidates =
-    candidatesByParty.find(([partyId]) => partyId === republicanPartyId)?.[1] ??
+  const democraticEntries =
+    entriesByParty.find(([partyId]) => partyId === democracticPartyId)?.[1] ??
     [];
-  const otherCandidateGroups = candidatesByParty.filter(
+  const republicanEntries =
+    entriesByParty.find(([partyId]) => partyId === republicanPartyId)?.[1] ??
+    [];
+  const otherEntryGroups = entriesByParty.filter(
     ([partyId]) =>
       !(partyId === democracticPartyId || partyId === republicanPartyId)
   );
@@ -758,22 +774,19 @@ function CandidateContest({
       <CandidateListCell>
         <CandidateList
           contestId={contest.id}
-          candidates={democraticCandidates}
+          entries={democraticEntries}
           offset
         />
       </CandidateListCell>
       <CandidateListCell>
-        <CandidateList
-          contestId={contest.id}
-          candidates={republicanCandidates}
-        />
+        <CandidateList contestId={contest.id} entries={republicanEntries} />
       </CandidateListCell>
       <CandidateListCell>
-        {otherCandidateGroups.map(([partyId, candidates], i) => (
+        {otherEntryGroups.map(([partyId, entries], i) => (
           <div key={partyId} style={{ height: '100%' }}>
             <CandidateList
               contestId={contest.id}
-              candidates={candidates}
+              entries={entries}
               party={find(parties, (p) => p.id === partyId)}
               offset={i === 0}
             />
