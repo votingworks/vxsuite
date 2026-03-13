@@ -16,11 +16,21 @@ vi.setConfig({
 
 vi.mock(
   import('@votingworks/backend'),
-  async (importActual): Promise<typeof import('@votingworks/backend')> => ({
-    ...(await importActual()),
-    getBatteryInfo: vi.fn(),
-    getDiskSpaceSummary: vi.fn(),
-  })
+  async (importActual): Promise<typeof import('@votingworks/backend')> => {
+    const actual = await importActual();
+    const mockedGetDiskSpaceSummary = vi.fn();
+    return {
+      ...actual,
+      getBatteryInfo: vi.fn(),
+      getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      createSystemCallApi: (
+        ...args: Parameters<typeof actual.createSystemCallApi>
+      ) => ({
+        ...actual.createSystemCallApi(...args),
+        getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      }),
+    };
+  }
 );
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
