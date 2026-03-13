@@ -3,11 +3,13 @@
 import { beforeEach, expect, test, vi, afterEach } from 'vitest';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { SystemCallApiMethods, createSystemCallApi } from './api';
 import { execFile } from '../exec';
 import { AudioInfo, getAudioInfo } from './get_audio_info';
 import { BatteryInfo, getBatteryInfo } from './get_battery_info';
 import { LogsExportError } from './export_logs_to_usb';
+import { getDiskSpaceSummary } from './get_disk_space_summary';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
   ...(await importActual()),
@@ -24,6 +26,7 @@ vi.mock(
 
 vi.mock(import('./get_audio_info.js'));
 vi.mock(import('./get_battery_info.js'));
+vi.mock(import('./get_disk_space_summary.js'));
 
 const actualTimezone = process.env.TZ;
 
@@ -41,6 +44,7 @@ beforeEach(() => {
     logger,
     machineId: 'TEST-MACHINE-ID',
     codeVersion: 'TEST-CODE-VERSION',
+    workspacePath: 'TEST-WORKSPACE-PATH',
   });
 });
 
@@ -146,4 +150,39 @@ test('getBatteryInfo', async () => {
   vi.mocked(getBatteryInfo).mockResolvedValue(batteryInfo);
   await expect(api.getBatteryInfo()).resolves.toEqual(batteryInfo);
   expect(getBatteryInfo).toHaveBeenCalledWith({ logger });
+});
+
+test('getDiskSpaceSummary logs when disk space is low', async () => {
+  const diskSpaceSummaryLowAvailable: DiskSpaceSummary = {
+    total: 1000,
+    used: 990,
+    available: 10,
+  };
+  vi.mocked(getDiskSpaceSummary).mockResolvedValue(
+    diskSpaceSummaryLowAvailable
+  );
+  expect(await api.getDiskSpaceSummary()).toEqual(diskSpaceSummaryLowAvailable);
+  expect(getDiskSpaceSummary).toHaveBeenCalledWith(['TEST-WORKSPACE-PATH']);
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.LowDiskSpace,
+    expect.objectContaining({
+      message: 'Free disk space is down to 1% (10.0 KB of 1000.0 KB).',
+    })
+  );
+});
+
+test('getDiskSpaceSummary does not log when disk space is sufficient', async () => {
+  const diskSpaceSummaryPlentyAvailable: DiskSpaceSummary = {
+    total: 1000,
+    used: 500,
+    available: 500,
+  };
+  vi.mocked(getDiskSpaceSummary).mockResolvedValue(
+    diskSpaceSummaryPlentyAvailable
+  );
+  expect(await api.getDiskSpaceSummary()).toEqual(
+    diskSpaceSummaryPlentyAvailable
+  );
+  expect(getDiskSpaceSummary).toHaveBeenCalledWith(['TEST-WORKSPACE-PATH']);
+  expect(logger.logAsCurrentRole).not.toHaveBeenCalled();
 });

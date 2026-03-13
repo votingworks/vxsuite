@@ -6,6 +6,7 @@ import { ok } from '@votingworks/basics';
 import {
   BATTERY_POLLING_INTERVAL_GROUT,
   createSystemCallApi,
+  DISK_SPACE_POLLING_INTERVAL_MS,
   useSystemCallApi,
 } from './system_call_api';
 
@@ -31,6 +32,7 @@ const mockApiClient: Mocked<SystemCallApiClient> = {
   getAudioInfo: vi.fn(),
   getUsbPortStatus: vi.fn(),
   toggleUsbPorts: vi.fn(),
+  getDiskSpaceSummary: vi.fn(),
 };
 const api = createSystemCallApi(() => mockApiClient);
 
@@ -91,6 +93,30 @@ describe('React Query API calls the right client methods', () => {
 
     vi.advanceTimersByTime(BATTERY_POLLING_INTERVAL_GROUT);
     expect(mockApiClient.getBatteryInfo).toHaveBeenCalledTimes(2);
+  });
+
+  test('getDiskSpaceSummary', async () => {
+    mockApiClient.getDiskSpaceSummary.mockResolvedValue({
+      total: 3,
+      used: 2,
+      available: 1,
+    });
+    const { result: query } = renderHook(
+      () => api.getDiskSpaceSummary.useQuery(),
+      { wrapper: QueryWrapper }
+    );
+
+    await waitFor(() => {
+      expect(query.current.data).toEqual({
+        total: 3,
+        used: 2,
+        available: 1,
+      });
+    });
+    expect(mockApiClient.getDiskSpaceSummary).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(DISK_SPACE_POLLING_INTERVAL_MS);
+    expect(mockApiClient.getDiskSpaceSummary).toHaveBeenCalledTimes(2);
   });
 });
 
