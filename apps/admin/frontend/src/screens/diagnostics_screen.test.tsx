@@ -41,7 +41,6 @@ async function expectTextWithIcon(text: string, icon: string) {
 
 test('battery state', async () => {
   apiMock.setPrinterStatus({ connected: false });
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   renderInAppContext(<DiagnosticsScreen />, {
     apiMock,
@@ -83,7 +82,6 @@ const mockPrinterConfig: PrinterConfig = {
 
 test('displays printer state and allows diagnostic', async () => {
   apiMock.setPrinterStatus({ connected: false });
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   renderInAppContext(<DiagnosticsScreen />, {
     apiMock,
@@ -182,7 +180,7 @@ describe('disk space summary', () => {
   });
 
   test('normal disk space', async () => {
-    apiMock.expectGetDiskSpaceSummary({
+    apiMock.setDiskSpaceSummary({
       available: 99.2 * 1_000_000,
       used: 0.08 * 1_000_000,
       total: 100 * 1_000_000,
@@ -198,7 +196,7 @@ describe('disk space summary', () => {
   });
 
   test('low disk space', async () => {
-    apiMock.expectGetDiskSpaceSummary({
+    apiMock.setDiskSpaceSummary({
       available: 2.4 * 1_000_000,
       used: 97.6 * 1_000_000,
       total: 100 * 1_000_000,
@@ -216,7 +214,6 @@ describe('disk space summary', () => {
 
 test('configuration info', async () => {
   apiMock.setPrinterStatus();
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   renderInAppContext(<DiagnosticsScreen />, {
     apiMock,
@@ -228,7 +225,6 @@ test('configuration info', async () => {
 
 test('saving the readiness report', async () => {
   apiMock.setPrinterStatus({ connected: true });
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   renderInAppContext(<DiagnosticsScreen />, {
     apiMock,

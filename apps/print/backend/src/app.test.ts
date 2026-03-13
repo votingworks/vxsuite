@@ -12,6 +12,7 @@ import {
   LanguageCode,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
+  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
@@ -421,6 +422,7 @@ test('unconfigureMachine clears election configuration', async () => {
   await apiClient.setTestMode({ testMode: true });
 
   expect(await apiClient.getPrecinctSelection()).not.toBeNull();
+  expect(await apiClient.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
 
   await apiClient.unconfigureMachine();
 

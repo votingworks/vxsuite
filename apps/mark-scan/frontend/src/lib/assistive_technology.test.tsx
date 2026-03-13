@@ -33,6 +33,7 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
+  apiMock.setDiskSpaceSummary();
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 });
 

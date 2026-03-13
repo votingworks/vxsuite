@@ -1,9 +1,10 @@
-import type { DiskSpaceSummary } from '@votingworks/backend';
+import {
+  AVAILABLE_DISK_SPACE_RATIO_WARNING_THRESHOLD,
+  type DiskSpaceSummary,
+} from '@votingworks/utils';
 import { format } from '@votingworks/utils';
 import { H2, P } from '../typography';
 import { SuccessIcon, WarningIcon } from './icons';
-
-export const FREE_DISK_SPACE_RATIO_WARN_THRESHOLD = 0.05;
 
 function roundToGigabytes(kilobytes: number): number {
   return Math.round(kilobytes / 100_000) / 10;
@@ -23,7 +24,8 @@ export function StorageSection({
     <section>
       <H2>Storage</H2>
       <P>
-        {storageAvailableRatio < FREE_DISK_SPACE_RATIO_WARN_THRESHOLD ? (
+        {storageAvailableRatio <
+        AVAILABLE_DISK_SPACE_RATIO_WARNING_THRESHOLD ? (
           <WarningIcon />
         ) : (
           <SuccessIcon />

@@ -228,6 +228,7 @@ export enum LogEventId {
   PollbookDuplicateCheckInDetected = 'pollbook-duplicate-check-in-detected',
   DataCheckOnStartup = 'data-check-on-startup',
   SetBallotCastingMode = 'set-ballot-casting-mode',
+  LowDiskSpace = 'low-disk-space',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1427,6 +1428,12 @@ const SetBallotCastingMode: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxScan],
 };
 
+const LowDiskSpace: LogDetails = {
+  eventId: LogEventId.LowDiskSpace,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'Free disk space is low.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1753,6 +1760,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DataCheckOnStartup;
     case LogEventId.SetBallotCastingMode:
       return SetBallotCastingMode;
+    case LogEventId.LowDiskSpace:
+      return LowDiskSpace;
     default:
       throwIllegalValue(eventId);
   }

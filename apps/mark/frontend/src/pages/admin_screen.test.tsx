@@ -263,7 +263,7 @@ test('navigates to diagnostics screen and back', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,

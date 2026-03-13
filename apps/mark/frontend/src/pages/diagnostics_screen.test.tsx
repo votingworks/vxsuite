@@ -55,7 +55,7 @@ test('renders diagnostics screen with all sections', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -90,7 +90,7 @@ test('navigating to and from system audio diagnostic - pass', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -127,7 +127,7 @@ test('navigating to and from system audio diagnostic - fail', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -164,7 +164,7 @@ test('navigating to and from system audio diagnostic - cancel', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -190,7 +190,7 @@ test('navigating to and from headphone input diagnostic - pass', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -227,7 +227,7 @@ test('navigating to and from headphone input diagnostic - fail', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -264,7 +264,7 @@ test('navigating to and from headphone input diagnostic - cancel', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -290,7 +290,7 @@ test('navigating to and from PAT input diagnostic - pass', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -340,7 +340,7 @@ test('navigating to and from PAT input diagnostic - cancel', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -378,7 +378,7 @@ test('navigating to and from barcode reader diagnostic - fail', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -421,7 +421,7 @@ test('navigating to and from barcode reader diagnostic - cancel', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -450,7 +450,7 @@ test('UPS diagnostic - pass', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,
@@ -487,7 +487,7 @@ test('UPS diagnostic - fail', async () => {
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
-  apiMock.mockApiClient.getDiskSpaceSummary.expectCallWith().resolves({
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
     used: 1_000_000_000,
     total: 2_000_000_000,

@@ -2,8 +2,10 @@ import './polyfills';
 import {
   AppBase,
   AppErrorBoundary,
+  BatteryLowAlert,
   H1,
   InvalidCardScreen,
+  LowDiskSpaceWarning,
   P,
   RemoveCardScreen,
   SetupCardReaderPage,
@@ -40,6 +42,7 @@ import { ElectionManagerApp } from './election_manager_app';
 import { UnconfiguredElectionManagerScreen } from './screens/unconfigured_election_manager_screen';
 import { SystemAdministratorApp } from './system_administrator_app';
 import { PollWorkerApp } from './poll_worker_app';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
 function AppRoot({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -168,6 +171,9 @@ export function App({
             <SystemCallContextProvider api={systemCallApi}>
               <BrowserRouter>
                 <AppRoot logger={logger} apiClient={apiClient} />
+                <SessionTimeLimitTracker />
+                <LowDiskSpaceWarning />
+                <BatteryLowAlert />
               </BrowserRouter>
             </SystemCallContextProvider>
           </QueryClientProvider>

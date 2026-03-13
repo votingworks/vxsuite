@@ -6,7 +6,8 @@ import {
 import { err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { DiagnosticRecord } from '@votingworks/types';
-import { DiskSpaceSummary, getDiskSpaceSummary } from '@votingworks/backend';
+import { getDiskSpaceSummary } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { withApp } from '../test/helpers/scanner_helpers';
 import {
   TEST_PRINT_USER_FAIL_REASON,
@@ -51,10 +52,23 @@ async function wrapWithFakeSystemTime<T>(fn: () => Promise<T>): Promise<T> {
   return result;
 }
 
-vi.mock(import('@votingworks/backend'), async (importActual) => ({
-  ...(await importActual()),
-  getDiskSpaceSummary: vi.fn(),
-}));
+vi.mock(
+  import('@votingworks/backend'),
+  async (importActual): Promise<typeof import('@votingworks/backend')> => {
+    const actual = await importActual();
+    const mockedGetDiskSpaceSummary = vi.fn();
+    return {
+      ...actual,
+      getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      createSystemCallApi: (
+        ...args: Parameters<typeof actual.createSystemCallApi>
+      ) => ({
+        ...actual.createSystemCallApi(...args),
+        getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      }),
+    };
+  }
+);
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   total: 10 * 1_000_000,

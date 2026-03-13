@@ -1,15 +1,7 @@
 import { assert, lines } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
-import { execFile } from './exec';
-
-/**
- * Summary of disk space usage, in kilobytes.
- */
-export interface DiskSpaceSummary {
-  total: number;
-  used: number;
-  available: number;
-}
+import type { DiskSpaceSummary } from '@votingworks/utils';
+import { execFile } from '../exec';
 
 /**
  * Returns the amount of free disk space available at the specified paths in

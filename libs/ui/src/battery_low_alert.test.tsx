@@ -35,7 +35,7 @@ test(`warning when battery drops`, async () => {
   });
   await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT);
   const warning = await screen.findByRole('alertdialog');
-  within(warning).getByRole('heading', { name: 'Low Battery Warning' });
+  within(warning).getByRole('heading', { name: 'Low Battery' });
   within(warning).getByText(
     `The battery is at 10% and is not charging. Please connect the power supply.`
   );
@@ -62,7 +62,7 @@ test(`warning when battery drops`, async () => {
   });
   await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT);
   const secondWarning = await screen.findByRole('alertdialog');
-  within(secondWarning).getByRole('heading', { name: 'Low Battery Warning' });
+  within(secondWarning).getByRole('heading', { name: 'Low Battery' });
   within(secondWarning).getByText(
     `The battery is at 5% and is not charging. Please connect the power supply.`
   );

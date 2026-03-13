@@ -95,6 +95,7 @@ export function newTestContext(
     getAudioInfo: vi.fn(),
     getUsbPortStatus: vi.fn(),
     toggleUsbPorts: vi.fn(),
+    getDiskSpaceSummary: vi.fn(),
   };
 
   const mockSignedHashValidationApiClient: Mocked<SignedHashValidationApiClient> =

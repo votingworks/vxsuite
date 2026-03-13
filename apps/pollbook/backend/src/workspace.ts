@@ -26,7 +26,13 @@ export function createLocalWorkspace(
     baseUrl: `http://localhost:${peerPort}/api`,
   });
 
-  return { assetDirectoryPath, store, peerApiClient, logger };
+  return {
+    path: workspacePath,
+    assetDirectoryPath,
+    store,
+    peerApiClient,
+    logger,
+  };
 }
 
 export function createPeerWorkspace(
@@ -42,5 +48,5 @@ export function createPeerWorkspace(
   const dbPath = join(workspacePath, 'pollbook-backend.db');
   const store = PeerStore.fileStore(dbPath, logger, machineId, codeVersion);
 
-  return { assetDirectoryPath, store, logger };
+  return { path: workspacePath, assetDirectoryPath, store, logger };
 }

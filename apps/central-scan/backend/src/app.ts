@@ -5,7 +5,6 @@ import {
 import { Optional, Result, assert, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
-  DiskSpaceSummary,
   readSignedElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
   ElectionRecord,
@@ -393,10 +392,6 @@ function buildApi({
       });
     },
 
-    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
-      return workspace.getDiskSpaceSummary();
-    },
-
     /* istanbul ignore next - @preserve */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
@@ -417,6 +412,7 @@ function buildApi({
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
+      workspacePath: workspace.path,
     }),
   });
 }

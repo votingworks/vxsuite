@@ -15,3 +15,4 @@ export {
   setDefaultAudio,
 } from './set_default_audio';
 export * from './set_builtin_audio_port';
+export * from './get_disk_space_summary';

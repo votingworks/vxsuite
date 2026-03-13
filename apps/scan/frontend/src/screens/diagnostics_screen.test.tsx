@@ -34,7 +34,7 @@ afterEach(() => {
 });
 
 test('renders provided information', async () => {
-  apiMock.expectGetDiskSpaceSummary({
+  apiMock.setDiskSpaceSummary({
     available: 99.2 * 1_000_000,
     used: 0.08 * 1_000_000,
     total: 100 * 1_000_000,
@@ -65,7 +65,6 @@ test('renders provided information', async () => {
 });
 
 test('renders scanner status and diagnostic result', async () => {
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic({
     type: 'blank-sheet-scan',
     outcome: 'fail',
@@ -86,7 +85,6 @@ test('renders scanner status and diagnostic result', async () => {
 });
 
 test('renders current printer status and diagnostic result', async () => {
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentUpsDiagnostic();
@@ -109,7 +107,6 @@ test('renders current printer status and diagnostic result', async () => {
 });
 
 test('renders audio diagnostic result', async () => {
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic({
     message: 'This is a Quiet Place.',
@@ -130,7 +127,6 @@ test('renders audio diagnostic result', async () => {
 });
 
 test('can run scanner diagnostic flow', async () => {
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
@@ -175,7 +171,6 @@ test('can run scanner diagnostic flow', async () => {
 });
 
 test('can enter load paper flow and print test page flow', async () => {
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
@@ -197,7 +192,6 @@ test('can enter load paper flow and print test page flow', async () => {
 });
 
 test('can save readiness report', async () => {
-  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentUpsDiagnostic();

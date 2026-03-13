@@ -36,7 +36,6 @@ import {
   readSignedElectionPackageFromUsb,
   configureUiStrings,
   createSystemCallApi,
-  DiskSpaceSummary,
   ExportDataResult,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -315,6 +314,7 @@ export function buildApi(
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
+      workspacePath: workspace.path,
     }),
 
     async setPollsState(input: { pollsState: PollsState }) {
@@ -414,10 +414,6 @@ export function buildApi(
       }
 
       return stateMachine.isPatDeviceConnected();
-    },
-
-    getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
-      return workspace.getDiskSpaceSummary();
     },
 
     addDiagnosticRecord(input: Omit<DiagnosticRecord, 'timestamp'>): void {

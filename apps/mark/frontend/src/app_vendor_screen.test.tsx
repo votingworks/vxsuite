@@ -11,6 +11,7 @@ let apiMock: ApiMock;
 beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
+  apiMock.setDiskSpaceSummary();
 });
 
 afterEach(() => {

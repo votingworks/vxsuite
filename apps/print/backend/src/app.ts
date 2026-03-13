@@ -13,10 +13,11 @@ import {
   Id,
   BallotType,
   BallotPrintCount,
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
-  DiskSpaceSummary,
   ElectionRecord,
   ExportDataResult,
   getBatteryInfo,
@@ -74,6 +75,10 @@ export function buildApi(ctx: AppContext) {
 
     logOut() {
       return auth.logOut(constructAuthMachineState(store));
+    },
+
+    updateSessionExpiry(input: { sessionExpiresAt: Date }) {
+      return auth.updateSessionExpiry(constructAuthMachineState(store), input);
     },
 
     async configureElectionPackageFromUsb(): Promise<
@@ -136,6 +141,10 @@ export function buildApi(ctx: AppContext) {
 
     getElectionRecord(): ElectionRecord | null {
       return store.getElectionRecord() || null;
+    },
+
+    getSystemSettings(): SystemSettings {
+      return store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
     getPrecinctSelection(): PrecinctSelection | null {
@@ -203,6 +212,7 @@ export function buildApi(ctx: AppContext) {
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
+      workspacePath: workspace.path,
     }),
 
     getBallots(input: {
@@ -460,10 +470,6 @@ export function buildApi(ctx: AppContext) {
 
     async saveReadinessReport(): Promise<ExportDataResult> {
       return saveReadinessReport({ workspace, printer, usbDrive, logger });
-    },
-
-    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
-      return workspace.getDiskSpaceSummary();
     },
   } as const;
 

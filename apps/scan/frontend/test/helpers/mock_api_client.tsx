@@ -11,7 +11,8 @@ import {
   DiagnosticRecord,
   DiagnosticOutcome,
 } from '@votingworks/types';
-import { createMockClient } from '@votingworks/grout-test-utils';
+import { Mock, vi } from 'vitest';
+import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
   MachineConfig,
@@ -31,7 +32,8 @@ import {
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary, mockUsbDriveStatus } from '@votingworks/ui';
-import type { DiskSpaceSummary, ExportDataResult } from '@votingworks/backend';
+import type { ExportDataResult } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import type {
   PrinterStatus,
   PrintResult,
@@ -61,13 +63,27 @@ export const statusNoPaper: PrecinctScannerStatus = {
   ballotsCounted: 0,
 };
 
+type MockApiClient = Omit<MockClient<Api>, 'getDiskSpaceSummary'> & {
+  // Because this is polled so frequently, we opt for a standard vitest mock instead of a
+  // libs/test-utils mock since the latter requires every call to be explicitly mocked
+  getDiskSpaceSummary: Mock;
+};
+
+function createMockApiClient(): MockApiClient {
+  const mockApiClient = createMockClient<Api>();
+  (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
+    Promise.resolve({ total: 3, used: 2, available: 1 })
+  );
+  return mockApiClient as unknown as MockApiClient;
+}
+
 /**
  * Creates a VxScan specific wrapper around commonly used methods from the Grout
  * mock API client to make it easier to use for our specific test needs
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createApiMock() {
-  const mockApiClient = createMockClient<Api>();
+  const mockApiClient = createMockApiClient();
 
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
     mockApiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
@@ -300,13 +316,9 @@ export function createApiMock() {
       mockApiClient.logTestPrintOutcome.expectCallWith({ outcome }).resolves();
     },
 
-    expectGetDiskSpaceSummary(summary?: DiskSpaceSummary) {
-      mockApiClient.getDiskSpaceSummary.expectCallWith().resolves(
-        summary ?? {
-          available: 1,
-          used: 1,
-          total: 2,
-        }
+    setDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      mockApiClient.getDiskSpaceSummary.mockResolvedValue(
+        summary ?? { total: 3, used: 2, available: 1 }
       );
     },
 

@@ -439,5 +439,7 @@ pub enum EventId {
     DataCheckOnStartup,
     #[serde(rename = "set-ballot-casting-mode")]
     SetBallotCastingMode,
+    #[serde(rename = "low-disk-space")]
+    LowDiskSpace,
 }
 derive_display!(EventId);

@@ -48,7 +48,6 @@ import {
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import {
-  DiskSpaceSummary,
   ElectionPackageError,
   ElectionPackageWithFileContents,
   ExportDataError,
@@ -1229,15 +1228,12 @@ function buildApi({
       });
     },
 
-    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
-      return workspace.getDiskSpaceSummary();
-    },
-
     ...createSystemCallApi({
       usbDrive,
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
+      workspacePath: workspace.path,
     }),
   });
 }

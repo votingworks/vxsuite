@@ -2,11 +2,11 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {
-  DiskSpaceSummary,
   getBatteryInfo,
   getDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { DiagnosticRecord } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
@@ -40,11 +40,21 @@ vi.mock(import('@votingworks/types'), async (importActual) => {
 
 vi.mock(
   import('@votingworks/backend'),
-  async (importActual): Promise<typeof import('@votingworks/backend')> => ({
-    ...(await importActual()),
-    getBatteryInfo: vi.fn(),
-    getDiskSpaceSummary: vi.fn(),
-  })
+  async (importActual): Promise<typeof import('@votingworks/backend')> => {
+    const actual = await importActual();
+    const mockedGetDiskSpaceSummary = vi.fn();
+    return {
+      ...actual,
+      getBatteryInfo: vi.fn(),
+      getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      createSystemCallApi: (
+        ...args: Parameters<typeof actual.createSystemCallApi>
+      ) => ({
+        ...actual.createSystemCallApi(...args),
+        getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      }),
+    };
+  }
 );
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {

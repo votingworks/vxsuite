@@ -14,7 +14,7 @@ import {
   VoterRegistration,
   VoterRegistrationRequest,
 } from '@votingworks/types';
-import { createMockClient } from '@votingworks/grout-test-utils';
+import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type {
   AamvaDocument,
   Anomaly,
@@ -34,9 +34,12 @@ import {
   mockSystemAdministratorUser,
   mockVendorUser,
 } from '@votingworks/test-utils';
+import type { BatteryInfo } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { err, ok } from '@votingworks/basics';
+import { Mock, vi } from 'vitest';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 
 export const machineConfig: MachineConfig = {
@@ -144,13 +147,34 @@ function getDefaultExpectedVoterSearchParams(
   };
 }
 
+type MockApiClient = Omit<
+  MockClient<Api>,
+  'getBatteryInfo' | 'getDiskSpaceSummary'
+> & {
+  // Because these are polled so frequently, we opt for a standard vitest mock instead of a
+  // libs/test-utils mock since the latter requires every call to be explicitly mocked
+  getBatteryInfo: Mock;
+  getDiskSpaceSummary: Mock;
+};
+
+function createMockApiClient(): MockApiClient {
+  const mockApiClient = createMockClient<Api>();
+  (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
+    Promise.resolve({ level: 1, discharging: false })
+  );
+  (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
+    Promise.resolve({ total: 3, used: 2, available: 1 })
+  );
+  return mockApiClient as unknown as MockApiClient;
+}
+
 /**
  * Creates a VxPollBook specific wrapper around commonly used methods from the Grout
  * mock API client to make it easier to use for our specific test needs
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createApiMock() {
-  const mockApiClient = createMockClient<Api>();
+  const mockApiClient = createMockApiClient();
 
   let currentDeviceStatus: DeviceStatuses = {
     usbDrive: mockUsbDriveStatus('no_drive'),
@@ -178,6 +202,20 @@ export function createApiMock() {
     mockApiClient,
 
     setAuthStatus,
+
+    setBatteryInfo(batteryInfo?: Partial<BatteryInfo>) {
+      mockApiClient.getBatteryInfo.mockResolvedValue({
+        level: 1,
+        discharging: false,
+        ...(batteryInfo || {}),
+      });
+    },
+
+    setDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      mockApiClient.getDiskSpaceSummary.mockResolvedValue(
+        summary ?? { total: 3, used: 2, available: 1 }
+      );
+    },
 
     authenticateAsVendor() {
       setAuthStatus({

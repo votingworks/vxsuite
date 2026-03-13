@@ -2,8 +2,10 @@ import './polyfills';
 import { useEffect, useMemo } from 'react';
 import {
   AppBase,
+  BatteryLowAlert,
   ErrorBoundary,
   InvalidCardScreen,
+  LowDiskSpaceWarning,
   RemoveCardScreen,
   SetupCardReaderPage,
   SystemCallContextProvider,
@@ -186,6 +188,8 @@ export function App({
               <BrowserRouter>
                 <AppRoot logger={logger} />
                 <SessionTimeLimitTracker />
+                <LowDiskSpaceWarning />
+                <BatteryLowAlert />
               </BrowserRouter>
             </SystemCallContextProvider>
           </QueryClientProvider>

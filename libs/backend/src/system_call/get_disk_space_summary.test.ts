@@ -1,10 +1,10 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { getDiskSpaceSummary } from './disk_space_summary';
-import { execFile } from './exec';
+import { getDiskSpaceSummary } from './get_disk_space_summary';
+import { execFile } from '../exec';
 
 vi.mock(
-  import('./exec.js'),
-  async (importActual): Promise<typeof import('./exec')> => ({
+  import('../exec.js'),
+  async (importActual): Promise<typeof import('../exec')> => ({
     ...(await importActual()),
     execFile: vi.fn(),
   })

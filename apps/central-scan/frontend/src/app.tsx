@@ -4,6 +4,7 @@ import {
   AppBase,
   AppErrorBoundary,
   BatteryLowAlert,
+  LowDiskSpaceWarning,
   SystemCallContextProvider,
 } from '@votingworks/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -42,6 +43,7 @@ export function App({
               <SystemCallContextProvider api={systemCallApi}>
                 <AppRoot logger={logger} />
                 <SessionTimeLimitTracker />
+                <LowDiskSpaceWarning />
                 <BatteryLowAlert />
               </SystemCallContextProvider>
             </QueryClientProvider>

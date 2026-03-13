@@ -64,6 +64,20 @@ export const logOut = {
   },
 } as const;
 
+export const updateSessionExpiry = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateSessionExpiry, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const getElectionRecord = {
   queryKey(): QueryKey {
     return ['getElectionRecord'];
@@ -71,6 +85,16 @@ export const getElectionRecord = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getElectionRecord());
+  },
+} as const;
+
+export const getSystemSettings = {
+  queryKey(): QueryKey {
+    return ['getSystemSettings'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
   },
 } as const;
 

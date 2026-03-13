@@ -1,12 +1,14 @@
 import { UsbDrive } from '@votingworks/usb-drive';
 
-import { LogExportFormat, Logger } from '@votingworks/logging';
+import { LogExportFormat, Logger, LogEventId } from '@votingworks/logging';
+import { getLowDiskSpaceWarningMessage } from '@votingworks/utils';
 import { exportLogsToUsb } from './export_logs_to_usb';
 import { rebootToVendorMenu } from './reboot_to_vendor_menu';
 import { powerDown } from './power_down';
 import { setClock } from './set_clock';
 import { getBatteryInfo } from './get_battery_info';
 import { getAudioInfo } from './get_audio_info';
+import { getDiskSpaceSummary } from './get_disk_space_summary';
 import { NODE_ENV } from '../scan_globals';
 import {
   getUsbPortStatus,
@@ -19,11 +21,13 @@ function buildApi({
   logger,
   machineId,
   codeVersion,
+  workspacePath,
 }: {
   usbDrive: UsbDrive;
   logger: Logger;
   machineId: string;
   codeVersion: string;
+  workspacePath: string;
 }) {
   return {
     exportLogsToUsb: async (input: { format: LogExportFormat }) =>
@@ -43,6 +47,16 @@ function buildApi({
       getUsbPortStatus({ logger, nodeEnv: NODE_ENV }),
     toggleUsbPorts: async (input: { action: UsbPortAction }) =>
       toggleUsbPorts({ action: input.action, logger, nodeEnv: NODE_ENV }),
+    getDiskSpaceSummary: async () => {
+      const diskSpaceSummary = await getDiskSpaceSummary([workspacePath]);
+      const warningMessage = getLowDiskSpaceWarningMessage(diskSpaceSummary);
+      if (warningMessage) {
+        void logger.logAsCurrentRole(LogEventId.LowDiskSpace, {
+          message: warningMessage,
+        });
+      }
+      return diskSpaceSummary;
+    },
   };
 }
 
@@ -55,11 +69,13 @@ export function createSystemCallApi({
   logger,
   machineId,
   codeVersion,
+  workspacePath,
 }: {
   usbDrive: UsbDrive;
   logger: Logger;
   machineId: string;
   codeVersion: string;
+  workspacePath: string;
 }): SystemCallApiMethods {
-  return buildApi({ usbDrive, logger, machineId, codeVersion });
+  return buildApi({ usbDrive, logger, machineId, codeVersion, workspacePath });
 }

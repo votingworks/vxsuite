@@ -662,3 +662,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A user has changed the ballot casting mode.
 **Machines:** vx-scan
+### low-disk-space
+**Type:** [system-status](#system-status)
+**Description:** Free disk space is low.
+**Machines:** All

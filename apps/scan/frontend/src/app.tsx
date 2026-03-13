@@ -5,6 +5,7 @@ import { QueryClient } from '@tanstack/react-query';
 import {
   AppErrorBoundary,
   handleKeyboardEvent,
+  LowDiskSpaceWarning,
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
 import React from 'react';
@@ -55,6 +56,7 @@ export function App({
             <AppRoot />
             <VisualModeDisabledOverlay />
             <SessionTimeLimitTracker />
+            <LowDiskSpaceWarning />
           </ApiProvider>
         </AppErrorBoundary>
       </BrowserRouter>

@@ -176,6 +176,7 @@ function buildApi({
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
+      workspacePath: workspace.path,
     }),
   });
 }
