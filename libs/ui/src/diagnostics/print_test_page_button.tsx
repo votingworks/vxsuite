@@ -1,8 +1,11 @@
-import { Button, Font, Loading, Modal, P, RadioGroup } from '@votingworks/ui';
 import React, { useState } from 'react';
 import { assert, assertFalsy, sleep } from '@votingworks/basics';
 import { DiagnosticOutcome } from '@votingworks/types';
-import { addDiagnosticRecord, getPrinterStatus, printTestPage } from '../api';
+import { Button } from '../button';
+import { Loading } from '../loading';
+import { Modal } from '../modal';
+import { RadioGroup } from '../radio_group';
+import { Font, P } from '../typography';
 
 /**
  * Normally we want to free up the UI sooner, before the print is actually
@@ -13,16 +16,19 @@ export const TEST_PAGE_PRINT_DELAY_SECONDS = 7;
 
 type FlowState = 'printing' | 'verification' | 'test-failed';
 
-export function PrintTestPageButton(): JSX.Element {
+export interface PrintTestPageButtonProps {
+  isPrinterConnected: boolean;
+  printTestPage: () => void;
+  logTestPrintOutcome: (input: { outcome: DiagnosticOutcome }) => void;
+}
+
+export function PrintTestPageButton({
+  isPrinterConnected,
+  printTestPage,
+  logTestPrintOutcome,
+}: PrintTestPageButtonProps): JSX.Element {
   const [flowState, setFlowState] = useState<FlowState>();
   const [outcome, setOutcome] = useState<DiagnosticOutcome>();
-
-  const printerStatusQuery = getPrinterStatus.useQuery();
-  const printTestPageMutation = printTestPage.useMutation();
-  const addDiagnosticRecordMutation = addDiagnosticRecord.useMutation();
-
-  const isPrinterConnected =
-    printerStatusQuery.isSuccess && printerStatusQuery.data.connected;
 
   function resetFlow() {
     setFlowState(undefined);
@@ -30,7 +36,7 @@ export function PrintTestPageButton(): JSX.Element {
   }
 
   async function startFlow() {
-    printTestPageMutation.mutate();
+    printTestPage();
     setFlowState('printing');
     await sleep(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
     setFlowState('verification');
@@ -39,10 +45,7 @@ export function PrintTestPageButton(): JSX.Element {
   function verifyPrintOutcome() {
     assert(outcome !== undefined);
 
-    addDiagnosticRecordMutation.mutate({
-      type: 'test-print',
-      outcome,
-    });
+    logTestPrintOutcome({ outcome });
 
     if (outcome === 'fail') {
       setFlowState('test-failed');

@@ -13,7 +13,7 @@ import {
   saveReadinessReport,
   getElectionRecord,
 } from '../api';
-import { PrintTestPageButton } from '../components/print_diagnostic_button';
+import { PrintTestPageButton } from '../components/print_test_page_button';
 
 const PageLayout = styled.div`
   display: flex;

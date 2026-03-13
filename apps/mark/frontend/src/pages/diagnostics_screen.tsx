@@ -27,7 +27,7 @@ import {
 import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen';
 import { BarcodeReaderDiagnosticScreen } from './barcode_reader_diagnostic_screen';
 import { PatInputDiagnosticScreen } from './pat_input_diagnostic_screen';
-import { PrintTestPageButton } from '../components/print_diagnostic_button';
+import { PrintTestPageButton } from '../components/print_test_page_button';
 import { SystemAudioDiagnosticScreen } from './system_audio_diagnostic_screen';
 
 export interface DiagnosticsScreenProps {

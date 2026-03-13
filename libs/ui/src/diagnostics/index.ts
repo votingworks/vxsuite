@@ -14,4 +14,5 @@ export * from './scan_readiness_report';
 export * from './test_utils';
 export * from './types';
 export * from './uninterruptible_power_supply_screen';
+export * from './print_test_page_button';
 export * from './ups_diagnostic_modal_button';

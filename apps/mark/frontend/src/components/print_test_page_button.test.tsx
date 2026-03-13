@@ -9,7 +9,7 @@ import {
 import {
   PrintTestPageButton,
   TEST_PAGE_PRINT_DELAY_SECONDS,
-} from './print_diagnostic_button';
+} from './print_test_page_button';
 
 let apiMock: ApiMock;
 
