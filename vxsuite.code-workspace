@@ -324,8 +324,7 @@
     },
     "files.exclude": {
       "**/*.tsbuildinfo": true,
-      "**/.jestcache": true,
-      "**/coverage": true
+      "**/.jestcache": true
     },
     "typescript.tsdk": "vxsuite/node_modules/typescript/lib",
     "editor.tabSize": 2
