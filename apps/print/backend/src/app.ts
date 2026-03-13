@@ -13,6 +13,8 @@ import {
   Id,
   BallotType,
   BallotPrintCount,
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
@@ -76,6 +78,10 @@ export function buildApi(ctx: AppContext) {
       return auth.logOut(constructAuthMachineState(store));
     },
 
+    updateSessionExpiry(input: { sessionExpiresAt: Date }) {
+      return auth.updateSessionExpiry(constructAuthMachineState(store), input);
+    },
+
     async configureElectionPackageFromUsb(): Promise<
       Result<ElectionDefinition, ElectionPackageConfigurationError>
     > {
@@ -136,6 +142,10 @@ export function buildApi(ctx: AppContext) {
 
     getElectionRecord(): ElectionRecord | null {
       return store.getElectionRecord() || null;
+    },
+
+    getSystemSettings(): SystemSettings {
+      return store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
     getPrecinctSelection(): PrecinctSelection | null {
@@ -203,6 +213,7 @@ export function buildApi(ctx: AppContext) {
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
+      workspacePath: workspace.path,
     }),
 
     getBallots(input: {

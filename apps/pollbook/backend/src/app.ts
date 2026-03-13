@@ -770,6 +770,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       logger,
       machineId,
       codeVersion,
+      workspacePath: workspace.path,
     }),
   } as const;
   return grout.createApi(methods, middlewares);

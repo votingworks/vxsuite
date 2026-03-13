@@ -37,7 +37,6 @@ import {
   readSignedElectionPackageFromUsb,
   configureUiStrings,
   createSystemCallApi,
-  DiskSpaceSummary,
   ExportDataResult,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -269,6 +268,7 @@ export function buildApi(ctx: Context) {
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
+      workspacePath: workspace.path,
     }),
 
     async printBallot(input: PrintBallotProps) {
@@ -371,10 +371,6 @@ export function buildApi(ctx: Context) {
 
     setPrintCalibration(input: PrintCalibration) {
       store.setPrintCalibration(input);
-    },
-
-    getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
-      return workspace.getDiskSpaceSummary();
     },
 
     getMostRecentDiagnostic(input: {

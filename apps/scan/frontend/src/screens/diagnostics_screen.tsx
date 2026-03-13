@@ -107,6 +107,7 @@ export function DiagnosticsScreen({
       showEarlyVotingBanner={false}
       hideBallotCount
       hideInfoBar
+      padded
     >
       <P>
         <Button icon="Previous" variant="primary" onPress={onClose}>

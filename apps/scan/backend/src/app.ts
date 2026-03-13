@@ -23,7 +23,6 @@ import {
   readSignedElectionPackageFromUsb,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
-  DiskSpaceSummary,
   Exporter,
   SCAN_ALLOWED_EXPORT_PATTERNS,
   ExportDataResult,
@@ -514,10 +513,6 @@ export function buildApi({
       return store.getMostRecentDiagnosticRecord('test-print') ?? null;
     },
 
-    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
-      return workspace.getDiskSpaceSummary();
-    },
-
     saveReadinessReport() {
       return saveReadinessReport({
         workspace,
@@ -653,6 +648,7 @@ export function buildApi({
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
+      workspacePath: workspace.path,
     }),
   });
 }

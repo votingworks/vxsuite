@@ -42,6 +42,7 @@ export interface PeerAppContext extends MachineConfig {
 }
 
 export interface LocalWorkspace {
+  path: string;
   assetDirectoryPath: string;
   store: LocalStore;
   peerApiClient: grout.Client<PeerApi>;
@@ -49,6 +50,7 @@ export interface LocalWorkspace {
 }
 
 export interface PeerWorkspace {
+  path: string;
   assetDirectoryPath: string;
   store: PeerStore;
   logger: BaseLogger;

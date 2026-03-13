@@ -1,9 +1,7 @@
 import { ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'node:path';
-import {
-  DiskSpaceSummary,
-  getDiskSpaceSummary as baseGetDiskSpaceSummary,
-} from '@votingworks/backend';
+import { getDiskSpaceSummary as baseGetDiskSpaceSummary } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store';
 

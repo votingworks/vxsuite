@@ -1,6 +1,10 @@
 import { QueryClient } from '@tanstack/react-query';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { AppErrorBoundary, VisualModeDisabledOverlay } from '@votingworks/ui';
+import {
+  AppErrorBoundary,
+  LowDiskSpaceWarning,
+  VisualModeDisabledOverlay,
+} from '@votingworks/ui';
 import { BrowserRouter } from 'react-router-dom';
 import { ApiClient, createApiClient, createQueryClient } from './api';
 import { ApiProvider } from './api_provider';
@@ -48,6 +52,7 @@ export function App({
             <VisualModeDisabledOverlay />
             <AppRoot />
             <SessionTimeLimitTracker />
+            <LowDiskSpaceWarning />
           </ApiProvider>
         </AppErrorBoundary>
       </BrowserRouter>
