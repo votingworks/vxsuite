@@ -1056,3 +1056,8 @@ eventId = "set-ballot-casting-mode"
 eventType = "user-action"
 documentationMessage = "A user has changed the ballot casting mode."
 restrictInDocumentationToApps = ["vx-scan"]
+
+[Events.LowDiskSpace]
+eventId = "low-disk-space"
+eventType = "system-status"
+documentationMessage = "Free disk space is low."
