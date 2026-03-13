@@ -49,7 +49,7 @@ export function BatteryLowAlert(): JSX.Element | null {
     <Modal
       title={
         <React.Fragment>
-          <Icons.BatteryQuarter color="danger" /> Low Battery Warning
+          <Icons.BatteryQuarter color="danger" /> Low Battery
         </React.Fragment>
       }
       actions={
