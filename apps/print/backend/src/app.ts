@@ -18,7 +18,6 @@ import {
 } from '@votingworks/types';
 import {
   createSystemCallApi,
-  DiskSpaceSummary,
   ElectionRecord,
   ExportDataResult,
   getBatteryInfo,
@@ -471,10 +470,6 @@ export function buildApi(ctx: AppContext) {
 
     async saveReadinessReport(): Promise<ExportDataResult> {
       return saveReadinessReport({ workspace, printer, usbDrive, logger });
-    },
-
-    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
-      return workspace.getDiskSpaceSummary();
     },
   } as const;
 

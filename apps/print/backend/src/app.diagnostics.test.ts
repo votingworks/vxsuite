@@ -2,12 +2,12 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {
-  DiskSpaceSummary,
   getBatteryInfo,
   getDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
 import { DiagnosticRecord } from '@votingworks/types';
+import { DiskSpaceSummary } from '@votingworks/utils';
 import { buildTestEnvironment, mockSystemAdministratorAuth } from '../test/app';
 
 vi.setConfig({
