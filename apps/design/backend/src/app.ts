@@ -343,6 +343,9 @@ export function buildApi(ctx: AppContext) {
       newId: ElectionId;
       jurisdictionId: string;
     }): Promise<Result<ElectionId, Error>> {
+      const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
+      const stateFeatures = getStateFeaturesConfig(jurisdiction);
+
       try {
         const election: Election = (() => {
           switch (input.upload.format) {
@@ -350,8 +353,10 @@ export function buildApi(ctx: AppContext) {
               const sourceElection = safeParseElection(
                 input.upload.electionFileContents
               ).unsafeUnwrap();
-              const { districts, precincts, parties, contests } =
-                regenerateElectionIds(sourceElection);
+
+              const { districts, precincts, parties, contests, pollingPlaces } =
+                regenerateElectionIds(sourceElection, stateFeatures);
+
               // Split candidate names into first, middle, and last names, if they are
               // not already split
               const contestsWithSplitCandidateNames = contests.map(
@@ -375,6 +380,7 @@ export function buildApi(ctx: AppContext) {
                   };
                 }
               );
+
               return {
                 ...sourceElection,
                 id: input.newId,
@@ -384,6 +390,7 @@ export function buildApi(ctx: AppContext) {
                   countyId: `${input.newId}-county`,
                 },
                 districts,
+                pollingPlaces,
                 precincts,
                 parties,
                 contests: contestsWithSplitCandidateNames,
@@ -410,7 +417,7 @@ export function buildApi(ctx: AppContext) {
             }
           }
         })();
-        const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
+
         await store.createElection({
           jurisdictionId: input.jurisdictionId,
           election,
@@ -419,6 +426,7 @@ export function buildApi(ctx: AppContext) {
             input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
           systemSettings: defaultSystemSettings(jurisdiction),
         });
+
         return ok(election.id);
       } catch (error) {
         return wrapException(error);
@@ -456,8 +464,15 @@ export function buildApi(ctx: AppContext) {
       );
       requireJurisdictionAccess(context.user, destJurisdiction);
 
-      const { districts, precincts, parties, contests } =
-        regenerateElectionIds(sourceElection);
+      const srcPollingPlaces = await store.listPollingPlaces(input.electionId);
+      const stateFeatures = getStateFeaturesConfig(destJurisdiction);
+      const { districts, precincts, parties, contests, pollingPlaces } =
+        regenerateElectionIds(
+          // [TODO] Include polling places in `store.getElection()` response.
+          { ...sourceElection, pollingPlaces: srcPollingPlaces },
+          stateFeatures
+        );
+
       const election: Election = {
         ...sourceElection,
         id: input.destElectionId,
@@ -465,6 +480,7 @@ export function buildApi(ctx: AppContext) {
         precincts,
         parties,
         contests,
+        pollingPlaces,
       };
       await store.createElection({
         jurisdictionId: input.destJurisdictionId,
