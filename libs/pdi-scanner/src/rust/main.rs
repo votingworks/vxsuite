@@ -220,8 +220,6 @@ async fn initialize_connected_scanner(
     match timeout(Duration::from_millis(500), client.wait_until_ready()).await {
         Ok(Ok(())) => {}
         Ok(Err(error)) => return Err(error),
-        // Give the scanner a short chance to prove the command channel is ready,
-        // then fall back to a longer retry window if startup is still settling.
         Err(_) => match timeout(Duration::from_secs(3), client.wait_until_ready()).await {
             Ok(Ok(())) => {}
             Ok(Err(error)) => return Err(error),
