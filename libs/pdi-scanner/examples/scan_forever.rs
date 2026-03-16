@@ -57,6 +57,8 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
     Ok(())
 }
 
+/// Give the scanner a short chance to prove the command channel is ready,
+/// then fall back to a longer retry window if startup is still settling.
 async fn wait_until_ready_for_immediate_commands(
     client: &mut Client<Scanner>,
 ) -> color_eyre::Result<()> {
@@ -81,8 +83,6 @@ async fn main() -> color_eyre::Result<()> {
     let mut raw_image_data = RawImageData::new();
     let mut scan_index = 0;
 
-    // Give the scanner a short chance to prove the command channel is ready,
-    // then fall back to a longer retry window if startup is still settling.
     wait_until_ready_for_immediate_commands(&mut client).await?;
     let image_calibration_tables =
         timeout(Duration::from_secs(3), client.initialize_scanning()).await??;
