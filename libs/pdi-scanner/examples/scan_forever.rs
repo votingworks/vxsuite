@@ -19,7 +19,7 @@ use pdi_scanner::{
     scanner::Scanner,
 };
 
-const REQUEST_TIMEOUT: Duration = Duration::from_millis(500);
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(1);
 const RETRY_TIMEOUT: Duration = Duration::from_secs(3);
 
 #[derive(Debug, Parser)]
