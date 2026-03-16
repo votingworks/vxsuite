@@ -986,7 +986,7 @@ mod tests {
 
     use crate::protocol::packets::{ImageData, Incoming, Outgoing};
 
-    use super::Client;
+    use super::{Client, WAIT_UNTIL_READY_ATTEMPTS};
 
     #[tokio::test]
     async fn test_enable_crc_checking_sends_expected_packet() {
@@ -1012,6 +1012,84 @@ mod tests {
             host_to_scanner_rx.recv().await.unwrap(),
             (0, Outgoing::EnableCrcCheckingRequest)
         );
+    }
+
+    #[tokio::test]
+    async fn test_wait_until_ready_enables_crc_before_retrying_get_test_string() {
+        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
+            tokio::sync::mpsc::unbounded_channel();
+        let (scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
+        let mut client = Client::new(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+            Some(()),
+        );
+
+        host_to_scanner_ack_tx.send(0).unwrap();
+        host_to_scanner_ack_tx.send(1).unwrap();
+        host_to_scanner_ack_tx.send(2).unwrap();
+
+        scanner_to_host_tx
+            .send(Err(crate::Error::RecvTimeout))
+            .unwrap();
+        scanner_to_host_tx
+            .send(Ok(Incoming::GetTestStringResponse("test".to_owned())))
+            .unwrap();
+
+        timeout(Duration::from_millis(250), client.wait_until_ready())
+            .await
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (0, Outgoing::EnableCrcCheckingRequest)
+        );
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (1, Outgoing::GetTestStringRequest)
+        );
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (2, Outgoing::GetTestStringRequest)
+        );
+    }
+
+    #[tokio::test]
+    async fn test_wait_until_ready_returns_timeout_after_final_attempt() {
+        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
+            tokio::sync::mpsc::unbounded_channel();
+        let (_scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
+        let mut client = Client::new(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+            Some(()),
+        );
+
+        for ack_id in 0..=WAIT_UNTIL_READY_ATTEMPTS {
+            host_to_scanner_ack_tx.send(ack_id).unwrap();
+        }
+
+        let result = timeout(Duration::from_secs(1), client.wait_until_ready())
+            .await
+            .unwrap();
+
+        assert!(matches!(result, Err(crate::Error::RecvTimeout)));
+
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (0, Outgoing::EnableCrcCheckingRequest)
+        );
+        for request_id in 1..=WAIT_UNTIL_READY_ATTEMPTS {
+            assert_eq!(
+                host_to_scanner_rx.recv().await.unwrap(),
+                (request_id, Outgoing::GetTestStringRequest)
+            );
+        }
     }
 
     #[tokio::test]
