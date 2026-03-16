@@ -1,4 +1,4 @@
-import express, { Application } from 'express';
+import express from 'express';
 import {
   LogEventId,
   BaseLogger,
@@ -25,24 +25,68 @@ import {
 } from '@votingworks/printing';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { ADMIN_WORKSPACE, PORT } from './globals';
-import { createWorkspace, Workspace } from './util/workspace';
+import { assert, throwIllegalValue } from '@votingworks/basics';
+import { resolve } from 'node:path';
+import { ADMIN_WORKSPACE, PEER_PORT, PORT } from './globals';
+import { createWorkspace, createClientWorkspace } from './util/workspace';
 import { buildApp } from './app';
 import { buildClientApp } from './client_app';
+import { buildPeerApp } from './peer_app';
 import { readMachineMode } from './machine_mode';
+import { getMachineConfig } from './machine_config';
+import { startHostNetworking, startClientNetworking } from './networking';
 import { rootDebug } from './util/debug';
 import { getUserRole } from './util/auth';
+import type { MachineMode } from './types';
 
 const debug = rootDebug.extend('server');
 
+/* istanbul ignore next - ADMIN_WORKSPACE is not set in tests @preserve */
+function resolveWorkspacePath(baseLogger: BaseLogger): string {
+  const workspacePath = ADMIN_WORKSPACE;
+  if (!workspacePath) {
+    baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+      message:
+        'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE',
+      disposition: 'failure',
+    });
+    throw new Error(
+      'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
+    );
+  }
+  return resolve(workspacePath);
+}
+
+function createAuth(
+  machineMode: MachineMode,
+  baseLogger: BaseLogger
+): DippedSmartCardAuth {
+  return new DippedSmartCardAuth({
+    card:
+      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+      isIntegrationTest()
+        ? new MockFileCard()
+        : new JavaCard(),
+    config: {
+      allowElectionManagersToAccessUnconfiguredMachines: false,
+      allowedUserRoles:
+        machineMode === 'client'
+          ? ['vendor', 'system_administrator']
+          : ['vendor', 'system_administrator', 'election_manager'],
+    },
+    logger: baseLogger,
+  });
+}
+
 /**
- * Options for starting the admin service.
+ * Options for starting the admin service. All fields are optional — production
+ * defaults are used when omitted. Tests can inject pre-built dependencies.
  */
 export interface StartOptions {
-  app: Application;
-  logger: BaseLogger;
-  port: number | string;
-  workspace: Workspace;
+  logger?: BaseLogger;
+  port?: number | string;
+  peerPort?: number;
+  workspacePath?: string;
   usbDrive?: UsbDrive;
   printer?: Printer;
 }
@@ -50,113 +94,127 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
-export async function start({
-  app,
-  logger: baseLogger = new BaseLogger(LogSource.VxAdminService),
-  port = PORT,
-  workspace,
-  usbDrive,
-  printer,
-}: Partial<StartOptions>): Promise<Server> {
+export async function start(options: StartOptions = {}): Promise<Server> {
+  const {
+    logger: baseLogger = new BaseLogger(LogSource.VxAdminService),
+    port = PORT,
+    peerPort = PEER_PORT,
+  } = options;
+
   debug('starting server...');
   detectDevices({ logger: baseLogger });
-  let resolvedWorkspace = workspace;
-  /* istanbul ignore next - @preserve */
-  if (!resolvedWorkspace) {
-    const workspacePath = ADMIN_WORKSPACE;
-    if (!workspacePath) {
-      baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
-        message:
-          'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE',
-        disposition: 'failure',
-      });
-      throw new Error(
-        'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
+
+  const workspacePath =
+    options.workspacePath ?? resolveWorkspacePath(baseLogger);
+  const machineMode = readMachineMode(workspacePath);
+
+  let app;
+
+  switch (machineMode) {
+    case 'host': {
+      // TODO(CARO) add some kind of validation that the workspace is properly configured for host mode
+      const workspace = createWorkspace(workspacePath, baseLogger);
+      const auth = createAuth('host', baseLogger);
+      const logger = Logger.from(
+        baseLogger,
+        /* istanbul ignore next - @preserve */
+        () => getUserRole(auth, workspace.store)
       );
-    }
-    resolvedWorkspace = createWorkspace(workspacePath, baseLogger);
-  }
+      const usbDrive = options.usbDrive ?? detectUsbDrive(logger);
+      const printer = options.printer ?? detectPrinter(logger);
 
-  const machineMode = readMachineMode(resolvedWorkspace.path);
+      const isMultiStationEnabled = isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+      );
 
-  let resolvedApp = app;
+      if (isMultiStationEnabled) {
+        const peerApp = buildPeerApp({ workspace });
+        peerApp.listen(peerPort, () => {
+          debug('Peer API server running at http://localhost:%d/', peerPort);
+          baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+            message: `Peer API server running at http://localhost:${peerPort}/`,
+            disposition: 'success',
+          });
+        });
 
-  /* istanbul ignore next - @preserve */
-  if (!resolvedApp) {
-    const auth = new DippedSmartCardAuth({
-      card:
-        isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-        isIntegrationTest()
-          ? new MockFileCard()
-          : new JavaCard(),
-      config: {
-        allowElectionManagersToAccessUnconfiguredMachines: false,
-        allowedUserRoles:
-          machineMode === 'client'
-            ? ['vendor', 'system_administrator']
-            : ['vendor', 'system_administrator', 'election_manager'],
-      },
-      logger: baseLogger,
-    });
+        startHostNetworking({
+          machineId: getMachineConfig().machineId,
+          peerPort,
+          store: workspace.store,
+        });
+      }
 
-    const logger = Logger.from(baseLogger, () =>
-      getUserRole(auth, resolvedWorkspace)
-    );
-
-    if (machineMode === 'host') {
-      const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
-      const resolvedPrinter = printer ?? detectPrinter(logger);
-
-      resolvedApp = buildApp({
+      app = buildApp({
         auth,
         logger,
-        usbDrive: resolvedUsbDrive,
-        printer: resolvedPrinter,
-        workspace: resolvedWorkspace,
+        usbDrive,
+        printer,
+        workspace,
       });
-    } /* machine mode is client */ else {
-      resolvedApp = buildClientApp({
-        auth,
-        logger,
-        workspace: resolvedWorkspace,
+
+      // Log election results data check at startup
+      const electionId = workspace.store.getCurrentElectionId();
+      const cvrFileEntries = electionId
+        ? workspace.store.getCvrFiles(electionId)
+        : [];
+      const manualResults = electionId
+        ? workspace.store.getManualResults({ electionId })
+        : [];
+
+      const message =
+        cvrFileEntries.length > 0 || manualResults.length > 0
+          ? 'Election results data is present in the database at machine startup.'
+          : 'No election results data is present in the database at machine startup.';
+      baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+        message,
+        numCvrFiles: cvrFileEntries.length,
+        numManualResults: manualResults.length,
       });
+      break;
     }
+
+    case 'client': {
+      assert(
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+        ),
+        'Multi-station admin must be enabled for client mode'
+      );
+
+      // TODO(CARO) add some kind of validation that the workspace is properly configured for client mode
+      const clientWorkspace = createClientWorkspace(workspacePath);
+      const auth = createAuth('client', baseLogger);
+      const logger = Logger.from(
+        baseLogger,
+        /* istanbul ignore next - @preserve */
+        () => getUserRole(auth, clientWorkspace.clientStore)
+      );
+
+      startClientNetworking({
+        machineId: getMachineConfig().machineId,
+        clientStore: clientWorkspace.clientStore,
+      });
+
+      app = buildClientApp({ auth, logger, workspace: clientWorkspace });
+
+      baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+        message:
+          'No election results data is present in the database at machine startup.',
+        numCvrFiles: 0,
+        numManualResults: 0,
+      });
+      break;
+    }
+
+    /* istanbul ignore next - @preserve */
+    default:
+      throwIllegalValue(machineMode);
   }
 
-  if (machineMode === 'host') {
-    const electionId = resolvedWorkspace.store.getCurrentElectionId();
-    const cvrFileEntries = electionId
-      ? resolvedWorkspace.store.getCvrFiles(electionId)
-      : [];
-    const manualResults = electionId
-      ? resolvedWorkspace.store.getManualResults({
-          electionId,
-        })
-      : [];
-
-    const message =
-      cvrFileEntries.length > 0 || manualResults.length > 0
-        ? 'Election results data is present in the database at machine startup.'
-        : 'No election results data is present in the database at machine startup.';
-    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
-      message,
-      numCvrFiles: cvrFileEntries.length,
-      numManualResults: manualResults.length,
-    });
-  } /* machine mode is client */ else {
-    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
-      message:
-        'No election results data is present in the database at machine startup.',
-      numCvrFiles: 0,
-      numManualResults: 0,
-    });
-  }
-
-  useDevDockRouter(resolvedApp, express, {
+  useDevDockRouter(app, express, {
     printerConfig: HP_LASER_PRINTER_CONFIG,
   });
 
-  // Start periodic CPU metrics logging
   startCpuMetricsLogging(baseLogger);
 
   // VxAdmin uses an OpenSSL config file swapping mechanism for card cert creation with the TPM.
@@ -164,7 +222,7 @@ export async function start({
   // restore could complete.
   await manageOpensslConfig('restore-default', { addSudo: true });
 
-  const server = resolvedApp.listen(port, () => {
+  const server = app.listen(port, () => {
     baseLogger.log(LogEventId.ApplicationStartup, 'system', {
       message: `Admin Service running at http://localhost:${port}/`,
       disposition: 'success',

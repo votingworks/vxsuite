@@ -8,12 +8,14 @@ import * as server from './server';
 
 export type { Api } from './app';
 export type { ClientApi } from './client_app';
+export type { PeerApi } from './peer_app';
 export type { TallyReportSpec } from './reports/tally_report';
 export type { BallotCountReportSpec } from './reports/ballot_count_report';
 export type {
   TallyReportWarning,
   BallotCountReportWarning,
 } from './reports/warnings';
+export type { NetworkConnectionStatus } from './client_app';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();

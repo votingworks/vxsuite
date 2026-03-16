@@ -35,9 +35,11 @@ import {
   MockLogger,
   mockLogger,
 } from '@votingworks/logging';
-import { Api } from '../src';
-import { createWorkspace, Workspace } from '../src/util/workspace';
+import { Api, PeerApi } from '../src';
+import { BaseStore } from '../src/types';
+import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
+import { buildPeerApp } from '../src/peer_app';
 import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
 import { getUserRole } from '../src/util/auth';
 
@@ -130,11 +132,11 @@ export async function configureMachine(
 
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
-  workspace: Workspace
+  store: BaseStore
 ): MockLogger {
   return mockLogger({
     source: LogSource.VxAdminService,
-    getCurrentRole: () => getUserRole(auth, workspace),
+    getCurrentRole: () => getUserRole(auth, store),
     fn: vi.fn,
   });
 }
@@ -153,7 +155,7 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     resolvedWorkspaceRoot,
     mockBaseLogger({ fn: vi.fn })
   );
-  const logger = buildMockLogger(auth, workspace);
+  const logger = buildMockLogger(auth, workspace.store);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
   const app = buildApp({
@@ -171,6 +173,13 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     baseUrl,
   });
 
+  const peerApp = buildPeerApp({ workspace });
+  const peerServer = peerApp.listen();
+  const { port: peerPort } = peerServer.address() as AddressInfo;
+  const peerApiClient = grout.createClient<PeerApi>({
+    baseUrl: `http://localhost:${peerPort}/api`,
+  });
+
   mockMachineLocked(auth);
 
   return {
@@ -179,6 +188,8 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     workspace,
     app,
     apiClient,
+    peerApiClient,
+    peerServer,
     mockUsbDrive,
     mockPrinterHandler,
   };

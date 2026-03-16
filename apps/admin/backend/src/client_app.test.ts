@@ -3,10 +3,11 @@ import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { AddressInfo } from 'node:net';
 import tmp from 'tmp';
-import { mockBaseLogger } from '@votingworks/logging';
 import { DEV_MACHINE_ID } from '@votingworks/types';
+import { typedAs } from '@votingworks/basics';
 import { buildClientApp, ClientApi } from './client_app';
-import { createWorkspace } from './util/workspace';
+import { createClientWorkspace } from './util/workspace';
+import { ClientConnectionStatus } from './types';
 import {
   mockMachineLocked,
   mockSystemAdministratorAuth,
@@ -16,9 +17,8 @@ import {
 function buildClientTestEnvironment() {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspaceRoot = tmp.dirSync().name;
-  const baseLogger = mockBaseLogger({ fn: vi.fn });
-  const workspace = createWorkspace(workspaceRoot, baseLogger);
-  const logger = buildMockLogger(auth, workspace);
+  const workspace = createClientWorkspace(workspaceRoot);
+  const logger = buildMockLogger(auth, workspace.clientStore);
   const app = buildClientApp({ auth, workspace, logger });
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -28,7 +28,12 @@ function buildClientTestEnvironment() {
 
   mockMachineLocked(auth);
 
-  return { auth, workspace, apiClient, server };
+  return {
+    auth,
+    workspace,
+    apiClient,
+    server,
+  };
 }
 
 let env: ReturnType<typeof buildClientTestEnvironment>;
@@ -79,4 +84,36 @@ test('logOut delegates to auth', async () => {
   mockSystemAdministratorAuth(env.auth);
   await env.apiClient.logOut();
   expect(env.auth.logOut).toHaveBeenCalled();
+});
+
+test('getNetworkConnectionStatus defaults to offline', async () => {
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'offline',
+  });
+});
+
+test('getNetworkConnectionStatus returns current status from client store', async () => {
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'offline',
+  });
+
+  env.workspace.clientStore.setConnection(
+    ClientConnectionStatus.OnlineWaitingForHost
+  );
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'online-waiting-for-host',
+  });
+
+  env.workspace.clientStore.setConnection(
+    ClientConnectionStatus.OnlineConnectedToHost,
+    {
+      address: 'http://192.168.1.10:3002',
+      machineId: '0001',
+      apiClient: typedAs<grout.Client<never>>({}),
+    }
+  );
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'online-connected-to-host',
+    hostMachineId: '0001',
+  });
 });

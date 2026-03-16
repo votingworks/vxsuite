@@ -1,99 +1,125 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assert } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
+import { AddressInfo } from 'node:net';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { Server } from 'node:http';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
-import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
-import { createMockPrinterHandler } from '@votingworks/printing';
 import { testDetectDevices } from '@votingworks/backend';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { buildManualResultsFixture } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  buildManualResultsFixture,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockPrinterHandler } from '@votingworks/printing';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
-import { buildApp } from './app';
-import { buildClientApp } from './client_app';
-import { buildMockLogger } from '../test/app';
 import { importCastVoteRecords } from './cast_vote_records';
 import { writeMachineMode } from './machine_mode';
+import { startHostNetworking, startClientNetworking } from './networking';
+
+// Mock modules that start() creates or calls internally
+const featureFlagMock = getFeatureFlagMock();
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
+
+vi.mock('@votingworks/auth', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@votingworks/auth')>();
+  return {
+    ...actual,
+    DippedSmartCardAuth: vi
+      .fn()
+      .mockImplementation(() => actual.buildMockDippedSmartCardAuth(vi.fn)),
+    // Mock card classes to prevent pcsclite from being initialized (not
+    // available in CI).
+    JavaCard: vi.fn(),
+    MockFileCard: vi.fn(),
+    manageOpensslConfig: vi.fn(),
+  };
+});
+
+vi.mock('@votingworks/backend', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@votingworks/backend')>();
+  return {
+    ...actual,
+    startCpuMetricsLogging: vi.fn(),
+  };
+});
+
+vi.mock('@votingworks/dev-dock-backend', () => ({
+  useDevDockRouter: vi.fn(),
+}));
+
+vi.mock('./networking', () => ({
+  startHostNetworking: vi.fn(),
+  startClientNetworking: vi.fn(),
+}));
+
+let server: Server | undefined;
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
+afterEach(() => {
+  server?.close();
+  server = undefined;
+});
+
 test('starts with default logger and port', async () => {
-  const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const workspace = createWorkspace(
-    makeTemporaryDirectory(),
-    mockBaseLogger({ fn: vi.fn })
-  );
-  const logger = buildMockLogger(auth, workspace);
+  const logger = mockBaseLogger({ fn: vi.fn });
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
-  // don't actually listen
-  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
-  });
+  server = await suppressingConsoleOutput(() =>
+    start({
+      workspacePath: makeTemporaryDirectory(),
+      logger,
+      usbDrive,
+      printer,
+    })
+  );
 
-  // start up the server
-  await suppressingConsoleOutput(() => start({ app, workspace }));
-
-  expect(app.listen).toHaveBeenCalledWith(PORT, expect.anything());
+  const address = server.address() as AddressInfo;
+  expect(address.port).toEqual(PORT);
 });
 
 test('start with config options', async () => {
-  const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const workspace = createWorkspace(
-    makeTemporaryDirectory(),
-    mockBaseLogger({ fn: vi.fn })
-  );
-  const logger = buildMockLogger(auth, workspace);
+  const logger = mockBaseLogger({ fn: vi.fn });
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
-  // don't actually listen
-  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
-  });
-  vi.spyOn(console, 'log').mockReturnValue();
-
-  // start up the server
-  await suppressingConsoleOutput(() =>
-    start({ app, workspace, port: 3005, logger })
+  server = await suppressingConsoleOutput(() =>
+    start({
+      workspacePath: makeTemporaryDirectory(),
+      logger,
+      usbDrive,
+      printer,
+      port: 3005,
+    })
   );
 
-  expect(app.listen).toHaveBeenCalledWith(3005, expect.anything());
+  const address = server.address() as AddressInfo;
+  expect(address.port).toEqual(3005);
   expect(logger.log).toHaveBeenCalled();
 });
 
 test('errors on start with no workspace', async () => {
-  const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const workspace = createWorkspace(
-    makeTemporaryDirectory(),
-    mockBaseLogger({ fn: vi.fn })
-  );
-  const logger = buildMockLogger(auth, workspace);
-  const { usbDrive } = createMockUsbDrive();
-  const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const logger = mockBaseLogger({ fn: vi.fn });
 
-  // start up the server
   try {
     await suppressingConsoleOutput(() =>
       start({
-        app,
-        workspace: undefined,
         logger,
       })
     );
@@ -116,52 +142,39 @@ test('errors on start with no workspace', async () => {
 });
 
 test('logs device attach/un-attach events', async () => {
-  const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const workspace = createWorkspace(
-    makeTemporaryDirectory(),
-    mockBaseLogger({ fn: vi.fn })
-  );
-  const logger = buildMockLogger(auth, workspace);
+  const logger = mockBaseLogger({ fn: vi.fn });
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
-  // don't actually listen
-  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
-  });
-  vi.spyOn(console, 'log').mockReturnValue();
-
-  // start up the server
-  await suppressingConsoleOutput(() =>
-    start({ app, workspace, port: 3005, logger })
+  server = await suppressingConsoleOutput(() =>
+    start({
+      workspacePath: makeTemporaryDirectory(),
+      logger,
+      usbDrive,
+      printer,
+      port: 0,
+    })
   );
 
   testDetectDevices(logger, expect);
 });
 
 test('logs when no election results data present at startup', async () => {
-  const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const workspace = createWorkspace(
-    makeTemporaryDirectory(),
-    mockBaseLogger({ fn: vi.fn })
-  );
-  const logger = buildMockLogger(auth, workspace);
+  const logger = mockBaseLogger({ fn: vi.fn });
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
-  // don't actually listen
-  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
-  });
+  server = await suppressingConsoleOutput(() =>
+    start({
+      workspacePath: makeTemporaryDirectory(),
+      logger,
+      usbDrive,
+      printer,
+    })
+  );
 
-  // start up the server
-  await suppressingConsoleOutput(() => start({ app, workspace, logger }));
-
-  expect(app.listen).toHaveBeenCalledWith(PORT, expect.anything());
+  const address = server.address() as AddressInfo;
+  expect(address.port).toEqual(PORT);
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DataCheckOnStartup,
@@ -182,15 +195,13 @@ test('logs when there is stored election results data present at startup', async
   const candidateContestId =
     'State-Representatives-Hillsborough-District-34-b1012d38';
 
-  const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
-  const logger = buildMockLogger(auth, workspace);
+  const logger = mockBaseLogger({ fn: vi.fn });
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
   // Add CVRs to db
   const { castVoteRecordExport } =
@@ -232,16 +243,12 @@ test('logs when there is stored election results data present at startup', async
     }),
   });
 
-  // don't actually listen
-  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
-  });
+  server = await suppressingConsoleOutput(() =>
+    start({ workspacePath: workspace.path, logger, usbDrive, printer })
+  );
 
-  // start up the server
-  await suppressingConsoleOutput(() => start({ app, workspace, logger }));
-
-  expect(app.listen).toHaveBeenCalledWith(PORT, expect.anything());
+  const address = server.address() as AddressInfo;
+  expect(address.port).toEqual(PORT);
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DataCheckOnStartup,
@@ -255,28 +262,81 @@ test('logs when there is stored election results data present at startup', async
   );
 });
 
-test('starts in client mode with client app', async () => {
-  const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const workspaceDir = makeTemporaryDirectory();
-  const workspace = createWorkspace(
-    workspaceDir,
-    mockBaseLogger({ fn: vi.fn })
+test('does not start networking in host mode without multi-station enabled', async () => {
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const { usbDrive } = createMockUsbDrive();
+  const { printer } = createMockPrinterHandler();
+
+  server = await suppressingConsoleOutput(() =>
+    start({
+      workspacePath: makeTemporaryDirectory(),
+      logger,
+      usbDrive,
+      printer,
+      port: 0,
+    })
   );
-  const logger = buildMockLogger(auth, workspace);
 
-  writeMachineMode(workspace.path, 'client');
+  expect(startHostNetworking).not.toHaveBeenCalled();
+  expect(startClientNetworking).not.toHaveBeenCalled();
+});
 
-  const app = buildClientApp({ auth, workspace, logger });
+test('starts host networking and peer server when multi-station is enabled', async () => {
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const { usbDrive } = createMockUsbDrive();
+  const { printer } = createMockPrinterHandler();
 
-  // don't actually listen
-  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+  );
+
+  const peerPort = 0;
+  server = await suppressingConsoleOutput(() =>
+    start({
+      workspacePath: makeTemporaryDirectory(),
+      logger,
+      usbDrive,
+      printer,
+      port: 0,
+      peerPort,
+    })
+  );
+
+  expect(startHostNetworking).toHaveBeenCalledWith(
+    expect.objectContaining({ peerPort })
+  );
+  expect(startClientNetworking).not.toHaveBeenCalled();
+
+  // Peer app logs ApplicationStartup when listening
+  await vi.waitFor(() => {
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.ApplicationStartup,
+      'system',
+      expect.objectContaining({
+        message: expect.stringContaining('Peer API server running'),
+      })
+    );
   });
 
-  await suppressingConsoleOutput(() => start({ app, workspace, logger }));
+  featureFlagMock.resetFeatureFlags();
+});
 
-  expect(app.listen).toHaveBeenCalledWith(PORT, expect.anything());
+test('starts client networking in client mode', async () => {
+  const workspacePath = makeTemporaryDirectory();
+  const logger = mockBaseLogger({ fn: vi.fn });
+
+  writeMachineMode(workspacePath, 'client');
+
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
+  );
+
+  server = await suppressingConsoleOutput(() =>
+    start({ workspacePath, logger, port: 0 })
+  );
+
+  expect(startClientNetworking).toHaveBeenCalled();
+  expect(startHostNetworking).not.toHaveBeenCalled();
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DataCheckOnStartup,
@@ -288,4 +348,6 @@ test('starts in client mode with client app', async () => {
       numManualResults: 0,
     }
   );
+
+  featureFlagMock.resetFeatureFlags();
 });
