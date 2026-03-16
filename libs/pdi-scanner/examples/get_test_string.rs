@@ -32,14 +32,7 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::builder()
-                .with_default_directive(
-                    format!(
-                        "{}={}",
-                        env!("CARGO_BIN_NAME").replace('-', "_"),
-                        config.log_level
-                    )
-                    .parse()?,
-                )
+                .with_default_directive(format!("pdi_scanner={}", config.log_level).parse()?)
                 .from_env_lossy(),
         )
         .with(stderr_log)
@@ -51,7 +44,7 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
-    setup(&config).unwrap();
+    setup(&config)?;
 
     let mut client = connect()?;
 

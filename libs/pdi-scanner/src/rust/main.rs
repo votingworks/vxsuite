@@ -47,19 +47,13 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
         .with_writer(std::io::stderr)
         .pretty();
 
+    let mut env_filter = tracing_subscriber::EnvFilter::builder()
+        .with_default_directive(format!("pdi_scanner={}", config.log_level).parse()?)
+        .from_env_lossy();
+    env_filter = env_filter.add_directive(format!("pdictl={}", config.log_level).parse()?);
+
     tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::builder()
-                .with_default_directive(
-                    format!(
-                        "{}={}",
-                        env!("CARGO_BIN_NAME").replace('-', "_"),
-                        config.log_level
-                    )
-                    .parse()?,
-                )
-                .from_env_lossy(),
-        )
+        .with(env_filter)
         .with(stderr_log)
         .init();
 
