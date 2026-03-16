@@ -17,6 +17,8 @@ use pdi_scanner::{
     },
 };
 
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(3);
+
 #[derive(Debug, Parser)]
 struct Config {
     #[clap(long, env = "LOG_LEVEL", default_value = "warn")]
@@ -58,31 +60,13 @@ async fn main() -> color_eyre::Result<()> {
     setup(&config)?;
 
     let mut client = connect()?;
+    timeout(CONNECT_TIMEOUT, client.wait_until_ready()).await?;
 
     let mut raw_image_data = RawImageData::new();
     let mut scan_index = 0;
 
-    // Sometimes, after closing the previous scanner connection, a new connection will
-    // time out during these first commands. Until we get to the bottom of why that's
-    // happening, we just retry once, which seems to resolve it.
-    if timeout(
-        Duration::from_millis(500),
-        client.send_initial_commands_after_connect(),
-    )
-    .await
-    .is_err()
-    {
-        timeout(
-            Duration::from_secs(3),
-            client.send_initial_commands_after_connect(),
-        )
-        .await??;
-    }
-    let image_calibration_tables = timeout(
-        Duration::from_secs(3),
-        client.get_image_calibration_tables(),
-    )
-    .await??;
+    let image_calibration_tables =
+        timeout(Duration::from_secs(3), client.initialize_scanning()).await??;
 
     client
         .send_enable_scan_commands(

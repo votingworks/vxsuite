@@ -214,6 +214,26 @@ fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
     }
 }
 
+async fn initialize_connected_scanner(
+    mut client: Client<Scanner>,
+) -> pdi_scanner::Result<(Client<Scanner>, ImageCalibrationTables)> {
+    if timeout(Duration::from_secs(3), client.wait_until_ready())
+        .await
+        .is_err()
+    {
+        return Err(Error::RecvTimeout);
+    }
+
+    let calibration_tables =
+        match timeout(Duration::from_secs(3), client.initialize_scanning()).await {
+            Ok(Ok(calibration_tables)) => calibration_tables,
+            Ok(Err(error)) => return Err(error),
+            Err(_) => return Err(Error::RecvTimeout),
+        };
+
+    Ok((client, calibration_tables))
+}
+
 #[allow(clippy::too_many_lines)]
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
@@ -301,39 +321,18 @@ async fn main() -> color_eyre::Result<()> {
                                 })?;
                             }
                             (None, Command::Connect) => match connect() {
-                                Ok(mut c) => {
+                                Ok(c) => {
                                     tracing::info!("connect() succeeded");
-                                    match timeout(
-                                        Duration::from_millis(500),
-                                        c.send_initial_commands_after_connect(),
-                                    )
-                                    .await
-                                    {
-                                        Ok(Ok(calibration_tables)) => {
+                                    match initialize_connected_scanner(c).await {
+                                        Ok((c, calibration_tables)) => {
                                             image_calibration_tables = Some(calibration_tables);
+                                            client = Some(c);
                                             send_response(Response::Ok)?;
                                         }
-                                        Ok(Err(e)) => send_error_response(&e)?,
-                                        // Sometimes, after closing the previous scanner
-                                        // connection, a new connection will time out during
-                                        // these first commands. Until we get to the bottom
-                                        // of why that's happening, we just retry once,
-                                        // which seems to resolve it.
-                                        Err(_) => match timeout(
-                                            Duration::from_secs(3),
-                                            c.send_initial_commands_after_connect(),
-                                        )
-                                        .await
-                                        {
-                                            Ok(Ok(calibration_tables)) => {
-                                                image_calibration_tables = Some(calibration_tables);
-                                                send_response(Response::Ok)?;
-                                            }
-                                            Ok(Err(e)) => send_error_response(&e)?,
-                                            Err(_) => send_error_response(&Error::RecvTimeout)?,
-                                        },
+                                        Err(e) => {
+                                            send_error_response(&e)?;
+                                        }
                                     }
-                                    client = Some(c);
                                 }
                                 Err(e) => {
                                     tracing::info!("connect() failed");

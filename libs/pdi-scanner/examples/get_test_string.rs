@@ -9,6 +9,9 @@ use tracing_subscriber::prelude::*;
 
 use pdi_scanner::connect;
 
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(3);
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(1);
+
 #[derive(Debug, Parser)]
 struct Config {
     #[clap(long, env = "LOG_LEVEL", default_value = "warn")]
@@ -47,11 +50,12 @@ async fn main() -> color_eyre::Result<()> {
     setup(&config)?;
 
     let mut client = connect()?;
+    timeout(CONNECT_TIMEOUT, client.wait_until_ready()).await?;
 
     for n in 1..=config.times {
         println!(
             "{n:02}: get_test_string result: {:?}",
-            timeout(Duration::from_secs(1), client.get_test_string()).await
+            timeout(REQUEST_TIMEOUT, client.get_test_string()).await
         );
     }
 

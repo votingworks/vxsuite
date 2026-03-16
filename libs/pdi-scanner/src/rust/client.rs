@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::{collections::VecDeque, io, time::Duration};
-use tokio::sync::mpsc::error::TryRecvError;
+use tokio::{
+    sync::mpsc::error::TryRecvError,
+    time::{sleep, timeout},
+};
 
 use crate::{
     protocol::types::{
@@ -19,6 +22,8 @@ use super::protocol::{
 };
 
 const DEFAULT_RESOLUTION: Resolution = Resolution::Half;
+const WAIT_UNTIL_READY_REQUEST_TIMEOUT: Duration = Duration::from_millis(100);
+const WAIT_UNTIL_READY_RETRY_DELAY: Duration = Duration::from_millis(75);
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -111,6 +116,15 @@ impl<T> Client<T> {
         }
 
         self.unhandled_packets.extend(unsolicited_packets);
+    }
+
+    /// Enables CRC checking on the scanner.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if a communication error occurs.
+    pub async fn enable_crc_checking(&mut self) -> Result<()> {
+        self.send(Outgoing::EnableCrcCheckingRequest).await
     }
 
     /// Gets a test string from the scanner. This is useful for testing the
@@ -838,23 +852,58 @@ impl<T> Client<T> {
         self.send(Outgoing::CalibrateImageSensorsRequest).await
     }
 
-    /// Sends commands to make sure the scanner starts in the correct state after connecting.
+    /// Primes the connection so solicited commands work reliably after
+    /// connecting. Note that this function will keep trying until a
+    /// connection is successful, which means awaiting it without a
+    /// timeout is a bad idea and can lead to an indefinite hang.
+    pub async fn wait_until_ready(&mut self) {
+        tracing::debug!("entering retry loop to validate request/response command channel");
+        loop {
+            // The scanner may not answer the first solicited request after connect
+            // until CRC checking has been enabled.
+            match timeout(WAIT_UNTIL_READY_REQUEST_TIMEOUT, self.enable_crc_checking()).await {
+                Ok(Ok(())) => {
+                    tracing::trace!("enable_crc_checking() succeeded");
+
+                    match timeout(WAIT_UNTIL_READY_REQUEST_TIMEOUT, self.get_test_string()).await {
+                        Ok(Ok(_)) => {
+                            tracing::debug!("test command succeeded, exiting retry loop");
+                            return;
+                        }
+                        Ok(Err(error)) => {
+                            tracing::trace!("test command failed: {error}; retrying after delay");
+                            sleep(WAIT_UNTIL_READY_RETRY_DELAY).await;
+                        }
+                        Err(_) => {
+                            tracing::trace!("test command timed out; retrying after delay");
+                            sleep(WAIT_UNTIL_READY_RETRY_DELAY).await;
+                        }
+                    }
+                }
+                Ok(Err(error)) => {
+                    tracing::trace!("enable_crc_checking() failed: {error}; retrying after delay");
+                    sleep(WAIT_UNTIL_READY_RETRY_DELAY).await;
+                }
+                Err(_) => {
+                    tracing::trace!("enable_crc_checking() timed out; retrying after delay");
+                    sleep(WAIT_UNTIL_READY_RETRY_DELAY).await;
+                }
+            }
+        }
+    }
+
+    /// Performs scan-specific initialization after the connection has already
+    /// been primed.
     ///
     /// # Errors
     ///
-    /// This function will return an error if any of the commands fail to
-    /// validate.
-    pub async fn send_initial_commands_after_connect(&mut self) -> Result<ImageCalibrationTables> {
-        self.get_test_string().await?;
+    /// This function will return an error if scan initialization fails.
+    pub async fn initialize_scanning(&mut self) -> Result<ImageCalibrationTables> {
         self.set_feeder_mode(FeederMode::Disabled).await?;
 
         // This command enables "flow control" on the scanner
         // // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
         // self.send_command(&Command::new(b"\x1bU"))?;
-
-        // Turn on CRC checking on the scanner
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 4b 03 1b> } (string: "\u{2}\u{1b}K\u{3}\u{1b}") (length: 5)
-        self.send_command(&Command::new(b"\x1bK")).await?;
 
         self.get_image_calibration_tables().await
     }
@@ -946,6 +995,128 @@ mod tests {
     use crate::protocol::packets::{ImageData, Incoming, Outgoing};
 
     use super::Client;
+
+    #[tokio::test]
+    async fn test_enable_crc_checking_sends_expected_packet() {
+        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
+            tokio::sync::mpsc::unbounded_channel();
+        let (_scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
+        let mut client = Client::new(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+            Some(()),
+        );
+
+        host_to_scanner_ack_tx.send(0).unwrap();
+
+        timeout(Duration::from_millis(10), client.enable_crc_checking())
+            .await
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (0, Outgoing::EnableCrcCheckingRequest)
+        );
+    }
+
+    #[tokio::test]
+    async fn test_wait_until_ready_enables_crc_before_retrying_get_test_string() {
+        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
+            tokio::sync::mpsc::unbounded_channel();
+        let (scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
+        let mut client = Client::new(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+            Some(()),
+        );
+
+        // Each loop iteration sends enable_crc_checking then get_test_string,
+        // so we need two ACKs per iteration.
+        host_to_scanner_ack_tx.send(0).unwrap();
+        host_to_scanner_ack_tx.send(1).unwrap();
+        host_to_scanner_ack_tx.send(2).unwrap();
+        host_to_scanner_ack_tx.send(3).unwrap();
+
+        // First get_test_string fails, second succeeds.
+        scanner_to_host_tx
+            .send(Err(crate::Error::RecvTimeout))
+            .unwrap();
+        scanner_to_host_tx
+            .send(Ok(Incoming::GetTestStringResponse("test".to_owned())))
+            .unwrap();
+
+        timeout(Duration::from_millis(500), client.wait_until_ready())
+            .await
+            .unwrap();
+
+        // Iteration 1: enable_crc_checking, then get_test_string (fails)
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (0, Outgoing::EnableCrcCheckingRequest)
+        );
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (1, Outgoing::GetTestStringRequest)
+        );
+        // Iteration 2: enable_crc_checking again, then get_test_string (succeeds)
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (2, Outgoing::EnableCrcCheckingRequest)
+        );
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (3, Outgoing::GetTestStringRequest)
+        );
+    }
+
+    #[tokio::test]
+    async fn test_wait_until_ready_retries_indefinitely_until_caller_timeout() {
+        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
+            tokio::sync::mpsc::unbounded_channel();
+        let (_scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
+        let mut client = Client::new(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+            Some(()),
+        );
+
+        // Each loop iteration sends enable_crc_checking + get_test_string,
+        // so we need two ACKs per iteration. Provide enough for several
+        // iterations but never send a successful response so
+        // wait_until_ready never returns on its own.
+        let iteration_count: usize = 3;
+        for ack_id in 0..(iteration_count * 2) {
+            host_to_scanner_ack_tx.send(ack_id).unwrap();
+        }
+
+        // The caller's timeout is what stops wait_until_ready, not an
+        // internal attempt limit.
+        let result = timeout(Duration::from_secs(1), client.wait_until_ready()).await;
+        assert!(
+            result.is_err(),
+            "wait_until_ready should not return on its own when the scanner never responds"
+        );
+
+        // Verify it sent enable_crc_checking + get_test_string pairs.
+        for iteration in 0..iteration_count {
+            let base_id = iteration * 2;
+            assert_eq!(
+                host_to_scanner_rx.recv().await.unwrap(),
+                (base_id, Outgoing::EnableCrcCheckingRequest)
+            );
+            assert_eq!(
+                host_to_scanner_rx.recv().await.unwrap(),
+                (base_id + 1, Outgoing::GetTestStringRequest)
+            );
+        }
+    }
 
     #[tokio::test]
     async fn test_pending_image_data_is_not_dropped_on_new_request() {

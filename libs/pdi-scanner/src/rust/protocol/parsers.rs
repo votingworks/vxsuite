@@ -155,6 +155,10 @@ fn any_configuration_request(input: &[u8]) -> IResult<&[u8], Outgoing> {
         any_double_feed_detection_configuration_request,
         any_threshold_configuration_request,
         value(
+            Outgoing::EnableCrcCheckingRequest,
+            enable_crc_checking_request,
+        ),
+        value(
             Outgoing::DisableMomentaryReverseOnFeedAtInputRequest,
             disable_momentary_reverse_on_feed_at_input_request,
         ),
@@ -754,6 +758,8 @@ pub fn hex_digit(input: &[u8]) -> IResult<&[u8], u8> {
 pub fn hex_byte(input: &[u8]) -> IResult<&[u8], u8> {
     map(tuple((hex_digit, hex_digit)), |(hi, lo)| (hi << 4) | lo)(input)
 }
+
+simple_request!(enable_crc_checking_request, b"\x1BK");
 
 simple_request!(get_test_string_request, b"D");
 
@@ -1362,6 +1368,12 @@ pub fn image_sensor_calibration_unexpected_output(input: &[u8]) -> IResult<&[u8]
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_parse_enable_crc_checking_request() {
+        let input = b"\x02\x1bK\x03\x1b";
+        assert_eq!(enable_crc_checking_request(input), Ok((&b""[..], ())));
+    }
 
     #[test]
     fn test_parse_get_test_string_request() {
