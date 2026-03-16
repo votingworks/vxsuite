@@ -19,6 +19,9 @@ use super::protocol::{
 };
 
 const DEFAULT_RESOLUTION: Resolution = Resolution::Half;
+const WAIT_UNTIL_READY_ATTEMPTS: usize = 5;
+const WAIT_UNTIL_READY_REQUEST_TIMEOUT: Duration = Duration::from_millis(100);
+const WAIT_UNTIL_READY_RETRY_DELAY: Duration = Duration::from_millis(75);
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -111,6 +114,15 @@ impl<T> Client<T> {
         }
 
         self.unhandled_packets.extend(unsolicited_packets);
+    }
+
+    /// Enables CRC checking on the scanner.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if a communication error occurs.
+    pub async fn enable_crc_checking(&mut self) -> Result<()> {
+        self.send(Outgoing::EnableCrcCheckingRequest).await
     }
 
     /// Gets a test string from the scanner. This is useful for testing the
@@ -838,23 +850,52 @@ impl<T> Client<T> {
         self.send(Outgoing::CalibrateImageSensorsRequest).await
     }
 
-    /// Sends commands to make sure the scanner starts in the correct state after connecting.
+    /// Primes the connection so solicited commands work reliably after
+    /// connecting.
     ///
     /// # Errors
     ///
-    /// This function will return an error if any of the commands fail to
-    /// validate.
-    pub async fn send_initial_commands_after_connect(&mut self) -> Result<ImageCalibrationTables> {
-        self.get_test_string().await?;
+    /// This function will return an error if the initial handshake fails.
+    pub async fn wait_until_ready(&mut self) -> Result<()> {
+        // The scanner may not answer the first solicited request after connect
+        // until CRC checking has been enabled.
+        self.enable_crc_checking().await?;
+
+        for attempt in 0..WAIT_UNTIL_READY_ATTEMPTS {
+            match tokio::time::timeout(WAIT_UNTIL_READY_REQUEST_TIMEOUT, self.get_test_string())
+                .await
+            {
+                Ok(Ok(_)) => return Ok(()),
+                Ok(Err(error)) => {
+                    if attempt + 1 == WAIT_UNTIL_READY_ATTEMPTS {
+                        return Err(error);
+                    }
+                }
+                Err(_) => {
+                    if attempt + 1 == WAIT_UNTIL_READY_ATTEMPTS {
+                        return Err(Error::RecvTimeout);
+                    }
+                }
+            }
+
+            tokio::time::sleep(WAIT_UNTIL_READY_RETRY_DELAY).await;
+        }
+
+        unreachable!("loop should have returned after final wait_until_ready attempt")
+    }
+
+    /// Performs scan-specific initialization after the connection has already
+    /// been primed.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if scan initialization fails.
+    pub async fn initialize_scanning(&mut self) -> Result<ImageCalibrationTables> {
         self.set_feeder_mode(FeederMode::Disabled).await?;
 
         // This command enables "flow control" on the scanner
         // // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
         // self.send_command(&Command::new(b"\x1bU"))?;
-
-        // Turn on CRC checking on the scanner
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 4b 03 1b> } (string: "\u{2}\u{1b}K\u{3}\u{1b}") (length: 5)
-        self.send_command(&Command::new(b"\x1bK")).await?;
 
         self.get_image_calibration_tables().await
     }
@@ -946,6 +987,32 @@ mod tests {
     use crate::protocol::packets::{ImageData, Incoming, Outgoing};
 
     use super::Client;
+
+    #[tokio::test]
+    async fn test_enable_crc_checking_sends_expected_packet() {
+        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
+            tokio::sync::mpsc::unbounded_channel();
+        let (_scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
+        let mut client = Client::new(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+            Some(()),
+        );
+
+        host_to_scanner_ack_tx.send(0).unwrap();
+
+        timeout(Duration::from_millis(10), client.enable_crc_checking())
+            .await
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (0, Outgoing::EnableCrcCheckingRequest)
+        );
+    }
 
     #[tokio::test]
     async fn test_pending_image_data_is_not_dropped_on_new_request() {

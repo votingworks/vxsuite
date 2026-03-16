@@ -65,24 +65,14 @@ async fn main() -> color_eyre::Result<()> {
     // Sometimes, after closing the previous scanner connection, a new connection will
     // time out during these first commands. Until we get to the bottom of why that's
     // happening, we just retry once, which seems to resolve it.
-    if timeout(
-        Duration::from_millis(500),
-        client.send_initial_commands_after_connect(),
-    )
-    .await
-    .is_err()
+    if timeout(Duration::from_millis(500), client.wait_until_ready())
+        .await
+        .is_err()
     {
-        timeout(
-            Duration::from_secs(3),
-            client.send_initial_commands_after_connect(),
-        )
-        .await??;
+        timeout(Duration::from_secs(3), client.wait_until_ready()).await??;
     }
-    let image_calibration_tables = timeout(
-        Duration::from_secs(3),
-        client.get_image_calibration_tables(),
-    )
-    .await??;
+    let image_calibration_tables =
+        timeout(Duration::from_secs(3), client.initialize_scanning()).await??;
 
     client
         .send_enable_scan_commands(

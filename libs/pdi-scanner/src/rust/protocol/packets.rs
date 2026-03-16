@@ -16,6 +16,15 @@ pub(crate) const PACKET_DATA_END: &[u8] = &[0x03];
 /// All possible commands that can be sent to the scanner.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Outgoing {
+    /// Enables CRC checking on the scanner.
+    ///
+    /// `<ESC> K = (1BH) (4BH)`
+    ///
+    /// # Response
+    ///
+    /// No response.
+    EnableCrcCheckingRequest,
+
     /// This command requests a hard-coded test string from the scanner.
     ///
     /// `ASCII character D = (44H)`
@@ -606,6 +615,9 @@ impl Outgoing {
     #[allow(clippy::too_many_lines)]
     pub fn to_bytes(&self) -> Vec<u8> {
         match &self {
+            Self::EnableCrcCheckingRequest => {
+                checked!(Command::new(b"\x1BK"), parsers::enable_crc_checking_request)
+            }
             Self::GetTestStringRequest => {
                 checked!(Command::new(b"D"), parsers::get_test_string_request)
             }
