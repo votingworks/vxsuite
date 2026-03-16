@@ -54,6 +54,7 @@ import {
   YesNoOption,
   PollingPlace,
   PollingPlaceType,
+  pollingPlaceGenerateFromPrecinct,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -84,6 +85,8 @@ import {
 } from './types';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
+import { generateId } from './utils';
+import { getStateFeaturesConfig } from './features';
 
 export interface ElectionRecord {
   jurisdictionId: string;
@@ -1616,10 +1619,50 @@ export class Store {
     electionId: ElectionId,
     precinct: Precinct
   ): Promise<Result<void, DuplicatePrecinctError>> {
+    const jurisdiction = await this.getElectionJurisdiction(electionId);
+    const stateFeatures = getStateFeaturesConfig(jurisdiction);
+
     try {
       await this.db.withClient((client) =>
         client.withTransaction(async () => {
           await insertPrecinct(client, electionId, precinct);
+
+          // Product assumption: most users will want a corresponding polling
+          // place for every precinct created, so we optimize for that use case
+          // here, to reduce the amount of manual entry work needed.
+          if (stateFeatures.EDIT_POLLING_PLACES) {
+            const generatedPlace = pollingPlaceGenerateFromPrecinct({
+              id: generateId(),
+              precinct,
+              type: 'election_day',
+            });
+
+            const res = await insertPollingPlace(
+              client,
+              electionId,
+              generatedPlace
+            );
+            if (res.isErr()) {
+              const error = res.err();
+              switch (error) {
+                case 'duplicate-name':
+                  // Name collision with existing polling place - assume the
+                  // user will resolve this manually.
+                  break;
+
+                /* istanbul ignore next - shouldn't be possible - @preserve */
+                case 'invalid-precinct':
+                  throw new Error(
+                    `unexpected polling place generation error: ${error}`
+                  );
+
+                /* istanbul ignore next - @preserve */
+                default:
+                  throwIllegalValue(error);
+              }
+            }
+          }
+
           return true;
         })
       );

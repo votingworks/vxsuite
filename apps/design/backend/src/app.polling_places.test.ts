@@ -2,6 +2,7 @@ import { afterAll, describe, expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import {
   PollingPlace,
+  pollingPlaceGenerateFromPrecinct,
   pollingPlacesGenerateFromPrecincts,
   Precinct,
   PrecinctSplit,
@@ -17,16 +18,20 @@ const { setupApp, cleanup } = testSetupHelpers();
 afterAll(cleanup);
 
 test('polling places CRUD', async () => {
+  const user = nonVxUser;
+  const jurisdiction = user.jurisdictions[0];
+  expectEditingEnabled(jurisdiction, false);
+
   const { apiClient, auth0 } = await setupApp({
     organizations,
-    jurisdictions: nonVxUser.jurisdictions,
-    users: [nonVxUser],
+    jurisdictions: user.jurisdictions,
+    users: [user],
   });
 
-  auth0.setLoggedInUser(nonVxUser);
+  auth0.setLoggedInUser(user);
   const electionId = (
     await apiClient.createElection({
-      jurisdictionId: nonVxUser.jurisdictions[0].id,
+      jurisdictionId: jurisdiction.id,
       id: 'election1',
     })
   ).unsafeUnwrap();
@@ -160,6 +165,118 @@ test('polling places CRUD', async () => {
   ]);
 });
 
+test('polling place updates on precinct creation/deletion', async () => {
+  const user = nonVxUser;
+  const jurisdiction = user.jurisdictions[1];
+  expectEditingEnabled(jurisdiction, true);
+
+  const { apiClient: api, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users: [user],
+  });
+
+  auth0.setLoggedInUser(user);
+
+  const electionId = (
+    await api.createElection({
+      jurisdictionId: jurisdiction.id,
+      id: 'election1',
+    })
+  ).unsafeUnwrap();
+
+  expect(await api.listPollingPlaces({ electionId })).toEqual([]);
+
+  // Expect polling place generation on precinct creation:
+
+  const splits: PrecinctSplit[] = [
+    { districtIds: [], id: 's1', name: 'Split 1' },
+    { districtIds: [], id: 's2', name: 'Split 2' },
+  ];
+  const precincts: Precinct[] = [
+    { id: 'precinct1', name: 'Precinct 1', districtIds: [] },
+    { id: 'precinct2', name: 'Precinct 2', districtIds: [], splits },
+  ];
+  for (const newPrecinct of precincts) {
+    const res = await api.createPrecinct({ electionId, newPrecinct });
+    expect(res).toEqual(ok());
+  }
+
+  const placeFromPrecinct1 = pollingPlaceGenerateFromPrecinct({
+    precinct: precincts[0],
+    id: expect.any(String),
+    type: 'election_day',
+  });
+  const placeFromPrecinct2 = pollingPlaceGenerateFromPrecinct({
+    precinct: precincts[1],
+    id: expect.any(String),
+    type: 'election_day',
+  });
+
+  expect(await api.listPollingPlaces({ electionId })).toEqual([
+    placeFromPrecinct1,
+    placeFromPrecinct2,
+  ]);
+
+  const customPlace1: PollingPlace = {
+    id: 'customPlace1',
+    name: 'Custom Place 1',
+    precincts: {
+      precinct1: { type: 'whole' },
+      precinct2: { type: 'whole' },
+    },
+    type: 'election_day',
+  };
+
+  expect(
+    await api.setPollingPlace({ electionId, place: customPlace1 })
+  ).toEqual(ok());
+
+  expect(await api.listPollingPlaces({ electionId })).toEqual([
+    // Alphabetically sorted:
+    customPlace1,
+    placeFromPrecinct1,
+    placeFromPrecinct2,
+  ]);
+
+  // Deleting precincts removes polling place links:
+
+  await api.deletePrecinct({ electionId, precinctId: precincts[0].id });
+
+  const customPlace1Updated: PollingPlace = {
+    ...customPlace1,
+    precincts: { precinct2: { type: 'whole' } },
+  };
+  const placeFromPrecinct1Updated: PollingPlace = {
+    ...placeFromPrecinct1,
+    precincts: {},
+  };
+  expect(await api.listPollingPlaces({ electionId })).toEqual([
+    customPlace1Updated,
+    placeFromPrecinct1Updated,
+    placeFromPrecinct2,
+  ]);
+
+  // Creating precinct with name matching existing polling place is no-op:
+
+  expect(
+    await api.createPrecinct({
+      electionId,
+      newPrecinct: {
+        districtIds: [],
+        id: 'precinct3',
+        name: customPlace1.name,
+      },
+    })
+  ).toEqual(ok());
+
+  expect(await api.listPollingPlaces({ electionId })).toEqual([
+    customPlace1Updated,
+    placeFromPrecinct1Updated,
+    placeFromPrecinct2,
+  ]);
+});
+
 describe('loadElection', () => {
   const electionDef = electionGeneralFixtures.readElectionDefinition();
   const [precinct1, precinct2] = electionDef.election.precincts;
@@ -208,6 +325,7 @@ describe('loadElection', () => {
 
     return { api, electionId };
   }
+
   describe('stateFeatures.EDIT_POLLING_PLACES === true', () => {
     const user = nonVxUser;
     const jurisdiction = user.jurisdictions[1];
