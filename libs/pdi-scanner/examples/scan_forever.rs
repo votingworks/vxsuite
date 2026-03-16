@@ -7,6 +7,7 @@ use tokio::time::timeout;
 use tracing_subscriber::prelude::*;
 
 use pdi_scanner::{
+    client::Client,
     connect,
     protocol::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
@@ -15,7 +16,11 @@ use pdi_scanner::{
             ClampedPercentage, DoubleFeedDetectionMode, EjectMotion, FeederMode, ScanSideMode,
         },
     },
+    scanner::Scanner,
 };
+
+const REQUEST_TIMEOUT: Duration = Duration::from_millis(500);
+const RETRY_TIMEOUT: Duration = Duration::from_secs(3);
 
 #[derive(Debug, Parser)]
 struct Config {
@@ -52,6 +57,20 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
     Ok(())
 }
 
+async fn wait_until_ready_for_immediate_commands(
+    client: &mut Client<Scanner>,
+) -> color_eyre::Result<()> {
+    match timeout(REQUEST_TIMEOUT, client.wait_until_ready()).await {
+        Ok(Ok(())) => {}
+        Ok(Err(error)) => return Err(error.into()),
+        Err(_) => {
+            timeout(RETRY_TIMEOUT, client.wait_until_ready()).await??;
+        }
+    }
+
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
@@ -65,12 +84,7 @@ async fn main() -> color_eyre::Result<()> {
     // Sometimes, after closing the previous scanner connection, a new connection will
     // time out during these first commands. Until we get to the bottom of why that's
     // happening, we just retry once, which seems to resolve it.
-    if timeout(Duration::from_millis(500), client.wait_until_ready())
-        .await
-        .is_err()
-    {
-        timeout(Duration::from_secs(3), client.wait_until_ready()).await??;
-    }
+    wait_until_ready_for_immediate_commands(&mut client).await?;
     let image_calibration_tables =
         timeout(Duration::from_secs(3), client.initialize_scanning()).await??;
 
