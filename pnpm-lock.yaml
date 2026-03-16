@@ -5740,9 +5740,6 @@ importers:
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../monorepo-utils
-      '@votingworks/printing':
-        specifier: workspace:*
-        version: link:../printing
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -20494,7 +20491,7 @@ packages:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.7.2
+      semver: 7.7.4
     transitivePeerDependencies:
       - supports-color
     dev: true

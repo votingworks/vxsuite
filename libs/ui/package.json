@@ -99,7 +99,6 @@
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
-    "@votingworks/printing": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "assert": "^2.0.0",
     "browserify-zlib": "^0.2.0",
