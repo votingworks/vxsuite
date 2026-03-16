@@ -67,32 +67,29 @@ const ContestTable = styled.table`
   }
 `;
 
-function Field({
-  label,
-  headerColor = Colors.LIGHT_GRAY,
-}: {
-  label: string;
-  headerColor?: string;
-}): JSX.Element {
+function Field({ label }: { label: string }): JSX.Element {
   return (
     <div
       style={{
-        border: `1px solid ${Colors.DARKER_GRAY}`,
-        paddingBottom: '2.5rem',
-        minWidth: '10rem',
+        flex: 1,
+        minWidth: '8rem',
         backgroundColor: 'white',
+        border: `1px solid ${Colors.DARKER_GRAY}`,
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <div
         style={{
-          padding: '0.25rem',
-          backgroundColor: headerColor,
           fontWeight: '500',
           fontSize: '0.8rem',
+          padding: '0.125rem 0.25rem',
+          borderBottom: `1px solid ${Colors.DARK_GRAY}`,
         }}
       >
         {label}
       </div>
+      <div style={{ flex: 1, minHeight: '1.5rem' }} />
     </div>
   );
 }
@@ -114,8 +111,30 @@ function contestTitleWithForPrefix(title: string): string {
   return title.startsWith('For ') ? title : `For ${title}`;
 }
 
-function cleanCandidateName(name: string): string {
-  return name.replace(/<br\/>/g, ' / ');
+function cleanCandidateName(name: string): JSX.Element {
+  const parts = name.split(/<br\/>/g);
+  if (parts.length === 1) return <span>{name}</span>;
+  return (
+    <span>
+      {parts.map((part, i) => (
+        <React.Fragment key={`part-${i}`}>
+          {i > 0 && <br />}
+          {part}
+        </React.Fragment>
+      ))}
+    </span>
+  );
+}
+
+function deduplicateCandidates(
+  candidates: readonly { readonly id: string; readonly name: string }[]
+): { readonly id: string; readonly name: string }[] {
+  const seen = new Set<string>();
+  return candidates.filter((c) => {
+    if (seen.has(c.name)) return false;
+    seen.add(c.name);
+    return true;
+  });
 }
 
 const PRIMARY_INSTRUCTIONS =
@@ -146,7 +165,7 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
   const colorTint = party ? partyColorTint(party.fullName) : undefined;
   const headerBgColor = colorTint ? ColorTints[colorTint] : Colors.LIGHT_GRAY;
   const instructions = partyId ? PRIMARY_INSTRUCTIONS : GENERAL_INSTRUCTIONS;
-  const ballotsCastPrefix = party ? `${party.fullName} ` : '';
+  const ballotsCastPrefix = party ? `${party.name} ` : '';
   return (
     <Page pageNumber={1} dimensions={dimensions} margins={pageMarginsInches}>
       <div
@@ -178,7 +197,7 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                 <h2>
                   {election.county.name}, {election.state}
                 </h2>
-                {party && <h2>{party.fullName}</h2>}
+                {party && <h2>{party.name}</h2>}
                 <h4>{election.title}</h4>
                 <h4>{electionDate}</h4>
               </div>
@@ -187,18 +206,30 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
               style={{
                 fontSize: '0.8rem',
                 border: '1px solid black',
-                padding: '0.375rem',
                 backgroundColor: 'white',
               }}
             >
-              <div>
+              <div style={{ padding: '0.25rem 0.375rem' }}>
                 <strong>Vote {electionDate}. A true copy attest:</strong>
               </div>
-              <SignatureLine>
-                <SignatureX />
-              </SignatureLine>
-              <div>Signature of Town/City Clerk</div>
-              <div style={{ fontSize: '0.8rem' }}>
+              <div
+                style={{
+                  borderTop: `1px solid ${Colors.DARK_GRAY}`,
+                  borderBottom: `1px solid ${Colors.DARK_GRAY}`,
+                  padding: '0.25rem 0.375rem',
+                }}
+              >
+                <SignatureLine>
+                  <SignatureX />
+                </SignatureLine>
+                <div>Signature of Town/City Clerk</div>
+              </div>
+              <div
+                style={{
+                  fontSize: '0.8rem',
+                  padding: '0.25rem 0.375rem',
+                }}
+              >
                 One copy to be Returned ELECTION NIGHT to the Secretary of State
               </div>
             </div>
@@ -261,12 +292,14 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
                   </thead>
                   <tbody>
                     {contest.type === 'candidate' &&
-                      contest.candidates.map((candidate) => (
-                        <tr key={candidate.id}>
-                          <td>{cleanCandidateName(candidate.name)}</td>
-                          <td></td>
-                        </tr>
-                      ))}
+                      deduplicateCandidates(contest.candidates).map(
+                        (candidate) => (
+                          <tr key={candidate.id}>
+                            <td>{cleanCandidateName(candidate.name)}</td>
+                            <td></td>
+                          </tr>
+                        )
+                      )}
                     {contest.type === 'yesno' && (
                       <>
                         <tr>
@@ -300,36 +333,44 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
         </div>
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '0.5rem',
-            alignItems: 'center',
+            border: `1px solid ${Colors.DARKER_GRAY}`,
+            backgroundColor: headerBgColor,
           }}
         >
-          <Field
-            label={`${ballotsCastPrefix}Election Day Ballots Cast`}
-            headerColor={headerBgColor}
-          />
-          <h2>+</h2>
-          <Field
-            label={`${ballotsCastPrefix}Absentee Ballots Cast`}
-            headerColor={headerBgColor}
-          />
-          <h2>=</h2>
-          <Field
-            label={`${ballotsCastPrefix}Total Ballots Cast`}
-            headerColor={headerBgColor}
-          />
+          <h4
+            style={{
+              padding: '0.375rem 0.5rem',
+              borderBottom: `1px solid ${Colors.DARKER_GRAY}`,
+            }}
+          >
+            Ballots Cast
+          </h4>
           <div
             style={{
-              borderLeft: `1px solid ${Colors.DARK_GRAY}`,
-              height: '4rem',
+              display: 'flex',
+              gap: '0.75rem',
+              alignItems: 'stretch',
+              padding: '0.5rem',
             }}
-          />
-          <Field
-            label="Federal Office Only Ballots Cast"
-            headerColor={headerBgColor}
-          />
+          >
+            <Field
+              label={`${ballotsCastPrefix}Election Day Ballots\u00a0Cast`}
+            />
+            <h2 style={{ alignSelf: 'center' }}>+</h2>
+            <Field
+              label={`${ballotsCastPrefix}Absentee Ballots\u00a0Cast`}
+            />
+            <h2 style={{ alignSelf: 'center' }}>=</h2>
+            <Field
+              label={`${ballotsCastPrefix}Total Ballots\u00a0Cast`}
+            />
+            <div
+              style={{
+                borderLeft: '1px solid black',
+              }}
+            />
+            <Field label={`Federal Office Only Ballots\u00a0Cast`} />
+          </div>
         </div>
       </div>
     </Page>
@@ -338,11 +379,6 @@ export function NhRovForm({ election, partyId }: NhRovFormProps): JSX.Element {
 
 // Write-in page constants
 const WRITE_IN_BLANK_ROWS = 5;
-
-// Strip "Party" suffix for write-in page text (e.g. "Republican Party" → "Republican")
-function partyShortName(fullName: string): string {
-  return fullName.replace(/\s+Party$/i, '');
-}
 
 function primaryWriteInInstructions(partyName: string): JSX.Element {
   const upperParty = partyName.toUpperCase();
@@ -574,7 +610,7 @@ function NhWriteInPages({
                           <h2>
                             {election.county.name}, {election.state}
                           </h2>
-                          {party && <h2>{partyShortName(party.fullName)}</h2>}
+                          {party && <h2>{party.name}</h2>}
                           <h4>{election.title}</h4>
                           <h4>{electionDate}</h4>
                         </React.Fragment>
@@ -584,7 +620,7 @@ function NhWriteInPages({
                           <h2>
                             {election.county.name}, {election.state}
                           </h2>
-                          {party && <h2>{partyShortName(party.fullName)}</h2>}
+                          {party && <h2>{party.name}</h2>}
                           <h4>{election.title}</h4>
                           <h4>{electionDate}</h4>
                         </React.Fragment>
@@ -619,7 +655,7 @@ function NhWriteInPages({
                   <strong>Instructions:</strong>{' '}
                   {party
                     ? primaryWriteInInstructions(
-                        partyShortName(party.fullName)
+                        party.name
                       )
                     : GENERAL_WRITE_IN_INSTRUCTIONS}
                 </div>
@@ -636,7 +672,7 @@ function NhWriteInPages({
                   The following persons received{' '}
                   <strong>WRITE-IN</strong> votes on{' '}
                   <strong>
-                    {partyShortName(party.fullName).toUpperCase()}
+                    {party.name.toUpperCase()}
                   </strong>{' '}
                   ballots for the following <strong>Offices:</strong>
                 </div>
