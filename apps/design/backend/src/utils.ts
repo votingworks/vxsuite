@@ -9,12 +9,17 @@ import {
   Election,
   hasSplits,
   Party,
+  PollingPlace,
+  PollingPlacePrecinct,
+  pollingPlacesGenerateFromPrecincts,
   Precinct,
+  PrecinctId,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
 import { Jurisdiction, User } from './types';
+import { type StateFeaturesConfig } from './features';
 
 export function getBallotPdfFileName(
   precinctName: string,
@@ -50,11 +55,15 @@ export function generateId(): string {
  * Regenerate the IDs of all entities in an election, ensuring that all
  * references are updated.
  */
-export function regenerateElectionIds(election: Election): {
+export function regenerateElectionIds(
+  election: Election,
+  stateFeatures: StateFeaturesConfig
+): {
   districts: District[];
   precincts: Precinct[];
   parties: Party[];
   contests: AnyContest[];
+  pollingPlaces?: PollingPlace[];
 } {
   const idMap = new Map<string, string>();
   function replaceId<T extends string>(id: T): T {
@@ -68,6 +77,7 @@ export function regenerateElectionIds(election: Election): {
     ...district,
     id: replaceId(district.id),
   }));
+
   const precincts = election.precincts.map((precinct) => {
     if (hasSplits(precinct)) {
       return {
@@ -86,10 +96,12 @@ export function regenerateElectionIds(election: Election): {
       districtIds: precinct.districtIds.map(replaceId),
     };
   });
+
   const parties = election.parties.map((party) => ({
     ...party,
     id: replaceId(party.id),
   }));
+
   const contests = election.contests.map((contest) => ({
     ...contest,
     id: replaceId(contest.id),
@@ -123,11 +135,47 @@ export function regenerateElectionIds(election: Election): {
       }
     })(),
   }));
+
+  const pollingPlaces: PollingPlace[] | undefined = (() => {
+    // Note: For states where editing is not enabled, polling places are
+    // generated at export-time.
+    if (!stateFeatures.EDIT_POLLING_PLACES) return undefined;
+
+    if (!election.pollingPlaces?.length) {
+      return pollingPlacesGenerateFromPrecincts(
+        precincts,
+        'election_day',
+        generateId
+      );
+    }
+
+    return election.pollingPlaces.map<PollingPlace>((place) => {
+      const oldPrecincts = place.precincts;
+      const newPrecincts: Record<PrecinctId, PollingPlacePrecinct> = {};
+
+      for (const [oldPrecinctId, oldPrecinct] of Object.entries(oldPrecincts)) {
+        const newPrecinctId = replaceId(oldPrecinctId);
+        newPrecincts[newPrecinctId] =
+          oldPrecinct.type === 'whole'
+            ? { ...oldPrecinct }
+            : /* istanbul ignore next - not yet supported (asserted at the store level) - @preserve */
+              { ...oldPrecinct, splitIds: oldPrecinct.splitIds.map(replaceId) };
+      }
+
+      return {
+        ...place,
+        id: replaceId(place.id),
+        precincts: newPrecincts,
+      };
+    });
+  })();
+
   return {
     districts,
     precincts,
     parties,
     contests,
+    pollingPlaces,
   };
 }
 

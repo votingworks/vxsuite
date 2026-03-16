@@ -7,7 +7,7 @@ import { userBelongsToOrganization } from './utils';
  * differentiating between what VX support users can do and what election
  * officials can do.
  */
-export enum UserFeature {
+export interface UserFeaturesConfig {
   //
   // Export screen features
   //
@@ -15,17 +15,17 @@ export enum UserFeature {
   /**
    * Show the export screen.
    */
-  EXPORT_SCREEN = 'EXPORT_SCREEN',
+  EXPORT_SCREEN?: boolean;
   /**
    * Allow the user to choose a ballot template.
    * Requires the export screen to be enabled.
    */
-  CHOOSE_BALLOT_TEMPLATE = 'CHOOSE_BALLOT_TEMPLATE',
+  CHOOSE_BALLOT_TEMPLATE?: boolean;
   /**
    * Allow the user to export test decks.
    * Requires the export screen to be enabled.
    */
-  EXPORT_TEST_DECKS = 'EXPORT_TEST_DECKS',
+  EXPORT_TEST_DECKS?: boolean;
 
   //
   // System settings screen features
@@ -34,42 +34,42 @@ export enum UserFeature {
   /**
    * Show the system settings screen.
    */
-  SYSTEM_SETTINGS_SCREEN = 'SYSTEM_SETTINGS_SCREEN',
+  SYSTEM_SETTINGS_SCREEN?: boolean;
   /**
    * Allow the user to toggle VxScan's ability to scan BMD ballots.
    * Requires the system settings screen to be enabled.
    */
-  VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING = 'VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING',
+  VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING?: boolean;
   /**
    * Allow the user to toggle VxScan's alarms.
    * Requires the system settings screen to be enabled.
    */
-  VXSCAN_ALARMS_SYSTEM_SETTING = 'VXSCAN_ALARMS_SYSTEM_SETTING',
+  VXSCAN_ALARMS_SYSTEM_SETTING?: boolean;
   /**
    * Allow the user to toggle the ability to mark overvotes on VxMark.
    * Requires the system settings screen to be enabled.
    */
-  BMD_OVERVOTE_SYSTEM_SETTING = 'BMD_OVERVOTE_SYSTEM_SETTING',
+  BMD_OVERVOTE_SYSTEM_SETTING?: boolean;
   /**
    * Allow the user to select BMD print modes beyond summary ballots.
    * Requires the system settings screen to be enabled.
    */
-  BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING = 'BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING',
+  BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING?: boolean;
   /**
    * Allow the user to configure quick results reporting.
    * Requires the system settings screen to be enabled.
    */
-  QUICK_RESULTS_REPORTING_SYSTEM_SETTING = 'QUICK_RESULTS_REPORTING_SYSTEM_SETTING',
+  QUICK_RESULTS_REPORTING_SYSTEM_SETTING?: boolean;
   /**
    * Allow the user to toggle system limit checks on election package import.
    * Requires the system settings screen to be enabled.
    */
-  SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING = 'SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING',
+  SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING?: boolean;
   /**
    * Allow the user to toggle voter help buttons.
    * Requires the system settings screen to be enabled.
    */
-  VOTER_HELP_BUTTONS_SYSTEM_SETTING = 'VOTER_HELP_BUTTONS_SYSTEM_SETTING',
+  VOTER_HELP_BUTTONS_SYSTEM_SETTING?: boolean;
 }
 
 /**
@@ -78,58 +78,73 @@ export enum UserFeature {
  * have the same functionality for these features when viewing a specific
  * election.
  */
-export enum StateFeature {
+export interface StateFeaturesConfig {
   /**
    * Only allow selecting letter and legal paper sizes for ballots.
    */
-  ONLY_LETTER_AND_LEGAL_PAPER_SIZES = 'ONLY_LETTER_AND_LEGAL_PAPER_SIZES',
+  ONLY_LETTER_AND_LEGAL_PAPER_SIZES?: boolean;
   /**
    * Allow the user to select ballot languages.
    */
-  BALLOT_LANGUAGE_CONFIG = 'BALLOT_LANGUAGE_CONFIG',
+  BALLOT_LANGUAGE_CONFIG?: boolean;
   /**
    * Enable audio exports and audio-proofing UI.
    */
-  AUDIO_ENABLED = 'AUDIO_ENABLED',
+  AUDIO_ENABLED?: boolean;
   /**
    * Add a field to override the election title for a precinct split.
    */
-  PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE = 'PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE',
+  PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE?: boolean;
   /**
    * Add a field to override the election seal for a precinct split.
    */
-  PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE = 'PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE',
+  PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE?: boolean;
   /**
    * Add a field to upload a clerk signature image for a precinct split.
    */
-  PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE = 'PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE',
+  PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE?: boolean;
   /**
    * Add a field to enter a caption for the clerk signature image for a precinct split.
    */
-  PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE = 'PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE',
+  PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE?: boolean;
   /**
    * Include sample ballots in exports.
    */
-  EXPORT_SAMPLE_BALLOTS = 'EXPORT_SAMPLE_BALLOTS',
+  EXPORT_SAMPLE_BALLOTS?: boolean;
   /**
    * Include test mode ballots in exports.
    */
-  EXPORT_TEST_BALLOTS = 'EXPORT_TEST_BALLOTS',
+  EXPORT_TEST_BALLOTS?: boolean;
   /**
    * Enable adding more than two options for ballot measures. (Ballot measure
    * contests with additional options will be transformed into candidate
    * contests for export until VxSuite supports them.)
    */
-  ADDITIONAL_BALLOT_MEASURE_OPTIONS = 'ADDITIONAL_BALLOT_MEASURE_OPTIONS',
+  ADDITIONAL_BALLOT_MEASURE_OPTIONS?: boolean;
   /**
    * Show a warning when finalizing a ballot that requesting a change after finalizing may incur a
    * fee.
    */
-  POST_FINALIZE_CHANGE_FEE_WARNING = 'POST_FINALIZE_CHANGE_FEE_WARNING',
+  POST_FINALIZE_CHANGE_FEE_WARNING?: boolean;
+  /**
+   * Enables:
+   * - A screen for viewing/editing polling places.
+   * - Automatic polling place creation (from precincts) when importing
+   *   elections with no existing polling places.
+   * - Automatic polling place creation for newly created precincts.
+   *
+   * This functionality is feature-flagged, since the concept of Polling Places
+   * is not relevant to some customers (e.g. for those where precincts have a
+   * 1:1 mapping to polling place) and may be confusing.
+   *
+   * Note: When this flag is off, polling places will still be generated from
+   * precincts at the time of export.
+   */
+  EDIT_POLLING_PLACES?: boolean;
 }
 
-export type UserFeaturesConfig = Partial<Record<UserFeature, boolean>>;
-export type StateFeaturesConfig = Partial<Record<StateFeature, boolean>>;
+export type UserFeature = keyof UserFeaturesConfig;
+export type StateFeature = keyof StateFeaturesConfig;
 
 const vxUserFeaturesConfig: UserFeaturesConfig = {
   EXPORT_SCREEN: true,
@@ -160,6 +175,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     AUDIO_ENABLED: true,
     BALLOT_LANGUAGE_CONFIG: true,
     EXPORT_TEST_BALLOTS: true,
+    EDIT_POLLING_PLACES: true,
   },
 
   MS: {

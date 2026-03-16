@@ -1,8 +1,16 @@
-import { afterAll, expect, test } from 'vitest';
+import { afterAll, describe, expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { PollingPlace, Precinct, PrecinctSplit } from '@votingworks/types';
+import {
+  PollingPlace,
+  pollingPlacesGenerateFromPrecincts,
+  Precinct,
+  PrecinctSplit,
+} from '@votingworks/types';
+import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { testSetupHelpers } from '../test/helpers';
-import { organizations, nonVxUser, nonVxJurisdiction } from '../test/mocks';
+import { nonVxUser, organizations, jurisdictions } from '../test/mocks';
+import { getStateFeaturesConfig } from './features';
+import { Jurisdiction, User } from './types';
 
 const { setupApp, cleanup } = testSetupHelpers();
 
@@ -18,7 +26,7 @@ test('polling places CRUD', async () => {
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
     await apiClient.createElection({
-      jurisdictionId: nonVxJurisdiction.id,
+      jurisdictionId: nonVxUser.jurisdictions[0].id,
       id: 'election1',
     })
   ).unsafeUnwrap();
@@ -151,3 +159,289 @@ test('polling places CRUD', async () => {
     place3,
   ]);
 });
+
+describe('loadElection', () => {
+  const electionDef = electionGeneralFixtures.readElectionDefinition();
+  const [precinct1, precinct2] = electionDef.election.precincts;
+
+  const place1: PollingPlace = {
+    id: 'place1',
+    name: 'Place 1',
+    precincts: { [precinct1.id]: { type: 'whole' } },
+    type: 'election_day',
+  };
+
+  const place2: PollingPlace = {
+    id: 'place2',
+    name: 'Place 2',
+    precincts: {
+      [precinct1.id]: { type: 'whole' },
+      [precinct2.id]: { type: 'whole' },
+    },
+    type: 'absentee',
+  };
+
+  async function setUpAppAndElection(
+    user: User,
+    jurisdiction: Jurisdiction,
+    pollingPlaces?: PollingPlace[]
+  ) {
+    const { apiClient: api, auth0 } = await setupApp({
+      organizations,
+      jurisdictions,
+      users: [user],
+    });
+    auth0.setLoggedInUser(user);
+
+    const electionFileContents = JSON.stringify({
+      ...electionDef.election,
+      pollingPlaces,
+    });
+
+    const electionId = (
+      await api.loadElection({
+        jurisdictionId: jurisdiction.id,
+        newId: 'newElection',
+        upload: { format: 'vxf', electionFileContents },
+      })
+    ).unsafeUnwrap();
+
+    return { api, electionId };
+  }
+  describe('stateFeatures.EDIT_POLLING_PLACES === true', () => {
+    const user = nonVxUser;
+    const jurisdiction = user.jurisdictions[1];
+    expectEditingEnabled(jurisdiction, true);
+
+    test('uses existing polling places if present', async () => {
+      const { api, electionId } = await setUpAppAndElection(
+        user,
+        jurisdiction,
+        [place1, place2]
+      );
+
+      const [precinctCopy1, precinctCopy2] = await api.listPrecincts({
+        electionId,
+      });
+      expect(await api.listPollingPlaces({ electionId })).toEqual([
+        {
+          ...place1,
+          id: expect.not.stringMatching(place1.id),
+          precincts: { [precinctCopy1.id]: { type: 'whole' } },
+        },
+        {
+          ...place2,
+          id: expect.not.stringMatching(place2.id),
+          precincts: {
+            [precinctCopy1.id]: { type: 'whole' },
+            [precinctCopy2.id]: { type: 'whole' },
+          },
+        },
+      ]);
+    });
+
+    test('generates missing polling places from precincts', async () => {
+      const { api, electionId } = await setUpAppAndElection(user, jurisdiction);
+
+      const precincts = await api.listPrecincts({ electionId });
+      const expectedPlaces = pollingPlacesGenerateFromPrecincts(
+        precincts,
+        'election_day',
+        () => expect.any(String)
+      );
+      expect(await api.listPollingPlaces({ electionId })).toEqual(
+        expectedPlaces
+      );
+    });
+  });
+
+  describe('stateFeatures.EDIT_POLLING_PLACES === false', () => {
+    const user = nonVxUser;
+    const jurisdiction = user.jurisdictions[0];
+    expectEditingEnabled(jurisdiction, false);
+
+    test('ignores polling places if present', async () => {
+      const { api, electionId } = await setUpAppAndElection(
+        user,
+        jurisdiction,
+        [place1, place2]
+      );
+
+      expect(await api.listPollingPlaces({ electionId })).toEqual([]);
+    });
+
+    test('does not generate missing polling place', async () => {
+      const { api, electionId } = await setUpAppAndElection(user, jurisdiction);
+
+      expect(await api.listPollingPlaces({ electionId })).toEqual([]);
+    });
+  });
+});
+
+describe('cloneElection', () => {
+  const electionDef = electionGeneralFixtures.readElectionDefinition();
+  const [precinct1, precinct2] = electionDef.election.precincts;
+
+  const place1: PollingPlace = {
+    id: 'place1',
+    name: 'Place 1',
+    precincts: { [precinct1.id]: { type: 'whole' } },
+    type: 'election_day',
+  };
+
+  const place2: PollingPlace = {
+    id: 'place2',
+    name: 'Place 2',
+    precincts: {
+      [precinct1.id]: { type: 'whole' },
+      [precinct2.id]: { type: 'whole' },
+    },
+    type: 'absentee',
+  };
+
+  async function setUpAppAndSrcElection(
+    user: User,
+    jurisdiction: Jurisdiction,
+    pollingPlaces?: PollingPlace[]
+  ) {
+    const { apiClient: api, auth0 } = await setupApp({
+      organizations,
+      jurisdictions,
+      users: [user],
+    });
+    auth0.setLoggedInUser(user);
+
+    const electionFileContents = JSON.stringify({
+      ...electionDef.election,
+      pollingPlaces,
+    });
+
+    const electionId = (
+      await api.loadElection({
+        jurisdictionId: jurisdiction.id,
+        newId: 'newElection',
+        upload: { format: 'vxf', electionFileContents },
+      })
+    ).unsafeUnwrap();
+
+    return { api, electionId };
+  }
+
+  describe('stateFeatures.EDIT_POLLING_PLACES === true', () => {
+    const user = nonVxUser;
+
+    const srcJurisdiction = user.jurisdictions[1];
+    expectEditingEnabled(srcJurisdiction, true);
+
+    const destJurisdiction = user.jurisdictions[1];
+    expectEditingEnabled(destJurisdiction, true);
+
+    test('clones source polling places if present', async () => {
+      const { api, electionId } = await setUpAppAndSrcElection(
+        user,
+        srcJurisdiction,
+        [place1, place2]
+      );
+
+      const clonedElectionId = await api.cloneElection({
+        electionId,
+        destElectionId: 'clonedElection',
+        destJurisdictionId: destJurisdiction.id,
+      });
+
+      const [precinctCopy1, precinctCopy2] = await api.listPrecincts({
+        electionId: clonedElectionId,
+      });
+      expect(
+        await api.listPollingPlaces({ electionId: clonedElectionId })
+      ).toEqual([
+        {
+          ...place1,
+          id: expect.not.stringMatching(place1.id),
+          precincts: { [precinctCopy1.id]: { type: 'whole' } },
+        },
+        {
+          ...place2,
+          id: expect.not.stringMatching(place2.id),
+          precincts: {
+            [precinctCopy1.id]: { type: 'whole' },
+            [precinctCopy2.id]: { type: 'whole' },
+          },
+        },
+      ]);
+    });
+
+    test('generates missing polling places from cloned precincts', async () => {
+      const { api, electionId } = await setUpAppAndSrcElection(
+        user,
+        destJurisdiction
+      );
+
+      const clonedElectionId = await api.cloneElection({
+        electionId,
+        destElectionId: 'clonedElection',
+        destJurisdictionId: destJurisdiction.id,
+      });
+
+      const expectedPlaces = pollingPlacesGenerateFromPrecincts(
+        await api.listPrecincts({ electionId: clonedElectionId }),
+        'election_day',
+        () => expect.any(String)
+      );
+
+      expect(
+        await api.listPollingPlaces({ electionId: clonedElectionId })
+      ).toEqual(expectedPlaces);
+    });
+  });
+
+  describe('stateFeatures.EDIT_POLLING_PLACES === false', () => {
+    const user = nonVxUser;
+
+    const srcJurisdiction = user.jurisdictions[1];
+    expectEditingEnabled(srcJurisdiction, true);
+
+    const destJurisdiction = user.jurisdictions[0];
+    expectEditingEnabled(destJurisdiction, false);
+
+    test('ignores source polling places if present', async () => {
+      const { api, electionId } = await setUpAppAndSrcElection(
+        user,
+        srcJurisdiction,
+        [place1, place2]
+      );
+
+      const clonedElectionId = await api.cloneElection({
+        electionId,
+        destElectionId: 'clonedElection',
+        destJurisdictionId: destJurisdiction.id,
+      });
+
+      expect(
+        await api.listPollingPlaces({ electionId: clonedElectionId })
+      ).toEqual([]);
+    });
+
+    test('does not generate missing polling places', async () => {
+      const { api, electionId } = await setUpAppAndSrcElection(
+        user,
+        srcJurisdiction
+      );
+
+      const clonedElectionId = await api.cloneElection({
+        electionId,
+        destElectionId: 'clonedElection',
+        destJurisdictionId: destJurisdiction.id,
+      });
+
+      expect(
+        await api.listPollingPlaces({ electionId: clonedElectionId })
+      ).toEqual([]);
+    });
+  });
+});
+
+function expectEditingEnabled(jurisdiction: Jurisdiction, expected: boolean) {
+  const enabled = !!getStateFeaturesConfig(jurisdiction).EDIT_POLLING_PLACES;
+  expect(enabled).toEqual(expected);
+}

@@ -1376,6 +1376,10 @@ export class Store {
         for (const precinct of election.precincts) {
           await insertPrecinct(client, election.id, precinct);
         }
+        for (const place of election.pollingPlaces || []) {
+          const res = await insertPollingPlace(client, election.id, place);
+          res.unsafeUnwrap();
+        }
         for (const party of election.parties) {
           await insertParty(client, election.id, party);
         }
