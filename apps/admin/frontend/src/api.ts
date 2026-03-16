@@ -70,6 +70,21 @@ export const setMachineMode = {
   },
 } as const;
 
+const MACHINES_POLLING_INTERVAL_MS = 5000;
+
+export const getNetworkStatus = {
+  queryKey(): QueryKey {
+    return ['getNetworkStatus'];
+  },
+  useQuery({ enabled }: { enabled: boolean } = { enabled: true }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getNetworkStatus(), {
+      refetchInterval: MACHINES_POLLING_INTERVAL_MS,
+      enabled,
+    });
+  },
+} as const;
+
 // Auth
 
 export const getAuthStatus = {
