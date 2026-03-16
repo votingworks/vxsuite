@@ -217,14 +217,11 @@ fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
 async fn initialize_connected_scanner(
     mut client: Client<Scanner>,
 ) -> pdi_scanner::Result<(Client<Scanner>, ImageCalibrationTables)> {
-    match timeout(Duration::from_millis(500), client.wait_until_ready()).await {
-        Ok(Ok(())) => {}
-        Ok(Err(error)) => return Err(error),
-        Err(_) => match timeout(Duration::from_secs(3), client.wait_until_ready()).await {
-            Ok(Ok(())) => {}
-            Ok(Err(error)) => return Err(error),
-            Err(_) => return Err(Error::RecvTimeout),
-        },
+    if timeout(Duration::from_secs(3), client.wait_until_ready())
+        .await
+        .is_err()
+    {
+        return Err(Error::RecvTimeout);
     }
 
     let calibration_tables =

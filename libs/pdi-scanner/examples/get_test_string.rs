@@ -7,10 +7,10 @@ use std::time::Duration;
 use tokio::time::timeout;
 use tracing_subscriber::prelude::*;
 
-use pdi_scanner::{client::Client, connect, scanner::Scanner};
+use pdi_scanner::connect;
 
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(3);
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(1);
-const RETRY_TIMEOUT: Duration = Duration::from_secs(3);
 
 #[derive(Debug, Parser)]
 struct Config {
@@ -44,27 +44,13 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
     Ok(())
 }
 
-async fn wait_until_ready_for_immediate_commands(
-    client: &mut Client<Scanner>,
-) -> color_eyre::Result<()> {
-    match timeout(REQUEST_TIMEOUT, client.wait_until_ready()).await {
-        Ok(Ok(())) => {}
-        Ok(Err(error)) => return Err(error.into()),
-        Err(_) => {
-            timeout(RETRY_TIMEOUT, client.wait_until_ready()).await??;
-        }
-    }
-
-    Ok(())
-}
-
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config)?;
 
     let mut client = connect()?;
-    wait_until_ready_for_immediate_commands(&mut client).await?;
+    timeout(CONNECT_TIMEOUT, client.wait_until_ready()).await?;
 
     for n in 1..=config.times {
         println!(
