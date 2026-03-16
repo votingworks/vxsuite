@@ -193,7 +193,7 @@ export function getEnvironmentVariable(
     case BooleanEnvironmentVariableName.EARLY_VOTING:
       return process.env.REACT_APP_VX_EARLY_VOTING;
     case BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN:
-      return process.env['REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN'];
+      return process.env.REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN;
     /* istanbul ignore next */
     default:
       throwIllegalValue(name);
@@ -352,8 +352,8 @@ export function getBooleanEnvVarConfig(
     case BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN:
       return {
         name,
-        allowInProduction: false,
-        autoEnableInDevelopment: true,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
       };
     /* istanbul ignore next */
     default:
