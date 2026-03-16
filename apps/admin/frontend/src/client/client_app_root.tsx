@@ -1,6 +1,5 @@
 import {
   InvalidCardScreen,
-  mockUsbDriveStatus,
   RemoveCardScreen,
   SetupCardReaderPage,
   UnlockMachineScreen,
@@ -59,7 +58,7 @@ export function ClientAppRoot(): JSX.Element | null {
             auth,
             machineConfig,
             isOfficialResults: false,
-            usbDriveStatus: mockUsbDriveStatus('no_drive'),
+            usbDrives: [],
           }}
         >
           <MachineLockedScreen />

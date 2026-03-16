@@ -832,6 +832,31 @@ describe('getAllUsbDrives', () => {
     ]);
   });
 
+  test('excludes orphan partition with no parent disk that fails isDataUsbDrive', async () => {
+    // Some USB card readers expose only a partition entry (not a parent disk)
+    // in the udev database. If the partition is mounted outside /media, it
+    // should be excluded entirely.
+    execMock.mockResolvedValueOnce({
+      stdout: exportDbEntry({
+        devname: '/dev/sdb1',
+        devtype: 'partition',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+      }),
+      stderr: '',
+    });
+    readFileMock.mockResolvedValueOnce(
+      procMountsContent([
+        { device: '/dev/sdb1', mountpoint: '/home/user/mount' },
+      ])
+    );
+
+    const result = await getAllUsbDrives();
+
+    // Partition mounted outside /media is not a valid data drive
+    expect(result).toEqual([]);
+  });
+
   test('treats drive as unmounted when /proc/mounts is unreadable', async () => {
     execMock.mockResolvedValueOnce({
       stdout: [
