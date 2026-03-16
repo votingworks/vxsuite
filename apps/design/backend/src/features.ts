@@ -135,7 +135,10 @@ export interface StateFeaturesConfig {
    *
    * This functionality is feature-flagged, since the concept of Polling Places
    * is not relevant to some customers (e.g. for those where precincts have a
-   * 1:1 mapping to polling place) and may be confusing. Polling places are
+   * 1:1 mapping to polling place) and may be confusing.
+   *
+   * Note: When this flag is off, polling places will still be generated from
+   * precincts at the time of export.
    */
   EDIT_POLLING_PLACES?: boolean;
 }
