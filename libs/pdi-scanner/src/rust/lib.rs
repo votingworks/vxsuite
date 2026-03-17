@@ -7,8 +7,8 @@ use client::Client;
 use scanner::Scanner;
 pub use types::{Error, Result, UsbError};
 
-/// Connect to the scanner and return the scanner and client. When you're done,
-/// you should call [`Scanner::stop`] to properly close the connection.
+/// Connect to the scanner and return the client. When you're done,
+/// you should call [`Client::disconnect`] to properly close the connection.
 ///
 /// # Errors
 ///

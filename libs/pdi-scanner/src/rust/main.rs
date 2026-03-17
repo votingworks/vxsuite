@@ -347,7 +347,12 @@ async fn main() -> color_eyre::Result<()> {
                                 }
                             },
                             (Some(_), Command::Disconnect) => {
-                                client = None;
+                                // Take ownership so we can call the consuming
+                                // disconnect(), which waits for the background
+                                // task to stop and the USB handle to be released.
+                                if let Some(client) = client.take() {
+                                    client.disconnect().await;
+                                }
                                 send_response(Response::Ok)?;
                             }
                             (Some(client), Command::GetScannerStatus) => {

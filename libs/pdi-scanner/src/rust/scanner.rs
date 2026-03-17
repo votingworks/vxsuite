@@ -16,6 +16,7 @@ pub struct Scanner {
     usb_interface: Arc<nusb::Interface>,
     default_timeout: Duration,
     stop_tx: Option<tokio::sync::oneshot::Sender<()>>,
+    task_handle: Option<tokio::task::JoinHandle<()>>,
 }
 
 impl Scanner {
@@ -49,6 +50,7 @@ impl Scanner {
             usb_interface: scanner_interface,
             default_timeout: Duration::from_secs(1),
             stop_tx: None,
+            task_handle: None,
         })
     }
 
@@ -95,7 +97,7 @@ impl Scanner {
         let device_handle = self.usb_interface.clone();
         let default_timeout = self.default_timeout;
 
-        tokio::spawn(async move {
+        self.task_handle = Some(tokio::spawn(async move {
             tracing::debug!("Scanner thread started; submitting initial IN endpoint transfers");
 
             in_primary_queue.submit(RequestBuffer::new(DEFAULT_BUFFER_SIZE));
@@ -192,7 +194,7 @@ impl Scanner {
                     }
                 }
             }
-        });
+        }));
 
         (
             host_to_scanner_tx,
@@ -201,21 +203,18 @@ impl Scanner {
         )
     }
 
-    /// Stop listening for incoming packets and close the connection to the
-    /// scanner. This is automatically called when the `Scanner` instance is
-    /// dropped.
-    pub fn stop(&mut self) {
+    /// Disconnects from the scanner by stopping the background task and
+    /// releasing the USB interface. Waits for the background task to fully
+    /// stop before returning, ensuring the USB handle is released.
+    pub async fn disconnect(mut self) {
         if let Some(stop_tx) = self.stop_tx.take() {
-            // send will only error if its receiver has been dropped, which
-            // means the scanner is already cleaned up, so it's safe to ignore
-            // the error here.
             let _ = stop_tx.send(());
         }
-    }
-}
-
-impl Drop for Scanner {
-    fn drop(&mut self) {
-        self.stop();
+        if let Some(handle) = self.task_handle.take() {
+            if let Err(err) = handle.await {
+                tracing::error!("Scanner background task failed: {err:?}");
+            }
+        }
+        tracing::debug!("Scanner disconnected");
     }
 }
