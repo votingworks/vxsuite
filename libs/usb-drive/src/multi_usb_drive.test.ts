@@ -260,6 +260,112 @@ describe('stop', () => {
     multiUsbDrive.stop();
     expect(mockWatcherStop).toHaveBeenCalled();
   });
+
+  test('prevents doRefresh from running after stop', async () => {
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await multiUsbDrive.refresh();
+    getAllUsbDrivesMock.mockClear();
+
+    multiUsbDrive.stop();
+
+    // refresh() should be a no-op once stopped
+    await multiUsbDrive.refresh();
+
+    expect(getAllUsbDrivesMock).not.toHaveBeenCalled();
+  });
+
+  test('prevents doAutoMount from starting new mounts after stop (race: stop during getAllUsbDrives)', async () => {
+    const unmountedPartitionDisk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: undefined,
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        },
+      ],
+    });
+
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    // Wait for the initial doRefresh to complete (no drives yet).
+    await multiUsbDrive.refresh();
+
+    // Defer the next getAllUsbDrives call so stop() can be called while it
+    // is in-flight inside doRefresh.
+    const driveQuery = deferred<UsbDiskDeviceInfo[]>();
+    getAllUsbDrivesMock.mockReturnValueOnce(driveQuery.promise);
+    execMock.mockClear();
+
+    // Start a refresh — doRefresh passes the stopped check and then awaits
+    // getAllUsbDrives(), which is still pending.
+    const refreshPromise = multiUsbDrive.refresh();
+
+    // Stop while getAllUsbDrives is still pending.
+    multiUsbDrive.stop();
+
+    // Resolve with an unmounted FAT32 partition — doRefresh resumes, calls
+    // doAutoMount, but doAutoMount should return early due to stopped flag.
+    driveQuery.resolve([unmountedPartitionDisk]);
+    await refreshPromise;
+    await sleep(0);
+
+    expect(execMock).not.toHaveBeenCalledWith(
+      'sudo',
+      expect.arrayContaining(['mount.sh'])
+    );
+  });
+
+  test('quiesces in-flight auto-mount: onChange and doRefresh are not called after stop', async () => {
+    const unmountedPartitionDisk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: undefined,
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        },
+      ],
+    });
+    mockDrives = [unmountedPartitionDisk];
+
+    // Keep the mount exec pending so the mountPartitionWithRetry loop is
+    // in-flight when stop() is called.
+    const mountOperation = deferred<ExecResult>();
+    execMock.mockReturnValueOnce(
+      mountOperation.promise as PromiseWithChild<ExecResult>
+    );
+
+    const onChangeCalls: number[] = [];
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive(logger, {
+      onChange: () => onChangeCalls.push(Date.now()),
+    });
+
+    // Trigger auto-mount by refreshing.
+    await multiUsbDrive.refresh();
+
+    // Clear onChange calls from the refresh above.
+    onChangeCalls.length = 0;
+    getAllUsbDrivesMock.mockClear();
+
+    // Stop before the mount exec resolves.
+    multiUsbDrive.stop();
+
+    // Resolve the pending mount exec — the loop should not resume.
+    mountOperation.resolve({ stdout: '', stderr: '' });
+    await sleep(50);
+
+    // Neither onChange nor doRefresh (getAllUsbDrives) should have been called
+    // after stop().
+    expect(onChangeCalls).toHaveLength(0);
+    expect(getAllUsbDrivesMock).not.toHaveBeenCalled();
+  });
 });
 
 describe('ejectDrive', () => {
