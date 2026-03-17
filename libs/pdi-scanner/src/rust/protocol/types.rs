@@ -2,6 +2,54 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Deserializer, Serialize};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[must_use]
+pub struct RegisterIndex(u8);
+
+impl RegisterIndex {
+    const MAX_REGISTER_INDEX: u8 = 63;
+
+    #[must_use]
+    pub const fn new(index: u8) -> Option<Self> {
+        if index > Self::MAX_REGISTER_INDEX {
+            return None;
+        }
+
+        Some(Self(index))
+    }
+
+    pub(crate) const fn new_unchecked(index: u8) -> Self {
+        Self(index)
+    }
+
+    #[must_use]
+    pub const fn get(&self) -> u8 {
+        self.0
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[must_use]
+pub struct Register {
+    index: RegisterIndex,
+    value: u32,
+}
+
+impl Register {
+    pub const fn new(index: RegisterIndex, value: u32) -> Self {
+        Self { index, value }
+    }
+
+    pub const fn index(&self) -> RegisterIndex {
+        self.index
+    }
+
+    #[must_use]
+    pub const fn value(&self) -> u32 {
+        self.value
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Resolution {
     /// 400 DPI for Pagescan 5
@@ -109,6 +157,28 @@ pub enum EjectMotion {
     ToFront,
     ToFrontAndHold,
     ToFrontAndRescan,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[repr(u32)]
+pub enum BootEjectMotion {
+    ToRear = 0b00,
+    ToFront = 0b01,
+    None = 0b10,
+}
+
+impl TryFrom<u32> for BootEjectMotion {
+    type Error = String;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Ok(match value {
+            value if value == Self::ToRear as u32 => Self::ToRear,
+            value if value == Self::ToFront as u32 => Self::ToFront,
+            value if value == Self::None as u32 => Self::None,
+            value => return Err(format!("Invalid boot eject motion value: {value}")),
+        })
+    }
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]

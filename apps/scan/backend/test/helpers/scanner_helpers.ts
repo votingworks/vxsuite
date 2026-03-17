@@ -98,6 +98,9 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
         .fn()
         .mockRejectedValue(new Error('Not used')),
       calibrateImageSensors: vi.fn().mockResolvedValue(ok()),
+      getBootEjectMotion: vi.fn().mockResolvedValue(ok('none')),
+      setBootEjectMotion: vi.fn().mockResolvedValue(ok()),
+      reboot: vi.fn().mockResolvedValue(ok()),
       disconnect: vi.fn().mockResolvedValue(ok()),
       exit: vi.fn().mockResolvedValue(ok()),
     },

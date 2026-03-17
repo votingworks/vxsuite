@@ -22,8 +22,8 @@ use pdi_scanner::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
         packets::{Incoming, IncomingType},
         types::{
-            ClampedPercentage, DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode,
-            EjectMotion, FeederMode, ScanSideMode, Status,
+            BootEjectMotion, ClampedPercentage, DoubleFeedDetectionCalibrationType,
+            DoubleFeedDetectionMode, EjectMotion, FeederMode, ScanSideMode, Status,
         },
     },
     scanner::Scanner,
@@ -94,6 +94,14 @@ enum Command {
     GetDoubleFeedDetectionCalibrationConfig,
 
     CalibrateImageSensors,
+
+    GetBootEjectMotion,
+
+    SetBootEjectMotion {
+        boot_eject_motion: BootEjectMotion,
+    },
+
+    Reboot,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -127,6 +135,10 @@ enum Response {
 
     DoubleFeedDetectionCalibrationConfig {
         config: DoubleFeedDetectionCalibrationConfig,
+    },
+
+    BootEjectMotion {
+        boot_eject_motion: BootEjectMotion,
     },
 }
 
@@ -422,6 +434,31 @@ async fn main() -> color_eyre::Result<()> {
                             }
                             (Some(client), Command::CalibrateImageSensors) => {
                                 match client.calibrate_image_sensors().await {
+                                    Ok(()) => send_response(Response::Ok)?,
+                                    Err(e) => send_error_response(&e)?,
+                                }
+                            }
+                            (Some(client), Command::GetBootEjectMotion) => {
+                                match timeout(Duration::from_secs(1), client.get_boot_eject_motion()).await {
+                                    Ok(Ok(boot_eject_motion)) => {
+                                        send_response(Response::BootEjectMotion { boot_eject_motion })?;
+                                    }
+                                    Ok(Err(e)) => send_error_response(&e)?,
+                                    Err(_) => send_error_response(&Error::RecvTimeout)?,
+                                }
+                            }
+                            (Some(client), Command::SetBootEjectMotion { boot_eject_motion }) => {
+                                // set_boot_eject_motion performs multiple
+                                // round-trips (read, unlock, write, lock,
+                                // save, reboot), so use a longer timeout.
+                                match timeout(Duration::from_secs(5), client.set_boot_eject_motion(boot_eject_motion)).await {
+                                    Ok(Ok(())) => send_response(Response::Ok)?,
+                                    Ok(Err(e)) => send_error_response(&e)?,
+                                    Err(_) => send_error_response(&Error::RecvTimeout)?,
+                                }
+                            }
+                            (Some(client), Command::Reboot) => {
+                                match client.reboot().await {
                                     Ok(()) => send_response(Response::Ok)?,
                                     Err(e) => send_error_response(&e)?,
                                 }

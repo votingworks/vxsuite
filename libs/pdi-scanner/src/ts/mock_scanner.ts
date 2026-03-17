@@ -386,6 +386,21 @@ export function createMockPdiScanner(): MockScanner {
       throw new Error('Not implemented');
     },
 
+    /* istanbul ignore next - @preserve */
+    getBootEjectMotion() {
+      throw new Error('Not implemented');
+    },
+
+    /* istanbul ignore next - @preserve */
+    setBootEjectMotion() {
+      throw new Error('Not implemented');
+    },
+
+    /* istanbul ignore next - @preserve */
+    reboot() {
+      throw new Error('Not implemented');
+    },
+
     async disconnect() {
       await simulateCommandDelay();
       mockScanner.send('DISCONNECT');

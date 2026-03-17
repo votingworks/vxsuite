@@ -9,6 +9,7 @@ import { err, iter, ok, sleep } from '@votingworks/basics';
 import { fromGrayScale } from '@votingworks/image-utils';
 import { Buffer } from 'node:buffer';
 import {
+  BootEjectMotion,
   createPdiScannerClient,
   DoubleFeedDetectionCalibrationConfig,
   PdictlEvent,
@@ -387,4 +388,51 @@ test('simple commands handle error response', async () => {
       paperLengthInches: 11,
     })
   ).toEqual(err({ response: 'error', code: 'scanInProgress' }));
+});
+
+test('getBootEjectMotion', async () => {
+  const client = createPdiScannerClient();
+  const motion: BootEjectMotion = 'toFront';
+  mockStdoutResponse({
+    response: 'bootEjectMotion',
+    bootEjectMotion: motion,
+  });
+  expect(await client.getBootEjectMotion()).toEqual(ok(motion));
+  expectStdinCommand({ command: 'getBootEjectMotion' });
+});
+
+test('getBootEjectMotion handles error response', async () => {
+  const client = createPdiScannerClient();
+  mockStdoutResponse({ response: 'error', code: 'disconnected' });
+  expect(await client.getBootEjectMotion()).toEqual(
+    err({ response: 'error', code: 'disconnected' })
+  );
+});
+
+test('getBootEjectMotion handles unexpected response', async () => {
+  const client = createPdiScannerClient();
+  mockStdoutResponse({ response: 'ok' });
+  expect(await client.getBootEjectMotion()).toEqual(
+    err({
+      code: 'other',
+      message: 'Unexpected response: ok',
+    })
+  );
+});
+
+test('setBootEjectMotion', async () => {
+  const client = createPdiScannerClient();
+  mockStdoutResponse({ response: 'ok' });
+  expect(await client.setBootEjectMotion('none')).toEqual(ok());
+  expectStdinCommand({
+    command: 'setBootEjectMotion',
+    bootEjectMotion: 'none',
+  });
+});
+
+test('reboot', async () => {
+  const client = createPdiScannerClient();
+  mockStdoutResponse({ response: 'ok' });
+  expect(await client.reboot()).toEqual(ok());
+  expectStdinCommand({ command: 'reboot' });
 });
