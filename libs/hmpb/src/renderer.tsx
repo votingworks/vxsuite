@@ -187,7 +187,11 @@ export function createScratchpad(document: RenderDocument) {
       await document.setContent('body', content);
       const measurements = await document.inspectElements(selector);
       if (cacheKeys) {
-        for (let i = 0; i < cacheKeys.length; i += 1) {
+        assert(
+          cacheKeys.length === measurements.length,
+          `cacheKeys.length (${cacheKeys.length}) !== measurements.length (${measurements.length})`
+        );
+        for (let i = 0; i < measurements.length; i += 1) {
           measurementCache.set(cacheKeys[i], measurements[i]);
         }
       }
