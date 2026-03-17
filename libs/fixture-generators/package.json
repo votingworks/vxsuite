@@ -47,18 +47,18 @@
     "zod": "3.25.42"
   },
   "devDependencies": {
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/node": "20.17.31",
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
     "@types/yargs": "17.0.22",
-    "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "tmp": "^0.2.1",
-    "vitest": "^3.1.1"
+    "vitest": "^3.1.4"
   },
   "engines": {
     "node": ">= 12"

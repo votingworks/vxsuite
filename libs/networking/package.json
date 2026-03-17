@@ -32,9 +32,9 @@
     "debug": "4.3.4"
   },
   "devDependencies": {
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/node": "20.17.31",
-    "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
@@ -42,7 +42,7 @@
     "is-ci-cli": "2.2.0",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^3.1.1"
+    "vitest": "^3.1.4"
   },
   "packageManager": "pnpm@8.15.5"
 }

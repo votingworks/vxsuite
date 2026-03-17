@@ -64,7 +64,7 @@
     "zod": "3.25.42"
   },
   "devDependencies": {
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/express": "4.17.14",
     "@types/fs-extra": "11.0.1",
     "@types/jest-image-snapshot": "^6.4.0",
@@ -74,7 +74,7 @@
     "@types/supertest": "^2.0.10",
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
-    "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "esbuild": "0.21.2",
@@ -87,7 +87,7 @@
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
     "supertest": "^6.0.1",
-    "vitest": "^3.1.1",
+    "vitest": "^3.1.4",
     "wait-for-expect": "^3.0.2"
   },
   "engines": {

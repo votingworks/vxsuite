@@ -24,7 +24,7 @@
   "devDependencies": {
     "@napi-rs/cli": "^3.5.1",
     "@types/tmp": "0.2.4",
-    "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/coverage-istanbul": "^3.1.4",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
@@ -33,7 +33,7 @@
     "is-ci-cli": "2.2.0",
     "nodemon": "^3.1.7",
     "tmp": "^0.2.1",
-    "vitest": "^3.1.1"
+    "vitest": "^3.1.4"
   },
   "napi": {
     "binaryName": "logging-utils",

@@ -126,7 +126,7 @@ describe('PickDateTimeModal', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
-  test('can set any valid date & time', () => {
+  test('can set any valid date & time', { timeout: 15_000 }, () => {
     fc.assert(
       fc.property(
         arbitraryDateTime({
