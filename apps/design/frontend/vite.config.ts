@@ -50,6 +50,14 @@ export default defineConfig(async (env) => {
         // built-in NodeJS module.
         { find: 'buffer', replacement: require.resolve('buffer/') },
         { find: 'node:buffer', replacement: require.resolve('buffer/') },
+        {
+          find: 'fs/promises',
+          replacement: join(__dirname, './src/stubs/fs.ts'),
+        },
+        {
+          find: 'node:fs/promises',
+          replacement: join(__dirname, './src/stubs/fs.ts'),
+        },
         { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
         { find: 'node:fs', replacement: join(__dirname, './src/stubs/fs.ts') },
         { find: 'path', replacement: require.resolve('path/') },

@@ -55,7 +55,11 @@ import {
   PollingPlace,
   PollingPlaceType,
   pollingPlaceGenerateFromPrecinct,
+  ElectionPrecinctMetadata,
+  PrecinctMetadataEntry,
+  isPrecinctAndMetadataWithSplits,
 } from '@votingworks/types';
+import type { PrecinctAndMetadata } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,
@@ -267,7 +271,7 @@ async function insertDistrict(
 async function insertPrecinct(
   client: Client,
   electionId: ElectionId,
-  precinct: Precinct
+  precinct: PrecinctAndMetadata
 ) {
   await assertWithinTransaction(client);
   await client.query(
@@ -275,13 +279,17 @@ async function insertPrecinct(
       insert into precincts (
         id,
         election_id,
-        name
+        name,
+        registered_voter_count
       )
-      values ($1, $2, $3)
+      values ($1, $2, $3, $4)
     `,
     precinct.id,
     electionId,
-    precinct.name
+    precinct.name,
+    isPrecinctAndMetadataWithSplits(precinct)
+      ? null
+      : precinct.registeredVoterCount ?? null
   );
 
   await insertPrecinctDistrictsOrSplits(client, precinct);
@@ -289,11 +297,11 @@ async function insertPrecinct(
 
 async function insertPrecinctDistrictsOrSplits(
   client: Client,
-  precinct: Precinct
+  precinct: PrecinctAndMetadata
 ) {
   await assertWithinTransaction(client);
 
-  if (hasSplits(precinct)) {
+  if (isPrecinctAndMetadataWithSplits(precinct)) {
     if (
       uniqueDeep(precinct.splits, (split) => split.districtIds.toSorted())
         .length !== precinct.splits.length
@@ -302,21 +310,29 @@ async function insertPrecinctDistrictsOrSplits(
     }
 
     for (const split of precinct.splits) {
-      const { id: splitId, name, districtIds, ...nhOptions } = split;
+      const {
+        id: splitId,
+        name,
+        districtIds,
+        registeredVoterCount: splitRegisteredVoterCount,
+        ...nhOptions
+      } = split;
       await client.query(
         `
           insert into precinct_splits (
             id,
             precinct_id,
             name,
-            nh_options
+            nh_options,
+            registered_voter_count
           )
-          values ($1, $2, $3, $4)
+          values ($1, $2, $3, $4, $5)
         `,
         splitId,
         precinct.id,
         name,
-        JSON.stringify(nhOptions)
+        JSON.stringify(nhOptions),
+        splitRegisteredVoterCount ?? null
       );
       for (const districtId of districtIds) {
         await client.query(
@@ -991,9 +1007,14 @@ export class Store {
             districtIds: split.districtIds,
             ...split.nhOptions,
           }));
-        return splits.length > 0
-          ? { id: row.id, name: row.name, splits }
-          : { id: row.id, name: row.name, districtIds: row.districtIds };
+        if (splits.length > 0) {
+          return { id: row.id, name: row.name, splits };
+        }
+        return {
+          id: row.id,
+          name: row.name,
+          districtIds: row.districtIds,
+        };
       });
 
       const parties = (
@@ -1600,9 +1621,30 @@ export class Store {
     });
   }
 
-  async listPrecincts(electionId: ElectionId): Promise<readonly Precinct[]> {
-    const { election } = await this.getElection(electionId);
-    return election.precincts;
+  async listPrecincts(
+    electionId: ElectionId
+  ): Promise<readonly PrecinctAndMetadata[]> {
+    const [{ election }, precinctMetadata] = await Promise.all([
+      this.getElection(electionId),
+      this.getPrecinctMetadata(electionId),
+    ]);
+
+    return election.precincts.map((precinct): PrecinctAndMetadata => {
+      const meta = precinctMetadata[precinct.id] ?? {};
+      if (hasSplits(precinct)) {
+        return {
+          ...precinct,
+          splits: precinct.splits.map((split) => ({
+            ...split,
+            registeredVoterCount: meta.splits?.[split.id]?.registeredVoterCount,
+          })),
+        };
+      }
+      return {
+        ...precinct,
+        registeredVoterCount: meta.registeredVoterCount,
+      };
+    });
   }
 
   private handlePrecinctError(
@@ -1630,7 +1672,7 @@ export class Store {
 
   async createPrecinct(
     electionId: ElectionId,
-    precinct: Precinct
+    precinct: PrecinctAndMetadata
   ): Promise<Result<void, DuplicatePrecinctError>> {
     const jurisdiction = await this.getElectionJurisdiction(electionId);
     const stateFeatures = getStateFeaturesConfig(jurisdiction);
@@ -1687,19 +1729,22 @@ export class Store {
 
   async updatePrecinct(
     electionId: ElectionId,
-    precinct: Precinct
+    precinct: PrecinctAndMetadata
   ): Promise<Result<void, DuplicatePrecinctError>> {
     try {
       await this.db.withClient((client) =>
         client.withTransaction(async () => {
           const { rowCount } = await client.query(
             `
-              update precincts set name = $1
+              update precincts set name = $1, registered_voter_count = $2
               where
-                id = $2
-                and election_id = $3
+                id = $3
+                and election_id = $4
             `,
             precinct.name,
+            isPrecinctAndMetadataWithSplits(precinct)
+              ? null
+              : precinct.registeredVoterCount ?? null,
             precinct.id,
             electionId
           );
@@ -1741,6 +1786,62 @@ export class Store {
       )
     );
     assert(rowCount === 1, 'Precinct not found');
+  }
+
+  async getPrecinctMetadata(
+    electionId: ElectionId
+  ): Promise<ElectionPrecinctMetadata> {
+    return this.db.withClient(async (client) => {
+      const precinctRows = (
+        await client.query(
+          `
+            select id, registered_voter_count as "registeredVoterCount"
+            from precincts
+            where election_id = $1
+          `,
+          electionId
+        )
+      ).rows as Array<{ id: PrecinctId; registeredVoterCount: number | null }>;
+
+      const splitRows = (
+        await client.query(
+          `
+            select
+              precinct_splits.id,
+              precinct_splits.precinct_id as "precinctId",
+              precinct_splits.registered_voter_count as "registeredVoterCount"
+            from precinct_splits
+            join precincts on precinct_splits.precinct_id = precincts.id
+            where precincts.election_id = $1
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: string;
+        precinctId: PrecinctId;
+        registeredVoterCount: number | null;
+      }>;
+
+      const metadata: ElectionPrecinctMetadata = {};
+      for (const row of precinctRows) {
+        const entry: PrecinctMetadataEntry = {};
+        if (row.registeredVoterCount !== null) {
+          entry.registeredVoterCount = row.registeredVoterCount;
+        }
+        const splits = splitRows.filter((s) => s.precinctId === row.id);
+        if (splits.length > 0) {
+          entry.splits = {};
+          for (const split of splits) {
+            entry.splits[split.id] =
+              split.registeredVoterCount !== null
+                ? { registeredVoterCount: split.registeredVoterCount }
+                : {};
+          }
+        }
+        metadata[row.id] = entry;
+      }
+      return metadata;
+    });
   }
 
   async listBallotStyles(

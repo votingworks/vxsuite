@@ -1,6 +1,6 @@
 import { assert, lines } from '@votingworks/basics';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { getAbsoluteRootPath } from './dependencies';
 import { PnpmPackageInfo, PackageJson } from './types';
@@ -60,7 +60,11 @@ export function getWorkspacePackageInfo(
       version: packageJson.version,
       main: packageJson.main,
       module: packageJson.module,
-      source: (packageJson.main || packageJson.module) && 'src/index.ts',
+      source:
+        (packageJson.main || packageJson.module) &&
+        existsSync(join(root, path, 'src/index.ts'))
+          ? 'src/index.ts'
+          : undefined,
       packageJson,
       packageJsonPath,
     });

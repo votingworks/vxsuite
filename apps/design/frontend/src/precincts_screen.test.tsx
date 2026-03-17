@@ -885,3 +885,41 @@ async function navigateToPrecinctView(
   await screen.findByRole('heading', { name: 'Precinct Info' });
   screen.getByTestId(PRECINCT_LIST_TEST_ID);
 }
+
+test('PRECINCT_REGISTERED_VOTER_COUNTS shows voter count field when enabled', async () => {
+  const savedPrecinct = election.precincts[0];
+  assert(!hasSplits(savedPrecinct));
+
+  mockStateFeatures(apiMock, electionId, {
+    PRECINCT_REGISTERED_VOTER_COUNTS: true,
+  });
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([savedPrecinct]);
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+
+  const history = renderScreen(electionId);
+  await navigateToPrecinctEdit(history, savedPrecinct.id);
+  screen.getByLabelText('Registered Voters');
+});
+
+test('PRECINCT_REGISTERED_VOTER_COUNTS hides voter count field when disabled', async () => {
+  const savedPrecinct = election.precincts[0];
+  assert(!hasSplits(savedPrecinct));
+
+  mockStateFeatures(apiMock, electionId, {
+    PRECINCT_REGISTERED_VOTER_COUNTS: false,
+  });
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves([savedPrecinct]);
+  apiMock.listDistricts
+    .expectCallWith({ electionId })
+    .resolves(election.districts);
+
+  const history = renderScreen(electionId);
+  await navigateToPrecinctEdit(history, savedPrecinct.id);
+  expect(screen.queryByLabelText('Registered Voters')).not.toBeInTheDocument();
+});

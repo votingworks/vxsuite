@@ -141,6 +141,13 @@ export interface StateFeaturesConfig {
    * precincts at the time of export.
    */
   EDIT_POLLING_PLACES?: boolean;
+  /**
+   * Allow the user to enter registered voter counts for precincts and precinct
+   * splits. Enabled by default for all states; disabled for NH because NH uses
+   * precinct splits for per-split ballot overrides, making voter count entry
+   * unnecessarily complex for their workflow.
+   */
+  PRECINCT_REGISTERED_VOTER_COUNTS?: boolean;
 }
 
 export type UserFeature = keyof UserFeaturesConfig;
@@ -170,6 +177,10 @@ export const userFeatureConfigs = {
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
+export const defaultStateFeaturesConfig: StateFeaturesConfig = {
+  PRECINCT_REGISTERED_VOTER_COUNTS: true,
+};
+
 export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
   DEMO: {
     AUDIO_ENABLED: true,
@@ -192,6 +203,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: true,
     ADDITIONAL_BALLOT_MEASURE_OPTIONS: true,
     POST_FINALIZE_CHANGE_FEE_WARNING: true,
+    PRECINCT_REGISTERED_VOTER_COUNTS: false,
   },
 };
 
@@ -208,5 +220,8 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
 export function getStateFeaturesConfig(
   jurisdiction: Jurisdiction
 ): StateFeaturesConfig {
-  return stateFeatureConfigs[jurisdiction.stateCode];
+  return {
+    ...defaultStateFeaturesConfig,
+    ...stateFeatureConfigs[jurisdiction.stateCode],
+  };
 }

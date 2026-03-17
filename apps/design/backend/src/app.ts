@@ -17,7 +17,6 @@ import {
   unsafeParse,
   LanguageCodeSchema,
   getAllBallotLanguages,
-  Precinct,
   District,
   PrecinctId,
   Party,
@@ -25,7 +24,6 @@ import {
   AnyContestSchema,
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
-  PrecinctSchema,
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
@@ -74,6 +72,7 @@ import {
   decryptAes256,
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
+import type { PrecinctAndMetadata } from '@votingworks/types';
 import {
   MainExportTaskMetadata,
   DuplicateContestError,
@@ -97,6 +96,7 @@ import {
   ResultsReportingError,
   User,
   resultsReportingUrl,
+  PrecinctAndMetadataSchema,
 } from './types';
 import { AppContext } from './context';
 import {
@@ -537,23 +537,29 @@ export function buildApi(ctx: AppContext) {
 
     async listPrecincts(input: {
       electionId: ElectionId;
-    }): Promise<readonly Precinct[]> {
+    }): Promise<readonly PrecinctAndMetadata[]> {
       return store.listPrecincts(input.electionId);
     },
 
     async createPrecinct(input: {
       electionId: ElectionId;
-      newPrecinct: Precinct;
+      newPrecinct: PrecinctAndMetadata;
     }): Promise<Result<void, DuplicatePrecinctError>> {
-      const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
+      const precinct = unsafeParse(
+        PrecinctAndMetadataSchema,
+        input.newPrecinct
+      );
       return store.createPrecinct(input.electionId, precinct);
     },
 
     async updatePrecinct(input: {
       electionId: ElectionId;
-      updatedPrecinct: Precinct;
+      updatedPrecinct: PrecinctAndMetadata;
     }): Promise<Result<void, DuplicatePrecinctError>> {
-      const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
+      const precinct = unsafeParse(
+        PrecinctAndMetadataSchema,
+        input.updatedPrecinct
+      );
       return store.updatePrecinct(input.electionId, precinct);
     },
 

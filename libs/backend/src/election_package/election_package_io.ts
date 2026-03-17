@@ -48,6 +48,8 @@ import {
   EncodedBallotEntrySchema,
   SystemLimitViolation,
   SystemLimits,
+  ElectionPrecinctMetadata,
+  ElectionPrecinctMetadataSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -198,6 +200,20 @@ export async function readElectionPackageFromBuffer(
       }
     }
 
+    // Precinct Metadata:
+
+    let precinctMetadata: ElectionPrecinctMetadata | undefined;
+    const precinctMetadataEntry = maybeGetFileByName(
+      entries,
+      ElectionPackageFileName.PRECINCT_METADATA
+    );
+    if (precinctMetadataEntry) {
+      precinctMetadata = safeParseJson(
+        await readTextEntry(precinctMetadataEntry),
+        ElectionPrecinctMetadataSchema
+      ).unsafeUnwrap();
+    }
+
     // Ballots:
     // "Entry" in EncodedBallotEntry refers to a line as an entry in a JSONL file.
     const ballots: EncodedBallotEntry[] = [];
@@ -224,6 +240,7 @@ export async function readElectionPackageFromBuffer(
       ballots,
       electionDefinition,
       metadata,
+      precinctMetadata,
       systemSettings,
       uiStrings,
       uiStringAudioIds,

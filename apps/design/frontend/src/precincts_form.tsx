@@ -11,12 +11,16 @@ import {
 } from '@votingworks/ui';
 import {
   ElectionId,
-  hasSplits,
-  PrecinctSplit,
-  Precinct,
   District,
   ElectionStringKey,
+  safeParseInt,
+  isPrecinctAndMetadataWithSplits,
 } from '@votingworks/types';
+import type {
+  PrecinctAndMetadata,
+  PrecinctAndMetadataSplit,
+} from '@votingworks/types';
+
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 
 import { routes } from './routes';
@@ -42,7 +46,7 @@ import {
 } from './form_fixed';
 import { InputWithAudio } from './ballot_audio/input_with_audio';
 
-function createBlankPrecinct(): Precinct {
+function createBlankPrecinct(): PrecinctAndMetadata {
   return {
     name: '',
     id: generateId(),
@@ -53,7 +57,7 @@ function createBlankPrecinct(): Precinct {
 export interface PrecinctFormProps {
   editing: boolean;
   electionId: ElectionId;
-  savedPrecinct?: Precinct;
+  savedPrecinct?: PrecinctAndMetadata;
   title: React.ReactNode;
 }
 
@@ -65,7 +69,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
 
-  const [precinct, setPrecinct] = useState<Precinct>(
+  const [precinct, setPrecinct] = useState<PrecinctAndMetadata>(
     savedPrecinct ??
       // To make mocked IDs predictable in tests, we pass a function here
       // so it will only be called on initial render.
@@ -134,7 +138,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     }
   }
 
-  function setSplits(splits: PrecinctSplit[]) {
+  function setSplits(splits: PrecinctAndMetadataSplit[]) {
     assert(precinct);
     setPrecinct({
       id: precinct.id,
@@ -143,14 +147,14 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     });
   }
 
-  function setSplit(index: number, split: PrecinctSplit) {
-    assert(precinct && hasSplits(precinct));
+  function setSplit(index: number, split: PrecinctAndMetadataSplit) {
+    assert(precinct && isPrecinctAndMetadataWithSplits(precinct));
     setSplits(replaceAtIndex(precinct.splits, index, split));
   }
 
   function onAddSplitPress() {
     assert(precinct);
-    if (hasSplits(precinct)) {
+    if (isPrecinctAndMetadataWithSplits(precinct)) {
       setSplits([
         ...precinct.splits,
         {
@@ -179,7 +183,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   }
 
   function onRemoveSplitPress(index: number) {
-    assert(precinct && hasSplits(precinct));
+    assert(precinct && isPrecinctAndMetadataWithSplits(precinct));
     const { splits, ...rest } = precinct;
     const newSplits = splits.filter((_, i) => i !== index);
     if (newSplits.length > 1) {
@@ -286,9 +290,11 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
           />
         </InputGroup>
         <div>
-          <FieldName>{hasSplits(precinct) ? 'Splits' : 'Districts'}</FieldName>
+          {isPrecinctAndMetadataWithSplits(precinct) && (
+            <FieldName>Splits</FieldName>
+          )}
           <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
-            {hasSplits(precinct) ? (
+            {isPrecinctAndMetadataWithSplits(precinct) ? (
               <React.Fragment>
                 {precinct.splits.map((split, index) => (
                   <Card key={split.id}>
@@ -331,6 +337,26 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           })
                         }
                       />
+
+                      {features.PRECINCT_REGISTERED_VOTER_COUNTS && (
+                        <InputGroup label="Registered Voters">
+                          <input
+                            disabled={disabled}
+                            type="number"
+                            min={0}
+                            value={split.registeredVoterCount ?? ''}
+                            onChange={(e) =>
+                              setSplit(index, {
+                                ...split,
+                                registeredVoterCount: e.target.value
+                                  ? safeParseInt(e.target.value).unsafeUnwrap()
+                                  : undefined,
+                              })
+                            }
+                            style={{ width: '8rem' }}
+                          />
+                        </InputGroup>
+                      )}
 
                       {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
                         <InputGroup label="Election Title Override">
@@ -417,23 +443,50 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                <div style={{ minWidth: '12rem' }}>
-                  <DistrictList
-                    disabled={disabled || hasExternalSource}
-                    districts={districts}
-                    editing={editing && !hasExternalSource}
-                    noDistrictsCallout={noDistrictsCallout}
-                    onChange={(districtIds) =>
-                      setPrecinct({
-                        ...precinct,
-                        districtIds,
-                      })
-                    }
-                    value={[...precinct.districtIds]}
-                  />
-                </div>
+                <Column style={{ gap: '1rem' }}>
+                  <div style={{ minWidth: '12rem' }}>
+                    <FieldName>Districts</FieldName>
+                    <DistrictList
+                      disabled={disabled || hasExternalSource}
+                      districts={districts}
+                      editing={editing && !hasExternalSource}
+                      noDistrictsCallout={noDistrictsCallout}
+                      onChange={(districtIds) =>
+                        setPrecinct({
+                          ...precinct,
+                          districtIds,
+                        })
+                      }
+                      value={[...precinct.districtIds]}
+                    />
+                  </div>
+                  {features.PRECINCT_REGISTERED_VOTER_COUNTS && (
+                    <InputGroup label="Registered Voters">
+                      <input
+                        disabled={disabled}
+                        type="number"
+                        min={0}
+                        value={precinct.registeredVoterCount ?? ''}
+                        onChange={(e) =>
+                          setPrecinct((prev) => {
+                            if (isPrecinctAndMetadataWithSplits(prev)) {
+                              return prev;
+                            }
+                            return {
+                              ...prev,
+                              registeredVoterCount: e.target.value
+                                ? safeParseInt(e.target.value).unsafeUnwrap()
+                                : undefined,
+                            };
+                          })
+                        }
+                        style={{ width: '8rem' }}
+                      />
+                    </InputGroup>
+                  )}
+                </Column>
                 {!finalized && !hasExternalSource && (
-                  <div>
+                  <div style={{ alignSelf: 'flex-end' }}>
                     <Button icon="Add" onPress={onAddSplitPress}>
                       Add Split
                     </Button>
