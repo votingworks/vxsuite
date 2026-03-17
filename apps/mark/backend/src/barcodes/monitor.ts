@@ -24,6 +24,9 @@ function createUdevMonitor(
 ): UdevMonitor {
   let monitorProcess: ReturnType<typeof spawn> | undefined;
   let stopped = false;
+  // Debounce events from `udevadm monitor` stdout, as a single udev event
+  // may produce multiple stdout chunks.
+  let eventTimeout: NodeJS.Timeout | undefined;
 
   function start(): void {
     if (stopped) return;
@@ -33,7 +36,17 @@ function createUdevMonitor(
       `--subsystem-match=${subsystem}`,
     ]);
     monitorProcess = proc;
-    proc.stdout.on('data', onEvent);
+    proc.stdout.on('data', () => {
+      if (stopped) return;
+      if (eventTimeout) {
+        clearTimeout(eventTimeout);
+      }
+      eventTimeout = setTimeout(() => {
+        if (!stopped) {
+          onEvent();
+        }
+      }, 100);
+    });
     proc.on('error', () => {
       // ignore errors from udevadm monitor
     });
@@ -71,6 +84,11 @@ let activeScanner: hid.HID | undefined;
 let udevMonitor: UdevMonitor | undefined;
 
 function connect() {
+  // If a scanner is already connected, avoid reopening it or spamming logs.
+  if (activeScanner) {
+    return;
+  }
+
   const devices = hid.devices(VENDOR_ID, PRODUCT_ID);
 
   if (devices.length === 0) {
