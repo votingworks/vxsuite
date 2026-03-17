@@ -556,6 +556,13 @@
         "5": "Labor",
         "6": "Independent"
       },
+      "pollingPlaceName": {
+        "precinct-1-polling-place": "Precinct 1",
+        "precinct-2-polling-place": "Precinct 2",
+        "precinct-3-polling-place": "Precinct 3",
+        "precinct-4-polling-place": "Precinct 4",
+        "precinct-5-polling-place": "Precinct 5"
+      },
       "precinctName": {
         "precinct-1": "Precinct 1",
         "precinct-2": "Precinct 2",

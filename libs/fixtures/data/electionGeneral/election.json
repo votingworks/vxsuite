@@ -874,6 +874,11 @@
         "7": "Democrat",
         "8": "Republican"
       },
+      "pollingPlaceName": {
+        "20-polling-place": "South Springfield",
+        "21-polling-place": "North Springfield",
+        "23-polling-place": "Center Springfield"
+      },
       "precinctName": {
         "20": "South Springfield",
         "21": "North Springfield",
@@ -1002,6 +1007,11 @@
         "6": "独立的",
         "7": "民主党人",
         "8": "共和党人"
+      },
+      "pollingPlaceName": {
+        "20-polling-place": "南斯普林菲尔德",
+        "21-polling-place": "北斯普林菲尔德",
+        "23-polling-place": "斯普林菲尔德中心"
       },
       "precinctName": {
         "20": "南斯普林菲尔德",
@@ -1132,6 +1142,11 @@
         "7": "民主黨",
         "8": "共和黨"
       },
+      "pollingPlaceName": {
+        "20-polling-place": "南斯普林菲爾德",
+        "21-polling-place": "北斯普林菲爾德",
+        "23-polling-place": "斯普林菲爾德中心"
+      },
       "precinctName": {
         "20": "南斯普林菲爾德",
         "21": "北斯普林菲爾德",
@@ -1260,6 +1275,11 @@
         "6": "Independiente",
         "7": "Demócrata",
         "8": "Republicano"
+      },
+      "pollingPlaceName": {
+        "20-polling-place": "Springfield del Sur",
+        "21-polling-place": "Springfield del Norte",
+        "23-polling-place": "Centro de Springfield"
       },
       "precinctName": {
         "20": "Springfield del Sur",

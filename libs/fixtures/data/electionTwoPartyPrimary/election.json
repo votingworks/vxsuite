@@ -274,6 +274,10 @@
       "electionTitle": "Example Primary Election",
       "partyFullName": { "0": "Mammal Party", "1": "Fish Party" },
       "partyName": { "0": "Mammal", "1": "Fish" },
+      "pollingPlaceName": {
+        "precinct-1-polling-place": "Precinct 1",
+        "precinct-2-polling-place": "Precinct 2"
+      },
       "precinctName": {
         "precinct-1": "Precinct 1",
         "precinct-2": "Precinct 2"

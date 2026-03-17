@@ -73,6 +73,12 @@
         "2": "Liberty",
         "3": "Green"
       },
+      "pollingPlaceName": {
+        "20-polling-place": "West Lincoln",
+        "21-polling-place": "East Lincoln",
+        "22-polling-place": "South Lincoln",
+        "23-polling-place": "North Lincoln"
+      },
       "precinctName": {
         "20": "West Lincoln",
         "21": "East Lincoln",
