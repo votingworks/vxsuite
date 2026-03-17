@@ -379,8 +379,8 @@ async fn main() -> color_eyre::Result<()> {
                                         double_feed_detection_mode,
                                         paper_length_inches,
 
-                                        // Ensure scanner does not eject ballots
-                                        // held at startup.
+                                        // Configure scanner so that on the next boot/reboot
+                                        // it does not eject any ballots held at startup.
                                         Some(BootEjectMotion::None)
                                     )
                                     .await

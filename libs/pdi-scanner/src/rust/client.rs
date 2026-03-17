@@ -1128,12 +1128,13 @@ impl<T> Client<T> {
         // OUT SetScanDelayIntervalForDocumentFeedRequest { delay_interval: 0ns }
         self.set_scan_delay_interval_for_document_feed(Duration::ZERO)
             .await?;
-        // OUT EnableFeederRequest
-        self.set_feeder_mode(FeederMode::AutoScanSheets).await?;
 
         if let Some(boot_eject_motion) = boot_eject_motion {
             self.set_boot_eject_motion(boot_eject_motion).await?;
         }
+
+        // OUT EnableFeederRequest
+        self.set_feeder_mode(FeederMode::AutoScanSheets).await?;
 
         Ok(())
     }
