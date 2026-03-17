@@ -1,0 +1,128 @@
+import { err, ok } from '@votingworks/basics';
+import { mockScannerStatus } from '@votingworks/pdi-scanner';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { beforeEach, test, vi } from 'vitest';
+import { withApp, MockPdiScannerClient } from '../test/helpers/scanner_helpers';
+import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
+import { delays, RESET_COOLDOWN_MS } from './scanner';
+import { getCurrentTime } from './util/get_current_time';
+
+vi.setConfig({ testTimeout: 20_000 });
+
+const mockFeatureFlagger = getFeatureFlagMock();
+
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+}));
+
+vi.mock(import('./util/get_current_time.js'));
+
+beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+  vi.mocked(getCurrentTime).mockReturnValue(Date.now());
+});
+
+function simulateNonDisconnectError(mockScanner: MockPdiScannerClient) {
+  mockScanner.emitEvent({
+    event: 'error',
+    code: 'other',
+    message: 'nusb error: Protocol error (os error 71)',
+  });
+}
+
+function mockResetSuccess(mockScanner: MockPdiScannerClient) {
+  mockScanner.client.connect.mockResolvedValueOnce(ok());
+  mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
+}
+
+test('auto-resets on non-disconnect error and recovers', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      mockResetSuccess(mockScanner);
+      simulateNonDisconnectError(mockScanner);
+
+      // Should auto-reset and return to waiting_for_ballot
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+    }
+  );
+});
+
+test('goes to unrecoverable_error if reset connect fails', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      mockScanner.client.connect.mockResolvedValueOnce(
+        err({ code: 'other', message: 'still broken' })
+      );
+      simulateNonDisconnectError(mockScanner);
+
+      await waitForStatus(apiClient, { state: 'unrecoverable_error' });
+    }
+  );
+});
+
+test('goes to unrecoverable_error if error recurs within cooldown', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      // First error: should auto-reset
+      mockResetSuccess(mockScanner);
+      simulateNonDisconnectError(mockScanner);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      // Second error within cooldown: should go to unrecoverable_error
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+      simulateNonDisconnectError(mockScanner);
+      await waitForStatus(apiClient, { state: 'unrecoverable_error' });
+    }
+  );
+});
+
+test('allows reset again after cooldown period', async () => {
+  const now = Date.now();
+  vi.mocked(getCurrentTime).mockReturnValue(now);
+
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      // First error: should auto-reset
+      mockResetSuccess(mockScanner);
+      simulateNonDisconnectError(mockScanner);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      // Advance past cooldown
+      vi.mocked(getCurrentTime).mockReturnValue(now + RESET_COOLDOWN_MS + 1);
+
+      // Second error after cooldown: should auto-reset again
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+      mockResetSuccess(mockScanner);
+      simulateNonDisconnectError(mockScanner);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+    }
+  );
+});
