@@ -205,9 +205,11 @@ impl<T> Client<T> {
         let new_value = (current_value & !Self::EJECT_AT_BOOT_MASK)
             | ((boot_eject_motion as u32) << Self::EJECT_AT_BOOT_SHIFT);
         self.unlock_register_writing().await?;
-        self.write_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX, new_value)
-            .await?;
+        let result = self
+            .write_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX, new_value)
+            .await;
         self.lock_register_writing().await?;
+        result?;
         self.save_registers_to_flash().await?;
         self.reboot().await?;
         Ok(())
