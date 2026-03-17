@@ -1142,6 +1142,8 @@ export class Store {
         electionId,
       });
 
+      const pollingPlaces = await this.listPollingPlaces(electionId);
+
       // Fill in our precinct/ballot style overrides in the VXF election format.
       // This is important for pieces of the code that rely on the VXF election
       // (e.g. rendering ballots)
@@ -1163,6 +1165,7 @@ export class Store {
             : undefined,
         districts,
         precincts,
+        pollingPlaces: pollingPlaces.length > 0 ? pollingPlaces : undefined,
         ballotStyles,
         parties,
         contests,

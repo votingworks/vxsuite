@@ -464,14 +464,9 @@ export function buildApi(ctx: AppContext) {
       );
       requireJurisdictionAccess(context.user, destJurisdiction);
 
-      const srcPollingPlaces = await store.listPollingPlaces(input.electionId);
       const stateFeatures = getStateFeaturesConfig(destJurisdiction);
       const { districts, precincts, parties, contests, pollingPlaces } =
-        regenerateElectionIds(
-          // [TODO] Include polling places in `store.getElection()` response.
-          { ...sourceElection, pollingPlaces: srcPollingPlaces },
-          stateFeatures
-        );
+        regenerateElectionIds(sourceElection, stateFeatures);
 
       const election: Election = {
         ...sourceElection,

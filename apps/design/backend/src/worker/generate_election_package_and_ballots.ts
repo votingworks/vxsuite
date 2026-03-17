@@ -15,6 +15,8 @@ import {
   ElectionSerializationFormatSchema,
   EncodedBallotEntry,
   BaseBallotProps,
+  Election,
+  pollingPlacesGenerateFromPrecincts,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
@@ -43,7 +45,7 @@ import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
-import { getBallotPdfFileName } from '../utils';
+import { generateId, getBallotPdfFileName } from '../utils';
 import {
   normalizeBallotColorModeForPrinting,
   renderCalibrationSheetPdf,
@@ -60,6 +62,7 @@ import {
 } from '../globals';
 import { Store } from '../store';
 import { rootDebug } from '../debug';
+import { getStateFeaturesConfig } from '../features';
 
 const debug = rootDebug.extend('export-qa');
 
@@ -229,7 +232,7 @@ export async function generateElectionPackageAndBallots(
   const { store } = ctx.workspace;
 
   const electionRecord = await store.getElection(electionId);
-  const { ballotLanguageConfigs, election, ballotTemplateId, jurisdictionId } =
+  const { ballotLanguageConfigs, ballotTemplateId, jurisdictionId } =
     electionRecord;
   let { systemSettings } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
@@ -245,6 +248,19 @@ export async function generateElectionPackageAndBallots(
     ElectionPackageFileName.METADATA,
     JSON.stringify(metadata, null, 2)
   );
+
+  const jurisdiction = await store.getJurisdiction(jurisdictionId);
+  const stateFeatures = getStateFeaturesConfig(jurisdiction);
+  const election: Election = stateFeatures.EDIT_POLLING_PLACES
+    ? electionRecord.election
+    : {
+        ...electionRecord.election,
+        pollingPlaces: pollingPlacesGenerateFromPrecincts(
+          electionRecord.election.precincts,
+          'election_day',
+          generateId
+        ),
+      };
 
   const [appStrings, hmpbStrings, electionStrings] =
     await getAllStringsForElectionPackage(
