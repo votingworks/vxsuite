@@ -188,7 +188,8 @@ impl<T> Client<T> {
         BootEjectMotion::try_from(eject_at_boot_value).map_err(Error::ValidateRequest)
     }
 
-    /// Configures the eject at boot behavior for the scanner.
+    /// Configures the eject at boot behavior for the scanner. Reads the current
+    /// value and only writes the new value if it has changed.
     ///
     /// # Errors
     ///
@@ -202,13 +203,17 @@ impl<T> Client<T> {
             .await?;
         let new_value = (current_value & !Self::EJECT_AT_BOOT_MASK)
             | ((boot_eject_motion as u32) << Self::EJECT_AT_BOOT_SHIFT);
-        self.unlock_register_writing().await?;
-        let result = self
-            .write_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX, new_value)
-            .await;
-        self.lock_register_writing().await?;
-        result?;
-        self.save_registers_to_flash().await?;
+
+        if new_value != current_value {
+            self.unlock_register_writing().await?;
+            let result = self
+                .write_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX, new_value)
+                .await;
+            self.lock_register_writing().await?;
+            result?;
+            self.save_registers_to_flash().await?;
+        }
+
         Ok(())
     }
 
@@ -1063,6 +1068,7 @@ impl<T> Client<T> {
         bitonal_threshold: ClampedPercentage,
         double_feed_detection_mode: DoubleFeedDetectionMode,
         paper_length_inches: f32,
+        boot_eject_motion: Option<BootEjectMotion>,
     ) -> Result<()> {
         // OUT SetScannerImageDensityToHalfNativeResolutionRequest
         self.set_scan_resolution(DEFAULT_RESOLUTION).await?;
@@ -1124,6 +1130,10 @@ impl<T> Client<T> {
             .await?;
         // OUT EnableFeederRequest
         self.set_feeder_mode(FeederMode::AutoScanSheets).await?;
+
+        if let Some(boot_eject_motion) = boot_eject_motion {
+            self.set_boot_eject_motion(boot_eject_motion).await?;
+        }
 
         Ok(())
     }

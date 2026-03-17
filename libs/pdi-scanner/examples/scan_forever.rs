@@ -73,6 +73,7 @@ async fn main() -> color_eyre::Result<()> {
             config.bitonal_threshold,
             DoubleFeedDetectionMode::RejectDoubleFeeds,
             11.0,
+            None,
         )
         .await?;
     println!("waiting for sheet…");
