@@ -1305,7 +1305,15 @@ function buildMachine({
           },
         },
 
-        unrecoverableError: { id: 'unrecoverableError' },
+        unrecoverableError: {
+          id: 'unrecoverableError',
+          // Override root-level event handlers to prevent any transitions
+          // out of this terminal error state.
+          on: {
+            SCANNER_EVENT: {},
+            SCANNER_ERROR: {},
+          },
+        },
 
         shoeshineModeRescanningBallot: {
           initial: 'rescanning',
