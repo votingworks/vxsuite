@@ -173,11 +173,11 @@ async fn main() -> color_eyre::Result<()> {
 
             // Set up scanning. This configures HoldPaperInEscrow so the paper
             // stays in the scanner after the scan completes.
-            if timeout(Duration::from_millis(500), client.initialize_scanning())
+            if timeout(Duration::from_millis(500), client.initialize_scanning(None))
                 .await
                 .is_err()
             {
-                timeout(Duration::from_secs(3), client.initialize_scanning()).await??;
+                timeout(Duration::from_secs(3), client.initialize_scanning(None)).await??;
             }
 
             client
@@ -185,7 +185,6 @@ async fn main() -> color_eyre::Result<()> {
                     ClampedPercentage::new_unchecked(75),
                     DoubleFeedDetectionMode::Disabled,
                     11.0,
-                    None,
                 )
                 .await?;
 

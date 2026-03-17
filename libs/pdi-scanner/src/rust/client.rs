@@ -1046,8 +1046,15 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if scan initialization fails.
-    pub async fn initialize_scanning(&mut self) -> Result<ImageCalibrationTables> {
+    pub async fn initialize_scanning(
+        &mut self,
+        boot_eject_motion: Option<BootEjectMotion>,
+    ) -> Result<ImageCalibrationTables> {
         self.set_feeder_mode(FeederMode::Disabled).await?;
+
+        if let Some(boot_eject_motion) = boot_eject_motion {
+            self.set_boot_eject_motion(boot_eject_motion).await?;
+        }
 
         // This command enables "flow control" on the scanner
         // // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
@@ -1068,7 +1075,6 @@ impl<T> Client<T> {
         bitonal_threshold: ClampedPercentage,
         double_feed_detection_mode: DoubleFeedDetectionMode,
         paper_length_inches: f32,
-        boot_eject_motion: Option<BootEjectMotion>,
     ) -> Result<()> {
         // OUT SetScannerImageDensityToHalfNativeResolutionRequest
         self.set_scan_resolution(DEFAULT_RESOLUTION).await?;
@@ -1128,10 +1134,6 @@ impl<T> Client<T> {
         // OUT SetScanDelayIntervalForDocumentFeedRequest { delay_interval: 0ns }
         self.set_scan_delay_interval_for_document_feed(Duration::ZERO)
             .await?;
-
-        if let Some(boot_eject_motion) = boot_eject_motion {
-            self.set_boot_eject_motion(boot_eject_motion).await?;
-        }
 
         // OUT EnableFeederRequest
         self.set_feeder_mode(FeederMode::AutoScanSheets).await?;

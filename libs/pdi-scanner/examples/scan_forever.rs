@@ -66,14 +66,13 @@ async fn main() -> color_eyre::Result<()> {
     let mut scan_index = 0;
 
     let image_calibration_tables =
-        timeout(Duration::from_secs(3), client.initialize_scanning()).await??;
+        timeout(Duration::from_secs(3), client.initialize_scanning(None)).await??;
 
     client
         .send_enable_scan_commands(
             config.bitonal_threshold,
             DoubleFeedDetectionMode::RejectDoubleFeeds,
             11.0,
-            None,
         )
         .await?;
     println!("waiting for sheet…");

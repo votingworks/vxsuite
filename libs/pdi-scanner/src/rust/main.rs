@@ -226,12 +226,18 @@ async fn initialize_connected_scanner(
         return Err(Error::RecvTimeout);
     }
 
-    let calibration_tables =
-        match timeout(Duration::from_secs(3), client.initialize_scanning()).await {
-            Ok(Ok(calibration_tables)) => calibration_tables,
-            Ok(Err(error)) => return Err(error),
-            Err(_) => return Err(Error::RecvTimeout),
-        };
+    // Configure scanner so that on the next boot/reboot it does not eject any
+    // ballots held at startup.
+    let calibration_tables = match timeout(
+        Duration::from_secs(3),
+        client.initialize_scanning(Some(BootEjectMotion::None)),
+    )
+    .await
+    {
+        Ok(Ok(calibration_tables)) => calibration_tables,
+        Ok(Err(error)) => return Err(error),
+        Err(_) => return Err(Error::RecvTimeout),
+    };
 
     Ok((client, calibration_tables))
 }
@@ -378,10 +384,6 @@ async fn main() -> color_eyre::Result<()> {
                                         bitonal_threshold,
                                         double_feed_detection_mode,
                                         paper_length_inches,
-
-                                        // Configure scanner so that on the next boot/reboot
-                                        // it does not eject any ballots held at startup.
-                                        Some(BootEjectMotion::None)
                                     )
                                     .await
                                 {
