@@ -793,7 +793,7 @@ describe('sync', () => {
 });
 
 describe('autoMount', () => {
-  test('auto-mounts FAT32 partitions', async () => {
+  test('auto-mounts FAT32 partitions and logs mount events', async () => {
     const unmountedPartitionDisk = makeDisk({
       partitions: [
         {
@@ -839,6 +839,54 @@ describe('autoMount', () => {
       `${MOUNT_SCRIPT_PATH}/mount.sh`,
       '/dev/sdb1',
     ]);
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveMountInit,
+      expect.any(String)
+    );
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveMounted,
+      expect.any(String),
+      expect.objectContaining({ disposition: 'success' })
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('logs mount failure when exec throws', async () => {
+    const unmountedPartitionDisk = makeDisk({
+      partitions: [
+        {
+          devPath: '/dev/sdb1',
+          mountpoint: undefined,
+          fstype: 'vfat',
+          fsver: 'FAT32',
+          label: 'VxUSB-ABCDE',
+        },
+      ],
+    });
+
+    mockDrives = [unmountedPartitionDisk];
+    const logger = mockLogger({ fn: vi.fn });
+
+    execMock.mockRejectedValueOnce(new Error('mount failed'));
+
+    const multiUsbDrive = detectMultiUsbDrive(logger);
+
+    await vi.waitFor(
+      () => {
+        expect(logger.log).toHaveBeenCalledWith(
+          LogEventId.UsbDriveMountInit,
+          expect.any(String)
+        );
+        expect(logger.log).toHaveBeenCalledWith(
+          LogEventId.UsbDriveMounted,
+          expect.any(String),
+          expect.objectContaining({ disposition: 'failure' })
+        );
+      },
+      { timeout: 2000 }
+    );
 
     multiUsbDrive.stop();
   });
