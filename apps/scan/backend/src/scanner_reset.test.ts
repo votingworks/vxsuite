@@ -1,11 +1,15 @@
-import { err, ok } from '@votingworks/basics';
-import { mockScannerStatus } from '@votingworks/pdi-scanner';
+import { deferred, err, ok, Result } from '@votingworks/basics';
+import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { beforeEach, test, vi } from 'vitest';
-import { withApp, MockPdiScannerClient } from '../test/helpers/scanner_helpers';
+import {
+  ballotImages,
+  withApp,
+  MockPdiScannerClient,
+} from '../test/helpers/scanner_helpers';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
 import { delays, RESET_COOLDOWN_MS } from './scanner';
 import { getCurrentTime } from './util/get_current_time';
@@ -94,6 +98,56 @@ test('goes to unrecoverable_error if error recurs within cooldown', async () => 
       await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
       simulateNonDisconnectError(mockScanner);
       await waitForStatus(apiClient, { state: 'unrecoverable_error' });
+    }
+  );
+});
+
+test('scanner event during reset is ignored', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      const deferredConnect = deferred<Result<void, ScannerError>>();
+      mockScanner.client.connect.mockReturnValueOnce(deferredConnect.promise);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
+      simulateNonDisconnectError(mockScanner);
+
+      await waitForStatus(apiClient, { state: 'resetting' });
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.blankSheet(),
+      });
+      deferredConnect.resolve(ok());
+
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+    }
+  );
+});
+
+test('scanner error during reset is ignored', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      const deferredConnect = deferred<Result<void, ScannerError>>();
+      mockScanner.client.connect.mockReturnValueOnce(deferredConnect.promise);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
+      simulateNonDisconnectError(mockScanner);
+
+      await waitForStatus(apiClient, { state: 'resetting' });
+      mockScanner.emitEvent({
+        event: 'error',
+        code: 'scanFailed',
+      });
+      deferredConnect.resolve(ok());
+
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
     }
   );
 });
