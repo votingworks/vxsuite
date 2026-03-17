@@ -195,12 +195,15 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if a communication error occurs.
-    pub async fn set_boot_eject_motion(&mut self, eject_motion: BootEjectMotion) -> Result<()> {
+    pub async fn set_boot_eject_motion(
+        &mut self,
+        boot_eject_motion: BootEjectMotion,
+    ) -> Result<()> {
         let current_value = self
             .read_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX)
             .await?;
         let new_value = (current_value & !Self::EJECT_AT_BOOT_MASK)
-            | ((eject_motion as u32) << Self::EJECT_AT_BOOT_SHIFT);
+            | ((boot_eject_motion as u32) << Self::EJECT_AT_BOOT_SHIFT);
         self.unlock_register_writing().await?;
         self.write_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX, new_value)
             .await?;
