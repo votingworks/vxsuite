@@ -103,6 +103,12 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
     "0": "Mammal",
     "1": "Fish",
   },
+  "pollingPlaceName": {
+    "precinct-c1-w1-1-polling-place": "Precinct 1",
+    "precinct-c1-w1-2-polling-place": "Precinct 2",
+    "precinct-c1-w2-polling-place": "Precinct 3",
+    "precinct-c2-polling-place": "Precinct 4",
+  },
   "precinctName": {
     "precinct-c1-w1-1": "Precinct 1",
     "precinct-c1-w1-2": "Precinct 2",
@@ -187,6 +193,10 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
     "0": "Mammal",
     "1": "Fish",
   },
+  "pollingPlaceName": {
+    "precinct-1-polling-place": "Precinct 1",
+    "precinct-2-polling-place": "Precinct 2",
+  },
   "precinctName": {
     "precinct-1": "Precinct 1",
     "precinct-2": "Precinct 2",
@@ -240,6 +250,12 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
   "partyName": {
     "0": "Mammal (in es-US)",
     "1": "Fish (in es-US)",
+  },
+  "pollingPlaceName": {
+    "precinct-c1-w1-1-polling-place": "Precinct 1 (in es-US)",
+    "precinct-c1-w1-2-polling-place": "Precinct 2 (in es-US)",
+    "precinct-c1-w2-polling-place": "Precinct 3 (in es-US)",
+    "precinct-c2-polling-place": "Precinct 4 (in es-US)",
   },
   "precinctName": {
     "precinct-c1-w1-1": "Precinct 1 (in es-US)",
