@@ -765,3 +765,75 @@ test('if scanner status errors, show unrecoverable error', async () => {
     }
   );
 });
+
+// Without the SCANNER_ERROR override in unrecoverableError, a non-disconnect
+// error would escape to the resetting state (a recovery path) and attempt to
+// disconnect and reconnect.
+test('non-disconnect scanner errors absorbed in unrecoverable_error state', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      mockScanner.client.connect.mockResolvedValueOnce(
+        err({ code: 'other', message: 'still broken' })
+      );
+      mockScanner.emitEvent({
+        event: 'error',
+        code: 'other',
+        message: 'nusb error: Protocol error (os error 71)',
+      });
+      await waitForStatus(apiClient, { state: 'unrecoverable_error' });
+
+      // Mock a successful reset so that if the error escapes to the
+      // resetting state, the machine would recover.
+      mockScanner.client.connect.mockResolvedValueOnce(ok());
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
+      mockScanner.emitEvent({
+        event: 'error',
+        code: 'other',
+        message: 'another error',
+      });
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'unrecoverable_error' });
+    }
+  );
+});
+
+// Without the SCANNER_ERROR override in unrecoverableError, a 'disconnected'
+// error would escape to the disconnected state (a recovery path) and attempt
+// to reconnect.
+test('disconnect scanner errors absorbed in unrecoverable_error state', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      mockScanner.client.connect.mockResolvedValueOnce(
+        err({ code: 'other', message: 'still broken' })
+      );
+      mockScanner.emitEvent({
+        event: 'error',
+        code: 'other',
+        message: 'nusb error: Protocol error (os error 71)',
+      });
+      await waitForStatus(apiClient, { state: 'unrecoverable_error' });
+
+      // Verify via connect mock since status polling alone doesn't
+      // reliably detect the escape with fake timers.
+      mockScanner.client.connect.mockClear();
+      mockScanner.emitEvent({
+        event: 'error',
+        code: 'disconnected',
+      });
+      clock.increment(delays.DELAY_RECONNECT);
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'unrecoverable_error' });
+      expect(mockScanner.client.connect).not.toHaveBeenCalled();
+    }
+  );
+});
