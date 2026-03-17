@@ -95,12 +95,6 @@ enum Command {
 
     CalibrateImageSensors,
 
-    GetBootEjectMotion,
-
-    SetBootEjectMotion {
-        boot_eject_motion: BootEjectMotion,
-    },
-
     Reboot,
 }
 
@@ -135,10 +129,6 @@ enum Response {
 
     DoubleFeedDetectionCalibrationConfig {
         config: DoubleFeedDetectionCalibrationConfig,
-    },
-
-    BootEjectMotion {
-        boot_eject_motion: BootEjectMotion,
     },
 }
 
@@ -236,12 +226,18 @@ async fn initialize_connected_scanner(
         return Err(Error::RecvTimeout);
     }
 
-    let calibration_tables =
-        match timeout(Duration::from_secs(3), client.initialize_scanning()).await {
-            Ok(Ok(calibration_tables)) => calibration_tables,
-            Ok(Err(error)) => return Err(error),
-            Err(_) => return Err(Error::RecvTimeout),
-        };
+    // Configure scanner so that on the next boot/reboot it does not eject any
+    // ballots held at startup.
+    let calibration_tables = match timeout(
+        Duration::from_secs(3),
+        client.initialize_scanning(Some(BootEjectMotion::None)),
+    )
+    .await
+    {
+        Ok(Ok(calibration_tables)) => calibration_tables,
+        Ok(Err(error)) => return Err(error),
+        Err(_) => return Err(Error::RecvTimeout),
+    };
 
     Ok((client, calibration_tables))
 }
@@ -436,25 +432,6 @@ async fn main() -> color_eyre::Result<()> {
                                 match client.calibrate_image_sensors().await {
                                     Ok(()) => send_response(Response::Ok)?,
                                     Err(e) => send_error_response(&e)?,
-                                }
-                            }
-                            (Some(client), Command::GetBootEjectMotion) => {
-                                match timeout(Duration::from_secs(1), client.get_boot_eject_motion()).await {
-                                    Ok(Ok(boot_eject_motion)) => {
-                                        send_response(Response::BootEjectMotion { boot_eject_motion })?;
-                                    }
-                                    Ok(Err(e)) => send_error_response(&e)?,
-                                    Err(_) => send_error_response(&Error::RecvTimeout)?,
-                                }
-                            }
-                            (Some(client), Command::SetBootEjectMotion { boot_eject_motion }) => {
-                                // set_boot_eject_motion performs multiple
-                                // round-trips (read, unlock, write, lock,
-                                // save, reboot), so use a longer timeout.
-                                match timeout(Duration::from_secs(5), client.set_boot_eject_motion(boot_eject_motion)).await {
-                                    Ok(Ok(())) => send_response(Response::Ok)?,
-                                    Ok(Err(e)) => send_error_response(&e)?,
-                                    Err(_) => send_error_response(&Error::RecvTimeout)?,
                                 }
                             }
                             (Some(client), Command::Reboot) => {

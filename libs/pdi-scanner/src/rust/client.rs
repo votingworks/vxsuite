@@ -188,7 +188,8 @@ impl<T> Client<T> {
         BootEjectMotion::try_from(eject_at_boot_value).map_err(Error::ValidateRequest)
     }
 
-    /// Configures the eject at boot behavior for the scanner.
+    /// Configures the eject at boot behavior for the scanner. Reads the current
+    /// value and only writes the new value if it has changed.
     ///
     /// # Errors
     ///
@@ -202,13 +203,17 @@ impl<T> Client<T> {
             .await?;
         let new_value = (current_value & !Self::EJECT_AT_BOOT_MASK)
             | ((boot_eject_motion as u32) << Self::EJECT_AT_BOOT_SHIFT);
-        self.unlock_register_writing().await?;
-        let result = self
-            .write_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX, new_value)
-            .await;
-        self.lock_register_writing().await?;
-        result?;
-        self.save_registers_to_flash().await?;
+
+        if new_value != current_value {
+            self.unlock_register_writing().await?;
+            let result = self
+                .write_register_data(Self::MSD_EJECT_AT_BOOT_SETTINGS_REGISTER_INDEX, new_value)
+                .await;
+            self.lock_register_writing().await?;
+            result?;
+            self.save_registers_to_flash().await?;
+        }
+
         Ok(())
     }
 
@@ -1041,8 +1046,15 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if scan initialization fails.
-    pub async fn initialize_scanning(&mut self) -> Result<ImageCalibrationTables> {
+    pub async fn initialize_scanning(
+        &mut self,
+        boot_eject_motion: Option<BootEjectMotion>,
+    ) -> Result<ImageCalibrationTables> {
         self.set_feeder_mode(FeederMode::Disabled).await?;
+
+        if let Some(boot_eject_motion) = boot_eject_motion {
+            self.set_boot_eject_motion(boot_eject_motion).await?;
+        }
 
         // This command enables "flow control" on the scanner
         // // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
@@ -1122,6 +1134,7 @@ impl<T> Client<T> {
         // OUT SetScanDelayIntervalForDocumentFeedRequest { delay_interval: 0ns }
         self.set_scan_delay_interval_for_document_feed(Duration::ZERO)
             .await?;
+
         // OUT EnableFeederRequest
         self.set_feeder_mode(FeederMode::AutoScanSheets).await?;
 

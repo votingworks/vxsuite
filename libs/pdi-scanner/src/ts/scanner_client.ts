@@ -128,11 +128,6 @@ export type EjectMotion =
   | 'toFrontAndRescan';
 
 /**
- * What the scanner should do with paper held in the rollers when it boots.
- */
-export type BootEjectMotion = 'toRear' | 'toFront' | 'none';
-
-/**
  * Whether the calibration operation will use a single piece of paper or two pieces of paper.
  */
 export type DoubleFeedDetectionCalibrationType = 'single' | 'double';
@@ -172,8 +167,6 @@ type PdictlCommand =
     }
   | { command: 'getDoubleFeedDetectionCalibrationConfig' }
   | { command: 'calibrateImageSensors' }
-  | { command: 'getBootEjectMotion' }
-  | { command: 'setBootEjectMotion'; bootEjectMotion: BootEjectMotion }
   | { command: 'reboot' };
 
 /**
@@ -187,8 +180,7 @@ type PdictlResponse =
   | {
       response: 'doubleFeedDetectionCalibrationConfig';
       config: DoubleFeedDetectionCalibrationConfig;
-    }
-  | { response: 'bootEjectMotion'; bootEjectMotion: BootEjectMotion };
+    };
 
 /**
  * Internal type to represent the JSON messages received from `pdictl` as
@@ -482,38 +474,6 @@ export function createPdiScannerClient() {
 
     async calibrateImageSensors(): Promise<SimpleResult> {
       return sendSimpleCommand({ command: 'calibrateImageSensors' });
-    },
-
-    /**
-     * Gets the scanner's boot eject motion setting, which controls what
-     * happens to paper held in the rollers when the scanner boots.
-     */
-    async getBootEjectMotion(): Promise<Result<BootEjectMotion, ScannerError>> {
-      const result = await sendCommand({ command: 'getBootEjectMotion' });
-      switch (result.response) {
-        case 'bootEjectMotion':
-          return ok(result.bootEjectMotion);
-        case 'error':
-          return err(result);
-        default:
-          return err({
-            code: 'other',
-            message: `Unexpected response: ${result.response}`,
-          });
-      }
-    },
-
-    /**
-     * Sets the scanner's boot eject motion setting, which controls what
-     * happens to paper held in the rollers when the scanner boots.
-     */
-    async setBootEjectMotion(
-      bootEjectMotion: BootEjectMotion
-    ): Promise<SimpleResult> {
-      return sendSimpleCommand({
-        command: 'setBootEjectMotion',
-        bootEjectMotion,
-      });
     },
 
     /**

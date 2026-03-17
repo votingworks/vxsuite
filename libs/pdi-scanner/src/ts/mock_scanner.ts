@@ -387,16 +387,6 @@ export function createMockPdiScanner(): MockScanner {
     },
 
     /* istanbul ignore next - @preserve */
-    getBootEjectMotion() {
-      throw new Error('Not implemented');
-    },
-
-    /* istanbul ignore next - @preserve */
-    setBootEjectMotion() {
-      throw new Error('Not implemented');
-    },
-
-    /* istanbul ignore next - @preserve */
     reboot() {
       throw new Error('Not implemented');
     },
